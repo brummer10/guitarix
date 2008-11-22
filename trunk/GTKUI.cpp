@@ -507,7 +507,7 @@ void GTKUI::openDialogBox(const char* label, float* zone)
     GtkWidget * frame =  gtk_frame_new (label);
     GtkWidget* 	button1 = gtk_button_new_with_label ("reset");
     gtk_widget_set_size_request (GTK_WIDGET(button1), 60.0, 20.0);
-    gtk_widget_set_size_request (GTK_WIDGET(frame), 260.0, 20.0);
+    gtk_widget_set_size_request (GTK_WIDGET(frame), 100.0, 20.0);
     gtk_container_add (GTK_CONTAINER(box5), frame);
     gtk_container_add (GTK_CONTAINER(box5), button1);
     gtk_signal_connect (GTK_OBJECT (button1), "pressed", GTK_SIGNAL_FUNC (reset_dialog), (gpointer) dialog);

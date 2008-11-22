@@ -61,7 +61,7 @@ bool Exists(const char* Path)
             system (rcfilename);
             snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
             ofstream fa(rcfilename);
-            cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2";
+            cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n";
             fa <<  cim <<endl;
             fa.close();
         }
@@ -86,7 +86,7 @@ bool Exists(const char* Path)
         fi.close();
         snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
         ofstream fa(rcfilename);
-        cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2";
+        cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n";
         fa <<  cim <<endl;
         fa.close();
     }
@@ -519,9 +519,12 @@ static void fileselected( GtkWidget *widget, gpointer data )
     label4 = gtk_label_new (" max mem ");
     label5 = gtk_label_new (" mode ");
     button1  = gtk_button_new_with_label("Ok");
-    float jg;
+    float jg = 0;
     jgain.replace(1, 1, ",");
-    jg = atof(jgain.c_str());
+    const char* AlsString = jgain.c_str();
+    sscanf(AlsString, "%g", &jg);
+  //  jgain.replace(1, 1, ",");
+  //  jg = atof(jgain.c_str());
     GtkObject* adjo = gtk_adjustment_new(jg, 0.0, 1.0, 0.1, 10*0.1, 0);
     GtkWidget* slider = gtk_spin_button_new (GTK_ADJUSTMENT(adjo), 1.0, 1);
     valo = gtk_adjustment_get_value (GTK_ADJUSTMENT(adjo));
@@ -809,6 +812,9 @@ static void reset_dialog( GtkWidget *widget, gpointer data )
     char                filename[256];
     snprintf(filename, 256, "%s/.guitarix/resettings", home);
     if (strcmp(witchres, "distortion") == 0) interface->recalladState(filename,  4,  16, 0);
+    else if (strcmp(witchres, "freeverb") == 0) interface->recalladState(filename,  20,  24, 1);
+    else if (strcmp(witchres, "ImpulseResponse") == 0) interface->recalladState(filename,  28,  32, 2);
+    else if (strcmp(witchres, "crybaby") == 0) interface->recalladState(filename,  16,  20, 3);
 }
 
 // show extendend settings slider
