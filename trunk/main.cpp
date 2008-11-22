@@ -1,3 +1,136 @@
+//-----------------------------------------------------
+// name : "guitarix"
+// version : "0.02.8"
+// author : "brummer"
+// contributors : "Julius O. Smith (jos at ccrma.stanford.edu)"
+// license : "GPL"
+// copyright : "(c)brummer 2008"
+// reference : "http://ccrma.stanford.edu/realsimple/faust_strings/"
+//
+// Code prototype generated with Faust 0.9.9.4f (http://faust.grame.fr)
+//-----------------------------------------------------
+
+/* link with  */
+#include <sys/ioctl.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <stdlib.h>
+#include <math.h>
+#include <assert.h>
+#include <gtk/gtk.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
+#include <cstring>
+#include <cstdlib>
+#include <dlfcn.h>
+
+// #include <X11/Xlib.h>
+// #include <X11/cursorfont.h>
+
+#include <iostream>
+#include <fstream>
+
+#include <libgen.h>
+#include <jack/jack.h>
+
+using namespace std;
+
+// On Intel set FZ (Flush to Zero) and DAZ (Denormals Are Zero)
+// flags to avoid costly denormals
+#ifdef __SSE__
+#include <xmmintrin.h>
+#ifdef __SSE2__
+#define AVOIDDENORMALS _mm_setcsr(_mm_getcsr() | 0x8040)
+#else
+#define AVOIDDENORMALS _mm_setcsr(_mm_getcsr() | 0x8000)
+#endif
+#else
+#define AVOIDDENORMALS
+#endif
+
+inline void *aligned_calloc(size_t nmemb, size_t size)
+{
+    return (void*)((size_t)(calloc((nmemb*size)+15,sizeof(char)))+15 & ~15);
+}
+
+// g++ -O3 -pipe  -march=native -mfpmath=sse -ffast-math -lm -ljack `gtk-config --cflags --libs` ex2.cpp
+
+#define max(x,y) (((x)>(y)) ? (x) : (y))
+#define min(x,y) (((x)<(y)) ? (x) : (y))
+
+// ------------------define the parameter reading, take code from jack_capture -----------------------------------
+#define OPTARGS_CHECK_GET(wrong,right) lokke==argc-1?(fprintf(stderr,"Must supply argument for '%s'\n",argv[lokke]),exit(-2),wrong):right
+#define OPTARGS_BEGIN(das_usage) {int lokke;const char *usage=das_usage;for(lokke=1;lokke<argc;lokke++){char *a=argv[lokke];if(!strcmp("--help",a)||!strcmp("-h",a)){fprintf(stderr,usage);return 0;
+#define OPTARG(name,name2) }}else if(!strcmp(name,a)||!strcmp(name2,a)){{
+#define OPTARG_GETSTRING() OPTARGS_CHECK_GET("",argv[++lokke])
+#define OPTARGS_END }else{fprintf(stderr,usage);return(-1);}}}
+
+
+inline int		lsr (int x, int n)
+{
+    return int(((unsigned int)x) >> n);
+}
+
+inline int 		int2pow2 (int x)
+{
+    int r=0;
+    while ((1<<r)<x) r++;
+    return r;
+}
+
+/******************************************************************************
+*******************************************************************************
+
+								GRAPHIC USER INTERFACE (v2)
+								  abstract interfaces
+
+*******************************************************************************
+*******************************************************************************/
+
+#include <map>
+#include <list>
+
+using namespace std;
+
+struct Meta : map<const char*, const char*>
+{
+    void declare (const char* key, const char* value)
+    {
+        (*this)[key]=value;
+    }
+};
+
+struct uiItem;
+typedef void (*uiCallback)(float val, void* data);
+
+#include "UI.cpp"
+
+/******************************************************************************
+*******************************************************************************
+
+								GRAPHIC USER INTERFACE
+								  gtk interface
+
+*******************************************************************************
+*******************************************************************************/
+
+#include <gtk/gtk.h>
+
+#define stackSize 256
+
+// Insertion modes
+#define kSingleMode 0
+#define kBoxMode 1
+#define kTabMode 2
+
+#include "GTKUI.h"
+#include "guitarix.cpp"
+#include "GTKUI.cpp"
+
+#include "dsp.cpp"
+
 
 /******************************************************************************
 *******************************************************************************
@@ -72,8 +205,8 @@ int process (jack_nframes_t nframes, void *arg)
 int main(int argc, char *argv[] )
 {
 
-   {
-        OPTARGS_BEGIN("\033[1;34m guitarix settings useage\033[0m\n all parameters are optional\n\n[\033[1;31m--pix -p\033[0m] [\033[1;31m--clear -c\033[0m] [\033[1;31m--rcset -r\033[0m]\n\n" 
+    {
+        OPTARGS_BEGIN("\033[1;34m guitarix settings useage\033[0m\n all parameters are optional\n\n[\033[1;31m--pix -p\033[0m] [\033[1;31m--clear -c\033[0m] [\033[1;31m--rcset -r\033[0m]\n\n"
                       "[\033[1;31m--pix\033[0m] or [\033[1;31m-p\033[0m]  ->use the gtk-pixmap engine with guitarix_pix.rc\n\n"
                       "[\033[1;31m--clear\033[0m] or [\033[1;31m-c\033[0m]  ->dont use a gtkrc style file\n\n"
                       "[\033[1;31m--rcset\033[0m] or [\033[1;31m-r\033[0m]  ->use the given path/name of gtk.rc file with guitarix.\n\n"
@@ -83,12 +216,12 @@ int main(int argc, char *argv[] )
             OPTARG("--pix","-p") rcpath = "/usr/share/guitarix/guitarix_pix.rc";
             OPTARG("--rcset","-r") rcpath=OPTARG_GETSTRING();
             OPTARG("--clear","-c") rcpath = "    ";
-	    OPTARG("--nogui","-nogui") param = "nogui";
-	   
+            OPTARG("--nogui","-nogui") param = "nogui";
+
         }
         OPTARGS_END;
     }
- if  (strcmp(rcpath, " ") == 0) rcpath =  "/usr/share/guitarix/guitarix.rc";
+    if  (strcmp(rcpath, " ") == 0) rcpath =  "/usr/share/guitarix/guitarix.rc";
     char                buf [256];
     jack_status_t       jackstat;
     const char*			home;
@@ -183,7 +316,7 @@ int main(int argc, char *argv[] )
     }
 
     interface->run();
-	//sleep(2);
+    //sleep(2);
     jack_deactivate(client);
 
     for (int i = 0; i < gNumInChans; i++)
@@ -200,5 +333,6 @@ int main(int argc, char *argv[] )
 
     return 0;
 }
+
 
 

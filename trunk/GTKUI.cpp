@@ -1,3 +1,46 @@
+#include "GTKUI.h"
+
+
+// create main window
+GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
+{
+    if (!fInitialized)
+    {
+        gtk_init(pargc, pargv);
+        fInitialized = true;
+    }
+    /*-- set rc file overwrite it with export--*/
+
+    //setenv("GUITARIX_RC_PATH", "/usr/share/guitarix/guitarix.rc", 0);
+    gtk_rc_parse(rcpath);
+    /*-- Check for working directory to save and load presets --*/
+    const char*	  home;
+    const char*      pathname = ".guitarix";
+    char                dirname[256];
+    home = getenv ("HOME");
+    if (home == 0) home = ".";
+    snprintf(dirname, 256, "%s/%s", home, pathname);
+    Exists( dirname);
+    /*-- Declare the GTK Widgets --*/
+    fWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    /*---------------- set window defaults ----------------*/
+    gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+    gtk_window_set_title (GTK_WINDOW (fWindow), name);
+    gtk_window_set_icon_from_file(GTK_WINDOW (fWindow),  "/usr/share/pixmaps/guitarix.png", NULL);
+    /*---------------- singnals ----------------*/
+    gtk_signal_connect (GTK_OBJECT (fWindow), "delete_event", GTK_SIGNAL_FUNC (delete_event), NULL);
+    gtk_signal_connect (GTK_OBJECT (fWindow), "destroy", GTK_SIGNAL_FUNC (destroy_event), NULL);
+
+    /*---------------- create boxes ----------------*/
+    fTop = 0;
+    fBox[fTop] = gtk_vbox_new (homogene, 4);
+    fMode[fTop] = kBoxMode;
+
+    /*---------------- add mainbox to main window ---------------*/
+    gtk_container_add (GTK_CONTAINER (fWindow), fBox[fTop]);
+
+    fStopped = false;
+}
 
 // empilement des boites
 
@@ -318,7 +361,7 @@ struct uiCheckButton : public uiItem
 
 void GTKUI::addCheckButton(const char* label, float* zone)
 {
-   // *zone = 0.0;
+    // *zone = 0.0;
     GdkColor   colorRed;
     GdkColor   colorOwn;
     GdkColor   colorba;
@@ -415,12 +458,7 @@ void GTKUI::addHorizontalSlider(const char* label, float* zone, float init, floa
     addWidget(label, slider);
     closeBox();
 }
-/*
-void GTKUI::setReset(float* zone1, float init1,  float* zone2, float init2, float* zone3, float init3, float* zone4, float init4, float* zone5, float init5, float* zone6, float init6, float* zone7, float init7, float* zone8, float init8, float* zone9, float init9, float* zone10, float init10, float* zone11, float init11)
-{
 
-}
-*/
 void GTKUI::openDialogBox(const char* label, float* zone)
 {
     GtkWidget * dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -466,23 +504,23 @@ void GTKUI::openDialogBox(const char* label, float* zone)
     gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (uiToggleButton::toggled), (gpointer) c);
     gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (show_dialog), (gpointer) dialog);
 
-        GtkWidget * frame =  gtk_frame_new (label);
+    GtkWidget * frame =  gtk_frame_new (label);
     GtkWidget* 	button1 = gtk_button_new_with_label ("reset");
     gtk_widget_set_size_request (GTK_WIDGET(button1), 60.0, 20.0);
-   gtk_widget_set_size_request (GTK_WIDGET(frame), 260.0, 20.0);
-       gtk_container_add (GTK_CONTAINER(box5), frame);
-       gtk_container_add (GTK_CONTAINER(box5), button1);
-   gtk_signal_connect (GTK_OBJECT (button1), "pressed", GTK_SIGNAL_FUNC (reset_dialog), (gpointer) dialog);
-       gtk_container_add (GTK_CONTAINER(box4), box5);
-        gtk_container_add (GTK_CONTAINER(box4), box);
-        gtk_container_add (GTK_CONTAINER(dialog), box4);
-       // gtk_widget_show(dialog);
-        gtk_widget_show(frame);
-       gtk_widget_show(button1);
-        gtk_widget_show(box);
-        gtk_widget_show(box4);
-       gtk_widget_show(box5);
-        pushBox(kBoxMode, box);
+    gtk_widget_set_size_request (GTK_WIDGET(frame), 260.0, 20.0);
+    gtk_container_add (GTK_CONTAINER(box5), frame);
+    gtk_container_add (GTK_CONTAINER(box5), button1);
+    gtk_signal_connect (GTK_OBJECT (button1), "pressed", GTK_SIGNAL_FUNC (reset_dialog), (gpointer) dialog);
+    gtk_container_add (GTK_CONTAINER(box4), box5);
+    gtk_container_add (GTK_CONTAINER(box4), box);
+    gtk_container_add (GTK_CONTAINER(dialog), box4);
+    // gtk_widget_show(dialog);
+    gtk_widget_show(frame);
+    gtk_widget_show(button1);
+    gtk_widget_show(box);
+    gtk_widget_show(box4);
+    gtk_widget_show(box5);
+    pushBox(kBoxMode, box);
 }
 
 
@@ -674,4 +712,103 @@ void GTKUI::addMenu()
 //  gtk_widget_show(vbox);
     /*---------------- end show menu ----------------*/
 }
+
+void GTKUI::show()
+{
+    assert(fTop == 0);
+    gtk_widget_show  (fBox[0]);
+    gtk_widget_show  (fWindow);
+}
+
+/**
+ * Update all user items reflecting zone z
+ */
+
+static gboolean callUpdateAllGuis(gpointer)
+{
+    UI::updateAllGuis();
+    return TRUE;
+}
+
+void GTKUI::run_nogui()
+{
+    char c;
+    printf("Type 'q' to quit\nor \ntype 'g' to load the GUI\n>");
+    while (strcmp(stopit, "go") == 0)
+    {
+        sleep(1);
+        if ((c = getchar()) == 'g')
+        {
+            printf("Ok,  please use the GUI for input now\n>");
+            assert(fTop == 0);
+            gtk_widget_show  (fBox[0]);
+            gtk_widget_show  (fWindow);
+            gtk_timeout_add(40, callUpdateAllGuis, 0);
+            gtk_main ();
+            assert(fTop == 0);
+            printf("quit the GUI\nType 'q' to quit\nor \ntype 'g' to load the GUI\n>");
+        }
+        else if (c  == 'q')
+        {
+            stopit = "stop";
+            checky = 0.0;
+            printf("bye bye\n");
+        }
+        else if (c  == ' ')
+        {
+            printf("what did you think happen if you enter a empty space ?\n>");
+        }
+        else if ((int(c)  > 48) && (int(c)  < 55))
+        {
+            const char*	  home;
+            const char*      prename = "guitarixpre";
+            char                rcfilenamere[256];
+            int lin;
+            int lint;
+            home = getenv ("HOME");
+            if (home == 0) home = ".";
+            snprintf(rcfilenamere, 256, "%s/.guitarix/%src", home, prename);
+            lin = int(c) - 49;
+            lint = lin + 1;
+            interface->recallpreState(rcfilenamere, lin);
+            printf("load preset %u \n>",  lint);
+        }
+        else if (c  == '0')
+        {
+            const char*	  home;
+            const char*      prename = "guitarix";
+            char                rcfilenamere[256];
+            int lin;
+            int lint;
+            home = getenv ("HOME");
+            if (home == 0) home = ".";
+            snprintf(rcfilenamere, 256, "%s/.guitarix/%src", home, prename);
+            lin = int(c) - 49;
+            lint = lin + 1;
+            interface->recallState(rcfilenamere);
+            printf("load preset %u \n>",  lint);
+        }
+    }
+    stop();
+}
+
+
+void GTKUI::run()
+{
+    if (strcmp(param, "nogui") == 0)
+    {
+        run_nogui();
+    }
+    else
+    {
+        assert(fTop == 0);
+        gtk_widget_show  (fBox[0]);
+        gtk_widget_show  (fWindow);
+        gtk_timeout_add(40, callUpdateAllGuis, 0);
+        gtk_main ();
+        stop();
+    }
+}
+
+
 

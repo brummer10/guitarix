@@ -1,31 +1,9 @@
-/******************************************************************************
-*******************************************************************************
-
-								GRAPHIC USER INTERFACE (v2)
-								  abstract interfaces
-
-*******************************************************************************
-*******************************************************************************/
-
-#include <map>
-#include <list>
-
-using namespace std;
-
-struct Meta : map<const char*, const char*>
-{
-    void declare (const char* key, const char* value)
-    {
-        (*this)[key]=value;
-    }
-};
-
-struct uiItem;
-typedef void (*uiCallback)(float val, void* data);
+//#include "UI.h"
 
 /**
  * Graphic User Interface : abstract definition
  */
+
 
 class UI
 {
@@ -193,12 +171,12 @@ public:
             {
                 getline(f, buffer);
             }
-            is = 0;
+        is = 0;
         {
             for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-            {		
-              if ((is>a) & ( is<b))  f >> *(i->first);
-              is++;
+            {
+                if ((is>a) & ( is<b))  f >> *(i->first);
+                is++;
             }
         }
         f.close();
@@ -267,8 +245,6 @@ public:
     virtual void openExpanderBox(const char* label, float* zone) {};
     virtual void closeBox() {};
 
- /*    virtual void setReset(float* zone1, float init1,  float* zone2, float init2, float* zone3, float init3, float* zone4, float init4, float* zone5, float init5, float* zone6, float init6, float* zone7, float init7, float* zone8, float init8, float* zone9, float init9, float* zone10, float init10, float* zone11, float init11) {};*/
-
     virtual void show() {};
     virtual void run() {};
     virtual void run_nogui() {};
@@ -288,6 +264,7 @@ public:
 /**
  * User Interface Item: abstract definition
  */
+
 
 class uiItem
 {
@@ -321,6 +298,7 @@ public :
     }
     virtual void 	reflectZone() 	= 0;
 };
+
 
 /**
  * Callback Item
@@ -381,73 +359,4 @@ inline void UI::addCallback(float* zone, uiCallback foo, void* data)
 };
 
 
-/******************************************************************************
-*******************************************************************************
-
-								GRAPHIC USER INTERFACE
-								  gtk interface
-
-*******************************************************************************
-*******************************************************************************/
-
-#include <gtk/gtk.h>
-
-#define stackSize 256
-
-// Insertion modes
-#define kSingleMode 0
-#define kBoxMode 1
-#define kTabMode 2
-
-class GTKUI : public UI
-{
-private :
-    static bool			fInitialized;
-    static list<UI*>	fGuiList;
-
-protected :
-    //GtkWidget* 	fWindow;
-    int			fTop;
-    GtkWidget* 	fBox[stackSize];
-    int 		fMode[stackSize];
-    bool		fStopped;
-
-    GtkWidget* addWidget(const char* label, GtkWidget* w);
-     virtual void pushBox(int mode, GtkWidget* w);
-
-public :
-
-    static const gboolean expand = TRUE;
-    static const gboolean fill = TRUE;
-    static const gboolean homogene = FALSE;
-
-    GTKUI(char * name, int* pargc, char*** pargv);
-
-    // -- layout groups
-    virtual void openFrameBox(const char* label);
-    virtual void openHorizontalBox(const char* label = "");
-    virtual void openVerticalBox(const char* label = "");
-    virtual void openDialogBox(const char* label, float* zone);
-    virtual void openEventBox(const char* label = "");
-    virtual void openHandleBox(const char* label = "");
-    virtual void openExpanderBox(const char* label, float* zone);
-    virtual void closeBox();
-
-    // -- active widgets
-    virtual void addMenu();
-    virtual void addButton(const char* label, float* zone);
-    virtual void addToggleButton(const char* label, float* zone);
-    virtual void addPToggleButton(const char* label, float* zone);
-    virtual void addJToggleButton(const char* label, float* zone);
-    virtual void addCheckButton(const char* label, float* zone);
-    virtual void addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step);
-    virtual void addHorizontalSlider(const char* label, float* zone, float init, float min, float max, float step);
-
-/*     virtual void setReset(float* zone1, float init1,  float* zone2, float init2, float* zone3, float init3, float* zone4, float init4, float* zone5, float init5, float* zone6, float init6, float* zone7, float init7, float* zone8, float init8, float* zone9, float init9, float* zone10, float init10, float* zone11, float init11); */
-
-    virtual void show();
-    virtual void run();
-    virtual void run_nogui();
-
-};
 

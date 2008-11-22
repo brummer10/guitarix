@@ -1,3 +1,4 @@
+
 /******************************************************************************
 *******************************************************************************
 
@@ -83,11 +84,11 @@ bool Exists(const char* Path)
         cim = "guitarix-0.03.0";
         fi <<  cim <<endl;
         fi.close();
-            snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
-            ofstream fa(rcfilename);
-            cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2";
-            fa <<  cim <<endl;
-            fa.close();
+        snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
+        ofstream fa(rcfilename);
+        cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2";
+        fa <<  cim <<endl;
+        fa.close();
     }
 }
 
@@ -631,19 +632,19 @@ static void runjconv( GtkWidget *widget, gpointer data )
 {
     if (checkbutton7 == 0)
     {
-	checkbox7 = 1.0;
+        checkbox7 = 1.0;
         if (system(" pidof jconv > /dev/null") == 0)
         {
             jack_disconnect(client, jack_port_name(output_ports[2]),"jconv:In-1");
             jack_disconnect(client, jack_port_name(output_ports[3]), "jconv:In-2");
             system("command kill -2 `pidof  jconv` 2> /dev/null") ;
-	    sleep(1);
+            sleep(1);
             pclose(control_stream1);
- 
-           for (int i = 2; i < 4; i++)
-          {
-           jack_port_unregister(client, output_ports[i]);
-           }
+
+            for (int i = 2; i < 4; i++)
+            {
+                jack_port_unregister(client, output_ports[i]);
+            }
         }
     }
     else
@@ -677,51 +678,51 @@ static void runjconv( GtkWidget *widget, gpointer data )
         else
         {
 
-	checkbox7 = 0.0;
-        control_stream1 = popen ("jconv ~/.guitarix/jconv_set.conf 2> /dev/null" , "r");
-        sleep (2);
-        if (system(" pidof jconv > /dev/null") == 0)
-        {
-            char                buf [256];
-            int i = 0;
-            char*				pname;
-    for (int i = 2; i < 4; i++)
-    {
-            //char                buf [256];
-        snprintf(buf, 256, "out_%d", i);
-        output_ports[i] = jack_port_register(client, buf,JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
-    }
-            pname = getenv("GUITARIX2JACK_OUTPUTS1");
-            snprintf(buf, 256, pname, i + 1);
-            port1 = jack_port_get_connections (output_ports[i]);
-            if (port1 != NULL && port1[0] != NULL)
+            checkbox7 = 0.0;
+            control_stream1 = popen ("jconv ~/.guitarix/jconv_set.conf 2> /dev/null" , "r");
+            sleep (2);
+            if (system(" pidof jconv > /dev/null") == 0)
             {
-                jack_connect(client, jack_port_name(output_ports[2]), "jconv:In-1");
-                jack_connect(client, "jconv:Out-1", port1[0]);
+                char                buf [256];
+                int i = 0;
+                char*				pname;
+                for (int i = 2; i < 4; i++)
+                {
+                    //char                buf [256];
+                    snprintf(buf, 256, "out_%d", i);
+                    output_ports[i] = jack_port_register(client, buf,JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+                }
+                pname = getenv("GUITARIX2JACK_OUTPUTS1");
+                snprintf(buf, 256, pname, i + 1);
+                port1 = jack_port_get_connections (output_ports[i]);
+                if (port1 != NULL && port1[0] != NULL)
+                {
+                    jack_connect(client, jack_port_name(output_ports[2]), "jconv:In-1");
+                    jack_connect(client, "jconv:Out-1", port1[0]);
+                }
+                else
+                {
+                    jack_connect(client, jack_port_name(output_ports[2]), "jconv:In-1");
+                    jack_connect(client, "jconv:Out-1", buf);
+                }
+                i++;
+                pname = getenv("GUITARIX2JACK_OUTPUTS2");
+                snprintf(buf, 256, pname, i + 1);
+                port2 = jack_port_get_connections (output_ports[i]);
+                if (port2 != NULL && port2[0] != NULL)
+                {
+                    jack_connect(client, jack_port_name(output_ports[3]), "jconv:In-2");
+                    jack_connect(client, "jconv:Out-2", port2[0]);
+                }
+                else
+                {
+                    jack_connect(client, jack_port_name(output_ports[3]), "jconv:In-2");
+                    jack_connect(client, "jconv:Out-2", buf);
+                }
             }
-            else
-            {
-                jack_connect(client, jack_port_name(output_ports[2]), "jconv:In-1");
-                jack_connect(client, "jconv:Out-1", buf);
-            }
-            i++;
-            pname = getenv("GUITARIX2JACK_OUTPUTS2");
-            snprintf(buf, 256, pname, i + 1);
-            port2 = jack_port_get_connections (output_ports[i]);
-            if (port2 != NULL && port2[0] != NULL)
-            {
-                jack_connect(client, jack_port_name(output_ports[3]), "jconv:In-2");
-                jack_connect(client, "jconv:Out-2", port2[0]);
-            }
-            else
-            {
-                jack_connect(client, jack_port_name(output_ports[3]), "jconv:In-2");
-                jack_connect(client, "jconv:Out-2", buf);
-            }
+            else checkbutton7 = 0;
         }
-        else checkbutton7 = 0;
     }
-   }
 }
 
 //--------------------------- jack_capture settings ----------------------------------------
@@ -766,7 +767,7 @@ static void destroy_event( GtkWidget *widget, gpointer data )
         pclose(control_stream1);
     }
     stopit = "stop";
-   // checky = 0.0;
+    // checky = 0.0;
     jack_port_disconnect (client, output_ports[0]);
     jack_port_disconnect (client, output_ports[1]);
     jack_port_disconnect (client, input_ports[0]);
@@ -784,7 +785,7 @@ XEvent event;
 //icon_cursor = XCreateFontCursor(dsp, XC_hand1);
 //XDefineCursor(dsp, (dsp, RootWindow(dsp, DefaultScreen(dsp))), icon_cursor);
 //XSync(dsp, TRUE);
-// get info about current pointer position 
+// get info about current pointer position
 while ( event.xbutton.state != 0 ) {
 XQueryPointer(dsp, RootWindow(dsp, DefaultScreen(dsp)),
 &event.xbutton.root, &event.xbutton.window,
@@ -801,26 +802,27 @@ XCloseDisplay( dsp );
 // reset the extended sliders to default settings
 static void reset_dialog( GtkWidget *widget, gpointer data )
 {
-const char* witchres = gtk_window_get_title(GTK_WINDOW(data)); 
-       const char*	  home;
+    const char* witchres = gtk_window_get_title(GTK_WINDOW(data));
+    const char*	  home;
     home = getenv ("HOME");
     if (home == 0) home = ".";
     char                filename[256];
     snprintf(filename, 256, "%s/.guitarix/resettings", home);
-if (strcmp(witchres, "distortion") == 0) interface->recalladState(filename,  4,  16, 0);
+    if (strcmp(witchres, "distortion") == 0) interface->recalladState(filename,  4,  16, 0);
 }
 
 // show extendend settings slider
 void show_dialog(GtkWidget *widget, gpointer data)
 {
-if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget)) == TRUE) {
- gtk_widget_show(GTK_WIDGET(data));
-gint root_x, root_y;
-gtk_window_get_position (GTK_WINDOW(data), &root_x, &root_y);
-root_y -= 120;
-gtk_window_move(GTK_WINDOW(data), root_x, root_y);
-}
-else gtk_widget_hide(GTK_WIDGET(data));
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget)) == TRUE)
+    {
+        gtk_widget_show(GTK_WIDGET(data));
+        gint root_x, root_y;
+        gtk_window_get_position (GTK_WINDOW(data), &root_x, &root_y);
+        root_y -= 120;
+        gtk_window_move(GTK_WINDOW(data), root_x, root_y);
+    }
+    else gtk_widget_hide(GTK_WIDGET(data));
 }
 
 //------------------ quit GUI------------------
