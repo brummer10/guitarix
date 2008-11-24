@@ -167,6 +167,7 @@ float* 	gOutChannel[256];
 int srate(jack_nframes_t nframes, void *arg)
 {
     printf("the sample rate is now %u/sec\n", nframes);
+    jackframe = nframes;
     return 0;
 }
 

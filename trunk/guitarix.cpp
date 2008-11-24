@@ -7,6 +7,7 @@
 
 *******************************************************************************
 *******************************************************************************/
+#include <sndfile.hh>
 
 // global static fields
 GtkWidget* fWindow;
@@ -23,7 +24,7 @@ const char*     param;
 const char*     stopit = "go";
 const char*     rcpath = " " ;
 string  jconvwav, jgain, frbuf, jmem, jmode;
-GtkWidget*     fbutton;
+GtkWidget*     fbutton, *label1;
 FILE*              control_stream;
 FILE*              control_stream1;
 UI*                 interface;
@@ -33,6 +34,7 @@ jack_port_t *output_ports[256];
 jack_port_t *input_ports[256];
 const char **port1, **port2;
 int frag;   // jack frame size
+float jackframe;
 
 // check version and if directory exists and create it if it not exist
 bool Exists(const char* Path)
@@ -404,6 +406,8 @@ static void show_event( GtkWidget *widget, gpointer data )
     gtk_widget_show (about);
 }
 
+#include"resample.cpp"
+
 // read name from selected ir.wav file and save *.conf file for jconv
 static void fileselect( GtkWidget *widget, gpointer data )
 {
@@ -514,11 +518,19 @@ static void fileselected( GtkWidget *widget, gpointer data )
     gtk_window_set_title (GTK_WINDOW (about), "jconv settings");
 
     label = gtk_label_new ("           settings for jconv             \n        by  Fons Adriaensen ");
+    label1 = gtk_label_new ("  \n");
     label2 = gtk_label_new (" partion size");
     label3 = gtk_label_new (" gain ");
     label4 = gtk_label_new (" max mem ");
     label5 = gtk_label_new (" mode ");
     button1  = gtk_button_new_with_label("Ok");
+    int chans;
+    float sr;
+    SNDFILE *sf = soundin_open( jconvwav.c_str(), &chans, &sr);
+    soundin_close(sf);
+    char lab[256] ;
+    snprintf(lab, 256, " (%i) channel (%i)Sample rate ", chans, int(sr));
+    gtk_label_set_text(GTK_LABEL(label1), lab);  
     float jg = 0;
     jgain.replace(1, 1, ",");
     const char* AlsString = jgain.c_str();
@@ -606,6 +618,7 @@ static void fileselected( GtkWidget *widget, gpointer data )
     gtk_container_add (GTK_CONTAINER (box4), label);
     gtk_container_add (GTK_CONTAINER (about), box4);
     gtk_container_add (GTK_CONTAINER (box4), fbutton);
+    gtk_container_add (GTK_CONTAINER (box4), label1);
     gtk_container_add (GTK_CONTAINER (box4), box3);
     gtk_container_add (GTK_CONTAINER (box3), combo1);
     gtk_container_add (GTK_CONTAINER (box3), label5);
@@ -619,6 +632,7 @@ static void fileselected( GtkWidget *widget, gpointer data )
     gtk_container_add (GTK_CONTAINER (box1), slider);
     gtk_container_add (GTK_CONTAINER (box1), label3);
     gtk_container_add (GTK_CONTAINER (box4), button1);
+    g_signal_connect_swapped (fbutton, "file-set",  G_CALLBACK (fileread), fbutton);
     g_signal_connect_swapped (button1, "pressed",  G_CALLBACK (fileselect), fbutton);
     g_signal_connect_swapped (button1, "clicked",  G_CALLBACK (gtk_widget_destroy), fbutton);
     g_signal_connect_swapped (button1, "clicked",  G_CALLBACK (gtk_widget_destroy), about);

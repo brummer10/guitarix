@@ -6,7 +6,7 @@
 
 all    :
 	$(CXX) -fPIC -shared -O3 -march=native  -mfpmath=sse -ffast-math -Dmydsp=guitarix guitarix-ladspa.cpp -o guitarix.so
-	$(CXX) -O3  -march=native -mfpmath=sse -ffast-math `pkg-config --cflags --libs jack gtk+-2.0` main.cpp -o guitarix
+	$(CXX) -O3  -march=native -mfpmath=sse -ffast-math `pkg-config --cflags --libs jack gtk+-2.0 sndfile` main.cpp -o guitarix
 
 nosse   :
 
