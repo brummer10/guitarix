@@ -534,10 +534,14 @@ static void fileselected( GtkWidget *widget, gpointer data )
     snprintf(lab, 256, " (%i) channel (%i)Sample rate ", chans, int(sr));
     gtk_label_set_text(GTK_LABEL(label1), lab);  
 #endif
-    float jg = 0;
-    jgain.replace(1, 1, ",");
-    const char* AlsString = jgain.c_str();
-    sscanf(AlsString, "%g", &jg);
+    float jg;
+    if (valo == 0)
+      {
+       jgain.replace(1, 1, ",");
+       const char* AlsString = jgain.c_str();
+       sscanf(AlsString, "%g", &jg);
+      }
+    else jg = valo;
   //  jgain.replace(1, 1, ",");
   //  jg = atof(jgain.c_str());
     GtkObject* adjo = gtk_adjustment_new(jg, 0.0, 1.0, 0.1, 10*0.1, 0);
