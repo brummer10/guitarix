@@ -516,6 +516,7 @@ static void fileselected( GtkWidget *widget, gpointer data )
     gtk_window_set_position (GTK_WINDOW(about), GTK_WIN_POS_MOUSE);
     gtk_window_set_keep_below (GTK_WINDOW(about), FALSE);
     gtk_window_set_title (GTK_WINDOW (about), "jconv settings");
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(about), TRUE);
 
     label = gtk_label_new ("           settings for jconv             \n        by  Fons Adriaensen ");
     label1 = gtk_label_new ("  \n");
