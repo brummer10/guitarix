@@ -485,6 +485,7 @@ void GTKUI::openDialogBox(const char* label, float* zone)
     gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
     gtk_window_set_title (GTK_WINDOW (dialog), label);
     g_signal_connect (G_OBJECT (dialog), "delete_event", G_CALLBACK (deleteevent), NULL); 
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
     GtkWidget * box = gtk_hbox_new (homogene, 4);
     GtkWidget * box4 = gtk_vbox_new (homogene, 4);
     GtkWidget * box5 = gtk_hbox_new (homogene, 4);
