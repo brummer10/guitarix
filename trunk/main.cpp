@@ -1,6 +1,6 @@
 //-----------------------------------------------------
 // name : "guitarix"
-// version : "0.02.8"
+// version : "0.03.0"
 // author : "brummer"
 // contributors : "Julius O. Smith (jos at ccrma.stanford.edu)"
 // license : "GPL"
@@ -9,6 +9,15 @@
 //
 // Code prototype generated with Faust 0.9.9.4f (http://faust.grame.fr)
 //-----------------------------------------------------
+
+/******************************************************************************
+*******************************************************************************
+
+								jack interface
+	main.cpp
+	here is the main jack play tread
+*******************************************************************************
+*******************************************************************************/
 
 /* link with  */
 #include <sys/ioctl.h>
@@ -60,13 +69,12 @@ inline void *aligned_calloc(size_t nmemb, size_t size)
 #define max(x,y) (((x)>(y)) ? (x) : (y))
 #define min(x,y) (((x)<(y)) ? (x) : (y))
 
-// ------------------define the parameter reading, take code from jack_capture -----------------------------------
+// ------------------define the parameter reading,  -----------------------------------
 #define OPTARGS_CHECK_GET(wrong,right) lokke==argc-1?(fprintf(stderr,"Must supply argument for '%s'\n",argv[lokke]),exit(-2),wrong):right
 #define OPTARGS_BEGIN(das_usage) {int lokke;const char *usage=das_usage;for(lokke=1;lokke<argc;lokke++){char *a=argv[lokke];if(!strcmp("--help",a)||!strcmp("-h",a)){fprintf(stderr,usage);return 0;
 #define OPTARG(name,name2) }}else if(!strcmp(name,a)||!strcmp(name2,a)){{
 #define OPTARG_GETSTRING() OPTARGS_CHECK_GET("",argv[++lokke])
 #define OPTARGS_END }else{fprintf(stderr,usage);return(-1);}}}
-
 
 inline int		lsr (int x, int n)
 {
@@ -79,15 +87,6 @@ inline int 		int2pow2 (int x)
     while ((1<<r)<x) r++;
     return r;
 }
-
-/******************************************************************************
-*******************************************************************************
-
-								GRAPHIC USER INTERFACE (v2)
-								  abstract interfaces
-
-*******************************************************************************
-*******************************************************************************/
 
 #include <map>
 #include <list>
@@ -102,25 +101,12 @@ struct Meta : map<const char*, const char*>
     }
 };
 
-struct uiItem;
-typedef void (*uiCallback)(float val, void* data);
+
 
 #include "UI.cpp"
-
-/******************************************************************************
-*******************************************************************************
-
-								GRAPHIC USER INTERFACE
-								  gtk interface
-
-*******************************************************************************
-*******************************************************************************/
-
 #include <gtk/gtk.h>
 
 #define stackSize 256
-
-// Insertion modes
 #define kSingleMode 0
 #define kBoxMode 1
 #define kTabMode 2
@@ -128,7 +114,6 @@ typedef void (*uiCallback)(float val, void* data);
 #include "GTKUI.h"
 #include "guitarix.cpp"
 #include "GTKUI.cpp"
-
 #include "dsp.cpp"
 
 

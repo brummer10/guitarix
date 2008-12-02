@@ -1,5 +1,14 @@
-#include "GTKUI.h"
 
+/******************************************************************************
+*******************************************************************************
+
+								GRAPHIC USER INTERFACE
+								  gtk interface
+            #include "GTKUI.h"
+	GTKUI.cpp
+	here are the virtuell discriptions from the included GTK_WIDGET for guitarix
+*******************************************************************************
+*******************************************************************************/
 
 // create main window
 GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
@@ -459,6 +468,11 @@ void GTKUI::addHorizontalSlider(const char* label, float* zone, float init, floa
     closeBox();
 }
 
+static gboolean deleteevent( GtkWidget *widget, gpointer   data )
+{
+return TRUE;
+} 
+
 void GTKUI::openDialogBox(const char* label, float* zone)
 {
     GtkWidget * dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -470,7 +484,7 @@ void GTKUI::openDialogBox(const char* label, float* zone)
     gtk_window_set_position (GTK_WINDOW(dialog), GTK_WIN_POS_MOUSE);
     gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
     gtk_window_set_title (GTK_WINDOW (dialog), label);
-
+    g_signal_connect (G_OBJECT (dialog), "delete_event", G_CALLBACK (deleteevent), NULL); 
     GtkWidget * box = gtk_hbox_new (homogene, 4);
     GtkWidget * box4 = gtk_vbox_new (homogene, 4);
     GtkWidget * box5 = gtk_hbox_new (homogene, 4);

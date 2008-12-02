@@ -1,4 +1,26 @@
 
+/******************************************************************************
+*******************************************************************************
+                               resample.cpp
+	part of guitarix, resample IR.wav files to the jack frame rate if 
+	it dont match and remove white space from the filename.
+	call it with        fileread(GtkWidget *widget, gpointer data )
+	the caller must be a GTK_FILE_CHOSSER_BUTTON
+	the selected file would resample to the jack_sample_rate jackframe
+	witch must avaliable as global float
+	It returns the channels and samplerate to
+	gtk_label_set_text(GTK_LABEL(label1), lab);  
+	GtkWidget *label1 must be global and a GTK_LABEL
+	orginalfile will save as filnameorig.wav the resampled file get the orginal 
+	name.
+
+*******************************************************************************
+*******************************************************************************/
+
+#include <sndfile.hh>
+
+#define __SND_FILE__
+
 SNDFILE *soundout_open(const char* name, int chans, float sr)
 {
     // initialise the SF_INFO structure
@@ -148,7 +170,7 @@ void fileread(GtkWidget *widget, gpointer data )
             button  = gtk_button_new_with_label("yes");
             button1  = gtk_button_new_with_label("Chancel");
             box = gtk_hbox_new (TRUE, 4);
-            box1 = gtk_vbox_new (TRUE, 4);
+            box1 = gtk_vbox_new (FALSE, 4);
             char lab[256] ;
             snprintf(lab, 256, "the (%i) channel Soundfile\n Sample rate (%i)\n did not match\n the jack Sample rate(%i)\ndo you wish to resample it ?\n", chans, int(sr), int(jackframe));
             const char *labe = lab;

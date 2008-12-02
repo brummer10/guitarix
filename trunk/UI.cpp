@@ -1,9 +1,16 @@
-//#include "UI.h"
 
-/**
- * Graphic User Interface : abstract definition
- */
+/******************************************************************************
+*******************************************************************************
 
+								GRAPHIC USER INTERFACE (v2)
+								  abstract interfaces
+	UI.cpp
+	interface actions for guitarix
+*******************************************************************************
+*******************************************************************************/
+
+struct uiItem;
+typedef void (*uiCallback)(float val, void* data);
 
 class UI
 {

@@ -2,12 +2,12 @@
 /******************************************************************************
 *******************************************************************************
 
-								GRAPHIC USER INTERFACE (v2)
-								  gtk implementation
-
+								funktions from guitarix
+	guitarix.cpp
+	here are the unsortet global funktions from guitarix 
 *******************************************************************************
 *******************************************************************************/
-#include <sndfile.hh>
+
 
 // global static fields
 GtkWidget* fWindow;
@@ -524,6 +524,7 @@ static void fileselected( GtkWidget *widget, gpointer data )
     label4 = gtk_label_new (" max mem ");
     label5 = gtk_label_new (" mode ");
     button1  = gtk_button_new_with_label("Ok");
+#if defined (__SND_FILE__)
     int chans;
     float sr;
     SNDFILE *sf = soundin_open( jconvwav.c_str(), &chans, &sr);
@@ -531,6 +532,7 @@ static void fileselected( GtkWidget *widget, gpointer data )
     char lab[256] ;
     snprintf(lab, 256, " (%i) channel (%i)Sample rate ", chans, int(sr));
     gtk_label_set_text(GTK_LABEL(label1), lab);  
+#endif
     float jg = 0;
     jgain.replace(1, 1, ",");
     const char* AlsString = jgain.c_str();

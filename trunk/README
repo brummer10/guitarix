@@ -59,7 +59,7 @@ It's the same like with jack_capture, you dont need jconv to run/build guitarix,
 
 NEEDED:
 
-You need Gtk+ and libjack-dev to build guitarix.
+You need Gtk+, libsndfile1-dev and libjack-dev to build guitarix.
 To build guitarix and guitarix.so simply run "make". If you can't run sse code, you must use "make nosse". 
 
 It`s not nessesary to install guitarix, but you can. To run guitarix from the sourcetree please use the set_env_guitarix.sh script.
