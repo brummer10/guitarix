@@ -555,7 +555,7 @@ public:
 			float 	fSlow85 = (fSlow84 * fSlow82);
 			float 	fSlow86 = (1 - max(0, fSlow81));
 			float 	fSlow87 = (fSlow84 * fSlow86);
-			int 	iSlow88 = int(checkbutton7);
+			int 	iSlow88 = int(checkbox7);
 			float 	fSlow89 = (1 - max(0, (0 - fSlow83)));
 			float 	fSlow90 = (fSlow89 * fSlow82);
 			float 	fSlow91 = (fSlow89 * fSlow86);
