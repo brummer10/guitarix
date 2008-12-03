@@ -40,6 +40,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include <libgen.h>
 #include <jack/jack.h>

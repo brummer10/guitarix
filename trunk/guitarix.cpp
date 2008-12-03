@@ -251,6 +251,8 @@ void get_jconfset ()
         }
         jgain.erase(0, 24);
         jgain.erase(3);
+        istringstream isn(jgain);
+        isn >> valo;
         for (is=0; is<2; is++)
         {
             getline(f,  jconvwav);
@@ -534,17 +536,8 @@ static void fileselected( GtkWidget *widget, gpointer data )
     snprintf(lab, 256, " (%i) channel (%i)Sample rate ", chans, int(sr));
     gtk_label_set_text(GTK_LABEL(label1), lab);  
 #endif
-    float jg;
-    if (valo == 0)
-      {
-       jgain.replace(1, 1, ",");
-       const char* AlsString = jgain.c_str();
-       sscanf(AlsString, "%g", &jg);
-      }
-    else jg = valo;
-  //  jgain.replace(1, 1, ",");
-  //  jg = atof(jgain.c_str());
-    GtkObject* adjo = gtk_adjustment_new(jg, 0.0, 1.0, 0.1, 10*0.1, 0);
+ 
+    GtkObject* adjo = gtk_adjustment_new(valo, 0.0, 1.0, 0.1, 10*0.1, 0);
     GtkWidget* slider = gtk_spin_button_new (GTK_ADJUSTMENT(adjo), 1.0, 1);
     valo = gtk_adjustment_get_value (GTK_ADJUSTMENT(adjo));
     float jgi;
