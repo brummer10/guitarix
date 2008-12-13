@@ -20,6 +20,7 @@ static float      checkbox7 = 1.0;
 float               cap = 0;
 float               capas = 0;
 int cm = 0;
+int shownote = 0;
 const char*     param;
 const char*     stopit = "go";
 const char*     rcpath = " " ;
@@ -151,6 +152,24 @@ void meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
             system("kill -15 `pidof meterbridge ` > /dev/null");
         }
     }
+}
+
+//----menu funktion show note
+void show_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
+{
+    if (gtk_check_menu_item_get_active(menuitem) == TRUE)
+    {
+        shownote = 1;
+    }
+    else
+    {
+       shownote = 0;
+    }
+}
+
+ void showit(GtkLabel *fLabel, char* s )
+{
+		gtk_label_set_label(fLabel, s);
 }
 
 // start or stop record when toggle_button record is pressed

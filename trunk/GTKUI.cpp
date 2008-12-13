@@ -538,6 +538,54 @@ void GTKUI::openDialogBox(const char* label, float* zone)
     pushBox(kBoxMode, box);
 }
 
+// ------------------------------ Num Display -----------------------------------
+
+struct uiNumDisplay : public uiItem
+{
+	GtkLabel* fLabel;
+	
+	
+	uiNumDisplay(UI* ui, float* zone, GtkLabel* label) 
+			: uiItem(ui, zone), fLabel(label) {}
+
+	virtual void reflectZone() 	
+	{ 
+		float 	v = *fZone;
+		fCache = v;
+		char s[64]; 
+                int vis = int(v)+9;
+		const char* note[] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};
+		if (shownote == 1) {
+		   if ((vis>=0)&(vis<=11)) snprintf(s, 63, "%s",  note[vis]);
+		   else if ((vis>=-24)&(vis<=-13)) snprintf(s, 63, "%s", note[vis+24]);
+		   else if ((vis>=-12)&(vis<=-1)) snprintf(s, 63, "%s", note[vis+12]);
+		   else if ((vis>=12)&(vis<=23)) snprintf(s, 63, "%s", note[vis-12]);
+		   //else if ((vis>=24)&(vis<=32)) snprintf(s, 63,"%s", note[vis-24]);
+		   else snprintf(s, 63, "%s", "");
+       		   showit(fLabel, s );
+		}
+		else if (shownote == 0) {
+		   snprintf(s, 63, "%s", "");
+        	   showit(fLabel, s );
+        	   shownote = 2; 
+		}
+	}
+};
+	
+
+void GTKUI::addNumDisplay(const char* label, float* zone )
+{
+	GtkWidget* lw = gtk_label_new("");
+	new uiNumDisplay(this, zone, GTK_LABEL(lw));
+        gtk_widget_set_size_request (GTK_WIDGET(lw), 30.0, 20.0);
+	openVerticalBox(label);
+        GtkStyle *style = gtk_widget_get_style(lw);
+        pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+        gtk_widget_modify_font(lw, style->font_desc);
+	addWidget(label, lw);
+	closeBox();
+}
+
 
 //----------------------------- menu ----------------------------
 void GTKUI::addMenu()
@@ -686,6 +734,11 @@ void GTKUI::addMenu()
     menu = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menucap), menu);
 
+    /*-- Create Open check menu item under Options submenu --*/
+    menuitem = gtk_check_menu_item_new_with_label ("  tuner ");
+    gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (show_note), NULL);
+    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("  meterbridge");
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (meterbridge), NULL);
