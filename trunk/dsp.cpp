@@ -170,6 +170,7 @@ class mydsp : public dsp
 	int 	iRect2[2];
 	int 	iRect1[2];
 	float 	fRect0[2];
+	int weg;
 
     float 	fexpand;
     //float 	fexpand1;
@@ -603,7 +604,7 @@ public:
 				float 	S4[2];
 				float 	S5[2];
 				fVec0[0] = input0[i];
-				if ((shownote == 1) | (shownote == 0)) {
+				if (shownote == 1) {
 					int iTempt0 = (1 + iRect2[1]);
 					float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
 					float fTempt2 = (1 + fTempt1);
@@ -618,8 +619,16 @@ public:
 					int iTempt5 = (iRect2[0] == 0);
 					iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
 					fRect0[0] = (fSamplingFreq * ((10.0f / max(iRect1[0], 1)) - (10.0f * (iRect1[0] == 0))));
-					fConsta1 = ( (12 * log2f((2.272727e-03f * fRect0[0]))));
+				        if (input0[i] >= 0.01f) {
+ 					    fConsta1 = ( (12 * log2f((2.272727e-03f * fRect0[0]))));
+					    weg = 0;
+					    }
+				else {
+				    if (weg > (fSamplingFreq)) fConsta1 = 2000.0f;
+                                    weg++;
 					}
+			}
+			else if (shownote == 0)  fConsta1 = 1000.0f;
 				S5[0] = (fSlow15 * fVec0[1]);
 				S5[1] = (fSlow16 * fVec0[1]);
 				fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
