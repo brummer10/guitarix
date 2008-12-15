@@ -159,7 +159,6 @@ class mydsp : public dsp
     //float 	fcheckbox9;
 	float 	fConstan0;
 	float 	fConstan1;
-	float 	fConsta1;
 	float 	fConstan2;
 	float 	fVect0[2];
 	float 	fConstan3;
@@ -183,6 +182,7 @@ class mydsp : public dsp
     float 	fdialogbox3;
     float 	fdialogbox4;
     float 	fdialogbox5;
+    float 	fConsta1;
 public:
 
     static void metadata(Meta* m)
@@ -614,21 +614,22 @@ public:
 					fVect1[0] = (fRect5[0] / fTempt2);
 					fRect4[0] = (fVect1[1] + ((fRect5[0] + ((fTempt1 - 1) * fRect4[1])) / fTempt2));
 					int iTempt4 = ((fRect4[1] < 0) & (fRect4[0] >= 0));
-					iRect3[0] = (iTempt4 + (iRect3[1] % 10));
-					iRect2[0] = ((1 - (iTempt4 & (iRect3[0] == 10.0f))) * iTempt0);
+					iRect3[0] = (iTempt4 + (iRect3[1] % 20));
+					iRect2[0] = ((1 - (iTempt4 & (iRect3[0] == 20.0f))) * iTempt0);
 					int iTempt5 = (iRect2[0] == 0);
 					iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
-					fRect0[0] = (fSamplingFreq * ((10.0f / max(iRect1[0], 1)) - (10.0f * (iRect1[0] == 0))));
+					fRect0[0] = (fSamplingFreq * ((20.0f / max(iRect1[0], 1)) - (20.0f * (iRect1[0] == 0))));
 				        if (input0[i] >= 0.01f) {
  					    fConsta1 = ( (12 * log2f((2.272727e-03f * fRect0[0]))));
 					    weg = 0;
 					    }
-				else {
-				    if (weg > (fSamplingFreq)) fConsta1 = 2000.0f;
-                                    weg++;
-					}
-			}
-			else if (shownote == 0)  fConsta1 = 1000.0f;
+					else {
+				    	    if (weg > (fSamplingFreq)) fConsta1 = 2000.0f;
+                                    	    weg++;
+					    }
+				}
+				else if (shownote == 0)  fConsta1 = 1000.0f;
+
 				S5[0] = (fSlow15 * fVec0[1]);
 				S5[1] = (fSlow16 * fVec0[1]);
 				fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);

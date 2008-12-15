@@ -13,6 +13,7 @@
 GtkWidget* fWindow;
 GtkWidget *menul;
 GtkWidget *menus;
+GtkWidget* pb;
 float       	 checky = 1.0;
 static float      togglebutton1;
 static float      checkbutton7;
@@ -160,16 +161,13 @@ void show_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
     {
         shownote = 1;
+        gtk_widget_show(pb);
     }
     else
     {
        shownote = 0;
+        gtk_widget_hide(pb);
     }
-}
-
- void showit(GtkLabel *fLabel, char* s )
-{
-		gtk_label_set_label(fLabel, s);
 }
 
 // start or stop record when toggle_button record is pressed

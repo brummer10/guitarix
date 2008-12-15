@@ -542,10 +542,10 @@ void GTKUI::openDialogBox(const char* label, float* zone)
 
 struct uiNumDisplay : public uiItem
 {
-	GtkLabel* fLabel;
+	GtkWidget* fLabel;
 	
 	
-	uiNumDisplay(UI* ui, float* zone, GtkLabel* label) 
+	uiNumDisplay(UI* ui, float* zone, GtkWidget* label) 
 			: uiItem(ui, zone), fLabel(label) {}
 
 	virtual void reflectZone() 	
@@ -553,20 +553,26 @@ struct uiNumDisplay : public uiItem
 		float 	v = *fZone;
 		fCache = v;
 		char s[64]; 
-                int vis = int(v)+9;
+                int vis = int(v);
+		float scale = ((v-vis)-(-1.0))/(1.0-(-1.0)); 
+		if ((scale < -1.0) | (scale > 1.0)) scale = 0.0;
+                vis += 9;
 		const char* note[] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};
 		if (shownote == 1) {
+		   gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
 		   if ((vis>=0)&(vis<=11)) snprintf(s, 63, "%s",  note[vis]);
 		   else if ((vis>=-24)&(vis<=-13)) snprintf(s, 63, "%s", note[vis+24]);
 		   else if ((vis>=-12)&(vis<=-1)) snprintf(s, 63, "%s", note[vis+12]);
 		   else if ((vis>=12)&(vis<=23)) snprintf(s, 63, "%s", note[vis-12]);
-		   //else if ((vis>=24)&(vis<=32)) snprintf(s, 63,"%s", note[vis-24]);
+		   else if ((vis>=24)&(vis<=35)) snprintf(s, 63,"%s", note[vis-24]);
+		 //  else if ((vis>=36)&(vis<=47)) snprintf(s, 63,"%s", note[vis-36]);
 		   else snprintf(s, 63, "%s", "");
-       		   showit(fLabel, s );
+	           gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), s);
 		}
 		else if (shownote == 0) {
+		   gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
 		   snprintf(s, 63, "%s", "");
-        	   showit(fLabel, s );
+	           gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), s);
         	   shownote = 2; 
 		}
 	}
@@ -575,16 +581,21 @@ struct uiNumDisplay : public uiItem
 
 void GTKUI::addNumDisplay(const char* label, float* zone )
 {
-	GtkWidget* lw = gtk_label_new("");
-	new uiNumDisplay(this, zone, GTK_LABEL(lw));
-        gtk_widget_set_size_request (GTK_WIDGET(lw), 30.0, 20.0);
 	openVerticalBox(label);
-        GtkStyle *style = gtk_widget_get_style(lw);
+	pb = gtk_progress_bar_new();
+	gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(pb), GTK_PROGRESS_LEFT_TO_RIGHT);
+	new uiNumDisplay(this, zone, GTK_WIDGET(pb));
+	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), label);
+	gtk_widget_set_size_request(pb, 40.0, 20.0);
+        GtkStyle *style = gtk_widget_get_style(pb);
         pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-        gtk_widget_modify_font(lw, style->font_desc);
-	addWidget(label, lw);
+        gtk_widget_modify_font(pb, style->font_desc);
+	addWidget(label, pb);
+        gtk_widget_hide(pb);
 	closeBox();
 }
+
+
 
 
 //----------------------------- menu ----------------------------

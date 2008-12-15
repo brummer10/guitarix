@@ -120,3 +120,21 @@ widget_class "*GtkToggleButton*" style:highest "c_style"
 class "GtkButton" style:highest "c_style"
 class "GtkSpinButton" style:highest "c_style"
 
+style "p_style"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= PRELIGHT
+			shadow			= OUT
+			file			= "controls4.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+}
+widget_class "*GtkProgressBar*" style:highest "p_style"
+
