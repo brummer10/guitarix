@@ -44,6 +44,7 @@
 
 #include <libgen.h>
 #include <jack/jack.h>
+#include <jack/midiport.h>
 
 using namespace std;
 
@@ -115,6 +116,7 @@ struct Meta : map<const char*, const char*>
 #include "GTKUI.h"
 #include "guitarix.cpp"
 #include "GTKUI.cpp"
+#include "BEATDETECTOR.cpp"
 #include "dsp.cpp"
 
 
@@ -145,6 +147,7 @@ int		gNumOutChans;
 
 float* 	gInChannel[256];
 float* 	gOutChannel[256];
+void*		midi_port_buf ;
 
 //----------------------------------------------------------------------------
 // Jack Callbacks
@@ -173,7 +176,9 @@ int process (jack_nframes_t nframes, void *arg)
     {
         gOutChannel[i] = (float *)jack_port_get_buffer(output_ports[i], nframes);
     }
-    DSP.compute(nframes, gInChannel, gOutChannel);
+    midi_port_buf = jack_port_get_buffer(midi_output_ports, frag);
+    jack_midi_clear_buffer(midi_port_buf);
+    DSP.compute(nframes, gInChannel, gOutChannel, midi_port_buf);
     return 0;
 }
 
@@ -258,6 +263,7 @@ int main(int argc, char *argv[] )
     {
         jack_port_unregister(client, output_ports[i]);
     }
+    midi_output_ports = jack_port_register(client, "midi_out", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
 
     interface = new GTKUI (jname, &argc, &argv);
     DSP.init(jack_get_sample_rate(client));
@@ -314,6 +320,7 @@ int main(int argc, char *argv[] )
     {
         jack_port_unregister(client, output_ports[i]);
     }
+    jack_port_unregister(client, midi_output_ports);
 
     jack_client_close(client);
     interface->saveState(rcfilename);

@@ -24,7 +24,7 @@ public:
     virtual int getNumOutputs() 	= 0;
     virtual void buildUserInterface(UI* interface) 	= 0;
     virtual void init(int samplingRate) 	= 0;
-    virtual void compute(int len, float** inputs, float** outputs) 	= 0;
+    virtual void compute(int len, float** inputs, float** outputs, void* midi_port_buf) 	= 0;
 };
 
 
@@ -182,7 +182,15 @@ class mydsp : public dsp
     float 	fdialogbox3;
     float 	fdialogbox4;
     float 	fdialogbox5;
+    float 	fdialogbox6;
     float 	fConsta1;
+    float 	fslider26;
+    float 	fslider27;
+    float 	fslider29;
+    float 	fslider30;
+    float 	fslider31;
+    int program;
+
 public:
 
     static void metadata(Meta* m)
@@ -349,6 +357,12 @@ public:
 		for (int i=0; i<6; i++) fRec0[i] = 0;
 		fslider24 = 0.0f;
 		fslider25 = 0.0f;
+        	fslider26 = 64.0f;
+        	fslider27 = 20.0f;
+        	fslider29 = 0.0f;
+        	fslider30 = 0.0f;
+        	fslider31 = 0.0f;
+        	program = int(fslider31);
 		//fcheckbox9 = 0.0;
 	}
 
@@ -486,6 +500,17 @@ public:
         interface->openEventBox(" FEEDBACK ");
         interface->openHorizontalBox("");
         interface->openFrameBox("");
+        interface->openVerticalMidiBox("");
+        interface->openHorizontalBox("midi_out");
+        interface->openDialogBox("midi out", &fdialogbox6);
+        interface->addVerticalSlider("velocity", &fslider26, 64.f, 0.f, 127.f, 1.f);
+        interface->addVerticalSlider("channel", &fslider30, 0.f, 0.f, 16.f, 1.f);
+        interface->addVerticalSlider("program", &fslider31, 0.f, 0.f, 248.f, 1.f);
+        interface->addVerticalSlider("oktave", &fslider29, 0.f, -2.f, 2.f, 1.f);
+        interface->addVerticalSlider("sensity", &fslider27, 20.f, 0.f, 40.f, 1.f);
+        interface->closeBox();
+        interface->closeBox();
+        interface->closeBox();
         interface->closeBox();
         interface->addHorizontalSlider(" feedback", &fslider0, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
         interface->addHorizontalSlider(" feedforward", &fslider23, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
@@ -497,8 +522,10 @@ public:
         interface->closeBox();
     }
 
-		virtual void compute (int count, float** input, float** output) 
+		virtual void compute (int count, float** input, float** output, void* midi_port_buf) 
 {
+        		TBeatDetector myTBeatDetector;
+        		float 	beat0;
 			float 	fSlow0 = fslider0;
 			float 	fSlow1 = powf(10, (2.500000e-02f * fslider1));
 			float 	fSlow2 = (1 + fSlow1);
@@ -604,31 +631,123 @@ public:
 				float 	S4[2];
 				float 	S5[2];
 				fVec0[0] = input0[i];
-				if (shownote == 1) {
-					int iTempt0 = (1 + iRect2[1]);
-					float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
-					float fTempt2 = (1 + fTempt1);
-					float fTempt3 = input0[i];
-					fVect0[0] = fTempt3;
-					fRect5[0] = (fConstan3 * ((fVect0[0] - fVect0[1]) + (fConstan2 * fRect5[1])));
-					fVect1[0] = (fRect5[0] / fTempt2);
-					fRect4[0] = (fVect1[1] + ((fRect5[0] + ((fTempt1 - 1) * fRect4[1])) / fTempt2));
-					int iTempt4 = ((fRect4[1] < 0) & (fRect4[0] >= 0));
-					iRect3[0] = (iTempt4 + (iRect3[1] % 20));
-					iRect2[0] = ((1 - (iTempt4 & (iRect3[0] == 20.0f))) * iTempt0);
-					int iTempt5 = (iRect2[0] == 0);
-					iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
-					fRect0[0] = (fSamplingFreq * ((20.0f / max(iRect1[0], 1)) - (20.0f * (iRect1[0] == 0))));
-				        if (input0[i] >= 0.01f) {
- 					    fConsta1 = ( (12 * log2f((2.272727e-03f * fRect0[0]))));
-					    weg = 0;
-					    }
-					else {
-				    	    if (weg > (fSamplingFreq)) fConsta1 = 2000.0f;
-                                    	    weg++;
-					    }
-				}
-				else if (shownote == 0)  fConsta1 = 1000.0f;
+            			beat0 = (input0[i]);
+
+            if ((shownote == 1) | (playmidi == 1))
+            {
+                int iTempt0 = (1 + iRect2[1]);
+                float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
+                float fTempt2 = (1 + fTempt1);
+                float fTempt3 = input0[i];
+                fVect0[0] = fTempt3;
+                fRect5[0] = (fConstan3 * ((fVect0[0] - fVect0[1]) + (fConstan2 * fRect5[1])));
+                fVect1[0] = (fRect5[0] / fTempt2);
+                fRect4[0] = (fVect1[1] + ((fRect5[0] + ((fTempt1 - 1) * fRect4[1])) / fTempt2));
+                int iTempt4 = ((fRect4[1] < 0) & (fRect4[0] >= 0));
+                iRect3[0] = (iTempt4 + (iRect3[1] % 20));
+                iRect2[0] = ((1 - (iTempt4 & (iRect3[0] == 20.0f))) * iTempt0);
+                int iTempt5 = (iRect2[0] == 0);
+                iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
+                fRect0[0] = (fSamplingFreq * ((20.0f / max(iRect1[0], 1)) - (20.0f * (iRect1[0] == 0))));
+
+                if (input0[i] >= 0.05f)
+                {
+                    fConsta1 = ( (12 * log2f((2.272727e-03f * fRect0[0]))));
+                    weg = 0;
+                    if (playmidi == 1)
+                    {
+                        if (program != int(fslider31))
+                        {
+                            program = int(fslider31);
+                            jack_midi_clear_buffer(midi_port_buf);
+                            midi_send = jack_midi_event_reserve(midi_port_buf, 0, 2);
+                            if (midi_send)
+                            {
+                                midi_send[1] =  int(fslider31);       /* program value */
+                                midi_send[0] = 0xC0;	/* controller */
+                            }
+                        }
+                        //send++;
+                        //note += int(fConsta1);
+//note += int(fConsta1);
+                        if (send > int(fslider27))   //20
+                        {
+                            note = int(fConsta1)+57;
+                            send = 0;
+                            //note = (note/(frag*50))+69;
+                            jack_midi_clear_buffer(midi_port_buf);
+                            midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
+                            if (midi_send)
+                            {
+                                midi_send[2] = int(fslider26);		/* velocity */
+                                midi_send[1] = note+ int(fslider29)*12;       /* note*/
+                                midi_send[0] = 0x90 | int(fslider30);	/* note on */
+                            }
+                            else
+                            {
+                                fprintf(stderr,"could not reserve midi event (course)\n");
+                            }
+                            //note = 0;
+                        }
+//myTBeatDetector.setSampleRate (fSamplingFreq);
+                        myTBeatDetector.AudioProcess (beat0);
+                        if (myTBeatDetector.BeatPulse == TRUE)
+                        {
+                            send++;
+                        }
+
+                    }
+
+                }
+                else
+                {
+                    if (weg > (fSamplingFreq))
+                    {
+                        fConsta1 = 2000.0f;
+                        if (playmidi == 1)
+                        {
+                            send = 0;
+                            if (weg < (fSamplingFreq)+3)
+                            {
+                                jack_midi_clear_buffer(midi_port_buf);
+                                midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
+                                if (midi_send)
+                                {
+                                    midi_send[2] = 127;		/* velocity */
+                                    midi_send[1] = 120;       /* all notes off */
+                                    midi_send[0] = 0xB0 | int(fslider30);	/* controller */
+                                }
+                                else
+                                {
+                                    fprintf(stderr,"could not reserve midi event (course)\n");
+                                }
+                            }
+                        }
+                    }
+                    weg++;
+                }
+            }
+            else if ((shownote == 0) | (playmidi == 1))
+            {
+
+                fConsta1 = 1000.0f;
+                if (playmidi == 1)
+                {
+                    send = 0;
+                    jack_midi_clear_buffer(midi_port_buf);
+                    midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
+                    if (midi_send)
+                    {
+                        midi_send[2] = 127;		/* velocity */
+                        midi_send[1] = 120;       /* all notes off */
+                        midi_send[0] = 0xB0 | int(fslider30);	/* controller */
+                    }
+                    else
+                    {
+                        fprintf(stderr,"could not reserve midi event (course)\n");
+                    }
+                }
+            }
 
 				S5[0] = (fSlow15 * fVec0[1]);
 				S5[1] = (fSlow16 * fVec0[1]);

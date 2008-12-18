@@ -188,7 +188,23 @@ void GTKUI::openVerticalBox(const char* label)
     }
 }
 
-
+void GTKUI::openVerticalMidiBox(const char* label)
+{
+    midibox = gtk_vbox_new (homogene, 4);
+    gtk_container_set_border_width (GTK_CONTAINER (midibox), 2);
+    if (fMode[fTop] != kTabMode && label[0] != 0)
+    {
+        GtkWidget * frame = addWidget(label, gtk_frame_new (label));
+        gtk_container_add (GTK_CONTAINER(frame), midibox);
+        gtk_widget_show(midibox);
+        pushBox(kBoxMode, midibox);
+    }
+    else
+    {
+        pushBox(kBoxMode, addWidget(label, midibox));
+    }
+    gtk_widget_hide(midibox);
+}
 
 GtkWidget* GTKUI::addWidget(const char* label, GtkWidget* w)
 {
@@ -458,7 +474,7 @@ void GTKUI::addHorizontalSlider(const char* label, float* zone, float init, floa
     gdk_color_parse("#96a2a7", &colorYellow);
     gdk_color_parse("#7b8a90", &colorRed);
     gtk_scale_set_digits(GTK_SCALE(slider), precision(step));
-    gtk_widget_set_usize(slider, 160, -1);
+    gtk_widget_set_usize(slider, 120, -1);
     gtk_widget_modify_bg (slider, GTK_STATE_NORMAL, &colorRed);
     gtk_widget_modify_bg (slider, GTK_STATE_PRELIGHT, &colorYellow);
     gtk_widget_modify_bg(slider, GTK_STATE_ACTIVE, &colorYellow);
@@ -748,6 +764,11 @@ void GTKUI::addMenu()
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("  tuner ");
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (show_note), NULL);
+    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_widget_show (menuitem);
+    /*-- Create Open check menu item under Options submenu --*/
+    menuitem = gtk_check_menu_item_new_with_label ("  midi_out ");
+    gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (midi_note), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/

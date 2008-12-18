@@ -14,6 +14,8 @@ GtkWidget* fWindow;
 GtkWidget *menul;
 GtkWidget *menus;
 GtkWidget* pb;
+GtkWidget* midibox;
+
 float       	 checky = 1.0;
 static float      togglebutton1;
 static float      checkbutton7;
@@ -22,6 +24,7 @@ float               cap = 0;
 float               capas = 0;
 int cm = 0;
 int shownote = 0;
+int playmidi = 0;
 const char*     param;
 const char*     stopit = "go";
 const char*     rcpath = " " ;
@@ -34,6 +37,10 @@ float valo, vali ;
 jack_client_t*      client;
 jack_port_t *output_ports[256];
 jack_port_t *input_ports[256];
+jack_port_t *midi_output_ports;
+unsigned char* midi_send;
+int send;
+int note;
 const char **port1, **port2;
 int frag;   // jack frame size
 float jackframe;
@@ -47,12 +54,12 @@ bool Exists(const char* Path)
         char          rcfilename[256];
         const char*	  home;
         home = getenv ("HOME");
-        snprintf(rcfilename, 256, "%s/.%s-0.03.0", home, "guitarix/version");
+        snprintf(rcfilename, 256, "%s/.%s-0.03.1", home, "guitarix/version");
         if  ( !stat(rcfilename, &my_stat) == 0)
         {
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/version-*");
             system (rcfilename);
-            snprintf(rcfilename, 256, "%s/.%s-0.03.0", home, "guitarix/version");
+            snprintf(rcfilename, 256, "%s/.%s-0.03.1", home, "guitarix/version");
             ofstream f(rcfilename);
             string cim = "guitarix-0.03.0";
             f <<  cim <<endl;
@@ -65,7 +72,7 @@ bool Exists(const char* Path)
             system (rcfilename);
             snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
             ofstream fa(rcfilename);
-            cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n";
+            cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n64 4 0 0 0 \n";
             fa <<  cim <<endl;
             fa.close();
         }
@@ -83,14 +90,14 @@ bool Exists(const char* Path)
         cim += "/guitarix_session0.wav ";
         f <<  cim <<endl;
         f.close();
-        snprintf(rcfilename, 256, "%s/.%s-0.03.0", home, "guitarix/version");
+        snprintf(rcfilename, 256, "%s/.%s-0.03.1", home, "guitarix/version");
         ofstream fi(rcfilename);
-        cim = "guitarix-0.03.0";
+        cim = "guitarix-0.03.1";
         fi <<  cim <<endl;
         fi.close();
         snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
         ofstream fa(rcfilename);
-        cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n";
+        cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n64 4 0 0 0 \n";
         fa <<  cim <<endl;
         fa.close();
     }
@@ -167,6 +174,20 @@ void show_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
     {
        shownote = 0;
         gtk_widget_hide(pb);
+    }
+}
+
+void midi_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
+{
+    if (gtk_check_menu_item_get_active(menuitem) == TRUE)
+    {
+        playmidi = 1;
+        gtk_widget_show(midibox);
+    }
+    else
+    {
+        playmidi = 0;
+        gtk_widget_hide(midibox);
     }
 }
 
@@ -846,6 +867,7 @@ static void reset_dialog( GtkWidget *widget, gpointer data )
     else if (strcmp(witchres, "freeverb") == 0) interface->recalladState(filename,  20,  24, 1);
     else if (strcmp(witchres, "ImpulseResponse") == 0) interface->recalladState(filename,  28,  32, 2);
     else if (strcmp(witchres, "crybaby") == 0) interface->recalladState(filename,  16,  20, 3);
+    else if (strcmp(witchres, "midi out") == 0) interface->recalladState(filename,  44,  50, 4);
 }
 
 // show extendend settings slider
