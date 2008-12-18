@@ -190,6 +190,9 @@ class mydsp : public dsp
     float 	fslider30;
     float 	fslider31;
     int program;
+    unsigned char* midi_send;
+    int send;
+    int note;
 
 public:
 
@@ -667,9 +670,7 @@ public:
                                 midi_send[0] = 0xC0;	/* controller */
                             }
                         }
-                        //send++;
-                        //note += int(fConsta1);
-//note += int(fConsta1);
+ 
                         if (send > int(fslider27))   //20
                         {
                             note = int(fConsta1)+57;
@@ -683,11 +684,6 @@ public:
                                 midi_send[1] = note+ int(fslider29)*12;       /* note*/
                                 midi_send[0] = 0x90 | int(fslider30);	/* note on */
                             }
-                            else
-                            {
-                                fprintf(stderr,"could not reserve midi event (course)\n");
-                            }
-                            //note = 0;
                         }
 //myTBeatDetector.setSampleRate (fSamplingFreq);
                         myTBeatDetector.AudioProcess (beat0);
@@ -695,9 +691,7 @@ public:
                         {
                             send++;
                         }
-
                     }
-
                 }
                 else
                 {
@@ -713,13 +707,9 @@ public:
                                 midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                                 if (midi_send)
                                 {
-                                    midi_send[2] = 127;		/* velocity */
+                                    midi_send[2] = int(fslider26);		/* velocity */
                                     midi_send[1] = 120;       /* all notes off */
                                     midi_send[0] = 0xB0 | int(fslider30);	/* controller */
-                                }
-                                else
-                                {
-                                    fprintf(stderr,"could not reserve midi event (course)\n");
                                 }
                             }
                         }
@@ -729,7 +719,6 @@ public:
             }
             else if ((shownote == 0) | (playmidi == 1))
             {
-
                 fConsta1 = 1000.0f;
                 if (playmidi == 1)
                 {
@@ -738,13 +727,9 @@ public:
                     midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                     if (midi_send)
                     {
-                        midi_send[2] = 127;		/* velocity */
+                        midi_send[2] = int(fslider26);		/* velocity */
                         midi_send[1] = 120;       /* all notes off */
                         midi_send[0] = 0xB0 | int(fslider30);	/* controller */
-                    }
-                    else
-                    {
-                        fprintf(stderr,"could not reserve midi event (course)\n");
                     }
                 }
             }

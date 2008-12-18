@@ -259,7 +259,7 @@ void GTKUI::addButton(const char* label, float* zone)
     uiButton* c = new uiButton(this, zone, GTK_BUTTON(button));
     gtk_signal_connect (GTK_OBJECT (button), "pressed", GTK_SIGNAL_FUNC (uiButton::pressed), (gpointer) c);
     gtk_signal_connect (GTK_OBJECT (button), "released", GTK_SIGNAL_FUNC (uiButton::released), (gpointer) c);
-    gtk_signal_connect (GTK_OBJECT (button), "clicked", GTK_SIGNAL_FUNC (fileselected), button);
+    gtk_signal_connect (GTK_OBJECT (button), "clicked", GTK_SIGNAL_FUNC (fls), button);
 }
 
 // ---------------------------	Toggle Buttons ---------------------------
@@ -340,6 +340,7 @@ void GTKUI::addPToggleButton(const char* label, float* zone)
 
 void GTKUI::addJToggleButton(const char* label, float* zone)
 {
+    JCONV_SETTINGS myJCONV_SETTINGS;
     GdkColor colorRed;
     GdkColor colorOwn;
     GdkColor colorwn;
@@ -360,8 +361,8 @@ void GTKUI::addJToggleButton(const char* label, float* zone)
     gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
     gtk_widget_modify_fg (lab, GTK_STATE_ACTIVE, &colorwn);
     gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (uiToggleButton::toggled), (gpointer) c);
-    gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (runjconv), (gpointer) c);
-    get_jconfset ();
+    gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (rjv), (gpointer) c);
+    myJCONV_SETTINGS.get_jconfset ();
 }
 
 // ---------------------------	Check Button ---------------------------

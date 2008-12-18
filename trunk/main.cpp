@@ -114,8 +114,10 @@ struct Meta : map<const char*, const char*>
 #define kTabMode 2
 
 #include "GTKUI.h"
+#include"jconv_settings.h"
 #include "guitarix.cpp"
 #include "GTKUI.cpp"
+#include"jconv_settings.cpp"
 #include "BEATDETECTOR.cpp"
 #include "dsp.cpp"
 
