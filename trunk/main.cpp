@@ -135,7 +135,7 @@ struct Meta : map<const char*, const char*>
 //----------------------------------------------------------------------------
 
 int		gNumInChans;
-int		gNumOutChans;
+
 
 //----------------------------------------------------------------------------
 // Jack ports
@@ -184,6 +184,18 @@ int process (jack_nframes_t nframes, void *arg)
     return 0;
 }
 
+int midi_process (jack_nframes_t nframes, void *arg)
+{
+    AVOIDDENORMALS;
+    for (int i = 0; i < gNumInChans; i++)
+    {
+        gInChannel[i] = (float *)jack_port_get_buffer(input_ports[i], nframes);
+    }
+    midi_port_buf = jack_port_get_buffer(midi_output_ports, frag);
+    jack_midi_clear_buffer(midi_port_buf);
+    DSP.compute_midi(nframes, gInChannel, midi_port_buf);
+    return 0;
+}
 /******************************************************************************
 *******************************************************************************
 
@@ -221,9 +233,13 @@ int main(int argc, char *argv[] )
     const char*			home;
     char*				pname;
     char*				jname;
+    char*				midi_jname;
     char                rcfilename[256];
+    char                midiname[256];
     param = basename (argv [1]);
     jname = basename (argv [0]);
+    snprintf(midiname, 256, "%s", "guitarix_midi");
+    midi_jname = midiname;
 
     AVOIDDENORMALS;
 
@@ -244,7 +260,19 @@ int main(int argc, char *argv[] )
         jname = jack_get_client_name (client);
     }
 
+    midi_client = jack_client_open (midi_jname, (jack_options_t) 0, &jackstat);
+    if (midi_client == 0)
+    {
+        fprintf (stderr, "Can't connect to JACK, is the server running ?\n");
+        exit (1);
+    }
+    if (jackstat & JackNameNotUnique)
+    {
+        midi_jname = jack_get_client_name (midi_client);
+    }
+
     jack_set_process_callback(client, process, 0);
+    jack_set_process_callback(midi_client, midi_process, 0);
     jack_set_sample_rate_callback(client, srate, 0);
     jack_on_shutdown(client, jack_shutdown, 0);
     gNumInChans = DSP.getNumInputs();
@@ -265,7 +293,7 @@ int main(int argc, char *argv[] )
     {
         jack_port_unregister(client, output_ports[i]);
     }
-    midi_output_ports = jack_port_register(client, "midi_out", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+    midi_output_ports = jack_port_register(midi_client, "midi_out", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
 
     interface = new GTKUI (jname, &argc, &argv);
     DSP.init(jack_get_sample_rate(client));
@@ -279,6 +307,11 @@ int main(int argc, char *argv[] )
     if (jack_activate(client))
     {
         fprintf(stderr, "Can't activate JACK client\n");
+        return 1;
+    }
+    if (jack_activate(midi_client))
+    {
+        fprintf(stderr, "Can't activate JACK midi client\n");
         return 1;
     }
 
@@ -309,9 +342,10 @@ int main(int argc, char *argv[] )
         snprintf(buf, 256, pname, i + 1);
         jack_connect(client, jack_port_name(output_ports[i]), buf);
     }
-
+    gNumOutChans = 2;
     interface->run();
     //sleep(2);
+    jack_deactivate(midi_client);
     jack_deactivate(client);
 
     for (int i = 0; i < gNumInChans; i++)
@@ -322,8 +356,9 @@ int main(int argc, char *argv[] )
     {
         jack_port_unregister(client, output_ports[i]);
     }
-    jack_port_unregister(client, midi_output_ports);
+    jack_port_unregister(midi_client, midi_output_ports);
 
+    jack_client_close(midi_client);
     jack_client_close(client);
     interface->saveState(rcfilename);
 

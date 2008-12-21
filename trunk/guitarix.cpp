@@ -34,9 +34,11 @@ FILE*              control_stream1;
 UI*                 interface;
 
 jack_client_t*      client;
+jack_client_t*      midi_client;
 jack_port_t *output_ports[256];
 jack_port_t *input_ports[256];
 jack_port_t *midi_output_ports;
+int		gNumOutChans;
 //jack_ringbuffer_t *ringbuffer;
 
 int frag;   // jack frame size
@@ -52,14 +54,14 @@ bool Exists(const char* Path)
         char          rcfilename[256];
         const char*	  home;
         home = getenv ("HOME");
-        snprintf(rcfilename, 256, "%s/.%s-0.03.2", home, "guitarix/version");
+        snprintf(rcfilename, 256, "%s/.%s-0.03.3", home, "guitarix/version");
         if  ( !stat(rcfilename, &my_stat) == 0)
         {
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/version-*");
             system (rcfilename);
-            snprintf(rcfilename, 256, "%s/.%s-0.03.2", home, "guitarix/version");
+            snprintf(rcfilename, 256, "%s/.%s-0.03.3", home, "guitarix/version");
             ofstream f(rcfilename);
-            string cim = "guitarix-0.03.2";
+            string cim = "guitarix-0.03.3";
             f <<  cim <<endl;
             f.close();
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/guitarixprerc");
@@ -88,9 +90,9 @@ bool Exists(const char* Path)
         cim += "/guitarix_session0.wav ";
         f <<  cim <<endl;
         f.close();
-        snprintf(rcfilename, 256, "%s/.%s-0.03.2", home, "guitarix/version");
+        snprintf(rcfilename, 256, "%s/.%s-0.03.3", home, "guitarix/version");
         ofstream fi(rcfilename);
-        cim = "guitarix-0.03.2";
+        cim = "guitarix-0.03.3";
         fi <<  cim <<endl;
         fi.close();
         snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
@@ -465,7 +467,7 @@ static void destroy_event( GtkWidget *widget, gpointer data )
     // checky = 0.0;
     jack_port_disconnect (client, output_ports[0]);
     jack_port_disconnect (client, output_ports[1]);
-    jack_port_disconnect (client, input_ports[0]);
+    jack_port_disconnect (midi_client, input_ports[0]);
     gtk_main_quit ();
 
 }

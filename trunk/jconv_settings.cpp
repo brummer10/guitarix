@@ -319,6 +319,7 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
             {
                 jack_port_unregister(client, output_ports[i]);
             }
+	    gNumOutChans = 2;
         }
     }
     else
@@ -366,6 +367,7 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
                     snprintf(buf, 256, "out_%d", i);
                     output_ports[i] = jack_port_register(client, buf,JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
                 }
+		gNumOutChans = 4;
                 pname = getenv("GUITARIX2JACK_OUTPUTS1");
                 snprintf(buf, 256, pname, i + 1);
                 port1 = jack_port_get_connections (output_ports[i]);
