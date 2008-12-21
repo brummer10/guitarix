@@ -1,10 +1,13 @@
 guitarix (0.03.svn-1) unstable; urgency=low
   * add resampler for ir.wav files
   * autoremove white space in ir.wav file names
+  * protected advanced setting widgets for destroy call from window manager
   * add graphically tuner
   * add midi out 
   * add pitch tracker/beatdetector to midi converter
   * add midi controlls for velocity, channel choose, program choose, okatve switch and sensity
+  * add more midi out channels (3), clean up the processing
+  * add controll interface for pitch tracker/beatdetector
 
 
 

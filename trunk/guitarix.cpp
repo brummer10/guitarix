@@ -11,28 +11,37 @@
 
 // global static fields
 GtkWidget* fWindow, *menul, *menus, *pb, *midibox, *fbutton, *label1;
+
 static float      togglebutton1;
 static float      checkbutton7;
+
 float      checkbox7 = 1.0;
 float       	 checky = 1.0;
 float               cap = 0;
 float               capas = 0;
+
 const char*     param;
 const char*     stopit = "go";
 const char*     rcpath = " " ;
 string  jconvwav ; 
+
 int cm = 0;
-int shownote = 0;
+int shownote = 2;
 int playmidi = 0;
+
 FILE*              control_stream;
 FILE*              control_stream1;
 UI*                 interface;
+
 jack_client_t*      client;
 jack_port_t *output_ports[256];
 jack_port_t *input_ports[256];
 jack_port_t *midi_output_ports;
+//jack_ringbuffer_t *ringbuffer;
+
 int frag;   // jack frame size
 float jackframe;
+
 
 // check version and if directory exists and create it if it not exist
 bool Exists(const char* Path)
@@ -43,14 +52,14 @@ bool Exists(const char* Path)
         char          rcfilename[256];
         const char*	  home;
         home = getenv ("HOME");
-        snprintf(rcfilename, 256, "%s/.%s-0.03.1", home, "guitarix/version");
+        snprintf(rcfilename, 256, "%s/.%s-0.03.2", home, "guitarix/version");
         if  ( !stat(rcfilename, &my_stat) == 0)
         {
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/version-*");
             system (rcfilename);
-            snprintf(rcfilename, 256, "%s/.%s-0.03.1", home, "guitarix/version");
+            snprintf(rcfilename, 256, "%s/.%s-0.03.2", home, "guitarix/version");
             ofstream f(rcfilename);
-            string cim = "guitarix-0.03.0";
+            string cim = "guitarix-0.03.2";
             f <<  cim <<endl;
             f.close();
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/guitarixprerc");
@@ -61,7 +70,7 @@ bool Exists(const char* Path)
             system (rcfilename);
             snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
             ofstream fa(rcfilename);
-            cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n64 4 0 0 0 \n";
+            cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n";
             fa <<  cim <<endl;
             fa.close();
         }
@@ -79,18 +88,19 @@ bool Exists(const char* Path)
         cim += "/guitarix_session0.wav ";
         f <<  cim <<endl;
         f.close();
-        snprintf(rcfilename, 256, "%s/.%s-0.03.1", home, "guitarix/version");
+        snprintf(rcfilename, 256, "%s/.%s-0.03.2", home, "guitarix/version");
         ofstream fi(rcfilename);
-        cim = "guitarix-0.03.1";
+        cim = "guitarix-0.03.2";
         fi <<  cim <<endl;
         fi.close();
         snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
         ofstream fa(rcfilename);
-        cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n64 4 0 0 0 \n";
+        cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n";
         fa <<  cim <<endl;
         fa.close();
     }
 }
+
 
 // convert int to string
 void IntToString(int i, string & s)
@@ -390,6 +400,13 @@ static void show_event( GtkWidget *widget, gpointer data )
 }
 
 #include"resample.cpp"
+
+//--------- class wrapper--------------------------
+void flr( GtkWidget *widget, gpointer data )
+{
+    Resample myResample;
+    myResample.fileread(widget, data);
+}
 
 void fls( GtkWidget *widget, gpointer data )
 {

@@ -1,7 +1,7 @@
 //-----------------------------------------------------
 // name : "guitarix"
-// version : "0.03.0"
-// author : "brummer"
+// version : "0.03.2"
+// author : "hermann meyer"
 // contributors : "Julius O. Smith (jos at ccrma.stanford.edu)"
 // license : "GPL"
 // copyright : "(c)brummer 2008"

@@ -1,25 +1,21 @@
+/**********************************************************
+	resample.cpp
 
-/******************************************************************************
-*******************************************************************************
-                               resample.cpp
-	part of guitarix, resample IR.wav files to the jack frame rate if 
-	it dont match and remove white space from the filename.
-	call it with        fileread(GtkWidget *widget, gpointer data )
-	the caller must be a GTK_FILE_CHOSSER_BUTTON
-	the selected file would resample to the jack_sample_rate jackframe
-	witch must avaliable as global float
-	It returns the channels and samplerate to
-	gtk_label_set_text(GTK_LABEL(label1), lab);  
-	GtkWidget *label1 must be global and a GTK_LABEL
-	orginalfile will save as filnameorig.wav the resampled file get the orginal 
-	name.
+	call it with     myResample.fileread(GtkWidget *widget, gpointer data )
+	the GtkWidget must be a GTK_FILE_CHOOSER_BUTTON
+	for guitarix by hermann meyer
+***************************************************************/
+#include "resample.h"
 
-*******************************************************************************
-*******************************************************************************/
+Resample::Resample()
+{
+  // Nothing specific to do...
+}
 
-#include <sndfile.hh>
-
-#define __SND_FILE__
+Resample::~Resample()
+{
+  // Nothing specific to do...
+}
 
 SNDFILE *soundout_open(const char* name, int chans, float sr)
 {
@@ -90,9 +86,9 @@ int resample(const char*  pInputi, const char* pOutputi, float jackframe)
     sf_close(pInput);
     sf_close(pOutput);
     delete[] sig;
-    char lab[256] ;
-    snprintf(lab, 256, " (%i) channel (%i)Sample rate ", chans, int(jackframe));
-    gtk_label_set_text(GTK_LABEL(label1), lab);  
+        char lab[256] ;
+        snprintf(lab, 256, " (%i) channel (%i)Sample rate ", chans, int(jackframe));
+        gtk_label_set_text(GTK_LABEL(label1), lab);  
     }
     return 0;
 }
@@ -130,7 +126,7 @@ void soundin_close(SNDFILE *psf_in)
     sf_close(psf_in);
 }
 
-void fileread(GtkWidget *widget, gpointer data )
+void Resample::fileread(GtkWidget *widget, gpointer data )
 {
     gchar *fileis =  gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(widget));
     if (fileis != NULL)
@@ -167,10 +163,11 @@ void fileread(GtkWidget *widget, gpointer data )
             gtk_window_set_position (GTK_WINDOW(about), GTK_WIN_POS_MOUSE);
             gtk_window_set_keep_below (GTK_WINDOW(about), FALSE);
             gtk_window_set_title (GTK_WINDOW (about), "resample");
-            button  = gtk_button_new_with_label("yes");
+            button  = gtk_button_new_with_label("Yes");
             button1  = gtk_button_new_with_label("Chancel");
             box = gtk_hbox_new (TRUE, 4);
             box1 = gtk_vbox_new (FALSE, 4);
+
             char lab[256] ;
             snprintf(lab, 256, "the (%i) channel Soundfile\n Sample rate (%i)\n did not match\n the jack Sample rate(%i)\ndo you wish to resample it ?\n", chans, int(sr), int(jackframe));
             const char *labe = lab;

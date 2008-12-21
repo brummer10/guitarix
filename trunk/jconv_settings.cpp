@@ -289,7 +289,7 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
     gtk_container_add (GTK_CONTAINER (box1), slider);
     gtk_container_add (GTK_CONTAINER (box1), label3);
     gtk_container_add (GTK_CONTAINER (box4), button1);
-    g_signal_connect_swapped (fbutton, "file-set",  G_CALLBACK (fileread), fbutton);
+    g_signal_connect_swapped (fbutton, "file-set",  G_CALLBACK (flr), fbutton);
     g_signal_connect_swapped (button1, "pressed",  G_CALLBACK (fileselect), fbutton);
     g_signal_connect_swapped (button1, "clicked",  G_CALLBACK (gtk_widget_destroy), fbutton);
     g_signal_connect_swapped (button1, "clicked",  G_CALLBACK (gtk_widget_destroy), about);

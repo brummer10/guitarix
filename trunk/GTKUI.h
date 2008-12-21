@@ -46,6 +46,7 @@ public :
     virtual void openEventBox(const char* label = "");
     virtual void openHandleBox(const char* label = "");
     virtual void openExpanderBox(const char* label, float* zone);
+    virtual void openTabBox(const char* label = "");
     virtual void closeBox();
 
     // -- active widgets

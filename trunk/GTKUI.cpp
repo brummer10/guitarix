@@ -77,6 +77,11 @@ void GTKUI::openFrameBox(const char* label)
     pushBox(kSingleMode, addWidget(label, box));
 }
 
+void GTKUI::openTabBox(const char* label)
+{
+	pushBox(kTabMode, addWidget(label, gtk_notebook_new ()));
+}
+
 void GTKUI::openHorizontalBox(const char* label)
 {
     GtkWidget * box = gtk_hbox_new (homogene, 4);
@@ -582,7 +587,7 @@ struct uiNumDisplay : public uiItem
 		   else if ((vis>=-12)&(vis<=-1)) snprintf(s, 63, "%s", note[vis+12]);
 		   else if ((vis>=12)&(vis<=23)) snprintf(s, 63, "%s", note[vis-12]);
 		   else if ((vis>=24)&(vis<=35)) snprintf(s, 63,"%s", note[vis-24]);
-		 //  else if ((vis>=36)&(vis<=47)) snprintf(s, 63,"%s", note[vis-36]);
+		   else if ((vis>=36)&(vis<=47)) snprintf(s, 63,"%s", note[vis-36]);
 		   else snprintf(s, 63, "%s", "");
 	           gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), s);
 		}
