@@ -629,7 +629,7 @@ public:
                 iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
                 fRect0[0] = (fSamplingFreq * ((fslider39 / max(iRect1[0], 1)) - (fslider39 * (iRect1[0] == 0))));
 
-                if (input0[i] >= fslider45*0.01f)
+                if (fTempt3 >= fslider45*0.01f)
                 {
                     fConsta1 = ( (12 * log2f((2.272727e-03f * fRect0[0]))));
                     weg = 0;
@@ -640,7 +640,6 @@ public:
                         if (program != int(fslider31))
                         {
                             program = int(fslider31);
-                          //  jack_midi_clear_buffer(midi_port_buf);
                             midi_send = jack_midi_event_reserve(midi_port_buf, 0, 2);
                             if (midi_send)
                             {
@@ -653,7 +652,6 @@ public:
                             noten = (int(fConsta1)+57)+(int(fslider29)*12);
                             send = 0;
  			    if (( noten>=0)&(noten<=127)) {
-                          //  jack_midi_clear_buffer(midi_port_buf);
                             midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                             if (midi_send)
                             {
@@ -668,7 +666,6 @@ public:
                         if (program1 != int(fslider36))
                         {
                             program1 = int(fslider36);
-                          //  jack_midi_clear_buffer(midi_port_buf);
                             midi_send = jack_midi_event_reserve(midi_port_buf, 0, 2);
                             if (midi_send)
                             {
@@ -681,7 +678,6 @@ public:
                             noten1 = (int(fConsta1)+57)+(int(fslider34)*12);
                             send1 = 0;
 			    if ((noten1>=0)&(noten1<=127)) {
-                          //  jack_midi_clear_buffer(midi_port_buf);
                             midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                             if (midi_send)
                             {
@@ -696,7 +692,6 @@ public:
                         if (program2 != int(fslider43))
                         {
                             program2 = int(fslider43);
-                           // jack_midi_clear_buffer(midi_port_buf);
                             midi_send = jack_midi_event_reserve(midi_port_buf, 0, 2);
                             if (midi_send)
                             {
@@ -709,7 +704,6 @@ public:
                             noten2 = (int(fConsta1)+57)+(int(fslider42)*12);
                             send2 = 0;
 			    if ((noten2>=0)&(noten2<=127)) {
-                          //  jack_midi_clear_buffer(midi_port_buf);
                             midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                             if (midi_send)
                             {
@@ -736,49 +730,37 @@ public:
                 {
                    if  (playmidi == 1)
                     {
-                    //send = 0;	
-		    //send1 = 0;
-                    //send2 = 0;
                     if (weg > (fSamplingFreq)/fslider37)
                         {
                      fConsta1 = 2000.0f;
                             if (weg < ((fSamplingFreq)/fslider37)+5) 
                             {
                               send = 0;				
-                               // jack_midi_clear_buffer(midi_port_buf);
                                 midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                                 if (midi_send)
                                 {
                                     midi_send[2] = int(fslider26);		/* velocity */
                                     midi_send[1] = 123;       /* all notes off */
-                                   // midi_send[0] &=  int(fslider30);
                                     midi_send[0] = 0xB0 | int(fslider30) ;	/* controller */
-                                //  midi_send[0] +=  int(fslider30);
                                 }
                          if (fcheckbox10 == 1.0) {
                                send1 = 0;
-                              // jack_midi_clear_buffer(midi_port_buf);
                                 midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                                 if (midi_send)
                                 {
                                     midi_send[2] = int(fslider32);		/* velocity */
                                     midi_send[1] = 123;       /* all notes off */
-                                  // midi_send[0] &=  int(fslider35);
                                     midi_send[0] = 0xB0 |  int(fslider35);	/* controller */
-                                  // midi_send[0] +=  int(fslider35);
 				}
                             }
                          if (fcheckbox11 == 1.0) {
                                send2 = 0;
-                            //   jack_midi_clear_buffer(midi_port_buf);
-                                midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
+                               midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                                 if (midi_send)
                                 {
                                     midi_send[2] = int(fslider40);		/* velocity */
                                     midi_send[1] = 123;       /* all notes off */
-                                  // midi_send[0] &=  int(fslider35);
                                     midi_send[0] = 0xB0 |  int(fslider44);	/* controller */
-                                  // midi_send[0] +=  int(fslider35);
 				}
                             }
                             }
