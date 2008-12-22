@@ -744,7 +744,7 @@ public:
                      fConsta1 = 2000.0f;
                             if (weg < ((fSamplingFreq)/fslider37)+5) 
                             {
-                              // send = 0;				
+                              send = 0;				
                                 jack_midi_clear_buffer(midi_port_buf);
                                 midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                                 if (midi_send)
@@ -756,7 +756,7 @@ public:
                                 //  midi_send[0] +=  int(fslider30);
                                 }
                          if (fcheckbox10 == 1.0) {
-                              // send1 = 0;
+                               send1 = 0;
                                jack_midi_clear_buffer(midi_port_buf);
                                 midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                                 if (midi_send)
