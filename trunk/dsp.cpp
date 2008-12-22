@@ -757,7 +757,7 @@ public:
                                 }
                          if (fcheckbox10 == 1.0) {
                                send1 = 0;
-                               jack_midi_clear_buffer(midi_port_buf);
+                              // jack_midi_clear_buffer(midi_port_buf);
                                 midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                                 if (midi_send)
                                 {
@@ -770,7 +770,7 @@ public:
                             }
                          if (fcheckbox11 == 1.0) {
                                send2 = 0;
-                               jack_midi_clear_buffer(midi_port_buf);
+                            //   jack_midi_clear_buffer(midi_port_buf);
                                 midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                                 if (midi_send)
                                 {
