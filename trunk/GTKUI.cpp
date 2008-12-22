@@ -36,9 +36,14 @@ GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
     gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
     gtk_window_set_title (GTK_WINDOW (fWindow), name);
     gtk_window_set_icon_from_file(GTK_WINDOW (fWindow),  "/usr/share/pixmaps/guitarix.png", NULL);
+    GdkPixbuf*   ib =       gtk_window_get_icon (GTK_WINDOW (fWindow));
     /*---------------- singnals ----------------*/
     gtk_signal_connect (GTK_OBJECT (fWindow), "delete_event", GTK_SIGNAL_FUNC (delete_event), NULL);
     gtk_signal_connect (GTK_OBJECT (fWindow), "destroy", GTK_SIGNAL_FUNC (destroy_event), NULL);
+    /*---------------- status icon ----------------*/
+    GtkStatusIcon*  status_icon =    gtk_status_icon_new_from_pixbuf (GDK_PIXBUF(ib));
+    g_signal_connect (G_OBJECT (status_icon), "activate", GTK_SIGNAL_FUNC (hide_show), NULL);
+    g_signal_connect (G_OBJECT (status_icon), "popup-menu", GTK_SIGNAL_FUNC (pop_menu), NULL);
 
     /*---------------- create boxes ----------------*/
     fTop = 0;
@@ -651,8 +656,8 @@ void GTKUI::addMenu()
     gtk_menu_bar_append (GTK_MENU_BAR(menubar), menuFile);
     gtk_widget_show(menuFile);
     /*-- Create Engine submenu  --*/
-    menu = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuFile), menu);
+    menuh = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuFile), menuh);
     /* Some thing went wrong when compile without __SSE__ with that funktion. So I disable it in this case.*/
 #if defined (__SSE__)
     /*-- Create New radio check menu item and set active under Engine submenu --*/
@@ -661,12 +666,12 @@ void GTKUI::addMenu()
     gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (play_function), NULL);
 //checky = 1.0;
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open radio check menu item under Engine submenu --*/
     menuitem = gtk_radio_menu_item_new_with_label (group,  "  Stopp");
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (stop_function), NULL);
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
 #endif
 //------------ create the Gui hide menuitem when start parameter nogui ------------------
@@ -675,14 +680,14 @@ void GTKUI::addMenu()
         /*-- Create Exit menu item under Engine submenu --*/
         menuitem = gtk_menu_item_new_with_label ("  Quit GUI  ");
         gtk_signal_connect(GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (hide_widget), fWindow);
-        gtk_menu_append(GTK_MENU(menu), menuitem);
+        gtk_menu_append(GTK_MENU(menuh), menuitem);
         gtk_widget_show (menuitem);
     }
     /*-- Create Exit menu item under Engine submenu --*/
     menuitem = gtk_menu_item_new_with_label ("  Exit  ");
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (delete_event), NULL);
     gtk_signal_connect(GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (destroy_event), NULL);
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
     /*---------------- End Engine menu declarations ----------------*/
 

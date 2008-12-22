@@ -23,7 +23,7 @@ public:
     virtual int getNumOutputs() 	= 0;
     virtual void buildUserInterface(UI* interface) 	= 0;
     virtual void init(int samplingRate) 	= 0;
-    virtual void compute(int len, float** inputs, float** outputs, void* midi_port_buf) 	= 0;
+    virtual void compute(int len, float** inputs, float** outputs) 	= 0;
     virtual void compute_midi( int len, float** input, void* midi_port_buf)  = 0;
 };
 
@@ -736,12 +736,15 @@ public:
                 {
                    if  (playmidi == 1)
                     {
+                    send = 0;	
+		    send1 = 0;
+                    send2 = 0;
                     if (weg > (fSamplingFreq)/fslider37)
                         {
                      fConsta1 = 2000.0f;
                             if (weg < ((fSamplingFreq)/fslider37)+5) 
                             {
-                               send = 0;				
+                              // send = 0;				
                                 jack_midi_clear_buffer(midi_port_buf);
                                 midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                                 if (midi_send)
@@ -753,7 +756,7 @@ public:
                                 //  midi_send[0] +=  int(fslider30);
                                 }
                          if (fcheckbox10 == 1.0) {
-                           send1 = 0;
+                              // send1 = 0;
                                jack_midi_clear_buffer(midi_port_buf);
                                 midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                                 if (midi_send)
@@ -766,7 +769,7 @@ public:
 				}
                             }
                          if (fcheckbox11 == 1.0) {
-                           send2 = 0;
+                               send2 = 0;
                                jack_midi_clear_buffer(midi_port_buf);
                                 midi_send = jack_midi_event_reserve(midi_port_buf, 0, 3);
                                 if (midi_send)
@@ -809,9 +812,9 @@ public:
 };
 
 
-    virtual void compute (int count, float** input, float** output, void* midi_port_buf)
+    virtual void compute (int count, float** input, float** output)
     {
-        TBeatDetector myTBeatDetector;
+        
         float 	beat0;
         float 	fSlow0 = fslider0;
         float 	fSlow1 = powf(10, (2.500000e-02f * fslider1));

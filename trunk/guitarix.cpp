@@ -10,7 +10,7 @@
 
 
 // global static fields
-GtkWidget* fWindow, *menul, *menus, *pb, *midibox, *fbutton, *label1;
+GtkWidget* fWindow, *menul, *menus, *pb, *midibox, *fbutton, *label1, *menuh;
 
 static float      togglebutton1;
 static float      checkbutton7;
@@ -28,6 +28,7 @@ string  jconvwav ;
 int cm = 0;
 int shownote = 2;
 int playmidi = 0;
+int showit = 0;
 
 FILE*              control_stream;
 FILE*              control_stream1;
@@ -531,5 +532,23 @@ static void hide_widget( GtkWidget *widget, gpointer fWindow )
 {
     gtk_widget_hide(GTK_WIDGET(fWindow));
     gtk_main_quit ();
+}
+
+static void hide_show( GtkWidget *widget, gpointer data )
+{
+    if (showit == 0){
+    gtk_widget_hide(GTK_WIDGET(fWindow));
+    showit = 1;
+    }
+    else {
+    gtk_widget_show(GTK_WIDGET(fWindow));
+    showit = 0;
+    }
+}
+
+static void pop_menu( GtkWidget *widget, gpointer data )
+{
+guint32 tim = gtk_get_current_event_time ();
+gtk_menu_popup (GTK_MENU(menuh),NULL,NULL,NULL,(gpointer) menuh,2,tim);
 }
 

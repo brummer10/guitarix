@@ -178,9 +178,7 @@ int process (jack_nframes_t nframes, void *arg)
     {
         gOutChannel[i] = (float *)jack_port_get_buffer(output_ports[i], nframes);
     }
-    midi_port_buf = jack_port_get_buffer(midi_output_ports, frag);
-    jack_midi_clear_buffer(midi_port_buf);
-    DSP.compute(nframes, gInChannel, gOutChannel, midi_port_buf);
+    DSP.compute(nframes, gInChannel, gOutChannel);
     return 0;
 }
 
