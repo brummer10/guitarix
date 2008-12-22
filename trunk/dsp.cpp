@@ -736,9 +736,9 @@ public:
                 {
                    if  (playmidi == 1)
                     {
-                    send = 0;	
-		    send1 = 0;
-                    send2 = 0;
+                    //send = 0;	
+		    //send1 = 0;
+                    //send2 = 0;
                     if (weg > (fSamplingFreq)/fslider37)
                         {
                      fConsta1 = 2000.0f;
