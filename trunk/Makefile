@@ -28,6 +28,7 @@ install:
 	install ./rcstyles/controls1.jpg $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/controls2.jpg $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/controls3.jpg $(DESTDIR)$(PREFIX)/share/guitarix
+	install ./rcstyles/controls4.jpg $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/guitarix.rc $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/guitarix_pix.rc $(DESTDIR)$(PREFIX)/share/guitarix
 clean  :
