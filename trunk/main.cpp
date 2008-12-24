@@ -1,6 +1,6 @@
 //-----------------------------------------------------
 // name : "guitarix"
-// version : "0.03.2"
+// version : "0.03.3"
 // author : "hermann meyer"
 // contributors : "Julius O. Smith (jos at ccrma.stanford.edu)"
 // license : "GPL"

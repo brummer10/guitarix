@@ -1,4 +1,4 @@
-guitarix (0.03.svn-1) unstable; urgency=low
+guitarix (0.03.3-1) unstable; urgency=low
   * add resampler for ir.wav files
   * autoremove white space in ir.wav file names
   * protected advanced setting widgets for destroy call from window manager
@@ -10,10 +10,10 @@ guitarix (0.03.svn-1) unstable; urgency=low
   * add controll interface for pitch tracker/beatdetector
   * add extra tread for midi processing
   * add system tray icon with menu
-  * add high cpu load warning
+  * add high cpu load sys tray warning
   * clean up midi process
 
-
+ -- brummer <brummer-@web.de>  Thu, 24 Dec 2008 14:24:42 +0200
 
 guitarix (0.03.a-1) unstable; urgency=low
   * bug fix for jconv wet/dry slider

@@ -114,7 +114,7 @@ bool Existspix()
     snprintf(rcfilename, 256, "%s", "/usr/share/pixmaps/guitarix.png");
     char          rcfilename1[256];
     snprintf(rcfilename1, 256, "%s", "/usr/share/pixmaps/guitarix-midi.png");
-    if (( !stat(rcfilename, &my_stat) == 0) & ( !stat(rcfilename1, &my_stat) == 0))
+    if (( stat(rcfilename, &my_stat) == 0) & ( stat(rcfilename1, &my_stat) == 0))
     {
         gtk_window_set_icon_from_file(GTK_WINDOW (fWindow),  "/usr/share/pixmaps/guitarix.png", NULL);
         ib =       gtk_window_get_icon (GTK_WINDOW (fWindow));
