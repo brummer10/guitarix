@@ -35,13 +35,12 @@ GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
     /*---------------- set window defaults ----------------*/
     gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
     gtk_window_set_title (GTK_WINDOW (fWindow), name);
-    gtk_window_set_icon_from_file(GTK_WINDOW (fWindow),  "/usr/share/pixmaps/guitarix.png", NULL);
-    GdkPixbuf*   ib =       gtk_window_get_icon (GTK_WINDOW (fWindow));
+    Existspix();
     /*---------------- singnals ----------------*/
     gtk_signal_connect (GTK_OBJECT (fWindow), "delete_event", GTK_SIGNAL_FUNC (delete_event), NULL);
     gtk_signal_connect (GTK_OBJECT (fWindow), "destroy", GTK_SIGNAL_FUNC (destroy_event), NULL);
     /*---------------- status icon ----------------*/
-    GtkStatusIcon*  status_icon =    gtk_status_icon_new_from_pixbuf (GDK_PIXBUF(ib));
+    status_icon =    gtk_status_icon_new_from_pixbuf (GDK_PIXBUF(ib));
     g_signal_connect (G_OBJECT (status_icon), "activate", GTK_SIGNAL_FUNC (hide_show), NULL);
     g_signal_connect (G_OBJECT (status_icon), "popup-menu", GTK_SIGNAL_FUNC (pop_menu), NULL);
 
@@ -622,8 +621,41 @@ void GTKUI::addNumDisplay(const char* label, float* zone )
 	closeBox();
 }
 
+struct uiStatusDisplay : public uiItem
+{
+    GtkLabel* fLabel;
+    int	fPrecision;
 
+    uiStatusDisplay(UI* ui, float* zone, GtkLabel* label)
+            : uiItem(ui, zone), fLabel(label) {}
 
+    virtual void reflectZone()
+    {
+        float 	v = *fZone;
+        fCache = v;
+        //char s[64];
+        if ((playmidi == 1) & (cpu_load < 70.0))
+        {
+            if (v > 0.0f) gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ibm));
+            else  gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ib));
+        }
+        else if (playmidi == 0)
+        {
+            gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ib));
+        }
+	else gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ibr));
+    }
+};
+
+void GTKUI::addStatusDisplay(const char* label, float* zone )
+{
+    GtkWidget* lw = gtk_label_new("");
+    new uiStatusDisplay(this, zone, GTK_LABEL(lw));
+    openFrameBox(label);
+    addWidget(label, lw);
+    closeBox();
+    gtk_widget_hide(lw);
+};
 
 //----------------------------- menu ----------------------------
 void GTKUI::addMenu()
@@ -674,6 +706,11 @@ void GTKUI::addMenu()
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
 #endif
+   /*-- Create Open check menu item under Options submenu --*/
+    menuitem = gtk_check_menu_item_new_with_label ("  midi_out ");
+    gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (midi_note), NULL);
+    gtk_menu_append(GTK_MENU(menuh), menuitem);
+    gtk_widget_show (menuitem);
 //------------ create the Gui hide menuitem when start parameter nogui ------------------
     if (strcmp(param, "nogui") == 0)
     {
@@ -775,11 +812,6 @@ void GTKUI::addMenu()
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("  tuner ");
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (show_note), NULL);
-    gtk_menu_append(GTK_MENU(menu), menuitem);
-    gtk_widget_show (menuitem);
-    /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_label ("  midi_out ");
-    gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (midi_note), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/

@@ -240,6 +240,7 @@ public:
     virtual void addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step) {};
     virtual void addHorizontalSlider(const char* label, float* zone, float init, float min, float max, float step) {};
     virtual void addNumDisplay(const char* label, float* zone) {};
+    virtual void addStatusDisplay(const char* label, float* zone ) {};
 
     void addCallback(float* zone, uiCallback foo, void* data);
 

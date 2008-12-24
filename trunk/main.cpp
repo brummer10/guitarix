@@ -191,6 +191,7 @@ int midi_process (jack_nframes_t nframes, void *arg)
     }
     midi_port_buf = jack_port_get_buffer(midi_output_ports, frag);
     jack_midi_clear_buffer(midi_port_buf);
+    cpu_load = jack_cpu_load(midi_client);
     DSP.compute_midi(nframes, gInChannel, midi_port_buf);
     return 0;
 }

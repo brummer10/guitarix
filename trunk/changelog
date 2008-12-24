@@ -10,6 +10,8 @@ guitarix (0.03.svn-1) unstable; urgency=low
   * add controll interface for pitch tracker/beatdetector
   * add extra tread for midi processing
   * add system tray icon with menu
+  * add high cpu load warning
+  * clean up midi process
 
 
 

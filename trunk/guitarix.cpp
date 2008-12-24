@@ -11,6 +11,8 @@
 
 // global static fields
 GtkWidget* fWindow, *menul, *menus, *pb, *midibox, *fbutton, *label1, *menuh;
+GdkPixbuf*   ib, *ibm, *ibr;
+GtkStatusIcon*  status_icon;
 
 static float      togglebutton1;
 static float      checkbutton7;
@@ -43,7 +45,8 @@ int		gNumOutChans;
 //jack_ringbuffer_t *ringbuffer;
 
 int frag;   // jack frame size
-float jackframe;
+float jackframe; // jack sample freq
+float cpu_load; // jack cpu_load
 
 
 // check version and if directory exists and create it if it not exist
@@ -104,6 +107,32 @@ bool Exists(const char* Path)
     }
 }
 
+bool Existspix()
+{
+    struct stat my_stat;
+    char          rcfilename[256];
+    snprintf(rcfilename, 256, "%s", "/usr/share/pixmaps/guitarix.png");
+    char          rcfilename1[256];
+    snprintf(rcfilename1, 256, "%s", "/usr/share/pixmaps/guitarix-midi.png");
+    if (( !stat(rcfilename, &my_stat) == 0) & ( !stat(rcfilename1, &my_stat) == 0))
+    {
+        gtk_window_set_icon_from_file(GTK_WINDOW (fWindow),  "/usr/share/pixmaps/guitarix.png", NULL);
+        ib =       gtk_window_get_icon (GTK_WINDOW (fWindow));
+        GtkWidget *stim = gtk_image_new_from_file ("/usr/share/pixmaps/guitarix-midi.png");
+        ibm = gtk_image_get_pixbuf (GTK_IMAGE(stim));
+        GtkWidget *stir = gtk_image_new_from_file ("/usr/share/pixmaps/guitarix-warn.png");
+        ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
+    }
+    else
+    {
+        gtk_window_set_icon_from_file(GTK_WINDOW (fWindow),  "guitarix.png", NULL);
+        ib =       gtk_window_get_icon (GTK_WINDOW (fWindow));
+        GtkWidget *stim = gtk_image_new_from_file ("guitarix-midi.png");
+        ibm = gtk_image_get_pixbuf (GTK_IMAGE(stim));
+        GtkWidget *stir = gtk_image_new_from_file ("guitarix-warn.png");
+        ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
+    }
+}
 
 // convert int to string
 void IntToString(int i, string & s)
