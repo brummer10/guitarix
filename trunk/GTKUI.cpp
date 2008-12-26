@@ -494,6 +494,18 @@ void GTKUI::addHorizontalSlider(const char* label, float* zone, float init, floa
     closeBox();
 }
 
+void GTKUI::addNumEntry(const char* label, float* zone, float init, float min, float max, float step)
+{
+	*zone = init;
+	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, step);	
+	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+	gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+	GtkWidget* spinner = gtk_spin_button_new (GTK_ADJUSTMENT(adj), 0.005, precision(step));
+	openFrameBox(label);
+	addWidget(label, spinner);
+	closeBox();
+}
+
 static gboolean deleteevent( GtkWidget *widget, gpointer   data )
 {
 return TRUE;

@@ -292,7 +292,7 @@ int main(int argc, char *argv[] )
     {
         jack_port_unregister(client, output_ports[i]);
     }
-    midi_output_ports = jack_port_register(midi_client, "midi_out", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+    midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
 
     interface = new GTKUI (jname, &argc, &argv);
     DSP.init(jack_get_sample_rate(client));

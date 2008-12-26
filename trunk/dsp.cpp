@@ -388,13 +388,13 @@ public:
         fslider29 = 0.0f;
         fslider30 = 0.0f;
         fslider31 = 0.0f;
-        program = int(fslider31);
+       // program = int(fslider31);
         fslider32 = 64.0f;
         fslider33 = 20.0f;
         fslider34 = 0.0f;
         fslider35 = 0.0f;
         fslider36 = 0.0f;
-        program1 = int(fslider36);
+       // program1 = int(fslider36);
         fslider37 = 2.0f;
         fslider38 = 1.0f;
         fslider39 = 20.0f;
@@ -403,7 +403,7 @@ public:
         fslider42 = 0.0f;
         fslider43 = 0.0f;
         fslider44 = 0.0f;
-        program2 = int(fslider44);
+       // program2 = int(fslider44);
         fslider45 = 5.0f;
         midistat = 0.0f;
         //fcheckbox9 = 0.0;
@@ -549,42 +549,63 @@ public:
         interface->openDialogBox("midi out", &fdialogbox6);
         interface->openTabBox("");
 
-        interface->openHorizontalBox("channel1");
+        interface->openVerticalBox("channel1");
+        interface->openEventBox(" ");
+        interface->openHorizontalBox("");
         interface->addVerticalSlider("velocity", &fslider26, 64.f, 0.f, 127.f, 1.f);
-        interface->addVerticalSlider("channel", &fslider30, 0.f, 0.f, 16.f, 1.f);
-        interface->addVerticalSlider("program", &fslider31, 0.f, 0.f, 248.f, 1.f);
-        interface->addVerticalSlider("oktave", &fslider29, 0.f, -2.f, 2.f, 1.f);
-        interface->addVerticalSlider("sensity\ndelay", &fslider27, 20.f, 0.f, 40.f, 1.f);
+        interface->openVerticalBox("");
+        interface->addNumEntry("channel", &fslider30, 0.f, 0.f, 16.f, 1.f);
+        interface->addNumEntry("program", &fslider31, 0.f, 0.f, 248.f, 1.f);
         interface->closeBox();
+        interface->addVerticalSlider("oktave", &fslider29, 0.f, -2.f, 2.f, 1.f);
+        interface->addVerticalSlider("sensity\ndelay", &fslider27, 20.f, 0.f, 100.f, 1.f);
+        interface->closeBox();
+        interface->closeBox();
+        interface->openHorizontalBox(" ");
+        interface->closeBox();
+        interface->closeBox();
+ 
 
         interface->openVerticalBox("channel2");
+        interface->openEventBox(" ");
         interface->openHorizontalBox("");
         interface->addVerticalSlider("velocity", &fslider32, 64.f, 0.f, 127.f, 1.f);
-        interface->addVerticalSlider("channel", &fslider35, 0.f, 0.f, 16.f, 1.f);
-        interface->addVerticalSlider("program", &fslider36, 0.f, 0.f, 248.f, 1.f);
+        interface->openVerticalBox("");
+        interface->addNumEntry("channel", &fslider35, 0.f, 0.f, 16.f, 1.f);
+        interface->addNumEntry("program", &fslider36, 0.f, 0.f, 248.f, 1.f);
+        interface->closeBox();
         interface->addVerticalSlider("oktave", &fslider34, 0.f, -2.f, 2.f, 1.f);
-        interface->addVerticalSlider("sensity\ndelay", &fslider33, 20.f, 0.f, 40.f, 1.f);
+        interface->addVerticalSlider("sensity\ndelay", &fslider33, 20.f, 0.f, 100.f, 1.f);
+        interface->closeBox();
         interface->closeBox();
         interface->addCheckButton("on/off", &fcheckbox10);
         interface->closeBox();
 
         interface->openVerticalBox("channel3");
+        interface->openEventBox(" ");
         interface->openHorizontalBox("");
         interface->addVerticalSlider("velocity", &fslider40, 64.f, 0.f, 127.f, 1.f);
-        interface->addVerticalSlider("channel", &fslider44, 0.f, 0.f, 16.f, 1.f);
-        interface->addVerticalSlider("program", &fslider43, 0.f, 0.f, 248.f, 1.f);
+        interface->openVerticalBox("");
+        interface->addNumEntry("channel", &fslider44, 0.f, 0.f, 16.f, 1.f);
+        interface->addNumEntry("program", &fslider43, 0.f, 0.f, 248.f, 1.f);
+        interface->closeBox();
         interface->addVerticalSlider("oktave", &fslider42, 0.f, -2.f, 2.f, 1.f);
-        interface->addVerticalSlider("sensity\ndelay", &fslider41, 20.f, 0.f, 40.f, 1.f);
+        interface->addVerticalSlider("sensity\ndelay", &fslider41, 20.f, 0.f, 100.f, 1.f);
+        interface->closeBox();
         interface->closeBox();
         interface->addCheckButton("on/off", &fcheckbox11);
         interface->closeBox();
 
         interface->openVerticalBox("beat_detector");
+        interface->openEventBox(" ");
         interface->openHorizontalBox("");
         interface->addVerticalSlider("note_on\ndelay", &fslider39, 20.f, 1.f, 200.f, 1.f);
         interface->addVerticalSlider("note_off\nspeed", &fslider37, 2.f, 1.f, 2400.f, 1.f);
         interface->addVerticalSlider("atack_note\ndelay", &fslider45, 5.f, 1.f, 10.f, 1.f);
-        interface->addVerticalSlider("atack_gain\nspeed", &fslider38, 1.f, 0.1f, 4.f, 0.1f);
+        interface->addVerticalSlider("atack_beat\nspeed", &fslider38, 1.f, 0.1f, 4.f, 0.1f);
+        interface->closeBox();
+        interface->closeBox();
+        interface->openHorizontalBox(" ");
         interface->addStatusDisplay("", &midistat);
         interface->closeBox();
         interface->closeBox();
@@ -631,6 +652,8 @@ public:
 	float fTemps37  = fSamplingFreq/fslider37;
 	float fTemps37a  = (fSamplingFreq/fslider37) +5.0;
 	float fTemps38 = fslider38;
+	int iTemps39 = int(fslider39);
+	float fTemps39 = fslider39;
 
         for (int i=0; i<len; i++)
         {
@@ -648,11 +671,11 @@ public:
                 fVect1[0] = (fRect5[0] / fTempt2);
                 fRect4[0] = (fVect1[1] + ((fRect5[0] + ((fTempt1 - 1) * fRect4[1])) / fTempt2));
                 int iTempt4 = ((fRect4[1] < 0) & (fRect4[0] >= 0));
-                iRect3[0] = (iTempt4 + (iRect3[1] % int(fslider39)));
-                iRect2[0] = ((1 - (iTempt4 & (iRect3[0] == fslider39))) * iTempt0);
+                iRect3[0] = (iTempt4 + (iRect3[1] % iTemps39));
+                iRect2[0] = ((1 - (iTempt4 & (iRect3[0] ==  fTemps39))) * iTempt0);
                 int iTempt5 = (iRect2[0] == 0);
                 iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
-                fRect0[0] = (fSamplingFreq * ((fslider39 / max(iRect1[0], 1)) - (fslider39 * (iRect1[0] == 0))));
+                fRect0[0] = (fSamplingFreq * ((fTemps39 / max(iRect1[0], 1)) - (fTemps39 * (iRect1[0] == 0))));
 
                 if (fTempt3 >= fTemps45)
                 {
@@ -661,12 +684,9 @@ public:
                     weg = 0;
                     if (playmidi == 1)
                     {
-                        //if ((fConsta1<-6) | (fConsta1>62))  beat0 *=2.0;
-                        // channel0
                         if (program != iTemps31)
                         {
                             program = iTemps31;
-                            //  jack_midi_clear_buffer(midi_port_buf);
                             midistat += 1.0f;
                             midi_send = jack_midi_event_reserve(midi_port_buf, i, 2);
                             if (midi_send)
@@ -682,7 +702,6 @@ public:
                             midistat += 1.0f;
                             if (( noten>=0)&(noten<=127))
                             {
-                                //  jack_midi_clear_buffer(midi_port_buf);
                                 midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
                                 if (midi_send)
                                 {
@@ -698,7 +717,6 @@ public:
                             if (program1 != iTemps36)
                             {
                                 program1 = iTemps36;
-                                //  jack_midi_clear_buffer(midi_port_buf);
                                 midistat += 1.0f;
                                 midi_send = jack_midi_event_reserve(midi_port_buf, i, 2);
                                 if (midi_send)
@@ -714,7 +732,6 @@ public:
                                 midistat += 1.0f;
                                 if ((noten1>=0)&(noten1<=127))
                                 {
-                                    //  jack_midi_clear_buffer(midi_port_buf);
                                     midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
                                     if (midi_send)
                                     {
@@ -730,7 +747,6 @@ public:
                             if (program2 != iTemps43)
                             {
                                 program2 = iTemps43;
-                                // jack_midi_clear_buffer(midi_port_buf);
                                 midistat += 1.0f;
                                 midi_send = jack_midi_event_reserve(midi_port_buf, i, 2);
                                 if (midi_send)
@@ -746,7 +762,6 @@ public:
                                 midistat += 1.0f;
                                 if ((noten2>=0)&(noten2<=127))
                                 {
-                                    //  jack_midi_clear_buffer(midi_port_buf);
                                     midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
                                     if (midi_send)
                                     {
@@ -773,55 +788,42 @@ public:
                 {
                     if  (playmidi == 1)
                     {
-                        //    send = 0;
-                        //	 send1 = 0;
-                        //  send2 = 0;
                         if ((weg > fTemps37) | (cpu_load > 75.0))
                         {
-
                             fConsta1 = 2000.0f;
                             if ((weg <  fTemps37a) | (cpu_load > 75.0))  // 5.0
                             {
-                                send = 0;
+                               // send = 0;
                                 midistat += 1.0f;
-                                //  jack_midi_clear_buffer(midi_port_buf);
                                 midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
                                 if (midi_send)
                                 {
                                     midi_send[2] = iTemps26;		/* velocity */
                                     midi_send[1] = 123;       /* all notes off */
-                                    // midi_send[0] &=  int(fslider30);
                                     midi_send[0] = 0xB0 | iTemps30 ;	/* controller */
-                                    //  midi_send[0] +=  int(fslider30);
                                 }
                                 if (fcheckbox10 == 1.0)
                                 {
-                                    send1 = 0;
+                                  //  send1 = 0;
                                     midistat += 1.0f;
-                                    //  jack_midi_clear_buffer(midi_port_buf);
                                     midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
                                     if (midi_send)
                                     {
                                         midi_send[2] = iTemps32;		/* velocity */
                                         midi_send[1] = 123;       /* all notes off */
-                                        // midi_send[0] &=  int(fslider35);
                                         midi_send[0] = 0xB0 |  iTemps35;	/* controller */
-                                        // midi_send[0] +=  int(fslider35);
                                     }
                                 }
                                 if (fcheckbox11 == 1.0)
                                 {
-                                    send2 = 0;
+                                  //  send2 = 0;
                                     midistat += 1.0f;
-                                    //  jack_midi_clear_buffer(midi_port_buf);
                                     midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
                                     if (midi_send)
                                     {
                                         midi_send[2] = iTemps40;		/* velocity */
                                         midi_send[1] = 123;       /* all notes off */
-                                        // midi_send[0] &=  int(fslider35);
                                         midi_send[0] = 0xB0 |  iTemps44;	/* controller */
-                                        // midi_send[0] +=  int(fslider35);
                                     }
                                 }
                                 midistat = 0.0f;
