@@ -674,13 +674,13 @@ public:
         interface->closeBox();
     }
 
-    virtual void compute_midi( int len, float** input, void* midi_port_buf)
+    virtual void compute_midi( int len, float** inputi, void* midi_port_buf)
     {
         TBeatDetector myTBeatDetector;
 
         float 	beat0;
         int preNote;
-        float* input0 = input[0];
+        float* inputi0 = inputi[0];
         float fTemps45 = fslider45*0.01;
         int iTemps31 = int(fslider31);
         int iTemps30 = int(fslider30);
@@ -705,7 +705,7 @@ public:
 
         for (int i=0; i<len; i++)
         {
-            beat0 = (input0[i] * fTemps38);
+            beat0 = (inputi0[i] * fTemps38);
 
             if ((shownote == 1) | (playmidi == 1))
             {
@@ -713,7 +713,7 @@ public:
                 int iTempt0 = (1 + iRect2[1]);
                 float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
                 float fTempt2 = (1 + fTempt1);
-                float fTempt3 = input0[i];
+                float fTempt3 = inputi0[i];
                 fVect0[0] = fTempt3;
                 fRect5[0] = (fConstan3 * ((fVect0[0] - fVect0[1]) + (fConstan2 * fRect5[1])));
                 fVect1[0] = (fRect5[0] / fTempt2);
@@ -909,7 +909,7 @@ public:
     {
         if (checky != 0)        // play
         {
-            float 	beat0;
+           // float 	beat0;
             // compressor
             float fSlowcom0 = fentrycom0;
             float fSlowcom1 = expf((0 - (fConstcom2 / max(fConstcom2, fslidercom0))));
@@ -1226,6 +1226,15 @@ public:
                 fReccom1[1] = fReccom1[0];
                 fVec0[1] = fVec0[0];
 
+            fRect0[1] = fRect0[0];
+            iRect1[1] = iRect1[0];
+            iRect2[1] = iRect2[0];
+            iRect3[1] = iRect3[0];
+            fRect4[1] = fRect4[0];
+            fVect1[1] = fVect1[0];
+            fRect5[1] = fRect5[0];
+            fVect0[1] = fVect0[0];
+
             }
         }
         else
@@ -1242,6 +1251,15 @@ public:
                 output1[i] = fTemp0;
                 output2[i] = fTemp0;
                 output3[i] = fTemp0;
+
+            fRect0[1] = fRect0[0];
+            iRect1[1] = iRect1[0];
+            iRect2[1] = iRect2[0];
+            iRect3[1] = iRect3[0];
+            fRect4[1] = fRect4[0];
+            fVect1[1] = fVect1[0];
+            fRect5[1] = fRect5[0];
+            fVect0[1] = fVect0[0];
 
             }
         }

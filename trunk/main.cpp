@@ -314,7 +314,7 @@ int main(int argc, char *argv[] )
         return 1;
     }
     // set midi tread to a lower rt-prio when run in realtime.
-    if (jack_is_realtime(midi_client)) 
+    if (jack_is_realtime(midi_client) == 1) 
     {
     sched_param  spar;
     int  __policy;
