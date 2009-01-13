@@ -36,17 +36,18 @@ void TBeatDetector::setSampleRate (float sampleRate)
   BeatRelease=(float)exp(-1.0f/(sampleRate*BEAT_RTIME));
 }
 
-void TBeatDetector::AudioProcess (float input)
+void TBeatDetector::AudioProcess (float input, float triggerpoint)
 // Process incoming signal
 {
   float EnvIn;
+  // Step 1 : Compute all sample frequency related coeffs
   KBeatFilter=1.0/(jackframe*T_FILTER);
   BeatRelease=(float)exp(-1.0f/(jackframe*BEAT_RTIME));
-  // Step 1 : 2nd order low pass filter (made of two 1st order RC filter)
+  // Step 2 : 2nd order low pass filter (made of two 1st order RC filter)
   Filter1Out=Filter1Out+(KBeatFilter*(input-Filter1Out));
   Filter2Out=Filter2Out+(KBeatFilter*(Filter1Out-Filter2Out));
 
-  // Step 2 : peak detector
+  // Step 3 : peak detector
   EnvIn=fabs(Filter2Out);
   if (EnvIn>PeakEnv) PeakEnv=EnvIn;  // Attack time = 0
   else
@@ -55,17 +56,17 @@ void TBeatDetector::AudioProcess (float input)
     PeakEnv+=(1.0f-BeatRelease)*EnvIn;
   }
 
-  // Step 3 : Schmitt trigger
+  // Step 4 : Schmitt trigger
   if (!BeatTrigger)
   {
-    if (PeakEnv>0.05) BeatTrigger=true;    // 0.03
+    if (PeakEnv>triggerpoint) BeatTrigger=true;    // 0.03
   }
   else
   {
-    if (PeakEnv<0.025) BeatTrigger=false;   // 0.015
+    if (PeakEnv<triggerpoint/1.1) BeatTrigger=false;   // 0.015
   }
 
-  // Step 4 : rising edge detector
+  // Step 5 : rising edge detector
   BeatPulse=false;
   if ((BeatTrigger)&&(!PrevBeatPulse))
     BeatPulse=true;

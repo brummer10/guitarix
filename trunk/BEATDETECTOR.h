@@ -24,7 +24,7 @@ public:
   TBeatDetector();
   ~TBeatDetector();
   virtual void setSampleRate(float SampleRate);
-  virtual void AudioProcess (float input);
+  virtual void AudioProcess (float input, float triggerpoint);
 };
 #endif
 

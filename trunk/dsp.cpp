@@ -155,8 +155,6 @@ private:
     float 	fRec0[6];
     float 	fslider24;
     float 	fslider25;
-
-    //float 	fcheckbox9;
     float 	fConstan0;
     float 	fConstan1;
     float 	fConstan2;
@@ -170,13 +168,9 @@ private:
     int 	iRect1[2];
     float 	fRect0[2];
     int weg;
-
     float 	fexpand;
-    //float 	fexpand1;
     float 	fexpand2;
     float 	filebutton;
-    // float 	ebutton;
-    //float 	fcheckbox7;
     float 	fdialogbox1;
     float 	fdialogbox2;
     float 	fdialogbox3;
@@ -191,6 +185,8 @@ private:
     float 	fslider31;
     int program;
     unsigned char* midi_send;
+    unsigned char* midi_send1;
+    unsigned char* midi_send2;
     int send;
     int noten;
     float 	fslider32;
@@ -216,6 +212,21 @@ private:
     int program2;
     float 	fslider45;
     float midistat;
+    float 	fslider46;
+    float 	fslider47;
+    float 	fslider48;
+    int volume;
+    int volume1;
+    int volume2;
+    float 	fpitch;
+    float 	fpitch1;
+    float 	fpitch2;
+    float 	fConsthp0;
+    float 	fConsthp1;
+    float 	fConsthp2;
+    float 	fVechp0[2];
+    float 	fConsthp3;
+    float 	fRechp0[2];
     // compressor
     float 	fentrycom0;
     float 	fConstcom0;
@@ -228,10 +239,10 @@ private:
     float 	fReccom0[2];
     float 	fentrycom1;
     float 	fentrycom2;
-    //float 	fbargraphcom0;
     float 	fdialogbox8;
     float  fcheckboxcom1;
     // compressor end
+
 public:
 
     static void metadata(Meta* m)
@@ -289,7 +300,6 @@ public:
         fConst0 = (7539.822754f / fSamplingFreq);
         fConst1 = cosf(fConst0);
         fConst2 = (1.414214f * sinf(fConst0));
-
         fslider0 = 0.0f;
         fslider1 = 0.0f;
         fConst0 = (7539.822754f / fSamplingFreq);
@@ -415,13 +425,11 @@ public:
         fslider29 = 0.0f;
         fslider30 = 0.0f;
         fslider31 = 0.0f;
-        // program = int(fslider31);
         fslider32 = 64.0f;
         fslider33 = 20.0f;
         fslider34 = 0.0f;
         fslider35 = 0.0f;
         fslider36 = 0.0f;
-        // program1 = int(fslider36);
         fslider37 = 2.0f;
         fslider38 = 1.0f;
         fslider39 = 20.0f;
@@ -430,10 +438,17 @@ public:
         fslider42 = 0.0f;
         fslider43 = 0.0f;
         fslider44 = 0.0f;
-        // program2 = int(fslider44);
         fslider45 = 5.0f;
         midistat = 0.0f;
-        //fcheckbox9 = 0.0;
+        fslider46 = 64;
+        fslider47 = 64;
+        fslider48 = 64;
+	fConsthp0 = (1.0f / tanf((0.5f * (((3.141593f * fSamplingFreq) - 2764.601562f) / fSamplingFreq))));
+	fConsthp1 = (1 + fConsthp0);
+	fConsthp2 = (0 - ((fConsthp0 - 1) / fConsthp1));
+	for (int i=0; i<2; i++) fVechp0[i] = 0;
+	fConsthp3 = (1.0f / fConsthp1);
+	for (int i=0; i<2; i++) fRechp0[i] = 0;
     }
 
     virtual void init(int samplingFreq)
@@ -471,6 +486,18 @@ public:
         interface->openExpanderBox(" CONTROLS ", &fexpand);
         interface->openHandleBox("  ");
 
+        interface->openHorizontalBox("");
+        interface->openVerticalBox(" volume");
+        interface->openHorizontalBox("");
+        interface->addVerticalSlider(" in ", &fslider3, 0.f, -40.f, 40.f, 0.1f);
+        interface->addVerticalSlider("out", &fslider17, 0.f, -40.f, 40.f, 0.1f);
+        interface->closeBox();
+        interface->addPToggleButton("preamp", &fcheckbox1);
+        interface->closeBox();
+        interface->openHorizontalBox("tone");
+        interface->addVerticalSlider(" bass ", &fslider2, 0.f, -20.f, 20.f, 0.1f);
+        interface->addVerticalSlider("treble", &fslider1, 0.f, -20.f, 20.f, 0.1f);
+        interface->closeBox();
         interface->openVerticalBox("compressor");
         interface->addVerticalSlider("ratio", &fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
         interface->addCheckButton("on/off", &fcheckboxcom1);
@@ -490,19 +517,6 @@ public:
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
-
-        interface->openHorizontalBox("");
-        interface->openVerticalBox(" volume");
-        interface->openHorizontalBox("");
-        interface->addVerticalSlider(" in ", &fslider3, 0.f, -40.f, 40.f, 0.1f);
-        interface->addVerticalSlider("out", &fslider17, 0.f, -40.f, 40.f, 0.1f);
-        interface->closeBox();
-        interface->addPToggleButton("preamp", &fcheckbox1);
-        interface->closeBox();
-        interface->openHorizontalBox("tone");
-        interface->addVerticalSlider(" bass ", &fslider2, 0.f, -20.f, 20.f, 0.1f);
-        interface->addVerticalSlider("treble", &fslider1, 0.f, -20.f, 20.f, 0.1f);
-        interface->closeBox();
         interface->openVerticalBox(" distortion");
         interface->addVerticalSlider("  drive ", &fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
         interface->addCheckButton("on/off", &fcheckbox4);
@@ -511,7 +525,6 @@ public:
         interface->addVerticalSlider("  drive ", &fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
         interface->addVerticalSlider("level", &fslider8, 1.000000e-02f, 0.0f, 0.50f, 1.000000e-02f);
         interface->addVerticalSlider("gain", &fslider10, 2.0f, 0.0f, 10.0f, 0.1f);
-        //interface->addCheckButton("on/off", &fcheckbox4);
         interface->openVerticalBox("low/highpass");
         interface->openHorizontalBox("");
         interface->addVerticalSlider("high-freq", &fentry1, 130.0f, 20.0f, 7040.0f, 10.0f);
@@ -537,7 +550,6 @@ public:
         interface->addVerticalSlider("RoomSize", &fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
         interface->addCheckButton("on/off", &fcheckbox6);
         interface->openDialogBox("freeverb", &fdialogbox2);
-        // interface->openEventBox("  ");
         interface->openHandleBox("  ");
         interface->addVerticalSlider("RoomSize", &fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
         interface->addVerticalSlider("damp", &fslider15, 0.5f, 0.0f, 1.0f, 2.500000e-02f);
@@ -552,7 +564,6 @@ public:
         interface->closeBox();
         interface->addCheckButton("on/off", &fcheckbox8);
         interface->openDialogBox("ImpulseResponse", &fdialogbox3);
-        // interface->openEventBox("  ");
         interface->openHandleBox("  ");
         interface->addVerticalSlider("freq", &fslider21, 440.000000f, 20.000000f, 2200.000000f, 10.000000f);
         interface->addVerticalSlider("peak", &fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
@@ -564,7 +575,6 @@ public:
         interface->addVerticalSlider("wah", &fslider11, 0.000000f, 0.000000f, 1.000000f, 1.000000e-02f);
         interface->addCheckButton("on/off", &fcheckbox5);
         interface->openDialogBox("crybaby", &fdialogbox4);
-        // interface->openEventBox("  ");
         interface->openHandleBox("  ");
         interface->addVerticalSlider("wah", &fslider11, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
         interface->addVerticalSlider("level", &fslider12, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
@@ -578,12 +588,6 @@ public:
         interface->addVerticalSlider("time", &fslider18, 1.000000f, 1.000000f, 2000.000000f, 1.000000f);
         interface->closeBox();
         interface->addCheckButton("on/off", &fcheckbox7);
-        /*interface->openDialogBox("echo", &fdialogbox5);
-        // interface->openEventBox("  ");
-        interface->addVerticalSlider("  %  ", &fslider15, 0.000000f, 0.000000f, 100.000000f, 0.100000f);
-        interface->addVerticalSlider("time", &fslider14, 1.000000f, 1.000000f, 2000.000000f, 1.000000f);
-        // interface->closeBox();
-        interface->closeBox();*/
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
@@ -593,77 +597,82 @@ public:
         interface->openFrameBox("");
         interface->openVerticalMidiBox("");
         interface->openHorizontalBox("midi_out");
-
         interface->openDialogBox("midi out", &fdialogbox6);
         interface->openTabBox("");
-
         interface->openVerticalBox("channel1");
         interface->openEventBox(" ");
         interface->openHorizontalBox("");
         interface->addVerticalSlider("velocity", &fslider26, 64.f, 0.f, 127.f, 1.f);
+        interface->addVerticalSlider("volume", &fslider46, 64.f, 0.f, 127.f, 1.f);
         interface->openVerticalBox("");
-        interface->addNumEntry("channel", &fslider30, 0.f, 0.f, 16.f, 1.f);
+        interface->addNumEntry("channel 1", &fslider30, 0.f, 0.f, 16.f, 1.f);
         interface->addNumEntry("program", &fslider31, 0.f, 0.f, 248.f, 1.f);
         interface->closeBox();
         interface->addVerticalSlider("oktave", &fslider29, 0.f, -2.f, 2.f, 1.f);
-        interface->addVerticalSlider("sensity\ndelay", &fslider27, 20.f, 0.f, 100.f, 1.f);
+        interface->addVerticalSlider("sensity", &fslider27, 20.f, 1.f, 500.f, 1.f);
         interface->closeBox();
         interface->closeBox();
+        interface->openHorizontalBox("");
         interface->openHorizontalBox(" ");
         interface->closeBox();
+        interface->addPToggleButton("auto pitch", &fpitch);
         interface->closeBox();
-
-
+        interface->closeBox();
         interface->openVerticalBox("channel2");
         interface->openEventBox(" ");
         interface->openHorizontalBox("");
         interface->addVerticalSlider("velocity", &fslider32, 64.f, 0.f, 127.f, 1.f);
+        interface->addVerticalSlider("volume", &fslider47, 64.f, 0.f, 127.f, 1.f);
         interface->openVerticalBox("");
-        interface->addNumEntry("channel", &fslider35, 0.f, 0.f, 16.f, 1.f);
+        interface->addNumEntry("channel 2", &fslider35, 0.f, 0.f, 16.f, 1.f);
         interface->addNumEntry("program", &fslider36, 0.f, 0.f, 248.f, 1.f);
         interface->closeBox();
         interface->addVerticalSlider("oktave", &fslider34, 0.f, -2.f, 2.f, 1.f);
-        interface->addVerticalSlider("sensity\ndelay", &fslider33, 20.f, 0.f, 100.f, 1.f);
+        interface->addVerticalSlider("sensity", &fslider33, 20.f, 1.f, 500.f, 1.f);
         interface->closeBox();
         interface->closeBox();
+        interface->openHorizontalBox("");
         interface->addCheckButton("on/off", &fcheckbox10);
+        interface->addPToggleButton("auto pitch", &fpitch1);
         interface->closeBox();
-
+        interface->closeBox();
         interface->openVerticalBox("channel3");
         interface->openEventBox(" ");
         interface->openHorizontalBox("");
         interface->addVerticalSlider("velocity", &fslider40, 64.f, 0.f, 127.f, 1.f);
+        interface->addVerticalSlider("volume", &fslider48, 64.f, 0.f, 127.f, 1.f);
         interface->openVerticalBox("");
-        interface->addNumEntry("channel", &fslider44, 0.f, 0.f, 16.f, 1.f);
+        interface->addNumEntry("channel 3", &fslider44, 0.f, 0.f, 16.f, 1.f);
         interface->addNumEntry("program", &fslider43, 0.f, 0.f, 248.f, 1.f);
         interface->closeBox();
         interface->addVerticalSlider("oktave", &fslider42, 0.f, -2.f, 2.f, 1.f);
-        interface->addVerticalSlider("sensity\ndelay", &fslider41, 20.f, 0.f, 100.f, 1.f);
+        interface->addVerticalSlider("sensity", &fslider41, 20.f, 1.f, 500.f, 1.f);
         interface->closeBox();
         interface->closeBox();
+        interface->openHorizontalBox("");
         interface->addCheckButton("on/off", &fcheckbox11);
+        interface->addPToggleButton("auto pitch", &fpitch2);
         interface->closeBox();
-
+        interface->closeBox();
         interface->openVerticalBox("beat_detector");
         interface->openEventBox(" ");
         interface->openHorizontalBox("");
-        interface->addVerticalSlider("note_on\ndelay", &fslider39, 20.f, 1.f, 200.f, 1.f);
-        interface->addVerticalSlider("note_off\nspeed", &fslider37, 2.f, 1.f, 2400.f, 1.f);
-        interface->addVerticalSlider("atack_note\ndelay", &fslider45, 5.f, 1.f, 10.f, 1.f);
-        interface->addVerticalSlider("atack_beat\nspeed", &fslider38, 1.f, 0.1f, 4.f, 0.1f);
+        interface->addVerticalSlider("note_on", &fslider39, 20.f, 1.f, 200.f, 1.f);
+        interface->addVerticalSlider("note_off", &fslider37, 2.f, 1.f, 2400.f, 1.f);
+        interface->addVerticalSlider("atack_note", &fslider45, 5.f, 1.f, 10.f, 1.f);
+        interface->addVerticalSlider("atack_beat", &fslider38, 1.f, 0.01f, 20.f, 0.01f);
         interface->closeBox();
         interface->closeBox();
         interface->openHorizontalBox(" ");
         interface->addStatusDisplay("", &midistat);
         interface->closeBox();
         interface->closeBox();
-
+        interface->closeBox();
+        interface->closeBox();
+        interface->closeBox();
         interface->closeBox();
         interface->closeBox();
 
-        interface->closeBox();
-        interface->closeBox();
-        interface->closeBox();
         interface->addHorizontalSlider(" feedback", &fslider0, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
         interface->addHorizontalSlider(" feedforward", &fslider23, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
         interface->openFrameBox("");
@@ -679,6 +688,7 @@ public:
         TBeatDetector myTBeatDetector;
 
         float 	beat0;
+        float 	fConsta2;
         int preNote;
         float* inputi0 = inputi[0];
         float fTemps45 = fslider45*0.01;
@@ -701,20 +711,27 @@ public:
         float fTemps37a  = (fSamplingFreq/fslider37) +5.0;
         float fTemps38 = fslider38;
         int iTemps39 = int(fslider39);
+        int iTemps46 = int(fslider46);
+        int iTemps47 = int(fslider47);
+        int iTemps48 = int(fslider48);
         float fTemps39 = fslider39;
+        int piwe;
 
         for (int i=0; i<len; i++)
         {
-            beat0 = (inputi0[i] * fTemps38);
+            beat0 = inputi0[i] ;
 
             if ((shownote == 1) | (playmidi == 1))
             {
-
+	        float fTemphp0 = inputi0[i];
+	        fVechp0[0] = fTemphp0;
+	        fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
+	        float fTemphp1  = fRechp0[0];
                 int iTempt0 = (1 + iRect2[1]);
                 float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
                 float fTempt2 = (1 + fTempt1);
                 float fTempt3 = inputi0[i];
-                fVect0[0] = fTempt3;
+                fVect0[0] = fTemphp1;
                 fRect5[0] = (fConstan3 * ((fVect0[0] - fVect0[1]) + (fConstan2 * fRect5[1])));
                 fVect1[0] = (fRect5[0] / fTempt2);
                 fRect4[0] = (fVect1[1] + ((fRect5[0] + ((fTempt1 - 1) * fRect4[1])) / fTempt2));
@@ -729,9 +746,12 @@ public:
                 {
                     fConsta1 = ( (12 * log2f((2.272727e-03f * fRect0[0]))));
                     preNote = int(fConsta1)+57;
+                    fConsta2 = fConsta1 - (preNote - 57);
+                    piwe = (fConsta2+1) * 8192; // pitch wheel value
                     weg = 0;
                     if (playmidi == 1)
                     {
+                        // channel0
                         if (program != iTemps31)
                         {
                             program = iTemps31;
@@ -739,8 +759,20 @@ public:
                             midi_send = jack_midi_event_reserve(midi_port_buf, i, 2);
                             if (midi_send)
                             {
-                                midi_send[1] =  iTemps31;       /* program value */
-                                midi_send[0] = 0xC0 | iTemps30;	/* controller */
+                                midi_send[1] =  iTemps31;  // program value
+                                midi_send[0] = 0xC0 | iTemps30;  // controller+ channel
+                            }
+                        }
+                        if (volume != iTemps46)
+                        {
+                            volume = iTemps46;
+                            midistat += 1.0f;
+                            midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
+                            if (midi_send)
+                            {
+                                midi_send[2] = iTemps46;	// volume value
+                                midi_send[1] =  0x07;     // set controler volume
+                                midi_send[0] = 0xB0 | iTemps30;  // controller + channel
                             }
                         }
                         if (send > iTemps27)   //20
@@ -750,12 +782,36 @@ public:
                             midistat += 1.0f;
                             if (( noten>=0)&(noten<=127))
                             {
+                                // pitch wheel clear
+                                if (fpitch == 1.0)
+                                {
+                                    midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                    if (midi_send)
+                                    {
+                                        midi_send[2] =  0x40;  // pitch value
+                                        midi_send[1] = 0x00 ; // pitch value
+                                        midi_send[0] = 0xE0 |  iTemps30; // controller + channel
+                                    }
+                                }
                                 midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
                                 if (midi_send)
                                 {
-                                    midi_send[2] = iTemps26;		/* velocity */
-                                    midi_send[1] = noten ; //+ int(fslider29)*12;       /* note*/
-                                    midi_send[0] = 0x90 |  iTemps30;	/* note on */
+                                    midi_send[2] = iTemps26; // velocity
+                                    midi_send[1] = noten ; // note
+                                    midi_send[0] = 0x90 |  iTemps30;	// controller + channel
+                                }
+                                // pitch wheel set auto
+                                if (fpitch == 1.0)
+                                {
+                                    if (piwe < 0) piwe = 0;
+                                    if (fConsta2 > 0x3fff) piwe = 0x3fff;
+                                    midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                    if (midi_send)
+                                    {
+                                        midi_send[2] = (piwe >> 7) & 0x7f;  // pitch
+                                        midi_send[1] = piwe & 0x7f ; // pitch
+                                        midi_send[0] = 0xE0 |  iTemps30; // controller + channel
+                                    }
                                 }
                             }
                         }
@@ -766,26 +822,62 @@ public:
                             {
                                 program1 = iTemps36;
                                 midistat += 1.0f;
-                                midi_send = jack_midi_event_reserve(midi_port_buf, i, 2);
-                                if (midi_send)
+                                midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 2);
+                                if (midi_send1)
                                 {
-                                    midi_send[1] = iTemps36;       /* program value */
-                                    midi_send[0] = 0xC0 | iTemps35;	/* controller */
+                                    midi_send1[1] = iTemps36;  // program value
+                                    midi_send1[0] = 0xC0 | iTemps35; // controller+ channel
                                 }
                             }
-                            if (send1 > iTemps33)   //20
+                            if (volume1 != iTemps47)
+                            {
+                                volume1 = iTemps47;
+                                midistat += 1.0f;
+                                midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                if (midi_send1)
+                                {
+                                    midi_send1[2] = iTemps47;  // volume value
+                                    midi_send1[1] =  0x07; // set controler channel volume
+                                    midi_send1[0] = 0xB0 | iTemps35; // controller + channel
+                                }
+                            }
+                            if (send1 > iTemps33)
                             {
                                 noten1 = preNote + iTemps34;
                                 send1 = 0;
                                 midistat += 1.0f;
                                 if ((noten1>=0)&(noten1<=127))
                                 {
-                                    midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
-                                    if (midi_send)
+                                    // pitch wheel clear
+                                    if (fpitch1 == 1.0)
                                     {
-                                        midi_send[2] = iTemps32;		/* velocity */
-                                        midi_send[1] = noten1; // + int(fslider34)*12;       /* note*/
-                                        midi_send[0] = 0x90 | iTemps35;	/* note on */
+                                        midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                        if (midi_send1)
+                                        {
+                                            midi_send1[2] =  0x40;  // pitch value
+                                            midi_send1[1] = 0x00 ; // pitch value
+                                            midi_send1[0] = 0xE0 |  iTemps35;  // controller + channel
+                                        }
+                                    }
+                                    midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                    if (midi_send1)
+                                    {
+                                        midi_send1[2] = iTemps32; // velocity 
+                                        midi_send1[1] = noten1; // note
+                                        midi_send1[0] = 0x90 | iTemps35; // note on + channel
+                                    }
+                                    // pitch wheel set auto
+                                    if (fpitch1 == 1.0)
+                                    {
+                                        if (piwe < 0) piwe = 0;
+                                        if (fConsta2 > 0x3fff) piwe = 0x3fff;
+                                        midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                        if (midi_send1)
+                                        {
+                                            midi_send1[2] = (piwe >> 7) & 0x7f;  // pitch
+                                            midi_send1[1] = piwe & 0x7f ; // pitch
+                                            midi_send1[0] = 0xE0 |  iTemps35; // controller + channel
+                                        }
                                     }
                                 }
                             }
@@ -796,33 +888,69 @@ public:
                             {
                                 program2 = iTemps43;
                                 midistat += 1.0f;
-                                midi_send = jack_midi_event_reserve(midi_port_buf, i, 2);
-                                if (midi_send)
+                                midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 2);
+                                if (midi_send2)
                                 {
-                                    midi_send[1] =  iTemps43;       /* program value */
-                                    midi_send[0] = 0xC0 | iTemps44;	/* controller */
+                                    midi_send2[1] =  iTemps43;  // program value 
+                                    midi_send2[0] = 0xC0 | iTemps44; // controller 
+                                }
+                            }
+                            if (volume2 != iTemps48)
+                            {
+                                volume2 = iTemps48;
+                                //  jack_midi_clear_buffer(midi_port_buf);
+                                midistat += 1.0f;
+                                midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                if (midi_send2)
+                                {
+                                    midi_send2[2] = iTemps48;  // volume value
+                                    midi_send2[1] =  0x07; // set controler channel volume
+                                    midi_send2[0] = 0xB0 | iTemps44; // controller + channel
                                 }
                             }
                             if (send2 > iTemps41)   //20
                             {
+                                // pitch wheel clear
+                                if (fpitch2 == 1.0)
+                                {
+                                    midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                    if (midi_send2)
+                                    {
+                                        midi_send2[2] =  0x40;  // pitch value
+                                        midi_send2[1] = 0x00 ; // pitch value
+                                        midi_send2[0] = 0xE0 |  iTemps44;	// controller + channel
+                                    }
+                                }
                                 noten2 = preNote + iTemps42;
                                 send2 = 0;
                                 midistat += 1.0f;
                                 if ((noten2>=0)&(noten2<=127))
                                 {
-                                    midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
-                                    if (midi_send)
+                                    midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                    if (midi_send2)
                                     {
-                                        midi_send[2] = iTemps40;		/* velocity */
-                                        midi_send[1] = noten2; // + int(fslider42)*12;       /* note*/
-                                        midi_send[0] = 0x90 | iTemps44;	/* note on */
+                                        midi_send2[2] = iTemps40; // velocity 
+                                        midi_send2[1] = noten2; //  note
+                                        midi_send2[0] = 0x90 | iTemps44;  // note on + channel
+                                    }
+                                    // pitch wheel set auto
+                                    if (fpitch2 == 1.0)
+                                    {
+                                        if (piwe < 0) piwe = 0;
+                                        if (fConsta2 > 0x3fff) piwe = 0x3fff;
+                                        midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                        if (midi_send2)
+                                        {
+                                            midi_send2[2] = (piwe >> 7) & 0x7f;  // pitch
+                                            midi_send2[1] = piwe & 0x7f ; // pitch
+                                            midi_send2[0] = 0xE0 |  iTemps44; // controller + channel
+                                        }
                                     }
                                 }
                             }
                         }
-
-                        //myTBeatDetector.setSampleRate (fSamplingFreq);
-                        myTBeatDetector.AudioProcess (beat0);
+                       // myTBeatDetector.setSampleRate (fSamplingFreq);
+                        myTBeatDetector.AudioProcess (beat0,  fTemps38);
                         if (myTBeatDetector.BeatPulse == TRUE)
                         {
                             send++;
@@ -841,37 +969,34 @@ public:
                             fConsta1 = 2000.0f;
                             if ((weg <  fTemps37a) | (cpu_load > 75.0))  // 5.0
                             {
-                                // send = 0;
                                 midistat += 1.0f;
                                 midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
                                 if (midi_send)
                                 {
-                                    midi_send[2] = iTemps26;		/* velocity */
-                                    midi_send[1] = 123;       /* all notes off */
-                                    midi_send[0] = 0xB0 | iTemps30 ;	/* controller */
+                                    midi_send[2] = iTemps26; // velocity 
+                                    midi_send[1] = 123;  // all notes off 
+                                    midi_send[0] = 0xB0 | iTemps30 ;	// controller 
                                 }
                                 if (fcheckbox10 == 1.0)
                                 {
-                                    //  send1 = 0;
                                     midistat += 1.0f;
-                                    midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
-                                    if (midi_send)
+                                    midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                    if (midi_send1)
                                     {
-                                        midi_send[2] = iTemps32;		/* velocity */
-                                        midi_send[1] = 123;       /* all notes off */
-                                        midi_send[0] = 0xB0 |  iTemps35;	/* controller */
+                                        midi_send1[2] = iTemps32; // velocity 
+                                        midi_send1[1] = 123;  // all notes off 
+                                        midi_send1[0] = 0xB0 |  iTemps35;	// controller 
                                     }
                                 }
                                 if (fcheckbox11 == 1.0)
                                 {
-                                    //  send2 = 0;
                                     midistat += 1.0f;
-                                    midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
-                                    if (midi_send)
+                                    midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                    if (midi_send2)
                                     {
-                                        midi_send[2] = iTemps40;		/* velocity */
-                                        midi_send[1] = 123;       /* all notes off */
-                                        midi_send[0] = 0xB0 |  iTemps44;	/* controller */
+                                        midi_send2[2] = iTemps40; // velocity 
+                                        midi_send2[1] = 123;  // all notes off 
+                                        midi_send2[0] = 0xB0 |  iTemps44;	// controller 
                                     }
                                 }
                                 midistat = 0.0f;
@@ -901,6 +1026,8 @@ public:
             fVect1[1] = fVect1[0];
             fRect5[1] = fRect5[0];
             fVect0[1] = fVect0[0];
+	    fRechp0[1] = fRechp0[0];
+	    fVechp0[1] = fVechp0[0];
         }
     };
 
@@ -1034,7 +1161,6 @@ public:
                     float fTempcom5 = min(1, max(0, (fSlowcom4 * fTempcom4)));
                     float fTempcom6 = (fSlowcom5 * fTempcom5);
                     float fTempcom7 = ((fTempcom4 / ((1 + fTempcom6) - fTempcom5)) * (fTempcom5 - fTempcom6));
-                  //  fbargraphcom0 = fTempcom7;
                     float fTempcom8 = powf(10, (5.000000e-02f * fTempcom7));
                     fVec0[0]= (fTempcom0 * fTempcom8);
                 }
@@ -1225,16 +1351,17 @@ public:
                 fReccom0[1] = fReccom0[0];
                 fReccom1[1] = fReccom1[0];
                 fVec0[1] = fVec0[0];
-
-            fRect0[1] = fRect0[0];
-            iRect1[1] = iRect1[0];
-            iRect2[1] = iRect2[0];
-            iRect3[1] = iRect3[0];
-            fRect4[1] = fRect4[0];
-            fVect1[1] = fVect1[0];
-            fRect5[1] = fRect5[0];
-            fVect0[1] = fVect0[0];
-
+                // post processing midi
+                fRect0[1] = fRect0[0];
+                iRect1[1] = iRect1[0];
+                iRect2[1] = iRect2[0];
+                iRect3[1] = iRect3[0];
+                fRect4[1] = fRect4[0];
+                fVect1[1] = fVect1[0];
+                fRect5[1] = fRect5[0];
+                fVect0[1] = fVect0[0];
+		fRechp0[1] = fRechp0[0];
+		fVechp0[1] = fVechp0[0];
             }
         }
         else
@@ -1251,16 +1378,17 @@ public:
                 output1[i] = fTemp0;
                 output2[i] = fTemp0;
                 output3[i] = fTemp0;
-
-            fRect0[1] = fRect0[0];
-            iRect1[1] = iRect1[0];
-            iRect2[1] = iRect2[0];
-            iRect3[1] = iRect3[0];
-            fRect4[1] = fRect4[0];
-            fVect1[1] = fVect1[0];
-            fRect5[1] = fRect5[0];
-            fVect0[1] = fVect0[0];
-
+                // post processing midi
+                fRect0[1] = fRect0[0];
+                iRect1[1] = iRect1[0];
+                iRect2[1] = iRect2[0];
+                iRect3[1] = iRect3[0];
+                fRect4[1] = fRect4[0];
+                fVect1[1] = fVect1[0];
+                fRect5[1] = fRect5[0];
+                fVect0[1] = fVect0[0];
+		fRechp0[1] = fRechp0[0];
+		fVechp0[1] = fVechp0[0];
             }
         }
     }
