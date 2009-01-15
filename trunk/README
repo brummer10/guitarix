@@ -4,11 +4,11 @@ guitarix,
 
 guitarix is a simple mono amplifier to jack (JackAudioConnektionKit) with one input and
 two output's. Designed to get nice trash/metall/rock/blues/guitar sounds. Avaliable are
-the controls for bass, treble, gain, preamp, balance, distortion, freeverb, crybaby(wah)
+the controls for bass, treble, gain, compressor, preamp, balance, distortion, freeverb, crybaby(wah)
 and echo . A fixed resonator will use, when distortion is disable. For the 'presure' in the
 sound you can use the feedback and feedforward sliders.
 
-guitarix include a graphicaly tuner and a jack midi output port with 3 channels. They will
+guitarix include a experimental tuner and a jack midi output port with 3 channels. They will
 feed by a mix from a pitch tracker and a beat detector. You can choose for very channel
 the midi channel, the program, the velocity, you can pich the okatve (2 up or down), and
 you can choose the sensity, that meen how fast the note will read after the beat

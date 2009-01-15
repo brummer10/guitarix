@@ -2,7 +2,7 @@ guitarix (0.03.3-1) unstable; urgency=low
   * add resampler for ir.wav files
   * autoremove white space in ir.wav file names
   * protected advanced setting widgets for destroy call from window manager
-  * add graphically tuner
+  * add experimental tuner
   * add jack midi out port
   * add pitch tracker/beatdetector to midi converter
   * add midi controlls for velocity, channel choose, program choose, okatve switch and sensity
@@ -13,8 +13,11 @@ guitarix (0.03.3-1) unstable; urgency=low
   * add high cpu load sys tray warning and midi send notify
   * clean up midi process
   * set midi process to a lower rt level (-20) when run in realtime
+  * add compressor
+  * add midi controlles for volume and auto pichweel 
+  
 
- -- brummer <brummer-@web.de>  Thu, 24 Dec 2008 14:24:42 +0200
+ -- brummer <brummer-@web.de>  Wed, 14 Dec 2009 14:24:42 +0200
 
 guitarix (0.03.a-1) unstable; urgency=low
   * bug fix for jconv wet/dry slider

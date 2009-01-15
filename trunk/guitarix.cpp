@@ -114,6 +114,10 @@ bool Existspix()
     snprintf(rcfilename, 256, "%s", "/usr/share/pixmaps/guitarix.png");
     char          rcfilename1[256];
     snprintf(rcfilename1, 256, "%s", "/usr/share/pixmaps/guitarix-midi.png");
+    char          rcfilename2[256];
+    snprintf(rcfilename2, 256, "%s", "/usr/locale/share/pixmaps/guitarix.png");
+    char          rcfilename3[256];   
+    snprintf(rcfilename3, 256, "%s", "/usr/locale/share/pixmaps/guitarix-midi.png");
     if (( stat(rcfilename, &my_stat) == 0) & ( stat(rcfilename1, &my_stat) == 0))
     {
         gtk_window_set_icon_from_file(GTK_WINDOW (fWindow),  "/usr/share/pixmaps/guitarix.png", NULL);
@@ -121,6 +125,15 @@ bool Existspix()
         GtkWidget *stim = gtk_image_new_from_file ("/usr/share/pixmaps/guitarix-midi.png");
         ibm = gtk_image_get_pixbuf (GTK_IMAGE(stim));
         GtkWidget *stir = gtk_image_new_from_file ("/usr/share/pixmaps/guitarix-warn.png");
+        ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
+    }
+    else if (( stat(rcfilename2, &my_stat) == 0) & ( stat(rcfilename3, &my_stat) == 0))
+    {
+        gtk_window_set_icon_from_file(GTK_WINDOW (fWindow),  "/usr/locale/share/pixmaps/guitarix.png", NULL);
+        ib =       gtk_window_get_icon (GTK_WINDOW (fWindow));
+        GtkWidget *stim = gtk_image_new_from_file ("/usr/locale/share/pixmaps/guitarix-midi.png");
+        ibm = gtk_image_get_pixbuf (GTK_IMAGE(stim));
+        GtkWidget *stir = gtk_image_new_from_file ("/usr/locale/share/pixmaps/guitarix-warn.png");
         ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
     }
     else

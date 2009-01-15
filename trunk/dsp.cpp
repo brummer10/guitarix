@@ -719,18 +719,17 @@ public:
 
         for (int i=0; i<len; i++)
         {
-            beat0 = inputi0[i] ;
-
             if ((shownote == 1) | (playmidi == 1))
             {
 	        float fTemphp0 = inputi0[i];
-	        fVechp0[0] = fTemphp0;
+		float fTemphps0 = 1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0;
+	        fVechp0[0] = fTemphps0;
+		beat0 = fTemphps0;
 	        fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
 	        float fTemphp1  = fRechp0[0];
                 int iTempt0 = (1 + iRect2[1]);
                 float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
                 float fTempt2 = (1 + fTempt1);
-                float fTempt3 = inputi0[i];
                 fVect0[0] = fTemphp1;
                 fRect5[0] = (fConstan3 * ((fVect0[0] - fVect0[1]) + (fConstan2 * fRect5[1])));
                 fVect1[0] = (fRect5[0] / fTempt2);
@@ -742,7 +741,7 @@ public:
                 iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
                 fRect0[0] = (fSamplingFreq * ((fTemps39 / max(iRect1[0], 1)) - (fTemps39 * (iRect1[0] == 0))));
 
-                if (fTempt3 >= fTemps45)
+                if (fTemphp0 >= fTemps45)
                 {
                     fConsta1 = ( (12 * log2f((2.272727e-03f * fRect0[0]))));
                     preNote = int(fConsta1)+57;
@@ -1036,7 +1035,6 @@ public:
     {
         if (checky != 0)        // play
         {
-           // float 	beat0;
             // compressor
             float fSlowcom0 = fentrycom0;
             float fSlowcom1 = expf((0 - (fConstcom2 / max(fConstcom2, fslidercom0))));
