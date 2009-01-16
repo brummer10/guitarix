@@ -494,6 +494,81 @@ void GTKUI::addHorizontalSlider(const char* label, float* zone, float init, floa
     closeBox();
 }
 
+struct uiValueDisplay : public uiItem
+{
+    GtkLabel* fLabel;
+    int	fPrecision ;
+
+    uiValueDisplay(UI* ui, float* zone, GtkLabel* label, int precision)
+            : uiItem(ui, zone), fLabel(label), fPrecision(precision) {}
+
+    virtual void reflectZone()
+    {
+        float 	v = *fZone;
+        fCache = v;
+        char s[64];
+        if ( fPrecision <= 0)
+        {
+            snprintf(s, 63, "%d", int(v));
+        }
+        else if (fPrecision > 3)
+        {
+            snprintf(s, 63, "%f", v);
+        }
+        else
+        {
+            const char* format[] = {"%.1f", "%.2f", "%.3f"};
+            snprintf(s, 63, format[2-1], v);
+        }
+        gtk_label_set_text(fLabel, s);
+    }
+};
+
+    #include"GtkRegler.cpp"
+void GTKUI::addregler(const char* label, float* zone, float init, float min, float max, float step)
+{
+    GtkRegler myGtkRegler;
+    *zone = init;
+    GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
+    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    const char *pix;
+    const char *pix1;
+    struct stat my_stat;
+    char          rcfilename[256];
+    snprintf(rcfilename, 256, "%s", "/usr/local/share/guitarix/knobdarksmall.png");
+    char          rcfilename1[256];
+    snprintf(rcfilename1, 256, "%s", "/usr/share/guitarix/knobdarksmall.png");
+    char          rcfilename2[256];
+    snprintf(rcfilename2, 256, "%s", "/usr/local/share/guitarix/knobdarksmall1.png");
+    char          rcfilename3[256];
+    snprintf(rcfilename3, 256, "%s", "/usr/share/guitarix/knobdarksmall1.png");
+    if (( stat(rcfilename, &my_stat) == 0) & ( stat(rcfilename2, &my_stat) == 0))
+    {
+    pix = "/usr/local/share/guitarix/knobdarksmall.png";
+    pix1 = "/usr/local/share/guitarix/knobdarksmall1.png";
+    }
+    else if (( stat(rcfilename1, &my_stat) == 0) & ( stat(rcfilename3, &my_stat) == 0))
+    {
+    pix = "/usr/share/guitarix/knobdarksmall.png";
+    pix1 = "/usr/share/guitarix/knobdarksmall1.png";
+    }
+    else
+    {
+    pix = "./rcstyles/knobdarksmall.png";
+    pix1 = "./rcstyles/knobdarksmall1.png";
+    }
+    GtkWidget* lw = gtk_label_new("");
+    new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
+    GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj),25,25,54,pix,pix1);
+    gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
+ // gtk_scale_set_digits(GTK_SCALE(slider), precision(step));   
+    openVerticalBox(label);
+    addWidget(label, lw);
+    addWidget(label, slider);
+    closeBox();
+}
+
 void GTKUI::addNumEntry(const char* label, float* zone, float init, float min, float max, float step)
 {
 	*zone = init;

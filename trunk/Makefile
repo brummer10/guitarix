@@ -31,11 +31,13 @@ install:
 	install ./rcstyles/controls4.jpg $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/guitarix.rc $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/guitarix_pix.rc $(DESTDIR)$(PREFIX)/share/guitarix
+	install ./rcstyles/knobdarksmall.png $(DESTDIR)$(PREFIX)/share/guitarix
+	install ./rcstyles/knobdarksmall1.png $(DESTDIR)$(PREFIX)/share/guitarix
 clean  :
 	rm -rf guitarix
 	rm -rf *.so
 	rm -rf *-stamp
 	rm -rf *~
 uninstall :
-	rm -rf $(PREFIX)/bin/guitarix $(LADSPAPATH)/guitarix.so $(PREFIX)/share/applications/guitarix.desktop $(PREFIX)/share/pixmaps/guitarix.png $(PREFIX)/share/guitarix/guitarix.rc  $(PREFIX)/share/guitarix/controls.jpg  $(PREFIX)/share/guitarix/controls1.jpg$ (PREFIX)/share/guitarix/controls2.jpg (PREFIX)/share/guitarix/controls3.jpg $(PREFIX)/share/guitarix/guitarix_pix.rc $(PREFIX)/share/pixmaps/guitarix-midi.png $(PREFIX)/share/pixmaps/guitarix-warn.png
+	rm -rf $(PREFIX)/bin/guitarix $(LADSPAPATH)/guitarix.so $(PREFIX)/share/applications/guitarix.desktop $(PREFIX)/share/pixmaps/guitarix.png $(PREFIX)/share/guitarix/guitarix.rc  $(PREFIX)/share/guitarix/controls.jpg  $(PREFIX)/share/guitarix/controls1.jpg$ (PREFIX)/share/guitarix/controls2.jpg (PREFIX)/share/guitarix/controls3.jpg $(PREFIX)/share/guitarix/guitarix_pix.rc $(PREFIX)/share/pixmaps/guitarix-midi.png $(PREFIX)/share/pixmaps/guitarix-warn.png $(PREFIX)/share/guitarix/rcstyles/knobdarksmall.png $(PREFIX)/share/guitarix/rcstyles/knobdarksmall1.png
 

@@ -602,14 +602,14 @@ public:
         interface->openVerticalBox("channel1");
         interface->openEventBox(" ");
         interface->openHorizontalBox("");
-        interface->addVerticalSlider("velocity", &fslider26, 64.f, 0.f, 127.f, 1.f);
-        interface->addVerticalSlider("volume", &fslider46, 64.f, 0.f, 127.f, 1.f);
+        interface->addregler("velocity", &fslider26, 64.f, 0.f, 127.f, 1.f);
+        interface->addregler("volume", &fslider46, 64.f, 0.f, 127.f, 1.f);
         interface->openVerticalBox("");
         interface->addNumEntry("channel 1", &fslider30, 0.f, 0.f, 16.f, 1.f);
         interface->addNumEntry("program", &fslider31, 0.f, 0.f, 248.f, 1.f);
         interface->closeBox();
-        interface->addVerticalSlider("oktave", &fslider29, 0.f, -2.f, 2.f, 1.f);
-        interface->addVerticalSlider("sensity", &fslider27, 20.f, 1.f, 500.f, 1.f);
+        interface->addregler("oktave", &fslider29, 0.f, -2.f, 2.f, 1.f);
+        interface->addregler("sensity", &fslider27, 20.f, 1.f, 500.f, 1.f);
         interface->closeBox();
         interface->closeBox();
         interface->openHorizontalBox("");
@@ -621,14 +621,14 @@ public:
         interface->openVerticalBox("channel2");
         interface->openEventBox(" ");
         interface->openHorizontalBox("");
-        interface->addVerticalSlider("velocity", &fslider32, 64.f, 0.f, 127.f, 1.f);
-        interface->addVerticalSlider("volume", &fslider47, 64.f, 0.f, 127.f, 1.f);
+        interface->addregler("velocity", &fslider32, 64.f, 0.f, 127.f, 1.f);
+        interface->addregler("volume", &fslider47, 64.f, 0.f, 127.f, 1.f);
         interface->openVerticalBox("");
         interface->addNumEntry("channel 2", &fslider35, 0.f, 0.f, 16.f, 1.f);
         interface->addNumEntry("program", &fslider36, 0.f, 0.f, 248.f, 1.f);
         interface->closeBox();
-        interface->addVerticalSlider("oktave", &fslider34, 0.f, -2.f, 2.f, 1.f);
-        interface->addVerticalSlider("sensity", &fslider33, 20.f, 1.f, 500.f, 1.f);
+        interface->addregler("oktave", &fslider34, 0.f, -2.f, 2.f, 1.f);
+        interface->addregler("sensity", &fslider33, 20.f, 1.f, 500.f, 1.f);
         interface->closeBox();
         interface->closeBox();
         interface->openHorizontalBox("");
@@ -639,14 +639,14 @@ public:
         interface->openVerticalBox("channel3");
         interface->openEventBox(" ");
         interface->openHorizontalBox("");
-        interface->addVerticalSlider("velocity", &fslider40, 64.f, 0.f, 127.f, 1.f);
-        interface->addVerticalSlider("volume", &fslider48, 64.f, 0.f, 127.f, 1.f);
+        interface->addregler("velocity", &fslider40, 64.f, 0.f, 127.f, 1.f);
+        interface->addregler("volume", &fslider48, 64.f, 0.f, 127.f, 1.f);
         interface->openVerticalBox("");
         interface->addNumEntry("channel 3", &fslider44, 0.f, 0.f, 16.f, 1.f);
         interface->addNumEntry("program", &fslider43, 0.f, 0.f, 248.f, 1.f);
         interface->closeBox();
-        interface->addVerticalSlider("oktave", &fslider42, 0.f, -2.f, 2.f, 1.f);
-        interface->addVerticalSlider("sensity", &fslider41, 20.f, 1.f, 500.f, 1.f);
+        interface->addregler("oktave", &fslider42, 0.f, -2.f, 2.f, 1.f);
+        interface->addregler("sensity", &fslider41, 20.f, 1.f, 500.f, 1.f);
         interface->closeBox();
         interface->closeBox();
         interface->openHorizontalBox("");
@@ -657,10 +657,10 @@ public:
         interface->openVerticalBox("beat_detector");
         interface->openEventBox(" ");
         interface->openHorizontalBox("");
-        interface->addVerticalSlider("note_on", &fslider39, 20.f, 1.f, 200.f, 1.f);
-        interface->addVerticalSlider("note_off", &fslider37, 2.f, 1.f, 2400.f, 1.f);
-        interface->addVerticalSlider("atack_note", &fslider45, 5.f, 1.f, 10.f, 1.f);
-        interface->addVerticalSlider("atack_beat", &fslider38, 1.f, 0.01f, 20.f, 0.01f);
+        interface->addregler("note_on", &fslider39, 20.f, 1.f, 200.f, 1.f);
+        interface->addregler("note_off", &fslider37, 2.f, 1.f, 2400.f, 1.f);
+        interface->addregler("atack_note", &fslider45, 5.f, 1.f, 10.f, 1.f);
+        interface->addregler("atack_beat", &fslider38, 1.f, 0.01f, 20.f, 0.01f);
         interface->closeBox();
         interface->closeBox();
         interface->openHorizontalBox(" ");
@@ -1359,7 +1359,7 @@ public:
                 fRect5[1] = fRect5[0];
                 fVect0[1] = fVect0[0];
 		fRechp0[1] = fRechp0[0];
-		fVechp0[1] = fVechp0[0];
+		fVechp0[1] = fVechp0[0]; 
             }
         }
         else
@@ -1386,7 +1386,7 @@ public:
                 fRect5[1] = fRect5[0];
                 fVect0[1] = fVect0[0];
 		fRechp0[1] = fRechp0[0];
-		fVechp0[1] = fVechp0[0];
+		fVechp0[1] = fVechp0[0]; 
             }
         }
     }
