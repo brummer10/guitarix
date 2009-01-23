@@ -515,10 +515,20 @@ struct uiValueDisplay : public uiItem
         {
             snprintf(s, 63, "%f", v);
         }
-        else
+        else if (fPrecision == 1)
+        {
+            const char* format[] = {"%.1f", "%.2f", "%.3f"};
+            snprintf(s, 63, format[1-1], v);
+        }
+        else if (fPrecision == 2)
         {
             const char* format[] = {"%.1f", "%.2f", "%.3f"};
             snprintf(s, 63, format[2-1], v);
+        }
+        else 
+        {
+            const char* format[] = {"%.1f", "%.2f", "%.3f"};
+            snprintf(s, 63, format[3-1], v);
         }
         gtk_label_set_text(fLabel, s);
     }

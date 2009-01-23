@@ -1,7 +1,7 @@
 
 // ***** GtkRegler.cpp *****
 /******************************************************************************
-part of guitarix, use  knobs with Gtk
+part of guitarix, use  reglers with Gtk
 ******************************************************************************/
 
 #include"GtkRegler.h"
@@ -101,8 +101,7 @@ static void gtk_regler_set_value (GtkWidget *widget, int dir_down)
     g_assert(GTK_IS_REGLER(widget));
     GtkRegler *regler = GTK_REGLER(widget);
     GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-    float oldvalue = adj->value;
-    float halfrange = (adj->upper + adj->lower) / 2;
+
     int oldstep = (int)(0.5f + (adj->value - adj->lower) / adj->step_increment);
     int step;
     int nsteps = (int)(0.5f + (adj->upper - adj->lower) / adj->step_increment); 
@@ -170,8 +169,13 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
 {
     g_assert(GTK_IS_REGLER(widget));
     GtkRegler *regler = GTK_REGLER(widget);
-    if (GTK_WIDGET_HAS_GRAB(widget)) 
-        gtk_range_set_value(GTK_RANGE(widget), regler->start_value - (event->y - regler->start_y) ); 
+    GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+    if (GTK_WIDGET_HAS_GRAB(widget)) {
+        double mal;
+	if (event->x-regler->start_x < 0) mal = 1.0;
+        else mal = -1.0;
+        gtk_range_set_value(GTK_RANGE(widget), regler->start_value - (event->y+(pow(event->x-regler->start_x,2.0)*mal) - regler->start_y) *adj->step_increment); 
+}
     return FALSE;
 }
 

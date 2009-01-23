@@ -488,15 +488,15 @@ public:
 
         interface->openHorizontalBox("");
         interface->openVerticalBox(" volume");
-        interface->openHorizontalBox("");
-        interface->addVerticalSlider(" in ", &fslider3, 0.f, -40.f, 40.f, 0.1f);
-        interface->addVerticalSlider("out", &fslider17, 0.f, -40.f, 40.f, 0.1f);
+        interface->openVerticalBox("");
+        interface->addregler(" in ", &fslider3, 0.f, -40.f, 40.f, 0.1f);
+        interface->addregler("out", &fslider17, 0.f, -40.f, 40.f, 0.1f);
         interface->closeBox();
         interface->addPToggleButton("preamp", &fcheckbox1);
         interface->closeBox();
-        interface->openHorizontalBox("tone");
-        interface->addVerticalSlider(" bass ", &fslider2, 0.f, -20.f, 20.f, 0.1f);
-        interface->addVerticalSlider("treble", &fslider1, 0.f, -20.f, 20.f, 0.1f);
+        interface->openVerticalBox("  tone  ");
+        interface->addregler("  bass  ", &fslider2, 0.f, -20.f, 20.f, 0.1f);
+        interface->addregler(" treble ", &fslider1, 0.f, -20.f, 20.f, 0.1f);
         interface->closeBox();
         interface->openVerticalBox("compressor");
         interface->addVerticalSlider("ratio", &fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
