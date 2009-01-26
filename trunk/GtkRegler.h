@@ -22,7 +22,9 @@ public:
   GtkRegler();
   ~GtkRegler();
  
-virtual GtkWidget *gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment, int x, int y,int step,const char *reglerpix, const char *reglerpix1);
+virtual GtkWidget *gtk_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
+virtual GtkWidget *gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment);
+virtual GtkWidget *gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustment);
 };
 #endif
 

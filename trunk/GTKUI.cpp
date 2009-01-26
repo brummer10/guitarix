@@ -542,35 +542,9 @@ void GTKUI::addregler(const char* label, float* zone, float init, float min, flo
     GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
-    const char *pix;
-    const char *pix1;
-    struct stat my_stat;
-    char          rcfilename[256];
-    snprintf(rcfilename, 256, "%s", "/usr/local/share/guitarix/knobdarksmall.png");
-    char          rcfilename1[256];
-    snprintf(rcfilename1, 256, "%s", "/usr/share/guitarix/knobdarksmall.png");
-    char          rcfilename2[256];
-    snprintf(rcfilename2, 256, "%s", "/usr/local/share/guitarix/knobdarksmall1.png");
-    char          rcfilename3[256];
-    snprintf(rcfilename3, 256, "%s", "/usr/share/guitarix/knobdarksmall1.png");
-    if (( stat(rcfilename, &my_stat) == 0) & ( stat(rcfilename2, &my_stat) == 0))
-    {
-    pix = "/usr/local/share/guitarix/knobdarksmall.png";
-    pix1 = "/usr/local/share/guitarix/knobdarksmall1.png";
-    }
-    else if (( stat(rcfilename1, &my_stat) == 0) & ( stat(rcfilename3, &my_stat) == 0))
-    {
-    pix = "/usr/share/guitarix/knobdarksmall.png";
-    pix1 = "/usr/share/guitarix/knobdarksmall1.png";
-    }
-    else
-    {
-    pix = "./rcstyles/knobdarksmall.png";
-    pix1 = "./rcstyles/knobdarksmall1.png";
-    }
     GtkWidget* lw = gtk_label_new("");
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
-    GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj),25,25,54,pix,pix1);
+    GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
  // gtk_scale_set_digits(GTK_SCALE(slider), precision(step));   
     openVerticalBox(label);
@@ -578,6 +552,39 @@ void GTKUI::addregler(const char* label, float* zone, float init, float min, flo
     addWidget(label, slider);
     closeBox();
 }
+
+void GTKUI::addbigregler(const char* label, float* zone, float init, float min, float max, float step)
+{
+    GtkRegler myGtkRegler;
+    *zone = init;
+    GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
+    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    GtkWidget* lw = gtk_label_new("");
+    new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
+    GtkWidget* slider = myGtkRegler.gtk_big_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
+    gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
+ // gtk_scale_set_digits(GTK_SCALE(slider), precision(step));   
+    openVerticalBox(label);
+    addWidget(label, lw);
+    addWidget(label, slider);
+    closeBox();
+}
+
+void GTKUI::addtoggle(const char* label, float* zone)
+{
+    GtkRegler myGtkRegler;
+    
+    GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
+    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+ 
+    GtkWidget* slider = myGtkRegler.gtk_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
+    openVerticalBox(label);
+    addWidget(label, slider);
+    closeBox();
+}
+
 
 void GTKUI::addNumEntry(const char* label, float* zone, float init, float min, float max, float step)
 {
@@ -753,6 +760,54 @@ void GTKUI::addStatusDisplay(const char* label, float* zone )
     closeBox();
     gtk_widget_hide(lw);
 };
+
+// ------------------------------ Progress Bar -----------------------------------
+
+struct uiBargraph : public uiItem
+{
+	GtkProgressBar*		fProgressBar;
+	float				fMin;
+	float				fMax;
+	
+	uiBargraph(UI* ui, float* zone, GtkProgressBar* pbar, float lo, float hi) 
+			: uiItem(ui, zone), fProgressBar(pbar), fMin(lo), fMax(hi) {}
+
+	float scale(float v) 		{ return (v-fMin)/(fMax-fMin); }
+	
+	virtual void reflectZone() 	
+	{ 
+		float 	v = *fZone;
+		fCache = v; 
+		gtk_progress_bar_set_fraction(fProgressBar, scale(v));	
+	}
+};
+
+	
+
+void GTKUI::addVerticalBargraph(const char* label, float* zone, float lo, float hi)
+{
+	GtkWidget* pb = gtk_progress_bar_new();
+	gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(pb), GTK_PROGRESS_BOTTOM_TO_TOP);
+	gtk_widget_set_size_request(pb, 8, -1);
+	new uiBargraph(this, zone, GTK_PROGRESS_BAR(pb), lo, hi);
+	openFrameBox(label);
+	addWidget(label, pb);
+	closeBox();
+}
+	
+
+void GTKUI::addHorizontalBargraph(const char* label, float* zone, float lo, float hi)
+{
+	GtkWidget* pb = gtk_progress_bar_new();
+	gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(pb), GTK_PROGRESS_LEFT_TO_RIGHT);
+	gtk_widget_set_size_request(pb, -1, 8);
+	new uiBargraph(this, zone, GTK_PROGRESS_BAR(pb), lo, hi);
+	openFrameBox(label);
+	addWidget(label, pb);
+	closeBox();
+}
+
+
 
 //----------------------------- menu ----------------------------
 void GTKUI::addMenu()
