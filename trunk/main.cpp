@@ -218,7 +218,7 @@ int main(int argc, char *argv[] )
                       "                                                                                 -> leave it blank to use the gtk-clearlooks engine with guitarix.rc\n\n"
                      )
         {
-            OPTARG("--pix","-p") rcpath = "/usr/share/guitarix/guitarix_pix.rc";
+            OPTARG("--pix","-p") rcpath = "/usr/share/guitarix/guitarix_black.rc";
             OPTARG("--rcset","-r") rcpath=OPTARG_GETSTRING();
             OPTARG("--clear","-c") rcpath = "    ";
             OPTARG("--nogui","-nogui") param = "nogui";
