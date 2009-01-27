@@ -22,6 +22,7 @@ public:
   GtkRegler();
   ~GtkRegler();
  
+virtual GtkWidget *gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment);
 virtual GtkWidget *gtk_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
 virtual GtkWidget *gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment);
 virtual GtkWidget *gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustment);

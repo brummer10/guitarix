@@ -11,7 +11,7 @@ all    :
 nosse   :
 
 	$(CXX) -fPIC -shared -O3 -Dmydsp=guitarix guitarix-ladspa.cpp -o guitarix.so
-	$(CXX) -O3  `pkg-config --cflags --libs jack gtk+-2.0` guitarix.cpp -o guitarix
+	$(CXX) -O3  -march=native  -ffast-math `pkg-config --cflags --libs jack gtk+-2.0 sndfile` main.cpp -o guitarix
 
 install:
 	mkdir -p $(DESTDIR)$(LADSPAPATH)
@@ -32,6 +32,8 @@ install:
 	install ./rcstyles/controlsbl.jpg $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/controlsbl1.jpg $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/controlsbl2.jpg $(DESTDIR)$(PREFIX)/share/guitarix
+	install ./rcstyles/controlsbl3.jpg $(DESTDIR)$(PREFIX)/share/guitarix
+	install ./rcstyles/controlsbl4.jpg $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/guitarix.rc $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/guitarix_pix.rc $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/guitarix_black.rc $(DESTDIR)$(PREFIX)/share/guitarix
@@ -41,12 +43,13 @@ install:
 	install ./rcstyles/knobgrs1.png $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/switchit.png $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/switchit1.png $(DESTDIR)$(PREFIX)/share/guitarix
-
+	install ./rcstyles/sliderblacks.png $(DESTDIR)$(PREFIX)/share/guitarix
+	install ./rcstyles/sliderblacks1.png $(DESTDIR)$(PREFIX)/share/guitarix
 clean  :
 	rm -rf guitarix
 	rm -rf *.so
 	rm -rf *-stamp
 	rm -rf *~
 uninstall :
-	rm -rf $(PREFIX)/bin/guitarix $(LADSPAPATH)/guitarix.so $(PREFIX)/share/applications/guitarix.desktop $(PREFIX)/share/pixmaps/guitarix.png $(PREFIX)/share/guitarix/guitarix.rc  $(PREFIX)/share/guitarix/controls.jpg  $(PREFIX)/share/guitarix/controls1.jpg$ (PREFIX)/share/guitarix/controls2.jpg  $(PREFIX)/share/guitarix/controlsbl.jpg  $(PREFIX)/share/guitarix/controlsbl1.jpg$ (PREFIX)/share/guitarix/controlsbl2.jpg $(PREFIX)/share/guitarix/controls3.jpg $(PREFIX)/share/guitarix/guitarix_pix.rc $(PREFIX)/share/pixmaps/guitarix-midi.png $(PREFIX)/share/pixmaps/guitarix-warn.png $(PREFIX)/share/guitarix/rcstyles/knobgr.png $(PREFIX)/share/guitarix/rcstyles/knobgr1.png $(PREFIX)/share/guitarix/rcstyles/knobgrs.png $(PREFIX)/share/guitarix/rcstyles/knobgrs1.png $(PREFIX)/share/guitarix/rcstyles/switchit.png $(PREFIX)/share/guitarix/rcstyles/switchit1.png
+	rm -rf $(PREFIX)/bin/guitarix $(LADSPAPATH)/guitarix.so $(PREFIX)/share/applications/guitarix.desktop $(PREFIX)/share/pixmaps/guitarix.png $(PREFIX)/share/guitarix/guitarix.rc  $(PREFIX)/share/guitarix/controls.jpg  $(PREFIX)/share/guitarix/controls1.jpg$ (PREFIX)/share/guitarix/controls2.jpg  $(PREFIX)/share/guitarix/controlsbl.jpg  $(PREFIX)/share/guitarix/controlsbl1.jpg $(PREFIX)/share/guitarix/controlsbl2.jpg $(PREFIX)/share/guitarix/controls3.jpg $(PREFIX)/share/guitarix/guitarix_pix.rc $(PREFIX)/share/pixmaps/guitarix-midi.png $(PREFIX)/share/pixmaps/guitarix-warn.png $(PREFIX)/share/guitarix/rcstyles/knobgr.png $(PREFIX)/share/guitarix/rcstyles/knobgr1.png $(PREFIX)/share/guitarix/rcstyles/knobgrs.png $(PREFIX)/share/guitarix/rcstyles/knobgrs1.png $(PREFIX)/share/guitarix/rcstyles/switchit.png $(PREFIX)/share/guitarix/rcstyles/switchit1.png  $(PREFIX)/share/guitarix/rcstyles/sliderblacks.png $(PREFIX)/share/guitarix/rcstyles/sliderblacks1.png  $(PREFIX)/share/guitarix/controlsbl3.jpg $(PREFIX)/share/guitarix/controlsbl4.jpg
 

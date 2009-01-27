@@ -73,11 +73,11 @@ void GTKUI::closeBox()
 
 void GTKUI::openFrameBox(const char* label)
 {
-    GdkColor   colorRed;
-    gdk_color_parse ("red", &colorRed);
+    //GdkColor   colorRed;
+    //gdk_color_parse ("red", &colorRed);
     GtkWidget * box = gtk_frame_new (label);
     //gtk_frame_set_label_align(GTK_FRAME(box),0.0,0.0);
-    gtk_widget_modify_fg (box, GTK_STATE_NORMAL, &colorRed);
+    //gtk_widget_modify_fg (box, GTK_STATE_NORMAL, &colorRed);
     pushBox(kSingleMode, addWidget(label, box));
 }
 
@@ -571,6 +571,24 @@ void GTKUI::addbigregler(const char* label, float* zone, float init, float min, 
     closeBox();
 }
 
+void GTKUI::addslider(const char* label, float* zone, float init, float min, float max, float step)
+{
+    GtkRegler myGtkRegler;
+    *zone = init;
+    GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
+    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    GtkWidget* lw = gtk_label_new("");
+    new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
+    GtkWidget* slider = myGtkRegler.gtk_hslider_new_with_adjustment(GTK_ADJUSTMENT(adj));
+    gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
+ // gtk_scale_set_digits(GTK_SCALE(slider), precision(step));   
+    openVerticalBox(label);
+    addWidget(label, lw);
+    addWidget(label, slider);
+    closeBox();
+}
+
 void GTKUI::addtoggle(const char* label, float* zone)
 {
     GtkRegler myGtkRegler;
@@ -580,9 +598,9 @@ void GTKUI::addtoggle(const char* label, float* zone)
     gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
  
     GtkWidget* slider = myGtkRegler.gtk_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-    openVerticalBox(label);
+    //openVerticalBox(label);
     addWidget(label, slider);
-    closeBox();
+   // closeBox();
 }
 
 
@@ -619,6 +637,8 @@ void GTKUI::openDialogBox(const char* label, float* zone)
     GtkWidget * box = gtk_hbox_new (homogene, 4);
     GtkWidget * box4 = gtk_vbox_new (homogene, 4);
     GtkWidget * box5 = gtk_hbox_new (homogene, 4);
+   GtkWidget * box6 = gtk_hbox_new (homogene, 4);
+   GtkWidget * box7 = gtk_vbox_new (homogene, 4);
     gtk_container_set_border_width (GTK_CONTAINER (box), 2);
     GdkColor colorRed;
     GdkColor colorOwn;
@@ -626,7 +646,8 @@ void GTKUI::openDialogBox(const char* label, float* zone)
     gdk_color_parse ("#7f7f7f", &colorOwn);
     *zone = 0.0;
     GtkWidget* 	button = gtk_toggle_button_new ();
-    gtk_widget_set_size_request (GTK_WIDGET(button), 40.0, 10.0);
+    gtk_widget_set_size_request (GTK_WIDGET(button), 20.0, 5.0);
+    gtk_widget_set_size_request (GTK_WIDGET(box6), 20.0, 5.0);
     GtkWidget * box3 = gtk_hbox_new (homogene, 4);
     GtkWidget * box1 = gtk_vbox_new (homogene, 4);
     gtk_container_set_border_width (GTK_CONTAINER (box3), 0);
@@ -634,14 +655,18 @@ void GTKUI::openDialogBox(const char* label, float* zone)
     gtk_container_add (GTK_CONTAINER(box3), box1);
     GtkWidget * box2 = gtk_vbox_new (homogene, 4);
     gtk_container_set_border_width (GTK_CONTAINER (box2), 0);
-    gtk_widget_set_size_request (GTK_WIDGET(box2), 10.0, 10.0);
-    gtk_container_add (GTK_CONTAINER(box3), button);
+    gtk_widget_set_size_request (GTK_WIDGET(box2), 5.0, 5.0);
+    gtk_container_add (GTK_CONTAINER(box3), box7);
+    gtk_container_add (GTK_CONTAINER(box7), box6);
+    gtk_container_add (GTK_CONTAINER(box7), button);
     gtk_container_add (GTK_CONTAINER(box3), box2);
-    gtk_widget_set_size_request (GTK_WIDGET(box1), 10.0, 10.0);
+    gtk_widget_set_size_request (GTK_WIDGET(box1), 5.0, 5.0);
     gtk_widget_show (button);
     gtk_widget_show (box1);
     gtk_widget_show (box2);
     gtk_widget_show (box3);
+   gtk_widget_show (box6);
+    gtk_widget_show (box7);
     gtk_container_add (GTK_CONTAINER(fBox[fTop]), box3);
     uiToggleButton* c = new uiToggleButton(this, zone, GTK_TOGGLE_BUTTON(button));
     gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);

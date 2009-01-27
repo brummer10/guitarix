@@ -32,6 +32,8 @@ struct GtkReglerClass
     GdkPixbuf *bigregler_image1;
     GdkPixbuf *toggle_image;
     GdkPixbuf *toggle_image1;
+    GdkPixbuf *slider_image;
+    GdkPixbuf *slider_image1;
 };
 
 GType gtk_regler_get_type ();
@@ -51,6 +53,11 @@ int toggle_y = 28 ;
 int toggle_step = 1; 
 const char *togglepix = "switchit.png";
 const char *togglepix1 = "switchit1.png";
+int slider_x = 120 ;
+int slider_y = 10 ;
+int slider_step = 96; 
+const char *sliderpix = "sliderblacks.png";
+const char *sliderpix1 = "sliderblacks1.png";
 
 static bool Existstogglepix() 
     {
@@ -136,6 +143,34 @@ static bool Existsbigreglerpix()
     }
 }
 
+static bool Existssliderpix() 
+    {
+    struct stat my_stat;
+    char          rcfilename[256];
+    snprintf(rcfilename, 256, "%s", "/usr/local/share/guitarix/sliderblacks.png");
+    char          rcfilename1[256];
+    snprintf(rcfilename1, 256, "%s", "/usr/share/guitarix/sliderblacks.png");
+    char          rcfilename2[256];
+    snprintf(rcfilename2, 256, "%s", "/usr/local/share/guitarix/sliderblacks1.png");
+    char          rcfilename3[256];
+    snprintf(rcfilename3, 256, "%s", "/usr/share/guitarix/sliderblacks1.png");
+    if (( stat(rcfilename, &my_stat) == 0) & ( stat(rcfilename2, &my_stat) == 0))
+    {
+    sliderpix = "/usr/local/share/guitarix/sliderblacks.png";
+    sliderpix1 = "/usr/local/share/guitarix/sliderblacks1.png";
+    }
+    else if (( stat(rcfilename1, &my_stat) == 0) & ( stat(rcfilename3, &my_stat) == 0))
+    {
+    sliderpix = "/usr/share/guitarix/sliderblacks.png";
+    sliderpix1 = "/usr/share/guitarix/sliderblacks1.png";
+    }
+    else
+    {
+    sliderpix = "./rcstyles/sliderblacks.png";
+    sliderpix1 = "./rcstyles/sliderblacks1.png";
+    }
+}
+
 static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 {
     g_assert(GTK_IS_REGLER(widget));
@@ -183,8 +218,21 @@ else if (regler->regler_type == 1) {
     else {
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_image, reglerstate * toggle_x, 0, reglerx, reglery, toggle_x, toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
-    
     }
+
+ else if (regler->regler_type == 3) {
+    reglerx += (widget->allocation.width - slider_x) / 2;
+    reglery += (widget->allocation.height - slider_y) / 2;
+    int reglerstate = (int)((adj->value - adj->lower) * slider_step / (adj->upper - adj->lower));
+    if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE) {
+        gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1, 0, reglerstate * slider_y, reglerx, reglery, slider_x, slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+ gtk_paint_focus(widget->style, window, GTK_STATE_NORMAL, NULL, widget, NULL, reglerx, reglery, slider_x, slider_y);
+    }
+    else {
+        gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image, 0,reglerstate * slider_y, reglerx, reglery, slider_x, slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+    }
+    }
+
 
     return TRUE;
 }
@@ -216,6 +264,14 @@ else if (regler->regler_type == 1) {
    int reglerstate = (int)((adj->value - adj->lower) * toggle_step / (adj->upper - adj->lower));
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_image, reglerstate * toggle_x, 0, reglerx, reglery, toggle_x, toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
+
+ else if (regler->regler_type == 3) {
+    reglerx += (widget->allocation.width - slider_x) / 2;
+    reglery += (widget->allocation.height - slider_y) / 2;
+    int reglerstate = (int)((adj->value - adj->lower) * slider_step / (adj->upper - adj->lower));
+        gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image, 0, reglerstate * slider_y, reglerx, reglery, slider_x, slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+    }
+
     return TRUE;
 }
 
@@ -246,6 +302,14 @@ else if (regler->regler_type == 1) {
   int reglerstate = (int)((adj->value - adj->lower) * toggle_step / (adj->upper - adj->lower));
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_image1, reglerstate * toggle_x, 0, reglerx, reglery, toggle_x, toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
+
+ else if (regler->regler_type == 3) {
+    reglerx += (widget->allocation.width - slider_x) / 2;
+    reglery += (widget->allocation.height - slider_y) / 2;
+    int reglerstate = (int)((adj->value - adj->lower) * slider_step / (adj->upper - adj->lower));
+        gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1, 0, reglerstate * slider_y, reglerx, reglery, slider_x, slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+    }
+
     return TRUE;
 }
 
@@ -264,6 +328,10 @@ else if (regler->regler_type == 1) {
 else if (regler->regler_type == 2) {
     requisition->width = toggle_x;
     requisition->height = toggle_y;
+   }
+else if (regler->regler_type == 3) {
+    requisition->width = slider_x;
+    requisition->height = slider_y;
    }
 }
 
@@ -338,6 +406,11 @@ else if (regler->regler_type == 2) {
     if ( regler->start_value == 0) gtk_range_set_value(GTK_RANGE(widget), 1);
     else gtk_range_set_value(GTK_RANGE(widget), 0);
     }
+else if (regler->regler_type == 3) {
+    regler->start_x = event->x;
+    regler->start_y = event->y;
+    regler->start_value = gtk_range_get_value(GTK_RANGE(widget));
+    }
     return TRUE;
 }
 
@@ -384,6 +457,7 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 Existsreglerpix();
 Existsbigreglerpix();
 Existstogglepix();
+Existssliderpix();
     GError *error = NULL;
     klass->regler_image = gdk_pixbuf_new_from_file( reglerpix, &error);
     g_assert(klass->regler_image != NULL);
@@ -397,6 +471,10 @@ Existstogglepix();
     g_assert(klass->toggle_image != NULL);
     klass->toggle_image1 = gdk_pixbuf_new_from_file( togglepix1, &error);
     g_assert(klass->toggle_image1 != NULL);
+    klass->slider_image = gdk_pixbuf_new_from_file( sliderpix, &error);
+    g_assert(klass->slider_image != NULL);
+    klass->slider_image1 = gdk_pixbuf_new_from_file( sliderpix1, &error);
+    g_assert(klass->slider_image1 != NULL);
 }
 
 static void gtk_regler_init (GtkRegler *regler)
@@ -408,13 +486,17 @@ if (regler->regler_type == 0) {
     widget->requisition.width = regler_x;
     widget->requisition.height = regler_y;
     }
-else if (regler->regler_type == 0) {
+else if (regler->regler_type == 1) {
     widget->requisition.width = bigregler_x;
     widget->requisition.height = bigregler_y;
     }
 else if (regler->regler_type == 2) {
     widget->requisition.width = toggle_x;
     widget->requisition.height = toggle_y;
+    }
+else if (regler->regler_type == 3) {
+    widget->requisition.width = slider_x;
+    widget->requisition.height = slider_y;
     }
 }
 
@@ -454,6 +536,18 @@ static gboolean gtk_regler_value_changed(gpointer obj)
     GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
     GtkRegler *regler = GTK_REGLER(widget);
     regler->regler_type = 2;
+    if (widget) {
+        gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
+        gtk_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
+    }
+    return widget;
+}
+
+ GtkWidget *GtkRegler::gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment)
+{
+    GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
+    GtkRegler *regler = GTK_REGLER(widget);
+    regler->regler_type = 3;
     if (widget) {
         gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
         gtk_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);

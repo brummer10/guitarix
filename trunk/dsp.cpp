@@ -472,12 +472,15 @@ public:
         interface->openFrameBox("");
         interface->addNumDisplay("", &fConsta1);
         interface->closeBox();
-        interface->addHorizontalSlider("balance", &fslider25, 0.f, -1.f, 1.f, 1.e-01f);
+        interface->openVerticalBox("");
+        interface->addslider("balance", &fslider25, 0.f, -1.f, 1.f, 1.e-01f);
+
+        interface->closeBox();
         interface->openFrameBox("");
         interface->openExpanderBox(" jconv ", &fexpand2);
         interface->openHandleBox("  ");
         interface->openVerticalBox("");
-        interface->addHorizontalSlider("wet/dry", &fslider24,  0.f, -1.f, 1.f, 1.e-01f);
+        interface->addslider("wet/dry", &fslider24,  0.f, -1.f, 1.f, 1.e-01f);
         interface->addButton("jconv settings", &filebutton);
         interface->addJToggleButton("run jconv", &checkbutton7);
         interface->closeBox();
@@ -511,6 +514,7 @@ public:
         interface->openHorizontalBox("");
         interface->openVerticalBox("compressor");
         interface->addregler("ratio", &fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
+      interface->openHorizontalBox("");
         interface->addtoggle("", &fcheckboxcom1);
         interface->openDialogBox("compressor", &fdialogbox8);
         interface->openHandleBox("  ");
@@ -520,16 +524,19 @@ public:
         interface->addregler("ratio", &fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
         interface->addregler("threshold", &fentrycom0, -20.000000f, -96.000000f, 10.000000f, 0.100000f);
         interface->closeBox();
-        interface->openHorizontalBox("envelop");
-        interface->addregler("attack", &fslidercom0, 2.000000e-03f, 0.000000f, 1.000000f, 1.000000e-03f);
-        interface->addregler("release", &fslidercom1, 0.500000f, 0.000000f, 10.000000f, 1.000000e-02f);
+        interface->openVerticalBox("envelop");
+        interface->addslider("attack", &fslidercom0, 2.000000e-03f, 0.000000f, 1.000000f, 1.000000e-03f);
+        interface->addslider("release", &fslidercom1, 0.500000f, 0.000000f, 10.000000f, 1.000000e-02f);
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
+       interface->closeBox();
+
         interface->closeBox();
         interface->closeBox();
         interface->openVerticalBox(" distortion");
         interface->addregler("  drive ", &fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
+       interface->openHorizontalBox("");
         interface->addtoggle("", &fcheckbox4);
         interface->openDialogBox("distortion", &fdialogbox1);
         interface->openHandleBox("  ");
@@ -555,10 +562,12 @@ public:
         interface->addregler("vibrato", &fslider5, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
         interface->closeBox();
         interface->closeBox();
+       interface->closeBox();
         interface->closeBox();
         interface->closeBox();
         interface->openVerticalBox(" freeverb");
         interface->addregler("RoomSize", &fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
+      interface->openHorizontalBox("");
         interface->addtoggle("", &fcheckbox6);
         interface->openDialogBox("freeverb", &fdialogbox2);
         interface->openHandleBox("  ");
@@ -567,12 +576,14 @@ public:
         interface->addregler("wet/dry", &fslider14, 0.0f, -0.5f, 0.5f, 1.e-01f);
         interface->closeBox();
         interface->closeBox();
+      interface->closeBox();
         interface->closeBox();
         interface->openVerticalBox("ImpulseResponse");
         interface->openHorizontalBox("");
         interface->addregler("   freq   ", &fslider21, 440.000000f, 20.000000f, 2200.000000f, 10.000000f);
         interface->addregler(" peak ", &fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
         interface->closeBox();
+       interface->openHorizontalBox("");
         interface->addtoggle("", &fcheckbox8);
         interface->openDialogBox("ImpulseResponse", &fdialogbox3);
         interface->openHandleBox("  ");
@@ -581,9 +592,11 @@ public:
         interface->addregler("bandwidth", &fslider20, 100.0f, 20.0f, 20000.0f, 10.0f);
         interface->closeBox();
         interface->closeBox();
+     interface->closeBox();
         interface->closeBox();
         interface->openVerticalBox("crybaby");
         interface->addregler(" wah ", &fslider11, 0.000000f, 0.000000f, 1.000000f, 1.000000e-02f);
+      interface->openHorizontalBox("");
         interface->addtoggle("", &fcheckbox5);
         interface->openDialogBox("crybaby", &fdialogbox4);
         interface->openHandleBox("  ");
@@ -591,8 +604,11 @@ public:
         interface->addregler("level", &fslider12, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
         interface->addregler("wet/dry", &fslider13, 0.f, -1.f, 1.f, 1.e-01f);
         interface->closeBox();
+    interface->closeBox();
         interface->closeBox();
         interface->closeBox();
+        interface->closeBox();
+        interface->openVerticalBox(" ");
         interface->closeBox();
         interface->openVerticalBox(" ");
         //interface->addVerticalBargraph("", &cpu_load,0.0f, 100.0f);
@@ -696,8 +712,8 @@ public:
         interface->closeBox();
         interface->closeBox();
 
-        interface->addHorizontalSlider(" feedback", &fslider0, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
-        interface->addHorizontalSlider(" feedforward", &fslider23, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
+        interface->addslider(" feedback", &fslider0, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
+        interface->addslider(" feedforward", &fslider23, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
         interface->openFrameBox("");
         interface->addToggleButton("record", &togglebutton1);
         interface->closeBox();

@@ -38,10 +38,7 @@ style "guitarix"
   base[INSENSITIVE]  = "#4c5159"
   base[SELECTED]     = { 0.25, 0.25, 0.25 }
   font_name = "sans 10"
-  engine "clearlooks" 
-  {
-    menubarstyle      = 0       # 0 = flat, 1 = sunken, 2 = flat gradient
-  }
+ 
 }
 
 
@@ -79,6 +76,43 @@ style "guitarix-menu"
 class "GtkMenu" style:highest "guitarix-menu"
 class "GtkMenuBar" style:highest "guitarix-menu"
 
+style "b_style"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL	
+			shadow			= OUT
+			file			= "controlsbl3.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= PRELIGHT	
+			shadow			= OUT
+			file			= "controlsbl4.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= ACTIVE	
+			shadow			= OUT
+			file			= "controlsbl3.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+}
+
 style "c_style"
 {
  	engine "pixmap"
@@ -93,31 +127,12 @@ style "c_style"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
-		image
-		{
-			function		= BOX
-			recolorable		= TRUE
-			state			= PRELIGHT	
-			shadow			= OUT
-			file			= "controlsbl1.jpg"
-			border			= { 0, 0, 0, 0 }
-			stretch			= TRUE
-		}
-		image
-		{
-			function		= BOX
-			recolorable		= TRUE
-			state			= ACTIVE	
-			shadow			= OUT
-			file			= "controlsbl.jpg"
-			border			= { 0, 0, 0, 0 }
-			stretch			= TRUE
-		}
+
 	}
 }
 class "GtkHandleBox" style:highest "c_style"
-widget_class "*GtkToggleButton*" style:highest "c_style"
-class "GtkButton" style:highest "c_style"
+widget_class "*GtkToggleButton*" style:highest "b_style"
+class "GtkButton" style:highest "b_style"
 class "GtkSpinButton" style:highest "c_style"
 
 style "p_style"
