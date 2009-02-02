@@ -1,4 +1,3 @@
-
 /******************************************************************************
 *******************************************************************************
 
@@ -73,17 +72,13 @@ void GTKUI::closeBox()
 
 void GTKUI::openFrameBox(const char* label)
 {
-    //GdkColor   colorRed;
-    //gdk_color_parse ("red", &colorRed);
     GtkWidget * box = gtk_frame_new (label);
-    //gtk_frame_set_label_align(GTK_FRAME(box),0.0,0.0);
-    //gtk_widget_modify_fg (box, GTK_STATE_NORMAL, &colorRed);
     pushBox(kSingleMode, addWidget(label, box));
 }
 
 void GTKUI::openTabBox(const char* label)
 {
-	pushBox(kTabMode, addWidget(label, gtk_notebook_new ()));
+    pushBox(kTabMode, addWidget(label, gtk_notebook_new ()));
 }
 
 void GTKUI::openHorizontalBox(const char* label)
@@ -396,7 +391,6 @@ struct uiCheckButton : public uiItem
 
 void GTKUI::addCheckButton(const char* label, float* zone)
 {
-    // *zone = 0.0;
     GdkColor   colorRed;
     GdkColor   colorOwn;
     GdkColor   colorba;
@@ -525,7 +519,7 @@ struct uiValueDisplay : public uiItem
             const char* format[] = {"%.1f", "%.2f", "%.3f"};
             snprintf(s, 63, format[2-1], v);
         }
-        else 
+        else
         {
             const char* format[] = {"%.1f", "%.2f", "%.3f"};
             snprintf(s, 63, format[3-1], v);
@@ -534,7 +528,7 @@ struct uiValueDisplay : public uiItem
     }
 };
 
-    #include"GtkRegler.cpp"
+#include"GtkRegler.cpp"
 void GTKUI::addregler(const char* label, float* zone, float init, float min, float max, float step)
 {
     GtkRegler myGtkRegler;
@@ -546,7 +540,6 @@ void GTKUI::addregler(const char* label, float* zone, float init, float min, flo
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
     GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
- // gtk_scale_set_digits(GTK_SCALE(slider), precision(step));   
     openVerticalBox(label);
     addWidget(label, lw);
     addWidget(label, slider);
@@ -564,7 +557,6 @@ void GTKUI::addbigregler(const char* label, float* zone, float init, float min, 
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
     GtkWidget* slider = myGtkRegler.gtk_big_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
- // gtk_scale_set_digits(GTK_SCALE(slider), precision(step));   
     openVerticalBox(label);
     addWidget(label, lw);
     addWidget(label, slider);
@@ -582,7 +574,6 @@ void GTKUI::addslider(const char* label, float* zone, float init, float min, flo
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
     GtkWidget* slider = myGtkRegler.gtk_hslider_new_with_adjustment(GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
- // gtk_scale_set_digits(GTK_SCALE(slider), precision(step));   
     openVerticalBox(label);
     addWidget(label, lw);
     addWidget(label, slider);
@@ -592,34 +583,29 @@ void GTKUI::addslider(const char* label, float* zone, float init, float min, flo
 void GTKUI::addtoggle(const char* label, float* zone)
 {
     GtkRegler myGtkRegler;
-    
     GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
- 
     GtkWidget* slider = myGtkRegler.gtk_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-    //openVerticalBox(label);
     addWidget(label, slider);
-   // closeBox();
 }
-
 
 void GTKUI::addNumEntry(const char* label, float* zone, float init, float min, float max, float step)
 {
-	*zone = init;
-	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, step);	
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
-	GtkWidget* spinner = gtk_spin_button_new (GTK_ADJUSTMENT(adj), 0.005, precision(step));
-	openFrameBox(label);
-	addWidget(label, spinner);
-	closeBox();
+    *zone = init;
+    GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, step);
+    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    GtkWidget* spinner = gtk_spin_button_new (GTK_ADJUSTMENT(adj), 0.005, precision(step));
+    openFrameBox(label);
+    addWidget(label, spinner);
+    closeBox();
 }
 
 static gboolean deleteevent( GtkWidget *widget, gpointer   data )
 {
-return TRUE;
-} 
+    return TRUE;
+}
 
 void GTKUI::openDialogBox(const char* label, float* zone)
 {
@@ -632,13 +618,13 @@ void GTKUI::openDialogBox(const char* label, float* zone)
     gtk_window_set_position (GTK_WINDOW(dialog), GTK_WIN_POS_MOUSE);
     gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
     gtk_window_set_title (GTK_WINDOW (dialog), label);
-    g_signal_connect (G_OBJECT (dialog), "delete_event", G_CALLBACK (deleteevent), NULL); 
+    g_signal_connect (G_OBJECT (dialog), "delete_event", G_CALLBACK (deleteevent), NULL);
     gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
     GtkWidget * box = gtk_hbox_new (homogene, 4);
     GtkWidget * box4 = gtk_vbox_new (homogene, 4);
     GtkWidget * box5 = gtk_hbox_new (homogene, 4);
-   GtkWidget * box6 = gtk_hbox_new (homogene, 4);
-   GtkWidget * box7 = gtk_vbox_new (homogene, 4);
+    GtkWidget * box6 = gtk_hbox_new (homogene, 4);
+    GtkWidget * box7 = gtk_vbox_new (homogene, 4);
     gtk_container_set_border_width (GTK_CONTAINER (box), 2);
     GdkColor colorRed;
     GdkColor colorOwn;
@@ -665,7 +651,7 @@ void GTKUI::openDialogBox(const char* label, float* zone)
     gtk_widget_show (box1);
     gtk_widget_show (box2);
     gtk_widget_show (box3);
-   gtk_widget_show (box6);
+    gtk_widget_show (box6);
     gtk_widget_show (box7);
     gtk_container_add (GTK_CONTAINER(fBox[fTop]), box3);
     uiToggleButton* c = new uiToggleButton(this, zone, GTK_TOGGLE_BUTTON(button));
@@ -697,57 +683,58 @@ void GTKUI::openDialogBox(const char* label, float* zone)
 
 struct uiNumDisplay : public uiItem
 {
-	GtkWidget* fLabel;
-	
-	
-	uiNumDisplay(UI* ui, float* zone, GtkWidget* label) 
-			: uiItem(ui, zone), fLabel(label) {}
+    GtkWidget* fLabel;
 
-	virtual void reflectZone() 	
-	{ 
-		float 	v = *fZone;
-		fCache = v;
-		char s[64]; 
-                int vis = int(v);
-		float scale = ((v-vis)-(-1.0))/(1.0-(-1.0)); 
-		if ((scale < -1.0) | (scale > 1.0)) scale = 0.0;
-                vis += 9;
-		const char* note[] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};
-		if (shownote == 1) {
-		   gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
-		   if ((vis>=0)&(vis<=11)) snprintf(s, 63, "%s",  note[vis]);
-		   else if ((vis>=-24)&(vis<=-13)) snprintf(s, 63, "%s", note[vis+24]);
-		   else if ((vis>=-12)&(vis<=-1)) snprintf(s, 63, "%s", note[vis+12]);
-		   else if ((vis>=12)&(vis<=23)) snprintf(s, 63, "%s", note[vis-12]);
-		   else if ((vis>=24)&(vis<=35)) snprintf(s, 63,"%s", note[vis-24]);
-		   else if ((vis>=36)&(vis<=47)) snprintf(s, 63,"%s", note[vis-36]);
-		   else snprintf(s, 63, "%s", "");
-	           gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), s);
-		}
-		else if (shownote == 0) {
-		   gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
-		   snprintf(s, 63, "%s", "");
-	           gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), s);
-        	   shownote = 2; 
-		}
-	}
+    uiNumDisplay(UI* ui, float* zone, GtkWidget* label)
+            : uiItem(ui, zone), fLabel(label) {}
+
+    virtual void reflectZone()
+    {
+        float 	v = *fZone;
+        fCache = v;
+        char s[64];
+        int vis = int(v);
+        float scale = ((v-vis)-(-1.0))/(1.0-(-1.0));
+        if ((scale < -1.0) | (scale > 1.0)) scale = 0.0;
+        vis += 9;
+        const char* note[] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};
+        if (shownote == 1)
+        {
+            gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
+            if ((vis>=0)&(vis<=11)) snprintf(s, 63, "%s",  note[vis]);
+            else if ((vis>=-24)&(vis<=-13)) snprintf(s, 63, "%s", note[vis+24]);
+            else if ((vis>=-12)&(vis<=-1)) snprintf(s, 63, "%s", note[vis+12]);
+            else if ((vis>=12)&(vis<=23)) snprintf(s, 63, "%s", note[vis-12]);
+            else if ((vis>=24)&(vis<=35)) snprintf(s, 63,"%s", note[vis-24]);
+            else if ((vis>=36)&(vis<=47)) snprintf(s, 63,"%s", note[vis-36]);
+            else snprintf(s, 63, "%s", "");
+            gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), s);
+        }
+        else if (shownote == 0)
+        {
+            gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
+            snprintf(s, 63, "%s", "");
+            gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), s);
+            shownote = 2;
+        }
+    }
 };
-	
+
 
 void GTKUI::addNumDisplay(const char* label, float* zone )
 {
-	openVerticalBox(label);
-	pb = gtk_progress_bar_new();
-	gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(pb), GTK_PROGRESS_LEFT_TO_RIGHT);
-	new uiNumDisplay(this, zone, GTK_WIDGET(pb));
-	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), label);
-	gtk_widget_set_size_request(pb, 40.0, 20.0);
-        GtkStyle *style = gtk_widget_get_style(pb);
-        pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-        gtk_widget_modify_font(pb, style->font_desc);
-	addWidget(label, pb);
-        gtk_widget_hide(pb);
-	closeBox();
+    openVerticalBox(label);
+    pb = gtk_progress_bar_new();
+    gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(pb), GTK_PROGRESS_LEFT_TO_RIGHT);
+    new uiNumDisplay(this, zone, GTK_WIDGET(pb));
+    gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), label);
+    gtk_widget_set_size_request(pb, 40.0, 20.0);
+    GtkStyle *style = gtk_widget_get_style(pb);
+    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+    gtk_widget_modify_font(pb, style->font_desc);
+    addWidget(label, pb);
+    gtk_widget_hide(pb);
+    closeBox();
 }
 
 struct uiStatusDisplay : public uiItem
@@ -762,7 +749,6 @@ struct uiStatusDisplay : public uiItem
     {
         float 	v = *fZone;
         fCache = v;
-        //char s[64];
         if ((playmidi == 1) & (cpu_load < 70.0))
         {
             if (v > 0.0f) gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ibm));
@@ -772,7 +758,7 @@ struct uiStatusDisplay : public uiItem
         {
             gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ib));
         }
-	else gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ibr));
+        else gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ibr));
     }
 };
 
@@ -790,49 +776,48 @@ void GTKUI::addStatusDisplay(const char* label, float* zone )
 
 struct uiBargraph : public uiItem
 {
-	GtkProgressBar*		fProgressBar;
-	float				fMin;
-	float				fMax;
-	
-	uiBargraph(UI* ui, float* zone, GtkProgressBar* pbar, float lo, float hi) 
-			: uiItem(ui, zone), fProgressBar(pbar), fMin(lo), fMax(hi) {}
+    GtkProgressBar*		fProgressBar;
+    float				fMin;
+    float				fMax;
 
-	float scale(float v) 		{ return (v-fMin)/(fMax-fMin); }
-	
-	virtual void reflectZone() 	
-	{ 
-		float 	v = *fZone;
-		fCache = v; 
-		gtk_progress_bar_set_fraction(fProgressBar, scale(v));	
-	}
+    uiBargraph(UI* ui, float* zone, GtkProgressBar* pbar, float lo, float hi)
+            : uiItem(ui, zone), fProgressBar(pbar), fMin(lo), fMax(hi) {}
+
+    float scale(float v)
+    {
+        return (v-fMin)/(fMax-fMin);
+    }
+
+    virtual void reflectZone()
+    {
+        float 	v = *fZone;
+        fCache = v;
+        if (v >= 1.0) v = 1.0f;
+        gtk_progress_bar_set_fraction(fProgressBar, scale(v));
+    }
 };
-
-	
 
 void GTKUI::addVerticalBargraph(const char* label, float* zone, float lo, float hi)
 {
-	GtkWidget* pb = gtk_progress_bar_new();
-	gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(pb), GTK_PROGRESS_BOTTOM_TO_TOP);
-	gtk_widget_set_size_request(pb, 8, -1);
-	new uiBargraph(this, zone, GTK_PROGRESS_BAR(pb), lo, hi);
-	openFrameBox(label);
-	addWidget(label, pb);
-	closeBox();
+    GtkWidget* pb = gtk_progress_bar_new();
+    gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(pb), GTK_PROGRESS_RIGHT_TO_LEFT);
+    gtk_widget_set_size_request(pb,  -1,8);
+    new uiBargraph(this, zone, GTK_PROGRESS_BAR(pb), lo, hi);
+    openFrameBox(label);
+    addWidget(label, pb);
+    closeBox();
 }
-	
 
 void GTKUI::addHorizontalBargraph(const char* label, float* zone, float lo, float hi)
 {
-	GtkWidget* pb = gtk_progress_bar_new();
-	gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(pb), GTK_PROGRESS_LEFT_TO_RIGHT);
-	gtk_widget_set_size_request(pb, -1, 8);
-	new uiBargraph(this, zone, GTK_PROGRESS_BAR(pb), lo, hi);
-	openFrameBox(label);
-	addWidget(label, pb);
-	closeBox();
+    GtkWidget* pb = gtk_progress_bar_new();
+    gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(pb), GTK_PROGRESS_LEFT_TO_RIGHT);
+    gtk_widget_set_size_request(pb, -1, 8);
+    new uiBargraph(this, zone, GTK_PROGRESS_BAR(pb), lo, hi);
+    openFrameBox(label);
+    addWidget(label, pb);
+    closeBox();
 }
-
-
 
 //----------------------------- menu ----------------------------
 void GTKUI::addMenu()
@@ -883,7 +868,7 @@ void GTKUI::addMenu()
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
 #endif
-   /*-- Create Open check menu item under Options submenu --*/
+    /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("  midi_out ");
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (midi_note), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);

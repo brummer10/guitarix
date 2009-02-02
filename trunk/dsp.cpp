@@ -242,7 +242,7 @@ private:
     float 	fdialogbox8;
     float  fcheckboxcom1;
     // compressor end
-
+    // float  fbargraph0;
 public:
 
     static void metadata(Meta* m)
@@ -302,9 +302,6 @@ public:
         fConst2 = (1.414214f * sinf(fConst0));
         fslider0 = 0.0f;
         fslider1 = 0.0f;
-      //  fConst0 = (7539.822754f / fSamplingFreq);
-       // fConst1 = cosf(fConst0);
-       // fConst2 = (1.414214f * sinf(fConst0));
         fslider2 = 0.0f;
         fConst3 = (1884.955688f / fSamplingFreq);
         fConst4 = cosf(fConst3);
@@ -443,15 +440,15 @@ public:
         fslider46 = 64;
         fslider47 = 64;
         fslider48 = 64;
-	fConsthp0 = (1.0f / tanf((0.5f * (((3.141593f * fSamplingFreq) - 2764.601562f) / fSamplingFreq))));
-	fConsthp1 = (1 + fConsthp0);
-	fConsthp2 = (0 - ((fConsthp0 - 1) / fConsthp1));
-	for (int i=0; i<2; i++) fVechp0[i] = 0;
-	fConsthp3 = (1.0f / fConsthp1);
-	for (int i=0; i<2; i++) fRechp0[i] = 0;
-	send = 0;
-	send1 = 0;
-	send2 = 0;
+        fConsthp0 = (1.0f / tanf((0.5f * (((3.141593f * fSamplingFreq) - 2764.601562f) / fSamplingFreq))));
+        fConsthp1 = (1 + fConsthp0);
+        fConsthp2 = (0 - ((fConsthp0 - 1) / fConsthp1));
+        for (int i=0; i<2; i++) fVechp0[i] = 0;
+        fConsthp3 = (1.0f / fConsthp1);
+        for (int i=0; i<2; i++) fRechp0[i] = 0;
+        send = 0;
+        send1 = 0;
+        send2 = 0;
     }
 
     virtual void init(int samplingFreq)
@@ -514,7 +511,7 @@ public:
         interface->openHorizontalBox("");
         interface->openVerticalBox("compressor");
         interface->addregler("ratio", &fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
-      interface->openHorizontalBox("");
+        interface->openHorizontalBox("");
         interface->addtoggle("", &fcheckboxcom1);
         interface->openDialogBox("compressor", &fdialogbox8);
         interface->openHandleBox("  ");
@@ -530,13 +527,13 @@ public:
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
-       interface->closeBox();
+        interface->closeBox();
 
         interface->closeBox();
         interface->closeBox();
         interface->openVerticalBox(" distortion");
         interface->addregler("  drive ", &fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
-       interface->openHorizontalBox("");
+        interface->openHorizontalBox("");
         interface->addtoggle("", &fcheckbox4);
         interface->openDialogBox("distortion", &fdialogbox1);
         interface->openHandleBox("  ");
@@ -562,12 +559,12 @@ public:
         interface->addregler("vibrato", &fslider5, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
         interface->closeBox();
         interface->closeBox();
-       interface->closeBox();
+        interface->closeBox();
         interface->closeBox();
         interface->closeBox();
         interface->openVerticalBox(" freeverb");
         interface->addregler("RoomSize", &fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
-      interface->openHorizontalBox("");
+        interface->openHorizontalBox("");
         interface->addtoggle("", &fcheckbox6);
         interface->openDialogBox("freeverb", &fdialogbox2);
         interface->openHandleBox("  ");
@@ -576,14 +573,14 @@ public:
         interface->addregler("wet/dry", &fslider14, 0.0f, -0.5f, 0.5f, 1.e-01f);
         interface->closeBox();
         interface->closeBox();
-      interface->closeBox();
+        interface->closeBox();
         interface->closeBox();
         interface->openVerticalBox("ImpulseResponse");
         interface->openHorizontalBox("");
         interface->addregler("   freq   ", &fslider21, 440.000000f, 20.000000f, 2200.000000f, 10.000000f);
         interface->addregler(" peak ", &fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
         interface->closeBox();
-       interface->openHorizontalBox("");
+        interface->openHorizontalBox("");
         interface->addtoggle("", &fcheckbox8);
         interface->openDialogBox("ImpulseResponse", &fdialogbox3);
         interface->openHandleBox("  ");
@@ -592,11 +589,11 @@ public:
         interface->addregler("bandwidth", &fslider20, 100.0f, 20.0f, 20000.0f, 10.0f);
         interface->closeBox();
         interface->closeBox();
-     interface->closeBox();
+        interface->closeBox();
         interface->closeBox();
         interface->openVerticalBox("crybaby");
         interface->addregler(" wah ", &fslider11, 0.000000f, 0.000000f, 1.000000f, 1.000000e-02f);
-      interface->openHorizontalBox("");
+        interface->openHorizontalBox("");
         interface->addtoggle("", &fcheckbox5);
         interface->openDialogBox("crybaby", &fdialogbox4);
         interface->openHandleBox("  ");
@@ -604,14 +601,24 @@ public:
         interface->addregler("level", &fslider12, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
         interface->addregler("wet/dry", &fslider13, 0.f, -1.f, 1.f, 1.e-01f);
         interface->closeBox();
-    interface->closeBox();
         interface->closeBox();
+        interface->closeBox();
+        interface->closeBox();
+        interface->closeBox();
+
+        interface->openEventBox(" ");
+        interface->openVerticalBox("");
+        interface->openHorizontalBox("");
+        interface->openHorizontalBox(" ");
+        // interface->addVerticalBargraph("", &fbargraph0,0.0000f, 1.0000f);
+        interface->closeBox();
+        interface->openVerticalBox(" ");
+        //  interface->addHorizontalBargraph("", &fbargraph0,0.0000f, 1.0000f);
         interface->closeBox();
         interface->closeBox();
         interface->openVerticalBox(" ");
         interface->closeBox();
-        interface->openVerticalBox(" ");
-        //interface->addVerticalBargraph("", &cpu_load,0.0f, 100.0f);
+        interface->closeBox();
         interface->closeBox();
         interface->closeBox();
 
@@ -702,9 +709,9 @@ public:
         interface->addregler("atack_beat", &fslider38, 1.f, 0.01f, 20.f, 0.01f);
         interface->closeBox();
         interface->closeBox();
-      //  interface->openHorizontalBox(" ");
+        //  interface->openHorizontalBox(" ");
         interface->addStatusDisplay("", &midistat);
-      //  interface->closeBox();
+        //  interface->closeBox();
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
@@ -760,12 +767,12 @@ public:
         {
             if ((shownote == 1) | (playmidi == 1))
             {
-	        float fTemphp0 = inputi0[i];
-		float fTemphps0 = 1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0;
-	        fVechp0[0] = fTemphps0;
-		beat0 = fTemphps0;
-	        fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
-	        float fTemphp1  = fRechp0[0];
+                float fTemphp0 = inputi0[i];
+                float fTemphps0 = 1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0;
+                fVechp0[0] = fTemphps0;
+                beat0 = fTemphps0;
+                fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
+                float fTemphp1  = fRechp0[0];
                 int iTempt0 = (1 + iRect2[1]);
                 float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
                 float fTempt2 = (1 + fTempt1);
@@ -900,7 +907,7 @@ public:
                                     midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
                                     if (midi_send1)
                                     {
-                                        midi_send1[2] = iTemps32; // velocity 
+                                        midi_send1[2] = iTemps32; // velocity
                                         midi_send1[1] = noten1; // note
                                         midi_send1[0] = 0x90 | iTemps35; // note on + channel
                                     }
@@ -929,8 +936,8 @@ public:
                                 midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 2);
                                 if (midi_send2)
                                 {
-                                    midi_send2[1] =  iTemps43;  // program value 
-                                    midi_send2[0] = 0xC0 | iTemps44; // controller 
+                                    midi_send2[1] =  iTemps43;  // program value
+                                    midi_send2[0] = 0xC0 | iTemps44; // controller
                                 }
                             }
                             if (volume2 != iTemps48)
@@ -967,7 +974,7 @@ public:
                                     midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
                                     if (midi_send2)
                                     {
-                                        midi_send2[2] = iTemps40; // velocity 
+                                        midi_send2[2] = iTemps40; // velocity
                                         midi_send2[1] = noten2; //  note
                                         midi_send2[0] = 0x90 | iTemps44;  // note on + channel
                                     }
@@ -987,7 +994,7 @@ public:
                                 }
                             }
                         }
-                       // myTBeatDetector.setSampleRate (fSamplingFreq);
+                        // myTBeatDetector.setSampleRate (fSamplingFreq);
                         myTBeatDetector.AudioProcess (beat0,  fTemps38);
                         if (myTBeatDetector.BeatPulse == TRUE)
                         {
@@ -1011,9 +1018,9 @@ public:
                                 midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
                                 if (midi_send)
                                 {
-                                    midi_send[2] = iTemps26; // velocity 
-                                    midi_send[1] = 123;  // all notes off 
-                                    midi_send[0] = 0xB0 | iTemps30 ;	// controller 
+                                    midi_send[2] = iTemps26; // velocity
+                                    midi_send[1] = 123;  // all notes off
+                                    midi_send[0] = 0xB0 | iTemps30 ;	// controller
                                 }
                                 if (fcheckbox10 == 1.0)
                                 {
@@ -1021,9 +1028,9 @@ public:
                                     midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
                                     if (midi_send1)
                                     {
-                                        midi_send1[2] = iTemps32; // velocity 
-                                        midi_send1[1] = 123;  // all notes off 
-                                        midi_send1[0] = 0xB0 |  iTemps35;	// controller 
+                                        midi_send1[2] = iTemps32; // velocity
+                                        midi_send1[1] = 123;  // all notes off
+                                        midi_send1[0] = 0xB0 |  iTemps35;	// controller
                                     }
                                 }
                                 if (fcheckbox11 == 1.0)
@@ -1032,9 +1039,9 @@ public:
                                     midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
                                     if (midi_send2)
                                     {
-                                        midi_send2[2] = iTemps40; // velocity 
-                                        midi_send2[1] = 123;  // all notes off 
-                                        midi_send2[0] = 0xB0 |  iTemps44;	// controller 
+                                        midi_send2[2] = iTemps40; // velocity
+                                        midi_send2[1] = 123;  // all notes off
+                                        midi_send2[0] = 0xB0 |  iTemps44;	// controller
                                     }
                                 }
                                 midistat = 0.0f;
@@ -1064,8 +1071,8 @@ public:
             fVect1[1] = fVect1[0];
             fRect5[1] = fRect5[0];
             fVect0[1] = fVect0[0];
-	    fRechp0[1] = fRechp0[0];
-	    fVechp0[1] = fVechp0[0];
+            fRechp0[1] = fRechp0[0];
+            fVechp0[1] = fVechp0[0];
         }
     };
 
@@ -1202,113 +1209,143 @@ public:
                     fVec0[0]= (fTempcom0 * fTempcom8);
                 }
                 else fVec0[0] = input0[i]; // compressor end
+
                 S5[0] = (fSlow15 * fVec0[1]);
                 S5[1] = (fSlow16 * fVec0[1]);
                 fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
                 float fTemp0 = (fRec4[0] * S5[iSlow17]);
-                fRec3[0] = (0.5f * ((2 * fTemp0) + (1.76f * fRec3[1])));
+                fRec3[0] = (0.5f * ((2 * fTemp0) + (1.76f * fRec3[1])));  //resonanz
                 S4[0] = fRec3[0];
-                float 	S6[2];
-                float 	S7[2];
-                float 	S8[2];
-                float fTemp1 = (fTemp0 + (fSlow19 * fRec6[1]));
-                fVec1[IOTA&4095] = fTemp1;
-                fRec6[0] = (0.5f * (fVec1[(IOTA-iSlow22)&4095] + fVec1[(IOTA-iSlow21)&4095]));
-                S8[0] = fRec6[0];
-                fVec2[0] = (fSlow25 * fRec6[0]);
-                fRec8[0] = (fVec2[1] + (fSlow25 * (fRec6[0] + (fSlow24 * fRec8[1]))));
-                float fTemp2 = (fSlow28 * fRec8[0]);
-                fVec3[0] = fTemp2;
-                fRec7[0] = ((fVec3[0] + (fSlow29 * fRec7[1])) - fVec3[1]);
-                S8[1] = fRec7[0];
-                float fTemp3 = S8[iSlow30];
-                S7[0] = fTemp3;
-                fVec4[0] = (fSlow39 * fTemp3);
-                fRec12[0] = ((fSlow39 * (fTemp3 + (fSlow40 * fRec12[1]))) - fVec4[1]);
-                fVec5[0] = (fSlow39 * fRec12[0]);
-                fRec11[0] = ((fSlow39 * (fRec12[0] + (fSlow40 * fRec11[1]))) - fVec5[1]);
-                fRec10[0] = (fRec11[0] - (fSlow37 * ((fSlow36 * fRec10[2]) + (fSlow32 * fRec10[1]))));
-                fRec9[0] = ((fSlow37 * (fRec10[2] + (fRec10[0] + (2 * fRec10[1])))) - (fSlow35 * ((fSlow34 * fRec9[2]) + (fSlow32 * fRec9[1]))));
-                S7[1] = (fSlow35 * (fRec9[2] + (fRec9[0] + (2 * fRec9[1]))));
-                float fTemp4 = max(-1, min(1, (fSlow43 * (fSlow42 + S7[iSlow41]))));
-                float fTemp5 = (fTemp4 * (1 - (0.333333f * (fTemp4 * fTemp4))));
-                fVec6[0] = fTemp5;
-                fRec5[0] = ((fVec6[0] + (0.995f * fRec5[1])) - fVec6[1]);
-                fRec13[0] = (fSlow44 + (0.999f * fRec13[1]));
-                float fTemp6 = (fRec13[0] * fRec5[0]);
-                S6[0] = fTemp6;
-                fVec7[0] = (fSlow39 * fTemp6);
-                fRec17[0] = ((fSlow39 * (fTemp6 + (fSlow40 * fRec17[1]))) - fVec7[1]);
-                fVec8[0] = (fSlow39 * fRec17[0]);
-                fRec16[0] = ((fSlow39 * (fRec17[0] + (fSlow40 * fRec16[1]))) - fVec8[1]);
-                fRec15[0] = (fRec16[0] - (fSlow37 * ((fSlow36 * fRec15[2]) + (fSlow32 * fRec15[1]))));
-                fRec14[0] = ((fSlow37 * (fRec15[2] + (fRec15[0] + (2 * fRec15[1])))) - (fSlow35 * ((fSlow34 * fRec14[2]) + (fSlow32 * fRec14[1]))));
-                S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
-                S4[1] = S6[iSlow41];
-                float fTemp7 = S4[iSlow45];
-                fVec9[0] = fTemp7;
+
+                if (fcheckbox4 == 1.0)     // distortion
+                {
+                    float 	S6[2];
+                    float 	S7[2];
+                    float 	S8[2];
+                    float fTemp1 = (fTemp0 + (fSlow19 * fRec6[1]));
+                    fVec1[IOTA&4095] = fTemp1;
+                    fRec6[0] = (0.5f * (fVec1[(IOTA-iSlow22)&4095] + fVec1[(IOTA-iSlow21)&4095]));
+                    S8[0] = fRec6[0];
+                    fVec2[0] = (fSlow25 * fRec6[0]);
+                    fRec8[0] = (fVec2[1] + (fSlow25 * (fRec6[0] + (fSlow24 * fRec8[1]))));
+                    float fTemp2 = (fSlow28 * fRec8[0]);
+                    fVec3[0] = fTemp2;
+                    fRec7[0] = ((fVec3[0] + (fSlow29 * fRec7[1])) - fVec3[1]);
+                    S8[1] = fRec7[0];
+                    float fTemp3 = S8[iSlow30];
+                    S7[0] = fTemp3;
+                    fVec4[0] = (fSlow39 * fTemp3);
+                    fRec12[0] = ((fSlow39 * (fTemp3 + (fSlow40 * fRec12[1]))) - fVec4[1]);
+                    fVec5[0] = (fSlow39 * fRec12[0]);
+                    fRec11[0] = ((fSlow39 * (fRec12[0] + (fSlow40 * fRec11[1]))) - fVec5[1]);
+                    fRec10[0] = (fRec11[0] - (fSlow37 * ((fSlow36 * fRec10[2]) + (fSlow32 * fRec10[1]))));
+                    fRec9[0] = ((fSlow37 * (fRec10[2] + (fRec10[0] + (2 * fRec10[1])))) - (fSlow35 * ((fSlow34 * fRec9[2]) + (fSlow32 * fRec9[1]))));
+                    S7[1] = (fSlow35 * (fRec9[2] + (fRec9[0] + (2 * fRec9[1]))));
+                    float fTemp4 = max(-1, min(1, (fSlow43 * (fSlow42 + S7[iSlow41]))));
+                    float fTemp5 = (fTemp4 * (1 - (0.333333f * (fTemp4 * fTemp4))));
+                    fVec6[0] = fTemp5;
+                    fRec5[0] = ((fVec6[0] + (0.995f * fRec5[1])) - fVec6[1]);
+                    fRec13[0] = (fSlow44 + (0.999f * fRec13[1]));
+                    float fTemp6 = (fRec13[0] * fRec5[0]);
+                    S6[0] = fTemp6;
+                    fVec7[0] = (fSlow39 * fTemp6);
+                    fRec17[0] = ((fSlow39 * (fTemp6 + (fSlow40 * fRec17[1]))) - fVec7[1]);
+                    fVec8[0] = (fSlow39 * fRec17[0]);
+                    fRec16[0] = ((fSlow39 * (fRec17[0] + (fSlow40 * fRec16[1]))) - fVec8[1]);
+                    fRec15[0] = (fRec16[0] - (fSlow37 * ((fSlow36 * fRec15[2]) + (fSlow32 * fRec15[1]))));
+                    fRec14[0] = ((fSlow37 * (fRec15[2] + (fRec15[0] + (2 * fRec15[1])))) - (fSlow35 * ((fSlow34 * fRec14[2]) + (fSlow32 * fRec14[1]))));
+                    S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
+                    S4[1] = S6[iSlow41];
+                    float fTemp7 = S4[iSlow45];
+                    fVec9[0] = fTemp7;
+                }
+                else  fVec9[0] = S4[0];   		// distortion end
+
                 fRec2[0] = (fSlow50 * ((fSlow8 * (((fSlow49 * fVec9[0]) + (fSlow47 * fVec9[1])) + (fSlow46 * fVec9[2]))) - ((fSlow14 * fRec2[2]) + (fSlow11 * fRec2[1]))));
                 fRec1[0] = (fSlow55 * ((((fSlow54 * fRec2[1]) + (fSlow53 * fRec2[0])) + (fSlow51 * fRec2[2])) + (0 - ((fSlow7 * fRec1[2]) + (fSlow4 * fRec1[1])))));
-                S3[0] = fRec1[0];
-                fRec19[0] = (fSlow57 + (0.999f * fRec19[1]));
-                fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
-                fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));
-                fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fRec1[0] * fRec19[0]))));
-                S3[1] = ((fRec18[0] + (fSlow64 * fRec1[0])) - fRec18[1]);
-                float fTemp8 = S3[iSlow65];
+
+                float fTemp8 = fRec1[0];
+                if (fcheckbox5 == 1.0)    //crybaby
+                {
+                    S3[0] = fRec1[0];
+                    fRec19[0] = (fSlow57 + (0.999f * fRec19[1]));
+                    fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
+                    fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));
+                    fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fRec1[0] * fRec19[0]))));
+                    S3[1] = ((fRec18[0] + (fSlow64 * fRec1[0])) - fRec18[1]);
+                    fTemp8 = S3[iSlow65];
+                }                                     //crybaby ende
+
                 S2[0] = fTemp8;
-                float fTemp9 = (1.500000e-02f * fTemp8);
-                fRec31[0] = ((fSlow69 * fRec30[1]) + (fSlow68 * fRec31[1]));
-                fVec10[IOTA&2047] = (fTemp9 + (fSlow70 * fRec31[0]));
-                fRec30[0] = fVec10[(IOTA-1640)&2047];
-                fRec33[0] = ((fSlow69 * fRec32[1]) + (fSlow68 * fRec33[1]));
-                fVec11[IOTA&2047] = (fTemp9 + (fSlow70 * fRec33[0]));
-                fRec32[0] = fVec11[(IOTA-1580)&2047];
-                fRec35[0] = ((fSlow69 * fRec34[1]) + (fSlow68 * fRec35[1]));
-                fVec12[IOTA&2047] = (fTemp9 + (fSlow70 * fRec35[0]));
-                fRec34[0] = fVec12[(IOTA-1514)&2047];
-                fRec37[0] = ((fSlow69 * fRec36[1]) + (fSlow68 * fRec37[1]));
-                fVec13[IOTA&2047] = (fTemp9 + (fSlow70 * fRec37[0]));
-                fRec36[0] = fVec13[(IOTA-1445)&2047];
-                fRec39[0] = ((fSlow69 * fRec38[1]) + (fSlow68 * fRec39[1]));
-                fVec14[IOTA&2047] = (fTemp9 + (fSlow70 * fRec39[0]));
-                fRec38[0] = fVec14[(IOTA-1379)&2047];
-                fRec41[0] = ((fSlow69 * fRec40[1]) + (fSlow68 * fRec41[1]));
-                fVec15[IOTA&2047] = (fTemp9 + (fSlow70 * fRec41[0]));
-                fRec40[0] = fVec15[(IOTA-1300)&2047];
-                fRec43[0] = ((fSlow69 * fRec42[1]) + (fSlow68 * fRec43[1]));
-                fVec16[IOTA&2047] = (fTemp9 + (fSlow70 * fRec43[0]));
-                fRec42[0] = fVec16[(IOTA-1211)&2047];
-                fRec45[0] = ((fSlow69 * fRec44[1]) + (fSlow68 * fRec45[1]));
-                fVec17[IOTA&2047] = (fTemp9 + (fSlow70 * fRec45[0]));
-                fRec44[0] = fVec17[(IOTA-1139)&2047];
-                float fTemp10 = (((((((fRec44[0] + fRec42[0]) + fRec40[0]) + fRec38[0]) + fRec36[0]) + fRec34[0]) + fRec32[0]) + fRec30[0]);
-                fVec18[IOTA&1023] = (fTemp10 + (0.5f * fRec28[1]));
-                fRec28[0] = fVec18[(IOTA-579)&1023];
-                float 	fRec29 = (0 - (fTemp10 - fRec28[1]));
-                fVec19[IOTA&511] = (fRec29 + (0.5f * fRec26[1]));
-                fRec26[0] = fVec19[(IOTA-464)&511];
-                float 	fRec27 = (fRec26[1] - fRec29);
-                fVec20[IOTA&511] = (fRec27 + (0.5f * fRec24[1]));
-                fRec24[0] = fVec20[(IOTA-364)&511];
-                float 	fRec25 = (fRec24[1] - fRec27);
-                fVec21[IOTA&255] = (fRec25 + (0.5f * fRec22[1]));
-                fRec22[0] = fVec21[(IOTA-248)&255];
-                float 	fRec23 = (fRec22[1] - fRec25);
-                S2[1] = ((fSlow66 * (fRec23 + fTemp9)) + (fSlow67 * fTemp8));
+
+                if (fcheckbox6 == 1.0)     //freeverb
+                {
+                    float fTemp9 = (1.500000e-02f * fTemp8);
+                    fRec31[0] = ((fSlow69 * fRec30[1]) + (fSlow68 * fRec31[1]));
+                    fVec10[IOTA&2047] = (fTemp9 + (fSlow70 * fRec31[0]));
+                    fRec30[0] = fVec10[(IOTA-1640)&2047];
+                    fRec33[0] = ((fSlow69 * fRec32[1]) + (fSlow68 * fRec33[1]));
+                    fVec11[IOTA&2047] = (fTemp9 + (fSlow70 * fRec33[0]));
+                    fRec32[0] = fVec11[(IOTA-1580)&2047];
+                    fRec35[0] = ((fSlow69 * fRec34[1]) + (fSlow68 * fRec35[1]));
+                    fVec12[IOTA&2047] = (fTemp9 + (fSlow70 * fRec35[0]));
+                    fRec34[0] = fVec12[(IOTA-1514)&2047];
+                    fRec37[0] = ((fSlow69 * fRec36[1]) + (fSlow68 * fRec37[1]));
+                    fVec13[IOTA&2047] = (fTemp9 + (fSlow70 * fRec37[0]));
+                    fRec36[0] = fVec13[(IOTA-1445)&2047];
+                    fRec39[0] = ((fSlow69 * fRec38[1]) + (fSlow68 * fRec39[1]));
+                    fVec14[IOTA&2047] = (fTemp9 + (fSlow70 * fRec39[0]));
+                    fRec38[0] = fVec14[(IOTA-1379)&2047];
+                    fRec41[0] = ((fSlow69 * fRec40[1]) + (fSlow68 * fRec41[1]));
+                    fVec15[IOTA&2047] = (fTemp9 + (fSlow70 * fRec41[0]));
+                    fRec40[0] = fVec15[(IOTA-1300)&2047];
+                    fRec43[0] = ((fSlow69 * fRec42[1]) + (fSlow68 * fRec43[1]));
+                    fVec16[IOTA&2047] = (fTemp9 + (fSlow70 * fRec43[0]));
+                    fRec42[0] = fVec16[(IOTA-1211)&2047];
+                    fRec45[0] = ((fSlow69 * fRec44[1]) + (fSlow68 * fRec45[1]));
+                    fVec17[IOTA&2047] = (fTemp9 + (fSlow70 * fRec45[0]));
+                    fRec44[0] = fVec17[(IOTA-1139)&2047];
+                    float fTemp10 = (((((((fRec44[0] + fRec42[0]) + fRec40[0]) + fRec38[0]) + fRec36[0]) + fRec34[0]) + fRec32[0]) + fRec30[0]);
+                    fVec18[IOTA&1023] = (fTemp10 + (0.5f * fRec28[1]));
+                    fRec28[0] = fVec18[(IOTA-579)&1023];
+                    float 	fRec29 = (0 - (fTemp10 - fRec28[1]));
+                    fVec19[IOTA&511] = (fRec29 + (0.5f * fRec26[1]));
+                    fRec26[0] = fVec19[(IOTA-464)&511];
+                    float 	fRec27 = (fRec26[1] - fRec29);
+                    fVec20[IOTA&511] = (fRec27 + (0.5f * fRec24[1]));
+                    fRec24[0] = fVec20[(IOTA-364)&511];
+                    float 	fRec25 = (fRec24[1] - fRec27);
+                    fVec21[IOTA&255] = (fRec25 + (0.5f * fRec22[1]));
+                    fRec22[0] = fVec21[(IOTA-248)&255];
+                    float 	fRec23 = (fRec22[1] - fRec25);
+                    S2[1] = ((fSlow66 * (fRec23 + fTemp9)) + (fSlow67 * fTemp8));
+                }
+                else  S2[1] = fTemp8;	//freeverb end
+
                 fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
-                float fTemp11 = (fRec46[0] * S2[iSlow71]);
-                S1[0] = fTemp11;
-                fRec47[IOTA&262143] = (fTemp11 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
-                S1[1] = fRec47[(IOTA-0)&262143];
-                float fTemp12 = S1[iSlow75];
-                fVec22[0] = fTemp12;
-                S0[0] = fVec22[0];
-                fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
-                S0[1] = (fRec48[0] + fVec22[0]);
-                float fTemp13 = S0[iSlow79];
-                fVec23[0] = fTemp13;
+                float fTemp12 = (fRec46[0] * S2[iSlow71]);
+
+                if (fcheckbox7 == 1.0)    //echo
+                {
+                    S1[0] = fTemp12;
+                    fRec47[IOTA&262143] = (fTemp12 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
+                    S1[1] = fRec47[(IOTA-0)&262143];
+                    fTemp12 = S1[iSlow75];
+                }                                     //echo ende
+
+                if (fcheckbox8 == 1.0)     //impulseResponse
+                {
+                    fVec22[0] = fTemp12;
+                    S0[0] = fVec22[0];
+                    fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
+                    S0[1] = (fRec48[0] + fVec22[0]);
+                    float fTemp13 = S0[iSlow79];
+                    fVec23[0] = fTemp13;
+                }
+                else  fVec23[0] = fTemp12;   //impulseResponse ende
+
                 fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
+                // fbargraph0 = powf(max((fRec0[5] - fConstcom2), min(0.990000f, fabsf(fVec0[0]))),0.9);
                 output0[i] = (fSlow85 * fRec0[0]);
                 float 	S9[2];
                 S9[0] = (fSlow87 * fRec0[0]);
@@ -1388,17 +1425,6 @@ public:
                 fReccom0[1] = fReccom0[0];
                 fReccom1[1] = fReccom1[0];
                 fVec0[1] = fVec0[0];
-                // post processing midi
-                fRect0[1] = fRect0[0];
-                iRect1[1] = iRect1[0];
-                iRect2[1] = iRect2[0];
-                iRect3[1] = iRect3[0];
-                fRect4[1] = fRect4[0];
-                fVect1[1] = fVect1[0];
-                fRect5[1] = fRect5[0];
-                fVect0[1] = fVect0[0];
-		fRechp0[1] = fRechp0[0];
-		fVechp0[1] = fVechp0[0]; 
             }
         }
         else
@@ -1415,17 +1441,6 @@ public:
                 output1[i] = fTemp0;
                 output2[i] = fTemp0;
                 output3[i] = fTemp0;
-                // post processing midi
-                fRect0[1] = fRect0[0];
-                iRect1[1] = iRect1[0];
-                iRect2[1] = iRect2[0];
-                iRect3[1] = iRect3[0];
-                fRect4[1] = fRect4[0];
-                fVect1[1] = fVect1[0];
-                fRect5[1] = fRect5[0];
-                fVect0[1] = fVect0[0];
-		fRechp0[1] = fRechp0[0];
-		fVechp0[1] = fVechp0[0]; 
             }
         }
     }

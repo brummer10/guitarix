@@ -20,7 +20,7 @@ style "guitarix"
   fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }	
   fg[SELECTED] = { 0.80, 0.80, 0.80 }	
   
-  bg[NORMAL] = { 0.30, 0.30, 0.30 }
+  bg[NORMAL] = { 0.0, 0.0, 0.0 }
   bg[PRELIGHT] = "#303084"
   bg[ACTIVE] = { 0.0, 0.0, 0.0 }
   bg[INSENSITIVE] = "#c4c0c0"
@@ -130,7 +130,7 @@ style "c_style"
 
 	}
 }
-class "GtkHandleBox" style:highest "c_style"
+class "GtkHandleBox" style:highest "guitarix"
 widget_class "*GtkToggleButton*" style:highest "b_style"
 class "GtkButton" style:highest "b_style"
 class "GtkSpinButton" style:highest "c_style"
