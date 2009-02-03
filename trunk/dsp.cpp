@@ -1106,7 +1106,7 @@ public:
             float 	fSlow14 = ((1 + (fSlow8 + fSlow13)) - fSlow12);
             float 	fSlow15 = checky;
             float 	fSlow16 = (7.118644f * fSlow15);
-            int 	iSlow17 = int(fcheckbox1);
+          //  int 	iSlow17 = int(fcheckbox1);
             float 	fSlow18 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider3)));
             float 	fSlow19 = (1.0f - fslider4);
             float 	fSlow20 = fslider5;
@@ -1213,7 +1213,20 @@ public:
                 S5[0] = (fSlow15 * fVec0[1]);
                 S5[1] = (fSlow16 * fVec0[1]);
                 fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
-                float fTemp0 = (fRec4[0] * S5[iSlow17]);
+                float fTemp0 = (fRec4[0] * S5[0]);
+
+                if (fcheckbox1 == 1.0)     // preamp
+                {
+		    float  in = fTemp0 * 3;
+		    if(in>=1.0)
+		      in = 2/3.0;
+		    else if (in<-1.0)
+		      in = -2/3.0;
+		    else in = (in - in*in*in/3.0);
+		      fTemp0 = in;
+                 //   fTemp0 = (fRec4[0] * S5[1]);
+		}  //preamp ende
+
                 fRec3[0] = (0.5f * ((2 * fTemp0) + (1.76f * fRec3[1])));  //resonanz
                 S4[0] = fRec3[0];
 
