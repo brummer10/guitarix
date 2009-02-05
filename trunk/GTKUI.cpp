@@ -73,6 +73,7 @@ void GTKUI::closeBox()
 void GTKUI::openFrameBox(const char* label)
 {
     GtkWidget * box = gtk_frame_new (label);
+    gtk_frame_set_shadow_type(GTK_FRAME(box),GTK_SHADOW_ETCHED_OUT);
     pushBox(kSingleMode, addWidget(label, box));
 }
 
@@ -83,11 +84,13 @@ void GTKUI::openTabBox(const char* label)
 
 void GTKUI::openHorizontalBox(const char* label)
 {
-    GtkWidget * box = gtk_hbox_new (homogene, 4);
-    gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+    GtkWidget * box = gtk_hbox_new (homogene, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
         GtkWidget * frame = addWidget(label, gtk_frame_new (label));
+	gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_ETCHED_OUT);
         gtk_container_add (GTK_CONTAINER(frame), box);
         gtk_widget_show(box);
         pushBox(kBoxMode, box);
@@ -158,8 +161,8 @@ struct uiExpanderBox : public uiItem
 void GTKUI::openExpanderBox(const char* label, float* zone)
 {
     *zone = 0.0;
-    GtkWidget * box = gtk_hbox_new (homogene, 4);
-    gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+    GtkWidget * box = gtk_hbox_new (homogene, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 0);
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
         GtkWidget * frame = addWidget(label, gtk_expander_new (label));
@@ -177,11 +180,12 @@ void GTKUI::openExpanderBox(const char* label, float* zone)
 
 void GTKUI::openVerticalBox(const char* label)
 {
-    GtkWidget * box = gtk_vbox_new (homogene, 4);
-    gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+    GtkWidget * box = gtk_vbox_new (homogene, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 0);
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
         GtkWidget * frame = addWidget(label, gtk_frame_new (label));
+	gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_ETCHED_OUT);
         gtk_container_add (GTK_CONTAINER(frame), box);
         gtk_widget_show(box);
         pushBox(kBoxMode, box);

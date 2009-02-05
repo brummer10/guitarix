@@ -242,6 +242,8 @@ private:
     float 	fdialogbox8;
     float  fcheckboxcom1;
     // compressor end
+    float drive;
+    float foverdrive4;
     // float  fbargraph0;
 public:
 
@@ -528,8 +530,11 @@ public:
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
-
         interface->closeBox();
+        interface->closeBox();
+        interface->openVerticalBox("overdrive");
+        interface->addregler("  drive ", &drive, 1.f, 1.f, 20.f, 0.1f);
+        interface->addtoggle("", &foverdrive4);
         interface->closeBox();
         interface->openVerticalBox(" distortion");
         interface->addregler("  drive ", &fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
@@ -610,6 +615,7 @@ public:
         interface->openVerticalBox("");
         interface->openHorizontalBox("");
         interface->openHorizontalBox(" ");
+
         // interface->addVerticalBargraph("", &fbargraph0,0.0000f, 1.0000f);
         interface->closeBox();
         interface->openVerticalBox(" ");
@@ -1181,6 +1187,9 @@ public:
             float 	fSlow89 = (1 - max(0, (0 - fSlow83)));
             float 	fSlow90 = (fSlow89 * fSlow82);
             float 	fSlow91 = (fSlow89 * fSlow86);
+
+	    float drivem1 = drive - 1.0f;
+
             float* input0 = input[0];
             float* output0 = output[2];
             float* output1 = output[0];
@@ -1230,6 +1239,14 @@ public:
                 fRec3[0] = (0.5f * ((2 * fTemp0) + (1.76f * fRec3[1])));  //resonanz
                 S4[0] = fRec3[0];
 
+ 		if (foverdrive4 == 1.0)     // overdrive
+                {
+		    float fTempdr0 = S4[0] ; //fTemp0;
+		    float fTempdr1 = fabs(fTempdr0);
+		    S4[0] = fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f);
+		    fTemp0 = S4[0];
+		} 
+
                 if (fcheckbox4 == 1.0)     // distortion
                 {
                     float 	S6[2];
@@ -1273,6 +1290,8 @@ public:
                     fVec9[0] = fTemp7;
                 }
                 else  fVec9[0] = S4[0];   		// distortion end
+
+
 
                 fRec2[0] = (fSlow50 * ((fSlow8 * (((fSlow49 * fVec9[0]) + (fSlow47 * fVec9[1])) + (fSlow46 * fVec9[2]))) - ((fSlow14 * fRec2[2]) + (fSlow11 * fRec2[1]))));
                 fRec1[0] = (fSlow55 * ((((fSlow54 * fRec2[1]) + (fSlow53 * fRec2[0])) + (fSlow51 * fRec2[2])) + (0 - ((fSlow7 * fRec1[2]) + (fSlow4 * fRec1[1])))));

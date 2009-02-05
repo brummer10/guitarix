@@ -392,7 +392,7 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
         gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
 
             color.red = 20 * 256;
-            color.blue =(205-reglerstate*2) *  256;
+            color.blue = (205-reglerstate*2) * 256;
             color.green = reglerstate*742;
             gdk_gc_set_rgb_fg_color(line, &color);
             gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
