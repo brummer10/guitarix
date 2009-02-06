@@ -84,8 +84,8 @@ void GTKUI::openTabBox(const char* label)
 
 void GTKUI::openHorizontalBox(const char* label)
 {
-    GtkWidget * box = gtk_hbox_new (homogene, 0);
-    gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+    GtkWidget * box = gtk_hbox_new (homogene, 2);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 2);
 
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
@@ -180,8 +180,8 @@ void GTKUI::openExpanderBox(const char* label, float* zone)
 
 void GTKUI::openVerticalBox(const char* label)
 {
-    GtkWidget * box = gtk_vbox_new (homogene, 0);
-    gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+    GtkWidget * box = gtk_vbox_new (homogene, 2);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 2);
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
         GtkWidget * frame = addWidget(label, gtk_frame_new (label));

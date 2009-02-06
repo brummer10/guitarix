@@ -131,24 +131,9 @@ style "c_style"
 	}
 }
 
-style "h_style"
-{
- 	engine "pixmap"
-	{
-		image
-		{
-			function		= BOX
-			recolorable		= TRUE
-			state			= NORMAL	
-			shadow			= OUT
-			file			= "guitarix-darkblack-relief.jpg"
-			border			= { 0, 0, 0, 0 }
-			stretch			= TRUE
-		}
-	}
-}
 
-class "GtkHandleBox" style:highest "h_style"
+
+class "GtkHandleBox" style:highest "guitarix"
 widget_class "*GtkToggleButton*" style:highest "b_style"
 class "GtkButton" style:highest "b_style"
 class "GtkSpinButton" style:highest "c_style"

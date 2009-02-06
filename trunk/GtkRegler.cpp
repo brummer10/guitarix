@@ -681,10 +681,20 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
     GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
     if (GTK_WIDGET_HAS_GRAB(widget))
     {
-        double mal;
-        if (event->x-regler->start_x < 0) mal = 1.0;
-        else mal = -1.0;
-        gtk_range_set_value(GTK_RANGE(widget), regler->start_value - (event->y+(pow((event->x-regler->start_x)/2,2.0)*mal) - regler->start_y) *adj->step_increment);
+        if (regler->regler_type <= 2)
+        {
+            double mal;
+            if (event->x-regler->start_x < 0) mal = 1.0;
+            else mal = -1.0;
+            gtk_range_set_value(GTK_RANGE(widget), regler->start_value - (event->y+(pow((event->x-regler->start_x)/2,2.0)*mal) - regler->start_y) *adj->step_increment);
+        }
+//----------- slider
+        else if (regler->regler_type == 3)
+        {
+            int  reglerx = (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x) / 2;
+            double pos = adj->lower + (((event->x - reglerx-10.)/100.)* (adj->upper - adj->lower));
+            gtk_range_set_value(GTK_RANGE(widget),  pos);
+        }
     }
     return FALSE;
 }

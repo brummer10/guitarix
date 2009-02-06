@@ -34,7 +34,6 @@ install:
 	install ./rcstyles/controlsbl2.jpg $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/controlsbl3.jpg $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/controlsbl4.jpg $(DESTDIR)$(PREFIX)/share/guitarix
-	install ./rcstyles/guitarix-darkblack-relief.jpg $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/guitarix.rc $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/guitarix_pix.rc $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/guitarix_black.rc $(DESTDIR)$(PREFIX)/share/guitarix
@@ -45,5 +44,5 @@ clean  :
 	rm -rf *-stamp
 	rm -rf *~
 uninstall :
-	rm -rf $(PREFIX)/bin/guitarix $(LADSPAPATH)/guitarix.so $(PREFIX)/share/applications/guitarix.desktop $(PREFIX)/share/pixmaps/guitarix.png $(PREFIX)/share/guitarix/guitarix.rc  $(PREFIX)/share/guitarix/controls.jpg  $(PREFIX)/share/guitarix/controls1.jpg$ (PREFIX)/share/guitarix/controls2.jpg  $(PREFIX)/share/guitarix/controlsbl.jpg  $(PREFIX)/share/guitarix/controlsbl1.jpg $(PREFIX)/share/guitarix/controlsbl2.jpg $(PREFIX)/share/guitarix/controls3.jpg $(PREFIX)/share/guitarix/guitarix_pix.rc $(PREFIX)/share/pixmaps/guitarix-midi.png $(PREFIX)/share/pixmaps/guitarix-warn.png $(PREFIX)/share/guitarix/controlsbl3.jpg $(PREFIX)/share/guitarix/controlsbl4.jpg $(PREFIX)/share/guitarix/controlsbl3.jpg $(PREFIX)/share/guitarix/guitarix-darkblack-relief.jpg
+	rm -rf $(PREFIX)/bin/guitarix $(LADSPAPATH)/guitarix.so $(PREFIX)/share/applications/guitarix.desktop $(PREFIX)/share/pixmaps/guitarix.png $(PREFIX)/share/guitarix/guitarix.rc  $(PREFIX)/share/guitarix/controls.jpg  $(PREFIX)/share/guitarix/controls1.jpg$ (PREFIX)/share/guitarix/controls2.jpg  $(PREFIX)/share/guitarix/controlsbl.jpg  $(PREFIX)/share/guitarix/controlsbl1.jpg $(PREFIX)/share/guitarix/controlsbl2.jpg $(PREFIX)/share/guitarix/controls3.jpg $(PREFIX)/share/guitarix/guitarix_pix.rc $(PREFIX)/share/pixmaps/guitarix-midi.png $(PREFIX)/share/pixmaps/guitarix-warn.png $(PREFIX)/share/guitarix/controlsbl3.jpg $(PREFIX)/share/guitarix/controlsbl4.jpg $(PREFIX)/share/guitarix/controlsbl3.jpg
 
