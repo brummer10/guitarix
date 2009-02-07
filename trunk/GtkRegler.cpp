@@ -647,8 +647,8 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
     gtk_widget_grab_focus(widget);
     gtk_widget_grab_default (widget);
     gtk_grab_add(widget);
-//----------- all, exept the switch
-    if ((regler->regler_type > 2) | (regler->regler_type < 2))
+//----------- knobs
+    if (regler->regler_type < 2)   //| (regler->regler_type < 2))
     {
         regler->start_x = event->x;
         regler->start_y = event->y;
@@ -660,6 +660,14 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
         regler->start_value = gtk_range_get_value(GTK_RANGE(widget));
         if ( regler->start_value == 0) gtk_range_set_value(GTK_RANGE(widget), 1);
         else gtk_range_set_value(GTK_RANGE(widget), 0);
+    }
+//----------- slider
+    else if (regler->regler_type == 3)
+    {
+        GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+        int  reglerx = (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x) / 2;
+        double pos = adj->lower + (((event->x - reglerx-10.)/100.)* (adj->upper - adj->lower));
+        gtk_range_set_value(GTK_RANGE(widget),  pos);
     }
     return TRUE;
 }
@@ -686,6 +694,7 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
             double mal;
             if (event->x-regler->start_x < 0) mal = 1.0;
             else mal = -1.0;
+
             gtk_range_set_value(GTK_RANGE(widget), regler->start_value - (event->y+(pow((event->x-regler->start_x)/2,2.0)*mal) - regler->start_y) *adj->step_increment);
         }
 //----------- slider
