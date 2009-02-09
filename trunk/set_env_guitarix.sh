@@ -17,7 +17,7 @@ export GUITARIX2JACK_OUTPUTS2=system:playback_2
 
 # start guitarix with the above environmet settings. If you store guitarix and guitarix.sh in diferent floders, you must set the path to guitarix here.
 
-./guitarix -r $GUITARIX_RC_PATH &
+./guitarix -r ${GUITARIX_RC_PATH} &
 
 # sleep and exit
 sleep 5
