@@ -698,6 +698,14 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
             double mal;
             if (event->x-regler->start_x < 0) mal = 1.0;
             else mal = -1.0;
+           /*
+           int  reglerx = (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x) / 2;
+           int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) / 2;
+	   double posx = ((event->x - reglerx)/100.)* (adj->upper - adj->lower);
+           double posy = ((event->y - reglery)/100.)* (adj->upper - adj->lower);
+           double pos = adj->lower + (posx + posy)/2.;
+           gtk_range_set_value(GTK_RANGE(widget),  pos);
+            */
             gtk_range_set_value(GTK_RANGE(widget), regler->start_value - (event->y+(pow((event->x-regler->start_x)*0.5,2.0)*mal) - regler->start_y) *adj->step_increment);
         }
 //----------- slider

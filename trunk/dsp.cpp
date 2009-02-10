@@ -244,6 +244,7 @@ private:
     // compressor end
     float drive;
     float foverdrive4;
+float fTemprec1;
     // float  fbargraph0;
 public:
 
@@ -451,6 +452,7 @@ public:
         send = 0;
         send1 = 0;
         send2 = 0;
+         fTemprec1 = 0;
     }
 
     virtual void init(int samplingFreq)
@@ -1189,6 +1191,8 @@ public:
             float 	fSlow91 = (fSlow89 * fSlow86);
 
 	    float drivem1 = drive - 1.0f;
+            float fTemprec;
+            float fTemprec2;
 
             float* input0 = input[0];
             float* output0 = output[2];
@@ -1287,11 +1291,13 @@ public:
                     S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
                     S4[1] = S6[iSlow41];
                     float fTemp7 = S4[iSlow45];
-                    fVec9[0] = fTemp7;
+                    //fVec9[0] = fTemp7;
+		    fTemprec = fTemp7;
+                    fTemprec2 = fTemprec1 + ( fTemprec *0.5 ); 
+                    fTemprec1 = fTemprec *0.25; 
+                    fVec9[ 0 ] = fTemprec2 + fTemprec1;
                 }
                 else  fVec9[0] = S4[0];   		// distortion end
-
-
 
                 fRec2[0] = (fSlow50 * ((fSlow8 * (((fSlow49 * fVec9[0]) + (fSlow47 * fVec9[1])) + (fSlow46 * fVec9[2]))) - ((fSlow14 * fRec2[2]) + (fSlow11 * fRec2[1]))));
                 fRec1[0] = (fSlow55 * ((((fSlow54 * fRec2[1]) + (fSlow53 * fRec2[0])) + (fSlow51 * fRec2[2])) + (0 - ((fSlow7 * fRec1[2]) + (fSlow4 * fRec1[1])))));
