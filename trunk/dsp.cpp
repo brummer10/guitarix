@@ -562,7 +562,7 @@ public:
         interface->addtoggle("", &fcheckbox3);
         interface->closeBox();
         interface->openHorizontalBox("resonanz");
-        interface->addregler("trigger", &fslider4, 0.12f, 0.0f, 0.5f, 1.000000e-02f);
+        interface->addregler("trigger", &fslider4, 0.12f, 0.0f, 1.0f, 1.000000e-02f);
         interface->addregler("vibrato", &fslider5, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
         interface->closeBox();
         interface->closeBox();
