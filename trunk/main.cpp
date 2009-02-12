@@ -157,8 +157,8 @@ void*		midi_port_buf ;
 
 int srate(jack_nframes_t nframes, void *arg)
 {
-    printf("the sample rate is now %u/sec\n", nframes);
-    jackframe = nframes;
+   // printf("the sample rate is now %u/sec\n", nframes);
+  //  jackframe = nframes;
     return 0;
 }
 
@@ -276,6 +276,9 @@ int main(int argc, char *argv[] )
     jack_on_shutdown(client, jack_shutdown, 0);
     gNumInChans = DSP.getNumInputs();
     gNumOutChans = DSP.getNumOutputs();
+    jackframes = jack_get_sample_rate (client);
+    jackframe = jackframes;
+    printf("the sample rate is now %u/sec\n", jackframes);
     frag = jack_get_buffer_size (client);
     printf("the buffer size is now %u/frames\n", frag);
     for (int i = 0; i < gNumInChans; i++)
@@ -295,7 +298,7 @@ int main(int argc, char *argv[] )
     midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
 
     interface = new GTKUI (jname, &argc, &argv);
-    DSP.init(jack_get_sample_rate(client));
+    DSP.init(jackframes);
     DSP.buildUserInterface(interface);
 
     home = getenv ("HOME");

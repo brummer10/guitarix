@@ -45,6 +45,7 @@ int		gNumOutChans;
 //jack_ringbuffer_t *ringbuffer;
 
 int frag;   // jack frame size
+jack_nframes_t  jackframes; 
 float jackframe; // jack sample freq
 float cpu_load; // jack cpu_load
 
