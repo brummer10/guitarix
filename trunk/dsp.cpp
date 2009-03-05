@@ -452,7 +452,9 @@ public:
         send = 0;
         send1 = 0;
         send2 = 0;
-         fTemprec1 = 0;
+        fTemprec1 = 0;
+	drive = 1.5;
+	foverdrive4 = 0.0;
     }
 
     virtual void init(int samplingFreq)
@@ -1256,6 +1258,7 @@ public:
                     float 	S6[2];
                     float 	S7[2];
                     float 	S8[2];
+		  //  S4[0] = S4[0] + 4*(S4[1] - S4[0]); 
                     float fTemp1 = (fTemp0 + (fSlow19 * fRec6[1]));
                     fVec1[IOTA&4095] = fTemp1;
                     fRec6[0] = (0.5f * (fVec1[(IOTA-iSlow22)&4095] + fVec1[(IOTA-iSlow21)&4095]));

@@ -148,8 +148,8 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
             gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
 
             color.red = 20 * 256;
-            color.blue = (205-reglerstate*2) * 256;
-            color.green = reglerstate*742;
+            color.blue = 205 * 256;
+            color.green = 742;
             gdk_gc_set_rgb_fg_color(line, &color);
             gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
             gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-1 ,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-1,-90*64,360*64);
@@ -241,8 +241,8 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
             gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
 
             color.red = 20 * 256;
-            color.blue = (205-reglerstate*2) * 256;
-            color.green = reglerstate*742;
+            color.blue = 205 * 256;
+            color.green = 742;
             gdk_gc_set_rgb_fg_color(line, &color);
             gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
             gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,reglerx+2, reglery+2, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5 ,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5,-90*64,360*64);
@@ -345,8 +345,8 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
         gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
 
             color.red = 20 * 256;
-            color.blue = (205-reglerstate*2) * 256;
-            color.green = reglerstate*742;
+            color.blue = 205 * 256;
+            color.green = 742;
             gdk_gc_set_rgb_fg_color(line, &color);
             gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
             gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-1 ,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-1,-90*64,360*64);
@@ -392,8 +392,8 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
         gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
 
             color.red = 20 * 256;
-            color.blue = (205-reglerstate*2) * 256;
-            color.green = reglerstate*742;
+            color.blue = 205 * 256;
+            color.green = 742;
             gdk_gc_set_rgb_fg_color(line, &color);
             gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
             gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,reglerx+2, reglery+2, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5 ,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5,-90*64,360*64);
