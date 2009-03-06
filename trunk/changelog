@@ -1,3 +1,26 @@
+guitarix (0.03.7-svn-1) unstable; urgency=low
+  * make single ladspa plugins from the inbuild effects
+  * new sorce structure
+
+ -- brummer <brummer-@web.de>  Fri, 06 Mar 2009 11:24:42 +0200
+
+guitarix (0.03.7-1) unstable; urgency=low
+  * rework distortion
+  * bugfix in adjustment call for entry's, reportet by Aurélien Leblond
+
+ -- brummer <brummer-@web.de>  Thu, 05 Feb 2009 11:24:42 +0200
+
+guitarix (0.03.6-1) unstable; urgency=low
+  * add overdrive
+  * make GUI smaler
+
+ -- brummer <brummer-@web.de>  Thu, 05 Feb 2009 11:24:42 +0200
+
+guitarix (0.03.5-1) unstable; urgency=low
+  * change knob pointer
+
+ -- brummer <brummer-@web.de>  Wed, 04 Feb 2009 17:24:42 +0200
+
 guitarix (0.03.4-1) unstable; urgency=low
   * use knobs, switchs and graphicaly sliders for the interface
   * set black style as default

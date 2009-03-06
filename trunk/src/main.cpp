@@ -113,8 +113,8 @@ struct Meta : map<const char*, const char*>
 #define kBoxMode 1
 #define kTabMode 2
 
-#include "GTKUI.h"
-#include"jconv_settings.h"
+#include "./guitarix/GTKUI.h"
+#include"./guitarix/jconv_settings.h"
 #include "guitarix.cpp"
 #include "GTKUI.cpp"
 #include"jconv_settings.cpp"
@@ -189,7 +189,7 @@ int midi_process (jack_nframes_t nframes, void *arg)
     {
         gInChannel[i] = (float *)jack_port_get_buffer(input_ports[i], nframes);
     }
-    midi_port_buf = jack_port_get_buffer(midi_output_ports, frag);
+    midi_port_buf = jack_port_get_buffer(midi_output_ports, nframes);
     jack_midi_clear_buffer(midi_port_buf);
     cpu_load = jack_cpu_load(midi_client);
     DSP.compute_midi(nframes, gInChannel, midi_port_buf);

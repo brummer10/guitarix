@@ -6,7 +6,7 @@ postet by DSPMaster[at]free[dot]fr
 modified for guitarix by hermann meyer
 ******************************************************************************/
 
-#include "BEATDETECTOR.h"
+#include "./guitarix/BEATDETECTOR.h"
 //#include "math.h"
 
 #define FREQ_LP_BEAT 150.0f    // Low Pass filter frequency

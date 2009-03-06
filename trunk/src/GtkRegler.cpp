@@ -3,7 +3,7 @@
 part of guitarix, use  reglers with Gtk
 ******************************************************************************/
 
-#include"GtkRegler.h"
+#include"./guitarix/GtkRegler.h"
 
 #define GTK_TYPE_REGLER          (gtk_regler_get_type())
 #define GTK_REGLER(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_REGLER, GtkRegler))

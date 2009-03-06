@@ -5,7 +5,7 @@
 	the GtkWidget must be a GTK_FILE_CHOOSER_BUTTON
 	for guitarix by hermann meyer
 ***************************************************************/
-#include "resample.h"
+#include "./guitarix/resample.h"
 
 Resample::Resample()
 {
