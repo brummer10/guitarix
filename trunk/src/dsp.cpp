@@ -245,6 +245,7 @@ private:
     float drive;
     float foverdrive4;
 float fTemprec1;
+	float 	fRecover0[2];
     // float  fbargraph0;
 public:
 
@@ -455,6 +456,7 @@ public:
         fTemprec1 = 0;
 	drive = 1.5;
 	foverdrive4 = 0.0;
+	for (int i=0; i<2; i++) fRecover0[i] = 0;
     }
 
     virtual void init(int samplingFreq)
@@ -1193,6 +1195,7 @@ public:
             float 	fSlow91 = (fSlow89 * fSlow86);
 
 	    float drivem1 = drive - 1.0f;
+	    float fSlowover0 = (9.999871e-04f * powf(10, (5.000000e-02f * (drive*-0.5))));
             float fTemprec;
             float fTemprec2;
 
@@ -1249,7 +1252,8 @@ public:
                 {
 		    float fTempdr0 = S4[0] ; //fTemp0;
 		    float fTempdr1 = fabs(fTempdr0);
-		    S4[0] = fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f);
+		    fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
+		    S4[0] = (fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
 		    fTemp0 = S4[0];
 		} 
 
@@ -1466,6 +1470,7 @@ public:
                 fReccom0[1] = fReccom0[0];
                 fReccom1[1] = fReccom1[0];
                 fVec0[1] = fVec0[0];
+		fRecover0[1] = fRecover0[0];
             }
         }
         else

@@ -179,6 +179,7 @@ class distdsp : public dsp {
 	float 	fRec11[2];
 	float 	fRec10[3];
 	float 	fRec9[3];
+	float 	fRecover0[2];
 
   public:
 	static void metadata(Meta* m) 	{ 
@@ -199,11 +200,11 @@ class distdsp : public dsp {
 		for (int i=0; i<4096; i++) fVec0[i] = 0;
 		fslider1 = 0.5f;
 		for (int i=0; i<2; i++) fRec1[i] = 0;
-		fentry0 = 130.0f;
+		fentry0 = 5000.0f;
 		fConst0 = (3.141593f / fSamplingFreq);
 		for (int i=0; i<2; i++) fVec1[i] = 0;
 		for (int i=0; i<2; i++) fRec3[i] = 0;
-		fentry1 = 5000.0f;
+		fentry1 = 130.0f;
 		fConst1 = (3.141593f * fSamplingFreq);
 		fConst2 = (0.5f / fSamplingFreq);
 		for (int i=0; i<2; i++) fVec2[i] = 0;
@@ -232,6 +233,7 @@ class distdsp : public dsp {
 		for (int i=0; i<3; i++) fRec9[i] = 0;
 		drive = 0.0f;
 		overdrive4 = 0.0;
+		for (int i=0; i<2; i++) fRecover0[i] = 0;
 	}
 	virtual void initdis(int samplingFreq) {
 		classinitdis(samplingFreq);
@@ -240,16 +242,16 @@ class distdsp : public dsp {
 	virtual void buildUserInterface(UI* interface) {
 		interface->openHorizontalBox("distortion");
                // interface->openVerticalBox("overdrive");
-                interface->addVerticalSlider("overdrive ", &drive, 0.0f, 1.0f, 3.0f, 0.1f);
+                interface->addVerticalSlider("overdrive ", &drive, 0.0f, 1.0f, 20.0f, 0.1f);
                 interface->addCheckButton("overdrive", &overdrive4);
                // interface->closeBox();
 		interface->addVerticalSlider("drive", &fslider5, 0.64f, 0.0f, 1.0f, 0.01f);
 		interface->addVerticalSlider("drivelevel", &fslider4, 0.0f, 0.0f, 1.0f, 0.01f);
-		interface->addVerticalSlider("drivegain", &fslider6, 0.0f, -10.0f, 10.0f, 0.1f);
+		interface->addVerticalSlider("drivegain", &fslider6, 0.0f, -20.0f, 20.0f, 0.1f);
 		//interface->openHorizontalBox("low/highpass");
 		//interface->openVerticalBox("");
-		interface->addVerticalSlider("highpass", &fentry1, 5000.0f, 20.0f, 7040.0f, 1.0f);
-		interface->addVerticalSlider("lowpass", &fentry0, 130.0f, 20.0f, 7040.0f, 1.0f);
+		interface->addVerticalSlider("highpass", &fentry1, 130.0f, 20.0f, 7040.0f, 1.0f);
+		interface->addVerticalSlider("lowpass", &fentry0, 5000.0f, 1000.0f, 10000.0f, 1.0f);
 		//interface->closeBox();
 		interface->addToggleButton("low/highpass", &fcheckbox0);
 		//interface->closeBox();
@@ -292,19 +294,22 @@ class distdsp : public dsp {
 	                float drivem1 = drive - 1.0f;
 			float 	fSlow24 = powf(10.0f, (2 * fslider5));
 			float 	fSlow25 = (9.999871e-04f * powf(10, (5.000000e-02f * (fslider6 - 10))));
+	   		float fSlowover0 = (9.999871e-04f * powf(10, (5.000000e-02f * (drive*-0.5))));
 			float* input0 = input[0];
 			float* output0 = output[0];
 			for (int i=0; i<count; i++) {
 				float 	S0[2];
 				float 	S1[2];
 				float 	S2[2];
-				float fTemp0 = (input0[i] + (fSlow0 * fRec1[1]));
+				float fTempi0 = input0[i];
 				if (overdrive4 == 1.0)     // overdrive
                 		{
-		    			float fTempdr0 = fTemp0 ; 
+		    			float fTempdr0 = fTempi0 ; 
 		    			float fTempdr1 = fabs(fTempdr0);
-		    			fTemp0 = fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f);
+		    			fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
+		    			fTempi0 = (fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f))*fRecover0[0];
 				} 
+				float fTemp0 = (fTempi0 + (fSlow0 * fRec1[1]));
 				fVec0[IOTA&4095] = fTemp0;
 				fRec1[0] = (0.5f * (fVec0[(IOTA-iSlow3)&4095] + fVec0[(IOTA-iSlow2)&4095]));
 				S2[0] = fRec1[0];
@@ -359,6 +364,7 @@ class distdsp : public dsp {
 				fRec3[1] = fRec3[0];
 				fVec1[1] = fVec1[0];
 				fRec1[1] = fRec1[0];
+				fRecover0[1] = fRecover0[0];
 				IOTA = IOTA+1;
 			}
 		}
