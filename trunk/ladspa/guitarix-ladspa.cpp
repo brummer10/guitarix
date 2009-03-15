@@ -920,7 +920,7 @@ class portCollector : public UI
 		descriptor->PortRangeHints 		= fPortHints;
 		
 		descriptor->Label = "Simulators";
-		descriptor->UniqueID = makeID(name);
+		descriptor->UniqueID = 4068;
 //		descriptor->Label = strdup(fPluginName.c_str());
 //		descriptor->UniqueID = makeID(fPluginName.c_str());
 		descriptor->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
@@ -1088,7 +1088,7 @@ void cleanup_method (LADSPA_Handle Instance)
 
 void init_descriptor(LADSPA_Descriptor* descriptor) 
 {
-	descriptor->UniqueID = 123456;
+	descriptor->UniqueID = 4068;
 	descriptor->Label = "Simulators";
 	descriptor->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
 	descriptor->Name = "guitarix";

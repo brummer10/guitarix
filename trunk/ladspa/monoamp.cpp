@@ -78,11 +78,13 @@ public:
 	UI() : fStopped(false) {}
 	virtual ~UI() {}
 	
-	virtual void addButton1(const char* label, float* zone1) = 0;
-	virtual void addToggleButton1(const char* label, float* zone1) = 0;
-	virtual void addCheckButton1(const char* label, float* zone1) = 0;
-	virtual void addVerticalSlider1(const char* label, float* zone1, float initamp, float min, float max, float step) = 0;
-	virtual void addHorizontalSlider1(const char* label, float* zone1, float initamp, float min, float max, float step) = 0;
+	virtual void addButton(const char* label, float* zone1) = 0;
+	virtual void addToggleButton(const char* label, float* zone1) = 0;
+	virtual void addCheckButton(const char* label, float* zone1) = 0;
+	virtual void addVerticalSlider(const char* label, float* zone1, float initamp, float min, float max, float step) = 0;
+	virtual void addVerticalSlider1(const char* label, float* zone, float initdis, float min, float max, float step) = 0;
+	virtual void addVerticalSlider0(const char* label, float* zone, float initdis, float min, float max, float step) = 0;
+	virtual void addHorizontalSlider(const char* label, float* zone1, float initamp, float min, float max, float step) = 0;
 	virtual void addNumEntry1(const char* label, float* zone1, float initamp, float min, float max, float step) = 0;
 		
 	// -- passive widgets
@@ -196,13 +198,13 @@ class ampdsp : public dspamp {
 	virtual void buildUserInterface1(UI* interface1) {
 		interface1->openHorizontalBox1("monoamp");
 		//interface1->openVerticalBox1("preamp");
-		interface1->addToggleButton1("preamp", &fcheckbox0);
+		interface1->addToggleButton("preamp", &fcheckbox0);
 		//interface1->closeBox1();
-		interface1->addVerticalSlider1("gain", &fslideramp3, 0.0f, -40.0f, 40.0f, 0.1f);
-		interface1->addVerticalSlider1("bass", &fslideramp2, 0.0f, -20.0f, 20.0f, 0.1f);
-		interface1->addVerticalSlider1("treble", &fslideramp1, 0.0f, -20.0f, 20.0f, 0.1f);
-		interface1->addVerticalSlider1("feedbackgain", &fslideramp0, 0.0f, 0.0f, 1.0f, 0.01f);
-		interface1->addVerticalSlider1("feedforwardgain", &fslideramp4, 0.0f, 0.0f, 1.0f, 0.01f);
+		interface1->addVerticalSlider("gain", &fslideramp3, 0.0f, -40.0f, 40.0f, 0.1f);
+		interface1->addVerticalSlider("bass", &fslideramp2, 0.0f, -20.0f, 20.0f, 0.1f);
+		interface1->addVerticalSlider("treble", &fslideramp1, 0.0f, -20.0f, 20.0f, 0.1f);
+		interface1->addVerticalSlider0("feedbackgain", &fslideramp0, 0.0f, 0.0f, 1.0f, 0.01f);
+		interface1->addVerticalSlider0("feedforwardgain", &fslideramp4, 0.0f, 0.0f, 1.0f, 0.01f);
 		interface1->closeBox1();
 	}
 		virtual void computeamp (int count, float** input, float** output) {
@@ -459,24 +461,32 @@ class portCollector1 : public UI
 	
 	//------------------------------Collect the control ports-------------------------------
 
-	virtual void addButton1(const char* label, float* zone1) { 
+	virtual void addButton(const char* label, float* zone1) { 
 		addPortDescr1(ICONTROL1, label, LADSPA_HINT_TOGGLED); 
 	}
 	
-	virtual void addToggleButton1(const char* label, float* zone1) { 
-		addPortDescr1(ICONTROL1, label, LADSPA_HINT_TOGGLED); 
+	virtual void addToggleButton(const char* label, float* zone) { 
+		addPortDescr1(ICONTROL1, label, LADSPA_HINT_TOGGLED|  LADSPA_HINT_DEFAULT_0 ); 
 	}
 	
-	virtual void addCheckButton1(const char* label, float* zone1) { 
-		addPortDescr1(ICONTROL1, label, LADSPA_HINT_TOGGLED); 
+	virtual void addCheckButton(const char* label, float* zone) { 
+		addPortDescr1(ICONTROL1, label, LADSPA_HINT_TOGGLED| LADSPA_HINT_DEFAULT_1 ); 
 	}
 		
-	virtual void addVerticalSlider1(const char* label, float* zone1, float initamp, float min, float max, float step) { 
-		addPortDescr1(ICONTROL1, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE| LADSPA_HINT_DEFAULT_0, min, max); 
+	virtual void addVerticalSlider(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescr1(ICONTROL1, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_DEFAULT_MIDDLE , min, max); 
+	}
+ 
+	virtual void addVerticalSlider0(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescr1(ICONTROL1, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_DEFAULT_MINIMUM , min, max); 
+	}
+ 
+	virtual void addVerticalSlider1(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescr1(ICONTROL1, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_DEFAULT_MAXIMUM, min, max); 
 	}		
 		
-	virtual void addHorizontalSlider1(const char* label, float* zone1, float initamp, float min, float max, float step) { 
-		addPortDescr1(ICONTROL1, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE| LADSPA_HINT_DEFAULT_0, min, max); 
+	virtual void addHorizontalSlider(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescr1(ICONTROL1, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE  | LADSPA_HINT_DEFAULT_LOW, min, max); 
 	}
 
 	virtual void addNumEntry1(const char* label, float* zone1, float initamp, float min, float max, float step) { 
@@ -530,7 +540,7 @@ class portCollector1 : public UI
 		descriptor1->PortRangeHints 		= fPortHints;
 		
 		descriptor1->Label = strdup(name);
-		descriptor1->UniqueID = makeID1(name);
+		descriptor1->UniqueID = 4066;
 //		descriptor1->Label = strdup(fPluginName.c_str());
 //		descriptor1->UniqueID = makeID1(fPluginName.c_str());
 		descriptor1->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
@@ -589,12 +599,14 @@ class portData1 : public UI
 	
 	//------------------------------Collect the control zone1s-------------------------------
 
-	virtual void addButton1(const char* label, float* zone1) 			{ addZone1(zone1); }
-	virtual void addToggleButton1(const char* label, float* zone1)  	{ addZone1(zone1); }
-	virtual void addCheckButton1(const char* label, float* zone1)  		{ addZone1(zone1); }
+	virtual void addButton(const char* label, float* zone1) 			{ addZone1(zone1); }
+	virtual void addToggleButton(const char* label, float* zone1)  	{ addZone1(zone1); }
+	virtual void addCheckButton(const char* label, float* zone1)  		{ addZone1(zone1); }
 		
-	virtual void addVerticalSlider1(const char* label, float* zone1, float initamp, float min, float max, float step) 		{ addZone1(zone1); }
-	virtual void addHorizontalSlider1(const char* label, float* zone1, float initamp, float min, float max, float step) 	{ addZone1(zone1); }
+	virtual void addVerticalSlider(const char* label, float* zone1, float initamp, float min, float max, float step) 		{ addZone1(zone1); }
+	virtual void addVerticalSlider1(const char* label, float* zone, float initdis, float min, float max, float step) 		{ addZone1(zone); }
+	virtual void addVerticalSlider0(const char* label, float* zone, float initdis, float min, float max, float step) 		{ addZone1(zone); }
+	virtual void addHorizontalSlider(const char* label, float* zone1, float initamp, float min, float max, float step) 	{ addZone1(zone1); }
 	virtual void addNumEntry1(const char* label, float* zone1, float initamp, float min, float max, float step)  			{ addZone1(zone1); }
 		
 	// -- passive widgets
@@ -698,7 +710,7 @@ void cleanup_method (LADSPA_Handle Instance1)
 
 void initamp_descriptor(LADSPA_Descriptor* descriptor1) 
 {
-	descriptor1->UniqueID = 123756;
+	descriptor1->UniqueID = 4066;
 	descriptor1->Label = "monoamp";
 	descriptor1->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
 	descriptor1->Name = "monoamp";

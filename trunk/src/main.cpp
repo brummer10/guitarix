@@ -185,11 +185,7 @@ int process (jack_nframes_t nframes, void *arg)
 int midi_process (jack_nframes_t nframes, void *arg)
 {
     AVOIDDENORMALS;
-    for (int i = 0; i < gNumInChans; i++)
-    {
-        gInChannel[i] = (float *)jack_port_get_buffer(input_ports[i], nframes);
-    }
-    midi_port_buf = jack_port_get_buffer(midi_output_ports, nframes);
+    midi_port_buf =  (void *)jack_port_get_buffer(midi_output_ports, nframes);
     jack_midi_clear_buffer(midi_port_buf);
     cpu_load = jack_cpu_load(midi_client);
     DSP.compute_midi(nframes, gInChannel, midi_port_buf);

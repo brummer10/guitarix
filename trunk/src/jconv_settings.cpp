@@ -188,10 +188,11 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
     button1  = gtk_button_new_with_label("Ok");
     int chans;
     float sr;
-    SNDFILE *sf = soundin_open( jconvwav.c_str(), &chans, &sr);
+    int framecount;
+    SNDFILE *sf = soundin_open1( jconvwav.c_str(), &chans, &sr, &framecount);
     soundin_close(sf);
     char lab[256] ;
-    snprintf(lab, 256, " (%i) channel (%i)Sample rate ", chans, int(sr));
+    snprintf(lab, 256, "fileinfo \n (%i) channel (%i)Sample rate (%i) Frames ", chans, int(sr),framecount);
     gtk_label_set_text(GTK_LABEL(label1), lab);
 
     GtkObject* adjo = gtk_adjustment_new(valo, 0.0, 1.0, 0.1, 10*0.1, 0);

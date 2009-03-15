@@ -82,6 +82,8 @@ public:
 	virtual void addToggleButton(const char* label, float* zone) = 0;
 	virtual void addCheckButton(const char* label, float* zone) = 0;
 	virtual void addVerticalSlider(const char* label, float* zone, float initech, float min, float max, float step) = 0;
+	virtual void addVerticalSlider1(const char* label, float* zone, float initdis, float min, float max, float step) = 0;
+	virtual void addVerticalSlider0(const char* label, float* zone, float initdis, float min, float max, float step) = 0;
 	virtual void addHorizontalSlider(const char* label, float* zone, float initech, float min, float max, float step) = 0;
 	virtual void addNumEntry(const char* label, float* zone, float initech, float min, float max, float step) = 0;
 		
@@ -172,7 +174,7 @@ class echodsp : public dsp {
 	virtual void buildUserInterfaceech(UI* interface) {
 		interface->openHorizontalBox("echo");
 		interface->addVerticalSlider("release", &fslider1, 0.0f, 0.0f, 100.0f, 0.1f);
-		interface->addVerticalSlider("time", &fslider0, 0.0f, 0.0f, 2000.0f, 1.0f);
+		interface->addVerticalSlider("time", &fslider0, 1.0f, 1.0f, 2000.0f, 1.0f);
 		interface->closeBox();
 	}
 		virtual void computeech (int count, float** input, float** output) {
@@ -389,19 +391,27 @@ class portCollector : public UI
 	}
 	
 	virtual void addToggleButton(const char* label, float* zone) { 
-		addPortDescrechech(ICONTROL, label, LADSPA_HINT_TOGGLED); 
+		addPortDescrechech(ICONTROL, label, LADSPA_HINT_TOGGLED|  LADSPA_HINT_DEFAULT_0 ); 
 	}
 	
 	virtual void addCheckButton(const char* label, float* zone) { 
-		addPortDescrechech(ICONTROL, label, LADSPA_HINT_TOGGLED); 
+		addPortDescrechech(ICONTROL, label, LADSPA_HINT_TOGGLED| LADSPA_HINT_DEFAULT_1 ); 
 	}
 		
-	virtual void addVerticalSlider(const char* label, float* zone, float initech, float min, float max, float step) { 
-		addPortDescrechech(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
+	virtual void addVerticalSlider(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescrechech(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_DEFAULT_MIDDLE , min, max); 
+	}
+ 
+	virtual void addVerticalSlider0(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescrechech(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_DEFAULT_MINIMUM , min, max); 
+	}
+ 
+	virtual void addVerticalSlider1(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescrechech(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_DEFAULT_MAXIMUM, min, max); 
 	}		
 		
-	virtual void addHorizontalSlider(const char* label, float* zone, float initech, float min, float max, float step) { 
-		addPortDescrechech(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
+	virtual void addHorizontalSlider(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescrechech(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE  | LADSPA_HINT_DEFAULT_LOW, min, max); 
 	}
 
 	virtual void addNumEntry(const char* label, float* zone, float initech, float min, float max, float step) { 
@@ -455,7 +465,7 @@ class portCollector : public UI
 		descriptor->PortRangeHints 		= fPortHints;
 		
 		descriptor->Label = strdup(name);
-		descriptor->UniqueID = makeID(name);
+		descriptor->UniqueID = 4063;
 //		descriptor->Label = strdup(fPluginName.c_str());
 //		descriptor->UniqueID = makeID(fPluginName.c_str());
 		descriptor->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
@@ -519,6 +529,8 @@ class portData : public UI
 	virtual void addCheckButton(const char* label, float* zone)  		{ addZone(zone); }
 		
 	virtual void addVerticalSlider(const char* label, float* zone, float initech, float min, float max, float step) 		{ addZone(zone); }
+	virtual void addVerticalSlider1(const char* label, float* zone, float initdis, float min, float max, float step) 		{ addZone(zone); }
+	virtual void addVerticalSlider0(const char* label, float* zone, float initdis, float min, float max, float step) 		{ addZone(zone); }
 	virtual void addHorizontalSlider(const char* label, float* zone, float initech, float min, float max, float step) 	{ addZone(zone); }
 	virtual void addNumEntry(const char* label, float* zone, float initech, float min, float max, float step)  			{ addZone(zone); }
 		
@@ -623,7 +635,7 @@ void cleanup_methodech (LADSPA_Handle Instance)
 
 void initech_descriptor(LADSPA_Descriptor* descriptor) 
 {
-	descriptor->UniqueID = 120456;
+	descriptor->UniqueID = 4063;
 	descriptor->Label = "echo";
 	descriptor->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
 	descriptor->Name = "echo";

@@ -83,6 +83,8 @@ public:
 	virtual void addToggleButton(const char* label, float* zone) = 0;
 	virtual void addCheckButton(const char* label, float* zone) = 0;
 	virtual void addVerticalSlider(const char* label, float* zone, float initdis, float min, float max, float step) = 0;
+	virtual void addVerticalSlider1(const char* label, float* zone, float initdis, float min, float max, float step) = 0;
+	virtual void addVerticalSlider0(const char* label, float* zone, float initdis, float min, float max, float step) = 0;
 	virtual void addHorizontalSlider(const char* label, float* zone, float initdis, float min, float max, float step) = 0;
 	virtual void addNumEntry(const char* label, float* zone, float initdis, float min, float max, float step) = 0;
 		
@@ -243,26 +245,26 @@ class distdsp : public dsp {
 		interface->openHorizontalBox("distortion");
                // interface->openVerticalBox("overdrive");
                 interface->addVerticalSlider("overdrive ", &drive, 0.0f, 1.0f, 20.0f, 0.1f);
-                interface->addCheckButton("overdrive", &overdrive4);
+                interface->addToggleButton("over_drive", &overdrive4);
                // interface->closeBox();
 		interface->addVerticalSlider("drive", &fslider5, 0.64f, 0.0f, 1.0f, 0.01f);
-		interface->addVerticalSlider("drivelevel", &fslider4, 0.0f, 0.0f, 1.0f, 0.01f);
+		interface->addVerticalSlider0("drivelevel", &fslider4, 0.0f, 0.0f, 1.0f, 0.01f);
 		interface->addVerticalSlider("drivegain", &fslider6, 0.0f, -20.0f, 20.0f, 0.1f);
 		//interface->openHorizontalBox("low/highpass");
 		//interface->openVerticalBox("");
-		interface->addVerticalSlider("highpass", &fentry1, 130.0f, 20.0f, 7040.0f, 1.0f);
+		interface->addHorizontalSlider("highpass", &fentry1, 130.0f, 8.0f, 1000.0f, 1.0f);
 		interface->addVerticalSlider("lowpass", &fentry0, 5000.0f, 1000.0f, 10000.0f, 1.0f);
 		//interface->closeBox();
-		interface->addToggleButton("low/highpass", &fcheckbox0);
+		interface->addCheckButton("low_highpass", &fcheckbox0);
 		//interface->closeBox();
 		//interface->openHorizontalBox("low/highcut");
-		interface->addVerticalSlider("high-cut", &fslider2, 5000.0f, 1000.0f, 10000.0f, 1.0f);
-		interface->addVerticalSlider("low-cut", &fslider3, 130.0f, 8.0f, 1000.0f, 1.0f);
-		interface->addCheckButton("low/highcut", &fcheckbox1);
+		interface->addVerticalSlider("highcut", &fslider2, 5000.0f, 1000.0f, 10000.0f, 1.0f);
+		interface->addHorizontalSlider("lowcut", &fslider3, 130.0f, 8.0f, 1000.0f, 1.0f);
+		interface->addCheckButton("low_highcut", &fcheckbox1);
 		//interface->closeBox();
 		//interface->openVerticalBox("resonanz");
-		interface->addVerticalSlider("trigger", &fslider0, 1.0f, 0.0f, 1.0f,0.01f);
-		interface->addVerticalSlider("vibrato", &fslider1, 0.5f, 0.01f, 1.0f, 0.01f);
+		interface->addVerticalSlider1("trigger", &fslider0, 1.0f, 0.0f, 1.0f,0.01f);
+		interface->addVerticalSlider1("vibrato", &fslider1, 0.5f, 0.01f, 1.0f, 0.01f);
 		//interface->closeBox();
 		interface->closeBox();
 	}
@@ -543,12 +545,12 @@ class portCollector : public UI
 	portCollector(int ins, int outs) : UI(), fInsCount(ins), fOutsCount(outs), fCtrlCount(0) 
 	{
 		for (int i = 0; i < ins; i++) { 
-			fPortDescs[i] = LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO; 
+			fPortDescs[i] = LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO | LADSPA_HINT_DEFAULT_NONE; 
 			fPortNames[i] = inames[i]; 
 			fPortHints[i].HintDescriptor = 0;
 		}
 		for (int j = 0; j < outs; j++) {
-			fPortDescs[ins + j] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO; 
+			fPortDescs[ins + j] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO | LADSPA_HINT_DEFAULT_NONE; 
 			fPortNames[ins + j] = onames[j]; 
 			fPortHints[ins + j].HintDescriptor = 0;
 		}
@@ -565,19 +567,27 @@ class portCollector : public UI
 	}
 	
 	virtual void addToggleButton(const char* label, float* zone) { 
-		addPortDescrdis(ICONTROL, label, LADSPA_HINT_TOGGLED); 
+		addPortDescrdis(ICONTROL, label, LADSPA_HINT_TOGGLED|  LADSPA_HINT_DEFAULT_0 ); 
 	}
 	
 	virtual void addCheckButton(const char* label, float* zone) { 
-		addPortDescrdis(ICONTROL, label, LADSPA_HINT_TOGGLED); 
+		addPortDescrdis(ICONTROL, label, LADSPA_HINT_TOGGLED| LADSPA_HINT_DEFAULT_1 ); 
 	}
 		
 	virtual void addVerticalSlider(const char* label, float* zone, float initdis, float min, float max, float step) { 
-		addPortDescrdis(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
+		addPortDescrdis(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_DEFAULT_MIDDLE , min, max); 
+	}
+ 
+	virtual void addVerticalSlider0(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescrdis(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_DEFAULT_MINIMUM , min, max); 
+	}
+ 
+	virtual void addVerticalSlider1(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescrdis(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_DEFAULT_MAXIMUM, min, max); 
 	}		
 		
 	virtual void addHorizontalSlider(const char* label, float* zone, float initdis, float min, float max, float step) { 
-		addPortDescrdis(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
+		addPortDescrdis(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE  | LADSPA_HINT_DEFAULT_LOW, min, max); 
 	}
 
 	virtual void addNumEntry(const char* label, float* zone, float initdis, float min, float max, float step) { 
@@ -630,8 +640,8 @@ class portCollector : public UI
 		descriptor->PortNames 			= fPortNames;
 		descriptor->PortRangeHints 		= fPortHints;
 		
-		descriptor->Label = strdup(name);
-		descriptor->UniqueID = makeID(name);
+		descriptor->Label = "guitarix-distortion";
+		descriptor->UniqueID = 4061;
 //		descriptor->Label = strdup(fPluginName.c_str());
 //		descriptor->UniqueID = makeID(fPluginName.c_str());
 		descriptor->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
@@ -693,8 +703,11 @@ class portData : public UI
 	virtual void addButton(const char* label, float* zone) 			{ addZone(zone); }
 	virtual void addToggleButton(const char* label, float* zone)  	{ addZone(zone); }
 	virtual void addCheckButton(const char* label, float* zone)  		{ addZone(zone); }
+
 		
 	virtual void addVerticalSlider(const char* label, float* zone, float initdis, float min, float max, float step) 		{ addZone(zone); }
+	virtual void addVerticalSlider1(const char* label, float* zone, float initdis, float min, float max, float step) 		{ addZone(zone); }
+	virtual void addVerticalSlider0(const char* label, float* zone, float initdis, float min, float max, float step) 		{ addZone(zone); }
 	virtual void addHorizontalSlider(const char* label, float* zone, float initdis, float min, float max, float step) 	{ addZone(zone); }
 	virtual void addNumEntry(const char* label, float* zone, float initdis, float min, float max, float step)  			{ addZone(zone); }
 		
@@ -799,8 +812,8 @@ void cleanup_methoddis (LADSPA_Handle Instance)
 
 void initdis_descriptor(LADSPA_Descriptor* descriptor) 
 {
-	descriptor->UniqueID = 123356;
-	descriptor->Label = "effect";
+	descriptor->UniqueID = 4061;
+	descriptor->Label = "distortion";
 	descriptor->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
 	descriptor->Name = "distortion";
 	descriptor->Maker = "brummer";

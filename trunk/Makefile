@@ -62,6 +62,8 @@ install:
 	install ./rcstyles/guitarix.rc $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/guitarix_pix.rc $(DESTDIR)$(PREFIX)/share/guitarix
 	install ./rcstyles/guitarix_black.rc $(DESTDIR)$(PREFIX)/share/guitarix
+	mkdir -p $(DESTDIR)$(PREFIX)/share/ladspa/rdf
+	install ./ladspa/guitarix.rdf $(DESTDIR)$(PREFIX)/share/ladspa/rdf
 
 clean  :
 	rm -rf guitarix

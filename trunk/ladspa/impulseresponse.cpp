@@ -82,6 +82,8 @@ public:
 	virtual void addToggleButton(const char* label, float* zone) = 0;
 	virtual void addCheckButton(const char* label, float* zone) = 0;
 	virtual void addVerticalSlider(const char* label, float* zone, float initir, float min, float max, float step) = 0;
+	virtual void addVerticalSlider1(const char* label, float* zone, float initdis, float min, float max, float step) = 0;
+	virtual void addVerticalSlider0(const char* label, float* zone, float initdis, float min, float max, float step) = 0;
 	virtual void addHorizontalSlider(const char* label, float* zone, float initir, float min, float max, float step) = 0;
 	virtual void addNumEntry(const char* label, float* zone, float initir, float min, float max, float step) = 0;
 		
@@ -175,8 +177,8 @@ class irdsp : public dsp {
 	}
 	virtual void buildUserInterface(UI* interface) {
 		interface->openHorizontalBox("IR");
-		interface->addHorizontalSlider("bandwidth(Hz)", &fslider0, 100.0f, 20.0f, 20000.0f, 10.0f);
-		interface->addHorizontalSlider("frequency(Hz)", &fslider1, 440.0f, 20.0f, 2200.0f, 10.0f);
+		interface->addVerticalSlider0("bandwidth(Hz)", &fslider0, 100.0f, 20.0f, 20000.0f, 10.0f);
+		interface->addVerticalSlider("frequency(Hz)", &fslider1, 440.0f, 20.0f, 2200.0f, 10.0f);
 		interface->addHorizontalSlider("peakgain", &fslider2, 1.0f, 0.0f, 10.0f, 0.2f);
 		interface->closeBox();
 	}
@@ -397,19 +399,27 @@ class portCollector : public UI
 	}
 	
 	virtual void addToggleButton(const char* label, float* zone) { 
-		addPortDescrir(ICONTROL, label, LADSPA_HINT_TOGGLED); 
+		addPortDescrir(ICONTROL, label, LADSPA_HINT_TOGGLED|  LADSPA_HINT_DEFAULT_0 ); 
 	}
 	
 	virtual void addCheckButton(const char* label, float* zone) { 
-		addPortDescrir(ICONTROL, label, LADSPA_HINT_TOGGLED); 
+		addPortDescrir(ICONTROL, label, LADSPA_HINT_TOGGLED| LADSPA_HINT_DEFAULT_1 ); 
 	}
 		
-	virtual void addVerticalSlider(const char* label, float* zone, float initir, float min, float max, float step) { 
-		addPortDescrir(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
+	virtual void addVerticalSlider(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescrir(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_DEFAULT_MIDDLE , min, max); 
+	}
+ 
+	virtual void addVerticalSlider0(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescrir(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_DEFAULT_MINIMUM , min, max); 
+	}
+ 
+	virtual void addVerticalSlider1(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescrir(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_DEFAULT_MAXIMUM, min, max); 
 	}		
 		
-	virtual void addHorizontalSlider(const char* label, float* zone, float initir, float min, float max, float step) { 
-		addPortDescrir(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
+	virtual void addHorizontalSlider(const char* label, float* zone, float initdis, float min, float max, float step) { 
+		addPortDescrir(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE  | LADSPA_HINT_DEFAULT_LOW, min, max); 
 	}
 
 	virtual void addNumEntry(const char* label, float* zone, float initir, float min, float max, float step) { 
@@ -463,7 +473,7 @@ class portCollector : public UI
 		descriptor->PortRangeHints 		= fPortHints;
 		
 		descriptor->Label = strdup(name);
-		descriptor->UniqueID = makeID(name);
+		descriptor->UniqueID = 4065;
 //		descriptor->Label = strdup(fPluginName.c_str());
 //		descriptor->UniqueID = makeID(fPluginName.c_str());
 		descriptor->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
@@ -527,6 +537,8 @@ class portData : public UI
 	virtual void addCheckButton(const char* label, float* zone)  		{ addZone(zone); }
 		
 	virtual void addVerticalSlider(const char* label, float* zone, float initir, float min, float max, float step) 		{ addZone(zone); }
+	virtual void addVerticalSlider1(const char* label, float* zone, float initdis, float min, float max, float step) 		{ addZone(zone); }
+	virtual void addVerticalSlider0(const char* label, float* zone, float initdis, float min, float max, float step) 		{ addZone(zone); }
 	virtual void addHorizontalSlider(const char* label, float* zone, float initir, float min, float max, float step) 	{ addZone(zone); }
 	virtual void addNumEntry(const char* label, float* zone, float initir, float min, float max, float step)  			{ addZone(zone); }
 		
@@ -631,7 +643,7 @@ void cleanup_methodir (LADSPA_Handle Instance)
 
 void initir_descriptor(LADSPA_Descriptor* descriptor) 
 {
-	descriptor->UniqueID = 123450;
+	descriptor->UniqueID = 4065;
 	descriptor->Label = "ImpulseResponse";
 	descriptor->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
 	descriptor->Name = "IR";
