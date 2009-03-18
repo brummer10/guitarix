@@ -16,9 +16,10 @@ JCONV_SETTINGS::~JCONV_SETTINGS()
 {
 }
 
-string  jgain, frbuf, jmem, jmode;
+string  jgain, frbuf, jmem, jmode, joffset, jlength;
 float valo, vali ;
 const char **port1, **port2;
+
 
 // read the settings for jconv from file
 void JCONV_SETTINGS::get_jconfset ()
@@ -43,11 +44,21 @@ void JCONV_SETTINGS::get_jconfset ()
         for (is=0; is<1; is++)
         {
             getline(f,  jgain);
+	    joffset = jgain;
+            jlength = jgain;
         }
         jgain.erase(0, 24);
         jgain.erase(3);
         istringstream isn(jgain);
         isn >> valo;
+        joffset.erase(0,33);
+        joffset.erase(14);
+        istringstream isno(joffset);
+        isno >> offcut;
+        jlength.erase(0,48);
+        jlength.erase(9);
+        istringstream isnl(jlength);
+        isnl >> lenghtcut;
         for (is=0; is<2; is++)
         {
             getline(f,  jconvwav);
@@ -57,6 +68,7 @@ void JCONV_SETTINGS::get_jconfset ()
         jmode.erase(0, 2);
         f.close();
     }
+
     else
     {
         jconvwav = home;
@@ -104,7 +116,13 @@ static void fileselect( GtkWidget *widget, gpointer data )
         cim +=  partion  ;
         jgain = "0.";
         jgain +=  partion  ;
-        cim += "     0       0       0     1  ";
+        cim += "     0       ";
+        IntToString((offcut), partion);
+       cim += partion;
+        cim += "       ";
+        IntToString((lenghtcut), partion);
+       cim += partion;
+       cim += "       1  ";
         cim += jconvwav;
         cim += "\n";
         if (jmode == "/impulse/copy")
@@ -119,7 +137,14 @@ static void fileselect( GtkWidget *widget, gpointer data )
             cim +=  partion  ;
             jgain = "0.";
             jgain +=  partion  ;
-            cim += "     0       0       0     2  ";
+        cim += "     0       ";
+        IntToString((offcut), partion);
+       cim += partion;
+        cim += "       ";
+        IntToString((lenghtcut), partion);
+       cim += partion;
+       cim += "       2  ";
+        //    cim += "     0       0       0     2  ";
             cim += jconvwav;
             cim += "\n";
         }
@@ -179,7 +204,7 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
     gtk_window_set_title (GTK_WINDOW (about), "jconv settings");
     gtk_window_set_destroy_with_parent(GTK_WINDOW(about), TRUE);
 
-    label = gtk_label_new ("           settings for jconv             \n        by  Fons Adriaensen ");
+    label = gtk_label_new ("           settings for              \n      jconv  by  Fons Adriaensen ");
     label1 = gtk_label_new (" \n");
     label2 = gtk_label_new (" partion size");
     label3 = gtk_label_new (" gain ");
@@ -192,10 +217,10 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
     SNDFILE *sf = soundin_open1( jconvwav.c_str(), &chans, &sr, &framecount);
     soundin_close(sf);
     char lab[256] ;
-    snprintf(lab, 256, "fileinfo \n (%i) channel (%i)Sample rate (%i) Frames ", chans, int(sr),framecount);
+    snprintf(lab, 256, "fileinfo \n(%i)channel (%i)Sample rate (%i)Samples ", chans, int(sr),framecount);
     gtk_label_set_text(GTK_LABEL(label1), lab);
 
-    GtkObject* adjo = gtk_adjustment_new(valo, 0.0, 1.0, 0.1, 10*0.1, 0);
+    GtkObject* adjo = gtk_adjustment_new(valo, 0.0, 5.0, 0.1, 10*0.1, 0);
     GtkWidget* slider = gtk_spin_button_new (GTK_ADJUSTMENT(adjo), 1.0, 1);
     valo = gtk_adjustment_get_value (GTK_ADJUSTMENT(adjo));
     float jgi;
@@ -268,12 +293,19 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
     GtkFileFilter* filter =  gtk_file_filter_new ();
     gtk_file_filter_add_pattern (filter, "*.wav");
     gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (fbutton), filter);
+      GtkWaveView myGtkWaveView;
+   GtkWidget * waveview = myGtkWaveView.gtk_wave_view(jconvwav.c_str());
+    gtk_widget_set_size_request (GTK_WIDGET(waveview), 300.0, 200.0);
     GtkWidget * box = gtk_hbox_new (TRUE, 4);
     GtkWidget * box1 = gtk_hbox_new (TRUE, 4);
     GtkWidget * box2 = gtk_hbox_new (TRUE, 4);
     GtkWidget * box3 = gtk_hbox_new (TRUE, 4);
-    GtkWidget * box4 = gtk_vbox_new (TRUE, 4);
-    gtk_container_add (GTK_CONTAINER (box4), label);
+    GtkWidget * box4 = gtk_vbox_new (FALSE, 4);
+   GtkWidget * viewbox = gtk_vbox_new (TRUE, 4);
+  
+   gtk_container_add (GTK_CONTAINER (box4), viewbox);
+  gtk_container_add (GTK_CONTAINER (viewbox), waveview);
+  gtk_container_add (GTK_CONTAINER (box4), label);
     gtk_container_add (GTK_CONTAINER (about), box4);
     gtk_container_add (GTK_CONTAINER (box4), fbutton);
     gtk_container_add (GTK_CONTAINER (box4), label1);
@@ -291,6 +323,7 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
     gtk_container_add (GTK_CONTAINER (box1), label3);
     gtk_container_add (GTK_CONTAINER (box4), button1);
     g_signal_connect_swapped (fbutton, "file-set",  G_CALLBACK (flr), fbutton);
+    g_signal_connect_swapped  (fbutton, "file-set",  G_CALLBACK (wv), fbutton);
     g_signal_connect_swapped (button1, "pressed",  G_CALLBACK (fileselect), fbutton);
     g_signal_connect_swapped (button1, "clicked",  G_CALLBACK (gtk_widget_destroy), fbutton);
     g_signal_connect_swapped (button1, "clicked",  G_CALLBACK (gtk_widget_destroy), about);

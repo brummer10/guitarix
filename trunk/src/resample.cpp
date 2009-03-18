@@ -5,7 +5,9 @@
 	the GtkWidget must be a GTK_FILE_CHOOSER_BUTTON
 	for guitarix by hermann meyer
 ***************************************************************/
-#include "./guitarix/resample.h"
+//#include "./guitarix/resample.h"
+
+
 
 Resample::Resample()
 {
@@ -47,7 +49,6 @@ int soundin(SNDFILE *pInput, float *buffer, int vecsize)
     return (int) sf_readf_float(pInput, buffer, vecsize);
 }
 
-/*
 int sounddraw(SNDFILE *pInput, float *buffer, int vecsize)
 {
     return (int) sf_readf_float(pInput, buffer, vecsize);
@@ -55,6 +56,7 @@ int sounddraw(SNDFILE *pInput, float *buffer, int vecsize)
 
 int drawsound(const char*  pInputi,  float jackframe)
 {
+       GtkWaveView myGtkWaveView;
     SNDFILE *pInput;
     int counter=0,pt=0,chans,vecsize=64, length=0,length2=0, countfloat, countframe = 1;
     float *sig,sr;
@@ -70,6 +72,16 @@ int drawsound(const char*  pInputi,  float jackframe)
         gtk_widget_show_all (about);
     }
    else {
+       GtkWidget *about, *label, *button;
+        about = gtk_dialog_new();
+        button  = gtk_button_new_with_label("Ok");
+        //label = gtk_label_new (" ");
+   // label = myGtkWaveView.gtk_wave_view(pInputi,length2);
+        gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), label);
+        gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), button);
+        g_signal_connect_swapped (button, "clicked",  G_CALLBACK (gtk_widget_destroy), about);
+        gtk_widget_show_all (about);
+/*
     sig      = new float[vecsize*2];
     while (counter<length+length2-1)
     {
@@ -86,10 +98,11 @@ int drawsound(const char*  pInputi,  float jackframe)
     sf_close(pInput);
  
     delete[] sig;
+*/
     }
     return 0;
 }
-*/
+
 
 int resample(const char*  pInputi, const char* pOutputi, float jackframe)
 {
@@ -132,7 +145,7 @@ int resample(const char*  pInputi, const char* pOutputi, float jackframe)
     sf_close(pOutput);
     delete[] sig;
         char lab[256] ;
-        snprintf(lab, 256, "fileinfo \n (%i) channel (%i)Sample rate (%i) Frames ", chans, int(jackframe),length2);
+    snprintf(lab, 256, "fileinfo \n (%i) channel (%i)Sample rate (%i) Frames ", chans, int(jackframe),length2);
         gtk_label_set_text(GTK_LABEL(label1), lab);  
     }
     return 0;
@@ -195,10 +208,11 @@ void Resample::fileread(GtkWidget *widget, gpointer data )
         SNDFILE *sf = soundin_open1( jconvwav.c_str(), &chans, &sr, &framescount);
         soundin_close(sf);
         char lab[256] ;
-        snprintf(lab, 256, "fileinfo \n (%i) channel (%i)Sample rate (%i) Frames ", chans, int(sr),framescount);
+        snprintf(lab, 256, "fileinfo \n(%i)channel (%i)Sample rate (%i)Samples ", chans, int(sr),framescount);
         //snprintf(lab, 256, " (%i) channel (%i)Sample rate ", chans, int(sr));
-  
-     //   drawsound(jconvwav.c_str(), jackframe);
+    // GtkWaveView myGtkWaveView;
+         wv(widget,data);
+       // drawsound(jconvwav.c_str(), jackframe);
         gtk_label_set_text(GTK_LABEL(label1), lab);  
         if (sr != jackframe)
         {

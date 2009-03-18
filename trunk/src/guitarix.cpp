@@ -26,6 +26,8 @@ const char*     param;
 const char*     stopit = "go";
 const char*     rcpath = " " ;
 string  jconvwav ; 
+int offcut;
+int lenghtcut;
 
 int cm = 0;
 int shownote = 2;
@@ -445,7 +447,7 @@ static void show_event( GtkWidget *widget, gpointer data )
     gtk_widget_show (about);
 }
 
-#include"resample.cpp"
+
 
 //--------- class wrapper--------------------------
 void flr( GtkWidget *widget, gpointer data )
@@ -464,6 +466,12 @@ void rjv( GtkWidget *widget, gpointer data )
 {
     JCONV_SETTINGS myJCONV_SETTINGS;
     myJCONV_SETTINGS.runjconv(widget, data);
+}
+
+void wv( GtkWidget *widget, gpointer data )
+{
+    GtkWaveView myGtkWaveView;
+    myGtkWaveView.gtk_waveview_set_value(widget, data);
 }
 
 //--------------------------- jack_capture settings ----------------------------------------

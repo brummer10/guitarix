@@ -8,7 +8,7 @@ part of guitarix, use  knobs with Gtk
 #include <gdk/gdkkeysyms.h>
 
 #ifndef GtkReglerH
-#define GtkReglerrH
+#define GtkReglerH
 
 class GtkRegler
 {

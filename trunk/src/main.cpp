@@ -113,10 +113,14 @@ struct Meta : map<const char*, const char*>
 #define kBoxMode 1
 #define kTabMode 2
 
+#include "./guitarix/Gtkwaveview.h"
 #include "./guitarix/GTKUI.h"
 #include"./guitarix/jconv_settings.h"
+#include "./guitarix/resample.h"
 #include "guitarix.cpp"
+#include "Gtkwaveview.cpp"
 #include "GTKUI.cpp"
+#include"resample.cpp"
 #include"jconv_settings.cpp"
 #include "BEATDETECTOR.cpp"
 #include "dsp.cpp"
