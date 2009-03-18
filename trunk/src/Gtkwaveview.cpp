@@ -70,25 +70,6 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
     waveviewx += (widget->allocation.width - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_x) *0.5;
     waveviewy += (widget->allocation.height - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_y) *0.5;
 
-    GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
-    GdkColor color ;
-
-    color.red = 30 * 236;
-    color.blue = 30 * 236;
-    color.green = 30 * 236;
-    gdk_gc_set_rgb_fg_color(line, &color);
-    gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-    gdk_draw_rectangle(GDK_DRAWABLE(widget->window), line,TRUE, 0, 0,300,200);
-    color.red = 20 * 256;
-    color.blue =20 * 256;
-    color.green = 200 * 256;
-    gdk_gc_set_rgb_fg_color(line, &color);
-    gdk_draw_line(GDK_DRAWABLE(widget->window), line, 0, 100,300,100);
-    color.red = 200 * 256;
-    color.blue =200 * 256;
-    color.green = 200 * 256;
-    gdk_gc_set_rgb_fg_color(line, &color);
-
     if (new_wave != 0)
     {
         new_wave = 0;
@@ -99,6 +80,23 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         SNDFILE *pvInput;
         int counter=0,pt=0,chans,vecsize=64, length=0,length2=0, countfloat, countframe = 1;
         float *sig,sr;
+    	GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
+    	GdkColor color ;
+    	color.red = 30 * 236;
+    	color.blue = 30 * 236;
+    	color.green = 30 * 236;
+    	gdk_gc_set_rgb_fg_color(line, &color);
+    	gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
+    	gdk_draw_rectangle(GDK_DRAWABLE(widget->window), line,TRUE, 0, 0,300,200);
+    	color.red = 20 * 256;
+    	color.blue =20 * 256;
+    	color.green = 200 * 256;
+    	gdk_gc_set_rgb_fg_color(line, &color);
+    	gdk_draw_line(GDK_DRAWABLE(widget->window), line, 0, 100,300,100);
+    	color.red = 200 * 256;
+    	color.blue =200 * 256;
+    	color.green = 200 * 256;
+    	gdk_gc_set_rgb_fg_color(line, &color);
 
         if (!(pvInput=soundin_openview(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->fileview, &chans, &sr, &length2)))
         {
@@ -180,7 +178,6 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                 gdk_pixbuf_get_from_drawable( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_image,GDK_DRAWABLE(widget->window), col,0,0,0,0,300,200);
                 sf_close(pvInput);
                 delete[] sig;
-
             }
         }
         g_object_unref(line );
@@ -201,11 +198,9 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavestay = offcut*GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale;
             GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveleft = lenghtcut*GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale;
         }
-
         gdk_pixbuf_get_from_drawable( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigwaveview_image,GDK_DRAWABLE(widget->window), gdk_colormap_get_system (),0,0,0,0,300,200);
     }
     gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigwaveview_image, 0,0, 0, 0, 300, 200, GDK_RGB_DITHER_NORMAL, 0, 0);
-
 }
 
 gboolean GtkWaveView::gtk_waveview_set_value (GtkWidget *cwidget, gpointer data )
@@ -219,7 +214,6 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
     GtkWaveView *waveview = GTK_WAVEVIEW(widget);
     if (GTK_WIDGET_HAS_GRAB(widget))
     {
-
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_image, 0,0, 0, 0, 300, 200, GDK_RGB_DITHER_NORMAL, 0, 0);
         GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
         GdkColor color ;
@@ -248,7 +242,6 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
         g_object_unref(line );
         GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavestay/GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale;
         GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveleft/GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale;
-
         offcut = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut ;
         if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut < 0)
         {
@@ -273,7 +266,6 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
         gtk_widget_set_sensitive(widget, TRUE);
         gtk_tooltips_set_tip (GTK_TOOLTIPS (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->comandline), widget, tip.c_str(), "the offset and length.");
     }
-
     gdk_pixbuf_get_from_drawable( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigwaveview_image,GDK_DRAWABLE(widget->window), gdk_colormap_get_system (),0,0,0,0,300,200);
     return FALSE;
 }
@@ -314,7 +306,6 @@ static gboolean gtk_waveview_button_press (GtkWidget *widget, GdkEventButton *ev
         gtk_widget_set_sensitive(widget, TRUE);
         gtk_tooltips_set_tip (GTK_TOOLTIPS (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->comandline), widget, tip.c_str(), "the offset and length.");
     }
-
     return TRUE;
 }
 
@@ -331,7 +322,6 @@ static void gtk_waveview_size_request (GtkWidget *widget, GtkRequisition *requis
 {
     g_assert(GTK_IS_WAVEVIEW(widget));
     GtkWaveView *waveview = GTK_WAVEVIEW(widget);
-
     requisition->width = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_x;
     requisition->height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_y;
 }
@@ -347,7 +337,6 @@ static void gtk_waveview_class_init (GtkWaveViewClass *klass)
     widget_class->button_press_event = gtk_waveview_button_press;
     widget_class->button_release_event = gtk_waveview_button_release;
     widget_class->motion_notify_event = gtk_waveview_pointer_motion;
-
     GError *error = NULL;
     klass->waveview_image = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,300,200);
     g_assert(klass->waveview_image != NULL);
@@ -361,7 +350,6 @@ static void gtk_waveview_init (GtkWaveView *waveview)
     GtkWidget *widget = GTK_WIDGET(waveview);
     GTK_WIDGET_SET_FLAGS (GTK_WIDGET(waveview), GTK_CAN_FOCUS);
     GTK_WIDGET_SET_FLAGS (GTK_WIDGET(waveview), GTK_CAN_DEFAULT);
-
     widget->requisition.width = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_x;
     widget->requisition.height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_y;
 }
@@ -409,3 +397,4 @@ GType gtk_waveview_get_type (void)
     }
     return kn_type;
 }
+
