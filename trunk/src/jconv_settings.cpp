@@ -76,6 +76,8 @@ void JCONV_SETTINGS::get_jconfset ()
         jmem = "8000";
         jmode = "/impulse/copy";
         IntToString((frag), frbuf);
+	offcut = 0;
+	lenghtcut = 0;
     }
 }
 
@@ -112,10 +114,18 @@ static void fileselect( GtkWidget *widget, gpointer data )
         cim += "/impulse/read    1  1   ";
         int gainvalu = ((valo)*10);
         IntToString((gainvalu), partion);
-        cim += "0.";
-        cim +=  partion  ;
+        if (gainvalu < 10) {
+          cim += "0.";
         jgain = "0.";
         jgain +=  partion  ;
+        }
+        else {
+          std::string bvalo(partion);
+          bvalo.insert(1, ".");
+          partion = bvalo;
+          jgain =  partion  ;
+        }
+        cim +=  partion  ;
         cim += "     0       ";
         IntToString((offcut), partion);
        cim += partion;
@@ -133,10 +143,18 @@ static void fileselect( GtkWidget *widget, gpointer data )
         {
             cim += "/impulse/read    2  2   ";
             IntToString((gainvalu), partion);
-            cim += "0.";
-            cim +=  partion  ;
-            jgain = "0.";
-            jgain +=  partion  ;
+            if (gainvalu < 10) {
+              cim += "0.";
+              jgain = "0.";
+              jgain +=  partion  ;
+            }
+            else {
+              std::string bvalo(partion);
+              bvalo.insert(1, ".");
+              partion = bvalo;
+              jgain =  partion  ;
+            }
+        cim +=  partion  ;
         cim += "     0       ";
         IntToString((offcut), partion);
        cim += partion;

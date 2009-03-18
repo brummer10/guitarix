@@ -1,7 +1,7 @@
 # !bin/sh
 # this is the environmet setup script for guitarix. feel free to use it. you can also simply start guitarix, if you feel allright with the default settings. If you move the script out of the buildtree you must comment the following lines out.
 
-p="`echo $0 | sed 's?\(.*\)/set_env_guitarix.sh?\1?g'`"
+p="`/bin/echo $0 | sed 's?\(.*\)/set_env_guitarix.sh?\1?g'`"
 cd $p
 
 # autoconnect guitarix in and outputs, here you can set autoconecction ports to use for in and output. leave it blank to disable autoconnect
