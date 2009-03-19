@@ -776,6 +776,17 @@ void GTKUI::addStatusDisplay(const char* label, float* zone )
     gtk_widget_hide(lw);
 };
 
+void GTKUI::addLiveWaveDisplay(const char* label, float* zone )
+{
+    GtkObject* adj = gtk_adjustment_new(0.0, 0.0, 1.0, 0.000001, 10*0.0000001, 0);
+    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+GtkWaveView myGtkWaveView;
+    livewa = myGtkWaveView.gtk_wave_live_view(zone,GTK_ADJUSTMENT(adj));
+    addWidget(label, livewa);
+   // gtk_widget_hide(lw);
+};
+
+
 // ------------------------------ Progress Bar -----------------------------------
 
 struct uiBargraph : public uiItem
@@ -975,6 +986,12 @@ void GTKUI::addMenu()
     menu = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menucap), menu);
 
+    /*-- Create Open check menu item under Options submenu --*/
+    menuitem = gtk_check_menu_item_new_with_label (" viewport ");
+    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
+    gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (show_view), NULL);
+    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("  tuner ");
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (show_note), NULL);

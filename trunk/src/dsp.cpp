@@ -246,6 +246,7 @@ private:
     float foverdrive4;
 float fTemprec1;
 	float 	fRecover0[2];
+    float  viv;
     // float  fbargraph0;
 public:
 
@@ -617,20 +618,20 @@ public:
         interface->closeBox();
         interface->closeBox();
 
-        interface->openEventBox(" ");
-        interface->openVerticalBox("");
+       // interface->openEventBox(" ");
+     //   interface->openVerticalBox("");
         interface->openHorizontalBox("");
-        interface->openHorizontalBox(" ");
-
+     //   interface->openHorizontalBox(" ");
+        interface->addLiveWaveDisplay(" ", &viv );
         // interface->addVerticalBargraph("", &fbargraph0,0.0000f, 1.0000f);
-        interface->closeBox();
-        interface->openVerticalBox(" ");
+    //    interface->closeBox();
+    //    interface->openVerticalBox(" ");
         //  interface->addHorizontalBargraph("", &fbargraph0,0.0000f, 1.0000f);
-        interface->closeBox();
-        interface->closeBox();
-        interface->openVerticalBox(" ");
-        interface->closeBox();
-        interface->closeBox();
+     //   interface->closeBox();
+     //   interface->closeBox();
+     //   interface->openVerticalBox(" ");
+     //   interface->closeBox();
+    //    interface->closeBox();
         interface->closeBox();
         interface->closeBox();
 
@@ -1391,6 +1392,7 @@ public:
 
                 fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
                 // fbargraph0 = powf(max((fRec0[5] - fConstcom2), min(0.990000f, fabsf(fVec0[0]))),0.9);
+               if (showwave == 1) viv = fRec0[0];
                 output0[i] = (fSlow85 * fRec0[0]);
                 float 	S9[2];
                 S9[0] = (fSlow87 * fRec0[0]);
