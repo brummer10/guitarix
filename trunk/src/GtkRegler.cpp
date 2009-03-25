@@ -303,7 +303,7 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
 {
     g_assert(GTK_IS_REGLER(widget));
     GtkRegler *regler = GTK_REGLER(widget);
-    GdkWindow *window = widget->window;
+    
     GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
     int reglerx = widget->allocation.x, reglery = widget->allocation.y;
 
@@ -432,7 +432,7 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
     g_assert(GTK_IS_REGLER(widget));
     GtkRegler *regler = GTK_REGLER(widget);
-    GdkWindow *window = widget->window;
+   
     GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
     int reglerx = widget->allocation.x, reglery = widget->allocation.y;
 
@@ -593,7 +593,7 @@ static void gtk_regler_size_request (GtkWidget *widget, GtkRequisition *requisit
 static void gtk_regler_set_value (GtkWidget *widget, int dir_down)
 {
     g_assert(GTK_IS_REGLER(widget));
-    GtkRegler *regler = GTK_REGLER(widget);
+  
     GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 
     int oldstep = (int)(0.5f + (adj->value - adj->lower) / adj->step_increment);
@@ -612,7 +612,7 @@ static void gtk_regler_set_value (GtkWidget *widget, int dir_down)
 static gboolean gtk_regler_key_press (GtkWidget *widget, GdkEventKey *event)
 {
     g_assert(GTK_IS_REGLER(widget));
-    GtkRegler *regler = GTK_REGLER(widget);
+    
     GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
     switch (event->keyval)
     {
@@ -764,8 +764,6 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
     klass->slider_x = 120 ;  //this is the scale size
     klass->slider_y = 10 ;   // this is the knob size x and y be the same
     klass->slider_step = 100;
-
-    GError *error = NULL;
 
 //----------- Big knob
     klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob1_xpm);

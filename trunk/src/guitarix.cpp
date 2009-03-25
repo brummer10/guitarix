@@ -32,7 +32,7 @@ int lenghtcut;
 
 int cm = 0;
 int shownote = 2;
-int showwave = 1;
+int showwave = 0;
 int playmidi = 0;
 int showit = 0;
 
@@ -110,6 +110,7 @@ bool Exists(const char* Path)
         fa <<  cim <<endl;
         fa.close();
     }
+return TRUE;
 }
 
 bool Existspix()
@@ -150,6 +151,7 @@ bool Existspix()
         GtkWidget *stir = gtk_image_new_from_file ("guitarix-warn.png");
         ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
     }
+return TRUE;
 }
 
 // convert int to string
@@ -180,6 +182,7 @@ bool capture(const char* capturas)
 {
     capas += 1;
     control_stream = popen (capturas, "w");
+return TRUE;
 }
 
 bool		GTKUI::fInitialized = false;
@@ -231,6 +234,10 @@ void show_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
     {
         shownote = 1;
+        if (midi_output_ports == NULL){
+        midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+        jack_port_unregister(midi_client, midi_output_ports);
+	}
         gtk_widget_show(pb);
     }
     else
@@ -245,11 +252,13 @@ void midi_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
     {
         playmidi = 1;
+        midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
         gtk_widget_show(midibox);
     }
     else
     {
         playmidi = 0;
+        jack_port_unregister(midi_client, midi_output_ports);
         gtk_widget_hide(midibox);
     }
 }
@@ -299,7 +308,7 @@ void recordit (GtkWidget *widget, gpointer data)
 // when everything go's allright, start capture
         else
         {
-            const char* capturas ;
+            const char* capturas = "";
             string buf;
             const char* home;
             char gfilename[256];
@@ -535,7 +544,7 @@ static void destroy_event( GtkWidget *widget, gpointer data )
     // checky = 0.0;
     jack_port_disconnect (client, output_ports[0]);
     jack_port_disconnect (client, output_ports[1]);
-    jack_port_disconnect (midi_client, input_ports[0]);
+  //  jack_port_disconnect (midi_client, input_ports[0]);
     gtk_main_quit ();
 
 }

@@ -49,65 +49,10 @@ int soundin(SNDFILE *pInput, float *buffer, int vecsize)
     return (int) sf_readf_float(pInput, buffer, vecsize);
 }
 
-int sounddraw(SNDFILE *pInput, float *buffer, int vecsize)
-{
-    return (int) sf_readf_float(pInput, buffer, vecsize);
-}
-
-int drawsound(const char*  pInputi,  float jackframe)
-{
-       GtkWaveView myGtkWaveView;
-    SNDFILE *pInput;
-    int counter=0,pt=0,chans,vecsize=64, length=0,length2=0, countfloat, countframe = 1;
-    float *sig,sr;
-    if (!(pInput=soundin_open1(pInputi, &chans, &sr, &length2)))
-    {
-        GtkWidget *about, *label, *button;
-        about = gtk_dialog_new();
-        button  = gtk_button_new_with_label("Ok");
-        label = gtk_label_new ("Error opening input file \n ");
-        gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), label);
-        gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), button);
-        g_signal_connect_swapped (button, "clicked",  G_CALLBACK (gtk_widget_destroy), about);
-        gtk_widget_show_all (about);
-    }
-   else {
-       GtkWidget *about, *label, *button;
-        about = gtk_dialog_new();
-        button  = gtk_button_new_with_label("Ok");
-        //label = gtk_label_new (" ");
-   // label = myGtkWaveView.gtk_wave_view(pInputi,length2);
-        gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), label);
-        gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), button);
-        g_signal_connect_swapped (button, "clicked",  G_CALLBACK (gtk_widget_destroy), about);
-        gtk_widget_show_all (about);
-/*
-    sig      = new float[vecsize*2];
-    while (counter<length+length2-1)
-    {
-        sounddraw(pInput, sig,vecsize);
-        counter=counter+64;
-        countfloat = 0;
-    while (countfloat<vecsize*chans)
-    {
-        fprintf (stderr, "%f  count %i \n",sig[countfloat]*100.0, countframe);
-        countfloat +=1;
-        countframe +=1;
-	}
-    }
-    sf_close(pInput);
- 
-    delete[] sig;
-*/
-    }
-    return 0;
-}
-
-
 int resample(const char*  pInputi, const char* pOutputi, float jackframe)
 {
     SNDFILE *pInput, *pOutput;
-    int counter=0,pt=0,chans,vecsize=64, length=0,length2=0, countfloat;
+    int counter=0,chans,vecsize=64, length=0,length2=0, countfloat;
     float *sig,sr;
     if (!(pInput=soundin_open1(pInputi, &chans, &sr, &length2)))
     {
@@ -189,11 +134,10 @@ void Resample::fileread(GtkWidget *widget, gpointer data )
     gchar *fileis =  gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(widget));
     if (fileis != NULL)
     {
-        const char *files = fileis;
         jconvwav = fileis;
         std::string e(jconvwav);
         std::string f(" ");
-        std::string::size_type ifn;
+        std::string::size_type ifn = 0;
         while (ifn != -1)
         {
             ifn = e.find(f);
@@ -212,7 +156,6 @@ void Resample::fileread(GtkWidget *widget, gpointer data )
         //snprintf(lab, 256, " (%i) channel (%i)Sample rate ", chans, int(sr));
     // GtkWaveView myGtkWaveView;
          wv(widget,data);
-       // drawsound(jconvwav.c_str(), jackframe);
         gtk_label_set_text(GTK_LABEL(label1), lab);  
         if (sr != jackframe)
         {

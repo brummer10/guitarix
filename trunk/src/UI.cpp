@@ -57,8 +57,6 @@ public:
     {
         string buffer = " ";
         extern int cm;
-        int is;
-        int lin = 2;
         ifstream fa(filename);
         ofstream f(tmpname);
         if (fa.good())

@@ -19,23 +19,8 @@ all    :
 	$(CXX) -fPIC -shared -O3 -march=native  -mfpmath=sse -ffast-math -Dcomprdsp=guitarix_compressor ./ladspa/monocompressor.cpp -o gmonocompressor.so
 
 
-	$(CXX) -O3  -march=native -mfpmath=sse -ffast-math `pkg-config --cflags --libs jack gtk+-2.0 sndfile` ./src/main.cpp -o guitarix
+	$(CXX) -O3  -march=native -Werror `pkg-config --cflags --libs jack gtk+-2.0 sndfile` ./src/main.cpp -o guitarix
 
-nosse   :
-
-	$(CXX) -fPIC -shared -O3  -Dmydsp=guitarix ./ladspa/guitarix-ladspa.cpp -o guitarix.so
-
-	$(CXX) -fPIC -shared -O3 -Dcrydsp=guitarix_crybaby ./ladspa/crybaby.cpp -o gcrybaby.so
-	$(CXX) -fPIC -shared -O3 -Ddistdsp=guitarix_distortion ./ladspa/distortion.cpp -o gdistortion.so
-	$(CXX) -fPIC -shared -O3 -Dechodsp=guitarix_echo ./ladspa/echo.cpp -o gecho.so
-	$(CXX) -fPIC -shared -O3 -Dfrdsp=guitarix_freeverb ./ladspa/freeverb.cpp -o gfreeverb.so
-	$(CXX) -fPIC -shared -O3 -Dirdsp=guitarix_IR ./ladspa/impulseresponse.cpp -o gIR.so
-	$(CXX) -fPIC -shared -O3 -Dampdsp=guitarix_amp ./ladspa/monoamp.cpp -o gmonoamp.so
-	$(CXX) -fPIC -shared -O3 -Dcomprdsp=guitarix_compressor ./ladspa/monocompressor.cpp -o gmonocompressor.so
-
-
-
-	$(CXX) -O3  -march=native  -ffast-math `pkg-config --cflags --libs jack gtk+-2.0 sndfile` ./src/main.cpp -o guitarix
 
 install:
 	mkdir -p $(DESTDIR)$(LADSPAPATH)

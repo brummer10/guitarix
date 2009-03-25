@@ -1477,7 +1477,7 @@ public:
         }
         else
         {
-            float* input0 = input[0];
+          
             float* output0 = output[0];
             float* output1 = output[1];
             float* output2 = output[2];

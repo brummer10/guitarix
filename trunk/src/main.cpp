@@ -34,6 +34,8 @@
 #include <cstring>
 #include <cstdlib>
 #include <dlfcn.h>
+#include <pthread.h> 
+#include <limits.h>
 
 // #include <X11/Xlib.h>
 // #include <X11/cursorfont.h>
@@ -106,7 +108,7 @@ struct Meta : map<const char*, const char*>
 
 
 #include "UI.cpp"
-#include <gtk/gtk.h>
+
 
 #define stackSize 256
 #define kSingleMode 0
@@ -188,11 +190,13 @@ int process (jack_nframes_t nframes, void *arg)
 
 int midi_process (jack_nframes_t nframes, void *arg)
 {
+    if (midi_output_ports != NULL){
     AVOIDDENORMALS;
-    midi_port_buf =  (void *)jack_port_get_buffer(midi_output_ports, nframes);
+    midi_port_buf =  jack_port_get_buffer(midi_output_ports, nframes);
     jack_midi_clear_buffer(midi_port_buf);
     cpu_load = jack_cpu_load(midi_client);
     DSP.compute_midi(nframes, gInChannel, midi_port_buf);
+    }
     return 0;
 }
 /******************************************************************************
@@ -295,8 +299,8 @@ int main(int argc, char *argv[] )
     {
         jack_port_unregister(client, output_ports[i]);
     }
-    midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
-
+  //  midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+  //  jack_port_unregister(midi_client, midi_output_ports);
     interface = new GTKUI (jname, &argc, &argv);
     DSP.init(jackframes);
     DSP.buildUserInterface(interface);
@@ -371,7 +375,9 @@ int main(int argc, char *argv[] )
     {
         jack_port_unregister(client, output_ports[i]);
     }
+    if (midi_output_ports != NULL){
     jack_port_unregister(midi_client, midi_output_ports);
+    }
 
     jack_client_close(midi_client);
     jack_client_close(client);

@@ -779,11 +779,11 @@ void GTKUI::addStatusDisplay(const char* label, float* zone )
 void GTKUI::addLiveWaveDisplay(const char* label, float* zone )
 {
     GtkObject* adj = gtk_adjustment_new(0.0, 0.0, 1.0, 0.000001, 10*0.0000001, 0);
-    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-GtkWaveView myGtkWaveView;
+    new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+    GtkWaveView myGtkWaveView;
     livewa = myGtkWaveView.gtk_wave_live_view(zone,GTK_ADJUSTMENT(adj));
     addWidget(label, livewa);
-   // gtk_widget_hide(lw);
+    gtk_widget_hide(livewa);
 };
 
 
@@ -839,7 +839,6 @@ void GTKUI::addMenu()
 {
     /*-- Declare the GTK Widgets used in the menu --*/
     GtkWidget *menucap;
-    GSList *groupc = NULL;
     GtkWidget *menuFile;
     GtkWidget *menuEdit;
     GtkWidget *menuHelp;
@@ -868,7 +867,7 @@ void GTKUI::addMenu()
     menuh = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuFile), menuh);
     /* Some thing went wrong when compile without __SSE__ with that funktion. So I disable it in this case.*/
-#if defined (__SSE__)
+
     /*-- Create New radio check menu item and set active under Engine submenu --*/
     menuitem = gtk_radio_menu_item_new_with_label (group, "  Play");
     group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
@@ -882,7 +881,7 @@ void GTKUI::addMenu()
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (stop_function), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
-#endif
+
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("  midi_out ");
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (midi_note), NULL);
@@ -987,8 +986,8 @@ void GTKUI::addMenu()
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menucap), menu);
 
     /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_label (" viewport ");
-    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
+    menuitem = gtk_check_menu_item_new_with_label ("Oscilloscope");
+  //  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (show_view), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
