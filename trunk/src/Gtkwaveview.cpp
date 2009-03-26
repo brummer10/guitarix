@@ -463,12 +463,12 @@ static void gtk_waveview_init (GtkWaveView *waveview)
     GtkWidget *widget = GTK_WIDGET(waveview);
     GTK_WIDGET_SET_FLAGS (GTK_WIDGET(waveview), GTK_CAN_FOCUS);
     GTK_WIDGET_SET_FLAGS (GTK_WIDGET(waveview), GTK_CAN_DEFAULT);
-    if (    waveview->waveview_type == 0)
+    if (waveview->waveview_type == 0)
     {
         widget->requisition.width = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_x;
         widget->requisition.height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_y;
     }
-    else     if (    waveview->waveview_type == 0)
+    else if (waveview->waveview_type == 1)
     {
         widget->requisition.width = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x;
         widget->requisition.height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y;
@@ -517,7 +517,6 @@ GtkWidget *GtkWaveView::gtk_wave_live_view(float* infloat,GtkAdjustment *_adjust
         gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
         gtk_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_waveview_value_changed), widget);
     }
-    return widget;
     return widget;
 }
 
