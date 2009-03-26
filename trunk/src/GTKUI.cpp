@@ -986,7 +986,7 @@ void GTKUI::addMenu()
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menucap), menu);
 
     /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_label ("Oscilloscope");
+    menuitem = gtk_check_menu_item_new_with_label ("  Oscilloscope");
   //  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (show_view), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
