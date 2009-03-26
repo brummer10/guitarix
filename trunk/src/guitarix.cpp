@@ -70,7 +70,7 @@ bool Exists(const char* Path)
             system (rcfilename);
             snprintf(rcfilename, 256, "%s/.%s-0.03.3", home, "guitarix/version");
             ofstream f(rcfilename);
-            string cim = "guitarix-0.03.3";
+            string cim = "guitarix-0.03.9";
             f <<  cim <<endl;
             f.close();
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/guitarixprerc");
@@ -81,7 +81,7 @@ bool Exists(const char* Path)
             system (rcfilename);
             snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
             ofstream fa(rcfilename);
-            cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n";
+            cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n-64.0 0.52 10 1.5 1.5 0 \n";
             fa <<  cim <<endl;
             fa.close();
         }
@@ -101,12 +101,12 @@ bool Exists(const char* Path)
         f.close();
         snprintf(rcfilename, 256, "%s/.%s-0.03.3", home, "guitarix/version");
         ofstream fi(rcfilename);
-        cim = "guitarix-0.03.3";
+        cim = "guitarix-0.03.9";
         fi <<  cim <<endl;
         fi.close();
         snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
         ofstream fa(rcfilename);
-        cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n";
+        cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n-64.0 0.52 10 1.5 1.5 0 \n";
         fa <<  cim <<endl;
         fa.close();
     }
@@ -252,13 +252,17 @@ void midi_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
     {
         playmidi = 1;
+        if (midi_output_ports == NULL){
         midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+        }
         gtk_widget_show(midibox);
     }
     else
     {
         playmidi = 0;
+        if (midi_output_ports != NULL){
         jack_port_unregister(midi_client, midi_output_ports);
+        }
         gtk_widget_hide(midibox);
     }
 }
@@ -587,6 +591,7 @@ static void reset_dialog( GtkWidget *widget, gpointer data )
     else if (strcmp(witchres, "ImpulseResponse") == 0) interface->recalladState(filename,  28,  32, 2);
     else if (strcmp(witchres, "crybaby") == 0) interface->recalladState(filename,  16,  20, 3);
     else if (strcmp(witchres, "midi out") == 0) interface->recalladState(filename,  44,  50, 4);
+    else if (strcmp(witchres, "compressor") == 0) interface->recalladState(filename,  72,  78, 5);
 }
 
 // show extendend settings slider

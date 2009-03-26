@@ -8,15 +8,15 @@ targets-ladspa = gcrybaby.so gdistortion.so gecho.so gfreeverb.so gIR.so gmonoam
 
 
 all    :
-	$(CXX) -fPIC -shared -O3 -march=native  -mfpmath=sse -ffast-math -Dmydsp=guitarix ./ladspa/guitarix-ladspa.cpp -o guitarix.so
+	$(CXX) -fPIC -shared -O3 -march=native -Dmydsp=guitarix ./ladspa/guitarix-ladspa.cpp -o guitarix.so
 
-	$(CXX) -fPIC -shared -O3 -march=native  -mfpmath=sse -ffast-math -Dcrydsp=guitarix_crybaby ./ladspa/crybaby.cpp -o gcrybaby.so
-	$(CXX) -fPIC -shared -O3 -march=native  -mfpmath=sse -ffast-math -Ddistdsp=guitarix_distortion ./ladspa/distortion.cpp -o gdistortion.so
-	$(CXX) -fPIC -shared -O3 -march=native  -mfpmath=sse -ffast-math -Dechodsp=guitarix_echo ./ladspa/echo.cpp -o gecho.so
-	$(CXX) -fPIC -shared -O3 -march=native  -mfpmath=sse -ffast-math -Dfrdsp=guitarix_freeverb ./ladspa/freeverb.cpp -o gfreeverb.so
-	$(CXX) -fPIC -shared -O3 -march=native  -mfpmath=sse -ffast-math -Dirdsp=guitarix_IR ./ladspa/impulseresponse.cpp -o gIR.so
-	$(CXX) -fPIC -shared -O3 -march=native  -mfpmath=sse -ffast-math -Dampdsp=guitarix_amp ./ladspa/monoamp.cpp -o gmonoamp.so
-	$(CXX) -fPIC -shared -O3 -march=native  -mfpmath=sse -ffast-math -Dcomprdsp=guitarix_compressor ./ladspa/monocompressor.cpp -o gmonocompressor.so
+	$(CXX) -fPIC -shared -O3 -march=native -Dcrydsp=guitarix_crybaby ./ladspa/crybaby.cpp -o gcrybaby.so
+	$(CXX) -fPIC -shared -O3 -march=native -Ddistdsp=guitarix_distortion ./ladspa/distortion.cpp -o gdistortion.so
+	$(CXX) -fPIC -shared -O3 -march=native -Dechodsp=guitarix_echo ./ladspa/echo.cpp -o gecho.so
+	$(CXX) -fPIC -shared -O3 -march=native -Dfrdsp=guitarix_freeverb ./ladspa/freeverb.cpp -o gfreeverb.so
+	$(CXX) -fPIC -shared -O3 -march=native -Dirdsp=guitarix_IR ./ladspa/impulseresponse.cpp -o gIR.so
+	$(CXX) -fPIC -shared -O3 -march=native -Dampdsp=guitarix_amp ./ladspa/monoamp.cpp -o gmonoamp.so
+	$(CXX) -fPIC -shared -O3 -march=native -Dcomprdsp=guitarix_compressor ./ladspa/monocompressor.cpp -o gmonocompressor.so
 
 
 	$(CXX) -O3  -march=native -Werror `pkg-config --cflags --libs jack gtk+-2.0 sndfile` ./src/main.cpp -o guitarix
