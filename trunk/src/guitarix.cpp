@@ -325,7 +325,7 @@ void recordit (GtkWidget *widget, gpointer data)
                 std::string b(".");
                 std::string::size_type in = a.find(b);
                 in -= 1;
-                if (in != -1) a.replace(in,1,ma);
+                if (int(in) != -1) a.replace(in,1,ma);
                 buf = a;
                 capturas = buf.c_str();
                 f.close();
@@ -367,7 +367,7 @@ void load_function1 (GtkMenuItem *menuitem, gpointer load_preset)
             getline(f, buffer);
             std::string b(" ");
             std::string::size_type in = buffer.find(b);
-            if (in != -1) buffer.erase(in);
+            if (int(in) != -1) buffer.erase(in);
             l++;
         }
         zeile = l-1;

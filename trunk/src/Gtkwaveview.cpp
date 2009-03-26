@@ -231,18 +231,18 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
    if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig == 0){
         cairo_rectangle (cr, liveviewx, liveviewy, 450.0, 50.0);
-        cairo_set_source_rgba (cr, 0.1, 0.1, 0.1,0.8);
+        cairo_set_source_rgb(cr, 0.05, 0.05, 0.05);
         cairo_fill (cr);
         cairo_set_line_width (cr, 10);
-        cairo_set_source_rgba (cr, 0.2, 0.2, 0.2,0.5);
+        cairo_set_source_rgba (cr, 0, 0, 0,0.4);
         cairo_rectangle (cr, liveviewx-5, liveviewy-5, 460, 60);
         cairo_stroke (cr);
         cairo_set_line_width (cr, 1);
-        cairo_set_source_rgba (cr, 0, 0, 0,0.7);
+        cairo_set_source_rgba (cr, 0.1, 0.1, 0.1,0.7);
         cairo_rectangle (cr, liveviewx-6, liveviewy-6, 462, 62);
         cairo_stroke (cr);
         cairo_set_line_width (cr, 1);
-        cairo_set_source_rgba (cr, 0.5, 0.5, 0.5,0.5);
+        cairo_set_source_rgba (cr, 0.5, 0.5, 0.5,0.1);
         cairo_rectangle (cr, liveviewx-12, liveviewy-12, 474, 74);
         cairo_rectangle (cr, liveviewx-2, liveviewy-2, 454, 54);
         cairo_stroke (cr);
@@ -252,7 +252,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         cairo_move_to (cr, liveviewx, liveviewy+25);
         cairo_line_to (cr, liveviewx+450, liveviewy+25);
         cairo_stroke (cr);
-        cairo_set_source_rgba (cr,0.2, 1.0, 0.2, 0.6);
+        cairo_set_source_rgba (cr,0.2, 1.0, 0.2, 0.4);
         cairo_rectangle (cr, liveviewx, liveviewy, 450.0, 50.0);
         cairo_stroke (cr);
          int gitter = 0;
@@ -269,7 +269,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
        cairo_move_to (cr, liveviewx, liveviewy+gitter-5);
         cairo_line_to (cr, liveviewx+450, liveviewy+gitter-5);
 	}
-        cairo_set_source_rgba (cr,0.2,  1.0, 0.0, 0.1);
+        cairo_set_source_rgba (cr,0.2,  1.0, 0.2, 0.02);
         cairo_stroke (cr);
 
         GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig = 1;

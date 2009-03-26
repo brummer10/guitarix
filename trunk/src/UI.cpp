@@ -66,8 +66,8 @@ public:
             {
                 getline(fa, buffer);
                 std::string::size_type in = buffer.find(b);
-                if ((buffer != "") & (in == -1))	 f <<  buffer <<endl;
-                if (in != -1) cm = 1;
+                if ((buffer != "") & (int(in) == -1))	 f <<  buffer <<endl;
+                if (int(in) != -1) cm = 1;
             }
         }
         f <<  presname << ' ';
@@ -95,7 +95,7 @@ public:
             {
                 getline(fa, buffer);
                 std::string::size_type in = buffer.find(b);
-                if ((buffer != "") & (in != -1))
+                if ((buffer != "") & (int(in) != -1))
                 {
                     in = buffer.find(" ");
                     in += 1;

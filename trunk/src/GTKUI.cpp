@@ -782,7 +782,14 @@ void GTKUI::addLiveWaveDisplay(const char* label, float* zone )
     new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     GtkWaveView myGtkWaveView;
     livewa = myGtkWaveView.gtk_wave_live_view(zone,GTK_ADJUSTMENT(adj));
-    addWidget(label, livewa);
+    GtkWidget *hpaned = gtk_hpaned_new ();
+    GtkWidget * nolivewa =  gtk_event_box_new ();
+    gtk_widget_set_size_request (hpaned, 480, 80);
+    gtk_paned_pack1 (GTK_PANED (hpaned), livewa, FALSE, TRUE);
+    gtk_paned_pack2 (GTK_PANED (hpaned), nolivewa, FALSE, TRUE);
+    addWidget(label, hpaned);
+    gtk_widget_show(nolivewa);
+  //  addWidget(label, livewa);
     gtk_widget_hide(livewa);
 };
 
@@ -937,7 +944,7 @@ void GTKUI::addMenu()
             getline(f, buffer);
             std::string b(" ");
             std::string::size_type in = buffer.find(b);
-            if (in != -1)
+            if (int(in) != -1)
             {
                 buffer.erase(in);
                 menuitem = gtk_menu_item_new_with_label (buffer.c_str());
@@ -964,7 +971,7 @@ void GTKUI::addMenu()
             getline(fa, buffer);
             std::string b(" ");
             std::string::size_type in = buffer.find(b);
-            if (in != -1)
+            if (int(in) != -1)
             {
                 buffer.erase(in);
                 menuitem = gtk_menu_item_new_with_label (buffer.c_str());

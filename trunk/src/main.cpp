@@ -65,7 +65,7 @@ using namespace std;
 
 inline void *aligned_calloc(size_t nmemb, size_t size)
 {
-    return (void*)((size_t)(calloc((nmemb*size)+15,sizeof(char)))+15 & ~15);
+    return (void*)(((size_t)(calloc((nmemb*size)+15,sizeof(char)))+15) & (~15));
 }
 
 // g++ -O3 -pipe  -march=native -mfpmath=sse -ffast-math -lm -ljack `gtk-config --cflags --libs` ex2.cpp
@@ -328,7 +328,7 @@ int main(int argc, char *argv[] )
     pthread_getschedparam (jack_client_thread_id (midi_client), &__policy, &spar);
     int rtis;
     char istrr[256];
-    snprintf(istrr, 256, "%u",spar);
+    snprintf(istrr, 256, "%u",spar.sched_priority);
     string isrt = istrr;
     istringstream isn(isrt);
     isn >> rtis;

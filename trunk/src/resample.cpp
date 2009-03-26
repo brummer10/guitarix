@@ -102,14 +102,14 @@ void resampleit(GtkWidget *widget, gpointer data)
     std::string a(jconvnew);
     std::string b(".wav");
     std::string::size_type in = a.find(b);
-    if (in != -1) a.replace(in,1,"new.");
+    if (int(in) != -1) a.replace(in,1,"new.");
     jconvnew = a;
     resample(jconvwav.c_str(), jconvnew.c_str(), int(jackframe));
     string  jconvnew1 = jconvwav;
     std::string c(jconvnew1);
     std::string d(".wav");
     std::string::size_type is = c.find(d);
-    if (is != -1) c.replace(is,1,"orig.");
+    if (int(is) != -1) c.replace(is,1,"orig.");
     jconvnew1 = c;
     rename(jconvwav.c_str(), jconvnew1.c_str());
     rename(jconvnew.c_str(), jconvwav.c_str());
@@ -138,10 +138,10 @@ void Resample::fileread(GtkWidget *widget, gpointer data )
         std::string e(jconvwav);
         std::string f(" ");
         std::string::size_type ifn = 0;
-        while (ifn != -1)
+        while (int(ifn) != -1)
         {
             ifn = e.find(f);
-            if (ifn != -1) e.replace(ifn,1,"_");
+            if (int(ifn) != -1) e.replace(ifn,1,"_");
         }
         rename(jconvwav.c_str(), e.c_str());
         jconvwav = e;

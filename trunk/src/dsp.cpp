@@ -1246,7 +1246,7 @@ public:
                  //   fTemp0 = (fRec4[0] * S5[1]);
 		}  //preamp ende
 
-                fRec3[0] = (0.5f * ((2 * fTemp0) + (1.76f * fRec3[1])));  //resonanz
+                fRec3[0] = (0.5f * ((2.0 * fTemp0) + (1.76f * fRec3[1])));  //resonanz
                 S4[0] = fRec3[0];
 
  		if (foverdrive4 == 1.0)     // overdrive
