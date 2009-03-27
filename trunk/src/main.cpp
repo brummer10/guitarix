@@ -173,6 +173,14 @@ void jack_shutdown(void *arg)
     exit(1);
 }
 
+void signal_handler(int sig)
+{
+	jack_client_close(client);
+	jack_client_close(midi_client);
+	fprintf(stderr, "signal received, exiting ...\n");
+	exit(0);
+}
+
 int process (jack_nframes_t nframes, void *arg)
 {
     AVOIDDENORMALS;
@@ -192,7 +200,7 @@ int midi_process (jack_nframes_t nframes, void *arg)
 {
     if (midi_output_ports != NULL){
     AVOIDDENORMALS;
-    midi_port_buf =  jack_port_get_buffer(midi_output_ports, nframes);
+    midi_port_buf =  jack_port_get_buffer(midi_output_ports, frag);
     jack_midi_clear_buffer(midi_port_buf);
     cpu_load = jack_cpu_load(midi_client);
     DSP.compute_midi(nframes, gInChannel, midi_port_buf);
@@ -285,6 +293,16 @@ int main(int argc, char *argv[] )
     printf("the sample rate is now %u/sec\n", jackframes);
     frag = jack_get_buffer_size (client);
     printf("the buffer size is now %u/frames\n", frag);
+
+	signal(SIGQUIT, signal_handler);
+	signal(SIGTERM, signal_handler);
+	signal(SIGHUP, signal_handler);
+	signal(SIGINT, signal_handler);
+       /*
+	rc = jack_set_buffer_size(midi_client, frag);
+	if (rc)
+		fprintf(stderr, "jack_set_buffer_size(): %s\n", strerror(rc));
+       */
     for (int i = 0; i < gNumInChans; i++)
     {
         snprintf(buf, 256, "in_%d", i);
@@ -299,7 +317,7 @@ int main(int argc, char *argv[] )
     {
         jack_port_unregister(client, output_ports[i]);
     }
-  // midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+  // midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, frag);
   //  jack_port_unregister(midi_client, midi_output_ports);
     interface = new GTKUI (jname, &argc, &argv);
     DSP.init(jackframes);

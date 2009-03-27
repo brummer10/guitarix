@@ -252,17 +252,18 @@ void midi_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
     {
         playmidi = 1;
-        if (midi_output_ports == NULL){
-        midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
-        }
+        //if (midi_output_ports == NULL){
+        midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, frag);
+        // }
         gtk_widget_show(midibox);
     }
     else
     {
         playmidi = 0;
-        if (midi_output_ports != NULL){
+        // if (midi_output_ports != NULL){
         jack_port_unregister(midi_client, midi_output_ports);
-        }
+	// midi_output_ports = NULL;
+        // }
         gtk_widget_hide(midibox);
     }
 }

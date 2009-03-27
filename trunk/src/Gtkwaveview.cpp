@@ -218,6 +218,10 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         liveviewx += (widget->allocation.width - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x) *0.5+15;
         liveviewy += (widget->allocation.height - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y) *0.5+15;
         float wave_go = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_view[0]*500.0;
+        float wave_db = log(fabs( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_view[0]))*6/log(2);
+       double xl = floor(exp(log(1.055)*2.1*wave_db)*285);
+        if (xl > 225.0)   xl = 225.0;
+        else if (xl < -225.0)   xl = -225.0;
         double redline = 0.2;
         if (wave_go > 75.0) {
             redline = 1.0;      
@@ -230,9 +234,20 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 
         cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
    if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig == 0){
-        cairo_rectangle (cr, liveviewx, liveviewy, 450.0, 50.0);
-        cairo_set_source_rgb(cr, 0.05, 0.05, 0.05);
-        cairo_fill (cr);
+      //  cairo_rectangle (cr, liveviewx, liveviewy, 450.0, 50.0);
+      //  cairo_set_source_rgb(cr, 0.05, 0.05, 0.05);
+      //  cairo_fill (cr);
+	cairo_pattern_t *pat;
+	pat = cairo_pattern_create_radial (-130.4, -160.4, 1.6, -1.4,  -4.4, 320.0);
+	//cairo_pattern_set_extend (pat, CAIRO_EXTEND_REFLECT);
+	cairo_pattern_add_color_stop_rgba (pat, 0, 0.9, 0.9, 0.9, 1);
+	cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 1);
+	cairo_set_source_rgb(cr, 0.05, 0.05, 0.05);
+	cairo_rectangle (cr, liveviewx-5, liveviewy-5, 460, 60);
+	cairo_set_source (cr, pat);
+	cairo_fill (cr);
+	cairo_pattern_destroy (pat);
+
         cairo_set_line_width (cr, 10);
         cairo_set_source_rgba (cr, 0, 0, 0,0.4);
         cairo_rectangle (cr, liveviewx-5, liveviewy-5, 460, 60);
@@ -283,6 +298,20 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         cairo_move_to (cr, liveviewx, liveviewy+25);
         cairo_curve_to (cr, liveviewx+75+wave_go,liveviewy+25-wave_go, liveviewx+150+wave_go,liveviewy+25+wave_go, liveviewx+225+wave_go,liveviewy+25);
         cairo_curve_to (cr, liveviewx+300+wave_go,liveviewy+25-wave_go, liveviewx+375+wave_go,liveviewy+25+wave_go, liveviewx+450,liveviewy+25);
+        cairo_stroke (cr);
+
+        double dashes[] = {5.0, 1.0 };
+        cairo_set_dash (cr, dashes, 2, -0.25);
+        cairo_move_to (cr, liveviewx+225, liveviewy);
+        cairo_line_to (cr, liveviewx+225+xl, liveviewy);
+        cairo_move_to (cr, liveviewx+225, liveviewy);
+        cairo_line_to (cr, liveviewx+225-xl, liveviewy);
+        cairo_move_to (cr, liveviewx+225, liveviewy+50);
+        cairo_line_to (cr, liveviewx+225+xl, liveviewy+50);
+        cairo_move_to (cr, liveviewx+225, liveviewy+50);
+        cairo_line_to (cr, liveviewx+225-xl, liveviewy+50);
+        cairo_set_source_rgba (cr,  redline, 1.0, 0.2,0.8);
+        cairo_set_line_width (cr, 3.0);
         cairo_stroke (cr);
         cairo_destroy(cr);
     }
@@ -453,8 +482,8 @@ static void gtk_waveview_class_init (GtkWaveViewClass *klass)
     g_assert(klass->waveview_image != NULL);
     klass->bigwaveview_image = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,300,200);
     g_assert(klass->bigwaveview_image != NULL);
-   klass->liveview_image = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,480,80);
-   g_assert(klass->liveview_image != NULL);
+    klass->liveview_image = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,480,80);
+    g_assert(klass->liveview_image != NULL);
 }
 
 //----------- init the WaveView type
