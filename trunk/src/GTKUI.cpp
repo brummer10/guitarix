@@ -532,7 +532,7 @@ struct uiValueDisplay : public uiItem
     }
 };
 
-#include"GtkRegler.cpp"
+
 void GTKUI::addregler(const char* label, float* zone, float init, float min, float max, float step)
 {
     GtkRegler myGtkRegler;

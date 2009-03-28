@@ -512,6 +512,14 @@ static gboolean gtk_waveview_value_changed(gpointer obj)
     return FALSE;
 }
 
+void GtkWaveView::gtk_waveview_destroy (GtkWidget *widget, gpointer data )
+{
+    g_assert(GTK_IS_WAVEVIEW(widget));
+    g_object_unref(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> waveview_image);
+    g_object_unref(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> bigwaveview_image);
+    g_object_unref(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image);
+}
+
 //----------- create waveview widget
 GtkWidget *GtkWaveView::gtk_wave_view(const char* file)
 {

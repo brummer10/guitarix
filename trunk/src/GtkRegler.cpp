@@ -3,7 +3,7 @@
 part of guitarix, use  reglers with Gtk
 ******************************************************************************/
 
-#include"./guitarix/GtkRegler.h"
+//#include"./guitarix/GtkRegler.h"
 
 #define GTK_TYPE_REGLER          (gtk_regler_get_type())
 #define GTK_REGLER(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_REGLER, GtkRegler))
@@ -822,6 +822,20 @@ static gboolean gtk_regler_value_changed(gpointer obj)
     gtk_widget_queue_draw(widget);
     return FALSE;
 }
+
+void GtkRegler::gtk_regler_destroy ( )
+{
+    GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
+    g_assert(GTK_IS_REGLER(widget));
+ 
+    g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))-> regler_image);
+    g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))-> bigregler_image);
+    g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_image);
+    g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_image1);
+    g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image);
+    g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1);
+}
+
 
 //----------- create small knob
 GtkWidget *GtkRegler::gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment)

@@ -550,6 +550,14 @@ static void destroy_event( GtkWidget *widget, gpointer data )
     jack_port_disconnect (client, output_ports[0]);
     jack_port_disconnect (client, output_ports[1]);
   //  jack_port_disconnect (midi_client, input_ports[0]);
+    GtkWaveView myGtkWaveView;
+    myGtkWaveView.gtk_waveview_destroy (GTK_WIDGET(livewa), NULL );
+    GtkRegler myGtkRegler;
+    myGtkRegler.gtk_regler_destroy ( );
+    g_object_unref( ib);
+    g_object_unref( ibm);
+    g_object_unref(ibr);
+
     gtk_main_quit ();
 
 }

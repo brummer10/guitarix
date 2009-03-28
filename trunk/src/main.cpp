@@ -119,7 +119,10 @@ struct Meta : map<const char*, const char*>
 #include "./guitarix/GTKUI.h"
 #include"./guitarix/jconv_settings.h"
 #include "./guitarix/resample.h"
+#include"./guitarix/GtkRegler.h"
+
 #include "guitarix.cpp"
+#include"GtkRegler.cpp"
 #include "Gtkwaveview.cpp"
 #include "GTKUI.cpp"
 #include"resample.cpp"
@@ -175,6 +178,7 @@ void jack_shutdown(void *arg)
 
 void signal_handler(int sig)
 {
+        destroy_event( GTK_WIDGET(fWindow), NULL);
 	jack_client_close(client);
 	jack_client_close(midi_client);
 	fprintf(stderr, "signal received, exiting ...\n");
