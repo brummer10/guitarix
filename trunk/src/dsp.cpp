@@ -247,6 +247,7 @@ private:
 float fTemprec1;
 	float 	fRecover0[2];
     float  viv;
+    float vivi;
     // float  fbargraph0;
 public:
 
@@ -622,7 +623,7 @@ public:
      //   interface->openVerticalBox("");
         interface->openHorizontalBox("");
      //   interface->openHorizontalBox(" ");
-        interface->addLiveWaveDisplay(" ", &viv );
+        interface->addLiveWaveDisplay(" ", &viv , &vivi);
         // interface->addVerticalBargraph("", &fbargraph0,0.0000f, 1.0000f);
     //    interface->closeBox();
     //    interface->openVerticalBox(" ");
@@ -1213,6 +1214,7 @@ public:
                 float 	S3[2];
                 float 	S4[2];
                 float 	S5[2];
+		if (showwave == 1) vivi = input0[i];
                 if (fcheckboxcom1 == 1.0)     // compressor
                 {
                     float fTempcom0 = input0[i];

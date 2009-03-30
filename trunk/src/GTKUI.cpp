@@ -776,19 +776,20 @@ void GTKUI::addStatusDisplay(const char* label, float* zone )
     gtk_widget_hide(lw);
 };
 
-void GTKUI::addLiveWaveDisplay(const char* label, float* zone )
+void GTKUI::addLiveWaveDisplay(const char* label, float* zone , float* zone1)
 {
-    GtkObject* adj = gtk_adjustment_new(0.0, 0.0, 1.0, 0.000001, 10*0.0000001, 0);
+    GtkObject* adj = gtk_adjustment_new(0.0, -1.0, 1.0, 0.0009, 10*0.0009, 0);
     new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     GtkWaveView myGtkWaveView;
-    livewa = myGtkWaveView.gtk_wave_live_view(zone,GTK_ADJUSTMENT(adj));
-    GtkWidget *hpaned = gtk_hpaned_new ();
+    livewa = myGtkWaveView.gtk_wave_live_view(zone,zone1,GTK_ADJUSTMENT(adj));
+    //GtkWidget *hpaned = gtk_hpaned_new ();
     GtkWidget * nolivewa =  gtk_event_box_new ();
-    gtk_widget_set_size_request (hpaned, 480, 80);
-    gtk_paned_pack1 (GTK_PANED (hpaned), livewa, FALSE, TRUE);
-    gtk_paned_pack2 (GTK_PANED (hpaned), nolivewa, FALSE, TRUE);
-    addWidget(label, hpaned);
-    gtk_widget_show(nolivewa);
+    gtk_widget_set_size_request (nolivewa, 480, 80);
+    gtk_container_add (GTK_CONTAINER(nolivewa),livewa );
+    //gtk_paned_pack1 (GTK_PANED (nolivewa), livewa, FALSE, TRUE);
+    //gtk_paned_pack2 (GTK_PANED (hpaned), nolivewa, FALSE, TRUE);
+    addWidget(label, nolivewa);
+   // gtk_widget_show(nolivewa);
   //  addWidget(label, livewa);
     gtk_widget_hide(livewa);
 };

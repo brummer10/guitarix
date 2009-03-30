@@ -64,7 +64,7 @@ public :
     virtual void addtoggle(const char* label, float* zone);
     virtual void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
     virtual void addNumDisplay(const char* label, float* zone);
-    virtual void addLiveWaveDisplay(const char* label, float* zone );
+    virtual void addLiveWaveDisplay(const char* label, float* zone , float* zone1);
     virtual void addStatusDisplay(const char* label, float* zone );
     virtual void addHorizontalBargraph(const char* label, float* zone, float min, float max);
     virtual void addVerticalBargraph(const char* label, float* zone, float min, float max);

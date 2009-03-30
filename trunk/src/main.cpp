@@ -19,6 +19,9 @@
 *******************************************************************************
 *******************************************************************************/
 
+#ifdef _OPENMP
+   #include <omp.h>
+#endif
 /* link with  */
 #include <sys/ioctl.h>
 #include <sys/wait.h>
@@ -47,6 +50,8 @@
 #include <libgen.h>
 #include <jack/jack.h>
 #include <jack/midiport.h>
+
+
 
 using namespace std;
 
@@ -105,10 +110,7 @@ struct Meta : map<const char*, const char*>
     }
 };
 
-
-
 #include "UI.cpp"
-
 
 #define stackSize 256
 #define kSingleMode 0
@@ -173,6 +175,7 @@ int srate(jack_nframes_t nframes, void *arg)
 
 void jack_shutdown(void *arg)
 {
+    destroy_event( GTK_WIDGET(fWindow), NULL);
     exit(1);
 }
 
@@ -181,7 +184,7 @@ void signal_handler(int sig)
         destroy_event( GTK_WIDGET(fWindow), NULL);
 	jack_client_close(client);
 	jack_client_close(midi_client);
-	fprintf(stderr, "signal received, exiting ...\n");
+	fprintf(stderr, "signal %i received, exiting ...\n",sig);
 	exit(0);
 }
 
@@ -204,13 +207,42 @@ int midi_process (jack_nframes_t nframes, void *arg)
 {
     if (midi_output_ports != NULL){
     AVOIDDENORMALS;
-    midi_port_buf =  jack_port_get_buffer(midi_output_ports, frag);
+    midi_port_buf =  jack_port_get_buffer(midi_output_ports, nframes);
     jack_midi_clear_buffer(midi_port_buf);
     cpu_load = jack_cpu_load(midi_client);
     DSP.compute_midi(nframes, gInChannel, midi_port_buf);
     }
     return 0;
 }
+
+#ifdef _OPENMP
+void* jackthread(void* arg)
+{
+    jack_client_t*  client = (jack_client_t*) arg;
+	jack_nframes_t nframes;
+    AVOIDDENORMALS;
+    while (1) {
+        nframes = jack_cycle_wait(client);
+        process(nframes, arg);
+        jack_cycle_signal(client, 0);
+    }
+    return 0;
+}
+
+void* jack_midi_thread(void* arg)
+{
+    jack_client_t*  midi_client = (jack_client_t*) arg;
+	jack_nframes_t nframes;
+    AVOIDDENORMALS;
+    while (1) {
+        nframes = jack_cycle_wait(midi_client);
+        midi_process(nframes, arg);
+        jack_cycle_signal(midi_client, 0);
+    }
+    return 0;
+}
+#endif
+
 /******************************************************************************
 *******************************************************************************
 
@@ -285,9 +317,14 @@ int main(int argc, char *argv[] )
     {
         midi_jname = jack_get_client_name (midi_client);
     }
-
+#ifdef _OPENMP
+    jack_set_process_thread(client, jackthread, client);
+    jack_set_process_thread(midi_client, jack_midi_thread, midi_client);
+#else
     jack_set_process_callback(client, process, 0);
     jack_set_process_callback(midi_client, midi_process, 0);
+#endif
+
     jack_set_sample_rate_callback(client, srate, 0);
     jack_on_shutdown(client, jack_shutdown, 0);
     gNumInChans = DSP.getNumInputs();
@@ -302,6 +339,7 @@ int main(int argc, char *argv[] )
 	signal(SIGTERM, signal_handler);
 	signal(SIGHUP, signal_handler);
 	signal(SIGINT, signal_handler);
+	signal(SIGSEGV, signal_handler);
        /*
 	rc = jack_set_buffer_size(midi_client, frag);
 	if (rc)
