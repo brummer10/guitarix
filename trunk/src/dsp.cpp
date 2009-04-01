@@ -248,6 +248,9 @@ float fTemprec1;
 	float 	fRecover0[2];
     float  viv;
     float vivi;
+  /*  float fConsta3;
+    float fConsta4;
+    float fConsta5; */
     // float  fbargraph0;
 public:
 
@@ -800,10 +803,15 @@ public:
                 int iTempt5 = (iRect2[0] == 0);
                 iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
                 fRect0[0] = (fSamplingFreq * ((fTemps39 / max(iRect1[0], 1)) - (fTemps39 * (iRect1[0] == 0))));
+            /*  for (int it=0; it<frag; it++)  fConsta5 = (fRect0[0]+fConsta4)*0.5;
+                fConsta4 = fRect0[0];
+                fConsta3 = fConsta5;*/
 
                 if (fTemphp0 >= fTemps45)
                 {
+		    
                     fConsta1 = ( (12 * log2f((2.272727e-03f * fRect0[0]))));
+                   // fConsta1 = ( (12 * log2f((2.272727e-03f *  fConsta3))));
                     preNote = int(fConsta1)+57;
                     fConsta2 = fConsta1 - (preNote - 57);
                     piwe = (fConsta2+1) * 8192; // pitch wheel value
@@ -1496,5 +1504,5 @@ public:
     }
 };
 
-mydsp	DSP;
+
 

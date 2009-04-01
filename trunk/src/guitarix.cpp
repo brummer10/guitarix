@@ -45,6 +45,7 @@ jack_client_t*      midi_client;
 jack_port_t *output_ports[256];
 jack_port_t *input_ports[256];
 jack_port_t *midi_output_ports;
+jack_nframes_t time_is;
 int		gNumOutChans;
 //jack_ringbuffer_t *ringbuffer;
 

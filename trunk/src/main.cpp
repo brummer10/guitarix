@@ -140,7 +140,7 @@ struct Meta : map<const char*, const char*>
 
 *******************************************************************************
 *******************************************************************************/
-
+mydsp	DSP;
 //----------------------------------------------------------------------------
 // 	number of input and output channels
 //----------------------------------------------------------------------------
@@ -200,6 +200,7 @@ int process (jack_nframes_t nframes, void *arg)
         gOutChannel[i] = (float *)jack_port_get_buffer(output_ports[i], nframes);
     }
     DSP.compute(nframes, gInChannel, gOutChannel);
+    if (showwave == 1) time_is =  jack_frame_time (client);
     return 0;
 }
 
