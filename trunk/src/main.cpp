@@ -117,12 +117,17 @@ struct Meta : map<const char*, const char*>
     }
 };
 
+
+//////////////////////////////////////////////////////////////////////////////////
+/* This code is take from jack-keyboard 2.4, a virtual keyboard for JACK MIDI. 
+from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 struct MidiMessage
 {
     jack_nframes_t	time;
     int		len;	/* Length of MIDI message, in bytes. */
     unsigned char	data[3];
 };
+/////////////////////////////////////////////////////////////////////////////////
 
 #include "UI.cpp"
 
@@ -227,6 +232,9 @@ int midi_process (jack_nframes_t nframes, void *arg)
 {
     if (midi_output_ports != NULL)
     {
+//////////////////////////////////////////////////////////////////////////////////
+/* This code is inspiret by jack-keyboard 2.4, a virtual keyboard for JACK MIDI. 
+from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         int		read,t;
         unsigned char* buffer;
         jack_nframes_t	last_frame_time;
@@ -256,11 +264,12 @@ int midi_process (jack_nframes_t nframes, void *arg)
                 buffer[0] = ev.data[0];
             }
         }
+
         AVOIDDENORMALS;
         cpu_load = jack_cpu_load(midi_client);
         DSP.compute_midi(nframes, gInChannel, midi_port_buf);
     }
-
+//////////////////////////////////////////////////////////////////////////////////
     return 0;
 }
 

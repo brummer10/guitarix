@@ -741,18 +741,20 @@ public:
         interface->closeBox();
     }
 
+//////////////////////////////////////////////////////////////////////////////////
+/* This code is take from jack-keyboard 2.4, a virtual keyboard for JACK MIDI. 
+from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
     struct MidiMessage ev;
 
     void
     queue_message(struct MidiMessage *ev)
     {
         int		written;
-
         written = jack_ringbuffer_write(jack_ringbuffer, (char *)ev, sizeof(*ev));
-
         if (written != sizeof(*ev))
             g_warning("Not enough space in the ringbuffer, NOTE LOST.");
     }
+//////////////////////////////////////////////////////////////////////////////////
 
     virtual void compute_midi( int len, float** inputi, void* midi_port_buf)
     {
