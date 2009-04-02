@@ -49,7 +49,7 @@ struct GtkWaveViewClass
     int livecontrol_y;
     float *live_view;
     float *live_viewin;
-   // float *live_freq;
+    // float *live_freq;
     int new_pig;
     int mode;
     int speed;
@@ -79,7 +79,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 {
     g_assert(GTK_IS_WAVEVIEW(widget));
     GtkWaveView *waveview = GTK_WAVEVIEW(widget);
- 
+
     if (    waveview->waveview_type == 0)
     {
         int waveviewx = widget->allocation.x, waveviewy = widget->allocation.y;
@@ -230,7 +230,6 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
         if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig == 0)
         {
- 
             cairo_pattern_t *pat;
             pat = cairo_pattern_create_radial (-130.4, -270.4, 1.6, -1.4,  -4.4, 300.0);
             cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 1);
@@ -280,7 +279,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_set_source_rgba (cr,0.2,  1.0, 0.2, 0.05);
             cairo_stroke (cr);
 
-            double x0      = liveviewx+476,  
+            double x0      = liveviewx+476,
                              y0      = liveviewy-5,
                                        rect_width  = 40.,
                                                      rect_height = 15.;
@@ -320,7 +319,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                 cairo_stroke (cr);
                 y0      += 22;
             }
-            x0      = liveviewx+470, 
+            x0      = liveviewx+470,
                       y0      = liveviewy-10,
                                 rect_width  = 49.,
                                               rect_height = 68.;
@@ -342,7 +341,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 
             gdk_pixbuf_get_from_drawable( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image,GDK_DRAWABLE(widget->window), gdk_colormap_get_system (),liveviewx-15, liveviewy-15,0,0,480,80);
             gdk_pixbuf_get_from_drawable( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->livecontrol_image,GDK_DRAWABLE(widget->window), gdk_colormap_get_system (),liveviewx+470, liveviewy-10,0,0,50,80);
-        }
+        }  //background pixmap ready
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image, 0,0,liveviewx-15, liveviewy-15 , 480, 80, GDK_RGB_DITHER_NORMAL, 0, 0);
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->livecontrol_image, 0,0,liveviewx+470, liveviewy-10 , 50, 80, GDK_RGB_DITHER_NORMAL, 0, 0);
 
@@ -354,11 +353,11 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         cairo_set_font_size (cr, 7.0);
         cairo_move_to (cr, liveviewx, liveviewy+48);
         cairo_show_text(cr, tir.c_str());
-    /*  IntToString(int(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_freq[0]),tfi);
-        cairo_move_to (cr, liveviewx, liveviewy+10);
-        tir = "freq ";
-        tir += tfi;
-        cairo_show_text(cr, tir.c_str()); */
+        /*  IntToString(int(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_freq[0]),tfi);
+            cairo_move_to (cr, liveviewx, liveviewy+10);
+            tir = "freq ";
+            tir += tfi;
+            cairo_show_text(cr, tir.c_str()); */
         cairo_stroke (cr);
 
         if (scaletype == 1)
@@ -526,9 +525,9 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 
         else if (scaletype == 3)
         {
-          // int bufsize = 450;
-           int speedy = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed;
-	   int bufspeed = 450/speedy;
+            // int bufsize = 450;
+            int speedy = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed;
+            int bufspeed = 450/speedy;
             double x0      = liveviewx+476,
                              y0      = liveviewy+39,
                                        rect_width  = 40.,
@@ -782,20 +781,20 @@ static gboolean gtk_waveview_scroll (GtkWidget *widget, GdkEventScroll *event)
 {
     g_assert(GTK_IS_WAVEVIEW(widget));
     GtkWaveView *waveview = GTK_WAVEVIEW(widget);
- if ((waveview->waveview_type == 1) & (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->mode == 3))
+    if ((waveview->waveview_type == 1) & (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->mode == 3))
     {
-int setspeed;
-if (event->direction == 0) setspeed = -1;
-else setspeed = 1;
-GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed += setspeed;
-    //gtk_regler_set_value(widget, event->direction);
-if ((GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed <75) & (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed >12)) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed = 10;
-if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed >10)  GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed = 75;
+        int setspeed;
+        if (event->direction == 0) setspeed = -1;
+        else setspeed = 1;
+        GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed += setspeed;
+        //gtk_regler_set_value(widget, event->direction);
+        if ((GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed <75) & (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed >12)) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed = 10;
+        if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed >10)  GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed = 75;
 
-if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed <1) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed = 1;
-    for (int i=450/GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed; i<450; i++) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[i+1] = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[i] = 0;
+        if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed <1) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed = 1;
+        for (int i=450/GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed; i<450; i++) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[i+1] = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[i] = 0;
 // fprintf (stderr, "%i weel %i \n" , GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed, setspeed);
-   }
+    }
     return FALSE;
 }
 
@@ -913,7 +912,7 @@ GtkWidget *GtkWaveView::gtk_wave_live_view(float* outfloat, float* infloat,GtkAd
     GtkWaveView *waveview = GTK_WAVEVIEW(widget);
     GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_view = outfloat;
     GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_viewin = infloat;
- 
+
     waveview->waveview_type = 1;
     if (widget)
     {

@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 #ifdef _OPENMP
-   #include <omp.h>
+#include <omp.h>
 #endif
 /* link with  */
 #include <sys/ioctl.h>
@@ -37,7 +37,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <dlfcn.h>
-#include <pthread.h> 
+#include <pthread.h>
 #include <limits.h>
 
 // #include <X11/Xlib.h>
@@ -50,7 +50,7 @@
 #include <libgen.h>
 #include <jack/jack.h>
 #include <jack/midiport.h>
-
+#include <jack/ringbuffer.h>
 
 
 using namespace std;
@@ -85,6 +85,8 @@ inline void *aligned_calloc(size_t nmemb, size_t size)
 #define OPTARG_GETSTRING() OPTARGS_CHECK_GET("",argv[++lokke])
 #define OPTARGS_END }else{fprintf(stderr,usage);return(-1);}}}
 
+#define RINGBUFFER_SIZE		1024*sizeof(struct MidiMessage)
+
 inline int		lsr (int x, int n)
 {
     return int(((unsigned int)x) >> n);
@@ -95,6 +97,11 @@ inline int 		int2pow2 (int x)
     int r=0;
     while ((1<<r)<x) r++;
     return r;
+}
+
+inline double sqr(double x)
+{
+    return x * x;
 }
 
 #include <map>
@@ -108,6 +115,13 @@ struct Meta : map<const char*, const char*>
     {
         (*this)[key]=value;
     }
+};
+
+struct MidiMessage
+{
+    jack_nframes_t	time;
+    int		len;	/* Length of MIDI message, in bytes. */
+    unsigned char	data[3];
 };
 
 #include "UI.cpp"
@@ -141,18 +155,16 @@ struct Meta : map<const char*, const char*>
 *******************************************************************************
 *******************************************************************************/
 mydsp	DSP;
+
 //----------------------------------------------------------------------------
 // 	number of input and output channels
 //----------------------------------------------------------------------------
 
 int		gNumInChans;
 
-
 //----------------------------------------------------------------------------
 // Jack ports
 //----------------------------------------------------------------------------
-
-
 
 //----------------------------------------------------------------------------
 // tables of noninterleaved input and output channels for FAUST
@@ -166,26 +178,33 @@ void*		midi_port_buf ;
 // Jack Callbacks
 //----------------------------------------------------------------------------
 
+struct MidiMessage ev;
+
 int srate(jack_nframes_t nframes, void *arg)
 {
-   // printf("the sample rate is now %u/sec\n", nframes);
-  //  jackframe = nframes;
+    // printf("the sample rate is now %u/sec\n", nframes);
+    //  jackframe = nframes;
     return 0;
 }
 
 void jack_shutdown(void *arg)
 {
+    fprintf(stderr, "jack has bumped us out , exiting ...\n");
+    jack_client_close(client);
+    jack_client_close(midi_client);
+    jack_ringbuffer_free(jack_ringbuffer);
     destroy_event( GTK_WIDGET(fWindow), NULL);
     exit(1);
 }
 
 void signal_handler(int sig)
 {
-        destroy_event( GTK_WIDGET(fWindow), NULL);
-	jack_client_close(client);
-	jack_client_close(midi_client);
-	fprintf(stderr, "signal %i received, exiting ...\n",sig);
-	exit(0);
+    destroy_event( GTK_WIDGET(fWindow), NULL);
+    jack_client_close(client);
+    jack_client_close(midi_client);
+    jack_ringbuffer_free(jack_ringbuffer);
+    fprintf(stderr, "signal %i received, exiting ...\n",sig);
+    exit(0);
 }
 
 int process (jack_nframes_t nframes, void *arg)
@@ -206,13 +225,42 @@ int process (jack_nframes_t nframes, void *arg)
 
 int midi_process (jack_nframes_t nframes, void *arg)
 {
-    if (midi_output_ports != NULL){
-    AVOIDDENORMALS;
-    midi_port_buf =  jack_port_get_buffer(midi_output_ports, nframes);
-    jack_midi_clear_buffer(midi_port_buf);
-    cpu_load = jack_cpu_load(midi_client);
-    DSP.compute_midi(nframes, gInChannel, midi_port_buf);
+    if (midi_output_ports != NULL)
+    {
+        int		read,t;
+        unsigned char* buffer;
+        jack_nframes_t	last_frame_time;
+        last_frame_time = jack_last_frame_time(midi_client);
+        midi_port_buf = jack_port_get_buffer(midi_output_ports, nframes);
+        jack_midi_clear_buffer( midi_port_buf);
+
+        while (jack_ringbuffer_read_space(jack_ringbuffer))
+        {
+            read = jack_ringbuffer_peek(jack_ringbuffer, (char *)&ev, sizeof(ev));
+            if (read != sizeof(ev))
+            {
+                fprintf(stderr, " Short read from the ringbuffer, possible note loss.\n");
+                continue;
+            }
+            else
+            {
+                t = ev.time + nframes - last_frame_time;
+                if (t >= (int)nframes)
+                    break;
+                jack_ringbuffer_read_advance(jack_ringbuffer, sizeof(ev));
+                buffer = jack_midi_event_reserve(midi_port_buf, 0, ev.len);
+                if (ev.len > 2)
+                    buffer[2] = ev.data[2];
+                if (ev.len > 1)
+                    buffer[1] = ev.data[1];
+                buffer[0] = ev.data[0];
+            }
+        }
+        AVOIDDENORMALS;
+        cpu_load = jack_cpu_load(midi_client);
+        DSP.compute_midi(nframes, gInChannel, midi_port_buf);
     }
+
     return 0;
 }
 
@@ -220,9 +268,10 @@ int midi_process (jack_nframes_t nframes, void *arg)
 void* jackthread(void* arg)
 {
     jack_client_t*  client = (jack_client_t*) arg;
-	jack_nframes_t nframes;
+    jack_nframes_t nframes;
     AVOIDDENORMALS;
-    while (1) {
+    while (1)
+    {
         nframes = jack_cycle_wait(client);
         process(nframes, arg);
         jack_cycle_signal(client, 0);
@@ -233,9 +282,10 @@ void* jackthread(void* arg)
 void* jack_midi_thread(void* arg)
 {
     jack_client_t*  midi_client = (jack_client_t*) arg;
-	jack_nframes_t nframes;
+    jack_nframes_t nframes;
     AVOIDDENORMALS;
-    while (1) {
+    while (1)
+    {
         nframes = jack_cycle_wait(midi_client);
         midi_process(nframes, arg);
         jack_cycle_signal(midi_client, 0);
@@ -326,6 +376,19 @@ int main(int argc, char *argv[] )
     jack_set_process_callback(midi_client, midi_process, 0);
 #endif
 
+    jack_ringbuffer = jack_ringbuffer_create(RINGBUFFER_SIZE);
+
+    if (jack_ringbuffer == NULL)
+    {
+        g_critical("Cannot create JACK ringbuffer.");
+        destroy_event( GTK_WIDGET(fWindow), NULL);
+        jack_client_close(client);
+        jack_client_close(midi_client);
+        exit(1);
+    }
+    jack_ringbuffer_reset(jack_ringbuffer);
+    jack_ringbuffer_mlock(jack_ringbuffer);
+
     jack_set_sample_rate_callback(client, srate, 0);
     jack_on_shutdown(client, jack_shutdown, 0);
     gNumInChans = DSP.getNumInputs();
@@ -336,16 +399,12 @@ int main(int argc, char *argv[] )
     frag = jack_get_buffer_size (client);
     printf("the buffer size is now %u/frames\n", frag);
 
-	signal(SIGQUIT, signal_handler);
-	signal(SIGTERM, signal_handler);
-	signal(SIGHUP, signal_handler);
-	signal(SIGINT, signal_handler);
-	signal(SIGSEGV, signal_handler);
-       /*
-	rc = jack_set_buffer_size(midi_client, frag);
-	if (rc)
-		fprintf(stderr, "jack_set_buffer_size(): %s\n", strerror(rc));
-       */
+    signal(SIGQUIT, signal_handler);
+    signal(SIGTERM, signal_handler);
+    signal(SIGHUP, signal_handler);
+    signal(SIGINT, signal_handler);
+    signal(SIGSEGV, signal_handler);
+
     for (int i = 0; i < gNumInChans; i++)
     {
         snprintf(buf, 256, "in_%d", i);
@@ -360,8 +419,8 @@ int main(int argc, char *argv[] )
     {
         jack_port_unregister(client, output_ports[i]);
     }
-  // midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, frag);
-  //  jack_port_unregister(midi_client, midi_output_ports);
+    midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, frag);
+    //  jack_port_unregister(midi_client, midi_output_ports);
     interface = new GTKUI (jname, &argc, &argv);
     DSP.init(jackframes);
     DSP.buildUserInterface(interface);
@@ -382,18 +441,18 @@ int main(int argc, char *argv[] )
         return 1;
     }
     // set midi tread to a lower rt-prio when run in realtime.
-    if (jack_is_realtime(midi_client) == 1) 
+    if (jack_is_realtime(midi_client) == 1)
     {
-    sched_param  spar;
-    int  __policy;
-    pthread_getschedparam (jack_client_thread_id (midi_client), &__policy, &spar);
-    int rtis;
-    char istrr[256];
-    snprintf(istrr, 256, "%u",spar.sched_priority);
-    string isrt = istrr;
-    istringstream isn(isrt);
-    isn >> rtis;
-    if (rtis > 19) pthread_setschedprio ( jack_client_thread_id (midi_client), 19 );
+        sched_param  spar;
+        int  __policy;
+        pthread_getschedparam (jack_client_thread_id (midi_client), &__policy, &spar);
+        int rtis;
+        char istrr[256];
+        snprintf(istrr, 256, "%u",spar.sched_priority);
+        string isrt = istrr;
+        istringstream isn(isrt);
+        isn >> rtis;
+        if (rtis > 19) pthread_setschedprio ( jack_client_thread_id (midi_client), 19 );
     }
     // set autoconnect capture to capture_port_1
     setenv("GUITARIX2JACK_INPUTS", "system:capture_%d", 0);
@@ -436,12 +495,15 @@ int main(int argc, char *argv[] )
     {
         jack_port_unregister(client, output_ports[i]);
     }
-    if (midi_output_ports != NULL){
-    jack_port_unregister(midi_client, midi_output_ports);
+    if (midi_output_ports != NULL)
+    {
+        jack_port_unregister(midi_client, midi_output_ports);
     }
 
     jack_client_close(midi_client);
     jack_client_close(client);
+    jack_ringbuffer_free(jack_ringbuffer);
+
     interface->saveState(rcfilename);
 
     return 0;
