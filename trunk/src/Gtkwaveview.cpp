@@ -549,10 +549,10 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_stroke (cr);
 
             float wave_go = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_view[0]*250.0;
-            float wave_db = log(fabs( wave_go*0.002))*6/log(2);
-            double xl = floor(exp(log(1.055)*2.1*wave_db)*285);
-            if (xl > 225.0)   xl = 225.0;
-            else if (xl < -225.0)   xl = -225.0;
+        //    float wave_db = log(fabs( wave_go*0.002))*6/log(2);
+         //   double xl = floor(exp(log(1.055)*2.1*wave_db)*285);
+         //   if (xl > 225.0)   xl = 225.0;
+         //   else if (xl < -225.0)   xl = -225.0;
             double redline = 0.2;
             if (wave_go > 25.0)
             {
@@ -578,7 +578,19 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             {
                 GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[(bufspeed)-i] = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[(bufspeed)-(i+1)];
             }
+/*
+cairo_pattern_t *linpat;
+linpat = cairo_pattern_create_linear (450, 0, 450, 40);
+cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
+cairo_pattern_add_color_stop_rgba (linpat, 0, 1, 0.2, 0,0.8);
+cairo_pattern_add_color_stop_rgba (linpat, 1, redline, 1, 0.2,0.8);
+
+cairo_set_source (cr, linpat);
+       
+*/
+
             cairo_stroke (cr);
+           // cairo_pattern_destroy (linpat);
             cairo_destroy(cr);
         }
     }

@@ -33,6 +33,7 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <sysexits.h>
 #include <errno.h>
 #include <cstring>
 #include <cstdlib>
@@ -85,7 +86,7 @@ inline void *aligned_calloc(size_t nmemb, size_t size)
 #define OPTARG_GETSTRING() OPTARGS_CHECK_GET("",argv[++lokke])
 #define OPTARGS_END }else{fprintf(stderr,usage);return(-1);}}}
 
-#define RINGBUFFER_SIZE		1024*sizeof(struct MidiMessage)
+// #define RINGBUFFER_SIZE		1024*sizeof(struct MidiMessage)
 
 inline int		lsr (int x, int n)
 {
@@ -125,6 +126,7 @@ struct MidiMessage
 {
     jack_nframes_t	time;
     int		len;	/* Length of MIDI message, in bytes. */
+    int        framenum;
     unsigned char	data[3];
 };
 /////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +179,7 @@ int		gNumInChans;
 
 float* 	gInChannel[256];
 float* 	gOutChannel[256];
-void*		midi_port_buf ;
+//void*		midi_port_buf ;
 
 //----------------------------------------------------------------------------
 // Jack Callbacks
@@ -236,11 +238,12 @@ int midi_process (jack_nframes_t nframes, void *arg)
 /* This code is inspiret by jack-keyboard 2.4, a virtual keyboard for JACK MIDI. 
 from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         int		read,t;
-        unsigned char* buffer;
+        unsigned char* buffer ;
         jack_nframes_t	last_frame_time;
         last_frame_time = jack_last_frame_time(midi_client);
-        midi_port_buf = jack_port_get_buffer(midi_output_ports, nframes);
+        void   *midi_port_buf = jack_port_get_buffer(midi_output_ports, nframes);
         jack_midi_clear_buffer( midi_port_buf);
+ //size_t max_size = jack_midi_max_event_size(midi_port_buf);
 
         while (jack_ringbuffer_read_space(jack_ringbuffer))
         {
@@ -256,7 +259,10 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 if (t >= (int)nframes)
                     break;
                 jack_ringbuffer_read_advance(jack_ringbuffer, sizeof(ev));
-                buffer = jack_midi_event_reserve(midi_port_buf, 0, ev.len);
+                // jack_midi_clear_buffer( midi_port_buf);
+                if (jack_midi_max_event_size(midi_port_buf) > sizeof(ev))
+                buffer = jack_midi_event_reserve(midi_port_buf, ev.framenum, ev.len);
+                else break;
                 if (ev.len > 2)
                     buffer[2] = ev.data[2];
                 if (ev.len > 1)
@@ -267,7 +273,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 
         AVOIDDENORMALS;
         cpu_load = jack_cpu_load(midi_client);
-        DSP.compute_midi(nframes, gInChannel, midi_port_buf);
+        DSP.compute_midi(nframes, gInChannel);
     }
 //////////////////////////////////////////////////////////////////////////////////
     return 0;
@@ -385,7 +391,7 @@ int main(int argc, char *argv[] )
     jack_set_process_callback(midi_client, midi_process, 0);
 #endif
 
-    jack_ringbuffer = jack_ringbuffer_create(RINGBUFFER_SIZE);
+    jack_ringbuffer = jack_ringbuffer_create(1024);
 
     if (jack_ringbuffer == NULL)
     {
@@ -399,7 +405,9 @@ int main(int argc, char *argv[] )
     jack_ringbuffer_mlock(jack_ringbuffer);
 
     jack_set_sample_rate_callback(client, srate, 0);
+
     jack_on_shutdown(client, jack_shutdown, 0);
+    jack_on_shutdown(midi_client, jack_shutdown, 0);
     gNumInChans = DSP.getNumInputs();
     gNumOutChans = DSP.getNumOutputs();
     jackframes = jack_get_sample_rate (client);
@@ -407,6 +415,7 @@ int main(int argc, char *argv[] )
     printf("the sample rate is now %u/sec\n", jackframes);
     frag = jack_get_buffer_size (client);
     printf("the buffer size is now %u/frames\n", frag);
+
 
     signal(SIGQUIT, signal_handler);
     signal(SIGTERM, signal_handler);
@@ -428,7 +437,7 @@ int main(int argc, char *argv[] )
     {
         jack_port_unregister(client, output_ports[i]);
     }
-    midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, frag);
+    midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
     //  jack_port_unregister(midi_client, midi_output_ports);
     interface = new GTKUI (jname, &argc, &argv);
     DSP.init(jackframes);
