@@ -271,9 +271,9 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
             }
         }
 
-        AVOIDDENORMALS;
+      //  AVOIDDENORMALS;
         cpu_load = jack_cpu_load(midi_client);
-        DSP.compute_midi(nframes, gInChannel);
+        DSP.compute_midi(nframes);
     }
 //////////////////////////////////////////////////////////////////////////////////
     return 0;
@@ -362,6 +362,17 @@ int main(int argc, char *argv[] )
         param = "nogui";
     }
 
+    midi_client = jack_client_open (midi_jname, (jack_options_t) 0, &jackstat);
+    if (midi_client == 0)
+    {
+        fprintf (stderr, "Can't connect to JACK, is the server running ?\n");
+        exit (1);
+    }
+    if (jackstat & JackNameNotUnique)
+    {
+        midi_jname = jack_get_client_name (midi_client);
+    }
+
     client = jack_client_open (jname, (jack_options_t) 0, &jackstat);
     if (client == 0)
     {
@@ -373,16 +384,7 @@ int main(int argc, char *argv[] )
         jname = jack_get_client_name (client);
     }
 
-    midi_client = jack_client_open (midi_jname, (jack_options_t) 0, &jackstat);
-    if (midi_client == 0)
-    {
-        fprintf (stderr, "Can't connect to JACK, is the server running ?\n");
-        exit (1);
-    }
-    if (jackstat & JackNameNotUnique)
-    {
-        midi_jname = jack_get_client_name (midi_client);
-    }
+
 #ifdef _OPENMP
     jack_set_process_thread(client, jackthread, client);
     jack_set_process_thread(midi_client, jack_midi_thread, midi_client);
@@ -423,6 +425,9 @@ int main(int argc, char *argv[] )
     signal(SIGINT, signal_handler);
     signal(SIGSEGV, signal_handler);
 
+    midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+    //  jack_port_unregister(midi_client, midi_output_ports);
+
     for (int i = 0; i < gNumInChans; i++)
     {
         snprintf(buf, 256, "in_%d", i);
@@ -437,8 +442,7 @@ int main(int argc, char *argv[] )
     {
         jack_port_unregister(client, output_ports[i]);
     }
-    midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
-    //  jack_port_unregister(midi_client, midi_output_ports);
+
     interface = new GTKUI (jname, &argc, &argv);
     DSP.init(jackframes);
     DSP.buildUserInterface(interface);
@@ -471,7 +475,7 @@ int main(int argc, char *argv[] )
         istringstream isn(isrt);
         isn >> rtis;
         if (rtis > 19) pthread_setschedprio ( jack_client_thread_id (midi_client), 19 );
-    }
+    } 
     // set autoconnect capture to capture_port_1
     setenv("GUITARIX2JACK_INPUTS", "system:capture_%d", 0);
     pname = getenv("GUITARIX2JACK_INPUTS");
