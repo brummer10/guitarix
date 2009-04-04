@@ -330,6 +330,10 @@ int main(int argc, char *argv[] )
         fprintf (stderr, "Can't connect to JACK, is the server running ?\n");
         exit (1);
     }
+    if (jackstat & JackNameNotUnique)
+    {
+        jname = jack_get_client_name (client);
+    }
 
     midi_client = jack_client_open (midi_jname, JackNoStartServer, &jackstat);
     if (midi_client == 0)
@@ -340,12 +344,6 @@ int main(int argc, char *argv[] )
     if (jackstat & JackNameNotUnique)
     {
         midi_jname = jack_get_client_name (midi_client);
-    }
-
-
-    if (jackstat & JackNameNotUnique)
-    {
-        jname = jack_get_client_name (client);
     }
 
     jack_set_process_callback(client, process, 0);
