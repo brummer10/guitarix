@@ -19,9 +19,6 @@
 *******************************************************************************
 *******************************************************************************/
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 /* link with  */
 #include <sys/ioctl.h>
 #include <sys/wait.h>
@@ -85,8 +82,6 @@ inline void *aligned_calloc(size_t nmemb, size_t size)
 #define OPTARG(name,name2) }}else if(!strcmp(name,a)||!strcmp(name2,a)){{
 #define OPTARG_GETSTRING() OPTARGS_CHECK_GET("",argv[++lokke])
 #define OPTARGS_END }else{fprintf(stderr,usage);return(-1);}}}
-
-// #define RINGBUFFER_SIZE		1024*sizeof(struct MidiMessage)
 
 inline int		lsr (int x, int n)
 {
@@ -177,8 +172,8 @@ int		gNumInChans;
 // tables of noninterleaved input and output channels for FAUST
 //----------------------------------------------------------------------------
 
-float* 	gInChannel[256];
-float* 	gOutChannel[256];
+float* 	gInChannel[0];
+float* 	gOutChannel[4];
 //void*		midi_port_buf ;
 
 //----------------------------------------------------------------------------
@@ -243,8 +238,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         last_frame_time = jack_last_frame_time(midi_client);
         void   *midi_port_buf = jack_port_get_buffer(midi_output_ports, nframes);
         jack_midi_clear_buffer( midi_port_buf);
- //size_t max_size = jack_midi_max_event_size(midi_port_buf);
-
+        //size_t max_size = jack_midi_max_event_size(midi_port_buf);
         while (jack_ringbuffer_read_space(jack_ringbuffer))
         {
             read = jack_ringbuffer_peek(jack_ringbuffer, (char *)&ev, sizeof(ev));
@@ -270,44 +264,12 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 buffer[0] = ev.data[0];
             }
         }
-
-      //  AVOIDDENORMALS;
         cpu_load = jack_cpu_load(midi_client);
         DSP.compute_midi(nframes);
     }
 //////////////////////////////////////////////////////////////////////////////////
     return 0;
 }
-
-#ifdef _OPENMP
-void* jackthread(void* arg)
-{
-    jack_client_t*  client = (jack_client_t*) arg;
-    jack_nframes_t nframes;
-    AVOIDDENORMALS;
-    while (1)
-    {
-        nframes = jack_cycle_wait(client);
-        process(nframes, arg);
-        jack_cycle_signal(client, 0);
-    }
-    return 0;
-}
-
-void* jack_midi_thread(void* arg)
-{
-    jack_client_t*  midi_client = (jack_client_t*) arg;
-    jack_nframes_t nframes;
-    AVOIDDENORMALS;
-    while (1)
-    {
-        nframes = jack_cycle_wait(midi_client);
-        midi_process(nframes, arg);
-        jack_cycle_signal(midi_client, 0);
-    }
-    return 0;
-}
-#endif
 
 /******************************************************************************
 *******************************************************************************
@@ -362,7 +324,14 @@ int main(int argc, char *argv[] )
         param = "nogui";
     }
 
-    midi_client = jack_client_open (midi_jname, (jack_options_t) 0, &jackstat);
+    client = jack_client_open (jname, (jack_options_t) 0, &jackstat);
+    if (client == 0)
+    {
+        fprintf (stderr, "Can't connect to JACK, is the server running ?\n");
+        exit (1);
+    }
+
+    midi_client = jack_client_open (midi_jname, JackNoStartServer, &jackstat);
     if (midi_client == 0)
     {
         fprintf (stderr, "Can't connect to JACK, is the server running ?\n");
@@ -373,28 +342,16 @@ int main(int argc, char *argv[] )
         midi_jname = jack_get_client_name (midi_client);
     }
 
-    client = jack_client_open (jname, (jack_options_t) 0, &jackstat);
-    if (client == 0)
-    {
-        fprintf (stderr, "Can't connect to JACK, is the server running ?\n");
-        exit (1);
-    }
+
     if (jackstat & JackNameNotUnique)
     {
         jname = jack_get_client_name (client);
     }
 
-
-#ifdef _OPENMP
-    jack_set_process_thread(client, jackthread, client);
-    jack_set_process_thread(midi_client, jack_midi_thread, midi_client);
-#else
     jack_set_process_callback(client, process, 0);
     jack_set_process_callback(midi_client, midi_process, 0);
-#endif
 
     jack_ringbuffer = jack_ringbuffer_create(1024);
-
     if (jack_ringbuffer == NULL)
     {
         g_critical("Cannot create JACK ringbuffer.");
@@ -407,7 +364,6 @@ int main(int argc, char *argv[] )
     jack_ringbuffer_mlock(jack_ringbuffer);
 
     jack_set_sample_rate_callback(client, srate, 0);
-
     jack_on_shutdown(client, jack_shutdown, 0);
     jack_on_shutdown(midi_client, jack_shutdown, 0);
     gNumInChans = DSP.getNumInputs();
@@ -418,15 +374,11 @@ int main(int argc, char *argv[] )
     frag = jack_get_buffer_size (client);
     printf("the buffer size is now %u/frames\n", frag);
 
-
     signal(SIGQUIT, signal_handler);
     signal(SIGTERM, signal_handler);
     signal(SIGHUP, signal_handler);
     signal(SIGINT, signal_handler);
     signal(SIGSEGV, signal_handler);
-
-    midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
-    //  jack_port_unregister(midi_client, midi_output_ports);
 
     for (int i = 0; i < gNumInChans; i++)
     {
@@ -438,6 +390,10 @@ int main(int argc, char *argv[] )
         snprintf(buf, 256, "out_%d", i);
         output_ports[i] = jack_port_register(client, buf,JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
     }
+
+    midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+    //  jack_port_unregister(midi_client, midi_output_ports);
+
     for (int i = 2; i < gNumOutChans; i++)
     {
         jack_port_unregister(client, output_ports[i]);
@@ -462,6 +418,7 @@ int main(int argc, char *argv[] )
         fprintf(stderr, "Can't activate JACK midi client\n");
         return 1;
     }
+
     // set midi tread to a lower rt-prio when run in realtime.
     if (jack_is_realtime(midi_client) == 1)
     {
@@ -476,6 +433,7 @@ int main(int argc, char *argv[] )
         isn >> rtis;
         if (rtis > 19) pthread_setschedprio ( jack_client_thread_id (midi_client), 19 );
     } 
+
     // set autoconnect capture to capture_port_1
     setenv("GUITARIX2JACK_INPUTS", "system:capture_%d", 0);
     pname = getenv("GUITARIX2JACK_INPUTS");
@@ -503,9 +461,10 @@ int main(int argc, char *argv[] )
         snprintf(buf, 256, pname, i + 1);
         jack_connect(client, jack_port_name(output_ports[i]), buf);
     }
+
     gNumOutChans = 2;
     interface->run();
-    //sleep(2);
+
     jack_deactivate(midi_client);
     jack_deactivate(client);
 

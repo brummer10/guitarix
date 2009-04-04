@@ -567,7 +567,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 
             GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[0] = wave_go;
 
-            cairo_set_source_rgba (cr,  redline, 1.0, 0.2,0.8);
+          //  cairo_set_source_rgba (cr,  redline, 1.0, 0.2,0.8);
             cairo_set_line_width (cr, 1.0);
             cairo_move_to (cr, liveviewx+450, liveviewy+25);
             for (int i=0; i<(bufspeed); i++)
@@ -578,19 +578,16 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             {
                 GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[(bufspeed)-i] = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[(bufspeed)-(i+1)];
             }
-/*
-cairo_pattern_t *linpat;
-linpat = cairo_pattern_create_linear (450, 0, 450, 40);
-cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
-cairo_pattern_add_color_stop_rgba (linpat, 0, 1, 0.2, 0,0.8);
-cairo_pattern_add_color_stop_rgba (linpat, 1, redline, 1, 0.2,0.8);
 
-cairo_set_source (cr, linpat);
+	    cairo_pattern_t *linpat;
+	    linpat = cairo_pattern_create_linear (450, 0, 450, 40);
+	    cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
+	    cairo_pattern_add_color_stop_rgba (linpat, 0, 1, 0.2, 0,0.8);
+	    cairo_pattern_add_color_stop_rgba (linpat, 1, redline, 1, 0.2,0.8);
+	    cairo_set_source (cr, linpat);
        
-*/
-
             cairo_stroke (cr);
-           // cairo_pattern_destroy (linpat);
+            cairo_pattern_destroy (linpat);
             cairo_destroy(cr);
         }
     }

@@ -361,8 +361,8 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
         checkbox7 = 1.0;
         if (system(" pidof jconv > /dev/null") == 0)
         {
-            jack_disconnect(client, jack_port_name(output_ports[2]),"jconv:In-1");
-            jack_disconnect(client, jack_port_name(output_ports[3]), "jconv:In-2");
+          //  jack_disconnect(client, jack_port_name(output_ports[2]),"jconv:In-1");
+          //  jack_disconnect(client, jack_port_name(output_ports[3]), "jconv:In-2");
             system("command kill -2 `pidof  jconv` 2> /dev/null") ;
             sleep(1);
             pclose(control_stream1);
@@ -372,6 +372,7 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
                 jack_port_unregister(client, output_ports[i]);
             }
 	    gNumOutChans = 2;
+
         }
     }
     else
@@ -404,8 +405,6 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
         }
         else
         {
-
-            checkbox7 = 0.0;
             control_stream1 = popen ("jconv ~/.guitarix/jconv_set.conf 2> /dev/null" , "r");
             sleep (2);
             if (system(" pidof jconv > /dev/null") == 0)
@@ -449,6 +448,7 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
                 }
             }
             else checkbutton7 = 0;
+            checkbox7 = 0.0;
         }
     }
 }
