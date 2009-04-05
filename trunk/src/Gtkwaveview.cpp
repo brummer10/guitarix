@@ -54,6 +54,7 @@ struct GtkWaveViewClass
     int mode;
     int speed;
     float *wave_save;
+    int ringis;
 };
 
 GType gtk_waveview_get_type ();
@@ -565,25 +566,31 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                 wave_go = -25.0;
             }
 
-            GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[0] = wave_go;
+            GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->ringis] = wave_go;
 
           //  cairo_set_source_rgba (cr,  redline, 1.0, 0.2,0.8);
             cairo_set_line_width (cr, 1.0);
             cairo_move_to (cr, liveviewx+450, liveviewy+25);
+           int ringisnow = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->ringis;
             for (int i=0; i<(bufspeed); i++)
             {
-                cairo_line_to (cr, liveviewx+450- speedy-(i*speedy), liveviewy+25+GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[i+1]);
-            }
-            for (int i=1; i<(bufspeed); i++)
-            {
-                GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[(bufspeed)-i] = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[(bufspeed)-(i+1)];
+                if (ringisnow > bufspeed) ringisnow = 0;
+                cairo_line_to (cr, liveviewx+450- speedy-(i*speedy), liveviewy+25+GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[ringisnow]);
+                ringisnow +=1;
             }
 
+           GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->ringis -= 1;
+           if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->ringis < 0) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->ringis = bufspeed;
+          /*  for (int i=1; i<(bufspeed); i++)
+            {
+                GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[(bufspeed)-i] = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[(bufspeed)-(i+1)];
+            } */
+
 	    cairo_pattern_t *linpat;
-	    linpat = cairo_pattern_create_linear (450, 0, 450, 40);
+	    linpat = cairo_pattern_create_linear (450, 0, 450, 42);
 	    cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
-	    cairo_pattern_add_color_stop_rgba (linpat, 0, 1, 0.2, 0,0.8);
-	    cairo_pattern_add_color_stop_rgba (linpat, 1, redline, 1, 0.2,0.8);
+	    cairo_pattern_add_color_stop_rgba (linpat, 0.2, 1, 0.2, 0,0.8);
+	    cairo_pattern_add_color_stop_rgba (linpat, 0.8, redline, 1, 0.2,0.8);
 	    cairo_set_source (cr, linpat);
        
             cairo_stroke (cr);
@@ -801,7 +808,9 @@ static gboolean gtk_waveview_scroll (GtkWidget *widget, GdkEventScroll *event)
         if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed >10)  GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed = 75;
 
         if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed <1) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed = 1;
-        for (int i=450/GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed; i<450; i++) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[i+1] = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[i] = 0;
+    //    for (int i=450/GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed; i<450; i++) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[i+1] = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[i] = 0;
+    for (int i=0; i<450; i++)  GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[i] = 0;
+GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->ringis = 450/GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed;
 // fprintf (stderr, "%i weel %i \n" , GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed, setspeed);
     }
     return FALSE;
@@ -838,6 +847,7 @@ static void gtk_waveview_class_init (GtkWaveViewClass *klass)
     klass->speed = 5;
     klass->wave_save= new float[450];
     for (int i=0; i<449; i++) klass->wave_save[i+1] = klass->wave_save[i] = 0;
+    klass->ringis = 450/5;
 
     widget_class->expose_event = gtk_waveview_expose;
     widget_class->size_request = gtk_waveview_size_request;
