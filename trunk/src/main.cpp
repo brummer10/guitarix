@@ -172,7 +172,7 @@ int		gNumInChans;
 // tables of noninterleaved input and output channels for FAUST
 //----------------------------------------------------------------------------
 
-float* 	gInChannel[0];
+float* 	gInChannel[1];
 float* 	gOutChannel[4];
 //void*		midi_port_buf ;
 
@@ -193,7 +193,7 @@ void jack_shutdown(void *arg)
 {
     fprintf(stderr, "jack has bumped us out , exiting ...\n");
     jack_client_close(client);
-    jack_client_close(midi_client);
+  //  jack_client_close(midi_client);
     jack_ringbuffer_free(jack_ringbuffer);
     destroy_event( GTK_WIDGET(fWindow), NULL);
     exit(1);
@@ -203,27 +203,13 @@ void signal_handler(int sig)
 {
     destroy_event( GTK_WIDGET(fWindow), NULL);
     jack_client_close(client);
-    jack_client_close(midi_client);
+  //  jack_client_close(midi_client);
     jack_ringbuffer_free(jack_ringbuffer);
     fprintf(stderr, "signal %i received, exiting ...\n",sig);
     exit(0);
 }
 
-int process (jack_nframes_t nframes, void *arg)
-{
-    AVOIDDENORMALS;
-    for (int i = 0; i < gNumInChans; i++)
-    {
-        gInChannel[i] = (float *)jack_port_get_buffer(input_ports[i], nframes);
-    }
-    for (int i = 0; i < gNumOutChans; i++)
-    {
-        gOutChannel[i] = (float *)jack_port_get_buffer(output_ports[i], nframes);
-    }
-    DSP.compute(nframes, gInChannel, gOutChannel);
-    if (showwave == 1) time_is =  jack_frame_time (client);
-    return 0;
-}
+
 
 int midi_process (jack_nframes_t nframes, void *arg)
 {
@@ -235,7 +221,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         int		read,t;
         unsigned char* buffer ;
         jack_nframes_t	last_frame_time;
-        last_frame_time = jack_last_frame_time(midi_client);
+        last_frame_time = jack_last_frame_time(client);
         void   *midi_port_buf = jack_port_get_buffer(midi_output_ports, nframes);
         jack_midi_clear_buffer( midi_port_buf);
         //size_t max_size = jack_midi_max_event_size(midi_port_buf);
@@ -264,10 +250,27 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 buffer[0] = ev.data[0];
             }
         }
-        cpu_load = jack_cpu_load(midi_client);
+        cpu_load = jack_cpu_load(client);
         DSP.compute_midi(nframes);
     }
 //////////////////////////////////////////////////////////////////////////////////
+    return 0;
+}
+
+int process (jack_nframes_t nframes, void *arg)
+{
+    AVOIDDENORMALS;
+    for (int i = 0; i < gNumInChans; i++)
+    {
+        gInChannel[i] = (float *)jack_port_get_buffer(input_ports[i], nframes);
+    }
+    for (int i = 0; i < gNumOutChans; i++)
+    {
+        gOutChannel[i] = (float *)jack_port_get_buffer(output_ports[i], nframes);
+    }
+    DSP.compute(nframes, gInChannel, gOutChannel);
+    if (playmidi == 1) midi_process(nframes, 0);
+    if (showwave == 1) time_is =  jack_frame_time (client);
     return 0;
 }
 
@@ -335,7 +338,7 @@ int main(int argc, char *argv[] )
         jname = jack_get_client_name (client);
     }
 
-    midi_client = jack_client_open (midi_jname, JackNoStartServer, &jackstat);
+ /*   midi_client = jack_client_open (midi_jname, JackNoStartServer, &jackstat);
     if (midi_client == 0)
     {
         fprintf (stderr, "Can't connect to JACK, is the server running ?\n");
@@ -344,10 +347,10 @@ int main(int argc, char *argv[] )
     if (jackstat & JackNameNotUnique)
     {
         midi_jname = jack_get_client_name (midi_client);
-    }
+    } */
 
     jack_set_process_callback(client, process, 0);
-    jack_set_process_callback(midi_client, midi_process, 0);
+ //   jack_set_process_callback(midi_client, midi_process, 0);
 
     jack_ringbuffer = jack_ringbuffer_create(1024);
     if (jack_ringbuffer == NULL)
@@ -355,7 +358,7 @@ int main(int argc, char *argv[] )
         g_critical("Cannot create JACK ringbuffer.");
         destroy_event( GTK_WIDGET(fWindow), NULL);
         jack_client_close(client);
-        jack_client_close(midi_client);
+      //  jack_client_close(midi_client);
         exit(1);
     }
     jack_ringbuffer_reset(jack_ringbuffer);
@@ -363,7 +366,7 @@ int main(int argc, char *argv[] )
 
     jack_set_sample_rate_callback(client, srate, 0);
     jack_on_shutdown(client, jack_shutdown, 0);
-    jack_on_shutdown(midi_client, jack_shutdown, 0);
+ //   jack_on_shutdown(midi_client, jack_shutdown, 0);
     gNumInChans = DSP.getNumInputs();
     gNumOutChans = DSP.getNumOutputs();
     jackframes = jack_get_sample_rate (client);
@@ -389,13 +392,10 @@ int main(int argc, char *argv[] )
         output_ports[i] = jack_port_register(client, buf,JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
     }
 
-    midi_output_ports = jack_port_register(midi_client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+    midi_output_ports = jack_port_register(client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
     //  jack_port_unregister(midi_client, midi_output_ports);
 
-    for (int i = 2; i < gNumOutChans; i++)
-    {
-        jack_port_unregister(client, output_ports[i]);
-    }
+
 
     interface = new GTKUI (jname, &argc, &argv);
     DSP.init(jackframes);
@@ -411,14 +411,14 @@ int main(int argc, char *argv[] )
         fprintf(stderr, "Can't activate JACK client\n");
         return 1;
     }
-    if (jack_activate(midi_client))
+ /*   if (jack_activate(midi_client))
     {
         fprintf(stderr, "Can't activate JACK midi client\n");
         return 1;
-    }
+    }*/
 
     // set midi tread to a lower rt-prio when run in realtime.
-    if (jack_is_realtime(midi_client) == 1)
+ /*   if (jack_is_realtime(midi_client) == 1)
     {
         sched_param  spar;
         int  __policy;
@@ -430,7 +430,7 @@ int main(int argc, char *argv[] )
         istringstream isn(isrt);
         isn >> rtis;
         if (rtis > 19) pthread_setschedprio ( jack_client_thread_id (midi_client), 19 );
-    } 
+    } */
 
     // set autoconnect capture to capture_port_1
     setenv("GUITARIX2JACK_INPUTS", "system:capture_%d", 0);
@@ -460,10 +460,15 @@ int main(int argc, char *argv[] )
         jack_connect(client, jack_port_name(output_ports[i]), buf);
     }
 
+    for (int i = 2; i < gNumOutChans; i++)
+    {
+        jack_port_unregister(client, output_ports[i]);
+    }
+
     gNumOutChans = 2;
     interface->run();
 
-    jack_deactivate(midi_client);
+ //   jack_deactivate(midi_client);
     jack_deactivate(client);
 
     for (int i = 0; i < gNumInChans; i++)
@@ -476,10 +481,10 @@ int main(int argc, char *argv[] )
     }
     if (midi_output_ports != NULL)
     {
-        jack_port_unregister(midi_client, midi_output_ports);
+        jack_port_unregister(client, midi_output_ports);
     }
 
-    jack_client_close(midi_client);
+  //  jack_client_close(midi_client);
     jack_client_close(client);
     jack_ringbuffer_free(jack_ringbuffer);
 

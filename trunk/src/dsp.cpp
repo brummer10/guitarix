@@ -815,7 +815,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                             ev.len = 2;
                             ev.data[0] = 0xC0 | iTemps30;  // controller+ channel
                             ev.data[1] = iTemps31;  // program value
-                            ev.time = jack_frame_time(midi_client);
+                            ev.time = jack_frame_time(client);
                             ev.framenum = i;
                             queue_message(&ev);
                         }
@@ -827,7 +827,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                             ev.data[0] = 0xB0 | iTemps30;  // controller + channel
                             ev.data[1] = 0x07;     // set controler volume
                             ev.data[2] = iTemps46;	// volume value
-                            ev.time = jack_frame_time(midi_client);
+                            ev.time = jack_frame_time(client);
                             ev.framenum = i;
                             queue_message(&ev);
                         }
@@ -845,7 +845,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[0] = 0xE0 |  iTemps30; // controller + channel
                                     ev.data[1] = 0x00 ; // pitch value
                                     ev.data[2] = 0x40;  // pitch value
-                                    ev.time = jack_frame_time(midi_client);
+                                    ev.time = jack_frame_time(client);
                                     ev.framenum = i;
                                     queue_message(&ev);
                                 }
@@ -853,7 +853,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[0] = 0x90 |  iTemps30;	// controller + channel
                                 ev.data[1] =noten ; // note
                                 ev.data[2] = iTemps26; // velocity
-                                ev.time = jack_frame_time(midi_client);
+                                ev.time = jack_frame_time(client);
                                 ev.framenum = i;
                                 queue_message(&ev);
 
@@ -866,7 +866,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[0] = 0xE0 |  iTemps30;	// controller + channel
                                     ev.data[1] = piwe & 0x7f ; // pitch
                                     ev.data[2] = (piwe >> 7) & 0x7f;  // pitch
-                                    ev.time = jack_frame_time(midi_client);
+                                    ev.time = jack_frame_time(client);
                                     ev.framenum = i;
                                     queue_message(&ev);
                                 }
@@ -882,7 +882,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.len = 2;
                                 ev.data[0] = 0xC0 | iTemps35; // controller+ channel
                                 ev.data[1] = iTemps36;  // program value
-                                ev.time = jack_frame_time(midi_client);
+                                ev.time = jack_frame_time(client);
                                 ev.framenum = i;
                                 queue_message(&ev);
                             }
@@ -894,7 +894,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[0] = 0xB0 | iTemps35; // controller + channel
                                 ev.data[1] = 0x07; // set controler channel volume
                                 ev.data[2] = iTemps47;  // volume value
-                                ev.time = jack_frame_time(midi_client);
+                                ev.time = jack_frame_time(client);
                                 ev.framenum = i;
                                 queue_message(&ev);
                             }
@@ -912,7 +912,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                         ev.data[0] = 0xE0 |  iTemps35;  // controller + channel
                                         ev.data[1] = 0x00 ; // pitch value
                                         ev.data[2] = 0x40;  // pitch value
-                                        ev.time = jack_frame_time(midi_client);
+                                        ev.time = jack_frame_time(client);
                                         ev.framenum = i;
                                         queue_message(&ev);
                                     }
@@ -920,7 +920,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[0] = 0x90 | iTemps35; // note on + channel
                                     ev.data[1] = noten1; // note
                                     ev.data[2] = iTemps32; // velocity
-                                    ev.time = jack_frame_time(midi_client);
+                                    ev.time = jack_frame_time(client);
                                     ev.framenum = i;
                                     queue_message(&ev);
 
@@ -933,7 +933,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                         ev.data[0] = 0xE0 |  iTemps35; // controller + channel
                                         ev.data[1] = piwe & 0x7f ; // pitch
                                         ev.data[2] = (piwe >> 7) & 0x7f;  // pitch
-                                        ev.time = jack_frame_time(midi_client);
+                                        ev.time = jack_frame_time(client);
                                         ev.framenum = i;
                                         queue_message(&ev);
                                     }
@@ -949,7 +949,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.len = 2;
                                 ev.data[0] = 0xC0 | iTemps44; // controller
                                 ev.data[1] = iTemps43;  // program value
-                                ev.time = jack_frame_time(midi_client);
+                                ev.time = jack_frame_time(client);
                                 ev.framenum = i;
                                 queue_message(&ev);
                             }
@@ -961,7 +961,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[0] = 0xB0 | iTemps44; // controller + channel
                                 ev.data[1] = 0x07; // set controler channel volume
                                 ev.data[2] = iTemps48;  // volume value
-                                ev.time = jack_frame_time(midi_client);
+                                ev.time = jack_frame_time(client);
                                 ev.framenum = i;
                                 queue_message(&ev);
                             }
@@ -974,7 +974,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[0] = 0xE0 |  iTemps44;	// controller + channel
                                     ev.data[1] = 0x00 ; // pitch value
                                     ev.data[2] = 0x40;  // pitch value
-                                    ev.time = jack_frame_time(midi_client);
+                                    ev.time = jack_frame_time(client);
                                     ev.framenum = i;
                                     queue_message(&ev);
                                 }
@@ -987,7 +987,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[0] = 0x90 | iTemps44;  // note on + channel
                                     ev.data[1] = noten2; //  note
                                     ev.data[2] = iTemps40; // velocity
-                                    ev.time = jack_frame_time(midi_client);
+                                    ev.time = jack_frame_time(client);
                                     ev.framenum = i;
                                     queue_message(&ev);
 
@@ -1000,7 +1000,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                         ev.data[0] = 0xE0 |  iTemps44; // controller + channel
                                         ev.data[1] = piwe & 0x7f ; // pitch
                                         ev.data[2] = (piwe >> 7) & 0x7f;  // pitch
-                                        ev.time = jack_frame_time(midi_client);
+                                        ev.time = jack_frame_time(client);
                                         ev.framenum = i;
                                         queue_message(&ev);
                                     }
@@ -1032,7 +1032,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[0] = 0xB0 | iTemps30 ;	// controller
                                 ev.data[1] = 123;  // all notes off
                                 ev.data[2] = iTemps26; // velocity
-                                ev.time = jack_frame_time(midi_client);
+                                ev.time = jack_frame_time(client);
                                 ev.framenum = i;
                                 queue_message(&ev);
                                 if (fcheckbox10 == 1.0)
@@ -1042,7 +1042,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[0] = 0xB0 |  iTemps35;	// controller
                                     ev.data[1] = 123;  // all notes off
                                     ev.data[2] = iTemps32; // velocity
-                                    ev.time = jack_frame_time(midi_client);
+                                    ev.time = jack_frame_time(client);
                                     ev.framenum = i;
                                     queue_message(&ev);
                                 }
@@ -1053,7 +1053,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[0] = 0xB0 |  iTemps44;	// controller
                                     ev.data[1] = 123;  // all notes off
                                     ev.data[2] = iTemps40; // velocity
-                                    ev.time = jack_frame_time(midi_client);
+                                    ev.time = jack_frame_time(client);
                            	    ev.framenum = i;
                                     queue_message(&ev);
                                 }
