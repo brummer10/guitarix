@@ -55,6 +55,7 @@ jack_nframes_t  jackframes;
 float jackframe; // jack sample freq
 float cpu_load; // jack cpu_load
 
+float  get_frame[4097];
 
 // check version and if directory exists and create it if it not exist
 bool Exists(const char* Path)

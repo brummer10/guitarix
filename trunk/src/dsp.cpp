@@ -1184,8 +1184,8 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 
             float drivem1 = drive - 1.0f;
             float fSlowover0 = (9.999871e-04f * powf(10, (5.000000e-02f * (drive*-0.5))));
-            float fTemprec;
-            float fTemprec2;
+           // float fTemprec;
+           // float fTemprec2;
 
         int cs = 0;
         int sum = 0;
@@ -1333,11 +1333,11 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
                     S4[1] = S6[iSlow41];
                     float fTemp7 = S4[iSlow45];
-                    //fVec9[0] = fTemp7;
-                    fTemprec = fTemp7;
+                    fVec9[0] = fTemp7;
+                   /* fTemprec = fTemp7;
                     fTemprec2 = fTemprec1 + ( fTemprec *0.5 );
                     fTemprec1 = fTemprec *0.25;
-                    fVec9[ 0 ] = fTemprec2 + fTemprec1;
+                    fVec9[ 0 ] = fTemprec2 + fTemprec1; */
                 }
                 else  fVec9[0] = S4[0];   		// distortion end
 
@@ -1426,9 +1426,10 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 
                 fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
                 // fbargraph0 = powf(max((fRec0[5] - fConstcom2), min(0.990000f, fabsf(fVec0[0]))),0.9);
-                if (showwave == 1) viv = fRec0[0];
+                if ((showwave == 1) &(view_mode > 1)) viv = fRec0[0];
                 output0[i] = (fSlow85 * fRec0[0]);
                 float 	S9[2];
+                if ((showwave == 1) &(view_mode == 1)) get_frame[i] = fRec0[0];
                 S9[0] = (fSlow87 * fRec0[0]);
                 S9[1] = (fSlow84 * fRec0[0]);
                 output1[i] = S9[iSlow88];
@@ -1520,6 +1521,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
             fVechp0[1] = fVechp0[0];
 
             }
+            if ((showwave == 1) &(view_mode == 1)) viv = fRec0[0];
         }
         else
         {

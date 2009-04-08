@@ -224,13 +224,15 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         last_frame_time = jack_last_frame_time(client);
         void   *midi_port_buf = jack_port_get_buffer(midi_output_ports, nframes);
         jack_midi_clear_buffer( midi_port_buf);
+        cpu_load = jack_cpu_load(client);
+        DSP.compute_midi(nframes);
         //size_t max_size = jack_midi_max_event_size(midi_port_buf);
         while (jack_ringbuffer_read_space(jack_ringbuffer))
         {
             read = jack_ringbuffer_peek(jack_ringbuffer, (char *)&ev, sizeof(ev));
             if (read != sizeof(ev))
             {
-                fprintf(stderr, " Short read from the ringbuffer, possible note loss.\n");
+               // fprintf(stderr, " Short read from the ringbuffer, possible note loss.\n");
                 continue;
             }
             else
@@ -250,8 +252,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 buffer[0] = ev.data[0];
             }
         }
-        cpu_load = jack_cpu_load(client);
-        DSP.compute_midi(nframes);
     }
 //////////////////////////////////////////////////////////////////////////////////
     return 0;
@@ -269,7 +269,7 @@ int process (jack_nframes_t nframes, void *arg)
         gOutChannel[i] = (float *)jack_port_get_buffer(output_ports[i], nframes);
     }
     DSP.compute(nframes, gInChannel, gOutChannel);
-    if (playmidi == 1) midi_process(nframes, 0);
+    midi_process(nframes, 0);
     if (showwave == 1) time_is =  jack_frame_time (client);
     return 0;
 }

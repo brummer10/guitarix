@@ -60,6 +60,7 @@ struct GtkWaveViewClass
 GType gtk_waveview_get_type ();
 
 int new_wave;
+int view_mode = 0;
 
 SNDFILE *soundin_openview(const char* name, int *chans, float *sr, int *length)
 {
@@ -227,7 +228,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         liveviewx += (widget->allocation.width - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x) *0.5+15;
         liveviewy += (widget->allocation.height - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y) *0.5+15;
         int scaletype = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->mode;
-
+        view_mode = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->mode;
         cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
         if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig == 0)
         {
@@ -403,10 +404,28 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 
             cairo_set_source_rgba (cr,  redline, 1.0, 0.2,0.8);
             cairo_set_line_width (cr, 1.0);
-            cairo_move_to (cr, liveviewx, liveviewy+25);
+            cairo_move_to (cr, liveviewx+450, liveviewy+25);
+            for (int i=0; i<frag; i++)
+            {
+               
+                cairo_line_to (cr, liveviewx+350-(250.0/frag)-((250.0/frag)*i+1), liveviewy+25+double(get_frame[i])*75.0);
+             
+            }
+            cairo_line_to (cr, liveviewx, liveviewy+25);
+	    cairo_pattern_t *linpat;
+	    linpat = cairo_pattern_create_linear (450, 0, 450, 42);
+	    cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
+	    cairo_pattern_add_color_stop_rgba (linpat, 0.2, 1, 0.2, 0,0.8);
+	    cairo_pattern_add_color_stop_rgba (linpat, 0.8, redline, 1, 0.2,0.8);
+	    cairo_set_source (cr, linpat);
+       
+            cairo_stroke (cr);
+            cairo_pattern_destroy (linpat);
+ 
+         /*   cairo_move_to (cr, liveviewx, liveviewy+25);
             cairo_curve_to (cr, liveviewx+75+wave_go,liveviewy+25-wave_go, liveviewx+150+wave_go,liveviewy+25+wave_go, liveviewx+225+wave_go,liveviewy+25);
             cairo_curve_to (cr, liveviewx+300+wave_go,liveviewy+25-wave_go, liveviewx+375+wave_go,liveviewy+25+wave_go, liveviewx+450,liveviewy+25);
-            cairo_stroke (cr);
+            cairo_stroke (cr); */
 
             double dashes[] = {5.0, 1.0 };
             cairo_set_dash (cr, dashes, 2, -0.25);
@@ -577,7 +596,8 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                 if (ringisnow > bufspeed) ringisnow = 0;
                 cairo_line_to (cr, liveviewx+450- speedy-(i*speedy), liveviewy+25+GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save[ringisnow]);
                 ringisnow +=1;
-            }
+            } 
+
 
            GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->ringis -= 1;
            if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->ringis < 0) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->ringis = bufspeed;
