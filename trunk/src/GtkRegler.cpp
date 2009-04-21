@@ -81,15 +81,6 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
             /** this is to create a pointer rotating on the knob with painting funktions **/
             GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
             GdkColor color ;
-            color.red = 60 * 236;
-            color.blue = 60 * 236;
-            color.green = 60 * 236;
-            gdk_gc_set_rgb_fg_color(line, &color);
-            color.red = 30 * 236;
-            color.blue = 30 * 236;
-            color.green = 30 * 236;
-            gdk_gc_set_rgb_bg_color(line, &color);
-            gdk_gc_set_line_attributes (line, 5,GDK_LINE_DOUBLE_DASH,GDK_CAP_PROJECTING,GDK_JOIN_MITER);
 
             double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-5.) * 0.5;
             double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
@@ -97,14 +88,18 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 
             double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) * 0.5;
 
-            gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
-
-            color.red = 200 * 256;
-            color.blue =200 * 256;
-            color.green = 200 * 256;
-            gdk_gc_set_rgb_fg_color(line, &color);
-            gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-            gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
+            cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
+            cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
+            cairo_set_line_width (cr, 5.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_set_source_rgb (cr,  0.9, 0.9, 0.9);
+            cairo_set_line_width (cr, 1.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_destroy(cr);
 
             color.red = (205-reglerstate*2) * 256;
             color.blue = 20 * 256;
@@ -122,15 +117,6 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
             /** this is to create a pointer rotating on the knob with painting funktions **/
             GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
             GdkColor color ;
-            color.red = 60 * 236;
-            color.blue = 60 * 236;
-            color.green = 60 * 236;
-            gdk_gc_set_rgb_fg_color(line, &color);
-            color.red = 30 * 236;
-            color.blue = 30 * 236;
-            color.green = 30 * 236;
-            gdk_gc_set_rgb_bg_color(line, &color);
-            gdk_gc_set_line_attributes (line, 5,GDK_LINE_DOUBLE_DASH,GDK_CAP_PROJECTING,GDK_JOIN_MITER);
 
             double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-5.) * 0.5;
             double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
@@ -138,14 +124,18 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 
             double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) * 0.5;
 
-            gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
-
-            color.red = 200 * 256;
-            color.blue =200 * 256;
-            color.green = 200 * 256;
-            gdk_gc_set_rgb_fg_color(line, &color);
-            gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-            gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
+            cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
+            cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
+            cairo_set_line_width (cr, 5.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_set_source_rgb (cr,  0.9, 0.9, 0.9);
+            cairo_set_line_width (cr, 1.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_destroy(cr);
 
             color.red = 20 * 256;
             color.blue = 205 * 256;
@@ -173,15 +163,6 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
             /** this is to create a pointer rotating on the knob with painting funktions **/
             GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
             GdkColor color ;
-            color.red = 60 * 236;
-            color.blue = 60 * 236;
-            color.green = 60 * 236;
-            gdk_gc_set_rgb_fg_color(line, &color);
-            color.red = 30 * 236;
-            color.blue = 30 * 236;
-            color.green = 30 * 236;
-            gdk_gc_set_rgb_bg_color(line, &color);
-            gdk_gc_set_line_attributes (line, 5,GDK_LINE_DOUBLE_DASH,GDK_CAP_BUTT,GDK_JOIN_MITER);
 
             double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5.) * 0.5;
             double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
@@ -189,14 +170,18 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 
             double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
 
-            gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
-
-            color.red = 200 * 256;
-            color.blue =200 * 256;
-            color.green = 200 * 256;
-            gdk_gc_set_rgb_fg_color(line, &color);
-            gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-            gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
+            cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
+            cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
+            cairo_set_line_width (cr, 5.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_set_source_rgb (cr,  0.9, 0.9, 0.9);
+            cairo_set_line_width (cr, 1.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_destroy(cr);
 
             color.red = (205-reglerstate*2) * 256;
             color.blue = 20 * 256;
@@ -215,15 +200,6 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
             /** this is to create a pointer rotating on the knob with painting funktions **/
             GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
             GdkColor color ;
-            color.red = 60 * 236;
-            color.blue = 60 * 236;
-            color.green = 60 * 236;
-            gdk_gc_set_rgb_fg_color(line, &color);
-            color.red = 30 * 236;
-            color.blue = 30 * 236;
-            color.green = 30 * 236;
-            gdk_gc_set_rgb_bg_color(line, &color);
-            gdk_gc_set_line_attributes (line, 5,GDK_LINE_DOUBLE_DASH,GDK_CAP_BUTT,GDK_JOIN_MITER);
 
             double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5.) * 0.5;
             double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
@@ -231,14 +207,18 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 
             double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
 
-            gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
-
-            color.red = 200 * 256;
-            color.blue =200 * 256;
-            color.green = 200 * 256;
-            gdk_gc_set_rgb_fg_color(line, &color);
-            gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-            gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
+            cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
+            cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
+            cairo_set_line_width (cr, 5.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_set_source_rgb (cr,  0.9, 0.9, 0.9);
+            cairo_set_line_width (cr, 1.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_destroy(cr);
 
             color.red = 20 * 256;
             color.blue = 205 * 256;
@@ -319,15 +299,6 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
         /** this is to create a pointer rotating on the knob with painting funktions **/
         GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
         GdkColor color ;
-        color.red = 60 * 236;
-        color.blue = 60 * 236;
-        color.green = 60 * 236;
-        gdk_gc_set_rgb_fg_color(line, &color);
-        color.red = 30 * 236;
-        color.blue = 30 * 236;
-        color.green = 30 * 236;
-        gdk_gc_set_rgb_bg_color(line, &color);
-        gdk_gc_set_line_attributes (line, 5,GDK_LINE_DOUBLE_DASH,GDK_CAP_PROJECTING,GDK_JOIN_MITER);
 
         double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-5.) * 0.5;
         double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
@@ -335,14 +306,18 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
 
         double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) * 0.5;
 
-        gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
-
-        color.red = 200 * 256;
-        color.blue =200 * 256;
-        color.green = 200 * 256;
-        gdk_gc_set_rgb_fg_color(line, &color);
-        gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-        gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
+            cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
+            cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
+            cairo_set_line_width (cr, 5.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_set_source_rgb (cr,  0.9, 0.9, 0.9);
+            cairo_set_line_width (cr, 1.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_destroy(cr);
 
             color.red = 20 * 256;
             color.blue = 205 * 256;
@@ -366,15 +341,6 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
         /** this is to create a pointer rotating on the knob with painting funktions **/
         GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
         GdkColor color ;
-        color.red = 60 * 236;
-        color.blue = 60 * 236;
-        color.green = 60 * 236;
-        gdk_gc_set_rgb_fg_color(line, &color);
-        color.red = 30 * 236;
-        color.blue = 30 * 236;
-        color.green = 30 * 236;
-        gdk_gc_set_rgb_bg_color(line, &color);
-        gdk_gc_set_line_attributes (line, 5,GDK_LINE_DOUBLE_DASH,GDK_CAP_BUTT,GDK_JOIN_MITER);
 
         double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5.) * 0.5;
         double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
@@ -382,14 +348,18 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
 
         double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
 
-        gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
-
-        color.red = 200 * 256;
-        color.blue =200 * 256;
-        color.green = 200 * 256;
-        gdk_gc_set_rgb_fg_color(line, &color);
-        gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-        gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
+            cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
+            cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
+            cairo_set_line_width (cr, 5.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_set_source_rgb (cr,  0.9, 0.9, 0.9);
+            cairo_set_line_width (cr, 1.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_destroy(cr);
 
             color.red = 20 * 256;
             color.blue = 205 * 256;
@@ -448,15 +418,6 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
         /** this is to create a pointer rotating on the knob with painting funktions **/
         GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
         GdkColor color ;
-        color.red = 60 * 236;
-        color.blue = 60 * 236;
-        color.green = 60 * 236;
-        gdk_gc_set_rgb_fg_color(line, &color);
-        color.red = 30 * 236;
-        color.blue = 30 * 236;
-        color.green = 30 * 236;
-        gdk_gc_set_rgb_bg_color(line, &color);
-        gdk_gc_set_line_attributes (line, 5,GDK_LINE_DOUBLE_DASH,GDK_CAP_PROJECTING,GDK_JOIN_MITER);
 
         double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-5.) * 0.5;
         double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
@@ -464,14 +425,18 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 
         double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) * 0.5;
 
-        gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
-
-        color.red = 200 * 256;
-        color.blue =200 * 256;
-        color.green = 200 * 256;
-        gdk_gc_set_rgb_fg_color(line, &color);
-        gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-        gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
+            cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
+            cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
+            cairo_set_line_width (cr, 5.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_set_source_rgb (cr,  0.9, 0.9, 0.9);
+            cairo_set_line_width (cr, 1.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_destroy(cr);
 
         color.red = (205-reglerstate*2) * 256;
         color.blue = 20 * 256;
@@ -495,15 +460,6 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
         /** this is to create a pointer rotating on the knob with painting funktions **/
         GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
         GdkColor color ;
-        color.red = 60 * 236;
-        color.blue = 60 * 236;
-        color.green = 60 * 236;
-        gdk_gc_set_rgb_fg_color(line, &color);
-        color.red = 30 * 236;
-        color.blue = 30 * 236;
-        color.green = 30 * 236;
-        gdk_gc_set_rgb_bg_color(line, &color);
-        gdk_gc_set_line_attributes (line, 5,GDK_LINE_DOUBLE_DASH,GDK_CAP_BUTT,GDK_JOIN_MITER);
 
         double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5.) * 0.5;
         double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
@@ -511,14 +467,18 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 
         double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
 
-        gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
-
-        color.red = 200 * 256;
-        color.blue =200 * 256;
-        color.green = 200 * 256;
-        gdk_gc_set_rgb_fg_color(line, &color);
-        gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-        gdk_draw_line(GDK_DRAWABLE(widget->window), line, reglerx+radius1, reglery+radius1,lengh_x,lengh_y);
+            cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
+            cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
+            cairo_set_line_width (cr, 5.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_set_source_rgb (cr,  0.9, 0.9, 0.9);
+            cairo_set_line_width (cr, 1.0);
+            cairo_move_to (cr, reglerx+radius1, reglery+radius1);
+            cairo_line_to (cr,lengh_x,lengh_y);
+            cairo_stroke (cr);
+            cairo_destroy(cr);
 
         color.red = (205-reglerstate*2) * 256;
         color.blue = 20 * 256;
@@ -698,15 +658,24 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
             double mal;
             if (event->x-regler->start_x < 0) mal = 1.0;
             else mal = -1.0;
-           /*
+                      double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
            int  reglerx = (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x) / 2;
            int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) / 2;
-	   double posx = ((event->x - reglerx)/100.)* (adj->upper - adj->lower);
-           double posy = ((event->y - reglery)/100.)* (adj->upper - adj->lower);
-           double pos = adj->lower + (posx + posy)/2.;
-           gtk_range_set_value(GTK_RANGE(widget),  pos);
-            */
-            gtk_range_set_value(GTK_RANGE(widget), regler->start_value - (event->y+(pow((event->x-regler->start_x)*0.5,2.0)*mal) - regler->start_y) *adj->step_increment);
+	   double posx = (( reglerx+radius1 - event->x )) ; //* (adj->upper - adj->lower);
+           double posy = ((reglery+radius1 - event->y )); //* (adj->upper - adj->lower);
+           double winkel = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
+           if (posx<0) winkel =  170+winkel;
+          // double pos = adj->lower + (posx + posy)/2.;
+        //   gtk_range_set_value(GTK_RANGE(widget),  pos);
+           else winkel = 170-winkel;
+           if ((winkel > 0) & (winkel < 340)) {
+                   int pause;
+               if (winkel < 335 ) pause = -10;
+               else pause = 10;
+gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((winkel+pause)/330) *(adj->upper - adj->lower) );
+               }
+           // gtk_range_set_value(GTK_RANGE(widget), regler->start_value - (event->y+(pow((event->x-regler->start_x)*0.5,2.0)*mal) - regler->start_y) *adj->step_increment);
+//fprintf (stderr, " %f, %f, %f, %f, %f \n",winkel,posx, posy, reglerx+radius1,reglery+radius1);
         }
 //----------- slider
         else if (regler->regler_type == 3)
