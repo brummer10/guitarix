@@ -604,15 +604,54 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 {
     g_assert(GTK_IS_REGLER(widget));
     GtkRegler *regler = GTK_REGLER(widget);
+    GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
     gtk_widget_grab_focus(widget);
     gtk_widget_grab_default (widget);
     gtk_grab_add(widget);
 //----------- knobs
-    if (regler->regler_type < 2)   //| (regler->regler_type < 2))
+    if (regler->regler_type == 0)   //| (regler->regler_type < 2))
     {
-        regler->start_x = event->x;
-        regler->start_y = event->y;
-        regler->start_value = gtk_range_get_value(GTK_RANGE(widget));
+                      double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) * 0.5;
+           int  reglerx = (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x) / 2;
+           int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) / 2;
+	   double posx = (( reglerx+radius1 - event->x )) ; //* (adj->upper - adj->lower);
+           double posy = ((reglery+radius1 - event->y )); //* (adj->upper - adj->lower);
+           double winkel = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
+           if (posx<0) winkel =  170+winkel;
+          // double pos = adj->lower + (posx + posy)/2.;
+        //   gtk_range_set_value(GTK_RANGE(widget),  pos);
+           else winkel = 170-winkel;
+           if ((winkel > 0) & (winkel < 340)) {
+                   int pause;
+               if (winkel < 335 ) pause = -10;
+               else pause = 10;
+gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((winkel+pause)/330) *(adj->upper - adj->lower) );
+     //   regler->start_x = event->x;
+     //   regler->start_y = event->y;
+     //   regler->start_value = gtk_range_get_value(GTK_RANGE(widget));
+    }
+    }
+    else if (regler->regler_type == 1)   //| (regler->regler_type < 2))
+    {
+                      double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
+           int  reglerx = (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x) / 2;
+           int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) / 2;
+	   double posx = (( reglerx+radius1 - event->x )) ; //* (adj->upper - adj->lower);
+           double posy = ((reglery+radius1 - event->y )); //* (adj->upper - adj->lower);
+           double winkel = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
+           if (posx<0) winkel =  170+winkel;
+          // double pos = adj->lower + (posx + posy)/2.;
+        //   gtk_range_set_value(GTK_RANGE(widget),  pos);
+           else winkel = 170-winkel;
+           if ((winkel > 0) & (winkel < 340)) {
+                   int pause;
+               if (winkel < 335 ) pause = -10;
+               else pause = 10;
+gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((winkel+pause)/330) *(adj->upper - adj->lower) );
+     //   regler->start_x = event->x;
+     //   regler->start_y = event->y;
+     //   regler->start_value = gtk_range_get_value(GTK_RANGE(widget));
+    }
     }
 //----------- switch
     else if (regler->regler_type == 2)
@@ -624,7 +663,7 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 //----------- slider
     else if (regler->regler_type == 3)
     {
-        GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+
         int  reglerx = (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x) *0.5;
         double pos = adj->lower + (((event->x - reglerx-10)*0.01)* (adj->upper - adj->lower));
    	if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
@@ -653,7 +692,31 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
     GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
     if (GTK_WIDGET_HAS_GRAB(widget))
     {
-        if (regler->regler_type <= 2)
+        if (regler->regler_type == 0)
+        {
+           // double mal;
+          //  if (event->x-regler->start_x < 0) mal = 1.0;
+          //  else mal = -1.0;
+                      double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) * 0.5;
+           int  reglerx = (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x) / 2;
+           int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) / 2;
+	   double posx = (( reglerx+radius1 - event->x )) ; //* (adj->upper - adj->lower);
+           double posy = ((reglery+radius1 - event->y )); //* (adj->upper - adj->lower);
+           double winkel = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
+           if (posx<0) winkel =  170+winkel;
+          // double pos = adj->lower + (posx + posy)/2.;
+        //   gtk_range_set_value(GTK_RANGE(widget),  pos);
+           else winkel = 170-winkel;
+           if ((winkel > 0) & (winkel < 340)) {
+                   int pause;
+               if (winkel < 335 ) pause = -10;
+               else pause = 10;
+gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((winkel+pause)/330) *(adj->upper - adj->lower) );
+               }
+           // gtk_range_set_value(GTK_RANGE(widget), regler->start_value - (event->y+(pow((event->x-regler->start_x)*0.5,2.0)*mal) - regler->start_y) *adj->step_increment);
+//fprintf (stderr, " %f, %f, %f, %f, %f \n",winkel,posx, posy, reglerx+radius1,reglery+radius1);
+        }
+        else if (regler->regler_type == 1)
         {
             double mal;
             if (event->x-regler->start_x < 0) mal = 1.0;
