@@ -394,7 +394,7 @@ int main(int argc, char *argv[] )
     printf("the sample rate is now %u/sec\n", jackframes);
     frag = jack_get_buffer_size (client);
     printf("the buffer size is now %u/frames\n", frag);
-    get_frame = new float[frag+1];
+    get_frame = new float[frag*2];
 
     signal(SIGQUIT, signal_handler);
     signal(SIGTERM, signal_handler);

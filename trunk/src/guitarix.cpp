@@ -540,6 +540,7 @@ static void destroy_event( GtkWidget *widget, gpointer data )
         pclose(control_stream1);
     }
     stopit = "stop";
+    showwave = 0;
     // checky = 0.0;
     jack_port_disconnect (client, output_ports[0]);
     jack_port_disconnect (client, output_ports[1]);
@@ -551,7 +552,7 @@ static void destroy_event( GtkWidget *widget, gpointer data )
     g_object_unref( ib);
     g_object_unref( ibm);
     g_object_unref(ibr);
-    delete[]get_frame;
+    delete[] get_frame;
     gtk_main_quit ();
 
 }

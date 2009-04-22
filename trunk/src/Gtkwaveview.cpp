@@ -420,9 +420,10 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 	    linpat = cairo_pattern_create_linear (450, 0, 450, 42);
 	    cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
 	    cairo_pattern_add_color_stop_rgba (linpat, 0.2, 1, 0.2, 0,0.8);
-	    cairo_pattern_add_color_stop_rgba (linpat, 0.8, redline, 1, 0.2,0.8);
+	    cairo_pattern_add_color_stop_rgba (linpat, 0.8, 0.2, 1, 0.2,0.8);
 	    cairo_set_source (cr, linpat);
-       
+            cairo_close_path (cr);
+            cairo_fill_preserve (cr);
             cairo_stroke (cr);
             cairo_pattern_destroy (linpat);
  
