@@ -27,7 +27,7 @@ virtual void gtk_waveview_destroy (GtkWidget *widget, gpointer data );
 virtual gboolean gtk_waveview_set_value (GtkWidget *widget, gpointer data );
 virtual GtkWidget *gtk_wave_view(const char* file);
 virtual GtkWidget *gtk_wave_live_view(float* outfloat, float* infloat,GtkAdjustment *_adjustment);
-
+virtual GtkWidget *gtk_wave_place_hold();
 };
 #endif
 

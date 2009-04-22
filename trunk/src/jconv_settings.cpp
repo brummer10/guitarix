@@ -365,14 +365,16 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
           //  jack_disconnect(client, jack_port_name(output_ports[3]), "jconv:In-2");
             system("command kill -2 `pidof  jconv` 2> /dev/null") ;
             sleep(1);
-            pclose(control_stream1);
-
+           
+ 	    gNumOutChans = 2;
             for (int i = 2; i < 4; i++)
             {
+		gNumOutChans -= 1;
                 jack_port_unregister(client, output_ports[i]);
             }
-	    gNumOutChans = 2;
-
+	   
+           // sleep(1);
+            pclose(control_stream1);
         }
     }
     else
@@ -412,13 +414,15 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
                 char                buf [256];
                 int i = 0;
                 char*				pname;
+
                 for (int i = 2; i < 4; i++)
                 {
                     //char                buf [256];
                     snprintf(buf, 256, "out_%d", i);
                     output_ports[i] = jack_port_register(client, buf,JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+                    gNumOutChans += 1;
                 }
-		gNumOutChans = 4;
+		//gNumOutChans = 4;
                 pname = getenv("GUITARIX2JACK_OUTPUTS1");
                 snprintf(buf, 256, pname, i + 1);
                 port1 = jack_port_get_connections (output_ports[i]);

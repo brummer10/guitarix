@@ -359,6 +359,7 @@ void GTKUI::addJToggleButton(const char* label, float* zone)
     GtkWidget* 	button = gtk_toggle_button_new();
     GtkWidget* 	lab = gtk_label_new(label);
     GtkStyle *style = gtk_widget_get_style(lab);
+    pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
     gtk_widget_modify_font(lab, style->font_desc);
     gtk_container_add (GTK_CONTAINER(button), lab);
@@ -541,12 +542,20 @@ void GTKUI::addregler(const char* label, float* zone, float init, float min, flo
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkWidget* lw = gtk_label_new("");
+   GdkColor colorGreen;
+   gdk_color_parse("#a6a9aa", &colorGreen);
+    gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+            GtkStyle *style = gtk_widget_get_style(lw);
+            pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+            pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+            gtk_widget_modify_font(lw, style->font_desc);
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
     GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
     openVerticalBox(label);
-    addWidget(label, lw);
+
     addWidget(label, slider);
+    addWidget(label, lw);
     closeBox();
 }
 
@@ -558,12 +567,20 @@ void GTKUI::addbigregler(const char* label, float* zone, float init, float min, 
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkWidget* lw = gtk_label_new("");
+   GdkColor colorGreen;
+   gdk_color_parse("#a6a9aa", &colorGreen);
+    gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+            GtkStyle *style = gtk_widget_get_style(lw);
+            pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+            pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+            gtk_widget_modify_font(lw, style->font_desc);
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
     GtkWidget* slider = myGtkRegler.gtk_big_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
     openVerticalBox(label);
-    addWidget(label, lw);
+ 
     addWidget(label, slider);
+    addWidget(label, lw);
     closeBox();
 }
 
@@ -575,6 +592,13 @@ void GTKUI::addslider(const char* label, float* zone, float init, float min, flo
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkWidget* lw = gtk_label_new("");
+   GdkColor colorGreen;
+   gdk_color_parse("#a6a9aa", &colorGreen);
+    gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+            GtkStyle *style = gtk_widget_get_style(lw);
+            pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+            pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+            gtk_widget_modify_font(lw, style->font_desc);
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
     GtkWidget* slider = myGtkRegler.gtk_hslider_new_with_adjustment(GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
@@ -782,14 +806,18 @@ void GTKUI::addLiveWaveDisplay(const char* label, float* zone , float* zone1)
     new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     GtkWaveView myGtkWaveView;
     livewa = myGtkWaveView.gtk_wave_live_view(zone,zone1,GTK_ADJUSTMENT(adj));
+    placehold = myGtkWaveView.gtk_wave_place_hold();
     //GtkWidget *hpaned = gtk_hpaned_new ();
     GtkWidget * nolivewa =  gtk_event_box_new ();
+    GtkWidget * box = gtk_vbox_new (homogene, 4);
     gtk_widget_set_size_request (nolivewa, 480, 80);
-    gtk_container_add (GTK_CONTAINER(nolivewa),livewa );
+   gtk_container_add (GTK_CONTAINER(nolivewa),box );
+    gtk_container_add (GTK_CONTAINER(box),livewa );
+   gtk_container_add (GTK_CONTAINER(box),placehold );
     //gtk_paned_pack1 (GTK_PANED (nolivewa), livewa, FALSE, TRUE);
     //gtk_paned_pack2 (GTK_PANED (hpaned), nolivewa, FALSE, TRUE);
     addWidget(label, nolivewa);
-   // gtk_widget_show(nolivewa);
+    gtk_widget_show_all(box);
   //  addWidget(label, livewa);
     gtk_widget_hide(livewa);
 };

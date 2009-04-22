@@ -209,11 +209,26 @@ void signal_handler(int sig)
     exit(0);
 }
 
+static int graph_callback (void* arg)
+{
+	//printf ("Graph reordered\n");
+	return 0;
+}
 
+static int xrun_callback (void* arg)
+{
+	//printf ("xrun reordered\n");
+	return 0;
+}
+
+static void port_callback (jack_port_id_t port, int yn, void* arg)
+{
+	//printf ("Port %d %s\n", port, (yn ? "registered" : "unregistered"));
+}
 
 int midi_process (jack_nframes_t nframes, void *arg)
 {
-    if (midi_output_ports != NULL)
+     if  (playmidi == 1) 
     {
 //////////////////////////////////////////////////////////////////////////////////
 /* This code is inspiret by jack-keyboard 2.4, a virtual keyboard for JACK MIDI. 
@@ -349,8 +364,7 @@ int main(int argc, char *argv[] )
         midi_jname = jack_get_client_name (midi_client);
     } */
 
-    jack_set_process_callback(client, process, 0);
- //   jack_set_process_callback(midi_client, midi_process, 0);
+
 
     jack_ringbuffer = jack_ringbuffer_create(1024);
     if (jack_ringbuffer == NULL)
@@ -364,6 +378,12 @@ int main(int argc, char *argv[] )
     jack_ringbuffer_reset(jack_ringbuffer);
     jack_ringbuffer_mlock(jack_ringbuffer);
 
+    jack_set_process_callback(client, process, 0);
+ //   jack_set_process_callback(midi_client, midi_process, 0);
+
+    jack_set_port_registration_callback (client, port_callback, NULL);
+    jack_set_graph_order_callback (client, graph_callback, NULL);
+    jack_set_xrun_callback(client, xrun_callback, NULL);
     jack_set_sample_rate_callback(client, srate, 0);
     jack_on_shutdown(client, jack_shutdown, 0);
  //   jack_on_shutdown(midi_client, jack_shutdown, 0);
@@ -374,6 +394,7 @@ int main(int argc, char *argv[] )
     printf("the sample rate is now %u/sec\n", jackframes);
     frag = jack_get_buffer_size (client);
     printf("the buffer size is now %u/frames\n", frag);
+    get_frame = new float[frag+1];
 
     signal(SIGQUIT, signal_handler);
     signal(SIGTERM, signal_handler);
@@ -386,14 +407,14 @@ int main(int argc, char *argv[] )
         snprintf(buf, 256, "in_%d", i);
         input_ports[i] = jack_port_register(client, buf, JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
     }
+    midi_output_ports = jack_port_register(client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+    //  jack_port_unregister(midi_client, midi_output_ports);
     for (int i = 0; i < gNumOutChans; i++)
     {
         snprintf(buf, 256, "out_%d", i);
         output_ports[i] = jack_port_register(client, buf,JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
     }
 
-    midi_output_ports = jack_port_register(client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
-    //  jack_port_unregister(midi_client, midi_output_ports);
 
 
 
@@ -411,6 +432,13 @@ int main(int argc, char *argv[] )
         fprintf(stderr, "Can't activate JACK client\n");
         return 1;
     }
+ 
+    for (int i = 2; i < 4; i++)
+    {
+        gNumOutChans -= 1;
+        jack_port_unregister(client, output_ports[i]);
+    }
+
  /*   if (jack_activate(midi_client))
     {
         fprintf(stderr, "Can't activate JACK midi client\n");
@@ -460,12 +488,6 @@ int main(int argc, char *argv[] )
         jack_connect(client, jack_port_name(output_ports[i]), buf);
     }
 
-    for (int i = 2; i < gNumOutChans; i++)
-    {
-        jack_port_unregister(client, output_ports[i]);
-    }
-
-    gNumOutChans = 2;
     interface->run();
 
  //   jack_deactivate(midi_client);

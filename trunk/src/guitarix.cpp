@@ -13,7 +13,7 @@
 GtkWidget* fWindow, *menul, *menus, *pb, *midibox, *fbutton, *label1, *menuh;
 GdkPixbuf*   ib, *ibm, *ibr;
 GtkStatusIcon*  status_icon;
-GtkWidget* livewa;
+GtkWidget* livewa, *placehold;
 
 static float      togglebutton1;
 static float      checkbutton7;
@@ -55,7 +55,7 @@ jack_nframes_t  jackframes;
 float jackframe; // jack sample freq
 float cpu_load; // jack cpu_load
 
-float  get_frame[4097];
+float*  get_frame;
 
 // check version and if directory exists and create it if it not exist
 bool Exists(const char* Path)
@@ -222,12 +222,14 @@ void show_view (GtkCheckMenuItem *menuitem, gpointer checkplay)
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
     {
         showwave = 1;
+        gtk_widget_hide( placehold);
         gtk_widget_show(livewa);
     }
     else
     {
        showwave = 0;
         gtk_widget_hide( livewa);
+        gtk_widget_show(placehold);
     }
 }
 
@@ -549,7 +551,7 @@ static void destroy_event( GtkWidget *widget, gpointer data )
     g_object_unref( ib);
     g_object_unref( ibm);
     g_object_unref(ibr);
-
+    delete[]get_frame;
     gtk_main_quit ();
 
 }

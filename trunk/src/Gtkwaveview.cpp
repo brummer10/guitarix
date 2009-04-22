@@ -280,6 +280,10 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             }
             cairo_set_source_rgba (cr,0.2,  1.0, 0.2, 0.05);
             cairo_stroke (cr);
+            gdk_pixbuf_get_from_drawable( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image,GDK_DRAWABLE(widget->window), gdk_colormap_get_system (),liveviewx-15, liveviewy-15,0,0,480,80);
+        }  //background pixmap ready
+        else if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig <= 1)
+        {
 
             double x0      = liveviewx+476,
                              y0      = liveviewy-5,
@@ -339,11 +343,11 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_set_line_width (cr, 1.5);
             cairo_stroke (cr);
 
-            GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig = 1;
+            GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig += 1;
 
-            gdk_pixbuf_get_from_drawable( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image,GDK_DRAWABLE(widget->window), gdk_colormap_get_system (),liveviewx-15, liveviewy-15,0,0,480,80);
             gdk_pixbuf_get_from_drawable( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->livecontrol_image,GDK_DRAWABLE(widget->window), gdk_colormap_get_system (),liveviewx+470, liveviewy-10,0,0,50,80);
-        }  //background pixmap ready
+        }  //controll pixmap ready
+
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image, 0,0,liveviewx-15, liveviewy-15 , 480, 80, GDK_RGB_DITHER_NORMAL, 0, 0);
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->livecontrol_image, 0,0,liveviewx+470, liveviewy-10 , 50, 80, GDK_RGB_DITHER_NORMAL, 0, 0);
 
@@ -618,6 +622,75 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_destroy(cr);
         }
     }
+
+    else if (    waveview->waveview_type == 2)
+    {
+
+        int liveviewx = widget->allocation.x, liveviewy = widget->allocation.y;
+        liveviewx += (widget->allocation.width - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x) *0.5+15;
+        liveviewy += (widget->allocation.height - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y) *0.5+15;
+
+ 
+        if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig == 0)
+        {
+            cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
+            cairo_pattern_t *pat;
+            pat = cairo_pattern_create_radial (-130.4, -270.4, 1.6, -1.4,  -4.4, 300.0);
+            cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 1);
+            cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 1);
+            cairo_set_source_rgb(cr, 0.05, 0.05, 0.05);
+            cairo_rectangle (cr, liveviewx-5, liveviewy-5, 460, 60);
+            cairo_set_source (cr, pat);
+            cairo_fill (cr);
+            cairo_pattern_destroy (pat);
+
+            cairo_set_line_width (cr, 10);
+            cairo_set_source_rgba (cr, 0, 0, 0,0.4);
+            cairo_rectangle (cr, liveviewx-5, liveviewy-5, 460, 60);
+            cairo_stroke (cr);
+            cairo_set_line_width (cr, 1);
+            cairo_set_source_rgba (cr, 0.1, 0.1, 0.1,0.7);
+            cairo_rectangle (cr, liveviewx-6, liveviewy-6, 462, 62);
+            cairo_stroke (cr);
+            cairo_set_line_width (cr, 1);
+            cairo_set_source_rgba (cr, 0.5, 0.5, 0.5,0.1);
+            cairo_rectangle (cr, liveviewx-12, liveviewy-12, 474, 74);
+            cairo_rectangle (cr, liveviewx-2, liveviewy-2, 454, 54);
+            cairo_stroke (cr);
+
+            cairo_set_line_width (cr, 1.5);
+            cairo_set_source_rgba (cr,0.2, 1.0, 0.2, 0.4);
+            cairo_move_to (cr, liveviewx, liveviewy+25);
+            cairo_line_to (cr, liveviewx+450, liveviewy+25);
+            cairo_stroke (cr);
+            cairo_set_source_rgba (cr,0.2, 1.0, 0.2, 0.4);
+            cairo_rectangle (cr, liveviewx, liveviewy, 450.0, 50.0);
+            cairo_stroke (cr);
+            int gitter = 0;
+            for (int i=0; i<45; i++)
+            {
+                gitter += 10;
+                cairo_move_to (cr, liveviewx+gitter-5, liveviewy);
+                cairo_line_to (cr, liveviewx+gitter-5, liveviewy+50);
+            }
+            gitter = 0;
+            for (int i=0; i<5; i++)
+            {
+                gitter += 10;
+                cairo_move_to (cr, liveviewx, liveviewy+gitter-5);
+                cairo_line_to (cr, liveviewx+450, liveviewy+gitter-5);
+            }
+            cairo_set_source_rgba (cr,0.2,  1.0, 0.2, 0.05);
+            cairo_stroke (cr);
+            cairo_destroy(cr);
+
+            GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig += 1;
+
+            gdk_pixbuf_get_from_drawable( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image,GDK_DRAWABLE(widget->window), gdk_colormap_get_system (),liveviewx-15, liveviewy-15,0,0,480,80);
+        } 
+         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image, 0,0,liveviewx-15, liveviewy-15 , 480, 80, GDK_RGB_DITHER_NORMAL, 0, 0);
+       }
+
     return TRUE;
 }
 
@@ -961,6 +1034,14 @@ GtkWidget *GtkWaveView::gtk_wave_live_view(float* outfloat, float* infloat,GtkAd
     return widget;
 }
 
+//----------- create live waveview widget
+GtkWidget *GtkWaveView::gtk_wave_place_hold()
+{
+    GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_WAVEVIEW, NULL ));
+    GtkWaveView *waveview = GTK_WAVEVIEW(widget);
+    waveview->waveview_type = 2;
+    return widget;
+}
 
 //----------- get the WaveView type
 GType gtk_waveview_get_type (void)
