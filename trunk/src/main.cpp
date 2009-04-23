@@ -433,7 +433,7 @@ int main(int argc, char *argv[] )
         return 1;
     }
  
-    for (int i = 2; i < 4; i++)
+    for (int i = 3; i > 1; i--)
     {
         gNumOutChans -= 1;
         jack_port_unregister(client, output_ports[i]);

@@ -366,8 +366,8 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
             system("command kill -2 `pidof  jconv` 2> /dev/null") ;
             sleep(1);
            
- 	    gNumOutChans = 2;
-            for (int i = 2; i < 4; i++)
+ 	   // gNumOutChans = 2;
+            for (int i = 3; i > 1; i--)
             {
 		gNumOutChans -= 1;
                 jack_port_unregister(client, output_ports[i]);
