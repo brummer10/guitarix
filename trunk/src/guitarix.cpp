@@ -549,8 +549,11 @@ static void destroy_event( GtkWidget *widget, gpointer data )
     myGtkWaveView.gtk_waveview_destroy (GTK_WIDGET(livewa), NULL );
     GtkRegler myGtkRegler;
     myGtkRegler.gtk_regler_destroy ( );
+    if (G_IS_OBJECT(ib))  
     g_object_unref( ib);
+    if (G_IS_OBJECT(ibm))  
     g_object_unref( ibm);
+    if (G_IS_OBJECT(ibr))  
     g_object_unref(ibr);
     delete[] get_frame;
     gtk_main_quit ();

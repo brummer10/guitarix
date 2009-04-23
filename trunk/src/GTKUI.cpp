@@ -817,9 +817,10 @@ void GTKUI::addLiveWaveDisplay(const char* label, float* zone , float* zone1)
     //gtk_paned_pack1 (GTK_PANED (nolivewa), livewa, FALSE, TRUE);
     //gtk_paned_pack2 (GTK_PANED (hpaned), nolivewa, FALSE, TRUE);
     addWidget(label, nolivewa);
-    gtk_widget_show_all(box);
+    gtk_widget_show(box);
   //  addWidget(label, livewa);
     gtk_widget_hide(livewa);
+    gtk_widget_show(placehold);
 };
 
 

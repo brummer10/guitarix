@@ -419,7 +419,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 	    cairo_pattern_t *linpat;
 	    linpat = cairo_pattern_create_linear (450, 0, 450, 42);
 	    cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
-	    cairo_pattern_add_color_stop_rgba (linpat, 0.2, 1, 0.2, 0,0.8);
+	    cairo_pattern_add_color_stop_rgba (linpat, 0.4, 1, 0.2, 0,0.8);
 	    cairo_pattern_add_color_stop_rgba (linpat, 0.8, 0.2, 1, 0.2,0.8);
 	    cairo_set_source (cr, linpat);
             cairo_close_path (cr);
@@ -989,9 +989,13 @@ static gboolean gtk_waveview_value_changed(gpointer obj)
 void GtkWaveView::gtk_waveview_destroy (GtkWidget *widget, gpointer data )
 {
     g_assert(GTK_IS_WAVEVIEW(widget));
+    if (G_IS_OBJECT(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> waveview_image)) 
     g_object_unref(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> waveview_image);
+    if (G_IS_OBJECT(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> bigwaveview_image)) 
     g_object_unref(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> bigwaveview_image);
+    if (G_IS_OBJECT(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> liveview_image)) 
     g_object_unref(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image);
+    if (G_IS_OBJECT(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> livecontrol_image)) 
     g_object_unref(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->livecontrol_image);
     delete[] GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save;
 }
