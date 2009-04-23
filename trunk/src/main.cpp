@@ -228,7 +228,7 @@ static void port_callback (jack_port_id_t port, int yn, void* arg)
 
 int midi_process (jack_nframes_t nframes, void *arg)
 {
-     if  (playmidi == 1) 
+     if  ((playmidi == 1) | (shownote == 1))
     {
 //////////////////////////////////////////////////////////////////////////////////
 /* This code is inspiret by jack-keyboard 2.4, a virtual keyboard for JACK MIDI. 

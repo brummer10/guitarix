@@ -1245,6 +1245,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
             else if (shownote == 0)
             {
                 fConsta1 = 1000.0f;
+		shownote = 2;
             }
 
                 if (fcheckboxcom1 == 1.0)     // compressor

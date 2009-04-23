@@ -573,7 +573,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_set_line_width (cr, 3.0);
             cairo_stroke (cr);
 
-            float wave_go = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_view[0]*250.0;
+            float wave_go = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_view[0]*100.0;
         //    float wave_db = log(fabs( wave_go*0.002))*6/log(2);
          //   double xl = floor(exp(log(1.055)*2.1*wave_db)*285);
          //   if (xl > 225.0)   xl = 225.0;
@@ -925,6 +925,11 @@ static void gtk_waveview_size_request (GtkWidget *widget, GtkRequisition *requis
         requisition->width = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x;
         requisition->height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y;
     }
+    else     if (    waveview->waveview_type == 2)
+    {
+        requisition->width = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x;
+        requisition->height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y;
+    }
 }
 
 //----------- init the GtkWaveViewClass
@@ -972,6 +977,11 @@ static void gtk_waveview_init (GtkWaveView *waveview)
         widget->requisition.height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_y;
     }
     else if (waveview->waveview_type == 1)
+    {
+        widget->requisition.width = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x;
+        widget->requisition.height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y;
+    }
+    else if (waveview->waveview_type == 2)
     {
         widget->requisition.width = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x;
         widget->requisition.height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y;
