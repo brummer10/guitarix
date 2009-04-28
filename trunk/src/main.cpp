@@ -228,8 +228,7 @@ static void port_callback (jack_port_id_t port, int yn, void* arg)
 
 int midi_process (jack_nframes_t nframes, void *arg)
 {
-     if  ((playmidi == 1) | (shownote == 1))
-    {
+ 
 //////////////////////////////////////////////////////////////////////////////////
 /* This code is inspiret by jack-keyboard 2.4, a virtual keyboard for JACK MIDI. 
 from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
@@ -267,7 +266,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 buffer[0] = ev.data[0];
             }
         }
-    }
+   
 //////////////////////////////////////////////////////////////////////////////////
     return 0;
 }
@@ -394,12 +393,12 @@ int main(int argc, char *argv[] )
     printf("the sample rate is now %u/sec\n", jackframes);
     frag = jack_get_buffer_size (client);
     printf("the buffer size is now %u/frames\n", frag);
-    get_frame = new float[frag*2];
+  //  get_frame = new float[frag*2];
 
     signal(SIGQUIT, signal_handler);
     signal(SIGTERM, signal_handler);
     signal(SIGHUP, signal_handler);
-    signal(SIGINT, signal_handler);
+   // signal(SIGINT, signal_handler);
     signal(SIGSEGV, signal_handler);
 
     for (int i = 0; i < gNumInChans; i++)

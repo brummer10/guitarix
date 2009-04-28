@@ -13,7 +13,7 @@
 GtkWidget* fWindow, *menul, *menus, *pb, *midibox, *fbutton, *label1, *menuh;
 GdkPixbuf*   ib, *ibm, *ibr;
 GtkStatusIcon*  status_icon;
-GtkWidget* livewa, *placehold;
+GtkWidget* livewa;
 
 static float      togglebutton1;
 static float      checkbutton7;
@@ -55,7 +55,7 @@ jack_nframes_t  jackframes;
 float jackframe; // jack sample freq
 float cpu_load; // jack cpu_load
 
-float*  get_frame;
+float  get_frame[4097];
 
 // check version and if directory exists and create it if it not exist
 bool Exists(const char* Path)
@@ -222,14 +222,14 @@ void show_view (GtkCheckMenuItem *menuitem, gpointer checkplay)
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
     {
         showwave = 1;
-        gtk_widget_hide( placehold);
+     //   gtk_widget_hide( placehold);
         gtk_widget_show(livewa);
     }
     else
     {
        showwave = 0;
         gtk_widget_hide( livewa);
-        gtk_widget_show(placehold);
+       // gtk_widget_show(placehold);
     }
 }
 
@@ -308,7 +308,7 @@ void recordit (GtkWidget *widget, gpointer data)
         else
         {
             const char* capturas = "";
-            string buf;
+            string bufi;
             const char* home;
             char gfilename[256];
             home = getenv ("HOME");
@@ -317,16 +317,16 @@ void recordit (GtkWidget *widget, gpointer data)
             ifstream f(gfilename);
             if (f.good())
             {
-                getline(f, buf);
+                getline(f, bufi);
                 string ma;
                 IntToString(capas,ma);
-                std::string a(buf);
+                std::string a(bufi);
                 std::string b(".");
                 std::string::size_type in = a.find(b);
                 in -= 1;
                 if (int(in) != -1) a.replace(in,1,ma);
-                buf = a;
-                capturas = buf.c_str();
+                bufi = a;
+                capturas = bufi.c_str();
                 f.close();
             }
             capture(capturas);
@@ -555,7 +555,7 @@ static void destroy_event( GtkWidget *widget, gpointer data )
     g_object_unref( ibm);
     if (G_IS_OBJECT(ibr))  
     g_object_unref(ibr);
-    delete[] get_frame;
+    //delete[] get_frame;
     gtk_main_quit ();
 
 }

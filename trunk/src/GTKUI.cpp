@@ -54,6 +54,9 @@ GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
     fStopped = false;
 }
 
+    GtkRegler myGtkRegler;
+    GtkWaveView myGtkWaveView;
+
 // empilement des boites
 
 void GTKUI::pushBox(int mode, GtkWidget* w)
@@ -536,7 +539,6 @@ struct uiValueDisplay : public uiItem
 
 void GTKUI::addregler(const char* label, float* zone, float init, float min, float max, float step)
 {
-    GtkRegler myGtkRegler;
     *zone = init;
     GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
@@ -561,7 +563,6 @@ void GTKUI::addregler(const char* label, float* zone, float init, float min, flo
 
 void GTKUI::addbigregler(const char* label, float* zone, float init, float min, float max, float step)
 {
-    GtkRegler myGtkRegler;
     *zone = init;
     GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
@@ -586,7 +587,6 @@ void GTKUI::addbigregler(const char* label, float* zone, float init, float min, 
 
 void GTKUI::addslider(const char* label, float* zone, float init, float min, float max, float step)
 {
-    GtkRegler myGtkRegler;
     *zone = init;
     GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
@@ -610,7 +610,6 @@ void GTKUI::addslider(const char* label, float* zone, float init, float min, flo
 
 void GTKUI::addtoggle(const char* label, float* zone)
 {
-    GtkRegler myGtkRegler;
     GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
@@ -728,7 +727,7 @@ struct uiNumDisplay : public uiItem
         const char* note[] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};
         if (shownote == 1)
         {
-            gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
+            if ((scale > -1.0) & (scale < 1.0)) gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
             if ((vis>=0)&(vis<=11)) snprintf(s, 63, "%s",  note[vis]);
             else if ((vis>=-24)&(vis<=-13)) snprintf(s, 63, "%s", note[vis+24]);
             else if ((vis>=-12)&(vis<=-1)) snprintf(s, 63, "%s", note[vis+12]);
@@ -804,23 +803,23 @@ void GTKUI::addLiveWaveDisplay(const char* label, float* zone , float* zone1)
 {
     GtkObject* adj = gtk_adjustment_new(0.0, -1.0, 1.0, 0.0009, 10*0.0009, 0);
     new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-    GtkWaveView myGtkWaveView;
+
     livewa = myGtkWaveView.gtk_wave_live_view(zone,zone1,GTK_ADJUSTMENT(adj));
-    placehold = myGtkWaveView.gtk_wave_place_hold();
+   // placehold = myGtkWaveView.gtk_wave_place_hold();
     //GtkWidget *hpaned = gtk_hpaned_new ();
     GtkWidget * nolivewa =  gtk_event_box_new ();
     GtkWidget * box = gtk_vbox_new (homogene, 4);
     gtk_widget_set_size_request (nolivewa, 480, 80);
    gtk_container_add (GTK_CONTAINER(nolivewa),box );
     gtk_container_add (GTK_CONTAINER(box),livewa );
-   gtk_container_add (GTK_CONTAINER(box),placehold );
+  // gtk_container_add (GTK_CONTAINER(box),placehold );
     //gtk_paned_pack1 (GTK_PANED (nolivewa), livewa, FALSE, TRUE);
     //gtk_paned_pack2 (GTK_PANED (hpaned), nolivewa, FALSE, TRUE);
     addWidget(label, nolivewa);
     gtk_widget_show(box);
   //  addWidget(label, livewa);
     gtk_widget_hide(livewa);
-    gtk_widget_show(placehold);
+   // gtk_widget_show(placehold);
 };
 
 

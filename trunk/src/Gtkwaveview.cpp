@@ -281,9 +281,9 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_set_source_rgba (cr,0.2,  1.0, 0.2, 0.05);
             cairo_stroke (cr);
             gdk_pixbuf_get_from_drawable( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image,GDK_DRAWABLE(widget->window), gdk_colormap_get_system (),liveviewx-15, liveviewy-15,0,0,480,80);
-        }  //background pixmap ready
-        else if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig <= 1)
-        {
+    //    }  //background pixmap ready
+    //    else if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig <= 1)
+    //    {
 
             double x0      = liveviewx+476,
                              y0      = liveviewy-5,
@@ -996,8 +996,9 @@ static gboolean gtk_waveview_value_changed(gpointer obj)
     return FALSE;
 }
 
-void GtkWaveView::gtk_waveview_destroy (GtkWidget *widget, gpointer data )
+void GtkWaveView::gtk_waveview_destroy (GtkWidget *weidget, gpointer data )
 {
+    GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_WAVEVIEW, NULL ));
     g_assert(GTK_IS_WAVEVIEW(widget));
     if (G_IS_OBJECT(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> waveview_image)) 
     g_object_unref(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> waveview_image);
