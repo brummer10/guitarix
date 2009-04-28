@@ -314,32 +314,25 @@ int main(int argc, char *argv[] )
             OPTARG("--pix","-p") rcpath = "/usr/share/guitarix/guitarix_black.rc";
             OPTARG("--rcset","-r") rcpath=OPTARG_GETSTRING();
             OPTARG("--clear","-c") rcpath = "    ";
-            OPTARG("--nogui","-nogui") param = "nogui";
-
         }
         OPTARGS_END;
     }
+
     if  (strcmp(rcpath, " ") == 0) rcpath =  "/usr/share/guitarix/guitarix.rc";
+
     char                buf [256];
     jack_status_t       jackstat;
     const char*			home;
     char*				pname;
     char*				jname;
-    char*				midi_jname;
+ //   char*				midi_jname;
     char                rcfilename[256];
-    char                midiname[256];
-    param = basename (argv [1]);
+   // char                midiname[256];
     jname = basename (argv [0]);
-    snprintf(midiname, 256, "%s", "guitarix_midi");
-    midi_jname = midiname;
+   // snprintf(midiname, 256, "%s", "guitarix_midi");
+  //  midi_jname = midiname;
 
     AVOIDDENORMALS;
-
-    if ((strcmp(param, "nogui") == 0) || (strcmp(param, "--nogui") == 0) || (strcmp(param, "-nogui") == 0))
-    {
-        fprintf (stderr, "no Gui version loaded\n");
-        param = "nogui";
-    }
 
     client = jack_client_open (jname, (jack_options_t) 0, &jackstat);
     if (client == 0)
@@ -393,12 +386,13 @@ int main(int argc, char *argv[] )
     printf("the sample rate is now %u/sec\n", jackframes);
     frag = jack_get_buffer_size (client);
     printf("the buffer size is now %u/frames\n", frag);
-  //  get_frame = new float[frag*2];
+   // get_frame = new float[frag*2];
+   // for (int i=0; i<(frag*2); i++) get_frame[i] = 0;
 
     signal(SIGQUIT, signal_handler);
     signal(SIGTERM, signal_handler);
     signal(SIGHUP, signal_handler);
-   // signal(SIGINT, signal_handler);
+    signal(SIGINT, signal_handler);
     signal(SIGSEGV, signal_handler);
 
     for (int i = 0; i < gNumInChans; i++)

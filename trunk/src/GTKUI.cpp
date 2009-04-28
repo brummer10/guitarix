@@ -54,9 +54,6 @@ GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
     fStopped = false;
 }
 
-    GtkRegler myGtkRegler;
-    GtkWaveView myGtkWaveView;
-
 // empilement des boites
 
 void GTKUI::pushBox(int mode, GtkWidget* w)
@@ -552,6 +549,7 @@ void GTKUI::addregler(const char* label, float* zone, float init, float min, flo
             pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
             gtk_widget_modify_font(lw, style->font_desc);
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
+    GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
     openVerticalBox(label);
@@ -576,6 +574,7 @@ void GTKUI::addbigregler(const char* label, float* zone, float init, float min, 
             pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
             gtk_widget_modify_font(lw, style->font_desc);
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
+    GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_big_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
     openVerticalBox(label);
@@ -600,6 +599,7 @@ void GTKUI::addslider(const char* label, float* zone, float init, float min, flo
             pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
             gtk_widget_modify_font(lw, style->font_desc);
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
+    GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_hslider_new_with_adjustment(GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
     openVerticalBox(label);
@@ -613,6 +613,7 @@ void GTKUI::addtoggle(const char* label, float* zone)
     GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
     addWidget(label, slider);
 }
@@ -803,7 +804,7 @@ void GTKUI::addLiveWaveDisplay(const char* label, float* zone , float* zone1)
 {
     GtkObject* adj = gtk_adjustment_new(0.0, -1.0, 1.0, 0.0009, 10*0.0009, 0);
     new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-
+    GtkWaveView myGtkWaveView;
     livewa = myGtkWaveView.gtk_wave_live_view(zone,zone1,GTK_ADJUSTMENT(adj));
    // placehold = myGtkWaveView.gtk_wave_place_hold();
     //GtkWidget *hpaned = gtk_hpaned_new ();
@@ -923,15 +924,7 @@ void GTKUI::addMenu()
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (midi_note), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
-//------------ create the Gui hide menuitem when start parameter nogui ------------------
-    if (strcmp(param, "nogui") == 0)
-    {
-        /*-- Create Exit menu item under Engine submenu --*/
-        menuitem = gtk_menu_item_new_with_label ("  Quit GUI  ");
-        gtk_signal_connect(GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (hide_widget), fWindow);
-        gtk_menu_append(GTK_MENU(menuh), menuitem);
-        gtk_widget_show (menuitem);
-    }
+
     /*-- Create Exit menu item under Engine submenu --*/
     menuitem = gtk_menu_item_new_with_label ("  Exit  ");
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (delete_event), NULL);
@@ -1091,84 +1084,14 @@ static gboolean callUpdateAllGuis(gpointer)
     return TRUE;
 }
 
-void GTKUI::run_nogui()
-{
-    char c;
-    printf("Type 'q' to quit\nor \ntype 'g' to load the GUI\n>");
-    while (strcmp(stopit, "go") == 0)
-    {
-        sleep(1);
-        if ((c = getchar()) == 'g')
-        {
-            printf("Ok,  please use the GUI for input now\n>");
-            assert(fTop == 0);
-            gtk_widget_show  (fBox[0]);
-            gtk_widget_show  (fWindow);
-            gtk_timeout_add(40, callUpdateAllGuis, 0);
-            gtk_main ();
-            assert(fTop == 0);
-            printf("quit the GUI\nType 'q' to quit\nor \ntype 'g' to load the GUI\n>");
-        }
-        else if (c  == 'q')
-        {
-            stopit = "stop";
-            checky = 0.0;
-            printf("bye bye\n");
-        }
-        else if (c  == ' ')
-        {
-            printf("what did you think happen if you enter a empty space ?\n>");
-        }
-        else if ((int(c)  > 48) && (int(c)  < 55))
-        {
-            const char*	  home;
-            const char*      prename = "guitarixpre";
-            char                rcfilenamere[256];
-            int lin;
-            int lint;
-            home = getenv ("HOME");
-            if (home == 0) home = ".";
-            snprintf(rcfilenamere, 256, "%s/.guitarix/%src", home, prename);
-            lin = int(c) - 49;
-            lint = lin + 1;
-            interface->recallpreState(rcfilenamere, lin);
-            printf("load preset %u \n>",  lint);
-        }
-        else if (c  == '0')
-        {
-            const char*	  home;
-            const char*      prename = "guitarix";
-            char                rcfilenamere[256];
-            int lin;
-            int lint;
-            home = getenv ("HOME");
-            if (home == 0) home = ".";
-            snprintf(rcfilenamere, 256, "%s/.guitarix/%src", home, prename);
-            lin = int(c) - 49;
-            lint = lin + 1;
-            interface->recallState(rcfilenamere);
-            printf("load preset %u \n>",  lint);
-        }
-    }
-    stop();
-}
-
-
 void GTKUI::run()
 {
-    if (strcmp(param, "nogui") == 0)
-    {
-        run_nogui();
-    }
-    else
-    {
         assert(fTop == 0);
         gtk_widget_show  (fBox[0]);
         gtk_widget_show  (fWindow);
         gtk_timeout_add(40, callUpdateAllGuis, 0);
         gtk_main ();
         stop();
-    }
 }
 
 

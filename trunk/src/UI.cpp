@@ -264,7 +264,6 @@ public:
 
     virtual void show() {};
     virtual void run() {};
-    virtual void run_nogui() {};
 
     void stop()
     {

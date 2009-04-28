@@ -22,40 +22,37 @@ float      checkbox7 = 1.0;
 float       	 checky = 1.0;
 float               cap = 0;
 float               capas = 0;
+float jackframe; // jack sample freq
+float cpu_load; // jack cpu_load
+float  get_frame[4096];
 
-const char*     param;
 const char*     stopit = "go";
 const char*     rcpath = " " ;
 string  jconvwav ; 
+
 int offcut;
 int lenghtcut;
-
 int cm = 0;
 int shownote = 2;
 int showwave = 0;
 int playmidi = 0;
 int showit = 0;
+int		gNumOutChans;
+int frag;   // jack frame size
 
 FILE*              control_stream;
 FILE*              control_stream1;
 UI*                 interface;
 
 jack_client_t*      client;
-jack_client_t*      midi_client;
+//jack_client_t*      midi_client;
 jack_port_t *output_ports[256];
 jack_port_t *input_ports[256];
 jack_port_t *midi_output_ports;
 jack_nframes_t time_is;
 jack_ringbuffer_t *jack_ringbuffer;
-int		gNumOutChans;
-//jack_ringbuffer_t *ringbuffer;
-
-int frag;   // jack frame size
 jack_nframes_t  jackframes; 
-float jackframe; // jack sample freq
-float cpu_load; // jack cpu_load
 
-float  get_frame[4097];
 
 // check version and if directory exists and create it if it not exist
 bool Exists(const char* Path)
@@ -613,13 +610,6 @@ void show_dialog(GtkWidget *widget, gpointer data)
         gtk_window_move(GTK_WINDOW(data), root_x, root_y);
     }
     else gtk_widget_hide(GTK_WIDGET(data));
-}
-
-//------------------ quit GUI------------------
-static void hide_widget( GtkWidget *widget, gpointer fWindow )
-{
-    gtk_widget_hide(GTK_WIDGET(fWindow));
-    gtk_main_quit ();
 }
 
 static void hide_show( GtkWidget *widget, gpointer data )
