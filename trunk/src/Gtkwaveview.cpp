@@ -60,7 +60,7 @@ struct GtkWaveViewClass
 GType gtk_waveview_get_type ();
 
 int new_wave;
-int view_mode = 0;
+//int view_mode = 0;
 
 SNDFILE *soundin_openview(const char* name, int *chans, float *sr, int *length)
 {

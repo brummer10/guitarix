@@ -459,6 +459,8 @@ public:
         drive = 1.5;
         foverdrive4 = 0.0;
         for (int i=0; i<2; i++) fRecover0[i] = 0;
+        viv = 0.;
+        vivi = 0.;
     }
 
     virtual void init(int samplingFreq)
@@ -792,7 +794,8 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 
         int piwe;
 
-
+       if ((shownote == 1) | (playmidi == 1))
+      {
         for (int i=0; i<len; i++)
         {
 
@@ -1072,9 +1075,10 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     }
                 }
 
-
+            }
         }
     };
+
 
 
     virtual void compute (int count, float** input, float** output)
@@ -1191,7 +1195,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         int sum = 0;
         int iTemps39 = int(fslider39);
         float fTemps39 = fslider39;
-
             float* input0 = input[0];
             float* output0 = output[2];
             float* output1 = output[0];
@@ -1273,12 +1276,11 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 {
                     float  in = fTemp0 * 3;
                     if (in>=1.0)
-                        in = 2/3.0;
+                        in = 2*0.333333333;
                     else if (in<-1.0)
-                        in = -2/3.0;
-                    else in = (in - in*in*in/3.0);
-                    fTemp0 = in;
-                    //   fTemp0 = (fRec4[0] * S5[1]);
+                        in = -2*0.333333333;
+                    else in = (in - in*in*in*0.333333333);
+                    fTemp0 = 1.5f * in - 0.5f * in *in * in;;
                 }  //preamp ende
 
                 fRec3[0] = (0.5f * ((2.0 * fTemp0) + (1.76f * fRec3[1])));  //resonanz
