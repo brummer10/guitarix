@@ -1094,8 +1094,8 @@ float foldback(float in, float threshold)
   return in;
 } */
 
-void AntiAlias (int sf, float** input, float** output)
-{
+    void AntiAlias (int sf, float** input, float** output)
+    {
 	float* in = input[0];
 	float* out = output[0];
 	float alias[frag] ;
@@ -1109,7 +1109,29 @@ void AntiAlias (int sf, float** input, float** output)
 			state = 0;
 		*out++ = a;
 	}
-}
+    }
+
+    float chebyshev(float x, float A[], int order)
+    {
+	// To = 1
+	// T1 = x
+	// Tn = 2.x.Tn-1 - Tn-2
+	// out = sum(Ai*Ti(x)) , i C {1,..,order}
+	float Tn_2 = 1.0f;
+	float Tn_1 = x;
+	float Tn;
+	float out = A[0]*Tn_1;
+
+	for(int n=2;n<=order;n++)
+	{
+		Tn = 2.0f*x*Tn_1 - Tn_2;
+		out += A[n-1]*Tn;
+		Tn_2 = Tn_1;
+		Tn_1 = Tn;
+	}
+	return out;
+    } 
+
 
     virtual void compute (int count, float** input, float** output)
     {
@@ -1324,6 +1346,8 @@ void AntiAlias (int sf, float** input, float** output)
                     S4[0] = (fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
                   //  S4[0] = 1.5f * S4[0]  - 0.5f * S4[0] * S4[0] * S4[0];
                     fTemp0 = S4[0];
+                    if (fcheckbox4 == 0.0) fTemp0 = chebyshev(fTemp0, &S4[0],  8);
+  //fTemp0 = S4[0];
                 }
 
                 if (fcheckbox4 == 1.0)     // distortion
@@ -1460,7 +1484,7 @@ void AntiAlias (int sf, float** input, float** output)
                 else  fVec23[0] = fTemp12;   //impulseResponse ende
 
                 fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
-            //   fRec0[0] =   foldback(fRec0[0], 0.5f);
+             //  fRec0[0] =   foldback(fRec0[0], 0.2);
                 // fbargraph0 = powf(max((fRec0[5] - fConstcom2), min(0.990000f, fabsf(fVec0[0]))),0.9);
                 if ((showwave == 1) &(view_mode > 1)) viv = fRec0[0];
                 output0[i] = (fSlow85 * fRec0[0]);
