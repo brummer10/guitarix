@@ -248,6 +248,7 @@ private:
     float fConsta4;
         float rms;
         float 	beat0;
+        float 	antialis0;
     // float  fbargraph0;
 public:
 
@@ -461,6 +462,9 @@ public:
         for (int i=0; i<2; i++) fRecover0[i] = 0;
         viv = 0.;
         vivi = 0.;
+        playmidi = 0;
+        shownote = 0;
+	antialis0 = 0;
     }
 
     virtual void init(int samplingFreq)
@@ -514,7 +518,8 @@ public:
         interface->openVerticalBox("  tone  ");
         interface->addregler("  bass  ", &fslider2, 0.f, -20.f, 20.f, 0.1f);
         interface->addregler(" treble ", &fslider1, 0.f, -20.f, 20.f, 0.1f);
-        interface->openVerticalBox(" ");
+        interface->openVerticalBox("  anti  \n aliase");
+        interface->addtoggle("a.aliase", &antialis0);
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
@@ -554,7 +559,7 @@ public:
         interface->openHandleBox("  ");
         interface->addbigregler("  drive ", &fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
         interface->addregler("level", &fslider8, 1.000000e-02f, 0.0f, 0.50f, 1.000000e-02f);
-        interface->addregler("gain", &fslider10, 2.0f, 0.0f, 10.0f, 0.1f);
+        interface->addregler("gain", &fslider10, 2.0f, -10.0f, 10.0f, 0.1f);
         interface->openVerticalBox("low/highpass");
         interface->openHorizontalBox("");
         interface->addregler("high-freq", &fentry1, 130.0f, 20.0f, 7040.0f, 10.0f);
@@ -1079,7 +1084,32 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         }
     };
 
+/*
+float foldback(float in, float threshold)
+{
+  if (in>threshold || in<-threshold)
+  {
+    in= fabs(fabs(fmod(in - threshold, threshold*4)) - threshold*2) - threshold;
+  }
+  return in;
+} */
 
+void AntiAlias (int sf, float** input, float** output)
+{
+	float* in = input[0];
+	float* out = output[0];
+	float alias[frag] ;
+        int state = 0;
+           for (int i=0; i<sf; i++)
+	{
+		float x = *in++;
+		float a = alias[state];
+		alias[state++] = x + a * 0.7;
+		if (state > 1.5)
+			state = 0;
+		*out++ = a;
+	}
+}
 
     virtual void compute (int count, float** input, float** output)
     {
@@ -1195,6 +1225,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         int sum = 0;
         int iTemps39 = int(fslider39);
         float fTemps39 = fslider39;
+	if (antialis0 == 1)  AntiAlias(count,input,input);
             float* input0 = input[0];
             float* output0 = output[2];
             float* output1 = output[0];
@@ -1250,7 +1281,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 fConsta1 = 1000.0f;
 		shownote = 2;
             }
-
                 if (fcheckboxcom1 == 1.0)     // compressor
                 {
                     float fTempcom0 = input0[i];
@@ -1280,7 +1310,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     else if (in<-1.0)
                         in = -2*0.333333333;
                     else in = (in - in*in*in*0.333333333);
-                    fTemp0 = 1.5f * in - 0.5f * in *in * in;;
+                    fTemp0 = 1.5f * in - 0.5f * in *in * in;
                 }  //preamp ende
 
                 fRec3[0] = (0.5f * ((2.0 * fTemp0) + (1.76f * fRec3[1])));  //resonanz
@@ -1292,6 +1322,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     float fTempdr1 = fabs(fTempdr0);
                     fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
                     S4[0] = (fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
+                  //  S4[0] = 1.5f * S4[0]  - 0.5f * S4[0] * S4[0] * S4[0];
                     fTemp0 = S4[0];
                 }
 
@@ -1337,6 +1368,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     S4[1] = S6[iSlow41];
                     float fTemp7 = S4[iSlow45];
                     fVec9[0] = fTemp7;
+		    // fVec9[0] = 1.5f * fVec9[0]  - 0.5f * fVec9[0] * fVec9[0] * fVec9[0];
                    /* fTemprec = fTemp7;
                     fTemprec2 = fTemprec1 + ( fTemprec *0.5 );
                     fTemprec1 = fTemprec *0.25;
@@ -1428,6 +1460,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 else  fVec23[0] = fTemp12;   //impulseResponse ende
 
                 fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
+            //   fRec0[0] =   foldback(fRec0[0], 0.5f);
                 // fbargraph0 = powf(max((fRec0[5] - fConstcom2), min(0.990000f, fabsf(fVec0[0]))),0.9);
                 if ((showwave == 1) &(view_mode > 1)) viv = fRec0[0];
                 output0[i] = (fSlow85 * fRec0[0]);
