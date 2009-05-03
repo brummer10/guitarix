@@ -799,7 +799,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 
         int piwe;
 
-       if ((shownote == 1) | (playmidi == 1))
+       if ((shownote == 1) || (playmidi == 1))
       {
         for (int i=0; i<len; i++)
         {
@@ -844,7 +844,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                             noten = preNote + iTemps29;
                             send = 0;
                             midistat += 1.0f;
-                            if (( noten>=0)&(noten<=127))
+                            if (( noten>=0)&&(noten<=127))
                             {
                                 // pitch wheel clear
                                 if (fpitch == 1.0)
@@ -911,7 +911,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 noten1 = preNote + iTemps34;
                                 send1 = 0;
                                 midistat += 1.0f;
-                                if ((noten1>=0)&(noten1<=127))
+                                if ((noten1>=0)&&(noten1<=127))
                                 {
                                     // pitch wheel clear
                                     if (fpitch1 == 1.0)
@@ -989,7 +989,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 noten2 = preNote + iTemps42;
                                 send2 = 0;
                                 midistat += 1.0f;
-                                if ((noten2>=0)&(noten2<=127))
+                                if ((noten2>=0)&&(noten2<=127))
                                 {
                                     ev.len = 3;
                                     ev.data[0] = 0x90 | iTemps44;  // note on + channel
@@ -1030,10 +1030,10 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 {
                     if  (playmidi == 1)
                     {
-                        if ((weg > fTemps37) | (cpu_load > 75.0))
+                        if ((weg > fTemps37) || (cpu_load > 75.0))
                         {
                             fConsta1 = 2000.0f;
-                            if ((weg <  fTemps37a) | (cpu_load > 75.0))  // 5.0
+                            if ((weg <  fTemps37a) || (cpu_load > 75.0))  // 5.0
                             {
                                 midistat += 1.0f;
                                 ev.len = 3;
@@ -1070,7 +1070,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                         }
                         weg++;
                     }
-                    else if ((shownote == 1) & (playmidi == 0))
+                    else if ((shownote == 1) && (playmidi == 0))
                     {
                         if (weg > (fSamplingFreq)/2)
                         {
@@ -1085,7 +1085,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
     };
 
 
-    float foldback(float in, float threshold)
+    inline float foldback(float in, float threshold)
     {
        if (in>threshold || in<-threshold)
        {
@@ -1094,7 +1094,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
        return in;
     } 
 
-    void fuzz(float in, float out)
+    inline void fuzz(float in, float out)
     {
 	if ( in > 0.7)
 	{
@@ -1110,7 +1110,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 	} 
     }
 
-    void valve(float in, float out)
+    inline void valve(float in, float out)
     {
 	float a = 2.000 ;
 	float b = 1.000 ;
@@ -1124,7 +1124,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 	} 
     }
 
-    void overdrive(float in, float out)
+    inline void overdrive(float in, float out)
     {
 	float a = 4.000 ;
 	float b = 4.000 ;
@@ -1138,7 +1138,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 	} 
     }
 
-    void AntiAlias (int sf, float** input, float** output)
+    inline void AntiAlias (int sf, float** input, float** output)
     {
 	float* in = input[0];
 	float* out = output[0];
@@ -1155,7 +1155,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 	}
     }
 
-    float chebyshev(float x, float A[], int order)
+    inline float chebyshev(float x, float A[], int order)
     {
 	// To = 1
 	// T1 = x
@@ -1307,7 +1307,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 float 	S5[2];
                 if (showwave == 1) vivi = input0[i];
 
-            if ((shownote == 1) | (playmidi == 1))
+            if ((shownote == 1) || (playmidi == 1))
             {
                 float fTemphp0 = input0[i];
                 float fTemphps0 = 1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0;
@@ -1376,7 +1376,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     else if (in<-1.0)
                         in = -2*0.333333333;
                     else in = (in - in*in*in*0.333333333);
-		   valve(in,in);
+		    valve(in,in);
                     fTemp0 = 1.5f * in - 0.5f * in *in * in;
                 }  //preamp ende
 
@@ -1534,10 +1534,10 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
                // if (fcheckbox4 == 1.0)  fRec0[0] =   foldback(fRec0[0], 0.7);
                 // fbargraph0 = powf(max((fRec0[5] - fConstcom2), min(0.990000f, fabsf(fVec0[0]))),0.9);
-                if ((showwave == 1) &(view_mode > 1)) viv = fRec0[0];
+                if ((showwave == 1) &&(view_mode > 1)) viv = fRec0[0];
                 output0[i] = (fSlow85 * fRec0[0]);
                 float 	S9[2];
-                if ((showwave == 1) &(view_mode == 1)) get_frame[i] = fRec0[0];
+                if ((showwave == 1) &&(view_mode == 1)) get_frame[i] = fRec0[0];
                 S9[0] = (fSlow87 * fRec0[0]);
                 S9[1] = (fSlow84 * fRec0[0]);
                 output1[i] = S9[iSlow88];
@@ -1629,7 +1629,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
             fVechp0[1] = fVechp0[0];
 
             }
-            if ((showwave == 1) &(view_mode == 1)) viv = fRec0[0];
+            if ((showwave == 1) &&(view_mode == 1)) viv = fRec0[0];
         }
         else
         {

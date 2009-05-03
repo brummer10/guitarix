@@ -66,7 +66,7 @@ public:
             {
                 getline(fa, buffer);
                 std::string::size_type in = buffer.find(b);
-                if ((buffer != "") & (int(in) == -1))	 f <<  buffer <<endl;
+                if ((buffer != "") && (int(in) == -1))	 f <<  buffer <<endl;
                 if (int(in) != -1) cm = 1;
             }
         }
@@ -95,7 +95,7 @@ public:
             {
                 getline(fa, buffer);
                 std::string::size_type in = buffer.find(b);
-                if ((buffer != "") & (int(in) != -1))
+                if ((buffer != "") && (int(in) != -1))
                 {
                     in = buffer.find(" ");
                     in += 1;
@@ -180,7 +180,7 @@ public:
         {
             for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
             {
-                if ((is>a) & ( is<b))  f >> *(i->first);
+                if ((is>a) && ( is<b))  f >> *(i->first);
                 is++;
             }
         }

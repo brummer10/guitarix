@@ -621,7 +621,7 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
           // double pos = adj->lower + (posx + posy)/2.;
         //   gtk_range_set_value(GTK_RANGE(widget),  pos);
            else winkel = 170-winkel;
-           if ((winkel > 0) & (winkel < 340)) {
+           if ((winkel > 0) && (winkel < 340)) {
                    int pause;
                if (winkel < 335 ) pause = -10;
                else pause = 10;
@@ -643,7 +643,7 @@ gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((winkel+pause)/330) *(adj->u
           // double pos = adj->lower + (posx + posy)/2.;
         //   gtk_range_set_value(GTK_RANGE(widget),  pos);
            else winkel = 170-winkel;
-           if ((winkel > 0) & (winkel < 340)) {
+           if ((winkel > 0) && (winkel < 340)) {
                    int pause;
                if (winkel < 335 ) pause = -10;
                else pause = 10;
@@ -707,7 +707,7 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
           // double pos = adj->lower + (posx + posy)/2.;
         //   gtk_range_set_value(GTK_RANGE(widget),  pos);
            else winkel = 170-winkel;
-           if ((winkel > 0) & (winkel < 340)) {
+           if ((winkel > 0) && (winkel < 340)) {
                    int pause;
                if (winkel < 335 ) pause = -10;
                else pause = 10;
@@ -731,7 +731,7 @@ gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((winkel+pause)/330) *(adj->u
           // double pos = adj->lower + (posx + posy)/2.;
         //   gtk_range_set_value(GTK_RANGE(widget),  pos);
            else winkel = 170-winkel;
-           if ((winkel > 0) & (winkel < 340)) {
+           if ((winkel > 0) && (winkel < 340)) {
                    int pause;
                if (winkel < 335 ) pause = -10;
                else pause = 10;

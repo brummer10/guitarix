@@ -199,7 +199,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             }
             g_object_unref(line );
 
-            if ((offcut != GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut) | (lenghtcut != GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut))
+            if ((offcut != GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut) || (lenghtcut != GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut))
             {
                 GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut = offcut;
                 GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut = lenghtcut;
@@ -468,7 +468,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_stroke (cr);
 
             double farbe = 0.0, farbe1 = 1.0;
-            if ((GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_viewin[0]*500.0 < 1.5) &(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_viewin[0]*500.0 > -1.5))
+            if ((GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_viewin[0]*500.0 < 1.5) &&(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_viewin[0]*500.0 > -1.5))
             {
                 farbe = 1.0;
                 farbe1 = 0.0;
@@ -815,20 +815,20 @@ static gboolean gtk_waveview_button_press (GtkWidget *widget, GdkEventButton *ev
         int liveviewx = widget->allocation.x, liveviewy = widget->allocation.y;
         liveviewx += (widget->allocation.width - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x) *0.5+475;
         liveviewy += (widget->allocation.height - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y) *0.5+15;
-        if ((event->button == 1)&(event->x < liveviewx +55) &(event->x > liveviewx+10) &(event->y < liveviewy+54) &(event->y > liveviewy-5) )
+        if ((event->button == 1)&&(event->x < liveviewx +55) &&(event->x > liveviewx+10) &&(event->y < liveviewy+54) &&(event->y > liveviewy-5) )
         {
             double        y0      = liveviewy-5 ;
-            if ((event->x < liveviewx +55) &(event->x > liveviewx+10) &(event->y < liveviewy+10) &(event->y > liveviewy-5) )
+            if ((event->x < liveviewx +55) &&(event->x > liveviewx+10) &&(event->y < liveviewy+10) &&(event->y > liveviewy-5) )
             {
                 y0      = liveviewy-5;
                 GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->mode = 1;
             }
-            else if ((event->x < liveviewx +55) &(event->x > liveviewx+10) &(event->y < liveviewy+39) &(event->y > liveviewy+17) )
+            else if ((event->x < liveviewx +55) &&(event->x > liveviewx+10) &&(event->y < liveviewy+39) &&(event->y > liveviewy+17) )
             {
                 y0      = liveviewy+17;
                 GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->mode = 2;
             }
-            else if ((event->x < liveviewx +55) &(event->x > liveviewx+10) &(event->y < liveviewy+54) &(event->y > liveviewy+39) )
+            else if ((event->x < liveviewx +55) &&(event->x > liveviewx+10) &&(event->y < liveviewy+54) &&(event->y > liveviewy+39) )
             {
                 y0      = liveviewy+39;
                 GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->mode = 3;
@@ -891,14 +891,14 @@ static gboolean gtk_waveview_scroll (GtkWidget *widget, GdkEventScroll *event)
 {
     g_assert(GTK_IS_WAVEVIEW(widget));
     GtkWaveView *waveview = GTK_WAVEVIEW(widget);
-    if ((waveview->waveview_type == 1) & (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->mode == 3))
+    if ((waveview->waveview_type == 1) && (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->mode == 3))
     {
         int setspeed;
         if (event->direction == 0) setspeed = -1;
         else setspeed = 1;
         GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed += setspeed;
         //gtk_regler_set_value(widget, event->direction);
-        if ((GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed <75) & (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed >12)) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed = 10;
+        if ((GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed <75) && (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed >12)) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed = 10;
         if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed >10)  GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed = 75;
 
         if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed <1) GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed = 1;

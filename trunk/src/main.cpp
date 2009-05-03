@@ -358,7 +358,7 @@ int main(int argc, char *argv[] )
 
 
 
-    jack_ringbuffer = jack_ringbuffer_create(1024);
+    jack_ringbuffer = jack_ringbuffer_create(2048);
     if (jack_ringbuffer == NULL)
     {
         g_critical("Cannot create JACK ringbuffer.");
