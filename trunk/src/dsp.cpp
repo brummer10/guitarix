@@ -1084,15 +1084,59 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         }
     };
 
-/*
-float foldback(float in, float threshold)
-{
-  if (in>threshold || in<-threshold)
-  {
-    in= fabs(fabs(fmod(in - threshold, threshold*4)) - threshold*2) - threshold;
-  }
-  return in;
-} */
+
+    float foldback(float in, float threshold)
+    {
+       if (in>threshold || in<-threshold)
+       {
+         in= fabs(fabs(fmod(in - threshold, threshold*4)) - threshold*2) - threshold;
+       }
+       return in;
+    } 
+
+    void fuzz(float in, float out)
+    {
+	if ( in > 0.7)
+	{
+   	   out = 0.7;
+	}
+	else if ( in < -0.7)
+	{
+	   out = -0.7;
+	}
+	else
+	{
+	   out = in;
+	} 
+    }
+
+    void valve(float in, float out)
+    {
+	float a = 2.000 ;
+	float b = 1.000 ;
+	if ( in >= 0.0 )
+	{
+	   out = a * in - b * in * in;
+	}
+	else
+	{
+	   out = a * in + b * in * in;
+	} 
+    }
+
+    void overdrive(float in, float out)
+    {
+	float a = 4.000 ;
+	float b = 4.000 ;
+	if ( in >= 0.0 )
+	{
+	   out = a * in - b * in * in;
+	}
+	else
+	{
+	   out = a * in + b * in * in;
+	} 
+    }
 
     void AntiAlias (int sf, float** input, float** output)
     {
@@ -1332,6 +1376,7 @@ float foldback(float in, float threshold)
                     else if (in<-1.0)
                         in = -2*0.333333333;
                     else in = (in - in*in*in*0.333333333);
+		   valve(in,in);
                     fTemp0 = 1.5f * in - 0.5f * in *in * in;
                 }  //preamp ende
 
@@ -1345,6 +1390,7 @@ float foldback(float in, float threshold)
                     fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
                     S4[0] = (fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
                   //  S4[0] = 1.5f * S4[0]  - 0.5f * S4[0] * S4[0] * S4[0];
+                    overdrive(S4[0],S4[0]);
                     fTemp0 = S4[0];
                     if (fcheckbox4 == 0.0)	 fTemp0 = chebyshev(fTemp0, &S4[0],  8);
   //fTemp0 = S4[0];
@@ -1391,6 +1437,8 @@ float foldback(float in, float threshold)
                     S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
                     S4[1] = S6[iSlow41];
                     float fTemp7 = S4[iSlow45];
+                    fuzz(fTemp7,fTemp7);
+                    valve(fTemp7,fTemp7);
                     fVec9[0] = fTemp7;
 		    // fVec9[0] = 1.5f * fVec9[0]  - 0.5f * fVec9[0] * fVec9[0] * fVec9[0];
                    /* fTemprec = fTemp7;
@@ -1484,7 +1532,7 @@ float foldback(float in, float threshold)
                 else  fVec23[0] = fTemp12;   //impulseResponse ende
 
                 fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
-             //  fRec0[0] =   foldback(fRec0[0], 0.2);
+                if (fcheckbox4 == 1.0)  fRec0[0] =   foldback(fRec0[0], 0.7);
                 // fbargraph0 = powf(max((fRec0[5] - fConstcom2), min(0.990000f, fabsf(fVec0[0]))),0.9);
                 if ((showwave == 1) &(view_mode > 1)) viv = fRec0[0];
                 output0[i] = (fSlow85 * fRec0[0]);
