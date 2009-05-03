@@ -1094,7 +1094,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
        return in;
     } 
 
-    inline void fuzz(float in, float out)
+    inline float fuzz(float in, float out)
     {
 	if ( in > 0.7)
 	{
@@ -1108,9 +1108,10 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 	{
 	   out = in;
 	} 
+        return out;
     }
 
-    inline void valve(float in, float out)
+    inline float valve(float in, float out)
     {
 	float a = 2.000 ;
 	float b = 1.000 ;
@@ -1122,9 +1123,10 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 	{
 	   out = a * in + b * in * in;
 	} 
+        return out;
     }
 
-    inline void overdrive(float in, float out)
+    inline float overdrive(float in, float out)
     {
 	float a = 4.000 ;
 	float b = 4.000 ;
@@ -1136,6 +1138,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 	{
 	   out = a * in + b * in * in;
 	} 
+        return out;
     }
 
     inline void AntiAlias (int sf, float** input, float** output)
@@ -1370,14 +1373,20 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 
                 if (fcheckbox1 == 1.0)     // preamp
                 {
-                    float  in = fTemp0 * 3;
+                    float  in = fTemp0 ;
+                  /*  float  in = fTemp0 *3;
                     if (in>=1.0)
                         in = 2*0.333333333;
                     else if (in<-1.0)
                         in = -2*0.333333333;
-                    else in = (in - in*in*in*0.333333333);
-		    valve(in,in);
+                    else in = (in - in*in*in*0.333333333); */
+		   // in = valve(in,in);
+		    //valve(in,in);
+                    in =  fuzz(in,in);
                     fTemp0 = 1.5f * in - 0.5f * in *in * in;
+                    fTemp0 = valve(fTemp0,fTemp0);
+                    fTemp0 = valve(fTemp0,fTemp0);
+
                 }  //preamp ende
 
                 fRec3[0] = (0.5f * ((2.0 * fTemp0) + (1.76f * fRec3[1])));  //resonanz
@@ -1390,7 +1399,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
                     S4[0] = (fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
                   //  S4[0] = 1.5f * S4[0]  - 0.5f * S4[0] * S4[0] * S4[0];
-                    overdrive(S4[0],S4[0]);
+                    S4[0] = overdrive(S4[0],S4[0]);
                     fTemp0 = S4[0];
                 //    if (fcheckbox4 == 0.0)	 fTemp0 = chebyshev(fTemp0, &S4[0],  8);
   //fTemp0 = S4[0];
@@ -1437,8 +1446,8 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
                     S4[1] = S6[iSlow41];
                     float fTemp7 = S4[iSlow45];
-                    fuzz(fTemp7,fTemp7);
-                    valve(fTemp7,fTemp7);
+                    fTemp7 =  fuzz(fTemp7,fTemp7);
+                    fTemp7 = valve(fTemp7,fTemp7);
                     fVec9[0] = fTemp7;
 		    // fVec9[0] = 1.5f * fVec9[0]  - 0.5f * fVec9[0] * fVec9[0] * fVec9[0];
                    /* fTemprec = fTemp7;
