@@ -1392,7 +1392,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                   //  S4[0] = 1.5f * S4[0]  - 0.5f * S4[0] * S4[0] * S4[0];
                     overdrive(S4[0],S4[0]);
                     fTemp0 = S4[0];
-                    if (fcheckbox4 == 0.0)	 fTemp0 = chebyshev(fTemp0, &S4[0],  8);
+                //    if (fcheckbox4 == 0.0)	 fTemp0 = chebyshev(fTemp0, &S4[0],  8);
   //fTemp0 = S4[0];
                 }
 
@@ -1532,7 +1532,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 else  fVec23[0] = fTemp12;   //impulseResponse ende
 
                 fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
-                if (fcheckbox4 == 1.0)  fRec0[0] =   foldback(fRec0[0], 0.7);
+               // if (fcheckbox4 == 1.0)  fRec0[0] =   foldback(fRec0[0], 0.7);
                 // fbargraph0 = powf(max((fRec0[5] - fConstcom2), min(0.990000f, fabsf(fVec0[0]))),0.9);
                 if ((showwave == 1) &(view_mode > 1)) viv = fRec0[0];
                 output0[i] = (fSlow85 * fRec0[0]);
