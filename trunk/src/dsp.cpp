@@ -1384,7 +1384,9 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 		   // in = valve(in,in);
 		    //valve(in,in);
                    // in =  fuzz(in,in);
-                    fTemp0 = 1.5f * in - 0.5f * in *in * in;
+                   //   x-0.15*x^2-0.15*x^3
+                    fTemp0 = (in-0.15*(in*in))-(0.15*(in*in*in));
+                 //   fTemp0 = 1.5f * in - 0.5f * in *in * in;
                     fTemp0 = valve(fTemp0,fTemp0)*0.75;
                    // fTemp0 = valve(fTemp0,fTemp0);
 
