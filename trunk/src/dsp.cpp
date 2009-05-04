@@ -1115,6 +1115,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
     {
 	float a = 2.000 ;
 	float b = 1.000 ;
+
 	if ( in >= 0.0 )
 	{
 	   out = a * in - b * in * in;
@@ -1122,7 +1123,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 	else
 	{
 	   out = a * in + b * in * in;
-	} 
+        }
         return out;
     }
 
@@ -1382,10 +1383,10 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     else in = (in - in*in*in*0.333333333); */
 		   // in = valve(in,in);
 		    //valve(in,in);
-                    in =  fuzz(in,in);
+                   // in =  fuzz(in,in);
                     fTemp0 = 1.5f * in - 0.5f * in *in * in;
-                    fTemp0 = valve(fTemp0,fTemp0);
-                    fTemp0 = valve(fTemp0,fTemp0);
+                    fTemp0 = valve(fTemp0,fTemp0)*0.75;
+                   // fTemp0 = valve(fTemp0,fTemp0);
 
                 }  //preamp ende
 
@@ -1395,11 +1396,13 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 if (foverdrive4 == 1.0)     // overdrive
                 {
                     float fTempdr0 = (fTemp0 + S4[0]) * 0.5; // S4[0] ; //fTemp0;
+		  //  float fTempdr0 = fTemp0;
+                   // fTempdr0 = overdrive(fTempdr0,fTempdr0);
                     float fTempdr1 = fabs(fTempdr0);
                     fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
                     S4[0] = (fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
                   //  S4[0] = 1.5f * S4[0]  - 0.5f * S4[0] * S4[0] * S4[0];
-                    S4[0] = overdrive(S4[0],S4[0]);
+                  //  S4[0] = overdrive(S4[0],S4[0]);
                     fTemp0 = S4[0];
                 //    if (fcheckbox4 == 0.0)	 fTemp0 = chebyshev(fTemp0, &S4[0],  8);
   //fTemp0 = S4[0];
@@ -1446,8 +1449,8 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
                     S4[1] = S6[iSlow41];
                     float fTemp7 = S4[iSlow45];
-                    fTemp7 =  fuzz(fTemp7,fTemp7);
-                    fTemp7 = valve(fTemp7,fTemp7);
+                  //  fTemp7 =  fuzz(fTemp7,fTemp7);
+                  //  fTemp7 = valve(fTemp7,fTemp7,1);
                     fVec9[0] = fTemp7;
 		    // fVec9[0] = 1.5f * fVec9[0]  - 0.5f * fVec9[0] * fVec9[0] * fVec9[0];
                    /* fTemprec = fTemp7;

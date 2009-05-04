@@ -332,7 +332,7 @@ int main(int argc, char *argv[] )
    // snprintf(midiname, 256, "%s", "guitarix_midi");
   //  midi_jname = midiname;
 
-    AVOIDDENORMALS;
+    //AVOIDDENORMALS;
 
     client = jack_client_open (jname, (jack_options_t) 0, &jackstat);
     if (client == 0)
