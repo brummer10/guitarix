@@ -172,8 +172,8 @@ int		gNumInChans;
 // tables of noninterleaved input and output channels for FAUST
 //----------------------------------------------------------------------------
 
-float* 	gInChannel[1];
-float* 	gOutChannel[4];
+float* 	gInChannel[128];
+float* 	gOutChannel[128];
 //void*		midi_port_buf ;
 
 //----------------------------------------------------------------------------
@@ -238,7 +238,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         last_frame_time = jack_last_frame_time(client);
         void   *midi_port_buf = jack_port_get_buffer(midi_output_ports, nframes);
         jack_midi_clear_buffer( midi_port_buf);
-        cpu_load = jack_cpu_load(client);
+        if (playmidi == 1) cpu_load = jack_cpu_load(client);
         DSP.compute_midi(nframes);
         //size_t max_size = jack_midi_max_event_size(midi_port_buf);
         while (jack_ringbuffer_read_space(jack_ringbuffer))

@@ -421,7 +421,7 @@ public:
         fcheckbox8 = 0.0;
         for (int i=0; i<4; i++) fVec23[i] = 0;
         fslider23 = 0.0f;
-        for (int i=0; i<6; i++) fRec0[i] = 0;
+        for (int i=0; i<6; i++) fRec0[i] = 0.000001;
         fslider24 = 0.0f;
         fslider25 = 0.0f;
         fslider26 = 64.0f;

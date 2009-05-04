@@ -944,8 +944,8 @@ static void gtk_waveview_class_init (GtkWaveViewClass *klass)
     klass->livecontrol_y = 80;
     klass->mode = 1;
     klass->speed = 5;
-    klass->wave_save= new float[450];
-    for (int i=0; i<449; i++) klass->wave_save[i+1] = klass->wave_save[i] = 0;
+    klass->wave_save= new float[451];
+    for (int i=0; i<450; i++) klass->wave_save[i+1] = klass->wave_save[i] = 0;
     klass->ringis = 450/5;
 
     widget_class->expose_event = gtk_waveview_expose;
@@ -1008,6 +1008,7 @@ void GtkWaveView::gtk_waveview_destroy (GtkWidget *weidget, gpointer data )
     g_object_unref(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image);
     if (G_IS_OBJECT(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> livecontrol_image)) 
     g_object_unref(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->livecontrol_image);
+    if(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save) 
     delete[] GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save;
 }
 

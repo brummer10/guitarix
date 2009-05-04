@@ -718,9 +718,9 @@ gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((winkel+pause)/330) *(adj->u
         }
         else if (regler->regler_type == 1)
         {
-            double mal;
+          /*  double mal;
             if (event->x-regler->start_x < 0) mal = 1.0;
-            else mal = -1.0;
+            else mal = -1.0; */
                       double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
            int  reglerx = (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x) / 2;
            int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) / 2;
@@ -743,6 +743,7 @@ gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((winkel+pause)/330) *(adj->u
 //----------- slider
         else if (regler->regler_type == 3)
         {
+           if (event->x > 0) {
             int  sliderx = (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x)*0.5;
             double pos = adj->lower + (((event->x - sliderx-10)*0.01)* (adj->upper - adj->lower));
    	    if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
@@ -750,6 +751,7 @@ gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((winkel+pause)/330) *(adj->u
     	    else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
    	    else pos = floor (pos);
             gtk_range_set_value(GTK_RANGE(widget),  pos);
+           }
         }
     }
     return FALSE;
@@ -766,15 +768,6 @@ static gboolean gtk_regler_scroll (GtkWidget *widget, GdkEventScroll *event)
 static void gtk_regler_class_init (GtkReglerClass *klass)
 {
     GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-    widget_class->enter_notify_event = gtk_regler_enter_in;
-    widget_class->leave_notify_event = gtk_regler_leave_out;
-    widget_class->expose_event = gtk_regler_expose;
-    widget_class->size_request = gtk_regler_size_request;
-    widget_class->button_press_event = gtk_regler_button_press;
-    widget_class->button_release_event = gtk_regler_button_release;
-    widget_class->motion_notify_event = gtk_regler_pointer_motion;
-    widget_class->key_press_event = gtk_regler_key_press;
-    widget_class->scroll_event = gtk_regler_scroll;
 
 //---------- here are the inline pixmaps for regler
 #include"GtkReglerpix.cpp"
@@ -797,6 +790,16 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
     klass->slider_y = 10 ;   // this is the knob size x and y be the same
     klass->slider_step = 100;
 
+    widget_class->enter_notify_event = gtk_regler_enter_in;
+    widget_class->leave_notify_event = gtk_regler_leave_out;
+    widget_class->expose_event = gtk_regler_expose;
+    widget_class->size_request = gtk_regler_size_request;
+    widget_class->button_press_event = gtk_regler_button_press;
+    widget_class->button_release_event = gtk_regler_button_release;
+    widget_class->motion_notify_event = gtk_regler_pointer_motion;
+    widget_class->key_press_event = gtk_regler_key_press;
+    widget_class->scroll_event = gtk_regler_scroll;
+
 //----------- Big knob
     klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob1_xpm);
     g_assert(klass->bigregler_image != NULL);
@@ -815,7 +818,7 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
     klass->slider_image = gdk_pixbuf_new_from_xpm_data(slidersm_xpm);
     g_assert(klass->slider_image != NULL);
     klass->slider_image1 = gdk_pixbuf_copy( klass->slider_image );
-    g_assert(klass->slider_image != NULL);
+    g_assert(klass->slider_image1 != NULL);
 
 }
 

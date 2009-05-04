@@ -34,15 +34,17 @@ GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
     /*---------------- set window defaults ----------------*/
     gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
     gtk_window_set_title (GTK_WINDOW (fWindow), name);
-    Existspix();
+
     /*---------------- singnals ----------------*/
     gtk_signal_connect (GTK_OBJECT (fWindow), "delete_event", GTK_SIGNAL_FUNC (delete_event), NULL);
     gtk_signal_connect (GTK_OBJECT (fWindow), "destroy", GTK_SIGNAL_FUNC (destroy_event), NULL);
     /*---------------- status icon ----------------*/
+    if (Existspix() == 0) {
     status_icon =    gtk_status_icon_new_from_pixbuf (GDK_PIXBUF(ib));
+    gtk_window_set_icon(GTK_WINDOW (fWindow), GDK_PIXBUF(ib));
     g_signal_connect (G_OBJECT (status_icon), "activate", GTK_SIGNAL_FUNC (hide_show), NULL);
     g_signal_connect (G_OBJECT (status_icon), "popup-menu", GTK_SIGNAL_FUNC (pop_menu), NULL);
-
+    }
     /*---------------- create boxes ----------------*/
     fTop = 0;
     fBox[fTop] = gtk_vbox_new (homogene, 4);
