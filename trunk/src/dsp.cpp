@@ -25,6 +25,7 @@ public:
     virtual void init(int samplingRate) 	= 0;
     virtual void compute(int len, float** inputs, float** outputs) 	= 0;
     virtual void compute_midi( int len)  = 0;
+    virtual void setNumOutputs() = 0;
 };
 
 
@@ -270,6 +271,17 @@ public:
     virtual int getNumOutputs()
     {
         return 4;
+    }
+
+    virtual void setNumOutputs()
+    {
+    sleep(1);
+    int unchanel = gNumOutChans;
+    for (int i = unchanel; i > 2; i--)
+       {
+        gNumOutChans -= 1;
+        jack_port_unregister(client, output_ports[i-1]);
+       }
     }
 
     static void classInit(int samplingFreq)

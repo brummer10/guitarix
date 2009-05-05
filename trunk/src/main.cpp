@@ -415,6 +415,7 @@ int main(int argc, char *argv[] )
     DSP.init(jackframes);
     DSP.buildUserInterface(interface);
 
+
     home = getenv ("HOME");
     if (home == 0) home = ".";
     snprintf(rcfilename, 256, "%s/.guitarix/%src", home, jname);
@@ -425,12 +426,12 @@ int main(int argc, char *argv[] )
         fprintf(stderr, "Can't activate JACK client\n");
         return 1;
     }
- 
-    for (int i = 3; i > 1; i--)
+  /*  int unchanel = gNumOutChans;
+    for (int i = unchanel; i > 2; i--)
     {
         gNumOutChans -= 1;
-        jack_port_unregister(client, output_ports[i]);
-    }
+        jack_port_unregister(client, output_ports[i-1]);
+    } */
 
  /*   if (jack_activate(midi_client))
     {
@@ -480,7 +481,7 @@ int main(int argc, char *argv[] )
         snprintf(buf, 256, pname, i + 1);
         jack_connect(client, jack_port_name(output_ports[i]), buf);
     }
-
+    DSP.setNumOutputs();
     interface->run();
 
  //   jack_deactivate(midi_client);
