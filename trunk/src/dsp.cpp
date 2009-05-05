@@ -275,13 +275,24 @@ public:
 
     virtual void setNumOutputs()
     {
-    sleep(1);
-    int unchanel = gNumOutChans;
+    sleep(2);
+
+if(jack_port_is_mine (client,output_ports[3]))
+    {
+ jack_port_unregister(client, output_ports[3]);
+        gNumOutChans -= 1;
+     }
+if(jack_port_is_mine (client,output_ports[2]))
+     {
+ jack_port_unregister(client, output_ports[2]);
+       gNumOutChans -= 1;
+      }
+ /*   int unchanel = gNumOutChans;
     for (int i = unchanel; i > 2; i--)
        {
         gNumOutChans -= 1;
         jack_port_unregister(client, output_ports[i-1]);
-       }
+       }*/
     }
 
     static void classInit(int samplingFreq)
@@ -433,7 +444,7 @@ public:
         fcheckbox8 = 0.0;
         for (int i=0; i<4; i++) fVec23[i] = 0;
         fslider23 = 0.0f;
-        for (int i=0; i<6; i++) fRec0[i] = 0.000001;
+        for (int i=0; i<6; i++) fRec0[i] = 0;
         fslider24 = 0.0f;
         fslider25 = 0.0f;
         fslider26 = 64.0f;
@@ -1164,7 +1175,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 	{
 		float x = *in++;
 		float a = alias[state];
-		alias[state++] = x + a * 0.7;
+		alias[state++] = x + a * 0.5;
 		if (state > 1.5)
 			state = 0;
 		*out++ = a;
@@ -1397,9 +1408,9 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 		    //valve(in,in);
                    // in =  fuzz(in,in);
                    //   x-0.15*x^2-0.15*x^3
-                    fTemp0 = (in-0.15*(in*in))-(0.15*(in*in*in));
-                 //   fTemp0 = 1.5f * in - 0.5f * in *in * in;
-                    fTemp0 = valve(fTemp0,fTemp0)*0.75;
+                    float  fTemp0in = (in-0.15*(in*in))-(0.15*(in*in*in));
+                    in = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
+                    fTemp0 = valve(in,in)*0.75;
                    // fTemp0 = valve(fTemp0,fTemp0);
 
                 }  //preamp ende
@@ -1409,8 +1420,8 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 
                 if (foverdrive4 == 1.0)     // overdrive
                 {
-                    float fTempdr0 = (fTemp0 + S4[0]) * 0.5; // S4[0] ; //fTemp0;
-		  //  float fTempdr0 = fTemp0;
+                  //  float fTempdr0 = (fTemp0 + S4[0]) * 0.5; // S4[0] ; //fTemp0;
+		    float fTempdr0 = overdrive(fTemp0,fTemp0) ;
                    // fTempdr0 = overdrive(fTempdr0,fTempdr0);
                     float fTempdr1 = fabs(fTempdr0);
                     fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));

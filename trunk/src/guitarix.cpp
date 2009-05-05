@@ -553,9 +553,10 @@ static void destroy_event( GtkWidget *widget, gpointer data )
     }
     stopit = "stop";
     showwave = 0;
+    playmidi = 0;
     // checky = 0.0;
-    jack_port_disconnect (client, output_ports[0]);
-    jack_port_disconnect (client, output_ports[1]);
+   // jack_port_disconnect (client, output_ports[0]);
+   // jack_port_disconnect (client, output_ports[1]);
   //  jack_port_disconnect (midi_client, input_ports[0]);
     GtkWaveView myGtkWaveView;
     myGtkWaveView.gtk_waveview_destroy (GTK_WIDGET(livewa), NULL );
