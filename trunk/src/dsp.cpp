@@ -247,7 +247,7 @@ private:
     float  viv;
     float vivi;
     float fConsta4;
-        float rms;
+       // float rms;
         float 	beat0;
         float 	antialis0;
     // float  fbargraph0;
@@ -831,7 +831,8 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 if ( beat0 >= fTemps45)
                 {
                     //  fConsta1 = ( (12 * log2f((2.272727e-03f * fRect0[0]))));
-                    fConsta1 = ( (12 * log2f((2.272727e-03f *  rms))));
+                  //  fConsta1 = ( (12 * log2f((2.272727e-03f *  rms))));
+                    fConsta1 = ( (12 * log2f((2.272727e-03f *  fConsta4))));
                     preNote = int(fConsta1)+57;
                     fConsta2 = fConsta1 - (preNote - 57);
                     piwe = (fConsta2+1) * 8192; // pitch wheel value
@@ -1322,8 +1323,8 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
            // float fTemprec;
            // float fTemprec2;
 
-        int cs = 0;
-        int sum = 0;
+      //  int cs = 0;
+      //  int sum = 0;
         int iTemps39 = int(fslider39);
         float fTemps39 = fslider39;
         // whitenoise(input[0],frag,0.0001f);
@@ -1366,7 +1367,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 fRect0[0] = (fSamplingFreq * ((fTemps39 / max(iRect1[0], 1)) - (fTemps39 * (iRect1[0] == 0))));
                 fConsta4 = fRect0[0];
 
-                if (cs == (0.001*300*fSamplingFreq)*36)
+           /*     if (cs == (0.001*300*fSamplingFreq)*36)
                 {
                     cs = 0;
                     sum = 0;
@@ -1376,7 +1377,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     cs += 1;
                     sum += sqr(fConsta4);
                 }
-                rms = sqrt(sum/cs);
+                rms = sqrt(sum/cs); */
             }
             else if (shownote == 0)
             {
@@ -1433,8 +1434,8 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 
                 if (foverdrive4 == 1.0)     // overdrive
                 {
-                  //  float fTempdr0 = (fTemp0 + S4[0]) * 0.5; // S4[0] ; //fTemp0;
-		    float fTempdr0 = overdrive(fTemp0,fTemp0) ;
+                    float fTempdr0 = (fTemp0 + S4[0]) * 0.5; // S4[0] ; //fTemp0;
+		  //  float fTempdr0 = overdrive(fTemp0,fTemp0) ;
                    // fTempdr0 = overdrive(fTempdr0,fTempdr0);
                     float fTempdr1 = fabs(fTempdr0);
                     fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
