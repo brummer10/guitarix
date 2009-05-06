@@ -211,6 +211,8 @@ void signal_handler(int sig)
 
 static int graph_callback (void* arg)
 {
+        if(jack_port_connected (input_ports[0])) NO_CONNECTION = 0;
+        else NO_CONNECTION = 1;
 	//printf ("Graph reordered\n");
 	return 0;
 }
@@ -332,7 +334,7 @@ int main(int argc, char *argv[] )
    // snprintf(midiname, 256, "%s", "guitarix_midi");
   //  midi_jname = midiname;
 
-    //AVOIDDENORMALS;
+    AVOIDDENORMALS;
 
     client = jack_client_open (jname, (jack_options_t) 0, &jackstat);
     if (client == 0)

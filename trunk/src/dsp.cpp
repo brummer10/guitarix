@@ -275,7 +275,7 @@ public:
 
     virtual void setNumOutputs()
     {
-    sleep(2);
+    sleep(1);
 
 if(jack_port_is_mine (client,output_ports[3]))
     {
@@ -1107,6 +1107,11 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         }
     };
 
+     inline void add_dc (float &val)
+    {
+       static const float anti_denormal = 1e-20;
+       val += anti_denormal;
+     }
 
     inline float foldback(float in, float threshold)
     {
@@ -1167,18 +1172,21 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 
     inline void AntiAlias (int sf, float** input, float** output)
     {
+
 	float* in = input[0];
 	float* out = output[0];
 	float alias[frag] ;
         int state = 0;
            for (int i=0; i<sf; i++)
 	{
+
 		float x = *in++;
 		float a = alias[state];
 		alias[state++] = x + a * 0.5;
 		if (state > 1.5)
 			state = 0;
-		*out++ = a;
+		*out++ = a ;
+
 	}
     }
 
@@ -1206,7 +1214,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 
     virtual void compute (int count, float** input, float** output)
     {
-        if (checky != 0)        // play
+        if ((checky != 0) && (NO_CONNECTION == 0 ) )      // play
         {
             // compressor
             float fSlowcom0 = fentrycom0;
@@ -1318,6 +1326,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         int sum = 0;
         int iTemps39 = int(fslider39);
         float fTemps39 = fslider39;
+        // whitenoise(input[0],frag,0.0001f);
 	if (antialis0 == 1)  AntiAlias(count,input,input);
             float* input0 = input[0];
             float* output0 = output[2];
@@ -1376,6 +1385,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
             }
                 if (fcheckboxcom1 == 1.0)     // compressor
                 {
+		    add_dc(input0[i]);
                     float fTempcom0 = input0[i];
                     fReccom1[0] = ((fConstcom1 * fabsf(fTempcom0)) + (fConstcom0 * fReccom1[1]));
                     float fTempcom2 = max(fReccom1[0], fReccom1[0]);
@@ -1388,7 +1398,10 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     float fTempcom8 = powf(10, (5.000000e-02f * fTempcom7));
                     fVec0[0]= (fTempcom0 * fTempcom8);
                 }
-                else fVec0[0] = input0[i]; // compressor end
+                else {
+ 		    add_dc(input0[i]);  
+                    fVec0[0] = input0[i]; // compressor end
+                }
 
                 S5[0] = (fSlow15 * fVec0[1]);
                 S5[1] = (fSlow16 * fVec0[1]);
@@ -1439,6 +1452,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     float 	S7[2];
                     float 	S8[2];
                     //  S4[0] = S4[0] + 4*(S4[1] - S4[0]);
+		  //  add_dc(fTemp0);  
                     float fTemp1 = (fTemp0 + (fSlow19 * fRec6[1]));
                     fVec1[IOTA&4095] = fTemp1;
                     fRec6[0] = (0.5f * (fVec1[(IOTA-iSlow22)&4095] + fVec1[(IOTA-iSlow21)&4095]));
@@ -1451,6 +1465,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     S8[1] = fRec7[0];
                     float fTemp3 = S8[iSlow30];
                     S7[0] = fTemp3;
+		    add_dc(S7[0]);  
                     fVec4[0] = (fSlow39 * fTemp3);
                     fRec12[0] = ((fSlow39 * (fTemp3 + (fSlow40 * fRec12[1]))) - fVec4[1]);
                     fVec5[0] = (fSlow39 * fRec12[0]);
@@ -1458,7 +1473,9 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     fRec10[0] = (fRec11[0] - (fSlow37 * ((fSlow36 * fRec10[2]) + (fSlow32 * fRec10[1]))));
                     fRec9[0] = ((fSlow37 * (fRec10[2] + (fRec10[0] + (2 * fRec10[1])))) - (fSlow35 * ((fSlow34 * fRec9[2]) + (fSlow32 * fRec9[1]))));
                     S7[1] = (fSlow35 * (fRec9[2] + (fRec9[0] + (2 * fRec9[1]))));
+		    add_dc(S7[1]);  
                     float fTemp4 = max(-1, min(1, (fSlow43 * (fSlow42 + S7[iSlow41]))));
+		    add_dc(fTemp4);  
                     float fTemp5 = (fTemp4 * (1 - (0.333333f * (fTemp4 * fTemp4))));
                     fVec6[0] = fTemp5;
                     fRec5[0] = ((fVec6[0] + (0.995f * fRec5[1])) - fVec6[1]);
@@ -1474,6 +1491,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
                     S4[1] = S6[iSlow41];
                     float fTemp7 = S4[iSlow45];
+		  //  add_dc(fTemp7);  
                   //  fTemp7 =  fuzz(fTemp7,fTemp7);
                   //  fTemp7 = valve(fTemp7,fTemp7,1);
                     fVec9[0] = fTemp7;

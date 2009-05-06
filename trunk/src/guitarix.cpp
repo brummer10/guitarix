@@ -40,6 +40,7 @@ int playmidi = 0;
 int showit = 0;
 int		gNumOutChans;
 int frag;   // jack frame size
+int NO_CONNECTION = 0;
 
 FILE*              control_stream;
 FILE*              control_stream1;
