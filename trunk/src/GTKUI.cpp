@@ -477,22 +477,12 @@ void GTKUI::addHorizontalSlider(const char* label, float* zone, float init, floa
     GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
-    GdkColor colorGreen;
-    GdkColor colorYellow;
-    GdkColor colorRed;
-    GtkWidget* slider = gtk_hscale_new (GTK_ADJUSTMENT(adj));
-    gdk_color_parse("#52525c", &colorGreen);
-    gdk_color_parse("#96a2a7", &colorYellow);
-    gdk_color_parse("#7b8a90", &colorRed);
-    gtk_scale_set_digits(GTK_SCALE(slider), precision(step));
-    gtk_widget_set_usize(slider, 120, -1);
-    gtk_widget_modify_bg (slider, GTK_STATE_NORMAL, &colorRed);
-    gtk_widget_modify_bg (slider, GTK_STATE_PRELIGHT, &colorYellow);
-    gtk_widget_modify_bg(slider, GTK_STATE_ACTIVE, &colorYellow);
-    gtk_widget_modify_bg(slider, GTK_STATE_SELECTED, &colorGreen);
-    openFrameBox(label);
+    GtkRegler myGtkRegler;
+    GtkWidget* slider = myGtkRegler.gtk_mini_slider_new_with_adjustment (GTK_ADJUSTMENT(adj));
+    gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
+    //openFrameBox(label);
     addWidget(label, slider);
-    closeBox();
+   // closeBox();
 }
 
 struct uiValueDisplay : public uiItem

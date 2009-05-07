@@ -250,6 +250,8 @@ private:
        // float rms;
         float 	beat0;
         float 	antialis0;
+    //float fdelaytube;
+    float faas1;
     // float  fbargraph0;
 public:
 
@@ -488,6 +490,8 @@ if(jack_port_is_mine (client,output_ports[2]))
         playmidi = 0;
         shownote = 0;
 	antialis0 = 0;
+       // fdelaytube = 1;
+	faas1 = 0;
     }
 
     virtual void init(int samplingFreq)
@@ -543,6 +547,7 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->addregler(" treble ", &fslider1, 0.f, -20.f, 20.f, 0.1f);
         interface->openVerticalBox("  anti  \n aliase");
         interface->addtoggle("a.aliase", &antialis0);
+        interface->addHorizontalSlider(" feedback ", &faas1, 0.3f, 0.3f, 0.9f, 0.01f);
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
@@ -653,6 +658,7 @@ if(jack_port_is_mine (client,output_ports[2]))
         //   interface->openVerticalBox("");
         interface->openHorizontalBox("");
         //   interface->openHorizontalBox(" ");
+      //  interface->addregler("delaytube", &fdelaytube, 0.f, 0.f, 100.f, 1.0f);
         interface->addLiveWaveDisplay(" ", &viv , &vivi);
         // interface->addVerticalBargraph("", &fbargraph0,0.0000f, 1.0000f);
         //    interface->closeBox();
@@ -1113,7 +1119,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
        static const float anti_denormal = 1e-20;
        val += anti_denormal;
      }
-
+/*
     inline float foldback(float in, float threshold)
     {
        if (in>threshold || in<-threshold)
@@ -1139,7 +1145,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 	} 
         return out;
     }
-
+*/
     inline float valve(float in, float out)
     {
 	float a = 2.000 ;
@@ -1155,7 +1161,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         }
         return out;
     }
-
+/*
     inline float overdrive(float in, float out)
     {
 	float a = 4.000 ;
@@ -1170,27 +1176,24 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 	} 
         return out;
     }
-
+*/
     inline void AntiAlias (int sf, float** input, float** output)
     {
-
 	float* in = input[0];
 	float* out = output[0];
 	float alias[frag] ;
         int state = 0;
            for (int i=0; i<sf; i++)
 	{
-
 		float x = *in++;
 		float a = alias[state];
-		alias[state++] = x + a * 0.5;
+		alias[state++] = x + a * faas1;
 		if (state > 1.5)
 			state = 0;
 		*out++ = a ;
-
 	}
     }
-
+/*
     inline float chebyshev(float x, float A[], int order)
     {
 	// To = 1
@@ -1212,6 +1215,52 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 	return out;
     } 
 
+inline float sigmoid(float x)
+{
+    if(fabs(x)<1)
+        return x*(1.5f - 0.5f*x*x);
+    else
+        return x > 0.f ? 1.f : -1.f;
+}
+
+inline float saturate(float x, float t)
+{
+    if(fabs(x)<t)
+        return x;
+    else
+    {
+        if(x > 0.f)
+            return t + (1.f-t)*sigmoid((x-t)/((1-t)*1.5f));
+        else
+            return -(t + (1.f-t)*sigmoid((-x-t)/((1-t)*1.5f)));
+    }
+}  
+
+    inline void delay_tube (int delay, int sf, float** input, float** output)
+    {
+        float* in = input[0];
+     //   float* delay_in = input[0+delay];
+        float* out = output[0];
+        float a = 2.000 ;
+        float b = 1.000 ;
+        float ot = 0;
+        for (int i=0; i<sf-delay; i++)
+        {
+            float x = in[i];
+            float y = in[i+delay];
+ 
+        if ( x >= 0.0 )
+        {
+            ot = a * x - b * y * y;
+        }
+        else
+        {
+            ot = a * x + b * y * y;
+        }
+          *out++ = ot;
+        }
+    }
+*/
 
     virtual void compute (int count, float** input, float** output)
     {
@@ -1323,11 +1372,14 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
            // float fTemprec;
            // float fTemprec2;
 
+       //   int 	idelaytube = int(fdelaytube);
+
       //  int cs = 0;
       //  int sum = 0;
         int iTemps39 = int(fslider39);
         float fTemps39 = fslider39;
         // whitenoise(input[0],frag,0.0001f);
+        //   delay_tube(idelaytube,count,input,input);
 	if (antialis0 == 1)  AntiAlias(count,input,input);
             float* input0 = input[0];
             float* output0 = output[2];
@@ -1426,7 +1478,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     in = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
                     fTemp0 = valve(in,in)*0.75;
                    // fTemp0 = valve(fTemp0,fTemp0);
-
+//  fTemp0 =saturate(fTemp0, 0.7f);
                 }  //preamp ende
 
                 fRec3[0] = (0.5f * ((2.0 * fTemp0) + (1.76f * fRec3[1])));  //resonanz
