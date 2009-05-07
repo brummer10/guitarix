@@ -297,9 +297,9 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 
             gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,0,0,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,0,0);
 
-            gdk_pixbuf_saturate_and_pixelate(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,99.0,FALSE);
-
             gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,0,6,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, reglerstate,0);
+
+            gdk_pixbuf_saturate_and_pixelate(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,99.0,FALSE);
 
             gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, 0, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
@@ -575,9 +575,9 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 
         gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,0,0,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,0,0);
 
-        gdk_pixbuf_saturate_and_pixelate(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,99.0,FALSE);
-
         gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,0,6,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, reglerstate,0);
+
+        gdk_pixbuf_saturate_and_pixelate(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,99.0,FALSE);
 
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, 0, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
@@ -925,7 +925,7 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
     g_assert(klass->slider_image1 != NULL);
 
 //----------- mini slider
-    klass->minislider_image = gdk_pixbuf_new_from_xpm_data(minislidersm_xpm);
+    klass->minislider_image = gdk_pixbuf_scale_simple(klass->slider_image,40,6,GDK_INTERP_HYPER);
     g_assert(klass->minislider_image != NULL);
     klass->minislider_image1 = gdk_pixbuf_copy( klass->minislider_image );
     g_assert(klass->minislider_image1 != NULL);
