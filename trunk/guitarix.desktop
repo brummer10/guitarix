@@ -1,8 +1,9 @@
 [Desktop Entry]
 Name=guitarix
-Comment=simpel mono amplifier simulation
+GenericName=Mono Amplifier
+Comment=Simple mono amplifier simulation
 Exec=/usr/bin/guitarix --pix
-Icon=/usr/share/pixmaps/guitarix.png
-Categories=Applications;Multimedia;AudioVideo;JACK;
+Icon=guitarix
+Categories=AudioVideo;X-Jack;Midi;X-MIDI;
 Terminal=false
 Type=Application

@@ -6,7 +6,7 @@ guitarix (0.03.7-svn-1) unstable; urgency=low
 
 guitarix (0.03.7-1) unstable; urgency=low
   * rework distortion
-  * bugfix in adjustment call for entry's, reportet by Aurélien Leblond
+  * bugfix in adjustment call for entry's, reportet by AurÃ©lien Leblond
 
  -- brummer <brummer-@web.de>  Thu, 05 Feb 2009 11:24:42 +0200
 
