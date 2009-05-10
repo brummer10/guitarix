@@ -713,21 +713,24 @@ struct uiNumDisplay : public uiItem
         float 	v = *fZone;
         fCache = v;
         char s[64];
-        int vis = int(v);
+        int vis = round(v);
         float scale = ((v-vis)-(-1.0))/(1.0-(-1.0));
-        if ((scale < -1.0) || (scale > 1.0)) scale = 0.0;
+        if ((scale <= 0.0) || (scale > 1.0)) scale = 0.0;
         vis += 9;
         const char* note[] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};
         if (shownote == 1)
         {
-            if ((scale > -1.0) && (scale < 1.0)) gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
             if ((vis>=0)&&(vis<=11)) snprintf(s, 63, "%s",  note[vis]);
             else if ((vis>=-24)&&(vis<=-13)) snprintf(s, 63, "%s", note[vis+24]);
             else if ((vis>=-12)&&(vis<=-1)) snprintf(s, 63, "%s", note[vis+12]);
             else if ((vis>=12)&&(vis<=23)) snprintf(s, 63, "%s", note[vis-12]);
             else if ((vis>=24)&&(vis<=35)) snprintf(s, 63,"%s", note[vis-24]);
             else if ((vis>=36)&&(vis<=47)) snprintf(s, 63,"%s", note[vis-36]);
-            else snprintf(s, 63, "%s", "");
+            else {
+		snprintf(s, 63, "%s", "");
+		scale = 0.0;
+            }
+            if ((scale >= 0.0) && (scale < 1.0)) gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
             gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), s);
         }
         else if (shownote == 0)

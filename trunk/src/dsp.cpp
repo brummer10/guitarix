@@ -836,11 +836,31 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 
                 if ( beat0 >= fTemps45)
                 {
-                    //  fConsta1 = ( (12 * log2f((2.272727e-03f * fRect0[0]))));
-                  //  fConsta1 = ( (12 * log2f((2.272727e-03f *  rms))));
-                    fConsta1 = ( (12 * log2f((2.272727e-03f *  fConsta4))));
-                    preNote = int(fConsta1)+57;
+		/*   if(fConsta4 < 32.f) {
+                    fConsta1 = 12 * log2f(0.036363636f *  fConsta4);
+                    preNote = round(fConsta1)+9; 
+                    fConsta2 = fConsta1 - (preNote - 9); 
+                   }
+                   else if(fConsta4 < 65.f) {
+                    fConsta1 = 12 * log2f(0.018181818f *  fConsta4);
+                    preNote = round(fConsta1)+21; 
+                    fConsta2 = fConsta1 - (preNote - 21); 
+                   }
+                   else if(fConsta4 < 130.f) {
+                    fConsta1 = 12 * log2f( 9.090909e-03f*  fConsta4);
+                    preNote = round(fConsta1)+33; 
+                    fConsta2 = fConsta1 - (preNote - 33); 
+                   }
+                   else if(fConsta4 < 261.f) {
+                    fConsta1 = 12 * log2f( 4.545455e-03f*  fConsta4);
+                    preNote = round(fConsta1)+45;  
+                    fConsta2 = fConsta1 - (preNote - 45); 
+                   }
+                   else {*/
+                    fConsta1 = 12 * log2f(2.272727e-03f *  fConsta4);
+                    preNote = round(fConsta1)+57;  
                     fConsta2 = fConsta1 - (preNote - 57);
+		//  }
                     piwe = (fConsta2+1) * 8192; // pitch wheel value
                     weg = 0;
                     if (playmidi == 1)
