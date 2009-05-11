@@ -41,8 +41,8 @@ void TBeatDetector::AudioProcess (float input, float triggerpoint)
 {
   float EnvIn;
   // Step 1 : Compute all sample frequency related coeffs
-  KBeatFilter=1.0/(jackframe*T_FILTER);
-  BeatRelease=(float)exp(-1.0f/(jackframe*BEAT_RTIME));
+ // KBeatFilter=1.0/(jackframe*T_FILTER);
+ // BeatRelease=(float)exp(-1.0f/(jackframe*BEAT_RTIME));
   // Step 2 : 2nd order low pass filter (made of two 1st order RC filter)
   Filter1Out=Filter1Out+(KBeatFilter*(input-Filter1Out));
   Filter2Out=Filter2Out+(KBeatFilter*(Filter1Out-Filter2Out));
@@ -63,7 +63,7 @@ void TBeatDetector::AudioProcess (float input, float triggerpoint)
   }
   else
   {
-    if (PeakEnv<triggerpoint/1.1) BeatTrigger=false;   // 0.015
+    if (PeakEnv<triggerpoint*0.8) BeatTrigger=false;   // 0.015
   }
 
   // Step 5 : rising edge detector

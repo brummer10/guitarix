@@ -713,7 +713,7 @@ struct uiNumDisplay : public uiItem
         float 	v = *fZone;
         fCache = v;
         char s[64];
-        int vis = round(v);
+        int vis = rund(v);
         float scale = ((v-vis)-(-1.0))/(1.0-(-1.0));
         if ((scale <= 0.0) || (scale > 1.0)) scale = 0.0;
         vis += 9;
@@ -772,7 +772,7 @@ struct uiStatusDisplay : public uiItem
     {
         float 	v = *fZone;
         fCache = v;
-        if ((playmidi == 1) && (cpu_load < 70.0))
+        if ((playmidi == 1) && (cpu_load < 65.0))
         {
             if (v > 0.0f) gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ibm));
             else  gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ib));

@@ -25,7 +25,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 #include <assert.h>
 #include <gtk/gtk.h>
 #include <stdio.h>
@@ -94,6 +94,11 @@ inline int 		int2pow2 (int x)
     while ((1<<r)<x) r++;
     return r;
 }
+
+inline int rund(float x)
+{
+ return (x > 0.0) ? floor(x + 0.5) : ceil(x - 0.5);
+} 
 
 inline double sqr(double x)
 {
@@ -254,7 +259,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
             else
             {
                 t = ev.time + nframes - last_frame_time;
-                if (t >= (int)nframes)
+                if ((t >= (int)nframes) || (cpu_load > 75.0))
                     break;
                 jack_ringbuffer_read_advance(jack_ringbuffer, sizeof(ev));
                 // jack_midi_clear_buffer( midi_port_buf);
@@ -360,7 +365,7 @@ int main(int argc, char *argv[] )
 
 
 
-    jack_ringbuffer = jack_ringbuffer_create(2048);
+    jack_ringbuffer = jack_ringbuffer_create(1024*sizeof(struct MidiMessage));
     if (jack_ringbuffer == NULL)
     {
         g_critical("Cannot create JACK ringbuffer.");

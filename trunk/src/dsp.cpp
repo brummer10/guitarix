@@ -250,8 +250,11 @@ private:
        // float rms;
         float 	beat0;
         float 	antialis0;
-    //float fdelaytube;
     float faas1;
+    float ffuzzytube;
+    float ftube;
+    float fpredrive;
+    float fprdr;
     // float  fbargraph0;
 public:
 
@@ -490,8 +493,11 @@ if(jack_port_is_mine (client,output_ports[2]))
         playmidi = 0;
         shownote = 0;
 	antialis0 = 0;
-       // fdelaytube = 1;
 	faas1 = 0;
+        ffuzzytube = 1;
+        ftube = 0;
+        fpredrive = 1;
+        fprdr = 0;
     }
 
     virtual void init(int samplingFreq)
@@ -533,7 +539,7 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->openHandleBox("  ");
 
         interface->openHorizontalBox("");
-        interface->openVerticalBox(" volume");
+        interface->openVerticalBox("volume");
         interface->openVerticalBox("");
         interface->addbigregler(" in ", &fslider3, 0.f, -40.f, 40.f, 0.1f);
         interface->addbigregler("out", &fslider17, 0.f, -40.f, 40.f, 0.1f);
@@ -542,13 +548,24 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->closeBox();
 
         interface->openVerticalBox("");
-        interface->openVerticalBox("  tone  ");
-        interface->addregler("  bass  ", &fslider2, 0.f, -20.f, 20.f, 0.1f);
-        interface->addregler(" treble ", &fslider1, 0.f, -20.f, 20.f, 0.1f);
-        interface->openVerticalBox("  anti  \n aliase");
+        interface->openVerticalBox("tone");
+        interface->addregler("bass", &fslider2, 0.f, -20.f, 20.f, 0.1f);
+        interface->addregler("treble", &fslider1, 0.f, -20.f, 20.f, 0.1f);
+        interface->openVerticalBox("  anti \naliase");
         interface->addtoggle("a.aliase", &antialis0);
         interface->addHorizontalSlider(" feedback ", &faas1, 0.3f, 0.3f, 0.9f, 0.01f);
         interface->closeBox();
+        interface->closeBox();
+        interface->closeBox();
+
+        interface->openVerticalBox("");
+        interface->openVerticalBox("valve");
+        interface->addregler("tube",&ffuzzytube, 0.f, 0.f, 10.f, 1.0f);
+        interface->addtoggle("", &ftube);
+       // interface->closeBox();
+       // interface->openVerticalBox("predrive");
+        interface->addregler("drive", &fpredrive, 0.f, 0.f, 10.f, 1.0f);
+        interface->addtoggle("", &fprdr);
         interface->closeBox();
         interface->closeBox();
 
@@ -658,7 +675,7 @@ if(jack_port_is_mine (client,output_ports[2]))
         //   interface->openVerticalBox("");
         interface->openHorizontalBox("");
         //   interface->openHorizontalBox(" ");
-      //  interface->addregler("delaytube", &fdelaytube, 0.f, 0.f, 100.f, 1.0f);
+       // interface->addregler("fuzzytube", &ffuzzytube, 0.f, 0.f, 10.f, 1.0f);
         interface->addLiveWaveDisplay(" ", &viv , &vivi);
         // interface->addVerticalBargraph("", &fbargraph0,0.0000f, 1.0000f);
         //    interface->closeBox();
@@ -756,7 +773,7 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->addregler("note_on", &fslider39, 20.f, 1.f, 200.f, 1.f);
         interface->addregler("note_off", &fslider37, 2.f, 1.f, 2400.f, 1.f);
         interface->addregler("atack_note", &fslider45, 5.f, 1.f, 10.f, 1.f);
-        interface->addregler("atack_beat", &fslider38, 1.f, 0.01f, 20.f, 0.01f);
+        interface->addregler("atack_beat", &fslider38, 1.f, 0.005f, 20.f, 0.005f);
         interface->closeBox();
         interface->closeBox();
         //  interface->openHorizontalBox(" ");
@@ -787,12 +804,18 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
     void
     queue_message(struct MidiMessage *ev)
     {
-        int		written;
-        written = jack_ringbuffer_write(jack_ringbuffer, (char *)ev, sizeof(*ev));
-        if (written != sizeof(*ev))
-            g_warning("Not enough space in the ringbuffer, NOTE LOST.");
+        int space;
+        space =  jack_ringbuffer_write_space( jack_ringbuffer);
+        if (space > int(sizeof(*ev)+2)) {
+            int		written;
+            written = jack_ringbuffer_write(jack_ringbuffer, (char *)ev, sizeof(*ev));
+            if (written != sizeof(*ev))
+                g_warning("Not enough space in the ringbuffer, NOTE LOST.");
+        }
     }
 //////////////////////////////////////////////////////////////////////////////////
+
+
 
     virtual void compute_midi( int len)
     {
@@ -834,7 +857,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         {
 
 
-                if ( beat0 >= fTemps45)
+                if (( beat0 >= fTemps45) && (cpu_load < 65.0))
                 {
 		/*   if(fConsta4 < 32.f) {
                     fConsta1 = 12 * log2f(0.036363636f *  fConsta4);
@@ -858,7 +881,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                    }
                    else {*/
                     fConsta1 = 12 * log2f(2.272727e-03f *  fConsta4);
-                    preNote = round(fConsta1)+57;  
+                    preNote = rund(fConsta1)+57;  
                     fConsta2 = fConsta1 - (preNote - 57);
 		//  }
                     piwe = (fConsta2+1) * 8192; // pitch wheel value
@@ -1065,7 +1088,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 }
                             }
                         }
-                        // myTBeatDetector.setSampleRate (fSamplingFreq);
+                        myTBeatDetector.setSampleRate (fSamplingFreq);
                         myTBeatDetector.AudioProcess (beat0,  fTemps38);
                         if (myTBeatDetector.BeatPulse == TRUE)
                         {
@@ -1148,24 +1171,20 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
        }
        return in;
     } 
-
-    inline float fuzz(float in, float out)
+*/
+    inline float fuzz(float in)
     {
 	if ( in > 0.7)
 	{
-   	   out = 0.7;
+   	   in = 0.7;
 	}
 	else if ( in < -0.7)
 	{
-	   out = -0.7;
+	   in = -0.7;
 	}
-	else
-	{
-	   out = in;
-	} 
-        return out;
+        return in;
     }
-*/
+
     inline float valve(float in, float out)
     {
 	float a = 2.000 ;
@@ -1255,32 +1274,40 @@ inline float saturate(float x, float t)
             return -(t + (1.f-t)*sigmoid((-x-t)/((1-t)*1.5f)));
     }
 }  
-
-    inline void delay_tube (int delay, int sf, float** input, float** output)
+*/
+    inline void fuzzy_tube (int fuzzy,int mode, int sf, float** input, float** output)
     {
         float* in = input[0];
-     //   float* delay_in = input[0+delay];
+     //   float* fuzzy_in = input[0+fuzzy];
         float* out = output[0];
+ 
         float a = 2.000 ;
         float b = 1.000 ;
+        double c = 0.5;
+  
+         if (mode == 1) {
+         a = 4.000 ;
+         b = 4.000 ;
+         c = 0.125;
+        }
         float ot = 0;
-        for (int i=0; i<sf-delay; i++)
+        for (int i=0; i<sf; i++)
         {
             float x = in[i];
-            float y = in[i+delay];
+           // float y = in[i+fuzzy];
  
         if ( x >= 0.0 )
         {
-            ot = a * x - b * y * y;
+            ot = ((a * x - b * x * x) -x)*c;
         }
         else
         {
-            ot = a * x + b * y * y;
+            ot = ((a * x + b * x * x) -x)*c;
         }
-          *out++ = ot;
+          *out++ = fuzz (x + ot *fuzzy);
         }
     }
-*/
+
 
     virtual void compute (int count, float** input, float** output)
     {
@@ -1392,16 +1419,28 @@ inline float saturate(float x, float t)
            // float fTemprec;
            // float fTemprec2;
 
-       //   int 	idelaytube = int(fdelaytube);
+          int 	ifuzzytube = int(ffuzzytube);
+          int 	itube = int(ftube);
+          int 	ipredrive = int(fpredrive);
+          int 	iprdr = int(fprdr);
 
       //  int cs = 0;
       //  int sum = 0;
         int iTemps39 = int(fslider39);
         float fTemps39 = fslider39;
+
+          float* input0 = input[0];
+           float checkfreq [frag];
+           if ((shownote == 1) || (playmidi == 1))
+            {
+              for (int i=0; i<count; i++)  checkfreq [i] = input0[i];
+
+	    }
         // whitenoise(input[0],frag,0.0001f);
-        //   delay_tube(idelaytube,count,input,input);
+        if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count,input,input);
+        if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count,input,input);
 	if (antialis0 == 1)  AntiAlias(count,input,input);
-            float* input0 = input[0];
+  
             float* output0 = output[2];
             float* output1 = output[0];
             float* output2 = output[3];
@@ -1418,7 +1457,7 @@ inline float saturate(float x, float t)
 
             if ((shownote == 1) || (playmidi == 1))
             {
-                float fTemphp0 = input0[i];
+                float fTemphp0 = checkfreq [i];
                 float fTemphps0 = 1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0;
                 fVechp0[0] = fTemphps0;
                 beat0 = fTemphps0;
