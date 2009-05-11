@@ -825,7 +825,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         float 	fConsta2;
         int preNote;
        // float* inputi0 = inputi[0];
-        float fTemps45 = fslider45*0.01;
+        float fTemps45 = fslider45*0.001;
         int iTemps31 = int(fslider31);
         int iTemps30 = int(fslider30);
         int iTemps27 = int(fslider27);
