@@ -259,6 +259,7 @@ private:
     float fautogain1;
     float fautogain2;
     float fresoon;
+    float fvibrato;
     // float  fbargraph0;
 public:
 
@@ -506,6 +507,7 @@ if(jack_port_is_mine (client,output_ports[2]))
         fautogain1 = 0;
         fautogain2 = 0;
         fresoon = 0;
+        fvibrato = 0;
     }
 
     virtual void init(int samplingFreq)
@@ -568,14 +570,19 @@ if(jack_port_is_mine (client,output_ports[2]))
 
 
         interface->openVerticalBox("valve");
-        interface->addregler("tube",&ffuzzytube, 0.f, 0.f, 10.f, 1.0f);
+        interface->openVerticalBox("tube");
         interface->addtoggle("", &ftube);
-       // interface->closeBox();
-       // interface->openVerticalBox("predrive");
-        interface->addregler("drive", &fpredrive, 0.f, 0.f, 10.f, 1.0f);
+        interface->addHorizontalSlider("tube",&ffuzzytube, 0.f, 0.f, 10.f, 1.0f);
+        interface->closeBox();
+
+        interface->openVerticalBox("drive");
         interface->addtoggle("", &fprdr);
+        interface->addHorizontalSlider("drive", &fpredrive, 0.f, 0.f, 10.f, 1.0f);
+        interface->closeBox();
+
         interface->openVerticalBox("vibrato");
         interface->addtoggle("", &fresoon);
+        interface->addHorizontalSlider("vibrato", &fvibrato, 0.f, 0.f, 2.f, 0.02f);
         interface->closeBox();
         interface->closeBox();
 
@@ -1517,6 +1524,7 @@ inline float saturate(float x, float t)
             float fSlowover0 = (9.999871e-04f * powf(10, (5.000000e-02f * (drive*-0.5))));
            // float fTemprec;
            // float fTemprec2;
+            float fSlowvib0 = fvibrato;
 
           int 	ifuzzytube = int(ffuzzytube);
           int 	itube = int(ftube);
@@ -1601,8 +1609,9 @@ inline float saturate(float x, float t)
                     // overdrive
                 
 
-                fRec3[0] = fTemp0;
-                if (fresoon == 1.0)  fRec3[0] = (0.5f * ((2.0 * fTemp0) + (1.76f * fRec3[1])));  //resonanz
+		fRec3[0] = fTemp0;
+                if (fresoon == 1.0) fRec3[0] = fuzz( (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1]))));  //resonanz 1.76f
+               // else   fRec3[0] =(0.5f * ((2.0 * fTemp0) + (1.76f * fTemp0)));
                 S4[0] = fRec3[0];
 
                 if (foverdrive4 == 1.0)     // overdrive
