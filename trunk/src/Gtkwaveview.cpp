@@ -417,7 +417,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             }
             cairo_line_to (cr, liveviewx, liveviewy+25);
 	    cairo_pattern_t *linpat;
-	    linpat = cairo_pattern_create_linear (450, 0, 450, 42);
+	    linpat = cairo_pattern_create_linear (liveviewx, liveviewy-15,liveviewx, liveviewy+25);
 	    cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
 	    cairo_pattern_add_color_stop_rgba (linpat, 0.4, 1, 0.2, 0,0.8);
 	    cairo_pattern_add_color_stop_rgba (linpat, 0.8, 0.2, 1, 0.2,0.8);

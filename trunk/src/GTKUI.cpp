@@ -404,14 +404,21 @@ void GTKUI::addCheckButton(const char* label, float* zone)
     gdk_color_parse ("#000000", &colorRed);
     gdk_color_parse ("#4c5159", &colorOwn);
     gdk_color_parse ("#c4c0c0", &colorba);
-    GtkWidget* 	button = gtk_check_button_new_with_label (label);
+    GtkWidget* 	lab = gtk_label_new(label);
+    GtkWidget* 	button = gtk_check_button_new ();
+    gtk_container_add (GTK_CONTAINER(button), lab);
     addWidget(label, button);
     gtk_widget_modify_bg (button, GTK_STATE_PRELIGHT, &colorOwn);
     gtk_widget_modify_fg (button, GTK_STATE_PRELIGHT, &colorRed);
     gtk_widget_modify_text (button, GTK_STATE_NORMAL, &colorRed);
     gtk_widget_modify_base (button, GTK_STATE_NORMAL, &colorba);
+           GtkStyle *style = gtk_widget_get_style(lab);
+            pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+            pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+            gtk_widget_modify_font(lab, style->font_desc);
     uiCheckButton* c = new uiCheckButton(this, zone, GTK_TOGGLE_BUTTON(button));
     gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC(uiCheckButton::toggled), (gpointer) c);
+    gtk_widget_show (lab);
 }
 
 // ---------------------------	Adjustmenty based widgets ---------------------------

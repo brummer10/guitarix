@@ -258,6 +258,7 @@ private:
     float fautogain;
     float fautogain1;
     float fautogain2;
+    float fresoon;
     // float  fbargraph0;
 public:
 
@@ -501,6 +502,10 @@ if(jack_port_is_mine (client,output_ports[2]))
         ftube = 0;
         fpredrive = 1;
         fprdr = 0;
+        fautogain = 0;
+        fautogain1 = 0;
+        fautogain2 = 0;
+        fresoon = 0;
     }
 
     virtual void init(int samplingFreq)
@@ -561,7 +566,7 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->closeBox();
         interface->closeBox();
 
-        interface->openVerticalBox("");
+
         interface->openVerticalBox("valve");
         interface->addregler("tube",&ffuzzytube, 0.f, 0.f, 10.f, 1.0f);
         interface->addtoggle("", &ftube);
@@ -569,6 +574,8 @@ if(jack_port_is_mine (client,output_ports[2]))
        // interface->openVerticalBox("predrive");
         interface->addregler("drive", &fpredrive, 0.f, 0.f, 10.f, 1.0f);
         interface->addtoggle("", &fprdr);
+        interface->openVerticalBox("vibrato");
+        interface->addtoggle("", &fresoon);
         interface->closeBox();
         interface->closeBox();
 
@@ -1591,7 +1598,11 @@ inline float saturate(float x, float t)
 //  fTemp0 =saturate(fTemp0, 0.7f);
                 }  //preamp ende
 
-                fRec3[0] = (0.5f * ((2.0 * fTemp0) + (1.76f * fRec3[1])));  //resonanz
+                    // overdrive
+                
+
+                fRec3[0] = fTemp0;
+                if (fresoon == 1.0)  fRec3[0] = (0.5f * ((2.0 * fTemp0) + (1.76f * fRec3[1])));  //resonanz
                 S4[0] = fRec3[0];
 
                 if (foverdrive4 == 1.0)     // overdrive
