@@ -395,6 +395,8 @@ int main(int argc, char *argv[] )
     printf("the buffer size is now %u/frames\n", frag);
    // get_frame = new float[frag*2];
    // for (int i=0; i<(frag*2); i++) get_frame[i] = 0;
+    checkfreq = new float[frag];
+    for (int i=0; i<(frag); i++) checkfreq[i] = 0;
 
     signal(SIGQUIT, signal_handler);
     signal(SIGTERM, signal_handler);

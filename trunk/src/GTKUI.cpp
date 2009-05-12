@@ -713,7 +713,7 @@ struct uiNumDisplay : public uiItem
         float 	v = *fZone;
         fCache = v;
         char s[64];
-        int vis = rund(v);
+        int vis = round(v);
         float scale = ((v-vis)-(-1.0))/(1.0-(-1.0));
         if ((scale <= 0.0) || (scale > 1.0)) scale = 0.0;
         vis += 9;
