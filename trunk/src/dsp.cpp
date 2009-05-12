@@ -255,6 +255,9 @@ private:
     float ftube;
     float fpredrive;
     float fprdr;
+    float fautogain;
+    float fautogain1;
+    float fautogain2;
     // float  fbargraph0;
 public:
 
@@ -710,7 +713,10 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->openEventBox(" ");
         interface->openHorizontalBox("");
         interface->addregler("velocity", &fslider26, 64.f, 0.f, 127.f, 1.f);
+        interface->openVerticalBox("");
         interface->addregler("volume", &fslider46, 64.f, 0.f, 127.f, 1.f);
+        interface->addCheckButton("autogain", &fautogain);
+        interface->closeBox();
         interface->openVerticalBox("");
         interface->addNumEntry("channel 1", &fslider30, 0.f, 0.f, 16.f, 1.f);
         interface->addNumEntry("program", &fslider31, 0.f, 0.f, 248.f, 1.f);
@@ -731,7 +737,10 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->openEventBox(" ");
         interface->openHorizontalBox("");
         interface->addregler("velocity", &fslider32, 64.f, 0.f, 127.f, 1.f);
+        interface->openVerticalBox("");
         interface->addregler("volume", &fslider47, 64.f, 0.f, 127.f, 1.f);
+        interface->addCheckButton("autogain", &fautogain1);
+        interface->closeBox();
         interface->openVerticalBox("");
         interface->addNumEntry("channel 2", &fslider35, 0.f, 0.f, 16.f, 1.f);
         interface->addNumEntry("program", &fslider36, 0.f, 0.f, 248.f, 1.f);
@@ -751,7 +760,10 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->openEventBox(" ");
         interface->openHorizontalBox("");
         interface->addregler("velocity", &fslider40, 64.f, 0.f, 127.f, 1.f);
+        interface->openVerticalBox("");
         interface->addregler("volume", &fslider48, 64.f, 0.f, 127.f, 1.f);
+        interface->addCheckButton("autogain", &fautogain2);
+        interface->closeBox();
         interface->openVerticalBox("");
         interface->addNumEntry("channel 3", &fslider44, 0.f, 0.f, 16.f, 1.f);
         interface->addNumEntry("program", &fslider43, 0.f, 0.f, 248.f, 1.f);
@@ -930,6 +942,10 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     weg = 0;
                     if (playmidi == 1)
                     {
+
+            float midi_db = (log(fabs(checkfreq [i] ))*6/log(2)*-1);
+
+
                         // channel0
                         if (program != iTemps31)
                         {
@@ -942,6 +958,15 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                             ev.framenum = i;
                             queue_message(&ev);
                         }
+                        if (send > iTemps27)   //20
+                        {
+                        if (int(fautogain) == 1) { 
+                        iTemps46 = 254- floor(exp(log(1.055)*0.5*midi_db)*127);
+                        if ( iTemps46 < 0) iTemps46 = 0;
+                        else if ( iTemps46 > 127) iTemps46 = 127;
+                        fslider46 = iTemps46;
+                         //   fprintf (stderr, "gain is %i, db is %f\n",iTemps46, midi_db);
+                         }
                         if (volume != iTemps46)
                         {
                             volume = iTemps46;
@@ -954,8 +979,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                             ev.framenum = i;
                             queue_message(&ev);
                         }
-                        if (send > iTemps27)   //20
-                        {
+
                             noten = preNote + iTemps29;
                             send = 0;
                             midistat += 1.0f;
@@ -1009,6 +1033,15 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.framenum = i;
                                 queue_message(&ev);
                             }
+                            if (send1 > iTemps33)
+                            {
+                            if (int(fautogain1) == 1)  { 
+                        iTemps47 = 254- floor(exp(log(1.055)*0.5*midi_db)*127);
+                        if ( iTemps47 < 0) iTemps47 = 0;
+                        else if ( iTemps47 > 127) iTemps47 = 127;
+                        fslider47 = iTemps47;
+                         //   fprintf (stderr, "gain is %i, db is %f\n",iTemps46, midi_db);
+                         }
                             if (volume1 != iTemps47)
                             {
                                 volume1 = iTemps47;
@@ -1021,8 +1054,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.framenum = i;
                                 queue_message(&ev);
                             }
-                            if (send1 > iTemps33)
-                            {
+
                                 noten1 = preNote + iTemps34;
                                 send1 = 0;
                                 midistat += 1.0f;
@@ -1076,6 +1108,15 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.framenum = i;
                                 queue_message(&ev);
                             }
+                            if (send2 > iTemps41)   //20
+                            {
+                            if (int(fautogain2) == 1) { 
+                        iTemps48 = 254- floor(exp(log(1.055)*0.5*midi_db)*127);
+                        if ( iTemps48 < 0) iTemps48 = 0;
+                        else if ( iTemps48 > 127) iTemps48 = 127;
+                        fslider48 = iTemps48;
+                         //   fprintf (stderr, "gain is %i, db is %f\n",iTemps46, midi_db);
+                         }
                             if (volume2 != iTemps48)
                             {
                                 volume2 = iTemps48;
@@ -1088,8 +1129,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.framenum = i;
                                 queue_message(&ev);
                             }
-                            if (send2 > iTemps41)   //20
-                            {
+
                                 // pitch wheel clear
                                 if (fpitch2 == 1.0)
                                 {

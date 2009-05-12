@@ -570,10 +570,9 @@ static void destroy_event( GtkWidget *widget, gpointer data )
     g_object_unref( ibm);
     if (G_IS_OBJECT(ibr))  
     g_object_unref(ibr);
-    if (checkfreq)
+    if (checkfreq) 
     delete[] checkfreq;
     gtk_main_quit ();
-
 }
 
 /* disable xlib funktions----------------------------
