@@ -201,6 +201,8 @@ void jack_shutdown(void *arg)
   //  jack_client_close(midi_client);
     jack_ringbuffer_free(jack_ringbuffer);
     destroy_event( GTK_WIDGET(fWindow), NULL);
+    if (checkfreq) 
+    delete[] checkfreq;
     exit(1);
 }
 
@@ -210,6 +212,8 @@ void signal_handler(int sig)
     jack_client_close(client);
   //  jack_client_close(midi_client);
     jack_ringbuffer_free(jack_ringbuffer);
+    if (checkfreq) 
+    delete[] checkfreq;
     fprintf(stderr, "signal %i received, exiting ...\n",sig);
     exit(0);
 }
@@ -514,7 +518,8 @@ int main(int argc, char *argv[] )
     jack_ringbuffer_free(jack_ringbuffer);
 
     interface->saveState(rcfilename);
-
+    if (checkfreq) 
+    delete[] checkfreq;
     return 0;
 }
 
