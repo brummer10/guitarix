@@ -24,7 +24,7 @@ float               cap = 0;
 float               capas = 0;
 float jackframe; // jack sample freq
 float cpu_load; // jack cpu_load
-float  get_frame[4096];
+float  *get_frame;
 float *checkfreq;
 
 const char*     stopit = "go";

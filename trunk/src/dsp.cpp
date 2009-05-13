@@ -877,7 +877,11 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         int iTemps39 = int(fslider39);
         float fTemps39 = fslider39;
         int piwe;
-
+        //int cs = 0;
+        //int sum = 0;
+        //float rms = 0;
+        float fTemphp0 = 0;
+        float midi_db = 0;
        if ((shownote == 1) || (playmidi == 1))
       {
         for (int i=0; i<len; i++)
@@ -886,7 +890,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 
             if ((shownote == 1) || (playmidi == 1))
             {
-                float fTemphp0 = checkfreq [i];
+                fTemphp0 = checkfreq [i];
                 float fTemphps0 = 1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0;
                 fVechp0[0] = fTemphps0;
                 beat0 = fTemphps0;
@@ -906,18 +910,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
                 fRect0[0] = (fSamplingFreq * ((fTemps39 / max(iRect1[0], 1)) - (fTemps39 * (iRect1[0] == 0))));
                 fConsta4 = fRect0[0];
-
-           /*     if (cs == (0.001*300*fSamplingFreq)*36)
-                {
-                    cs = 0;
-                    sum = 0;
-                }
-                else
-                {
-                    cs += 1;
-                    sum += sqr(fConsta4);
-                }
-                rms = sqrt(sum/cs); */
             }
             else if (shownote == 0)
             {
@@ -956,8 +948,19 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     weg = 0;
                     if (playmidi == 1)
                     {
+              /*  if (cs == (0.001*300*fSamplingFreq)*36)
+                {
+                    cs = 0;
+                    sum = 0;
+                }
+                else
+                {
+                    cs += 1;
+                    sum += sqr(fTemphp0);
+                }
+                rms = sqrt(sum/cs); */
 
-            float midi_db = (log(fabs(checkfreq [i] ))*6/log(2)*-1);
+             midi_db = (log(fabs(fTemphp0))*6/log(2)*-1);
 
 
                         // channel0
@@ -1201,7 +1204,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     {
                         if ((weg > fTemps37) || (cpu_load > 75.0))
                         {
-                            fConsta1 = 2000.0f;
+                           // fConsta1 = 2000.0f;
                             if ((weg <  fTemps37a) || (cpu_load > 75.0))  // 5.0
                             {
                                 midistat += 1.0f;
@@ -1239,7 +1242,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                         }
                         weg++;
                     }
-                    else if ((shownote == 1) && (playmidi == 0))
+                    if (shownote == 1) 
                     {
                         if (weg > (fSamplingFreq)/2)
                         {
@@ -1390,6 +1393,7 @@ inline float saturate(float x, float t)
         float b = 1.000 ;
         double c = 0.5;
         float x = in[0];
+       // float otf[2] = {0,0};
   
          if (mode == 1) {
          a = 4.000 ;
@@ -1401,7 +1405,7 @@ inline float saturate(float x, float t)
         {
              x = in[i];
            // float y = in[i+fuzzy];
- 
+           // otf[0] = (ot*0.75 + otf[1]*0.25);
         if ( x >= 0.0 )
         {
             ot = ((a * x - b * x * x) -x)*c;
@@ -1410,7 +1414,8 @@ inline float saturate(float x, float t)
         {
             ot =  ((a * x + b * x * x) -x)*c;
         }
-          *out++ = fuzz (x + ot *fuzzy);
+          //  otf[1] = (ot*0.75 + otf[0]*0.25) ;
+          *out++ = fuzz (x + ot*fuzzy);
         }
     }
 
@@ -1530,10 +1535,6 @@ inline float saturate(float x, float t)
           int 	itube = int(ftube);
           int 	ipredrive = int(fpredrive);
           int 	iprdr = int(fprdr);
-
-      //  int cs = 0;
-      //  int sum = 0;
-
 
           float* input0 = input[0];
          //  float checkfreq [frag];

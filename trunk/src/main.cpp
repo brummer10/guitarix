@@ -203,6 +203,8 @@ void jack_shutdown(void *arg)
     destroy_event( GTK_WIDGET(fWindow), NULL);
     if (checkfreq) 
     delete[] checkfreq;
+    if (get_frame) 
+    delete[] get_frame;
     exit(1);
 }
 
@@ -214,6 +216,8 @@ void signal_handler(int sig)
     jack_ringbuffer_free(jack_ringbuffer);
     if (checkfreq) 
     delete[] checkfreq;
+    if (get_frame) 
+    delete[] get_frame;
     fprintf(stderr, "signal %i received, exiting ...\n",sig);
     exit(0);
 }
@@ -397,8 +401,8 @@ int main(int argc, char *argv[] )
     printf("the sample rate is now %u/sec\n", jackframes);
     frag = jack_get_buffer_size (client);
     printf("the buffer size is now %u/frames\n", frag);
-   // get_frame = new float[frag*2];
-   // for (int i=0; i<(frag*2); i++) get_frame[i] = 0;
+    get_frame = new float[frag];
+    for (int i=0; i<(frag); i++) get_frame[i] = 0;
     checkfreq = new float[frag];
     for (int i=0; i<(frag); i++) checkfreq[i] = 0;
 
@@ -520,6 +524,8 @@ int main(int argc, char *argv[] )
     interface->saveState(rcfilename);
     if (checkfreq) 
     delete[] checkfreq;
+    if (get_frame) 
+    delete[] get_frame;
     return 0;
 }
 

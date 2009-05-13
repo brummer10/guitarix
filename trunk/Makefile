@@ -6,6 +6,8 @@
  	CXXFLAGS = -O3  -march=native -Wall 
  	CXXLADSPAFLAGS = -fPIC -shared $(CXXFLAGS)
  	INSTALL = install -p
+        CXX          = g++
+
 
 targets-ladspa = gcrybaby.so gdistortion.so gecho.so gfreeverb.so gIR.so gmonoamp.so gmonocompressor.so guitarix.so
 
