@@ -126,7 +126,7 @@ struct MidiMessage
 {
     jack_nframes_t	time;
     int		len;	/* Length of MIDI message, in bytes. */
-    int        framenum;
+   // int        framenum;
     unsigned char	data[3];
 };
 /////////////////////////////////////////////////////////////////////////////////
@@ -269,10 +269,12 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 t = ev.time + nframes - last_frame_time;
                 if ((t >= (int)nframes) || (cpu_load > 75.0))
                     break;
+		if (t < 0)
+			t = 0;
                 jack_ringbuffer_read_advance(jack_ringbuffer, sizeof(ev));
                 // jack_midi_clear_buffer( midi_port_buf);
                 if (jack_midi_max_event_size(midi_port_buf) > sizeof(ev))
-                buffer = jack_midi_event_reserve(midi_port_buf, ev.framenum, ev.len);
+                buffer = jack_midi_event_reserve(midi_port_buf, t, ev.len);
                 else break;
                 if (ev.len > 2)
                     buffer[2] = ev.data[2];

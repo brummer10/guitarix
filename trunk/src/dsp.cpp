@@ -796,10 +796,10 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->openVerticalBox("beat_detector");
         interface->openEventBox(" ");
         interface->openHorizontalBox("");
-        interface->addregler("note_on", &fslider39, 20.f, 1.f, 200.f, 1.f);
+        interface->addregler("note_on", &fslider39, 2.f, 1.f, 20.f, 1.f);
         interface->addregler("note_off", &fslider37, 2.f, 1.f, 2400.f, 1.f);
-        interface->addregler("atack_note", &fslider45, 5.f, 1.f, 10.f, 1.f);
-        interface->addregler("atack_beat", &fslider38, 1.f, 0.005f, 20.f, 0.005f);
+        interface->addregler("atack_note", &fslider45, 5.f, 1.f, 127.f, 1.f);
+        interface->addregler("atack_beat", &fslider38, 1.f, 0.005f, 127.f, 1.f);
         interface->closeBox();
         interface->closeBox();
         //  interface->openHorizontalBox(" ");
@@ -851,7 +851,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         float 	fConsta2;
         int preNote;
        // float* inputi0 = inputi[0];
-        float fTemps45 = fslider45*0.01;
+        float fTemps45 = fslider45;
         int iTemps31 = int(fslider31);
         int iTemps30 = int(fslider30);
         int iTemps27 = int(fslider27);
@@ -893,7 +893,8 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 fTemphp0 = checkfreq [i];
                 float fTemphps0 = 1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0;
                 fVechp0[0] = fTemphps0;
-                beat0 = fTemphps0;
+                midi_db = (log(fabs(fTemphp0))*6/log(2)*-1);// fTemphps0*2;
+                beat0 = 254- floor(exp(log(1.055)*0.5*midi_db)*127);
                 fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
                 float fTemphp1  = fRechp0[0];
                 int iTempt0 = (1 + iRect2[1]);
@@ -960,7 +961,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 }
                 rms = sqrt(sum/cs); */
 
-             midi_db = (log(fabs(fTemphp0))*6/log(2)*-1);
+           //  midi_db = (log(fabs(fTemphp0))*6/log(2)*-1);
 
 
                         // channel0
@@ -972,13 +973,13 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                             ev.data[0] = 0xC0 | iTemps30;  // controller+ channel
                             ev.data[1] = iTemps31;  // program value
                             ev.time = jack_frame_time(client);
-                            ev.framenum = i;
+                          //  ev.framenum = i;
                             queue_message(&ev);
                         }
                         if (send > iTemps27)   //20
                         {
                         if (int(fautogain) == 1) { 
-                        iTemps46 = 254- floor(exp(log(1.055)*0.5*midi_db)*127);
+                        iTemps46 = beat0;
                         if ( iTemps46 < 0) iTemps46 = 0;
                         else if ( iTemps46 > 127) iTemps46 = 127;
                         fslider46 = iTemps46;
@@ -993,7 +994,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                             ev.data[1] = 0x07;     // set controler volume
                             ev.data[2] = iTemps46;	// volume value
                             ev.time = jack_frame_time(client);
-                            ev.framenum = i;
+                           // ev.framenum = i;
                             queue_message(&ev);
                         }
 
@@ -1010,7 +1011,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = 0x00 ; // pitch value
                                     ev.data[2] = 0x40;  // pitch value
                                     ev.time = jack_frame_time(client);
-                                    ev.framenum = i;
+                                 //   ev.framenum = i;
                                     queue_message(&ev);
                                 }
                                 ev.len = 3;
@@ -1018,7 +1019,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[1] =noten ; // note
                                 ev.data[2] = iTemps26; // velocity
                                 ev.time = jack_frame_time(client);
-                                ev.framenum = i;
+                               // ev.framenum = i;
                                 queue_message(&ev);
 
                                 // pitch wheel set auto
@@ -1031,7 +1032,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = piwe & 0x7f ; // pitch
                                     ev.data[2] = (piwe >> 7) & 0x7f;  // pitch
                                     ev.time = jack_frame_time(client);
-                                    ev.framenum = i;
+                                  //  ev.framenum = i;
                                     queue_message(&ev);
                                 }
                             }
@@ -1047,13 +1048,13 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[0] = 0xC0 | iTemps35; // controller+ channel
                                 ev.data[1] = iTemps36;  // program value
                                 ev.time = jack_frame_time(client);
-                                ev.framenum = i;
+                             //   ev.framenum = i;
                                 queue_message(&ev);
                             }
                             if (send1 > iTemps33)
                             {
                             if (int(fautogain1) == 1)  { 
-                        iTemps47 = 254- floor(exp(log(1.055)*0.5*midi_db)*127);
+                        iTemps47 = beat0;
                         if ( iTemps47 < 0) iTemps47 = 0;
                         else if ( iTemps47 > 127) iTemps47 = 127;
                         fslider47 = iTemps47;
@@ -1068,7 +1069,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[1] = 0x07; // set controler channel volume
                                 ev.data[2] = iTemps47;  // volume value
                                 ev.time = jack_frame_time(client);
-                                ev.framenum = i;
+                               // ev.framenum = i;
                                 queue_message(&ev);
                             }
 
@@ -1085,7 +1086,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                         ev.data[1] = 0x00 ; // pitch value
                                         ev.data[2] = 0x40;  // pitch value
                                         ev.time = jack_frame_time(client);
-                                        ev.framenum = i;
+                                      //  ev.framenum = i;
                                         queue_message(&ev);
                                     }
                                     ev.len = 3;
@@ -1093,7 +1094,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = noten1; // note
                                     ev.data[2] = iTemps32; // velocity
                                     ev.time = jack_frame_time(client);
-                                    ev.framenum = i;
+                                  //  ev.framenum = i;
                                     queue_message(&ev);
 
                                     // pitch wheel set auto
@@ -1106,7 +1107,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                         ev.data[1] = piwe & 0x7f ; // pitch
                                         ev.data[2] = (piwe >> 7) & 0x7f;  // pitch
                                         ev.time = jack_frame_time(client);
-                                        ev.framenum = i;
+                                      //  ev.framenum = i;
                                         queue_message(&ev);
                                     }
                                 }
@@ -1122,13 +1123,13 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[0] = 0xC0 | iTemps44; // controller
                                 ev.data[1] = iTemps43;  // program value
                                 ev.time = jack_frame_time(client);
-                                ev.framenum = i;
+                              //  ev.framenum = i;
                                 queue_message(&ev);
                             }
                             if (send2 > iTemps41)   //20
                             {
                             if (int(fautogain2) == 1) { 
-                        iTemps48 = 254- floor(exp(log(1.055)*0.5*midi_db)*127);
+                        iTemps48 = beat0;
                         if ( iTemps48 < 0) iTemps48 = 0;
                         else if ( iTemps48 > 127) iTemps48 = 127;
                         fslider48 = iTemps48;
@@ -1143,7 +1144,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[1] = 0x07; // set controler channel volume
                                 ev.data[2] = iTemps48;  // volume value
                                 ev.time = jack_frame_time(client);
-                                ev.framenum = i;
+                              //  ev.framenum = i;
                                 queue_message(&ev);
                             }
 
@@ -1155,7 +1156,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = 0x00 ; // pitch value
                                     ev.data[2] = 0x40;  // pitch value
                                     ev.time = jack_frame_time(client);
-                                    ev.framenum = i;
+                                  //  ev.framenum = i;
                                     queue_message(&ev);
                                 }
                                 noten2 = preNote + iTemps42;
@@ -1168,7 +1169,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = noten2; //  note
                                     ev.data[2] = iTemps40; // velocity
                                     ev.time = jack_frame_time(client);
-                                    ev.framenum = i;
+                                  //  ev.framenum = i;
                                     queue_message(&ev);
 
                                     // pitch wheel set auto
@@ -1181,7 +1182,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                         ev.data[1] = piwe & 0x7f ; // pitch
                                         ev.data[2] = (piwe >> 7) & 0x7f;  // pitch
                                         ev.time = jack_frame_time(client);
-                                        ev.framenum = i;
+                                      //  ev.framenum = i;
                                         queue_message(&ev);
                                     }
                                 }
@@ -1202,10 +1203,10 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                 {
                     if  (playmidi == 1)
                     {
-                        if ((weg > fTemps37) || (cpu_load > 75.0))
+                        if ((weg > fTemps37) || (cpu_load > 64.0))
                         {
                            // fConsta1 = 2000.0f;
-                            if ((weg <  fTemps37a) || (cpu_load > 75.0))  // 5.0
+                            if ((weg <  fTemps37a) || (cpu_load > 64.0))  // 5.0
                             {
                                 midistat += 1.0f;
                                 ev.len = 3;
@@ -1213,7 +1214,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[1] = 123;  // all notes off
                                 ev.data[2] = iTemps26; // velocity
                                 ev.time = jack_frame_time(client);
-                                ev.framenum = i;
+                              //  ev.framenum = i;
                                 queue_message(&ev);
                                 if (fcheckbox10 == 1.0)
                                 {
@@ -1223,7 +1224,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = 123;  // all notes off
                                     ev.data[2] = iTemps32; // velocity
                                     ev.time = jack_frame_time(client);
-                                    ev.framenum = i;
+                                   // ev.framenum = i;
                                     queue_message(&ev);
                                 }
                                 if (fcheckbox11 == 1.0)
@@ -1234,7 +1235,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = 123;  // all notes off
                                     ev.data[2] = iTemps40; // velocity
                                     ev.time = jack_frame_time(client);
-                           	    ev.framenum = i;
+                           	  //  ev.framenum = i;
                                     queue_message(&ev);
                                 }
                                 midistat = 0.0f;
