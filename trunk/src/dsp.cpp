@@ -874,13 +874,12 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         int iTemps46 = int(fslider46);
         int iTemps47 = int(fslider47);
         int iTemps48 = int(fslider48);
-        int iTemps39 = int(fslider39);
-        float fTemps39 = fslider39;
+
         int piwe;
-        //int cs = 0;
-        //int sum = 0;
-        //float rms = 0;
-        float fTemphp0 = 0;
+        int cs = 0;
+        int sum = 0;
+        float rms = 0;
+       // float fTemphp0 = 0;
         float midi_db = 0;
        if ((shownote == 1) || (playmidi == 1))
       {
@@ -888,35 +887,10 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         {
                 //beat0 = checkfreq[i];
 
-            if ((shownote == 1) || (playmidi == 1))
-            {
-                fTemphp0 = checkfreq [i];
-                float fTemphps0 = 1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0;
-                fVechp0[0] = fTemphps0;
-                midi_db = (log(fabs(fTemphp0))*6/log(2)*-1);// fTemphps0*2;
+
+                midi_db = (log(fabs(checkfreq [i]))*6/log(2)*-1);// fTemphps0*2;
                 beat0 = 254- floor(exp(log(1.055)*0.5*midi_db)*127);
-                fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
-                float fTemphp1  = fRechp0[0];
-                int iTempt0 = (1 + iRect2[1]);
-                float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
-                float fTempt2 = (1 + fTempt1);
-                fVect0[0] = fTemphp1;
-                fRect5[0] = (fConstan3 * ((fVect0[0] - fVect0[1]) + (fConstan2 * fRect5[1])));
-                fVect1[0] = (fRect5[0] / fTempt2);
-                fRect4[0] = (fVect1[1] + ((fRect5[0] + ((fTempt1 - 1) * fRect4[1])) / fTempt2));
-                int iTempt4 = ((fRect4[1] < 0) & (fRect4[0] >= 0));
-                iRect3[0] = (iTempt4 + (iRect3[1] % iTemps39));
-                iRect2[0] = ((1 - (iTempt4 & (iRect3[0] ==  fTemps39))) * iTempt0);
-                int iTempt5 = (iRect2[0] == 0);
-                iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
-                fRect0[0] = (fSamplingFreq * ((fTemps39 / max(iRect1[0], 1)) - (fTemps39 * (iRect1[0] == 0))));
-                fConsta4 = fRect0[0];
-            }
-            else if (shownote == 0)
-            {
-                fConsta1 = 1000.0f;
-		shownote = 2;
-            }
+                rms = beat0;
 
                 if (( beat0 >= fTemps45) && (cpu_load < 65.0))
                 {
@@ -941,6 +915,18 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     fConsta2 = fConsta1 - (preNote - 45); 
                    }
                    else {*/
+                if (cs == (0.001*300*fSamplingFreq)*36)
+                {
+                    cs = 0;
+                    sum = 0;
+                }
+                else
+                {
+                    cs += 1;
+                    sum += sqr(rms);
+                }
+                beat0 = sqrt(sum/cs); 
+
                     fConsta1 = 12 * log2f(2.272727e-03f *  fConsta4);
                     preNote = round(fConsta1)+57;  
                     fConsta2 = fConsta1 - (preNote - 57);
@@ -949,17 +935,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     weg = 0;
                     if (playmidi == 1)
                     {
-              /*  if (cs == (0.001*300*fSamplingFreq)*36)
-                {
-                    cs = 0;
-                    sum = 0;
-                }
-                else
-                {
-                    cs += 1;
-                    sum += sqr(fTemphp0);
-                }
-                rms = sqrt(sum/cs); */
+
 
            //  midi_db = (log(fabs(fTemphp0))*6/log(2)*-1);
 
@@ -1252,16 +1228,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                         weg++;
                     }
                 }
-            fRect0[1] = fRect0[0];
-            iRect1[1] = iRect1[0];
-            iRect2[1] = iRect2[0];
-            iRect3[1] = iRect3[0];
-            fRect4[1] = fRect4[0];
-            fVect1[1] = fVect1[0];
-            fRect5[1] = fRect5[0];
-            fVect0[1] = fVect0[0];
-            fRechp0[1] = fRechp0[0];
-            fVechp0[1] = fVechp0[0];
+
             }
         }
     };
@@ -1536,7 +1503,11 @@ inline float saturate(float x, float t)
           int 	itube = int(ftube);
           int 	ipredrive = int(fpredrive);
           int 	iprdr = int(fprdr);
+        // tuner
 
+        int iTemps39 = int(fslider39);
+        float fTemps39 = fslider39;
+        // tuner ende
           float* input0 = input[0];
          //  float checkfreq [frag];
            if ((shownote == 1) || (playmidi == 1))
@@ -1561,6 +1532,34 @@ inline float saturate(float x, float t)
                 float 	S4[2];
                 float 	S5[2];
                 if (showwave == 1) vivi = input0[i];
+
+            if ((shownote == 1) || (playmidi == 1))
+            {
+                float fTemphp0 = checkfreq [i]*2;
+                float fTemphps0 = (1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0);
+                fVechp0[0] = fTemphps0;
+                fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
+                float fTemphp1  = fRechp0[0];
+                int iTempt0 = (1 + iRect2[1]);
+                float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
+                float fTempt2 = (1 + fTempt1);
+                fVect0[0] = fTemphp1;
+                fRect5[0] = (fConstan3 * ((fVect0[0] - fVect0[1]) + (fConstan2 * fRect5[1])));
+                fVect1[0] = (fRect5[0] / fTempt2);
+                fRect4[0] = (fVect1[1] + ((fRect5[0] + ((fTempt1 - 1) * fRect4[1])) / fTempt2));
+                int iTempt4 = ((fRect4[1] < 0) & (fRect4[0] >= 0));
+                iRect3[0] = (iTempt4 + (iRect3[1] % iTemps39));
+                iRect2[0] = ((1 - (iTempt4 & (iRect3[0] ==  fTemps39))) * iTempt0);
+                int iTempt5 = (iRect2[0] == 0);
+                iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
+                fRect0[0] = (fSamplingFreq * ((fTemps39 / max(iRect1[0], 1)) - (fTemps39 * (iRect1[0] == 0))));
+                fConsta4 = fRect0[0];
+            }
+            else if (shownote == 0)
+            {
+                fConsta1 = 1000.0f;
+		shownote = 2;
+            }
 
 
                 if (fcheckboxcom1 == 1.0)     // compressor
@@ -1857,7 +1856,16 @@ inline float saturate(float x, float t)
                 fVec0[1] = fVec0[0];
                 fRecover0[1] = fRecover0[0];
 
-
+            fRect0[1] = fRect0[0];
+            iRect1[1] = iRect1[0];
+            iRect2[1] = iRect2[0];
+            iRect3[1] = iRect3[0];
+            fRect4[1] = fRect4[0];
+            fVect1[1] = fVect1[0];
+            fRect5[1] = fRect5[0];
+            fVect0[1] = fVect0[0];
+            fRechp0[1] = fRechp0[0];
+            fVechp0[1] = fVechp0[0];
 
 
             }
