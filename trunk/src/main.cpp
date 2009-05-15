@@ -446,7 +446,7 @@ int main(int argc, char *argv[] )
     DSP.setNumOutputs();
     interface->run();
 
-    jack_deactivate(client);
+   // jack_deactivate(client);
 
     for (int i = 0; i < gNumInChans; i++)
     {
