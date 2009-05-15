@@ -1,10 +1,9 @@
-
 /******************************************************************************
 *******************************************************************************
 
 								funktions from guitarix
 	guitarix.cpp
-	here are the unsortet global funktions from guitarix 
+	here are the unsortet global funktions from guitarix
 *******************************************************************************
 *******************************************************************************/
 
@@ -29,7 +28,7 @@ float *checkfreq;
 
 const char*     stopit = "go";
 const char*     rcpath = " " ;
-string  jconvwav ; 
+string  jconvwav ;
 
 int offcut;
 int lenghtcut;
@@ -48,13 +47,12 @@ FILE*              control_stream1;
 UI*                 interface;
 
 jack_client_t*      client ;
-//jack_client_t*      midi_client;
 jack_port_t *output_ports[256];
 jack_port_t *input_ports[256];
 jack_port_t *midi_output_ports;
 jack_nframes_t time_is;
 jack_ringbuffer_t *jack_ringbuffer;
-jack_nframes_t  jackframes; 
+jack_nframes_t  jackframes;
 
 
 // check version and if directory exists and create it if it not exist
@@ -113,7 +111,7 @@ bool Exists(const char* Path)
         fa <<  cim <<endl;
         fa.close();
     }
-return TRUE;
+    return TRUE;
 }
 
 int Existspix()
@@ -126,16 +124,14 @@ int Existspix()
     snprintf(rcfilename1, 256, "%s", "/usr/share/pixmaps/guitarix-midi.png");
     char          rcfilename2[256];
     snprintf(rcfilename2, 256, "%s", "/usr/locale/share/pixmaps/guitarix.png");
-    char          rcfilename3[256];   
+    char          rcfilename3[256];
     snprintf(rcfilename3, 256, "%s", "/usr/locale/share/pixmaps/guitarix-midi.png");
-    char          rcfilename4[256];   
+    char          rcfilename4[256];
     snprintf(rcfilename4, 256, "%s", "./guitarix.png");
-    char          rcfilename5[256];   
+    char          rcfilename5[256];
     snprintf(rcfilename5, 256, "%s", "./guitarix-midi.png");
     if (( stat(rcfilename, &my_stat) == 0) && ( stat(rcfilename1, &my_stat) == 0))
     {
-      //  gtk_window_set_icon_from_file(GTK_WINDOW (fWindow),  "/usr/share/pixmaps/guitarix.png", NULL);
-       // ib =       gtk_window_get_icon (GTK_WINDOW (fWindow));
         GtkWidget *ibf =  gtk_image_new_from_file ("/usr/share/pixmaps/guitarix.png");
         ib = gtk_image_get_pixbuf (GTK_IMAGE(ibf));
         GtkWidget *stim = gtk_image_new_from_file ("/usr/share/pixmaps/guitarix-midi.png");
@@ -146,8 +142,6 @@ int Existspix()
     }
     else if (( stat(rcfilename2, &my_stat) == 0) && ( stat(rcfilename3, &my_stat) == 0))
     {
-       // gtk_window_set_icon_from_file(GTK_WINDOW (fWindow),  "/usr/locale/share/pixmaps/guitarix.png", NULL);
-       // ib =       gtk_window_get_icon (GTK_WINDOW (fWindow));
         GtkWidget *ibf =  gtk_image_new_from_file ("/usr/locale/share/pixmaps/guitarix.png");
         ib = gtk_image_get_pixbuf (GTK_IMAGE(ibf));
         GtkWidget *stim = gtk_image_new_from_file ("/usr/locale/share/pixmaps/guitarix-midi.png");
@@ -158,8 +152,6 @@ int Existspix()
     }
     else if (( stat(rcfilename4, &my_stat) == 0) && ( stat(rcfilename5, &my_stat) == 0))
     {
-      //  gtk_window_set_icon_from_file(GTK_WINDOW (fWindow),  "guitarix.png", NULL);
-      //  ib =       gtk_window_get_icon (GTK_WINDOW (fWindow));
         GtkWidget *ibf =  gtk_image_new_from_file ("./guitarix.png");
         ib = gtk_image_get_pixbuf (GTK_IMAGE(ibf));
         GtkWidget *stim = gtk_image_new_from_file ("./guitarix-midi.png");
@@ -168,7 +160,7 @@ int Existspix()
         ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
         ep = 0;
     }
- return ep;
+    return ep;
 }
 
 // convert int to string
@@ -199,7 +191,7 @@ bool capture(const char* capturas)
 {
     capas += 1;
     control_stream = popen (capturas, "w");
-return TRUE;
+    return TRUE;
 }
 
 bool		GTKUI::fInitialized = false;
@@ -236,14 +228,12 @@ void show_view (GtkCheckMenuItem *menuitem, gpointer checkplay)
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
     {
         showwave = 1;
-     //   gtk_widget_hide( placehold);
         gtk_widget_show(livewa);
     }
     else
     {
-       showwave = 0;
+        showwave = 0;
         gtk_widget_hide( livewa);
-       // gtk_widget_show(placehold);
     }
 }
 
@@ -257,7 +247,7 @@ void show_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
     }
     else
     {
-       shownote = 0;
+        shownote = 0;
         gtk_widget_hide(pb);
     }
 }
@@ -556,46 +546,18 @@ static void destroy_event( GtkWidget *widget, gpointer data )
     stopit = "stop";
     showwave = 0;
     playmidi = 0;
-    // checky = 0.0;
-   // jack_port_disconnect (client, output_ports[0]);
-   // jack_port_disconnect (client, output_ports[1]);
-  //  jack_port_disconnect (midi_client, input_ports[0]);
     GtkWaveView myGtkWaveView;
     myGtkWaveView.gtk_waveview_destroy (GTK_WIDGET(livewa), NULL );
     GtkRegler myGtkRegler;
     myGtkRegler.gtk_regler_destroy ( );
-    if (G_IS_OBJECT(ib))  
-    g_object_unref( ib);
-    if (G_IS_OBJECT(ibm))  
-    g_object_unref( ibm);
-    if (G_IS_OBJECT(ibr))  
-    g_object_unref(ibr);
+    if (G_IS_OBJECT(ib))
+        g_object_unref( ib);
+    if (G_IS_OBJECT(ibm))
+        g_object_unref( ibm);
+    if (G_IS_OBJECT(ibr))
+        g_object_unref(ibr);
     gtk_main_quit ();
 }
-
-/* disable xlib funktions----------------------------
-void move_dialog(GtkWidget *widget, gpointer data)
-{
-Display *dsp = XOpenDisplay( NULL );
-int screenNumber = DefaultScreen(dsp);
-XEvent event;
-//Cursor icon_cursor;
-//icon_cursor = XCreateFontCursor(dsp, XC_hand1);
-//XDefineCursor(dsp, (dsp, RootWindow(dsp, DefaultScreen(dsp))), icon_cursor);
-//XSync(dsp, TRUE);
-// get info about current pointer position
-while ( event.xbutton.state != 0 ) {
-XQueryPointer(dsp, RootWindow(dsp, DefaultScreen(dsp)),
-&event.xbutton.root, &event.xbutton.window,
-&event.xbutton.x_root, &event.xbutton.y_root,
-&event.xbutton.x, &event.xbutton.y,
-&event.xbutton.state);
-//printf("Mouse Coordinates: %u %d\n", Button1MotionMask, event.xbutton.state);
-gtk_window_move(GTK_WINDOW(data), event.xbutton.x, event.xbutton.y);
-}
-//XUndefineCursor(dsp, (dsp, RootWindow(dsp, DefaultScreen(dsp))));
-XCloseDisplay( dsp );
-}  -----------------------------------*/
 
 // reset the extended sliders to default settings
 static void reset_dialog( GtkWidget *widget, gpointer data )
@@ -630,19 +592,21 @@ void show_dialog(GtkWidget *widget, gpointer data)
 
 static void hide_show( GtkWidget *widget, gpointer data )
 {
-    if (showit == 0){
-    gtk_widget_hide(GTK_WIDGET(fWindow));
-    showit = 1;
+    if (showit == 0)
+    {
+        gtk_widget_hide(GTK_WIDGET(fWindow));
+        showit = 1;
     }
-    else {
-    gtk_widget_show(GTK_WIDGET(fWindow));
-    showit = 0;
+    else
+    {
+        gtk_widget_show(GTK_WIDGET(fWindow));
+        showit = 0;
     }
 }
 
 static void pop_menu( GtkWidget *widget, gpointer data )
 {
-guint32 tim = gtk_get_current_event_time ();
-gtk_menu_popup (GTK_MENU(menuh),NULL,NULL,NULL,(gpointer) menuh,2,tim);
+    guint32 tim = gtk_get_current_event_time ();
+    gtk_menu_popup (GTK_MENU(menuh),NULL,NULL,NULL,(gpointer) menuh,2,tim);
 }
 

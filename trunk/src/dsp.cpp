@@ -46,7 +46,6 @@ private:
     float 	fConst4;
     float 	fConst5;
     float 	fVec0[2];
-    //float 	fcheckbox0;
     float 	fcheckbox1;
     float 	fslider3;
     float 	fRec4[2];
@@ -247,9 +246,9 @@ private:
     float  viv;
     float vivi;
     float fConsta4;
-       // float rms;
-        float 	beat0;
-        float 	antialis0;
+    // float rms;
+    float 	beat0;
+    float 	antialis0;
     float faas1;
     float ffuzzytube;
     float ftube;
@@ -285,24 +284,18 @@ public:
 
     virtual void setNumOutputs()
     {
-    sleep(1);
+        sleep(1);
 
-if(jack_port_is_mine (client,output_ports[3]))
-    {
- jack_port_unregister(client, output_ports[3]);
-        gNumOutChans -= 1;
-     }
-if(jack_port_is_mine (client,output_ports[2]))
-     {
- jack_port_unregister(client, output_ports[2]);
-       gNumOutChans -= 1;
-      }
- /*   int unchanel = gNumOutChans;
-    for (int i = unchanel; i > 2; i--)
-       {
-        gNumOutChans -= 1;
-        jack_port_unregister(client, output_ports[i-1]);
-       }*/
+        if (jack_port_is_mine (client,output_ports[3]))
+        {
+            jack_port_unregister(client, output_ports[3]);
+            gNumOutChans -= 1;
+        }
+        if (jack_port_is_mine (client,output_ports[2]))
+        {
+            jack_port_unregister(client, output_ports[2]);
+            gNumOutChans -= 1;
+        }
     }
 
     static void classInit(int samplingFreq)
@@ -497,8 +490,8 @@ if(jack_port_is_mine (client,output_ports[2]))
         vivi = 0.;
         playmidi = 0;
         shownote = 0;
-	antialis0 = 0;
-	faas1 = 0;
+        antialis0 = 0;
+        faas1 = 0;
         ffuzzytube = 1;
         ftube = 0;
         fpredrive = 1;
@@ -530,7 +523,6 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->closeBox();
         interface->openVerticalBox("");
         interface->addslider("balance", &fslider25, 0.f, -1.f, 1.f, 1.e-01f);
-
         interface->closeBox();
         interface->openFrameBox("");
         interface->openExpanderBox(" jconv ", &fexpand2);
@@ -547,7 +539,6 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->closeBox();
         interface->openExpanderBox(" CONTROLS ", &fexpand);
         interface->openHandleBox("  ");
-
         interface->openHorizontalBox("");
         interface->openVerticalBox("volume");
         interface->openVerticalBox("");
@@ -556,7 +547,6 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->closeBox();
         interface->addPToggleButton("preamp", &fcheckbox1);
         interface->closeBox();
-
         interface->openVerticalBox("");
         interface->openVerticalBox("tone");
         interface->addregler("bass", &fslider2, 0.f, -20.f, 20.f, 0.1f);
@@ -567,25 +557,20 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
-
-
         interface->openVerticalBox("valve");
         interface->openVerticalBox("tube");
         interface->addtoggle("", &ftube);
         interface->addHorizontalSlider("tube",&ffuzzytube, 0.f, 0.f, 10.f, 1.0f);
         interface->closeBox();
-
         interface->openVerticalBox("drive");
         interface->addtoggle("", &fprdr);
         interface->addHorizontalSlider("drive", &fpredrive, 0.f, 0.f, 10.f, 1.0f);
         interface->closeBox();
-
         interface->openVerticalBox("vibrato");
         interface->addtoggle("", &fresoon);
         interface->addHorizontalSlider("vibrato", &fvibrato, 0.f, 0.f, 2.f, 0.02f);
         interface->closeBox();
         interface->closeBox();
-
         interface->openVerticalBox("");
         interface->openHorizontalBox("");
         interface->openVerticalBox("compressor");
@@ -687,25 +672,10 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
-
-        // interface->openEventBox(" ");
-        //   interface->openVerticalBox("");
         interface->openHorizontalBox("");
-        //   interface->openHorizontalBox(" ");
-       // interface->addregler("fuzzytube", &ffuzzytube, 0.f, 0.f, 10.f, 1.0f);
         interface->addLiveWaveDisplay(" ", &viv , &vivi);
-        // interface->addVerticalBargraph("", &fbargraph0,0.0000f, 1.0000f);
-        //    interface->closeBox();
-        //    interface->openVerticalBox(" ");
-        //  interface->addHorizontalBargraph("", &fbargraph0,0.0000f, 1.0000f);
-        //   interface->closeBox();
-        //   interface->closeBox();
-        //   interface->openVerticalBox(" ");
-        //   interface->closeBox();
-        //    interface->closeBox();
         interface->closeBox();
         interface->closeBox();
-
         interface->openVerticalBox("");
         interface->openVerticalBox("echo");
         interface->addregler("    %    ", &fslider19, 0.000000f, 0.000000f, 100.000000f, 0.100000f);
@@ -802,16 +772,13 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->addregler("atack_beat", &fslider38, 1.f, 0.005f, 127.f, 1.f);
         interface->closeBox();
         interface->closeBox();
-        //  interface->openHorizontalBox(" ");
         interface->addStatusDisplay("", &midistat);
-        //  interface->closeBox();
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
         interface->closeBox();
-
         interface->addslider(" feedback", &fslider0, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
         interface->addslider(" feedforward", &fslider23, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
         interface->openFrameBox("");
@@ -822,9 +789,11 @@ if(jack_port_is_mine (client,output_ports[2]))
         interface->closeBox();
     }
 
-//////////////////////////////////////////////////////////////////////////////////
-/* This code is take from jack-keyboard 2.4, a virtual keyboard for JACK MIDI. 
-from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
+    /******************************************************************************
+        The code for the jack_ringbuffer is take from
+        jack-keyboard 2.4, a virtual keyboard for JACK MIDI.
+        from Edward Tomasz Napierala <trasz@FreeBSD.org>.
+    ******************************************************************************/
     struct MidiMessage ev;
 
     void
@@ -832,15 +801,19 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
     {
         int space;
         space =  jack_ringbuffer_write_space( jack_ringbuffer);
-        if (space > int(sizeof(*ev)+2)) {
+        if (space > int(sizeof(*ev)+2))
+        {
             int		written;
             written = jack_ringbuffer_write(jack_ringbuffer, (char *)ev, sizeof(*ev));
             if (written != sizeof(*ev))
                 g_warning("Not enough space in the ringbuffer, NOTE LOST.");
         }
     }
-//////////////////////////////////////////////////////////////////////////////////
 
+    /******************************************************************************
+        Thanks Edward for your friendly permision
+        Edward Tomasz Napierala <trasz@FreeBSD.org>.
+    ******************************************************************************/
 
 
     virtual void compute_midi( int len)
@@ -850,7 +823,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
 
         float 	fConsta2;
         int preNote;
-       // float* inputi0 = inputi[0];
         float fTemps45 = fslider45;
         int iTemps31 = int(fslider31);
         int iTemps30 = int(fslider30);
@@ -870,76 +842,46 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         float fTemps37  = fSamplingFreq/fslider37;
         float fTemps37a  = (fSamplingFreq/fslider37) +5.0;
         float fTemps38 = fslider38;
-
+        float rms = 0;
+        float midi_db = 0;
         int iTemps46 = int(fslider46);
         int iTemps47 = int(fslider47);
         int iTemps48 = int(fslider48);
-
         int piwe;
         int cs = 0;
         int sum = 0;
-        float rms = 0;
-       // float fTemphp0 = 0;
-        float midi_db = 0;
-       if ((shownote == 1) || (playmidi == 1))
-      {
-        for (int i=0; i<len; i++)
+
+        if ((shownote == 1) || (playmidi == 1))
         {
-                //beat0 = checkfreq[i];
+            for (int i=0; i<len; i++)
+            {
 
-
-                midi_db = (log(fabs(checkfreq [i]))*6/log(2)*-1);// fTemphps0*2;
+                midi_db = (log(fabs(checkfreq [i]))*6/log(2)*-1);
                 beat0 = 254- floor(exp(log(1.055)*0.5*midi_db)*127);
                 rms = beat0;
 
                 if (( beat0 >= fTemps45) && (cpu_load < 65.0))
                 {
-		/*   if(fConsta4 < 32.f) {
-                    fConsta1 = 12 * log2f(0.036363636f *  fConsta4);
-                    preNote = round(fConsta1)+9; 
-                    fConsta2 = fConsta1 - (preNote - 9); 
-                   }
-                   else if(fConsta4 < 65.f) {
-                    fConsta1 = 12 * log2f(0.018181818f *  fConsta4);
-                    preNote = round(fConsta1)+21; 
-                    fConsta2 = fConsta1 - (preNote - 21); 
-                   }
-                   else if(fConsta4 < 130.f) {
-                    fConsta1 = 12 * log2f( 9.090909e-03f*  fConsta4);
-                    preNote = round(fConsta1)+33; 
-                    fConsta2 = fConsta1 - (preNote - 33); 
-                   }
-                   else if(fConsta4 < 261.f) {
-                    fConsta1 = 12 * log2f( 4.545455e-03f*  fConsta4);
-                    preNote = round(fConsta1)+45;  
-                    fConsta2 = fConsta1 - (preNote - 45); 
-                   }
-                   else {*/
-                if (cs == (0.001*300*fSamplingFreq)*36)
-                {
-                    cs = 0;
-                    sum = 0;
-                }
-                else
-                {
-                    cs += 1;
-                    sum += sqr(rms);
-                }
-                beat0 = sqrt(sum/cs); 
+                    if (cs == (0.001*300*fSamplingFreq)*36)
+                    {
+                        cs = 0;
+                        sum = 0;
+                    }
+                    else
+                    {
+                        cs += 1;
+                        sum += sqr(rms);
+                    }
+                    beat0 = sqrt(sum/cs);
 
                     fConsta1 = 12 * log2f(2.272727e-03f *  fConsta4);
-                    preNote = round(fConsta1)+57;  
+                    preNote = round(fConsta1)+57;
                     fConsta2 = fConsta1 - (preNote - 57);
-		//  }
                     piwe = (fConsta2+1) * 8192; // pitch wheel value
                     weg = 0;
+
                     if (playmidi == 1)
                     {
-
-
-           //  midi_db = (log(fabs(fTemphp0))*6/log(2)*-1);
-
-
                         // channel0
                         if (program != iTemps31)
                         {
@@ -949,30 +891,29 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                             ev.data[0] = 0xC0 | iTemps30;  // controller+ channel
                             ev.data[1] = iTemps31;  // program value
                             ev.time = jack_frame_time(client);
-                          //  ev.framenum = i;
                             queue_message(&ev);
                         }
                         if (send > iTemps27)   //20
                         {
-                        if (int(fautogain) == 1) { 
-                        iTemps46 = beat0;
-                        if ( iTemps46 < 0) iTemps46 = 0;
-                        else if ( iTemps46 > 127) iTemps46 = 127;
-                        fslider46 = iTemps46;
-                         //   fprintf (stderr, "gain is %i, db is %f\n",iTemps46, midi_db);
-                         }
-                        if (volume != iTemps46)
-                        {
-                            volume = iTemps46;
-                            midistat += 1.0f;
-                            ev.len = 3;
-                            ev.data[0] = 0xB0 | iTemps30;  // controller + channel
-                            ev.data[1] = 0x07;     // set controler volume
-                            ev.data[2] = iTemps46;	// volume value
-                            ev.time = jack_frame_time(client);
-                           // ev.framenum = i;
-                            queue_message(&ev);
-                        }
+                            if (int(fautogain) == 1)
+                            {
+                                iTemps46 = beat0;
+                                if ( iTemps46 < 0) iTemps46 = 0;
+                                else if ( iTemps46 > 127) iTemps46 = 127;
+                                fslider46 = iTemps46;
+                            }
+                            if (volume != iTemps46)
+                            {
+                                volume = iTemps46;
+                                midistat += 1.0f;
+                                ev.len = 3;
+                                ev.data[0] = 0xB0 | iTemps30;  // controller + channel
+                                ev.data[1] = 0x07;     // set controler volume
+                                ev.data[2] = iTemps46;	// volume value
+                                ev.time = jack_frame_time(client);
+                                // ev.framenum = i;
+                                queue_message(&ev);
+                            }
 
                             noten = preNote + iTemps29;
                             send = 0;
@@ -987,7 +928,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = 0x00 ; // pitch value
                                     ev.data[2] = 0x40;  // pitch value
                                     ev.time = jack_frame_time(client);
-                                 //   ev.framenum = i;
                                     queue_message(&ev);
                                 }
                                 ev.len = 3;
@@ -995,7 +935,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[1] =noten ; // note
                                 ev.data[2] = iTemps26; // velocity
                                 ev.time = jack_frame_time(client);
-                               // ev.framenum = i;
                                 queue_message(&ev);
 
                                 // pitch wheel set auto
@@ -1008,7 +947,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = piwe & 0x7f ; // pitch
                                     ev.data[2] = (piwe >> 7) & 0x7f;  // pitch
                                     ev.time = jack_frame_time(client);
-                                  //  ev.framenum = i;
                                     queue_message(&ev);
                                 }
                             }
@@ -1024,30 +962,28 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[0] = 0xC0 | iTemps35; // controller+ channel
                                 ev.data[1] = iTemps36;  // program value
                                 ev.time = jack_frame_time(client);
-                             //   ev.framenum = i;
                                 queue_message(&ev);
                             }
                             if (send1 > iTemps33)
                             {
-                            if (int(fautogain1) == 1)  { 
-                        iTemps47 = beat0;
-                        if ( iTemps47 < 0) iTemps47 = 0;
-                        else if ( iTemps47 > 127) iTemps47 = 127;
-                        fslider47 = iTemps47;
-                         //   fprintf (stderr, "gain is %i, db is %f\n",iTemps46, midi_db);
-                         }
-                            if (volume1 != iTemps47)
-                            {
-                                volume1 = iTemps47;
-                                midistat += 1.0f;
-                                ev.len = 3;
-                                ev.data[0] = 0xB0 | iTemps35; // controller + channel
-                                ev.data[1] = 0x07; // set controler channel volume
-                                ev.data[2] = iTemps47;  // volume value
-                                ev.time = jack_frame_time(client);
-                               // ev.framenum = i;
-                                queue_message(&ev);
-                            }
+                                if (int(fautogain1) == 1)
+                                {
+                                    iTemps47 = beat0;
+                                    if ( iTemps47 < 0) iTemps47 = 0;
+                                    else if ( iTemps47 > 127) iTemps47 = 127;
+                                    fslider47 = iTemps47;
+                                }
+                                if (volume1 != iTemps47)
+                                {
+                                    volume1 = iTemps47;
+                                    midistat += 1.0f;
+                                    ev.len = 3;
+                                    ev.data[0] = 0xB0 | iTemps35; // controller + channel
+                                    ev.data[1] = 0x07; // set controler channel volume
+                                    ev.data[2] = iTemps47;  // volume value
+                                    ev.time = jack_frame_time(client);
+                                    queue_message(&ev);
+                                }
 
                                 noten1 = preNote + iTemps34;
                                 send1 = 0;
@@ -1062,7 +998,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                         ev.data[1] = 0x00 ; // pitch value
                                         ev.data[2] = 0x40;  // pitch value
                                         ev.time = jack_frame_time(client);
-                                      //  ev.framenum = i;
                                         queue_message(&ev);
                                     }
                                     ev.len = 3;
@@ -1070,7 +1005,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = noten1; // note
                                     ev.data[2] = iTemps32; // velocity
                                     ev.time = jack_frame_time(client);
-                                  //  ev.framenum = i;
                                     queue_message(&ev);
 
                                     // pitch wheel set auto
@@ -1083,7 +1017,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                         ev.data[1] = piwe & 0x7f ; // pitch
                                         ev.data[2] = (piwe >> 7) & 0x7f;  // pitch
                                         ev.time = jack_frame_time(client);
-                                      //  ev.framenum = i;
                                         queue_message(&ev);
                                     }
                                 }
@@ -1099,30 +1032,28 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[0] = 0xC0 | iTemps44; // controller
                                 ev.data[1] = iTemps43;  // program value
                                 ev.time = jack_frame_time(client);
-                              //  ev.framenum = i;
                                 queue_message(&ev);
                             }
                             if (send2 > iTemps41)   //20
                             {
-                            if (int(fautogain2) == 1) { 
-                        iTemps48 = beat0;
-                        if ( iTemps48 < 0) iTemps48 = 0;
-                        else if ( iTemps48 > 127) iTemps48 = 127;
-                        fslider48 = iTemps48;
-                         //   fprintf (stderr, "gain is %i, db is %f\n",iTemps46, midi_db);
-                         }
-                            if (volume2 != iTemps48)
-                            {
-                                volume2 = iTemps48;
-                                midistat += 1.0f;
-                                ev.len = 3;
-                                ev.data[0] = 0xB0 | iTemps44; // controller + channel
-                                ev.data[1] = 0x07; // set controler channel volume
-                                ev.data[2] = iTemps48;  // volume value
-                                ev.time = jack_frame_time(client);
-                              //  ev.framenum = i;
-                                queue_message(&ev);
-                            }
+                                if (int(fautogain2) == 1)
+                                {
+                                    iTemps48 = beat0;
+                                    if ( iTemps48 < 0) iTemps48 = 0;
+                                    else if ( iTemps48 > 127) iTemps48 = 127;
+                                    fslider48 = iTemps48;
+                                }
+                                if (volume2 != iTemps48)
+                                {
+                                    volume2 = iTemps48;
+                                    midistat += 1.0f;
+                                    ev.len = 3;
+                                    ev.data[0] = 0xB0 | iTemps44; // controller + channel
+                                    ev.data[1] = 0x07; // set controler channel volume
+                                    ev.data[2] = iTemps48;  // volume value
+                                    ev.time = jack_frame_time(client);
+                                    queue_message(&ev);
+                                }
 
                                 // pitch wheel clear
                                 if (fpitch2 == 1.0)
@@ -1132,7 +1063,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = 0x00 ; // pitch value
                                     ev.data[2] = 0x40;  // pitch value
                                     ev.time = jack_frame_time(client);
-                                  //  ev.framenum = i;
                                     queue_message(&ev);
                                 }
                                 noten2 = preNote + iTemps42;
@@ -1145,7 +1075,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = noten2; //  note
                                     ev.data[2] = iTemps40; // velocity
                                     ev.time = jack_frame_time(client);
-                                  //  ev.framenum = i;
                                     queue_message(&ev);
 
                                     // pitch wheel set auto
@@ -1158,7 +1087,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                         ev.data[1] = piwe & 0x7f ; // pitch
                                         ev.data[2] = (piwe >> 7) & 0x7f;  // pitch
                                         ev.time = jack_frame_time(client);
-                                      //  ev.framenum = i;
                                         queue_message(&ev);
                                     }
                                 }
@@ -1175,13 +1103,12 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                     }
                     // end if playmidi = 1
                 }
-                else // if input < 0.05
+                else
                 {
                     if  (playmidi == 1)
                     {
                         if ((weg > fTemps37) || (cpu_load > 64.0))
                         {
-                           // fConsta1 = 2000.0f;
                             if ((weg <  fTemps37a) || (cpu_load > 64.0))  // 5.0
                             {
                                 midistat += 1.0f;
@@ -1190,7 +1117,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                 ev.data[1] = 123;  // all notes off
                                 ev.data[2] = iTemps26; // velocity
                                 ev.time = jack_frame_time(client);
-                              //  ev.framenum = i;
                                 queue_message(&ev);
                                 if (fcheckbox10 == 1.0)
                                 {
@@ -1200,7 +1126,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = 123;  // all notes off
                                     ev.data[2] = iTemps32; // velocity
                                     ev.time = jack_frame_time(client);
-                                   // ev.framenum = i;
                                     queue_message(&ev);
                                 }
                                 if (fcheckbox11 == 1.0)
@@ -1211,7 +1136,6 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                                     ev.data[1] = 123;  // all notes off
                                     ev.data[2] = iTemps40; // velocity
                                     ev.time = jack_frame_time(client);
-                           	  //  ev.framenum = i;
                                     queue_message(&ev);
                                 }
                                 midistat = 0.0f;
@@ -1219,7 +1143,7 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
                         }
                         weg++;
                     }
-                    if (shownote == 1) 
+                    if (shownote == 1)
                     {
                         if (weg > (fSamplingFreq)/2)
                         {
@@ -1233,157 +1157,87 @@ from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
         }
     };
 
-     inline void add_dc (float &val)
+    inline void add_dc (float &val)
     {
-       static const float anti_denormal = 1e-20;
-       val += anti_denormal;
-     }
-/*
-    inline float foldback(float in, float threshold)
-    {
-       if (in>threshold || in<-threshold)
-       {
-         in= fabs(fabs(fmod(in - threshold, threshold*4)) - threshold*2) - threshold;
-       }
-       return in;
-    } 
-*/
+        static const float anti_denormal = 1e-20;
+        val += anti_denormal;
+    }
+
     inline float fuzz(float in)
     {
-	if ( in > 0.7)
-	{
-   	   in = 0.7;
-	}
-	else if ( in < -0.7)
-	{
-	   in = -0.7;
-	}
+        if ( in > 0.7)
+        {
+            in = 0.7;
+        }
+        else if ( in < -0.7)
+        {
+            in = -0.7;
+        }
         return in;
     }
 
     inline float valve(float in, float out)
     {
-	float a = 2.000 ;
-	float b = 1.000 ;
+        float a = 2.000 ;
+        float b = 1.000 ;
 
-	if ( in >= 0.0 )
-	{
-	   out = a * in - b * in * in;
-	}
-	else
-	{
-	   out = a * in + b * in * in;
+        if ( in >= 0.0 )
+        {
+            out = a * in - b * in * in;
+        }
+        else
+        {
+            out = a * in + b * in * in;
         }
         return out;
     }
-/*
-    inline float overdrive(float in, float out)
-    {
-	float a = 4.000 ;
-	float b = 4.000 ;
-	if ( in >= 0.0 )
-	{
-	   out = a * in - b * in * in;
-	}
-	else
-	{
-	   out = a * in + b * in * in;
-	} 
-        return out;
-    }
-*/
+
     inline void AntiAlias (int sf, float** input, float** output)
     {
-	float* in = input[0];
-	float* out = output[0];
-	float alias[frag] ;
+        float* in = input[0];
+        float* out = output[0];
+        float alias[frag] ;
         int state = 0;
-           for (int i=0; i<sf; i++)
-	{
-		float x = *in++;
-		float a = alias[state];
-		alias[state++] = x + a * faas1;
-		if (state > 1.5)
-			state = 0;
-		*out++ = a ;
-	}
+        for (int i=0; i<sf; i++)
+        {
+            float x = *in++;
+            float a = alias[state];
+            alias[state++] = x + a * faas1;
+            if (state > 1.5)
+                state = 0;
+            *out++ = a ;
+        }
     }
-/*
-    inline float chebyshev(float x, float A[], int order)
-    {
-	// To = 1
-	// T1 = x
-	// Tn = 2.x.Tn-1 - Tn-2
-	// out = sum(Ai*Ti(x)) , i C {1,..,order}
-	float Tn_2 = 1.0f;
-	float Tn_1 = x;
-	float Tn;
-	float out = A[0]*Tn_1;
 
-	for(int n=2;n<=order;n++)
-	{
-		Tn = 2.0f*x*Tn_1 - Tn_2;
-		out += A[n-1]*Tn;
-		Tn_2 = Tn_1;
-		Tn_1 = Tn;
-	}
-	return out;
-    } 
-
-inline float sigmoid(float x)
-{
-    if(fabs(x)<1)
-        return x*(1.5f - 0.5f*x*x);
-    else
-        return x > 0.f ? 1.f : -1.f;
-}
-
-inline float saturate(float x, float t)
-{
-    if(fabs(x)<t)
-        return x;
-    else
-    {
-        if(x > 0.f)
-            return t + (1.f-t)*sigmoid((x-t)/((1-t)*1.5f));
-        else
-            return -(t + (1.f-t)*sigmoid((-x-t)/((1-t)*1.5f)));
-    }
-}  
-*/
     inline void fuzzy_tube (int fuzzy,int mode, int sf, float** input, float** output)
     {
         float* in = input[0];
-     //   float* fuzzy_in = input[0+fuzzy];
         float* out = output[0];
- 
+        float ot = 0;
+        float x = in[0];
         float a = 2.000 ;
         float b = 1.000 ;
         double c = 0.5;
-        float x = in[0];
-       // float otf[2] = {0,0};
-  
-         if (mode == 1) {
-         a = 4.000 ;
-         b = 4.000 ;
-         c = 0.125;
+
+        if (mode == 1)
+        {
+            a = 4.000 ;
+            b = 4.000 ;
+            c = 0.125;
         }
-        float ot = 0;
+
         for (int i=0; i<sf; i++)
         {
-             x = in[i];
-           // float y = in[i+fuzzy];
-           // otf[0] = (ot*0.75 + otf[1]*0.25);
-        if ( x >= 0.0 )
-        {
-            ot = ((a * x - b * x * x) -x)*c;
-        }
-        else
-        {
-            ot =  ((a * x + b * x * x) -x)*c;
-        }
-          //  otf[1] = (ot*0.75 + otf[0]*0.25) ;
-          *out++ = fuzz (x + ot*fuzzy);
+            x = in[i];
+            if ( x >= 0.0 )
+            {
+                ot = ((a * x - b * x * x) -x)*c;
+            }
+            else
+            {
+                ot =  ((a * x + b * x * x) -x)*c;
+            }
+            *out++ = fuzz (x + ot*fuzzy);
         }
     }
 
@@ -1417,7 +1271,6 @@ inline float saturate(float x, float t)
             float 	fSlow14 = ((1 + (fSlow8 + fSlow13)) - fSlow12);
             float 	fSlow15 = checky;
             float 	fSlow16 = (7.118644f * fSlow15);
-            //  int 	iSlow17 = int(fcheckbox1);
             float 	fSlow18 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider3)));
             float 	fSlow19 = (1.0f - fslider4);
             float 	fSlow20 = fslider5;
@@ -1492,33 +1345,30 @@ inline float saturate(float x, float t)
             float 	fSlow89 = (1 - max(0, (0 - fSlow83)));
             float 	fSlow90 = (fSlow89 * fSlow82);
             float 	fSlow91 = (fSlow89 * fSlow86);
-
             float drivem1 = drive - 1.0f;
             float fSlowover0 = (9.999871e-04f * powf(10, (5.000000e-02f * (drive*-0.5))));
-           // float fTemprec;
-           // float fTemprec2;
             float fSlowvib0 = fvibrato;
 
-          int 	ifuzzytube = int(ffuzzytube);
-          int 	itube = int(ftube);
-          int 	ipredrive = int(fpredrive);
-          int 	iprdr = int(fprdr);
-        // tuner
-
-        int iTemps39 = int(fslider39);
-        float fTemps39 = fslider39;
-        // tuner ende
-          float* input0 = input[0];
-         //  float checkfreq [frag];
-           if ((shownote == 1) || (playmidi == 1))
+            int 	ifuzzytube = int(ffuzzytube);
+            int 	itube = int(ftube);
+            int 	ipredrive = int(fpredrive);
+            int 	iprdr = int(fprdr);
+            // tuner
+            int iTemps39 = int(fslider39);
+            float fTemps39 = fslider39;
+            // tuner ende
+            // pointer to the jack_buffer
+            float* input0 = input[0];
+            // copy clean audio input for the midi_process
+            if ((shownote == 1) || (playmidi == 1))
             {
-              for (int i=0; i<count; i++)  checkfreq [i] = input0[i];
-	    }
-        // whitenoise(input[0],frag,0.0001f);
-        if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count,input,input);
-        if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count,input,input);
-	if (antialis0 == 1)  AntiAlias(count,input,input);
-  
+                for (int i=0; i<count; i++)  checkfreq [i] = input0[i];
+            }
+            // pre_funktions on frame base
+            if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count,input,input);
+            if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count,input,input);
+            if (antialis0 == 1)  AntiAlias(count,input,input);
+
             float* output0 = output[2];
             float* output1 = output[0];
             float* output2 = output[3];
@@ -1533,38 +1383,38 @@ inline float saturate(float x, float t)
                 float 	S5[2];
                 if (showwave == 1) vivi = input0[i];
 
-            if ((shownote == 1) || (playmidi == 1))
-            {
-                float fTemphp0 = checkfreq [i]*2;
-                float fTemphps0 = (1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0);
-                fVechp0[0] = fTemphps0;
-                fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
-                float fTemphp1  = fRechp0[0];
-                int iTempt0 = (1 + iRect2[1]);
-                float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
-                float fTempt2 = (1 + fTempt1);
-                fVect0[0] = fTemphp1;
-                fRect5[0] = (fConstan3 * ((fVect0[0] - fVect0[1]) + (fConstan2 * fRect5[1])));
-                fVect1[0] = (fRect5[0] / fTempt2);
-                fRect4[0] = (fVect1[1] + ((fRect5[0] + ((fTempt1 - 1) * fRect4[1])) / fTempt2));
-                int iTempt4 = ((fRect4[1] < 0) & (fRect4[0] >= 0));
-                iRect3[0] = (iTempt4 + (iRect3[1] % iTemps39));
-                iRect2[0] = ((1 - (iTempt4 & (iRect3[0] ==  fTemps39))) * iTempt0);
-                int iTempt5 = (iRect2[0] == 0);
-                iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
-                fRect0[0] = (fSamplingFreq * ((fTemps39 / max(iRect1[0], 1)) - (fTemps39 * (iRect1[0] == 0))));
-                fConsta4 = fRect0[0];
-            }
-            else if (shownote == 0)
-            {
-                fConsta1 = 1000.0f;
-		shownote = 2;
-            }
+                if ((shownote == 1) || (playmidi == 1))
+                {
+                    float fTemphp0 = checkfreq [i]*2;
+                    float fTemphps0 = (1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0);
+                    fVechp0[0] = fTemphps0;
+                    fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
+                    float fTemphp1  = fRechp0[0];
+                    int iTempt0 = (1 + iRect2[1]);
+                    float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
+                    float fTempt2 = (1 + fTempt1);
+                    fVect0[0] = fTemphp1;
+                    fRect5[0] = (fConstan3 * ((fVect0[0] - fVect0[1]) + (fConstan2 * fRect5[1])));
+                    fVect1[0] = (fRect5[0] / fTempt2);
+                    fRect4[0] = (fVect1[1] + ((fRect5[0] + ((fTempt1 - 1) * fRect4[1])) / fTempt2));
+                    int iTempt4 = ((fRect4[1] < 0) & (fRect4[0] >= 0));
+                    iRect3[0] = (iTempt4 + (iRect3[1] % iTemps39));
+                    iRect2[0] = ((1 - (iTempt4 & (iRect3[0] ==  fTemps39))) * iTempt0);
+                    int iTempt5 = (iRect2[0] == 0);
+                    iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
+                    fRect0[0] = (fSamplingFreq * ((fTemps39 / max(iRect1[0], 1)) - (fTemps39 * (iRect1[0] == 0))));
+                    fConsta4 = fRect0[0];
+                }
+                else if (shownote == 0)
+                {
+                    fConsta1 = 1000.0f;
+                    shownote = 2;
+                }
 
 
                 if (fcheckboxcom1 == 1.0)     // compressor
                 {
-		    add_dc(input0[i]);
+                    add_dc(input0[i]);
                     float fTempcom0 = input0[i];
                     fReccom1[0] = ((fConstcom1 * fabsf(fTempcom0)) + (fConstcom0 * fReccom1[1]));
                     float fTempcom2 = max(fReccom1[0], fReccom1[0]);
@@ -1577,8 +1427,9 @@ inline float saturate(float x, float t)
                     float fTempcom8 = powf(10, (5.000000e-02f * fTempcom7));
                     fVec0[0]= (fTempcom0 * fTempcom8);
                 }
-                else {
- 		    add_dc(input0[i]);  
+                else
+                {
+                    add_dc(input0[i]);
                     fVec0[0] = input0[i]; // compressor end
                 }
 
@@ -1590,44 +1441,24 @@ inline float saturate(float x, float t)
                 if (fcheckbox1 == 1.0)     // preamp
                 {
                     float  in = fTemp0 ;
-                  /*  float  in = fTemp0 *3;
-                    if (in>=1.0)
-                        in = 2*0.333333333;
-                    else if (in<-1.0)
-                        in = -2*0.333333333;
-                    else in = (in - in*in*in*0.333333333); */
-		   // in = valve(in,in);
-		    //valve(in,in);
-                   // in =  fuzz(in,in);
-                   //   x-0.15*x^2-0.15*x^3
                     float  fTemp0in = (in-0.15*(in*in))-(0.15*(in*in*in));
                     in = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
                     fTemp0 = valve(in,in)*0.75;
-                   // fTemp0 = valve(fTemp0,fTemp0);
-//  fTemp0 =saturate(fTemp0, 0.7f);
                 }  //preamp ende
 
-                    // overdrive
-                
 
-		fRec3[0] = fTemp0;
+                fRec3[0] = fTemp0;
+                // vibrato
                 if (fresoon == 1.0) fRec3[0] = fuzz( (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1]))));  //resonanz 1.76f
-               // else   fRec3[0] =(0.5f * ((2.0 * fTemp0) + (1.76f * fTemp0)));
                 S4[0] = fRec3[0];
 
                 if (foverdrive4 == 1.0)     // overdrive
                 {
-                    float fTempdr0 = (fTemp0 + S4[0]) * 0.5; // S4[0] ; //fTemp0;
-		  //  float fTempdr0 = overdrive(fTemp0,fTemp0) ;
-                   // fTempdr0 = overdrive(fTempdr0,fTempdr0);
+                    float fTempdr0 = (fTemp0 + S4[0]) * 0.5;
                     float fTempdr1 = fabs(fTempdr0);
                     fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
                     S4[0] = (fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
-                  //  S4[0] = 1.5f * S4[0]  - 0.5f * S4[0] * S4[0] * S4[0];
-                  //  S4[0] = overdrive(S4[0],S4[0]);
                     fTemp0 = S4[0];
-                //    if (fcheckbox4 == 0.0)	 fTemp0 = chebyshev(fTemp0, &S4[0],  8);
-  //fTemp0 = S4[0];
                 }
 
                 if (fcheckbox4 == 1.0)     // distortion
@@ -1635,8 +1466,6 @@ inline float saturate(float x, float t)
                     float 	S6[2];
                     float 	S7[2];
                     float 	S8[2];
-                    //  S4[0] = S4[0] + 4*(S4[1] - S4[0]);
-		  //  add_dc(fTemp0);  
                     float fTemp1 = (fTemp0 + (fSlow19 * fRec6[1]));
                     fVec1[IOTA&4095] = fTemp1;
                     fRec6[0] = (0.5f * (fVec1[(IOTA-iSlow22)&4095] + fVec1[(IOTA-iSlow21)&4095]));
@@ -1649,7 +1478,7 @@ inline float saturate(float x, float t)
                     S8[1] = fRec7[0];
                     float fTemp3 = S8[iSlow30];
                     S7[0] = fTemp3;
-		    add_dc(S7[0]);  
+                    add_dc(S7[0]);
                     fVec4[0] = (fSlow39 * fTemp3);
                     fRec12[0] = ((fSlow39 * (fTemp3 + (fSlow40 * fRec12[1]))) - fVec4[1]);
                     fVec5[0] = (fSlow39 * fRec12[0]);
@@ -1657,9 +1486,9 @@ inline float saturate(float x, float t)
                     fRec10[0] = (fRec11[0] - (fSlow37 * ((fSlow36 * fRec10[2]) + (fSlow32 * fRec10[1]))));
                     fRec9[0] = ((fSlow37 * (fRec10[2] + (fRec10[0] + (2 * fRec10[1])))) - (fSlow35 * ((fSlow34 * fRec9[2]) + (fSlow32 * fRec9[1]))));
                     S7[1] = (fSlow35 * (fRec9[2] + (fRec9[0] + (2 * fRec9[1]))));
-		    add_dc(S7[1]);  
+                    add_dc(S7[1]);
                     float fTemp4 = max(-1, min(1, (fSlow43 * (fSlow42 + S7[iSlow41]))));
-		    add_dc(fTemp4);  
+                    add_dc(fTemp4);
                     float fTemp5 = (fTemp4 * (1 - (0.333333f * (fTemp4 * fTemp4))));
                     fVec6[0] = fTemp5;
                     fRec5[0] = ((fVec6[0] + (0.995f * fRec5[1])) - fVec6[1]);
@@ -1675,15 +1504,7 @@ inline float saturate(float x, float t)
                     S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
                     S4[1] = S6[iSlow41];
                     float fTemp7 = S4[iSlow45];
-		  //  add_dc(fTemp7);  
-                  //  fTemp7 =  fuzz(fTemp7,fTemp7);
-                  //  fTemp7 = valve(fTemp7,fTemp7,1);
                     fVec9[0] = fTemp7;
-		    // fVec9[0] = 1.5f * fVec9[0]  - 0.5f * fVec9[0] * fVec9[0] * fVec9[0];
-                   /* fTemprec = fTemp7;
-                    fTemprec2 = fTemprec1 + ( fTemprec *0.5 );
-                    fTemprec1 = fTemprec *0.25;
-                    fVec9[ 0 ] = fTemprec2 + fTemprec1; */
                 }
                 else  fVec9[0] = S4[0];   		// distortion end
 
@@ -1771,8 +1592,6 @@ inline float saturate(float x, float t)
                 else  fVec23[0] = fTemp12;   //impulseResponse ende
 
                 fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
-               // if (fcheckbox4 == 1.0)  fRec0[0] =   foldback(fRec0[0], 0.7);
-                // fbargraph0 = powf(max((fRec0[5] - fConstcom2), min(0.990000f, fabsf(fVec0[0]))),0.9);
                 if ((showwave == 1) &&(view_mode > 1)) viv = fRec0[0];
                 output0[i] = (fSlow85 * fRec0[0]);
                 float 	S9[2];
@@ -1855,17 +1674,17 @@ inline float saturate(float x, float t)
                 fReccom1[1] = fReccom1[0];
                 fVec0[1] = fVec0[0];
                 fRecover0[1] = fRecover0[0];
-
-            fRect0[1] = fRect0[0];
-            iRect1[1] = iRect1[0];
-            iRect2[1] = iRect2[0];
-            iRect3[1] = iRect3[0];
-            fRect4[1] = fRect4[0];
-            fVect1[1] = fVect1[0];
-            fRect5[1] = fRect5[0];
-            fVect0[1] = fVect0[0];
-            fRechp0[1] = fRechp0[0];
-            fVechp0[1] = fVechp0[0];
+                // post processing tuner
+                fRect0[1] = fRect0[0];
+                iRect1[1] = iRect1[0];
+                iRect2[1] = iRect2[0];
+                iRect3[1] = iRect3[0];
+                fRect4[1] = fRect4[0];
+                fVect1[1] = fVect1[0];
+                fRect5[1] = fRect5[0];
+                fVect0[1] = fVect0[0];
+                fRechp0[1] = fRechp0[0];
+                fVechp0[1] = fVechp0[0];
 
 
             }

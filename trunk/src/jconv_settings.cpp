@@ -2,7 +2,7 @@
 *******************************************************************************
 
 	jconv_settings.cpp
-	
+
 	part of guitarix, create a configfile for jconv and run it
 	for guitarix by hermann meyer
 *******************************************************************************
@@ -44,7 +44,7 @@ void JCONV_SETTINGS::get_jconfset ()
         for (is=0; is<1; is++)
         {
             getline(f,  jgain);
-	    joffset = jgain;
+            joffset = jgain;
             jlength = jgain;
         }
         jgain.erase(0, 24);
@@ -76,8 +76,8 @@ void JCONV_SETTINGS::get_jconfset ()
         jmem = "8000";
         jmode = "/impulse/copy";
         IntToString((frag), frbuf);
-	offcut = 0;
-	lenghtcut = 0;
+        offcut = 0;
+        lenghtcut = 0;
     }
 }
 
@@ -114,25 +114,27 @@ static void fileselect( GtkWidget *widget, gpointer data )
         cim += "/impulse/read    1  1   ";
         int gainvalu = ((valo)*10);
         IntToString((gainvalu), partion);
-        if (gainvalu < 10) {
-          cim += "0.";
-        jgain = "0.";
-        jgain +=  partion  ;
+        if (gainvalu < 10)
+        {
+            cim += "0.";
+            jgain = "0.";
+            jgain +=  partion  ;
         }
-        else {
-          std::string bvalo(partion);
-          bvalo.insert(1, ".");
-          partion = bvalo;
-          jgain =  partion  ;
+        else
+        {
+            std::string bvalo(partion);
+            bvalo.insert(1, ".");
+            partion = bvalo;
+            jgain =  partion  ;
         }
         cim +=  partion  ;
         cim += "     0       ";
         IntToString((offcut), partion);
-       cim += partion;
+        cim += partion;
         cim += "       ";
         IntToString((lenghtcut), partion);
-       cim += partion;
-       cim += "       1  ";
+        cim += partion;
+        cim += "       1  ";
         cim += jconvwav;
         cim += "\n";
         if (jmode == "/impulse/copy")
@@ -143,26 +145,27 @@ static void fileselect( GtkWidget *widget, gpointer data )
         {
             cim += "/impulse/read    2  2   ";
             IntToString((gainvalu), partion);
-            if (gainvalu < 10) {
-              cim += "0.";
-              jgain = "0.";
-              jgain +=  partion  ;
+            if (gainvalu < 10)
+            {
+                cim += "0.";
+                jgain = "0.";
+                jgain +=  partion  ;
             }
-            else {
-              std::string bvalo(partion);
-              bvalo.insert(1, ".");
-              partion = bvalo;
-              jgain =  partion  ;
+            else
+            {
+                std::string bvalo(partion);
+                bvalo.insert(1, ".");
+                partion = bvalo;
+                jgain =  partion  ;
             }
-        cim +=  partion  ;
-        cim += "     0       ";
-        IntToString((offcut), partion);
-       cim += partion;
-        cim += "       ";
-        IntToString((lenghtcut), partion);
-       cim += partion;
-       cim += "       2  ";
-        //    cim += "     0       0       0     2  ";
+            cim +=  partion  ;
+            cim += "     0       ";
+            IntToString((offcut), partion);
+            cim += partion;
+            cim += "       ";
+            IntToString((lenghtcut), partion);
+            cim += partion;
+            cim += "       2  ";
             cim += jconvwav;
             cim += "\n";
         }
@@ -305,25 +308,24 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
         gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 6);
     }
     fbutton = gtk_file_chooser_button_new ("Select a *.wav file", GTK_FILE_CHOOSER_ACTION_OPEN);
-    // GTK_DIALOG_DESTROY_WITH_PARENT;
     gtk_file_chooser_get_local_only(GTK_FILE_CHOOSER (fbutton));
     gtk_file_chooser_set_filename(GTK_FILE_CHOOSER (fbutton), jconvwav.c_str());
     GtkFileFilter* filter =  gtk_file_filter_new ();
     gtk_file_filter_add_pattern (filter, "*.wav");
     gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (fbutton), filter);
-      GtkWaveView myGtkWaveView;
-   GtkWidget * waveview = myGtkWaveView.gtk_wave_view(jconvwav.c_str());
+    GtkWaveView myGtkWaveView;
+    GtkWidget * waveview = myGtkWaveView.gtk_wave_view(jconvwav.c_str());
     gtk_widget_set_size_request (GTK_WIDGET(waveview), 300.0, 200.0);
     GtkWidget * box = gtk_hbox_new (TRUE, 4);
     GtkWidget * box1 = gtk_hbox_new (TRUE, 4);
     GtkWidget * box2 = gtk_hbox_new (TRUE, 4);
     GtkWidget * box3 = gtk_hbox_new (TRUE, 4);
     GtkWidget * box4 = gtk_vbox_new (FALSE, 4);
-   GtkWidget * viewbox = gtk_vbox_new (TRUE, 4);
-  
-   gtk_container_add (GTK_CONTAINER (box4), viewbox);
-  gtk_container_add (GTK_CONTAINER (viewbox), waveview);
-  gtk_container_add (GTK_CONTAINER (box4), label);
+    GtkWidget * viewbox = gtk_vbox_new (TRUE, 4);
+
+    gtk_container_add (GTK_CONTAINER (box4), viewbox);
+    gtk_container_add (GTK_CONTAINER (viewbox), waveview);
+    gtk_container_add (GTK_CONTAINER (box4), label);
     gtk_container_add (GTK_CONTAINER (about), box4);
     gtk_container_add (GTK_CONTAINER (box4), fbutton);
     gtk_container_add (GTK_CONTAINER (box4), label1);
@@ -350,30 +352,33 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
     g_signal_connect_swapped (GTK_OBJECT (combo), "changed",  G_CALLBACK(getvalue1), (gpointer) combo);
     g_signal_connect_swapped (GTK_OBJECT (combo1), "changed",  G_CALLBACK(getvalue3), (gpointer) combo1);
     gtk_widget_show_all (about);
-    //GTK_DIALOG_DESTROY_WITH_PARENT;
 }
 
 // run jconv
- void JCONV_SETTINGS::runjconv( GtkWidget *widget, gpointer data )
+void JCONV_SETTINGS::runjconv( GtkWidget *widget, gpointer data )
 {
     if (checkbutton7 == 0)
     {
         checkbox7 = 1.0;
         if (system(" pidof jconv > /dev/null") == 0)
         {
-          //  jack_disconnect(client, jack_port_name(output_ports[2]),"jconv:In-1");
-          //  jack_disconnect(client, jack_port_name(output_ports[3]), "jconv:In-2");
+            //  jack_disconnect(client, jack_port_name(output_ports[2]),"jconv:In-1");
+            //  jack_disconnect(client, jack_port_name(output_ports[3]), "jconv:In-2");
             system("command kill -2 `pidof  jconv` 2> /dev/null") ;
             sleep(1);
-           
- 	   // gNumOutChans = 2;
-            for (int i = 3; i > 1; i--)
+
+            if (jack_port_is_mine (client,output_ports[3]))
             {
-		gNumOutChans -= 1;
-                jack_port_unregister(client, output_ports[i]);
+                jack_port_unregister(client, output_ports[3]);
+                gNumOutChans -= 1;
             }
-	   
-           // sleep(1);
+            if (jack_port_is_mine (client,output_ports[2]))
+            {
+                jack_port_unregister(client, output_ports[2]);
+                gNumOutChans -= 1;
+            }
+
+            // sleep(1);
             pclose(control_stream1);
         }
     }
@@ -422,7 +427,7 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
                     output_ports[i] = jack_port_register(client, buf,JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
                     gNumOutChans += 1;
                 }
-		//gNumOutChans = 4;
+                //gNumOutChans = 4;
                 pname = getenv("GUITARIX2JACK_OUTPUTS1");
                 snprintf(buf, 256, pname, i + 1);
                 port1 = jack_port_get_connections (output_ports[i]);

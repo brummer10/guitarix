@@ -11,12 +11,12 @@
 
 Resample::Resample()
 {
-  // Nothing specific to do...
+    // Nothing specific to do...
 }
 
 Resample::~Resample()
 {
-  // Nothing specific to do...
+    // Nothing specific to do...
 }
 
 SNDFILE *soundout_open(const char* name, int chans, float sr)
@@ -77,21 +77,22 @@ int resample(const char*  pInputi, const char* pOutputi, float jackframe)
         g_signal_connect_swapped (button, "clicked",  G_CALLBACK (gtk_widget_destroy), about);
         gtk_widget_show_all (about);
     }
-   else {
-    sig      = new float[vecsize*2];
-    while (counter<length+length2-1)
+    else
     {
-        soundin(pInput, sig,vecsize);
-        soundout(pOutput,sig,vecsize);
-        counter=counter+64;
-        countfloat = 0;
-    }
-    sf_close(pInput);
-    sf_close(pOutput);
-    delete[] sig;
+        sig      = new float[vecsize*2];
+        while (counter<length+length2-1)
+        {
+            soundin(pInput, sig,vecsize);
+            soundout(pOutput,sig,vecsize);
+            counter=counter+64;
+            countfloat = 0;
+        }
+        sf_close(pInput);
+        sf_close(pOutput);
+        delete[] sig;
         char lab[256] ;
-    snprintf(lab, 256, "fileinfo \n (%i) channel (%i)Sample rate (%i) Frames ", chans, int(jackframe),length2);
-        gtk_label_set_text(GTK_LABEL(label1), lab);  
+        snprintf(lab, 256, "fileinfo \n (%i) channel (%i)Sample rate (%i) Frames ", chans, int(jackframe),length2);
+        gtk_label_set_text(GTK_LABEL(label1), lab);
     }
     return 0;
 }
@@ -153,10 +154,8 @@ void Resample::fileread(GtkWidget *widget, gpointer data )
         soundin_close(sf);
         char lab[256] ;
         snprintf(lab, 256, "fileinfo \n(%i)channel (%i)Sample rate (%i)Samples ", chans, int(sr),framescount);
-        //snprintf(lab, 256, " (%i) channel (%i)Sample rate ", chans, int(sr));
-    // GtkWaveView myGtkWaveView;
-         wv(widget,data);
-        gtk_label_set_text(GTK_LABEL(label1), lab);  
+        wv(widget,data);
+        gtk_label_set_text(GTK_LABEL(label1), lab);
         if (sr != jackframe)
         {
             GtkWidget *about, *label, *button, *button1, *box, *box1;

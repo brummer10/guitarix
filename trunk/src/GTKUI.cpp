@@ -39,11 +39,12 @@ GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
     gtk_signal_connect (GTK_OBJECT (fWindow), "delete_event", GTK_SIGNAL_FUNC (delete_event), NULL);
     gtk_signal_connect (GTK_OBJECT (fWindow), "destroy", GTK_SIGNAL_FUNC (destroy_event), NULL);
     /*---------------- status icon ----------------*/
-    if (Existspix() == 0) {
-    status_icon =    gtk_status_icon_new_from_pixbuf (GDK_PIXBUF(ib));
-    gtk_window_set_icon(GTK_WINDOW (fWindow), GDK_PIXBUF(ib));
-    g_signal_connect (G_OBJECT (status_icon), "activate", GTK_SIGNAL_FUNC (hide_show), NULL);
-    g_signal_connect (G_OBJECT (status_icon), "popup-menu", GTK_SIGNAL_FUNC (pop_menu), NULL);
+    if (Existspix() == 0)
+    {
+        status_icon =    gtk_status_icon_new_from_pixbuf (GDK_PIXBUF(ib));
+        gtk_window_set_icon(GTK_WINDOW (fWindow), GDK_PIXBUF(ib));
+        g_signal_connect (G_OBJECT (status_icon), "activate", GTK_SIGNAL_FUNC (hide_show), NULL);
+        g_signal_connect (G_OBJECT (status_icon), "popup-menu", GTK_SIGNAL_FUNC (pop_menu), NULL);
     }
     /*---------------- create boxes ----------------*/
     fTop = 0;
@@ -92,7 +93,7 @@ void GTKUI::openHorizontalBox(const char* label)
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
         GtkWidget * frame = addWidget(label, gtk_frame_new (label));
-	gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_ETCHED_OUT);
+        gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_ETCHED_OUT);
         gtk_container_add (GTK_CONTAINER(frame), box);
         gtk_widget_show(box);
         pushBox(kBoxMode, box);
@@ -187,7 +188,7 @@ void GTKUI::openVerticalBox(const char* label)
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
         GtkWidget * frame = addWidget(label, gtk_frame_new (label));
-	gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_ETCHED_OUT);
+        gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_ETCHED_OUT);
         gtk_container_add (GTK_CONTAINER(frame), box);
         gtk_widget_show(box);
         pushBox(kBoxMode, box);
@@ -412,10 +413,10 @@ void GTKUI::addCheckButton(const char* label, float* zone)
     gtk_widget_modify_fg (button, GTK_STATE_PRELIGHT, &colorRed);
     gtk_widget_modify_text (button, GTK_STATE_NORMAL, &colorRed);
     gtk_widget_modify_base (button, GTK_STATE_NORMAL, &colorba);
-           GtkStyle *style = gtk_widget_get_style(lab);
-            pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-            pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
-            gtk_widget_modify_font(lab, style->font_desc);
+    GtkStyle *style = gtk_widget_get_style(lab);
+    pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+    gtk_widget_modify_font(lab, style->font_desc);
     uiCheckButton* c = new uiCheckButton(this, zone, GTK_TOGGLE_BUTTON(button));
     gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC(uiCheckButton::toggled), (gpointer) c);
     gtk_widget_show (lab);
@@ -487,9 +488,7 @@ void GTKUI::addHorizontalSlider(const char* label, float* zone, float init, floa
     GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_mini_slider_new_with_adjustment (GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-    //openFrameBox(label);
     addWidget(label, slider);
-   // closeBox();
 }
 
 struct uiValueDisplay : public uiItem
@@ -540,13 +539,13 @@ void GTKUI::addregler(const char* label, float* zone, float init, float min, flo
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkWidget* lw = gtk_label_new("");
-   GdkColor colorGreen;
-   gdk_color_parse("#a6a9aa", &colorGreen);
+    GdkColor colorGreen;
+    gdk_color_parse("#a6a9aa", &colorGreen);
     gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
-            GtkStyle *style = gtk_widget_get_style(lw);
-            pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-            pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
-            gtk_widget_modify_font(lw, style->font_desc);
+    GtkStyle *style = gtk_widget_get_style(lw);
+    pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+    gtk_widget_modify_font(lw, style->font_desc);
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
     GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
@@ -565,19 +564,19 @@ void GTKUI::addbigregler(const char* label, float* zone, float init, float min, 
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkWidget* lw = gtk_label_new("");
-   GdkColor colorGreen;
-   gdk_color_parse("#a6a9aa", &colorGreen);
+    GdkColor colorGreen;
+    gdk_color_parse("#a6a9aa", &colorGreen);
     gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
-            GtkStyle *style = gtk_widget_get_style(lw);
-            pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-            pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
-            gtk_widget_modify_font(lw, style->font_desc);
+    GtkStyle *style = gtk_widget_get_style(lw);
+    pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+    gtk_widget_modify_font(lw, style->font_desc);
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
     GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_big_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
     openVerticalBox(label);
- 
+
     addWidget(label, slider);
     addWidget(label, lw);
     closeBox();
@@ -590,13 +589,13 @@ void GTKUI::addslider(const char* label, float* zone, float init, float min, flo
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkWidget* lw = gtk_label_new("");
-   GdkColor colorGreen;
-   gdk_color_parse("#a6a9aa", &colorGreen);
+    GdkColor colorGreen;
+    gdk_color_parse("#a6a9aa", &colorGreen);
     gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
-            GtkStyle *style = gtk_widget_get_style(lw);
-            pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-            pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
-            gtk_widget_modify_font(lw, style->font_desc);
+    GtkStyle *style = gtk_widget_get_style(lw);
+    pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+    gtk_widget_modify_font(lw, style->font_desc);
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
     GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_hslider_new_with_adjustment(GTK_ADJUSTMENT(adj));
@@ -733,9 +732,10 @@ struct uiNumDisplay : public uiItem
             else if ((vis>=12)&&(vis<=23)) snprintf(s, 63, "%s", note[vis-12]);
             else if ((vis>=24)&&(vis<=35)) snprintf(s, 63,"%s", note[vis-24]);
             else if ((vis>=36)&&(vis<=47)) snprintf(s, 63,"%s", note[vis-36]);
-            else {
-		snprintf(s, 63, "%s", "");
-		scale = 0.0;
+            else
+            {
+                snprintf(s, 63, "%s", "");
+                scale = 0.0;
             }
             if ((scale >= 0.0) && (scale < 1.0)) gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
             gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), s);
@@ -808,21 +808,14 @@ void GTKUI::addLiveWaveDisplay(const char* label, float* zone , float* zone1)
     new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     GtkWaveView myGtkWaveView;
     livewa = myGtkWaveView.gtk_wave_live_view(zone,zone1,GTK_ADJUSTMENT(adj));
-   // placehold = myGtkWaveView.gtk_wave_place_hold();
-    //GtkWidget *hpaned = gtk_hpaned_new ();
     GtkWidget * nolivewa =  gtk_event_box_new ();
     GtkWidget * box = gtk_vbox_new (homogene, 4);
     gtk_widget_set_size_request (nolivewa, 480, 80);
-   gtk_container_add (GTK_CONTAINER(nolivewa),box );
+    gtk_container_add (GTK_CONTAINER(nolivewa),box );
     gtk_container_add (GTK_CONTAINER(box),livewa );
-  // gtk_container_add (GTK_CONTAINER(box),placehold );
-    //gtk_paned_pack1 (GTK_PANED (nolivewa), livewa, FALSE, TRUE);
-    //gtk_paned_pack2 (GTK_PANED (hpaned), nolivewa, FALSE, TRUE);
     addWidget(label, nolivewa);
     gtk_widget_show(box);
-  //  addWidget(label, livewa);
     gtk_widget_hide(livewa);
-   // gtk_widget_show(placehold);
 };
 
 
@@ -912,7 +905,6 @@ void GTKUI::addMenu()
     group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
     gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (play_function), NULL);
-//checky = 1.0;
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open radio check menu item under Engine submenu --*/
@@ -1018,7 +1010,7 @@ void GTKUI::addMenu()
 
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("  Oscilloscope");
-  //  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
+    //  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (show_view), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
@@ -1088,12 +1080,12 @@ static gboolean callUpdateAllGuis(gpointer)
 
 void GTKUI::run()
 {
-        assert(fTop == 0);
-        gtk_widget_show  (fBox[0]);
-        gtk_widget_show  (fWindow);
-        gtk_timeout_add(40, callUpdateAllGuis, 0);
-        gtk_main ();
-        stop();
+    assert(fTop == 0);
+    gtk_widget_show  (fBox[0]);
+    gtk_widget_show  (fWindow);
+    gtk_timeout_add(40, callUpdateAllGuis, 0);
+    gtk_main ();
+    stop();
 }
 
 

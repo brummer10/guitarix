@@ -38,13 +38,11 @@
 #include <pthread.h>
 #include <limits.h>
 
-// #include <X11/Xlib.h>
-// #include <X11/cursorfont.h>
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
+#include <sndfile.hh>
 #include <libgen.h>
 #include <jack/jack.h>
 #include <jack/midiport.h>
@@ -95,11 +93,6 @@ inline int 		int2pow2 (int x)
     return r;
 }
 
-inline int rund(float x)
-{
- return (x > 0.0) ? floor(x + 0.5) : ceil(x - 0.5);
-} 
-
 inline double sqr(double x)
 {
     return x * x;
@@ -119,17 +112,21 @@ struct Meta : map<const char*, const char*>
 };
 
 
-//////////////////////////////////////////////////////////////////////////////////
-/* This code is take from jack-keyboard 2.4, a virtual keyboard for JACK MIDI. 
-from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
+/******************************************************************************
+    The code for the jack_ringbuffer is take from
+    jack-keyboard 2.4, a virtual keyboard for JACK MIDI.
+    from Edward Tomasz Napierala <trasz@FreeBSD.org>.
+******************************************************************************/
 struct MidiMessage
 {
     jack_nframes_t	time;
     int		len;	/* Length of MIDI message, in bytes. */
-   // int        framenum;
     unsigned char	data[3];
 };
-/////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************
+    Thanks Edward for your friendly permision
+    Edward Tomasz Napierala <trasz@FreeBSD.org>.
+******************************************************************************/
 
 #include "UI.cpp"
 
@@ -164,14 +161,11 @@ struct MidiMessage
 mydsp	DSP;
 
 //----------------------------------------------------------------------------
-// 	number of input and output channels
+// 	number of input channels
 //----------------------------------------------------------------------------
 
 int		gNumInChans;
 
-//----------------------------------------------------------------------------
-// Jack ports
-//----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 // tables of noninterleaved input and output channels for FAUST
@@ -198,13 +192,12 @@ void jack_shutdown(void *arg)
 {
     fprintf(stderr, "jack has bumped us out , exiting ...\n");
     jack_client_close(client);
-  //  jack_client_close(midi_client);
     jack_ringbuffer_free(jack_ringbuffer);
     destroy_event( GTK_WIDGET(fWindow), NULL);
-    if (checkfreq) 
-    delete[] checkfreq;
-    if (get_frame) 
-    delete[] get_frame;
+    if (checkfreq)
+        delete[] checkfreq;
+    if (get_frame)
+        delete[] get_frame;
     exit(1);
 }
 
@@ -212,79 +205,80 @@ void signal_handler(int sig)
 {
     destroy_event( GTK_WIDGET(fWindow), NULL);
     jack_client_close(client);
-  //  jack_client_close(midi_client);
     jack_ringbuffer_free(jack_ringbuffer);
-    if (checkfreq) 
-    delete[] checkfreq;
-    if (get_frame) 
-    delete[] get_frame;
+    if (checkfreq)
+        delete[] checkfreq;
+    if (get_frame)
+        delete[] get_frame;
     fprintf(stderr, "signal %i received, exiting ...\n",sig);
     exit(0);
 }
 
 static int graph_callback (void* arg)
 {
-        if(jack_port_connected (input_ports[0])) NO_CONNECTION = 0;
-        else NO_CONNECTION = 1;
-	//printf ("Graph reordered\n");
-	return 0;
+    if (jack_port_connected (input_ports[0])) NO_CONNECTION = 0;
+    else NO_CONNECTION = 1;
+    return 0;
 }
 
 static int xrun_callback (void* arg)
 {
-	//printf ("xrun reordered\n");
-	return 0;
+    //printf ("xrun reordered\n");
+    return 0;
 }
 
 static void port_callback (jack_port_id_t port, int yn, void* arg)
 {
-	//printf ("Port %d %s\n", port, (yn ? "registered" : "unregistered"));
+    //printf ("Port %d %s\n", port, (yn ? "registered" : "unregistered"));
 }
 
 int midi_process (jack_nframes_t nframes, void *arg)
 {
- 
-//////////////////////////////////////////////////////////////////////////////////
-/* This code is inspiret by jack-keyboard 2.4, a virtual keyboard for JACK MIDI. 
-from Edward Tomasz Napierala <trasz@FreeBSD.org>.  */
-        int		read,t;
-        unsigned char* buffer ;
-        jack_nframes_t	last_frame_time;
-        last_frame_time = jack_last_frame_time(client);
-        void   *midi_port_buf = jack_port_get_buffer(midi_output_ports, nframes);
-        jack_midi_clear_buffer( midi_port_buf);
-        if (playmidi == 1) cpu_load = jack_cpu_load(client);
-        DSP.compute_midi(nframes);
-        //size_t max_size = jack_midi_max_event_size(midi_port_buf);
-        while (jack_ringbuffer_read_space(jack_ringbuffer))
+
+/******************************************************************************
+    The code for the jack_ringbuffer is take from
+    jack-keyboard 2.4, a virtual keyboard for JACK MIDI.
+    from Edward Tomasz Napierala <trasz@FreeBSD.org>.
+******************************************************************************/
+    int		read,t;
+    unsigned char* buffer ;
+    jack_nframes_t	last_frame_time;
+    last_frame_time = jack_last_frame_time(client);
+    void   *midi_port_buf = jack_port_get_buffer(midi_output_ports, nframes);
+    jack_midi_clear_buffer( midi_port_buf);
+    if (playmidi == 1) cpu_load = jack_cpu_load(client);
+    DSP.compute_midi(nframes);
+    while (jack_ringbuffer_read_space(jack_ringbuffer))
+    {
+        read = jack_ringbuffer_peek(jack_ringbuffer, (char *)&ev, sizeof(ev));
+        if (read != sizeof(ev))
         {
-            read = jack_ringbuffer_peek(jack_ringbuffer, (char *)&ev, sizeof(ev));
-            if (read != sizeof(ev))
-            {
-               // fprintf(stderr, " Short read from the ringbuffer, possible note loss.\n");
-                continue;
-            }
-            else
-            {
-                t = ev.time + nframes - last_frame_time;
-                if ((t >= (int)nframes) || (cpu_load > 75.0))
-                    break;
-		if (t < 0)
-			t = 0;
-                jack_ringbuffer_read_advance(jack_ringbuffer, sizeof(ev));
-                // jack_midi_clear_buffer( midi_port_buf);
-                if (jack_midi_max_event_size(midi_port_buf) > sizeof(ev))
-                buffer = jack_midi_event_reserve(midi_port_buf, t, ev.len);
-                else break;
-                if (ev.len > 2)
-                    buffer[2] = ev.data[2];
-                if (ev.len > 1)
-                    buffer[1] = ev.data[1];
-                buffer[0] = ev.data[0];
-            }
+            // fprintf(stderr, " Short read from the ringbuffer, possible note loss.\n");
+            continue;
         }
-   
-//////////////////////////////////////////////////////////////////////////////////
+        else
+        {
+            t = ev.time + nframes - last_frame_time;
+            if ((t >= (int)nframes) || (cpu_load > 75.0))
+                break;
+            if (t < 0)
+                t = 0;
+            jack_ringbuffer_read_advance(jack_ringbuffer, sizeof(ev));
+            if (jack_midi_max_event_size(midi_port_buf) > sizeof(ev))
+                buffer = jack_midi_event_reserve(midi_port_buf, t, ev.len);
+            else break;
+            if (ev.len > 2)
+                buffer[2] = ev.data[2];
+            if (ev.len > 1)
+                buffer[1] = ev.data[1];
+            buffer[0] = ev.data[0];
+        }
+    }
+
+/******************************************************************************
+    Thanks Edward for your friendly permision
+    Edward Tomasz Napierala <trasz@FreeBSD.org>.
+******************************************************************************/
     return 0;
 }
 
@@ -342,12 +336,8 @@ int main(int argc, char *argv[] )
     const char*			home;
     char*				pname;
     char*				jname;
- //   char*				midi_jname;
     char                rcfilename[256];
-   // char                midiname[256];
     jname = basename (argv [0]);
-   // snprintf(midiname, 256, "%s", "guitarix_midi");
-  //  midi_jname = midiname;
 
     AVOIDDENORMALS;
 
@@ -362,40 +352,23 @@ int main(int argc, char *argv[] )
         jname = jack_get_client_name (client);
     }
 
- /*   midi_client = jack_client_open (midi_jname, JackNoStartServer, &jackstat);
-    if (midi_client == 0)
-    {
-        fprintf (stderr, "Can't connect to JACK, is the server running ?\n");
-        exit (1);
-    }
-    if (jackstat & JackNameNotUnique)
-    {
-        midi_jname = jack_get_client_name (midi_client);
-    } */
-
-
-
     jack_ringbuffer = jack_ringbuffer_create(1024*sizeof(struct MidiMessage));
     if (jack_ringbuffer == NULL)
     {
         g_critical("Cannot create JACK ringbuffer.");
         destroy_event( GTK_WIDGET(fWindow), NULL);
         jack_client_close(client);
-      //  jack_client_close(midi_client);
         exit(1);
     }
     jack_ringbuffer_reset(jack_ringbuffer);
     jack_ringbuffer_mlock(jack_ringbuffer);
 
     jack_set_process_callback(client, process, 0);
- //   jack_set_process_callback(midi_client, midi_process, 0);
-
     jack_set_port_registration_callback (client, port_callback, NULL);
     jack_set_graph_order_callback (client, graph_callback, NULL);
     jack_set_xrun_callback(client, xrun_callback, NULL);
     jack_set_sample_rate_callback(client, srate, 0);
     jack_on_shutdown(client, jack_shutdown, 0);
- //   jack_on_shutdown(midi_client, jack_shutdown, 0);
     gNumInChans = DSP.getNumInputs();
     gNumOutChans = DSP.getNumOutputs();
     jackframes = jack_get_sample_rate (client);
@@ -420,14 +393,11 @@ int main(int argc, char *argv[] )
         input_ports[i] = jack_port_register(client, buf, JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
     }
     midi_output_ports = jack_port_register(client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
-    //  jack_port_unregister(midi_client, midi_output_ports);
     for (int i = 0; i < gNumOutChans; i++)
     {
         snprintf(buf, 256, "out_%d", i);
         output_ports[i] = jack_port_register(client, buf,JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
     }
-
-
 
 
     interface = new GTKUI (jname, &argc, &argv);
@@ -445,33 +415,6 @@ int main(int argc, char *argv[] )
         fprintf(stderr, "Can't activate JACK client\n");
         return 1;
     }
-  /*  int unchanel = gNumOutChans;
-    for (int i = unchanel; i > 2; i--)
-    {
-        gNumOutChans -= 1;
-        jack_port_unregister(client, output_ports[i-1]);
-    } */
-
- /*   if (jack_activate(midi_client))
-    {
-        fprintf(stderr, "Can't activate JACK midi client\n");
-        return 1;
-    }*/
-
-    // set midi tread to a lower rt-prio when run in realtime.
- /*   if (jack_is_realtime(midi_client) == 1)
-    {
-        sched_param  spar;
-        int  __policy;
-        pthread_getschedparam (jack_client_thread_id (midi_client), &__policy, &spar);
-        int rtis;
-        char istrr[256];
-        snprintf(istrr, 256, "%u",spar.sched_priority);
-        string isrt = istrr;
-        istringstream isn(isrt);
-        isn >> rtis;
-        if (rtis > 19) pthread_setschedprio ( jack_client_thread_id (midi_client), 19 );
-    } */
 
     // set autoconnect capture to capture_port_1
     setenv("GUITARIX2JACK_INPUTS", "system:capture_%d", 0);
@@ -503,7 +446,6 @@ int main(int argc, char *argv[] )
     DSP.setNumOutputs();
     interface->run();
 
- //   jack_deactivate(midi_client);
     jack_deactivate(client);
 
     for (int i = 0; i < gNumInChans; i++)
@@ -519,16 +461,17 @@ int main(int argc, char *argv[] )
         jack_port_unregister(client, midi_output_ports);
     }
 
-  //  jack_client_close(midi_client);
     jack_client_close(client);
     jack_ringbuffer_free(jack_ringbuffer);
 
     interface->saveState(rcfilename);
-    if (checkfreq) 
-    delete[] checkfreq;
-    if (get_frame) 
-    delete[] get_frame;
+
+    if (checkfreq)
+        delete[] checkfreq;
+    if (get_frame)
+        delete[] get_frame;
     return 0;
+
 }
 
 

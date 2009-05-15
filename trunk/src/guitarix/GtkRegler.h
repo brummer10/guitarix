@@ -36,15 +36,15 @@ public:
     int regler_type;
     double start_x, start_y, start_value;
 
-  GtkRegler();
-  ~GtkRegler();
- 
-virtual void gtk_regler_destroy ( );
-virtual GtkWidget *gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment);
-virtual GtkWidget *gtk_mini_slider_new_with_adjustment(GtkAdjustment *_adjustment);
-virtual GtkWidget *gtk_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
-virtual GtkWidget *gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment);
-virtual GtkWidget *gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustment);
+    GtkRegler();
+    ~GtkRegler();
+
+    virtual void gtk_regler_destroy ( );
+    virtual GtkWidget *gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment);
+    virtual GtkWidget *gtk_mini_slider_new_with_adjustment(GtkAdjustment *_adjustment);
+    virtual GtkWidget *gtk_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
+    virtual GtkWidget *gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment);
+    virtual GtkWidget *gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustment);
 };
 #endif
 

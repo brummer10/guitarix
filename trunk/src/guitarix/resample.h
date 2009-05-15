@@ -18,10 +18,10 @@
 
 // ***** resample.h *****
 /******************************************************************************
-part of guitarix, 
+part of guitarix,
 for guitarix by hermann meyer
 ******************************************************************************/
-#include <sndfile.hh>
+//#include <sndfile.hh>
 
 #ifndef ResampleH
 #define ResampleH
@@ -33,10 +33,10 @@ private:
 
 public:
 
- Resample();
-  ~Resample();
+    Resample();
+    ~Resample();
 
-virtual void fileread(GtkWidget *widget, gpointer data );
+    virtual void fileread(GtkWidget *widget, gpointer data );
 };
 #endif
 
