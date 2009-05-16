@@ -58,8 +58,8 @@
         int iTemps41 = int(fslider41);
         int iTemps42 = int(fslider42)*12;
         int iTemps40 = int(fslider40);
-        float fTemps37  = fSamplingFreq/fslider37;
-        float fTemps37a  = (fSamplingFreq/fslider37) +5.0;
+        int iTemps37  = int(fSamplingFreq/fslider37);
+        int iTemps37a  = int(fSamplingFreq/fslider37) +20;
         float fTemps38 = fslider38;
         float rms = 0;
         float midi_db = 0;
@@ -69,11 +69,13 @@
         int piwe;
         int cs = 0;
         int sum = 0;
+        int step = fslider39;
+      //  double stepper = 1/step;
         float *audiodata = checkfreq;
 
         if ((shownote == 1) || (playmidi == 1))
         {
-            for (int i=0; i<len; i++)
+            for (int i=0; i<len; i+=step)
             {
 
                 midi_db = (log(fabs(audiodata[i]))*6/log(2)*-1);
@@ -82,7 +84,8 @@
 
                 if (( beat0 >= fTemps45) && (cpu_load < 65.0))
                 {
-                    if (cs == fConstun0)
+
+                    if (cs == fConstun0/step)
                     {
                         cs = 0;
                         sum = 0;
@@ -316,9 +319,9 @@
                         myTBeatDetector.AudioProcess (beat0,  fTemps38);
                         if (myTBeatDetector.BeatPulse == TRUE)
                         {
-                            send++;
-                            if (fcheckbox10 == 1.0) send1++;
-                            if (fcheckbox11 == 1.0) send2++;
+                            send+=step;
+                            if (fcheckbox10 == 1.0) send1+=step;
+                            if (fcheckbox11 == 1.0) send2+=step;
                         }
                     }
                     // end if playmidi = 1
@@ -327,9 +330,9 @@
                 {
                     if  (playmidi == 1)
                     {
-                        if ((weg > fTemps37) || (cpu_load > 64.0))
+                        if ((weg > iTemps37) || (cpu_load > 64.0))
                         {
-                            if ((weg <  fTemps37a) || (cpu_load > 64.0))  // 5.0
+                            if ((weg <  iTemps37a) || (cpu_load > 64.0))  // 5.0
                             {
                                 midistat += 1.0f;
                                 ev.len = 3;
@@ -361,7 +364,7 @@
                                 midistat = 0.0f;
                             }
                         }
-                        weg++;
+                        weg+=step;
                     }
                     if (shownote == 1)
                     {
@@ -369,7 +372,7 @@
                         {
                             fConsta1 = 2000.0f;
                         }
-                        weg++;
+                        weg+=step;
                     }
                 }
 

@@ -266,7 +266,7 @@
         interface->openVerticalBox("beat_detector");
         interface->openEventBox(" ");
         interface->openHorizontalBox("");
-        interface->addregler("note_on", &fslider39, 2.f, 1.f, 20.f, 1.f);
+        interface->addregler("stepper", &fslider39, 1.f, 1.f, 16.f, 1.f);
         interface->addregler("note_off", &fslider37, 2.f, 1.f, 2400.f, 1.f);
         interface->addregler("atack_note", &fslider45, 5.f, 1.f, 127.f, 1.f);
         interface->addregler("atack_beat", &fslider38, 1.f, 0.005f, 127.f, 1.f);

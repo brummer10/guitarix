@@ -204,8 +204,8 @@
             int 	ipredrive = int(fpredrive);
             int 	iprdr = int(fprdr);
             // tuner
-            int iTemps39 = int(fslider39);
-            float fTemps39 = fslider39;
+            int iTemps39 = 10;//int(fslider39);
+            float fTemps39 = 10;//fslider39;
             // tuner ende
             // pointer to the jack_buffer
             float* input0 = input[0];
