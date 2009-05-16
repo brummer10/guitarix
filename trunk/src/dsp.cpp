@@ -260,6 +260,9 @@ private:
     float fresoon;
     float fvibrato;
     float fConstun0;
+    float tunerfilter;
+    float tunerstage1;
+    float tunerstage2;
     // float  fbargraph0;
 public:
 
@@ -503,6 +506,8 @@ public:
         fresoon = 0;
         fvibrato = 0;
         fConstun0 = (0.001*300*fSamplingFreq)*36;
+        tunerfilter = 1.0/(fSamplingFreq* (1.0f/(2.0f*M_PI*150.0f)));
+        tunerstage1 = tunerstage2 = 0.0;
     }
 
     virtual void init(int samplingFreq)

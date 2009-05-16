@@ -543,9 +543,11 @@ static void destroy_event( GtkWidget *widget, gpointer data )
         system("command kill -2 `pidof  jconv ` 2> /dev/null") ;
         pclose(control_stream1);
     }
+    shownote = 2;
     stopit = "stop";
     showwave = 0;
     playmidi = 0;
+    jack_deactivate(client);
     GtkWaveView myGtkWaveView;
     myGtkWaveView.gtk_waveview_destroy (GTK_WIDGET(livewa), NULL );
     GtkRegler myGtkRegler;
@@ -556,7 +558,7 @@ static void destroy_event( GtkWidget *widget, gpointer data )
         g_object_unref( ibm);
     if (G_IS_OBJECT(ibr))
         g_object_unref(ibr);
-    jack_deactivate(client);
+
     gtk_main_quit ();
 }
 

@@ -236,6 +236,9 @@
                 if ((shownote == 1) || (playmidi == 1))
                 {
                     float fTemphp0 = checkfreq [i]*2;
+                    tunerstage1=tunerstage1+(tunerfilter*(fTemphp0-tunerstage1));
+                    tunerstage2=tunerstage2+(tunerfilter*(tunerstage1-tunerstage2));
+                    fTemphp0 = tunerstage2;
                     float fTemphps0 = (1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0);
                     fVechp0[0] = fTemphps0;
                     fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
