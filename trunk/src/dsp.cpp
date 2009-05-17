@@ -263,6 +263,10 @@ private:
     float tunerfilter;
     float tunerstage1;
     float tunerstage2;
+
+    float tunerfilterh;
+    float tunerstageh1;
+    float tunerstageh2;
     // float  fbargraph0;
 public:
 
@@ -508,6 +512,9 @@ public:
         fConstun0 = (0.001*300*fSamplingFreq)*36;
         tunerfilter = 1.0/(fSamplingFreq* (1.0f/(2.0f*M_PI*150.0f)));
         tunerstage1 = tunerstage2 = 0.0;
+        tunerfilterh = 1.0/(fSamplingFreq* (1.0f/(2.0f*M_PI*12000.0f)));
+        tunerstageh1 = tunerstageh2 = 0.0;
+
     }
 
     virtual void init(int samplingFreq)
@@ -516,8 +523,8 @@ public:
         instanceInit(samplingFreq);
     }
 
-    #include"dsp_interface.cpp"
-    #include"dsp_midi.cpp"
-    #include"dsp_audio.cpp"
+#include"dsp_interface.cpp"
+#include"dsp_midi.cpp"
+#include"dsp_audio.cpp"
 
 
