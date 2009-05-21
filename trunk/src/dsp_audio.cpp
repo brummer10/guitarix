@@ -548,19 +548,19 @@ virtual void compute (int count, float** input, float** output)
             fVec0[1] = fVec0[0];
             fRecover0[1] = fRecover0[0];
             // post processing tuner
-         	fRect0[1] = fRect0[0];
+            fRect0[1] = fRect0[0];
             iRect1[1] = iRect1[0];
             iRect2[1] = iRect2[0];
-           	iRect3[1] = iRect3[0];
-           	fRect4[1] = fRect4[0];
-          	fVect1[1] = fVect1[0];
-          	fRect5[1] = fRect5[0];
-         	fVect0[1] = fVect0[0];
+            iRect3[1] = iRect3[0];
+            fRect4[1] = fRect4[0];
+            fVect1[1] = fVect1[0];
+            fRect5[1] = fRect5[0];
+            fVect0[1] = fVect0[0];
             fRechp0[1] = fRechp0[0];
             fVechp0[1] = fVechp0[0];
 
         }
-        fConsta1 = 12 * log2f(2.272727e-03f *  fConsta4);
+       // fConsta1 = 12 * log2f(2.272727e-03f *  fConsta4);
         if ((showwave == 1) &&(view_mode == 1)) viv = fRec0[0];
     }
     else
