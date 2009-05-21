@@ -43,6 +43,7 @@ public:
     virtual GtkWidget *gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment);
     virtual GtkWidget *gtk_mini_slider_new_with_adjustment(GtkAdjustment *_adjustment);
     virtual GtkWidget *gtk_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
+    virtual GtkWidget *gtk_switch_new_with_adjustment(GtkAdjustment *_adjustment);
     virtual GtkWidget *gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment);
     virtual GtkWidget *gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustment);
 };

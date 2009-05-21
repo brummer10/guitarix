@@ -184,6 +184,9 @@ private:
     float 	fslider30;
     float 	fslider31;
     int program;
+    unsigned char* midi_send;
+    unsigned char* midi_send1;
+    unsigned char* midi_send2;
     int send;
     int noten;
     float 	fslider32;
@@ -267,6 +270,9 @@ private:
     float tunerfilterh;
     float tunerstageh1;
     float tunerstageh2;
+    float fConstlog;
+    float fConstlog2;
+    float fatan;
     // float  fbargraph0;
 public:
 
@@ -514,7 +520,9 @@ public:
         tunerstage1 = tunerstage2 = 0.0;
         tunerfilterh = 1.0/(fSamplingFreq* (1.0f/(2.0f*M_PI*12000.0f)));
         tunerstageh1 = tunerstageh2 = 0.0;
-
+        fConstlog = log(1.055)*0.5;
+        fConstlog2 = 6/log(2)*-1;
+	fatan = 1;
     }
 
     virtual void init(int samplingFreq)
@@ -524,7 +532,11 @@ public:
     }
 
 #include"dsp_interface.cpp"
+#ifdef USE_RINGBUFFER
 #include"dsp_midi.cpp"
+#else
+#include"dsp_midi_noringbuffer.cpp"
+#endif
 #include"dsp_audio.cpp"
-
+};
 

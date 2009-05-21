@@ -46,8 +46,11 @@
 #include <libgen.h>
 #include <jack/jack.h>
 #include <jack/midiport.h>
-#include <jack/ringbuffer.h>
 
+//#define USE_RINGBUFFER
+#ifdef USE_RINGBUFFER
+#include <jack/ringbuffer.h>
+#endif
 
 using namespace std;
 
@@ -117,12 +120,14 @@ struct Meta : map<const char*, const char*>
     jack-keyboard 2.4, a virtual keyboard for JACK MIDI.
     from Edward Tomasz Napierala <trasz@FreeBSD.org>.
 ******************************************************************************/
+#ifdef USE_RINGBUFFER
 struct MidiMessage
 {
     jack_nframes_t	time;
     int		len;	/* Length of MIDI message, in bytes. */
     unsigned char	data[3];
 };
+#endif
 /******************************************************************************
     Thanks Edward for your friendly permision
     Edward Tomasz Napierala <trasz@FreeBSD.org>.
@@ -171,15 +176,17 @@ int		gNumInChans;
 // tables of noninterleaved input and output channels for FAUST
 //----------------------------------------------------------------------------
 
-float* 	gInChannel[128];
-float* 	gOutChannel[128];
+float* 	gInChannel[1];
+float* 	gOutChannel[4];
 //void*		midi_port_buf ;
 
 //----------------------------------------------------------------------------
 // Jack Callbacks
 //----------------------------------------------------------------------------
 
+#ifdef USE_RINGBUFFER
 struct MidiMessage ev;
+#endif
 
 int srate(jack_nframes_t nframes, void *arg)
 {
@@ -192,7 +199,9 @@ void jack_shutdown(void *arg)
 {
     fprintf(stderr, "jack has bumped us out , exiting ...\n");
     jack_client_close(client);
+#ifdef USE_RINGBUFFER
     jack_ringbuffer_free(jack_ringbuffer);
+#endif
     destroy_event( GTK_WIDGET(fWindow), NULL);
     if (checkfreq)
         delete[] checkfreq;
@@ -205,7 +214,9 @@ void signal_handler(int sig)
 {
     destroy_event( GTK_WIDGET(fWindow), NULL);
     jack_client_close(client);
+#ifdef USE_RINGBUFFER
     jack_ringbuffer_free(jack_ringbuffer);
+#endif
     if (checkfreq)
         delete[] checkfreq;
     if (get_frame)
@@ -232,14 +243,29 @@ static void port_callback (jack_port_id_t port, int yn, void* arg)
     //printf ("Port %d %s\n", port, (yn ? "registered" : "unregistered"));
 }
 
+#ifndef USE_RINGBUFFER
 int midi_process (jack_nframes_t nframes, void *arg)
 {
+    if (midi_output_ports != NULL)
+    {
+        AVOIDDENORMALS;
+        midi_port_buf =  jack_port_get_buffer(midi_output_ports, nframes);
+        jack_midi_clear_buffer(midi_port_buf);
+        if (playmidi == 1) cpu_load = jack_cpu_load(client);
+        DSP.compute_midi(nframes);
+    }
+    return 0;
+}
 
-/******************************************************************************
+#else
+int midi_process_ringbuffer (jack_nframes_t nframes, void *arg)
+{
+
+    /******************************************************************************
     The code for the jack_ringbuffer is take from
     jack-keyboard 2.4, a virtual keyboard for JACK MIDI.
     from Edward Tomasz Napierala <trasz@FreeBSD.org>.
-******************************************************************************/
+    ******************************************************************************/
     int		read,t;
     unsigned char* buffer ;
     jack_nframes_t	last_frame_time;
@@ -256,31 +282,29 @@ int midi_process (jack_nframes_t nframes, void *arg)
             // fprintf(stderr, " Short read from the ringbuffer, possible note loss.\n");
             continue;
         }
-        else
-        {
-            t = ev.time + nframes - last_frame_time;
-            if ((t >= (int)nframes) || (cpu_load > 75.0))
-                break;
-            if (t < 0)
-                t = 0;
-            jack_ringbuffer_read_advance(jack_ringbuffer, sizeof(ev));
-            if (jack_midi_max_event_size(midi_port_buf) > sizeof(ev))
-                buffer = jack_midi_event_reserve(midi_port_buf, t, ev.len);
-            else break;
-            if (ev.len > 2)
-                buffer[2] = ev.data[2];
-            if (ev.len > 1)
-                buffer[1] = ev.data[1];
-            buffer[0] = ev.data[0];
-        }
+        t = ev.time + nframes - last_frame_time;
+        if ((t >= (int)nframes) || (cpu_load > 75.0))
+            break;
+        if (t < 0)
+            t = 0;
+        jack_ringbuffer_read_advance(jack_ringbuffer, sizeof(ev));
+        if (jack_midi_max_event_size(midi_port_buf) > sizeof(ev))
+            buffer = jack_midi_event_reserve(midi_port_buf, t, ev.len);
+        else break;
+        if (ev.len > 2)
+            buffer[2] = ev.data[2];
+        if (ev.len > 1)
+            buffer[1] = ev.data[1];
+        buffer[0] = ev.data[0];
     }
 
-/******************************************************************************
+    /******************************************************************************
     Thanks Edward for your friendly permision
     Edward Tomasz Napierala <trasz@FreeBSD.org>.
-******************************************************************************/
+    ******************************************************************************/
     return 0;
 }
+#endif
 
 int process (jack_nframes_t nframes, void *arg)
 {
@@ -294,7 +318,11 @@ int process (jack_nframes_t nframes, void *arg)
         gOutChannel[i] = (float *)jack_port_get_buffer(output_ports[i], nframes);
     }
     DSP.compute(nframes, gInChannel, gOutChannel);
+#ifdef USE_RINGBUFFER
+    midi_process_ringbuffer(nframes, 0);
+#else
     midi_process(nframes, 0);
+#endif
     if (showwave == 1) time_is =  jack_frame_time (client);
     return 0;
 }
@@ -339,6 +367,10 @@ int main(int argc, char *argv[] )
     char                rcfilename[256];
     jname = basename (argv [0]);
 
+    // init the pointer to the jackbuffer
+    for (int i=0; i<4; i++) output_ports[i] = 0;
+    for (int i=0; i<2; i++) input_ports[i] = 0;
+
     AVOIDDENORMALS;
 
     client = jack_client_open (jname, (jack_options_t) 0, &jackstat);
@@ -351,8 +383,8 @@ int main(int argc, char *argv[] )
     {
         jname = jack_get_client_name (client);
     }
-
-    jack_ringbuffer = jack_ringbuffer_create(1024*sizeof(struct MidiMessage));
+#ifdef USE_RINGBUFFER
+    jack_ringbuffer = jack_ringbuffer_create(2048*sizeof(struct MidiMessage));
     if (jack_ringbuffer == NULL)
     {
         g_critical("Cannot create JACK ringbuffer.");
@@ -362,7 +394,7 @@ int main(int argc, char *argv[] )
     }
     jack_ringbuffer_reset(jack_ringbuffer);
     jack_ringbuffer_mlock(jack_ringbuffer);
-
+#endif
     jack_set_process_callback(client, process, 0);
     jack_set_port_registration_callback (client, port_callback, NULL);
     jack_set_graph_order_callback (client, graph_callback, NULL);
@@ -446,7 +478,7 @@ int main(int argc, char *argv[] )
     DSP.setNumOutputs();
     interface->run();
 
-   // jack_deactivate(client);
+    // jack_deactivate(client);
 
     for (int i = 0; i < gNumInChans; i++)
     {
@@ -462,8 +494,9 @@ int main(int argc, char *argv[] )
     }
 
     jack_client_close(client);
+#ifdef USE_RINGBUFFER
     jack_ringbuffer_free(jack_ringbuffer);
-
+#endif
     interface->saveState(rcfilename);
 
     if (checkfreq)

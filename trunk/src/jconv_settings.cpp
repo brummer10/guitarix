@@ -357,6 +357,7 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
 // run jconv
 void JCONV_SETTINGS::runjconv( GtkWidget *widget, gpointer data )
 {
+    int unuseres = 0;
     if (checkbutton7 == 0)
     {
         checkbox7 = 1.0;
@@ -364,7 +365,7 @@ void JCONV_SETTINGS::runjconv( GtkWidget *widget, gpointer data )
         {
             //  jack_disconnect(client, jack_port_name(output_ports[2]),"jconv:In-1");
             //  jack_disconnect(client, jack_port_name(output_ports[3]), "jconv:In-2");
-            system("command kill -2 `pidof  jconv` 2> /dev/null") ;
+            unuseres = system("command kill -2 `pidof  jconv` 2> /dev/null") ;
             sleep(1);
 
             if (jack_port_is_mine (client,output_ports[3]))
@@ -378,7 +379,7 @@ void JCONV_SETTINGS::runjconv( GtkWidget *widget, gpointer data )
                 gNumOutChans -= 1;
             }
 
-            // sleep(1);
+            sleep(1);
             pclose(control_stream1);
         }
     }

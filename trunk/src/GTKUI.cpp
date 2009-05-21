@@ -616,6 +616,27 @@ void GTKUI::addtoggle(const char* label, float* zone)
     addWidget(label, slider);
 }
 
+void GTKUI::addswitch(const char* label, float* zone)
+{
+    GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
+    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    GtkRegler myGtkRegler;
+    GtkWidget* slider = myGtkRegler.gtk_switch_new_with_adjustment(GTK_ADJUSTMENT(adj));
+     GtkWidget* lw = gtk_label_new(label);
+    GdkColor colorGreen;
+    gdk_color_parse("#a6a9aa", &colorGreen);
+    gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+    GtkStyle *style = gtk_widget_get_style(lw);
+    pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+    gtk_widget_modify_font(lw, style->font_desc);
+    openVerticalBox("");
+    addWidget(label, lw);
+    addWidget(label, slider);
+    closeBox();
+}
+
 void GTKUI::addNumEntry(const char* label, float* zone, float init, float min, float max, float step)
 {
     *zone = init;

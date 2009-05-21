@@ -91,6 +91,11 @@ inline void fuzzy_tube (int fuzzy,int mode, int sf, float** input, float** outpu
     }
 }
 
+inline float normalize(float in, float atan_shape, float shape)
+{
+	float out = atan_shape * atan(in*shape);
+	return out;
+}
 
 virtual void compute (int count, float** input, float** output)
 {
@@ -198,9 +203,13 @@ virtual void compute (int count, float** input, float** output)
         float drivem1 = drive - 1.0f;
         float fSlowover0 = (9.999871e-04f * powf(10, (5.000000e-02f * (drive*-0.5))));
         float fSlowvib0 = fvibrato;
+        int icheckboxcom1 = int(fcheckboxcom1);
+        int icheckbox1 = int(fcheckbox1);
+        int ioverdrive4 = int(foverdrive4);
         float sumt = 0;
         int cts = 0;
-
+        float atan_shape = 1.0/atan(fatan);
+        float f_atan = fatan;
 
         int 	ifuzzytube = int(ffuzzytube);
         int 	itube = int(ftube);
@@ -263,11 +272,9 @@ virtual void compute (int count, float** input, float** output)
                 fRect0[0] = (fSamplingFreq * ((fTemps39 / max(iRect1[0], 1)) - (fTemps39 * (iRect1[0] == 0))));
                 float fConsta4s = fRect0[0];
 
-
                 cts += 1;
                 sumt += sqr(fConsta4s);
                 fConsta4 = sqrt(sumt/cts);
-
 
             }
             else if (shownote == 0)
@@ -277,7 +284,7 @@ virtual void compute (int count, float** input, float** output)
             }
 
 
-            if (fcheckboxcom1 == 1.0)     // compressor
+            if (icheckboxcom1 == 1)     // compressor
             {
                 add_dc(input0[i]);
                 float fTempcom0 = input0[i];
@@ -303,12 +310,13 @@ virtual void compute (int count, float** input, float** output)
             fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
             float fTemp0 = (fRec4[0] * S5[0]);
 
-            if (fcheckbox1 == 1.0)     // preamp
+            if (icheckbox1 == 1)     // preamp
             {
                 float  in = fTemp0 ;
                 float  fTemp0in = (in-0.15*(in*in))-(0.15*(in*in*in));
                 in = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
-                fTemp0 = valve(in,in)*0.75;
+                fTemp0in = normalize(in,atan_shape,f_atan);
+                fTemp0 = valve(fTemp0in,fTemp0in)*0.75;
             }  //preamp ende
 
 
@@ -317,7 +325,7 @@ virtual void compute (int count, float** input, float** output)
             if (fresoon == 1.0) fRec3[0] = fuzz( (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1]))));  //resonanz 1.76f
             S4[0] = fRec3[0];
 
-            if (foverdrive4 == 1.0)     // overdrive
+            if (ioverdrive4 == 1)     // overdrive
             {
                 float fTempdr0 = (fTemp0 + S4[0]) * 0.5;
                 float fTempdr1 = fabs(fTempdr0);
@@ -326,7 +334,7 @@ virtual void compute (int count, float** input, float** output)
                 fTemp0 = S4[0];
             }
 
-            if (fcheckbox4 == 1.0)     // distortion
+            if (iSlow45 == 1)     // distortion
             {
                 float 	S6[2];
                 float 	S7[2];
@@ -377,7 +385,7 @@ virtual void compute (int count, float** input, float** output)
             fRec1[0] = (fSlow55 * ((((fSlow54 * fRec2[1]) + (fSlow53 * fRec2[0])) + (fSlow51 * fRec2[2])) + (0 - ((fSlow7 * fRec1[2]) + (fSlow4 * fRec1[1])))));
 
             float fTemp8 = fRec1[0];
-            if (fcheckbox5 == 1.0)    //crybaby
+            if (iSlow65 == 1)    //crybaby
             {
                 S3[0] = fRec1[0];
                 fRec19[0] = (fSlow57 + (0.999f * fRec19[1]));
@@ -390,7 +398,7 @@ virtual void compute (int count, float** input, float** output)
 
             S2[0] = fTemp8;
 
-            if (fcheckbox6 == 1.0)     //freeverb
+            if (iSlow71 == 1)     //freeverb
             {
                 float fTemp9 = (1.500000e-02f * fTemp8);
                 fRec31[0] = ((fSlow69 * fRec30[1]) + (fSlow68 * fRec31[1]));
@@ -437,7 +445,7 @@ virtual void compute (int count, float** input, float** output)
             fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
             float fTemp12 = (fRec46[0] * S2[iSlow71]);
 
-            if (fcheckbox7 == 1.0)    //echo
+            if (iSlow75 == 1)    //echo
             {
                 S1[0] = fTemp12;
                 fRec47[IOTA&262143] = (fTemp12 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
@@ -445,7 +453,7 @@ virtual void compute (int count, float** input, float** output)
                 fTemp12 = S1[iSlow75];
             }                                     //echo ende
 
-            if (fcheckbox8 == 1.0)     //impulseResponse
+            if (iSlow79 == 1)     //impulseResponse
             {
                 fVec22[0] = fTemp12;
                 S0[0] = fVec22[0];
@@ -540,19 +548,19 @@ virtual void compute (int count, float** input, float** output)
             fVec0[1] = fVec0[0];
             fRecover0[1] = fRecover0[0];
             // post processing tuner
-            fRect0[1] = fRect0[0];
+         	fRect0[1] = fRect0[0];
             iRect1[1] = iRect1[0];
             iRect2[1] = iRect2[0];
-            iRect3[1] = iRect3[0];
-            fRect4[1] = fRect4[0];
-            fVect1[1] = fVect1[0];
-            fRect5[1] = fRect5[0];
-            fVect0[1] = fVect0[0];
+           	iRect3[1] = iRect3[0];
+           	fRect4[1] = fRect4[0];
+          	fVect1[1] = fVect1[0];
+          	fRect5[1] = fRect5[0];
+         	fVect0[1] = fVect0[0];
             fRechp0[1] = fRechp0[0];
             fVechp0[1] = fVechp0[0];
 
-
         }
+        fConsta1 = 12 * log2f(2.272727e-03f *  fConsta4);
         if ((showwave == 1) &&(view_mode == 1)) viv = fRec0[0];
     }
     else
@@ -572,5 +580,5 @@ virtual void compute (int count, float** input, float** output)
         }
     }
 }
-};
+
 

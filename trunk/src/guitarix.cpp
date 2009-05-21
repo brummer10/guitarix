@@ -47,17 +47,23 @@ FILE*              control_stream1;
 UI*                 interface;
 
 jack_client_t*      client ;
-jack_port_t *output_ports[256];
-jack_port_t *input_ports[256];
+jack_port_t *output_ports[4];
+jack_port_t *input_ports[1];
+#ifndef USE_RINGBUFFER
+void   *midi_port_buf;
+#else
+jack_ringbuffer_t *jack_ringbuffer;
+#endif
+
 jack_port_t *midi_output_ports;
 jack_nframes_t time_is;
-jack_ringbuffer_t *jack_ringbuffer;
 jack_nframes_t  jackframes;
 
 
 // check version and if directory exists and create it if it not exist
 bool Exists(const char* Path)
 {
+    int unuseres = 0;
     struct stat my_stat;
     if  ( !stat(Path, &my_stat) != 0)
     {
@@ -68,18 +74,18 @@ bool Exists(const char* Path)
         if  ( !stat(rcfilename, &my_stat) == 0)
         {
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/version-*");
-            system (rcfilename);
+            unuseres = system (rcfilename);
             snprintf(rcfilename, 256, "%s/.%s-0.03.3", home, "guitarix/version");
             ofstream f(rcfilename);
             string cim = "guitarix-0.03.9";
             f <<  cim <<endl;
             f.close();
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/guitarixprerc");
-            system (rcfilename);
+            unuseres = system (rcfilename);
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/guitarixrc");
-            system (rcfilename);
+            unuseres = system (rcfilename);
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/*.conf");
-            system (rcfilename);
+            unuseres = system (rcfilename);
             snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
             ofstream fa(rcfilename);
             cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n-64.0 0.52 10 1.5 1.5 0 \n";
@@ -92,7 +98,7 @@ bool Exists(const char* Path)
         char                rcfilename[256];
         const char*	  home;
         home = getenv ("HOME");
-        system("mkdir $HOME/.guitarix" );
+        unuseres = system("mkdir $HOME/.guitarix" );
         snprintf(rcfilename, 256, "%s/.%src", home, "guitarix/ja_ca_sset");
         ofstream f(rcfilename);
         string cim = "jack_capture -c 2 --silent --disable-meter --port guitarix:out* ";
@@ -210,15 +216,16 @@ void stop_function (GtkCheckMenuItem *menuitem, gpointer checkplay)
 //----menu funktion meterbridge
 void meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
+    int unuseres = 0;
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
     {
-        system ("meterbridge -n meterbridge_guitarix_in_out -t sco guitarix:in_0  guitarix:out_0 > /dev/null &");
+        unuseres = system ("meterbridge -n meterbridge_guitarix_in_out -t sco guitarix:in_0  guitarix:out_0 > /dev/null &");
     }
     else
     {
         if (system(" pidof meterbridge > /dev/null") == 0)
         {
-            system("kill -15 `pidof meterbridge ` > /dev/null");
+            unuseres = system("kill -15 `pidof meterbridge ` > /dev/null");
         }
     }
 }
@@ -269,12 +276,13 @@ void midi_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
 // start or stop record when toggle_button record is pressed
 void recordit (GtkWidget *widget, gpointer data)
 {
+    int unuseres = 0;
 // stop record
     if ((togglebutton1 == 0) && (cap == 0))
     {
         if (system(" pidof jack_capture > /dev/null") == 0)
         {
-            system("command kill -2 `pidof  jack_capture ` 2> /dev/null") ;
+            unuseres = system("command kill -2 `pidof  jack_capture ` 2> /dev/null") ;
             pclose(control_stream);
         }
     }
@@ -343,6 +351,7 @@ void load_function1 (GtkMenuItem *menuitem, gpointer load_preset)
 {
     JCONV_SETTINGS myJCONV_SETTINGS;
     checkbutton7 = 0;
+    int unuseres = 0;
     interface->updateAllGuis();
     const char*	  home;
     char                rcfilenamere[256];
@@ -358,7 +367,7 @@ void load_function1 (GtkMenuItem *menuitem, gpointer load_preset)
     if (home == 0) home = ".";
     char                filename[256];
     snprintf(filename, 256, "cp %s/.%s%s%s %s/.%s", home, "guitarix/jconv_", text,".conf", home, "guitarix/jconv_set.conf");
-    system(filename);
+    unuseres = system(filename);
     snprintf(rcfilenamere, 256, "%s/.guitarix/%src", home, prename);
     snprintf(tmpfilename, 256, "%s/.guitarix/%src", home, tmpname);
     ifstream f(rcfilenamere);
@@ -388,6 +397,7 @@ void load_function1 (GtkMenuItem *menuitem, gpointer load_preset)
 //---- funktion save
 void save_functio (const gchar* presname)
 {
+    int unuseres = 0;
     const char*	  home;
     const char*      prename = "guitarixpre";
     const char*      tmpname = "guitarixtmp";
@@ -414,7 +424,7 @@ void save_functio (const gchar* presname)
     gtk_window_set_title (GTK_WINDOW (fWindow), itle);
     char                filename[256];
     snprintf(filename, 256, "cp %s/.%s %s/.%s%s%s", home, "guitarix/jconv_set.conf", home, "guitarix/jconv_", presname,".conf");
-    system(filename);
+    unuseres = system(filename);
 }
 
 //----menu funktion save
@@ -505,23 +515,25 @@ void wv( GtkWidget *widget, gpointer data )
 //--------------------------- jack_capture settings ----------------------------------------
 static void show_event1( GtkWidget *widget, gpointer data )
 {
-    system ("jack_capture_gui2 -o yes -f ~/guitarix_session -n guitarix -p /.guitarix/ja_ca_ssetrc &");
+    int unuseres = 0;
+    unuseres = system ("jack_capture_gui2 -o yes -f ~/guitarix_session -n guitarix -p /.guitarix/ja_ca_ssetrc &");
 }
 
 static gint delete_event( GtkWidget *widget, GdkEvent *event, gpointer data )
 {
+    int unuseres = 0;
     if (system(" pidof meterbridge > /dev/null") == 0)
     {
-        system("kill -15 `pidof meterbridge ` 2> /dev/null");
+        unuseres = system("kill -15 `pidof meterbridge ` 2> /dev/null");
     }
     if (system(" pidof jack_capture > /dev/null") == 0)
     {
-        system("command kill -2 `pidof  jack_capture ` 2> /dev/null") ;
+        unuseres = system("command kill -2 `pidof  jack_capture ` 2> /dev/null") ;
         pclose(control_stream);
     }
     if (system(" pidof jconv > /dev/null") == 0)
     {
-        system("command kill -2 `pidof  jconv ` 2> /dev/null") ;
+        unuseres = system("command kill -2 `pidof  jconv ` 2> /dev/null") ;
         pclose(control_stream1);
     }
     return FALSE;
@@ -529,18 +541,19 @@ static gint delete_event( GtkWidget *widget, GdkEvent *event, gpointer data )
 
 static void destroy_event( GtkWidget *widget, gpointer data )
 {
+    int unuseres = 0;
     if (system(" pidof meterbridge > /dev/null") == 0)
     {
-        system("kill -15 `pidof meterbridge ` 2> /dev/null");
+        unuseres = system("kill -15 `pidof meterbridge ` 2> /dev/null");
     }
     if (system(" pidof jack_capture > /dev/null") == 0)
     {
-        system("command kill -2 `pidof  jack_capture ` 2> /dev/null") ;
+        unuseres = system("command kill -2 `pidof  jack_capture ` 2> /dev/null") ;
         pclose(control_stream);
     }
     if (system(" pidof jconv > /dev/null") == 0)
     {
-        system("command kill -2 `pidof  jconv ` 2> /dev/null") ;
+        unuseres = system("command kill -2 `pidof  jconv ` 2> /dev/null") ;
         pclose(control_stream1);
     }
     shownote = 2;

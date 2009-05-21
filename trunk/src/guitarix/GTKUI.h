@@ -79,6 +79,7 @@ public :
     virtual void addbigregler(const char* label, float* zone, float init, float min, float max, float step);
     virtual void addslider(const char* label, float* zone, float init, float min, float max, float step);
     virtual void addtoggle(const char* label, float* zone);
+    virtual void addswitch(const char* label, float* zone);
     virtual void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
     virtual void addNumDisplay(const char* label, float* zone);
     virtual void addLiveWaveDisplay(const char* label, float* zone , float* zone1);

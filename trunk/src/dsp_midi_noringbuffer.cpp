@@ -7,34 +7,6 @@
 *******************************************************************************
 *******************************************************************************/
 
-
-/******************************************************************************
-    The code for the jack_ringbuffer is take from
-    jack-keyboard 2.4, a virtual keyboard for JACK MIDI.
-    from Edward Tomasz Napierala <trasz@FreeBSD.org>.
-******************************************************************************/
-struct MidiMessage ev;
-
-void
-queue_message(struct MidiMessage *ev)
-{
-    int space;
-    space =  jack_ringbuffer_write_space( jack_ringbuffer);
-    if (space > int(sizeof(*ev)+2))
-    {
-        int		written;
-        written = jack_ringbuffer_write(jack_ringbuffer, (char *)ev, sizeof(*ev));
-        if (written != sizeof(*ev))
-            g_warning("Not enough space in the ringbuffer, NOTE LOST.");
-     }
-}
-
-/******************************************************************************
-    Thanks Edward for your friendly permision
-    Edward Tomasz Napierala <trasz@FreeBSD.org>.
-******************************************************************************/
-
-
 virtual void compute_midi( int len)
 {
     TBeatDetector myTBeatDetector;
@@ -61,7 +33,7 @@ virtual void compute_midi( int len)
     int step = fslider39;
     double stepper = 1./step;
     int iTemps37  = int(fSamplingFreq/fslider37);
-    int iTemps37a  = int(fSamplingFreq/fslider37) +step+5;
+    int iTemps37a  = iTemps37+20;
     float fTemps38 = fslider38;
     float rms = 0;
     float midi_db = 0;
@@ -110,11 +82,12 @@ virtual void compute_midi( int len)
                     {
                         program = iTemps31;
                         midistat += 1.0f;
-                        ev.len = 2;
-                        ev.data[0] = 0xC0 | iTemps30;  // controller+ channel
-                        ev.data[1] = iTemps31;  // program value
-                        ev.time = jack_frame_time(client);
-                        queue_message(&ev);
+                            midi_send = jack_midi_event_reserve(midi_port_buf, i, 2);
+                            if (midi_send)
+                            {
+                                midi_send[1] =  iTemps31;  // program value
+                                midi_send[0] = 0xC0 | iTemps30;  // controller+ channel
+                            }
                     }
                     if (send > iTemps27)   //20
                     {
@@ -129,13 +102,13 @@ virtual void compute_midi( int len)
                         {
                             volume = iTemps46;
                             midistat += 1.0f;
-                            ev.len = 3;
-                            ev.data[0] = 0xB0 | iTemps30;  // controller + channel
-                            ev.data[1] = 0x07;     // set controler volume
-                            ev.data[2] = iTemps46;	// volume value
-                            ev.time = jack_frame_time(client);
-                            // ev.framenum = i;
-                            queue_message(&ev);
+                            midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
+                            if (midi_send)
+                            {
+                                midi_send[2] = iTemps46;	// volume value
+                                midi_send[1] =  0x07;     // set controler volume
+                                midi_send[0] = 0xB0 | iTemps30;  // controller + channel
+                            }
                         }
 
                         noten = preNote + iTemps29;
@@ -146,31 +119,34 @@ virtual void compute_midi( int len)
                             // pitch wheel clear
                             if (fpitch == 1.0)
                             {
-                                ev.len = 3;
-                                ev.data[0] = 0xE0 |  iTemps30; // controller + channel
-                                ev.data[1] = 0x00 ; // pitch value
-                                ev.data[2] = 0x40;  // pitch value
-                                ev.time = jack_frame_time(client);
-                                queue_message(&ev);
+                                    midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                    if (midi_send)
+                                    {
+                                        midi_send[2] =  0x40;  // pitch value
+                                        midi_send[1] = 0x00 ; // pitch value
+                                        midi_send[0] = 0xE0 |  iTemps30; // controller + channel
+                                    }
                             }
-                            ev.len = 3;
-                            ev.data[0] = 0x90 |  iTemps30;	// controller + channel
-                            ev.data[1] =noten ; // note
-                            ev.data[2] = iTemps26; // velocity
-                            ev.time = jack_frame_time(client);
-                            queue_message(&ev);
+                                midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                if (midi_send)
+                                {
+                                    midi_send[2] = iTemps26; // velocity
+                                    midi_send[1] = noten ; // note
+                                    midi_send[0] = 0x90 |  iTemps30;	// controller + channel
+                                }
 
                             // pitch wheel set auto
                             if (fpitch == 1.0)
                             {
                                 if (piwe < 0) piwe = 0;
                                 if (fConsta2 > 0x3fff) piwe = 0x3fff;
-                                ev.len = 3;
-                                ev.data[0] = 0xE0 |  iTemps30;	// controller + channel
-                                ev.data[1] = piwe & 0x7f ; // pitch
-                                ev.data[2] = (piwe >> 7) & 0x7f;  // pitch
-                                ev.time = jack_frame_time(client);
-                                queue_message(&ev);
+                                    midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                    if (midi_send)
+                                    {
+                                        midi_send[2] = (piwe >> 7) & 0x7f;  // pitch
+                                        midi_send[1] = piwe & 0x7f ; // pitch
+                                        midi_send[0] = 0xE0 |  iTemps30; // controller + channel
+				     }
                             }
                         }
                     }
@@ -181,11 +157,12 @@ virtual void compute_midi( int len)
                         {
                             program1 = iTemps36;
                             midistat += 1.0f;
-                            ev.len = 2;
-                            ev.data[0] = 0xC0 | iTemps35; // controller+ channel
-                            ev.data[1] = iTemps36;  // program value
-                            ev.time = jack_frame_time(client);
-                            queue_message(&ev);
+                                midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 2);
+                                if (midi_send1)
+                                {
+                                    midi_send1[1] = iTemps36;  // program value
+                                    midi_send1[0] = 0xC0 | iTemps35; // controller+ channel
+                                }
                         }
                         if (send1 > iTemps33)
                         {
@@ -200,12 +177,13 @@ virtual void compute_midi( int len)
                             {
                                 volume1 = iTemps47;
                                 midistat += 1.0f;
-                                ev.len = 3;
-                                ev.data[0] = 0xB0 | iTemps35; // controller + channel
-                                ev.data[1] = 0x07; // set controler channel volume
-                                ev.data[2] = iTemps47;  // volume value
-                                ev.time = jack_frame_time(client);
-                                queue_message(&ev);
+                                midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                if (midi_send1)
+                                {
+                                    midi_send1[2] = iTemps47;  // volume value
+                                    midi_send1[1] =  0x07; // set controler channel volume
+                                    midi_send1[0] = 0xB0 | iTemps35; // controller + channel
+                                }
                             }
 
                             noten1 = preNote + iTemps34;
@@ -216,31 +194,33 @@ virtual void compute_midi( int len)
                                 // pitch wheel clear
                                 if (fpitch1 == 1.0)
                                 {
-                                    ev.len = 3;
-                                    ev.data[0] = 0xE0 |  iTemps35;  // controller + channel
-                                    ev.data[1] = 0x00 ; // pitch value
-                                    ev.data[2] = 0x40;  // pitch value
-                                    ev.time = jack_frame_time(client);
-                                    queue_message(&ev);
+                                        midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                        if (midi_send1)
+                                        {
+                                            midi_send1[2] =  0x40;  // pitch value
+                                            midi_send1[1] = 0x00 ; // pitch value
+                                            midi_send1[0] = 0xE0 |  iTemps35;  // controller + channel
+                                        }
                                 }
-                                ev.len = 3;
-                                ev.data[0] = 0x90 | iTemps35; // note on + channel
-                                ev.data[1] = noten1; // note
-                                ev.data[2] = iTemps32; // velocity
-                                ev.time = jack_frame_time(client);
-                                queue_message(&ev);
+                                    midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                    if (midi_send1)
+                                    {
+                                        midi_send1[2] = iTemps32; // velocity
+                                        midi_send1[1] = noten1; // note
+                                        midi_send1[0] = 0x90 | iTemps35; // note on + channel
+                                    }
 
                                 // pitch wheel set auto
                                 if (fpitch1 == 1.0)
                                 {
                                     if (piwe < 0) piwe = 0;
                                     if (fConsta2 > 0x3fff) piwe = 0x3fff;
-                                    ev.len = 3;
-                                    ev.data[0] = 0xE0 |  iTemps35; // controller + channel
-                                    ev.data[1] = piwe & 0x7f ; // pitch
-                                    ev.data[2] = (piwe >> 7) & 0x7f;  // pitch
-                                    ev.time = jack_frame_time(client);
-                                    queue_message(&ev);
+                                        if (midi_send1)
+                                        {
+                                            midi_send1[2] = (piwe >> 7) & 0x7f;  // pitch
+                                            midi_send1[1] = piwe & 0x7f ; // pitch
+                                            midi_send1[0] = 0xE0 |  iTemps35; // controller + channel
+                                        }
                                 }
                             }
                         }
@@ -251,11 +231,12 @@ virtual void compute_midi( int len)
                         {
                             program2 = iTemps43;
                             midistat += 1.0f;
-                            ev.len = 2;
-                            ev.data[0] = 0xC0 | iTemps44; // controller
-                            ev.data[1] = iTemps43;  // program value
-                            ev.time = jack_frame_time(client);
-                            queue_message(&ev);
+                                midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 2);
+                                if (midi_send2)
+                                {
+                                    midi_send2[1] =  iTemps43;  // program value
+                                    midi_send2[0] = 0xC0 | iTemps44; // controller
+                                }
                         }
                         if (send2 > iTemps41)   //20
                         {
@@ -270,52 +251,55 @@ virtual void compute_midi( int len)
                             {
                                 volume2 = iTemps48;
                                 midistat += 1.0f;
-                                ev.len = 3;
-                                ev.data[0] = 0xB0 | iTemps44; // controller + channel
-                                ev.data[1] = 0x07; // set controler channel volume
-                                ev.data[2] = iTemps48;  // volume value
-                                ev.time = jack_frame_time(client);
-                                queue_message(&ev);
+                                midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                if (midi_send2)
+                                {
+                                    midi_send2[2] = iTemps48;  // volume value
+                                    midi_send2[1] =  0x07; // set controler channel volume
+                                    midi_send2[0] = 0xB0 | iTemps44; // controller + channel
+                                }
                             }
 
                             // pitch wheel clear
                             if (fpitch2 == 1.0)
                             {
-                                ev.len = 3;
-                                ev.data[0] = 0xE0 |  iTemps44;	// controller + channel
-                                ev.data[1] = 0x00 ; // pitch value
-                                ev.data[2] = 0x40;  // pitch value
-                                ev.time = jack_frame_time(client);
-                                queue_message(&ev);
+                                    midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                    if (midi_send2)
+                                    {
+                                        midi_send2[2] =  0x40;  // pitch value
+                                        midi_send2[1] = 0x00 ; // pitch value
+                                        midi_send2[0] = 0xE0 |  iTemps44;	// controller + channel
+                                    }
                             }
                             noten2 = preNote + iTemps42;
                             send2 = 0;
                             midistat += 1.0f;
                             if ((noten2>=0)&&(noten2<=127))
                             {
-                                ev.len = 3;
-                                ev.data[0] = 0x90 | iTemps44;  // note on + channel
-                                ev.data[1] = noten2; //  note
-                                ev.data[2] = iTemps40; // velocity
-                                ev.time = jack_frame_time(client);
-                                queue_message(&ev);
+                                    if (midi_send2)
+                                    {
+                                        midi_send2[2] = iTemps40; // velocity
+                                        midi_send2[1] = noten2; //  note
+                                        midi_send2[0] = 0x90 | iTemps44;  // note on + channel
+                                    }
 
                                 // pitch wheel set auto
                                 if (fpitch2 == 1.0)
                                 {
                                     if (piwe < 0) piwe = 0;
                                     if (fConsta2 > 0x3fff) piwe = 0x3fff;
-                                    ev.len = 3;
-                                    ev.data[0] = 0xE0 |  iTemps44; // controller + channel
-                                    ev.data[1] = piwe & 0x7f ; // pitch
-                                    ev.data[2] = (piwe >> 7) & 0x7f;  // pitch
-                                    ev.time = jack_frame_time(client);
-                                    queue_message(&ev);
+                                        midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                        if (midi_send2)
+                                        {
+                                            midi_send2[2] = (piwe >> 7) & 0x7f;  // pitch
+                                            midi_send2[1] = piwe & 0x7f ; // pitch
+                                            midi_send2[0] = 0xE0 |  iTemps44; // controller + channel
+                                        }
                                 }
                             }
                         }
                     }
-                    myTBeatDetector.setSampleRate (fSamplingFreq*stepper);
+                    myTBeatDetector.setSampleRate (fSamplingFreq);
                     myTBeatDetector.AudioProcess (beat0,  fTemps38);
                     if (myTBeatDetector.BeatPulse == TRUE)
                     {
@@ -335,31 +319,34 @@ virtual void compute_midi( int len)
                         if (weg <  iTemps37a)  // 5.0
                         {
                             midistat += 1.0f;
-                            ev.len = 3;
-                            ev.data[0] = 0xB0 | iTemps30 ;	// controller
-                            ev.data[1] = 123;  // all notes off
-                            ev.data[2] = iTemps26; // velocity
-                            ev.time = jack_frame_time(client);
-                            queue_message(&ev);
+                                midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                if (midi_send)
+                                {
+                                    midi_send[2] = iTemps26; // velocity
+                                    midi_send[1] = 123;  // all notes off
+                                    midi_send[0] = 0xB0 | iTemps30 ;	// controller
+                                }
                             if (fcheckbox10 == 1.0)
                             {
                                 midistat += 1.0f;
-                                ev.len = 3;
-                                ev.data[0] = 0xB0 |  iTemps35;	// controller
-                                ev.data[1] = 123;  // all notes off
-                                ev.data[2] = iTemps32; // velocity
-                                ev.time = jack_frame_time(client);
-                                queue_message(&ev);
+                                    midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                    if (midi_send1)
+                                    {
+                                        midi_send1[2] = iTemps32; // velocity
+                                        midi_send1[1] = 123;  // all notes off
+                                        midi_send1[0] = 0xB0 |  iTemps35;	// controller
+                                    }
                             }
                             if (fcheckbox11 == 1.0)
                             {
                                 midistat += 1.0f;
-                                ev.len = 3;
-                                ev.data[0] = 0xB0 |  iTemps44;	// controller
-                                ev.data[1] = 123;  // all notes off
-                                ev.data[2] = iTemps40; // velocity
-                                ev.time = jack_frame_time(client);
-                                queue_message(&ev);
+                                    midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
+                                    if (midi_send2)
+                                    {
+                                        midi_send2[2] = iTemps40; // velocity
+                                        midi_send2[1] = 123;  // all notes off
+                                        midi_send2[0] = 0xB0 |  iTemps44;	// controller
+                                    }
                             }
                             midistat = 0.0f;
                         }
