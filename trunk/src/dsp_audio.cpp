@@ -575,8 +575,8 @@ virtual void compute (int count, float** input, float** output)
             float fTemp0 = 0.0f;
             output0[i] = fTemp0;
             output1[i] = fTemp0;
-            output2[i] = fTemp0;
-            output3[i] = fTemp0;
+            if (runjc == 1)output2[i] = fTemp0;
+            if (runjc == 1)output3[i] = fTemp0;
         }
     }
 }
