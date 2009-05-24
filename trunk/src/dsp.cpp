@@ -293,7 +293,7 @@ public:
     }
     virtual int getNumOutputs()
     {
-        return 4;
+        return 2;
     }
 
     virtual void setNumOutputs()

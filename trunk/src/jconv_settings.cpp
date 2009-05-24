@@ -367,7 +367,7 @@ void JCONV_SETTINGS::runjconv( GtkWidget *widget, gpointer data )
             //  jack_disconnect(client, jack_port_name(output_ports[3]), "jconv:In-2");
             unuseres = system("command kill -2 `pidof  jconv` 2> /dev/null") ;
             sleep(1);
-
+            runjc = 0;
             if (jack_port_is_mine (client,output_ports[3]))
             {
                 jack_port_unregister(client, output_ports[3]);
@@ -417,6 +417,7 @@ void JCONV_SETTINGS::runjconv( GtkWidget *widget, gpointer data )
             sleep (2);
             if (system(" pidof jconv > /dev/null") == 0)
             {
+                if(runjc == 0){
                 char                buf [256];
                 int i = 0;
                 char*				pname;
@@ -455,6 +456,8 @@ void JCONV_SETTINGS::runjconv( GtkWidget *widget, gpointer data )
                 {
                     jack_connect(client, jack_port_name(output_ports[3]), "jconv:In-2");
                     jack_connect(client, "jconv:Out-2", buf);
+                }
+                runjc = 1;
                 }
             }
             else checkbutton7 = 0;

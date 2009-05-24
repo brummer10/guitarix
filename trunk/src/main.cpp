@@ -504,7 +504,7 @@ int main(int argc, char *argv[] )
         snprintf(buf, 256, pname, i + 1);
         jack_connect(client, jack_port_name(output_ports[i]), buf);
     }
-    DSP.setNumOutputs();
+   // DSP.setNumOutputs();
     //jack_set_buffer_size (client,256);
     interface->run();
 

@@ -41,6 +41,7 @@ int showit = 0;
 int		gNumOutChans;
 int frag;   // jack frame size
 int NO_CONNECTION = 0;
+int runjc = 0;
 
 FILE*              control_stream;
 FILE*              control_stream1;
@@ -542,18 +543,7 @@ void set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
     if (buf_size == jack_get_buffer_size(client))
         return;
     int merke = 0;
-    if (checkbutton7 == 0)
-    {
-        char                buf [256];
-        for (int i = 2; i < 4; i++)
-        {
-            //char                buf [256];
-            snprintf(buf, 256, "out_%d", i);
-            output_ports[i] = jack_port_register(client, buf,JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
-            gNumOutChans += 1;
-        }
-    }
-    else
+    if (runjc == 1)
     {
         merke = 1;
         checkbutton7 = 0;
@@ -564,21 +554,8 @@ void set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
     if ( jack_set_buffer_size (client, buf_size) != 0)
         jack_set_buffer_size (client, fragi);
     // let's resize the buffer
-    sleep(1);
-    if (merke == 0)
-    {
-        if (jack_port_is_mine (client,output_ports[3]))
-        {
-            jack_port_unregister(client, output_ports[3]);
-            gNumOutChans -= 1;
-        }
-        if (jack_port_is_mine (client,output_ports[2]))
-        {
-            jack_port_unregister(client, output_ports[2]);
-            gNumOutChans -= 1;
-        }
-    }
-    else
+   // sleep(1);
+    if (merke == 1)
     {
         merke = 0;
         checkbutton7 = 1;

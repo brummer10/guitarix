@@ -466,13 +466,13 @@ virtual void compute (int count, float** input, float** output)
 
             fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
             if ((showwave == 1) &&(view_mode > 1)) viv = fRec0[0];
-            output0[i] = (fSlow85 * fRec0[0]);
+            if (runjc == 1) output0[i] = (fSlow85 * fRec0[0]);
             float 	S9[2];
             if ((showwave == 1) &&((view_mode == 1) || (view_mode == 2) )) get_frame[i] = fRec0[0];
             S9[0] = (fSlow87 * fRec0[0]);
             S9[1] = (fSlow84 * fRec0[0]);
             output1[i] = S9[iSlow88];
-            output2[i] = (fSlow90 * fRec0[0]);
+            if (runjc == 1) output2[i] = (fSlow90 * fRec0[0]);
             float 	S10[2];
             S10[0] = (fSlow91 * fRec0[0]);
             S10[1] = (fSlow89 * fRec0[0]);
