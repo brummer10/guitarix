@@ -468,7 +468,7 @@ virtual void compute (int count, float** input, float** output)
             if ((showwave == 1) &&(view_mode > 1)) viv = fRec0[0];
             output0[i] = (fSlow85 * fRec0[0]);
             float 	S9[2];
-            if ((showwave == 1) &&(view_mode == 1)) get_frame[i] = fRec0[0];
+            if ((showwave == 1) &&((view_mode == 1) || (view_mode == 2) )) get_frame[i] = fRec0[0];
             S9[0] = (fSlow87 * fRec0[0]);
             S9[1] = (fSlow84 * fRec0[0]);
             output1[i] = S9[iSlow88];
@@ -561,7 +561,7 @@ virtual void compute (int count, float** input, float** output)
 
         }
        // fConsta1 = 12 * log2f(2.272727e-03f *  fConsta4);
-        if ((showwave == 1) &&(view_mode == 1)) viv = fRec0[0];
+        if ((showwave == 1) &&((view_mode == 1)|| (view_mode == 2))) viv = fRec0[0];
     }
     else
     {

@@ -23,8 +23,8 @@ float               cap = 0;
 float               capas = 0;
 float jackframe; // jack sample freq
 float cpu_load; // jack cpu_load
-float  *get_frame;
-float *checkfreq;
+float  *get_frame = NULL;
+float *checkfreq = NULL;
 
 const char*     stopit = "go";
 const char*     rcpath = " " ;
@@ -273,6 +273,9 @@ void midi_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
     }
 }
 
+
+
+
 // start or stop record when toggle_button record is pressed
 void recordit (GtkWidget *widget, gpointer data)
 {
@@ -511,6 +514,83 @@ void wv( GtkWidget *widget, gpointer data )
     GtkWaveView myGtkWaveView;
     myGtkWaveView.gtk_waveview_set_value(widget, data);
 }
+
+/******************************************************************************
+    This code is mostly contributed by 	James Warden <warjamy@yahoo.com>
+******************************************************************************/
+
+//----menu function latency
+void set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
+{
+    // let's avoid triggering the jack server on "inactive"
+    if (gtk_check_menu_item_get_active(menuitem) == false)
+        return;
+
+    int fragi = jack_get_buffer_size (client);
+    // are we a proper jack client ?
+    if (!client)
+    {
+        cerr << "<*** guitarix.cpp: set_jack_buffer_size()"
+        << " we are not a jack client, server may be down ***>"
+        << endl;
+        return;
+    }
+
+    // if the buffer size is the same, no need to trigger it
+    jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
+
+    if (buf_size == jack_get_buffer_size(client))
+        return;
+    int merke = 0;
+    if (checkbutton7 == 0)
+    {
+        char                buf [256];
+        for (int i = 2; i < 4; i++)
+        {
+            //char                buf [256];
+            snprintf(buf, 256, "out_%d", i);
+            output_ports[i] = jack_port_register(client, buf,JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+            gNumOutChans += 1;
+        }
+    }
+    else
+    {
+        merke = 1;
+        checkbutton7 = 0;
+        checkbox7 = 0.0;
+        rjv( NULL, NULL );
+    }
+    // let's resize the buffer
+    if ( jack_set_buffer_size (client, buf_size) != 0)
+        jack_set_buffer_size (client, fragi);
+    // let's resize the buffer
+    sleep(1);
+    if (merke == 0)
+    {
+        if (jack_port_is_mine (client,output_ports[3]))
+        {
+            jack_port_unregister(client, output_ports[3]);
+            gNumOutChans -= 1;
+        }
+        if (jack_port_is_mine (client,output_ports[2]))
+        {
+            jack_port_unregister(client, output_ports[2]);
+            gNumOutChans -= 1;
+        }
+    }
+    else
+    {
+        merke = 0;
+        checkbutton7 = 1;
+        checkbox7 = 1.0;
+        rjv( NULL, NULL );
+    }
+
+}
+
+/******************************************************************************
+    Many thanks	James aka torgal
+******************************************************************************/
 
 //--------------------------- jack_capture settings ----------------------------------------
 static void show_event1( GtkWidget *widget, gpointer data )

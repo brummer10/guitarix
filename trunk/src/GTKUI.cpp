@@ -898,6 +898,8 @@ void GTKUI::addMenu()
     GtkWidget *menuLoad;
     GtkWidget *menuSave;
     GtkWidget *menubar;
+    GtkWidget *menuLatency;
+    GtkWidget *menulat;
     GtkWidget *menu;
     GtkWidget *menu1;
     GtkWidget *menuitem;
@@ -934,11 +936,51 @@ void GTKUI::addMenu()
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
 
-    /*-- Create Open check menu item under Options submenu --*/
+    /*-- Create Open check menu item under Engine submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("  midi_out ");
     gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (midi_note), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
+
+/******************************************************************************
+    This code is contributed by 	James Warden <warjamy@yahoo.com>
+******************************************************************************/
+    /*---------------- Create Latency menu items --------------------*/
+    /*-- Create  Latency submenu under Engine submenu --*/
+    menuLatency = gtk_menu_item_new_with_label ("Latency");
+    gtk_menu_append (GTK_MENU(menuh), menuLatency);
+    menulat = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuLatency), menulat);
+
+    /*-- Create  menu item under Latency submenu --*/
+    gchar buf_size[8];
+    const int min_pow = 5;  // 2**5  = 32
+    const int max_pow = 13; // 2**13 = 8192
+    group = NULL;
+
+    for (int i = min_pow; i <= max_pow; i++) {
+      int jack_buffer_size = (int)pow(2.,i);
+      (void)snprintf(buf_size, 5, "%d", jack_buffer_size);
+      menuitem = gtk_radio_menu_item_new_with_label (group, buf_size);
+      group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
+      gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
+
+      g_signal_connect (GTK_OBJECT (menuitem), "activate",
+                       GTK_SIGNAL_FUNC (set_jack_buffer_size),
+                       GINT_TO_POINTER(jack_buffer_size));
+
+      // display actual buffer size as default
+      if (client)
+       if (jack_buffer_size == (int)jack_get_buffer_size(client))
+         gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
+
+      gtk_menu_append(GTK_MENU(menulat), menuitem);
+      gtk_widget_show (menuitem);
+    }
+    /*---------------- End Latency menu declarations ----------------*/
+/******************************************************************************
+    Many thanks James aka torgal
+******************************************************************************/
 
     /*-- Create Exit menu item under Engine submenu --*/
     menuitem = gtk_menu_item_new_with_label ("  Exit  ");
@@ -947,6 +989,8 @@ void GTKUI::addMenu()
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
     /*---------------- End Engine menu declarations ----------------*/
+
+
 
     /*---------------- Create Settings menu items --------------------*/
     menuEdit = gtk_menu_item_new_with_label ("Presets");
@@ -1074,6 +1118,7 @@ void GTKUI::addMenu()
     gtk_widget_show(handlebox);   // remove handelbox here
     gtk_widget_show(menuitem);
     gtk_widget_show(menuFile);
+    gtk_widget_show(menuLatency);
     gtk_widget_show(menuEdit);
     gtk_widget_show(menuLoad);
     gtk_widget_show(menuSave);

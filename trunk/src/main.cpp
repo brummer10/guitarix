@@ -243,6 +243,34 @@ static void port_callback (jack_port_id_t port, int yn, void* arg)
     //printf ("Port %d %s\n", port, (yn ? "registered" : "unregistered"));
 }
 
+static int buffersize_callback (jack_nframes_t nframes,void* arg)
+{
+    int merke = 0;
+    if ( checky == 1)
+    {
+        checky = 0;
+        merke = 1;
+    }
+    frag = nframes;
+    printf("the buffer size is now %u/frames\n", frag);
+    if (checkfreq)
+        delete[] checkfreq;
+    if (get_frame)
+        delete[] get_frame;
+
+    get_frame = new float[frag];
+    for (int i=0; i<(frag); i++) get_frame[i] = 0;
+    checkfreq = new float[frag];
+    for (int i=0; i<(frag); i++) checkfreq[i] = 0;
+
+    if ( merke == 1)
+    {
+        checky = 1;
+        merke = 0;
+    }
+    return 0;
+}
+
 #ifndef USE_RINGBUFFER
 int midi_process (jack_nframes_t nframes, void *arg)
 {
@@ -401,6 +429,7 @@ int main(int argc, char *argv[] )
     jack_set_xrun_callback(client, xrun_callback, NULL);
     jack_set_sample_rate_callback(client, srate, 0);
     jack_on_shutdown(client, jack_shutdown, 0);
+    jack_set_buffer_size_callback (client, buffersize_callback, 0);
     gNumInChans = DSP.getNumInputs();
     gNumOutChans = DSP.getNumOutputs();
     jackframes = jack_get_sample_rate (client);
@@ -476,6 +505,7 @@ int main(int argc, char *argv[] )
         jack_connect(client, jack_port_name(output_ports[i]), buf);
     }
     DSP.setNumOutputs();
+    //jack_set_buffer_size (client,256);
     interface->run();
 
     // jack_deactivate(client);

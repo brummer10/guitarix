@@ -435,8 +435,81 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_stroke (cr);
             cairo_destroy(cr);
         }
-
         else if (scaletype == 2)
+        {
+
+            double x0      = liveviewx+476,
+                             y0      = liveviewy+17,
+                                       rect_width  = 40.,
+                                                     rect_height = 15.;
+            double x1,y1;
+
+            x1=x0+rect_width;
+            y1=y0+rect_height;
+            cairo_move_to  (cr, x0, (y0 + y1)/2);
+            cairo_curve_to (cr, x0 ,y0, x0, y0, (x0 + x1)/2, y0);
+            cairo_curve_to (cr, x1, y0, x1, y0, x1, (y0 + y1)/2);
+            cairo_curve_to (cr, x1, y1, x1, y1, (x1 + x0)/2, y1);
+            cairo_curve_to (cr, x0, y1, x0, y1, x0, (y0 + y1)/2);
+            cairo_close_path (cr);
+            cairo_set_source_rgba (cr, 0.2, 0.8, 0.2,0.2);
+            cairo_fill_preserve (cr);
+            cairo_set_source_rgba (cr, 0.01, 0.01, 0.01, 0.8);
+            cairo_set_line_width (cr, 3.0);
+            cairo_stroke (cr);
+
+            float wave_go = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_view[0]*500.0;
+            float wave_db = log(fabs( wave_go*0.002))*6/log(2);
+            double xl = floor(exp(log(1.055)*2.1*wave_db)*285);
+            if (xl > 225.0)   xl = 225.0;
+            else if (xl < -225.0)   xl = -225.0;
+            double redline = 0.2;
+            if (wave_go > 75.0)
+            {
+                redline = 1.0;
+                wave_go = 75.0;
+            }
+            else if (wave_go < -75.0)
+            {
+                redline = 1.0;
+                wave_go = -75.0;
+            }
+
+            cairo_set_source_rgba (cr,  redline, 1.0, 0.2,0.8);
+            cairo_set_line_width (cr, 1.0);
+            cairo_move_to (cr, liveviewx+350, liveviewy+45);
+            for (int i=0; i<frag; i++)
+            {
+           	double fgh = 0.25-fabs(get_frame[i]);
+		double tgh = 1-2*fabs(fgh);
+                fgh = fgh*8;
+                double out = fgh*tgh*15;
+                cairo_line_to (cr, liveviewx+350-(250.0/frag)-((250.0/frag)*i+1), liveviewy+30+out);
+            }
+            cairo_line_to (cr, liveviewx+100, liveviewy+45);
+            cairo_pattern_t *linpat;
+            linpat = cairo_pattern_create_linear (liveviewx, liveviewy-15 ,liveviewx, liveviewy+48);
+            cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
+            cairo_pattern_add_color_stop_rgba (linpat, 0.4, 1, 0.2, 0,0.8);
+            cairo_pattern_add_color_stop_rgba (linpat, 0.8, 0.2, 1, 0.2,0.8);
+            cairo_set_source (cr, linpat);
+            cairo_close_path (cr);
+            cairo_fill_preserve (cr);
+            cairo_stroke (cr);
+            cairo_pattern_destroy (linpat);
+
+            double dashes[] = {5.0, 1.0 };
+            cairo_set_dash (cr, dashes, 2, -0.25);
+            cairo_move_to (cr, liveviewx+225-xl, liveviewy);
+            cairo_line_to (cr, liveviewx+225+xl, liveviewy);
+            cairo_move_to (cr, liveviewx+225-xl, liveviewy+50);
+            cairo_line_to (cr, liveviewx+225+xl, liveviewy+50);
+            cairo_set_source_rgba (cr,  redline, 1.0, 0.2,0.8);
+            cairo_set_line_width (cr, 3.0);
+            cairo_stroke (cr);
+            cairo_destroy(cr);
+        }
+        else if (scaletype == 5)
         {
 
             double x0      = liveviewx+476,
