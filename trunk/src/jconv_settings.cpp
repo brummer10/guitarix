@@ -75,7 +75,7 @@ void JCONV_SETTINGS::get_jconfset ()
         jgain = "0.2";
         jmem = "8000";
         jmode = "/impulse/copy";
-        IntToString((frag), frbuf);
+        gx_IntToString((frag), frbuf);
         offcut = 0;
         lenghtcut = 0;
     }
@@ -107,13 +107,13 @@ static void fileselect( GtkWidget *widget, gpointer data )
         cim += "/convolver/new    2    2   ";
         string partion = frbuf;
         cim +=  partion  ;
-        IntToString((vali), partioni);
+        gx_IntToString((vali), partioni);
         cim += "    ";
         cim += partioni;
         cim += "  \n";
         cim += "/impulse/read    1  1   ";
         int gainvalu = ((valo)*10);
-        IntToString((gainvalu), partion);
+        gx_IntToString((gainvalu), partion);
         if (gainvalu < 10)
         {
             cim += "0.";
@@ -129,10 +129,10 @@ static void fileselect( GtkWidget *widget, gpointer data )
         }
         cim +=  partion  ;
         cim += "     0       ";
-        IntToString((offcut), partion);
+        gx_IntToString((offcut), partion);
         cim += partion;
         cim += "       ";
-        IntToString((lenghtcut), partion);
+        gx_IntToString((lenghtcut), partion);
         cim += partion;
         cim += "       1  ";
         cim += jconvwav;
@@ -144,7 +144,7 @@ static void fileselect( GtkWidget *widget, gpointer data )
         else
         {
             cim += "/impulse/read    2  2   ";
-            IntToString((gainvalu), partion);
+            gx_IntToString((gainvalu), partion);
             if (gainvalu < 10)
             {
                 cim += "0.";
@@ -160,10 +160,10 @@ static void fileselect( GtkWidget *widget, gpointer data )
             }
             cim +=  partion  ;
             cim += "     0       ";
-            IntToString((offcut), partion);
+            gx_IntToString((offcut), partion);
             cim += partion;
             cim += "       ";
-            IntToString((lenghtcut), partion);
+            gx_IntToString((lenghtcut), partion);
             cim += partion;
             cim += "       2  ";
             cim += jconvwav;
@@ -193,7 +193,7 @@ static void getvalue2( GtkObject *widget, gpointer data )
 {
     vali = gtk_adjustment_get_value (GTK_ADJUSTMENT(widget));
     string  partioni ;
-    IntToString((vali), partioni);
+    gx_IntToString((vali), partioni);
     jmem = partioni;
 }
 

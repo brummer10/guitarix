@@ -202,7 +202,7 @@ void jack_shutdown(void *arg)
 #ifdef USE_RINGBUFFER
     jack_ringbuffer_free(jack_ringbuffer);
 #endif
-    destroy_event( GTK_WIDGET(fWindow), NULL);
+    gx_destroy_event( GTK_WIDGET(fWindow), NULL);
     if (checkfreq)
         delete[] checkfreq;
     if (get_frame)
@@ -212,7 +212,7 @@ void jack_shutdown(void *arg)
 
 void signal_handler(int sig)
 {
-    destroy_event( GTK_WIDGET(fWindow), NULL);
+    gx_destroy_event( GTK_WIDGET(fWindow), NULL);
     jack_client_close(client);
 #ifdef USE_RINGBUFFER
     jack_ringbuffer_free(jack_ringbuffer);
@@ -416,7 +416,7 @@ int main(int argc, char *argv[] )
     if (jack_ringbuffer == NULL)
     {
         g_critical("Cannot create JACK ringbuffer.");
-        destroy_event( GTK_WIDGET(fWindow), NULL);
+        gx_destroy_event( GTK_WIDGET(fWindow), NULL);
         jack_client_close(client);
         exit(1);
     }

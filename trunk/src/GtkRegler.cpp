@@ -1053,7 +1053,7 @@ GtkWidget *GtkRegler::gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment)
     if (widget)
     {
         gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
-        gtk_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
+        g_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
     }
     return widget;
 }
@@ -1067,7 +1067,7 @@ GtkWidget *GtkRegler::gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustm
     if (widget)
     {
         gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
-        gtk_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
+        g_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
     }
     return widget;
 }
@@ -1081,7 +1081,7 @@ GtkWidget *GtkRegler::gtk_toggle_new_with_adjustment(GtkAdjustment *_adjustment)
     if (widget)
     {
         gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
-        gtk_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
+        g_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
     }
     return widget;
 }
@@ -1095,7 +1095,7 @@ GtkWidget *GtkRegler::gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment
     if (widget)
     {
         gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
-        gtk_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
+        g_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
     }
     return widget;
 }
@@ -1109,7 +1109,7 @@ GtkWidget *GtkRegler::gtk_mini_slider_new_with_adjustment(GtkAdjustment *_adjust
     if (widget)
     {
         gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
-        gtk_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
+        g_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
     }
     return widget;
 }
@@ -1123,7 +1123,7 @@ GtkWidget *GtkRegler::gtk_switch_new_with_adjustment(GtkAdjustment *_adjustment)
     if (widget)
     {
         gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
-        gtk_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
+        g_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
     }
     return widget;
 }

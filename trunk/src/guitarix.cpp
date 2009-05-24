@@ -1,7 +1,7 @@
 /******************************************************************************
 *******************************************************************************
 
-								funktions from guitarix
+								gx_funktions from guitarix
 	guitarix.cpp
 	here are the unsortet global funktions from guitarix
 *******************************************************************************
@@ -62,7 +62,7 @@ jack_nframes_t  jackframes;
 
 
 // check version and if directory exists and create it if it not exist
-bool Exists(const char* Path)
+bool gx_version_check(const char* Path)
 {
     int unuseres = 0;
     struct stat my_stat;
@@ -121,7 +121,7 @@ bool Exists(const char* Path)
     return TRUE;
 }
 
-int Existspix()
+int gx_pixmap_check()
 {
     int ep = 1;
     struct stat my_stat;
@@ -171,7 +171,7 @@ int Existspix()
 }
 
 // convert int to string
-void IntToString(int i, string & s)
+void gx_IntToString(int i, string & s)
 {
     s = "";
     if (i == 0)
@@ -194,7 +194,7 @@ void IntToString(int i, string & s)
 }
 
 // use jack_capture for record the session, open a write stream for controll the stop funktion.
-bool capture(const char* capturas)
+bool gx_capture(const char* capturas)
 {
     capas += 1;
     control_stream = popen (capturas, "w");
@@ -205,11 +205,11 @@ bool		GTKUI::fInitialized = false;
 list<UI*>	UI::fGuiList;
 
 //----menu funktion play stop
-void play_function (GtkCheckMenuItem *menuitem, gpointer checkplay)
+void gx_play_function (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
     checky = 1.0;
 }
-void stop_function (GtkCheckMenuItem *menuitem, gpointer checkplay)
+void gx_stop_function (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
     checky = 0.0;
 }
@@ -231,7 +231,7 @@ void meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
     }
 }
 
-void show_view (GtkCheckMenuItem *menuitem, gpointer checkplay)
+void gx_show_oscilloscope (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
     {
@@ -246,7 +246,7 @@ void show_view (GtkCheckMenuItem *menuitem, gpointer checkplay)
 }
 
 //----menu funktion show note
-void show_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
+void gx_tuner (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
     {
@@ -260,7 +260,7 @@ void show_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
     }
 }
 
-void midi_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
+void gx_midi_out (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
     {
@@ -278,7 +278,7 @@ void midi_note (GtkCheckMenuItem *menuitem, gpointer checkplay)
 
 
 // start or stop record when toggle_button record is pressed
-void recordit (GtkWidget *widget, gpointer data)
+void gx_run_jack_capture (GtkWidget *widget, gpointer data)
 {
     int unuseres = 0;
 // stop record
@@ -335,7 +335,7 @@ void recordit (GtkWidget *widget, gpointer data)
             {
                 getline(f, bufi);
                 string ma;
-                IntToString(capas,ma);
+                gx_IntToString(capas,ma);
                 std::string a(bufi);
                 std::string b(".");
                 std::string::size_type in = a.find(b);
@@ -345,13 +345,13 @@ void recordit (GtkWidget *widget, gpointer data)
                 capturas = bufi.c_str();
                 f.close();
             }
-            capture(capturas);
+            gx_capture(capturas);
         }
     }
 }
 
 //----menu funktion load
-void load_function1 (GtkMenuItem *menuitem, gpointer load_preset)
+void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 {
     JCONV_SETTINGS myJCONV_SETTINGS;
     checkbutton7 = 0;
@@ -399,7 +399,7 @@ void load_function1 (GtkMenuItem *menuitem, gpointer load_preset)
 }
 
 //---- funktion save
-void save_functio (const gchar* presname)
+void gx_save_preset (const gchar* presname)
 {
     int unuseres = 0;
     const char*	  home;
@@ -418,7 +418,7 @@ void save_functio (const gchar* presname)
     if (cm == 0)
     {
         GtkWidget* menuitem = gtk_menu_item_new_with_label (presname);
-        gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (load_function1), NULL);
+        g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_load_preset), NULL);
         gtk_menu_append(GTK_MENU(menul), menuitem);
         gtk_widget_show (menuitem);
     }
@@ -432,22 +432,22 @@ void save_functio (const gchar* presname)
 }
 
 //----menu funktion save
-void save_function2 (GtkMenuItem *menuitem, gpointer save_preset)
+void gx_save_presetn2 (GtkMenuItem *menuitem, gpointer save_preset)
 {
     GtkWidget* title = gtk_bin_get_child(GTK_BIN(menuitem));
     const gchar* text = gtk_label_get_text (GTK_LABEL(title));
-    save_functio(text);
+    gx_save_preset(text);
 }
 
 // read name for presset
-void get_text(GtkWidget *box)
+void gx_get_text(GtkWidget *box)
 {
     const gchar* presname = gtk_entry_get_text (GTK_ENTRY(box));
-    save_functio(presname);
+    gx_save_preset(presname);
     if (cm == 0)
     {
         GtkWidget*  menuitem = gtk_menu_item_new_with_label (presname);
-        gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (save_function2), NULL);
+        g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_save_presetn2), NULL);
         gtk_menu_append(GTK_MENU(menus), menuitem);
         gtk_widget_show (menuitem);
     }
@@ -455,7 +455,7 @@ void get_text(GtkWidget *box)
 }
 
 //----menu funktion save
-void save_function1 (GtkMenuItem *menuitem, gpointer save_preset)
+void gx_save_presetn1 (GtkMenuItem *menuitem, gpointer save_preset)
 {
     GtkWidget *about, *button;
     about = gtk_dialog_new();
@@ -463,7 +463,7 @@ void save_function1 (GtkMenuItem *menuitem, gpointer save_preset)
     GtkWidget * box = gtk_entry_new ();
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), box);
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), button);
-    g_signal_connect_swapped (button, "clicked",  G_CALLBACK (get_text), box);
+    g_signal_connect_swapped (button, "clicked",  G_CALLBACK (gx_get_text), box);
     g_signal_connect_swapped (button, "clicked",  G_CALLBACK (gtk_widget_destroy), about);
     gtk_widget_show (button);
     gtk_widget_show (box);
@@ -471,7 +471,7 @@ void save_function1 (GtkMenuItem *menuitem, gpointer save_preset)
 }
 
 //----menu funktion about
-static void show_event( GtkWidget *widget, gpointer data )
+static void gx_show_about( GtkWidget *widget, gpointer data )
 {
     GtkWidget *about, *label, *button;
     about = gtk_dialog_new();
@@ -521,31 +521,32 @@ void wv( GtkWidget *widget, gpointer data )
 ******************************************************************************/
 
 //----menu function latency
-void set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
+void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
 {
     // let's avoid triggering the jack server on "inactive"
     if (gtk_check_menu_item_get_active(menuitem) == false)
         return;
 
-    int fragi = jack_get_buffer_size (client);
     // are we a proper jack client ?
     if (!client)
     {
-        cerr << "<*** guitarix.cpp: set_jack_buffer_size()"
+        cerr << "<*** guitarix.cpp: gx_set_jack_buffer_size()"
         << " we are not a jack client, server may be down ***>"
         << endl;
         return;
     }
+
+    int fragi = jack_get_buffer_size (client);
 
     // if the buffer size is the same, no need to trigger it
     jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
 
     if (buf_size == jack_get_buffer_size(client))
         return;
-    int merke = 0;
+    int jcio = 0;
     if (runjc == 1)
     {
-        merke = 1;
+        jcio = 1;
         checkbutton7 = 0;
         checkbox7 = 0.0;
         rjv( NULL, NULL );
@@ -555,9 +556,9 @@ void set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
         jack_set_buffer_size (client, fragi);
     // let's resize the buffer
    // sleep(1);
-    if (merke == 1)
+    if (jcio == 1)
     {
-        merke = 0;
+        jcio = 0;
         checkbutton7 = 1;
         checkbox7 = 1.0;
         rjv( NULL, NULL );
@@ -570,13 +571,13 @@ void set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
 ******************************************************************************/
 
 //--------------------------- jack_capture settings ----------------------------------------
-static void show_event1( GtkWidget *widget, gpointer data )
+static void gx_show_j_c_gui( GtkWidget *widget, gpointer data )
 {
     int unuseres = 0;
     unuseres = system ("jack_capture_gui2 -o yes -f ~/guitarix_session -n guitarix -p /.guitarix/ja_ca_ssetrc &");
 }
 
-static gint delete_event( GtkWidget *widget, GdkEvent *event, gpointer data )
+static gint gx_delete_event( GtkWidget *widget, GdkEvent *event, gpointer data )
 {
     int unuseres = 0;
     if (system(" pidof meterbridge > /dev/null") == 0)
@@ -596,7 +597,7 @@ static gint delete_event( GtkWidget *widget, GdkEvent *event, gpointer data )
     return FALSE;
 }
 
-static void destroy_event( GtkWidget *widget, gpointer data )
+static void gx_destroy_event( GtkWidget *widget, gpointer data )
 {
     int unuseres = 0;
     if (system(" pidof meterbridge > /dev/null") == 0)
@@ -633,7 +634,7 @@ static void destroy_event( GtkWidget *widget, gpointer data )
 }
 
 // reset the extended sliders to default settings
-static void reset_dialog( GtkWidget *widget, gpointer data )
+static void gx_reset_units( GtkWidget *widget, gpointer data )
 {
     const char* witchres = gtk_window_get_title(GTK_WINDOW(data));
     const char*	  home;
@@ -650,7 +651,7 @@ static void reset_dialog( GtkWidget *widget, gpointer data )
 }
 
 // show extendend settings slider
-void show_dialog(GtkWidget *widget, gpointer data)
+void gx_show_extendet_settings(GtkWidget *widget, gpointer data)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget)) == TRUE)
     {
@@ -663,7 +664,7 @@ void show_dialog(GtkWidget *widget, gpointer data)
     else gtk_widget_hide(GTK_WIDGET(data));
 }
 
-static void hide_show( GtkWidget *widget, gpointer data )
+static void gx_hide_extendet_settings( GtkWidget *widget, gpointer data )
 {
     if (showit == 0)
     {
@@ -677,7 +678,7 @@ static void hide_show( GtkWidget *widget, gpointer data )
     }
 }
 
-static void pop_menu( GtkWidget *widget, gpointer data )
+static void gx_sytray_menu( GtkWidget *widget, gpointer data )
 {
     guint32 tim = gtk_get_current_event_time ();
     gtk_menu_popup (GTK_MENU(menuh),NULL,NULL,NULL,(gpointer) menuh,2,tim);

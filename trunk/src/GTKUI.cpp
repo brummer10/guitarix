@@ -28,7 +28,7 @@ GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
     home = getenv ("HOME");
     if (home == 0) home = ".";
     snprintf(dirname, 256, "%s/%s", home, pathname);
-    Exists( dirname);
+    gx_version_check( dirname);
     /*-- Declare the GTK Widgets --*/
     fWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     /*---------------- set window defaults ----------------*/
@@ -36,15 +36,15 @@ GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
     gtk_window_set_title (GTK_WINDOW (fWindow), name);
 
     /*---------------- singnals ----------------*/
-    gtk_signal_connect (GTK_OBJECT (fWindow), "delete_event", GTK_SIGNAL_FUNC (delete_event), NULL);
-    gtk_signal_connect (GTK_OBJECT (fWindow), "destroy", GTK_SIGNAL_FUNC (destroy_event), NULL);
+    g_signal_connect (GTK_OBJECT (fWindow), "delete_event", GTK_SIGNAL_FUNC (gx_delete_event), NULL);
+    g_signal_connect (GTK_OBJECT (fWindow), "destroy", GTK_SIGNAL_FUNC (gx_destroy_event), NULL);
     /*---------------- status icon ----------------*/
-    if (Existspix() == 0)
+    if (gx_pixmap_check() == 0)
     {
         status_icon =    gtk_status_icon_new_from_pixbuf (GDK_PIXBUF(ib));
         gtk_window_set_icon(GTK_WINDOW (fWindow), GDK_PIXBUF(ib));
-        g_signal_connect (G_OBJECT (status_icon), "activate", GTK_SIGNAL_FUNC (hide_show), NULL);
-        g_signal_connect (G_OBJECT (status_icon), "popup-menu", GTK_SIGNAL_FUNC (pop_menu), NULL);
+        g_signal_connect (G_OBJECT (status_icon), "activate", GTK_SIGNAL_FUNC (gx_hide_extendet_settings), NULL);
+        g_signal_connect (G_OBJECT (status_icon), "popup-menu", GTK_SIGNAL_FUNC (gx_sytray_menu), NULL);
     }
     /*---------------- create boxes ----------------*/
     fTop = 0;
@@ -171,7 +171,7 @@ void GTKUI::openExpanderBox(const char* label, float* zone)
         GtkWidget * frame = addWidget(label, gtk_expander_new (label));
         gtk_container_add (GTK_CONTAINER(frame), box);
         uiExpanderBox* c = new uiExpanderBox(this, zone, GTK_EXPANDER(frame));
-        gtk_signal_connect (GTK_OBJECT (frame), "activate", GTK_SIGNAL_FUNC (uiExpanderBox::expanded), (gpointer)c);
+        g_signal_connect (GTK_OBJECT (frame), "activate", GTK_SIGNAL_FUNC (uiExpanderBox::expanded), (gpointer)c);
         gtk_widget_show(box);
         pushBox(kBoxMode, box);
     }
@@ -268,9 +268,9 @@ void GTKUI::addButton(const char* label, float* zone)
     GtkWidget* 	button = gtk_button_new_with_label (label);
     addWidget(label, button);
     uiButton* c = new uiButton(this, zone, GTK_BUTTON(button));
-    gtk_signal_connect (GTK_OBJECT (button), "pressed", GTK_SIGNAL_FUNC (uiButton::pressed), (gpointer) c);
-    gtk_signal_connect (GTK_OBJECT (button), "released", GTK_SIGNAL_FUNC (uiButton::released), (gpointer) c);
-    gtk_signal_connect (GTK_OBJECT (button), "clicked", GTK_SIGNAL_FUNC (fls), button);
+    g_signal_connect (GTK_OBJECT (button), "pressed", GTK_SIGNAL_FUNC (uiButton::pressed), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (button), "released", GTK_SIGNAL_FUNC (uiButton::released), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (button), "clicked", GTK_SIGNAL_FUNC (fls), button);
 }
 
 // ---------------------------	Toggle Buttons ---------------------------
@@ -305,8 +305,8 @@ void GTKUI::addToggleButton(const char* label, float* zone)
     uiToggleButton* c = new uiToggleButton(this, zone, GTK_TOGGLE_BUTTON(button));
     gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
     gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
-    gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (uiToggleButton::toggled), (gpointer) c);
-    gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (recordit), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (uiToggleButton::toggled), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (gx_run_jack_capture), (gpointer) c);
 }
 
 void GTKUI::addPToggleButton(const char* label, float* zone)
@@ -346,7 +346,7 @@ void GTKUI::addPToggleButton(const char* label, float* zone)
     gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
     gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
     gtk_widget_modify_fg (lab, GTK_STATE_ACTIVE, &colorwn);
-    gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (uiToggleButton::toggled), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (uiToggleButton::toggled), (gpointer) c);
 }
 
 void GTKUI::addJToggleButton(const char* label, float* zone)
@@ -372,8 +372,8 @@ void GTKUI::addJToggleButton(const char* label, float* zone)
     gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
     gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
     gtk_widget_modify_fg (lab, GTK_STATE_ACTIVE, &colorwn);
-    gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (uiToggleButton::toggled), (gpointer) c);
-    gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (rjv), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (uiToggleButton::toggled), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (rjv), (gpointer) c);
     myJCONV_SETTINGS.get_jconfset ();
 }
 
@@ -418,7 +418,7 @@ void GTKUI::addCheckButton(const char* label, float* zone)
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
     gtk_widget_modify_font(lab, style->font_desc);
     uiCheckButton* c = new uiCheckButton(this, zone, GTK_TOGGLE_BUTTON(button));
-    gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC(uiCheckButton::toggled), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC(uiCheckButton::toggled), (gpointer) c);
     gtk_widget_show (lab);
 }
 
@@ -457,7 +457,7 @@ void GTKUI::addVerticalSlider(const char* label, float* zone, float init, float 
     *zone = init;
     GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GdkColor colorRed;
     GdkColor colorGreen;
     GdkColor colorYellow;
@@ -484,7 +484,7 @@ void GTKUI::addHorizontalSlider(const char* label, float* zone, float init, floa
     *zone = init;
     GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_mini_slider_new_with_adjustment (GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
@@ -537,7 +537,7 @@ void GTKUI::addregler(const char* label, float* zone, float init, float min, flo
     *zone = init;
     GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkWidget* lw = gtk_label_new("");
     GdkColor colorGreen;
     gdk_color_parse("#a6a9aa", &colorGreen);
@@ -562,7 +562,7 @@ void GTKUI::addbigregler(const char* label, float* zone, float init, float min, 
     *zone = init;
     GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkWidget* lw = gtk_label_new("");
     GdkColor colorGreen;
     gdk_color_parse("#a6a9aa", &colorGreen);
@@ -587,7 +587,7 @@ void GTKUI::addslider(const char* label, float* zone, float init, float min, flo
     *zone = init;
     GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkWidget* lw = gtk_label_new("");
     GdkColor colorGreen;
     gdk_color_parse("#a6a9aa", &colorGreen);
@@ -610,7 +610,7 @@ void GTKUI::addtoggle(const char* label, float* zone)
 {
     GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
     addWidget(label, slider);
@@ -620,7 +620,7 @@ void GTKUI::addswitch(const char* label, float* zone)
 {
     GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_switch_new_with_adjustment(GTK_ADJUSTMENT(adj));
      GtkWidget* lw = gtk_label_new(label);
@@ -642,7 +642,7 @@ void GTKUI::addNumEntry(const char* label, float* zone, float init, float min, f
     *zone = init;
     GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkWidget* spinner = gtk_spin_button_new (GTK_ADJUSTMENT(adj), step, precision(step));
     openFrameBox(label);
     addWidget(label, spinner);
@@ -704,8 +704,8 @@ void GTKUI::openDialogBox(const char* label, float* zone)
     uiToggleButton* c = new uiToggleButton(this, zone, GTK_TOGGLE_BUTTON(button));
     gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
     gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
-    gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (uiToggleButton::toggled), (gpointer) c);
-    gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (show_dialog), (gpointer) dialog);
+    g_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (uiToggleButton::toggled), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC (gx_show_extendet_settings), (gpointer) dialog);
 
     GtkWidget * frame =  gtk_frame_new (label);
     GtkWidget* 	button1 = gtk_button_new_with_label ("reset");
@@ -713,7 +713,7 @@ void GTKUI::openDialogBox(const char* label, float* zone)
     gtk_widget_set_size_request (GTK_WIDGET(frame), 100.0, 20.0);
     gtk_container_add (GTK_CONTAINER(box5), frame);
     gtk_container_add (GTK_CONTAINER(box5), button1);
-    gtk_signal_connect (GTK_OBJECT (button1), "pressed", GTK_SIGNAL_FUNC (reset_dialog), (gpointer) dialog);
+    g_signal_connect (GTK_OBJECT (button1), "pressed", GTK_SIGNAL_FUNC (gx_reset_units), (gpointer) dialog);
     gtk_container_add (GTK_CONTAINER(box4), box5);
     gtk_container_add (GTK_CONTAINER(box4), box);
     gtk_container_add (GTK_CONTAINER(dialog), box4);
@@ -927,18 +927,18 @@ void GTKUI::addMenu()
     menuitem = gtk_radio_menu_item_new_with_label (group, "  Play");
     group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
     gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
-    gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (play_function), NULL);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_play_function), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open radio check menu item under Engine submenu --*/
     menuitem = gtk_radio_menu_item_new_with_label (group,  "  Stopp");
-    gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (stop_function), NULL);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_stop_function), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
 
     /*-- Create Open check menu item under Engine submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("  midi_out ");
-    gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (midi_note), NULL);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_midi_out), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
 
@@ -966,7 +966,7 @@ void GTKUI::addMenu()
       gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
 
       g_signal_connect (GTK_OBJECT (menuitem), "activate",
-                       GTK_SIGNAL_FUNC (set_jack_buffer_size),
+                       GTK_SIGNAL_FUNC (gx_set_jack_buffer_size),
                        GINT_TO_POINTER(jack_buffer_size));
 
       // display actual buffer size as default
@@ -984,8 +984,8 @@ void GTKUI::addMenu()
 
     /*-- Create Exit menu item under Engine submenu --*/
     menuitem = gtk_menu_item_new_with_label ("  Exit  ");
-    gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (delete_event), NULL);
-    gtk_signal_connect(GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (destroy_event), NULL);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_delete_event), NULL);
+    g_signal_connect(GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_destroy_event), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
     /*---------------- End Engine menu declarations ----------------*/
@@ -1007,7 +1007,7 @@ void GTKUI::addMenu()
 
     /*-- Create  menu item under Save submenu --*/
     menuitem = gtk_menu_item_new_with_label ("new");
-    gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (save_function1), NULL);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_save_presetn1), NULL);
     gtk_menu_append(GTK_MENU(menus), menuitem);
     gtk_widget_show (menuitem);
     const char*	  home;
@@ -1029,7 +1029,7 @@ void GTKUI::addMenu()
             {
                 buffer.erase(in);
                 menuitem = gtk_menu_item_new_with_label (buffer.c_str());
-                gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (save_function2), NULL);
+                g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_save_presetn2), NULL);
                 gtk_menu_append(GTK_MENU(menus), menuitem);
                 gtk_widget_show (menuitem);
             }
@@ -1056,7 +1056,7 @@ void GTKUI::addMenu()
             {
                 buffer.erase(in);
                 menuitem = gtk_menu_item_new_with_label (buffer.c_str());
-                gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (load_function1), NULL);
+                g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_load_preset), NULL);
                 gtk_menu_append(GTK_MENU(menul), menuitem);
                 gtk_widget_show (menuitem);
             }
@@ -1076,23 +1076,23 @@ void GTKUI::addMenu()
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("  Oscilloscope");
     //  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
-    gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (show_view), NULL);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_show_oscilloscope), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("  tuner ");
-    gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (show_note), NULL);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_tuner), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("  meterbridge");
-    gtk_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (meterbridge), NULL);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (meterbridge), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_menu_item_new_with_label ("jack_capture settings");
     gtk_menu_append(GTK_MENU(menu), menuitem);
-    gtk_signal_connect(GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (show_event1), NULL);
+    g_signal_connect(GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_show_j_c_gui), NULL);
     gtk_widget_show (menuitem);
 
     /*---------------- Start About menu declarations ----------------*/
@@ -1105,7 +1105,7 @@ void GTKUI::addMenu()
     /*-- Create About menu item under About submenu --*/
     menuitem = gtk_menu_item_new_with_label ("About");
     gtk_menu_append(GTK_MENU(menu), menuitem);
-    gtk_signal_connect(GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (show_event), NULL);
+    g_signal_connect(GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_show_about), NULL);
     gtk_widget_show (menuitem);
     /*---------------- End About menu declarations ----------------*/
 

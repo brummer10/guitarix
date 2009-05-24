@@ -349,14 +349,14 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->livecontrol_image, 0,0,liveviewx+470, liveviewy-10 , 50, 80, GDK_RGB_DITHER_NORMAL, 0, 0);
 
         string ti, tfi;
-        IntToString( time_is/100000 ,ti);
+        gx_IntToString( time_is/100000 ,ti);
         string      tir = " ht frames ";
         tir += ti;
         cairo_set_source_rgba (cr, 0.8, 0.8, 0.2,0.6);
         cairo_set_font_size (cr, 7.0);
         cairo_move_to (cr, liveviewx, liveviewy+48);
         cairo_show_text(cr, tir.c_str());
-        /*  IntToString(int(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_freq[0]),tfi);
+        /*  gx_IntToString(int(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_freq[0]),tfi);
             cairo_move_to (cr, liveviewx, liveviewy+10);
             tir = "freq ";
             tir += tfi;
@@ -738,10 +738,10 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
             }
             string partion, tip;
             tip = "offset (";
-            IntToString((offcut), partion);
+            gx_IntToString((offcut), partion);
             tip += partion;
             tip += ")  length (";
-            IntToString((lenghtcut), partion);
+            gx_IntToString((lenghtcut), partion);
             tip += partion;
             tip += ") ";
             gtk_widget_set_sensitive(widget, TRUE);
@@ -786,10 +786,10 @@ static gboolean gtk_waveview_button_press (GtkWidget *widget, GdkEventButton *ev
             lenghtcut = 0;
             string partion, tip;
             tip = "offset is  ";
-            IntToString((offcut), partion);
+            gx_IntToString((offcut), partion);
             tip += partion;
             tip += "  length is  ";
-            IntToString((lenghtcut), partion);
+            gx_IntToString((lenghtcut), partion);
             tip += partion;
             gtk_widget_set_sensitive(widget, TRUE);
             gtk_tooltips_set_tip (GTK_TOOLTIPS (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->comandline), widget, tip.c_str(), "the offset and length.");
@@ -996,10 +996,10 @@ GtkWidget *GtkWaveView::gtk_wave_view(const char* file)
     waveview->waveview_type = 0;
     string partion, tip;
     tip = "offset (";
-    IntToString((offcut), partion);
+    gx_IntToString((offcut), partion);
     tip += partion;
     tip += ")  length (";
-    IntToString((lenghtcut), partion);
+    gx_IntToString((lenghtcut), partion);
     tip += partion;
     tip += ") ";
     gtk_widget_set_sensitive(widget, TRUE);
@@ -1020,7 +1020,7 @@ GtkWidget *GtkWaveView::gtk_wave_live_view(float* outfloat, float* infloat,GtkAd
     if (widget)
     {
         gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
-        gtk_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_waveview_value_changed), widget);
+        g_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_waveview_value_changed), widget);
     }
     return widget;
 }
