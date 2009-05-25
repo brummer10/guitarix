@@ -654,6 +654,13 @@ static gboolean deleteevent( GtkWidget *widget, gpointer   data )
     return TRUE;
 }
 
+void GTKUI::openWarningBox(const char* label, float* zone)
+{
+    GtkWidget* 	button = gtk_check_button_new ();
+    uiCheckButton* c = new uiCheckButton(this, zone, GTK_TOGGLE_BUTTON(button));
+    g_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC(uiCheckButton::toggled), (gpointer) c);
+}
+
 void GTKUI::openDialogBox(const char* label, float* zone)
 {
     GtkWidget * dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);

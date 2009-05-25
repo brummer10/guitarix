@@ -14,6 +14,7 @@ virtual void buildUserInterface(UI* interface)
 
     interface->openVerticalBox("");
     interface->addMenu();
+    interface->openWarningBox("WARNING", &fwarn);
     interface->closeBox();
     interface->openVerticalBox("                                                ");
     interface->openEventBox(" ");

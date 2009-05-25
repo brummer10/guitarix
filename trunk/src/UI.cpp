@@ -256,6 +256,7 @@ public:
     virtual void openVerticalBox(const char* label) {};
     virtual void openVerticalMidiBox(const char* label) {};
     virtual void openDialogBox(const char* label, float* zone) {};
+    virtual void openWarningBox(const char* label, float* zone){};
     virtual void openEventBox(const char* label) {};
     virtual void openHandleBox(const char* label) {};
     virtual void openExpanderBox(const char* label, float* zone) {};

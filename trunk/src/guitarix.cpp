@@ -12,7 +12,7 @@
 GtkWidget* fWindow, *menul, *menus, *pb, *midibox, *fbutton, *label1, *menuh;
 GdkPixbuf*   ib, *ibm, *ibr;
 GtkStatusIcon*  status_icon;
-GtkWidget* livewa;
+GtkWidget* livewa, *warn_dialog,*dsiable_warn ;
 
 static float      togglebutton1;
 static float      checkbutton7;
@@ -42,6 +42,8 @@ int		gNumOutChans;
 int frag;   // jack frame size
 int NO_CONNECTION = 0;
 int runjc = 0;
+float fwarn_swap = 0;
+int doit = 0;
 
 FILE*              control_stream;
 FILE*              control_stream1;
@@ -516,6 +518,60 @@ void wv( GtkWidget *widget, gpointer data )
     myGtkWaveView.gtk_waveview_set_value(widget, data);
 }
 
+int gx_dont_doit()
+{
+    doit =1;
+ return 1;
+}
+int gx_doit()
+{
+    doit = 2;
+ return 2;
+}
+
+void wait_warn(const char* label)
+{
+    warn_dialog = gtk_dialog_new();
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(warn_dialog), TRUE);
+    GtkWidget * box = gtk_vbox_new (0, 4);
+    GtkWidget * labelt = gtk_label_new ("\nCHANGING THE JACK_BUFFER_SIZE ON THE FLY \nMAY CAUSE UNPREDICTABLE EFFECTS \nTO OTHER RUNNING JACK APPLICATIONS. \nDO YOU WANT TO PROCEED ?");
+    GdkColor colorGreen;
+    gdk_color_parse("#a6a9aa", &colorGreen);
+    gtk_widget_modify_fg (labelt, GTK_STATE_NORMAL, &colorGreen);
+    GtkStyle *style1 = gtk_widget_get_style(labelt);
+    pango_font_description_set_size(style1->font_desc, 10*PANGO_SCALE);
+    pango_font_description_set_weight(style1->font_desc, PANGO_WEIGHT_BOLD);
+    gtk_widget_modify_font(labelt, style1->font_desc);
+    GtkWidget * box2 = gtk_hbox_new (0, 4);
+    GtkWidget * button1  = gtk_dialog_add_button(GTK_DIALOG (warn_dialog),"Yes",1);
+    GtkWidget * button2  = gtk_dialog_add_button(GTK_DIALOG (warn_dialog),"No",2);
+    GtkWidget * box1 = gtk_hbox_new (0, 4);
+    dsiable_warn = gtk_check_button_new ();
+    GtkWidget * labelt2 = gtk_label_new ("Don't bother me again with such a question, I know what I am doing");
+
+    gtk_container_add (GTK_CONTAINER(box), labelt);
+    gtk_container_add (GTK_CONTAINER(box), box2);
+    gtk_container_add (GTK_CONTAINER(box), box1);
+    gtk_container_add (GTK_CONTAINER(box1), dsiable_warn);
+    gtk_container_add (GTK_CONTAINER(box1), labelt2);
+    gtk_container_add (GTK_CONTAINER(GTK_DIALOG(warn_dialog)->vbox), box);
+
+    gtk_widget_modify_fg (labelt2, GTK_STATE_NORMAL, &colorGreen);
+    GtkStyle *style = gtk_widget_get_style(labelt2);
+    pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+    gtk_widget_modify_font(labelt2, style->font_desc);
+
+    g_signal_connect (button1, "clicked",  G_CALLBACK (gx_doit), warn_dialog);
+    g_signal_connect (button2, "clicked",  G_CALLBACK (gx_dont_doit), warn_dialog);
+    gtk_widget_show_all(box);
+
+    gtk_dialog_run (GTK_DIALOG (warn_dialog));
+    int woff = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dsiable_warn));
+    fwarn_swap = woff;
+    gtk_widget_destroy (warn_dialog);
+}
+
 /******************************************************************************
     This code is mostly contributed by 	James Warden <warjamy@yahoo.com>
 ******************************************************************************/
@@ -543,6 +599,9 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
 
     if (buf_size == jack_get_buffer_size(client))
         return;
+    if(fwarn_swap == 0.0) wait_warn("WARNING");
+    else doit =2;
+    if (doit ==2) {
     int jcio = 0;
     if (runjc == 1)
     {
@@ -563,6 +622,9 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
         checkbox7 = 1.0;
         rjv( NULL, NULL );
     }
+    doit = 0;
+    }
+    else return;
 
 }
 

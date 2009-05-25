@@ -26,6 +26,8 @@ public:
     virtual void compute(int len, float** inputs, float** outputs) 	= 0;
     virtual void compute_midi( int len)  = 0;
     virtual void setNumOutputs() = 0;
+    virtual void set_state()= 0;
+    virtual void get_state()= 0;
 };
 
 
@@ -273,6 +275,7 @@ private:
     float fConstlog;
     float fConstlog2;
     float fatan;
+    float fwarn;
     // float  fbargraph0;
 public:
 
@@ -522,7 +525,9 @@ public:
         tunerstageh1 = tunerstageh2 = 0.0;
         fConstlog = log(1.055)*0.5;
         fConstlog2 = 6/log(2)*-1;
-	fatan = 1;
+        fatan = 1;
+        fwarn = 0;
+        fwarn_swap = fwarn;
     }
 
     virtual void init(int samplingFreq)
@@ -531,6 +536,14 @@ public:
         instanceInit(samplingFreq);
     }
 
+    virtual void set_state()
+    {
+        fwarn_swap = fwarn;
+    }
+   virtual void get_state()
+    {
+        fwarn = fwarn_swap;
+    }
 #include"dsp_interface.cpp"
 #ifdef USE_RINGBUFFER
 #include"dsp_midi.cpp"

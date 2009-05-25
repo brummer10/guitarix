@@ -470,7 +470,7 @@ int main(int argc, char *argv[] )
     if (home == 0) home = ".";
     snprintf(rcfilename, 256, "%s/.guitarix/%src", home, jname);
     interface->recallState(rcfilename);
-
+    DSP.set_state();
     if (jack_activate(client))
     {
         fprintf(stderr, "Can't activate JACK client\n");
@@ -527,6 +527,8 @@ int main(int argc, char *argv[] )
 #ifdef USE_RINGBUFFER
     jack_ringbuffer_free(jack_ringbuffer);
 #endif
+    DSP.get_state();
+
     interface->saveState(rcfilename);
 
     if (checkfreq)
