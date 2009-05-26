@@ -521,25 +521,32 @@ void wv( GtkWidget *widget, gpointer data )
 int gx_dont_doit()
 {
     doit =1;
- return 1;
+    return 1;
 }
 int gx_doit()
 {
     doit = 2;
- return 2;
+    return 2;
 }
 
-void wait_warn(const char* label)
+void gx_wait_warn(const char* label)
 {
     warn_dialog = gtk_dialog_new();
     gtk_window_set_destroy_with_parent(GTK_WINDOW(warn_dialog), TRUE);
     GtkWidget * box = gtk_vbox_new (0, 4);
-    GtkWidget * labelt = gtk_label_new ("\nCHANGING THE JACK_BUFFER_SIZE ON THE FLY \nMAY CAUSE UNPREDICTABLE EFFECTS \nTO OTHER RUNNING JACK APPLICATIONS. \nDO YOU WANT TO PROCEED ?");
+    GtkWidget * labelt = gtk_label_new ("\nWARNING\n");
+    GtkWidget * labelt1 = gtk_label_new ("CHANGING THE JACK_BUFFER_SIZE ON THE FLY \nMAY CAUSE UNPREDICTABLE EFFECTS \nTO OTHER RUNNING JACK APPLICATIONS. \nDO YOU WANT TO PROCEED ?");
     GdkColor colorGreen;
     gdk_color_parse("#a6a9aa", &colorGreen);
-    gtk_widget_modify_fg (labelt, GTK_STATE_NORMAL, &colorGreen);
-    GtkStyle *style1 = gtk_widget_get_style(labelt);
+    gtk_widget_modify_fg (labelt1, GTK_STATE_NORMAL, &colorGreen);
+    GtkStyle *style1 = gtk_widget_get_style(labelt1);
     pango_font_description_set_size(style1->font_desc, 10*PANGO_SCALE);
+    pango_font_description_set_weight(style1->font_desc, PANGO_WEIGHT_BOLD);
+    gtk_widget_modify_font(labelt1, style1->font_desc);
+    gdk_color_parse("#ffffff", &colorGreen);
+    gtk_widget_modify_fg (labelt, GTK_STATE_NORMAL, &colorGreen);
+    style1 = gtk_widget_get_style(labelt);
+    pango_font_description_set_size(style1->font_desc, 14*PANGO_SCALE);
     pango_font_description_set_weight(style1->font_desc, PANGO_WEIGHT_BOLD);
     gtk_widget_modify_font(labelt, style1->font_desc);
     GtkWidget * box2 = gtk_hbox_new (0, 4);
@@ -550,6 +557,7 @@ void wait_warn(const char* label)
     GtkWidget * labelt2 = gtk_label_new ("Don't bother me again with such a question, I know what I am doing");
 
     gtk_container_add (GTK_CONTAINER(box), labelt);
+    gtk_container_add (GTK_CONTAINER(box), labelt1);
     gtk_container_add (GTK_CONTAINER(box), box2);
     gtk_container_add (GTK_CONTAINER(box), box1);
     gtk_container_add (GTK_CONTAINER(box1), dsiable_warn);
@@ -599,30 +607,35 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
 
     if (buf_size == jack_get_buffer_size(client))
         return;
-    if(fwarn_swap == 0.0) wait_warn("WARNING");
+    if (fwarn_swap == 0.0)
+    {
+        gtk_check_menu_item_set_inconsistent(menuitem,TRUE);
+        gx_wait_warn("WARNING");
+    }
     else doit =2;
-    if (doit ==2) {
-    int jcio = 0;
-    if (runjc == 1)
+    if (doit ==2)
     {
-        jcio = 1;
-        checkbutton7 = 0;
-        checkbox7 = 0.0;
-        rjv( NULL, NULL );
-    }
-    // let's resize the buffer
-    if ( jack_set_buffer_size (client, buf_size) != 0)
-        jack_set_buffer_size (client, fragi);
-    // let's resize the buffer
-   // sleep(1);
-    if (jcio == 1)
-    {
-        jcio = 0;
-        checkbutton7 = 1;
-        checkbox7 = 1.0;
-        rjv( NULL, NULL );
-    }
-    doit = 0;
+        gtk_check_menu_item_set_inconsistent(menuitem,FALSE);
+        int jcio = 0;
+        if (runjc == 1)
+        {
+            jcio = 1;
+            checkbutton7 = 0;
+            checkbox7 = 0.0;
+            rjv( NULL, NULL );
+        }
+        // let's resize the buffer
+        if ( jack_set_buffer_size (client, buf_size) != 0)
+            jack_set_buffer_size (client, fragi);
+        // let's resize the buffer
+        if (jcio == 1)
+        {
+            jcio = 0;
+            checkbutton7 = 1;
+            checkbox7 = 1.0;
+            rjv( NULL, NULL );
+        }
+        doit = 0;
     }
     else return;
 
