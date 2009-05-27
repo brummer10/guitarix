@@ -356,6 +356,12 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         cairo_set_font_size (cr, 7.0);
         cairo_move_to (cr, liveviewx, liveviewy+48);
         cairo_show_text(cr, tir.c_str());
+        gx_IntToString(cpu_load,tfi);
+            cairo_move_to (cr, liveviewx, liveviewy+10);
+            tir = " dsp load ";
+            tir += tfi;
+            tir += " %";
+            cairo_show_text(cr, tir.c_str());
         /*  gx_IntToString(int(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_freq[0]),tfi);
             cairo_move_to (cr, liveviewx, liveviewy+10);
             tir = "freq ";

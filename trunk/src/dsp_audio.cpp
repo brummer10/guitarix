@@ -273,8 +273,8 @@ virtual void compute (int count, float** input, float** output)
                 float fConsta4s = fRect0[0];
 
                 cts += 1;
-                sumt += sqr(fConsta4s);
-                fConsta4 = sqrt(sumt/cts);
+                sumt += sqrf(fConsta4s);
+                fConsta4 = sqrtf(sumt/cts);
 
             }
             else if (shownote == 0)

@@ -600,13 +600,14 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
         return;
     }
 
-    int fragi = jack_get_buffer_size (client);
+    //int fragi = jack_get_buffer_size (client);
 
     // if the buffer size is the same, no need to trigger it
     jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
 
     if (buf_size == jack_get_buffer_size(client))
         return;
+    // first time useage warning
     if (fwarn_swap == 0.0)
     {
         gtk_check_menu_item_set_inconsistent(menuitem,TRUE);
@@ -626,7 +627,8 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
         }
         // let's resize the buffer
         if ( jack_set_buffer_size (client, buf_size) != 0)
-            jack_set_buffer_size (client, fragi);
+            gtk_check_menu_item_set_inconsistent(menuitem,TRUE);
+            //jack_set_buffer_size (client, fragi);
         // let's resize the buffer
         if (jcio == 1)
         {

@@ -96,7 +96,7 @@ inline int 		int2pow2 (int x)
     return r;
 }
 
-inline double sqr(double x)
+inline double sqrf(float x)
 {
     return x * x;
 }
@@ -279,7 +279,7 @@ int midi_process (jack_nframes_t nframes, void *arg)
         AVOIDDENORMALS;
         midi_port_buf =  jack_port_get_buffer(midi_output_ports, nframes);
         jack_midi_clear_buffer(midi_port_buf);
-        if (playmidi == 1) cpu_load = jack_cpu_load(client);
+        if ((playmidi == 1)||(showwave == 1)) cpu_load = jack_cpu_load(client);
         DSP.compute_midi(nframes);
     }
     return 0;

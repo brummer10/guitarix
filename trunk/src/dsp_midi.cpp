@@ -70,7 +70,7 @@ virtual void compute_midi( int len)
     int iTemps48 = int(fslider48);
     int piwe = 0;
     int cs = 0;
-    int sum = 0;
+    float sum = 0;
     float *audiodata = checkfreq;
 
     if ((shownote == 1) || (playmidi == 1))
@@ -93,9 +93,9 @@ virtual void compute_midi( int len)
                 else
                 {
                     cs += 1;
-                    sum += sqr(rms);
+                    sum += sqrf(rms);
                 }
-                beat0 = sqrt(sum/cs);
+                beat0 = sqrtf(sum/cs);
 
                 fConsta1 = 12 * log2f(2.272727e-03f *  fConsta4);
                 preNote = round(fConsta1)+57;

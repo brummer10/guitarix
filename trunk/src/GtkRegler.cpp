@@ -51,6 +51,10 @@ struct GtkReglerClass
     int switch_x;
     int switch_y ;
     int switch_step;
+//----------- minitoggle
+    int minitoggle_x;
+    int minitoggle_y ;
+    int minitoggle_step;
 //----------- horizontal slider
     int slider_x;
     int slider_y;
@@ -277,6 +281,22 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
         }
     }
 
+//---------- minitoggle
+    else if (regler->regler_type == 6)
+    {
+        reglerx += (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x) *0.5;
+        reglery += (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y) *0.5;
+        int reglerstate = (int)((adj->value - adj->lower) * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_step / (adj->upper - adj->lower));
+        if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
+        {
+            gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image1, reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+        }
+        else
+        {
+            gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image, reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+        }
+    }
+
 //--------- horizontal slider
     else if (regler->regler_type == 3)
     {
@@ -451,6 +471,16 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image, reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 
+//----------- minitoggle
+    else if (regler->regler_type == 6)
+    {
+        reglerx += (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x) *0.5;
+        reglery += (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y) *0.5;
+        int reglerstate = (int)((adj->value - adj->lower) * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_step / (adj->upper - adj->lower));
+
+        gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image, reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+    }
+
 //----------- horizontal slider
     else if (regler->regler_type == 3)
     {
@@ -593,6 +623,16 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image1, reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 
+//----------- minitoggle
+    else if (regler->regler_type == 6)
+    {
+        reglerx += (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x) *0.5;
+        reglery += (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y) *0.5;
+        int reglerstate = (int)((adj->value - adj->lower) * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_step / (adj->upper - adj->lower));
+
+        gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image1, reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+    }
+
 //----------- horizontal slider
     else if (regler->regler_type == 3)
     {
@@ -666,6 +706,12 @@ static void gtk_regler_size_request (GtkWidget *widget, GtkRequisition *requisit
     {
         requisition->width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x;
         requisition->height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_y;
+    }
+  //----------- minitoggle
+    else if (regler->regler_type == 6)
+    {
+        requisition->width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x;
+        requisition->height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y;
     }
 }
 
@@ -766,7 +812,7 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
         }
     }
 //----------- switch
-    else if ((regler->regler_type == 2) || (regler->regler_type == 5))
+    else if ((regler->regler_type == 2) || (regler->regler_type >= 5))
     {
         regler->start_value = gtk_range_get_value(GTK_RANGE(widget));
         if ( regler->start_value == 0) gtk_range_set_value(GTK_RANGE(widget), 1);
@@ -912,10 +958,14 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
     klass->toggle_x = 37 ;
     klass->toggle_y = 28 ;
     klass->toggle_step = 1;
-//--------- switch size and steps
+//--------- switchII size and steps
     klass->switch_x = 20 ;
     klass->switch_y = 10 ;
     klass->switch_step = 1;
+//--------- switch minitoggle and steps
+    klass->minitoggle_x = 10 ;
+    klass->minitoggle_y = 10 ;
+    klass->minitoggle_step = 1;
 //--------- horizontal slider size and steps
     klass->slider_x = 120 ;  //this is the scale size
     klass->slider_y = 10 ;   // this is the knob size x and y be the same
@@ -1006,6 +1056,11 @@ static void gtk_regler_init (GtkRegler *regler)
     {
         widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x;
         widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_y;
+    }
+    else if (regler->regler_type == 6)
+    {
+        widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x;
+        widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y;
     }
 }
 
@@ -1120,6 +1175,20 @@ GtkWidget *GtkRegler::gtk_switch_new_with_adjustment(GtkAdjustment *_adjustment)
     GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
     GtkRegler *regler = GTK_REGLER(widget);
     regler->regler_type = 5;
+    if (widget)
+    {
+        gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
+        g_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
+    }
+    return widget;
+}
+
+//----------- create a minitoggle
+GtkWidget *GtkRegler::gtk_mini_toggle_new_with_adjustment(GtkAdjustment *_adjustment)
+{
+    GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
+    GtkRegler *regler = GTK_REGLER(widget);
+    regler->regler_type = 6;
     if (widget)
     {
         gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
