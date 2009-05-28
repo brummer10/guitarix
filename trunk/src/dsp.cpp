@@ -276,6 +276,7 @@ private:
     float fConstlog2;
     float fatan;
     float fwarn;
+    float fupsample;
     // float  fbargraph0;
 public:
 
@@ -528,6 +529,7 @@ public:
         fatan = 1;
         fwarn = 0;
         fwarn_swap = fwarn;
+        fupsample = 0;
     }
 
     virtual void init(int samplingFreq)

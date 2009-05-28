@@ -287,6 +287,7 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
         reglerx += (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x) *0.5;
         reglery += (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y) *0.5;
         int reglerstate = (int)((adj->value - adj->lower) * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_step / (adj->upper - adj->lower));
+        if (reglerstate > 0) reglerstate =2;
         if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
         {
             gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image1, reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
@@ -477,7 +478,7 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
         reglerx += (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x) *0.5;
         reglery += (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y) *0.5;
         int reglerstate = (int)((adj->value - adj->lower) * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_step / (adj->upper - adj->lower));
-
+        if (reglerstate > 0) reglerstate =2;
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image, reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 
@@ -629,7 +630,7 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
         reglerx += (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x) *0.5;
         reglery += (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y) *0.5;
         int reglerstate = (int)((adj->value - adj->lower) * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_step / (adj->upper - adj->lower));
-
+        if (reglerstate > 0) reglerstate =2;
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image1, reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 

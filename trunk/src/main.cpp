@@ -207,6 +207,8 @@ void jack_shutdown(void *arg)
         delete[] checkfreq;
     if (get_frame)
         delete[] get_frame;
+    if (oversample)
+        delete[] oversample;
     exit(1);
 }
 
@@ -221,6 +223,8 @@ void signal_handler(int sig)
         delete[] checkfreq;
     if (get_frame)
         delete[] get_frame;
+    if (oversample)
+        delete[] oversample;
     fprintf(stderr, "signal %i received, exiting ...\n",sig);
     exit(0);
 }
@@ -257,11 +261,15 @@ static int buffersize_callback (jack_nframes_t nframes,void* arg)
         delete[] checkfreq;
     if (get_frame)
         delete[] get_frame;
+    if (oversample)
+        delete[] oversample;
 
     get_frame = new float[frag];
     for (int i=0; i<(frag); i++) get_frame[i] = 0;
     checkfreq = new float[frag];
     for (int i=0; i<(frag); i++) checkfreq[i] = 0;
+    oversample = new float[frag*2];
+    for (int i=0; i<(frag*2); i++) oversample[i] = 0;
 
     if ( merke == 1)
     {
@@ -441,6 +449,8 @@ int main(int argc, char *argv[] )
     for (int i=0; i<(frag); i++) get_frame[i] = 0;
     checkfreq = new float[frag];
     for (int i=0; i<(frag); i++) checkfreq[i] = 0;
+    oversample = new float[frag*2];
+    for (int i=0; i<(frag*2); i++) oversample[i] = 0;
 
     signal(SIGQUIT, signal_handler);
     signal(SIGTERM, signal_handler);
@@ -535,6 +545,8 @@ int main(int argc, char *argv[] )
         delete[] checkfreq;
     if (get_frame)
         delete[] get_frame;
+    if (oversample)
+        delete[] oversample;
     return 0;
 
 }

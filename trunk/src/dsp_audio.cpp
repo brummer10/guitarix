@@ -42,6 +42,40 @@ inline float valve(float in, float out)
     return out;
 }
 
+inline void over_sample(float **input,float **output, int sf)
+{
+    float * in = input[0];
+    float * out = output[0];
+    float x = in[0];
+    float y = 0;
+   // int o = 0;
+    for (int i=0; i<sf; i++)
+    {
+        x = in[i];
+        *out++ = x;
+        y = in[i+1];
+        //i++;
+        *out++ = y*0.25 + x*0.75;
+        //i--;
+        //o++;
+    }
+}
+
+inline void down_sample(float **input,float **output, int sf)
+{
+    float * in = input[0];
+    float * out = output[0];
+    //int o = 0;
+    for (int i=0; i<sf; i++)
+    {
+        *out++ = *in++;
+
+        *in++;
+    }
+}
+
+
+
 inline void AntiAlias (int sf, float** input, float** output)
 {
     float* in = input[0];
@@ -215,6 +249,7 @@ virtual void compute (int count, float** input, float** output)
         int 	itube = int(ftube);
         int 	ipredrive = int(fpredrive);
         int 	iprdr = int(fprdr);
+        int     iupsample = int(fupsample);
         // tuner
         int iTemps39 = 10;//int(fslider39);
         float fTemps39 = 10;//fslider39;
@@ -227,10 +262,18 @@ virtual void compute (int count, float** input, float** output)
             for (int i=0; i<count; i++)  checkfreq [i] = input0[i];
         }
         // pre_funktions on frame base
-        if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count,input,input);
-        if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count,input,input);
-        if (antialis0 == 1)  AntiAlias(count,input,input);
-
+        if (iupsample == 1) {
+        over_sample(input,&oversample,count);
+        if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count*2,&oversample,&oversample);
+        if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count*2,&oversample,&oversample);
+        if (antialis0 == 1)  AntiAlias(count*2,&oversample,&oversample);
+        down_sample(&oversample,input,count);
+        }
+        else {
+            if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count,input,input);
+            if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count,input,input);
+            if (antialis0 == 1)  AntiAlias(count,input,input);
+        }
         float* output0 = output[2];
         float* output1 = output[0];
         float* output2 = output[3];

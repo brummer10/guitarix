@@ -25,6 +25,7 @@ float jackframe; // jack sample freq
 float cpu_load; // jack cpu_load
 float  *get_frame = NULL;
 float *checkfreq = NULL;
+float *oversample = NULL;
 
 const char*     stopit = "go";
 const char*     rcpath = " " ;

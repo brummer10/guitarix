@@ -49,6 +49,7 @@ virtual void buildUserInterface(UI* interface)
     interface->addbigregler(" in ", &fslider3, 0.f, -40.f, 40.f, 0.1f);
     interface->addbigregler("out", &fslider17, 0.f, -40.f, 40.f, 0.1f);
     interface->closeBox();
+    interface->addminiswitch("upsample", &fupsample);
     // interface->addPToggleButton("preamp", &fcheckbox1);
     interface->closeBox();
     //   interface->openVerticalBox("");
@@ -63,6 +64,7 @@ virtual void buildUserInterface(UI* interface)
     interface->closeBox();
     interface->closeBox();
     interface->openHorizontalBox("amp");
+
     interface->openVerticalBox("");
     interface->addswitch("preamp", &fcheckbox1);
     interface->addHorizontalSlider("atan",&fatan, 1.f, 1.f, 10.f, 1.0f);
