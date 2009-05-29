@@ -357,11 +357,11 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         cairo_move_to (cr, liveviewx, liveviewy+48);
         cairo_show_text(cr, tir.c_str());
         gx_IntToString(cpu_load,tfi);
-            cairo_move_to (cr, liveviewx, liveviewy+10);
-            tir = " dsp load ";
-            tir += tfi;
-            tir += " %";
-            cairo_show_text(cr, tir.c_str());
+        cairo_move_to (cr, liveviewx, liveviewy+10);
+        tir = " dsp load ";
+        tir += tfi;
+        tir += " %";
+        cairo_show_text(cr, tir.c_str());
         /*  gx_IntToString(int(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_freq[0]),tfi);
             cairo_move_to (cr, liveviewx, liveviewy+10);
             tir = "freq ";
@@ -486,8 +486,8 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_move_to (cr, liveviewx+350, liveviewy+45);
             for (int i=0; i<frag; i++)
             {
-           	double fgh = 0.25-fabs(get_frame[i]);
-		double tgh = 1-2*fabs(fgh);
+                double fgh = 0.25-fabs(get_frame[i]);
+                double tgh = 1-2*fabs(fgh);
                 fgh = fgh*8;
                 double out = fgh*tgh*15;
                 cairo_line_to (cr, liveviewx+350-(250.0/frag)-((250.0/frag)*i+1), liveviewy+30+out);

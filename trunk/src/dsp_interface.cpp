@@ -122,13 +122,13 @@ virtual void buildUserInterface(UI* interface)
     interface->openVerticalBox("low/highpass");
     interface->openHorizontalBox("");
     interface->addregler("high-freq", &fentry1, 130.0f, 20.0f, 7040.0f, 10.0f);
-    interface->addregler("low-freq", &fentry0, 5000.0f, 20.0f, 7040.0f, 10.0f);
+    interface->addregler("low-freq", &fentry0, 5000.0f, 20.0f, 12000.0f, 10.0f);
     interface->closeBox();
     interface->addtoggle("", &fcheckbox2);
     interface->closeBox();
     interface->openVerticalBox("low/highcutoff");
     interface->openHorizontalBox("");
-    interface->addregler("high-freq", &fslider6, 5000.0f, 1000.0f, 10000.0f, 10.0f);
+    interface->addregler("high-freq", &fslider6, 5000.0f, 1000.0f, 12000.0f, 10.0f);
     interface->addregler("low-freq", &fslider7, 130.0f, 20.0f, 1000.0f, 10.0f);
     interface->closeBox();
     interface->addtoggle("", &fcheckbox3);

@@ -48,16 +48,12 @@ inline void over_sample(float **input,float **output, int sf)
     float * out = output[0];
     float x = in[0];
     float y = 0;
-   // int o = 0;
     for (int i=0; i<sf; i++)
     {
         x = in[i];
         *out++ = x;
         y = in[i+1];
-        //i++;
-        *out++ = y*0.25 + x*0.75;
-        //i--;
-        //o++;
+        *out++ = (y+ x)*0.5;
     }
 }
 
@@ -65,16 +61,16 @@ inline void down_sample(float **input,float **output, int sf)
 {
     float * in = input[0];
     float * out = output[0];
-    //int o = 0;
+    float x = in[0];
+    float y = 0;
     for (int i=0; i<sf; i++)
     {
-        *out++ = *in++;
 
-        *in++;
+        y = *in++;
+        out[i] = x*0.75 + y*0.5;
+        x = *in++;
     }
 }
-
-
 
 inline void AntiAlias (int sf, float** input, float** output)
 {
@@ -127,8 +123,8 @@ inline void fuzzy_tube (int fuzzy,int mode, int sf, float** input, float** outpu
 
 inline float normalize(float in, float atan_shape, float shape)
 {
-	float out = atan_shape * atan(in*shape);
-	return out;
+    float out = atan_shape * atan(in*shape);
+    return out;
 }
 
 virtual void compute (int count, float** input, float** output)
@@ -250,6 +246,7 @@ virtual void compute (int count, float** input, float** output)
         int 	ipredrive = int(fpredrive);
         int 	iprdr = int(fprdr);
         int     iupsample = int(fupsample);
+        int irunjc = runjc;
         // tuner
         int iTemps39 = 10;//int(fslider39);
         float fTemps39 = 10;//fslider39;
@@ -262,14 +259,16 @@ virtual void compute (int count, float** input, float** output)
             for (int i=0; i<count; i++)  checkfreq [i] = input0[i];
         }
         // pre_funktions on frame base
-        if (iupsample == 1) {
-        over_sample(input,&oversample,count);
-        if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count*2,&oversample,&oversample);
-        if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count*2,&oversample,&oversample);
-        if (antialis0 == 1)  AntiAlias(count*2,&oversample,&oversample);
-        down_sample(&oversample,input,count);
+        if (iupsample == 1)
+        {
+            over_sample(input,&oversample,count);
+            if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count*2,&oversample,&oversample);
+            if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count*2,&oversample,&oversample);
+            if (antialis0 == 1)  AntiAlias(count*2,&oversample,&oversample);
+            down_sample(&oversample,input,count);
         }
-        else {
+        else
+        {
             if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count,input,input);
             if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count,input,input);
             if (antialis0 == 1)  AntiAlias(count,input,input);
@@ -509,13 +508,13 @@ virtual void compute (int count, float** input, float** output)
 
             fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
             if ((showwave == 1) &&(view_mode > 1)) viv = fRec0[0];
-            if (runjc == 1) output0[i] = (fSlow85 * fRec0[0]);
+            if (irunjc == 1) output0[i] = (fSlow85 * fRec0[0]);
             float 	S9[2];
             if ((showwave == 1) &&((view_mode == 1) || (view_mode == 2) )) get_frame[i] = fRec0[0];
             S9[0] = (fSlow87 * fRec0[0]);
             S9[1] = (fSlow84 * fRec0[0]);
             output1[i] = S9[iSlow88];
-            if (runjc == 1) output2[i] = (fSlow90 * fRec0[0]);
+            if (irunjc == 1) output2[i] = (fSlow90 * fRec0[0]);
             float 	S10[2];
             S10[0] = (fSlow91 * fRec0[0]);
             S10[1] = (fSlow89 * fRec0[0]);
@@ -603,7 +602,7 @@ virtual void compute (int count, float** input, float** output)
             fVechp0[1] = fVechp0[0];
 
         }
-       // fConsta1 = 12 * log2f(2.272727e-03f *  fConsta4);
+        // fConsta1 = 12 * log2f(2.272727e-03f *  fConsta4);
         if ((showwave == 1) &&((view_mode == 1)|| (view_mode == 2))) viv = fRec0[0];
     }
     else
