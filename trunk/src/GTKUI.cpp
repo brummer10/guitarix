@@ -75,9 +75,26 @@ void GTKUI::closeBox()
 
 void GTKUI::openFrameBox(const char* label)
 {
-    GtkWidget * box = gtk_frame_new (label);
-    gtk_frame_set_shadow_type(GTK_FRAME(box),GTK_SHADOW_ETCHED_OUT);
-    pushBox(kSingleMode, addWidget(label, box));
+    GtkWidget * box = gtk_hbox_new (homogene, 2);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+
+    if (fMode[fTop] != kTabMode && label[0] != 0)
+    {
+        GtkWidget * frame = addWidget(label, gtk_frame_new (label));
+        gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
+        gtk_container_add (GTK_CONTAINER(frame), box);
+        gtk_widget_show(box);
+        pushBox(kBoxMode, box);
+    }
+    else
+    {
+        pushBox(kBoxMode, addWidget(label, box));
+    }
+
+
+    /* GtkWidget * box = gtk_frame_new (label);
+     gtk_frame_set_shadow_type(GTK_FRAME(box),GTK_SHADOW_ETCHED_OUT);
+     pushBox(kSingleMode, addWidget(label, box));*/
 }
 
 void GTKUI::openTabBox(const char* label)
@@ -87,13 +104,13 @@ void GTKUI::openTabBox(const char* label)
 
 void GTKUI::openHorizontalBox(const char* label)
 {
-    GtkWidget * box = gtk_hbox_new (homogene, 2);
-    gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+    GtkWidget * box = gtk_hbox_new (homogene, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
         GtkWidget * frame = addWidget(label, gtk_frame_new (label));
-        gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_ETCHED_OUT);
+        gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
         gtk_container_add (GTK_CONTAINER(frame), box);
         gtk_widget_show(box);
         pushBox(kBoxMode, box);
@@ -183,13 +200,23 @@ void GTKUI::openExpanderBox(const char* label, float* zone)
 
 void GTKUI::openVerticalBox(const char* label)
 {
-    GtkWidget * box = gtk_vbox_new (homogene, 2);
-    gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+    GtkWidget * box = gtk_vbox_new (homogene, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 0);
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
-        GtkWidget * frame = addWidget(label, gtk_frame_new (label));
-        gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_ETCHED_OUT);
-        gtk_container_add (GTK_CONTAINER(frame), box);
+        // GtkWidget * frame = addWidget(label, gtk_frame_new (label));
+        // gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
+        GtkWidget* lw = gtk_label_new(label);
+        GdkColor colorGreen;
+        gdk_color_parse("#a6a9aa", &colorGreen);
+        gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+        GtkStyle *style = gtk_widget_get_style(lw);
+        pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+        pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+        gtk_widget_modify_font(lw, style->font_desc);
+        gtk_container_add (GTK_CONTAINER(box), lw);
+        gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+        gtk_widget_show(lw);
         gtk_widget_show(box);
         pushBox(kBoxMode, box);
     }
@@ -539,6 +566,7 @@ void GTKUI::addregler(const char* label, float* zone, float init, float min, flo
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     g_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkWidget* lw = gtk_label_new("");
+    GtkWidget* lwl = gtk_label_new(label);
     GdkColor colorGreen;
     gdk_color_parse("#a6a9aa", &colorGreen);
     gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
@@ -546,12 +574,13 @@ void GTKUI::addregler(const char* label, float* zone, float init, float min, flo
     pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
     gtk_widget_modify_font(lw, style->font_desc);
+    gtk_widget_modify_font(lwl, style->font_desc);
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
     GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-    openVerticalBox(label);
-
+    openVerticalBox("");
+    addWidget(label, lwl);
     addWidget(label, slider);
     addWidget(label, lw);
     closeBox();
@@ -564,6 +593,7 @@ void GTKUI::addbigregler(const char* label, float* zone, float init, float min, 
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     g_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkWidget* lw = gtk_label_new("");
+    GtkWidget* lwl = gtk_label_new(label);
     GdkColor colorGreen;
     gdk_color_parse("#a6a9aa", &colorGreen);
     gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
@@ -571,12 +601,13 @@ void GTKUI::addbigregler(const char* label, float* zone, float init, float min, 
     pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
     gtk_widget_modify_font(lw, style->font_desc);
+    gtk_widget_modify_font(lwl, style->font_desc);
     new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
     GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_big_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-    openVerticalBox(label);
-
+    openVerticalBox("");
+    addWidget(label, lwl);
     addWidget(label, slider);
     addWidget(label, lw);
     closeBox();
@@ -623,7 +654,7 @@ void GTKUI::addswitch(const char* label, float* zone)
     g_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_switch_new_with_adjustment(GTK_ADJUSTMENT(adj));
-     GtkWidget* lw = gtk_label_new(label);
+    GtkWidget* lw = gtk_label_new(label);
     GdkColor colorGreen;
     gdk_color_parse("#a6a9aa", &colorGreen);
     gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
@@ -644,7 +675,7 @@ void GTKUI::addminiswitch(const char* label, float* zone)
     g_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
     GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-     GtkWidget* lw = gtk_label_new(label);
+    GtkWidget* lw = gtk_label_new(label);
     GdkColor colorGreen;
     gdk_color_parse("#a6a9aa", &colorGreen);
     gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
@@ -859,7 +890,7 @@ void GTKUI::addLiveWaveDisplay(const char* label, float* zone , float* zone1)
     livewa = myGtkWaveView.gtk_wave_live_view(zone,zone1,GTK_ADJUSTMENT(adj));
     GtkWidget * nolivewa =  gtk_event_box_new ();
     GtkWidget * box = gtk_vbox_new (homogene, 4);
-    gtk_widget_set_size_request (nolivewa, 480, 80);
+    gtk_widget_set_size_request (nolivewa, 550, 80);
     gtk_container_add (GTK_CONTAINER(nolivewa),box );
     gtk_container_add (GTK_CONTAINER(box),livewa );
     addWidget(label, nolivewa);
@@ -970,9 +1001,9 @@ void GTKUI::addMenu()
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
 
-/******************************************************************************
-    This code is contributed by 	James Warden <warjamy@yahoo.com>
-******************************************************************************/
+    /******************************************************************************
+        This code is contributed by 	James Warden <warjamy@yahoo.com>
+    ******************************************************************************/
     /*---------------- Create Latency menu items --------------------*/
     /*-- Create  Latency submenu under Engine submenu --*/
     menuLatency = gtk_menu_item_new_with_label ("Latency");
@@ -986,29 +1017,30 @@ void GTKUI::addMenu()
     const int max_pow = 13; // 2**13 = 8192
     group = NULL;
 
-    for (int i = min_pow; i <= max_pow; i++) {
-      int jack_buffer_size = (int)pow(2.,i);
-      (void)snprintf(buf_size, 5, "%d", jack_buffer_size);
-      menuitem = gtk_radio_menu_item_new_with_label (group, buf_size);
-      group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
-      gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
+    for (int i = min_pow; i <= max_pow; i++)
+    {
+        int jack_buffer_size = (int)pow(2.,i);
+        (void)snprintf(buf_size, 5, "%d", jack_buffer_size);
+        menuitem = gtk_radio_menu_item_new_with_label (group, buf_size);
+        group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
 
-      g_signal_connect (GTK_OBJECT (menuitem), "activate",
-                       GTK_SIGNAL_FUNC (gx_set_jack_buffer_size),
-                       GINT_TO_POINTER(jack_buffer_size));
+        g_signal_connect (GTK_OBJECT (menuitem), "activate",
+                          GTK_SIGNAL_FUNC (gx_set_jack_buffer_size),
+                          GINT_TO_POINTER(jack_buffer_size));
 
-      // display actual buffer size as default
-      if (client)
-       if (jack_buffer_size == (int)jack_get_buffer_size(client))
-         gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
+        // display actual buffer size as default
+        if (client)
+            if (jack_buffer_size == (int)jack_get_buffer_size(client))
+                gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
 
-      gtk_menu_append(GTK_MENU(menulat), menuitem);
-      gtk_widget_show (menuitem);
+        gtk_menu_append(GTK_MENU(menulat), menuitem);
+        gtk_widget_show (menuitem);
     }
     /*---------------- End Latency menu declarations ----------------*/
-/******************************************************************************
-    Many thanks James aka torgal
-******************************************************************************/
+    /******************************************************************************
+        Many thanks James aka torgal
+    ******************************************************************************/
 
     /*-- Create Exit menu item under Engine submenu --*/
     menuitem = gtk_menu_item_new_with_label ("  Exit  ");

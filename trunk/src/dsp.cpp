@@ -277,7 +277,9 @@ private:
     float fatan;
     float fwarn;
     float fupsample;
-    float tingel;
+    float ffuse;
+    float fthreshold;
+
     // float  fbargraph0;
 public:
 
@@ -531,7 +533,9 @@ public:
         fwarn = 0;
         fwarn_swap = fwarn;
         fupsample = 0;
-        tingel = 0;
+        ffuse = 0;
+        fthreshold = 1;
+
     }
 
     virtual void init(int samplingFreq)
