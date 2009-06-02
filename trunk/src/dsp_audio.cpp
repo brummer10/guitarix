@@ -540,6 +540,8 @@ virtual void compute (int count, float** input, float** output)
             fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
             switch (ifuse)
             {
+            case 0:
+                break;
             case 1:
                 fRec0[0] = fuzz(fRec0[0],threshold);
                 break;
