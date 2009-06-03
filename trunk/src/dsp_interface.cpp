@@ -66,8 +66,8 @@ virtual void buildUserInterface(UI* interface)
     interface->addminiswitch("oversample", &fupsample);
     interface->closeBox();
     interface->closeBox();
-    interface->openVerticalBox("");
-    interface->addswitch("a.aliase", &antialis0);
+    interface->openVerticalBox("a.aliase");
+    interface->addtoggle("a.aliase", &antialis0);
     interface->addHorizontalSlider(" feedback ", &faas1, 0.3f, 0.3f, 0.9f, 0.01f);
     interface->closeBox();
     interface->closeBox();
@@ -212,6 +212,8 @@ virtual void buildUserInterface(UI* interface)
     interface->closeBox();
     interface->openHorizontalBox("");
     interface->closeBox();
+    interface->closeBox();
+    interface->openFrameBox("");
     interface->closeBox();
     interface->closeBox();
     interface->closeBox();
