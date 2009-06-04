@@ -421,7 +421,7 @@ void gx_save_preset (const gchar* presname)
     if (cm == 0)
     {
         GtkWidget* menuitem = gtk_menu_item_new_with_label (presname);
-        g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_load_preset), NULL);
+        g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_load_preset), NULL);
         gtk_menu_append(GTK_MENU(menul), menuitem);
         gtk_widget_show (menuitem);
     }
@@ -450,7 +450,7 @@ void gx_get_text(GtkWidget *box)
     if (cm == 0)
     {
         GtkWidget*  menuitem = gtk_menu_item_new_with_label (presname);
-        g_signal_connect (GTK_OBJECT (menuitem), "activate", GTK_SIGNAL_FUNC (gx_save_presetn2), NULL);
+        g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_presetn2), NULL);
         gtk_menu_append(GTK_MENU(menus), menuitem);
         gtk_widget_show (menuitem);
     }
