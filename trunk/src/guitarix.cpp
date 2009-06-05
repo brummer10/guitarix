@@ -14,7 +14,6 @@ GdkPixbuf*   ib, *ibm, *ibr;
 GtkStatusIcon*  status_icon;
 GtkWidget* livewa, *warn_dialog,*dsiable_warn ;
 
-static float      togglebutton1;
 static float      checkbutton7;
 
 float      checkbox7 = 1.0;
@@ -63,6 +62,7 @@ jack_port_t *midi_output_ports;
 jack_nframes_t time_is;
 jack_nframes_t  jackframes;
 
+#define SYSTEM_OK (0)
 
 // check version and if directory exists and create it if it not exist
 bool gx_version_check(const char* Path)
@@ -217,21 +217,59 @@ void gx_stop_function (GtkCheckMenuItem *menuitem, gpointer checkplay)
     checky = 0.0;
 }
 
-//----menu funktion meterbridge
-void meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
+
+//---- guitarix system function
+int gx_system(const char* name1, const char* name2, const bool escape = false)
 {
-    int unuseres = 0;
-    if (gtk_check_menu_item_get_active(menuitem) == TRUE)
-    {
-        unuseres = system ("meterbridge -n meterbridge_guitarix_in_out -t sco guitarix:in_0  guitarix:out_0 > /dev/null &");
+  string str(name1);
+  str.append(" ");
+  str.append(name2);
+  str.append(" >& /dev/null");
+  if (escape)
+    str.append("&");
+
+  //  cerr << "\n system command = " << str.data() << endl;
+
+  return system(str.data());
+}
+
+//----menu funktion gx_meterbridge
+void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
+{
+  // name of the app
+  const char* app_name = "meterbridge";
+
+  // is it installed ?
+  int meterbridge_ok = gx_system("which", app_name);
+
+  // if triggered by GUI
+  if (gtk_check_menu_item_get_active(menuitem) == TRUE) 
+  {
+    if (meterbridge_ok == SYSTEM_OK) // all is cool and dandy
+    { 
+      (void)gx_system(
+         app_name, 
+	 "-n meterbridge_guitarix_in_out -t sco guitarix:in_0  guitarix:out_0",
+	 true
+      );
+
+      usleep(1000); // let's give it 1ms
+
+      // let's pgrep it: if 0, pgrep got a match
+      meterbridge_ok = gx_system("pgrep", app_name);
     }
-    else
+    
+    if (meterbridge_ok != SYSTEM_OK) // no meterbridge installed or running
     {
-        if (system(" pidof meterbridge > /dev/null") == 0)
-        {
-            unuseres = system("kill -15 `pidof meterbridge ` > /dev/null");
-        }
+      // reset meterbridge GUI button state to inactive
+      gtk_check_menu_item_set_active(menuitem, FALSE);
+
+      cerr << "<*** gx_meterbridge: "
+	   << app_name 
+	   << "is either not installed or it is not running " 
+	   << "***>" << endl;
     }
+  }
 }
 
 void gx_show_oscilloscope (GtkCheckMenuItem *menuitem, gpointer checkplay)
@@ -278,78 +316,116 @@ void gx_midi_out (GtkCheckMenuItem *menuitem, gpointer checkplay)
 }
 
 
-
-
 // start or stop record when toggle_button record is pressed
 void gx_run_jack_capture (GtkWidget *widget, gpointer data)
 {
-    int unuseres = 0;
-// stop record
-    if ((togglebutton1 == 0) && (cap == 0))
+    // here, const applies to pointer, not pointed data ;)
+    GtkToggleButton* const cap_button = (GtkToggleButton*)widget;
+
+    // avoid running it at startup 
+    // (ugly hack due to GTK+ signalling side effect)
+    static bool cap_init = false;
+    if (!cap_init) 
     {
-        if (system(" pidof jack_capture > /dev/null") == 0)
-        {
-            unuseres = system("command kill -2 `pidof  jack_capture ` 2> /dev/null") ;
-            pclose(control_stream);
-        }
+      gtk_toggle_button_set_active(cap_button, FALSE);
+      cap_init = true;
+      return;
     }
-// strat record
-    else if (togglebutton1 == 1)
+
+    // capture app name
+    const char* app_name = "jack_capture";
+
+    // is the button toggled ?
+    const gboolean tggl_state = gtk_toggle_button_get_active(cap_button);
+
+
+    // ---- stop record
+    if (tggl_state == FALSE) // nope
     {
-        struct stat my_stat;
-        char                path[256];
-        char                path1[256];
-        const char*      prename = "/usr/bin/jack_capture";
-        const char*      name = "/usr/local/bin/jack_capture";
-        snprintf(path, 256, "%s", prename);
-        snprintf(path1, 256, "%s", name);
-// check if jack_record is installed in /usr/bin or /usr/local/bin. If not found a messagebox will inform the user
-        if (( !stat(path, &my_stat) == 0) && ( !stat(path1, &my_stat) == 0))
-        {
-            GtkWidget *about, *label, *button;
-            about = gtk_dialog_new();
-            button  = gtk_button_new_with_label("Ok");
-            label = gtk_label_new ("  you need jack_capture <= 0.9.30 by Kjetil S. Matheussen  \n  please look here\n  http://old.notam02.no/arkiv/src/?M=D\n");
-            GtkStyle *style = gtk_widget_get_style(label);
-            pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-            gtk_widget_modify_font(label, style->font_desc);
-            gtk_label_set_selectable(GTK_LABEL(label), TRUE);
-            gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), label);
-            gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), button);
-            g_signal_connect_swapped (button, "clicked",  G_CALLBACK (gtk_widget_destroy), about);
-            gtk_widget_show (button);
-            gtk_widget_show (label);
-            gtk_widget_show (about);
-            cap = 1;
-            togglebutton1 = 0;
-        }
-// when everything go's allright, start capture
-        else
-        {
-            const char* capturas = "";
-            string bufi;
-            const char* home;
-            char gfilename[256];
-            home = getenv ("HOME");
-            if (home == 0) home = ".";
-            snprintf(gfilename, 256, "%s%src", home, "/.guitarix/ja_ca_sset");
-            ifstream f(gfilename);
-            if (f.good())
-            {
-                getline(f, bufi);
-                string ma;
-                gx_IntToString(capas,ma);
-                std::string a(bufi);
-                std::string b(".");
-                std::string::size_type in = a.find(b);
-                in -= 1;
-                if (int(in) != -1) a.replace(in,1,ma);
-                bufi = a;
-                capturas = bufi.c_str();
-                f.close();
-            }
-            gx_capture(capturas);
-        }
+      // let's ctrl-c jack_capture
+      if (gx_system("pgrep", app_name) == SYSTEM_OK)
+      {
+	  (void)gx_system("killall -SIGINT", app_name) ;
+	  pclose(control_stream);
+      }
+
+      // let's get out of here
+      return;
+    }
+
+    // ---- button has been toggled, let's try to record
+    int const jack_cap_ok = gx_system("which", app_name);
+
+    if (jack_cap_ok != SYSTEM_OK) // no jack_capture in PATH! :(
+    {
+      GtkWidget *about, *label, *ok_button;
+      about = gtk_dialog_new();
+      ok_button  = gtk_button_new_with_label("Ok");
+
+      string str_label("  ");
+      str_label.append("you need jack_capture <= 0.9.30 ");
+      str_label.append("by Kjetil S. Matheussen  \n  ");
+      str_label.append("please look here\n  ");
+      str_label.append("http://old.notam02.no/arkiv/src/?M=D\n");
+
+      label = gtk_label_new (str_label.data());
+
+      GtkStyle *style = gtk_widget_get_style(label);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+      gtk_widget_modify_font(label, style->font_desc);
+      gtk_label_set_selectable(GTK_LABEL(label), TRUE);
+      gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), label);
+      gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), ok_button);
+
+      g_signal_connect_swapped (ok_button, "clicked",  
+				G_CALLBACK (gtk_widget_destroy), about);
+      gtk_widget_show (ok_button);
+      gtk_widget_show (label);
+      gtk_widget_show (about);
+
+      // let's deactivate the capture button
+      gtk_toggle_button_set_active(cap_button, FALSE);
+
+      // tough luck ...
+      return;
+    }
+
+    // when everything go's allright, start capture
+    const char* capturas = "";
+    string bufi;
+    const char* home = getenv ("HOME");
+    char gfilename[256];
+
+    if (home[0] == '\0') 
+      home = ".";
+
+    snprintf(gfilename, 256, "%s%src", home, "/.guitarix/ja_ca_sset");
+    ifstream f(gfilename);
+    if (f.good())
+    {
+      getline(f, bufi);
+      string ma;
+      gx_IntToString(capas,ma);
+      std::string a(bufi);
+      std::string b(".");
+      std::string::size_type in = a.find(b);
+      in -= 1;
+      if (int(in) != -1) a.replace(in,1,ma);
+      bufi = a;
+      capturas = bufi.c_str();
+      f.close();
+
+      gx_capture(capturas);
+    }
+    else 
+    {
+      cerr << "<*** gx_run_jack_capture: "
+	   << "WARNING: cound not open " 
+	   << gfilename
+	   << " ***>" << endl;
+
+      // let's deactivate the capture button
+      gtk_toggle_button_set_active(cap_button, FALSE);
     }
 }
 

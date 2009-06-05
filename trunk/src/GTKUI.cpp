@@ -326,10 +326,11 @@ void GTKUI::addToggleButton(const char* label, float* zone)
     GdkColor colorOwn;
     gdk_color_parse ("#d56161", &colorRed);
     gdk_color_parse ("#7f7f7f", &colorOwn);
-    *zone = 0.0;
+    float local_zone = 0.0;
+    if (zone) local_zone = *zone;
     GtkWidget* 	button = gtk_toggle_button_new_with_label (label);
     addWidget(label, button);
-    uiToggleButton* c = new uiToggleButton(this, zone, GTK_TOGGLE_BUTTON(button));
+    uiToggleButton* c = new uiToggleButton(this, &local_zone, GTK_TOGGLE_BUTTON(button));
     gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
     gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
     g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
@@ -1146,7 +1147,7 @@ void GTKUI::addMenu()
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("  meterbridge");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (meterbridge), NULL);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_meterbridge), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/

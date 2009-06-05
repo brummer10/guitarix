@@ -315,7 +315,7 @@ virtual void buildUserInterface(UI* interface)
     interface->addslider(" feedback", &fslider0, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
     interface->addslider(" feedforward", &fslider23, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
     interface->openFrameBox("");
-    interface->addToggleButton("record", &togglebutton1);
+    interface->addToggleButton("record", 0);
     interface->closeBox();
     interface->closeBox();
     interface->closeBox();
