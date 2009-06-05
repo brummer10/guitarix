@@ -19,7 +19,6 @@ static float      checkbutton7;
 float      checkbox7 = 1.0;
 float       	 checky = 1.0;
 float               cap = 0;
-float               capas = 0;
 float jackframe; // jack sample freq
 float cpu_load; // jack cpu_load
 float  *get_frame = NULL;
@@ -62,7 +61,26 @@ jack_port_t *midi_output_ports;
 jack_nframes_t time_is;
 jack_nframes_t  jackframes;
 
+#define ASCII_START (48)
+
+//---- system related defines and function proto
 #define SYSTEM_OK (0)
+
+#define NUM_OF_CHILD_PROC (3)
+#define NO_PID (-1)
+
+#define JACKCAP_IDX (0)
+#define METERBG_IDX (1)
+#define JCONV_IDX   (2)
+
+pid_t child_pid[NUM_OF_CHILD_PROC] = {
+  NO_PID,
+  NO_PID,
+  NO_PID
+};
+
+static FILE* gx_popen(const char*, const char*, const int);
+static int   gx_pclose(FILE*, const int);
 
 // check version and if directory exists and create it if it not exist
 bool gx_version_check(const char* Path)
@@ -176,32 +194,25 @@ int gx_pixmap_check()
 // convert int to string
 void gx_IntToString(int i, string & s)
 {
-    s = "";
-    if (i == 0)
-    {
-        s = "0";
-        return;
-    }
-    if (i < 0)
-    {
-        s += '-';
-        i = -i;
-    }
-    int count = log10(i);
-    while (count >= 0)
-    {
-        s += ('0' + i/pow(10.0, count));
-        i -= static_cast<int>(i/pow(10.0,count)) * static_cast<int>(pow(10.0,count));
-        count--;
-    }
+  s = "";
+ 
+  int abs_i = abs(i);
+  do {
+    // note: using base 10 since 10 digits (0123456789)
+    char c = static_cast<char>(ASCII_START+abs_i%10);
+    s.insert(0, &c, 1);
+  } while ((abs_i /= 10) > 0);
+  if (i < 0) s.insert(0, "-");
 }
 
 // use jack_capture for record the session, open a write stream for controll the stop funktion.
-bool gx_capture(const char* capturas)
+void gx_capture(const char* capturas)
 {
-    capas += 1;
-    control_stream = popen (capturas, "w");
-    return TRUE;
+  control_stream = gx_popen(capturas, "w", JACKCAP_IDX);
+
+  if (control_stream)
+    cerr << " jack_capture PID = " << child_pid[JACKCAP_IDX]
+	 << endl;
 }
 
 bool		GTKUI::fInitialized = false;
@@ -343,11 +354,23 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
     if (tggl_state == FALSE) // nope
     {
       // let's ctrl-c jack_capture
-      if (gx_system("pgrep", app_name) == SYSTEM_OK)
+      if (control_stream)
       {
-	  (void)gx_system("killall -SIGINT", app_name) ;
-	  pclose(control_stream);
+	const pid_t cap_pid = child_pid[JACKCAP_IDX]; 
+	if (cap_pid != NO_PID)
+        {
+	  if (kill(cap_pid, SIGINT) == -1)
+	    cerr << "<*** gx_run_jack_capture: "
+		 << "WARNING: sorry, could not stop (Ctrl-C) jack_capture" 
+		 << " ***>" << endl;
+	}
+
+	(void)gx_pclose(control_stream, JACKCAP_IDX);
+	control_stream = NULL;
       }
+
+      // reset pid nonetheless
+      child_pid[JACKCAP_IDX] = NO_PID;
 
       // let's get out of here
       return;
@@ -395,6 +418,7 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
     string bufi;
     const char* home = getenv ("HOME");
     char gfilename[256];
+    static int capas = 0;
 
     if (home[0] == '\0') 
       home = ".";
@@ -416,11 +440,22 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
       f.close();
 
       gx_capture(capturas);
+
+      // if success, let's increment the wav file index
+      if (control_stream)
+      {
+	if (child_pid[JACKCAP_IDX] != NO_PID)
+	  capas += 1;
+	else
+	  cerr << "<*** gx_run_jack_capture: "
+	       << "WARNING: sorry, could not start jack_capture" 
+	       << " ***>" << endl;
+      }
     }
     else 
     {
       cerr << "<*** gx_run_jack_capture: "
-	   << "WARNING: cound not open " 
+	   << "WARNING: could not open " 
 	   << gfilename
 	   << " ***>" << endl;
 
@@ -733,41 +768,27 @@ static void gx_show_j_c_gui( GtkWidget *widget, gpointer data )
 
 static gint gx_delete_event( GtkWidget *widget, GdkEvent *event, gpointer data )
 {
-    int unuseres = 0;
     if (system(" pidof meterbridge > /dev/null") == 0)
     {
-        unuseres = system("kill -15 `pidof meterbridge ` 2> /dev/null");
+      (void)system("kill -15 `pidof meterbridge ` 2> /dev/null");
     }
     if (system(" pidof jack_capture > /dev/null") == 0)
     {
-        unuseres = system("command kill -2 `pidof  jack_capture ` 2> /dev/null") ;
-        pclose(control_stream);
+      (void)system("command kill -2 `pidof  jack_capture ` 2> /dev/null") ;
+      (void)gx_pclose(control_stream, JACKCAP_IDX);
     }
     if (system(" pidof jconv > /dev/null") == 0)
     {
-        unuseres = system("command kill -2 `pidof  jconv ` 2> /dev/null") ;
-        pclose(control_stream1);
+      (void)system("command kill -2 `pidof  jconv ` 2> /dev/null") ;
+      (void)gx_pclose(control_stream1, JCONV_IDX);
     }
-    return FALSE;
+    return 0;
 }
 
 static void gx_destroy_event( GtkWidget *widget, gpointer data )
 {
-    int unuseres = 0;
-    if (system(" pidof meterbridge > /dev/null") == 0)
-    {
-        unuseres = system("kill -15 `pidof meterbridge ` 2> /dev/null");
-    }
-    if (system(" pidof jack_capture > /dev/null") == 0)
-    {
-        unuseres = system("command kill -2 `pidof  jack_capture ` 2> /dev/null") ;
-        pclose(control_stream);
-    }
-    if (system(" pidof jconv > /dev/null") == 0)
-    {
-        unuseres = system("command kill -2 `pidof  jconv ` 2> /dev/null") ;
-        pclose(control_stream1);
-    }
+    (void)gx_delete_event(widget, NULL, data);
+  
     shownote = 2;
     stopit = "stop";
     showwave = 0;
@@ -838,3 +859,96 @@ static void gx_sytray_menu( GtkWidget *widget, gpointer data )
     gtk_menu_popup (GTK_MENU(menuh),NULL,NULL,NULL,(gpointer) menuh,2,tim);
 }
 
+//---- popen revisited for guitarix
+static FILE* gx_popen(const char *cmdstring, 
+		      const char *type, 
+		      const int proc_idx)
+{
+  int   i, pfd[2];
+  pid_t	pid;
+  FILE	*fp;
+
+  /* only allow "r" or "w" */
+  if ((type[0] != 'r' && type[0] != 'w') || type[1] != 0) {
+    errno = EINVAL;		/* required by POSIX.2 */
+    return(NULL);
+  }
+
+  if (pipe(pfd) < 0)
+    return(NULL);	/* errno set by pipe() */
+
+  if ((pid = fork()) < 0)
+    return(NULL);	/* errno set by fork() */
+
+  else if (pid == 0) 
+  {							
+    if (*type == 'r') 
+    {
+      close(pfd[0]);
+      if (pfd[1] != STDOUT_FILENO) 
+      {
+	dup2(pfd[1], STDOUT_FILENO);
+	close(pfd[1]);
+      }
+    } 
+    else 
+    {
+      close(pfd[1]);
+
+      if (pfd[0] != STDIN_FILENO) 
+      {
+	dup2(pfd[0], STDIN_FILENO);
+	close(pfd[0]);
+      }
+    }
+
+    /* close all descriptors in child_pid[] */
+    for (i = 0; i < NUM_OF_CHILD_PROC; i++)
+      if (child_pid[i] > 0)
+	close(i);
+
+    execl("/bin/sh", "sh", "-c", cmdstring, (char *) 0);
+    _exit(127);
+  }
+
+  /* parent */
+  if (*type == 'r') 
+  {
+    close(pfd[1]);
+
+    if ( (fp = fdopen(pfd[0], type)) == NULL)
+      return(NULL);
+
+  } 
+  else 
+  {
+    close(pfd[0]);
+
+    if ( (fp = fdopen(pfd[1], type)) == NULL)
+      return(NULL);
+  }
+
+  child_pid[proc_idx] = pid; /* remember child pid for this fd */
+  return(fp);
+}
+
+//---- pclose revisited for guitarix
+static int gx_pclose(FILE *fp, const int proc_idx)
+{
+  int stat;
+  pid_t	pid;
+  
+  if ((pid = child_pid[proc_idx]) == 0)
+    return(-1);	/* fp wasn't opened by gx_popen() */
+  
+  child_pid[proc_idx] = NO_PID;
+
+  if (fclose(fp) == EOF)
+    return(-1);
+  
+  while (waitpid(pid, &stat, 0) < 0)
+    if (errno != EINTR)
+      return(-1); /* error other than EINTR from waitpid() */
+  
+  return(stat);	/* return child's termination status */
+}
