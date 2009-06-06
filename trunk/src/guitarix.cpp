@@ -26,7 +26,14 @@ float *oversample  = NULL;
 
 const char* stopit = "go";
 const char* rcpath = " " ;
-string  jconvwav ;
+string jconvwav ;
+
+// guitarix setting, location and related stuff
+const char* guitarix_version = "0.03.3";
+const char* guitarix_dir     = ".guitarix";
+const char* guitarix_reset   = "resettings";
+const char* jcapsetup_file   = "ja_ca_ssetrc";
+const char* jcapfile_wavbase = "guitarix_session";
 
 int offcut;
 int lenghtcut;
@@ -80,16 +87,20 @@ pid_t child_pid[NUM_OF_CHILD_PROC] = {
 
 static FILE* gx_popen(const char*, const char*, const int);
 static int   gx_pclose(FILE*, const int);
-static void gx_message_popup(const char*);
-static bool gx_capture_file(const int, string&);
+static void  gx_message_popup(const char*);
+static bool  gx_capture_command(const int, string&);
+static int   gx_system(const char*, 
+		       const char*, 
+		       const bool devnull = true, 
+		       const bool escape  = false);
 
 // check version and if directory exists and create it if it not exist
 bool gx_version_check(const char* Path)
 {
-    int unuseres = 0;
     struct stat my_stat;
     if  ( !stat(Path, &my_stat) != 0)
     {
+      // Note: to be updated and cleaned up
         char          rcfilename[256];
         const char*	  home;
         home = getenv ("HOME");
@@ -97,18 +108,18 @@ bool gx_version_check(const char* Path)
         if  ( !stat(rcfilename, &my_stat) == 0)
         {
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/version-*");
-            unuseres = system (rcfilename);
+            (void)system (rcfilename);
             snprintf(rcfilename, 256, "%s/.%s-0.03.3", home, "guitarix/version");
             ofstream f(rcfilename);
             string cim = "guitarix-0.03.9";
             f <<  cim <<endl;
             f.close();
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/guitarixprerc");
-            unuseres = system (rcfilename);
+            (void)system (rcfilename);
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/guitarixrc");
-            unuseres = system (rcfilename);
+            (void)system (rcfilename);
             snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/*.conf");
-            unuseres = system (rcfilename);
+            (void)system (rcfilename);
             snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
             ofstream fa(rcfilename);
             cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n-64.0 0.52 10 1.5 1.5 0 \n";
@@ -118,27 +129,63 @@ bool gx_version_check(const char* Path)
     }
     else if  ( !stat(Path, &my_stat) == 0)
     {
-        char                rcfilename[256];
-        const char*	  home;
-        home = getenv ("HOME");
-        unuseres = system("mkdir $HOME/.guitarix" );
-        snprintf(rcfilename, 256, "%s/.%src", home, "guitarix/ja_ca_sset");
-        ofstream f(rcfilename);
-        string cim = "jack_capture -c 2 --silent --disable-meter --port guitarix:out* ";
-        cim += home;
-        cim += "/guitarix_session0.wav ";
-        f <<  cim <<endl;
-        f.close();
-        snprintf(rcfilename, 256, "%s/.%s-0.03.3", home, "guitarix/version");
-        ofstream fi(rcfilename);
-        cim = "guitarix-0.03.9";
-        fi <<  cim <<endl;
-        fi.close();
-        snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
-        ofstream fa(rcfilename);
-        cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n-64.0 0.52 10 1.5 1.5 0 \n";
-        fa <<  cim <<endl;
-        fa.close();
+	string fullgxdir("$HOME/");
+	fullgxdir += guitarix_dir;
+	fullgxdir += "/";
+
+	// create .guitarix directory
+        (void)gx_system("mkdir -p", fullgxdir.data(), false);
+
+	// --- create jack_capture setting file
+	string tmpstr = fullgxdir;
+	tmpstr += jcapsetup_file;
+
+        (void)gx_system("touch", tmpstr.data(), false);
+	(void)gx_system(
+	   "echo 'jack_capture -c 2 --silent --disable-meter --port guitarix:out* ' >",
+	   tmpstr.data(),
+	   false
+	);
+
+	// --- version file 
+	// (Note: needs update, why do we keep this hardcoded version ? ...)
+	tmpstr = fullgxdir;
+	tmpstr += "version";
+	tmpstr += guitarix_version;
+
+        (void)gx_system("touch", tmpstr.data(), false);
+
+	string cim("echo 'guitarix-");
+	cim += guitarix_version;
+	cim += "' >";
+
+	(void)gx_system(
+	   cim.data(),
+	   tmpstr.data(),
+	   false
+	);
+
+	// --- guitarix own default settings
+	tmpstr = fullgxdir;
+	tmpstr += guitarix_reset;
+
+        (void)gx_system("touch", tmpstr.data(), false);
+	
+	cim = "echo -e '";
+        cim += 
+	  "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n"
+	  "0 0.3 0.7 \n"
+	  "20 440 2 \n"
+	  "0.62 0.12 0 \n"
+	  "84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n"
+	  "-64.0 0.52 10 1.5 1.5 0 \n";
+	cim += "' >";
+
+	(void)gx_system(
+	   cim.data(),
+	   tmpstr.data(),
+	   false
+	);
     }
     return TRUE;
 }
@@ -227,21 +274,6 @@ void gx_stop_function (GtkCheckMenuItem *menuitem, gpointer checkplay)
 }
 
 
-//---- guitarix system function
-int gx_system(const char* name1, const char* name2, const bool escape = false)
-{
-  string str(name1);
-  str.append(" ");
-  str.append(name2);
-  str.append(" >& /dev/null");
-  if (escape)
-    str.append("&");
-
-  //  cerr << "\n system command = " << str.data() << endl;
-
-  return system(str.data());
-}
-
 //----menu function gx_meterbridge
 void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
@@ -259,7 +291,7 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
       (void)gx_system(
          app_name, 
 	 "-n meterbridge_guitarix_in_out -t sco guitarix:in_0  guitarix:out_0",
-	 true
+	 true, true
       );
 
       usleep(1000); // let's give it 1ms
@@ -393,7 +425,7 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
       // so far so good, start capture
       string capturas;
 
-      if (gx_capture_file(capas, capturas))
+      if (gx_capture_command(capas, capturas))
       {
 	if (!gx_capture(capturas.data()))
 	  warning.append("Sorry, could not start jack_capture"); 
@@ -421,7 +453,7 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 {
     JCONV_SETTINGS myJCONV_SETTINGS;
     checkbutton7 = 0;
-    int unuseres = 0;
+
     interface->updateAllGuis();
     const char*	  home;
     char                rcfilenamere[256];
@@ -437,7 +469,7 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
     if (home == 0) home = ".";
     char                filename[256];
     snprintf(filename, 256, "cp %s/.%s%s%s %s/.%s", home, "guitarix/jconv_", text,".conf", home, "guitarix/jconv_set.conf");
-    unuseres = system(filename);
+    (void)system(filename);
     snprintf(rcfilenamere, 256, "%s/.guitarix/%src", home, prename);
     snprintf(tmpfilename, 256, "%s/.guitarix/%src", home, tmpname);
     ifstream f(rcfilenamere);
@@ -467,7 +499,6 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 //---- funktion save
 void gx_save_preset (const gchar* presname)
 {
-    int unuseres = 0;
     const char*	  home;
     const char*      prename = "guitarixpre";
     const char*      tmpname = "guitarixtmp";
@@ -494,7 +525,7 @@ void gx_save_preset (const gchar* presname)
     gtk_window_set_title (GTK_WINDOW (fWindow), itle);
     char                filename[256];
     snprintf(filename, 256, "cp %s/.%s %s/.%s%s%s", home, "guitarix/jconv_set.conf", home, "guitarix/jconv_", presname,".conf");
-    unuseres = system(filename);
+    (void)system(filename);
 }
 
 //----menu funktion save
@@ -716,8 +747,7 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
 //--------------------------- jack_capture settings ----------------------------------------
 static void gx_show_j_c_gui( GtkWidget *widget, gpointer data )
 {
-    int unuseres = 0;
-    unuseres = system ("jack_capture_gui2 -o yes -f ~/guitarix_session -n guitarix -p /.guitarix/ja_ca_ssetrc &");
+    (void)system ("jack_capture_gui2 -o yes -f ~/guitarix_session -n guitarix -p /.guitarix/ja_ca_ssetrc &");
 }
 
 static gint gx_delete_event( GtkWidget *widget, GdkEvent *event, gpointer data )
@@ -726,11 +756,13 @@ static gint gx_delete_event( GtkWidget *widget, GdkEvent *event, gpointer data )
     {
       (void)system("kill -15 `pidof meterbridge ` 2> /dev/null");
     }
-    if (system(" pidof jack_capture > /dev/null") == 0)
+
+    if (child_pid[JACKCAP_IDX] != NO_PID)
     {
-      (void)system("command kill -2 `pidof  jack_capture ` 2> /dev/null") ;
+      (void)kill(child_pid[JACKCAP_IDX], SIGINT);
       (void)gx_pclose(jcap_stream, JACKCAP_IDX);
     }
+
     if (system(" pidof jconv > /dev/null") == 0)
     {
       (void)system("command kill -2 `pidof  jconv ` 2> /dev/null") ;
@@ -895,8 +927,14 @@ static int gx_pclose(FILE *fp, const int proc_idx)
   if ((pid = child_pid[proc_idx]) == 0)
     return(-1);	/* fp wasn't opened by gx_popen() */
   
+  // reset internal process pid 
   child_pid[proc_idx] = NO_PID;
 
+  // check control stream
+  if (!fp)
+    return(-1);
+
+  // close it
   if (fclose(fp) == EOF)
     return(-1);
   
@@ -905,6 +943,27 @@ static int gx_pclose(FILE *fp, const int proc_idx)
       return(-1); /* error other than EINTR from waitpid() */
   
   return(stat);	/* return child's termination status */
+}
+
+//---- guitarix system function
+static int gx_system(const char* name1, 
+	      const char* name2, 
+	      const bool  devnull,
+	      const bool  escape)
+{
+  string str(name1);
+  str.append(" ");
+  str.append(name2);
+
+  if (devnull)
+    str.append(" >& /dev/null");
+
+  if (escape)
+    str.append("&");
+
+  //  cerr << " ********* \n system command = " << str.data() << endl;
+
+  return system(str.data());
 }
 
 //---- popup warning
@@ -932,6 +991,7 @@ static void gx_message_popup(const char* msg)
   
   GtkStyle *style = gtk_widget_get_style(label);
 
+  pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
   pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
 
   gtk_widget_modify_font(label, style->font_desc);
@@ -949,45 +1009,63 @@ static void gx_message_popup(const char* msg)
 }
 
 //---- wav file construction for jack_capture
-static bool gx_capture_file(const int idx, string& capfile)
+static bool gx_capture_command(const int idx, string& capcmd)
 {
-  const char* home = getenv ("HOME");
-  
-  string bufi;
-  char gfilename[256];
-  
+  bool ret_status = false;
+  string home = getenv ("HOME");
+
   // should never happen on unix-like systems
-  if (home[0] == '\0') 
-    home = ".";
-  
-  snprintf(gfilename, 256, "%s%src", home, "/.guitarix/ja_ca_sset");
+  if (home.empty()) 
+  {  
+    home += "/home/";
+    home += getenv("USER");
+  }
+
+  // jack_capture setup file
+  string gfilename(home);
+  gfilename += "/";
+  gfilename += guitarix_dir;
+  gfilename += "/";
+  gfilename += jcapsetup_file;
   
   // open jack_capture setup file
-  ifstream f(gfilename);
+  ifstream f(gfilename.data());
   
   if (f.good())
   {
-    getline(f, bufi);
-    
-    string ma;
-    gx_IntToString(idx, ma);
-    
-    string a(bufi);
-    string b(".");
-    string::size_type in = a.find(b);
-    
-    in--;
-    
-    if (int(in) != -1) 
-      a.replace(in,1,ma);
-    
-    bufi = a;
-    capfile = bufi;
-    
+    // jack_capture command
+    // Note: this version of the code does not add a wav file by
+    // default to ja_ca_ssetrc, so we try to avoid the wav filename if one
+    // by putting the / delimiter in getline
+    // it is backward compatible with older ja_ca_ssetrc files
+
+    getline(f, capcmd, '/'); 
     f.close();
-    return true;
+
+    // remove trailing \n if any
+    int pos = capcmd.size()-1;
+
+    if (capcmd.c_str()[pos] == '\n')
+      capcmd.resize(pos);
+
+    ret_status = true;
   }
 
-  return false;
+  // are we good ?
+  if (!ret_status)
+    return false;
+
+  // we're OK
+  string idx_str;
+  gx_IntToString(idx, idx_str);
+
+  capcmd += " ";
+  capcmd += home;
+  capcmd += "/";
+  capcmd += jcapfile_wavbase;
+  capcmd += idx_str;
+  capcmd += ".wav";
+
+  return true;
 }
 
