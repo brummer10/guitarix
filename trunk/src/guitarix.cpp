@@ -16,17 +16,16 @@ GtkWidget* livewa, *warn_dialog,*dsiable_warn ;
 
 static float      checkbutton7;
 
-float      checkbox7 = 1.0;
-float       	 checky = 1.0;
-float               cap = 0;
 float jackframe; // jack sample freq
-float cpu_load; // jack cpu_load
-float  *get_frame = NULL;
-float *checkfreq = NULL;
-float *oversample = NULL;
+float cpu_load;  // jack cpu_load
+float checkbox7    = 1.0;
+float checky       = 1.0;
+float *get_frame   = NULL;
+float *checkfreq   = NULL;
+float *oversample  = NULL;
 
-const char*     stopit = "go";
-const char*     rcpath = " " ;
+const char* stopit = "go";
+const char* rcpath = " " ;
 string  jconvwav ;
 
 int offcut;
@@ -44,7 +43,7 @@ int runjc = 0;
 float fwarn_swap = 0;
 int doit = 0;
 
-FILE*              control_stream;
+FILE*              jcap_stream;
 FILE*              control_stream1;
 UI*                 interface;
 
@@ -81,6 +80,8 @@ pid_t child_pid[NUM_OF_CHILD_PROC] = {
 
 static FILE* gx_popen(const char*, const char*, const int);
 static int   gx_pclose(FILE*, const int);
+static void gx_message_popup(const char*);
+static bool gx_capture_file(const int, string&);
 
 // check version and if directory exists and create it if it not exist
 bool gx_version_check(const char* Path)
@@ -206,13 +207,10 @@ void gx_IntToString(int i, string & s)
 }
 
 // use jack_capture for record the session, open a write stream for controll the stop funktion.
-void gx_capture(const char* capturas)
+bool gx_capture(const char* capturas)
 {
-  control_stream = gx_popen(capturas, "w", JACKCAP_IDX);
-
-  if (control_stream)
-    cerr << " jack_capture PID = " << child_pid[JACKCAP_IDX]
-	 << endl;
+  jcap_stream = gx_popen(capturas, "w", JACKCAP_IDX);
+  return (jcap_stream != NULL); 
 }
 
 bool		GTKUI::fInitialized = false;
@@ -244,10 +242,10 @@ int gx_system(const char* name1, const char* name2, const bool escape = false)
   return system(str.data());
 }
 
-//----menu funktion gx_meterbridge
+//----menu function gx_meterbridge
 void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
-  // name of the app
+
   const char* app_name = "meterbridge";
 
   // is it installed ?
@@ -275,14 +273,16 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
       // reset meterbridge GUI button state to inactive
       gtk_check_menu_item_set_active(menuitem, FALSE);
 
-      cerr << "<*** gx_meterbridge: "
-	   << app_name 
-	   << "is either not installed or it is not running " 
-	   << "***>" << endl;
+      gx_message_popup(
+         "  "
+	 "WARNING [meterbridge]\n  "		       
+         "meterbridge is either not installed or it could not be launched"
+      );
     }
   }
 }
 
+//----menu function gx_show_oscilloscope
 void gx_show_oscilloscope (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
@@ -293,11 +293,11 @@ void gx_show_oscilloscope (GtkCheckMenuItem *menuitem, gpointer checkplay)
     else
     {
         showwave = 0;
-        gtk_widget_hide( livewa);
+        gtk_widget_hide(livewa);
     }
 }
 
-//----menu funktion show note
+//----menu function gx_tuner
 void gx_tuner (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
@@ -312,6 +312,7 @@ void gx_tuner (GtkCheckMenuItem *menuitem, gpointer checkplay)
     }
 }
 
+//---- menu function gx_midi_out
 void gx_midi_out (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
     if (gtk_check_menu_item_get_active(menuitem) == TRUE)
@@ -327,7 +328,7 @@ void gx_midi_out (GtkCheckMenuItem *menuitem, gpointer checkplay)
 }
 
 
-// start or stop record when toggle_button record is pressed
+//---- start or stop record when toggle_button record is pressed
 void gx_run_jack_capture (GtkWidget *widget, gpointer data)
 {
     // here, const applies to pointer, not pointed data ;)
@@ -343,30 +344,22 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
       return;
     }
 
-    // capture app name
-    const char* app_name = "jack_capture";
-
     // is the button toggled ?
     const gboolean tggl_state = gtk_toggle_button_get_active(cap_button);
 
-
-    // ---- stop record
+    // ---- stop recording
     if (tggl_state == FALSE) // nope
     {
-      // let's ctrl-c jack_capture
-      if (control_stream)
+      // get jack_cap pid spawned by guitarix
+      const pid_t cap_pid = child_pid[JACKCAP_IDX]; 
+      
+      if (cap_pid != NO_PID) // running
       {
-	const pid_t cap_pid = child_pid[JACKCAP_IDX]; 
-	if (cap_pid != NO_PID)
-        {
-	  if (kill(cap_pid, SIGINT) == -1)
-	    cerr << "<*** gx_run_jack_capture: "
-		 << "WARNING: sorry, could not stop (Ctrl-C) jack_capture" 
-		 << " ***>" << endl;
-	}
+	if (kill(cap_pid, SIGINT) == -1)
+	  gx_message_popup(" Sorry, could not stop (Ctrl-C) jack_capture"); 
 
-	(void)gx_pclose(control_stream, JACKCAP_IDX);
-	control_stream = NULL;
+	(void)gx_pclose(jcap_stream, JACKCAP_IDX);
+	jcap_stream = NULL;
       }
 
       // reset pid nonetheless
@@ -376,92 +369,51 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
       return;
     }
 
+
     // ---- button has been toggled, let's try to record
-    int const jack_cap_ok = gx_system("which", app_name);
+    int const jack_cap_ok = gx_system("which", "jack_capture");
+
+    // increment if capturing more than once
+    static int capas = 0;
+
+    // popup message if something goes funny
+    string warning("  WARNING [jack_capture]\n  ");
 
     if (jack_cap_ok != SYSTEM_OK) // no jack_capture in PATH! :(
     {
-      GtkWidget *about, *label, *ok_button;
-      about = gtk_dialog_new();
-      ok_button  = gtk_button_new_with_label("Ok");
+      warning.append(	
+	"You need jack_capture <= 0.9.30 "
+	"by Kjetil S. Matheussen  \n  "
+	"please look here\n  "
+	"http://old.notam02.no/arkiv/src/?M=D\n"
+      );
+    }
+    else
+    {
+      // so far so good, start capture
+      string capturas;
 
-      string str_label("  ");
-      str_label.append("you need jack_capture <= 0.9.30 ");
-      str_label.append("by Kjetil S. Matheussen  \n  ");
-      str_label.append("please look here\n  ");
-      str_label.append("http://old.notam02.no/arkiv/src/?M=D\n");
+      if (gx_capture_file(capas, capturas))
+      {
+	if (!gx_capture(capturas.data()))
+	  warning.append("Sorry, could not start jack_capture"); 
+      }
+      else 
+      {
+	warning.append("Could not open wav capture file");
+      }
+    }
 
-      label = gtk_label_new (str_label.data());
-
-      GtkStyle *style = gtk_widget_get_style(label);
-      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-      gtk_widget_modify_font(label, style->font_desc);
-      gtk_label_set_selectable(GTK_LABEL(label), TRUE);
-      gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), label);
-      gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), ok_button);
-
-      g_signal_connect_swapped (ok_button, "clicked",  
-				G_CALLBACK (gtk_widget_destroy), about);
-      gtk_widget_show (ok_button);
-      gtk_widget_show (label);
-      gtk_widget_show (about);
-
-      // let's deactivate the capture button
-      gtk_toggle_button_set_active(cap_button, FALSE);
-
-      // tough luck ...
+    // are we running ?
+    if (child_pid[JACKCAP_IDX] != NO_PID)
+    {  
+      capas++;
       return;
     }
 
-    // when everything go's allright, start capture
-    const char* capturas = "";
-    string bufi;
-    const char* home = getenv ("HOME");
-    char gfilename[256];
-    static int capas = 0;
-
-    if (home[0] == '\0') 
-      home = ".";
-
-    snprintf(gfilename, 256, "%s%src", home, "/.guitarix/ja_ca_sset");
-    ifstream f(gfilename);
-    if (f.good())
-    {
-      getline(f, bufi);
-      string ma;
-      gx_IntToString(capas,ma);
-      std::string a(bufi);
-      std::string b(".");
-      std::string::size_type in = a.find(b);
-      in -= 1;
-      if (int(in) != -1) a.replace(in,1,ma);
-      bufi = a;
-      capturas = bufi.c_str();
-      f.close();
-
-      gx_capture(capturas);
-
-      // if success, let's increment the wav file index
-      if (control_stream)
-      {
-	if (child_pid[JACKCAP_IDX] != NO_PID)
-	  capas += 1;
-	else
-	  cerr << "<*** gx_run_jack_capture: "
-	       << "WARNING: sorry, could not start jack_capture" 
-	       << " ***>" << endl;
-      }
-    }
-    else 
-    {
-      cerr << "<*** gx_run_jack_capture: "
-	   << "WARNING: could not open " 
-	   << gfilename
-	   << " ***>" << endl;
-
-      // let's deactivate the capture button
-      gtk_toggle_button_set_active(cap_button, FALSE);
-    }
+    // nope :(
+    gtk_toggle_button_set_active(cap_button, FALSE);
+    gx_message_popup(warning.data());
 }
 
 //----menu funktion load
@@ -587,20 +539,22 @@ void gx_save_presetn1 (GtkMenuItem *menuitem, gpointer save_preset)
 //----menu funktion about
 static void gx_show_about( GtkWidget *widget, gpointer data )
 {
-    GtkWidget *about, *label, *button;
-    about = gtk_dialog_new();
-    button  = gtk_button_new_with_label("Ok");
-    label = gtk_label_new ("\n This Aplication is to a large extent provided\n with the marvelous faust compiler.Yann Orlary\n <http://faust.grame.fr/>\n A large part is based on the work of Julius Orion Smith\n<http://ccrma.stanford.edu/realsimple/faust/>\n and Albert Graef\n <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html> \n\n\n guitarix 0.02.5 use jack_capture >= 0.9.30for record\n by Kjetil S. Matheussen \n http://old.notam02.no/arkiv/src/?M=D\n  it will allways record to ~/guitarix_sessionX.xxx \n for impulse response it use jconv \n byFons Adriaensen \n  http://www.kokkinizita.net/linuxaudio/index.html \n\n author: Hermann Meyer <brummer-@web.de>\n home: http://guitarix.sourceforge.net/\n");
-    GtkStyle *style = gtk_widget_get_style(label);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-    gtk_widget_modify_font(label, style->font_desc);
-    gtk_label_set_selectable(GTK_LABEL(label), TRUE);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), label);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), button);
-    g_signal_connect_swapped (button, "clicked",  G_CALLBACK (gtk_widget_destroy), about);
-    gtk_widget_show (button);
-    gtk_widget_show (label);
-    gtk_widget_show (about);
+
+  gx_message_popup("\n This Aplication is to a large extent provided"
+		   "\n with the marvelous faust compiler.Yann Orlary"
+		   "\n <http://faust.grame.fr/>"
+		   "\n A large part is based on the work of Julius Orion Smith"
+		   "\n<http://ccrma.stanford.edu/realsimple/faust/>"
+		   "\n and Albert Graef\n <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html> "
+		   "\n\n\n guitarix 0.02.5 use jack_capture >= 0.9.30for record"
+		   "\n by Kjetil S. Matheussen "
+		   "\n http://old.notam02.no/arkiv/src/?M=D"
+		   "\n  it will allways record to ~/guitarix_sessionX.xxx "
+		   "\n for impulse response it use jconv "
+		   "\n byFons Adriaensen "
+		   "\n  http://www.kokkinizita.net/linuxaudio/index.html "
+		   "\n\n author: Hermann Meyer <brummer-@web.de>"
+		   "\n home: http://guitarix.sourceforge.net/\n");
 }
 
 
@@ -756,7 +710,7 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
 }
 
 /******************************************************************************
-    Many thanks	James aka torgal
+    Many thanks	James aka thorgal
 ******************************************************************************/
 
 //--------------------------- jack_capture settings ----------------------------------------
@@ -775,7 +729,7 @@ static gint gx_delete_event( GtkWidget *widget, GdkEvent *event, gpointer data )
     if (system(" pidof jack_capture > /dev/null") == 0)
     {
       (void)system("command kill -2 `pidof  jack_capture ` 2> /dev/null") ;
-      (void)gx_pclose(control_stream, JACKCAP_IDX);
+      (void)gx_pclose(jcap_stream, JACKCAP_IDX);
     }
     if (system(" pidof jconv > /dev/null") == 0)
     {
@@ -916,7 +870,7 @@ static FILE* gx_popen(const char *cmdstring,
   {
     close(pfd[1]);
 
-    if ( (fp = fdopen(pfd[0], type)) == NULL)
+    if ((fp = fdopen(pfd[0], type)) == NULL)
       return(NULL);
 
   } 
@@ -924,7 +878,7 @@ static FILE* gx_popen(const char *cmdstring,
   {
     close(pfd[0]);
 
-    if ( (fp = fdopen(pfd[1], type)) == NULL)
+    if ((fp = fdopen(pfd[1], type)) == NULL)
       return(NULL);
   }
 
@@ -952,3 +906,88 @@ static int gx_pclose(FILE *fp, const int proc_idx)
   
   return(stat);	/* return child's termination status */
 }
+
+//---- popup warning
+static void gx_message_popup(const char* msg)
+{
+  // check msg validity
+  if (!msg)
+  {
+    cerr << "<*** gx_message_popup: "
+	 << "warning message does not exist"
+	 << " ***>"
+	 << endl;
+    return;
+  }
+
+  // build popup window
+  GtkWidget *about;
+  GtkWidget *label;
+  GtkWidget *ok_button;
+
+  about = gtk_dialog_new();
+  ok_button  = gtk_button_new_with_label("OK");
+  
+  label = gtk_label_new (msg);
+  
+  GtkStyle *style = gtk_widget_get_style(label);
+
+  pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+
+  gtk_widget_modify_font(label, style->font_desc);
+
+  gtk_label_set_selectable(GTK_LABEL(label), TRUE);
+
+  gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), label);
+  gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), ok_button);
+  
+  g_signal_connect_swapped (ok_button, "clicked",  
+			    G_CALLBACK (gtk_widget_destroy), about);
+  gtk_widget_show (ok_button);
+  gtk_widget_show (label);
+  gtk_widget_show (about);
+}
+
+//---- wav file construction for jack_capture
+static bool gx_capture_file(const int idx, string& capfile)
+{
+  const char* home = getenv ("HOME");
+  
+  string bufi;
+  char gfilename[256];
+  
+  // should never happen on unix-like systems
+  if (home[0] == '\0') 
+    home = ".";
+  
+  snprintf(gfilename, 256, "%s%src", home, "/.guitarix/ja_ca_sset");
+  
+  // open jack_capture setup file
+  ifstream f(gfilename);
+  
+  if (f.good())
+  {
+    getline(f, bufi);
+    
+    string ma;
+    gx_IntToString(idx, ma);
+    
+    string a(bufi);
+    string b(".");
+    string::size_type in = a.find(b);
+    
+    in--;
+    
+    if (int(in) != -1) 
+      a.replace(in,1,ma);
+    
+    bufi = a;
+    capfile = bufi;
+    
+    f.close();
+    return true;
+  }
+
+  return false;
+}
+
