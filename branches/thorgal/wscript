@@ -1,0 +1,106 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+import os
+import Utils
+import Options
+import commands
+g_maxlen = 40
+import shutil
+import re
+import Logs
+
+# used by waf dist and waf build
+VERSION='0.4.4'
+APPNAME='guitarix'
+
+# these variables are mandatory ('/' are converted automatically)
+srcdir = '.'
+blddir = 'build'
+
+# options defined for waf configure
+def set_options(opt):
+    opt.tool_options('compiler_cxx')
+
+    # put here as an example
+    opt.add_option('--midiringbuffer', action='store_true', default=False, help='Use MIDI ring buffer')
+
+# a bit of waf display formatting
+def display_msg(msg, status = None, color = None):
+    sr = msg
+    global g_maxlen
+    g_maxlen = max(g_maxlen, len(msg))
+    if status:
+        print "%s :" % msg.ljust(g_maxlen),
+        Utils.pprint(color, status)
+    else:
+        print "%s" % msg.ljust(g_maxlen)
+
+def display_feature(msg, build):
+    if build:
+        display_msg(msg, "yes", 'GREEN')
+    else:
+        display_msg(msg, "no", 'YELLOW')
+
+# guitarix waf configuration
+def configure(conf):
+    conf.check_tool('compiler_cxx')
+
+    conf.check_cfg(package='jack', atleast_version='0.116.1', args='--cflags --libs', uselib_store='JACK', mandatory=1)
+    conf.check_cfg(package='sndfile', atleast_version='1.0.18', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
+    conf.check_cfg(package='gtk+-2.0', atleast_version='2.14.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
+    conf.check(header_name='ladspa.h', mandatory=1)
+
+    conf.sub_config('src');
+    conf.sub_config('ladspa');
+    conf.sub_config('rcstyles');
+
+    conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'
+    conf.env['PIXMAPS']  = conf.env['SHAREDIR'] + '/pixmaps'
+    conf.env['MIDI_RINGBUF'] = Options.options.midiringbuffer
+
+    # defines for compilation
+    conf.define('GX_STYLE_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix')))
+    conf.define('GX_VERSION', VERSION)
+    conf.define('GX_PIXMAPS', conf.env['PIXMAPS'])
+
+    if conf.env['MIDI_RINGBUF'] == True:
+        conf.define('USE_RINGBUFFER', 1)
+    
+    conf.write_config_header('config.h')
+
+    # extra defines for installlation
+    conf.env.append_unique('CXXFLAGS', '-O3  -march=native -Wall')
+
+    conf.define('GUITARIX_BIN', APPNAME + '-' + VERSION)
+    conf.define('BINDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin')))
+    conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
+
+    # some output
+    print
+    display_msg("==================")
+    version_msg = "GUITARIX " + VERSION
+
+    print version_msg
+
+    print
+
+    display_msg("Binary name", conf.env['GUITARIX_BIN'], 'CYAN')
+    display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
+    display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
+    display_msg("Guitarix share directory", conf.env['GX_STYLE_DIR'], 'CYAN')
+    display_msg("Guitarix pixmaps directory", conf.env['PIXMAPS'], 'CYAN')
+
+    print
+
+def build(bld):
+    # process subfolders from here
+    bld.add_subdirs('ladspa')
+    bld.add_subdirs('src')
+    bld.add_subdirs('rcstyles')
+    bld.add_subdirs('pixmaps')
+
+    bld.install_files(bld.env['BINDIR'], 'guitarix', chmod=0755)
+    bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
+
+    

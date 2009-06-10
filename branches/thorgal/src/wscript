@@ -1,0 +1,20 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+import Build
+
+def configure(conf):
+    pass
+
+def build(bld):
+    bld.new_task_gen(
+        features= 'cxx cprogram',
+        includes = './guitarix',
+        cxxflags = bld.env['CXXFLAGS'],
+        source = 'main.cpp',
+        uselib = ['JACK', 'SNDFILE', 'GTK2'],
+        target = bld.env['GUITARIX_BIN'],
+        add_objects = 'gxladspa',
+        install_path = bld.env['BINDIR'],
+        chmod = 0755
+    )

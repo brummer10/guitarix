@@ -47,7 +47,9 @@
 #include <jack/jack.h>
 #include <jack/midiport.h>
 
-//#define USE_RINGBUFFER
+// guitarix own defines (at configure time)
+#include "config.h"
+
 #ifdef USE_RINGBUFFER
 #include <jack/ringbuffer.h>
 #endif
@@ -140,18 +142,18 @@ struct MidiMessage
 #define kBoxMode 1
 #define kTabMode 2
 
-#include "./guitarix/Gtkwaveview.h"
-#include "./guitarix/GTKUI.h"
-#include"./guitarix/jconv_settings.h"
-#include "./guitarix/resample.h"
-#include"./guitarix/GtkRegler.h"
+#include "Gtkwaveview.h"
+#include "GTKUI.h"
+#include "jconv_settings.h"
+#include "resample.h"
+#include "GtkRegler.h"
 
 #include "guitarix.cpp"
-#include"GtkRegler.cpp"
+#include "GtkRegler.cpp"
 #include "Gtkwaveview.cpp"
 #include "GTKUI.cpp"
-#include"resample.cpp"
-#include"jconv_settings.cpp"
+#include "resample.cpp"
+#include "jconv_settings.cpp"
 #include "BEATDETECTOR.cpp"
 #include "dsp.cpp"
 
@@ -377,7 +379,7 @@ int process (jack_nframes_t nframes, void *arg)
 
 int main(int argc, char *argv[] )
 {
-
+  
     {
         OPTARGS_BEGIN("\033[1;34m guitarix settings useage\033[0m\n all parameters are optional\n\n[\033[1;31m--pix -p\033[0m] [\033[1;31m--clear -c\033[0m] [\033[1;31m--rcset -r\033[0m]\n\n"
                       "[\033[1;31m--pix\033[0m] or [\033[1;31m-p\033[0m]  ->use the gtk-pixmap engine with guitarix_pix.rc\n\n"
@@ -386,14 +388,18 @@ int main(int argc, char *argv[] )
                       "                                                                                 -> leave it blank to use the gtk-clearlooks engine with guitarix.rc\n\n"
                      )
         {
-            OPTARG("--pix","-p") rcpath = "/usr/share/guitarix/guitarix_black.rc";
+            OPTARG("--pix","-p")   rcpath = "/usr/share/guitarix/guitarix_pix.rc";
             OPTARG("--rcset","-r") rcpath=OPTARG_GETSTRING();
             OPTARG("--clear","-c") rcpath = "    ";
         }
         OPTARGS_END;
     }
 
-    if  (strcmp(rcpath, " ") == 0) rcpath =  "/usr/share/guitarix/guitarix.rc";
+    if  (strcmp(rcpath, " ") == 0)
+    { 
+      string str = GX_STYLE_DIR + string("/") + "guitarix_black.rc";
+      rcpath =  str.data();
+    }
 
     char                buf [256];
     jack_status_t       jackstat;
@@ -401,7 +407,7 @@ int main(int argc, char *argv[] )
     char*				pname;
     char*				jname;
     char                rcfilename[256];
-    jname = basename (argv [0]);
+    jname = (char*)"guitarix";
 
     // init the pointer to the jackbuffer
     for (int i=0; i<4; i++) output_ports[i] = 0;

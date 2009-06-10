@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import Build
+
+def configure(conf):
+    pass
+
+def build(bld):
+    bld.new_task_gen(
+        features = 'cxx',
+        cxxflags = bld.env['CXXFLAGS'],
+        source = ['crybaby.cpp',
+                  'distortion.cpp',
+                  'echo.cpp',
+                  'freeverb.cpp',
+                  'impulseresponse.cpp',
+                  'monoamp.cpp',
+                  'monocompressor.cpp'],
+        target = 'gxladspa',
+        install_path = None
+    )
+
