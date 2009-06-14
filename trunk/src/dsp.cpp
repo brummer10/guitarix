@@ -38,6 +38,7 @@ public:
 class mydsp : public dsp
 {
 private:
+    // register all variables needed by dsp_audio.cpp dsp_midi.cpp and dsp_interface.cpp
     float 	fslider0;
     float 	fslider1;
     float 	fConst0;
@@ -303,6 +304,7 @@ public:
         return 2;
     }
 
+// this funktion isn't needed any more, we can savely remove it
     virtual void setNumOutputs()
     {
         sleep(1);
@@ -325,6 +327,7 @@ public:
 
     virtual void instanceInit(int samplingFreq)
     {
+        // initialisise all variables for dsp_audio dsp_midi and dsp_interface
         fSamplingFreq = samplingFreq;
         // compressor
         fentrycom0 = -20.000000f;
@@ -544,6 +547,8 @@ public:
         instanceInit(samplingFreq);
     }
 
+   // wrap the state off the latency cange warning (dis/enable) to the interface settings
+   // to load and save it 
     virtual void set_state()
     {
         fwarn_swap = fwarn;
@@ -552,7 +557,10 @@ public:
     {
         fwarn = fwarn_swap;
     }
+// this files are part off the dsp class, I have split it for a better overview
 #include"dsp_interface.cpp"
+// I can`t realy remove the midi_ringbuffer part, we dont need it, maybe later 
+// when we add a sequencer part the ringbuffer may be usefull.
 #ifdef USE_RINGBUFFER
 #include"dsp_midi.cpp"
 #else
