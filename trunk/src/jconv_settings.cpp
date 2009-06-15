@@ -392,6 +392,7 @@ void JCONV_SETTINGS::runjconv( GtkWidget *widget, gpointer data )
         const char*      name = "/usr/local/bin/jconv";
         snprintf(path, 256, "%s", prename);
         snprintf(path1, 256, "%s", name);
+//----- james, can we use here also the check install call we use for jack_capture ?
 // check if jconv is installed in /usr/bin or /usr/local/bin. If not found a messagebox will inform the user
         if (( !stat(path, &my_stat) == 0) && ( !stat(path1, &my_stat) == 0))
         {

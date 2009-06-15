@@ -431,6 +431,7 @@ int main(int argc, char *argv[] )
     jack_ringbuffer_reset(jack_ringbuffer);
     jack_ringbuffer_mlock(jack_ringbuffer);
 #endif
+//----- set the jack callbacks
     jack_set_process_callback(client, process, 0);
     jack_set_port_registration_callback (client, port_callback, NULL);
     jack_set_graph_order_callback (client, graph_callback, NULL);
@@ -438,39 +439,45 @@ int main(int argc, char *argv[] )
     jack_set_sample_rate_callback(client, srate, 0);
     jack_on_shutdown(client, jack_shutdown, 0);
     jack_set_buffer_size_callback (client, buffersize_callback, 0);
+//----- check how many in/output ports we use
     gNumInChans = DSP.getNumInputs();
     gNumOutChans = DSP.getNumOutputs();
     jackframes = jack_get_sample_rate (client);
-    jackframe = jackframes;
+    jackframe = jackframes; // convert jack_sample_rate to int
     printf("the sample rate is now %u/sec\n", jackframes);
-    frag = jack_get_buffer_size (client);
+    frag = jack_get_buffer_size (client); // jack frame rate
     printf("the buffer size is now %u/frames\n", frag);
+//----- lock the buffer for the oscilloscope
     get_frame = new float[frag];
     for (int i=0; i<(frag); i++) get_frame[i] = 0;
+//----- lock the buffer for the tuner/midi out
     checkfreq = new float[frag];
     for (int i=0; i<(frag); i++) checkfreq[i] = 0;
+//----- lock the buffer for oversample
     oversample = new float[frag*2];
     for (int i=0; i<(frag*2); i++) oversample[i] = 0;
-
+//----- connect the signal handler for propper shutdown when a error appears
     signal(SIGQUIT, signal_handler);
     signal(SIGTERM, signal_handler);
     signal(SIGHUP, signal_handler);
     signal(SIGINT, signal_handler);
     signal(SIGSEGV, signal_handler);
-
+//----- register the input channel
     for (int i = 0; i < gNumInChans; i++)
     {
         snprintf(buf, 256, "in_%d", i);
         input_ports[i] = jack_port_register(client, buf, JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
     }
+//----- register the midi output channel
     midi_output_ports = jack_port_register(client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+//----- register the audio output channels
     for (int i = 0; i < gNumOutChans; i++)
     {
         snprintf(buf, 256, "out_%d", i);
         output_ports[i] = jack_port_register(client, buf,JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
     }
 
-
+//----- build the GUI interface virtual
     interface = new GTKUI (jname, &argc, &argv);
     DSP.init(jackframes);
     DSP.buildUserInterface(interface);
@@ -479,7 +486,9 @@ int main(int argc, char *argv[] )
     home = getenv ("HOME");
     if (home == 0) home = ".";
     snprintf(rcfilename, 256, "%s/.guitarix/%src", home, jname);
+//----- load the saved state for the GUI settings
     interface->recallState(rcfilename);
+//----- save the state for the latency change warning widget
     DSP.set_state();
     if (jack_activate(client))
     {
@@ -515,7 +524,7 @@ int main(int argc, char *argv[] )
         jack_connect(client, jack_port_name(output_ports[i]), buf);
     }
    // DSP.setNumOutputs();
-    //jack_set_buffer_size (client,256);
+//----- start the GUI
     interface->run();
 
     // jack_deactivate(client);
@@ -540,7 +549,7 @@ int main(int argc, char *argv[] )
     DSP.get_state();
 
     interface->saveState(rcfilename);
-
+//----- delete the locked mem buffers
     if (checkfreq)
         delete[] checkfreq;
     if (get_frame)

@@ -783,15 +783,15 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
         int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) / 2;
         double posx = (( reglerx+radius1 - event->x )) ;
         double posy = ((reglery+radius1 - event->y ));
-        double winkel = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
-        if (posx<0) winkel =  170+winkel;
-        else winkel = 170-winkel;
-        if ((winkel > 0) && (winkel < 340))
+        double angle = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
+        if (posx<0) angle =  170+angle;
+        else angle = 170-angle;
+        if ((angle > 0) && (angle < 340))
         {
             int pause;
-            if (winkel < 335 ) pause = -10;
+            if (angle < 335 ) pause = -10;
             else pause = 10;
-            gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((winkel+pause)/330) *(adj->upper - adj->lower) );
+            gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((angle+pause)/330) *(adj->upper - adj->lower) );
         }
     }
     else if (regler->regler_type == 1)
@@ -801,15 +801,15 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
         int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) / 2;
         double posx = (( reglerx+radius1 - event->x ));
         double posy = ((reglery+radius1 - event->y ));
-        double winkel = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
-        if (posx<0) winkel =  170+winkel;
-        else winkel = 170-winkel;
-        if ((winkel > 0) && (winkel < 340))
+        double angle = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
+        if (posx<0) angle =  170+angle;
+        else angle = 170-angle;
+        if ((angle > 0) && (angle < 340))
         {
             int pause;
-            if (winkel < 335 ) pause = -10;
+            if (angle < 335 ) pause = -10;
             else pause = 10;
-            gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((winkel+pause)/330) *(adj->upper - adj->lower) );
+            gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((angle+pause)/330) *(adj->upper - adj->lower) );
         }
     }
 //----------- switch
@@ -870,15 +870,15 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
             int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) / 2;
             double posx = (( reglerx+radius1 - event->x )) ;
             double posy = ((reglery+radius1 - event->y ));
-            double winkel = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
-            if (posx<0) winkel =  170+winkel;
-            else winkel = 170-winkel;
-            if ((winkel > 0) && (winkel < 340))
+            double angle = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
+            if (posx<0) angle =  170+angle;
+            else angle = 170-angle;
+            if ((angle > 0) && (angle < 340))
             {
                 int pause;
-                if (winkel < 335 ) pause = -10;
+                if (angle < 335 ) pause = -10;
                 else pause = 10;
-                gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((winkel+pause)/330) *(adj->upper - adj->lower) );
+                gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((angle+pause)/330) *(adj->upper - adj->lower) );
             }
         }
         else if (regler->regler_type == 1)
@@ -888,15 +888,15 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
             int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) / 2;
             double posx = (( reglerx+radius1 - event->x ));
             double posy = ((reglery+radius1 - event->y ));
-            double winkel = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
-            if (posx<0) winkel =  170+winkel;
-            else winkel = 170-winkel;
-            if ((winkel > 0) && (winkel < 340))
+            double angle = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
+            if (posx<0) angle =  170+angle;
+            else angle = 170-angle;
+            if ((angle > 0) && (angle < 340))
             {
                 int pause;
-                if (winkel < 335 ) pause = -10;
+                if (angle < 335 ) pause = -10;
                 else pause = 10;
-                gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((winkel+pause)/330) *(adj->upper - adj->lower) );
+                gtk_range_set_value(GTK_RANGE(widget),adj->lower + ((angle+pause)/330) *(adj->upper - adj->lower) );
             }
         }
 //----------- slider
@@ -977,6 +977,7 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
     klass->minislider_y = 6 ;   // this is the knob size x and y be the same
     klass->minislider_step = 28;
 
+//--------- connect the events with funktions
     widget_class->enter_notify_event = gtk_regler_enter_in;
     widget_class->leave_notify_event = gtk_regler_leave_out;
     widget_class->expose_event = gtk_regler_expose;
@@ -1073,6 +1074,8 @@ static gboolean gtk_regler_value_changed(gpointer obj)
     return FALSE;
 }
 
+//-------- the destructer doesen't work in virtual mode, so we need this destroy funktion
+//-------- to clean up when exit. This must call in the destroy funktion of the main app.
 void GtkRegler::gtk_regler_destroy ( )
 {
     GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));

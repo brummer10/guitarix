@@ -62,6 +62,7 @@ GType gtk_waveview_get_type ();
 int new_wave;
 //int view_mode = 0;
 
+//----- read soundfile info with libsndfile
 SNDFILE *soundin_openview(const char* name, int *chans, float *sr, int *length)
 {
     SF_INFO info;
@@ -72,11 +73,13 @@ SNDFILE *soundin_openview(const char* name, int *chans, float *sr, int *length)
     return sf;
 }
 
+//----- read the soundfile per sample
 int sounddrawview(SNDFILE *pInput, float *buffer, int vecsize)
 {
     return (int) sf_readf_float(pInput, buffer, vecsize);
 }
 
+//----- create and draw the widgets
 static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 {
     g_assert(GTK_IS_WAVEVIEW(widget));
@@ -87,6 +90,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         int waveviewx = widget->allocation.x, waveviewy = widget->allocation.y;
         waveviewx += (widget->allocation.width - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_x) *0.5;
         waveviewy += (widget->allocation.height - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_y) *0.5;
+//----- create the background widget when open new file
         if (new_wave != 0)
         {
             new_wave = 0;
@@ -115,6 +119,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             color.green = 200 * 256;
             gdk_gc_set_rgb_fg_color(line, &color);
 
+//----- draw a x when soundfile open fail
             if (!(pvInput=soundin_openview(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->fileview, &chans, &sr, &length2)))
             {
                 color.red = 200 * 236;
@@ -133,11 +138,13 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                 gdk_pixbuf_get_from_drawable( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_image,GDK_DRAWABLE(widget->window), col,0,0,0,0,300,200);
                 sf_close(pvInput);
             }
+//----- okay, here we go, draw the wave view per sample
             else
             {
                 sig      = new float[vecsize*2];
                 GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale = 300.0/length2;
                 GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->filelength = length2;
+//----- file is mono
                 if (chans == 1)
                 {
                     while (counter<length+length2-1)
@@ -157,6 +164,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                     sf_close(pvInput);
                     delete[] sig;
                 }
+//----- file is stereo
                 else if  (chans == 2)
                 {
                     color.red = 20 * 256;
@@ -175,6 +183,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                         sounddrawview(pvInput, sig,vecsize);
                         counter=counter+64;
                         countfloat = 0;
+//----- here we do the stereo draw, tingel tangel split the samples
                         while (countfloat<vecsize*chans)
                         {
                             if  ( tingeltangel == 0)
@@ -199,6 +208,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             }
             g_object_unref(line );
 
+//----- draw the selected part (offset  length) with transparent green rectangle
             if ((offcut != GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut) || (lenghtcut != GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut))
             {
                 GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut = offcut;
@@ -220,6 +230,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         }
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigwaveview_image, 0,0, 0, 0, 300, 200, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
+//----- end of the wavefile draw section, now we come to the live draw section
 
     else if (    waveview->waveview_type == 1) //ocilloscope
     {
@@ -230,6 +241,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
         int scaletype = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->mode;
         view_mode = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->mode;
         cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
+//----- create the background, this will only do one time (first time when the oscilloscope is init.
         if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig == 0)
         {
             cairo_pattern_t *pat;
@@ -282,6 +294,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_stroke (cr);
             gdk_pixbuf_get_from_drawable( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image,GDK_DRAWABLE(widget->window), gdk_colormap_get_system (),liveviewx-15, liveviewy-15,0,0,480,80);
 
+//----- create the "buttons" for the mode selection from the oscilloscope
             double x0      = liveviewx+476,
                              y0      = liveviewy-5,
                                        rect_width  = 40.,
@@ -345,9 +358,11 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             gdk_pixbuf_get_from_drawable( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->livecontrol_image,GDK_DRAWABLE(widget->window), gdk_colormap_get_system (),liveviewx+470, liveviewy-10,0,0,50,80);
         }  //controll pixmap ready
 
+//----- when the background is created we need just to copy the pixbuffs every epose event to the widget
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image, 0,0,liveviewx-15, liveviewy-15 , 480, 80, GDK_RGB_DITHER_NORMAL, 0, 0);
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->livecontrol_image, 0,0,liveviewx+470, liveviewy-10 , 50, 80, GDK_RGB_DITHER_NORMAL, 0, 0);
 
+//----- some maybe usfull infos about the jackserver, we can add more stuff here ?
         string ti, tfi;
         gx_IntToString( time_is/100000 ,ti);
         string      tir = " ht frames ";
@@ -369,9 +384,11 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_show_text(cr, tir.c_str()); */
         cairo_stroke (cr);
 
+//----- we come to the first oscilloscope mode, draw the wav per frame
         if (scaletype == 1)
         {
 
+//----- redraw the "buttons" to display the active state
             double x0      = liveviewx+476,
                              y0      = liveviewy-5,
                                        rect_width  = 40.,
@@ -392,6 +409,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_set_line_width (cr, 3.0);
             cairo_stroke (cr);
 
+//----- get the sample, for display the gain value
             float wave_go = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_view[0]*500.0;
             float wave_db = log(fabs( wave_go*0.002))*6/log(2);
             double xl = floor(exp(log(1.055)*2.1*wave_db)*285);
@@ -412,6 +430,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_set_source_rgba (cr,  redline, 1.0, 0.2,0.8);
             cairo_set_line_width (cr, 1.0);
             cairo_move_to (cr, liveviewx+450, liveviewy+25);
+//----- draw the frame
             for (int i=0; i<frag; i++)
             {
 
@@ -429,7 +448,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_fill_preserve (cr);
             cairo_stroke (cr);
             cairo_pattern_destroy (linpat);
-
+//----- draw the gain value
             double dashes[] = {5.0, 1.0 };
             cairo_set_dash (cr, dashes, 2, -0.25);
             cairo_move_to (cr, liveviewx+225-xl, liveviewy);
@@ -441,9 +460,10 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_stroke (cr);
             cairo_destroy(cr);
         }
+//----- oscilloscope mode 2, convert all values to be negative
         else if (scaletype == 2)
         {
-
+//----- redraw the "buttons" to display the active state
             double x0      = liveviewx+476,
                              y0      = liveviewy+17,
                                        rect_width  = 40.,
@@ -463,7 +483,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_set_source_rgba (cr, 0.01, 0.01, 0.01, 0.8);
             cairo_set_line_width (cr, 3.0);
             cairo_stroke (cr);
-
+//----- get the sample, for display the gain value
             float wave_go = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_view[0]*500.0;
             float wave_db = log(fabs( wave_go*0.002))*6/log(2);
             double xl = floor(exp(log(1.055)*2.1*wave_db)*285);
@@ -484,6 +504,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_set_source_rgba (cr,  redline, 1.0, 0.2,0.8);
             cairo_set_line_width (cr, 1.0);
             cairo_move_to (cr, liveviewx+350, liveviewy+45);
+//----- draw the frame
             for (int i=0; i<frag; i++)
             {
                 double fgh = 0.25-fabs(get_frame[i]);
@@ -503,7 +524,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_fill_preserve (cr);
             cairo_stroke (cr);
             cairo_pattern_destroy (linpat);
-
+//----- draw the gain value
             double dashes[] = {5.0, 1.0 };
             cairo_set_dash (cr, dashes, 2, -0.25);
             cairo_move_to (cr, liveviewx+225-xl, liveviewy);
@@ -515,9 +536,10 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_stroke (cr);
             cairo_destroy(cr);
         }
+//----- draw the (in/out) wave per sample, this mode is depracted
         else if (scaletype == 5)
         {
-
+//----- redraw the "buttons" to display the active state
             double x0      = liveviewx+476,
                              y0      = liveviewy+17,
                                        rect_width  = 40.,
@@ -544,6 +566,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                 farbe = 1.0;
                 farbe1 = 0.0;
             }
+//----- get the (in/out) sample, for display the gain value and draw the wave
             float wave_go = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_view[0]*500.0;
             float wave_come = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_viewin[0]*500.0;
             float wave_db = log(fabs( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->live_view[0]))*6/log(2);
@@ -576,6 +599,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                 redlinein = 1.0;
                 wave_come = -75.0;
             }
+//----- draw the (in/out) sample
             cairo_set_source_rgba (cr,  redline, 1.0, 0.2,0.2);
             cairo_set_line_width (cr, 1.0);
             cairo_move_to (cr, liveviewx, liveviewy+25);
@@ -595,7 +619,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_fill_preserve (cr);
             cairo_set_source_rgba (cr, farbe1, farbe,redlinein,0.5);
             cairo_stroke (cr);
-
+//----- draw the gain value
             double dashes[] = {5.0, 1.0 };
             cairo_set_dash (cr, dashes, 2, -0.25);
 
@@ -618,15 +642,16 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             cairo_stroke (cr);
             cairo_destroy(cr);
         }
-
+//----- draw the wave per sample
         else if (scaletype == 3)
         {
             int speedy = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed;
             int bufspeed = 450/speedy;
+//----- redraw the "buttons" to display the active state
             double x0      = liveviewx+476,
                              y0      = liveviewy+39,
                                        rect_width  = 40.,
-                                                     rect_height = 15.;
+                                                    rect_height = 15.;
             double x1,y1;
 
             x1=x0+rect_width;
@@ -660,6 +685,8 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 
             cairo_set_line_width (cr, 1.0);
             cairo_move_to (cr, liveviewx+450, liveviewy+25);
+//----- use the array like a ringbuffer, I know that not all samples will be draw, but it is the
+//----- fastest posible way I know to follow the playhead
             int ringisnow = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->ringis;
             for (int i=0; i<(bufspeed); i++)
             {
@@ -687,12 +714,14 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
     return TRUE;
 }
 
+//----- a new wavefile is load to the preview widget
 gboolean GtkWaveView::gtk_waveview_set_value (GtkWidget *cwidget, gpointer data )
 {
     new_wave = 1;
     return TRUE;
 }
 
+//----- mouse funktions to select a part of the file
 static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *event)
 {
     g_assert(GTK_IS_WAVEVIEW(widget));
