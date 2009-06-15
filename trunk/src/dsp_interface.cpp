@@ -73,13 +73,32 @@ virtual void buildUserInterface(UI* interface)
     interface->closeBox();
     interface->openHorizontalBox("");
     interface->openVerticalBox("");
-    interface->addswitch("preamp", &fcheckbox1);
-    interface->addHorizontalSlider("atan",&fatan, 1.f, 1.f, 10.f, 1.0f);
-    interface->closeBox();
-    interface->openVerticalBox("");
     interface->addswitch("tube", &ftube);
     interface->addHorizontalSlider("tube",&ffuzzytube, 1.f, 1.f, 10.f, 1.0f);
     interface->closeBox();
+    interface->openHorizontalBox("");
+    interface->openVerticalBox("");
+    interface->addswitch("tube2", &ftube3);
+    interface->addHorizontalSlider("tube",&fresotube3, 1.f, 1.f, 10.f, 1.0f);
+    interface->closeBox();
+    interface->openVerticalBox("");
+    interface->openVerticalBox1("resonance");
+    interface->addHorizontalSlider("reso",&fresotube1, 1.f, 0.f, 1.f, 0.01f);
+    interface->closeBox();
+    interface->openVerticalBox1("vibrato");
+    interface->addHorizontalSlider("vibrato",&fresotube2, 1.f, 0.f, 1.f, 0.01f);
+    interface->closeBox();
+    interface->closeBox();
+    interface->closeBox();
+
+
+    interface->closeBox();
+    interface->openHorizontalBox("");
+    interface->openVerticalBox("");
+    interface->addswitch("preamp", &fcheckbox1);
+    interface->addHorizontalSlider("atan",&fatan, 1.f, 1.f, 10.f, 1.0f);
+    interface->closeBox();
+
     interface->openVerticalBox("");
     interface->addswitch("drive", &fprdr);
     interface->addHorizontalSlider("drive", &fpredrive, 1.f, 1.f, 10.f, 1.0f);

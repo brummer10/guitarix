@@ -226,6 +226,34 @@ void GTKUI::openVerticalBox(const char* label)
     }
 }
 
+void GTKUI::openVerticalBox1(const char* label)
+{
+    GtkWidget * box = gtk_vbox_new (homogene, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+    if (fMode[fTop] != kTabMode && label[0] != 0)
+    {
+        // GtkWidget * frame = addWidget(label, gtk_frame_new (label));
+        // gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
+        GtkWidget* lw = gtk_label_new(label);
+        GdkColor colorGreen;
+        gdk_color_parse("#a6a9aa", &colorGreen);
+        gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+        GtkStyle *style = gtk_widget_get_style(lw);
+        pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
+        pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+        gtk_widget_modify_font(lw, style->font_desc);
+        gtk_container_add (GTK_CONTAINER(box), lw);
+        gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+        gtk_widget_show(lw);
+        gtk_widget_show(box);
+        pushBox(kBoxMode, box);
+    }
+    else
+    {
+        pushBox(kBoxMode, addWidget(label, box));
+    }
+}
+
 void GTKUI::openVerticalMidiBox(const char* label)
 {
     midibox = gtk_vbox_new (homogene, 4);

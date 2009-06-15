@@ -280,6 +280,16 @@ private:
     float fupsample;
     float ffuse;
     float fthreshold;
+    //float ftubemode;
+
+    float ftube3;
+    float fresotube1;
+    float fresotube2;
+    float fresotube3;
+
+	int 	IOTARESO;
+	float 	fVecRESO0[4096];
+	float 	fRecRESO0[2];
 
     // float  fbargraph0;
 public:
@@ -538,6 +548,15 @@ public:
         fupsample = 0;
         ffuse = 0;
         fthreshold = 1;
+        //ftubemode = 0;
+        ftube3 = 0;
+        fresotube1 = 0.12f;
+        fresotube2 = 0.5f;
+        fresotube3 = 0;
+
+		IOTARESO = 0;
+		for (int i=0; i<4096; i++) fVecRESO0[i] = 0;
+		for (int i=0; i<2; i++) fRecRESO0[i] = 0;
 
     }
 
@@ -548,7 +567,7 @@ public:
     }
 
    // wrap the state off the latency cange warning (dis/enable) to the interface settings
-   // to load and save it 
+   // to load and save it
     virtual void set_state()
     {
         fwarn_swap = fwarn;
@@ -559,7 +578,7 @@ public:
     }
 // this files are part off the dsp class, I have split it for a better overview
 #include"dsp_interface.cpp"
-// I can`t realy remove the midi_ringbuffer part, we dont need it, maybe later 
+// I can`t realy remove the midi_ringbuffer part, we dont need it, maybe later
 // when we add a sequencer part the ringbuffer may be usefull.
 #ifdef USE_RINGBUFFER
 #include"dsp_midi.cpp"
