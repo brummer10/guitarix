@@ -831,32 +831,3 @@ void initdis_descriptor(LADSPA_Descriptor* descriptor)
 	descriptor->deactivate = deactivate_methoddis;
 	descriptor->cleanup = cleanup_methoddis;
 }
-
-
-
-//--------------------------------------------------------------------------------------
-
-const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index) 
-{
-    if (Index == 0) {
-		if (gDescriptord == 0) 
-		{
-			// allocate temporaries dsp and portCollector to build the plugin description
-			distdsp* p = new distdsp();
-			if (p) {
-				portCollector*	c=new portCollector(p->getNumInputs(), p->getNumOutputs());
-				p->buildUserInterface(c);
-				gDescriptord = new LADSPA_Descriptor;
-				initdis_descriptor(gDescriptord);
-				c->fillPortDescription(gDescriptord);
-				delete p;
-			} else {
-				printf("Memory Error : unable to allocate the dsp object\n");
-			}
-		}
-		return gDescriptord;
-	} else {
-		return NULL;
-	}
-}
-

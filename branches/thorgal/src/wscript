@@ -2,19 +2,26 @@
 # encoding: utf-8
 
 import Build
+import os
 
 def configure(conf):
     pass
 
 def build(bld):
+    bin_name = bld.env['BIN_NAME'] + '-' + bld.env['GX_VERSION']
+    ins_name = os.path.join(bld.env['BINDIR'], bld.env['BIN_NAME'])
+
     bld.new_task_gen(
         features= 'cxx cprogram',
         includes = './guitarix',
         cxxflags = bld.env['CXXFLAGS'],
         source = 'main.cpp',
-        uselib = ['JACK', 'SNDFILE', 'GTK2'],
-        target = bld.env['GUITARIX_BIN'],
-        add_objects = 'gxladspa',
-        install_path = bld.env['BINDIR'],
+        uselib = ['JACK', 'SNDFILE', 'GTK2', 'BOOST'],
+        uselib_local = bld.env['GX_LIB'],
+        target = bin_name,
+        install_path = None,
         chmod = 0755
     )
+
+    bld.install_as(ins_name, bin_name, chmod=0755)
+

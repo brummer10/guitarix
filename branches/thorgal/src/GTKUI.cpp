@@ -19,7 +19,6 @@ GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
     }
     /*-- set rc file overwrite it with export--*/
 
-    //setenv("GUITARIX_RC_PATH", "/usr/share/guitarix/guitarix.rc", 0);
     gtk_rc_parse(rcpath);
     /*-- Check for working directory to save and load presets --*/
     const char*	  home;

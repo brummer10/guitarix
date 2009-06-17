@@ -2,13 +2,21 @@
 # encoding: utf-8
 
 import Build
+import os
 
 def configure(conf):
     pass
 
 def build(bld):
+    bld.env['GX_LIB'] = 'guitarix'
+
+    soname= 'lib' + bld.env['GX_LIB'] +'.so'
+    sonamever= soname + '.' + bld.env['GX_VERSION']
+    absname = os.path.join(bld.env['LIBDIR'], soname)
+    absnamever = os.path.join(bld.env['LIBDIR'], sonamever)
+
     bld.new_task_gen(
-        features = 'cxx',
+        features = 'cxx cshlib',
         cxxflags = bld.env['CXXFLAGS'],
         source = ['crybaby.cpp',
                   'distortion.cpp',
@@ -17,7 +25,10 @@ def build(bld):
                   'impulseresponse.cpp',
                   'monoamp.cpp',
                   'monocompressor.cpp'],
-        target = 'gxladspa',
-        install_path = None
+        target = bld.env['GX_LIB'],
+        install_path=None
     )
+        
+    bld.install_as(absnamever, soname, chmod=0755)
+    bld.symlink_as(absname, sonamever)
 

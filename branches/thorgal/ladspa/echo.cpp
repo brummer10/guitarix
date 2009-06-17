@@ -654,32 +654,3 @@ void initech_descriptor(LADSPA_Descriptor* descriptor)
 	descriptor->deactivate = deactivate_methodech;
 	descriptor->cleanup = cleanup_methodech;
 }
-
-
-
-//--------------------------------------------------------------------------------------
-
-const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index) 
-{
-    if (Index == 0) {
-		if (gDescriptore == 0) 
-		{
-			// allocate temporaries dsp and portCollector to build the plugin description
-			echodsp* p = new echodsp();
-			if (p) {
-				portCollector*	c=new portCollector(p->getNumInputs(), p->getNumOutputs());
-				p->buildUserInterfaceech(c);
-				gDescriptore = new LADSPA_Descriptor;
-				initech_descriptor(gDescriptore);
-				c->fillPortDescription(gDescriptore);
-				delete p;
-			} else {
-				printf("Memory Error : unable to allocate the dsp object\n");
-			}
-		}
-		return gDescriptore;
-	} else {
-		return NULL;
-	}
-}
-

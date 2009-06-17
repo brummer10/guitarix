@@ -161,7 +161,6 @@ bool gx_version_check(const char* Path)
 	);
 
 	// --- version file 
-	// (Note: needs update, why do we keep this hardcoded version ? ...)
 	tmpstr = fullgxdir + string("version") + GX_VERSION;
         (void)gx_system("touch", tmpstr.data(), false);
 
@@ -184,7 +183,7 @@ int gx_pixmap_check()
 {
     int ep = 1;
     struct stat my_stat;
-    string pixmap_dir = string(GX_PIXMAPS) + "/";
+    string pixmap_dir = string(GX_PIXMAPS_DIR) + "/";
 
     string gx_pix   = pixmap_dir + "guitarix.png";
     string midi_pix = pixmap_dir + "guitarix-midi.png";
