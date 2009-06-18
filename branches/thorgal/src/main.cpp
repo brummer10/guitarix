@@ -448,9 +448,9 @@ int main(int argc, char *argv[] )
       bpo::options_description opt_jack("\033[1;32m JACK configuration options\033[0m");
       opt_jack.add_options()
         ("jack-input,i",   bpo::value<string>(), 
-                           "Guitarix jack input\nDefault: system:capture_3")
+                           "Guitarix jack input")
         ("jack-output,o",  bpo::value<vector <string> >()->multitoken(), 
-                           "Guitarix jack outputs\nDefault: \tsystem:playback_1 system:playback_2")
+                           "Guitarix jack outputs")
       ;
         
       // collecting all option groups
@@ -459,7 +459,7 @@ int main(int argc, char *argv[] )
          " all parameters are optional. Examples:\n"
          "\tguitarix\n"
          "\tguitarix -r black -i system:capture_3\n"
-         "\tguitarix -c -o system:playback_1 system:playback_2"
+         "\tguitarix -c -o system:playback_1 system:playback_2\n"
       );
       cmdline_opt.add(opt_gen).add(opt_gtk).add(opt_jack);
     
