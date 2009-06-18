@@ -561,8 +561,8 @@ int main(int argc, char *argv[] )
     // ---- catch exceptions that occured during user option parsing
     catch(exception& e) 
     {
-      cerr << "\033[1;32m<*** main: Error in user options! " 
-	   << e.what() << "\033[0m"
+      cerr << "\033[1;31m<*** main: Error in user options! " 
+	   << e.what() << " ***>\033[0m"
 	   << endl;
     }
 
