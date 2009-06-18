@@ -41,13 +41,19 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iterator>
 
 #include <sndfile.hh>
 #include <libgen.h>
 #include <jack/jack.h>
 #include <jack/midiport.h>
 
-//#define USE_RINGBUFFER
+#include <boost/program_options.hpp>
+namespace bpo = boost::program_options;
+
+// guitarix own defines (at configure time)
+#include "config.h"
+
 #ifdef USE_RINGBUFFER
 #include <jack/ringbuffer.h>
 #endif
@@ -76,13 +82,6 @@ inline void *aligned_calloc(size_t nmemb, size_t size)
 
 #define max(x,y) (((x)>(y)) ? (x) : (y))
 #define min(x,y) (((x)<(y)) ? (x) : (y))
-
-// ------------------define the parameter reading,  -----------------------------------
-#define OPTARGS_CHECK_GET(wrong,right) lokke==argc-1?(fprintf(stderr,"Must supply argument for '%s'\n",argv[lokke]),exit(-2),wrong):right
-#define OPTARGS_BEGIN(das_usage) {int lokke;const char *usage=das_usage;for(lokke=1;lokke<argc;lokke++){char *a=argv[lokke];if(!strcmp("--help",a)||!strcmp("-h",a)){fprintf(stderr,usage);return 0;
-#define OPTARG(name,name2) }}else if(!strcmp(name,a)||!strcmp(name2,a)){{
-#define OPTARG_GETSTRING() OPTARGS_CHECK_GET("",argv[++lokke])
-#define OPTARGS_END }else{fprintf(stderr,usage);return(-1);}}}
 
 inline int		lsr (int x, int n)
 {
@@ -140,18 +139,18 @@ struct MidiMessage
 #define kBoxMode 1
 #define kTabMode 2
 
-#include "./guitarix/Gtkwaveview.h"
-#include "./guitarix/GTKUI.h"
-#include"./guitarix/jconv_settings.h"
-#include "./guitarix/resample.h"
-#include"./guitarix/GtkRegler.h"
+#include "Gtkwaveview.h"
+#include "GTKUI.h"
+#include "jconv_settings.h"
+#include "resample.h"
+#include "GtkRegler.h"
 
 #include "guitarix.cpp"
-#include"GtkRegler.cpp"
+#include "GtkRegler.cpp"
 #include "Gtkwaveview.cpp"
 #include "GTKUI.cpp"
-#include"resample.cpp"
-#include"jconv_settings.cpp"
+#include "resample.cpp"
+#include "jconv_settings.cpp"
 #include "BEATDETECTOR.cpp"
 #include "dsp.cpp"
 
@@ -363,6 +362,37 @@ int process (jack_nframes_t nframes, void *arg)
     return 0;
 }
 
+
+
+// ----- Helper for command line options and shell vars -----------------
+#define JACK_INP      (0)
+#define JACK_OUT1     (1)
+#define JACK_OUT2     (2)
+#define RC_STYLE      (3)
+
+#define NUM_SHELL_VAR (4)
+
+const char* shell_var_name[] = {
+  "GUITARIX2JACK_INPUTS",	
+  "GUITARIX2JACK_OUTPUTS1", 
+  "GUITARIX2JACK_OUTPUTS2", 
+  "GUITARIX_RC_STYLE"
+};       
+
+// retrieve and store the shell variable if not NULL
+void gx_assign_shell_var(const char* name, string& value)
+{
+  const char* val = getenv(name);
+  value = (val != NULL) ? val : "" ;
+}
+
+// is the shell variable set ?
+bool gx_shellvar_exists(const string& var)
+{
+  return !var.empty();
+}
+
+
 /******************************************************************************
 *******************************************************************************
 
@@ -378,30 +408,178 @@ int process (jack_nframes_t nframes, void *arg)
 int main(int argc, char *argv[] )
 {
 
+    // ---------------------- user options handling ------------------
+    string optvar[NUM_SHELL_VAR];
+    
+    // store shell variable content
+    for (int i = 0; i < NUM_SHELL_VAR; i++)
+      gx_assign_shell_var(shell_var_name[i], optvar[i]);
+    
+    // ---- parse command line arguments, using the boost::program_options lib
+    try 
     {
-        OPTARGS_BEGIN("\033[1;34m guitarix settings useage\033[0m\n all parameters are optional\n\n[\033[1;31m--pix -p\033[0m] [\033[1;31m--clear -c\033[0m] [\033[1;31m--rcset -r\033[0m]\n\n"
-                      "[\033[1;31m--pix\033[0m] or [\033[1;31m-p\033[0m]  ->use the gtk-pixmap engine with guitarix_pix.rc\n\n"
-                      "[\033[1;31m--clear\033[0m] or [\033[1;31m-c\033[0m]  ->dont use a gtkrc style file\n\n"
-                      "[\033[1;31m--rcset\033[0m] or [\033[1;31m-r\033[0m]  ->use the given path/name of gtk.rc file with guitarix.\n\n"
-                      "                                                                                 -> leave it blank to use the gtk-clearlooks engine with guitarix.rc\n\n"
-                     )
+      // Note: using the boost_program_options framework
+      // We could set defaults in option declaration but we won't
+      // 
+    
+      // generic options: version and help
+      bpo::options_description opt_gen;
+      opt_gen.add_options()
+        ("help,h",    "Print this help")
+        ("version,v", "Print version string and exit")
+      ;
+    
+      // GTK options: style 
+      bpo::options_description opt_gtk("\033[1;32m GTK configuration options\033[0m");
+      opt_gtk.add_options()
+        ("clear,c", "Don't use a gtkrc style file")
+        ("rcset,r", bpo::value<string>(), 
+                    "Style to use: 'black' or 'pix'")
+      ;
+     
+      // JACK options: input and output ports
+      bpo::options_description opt_jack("\033[1;32m JACK configuration options\033[0m");
+      opt_jack.add_options()
+        ("jack-input,i",   bpo::value<string>(), 
+                           "Guitarix jack input")
+        ("jack-output,o",  bpo::value<vector <string> >()->multitoken(), 
+                           "Guitarix jack outputs")
+      ;
+        
+      // collecting all option groups
+      bpo::options_description cmdline_opt(
+         "\033[1;34m guitarix usage\033[0m\n"
+         " all parameters are optional. Examples:\n"
+         "\tguitarix\n"
+         "\tguitarix -r black -i system:capture_3\n"
+         "\tguitarix -c -o system:playback_1 system:playback_2\n"
+      );
+      cmdline_opt.add(opt_gen).add(opt_gtk).add(opt_jack);
+    
+    
+      // parsing command options
+      bpo::variables_map vm;
+      bpo::store(bpo::parse_command_line(argc, argv, cmdline_opt), vm);
+      bpo::notify(vm);
+    
+      
+      // ----------- processing user options -----------
+      bool gx_exit = false;
+    
+      // *** display help if requested
+      if (vm.count("help")) {
+        cout << cmdline_opt << endl;
+        gx_exit = true;
+      }
+    
+      // *** display version if requested
+      if (vm.count("version")) {
+        cout << "Guitarix version \033[1;32m" 
+    	   << GX_VERSION << endl
+    	   << "\033[0m   Copyright " << (char)0x40 << " 2009 " 
+    	   << "Hermman Meyer - James Warden"
+    	   << endl;
+        gx_exit = true;
+      }
+    
+      if (gx_exit)
+        return 0;
+    
+      // *** process GTK rc style
+      if (vm.count("rcset")) 
+      {
+        // check contradiction (clear and rcset cannot be used in the same call)
+        if (vm.count("clear"))
+    	throw invalid_argument(string("<*** main: -c and -r cannot be used together ***>"));
+    
+        // retrieve user value
+        string tmp = vm["rcset"].as<string>();
+    
+        // if garbage, let's initialize to guitarix.rc
+        if (tmp != "black" && tmp != "pix")
         {
-            OPTARG("--pix","-p") rcpath = "/usr/share/guitarix/guitarix_black.rc";
-            OPTARG("--rcset","-r") rcpath=OPTARG_GETSTRING();
-            OPTARG("--clear","-c") rcpath = "    ";
+	  cerr << "<*** main: rcset value is garbage, defaulting to no style " 
+	       << endl;
+	  tmp = "";
         }
-        OPTARGS_END;
+        optvar[RC_STYLE] = tmp;
+      }
+    
+      // else, if no shell var defined for it, defaulting to guitarix.rc
+      else if (!gx_shellvar_exists(optvar[RC_STYLE]))
+      {  
+        optvar[RC_STYLE] = "";
+      }
+
+      if (!optvar[RC_STYLE].empty()) optvar[RC_STYLE].insert(0, "_"); 
+
+    
+      // *** process GTK clear
+      if (vm.count("clear")) 
+      {
+        // check contradiction (clear and rcset cannot be used in the same call)
+        if (vm.count("rcset"))
+	  throw invalid_argument(string("<*** main: -c and -r cannot be used together ***>"));
+
+        optvar[RC_STYLE] = "";
+      }
+    
+      // *** process jack input
+      if (vm.count("jack-input")) 
+      {
+        optvar[JACK_INP] = vm["jack-input"].as<string>();
+      }
+      else if (!gx_shellvar_exists(optvar[JACK_INP]))
+      {  
+        optvar[JACK_INP] = ""; // leads to automatic no connection
+      }
+    
+      // *** process jack outputs
+      if (vm.count("jack-output")) 
+      {
+        // loop through output port strings
+	const vector<string>& s = vm["jack-output"].as<vector <string> >();
+
+	int idx = JACK_OUT1;
+	for (unsigned int i = 0; i < min(2, s.size()); i++)
+	  optvar[idx++] = s[i];
+
+	if (s.size() > 2)
+	  cerr << "\033[1;32m<*** main: "
+	       << "Warning --> provided more than 2 output ports, " 
+	       << "ignoring extra ports"
+	       << " ***>\033[0m"
+	       << endl;
+
+      }
+      else 
+      {  
+        if (!gx_shellvar_exists(optvar[JACK_OUT1])) optvar[JACK_OUT1] = "";
+        if (!gx_shellvar_exists(optvar[JACK_OUT2])) optvar[JACK_OUT2] = "";
+      }
     }
 
-    if  (strcmp(rcpath, " ") == 0) rcpath =  "/usr/share/guitarix/guitarix.rc";
+    // ---- catch exceptions that occured during user option parsing
+    catch(exception& e) 
+    {
+      cerr << "\033[1;31m<*** main: Error in user options! " 
+	   << e.what() << " ***>\033[0m"
+	   << endl;
+    }
 
-    char                buf [256];
-    jack_status_t       jackstat;
-    const char*			home;
-    char*				pname;
-    char*				jname;
-    char                rcfilename[256];
-    jname = basename (argv [0]);
+    // cerr << "<*** main: rcset        : " <<  optvar[RC_STYLE]  << endl;
+    // cerr << "<*** main: jack input   : " <<  optvar[JACK_INP]  << endl;
+    // cerr << "<*** main: jack output1 : " <<  optvar[JACK_OUT1] << endl;
+    // cerr << "<*** main: jack output2 : " <<  optvar[JACK_OUT2] << endl;
+    
+    // ----------------------------------------------------------------------
+    string str = GX_STYLE_DIR + string("/") + string("guitarix") + optvar[RC_STYLE] + ".rc";
+    rcpath =  str.data();
+
+    char           buf [256];
+    jack_status_t  jackstat;
+    char*          jname;
+    jname = (char*)"guitarix";
 
     // init the pointer to the jackbuffer
     for (int i=0; i<4; i++) output_ports[i] = 0;
@@ -409,7 +587,7 @@ int main(int argc, char *argv[] )
 
     AVOIDDENORMALS;
 
-    client = jack_client_open (jname, (jack_options_t) 0, &jackstat);
+    client = jack_client_open (jname, JackNoStartServer, &jackstat);
     if (client == 0)
     {
         fprintf (stderr, "Can't connect to JACK, is the server running ?\n");
@@ -483,11 +661,8 @@ int main(int argc, char *argv[] )
     DSP.buildUserInterface(interface);
 
 
-    home = getenv ("HOME");
-    if (home == 0) home = ".";
-    snprintf(rcfilename, 256, "%s/.guitarix/%src", home, jname);
-//----- load the saved state for the GUI settings
-    interface->recallState(rcfilename);
+    string previous_state = gx_get_userdir() + string(jname) + "rc";
+    interface->recallState(previous_state.data());
 //----- save the state for the latency change warning widget
     DSP.set_state();
     if (jack_activate(client))
@@ -496,39 +671,30 @@ int main(int argc, char *argv[] )
         return 1;
     }
 
-    // set autoconnect capture to capture_port_1
-    setenv("GUITARIX2JACK_INPUTS", "system:capture_%d", 0);
-    pname = getenv("GUITARIX2JACK_INPUTS");
-    if (pname && *pname)
+    // set autoconnect capture to user capture port
+    if (!optvar[JACK_INP].empty())
     {
-        for (int i = 0; i < gNumInChans; i++)
-        {
-            snprintf(buf, 256, pname, i + 1);
-            jack_connect(client, buf, jack_port_name(input_ports[i]));
-        }
+      for (int i = 0; i < gNumInChans; i++)
+      {
+	jack_connect(client, optvar[JACK_INP].data(), jack_port_name(input_ports[i]));
+      }
     }
 
-    // set autoconnect to the first pysical playback ports
-    //setenv("GUITARIX2JACK_OUTPUTS", "system:playback_%d", 0);
-    setenv("GUITARIX2JACK_OUTPUTS1", "system:playback_1", 0);
-    setenv("GUITARIX2JACK_OUTPUTS2", "system:playback_2", 0);
-    pname = getenv("GUITARIX2JACK_OUTPUTS1");
-    if (pname && *pname)
-    {
-        int i = 0;
-        snprintf(buf, 256, pname, i + 1);
-        jack_connect(client, jack_port_name(output_ports[i]), buf);
-        i++;
-        pname = getenv("GUITARIX2JACK_OUTPUTS2");
-        snprintf(buf, 256, pname, i + 1);
-        jack_connect(client, jack_port_name(output_ports[i]), buf);
+    // set autoconnect to user playback oprts
+    int idx = JACK_OUT1;
+    for (int i = 0; i < 2; i++)
+    { 	
+      if (!optvar[idx].empty())
+	jack_connect(client, jack_port_name(output_ports[i]), optvar[idx].data());
+      
+      idx++;
     }
-   // DSP.setNumOutputs();
-//----- start the GUI
+
+    // ------------- run GTK main loop
     interface->run();
 
-    // jack_deactivate(client);
 
+    // ------------- shut things down
     for (int i = 0; i < gNumInChans; i++)
     {
         jack_port_unregister(client, input_ports[i]);
@@ -548,7 +714,7 @@ int main(int argc, char *argv[] )
 #endif
     DSP.get_state();
 
-    interface->saveState(rcfilename);
+    interface->saveState(previous_state.data());
 //----- delete the locked mem buffers
     if (checkfreq)
         delete[] checkfreq;

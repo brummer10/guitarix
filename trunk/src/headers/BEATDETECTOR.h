@@ -1,5 +1,5 @@
 /*
-  * Copyright (C) 2009 Hermann Meyer and James Warden
+  * Copyright (C) 2009 Hermann Meyer
   *
   * This program is free software; you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -16,28 +16,32 @@
   * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-// ***** resample.h *****
+// ***** BEATDETECTOR.h *****
 /******************************************************************************
-part of guitarix,
-for guitarix by hermann meyer
+part of guitarix, found at ttp://www.musicdsp.org/archive.php?classid=2#200
+postet by DSPMaster[at]free[dot]fr
+modified for guitarix by hermann meyer
 ******************************************************************************/
-//#include <sndfile.hh>
 
-#ifndef ResampleH
-#define ResampleH
+#ifndef BeatDetectorH
+#define BeatDetectorH
 
-class Resample
+class TBeatDetector
 {
 private:
-
-
+    float KBeatFilter;        // Filter coefficient
+    float Filter1Out, Filter2Out;
+    float BeatRelease;        // Release time coefficient
+    float PeakEnv;            // Peak enveloppe follower
+    bool BeatTrigger;         // Schmitt trigger output
+    bool PrevBeatPulse;       // Rising edge memory
 public:
+    bool BeatPulse;           // Beat detector output
 
-    Resample();
-    ~Resample();
-
-    virtual void fileread(GtkWidget *widget, gpointer data );
+    TBeatDetector();
+    ~TBeatDetector();
+    virtual void setSampleRate(float SampleRate);
+    virtual void AudioProcess (float input, float triggerpoint);
 };
 #endif
-
 

@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import Build
+
+# start each filename with a space
+pixmap_files  = ''
+pixmap_files += ' guitarix-midi.png'
+pixmap_files += ' guitarix.png'
+pixmap_files += ' guitarix-warn.png'
+    
+def configure(conf):
+    pass
+
+def build(bld):
+    bld.install_files(bld.env['GX_PIXMAPS_DIR'], pixmap_files, chmod=0644)

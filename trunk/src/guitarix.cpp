@@ -29,11 +29,18 @@ const char* rcpath = " " ;
 string jconvwav ;
 
 // guitarix setting, location and related stuff
-const char* guitarix_version = "0.03.3";
 const char* guitarix_dir     = ".guitarix";
 const char* guitarix_reset   = "resettings";
 const char* jcapsetup_file   = "ja_ca_ssetrc";
 const char* jcapfile_wavbase = "guitarix_session";
+const char* default_setting  =
+  "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n"
+  "0 0.3 0.7 \n"
+  "20 440 2 \n"
+  "0.62 0.12 0 \n"
+  "84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n"
+  "-64.0 0.52 10 1.5 1.5 0 \n";
+
 
 int offcut;
 int lenghtcut;
@@ -94,51 +101,57 @@ static int   gx_system(const char*,
 		       const bool devnull = true,
 		       const bool escape  = false);
 
-// check version and if directory exists and create it if it not exist
+// ---- user directory
+string gx_get_userdir()
+{
+  return string(getenv ("HOME")) + string("/") + string(guitarix_dir) + "/";
+}
+
+// ---- check version and if directory exists and create it if it not exist
 bool gx_version_check(const char* Path)
 {
     struct stat my_stat;
-    if  ( !stat(Path, &my_stat) != 0)
+    string fullgxdir = gx_get_userdir();
+    string rcfilename = 
+      fullgxdir + string("guitarix-") + string(GX_VERSION) + string(".rc");
+
+    if  (stat(Path, &my_stat) == 0) // directory exists
     {
-      // Note: to be updated and cleaned up
-        char          rcfilename[256];
-        const char*	  home;
-        home = getenv ("HOME");
-        snprintf(rcfilename, 256, "%s/.%s-0.03.3", home, "guitarix/version");
-        if  ( !stat(rcfilename, &my_stat) == 0)
-        {
-            snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/version-*");
-            (void)system (rcfilename);
-            snprintf(rcfilename, 256, "%s/.%s-0.03.3", home, "guitarix/version");
-            ofstream f(rcfilename);
-            string cim = "guitarix-0.03.9";
-            f <<  cim <<endl;
+        // check which version we're dealing with
+        if  (stat(rcfilename.data(), &my_stat) != 0) 
+	{
+            // current version not there, let's create it and refresh the whole shebang
+	    string oldfiles = fullgxdir + string("guitarix*rc");
+	    (void)gx_system ("rm -f", oldfiles.data(), false);
+
+	    oldfiles = fullgxdir + string("*.conf");
+	    (void)gx_system ("rm -f", oldfiles.data(), false);
+
+	    // setting file for current version
+            ofstream f(rcfilename.data());
+            string cim = string("guitarix-") + GX_VERSION;
+            f << cim <<endl;
             f.close();
-            snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/guitarixprerc");
-            (void)system (rcfilename);
-            snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/guitarixrc");
-            (void)system (rcfilename);
-            snprintf(rcfilename, 256, "%s %s/.%s", "rm -f " , home, "guitarix/*.conf");
-            (void)system (rcfilename);
-            snprintf(rcfilename, 256, "%s/.%s", home, "guitarix/resettings");
-            ofstream fa(rcfilename);
-            cim = "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n0 0.3 0.7 \n20 440 2 \n0.62 0.12 0 \n84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n-64.0 0.52 10 1.5 1.5 0 \n";
-            fa <<  cim <<endl;
+
+            string resetfile = fullgxdir + "resettings";
+            ofstream fa(resetfile.data());
+            fa <<  default_setting <<endl;
             fa.close();
         }
     }
-    else if  ( !stat(Path, &my_stat) == 0)
+    else // directory does not exist
     {
-	string fullgxdir("$HOME/");
-	fullgxdir += guitarix_dir;
-	fullgxdir += "/";
-
 	// create .guitarix directory
         (void)gx_system("mkdir -p", fullgxdir.data(), false);
 
+	// setting file for current version
+	ofstream f(rcfilename.data());
+	string cim = string("guitarix-") + GX_VERSION;
+	f << cim <<endl;
+	f.close();
+
 	// --- create jack_capture setting file
-	string tmpstr = fullgxdir;
-	tmpstr += jcapsetup_file;
+	string tmpstr = fullgxdir + jcapsetup_file;
 
         (void)gx_system("touch", tmpstr.data(), false);
 	(void)gx_system(
@@ -148,47 +161,20 @@ bool gx_version_check(const char* Path)
 	);
 
 	// --- version file
-	// (Note: needs update, why do we keep this hardcoded version ? ...)
-	// when we build a no backward compatible version, we can increase that !
-	// maybe a better way is needed ?
-	tmpstr = fullgxdir;
-	tmpstr += "version";
-	tmpstr += guitarix_version;
-
+	tmpstr = fullgxdir + string("version") + GX_VERSION;
         (void)gx_system("touch", tmpstr.data(), false);
 
-	string cim("echo 'guitarix-");
-	cim += guitarix_version;
-	cim += "' >";
-
-	(void)gx_system(
-	   cim.data(),
-	   tmpstr.data(),
-	   false
-	);
+	cim = string("echo 'guitarix-") + string(GX_VERSION) + "' >";
+	(void)gx_system(cim.data(), tmpstr.data(), false);
 
 	// --- guitarix own default settings
-	tmpstr = fullgxdir;
-	tmpstr += guitarix_reset;
-
+	tmpstr = fullgxdir + guitarix_reset;
         (void)gx_system("touch", tmpstr.data(), false);
 
-	cim = "echo -e '";
-        cim +=
-	  "0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n"
-	  "0 0.3 0.7 \n"
-	  "20 440 2 \n"
-	  "0.62 0.12 0 \n"
-	  "84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n"
-	  "-64.0 0.52 10 1.5 1.5 0 \n";
-	cim += "' >";
-
-	(void)gx_system(
-	   cim.data(),
-	   tmpstr.data(),
-	   false
-	);
+	cim = "echo -e '" + string(default_setting) + "' >";
+	(void)gx_system(cim.data(), tmpstr.data(), false);
     }
+
     return TRUE;
 }
 
@@ -197,48 +183,33 @@ int gx_pixmap_check()
 {
     int ep = 1;
     struct stat my_stat;
-    char          rcfilename[256];
-    snprintf(rcfilename, 256, "%s", "/usr/share/pixmaps/guitarix.png");
-    char          rcfilename1[256];
-    snprintf(rcfilename1, 256, "%s", "/usr/share/pixmaps/guitarix-midi.png");
-    char          rcfilename2[256];
-    snprintf(rcfilename2, 256, "%s", "/usr/locale/share/pixmaps/guitarix.png");
-    char          rcfilename3[256];
-    snprintf(rcfilename3, 256, "%s", "/usr/locale/share/pixmaps/guitarix-midi.png");
-    char          rcfilename4[256];
-    snprintf(rcfilename4, 256, "%s", "./guitarix.png");
-    char          rcfilename5[256];
-    snprintf(rcfilename5, 256, "%s", "./guitarix-midi.png");
-    if (( stat(rcfilename, &my_stat) == 0) && ( stat(rcfilename1, &my_stat) == 0))
+    string pixmap_dir = string(GX_PIXMAPS_DIR) + "/";
+
+    string gx_pix   = pixmap_dir + "guitarix.png";
+    string midi_pix = pixmap_dir + "guitarix-midi.png";
+    string warn_pix = pixmap_dir + "guitarix-warn.png";
+
+    if ((stat(gx_pix.data(), &my_stat) != 0)   || 
+	(stat(midi_pix.data(), &my_stat) != 0) ||	
+	(stat(warn_pix.data(), &my_stat) != 0))
+	
     {
-        GtkWidget *ibf =  gtk_image_new_from_file ("/usr/share/pixmaps/guitarix.png");
-        ib = gtk_image_get_pixbuf (GTK_IMAGE(ibf));
-        GtkWidget *stim = gtk_image_new_from_file ("/usr/share/pixmaps/guitarix-midi.png");
-        ibm = gtk_image_get_pixbuf (GTK_IMAGE(stim));
-        GtkWidget *stir = gtk_image_new_from_file ("/usr/share/pixmaps/guitarix-warn.png");
-        ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
-        ep = 0;
+      cerr << "<*** gx_pixmap_check: "
+	   << " cannot find installed pixmaps! giving up ..."
+	   << "***>" << endl;
+
+      // maybe a bit too severe to give up ??
+      exit(1);
     }
-    else if (( stat(rcfilename2, &my_stat) == 0) && ( stat(rcfilename3, &my_stat) == 0))
-    {
-        GtkWidget *ibf =  gtk_image_new_from_file ("/usr/locale/share/pixmaps/guitarix.png");
-        ib = gtk_image_get_pixbuf (GTK_IMAGE(ibf));
-        GtkWidget *stim = gtk_image_new_from_file ("/usr/locale/share/pixmaps/guitarix-midi.png");
-        ibm = gtk_image_get_pixbuf (GTK_IMAGE(stim));
-        GtkWidget *stir = gtk_image_new_from_file ("/usr/locale/share/pixmaps/guitarix-warn.png");
-        ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
-        ep = 0;
-    }
-    else if (( stat(rcfilename4, &my_stat) == 0) && ( stat(rcfilename5, &my_stat) == 0))
-    {
-        GtkWidget *ibf =  gtk_image_new_from_file ("./guitarix.png");
-        ib = gtk_image_get_pixbuf (GTK_IMAGE(ibf));
-        GtkWidget *stim = gtk_image_new_from_file ("./guitarix-midi.png");
-        ibm = gtk_image_get_pixbuf (GTK_IMAGE(stim));
-        GtkWidget *stir = gtk_image_new_from_file ("./guitarix-warn.png");
-        ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
-        ep = 0;
-    }
+
+    GtkWidget *ibf =  gtk_image_new_from_file (gx_pix.data());
+    ib = gtk_image_get_pixbuf (GTK_IMAGE(ibf));
+    GtkWidget *stim = gtk_image_new_from_file (midi_pix.data());
+    ibm = gtk_image_get_pixbuf (GTK_IMAGE(stim));
+    GtkWidget *stir = gtk_image_new_from_file (warn_pix.data());
+    ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
+    ep = 0;
+
     return ep;
 }
 
@@ -458,24 +429,22 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
     checkbutton7 = 0;
 
     interface->updateAllGuis();
-    const char*	  home;
-    char                rcfilenamere[256];
-    char                tmpfilename[256];
-    const char*      tmpname = "guitarixtmp";
-    const char*      prename = "guitarixpre";
+
+    GtkWidget* title = gtk_bin_get_child(GTK_BIN(menuitem));
+    const gchar* text = gtk_label_get_text (GTK_LABEL(title));
+
+    string rcfilenamere = gx_get_userdir() + "guitarixprerc";
+    string tmpfilename  = gx_get_userdir() + "guitarixtmprc";
+    string jc_preset    = gx_get_userdir() + string("jconv_") + string(text) + ".conf ";
+    string jc_file      = gx_get_userdir() + string("jconv_set.conf");
+    string file_copy    = jc_preset + jc_file;
+    (void)gx_system("cp -f", file_copy.data());
+
     int lin;
     int zeile=0;
     int l=0;
-    GtkWidget* title = gtk_bin_get_child(GTK_BIN(menuitem));
-    const gchar* text = gtk_label_get_text (GTK_LABEL(title));
-    home = getenv ("HOME");
-    if (home == 0) home = ".";
-    char                filename[256];
-    snprintf(filename, 256, "cp %s/.%s%s%s %s/.%s", home, "guitarix/jconv_", text,".conf", home, "guitarix/jconv_set.conf");
-    (void)system(filename);
-    snprintf(rcfilenamere, 256, "%s/.guitarix/%src", home, prename);
-    snprintf(tmpfilename, 256, "%s/.guitarix/%src", home, tmpname);
-    ifstream f(rcfilenamere);
+
+    ifstream f(rcfilenamere.data());
     if (f.good())
     {
         string buffer;
@@ -492,29 +461,18 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
     f.close();
     lin = zeile;
     myJCONV_SETTINGS.get_jconfset ();
-    interface->recallpreStatebyname(rcfilenamere, tmpfilename, text);
-    string ttle = "guitarix ";
-    ttle += text;
-    const gchar* itle = ttle.c_str();
-    gtk_window_set_title (GTK_WINDOW (fWindow), itle);
+    interface->recallpreStatebyname(rcfilenamere.data(), tmpfilename.data(), text);
+    string ttle = string("guitarix ") + text;
+    gtk_window_set_title (GTK_WINDOW (fWindow), (gchar*)ttle.data());
 }
 
 //---- funktion save
 void gx_save_preset (const gchar* presname)
 {
-    const char*	  home;
-    const char*      prename = "guitarixpre";
-    const char*      tmpname = "guitarixtmp";
-    const char*      pathname = ".guitarix";
-    char                rcfilenamere[256];
-    char                tmpfilename[256];
-    char                dirname[256];
-    home = getenv ("HOME");
-    if (home == 0) home = ".";
-    snprintf(tmpfilename, 256, "%s/.guitarix/%src", home, tmpname);
-    snprintf(rcfilenamere, 256, "%s/.guitarix/%src", home, prename);
-    snprintf(dirname, 256, "%s/%s", home, pathname);
-    interface->savepreStatebyname(rcfilenamere, tmpfilename, presname);
+    string rcfilenamere = gx_get_userdir() + "guitarixprerc";
+    string tmpfilename  = gx_get_userdir() + "guitarixtmprc";
+
+    interface->savepreStatebyname(rcfilenamere.data(), tmpfilename.data(), presname);
     if (cm == 0)
     {
         GtkWidget* menuitem = gtk_menu_item_new_with_label (presname);
@@ -522,13 +480,13 @@ void gx_save_preset (const gchar* presname)
         gtk_menu_append(GTK_MENU(menul), menuitem);
         gtk_widget_show (menuitem);
     }
-    string ttle = "guitarix ";
-    ttle += presname;
-    const gchar* itle = ttle.c_str();
-    gtk_window_set_title (GTK_WINDOW (fWindow), itle);
-    char                filename[256];
-    snprintf(filename, 256, "cp %s/.%s %s/.%s%s%s", home, "guitarix/jconv_set.conf", home, "guitarix/jconv_", presname,".conf");
-    (void)system(filename);
+    string ttle = string("guitarix ") + presname;
+    gtk_window_set_title (GTK_WINDOW (fWindow), (gchar*)ttle.data());
+
+    string jc_file      = gx_get_userdir() + string("jconv_set.conf ");
+    string jc_preset    = gx_get_userdir() + string("jconv_") + string(presname) + ".conf";
+    string file_copy    = jc_file + jc_preset; 
+    (void)gx_system("cp", file_copy.data());
 }
 
 //----menu funktion save
@@ -573,22 +531,31 @@ void gx_save_presetn1 (GtkMenuItem *menuitem, gpointer save_preset)
 //----menu funktion about
 static void gx_show_about( GtkWidget *widget, gpointer data )
 {
+  string about;
 
-  gx_message_popup("\n This Aplication is to a large extent provided"
-		   "\n with the marvelous faust compiler.Yann Orlary"
-		   "\n <http://faust.grame.fr/>"
-		   "\n A large part is based on the work of Julius Orion Smith"
-		   "\n<http://ccrma.stanford.edu/realsimple/faust/>"
-		   "\n and Albert Graef\n <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html> "
-		   "\n\n\n guitarix 0.02.5 use jack_capture >= 0.9.30for record"
-		   "\n by Kjetil S. Matheussen "
-		   "\n http://old.notam02.no/arkiv/src/?M=D"
-		   "\n  it will allways record to ~/guitarix_sessionX.xxx "
-		   "\n for impulse response it use jconv "
-		   "\n byFons Adriaensen "
-		   "\n  http://www.kokkinizita.net/linuxaudio/index.html "
-		   "\n\n author: Hermann Meyer <brummer-@web.de>"
-		   "\n home: http://guitarix.sourceforge.net/\n");
+  about += 
+    "\n This Aplication is to a large extent provided"
+    "\n with the marvelous faust compiler.Yann Orlary"
+    "\n <http://faust.grame.fr/>"
+    "\n A large part is based on the work of Julius Orion Smith"
+    "\n<http://ccrma.stanford.edu/realsimple/faust/>"
+    "\n and Albert Graef\n <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html> "
+    "\n\n\n guitarix ";
+
+  about += GX_VERSION;
+
+  about += 
+    " use jack_capture >= 0.9.30for record"
+    "\n by Kjetil S. Matheussen "
+    "\n http://old.notam02.no/arkiv/src/?M=D"
+    "\n  it will allways record to ~/guitarix_sessionX.xxx "
+    "\n for impulse response it use jconv "
+    "\n byFons Adriaensen "
+    "\n  http://www.kokkinizita.net/linuxaudio/index.html "
+    "\n\n author: Hermann Meyer <brummer-@web.de>"
+    "\n home: http://guitarix.sourceforge.net/\n";
+
+  gx_message_popup(about.c_str());
 }
 
 
@@ -1014,21 +981,9 @@ static void gx_message_popup(const char* msg)
 static bool gx_capture_command(const int idx, string& capcmd)
 {
   bool ret_status = false;
-  string home = getenv ("HOME");
-
-  // should never happen on unix-like systems
-  if (home.empty())
-  {
-    home += "/home/";
-    home += getenv("USER");
-  }
 
   // jack_capture setup file
-  string gfilename(home);
-  gfilename += "/";
-  gfilename += guitarix_dir;
-  gfilename += "/";
-  gfilename += jcapsetup_file;
+  string gfilename = gx_get_userdir() + jcapsetup_file;
 
   // open jack_capture setup file
   ifstream f(gfilename.data());
@@ -1062,7 +1017,7 @@ static bool gx_capture_command(const int idx, string& capcmd)
   gx_IntToString(idx, idx_str);
 
   capcmd += " ";
-  capcmd += home;
+  capcmd += getenv("HOME");
   capcmd += "/";
   capcmd += jcapfile_wavbase;
   capcmd += idx_str;

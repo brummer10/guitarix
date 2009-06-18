@@ -1,5 +1,5 @@
 /*
-  * Copyright (C) 2009 Hermann Meyer and James Warden
+  * Copyright (C) 2009 Hermann Meyer
   *
   * This program is free software; you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -16,34 +16,37 @@
   * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-// ***** GtkWaveView.h *****
+// ***** GtkRegler.h *****
 /******************************************************************************
-part of guitarix, plot a wave with Gtk
+part of guitarix, use  knobs with Gtk
 ******************************************************************************/
 
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
-#include <sndfile.hh>
 
-#ifndef GtkWaveViewH
-#define GtkWaveViewH
+#ifndef GtkReglerH
+#define GtkReglerH
 
-class GtkWaveView
+class GtkRegler
 {
 private:
 
 public:
     GtkRange parent;
-    int waveview_type;
+    int regler_type;
     double start_x, start_y, start_value;
 
-    GtkWaveView();
-    ~GtkWaveView();
+    GtkRegler();
+    ~GtkRegler();
 
-    virtual void gtk_waveview_destroy (GtkWidget *widget, gpointer data );
-    virtual gboolean gtk_waveview_set_value (GtkWidget *widget, gpointer data );
-    virtual GtkWidget *gtk_wave_view(const char* file);
-    virtual GtkWidget *gtk_wave_live_view(float* outfloat, float* infloat,GtkAdjustment *_adjustment);
+    virtual void gtk_regler_destroy ( );
+    virtual GtkWidget *gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment);
+    virtual GtkWidget *gtk_mini_slider_new_with_adjustment(GtkAdjustment *_adjustment);
+    virtual GtkWidget *gtk_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
+    virtual GtkWidget *gtk_switch_new_with_adjustment(GtkAdjustment *_adjustment);
+    virtual GtkWidget *gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment);
+    virtual GtkWidget *gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustment);
+    virtual GtkWidget *gtk_mini_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
 };
 #endif
 

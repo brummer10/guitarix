@@ -1,5 +1,5 @@
 /*
-  * Copyright (C) 2009 Hermann Meyer and James Warden
+  * Copyright (C) 2009 Hermann Meyer
   *
   * This program is free software; you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -16,33 +16,34 @@
   * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+// ***** GtkWaveView.h *****
 /******************************************************************************
-*******************************************************************************
+part of guitarix, plot a wave with Gtk
+******************************************************************************/
 
-	jconv_settings.h
+#include <gdk/gdk.h>
+#include <gdk/gdkkeysyms.h>
+#include <sndfile.hh>
 
-	part of guitarix, create a configfile for jconv and run it. These are the
-	virtual declarations for guitarix by hermann meyer
-*******************************************************************************
-*******************************************************************************/
+#ifndef GtkWaveViewH
+#define GtkWaveViewH
 
-#ifndef JCONV_SETTINGSH
-#define JCONV_SETTINGSH
-
-class JCONV_SETTINGS
+class GtkWaveView
 {
 private:
 
 public:
+    GtkRange parent;
+    int waveview_type;
+    double start_x, start_y, start_value;
 
-    JCONV_SETTINGS();
-    ~JCONV_SETTINGS();
+    GtkWaveView();
+    ~GtkWaveView();
 
-    virtual void get_jconfset ();
-    virtual void fileselected( GtkWidget *widget, gpointer data );
-    virtual void runjconv( GtkWidget *widget, gpointer data );
-
+    virtual void gtk_waveview_destroy (GtkWidget *widget, gpointer data );
+    virtual gboolean gtk_waveview_set_value (GtkWidget *widget, gpointer data );
+    virtual GtkWidget *gtk_wave_view(const char* file);
+    virtual GtkWidget *gtk_wave_live_view(float* outfloat, float* infloat,GtkAdjustment *_adjustment);
 };
-
 #endif
 
