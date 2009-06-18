@@ -548,8 +548,16 @@ int main(int argc, char *argv[] )
 	const vector<string>& s = vm["jack-output"].as<vector <string> >();
 
 	int idx = JACK_OUT1;
-	for (unsigned int i = 0; i < s.size(); i++)
+	for (unsigned int i = 0; i < min(2, s.size()); i++)
 	  optvar[idx++] = s[i];
+
+	if (s.size() > 2)
+	  cerr << "\033[1;32m<*** main: "
+	       << "Warning --> provided more than 2 output ports, " 
+	       << "ignoring extra ports"
+	       << " ***>\033[0m"
+	       << endl;
+
       }
       else 
       {  
