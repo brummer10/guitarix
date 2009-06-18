@@ -675,3 +675,32 @@ void initcry_descriptor(LADSPA_Descriptor* descriptor)
 	descriptor->deactivate = deactivate_methodcry;
 	descriptor->cleanup = cleanup_methodcry;
 }
+
+
+
+//--------------------------------------------------------------------------------------
+
+const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index) 
+{
+    if (Index == 0) {
+		if (gDescriptorc == 0) 
+		{
+			// allocate temporaries dsp and portCollector to build the plugin description
+			crydsp* p = new crydsp();
+			if (p) {
+				portCollector*	c=new portCollector(p->getNumInputs(), p->getNumOutputs());
+				p->buildUserInterface(c);
+				gDescriptorc = new LADSPA_Descriptor;
+				initcry_descriptor(gDescriptorc);
+				c->fillPortDescription(gDescriptorc);
+				delete p;
+			} else {
+				printf("Memory Error : unable to allocate the dsp object\n");
+			}
+		}
+		return gDescriptorc;
+	} else {
+		return NULL;
+	}
+}
+

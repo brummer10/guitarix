@@ -49,9 +49,9 @@ def display_feature(msg, build):
 def configure(conf):
     conf.check_tool('compiler_cxx')
 
-    conf.check_cfg(package='jack', atleast_version='0.116.1', args='--cflags --libs', uselib_store='JACK', mandatory=1)
-    conf.check_cfg(package='sndfile', atleast_version='1.0.18', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
-    conf.check_cfg(package='gtk+-2.0', atleast_version='2.14.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
+    conf.check_cfg(package='jack', atleast_version='0.109.1', args='--cflags --libs', uselib_store='JACK', mandatory=1)
+    conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
+    conf.check_cfg(package='gtk+-2.0', atleast_version='2.12.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
     conf.check(header_name='ladspa.h', mandatory=1)
     conf.check(header_name='boost/program_options.hpp', mandatory=1)
     conf.check_cxx(lib='boost_program_options-mt', uselib_store='BOOST', mandatory=1)
@@ -69,11 +69,8 @@ def configure(conf):
 
     conf.write_config_header('config.h')
 
-    # extra defines for installlation
-    conf.env.append_unique('CXXFLAGS', '-O3  -march=native -Wall')
-
     conf.define('BINDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin')))
-    conf.define('LIBDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'lib')))
+    conf.define('LADSPADIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'lib/ladspa')))
     conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
     conf.define('BIN_NAME', APPNAME)
 
@@ -93,7 +90,7 @@ def configure(conf):
 
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
     display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
-    display_msg("Install library",conf.env['LIBDIR'], 'CYAN')
+    display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
     display_msg("Guitarix share directory", conf.env['GX_STYLE_DIR'], 'CYAN')
     display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
 
