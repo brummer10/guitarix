@@ -67,11 +67,6 @@ def configure(conf):
     if conf.env['MIDI_RINGBUF'] == True:
         conf.define('USE_RINGBUFFER', 1)
 
-    conf.define('GX_JACK_INPUT',   'system:capture_3')    
-    conf.define('GX_JACK_OUTPUT1', 'system:playback_1')    
-    conf.define('GX_JACK_OUTPUT2', 'system:playback_2')    
-    conf.define('GX_RCSTYLE',      'black')    
-    
     conf.write_config_header('config.h')
 
     # extra defines for installlation
@@ -93,13 +88,6 @@ def configure(conf):
     version_msg = "GUITARIX " + VERSION
 
     print version_msg
-
-    print
-
-    display_msg("Jack input",    conf.env['GX_JACK_INPUT'], 'CYAN')
-    display_msg("Jack output 1", conf.env['GX_JACK_OUTPUT1'], 'CYAN')
-    display_msg("Jack output 2", conf.env['GX_JACK_OUTPUT2'], 'CYAN')
-    display_msg("Guitarix GTK style", conf.env['GX_RCSTYLE'], 'CYAN')
 
     print
 
