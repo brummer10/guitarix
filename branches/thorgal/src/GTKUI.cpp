@@ -1076,6 +1076,7 @@ void GTKUI::addMenu()
     home = getenv ("HOME");
     if (home == 0) home = ".";
     snprintf(rcfilenamere, 256, "%s/.guitarix/%src", home, prename);
+
     ifstream f(rcfilenamere);
     if (f.good())
     {

@@ -10,7 +10,7 @@ def build(bld):
     prog.source = 'main.cpp'
     prog.env.append_value("CXXFLAGS", "-O3  -march=native -Wall")
     prog.uselib = ['JACK', 'SNDFILE', 'GTK2', 'BOOST']
-    prog.target = 'guitarix'
+    prog.target = bld.env['BIN_NAME']
     prog.chmod=0755
     prog.install_path = bld.env['BINDIR']
 

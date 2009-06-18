@@ -433,8 +433,8 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
     GtkWidget* title = gtk_bin_get_child(GTK_BIN(menuitem));
     const gchar* text = gtk_label_get_text (GTK_LABEL(title));
 
-    string rcfilenamere = gx_get_userdir() + "guitarixpresrc";
-    string tmpfilename  = gx_get_userdir() + "guitarixtmpsrc";
+    string rcfilenamere = gx_get_userdir() + "guitarixprerc";
+    string tmpfilename  = gx_get_userdir() + "guitarixtmprc";
     string jc_preset    = gx_get_userdir() + string("jconv_") + string(text) + ".conf ";
     string jc_file      = gx_get_userdir() + string("jconv_set.conf");
     string file_copy    = jc_preset + jc_file;
@@ -469,8 +469,8 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 //---- funktion save
 void gx_save_preset (const gchar* presname)
 {
-    string rcfilenamere = gx_get_userdir() + "guitarixpresrc";
-    string tmpfilename  = gx_get_userdir() + "guitarixtmpsrc";
+    string rcfilenamere = gx_get_userdir() + "guitarixprerc";
+    string tmpfilename  = gx_get_userdir() + "guitarixtmprc";
 
     interface->savepreStatebyname(rcfilenamere.data(), tmpfilename.data(), presname);
     if (cm == 0)
@@ -531,22 +531,31 @@ void gx_save_presetn1 (GtkMenuItem *menuitem, gpointer save_preset)
 //----menu funktion about
 static void gx_show_about( GtkWidget *widget, gpointer data )
 {
+  string about;
 
-  gx_message_popup("\n This Aplication is to a large extent provided"
-		   "\n with the marvelous faust compiler.Yann Orlary"
-		   "\n <http://faust.grame.fr/>"
-		   "\n A large part is based on the work of Julius Orion Smith"
-		   "\n<http://ccrma.stanford.edu/realsimple/faust/>"
-		   "\n and Albert Graef\n <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html> "
-		   "\n\n\n guitarix 0.02.5 use jack_capture >= 0.9.30for record"
-		   "\n by Kjetil S. Matheussen "
-		   "\n http://old.notam02.no/arkiv/src/?M=D"
-		   "\n  it will allways record to ~/guitarix_sessionX.xxx "
-		   "\n for impulse response it use jconv "
-		   "\n byFons Adriaensen "
-		   "\n  http://www.kokkinizita.net/linuxaudio/index.html "
-		   "\n\n author: Hermann Meyer <brummer-@web.de>"
-		   "\n home: http://guitarix.sourceforge.net/\n");
+  about += 
+    "\n This Aplication is to a large extent provided"
+    "\n with the marvelous faust compiler.Yann Orlary"
+    "\n <http://faust.grame.fr/>"
+    "\n A large part is based on the work of Julius Orion Smith"
+    "\n<http://ccrma.stanford.edu/realsimple/faust/>"
+    "\n and Albert Graef\n <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html> "
+    "\n\n\n guitarix ";
+
+  about += GX_VERSION;
+
+  about += 
+    " use jack_capture >= 0.9.30for record"
+    "\n by Kjetil S. Matheussen "
+    "\n http://old.notam02.no/arkiv/src/?M=D"
+    "\n  it will allways record to ~/guitarix_sessionX.xxx "
+    "\n for impulse response it use jconv "
+    "\n byFons Adriaensen "
+    "\n  http://www.kokkinizita.net/linuxaudio/index.html "
+    "\n\n author: Hermann Meyer <brummer-@web.de>"
+    "\n home: http://guitarix.sourceforge.net/\n";
+
+  gx_message_popup(about.c_str());
 }
 
 

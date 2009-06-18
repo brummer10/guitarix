@@ -11,7 +11,7 @@ import re
 import Logs
 
 # used by waf dist and waf build
-VERSION='0.4.4'
+VERSION='0.04.5-1'
 APPNAME='guitarix'
 
 # these variables are mandatory ('/' are converted automatically)
