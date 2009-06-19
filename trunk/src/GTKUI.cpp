@@ -546,6 +546,18 @@ void GTKUI::addHorizontalSlider(const char* label, float* zone, float init, floa
     addWidget(label, slider);
 }
 
+void GTKUI::addHorizontalWheel(const char* label, float* zone, float init, float min, float max, float step)
+{
+    *zone = init;
+    GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
+    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+    GtkRegler myGtkRegler;
+    GtkWidget* slider = myGtkRegler.gtk_wheel_new_with_adjustment (GTK_ADJUSTMENT(adj));
+    gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
+    addWidget(label, slider);
+}
+
 struct uiValueDisplay : public uiItem
 {
     GtkLabel* fLabel;

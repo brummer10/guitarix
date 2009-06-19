@@ -1,5 +1,5 @@
 /*
-  * Copyright (C) 2009 Hermann Meyer
+  * Copyright (C) 2009 Hermann Meyer and James Warden
   *
   * This program is free software; you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@ public:
     virtual GtkWidget *gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment);
     virtual GtkWidget *gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustment);
     virtual GtkWidget *gtk_mini_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
+    virtual GtkWidget *gtk_wheel_new_with_adjustment(GtkAdjustment *_adjustment);
 };
 #endif
 

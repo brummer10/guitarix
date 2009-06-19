@@ -60,6 +60,7 @@ virtual void buildUserInterface(UI* interface)
     interface->closeBox();
     interface->closeBox();
     interface->closeBox();
+
     interface->openHorizontalBox("");
     interface->openVerticalBox("");
     interface->openVerticalBox("amp  ");
@@ -71,42 +72,55 @@ virtual void buildUserInterface(UI* interface)
     interface->addHorizontalSlider(" feedback ", &faas1, 0.3f, 0.3f, 0.9f, 0.01f);
     interface->closeBox();
     interface->closeBox();
-    interface->openHorizontalBox("");
-    interface->openVerticalBox("");
-    interface->addswitch("tube", &ftube);
-    interface->addHorizontalSlider("tube",&ffuzzytube, 1.f, 1.f, 10.f, 1.0f);
-    interface->closeBox();
-    interface->openHorizontalBox("");
-    interface->openVerticalBox("");
-    interface->addswitch("tube2", &ftube3);
-    interface->addHorizontalSlider("tube",&fresotube3, 1.f, 1.f, 10.f, 1.0f);
-    interface->closeBox();
-    interface->openVerticalBox("");
-    interface->openVerticalBox1("resonance");
-    interface->addHorizontalSlider("reso",&fresotube1, 1.f, 0.f, 1.f, 0.01f);
-    interface->closeBox();
-    interface->openVerticalBox1("vibrato");
-    interface->addHorizontalSlider("vibrato",&fresotube2, 1.f, 0.f, 1.f, 0.01f);
-    interface->closeBox();
-    interface->closeBox();
-    interface->closeBox();
 
-
-    interface->closeBox();
     interface->openHorizontalBox("");
+
+    interface->openVerticalBox("");
     interface->openVerticalBox("");
     interface->addswitch("preamp", &fcheckbox1);
-    interface->addHorizontalSlider("atan",&fatan, 1.f, 1.f, 10.f, 1.0f);
+    interface->addHorizontalWheel("atan",&fatan, 1.f, 1.f, 10.f, 1.0f);
+    interface->closeBox();
+    interface->openVerticalBox("");
+    interface->addswitch("drive", &fprdr);
+    interface->addHorizontalWheel("drive", &fpredrive, 1.f, 1.f, 10.f, 1.0f);
+    interface->closeBox();
     interface->closeBox();
 
     interface->openVerticalBox("");
-    interface->addswitch("drive", &fprdr);
-    interface->addHorizontalSlider("drive", &fpredrive, 1.f, 1.f, 10.f, 1.0f);
+    interface->openVerticalBox("");
+    interface->addswitch("tube", &ftube);
+    interface->addHorizontalWheel("tube",&ffuzzytube, 1.f, 1.f, 10.f, 1.0f);
     interface->closeBox();
     interface->openVerticalBox("");
     interface->addswitch("vibrato", &fresoon);
-    interface->addHorizontalSlider("vibrato", &fvibrato, 0.f, 0.f, 2.f, 0.02f);
+    interface->addHorizontalWheel("vibrato", &fvibrato, 0.f, 0.f, 2.f, 0.02f);
     interface->closeBox();
+    interface->closeBox();
+
+    interface->openVerticalBox("");
+    interface->openVerticalBox("");
+    interface->addswitch("tube2", &ftube3);
+    interface->openFrameBox("");
+
+    interface->addHorizontalWheel("tube",&fresotube3, 1.f, 1.f, 10.f, 1.0f);
+    interface->closeBox();
+    interface->closeBox();
+    interface->openVerticalBox("");
+    interface->openVerticalBox1("resonanz");
+    interface->addHorizontalWheel("reso",&fresotube1, 0.5f, 0.f, 0.9f, 0.01f);
+    interface->closeBox();
+    interface->openVerticalBox1("vibrato");
+    interface->addHorizontalWheel("vibrato",&fresotube2, 1.f, 0.f, 1.f, 0.01f);
+    interface->closeBox();
+    interface->closeBox();
+    interface->closeBox();
+
+    interface->closeBox();
+
+
+    interface->openHorizontalBox("");
+
+
     interface->closeBox();
     interface->closeBox();
     interface->openVerticalBox("");

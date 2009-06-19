@@ -116,12 +116,12 @@ inline void reso_tube (int fuzzy, int sf,float reso, float vibra, float** input,
     float a = 2.000 ;
     float b = 1.000 ;
     float 	fSlowRESO0 = reso;
-    float 	fSlowRESO1 = vibra;
+    // float 	fSlowRESO1 = vibra;
 
     double c = 0.5;
-
-    int 	iSlowRESO2 = int((int((fSlowRESO1 - 1)) & 4095));
-    int 	iSlowRESO3 = int((int(fSlowRESO1) & 4095));
+    //----- resonator
+    int 	iSlowRESO2 = int((int((vibra - 1)) & 4095));
+    int 	iSlowRESO3 = int((int(vibra) & 4095));
 
     for (int i=0; i<sf; i++)
     {
@@ -142,8 +142,77 @@ inline void reso_tube (int fuzzy, int sf,float reso, float vibra, float** input,
 
         *out++ = fuzz(x + ot*fuzzy,0.7);
         // post processing
-				fRecRESO0[1] = fRecRESO0[0];
-				IOTARESO = IOTARESO+1;
+        fRecRESO0[1] = fRecRESO0[0];
+        IOTARESO = IOTARESO+1;
+
+    }
+}
+
+
+// the oscilate tube unit on frame base
+inline void osc_tube (int fuzzy, int sf,float reso, float vibra, float** input, float** output)
+{
+    float* in = input[0];
+    float* out = output[0];
+    float ot = 0;
+    float x = in[0];
+    float a = 2.000 ;
+    float b = 1.000 ;
+    float 	fSlowRESO0 = reso;
+    // float 	fSlowRESO1 = vibra;
+    //----- oscillator
+
+
+    double c = 0.5;
+    //----- resonator
+    int 	iSlowRESO2 = int((int((vibra - 1)) & 4095));
+    int 	iSlowRESO3 = int((int(vibra) & 4095));
+
+
+
+    for (int i=0; i<sf; i++)
+    {
+        x = in[i];
+        if ( x >= 0.0 )
+        {
+            ot = ((a * x - b * x * x) -x)*c;
+        }
+        else
+        {
+            ot =  ((a * x + b * x * x) -x)*c;
+        }
+
+				iVecoscb0[0] = 1;
+				fRecoscb0[0] = (0 - (((fRecoscb0[2] + (fConstoscb0 * fRecoscb0[1])) + iVecoscb0[1]) - 1));
+				float oscb = fRecoscb0[0];
+
+        float fTempRESO0 = (ot + (fSlowRESO0 * fRecRESO0[1]));
+        fVecRESO0[IOTARESO&4095] = fTempRESO0;
+        fRecRESO0[0] = (0.5f * (fVecRESO0[(IOTARESO-iSlowRESO3)&4095] + fVecRESO0[(IOTARESO-iSlowRESO2)&4095]));
+        ot = fRecRESO0[0] * (3+oscb)*0.25f;
+
+                float sp0 = ot;
+				fVecsp0[0] = sp0;
+				fRecsp3[0] = (fConstsp9 * ((fVecsp0[0] - fVecsp0[1]) + (fConstsp8 * fRecsp3[1])));
+				fRecsp2[0] = (fConstsp9 * ((fRecsp3[0] - fRecsp3[1]) + (fConstsp8 * fRecsp2[1])));
+				fRecsp1[0] = (fRecsp2[0] - (fConstsp6 * ((fConstsp5 * fRecsp1[2]) + (fConstsp1 * fRecsp1[1]))));
+				fRecsp0[0] = ((fConstsp6 * (fRecsp1[2] + (fRecsp1[0] + (2 * fRecsp1[1])))) - (fConstsp4 * ((fConstsp3 * fRecsp0[2]) + (fConstsp1 * fRecsp0[1]))));
+				ot = (fConstsp4 * (fRecsp0[2] + (fRecsp0[0] + (2 * fRecsp0[1]))));
+
+
+        *out++ = fuzz(x + ot*fuzzy,0.7);
+        // post processing
+        fRecRESO0[1] = fRecRESO0[0];
+        IOTARESO = IOTARESO+1;
+
+				fRecoscb0[2] = fRecoscb0[1]; fRecoscb0[1] = fRecoscb0[0];
+				iVecoscb0[1] = iVecoscb0[0];
+
+                fRecsp0[2] = fRecsp0[1]; fRecsp0[1] = fRecsp0[0];
+				fRecsp1[2] = fRecsp1[1]; fRecsp1[1] = fRecsp1[0];
+				fRecsp2[1] = fRecsp2[0];
+				fRecsp3[1] = fRecsp3[0];
+				fVecsp0[1] = fVecsp0[0];
     }
 }
 
@@ -176,7 +245,7 @@ inline void fuzzy_tube (int fuzzy,int mode, int sf, float** input, float** outpu
         {
             ot =  ((a * x + b * x * x) -x)*c;
         }
-        *out++ = x + ot*fuzzy;
+        *out++ = fuzz(x + ot*fuzzy,0.75);
     }
 }
 
@@ -211,7 +280,7 @@ virtual void compute (int count, float** input, float** output)
 {
     if ((checky != 0) && (NO_CONNECTION == 0 ) )      // play
     {
-       // precalculate values with need update peer frame
+        // precalculate values with need update peer frame
         // compressor
         float   fSlowcom0 = fentrycom0;
         float   fSlowcom1 = expf((0 - (fConstcom2 / max(fConstcom2, fslidercom0))));
@@ -365,7 +434,7 @@ virtual void compute (int count, float** input, float** output)
         {
             if (icheckbox1 == 1)  preamp(count,input,input,atan_shape,f_atan);
             if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count,input,input);
-            if (itube3 == 1)   reso_tube(iresotube3,count,f_resotube1, f_resotube2,input,input);
+            if (itube3 == 1)   osc_tube(iresotube3,count,f_resotube1, f_resotube2,input,input);
             if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count,input,input);
             if (antialis0 == 1)  AntiAlias(count,input,input);
         }
@@ -383,7 +452,7 @@ virtual void compute (int count, float** input, float** output)
             float 	S3[2];
             float 	S4[2];
             float 	S5[2];
-	    // when the ocilloscope draw wav by sample (mode 3) get the input value
+            // when the ocilloscope draw wav by sample (mode 3) get the input value
             if (showwave == 1) vivi = input0[i];
 
             if ((shownote == 1) || (playmidi == 1)) // enable tuner when show note or play midi
@@ -624,7 +693,7 @@ virtual void compute (int count, float** input, float** output)
             }
             // trigger the oscilloscope to update peer sample. I know that some samples dont will show, but it will
             // update fast as  posible this way (mode 3)
-            if ((showwave == 1) &&(view_mode > 1)) viv = fRec0[0];
+            if ((showwave == 1) &&(view_mode == 3)) viv = fRec0[0];
             // this is the left "extra" port to run jconv in bybass mode
             if (irunjc == 1) output0[i] = (fSlow85 * fRec0[0]);
             float 	S9[2];
@@ -732,7 +801,7 @@ virtual void compute (int count, float** input, float** output)
         // the extra port register can only run clean on frame base, therfor the
         // variable runjc must check on frame base, not in the inner loop.
         int     irunjc = runjc;
-       // pointer to the output buffers
+        // pointer to the output buffers
         float* output0 = output[0];
         float* output1 = output[1];
         float* output2 = output[2];

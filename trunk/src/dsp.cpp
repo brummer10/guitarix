@@ -286,10 +286,30 @@ private:
     float fresotube1;
     float fresotube2;
     float fresotube3;
-
+    //----- resonator
 	int 	IOTARESO;
 	float 	fVecRESO0[4096];
 	float 	fRecRESO0[2];
+    //----- oscillator
+	int 	iVecoscb0[2];
+	float 	fConstoscb0;
+	float 	fRecoscb0[3];
+    //--- low/highpass for tube
+	float 	fConstsp0;
+	float 	fConstsp1;
+	float 	fConstsp2;
+	float 	fConstsp3;
+	float 	fConstsp4;
+	float 	fConstsp5;
+	float 	fConstsp6;
+	float 	fConstsp7;
+	float 	fConstsp8;
+	float 	fVecsp0[2];
+	float 	fConstsp9;
+	float 	fRecsp3[2];
+	float 	fRecsp2[2];
+	float 	fRecsp1[3];
+	float 	fRecsp0[3];
 
     // float  fbargraph0;
 public:
@@ -553,10 +573,30 @@ public:
         fresotube1 = 0.12f;
         fresotube2 = 0.5f;
         fresotube3 = 0;
-
+        //----- resonator
 		IOTARESO = 0;
 		for (int i=0; i<4096; i++) fVecRESO0[i] = 0;
 		for (int i=0; i<2; i++) fRecRESO0[i] = 0;
+		//----- oscillator
+		for (int i=0; i<2; i++) iVecoscb0[i] = 0;
+		fConstoscb0 = (0 - (2 * cosf((75398.226562f / fSamplingFreq))));
+		for (int i=0; i<3; i++) fRecoscb0[i] = 0;
+		//----- low/highpass for tube
+        fConstsp0 = tanf((15707.963867f / fSamplingFreq));
+		fConstsp1 = (2 * (1 - (1.0f / (fConstsp0 * fConstsp0))));
+		fConstsp2 = (1.0f / fConstsp0);
+		fConstsp3 = (1 + ((fConstsp2 - 0.765367f) / fConstsp0));
+		fConstsp4 = (1.0f / (1 + ((0.765367f + fConstsp2) / fConstsp0)));
+		fConstsp5 = (1 + ((fConstsp2 - 1.847759f) / fConstsp0));
+		fConstsp6 = (1.0f / (1 + ((1.847759f + fConstsp2) / fConstsp0)));
+		fConstsp7 = (408.407043f / fSamplingFreq);
+		fConstsp8 = (1 - fConstsp7);
+		for (int i=0; i<2; i++) fVecsp0[i] = 0;
+		fConstsp9 = (1.0f / (1 + fConstsp7));
+		for (int i=0; i<2; i++) fRecsp3[i] = 0;
+		for (int i=0; i<2; i++) fRecsp2[i] = 0;
+		for (int i=0; i<3; i++) fRecsp1[i] = 0;
+		for (int i=0; i<3; i++) fRecsp0[i] = 0;
 
     }
 

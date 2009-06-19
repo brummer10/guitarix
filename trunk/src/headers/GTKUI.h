@@ -1,5 +1,5 @@
 /*
-  * Copyright (C) 2009 Hermann Meyer
+  * Copyright (C) 2009 Hermann Meyer and James Warden
   *
   * This program is free software; you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -77,6 +77,7 @@ public :
     virtual void addCheckButton(const char* label, float* zone);
     virtual void addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step);
     virtual void addHorizontalSlider(const char* label, float* zone, float init, float min, float max, float step);
+    virtual void addHorizontalWheel(const char* label, float* zone, float init, float min, float max, float step);
     virtual void addregler(const char* label, float* zone, float init, float min, float max, float step);
     virtual void addbigregler(const char* label, float* zone, float init, float min, float max, float step);
     virtual void addslider(const char* label, float* zone, float init, float min, float max, float step);

@@ -236,6 +236,7 @@ public:
     virtual void addCheckButton(const char* label, float* zone) {};
     virtual void addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step) {};
     virtual void addHorizontalSlider(const char* label, float* zone, float init, float min, float max, float step) {};
+    virtual void addHorizontalWheel(const char* label, float* zone, float init, float min, float max, float step){};
     virtual void addregler(const char* label, float* zone, float init, float min, float max, float step){};
     virtual void addbigregler(const char* label, float* zone, float init, float min, float max, float step) {};
     virtual void addslider(const char* label, float* zone, float init, float min, float max, float step){};
