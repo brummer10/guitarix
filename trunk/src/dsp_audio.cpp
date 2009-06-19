@@ -14,6 +14,18 @@ inline void add_dc (float &val)
     val += anti_denormal;
 }
 
+inline float clip (float x, float a)
+{
+float x1,x2;
+float b = -a;
+x1 = fabs (x-a);
+x2 = fabs (x-b);
+x = x1 + (a+b);
+x -= x2;
+x *= 0.5;
+return (x);
+}
+
 // the fuzz unit run on sample base
 inline float fuzz(float in, float threshold)
 {
@@ -140,7 +152,7 @@ inline void reso_tube (int fuzzy, int sf,float reso, float vibra, float** input,
         fRecRESO0[0] = (0.5f * (fVecRESO0[(IOTARESO-iSlowRESO3)&4095] + fVecRESO0[(IOTARESO-iSlowRESO2)&4095]));
         ot = fRecRESO0[0];
 
-        *out++ = fuzz(x + ot*fuzzy,0.7);
+        *out++ = fuzz(x + ot*fuzzy*0.5,0.7);
         // post processing
         fRecRESO0[1] = fRecRESO0[0];
         IOTARESO = IOTARESO+1;
@@ -200,7 +212,7 @@ inline void osc_tube (int fuzzy, int sf,float reso, float vibra, float** input, 
 				ot = (fConstsp4 * (fRecsp0[2] + (fRecsp0[0] + (2 * fRecsp0[1]))));
 
 
-        *out++ = fuzz(x + ot*fuzzy,0.7);
+        *out++ = clip(x + ot*fuzzy*0.5,0.7);
         // post processing
         fRecRESO0[1] = fRecRESO0[0];
         IOTARESO = IOTARESO+1;
@@ -245,7 +257,7 @@ inline void fuzzy_tube (int fuzzy,int mode, int sf, float** input, float** outpu
         {
             ot =  ((a * x + b * x * x) -x)*c;
         }
-        *out++ = fuzz(x + ot*fuzzy,0.75);
+        *out++ = fuzz(x + ot*fuzzy*0.5,0.7);
     }
 }
 
@@ -422,7 +434,7 @@ virtual void compute (int count, float** input, float** output)
         if (iupsample == 1)
         {
             over_sample(input,&oversample,count);
-            if (icheckbox1 == 1)  preamp(count*2,&oversample,&oversample,atan_shape,f_atan);
+          //  if (icheckbox1 == 1)  preamp(count*2,&oversample,&oversample,atan_shape,f_atan);
             if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count*2,&oversample,&oversample);
             if (itube3 == 1)   reso_tube(iresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
             if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count*2,&oversample,&oversample);
@@ -432,7 +444,7 @@ virtual void compute (int count, float** input, float** output)
         // or plain sample
         else
         {
-            if (icheckbox1 == 1)  preamp(count,input,input,atan_shape,f_atan);
+         //   if (icheckbox1 == 1)  preamp(count,input,input,atan_shape,f_atan);
             if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count,input,input);
             if (itube3 == 1)   osc_tube(iresotube3,count,f_resotube1, f_resotube2,input,input);
             if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count,input,input);
@@ -523,19 +535,20 @@ virtual void compute (int count, float** input, float** output)
             float fTemp0 = (fRec4[0] * S5[0]);
 
             // I have move the preamp to the frame based section, leef it here for . . .
-            /*  if (icheckbox1 == 1)     // preamp
+              if (icheckbox1 == 1)     // preamp
               {
                   float  in = fTemp0 ;
                   float  fTemp0in = (in-0.15*(in*in))-(0.15*(in*in*in));
                   in = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
                   fTemp0in = normalize(in,atan_shape,f_atan);
                   fTemp0 = valve(fTemp0in,fTemp0in)*0.75;
-              }  //preamp ende */
+                  fTemp0 = fuzz(fTemp0in,0.7);
+              }  //preamp ende 
 
 
             fRec3[0] = fTemp0;
             // vibrato
-            if (fresoon == 1.0) fRec3[0] =  (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])));  //resonanz 1.76f
+            if (fresoon == 1.0) fRec3[0] = fuzz (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])),0.7);  //resonanz 1.76f
             S4[0] = fRec3[0];
 
             if (ioverdrive4 == 1)     // overdrive

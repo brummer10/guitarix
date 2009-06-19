@@ -112,8 +112,11 @@ bool gx_version_check(const char* Path)
 {
     struct stat my_stat;
     string fullgxdir = gx_get_userdir();
+//----- this check dont need to be against real version, we only need to know
+//----- if the presethandling is working with the courent version, we only count this
+//----- string when we must remove the old preset files.
     string rcfilename = 
-      fullgxdir + string("guitarix-") + string(GX_VERSION) + string(".rc");
+      fullgxdir + string("version-") + string("0.03.3") ;
 
     if  (stat(Path, &my_stat) == 0) // directory exists
     {
@@ -122,6 +125,9 @@ bool gx_version_check(const char* Path)
 	{
             // current version not there, let's create it and refresh the whole shebang
 	    string oldfiles = fullgxdir + string("guitarix*rc");
+	    (void)gx_system ("rm -f", oldfiles.data(), false);
+
+	    oldfiles = fullgxdir + string("version*");
 	    (void)gx_system ("rm -f", oldfiles.data(), false);
 
 	    oldfiles = fullgxdir + string("*.conf");
@@ -161,7 +167,9 @@ bool gx_version_check(const char* Path)
 	);
 
 	// --- version file
-	tmpstr = fullgxdir + string("version") + GX_VERSION;
+       //same here, we only change this file, when the presethandling is brocken,
+       // otherwise we can let it untouched
+	tmpstr = fullgxdir + string("version") + string("0.03.3");
         (void)gx_system("touch", tmpstr.data(), false);
 
 	cim = string("echo 'guitarix-") + string(GX_VERSION) + "' >";
