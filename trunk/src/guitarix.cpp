@@ -169,7 +169,7 @@ bool gx_version_check(const char* Path)
 	// --- version file
        //same here, we only change this file, when the presethandling is brocken,
        // otherwise we can let it untouched
-	tmpstr = fullgxdir + string("version") + string("0.03.3");
+	tmpstr = fullgxdir + string("version-") + string("0.03.3");
         (void)gx_system("touch", tmpstr.data(), false);
 
 	cim = string("echo 'guitarix-") + string(GX_VERSION) + "' >";
