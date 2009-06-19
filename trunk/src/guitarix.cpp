@@ -925,7 +925,7 @@ static int gx_system(const char* name1,
   str.append(name2);
 
   if (devnull)
-    str.append(" >/dev/null 2>&1");
+    str.append(" 1>/dev/null 2>&1");
 
   if (escape)
     str.append("&");
