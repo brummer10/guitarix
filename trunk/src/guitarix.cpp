@@ -107,6 +107,22 @@ string gx_get_userdir()
   return string(getenv ("HOME")) + string("/") + string(guitarix_dir) + "/";
 }
 
+// ---- terminal warning message
+void gx_print_warning(const char* func, const string& msg)
+{
+  cerr << "<*** " << func << ": WARNING - "
+       << "\033[1;32m" << msg.c_str() << "\033[0m"
+       << " ***>" << endl;
+}
+
+// ---- terminal error message
+void gx_print_error(const char* func, const string& msg)
+{
+  cerr << "<*** " << func << ": ERROR - "
+       << "\033[1;31m" << msg.c_str() << "\033[0m"
+       << " ***>" << endl;
+}
+
 // ---- check version and if directory exists and create it if it not exist
 bool gx_version_check(const char* Path)
 {
@@ -202,9 +218,10 @@ int gx_pixmap_check()
 	(stat(warn_pix.data(), &my_stat) != 0))
 	
     {
-      cerr << "<*** gx_pixmap_check: "
-	   << " cannot find installed pixmaps! giving up ..."
-	   << "***>" << endl;
+      gx_print_error(
+	 "gx_pixmap_check",
+	 string(" cannot find installed pixmaps! giving up ...")
+      );
 
       // maybe a bit too severe to give up ??
       exit(1);
@@ -668,10 +685,12 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
     // are we a proper jack client ?
     if (!client)
     {
-        cerr << "<*** guitarix.cpp: gx_set_jack_buffer_size()"
-        << " we are not a jack client, server may be down ***>"
-        << endl;
-        return;
+      gx_print_error(
+        "gx_set_jack_buffer_size",
+        string("we are not a jack client, server may be down")
+      );
+	
+      return;
     }
 
 
@@ -949,10 +968,8 @@ static void gx_message_popup(const char* msg)
   // check msg validity
   if (!msg)
   {
-    cerr << "<*** gx_message_popup: "
-	 << "warning message does not exist"
-	 << " ***>"
-	 << endl;
+    gx_print_warning("gx_message_popup", 
+		     string("warning message does not exist"));
     return;
   }
 

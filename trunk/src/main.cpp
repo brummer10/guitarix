@@ -196,7 +196,9 @@ int srate(jack_nframes_t nframes, void *arg)
 
 void jack_shutdown(void *arg)
 {
-    fprintf(stderr, "jack has bumped us out , exiting ...\n");
+    gx_print_warning("jack_shutdown", 
+		     string("jack has bumped us out , exiting ..."));
+
     jack_client_close(client);
 #ifdef USE_RINGBUFFER
     jack_ringbuffer_free(jack_ringbuffer);
@@ -224,7 +226,10 @@ void signal_handler(int sig)
         delete[] get_frame;
     if (oversample)
         delete[] oversample;
-    fprintf(stderr, "signal %i received, exiting ...\n",sig);
+
+    string sigstr; gx_IntToString(sig, sigstr);
+    string msg = string("signal ") + sigstr + " received, exiting ...";
+    gx_print_warning("signal_handler", msg);
     exit(0);
 }
 
@@ -490,16 +495,16 @@ int main(int argc, char *argv[] )
       {
         // check contradiction (clear and rcset cannot be used in the same call)
         if (vm.count("clear"))
-    	throw invalid_argument(string("<*** main: -c and -r cannot be used together ***>"));
+    	throw invalid_argument(string("-c and -r cannot be used together"));
     
         // retrieve user value
         string tmp = vm["rcset"].as<string>();
     
         // if garbage, let's initialize to guitarix.rc
         if (tmp != "black" && tmp != "pix")
-        {
-	  cerr << "<*** main: rcset value is garbage, defaulting to no style " 
-	       << endl;
+	{
+	  gx_print_error("main",
+			 string("rcset value is garbage, defaulting to no style"));
 	  tmp = "";
         }
         optvar[RC_STYLE] = tmp;
@@ -519,7 +524,7 @@ int main(int argc, char *argv[] )
       {
         // check contradiction (clear and rcset cannot be used in the same call)
         if (vm.count("rcset"))
-	  throw invalid_argument(string("<*** main: -c and -r cannot be used together ***>"));
+	  throw invalid_argument(string("-c and -r cannot be used together"));
 
         optvar[RC_STYLE] = "";
       }
@@ -545,12 +550,11 @@ int main(int argc, char *argv[] )
 	  optvar[idx++] = s[i];
 
 	if (s.size() > 2)
-	  cerr << "\033[1;32m<*** main: "
-	       << "Warning --> provided more than 2 output ports, " 
-	       << "ignoring extra ports"
-	       << " ***>\033[0m"
-	       << endl;
-
+	  gx_print_warning(
+             "main",
+	     string("Warning --> provided more than 2 output ports, " 
+		    "ignoring extra ports")
+	  ); 
       }
       else 
       {  
@@ -562,9 +566,9 @@ int main(int argc, char *argv[] )
     // ---- catch exceptions that occured during user option parsing
     catch(exception& e) 
     {
-      cerr << "\033[1;31m<*** main: Error in user options! " 
-	   << e.what() << " ***>\033[0m"
-	   << endl;
+      string msg = string("Error in user options! ") + e.what();
+      gx_print_error("main", msg);
+      return 1;
     }
 
     // cerr << "<*** main: rcset        : " <<  optvar[RC_STYLE]  << endl;
@@ -590,8 +594,9 @@ int main(int argc, char *argv[] )
     client = jack_client_open (jname, JackNoStartServer, &jackstat);
     if (client == 0)
     {
-        fprintf (stderr, "Can't connect to JACK, is the server running ?\n");
-        exit (1);
+      gx_print_error("main", 
+		     string("Can't connect to JACK, is the server running ?"));
+      exit (1);
     }
     if (jackstat & JackNameNotUnique)
     {
@@ -667,7 +672,7 @@ int main(int argc, char *argv[] )
     DSP.set_state();
     if (jack_activate(client))
     {
-        fprintf(stderr, "Can't activate JACK client\n");
+        gx_print_error("main", string("Can't activate JACK client"));
         return 1;
     }
 
