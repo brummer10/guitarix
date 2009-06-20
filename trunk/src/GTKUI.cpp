@@ -999,6 +999,8 @@ void GTKUI::addMenu()
     GtkWidget *menubar;
     GtkWidget *menuLatency;
     GtkWidget *menulat;
+    GtkWidget *menuSkinChooser;
+    GtkWidget *menuskin;
     GtkWidget *menu;
     GtkWidget *menu1;
     GtkWidget *menuitem;
@@ -1041,9 +1043,6 @@ void GTKUI::addMenu()
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
 
-    /******************************************************************************
-        This code is contributed by 	James Warden <warjamy@yahoo.com>
-    ******************************************************************************/
     /*---------------- Create Latency menu items --------------------*/
     /*-- Create  Latency submenu under Engine submenu --*/
     menuLatency = gtk_menu_item_new_with_label ("Latency");
@@ -1078,9 +1077,6 @@ void GTKUI::addMenu()
         gtk_widget_show (menuitem);
     }
     /*---------------- End Latency menu declarations ----------------*/
-    /******************************************************************************
-        Many thanks James aka torgal
-    ******************************************************************************/
 
     /*-- Create Exit menu item under Engine submenu --*/
     menuitem = gtk_menu_item_new_with_label ("  Exit  ");
@@ -1196,6 +1192,26 @@ void GTKUI::addMenu()
     g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_j_c_gui), NULL);
     gtk_widget_show (menuitem);
 
+    /*-- Create skin menu under Options submenu--*/
+    menuSkinChooser = gtk_menu_item_new_with_label ("Skin");
+    gtk_menu_append (GTK_MENU(menu), menuSkinChooser);
+    menuskin = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuSkinChooser), menuskin);
+ 
+    /* Create black skin item under skin submenu --*/
+    int idx = GX_BLACK_SKIN;
+    while (idx < GX_NUM_OF_SKINS) {
+      menuitem = gtk_radio_menu_item_new_with_label (group, skins[idx]);
+      group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
+      gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
+      g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_change_skin), GINT_TO_POINTER(idx));
+      gtk_menu_append(GTK_MENU(menuskin), menuitem);
+      gtk_widget_show (menuitem);
+      idx++;
+    }
+
+    /*-- End skin menu declarations --*/
+
     /*---------------- Start About menu declarations ----------------*/
     menuHelp = gtk_menu_item_new_with_label ("About");
     gtk_menu_bar_append (GTK_MENU_BAR(menubar), menuHelp);
@@ -1223,6 +1239,7 @@ void GTKUI::addMenu()
     gtk_widget_show(menuEdit);
     gtk_widget_show(menuLoad);
     gtk_widget_show(menuSave);
+    gtk_widget_show(menuSkinChooser);
     gtk_widget_show(menuHelp);
 //  gtk_widget_show(vbox);
     /*---------------- end show menu ----------------*/

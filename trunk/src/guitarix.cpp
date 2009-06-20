@@ -76,6 +76,19 @@ jack_nframes_t  jackframes;
 
 #define ASCII_START (48)
 
+//---- skin defines
+#define GX_NO_SKIN    (0)
+#define GX_BLACK_SKIN (1)
+#define GX_PIX_SKIN   (2)
+
+#define GX_NUM_OF_SKINS (3)
+
+const char* skins[] = {
+  "",
+  "black",
+  "pix"
+};
+
 //---- system related defines and function proto
 #define SYSTEM_OK (0)
 
@@ -100,6 +113,7 @@ static int   gx_system(const char*,
 		       const char*,
 		       const bool devnull = true,
 		       const bool escape  = false);
+static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
 
 // ---- user directory
 string gx_get_userdir()
@@ -721,7 +735,6 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
         if ( jack_set_buffer_size (client, buf_size) != 0)
             gtk_check_menu_item_set_inconsistent(menuitem,TRUE);
 
-        // let's resize the buffer
         if (jcio == 1)
         {
             jcio = 0;
@@ -1051,3 +1064,22 @@ static bool gx_capture_command(const int idx, string& capcmd)
   return true;
 }
 
+// ----- skin change
+static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg)
+{
+  // let's avoid triggering the jack server on "inactive"
+  if (gtk_check_menu_item_get_active(menuitem) == false)
+      return;
+  
+  const int idx = (int)GPOINTER_TO_INT(arg);
+  string rcfile = GX_STYLE_DIR + string("/") + "guitarix";
+
+  if (idx != 0)
+    rcfile += string("_");
+      
+  rcfile += skins[idx];
+  rcfile += ".rc";
+
+  gtk_rc_parse(rcfile.c_str());
+  gtk_rc_reset_styles(gtk_settings_get_default());
+}
