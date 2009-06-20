@@ -578,7 +578,7 @@ int main(int argc, char *argv[] )
     
     // ----------------------------------------------------------------------
     string str = GX_STYLE_DIR + string("/") + string("guitarix") + optvar[RC_STYLE] + ".rc";
-    rcpath =  str.data();
+    rcpath =  str.c_str();
 
     char           buf [256];
     jack_status_t  jackstat;
@@ -667,7 +667,7 @@ int main(int argc, char *argv[] )
 
 
     string previous_state = gx_get_userdir() + string(jname) + "rc";
-    interface->recallState(previous_state.data());
+    interface->recallState(previous_state.c_str());
 //----- save the state for the latency change warning widget
     DSP.set_state();
     if (jack_activate(client))
@@ -681,7 +681,7 @@ int main(int argc, char *argv[] )
     {
       for (int i = 0; i < gNumInChans; i++)
       {
-	jack_connect(client, optvar[JACK_INP].data(), jack_port_name(input_ports[i]));
+	jack_connect(client, optvar[JACK_INP].c_str(), jack_port_name(input_ports[i]));
       }
     }
 
@@ -690,7 +690,7 @@ int main(int argc, char *argv[] )
     for (int i = 0; i < 2; i++)
     { 	
       if (!optvar[idx].empty())
-	jack_connect(client, jack_port_name(output_ports[i]), optvar[idx].data());
+	jack_connect(client, jack_port_name(output_ports[i]), optvar[idx].c_str());
       
       idx++;
     }
@@ -719,7 +719,7 @@ int main(int argc, char *argv[] )
 #endif
     DSP.get_state();
 
-    interface->saveState(previous_state.data());
+    interface->saveState(previous_state.c_str());
 //----- delete the locked mem buffers
     if (checkfreq)
         delete[] checkfreq;
