@@ -22,8 +22,12 @@ blddir = 'build'
 def set_options(opt):
     opt.tool_options('compiler_cxx')
 
-    # put here as an example
     opt.add_option('--midiringbuffer', action='store_true', default=False, help='Use MIDI ring buffer')
+    opt.add_option('--cxxflags', 
+                   type='string', 
+                   default='-O3  -march=native -Wall', 
+                   dest='cxxflags', 
+                   help='C++ compiler flags [Default: -O3  -march=native -Wall]')
 
 # a bit of waf display formatting
 def display_msg(msg, status = None, color = None):
@@ -67,12 +71,14 @@ def configure(conf):
     if conf.env['MIDI_RINGBUF'] == True:
         conf.define('USE_RINGBUFFER', 1)
 
+    # writing config.h
     conf.write_config_header('config.h')
 
     conf.define('BINDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin')))
     conf.define('LADSPADIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'lib/ladspa')))
     conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
     conf.define('BIN_NAME', APPNAME)
+    conf.define('CXXFLAGS', Options.options.cxxflags)
 
     # config subdirs
     conf.sub_config('src');
@@ -88,6 +94,7 @@ def configure(conf):
 
     print
 
+    display_msg("C++ flags", conf.env['CXXFLAGS'], 'CYAN')
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
     display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
     display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')

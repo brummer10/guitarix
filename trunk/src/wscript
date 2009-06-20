@@ -7,8 +7,8 @@ def configure(conf):
 def build(bld):
     prog = bld.new_task_gen('cxx', 'program')
     prog.includes = './headers'
+    prog.cxxflags= bld.env['CXXFLAGS']
     prog.source = 'main.cpp'
-    prog.env.append_value("CXXFLAGS", "-O3  -march=native -Wall")
     prog.uselib = ['JACK', 'SNDFILE', 'GTK2', 'BOOST']
     prog.target = bld.env['BIN_NAME']
     prog.chmod=0755
