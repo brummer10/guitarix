@@ -11,7 +11,7 @@ import re
 import Logs
 
 # used by waf dist and waf build
-VERSION='0.04.5-1'
+VERSION='0.04.6-1'
 APPNAME='guitarix'
 
 # these variables are mandatory ('/' are converted automatically)
@@ -22,12 +22,15 @@ blddir = 'build'
 def set_options(opt):
     opt.tool_options('compiler_cxx')
 
-    opt.add_option('--midiringbuffer', action='store_true', default=False, help='Use MIDI ring buffer')
     opt.add_option('--cxxflags', 
                    type='string', 
                    default='-O3  -march=native -Wall', 
                    dest='cxxflags', 
                    help='C++ compiler flags [Default: -O3  -march=native -Wall]')
+
+    opt.add_option('--ladspadir', 
+                   type='string', 
+                   help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
 
 # a bit of waf display formatting
 def display_msg(msg, status = None, color = None):
@@ -61,21 +64,21 @@ def configure(conf):
     conf.check_cxx(lib='boost_program_options-mt', uselib_store='BOOST', mandatory=1)
 
     conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'
-    conf.env['MIDI_RINGBUF'] = Options.options.midiringbuffer
 
     # defines for compilation
     conf.define('GX_STYLE_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix')))
     conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
     conf.define('GX_VERSION', VERSION)
 
-    if conf.env['MIDI_RINGBUF'] == True:
-        conf.define('USE_RINGBUFFER', 1)
-
     # writing config.h
     conf.write_config_header('config.h')
 
+    conf.define('LIBDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'lib')))
+    conf.define('LADSPADIR', os.path.normpath(os.path.join(conf.env['LIBDIR'], 'ladspa')))
+    if Options.options.ladspadir:
+        conf.env['LADSPADIR'] = Options.options.ladspadir
+
     conf.define('BINDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin')))
-    conf.define('LADSPADIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'lib/ladspa')))
     conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
     conf.define('BIN_NAME', APPNAME)
     conf.define('CXXFLAGS', Options.options.cxxflags)
