@@ -1,3 +1,21 @@
+/*
+  * Copyright (C) 2009 Hermann Meyer and James Warden
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation; either version 2 of the License, or
+  * (at your option) any later version.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+  * You should have received a copy of the GNU General Public License
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+*/
+
 /******************************************************************************
 *******************************************************************************
 
@@ -7,14 +25,20 @@
 *******************************************************************************
 *******************************************************************************/
 
+//----- jack process callback for the midi output
 virtual void compute_midi( int len)
 {
     TBeatDetector myTBeatDetector;
 
-
     float 	fConsta2 = 0;
-    int preNote = 0;
     float fTemps45 = fslider45;
+    float fTemps38 = fslider38;
+    float rms = 0;
+    float midi_db = 0;
+    float sum = 0;
+    float *audiodata = checkfreq;
+
+    int preNote = 0;
     int iTemps31 = int(fslider31);
     int iTemps30 = int(fslider30);
     int iTemps27 = int(fslider27);
@@ -31,32 +55,29 @@ virtual void compute_midi( int len)
     int iTemps42 = int(fslider42)*12;
     int iTemps40 = int(fslider40);
     int step = fslider39;
-    double stepper = 1./step;
     int iTemps37  = int(fSamplingFreq/fslider37);
     int iTemps37a  = iTemps37+20;
-    float fTemps38 = fslider38;
-    float rms = 0;
-    float midi_db = 0;
     int iTemps46 = int(fslider46);
     int iTemps47 = int(fslider47);
     int iTemps48 = int(fslider48);
     int piwe = 0;
     int cs = 0;
-    float sum = 0;
-    float *audiodata = checkfreq;
 
+    double stepper = 1./step;
+
+//----- only run it when midi out or tuner is enabled
     if ((shownote == 1) || (playmidi == 1))
     {
         for (int i=0; i<len; i+=step)
         {
-
+//----- convert the audio gain to midi gain value
             midi_db = (log(fabs(audiodata[i]))*fConstlog2);
             beat0 = 254- floor(exp(fConstlog*midi_db)*127);
             rms = beat0;
-
+//----- check gain value and run only when gain is higher then the selected value
             if (( beat0 >= fTemps45) && (cpu_load < 65.0))
             {
-
+//----- rms the gain for a smother output
                 if (cs == int(fConstun0*stepper))
                 {
                     cs = 0;
@@ -74,7 +95,7 @@ virtual void compute_midi( int len)
                 fConsta2 = fConsta1 - (preNote - 57);
                 piwe = (fConsta2+1) * 8192; // pitch wheel value
                 weg = 0;
-
+//----- start the midi output
                 if (playmidi == 1)
                 {
                     // channel0

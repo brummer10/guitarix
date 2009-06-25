@@ -1,3 +1,21 @@
+/*
+  * Copyright (C) 2009 Hermann Meyer and James Warden
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation; either version 2 of the License, or
+  * (at your option) any later version.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+  * You should have received a copy of the GNU General Public License
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+*/
+
 /******************************************************************************
 *******************************************************************************
 
@@ -38,6 +56,7 @@ public:
 class mydsp : public dsp
 {
 private:
+    // register all variables needed by dsp_audio.cpp dsp_midi.cpp and dsp_interface.cpp
     float 	fslider0;
     float 	fslider1;
     float 	fConst0;
@@ -279,6 +298,36 @@ private:
     float fupsample;
     float ffuse;
     float fthreshold;
+    //float ftubemode;
+
+    float ftube3;
+    float fresotube1;
+    float fresotube2;
+    float fresotube3;
+    //----- resonator
+	int 	IOTARESO;
+	float 	fVecRESO0[4096];
+	float 	fRecRESO0[2];
+    //----- oscillator
+	int 	iVecoscb0[2];
+	float 	fConstoscb0;
+	float 	fRecoscb0[3];
+    //--- low/highpass for tube
+	float 	fConstsp0;
+	float 	fConstsp1;
+	float 	fConstsp2;
+	float 	fConstsp3;
+	float 	fConstsp4;
+	float 	fConstsp5;
+	float 	fConstsp6;
+	float 	fConstsp7;
+	float 	fConstsp8;
+	float 	fVecsp0[2];
+	float 	fConstsp9;
+	float 	fRecsp3[2];
+	float 	fRecsp2[2];
+	float 	fRecsp1[3];
+	float 	fRecsp0[3];
 
     // float  fbargraph0;
 public:
@@ -303,6 +352,7 @@ public:
         return 2;
     }
 
+// this funktion isn't needed any more, we can savely remove it
     virtual void setNumOutputs()
     {
         sleep(1);
@@ -325,6 +375,7 @@ public:
 
     virtual void instanceInit(int samplingFreq)
     {
+        // initialisise all variables for dsp_audio dsp_midi and dsp_interface
         fSamplingFreq = samplingFreq;
         // compressor
         fentrycom0 = -20.000000f;
@@ -535,6 +586,35 @@ public:
         fupsample = 0;
         ffuse = 0;
         fthreshold = 1;
+        //ftubemode = 0;
+        ftube3 = 0;
+        fresotube1 = 0.12f;
+        fresotube2 = 0.5f;
+        fresotube3 = 0;
+        //----- resonator
+		IOTARESO = 0;
+		for (int i=0; i<4096; i++) fVecRESO0[i] = 0;
+		for (int i=0; i<2; i++) fRecRESO0[i] = 0;
+		//----- oscillator
+		for (int i=0; i<2; i++) iVecoscb0[i] = 0;
+		fConstoscb0 = (0 - (2 * cosf((75398.226562f / fSamplingFreq))));
+		for (int i=0; i<3; i++) fRecoscb0[i] = 0;
+		//----- low/highpass for tube
+        fConstsp0 = tanf((15707.963867f / fSamplingFreq));
+		fConstsp1 = (2 * (1 - (1.0f / (fConstsp0 * fConstsp0))));
+		fConstsp2 = (1.0f / fConstsp0);
+		fConstsp3 = (1 + ((fConstsp2 - 0.765367f) / fConstsp0));
+		fConstsp4 = (1.0f / (1 + ((0.765367f + fConstsp2) / fConstsp0)));
+		fConstsp5 = (1 + ((fConstsp2 - 1.847759f) / fConstsp0));
+		fConstsp6 = (1.0f / (1 + ((1.847759f + fConstsp2) / fConstsp0)));
+		fConstsp7 = (408.407043f / fSamplingFreq);
+		fConstsp8 = (1 - fConstsp7);
+		for (int i=0; i<2; i++) fVecsp0[i] = 0;
+		fConstsp9 = (1.0f / (1 + fConstsp7));
+		for (int i=0; i<2; i++) fRecsp3[i] = 0;
+		for (int i=0; i<2; i++) fRecsp2[i] = 0;
+		for (int i=0; i<3; i++) fRecsp1[i] = 0;
+		for (int i=0; i<3; i++) fRecsp0[i] = 0;
 
     }
 
@@ -544,6 +624,8 @@ public:
         instanceInit(samplingFreq);
     }
 
+   // wrap the state off the latency cange warning (dis/enable) to the interface settings
+   // to load and save it
     virtual void set_state()
     {
         fwarn_swap = fwarn;
@@ -552,7 +634,10 @@ public:
     {
         fwarn = fwarn_swap;
     }
+// this files are part off the dsp class, I have split it for a better overview
 #include"dsp_interface.cpp"
+// I can`t realy remove the midi_ringbuffer part, we dont need it, maybe later
+// when we add a sequencer part the ringbuffer may be usefull.
 #ifdef USE_RINGBUFFER
 #include"dsp_midi.cpp"
 #else

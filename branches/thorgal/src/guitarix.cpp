@@ -1,3 +1,21 @@
+/*
+  * Copyright (C) 2009 Hermann Meyer and James Warden
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation; either version 2 of the License, or
+  * (at your option) any later version.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+  * You should have received a copy of the GNU General Public License
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+*/
+
 /******************************************************************************
 *******************************************************************************
 
@@ -76,6 +94,19 @@ jack_nframes_t  jackframes;
 
 #define ASCII_START (48)
 
+//---- skin defines
+#define GX_NO_SKIN    (0)
+#define GX_BLACK_SKIN (1)
+#define GX_PIX_SKIN   (2)
+
+#define GX_NUM_OF_SKINS (3)
+
+const char* skins[] = {
+  "",
+  "black",
+  "pix"
+};
+
 //---- system related defines and function proto
 #define SYSTEM_OK (0)
 
@@ -96,10 +127,12 @@ static FILE* gx_popen(const char*, const char*, const int);
 static int   gx_pclose(FILE*, const int);
 static void  gx_message_popup(const char*);
 static bool  gx_capture_command(const int, string&);
-static int   gx_system(const char*, 
-		       const char*, 
-		       const bool devnull = true, 
+static int   gx_system(const char*,
+		       const char*,
+		       const bool devnull = true,
 		       const bool escape  = false);
+static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
+void jack_shutdown(void *arg);
 
 // ---- user directory
 string gx_get_userdir()
@@ -107,34 +140,56 @@ string gx_get_userdir()
   return string(getenv ("HOME")) + string("/") + string(guitarix_dir) + "/";
 }
 
+// ---- terminal warning message
+void gx_print_warning(const char* func, const string& msg)
+{
+  cerr << "<*** " << func << ": WARNING - "
+       << "\033[1;32m" << msg.c_str() << "\033[0m"
+       << " ***>" << endl;
+}
+
+// ---- terminal error message
+void gx_print_error(const char* func, const string& msg)
+{
+  cerr << "<*** " << func << ": ERROR - "
+       << "\033[1;31m" << msg.c_str() << "\033[0m"
+       << " ***>" << endl;
+}
+
 // ---- check version and if directory exists and create it if it not exist
 bool gx_version_check(const char* Path)
 {
     struct stat my_stat;
     string fullgxdir = gx_get_userdir();
+//----- this check dont need to be against real version, we only need to know
+//----- if the presethandling is working with the courent version, we only count this
+//----- string when we must remove the old preset files.
     string rcfilename = 
-      fullgxdir + string("guitarix-") + string(GX_VERSION) + string(".rc");
+      fullgxdir + string("version-") + string("0.03.3") ;
 
     if  (stat(Path, &my_stat) == 0) // directory exists
     {
         // check which version we're dealing with
-        if  (stat(rcfilename.data(), &my_stat) != 0) 
+        if  (stat(rcfilename.c_str(), &my_stat) != 0) 
 	{
             // current version not there, let's create it and refresh the whole shebang
 	    string oldfiles = fullgxdir + string("guitarix*rc");
-	    (void)gx_system ("rm -f", oldfiles.data(), false);
+	    (void)gx_system ("rm -f", oldfiles.c_str(), false);
+
+	    oldfiles = fullgxdir + string("version*");
+	    (void)gx_system ("rm -f", oldfiles.c_str(), false);
 
 	    oldfiles = fullgxdir + string("*.conf");
-	    (void)gx_system ("rm -f", oldfiles.data(), false);
+	    (void)gx_system ("rm -f", oldfiles.c_str(), false);
 
 	    // setting file for current version
-            ofstream f(rcfilename.data());
+            ofstream f(rcfilename.c_str());
             string cim = string("guitarix-") + GX_VERSION;
             f << cim <<endl;
             f.close();
 
             string resetfile = fullgxdir + "resettings";
-            ofstream fa(resetfile.data());
+            ofstream fa(resetfile.c_str());
             fa <<  default_setting <<endl;
             fa.close();
         }
@@ -142,10 +197,10 @@ bool gx_version_check(const char* Path)
     else // directory does not exist
     {
 	// create .guitarix directory
-        (void)gx_system("mkdir -p", fullgxdir.data(), false);
+        (void)gx_system("mkdir -p", fullgxdir.c_str(), false);
 
 	// setting file for current version
-	ofstream f(rcfilename.data());
+	ofstream f(rcfilename.c_str());
 	string cim = string("guitarix-") + GX_VERSION;
 	f << cim <<endl;
 	f.close();
@@ -153,32 +208,34 @@ bool gx_version_check(const char* Path)
 	// --- create jack_capture setting file
 	string tmpstr = fullgxdir + jcapsetup_file;
 
-        (void)gx_system("touch", tmpstr.data(), false);
+        (void)gx_system("touch", tmpstr.c_str(), false);
 	(void)gx_system(
 	   "echo 'jack_capture -c 2 --silent --disable-meter --port guitarix:out* ' >",
-	   tmpstr.data(),
+	   tmpstr.c_str(),
 	   false
 	);
 
-	// --- version file 
-	tmpstr = fullgxdir + string("version") + GX_VERSION;
-        (void)gx_system("touch", tmpstr.data(), false);
+	// --- version file
+       //same here, we only change this file, when the presethandling is brocken,
+       // otherwise we can let it untouched
+	tmpstr = fullgxdir + string("version-") + string("0.03.3");
+        (void)gx_system("touch", tmpstr.c_str(), false);
 
 	cim = string("echo 'guitarix-") + string(GX_VERSION) + "' >";
-	(void)gx_system(cim.data(), tmpstr.data(), false);
+	(void)gx_system(cim.c_str(), tmpstr.c_str(), false);
 
 	// --- guitarix own default settings
 	tmpstr = fullgxdir + guitarix_reset;
-        (void)gx_system("touch", tmpstr.data(), false);
-	
+        (void)gx_system("touch", tmpstr.c_str(), false);
+
 	cim = "echo -e '" + string(default_setting) + "' >";
-	(void)gx_system(cim.data(), tmpstr.data(), false);
+	(void)gx_system(cim.c_str(), tmpstr.c_str(), false);
     }
 
     return TRUE;
 }
 
-// ---- check pixmaps
+//----- we must make sure that the images for the status icon be there
 int gx_pixmap_check()
 {
     int ep = 1;
@@ -189,24 +246,26 @@ int gx_pixmap_check()
     string midi_pix = pixmap_dir + "guitarix-midi.png";
     string warn_pix = pixmap_dir + "guitarix-warn.png";
 
-    if ((stat(gx_pix.data(), &my_stat) != 0)   || 
-	(stat(midi_pix.data(), &my_stat) != 0) ||	
-	(stat(warn_pix.data(), &my_stat) != 0))
+    if ((stat(gx_pix.c_str(), &my_stat) != 0)   || 
+	(stat(midi_pix.c_str(), &my_stat) != 0) ||	
+	(stat(warn_pix.c_str(), &my_stat) != 0))
 	
     {
-      cerr << "<*** gx_pixmap_check: "
-	   << " cannot find installed pixmaps! giving up ..."
-	   << "***>" << endl;
+      gx_print_error(
+	 "gx_pixmap_check",
+	 string(" cannot find installed pixmaps! giving up ...")
+      );
 
       // maybe a bit too severe to give up ??
+      jack_shutdown(NULL);
       exit(1);
     }
 
-    GtkWidget *ibf =  gtk_image_new_from_file (gx_pix.data());
+    GtkWidget *ibf =  gtk_image_new_from_file (gx_pix.c_str());
     ib = gtk_image_get_pixbuf (GTK_IMAGE(ibf));
-    GtkWidget *stim = gtk_image_new_from_file (midi_pix.data());
+    GtkWidget *stim = gtk_image_new_from_file (midi_pix.c_str());
     ibm = gtk_image_get_pixbuf (GTK_IMAGE(stim));
-    GtkWidget *stir = gtk_image_new_from_file (warn_pix.data());
+    GtkWidget *stir = gtk_image_new_from_file (warn_pix.c_str());
     ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
     ep = 0;
 
@@ -217,7 +276,7 @@ int gx_pixmap_check()
 void gx_IntToString(int i, string & s)
 {
   s = "";
- 
+
   int abs_i = abs(i);
   do {
     // note: using base 10 since 10 digits (0123456789)
@@ -231,7 +290,7 @@ void gx_IntToString(int i, string & s)
 bool gx_capture(const char* capturas)
 {
   jcap_stream = gx_popen(capturas, "w", JACKCAP_IDX);
-  return (jcap_stream != NULL); 
+  return (jcap_stream != NULL);
 }
 
 bool		GTKUI::fInitialized = false;
@@ -258,12 +317,12 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
   int meterbridge_ok = gx_system("which", app_name);
 
   // if triggered by GUI
-  if (gtk_check_menu_item_get_active(menuitem) == TRUE) 
+  if (gtk_check_menu_item_get_active(menuitem) == TRUE)
   {
     if (meterbridge_ok == SYSTEM_OK) // all is cool and dandy
-    { 
+    {
       (void)gx_system(
-         app_name, 
+         app_name,
 	 "-n meterbridge_guitarix_in_out -t sco guitarix:in_0  guitarix:out_0",
 	 true, true
       );
@@ -273,7 +332,7 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
       // let's pgrep it: if 0, pgrep got a match
       meterbridge_ok = gx_system("pgrep", app_name);
     }
-    
+
     if (meterbridge_ok != SYSTEM_OK) // no meterbridge installed or running
     {
       // reset meterbridge GUI button state to inactive
@@ -281,7 +340,7 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
 
       gx_message_popup(
          "  "
-	 "WARNING [meterbridge]\n  "		       
+	 "WARNING [meterbridge]\n  "
          "meterbridge is either not installed or it could not be launched"
       );
     }
@@ -340,10 +399,10 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
     // here, const applies to pointer, not pointed data ;)
     GtkToggleButton* const cap_button = (GtkToggleButton*)widget;
 
-    // avoid running it at startup 
+    // avoid running it at startup
     // (ugly hack due to GTK+ signalling side effect)
     static bool cap_init = false;
-    if (!cap_init) 
+    if (!cap_init)
     {
       gtk_toggle_button_set_active(cap_button, FALSE);
       cap_init = true;
@@ -357,12 +416,12 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
     if (tggl_state == FALSE) // nope
     {
       // get jack_cap pid spawned by guitarix
-      const pid_t cap_pid = child_pid[JACKCAP_IDX]; 
-      
+      const pid_t cap_pid = child_pid[JACKCAP_IDX];
+
       if (cap_pid != NO_PID) // running
       {
 	if (kill(cap_pid, SIGINT) == -1)
-	  gx_message_popup(" Sorry, could not stop (Ctrl-C) jack_capture"); 
+	  gx_message_popup(" Sorry, could not stop (Ctrl-C) jack_capture");
 
 	(void)gx_pclose(jcap_stream, JACKCAP_IDX);
 	jcap_stream = NULL;
@@ -387,7 +446,7 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
 
     if (jack_cap_ok != SYSTEM_OK) // no jack_capture in PATH! :(
     {
-      warning.append(	
+      warning.append(
 	"You need jack_capture <= 0.9.30 "
 	"by Kjetil S. Matheussen  \n  "
 	"please look here\n  "
@@ -401,10 +460,10 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
 
       if (gx_capture_command(capas, capturas))
       {
-	if (!gx_capture(capturas.data()))
-	  warning.append("Sorry, could not start jack_capture"); 
+	if (!gx_capture(capturas.c_str()))
+	  warning.append("Sorry, could not start jack_capture");
       }
-      else 
+      else
       {
 	warning.append("Could not open wav capture file");
       }
@@ -412,14 +471,14 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
 
     // are we running ?
     if (child_pid[JACKCAP_IDX] != NO_PID)
-    {  
+    {
       capas++;
       return;
     }
 
     // nope :(
     gtk_toggle_button_set_active(cap_button, FALSE);
-    gx_message_popup(warning.data());
+    gx_message_popup(warning.c_str());
 }
 
 //----menu funktion load
@@ -438,13 +497,13 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
     string jc_preset    = gx_get_userdir() + string("jconv_") + string(text) + ".conf ";
     string jc_file      = gx_get_userdir() + string("jconv_set.conf");
     string file_copy    = jc_preset + jc_file;
-    (void)gx_system("cp -f", file_copy.data());
+    (void)gx_system("cp -f", file_copy.c_str());
 
     int lin;
     int zeile=0;
     int l=0;
 
-    ifstream f(rcfilenamere.data());
+    ifstream f(rcfilenamere.c_str());
     if (f.good())
     {
         string buffer;
@@ -461,9 +520,9 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
     f.close();
     lin = zeile;
     myJCONV_SETTINGS.get_jconfset ();
-    interface->recallpreStatebyname(rcfilenamere.data(), tmpfilename.data(), text);
+    interface->recallpreStatebyname(rcfilenamere.c_str(), tmpfilename.c_str(), text);
     string ttle = string("guitarix ") + text;
-    gtk_window_set_title (GTK_WINDOW (fWindow), (gchar*)ttle.data());
+    gtk_window_set_title (GTK_WINDOW (fWindow), (gchar*)ttle.c_str());
 }
 
 //---- funktion save
@@ -472,7 +531,7 @@ void gx_save_preset (const gchar* presname)
     string rcfilenamere = gx_get_userdir() + "guitarixprerc";
     string tmpfilename  = gx_get_userdir() + "guitarixtmprc";
 
-    interface->savepreStatebyname(rcfilenamere.data(), tmpfilename.data(), presname);
+    interface->savepreStatebyname(rcfilenamere.c_str(), tmpfilename.c_str(), presname);
     if (cm == 0)
     {
         GtkWidget* menuitem = gtk_menu_item_new_with_label (presname);
@@ -481,12 +540,12 @@ void gx_save_preset (const gchar* presname)
         gtk_widget_show (menuitem);
     }
     string ttle = string("guitarix ") + presname;
-    gtk_window_set_title (GTK_WINDOW (fWindow), (gchar*)ttle.data());
+    gtk_window_set_title (GTK_WINDOW (fWindow), (gchar*)ttle.c_str());
 
     string jc_file      = gx_get_userdir() + string("jconv_set.conf ");
     string jc_preset    = gx_get_userdir() + string("jconv_") + string(presname) + ".conf";
     string file_copy    = jc_file + jc_preset; 
-    (void)gx_system("cp", file_copy.data());
+    (void)gx_system("cp", file_copy.c_str());
 }
 
 //----menu funktion save
@@ -585,6 +644,7 @@ void wv( GtkWidget *widget, gpointer data )
     myGtkWaveView.gtk_waveview_set_value(widget, data);
 }
 
+//----- read the result from the latency change warning widget
 int gx_dont_doit()
 {
     doit =1;
@@ -596,6 +656,7 @@ int gx_doit()
     return 2;
 }
 
+//----- change the jack buffersize on the fly is still experimental, give a warning
 void gx_wait_warn(const char* label)
 {
     warn_dialog = gtk_dialog_new();
@@ -647,9 +708,6 @@ void gx_wait_warn(const char* label)
     gtk_widget_destroy (warn_dialog);
 }
 
-/******************************************************************************
-    This code is mostly contributed by 	James Warden <warjamy@yahoo.com>
-******************************************************************************/
 
 //----menu function latency
 void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
@@ -661,13 +719,14 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
     // are we a proper jack client ?
     if (!client)
     {
-        cerr << "<*** guitarix.cpp: gx_set_jack_buffer_size()"
-        << " we are not a jack client, server may be down ***>"
-        << endl;
-        return;
+      gx_print_error(
+        "gx_set_jack_buffer_size",
+        string("we are not a jack client, server may be down")
+      );
+	
+      return;
     }
 
-    //int fragi = jack_get_buffer_size (client);
 
     // if the buffer size is the same, no need to trigger it
     jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
@@ -695,8 +754,7 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
         // let's resize the buffer
         if ( jack_set_buffer_size (client, buf_size) != 0)
             gtk_check_menu_item_set_inconsistent(menuitem,TRUE);
-            //jack_set_buffer_size (client, fragi);
-        // let's resize the buffer
+
         if (jcio == 1)
         {
             jcio = 0;
@@ -710,9 +768,7 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
 
 }
 
-/******************************************************************************
-    Many thanks	James aka thorgal
-******************************************************************************/
+
 
 //--------------------------- jack_capture settings ----------------------------------------
 static void gx_show_j_c_gui( GtkWidget *widget, gpointer data )
@@ -741,10 +797,11 @@ static gint gx_delete_event( GtkWidget *widget, GdkEvent *event, gpointer data )
     return 0;
 }
 
+//----- clean up when shut down
 static void gx_destroy_event( GtkWidget *widget, gpointer data )
 {
     (void)gx_delete_event(widget, NULL, data);
-  
+
     shownote = 2;
     stopit = "stop";
     showwave = 0;
@@ -781,7 +838,7 @@ static void gx_reset_units( GtkWidget *widget, gpointer data )
     else if (strcmp(witchres, "compressor") == 0) interface->recalladState(filename,  72,  78, 5);
 }
 
-// show extendend settings slider
+//----- show extendend settings slider
 void gx_show_extendet_settings(GtkWidget *widget, gpointer data)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget)) == TRUE)
@@ -795,6 +852,7 @@ void gx_show_extendet_settings(GtkWidget *widget, gpointer data)
     else gtk_widget_hide(GTK_WIDGET(data));
 }
 
+//----- hide the extendend settings slider
 static void gx_hide_extendet_settings( GtkWidget *widget, gpointer data )
 {
     if (showit == 0)
@@ -809,6 +867,7 @@ static void gx_hide_extendet_settings( GtkWidget *widget, gpointer data )
     }
 }
 
+//----- systray menu
 static void gx_sytray_menu( GtkWidget *widget, gpointer data )
 {
     guint32 tim = gtk_get_current_event_time ();
@@ -816,8 +875,8 @@ static void gx_sytray_menu( GtkWidget *widget, gpointer data )
 }
 
 //---- popen revisited for guitarix
-static FILE* gx_popen(const char *cmdstring, 
-		      const char *type, 
+static FILE* gx_popen(const char *cmdstring,
+		      const char *type,
 		      const int proc_idx)
 {
   int   i, pfd[2];
@@ -836,22 +895,22 @@ static FILE* gx_popen(const char *cmdstring,
   if ((pid = fork()) < 0)
     return(NULL);	/* errno set by fork() */
 
-  else if (pid == 0) 
-  {							
-    if (*type == 'r') 
+  else if (pid == 0)
+  {
+    if (*type == 'r')
     {
       close(pfd[0]);
-      if (pfd[1] != STDOUT_FILENO) 
+      if (pfd[1] != STDOUT_FILENO)
       {
 	dup2(pfd[1], STDOUT_FILENO);
 	close(pfd[1]);
       }
-    } 
-    else 
+    }
+    else
     {
       close(pfd[1]);
 
-      if (pfd[0] != STDIN_FILENO) 
+      if (pfd[0] != STDIN_FILENO)
       {
 	dup2(pfd[0], STDIN_FILENO);
 	close(pfd[0]);
@@ -868,15 +927,15 @@ static FILE* gx_popen(const char *cmdstring,
   }
 
   /* parent */
-  if (*type == 'r') 
+  if (*type == 'r')
   {
     close(pfd[1]);
 
     if ((fp = fdopen(pfd[0], type)) == NULL)
       return(NULL);
 
-  } 
-  else 
+  }
+  else
   {
     close(pfd[0]);
 
@@ -893,11 +952,11 @@ static int gx_pclose(FILE *fp, const int proc_idx)
 {
   int stat;
   pid_t	pid;
-  
+
   if ((pid = child_pid[proc_idx]) == 0)
     return(-1);	/* fp wasn't opened by gx_popen() */
-  
-  // reset internal process pid 
+
+  // reset internal process pid
   child_pid[proc_idx] = NO_PID;
 
   // check control stream
@@ -907,17 +966,17 @@ static int gx_pclose(FILE *fp, const int proc_idx)
   // close it
   if (fclose(fp) == EOF)
     return(-1);
-  
+
   while (waitpid(pid, &stat, 0) < 0)
     if (errno != EINTR)
       return(-1); /* error other than EINTR from waitpid() */
-  
+
   return(stat);	/* return child's termination status */
 }
 
 //---- guitarix system function
-static int gx_system(const char* name1, 
-	      const char* name2, 
+static int gx_system(const char* name1,
+	      const char* name2,
 	      const bool  devnull,
 	      const bool  escape)
 {
@@ -926,14 +985,14 @@ static int gx_system(const char* name1,
   str.append(name2);
 
   if (devnull)
-    str.append(" >& /dev/null");
+    str.append(" 1>/dev/null 2>&1");
 
   if (escape)
     str.append("&");
 
-  //  cerr << " ********* \n system command = " << str.data() << endl;
+  //  cerr << " ********* \n system command = " << str.c_str() << endl;
 
-  return system(str.data());
+  return system(str.c_str());
 }
 
 //---- popup warning
@@ -942,10 +1001,8 @@ static void gx_message_popup(const char* msg)
   // check msg validity
   if (!msg)
   {
-    cerr << "<*** gx_message_popup: "
-	 << "warning message does not exist"
-	 << " ***>"
-	 << endl;
+    gx_print_warning("gx_message_popup", 
+		     string("warning message does not exist"));
     return;
   }
 
@@ -956,9 +1013,9 @@ static void gx_message_popup(const char* msg)
 
   about = gtk_dialog_new();
   ok_button  = gtk_button_new_with_label("OK");
-  
+
   label = gtk_label_new (msg);
-  
+
   GtkStyle *style = gtk_widget_get_style(label);
 
   pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
@@ -970,8 +1027,8 @@ static void gx_message_popup(const char* msg)
 
   gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), label);
   gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), ok_button);
-  
-  g_signal_connect_swapped (ok_button, "clicked",  
+
+  g_signal_connect_swapped (ok_button, "clicked",
 			    G_CALLBACK (gtk_widget_destroy), about);
   gtk_widget_show (ok_button);
   gtk_widget_show (label);
@@ -982,25 +1039,13 @@ static void gx_message_popup(const char* msg)
 static bool gx_capture_command(const int idx, string& capcmd)
 {
   bool ret_status = false;
-  string home = getenv ("HOME");
-
-  // should never happen on unix-like systems
-  if (home.empty()) 
-  {  
-    home += "/home/";
-    home += getenv("USER");
-  }
 
   // jack_capture setup file
-  string gfilename(home);
-  gfilename += "/";
-  gfilename += guitarix_dir;
-  gfilename += "/";
-  gfilename += jcapsetup_file;
-  
+  string gfilename = gx_get_userdir() + jcapsetup_file;
+
   // open jack_capture setup file
-  ifstream f(gfilename.data());
-  
+  ifstream f(gfilename.c_str());
+
   if (f.good())
   {
     // jack_capture command
@@ -1009,7 +1054,7 @@ static bool gx_capture_command(const int idx, string& capcmd)
     // by putting the / delimiter in getline
     // it is backward compatible with older ja_ca_ssetrc files
 
-    getline(f, capcmd, '/'); 
+    getline(f, capcmd, '/');
     f.close();
 
     // remove trailing \n if any
@@ -1030,7 +1075,7 @@ static bool gx_capture_command(const int idx, string& capcmd)
   gx_IntToString(idx, idx_str);
 
   capcmd += " ";
-  capcmd += home;
+  capcmd += getenv("HOME");
   capcmd += "/";
   capcmd += jcapfile_wavbase;
   capcmd += idx_str;
@@ -1039,3 +1084,22 @@ static bool gx_capture_command(const int idx, string& capcmd)
   return true;
 }
 
+// ----- skin change
+static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg)
+{
+  // let's avoid triggering the jack server on "inactive"
+  if (gtk_check_menu_item_get_active(menuitem) == false)
+      return;
+  
+  const int idx = (int)GPOINTER_TO_INT(arg);
+  string rcfile = GX_STYLE_DIR + string("/") + "guitarix";
+
+  if (idx != 0)
+    rcfile += string("_");
+      
+  rcfile += skins[idx];
+  rcfile += ".rc";
+
+  gtk_rc_parse(rcfile.c_str());
+  gtk_rc_reset_styles(gtk_settings_get_default());
+}

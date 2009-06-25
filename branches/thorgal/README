@@ -22,7 +22,7 @@ channels.
 
 ======================= Build procedure
 
----- bui,d environment
+---- build environment
 
 As of version 0.04.5-1, guitarix uses 'waf' for the build environment.
 The simplest and fastest way to build guitarix is given below:

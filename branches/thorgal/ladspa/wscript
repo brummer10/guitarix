@@ -15,7 +15,7 @@ def create_ladspa_plugin(bld, source, target, defstr, uselib = None):
     ladspa_plugin.name     = target
     ladspa_plugin.target   = defstr
     ladspa_plugin.source   = source
-    ladspa_plugin.env.append_value("CXXFLAGS", "-fPIC -shared -O3  -march=native -Wall")
+    ladspa_plugin.env.append_value("CXXFLAGS", "-fPIC -shared")
     ladspa_plugin.install_path = '${LADSPADIR}'
     ladspa_plugin.chmod = 0755
     return ladspa_plugin
@@ -55,8 +55,7 @@ def build(bld):
         'guitarix'            
         ] 
 
-    n = len(sources)
-    for i in range(0, n):
+    for i in range(0, len(sources)):
         create_ladspa_plugin(bld, sources[i], targets[i], defines[i]) 
 
     bld.install_files('${SHAREDIR}/ladspa/rdf', 'guitarix.rdf')

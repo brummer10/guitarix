@@ -1,3 +1,21 @@
+/*
+  * Copyright (C) 2009 Hermann Meyer and James Warden
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation; either version 2 of the License, or
+  * (at your option) any later version.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+  * You should have received a copy of the GNU General Public License
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+*/
+
 //-----------------------------------------------------
 // name : "guitarix"
 // version : "0.03.3"
@@ -82,13 +100,6 @@ inline void *aligned_calloc(size_t nmemb, size_t size)
 
 #define max(x,y) (((x)>(y)) ? (x) : (y))
 #define min(x,y) (((x)<(y)) ? (x) : (y))
-
-// ------------------define the parameter reading,  -----------------------------------
-#define OPTARGS_CHECK_GET(wrong,right) lokke==argc-1?(fprintf(stderr,"Must supply argument for '%s'\n",argv[lokke]),exit(-2),wrong):right
-#define OPTARGS_BEGIN(das_usage) {int lokke;const char *usage=das_usage;for(lokke=1;lokke<argc;lokke++){char *a=argv[lokke];if(!strcmp("--help",a)||!strcmp("-h",a)){fprintf(stderr,usage);return 0;
-#define OPTARG(name,name2) }}else if(!strcmp(name,a)||!strcmp(name2,a)){{
-#define OPTARG_GETSTRING() OPTARGS_CHECK_GET("",argv[++lokke])
-#define OPTARGS_END }else{fprintf(stderr,usage);return(-1);}}}
 
 inline int		lsr (int x, int n)
 {
@@ -203,12 +214,16 @@ int srate(jack_nframes_t nframes, void *arg)
 
 void jack_shutdown(void *arg)
 {
-    fprintf(stderr, "jack has bumped us out , exiting ...\n");
-    jack_client_close(client);
+    gx_print_warning("jack_shutdown", 
+		     string("jack has bumped us out , exiting ..."));
+
+    if (client)
+      jack_client_close(client);
 #ifdef USE_RINGBUFFER
     jack_ringbuffer_free(jack_ringbuffer);
 #endif
-    gx_destroy_event( GTK_WIDGET(fWindow), NULL);
+    if (fWindow)
+      gx_destroy_event( GTK_WIDGET(fWindow), NULL);
     if (checkfreq)
         delete[] checkfreq;
     if (get_frame)
@@ -231,7 +246,10 @@ void signal_handler(int sig)
         delete[] get_frame;
     if (oversample)
         delete[] oversample;
-    fprintf(stderr, "signal %i received, exiting ...\n",sig);
+
+    string sigstr; gx_IntToString(sig, sigstr);
+    string msg = string("signal ") + sigstr + " received, exiting ...";
+    gx_print_warning("signal_handler", msg);
     exit(0);
 }
 
@@ -497,16 +515,16 @@ int main(int argc, char *argv[] )
       {
         // check contradiction (clear and rcset cannot be used in the same call)
         if (vm.count("clear"))
-    	throw invalid_argument(string("<*** main: -c and -r cannot be used together ***>"));
+    	throw invalid_argument(string("-c and -r cannot be used together"));
     
         // retrieve user value
         string tmp = vm["rcset"].as<string>();
     
         // if garbage, let's initialize to guitarix.rc
         if (tmp != "black" && tmp != "pix")
-        {
-	  cerr << "<*** main: rcset value is garbage, defaulting to no style " 
-	       << endl;
+	{
+	  gx_print_error("main",
+			 string("rcset value is garbage, defaulting to no style"));
 	  tmp = "";
         }
         optvar[RC_STYLE] = tmp;
@@ -526,7 +544,7 @@ int main(int argc, char *argv[] )
       {
         // check contradiction (clear and rcset cannot be used in the same call)
         if (vm.count("rcset"))
-	  throw invalid_argument(string("<*** main: -c and -r cannot be used together ***>"));
+	  throw invalid_argument(string("-c and -r cannot be used together"));
 
         optvar[RC_STYLE] = "";
       }
@@ -552,12 +570,11 @@ int main(int argc, char *argv[] )
 	  optvar[idx++] = s[i];
 
 	if (s.size() > 2)
-	  cerr << "\033[1;32m<*** main: "
-	       << "Warning --> provided more than 2 output ports, " 
-	       << "ignoring extra ports"
-	       << " ***>\033[0m"
-	       << endl;
-
+	  gx_print_warning(
+             "main",
+	     string("Warning --> provided more than 2 output ports, " 
+		    "ignoring extra ports")
+	  ); 
       }
       else 
       {  
@@ -569,9 +586,9 @@ int main(int argc, char *argv[] )
     // ---- catch exceptions that occured during user option parsing
     catch(exception& e) 
     {
-      cerr << "\033[1;31m<*** main: Error in user options! " 
-	   << e.what() << " ***>\033[0m"
-	   << endl;
+      string msg = string("Error in user options! ") + e.what();
+      gx_print_error("main", msg);
+      return 1;
     }
 
     // cerr << "<*** main: rcset        : " <<  optvar[RC_STYLE]  << endl;
@@ -581,7 +598,7 @@ int main(int argc, char *argv[] )
     
     // ----------------------------------------------------------------------
     string str = GX_STYLE_DIR + string("/") + string("guitarix") + optvar[RC_STYLE] + ".rc";
-    rcpath =  str.data();
+    rcpath =  str.c_str();
 
     char           buf [256];
     jack_status_t  jackstat;
@@ -597,8 +614,9 @@ int main(int argc, char *argv[] )
     client = jack_client_open (jname, JackNoStartServer, &jackstat);
     if (client == 0)
     {
-        fprintf (stderr, "Can't connect to JACK, is the server running ?\n");
-        exit (1);
+      gx_print_error("main", 
+		     string("Can't connect to JACK, is the server running ?"));
+      exit (1);
     }
     if (jackstat & JackNameNotUnique)
     {
@@ -616,6 +634,7 @@ int main(int argc, char *argv[] )
     jack_ringbuffer_reset(jack_ringbuffer);
     jack_ringbuffer_mlock(jack_ringbuffer);
 #endif
+//----- set the jack callbacks
     jack_set_process_callback(client, process, 0);
     jack_set_port_registration_callback (client, port_callback, NULL);
     jack_set_graph_order_callback (client, graph_callback, NULL);
@@ -623,50 +642,57 @@ int main(int argc, char *argv[] )
     jack_set_sample_rate_callback(client, srate, 0);
     jack_on_shutdown(client, jack_shutdown, 0);
     jack_set_buffer_size_callback (client, buffersize_callback, 0);
+//----- check how many in/output ports we use
     gNumInChans = DSP.getNumInputs();
     gNumOutChans = DSP.getNumOutputs();
     jackframes = jack_get_sample_rate (client);
-    jackframe = jackframes;
+    jackframe = jackframes; // convert jack_sample_rate to int
     printf("the sample rate is now %u/sec\n", jackframes);
-    frag = jack_get_buffer_size (client);
+    frag = jack_get_buffer_size (client); // jack frame rate
     printf("the buffer size is now %u/frames\n", frag);
+//----- lock the buffer for the oscilloscope
     get_frame = new float[frag];
     for (int i=0; i<(frag); i++) get_frame[i] = 0;
+//----- lock the buffer for the tuner/midi out
     checkfreq = new float[frag];
     for (int i=0; i<(frag); i++) checkfreq[i] = 0;
+//----- lock the buffer for oversample
     oversample = new float[frag*2];
     for (int i=0; i<(frag*2); i++) oversample[i] = 0;
-
+//----- connect the signal handler for propper shutdown when a error appears
     signal(SIGQUIT, signal_handler);
     signal(SIGTERM, signal_handler);
     signal(SIGHUP, signal_handler);
     signal(SIGINT, signal_handler);
     signal(SIGSEGV, signal_handler);
-
+//----- register the input channel
     for (int i = 0; i < gNumInChans; i++)
     {
         snprintf(buf, 256, "in_%d", i);
         input_ports[i] = jack_port_register(client, buf, JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
     }
+//----- register the midi output channel
     midi_output_ports = jack_port_register(client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+//----- register the audio output channels
     for (int i = 0; i < gNumOutChans; i++)
     {
         snprintf(buf, 256, "out_%d", i);
         output_ports[i] = jack_port_register(client, buf,JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
     }
 
-
+//----- build the GUI interface virtual
     interface = new GTKUI (jname, &argc, &argv);
     DSP.init(jackframes);
     DSP.buildUserInterface(interface);
 
 
     string previous_state = gx_get_userdir() + string(jname) + "rc";
-    interface->recallState(previous_state.data());
+    interface->recallState(previous_state.c_str());
+//----- save the state for the latency change warning widget
     DSP.set_state();
     if (jack_activate(client))
     {
-        fprintf(stderr, "Can't activate JACK client\n");
+        gx_print_error("main", string("Can't activate JACK client"));
         return 1;
     }
 
@@ -675,7 +701,7 @@ int main(int argc, char *argv[] )
     {
       for (int i = 0; i < gNumInChans; i++)
       {
-	jack_connect(client, optvar[JACK_INP].data(), jack_port_name(input_ports[i]));
+	jack_connect(client, optvar[JACK_INP].c_str(), jack_port_name(input_ports[i]));
       }
     }
 
@@ -684,7 +710,7 @@ int main(int argc, char *argv[] )
     for (int i = 0; i < 2; i++)
     { 	
       if (!optvar[idx].empty())
-	jack_connect(client, jack_port_name(output_ports[i]), optvar[idx].data());
+	jack_connect(client, jack_port_name(output_ports[i]), optvar[idx].c_str());
       
       idx++;
     }
@@ -713,8 +739,8 @@ int main(int argc, char *argv[] )
 #endif
     DSP.get_state();
 
-    interface->saveState(previous_state.data());
-
+    interface->saveState(previous_state.c_str());
+//----- delete the locked mem buffers
     if (checkfreq)
         delete[] checkfreq;
     if (get_frame)

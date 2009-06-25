@@ -1,3 +1,21 @@
+/*
+  * Copyright (C) 2009 Hermann Meyer and James Warden
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation; either version 2 of the License, or
+  * (at your option) any later version.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+  * You should have received a copy of the GNU General Public License
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+*/
+
 /******************************************************************************
 *******************************************************************************
 
@@ -7,12 +25,26 @@
 *******************************************************************************
 *******************************************************************************/
 
+// denormal prevention is needed in the distortion unit for the low/high/cut part.
 inline void add_dc (float &val)
 {
     static const float anti_denormal = 1e-20;
     val += anti_denormal;
 }
 
+inline float clip (float x, float a)
+{
+float x1,x2;
+float b = -a;
+x1 = fabs (x-a);
+x2 = fabs (x-b);
+x = x1 + (a+b);
+x -= x2;
+x *= 0.5;
+return (x);
+}
+
+// the fuzz unit run on sample base
 inline float fuzz(float in, float threshold)
 {
     if ( in > threshold)
@@ -26,6 +58,7 @@ inline float fuzz(float in, float threshold)
     return in;
 }
 
+// foldback distortion, run on sample base
 inline float foldback(float in, float threshold)
 {
     if (threshold == 0) threshold = 0.01f;
@@ -36,7 +69,7 @@ inline float foldback(float in, float threshold)
     return in;
 }
 
-
+// tube unit to run on sample base, it's unused for now, dont know if we need it any more
 inline float valve(float in, float out)
 {
     float a = 2.000 ;
@@ -53,6 +86,7 @@ inline float valve(float in, float out)
     return out;
 }
 
+// oversample the input signal 2*, give a nice antialised effect
 inline void over_sample(float **input,float **output, int sf)
 {
     float * in = input[0];
@@ -68,6 +102,7 @@ inline void over_sample(float **input,float **output, int sf)
     }
 }
 
+// downsample the processed signal to the jack_buffer size
 inline void down_sample(float **input,float **output, int sf)
 {
     float * in = input[0];
@@ -83,6 +118,7 @@ inline void down_sample(float **input,float **output, int sf)
     }
 }
 
+// anti aliasing the sine wav, this unit can nicly run oversampeled
 inline void AntiAlias (int sf, float** input, float** output)
 {
     float* in = input[0];
@@ -100,6 +136,117 @@ inline void AntiAlias (int sf, float** input, float** output)
     }
 }
 
+// the resonace tube unit on frame base
+inline void reso_tube (int fuzzy, int sf,float reso, float vibra, float** input, float** output)
+{
+    float* in = input[0];
+    float* out = output[0];
+    float ot = 0;
+    float x = in[0];
+    float a = 2.000 ;
+    float b = 1.000 ;
+    float 	fSlowRESO0 = reso;
+    // float 	fSlowRESO1 = vibra;
+
+    double c = 0.5;
+    //----- resonator
+    int 	iSlowRESO2 = int((int((vibra - 1)) & 4095));
+    int 	iSlowRESO3 = int((int(vibra) & 4095));
+
+    for (int i=0; i<sf; i++)
+    {
+        x = in[i];
+        if ( x >= 0.0 )
+        {
+            ot = ((a * x - b * x * x) -x)*c;
+        }
+        else
+        {
+            ot =  ((a * x + b * x * x) -x)*c;
+        }
+
+        float fTempRESO0 = (ot + (fSlowRESO0 * fRecRESO0[1]));
+        fVecRESO0[IOTARESO&4095] = fTempRESO0;
+        fRecRESO0[0] = (0.5f * (fVecRESO0[(IOTARESO-iSlowRESO3)&4095] + fVecRESO0[(IOTARESO-iSlowRESO2)&4095]));
+        ot = fRecRESO0[0];
+
+        *out++ = fuzz(x + ot*fuzzy*0.5,0.7);
+        // post processing
+        fRecRESO0[1] = fRecRESO0[0];
+        IOTARESO = IOTARESO+1;
+
+    }
+}
+
+
+// the oscilate tube unit on frame base
+inline void osc_tube (int fuzzy, int sf,float reso, float vibra, float** input, float** output)
+{
+    float* in = input[0];
+    float* out = output[0];
+    float ot = 0;
+    float x = in[0];
+    float a = 2.000 ;
+    float b = 1.000 ;
+    float 	fSlowRESO0 = reso;
+    // float 	fSlowRESO1 = vibra;
+    //----- oscillator
+
+
+    double c = 0.5;
+    //----- resonator
+    int 	iSlowRESO2 = int((int((vibra - 1)) & 4095));
+    int 	iSlowRESO3 = int((int(vibra) & 4095));
+
+
+
+    for (int i=0; i<sf; i++)
+    {
+        x = in[i];
+        if ( x >= 0.0 )
+        {
+            ot = ((a * x - b * x * x) -x)*c;
+        }
+        else
+        {
+            ot =  ((a * x + b * x * x) -x)*c;
+        }
+
+				iVecoscb0[0] = 1;
+				fRecoscb0[0] = (0 - (((fRecoscb0[2] + (fConstoscb0 * fRecoscb0[1])) + iVecoscb0[1]) - 1));
+				float oscb = fRecoscb0[0];
+
+        float fTempRESO0 = (ot + (fSlowRESO0 * fRecRESO0[1]));
+        fVecRESO0[IOTARESO&4095] = fTempRESO0;
+        fRecRESO0[0] = (0.5f * (fVecRESO0[(IOTARESO-iSlowRESO3)&4095] + fVecRESO0[(IOTARESO-iSlowRESO2)&4095]));
+        ot = fRecRESO0[0] * (3+oscb)*0.25f;
+
+                float sp0 = ot;
+				fVecsp0[0] = sp0;
+				fRecsp3[0] = (fConstsp9 * ((fVecsp0[0] - fVecsp0[1]) + (fConstsp8 * fRecsp3[1])));
+				fRecsp2[0] = (fConstsp9 * ((fRecsp3[0] - fRecsp3[1]) + (fConstsp8 * fRecsp2[1])));
+				fRecsp1[0] = (fRecsp2[0] - (fConstsp6 * ((fConstsp5 * fRecsp1[2]) + (fConstsp1 * fRecsp1[1]))));
+				fRecsp0[0] = ((fConstsp6 * (fRecsp1[2] + (fRecsp1[0] + (2 * fRecsp1[1])))) - (fConstsp4 * ((fConstsp3 * fRecsp0[2]) + (fConstsp1 * fRecsp0[1]))));
+				ot = (fConstsp4 * (fRecsp0[2] + (fRecsp0[0] + (2 * fRecsp0[1]))));
+
+
+        *out++ = clip(x + ot*fuzzy*0.5,0.7);
+        // post processing
+        fRecRESO0[1] = fRecRESO0[0];
+        IOTARESO = IOTARESO+1;
+
+				fRecoscb0[2] = fRecoscb0[1]; fRecoscb0[1] = fRecoscb0[0];
+				iVecoscb0[1] = iVecoscb0[0];
+
+                fRecsp0[2] = fRecsp0[1]; fRecsp0[1] = fRecsp0[0];
+				fRecsp1[2] = fRecsp1[1]; fRecsp1[1] = fRecsp1[0];
+				fRecsp2[1] = fRecsp2[0];
+				fRecsp3[1] = fRecsp3[0];
+				fVecsp0[1] = fVecsp0[0];
+    }
+}
+
+// the tube unit on frame base, it's also the drive unit just with other variables
 inline void fuzzy_tube (int fuzzy,int mode, int sf, float** input, float** output)
 {
     float* in = input[0];
@@ -128,16 +275,19 @@ inline void fuzzy_tube (int fuzzy,int mode, int sf, float** input, float** outpu
         {
             ot =  ((a * x + b * x * x) -x)*c;
         }
-        *out++ = x + ot*fuzzy;
+        *out++ = fuzz(x + ot*fuzzy*0.5,0.7);
     }
 }
 
+// it isn't normalize, it's more a waveshaper funktion
 inline float normalize(float in, float atan_shape, float shape)
 {
     float out = atan_shape * atan(in*shape);
     return out;
 }
 
+// the preamp on frame base, it's a gloubi-boulga followed by a third-degree polynomial
+// and then the "normalize", output will smoth down by 0.75
 inline void preamp(int sf, float** input, float** output,float atan_shape,float f_atan)
 {
     float* in = input[0];
@@ -155,11 +305,12 @@ inline void preamp(int sf, float** input, float** output,float atan_shape,float 
 
 }
 
-
+// this is the process callback called from jack
 virtual void compute (int count, float** input, float** output)
 {
     if ((checky != 0) && (NO_CONNECTION == 0 ) )      // play
     {
+        // precalculate values with need update peer frame
         // compressor
         float   fSlowcom0 = fentrycom0;
         float   fSlowcom1 = expf((0 - (fConstcom2 / max(fConstcom2, fslidercom0))));
@@ -256,12 +407,21 @@ virtual void compute (int count, float** input, float** output)
         float   f_atan = fatan;
         float   threshold = fthreshold;
         float   fTemps39 = 10;//fslider39;
+        float	f_resotube1 = fresotube1;
+
+        float 	f_resotube2 = fresotube2;
+
 
         int 	ifuzzytube = int(ffuzzytube);
         int 	itube = int(ftube);
+
+        int 	iresotube3 = int(fresotube3);
+        int 	itube3 = int(ftube3);
         int 	ipredrive = int(fpredrive);
         int 	iprdr = int(fprdr);
         int     iupsample = int(fupsample);
+        // the extra port register can only run clean on frame base, therfor the
+        // variable runjc must check on frame base, not in the inner loop.
         int     irunjc = runjc;
         int 	iSlow21 = int((int((fSlow20 - 1)) & 4095));
         int 	iSlow22 = int((int(fSlow20) & 4095));
@@ -282,32 +442,38 @@ virtual void compute (int count, float** input, float** output)
         int     iTemps39 = 10;//int(fslider39);
         // pointer to the jack_buffer
         float*  input0 = input[0];
-        // copy clean audio input for the midi_process
+        // copy clean audio input for the tuner and midi_process
         if ((shownote == 1) || (playmidi == 1))
         {
             for (int i=0; i<count; i++)  checkfreq [i] = input0[i];
         }
-        // pre_funktions on frame base
+        // run pre_funktions on frame base
+        // 2*oversample
         if (iupsample == 1)
         {
             over_sample(input,&oversample,count);
-            if (icheckbox1 == 1)  preamp(count*2,&oversample,&oversample,atan_shape,f_atan);
+          //  if (icheckbox1 == 1)  preamp(count*2,&oversample,&oversample,atan_shape,f_atan);
             if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count*2,&oversample,&oversample);
+            if (itube3 == 1)   reso_tube(iresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
             if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count*2,&oversample,&oversample);
             if (antialis0 == 1)  AntiAlias(count*2,&oversample,&oversample);
             down_sample(&oversample,input,count);
         }
+        // or plain sample
         else
         {
-            if (icheckbox1 == 1)  preamp(count,input,input,atan_shape,f_atan);
+         //   if (icheckbox1 == 1)  preamp(count,input,input,atan_shape,f_atan);
             if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count,input,input);
+            if (itube3 == 1)   osc_tube(iresotube3,count,f_resotube1, f_resotube2,input,input);
             if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count,input,input);
             if (antialis0 == 1)  AntiAlias(count,input,input);
         }
+        // pointers to the jack_output_buffers
         float* output0 = output[2];
         float* output1 = output[0];
         float* output2 = output[3];
         float* output3 = output[1];
+        // start the inner loop count = jack_frame
         for (int i=0; i<count; i++)
         {
             float 	S0[2];
@@ -316,17 +482,21 @@ virtual void compute (int count, float** input, float** output)
             float 	S3[2];
             float 	S4[2];
             float 	S5[2];
+            // when the ocilloscope draw wav by sample (mode 3) get the input value
             if (showwave == 1) vivi = input0[i];
 
-            if ((shownote == 1) || (playmidi == 1))
+            if ((shownote == 1) || (playmidi == 1)) // enable tuner when show note or play midi
             {
                 float fTemphp0 = checkfreq [i]*2;
+                // low and highpass filter
                 tunerstage1=tunerstage1+(tunerfilter*(fTemphp0-tunerstage1));
                 tunerstage2=tunerstage2+(tunerfilter*(tunerstage1-tunerstage2));
                 tunerstageh1=tunerstageh1+(tunerfilterh*(tunerstage2-tunerstageh1));
                 tunerstageh2=tunerstageh2+(tunerfilterh*(tunerstageh1-tunerstageh2));
                 fTemphp0 = tunerstage2-tunerstageh2;
+                // waveshaper
                 float fTemphps0 = (1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0);
+                // now run a fft
                 fVechp0[0] = fTemphps0;
                 fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
                 float fTemphp1  = fRechp0[0];
@@ -343,19 +513,18 @@ virtual void compute (int count, float** input, float** output)
                 int iTempt5 = (iRect2[0] == 0);
                 iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
                 fRect0[0] = (fSamplingFreq * ((fTemps39 / max(iRect1[0], 1)) - (fTemps39 * (iRect1[0] == 0))));
+                // get the frequence here
                 float fConsta4s = fRect0[0];
-
+                // smoth tuner output by rms the value peer frame
                 cts += 1;
                 sumt += sqrf(fConsta4s);
                 fConsta4 = sqrtf(sumt/cts);
-
             }
             else if (shownote == 0)
             {
                 fConsta1 = 1000.0f;
                 shownote = 2;
             }
-
 
             if (icheckboxcom1 == 1)     // compressor
             {
@@ -383,19 +552,21 @@ virtual void compute (int count, float** input, float** output)
             fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
             float fTemp0 = (fRec4[0] * S5[0]);
 
-            /*  if (icheckbox1 == 1)     // preamp
+            // I have move the preamp to the frame based section, leef it here for . . .
+              if (icheckbox1 == 1)     // preamp
               {
                   float  in = fTemp0 ;
                   float  fTemp0in = (in-0.15*(in*in))-(0.15*(in*in*in));
                   in = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
                   fTemp0in = normalize(in,atan_shape,f_atan);
                   fTemp0 = valve(fTemp0in,fTemp0in)*0.75;
-              }  //preamp ende */
+                  fTemp0 = fuzz(fTemp0in,0.7);
+              }  //preamp ende 
 
 
             fRec3[0] = fTemp0;
             // vibrato
-            if (fresoon == 1.0) fRec3[0] =  (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])));  //resonanz 1.76f
+            if (fresoon == 1.0) fRec3[0] = fuzz (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])),0.7);  //resonanz 1.76f
             S4[0] = fRec3[0];
 
             if (ioverdrive4 == 1)     // overdrive
@@ -537,7 +708,9 @@ virtual void compute (int count, float** input, float** output)
             }
             else  fVec23[0] = fTemp12;   //impulseResponse ende
 
+            // this is the output value from the mono process
             fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
+            // switch betwee fuzz or foldback distortion, or plain output
             switch (ifuse)
             {
             case 0:
@@ -549,18 +722,24 @@ virtual void compute (int count, float** input, float** output)
                 fRec0[0] = foldback(fRec0[0],threshold);
                 break;
             }
-
-            if ((showwave == 1) &&(view_mode > 1)) viv = fRec0[0];
+            // trigger the oscilloscope to update peer sample. I know that some samples dont will show, but it will
+            // update fast as  posible this way (mode 3)
+            if ((showwave == 1) &&(view_mode == 3)) viv = fRec0[0];
+            // this is the left "extra" port to run jconv in bybass mode
             if (irunjc == 1) output0[i] = (fSlow85 * fRec0[0]);
             float 	S9[2];
+            // copy the output for the frame based mode of the oscilloscope
             if ((showwave == 1) &&((view_mode == 1) || (view_mode == 2) )) get_frame[i] = fRec0[0];
             S9[0] = (fSlow87 * fRec0[0]);
             S9[1] = (fSlow84 * fRec0[0]);
+            // the left output port
             output1[i] = S9[iSlow88];
+            // this is the right "extra" port to run jconv in bybass mode
             if (irunjc == 1) output2[i] = (fSlow90 * fRec0[0]);
             float 	S10[2];
             S10[0] = (fSlow91 * fRec0[0]);
             S10[1] = (fSlow89 * fRec0[0]);
+            // the right output port
             output3[i] = S10[iSlow88];
             // post processing
             for (int i=5; i>0; i--) fRec0[i] = fRec0[i-1];
@@ -645,12 +824,15 @@ virtual void compute (int count, float** input, float** output)
             fVechp0[1] = fVechp0[0];
 
         }
-        // fConsta1 = 12 * log2f(2.272727e-03f *  fConsta4);
+        // triger the oscilloscope to update on frame base (mode 1 and 2)
         if ((showwave == 1) &&((view_mode == 1)|| (view_mode == 2))) viv = fRec0[0];
     }
-    else
+    else  // when the dsp prozess is disable, send zeros the the portbuffer
     {
-
+        // the extra port register can only run clean on frame base, therfor the
+        // variable runjc must check on frame base, not in the inner loop.
+        int     irunjc = runjc;
+        // pointer to the output buffers
         float* output0 = output[0];
         float* output1 = output[1];
         float* output2 = output[2];
@@ -660,8 +842,9 @@ virtual void compute (int count, float** input, float** output)
             float fTemp0 = 0.0f;
             output0[i] = fTemp0;
             output1[i] = fTemp0;
-            if (runjc == 1)output2[i] = fTemp0;
-            if (runjc == 1)output3[i] = fTemp0;
+            // only when jconv is runing
+            if (irunjc == 1)output2[i] = fTemp0;
+            if (irunjc == 1)output3[i] = fTemp0;
         }
     }
 }

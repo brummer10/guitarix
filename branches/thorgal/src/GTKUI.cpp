@@ -1,3 +1,21 @@
+/*
+  * Copyright (C) 2009 Hermann Meyer and James Warden
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation; either version 2 of the License, or
+  * (at your option) any later version.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+  * You should have received a copy of the GNU General Public License
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+*/
+
 /******************************************************************************
 *******************************************************************************
 
@@ -212,6 +230,34 @@ void GTKUI::openVerticalBox(const char* label)
         GtkStyle *style = gtk_widget_get_style(lw);
         pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
         pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+        gtk_widget_modify_font(lw, style->font_desc);
+        gtk_container_add (GTK_CONTAINER(box), lw);
+        gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+        gtk_widget_show(lw);
+        gtk_widget_show(box);
+        pushBox(kBoxMode, box);
+    }
+    else
+    {
+        pushBox(kBoxMode, addWidget(label, box));
+    }
+}
+
+void GTKUI::openVerticalBox1(const char* label)
+{
+    GtkWidget * box = gtk_vbox_new (homogene, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+    if (fMode[fTop] != kTabMode && label[0] != 0)
+    {
+        // GtkWidget * frame = addWidget(label, gtk_frame_new (label));
+        // gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
+        GtkWidget* lw = gtk_label_new(label);
+        GdkColor colorGreen;
+        gdk_color_parse("#a6a9aa", &colorGreen);
+        gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+        GtkStyle *style = gtk_widget_get_style(lw);
+        pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
+        pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
         gtk_widget_modify_font(lw, style->font_desc);
         gtk_container_add (GTK_CONTAINER(box), lw);
         gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
@@ -514,6 +560,18 @@ void GTKUI::addHorizontalSlider(const char* label, float* zone, float init, floa
     g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
     GtkRegler myGtkRegler;
     GtkWidget* slider = myGtkRegler.gtk_mini_slider_new_with_adjustment (GTK_ADJUSTMENT(adj));
+    gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
+    addWidget(label, slider);
+}
+
+void GTKUI::addHorizontalWheel(const char* label, float* zone, float init, float min, float max, float step)
+{
+    *zone = init;
+    GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
+    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+    GtkRegler myGtkRegler;
+    GtkWidget* slider = myGtkRegler.gtk_wheel_new_with_adjustment (GTK_ADJUSTMENT(adj));
     gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
     addWidget(label, slider);
 }
@@ -959,6 +1017,8 @@ void GTKUI::addMenu()
     GtkWidget *menubar;
     GtkWidget *menuLatency;
     GtkWidget *menulat;
+    GtkWidget *menuSkinChooser;
+    GtkWidget *menuskin;
     GtkWidget *menu;
     GtkWidget *menu1;
     GtkWidget *menuitem;
@@ -1001,9 +1061,6 @@ void GTKUI::addMenu()
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
 
-    /******************************************************************************
-        This code is contributed by 	James Warden <warjamy@yahoo.com>
-    ******************************************************************************/
     /*---------------- Create Latency menu items --------------------*/
     /*-- Create  Latency submenu under Engine submenu --*/
     menuLatency = gtk_menu_item_new_with_label ("Latency");
@@ -1038,9 +1095,6 @@ void GTKUI::addMenu()
         gtk_widget_show (menuitem);
     }
     /*---------------- End Latency menu declarations ----------------*/
-    /******************************************************************************
-        Many thanks James aka torgal
-    ******************************************************************************/
 
     /*-- Create Exit menu item under Engine submenu --*/
     menuitem = gtk_menu_item_new_with_label ("  Exit  ");
@@ -1156,6 +1210,26 @@ void GTKUI::addMenu()
     g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_j_c_gui), NULL);
     gtk_widget_show (menuitem);
 
+    /*-- Create skin menu under Options submenu--*/
+    menuSkinChooser = gtk_menu_item_new_with_label ("Skin");
+    gtk_menu_append (GTK_MENU(menu), menuSkinChooser);
+    menuskin = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuSkinChooser), menuskin);
+ 
+    /* Create black skin item under skin submenu --*/
+    int idx = GX_BLACK_SKIN;
+    while (idx < GX_NUM_OF_SKINS) {
+      menuitem = gtk_radio_menu_item_new_with_label (group, skins[idx]);
+      group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
+      gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
+      g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_change_skin), GINT_TO_POINTER(idx));
+      gtk_menu_append(GTK_MENU(menuskin), menuitem);
+      gtk_widget_show (menuitem);
+      idx++;
+    }
+
+    /*-- End skin menu declarations --*/
+
     /*---------------- Start About menu declarations ----------------*/
     menuHelp = gtk_menu_item_new_with_label ("About");
     gtk_menu_bar_append (GTK_MENU_BAR(menubar), menuHelp);
@@ -1183,6 +1257,7 @@ void GTKUI::addMenu()
     gtk_widget_show(menuEdit);
     gtk_widget_show(menuLoad);
     gtk_widget_show(menuSave);
+    gtk_widget_show(menuSkinChooser);
     gtk_widget_show(menuHelp);
 //  gtk_widget_show(vbox);
     /*---------------- end show menu ----------------*/
