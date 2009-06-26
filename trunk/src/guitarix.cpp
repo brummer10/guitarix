@@ -710,10 +710,6 @@ void gx_wait_warn(const char* label)
 //----menu function latency
 void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
 {
-    // let's avoid triggering the jack server on "inactive"
-    if (gtk_check_menu_item_get_active(menuitem) == false)
-        return;
-
     // are we a proper jack client ?
     if (!client)
     {
@@ -726,21 +722,34 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
     }
 
 
-    // if the buffer size is the same, no need to trigger it
-    jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
+    bool refresh = (arg == NULL) ? true : false;
+    static GtkCheckMenuItem* refreshItem = NULL;
 
-    if (buf_size == jack_get_buffer_size(client))
-        return;
-    // first time useage warning
-    if (fwarn_swap == 0.0)
+    // ----- if check button triggered menually
+    if (menuitem)
     {
+      // let's avoid triggering the jack server on "inactive"
+      if (gtk_check_menu_item_get_active(menuitem) == false)
+        return;
+
+      // if the buffer size is the same, no need to trigger it
+      jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
+      
+      if (buf_size == jack_get_buffer_size(client))
+	return;
+
+      // first time useage warning
+      if (fwarn_swap == 0.0)
+      {
         gtk_check_menu_item_set_inconsistent(menuitem,TRUE);
         gx_wait_warn("WARNING");
-    }
-    else doit =2;
-    if (doit ==2)
-    {
+      }
+      else doit =2;
+
+      if (doit ==2)
+      {
         gtk_check_menu_item_set_inconsistent(menuitem,FALSE);
+
         int jcio = 0;
         if (runjc == 1)
         {
@@ -749,9 +758,12 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
             checkbox7 = 0.0;
             rjv( NULL, NULL );
         }
+
         // let's resize the buffer
         if ( jack_set_buffer_size (client, buf_size) != 0)
             gtk_check_menu_item_set_inconsistent(menuitem,TRUE);
+	else
+	  refreshItem = menuitem;
 
         if (jcio == 1)
         {
@@ -761,9 +773,11 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
             rjv( NULL, NULL );
         }
         doit = 0;
+      }
     }
-    else return;
 
+    else if (refresh && refreshItem)
+      gtk_check_menu_item_set_active (refreshItem, TRUE);
 }
 
 
@@ -1100,4 +1114,7 @@ static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg)
 
   gtk_rc_parse(rcfile.c_str());
   gtk_rc_reset_styles(gtk_settings_get_default());
+
+  // refresh latency check menu
+  gx_set_jack_buffer_size(NULL, NULL);
 }
