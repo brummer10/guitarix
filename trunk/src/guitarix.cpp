@@ -721,8 +721,7 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
       return;
     }
 
-
-    bool refresh = (arg == NULL) ? true : false;
+    // static variable that keeps track of active item
     static GtkCheckMenuItem* refreshItem = NULL;
 
     // ----- if check button triggered menually
@@ -778,14 +777,10 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
         }
         doit = 0;
       }
-
-      else if (refreshItem) // we just refresh the previous item
-	gtk_check_menu_item_set_active (refreshItem, TRUE);
-
     }
 
     // we are called only to refresh the menu display
-    else if (refresh && refreshItem)
+    if (refreshItem)
       gtk_check_menu_item_set_active (refreshItem, TRUE);
 }
 
