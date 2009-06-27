@@ -217,8 +217,7 @@ void jack_shutdown(void *arg)
     gx_print_warning("jack_shutdown", 
 		     string("jack has bumped us out , exiting ..."));
 
-    if (client)
-      jack_client_close(client);
+    jack_client_close(client);
 #ifdef USE_RINGBUFFER
     jack_ringbuffer_free(jack_ringbuffer);
 #endif

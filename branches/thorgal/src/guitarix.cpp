@@ -30,7 +30,7 @@
 GtkWidget* fWindow, *menul, *menus, *pb, *midibox, *fbutton, *label1, *menuh;
 GdkPixbuf*   ib, *ibm, *ibr;
 GtkStatusIcon*  status_icon;
-GtkWidget* livewa, *warn_dialog,*dsiable_warn ;
+GtkWidget* livewa, *warn_dialog,*disable_warn ;
 
 static float      checkbutton7;
 
@@ -132,7 +132,6 @@ static int   gx_system(const char*,
 		       const bool devnull = true,
 		       const bool escape  = false);
 static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
-void jack_shutdown(void *arg);
 
 // ---- user directory
 string gx_get_userdir()
@@ -681,14 +680,14 @@ void gx_wait_warn(const char* label)
     GtkWidget * button1  = gtk_dialog_add_button(GTK_DIALOG (warn_dialog),"Yes",1);
     GtkWidget * button2  = gtk_dialog_add_button(GTK_DIALOG (warn_dialog),"No",2);
     GtkWidget * box1 = gtk_hbox_new (0, 4);
-    dsiable_warn = gtk_check_button_new ();
+    disable_warn = gtk_check_button_new ();
     GtkWidget * labelt2 = gtk_label_new ("Don't bother me again with such a question, I know what I am doing");
 
     gtk_container_add (GTK_CONTAINER(box), labelt);
     gtk_container_add (GTK_CONTAINER(box), labelt1);
     gtk_container_add (GTK_CONTAINER(box), box2);
     gtk_container_add (GTK_CONTAINER(box), box1);
-    gtk_container_add (GTK_CONTAINER(box1), dsiable_warn);
+    gtk_container_add (GTK_CONTAINER(box1), disable_warn);
     gtk_container_add (GTK_CONTAINER(box1), labelt2);
     gtk_container_add (GTK_CONTAINER(GTK_DIALOG(warn_dialog)->vbox), box);
 
@@ -703,7 +702,7 @@ void gx_wait_warn(const char* label)
     gtk_widget_show_all(box);
 
     gtk_dialog_run (GTK_DIALOG (warn_dialog));
-    int woff = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dsiable_warn));
+    int woff = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(disable_warn));
     fwarn_swap = woff;
     gtk_widget_destroy (warn_dialog);
 }
@@ -712,10 +711,6 @@ void gx_wait_warn(const char* label)
 //----menu function latency
 void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
 {
-    // let's avoid triggering the jack server on "inactive"
-    if (gtk_check_menu_item_get_active(menuitem) == false)
-        return;
-
     // are we a proper jack client ?
     if (!client)
     {
@@ -727,22 +722,37 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
       return;
     }
 
+    // static variable that keeps track of active item
+    static GtkCheckMenuItem* refreshItem = NULL;
 
-    // if the buffer size is the same, no need to trigger it
-    jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
-
-    if (buf_size == jack_get_buffer_size(client))
+    // ----- if check button triggered menually
+    if (menuitem)
+    {
+      // let's avoid triggering the jack server on "inactive"
+      if (gtk_check_menu_item_get_active(menuitem) == false)
         return;
-    // first time useage warning
-    if (fwarn_swap == 0.0)
-    {
-        gtk_check_menu_item_set_inconsistent(menuitem,TRUE);
+
+      // requested latency
+      jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
+      
+      if (buf_size == jack_get_buffer_size(client))
+      {
+	// let's save the item for eventual display refreshing
+	refreshItem = menuitem;
+
+	// since the actual buffer size is the same, no need further action
+	return;
+      }
+
+      // first time useage warning
+      if (fwarn_swap == 0.0)
+      {
         gx_wait_warn("WARNING");
-    }
-    else doit =2;
-    if (doit ==2)
-    {
-        gtk_check_menu_item_set_inconsistent(menuitem,FALSE);
+      }
+      else doit =2;
+
+      if (doit ==2)
+      {
         int jcio = 0;
         if (runjc == 1)
         {
@@ -751,9 +761,13 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
             checkbox7 = 0.0;
             rjv( NULL, NULL );
         }
+
         // let's resize the buffer
         if ( jack_set_buffer_size (client, buf_size) != 0)
-            gtk_check_menu_item_set_inconsistent(menuitem,TRUE);
+	  gx_print_warning("gx_set_jack_buffer_size", string("Could not change latency"));
+
+	else // save the item pointer for eventual display refreshing
+	  refreshItem = menuitem;
 
         if (jcio == 1)
         {
@@ -763,9 +777,12 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
             rjv( NULL, NULL );
         }
         doit = 0;
+      }
     }
-    else return;
 
+    // we are called only to refresh the menu display
+    if (refreshItem)
+      gtk_check_menu_item_set_active (refreshItem, TRUE);
 }
 
 
@@ -1087,9 +1104,9 @@ static bool gx_capture_command(const int idx, string& capcmd)
 // ----- skin change
 static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg)
 {
-  // let's avoid triggering the jack server on "inactive"
-  if (gtk_check_menu_item_get_active(menuitem) == false)
-      return;
+  // no action needed on false
+  if (gtk_check_menu_item_get_active(menuitem) == FALSE)
+    return;
   
   const int idx = (int)GPOINTER_TO_INT(arg);
   string rcfile = GX_STYLE_DIR + string("/") + "guitarix";
@@ -1102,4 +1119,7 @@ static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg)
 
   gtk_rc_parse(rcfile.c_str());
   gtk_rc_reset_styles(gtk_settings_get_default());
+
+  // refresh latency check menu
+  gx_set_jack_buffer_size(NULL, NULL);
 }
