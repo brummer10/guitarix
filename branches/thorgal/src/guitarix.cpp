@@ -256,7 +256,6 @@ int gx_pixmap_check()
       );
 
       // maybe a bit too severe to give up ??
-      jack_shutdown(NULL);
       exit(1);
     }
 
