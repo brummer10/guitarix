@@ -79,7 +79,7 @@ style "guitarix-menu"
 class "GtkMenu" style:highest "guitarix-menu"
 class "GtkMenuBar" style:highest "guitarix-menu"
 
-style "c_style"
+style "bix_style"
 {
  	engine "pixmap"
 	{
@@ -115,12 +115,30 @@ style "c_style"
 		}
 	}
 }
-class "GtkHandleBox" style:highest "c_style"
-widget_class "*GtkToggleButton*" style:highest "c_style"
-class "GtkButton" style:highest "c_style"
-class "GtkSpinButton" style:highest "c_style"
 
-style "p_style"
+style "hix_style"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL
+			shadow			= OUT
+			file			= "controls.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+}
+
+class "GtkHandleBox" style:highest "hix_style"
+widget_class "*GtkToggleButton*" style:highest "bix_style"
+class "GtkButton" style:highest "bix_style"
+class "GtkSpinButton" style:highest "bix_style"
+
+style "pix_style"
 {
  	engine "pixmap"
 	{
@@ -136,5 +154,5 @@ style "p_style"
 		}
 	}
 }
-widget_class "*GtkProgressBar*" style:highest "p_style"
+widget_class "*GtkProgressBar*" style:highest "pix_style"
 
