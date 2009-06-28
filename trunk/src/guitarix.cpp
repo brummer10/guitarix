@@ -1119,6 +1119,9 @@ static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg)
   gtk_rc_parse(rcfile.c_str());
   gtk_rc_reset_styles(gtk_settings_get_default());
 
+   GtkWaveView myGtkWaveView;
+   myGtkWaveView.gtk_waveview_refresh (GTK_WIDGET(livewa), NULL );
+
   // refresh latency check menu
   gx_set_jack_buffer_size(NULL, NULL);
 }

@@ -739,6 +739,13 @@ gboolean GtkWaveView::gtk_waveview_set_value (GtkWidget *cwidget, gpointer data 
     return TRUE;
 }
 
+//----- refresh osiloscope when change rcstyle
+gboolean GtkWaveView::gtk_waveview_refresh (GtkWidget *widget, gpointer data )
+{
+    GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig = 0;
+    return TRUE;
+}
+
 //----- mouse funktions to select a part of the file
 static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *event)
 {
