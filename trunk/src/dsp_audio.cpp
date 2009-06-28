@@ -113,7 +113,7 @@ inline void down_sample(float **input,float **output, int sf)
     {
 
         y = *in++;
-        out[i] = x*0.75 + y*0.5;
+        out[i] = x*0.75 + y*0.3;
         x = *in++;
     }
 }
@@ -170,7 +170,7 @@ inline void reso_tube (int fuzzy, int sf,float reso, float vibra, float** input,
         fRecRESO0[0] = (0.5f * (fVecRESO0[(IOTARESO-iSlowRESO3)&4095] + fVecRESO0[(IOTARESO-iSlowRESO2)&4095]));
         ot = fRecRESO0[0];
 
-        *out++ = fuzz(x + ot*fuzzy*0.5,0.7);
+        *out++ = fuzz(x + clip(ot*fuzzy*0.5,0.7),0.7);
         // post processing
         fRecRESO0[1] = fRecRESO0[0];
         IOTARESO = IOTARESO+1;
