@@ -18,7 +18,7 @@ style_files += ' controls.jpg'
 style_files += ' guitarix-darkblack-relief.jpg'
 style_files += ' guitarix_black.rc'
 style_files += ' guitarix_pix.rc'
-style_files += ' guitarix.rc'
+style_files += ' guitarix_default.rc'
     
 def configure(conf):
     pass

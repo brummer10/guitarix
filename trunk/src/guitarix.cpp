@@ -99,12 +99,13 @@ jack_nframes_t  jackframes;
 #define GX_BLACK_SKIN (1)
 #define GX_PIX_SKIN   (2)
 
-#define GX_NUM_OF_SKINS (3)
+#define GX_NUM_OF_SKINS (4)
 
 const char* skins[] = {
   "",
   "black",
-  "pix"
+  "pix",
+  "default"
 };
 
 //---- system related defines and function proto
