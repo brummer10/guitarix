@@ -33,7 +33,6 @@
 class GTKUI : public UI
 {
 private :
-    static bool			fInitialized;
     static list<UI*>	fGuiList;
 
 protected :
@@ -47,6 +46,7 @@ protected :
     virtual void pushBox(int mode, GtkWidget* w);
 
 public :
+    static bool	 fInitialized;
 
     static const gboolean expand = TRUE;
     static const gboolean fill = TRUE;

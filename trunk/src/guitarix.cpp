@@ -109,6 +109,8 @@ const char* skins[] = {
 };
 
 //---- system related defines and function proto
+bool jack_is_running = false;
+
 #define SYSTEM_OK (0)
 
 #define NUM_OF_CHILD_PROC (3)
@@ -133,6 +135,8 @@ static int   gx_system(const char*,
 		       const bool devnull = true,
 		       const bool escape  = false);
 static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
+static void  gx_abort(void* arg);
+static void  gx_start_jack(void* arg);
 
 // ---- user directory
 string gx_get_userdir()
@@ -656,7 +660,7 @@ int gx_doit()
 }
 
 //----- change the jack buffersize on the fly is still experimental, give a warning
-void gx_wait_warn(const char* label)
+void gx_wait_warn()
 {
     warn_dialog = gtk_dialog_new();
     gtk_window_set_destroy_with_parent(GTK_WINDOW(warn_dialog), TRUE);
@@ -707,6 +711,116 @@ void gx_wait_warn(const char* label)
     gtk_widget_destroy (warn_dialog);
 }
 
+//----- pop up a dialog for starting jack
+void gx_start_jack_dialog(int* argc, char*** argv)
+{
+  gtk_init(argc, argv);
+
+  GtkWidget* jack_dialog = gtk_dialog_new();
+  gtk_window_set_destroy_with_parent(GTK_WINDOW(jack_dialog), TRUE);
+
+  GtkWidget* box = gtk_vbox_new (0, 4);
+  GtkWidget* warning_label = gtk_label_new ("\nWARNING\n");
+  GtkWidget* text_label = 
+    gtk_label_new ("The jack server is not currently running\n"
+		   "You can choose to activate it or terminate guitarix\n");
+
+  GdkColor colorGreen;
+  gdk_color_parse("#a6a9aa", &colorGreen);
+  gtk_widget_modify_fg (text_label, GTK_STATE_NORMAL, &colorGreen);
+
+  GtkStyle* text_style = gtk_widget_get_style(text_label);
+  pango_font_description_set_size(text_style->font_desc, 10*PANGO_SCALE);
+  pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);
+
+  gtk_widget_modify_font(text_label, text_style->font_desc);
+  gdk_color_parse("#ffffff", &colorGreen);
+  gtk_widget_modify_fg (warning_label, GTK_STATE_NORMAL, &colorGreen);
+
+  text_style = gtk_widget_get_style(warning_label);
+  pango_font_description_set_size(text_style->font_desc, 14*PANGO_SCALE);
+  pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);
+  gtk_widget_modify_font(warning_label, text_style->font_desc);
+
+  GtkWidget * box2 = gtk_hbox_new (0, 4);
+  GtkWidget * button1  = gtk_dialog_add_button(GTK_DIALOG (jack_dialog),"Start jack",1);
+  GtkWidget * button2  = gtk_dialog_add_button(GTK_DIALOG (jack_dialog),"Exit",2);
+
+  gtk_container_add (GTK_CONTAINER(box), warning_label);
+  gtk_container_add (GTK_CONTAINER(box), text_label);
+  gtk_container_add (GTK_CONTAINER(box), box2);
+  gtk_container_add (GTK_CONTAINER(GTK_DIALOG(jack_dialog)->vbox), box);
+
+  g_signal_connect (button1, "clicked",  G_CALLBACK (gx_start_jack), NULL);
+  g_signal_connect (button2, "clicked",  G_CALLBACK (gx_abort), NULL);
+  gtk_widget_show_all(box);
+  gtk_widget_show(jack_dialog);
+
+  gtk_dialog_run (GTK_DIALOG (jack_dialog));
+  gtk_widget_destroy (jack_dialog);
+}
+
+
+//----start jack if possible
+void gx_start_jack(void* arg)
+{
+  // first, let's try via qjackctl
+  if (gx_system("which", "qjackctl", false) == SYSTEM_OK)
+  {  
+    if (gx_system("qjackctl", "--start", true, true) == SYSTEM_OK)
+    {
+      sleep(2);
+
+      // let's check it is really running
+      if (gx_system("pgrep", "jackd", true) == SYSTEM_OK)
+      {
+	jack_is_running = true;
+	return;
+      }
+    }
+  }
+
+  // qjackctl not found or not started, let's try .jackdrc
+  string jackdrc = "$HOME/.jackdrc";
+  if (gx_system("ls", jackdrc.c_str(), true, false) == SYSTEM_OK)
+  {
+    // open it
+    jackdrc = string(getenv("HOME")) + string("/") + ".jackdrc";
+    string cmdline = "";
+
+    ifstream f(jackdrc.c_str());
+    if (f.good())
+    {
+      // should contain only one command line
+      getline(f, cmdline);
+      f.close();
+    }
+
+    // launch jackd
+    if (!cmdline.empty())
+      if (gx_system(cmdline.c_str(), "", true, true) == SYSTEM_OK)
+      {
+	sleep(2);
+
+	// let's check it is really running
+	if (gx_system("pgrep", "jackd", true) == SYSTEM_OK)
+        {
+	  jack_is_running = true;
+	  return;
+	}
+      }
+
+  }
+
+  // TODO: what about jack-DBUS systems ? ... mmm ...  
+}
+
+//----abort guitarix
+void gx_abort(void* arg)
+{
+  gx_print_warning("gx_abort", "Aborting guitarix, ciao!");
+  exit(1);
+}
 
 //----menu function latency
 void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
@@ -747,7 +861,7 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
       // first time useage warning
       if (fwarn_swap == 0.0)
       {
-        gx_wait_warn("WARNING");
+        gx_wait_warn();
       }
       else doit =2;
 

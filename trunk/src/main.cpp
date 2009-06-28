@@ -221,7 +221,8 @@ void jack_shutdown(void *arg)
 #ifdef USE_RINGBUFFER
     jack_ringbuffer_free(jack_ringbuffer);
 #endif
-    gx_destroy_event( GTK_WIDGET(fWindow), NULL);
+    if (fWindow)
+      gx_destroy_event( GTK_WIDGET(fWindow), NULL);
     if (checkfreq)
         delete[] checkfreq;
     if (get_frame)
@@ -612,10 +613,32 @@ int main(int argc, char *argv[] )
     client = jack_client_open (jname, JackNoStartServer, &jackstat);
     if (client == 0)
     {
-      gx_print_error("main", 
-		     string("Can't connect to JACK, is the server running ?"));
-      exit (1);
+      gx_print_warning("main", 
+		       string("JACK not running, trying to start jack"));
+      
+      gx_start_jack_dialog(&argc, &argv);
+      if (jack_is_running)
+      {
+	// so let's try to be a jack client again
+	client = jack_client_open (jname, JackNoStartServer, &jackstat);
+	if (!client)
+	{
+	  gx_print_error("main", 
+			 string("I really tried to get jack up and running, sorry ... "));
+	  exit(1);
+	}
+      }
+      else // we give up
+      {
+	gx_print_error("main", 
+		       string("I tried to get jack up and running, sorry ... "));
+	exit(1);
+      }
+
+      // let's mark GTK as initialized
+      GTKUI::fInitialized = true;
     }
+
     if (jackstat & JackNameNotUnique)
     {
         jname = jack_get_client_name (client);
