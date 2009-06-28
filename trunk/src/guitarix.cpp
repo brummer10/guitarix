@@ -615,7 +615,8 @@ static void gx_show_about( GtkWidget *widget, gpointer data )
     "\n for impulse response it use jconv "
     "\n byFons Adriaensen "
     "\n  http://www.kokkinizita.net/linuxaudio/index.html "
-    "\n\n author: Hermann Meyer <brummer-@web.de>"
+    "\n\n authors: Hermann Meyer <brummer-@web.de>"
+    "\n authors: James Warden <warjamy@yahoo.com>"
     "\n home: http://guitarix.sourceforge.net/\n";
 
   gx_message_popup(about.c_str());
