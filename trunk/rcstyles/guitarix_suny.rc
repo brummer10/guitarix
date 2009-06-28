@@ -5,7 +5,7 @@
 pixmap_path './:/usr/share/guitarix:/usr/local/share/guitarix'
 
 
-style "guitarix"
+style "guitarix_suny"
 {
   
   
@@ -20,8 +20,8 @@ style "guitarix"
   fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }	
   fg[SELECTED] = { 0.80, 0.80, 0.80 }	
   
-  bg[NORMAL] = { 0.30, 0.30, 0.30 }
-  bg[PRELIGHT] = "#303084"
+  bg[NORMAL] = { 0.0, 0.0, 0.0 }
+  bg[PRELIGHT] = "#1e0000"
   bg[ACTIVE] = { 0.0, 0.0, 0.0 }
   bg[INSENSITIVE] = "#c4c0c0"
   bg[SELECTED] = "#000094"
@@ -38,45 +38,45 @@ style "guitarix"
   base[INSENSITIVE]  = "#4c5159"
   base[SELECTED]     = { 0.25, 0.25, 0.25 }
   font_name = "sans 10"
-
+ 
 }
 
 
-class "GtkWidget" style:highest "guitarix"
-class "GtkLabel" style:highest "guitarix"
-class "GtkHScale" style:highest "guitarix"
-class "GtkVScale" style:highest "guitarix"
-class "GtkCheckButton" style:highest "guitarix"
-class "GtkButton" style:highest "guitarix"
-class "GtkFrame" style:highest "guitarix"
-class "GtkExpander" style:highest "guitarix"
+class "GtkWidget" style:highest "guitarix_suny"
+class "GtkLabel" style:highest "guitarix_suny"
+class "GtkHScale" style:highest "guitarix_suny"
+class "GtkVScale" style:highest "guitarix_suny"
+class "GtkCheckButton" style:highest "guitarix_suny"
+class "GtkButton" style:highest "guitarix_suny"
+class "GtkFrame" style:highest "guitarix_suny"
+class "GtkExpander" style:highest "guitarix_suny"
 
 
-style "guitarix-event"
+style "guitarix-event_suny"
 { 
- bg_pixmap[NORMAL] = "controls3.jpg"
+ bg_pixmap[NORMAL] = "suny2.jpg"
 }
 
-class "GtkEventBox" style:highest "guitarix-event"
+class "GtkEventBox" style:highest "guitarix-event_suny"
 
-style "guitarix-dialog"
+style "guitarix-dialog_suny"
 { 
- bg_pixmap[NORMAL] = "controls1.jpg"
+ bg_pixmap[NORMAL] = "suny2.jpg"
 }
 
-widget_class "GtkDialog*" style:highest "guitarix-dialog"
+widget_class "GtkDialog*" style:highest "guitarix-dialog_suny"
 
-style "guitarix-menu"
+style "guitarix-m_suny"
 { 
-  fg[NORMAL] = { 0.80, 0.80, 0.80 }	
-  bg[NORMAL] =  "#303084"
+  fg[NORMAL] = "#8c5214"	
+  bg[NORMAL] =  "#450000"
   font_name = "sans 9"
 }
 
-class "GtkMenu" style:highest "guitarix-menu"
-class "GtkMenuBar" style:highest "guitarix-menu"
+class "GtkMenu" style:highest "guitarix-m_suny"
+class "GtkMenuBar" style:highest "guitarix-m_suny"
 
-style "bix_style"
+style "b_style_suny"
 {
  	engine "pixmap"
 	{
@@ -86,7 +86,7 @@ style "bix_style"
 			recolorable		= TRUE
 			state			= NORMAL	
 			shadow			= OUT
-			file			= "controls.jpg"
+			file			= "suny.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -96,7 +96,7 @@ style "bix_style"
 			recolorable		= TRUE
 			state			= PRELIGHT	
 			shadow			= OUT
-			file			= "controls2.jpg"
+			file			= "suny1.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -106,14 +106,32 @@ style "bix_style"
 			recolorable		= TRUE
 			state			= ACTIVE	
 			shadow			= OUT
-			file			= "controls.jpg"
+			file			= "suny.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
 	}
 }
 
-style "hix_style"
+style "c_style_suny"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL	
+			shadow			= OUT
+			file			= "suny.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+
+	}
+}
+
+style "h_style_suny"
 {
  	engine "pixmap"
 	{
@@ -123,19 +141,19 @@ style "hix_style"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "controls.jpg"
+			file			= "suny.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
 	}
 }
 
-class "GtkHandleBox" style:highest "hix_style"
-widget_class "*GtkToggleButton*" style:highest "bix_style"
-class "GtkButton" style:highest "bix_style"
-class "GtkSpinButton" style:highest "bix_style"
+class "GtkHandleBox" style:highest "h_style_suny"
+widget_class "*GtkToggleButton*" style:highest "b_style_suny"
+class "GtkButton" style:highest "b_style_suny"
+class "GtkSpinButton" style:highest "c_style_suny"
 
-style "pix_style"
+style "p_style_suny"
 {
  	engine "pixmap"
 	{
@@ -145,11 +163,11 @@ style "pix_style"
 			recolorable		= TRUE
 			state			= PRELIGHT
 			shadow			= OUT
-			file			= "controls4.jpg"
+			file			= "suny2.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
 	}
 }
-widget_class "*GtkProgressBar*" style:highest "pix_style"
+widget_class "*GtkProgressBar*" style:highest "p_style_suny"
 

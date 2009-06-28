@@ -16,8 +16,12 @@ style_files += ' controlsbl4.jpg'
 style_files += ' controlsbl.jpg'
 style_files += ' controls.jpg'
 style_files += ' guitarix-darkblack-relief.jpg'
+style_files += ' suny.jpg'
+style_files += ' suny1.jpg'
+style_files += ' suny2.jpg'
 style_files += ' guitarix_black.rc'
 style_files += ' guitarix_pix.rc'
+style_files += ' guitarix_suny.rc'
 style_files += ' guitarix_default.rc'
     
 def configure(conf):
