@@ -653,7 +653,7 @@ int main(int argc, char *argv[] )
     jack_set_graph_order_callback (client, graph_callback, NULL);
     jack_set_xrun_callback(client, xrun_callback, NULL);
     jack_set_sample_rate_callback(client, srate, 0);
-    jack_on_shutdown(client, jack_shutdown, jname);
+    jack_on_shutdown(client, jack_shutdown, NULL);
     jack_set_buffer_size_callback (client, buffersize_callback, 0);
 //----- check how many in/output ports we use
     gNumInChans = DSP.getNumInputs();
