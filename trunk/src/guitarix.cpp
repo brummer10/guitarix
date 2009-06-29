@@ -139,6 +139,8 @@ static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
 static void  gx_abort(void* arg);
 static void  gx_start_jack(void* arg);
 
+extern void gx_jack_cleanup(jack_client_t** jack_client);
+
 // ---- user directory
 string gx_get_userdir()
 {
@@ -909,7 +911,7 @@ static void gx_show_j_c_gui( GtkWidget *widget, gpointer data )
     (void)system ("jack_capture_gui2 -o yes -f ~/guitarix_session -n guitarix -p /.guitarix/ja_ca_ssetrc &");
 }
 
-static gint gx_delete_event( GtkWidget *widget, GdkEvent *event, gpointer data )
+static gint gx_terminate_child_procs()
 {
     if (system(" pidof meterbridge > /dev/null") == 0)
     {
@@ -931,19 +933,21 @@ static gint gx_delete_event( GtkWidget *widget, GdkEvent *event, gpointer data )
 }
 
 //----- clean up when shut down
-static void gx_destroy_event( GtkWidget *widget, gpointer data )
+static void gx_destroy_event()
 {
-    (void)gx_delete_event(widget, NULL, data);
+    (void)gx_terminate_child_procs();
 
     shownote = 2;
     stopit = "stop";
     showwave = 0;
     playmidi = 0;
-    jack_deactivate(client);
+
     GtkWaveView myGtkWaveView;
     myGtkWaveView.gtk_waveview_destroy (GTK_WIDGET(livewa), NULL );
+
     GtkRegler myGtkRegler;
     myGtkRegler.gtk_regler_destroy ( );
+
     if (G_IS_OBJECT(ib))
         g_object_unref( ib);
     if (G_IS_OBJECT(ibm))

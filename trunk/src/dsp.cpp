@@ -33,9 +33,11 @@
 class dsp
 {
 protected:
+  // sample rate given by jack. 
+  // Note: an instance of a dsp class with a sample rate = 0 is NOT initialized 
     int fSamplingFreq;
 public:
-    dsp() {}
+    dsp() : fSamplingFreq(0) {}
     virtual ~dsp() {}
     virtual int getNumInputs() 	= 0;
     virtual int getNumOutputs() 	= 0;
@@ -46,6 +48,7 @@ public:
     virtual void setNumOutputs() = 0;
     virtual void set_state()= 0;
     virtual void get_state()= 0;
+    virtual bool isInitialized() { return fSamplingFreq != 0; }
 };
 
 

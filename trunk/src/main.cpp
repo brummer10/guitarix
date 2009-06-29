@@ -197,6 +197,11 @@ float* 	gInChannel[1];
 float* 	gOutChannel[4];
 //void*		midi_port_buf ;
 
+
+//---- some function prototypes
+extern void gx_jack_cleanup(jack_client_t** jack_client);
+extern void gx_clean_exit(GtkWidget*, gpointer);
+
 //----------------------------------------------------------------------------
 // Jack Callbacks
 //----------------------------------------------------------------------------
@@ -212,46 +217,31 @@ int srate(jack_nframes_t nframes, void *arg)
     return 0;
 }
 
+//---- jack shutdown callback in case jackd shuts down on us
 void jack_shutdown(void *arg)
 {
-    gx_print_warning("jack_shutdown", 
-		     string("jack has bumped us out , exiting ..."));
+  gx_print_warning("jack_shutdown", 
+		   string("jack has bumped us out , exiting ..."));
 
-    jack_client_close(client);
-#ifdef USE_RINGBUFFER
-    jack_ringbuffer_free(jack_ringbuffer);
-#endif
-    if (fWindow)
-      gx_destroy_event( GTK_WIDGET(fWindow), NULL);
-    if (checkfreq)
-        delete[] checkfreq;
-    if (get_frame)
-        delete[] get_frame;
-    if (oversample)
-        delete[] oversample;
-    exit(1);
+  jack_is_running = false;
+  
+  // the jack client has been destroyed by jackd
+  // all we need now is shutting down guitarix cleanly
+  gx_clean_exit(NULL, NULL);
 }
 
+//---- signal handler, e.g. Ctrl-C
 void signal_handler(int sig)
 {
-    gx_destroy_event( GTK_WIDGET(fWindow), NULL);
-    jack_client_close(client);
-#ifdef USE_RINGBUFFER
-    jack_ringbuffer_free(jack_ringbuffer);
-#endif
-    if (checkfreq)
-        delete[] checkfreq;
-    if (get_frame)
-        delete[] get_frame;
-    if (oversample)
-        delete[] oversample;
-
-    string sigstr; gx_IntToString(sig, sigstr);
-    string msg = string("signal ") + sigstr + " received, exiting ...";
-    gx_print_warning("signal_handler", msg);
-    exit(0);
+  // print out a warning
+  string sigstr; gx_IntToString(sig, sigstr);
+  string msg = string("signal ") + sigstr + " received, exiting ...";
+  gx_print_warning("signal_handler", msg);
+  
+  gx_clean_exit(NULL, NULL);
 }
-
+ 
+//---- jack client callbacks 
 static int graph_callback (void* arg)
 {
     if (jack_port_connected (input_ports[0])) NO_CONNECTION = 0;
@@ -639,6 +629,10 @@ int main(int argc, char *argv[] )
       GTKUI::fInitialized = true;
     }
 
+    // so jack is running, fine :)
+    jack_is_running = true;
+
+    // it is maybe not the 1st guitarix instance ?
     if (jackstat & JackNameNotUnique)
     {
         jname = jack_get_client_name (client);
@@ -648,9 +642,7 @@ int main(int argc, char *argv[] )
     if (jack_ringbuffer == NULL)
     {
         g_critical("Cannot create JACK ringbuffer.");
-        gx_destroy_event( GTK_WIDGET(fWindow), NULL);
-        jack_client_close(client);
-        exit(1);
+        gx_clean_exit(NULL, NULL);
     }
     jack_ringbuffer_reset(jack_ringbuffer);
     jack_ringbuffer_mlock(jack_ringbuffer);
@@ -661,7 +653,7 @@ int main(int argc, char *argv[] )
     jack_set_graph_order_callback (client, graph_callback, NULL);
     jack_set_xrun_callback(client, xrun_callback, NULL);
     jack_set_sample_rate_callback(client, srate, 0);
-    jack_on_shutdown(client, jack_shutdown, 0);
+    jack_on_shutdown(client, jack_shutdown, jname);
     jack_set_buffer_size_callback (client, buffersize_callback, 0);
 //----- check how many in/output ports we use
     gNumInChans = DSP.getNumInputs();
@@ -739,38 +731,71 @@ int main(int argc, char *argv[] )
     // ------------- run GTK main loop
     interface->run();
 
-
     // ------------- shut things down
-    for (int i = 0; i < gNumInChans; i++)
-    {
-        jack_port_unregister(client, input_ports[i]);
-    }
-    for (int i = 0; i < gNumOutChans; i++)
-    {
-        jack_port_unregister(client, output_ports[i]);
-    }
-    if (midi_output_ports != NULL)
-    {
-        jack_port_unregister(client, midi_output_ports);
-    }
+    gx_clean_exit(NULL, NULL);
+    return 0;
+}
 
-    jack_client_close(client);
+//-----Function that cleans the jack stuff on shutdown
+void gx_jack_cleanup(jack_client_t** jack_client)
+{
+  jack_client_t* jcl = *jack_client;
+
+  if (jcl)
+  {
+    for (int i = 0; i < gNumInChans; i++)
+      jack_port_unregister(jcl, input_ports[i]);
+    
+    for (int i = 0; i < gNumOutChans; i++)
+      jack_port_unregister(jcl, output_ports[i]);
+    
+    if (midi_output_ports != NULL)
+      jack_port_unregister(jcl, midi_output_ports);
+
 #ifdef USE_RINGBUFFER
     jack_ringbuffer_free(jack_ringbuffer);
 #endif
-    DSP.get_state();
 
-    interface->saveState(previous_state.c_str());
-//----- delete the locked mem buffers
-    if (checkfreq)
-        delete[] checkfreq;
-    if (get_frame)
-        delete[] get_frame;
-    if (oversample)
-        delete[] oversample;
-    return 0;
-
+    jack_deactivate(jcl);
+    jack_client_close(jcl);
+    jcl = NULL;
+  }
 }
 
+//-----Function that must be called before complete shutdown 
+void gx_clean_exit(GtkWidget* widget, gpointer data)
+{
+
+  // clean jack client stuff
+  string jcl_name = "guitarix";
+
+  if (jack_is_running)
+  {
+    jcl_name = jack_get_client_name(client);
+    gx_jack_cleanup(&client);
+    jack_is_running = false;
+  }
+
+  // save DSP state
+  if (DSP.isInitialized())
+  {
+    string previous_state = gx_get_userdir() + jcl_name + "rc";
+    DSP.get_state();
+    interface->saveState(previous_state.c_str());
+  }
+
+  if (fWindow)
+    gx_destroy_event();
+
+  // delete the locked mem buffers
+  if (checkfreq)
+    delete[] checkfreq;
+  if (get_frame)
+    delete[] get_frame;
+  if (oversample)
+    delete[] oversample;
+
+  exit(0);
+}
 
 

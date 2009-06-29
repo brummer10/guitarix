@@ -26,6 +26,7 @@
 	here are the virtuell discriptions from the included GTK_WIDGET for guitarix
 *******************************************************************************
 *******************************************************************************/
+extern void gx_clean_exit(GtkWidget*, gpointer);
 
 // create main window
 GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
@@ -53,8 +54,8 @@ GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
     gtk_window_set_title (GTK_WINDOW (fWindow), name);
 
     /*---------------- singnals ----------------*/
-    g_signal_connect (GTK_OBJECT (fWindow), "delete_event", G_CALLBACK (gx_delete_event), NULL);
-    g_signal_connect (GTK_OBJECT (fWindow), "destroy", G_CALLBACK (gx_destroy_event), NULL);
+    g_signal_connect (GTK_OBJECT (fWindow), "destroy", G_CALLBACK (gx_clean_exit), NULL);
+
     /*---------------- status icon ----------------*/
     if (gx_pixmap_check() == 0)
     {
@@ -1098,8 +1099,7 @@ void GTKUI::addMenu()
 
     /*-- Create Exit menu item under Engine submenu --*/
     menuitem = gtk_menu_item_new_with_label ("  Exit  ");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_delete_event), NULL);
-    g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_destroy_event), NULL);
+    g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_clean_exit), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
     /*---------------- End Engine menu declarations ----------------*/
