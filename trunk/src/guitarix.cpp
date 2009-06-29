@@ -139,8 +139,6 @@ static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
 static void  gx_abort(void* arg);
 static void  gx_start_jack(void* arg);
 
-extern void gx_jack_cleanup(jack_client_t** jack_client);
-
 // ---- user directory
 string gx_get_userdir()
 {
