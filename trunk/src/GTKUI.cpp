@@ -383,6 +383,7 @@ void GTKUI::addToggleButton(const char* label, float* zone)
     gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
     g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
     g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (gx_run_jack_capture), (gpointer) c);
+    gtk_widget_add_accelerator(button, "activate", fAccelGroup, GDK_r, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
 }
 
 void GTKUI::addPToggleButton(const char* label, float* zone)
@@ -1041,8 +1042,8 @@ void GTKUI::addMenu()
     gtk_widget_show(menubar);
 
     /*-- create accelerator group for keyboard shorcuts --*/
-    GtkAccelGroup* accel_group = gtk_accel_group_new();
-    gtk_window_add_accel_group(GTK_WINDOW(fWindow), accel_group);
+    fAccelGroup = gtk_accel_group_new();
+    gtk_window_add_accel_group(GTK_WINDOW(fWindow), fAccelGroup);
 
     /*---------------- Create Engine menu items ------------------*/
     menuFile = gtk_menu_item_new_with_label ("Engine");
@@ -1055,15 +1056,15 @@ void GTKUI::addMenu()
     /* Some thing went wrong when compile without __SSE__ with that funktion. So I disable it in this case.*/
 
     /*-- Create New radio check menu item and set active under Engine submenu --*/
-    menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_MEDIA_PLAY, accel_group);
-    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_space, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+    menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_MEDIA_PLAY, fAccelGroup);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_space, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_play_function), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
 
     /*-- Create Open check menu item under Engine submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("Midi Out ");
-    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_m, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_m, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_midi_out), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
@@ -1110,8 +1111,8 @@ void GTKUI::addMenu()
 
 
     /*-- Create Exit menu item under Engine submenu --*/
-    menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_QUIT, accel_group);
-    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_q, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_QUIT, fAccelGroup);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_q, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
     g_signal_connect(G_OBJECT (menuitem), "activate", G_CALLBACK (gx_clean_exit), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);
@@ -1205,13 +1206,13 @@ void GTKUI::addMenu()
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("Oscilloscope");
     //  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
-    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_o, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_o, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_oscilloscope), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("Tuner");
-    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_t, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_t, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_tuner), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
@@ -1223,13 +1224,13 @@ void GTKUI::addMenu()
 
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("Meterbridge");
-    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_m, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_m, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_meterbridge), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/
     menuitem = gtk_menu_item_new_with_label ("Jack Capture settings");
-    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_j, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_j, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_j_c_gui), NULL);
     gtk_widget_show (menuitem);
@@ -1258,7 +1259,7 @@ void GTKUI::addMenu()
     }
 
     menuitem = gtk_menu_item_new();
-    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_s, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_s, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_cycle_through_skin), NULL);
     gtk_menu_append (GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
@@ -1275,8 +1276,8 @@ void GTKUI::addMenu()
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuHelp), menu);
 
     /*-- Create About menu item under About submenu --*/
-    menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_ABOUT, accel_group);
-    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_a, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_ABOUT, fAccelGroup);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_a, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
     gtk_menu_append(GTK_MENU(menu), menuitem);
     g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_about), NULL);

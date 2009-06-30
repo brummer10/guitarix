@@ -38,9 +38,10 @@ private :
 protected :
     //GtkWidget* 	fWindow;
     int			fTop;
-    GtkWidget* 	fBox[stackSize];
+    GtkWidget*          fBox[stackSize];
     int 		fMode[stackSize];
     bool		fStopped;
+    GtkAccelGroup*      fAccelGroup;
 
     GtkWidget* addWidget(const char* label, GtkWidget* w);
     virtual void pushBox(int mode, GtkWidget* w);
