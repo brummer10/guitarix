@@ -301,9 +301,19 @@ bool		GTKUI::fInitialized = false;
 list<UI*>	UI::fGuiList;
 
 //----menu funktion play stop
-void gx_play_function (GtkCheckMenuItem *menuitem, gpointer checkplay)
+void gx_play_function (GtkWidget *menuitem, gpointer checkplay)
 {
+  if (checky == 1.0)
+  {
+    checky = 0.0;
+    return;
+  }
+
+  if (checky == 0.0)
+  {
     checky = 1.0;
+    return;
+  }
 }
 void gx_stop_function (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
@@ -316,6 +326,7 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
 
   const char* app_name = "meterbridge";
+  string lockfile = gx_get_userdir() + ".meterbridge";
 
   // is it installed ?
   int meterbridge_ok = gx_system("which", app_name);
@@ -323,6 +334,15 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
   // if triggered by GUI
   if (gtk_check_menu_item_get_active(menuitem) == TRUE)
   {
+    // if lock file, exit from here
+    if (gx_system("ls", lockfile.c_str()) == SYSTEM_OK)
+    {
+      gx_print_warning("gx_meterbridge", 
+		       "An instance of meterbridge is already running");
+      return;
+    }
+
+    // try to launch it
     if (meterbridge_ok == SYSTEM_OK) // all is cool and dandy
     {
       (void)gx_system(
@@ -347,6 +367,43 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
 	 "WARNING [meterbridge]\n  "
          "meterbridge is either not installed or it could not be launched"
       );
+    }
+    else
+    {
+      // store PID in lock file
+      ofstream fo(lockfile.c_str());
+      if (fo.good())
+      {
+	string cmd = 
+	  string("`pgrep -n ") + 
+	  string(app_name) + 
+	  string("` > ") + 
+	  lockfile; 
+
+	(void)gx_system("echo", cmd.c_str(), false);
+	fo.close();
+      }
+
+      // get PID from lock file and save it
+      ifstream fi(lockfile.c_str());
+      if (fi.good())
+      {
+	fi >> child_pid[METERBG_IDX];
+	fi.close();
+      }
+    }
+  }
+
+  else // deactivate meterbridge
+  {
+    if (child_pid[METERBG_IDX] != NO_PID)
+    {
+      // kill process
+      (void)kill(child_pid[METERBG_IDX], SIGTERM);
+
+      // remove lock file
+      (void)gx_system("rm -f", lockfile.c_str());
+      child_pid[METERBG_IDX] = NO_PID;
     }
   }
 }
@@ -911,9 +968,12 @@ static void gx_show_j_c_gui( GtkWidget *widget, gpointer data )
 
 static gint gx_terminate_child_procs()
 {
-    if (system(" pidof meterbridge > /dev/null") == 0)
+    if (child_pid[METERBG_IDX] != NO_PID)
     {
-      (void)system("kill -15 `pidof meterbridge ` 2> /dev/null");
+      (void)kill(child_pid[METERBG_IDX], SIGTERM);
+      string lockfile = gx_get_userdir() + ".meterbridge";
+      (void)gx_system("rm -r", lockfile.c_str());
+      child_pid[METERBG_IDX] = NO_PID;
     }
 
     if (child_pid[JACKCAP_IDX] != NO_PID)
