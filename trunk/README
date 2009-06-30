@@ -79,8 +79,8 @@ $ guitarix --help
   -v [ --version ]      Print version string and exit
 
  GTK configuration options:
-  -c [ --clear ]        Don't use a gtkrc style file
-  -r [ --rcset ] arg    Style to use: 'black' or 'pix'
+  -c [ --clear ]        Use 'default' GTK style
+  -r [ --rcset ] arg    Style to use: 'black', 'pix', 'sunburst' or 'default'
 
  JACK configuration options:
   -i [ --jack-input ] arg  Guitarix jack input
@@ -148,6 +148,53 @@ setenv GUITARIX2JACK_INPUTS  system:capture_1
 setenv GUITARIX2JACK_OUTPUTS1  system:playback_1
 setenv GUITARIX2JACK_OUTPUTS2  system:playback_2
 setenv GUITARIX_RC_STYLE  black
+
+
+
+
+==================== Keyboard shortcuts
+
+Guitarix benefits from keyboard shortcuts for most of its operations.
+At the moment (svn@200), the following keyboard shortcuts are available:
+
+* Engine menu:
+--------------
+- Audio engine play	: Space
+- Audio engine stop	: Space
+- MIDI out ON/OFF	: Ctrl+M
+- Quit guitarix		: Ctrl+Q
+
+* Options menu:
+--------------
+- Oscilloscope ON/OFF	: Shift+O
+- Tuner ON/OFF 		: Shift+T	
+- Meterbridge ON/OFF	: Alt+M
+- Jack capture settings	: Alt+J
+
+- Skin change cycle-through : Shit+S
+
+* About menu:
+-------------
+- About display		: Ctrl+A
+
+As of June 30 2009, are missing preset options shortcuts.
+
+
+
+
+==================== Jack start when jack not running
+
+Guitarix will pop up a jack start dialog window if it finds that jackd
+is not running.
+
+The user can choose to activate jack or exit guitarix.  Note that the
+supported methods for starting jack are (by preference order):
+
+1- qjackctl --start
+2- use of $HOME/.jackdrc
+
+Guitarix does not support jackdbus or any other jack start method
+other than mentioned above.
 
 
 
