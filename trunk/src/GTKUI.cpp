@@ -1069,7 +1069,7 @@ void GTKUI::addMenu()
 //     gtk_widget_show (menuitem);
 
     /*-- Create Open check menu item under Engine submenu --*/
-    menuitem = gtk_check_menu_item_new_with_label ("  midi_out ");
+    menuitem = gtk_check_menu_item_new_with_label ("Midi Out ");
     gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_m, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_midi_out), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);
@@ -1135,13 +1135,13 @@ void GTKUI::addMenu()
     menu1 = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuEdit), menu1);
     /*-- Create  menu item under Settings submenu --*/
-    menuSave = gtk_menu_item_new_with_label ("save as");
+    menuSave = gtk_menu_item_new_with_label ("Save As");
     gtk_menu_append(GTK_MENU(menu1), menuSave);
     menus = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuSave), menus);
 
     /*-- Create  menu item under Save submenu --*/
-    menuitem = gtk_menu_item_new_with_label ("new");
+    menuitem = gtk_menu_item_new_with_label ("New");
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_presetn1), NULL);
     gtk_menu_append(GTK_MENU(menus), menuitem);
     gtk_widget_show (menuitem);
@@ -1175,7 +1175,7 @@ void GTKUI::addMenu()
     free(f);
 
     /*-- Create  menu load under Settings submenu --*/
-    menuLoad = gtk_menu_item_new_with_label ("load");
+    menuLoad = gtk_menu_item_new_with_label ("Load");
     gtk_menu_append (GTK_MENU(menu1), menuLoad);
     menul = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuLoad), menul);
@@ -1210,30 +1210,41 @@ void GTKUI::addMenu()
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menucap), menu);
 
     /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_label ("  Oscilloscope");
+    menuitem = gtk_check_menu_item_new_with_label ("Oscilloscope");
     //  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
     gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_o, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_oscilloscope), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_label ("  tuner ");
+    menuitem = gtk_check_menu_item_new_with_label ("Tuner");
     gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_t, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_tuner), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
+
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_append(GTK_MENU(menu), sep);
+    gtk_widget_show (sep);
+
     /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_label ("  meterbridge");
+    menuitem = gtk_check_menu_item_new_with_label ("Meterbridge");
     gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_m, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_meterbridge), NULL);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_menu_item_new_with_label ("jack_capture settings");
+    menuitem = gtk_menu_item_new_with_label ("Jack Capture settings");
     gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_j, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_j_c_gui), NULL);
     gtk_widget_show (menuitem);
+
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_append(GTK_MENU(menu), sep);
+    gtk_widget_show (sep);
 
     /*-- Create skin menu under Options submenu--*/
     menuSkinChooser = gtk_menu_item_new_with_label ("Skin");
