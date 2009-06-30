@@ -45,6 +45,7 @@ float *oversample  = NULL;
 const char* stopit = "go";
 const char* rcpath = " " ;
 string jconvwav ;
+string mbg_pidfile;
 
 // guitarix setting, location and related stuff
 const char* guitarix_dir     = ".guitarix";
@@ -325,8 +326,13 @@ void gx_stop_function (GtkCheckMenuItem *menuitem, gpointer checkplay)
 void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
 
+  // no need to do all this if jack is not running
+  if (!jack_is_running)
+    return;
+
   const char* app_name = "meterbridge";
-  string lockfile = gx_get_userdir() + ".meterbridge";
+  mbg_pidfile = gx_get_userdir() + ".mbg_";
+  mbg_pidfile += jack_get_client_name(client);
 
   // is it installed ?
   int meterbridge_ok = gx_system("which", app_name);
@@ -335,7 +341,7 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
   if (gtk_check_menu_item_get_active(menuitem) == TRUE)
   {
     // if lock file, exit from here
-    if (gx_system("ls", lockfile.c_str()) == SYSTEM_OK)
+    if (gx_system("ls", mbg_pidfile.c_str()) == SYSTEM_OK)
     {
       gx_print_warning("gx_meterbridge", 
 		       "An instance of meterbridge is already running");
@@ -345,16 +351,19 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
     // try to launch it
     if (meterbridge_ok == SYSTEM_OK) // all is cool and dandy
     {
-      (void)gx_system(
-         app_name,
-	 "-n meterbridge_guitarix_in_out -t sco guitarix:in_0  guitarix:out_0",
-	 true, true
-      );
+      string mbg_opt("-n ");
+      mbg_opt += jack_get_client_name(client);
+      mbg_opt += "_";
+      mbg_opt += app_name;
+      mbg_opt += " -t sco guitarix:in_0  guitarix:out_0";
 
+
+
+      (void)gx_system(app_name, mbg_opt.c_str(), true, true);
       usleep(1000); // let's give it 1ms
 
       // let's pgrep it: if 0, pgrep got a match
-      meterbridge_ok = gx_system("pgrep", app_name);
+      meterbridge_ok = gx_system("pgrep -n", app_name);
     }
 
     if (meterbridge_ok != SYSTEM_OK) // no meterbridge installed or running
@@ -371,21 +380,21 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
     else
     {
       // store PID in lock file
-      ofstream fo(lockfile.c_str());
+      ofstream fo(mbg_pidfile.c_str());
       if (fo.good())
       {
 	string cmd = 
 	  string("`pgrep -n ") + 
 	  string(app_name) + 
 	  string("` > ") + 
-	  lockfile; 
+	  mbg_pidfile; 
 
 	(void)gx_system("echo", cmd.c_str(), false);
 	fo.close();
       }
 
       // get PID from lock file and save it
-      ifstream fi(lockfile.c_str());
+      ifstream fi(mbg_pidfile.c_str());
       if (fi.good())
       {
 	fi >> child_pid[METERBG_IDX];
@@ -402,7 +411,7 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
       (void)kill(child_pid[METERBG_IDX], SIGTERM);
 
       // remove lock file
-      (void)gx_system("rm -f", lockfile.c_str());
+      (void)gx_system("rm -f", mbg_pidfile.c_str());
       child_pid[METERBG_IDX] = NO_PID;
     }
   }
@@ -971,8 +980,7 @@ static gint gx_terminate_child_procs()
     if (child_pid[METERBG_IDX] != NO_PID)
     {
       (void)kill(child_pid[METERBG_IDX], SIGTERM);
-      string lockfile = gx_get_userdir() + ".meterbridge";
-      (void)gx_system("rm -r", lockfile.c_str());
+      (void)gx_system("rm -f", mbg_pidfile.c_str(), true);
       child_pid[METERBG_IDX] = NO_PID;
     }
 
