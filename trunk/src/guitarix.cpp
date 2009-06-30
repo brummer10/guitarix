@@ -1294,7 +1294,7 @@ static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg)
   if (gtk_check_menu_item_get_active(menuitem) == FALSE)
     return;
 
-  // check skin validity 
+  // update the skin to the one picked by user
   const int idx = (int)GPOINTER_TO_INT(arg);
   (void)gx_update_skin(idx, "gx_change_skin");
 }
@@ -1306,8 +1306,8 @@ static void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg)
   gint idx = gx_current_skin + 1;
   idx %= GX_NUM_OF_SKINS;
 
-  // did it work ?
-  if (gx_update_skin(idx, "gx_change_skin"))
+  // did it work ? if yes, update current skin
+  if (gx_update_skin(idx, "gx_cycle_through_skin"))
     gx_current_skin = idx;
 }
 
