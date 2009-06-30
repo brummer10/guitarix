@@ -60,7 +60,6 @@ const char* default_setting  =
   "84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n"
   "-64.0 0.52 10 1.5 1.5 0 \n";
 
-
 int offcut;
 int lenghtcut;
 int cm = 0;
@@ -96,19 +95,17 @@ jack_nframes_t  jackframes;
 #define ASCII_START (48)
 
 //---- skin defines
-#define GX_NO_SKIN    (0)
-#define GX_BLACK_SKIN (1)
-#define GX_PIX_SKIN   (2)
-
-#define GX_NUM_OF_SKINS (5)
+#define GX_SKIN_START (0)
+#define GX_NUM_OF_SKINS (4)
 
 const char* skins[] = {
-  "",
   "black",
   "pix",
-  "suny",
+  "sunburst",
   "default"
 };
+
+gint gx_current_skin = GX_SKIN_START;
 
 //---- system related defines and function proto
 bool jack_is_running = false;
@@ -137,6 +134,9 @@ static int   gx_system(const char*,
 		       const bool devnull = true,
 		       const bool escape  = false);
 static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
+static void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg);
+static bool  gx_update_skin(const gint idx, const char* calling_func);
+static void  gx_actualize_skin_index(const string& skin_name);
 static void  gx_abort(void* arg);
 static void  gx_start_jack(void* arg);
 
@@ -1293,23 +1293,60 @@ static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg)
   // no action needed on false
   if (gtk_check_menu_item_get_active(menuitem) == FALSE)
     return;
-  
-  const int idx = (int)GPOINTER_TO_INT(arg);
-  string rcfile = GX_STYLE_DIR + string("/") + "guitarix";
 
-  if (idx != 0)
-    rcfile += string("_");
+  // check skin validity 
+  const int idx = (int)GPOINTER_TO_INT(arg);
+  (void)gx_update_skin(idx, "gx_change_skin");
+}
+
+// ----- cycling through skin
+static void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg)
+{
+  
+  gint idx = gx_current_skin + 1;
+  idx %= GX_NUM_OF_SKINS;
+
+  // did it work ?
+  if (gx_update_skin(idx, "gx_change_skin"))
+    gx_current_skin = idx;
+}
+
+// ---- skin changer, used internally frm callbacks
+static bool gx_update_skin(const gint idx, const char* calling_func)
+{ 
+  // check skin validity 
+  if (idx < GX_SKIN_START || idx >= GX_NUM_OF_SKINS)
+  {
+    gx_print_warning(calling_func, "skin index out of range, keeping actual skin");
+    return false;
+  }
       
+
+  string rcfile = GX_STYLE_DIR + string("/") + "guitarix_";
   rcfile += skins[idx];
   rcfile += ".rc";
 
   gtk_rc_parse(rcfile.c_str());
   gtk_rc_reset_styles(gtk_settings_get_default());
 
+  gx_current_skin = idx;
 
-   GtkWaveView myGtkWaveView;
-   myGtkWaveView.gtk_waveview_refresh (GTK_WIDGET(livewa), NULL );
+  GtkWaveView myGtkWaveView;
+  myGtkWaveView.gtk_waveview_refresh (GTK_WIDGET(livewa), NULL );
 
   // refresh latency check menu
   gx_set_jack_buffer_size(NULL, NULL);
+
+  return true;
 }
+
+//---- retrive skin array index from skin name
+static void gx_actualize_skin_index(const string& skin_name)
+{
+  for (int s = GX_SKIN_START; s < GX_NUM_OF_SKINS; s++)
+    if (skin_name == skins[s])
+    {
+      gx_current_skin = s;
+      return;
+    }
+}  

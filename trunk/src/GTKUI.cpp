@@ -1061,13 +1061,6 @@ void GTKUI::addMenu()
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
 
-//     /*-- Create Open radio check menu item under Engine submenu --*/
-//     menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_MEDIA_STOP, accel_group);
-//     gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_space, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-//     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_stop_function), NULL);
-//     gtk_menu_append(GTK_MENU(menuh), menuitem);
-//     gtk_widget_show (menuitem);
-
     /*-- Create Open check menu item under Engine submenu --*/
     menuitem = gtk_check_menu_item_new_with_label ("Midi Out ");
     gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_m, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
@@ -1251,9 +1244,9 @@ void GTKUI::addMenu()
     gtk_menu_append (GTK_MENU(menu), menuSkinChooser);
     menuskin = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuSkinChooser), menuskin);
- 
+
     /* Create black skin item under skin submenu --*/
-    int idx = GX_BLACK_SKIN;
+    int idx = GX_SKIN_START;
     while (idx < GX_NUM_OF_SKINS) {
       menuitem = gtk_radio_menu_item_new_with_label (group, skins[idx]);
       group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
@@ -1264,6 +1257,12 @@ void GTKUI::addMenu()
       idx++;
     }
 
+    menuitem = gtk_menu_item_new();
+    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_s, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_cycle_through_skin), NULL);
+    gtk_menu_append (GTK_MENU(menu), menuitem);
+    gtk_widget_show (menuitem);
+ 
     /*-- End skin menu declarations --*/
 
     /*---------------- Start About menu declarations ----------------*/

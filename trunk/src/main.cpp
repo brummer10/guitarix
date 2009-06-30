@@ -446,9 +446,9 @@ int main(int argc, char *argv[] )
       // GTK options: style 
       bpo::options_description opt_gtk("\033[1;32m GTK configuration options\033[0m");
       opt_gtk.add_options()
-        ("clear,c", "Don't use a gtkrc style file")
+        ("clear,c", "Use 'default' GTK style")
         ("rcset,r", bpo::value<string>(), 
-                    "Style to use: 'black' or 'pix'")
+                    "Style to use: 'black', 'pix', 'sunburst' or 'default'")
       ;
      
       // JACK options: input and output ports
@@ -500,42 +500,55 @@ int main(int argc, char *argv[] )
         return 0;
     
       // *** process GTK rc style
+      bool previous_conflict = false;
       if (vm.count("rcset")) 
       {
-        // check contradiction (clear and rcset cannot be used in the same call)
-        if (vm.count("clear"))
-    	throw invalid_argument(string("-c and -r cannot be used together"));
-    
         // retrieve user value
         string tmp = vm["rcset"].as<string>();
     
-        // if garbage, let's initialize to guitarix.rc
-        if (tmp != "black" && tmp != "pix")
+        // check contradiction (clear and rcset cannot be used in the same call)
+        if (vm.count("clear"))
+	{ 
+	  gx_print_error(
+	     "main",
+	     string("-c and -r cannot be used together, defaulting to 'default' style"));
+	  tmp = "default";
+	  previous_conflict = true;
+	}
+    
+        // if garbage, let's initialize to guitarix_default.rc
+	int s = GX_SKIN_START;
+        while (s < GX_NUM_OF_SKINS)
 	{
+	  if (tmp == skins[s]) break;
+	  s++;
+	}
+	
+	if (s == GX_NUM_OF_SKINS)
+	{  
 	  gx_print_error("main",
-			 string("rcset value is garbage, defaulting to no style"));
-	  tmp = "";
+			 string("rcset value is garbage, defaulting to 'default' style"));
+	  tmp = "default";
         }
         optvar[RC_STYLE] = tmp;
       }
     
-      // else, if no shell var defined for it, defaulting to guitarix.rc
+      // else, if no shell var defined for it, defaulting to guitarix_default.rc
       else if (!gx_shellvar_exists(optvar[RC_STYLE]))
       {  
-        optvar[RC_STYLE] = "";
+        optvar[RC_STYLE] = "default";
       }
 
-      if (!optvar[RC_STYLE].empty()) optvar[RC_STYLE].insert(0, "_"); 
-
-    
       // *** process GTK clear
       if (vm.count("clear")) 
       {
         // check contradiction (clear and rcset cannot be used in the same call)
-        if (vm.count("rcset"))
-	  throw invalid_argument(string("-c and -r cannot be used together"));
-
-        optvar[RC_STYLE] = "";
+        if (vm.count("rcset") && !previous_conflict)
+	  gx_print_error(
+	     "main",
+	     string("-c and -r cannot be used together, defaulting to 'default' style"));
+	
+        optvar[RC_STYLE] = "default";
       }
     
       // *** process jack input
@@ -586,8 +599,9 @@ int main(int argc, char *argv[] )
     // cerr << "<*** main: jack output2 : " <<  optvar[JACK_OUT2] << endl;
     
     // ----------------------------------------------------------------------
-    string str = GX_STYLE_DIR + string("/") + string("guitarix") + optvar[RC_STYLE] + ".rc";
+    string str = GX_STYLE_DIR + string("/") + string("guitarix_") + optvar[RC_STYLE] + ".rc";
     rcpath =  str.c_str();
+    gx_actualize_skin_index(optvar[RC_STYLE]);
 
     char           buf [256];
     jack_status_t  jackstat;
