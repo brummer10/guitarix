@@ -1026,24 +1026,51 @@ void GTKUI::addMenu()
     GtkWidget *menu;
     GtkWidget *menu1;
     GtkWidget *menuitem;
-// GtkWidget *vbox;
-    GSList *group = NULL;
-    GtkWidget *handlebox;  // remove handlebox here
+    GtkWidget *hbox;
+    GSList    *group = NULL;
 
     /*-- Create the vbox --*/
-// vbox = gtk_vbox_new(FALSE, 0);
+    hbox = gtk_hbox_new(FALSE, 0);
+
+    /*-- create accelerator group for keyboard shortcuts --*/
+    fAccelGroup = gtk_accel_group_new();
+    gtk_window_add_accel_group(GTK_WINDOW(fWindow), fAccelGroup);
 
     /*-- Create the menu bar --*/
     menubar = gtk_menu_bar_new();
-    handlebox = gtk_handle_box_new();   // remove handlebox here
+    gtk_box_pack_start(GTK_BOX(hbox), menubar, TRUE, TRUE, 0);
 
-    /*-- Add the menubar to the vbox  enable to remove the handlebox--*/
-// gtk_box_pack_start(GTK_BOX(vbox), menubar, FALSE, TRUE, 0);
-    gtk_widget_show(menubar);
+    /*-- Engine on/off and status --*/
+    GtkWidget* on_event_box  = gtk_event_box_new ();
+    GtkWidget* off_event_box = gtk_event_box_new ();
 
-    /*-- create accelerator group for keyboard shorcuts --*/
-    fAccelGroup = gtk_accel_group_new();
-    gtk_window_add_accel_group(GTK_WINDOW(fWindow), fAccelGroup);
+    // set up ON image: shown by default
+    string img_path = string(GX_PIXMAPS_DIR) + "/";
+    img_path += "guitarix-midi.png";
+
+    gx_engine_on_image = gtk_image_new_from_file(img_path.c_str());
+    gtk_container_add (GTK_CONTAINER (on_event_box), gx_engine_on_image);
+    gtk_box_pack_end(GTK_BOX(hbox), on_event_box, FALSE, TRUE, 0);
+    gtk_widget_show(gx_engine_on_image);
+
+    g_signal_connect (GTK_OBJECT (on_event_box), 
+		      "button_press_event", G_CALLBACK (gx_engine_switch), 
+		      NULL);
+    gtk_widget_show(on_event_box);
+
+    // set up OFF image: hidden by default
+    img_path = string(GX_PIXMAPS_DIR) + "/";
+    img_path += "guitarix-warn.png";
+
+    gx_engine_off_image = gtk_image_new_from_file(img_path.c_str());
+    gtk_container_add (GTK_CONTAINER (off_event_box), gx_engine_off_image);
+    gtk_box_pack_end(GTK_BOX(hbox), off_event_box, FALSE, TRUE, 0);
+    gtk_widget_hide(gx_engine_off_image);
+
+    g_signal_connect (GTK_OBJECT (off_event_box), 
+		      "button_press_event", G_CALLBACK (gx_engine_switch), 
+		      NULL);
+    gtk_widget_show(off_event_box);
 
     /*---------------- Create Engine menu items ------------------*/
     menuFile = gtk_menu_item_new_with_label ("Engine");
@@ -1058,7 +1085,7 @@ void GTKUI::addMenu()
     /*-- Create New radio check menu item and set active under Engine submenu --*/
     menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_MEDIA_PLAY, fAccelGroup);
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_space, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_play_function), NULL);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_engine_switch), NULL);
     gtk_menu_append(GTK_MENU(menuh), menuitem);
     gtk_widget_show (menuitem);
 
@@ -1284,13 +1311,9 @@ void GTKUI::addMenu()
     gtk_widget_show (menuitem);
     /*---------------- End About menu declarations ----------------*/
 
-    /*-- Add the menubar to the handlebox  remove hamdlebox here--*/
-    gtk_container_add(GTK_CONTAINER(handlebox), menubar);
-//gtk_box_pack_start(GTK_BOX(vbox), handlebox, FALSE, TRUE, 0);
     /*---------------- add menu to main window box----------------*/
-    gtk_box_pack_start (GTK_BOX (fBox[fTop]), handlebox , FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (fBox[fTop]), hbox , FALSE, FALSE, 0);
     /*---------------- show menu ----------------*/
-    gtk_widget_show(handlebox);   // remove handelbox here
     gtk_widget_show(menuitem);
     gtk_widget_show(menuFile);
     gtk_widget_show(menuLatency);
@@ -1299,7 +1322,8 @@ void GTKUI::addMenu()
     gtk_widget_show(menuSave);
     gtk_widget_show(menuSkinChooser);
     gtk_widget_show(menuHelp);
-//  gtk_widget_show(vbox);
+    gtk_widget_show(menubar);
+    gtk_widget_show(hbox);
     /*---------------- end show menu ----------------*/
 }
 

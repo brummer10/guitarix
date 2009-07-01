@@ -31,6 +31,8 @@ GtkWidget* fWindow, *menul, *menus, *pb, *midibox, *fbutton, *label1, *menuh;
 GdkPixbuf*   ib, *ibm, *ibr;
 GtkStatusIcon*  status_icon;
 GtkWidget* livewa, *warn_dialog,*disable_warn ;
+GtkWidget* gx_engine_on_image;
+GtkWidget* gx_engine_off_image;
 
 static float      checkbutton7;
 
@@ -302,23 +304,22 @@ bool		GTKUI::fInitialized = false;
 list<UI*>	UI::fGuiList;
 
 //----menu funktion play stop
-void gx_play_function (GtkWidget *menuitem, gpointer checkplay)
+void gx_engine_switch (GtkWidget* menuitem, gpointer arg)
 {
+  // switch engine on or off
+  checky = (checky == 1.0) ? 0.0 : 1.0;
+  
+  // refresh status display
   if (checky == 1.0)
   {
-    checky = 0.0;
-    return;
+    gtk_widget_show(gx_engine_on_image);
+    gtk_widget_hide(gx_engine_off_image);
   }
-
-  if (checky == 0.0)
+  else
   {
-    checky = 1.0;
-    return;
+    gtk_widget_show(gx_engine_off_image);
+    gtk_widget_hide(gx_engine_on_image);
   }
-}
-void gx_stop_function (GtkCheckMenuItem *menuitem, gpointer checkplay)
-{
-    checky = 0.0;
 }
 
 
