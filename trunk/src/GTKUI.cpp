@@ -1046,7 +1046,7 @@ void GTKUI::addMenu()
 
     // set up ON image: shown by default
     string img_path = string(GX_PIXMAPS_DIR) + "/";
-    img_path += "guitarix-midi.png";
+    img_path += "gx_on.png";
 
     gx_engine_on_image = gtk_image_new_from_file(img_path.c_str());
     gtk_container_add (GTK_CONTAINER (on_event_box), gx_engine_on_image);
@@ -1060,7 +1060,7 @@ void GTKUI::addMenu()
 
     // set up OFF image: hidden by default
     img_path = string(GX_PIXMAPS_DIR) + "/";
-    img_path += "guitarix-warn.png";
+    img_path += "gx_off.png";
 
     gx_engine_off_image = gtk_image_new_from_file(img_path.c_str());
     gtk_container_add (GTK_CONTAINER (off_event_box), gx_engine_off_image);

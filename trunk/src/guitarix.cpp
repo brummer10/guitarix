@@ -798,6 +798,10 @@ void gx_start_jack_dialog(int* argc, char*** argv)
   gdk_color_parse("#a6a9aa", &colorGreen);
   gtk_widget_modify_fg (text_label, GTK_STATE_NORMAL, &colorGreen);
 
+  GdkColor colorBlack;
+  gdk_color_parse("#000000", &colorBlack);
+  gtk_widget_modify_bg (jack_dialog, GTK_STATE_NORMAL, &colorBlack);
+
   GtkStyle* text_style = gtk_widget_get_style(text_label);
   pango_font_description_set_size(text_style->font_desc, 10*PANGO_SCALE);
   pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);
@@ -814,6 +818,12 @@ void gx_start_jack_dialog(int* argc, char*** argv)
   GtkWidget * box2 = gtk_hbox_new (0, 4);
   GtkWidget * button1  = gtk_dialog_add_button(GTK_DIALOG (jack_dialog),"Start jack",1);
   GtkWidget * button2  = gtk_dialog_add_button(GTK_DIALOG (jack_dialog),"Exit",2);
+
+  gdk_color_parse("#555555", &colorBlack);
+  gtk_widget_modify_bg (button1, GTK_STATE_NORMAL, &colorBlack);
+
+  gdk_color_parse("#555555", &colorBlack);
+  gtk_widget_modify_bg (button2, GTK_STATE_NORMAL, &colorBlack);
 
   gtk_container_add (GTK_CONTAINER(box), warning_label);
   gtk_container_add (GTK_CONTAINER(box), text_label);
