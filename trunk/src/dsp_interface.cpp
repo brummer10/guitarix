@@ -29,20 +29,28 @@
 
 virtual void buildUserInterface(UI* interface)
 {
-
+    //----- the main box, all visuable widgets are a child of this box
     interface->openVerticalBox("");
+
+    //----- add the menubar on top
     interface->addMenu();
+    //----- this is a dummy widget, only for save settings for the latency warning dialog
     interface->openWarningBox("WARNING", &fwarn);
     interface->closeBox();
+    
+    //----- the upper box, 
     interface->openVerticalBox("                                                ");
     interface->openEventBox(" ");
     interface->openHorizontalBox("");
+    //----- the tuner widget
     interface->openFrameBox("");
     interface->addNumDisplay("", &fConsta1);
     interface->closeBox();
+    //----- the balance widget
     interface->openVerticalBox("");
     interface->addslider("balance", &fslider25, 0.f, -1.f, 1.f, 1.e-01f);
     interface->closeBox();
+    //----- the jconv widget on the main window
     interface->openFrameBox("");
     interface->openExpanderBox(" jconv ", &fexpand2);
     interface->openHandleBox("  ");
@@ -56,17 +64,27 @@ virtual void buildUserInterface(UI* interface)
     interface->closeBox();
     interface->closeBox();
     interface->closeBox();
+    //----- end of the upper box
+
+    //----- the middle box,
     interface->openExpanderBox(" CONTROLS ", &fexpand);
+    //----- a handle box is a vertical box
     interface->openHandleBox("  ");
+    //----- arange all widgets in a horizontal scale
     interface->openHorizontalBox("");
+    //----- arange all widgets in a vertical scale
     interface->openVerticalBox("");
+    //----- the left widget side, volume, tone, fuzz
     interface->openHorizontalBox("");
+    //----- open a box for the volume controllers
     interface->openVerticalBox("volume");
     interface->openVerticalBox("");
     interface->addbigregler(" in ", &fslider3, 0.f, -40.f, 40.f, 0.1f);
     interface->addbigregler("out", &fslider17, 0.f, -40.f, 40.f, 0.1f);
     interface->closeBox();
     interface->closeBox();
+    //----- volume controll ready
+    //----- open a box for the tone and the fuzz controllers
     interface->openVerticalBox("tone");
     interface->addregler("bass", &fslider2, 0.f, -20.f, 20.f, 0.1f);
     interface->addregler("treble", &fslider1, 0.f, -20.f, 20.f, 0.1f);
@@ -74,11 +92,14 @@ virtual void buildUserInterface(UI* interface)
     interface->addregler("fuzz",&fthreshold, 1.f, 0.f, 1.f, 0.01f);
     interface->addHorizontalSlider("threshold", &ffuse, 0.f, 0.f, 2.f, 1.f);
     interface->closeBox();
+    //----- I have set a framebox to fill space beetween the widgets
     interface->openFrameBox("");
     interface->closeBox();
     interface->closeBox();
     interface->closeBox();
+    //----- end tone and fuzz controll
 
+    //----- the next part in the vertical box, 
     interface->openHorizontalBox("");
     interface->openVerticalBox("");
     interface->openVerticalBox("amp  ");
@@ -90,9 +111,10 @@ virtual void buildUserInterface(UI* interface)
     interface->addHorizontalSlider(" feedback ", &faas1, 0.3f, 0.3f, 0.9f, 0.01f);
     interface->closeBox();
     interface->closeBox();
+    //----- 
 
+    //----- the secound part in the vertical box
     interface->openHorizontalBox("");
-
     interface->openVerticalBox("");
     interface->openVerticalBox("");
     interface->addswitch("preamp", &fcheckbox1);
@@ -103,7 +125,6 @@ virtual void buildUserInterface(UI* interface)
     interface->addHorizontalWheel("drive", &fpredrive, 1.f, 1.f, 10.f, 1.0f);
     interface->closeBox();
     interface->closeBox();
-
     interface->openVerticalBox("");
     interface->openVerticalBox("");
     interface->addswitch("tube", &ftube);
@@ -114,12 +135,10 @@ virtual void buildUserInterface(UI* interface)
     interface->addHorizontalWheel("vibrato", &fvibrato, 0.f, 0.f, 2.f, 0.02f);
     interface->closeBox();
     interface->closeBox();
-
     interface->openVerticalBox("");
     interface->openVerticalBox("");
     interface->addswitch("tube2", &ftube3);
     interface->openFrameBox("");
-
     interface->addHorizontalWheel("tube",&fresotube3, 1.f, 1.f, 10.f, 1.0f);
     interface->closeBox();
     interface->closeBox();
@@ -132,23 +151,26 @@ virtual void buildUserInterface(UI* interface)
     interface->closeBox();
     interface->closeBox();
     interface->closeBox();
-
     interface->closeBox();
-
-
     interface->openHorizontalBox("");
-
-
     interface->closeBox();
     interface->closeBox();
+    //----- end 
+
+    //----- this box include all effects and the osccilloscope
     interface->openVerticalBox("");
+    //----- fill empty space
     interface->openHorizontalBox("");
     interface->closeBox();
+    //----- this box include only the effects
     interface->openHorizontalBox("");
+
+    //----- the compressor
     interface->openVerticalBox("compressor");
     interface->addregler("ratio", &fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
     interface->openHorizontalBox("");
     interface->addtoggle("", &fcheckboxcom1);
+    //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
     interface->openDialogBox("compressor", &fdialogbox8);
     interface->openHandleBox("  ");
     interface->openVerticalBox("compressor");
@@ -164,16 +186,24 @@ virtual void buildUserInterface(UI* interface)
     interface->closeBox();
     interface->closeBox();
     interface->closeBox();
+    //----- end advanced settings widget
     interface->closeBox();
     interface->closeBox();
+    //----- end compressor 
+
+    //----- overdrive
     interface->openVerticalBox("overdrive");
     interface->addregler("  drive ", &drive, 1.f, 1.f, 20.f, 0.1f);
     interface->addtoggle("", &foverdrive4);
     interface->closeBox();
+    //-----end overdrive
+
+    //----- distortion
     interface->openVerticalBox(" distortion");
     interface->addregler("  drive ", &fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
     interface->openHorizontalBox("");
     interface->addtoggle("", &fcheckbox4);
+    //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
     interface->openDialogBox("distortion", &fdialogbox1);
     interface->openHandleBox("  ");
     interface->addbigregler("  drive ", &fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
@@ -199,12 +229,17 @@ virtual void buildUserInterface(UI* interface)
     interface->closeBox();
     interface->closeBox();
     interface->closeBox();
+    //----- end advanced settings widget
     interface->closeBox();
     interface->closeBox();
+    //----- end distortion
+
+    //----- freeverb
     interface->openVerticalBox(" freeverb");
     interface->addregler("RoomSize", &fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
     interface->openHorizontalBox("");
     interface->addtoggle("", &fcheckbox6);
+    //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
     interface->openDialogBox("freeverb", &fdialogbox2);
     interface->openHandleBox("  ");
     interface->addregler("RoomSize", &fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
@@ -212,8 +247,12 @@ virtual void buildUserInterface(UI* interface)
     interface->addregler("wet/dry", &fslider14, 0.0f, -0.5f, 0.5f, 1.e-01f);
     interface->closeBox();
     interface->closeBox();
+    //----- end advanced settings widget
     interface->closeBox();
     interface->closeBox();
+    //----- end freeverb
+
+    //----- IR
     interface->openVerticalBox("ImpulseResponse");
     interface->openHorizontalBox("");
     interface->addregler("   freq   ", &fslider21, 440.000000f, 20.000000f, 2200.000000f, 10.000000f);
@@ -221,6 +260,7 @@ virtual void buildUserInterface(UI* interface)
     interface->closeBox();
     interface->openHorizontalBox("");
     interface->addtoggle("", &fcheckbox8);
+    //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
     interface->openDialogBox("ImpulseResponse", &fdialogbox3);
     interface->openHandleBox("  ");
     interface->addregler("    freq     ", &fslider21, 440.000000f, 20.000000f, 2200.000000f, 10.000000f);
@@ -228,12 +268,17 @@ virtual void buildUserInterface(UI* interface)
     interface->addregler("    bandwidth    ", &fslider20, 100.0f, 20.0f, 20000.0f, 10.0f);
     interface->closeBox();
     interface->closeBox();
+    //----- end advanced settings widget
     interface->closeBox();
     interface->closeBox();
+    //----- end IR
+
+    //----- crybaby
     interface->openVerticalBox("crybaby");
     interface->addregler(" wah ", &fslider11, 0.000000f, 0.000000f, 1.000000f, 1.000000e-02f);
     interface->openHorizontalBox("");
     interface->addtoggle("", &fcheckbox5);
+    //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
     interface->openDialogBox("crybaby", &fdialogbox4);
     interface->openHandleBox("  ");
     interface->addregler(" wah ", &fslider11, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
@@ -241,8 +286,12 @@ virtual void buildUserInterface(UI* interface)
     interface->addregler("wet/dry", &fslider13, 0.f, -1.f, 1.f, 1.e-01f);
     interface->closeBox();
     interface->closeBox();
+    //----- end advanced settings widget
     interface->closeBox();
     interface->closeBox();
+    //----- end crybaby
+
+    //----- echo
     interface->openVerticalBox("echo");
     interface->openHorizontalBox("");
     interface->addregler("    %    ", &fslider19, 0.000000f, 0.000000f, 100.000000f, 0.100000f);
@@ -250,31 +299,50 @@ virtual void buildUserInterface(UI* interface)
     interface->closeBox();
     interface->addtoggle("", &fcheckbox7);
     interface->closeBox();
+    //----- end echo
     interface->closeBox();
+    //----- close vertical effect box
+
+    //----- open a box for the oscilloscope
     interface->openVerticalBox("");
+    //----- fill empty space
     interface->openFrameBox("");
     interface->closeBox();
     interface->openHorizontalBox("");
+    //----- fill empty space
     interface->openFrameBox("");
     interface->closeBox();
+    //----- the oscilloscope
     interface->addLiveWaveDisplay(" ", &viv , &vivi);
+    //----- fill empty space
     interface->openFrameBox("");
     interface->closeBox();
     interface->closeBox();
+    //----- fill empty space
     interface->openHorizontalBox("");
     interface->closeBox();
     interface->closeBox();
+    //----- fill empty space
     interface->openFrameBox("");
     interface->closeBox();
+
+    interface->closeBox();
+    //----- close ocsilloscope box
+
     interface->closeBox();
     interface->closeBox();
     interface->closeBox();
-    interface->closeBox();
+    //----- close the vertical box for effects and oscilloscope
+
+    //----- open the 3. box on botton of the main widget
     interface->openEventBox(" FEEDBACK ");
     interface->openHorizontalBox("");
     interface->openFrameBox("");
+
+    //----- the midi widget
     interface->openVerticalMidiBox("");
     interface->openHorizontalBox("midi_out");
+    //----- create the midi settings dialog
     interface->openDialogBox("midi out", &fdialogbox6);
     interface->openTabBox("");
     interface->openVerticalBox("channel1");
@@ -363,12 +431,19 @@ virtual void buildUserInterface(UI* interface)
     interface->closeBox();
     interface->closeBox();
     interface->closeBox();
+
+    //----- add the controlers for feedback feedforward to the bottob box
     interface->addslider(" feedback", &fslider0, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
     interface->addslider(" feedforward", &fslider23, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
+
+    //----- the toggle button to start/stop jack_capture
     interface->openFrameBox("");
     interface->addToggleButton("record", 0);
     interface->closeBox();
+    //----- end jack_capture
+    interface->closeBox();
+    //----- close botton box
     interface->closeBox();
     interface->closeBox();
-    interface->closeBox();
+    //----- close main box
 }
