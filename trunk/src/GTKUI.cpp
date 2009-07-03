@@ -1029,7 +1029,7 @@ void GTKUI::addMenu()
     GtkWidget *hbox;
     GSList    *group = NULL;
 
-    /*-- Create the vbox --*/
+    /*-- Create hbox --*/
     hbox = gtk_hbox_new(FALSE, 0);
 
     /*-- create accelerator group for keyboard shortcuts --*/
@@ -1045,8 +1045,7 @@ void GTKUI::addMenu()
     GtkWidget* off_event_box = gtk_event_box_new ();
 
     // set up ON image: shown by default
-    string img_path = string(GX_PIXMAPS_DIR) + "/";
-    img_path += "gx_on.png";
+    string img_path = gx_pixmap_dir + "gx_on.png";
 
     gx_engine_on_image = gtk_image_new_from_file(img_path.c_str());
     gtk_container_add (GTK_CONTAINER (on_event_box), gx_engine_on_image);
@@ -1059,8 +1058,7 @@ void GTKUI::addMenu()
     gtk_widget_show(on_event_box);
 
     // set up OFF image: hidden by default
-    img_path = string(GX_PIXMAPS_DIR) + "/";
-    img_path += "gx_off.png";
+    img_path = gx_pixmap_dir + "gx_off.png";
 
     gx_engine_off_image = gtk_image_new_from_file(img_path.c_str());
     gtk_container_add (GTK_CONTAINER (off_event_box), gx_engine_off_image);
@@ -1164,8 +1162,11 @@ void GTKUI::addMenu()
     /*-- Create  menu item under Save submenu --*/
     menuitem = gtk_menu_item_new_with_label ("New");
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_presetn1), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_append(GTK_MENU(menus), menuitem);
     gtk_widget_show (menuitem);
+
+
     const char*	  home;
     char                rcfilenamere[256];
     const char*      prename = "guitarixpre";
@@ -1177,18 +1178,22 @@ void GTKUI::addMenu()
     if (f.good())
     {
         string buffer;
+	int p = GDK_1;
         while (!f.eof())
         {
             getline(f, buffer);
             std::string b(" ");
             std::string::size_type in = buffer.find(b);
+	
             if (int(in) != -1)
             {
                 buffer.erase(in);
                 menuitem = gtk_menu_item_new_with_label (buffer.c_str());
                 g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_presetn2), NULL);
+		gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, p, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
                 gtk_menu_append(GTK_MENU(menus), menuitem);
                 gtk_widget_show (menuitem);
+		p++;
             }
         }
     }
@@ -1204,18 +1209,22 @@ void GTKUI::addMenu()
     if (fa.good())
     {
         string buffer;
+	int p = GDK_1;
         while (!fa.eof())
         {
             getline(fa, buffer);
             std::string b(" ");
             std::string::size_type in = buffer.find(b);
+
             if (int(in) != -1)
             {
                 buffer.erase(in);
                 menuitem = gtk_menu_item_new_with_label (buffer.c_str());
                 g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_load_preset), NULL);
+		gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, p, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
                 gtk_menu_append(GTK_MENU(menul), menuitem);
                 gtk_widget_show (menuitem);
+		p++;
             }
         }
     }
@@ -1256,7 +1265,7 @@ void GTKUI::addMenu()
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_menu_item_new_with_label ("Jack Capture settings");
+    menuitem = gtk_menu_item_new_with_label ("Jack Capture Settings");
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_j, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_append(GTK_MENU(menu), menuitem);
     g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_j_c_gui), NULL);
