@@ -62,6 +62,11 @@ const char* default_setting  =
   "84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n"
   "-64.0 0.52 10 1.5 1.5 0 \n";
 
+const string gx_pixmap_dir = 
+  string(GX_PIXMAPS_DIR) + "/";
+const string gx_user_dir = 
+  string(getenv ("HOME")) + string("/") + string(guitarix_dir) + "/";
+
 int offcut;
 int lenghtcut;
 int cm = 0;
@@ -129,6 +134,8 @@ pid_t child_pid[NUM_OF_CHILD_PROC] = {
 
 static FILE* gx_popen(const char*, const char*, const int);
 static int   gx_pclose(FILE*, const int);
+static pid_t gx_find_child_pid(const char*); 
+static bool  gx_lookup_pid(const pid_t); 
 static void  gx_message_popup(const char*);
 static bool  gx_capture_command(const int, string&);
 static int   gx_system(const char*,
@@ -141,12 +148,6 @@ static bool  gx_update_skin(const gint idx, const char* calling_func);
 static void  gx_actualize_skin_index(const string& skin_name);
 static void  gx_abort(void* arg);
 static void  gx_start_jack(void* arg);
-
-// ---- user directory
-string gx_get_userdir()
-{
-  return string(getenv ("HOME")) + string("/") + string(guitarix_dir) + "/";
-}
 
 // ---- terminal warning message
 void gx_print_warning(const char* func, const string& msg)
@@ -168,12 +169,12 @@ void gx_print_error(const char* func, const string& msg)
 bool gx_version_check(const char* Path)
 {
     struct stat my_stat;
-    string fullgxdir = gx_get_userdir();
+
 //----- this check dont need to be against real version, we only need to know
 //----- if the presethandling is working with the courent version, we only count this
 //----- string when we must remove the old preset files.
     string rcfilename = 
-      fullgxdir + string("version-") + string("0.03.3") ;
+      gx_user_dir + string("version-") + string("0.03.3") ;
 
     if  (stat(Path, &my_stat) == 0) // directory exists
     {
@@ -181,13 +182,13 @@ bool gx_version_check(const char* Path)
         if  (stat(rcfilename.c_str(), &my_stat) != 0) 
 	{
             // current version not there, let's create it and refresh the whole shebang
-	    string oldfiles = fullgxdir + string("guitarix*rc");
+	    string oldfiles = gx_user_dir + string("guitarix*rc");
 	    (void)gx_system ("rm -f", oldfiles.c_str(), false);
 
-	    oldfiles = fullgxdir + string("version*");
+	    oldfiles = gx_user_dir + string("version*");
 	    (void)gx_system ("rm -f", oldfiles.c_str(), false);
 
-	    oldfiles = fullgxdir + string("*.conf");
+	    oldfiles = gx_user_dir + string("*.conf");
 	    (void)gx_system ("rm -f", oldfiles.c_str(), false);
 
 	    // setting file for current version
@@ -196,7 +197,7 @@ bool gx_version_check(const char* Path)
             f << cim <<endl;
             f.close();
 
-            string resetfile = fullgxdir + "resettings";
+            string resetfile = gx_user_dir + "resettings";
             ofstream fa(resetfile.c_str());
             fa <<  default_setting <<endl;
             fa.close();
@@ -205,7 +206,7 @@ bool gx_version_check(const char* Path)
     else // directory does not exist
     {
 	// create .guitarix directory
-        (void)gx_system("mkdir -p", fullgxdir.c_str(), false);
+        (void)gx_system("mkdir -p", gx_user_dir.c_str(), false);
 
 	// setting file for current version
 	ofstream f(rcfilename.c_str());
@@ -214,7 +215,7 @@ bool gx_version_check(const char* Path)
 	f.close();
 
 	// --- create jack_capture setting file
-	string tmpstr = fullgxdir + jcapsetup_file;
+	string tmpstr = gx_user_dir + jcapsetup_file;
 
         (void)gx_system("touch", tmpstr.c_str(), false);
 	(void)gx_system(
@@ -226,14 +227,14 @@ bool gx_version_check(const char* Path)
 	// --- version file
        //same here, we only change this file, when the presethandling is brocken,
        // otherwise we can let it untouched
-	tmpstr = fullgxdir + string("version-") + string("0.03.3");
+	tmpstr = gx_user_dir + string("version-") + string("0.03.3");
         (void)gx_system("touch", tmpstr.c_str(), false);
 
 	cim = string("echo 'guitarix-") + string(GX_VERSION) + "' >";
 	(void)gx_system(cim.c_str(), tmpstr.c_str(), false);
 
 	// --- guitarix own default settings
-	tmpstr = fullgxdir + guitarix_reset;
+	tmpstr = gx_user_dir + guitarix_reset;
         (void)gx_system("touch", tmpstr.c_str(), false);
 
 	cim = "echo -e '" + string(default_setting) + "' >";
@@ -246,13 +247,11 @@ bool gx_version_check(const char* Path)
 //----- we must make sure that the images for the status icon be there
 int gx_pixmap_check()
 {
-    int ep = 1;
     struct stat my_stat;
-    string pixmap_dir = string(GX_PIXMAPS_DIR) + "/";
 
-    string gx_pix   = pixmap_dir + "guitarix.png";
-    string midi_pix = pixmap_dir + "guitarix-midi.png";
-    string warn_pix = pixmap_dir + "guitarix-warn.png";
+    string gx_pix   = gx_pixmap_dir + "guitarix.png";
+    string midi_pix = gx_pixmap_dir + "guitarix-midi.png";
+    string warn_pix = gx_pixmap_dir + "guitarix-warn.png";
 
     if ((stat(gx_pix.c_str(), &my_stat) != 0)   || 
 	(stat(midi_pix.c_str(), &my_stat) != 0) ||	
@@ -264,8 +263,8 @@ int gx_pixmap_check()
 	 string(" cannot find installed pixmaps! giving up ...")
       );
 
-      // maybe a bit too severe to give up ??
-      exit(1);
+      // giving up
+      return 1;
     }
 
     GtkWidget *ibf =  gtk_image_new_from_file (gx_pix.c_str());
@@ -274,12 +273,11 @@ int gx_pixmap_check()
     ibm = gtk_image_get_pixbuf (GTK_IMAGE(stim));
     GtkWidget *stir = gtk_image_new_from_file (warn_pix.c_str());
     ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
-    ep = 0;
 
-    return ep;
+    return 0;
 }
 
-// convert int to string
+//----convert int to string
 void gx_IntToString(int i, string & s)
 {
   s = "";
@@ -293,9 +291,10 @@ void gx_IntToString(int i, string & s)
   if (i < 0) s.insert(0, "-");
 }
 
-// use jack_capture for record the session, open a write stream for controll the stop funktion.
+//----use jack_capture for record the session
 bool gx_capture(const char* capturas)
 {
+  // open a write stream for controling the stop function
   jcap_stream = gx_popen(capturas, "w", JACKCAP_IDX);
   return (jcap_stream != NULL);
 }
@@ -303,7 +302,7 @@ bool gx_capture(const char* capturas)
 bool		GTKUI::fInitialized = false;
 list<UI*>	UI::fGuiList;
 
-//----menu funktion play stop
+//----menu function play stop
 void gx_engine_switch (GtkWidget* menuitem, gpointer arg)
 {
   // switch engine on or off
@@ -329,90 +328,112 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
 
   // no need to do all this if jack is not running
   if (!jack_is_running)
-    return;
+  {
+    // let's make sure we have no proc stuff left
+    string old_lock = gx_user_dir + string(".mbg_") + "*";
+    (void)gx_system("rm -f", old_lock.c_str());
+    child_pid[METERBG_IDX] = NO_PID;
 
+    return;
+  }
+   
+  // PID file (used as lock file)
   const char* app_name = "meterbridge";
-  mbg_pidfile = gx_get_userdir() + ".mbg_";
-  mbg_pidfile += jack_get_client_name(client);
+  mbg_pidfile = gx_user_dir + string(".mbg_") + jack_get_client_name(client);
 
   // is it installed ?
   int meterbridge_ok = gx_system("which", app_name);
+  if (meterbridge_ok != SYSTEM_OK) // no meterbridge installed
+  {
+    // reset meterbridge GUI button state to inactive
+    gtk_check_menu_item_set_active(menuitem, FALSE);
+    gx_message_popup(
+       "  "
+       " WARNING [meterbridge]\n\n "
+       " meterbridge is not installed! "
+    );
+    return;
+  }
 
-  // if triggered by GUI
+
+  // ---- if triggered by GUI or Alt + M
   if (gtk_check_menu_item_get_active(menuitem) == TRUE)
   {
-    // if lock file, exit from here
     if (gx_system("ls", mbg_pidfile.c_str()) == SYSTEM_OK)
     {
-      gx_print_warning("gx_meterbridge", 
-		       "An instance of meterbridge is already running");
-      return;
+      // get PID from lock file
+      pid_t old_pid;
+      
+      ifstream fi(mbg_pidfile.c_str());
+      if (fi.good()) { fi >> old_pid; fi.close(); }
+
+      // do we have meterbridge running ?
+      if (gx_lookup_pid(old_pid)) // yeps
+      {	
+	// refresh internal pid store
+	child_pid[METERBG_IDX] = old_pid;
+	return;
+      }
+
+      // if not running, preliminary clean up
+      (void)gx_system("rm -f", mbg_pidfile.c_str());
+      child_pid[METERBG_IDX] = NO_PID;
     }
 
-    // try to launch it
-    if (meterbridge_ok == SYSTEM_OK) // all is cool and dandy
-    {
-      string mbg_opt("-n ");
-      mbg_opt += jack_get_client_name(client);
-      mbg_opt += "_";
-      mbg_opt += app_name;
-      mbg_opt += " -t sco guitarix:in_0  guitarix:out_0";
+    string mbg_opt("-n ");
+    mbg_opt += jack_get_client_name(client);
+    mbg_opt += "_";
+    mbg_opt += app_name;
+    mbg_opt += " -t sco guitarix:in_0  guitarix:out_0";
 
+    meterbridge_ok = gx_system(app_name, mbg_opt.c_str(), true, true);
+    usleep(1000); // let's give it 1ms
 
-
-      (void)gx_system(app_name, mbg_opt.c_str(), true, true);
-      usleep(1000); // let's give it 1ms
-
-      // let's pgrep it: if 0, pgrep got a match
-      meterbridge_ok = gx_system("pgrep -n", app_name);
-    }
-
-    if (meterbridge_ok != SYSTEM_OK) // no meterbridge installed or running
+    // not running, ? oops ...
+    if (meterbridge_ok != SYSTEM_OK) 
     {
       // reset meterbridge GUI button state to inactive
       gtk_check_menu_item_set_active(menuitem, FALSE);
-
       gx_message_popup(
          "  "
-	 "WARNING [meterbridge]\n  "
-         "meterbridge is either not installed or it could not be launched"
+	 "WARNING [meterbridge]\n\n  "
+         "meterbridge could not be launched!"
       );
+      return;
     }
-    else
+
+    // running, so let's store PID in lock file
+    ofstream fo(mbg_pidfile.c_str());
+    if (fo.good())
     {
-      // store PID in lock file
-      ofstream fo(mbg_pidfile.c_str());
-      if (fo.good())
-      {
-	string cmd = 
-	  string("`pgrep -n ") + 
-	  string(app_name) + 
-	  string("` > ") + 
-	  mbg_pidfile; 
-
-	(void)gx_system("echo", cmd.c_str(), false);
-	fo.close();
-      }
-
-      // get PID from lock file and save it
-      ifstream fi(mbg_pidfile.c_str());
-      if (fi.good())
-      {
-	fi >> child_pid[METERBG_IDX];
-	fi.close();
-      }
+      child_pid[METERBG_IDX] = gx_find_child_pid(app_name);
+      fo << child_pid[METERBG_IDX];
+      fo.close();
     }
   }
 
-  else // deactivate meterbridge
+  else // -- deactivate meterbridge
   {
     if (child_pid[METERBG_IDX] != NO_PID)
     {
-      // kill process
-      (void)kill(child_pid[METERBG_IDX], SIGTERM);
+      // do we really have meterbridge running ?
+      if (!gx_lookup_pid(child_pid[METERBG_IDX])) // nope
+      {
+	// it could be that the user closed meterbridge
+	// by hand and is trying to bring it back via guitarix
+	child_pid[METERBG_IDX] = NO_PID;
+
+	// try again
+	gtk_check_menu_item_set_active(menuitem, TRUE);
+	gx_meterbridge (menuitem, 0);
+	return;
+      }
 
       // remove lock file
       (void)gx_system("rm -f", mbg_pidfile.c_str());
+
+      // kill process
+      (void)kill(child_pid[METERBG_IDX], SIGTERM);
       child_pid[METERBG_IDX] = NO_PID;
     }
   }
@@ -563,10 +584,10 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
     GtkWidget* title = gtk_bin_get_child(GTK_BIN(menuitem));
     const gchar* text = gtk_label_get_text (GTK_LABEL(title));
 
-    string rcfilenamere = gx_get_userdir() + "guitarixprerc";
-    string tmpfilename  = gx_get_userdir() + "guitarixtmprc";
-    string jc_preset    = gx_get_userdir() + string("jconv_") + string(text) + ".conf ";
-    string jc_file      = gx_get_userdir() + string("jconv_set.conf");
+    string rcfilenamere = gx_user_dir + "guitarixprerc";
+    string tmpfilename  = gx_user_dir + "guitarixtmprc";
+    string jc_preset    = gx_user_dir + string("jconv_") + string(text) + ".conf ";
+    string jc_file      = gx_user_dir + string("jconv_set.conf");
     string file_copy    = jc_preset + jc_file;
     (void)gx_system("cp -f", file_copy.c_str());
 
@@ -599,8 +620,8 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 //---- funktion save
 void gx_save_preset (const gchar* presname)
 {
-    string rcfilenamere = gx_get_userdir() + "guitarixprerc";
-    string tmpfilename  = gx_get_userdir() + "guitarixtmprc";
+    string rcfilenamere = gx_user_dir + "guitarixprerc";
+    string tmpfilename  = gx_user_dir + "guitarixtmprc";
 
     interface->savepreStatebyname(rcfilenamere.c_str(), tmpfilename.c_str(), presname);
     if (cm == 0)
@@ -613,8 +634,8 @@ void gx_save_preset (const gchar* presname)
     string ttle = string("guitarix ") + presname;
     gtk_window_set_title (GTK_WINDOW (fWindow), (gchar*)ttle.c_str());
 
-    string jc_file      = gx_get_userdir() + string("jconv_set.conf ");
-    string jc_preset    = gx_get_userdir() + string("jconv_") + string(presname) + ".conf";
+    string jc_file      = gx_user_dir + string("jconv_set.conf ");
+    string jc_preset    = gx_user_dir + string("jconv_") + string(presname) + ".conf";
     string file_copy    = jc_file + jc_preset; 
     (void)gx_system("cp", file_copy.c_str());
 }
@@ -1209,6 +1230,71 @@ static int gx_system(const char* name1,
   return system(str.c_str());
 }
 
+
+// -------------------------------------------
+bool gx_lookup_pid(const pid_t child_pid) 
+{
+  // --- this function looks up the given PID from the lost of processes
+  // it returns true if a match is found.
+  string pstr;
+  gx_IntToString(child_pid, pstr);
+  
+  pstr += " -o pid";
+  
+  return (gx_system("ps -p", pstr.c_str(), true) == SYSTEM_OK) ? true : false;
+}
+
+//---- find latest process ID
+pid_t gx_find_child_pid(const char* procname) 
+{
+  // --- this function retrieves the latest PID of a named process.
+  // it is to be called just after guitarix spawns a child process
+
+  // file desc
+  int fd[2];
+  pid_t pid = NO_PID;
+
+  // piping
+  if (pipe(fd) < 0)
+    return NO_PID;
+
+  // forking
+  if ((pid = fork()) < 0)
+    return NO_PID;
+
+  else if (pid == 0) // child
+  {
+    close(fd[0]);
+
+    if (fd[1] != STDOUT_FILENO)
+    {  
+      dup2(fd[1], STDOUT_FILENO);
+      close(fd[1]);
+    }
+
+    // executing 'pgrep -n <proc name>'
+    if (execl("/usr/bin/pgrep", "pgrep", "-n", procname, NULL) < 0)
+      return NO_PID;
+  }
+  else // parent
+  {
+    close(fd[1]);
+
+    int rv;
+    char line[16];
+    
+    // read stdout
+    if ( (rv = read(fd[0], line, 16)) > 0)
+    {
+      string str = line;
+      str.resize(rv-1); // remove extra character crap
+      pid = atoi(str.c_str());
+    }
+  }
+
+  return pid;
+}
+
 //---- popup warning
 static void gx_message_popup(const char* msg)
 {
@@ -1255,7 +1341,7 @@ static bool gx_capture_command(const int idx, string& capcmd)
   bool ret_status = false;
 
   // jack_capture setup file
-  string gfilename = gx_get_userdir() + jcapsetup_file;
+  string gfilename = gx_user_dir + jcapsetup_file;
 
   // open jack_capture setup file
   ifstream f(gfilename.c_str());
