@@ -713,7 +713,7 @@ int main(int argc, char *argv[] )
     DSP.buildUserInterface(interface);
 
 
-    string previous_state = gx_get_userdir() + string(jname) + "rc";
+    string previous_state = gx_user_dir + string(jname) + "rc";
     interface->recallState(previous_state.c_str());
 //----- save the state for the latency change warning widget
     DSP.set_state();
@@ -793,7 +793,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
   // save DSP state
   if (DSP.isInitialized())
   {
-    string previous_state = gx_get_userdir() + jcl_name + "rc";
+    string previous_state = gx_user_dir + jcl_name + "rc";
     DSP.get_state();
     interface->saveState(previous_state.c_str());
   }
