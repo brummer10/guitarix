@@ -33,6 +33,7 @@ GtkStatusIcon*  status_icon;
 GtkWidget* livewa, *warn_dialog,*disable_warn ;
 GtkWidget* gx_engine_on_image;
 GtkWidget* gx_engine_off_image;
+GtkWidget * label6;
 
 static float      checkbutton7;
 
@@ -103,12 +104,14 @@ jack_nframes_t  jackframes;
 
 //---- skin defines
 #define GX_SKIN_START (0)
-#define GX_NUM_OF_SKINS (4)
+#define GX_NUM_OF_SKINS (6)
 
 const char* skins[] = {
   "black",
   "pix",
   "sunburst",
+  "yellow",
+  "rainbow",
   "default"
 };
 

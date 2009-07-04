@@ -164,7 +164,24 @@ void Resample::fileread(GtkWidget *widget, gpointer data )
         }
         rename(jconvwav.c_str(), e.c_str());
         jconvwav = e;
-        gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(widget), jconvwav.c_str());
+
+         // gtk_file_filter is brocken in >gtk-2.16.1 when used with ...set_filename
+         // gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(widget), jconvwav.c_str());
+
+         //----- get path from used wav file
+        string cimt = jconvwav ;
+        std::string bt("/");
+        std::string::size_type inr = cimt.find_last_of(bt);
+        cimt.erase(inr++);
+        gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER (fbutton),cimt.c_str());
+        //----- get name from used wav file
+        string cim = jconvwav ;
+        std::string b("/");
+        std::string::size_type in = cim.find_last_of(b);
+        in +=1;
+        cim.erase(0, in);
+        gtk_label_set_text(GTK_LABEL(label6), cim.c_str());
+
         int chans;
         float sr;
         int framescount;

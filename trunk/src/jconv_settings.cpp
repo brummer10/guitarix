@@ -103,11 +103,9 @@ void JCONV_SETTINGS::get_jconfset ()
 // read name from selected ir.wav file and save *.conf file for jconv
 static void fileselect( GtkWidget *widget, gpointer data )
 {
-    gchar *fileis =  gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(widget));
-    if (fileis != NULL)
-    {
+   // gchar *fileis =  gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(widget));
 
-        jconvwav = fileis;
+        string path_file = jconvwav;
         char                filename[256];
         const char*	  home;
         home = getenv ("HOME");
@@ -188,7 +186,7 @@ static void fileselect( GtkWidget *widget, gpointer data )
             cim += "\n";
         }
         cim += "# ";
-        jconvwav = fileis;
+        jconvwav = path_file;
         cim +=  jconvwav;
         cim += "\n";
         cim += "# ";
@@ -196,8 +194,7 @@ static void fileselect( GtkWidget *widget, gpointer data )
         cim += "\n";
         f <<  cim <<endl;
         f.close();
-        g_free (fileis);
-    }
+ 
 }
 
 // get the value from adjustment and set new label text
@@ -327,10 +324,30 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
     }
     fbutton = gtk_file_chooser_button_new ("Select a *.wav file", GTK_FILE_CHOOSER_ACTION_OPEN);
     gtk_file_chooser_get_local_only(GTK_FILE_CHOOSER (fbutton));
-    gtk_file_chooser_set_filename(GTK_FILE_CHOOSER (fbutton), jconvwav.c_str());
     GtkFileFilter* filter =  gtk_file_filter_new ();
-    gtk_file_filter_add_pattern (filter, "*.wav");
-    gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (fbutton), filter);
+    gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*.wav");
+    gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (fbutton), GTK_FILE_FILTER(filter));
+    
+    // gtk_file_filter is brocken in >gtk-2.16.1 when used with ...set_filename
+    // gtk_file_chooser_set_filename(GTK_FILE_CHOOSER (fbutton), jconvwav.c_str());
+
+    //----- get path from used wav file
+    string cimt = jconvwav ;
+    std::string bt("/");
+    std::string::size_type inr = cimt.find_last_of(bt);
+    cimt.erase(inr++);
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER (fbutton),cimt.c_str());
+
+    //----- get name from used wav file
+    string cim = jconvwav ;
+    std::string b("/");
+    std::string::size_type in = cim.find_last_of(b);
+    in += 1;
+    cim.erase(0, in);
+
+     //----- label for display the filename
+     label6 = gtk_label_new (cim.c_str());
+
     GtkWaveView myGtkWaveView;
     GtkWidget * waveview = myGtkWaveView.gtk_wave_view(jconvwav.c_str());
     gtk_widget_set_size_request (GTK_WIDGET(waveview), 300.0, 200.0);
@@ -341,11 +358,14 @@ void JCONV_SETTINGS::fileselected( GtkWidget *widget, gpointer data )
     GtkWidget * box4 = gtk_vbox_new (FALSE, 4);
     GtkWidget * viewbox = gtk_vbox_new (TRUE, 4);
 
+
     gtk_container_add (GTK_CONTAINER (box4), viewbox);
     gtk_container_add (GTK_CONTAINER (viewbox), waveview);
+
     gtk_container_add (GTK_CONTAINER (box4), label);
     gtk_container_add (GTK_CONTAINER (about), box4);
     gtk_container_add (GTK_CONTAINER (box4), fbutton);
+    gtk_container_add (GTK_CONTAINER (box4), label6);
     gtk_container_add (GTK_CONTAINER (box4), label1);
     gtk_container_add (GTK_CONTAINER (box4), box3);
     gtk_container_add (GTK_CONTAINER (box3), combo1);
@@ -379,11 +399,11 @@ void JCONV_SETTINGS::runjconv( GtkWidget *widget, gpointer data )
     if (checkbutton7 == 0)
     {
         checkbox7 = 1.0;
-        if (system(" pidof jconv > /dev/null") == 0)
+        if (gx_system(" pidof"," jconv",true, true) == 0)
         {
             //  jack_disconnect(client, jack_port_name(output_ports[2]),"jconv:In-1");
             //  jack_disconnect(client, jack_port_name(output_ports[3]), "jconv:In-2");
-            unuseres = system("command kill -2 `pidof  jconv` 2> /dev/null") ;
+            unuseres = gx_system("command kill -2"," `pidof  jconv`",true, true) ;
             sleep(1);
             runjc = 0;
             if (jack_port_is_mine (client,output_ports[3]))
@@ -434,7 +454,7 @@ void JCONV_SETTINGS::runjconv( GtkWidget *widget, gpointer data )
         {
             control_stream1 = popen ("jconv ~/.guitarix/jconv_set.conf 2> /dev/null" , "r");
             sleep (2);
-            if (system(" pidof jconv > /dev/null") == 0)
+            if (gx_system(" pidof"," jconv ",true, true) == 0)
             {
                 if(runjc == 0){
                 char                buf [256];

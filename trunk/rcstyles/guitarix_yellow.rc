@@ -1,0 +1,173 @@
+#
+# This is the GTK rc style file for guitarix
+#
+
+pixmap_path './:/usr/share/guitarix:/usr/local/share/guitarix'
+
+
+style "guitarix_yellow"
+{
+  
+  
+  GtkButton::default_border = { 0, 0, 0, 0 }
+  GtkButton::default_outside_border = { 0, 0, 0, 0 }
+  GtkButton::button_relief = GTK_RELIEF_NONE
+ 
+  
+  fg[NORMAL] = { 0.80, 0.80, 0.80 }	
+  fg[ACTIVE] = { 0.80, 0.80, 0.80 }	
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }	
+  fg[SELECTED] = { 0.80, 0.80, 0.80 }	
+  
+  bg[NORMAL] = { 0.0, 0.0, 0.0 }
+  bg[PRELIGHT] = "#e8760a"
+  bg[ACTIVE] = { 0.0, 0.0, 0.0 }
+  bg[INSENSITIVE] = "#c4c0c0"
+  bg[SELECTED] = "#aa5a01"
+ 
+  text[NORMAL] = { 0.80, 0.80, 0.80 }	
+  text[ACTIVE] = { 0.80, 0.80, 0.80 }	
+  text[PRELIGHT] = { 0.80, 0.80, 0.80 }	
+  text[INSENSITIVE] = { 0.80, 0.80, 0.80}	
+  text[SELECTED] = { 1.0, 1.0, 1.0 }
+  
+  base[ACTIVE]     = "#272a2f"
+  base[NORMAL]      =  "#1a1e20"
+  base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
+  base[INSENSITIVE]  = "#4c5159"
+  base[SELECTED]     = { 0.25, 0.25, 0.25 }
+  font_name = "sans 10"
+ 
+}
+
+
+class "GtkWidget" style:highest "guitarix_yellow"
+class "GtkLabel" style:highest "guitarix_yellow"
+class "GtkHScale" style:highest "guitarix_yellow"
+class "GtkVScale" style:highest "guitarix_yellow"
+class "GtkCheckButton" style:highest "guitarix_yellow"
+class "GtkButton" style:highest "guitarix_yellow"
+class "GtkFrame" style:highest "guitarix_yellow"
+class "GtkExpander" style:highest "guitarix_yellow"
+
+
+style "guitarix-event_yellow"
+{ 
+ bg_pixmap[NORMAL] = "yellow2.jpg"
+}
+
+class "GtkEventBox" style:highest "guitarix-event_yellow"
+
+style "guitarix-dialog_yellow"
+{ 
+ bg_pixmap[NORMAL] = "yellow2.jpg"
+}
+
+widget_class "GtkDialog*" style:highest "guitarix-dialog_yellow"
+
+style "guitarix-m_yellow"
+{ 
+  fg[NORMAL] = "#8c5214"	
+  bg[NORMAL] =  "#aa5a01"
+  font_name = "sans 9"
+}
+
+class "GtkMenu" style:highest "guitarix-m_yellow"
+class "GtkMenuBar" style:highest "guitarix-m_yellow"
+
+style "b_style_yellow"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL	
+			shadow			= OUT
+			file			= "yellow.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= PRELIGHT	
+			shadow			= OUT
+			file			= "yellow1.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= ACTIVE	
+			shadow			= OUT
+			file			= "yellow.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+}
+
+style "c_style_yellow"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL	
+			shadow			= OUT
+			file			= "yellow.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+
+	}
+}
+
+style "h_style_yellow"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL
+			shadow			= OUT
+			file			= "yellow2.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+}
+
+class "GtkHandleBox" style:highest "h_style_yellow"
+widget_class "*GtkToggleButton*" style:highest "b_style_yellow"
+class "GtkButton" style:highest "b_style_yellow"
+class "GtkSpinButton" style:highest "c_style_yellow"
+
+style "p_style_yellow"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= PRELIGHT
+			shadow			= OUT
+			file			= "yellow2.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+}
+widget_class "*GtkProgressBar*" style:highest "p_style_yellow"
+
