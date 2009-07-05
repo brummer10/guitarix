@@ -60,19 +60,27 @@ class mydsp : public dsp
 {
 private:
     // register all variables needed by dsp_audio.cpp dsp_midi.cpp and dsp_interface.cpp
+
     float 	fslider0;
-    float 	fslider1;
-    float 	fConst0;
-    float 	fConst1;
-    float 	fConst2;
-    float 	fslider2;
-    float 	fConst3;
-    float 	fConst4;
-    float 	fConst5;
+   //----- tone
+    float 	fslider_tone0; // tone treble controller
+    float 	fConst_tone0;
+    float 	fConst_tone1;
+    float 	fConst_tone2;
+    float 	fslider_tone1; // tone middle controller
+    float 	fConst_tone3;
+    float 	fConst_tone4;
+    float 	fConst_tone5;
+    float 	fVec_tone0[3];
+    float 	fRec_tone3[3];
+    float 	fRec_tone2[3];
+    float 	fRec_tone1[3];
+    float 	fRec_tone0[3];
+   // tone end
     float 	fVec0[2];
     float 	fcheckbox1;
     float 	fslider3;
-    float 	fRec4[2];
+    float 	fRec4[2]; 
     float 	fRec3[2];
     float 	fslider4;
     int 	IOTA;
@@ -111,9 +119,6 @@ private:
     float 	fRec15[3];
     float 	fRec14[3];
     float 	fcheckbox4;
-    float 	fVec9[3];
-    float 	fRec2[3];
-    float 	fRec1[3];
     float 	fslider11;
     float 	fRec19[2];
     float 	fslider12;
@@ -308,29 +313,31 @@ private:
     float fresotube2;
     float fresotube3;
     //----- resonator
-	int 	IOTARESO;
-	float 	fVecRESO0[4096];
-	float 	fRecRESO0[2];
+    int 	IOTARESO;
+    float 	fVecRESO0[4096];
+    float 	fRecRESO0[2];
     //----- oscillator
-	int 	iVecoscb0[2];
-	float 	fConstoscb0;
-	float 	fRecoscb0[3];
+    int 	iVecoscb0[2];
+    float 	fConstoscb0;
+    float 	fRecoscb0[3];
     //--- low/highpass for tube
-	float 	fConstsp0;
-	float 	fConstsp1;
-	float 	fConstsp2;
-	float 	fConstsp3;
-	float 	fConstsp4;
-	float 	fConstsp5;
-	float 	fConstsp6;
-	float 	fConstsp7;
-	float 	fConstsp8;
-	float 	fVecsp0[2];
-	float 	fConstsp9;
-	float 	fRecsp3[2];
-	float 	fRecsp2[2];
-	float 	fRecsp1[3];
-	float 	fRecsp0[3];
+    float 	fConstsp0;
+    float 	fConstsp1;
+    float 	fConstsp2;
+    float 	fConstsp3;
+    float 	fConstsp4;
+    float 	fConstsp5;
+    float 	fConstsp6;
+    float 	fConstsp7;
+    float 	fConstsp8;
+    float 	fVecsp0[2];
+    float 	fConstsp9;
+    float 	fRecsp3[2];
+    float 	fRecsp2[2];
+    float 	fRecsp1[3];
+    float 	fRecsp0[3];
+    //--- tone bass
+    float 	fslider_tone2; // tone bass controller
 
     // float  fbargraph0;
 public:
@@ -405,20 +412,29 @@ public:
         for (int i=0; i<2; i++) iRect2[i] = 0;
         for (int i=0; i<2; i++) iRect1[i] = 0;
         for (int i=0; i<2; i++) fRect0[i] = 0;
-        fConst0 = (7539.822754f / fSamplingFreq);
-        fConst1 = cosf(fConst0);
-        fConst2 = (1.414214f * sinf(fConst0));
-        fslider0 = 0.0f;
-        fslider1 = 0.0f;
-        fslider2 = 0.0f;
-        fConst3 = (1884.955688f / fSamplingFreq);
-        fConst4 = cosf(fConst3);
-        fConst5 = (1.414214f * sinf(fConst3));
+
+        fslider0 = 0.0f;  // gain in
+        //----- tone
+	fslider_tone0 = 0.0f;
+	fConst_tone0 = (7539.822754f / fSamplingFreq);
+	fConst_tone1 = cosf(fConst_tone0);
+	fConst_tone2 = (1.414214f * sinf(fConst_tone0));
+	fslider_tone1 = 0.0f;
+	fConst_tone3 = (1884.955688f / fSamplingFreq);
+	fConst_tone4 = cosf(fConst_tone3);
+	fConst_tone5 = (1.414214f * sinf(fConst_tone3));
+	fslider_tone2 = 0.0f;
+	for (int i=0; i<3; i++) fVec_tone0[i] = 0;
+	for (int i=0; i<3; i++) fRec_tone3[i] = 0;
+	for (int i=0; i<3; i++) fRec_tone2[i] = 0;
+	for (int i=0; i<3; i++) fRec_tone1[i] = 0;
+	for (int i=0; i<3; i++) fRec_tone0[i] = 0;
+       // tone end
         for (int i=0; i<2; i++) fVec0[i] = 0;
         checky = 1.0;
         fcheckbox1 = 0.0;
         fslider3 = 0.0f;
-        for (int i=0; i<2; i++) fRec4[i] = 0;
+        for (int i=0; i<2; i++) fRec4[i] = 0; 
         for (int i=0; i<2; i++) fRec3[i] = 0;
         fslider4 = 0.12f;
         IOTA = 0;
@@ -457,9 +473,6 @@ public:
         for (int i=0; i<3; i++) fRec15[i] = 0;
         for (int i=0; i<3; i++) fRec14[i] = 0;
         fcheckbox4 = 1.0;
-        for (int i=0; i<3; i++) fVec9[i] = 0;
-        for (int i=0; i<3; i++) fRec2[i] = 0;
-        for (int i=0; i<3; i++) fRec1[i] = 0;
         fslider11 = 0.0f;
         for (int i=0; i<2; i++) fRec19[i] = 0;
         fslider12 = 0.1f;
@@ -595,29 +608,29 @@ public:
         fresotube2 = 0.5f;
         fresotube3 = 0;
         //----- resonator
-		IOTARESO = 0;
-		for (int i=0; i<4096; i++) fVecRESO0[i] = 0;
-		for (int i=0; i<2; i++) fRecRESO0[i] = 0;
-		//----- oscillator
-		for (int i=0; i<2; i++) iVecoscb0[i] = 0;
-		fConstoscb0 = (0 - (2 * cosf((75398.226562f / fSamplingFreq))));
-		for (int i=0; i<3; i++) fRecoscb0[i] = 0;
-		//----- low/highpass for tube
+	IOTARESO = 0;
+	for (int i=0; i<4096; i++) fVecRESO0[i] = 0;
+	for (int i=0; i<2; i++) fRecRESO0[i] = 0;
+	//----- oscillator
+	for (int i=0; i<2; i++) iVecoscb0[i] = 0;
+	fConstoscb0 = (0 - (2 * cosf((75398.226562f / fSamplingFreq))));
+	for (int i=0; i<3; i++) fRecoscb0[i] = 0;
+	//----- low/highpass for tube
         fConstsp0 = tanf((15707.963867f / fSamplingFreq));
-		fConstsp1 = (2 * (1 - (1.0f / (fConstsp0 * fConstsp0))));
-		fConstsp2 = (1.0f / fConstsp0);
-		fConstsp3 = (1 + ((fConstsp2 - 0.765367f) / fConstsp0));
-		fConstsp4 = (1.0f / (1 + ((0.765367f + fConstsp2) / fConstsp0)));
-		fConstsp5 = (1 + ((fConstsp2 - 1.847759f) / fConstsp0));
-		fConstsp6 = (1.0f / (1 + ((1.847759f + fConstsp2) / fConstsp0)));
-		fConstsp7 = (408.407043f / fSamplingFreq);
-		fConstsp8 = (1 - fConstsp7);
-		for (int i=0; i<2; i++) fVecsp0[i] = 0;
-		fConstsp9 = (1.0f / (1 + fConstsp7));
-		for (int i=0; i<2; i++) fRecsp3[i] = 0;
-		for (int i=0; i<2; i++) fRecsp2[i] = 0;
-		for (int i=0; i<3; i++) fRecsp1[i] = 0;
-		for (int i=0; i<3; i++) fRecsp0[i] = 0;
+	fConstsp1 = (2 * (1 - (1.0f / (fConstsp0 * fConstsp0))));
+	fConstsp2 = (1.0f / fConstsp0);
+	fConstsp3 = (1 + ((fConstsp2 - 0.765367f) / fConstsp0));
+	fConstsp4 = (1.0f / (1 + ((0.765367f + fConstsp2) / fConstsp0)));
+	fConstsp5 = (1 + ((fConstsp2 - 1.847759f) / fConstsp0));
+	fConstsp6 = (1.0f / (1 + ((1.847759f + fConstsp2) / fConstsp0)));
+	fConstsp7 = (408.407043f / fSamplingFreq);
+	fConstsp8 = (1 - fConstsp7);
+	for (int i=0; i<2; i++) fVecsp0[i] = 0;
+	fConstsp9 = (1.0f / (1 + fConstsp7));
+	for (int i=0; i<2; i++) fRecsp3[i] = 0;
+	for (int i=0; i<2; i++) fRecsp2[i] = 0;
+	for (int i=0; i<3; i++) fRecsp1[i] = 0;
+	for (int i=0; i<3; i++) fRecsp0[i] = 0;
 
     }
 
