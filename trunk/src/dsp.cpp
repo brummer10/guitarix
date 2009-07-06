@@ -416,11 +416,11 @@ public:
         fslider0 = 0.0f;  // gain in
         //----- tone
 	fslider_tone0 = 0.0f;
-	fConst_tone0 = (15079.645508f  / fSamplingFreq);
+	fConst_tone0 = (31277.697266f  / fSamplingFreq);
 	fConst_tone1 = cosf(fConst_tone0);
 	fConst_tone2 = (1.414214f * sinf(fConst_tone0));
 	fslider_tone1 = 0.0f;
-	fConst_tone3 = (3769.911377f  / fSamplingFreq);
+	fConst_tone3 = (4146.902344f  / fSamplingFreq);
 	fConst_tone4 = cosf(fConst_tone3);
 	fConst_tone5 = (1.414214f * sinf(fConst_tone3));
 	fslider_tone2 = 0.0f;
