@@ -72,13 +72,16 @@ inline float foldback(float in, float threshold)
 // tube unit to run on sample base, it's unused for now, dont know if we need it any more
 inline float valve(float in, float out)
 {
+    float a = 2.000 ;
+    float b = 1.000 ;
+
     if ( in >= 0.0 )
     {
-        out = 2.000 * in - 1.000 * in * in;
+        out = a * in - b * in * in;
     }
     else
     {
-        out = 2.000 * in + 1.000 * in * in;
+        out = a * in + b * in * in;
     }
     return out;
 }
@@ -108,8 +111,9 @@ inline void down_sample(float **input,float **output, int sf)
     float y = 0;
     for (int i=0; i<sf; i++)
     {
+
         y = *in++;
-        out[i] = x*0.75 + y*0.25;
+        out[i] = x*0.75 + y*0.3;
         x = *in++;
     }
 }
@@ -133,14 +137,18 @@ inline void AntiAlias (int sf, float** input, float** output)
 }
 
 // the resonace tube unit on frame base
-inline void reso_tube (float fuzzy, int sf,float reso, float vibra, float** input, float** output)
+inline void reso_tube (int fuzzy, int sf,float reso, float vibra, float** input, float** output)
 {
     float* in = input[0];
     float* out = output[0];
     float ot = 0;
     float x = in[0];
+    float a = 2.000 ;
+    float b = 1.000 ;
     float 	fSlowRESO0 = reso;
- 
+    // float 	fSlowRESO1 = vibra;
+
+    double c = 0.5;
     //----- resonator
     int 	iSlowRESO2 = int((int((vibra - 1)) & 4095));
     int 	iSlowRESO3 = int((int(vibra) & 4095));
@@ -150,11 +158,11 @@ inline void reso_tube (float fuzzy, int sf,float reso, float vibra, float** inpu
         x = in[i];
         if ( x >= 0.0 )
         {
-            ot = ((2.000 * x - 1.000 * x * x) -x)*0.5;
+            ot = ((a * x - b * x * x) -x)*c;
         }
         else
         {
-            ot =  ((2.000 * x + 1.000 * x * x) -x)*0.5;
+            ot =  ((a * x + b * x * x) -x)*c;
         }
 
         float fTempRESO0 = (ot + (fSlowRESO0 * fRecRESO0[1]));
@@ -162,7 +170,7 @@ inline void reso_tube (float fuzzy, int sf,float reso, float vibra, float** inpu
         fRecRESO0[0] = (0.5f * (fVecRESO0[(IOTARESO-iSlowRESO3)&4095] + fVecRESO0[(IOTARESO-iSlowRESO2)&4095]));
         ot = fRecRESO0[0];
 
-        *out++ = fuzz(x + clip(ot*fuzzy,0.7),0.7);
+        *out++ = fuzz(x + clip(ot*fuzzy*0.5,0.7),0.7);
         // post processing
         fRecRESO0[1] = fRecRESO0[0];
         IOTARESO = IOTARESO+1;
@@ -172,79 +180,84 @@ inline void reso_tube (float fuzzy, int sf,float reso, float vibra, float** inpu
 
 
 // the oscilate tube unit on frame base
-inline void osc_tube (float fuzzy, int sf,float reso, float vibra, float** input, float** output)
+inline void osc_tube (int fuzzy, int sf,float reso, float vibra, float** input, float** output)
 {
     float* in = input[0];
     float* out = output[0];
     float ot = 0;
     float x = in[0];
-    //----- resonator
+    float a = 2.000 ;
+    float b = 1.000 ;
     float 	fSlowRESO0 = reso;
+    // float 	fSlowRESO1 = vibra;
+    //----- oscillator
+
+
+    double c = 0.5;
+    //----- resonator
     int 	iSlowRESO2 = int((int((vibra - 1)) & 4095));
     int 	iSlowRESO3 = int((int(vibra) & 4095));
+
+
 
     for (int i=0; i<sf; i++)
     {
         x = in[i];
         if ( x >= 0.0 )
         {
-            ot = ((2.000 * x - 1.000 * x * x) -x)*0.5;
+            ot = ((a * x - b * x * x) -x)*c;
         }
         else
         {
-            ot =  ((2.000 * x + 1.000 * x * x) -x)*0.5;
+            ot =  ((a * x + b * x * x) -x)*c;
         }
 
-        //-----oscillator
-	iVecoscb0[0] = 1;
-	fRecoscb0[0] = (0 - (((fRecoscb0[2] + (fConstoscb0 * fRecoscb0[1])) + iVecoscb0[1]) - 1));
-	float oscb = fRecoscb0[0];
-	//----- resonator
+				iVecoscb0[0] = 1;
+				fRecoscb0[0] = (0 - (((fRecoscb0[2] + (fConstoscb0 * fRecoscb0[1])) + iVecoscb0[1]) - 1));
+				float oscb = fRecoscb0[0];
+
         float fTempRESO0 = (ot + (fSlowRESO0 * fRecRESO0[1]));
         fVecRESO0[IOTARESO&4095] = fTempRESO0;
         fRecRESO0[0] = (0.5f * (fVecRESO0[(IOTARESO-iSlowRESO3)&4095] + fVecRESO0[(IOTARESO-iSlowRESO2)&4095]));
         ot = fRecRESO0[0] * (3+oscb)*0.25f;
-	//----- high/lowpass
-        float sp0 = ot;
-	fVecsp0[0] = sp0;
-	fRecsp3[0] = (fConstsp9 * ((fVecsp0[0] - fVecsp0[1]) + (fConstsp8 * fRecsp3[1])));
-	fRecsp2[0] = (fConstsp9 * ((fRecsp3[0] - fRecsp3[1]) + (fConstsp8 * fRecsp2[1])));
-	fRecsp1[0] = (fRecsp2[0] - (fConstsp6 * ((fConstsp5 * fRecsp1[2]) + (fConstsp1 * fRecsp1[1]))));
-	fRecsp0[0] = ((fConstsp6 * (fRecsp1[2] + (fRecsp1[0] + (2 * fRecsp1[1])))) - (fConstsp4 * ((fConstsp3 * fRecsp0[2]) + (fConstsp1 * fRecsp0[1]))));
 
-	ot = (fConstsp4 * (fRecsp0[2] + (fRecsp0[0] + (2 * fRecsp0[1]))));
+                float sp0 = ot;
+				fVecsp0[0] = sp0;
+				fRecsp3[0] = (fConstsp9 * ((fVecsp0[0] - fVecsp0[1]) + (fConstsp8 * fRecsp3[1])));
+				fRecsp2[0] = (fConstsp9 * ((fRecsp3[0] - fRecsp3[1]) + (fConstsp8 * fRecsp2[1])));
+				fRecsp1[0] = (fRecsp2[0] - (fConstsp6 * ((fConstsp5 * fRecsp1[2]) + (fConstsp1 * fRecsp1[1]))));
+				fRecsp0[0] = ((fConstsp6 * (fRecsp1[2] + (fRecsp1[0] + (2 * fRecsp1[1])))) - (fConstsp4 * ((fConstsp3 * fRecsp0[2]) + (fConstsp1 * fRecsp0[1]))));
+				ot = (fConstsp4 * (fRecsp0[2] + (fRecsp0[0] + (2 * fRecsp0[1]))));
 
-        *out++ = clip(x + ot*fuzzy,0.7);
 
+        *out++ = clip(x + ot*fuzzy*0.5,0.7);
         // post processing
-        //----- resonator
         fRecRESO0[1] = fRecRESO0[0];
         IOTARESO = IOTARESO+1;
-        //----- oscilloscope
-	fRecoscb0[2] = fRecoscb0[1]; fRecoscb0[1] = fRecoscb0[0];
-	iVecoscb0[1] = iVecoscb0[0];
-	//----- high/lowpass
-        fRecsp0[2] = fRecsp0[1]; fRecsp0[1] = fRecsp0[0];
-	fRecsp1[2] = fRecsp1[1]; fRecsp1[1] = fRecsp1[0];
-	fRecsp2[1] = fRecsp2[0];
-	fRecsp3[1] = fRecsp3[0];
-	fVecsp0[1] = fVecsp0[0];
+
+				fRecoscb0[2] = fRecoscb0[1]; fRecoscb0[1] = fRecoscb0[0];
+				iVecoscb0[1] = iVecoscb0[0];
+
+                fRecsp0[2] = fRecsp0[1]; fRecsp0[1] = fRecsp0[0];
+				fRecsp1[2] = fRecsp1[1]; fRecsp1[1] = fRecsp1[0];
+				fRecsp2[1] = fRecsp2[0];
+				fRecsp3[1] = fRecsp3[0];
+				fVecsp0[1] = fVecsp0[0];
     }
 }
 
 // the tube unit on frame base, it's also the drive unit just with other variables
-inline void fuzzy_tube (float fuzzy,int mode, int sf, float** input, float** output)
+inline void fuzzy_tube (int fuzzy,int mode, int sf, float** input, float** output)
 {
     float* in = input[0];
     float* out = output[0];
     float ot = 0;
     float x = in[0];
-    //----- tube
     float a = 2.000 ;
     float b = 1.000 ;
     double c = 0.5;
 
-    if (mode == 1) //----- drive
+    if (mode == 1)
     {
         a = 4.000 ;
         b = 4.000 ;
@@ -262,7 +275,7 @@ inline void fuzzy_tube (float fuzzy,int mode, int sf, float** input, float** out
         {
             ot =  ((a * x + b * x * x) -x)*c;
         }
-        *out++ = fuzz(x + ot*fuzzy,0.7);
+        *out++ = fuzz(x + ot*fuzzy*0.5,0.7);
     }
 }
 
@@ -287,7 +300,9 @@ inline void preamp(int sf, float** input, float** output,float atan_shape,float 
         x = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
         fTemp0in = normalize(x,atan_shape,f_atan);
         out[i] = fTemp0in*0.75;
+
     }
+
 }
 
 // this is the process callback called from jack
@@ -305,57 +320,20 @@ virtual void compute (int count, float** input, float** output)
         float   fSlowcom5 = fentrycom2;
         // compressor end
         float 	fSlow0 = fslider0;
-        //----- tone
-	float fSlow_mid_tone = (fslider_tone1*0.5);
-	float 	fSlow_tone0 = powf(10, (2.500000e-02f * (fslider_tone0- fSlow_mid_tone)));
-	float 	fSlow_tone1 = (1 + fSlow_tone0);
-	float 	fSlow_tone2 = (fConst_tone1 * fSlow_tone1);
-	float 	fSlow_tone3 = (2 * (0 - ((1 + fSlow_tone2) - fSlow_tone0)));
-	float 	fSlow_tone4 = (fConst_tone1 * (fSlow_tone0 - 1));
-	float 	fSlow_tone5 = (fConst_tone2 * sqrtf(fSlow_tone0));
-	float 	fSlow_tone6 = (fSlow_tone1 - (fSlow_tone5 + fSlow_tone4));
-	float 	fSlow_tone7 = powf(10, (2.500000e-02f * fSlow_mid_tone));
-	float 	fSlow_tone8 = (1 + fSlow_tone7);
-	float 	fSlow_tone9 = (fConst_tone4 * fSlow_tone8);
-	float 	fSlow_tone10 = (2 * (0 - ((1 + fSlow_tone9) - fSlow_tone7)));
-	float 	fSlow_tone11 = (fSlow_tone7 - 1);
-	float 	fSlow_tone12 = (fConst_tone4 * fSlow_tone11);
-	float 	fSlow_tone13 = sqrtf(fSlow_tone7);
-	float 	fSlow_tone14 = (fConst_tone5 * fSlow_tone13);
-	float 	fSlow_tone15 = (fSlow_tone8 - (fSlow_tone14 + fSlow_tone12));
-	float 	fSlow_tone16 = (fConst_tone1 * fSlow_tone8);
-	float 	fSlow_tone17 = (0 - (2 * ((fSlow_tone7 + fSlow_tone16) - 1)));
-	float 	fSlow_tone18 = (fConst_tone2 * fSlow_tone13);
-	float 	fSlow_tone19 = (fConst_tone1 * fSlow_tone11);
-	float 	fSlow_tone20 = ((1 + (fSlow_tone7 + fSlow_tone19)) - fSlow_tone18);
-	float 	fSlow_tone21 = powf(10, (2.500000e-02f * (fslider_tone2-fSlow_mid_tone)));
-	float 	fSlow_tone22 = (1 + fSlow_tone21);
-	float 	fSlow_tone23 = (fConst_tone4 * fSlow_tone22);
-	float 	fSlow_tone24 = (0 - (2 * ((fSlow_tone21 + fSlow_tone23) - 1)));
-	float 	fSlow_tone25 = (fConst_tone5 * sqrtf(fSlow_tone21));
-	float 	fSlow_tone26 = (fConst_tone4 * (fSlow_tone21 - 1));
-	float 	fSlow_tone27 = ((1 + (fSlow_tone21 + fSlow_tone26)) - fSlow_tone25);
-	float 	fSlow_tone28 = (2 * (0 - ((1 + fSlow_tone23) - fSlow_tone21)));
-	float 	fSlow_tone29 = (fSlow_tone21 + fSlow_tone25);
-	float 	fSlow_tone30 = ((1 + fSlow_tone29) - fSlow_tone26);
-	float 	fSlow_tone31 = (fSlow_tone22 - (fSlow_tone25 + fSlow_tone26));
-	float 	fSlow_tone32 = (1.0f / (1 + (fSlow_tone26 + fSlow_tone29)));
-	float 	fSlow_tone33 = (fSlow_tone8 - (fSlow_tone18 + fSlow_tone19));
-	float 	fSlow_tone34 = (2 * (0 - ((1 + fSlow_tone16) - fSlow_tone7)));
-	float 	fSlow_tone35 = (fSlow_tone7 + fSlow_tone18);
-	float 	fSlow_tone36 = ((1 + fSlow_tone35) - fSlow_tone19);
-	float 	fSlow_tone37 = (1.0f / (1 + (fSlow_tone19 + fSlow_tone35)));
-	float 	fSlow_tone38 = (fSlow_tone7 * ((1 + (fSlow_tone7 + fSlow_tone12)) - fSlow_tone14));
-	float 	fSlow_tone39 = (fSlow_tone7 + fSlow_tone14);
-	float 	fSlow_tone40 = (fSlow_tone7 * (1 + (fSlow_tone12 + fSlow_tone39)));
-	float 	fSlow_tone41 = (((fSlow_tone7 + fSlow_tone9) - 1) * (0 - (2 * fSlow_tone7)));
-	float 	fSlow_tone42 = (1.0f / ((1 + fSlow_tone39) - fSlow_tone12));
-	float 	fSlow_tone43 = (fSlow_tone0 * ((1 + (fSlow_tone0 + fSlow_tone4)) - fSlow_tone5));
-	float 	fSlow_tone44 = (fSlow_tone0 + fSlow_tone5);
-	float 	fSlow_tone45 = (fSlow_tone0 * (1 + (fSlow_tone4 + fSlow_tone44)));
-	float 	fSlow_tone46 = (((fSlow_tone0 + fSlow_tone2) - 1) * (0 - (2 * fSlow_tone0)));
-	float 	fSlow_tone47 = (1.0f / ((1 + fSlow_tone44) - fSlow_tone4));
-        // tone end
+        float 	fSlow1 = powf(10, (2.500000e-02f * fslider1));
+        float 	fSlow2 = (1 + fSlow1);
+        float 	fSlow3 = (fConst1 * fSlow2);
+        float 	fSlow4 = (2 * (0 - ((1 + fSlow3) - fSlow1)));
+        float 	fSlow5 = (fConst1 * (fSlow1 - 1));
+        float 	fSlow6 = (fConst2 * sqrtf(fSlow1));
+        float 	fSlow7 = (fSlow2 - (fSlow6 + fSlow5));
+        float 	fSlow8 = powf(10, (2.500000e-02f * fslider2));
+        float 	fSlow9 = (1 + fSlow8);
+        float 	fSlow10 = (fConst4 * fSlow9);
+        float 	fSlow11 = (0 - (2 * ((fSlow8 + fSlow10) - 1)));
+        float 	fSlow12 = (fConst5 * sqrtf(fSlow8));
+        float 	fSlow13 = (fConst4 * (fSlow8 - 1));
+        float 	fSlow14 = ((1 + (fSlow8 + fSlow13)) - fSlow12);
         float 	fSlow15 = checky;
         float 	fSlow16 = (7.118644f * fSlow15);
         float 	fSlow18 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider3)));
@@ -381,9 +359,16 @@ virtual void compute (int count, float** input, float** output)
         float 	fSlow42 = fslider8;
         float 	fSlow43 = powf(10.0f, (2 * fslider9));
         float 	fSlow44 = (9.999871e-04f * powf(10, (5.000000e-02f * (fslider10 - 10))));
-        //----- tone
-
-        // tone end
+        float 	fSlow46 = (fSlow9 - (fSlow12 + fSlow13));
+        float 	fSlow47 = (2 * (0 - ((1 + fSlow10) - fSlow8)));
+        float 	fSlow48 = (fSlow8 + fSlow12);
+        float 	fSlow49 = ((1 + fSlow48) - fSlow13);
+        float 	fSlow50 = (1.0f / (1 + (fSlow13 + fSlow48)));
+        float 	fSlow51 = (fSlow1 * ((1 + (fSlow1 + fSlow5)) - fSlow6));
+        float 	fSlow52 = (fSlow1 + fSlow6);
+        float 	fSlow53 = (fSlow1 * (1 + (fSlow5 + fSlow52)));
+        float 	fSlow54 = (((fSlow1 + fSlow3) - 1) * (0 - (2 * fSlow1)));
+        float 	fSlow55 = (1.0f / ((1 + fSlow52) - fSlow5));
         float 	fSlow56 = fslider11;
         float 	fSlow57 = (9.999872e-05f * powf(4.0f, fSlow56));
         float 	fSlow58 = fslider13;
@@ -423,13 +408,16 @@ virtual void compute (int count, float** input, float** output)
         float   threshold = fthreshold;
         float   fTemps39 = 10;//fslider39;
         float	f_resotube1 = fresotube1;
-        float 	f_resotube2 = fresotube2;
-        float	fffuzzytube = ffuzzytube*0.5;
-        float	ffpredrive = fpredrive*0.5;
-        float	ffresotube3 = fresotube3*0.5;
 
+        float 	f_resotube2 = fresotube2;
+
+
+        int 	ifuzzytube = int(ffuzzytube);
         int 	itube = int(ftube);
+
+        int 	iresotube3 = int(fresotube3);
         int 	itube3 = int(ftube3);
+        int 	ipredrive = int(fpredrive);
         int 	iprdr = int(fprdr);
         int     iupsample = int(fupsample);
         // the extra port register can only run clean on frame base, therfor the
@@ -465,9 +453,9 @@ virtual void compute (int count, float** input, float** output)
         {
             over_sample(input,&oversample,count);
           //  if (icheckbox1 == 1)  preamp(count*2,&oversample,&oversample,atan_shape,f_atan);
-            if (itube == 1)    fuzzy_tube(fffuzzytube, 0,count*2,&oversample,&oversample);
-            if (itube3 == 1)   reso_tube(ffresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
-            if (iprdr == 1)    fuzzy_tube(ffpredrive, 1,count*2,&oversample,&oversample);
+            if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count*2,&oversample,&oversample);
+            if (itube3 == 1)   reso_tube(iresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
+            if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count*2,&oversample,&oversample);
             if (antialis0 == 1)  AntiAlias(count*2,&oversample,&oversample);
             down_sample(&oversample,input,count);
         }
@@ -475,9 +463,9 @@ virtual void compute (int count, float** input, float** output)
         else
         {
          //   if (icheckbox1 == 1)  preamp(count,input,input,atan_shape,f_atan);
-            if (itube == 1)    fuzzy_tube(fffuzzytube, 0,count,input,input);
-            if (itube3 == 1)   osc_tube(ffresotube3,count,f_resotube1, f_resotube2,input,input);
-            if (iprdr == 1)    fuzzy_tube(ffpredrive, 1,count,input,input);
+            if (itube == 1)    fuzzy_tube(ifuzzytube, 0,count,input,input);
+            if (itube3 == 1)   osc_tube(iresotube3,count,f_resotube1, f_resotube2,input,input);
+            if (iprdr == 1)    fuzzy_tube(ipredrive, 1,count,input,input);
             if (antialis0 == 1)  AntiAlias(count,input,input);
         }
         // pointers to the jack_output_buffers
@@ -559,12 +547,10 @@ virtual void compute (int count, float** input, float** output)
                 fVec0[0] = input0[i]; // compressor end
             }
 
-            // gain in
             S5[0] = (fSlow15 * fVec0[1]);
             S5[1] = (fSlow16 * fVec0[1]);
             fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
             float fTemp0 = (fRec4[0] * S5[0]);
-            // gain in end
 
             // I have move the preamp to the frame based section, leef it here for . . .
               if (icheckbox1 == 1)     // preamp
@@ -635,26 +621,22 @@ virtual void compute (int count, float** input, float** output)
                 S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
                 S4[1] = S6[iSlow41];
                 float fTemp7 = S4[iSlow45];
-                fVec_tone0[0] = fTemp7;
+                fVec9[0] = fTemp7;
             }
-            else  fVec_tone0[0] = S4[0];   		// distortion end
+            else  fVec9[0] = S4[0];   		// distortion end
 
-            // tone
-	    fRec_tone3[0] = (fSlow_tone32 * ((fSlow_tone21 * ((fSlow_tone31 * fVec_tone0[2]) + ((fSlow_tone30 * fVec_tone0[0]) + (fSlow_tone28 * fVec_tone0[1])))) - ((fSlow_tone27 * fRec_tone3[2]) + (fSlow_tone24 * fRec_tone3[1]))));
-	    fRec_tone2[0] = (fSlow_tone37 * ((fSlow_tone7 * (((fSlow_tone36 * fRec_tone3[0]) + (fSlow_tone34 * fRec_tone3[1])) + (fSlow_tone33 * fRec_tone3[2]))) - ((fSlow_tone20 * fRec_tone2[2]) + (fSlow_tone17 * fRec_tone2[1]))));
-	    fRec_tone1[0] = (fSlow_tone42 * ((((fSlow_tone41 * fRec_tone2[1]) + (fSlow_tone40 * fRec_tone2[0])) + (fSlow_tone38 * fRec_tone2[2])) + (0 - ((fSlow_tone15 * fRec_tone1[2]) + (fSlow_tone10 * fRec_tone1[1])))));
-	    fRec_tone0[0] = (fSlow_tone47 * ((((fSlow_tone46 * fRec_tone1[1]) + (fSlow_tone45 * fRec_tone1[0])) + (fSlow_tone43 * fRec_tone1[2])) + (0 - ((fSlow_tone6 * fRec_tone0[2]) + (fSlow_tone3 * fRec_tone0[1])))));
-            // tone end
+            fRec2[0] = (fSlow50 * ((fSlow8 * (((fSlow49 * fVec9[0]) + (fSlow47 * fVec9[1])) + (fSlow46 * fVec9[2]))) - ((fSlow14 * fRec2[2]) + (fSlow11 * fRec2[1]))));
+            fRec1[0] = (fSlow55 * ((((fSlow54 * fRec2[1]) + (fSlow53 * fRec2[0])) + (fSlow51 * fRec2[2])) + (0 - ((fSlow7 * fRec1[2]) + (fSlow4 * fRec1[1])))));
 
-            float fTemp8 = fRec_tone0[0];
+            float fTemp8 = fRec1[0];
             if (iSlow65 == 1)    //crybaby
             {
-                S3[0] = fRec_tone0[0];
+                S3[0] = fRec1[0];
                 fRec19[0] = (fSlow57 + (0.999f * fRec19[1]));
                 fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
                 fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));
-                fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fRec_tone0[0] * fRec19[0]))));
-                S3[1] = ((fRec18[0] + (fSlow64 * fRec_tone0[0])) - fRec18[1]);
+                fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fRec1[0] * fRec19[0]))));
+                S3[1] = ((fRec18[0] + (fSlow64 * fRec1[0])) - fRec18[1]);
                 fTemp8 = S3[iSlow65];
             }                                     //crybaby ende
 
@@ -704,10 +686,8 @@ virtual void compute (int count, float** input, float** output)
             }
             else  S2[1] = fTemp8;	//freeverb end
 
-            // gain out
             fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
             float fTemp12 = (fRec46[0] * S2[iSlow71]);
-            // gain out end
 
             if (iSlow75 == 1)    //echo
             {
@@ -794,13 +774,12 @@ virtual void compute (int count, float** input, float** output)
             fRec21[1] = fRec21[0];
             fRec20[1] = fRec20[0];
             fRec19[1] = fRec19[0];
-            // tone
-	    fRec_tone0[2] = fRec_tone0[1]; fRec_tone0[1] = fRec_tone0[0];
-	    fRec_tone1[2] = fRec_tone1[1]; fRec_tone1[1] = fRec_tone1[0];
-	    fRec_tone2[2] = fRec_tone2[1]; fRec_tone2[1] = fRec_tone2[0];
-	    fRec_tone3[2] = fRec_tone3[1]; fRec_tone3[1] = fRec_tone3[0];
-	    fVec_tone0[2] = fVec_tone0[1]; fVec_tone0[1] = fVec_tone0[0];
-            // tone end
+            fRec1[2] = fRec1[1];
+            fRec1[1] = fRec1[0];
+            fRec2[2] = fRec2[1];
+            fRec2[1] = fRec2[0];
+            fVec9[2] = fVec9[1];
+            fVec9[1] = fVec9[0];
             fRec14[2] = fRec14[1];
             fRec14[1] = fRec14[0];
             fRec15[2] = fRec15[1];
@@ -869,5 +848,6 @@ virtual void compute (int count, float** input, float** output)
         }
     }
 }
+
 
 

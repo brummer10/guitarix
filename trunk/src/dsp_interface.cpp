@@ -84,12 +84,14 @@ virtual void buildUserInterface(UI* interface)
     interface->closeBox();
     interface->closeBox();
     //----- volume controll ready
-    //----- open a box for the tone  controllers
+    //----- open a box for the tone and the fuzz controllers
     interface->openVerticalBox("tone");
-    interface->addregler("bass", &fslider_tone2, 0.f, -20.f, 20.f, 0.1f);
-    interface->addregler("middle", &fslider_tone1, 0.f, -20.f, 20.f, 0.1f);
-    interface->addregler("treble", &fslider_tone0, 0.f, -20.f, 20.f, 0.1f);
-
+    interface->addregler("bass", &fslider2, 0.f, -20.f, 20.f, 0.1f);
+    interface->addregler("treble", &fslider1, 0.f, -20.f, 20.f, 0.1f);
+    interface->openVerticalBox("");
+    interface->addregler("fuzz",&fthreshold, 1.f, 0.f, 1.f, 0.01f);
+    interface->addHorizontalSlider("threshold", &ffuse, 0.f, 0.f, 2.f, 1.f);
+    interface->closeBox();
     //----- I have set a framebox to fill space beetween the widgets
     interface->openFrameBox("");
     interface->closeBox();
@@ -320,37 +322,8 @@ virtual void buildUserInterface(UI* interface)
     interface->openHorizontalBox("");
     interface->closeBox();
     interface->closeBox();
-    //----- control box under the oscilloscope
-    interface->openHorizontalBox("");
-    interface->openVerticalBox("");
-    interface->addregler("fuzz",&fthreshold, 1.f, 0.f, 1.f, 0.01f);
-    interface->addHorizontalSlider("threshold", &ffuse, 0.f, 0.f, 2.f, 1.f);
-    interface->closeBox();
     //----- fill empty space
     interface->openFrameBox("");
-    interface->closeBox();
-    interface->openFrameBox("");
-    interface->closeBox();
-    interface->openFrameBox("");
-    interface->closeBox();
-    interface->openFrameBox("");
-    interface->closeBox();
-    interface->openFrameBox("");
-    interface->closeBox();
-    interface->openFrameBox("");
-    interface->closeBox();
-    interface->openFrameBox("");
-    interface->closeBox();
-    interface->openFrameBox("");
-    interface->closeBox();
-    interface->openFrameBox("");
-    interface->closeBox();
-    interface->openFrameBox("");
-    interface->closeBox();
-    interface->openFrameBox("");
-    interface->closeBox();
-    interface->openFrameBox("");
-    interface->closeBox();
     interface->closeBox();
 
     interface->closeBox();
@@ -474,3 +447,4 @@ virtual void buildUserInterface(UI* interface)
     interface->closeBox();
     //----- close main box
 }
+

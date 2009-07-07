@@ -950,14 +950,16 @@ void GTKUI::addLiveWaveDisplay(const char* label, float* zone , float* zone1)
     new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     GtkWaveView myGtkWaveView;
     livewa = myGtkWaveView.gtk_wave_live_view(zone,zone1,GTK_ADJUSTMENT(adj));
-    GtkWidget * nolivewa =  gtk_event_box_new ();
-    GtkWidget * box = gtk_vbox_new (homogene, 4);
+     nolivewa =  gtk_event_box_new ();
+    GtkWidget * box = gtk_vbox_new (false, 4);
     gtk_widget_set_size_request (nolivewa, 550, 80);
+    gtk_widget_set_size_request (box, 550, 80);
     gtk_container_add (GTK_CONTAINER(nolivewa),box );
     gtk_container_add (GTK_CONTAINER(box),livewa );
     addWidget(label, nolivewa);
     gtk_widget_show(box);
     gtk_widget_hide(livewa);
+    gtk_widget_hide(nolivewa);
 };
 
 
