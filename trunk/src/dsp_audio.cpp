@@ -349,8 +349,8 @@ virtual void compute (int count, float** input, float** output)
         float 	fSlow43 = powf(10.0f, (2 * fslider9));
         float 	fSlow44 = (9.999871e-04f * powf(10, (5.000000e-02f * (fslider10 - 10))));
         //----- tone
-
-        if ((fslider_tone1 != fslider_tone_check1) || (fslider_tone0 != fslider_tone_check0) || (fslider_tone2 != fslider_tone_check2)) {
+          fslider_tone_check1 = fslider_tone1+fslider_tone0+fslider_tone2;
+        if (fslider_tone_check1 != fslider_tone_check) {
 	fSlow_mid_tone = (fslider_tone1*0.5);
 		fSlow_tone0 = powf(10, (2.500000e-02f * (fslider_tone0- fSlow_mid_tone)));
 		fSlow_tone1 = (1 + fSlow_tone0);
@@ -400,9 +400,7 @@ virtual void compute (int count, float** input, float** output)
 		fSlow_tone45 = (fSlow_tone0 * (1 + (fSlow_tone4 + fSlow_tone44)));
 		fSlow_tone46 = (((fSlow_tone0 + fSlow_tone2) - 1) * (0 - (2 * fSlow_tone0)));
 		fSlow_tone47 = (1.0f / ((1 + fSlow_tone44) - fSlow_tone4));
-          fslider_tone_check1 = fslider_tone1;
-          fslider_tone_check0 = fslider_tone0;
-          fslider_tone_check2 = fslider_tone2;
+                fslider_tone_check = fslider_tone1+fslider_tone0+fslider_tone2;
         }
         // tone end
         float 	fSlow56 = fslider11;

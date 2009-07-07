@@ -389,9 +389,8 @@ private:
 	float 	fSlow_tone45 ;
 	float 	fSlow_tone46 ;
 	float 	fSlow_tone47 ;
+        float  fslider_tone_check;
         float  fslider_tone_check1;
-        float  fslider_tone_check0 ;
-        float  fslider_tone_check2 ;
     // tone end
 
     // float  fbargraph0;
@@ -737,9 +736,8 @@ public:
 		fSlow_tone45 = (fSlow_tone0 * (1 + (fSlow_tone4 + fSlow_tone44)));
 		fSlow_tone46 = (((fSlow_tone0 + fSlow_tone2) - 1) * (0 - (2 * fSlow_tone0)));
 		fSlow_tone47 = (1.0f / ((1 + fSlow_tone44) - fSlow_tone4));
-          fslider_tone_check1 = fslider_tone1;
-          fslider_tone_check0 = fslider_tone0;
-          fslider_tone_check2 = fslider_tone2;
+          fslider_tone_check = fslider_tone1+fslider_tone0+fslider_tone2;
+          fslider_tone_check1 = 0.0f;
       // end
 
     }
