@@ -320,20 +320,9 @@ virtual void compute (int count, float** input, float** output)
         float   fSlowcom5 = fentrycom2;
         // compressor end
         float 	fSlow0 = fslider0;
-        float 	fSlow1 = powf(10, (2.500000e-02f * fslider1));
-        float 	fSlow2 = (1 + fSlow1);
-        float 	fSlow3 = (fConst1 * fSlow2);
-        float 	fSlow4 = (2 * (0 - ((1 + fSlow3) - fSlow1)));
-        float 	fSlow5 = (fConst1 * (fSlow1 - 1));
-        float 	fSlow6 = (fConst2 * sqrtf(fSlow1));
-        float 	fSlow7 = (fSlow2 - (fSlow6 + fSlow5));
-        float 	fSlow8 = powf(10, (2.500000e-02f * fslider2));
-        float 	fSlow9 = (1 + fSlow8);
-        float 	fSlow10 = (fConst4 * fSlow9);
-        float 	fSlow11 = (0 - (2 * ((fSlow8 + fSlow10) - 1)));
-        float 	fSlow12 = (fConst5 * sqrtf(fSlow8));
-        float 	fSlow13 = (fConst4 * (fSlow8 - 1));
-        float 	fSlow14 = ((1 + (fSlow8 + fSlow13)) - fSlow12);
+        //----- tone
+
+        // tone end
         float 	fSlow15 = checky;
         float 	fSlow16 = (7.118644f * fSlow15);
         float 	fSlow18 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider3)));
@@ -359,16 +348,63 @@ virtual void compute (int count, float** input, float** output)
         float 	fSlow42 = fslider8;
         float 	fSlow43 = powf(10.0f, (2 * fslider9));
         float 	fSlow44 = (9.999871e-04f * powf(10, (5.000000e-02f * (fslider10 - 10))));
-        float 	fSlow46 = (fSlow9 - (fSlow12 + fSlow13));
-        float 	fSlow47 = (2 * (0 - ((1 + fSlow10) - fSlow8)));
-        float 	fSlow48 = (fSlow8 + fSlow12);
-        float 	fSlow49 = ((1 + fSlow48) - fSlow13);
-        float 	fSlow50 = (1.0f / (1 + (fSlow13 + fSlow48)));
-        float 	fSlow51 = (fSlow1 * ((1 + (fSlow1 + fSlow5)) - fSlow6));
-        float 	fSlow52 = (fSlow1 + fSlow6);
-        float 	fSlow53 = (fSlow1 * (1 + (fSlow5 + fSlow52)));
-        float 	fSlow54 = (((fSlow1 + fSlow3) - 1) * (0 - (2 * fSlow1)));
-        float 	fSlow55 = (1.0f / ((1 + fSlow52) - fSlow5));
+        //----- tone
+
+        if ((fslider_tone1 != fslider_tone_check1) || (fslider_tone0 != fslider_tone_check0) || (fslider_tone2 != fslider_tone_check2)) {
+	fSlow_mid_tone = (fslider_tone1*0.5);
+		fSlow_tone0 = powf(10, (2.500000e-02f * (fslider_tone0- fSlow_mid_tone)));
+		fSlow_tone1 = (1 + fSlow_tone0);
+		fSlow_tone2 = (fConst_tone1 * fSlow_tone1);
+		fSlow_tone3 = (2 * (0 - ((1 + fSlow_tone2) - fSlow_tone0)));
+		fSlow_tone4 = (fConst_tone1 * (fSlow_tone0 - 1));
+		fSlow_tone5 = (fConst_tone2 * sqrtf(fSlow_tone0));
+		fSlow_tone6 = (fSlow_tone1 - (fSlow_tone5 + fSlow_tone4));
+		fSlow_tone7 = powf(10, (2.500000e-02f * fSlow_mid_tone));
+		fSlow_tone8 = (1 + fSlow_tone7);
+		fSlow_tone9 = (fConst_tone4 * fSlow_tone8);
+		fSlow_tone10 = (2 * (0 - ((1 + fSlow_tone9) - fSlow_tone7)));
+		fSlow_tone11 = (fSlow_tone7 - 1);
+		fSlow_tone12 = (fConst_tone4 * fSlow_tone11);
+		fSlow_tone13 = sqrtf(fSlow_tone7);
+		fSlow_tone14 = (fConst_tone5 * fSlow_tone13);
+		fSlow_tone15 = (fSlow_tone8 - (fSlow_tone14 + fSlow_tone12));
+		fSlow_tone16 = (fConst_tone1 * fSlow_tone8);
+		fSlow_tone17 = (0 - (2 * ((fSlow_tone7 + fSlow_tone16) - 1)));
+		fSlow_tone18 = (fConst_tone2 * fSlow_tone13);
+		fSlow_tone19 = (fConst_tone1 * fSlow_tone11);
+		fSlow_tone20 = ((1 + (fSlow_tone7 + fSlow_tone19)) - fSlow_tone18);
+		fSlow_tone21 = powf(10, (2.500000e-02f * (fslider_tone2-fSlow_mid_tone)));
+		fSlow_tone22 = (1 + fSlow_tone21);
+		fSlow_tone23 = (fConst_tone4 * fSlow_tone22);
+		fSlow_tone24 = (0 - (2 * ((fSlow_tone21 + fSlow_tone23) - 1)));
+		fSlow_tone25 = (fConst_tone5 * sqrtf(fSlow_tone21));
+		fSlow_tone26 = (fConst_tone4 * (fSlow_tone21 - 1));
+		fSlow_tone27 = ((1 + (fSlow_tone21 + fSlow_tone26)) - fSlow_tone25);
+		fSlow_tone28 = (2 * (0 - ((1 + fSlow_tone23) - fSlow_tone21)));
+		fSlow_tone29 = (fSlow_tone21 + fSlow_tone25);
+		fSlow_tone30 = ((1 + fSlow_tone29) - fSlow_tone26);
+		fSlow_tone31 = (fSlow_tone22 - (fSlow_tone25 + fSlow_tone26));
+		fSlow_tone32 = (1.0f / (1 + (fSlow_tone26 + fSlow_tone29)));
+		fSlow_tone33 = (fSlow_tone8 - (fSlow_tone18 + fSlow_tone19));
+		fSlow_tone34 = (2 * (0 - ((1 + fSlow_tone16) - fSlow_tone7)));
+		fSlow_tone35 = (fSlow_tone7 + fSlow_tone18);
+		fSlow_tone36 = ((1 + fSlow_tone35) - fSlow_tone19);
+		fSlow_tone37 = (1.0f / (1 + (fSlow_tone19 + fSlow_tone35)));
+		fSlow_tone38 = (fSlow_tone7 * ((1 + (fSlow_tone7 + fSlow_tone12)) - fSlow_tone14));
+		fSlow_tone39 = (fSlow_tone7 + fSlow_tone14);
+		fSlow_tone40 = (fSlow_tone7 * (1 + (fSlow_tone12 + fSlow_tone39)));
+		fSlow_tone41 = (((fSlow_tone7 + fSlow_tone9) - 1) * (0 - (2 * fSlow_tone7)));
+		fSlow_tone42 = (1.0f / ((1 + fSlow_tone39) - fSlow_tone12));
+		fSlow_tone43 = (fSlow_tone0 * ((1 + (fSlow_tone0 + fSlow_tone4)) - fSlow_tone5));
+		fSlow_tone44 = (fSlow_tone0 + fSlow_tone5);
+		fSlow_tone45 = (fSlow_tone0 * (1 + (fSlow_tone4 + fSlow_tone44)));
+		fSlow_tone46 = (((fSlow_tone0 + fSlow_tone2) - 1) * (0 - (2 * fSlow_tone0)));
+		fSlow_tone47 = (1.0f / ((1 + fSlow_tone44) - fSlow_tone4));
+          fslider_tone_check1 = fslider_tone1;
+          fslider_tone_check0 = fslider_tone0;
+          fslider_tone_check2 = fslider_tone2;
+        }
+        // tone end
         float 	fSlow56 = fslider11;
         float 	fSlow57 = (9.999872e-05f * powf(4.0f, fSlow56));
         float 	fSlow58 = fslider13;
@@ -621,22 +657,24 @@ virtual void compute (int count, float** input, float** output)
                 S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
                 S4[1] = S6[iSlow41];
                 float fTemp7 = S4[iSlow45];
-                fVec9[0] = fTemp7;
+                fVec_tone0[0] = fTemp7;
             }
-            else  fVec9[0] = S4[0];   		// distortion end
-
-            fRec2[0] = (fSlow50 * ((fSlow8 * (((fSlow49 * fVec9[0]) + (fSlow47 * fVec9[1])) + (fSlow46 * fVec9[2]))) - ((fSlow14 * fRec2[2]) + (fSlow11 * fRec2[1]))));
-            fRec1[0] = (fSlow55 * ((((fSlow54 * fRec2[1]) + (fSlow53 * fRec2[0])) + (fSlow51 * fRec2[2])) + (0 - ((fSlow7 * fRec1[2]) + (fSlow4 * fRec1[1])))));
-
-            float fTemp8 = fRec1[0];
+            else  fVec_tone0[0] = S4[0];   		// distortion end
+             // tone
+	    fRec_tone3[0] = (fSlow_tone32 * ((fSlow_tone21 * ((fSlow_tone31 * fVec_tone0[2]) + ((fSlow_tone30 * fVec_tone0[0]) + (fSlow_tone28 * fVec_tone0[1])))) - ((fSlow_tone27 * fRec_tone3[2]) + (fSlow_tone24 * fRec_tone3[1]))));
+	    fRec_tone2[0] = (fSlow_tone37 * ((fSlow_tone7 * (((fSlow_tone36 * fRec_tone3[0]) + (fSlow_tone34 * fRec_tone3[1])) + (fSlow_tone33 * fRec_tone3[2]))) - ((fSlow_tone20 * fRec_tone2[2]) + (fSlow_tone17 * fRec_tone2[1]))));
+	    fRec_tone1[0] = (fSlow_tone42 * ((((fSlow_tone41 * fRec_tone2[1]) + (fSlow_tone40 * fRec_tone2[0])) + (fSlow_tone38 * fRec_tone2[2])) + (0 - ((fSlow_tone15 * fRec_tone1[2]) + (fSlow_tone10 * fRec_tone1[1])))));
+	    fRec_tone0[0] = (fSlow_tone47 * ((((fSlow_tone46 * fRec_tone1[1]) + (fSlow_tone45 * fRec_tone1[0])) + (fSlow_tone43 * fRec_tone1[2])) + (0 - ((fSlow_tone6 * fRec_tone0[2]) + (fSlow_tone3 * fRec_tone0[1])))));
+           // tone end
+            float fTemp8 = fRec_tone0[0];
             if (iSlow65 == 1)    //crybaby
             {
-                S3[0] = fRec1[0];
+                S3[0] = fRec_tone0[0];
                 fRec19[0] = (fSlow57 + (0.999f * fRec19[1]));
                 fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
                 fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));
-                fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fRec1[0] * fRec19[0]))));
-                S3[1] = ((fRec18[0] + (fSlow64 * fRec1[0])) - fRec18[1]);
+                fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fRec_tone0[0] * fRec19[0]))));
+                S3[1] = ((fRec18[0] + (fSlow64 * fRec_tone0[0])) - fRec18[1]);
                 fTemp8 = S3[iSlow65];
             }                                     //crybaby ende
 
@@ -774,12 +812,13 @@ virtual void compute (int count, float** input, float** output)
             fRec21[1] = fRec21[0];
             fRec20[1] = fRec20[0];
             fRec19[1] = fRec19[0];
-            fRec1[2] = fRec1[1];
-            fRec1[1] = fRec1[0];
-            fRec2[2] = fRec2[1];
-            fRec2[1] = fRec2[0];
-            fVec9[2] = fVec9[1];
-            fVec9[1] = fVec9[0];
+            //----- tone
+	    fRec_tone0[2] = fRec_tone0[1]; fRec_tone0[1] = fRec_tone0[0];
+	    fRec_tone1[2] = fRec_tone1[1]; fRec_tone1[1] = fRec_tone1[0];
+	    fRec_tone2[2] = fRec_tone2[1]; fRec_tone2[1] = fRec_tone2[0];
+	    fRec_tone3[2] = fRec_tone3[1]; fRec_tone3[1] = fRec_tone3[0];
+	    fVec_tone0[2] = fVec_tone0[1]; fVec_tone0[1] = fVec_tone0[0];
+            // tone end
             fRec14[2] = fRec14[1];
             fRec14[1] = fRec14[0];
             fRec15[2] = fRec15[1];

@@ -27,7 +27,7 @@
 
 
 //----------------------------------------------------------------
-//  definition du processeur de signal
+//  définition du processeur de signal
 //----------------------------------------------------------------
 
 class dsp
@@ -60,19 +60,27 @@ class mydsp : public dsp
 {
 private:
     // register all variables needed by dsp_audio.cpp dsp_midi.cpp and dsp_interface.cpp
+
     float 	fslider0;
-    float 	fslider1;
-    float 	fConst0;
-    float 	fConst1;
-    float 	fConst2;
-    float 	fslider2;
-    float 	fConst3;
-    float 	fConst4;
-    float 	fConst5;
+   //----- tone
+    float 	fslider_tone0; // tone treble controller
+    float 	fConst_tone0;
+    float 	fConst_tone1;
+    float 	fConst_tone2;
+    float 	fslider_tone1; // tone middle controller
+    float 	fConst_tone3;
+    float 	fConst_tone4;
+    float 	fConst_tone5;
+    float 	fVec_tone0[3];
+    float 	fRec_tone3[3];
+    float 	fRec_tone2[3];
+    float 	fRec_tone1[3];
+    float 	fRec_tone0[3];
+   // tone end
     float 	fVec0[2];
     float 	fcheckbox1;
     float 	fslider3;
-    float 	fRec4[2];
+    float 	fRec4[2]; 
     float 	fRec3[2];
     float 	fslider4;
     int 	IOTA;
@@ -111,9 +119,6 @@ private:
     float 	fRec15[3];
     float 	fRec14[3];
     float 	fcheckbox4;
-    float 	fVec9[3];
-    float 	fRec2[3];
-    float 	fRec1[3];
     float 	fslider11;
     float 	fRec19[2];
     float 	fslider12;
@@ -308,29 +313,86 @@ private:
     float fresotube2;
     float fresotube3;
     //----- resonator
-	int 	IOTARESO;
-	float 	fVecRESO0[4096];
-	float 	fRecRESO0[2];
+    int 	IOTARESO;
+    float 	fVecRESO0[4096];
+    float 	fRecRESO0[2];
     //----- oscillator
-	int 	iVecoscb0[2];
-	float 	fConstoscb0;
-	float 	fRecoscb0[3];
+    int 	iVecoscb0[2];
+    float 	fConstoscb0;
+    float 	fRecoscb0[3];
     //--- low/highpass for tube
-	float 	fConstsp0;
-	float 	fConstsp1;
-	float 	fConstsp2;
-	float 	fConstsp3;
-	float 	fConstsp4;
-	float 	fConstsp5;
-	float 	fConstsp6;
-	float 	fConstsp7;
-	float 	fConstsp8;
-	float 	fVecsp0[2];
-	float 	fConstsp9;
-	float 	fRecsp3[2];
-	float 	fRecsp2[2];
-	float 	fRecsp1[3];
-	float 	fRecsp0[3];
+    float 	fConstsp0;
+    float 	fConstsp1;
+    float 	fConstsp2;
+    float 	fConstsp3;
+    float 	fConstsp4;
+    float 	fConstsp5;
+    float 	fConstsp6;
+    float 	fConstsp7;
+    float 	fConstsp8;
+    float 	fVecsp0[2];
+    float 	fConstsp9;
+    float 	fRecsp3[2];
+    float 	fRecsp2[2];
+    float 	fRecsp1[3];
+    float 	fRecsp0[3];
+    //--- tone bass
+    float 	fslider_tone2; // tone bass controller
+
+   // lets init the variable for the tone settings 
+	float fSlow_mid_tone ;
+	float 	fSlow_tone0;
+	float 	fSlow_tone1 ;
+	float 	fSlow_tone2 ;
+	float 	fSlow_tone3 ;
+	float 	fSlow_tone4 ;
+	float 	fSlow_tone5 ;
+	float 	fSlow_tone6 ;
+	float 	fSlow_tone7 ;
+	float 	fSlow_tone8 ;
+	float 	fSlow_tone9 ;
+	float 	fSlow_tone10 ;
+	float 	fSlow_tone11 ;
+	float 	fSlow_tone12 ;
+	float 	fSlow_tone13 ;
+	float 	fSlow_tone14 ;
+	float 	fSlow_tone15 ;
+	float 	fSlow_tone16 ;
+	float 	fSlow_tone17 ;
+	float 	fSlow_tone18 ;
+	float 	fSlow_tone19 ;
+	float 	fSlow_tone20 ;
+	float 	fSlow_tone21 ;
+	float 	fSlow_tone22 ;
+	float 	fSlow_tone23 ;
+	float 	fSlow_tone24 ;
+	float 	fSlow_tone25 ;
+	float 	fSlow_tone26 ;
+	float 	fSlow_tone27 ;
+	float 	fSlow_tone28 ;
+	float 	fSlow_tone29 ;
+	float 	fSlow_tone30 ;
+	float 	fSlow_tone31 ;
+	float 	fSlow_tone32 ;
+	float 	fSlow_tone33 ;
+	float 	fSlow_tone34 ;
+	float 	fSlow_tone35 ;
+	float 	fSlow_tone36 ;
+	float 	fSlow_tone37 ;
+	float 	fSlow_tone38 ;
+	float 	fSlow_tone39 ;
+	float 	fSlow_tone40 ;
+	float 	fSlow_tone41 ;
+	float 	fSlow_tone42 ;
+	float 	fSlow_tone43 ;
+	float 	fSlow_tone44 ;
+	float 	fSlow_tone45 ;
+	float 	fSlow_tone46 ;
+	float 	fSlow_tone47 ;
+        float  fslider_tone_check1;
+        float  fslider_tone_check0 ;
+        float  fslider_tone_check2 ;
+    // tone end
 
     // float  fbargraph0;
 public:
@@ -405,20 +467,29 @@ public:
         for (int i=0; i<2; i++) iRect2[i] = 0;
         for (int i=0; i<2; i++) iRect1[i] = 0;
         for (int i=0; i<2; i++) fRect0[i] = 0;
-        fConst0 = (7539.822754f / fSamplingFreq);
-        fConst1 = cosf(fConst0);
-        fConst2 = (1.414214f * sinf(fConst0));
-        fslider0 = 0.0f;
-        fslider1 = 0.0f;
-        fslider2 = 0.0f;
-        fConst3 = (1884.955688f / fSamplingFreq);
-        fConst4 = cosf(fConst3);
-        fConst5 = (1.414214f * sinf(fConst3));
+
+        fslider0 = 0.0f;  // gain in
+        //----- tone
+	fslider_tone0 = 0.0f;
+	fConst_tone0 = (15079.645508f / fSamplingFreq);
+	fConst_tone1 = cosf(fConst_tone0);
+	fConst_tone2 = (1.414214f * sinf(fConst_tone0));
+	fslider_tone1 = 0.0f;
+	fConst_tone3 = (3769.911377f / fSamplingFreq);
+	fConst_tone4 = cosf(fConst_tone3);
+	fConst_tone5 = (1.414214f * sinf(fConst_tone3));
+	fslider_tone2 = 0.0f;
+	for (int i=0; i<3; i++) fVec_tone0[i] = 0;
+	for (int i=0; i<3; i++) fRec_tone3[i] = 0;
+	for (int i=0; i<3; i++) fRec_tone2[i] = 0;
+	for (int i=0; i<3; i++) fRec_tone1[i] = 0;
+	for (int i=0; i<3; i++) fRec_tone0[i] = 0;
+       // tone end
         for (int i=0; i<2; i++) fVec0[i] = 0;
         checky = 1.0;
         fcheckbox1 = 0.0;
         fslider3 = 0.0f;
-        for (int i=0; i<2; i++) fRec4[i] = 0;
+        for (int i=0; i<2; i++) fRec4[i] = 0; 
         for (int i=0; i<2; i++) fRec3[i] = 0;
         fslider4 = 0.12f;
         IOTA = 0;
@@ -457,9 +528,6 @@ public:
         for (int i=0; i<3; i++) fRec15[i] = 0;
         for (int i=0; i<3; i++) fRec14[i] = 0;
         fcheckbox4 = 1.0;
-        for (int i=0; i<3; i++) fVec9[i] = 0;
-        for (int i=0; i<3; i++) fRec2[i] = 0;
-        for (int i=0; i<3; i++) fRec1[i] = 0;
         fslider11 = 0.0f;
         for (int i=0; i<2; i++) fRec19[i] = 0;
         fslider12 = 0.1f;
@@ -595,29 +663,84 @@ public:
         fresotube2 = 0.5f;
         fresotube3 = 0;
         //----- resonator
-		IOTARESO = 0;
-		for (int i=0; i<4096; i++) fVecRESO0[i] = 0;
-		for (int i=0; i<2; i++) fRecRESO0[i] = 0;
-		//----- oscillator
-		for (int i=0; i<2; i++) iVecoscb0[i] = 0;
-		fConstoscb0 = (0 - (2 * cosf((75398.226562f / fSamplingFreq))));
-		for (int i=0; i<3; i++) fRecoscb0[i] = 0;
-		//----- low/highpass for tube
+	IOTARESO = 0;
+	for (int i=0; i<4096; i++) fVecRESO0[i] = 0;
+	for (int i=0; i<2; i++) fRecRESO0[i] = 0;
+	//----- oscillator
+	for (int i=0; i<2; i++) iVecoscb0[i] = 0;
+	fConstoscb0 = (0 - (2 * cosf((75398.226562f / fSamplingFreq))));
+	for (int i=0; i<3; i++) fRecoscb0[i] = 0;
+	//----- low/highpass for tube
         fConstsp0 = tanf((15707.963867f / fSamplingFreq));
-		fConstsp1 = (2 * (1 - (1.0f / (fConstsp0 * fConstsp0))));
-		fConstsp2 = (1.0f / fConstsp0);
-		fConstsp3 = (1 + ((fConstsp2 - 0.765367f) / fConstsp0));
-		fConstsp4 = (1.0f / (1 + ((0.765367f + fConstsp2) / fConstsp0)));
-		fConstsp5 = (1 + ((fConstsp2 - 1.847759f) / fConstsp0));
-		fConstsp6 = (1.0f / (1 + ((1.847759f + fConstsp2) / fConstsp0)));
-		fConstsp7 = (408.407043f / fSamplingFreq);
-		fConstsp8 = (1 - fConstsp7);
-		for (int i=0; i<2; i++) fVecsp0[i] = 0;
-		fConstsp9 = (1.0f / (1 + fConstsp7));
-		for (int i=0; i<2; i++) fRecsp3[i] = 0;
-		for (int i=0; i<2; i++) fRecsp2[i] = 0;
-		for (int i=0; i<3; i++) fRecsp1[i] = 0;
-		for (int i=0; i<3; i++) fRecsp0[i] = 0;
+	fConstsp1 = (2 * (1 - (1.0f / (fConstsp0 * fConstsp0))));
+	fConstsp2 = (1.0f / fConstsp0);
+	fConstsp3 = (1 + ((fConstsp2 - 0.765367f) / fConstsp0));
+	fConstsp4 = (1.0f / (1 + ((0.765367f + fConstsp2) / fConstsp0)));
+	fConstsp5 = (1 + ((fConstsp2 - 1.847759f) / fConstsp0));
+	fConstsp6 = (1.0f / (1 + ((1.847759f + fConstsp2) / fConstsp0)));
+	fConstsp7 = (408.407043f / fSamplingFreq);
+	fConstsp8 = (1 - fConstsp7);
+	for (int i=0; i<2; i++) fVecsp0[i] = 0;
+	fConstsp9 = (1.0f / (1 + fConstsp7));
+	for (int i=0; i<2; i++) fRecsp3[i] = 0;
+	for (int i=0; i<2; i++) fRecsp2[i] = 0;
+	for (int i=0; i<3; i++) fRecsp1[i] = 0;
+	for (int i=0; i<3; i++) fRecsp0[i] = 0;
+
+       // lets init the variables for the tonesettings
+	fSlow_mid_tone = (fslider_tone1*0.5);
+		fSlow_tone0 = powf(10, (2.500000e-02f * (fslider_tone0- fSlow_mid_tone)));
+		fSlow_tone1 = (1 + fSlow_tone0);
+		fSlow_tone2 = (fConst_tone1 * fSlow_tone1);
+		fSlow_tone3 = (2 * (0 - ((1 + fSlow_tone2) - fSlow_tone0)));
+		fSlow_tone4 = (fConst_tone1 * (fSlow_tone0 - 1));
+		fSlow_tone5 = (fConst_tone2 * sqrtf(fSlow_tone0));
+		fSlow_tone6 = (fSlow_tone1 - (fSlow_tone5 + fSlow_tone4));
+		fSlow_tone7 = powf(10, (2.500000e-02f * fSlow_mid_tone));
+		fSlow_tone8 = (1 + fSlow_tone7);
+		fSlow_tone9 = (fConst_tone4 * fSlow_tone8);
+		fSlow_tone10 = (2 * (0 - ((1 + fSlow_tone9) - fSlow_tone7)));
+		fSlow_tone11 = (fSlow_tone7 - 1);
+		fSlow_tone12 = (fConst_tone4 * fSlow_tone11);
+		fSlow_tone13 = sqrtf(fSlow_tone7);
+		fSlow_tone14 = (fConst_tone5 * fSlow_tone13);
+		fSlow_tone15 = (fSlow_tone8 - (fSlow_tone14 + fSlow_tone12));
+		fSlow_tone16 = (fConst_tone1 * fSlow_tone8);
+		fSlow_tone17 = (0 - (2 * ((fSlow_tone7 + fSlow_tone16) - 1)));
+		fSlow_tone18 = (fConst_tone2 * fSlow_tone13);
+		fSlow_tone19 = (fConst_tone1 * fSlow_tone11);
+		fSlow_tone20 = ((1 + (fSlow_tone7 + fSlow_tone19)) - fSlow_tone18);
+		fSlow_tone21 = powf(10, (2.500000e-02f * (fslider_tone2-fSlow_mid_tone)));
+		fSlow_tone22 = (1 + fSlow_tone21);
+		fSlow_tone23 = (fConst_tone4 * fSlow_tone22);
+		fSlow_tone24 = (0 - (2 * ((fSlow_tone21 + fSlow_tone23) - 1)));
+		fSlow_tone25 = (fConst_tone5 * sqrtf(fSlow_tone21));
+		fSlow_tone26 = (fConst_tone4 * (fSlow_tone21 - 1));
+		fSlow_tone27 = ((1 + (fSlow_tone21 + fSlow_tone26)) - fSlow_tone25);
+		fSlow_tone28 = (2 * (0 - ((1 + fSlow_tone23) - fSlow_tone21)));
+		fSlow_tone29 = (fSlow_tone21 + fSlow_tone25);
+		fSlow_tone30 = ((1 + fSlow_tone29) - fSlow_tone26);
+		fSlow_tone31 = (fSlow_tone22 - (fSlow_tone25 + fSlow_tone26));
+		fSlow_tone32 = (1.0f / (1 + (fSlow_tone26 + fSlow_tone29)));
+		fSlow_tone33 = (fSlow_tone8 - (fSlow_tone18 + fSlow_tone19));
+		fSlow_tone34 = (2 * (0 - ((1 + fSlow_tone16) - fSlow_tone7)));
+		fSlow_tone35 = (fSlow_tone7 + fSlow_tone18);
+		fSlow_tone36 = ((1 + fSlow_tone35) - fSlow_tone19);
+		fSlow_tone37 = (1.0f / (1 + (fSlow_tone19 + fSlow_tone35)));
+		fSlow_tone38 = (fSlow_tone7 * ((1 + (fSlow_tone7 + fSlow_tone12)) - fSlow_tone14));
+		fSlow_tone39 = (fSlow_tone7 + fSlow_tone14);
+		fSlow_tone40 = (fSlow_tone7 * (1 + (fSlow_tone12 + fSlow_tone39)));
+		fSlow_tone41 = (((fSlow_tone7 + fSlow_tone9) - 1) * (0 - (2 * fSlow_tone7)));
+		fSlow_tone42 = (1.0f / ((1 + fSlow_tone39) - fSlow_tone12));
+		fSlow_tone43 = (fSlow_tone0 * ((1 + (fSlow_tone0 + fSlow_tone4)) - fSlow_tone5));
+		fSlow_tone44 = (fSlow_tone0 + fSlow_tone5);
+		fSlow_tone45 = (fSlow_tone0 * (1 + (fSlow_tone4 + fSlow_tone44)));
+		fSlow_tone46 = (((fSlow_tone0 + fSlow_tone2) - 1) * (0 - (2 * fSlow_tone0)));
+		fSlow_tone47 = (1.0f / ((1 + fSlow_tone44) - fSlow_tone4));
+          fslider_tone_check1 = fslider_tone1;
+          fslider_tone_check0 = fslider_tone0;
+          fslider_tone_check2 = fslider_tone2;
+      // end
 
     }
 
@@ -648,5 +771,4 @@ public:
 #endif
 #include"dsp_audio.cpp"
 };
-
 
