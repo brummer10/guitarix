@@ -30,7 +30,7 @@
 GtkWidget* fWindow, *menul, *menus, *pb, *midibox, *fbutton, *label1, *menuh;
 GdkPixbuf*   ib, *ibm, *ibr;
 GtkStatusIcon*  status_icon;
-GtkWidget* livewa, *nolivewa, *warn_dialog,*disable_warn ;
+GtkWidget* livewa, *warn_dialog,*disable_warn ;
 GtkWidget* gx_engine_on_image;
 GtkWidget* gx_engine_off_image;
 GtkWidget * label6;
@@ -71,7 +71,7 @@ const string gx_user_dir =
 int offcut;
 int lenghtcut;
 int cm = 0;
-int shownote = -2;
+int shownote = -1;
 int view_mode = 0;
 int showwave = 0;
 int playmidi = 0;
@@ -449,13 +449,13 @@ void gx_show_oscilloscope (GtkCheckMenuItem *menuitem, gpointer checkplay)
     {
         showwave = 1;
         gtk_widget_show(livewa);
-        gtk_widget_show(nolivewa);
+ 
     }
     else
     {
         showwave = 0;
         gtk_widget_hide(livewa);
-        gtk_widget_hide(nolivewa);
+ 
     }
 }
 
@@ -1040,7 +1040,7 @@ static void gx_destroy_event()
 {
     (void)gx_terminate_child_procs();
 
-    shownote = -2;
+    shownote = -1;
     stopit = "stop";
     showwave = 0;
     playmidi = 0;

@@ -472,7 +472,7 @@ virtual void compute (int count, float** input, float** output)
         int     ioverdrive4 = int(foverdrive4);
         int     cts = 0;
         int     ifuse = ffuse;
-        int     tuner_on = shownote + playmidi;
+        int     tuner_on = shownote + playmidi+1;
 
         // pointer to the jack_buffer
         float*  input0 = input[0];
@@ -512,7 +512,7 @@ virtual void compute (int count, float** input, float** output)
         {
 
             // when the ocilloscope draw wav by sample (mode 3) get the input value
-            if (showwave) vivi = input0[i];
+            if (showwave == 1) vivi = input0[i];
 
             if (tuner_on > 0) // enable tuner when show note or play midi
             {
@@ -552,7 +552,7 @@ virtual void compute (int count, float** input, float** output)
             else if (shownote == 0)
             {
                 fConsta1 = 1000.0f;
-                shownote = -2;
+                shownote = -1;
             }
 
             if (icheckboxcom1)     // compressor
@@ -742,12 +742,12 @@ virtual void compute (int count, float** input, float** output)
             }
             // trigger the oscilloscope to update peer sample. I know that some samples dont will show, but it will
             // update fast as  posible this way (mode 3)
-            if ((showwave) &&(view_mode == 3)) viv = fRec0[0];
+            if ((showwave == 1) &&(view_mode == 3)) viv = fRec0[0];
             // this is the left "extra" port to run jconv in bybass mode
             if (irunjc) output0[i] = (fSlow85 * fRec0[0]);
             float 	S9[2];
             // copy the output for the frame based mode of the oscilloscope
-            if ((showwave) &&((view_mode == 1) || (view_mode == 2) )) get_frame[i] = fRec0[0];
+            if ((showwave == 1) &&((view_mode == 1) || (view_mode == 2) )) get_frame[i] = fRec0[0];
             S9[0] = (fSlow87 * fRec0[0]);
             S9[1] = (fSlow84 * fRec0[0]);
             // the left output port
@@ -844,7 +844,7 @@ virtual void compute (int count, float** input, float** output)
 
         }
         // triger the oscilloscope to update on frame base (mode 1 and 2)
-        if ((showwave) &&((view_mode == 1)|| (view_mode == 2))) viv = fRec0[0];
+        if ((showwave == 1) &&((view_mode == 1)|| (view_mode == 2))) viv = fRec0[0];
     }
     else  // when the dsp prozess is disable, send zeros the the portbuffer
     {

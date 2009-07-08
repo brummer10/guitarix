@@ -887,7 +887,7 @@ struct uiNumDisplay : public uiItem
             gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
             snprintf(s, 63, "%s", "");
             gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), s);
-            shownote = -2;
+            shownote = -1;
         }
     }
 };
@@ -950,7 +950,7 @@ void GTKUI::addLiveWaveDisplay(const char* label, float* zone , float* zone1)
     new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
     GtkWaveView myGtkWaveView;
     livewa = myGtkWaveView.gtk_wave_live_view(zone,zone1,GTK_ADJUSTMENT(adj));
-     nolivewa =  gtk_event_box_new ();
+    GtkWidget *  nolivewa =  gtk_event_box_new ();
     GtkWidget * box = gtk_vbox_new (false, 4);
     gtk_widget_set_size_request (nolivewa, 550, 80);
     gtk_widget_set_size_request (box, 550, 80);
@@ -959,7 +959,7 @@ void GTKUI::addLiveWaveDisplay(const char* label, float* zone , float* zone1)
     addWidget(label, nolivewa);
     gtk_widget_show(box);
     gtk_widget_hide(livewa);
-    gtk_widget_hide(nolivewa);
+   // gtk_widget_hide(nolivewa);
 };
 
 
