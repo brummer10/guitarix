@@ -29,7 +29,6 @@
 #ifndef GTKUI_H
 #define GTKUI_H
 
-
 class GTKUI : public UI
 {
 private :
@@ -41,10 +40,11 @@ protected :
     GtkWidget*          fBox[stackSize];
     int 		fMode[stackSize];
     bool		fStopped;
-    GtkAccelGroup*      fAccelGroup;
+    GtkTextView*        fLoggingWindow;
 
     GtkWidget* addWidget(const char* label, GtkWidget* w);
     virtual void pushBox(int mode, GtkWidget* w);
+
 
 public :
     static bool	 fInitialized;
@@ -53,7 +53,12 @@ public :
     static const gboolean fill = TRUE;
     static const gboolean homogene = FALSE;
 
+    GtkAccelGroup*      fAccelGroup;
+
     GTKUI(char * name, int* pargc, char*** pargv);
+
+    // acquire a pointer to the logging window
+    GtkTextView* const getLoggingWindow() const { return fLoggingWindow; }
 
     // -- layout groups
     virtual void openFrameBox(const char* label);
@@ -67,6 +72,7 @@ public :
     virtual void openHandleBox(const char* label = "");
     virtual void openExpanderBox(const char* label, float* zone);
     virtual void openTabBox(const char* label = "");
+    virtual void openTextLoggingBox(const char* label = "");
     virtual void closeBox();
 
     // -- active widgets

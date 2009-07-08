@@ -24,16 +24,20 @@
 	here are the unsortet global funktions from guitarix
 *******************************************************************************
 *******************************************************************************/
-
+#define GDK_NO_MOD_MASK (GdkModifierType)0
 
 // global static fields
-GtkWidget* fWindow, *menul, *menus, *pb, *midibox, *fbutton, *label1, *menuh;
+GtkWidget* menuLoad, *menuSave, *menuDelete, *menuRename;
+GtkWidget* fWindow, *menuh;
+GtkWidget* pb, *midibox, *fbutton, *label1;
 GdkPixbuf*   ib, *ibm, *ibr;
 GtkStatusIcon*  status_icon;
 GtkWidget* livewa, *warn_dialog,*disable_warn ;
 GtkWidget* gx_engine_on_image;
 GtkWidget* gx_engine_off_image;
-GtkWidget * label6;
+GtkWidget* gx_engine_bypass_image;
+GtkWidget* gx_engine_item;
+GtkWidget* label6;
 
 static float      checkbutton7;
 
@@ -45,6 +49,14 @@ float *get_frame   = NULL;
 float *checkfreq   = NULL;
 float *oversample  = NULL;
 
+
+// engine state : can be on or off or bypassed
+typedef enum {
+  kEngineOff    = 0,
+  kEngineOn     = 1,
+  kEngineBypass = 2
+} GxEngineState;
+
 const char* stopit = "go";
 const char* rcpath = " " ;
 string jconvwav ;
@@ -53,6 +65,7 @@ string mbg_pidfile;
 // guitarix setting, location and related stuff
 const char* guitarix_dir     = ".guitarix";
 const char* guitarix_reset   = "resettings";
+const char* guitarix_preset  = "guitarixprerc";
 const char* jcapsetup_file   = "ja_ca_ssetrc";
 const char* jcapfile_wavbase = "guitarix_session";
 const char* default_setting  =
@@ -65,6 +78,8 @@ const char* default_setting  =
 
 const string gx_pixmap_dir = 
   string(GX_PIXMAPS_DIR) + "/";
+const string gx_style_dir = 
+  string(GX_STYLE_DIR) + "/";
 const string gx_user_dir = 
   string(getenv ("HOME")) + string("/") + string(guitarix_dir) + "/";
 
@@ -85,7 +100,7 @@ int doit = 0;
 
 FILE*              jcap_stream;
 FILE*              control_stream1;
-UI*                 interface;
+GTKUI*                 interface;
 
 jack_client_t*      client ;
 jack_port_t *output_ports[4];
@@ -103,19 +118,14 @@ jack_nframes_t  jackframes;
 #define ASCII_START (48)
 
 //---- skin defines
-#define GX_SKIN_START (0)
-#define GX_NUM_OF_SKINS (6)
+vector<string> skin_list;
+gint gx_current_skin = 0;
 
-const char* skins[] = {
-  "black",
-  "pix",
-  "sunburst",
-  "yellow",
-  "rainbow",
-  "default"
-};
-
-gint gx_current_skin = GX_SKIN_START;
+// skin handling
+static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
+static void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg);
+static bool  gx_update_skin(const gint idx, const char* calling_func);
+static void  gx_actualize_skin_index(const string& skin_name);
 
 //---- system related defines and function proto
 bool jack_is_running = false;
@@ -139,37 +149,198 @@ static FILE* gx_popen(const char*, const char*, const int);
 static int   gx_pclose(FILE*, const int);
 static pid_t gx_find_child_pid(const char*); 
 static bool  gx_lookup_pid(const pid_t); 
-static void  gx_message_popup(const char*);
+static gint  gx_message_popup(const char*);
 static bool  gx_capture_command(const int, string&);
 static int   gx_system(const char*,
 		       const char*,
-		       const bool devnull = true,
+		       const bool devnull = false,
 		       const bool escape  = false);
-static void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
-static void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg);
-static bool  gx_update_skin(const gint idx, const char* calling_func);
-static void  gx_actualize_skin_index(const string& skin_name);
+static int   gx_system(const char*,
+		       const string&,
+		       const bool devnull = false,
+		       const bool escape  = false);
+static int   gx_system(const string&,
+		       const string&,
+		       const bool devnull = false,
+		       const bool escape  = false);
+static int   gx_system(const string&,
+		       const char*,
+		       const bool devnull = false,
+		       const bool escape  = false);
 static void  gx_abort(void* arg);
 static void  gx_start_jack(void* arg);
 
-// ---- terminal warning message
+// choice dialog windows
+static void gx_get_text_entry(GtkEntry*, string&);
+
+static gint gx_choice_dialog_with_text_entry (
+   const char* window_title,
+   const char* msg,
+   const char* label1,
+   const char* label2,
+   const gint resp1,
+   const gint resp2,
+   const gint default_response,
+   GCallback func
+);
+
+static gint gx_choice_dialog_without_entry (
+   const char* window_title,
+   const char* msg,
+   const char* label1,
+   const char* label2,
+   const gint resp1,
+   const gint resp2,
+   const gint default_response
+);
+
+//----- preset handling
+#define GX_NUM_OF_PRESET_LISTS (4)
+#define SAVE_PRESET_LIST   (0)
+#define LOAD_PRESET_LIST   (1)
+#define RENAME_PRESET_LIST (2)
+#define DELETE_PRESET_LIST (3)
+
+GdkModifierType list_mod[GX_NUM_OF_PRESET_LISTS] = {
+  GDK_CONTROL_MASK,
+  GDK_NO_MOD_MASK,
+  GDK_MOD1_MASK,
+  GdkModifierType(GDK_CONTROL_MASK|GDK_MOD1_MASK)
+};
+
+map<GtkMenuItem*, string> preset_list[GX_NUM_OF_PRESET_LISTS];
+
+string gx_current_preset;
+string old_preset_name;
+
+GtkWidget* presmenu[GX_NUM_OF_PRESET_LISTS];
+
+static void  gx_save_newpreset_dialog (GtkMenuItem*, gpointer);
+static void  gx_save_newpreset (GtkEntry*);
+static void  gx_save_preset (const gchar*, bool);
+
+static void  gx_load_preset (GtkMenuItem*, gpointer);
+static void  gx_recall_main_setting(GtkMenuItem*, gpointer);
+static void  gx_save_main_setting(GtkMenuItem*, gpointer);
+
+static void  gx_rename_preset (GtkEntry*);
+static void  gx_rename_preset_dialog (GtkMenuItem*, gpointer);
+static void  gx_rename_active_preset_dialog(GtkWidget*, gpointer);
+
+static void  gx_delete_preset(GtkMenuItem*, gpointer);
+static void  gx_delete_preset_dialog (GtkMenuItem*, gpointer);
+static void  gx_delete_active_preset_dialog(GtkWidget*, gpointer);
+
+static void  gx_delete_all_presets_dialog(GtkMenuItem*, gpointer);
+static void  gx_delete_all_presets();
+
+static void  gx_add_preset_to_menus(const string&);
+static void  gx_add_single_preset_menu_item(const string&,
+					    const gint,
+					    GCallback);
+
+static void  gx_del_single_preset_menu_item(const string&,
+					    const gint);
+static void  gx_del_preset_from_menus(const string&);
+static void  gx_refresh_preset_menus();
+static void  gx_cleanup_preset_name(string& presname);
+
+static void  gx_next_preset(GtkWidget*, gpointer);
+static void  gx_previous_preset(GtkWidget*, gpointer);
+
+GtkMenuItem* const gx_get_preset_item_from_name(int, const string&);
+
+// which kind of setting we currently are in
+bool setting_is_preset = false;
+
+// warpper that takes an int and returns a string
+static const string& gx_i2a(int);
+
+
+// ---- log message handling
+typedef enum {
+  kInfo    = 1,
+  kWarning = 2,
+  kError   = 3
+} GxMsgType;
+
+// ---- log message handler
+void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
+{
+
+  string msgbuf = ">  ";
+  msgbuf += func;
+  msgbuf += "  ***  ";
+  msgbuf += msg;
+
+  // log the stuff to the log message window if possible
+  bool terminal = false;
+  if (interface)
+  {
+    // retrievw window
+    GtkTextView* logw = interface->getLoggingWindow();
+
+    if (logw)
+    {
+
+      GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(logw));
+      gtk_text_buffer_set_text(buffer, msgbuf.c_str(), -1);
+
+      static GtkTextTag* taginfo = 
+	gtk_text_buffer_create_tag(buffer, "colinfo", "foreground", "#00ced1", NULL);
+
+      static GtkTextTag* tagwarn = 
+	gtk_text_buffer_create_tag(buffer, "colwarn", "foreground", "#ff8800", NULL);
+
+      static GtkTextTag* tagerror = 
+	gtk_text_buffer_create_tag(buffer, "colerr", "foreground", "#ff0000", NULL);
+
+      GtkTextTag* tag = taginfo;
+
+      static string col;
+      switch (msgtype)
+      {
+      case kInfo: default: col = "#00ced1"; break;
+      case kWarning: col = "#ff8800"; tag = tagwarn;  break;
+      case kError:   col = "#ff0000"; tag = tagerror; break;
+      }  
+
+
+      GtkTextIter start, end;
+      gtk_text_buffer_get_bounds (buffer, &start, &end);
+      gtk_text_buffer_apply_tag(buffer, tag, &start, &end);
+    }
+    else
+      terminal = true;
+  }
+  else terminal = true;
+      
+  // if no window, then terminal
+  if (terminal)
+    {  msgbuf += "\n"; cerr << msgbuf; }
+}
+
+// warning
 void gx_print_warning(const char* func, const string& msg)
 {
-  cerr << "<*** " << func << ": WARNING - "
-       << "\033[1;32m" << msg.c_str() << "\033[0m"
-       << " ***>" << endl;
+  gx_print_logmsg(func, msg, kWarning);
 }
 
-// ---- terminal error message
+// error
 void gx_print_error(const char* func, const string& msg)
 {
-  cerr << "<*** " << func << ": ERROR - "
-       << "\033[1;31m" << msg.c_str() << "\033[0m"
-       << " ***>" << endl;
+  gx_print_logmsg(func, msg, kError);
 }
 
+// info
+void gx_print_info(const char* func, const string& msg)
+{
+  gx_print_logmsg(func, msg, kInfo);
+}
+
+
 // ---- check version and if directory exists and create it if it not exist
-bool gx_version_check(const char* Path)
+bool gx_version_check()
 {
     struct stat my_stat;
 
@@ -179,37 +350,20 @@ bool gx_version_check(const char* Path)
     string rcfilename = 
       gx_user_dir + string("version-") + string("0.03.3") ;
 
-    if  (stat(Path, &my_stat) == 0) // directory exists
+    if  (stat(gx_user_dir.c_str(), &my_stat) == 0) // directory exists
     {
-        // check which version we're dealing with
-        if  (stat(rcfilename.c_str(), &my_stat) != 0) 
-	{
-            // current version not there, let's create it and refresh the whole shebang
-	    string oldfiles = gx_user_dir + string("guitarix*rc");
-	    (void)gx_system ("rm -f", oldfiles.c_str(), false);
+      // check which version we're dealing with
+      if  (stat(rcfilename.c_str(), &my_stat) != 0) 
+      {
+	// current version not there, let's create it and refresh the whole shebang
+	string oldfiles = gx_user_dir + string("guitarix*rc");
+	(void)gx_system ("rm -f", oldfiles.c_str(), false);
 
-	    oldfiles = gx_user_dir + string("version*");
-	    (void)gx_system ("rm -f", oldfiles.c_str(), false);
+	oldfiles = gx_user_dir + string("version*");
+	(void)gx_system ("rm -f", oldfiles.c_str(), false);
 
-	    oldfiles = gx_user_dir + string("*.conf");
-	    (void)gx_system ("rm -f", oldfiles.c_str(), false);
-
-	    // setting file for current version
-            ofstream f(rcfilename.c_str());
-            string cim = string("guitarix-") + GX_VERSION;
-            f << cim <<endl;
-            f.close();
-
-            string resetfile = gx_user_dir + "resettings";
-            ofstream fa(resetfile.c_str());
-            fa <<  default_setting <<endl;
-            fa.close();
-        }
-    }
-    else // directory does not exist
-    {
-	// create .guitarix directory
-        (void)gx_system("mkdir -p", gx_user_dir.c_str(), false);
+	oldfiles = gx_user_dir + string("*.conf");
+	(void)gx_system ("rm -f", oldfiles.c_str(), false);
 
 	// setting file for current version
 	ofstream f(rcfilename.c_str());
@@ -217,31 +371,48 @@ bool gx_version_check(const char* Path)
 	f << cim <<endl;
 	f.close();
 
-	// --- create jack_capture setting file
-	string tmpstr = gx_user_dir + jcapsetup_file;
+	string resetfile = gx_user_dir + "resettings";
+	ofstream fa(resetfile.c_str());
+	fa <<  default_setting <<endl;
+	fa.close();
+      }
+    }
+    else // directory does not exist
+    {
+      // create .guitarix directory
+      (void)gx_system("mkdir -p", gx_user_dir.c_str(), false);
 
-        (void)gx_system("touch", tmpstr.c_str(), false);
-	(void)gx_system(
-	   "echo 'jack_capture -c 2 --silent --disable-meter --port guitarix:out* ' >",
-	   tmpstr.c_str(),
-	   false
-	);
+      // setting file for current version
+      ofstream f(rcfilename.c_str());
+      string cim = string("guitarix-") + GX_VERSION;
+      f << cim <<endl;
+      f.close();
 
-	// --- version file
-       //same here, we only change this file, when the presethandling is brocken,
-       // otherwise we can let it untouched
-	tmpstr = gx_user_dir + string("version-") + string("0.03.3");
-        (void)gx_system("touch", tmpstr.c_str(), false);
+      // --- create jack_capture setting file
+      string tmpstr = gx_user_dir + jcapsetup_file;
 
-	cim = string("echo 'guitarix-") + string(GX_VERSION) + "' >";
-	(void)gx_system(cim.c_str(), tmpstr.c_str(), false);
+      (void)gx_system("touch", tmpstr.c_str(), false);
+      (void)gx_system(
+	 "echo 'jack_capture -c 2 --silent --disable-meter --port guitarix:out* ' >",
+	 tmpstr.c_str(),
+	 false
+      );
 
-	// --- guitarix own default settings
-	tmpstr = gx_user_dir + guitarix_reset;
-        (void)gx_system("touch", tmpstr.c_str(), false);
+      // --- version file
+      //same here, we only change this file, when the presethandling is broken,
+      // otherwise we can let it untouched
+      tmpstr = gx_user_dir + string("version-") + string("0.03.3");
+      (void)gx_system("touch", tmpstr.c_str(), false);
 
-	cim = "echo -e '" + string(default_setting) + "' >";
-	(void)gx_system(cim.c_str(), tmpstr.c_str(), false);
+      cim = string("echo 'guitarix-") + string(GX_VERSION) + "' >";
+      (void)gx_system(cim.c_str(), tmpstr.c_str(), false);
+
+      // --- guitarix own default settings
+      tmpstr = gx_user_dir + guitarix_reset;
+      (void)gx_system("touch", tmpstr.c_str(), false);
+
+      cim = "echo -e '" + string(default_setting) + "' >";
+      (void)gx_system(cim.c_str(), tmpstr.c_str(), false);
     }
 
     return TRUE;
@@ -262,7 +433,7 @@ int gx_pixmap_check()
 	
     {
       gx_print_error(
-	 "gx_pixmap_check",
+	 "Pixmap Check",
 	 string(" cannot find installed pixmaps! giving up ...")
       );
 
@@ -294,6 +465,14 @@ void gx_IntToString(int i, string & s)
   if (i < 0) s.insert(0, "-");
 }
 
+const string& gx_i2a(int i)
+{
+  static string str;
+  gx_IntToString(i, str);
+  
+  return str;
+}
+
 //----use jack_capture for record the session
 bool gx_capture(const char* capturas)
 {
@@ -305,25 +484,77 @@ bool gx_capture(const char* capturas)
 bool		GTKUI::fInitialized = false;
 list<UI*>	UI::fGuiList;
 
-//----menu function play stop
-void gx_engine_switch (GtkWidget* menuitem, gpointer arg)
+//----refresh status display
+void gx_refresh_engine_status_display()
 {
-  // switch engine on or off
-  checky = (checky == 1.0) ? 0.0 : 1.0;
-  
-  // refresh status display
-  if (checky == 1.0)
-  {
-    gtk_widget_show(gx_engine_on_image);
-    gtk_widget_hide(gx_engine_off_image);
-  }
-  else
-  {
+  GxEngineState estate = (GxEngineState)checky;
+  string state;
+
+  switch (estate) {
+
+  case kEngineOff:
     gtk_widget_show(gx_engine_off_image);
     gtk_widget_hide(gx_engine_on_image);
+    gtk_widget_hide(gx_engine_bypass_image);
+
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(gx_engine_item), FALSE);
+    state = "OFF";
+    break;
+
+  case kEngineBypass:
+    gtk_widget_show(gx_engine_bypass_image);
+    gtk_widget_hide(gx_engine_off_image);
+    gtk_widget_hide(gx_engine_on_image);
+
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(gx_engine_item), TRUE);
+    state = "BYPASSED";
+    break;
+
+  case kEngineOn:
+  default: // ON
+    gtk_widget_show(gx_engine_on_image);
+    gtk_widget_hide(gx_engine_off_image);
+    gtk_widget_hide(gx_engine_bypass_image);
+
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(gx_engine_item), TRUE);
+    state = "ON";
   }
+
+  gx_print_info("Engine State: ", state);
 }
 
+//----menu function play stop
+void gx_engine_switch (GtkWidget* widget, gpointer arg)
+{
+  GxEngineState estate = (GxEngineState)checky;
+
+  switch (estate) 
+  {
+  case kEngineOn:
+    estate = kEngineOff;
+    if (arg)
+    {  
+      // need to activate item
+      gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(gx_engine_item), TRUE);
+      estate = kEngineBypass;
+    }
+
+    break;
+
+  case kEngineOff:
+    if (!arg)
+      estate = kEngineOn;
+    break;
+    
+  default:
+    estate = kEngineOn;
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(gx_engine_item), TRUE);
+  }
+
+
+  checky = (float)estate;
+  gx_refresh_engine_status_display();
+}
 
 //----menu function gx_meterbridge
 void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
@@ -375,6 +606,9 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
       {	
 	// refresh internal pid store
 	child_pid[METERBG_IDX] = old_pid;
+	gx_print_info("Meterbridge", 
+		      string("meterbridge started at PID = ") + 
+		      gx_i2a(old_pid));
 	return;
       }
 
@@ -402,6 +636,10 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
 	 "WARNING [meterbridge]\n\n  "
          "meterbridge could not be launched!"
       );
+
+      gx_print_error("Meterbridge", 
+		     string("meterbridge could not be launched!"));
+
       return;
     }
 
@@ -412,6 +650,10 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
       child_pid[METERBG_IDX] = gx_find_child_pid(app_name);
       fo << child_pid[METERBG_IDX];
       fo.close();
+
+      gx_print_info("Meterbridge", 
+		    string("meterbridge started at PID = ") +
+		    gx_i2a(child_pid[METERBG_IDX]));
     }
   }
 
@@ -437,6 +679,10 @@ void gx_meterbridge (GtkCheckMenuItem *menuitem, gpointer checkplay)
 
       // kill process
       (void)kill(child_pid[METERBG_IDX], SIGTERM);
+      gx_print_warning("Meterbridge", 
+		       string("meterbridge terminated - was PID ") +
+		       gx_i2a(child_pid[METERBG_IDX]));
+
       child_pid[METERBG_IDX] = NO_PID;
     }
   }
@@ -509,6 +755,9 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
     // is the button toggled ?
     const gboolean tggl_state = gtk_toggle_button_get_active(cap_button);
 
+    // increment if capturing more than once
+    static int capas = 0;
+
     // ---- stop recording
     if (tggl_state == FALSE) // nope
     {
@@ -518,7 +767,12 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
       if (cap_pid != NO_PID) // running
       {
 	if (kill(cap_pid, SIGINT) == -1)
-	  gx_message_popup(" Sorry, could not stop (Ctrl-C) jack_capture");
+	  gx_print_error("Record",
+			 string(" Sorry, could not stop (Ctrl-C) jack_capture"));
+	else
+	  gx_print_info("Record",
+			string(" Terminated jack_capture, session file #") +
+			gx_i2a(capas-1));
 
 	(void)gx_pclose(jcap_stream, JACKCAP_IDX);
 	jcap_stream = NULL;
@@ -534,9 +788,6 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
 
     // ---- button has been toggled, let's try to record
     int const jack_cap_ok = gx_system("which", "jack_capture");
-
-    // increment if capturing more than once
-    static int capas = 0;
 
     // popup message if something goes funny
     string warning("  WARNING [jack_capture]\n  ");
@@ -569,148 +820,607 @@ void gx_run_jack_capture (GtkWidget *widget, gpointer data)
     // are we running ?
     if (child_pid[JACKCAP_IDX] != NO_PID)
     {
+      gx_print_info("Record",
+		    string("Started jack_capture, session file #") + gx_i2a(capas));
       capas++;
       return;
     }
 
     // nope :(
     gtk_toggle_button_set_active(cap_button, FALSE);
-    gx_message_popup(warning.c_str());
+    gx_print_warning("Record", warning);
 }
 
 //----menu funktion load
 void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 {
-    JCONV_SETTINGS myJCONV_SETTINGS;
-    checkbutton7 = 0;
+  // check that we do have presets
+  if (preset_list[LOAD_PRESET_LIST].size() == 0)
+  {
+    gx_print_warning("Preset Loading", 
+		     "Preset list is empty, make some :)");
+    return;
+  }
 
-    interface->updateAllGuis();
+  JCONV_SETTINGS myJCONV_SETTINGS;
+  checkbutton7 = 0;
+  
+  interface->updateAllGuis();
 
-    GtkWidget* title = gtk_bin_get_child(GTK_BIN(menuitem));
-    const gchar* text = gtk_label_get_text (GTK_LABEL(title));
+  // retrieve preset name
+  string preset_name = preset_list[LOAD_PRESET_LIST][menuitem];
 
-    string rcfilenamere = gx_user_dir + "guitarixprerc";
-    string tmpfilename  = gx_user_dir + "guitarixtmprc";
-    string jc_preset    = gx_user_dir + string("jconv_") + string(text) + ".conf ";
-    string jc_file      = gx_user_dir + string("jconv_set.conf");
-    string file_copy    = jc_preset + jc_file;
-    (void)gx_system("cp -f", file_copy.c_str());
+  // load jconv setting
+  string jc_preset   = gx_user_dir + string("jconv_") + preset_name + ".conf ";
+  string jc_file     = gx_user_dir + string("jconv_set.conf");
+  string file_copy   = jc_preset + jc_file;
+  (void)gx_system("cp -f", file_copy.c_str(), true);
+  
+  // set jconv
+  myJCONV_SETTINGS.get_jconfset ();
 
-    int lin;
-    int zeile=0;
-    int l=0;
-
-    ifstream f(rcfilenamere.c_str());
-    if (f.good())
-    {
-        string buffer;
-        while (!f.eof())
-        {
-            getline(f, buffer);
-            std::string b(" ");
-            std::string::size_type in = buffer.find(b);
-            if (int(in) != -1) buffer.erase(in);
-            l++;
-        }
-        zeile = l-1;
-    }
-    f.close();
-    lin = zeile;
-    myJCONV_SETTINGS.get_jconfset ();
-    interface->recallpreStatebyname(rcfilenamere.c_str(), tmpfilename.c_str(), text);
-    string ttle = string("guitarix ") + text;
-    gtk_window_set_title (GTK_WINDOW (fWindow), (gchar*)ttle.c_str());
+  // recall preset by name
+  // Note: the UI does not know anything about guitarix's directory stuff
+  // Need to pass it on
+  string presetfile = gx_user_dir + "guitarixprerc";
+  bool preset_ok = interface->recallPresetByname(presetfile.c_str(), 
+						 preset_name.c_str());
+  
+  // check result
+  if (!preset_ok)
+  {
+    gx_print_error("Preset Loading", string("Could not load preset ") + preset_name);
+    return;
+  }
+  
+  // refresh main window name
+  string title = string("guitarix ") + preset_name;
+  gtk_window_set_title (GTK_WINDOW (fWindow), title.c_str());
+  
+  // print out info
+  gx_print_info("Preset Loading", string("loaded preset ") + preset_name);
+  
+  setting_is_preset = true;
+  gx_current_preset = preset_name;
 }
 
-//---- funktion save
-void gx_save_preset (const gchar* presname)
-{
-    string rcfilenamere = gx_user_dir + "guitarixprerc";
-    string tmpfilename  = gx_user_dir + "guitarixtmprc";
 
-    interface->savepreStatebyname(rcfilenamere.c_str(), tmpfilename.c_str(), presname);
-    if (cm == 0)
-    {
-        GtkWidget* menuitem = gtk_menu_item_new_with_label (presname);
-        g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_load_preset), NULL);
-        gtk_menu_append(GTK_MENU(menul), menuitem);
-        gtk_widget_show (menuitem);
+//---- funktion save
+void gx_save_preset (const char* presname, bool expand_menu)
+{
+
+    string setting;
+    interface->updateAllGuis();
+    interface->getState(setting);
+
+    // save preset and update menus
+    if (setting.empty())
+    {  
+      gx_print_error("Preset Saving", 
+		     string("setting EMPTY!! could not save preset ") 
+		     + string(presname));
+      return;
     }
+    
+    // append preset name in front
+    setting.insert(0, presname);
+
+    // manipulate preset file
+    string presetfile = gx_user_dir + guitarix_preset;
+    string tmpfile    = presetfile + "_tmp";
+    
+    (void)gx_system("touch", presetfile.c_str());
+    usleep(200);
+
+    (void)gx_system("touch", tmpfile.c_str());
+    usleep(200);
+
+    // copy actual presetfile to tmpfile minus preset to be saved
+    ostringstream cat_tmpfile; string space = " ";
+    cat_tmpfile << presetfile << space 
+		<< "| grep -v" << space << presname << space
+		<< ">" << tmpfile;    
+
+    (void)gx_system("cat", cat_tmpfile.str());
+    usleep(200);
+
+    // append saved preset to tmpfile
+    (void)gx_system("echo", setting + string(" >> ") + tmpfile); 
+    usleep(200);
+
+    // rename tmp file to preset file
+    rename(tmpfile.c_str(), presetfile.c_str());
+
+
+    // remove tmp file (not necessary)
+    (void)gx_system("rm -f", tmpfile);
+
+    // update preset menus if needed
+    if (expand_menu)
+      gx_add_preset_to_menus(string(presname));
+
+    // refresh display
     string ttle = string("guitarix ") + presname;
     gtk_window_set_title (GTK_WINDOW (fWindow), (gchar*)ttle.c_str());
 
     string jc_file      = gx_user_dir + string("jconv_set.conf ");
     string jc_preset    = gx_user_dir + string("jconv_") + string(presname) + ".conf";
     string file_copy    = jc_file + jc_preset; 
-    (void)gx_system("cp", file_copy.c_str());
+    (void)gx_system("cp", file_copy);
+
+    // we are now in a preset setting
+    setting_is_preset = true;
+    gx_current_preset = presname;
+
+    gx_print_info("Preset Saving", string("saved preset ") + string(presname));
 }
 
 //----menu funktion save
-void gx_save_presetn2 (GtkMenuItem *menuitem, gpointer save_preset)
+void gx_save_oldpreset (GtkMenuItem *menuitem, gpointer save_preset)
 {
-    GtkWidget* title = gtk_bin_get_child(GTK_BIN(menuitem));
-    const gchar* text = gtk_label_get_text (GTK_LABEL(title));
-    gx_save_preset(text);
+  const string presname = preset_list[SAVE_PRESET_LIST][menuitem];
+  gx_save_preset(presname.c_str(), false);
+}
+
+//----clean up preset name given by user
+void gx_cleanup_preset_name(string& presname)
+{
+  int p = presname.find(' ', 0);
+  while (p != -1)
+  {
+    presname.replace(p++, 1, "-");
+    p = presname.find(' ', p);
+  }
+}
+
+//----menu funktion save
+void gx_save_newpreset (GtkEntry* entry)
+{
+  string presname;
+  gx_get_text_entry(entry, presname);
+
+  // no text ?
+  if (presname.empty())
+  {
+    gx_print_error("Saving new preset", "no preset name given");
+    return;
+  }
+
+  // replace spaces by -
+  gx_cleanup_preset_name(presname);
+
+  // is the name alrady taken ?
+  map<GtkMenuItem*, string>::iterator it;
+  for (it  = preset_list[SAVE_PRESET_LIST].begin(); 
+       it != preset_list[SAVE_PRESET_LIST].end();
+       it++)
+  {
+    // found a match 
+    if (presname == it->second)
+    {
+      gx_print_error("New Preset Saving", 
+		     string("preset name ") + 
+		     presname + 
+		     string(" already in use, choose another one"));
+      gx_save_newpreset_dialog(it->first, NULL);
+      return;
+    }
+  }
+
+  // finally save to preset file
+  gx_save_preset(presname.c_str(), true);
 }
 
 // read name for presset
-void gx_get_text(GtkWidget *box)
+void gx_recall_main_setting(GtkMenuItem* item, gpointer arg)
 {
-    const gchar* presname = gtk_entry_get_text (GTK_ENTRY(box));
-    gx_save_preset(presname);
-    if (cm == 0)
-    {
-        GtkWidget*  menuitem = gtk_menu_item_new_with_label (presname);
-        g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_presetn2), NULL);
-        gtk_menu_append(GTK_MENU(menus), menuitem);
-        gtk_widget_show (menuitem);
-    }
-    cm = 0;
+  if (!client || !jack_is_running)
+  {
+    gx_print_warning("Main Setting recalling", "We are not a jack client!");
+    return;
+  }
+
+  string jname = jack_get_client_name(client);
+  string previous_state = gx_user_dir + jname + "rc";
+  interface->recallState(previous_state.c_str());
+  gtk_window_set_title(GTK_WINDOW(fWindow), jname.c_str());
+
+  gx_print_info("Main Setting recalling", 
+		string("Called back main setting"));
+
+  setting_is_preset = false;
+  gx_current_preset = "";
 }
 
-//----menu funktion save
-void gx_save_presetn1 (GtkMenuItem *menuitem, gpointer save_preset)
+// ----- save current setting as main setting
+void gx_save_main_setting(GtkMenuItem* item, gpointer arg)
 {
-    GtkWidget *about, *button;
-    about = gtk_dialog_new();
-    button  = gtk_button_new_with_label("Ok");
-    GtkWidget * box = gtk_entry_new ();
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), box);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), button);
-    g_signal_connect_swapped (button, "clicked",  G_CALLBACK (gx_get_text), box);
-    g_signal_connect_swapped (button, "clicked",  G_CALLBACK (gtk_widget_destroy), about);
-    gtk_widget_show (button);
-    gtk_widget_show (box);
-    gtk_widget_show (about);
+  if (!client || !jack_is_running)
+  {
+    gx_print_warning("Main Setting Saving", "We are not a jack client!");
+    return;
+  }
+
+  string jname = jack_get_client_name(client);
+  string previous_state = gx_user_dir + jname + "rc";
+  interface->saveState(previous_state.c_str());
+
+  if (setting_is_preset)
+    gx_print_info("Main Setting", 
+		  string("Saved current preset into main setting"));
+  else
+    gx_print_info("Main Setting", 
+		  string("Saved main setting"));
+
+  gtk_window_set_title(GTK_WINDOW(fWindow), jname.c_str());
+  setting_is_preset = false;
+}
+
+//----menu function save new preset
+void gx_save_newpreset_dialog (GtkMenuItem *menuitem, gpointer save_preset)
+{
+  // preset name to save
+  string presname;
+
+  // running dialog and get response
+  gint response = gx_choice_dialog_with_text_entry (
+       "Save new preset ... ",
+       "\n   Please enter a valid preset name:   \n",
+       "Save Preset", "Cancel", 
+       GTK_RESPONSE_YES, GTK_RESPONSE_CANCEL, GTK_RESPONSE_YES,
+       G_CALLBACK(gx_save_newpreset)
+  );
+						       
+  // check response
+  if (response == GTK_RESPONSE_CANCEL)
+  {
+    gx_print_warning("Saving New Preset Dialog", " Preset saving has been cancelled");
+    return;
+  }
+}
+
+
+//----preset renaming
+void gx_rename_preset (GtkEntry* entry)
+{
+  // rename preset
+  string newname; 
+  gx_get_text_entry(entry, newname);
+
+  if (newname.empty())
+  {
+    gx_print_error("Preset Renaming", "no preset name given");
+    old_preset_name = "";
+    return;
+  }
+
+  // replace spaces by -
+  gx_cleanup_preset_name(newname);
+
+  // get the UI to manipulate the preset file
+  string presetfile = gx_user_dir + guitarix_preset;
+  if (!interface->renamePreset(presetfile.c_str(), 
+			       old_preset_name.c_str(),
+			       newname.c_str()))
+  {
+    gx_print_error("Preset Renaming", 
+		   string("Could not rename preset ") + old_preset_name);
+    old_preset_name = "";
+    return;
+  }
+
+  // if jconv file
+  string jc_preset   = gx_user_dir + string("jconv_") + old_preset_name + ".conf ";
+  string jc_file     = gx_user_dir + string("jconv_") + newname + ".conf ";
+  string file_move   = jc_preset + jc_file;
+  (void)gx_system("mv", file_move.c_str(), true);
+
+  // refresh the menus
+  for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+  {
+    GtkMenuItem* const item  = 
+      gx_get_preset_item_from_name(i, old_preset_name);
+    
+    if (!item) continue;
+
+    string label = gtk_menu_item_get_label(item);
+    label.erase(label.find("  ") + 2);
+    label.append(newname);
+    gtk_menu_item_set_label(item, label.c_str());
+
+    preset_list[i][item] = newname;
+
+    // refresh main window name
+    string jname = string(jack_get_client_name(client)) + " ";
+    string title = jname + newname;
+    gtk_window_set_title (GTK_WINDOW (fWindow), title.c_str());
+
+    gx_current_preset = newname;
+  }
+
+  gx_print_info("Preset Renaming", string("preset ") + old_preset_name +
+		string(" renamed into ") + newname);
+  old_preset_name = "";
+}
+
+//----preset renaming dialog
+void gx_rename_preset_dialog (GtkMenuItem *menuitem, gpointer arg)
+{
+  static string title;
+  if (menuitem)
+  { 
+    title += "Renaming preset "; 
+    title += preset_list[RENAME_PRESET_LIST][menuitem];
+  }
+  
+  old_preset_name = preset_list[RENAME_PRESET_LIST][menuitem]; 
+
+  // running dialog and get response
+  gint response = gx_choice_dialog_with_text_entry (
+       title.c_str(),
+       " Please enter a valid preset name:                                    ",
+       "Validate", "Cancel", 
+       GTK_RESPONSE_YES, GTK_RESPONSE_CANCEL, GTK_RESPONSE_YES,
+       G_CALLBACK(gx_rename_preset)
+  );
+
+  if (response == GTK_RESPONSE_CANCEL)
+  {
+    gx_print_warning("Rename Preset Dialog", " Preset renaming has been cancelled");
+    old_preset_name = "";
+    return;
+  }
+}
+
+// ----------
+void gx_rename_active_preset_dialog(GtkWidget* item, gpointer arg)
+{
+  if (!setting_is_preset || gx_current_preset.empty())
+  {
+    gx_print_warning("Renaming Active Preset", 
+		     "This is the main setting, "
+		     "load a preset first");
+    return;
+  }
+
+  string presname = gx_current_preset;
+
+  // get current preset menu item
+  GtkMenuItem* const rnm_item = 
+    gx_get_preset_item_from_name(RENAME_PRESET_LIST, presname);
+
+  // call delete dialog
+  if (rnm_item)
+    gx_rename_preset_dialog (rnm_item, NULL);
+
+  if (presname == gx_current_preset)
+  {
+    gx_print_warning("Renaming Active Preset", 
+		     "The preset name is unchanged");
+    return;
+  }
+
+  if (!gx_current_preset.empty() && setting_is_preset)
+    gx_print_info("Renaming Active Preset", 
+		  string("Renamed preset ") + presname +
+		  string(" to ") + gx_current_preset);
+}
+
+
+//----preset deletion
+void gx_delete_preset (GtkMenuItem* item, gpointer arg)
+{
+  
+  // delete it via interface
+  const string presname = preset_list[DELETE_PRESET_LIST][item];
+  const string presfile = gx_user_dir + guitarix_preset;
+  const string tmpfile  = presfile + "_tmp";
+  const string space    = " ";
+
+  // let's use a tmp file that does not contain the preset 
+  ostringstream cat_tmpfile("cat"); 
+  cat_tmpfile << presfile << space 
+	      << "| grep -v" << space << presname << space
+	      << ">" << tmpfile;    
+      
+  cerr << cat_tmpfile.str() << endl;
+
+  (void)gx_system("cat", cat_tmpfile.str());
+  usleep(200);
+
+  // rename tmp file
+  rename(tmpfile.c_str(), presfile.c_str());
+
+  // did we really delete it ?
+  if (gx_system("grep", presname + space + presfile) == SYSTEM_OK)
+  {  
+    gx_print_error("Preset Deleting", 
+		   string("Could not deleted preset ") + 
+		   preset_list[DELETE_PRESET_LIST][item]);
+    return;
+  }
+
+  // remove tmp file (not necessary)
+  (void)gx_system("rm -f", tmpfile);
+
+  // remove jconv file
+  string jc_preset = gx_user_dir + string("jconv_") + presname + ".conf";
+  (void)gx_system("rm -f", jc_preset);
+
+  // update menu
+  gx_del_preset_from_menus(presname);
+
+  // recalling main setting
+  gx_recall_main_setting(NULL, NULL);
+
+  gx_print_warning("Preset Deleting", 
+		   string("Deleted preset ") + 
+		   presname + string(", recalled main setting"));
+}
+
+//----delete all presets
+void  gx_delete_all_presets()
+{
+  // this function will simply delete the preset file,
+  // clear the preset list and refresh the menus
+  
+  // delete preset file
+  string filename = gx_user_dir + guitarix_preset;
+  (void)gx_system("rm -f", filename.c_str(), true);
+
+  // delete jconv files
+  ostringstream cmd; cmd << "cd " << gx_user_dir << " && ls -1";
+  (void)gx_system(cmd.str(), "jconv* | grep -v jconv_set | xargs rm -f"); 
+
+  // clear list
+  for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+    preset_list[i].clear();
+  
+  // refresh menus
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuSave),   NULL);
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuLoad),   NULL);
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuRename), NULL);
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuDelete), NULL);
+  
+  // recreate them
+  for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+    presmenu[i] = gtk_menu_new();
+
+  // add them again
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuSave),   presmenu[SAVE_PRESET_LIST]);
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuLoad),   presmenu[LOAD_PRESET_LIST]);
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuRename), presmenu[RENAME_PRESET_LIST]);
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuDelete), presmenu[DELETE_PRESET_LIST]);
+
+  // show them again
+  for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+    gtk_widget_show(presmenu[i]);
+
+  gx_print_info("All Presets Deleting", string("deleted ALL presets!"));
+}
+
+//----delete all presets dialog
+void gx_delete_all_presets_dialog (GtkMenuItem *menuitem, gpointer arg)
+{
+  //--- if no presets, then just pop up some info
+  if (preset_list[DELETE_PRESET_LIST].empty())
+  {
+    gx_print_warning("Delete All Presets Dialog",
+		     string("There is no presets to delete"));
+    return;
+  }
+
+  //--- run dialog and check response
+  gint response = 
+    gx_choice_dialog_without_entry (
+        "Deleting ALL Presets! ",
+	"   Are you sure you want to delete ALL your cool presets ? ",
+	"Yes, DO IT NOW!", "Maybe Later ...", 
+	GTK_RESPONSE_YES, GTK_RESPONSE_CANCEL, GTK_RESPONSE_YES
+    );
+
+  // we are cancelling
+  if (response == GTK_RESPONSE_CANCEL)
+  {
+    gx_print_warning("Delete All Presets Dialog", 
+		     "All Presets deletion has been cancelled");
+    return;
+  }
+
+  // we want to delete all the buggers!
+  gx_delete_all_presets ();  
+    
+}
+
+//----preset deletion dialog
+void gx_delete_preset_dialog (GtkMenuItem *menuitem, gpointer arg)
+{
+  string msg = "   Are you sure you want to delete preset ";
+  msg += preset_list[DELETE_PRESET_LIST][menuitem];
+  msg += " ?? ";
+
+  string title = "Deleting preset ";
+  title += preset_list[DELETE_PRESET_LIST][menuitem];
+
+  //--- run dialog and check response
+  gint response = 
+    gx_choice_dialog_without_entry (
+	title.c_str(), msg.c_str(),
+	"Delete Preset", "Keep Preset", 
+	GTK_RESPONSE_YES, GTK_RESPONSE_CANCEL, GTK_RESPONSE_YES
+    );
+
+  // we are cancelling
+  if (response == GTK_RESPONSE_CANCEL)
+  {
+    gx_print_warning("Preset Deleting", 
+		     string(" Deletion of preset ") +
+		     preset_list[DELETE_PRESET_LIST][menuitem] +
+		     string(" has been cancelled"));
+    return;
+  }
+
+  // we want to delete the bugger!
+  gx_delete_preset (menuitem, arg);  
+    
+}
+
+// ----------
+void gx_delete_active_preset_dialog(GtkWidget* item, gpointer arg)
+{
+
+  if (!setting_is_preset || gx_current_preset.empty())
+  {
+    gx_print_warning("Deleting Active Preset", 
+		     "No active preset, this is the main setting");
+    return;
+  }
+
+  string presname = gx_current_preset;
+
+  // get current preset menu item
+  GtkMenuItem* const del_item = 
+    gx_get_preset_item_from_name(DELETE_PRESET_LIST, gx_current_preset);
+
+  // call delete dialog
+  if (del_item)
+    gx_delete_preset_dialog (del_item, NULL);
+
+  if (gx_current_preset.empty() && !setting_is_preset)
+    gx_print_info("Deleting Active Preset", 
+		  string("Deleted preset ") + presname +
+		  string(", recalled main setting"));
 }
 
 //----menu funktion about
 static void gx_show_about( GtkWidget *widget, gpointer data )
 {
-  string about;
-
-  about += 
-    "\n This Aplication is to a large extent provided"
-    "\n with the marvelous faust compiler.Yann Orlary"
-    "\n <http://faust.grame.fr/>"
-    "\n A large part is based on the work of Julius Orion Smith"
-    "\n<http://ccrma.stanford.edu/realsimple/faust/>"
-    "\n and Albert Graef\n <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html> "
-    "\n\n\n guitarix ";
-
-  about += GX_VERSION;
-
-  about += 
-    " use jack_capture >= 0.9.30for record"
-    "\n by Kjetil S. Matheussen "
-    "\n http://old.notam02.no/arkiv/src/?M=D"
-    "\n  it will allways record to ~/guitarix_sessionX.xxx "
-    "\n for impulse response it use jconv "
-    "\n byFons Adriaensen "
-    "\n  http://www.kokkinizita.net/linuxaudio/index.html "
-    "\n\n authors: Hermann Meyer <brummer-@web.de>"
-    "\n authors: James Warden <warjamy@yahoo.com>"
-    "\n home: http://guitarix.sourceforge.net/\n";
+  static string about;
+  if (about.empty())
+  { 
+    about += 
+      "\n This Aplication is to a large extent provided"
+      "\n with the marvelous faust compiler.Yann Orlary"
+      "\n <http://faust.grame.fr/>"
+      "\n A large part is based on the work of Julius Orion Smith"
+      "\n<http://ccrma.stanford.edu/realsimple/faust/>"
+      "\n and Albert Graef\n <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html> "
+      "\n\n\n guitarix ";
+    
+    about += GX_VERSION;
+    
+    about += 
+      " use jack_capture >= 0.9.30for record"
+      "\n by Kjetil S. Matheussen "
+      "\n http://old.notam02.no/arkiv/src/?M=D"
+      "\n  it will allways record to ~/guitarix_sessionX.xxx "
+      "\n for impulse response it use jconv "
+      "\n byFons Adriaensen "
+      "\n  http://www.kokkinizita.net/linuxaudio/index.html "
+      "\n\n authors: Hermann Meyer <brummer-@web.de>"
+      "\n authors: James Warden <warjamy@yahoo.com>"
+      "\n home: http://guitarix.sourceforge.net/\n";
+  }
 
   gx_message_popup(about.c_str());
 }
@@ -811,58 +1521,25 @@ void gx_start_jack_dialog(int* argc, char*** argv)
 {
   gtk_init(argc, argv);
 
-  GtkWidget* jack_dialog = gtk_dialog_new();
-  gtk_window_set_destroy_with_parent(GTK_WINDOW(jack_dialog), TRUE);
+  //--- run dialog and check response
+  gint response = 
+    gx_choice_dialog_without_entry (
+        " Jack Starter ",
+	"\n                        WARNING                        \n\n"
+	"   The jack server is not currently running\n"
+	"   You can choose to activate it or terminate guitarix   \n",
+	"Start Jack", "Exit", 1, 2, 1
+    );
 
-  GtkWidget* box = gtk_vbox_new (0, 4);
-  GtkWidget* warning_label = gtk_label_new ("\nWARNING\n");
-  GtkWidget* text_label = 
-    gtk_label_new ("The jack server is not currently running\n"
-		   "You can choose to activate it or terminate guitarix\n");
+  // we are cancelling
+  if (response == 2)
+  {
+    gx_abort(NULL);
+    return;
+  }
 
-  GdkColor colorGreen;
-  gdk_color_parse("#a6a9aa", &colorGreen);
-  gtk_widget_modify_fg (text_label, GTK_STATE_NORMAL, &colorGreen);
-
-  GdkColor colorBlack;
-  gdk_color_parse("#000000", &colorBlack);
-  gtk_widget_modify_bg (jack_dialog, GTK_STATE_NORMAL, &colorBlack);
-
-  GtkStyle* text_style = gtk_widget_get_style(text_label);
-  pango_font_description_set_size(text_style->font_desc, 10*PANGO_SCALE);
-  pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);
-
-  gtk_widget_modify_font(text_label, text_style->font_desc);
-  gdk_color_parse("#ffffff", &colorGreen);
-  gtk_widget_modify_fg (warning_label, GTK_STATE_NORMAL, &colorGreen);
-
-  text_style = gtk_widget_get_style(warning_label);
-  pango_font_description_set_size(text_style->font_desc, 14*PANGO_SCALE);
-  pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);
-  gtk_widget_modify_font(warning_label, text_style->font_desc);
-
-  GtkWidget * box2 = gtk_hbox_new (0, 4);
-  GtkWidget * button1  = gtk_dialog_add_button(GTK_DIALOG (jack_dialog),"Start jack",1);
-  GtkWidget * button2  = gtk_dialog_add_button(GTK_DIALOG (jack_dialog),"Exit",2);
-
-  gdk_color_parse("#555555", &colorBlack);
-  gtk_widget_modify_bg (button1, GTK_STATE_NORMAL, &colorBlack);
-
-  gdk_color_parse("#555555", &colorBlack);
-  gtk_widget_modify_bg (button2, GTK_STATE_NORMAL, &colorBlack);
-
-  gtk_container_add (GTK_CONTAINER(box), warning_label);
-  gtk_container_add (GTK_CONTAINER(box), text_label);
-  gtk_container_add (GTK_CONTAINER(box), box2);
-  gtk_container_add (GTK_CONTAINER(GTK_DIALOG(jack_dialog)->vbox), box);
-
-  g_signal_connect (button1, "clicked",  G_CALLBACK (gx_start_jack), NULL);
-  g_signal_connect (button2, "clicked",  G_CALLBACK (gx_abort), NULL);
-  gtk_widget_show_all(box);
-  gtk_widget_show(jack_dialog);
-
-  gtk_dialog_run (GTK_DIALOG (jack_dialog));
-  gtk_widget_destroy (jack_dialog);
+  // start jack
+  gx_start_jack(NULL);
 }
 
 
@@ -934,7 +1611,7 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
     if (!client)
     {
       gx_print_error(
-        "gx_set_jack_buffer_size",
+        "Jack Buffer Size setting",
         string("we are not a jack client, server may be down")
       );
 	
@@ -983,7 +1660,7 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
 
         // let's resize the buffer
         if ( jack_set_buffer_size (client, buf_size) != 0)
-	  gx_print_warning("gx_set_jack_buffer_size", string("Could not change latency"));
+	  gx_print_warning("Setting Jack Buffer Size", string("Could not change latency"));
 
 	else // save the item pointer for eventual display refreshing
 	  refreshItem = menuitem;
@@ -1002,6 +1679,12 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
     // we are called only to refresh the menu display
     if (refreshItem)
       gtk_check_menu_item_set_active (refreshItem, TRUE);
+
+    if (menuitem)
+      gx_print_info(
+	"Jack Buffer Size", 
+	string("latency is ") + gx_i2a(jack_get_buffer_size(client))
+      );
 }
 
 
@@ -1012,6 +1695,7 @@ static void gx_show_j_c_gui( GtkWidget *widget, gpointer data )
     (void)system ("jack_capture_gui2 -o yes -f ~/guitarix_session -n guitarix -p /.guitarix/ja_ca_ssetrc &");
 }
 
+//----- terminate child processes
 static gint gx_terminate_child_procs()
 {
     if (child_pid[METERBG_IDX] != NO_PID)
@@ -1065,17 +1749,26 @@ static void gx_destroy_event()
 static void gx_reset_units( GtkWidget *widget, gpointer data )
 {
     const char* witchres = gtk_window_get_title(GTK_WINDOW(data));
-    const char*	  home;
-    home = getenv ("HOME");
-    if (home == 0) home = ".";
-    char                filename[256];
-    snprintf(filename, 256, "%s/.guitarix/resettings", home);
-    if (strcmp(witchres, "distortion") == 0) interface->recalladState(filename,  4,  16, 0);
-    else if (strcmp(witchres, "freeverb") == 0) interface->recalladState(filename,  20,  24, 1);
-    else if (strcmp(witchres, "ImpulseResponse") == 0) interface->recalladState(filename,  28,  32, 2);
-    else if (strcmp(witchres, "crybaby") == 0) interface->recalladState(filename,  16,  20, 3);
-    else if (strcmp(witchres, "midi out") == 0) interface->recalladState(filename,  44,  50, 4);
-    else if (strcmp(witchres, "compressor") == 0) interface->recalladState(filename,  72,  78, 5);
+
+    string filename = gx_user_dir + guitarix_reset;
+
+    if (strcmp(witchres, "distortion") == 0) 
+      interface->recalladState(filename.c_str(),  4,  16, 0);
+
+    else if (strcmp(witchres, "freeverb") == 0) 
+      interface->recalladState(filename.c_str(),  20,  24, 1);
+
+    else if (strcmp(witchres, "ImpulseResponse") == 0) 
+      interface->recalladState(filename.c_str(),  28,  32, 2);
+
+    else if (strcmp(witchres, "crybaby") == 0) 
+      interface->recalladState(filename.c_str(),  16,  20, 3);
+
+    else if (strcmp(witchres, "midi out") == 0) 
+      interface->recalladState(filename.c_str(),  44,  50, 4);
+
+    else if (strcmp(witchres, "compressor") == 0) 
+      interface->recalladState(filename.c_str(),  72,  78, 5);
 }
 
 //----- show extendend settings slider
@@ -1235,6 +1928,32 @@ static int gx_system(const char* name1,
   return system(str.c_str());
 }
 
+// polymorph1
+static int gx_system(const char*   name1,
+		     const string& name2,
+		     const bool  devnull,
+		     const bool  escape)
+{
+  return gx_system(name1, name2.c_str(), devnull, escape);
+}
+
+// polymorph2
+static int gx_system(const string& name1,
+		     const string& name2,
+		     const bool  devnull,
+		     const bool  escape)
+{
+  return gx_system(name1.c_str(), name2.c_str(), devnull, escape);
+}
+
+// polymorph3
+static int gx_system(const string& name1,
+		     const char*   name2,
+		     const bool  devnull,
+		     const bool  escape)
+{
+  return gx_system(name1.c_str(), name2, devnull, escape);
+}
 
 // -------------------------------------------
 bool gx_lookup_pid(const pid_t child_pid) 
@@ -1249,7 +1968,7 @@ bool gx_lookup_pid(const pid_t child_pid)
   return (gx_system("ps -p", pstr.c_str(), true) == SYSTEM_OK) ? true : false;
 }
 
-//---- find latest process ID
+//---- find latest process ID by reading stdout from pgrep -n 
 pid_t gx_find_child_pid(const char* procname) 
 {
   // --- this function retrieves the latest PID of a named process.
@@ -1301,14 +2020,14 @@ pid_t gx_find_child_pid(const char* procname)
 }
 
 //---- popup warning
-static void gx_message_popup(const char* msg)
+static gint gx_message_popup(const char* msg)
 {
   // check msg validity
   if (!msg)
   {
-    gx_print_warning("gx_message_popup", 
+    gx_print_warning("Message Popup", 
 		     string("warning message does not exist"));
-    return;
+    return -1;
   }
 
   // build popup window
@@ -1317,7 +2036,7 @@ static void gx_message_popup(const char* msg)
   GtkWidget *ok_button;
 
   about = gtk_dialog_new();
-  ok_button  = gtk_button_new_with_label("OK");
+  ok_button  = gtk_button_new_from_stock(GTK_STOCK_OK);
 
   label = gtk_label_new (msg);
 
@@ -1331,13 +2050,16 @@ static void gx_message_popup(const char* msg)
   gtk_label_set_selectable(GTK_LABEL(label), TRUE);
 
   gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), label);
-  gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), ok_button);
+
+  GTK_BOX(GTK_DIALOG(about)->action_area)->spacing = 3;
+  gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->action_area), ok_button);
 
   g_signal_connect_swapped (ok_button, "clicked",
 			    G_CALLBACK (gtk_widget_destroy), about);
+
   gtk_widget_show (ok_button);
   gtk_widget_show (label);
-  gtk_widget_show (about);
+  return gtk_dialog_run (GTK_DIALOG(about));
 }
 
 //---- wav file construction for jack_capture
@@ -1406,7 +2128,7 @@ static void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg)
 {
   
   gint idx = gx_current_skin + 1;
-  idx %= GX_NUM_OF_SKINS;
+  idx %= skin_list.size();
 
   // did it work ? if yes, update current skin
   if (gx_update_skin(idx, "gx_cycle_through_skin"))
@@ -1417,7 +2139,7 @@ static void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg)
 static bool gx_update_skin(const gint idx, const char* calling_func)
 { 
   // check skin validity 
-  if (idx < GX_SKIN_START || idx >= GX_NUM_OF_SKINS)
+  if (idx < 0 || idx >= (gint)skin_list.size())
   {
     gx_print_warning(calling_func, "skin index out of range, keeping actual skin");
     return false;
@@ -1425,7 +2147,7 @@ static bool gx_update_skin(const gint idx, const char* calling_func)
       
 
   string rcfile = GX_STYLE_DIR + string("/") + "guitarix_";
-  rcfile += skins[idx];
+  rcfile += skin_list[idx];
   rcfile += ".rc";
 
   gtk_rc_parse(rcfile.c_str());
@@ -1445,10 +2167,413 @@ static bool gx_update_skin(const gint idx, const char* calling_func)
 //---- retrive skin array index from skin name
 static void gx_actualize_skin_index(const string& skin_name)
 {
-  for (int s = GX_SKIN_START; s < GX_NUM_OF_SKINS; s++)
-    if (skin_name == skins[s])
+  for (guint s = 0; s < skin_list.size(); s++)
+    if (skin_name == skin_list[s])
     {
       gx_current_skin = s;
       return;
     }
 }  
+
+//---- parsing preset file to build up a string vector of preset names
+void gx_build_preset_list(vector<string>& plist)
+{
+  // preset filename
+  string filename = gx_user_dir + guitarix_preset;
+
+  // initialize list
+  plist.clear();
+
+  // parse it if any
+  ifstream f(filename.c_str());
+  if (f.good())
+  {
+    string buffer;
+    while (!f.eof())
+    {
+      // get line
+      getline(f, buffer);
+      if (buffer.empty()) continue;
+
+      // parse buffer
+      istringstream values(buffer);
+
+      // grab first item in line
+      string pname; values >> pname; 
+      plist.push_back(pname);
+    }
+    f.close();
+  }
+
+  // ---- how many did we get ?
+  gx_print_warning("Preset List Building", 
+		   gx_i2a(plist.size()) + string(" presets found"));
+}
+
+//---- choice dialog without text entry
+gint gx_choice_dialog_without_entry (
+   const char* window_title,
+   const char* msg,
+   const char* label1,
+   const char* label2,
+   const gint resp1,
+   const gint resp2,
+   const gint default_response
+)
+{
+  GtkWidget* dialog   = gtk_dialog_new();
+  GtkWidget* button1  = gtk_dialog_add_button(GTK_DIALOG (dialog), label1, resp1);
+  GtkWidget* button2  = gtk_dialog_add_button(GTK_DIALOG (dialog), label2, resp2);
+
+  GtkWidget* text_label = gtk_label_new (msg);
+  gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), text_label);
+
+  GdkColor colorGreen;
+  gdk_color_parse("#a6a9aa", &colorGreen);
+  gtk_widget_modify_fg (text_label, GTK_STATE_NORMAL, &colorGreen);
+
+  GdkColor colorBlack;
+  gdk_color_parse("#000000", &colorBlack);
+  gtk_widget_modify_bg (dialog, GTK_STATE_NORMAL, &colorBlack);
+
+  GtkStyle* text_style = gtk_widget_get_style(text_label);
+  pango_font_description_set_size(text_style->font_desc, 10*PANGO_SCALE);
+  pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);
+
+  gtk_widget_modify_font(text_label, text_style->font_desc);
+
+  gdk_color_parse("#555555", &colorBlack);
+  gtk_widget_modify_bg (button1, GTK_STATE_NORMAL, &colorBlack);
+
+  gdk_color_parse("#555555", &colorBlack);
+  gtk_widget_modify_bg (button2, GTK_STATE_NORMAL, &colorBlack);
+
+  g_signal_connect_swapped(button1, "clicked",  G_CALLBACK (gtk_widget_destroy), dialog);
+  g_signal_connect_swapped(button2, "clicked",  G_CALLBACK (gtk_widget_destroy), dialog);
+
+  // set default
+  gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE); 
+  gtk_dialog_set_default_response(GTK_DIALOG(dialog), default_response);
+  gtk_window_set_title(GTK_WINDOW(dialog), window_title);
+
+  gtk_widget_show(text_label);
+
+  //--- run dialog and check response
+  gint response = gtk_dialog_run (GTK_DIALOG (dialog));
+  return response;
+}
+
+
+//---- get text entry from dialog
+void gx_get_text_entry(GtkEntry* entry, string& output)
+{
+  if (gtk_entry_get_text(entry)[0])
+    output = gtk_entry_get_text(entry);
+}
+
+//---- choice dialog with text entry
+gint gx_choice_dialog_with_text_entry (
+   const char* window_title,
+   const char* msg,
+   const char* label1,
+   const char* label2,
+   const gint resp1,
+   const gint resp2,
+   const gint default_response,
+   GCallback func
+)
+{
+  GtkWidget *dialog, *button1, *button2;
+  dialog  = gtk_dialog_new();
+  button1 = gtk_dialog_add_button(GTK_DIALOG (dialog), label1, resp1);
+  button2 = gtk_dialog_add_button(GTK_DIALOG (dialog), label2, resp2);
+  
+  GtkWidget* text_label = gtk_label_new (msg);
+  gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), text_label);
+
+
+  GtkWidget* gtk_entry = gtk_entry_new_with_max_length(32);
+  gtk_entry_set_text(GTK_ENTRY(gtk_entry), "");
+  gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), gtk_entry);
+  
+  g_signal_connect_swapped (button1, "clicked",  G_CALLBACK (func), gtk_entry);
+  g_signal_connect_swapped (button2, "clicked",  G_CALLBACK (gtk_widget_destroy), dialog);
+  
+  gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE); 
+  gtk_dialog_set_default_response(GTK_DIALOG(dialog), default_response);
+  gtk_entry_set_activates_default(GTK_ENTRY(gtk_entry), TRUE);
+  GTK_BOX(GTK_DIALOG(dialog)->action_area)->spacing = 4;
+
+  // some display style
+  GdkColor colorGreen;
+  gdk_color_parse("#a6a9aa", &colorGreen);
+  gtk_widget_modify_fg (text_label, GTK_STATE_NORMAL, &colorGreen);
+
+  GdkColor colorBlack;
+  gdk_color_parse("#000000", &colorBlack);
+  gtk_widget_modify_bg (dialog, GTK_STATE_NORMAL, &colorBlack);
+
+  GtkStyle* text_style = gtk_widget_get_style(text_label);
+  pango_font_description_set_size(text_style->font_desc, 10*PANGO_SCALE);
+  pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);
+
+  gtk_widget_modify_font(text_label, text_style->font_desc);
+
+  gdk_color_parse("#555555", &colorBlack);
+  gtk_widget_modify_bg (button1, GTK_STATE_NORMAL, &colorBlack);
+
+  gdk_color_parse("#555555", &colorBlack);
+  gtk_widget_modify_bg (button2, GTK_STATE_NORMAL, &colorBlack);
+
+  // display extra stuff
+  gtk_widget_show (text_label);
+  gtk_widget_show (gtk_entry);
+  gtk_window_set_title(GTK_WINDOW(dialog), window_title);
+
+  // run the dialog and wait for response
+  gint response = gtk_dialog_run (GTK_DIALOG(dialog));
+
+  if (dialog) gtk_widget_destroy(dialog);
+
+  return response;
+}
+
+//------- count the number of available skins
+unsigned int gx_fetch_available_skins()
+{
+  string tmpfile = gx_user_dir + ".n_skins";
+  gx_system("rm -f", tmpfile.c_str());
+  gx_system("touch", tmpfile.c_str());
+
+  string filelist  = 
+    gx_style_dir + string("guitarix*.rc") + " > " + tmpfile;
+
+  gx_system("ls -1", filelist.c_str(), false);
+  
+  // read out number of files
+  ifstream f(tmpfile.c_str());
+
+  string rcfile;
+  if (f.good())
+  {
+    while (!f.eof())
+    {
+      // retrieve filename
+      getline(f, rcfile);
+      
+      // trim it
+      if (!rcfile.empty())
+      {
+	rcfile.erase(rcfile.find(".rc"));
+	rcfile.erase(0, rcfile.find("_")+1);
+	skin_list.push_back(rcfile);
+      }
+    }      
+
+    f.close();
+  }
+
+  // remove tmp file
+  gx_system("rm -f", tmpfile.c_str());
+
+  return skin_list.size();
+}
+
+// ----------- add new preset to menus
+void gx_add_preset_to_menus(const string& presname)
+{
+  // -- save item
+  gx_add_single_preset_menu_item(presname,
+				 SAVE_PRESET_LIST,
+				 G_CALLBACK (gx_save_oldpreset));
+
+  // -- load item
+  gx_add_single_preset_menu_item(presname,
+				 LOAD_PRESET_LIST,
+				 G_CALLBACK (gx_load_preset));
+
+  // -- rename item
+  gx_add_single_preset_menu_item(presname,
+				 RENAME_PRESET_LIST,
+				 G_CALLBACK (gx_rename_preset_dialog));
+  // -- delete item
+  gx_add_single_preset_menu_item(presname,
+				 DELETE_PRESET_LIST,
+				 G_CALLBACK (gx_delete_preset_dialog));
+}
+
+//---- add a single preset to a given preset menu
+void gx_add_single_preset_menu_item(const string& presname,
+				    const gint lindex,
+				    GCallback func)
+{
+  // menu
+  GtkWidget* menu = presmenu[lindex];
+
+  // index for keyboard shortcut (can take any list)
+  int pos = preset_list[lindex].size() + 1;
+
+  // add small mnemonic
+  string name("_");
+  name += gx_i2a(pos) + "  ";
+  name += presname;
+
+  // GDK numbers
+  guint accel_key = GDK_1  + pos - 1;
+
+  // create item
+  GtkWidget* menuitem = gtk_menu_item_new_with_mnemonic (name.c_str());
+  g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		    G_CALLBACK (func), 
+		    NULL);
+
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+
+  string acc_path = gtk_menu_get_accel_path(GTK_MENU(menu));
+  acc_path += "/";
+  acc_path += gx_i2a(accel_key);
+
+  // add accelerator in accel path if not added
+  if (!gtk_accel_map_lookup_entry(acc_path.c_str(), NULL))
+      gtk_accel_map_add_entry(acc_path.c_str(), accel_key, list_mod[lindex]);
+
+  gtk_widget_set_accel_path(menuitem, acc_path.c_str(), interface->fAccelGroup);
+  gtk_widget_show (menuitem);
+  preset_list[lindex].insert(pair<GtkMenuItem*,string>(GTK_MENU_ITEM(menuitem), presname));
+}
+
+// ----------- remove old preset from menus
+void gx_del_preset_from_menus(const string& presname)
+{
+  for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++) 
+    gx_del_single_preset_menu_item(presname, i);
+
+  gx_refresh_preset_menus();
+}
+
+void  gx_del_single_preset_menu_item(const string& presname, const gint lindex)
+{
+  GtkMenuItem* const item = gx_get_preset_item_from_name(lindex, presname);
+  if (item)
+  {
+    preset_list[lindex].erase(item);
+    gtk_widget_destroy(GTK_WIDGET(item));
+  }
+}
+
+// ----------- retrieve menu item given a name
+GtkMenuItem* const gx_get_preset_item_from_name(int lindex, const string& name)
+{
+  map<GtkMenuItem*, string>::iterator it;
+  for (it  = preset_list[lindex].begin(); it != preset_list[lindex].end(); it++)
+    if (name == it->second)
+      return it->first;
+
+  return NULL;
+}
+
+// ----------- update preset numbering in menus
+void gx_refresh_preset_menus()
+{
+
+  string acc_path;
+
+  for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+  {
+    guint n = 1;
+
+    map<GtkMenuItem*, string>::iterator it;
+    for (it = preset_list[i].begin(); it != preset_list[i].end(); it++)
+    {
+      GtkMenuItem* const item = it->first;
+      string label = gtk_menu_item_get_label(item);
+      label.replace(1, 1, gx_i2a(n));
+      gtk_menu_item_set_label(item, label.c_str());
+
+      // refresh acc path for this item
+      guint accel_key = GDK_1 + n - 1;
+      acc_path = gtk_menu_get_accel_path(GTK_MENU(presmenu[i]));
+      acc_path += "/";
+      acc_path += gx_i2a(accel_key);
+      gtk_widget_set_accel_path(GTK_WIDGET(item), acc_path.c_str(), interface->fAccelGroup);
+
+      n++;
+    }
+    cerr << endl;
+  }
+}
+    
+// ---------- switch to next preset in queue
+void gx_next_preset(GtkWidget* item, gpointer arg)
+{
+  // check that we do have presets
+  if (preset_list[LOAD_PRESET_LIST].size() == 0)
+  {
+    gx_print_warning("Preset Switching", 
+		     "Preset list is empty, make some :)");
+    return;
+  }
+
+  // start from this element
+  map<GtkMenuItem*, string>::iterator it;
+
+  // initialize iterator
+  if (!setting_is_preset) 
+    it = preset_list[LOAD_PRESET_LIST].begin();
+  else
+  {
+    GtkMenuItem* const item = 
+      gx_get_preset_item_from_name(LOAD_PRESET_LIST, gx_current_preset);
+
+    it = preset_list[LOAD_PRESET_LIST].find(item);
+
+    // increment iterator and load preset
+    it++;
+  }
+
+
+  // check if we are on edge
+  if (it == preset_list[LOAD_PRESET_LIST].end())
+    it = preset_list[LOAD_PRESET_LIST].begin();
+
+  // load the preset
+  gx_load_preset(it->first, NULL);
+}
+
+// ---------- switch to next preset in queue
+void gx_previous_preset(GtkWidget* item, gpointer arg)
+{
+  // check that we do have presets
+  if (preset_list[LOAD_PRESET_LIST].size() == 0)
+  {
+    gx_print_warning("Preset Switching", 
+		     "Preset list is empty, make some :)");
+    return;
+  }
+
+  // start from this element
+  map<GtkMenuItem*, string>::iterator it;
+
+  // initialize iterator
+  if (!setting_is_preset) 
+    it = preset_list[LOAD_PRESET_LIST].end();
+  else
+  {
+    GtkMenuItem* const item = 
+      gx_get_preset_item_from_name(LOAD_PRESET_LIST, gx_current_preset);
+
+    it = preset_list[LOAD_PRESET_LIST].find(item);
+
+  }
+
+  // check if we are on edge
+  if (it == preset_list[LOAD_PRESET_LIST].begin())
+    it = preset_list[LOAD_PRESET_LIST].end();
+
+  // decrement iterator and load preset
+  it--;
+
+
+  // load the preset
+  gx_load_preset(it->first, NULL);
+}

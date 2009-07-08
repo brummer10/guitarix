@@ -61,111 +61,121 @@ public:
     // -- saveState(filename) : save the value of every zone to a file
     void saveState(const char* filename)
     {
-        ofstream f(filename);
-        for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-        {
-            f << *(i->first) << ' ';
-        }
-        f << endl;
-        f.close();
+      ofstream f(filename);
+      for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++) 
+	f << *(i->first) << ' ';
+
+      f << endl;
+      f.close();
     }
 
-    void savepreStatebyname(const char* filename, const char* tmpname, const gchar* presname)
+    // -- acquire current state, places it in string buffer
+    void getState(string& setting)
     {
-        string buffer = " ";
-        extern int cm;
-        ifstream fa(filename);
-        ofstream f(tmpname);
-        if (fa.good())
-        {
-            std::string b(presname);
-            while (buffer != "")
-            {
-                getline(fa, buffer);
-                std::string::size_type in = buffer.find(b);
-                if ((buffer != "") && (int(in) == -1))	 f <<  buffer <<endl;
-                if (int(in) != -1) cm = 1;
-            }
-        }
-        f <<  presname << ' ';
-        for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-        {
-            f << *(i->first) << ' ';
-        }
-        f << endl;
-        fa.close();
-        f.close();
-        remove(filename);
-        rename(tmpname, filename);
+      // string containing preset data
+      // will be flushed into preset file 
+      string space = " ";
+
+      for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
+      {
+	// build buffer with ostringstream's
+	ostringstream val; val << *(i->first); 
+	setting +=  space + val.str();
+      }
     }
 
-    void recallpreStatebyname(const char* filename, const char* tmpname, const gchar* text)
+    // -- set a state by string
+    bool setState(const string& setting)
     {
-        string buffer = " ";
-        string  buf;
-        ifstream fa(filename);
-        ofstream fr(tmpname);
-        if (fa.good())
-        {
-            std::string b(text);
-            while (buffer != "")
-            {
-                getline(fa, buffer);
-                std::string::size_type in = buffer.find(b);
-                if ((buffer != "") && (int(in) != -1))
-                {
-                    in = buffer.find(" ");
-                    in += 1;
-                    buffer.erase(0, in);
-                    buf = buffer;
-                }
-            }
-        }
-        fr <<  buf <<endl;
-        fr.close();
-        fa.close();
-        ifstream f(tmpname);
-        if (f.good())
-        {
-            for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-            {
-                f >> *(i->first);
-            }
-        }
-        f.close();
+      if (setting.empty()) return false;
+
+      // parse buffer
+      istringstream values(setting);
+      for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
+	values >> *(i->first);
+
+      return true;
     }
 
-    // -- saveState(filename) : save the value of every zone to a file
-    void savepreState(const char* filename, const char* tmpname, int lin)
+    // -- fetch state from file
+    void fetchStateFromFile(const char* filename, const char* presname, string& state)
     {
-        string buffer;
-        int is;
-        ifstream fa(filename);
-        ofstream f(tmpname);
-        if (fa.good())
-        {
-            for (is=0; is<lin; is++)
-            {
-                getline(fa, buffer);
-                f <<  buffer <<endl;
-            }
-            getline(fa, buffer);
-        }
-        for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-        {
-            f << *(i->first) << ' ';
-        }
-        f << endl;
-        lin = lin + 1;
-        for (is=lin; is<6; is++)
-        {
-            getline(fa, buffer);
-            f <<  buffer <<endl;
-        }
-        fa.close();
-        f.close();
-        remove(filename);
-        rename(tmpname, filename);
+      ifstream fa(filename);
+      string buffer;
+
+      if (fa.good())
+      {
+	do {
+	  getline(fa, buffer);
+	  if (!buffer.empty())
+          {
+	    // do we have a match ?
+	    if ((int)buffer.find(presname) == -1) continue;
+	    
+	    buffer.erase(0, buffer.find(" ")+1);
+	    break;
+	  }  
+	}
+	while (buffer != "");
+	fa.close();
+      }
+
+      state = buffer;
+    }
+
+    // -- recall a preset setting by name 
+    bool recallPresetByname(const char* filename, const char* presname)
+    {
+      string buffer;
+      
+      // lookup preset file until we find a match
+      fetchStateFromFile(filename, presname, buffer);
+
+      // set the found state
+      return setState(buffer);
+    }
+
+    // -- recall a preset setting by name 
+    bool renamePreset(const char* filename, const char* oldname, const char* newname)
+    {
+      string buffer, buf, space = " ";
+      
+      const string prefile = filename;
+      const string tmpfile = prefile + "_tmp";
+
+      // lookup preset file until we find a match
+      fetchStateFromFile(filename, oldname, buffer);
+
+      // did we find anything ? weird if not ...
+      if (buffer.empty()) return false;
+
+      // let's use a tmp file that does not contain the preset 
+      ostringstream cat_tmpfile("cat"); 
+      cat_tmpfile << "cat" << space << prefile << space 
+		  << "| grep -v" << space << oldname << space
+		  << ">" << tmpfile;    
+      
+      (void)system(cat_tmpfile.str().c_str());
+      usleep(200);
+
+      // add new name 
+      ostringstream presline;
+      presline << "echo" << space << newname << space << buffer
+	       << " >> " << tmpfile;
+
+      // save preset in tmp file
+      if (system(presline.str().c_str()) != 0) 
+      {
+	string cmd = string("rm -f ") + tmpfile;
+	system(cmd.c_str());
+	return false;
+      }
+
+      // rename tmp file to filename
+      string cmd = string("rm -f ") + prefile; system(cmd.c_str());
+      rename(tmpfile.c_str(), prefile.c_str());
+
+      return true;
     }
 
     // -- recallState(filename) : load the value of every zone from a file
@@ -204,34 +214,6 @@ public:
         f.close();
     }
 
-    // -- recallpreState(filename) : load the value of every zone from a file
-    void recallpreState(const char* filename, int lin)
-    {
-        string buffer;
-        ifstream f(filename);
-        if (f.good())
-        {
-            int is;
-            int in;
-            for (is=0; is<lin; is++)
-            {
-                getline(f, buffer);
-            }
-            int lage;
-            lage = f.tellg();
-            getline(f, buffer);
-            in = buffer.find(" ");
-            in += 1;
-            in += lage;
-            f.seekg(in, ios_base::beg);
-            for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-            {
-                f >> *(i->first);
-            }
-        }
-        f.close();
-    }
-
     void updateAllZones();
 
     void updateZone(float* z);
@@ -244,6 +226,9 @@ public:
             (*g)->updateAllZones();
         }
     }
+
+    // -- retrieve loggin window
+    virtual GtkTextView* const getLoggingWindow() const { return NULL; }
 
     // -- active widgets
     virtual void addMenu() {};
@@ -282,6 +267,7 @@ public:
     virtual void openHandleBox(const char* label) {};
     virtual void openExpanderBox(const char* label, float* zone) {};
     virtual void openTabBox(const char* label) {};
+    virtual void openTextLoggingBox(const char* label) {};
     virtual void closeBox() {};
 
     virtual void show() {};

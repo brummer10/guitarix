@@ -234,8 +234,7 @@ void jack_shutdown(void *arg)
 void signal_handler(int sig)
 {
   // print out a warning
-  string sigstr; gx_IntToString(sig, sigstr);
-  string msg = string("signal ") + sigstr + " received, exiting ...";
+  string msg = string("signal ") + gx_i2a(sig) + " received, exiting ...";
   gx_print_warning("signal_handler", msg);
   
   gx_clean_exit(NULL, NULL);
@@ -262,14 +261,18 @@ static void port_callback (jack_port_id_t port, int yn, void* arg)
 
 static int buffersize_callback (jack_nframes_t nframes,void* arg)
 {
-    int merke = 0;
-    if ( checky == 1)
-    {
-        checky = 0;
-        merke = 1;
-    }
+    GxEngineState estate = (GxEngineState)checky;
+
+    // turn off engine 
+    // Note: how can this be achieved just like that ??
+    if (estate != kEngineOff)
+      checky = (float)kEngineOff;
+
     frag = nframes;
-    printf("the buffer size is now %u/frames\n", frag);
+    gx_print_info("buffersize_callback", 
+		  string("the buffer size is now ") +
+		  gx_i2a(frag) + string("/frames"));
+
     if (checkfreq)
         delete[] checkfreq;
     if (get_frame)
@@ -278,17 +281,16 @@ static int buffersize_callback (jack_nframes_t nframes,void* arg)
         delete[] oversample;
 
     get_frame = new float[frag];
-    for (int i=0; i<(frag); i++) get_frame[i] = 0;
-    checkfreq = new float[frag];
-    for (int i=0; i<(frag); i++) checkfreq[i] = 0;
-    oversample = new float[frag*2];
-    for (int i=0; i<(frag*2); i++) oversample[i] = 0;
+    (void)memset(get_frame, 0, sizeof(float)*frag);
 
-    if ( merke == 1)
-    {
-        checky = 1;
-        merke = 0;
-    }
+    checkfreq = new float[frag];
+    (void)memset(checkfreq, 0, sizeof(float)*frag);
+
+    oversample = new float[frag*2];
+    (void)memset(oversample, 0, sizeof(float)*frag*2);
+
+    // restore previous state
+    checky = (float)estate;
     return 0;
 }
 
@@ -428,6 +430,14 @@ int main(int argc, char *argv[] )
     // store shell variable content
     for (int i = 0; i < NUM_SHELL_VAR; i++)
       gx_assign_shell_var(shell_var_name[i], optvar[i]);
+
+    // initialize number of skins. We just count the number of rc files
+    unsigned int n = gx_fetch_available_skins();
+    if (n < 1)
+    {
+      gx_print_error("main", string("number of skins is 0, aborting ..."));
+      exit(1);
+    }
     
     // ---- parse command line arguments, using the boost::program_options lib
     try 
@@ -517,14 +527,14 @@ int main(int argc, char *argv[] )
 	}
     
         // if garbage, let's initialize to guitarix_default.rc
-	int s = GX_SKIN_START;
-        while (s < GX_NUM_OF_SKINS)
+	guint s = 0;
+        while (s < skin_list.size())
 	{
-	  if (tmp == skins[s]) break;
+	  if (tmp == skin_list[s]) break;
 	  s++;
 	}
 	
-	if (s == GX_NUM_OF_SKINS)
+	if (s == skin_list.size())
 	{  
 	  gx_print_error("main",
 			 string("rcset value is garbage, defaulting to 'default' style"));
@@ -708,10 +718,9 @@ int main(int argc, char *argv[] )
     }
 
 //----- build the GUI interface virtual
-    interface = new GTKUI (jname, &argc, &argv);
+    interface = new GTKUI(jname, &argc, &argv);
     DSP.init(jackframes);
     DSP.buildUserInterface(interface);
-
 
     string previous_state = gx_user_dir + string(jname) + "rc";
     interface->recallState(previous_state.c_str());
@@ -757,12 +766,13 @@ void gx_jack_cleanup(jack_client_t** jack_client)
 
   if (jcl)
   {
-    for (int i = 0; i < gNumInChans; i++)
+    // disable input ports
+    for (int i = 0; i < gNumInChans; i++) 
       jack_port_unregister(jcl, input_ports[i]);
     
     for (int i = 0; i < gNumOutChans; i++)
       jack_port_unregister(jcl, output_ports[i]);
-    
+
     if (midi_output_ports != NULL)
       jack_port_unregister(jcl, midi_output_ports);
 
@@ -795,7 +805,10 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
   {
     string previous_state = gx_user_dir + jcl_name + "rc";
     DSP.get_state();
-    interface->saveState(previous_state.c_str());
+
+    // only save if we are not in a preset context
+    if (!setting_is_preset)
+      interface->saveState(previous_state.c_str());
   }
 
   if (fWindow)
@@ -813,3 +826,4 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 }
 
 
+ 

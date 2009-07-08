@@ -26,8 +26,6 @@
 	here are the virtuell discriptions from the included GTK_WIDGET for guitarix
 *******************************************************************************
 *******************************************************************************/
-#define GDK_NO_MOD_MASK (GdkModifierType)0
-
 extern void gx_clean_exit(GtkWidget*, gpointer);
 
 // create main window
@@ -39,18 +37,14 @@ GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
         fInitialized = true;
     }
     /*-- set rc file overwrite it with export--*/
-
     gtk_rc_parse(rcpath);
+
     /*-- Check for working directory to save and load presets --*/
-    const char*	  home;
-    const char*      pathname = ".guitarix";
-    char                dirname[256];
-    home = getenv ("HOME");
-    if (home == 0) home = ".";
-    snprintf(dirname, 256, "%s/%s", home, pathname);
-    gx_version_check( dirname);
+    gx_version_check();
+
     /*-- Declare the GTK Widgets --*/
     fWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
     /*---------------- set window defaults ----------------*/
     gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
     gtk_window_set_title (GTK_WINDOW (fWindow), name);
@@ -66,6 +60,7 @@ GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
         g_signal_connect (G_OBJECT (status_icon), "activate", G_CALLBACK (gx_hide_extendet_settings), NULL);
         g_signal_connect (G_OBJECT (status_icon), "popup-menu", G_CALLBACK (gx_sytray_menu), NULL);
     }
+
     /*---------------- create boxes ----------------*/
     fTop = 0;
     fBox[fTop] = gtk_vbox_new (homogene, 4);
@@ -77,8 +72,7 @@ GTKUI::GTKUI(char * name, int* pargc, char*** pargv)
     fStopped = false;
 }
 
-// empilement des boites
-
+//------- box stacking up
 void GTKUI::pushBox(int mode, GtkWidget* w)
 {
     assert(++fTop < stackSize);
@@ -91,8 +85,7 @@ void GTKUI::closeBox()
     assert(--fTop >= 0);
 }
 
-// les differentes boites
-
+//-------- different box styles
 void GTKUI::openFrameBox(const char* label)
 {
     GtkWidget * box = gtk_hbox_new (homogene, 2);
@@ -120,6 +113,25 @@ void GTKUI::openFrameBox(const char* label)
 void GTKUI::openTabBox(const char* label)
 {
     pushBox(kTabMode, addWidget(label, gtk_notebook_new ()));
+}
+
+void GTKUI::openTextLoggingBox(const char* label)
+{
+    GtkWidget* box = gtk_text_view_new ();
+    gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(box), FALSE);
+    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(box), FALSE);
+    gtk_text_view_set_pixels_above_lines (GTK_TEXT_VIEW(box), 5);
+    gtk_text_view_set_pixels_below_lines (GTK_TEXT_VIEW(box), 5);
+    gtk_text_view_set_justification(GTK_TEXT_VIEW(box), GTK_JUSTIFY_LEFT);
+    gtk_text_view_set_left_margin(GTK_TEXT_VIEW(box), 5);
+    gtk_text_view_set_indent(GTK_TEXT_VIEW(box), 0);
+
+    pushBox(kBoxMode, addWidget(label, box));
+    fLoggingWindow = GTK_TEXT_VIEW(box);
+
+    GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(box));
+    gtk_text_buffer_set_text(buffer, ">", -1);
 }
 
 void GTKUI::openHorizontalBox(const char* label)
@@ -1018,8 +1030,6 @@ void GTKUI::addMenu()
     GtkWidget *menuFile;
     GtkWidget *menuEdit;
     GtkWidget *menuHelp;
-    GtkWidget *menuLoad;
-    GtkWidget *menuSave;
     GtkWidget *menubar;
     GtkWidget *menuLatency;
     GtkWidget *menulat;
@@ -1043,37 +1053,30 @@ void GTKUI::addMenu()
     gtk_box_pack_start(GTK_BOX(hbox), menubar, TRUE, TRUE, 0);
 
     /*-- Engine on/off and status --*/
-    GtkWidget* on_event_box  = gtk_event_box_new ();
-    GtkWidget* off_event_box = gtk_event_box_new ();
 
     // set up ON image: shown by default
     string img_path = gx_pixmap_dir + "gx_on.png";
 
     gx_engine_on_image = gtk_image_new_from_file(img_path.c_str());
-    gtk_container_add (GTK_CONTAINER (on_event_box), gx_engine_on_image);
-    gtk_box_pack_end(GTK_BOX(hbox), on_event_box, FALSE, TRUE, 0);
+    gtk_box_pack_end(GTK_BOX(hbox), gx_engine_on_image, FALSE, TRUE, 0);
     gtk_widget_show(gx_engine_on_image);
-
-    g_signal_connect (GTK_OBJECT (on_event_box), 
-		      "button_press_event", G_CALLBACK (gx_engine_switch), 
-		      NULL);
-    gtk_widget_show(on_event_box);
 
     // set up OFF image: hidden by default
     img_path = gx_pixmap_dir + "gx_off.png";
 
     gx_engine_off_image = gtk_image_new_from_file(img_path.c_str());
-    gtk_container_add (GTK_CONTAINER (off_event_box), gx_engine_off_image);
-    gtk_box_pack_end(GTK_BOX(hbox), off_event_box, FALSE, TRUE, 0);
+    gtk_box_pack_end(GTK_BOX(hbox), gx_engine_off_image, FALSE, TRUE, 0);
     gtk_widget_hide(gx_engine_off_image);
 
-    g_signal_connect (GTK_OBJECT (off_event_box), 
-		      "button_press_event", G_CALLBACK (gx_engine_switch), 
-		      NULL);
-    gtk_widget_show(off_event_box);
+    // set up BYPASS image: hidden by default
+    img_path = gx_pixmap_dir + "gx_bypass.png";
+
+    gx_engine_bypass_image = gtk_image_new_from_file(img_path.c_str());
+    gtk_box_pack_end(GTK_BOX(hbox), gx_engine_bypass_image, FALSE, TRUE, 0);
+    gtk_widget_hide(gx_engine_bypass_image);
 
     /*---------------- Create Engine menu items ------------------*/
-    menuFile = gtk_menu_item_new_with_label ("Engine");
+    menuFile = gtk_menu_item_new_with_mnemonic ("_Engine");
     gtk_menu_bar_append (GTK_MENU_BAR(menubar), menuFile);
     gtk_widget_show(menuFile);
 
@@ -1083,22 +1086,27 @@ void GTKUI::addMenu()
     /* Some thing went wrong when compile without __SSE__ with that funktion. So I disable it in this case.*/
 
     /*-- Create New radio check menu item and set active under Engine submenu --*/
-    menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_MEDIA_PLAY, fAccelGroup);
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_space, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_engine_switch), NULL);
-    gtk_menu_append(GTK_MENU(menuh), menuitem);
-    gtk_widget_show (menuitem);
+    group = NULL;
 
-    /*-- Create Open check menu item under Engine submenu --*/
-    menuitem = gtk_check_menu_item_new_with_label ("Midi Out ");
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_m, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_midi_out), NULL);
-    gtk_menu_append(GTK_MENU(menuh), menuitem);
+    menuitem = gtk_check_menu_item_new_with_mnemonic ("Engine _Start / _Stop");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_space, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
+    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
     gtk_widget_show (menuitem);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_engine_switch), (gpointer)0);
+    gx_engine_item = menuitem;
+
+    menuitem = gtk_menu_item_new_with_mnemonic ("Engine _Bypass");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_b, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
+    gtk_widget_show (menuitem);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_engine_switch), (gpointer)1);
 
     /*---------------- Create Latency menu items --------------------*/
     /*-- Create  Latency submenu under Engine submenu --*/
-    menuLatency = gtk_menu_item_new_with_label ("Latency");
+    menuLatency = gtk_menu_item_new_with_mnemonic ("Jack _Latency...");
     gtk_menu_append (GTK_MENU(menuh), menuLatency);
     menulat = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuLatency), menulat);
@@ -1126,115 +1134,173 @@ void GTKUI::addMenu()
             if (jack_buffer_size == (int)jack_get_buffer_size(client))
                 gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
 
-        gtk_menu_append(GTK_MENU(menulat), menuitem);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menulat), menuitem);
         gtk_widget_show (menuitem);
     }
     /*---------------- End Latency menu declarations ----------------*/
 
     /*-- add a separator line --*/
     GtkWidget* sep = gtk_separator_menu_item_new();
-    gtk_menu_append(GTK_MENU(menuh), sep);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);
     gtk_widget_show (sep);
 
+    /*-- Create Open check menu item under Engine submenu --*/
+    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Midi Out ");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_m, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_midi_out), NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
+    gtk_widget_show (menuitem);
+
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);
+    gtk_widget_show (sep);
 
     /*-- Create Exit menu item under Engine submenu --*/
-    menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_QUIT, fAccelGroup);
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Quit");
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_q, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-
     g_signal_connect(G_OBJECT (menuitem), "activate", G_CALLBACK (gx_clean_exit), NULL);
-    gtk_menu_append(GTK_MENU(menuh), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
     gtk_widget_show (menuitem);
     /*---------------- End Engine menu declarations ----------------*/
 
 
 
-    /*---------------- Create Settings menu items --------------------*/
-    menuEdit = gtk_menu_item_new_with_label ("Presets");
+    /*---------------- Create Presets menu items --------------------*/
+    menuEdit = gtk_menu_item_new_with_mnemonic ("_Presets");
     gtk_menu_bar_append (GTK_MENU_BAR(menubar), menuEdit);
     gtk_widget_show(menuEdit);
-    /*-- Create Settings submenu --*/
+
+    /*-- Create Presets submenu --*/
     menu1 = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuEdit), menu1);
-    /*-- Create  menu item under Settings submenu --*/
-    menuSave = gtk_menu_item_new_with_label ("Save As");
-    gtk_menu_append(GTK_MENU(menu1), menuSave);
-    menus = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuSave), menus);
 
-    /*-- Create  menu item under Save submenu --*/
-    menuitem = gtk_menu_item_new_with_label ("New");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_presetn1), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_append(GTK_MENU(menus), menuitem);
+    /*-- Create  menu Load under Settings submenu --*/
+    menuLoad = gtk_menu_item_new_with_mnemonic ("_Load Preset...");
+    gtk_menu_append (GTK_MENU(menu1), menuLoad);
+    GtkWidget* menul = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuLoad), menul);
+    gtk_menu_set_accel_path(GTK_MENU(menul), "<guitarix>/Load");
+    presmenu[LOAD_PRESET_LIST] = menul;
+
+    /*-- Create  menu Rename under Settings submenu --*/
+    menuRename = gtk_menu_item_new_with_mnemonic ("_Rename Preset...");
+    gtk_menu_append (GTK_MENU(menu1), menuRename);
+    GtkWidget* menue = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuRename), menue);
+    gtk_menu_set_accel_path(GTK_MENU(menue), "<guitarix>/Rename");
+    presmenu[RENAME_PRESET_LIST] = menue;
+
+    /*-- Create  menu item Save under Settings submenu --*/
+    menuSave = gtk_menu_item_new_with_mnemonic ("_Save Preset...");
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuSave);
+    GtkWidget* menus = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuSave), menus);
+    gtk_menu_set_accel_path(GTK_MENU(menus), "<guitarix>/Save");
+    presmenu[SAVE_PRESET_LIST] = menus;
+
+    /*-- Create  menu Delete under Settings submenu --*/
+    menuDelete = gtk_menu_item_new_with_mnemonic ("_Delete Preset...");
+    gtk_menu_append (GTK_MENU(menu1), menuDelete);
+    GtkWidget* menud = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuDelete), menud);
+    gtk_menu_set_accel_path(GTK_MENU(menud), "<guitarix>/Delete");
+    presmenu[DELETE_PRESET_LIST] = menud;
+
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), sep);
+    gtk_widget_show (sep);
+
+    /*-- Create  menu item Delete Active preset --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Next Preset");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_next_preset), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", 
+			       fAccelGroup, GDK_Page_Down, 
+			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
+    gtk_widget_show (menuitem);
+
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Previous Preset");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_previous_preset), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", 
+			       fAccelGroup, GDK_Page_Up, 
+			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
+    gtk_widget_show (menuitem);
+
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Rename Active Preset");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_rename_active_preset_dialog), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", 
+			       fAccelGroup, GDK_r, 
+			       GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
+    gtk_widget_show (menuitem);
+
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Delete Active Preset");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_delete_active_preset_dialog), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", 
+			       fAccelGroup, GDK_Delete, 
+			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
+    gtk_widget_show (menuitem);
+
+    /*-- Create  menu item Save As under Presets submenu --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("Save _Preset As");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_newpreset_dialog), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_p, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
+    gtk_widget_show (menuitem);
+
+    /*-- Create  menu item Delete All presets --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Delete All Presets");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_delete_all_presets_dialog), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", 
+			       fAccelGroup, GDK_d, 
+			       GdkModifierType(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
     gtk_widget_show (menuitem);
 
 
-    const char*	  home;
-    char                rcfilenamere[256];
-    const char*      prename = "guitarixpre";
-    home = getenv ("HOME");
-    if (home == 0) home = ".";
-    snprintf(rcfilenamere, 256, "%s/.guitarix/%src", home, prename);
 
-    ifstream f(rcfilenamere);
-    if (f.good())
+    /*-- initial preset list --*/
+    vector<string> plist;
+    gx_build_preset_list(plist);
+
+    vector<string>::iterator it;
+    for (it = plist.begin() ; it < plist.end(); it++ )
     {
-        string buffer;
-	int p = GDK_1;
-        while (!f.eof())
-        {
-            getline(f, buffer);
-            std::string b(" ");
-            std::string::size_type in = buffer.find(b);
-	
-            if (int(in) != -1)
-            {
-                buffer.erase(in);
-                menuitem = gtk_menu_item_new_with_label (buffer.c_str());
-                g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_presetn2), NULL);
-		gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, p, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-                gtk_menu_append(GTK_MENU(menus), menuitem);
-                gtk_widget_show (menuitem);
-		p++;
-            }
-        }
+      const string presname = *it;
+      gx_add_preset_to_menus(presname);
     }
-    f.close();
-    free(f);
 
-    /*-- Create  menu load under Settings submenu --*/
-    menuLoad = gtk_menu_item_new_with_label ("Load");
-    gtk_menu_append (GTK_MENU(menu1), menuLoad);
-    menul = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuLoad), menul);
-    ifstream fa(rcfilenamere);
-    if (fa.good())
-    {
-        string buffer;
-	int p = GDK_1;
-        while (!fa.eof())
-        {
-            getline(fa, buffer);
-            std::string b(" ");
-            std::string::size_type in = buffer.find(b);
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), sep);
+    gtk_widget_show (sep);
 
-            if (int(in) != -1)
-            {
-                buffer.erase(in);
-                menuitem = gtk_menu_item_new_with_label (buffer.c_str());
-                g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_load_preset), NULL);
-		gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, p, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
-                gtk_menu_append(GTK_MENU(menul), menuitem);
-                gtk_widget_show (menuitem);
-		p++;
-            }
-        }
-    }
-    fa.close();
-    free(fa);
+
+    /*-- Create  menu item Reset submenu --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("Recall Main _Setting");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_recall_main_setting), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_s, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
+    gtk_widget_show (menuitem);
+
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Save As Main _Setting");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_main_setting), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
+    gtk_widget_show (menuitem);
+
     /*---------------- End Settingsmenu declarations ----------------*/
     /*---------------- Create Options menu items ------------------*/
-    menucap = gtk_menu_item_new_with_label ("Options");
+    menucap = gtk_menu_item_new_with_mnemonic ("_Options");
     gtk_menu_bar_append (GTK_MENU_BAR(menubar), menucap);
     gtk_widget_show(menucap);
     /*-- Create Options submenu  --*/
@@ -1242,56 +1308,56 @@ void GTKUI::addMenu()
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menucap), menu);
 
     /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_label ("Oscilloscope");
+    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Oscilloscope");
     //  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_o, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_oscilloscope), NULL);
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_label ("Tuner");
+    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Tuner");
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_t, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_tuner), NULL);
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show (menuitem);
 
     /*-- add a separator line --*/
     sep = gtk_separator_menu_item_new();
-    gtk_menu_append(GTK_MENU(menu), sep);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), sep);
     gtk_widget_show (sep);
 
     /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_label ("Meterbridge");
+    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Meterbridge");
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_m, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_meterbridge), NULL);
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show (menuitem);
     /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_menu_item_new_with_label ("Jack Capture Settings");
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Jack Capture Settings");
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_j, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_j_c_gui), NULL);
     gtk_widget_show (menuitem);
 
     /*-- add a separator line --*/
     sep = gtk_separator_menu_item_new();
-    gtk_menu_append(GTK_MENU(menu), sep);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), sep);
     gtk_widget_show (sep);
 
     /*-- Create skin menu under Options submenu--*/
-    menuSkinChooser = gtk_menu_item_new_with_label ("Skin");
+    menuSkinChooser = gtk_menu_item_new_with_mnemonic ("_Skin...");
     gtk_menu_append (GTK_MENU(menu), menuSkinChooser);
     menuskin = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuSkinChooser), menuskin);
 
     /* Create black skin item under skin submenu --*/
-    int idx = GX_SKIN_START;
-    while (idx < GX_NUM_OF_SKINS) {
-      menuitem = gtk_radio_menu_item_new_with_label (group, skins[idx]);
+    guint idx = 0;
+    while (idx < skin_list.size()) {
+      menuitem = gtk_radio_menu_item_new_with_label (group, skin_list[idx].c_str());
       group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
       gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
       g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_change_skin), GINT_TO_POINTER(idx));
-      gtk_menu_append(GTK_MENU(menuskin), menuitem);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menuskin), menuitem);
       gtk_widget_show (menuitem);
       idx++;
     }
@@ -1305,7 +1371,7 @@ void GTKUI::addMenu()
     /*-- End skin menu declarations --*/
 
     /*---------------- Start About menu declarations ----------------*/
-    menuHelp = gtk_menu_item_new_with_label ("About");
+    menuHelp = gtk_menu_item_new_with_mnemonic ("_About");
     gtk_menu_bar_append (GTK_MENU_BAR(menubar), menuHelp);
     gtk_widget_show(menuHelp);
 
@@ -1314,12 +1380,19 @@ void GTKUI::addMenu()
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuHelp), menu);
 
     /*-- Create About menu item under About submenu --*/
-    menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_ABOUT, fAccelGroup);
+    menuitem = gtk_menu_item_new_with_mnemonic ("_About");
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_a, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_about), NULL);
     gtk_widget_show (menuitem);
+
+    /*-- Create Help menu item under About submenu --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Help");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_h, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+    //    g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_about), NULL);
+    gtk_widget_show (menuitem);
+
     /*---------------- End About menu declarations ----------------*/
 
     /*---------------- add menu to main window box----------------*/
@@ -1331,6 +1404,8 @@ void GTKUI::addMenu()
     gtk_widget_show(menuEdit);
     gtk_widget_show(menuLoad);
     gtk_widget_show(menuSave);
+    gtk_widget_show(menuDelete);
+    gtk_widget_show(menuRename);
     gtk_widget_show(menuSkinChooser);
     gtk_widget_show(menuHelp);
     gtk_widget_show(menubar);
