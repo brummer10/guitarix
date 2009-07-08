@@ -887,7 +887,7 @@ struct uiNumDisplay : public uiItem
             gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
             snprintf(s, 63, "%s", "");
             gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), s);
-            shownote = 2;
+            shownote = -2;
         }
     }
 };

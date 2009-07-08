@@ -514,7 +514,7 @@ virtual void compute (int count, float** input, float** output)
             // when the ocilloscope draw wav by sample (mode 3) get the input value
             if (showwave) vivi = input0[i];
 
-            if (tuner_on) // enable tuner when show note or play midi
+            if (tuner_on > 0) // enable tuner when show note or play midi
             {
                 float fTemphp0 = checkfreq [i]*2;
                 // low and highpass filter
@@ -552,7 +552,7 @@ virtual void compute (int count, float** input, float** output)
             else if (shownote == 0)
             {
                 fConsta1 = 1000.0f;
-                shownote = 2;
+                shownote = -2;
             }
 
             if (icheckboxcom1)     // compressor
@@ -710,20 +710,21 @@ virtual void compute (int count, float** input, float** output)
             }
             // gain out
             fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
+            float fTemp12 =  (fRec46[0] * fTemp8);
 
             if (iSlow75)    //echo
             {
-                fRec47[IOTA&262143] = (fTemp8 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
-                fTemp8 = fRec47[(IOTA-0)&262143];
+                fRec47[IOTA&262143] = (fTemp12 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
+                fTemp12 = fRec47[(IOTA-0)&262143];
             }                                     //echo ende
 
             if (iSlow79)     //impulseResponse
             {
-                fVec22[0] = fTemp8;
+                fVec22[0] = fTemp12;
                 fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
                 fVec23[0] = (fRec48[0] + fVec22[0]);
             }
-            else  fVec23[0] = fTemp8;   //impulseResponse ende
+            else  fVec23[0] = fTemp12;   //impulseResponse ende
 
             // this is the output value from the mono process
             fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));

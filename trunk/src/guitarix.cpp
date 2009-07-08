@@ -71,7 +71,7 @@ const string gx_user_dir =
 int offcut;
 int lenghtcut;
 int cm = 0;
-int shownote = 2;
+int shownote = -2;
 int view_mode = 0;
 int showwave = 0;
 int playmidi = 0;
@@ -1040,7 +1040,7 @@ static void gx_destroy_event()
 {
     (void)gx_terminate_child_procs();
 
-    shownote = 2;
+    shownote = -2;
     stopit = "stop";
     showwave = 0;
     playmidi = 0;
