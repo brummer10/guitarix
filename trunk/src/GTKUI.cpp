@@ -1035,6 +1035,8 @@ void GTKUI::addMenu()
     GtkWidget *menulat;
     GtkWidget *menuSkinChooser;
     GtkWidget *menuskin;
+    GtkWidget *menuMorePresetAction;
+    GtkWidget *menumpa;
     GtkWidget *menu;
     GtkWidget *menu1;
     GtkWidget *menuitem;
@@ -1053,7 +1055,6 @@ void GTKUI::addMenu()
     gtk_box_pack_start(GTK_BOX(hbox), menubar, TRUE, TRUE, 0);
 
     /*-- Engine on/off and status --*/
-
     // set up ON image: shown by default
     string img_path = gx_pixmap_dir + "gx_on.png";
 
@@ -1171,73 +1172,107 @@ void GTKUI::addMenu()
     gtk_menu_bar_append (GTK_MENU_BAR(menubar), menuEdit);
     gtk_widget_show(menuEdit);
 
-    /*-- Create Presets submenu --*/
+    /*-- Create Presets submenus --*/
     menu1 = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuEdit), menu1);
 
-    /*-- Create  menu Load under Settings submenu --*/
-    menuLoad = gtk_menu_item_new_with_mnemonic ("_Load Preset...");
-    gtk_menu_append (GTK_MENU(menu1), menuLoad);
-    GtkWidget* menul = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuLoad), menul);
-    gtk_menu_set_accel_path(GTK_MENU(menul), "<guitarix>/Load");
-    presmenu[LOAD_PRESET_LIST] = menul;
+    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+    {
+      GtkWidget* menuItem = 
+	gtk_menu_item_new_with_mnemonic (preset_menu_name[i]);
+      gtk_menu_shell_append (GTK_MENU_SHELL(menu1), menuItem);
 
-    /*-- Create  menu Rename under Settings submenu --*/
-    menuRename = gtk_menu_item_new_with_mnemonic ("_Rename Preset...");
-    gtk_menu_append (GTK_MENU(menu1), menuRename);
-    GtkWidget* menue = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuRename), menue);
-    gtk_menu_set_accel_path(GTK_MENU(menue), "<guitarix>/Rename");
-    presmenu[RENAME_PRESET_LIST] = menue;
+      GtkWidget* menu = gtk_menu_new();
+      gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuItem), menu);
 
-    /*-- Create  menu item Save under Settings submenu --*/
-    menuSave = gtk_menu_item_new_with_mnemonic ("_Save Preset...");
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuSave);
-    GtkWidget* menus = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuSave), menus);
-    gtk_menu_set_accel_path(GTK_MENU(menus), "<guitarix>/Save");
-    presmenu[SAVE_PRESET_LIST] = menus;
+      gtk_menu_set_accel_path(GTK_MENU(menu), preset_accel_path[i]);
 
-    /*-- Create  menu Delete under Settings submenu --*/
-    menuDelete = gtk_menu_item_new_with_mnemonic ("_Delete Preset...");
-    gtk_menu_append (GTK_MENU(menu1), menuDelete);
-    GtkWidget* menud = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuDelete), menud);
-    gtk_menu_set_accel_path(GTK_MENU(menud), "<guitarix>/Delete");
-    presmenu[DELETE_PRESET_LIST] = menud;
+      presmenu[i] = menu;
+      presMenu[i] = menuItem;
+    }
+
+    /*-- add New Preset saving under Save Presets menu */
+    menuitem = gtk_menu_item_new_with_mnemonic ("New _Preset");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_newpreset_dialog), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_p, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_insert(GTK_MENU_SHELL(presmenu[SAVE_PRESET_LIST]), menuitem, 0);
+    gtk_widget_show (menuitem);
 
     /*-- add a separator line --*/
     sep = gtk_separator_menu_item_new();
     gtk_menu_shell_append(GTK_MENU_SHELL(menu1), sep);
     gtk_widget_show (sep);
 
-    /*-- Create  menu item Delete Active preset --*/
-    menuitem = gtk_menu_item_new_with_mnemonic ("_Next Preset");
+    /*-- Create  Main setting submenu --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("Recall Main _Setting");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_recall_main_setting), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_s, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
+    gtk_widget_show (menuitem);
+
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Save As Main _Setting");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_main_setting), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
+    gtk_widget_show (menuitem);
+
+
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), sep);
+    gtk_widget_show (sep);
+
+    /*-- Create sub menu More Preset Action --*/
+    menuMorePresetAction = gtk_menu_item_new_with_mnemonic("More Preset Options...");
+    gtk_menu_shell_append (GTK_MENU_SHELL(menu1), menuMorePresetAction);
+    menumpa = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuMorePresetAction), menumpa);
+
+    /*--------------- Hidden buttons for keyboard shortcuts only */
+    /*-- hidden items --*/
+
+    /* forward preset */
+    menuitem = gtk_menu_item_new_with_mnemonic("Next _Preset");
     g_signal_connect (GTK_OBJECT (menuitem), "activate", 
 		      G_CALLBACK (gx_next_preset), NULL);
     gtk_widget_add_accelerator(menuitem, "activate", 
 			       fAccelGroup, GDK_Page_Down, 
 			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
-    gtk_widget_show (menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
+    gtk_widget_show(menuitem);
 
-    menuitem = gtk_menu_item_new_with_mnemonic ("_Previous Preset");
+    /* rewind preset */
+    menuitem = gtk_menu_item_new_with_mnemonic("Previous _Preset");
     g_signal_connect (GTK_OBJECT (menuitem), "activate", 
 		      G_CALLBACK (gx_previous_preset), NULL);
     gtk_widget_add_accelerator(menuitem, "activate", 
 			       fAccelGroup, GDK_Page_Up, 
 			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
+    gtk_widget_show(menuitem);
+
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), sep);
+    gtk_widget_show (sep);
+
+    /*-- Create  menu item Delete Active preset --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Save _Active Preset");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_save_oldpreset), (gpointer)1);
+    gtk_widget_add_accelerator(menuitem, "activate", 
+			       fAccelGroup, GDK_s, 
+			       GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
     gtk_widget_show (menuitem);
 
-    menuitem = gtk_menu_item_new_with_mnemonic ("_Rename Active Preset");
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Rename _Active Preset");
     g_signal_connect (GTK_OBJECT (menuitem), "activate", 
 		      G_CALLBACK (gx_rename_active_preset_dialog), NULL);
     gtk_widget_add_accelerator(menuitem, "activate", 
 			       fAccelGroup, GDK_r, 
 			       GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
     gtk_widget_show (menuitem);
 
     menuitem = gtk_menu_item_new_with_mnemonic ("_Delete Active Preset");
@@ -1246,15 +1281,13 @@ void GTKUI::addMenu()
     gtk_widget_add_accelerator(menuitem, "activate", 
 			       fAccelGroup, GDK_Delete, 
 			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
     gtk_widget_show (menuitem);
 
-    /*-- Create  menu item Save As under Presets submenu --*/
-    menuitem = gtk_menu_item_new_with_mnemonic ("Save _Preset As");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_newpreset_dialog), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_p, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
-    gtk_widget_show (menuitem);
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), sep);
+    gtk_widget_show (sep);
 
     /*-- Create  menu item Delete All presets --*/
     menuitem = gtk_menu_item_new_with_mnemonic ("_Delete All Presets");
@@ -1263,7 +1296,7 @@ void GTKUI::addMenu()
     gtk_widget_add_accelerator(menuitem, "activate", 
 			       fAccelGroup, GDK_d, 
 			       GdkModifierType(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
     gtk_widget_show (menuitem);
 
 
@@ -1279,26 +1312,8 @@ void GTKUI::addMenu()
       gx_add_preset_to_menus(presname);
     }
 
-    /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), sep);
-    gtk_widget_show (sep);
-
-
-    /*-- Create  menu item Reset submenu --*/
-    menuitem = gtk_menu_item_new_with_mnemonic ("Recall Main _Setting");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_recall_main_setting), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_s, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
-    gtk_widget_show (menuitem);
-
-    menuitem = gtk_menu_item_new_with_mnemonic ("_Save As Main _Setting");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_main_setting), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
-    gtk_widget_show (menuitem);
-
     /*---------------- End Settingsmenu declarations ----------------*/
+
     /*---------------- Create Options menu items ------------------*/
     menucap = gtk_menu_item_new_with_mnemonic ("_Options");
     gtk_menu_bar_append (GTK_MENU_BAR(menubar), menucap);
@@ -1402,11 +1417,10 @@ void GTKUI::addMenu()
     gtk_widget_show(menuFile);
     gtk_widget_show(menuLatency);
     gtk_widget_show(menuEdit);
-    gtk_widget_show(menuLoad);
-    gtk_widget_show(menuSave);
-    gtk_widget_show(menuDelete);
-    gtk_widget_show(menuRename);
+    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+      gtk_widget_show(presMenu[i]);
     gtk_widget_show(menuSkinChooser);
+    gtk_widget_show(menuMorePresetAction);
     gtk_widget_show(menuHelp);
     gtk_widget_show(menubar);
     gtk_widget_show(hbox);

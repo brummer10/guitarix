@@ -356,8 +356,8 @@ virtual void compute (int count, float** input, float** output)
     // only when jconv is running: pad with zeros
     if (runjc == 1) 
     {
-      (void)memset(output[2], 0, count*sizeof(float));
-      (void)memset(output[3], 0, count*sizeof(float));
+      (void)memcpy(output[2], input[0], count*sizeof(float));
+      (void)memcpy(output[3], input[0], count*sizeof(float));
     }
 
     break;

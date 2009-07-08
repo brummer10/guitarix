@@ -27,7 +27,6 @@
 #define GDK_NO_MOD_MASK (GdkModifierType)0
 
 // global static fields
-GtkWidget* menuLoad, *menuSave, *menuDelete, *menuRename;
 GtkWidget* fWindow, *menuh;
 GtkWidget* pb, *midibox, *fbutton, *label1;
 GdkPixbuf*   ib, *ibm, *ibr;
@@ -160,13 +159,14 @@ static int   gx_system(const char*,
 		       const bool devnull = false,
 		       const bool escape  = false);
 static int   gx_system(const string&,
-		       const string&,
-		       const bool devnull = false,
-		       const bool escape  = false);
-static int   gx_system(const string&,
 		       const char*,
 		       const bool devnull = false,
 		       const bool escape  = false);
+// static int   gx_system(const string&,
+// 		       const string&,
+// 		       const bool devnull = false,
+// 		       const bool escape  = false);
+
 static void  gx_abort(void* arg);
 static void  gx_start_jack(void* arg);
 
@@ -195,17 +195,31 @@ static gint gx_choice_dialog_without_entry (
 );
 
 //----- preset handling
-#define GX_NUM_OF_PRESET_LISTS (4)
+#define GX_NUM_OF_PRESET_LISTS (2)
 #define SAVE_PRESET_LIST   (0)
 #define LOAD_PRESET_LIST   (1)
 #define RENAME_PRESET_LIST (2)
 #define DELETE_PRESET_LIST (3)
 
-GdkModifierType list_mod[GX_NUM_OF_PRESET_LISTS] = {
+GdkModifierType list_mod[] = {
   GDK_CONTROL_MASK,
   GDK_NO_MOD_MASK,
   GDK_MOD1_MASK,
   GdkModifierType(GDK_CONTROL_MASK|GDK_MOD1_MASK)
+};
+
+const char* preset_accel_path[] = {
+  "<guitarix>/Save",
+  "<guitarix>/Load",
+  "<guitarix>/Rename",
+  "<guitarix>/Delete"
+};
+
+const char* preset_menu_name[] = {
+  "_Save Preset...",
+  "_Load Preset...",
+  "_Rename Preset...",
+  "_Delete Preset..."
 };
 
 map<GtkMenuItem*, string> preset_list[GX_NUM_OF_PRESET_LISTS];
@@ -214,10 +228,12 @@ string gx_current_preset;
 string old_preset_name;
 
 GtkWidget* presmenu[GX_NUM_OF_PRESET_LISTS];
+GtkWidget* presMenu[GX_NUM_OF_PRESET_LISTS];
 
 static void  gx_save_newpreset_dialog (GtkMenuItem*, gpointer);
 static void  gx_save_newpreset (GtkEntry*);
 static void  gx_save_preset (const gchar*, bool);
+static void  gx_save_oldpreset (GtkMenuItem*, gpointer);
 
 static void  gx_load_preset (GtkMenuItem*, gpointer);
 static void  gx_recall_main_setting(GtkMenuItem*, gpointer);
@@ -249,6 +265,14 @@ static void  gx_next_preset(GtkWidget*, gpointer);
 static void  gx_previous_preset(GtkWidget*, gpointer);
 
 GtkMenuItem* const gx_get_preset_item_from_name(int, const string&);
+
+
+GCallback preset_action_func[] = {
+  G_CALLBACK(gx_save_oldpreset),
+  G_CALLBACK(gx_load_preset),
+  G_CALLBACK(gx_rename_preset_dialog),
+  G_CALLBACK(gx_delete_preset_dialog)
+};
 
 // which kind of setting we currently are in
 bool setting_is_preset = false;
@@ -956,9 +980,27 @@ void gx_save_preset (const char* presname, bool expand_menu)
 }
 
 //----menu funktion save
-void gx_save_oldpreset (GtkMenuItem *menuitem, gpointer save_preset)
+void gx_save_oldpreset (GtkMenuItem *menuitem, gpointer arg)
 {
-  const string presname = preset_list[SAVE_PRESET_LIST][menuitem];
+  guint save_active = GPOINTER_TO_UINT(arg);
+  string presname;
+  
+  // are saving an active preset
+  if (save_active)
+  {
+    if (gx_current_preset.empty())
+    {
+      gx_print_warning("Saving Active Preset", 
+		       "We are in main setting, load a preset first");
+      return;
+    }
+    presname = gx_current_preset;
+  }
+
+  // we are saving another preset from the menu
+  else 
+    presname = preset_list[SAVE_PRESET_LIST][menuitem];
+
   gx_save_preset(presname.c_str(), false);
 }
 
@@ -1212,7 +1254,9 @@ void gx_delete_preset (GtkMenuItem* item, gpointer arg)
 {
   
   // delete it via interface
-  const string presname = preset_list[DELETE_PRESET_LIST][item];
+  const string presname = 
+    item ? preset_list[DELETE_PRESET_LIST][item] : gx_current_preset;
+
   const string presfile = gx_user_dir + guitarix_preset;
   const string tmpfile  = presfile + "_tmp";
   const string space    = " ";
@@ -1274,27 +1318,18 @@ void  gx_delete_all_presets()
 
   // clear list
   for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+  {  
+    map<GtkMenuItem*, string>::iterator it = preset_list[i].begin();
+    
+    while (it != preset_list[i].end())
+    {
+      GtkMenuItem* item = it->first;
+      gtk_widget_destroy(GTK_WIDGET(item));
+      it++;
+    }
+
     preset_list[i].clear();
-  
-  // refresh menus
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuSave),   NULL);
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuLoad),   NULL);
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuRename), NULL);
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuDelete), NULL);
-  
-  // recreate them
-  for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
-    presmenu[i] = gtk_menu_new();
-
-  // add them again
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuSave),   presmenu[SAVE_PRESET_LIST]);
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuLoad),   presmenu[LOAD_PRESET_LIST]);
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuRename), presmenu[RENAME_PRESET_LIST]);
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuDelete), presmenu[DELETE_PRESET_LIST]);
-
-  // show them again
-  for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
-    gtk_widget_show(presmenu[i]);
+  }
 
   gx_print_info("All Presets Deleting", string("deleted ALL presets!"));
 }
@@ -1335,12 +1370,15 @@ void gx_delete_all_presets_dialog (GtkMenuItem *menuitem, gpointer arg)
 //----preset deletion dialog
 void gx_delete_preset_dialog (GtkMenuItem *menuitem, gpointer arg)
 {
+  string presname = 
+    menuitem ? preset_list[DELETE_PRESET_LIST][menuitem] : gx_current_preset;
+
   string msg = "   Are you sure you want to delete preset ";
-  msg += preset_list[DELETE_PRESET_LIST][menuitem];
+  msg += presname;
   msg += " ?? ";
 
   string title = "Deleting preset ";
-  title += preset_list[DELETE_PRESET_LIST][menuitem];
+  title += presname;
 
   //--- run dialog and check response
   gint response = 
@@ -1354,8 +1392,7 @@ void gx_delete_preset_dialog (GtkMenuItem *menuitem, gpointer arg)
   if (response == GTK_RESPONSE_CANCEL)
   {
     gx_print_warning("Preset Deleting", 
-		     string(" Deletion of preset ") +
-		     preset_list[DELETE_PRESET_LIST][menuitem] +
+		     string(" Deletion of preset ") + presname +
 		     string(" has been cancelled"));
     return;
   }
@@ -1376,15 +1413,11 @@ void gx_delete_active_preset_dialog(GtkWidget* item, gpointer arg)
     return;
   }
 
+  // tmp store 
   string presname = gx_current_preset;
 
-  // get current preset menu item
-  GtkMenuItem* const del_item = 
-    gx_get_preset_item_from_name(DELETE_PRESET_LIST, gx_current_preset);
-
-  // call delete dialog
-  if (del_item)
-    gx_delete_preset_dialog (del_item, NULL);
+  // call dialog
+  gx_delete_preset_dialog (NULL, NULL);
 
   if (gx_current_preset.empty() && !setting_is_preset)
     gx_print_info("Deleting Active Preset", 
@@ -1938,13 +1971,13 @@ static int gx_system(const char*   name1,
 }
 
 // polymorph2
-static int gx_system(const string& name1,
-		     const string& name2,
-		     const bool  devnull,
-		     const bool  escape)
-{
-  return gx_system(name1.c_str(), name2.c_str(), devnull, escape);
-}
+// static int gx_system(const string& name1,
+// 		     const string& name2,
+// 		     const bool  devnull,
+// 		     const bool  escape)
+// {
+//   return gx_system(name1.c_str(), name2.c_str(), devnull, escape);
+// }
 
 // polymorph3
 static int gx_system(const string& name1,
@@ -2387,24 +2420,9 @@ unsigned int gx_fetch_available_skins()
 // ----------- add new preset to menus
 void gx_add_preset_to_menus(const string& presname)
 {
-  // -- save item
-  gx_add_single_preset_menu_item(presname,
-				 SAVE_PRESET_LIST,
-				 G_CALLBACK (gx_save_oldpreset));
 
-  // -- load item
-  gx_add_single_preset_menu_item(presname,
-				 LOAD_PRESET_LIST,
-				 G_CALLBACK (gx_load_preset));
-
-  // -- rename item
-  gx_add_single_preset_menu_item(presname,
-				 RENAME_PRESET_LIST,
-				 G_CALLBACK (gx_rename_preset_dialog));
-  // -- delete item
-  gx_add_single_preset_menu_item(presname,
-				 DELETE_PRESET_LIST,
-				 G_CALLBACK (gx_delete_preset_dialog));
+  for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+    gx_add_single_preset_menu_item(presname, i, preset_action_func[i]);
 }
 
 //---- add a single preset to a given preset menu
