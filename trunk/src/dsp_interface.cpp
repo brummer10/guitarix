@@ -129,13 +129,6 @@ virtual void buildUserInterface(UI* interface)
 		  interface->addregler("middle", &fslider_tone1, 0.f, -20.f, 20.f, 0.1f);
 		  interface->addregler("treble", &fslider_tone0, 0.f, -20.f, 20.f, 0.1f);
 
-		  interface->openVerticalBox("");
-		  {
-		    interface->addregler("fuzz",&fthreshold, 1.f, 0.f, 1.f, 0.01f);
-		    interface->addHorizontalSlider("threshold", &ffuse, 0.f, 0.f, 2.f, 1.f);
-		  }
-		  interface->closeBox();
-
 		  //----- I have set a framebox to fill space beetween the widgets
 		  interface->openFrameBox("");
 		  interface->closeBox();
@@ -587,6 +580,38 @@ virtual void buildUserInterface(UI* interface)
 
 		//----- fill empty space
 		interface->openHorizontalBox("");
+
+		  interface->openVerticalBox("");
+		  {
+		    interface->addregler("fuzz",&fthreshold, 1.f, 0.f, 1.f, 0.01f);
+		    interface->addHorizontalSlider("threshold", &ffuse, 0.f, 0.f, 2.f, 1.f);
+		  }
+		  interface->closeBox();
+    			interface->openFrameBox("");
+    			interface->closeBox();
+   			interface->openFrameBox("");
+   			interface->closeBox();
+    			interface->openFrameBox("");
+    			interface->closeBox();
+    			interface->openFrameBox("");
+    			interface->closeBox();
+    			interface->openFrameBox("");
+    			interface->closeBox();
+    			interface->openFrameBox("");
+    			interface->closeBox();
+    			interface->openFrameBox("");
+    			interface->closeBox();
+    			interface->openFrameBox("");
+    			interface->closeBox();
+    			interface->openFrameBox("");
+    			interface->closeBox();
+    			interface->openFrameBox("");
+    			interface->closeBox();
+    			interface->openFrameBox("");
+    			interface->closeBox();
+    			interface->openFrameBox("");
+    			interface->closeBox();
+
 		interface->closeBox();
 
 	      }
