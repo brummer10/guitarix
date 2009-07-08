@@ -117,21 +117,32 @@ void GTKUI::openTabBox(const char* label)
 
 void GTKUI::openTextLoggingBox(const char* label)
 {
-    GtkWidget* box = gtk_text_view_new ();
-    gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-    gtk_text_view_set_editable(GTK_TEXT_VIEW(box), FALSE);
-    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(box), FALSE);
-    gtk_text_view_set_pixels_above_lines (GTK_TEXT_VIEW(box), 5);
-    gtk_text_view_set_pixels_below_lines (GTK_TEXT_VIEW(box), 5);
-    gtk_text_view_set_justification(GTK_TEXT_VIEW(box), GTK_JUSTIFY_LEFT);
-    gtk_text_view_set_left_margin(GTK_TEXT_VIEW(box), 5);
-    gtk_text_view_set_indent(GTK_TEXT_VIEW(box), 0);
+  GtkWidget* box = gtk_hbox_new (homogene, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 
-    pushBox(kBoxMode, addWidget(label, box));
-    fLoggingWindow = GTK_TEXT_VIEW(box);
+  GtkWidget* frame = addWidget(label, gtk_expander_new(label));
+  gtk_container_add (GTK_CONTAINER(frame), box);
+  gtk_widget_show(frame);
+  fLoggingBox = GTK_EXPANDER(frame);
+  
+  GtkWidget* tbox = gtk_text_view_new ();
+  gtk_container_set_border_width (GTK_CONTAINER (tbox), 0);
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(tbox), FALSE);
+  gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(tbox), FALSE);
+  gtk_text_view_set_pixels_above_lines (GTK_TEXT_VIEW(tbox), 5);
+  gtk_text_view_set_pixels_below_lines (GTK_TEXT_VIEW(tbox), 5);
+  gtk_text_view_set_justification(GTK_TEXT_VIEW(tbox), GTK_JUSTIFY_LEFT);
+  gtk_text_view_set_left_margin(GTK_TEXT_VIEW(tbox), 5);
+  gtk_text_view_set_indent(GTK_TEXT_VIEW(tbox), 0);
+  
+  gtk_container_add (GTK_CONTAINER(box), tbox);
+  gtk_widget_show(tbox);
+  fLoggingWindow = GTK_TEXT_VIEW(tbox);
+  
+  GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tbox));
+  gtk_text_buffer_set_text(buffer, ">", -1);
 
-    GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(box));
-    gtk_text_buffer_set_text(buffer, ">", -1);
+  gtk_widget_show(box);
 }
 
 void GTKUI::openHorizontalBox(const char* label)
@@ -1322,17 +1333,25 @@ void GTKUI::addMenu()
     menu = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menucap), menu);
 
-    /*-- Create Open check menu item under Options submenu --*/
+    /*-- Create oscilloscope check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_mnemonic ("_Oscilloscope");
     //  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_o, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_oscilloscope), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show (menuitem);
-    /*-- Create Open check menu item under Options submenu --*/
+
+    /*-- Create tuner check menu item under Options submenu --*/
     menuitem = gtk_check_menu_item_new_with_mnemonic ("_Tuner");
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_t, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_tuner), NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+    gtk_widget_show (menuitem);
+
+    /*-- Create log window check menu item under Options submenu --*/
+    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Log Messages");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_l, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_log_window), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show (menuitem);
 

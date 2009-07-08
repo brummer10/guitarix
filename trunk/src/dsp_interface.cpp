@@ -175,61 +175,6 @@ virtual void buildUserInterface(UI* interface)
 		  }
 		  interface->closeBox();
 
-// <<<<<<< .mine
-// =======
-//     //----- open a box for the oscilloscope
-//     interface->openVerticalBox("");
-//     //----- fill empty space
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     interface->openHorizontalBox("");
-//     //----- fill empty space
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     //----- the oscilloscope
-//     interface->addLiveWaveDisplay(" ", &viv , &vivi);
-//     //----- fill empty space
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     interface->closeBox();
-//     //----- fill empty space
-//     interface->openHorizontalBox("");
-//     interface->closeBox();
-//     interface->closeBox();
-//     //----- control box under the oscilloscope
-//     interface->openHorizontalBox("");
-//     interface->openVerticalBox("");
-//     interface->addregler("fuzz",&fthreshold, 1.f, 0.f, 1.f, 0.01f);
-//     interface->addHorizontalSlider("threshold", &ffuse, 0.f, 0.f, 2.f, 1.f);
-//     interface->closeBox();
-//     //----- fill empty space
-//     interface->openFrameBox("");
-//     interface->closeBox();
-// >>>>>>> .r219
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     interface->openFrameBox("");
-//     interface->closeBox();
-//     interface->closeBox();
-
 		  interface->openVerticalBox("");
 		  {
 		    interface->addswitch("drive", &fprdr);
@@ -855,14 +800,8 @@ virtual void buildUserInterface(UI* interface)
   interface->closeBox();
   //----- close main box
 
-  // add a log message box
-  interface->openExpanderBox(" log messages ", &fexpand3);
-  { 
-    interface->openTextLoggingBox("log");
-    interface->closeBox();
-  }
-  interface->closeBox();
-
+  // add a log message box: out of box stack, no need to closeBox
+  interface->openTextLoggingBox("Logging Window");
 
 
   interface->closeBox();

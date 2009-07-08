@@ -396,7 +396,6 @@ private:
   int   fslider_tone_check;
   int   fslider_tone_check1;
   // tone end
-  float fexpand3;
   // float  fbargraph0;
 public:
 

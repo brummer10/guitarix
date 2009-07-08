@@ -41,6 +41,7 @@ protected :
     int 		fMode[stackSize];
     bool		fStopped;
     GtkTextView*        fLoggingWindow;
+    GtkExpander*        fLoggingBox;
 
     GtkWidget* addWidget(const char* label, GtkWidget* w);
     virtual void pushBox(int mode, GtkWidget* w);
@@ -59,6 +60,7 @@ public :
 
     // acquire a pointer to the logging window
     GtkTextView* const getLoggingWindow() const { return fLoggingWindow; }
+    GtkExpander* const getLoggingBox()    const { return fLoggingBox; }
 
     // -- layout groups
     virtual void openFrameBox(const char* label);

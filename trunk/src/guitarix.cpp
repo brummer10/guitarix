@@ -169,6 +169,7 @@ static int   gx_system(const string&,
 
 static void  gx_abort(void* arg);
 static void  gx_start_jack(void* arg);
+static void  gx_log_window(GtkCheckMenuItem*, gpointer);
 
 // choice dialog windows
 static void gx_get_text_entry(GtkEntry*, string&);
@@ -757,6 +758,24 @@ void gx_midi_out (GtkCheckMenuItem *menuitem, gpointer checkplay)
         playmidi = 0;
         gtk_widget_hide(midibox);
     }
+}
+
+
+//---- menu function gx_midi_out
+void gx_log_window (GtkCheckMenuItem* menuitem, gpointer arg)
+{
+  GtkExpander* const exbox = interface->getLoggingBox();
+
+  if (gtk_check_menu_item_get_active(menuitem) == TRUE)
+  {
+    gtk_expander_set_expanded(exbox, 1);
+    return;
+  }
+  else
+  {
+    gtk_expander_set_expanded(exbox, 0);
+    return;
+  }
 }
 
 
