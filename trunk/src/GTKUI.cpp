@@ -1211,6 +1211,12 @@ void GTKUI::addMenu()
 
     /*-- add a separator line --*/
     sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_insert(GTK_MENU_SHELL(presmenu[SAVE_PRESET_LIST]), sep, 1);
+    gtk_widget_show (sep);
+
+    /* ------------------- */
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
     gtk_menu_shell_append(GTK_MENU_SHELL(menu1), sep);
     gtk_widget_show (sep);
 
@@ -1239,8 +1245,7 @@ void GTKUI::addMenu()
     menumpa = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuMorePresetAction), menumpa);
 
-    /*--------------- Hidden buttons for keyboard shortcuts only */
-    /*-- hidden items --*/
+    /*--------------- Extra preset menu */
 
     /* forward preset */
     menuitem = gtk_menu_item_new_with_mnemonic("Next _Preset");
