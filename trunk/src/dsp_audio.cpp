@@ -323,8 +323,8 @@ virtual void compute (int count, float** input, float** output)
         //----- tone
 
         // tone end
-        float 	fSlow15 = checky;
-        float 	fSlow16 = (7.118644f * fSlow15);
+       // float 	fSlow15 = checky;
+       // float 	fSlow16 = (7.118644f * fSlow15);
         float 	fSlow18 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider3)));
         float 	fSlow19 = (1.0f - fslider4);
         float 	fSlow20 = fslider5;
@@ -511,12 +511,7 @@ virtual void compute (int count, float** input, float** output)
         // start the inner loop count = jack_frame
         for (int i=0; i<count; i++)
         {
-            float 	S0[2];
-            float 	S1[2];
-            float 	S2[2];
-            float 	S3[2];
-            float 	S4[2];
-            float 	S5[2];
+
             // when the ocilloscope draw wav by sample (mode 3) get the input value
             if (showwave == 1) vivi = input0[i];
 
@@ -582,10 +577,8 @@ virtual void compute (int count, float** input, float** output)
                 fVec0[0] = input0[i]; // compressor end
             }
 
-            S5[0] = (fSlow15 * fVec0[1]);
-            S5[1] = (fSlow16 * fVec0[1]);
             fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
-            float fTemp0 = (fRec4[0] * S5[0]);
+            float fTemp0 = (fRec4[0] * fVec0[0]);
 
             // I have move the preamp to the frame based section, leef it here for . . .
               if (icheckbox1 == 1)     // preamp
@@ -602,15 +595,15 @@ virtual void compute (int count, float** input, float** output)
             fRec3[0] = fTemp0;
             // vibrato
             if (fresoon == 1.0) fRec3[0] = fuzz (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])),0.7);  //resonanz 1.76f
-            S4[0] = fRec3[0];
+ 
 
             if (ioverdrive4 == 1)     // overdrive
             {
-                float fTempdr0 = (fTemp0 + S4[0]) * 0.5;
+                float fTempdr0 = (fTemp0 + fRec3[0]) * 0.5;
                 float fTempdr1 = fabs(fTempdr0);
                 fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
-                S4[0] = (fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
-                fTemp0 = S4[0];
+                fRec3[0] = (fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
+
             }
 
             if (iSlow45 == 1)     // distortion
@@ -618,7 +611,7 @@ virtual void compute (int count, float** input, float** output)
                 float 	S6[2];
                 float 	S7[2];
                 float 	S8[2];
-                float fTemp1 = (fTemp0 + (fSlow19 * fRec6[1]));
+                float fTemp1 = (fRec3[0] + (fSlow19 * fRec6[1]));
                 fVec1[IOTA&4095] = fTemp1;
                 fRec6[0] = (0.5f * (fVec1[(IOTA-iSlow22)&4095] + fVec1[(IOTA-iSlow21)&4095]));
                 S8[0] = fRec6[0];
@@ -654,11 +647,9 @@ virtual void compute (int count, float** input, float** output)
                 fRec15[0] = (fRec16[0] - (fSlow37 * ((fSlow36 * fRec15[2]) + (fSlow32 * fRec15[1]))));
                 fRec14[0] = ((fSlow37 * (fRec15[2] + (fRec15[0] + (2 * fRec15[1])))) - (fSlow35 * ((fSlow34 * fRec14[2]) + (fSlow32 * fRec14[1]))));
                 S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
-                S4[1] = S6[iSlow41];
-                float fTemp7 = S4[iSlow45];
-                fVec_tone0[0] = fTemp7;
+                fVec_tone0[0] = S6[iSlow41];
             }
-            else  fVec_tone0[0] = S4[0];   		// distortion end
+            else  fVec_tone0[0] = fRec3[0];   		// distortion end
              // tone
 	    fRec_tone3[0] = (fSlow_tone32 * ((fSlow_tone21 * ((fSlow_tone31 * fVec_tone0[2]) + ((fSlow_tone30 * fVec_tone0[0]) + (fSlow_tone28 * fVec_tone0[1])))) - ((fSlow_tone27 * fRec_tone3[2]) + (fSlow_tone24 * fRec_tone3[1]))));
 	    fRec_tone2[0] = (fSlow_tone37 * ((fSlow_tone7 * (((fSlow_tone36 * fRec_tone3[0]) + (fSlow_tone34 * fRec_tone3[1])) + (fSlow_tone33 * fRec_tone3[2]))) - ((fSlow_tone20 * fRec_tone2[2]) + (fSlow_tone17 * fRec_tone2[1]))));
@@ -668,16 +659,13 @@ virtual void compute (int count, float** input, float** output)
             float fTemp8 = fRec_tone0[0];
             if (iSlow65 == 1)    //crybaby
             {
-                S3[0] = fRec_tone0[0];
+
                 fRec19[0] = (fSlow57 + (0.999f * fRec19[1]));
                 fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
                 fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));
                 fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fRec_tone0[0] * fRec19[0]))));
-                S3[1] = ((fRec18[0] + (fSlow64 * fRec_tone0[0])) - fRec18[1]);
-                fTemp8 = S3[iSlow65];
+                fTemp8 = ((fRec18[0] + (fSlow64 * fRec_tone0[0])) - fRec18[1]);
             }                                     //crybaby ende
-
-            S2[0] = fTemp8;
 
             if (iSlow71 == 1)     //freeverb
             {
@@ -719,31 +707,24 @@ virtual void compute (int count, float** input, float** output)
                 fVec21[IOTA&255] = (fRec25 + (0.5f * fRec22[1]));
                 fRec22[0] = fVec21[(IOTA-248)&255];
                 float 	fRec23 = (fRec22[1] - fRec25);
-                S2[1] = ((fSlow66 * (fRec23 + fTemp9)) + (fSlow67 * fTemp8));
+                fTemp8 = ((fSlow66 * (fRec23 + fTemp9)) + (fSlow67 * fTemp8));
             }
-            else  S2[1] = fTemp8;	//freeverb end
 
             fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
-            float fTemp12 = (fRec46[0] * S2[iSlow71]);
 
             if (iSlow75 == 1)    //echo
             {
-                S1[0] = fTemp12;
-                fRec47[IOTA&262143] = (fTemp12 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
-                S1[1] = fRec47[(IOTA-0)&262143];
-                fTemp12 = S1[iSlow75];
+                fRec47[IOTA&262143] = (fTemp8 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
+                fTemp8 = fRec47[(IOTA-0)&262143];
             }                                     //echo ende
 
             if (iSlow79 == 1)     //impulseResponse
             {
-                fVec22[0] = fTemp12;
-                S0[0] = fVec22[0];
+                fVec22[0] = fTemp8;
                 fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
-                S0[1] = (fRec48[0] + fVec22[0]);
-                float fTemp13 = S0[iSlow79];
-                fVec23[0] = fTemp13;
+                fVec23[0] = (fRec48[0] + fVec22[0]);
             }
-            else  fVec23[0] = fTemp12;   //impulseResponse ende
+            else  fVec23[0] = fTemp8;   //impulseResponse ende
 
             // this is the output value from the mono process
             fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
