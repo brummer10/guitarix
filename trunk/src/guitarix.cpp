@@ -2342,6 +2342,11 @@ gint gx_choice_dialog_with_text_entry (
 unsigned int gx_fetch_available_skins()
 {
   string tmpfile = gx_user_dir + ".n_skins";
+
+  // make sure user dir exists
+  gx_system("mkdir -p", gx_user_dir);
+
+  // create a tmpfile
   gx_system("rm -f", tmpfile.c_str());
   gx_system("touch", tmpfile.c_str());
 
