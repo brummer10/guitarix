@@ -72,13 +72,16 @@ inline float foldback(float in, float threshold)
 // tube unit to run on sample base, it's unused for now, dont know if we need it any more
 inline float valve(float in, float out)
 {
+    float a = 2.000 ;
+    float b = 1.000 ;
+
     if ( in >= 0.0 )
     {
-        out = 2.000 * in - 1.000 * in * in;
+        out = a * in - b * in * in;
     }
     else
     {
-        out = 2.000 * in + 1.000 * in * in;
+        out = a * in + b * in * in;
     }
     return out;
 }
@@ -108,8 +111,9 @@ inline void down_sample(float **input,float **output, int sf)
     float y = 0;
     for (int i=0; i<sf; i++)
     {
+
         y = *in++;
-        out[i] = x*0.75 + y*0.25;
+        out[i] = x*0.75 + y*0.3;
         x = *in++;
     }
 }
@@ -133,14 +137,18 @@ inline void AntiAlias (int sf, float** input, float** output)
 }
 
 // the resonace tube unit on frame base
-inline void reso_tube (float fuzzy, int sf,float reso, float vibra, float** input, float** output)
+inline void reso_tube (int fuzzy, int sf,float reso, float vibra, float** input, float** output)
 {
     float* in = input[0];
     float* out = output[0];
     float ot = 0;
     float x = in[0];
+    float a = 2.000 ;
+    float b = 1.000 ;
     float 	fSlowRESO0 = reso;
- 
+    // float 	fSlowRESO1 = vibra;
+
+    double c = 0.5;
     //----- resonator
     int 	iSlowRESO2 = int((int((vibra - 1)) & 4095));
     int 	iSlowRESO3 = int((int(vibra) & 4095));
@@ -150,11 +158,11 @@ inline void reso_tube (float fuzzy, int sf,float reso, float vibra, float** inpu
         x = in[i];
         if ( x >= 0.0 )
         {
-            ot = ((2.000 * x - 1.000 * x * x) -x)*0.5;
+            ot = ((a * x - b * x * x) -x)*c;
         }
         else
         {
-            ot =  ((2.000 * x + 1.000 * x * x) -x)*0.5;
+            ot =  ((a * x + b * x * x) -x)*c;
         }
 
         float fTempRESO0 = (ot + (fSlowRESO0 * fRecRESO0[1]));
@@ -162,7 +170,7 @@ inline void reso_tube (float fuzzy, int sf,float reso, float vibra, float** inpu
         fRecRESO0[0] = (0.5f * (fVecRESO0[(IOTARESO-iSlowRESO3)&4095] + fVecRESO0[(IOTARESO-iSlowRESO2)&4095]));
         ot = fRecRESO0[0];
 
-        *out++ = fuzz(x + clip(ot*fuzzy,0.7),0.7);
+        *out++ = fuzz(x + clip(ot*fuzzy*0.5,0.7),0.7);
         // post processing
         fRecRESO0[1] = fRecRESO0[0];
         IOTARESO = IOTARESO+1;
@@ -172,79 +180,84 @@ inline void reso_tube (float fuzzy, int sf,float reso, float vibra, float** inpu
 
 
 // the oscilate tube unit on frame base
-inline void osc_tube (float fuzzy, int sf,float reso, float vibra, float** input, float** output)
+inline void osc_tube (int fuzzy, int sf,float reso, float vibra, float** input, float** output)
 {
     float* in = input[0];
     float* out = output[0];
     float ot = 0;
     float x = in[0];
-    //----- resonator
+    float a = 2.000 ;
+    float b = 1.000 ;
     float 	fSlowRESO0 = reso;
+    // float 	fSlowRESO1 = vibra;
+    //----- oscillator
+
+
+    double c = 0.5;
+    //----- resonator
     int 	iSlowRESO2 = int((int((vibra - 1)) & 4095));
     int 	iSlowRESO3 = int((int(vibra) & 4095));
+
+
 
     for (int i=0; i<sf; i++)
     {
         x = in[i];
         if ( x >= 0.0 )
         {
-            ot = ((2.000 * x - 1.000 * x * x) -x)*0.5;
+            ot = ((a * x - b * x * x) -x)*c;
         }
         else
         {
-            ot =  ((2.000 * x + 1.000 * x * x) -x)*0.5;
+            ot =  ((a * x + b * x * x) -x)*c;
         }
 
-        //-----oscillator
-	iVecoscb0[0] = 1;
-	fRecoscb0[0] = (0 - (((fRecoscb0[2] + (fConstoscb0 * fRecoscb0[1])) + iVecoscb0[1]) - 1));
-	float oscb = fRecoscb0[0];
-	//----- resonator
+				iVecoscb0[0] = 1;
+				fRecoscb0[0] = (0 - (((fRecoscb0[2] + (fConstoscb0 * fRecoscb0[1])) + iVecoscb0[1]) - 1));
+				float oscb = fRecoscb0[0];
+
         float fTempRESO0 = (ot + (fSlowRESO0 * fRecRESO0[1]));
         fVecRESO0[IOTARESO&4095] = fTempRESO0;
         fRecRESO0[0] = (0.5f * (fVecRESO0[(IOTARESO-iSlowRESO3)&4095] + fVecRESO0[(IOTARESO-iSlowRESO2)&4095]));
         ot = fRecRESO0[0] * (3+oscb)*0.25f;
-	//----- high/lowpass
-        float sp0 = ot;
-	fVecsp0[0] = sp0;
-	fRecsp3[0] = (fConstsp9 * ((fVecsp0[0] - fVecsp0[1]) + (fConstsp8 * fRecsp3[1])));
-	fRecsp2[0] = (fConstsp9 * ((fRecsp3[0] - fRecsp3[1]) + (fConstsp8 * fRecsp2[1])));
-	fRecsp1[0] = (fRecsp2[0] - (fConstsp6 * ((fConstsp5 * fRecsp1[2]) + (fConstsp1 * fRecsp1[1]))));
-	fRecsp0[0] = ((fConstsp6 * (fRecsp1[2] + (fRecsp1[0] + (2 * fRecsp1[1])))) - (fConstsp4 * ((fConstsp3 * fRecsp0[2]) + (fConstsp1 * fRecsp0[1]))));
 
-	ot = (fConstsp4 * (fRecsp0[2] + (fRecsp0[0] + (2 * fRecsp0[1]))));
+                float sp0 = ot;
+				fVecsp0[0] = sp0;
+				fRecsp3[0] = (fConstsp9 * ((fVecsp0[0] - fVecsp0[1]) + (fConstsp8 * fRecsp3[1])));
+				fRecsp2[0] = (fConstsp9 * ((fRecsp3[0] - fRecsp3[1]) + (fConstsp8 * fRecsp2[1])));
+				fRecsp1[0] = (fRecsp2[0] - (fConstsp6 * ((fConstsp5 * fRecsp1[2]) + (fConstsp1 * fRecsp1[1]))));
+				fRecsp0[0] = ((fConstsp6 * (fRecsp1[2] + (fRecsp1[0] + (2 * fRecsp1[1])))) - (fConstsp4 * ((fConstsp3 * fRecsp0[2]) + (fConstsp1 * fRecsp0[1]))));
+				ot = (fConstsp4 * (fRecsp0[2] + (fRecsp0[0] + (2 * fRecsp0[1]))));
 
-        *out++ = clip(x + ot*fuzzy,0.7);
 
+        *out++ = clip(x + ot*fuzzy*0.5,0.7);
         // post processing
-        //----- resonator
         fRecRESO0[1] = fRecRESO0[0];
         IOTARESO = IOTARESO+1;
-        //----- oscilloscope
-	fRecoscb0[2] = fRecoscb0[1]; fRecoscb0[1] = fRecoscb0[0];
-	iVecoscb0[1] = iVecoscb0[0];
-	//----- high/lowpass
-        fRecsp0[2] = fRecsp0[1]; fRecsp0[1] = fRecsp0[0];
-	fRecsp1[2] = fRecsp1[1]; fRecsp1[1] = fRecsp1[0];
-	fRecsp2[1] = fRecsp2[0];
-	fRecsp3[1] = fRecsp3[0];
-	fVecsp0[1] = fVecsp0[0];
+
+				fRecoscb0[2] = fRecoscb0[1]; fRecoscb0[1] = fRecoscb0[0];
+				iVecoscb0[1] = iVecoscb0[0];
+
+                fRecsp0[2] = fRecsp0[1]; fRecsp0[1] = fRecsp0[0];
+				fRecsp1[2] = fRecsp1[1]; fRecsp1[1] = fRecsp1[0];
+				fRecsp2[1] = fRecsp2[0];
+				fRecsp3[1] = fRecsp3[0];
+				fVecsp0[1] = fVecsp0[0];
     }
 }
 
 // the tube unit on frame base, it's also the drive unit just with other variables
-inline void fuzzy_tube (float fuzzy,int mode, int sf, float** input, float** output)
+inline void fuzzy_tube (int fuzzy,int mode, int sf, float** input, float** output)
 {
     float* in = input[0];
     float* out = output[0];
     float ot = 0;
     float x = in[0];
-    //----- tube
     float a = 2.000 ;
     float b = 1.000 ;
     double c = 0.5;
 
-    if (mode == 1) //----- drive
+    if (mode)
     {
         a = 4.000 ;
         b = 4.000 ;
@@ -262,7 +275,7 @@ inline void fuzzy_tube (float fuzzy,int mode, int sf, float** input, float** out
         {
             ot =  ((a * x + b * x * x) -x)*c;
         }
-        *out++ = fuzz(x + ot*fuzzy,0.7);
+        *out++ = fuzz(x + ot*fuzzy*0.5,0.7);
     }
 }
 
@@ -287,9 +300,10 @@ inline void preamp(int sf, float** input, float** output,float atan_shape,float 
         x = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
         fTemp0in = normalize(x,atan_shape,f_atan);
         out[i] = fTemp0in*0.75;
-    }
-}
 
+    }
+
+}
 
 // --- defines the processing type
 #define ZEROIZE_BUFFERS  (0)
@@ -540,7 +554,7 @@ void process_buffers(int count, float** input, float** output)
   int ioverdrive4 = int(foverdrive4);
   int cts = 0;
   int ifuse = ffuse;
-  int tuner_on = shownote + playmidi;
+  int tuner_on = shownote + playmidi+1;
 
   // pointer to the jack_buffer
   float*  input0 = input[0];
@@ -580,7 +594,7 @@ void process_buffers(int count, float** input, float** output)
   {
 
     // when the ocilloscope draw wav by sample (mode 3) get the input value
-    if (showwave) vivi = input0[i];
+    if (showwave == 1) vivi = input0[i];
 
     if (tuner_on > 0) // enable tuner when show note or play midi
     {
@@ -620,7 +634,7 @@ void process_buffers(int count, float** input, float** output)
     else if (shownote == 0)
     {
       fConsta1 = 1000.0f;
-      shownote = -2;
+      shownote = -1;
     }
 
     if (icheckboxcom1)     // compressor
@@ -813,12 +827,12 @@ void process_buffers(int count, float** input, float** output)
     }
     // trigger the oscilloscope to update peer sample. I know that some samples dont will show, but it will
     // update fast as  posible this way (mode 3)
-    if ((showwave) &&(view_mode == 3)) viv = fRec0[0];
+    if ((showwave == 1) &&(view_mode == 3)) viv = fRec0[0];
     // this is the left "extra" port to run jconv in bybass mode
     if (irunjc) output0[i] = (fSlow85 * fRec0[0]);
     float 	S9[2];
     // copy the output for the frame based mode of the oscilloscope
-    if ((showwave) &&((view_mode == 1) || (view_mode == 2) )) get_frame[i] = fRec0[0];
+    if ((showwave == 1) &&((view_mode == 1) || (view_mode == 2) )) get_frame[i] = fRec0[0];
     S9[0] = (fSlow87 * fRec0[0]);
     S9[1] = (fSlow84 * fRec0[0]);
     // the left output port
@@ -916,5 +930,5 @@ void process_buffers(int count, float** input, float** output)
   }
 
   // triger the oscilloscope to update on frame base (mode 1 and 2)
-  if ((showwave) &&((view_mode == 1)|| (view_mode == 2))) viv = fRec0[0];
+  if ((showwave == 1) &&((view_mode == 1)|| (view_mode == 2))) viv = fRec0[0];
 }

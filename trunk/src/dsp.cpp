@@ -202,7 +202,7 @@ private:
   int   weg;
   float fexpand;
   float fexpand2;
-  float fexpand3;
+
   float filebutton;
   float fdialogbox1;
   float fdialogbox2;
@@ -396,7 +396,7 @@ private:
   int   fslider_tone_check;
   int   fslider_tone_check1;
   // tone end
-
+  float fexpand3;
   // float  fbargraph0;
 public:
 
