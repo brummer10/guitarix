@@ -123,6 +123,7 @@ void GTKUI::openTextLoggingBox(const char* label)
   GtkWidget* frame = addWidget(label, gtk_expander_new(label));
   gtk_container_add (GTK_CONTAINER(frame), box);
   gtk_widget_show(frame);
+  gtk_expander_set_expanded(GTK_EXPANDER(frame), TRUE);
   fLoggingBox = GTK_EXPANDER(frame);
   
   GtkWidget* tbox = gtk_text_view_new ();
@@ -1354,13 +1355,11 @@ void GTKUI::addMenu()
     gtk_widget_show (menuitem);
 
     /*-- Create log window check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Log Messages");
+    menuitem = gtk_menu_item_new_with_mnemonic ("Open/Close _Log message");
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_l, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_log_window), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show (menuitem);
-    // make it visible by default
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
 
     /*-- add a separator line --*/
     sep = gtk_separator_menu_item_new();

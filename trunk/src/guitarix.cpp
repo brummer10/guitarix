@@ -169,7 +169,7 @@ static int   gx_system(const string&,
 
 static void  gx_abort(void* arg);
 static void  gx_start_jack(void* arg);
-static void  gx_log_window(GtkCheckMenuItem*, gpointer);
+static void  gx_log_window(GtkWidget*, gpointer);
 
 // choice dialog windows
 static void gx_get_text_entry(GtkEntry*, string&);
@@ -771,14 +771,13 @@ void gx_midi_out (GtkCheckMenuItem *menuitem, gpointer checkplay)
 
 
 //---- menu function gx_midi_out
-void gx_log_window (GtkCheckMenuItem* menuitem, gpointer arg)
+void gx_log_window (GtkWidget* menuitem, gpointer arg)
 {
-  // store menuitem for future calls so we can call this
-  // from anywhere with a NULL pointer.
-  static GtkCheckMenuItem* item;
-  if (!item) // 1st time call from GTKUI::addMenu()
+  // ugly init hack (GTK peculiar init stuff).
+  static bool init = false;
+  if (!init)
   {
-    item = menuitem;
+    init = true;
     return;
   }
 
@@ -787,19 +786,18 @@ void gx_log_window (GtkCheckMenuItem* menuitem, gpointer arg)
   // we could be called before UI is built up
   if (!exbox) return;
 
-  if (gtk_check_menu_item_get_active(item) == TRUE)
-  {
-    gtk_expander_set_expanded(exbox, 1);
-    GdkColor exp_color;
-    gdk_color_parse("#ffffff", &exp_color);
-    gtk_widget_modify_fg (GTK_WIDGET(exbox), GTK_STATE_NORMAL, &exp_color);
-    return;
-  }
+  // open it
+  if (gtk_expander_get_expanded(exbox) ==  TRUE)
+    gtk_expander_set_expanded(exbox, FALSE);
+
+  // close it
   else
-  {
-    gtk_expander_set_expanded(exbox, 0);
-    return;
-  }
+    gtk_expander_set_expanded(exbox, TRUE);
+
+  // in any case, reset handle color
+  GdkColor exp_color;
+  gdk_color_parse("#ffffff", &exp_color);
+  gtk_widget_modify_fg (GTK_WIDGET(exbox), GTK_STATE_NORMAL, &exp_color);
 }
 
 

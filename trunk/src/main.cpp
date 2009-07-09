@@ -264,7 +264,14 @@ static int buffersize_callback (jack_nframes_t nframes,void* arg)
     GxEngineState estate = (GxEngineState)checky;
 
     // turn off engine 
-    // Note: how can this be achieved just like that ??
+    // Note: simply changing checky is enough to "stop" processing
+    // incoming jack buffers. The mydsp::compute method is owned by
+    // the jack audio thread. It always runs as long as jack runs
+    // independently of the non-RT GUI thread. The value of
+    // checky is checked at each jack cycle in mydsp::compute
+    // so changing it here affects the behavior of mydsp::compute
+    // immediately during the jack_processing of jack cycles.
+
     if (estate != kEngineOff)
       checky = (float)kEngineOff;
 
