@@ -1359,6 +1359,8 @@ void GTKUI::addMenu()
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_log_window), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show (menuitem);
+    // make it visible by default
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
 
     /*-- add a separator line --*/
     sep = gtk_separator_menu_item_new();

@@ -764,9 +764,17 @@ void gx_midi_out (GtkCheckMenuItem *menuitem, gpointer checkplay)
 //---- menu function gx_midi_out
 void gx_log_window (GtkCheckMenuItem* menuitem, gpointer arg)
 {
+  // store menuitem for future calls so we can call this
+  // from anywhere with a NULL pointer.
+  static GtkCheckMenuItem* item;
+  if (!item) item = menuitem;
+
   GtkExpander* const exbox = interface->getLoggingBox();
 
-  if (gtk_check_menu_item_get_active(menuitem) == TRUE)
+  // we could be called before UI is built up
+  if (!exbox) return;
+
+  if (gtk_check_menu_item_get_active(item) == TRUE)
   {
     gtk_expander_set_expanded(exbox, 1);
     return;

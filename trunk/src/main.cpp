@@ -721,6 +721,9 @@ int main(int argc, char *argv[] )
     interface = new GTKUI(jname, &argc, &argv);
     DSP.init(jackframes);
     DSP.buildUserInterface(interface);
+    
+    // turn on logging window by default
+    gx_log_window(NULL, NULL);
 
     string previous_state = gx_user_dir + string(jname) + "rc";
     interface->recallState(previous_state.c_str());
