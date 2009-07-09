@@ -776,7 +776,11 @@ void gx_log_window (GtkCheckMenuItem* menuitem, gpointer arg)
   // store menuitem for future calls so we can call this
   // from anywhere with a NULL pointer.
   static GtkCheckMenuItem* item;
-  if (!item) item = menuitem;
+  if (!item) // 1st time call from GTKUI::addMenu()
+  {
+    item = menuitem;
+    return;
+  }
 
   GtkExpander* const exbox = interface->getLoggingBox();
 
