@@ -349,16 +349,47 @@ virtual void compute (int count, float** input, float** output)
     // --------- just copy input to outputs
   case JUSTCOPY_BUFFERS:
 
-    // copy input to output 
-    (void)memcpy(output[0], input[0], sizeof(float)*count);
-    (void)memcpy(output[1], input[0], sizeof(float)*count);
-
-    // only when jconv is running: pad with zeros
-    if (runjc == 1) 
+    // only when jconv is not running: copy input to output
+    if (runjc == 0) 
     {
-      (void)memcpy(output[2], input[0], count*sizeof(float));
-      (void)memcpy(output[3], input[0], count*sizeof(float));
+      // copy input to output 
+      (void)memcpy(output[0], input[0], sizeof(float)*count);
+      (void)memcpy(output[1], input[0], sizeof(float)*count);
     }
+    else // when jconv is running, init the wet/dry slider and run a minimal loop
+    {
+      // get the wet/dry slider settings
+      float fSlow81 = fslider24;
+      float fSlow82 = (1 - max(0, (0 - fSlow81)));
+      float fSlow83 = fslider25;
+      float fSlow84 = (1 - max(0, fSlow83));
+      float fSlow85 = (fSlow84 * fSlow82);
+     // float fSlow86 = (1 - max(0, fSlow81));
+    //  float fSlow87 = (fSlow84 * fSlow86);
+      float fSlow89 = (1 - max(0, (0 - fSlow83)));
+      float fSlow90 = (fSlow89 * fSlow82);
+    //  float fSlow91 = (fSlow89 * fSlow86);
+      // pointer to the jack_buffer
+      float*  input0 = input[0];
+      float* output0 = output[2];
+      float* output1 = output[0];
+      float* output2 = output[3];
+      float* output3 = output[1];
+
+     for (int i=0; i<count; i++)
+     {
+        // this is the left "extra" port to run jconv in bybass mode
+        output0[i] = (fSlow85 * input0[i]);
+        // the left output port
+        output1[i] = (fSlow84 * input0[i]);
+        // this is the right "extra" port to run jconv in bybass mode
+        output2[i] = (fSlow90 * input0[i]);
+        // the right output port
+        output3[i] = (fSlow89 * input0[i]);
+      }
+
+     }
+
 
     break;
 
