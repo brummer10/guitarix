@@ -334,6 +334,15 @@ void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
       GtkTextIter start, end;
       gtk_text_buffer_get_bounds (buffer, &start, &end);
       gtk_text_buffer_apply_tag(buffer, tag, &start, &end);
+
+      // modify expander bg color is closed
+      GtkExpander* exbox = interface->getLoggingBox();
+      if (gtk_expander_get_expanded(exbox) == FALSE)
+      {
+	GdkColor exp_color;
+	gdk_color_parse(col.c_str(), &exp_color);
+	gtk_widget_modify_fg(GTK_WIDGET(exbox), GTK_STATE_NORMAL, &exp_color);
+      }
     }
     else
       terminal = true;
@@ -777,6 +786,9 @@ void gx_log_window (GtkCheckMenuItem* menuitem, gpointer arg)
   if (gtk_check_menu_item_get_active(item) == TRUE)
   {
     gtk_expander_set_expanded(exbox, 1);
+    GdkColor exp_color;
+    gdk_color_parse("#ffffff", &exp_color);
+    gtk_widget_modify_fg (GTK_WIDGET(exbox), GTK_STATE_NORMAL, &exp_color);
     return;
   }
   else
