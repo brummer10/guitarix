@@ -590,7 +590,7 @@ void process_buffers(int count, float** input, float** output)
   // pointer to the jack_buffer
   float*  input0 = input[0];
   // copy clean audio input for the tuner and midi_process
-  if (tuner_on)
+  if (tuner_on > 0)
     (void)memcpy(checkfreq, input0, sizeof(float)*count);
 
   // run pre_funktions on frame base
@@ -662,7 +662,7 @@ void process_buffers(int count, float** input, float** output)
       sumt += sqrf(fConsta4s);
       fConsta4 = sqrtf(sumt/cts);
     }
-    else if (shownote == 0)
+    if (shownote == 0)
     {
       fConsta1 = 1000.0f;
       shownote = -1;
@@ -863,7 +863,7 @@ void process_buffers(int count, float** input, float** output)
     if (irunjc) output0[i] = (fSlow85 * fRec0[0]);
     float 	S9[2];
     // copy the output for the frame based mode of the oscilloscope
-    if ((showwave == 1) &&((view_mode == 1) || (view_mode == 2) )) get_frame[i] = fRec0[0];
+  //  if ((showwave == 1) &&((view_mode == 1) || (view_mode == 2) )) get_frame[i] = fRec0[0];
     S9[0] = (fSlow87 * fRec0[0]);
     S9[1] = (fSlow84 * fRec0[0]);
     // the left output port
@@ -961,5 +961,12 @@ void process_buffers(int count, float** input, float** output)
   }
 
   // triger the oscilloscope to update on frame base (mode 1 and 2)
-  if ((showwave == 1) &&((view_mode == 1)|| (view_mode == 2))) viv = fRec0[0];
+  if ((showwave == 1) &&((view_mode == 1)|| (view_mode == 2)))
+  {
+    (void)memcpy(get_frame, output1, sizeof(float)*count);
+     viv = fRec0[1];
+   }
+ 
 }
+
+
