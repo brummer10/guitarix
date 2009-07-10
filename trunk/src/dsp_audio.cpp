@@ -560,12 +560,12 @@ void process_buffers(int count, float** input, float** output)
 
 
   int ifuzzytube = int(ffuzzytube);
-  int itube = int(ftube);
+  //int itube = int(ftube);
   int iresotube3 = int(fresotube3);
-  int itube3 = int(ftube3);
+  //int itube3 = int(ftube3);
   int ipredrive = int(fpredrive);
-  int iprdr = int(fprdr);
-  int iupsample = int(fupsample);
+ // int iprdr = int(fprdr);
+  //int iupsample = int(fupsample);
   // the extra port register can only run clean on frame base, therfor the
   // variable runjc must check on frame base, not in the inner loop.
   int irunjc = runjc;
@@ -573,16 +573,16 @@ void process_buffers(int count, float** input, float** output)
   int iSlow22 = int((int(fSlow20) & 4095));
   int iSlow30 = int(fcheckbox2);
   int iSlow41 = int(fcheckbox3);
-  int iSlow45 = int(fcheckbox4);
-  int iSlow65 = int(fcheckbox5);
-  int iSlow71 = int(fcheckbox6);
+ // int iSlow45 = int(fcheckbox4);
+  //int iSlow65 = int(fcheckbox5);
+ // int iSlow71 = int(fcheckbox6);
   int iSlow73 = int((1 + int((int((int((fConst11 * fslider18)) - 1)) & 131071))));
-  int iSlow75 = int(fcheckbox7);
-  int iSlow79 = int(fcheckbox8);
+ // int iSlow75 = int(fcheckbox7);
+ // int iSlow79 = int(fcheckbox8);
   int iSlow88 = int(checkbox7);
-  int icheckboxcom1 = int(fcheckboxcom1);
-  int icheckbox1 = int(fcheckbox1);
-  int ioverdrive4 = int(foverdrive4);
+ // int icheckboxcom1 = int(fcheckboxcom1);
+ // int icheckbox1 = int(fcheckbox1);
+ // int ioverdrive4 = int(foverdrive4);
   int cts = 0;
   int ifuse = ffuse;
   int tuner_on = shownote + playmidi+1;
@@ -595,24 +595,24 @@ void process_buffers(int count, float** input, float** output)
 
   // run pre_funktions on frame base
   // 2*oversample
-  if (iupsample)
+  if (fabs(fupsample))
   {
     over_sample(input,&oversample,count);
     //  if (icheckbox1 == 1)  preamp(count*2,&oversample,&oversample,atan_shape,f_atan);
-    if (itube)    fuzzy_tube(ifuzzytube, 0,count*2,&oversample,&oversample);
-    if (itube3)   reso_tube(iresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
-    if (iprdr)    fuzzy_tube(ipredrive, 1,count*2,&oversample,&oversample);
-    if (antialis0)  AntiAlias(count*2,&oversample,&oversample);
+    if (fabs(ftube))    fuzzy_tube(ifuzzytube, 0,count*2,&oversample,&oversample);
+    if (fabs(ftube3))   reso_tube(iresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
+    if (fabs(fprdr))    fuzzy_tube(ipredrive, 1,count*2,&oversample,&oversample);
+    if (fabs(antialis0))  AntiAlias(count*2,&oversample,&oversample);
     down_sample(&oversample,input,count);
   }
   // or plain sample
   else
   {
     //   if (icheckbox1 == 1)  preamp(count,input,input,atan_shape,f_atan);
-    if (itube)    fuzzy_tube(ifuzzytube, 0,count,input,input);
-    if (itube3)   osc_tube(iresotube3,count,f_resotube1, f_resotube2,input,input);
-    if (iprdr)    fuzzy_tube(ipredrive, 1,count,input,input);
-    if (antialis0)  AntiAlias(count,input,input);
+    if (fabs(ftube))    fuzzy_tube(ifuzzytube, 0,count,input,input);
+    if (fabs(ftube3))   osc_tube(iresotube3,count,f_resotube1, f_resotube2,input,input);
+    if (fabs(fprdr))    fuzzy_tube(ipredrive, 1,count,input,input);
+    if (fabs(antialis0))  AntiAlias(count,input,input);
   }
 
   // pointers to the jack_output_buffers
@@ -668,7 +668,7 @@ void process_buffers(int count, float** input, float** output)
       shownote = -1;
     }
 
-    if (icheckboxcom1)     // compressor
+    if (fabs(fcheckboxcom1))     // compressor
     {
       add_dc(input0[i]);
       float fTempcom0 = input0[i];
@@ -694,7 +694,7 @@ void process_buffers(int count, float** input, float** output)
     float fTemp0 = (fRec4[0] * fVec0[0]);
 
     // I have move the preamp to the frame based section, leef it here for . . .
-    if (icheckbox1)     // preamp
+    if (fabs(fcheckbox1))     // preamp
     {
       float  in = fTemp0 ;
       float  fTemp0in = (in-0.15*(in*in))-(0.15*(in*in*in));
@@ -710,7 +710,7 @@ void process_buffers(int count, float** input, float** output)
     if (fresoon) fRec3[0] = fuzz (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])),0.7);  //resonanz 1.76f
  
 
-    if (ioverdrive4)     // overdrive
+    if (fabs(foverdrive4))     // overdrive
     {
       float fTempdr0 = (fTemp0 + fRec3[0]) * 0.5;
       float fTempdr1 = fabs(fTempdr0);
@@ -719,7 +719,7 @@ void process_buffers(int count, float** input, float** output)
       
     }
     
-    if (iSlow45)     // distortion
+    if (fabs(fcheckbox4))     // distortion
     {
       float 	S6[2];
       float 	S7[2];
@@ -771,7 +771,7 @@ void process_buffers(int count, float** input, float** output)
     fRec_tone0[0] = (fSlow_tone47 * ((((fSlow_tone46 * fRec_tone1[1]) + (fSlow_tone45 * fRec_tone1[0])) + (fSlow_tone43 * fRec_tone1[2])) + (0 - ((fSlow_tone6 * fRec_tone0[2]) + (fSlow_tone3 * fRec_tone0[1])))));
     // tone end
     float fTemp8 = fRec_tone0[0];
-    if (iSlow65)    //crybaby
+    if (fabs(fcheckbox5))    //crybaby
     {
 
       fRec19[0] = (fSlow57 + (0.999f * fRec19[1]));
@@ -781,7 +781,7 @@ void process_buffers(int count, float** input, float** output)
       fTemp8 = ((fRec18[0] + (fSlow64 * fRec_tone0[0])) - fRec18[1]);
     }                                     //crybaby ende
 
-    if (iSlow71)     //freeverb
+    if (fabs(fcheckbox6))     //freeverb
     {
       float fTemp9 = (1.500000e-02f * fTemp8);
       fRec31[0] = ((fSlow69 * fRec30[1]) + (fSlow68 * fRec31[1]));
@@ -827,13 +827,13 @@ void process_buffers(int count, float** input, float** output)
     fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
     float fTemp12 =  (fRec46[0] * fTemp8);
 
-    if (iSlow75)    //echo
+    if (fabs(fcheckbox7))    //echo
     {
       fRec47[IOTA&262143] = (fTemp12 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
       fTemp12 = fRec47[(IOTA-0)&262143];
     }                                     //echo ende
 
-    if (iSlow79)     //impulseResponse
+    if (fabs(fcheckbox8))     //impulseResponse
     {
       fVec22[0] = fTemp12;
       fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
