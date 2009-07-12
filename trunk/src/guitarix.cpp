@@ -196,7 +196,7 @@ static gint gx_choice_dialog_without_entry (
 );
 
 //----- preset handling
-#define GX_NUM_OF_PRESET_LISTS (3)
+#define GX_NUM_OF_PRESET_LISTS (2)
 #define SAVE_PRESET_LIST   (0)
 #define LOAD_PRESET_LIST   (1)
 #define RENAME_PRESET_LIST (2)
