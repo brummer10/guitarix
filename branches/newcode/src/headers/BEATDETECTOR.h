@@ -23,8 +23,7 @@ postet by DSPMaster[at]free[dot]fr
 modified for guitarix by hermann meyer
 ******************************************************************************/
 
-#ifndef BeatDetectorH
-#define BeatDetectorH
+#pragma once
 
 class TBeatDetector
 {
@@ -43,5 +42,5 @@ public:
     virtual void setSampleRate(float SampleRate);
     virtual void AudioProcess (float input, float triggerpoint);
 };
-#endif
+
 

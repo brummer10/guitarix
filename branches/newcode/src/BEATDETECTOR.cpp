@@ -23,6 +23,23 @@ postet by DSPMaster[at]free[dot]fr
 modified for guitarix by hermann meyer
 ******************************************************************************/
 
+#include <cmath>
+#include <string>
+#include <map>
+#include <list>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+using namespace std;
+
+#include <sndfile.h>
+#include <jack/jack.h>
+#include <gtk/gtk.h>
+
+#include "guitarix.h"
+
 #include "BEATDETECTOR.h"
 
 #define FREQ_LP_BEAT 150.0f    // Low Pass filter frequency
@@ -37,7 +54,7 @@ TBeatDetector::TBeatDetector()
     PeakEnv=0.0;
     BeatTrigger=false;
     PrevBeatPulse=false;
-    setSampleRate(jackframe);
+    setSampleRate(gx_jack::jack_sr);
 }
 
 TBeatDetector::~TBeatDetector()

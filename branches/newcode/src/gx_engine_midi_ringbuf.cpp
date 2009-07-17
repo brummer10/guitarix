@@ -1,50 +1,43 @@
 /*
-  * Copyright (C) 2009 Hermann Meyer and James Warden
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation; either version 2 of the License, or
-  * (at your option) any later version.
-  *
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-  *
-  * You should have received a copy of the GNU General Public License
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-*/
+ * Copyright (C) 2009 Hermann Meyer and James Warden
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * --------------------------------------------------------------------------
+ *
+ *
+ *    This is the Guitarix MIDI Engine using a ring buffer
+ *
+ *
+ * --------------------------------------------------------------------------
+ */
 
-/******************************************************************************
-*******************************************************************************
-
-								FAUST DSP
-	dsp_midi.cpp
-	the dsp_midi processing for guitarix
-*******************************************************************************
-*******************************************************************************/
-
-
-/******************************************************************************
-    The code for the jack_ringbuffer is take from
-    jack-keyboard 2.4, a virtual keyboard for JACK MIDI.
-    from Edward Tomasz Napierala <trasz@FreeBSD.org>.
-******************************************************************************/
 struct MidiMessage ev;
 
-void
-queue_message(struct MidiMessage *ev)
+void GxEngine::queue_message(struct MidiMessage *ev)
 {
-    int space;
-    space =  jack_ringbuffer_write_space( jack_ringbuffer);
-    if (space > int(sizeof(*ev)+2))
-    {
-        int		written;
-        written = jack_ringbuffer_write(jack_ringbuffer, (char *)ev, sizeof(*ev));
-        if (written != sizeof(*ev))
-            g_warning("Not enough space in the ringbuffer, NOTE LOST.");
-     }
+  int space;
+  space =  jack_ringbuffer_write_space( jack_ringbuffer);
+
+  if (space > int(sizeof(*ev)+2))
+  {
+    int		written;
+    written = jack_ringbuffer_write(jack_ringbuffer, (char *)ev, sizeof(*ev));
+
+    if (written != sizeof(*ev))
+      gx_print_warning("MIDI engine", "Not enough space in the ringbuffer, NOTE LOST.");
+  }
 }
 
 /******************************************************************************
@@ -53,7 +46,7 @@ queue_message(struct MidiMessage *ev)
 ******************************************************************************/
 
 
-virtual void compute_midi( int len)
+void GxEngine::compute_midi( int len)
 {
     TBeatDetector myTBeatDetector;
 
@@ -91,7 +84,7 @@ virtual void compute_midi( int len)
     float sum = 0;
     float *audiodata = checkfreq;
 
-    if ((shownote == 1) || (playmidi == 1))
+    if ((gx_ui::GxMainInterface::shownote == 1) || (dsp::isMidiOn() == true))
     {
         for (int i=0; i<len; i+=step)
         {
@@ -121,7 +114,7 @@ virtual void compute_midi( int len)
                 piwe = (fConsta2+1) * 8192; // pitch wheel value
                 weg = 0;
 
-                if (playmidi == 1)
+                if (dsp::isMidiOn() == true)
                 {
                     // channel0
                     if (program != iTemps31)
@@ -342,11 +335,11 @@ virtual void compute_midi( int len)
                         if (fcheckbox11 == 1.0) send2+=step;
                     }
                 }
-                // end if playmidi = 1
+                // end if isMidiOn() = true
             }
             else
             {
-                if  (playmidi == 1)
+                if  (dsp::isMidiOn() == true)
                 {
                     if ((weg > iTemps37) || (cpu_load > 64.0))
                     {
@@ -384,7 +377,7 @@ virtual void compute_midi( int len)
                     }
                     weg+=step;
                 }
-                if (shownote == 1)
+                if (GTKUI::shownote == 1)
                 {
                     if (weg > (fSamplingFreq)/2)
                     {

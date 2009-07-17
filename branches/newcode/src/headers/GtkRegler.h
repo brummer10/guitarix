@@ -20,12 +20,7 @@
 /******************************************************************************
 part of guitarix, use  knobs with Gtk
 ******************************************************************************/
-
-#include <gdk/gdk.h>
-#include <gdk/gdkkeysyms.h>
-
-#ifndef GtkReglerH
-#define GtkReglerH
+#pragma once
 
 class GtkRegler
 {
@@ -39,15 +34,14 @@ public:
     GtkRegler();
     ~GtkRegler();
 
-    virtual void gtk_regler_destroy ( );
-    virtual GtkWidget *gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment);
-    virtual GtkWidget *gtk_mini_slider_new_with_adjustment(GtkAdjustment *_adjustment);
-    virtual GtkWidget *gtk_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
-    virtual GtkWidget *gtk_switch_new_with_adjustment(GtkAdjustment *_adjustment);
-    virtual GtkWidget *gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment);
-    virtual GtkWidget *gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustment);
-    virtual GtkWidget *gtk_mini_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
-    virtual GtkWidget *gtk_wheel_new_with_adjustment(GtkAdjustment *_adjustment);
+    static void gtk_regler_destroy ( );
+    GtkWidget *gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment);
+    GtkWidget *gtk_mini_slider_new_with_adjustment(GtkAdjustment *_adjustment);
+    GtkWidget *gtk_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
+    GtkWidget *gtk_switch_new_with_adjustment(GtkAdjustment *_adjustment);
+    GtkWidget *gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment);
+    GtkWidget *gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustment);
+    GtkWidget *gtk_mini_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
+    GtkWidget *gtk_wheel_new_with_adjustment(GtkAdjustment *_adjustment);
 };
-#endif
 

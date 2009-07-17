@@ -1,33 +1,31 @@
 /*
-  * Copyright (C) 2009 Hermann Meyer and James Warden
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation; either version 2 of the License, or
-  * (at your option) any later version.
-  *
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-  *
-  * You should have received a copy of the GNU General Public License
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-*/
-
-/******************************************************************************
-*******************************************************************************
-
-								FAUST DSP
-	dsp_interface.cpp
-	create the interface for guitarix
-*******************************************************************************
-*******************************************************************************/
-
+ * Copyright (C) 2009 Hermann Meyer and James Warden
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * --------------------------------------------------------------------------
+ *
+ *
+ *    This is the Guitarix Engine GUI builder
+ *    This file is included in gx_engine.cpp which has been split for 
+ *    readability.
+ *
+ * --------------------------------------------------------------------------
+ */
 
 
-virtual void buildUserInterface(UI* interface)
+void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 {
   //----- the main box, all visible widgets are a child of this box
   interface->openVerticalBox("");
@@ -70,8 +68,8 @@ virtual void buildUserInterface(UI* interface)
 	      interface->openVerticalBox("");
 	      { 
 		interface->addslider("wet/dry", &fslider24,  0.f, -1.f, 1.f, 1.e-01f);
-		interface->addButton("jconv settings", &filebutton);
-		interface->addJToggleButton("run jconv", &checkbutton7);
+		interface->addJConvButton("jconv settings", &filebutton);
+		interface->addJToggleButton("run jconv", &gx_jconv::checkbutton7);
 	      }
 	      interface->closeBox();
 
@@ -532,30 +530,42 @@ virtual void buildUserInterface(UI* interface)
 		    interface->addHorizontalSlider("threshold", &ffuse, 0.f, 0.f, 2.f, 1.f);
 		  }
 		  interface->closeBox();
-    			interface->openFrameBox("");
-    			interface->closeBox();
-   			interface->openFrameBox("");
-   			interface->closeBox();
-    			interface->openFrameBox("");
-    			interface->closeBox();
-    			interface->openFrameBox("");
-    			interface->closeBox();
-    			interface->openFrameBox("");
-    			interface->closeBox();
-    			interface->openFrameBox("");
-    			interface->closeBox();
-    			interface->openFrameBox("");
-    			interface->closeBox();
-    			interface->openFrameBox("");
-    			interface->closeBox();
-    			interface->openFrameBox("");
-    			interface->closeBox();
-    			interface->openFrameBox("");
-    			interface->closeBox();
-    			interface->openFrameBox("");
-    			interface->closeBox();
-    			interface->openFrameBox("");
-    			interface->closeBox();
+    		
+		  interface->openFrameBox("");
+		  interface->closeBox();
+
+		  interface->openFrameBox("");
+		  interface->closeBox();
+
+		  interface->openFrameBox("");
+		  interface->closeBox();
+
+		  interface->openFrameBox("");
+		  interface->closeBox();
+
+		  interface->openFrameBox("");
+		  interface->closeBox();
+
+		  interface->openFrameBox("");
+		  interface->closeBox();
+
+		  interface->openFrameBox("");
+		  interface->closeBox();
+
+		  interface->openFrameBox("");
+		  interface->closeBox();
+
+		  interface->openFrameBox("");
+		  interface->closeBox();
+
+		  interface->openFrameBox("");
+		  interface->closeBox();
+
+		  interface->openFrameBox("");
+		  interface->closeBox();
+
+		  interface->openFrameBox("");
+		  interface->closeBox();
 
 		interface->closeBox();
 

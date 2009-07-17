@@ -1,93 +1,97 @@
 /*
-  * Copyright (C) 2009 Hermann Meyer and James Warden
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation; either version 2 of the License, or
-  * (at your option) any later version.
-  *
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-  *
-  * You should have received a copy of the GNU General Public License
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-*/
-
-/******************************************************************************
-*******************************************************************************
-
-   							FAUST DSP
-   dsp_audio.cpp
-   the dsp audio processing for guitarix
-*******************************************************************************
-*******************************************************************************/
+ * Copyright (C) 2009 Hermann Meyer and James Warden
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * --------------------------------------------------------------------------
+ *
+ *
+ *    This is the Guitarix Audio Engine
+ *
+ *
+ * --------------------------------------------------------------------------
+ */
 
 // denormal prevention is needed in the distortion unit for the low/high/cut part.
-inline void add_dc (float &val)
+inline void GxEngine::add_dc (float& val)
 {
-    static const float anti_denormal = 1e-20;
-    val += anti_denormal;
+  static const float anti_denormal = 1e-20;
+  val += anti_denormal;
 }
 
-inline float clip (float x, float a)
+
+inline float GxEngine::clip (float x, float a)
 {
-float x1,x2;
-float b = -a;
-x1 = fabs (x-a);
-x2 = fabs (x-b);
-x = x1 + (a+b);
-x -= x2;
-x *= 0.5;
-return (x);
+  float x1,x2;
+  float b = -a;
+
+  x1 = fabs (x-a);
+  x2 = fabs (x-b);
+  x = x1 + (a+b);
+  x -= x2;
+  x *= 0.5;
+
+  return x;
 }
 
 // the fuzz unit run on sample base
-inline float fuzz(float in, float threshold)
+inline float GxEngine::fuzz(float in, float threshold)
 {
-    if ( in > threshold)
-    {
-        in = threshold;
-    }
-    else if ( in < -threshold)
-    {
-        in = -threshold;
-    }
-    return in;
+  if ( in > threshold)
+  {
+    in = threshold;
+  }
+  else if ( in < -threshold)
+  {
+    in = -threshold;
+  }
+
+  return in;
 }
 
 // foldback distortion, run on sample base
-inline float foldback(float in, float threshold)
+inline float GxEngine::foldback(float in, float threshold)
 {
-    if (threshold == 0) threshold = 0.01f;
-    if (in>threshold || in<-threshold)
-    {
-        in= fabs(fabs(fmod(in - threshold, threshold*4)) - threshold*2) - threshold;
-    }
-    return in;
+  if (threshold == 0) threshold = 0.01f;
+
+  if (fabs(in) > threshold)
+  {
+    in = fabs(fabs(fmod(in - threshold, threshold*4)) - threshold*2) - threshold;
+  }
+  return in;
 }
 
 // tube unit to run on sample base, it's unused for now, dont know if we need it any more
-inline float valve(float in, float out)
+inline float GxEngine::valve(float in, float out)
 {
-    float a = 2.000 ;
-    float b = 1.000 ;
+  float a = 2.000 ;
+  float b = 1.000 ;
+  
+  if ( in >= 0.0 )
+  {
+    out = a * in - b * in * in;
+  }
+  else
+  {
+    out = a * in + b * in * in;
+  }
 
-    if ( in >= 0.0 )
-    {
-        out = a * in - b * in * in;
-    }
-    else
-    {
-        out = a * in + b * in * in;
-    }
-    return out;
+  return out;
 }
 
 // oversample the input signal 2*, give a nice antialised effect
-inline void over_sample(float **input,float **output, int sf)
+inline void GxEngine::over_sample(float** input, float** output, int sf)
 {
     float * in = input[0];
     float * out = output[0];
@@ -103,7 +107,7 @@ inline void over_sample(float **input,float **output, int sf)
 }
 
 // downsample the processed signal to the jack_buffer size
-inline void down_sample(float **input,float **output, int sf)
+inline void GxEngine::down_sample(float **input,float **output, int sf)
 {
     float * in = input[0];
     float * out = output[0];
@@ -119,11 +123,11 @@ inline void down_sample(float **input,float **output, int sf)
 }
 
 // anti aliasing the sine wav, this unit can nicly run oversampeled
-inline void AntiAlias (int sf, float** input, float** output)
+inline void GxEngine::AntiAlias (int sf, float** input, float** output)
 {
     float* in = input[0];
     float* out = output[0];
-    float alias[frag] ;
+    float alias[gx_jack::jack_bs] ;
     int state = 0;
     for (int i=0; i<sf; i++)
     {
@@ -137,7 +141,8 @@ inline void AntiAlias (int sf, float** input, float** output)
 }
 
 // the resonace tube unit on frame base
-inline void reso_tube (int fuzzy, int sf,float reso, float vibra, float** input, float** output)
+inline void GxEngine::reso_tube (int fuzzy, int sf, float reso, float vibra, 
+				 float** input, float** output)
 {
     float* in = input[0];
     float* out = output[0];
@@ -180,7 +185,8 @@ inline void reso_tube (int fuzzy, int sf,float reso, float vibra, float** input,
 
 
 // the oscilate tube unit on frame base
-inline void osc_tube (int fuzzy, int sf,float reso, float vibra, float** input, float** output)
+inline void GxEngine::osc_tube (int fuzzy, int sf, float reso, float vibra, 
+				float** input, float** output)
 {
     float* in = input[0];
     float* out = output[0];
@@ -247,7 +253,8 @@ inline void osc_tube (int fuzzy, int sf,float reso, float vibra, float** input, 
 }
 
 // the tube unit on frame base, it's also the drive unit just with other variables
-inline void fuzzy_tube (int fuzzy,int mode, int sf, float** input, float** output)
+inline void GxEngine::fuzzy_tube (int fuzzy, int mode, int sf, 
+				  float** input, float** output)
 {
     float* in = input[0];
     float* out = output[0];
@@ -280,7 +287,7 @@ inline void fuzzy_tube (int fuzzy,int mode, int sf, float** input, float** outpu
 }
 
 // it isn't normalize, it's more a waveshaper funktion
-inline float normalize(float in, float atan_shape, float shape)
+inline float GxEngine::normalize(float in, float atan_shape, float shape)
 {
     float out = atan_shape * atan(in*shape);
     return out;
@@ -288,7 +295,8 @@ inline float normalize(float in, float atan_shape, float shape)
 
 // the preamp on frame base, it's a gloubi-boulga followed by a third-degree polynomial
 // and then the "normalize", output will smoth down by 0.75
-inline void preamp(int sf, float** input, float** output,float atan_shape,float f_atan)
+inline void GxEngine::preamp(int sf, float** input, float** output,
+			     float atan_shape,float f_atan)
 {
     float* in = input[0];
     float* out = output[0];
@@ -305,17 +313,12 @@ inline void preamp(int sf, float** input, float** output,float atan_shape,float 
 
 }
 
-// --- defines the processing type
-#define ZEROIZE_BUFFERS  (0)
-#define JUSTCOPY_BUFFERS (1)
-#define PROCESS_BUFFERS  (2)
-
 //==============================================================================
 //
 //             this is the process callback called from jack
 //
 //==============================================================================
-virtual void compute (int count, float** input, float** output)
+void GxEngine::compute (int count, float** input, float** output)
 {
   // retrieve engine state
   const GxEngineState estate = (GxEngineState)checky; 
@@ -323,7 +326,7 @@ virtual void compute (int count, float** input, float** output)
   //------------ determine processing type
   unsigned short process_type = ZEROIZE_BUFFERS;
   
-  if (NO_CONNECTION == 0) // ports connected
+  if (gx_jack::NO_CONNECTION == 0) // ports connected
   {
     switch (estate) {
     case kEngineOn:
@@ -350,7 +353,7 @@ virtual void compute (int count, float** input, float** output)
   case JUSTCOPY_BUFFERS:
 
     // only when jconv is not running: copy input to output
-    if (runjc == 0) 
+    if (!gx_jconv::jconv_is_running) 
     {
       // copy input to output 
       (void)memcpy(output[0], input[0], sizeof(float)*count);
@@ -399,7 +402,7 @@ virtual void compute (int count, float** input, float** output)
   default:
 
     // the extra port register can only run clean on frame base, therfor the
-    // variable runjc must check on frame base, not in the inner loop.
+    // variable jconv_is_running must check on frame base, not in the inner loop.
 
     // no need of loop. 
     // You will avoid triggering an if statement for each frame
@@ -407,7 +410,7 @@ virtual void compute (int count, float** input, float** output)
     (void)memset(output[1], 0, count*sizeof(float));
 
     // only when jconv is running
-    if (runjc == 1) 
+    if (gx_jconv::jconv_is_running) 
     {
       (void)memset(output[2], 0, count*sizeof(float));
       (void)memset(output[3], 0, count*sizeof(float));
@@ -419,8 +422,7 @@ virtual void compute (int count, float** input, float** output)
 
 
 //======== private method: process buffers on demand
-private:
-void process_buffers(int count, float** input, float** output)
+void GxEngine::process_buffers(int count, float** input, float** output)
 {
   // precalculate values with need update peer frame
   // compressor
@@ -567,8 +569,7 @@ void process_buffers(int count, float** input, float** output)
   int iprdr = int(fprdr);
   int iupsample = int(fupsample);
   // the extra port register can only run clean on frame base, therfor the
-  // variable runjc must check on frame base, not in the inner loop.
-  int irunjc = runjc;
+  // variable jconv_is_running must check on frame base, not in the inner loop.
   int iSlow21 = int((int((fSlow20 - 1)) & 4095));
   int iSlow22 = int((int(fSlow20) & 4095));
   int iSlow30 = int(fcheckbox2);
@@ -579,13 +580,13 @@ void process_buffers(int count, float** input, float** output)
   int iSlow73 = int((1 + int((int((int((fConst11 * fslider18)) - 1)) & 131071))));
   int iSlow75 = int(fcheckbox7);
   int iSlow79 = int(fcheckbox8);
-  int iSlow88 = int(checkbox7);
+  int iSlow88 = int(gx_jconv::checkbox7);
   int icheckboxcom1 = int(fcheckboxcom1);
   int icheckbox1 = int(fcheckbox1);
   int ioverdrive4 = int(foverdrive4);
   int cts = 0;
   int ifuse = ffuse;
-  int tuner_on = shownote + playmidi+1;
+  int tuner_on = gx_gui::shownote + (int)dsp::isMidiOn() + 1;
 
   // pointer to the jack_buffer
   float*  input0 = input[0];
@@ -625,7 +626,7 @@ void process_buffers(int count, float** input, float** output)
   {
 
     // when the ocilloscope draw wav by sample (mode 3) get the input value
-    if (showwave == 1) vivi = input0[i];
+    if (gx_gui::showwave == 1) vivi = input0[i];
 
     if (tuner_on > 0) // enable tuner when show note or play midi
     {
@@ -662,10 +663,10 @@ void process_buffers(int count, float** input, float** output)
       sumt += sqrf(fConsta4s);
       fConsta4 = sqrtf(sumt/cts);
     }
-    if (shownote == 0)
+    if (gx_gui::shownote == 0)
     {
       fConsta1 = 1000.0f;
-      shownote = -1;
+      gx_gui::shownote = -1;
     }
 
     if (icheckboxcom1)     // compressor
@@ -858,18 +859,18 @@ void process_buffers(int count, float** input, float** output)
     }
     // trigger the oscilloscope to update peer sample. I know that some samples dont will show, but it will
     // update fast as  posible this way (mode 3)
-    if ((showwave == 1) &&(view_mode == 3)) viv = fRec0[0];
+    if ((gx_gui::showwave == 1) &&(gx_gui::wave_view_mode == gx_gui::kWvMode3)) viv = fRec0[0];
     // this is the left "extra" port to run jconv in bybass mode
-    if (irunjc) output0[i] = (fSlow85 * fRec0[0]);
+    if (gx_jconv::jconv_is_running) output0[i] = (fSlow85 * fRec0[0]);
     float 	S9[2];
     // copy the output for the frame based mode of the oscilloscope
-    if ((showwave == 1) &&((view_mode == 1) || (view_mode == 2) )) get_frame[i] = fRec0[0];
+  //  if ((gx_gui::showwave == 1) &&((gx_gui::wave_view_mode == 1) || (gx_gui::wave_view_mode == 2) )) get_frame[i] = fRec0[0];
     S9[0] = (fSlow87 * fRec0[0]);
     S9[1] = (fSlow84 * fRec0[0]);
     // the left output port
     output1[i] = S9[iSlow88];
     // this is the right "extra" port to run jconv in bybass mode
-    if (irunjc) output2[i] = (fSlow90 * fRec0[0]);
+    if (gx_jconv::jconv_is_running) output2[i] = (fSlow90 * fRec0[0]);
     float 	S10[2];
     S10[0] = (fSlow91 * fRec0[0]);
     S10[1] = (fSlow89 * fRec0[0]);
@@ -960,13 +961,14 @@ void process_buffers(int count, float** input, float** output)
 
   }
 
-  // triger the oscilloscope to update on frame base (mode 1 and 2)
-  if ((showwave == 1) &&((view_mode == 1)|| (view_mode == 2)))
+  // trigger the oscilloscope to update on frame base (mode 1 and 2)
+  if ((gx_gui::showwave == 1) &&
+      ((gx_gui::wave_view_mode == gx_gui::kWvMode1) ||  
+       (gx_gui::wave_view_mode == gx_gui::kWvMode2))) 
   {
-   // (void)memcpy(get_frame, output1, sizeof(float)*count);
-     viv = fRec0[0];
-   }
- 
+    (void)memcpy(get_frame, output1, sizeof(float)*count);
+    viv = fRec0[1];
+  }
 }
 
 
