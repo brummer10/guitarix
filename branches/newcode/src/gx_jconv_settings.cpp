@@ -296,8 +296,6 @@ namespace gx_jconv
     jcset->setMem((guint)gtk_adjustment_get_value(GTK_ADJUSTMENT(madj)));
     
     // -- READ MODE
-    jcset->dumpParameters();
-    
     GtkWidget* jcmode_combo = gtk_combo_box_new_text();
     string buffer = "/impulse/copy";
     gtk_combo_box_append_text(GTK_COMBO_BOX(jcmode_combo), buffer.c_str());
