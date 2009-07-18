@@ -28,6 +28,8 @@
 
 #pragma once
 
+#include <cstring>
+
 /* waf generated defines */
 #include "config.h"
 

@@ -279,6 +279,17 @@ namespace gx_child_process
     // here, const applies to pointer, not pointed data ;)
     GtkToggleButton* const cap_button = (GtkToggleButton*)widget;
 
+    // avoid running it at startup
+    // (ugly hack due to GTK+ signalling side effect)
+    static bool cap_init = false;
+    if (!cap_init) {
+    //  if (gx_jack::manual_startup) {
+	gtk_toggle_button_set_active(cap_button, FALSE);
+	cap_init = true;
+	return;
+      //}
+    }
+
     gx_print_info("Record", " Trying to run jack_capture");
 
     // is the button toggled ?

@@ -265,11 +265,11 @@ namespace gx_gui
 
     if (showit == false) {
       gtk_widget_hide(GTK_WIDGET(fWindow));
-      showit = 1;
+      showit = true;
     }
     else {
       gtk_widget_show(GTK_WIDGET(fWindow));
-      showit = true;
+      showit = false;
     }
   }
 
