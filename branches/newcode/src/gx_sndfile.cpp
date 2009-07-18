@@ -26,7 +26,7 @@
 // This namespace mainly wraps around sndfile's functions
 // And has some native functionality
 
-#include <string>
+#include <cstring>
 #include <list>
 #include <map>
 #include <vector>

@@ -28,7 +28,7 @@
  *
  * --------------------------------------------------------------------------
  */
-#include <string>
+#include <cstring>
 #include <list>
 #include <map>
 #include <vector>

@@ -24,7 +24,7 @@ modified for guitarix by hermann meyer
 ******************************************************************************/
 
 #include <cmath>
-#include <string>
+#include <cstring>
 #include <map>
 #include <list>
 #include <vector>

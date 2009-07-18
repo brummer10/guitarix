@@ -21,7 +21,7 @@
 part of guitarix, show a wave with Gtk
 ******************************************************************************/
 
-#include <string>
+#include <cstring>
 #include <sstream>
 #include <iostream>
 #include <vector>
