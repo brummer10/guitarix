@@ -281,14 +281,14 @@ namespace gx_child_process
 
     // avoid running it at startup
     // (ugly hack due to GTK+ signalling side effect)
+#if ( __GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
     static bool cap_init = false;
     if (!cap_init) {
-    //  if (gx_jack::manual_startup) {
-	gtk_toggle_button_set_active(cap_button, FALSE);
-	cap_init = true;
-	return;
-      //}
+      gtk_toggle_button_set_active(cap_button, FALSE);
+      cap_init = true;
+      return;
     }
+#endif
 
     gx_print_info("Record", " Trying to run jack_capture");
 
