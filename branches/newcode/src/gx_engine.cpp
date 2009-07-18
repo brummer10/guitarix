@@ -450,6 +450,8 @@ namespace gx_engine
 
     fslider_tone_check = (fslider_tone1+fslider_tone0+fslider_tone2)*100;
     fslider_tone_check1 = 0;
+
+   gx_jconv::checkbox7 = 1.0;
     // end engine init
   }
 

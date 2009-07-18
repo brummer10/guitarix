@@ -352,17 +352,17 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
       cairo_fill (cr);
       cairo_pattern_destroy (pat);
       
-      cairo_set_line_width (cr, 10);
+      cairo_set_line_width (cr, 10.0);
       cairo_set_source_rgba (cr, 0, 0, 0,0.4);
       cairo_rectangle (cr, liveviewx-5, liveviewy-5, 460, 60);
       cairo_stroke (cr);
       
-      cairo_set_line_width (cr, 1);
+      cairo_set_line_width (cr, 1.0);
       cairo_set_source_rgba (cr, 0.1, 0.1, 0.1,0.7);
       cairo_rectangle (cr, liveviewx-6, liveviewy-6, 462, 62);
       cairo_stroke (cr);
 
-      cairo_set_line_width (cr, 1);
+      cairo_set_line_width (cr, 1.0);
       cairo_set_source_rgba (cr, 0.5, 0.5, 0.5,0.1);
       cairo_rectangle (cr, liveviewx-12, liveviewy-12, 474, 74);
       cairo_rectangle (cr, liveviewx-2, liveviewy-2, 454, 54);
@@ -856,6 +856,13 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
 	GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut = jcset->getLength();
       }
       
+
+    }
+    
+    gdk_pixbuf_get_from_drawable(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigwaveview_image,
+				 GDK_DRAWABLE(widget->window), gdk_colormap_get_system (),0,0,0,0,300,200);
+
+   if (GTK_WIDGET_HAS_GRAB(widget)) {
       // -- tooltips
       ostringstream tip;
       tip << "offset ("    << jcset->getOffset() 
@@ -865,9 +872,7 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
       gtk_tooltips_set_tip (GTK_TOOLTIPS (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->comandline), 
 			    widget, tip.str().c_str(), "the offset and length.");
     }
-    
-    gdk_pixbuf_get_from_drawable(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigwaveview_image,
-				 GDK_DRAWABLE(widget->window), gdk_colormap_get_system (),0,0,0,0,300,200);
+
   }
   return FALSE;
 }

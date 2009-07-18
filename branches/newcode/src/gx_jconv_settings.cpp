@@ -232,6 +232,31 @@ namespace gx_jconv
   {
     GxJConvSettings* jcset = GxJConvSettings::instance();
 
+    // -- main window
+    GtkWidget* dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
+    gtk_window_set_deletable(GTK_WINDOW(dialog), FALSE);
+    gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
+    gtk_window_set_gravity(GTK_WINDOW(dialog), GDK_GRAVITY_SOUTH);
+    gtk_window_set_transient_for (GTK_WINDOW(dialog), GTK_WINDOW(gx_gui::fWindow));
+    gtk_window_set_position (GTK_WINDOW(dialog), GTK_WIN_POS_MOUSE);
+    gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
+    gtk_window_set_title (GTK_WINDOW (dialog), "JConv Settings");
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+
+    // -- labels
+    GtkWidget* label  = gtk_label_new ("           settings for              \n"
+				       "      JConv  by  Fons Adriaensen     ");
+    gx_gui::label1    = gtk_label_new (" \n");
+
+    GtkWidget* label2 = gtk_label_new (" partition size");
+    GtkWidget* label3 = gtk_label_new (" gain ");
+    GtkWidget* label4 = gtk_label_new (" max mem ");
+    GtkWidget* label5 = gtk_label_new (" mode ");
+
+    // -- OK button
+    GtkWidget* ok_button = gtk_button_new_with_label("OK");
+
     // -- wave file info
     int chans      = 0; // channels
     int sr         = 0; // sample rate
@@ -258,33 +283,6 @@ namespace gx_jconv
 
     // ----- setting GUI stuff with current initial values
 
-    // -- main window
-    GtkWidget* dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
-    gtk_window_set_deletable(GTK_WINDOW(dialog), FALSE);
-    gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
-    gtk_window_set_gravity(GTK_WINDOW(dialog), GDK_GRAVITY_SOUTH);
-    gtk_window_set_transient_for (GTK_WINDOW(dialog), GTK_WINDOW(gx_gui::fWindow));
-    gtk_window_set_position (GTK_WINDOW(dialog), GTK_WIN_POS_MOUSE);
-    gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
-    gtk_window_set_title (GTK_WINDOW (dialog), "JConv Settings");
-    gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
-    
-    jcset->setDialog(dialog);
-      
-    // -- labels
-    GtkWidget* label  = gtk_label_new ("           settings for              \n"
-				       "      JConv  by  Fons Adriaensen     ");
-    gx_gui::label1    = gtk_label_new (" \n");
-    
-    GtkWidget* label2 = gtk_label_new (" partition size");
-    GtkWidget* label3 = gtk_label_new (" gain ");
-    GtkWidget* label4 = gtk_label_new (" max mem ");
-    GtkWidget* label5 = gtk_label_new (" mode ");
-    
-    // -- OK button
-    GtkWidget* ok_button = gtk_button_new_with_label("OK");
-    
     // -- GAIN
     GtkObject* gadj    = gtk_adjustment_new(jcset->getGain(), 0.0, 5.0, 0.1, 1.0, 0);
     GtkWidget* gslider = gtk_spin_button_new (GTK_ADJUSTMENT(gadj), 1.0, 1);

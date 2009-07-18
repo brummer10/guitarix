@@ -499,9 +499,10 @@ namespace gx_child_process
       {
 	(void)gx_gui::gx_message_popup(warning.c_str());
 	gx_jconv::checkbutton7 = 0;
-	gx_jconv::checkbox7 = 0.0;
+
 	gx_jconv::jconv_is_running = false;
       }
+	gx_jconv::checkbox7 = 0.0;
     }
   }
 
