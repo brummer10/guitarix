@@ -478,7 +478,7 @@ namespace gx_preset
       }
 
     gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
-    gx_jconv::checkbutton7 = 0;
+    gx_jconv::GxJConvSettings::checkbutton7 = 0;
   
     gx_gui::GxMainInterface* interface = gx_gui::GxMainInterface::instance();
     interface->updateAllGuis();

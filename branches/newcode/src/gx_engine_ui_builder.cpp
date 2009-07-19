@@ -69,7 +69,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 	      { 
 		interface->addslider("wet/dry", &fslider24,  0.f, -1.f, 1.f, 1.e-01f);
 		interface->addJConvButton("jconv settings", &filebutton);
-		interface->addJToggleButton("run jconv", &gx_jconv::checkbutton7);
+		interface->addJToggleButton("run jconv", &gx_jconv::GxJConvSettings::checkbutton7);
 	      }
 	      interface->closeBox();
 

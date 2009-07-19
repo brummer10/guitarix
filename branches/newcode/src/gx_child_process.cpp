@@ -367,7 +367,7 @@ namespace gx_child_process
   void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
   {
 
-    if (gx_jconv::checkbutton7 == 0) {
+    if (gx_jconv::GxJConvSettings::checkbutton7 == 0) {
       gx_jconv::checkbox7 = 1.0;
       
       pid_t pid = gx_child_process::child_pid[JCONV_IDX];
@@ -498,7 +498,7 @@ namespace gx_child_process
       if (!warning.empty())
       {
 	(void)gx_gui::gx_message_popup(warning.c_str());
-	gx_jconv::checkbutton7 = 0;
+	gx_jconv::GxJConvSettings::checkbutton7 = 0;
 
 	gx_jconv::jconv_is_running = false;
       }

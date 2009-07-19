@@ -291,7 +291,7 @@ namespace gx_jack
 	int jcio = 0;
 	if (jconv_is_running) {
 	  jcio = 1;
-	  gx_jconv::checkbutton7 = 0;
+	  gx_jconv::GxJConvSettings::checkbutton7 = 0;
 	  gx_jconv::checkbox7 = 0.0;
 	  gx_child_process::gx_start_stop_jconv(NULL, NULL);
 	}
@@ -306,7 +306,7 @@ namespace gx_jack
 
 	if (jcio == 1) {
 	  jcio = 0;
-	  gx_jconv::checkbutton7 = 1;
+	  gx_jconv::GxJConvSettings::checkbutton7 = 1;
 	  gx_jconv::checkbox7 = 1.0;
 	  gx_child_process::gx_start_stop_jconv(NULL, NULL);
 	}

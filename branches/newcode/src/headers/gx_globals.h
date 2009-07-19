@@ -107,7 +107,6 @@ namespace gx_jack
 namespace gx_jconv 
 {
   /* some global vars */
-  extern float checkbutton7;
   extern float checkbox7;
 
   extern bool jconv_is_running;

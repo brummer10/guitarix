@@ -54,6 +54,9 @@ using namespace gx_preset;
 namespace gx_jconv
 {
 
+  // --------------- static var
+  float GxJConvSettings::checkbutton7 = 0.;
+
   // ---------------  constructor
   GxJConvSettings::GxJConvSettings()
   {

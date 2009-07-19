@@ -130,6 +130,9 @@ namespace gx_jconv
     // instance getter / creation
     static GxJConvSettings* instance();
 
+    // checkbutton state
+    static float checkbutton7;
+
     // dump parameters on demand to stderr
     void dumpParameters();
 
