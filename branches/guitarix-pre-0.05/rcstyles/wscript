@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import Build
+
+# start each filename with a space
+style_files  = ''
+style_files += ' controls1.jpg'
+style_files += ' controls2.jpg'
+style_files += ' controls3.jpg'
+style_files += ' controls4.jpg'
+style_files += ' controlsbl1.jpg'
+style_files += ' controlsbl2.jpg'
+style_files += ' controlsbl3.jpg'
+style_files += ' controlsbl4.jpg'
+style_files += ' controlsbl.jpg'
+style_files += ' controls.jpg'
+style_files += ' guitarix-darkblack-relief.jpg'
+style_files += ' sunburst.jpg'
+style_files += ' sunburst1.jpg'
+style_files += ' sunburst2.jpg'
+style_files += ' rainbow.jpg'
+style_files += ' rainbow1.jpg'
+style_files += ' rainbow2.jpg'
+style_files += ' rainbow3.jpg'
+style_files += ' yellow.jpg'
+style_files += ' yellow1.jpg'
+style_files += ' yellow2.jpg'
+style_files += ' guitarix_black.rc'
+style_files += ' guitarix_pix.rc'
+style_files += ' guitarix_sunburst.rc'
+style_files += ' guitarix_rainbow.rc'
+style_files += ' guitarix_yellow.rc'
+style_files += ' guitarix_default.rc'
+    
+def configure(conf):
+    pass
+
+def build(bld):
+    bld.install_files(bld.env['GX_STYLE_DIR'], style_files, chmod=0644)
+
+        
+
