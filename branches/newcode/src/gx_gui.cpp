@@ -226,22 +226,22 @@ namespace gx_gui
     GxMainInterface* interface = GxMainInterface::instance();
 
     if (strcmp(witchres, "distortion") == 0) 
-      interface->recalladState(filename.c_str(),  4,  16, 0);
+      interface->recalladState(filename.c_str(),  5,  17, 0);
 
     else if (strcmp(witchres, "freeverb") == 0) 
-      interface->recalladState(filename.c_str(),  20,  24, 1);
+      interface->recalladState(filename.c_str(),  21,  25, 1);
 
     else if (strcmp(witchres, "ImpulseResponse") == 0) 
-      interface->recalladState(filename.c_str(),  28,  32, 2);
+      interface->recalladState(filename.c_str(),  29,  33, 2);
 
     else if (strcmp(witchres, "crybaby") == 0) 
-      interface->recalladState(filename.c_str(),  16,  20, 3);
+      interface->recalladState(filename.c_str(),  17,  21, 3);
 
     else if (strcmp(witchres, "midi out") == 0) 
-      interface->recalladState(filename.c_str(),  44,  50, 4);
+      interface->recalladState(filename.c_str(),  45,  51, 4);
 
     else if (strcmp(witchres, "compressor") == 0) 
-      interface->recalladState(filename.c_str(),  72,  78, 5);
+      interface->recalladState(filename.c_str(),  73,  79, 5);
   }
 
   //----- show extendend settings slider
