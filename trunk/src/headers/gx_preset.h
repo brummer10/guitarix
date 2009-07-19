@@ -22,7 +22,7 @@
 #pragma once
 
 // number of preset action lists, can expand to 4 if required
-#define GX_NUM_OF_PRESET_LISTS (2) 
+#define GX_NUM_OF_PRESET_LISTS (3) 
 
 // preset action index
 #define LOAD_PRESET_LIST   (0)

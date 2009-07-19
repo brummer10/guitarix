@@ -783,12 +783,14 @@ namespace gx_preset
 
       preset_list[i][item] = newname;
 
-      // refresh main window name
-      string jname = string(jack_get_client_name(gx_jack::client)) + " ";
-      string title = jname + newname;
-      gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), title.c_str());
-      
-      gx_current_preset = newname;
+      // refresh main window name we were in preset context
+      if (setting_is_preset) {
+	string jname = string(jack_get_client_name(gx_jack::client)) + " ";
+	string title = jname + newname;
+	gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), title.c_str());
+	
+	gx_current_preset = newname;
+      }
     }
 
     gx_print_info("Preset Renaming", string("preset ") + old_preset_name +
