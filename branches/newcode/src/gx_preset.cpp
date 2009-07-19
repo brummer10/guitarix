@@ -116,12 +116,15 @@ namespace gx_preset
     acc_path += "/";
     acc_path += gx_i2a(accel_key);
 
-    // add accelerator in accel path if not added
-    if (!gtk_accel_map_lookup_entry(acc_path.c_str(), NULL))
-      gtk_accel_map_add_entry(acc_path.c_str(), accel_key, list_mod[lindex]);
+    // add accelerator in accel path if not added (up to pos = 9)
+    if (pos < 10) {
+      if (!gtk_accel_map_lookup_entry(acc_path.c_str(), NULL))
+	gtk_accel_map_add_entry(acc_path.c_str(), accel_key, list_mod[lindex]);
 
-    gtk_widget_set_accel_path(menuitem, acc_path.c_str(), 
-			      gx_gui::GxMainInterface::instance()->fAccelGroup);
+      gtk_widget_set_accel_path(menuitem, acc_path.c_str(), 
+				gx_gui::GxMainInterface::instance()->fAccelGroup);
+    }
+
     gtk_widget_show (menuitem);
     preset_list[lindex].insert(pair<GtkMenuItem*,string>(GTK_MENU_ITEM(menuitem), presname));
   }
