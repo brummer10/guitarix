@@ -161,8 +161,54 @@ At the moment (svn@200), the following keyboard shortcuts are available:
 --------------
 - Audio engine play	: Space
 - Audio engine stop	: Space
-- MIDI out ON/OFF	: Ctrl+M
+- Effects bypass        : B  (see note (i))
+- Effects back          : B or Space
+- MIDI out ON/OFF	: Shift+M
 - Quit guitarix		: Ctrl+Q
+
+(i) Note that if jconv is running (launched from guitarix), it will still 
+    be active, the wet/dry slider can also be used. 
+    It implies that guitarix can be regarded as a GUI for jconv.
+
+
+* Presets menu (as of version 0.04.7):
+---------------
+When guitarix is launched, it will browse the $HOME/.guitarix/guitarixprerc 
+file and store the found presets in its menu. The preset handling is quite
+versatile and let you do a few useful things:
+
+- Load a preset         : 1, 2, 3, ... (note (ii))  
+- Save a preset         : Ctrl+1, Ctrl+2, etc (note (ii))
+- Create a new preset   : Ctrl+P (insert a valid name, 
+                                  spaces will be replaced by '-')
+- Recall main setting   : S      (see note (iii))
+- Save as main setting	: Ctrl+S (see note (iv))
+
+Submenu "More Preset Action" :
+- Cycle to next preset  : Page Down  (very useful)
+- Cycle to prev pres    : Page Up    (very useful)
+- Save active preset    : Alt+S
+- Rename active preset  : Alt+R
+- Delete active preset  : Delete
+- Delete ALL presets    : Ctrl+Shift+D (gives a warning)
+
+Notes:
+
+(ii)  If you have more than 9 presets, shortcuts are disabled
+
+(iii) The main setting is a different context than a preset. If you quit
+      guitarix while you are in a preset context, the main setting will not
+      be saved automatically as guitarix knows only one setting at a time
+      (the current active one). You can always recall the main setting and
+      save whatever changes you bring to it with Ctrl+S. 
+
+(iv)  Saving the main setting can be done from any context. Ctrl+S will save 
+      the current state into the main setting and bring you back to the main
+      setting context. Therefore, when you were in a preset context and save
+      it as the main setting, you leave the preset context.  
+      If you want instead to save the active preset, use Alt+S so you stay
+      in this context.
+
 
 * Options menu:
 --------------
@@ -171,14 +217,14 @@ At the moment (svn@200), the following keyboard shortcuts are available:
 - Meterbridge ON/OFF	: Alt+M
 - Jack capture settings	: Alt+J
 
-- Skin change cycle-through : Shit+S
+- Skin change cycle-through : Shift+S
 
 * About menu:
 -------------
 - About display		: Ctrl+A
 
 
-- Record / Stop record	: r
+- Record / Stop record	: R
 
 As of June 30 2009, are missing preset options shortcuts.
 

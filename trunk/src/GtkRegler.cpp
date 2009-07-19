@@ -21,7 +21,12 @@
 part of guitarix, use  reglers with Gtk
 ******************************************************************************/
 
-//#include"./guitarix/GtkRegler.h"
+#include <cmath>
+#include <gtk/gtk.h>
+#include <gdk/gdk.h>
+#include <gdk/gdkkeysyms.h>
+
+#include "GtkRegler.h"
 
 #define GTK_TYPE_REGLER          (gtk_regler_get_type())
 #define GTK_REGLER(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_REGLER, GtkRegler))
@@ -1050,7 +1055,7 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
     GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
 //---------- here are the inline pixmaps for regler
-#include"GtkReglerpix.cpp"
+#include "GtkReglerpix.cpp"
 
     /** set here the sizes and steps for the used regler **/
 //--------- small knob size and steps
