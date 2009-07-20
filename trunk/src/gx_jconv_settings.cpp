@@ -275,11 +275,44 @@ namespace gx_jconv
       closeSoundFile(sf);
     }
 
-    // display IR file info
     ostringstream lab;
+    // check file sample rate vs jackd's 
+    if (sr != (int)gx_jack::jack_sr) {
+      // dump some new text
+      lab << "   The " << chans   << " channel Soundfile" << endl
+	  << "   Sample rate ("   << sr << ")" << endl
+	  << "   does not match"  << endl
+	  << "   the jack Sample rate (" << gx_jack::jack_sr << ")" << endl
+	  << "   Do you wish to resample it ?     " << endl;
+      
+      gint response = 
+	gx_gui::gx_choice_dialog_without_entry (
+	  " IR Resampling ",
+	  lab.str().c_str(),
+	  "DO IT!", "Nope", 
+	  GTK_RESPONSE_YES, 
+	  GTK_RESPONSE_CANCEL, 
+	  GTK_RESPONSE_YES
+	);
+      
+	  // we are cancelling
+      if (response == GTK_RESPONSE_CANCEL) {
+	gx_print_warning("IR Resampling", 
+			 "Resampling has been cancelled"
+			 ", JConv setting invalidated");
+	
+	jcset->setIRFile("nofile");
+	jcset->validate();
+      }
+      else // OK, resampling it
+	gx_resample_jconv_ir(NULL, NULL);
+    }
+
+    // display IR file info
+    lab.str("");
     lab << "IR file info: " << endl
 	<< chans            << " channel(s) "
-	<< sr               << " Sample rate "
+	<< gx_jack::jack_sr << " Sample rate "
 	<< framecount       << " Frames ";
 
     gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
@@ -454,7 +487,7 @@ namespace gx_jconv
     GxJConvSettings* jcset = GxJConvSettings::instance();
 
     // retrieve IR filename
-    string resampled = jcset->getIRFile();
+    string resampled = jcset->getFullIRPath();
 
     // add tmp chars so we dump the resampled data to a new file
     if ((int)resampled.find(".wav") != -1)
@@ -462,28 +495,27 @@ namespace gx_jconv
     
     // resample it
     GxResampleStatus status = 
-    resampleSoundFile(jcset->getIRFile().c_str(), 
+    resampleSoundFile(jcset->getFullIRPath().c_str(), 
 		      resampled.c_str(), 
 		      gx_jack::jack_sr);
     
     if (status == kNoError)
     {
       // make a backup of original IR file
-      string backup = jcset->getIRFile();
+      string backup = jcset->getFullIRPath();
       if ((int)backup.find(".wav") != -1)
 	backup.insert(backup.find(".wav"), "_orig");
       
       // back it up
-      rename(jcset->getIRFile().c_str(), backup.c_str());
+      rename(jcset->getFullIRPath().c_str(), backup.c_str());
       
       // rename resampled file to IR file
-      rename(resampled.c_str(), jcset->getIRFile().c_str());
+      rename(resampled.c_str(), jcset->getFullIRPath().c_str());
       return;
     }
     
     gx_print_error("Resampling JConv IR file", 
 		   "resampling failed with error code " + gx_i2a(status));
-
   }
 
   // --------------- IR file processing
@@ -533,22 +565,10 @@ namespace gx_jconv
         closeSoundFile(sf);
 
 	ostringstream lab;
-	lab << "IR file info: " << endl
-	    << chans            << " channel(s) "
-	    << sr               << " Sample rate "
-	    << framescount      << " Frames ";
-
-	// display in the wave viewer
-	gx_waveview_set_value(widget, data);
-        gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
 
 	// check file sample rate vs jackd's 
         if (sr != (int)gx_jack::jack_sr)
         {
-
-	  // clear string stream
-	  lab.str("");
-	  
 	  // dump some new text
 	  lab << "   The " << chans   << " channel Soundfile" << endl
 	      << "   Sample rate ("   << sr << ")" << endl
@@ -570,10 +590,27 @@ namespace gx_jconv
 	  if (response == GTK_RESPONSE_CANCEL) {
 	    gx_print_warning("IR Resampling", 
 			     "Resampling has been cancelled"
-			     " JConv setting invalidated");
-	    gx_waveview_set_value(widget, data);
+			     ", JConv setting invalidated");
+
+	    jcset->setIRFile("nofile");
+	    jcset->setIRDir(folder);
+	    jcset->validate();
 	  }
+	  else // OK, resampling it
+	    gx_resample_jconv_ir(NULL, NULL);
         }
+
+	// display in the wave viewer
+	lab.str("");
+	lab << "IR file info: " << endl
+	    << chans            << " channel(s) "
+	    << gx_jack::jack_sr << " Sample rate "
+	    << framescount      << " Frames ";
+
+	gx_waveview_set_value(widget, data);
+        gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
+
+
       } // end of if (file is wave audio)
       else
       {
