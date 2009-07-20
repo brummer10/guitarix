@@ -333,7 +333,7 @@ namespace gx_jconv
     gx_gui::label6 = gtk_label_new(jcset->getIRFile().c_str());
     
     // display wave view of IR file
-    GtkWidget* waveview = gx_wave_view(jcset->getFullIRPath().c_str());
+    GtkWidget* waveview = gx_wave_view();
     gtk_widget_set_size_request (GTK_WIDGET(waveview), 300.0, 200.0);
     
     //----- arrange widgets

@@ -45,7 +45,7 @@ class GtkWaveView
   virtual gboolean gtk_waveview_refresh   (GtkWidget*, gpointer);
   virtual gboolean gtk_waveview_set_value (GtkWidget*, gpointer);
   
-  virtual GtkWidget* gtk_wave_view(const char*);
+  virtual GtkWidget* gtk_wave_view();
   virtual GtkWidget* gtk_wave_live_view(float*, float*, GtkAdjustment*);
 };
 
@@ -55,6 +55,6 @@ void gx_waveview_set_value(GtkWidget*, gpointer);
 void gx_waveview_destroy(GtkWidget*, gpointer);
 void gx_waveview_refresh(GtkWidget*, gpointer);
 
-GtkWidget* gx_wave_view(const char*);
+GtkWidget* gx_wave_view();
 GtkWidget* gx_wave_live_view(float*, float*, GtkAdjustment*);
 

@@ -61,7 +61,6 @@ struct GtkWaveViewClass
     int waveleft;
     int wavestay;
     int wavebutton;
-    const char* fileview;
 
     int offset_cut;
     int length_cut;
@@ -107,7 +106,6 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
     {
       gx_system::gx_print_info("Wave view NEW expose", jcset->getIRFile().c_str());
 
-      GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->fileview   = jcset->getFullIRPath().c_str();
       GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut = 0;
       GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut = 0;
 
@@ -180,11 +178,9 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
       else
       {
 	pvInput = 
-	  gx_sndfile::openInputSoundFile(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->fileview, 
-					 &chans, &sr, &length2);
+	  gx_sndfile::openInputSoundFile(jcset->getFullIRPath().c_str(), &chans, &sr, &length2);
 
-	gx_system::gx_print_info("Wave view expose", 
-				 basename((char*)GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->fileview));
+	gx_system::gx_print_info("Wave view expose", jcset->getIRFile());
 
 	sig = new float[vecsize*2];
 
@@ -1170,11 +1166,10 @@ void GtkWaveView::gtk_waveview_destroy (GtkWidget *weidget, gpointer data )
 }
 
 //----------- create waveview widget
-GtkWidget* GtkWaveView::gtk_wave_view(const char* file)
+GtkWidget* GtkWaveView::gtk_wave_view()
 {
   GtkWidget* widget = GTK_WIDGET( g_object_new (GTK_TYPE_WAVEVIEW, NULL ));
   GtkWaveView *waveview = GTK_WAVEVIEW(widget);
-  GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->fileview = file;
   
   gx_gui::new_wave_view   = true;
   waveview->waveview_type = kWvTypeJConv;
@@ -1192,8 +1187,6 @@ GtkWidget* GtkWaveView::gtk_wave_view(const char* file)
   
   gtk_tooltips_set_tip(GTK_TOOLTIPS (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->comandline), 
 		       widget, tip.str().c_str(), "the IR offset and length.");
-
-  cerr << "wave view pointer " << widget << endl; 
 
   return widget;
 }
@@ -1261,10 +1254,10 @@ void gx_waveview_refresh(GtkWidget* widget, gpointer data)
 }
 
 //----
-GtkWidget* gx_wave_view(const char* file)
+GtkWidget* gx_wave_view()
 {
   GtkWaveView wave_view;
-  return wave_view.gtk_wave_view(file);
+  return wave_view.gtk_wave_view();
 }
 
 //----
