@@ -279,7 +279,7 @@ namespace gx_jconv
 
     ostringstream lab;
     // check file sample rate vs jackd's 
-    if (sr != (int)gx_jack::jack_sr) {
+    if (sr != (int)gx_jack::jack_sr && jcset->isValid()) {
       // dump some new text
       lab << "   The " << chans   << " channel Soundfile" << endl
 	  << "   Sample rate ("   << sr << ")" << endl
@@ -304,7 +304,7 @@ namespace gx_jconv
 			 ", JConv setting invalidated");
 	
 	jcset->setIRFile("nofile");
-	jcset->validate();
+	jcset->validate(); // invalidating
       }
       else // OK, resampling it
 	gx_resample_jconv_ir(NULL, NULL);
@@ -596,7 +596,7 @@ namespace gx_jconv
 
 	    jcset->setIRFile("nofile");
 	    jcset->setIRDir(folder);
-	    jcset->validate();
+	    jcset->validate(); // invalidate
 	  }
 	  else // OK, resampling it
 	    gx_resample_jconv_ir(NULL, NULL);
