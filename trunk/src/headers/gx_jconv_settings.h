@@ -73,8 +73,6 @@ namespace gx_jconv
     guint           fLength;     // length of the IR to use for convolution
     guint           fDelay;      // delay when to apply reverb
 
-    GtkWidget*      fDialog;
-
     // private constructor (don't call it, call instance())
     GxJConvSettings();
   
@@ -94,8 +92,6 @@ namespace gx_jconv
       return fIRDir + slash + fIRFile;
     }
 
-    inline GtkWidget*     getDialog    () const { return fDialog;     }
-
     inline float          getGain      () const { return fGain;       }
     inline guint          getMem       () const { return fMem;        }
     inline GxJConvMode    getMode      () const { return fMode;       }
@@ -113,9 +109,6 @@ namespace gx_jconv
     inline void setOffset    (guint          offs) { fOffset     = offs; }
     inline void setLength    (guint          leng) { fLength     = leng; }
     inline void setDelay     (guint          del)  { fDelay      = del;  }
-
-    inline void setDialog    (GtkWidget*     diag) { fDialog     = diag; }
-
 
     // internal setting manipulation 
     inline bool isValid()  { return fValidSettings;  }
