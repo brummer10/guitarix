@@ -1041,9 +1041,6 @@ namespace gx_gui
 
     g_signal_connect (GTK_OBJECT (button), "toggled", 
 		      G_CALLBACK (gx_child_process::gx_start_stop_jconv), (gpointer)c);
-
-    // initialize jconv settings
-    string s; gx_jconv::GxJConvSettings::instance()->configureJConvSettings(s);
   }
 
   // ---------------------------	Check Button ---------------------------

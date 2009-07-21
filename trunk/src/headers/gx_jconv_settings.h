@@ -116,16 +116,12 @@ namespace gx_jconv
 
     inline void setDialog    (GtkWidget*     diag) { fDialog     = diag; }
 
+
+    // internal setting manipulation 
     inline bool isValid()  { return fValidSettings;  }
-
-    void validate() { 
-      static string cmd;
-      cmd = getFullIRPath() + " | grep 'WAVE audio' > /dev/null"; 
-
-      fValidSettings = 
-	(gx_system::gx_system_call("file", cmd) != gx_system::SYSTEM_OK) ?
-	false : true;  
-    }
+    void validate();
+    void invalidate();
+    void resetSetting(); 
 
     // instance getter / creation
     static GxJConvSettings* instance();

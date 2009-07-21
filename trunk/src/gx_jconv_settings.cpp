@@ -56,7 +56,7 @@ using namespace gx_preset;
 namespace gx_jconv
 {
 
-  // --------------- static var
+  // --------------- static vars
   float GxJConvSettings::checkbutton7 = 0.;
 
   // ---------------  constructor
@@ -74,7 +74,47 @@ namespace gx_jconv
     fLength     = 0;
     fDelay      = 0;
 
-    fDialog     = NULL;
+    // invalidate due to no IR
+    invalidate();
+  }
+
+  // --------------- reset internal setting
+  void GxJConvSettings::resetSetting() 
+  {
+    // default parameters
+    fIRDir      = getenv("HOME");
+    fIRFile     = "nofile";
+    
+    fGain       = 0.2;
+    fMem        = 8000;
+    fMode       = kJConvCopy;
+    fBufferSize = gx_jack::jack_bs;
+    fOffset     = 0;
+    fLength     = 0;
+    fDelay      = 0;
+    
+    // invalidate due to no IR
+    invalidate();
+  }
+
+  
+  // --------------- attempt to validate the settings
+  // Note: for now, simply check that the IR file is a wav file
+  void GxJConvSettings::validate() { 
+    static string cmd;
+    cmd = getFullIRPath() + " | grep 'WAVE audio' > /dev/null"; 
+    
+    fValidSettings = 
+      (gx_system::gx_system_call("file", cmd) != gx_system::SYSTEM_OK) ?
+      false : true;  
+  }
+
+  
+  // --------------- invalidate the settings via IR file
+  inline void GxJConvSettings::invalidate() 
+  { 
+    fIRFile = "nofile"; 
+    fValidSettings = false; 
   }
 
   // --------------- instanciation of jconv handler
@@ -122,15 +162,22 @@ namespace gx_jconv
     istringstream sline2(buffer);
     sline2 >> sval >> ival >> ival >> fBufferSize >> fMem;
 
-    // --- mode, gain, offset, length and IR wav file
+    // --- gain, offset, length and IR wav file
     getline(f,  buffer);
   
     istringstream sline3(buffer);
     sline3 >> sval  >> ival >> ival 
 	   >> fGain >> fDelay >> fOffset >> fLength >> ival >> fIRFile;
 
-    // mode
-    (int)sval.find("read") != -1 ? fMode = kJConvRead : kJConvCopy;
+    // --- mode
+    getline(f,  buffer);
+    istringstream sline4(buffer);
+    sline4 >> sval;
+
+    if ((int)sval.find("copy") != -1) 
+      fMode = kJConvCopy; 
+    else 
+      fMode = kJConvRead;
 
     // validate
     validate();
@@ -218,8 +265,9 @@ namespace gx_jconv
     static ostringstream dump; 
     dump.str("");
 
-    dump << "--- JConv is using IR " << getFullIRPath() << " in mode " 
-	 << (fMode == kJConvCopy ? "'copy'" : "'read'") << endl
+    dump << "--- JConv is using IR " << endl 
+	 << getFullIRPath()          << endl
+	 << " in mode " << (fMode == kJConvCopy ? "'copy'" : "'read'") << endl
 
 	 << tab << "buffer size: " << fBufferSize << tab 
 	 << tab << "memory: "      << fMem  << endl
@@ -262,6 +310,8 @@ namespace gx_jconv
     // -- OK button
     GtkWidget* ok_button = gtk_button_new_with_label("OK");
 
+    ostringstream lab; // label text
+
     // -- wave file info
     int chans      = 0; // channels
     int sr         = 0; // sample rate
@@ -275,46 +325,46 @@ namespace gx_jconv
       sf = openInputSoundFile(jcset->getFullIRPath().c_str(), 
 			      &chans, &sr, &framecount);
       closeSoundFile(sf);
-    }
 
-    ostringstream lab;
-    // check file sample rate vs jackd's 
-    if (sr != (int)gx_jack::jack_sr && jcset->isValid()) {
-      // dump some new text
-      lab << "   The " << chans   << " channel Soundfile" << endl
-	  << "   Sample rate ("   << sr << ")" << endl
-	  << "   does not match"  << endl
-	  << "   the jack Sample rate (" << gx_jack::jack_sr << ")" << endl
-	  << "   Do you wish to resample it ?     " << endl;
+      // check file sample rate vs jackd's 
+      if (sr != (int)gx_jack::jack_sr) {
+	// dump some new text
+	lab << "   The " << chans   << " channel Soundfile" << endl
+	    << "   Sample rate ("   << sr << ")" << endl
+	    << "   does not match"  << endl
+	    << "   the jack Sample rate (" << gx_jack::jack_sr << ")" << endl
+	    << "   Do you wish to resample it ?     " << endl;
       
-      gint response = 
-	gx_gui::gx_choice_dialog_without_entry (
-	  " IR Resampling ",
-	  lab.str().c_str(),
-	  "DO IT!", "Nope", 
-	  GTK_RESPONSE_YES, 
-	  GTK_RESPONSE_CANCEL, 
-	  GTK_RESPONSE_YES
-	);
+	gint response = 
+	  gx_gui::gx_choice_dialog_without_entry (
+               " IR Resampling ",
+	       lab.str().c_str(),
+	       "DO IT!", "Nope", 
+	       GTK_RESPONSE_YES, 
+	       GTK_RESPONSE_CANCEL, 
+	       GTK_RESPONSE_YES
+	  );
       
 	  // we are cancelling
-      if (response == GTK_RESPONSE_CANCEL) {
-	gx_print_warning("IR Resampling", 
-			 "Resampling has been cancelled"
-			 ", JConv setting invalidated");
-	
-	jcset->setIRFile("nofile");
-	jcset->validate(); // invalidating
+	if (response == GTK_RESPONSE_CANCEL) {
+	  jcset->invalidate(); // invalidating
+
+	  gx_print_warning("IR Resampling", 
+			   "Resampling has been cancelled"
+			   ", JConv setting invalidated");
+	}
+	else { // OK, resampling it
+	  gx_resample_jconv_ir(NULL, NULL);
+	  sr = gx_jack::jack_sr;
+	}
       }
-      else // OK, resampling it
-	gx_resample_jconv_ir(NULL, NULL);
     }
 
     // display IR file info
     lab.str("");
     lab << "IR file info: " << endl
 	<< chans            << " channel(s) "
-	<< gx_jack::jack_sr << " Sample rate "
+	<< sr               << " Sample rate "
 	<< framecount       << " Frames ";
 
     gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
@@ -338,6 +388,8 @@ namespace gx_jconv
     
     buffer = "/impulse/read";
     gtk_combo_box_append_text(GTK_COMBO_BOX(jcmode_combo), buffer.c_str());
+
+    // turn on default
     gtk_combo_box_set_active(GTK_COMBO_BOX(jcmode_combo), (gint)jcset->getMode());
     
     // -- BUFFER SIZE
@@ -471,7 +523,7 @@ namespace gx_jconv
 
     case kJConvMode:
       s = gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget));
-      jcset->setMode(((int)s.find("copy") == -1 ? kJConvRead : kJConvCopy));
+      jcset->setMode(((int)s.find("copy") != -1 ? kJConvCopy : kJConvRead));
       break;
 
     case kJConvOffset:
@@ -598,8 +650,10 @@ namespace gx_jconv
 	    jcset->setIRDir(folder);
 	    jcset->validate(); // invalidate
 	  }
-	  else // OK, resampling it
+	  else { // OK, resampling it
 	    gx_resample_jconv_ir(NULL, NULL);
+	    sr = gx_jack::jack_sr;
+	  }
         }
 
 	// display in the wave viewer
@@ -616,9 +670,10 @@ namespace gx_jconv
       } // end of if (file is wave audio)
       else
       {
+	jcset->invalidate();
 	gx_print_error("IR File Processing", 
 		       jcset->getIRFile() + 
-		       string(" is not a WAVE Audio file!"));
+		       string(" is not a WAVE Audio file! Invalidating ... "));
       }
 
     } // end of if (!file.empty())

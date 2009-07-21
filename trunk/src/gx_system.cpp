@@ -427,6 +427,9 @@ namespace gx_system
       cim = "echo -e '" + string(default_setting) + "' >";
       (void)gx_system_call(cim.c_str(), tmpstr.c_str(), false);
     }
+
+    // initialize with what we already have, if we have something
+    string s; gx_jconv::GxJConvSettings::instance()->configureJConvSettings(s);
     
     return TRUE;
   }
@@ -445,10 +448,7 @@ namespace gx_system
 	(stat(warn_pix.c_str(), &my_stat) != 0))
 	
     {
-      gx_print_error(
-	 "Pixmap Check",
-	 string(" cannot find installed pixmaps! giving up ...")
-      );
+      gx_print_error("Pixmap Check", " cannot find installed pixmaps! giving up ...");
 
       // giving up
       return 1;
