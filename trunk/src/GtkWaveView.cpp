@@ -27,6 +27,8 @@ part of guitarix, show a wave with Gtk
 #include <vector>
 #include <map>
 #include <list>
+#include <cstdlib>
+#include <cstdio>
 
 using namespace std;
 

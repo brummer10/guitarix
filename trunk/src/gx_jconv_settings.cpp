@@ -37,6 +37,8 @@
 #include <fstream>
 #include <libgen.h>
 #include <cmath>
+#include <cstdlib>
+#include <cstdio>
 
 using namespace std;
 

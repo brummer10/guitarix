@@ -31,6 +31,8 @@ modified for guitarix by hermann meyer
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
+#include <cstdio>
 
 using namespace std;
 

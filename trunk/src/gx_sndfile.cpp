@@ -32,6 +32,9 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <cstdlib>
+#include <cstdio>
+
 using namespace std;
 
 #include <libgen.h>

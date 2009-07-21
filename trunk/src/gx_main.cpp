@@ -47,6 +47,7 @@
 #include <errno.h>
 #include <cstring>
 #include <cstdlib>
+#include <cstdio>
 #include <dlfcn.h>
 #include <pthread.h>
 #include <limits.h>
