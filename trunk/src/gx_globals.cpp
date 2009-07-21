@@ -30,6 +30,7 @@
 #include <fstream>
 #include <cmath>
 #include <cstdlib>
+#include <cstdio>
 
 using namespace std;
 

@@ -28,6 +28,8 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <cstdlib>
+#include <cstdio>
 
 using namespace std;
 

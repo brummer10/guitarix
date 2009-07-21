@@ -31,6 +31,8 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <cstdlib>
+#include <cstdio>
 
 using namespace std;
 
