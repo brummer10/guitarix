@@ -515,6 +515,34 @@ namespace gx_gui
     return true;
   }
 
+  // ---- set last used skin as default
+  bool gx_set_skin(GtkWidget *widget, gpointer data)
+  { 
+     const gint idx = last_skin;
+    // check skin validity 
+    if (idx < 0 || idx >= (gint)gx_fetch_available_skins()) {
+      gx_print_warning("gx_set_skin", "skin index out of range, keeping actual skin");
+      return false;
+    }
+      
+    string rcfile = GX_STYLE_DIR + string("/") + "guitarix_";
+    rcfile += skin_list[idx];
+    rcfile += ".rc";
+
+    gtk_rc_parse(rcfile.c_str());
+    gtk_rc_reset_styles(gtk_settings_get_default());
+
+    gx_current_skin = idx;
+
+    // refresh wave view
+    gx_waveview_refresh (GTK_WIDGET(livewa), NULL);
+
+    // refresh latency check menu
+    gx_jack::gx_set_jack_buffer_size(NULL, NULL);
+
+    return true;
+  }
+
   //---- popup warning
   int gx_message_popup(const char* msg)
   {
@@ -1362,6 +1390,15 @@ namespace gx_gui
     GtkWidget* 	button = gtk_check_button_new ();
     uiCheckButton* c = new uiCheckButton(this, zone, GTK_TOGGLE_BUTTON(button));
     g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK(uiCheckButton::toggled), (gpointer) c);
+  }
+
+  void GxMainInterface::setSkinBox(const char* label, float* zone)
+  {
+    GtkObject* adj = gtk_adjustment_new(99, 0, 100, 1, 10*1, 0);
+    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+ 
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_set_skin),  (gpointer) c);
   }
 
   void GxMainInterface::openDialogBox(const char* label, float* zone)

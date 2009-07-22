@@ -132,6 +132,7 @@ namespace gx_ui
     virtual void openExpanderBox(const char* label, float* zone) {};
     virtual void openTabBox(const char* label) {};
     virtual void openTextLoggingBox(const char* label) {};
+    virtual void setSkinBox(const char* label, float* zone){};
     virtual void closeBox() {};
 
     virtual void show() {};

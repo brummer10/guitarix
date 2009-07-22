@@ -29,6 +29,7 @@
 #include <list>
 #include <map>
 
+
 using namespace std;
 
 #include <boost/program_options.hpp>
@@ -191,6 +192,8 @@ namespace gx_system
       // else, if no shell var defined for it, defaulting to guitarix_default.rc
       else if (!gx_shellvar_exists(optvar[RC_STYLE])) {  
 	optvar[RC_STYLE] = "default";
+        // enable set last used skin
+        no_opt_skin = 1;
       }
 
       // *** process GTK clear
@@ -599,6 +602,7 @@ namespace gx_system
     if (engine->isInitialized()) {
       string previous_state = gx_user_dir + jcl_name + "rc";
       engine->get_latency_warning_change();
+      engine->get_skin_change();
       
       // only save if we are not in a preset context
       if (!setting_is_preset)

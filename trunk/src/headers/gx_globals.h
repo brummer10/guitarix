@@ -231,6 +231,8 @@ namespace gx_gui
   /* skin handling */
   extern vector<string> skin_list;
   extern gint gx_current_skin;
+  extern int last_skin;
+  extern int no_opt_skin;
 }
 
 /* -------------------------------------------------------------------------- */

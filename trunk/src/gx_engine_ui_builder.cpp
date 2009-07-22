@@ -36,6 +36,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
     
     //----- this is a dummy widget, only for save settings for the latency warning dialog
     interface->openWarningBox("WARNING", &fwarn);
+    interface->setSkinBox("SKIN", &fskin);
     interface->closeBox();
     
     //----- the upper box, 

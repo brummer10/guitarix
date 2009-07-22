@@ -253,6 +253,8 @@ namespace gx_gui
   /* skin handling */
   vector<string> skin_list;
   gint gx_current_skin = 0;
+  int last_skin = 0;
+  int no_opt_skin = 0;
 }
 
 /* ------------------------------------------------------------------------- */

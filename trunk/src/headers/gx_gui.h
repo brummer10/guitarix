@@ -30,6 +30,7 @@ namespace gx_gui
   void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg);
   bool  gx_update_skin(const gint idx, const char* calling_func);
   void  gx_actualize_skin_index(const string& skin_name);
+  bool gx_set_skin(GtkWidget *widget, gpointer data);
 
   /* choice dialog windows */
   void gx_get_text_entry(GtkEntry*, string&);
@@ -116,6 +117,7 @@ namespace gx_gui
     virtual void openExpanderBox(const char* label, float* zone);
     virtual void openTabBox(const char* label = "");
     virtual void openTextLoggingBox(const char* label = "");
+    virtual void setSkinBox(const char* label, float* zone);
     virtual void closeBox();
 
     // -- active widgets

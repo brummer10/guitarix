@@ -131,8 +131,8 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
             GdkColor color ;
 
             double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-5.) * 0.5;
-            double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
-            double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*3.14159/180.)) ;
+            double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));// 3.14159/180.)) ;
+            double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
 
             double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) * 0.5;
 
@@ -167,8 +167,8 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
             GdkColor color ;
 
             double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-5.) * 0.5;
-            double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
-            double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*3.14159/180.)) ;
+            double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
+            double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
 
             double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) * 0.5;
 
@@ -213,8 +213,8 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
             GdkColor color ;
 
             double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5.) * 0.5;
-            double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
-            double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*3.14159/180.)) ;
+            double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
+            double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
 
             double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
 
@@ -250,8 +250,8 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
             GdkColor color ;
 
             double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5.) * 0.5;
-            double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
-            double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*3.14159/180.)) ;
+            double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
+            double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
 
             double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
 
@@ -435,8 +435,8 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
         GdkColor color ;
 
         double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-5.) * 0.5;
-        double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
-        double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*3.14159/180.)) ;
+        double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
+        double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
 
         double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) * 0.5;
 
@@ -477,8 +477,8 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
         GdkColor color ;
 
         double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5.) * 0.5;
-        double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
-        double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*3.14159/180.)) ;
+        double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
+        double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
 
         double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
 
@@ -600,8 +600,8 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
         GdkColor color ;
 
         double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-5.) * 0.5;
-        double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
-        double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*3.14159/180.)) ;
+        double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
+        double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
 
         double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) * 0.5;
 
@@ -642,8 +642,8 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
         GdkColor color ;
 
         double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5., GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5.) * 0.5;
-        double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*3.14159/180.)) ;
-        double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*3.14159/180.)) ;
+        double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
+        double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
 
         double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
 
@@ -886,7 +886,7 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
         int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) / 2;
         double posx = (( reglerx+radius1 - event->x ));
         double posy = ((reglery+radius1 - event->y ));
-        double angle = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
+        double angle = acos(posy/sqrt(posx*posx+posy*posy))*57.295828; // 180.0 / 3.14159;
         if (posx<0) angle =  170+angle;
         else angle = 170-angle;
         if ((angle > 0) && (angle < 340))
@@ -967,7 +967,7 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
             int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) / 2;
             double posx = (( reglerx+radius1 - event->x )) ;
             double posy = ((reglery+radius1 - event->y ));
-            double angle = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
+            double angle = acos(posy/sqrt(posx*posx+posy*posy))* 57.295828 ; //180.0 / 3.14159;
             if (posx<0) angle =  170+angle;
             else angle = 170-angle;
             if ((angle > 0) && (angle < 340))
@@ -985,7 +985,7 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
             int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) / 2;
             double posx = (( reglerx+radius1 - event->x ));
             double posy = ((reglery+radius1 - event->y ));
-            double angle = acos(posy/sqrt(posx*posx+posy*posy))* 180.0 / 3.14159;
+            double angle = acos(posy/sqrt(posx*posx+posy*posy))*57.295828 ; // 180.0 / 3.14159;
             if (posx<0) angle =  170+angle;
             else angle = 170-angle;
             if ((angle > 0) && (angle < 340))
