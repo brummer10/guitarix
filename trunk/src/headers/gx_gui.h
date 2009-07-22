@@ -31,7 +31,9 @@ namespace gx_gui
   bool  gx_update_skin(const gint idx, const char* calling_func);
   void  gx_actualize_skin_index(const string& skin_name);
   bool gx_set_skin(GtkWidget *widget, gpointer data);
-
+  void get_skin_change(float * fskin);
+  void set_skin_change(float fskin);
+ 
   /* choice dialog windows */
   void gx_get_text_entry(GtkEntry*, string&);
     

@@ -510,8 +510,8 @@ namespace gx_engine
     //----- set the state for the latency change warning widget
     engine->set_latency_warning_change();
     //----- set the last used skin when no cmd is given
-    if ( no_opt_skin == 1)
-    engine->set_skin_change();
+    if (gx_gui::no_opt_skin == 1)
+    gx_gui::set_skin_change(engine->fskin);
   }
 
   //----menu function play stop

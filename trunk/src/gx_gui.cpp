@@ -49,6 +49,15 @@ using namespace gx_preset;
 namespace gx_gui
 {
 
+   // get the last used skin as default
+    void set_skin_change(float fskin) { 
+            last_skin = int(fskin);
+            }
+    // save the current used skin as default
+    void get_skin_change(float *fskin) { 
+            *fskin  = float(gx_current_skin);
+            }
+
   //----menu function gx_show_oscilloscope
   void gx_show_oscilloscope (GtkCheckMenuItem *menuitem, gpointer checkplay)
   {

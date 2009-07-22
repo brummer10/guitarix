@@ -35,7 +35,6 @@
 #define max(x,y) (((x)>(y)) ? (x) : (y))
 #define min(x,y) (((x)<(y)) ? (x) : (y))
 
-using namespace gx_gui;
 
 namespace gx_engine
 {
@@ -466,7 +465,7 @@ namespace gx_engine
     int   fslider_tone_check1;
     // tone end
     // float  fbargraph0;
-    float fskin;
+
     // private constructor
     GxEngine() {}
 
@@ -474,7 +473,7 @@ namespace gx_engine
     void process_buffers(int count, float** input, float** output);
 
   public:
-
+    float fskin;
     // unique instance : use this instead of constructor
     static GxEngine* instance(); 
 
@@ -492,15 +491,6 @@ namespace gx_engine
             }
     void get_latency_warning_change() { 
             fwarn = fwarn_swap; 
-            }
-
-    // get the last used skin as default
-    void set_skin_change() { 
-            last_skin = int(fskin);
-            }
-    // save the current used skin as default
-    void get_skin_change() { 
-            fskin  = gx_current_skin;
             }
 
     // zeroize an array of float using memset
