@@ -148,12 +148,11 @@ inline void GxEngine::reso_tube (int fuzzy, int sf, float reso, float vibra,
     float* out = output[0];
     float ot = 0;
     float x = in[0];
-    float a = 2.000 ;
-    float b = 1.000 ;
+ 
     float 	fSlowRESO0 = reso;
     // float 	fSlowRESO1 = vibra;
 
-    double c = 0.5;
+
     //----- resonator
     int 	iSlowRESO2 = int((int((vibra - 1)) & 4095));
     int 	iSlowRESO3 = int((int(vibra) & 4095));
@@ -163,11 +162,11 @@ inline void GxEngine::reso_tube (int fuzzy, int sf, float reso, float vibra,
         x = in[i];
         if ( x >= 0.0 )
         {
-            ot = ((a * x - b * x * x) -x)*c;
+            ot = ((2.f * x - 1.f * x * x) -x)*0.5;
         }
         else
         {
-            ot =  ((a * x + b * x * x) -x)*c;
+            ot =  ((2.f * x + 1.f * x * x) -x)*0.5;
         }
 
         float fTempRESO0 = (ot + (fSlowRESO0 * fRecRESO0[1]));
@@ -192,14 +191,13 @@ inline void GxEngine::osc_tube (int fuzzy, int sf, float reso, float vibra,
     float* out = output[0];
     float ot = 0;
     float x = in[0];
-    float a = 2.000 ;
-    float b = 1.000 ;
+
     float 	fSlowRESO0 = reso;
     // float 	fSlowRESO1 = vibra;
     //----- oscillator
 
 
-    double c = 0.5;
+
     //----- resonator
     int 	iSlowRESO2 = int((int((vibra - 1)) & 4095));
     int 	iSlowRESO3 = int((int(vibra) & 4095));
@@ -211,29 +209,29 @@ inline void GxEngine::osc_tube (int fuzzy, int sf, float reso, float vibra,
         x = in[i];
         if ( x >= 0.0 )
         {
-            ot = ((a * x - b * x * x) -x)*c;
+            ot = ((2.f * x - 1.f * x * x) -x)*0.5;
         }
         else
         {
-            ot =  ((a * x + b * x * x) -x)*c;
+            ot =  ((2.f * x + 1.f * x * x) -x)*0.5;
         }
 
-				iVecoscb0[0] = 1;
-				fRecoscb0[0] = (0 - (((fRecoscb0[2] + (fConstoscb0 * fRecoscb0[1])) + iVecoscb0[1]) - 1));
-				float oscb = fRecoscb0[0];
+	iVecoscb0[0] = 1;
+	fRecoscb0[0] = (0 - (((fRecoscb0[2] + (fConstoscb0 * fRecoscb0[1])) + iVecoscb0[1]) - 1));
+	float oscb = fRecoscb0[0];
 
         float fTempRESO0 = (ot + (fSlowRESO0 * fRecRESO0[1]));
         fVecRESO0[IOTARESO&4095] = fTempRESO0;
         fRecRESO0[0] = (0.5f * (fVecRESO0[(IOTARESO-iSlowRESO3)&4095] + fVecRESO0[(IOTARESO-iSlowRESO2)&4095]));
         ot = fRecRESO0[0] * (3+oscb)*0.25f;
 
-                float sp0 = ot;
-				fVecsp0[0] = sp0;
-				fRecsp3[0] = (fConstsp9 * ((fVecsp0[0] - fVecsp0[1]) + (fConstsp8 * fRecsp3[1])));
-				fRecsp2[0] = (fConstsp9 * ((fRecsp3[0] - fRecsp3[1]) + (fConstsp8 * fRecsp2[1])));
-				fRecsp1[0] = (fRecsp2[0] - (fConstsp6 * ((fConstsp5 * fRecsp1[2]) + (fConstsp1 * fRecsp1[1]))));
-				fRecsp0[0] = ((fConstsp6 * (fRecsp1[2] + (fRecsp1[0] + (2 * fRecsp1[1])))) - (fConstsp4 * ((fConstsp3 * fRecsp0[2]) + (fConstsp1 * fRecsp0[1]))));
-				ot = (fConstsp4 * (fRecsp0[2] + (fRecsp0[0] + (2 * fRecsp0[1]))));
+        float sp0 = ot;
+	fVecsp0[0] = sp0;
+	fRecsp3[0] = (fConstsp9 * ((fVecsp0[0] - fVecsp0[1]) + (fConstsp8 * fRecsp3[1])));
+	fRecsp2[0] = (fConstsp9 * ((fRecsp3[0] - fRecsp3[1]) + (fConstsp8 * fRecsp2[1])));
+	fRecsp1[0] = (fRecsp2[0] - (fConstsp6 * ((fConstsp5 * fRecsp1[2]) + (fConstsp1 * fRecsp1[1]))));
+	fRecsp0[0] = ((fConstsp6 * (fRecsp1[2] + (fRecsp1[0] + (2 * fRecsp1[1])))) - (fConstsp4 * ((fConstsp3 * fRecsp0[2]) + (fConstsp1 * fRecsp0[1]))));
+	ot = (fConstsp4 * (fRecsp0[2] + (fRecsp0[0] + (2 * fRecsp0[1]))));
 
 
         *out++ = clip(x + ot*fuzzy*0.5,0.7);
@@ -241,14 +239,14 @@ inline void GxEngine::osc_tube (int fuzzy, int sf, float reso, float vibra,
         fRecRESO0[1] = fRecRESO0[0];
         IOTARESO = IOTARESO+1;
 
-				fRecoscb0[2] = fRecoscb0[1]; fRecoscb0[1] = fRecoscb0[0];
-				iVecoscb0[1] = iVecoscb0[0];
+	fRecoscb0[2] = fRecoscb0[1]; fRecoscb0[1] = fRecoscb0[0];
+	iVecoscb0[1] = iVecoscb0[0];
 
-                fRecsp0[2] = fRecsp0[1]; fRecsp0[1] = fRecsp0[0];
-				fRecsp1[2] = fRecsp1[1]; fRecsp1[1] = fRecsp1[0];
-				fRecsp2[1] = fRecsp2[0];
-				fRecsp3[1] = fRecsp3[0];
-				fVecsp0[1] = fVecsp0[0];
+        fRecsp0[2] = fRecsp0[1]; fRecsp0[1] = fRecsp0[0];
+	fRecsp1[2] = fRecsp1[1]; fRecsp1[1] = fRecsp1[0];
+	fRecsp2[1] = fRecsp2[0];
+	fRecsp3[1] = fRecsp3[0];
+	fVecsp0[1] = fVecsp0[0];
     }
 }
 
@@ -851,7 +849,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
     case 0:
       break;
     case 1:
-      fRec0[0] = fuzz(fRec0[0],threshold);
+      fRec0[0] = fuzz(clip(fRec0[0],threshold),threshold);
       break;
     case 2:
       fRec0[0] = foldback(fRec0[0],threshold);
