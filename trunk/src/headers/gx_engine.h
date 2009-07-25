@@ -60,7 +60,7 @@ namespace gx_engine
     while ((1<<r)<x) r++;
     return r;
   }
-  
+
   /* square function */
   inline double sqrf(float x)
   {
@@ -72,7 +72,7 @@ namespace gx_engine
   void gx_engine_switch (GtkWidget* widget, gpointer arg);
   void gx_engine_init(int&, char**&);
 
-  
+
   /* ------------- Engine Processing Classes ------------- */
   // metadata
   struct Meta : map<const char*, const char*>
@@ -87,9 +87,9 @@ namespace gx_engine
   class dsp
   {
   protected:
-    // Note: an instance of a dsp class with a sample rate = 0 is NOT initialized 
+    // Note: an instance of a dsp class with a sample rate = 0 is NOT initialized
 
-    // sample rate given by jack. 
+    // sample rate given by jack.
     int fSamplingFreq;
 
     // midi engine state
@@ -112,6 +112,7 @@ namespace gx_engine
 
   private:
     virtual void process_buffers(const int len, float** inputs, float** outputs) = 0;
+    virtual void process_midi(const int len) = 0;
   };
 
 
@@ -142,7 +143,7 @@ namespace gx_engine
     float fVec0[2];
     float fcheckbox1;
     float fslider3;
-    float fRec4[2]; 
+    float fRec4[2];
     float fRec3[2];
     float fslider4;
     int   IOTA;
@@ -411,7 +412,7 @@ namespace gx_engine
     //--- tone bass
     float fslider_tone2; // tone bass controller
 
-    // lets init the variable for the tone settings 
+    // lets init the variable for the tone settings
     float fSlow_mid_tone ;
     float fSlow_tone0;
     float fSlow_tone1 ;
@@ -471,11 +472,12 @@ namespace gx_engine
 
     // private audio processing
     void process_buffers(int count, float** input, float** output);
+    void process_midi(int count);
 
   public:
     float fskin;
     // unique instance : use this instead of constructor
-    static GxEngine* instance(); 
+    static GxEngine* instance();
 
     static void metadata(Meta* m);
 
@@ -486,18 +488,18 @@ namespace gx_engine
 
     // wrap the state of the latency change warning (dis/enable) to
     // the interface settings to load and save it
-    void set_latency_warning_change() { 
-            fwarn_swap = fwarn; 
+    void set_latency_warning_change() {
+            fwarn_swap = fwarn;
             }
-    void get_latency_warning_change() { 
-            fwarn = fwarn_swap; 
+    void get_latency_warning_change() {
+            fwarn = fwarn_swap;
             }
 
     // zeroize an array of float using memset
-    static void zeroize(int array[], int array_size) 
+    static void zeroize(int array[], int array_size)
     { (void)memset(array, 0, sizeof(array[0])*array_size); }
 
-    static void zeroize(float array[], int array_size) 
+    static void zeroize(float array[], int array_size)
     { (void)memset(array, 0, sizeof(array[0])*array_size); }
 
     // engine graphical interface
@@ -511,15 +513,15 @@ namespace gx_engine
     static float valve      (float in, float out);
     static void  over_sample(float** input, float** output, int sf);
     static void  down_sample(float** input, float** output, int sf);
-    static void  fuzzy_tube (int fuzzy, int mode, int sf, 
+    static void  fuzzy_tube (int fuzzy, int mode, int sf,
 			     float** input, float** output);
     static float normalize  (float in, float atan_shape, float shape);
 
     // non static methods (modifying object's non static private members)
     void  AntiAlias  (int sf, float** input, float** output);
-    void  reso_tube  (int fuzzy, int sf, float reso, float vibra, 
+    void  reso_tube  (int fuzzy, int sf, float reso, float vibra,
 		      float** input, float** output);
-    void  osc_tube   (int fuzzy, int sf, float reso, float vibra, 
+    void  osc_tube   (int fuzzy, int sf, float reso, float vibra,
 		      float** input, float** output);
     void  preamp     (int sf, float** input, float** output,
 		      float atan_shape, float f_atan);

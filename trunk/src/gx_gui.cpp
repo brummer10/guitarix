@@ -50,11 +50,11 @@ namespace gx_gui
 {
 
    // get the last used skin as default
-    void set_skin_change(float fskin) { 
+    void gx_set_skin_change(float fskin) {
             last_skin = int(fskin);
             }
     // save the current used skin as default
-    void get_skin_change(float *fskin) { 
+    void gx_get_skin_change(float *fskin) {
             *fskin  = float(gx_current_skin);
             }
 
@@ -134,8 +134,8 @@ namespace gx_gui
   {
     static string about;
     if (about.empty())
-    { 
-      about += 
+    {
+      about +=
 	"\n This Aplication is to a large extent provided"
 	"\n with the marvelous faust compiler.Yann Orlary"
 	"\n <http://faust.grame.fr/>"
@@ -143,10 +143,10 @@ namespace gx_gui
 	"\n<http://ccrma.stanford.edu/realsimple/faust/>"
 	"\n and Albert Graef\n <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html> "
 	"\n\n\n guitarix ";
-      
+
       about += GX_VERSION;
-      
-      about += 
+
+      about +=
 	" use jack_capture >= 0.9.30for record"
 	"\n by Kjetil S. Matheussen "
 	"\n http://old.notam02.no/arkiv/src/?M=D"
@@ -158,7 +158,7 @@ namespace gx_gui
 	"\n authors: James Warden <warjamy@yahoo.com>"
 	"\n home: http://guitarix.sourceforge.net/\n";
     }
-    
+
     gx_message_popup(about.c_str());
   }
 
@@ -215,9 +215,9 @@ namespace gx_gui
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
     gtk_widget_modify_font(labelt2, style->font_desc);
 
-    g_signal_connect (button1, "clicked",  
+    g_signal_connect (button1, "clicked",
 		      G_CALLBACK (gx_jack::gx_confirm_latency_change), warn_dialog);
-    g_signal_connect (button2, "clicked",  
+    g_signal_connect (button2, "clicked",
 		      G_CALLBACK (gx_jack::gx_cancel_latency_change), warn_dialog);
     gtk_widget_show_all(box);
 
@@ -236,22 +236,22 @@ namespace gx_gui
     string filename = gx_user_dir + guitarix_reset;
     GxMainInterface* interface = GxMainInterface::instance();
 
-    if (strcmp(witchres, "distortion") == 0) 
+    if (strcmp(witchres, "distortion") == 0)
       interface->recalladState(filename.c_str(),  4,  16, 0);
 
-    else if (strcmp(witchres, "freeverb") == 0) 
+    else if (strcmp(witchres, "freeverb") == 0)
       interface->recalladState(filename.c_str(),  20,  24, 1);
 
-    else if (strcmp(witchres, "ImpulseResponse") == 0) 
+    else if (strcmp(witchres, "ImpulseResponse") == 0)
       interface->recalladState(filename.c_str(),  28,  32, 2);
 
-    else if (strcmp(witchres, "crybaby") == 0) 
+    else if (strcmp(witchres, "crybaby") == 0)
       interface->recalladState(filename.c_str(),  16,  20, 3);
 
-    else if (strcmp(witchres, "midi out") == 0) 
+    else if (strcmp(witchres, "midi out") == 0)
       interface->recalladState(filename.c_str(),  44,  50, 4);
 
-    else if (strcmp(witchres, "compressor") == 0) 
+    else if (strcmp(witchres, "compressor") == 0)
       interface->recalladState(filename.c_str(),  72,  78, 5);
   }
 
@@ -333,7 +333,7 @@ namespace gx_gui
     g_signal_connect_swapped(button2, "clicked",  G_CALLBACK (gtk_widget_destroy), dialog);
 
     // set default
-    gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE); 
+    gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), default_response);
     gtk_window_set_title(GTK_WINDOW(dialog), window_title);
 
@@ -368,7 +368,7 @@ namespace gx_gui
     dialog  = gtk_dialog_new();
     button1 = gtk_dialog_add_button(GTK_DIALOG (dialog), label1, resp1);
     button2 = gtk_dialog_add_button(GTK_DIALOG (dialog), label2, resp2);
-  
+
     GtkWidget* text_label = gtk_label_new (msg);
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), text_label);
 
@@ -376,11 +376,11 @@ namespace gx_gui
     GtkWidget* gtk_entry = gtk_entry_new_with_max_length(32);
     gtk_entry_set_text(GTK_ENTRY(gtk_entry), "");
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), gtk_entry);
-  
+
     g_signal_connect_swapped (button1, "clicked",  G_CALLBACK (func), gtk_entry);
     //    g_signal_connect_swapped (button2, "clicked",  G_CALLBACK (gtk_widget_destroy), dialog);
-  
-    gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE); 
+
+    gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), default_response);
     gtk_entry_set_activates_default(GTK_ENTRY(gtk_entry), TRUE);
     GTK_BOX(GTK_DIALOG(dialog)->action_area)->spacing = 4;
@@ -427,7 +427,7 @@ namespace gx_gui
 	gx_current_skin = s;
 	return;
       }
-  }  
+  }
 
   //------- count the number of available skins
   unsigned int gx_fetch_available_skins()
@@ -441,11 +441,11 @@ namespace gx_gui
     gx_system_call("rm -f", tmpfile.c_str());
     gx_system_call("touch", tmpfile.c_str());
 
-    string filelist  = 
+    string filelist  =
       gx_style_dir + string("guitarix*.rc") + " > " + tmpfile;
 
     gx_system_call("ls -1", filelist.c_str(), false);
-  
+
     // read out number of files
     ifstream f(tmpfile.c_str());
 
@@ -454,14 +454,14 @@ namespace gx_gui
       while (!f.eof()) {
 	// retrieve filename
 	getline(f, rcfile);
-	
+
 	// trim it
 	if (!rcfile.empty()) {
 	  rcfile.erase(rcfile.find(".rc"));
 	  rcfile.erase(0, rcfile.find("_")+1);
 	  skin_list.push_back(rcfile);
 	}
-      }      
+      }
 
       f.close();
     }
@@ -488,7 +488,7 @@ namespace gx_gui
   // ----- cycling through skin
   void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg)
   {
-  
+
     gint idx = gx_current_skin + 1;
     idx %= skin_list.size();
 
@@ -499,13 +499,13 @@ namespace gx_gui
 
   // ---- skin changer, used internally frm callbacks
   bool gx_update_skin(const gint idx, const char* calling_func)
-  { 
-    // check skin validity 
+  {
+    // check skin validity
     if (idx < 0 || idx >= (gint)skin_list.size()) {
       gx_print_warning(calling_func, "skin index out of range, keeping actual skin");
       return false;
     }
-      
+
     string rcfile = GX_STYLE_DIR + string("/") + "guitarix_";
     rcfile += skin_list[idx];
     rcfile += ".rc";
@@ -526,14 +526,14 @@ namespace gx_gui
 
   // ---- set last used skin as default
   bool gx_set_skin(GtkWidget *widget, gpointer data)
-  { 
+  {
      const gint idx = last_skin;
-    // check skin validity 
+    // check skin validity
     if (idx < 0 || idx >= (gint)gx_fetch_available_skins()) {
       gx_print_warning("gx_set_skin", "skin index out of range, keeping actual skin");
       return false;
     }
-      
+
     string rcfile = GX_STYLE_DIR + string("/") + "guitarix_";
     rcfile += skin_list[idx];
     rcfile += ".rc";
@@ -557,7 +557,7 @@ namespace gx_gui
   {
     // check msg validity
     if (!msg) {
-      gx_print_warning("Message Popup", 
+      gx_print_warning("Message Popup",
 		       string("warning message does not exist"));
       return -1;
     }
@@ -612,7 +612,7 @@ namespace gx_gui
       gtk_init(pargc, pargv);
       fInitialized = true;
     }
- 
+
     /*-- set rc file overwrite it with export--*/
     gtk_rc_parse(rcpath.c_str());
 
@@ -709,7 +709,7 @@ namespace gx_gui
     gtk_widget_show(frame);
     gtk_expander_set_expanded(GTK_EXPANDER(frame), TRUE);
     fLoggingBox = GTK_EXPANDER(frame);
-  
+
     GtkWidget* tbox = gtk_text_view_new ();
     gtk_container_set_border_width (GTK_CONTAINER (tbox), 0);
     gtk_text_view_set_editable(GTK_TEXT_VIEW(tbox), FALSE);
@@ -719,11 +719,11 @@ namespace gx_gui
     gtk_text_view_set_justification(GTK_TEXT_VIEW(tbox), GTK_JUSTIFY_LEFT);
     gtk_text_view_set_left_margin(GTK_TEXT_VIEW(tbox), 5);
     gtk_text_view_set_indent(GTK_TEXT_VIEW(tbox), 0);
-  
+
     gtk_container_add (GTK_CONTAINER(box), tbox);
     gtk_widget_show(tbox);
     fLoggingWindow = GTK_TEXT_VIEW(tbox);
-  
+
     GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tbox));
     gtk_text_buffer_set_text(buffer, ">", -1);
 
@@ -953,14 +953,14 @@ namespace gx_gui
 
     uiButton* c = new uiButton(this, zone, GTK_BUTTON(button));
 
-    g_signal_connect (GTK_OBJECT (button), "pressed", 
+    g_signal_connect (GTK_OBJECT (button), "pressed",
 		      G_CALLBACK (uiButton::pressed), (gpointer) c);
 
-    g_signal_connect (GTK_OBJECT (button), "released", 
+    g_signal_connect (GTK_OBJECT (button), "released",
 		      G_CALLBACK (uiButton::released), (gpointer) c);
 
-    g_signal_connect (GTK_OBJECT (button), "clicked", 
-		      G_CALLBACK (gx_jconv::gx_setting_jconv_dialog_gui), 
+    g_signal_connect (GTK_OBJECT (button), "clicked",
+		      G_CALLBACK (gx_jconv::gx_setting_jconv_dialog_gui),
 		      button);
   }
 
@@ -1066,17 +1066,17 @@ namespace gx_gui
     addWidget(label, button);
     gtk_widget_show (lab);
 
-    uiToggleButton* c = 
+    uiToggleButton* c =
       new uiToggleButton(this, zone, GTK_TOGGLE_BUTTON(button));
 
     gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
     gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
     gtk_widget_modify_fg (lab, GTK_STATE_ACTIVE, &colorwn);
 
-    g_signal_connect (GTK_OBJECT (button), "toggled", 
+    g_signal_connect (GTK_OBJECT (button), "toggled",
 		      G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
 
-    g_signal_connect (GTK_OBJECT (button), "toggled", 
+    g_signal_connect (GTK_OBJECT (button), "toggled",
 		      G_CALLBACK (gx_child_process::gx_start_stop_jconv), (gpointer)c);
   }
 
@@ -1405,7 +1405,7 @@ namespace gx_gui
   {
     GtkObject* adj = gtk_adjustment_new(99, 0, 100, 1, 10*1, 0);
     uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
- 
+
     g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
     g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_set_skin),  (gpointer) c);
   }
@@ -1556,7 +1556,7 @@ namespace gx_gui
     {
       float 	v = *fZone;
       fCache = v;
-      if ((gx_engine::dsp::isMidiOn() == true) && 
+      if ((gx_engine::dsp::isMidiOn() == true) &&
 	  (gx_jack::jcpu_load < 65.0))
         {
 	  if (v > 0.0f) gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ibm));
@@ -1721,7 +1721,7 @@ namespace gx_gui
     gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
     gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
     gtk_widget_show (menuitem);
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
 		      G_CALLBACK (gx_engine::gx_engine_switch), (gpointer)0);
     gx_engine_item = menuitem;
 
@@ -1729,7 +1729,7 @@ namespace gx_gui
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_b, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
     gtk_widget_show (menuitem);
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
 		      G_CALLBACK (gx_engine::gx_engine_switch), (gpointer)1);
 
     /*---------------- Create Latency menu items --------------------*/
@@ -1805,7 +1805,7 @@ namespace gx_gui
 
     for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
       {
-	GtkWidget* menuItem = 
+	GtkWidget* menuItem =
 	  gtk_menu_item_new_with_mnemonic (preset_menu_name[i]);
 	gtk_menu_shell_append (GTK_MENU_SHELL(menu1), menuItem);
 
@@ -1865,20 +1865,20 @@ namespace gx_gui
 
     /* forward preset */
     menuitem = gtk_menu_item_new_with_mnemonic("Next _Preset");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
 		      G_CALLBACK (gx_next_preset), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", 
-			       fAccelGroup, GDK_Page_Down, 
+    gtk_widget_add_accelerator(menuitem, "activate",
+			       fAccelGroup, GDK_Page_Down,
 			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
     gtk_widget_show(menuitem);
 
     /* rewind preset */
     menuitem = gtk_menu_item_new_with_mnemonic("Previous _Preset");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
 		      G_CALLBACK (gx_previous_preset), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", 
-			       fAccelGroup, GDK_Page_Up, 
+    gtk_widget_add_accelerator(menuitem, "activate",
+			       fAccelGroup, GDK_Page_Up,
 			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
     gtk_widget_show(menuitem);
@@ -1890,28 +1890,28 @@ namespace gx_gui
 
     /*-- Create  menu item Delete Active preset --*/
     menuitem = gtk_menu_item_new_with_mnemonic ("_Save _Active Preset");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
 		      G_CALLBACK (gx_save_oldpreset), (gpointer)1);
-    gtk_widget_add_accelerator(menuitem, "activate", 
-			       fAccelGroup, GDK_s, 
+    gtk_widget_add_accelerator(menuitem, "activate",
+			       fAccelGroup, GDK_s,
 			       GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
     gtk_widget_show (menuitem);
 
     menuitem = gtk_menu_item_new_with_mnemonic ("_Rename _Active Preset");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
 		      G_CALLBACK (gx_rename_active_preset_dialog), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", 
-			       fAccelGroup, GDK_r, 
+    gtk_widget_add_accelerator(menuitem, "activate",
+			       fAccelGroup, GDK_r,
 			       GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
     gtk_widget_show (menuitem);
 
     menuitem = gtk_menu_item_new_with_mnemonic ("_Delete Active Preset");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
 		      G_CALLBACK (gx_delete_active_preset_dialog), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", 
-			       fAccelGroup, GDK_Delete, 
+    gtk_widget_add_accelerator(menuitem, "activate",
+			       fAccelGroup, GDK_Delete,
 			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
     gtk_widget_show (menuitem);
@@ -1923,10 +1923,10 @@ namespace gx_gui
 
     /*-- Create  menu item Delete All presets --*/
     menuitem = gtk_menu_item_new_with_mnemonic ("_Delete All Presets");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
 		      G_CALLBACK (gx_delete_all_presets_dialog), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", 
-			       fAccelGroup, GDK_d, 
+    gtk_widget_add_accelerator(menuitem, "activate",
+			       fAccelGroup, GDK_d,
 			       GdkModifierType(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
     gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
     gtk_widget_show (menuitem);
@@ -1991,7 +1991,7 @@ namespace gx_gui
     menuitem = gtk_menu_item_new_with_mnemonic ("_Jack Capture Settings");
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_j, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    g_signal_connect(GTK_OBJECT (menuitem), "activate", 
+    g_signal_connect(GTK_OBJECT (menuitem), "activate",
 		     G_CALLBACK (gx_child_process::gx_show_jack_capture_gui), NULL);
     gtk_widget_show (menuitem);
 
@@ -2024,7 +2024,7 @@ namespace gx_gui
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_cycle_through_skin), NULL);
     gtk_menu_append (GTK_MENU(menu), menuitem);
     gtk_widget_show (menuitem);
- 
+
     /*-- End skin menu declarations --*/
 
     /*---------------- Start About menu declarations ----------------*/

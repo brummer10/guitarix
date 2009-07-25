@@ -60,13 +60,13 @@ namespace gx_system
     return !var.empty();
   }
 
-  // ---- OS signal handler ----- 
+  // ---- OS signal handler -----
   void gx_signal_handler(int sig)
   {
     // print out a warning
     string msg = string("signal ") + gx_i2a(sig) + " received, exiting ...";
     gx_print_warning("signal_handler", msg);
-    
+
     gx_clean_exit(NULL, NULL);
   }
 
@@ -83,22 +83,22 @@ namespace gx_system
       gx_print_error("main", string("number of skins is 0, aborting ..."));
       exit(1);
     }
-    
+
     // ---- parse command line arguments, using the boost::program_options lib
     try {
       // Note: using the boost_program_options framework
       // We could set defaults in option declaration but we won't
-      // 
-    
+      //
+
       // generic options: version and help
       bpo::options_description opt_gen;
       opt_gen.add_options()
 	("help,h",    "Print this help")
 	("version,v", "Print version string and exit")
 	;
-    
-      // GTK options: rc style (aka skin) 
-      ostringstream opskin("Style to use"); 
+
+      // GTK options: rc style (aka skin)
+      ostringstream opskin("Style to use");
 
       vector<string>::iterator it;
 
@@ -113,15 +113,15 @@ namespace gx_system
 	("clear,c", "Use 'default' GTK style")
 	("rcset,r", bpo::value<string>(), opskin.str().c_str())
 	;
-     
+
       // JACK options: input and output ports
       bpo::options_description opt_jack("\033[1;32m JACK configuration options\033[0m");
       opt_jack.add_options()
 	("jack-input,i",   bpo::value<string>(), "Guitarix jack input")
-	("jack-output,o",  bpo::value<vector <string> >()->multitoken(), 
+	("jack-output,o",  bpo::value<vector <string> >()->multitoken(),
 	 "Guitarix jack outputs")
 	;
-        
+
       // collecting all option groups
       bpo::options_description cmdline_opt(
           "\033[1;34m guitarix usage\033[0m\n"
@@ -131,66 +131,66 @@ namespace gx_system
           "\tguitarix -c -o system:playback_1 system:playback_2\n"
       );
       cmdline_opt.add(opt_gen).add(opt_gtk).add(opt_jack);
-    
-    
+
+
       // parsing command options
       bpo::variables_map vm;
       bpo::store(bpo::parse_command_line(argc, argv, cmdline_opt), vm);
       bpo::notify(vm);
-    
-      
+
+
       // ----------- processing user options -----------
       bool gx_exit = false;
-    
+
       // *** display help if requested
       if (vm.count("help")) {
 	cout << cmdline_opt << endl;
 	gx_exit = true;
       }
-      
+
       // *** display version if requested
       if (vm.count("version")) {
-	cout << "Guitarix version \033[1;32m" 
+	cout << "Guitarix version \033[1;32m"
 	     << GX_VERSION << endl
-	     << "\033[0m   Copyright " << (char)0x40 << " 2009 " 
+	     << "\033[0m   Copyright " << (char)0x40 << " 2009 "
 	     << "Hermman Meyer - James Warden"
 	     << endl;
 	gx_exit = true;
       }
-    
+
       if (gx_exit) exit(0);
-    
+
       // *** process GTK rc style
       bool previous_conflict = false;
       if (vm.count("rcset")) {
 	// retrieve user value
 	string tmp = vm["rcset"].as<string>();
-	
+
 	// check contradiction (clear and rcset cannot be used in the same call)
-	if (vm.count("clear")) { 
+	if (vm.count("clear")) {
 	  gx_print_error("main",
 			 string("-c and -r cannot be used together, defaulting to 'default' style"));
 	  tmp = "default";
 	  previous_conflict = true;
 	}
-    
+
 	// if garbage, let's initialize to guitarix_default.rc
 	guint s = 0;
 	while (s < gx_gui::skin_list.size()) {
 	  if (tmp == gx_gui::skin_list[s]) break;
 	  s++;
 	}
-	
-	if (s == gx_gui::skin_list.size()) {  
+
+	if (s == gx_gui::skin_list.size()) {
 	  gx_print_error("main",
 			 string("rcset value is garbage, defaulting to 'default' style"));
 	  tmp = "default";
 	}
 	optvar[RC_STYLE] = tmp;
       }
-    
+
       // else, if no shell var defined for it, defaulting to guitarix_default.rc
-      else if (!gx_shellvar_exists(optvar[RC_STYLE])) {  
+      else if (!gx_shellvar_exists(optvar[RC_STYLE])) {
 	optvar[RC_STYLE] = "default";
         // enable set last used skin
         gx_gui::no_opt_skin = 1;
@@ -202,18 +202,18 @@ namespace gx_system
 	if (vm.count("rcset") && !previous_conflict)
 	  gx_print_error("main",
 			 string("-c and -r cannot be used together, defaulting to 'default' style"));
-	
+
 	optvar[RC_STYLE] = "default";
       }
-    
+
       // *** process jack input
       if (vm.count("jack-input")) {
 	optvar[JACK_INP] = vm["jack-input"].as<string>();
       }
-      else if (!gx_shellvar_exists(optvar[JACK_INP])) {  
+      else if (!gx_shellvar_exists(optvar[JACK_INP])) {
 	optvar[JACK_INP] = ""; // leads to no automatic connection
       }
-    
+
       // *** process jack outputs
       if (vm.count("jack-output")) {
 	// loop through output port strings
@@ -225,17 +225,17 @@ namespace gx_system
 
 	if (s.size() > 2)
 	  gx_print_warning("main",
-			   string("Warning --> provided more than 2 output ports, " 
+			   string("Warning --> provided more than 2 output ports, "
 				  "ignoring extra ports")
-			   ); 
+			   );
       }
-      else {  
+      else {
 	if (!gx_shellvar_exists(optvar[JACK_OUT1])) optvar[JACK_OUT1] = "";
 	if (!gx_shellvar_exists(optvar[JACK_OUT2])) optvar[JACK_OUT2] = "";
       }
 
 
-      // 
+      //
       rcpath = GX_STYLE_DIR + string("/") + string("guitarix_") + optvar[RC_STYLE] + ".rc";
 
       gx_gui::gx_actualize_skin_index(optvar[RC_STYLE]);
@@ -252,7 +252,7 @@ namespace gx_system
   // ---- log message handler
   void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
   {
-    
+
     string msgbuf = ">  ";
     msgbuf += func;
     msgbuf += "  ***  ";
@@ -264,42 +264,42 @@ namespace gx_system
 
     if (gui_is_up)
     {
-      gx_gui::GxMainInterface* interface = 
+      gx_gui::GxMainInterface* interface =
 	gx_gui::GxMainInterface::instance();
 
       // retrievw window
       GtkTextView* logw = interface->getLoggingWindow();
-      
+
       if (logw)
       {
-	
+
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(logw));
 	gtk_text_buffer_set_text(buffer, msgbuf.c_str(), -1);
-	
-	static GtkTextTag* taginfo = 
+
+	static GtkTextTag* taginfo =
 	  gtk_text_buffer_create_tag(buffer, "colinfo", "foreground", "#00ced1", NULL);
-	
-	static GtkTextTag* tagwarn = 
+
+	static GtkTextTag* tagwarn =
 	  gtk_text_buffer_create_tag(buffer, "colwarn", "foreground", "#ff8800", NULL);
-	
-	static GtkTextTag* tagerror = 
+
+	static GtkTextTag* tagerror =
 	  gtk_text_buffer_create_tag(buffer, "colerr", "foreground", "#ff0000", NULL);
-	
+
 	GtkTextTag* tag = taginfo;
-	
+
 	static string col;
 	switch (msgtype)
 	{
 	case kInfo: default: col = "#00ced1"; break;
 	case kWarning: col = "#ff8800"; tag = tagwarn;  break;
 	case kError:   col = "#ff0000"; tag = tagerror; break;
-	}  
-	
-	
+	}
+
+
 	GtkTextIter start, end;
 	gtk_text_buffer_get_bounds (buffer, &start, &end);
 	gtk_text_buffer_apply_tag(buffer, tag, &start, &end);
-	
+
 	// modify expander bg color is closed
 	GtkExpander* exbox = interface->getLoggingBox();
 	if (gtk_expander_get_expanded(exbox) == FALSE)
@@ -313,7 +313,7 @@ namespace gx_system
 	terminal = true;
     }
     else terminal = true;
-      
+
     // if no window, then terminal
     if (terminal)
       {  msgbuf += "\n"; cerr << msgbuf; }
@@ -325,35 +325,35 @@ namespace gx_system
   {
     gx_print_logmsg(func, msg, kWarning);
   }
-  
+
   // error
   void gx_print_error(const char* func, const string& msg)
   {
     gx_print_logmsg(func, msg, kError);
   }
-  
+
   // info
   void gx_print_info(const char* func, const string& msg)
   {
     gx_print_logmsg(func, msg, kInfo);
   }
-  
-  
+
+
   // ---- check version and if directory exists and create it if it not exist
   bool gx_version_check()
   {
     struct stat my_stat;
-    
+
     //----- this check dont need to be against real version, we only need to know
     //----- if the presethandling is working with the courent version, we only count this
     //----- string when we must remove the old preset files.
-    string rcfilename = 
+    string rcfilename =
       gx_user_dir + string("version-") + string("0.03.3") ;
 
     if  (stat(gx_user_dir.c_str(), &my_stat) == 0) // directory exists
     {
       // check which version we're dealing with
-      if  (stat(rcfilename.c_str(), &my_stat) != 0) 
+      if  (stat(rcfilename.c_str(), &my_stat) != 0)
       {
 	// current version not there, let's create it and refresh the whole shebang
 	string oldfiles = gx_user_dir + string("guitarix*rc");
@@ -385,8 +385,8 @@ namespace gx_system
 	      tmpstr.c_str(),
 	      false
 	);
-	
-	// --- default jconv setting 
+
+	// --- default jconv setting
 	(void)gx_jconv::gx_save_jconv_settings(NULL, NULL);
       }
     }
@@ -394,7 +394,7 @@ namespace gx_system
     {
       // create .guitarix directory
       (void)gx_system_call("mkdir -p", gx_user_dir.c_str(), false);
-      
+
       // setting file for current version
       ofstream f(rcfilename.c_str());
       string cim = string("guitarix-") + GX_VERSION;
@@ -410,8 +410,8 @@ namespace gx_system
 	 tmpstr.c_str(),
 	 false
       );
-      
-      // --- default jconv setting 
+
+      // --- default jconv setting
       (void)gx_jconv::gx_save_jconv_settings(NULL, NULL);
 
       // --- version file
@@ -433,7 +433,7 @@ namespace gx_system
 
     // initialize with what we already have, if we have something
     string s; gx_jconv::GxJConvSettings::instance()->configureJConvSettings(s);
-    
+
     return TRUE;
   }
 
@@ -446,10 +446,10 @@ namespace gx_system
     string midi_pix = gx_pixmap_dir + "guitarix-midi.png";
     string warn_pix = gx_pixmap_dir + "guitarix-warn.png";
 
-    if ((stat(gx_pix.c_str(), &my_stat) != 0)   || 
-	(stat(midi_pix.c_str(), &my_stat) != 0) ||	
+    if ((stat(gx_pix.c_str(), &my_stat) != 0)   ||
+	(stat(midi_pix.c_str(), &my_stat) != 0) ||
 	(stat(warn_pix.c_str(), &my_stat) != 0))
-	
+
     {
       gx_print_error("Pixmap Check", " cannot find installed pixmaps! giving up ...");
 
@@ -487,7 +487,7 @@ namespace gx_system
   {
     static string str;
     gx_IntToString(i, str);
-    
+
     return str;
   }
 
@@ -507,7 +507,7 @@ namespace gx_system
     gx_print_warning("gx_abort", "Aborting guitarix, ciao!");
     exit(1);
   }
-  
+
   //---- guitarix system function
   int gx_system_call(const char* name1,
 		     const char* name2,
@@ -517,18 +517,18 @@ namespace gx_system
     string str(name1);
     str.append(" ");
     str.append(name2);
-    
+
     if (devnull)
       str.append(" 1>/dev/null 2>&1");
-    
+
     if (escape)
       str.append("&");
-    
+
     //    cerr << " ********* \n system command = " << str.c_str() << endl;
-    
+
     return system(str.c_str());
   }
-  
+
   // polymorph1
   int gx_system_call(const char*   name1,
 		     const string& name2,
@@ -537,7 +537,7 @@ namespace gx_system
   {
     return gx_system_call(name1, name2.c_str(), devnull, escape);
   }
-  
+
   // polymorph2
   // int gx_system_call(const string& name1,
   //    	     const string& name2,
@@ -546,7 +546,7 @@ namespace gx_system
   // {
   //   return gx_system_call(name1.c_str(), name2.c_str(), devnull, escape);
   // }
-  
+
   // polymorph3
   int gx_system_call(const string& name1,
 		     const char*   name2,
@@ -590,7 +590,7 @@ namespace gx_system
 
     // clean jack client stuff
     string jcl_name = "guitarix";
-    
+
     if (jack_is_running) {
       jcl_name = jack_get_client_name(client);
       gx_jack_cleanup();
@@ -602,8 +602,8 @@ namespace gx_system
     if (engine->isInitialized()) {
       string previous_state = gx_user_dir + jcl_name + "rc";
       engine->get_latency_warning_change();
-      gx_gui::get_skin_change(&engine->fskin);
-      
+      gx_gui::gx_get_skin_change(&engine->fskin);
+
       // only save if we are not in a preset context
       if (!setting_is_preset)
 	gx_gui::GxMainInterface::instance()->

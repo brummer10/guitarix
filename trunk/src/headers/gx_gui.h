@@ -21,7 +21,7 @@
 
 #pragma once
 
-namespace gx_gui 
+namespace gx_gui
 {
   /* function declarations */
   unsigned int gx_fetch_available_skins();
@@ -31,12 +31,12 @@ namespace gx_gui
   bool  gx_update_skin(const gint idx, const char* calling_func);
   void  gx_actualize_skin_index(const string& skin_name);
   bool gx_set_skin(GtkWidget *widget, gpointer data);
-  void get_skin_change(float * fskin);
-  void set_skin_change(float fskin);
- 
+  void gx_get_skin_change(float * fskin);
+  void gx_set_skin_change(float fskin);
+
   /* choice dialog windows */
   void gx_get_text_entry(GtkEntry*, string&);
-    
+
   gint gx_choice_dialog_with_text_entry (
 	const char* window_title,
 	const char* msg,
@@ -47,7 +47,7 @@ namespace gx_gui
 	const gint  default_response,
 	GCallback   func
   );
-    
+
   gint gx_choice_dialog_without_entry (
 	const char* window_title,
 	const char* msg,
@@ -97,7 +97,7 @@ namespace gx_gui
     static const gboolean fill = TRUE;
     static const gboolean homogene = FALSE;
 
-    static GxMainInterface* instance(const char* name = "", 
+    static GxMainInterface* instance(const char* name = "",
 				     int* pargc = NULL, char*** pargv = NULL);
 
     GtkAccelGroup* fAccelGroup;

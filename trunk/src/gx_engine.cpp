@@ -43,15 +43,15 @@ using namespace std;
 
 using namespace gx_system;
 
-namespace gx_engine 
+namespace gx_engine
 {
   // static member
   GxMidiState dsp::midistate = kMidiOff;
 
   // instanciation
-  inline GxEngine* GxEngine::instance() 
+  inline GxEngine* GxEngine::instance()
   {
-    static GxEngine engine; 
+    static GxEngine engine;
     return &engine;
   }
 
@@ -139,7 +139,7 @@ namespace gx_engine
     fcheckbox1 = 0.0;
     fslider3 = 0.0f;
 
-    zeroize(fRec4, 2); 
+    zeroize(fRec4, 2);
     zeroize(fRec3, 2);
 
     fslider4 = 0.12f;
@@ -479,8 +479,8 @@ namespace gx_engine
     GxEngine* engine = GxEngine::instance();
     gNumInChans  = engine->getNumInputs();
     gNumOutChans = engine->getNumOutputs();
-    
-    
+
+
     //----- lock the buffer for the oscilloscope
     const int frag = (const int)gx_jack::jack_bs;
 
@@ -495,7 +495,7 @@ namespace gx_engine
     //----- build the GUI interface virtual
     const char* jname = jack_get_client_name(gx_jack::client);
 
-    gx_gui::GxMainInterface* interface = 
+    gx_gui::GxMainInterface* interface =
       gx_gui::GxMainInterface::instance(jname, &argc, &argv);
 
     engine->initEngine((int)gx_jack::jack_sr);
@@ -511,7 +511,7 @@ namespace gx_engine
     engine->set_latency_warning_change();
     //----- set the last used skin when no cmd is given
     if (gx_gui::no_opt_skin == 1)
-    gx_gui::set_skin_change(engine->fskin);
+    gx_gui::gx_set_skin_change(engine->fskin);
   }
 
   //----menu function play stop
@@ -522,7 +522,7 @@ namespace gx_engine
     switch (estate) {
     case kEngineOn:
       estate = kEngineOff;
-      if (arg) {  
+      if (arg) {
 	// need to activate item
 	gtk_check_menu_item_set_active(
 	    GTK_CHECK_MENU_ITEM(gx_gui::gx_engine_item), TRUE);
@@ -535,7 +535,7 @@ namespace gx_engine
       if (!arg)
 	estate = kEngineOn;
       break;
-    
+
     default:
       estate = kEngineOn;
       gtk_check_menu_item_set_active(
