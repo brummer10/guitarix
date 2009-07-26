@@ -131,7 +131,7 @@ namespace gx_engine
     zeroize(fRec_tone0, 3);
     // tone end
 
-    zeroize(fVec0, 3);
+    //zeroize(fVec0, 3);
 
     // engine state
     checky = (float)kEngineOn;

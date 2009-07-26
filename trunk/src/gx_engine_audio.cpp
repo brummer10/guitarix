@@ -155,7 +155,7 @@ inline void GxEngine::reso_tube (int fuzzy, int sf, float reso, float vibra,
 
   for (int i=0; i<sf; i++)
     {
-      x = in[i];
+      x = *in++;
       if ( x >= 0.0 )
         {
           ot = ((2.f * x - 1.f * x * x) -x)*0.5;
@@ -191,7 +191,7 @@ inline void GxEngine::osc_tube (int fuzzy, int sf, float reso, float vibra,
 
   for (int i=0; i<sf; i++)
     {
-      x = in[i];
+      x = *in++;
       if ( x >= 0.0 )
         {
           ot = ((2.f * x - 1.f * x * x) -x)*0.5;
@@ -254,7 +254,7 @@ inline void GxEngine::fuzzy_tube (int fuzzy, int mode, int sf,
 
   for (int i=0; i<sf; i++)
     {
-      x = in[i];
+      x = *in++;
       if ( x >= 0.0 )
         {
           ot = ((a * x - b * x * x) -x)*c;
@@ -284,11 +284,11 @@ inline void GxEngine::preamp(int sf, float** input, float** output,
 
   for (int i=0; i<sf; i++)
     {
-      float  x = in[i] ;
+      float  x = *in++ ;
       float  fTemp0in = (x-0.15*(x*x))-(0.15*(x*x*x));
       x = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
       fTemp0in = normalize(x,atan_shape,f_atan);
-      out[i] = fTemp0in*0.75;
+      *out++ = fTemp0in*0.75;
 
     }
 
@@ -346,7 +346,72 @@ void GxEngine::compute (int count, float** input, float** output)
 
           // copy clean audio input for the tuner and midi_process
           if (tuner_on > 0)
-            (void)memcpy(checkfreq, input[0], sizeof(float)*count);
+            {
+              float sumt = 0;
+              int cts = 0;
+
+              (void)memcpy(checkfreq, input[0], sizeof(float)*count);
+              for (int i=0; i<count; i++)
+                {
+
+                  if (gx_gui::showwave == 1) vivi = checkfreq[i];
+
+                  float fTemphp0 = checkfreq[i] *2;
+                  // low and highpass filter
+                  tunerstage1=tunerstage1+(tunerfilter*(fTemphp0-tunerstage1));
+                  tunerstage2=tunerstage2+(tunerfilter*(tunerstage1-tunerstage2));
+                  tunerstageh1=tunerstageh1+(tunerfilterh*(tunerstage2-tunerstageh1));
+                  tunerstageh2=tunerstageh2+(tunerfilterh*(tunerstageh1-tunerstageh2));
+                  fTemphp0 = tunerstage2-tunerstageh2;
+                  // waveshaper
+                  float fTemphps0 = (1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0);
+                  // now run a fft
+                  fVechp0[0] = fTemphps0;
+                  fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
+                  float fTemphp1  = fRechp0[0];
+                  int iTempt0 = (1 + iRect2[1]);
+                  float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
+                  float fTempt2 = (1 + fTempt1);
+                  fVect0[0] = fTemphp1;
+                  fRect5[0] = (fConstan3 * ((fVect0[0] - fVect0[1]) + (fConstan2 * fRect5[1])));
+                  fVect1[0] = (fRect5[0] / fTempt2);
+                  fRect4[0] = (fVect1[1] + ((fRect5[0] + ((fTempt1 - 1) * fRect4[1])) / fTempt2));
+                  int iTempt4 = ((fRect4[1] < 0) & (fRect4[0] >= 0));
+                  iRect3[0] = (iTempt4 + (iRect3[1] % 10));
+                  iRect2[0] = ((1 - (iTempt4 & (iRect3[0] ==  10.0f))) * iTempt0);
+                  int iTempt5 = (iRect2[0] == 0);
+                  iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
+                  fRect0[0] = (fSamplingFreq * ((10.0f / max(iRect1[0], 1)) - (10.0f * (iRect1[0] == 0))));
+                  // get the frequence here
+                  float fConsta4s = fRect0[0];
+                  // smoth tuner output by rms the value peer frame
+                  cts += 1;
+                  sumt += sqrf(fConsta4s);
+                  fConsta4 = sqrtf(sumt/cts);
+
+                  if (gx_gui::shownote == 0)
+                    {
+                      fConsta1 = 1000.0f;
+                      gx_gui::shownote = -1;
+                    }
+
+                  fRect0[1] = fRect0[0];
+                  iRect1[1] = iRect1[0];
+                  iRect2[1] = iRect2[0];
+                  iRect3[1] = iRect3[0];
+                  fRect4[1] = fRect4[0];
+                  fVect1[1] = fVect1[0];
+                  fRect5[1] = fRect5[0];
+                  fVect0[1] = fVect0[0];
+                  fRechp0[1] = fRechp0[0];
+                  fVechp0[1] = fVechp0[0];
+
+
+                }
+
+
+
+            }
 
           if ((gx_gui::showwave == 1) &&
               ((gx_gui::wave_view_mode == gx_gui::kWvMode1) ||
@@ -366,6 +431,7 @@ void GxEngine::compute (int count, float** input, float** output)
           float fSlow85 = (fSlow84 * fSlow82);
           float fSlow89 = (1 - max(0, (0 - fSlow83)));
           float fSlow90 = (fSlow89 * fSlow82);
+          float sumt = 0;
 
           // pointer to the jack_buffer
           float*  input0 = input[0];
@@ -373,6 +439,8 @@ void GxEngine::compute (int count, float** input, float** output)
           float* output1 = output[0];
           float* output2 = output[3];
           float* output3 = output[1];
+
+          int cts = 0;
           int tuner_on = gx_gui::shownote + (int)dsp::isMidiOn() + 1;
 
           // copy clean audio input for the tuner and midi_process
@@ -381,20 +449,82 @@ void GxEngine::compute (int count, float** input, float** output)
 
           for (int i=0; i<count; i++)
             {
+
+              if (gx_gui::showwave == 1) vivi = input0[i];
+
+              if (tuner_on > 0) // enable tuner when show note or play midi
+                {
+                  float fTemphp0 = checkfreq[i] *2;
+                  // low and highpass filter
+                  tunerstage1=tunerstage1+(tunerfilter*(fTemphp0-tunerstage1));
+                  tunerstage2=tunerstage2+(tunerfilter*(tunerstage1-tunerstage2));
+                  tunerstageh1=tunerstageh1+(tunerfilterh*(tunerstage2-tunerstageh1));
+                  tunerstageh2=tunerstageh2+(tunerfilterh*(tunerstageh1-tunerstageh2));
+                  fTemphp0 = tunerstage2-tunerstageh2;
+                  // waveshaper
+                  float fTemphps0 = (1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0);
+                  // now run a fft
+                  fVechp0[0] = fTemphps0;
+                  fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
+                  float fTemphp1  = fRechp0[0];
+                  int iTempt0 = (1 + iRect2[1]);
+                  float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
+                  float fTempt2 = (1 + fTempt1);
+                  fVect0[0] = fTemphp1;
+                  fRect5[0] = (fConstan3 * ((fVect0[0] - fVect0[1]) + (fConstan2 * fRect5[1])));
+                  fVect1[0] = (fRect5[0] / fTempt2);
+                  fRect4[0] = (fVect1[1] + ((fRect5[0] + ((fTempt1 - 1) * fRect4[1])) / fTempt2));
+                  int iTempt4 = ((fRect4[1] < 0) & (fRect4[0] >= 0));
+                  iRect3[0] = (iTempt4 + (iRect3[1] % 10));
+                  iRect2[0] = ((1 - (iTempt4 & (iRect3[0] ==  10.0f))) * iTempt0);
+                  int iTempt5 = (iRect2[0] == 0);
+                  iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
+                  fRect0[0] = (fSamplingFreq * ((10.0f / max(iRect1[0], 1)) - (10.0f * (iRect1[0] == 0))));
+                  // get the frequence here
+                  float fConsta4s = fRect0[0];
+                  // smoth tuner output by rms the value peer frame
+                  cts += 1;
+                  sumt += sqrf(fConsta4s);
+                  fConsta4 = sqrtf(sumt/cts);
+                }
+              if (gx_gui::shownote == 0)
+                {
+                  fConsta1 = 1000.0f;
+                  gx_gui::shownote = -1;
+                }
+
+
               // this is the left "extra" port to run jconv in bybass mode
-              output0[i] = (fSlow85 * input0[i]);
+              *output0++ = (fSlow85 * input0[i]);
               // the left output port
-              output1[i] = (fSlow84 * input0[i]);
+              *output1++ = (fSlow84 * input0[i]);
               // this is the right "extra" port to run jconv in bybass mode
-              output2[i] = (fSlow90 * input0[i]);
+              *output2++ = (fSlow90 * input0[i]);
               // the right output port
-              output3[i] = (fSlow89 * input0[i]);
+              *output3++ = (fSlow89 * input0[i]);
+
+              // post processing tuner
+              if (tuner_on > 0) // enable tuner when show note or play midi
+                {
+                  fRect0[1] = fRect0[0];
+                  iRect1[1] = iRect1[0];
+                  iRect2[1] = iRect2[0];
+                  iRect3[1] = iRect3[0];
+                  fRect4[1] = fRect4[0];
+                  fVect1[1] = fVect1[0];
+                  fRect5[1] = fRect5[0];
+                  fVect0[1] = fVect0[0];
+                  fRechp0[1] = fRechp0[0];
+                  fVechp0[1] = fVechp0[0];
+                }
+
             }
 
           if ((gx_gui::showwave == 1) &&
               ((gx_gui::wave_view_mode == gx_gui::kWvMode1) ||
                (gx_gui::wave_view_mode == gx_gui::kWvMode2)))
             {
+              output2 = output[3];
               (void)memcpy(get_frame, output2, sizeof(float)*count);
               viv = output2[0];
             }
@@ -602,9 +732,6 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   if (tuner_on > 0)
     (void)memcpy(checkfreq, input0, sizeof(float)*count);
 
-
-
-
   // run pre_funktions on frame base
   // 2*oversample
   if (iupsample)
@@ -626,23 +753,24 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       if (iprdr)    fuzzy_tube(ipredrive, 1,count,input,input);
       if (antialis0)  AntiAlias(count,input,input);
     }
-  //if (iSlow45) distortion_( input,input,count);
+
   // pointers to the jack_output_buffers
   float* output0 = output[2];
   float* output1 = output[0];
   float* output2 = output[3];
   float* output3 = output[1];
+  register float fTemp0 = input0[0];
   // start the inner loop count = jack_frame
   for (int i=0; i<count; i++)
     {
 
-      float fTemp0 = input0[i];
+      fTemp0 = *input0++;
       // when the ocilloscope draw wav by sample (mode 3) get the input value
       if (gx_gui::showwave == 1) vivi = fTemp0;
 
       if (tuner_on > 0) // enable tuner when show note or play midi
         {
-          float fTemphp0 = checkfreq [i]*2;
+          float fTemphp0 = checkfreq[i] *2;
           // low and highpass filter
           tunerstage1=tunerstage1+(tunerfilter*(fTemphp0-tunerstage1));
           tunerstage2=tunerstage2+(tunerfilter*(tunerstage1-tunerstage2));
@@ -694,17 +822,15 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           float fTempcom6 = (fSlowcom5 * fTempcom5);
           float fTempcom7 = ((fTempcom4 / ((1 + fTempcom6) - fTempcom5)) * (fTempcom5 - fTempcom6));
           float fTempcom8 = powf(10, (5.000000e-02f * fTempcom7));
-          fVec0[0]= (fTempcom0 * fTempcom8);
+          fTemp0 = (fTempcom0 * fTempcom8);
         }
-      else
-        {
-          add_dc(fTemp0);
-          fVec0[0] = fTemp0; // compressor end
-        }
+      else  add_dc(fTemp0);
+      // compressor end
+
 
       // gain in
       fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
-      fTemp0 = (fRec4[0] * fVec0[0]);
+      fTemp0 = (fRec4[0] * fTemp0);
 
       // I have move the preamp to the frame based section, leef it here for . . .
       if (icheckbox1)     // preamp
@@ -725,10 +851,10 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
       if (ioverdrive4)     // overdrive
         {
-          float fTempdr0 = fTemp0;
-          float fTempdr1 = fabs(fTempdr0);
+          //float fTempdr0 = fTemp0;
+          float fTempdr1 = fabs(fTemp0);
           fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
-          fTemp0 = (fTempdr0*(fTempdr1 + drive)/(fTempdr0*fTempdr0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
+          fTemp0 = (fTemp0*(fTempdr1 + drive)/(fTemp0*fTemp0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
 
         }
 
@@ -737,14 +863,12 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           float 	S6[2];
           float 	S7[2];
           float 	S8[2];
-          float fTemp1 = (fTemp0 + (fSlow19 * fRec6[1]));
-          fVec1[IOTA&4095] = fTemp1;
+          fVec1[IOTA&4095] = (fTemp0 + (fSlow19 * fRec6[1]));
           fRec6[0] = (0.5f * (fVec1[(IOTA-iSlow22)&4095] + fVec1[(IOTA-iSlow21)&4095]));
           S8[0] = fRec6[0];
           fVec2[0] = (fSlow25 * fRec6[0]);
           fRec8[0] = (fVec2[1] + (fSlow25 * (fRec6[0] + (fSlow24 * fRec8[1]))));
-          float fTemp2 = (fSlow28 * fRec8[0]);
-          fVec3[0] = fTemp2;
+          fVec3[0] = (fSlow28 * fRec8[0]);
           fRec7[0] = ((fVec3[0] + (fSlow29 * fRec7[1])) - fVec3[1]);
           S8[1] = fRec7[0];
           float fTemp3 = S8[iSlow30];
@@ -760,8 +884,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           add_dc(S7[1]);
           float fTemp4 = max(-1, min(1, (fSlow43 * (fSlow42 + S7[iSlow41]))));
           add_dc(fTemp4);
-          float fTemp5 = (fTemp4 * (1 - (0.333333f * (fTemp4 * fTemp4))));
-          fVec6[0] = fTemp5;
+          fVec6[0] = (fTemp4 * (1 - (0.333333f * (fTemp4 * fTemp4))));
           fRec5[0] = ((fVec6[0] + (0.995f * fRec5[1])) - fVec6[1]);
           fRec13[0] = (fSlow44 + (0.999f * fRec13[1]));
           float fTemp6 = (fRec13[0] * fRec5[0]);
@@ -838,21 +961,21 @@ void GxEngine::process_buffers(int count, float** input, float** output)
         }
       // gain out
       fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
-      float fTemp12 =  (fRec46[0] * fTemp0);
+      fTemp0 =  (fRec46[0] * fTemp0);
 
       if (iSlow75)    //echo
         {
-          fRec47[IOTA&262143] = (fTemp12 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
-          fTemp12 = fRec47[(IOTA-0)&262143];
+          fRec47[IOTA&262143] = (fTemp0 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
+          fTemp0 = fRec47[(IOTA-0)&262143];
         }                                     //echo ende
 
       if (iSlow79)     //impulseResponse
         {
-          fVec22[0] = fTemp12;
+          fVec22[0] = fTemp0;
           fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
           fVec23[0] = (fRec48[0] + fVec22[0]);
         }
-      else  fVec23[0] = fTemp12;   //impulseResponse ende
+      else  fVec23[0] = fTemp0;   //impulseResponse ende
 
       // this is the output value from the mono process
       fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
@@ -873,21 +996,21 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       // update fast as  posible this way (mode 3)
       if ((gx_gui::showwave == 1) &&(gx_gui::wave_view_mode == gx_gui::kWvMode3)) viv = fRec0[0];
       // this is the left "extra" port to run jconv in bybass mode
-      if (gx_jconv::jconv_is_running) output0[i] = (fSlow85 * fRec0[0]);
+      if (gx_jconv::jconv_is_running) *output0++ = (fSlow85 * fRec0[0]);
       float 	S9[2];
       // copy the output for the frame based mode of the oscilloscope
       //  if ((gx_gui::showwave == 1) &&((gx_gui::wave_view_mode == 1) || (gx_gui::wave_view_mode == 2) )) get_frame[i] = fRec0[0];
       S9[0] = (fSlow87 * fRec0[0]);
       S9[1] = (fSlow84 * fRec0[0]);
       // the left output port
-      output1[i] = S9[iSlow88];
+      *output1++ = S9[iSlow88];
       // this is the right "extra" port to run jconv in bybass mode
-      if (gx_jconv::jconv_is_running) output2[i] = (fSlow90 * fRec0[0]);
+      if (gx_jconv::jconv_is_running) *output2++ = (fSlow90 * fRec0[0]);
       float 	S10[2];
       S10[0] = (fSlow91 * fRec0[0]);
       S10[1] = (fSlow89 * fRec0[0]);
       // the right output port
-      output3[i] = S10[iSlow88];
+      *output3++ = S10[iSlow88];
       // post processing
       for (int i=5; i>0; i--) fRec0[i] = fRec0[i-1];
       for (int i=3; i>0; i--) fVec23[i] = fVec23[i-1];
@@ -964,7 +1087,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fRec4[1] = fRec4[0];
       fReccom0[1] = fReccom0[0];
       fReccom1[1] = fReccom1[0];
-      fVec0[1] = fVec0[0];
+      //fVec0[1] = fVec0[0];
       fRecover0[1] = fRecover0[0];
       // post processing tuner
       fRect0[1] = fRect0[0];
@@ -985,6 +1108,9 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       ((gx_gui::wave_view_mode == gx_gui::kWvMode1) ||
        (gx_gui::wave_view_mode == gx_gui::kWvMode2)))
     {
+      if (gx_jconv::jconv_is_running)
+      output1 = output[2];
+      else output1 = output[0];
       (void)memcpy(get_frame, output1, sizeof(float)*count);
       viv = fRec0[1];
     }

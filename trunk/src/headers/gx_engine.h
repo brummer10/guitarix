@@ -140,7 +140,7 @@ namespace gx_engine
     float fRec_tone0[3];
     // tone end
 
-    float fVec0[2];
+    //float fVec0[2];
     float fcheckbox1;
     float fslider3;
     float fRec4[2];
