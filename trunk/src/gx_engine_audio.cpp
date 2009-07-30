@@ -1109,7 +1109,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
        (gx_gui::wave_view_mode == gx_gui::kWvMode2)))
     {
       if (gx_jconv::jconv_is_running)
-      output1 = output[2];
+        output1 = output[2];
       else output1 = output[0];
       (void)memcpy(get_frame, output1, sizeof(float)*count);
       viv = fRec0[1];

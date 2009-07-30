@@ -23,11 +23,11 @@
  *    license      : "GPL"
  *    copyright    : "(c)brummer 2008"
  *    reference    : "http://ccrma.stanford.edu/realsimple/faust_strings/"
- *    
+ *
  *    Code prototype generated with Faust 0.9.9.4f (http://faust.grame.fr)
  * ----------------------------------------------------------------------------
  *
- *    This is guitarix main. 
+ *    This is guitarix main.
  *
  * ----------------------------------------------------------------------------
  */
@@ -78,7 +78,7 @@ using namespace gx_system;
 /* --------- Guitarix main ---------- */
 int main(int argc, char *argv[] )
 {
-  
+
   //----- connect the signal handler for propper shutdown when a error appears
   signal(SIGQUIT, gx_signal_handler);
   signal(SIGTERM, gx_signal_handler);
@@ -91,8 +91,8 @@ int main(int argc, char *argv[] )
   gx_process_cmdline_options(argc, argv, optvar);
 
   // ---------------------- initialize jack client ------------------
-  gx_jack::gx_jack_init(argc, argv); 
-  
+  gx_jack::gx_jack_init(argc, argv);
+
   // ---------------- Check for working user directory  -------------
   gx_system::gx_version_check();
 
@@ -112,4 +112,4 @@ int main(int argc, char *argv[] )
 }
 
 
- 
+

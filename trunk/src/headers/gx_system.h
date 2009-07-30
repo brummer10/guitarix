@@ -59,7 +59,7 @@ namespace gx_system
   // 		             const string&,
   // 		             const bool devnull = false,
   // 		             const bool escape  = false);
-    
+
   bool  gx_version_check();
   int   gx_pixmap_check();
   void  gx_signal_handler(int);

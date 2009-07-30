@@ -68,7 +68,7 @@ namespace gx_engine
 /* ------------------------------------------------------------------------- */
 
 /* ----- jack namespace ----- */
-namespace gx_jack 
+namespace gx_jack
 {
   const int nIPorts = 1; // mono input
   const int nOPorts = 4; // stereo output + jconv
@@ -76,6 +76,7 @@ namespace gx_jack
   bool  manual_startup = false;;
 
   /* variables */
+  jack_nframes_t      last_xrun_time;
   jack_nframes_t      jack_sr;   // jack sample rate
   jack_nframes_t      jack_bs;   // jack buffer size
   float               jcpu_load; // jack cpu_load
@@ -100,7 +101,7 @@ namespace gx_jack
 /* ------------------------------------------------------------------------- */
 
 /* ----- JConv namespace ----- */
-namespace gx_jconv 
+namespace gx_jconv
 {
   /* some global vars */
   float checkbox7;
@@ -111,7 +112,7 @@ namespace gx_jconv
 /* ------------------------------------------------------------------------- */
 
 /* ----- preset namespace ----- */
-namespace gx_preset 
+namespace gx_preset
 {
   /* global var declarations */
   GdkModifierType list_mod[] = {
@@ -120,26 +121,26 @@ namespace gx_preset
     GDK_MOD1_MASK,
     GdkModifierType(GDK_CONTROL_MASK|GDK_MOD1_MASK)
   };
-    
+
   const char* preset_accel_path[] = {
     "<guitarix>/Load",
     "<guitarix>/Save",
     "<guitarix>/Rename",
     "<guitarix>/Delete"
   };
-    
+
   const char* preset_menu_name[] = {
     "_Load Preset...",
     "_Save Preset...",
     "_Rename Preset...",
     "_Delete Preset..."
   };
-    
+
   map<GtkMenuItem*, string> preset_list[GX_NUM_OF_PRESET_LISTS];
-  
+
   string gx_current_preset;
   string old_preset_name;
-  
+
   GtkWidget* presmenu[GX_NUM_OF_PRESET_LISTS];
   GtkWidget* presMenu[GX_NUM_OF_PRESET_LISTS];
 
@@ -164,7 +165,7 @@ namespace gx_child_process
   FILE*    jcap_stream;
   FILE*    jconv_stream;
   string   mbg_pidfile;
-  
+
   pid_t child_pid[NUM_OF_CHILD_PROC] = {
     NO_PID,
     NO_PID,
@@ -201,23 +202,23 @@ namespace gx_system
 
   /* shell variable names */
   const char* shell_var_name[] = {
-    "GUITARIX2JACK_INPUTS",	
-    "GUITARIX2JACK_OUTPUTS1", 
-    "GUITARIX2JACK_OUTPUTS2", 
+    "GUITARIX2JACK_INPUTS",
+    "GUITARIX2JACK_OUTPUTS1",
+    "GUITARIX2JACK_OUTPUTS2",
     "GUITARIX_RC_STYLE"
-  };       
+  };
 }
 
 
 /* ------------------------------------------------------------------------- */
 
 /* ----- GUI namespace ----- */
-namespace gx_gui 
+namespace gx_gui
 {
   /* wave view globals */
   bool           new_wave_view;
   GxWaveviewMode wave_view_mode;
-  
+
   /* global GUI widgets */
   GtkWidget* fWindow;
   GtkWidget* menuh;
@@ -226,9 +227,9 @@ namespace gx_gui
   GtkWidget* fbutton;
 
   /* wave view widgets */
-  GtkWidget* livewa; 
-  GdkPixbuf* ib; 
-  GdkPixbuf* ibm; 
+  GtkWidget* livewa;
+  GdkPixbuf* ib;
+  GdkPixbuf* ibm;
   GdkPixbuf* ibr;
 
   /* jack latency change warning */

@@ -53,14 +53,14 @@ namespace gx_jack
     // init the pointer to the jackbuffer
     for (int i=0; i < nOPorts; i++) output_ports[i] = 0;
     for (int i=0; i < nIPorts; i++) input_ports [i] = 0;
-  
+
     AVOIDDENORMALS;
 
     client = jack_client_open (jname, JackNoStartServer, &jackstat);
     if (client == 0) {
-      gx_print_warning("main", 
+      gx_print_warning("main",
 		       string("JACK not running, trying to start jack"));
-      
+
       manual_startup = true;
       gx_start_jack_dialog(&argc, &argv);
       if (jack_is_running) {
@@ -68,14 +68,14 @@ namespace gx_jack
 	client = jack_client_open (jname, JackNoStartServer, &jackstat);
 
 	if (!client) {
-	  gx_print_error("main", 
+	  gx_print_error("main",
 			 string("I really tried to get jack up and running, sorry ... "));
 	  exit(1);
 	}
       }
-     
-      else { // we give up 
-	gx_print_error("main", 
+
+      else { // we give up
+	gx_print_error("main",
 		       string("I tried to get jack up and running, sorry ... "));
 	exit(1);
       }
@@ -129,19 +129,19 @@ namespace gx_jack
     //----- register the input channel
     for (int i = 0; i < gNumInChans; i++) {
       ostringstream buf; buf <<  "in_" << i;
-      input_ports[i] = 
-	jack_port_register(client, buf.str().c_str(), 
+      input_ports[i] =
+	jack_port_register(client, buf.str().c_str(),
 			   JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
     }
 
     //----- register the midi output channel
-    midi_output_ports = 
+    midi_output_ports =
       jack_port_register(client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
 
     //----- register the audio output channels
     for (int i = 0; i < gNumOutChans; i++) {
       ostringstream buf; buf <<  "out_" << i;
-      output_ports[i] = 
+      output_ports[i] =
 	jack_port_register(client, buf.str().c_str(),
 			   JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
     }
@@ -149,7 +149,7 @@ namespace gx_jack
     //----- ready to go
     if (jack_activate(client))
     {
-      gx_print_error("Jack Activation", 
+      gx_print_error("Jack Activation",
 		     string("Can't activate JACK client"));
       gx_clean_exit(NULL, NULL);
     }
@@ -159,7 +159,7 @@ namespace gx_jack
     {
       for (int i = 0; i < gNumInChans; i++)
       {
-	jack_connect(client, optvar[JACK_INP].c_str(), 
+	jack_connect(client, optvar[JACK_INP].c_str(),
 		     jack_port_name(input_ports[i]));
       }
     }
@@ -167,11 +167,11 @@ namespace gx_jack
     // set autoconnect to user playback oprts
     int idx = JACK_OUT1;
     for (int i = 0; i < 2; i++)
-    { 	
+    {
       if (!optvar[idx].empty())
-	jack_connect(client, 
+	jack_connect(client,
 		     jack_port_name(output_ports[i]), optvar[idx].c_str());
-      
+
       idx++;
     }
   }
@@ -182,13 +182,13 @@ namespace gx_jack
     gtk_init(argc, argv);
 
     //--- run dialog and check response
-    gint response = 
+    gint response =
       gx_gui::gx_choice_dialog_without_entry (
 	" Jack Starter ",
 	"\n                        WARNING                        \n\n"
 	"   The jack server is not currently running\n"
 	"   You can choose to activate it or terminate guitarix   \n",
-	"Start Jack", "Exit", 
+	"Start Jack", "Exit",
 	GTK_RESPONSE_YES, GTK_RESPONSE_CANCEL, GTK_RESPONSE_YES
       );
 
@@ -207,7 +207,7 @@ namespace gx_jack
   void gx_start_jack(void* arg)
   {
     // first, let's try via qjackctl
-    if (gx_system_call("which", "qjackctl", false) == SYSTEM_OK) {  
+    if (gx_system_call("which", "qjackctl", false) == SYSTEM_OK) {
       if (gx_system_call("qjackctl", "--start", true, true) == SYSTEM_OK) {
 	sleep(2);
 
@@ -257,7 +257,7 @@ namespace gx_jack
 	"Jack Buffer Size setting",
 	string("we are not a jack client, server may be down")
       );
-    
+
       return;
     }
 
@@ -272,11 +272,11 @@ namespace gx_jack
 
       // requested latency
       jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
-      
+
       if (buf_size == jack_get_buffer_size(client)) {
 	// let's save the item for eventual display refreshing
 	refreshItem = menuitem;
-      
+
 	// since the actual buffer size is the same, no need further action
 	return;
       }
@@ -298,7 +298,7 @@ namespace gx_jack
 
 	// let's resize the buffer
 	if (jack_set_buffer_size (client, buf_size) != 0)
-	  gx_print_warning("Setting Jack Buffer Size", 
+	  gx_print_warning("Setting Jack Buffer Size",
 			   "Could not change latency");
 
 	else // save the item pointer for eventual display refreshing
@@ -319,22 +319,22 @@ namespace gx_jack
       gtk_check_menu_item_set_active (refreshItem, TRUE);
 
     if (menuitem)
-      gx_print_info("Jack Buffer Size", 
-		    string("latency is ") + 
+      gx_print_info("Jack Buffer Size",
+		    string("latency is ") +
 		    gx_i2a(jack_get_buffer_size(client)));
   }
-  
+
   //-----Function that cleans the jack stuff on shutdown
   void gx_jack_cleanup()
   {
     if (client) {
       // disable input ports
-      for (int i = 0; i < gNumInChans; i++) 
+      for (int i = 0; i < gNumInChans; i++)
 	jack_port_unregister(client, input_ports[i]);
-    
+
       for (int i = 0; i < gNumOutChans; i++)
 	jack_port_unregister(client, output_ports[i]);
-      
+
       if (midi_output_ports != NULL)
 	jack_port_unregister(client, midi_output_ports);
 
@@ -363,17 +363,17 @@ namespace gx_jack
   //---- jack shutdown callback in case jackd shuts down on us
   void gx_jack_shutdown_callback(void *arg)
   {
-    gx_print_warning("jack_shutdown", 
+    gx_print_warning("jack_shutdown",
 		     string("jack has bumped us out , exiting ..."));
 
     jack_is_running = false;
-  
+
     // the jack client has been destroyed by jackd
     // all we need now is shutting down guitarix cleanly
     gx_clean_exit(NULL, NULL);
   }
 
-  //---- jack client callbacks 
+  //---- jack client callbacks
   int gx_jack_graph_callback (void* arg)
   {
     if (jack_port_connected (input_ports[0])) NO_CONNECTION = 0;
@@ -385,10 +385,12 @@ namespace gx_jack
   //---- jack xrun callback
   int gx_jack_xrun_callback (void* arg)
   {
+    if ((last_xrun_time + 1000) < jack_last_frame_time(client)) {
     float xdel = jack_get_xrun_delayed_usecs(client);
     ostringstream s; s << " delay of at least " << xdel << " microsecs";
-
     gx_print_warning("Jack XRun", s.str());
+      }
+    last_xrun_time = jack_last_frame_time(client);
     return 0;
   }
 
@@ -403,7 +405,7 @@ namespace gx_jack
   {
     GxEngineState estate = (GxEngineState)checky;
 
-    // turn off engine 
+    // turn off engine
     // Note: simply changing checky is enough to "stop" processing
     // incoming jack buffers. The mydsp::compute method is owned by
     // the jack audio thread. It always runs as long as jack runs
@@ -411,12 +413,12 @@ namespace gx_jack
     // checky is checked at each jack cycle in mydsp::compute
     // so changing it here affects the behavior of mydsp::compute
     // immediately during the jack_processing of jack cycles.
-  
+
     if (estate != kEngineOff)
       checky = (float)kEngineOff;
 
     jack_bs = nframes;
-    gx_print_info("buffersize_callback", 
+    gx_print_info("buffersize_callback",
 		  string("the buffer size is now ") +
 		  gx_i2a(jack_bs) + string("/frames"));
 
@@ -451,7 +453,7 @@ namespace gx_jack
       midi_port_buf =  jack_port_get_buffer(midi_output_ports, nframes);
       jack_midi_clear_buffer(midi_port_buf);
 
-      if ((dsp::isMidiOn() == true) || (gx_gui::showwave == 1)) 
+      if ((dsp::isMidiOn() == true) || (gx_gui::showwave == 1))
 	jcpu_load = jack_cpu_load(client);
 
       GxEngine::instance()->compute_midi(nframes);
@@ -495,20 +497,20 @@ namespace gx_jack
 	t = 0;
 
       jack_ringbuffer_read_advance(jack_ringbuffer, sizeof(ev));
-      
+
       if (jack_midi_max_event_size(midi_port_buf) > sizeof(ev))
 	buffer = jack_midi_event_reserve(midi_port_buf, t, ev.len);
-      else 
+      else
 	break;
-      
+
       if (ev.len > 2)
 	buffer[2] = ev.data[2];
       if (ev.len > 1)
 	  buffer[1] = ev.data[1];
-      
+
       buffer[0] = ev.data[0];
     }
-    
+
     /********************************************************************
     Thanks Edward for your friendly permision
     Edward Tomasz Napierala <trasz@FreeBSD.org>.
@@ -532,7 +534,7 @@ namespace gx_jack
     // guitarix DSP computing
     GxEngine::instance()->compute(nframes, gInChannel, gOutChannel);
 
-    // midi processing 
+    // midi processing
 #ifdef USE_RINGBUFFER
     gx_jack_midi_process_ringbuffer(nframes, 0);
 #else
@@ -540,7 +542,7 @@ namespace gx_jack
 #endif
 
     // some info display
-    if (gx_gui::showwave == 1) 
+    if (gx_gui::showwave == 1)
       time_is =  jack_frame_time (client);
 
     return 0;

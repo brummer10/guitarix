@@ -36,12 +36,12 @@ namespace gx_engine
     kEngineOn     = 1,
     kEngineBypass = 2
   } GxEngineState;
-  
+
   typedef enum {
     kMidiOff    = 0,
     kMidiOn     = 1
   } GxMidiState;
-  
+
   /* global var  declarations */
   extern const char* stopit;
   extern float  checky;
@@ -64,7 +64,7 @@ namespace gx_engine
 /* -------------------------------------------------------------------------- */
 
 /* ----- jack namespace ----- */
-namespace gx_jack 
+namespace gx_jack
 {
   /* latency change confirmation */
   typedef enum {
@@ -79,6 +79,7 @@ namespace gx_jack
   extern bool  manual_startup;
 
   /* variables */
+  extern jack_nframes_t      last_xrun_time;   // jack sample rate
   extern jack_nframes_t      jack_sr;   // jack sample rate
   extern jack_nframes_t      jack_bs;   // jack buffer size
   extern float               jcpu_load; // jack cpu_load
@@ -104,7 +105,7 @@ namespace gx_jack
 /* -------------------------------------------------------------------------- */
 
 /* ----- JConv namespace ----- */
-namespace gx_jconv 
+namespace gx_jconv
 {
   /* some global vars */
   extern float checkbox7;
@@ -115,17 +116,17 @@ namespace gx_jconv
 /* -------------------------------------------------------------------------- */
 
 /* ----- preset namespace ----- */
-namespace gx_preset 
+namespace gx_preset
 {
   /* global var declarations */
   extern GdkModifierType list_mod[];
-  extern const char* preset_accel_path[];    
-  extern const char* preset_menu_name[];    
+  extern const char* preset_accel_path[];
+  extern const char* preset_menu_name[];
   extern map<GtkMenuItem*, string> preset_list[];
-  
+
   extern string gx_current_preset;
   extern string old_preset_name;
-  
+
   extern GtkWidget* presmenu[];
   extern GtkWidget* presMenu[];
 
@@ -184,18 +185,18 @@ namespace gx_system
 /* -------------------------------------------------------------------------- */
 
 /* ----- GUI namespace ----- */
-namespace gx_gui 
+namespace gx_gui
 {
-  typedef enum { 
+  typedef enum {
     kWvMode1 = 1,
-    kWvMode2,      
-    kWvMode3      
+    kWvMode2,
+    kWvMode3
   } GxWaveviewMode;
 
   /* wave view globals */
   extern bool           new_wave_view;
   extern GxWaveviewMode wave_view_mode;
-  
+
   /* global GUI widgets */
   extern GtkWidget* fWindow;
   extern GtkWidget* menuh;
@@ -204,9 +205,9 @@ namespace gx_gui
   extern GtkWidget* fbutton;
 
   /* wave view widgets */
-  extern GtkWidget* livewa; 
-  extern GdkPixbuf* ib; 
-  extern GdkPixbuf* ibm; 
+  extern GtkWidget* livewa;
+  extern GdkPixbuf* ib;
+  extern GdkPixbuf* ibm;
   extern GdkPixbuf* ibr;
 
   /* jack latency change warning */
