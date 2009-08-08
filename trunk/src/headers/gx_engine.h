@@ -467,6 +467,12 @@ namespace gx_engine
     // tone end
     // float  fbargraph0;
 
+    float 	fRecgate0[2];
+    float 	fSlowgate2;
+			float 	fSlowgate3;
+			float 	fSlowgate4;
+			float fng;
+
     // private constructor
     GxEngine() {}
 
@@ -518,6 +524,7 @@ namespace gx_engine
     static float normalize  (float in, float atan_shape, float shape);
 
     // non static methods (modifying object's non static private members)
+    void  noise_gate  (int sf, float** input, float** output);
     void  AntiAlias  (int sf, float** input, float** output);
     void  reso_tube  (int fuzzy, int sf, float reso, float vibra,
 		      float** input, float** output);

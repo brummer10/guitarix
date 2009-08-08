@@ -454,6 +454,13 @@ namespace gx_engine
     fslider_tone_check1 = 0;
 
    gx_jconv::checkbox7 = 1.0;
+
+
+   fSlowgate2 = expf((0 - (fConstcom2 / max(fConstcom2, 0.005f))));
+	fSlowgate3 = expf((0 - (fConstcom2 / max(fConstcom2, 10.0f))));
+	fSlowgate4 = (1.0f / (1.000000e-03f +10.5f));
+	zeroize(fRecgate0, 2);
+	fng = 0;
     // end engine init
   }
 

@@ -18,7 +18,7 @@
  *
  *
  *    This is the Guitarix Engine GUI builder
- *    This file is included in gx_engine.cpp which has been split for 
+ *    This file is included in gx_engine.cpp which has been split for
  *    readability.
  *
  * --------------------------------------------------------------------------
@@ -29,17 +29,17 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 {
   //----- the main box, all visible widgets are a child of this box
   interface->openVerticalBox("");
-  
+
   //----- add the menubar on top
   {
     interface->addMenu();
-    
+
     //----- this is a dummy widget, only for save settings for the latency warning dialog
     interface->openWarningBox("WARNING", &fwarn);
     interface->setSkinBox("SKIN", &fskin);
     interface->closeBox();
-    
-    //----- the upper box, 
+
+    //----- the upper box,
     interface->openVerticalBox("                                                ");
     {
       interface->openEventBox(" ");
@@ -61,13 +61,13 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
 	//----- the jconv widget on the main window
 	interface->openFrameBox("");
-	{ 
+	{
 	  interface->openExpanderBox(" jconv ", &fexpand2);
-	  { 
+	  {
 	    interface->openHandleBox("  ");
-	    { 
+	    {
 	      interface->openVerticalBox("");
-	      { 
+	      {
 		interface->addslider("wet/dry", &fslider24,  0.f, -1.f, 1.f, 1.e-01f);
 		interface->addJConvButton("jconv settings", &filebutton);
 		interface->addJToggleButton("run jconv", &gx_jconv::GxJConvSettings::checkbutton7);
@@ -76,7 +76,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
 	    }
 	    interface->closeBox();
-	      
+
 	  }
 	  interface->closeBox();
 
@@ -138,14 +138,15 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 	      interface->closeBox();
 	      //----- end tone and fuzz controll
 
-	      //----- the next part in the vertical box, 
+	      //----- the next part in the vertical box,
 	      interface->openHorizontalBox("");
 	      {
 		interface->openVerticalBox("");
 		{
 		  interface->openVerticalBox("amp  ");
 		  {
-		    interface->addminiswitch("oversample", &fupsample);
+		    interface->addminiswitch("oversample   ", &fupsample);
+		    interface->addminiswitch("noise_shaper ", &fng);
 		  }
 		  interface->closeBox();
 		}
@@ -160,7 +161,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
 	      }
 	      interface->closeBox();
-	      //----- 
+	      //-----
 
 	      //----- the second part in the vertical box
 	      interface->openHorizontalBox("");
@@ -168,7 +169,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 		interface->openVerticalBox("");
 		{
 		  interface->openVerticalBox("");
-		  {    
+		  {
 		    interface->addswitch("preamp", &fcheckbox1);
 		    interface->addHorizontalWheel("atan",&fatan, 1.f, 1.f, 10.f, 1.0f);
 		  }
@@ -245,7 +246,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
 	    }
 	    interface->closeBox();
-	    //----- end 
+	    //----- end
 
 	    //----- this box include all effects and the osccilloscope
 	    interface->openVerticalBox("");
@@ -302,7 +303,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
 		}
 		interface->closeBox();
-		//----- end compressor 
+		//----- end compressor
 
 
 		//----- overdrive
@@ -384,7 +385,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 		  interface->openVerticalBox(" freeverb");
 		  {
 		    interface->addregler("RoomSize", &fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
-		      
+
 		    interface->openHorizontalBox("");
 		    {
 		      interface->addtoggle("", &fcheckbox6);
@@ -531,7 +532,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 		    interface->addHorizontalSlider("threshold", &ffuse, 0.f, 0.f, 2.f, 1.f);
 		  }
 		  interface->closeBox();
-    		
+
 		  interface->openFrameBox("");
 		  interface->closeBox();
 
@@ -785,11 +786,11 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
 	}
 	interface->closeBox();
-      
+
       }
       interface->closeBox();
-    
-    
+
+
       //----- add the controlers for feedback feedforward to the bottob box
       interface->addslider(" feedback", &fslider0, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
       interface->addslider(" feedforward", &fslider23, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
@@ -801,11 +802,11 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
       }
       interface->closeBox();
       //----- end jack_capture
-      
+
     }
     interface->closeBox();
     //----- close botton box
-    
+
   }
 
   interface->closeBox();

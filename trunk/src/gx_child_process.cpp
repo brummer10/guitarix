@@ -249,7 +249,7 @@ namespace gx_child_process
     //---- wav file construction for jack_capture
     bool gx_capture_command(const int idx, string& capcmd)
     {
-      bool ret_status = false;
+     // bool ret_status = false;
 
       // jack_capture setup file
       string gfilename = gx_user_dir + jcapsetup_file;

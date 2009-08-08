@@ -122,6 +122,28 @@ inline void GxEngine::down_sample(float **input,float **output, int sf)
     }
 }
 
+inline void GxEngine::noise_gate (int sf, float** input, float** output)
+{
+    float* in = input[0];
+  float* out = output[0];
+
+     for (int i=0; i<sf; i++)
+    {
+                float fTempgate0 = *in++;
+				float fTempgate1 = max(1, fabsf(fTempgate0));
+				float fTempgate2 = ((fSlowgate3 * (fRecgate0[1] >= fTempgate1)) + (fSlowgate2 * (fRecgate0[1] < fTempgate1)));
+				fRecgate0[0] = ((fTempgate1 * (0 - (fTempgate2 - 1))) + (fRecgate0[1] * fTempgate2));
+				float fTempgate3 = max(0, ((20 * log10f(fRecgate0[0])) + 50.0f));
+				float fTempgate4 = (0.5f * min(1, max(0, (fSlowgate4 * fTempgate3))));
+				//float fTempgate5 = ((fTempgate3 * (0 - fTempgate4)) / (1 + fTempgate4));
+				//fbargraph0 = fTempgate5;
+				*out++ = (fTempgate0 * powf(10, (5.000000e-02f * (10.f+((fTempgate3 * (0 - fTempgate4)) / (1 + fTempgate4))))));
+				// post processing
+				fRecgate0[1] = fRecgate0[0];
+    }
+
+    }
+
 // anti aliasing the sine wav, this unit can nicly run oversampeled
 inline void GxEngine::AntiAlias (int sf, float** input, float** output)
 {
@@ -725,6 +747,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   int cts = 0;
   int ifuse = ffuse;
   int tuner_on = gx_gui::shownote + (int)dsp::isMidiOn() + 1;
+  int ing = int(fng);
 
   // pointer to the jack_buffer
   float*  input0 = input[0];
@@ -738,6 +761,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
     {
       over_sample(input,&oversample,count);
       //  if (icheckbox1 == 1)  preamp(count*2,&oversample,&oversample,atan_shape,f_atan);
+      if (ing)  noise_gate(count*2,&oversample,&oversample);
       if (itube)    fuzzy_tube(ifuzzytube, 0,count*2,&oversample,&oversample);
       if (itube3)   reso_tube(iresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
       if (iprdr)    fuzzy_tube(ipredrive, 1,count*2,&oversample,&oversample);
@@ -748,6 +772,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   else
     {
       //   if (icheckbox1 == 1)  preamp(count,input,input,atan_shape,f_atan);
+      if (ing)  noise_gate(count,input,input);
       if (itube)    fuzzy_tube(ifuzzytube, 0,count,input,input);
       if (itube3)   osc_tube(iresotube3,count,f_resotube1, f_resotube2,input,input);
       if (iprdr)    fuzzy_tube(ipredrive, 1,count,input,input);
