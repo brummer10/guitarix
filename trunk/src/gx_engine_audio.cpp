@@ -122,6 +122,23 @@ inline void GxEngine::down_sample(float **input,float **output, int sf)
     }
 }
 
+inline void GxEngine::gain_in (int sf, float** input, float** output)
+{
+  float* in = input[0];
+  float* out = output[0];
+  float fSlow18 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider3)));
+
+  for (int i=0; i<sf; i++)
+    {
+         // gain in
+      fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
+      *out++ = (fRec4[0] * *in++);
+      // post processing
+      fRec4[1] = fRec4[0];
+    }
+
+}
+
 inline void GxEngine::noise_gate (int sf, float** input, float** output)
 {
   float* in = input[0];
@@ -595,7 +612,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
   // float 	fSlow15 = checky;
   // float 	fSlow16 = (7.118644f * fSlow15);
-  float fSlow18 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider3)));
+  //float fSlow18 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider3)));
   // distortion
   float fSlow19 = (1.0f - fslider4);
   float fSlow20 = fslider5;
@@ -754,12 +771,14 @@ void GxEngine::process_buffers(int count, float** input, float** output)
     (void)memcpy(checkfreq, input0, sizeof(float)*count);
 
   // run pre_funktions on frame base
+  gain_in (count,input,input);
+  if (ing)  noise_gate(count,input,input);
   // 2*oversample
   if (iupsample)
     {
       over_sample(input,&oversample,count);
       //  if (icheckbox1 == 1)  preamp(count*2,&oversample,&oversample,atan_shape,f_atan);
-      if (ing)  noise_gate(count*2,&oversample,&oversample);
+     // if (ing)  noise_gate(count*2,&oversample,&oversample);
       if (itube)    fuzzy_tube(ifuzzytube, 0,count*2,&oversample,&oversample);
       if (itube3)   reso_tube(iresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
       if (iprdr)    fuzzy_tube(ipredrive, 1,count*2,&oversample,&oversample);
@@ -770,7 +789,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   else
     {
       //   if (icheckbox1 == 1)  preamp(count,input,input,atan_shape,f_atan);
-      if (ing)  noise_gate(count,input,input);
+      //if (ing)  noise_gate(count,input,input);
       if (itube)    fuzzy_tube(ifuzzytube, 0,count,input,input);
       if (itube3)   osc_tube(iresotube3,count,f_resotube1, f_resotube2,input,input);
       if (iprdr)    fuzzy_tube(ipredrive, 1,count,input,input);
@@ -852,8 +871,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
 
       // gain in
-      fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
-      fTemp0 = (fRec4[0] * fTemp0);
+     // fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
+     // fTemp0 = (fRec4[0] * fTemp0);
 
       // I have move the preamp to the frame based section, leef it here for . . .
       if (icheckbox1)     // preamp
