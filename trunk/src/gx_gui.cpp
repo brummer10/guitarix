@@ -867,7 +867,7 @@ namespace gx_gui
         gdk_color_parse("#a6a9aa", &colorGreen);
         gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
         GtkStyle *style = gtk_widget_get_style(lw);
-        pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
+        pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
         pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
         gtk_widget_modify_font(lw, style->font_desc);
         gtk_container_add (GTK_CONTAINER(box), lw);
@@ -1465,8 +1465,8 @@ namespace gx_gui
 
     GtkWidget * frame =  gtk_frame_new (label);
     GtkWidget* 	button1 = gtk_button_new_with_label ("reset");
-    gtk_widget_set_size_request (GTK_WIDGET(button1), 60.0, 20.0);
-    gtk_widget_set_size_request (GTK_WIDGET(frame), 100.0, 20.0);
+   // gtk_widget_set_size_request (GTK_WIDGET(button1), 60.0, 20.0);
+   // gtk_widget_set_size_request (GTK_WIDGET(frame), 100.0, 20.0);
     gtk_container_add (GTK_CONTAINER(box5), frame);
     gtk_container_add (GTK_CONTAINER(box5), button1);
     g_signal_connect (GTK_OBJECT (button1), "pressed", G_CALLBACK (gx_reset_units), (gpointer) dialog);
