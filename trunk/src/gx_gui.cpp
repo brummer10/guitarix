@@ -1464,7 +1464,15 @@ namespace gx_gui
     g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (gx_show_extended_settings), (gpointer) dialog);
 
     GtkWidget * frame =  gtk_frame_new (label);
-    GtkWidget* 	button1 = gtk_button_new_with_label ("reset");
+    GtkWidget* 	lab = gtk_label_new("reset");
+    GtkWidget* 	button1 = gtk_button_new();
+    gtk_container_add (GTK_CONTAINER(button1), lab);
+
+    GtkStyle *style = gtk_widget_get_style(lab);
+    pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
+    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
+    gtk_widget_modify_font(lab, style->font_desc);
+
    // gtk_widget_set_size_request (GTK_WIDGET(button1), 60.0, 20.0);
    // gtk_widget_set_size_request (GTK_WIDGET(frame), 100.0, 20.0);
     gtk_container_add (GTK_CONTAINER(box5), frame);
@@ -1474,6 +1482,7 @@ namespace gx_gui
     gtk_container_add (GTK_CONTAINER(box4), box);
     gtk_container_add (GTK_CONTAINER(dialog), box4);
     // gtk_widget_show(dialog);
+    gtk_widget_show(lab);
     gtk_widget_show(frame);
     gtk_widget_show(button1);
     gtk_widget_show(box);
