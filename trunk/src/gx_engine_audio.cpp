@@ -612,7 +612,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
   // float 	fSlow15 = checky;
   // float 	fSlow16 = (7.118644f * fSlow15);
-  //float fSlow18 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider3)));
+  float fSlow18 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider3)));
   // distortion
   float fSlow19 = (1.0f - fslider4);
   float fSlow20 = fslider5;
@@ -771,7 +771,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
     (void)memcpy(checkfreq, input0, sizeof(float)*count);
 
   // run pre_funktions on frame base
-  gain_in (count,input,input);
+  // gain_in (count,input,input);
   if (ing)  noise_gate(count,input,input);
   // 2*oversample
   if (iupsample)
@@ -871,8 +871,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
 
       // gain in
-     // fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
-     // fTemp0 = (fRec4[0] * fTemp0);
+      fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
+      fTemp0 = (fRec4[0] * fTemp0);
 
       // I have move the preamp to the frame based section, leef it here for . . .
       if (icheckbox1)     // preamp

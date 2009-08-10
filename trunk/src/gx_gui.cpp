@@ -994,11 +994,11 @@ namespace gx_gui
     if (zone) local_zone = *zone;
     GtkWidget* 	button = gtk_toggle_button_new_with_label (label);
     addWidget(label, button);
-    uiToggleButton* c = new uiToggleButton(this, &local_zone, GTK_TOGGLE_BUTTON(button));
+   // uiToggleButton* c = new uiToggleButton(this, &local_zone, GTK_TOGGLE_BUTTON(button));
     gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
     gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
-    g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
-    g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (gx_start_stop_jack_capture), (gpointer) c);
+   // g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
+    g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (gx_start_stop_jack_capture), NULL);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
     gtk_widget_add_accelerator(button, "activate", fAccelGroup, GDK_r, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
   }

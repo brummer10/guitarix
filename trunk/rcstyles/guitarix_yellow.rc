@@ -141,7 +141,7 @@ style "h_style_yellow"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "yellow2.jpg"
+			file			= "yellow3.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}

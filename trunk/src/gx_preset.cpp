@@ -173,9 +173,15 @@ namespace gx_preset
       map<GtkMenuItem*, string>::iterator it;
       for (it = preset_list[i].begin(); it != preset_list[i].end(); it++) {
 	GtkMenuItem* const item = it->first;
-	string label = gtk_menu_item_get_label(item);
-	label.replace(1, 1, gx_i2a(n));
-	gtk_menu_item_set_label(item, label.c_str());
+	//string label = gtk_menu_item_get_label(item);
+	//label.replace(1, 1, gx_i2a(n));
+	//gtk_menu_item_set_label(item, label.c_str());
+
+	// patch by Michal Šebeň for openSuse
+    GtkWidget *menu_widget = gtk_bin_get_child(GTK_BIN(item));
+    string label = gtk_label_get_text(GTK_LABEL(menu_widget));
+    label.replace(1, 1, gx_i2a(n));
+    gtk_label_set_text(GTK_LABEL(menu_widget), label.c_str());
 
 	// refresh acc path for this item
 	guint accel_key = GDK_1 + n - 1;
@@ -779,10 +785,18 @@ namespace gx_preset
 
       if (!item) continue;
 
-      string label = gtk_menu_item_get_label(item);
+      //string label = gtk_menu_item_get_label(item);
+      //label.erase(label.find("  ") + 2);
+      //label.append(newname);
+      //gtk_menu_item_set_label(item, label.c_str());
+
+      // patch by Michal Šebeň for openSuse
+      GtkWidget *menu_widget = gtk_bin_get_child(GTK_BIN(item));
+      string label = gtk_label_get_text(GTK_LABEL(menu_widget));
       label.erase(label.find("  ") + 2);
       label.append(newname);
-      gtk_menu_item_set_label(item, label.c_str());
+
+      gtk_label_set_text(GTK_LABEL(menu_widget), label.c_str());
 
       preset_list[i][item] = newname;
 

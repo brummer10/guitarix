@@ -316,7 +316,7 @@ namespace gx_child_process
 
       // avoid running it at startup
       // (ugly hack due to GTK+ signalling side effect)
-#if ( __GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
+/*#if ( __GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
       static bool cap_init = false;
       if (!cap_init)
         {
@@ -324,7 +324,7 @@ namespace gx_child_process
           cap_init = true;
           return;
         }
-#endif
+#endif */
 
       gx_print_info("Record", " Trying to run jack_capture");
 
