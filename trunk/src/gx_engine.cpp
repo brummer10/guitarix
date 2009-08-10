@@ -461,6 +461,7 @@ namespace gx_engine
       fSlowgate4 = (1.0f / (1.000000e-03f +10.5f));
       zeroize(fRecgate0, 2);
       fng = 0;
+      fsharp0 = 0;
       // end engine init
     }
 

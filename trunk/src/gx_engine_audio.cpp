@@ -143,6 +143,8 @@ inline void GxEngine::noise_gate (int sf, float** input, float** output)
 {
   float* in = input[0];
   float* out = output[0];
+  //float sharp = fsharp0;
+  float press = fsharp0 * 5;
 
   for (int i=0; i<sf; i++)
     {
@@ -150,9 +152,9 @@ inline void GxEngine::noise_gate (int sf, float** input, float** output)
       float fTempgate1 = max(1, fabsf(fTempgate0));
       float fTempgate2 = ((fSlowgate3 * (fRecgate0[1] >= fTempgate1)) + (fSlowgate2 * (fRecgate0[1] < fTempgate1)));
       fRecgate0[0] = ((fTempgate1 * (0 - (fTempgate2 - 1))) + (fRecgate0[1] * fTempgate2));
-      float fTempgate3 = max(0, ((20 * log10f(fRecgate0[0])) + 50.0f));
+      float fTempgate3 = max(0, ((20 * log10f(fRecgate0[0])) + press));
       float fTempgate4 = (0.5f * min(1, max(0, (fSlowgate4 * fTempgate3))));
-      *out++ = (fTempgate0 * powf(10, (5.000000e-02f * (10.f+((fTempgate3 * (0 - fTempgate4)) / (1 + fTempgate4))))));
+      *out++ = (fTempgate0 * powf(10, (5.000000e-02f * (fsharp0+((fTempgate3 * (0 - fTempgate4)) / (1 + fTempgate4))))));
       // post processing
       fRecgate0[1] = fRecgate0[0];
     }

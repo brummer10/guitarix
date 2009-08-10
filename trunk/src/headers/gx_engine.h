@@ -484,6 +484,7 @@ namespace gx_engine
         float 	fSlowgate3;
         float 	fSlowgate4;
         float fng;
+        float fsharp0;
 
         // private constructor
         GxEngine() {}

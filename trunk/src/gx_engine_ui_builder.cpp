@@ -139,16 +139,21 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 	      //----- end tone and fuzz controll
 
 	      //----- the next part in the vertical box,
+	      interface->openVerticalBox("");
+		{
 	      interface->openHorizontalBox("");
 	      {
-		interface->openVerticalBox("");
+
+		interface->openVerticalBox("n.shaper  ");
 		{
-		  interface->openVerticalBox("amp  ");
-		  {
-		    interface->addminiswitch("oversample   ", &fupsample);
-		    interface->addminiswitch("noise_shaper ", &fng);
-		  }
-		  interface->closeBox();
+		    interface->addtoggle("noise_shaper ", &fng);
+            interface->openFrameBox("");
+		    {
+		    interface->addHorizontalSlider("sharper",&fsharp0, 1.f, 1.f, 10.f, 1.0f);
+		    }
+		    interface->closeBox();
+
+
 		}
 		interface->closeBox();
 
@@ -158,6 +163,13 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 		  interface->addHorizontalSlider(" feedback ", &faas1, 0.3f, 0.3f, 0.9f, 0.01f);
 		}
 		interface->closeBox();
+		}
+		interface->closeBox();
+				  interface->openVerticalBox("amp  ");
+		  {
+		    interface->addminiswitch("oversample   ", &fupsample);
+		  }
+		  interface->closeBox();
 
 	      }
 	      interface->closeBox();
