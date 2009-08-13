@@ -765,6 +765,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   int ifuse = ffuse;
   int tuner_on = gx_gui::shownote + (int)dsp::isMidiOn() + 1;
   int ing = int(fng);
+  int iboost = int(fboost);
 
   // pointer to the jack_buffer
   float*  input0 = input[0];
@@ -1007,6 +1008,12 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
       fTemp0 =  (fRec46[0] * fTemp0);
 
+      // bass booster
+      if(iboost) {
+      fRec_boost0[0] = (fTemp0 - (fConst_boost4 * ((fConst_boost3 * fRec_boost0[2]) + (fConst_boost2 * fRec_boost0[1]))));
+      fTemp0 = (fConst_boost4 * (((fConst_boost8 * fRec_boost0[0]) + (fConst_boost7 * fRec_boost0[1])) + (fConst_boost6 * fRec_boost0[2])));
+      }
+
       if (iSlow75)    //echo
         {
           fRec47[IOTA&262143] = (fTemp0 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
@@ -1144,6 +1151,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fVect0[1] = fVect0[0];
       fRechp0[1] = fRechp0[0];
       fVechp0[1] = fVechp0[0];
+      // post processing bass booster
+      fRec_boost0[2] = fRec_boost0[1]; fRec_boost0[1] = fRec_boost0[0];
 
     }
 

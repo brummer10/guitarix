@@ -144,7 +144,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                 interface->openHorizontalBox("");
                 {
 
-                  interface->openVerticalBox("n.shaper  ");
+                  interface->openVerticalBox("noise shaper  ");
                   {
                     interface->addtoggle("noise_shaper ", &fng);
                     interface->openFrameBox("");
@@ -155,7 +155,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                   }
                   interface->closeBox();
 
-                  interface->openVerticalBox("a.aliase");
+                  interface->openVerticalBox("anti aliase");
                   {
                     interface->addtoggle("a.aliase", &antialis0);
                     interface->addHorizontalSlider(" feedback ", &faas1, 0.3f, 0.3f, 0.9f, 0.01f);
@@ -163,17 +163,29 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                   interface->closeBox();
                 }
                 interface->closeBox();
+
+
                 interface->openVerticalBox("amp  ");
                 {
+                interface->openHorizontalBox("");
+              {
                   interface->addminiswitch("oversample   ", &fupsample);
                   interface->openFrameBox("");
                   {
                   }
-                  interface->closeBox();
-                }
-                interface->closeBox();
 
+                interface->closeBox();
+                interface->addminiswitch("bass booster   ", &fboost);
+                  interface->openFrameBox("");
+                  {
+                  }
+                  interface->closeBox();
               }
+              interface->closeBox();
+              }
+                interface->closeBox();
+                }
+
               interface->closeBox();
               //-----
 
@@ -548,6 +560,10 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
                 interface->openVerticalBox("");
                 {
+                    interface->openFrameBox("");
+                interface->closeBox();
+                interface->openFrameBox("");
+                interface->closeBox();
                   interface->addregler("fuzz",&fthreshold, 1.f, 0.f, 1.f, 0.01f);
                   interface->addHorizontalSlider("threshold", &ffuse, 0.f, 0.f, 2.f, 1.f);
                 }

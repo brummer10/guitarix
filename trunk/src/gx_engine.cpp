@@ -462,6 +462,20 @@ namespace gx_engine
       zeroize(fRecgate0, 2);
       fng = 0;
       fsharp0 = 0;
+
+      //bass booster
+      fConst_boost0 = tanf((376.991119f / fSamplingFreq));
+      fConst_boost1 = (fConst_boost0 * fConst_boost0);
+      fConst_boost2 = (2 * (fConst_boost1 - 1));
+      fConst_boost3 = (1 + (fConst_boost0 * (fConst_boost0 - 1.414214f)));
+      fConst_boost4 = (1.0f / (1 + (fConst_boost0 * (1.414214f + fConst_boost0))));
+      zeroize(fRec_boost0, 3);
+      fConst_boost5 = (10.0f * fConst_boost0);
+      fConst_boost6 = (1 + (fConst_boost0 * (fConst_boost5 - 4.472136f)));
+      fConst_boost7 = (2 * ((10.0f * fConst_boost1) - 1));
+      fConst_boost8 = (1 + (fConst_boost0 * (fConst_boost5 +  4.472136f)));
+      fboost = 0;
+      // bass booster end
       // end engine init
     }
 

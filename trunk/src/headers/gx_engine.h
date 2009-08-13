@@ -486,6 +486,21 @@ namespace gx_engine
         float fng;
         float fsharp0;
 
+        // bass booster
+        float 	fConst_boost0;
+        float 	fConst_boost1;
+        float 	fConst_boost2;
+        float 	fConst_boost3;
+        float 	fConst_boost4;
+        float 	fRec_boost0[3];
+        float 	fConst_boost5;
+        float 	fConst_boost6;
+        float 	fConst_boost7;
+        float 	fConst_boost8;
+        float   fboost;
+        // bass booster end
+
+
         // private constructor
         GxEngine() {}
 
