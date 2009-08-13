@@ -169,13 +169,18 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                 {
                 interface->openHorizontalBox("");
               {
-                  interface->addminiswitch("oversample   ", &fupsample);
+                interface->openFrameBox("");
+                  {
+                  }
+
+                interface->closeBox();
+                  interface->addminiswitch(" oversample  ", &fupsample);
                   interface->openFrameBox("");
                   {
                   }
 
                 interface->closeBox();
-                interface->addminiswitch("bass booster   ", &fboost);
+                interface->addminiswitch(" bass booster", &fboost);
                   interface->openFrameBox("");
                   {
                   }
