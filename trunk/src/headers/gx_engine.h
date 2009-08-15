@@ -499,6 +499,9 @@ namespace gx_engine
         float 	fConst_boost8;
         float   fboost;
         // bass booster end
+        float ngate;
+        float fnoise_g;
+        float fnglevel;
 
 
         // private constructor
@@ -564,8 +567,8 @@ namespace gx_engine
         static float normalize  (float in, float atan_shape, float shape);
 
         // non static methods (modifying object's non static private members)
-        void  gain_in  (int sf, float** input, float** output);
-        void  noise_gate  (int sf, float** input, float** output);
+        void  noise_gate  (int sf, float** input);
+        void  noise_shaper  (int sf, float** input, float** output);
         void  AntiAlias  (int sf, float** input, float** output);
         void  reso_tube  (int fuzzy, int sf, float reso, float vibra,
                           float** input, float** output);

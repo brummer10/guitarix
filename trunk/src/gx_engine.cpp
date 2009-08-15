@@ -470,12 +470,15 @@ namespace gx_engine
       fConst_boost3 = (1 + (fConst_boost0 * (fConst_boost0 - 1.414214f)));
       fConst_boost4 = (1.0f / (1 + (fConst_boost0 * (1.414214f + fConst_boost0))));
       zeroize(fRec_boost0, 3);
-      fConst_boost5 = (10.0f * fConst_boost0);
-      fConst_boost6 = (1 + (fConst_boost0 * (fConst_boost5 - 4.472136f)));
-      fConst_boost7 = (2 * ((10.0f * fConst_boost1) - 1));
-      fConst_boost8 = (1 + (fConst_boost0 * (fConst_boost5 +  4.472136f)));
+      fConst_boost5 = (3.162278f * fConst_boost0);
+      fConst_boost6 = (1 + (fConst_boost0 * (fConst_boost5 - 2.514867f)));
+      fConst_boost7 = (2 * ((3.162278f * fConst_boost1) - 1));
+      fConst_boost8 = (1 + (fConst_boost0 * (fConst_boost5 +  2.514867f)));
       fboost = 0;
       // bass booster end
+      ngate = 1;
+      fnoise_g = 0;
+      fnglevel = 0.017;;
       // end engine init
     }
 

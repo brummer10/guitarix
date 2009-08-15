@@ -154,6 +154,12 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                     interface->closeBox();
                   }
                   interface->closeBox();
+                   interface->openVerticalBox("noise gate ");
+                  {
+                    interface->addtoggle("noise_g", &fnoise_g);
+                    interface->addHorizontalSlider(" threshold ", &fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
+                  }
+                  interface->closeBox();
 
                   interface->openVerticalBox("anti aliase");
                   {

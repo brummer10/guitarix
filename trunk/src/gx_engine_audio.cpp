@@ -122,29 +122,34 @@ inline void GxEngine::down_sample(float **input,float **output, int sf)
     }
 }
 
-inline void GxEngine::gain_in (int sf, float** input, float** output)
+inline void GxEngine::noise_gate (int sf, float** input)
 {
   float* in = input[0];
-  float* out = output[0];
-  float fSlow18 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider3)));
+  float noisepulse = 0;
+  float sumnoise = 0;
+  int count = 0;
+  float f_gate = fnglevel*0.01;
 
   for (int i=0; i<sf; i++)
     {
-         // gain in
-      fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
-      *out++ = (fRec4[0] * *in++);
-      // post processing
-      fRec4[1] = fRec4[0];
+          count += 1;
+          sumnoise += sqrf(fabs(*in++));
+          noisepulse = sqrtf(sumnoise/count);
     }
+       if (noisepulse > f_gate) ngate = 1; // -75db 0.001 = 65db
+          else if (ngate > 0)ngate *= 0.996;
 
 }
 
-inline void GxEngine::noise_gate (int sf, float** input, float** output)
+inline void GxEngine::noise_shaper (int sf, float** input, float** output)
 {
   float* in = input[0];
   float* out = output[0];
   //float sharp = fsharp0;
   float press = fsharp0 * 5;
+
+
+
 
   for (int i=0; i<sf; i++)
     {
@@ -158,6 +163,7 @@ inline void GxEngine::noise_gate (int sf, float** input, float** output)
       // post processing
       fRecgate0[1] = fRecgate0[0];
     }
+
 
 }
 
@@ -766,6 +772,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   int tuner_on = gx_gui::shownote + (int)dsp::isMidiOn() + 1;
   int ing = int(fng);
   int iboost = int(fboost);
+  int inoise_g = int(fnoise_g);
+
 
   // pointer to the jack_buffer
   float*  input0 = input[0];
@@ -774,8 +782,10 @@ void GxEngine::process_buffers(int count, float** input, float** output)
     (void)memcpy(checkfreq, input0, sizeof(float)*count);
 
   // run pre_funktions on frame base
-  // gain_in (count,input,input);
-  if (ing)  noise_gate(count,input,input);
+  if (inoise_g) noise_gate (count,input);
+  else ngate = 1;
+  if (ing)  noise_shaper(count,input,input);
+
   // 2*oversample
   if (iupsample)
     {
@@ -1029,7 +1039,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       else  fVec23[0] = fTemp0;   //impulseResponse ende
 
       // this is the output value from the mono process
-      fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]));
+      fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]))*ngate;
       // switch between fuzz or foldback distortion, or plain output
 
       switch (ifuse)
