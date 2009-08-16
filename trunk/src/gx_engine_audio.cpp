@@ -132,12 +132,12 @@ inline void GxEngine::noise_gate (int sf, float** input)
 
   for (int i=0; i<sf; i++)
     {
-          count += 1;
-          sumnoise += sqrf(fabs(*in++));
-          noisepulse = sqrtf(sumnoise/count);
+      count += 1;
+      sumnoise += sqrf(fabs(*in++));
+      noisepulse = sqrtf(sumnoise/count);
     }
-       if (noisepulse > f_gate) ngate = 1; // -75db 0.001 = 65db
-          else if (ngate > 0)ngate *= 0.996;
+  if (noisepulse > f_gate) ngate = 1; // -75db 0.001 = 65db
+  else if (ngate > 0.01)ngate *= 0.996;
 
 }
 
@@ -177,6 +177,7 @@ inline void GxEngine::AntiAlias (int sf, float** input, float** output)
   for (int i=0; i<sf; i++)
     {
       float x = *in++;
+      add_dc(x);
       float a = alias[state];
       alias[state++] = x + a * faas1;
       if (state > 1.5)
@@ -201,6 +202,7 @@ inline void GxEngine::reso_tube (int fuzzy, int sf, float reso, float vibra,
   for (int i=0; i<sf; i++)
     {
       x = *in++;
+      add_dc(x);
       if ( x >= 0.0 )
         {
           ot = ((2.f * x - 1.f * x * x) -x)*0.5;
@@ -237,6 +239,7 @@ inline void GxEngine::osc_tube (int fuzzy, int sf, float reso, float vibra,
   for (int i=0; i<sf; i++)
     {
       x = *in++;
+      add_dc(x);
       if ( x >= 0.0 )
         {
           ot = ((2.f * x - 1.f * x * x) -x)*0.5;
@@ -773,6 +776,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   int ing = int(fng);
   int iboost = int(fboost);
   int inoise_g = int(fnoise_g);
+  /**FIXME**/
+  //int iautowah = int(fautowah);
 
 
   // pointer to the jack_buffer
@@ -791,7 +796,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
     {
       over_sample(input,&oversample,count);
       //  if (icheckbox1 == 1)  preamp(count*2,&oversample,&oversample,atan_shape,f_atan);
-     // if (ing)  noise_gate(count*2,&oversample,&oversample);
+      // if (ing)  noise_gate(count*2,&oversample,&oversample);
       if (itube)    fuzzy_tube(ifuzzytube, 0,count*2,&oversample,&oversample);
       if (itube3)   reso_tube(iresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
       if (iprdr)    fuzzy_tube(ipredrive, 1,count*2,&oversample,&oversample);
@@ -920,6 +925,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           float 	S8[2];
           fVec1[IOTA&4095] = (fTemp0 + (fSlow19 * fRec6[1]));
           fRec6[0] = (0.5f * (fVec1[(IOTA-iSlow22)&4095] + fVec1[(IOTA-iSlow21)&4095]));
+          add_dc(fRec6[0]);
           S8[0] = fRec6[0];
           fVec2[0] = (fSlow25 * fRec6[0]);
           fRec8[0] = (fVec2[1] + (fSlow25 * (fRec6[0] + (fSlow24 * fRec8[1]))));
@@ -927,8 +933,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fRec7[0] = ((fVec3[0] + (fSlow29 * fRec7[1])) - fVec3[1]);
           S8[1] = fRec7[0];
           float fTemp3 = S8[iSlow30];
+          add_dc(fTemp3);
           S7[0] = fTemp3;
-          add_dc(S7[0]);
           fVec4[0] = (fSlow39 * fTemp3);
           fRec12[0] = ((fSlow39 * (fTemp3 + (fSlow40 * fRec12[1]))) - fVec4[1]);
           fVec5[0] = (fSlow39 * fRec12[0]);
@@ -943,6 +949,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fRec5[0] = ((fVec6[0] + (0.995f * fRec5[1])) - fVec6[1]);
           fRec13[0] = (fSlow44 + (0.999f * fRec13[1]));
           float fTemp6 = (fRec13[0] * fRec5[0]);
+          add_dc(fTemp6);
           S6[0] = fTemp6;
           fVec7[0] = (fSlow39 * fTemp6);
           fRec17[0] = ((fSlow39 * (fTemp6 + (fSlow40 * fRec17[1]))) - fVec7[1]);
@@ -965,9 +972,25 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fTemp0 = fRec_tone0[0];
       if (iSlow65)    //crybaby
         {
-          fRec19[0] = (fSlow57 + (0.999f * fRec19[1]));
+            /**FIXME need to calibrate the right values**/
+         /* if(iautowah) {
+             int iTempwah1 = abs(int((4194304 * fTemp0)));
+				iVecwah0[IOTAWAH&1023] = iTempwah1;
+				iRecwah2[0] = ((iVecwah0[IOTAWAH&1023] + iRecwah2[1]) - iVecwah0[(IOTAWAH-1000)&1023]);
+				float fTempwah2 = min(1, max(0, ((2.384186e-09f*(0.05f+fSlow56)) * float(iRecwah2[0]))));
+				fRec19[0] = ((9.999872e-05f * powf(4.0f, fTempwah2)) + (0.999f * fRec19[1]));
+				float fTempwah3 = powf(2.0f, (2.3f * fTempwah2));
+				float fTempwah4 = (1 - (fConst10 * (fTempwah3 / powf(2.0f, (1.0f + (2.0f * (1.0f - fTempwah2)))))));
+				fRec20[0] = ((9.999871e-04f * (0 - (2.0f * (fTempwah4 * cosf((fConst9 * fTempwah3)))))) + (0.999f * fRec20[1]));
+				fRec21[0] = ((9.999871e-04f * (fTempwah4 * fTempwah4)) + (0.999f * fRec21[1]));
+          }
+          else {*/
+
+          fRec19[0] = (fSlow57 + (0.999f * fRec19[1])); //wah slider
           fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
-          fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));
+          fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));  // wah slider
+        //  }
+
           fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fRec_tone0[0] * fRec19[0]))));
           fTemp0 = ((fRec18[0] + (fSlow64 * fRec_tone0[0])) - fRec18[1]);
         }                                     //crybaby ende
@@ -1019,10 +1042,11 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fTemp0 =  (fRec46[0] * fTemp0);
 
       // bass booster
-      if(iboost) {
-      fRec_boost0[0] = (fTemp0 - (fConst_boost4 * ((fConst_boost3 * fRec_boost0[2]) + (fConst_boost2 * fRec_boost0[1]))));
-      fTemp0 = (fConst_boost4 * (((fConst_boost8 * fRec_boost0[0]) + (fConst_boost7 * fRec_boost0[1])) + (fConst_boost6 * fRec_boost0[2])));
-      }
+      if (iboost)
+        {
+          fRec_boost0[0] = (fTemp0 - (fConst_boost4 * ((fConst_boost3 * fRec_boost0[2]) + (fConst_boost2 * fRec_boost0[1]))));
+          fTemp0 = (fConst_boost4 * (((fConst_boost8 * fRec_boost0[0]) + (fConst_boost7 * fRec_boost0[1])) + (fConst_boost6 * fRec_boost0[2])));
+        }
 
       if (iSlow75)    //echo
         {
@@ -1162,7 +1186,12 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fRechp0[1] = fRechp0[0];
       fVechp0[1] = fVechp0[0];
       // post processing bass booster
-      fRec_boost0[2] = fRec_boost0[1]; fRec_boost0[1] = fRec_boost0[0];
+      fRec_boost0[2] = fRec_boost0[1];
+      fRec_boost0[1] = fRec_boost0[0];
+
+       /**FIXME**/
+     // iRecwah2[1] = iRecwah2[0];
+     // IOTAWAH = IOTAWAH+1;
 
     }
 

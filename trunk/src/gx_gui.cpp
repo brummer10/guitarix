@@ -1436,7 +1436,7 @@ namespace gx_gui
     *zone = 0.0;
     GtkWidget* 	button = gtk_toggle_button_new ();
     gtk_widget_set_size_request (GTK_WIDGET(button), 20.0, 5.0);
-    gtk_widget_set_size_request (GTK_WIDGET(box6), 20.0, 5.0);
+    gtk_widget_set_size_request (GTK_WIDGET(box6), 20.0, 1.0);
     GtkWidget * box3 = gtk_hbox_new (homogene, 4);
     GtkWidget * box1 = gtk_vbox_new (homogene, 4);
     gtk_container_set_border_width (GTK_CONTAINER (box3), 0);

@@ -154,7 +154,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                     interface->closeBox();
                   }
                   interface->closeBox();
-                   interface->openVerticalBox("noise gate ");
+                  interface->openVerticalBox("noise gate ");
                   {
                     interface->addtoggle("noise_g", &fnoise_g);
                     interface->addHorizontalSlider(" threshold ", &fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
@@ -173,29 +173,29 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
                 interface->openVerticalBox("amp  ");
                 {
-                interface->openHorizontalBox("");
-              {
-                interface->openFrameBox("");
+                  interface->openHorizontalBox("");
                   {
-                  }
+                    interface->openFrameBox("");
+                    {
+                    }
 
-                interface->closeBox();
-                  interface->addminiswitch(" oversample  ", &fupsample);
-                  interface->openFrameBox("");
-                  {
-                  }
+                    interface->closeBox();
+                    interface->addminiswitch(" oversample  ", &fupsample);
+                    interface->openFrameBox("");
+                    {
+                    }
 
-                interface->closeBox();
-                interface->addminiswitch(" bass booster", &fboost);
-                  interface->openFrameBox("");
-                  {
+                    interface->closeBox();
+                    interface->addminiswitch(" bass booster", &fboost);
+                    interface->openFrameBox("");
+                    {
+                    }
+                    interface->closeBox();
                   }
                   interface->closeBox();
-              }
-              interface->closeBox();
-              }
-                interface->closeBox();
                 }
+                interface->closeBox();
+              }
 
               interface->closeBox();
               //-----
@@ -504,9 +504,19 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                       {
                         interface->openHandleBox("  ");
                         {
-                          interface->addregler(" wah ", &fslider11, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
-                          interface->addregler("level", &fslider12, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
-                          interface->addregler("wet/dry", &fslider13, 0.f, -1.f, 1.f, 1.e-01f);
+                          interface->openVerticalBox("");
+                          {
+                            interface->openHorizontalBox("");
+                            {
+                              interface->addregler(" wah ", &fslider11, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
+                              interface->addregler("level", &fslider12, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
+                              interface->addregler("wet/dry", &fslider13, 0.f, -1.f, 1.f, 1.e-01f);
+                            }
+                            interface->closeBox();
+                            /**FIXME**/
+                            // interface->addminiswitch(" autowah", &fautowah);
+                          }
+                          interface->closeBox();
                         }
                         interface->closeBox();
 
@@ -571,10 +581,10 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
                 interface->openVerticalBox("");
                 {
-                    interface->openFrameBox("");
-                interface->closeBox();
-                interface->openFrameBox("");
-                interface->closeBox();
+                  interface->openFrameBox("");
+                  interface->closeBox();
+                  interface->openFrameBox("");
+                  interface->closeBox();
                   interface->addregler("fuzz",&fthreshold, 1.f, 0.f, 1.f, 0.01f);
                   interface->addHorizontalSlider("threshold", &ffuse, 0.f, 0.f, 2.f, 1.f);
                 }
@@ -819,6 +829,13 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                   interface->closeBox();
 
                   interface->addStatusDisplay("", &midistat);
+
+                  interface->openVerticalBox("Midi gain");
+                  {
+                    interface->addHorizontalWheel("midi gain", &midi_gain, 0.f, -20.f, 60.f, 1.f);
+                  }
+                  interface->closeBox();
+
                 }
                 interface->closeBox();
 

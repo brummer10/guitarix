@@ -90,7 +90,7 @@ void GxEngine::compute_midi( int len)
         {
 
             midi_db = (log(fabs(audiodata[i]))*fConstlog2);
-            beat0 = 254- floor(exp(fConstlog*midi_db)*127);
+            beat0 = 254- floor(exp(fConstlog*midi_db)*127)+ midi_gain;
             rms = beat0;
 
             if (( beat0 >= fTemps45) && (cpu_load < 65.0))
@@ -327,7 +327,7 @@ void GxEngine::compute_midi( int len)
                         }
                     }
                     myTBeatDetector.setSampleRate (fSamplingFreq*stepper);
-                    myTBeatDetector.AudioProcess (beat0,  fTemps38);
+                    myTBeatDetector.AudioProcess (rms,  fTemps38);
                     if (myTBeatDetector.BeatPulse == TRUE)
                     {
                         send+=step;

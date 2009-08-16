@@ -503,6 +503,14 @@ namespace gx_engine
         float fnoise_g;
         float fnglevel;
 
+        /**FIXME**/
+       /* float fautowah;
+        float iVecwah0[1024];
+        float iRecwah2[2];
+        int IOTAWAH; */
+
+        float midi_gain;
+
 
         // private constructor
         GxEngine() {}

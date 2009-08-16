@@ -479,6 +479,14 @@ namespace gx_engine
       ngate = 1;
       fnoise_g = 0;
       fnglevel = 0.017;;
+
+      /**FIXME**/
+     /* fautowah = 0;
+      zeroize(iRecwah2, 2);
+      zeroize(iVecwah0, 1024);
+      IOTAWAH = 0; */
+
+      midi_gain = 1.0;
       // end engine init
     }
 

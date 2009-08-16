@@ -113,9 +113,9 @@ void GxEngine::process_midi(int len)
         {
 
           //----- convert the audio gain to midi gain value
-          midi_db = (log(fabs(audiodata[i]))*fConstlog2);
-          beat0 = 254- floor(exp(fConstlog*midi_db)*127);
-          rms = beat0;
+          midi_db = (log(fabs(*audiodata++))*fConstlog2);
+          beat0 = 254- floor(exp(fConstlog*midi_db)*127)+ midi_gain;
+          rms = beat0 ;
 
           //----- check gain value and run only when gain is higher then the selected value
           if (( beat0 >= fTemps45) && (gx_jack::jcpu_load < 65.0))
@@ -389,7 +389,7 @@ void GxEngine::process_midi(int len)
                     }
 
                   myTBeatDetector.setSampleRate (fSamplingFreq);
-                  myTBeatDetector.AudioProcess (beat0,  fTemps38);
+                  myTBeatDetector.AudioProcess (rms,  fTemps38);
                   if (myTBeatDetector.BeatPulse == TRUE)
                     {
                       send+=step;
