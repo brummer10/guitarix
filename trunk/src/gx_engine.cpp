@@ -480,11 +480,11 @@ namespace gx_engine
       fnoise_g = 0;
       fnglevel = 0.017;;
 
-      /**FIXME**/
-     /* fautowah = 0;
+      // autowah
+      fautowah = 0;
       zeroize(iRecwah2, 2);
       zeroize(iVecwah0, 1024);
-      IOTAWAH = 0; */
+      IOTAWAH = 0;
 
       midi_gain = 1.0;
       // end engine init

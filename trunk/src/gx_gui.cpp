@@ -1335,6 +1335,16 @@ namespace gx_gui
     addWidget(label, slider);
   }
 
+  void GxMainInterface::addbtoggle(const char* label, float* zone)
+  {
+    GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
+    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+    GtkRegler myGtkRegler;
+    GtkWidget* slider = myGtkRegler.gtk_button_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
+    addWidget(label, slider);
+  }
+
   void GxMainInterface::addswitch(const char* label, float* zone)
   {
     GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);

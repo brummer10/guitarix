@@ -34,7 +34,7 @@ namespace gx_ui
   class GxUI;
 
   /* --- GxUiItem (virtual class) --- */
-  class GxUiItem 
+  class GxUiItem
   {
   protected :
     GxUI*	fGUI;
@@ -69,7 +69,7 @@ namespace gx_ui
   {
     typedef list< GxUiItem* > clist;
     typedef map < float*, clist* > zmap;
-    
+
   private:
     static list<GxUI*>	fGuiList;
     zmap		fZoneMap;
@@ -79,7 +79,7 @@ namespace gx_ui
     GxUI();
     virtual ~GxUI() {}
 
-    // public methods 
+    // public methods
     void registerZone(float*, GxUiItem*);
     void saveStateToFile(const char*);
     void dumpStateToString(string&);
@@ -108,6 +108,7 @@ namespace gx_ui
     virtual void addbigregler(const char* label, float* zone, float init, float min, float max, float step) {};
     virtual void addslider(const char* label, float* zone, float init, float min, float max, float step){};
     virtual void addtoggle(const char* label, float* zone){};
+    virtual void addbtoggle(const char* label, float* zone){};
     virtual void addswitch(const char* label, float* zone){};
     virtual void addminiswitch(const char* label, float* zone){};
     virtual void addNumEntry(const char* label, float* zone, float init, float min, float max, float step) {};

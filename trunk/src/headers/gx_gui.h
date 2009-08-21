@@ -136,6 +136,7 @@ namespace gx_gui
     virtual void addbigregler(const char* label, float* zone, float init, float min, float max, float step);
     virtual void addslider(const char* label, float* zone, float init, float min, float max, float step);
     virtual void addtoggle(const char* label, float* zone);
+    virtual void addbtoggle(const char* label, float* zone);
     virtual void addswitch(const char* label, float* zone);
     virtual void addminiswitch(const char* label, float* zone);
     virtual void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);

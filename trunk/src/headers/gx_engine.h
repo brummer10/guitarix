@@ -503,11 +503,11 @@ namespace gx_engine
         float fnoise_g;
         float fnglevel;
 
-        /**FIXME**/
-       /* float fautowah;
+        // autowah
+        float fautowah;
         float iVecwah0[1024];
         float iRecwah2[2];
-        int IOTAWAH; */
+        int IOTAWAH;
 
         float midi_gain;
 

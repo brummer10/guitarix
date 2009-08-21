@@ -513,8 +513,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                               interface->addregler("wet/dry", &fslider13, 0.f, -1.f, 1.f, 1.e-01f);
                             }
                             interface->closeBox();
-                            /**FIXME**/
-                            // interface->addminiswitch(" autowah", &fautowah);
+
+                             interface->addminiswitch(" autowah", &fautowah);
                           }
                           interface->closeBox();
                         }

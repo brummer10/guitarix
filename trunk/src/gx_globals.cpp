@@ -231,6 +231,7 @@ namespace gx_gui
   GdkPixbuf* ib;
   GdkPixbuf* ibm;
   GdkPixbuf* ibr;
+  GdkPixbuf* bbr;
 
   /* jack latency change warning */
   GtkWidget* warn_dialog;

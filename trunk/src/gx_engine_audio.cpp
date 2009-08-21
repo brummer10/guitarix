@@ -343,11 +343,11 @@ inline void GxEngine::preamp(int sf, float** input, float** output,
 
   for (int i=0; i<sf; i++)
     {
-      float  x = *in++ ;
+      float  x = *in++ *0.001 ;
       float  fTemp0in = (x-0.15*(x*x))-(0.15*(x*x*x));
       x = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
       fTemp0in = normalize(x,atan_shape,f_atan);
-      *out++ = fTemp0in*0.75;
+      *out++ = fTemp0in*750;
 
     }
 
@@ -787,8 +787,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   int ing = int(fng);
   int iboost = int(fboost);
   int inoise_g = int(fnoise_g);
-  /**FIXME**/
-  //int iautowah = int(fautowah);
+  // autowah
+  int iautowah = int(fautowah);
 
 
   // pointer to the jack_buffer
@@ -934,8 +934,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           float 	S6[2];
           float 	S7[2];
           float 	S8[2];
-          fTemp0 = (fTemp0*0.0001)*10000;
-          fVec1[IOTA&4095] = (fTemp0 + (fSlow19 * fRec6[1]));
+          fTemp0 = (fTemp0*0.001);
+          fVec1[IOTA&4095] = ((fTemp0*1000) + (fSlow19 * fRec6[1]));
           fRec6[0] = (0.5f * (fVec1[(IOTA-iSlow22)&4095] + fVec1[(IOTA-iSlow21)&4095]));
           add_dc(fRec6[0]);
           S8[0] = fRec6[0];
@@ -984,27 +984,35 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fTemp0 = fRec_tone0[0];
       if (iSlow65)    //crybaby
         {
-            /**FIXME need to calibrate the right values**/
-         /* if(iautowah) {
-             int iTempwah1 = abs(int((4194304 * fTemp0)));
-				iVecwah0[IOTAWAH&1023] = iTempwah1;
-				iRecwah2[0] = ((iVecwah0[IOTAWAH&1023] + iRecwah2[1]) - iVecwah0[(IOTAWAH-1000)&1023]);
-				float fTempwah2 = min(1, max(0, ((2.384186e-09f*(0.05f+fSlow56)) * float(iRecwah2[0]))));
-				fRec19[0] = ((9.999872e-05f * powf(4.0f, fTempwah2)) + (0.999f * fRec19[1]));
-				float fTempwah3 = powf(2.0f, (2.3f * fTempwah2));
-				float fTempwah4 = (1 - (fConst10 * (fTempwah3 / powf(2.0f, (1.0f + (2.0f * (1.0f - fTempwah2)))))));
-				fRec20[0] = ((9.999871e-04f * (0 - (2.0f * (fTempwah4 * cosf((fConst9 * fTempwah3)))))) + (0.999f * fRec20[1]));
-				fRec21[0] = ((9.999871e-04f * (fTempwah4 * fTempwah4)) + (0.999f * fRec21[1]));
-          }
-          else {*/
 
-          fRec19[0] = (fSlow57 + (0.999f * fRec19[1])); //wah slider
-          fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
-          fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));  // wah slider
-        //  }
+          if (iautowah)
+            {
+              float fTempw0 = (fTemp0*0.001);
+              fTempw0 = (fTempw0*1000);
+              int iTempwah1 = abs(int((4194304 * fTempw0)));
+              iVecwah0[IOTAWAH&1023] = iTempwah1;
+              iRecwah2[0] = ((iVecwah0[IOTAWAH&1023] + iRecwah2[1]) - iVecwah0[(IOTAWAH-1000)&1023]);
+              float fTempwah2 = min(1, max(0, ((2.384186e-10f*(7.5*fSlow56)) * float(iRecwah2[0]))));
+              fRec19[0] = ((9.999872e-05f * powf(4.0f, fTempwah2)) + (0.999f * fRec19[1]));
+              add_dc(fTempwah2);
+              float fTempwah3 = powf(2.0f, (2.3f * fTempwah2));
+              float fTempwah4 = (1 - (fConst10 * (fTempwah3 / powf(2.0f, (1.0f + (2.0f * (1.0f - fTempwah2)))))));
+              fRec20[0] = ((9.999871e-04f * (0 - (2.0f * (fTempwah4 * cosf((fConst9 * fTempwah3)))))) + (0.999f * fRec20[1]));
+              fRec21[0] = ((9.999871e-04f * (fTempwah4 * fTempwah4)) + (0.999f * fRec21[1]));
+              fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
+              fTemp0 = ((fTemp0 + fRec18[0]*0.75) - fRec18[1]*0.75);
+            }
+          else
+            {
 
-          fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fRec_tone0[0] * fRec19[0]))));
-          fTemp0 = ((fRec18[0] + (fSlow64 * fRec_tone0[0])) - fRec18[1]);
+              fRec19[0] = (fSlow57 + (0.999f * fRec19[1])); //wah slider
+              fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
+              fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));  // wah slider
+
+
+              fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
+              fTemp0 = ((fRec18[0] + (fSlow64 * fRec_tone0[0])) - fRec18[1]);
+            }
         }                                     //crybaby ende
 
       if (iSlow71)     //freeverb
@@ -1201,9 +1209,9 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fRec_boost0[2] = fRec_boost0[1];
       fRec_boost0[1] = fRec_boost0[0];
 
-       /**FIXME**/
-     // iRecwah2[1] = iRecwah2[0];
-     // IOTAWAH = IOTAWAH+1;
+      //autowah
+      iRecwah2[1] = iRecwah2[0];
+      IOTAWAH = IOTAWAH+1;
 
     }
 
