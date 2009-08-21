@@ -660,6 +660,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   float fSlow44 = (9.999871e-04f * powf(10, (5.000000e-02f * (fslider10 - 10))));
   // distortion end
   float fSlow56 = fslider11;
+  float fmapping = (2.384186e-10f*(7.5*fSlow56));
   float fSlow57 = (9.999872e-05f * powf(4.0f, fSlow56));
   float fSlow58 = fslider13;
   float fSlow59 = ((1 - max(0, (0 - fSlow58))) * fslider12);
@@ -913,6 +914,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fTemp0 = fuzz(fTemp0in,0.7);
         }  //preamp ende
 
+
       // vibrato
       if (fresoon)
         {
@@ -982,17 +984,18 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       // tone end
 
       fTemp0 = fRec_tone0[0];
+
       if (iSlow65)    //crybaby
         {
 
           if (iautowah)
             {
-              float fTempw0 = (fTemp0*0.001);
-              fTempw0 = (fTempw0*1000);
-              int iTempwah1 = abs(int((4194304 * fTempw0)));
+              //float fTempw0 = (fTemp0*0.001);
+              //fTempw0 = (fTempw0*1000);
+              int iTempwah1 = abs(int((4194304 * fTemp0)));
               iVecwah0[IOTAWAH&1023] = iTempwah1;
               iRecwah2[0] = ((iVecwah0[IOTAWAH&1023] + iRecwah2[1]) - iVecwah0[(IOTAWAH-1000)&1023]);
-              float fTempwah2 = min(1, max(0, ((2.384186e-10f*(7.5*fSlow56)) * float(iRecwah2[0]))));
+              float fTempwah2 = min(1, max(0, (fmapping * float(iRecwah2[0]))));
               fRec19[0] = ((9.999872e-05f * powf(4.0f, fTempwah2)) + (0.999f * fRec19[1]));
               add_dc(fTempwah2);
               float fTempwah3 = powf(2.0f, (2.3f * fTempwah2));
@@ -1000,7 +1003,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
               fRec20[0] = ((9.999871e-04f * (0 - (2.0f * (fTempwah4 * cosf((fConst9 * fTempwah3)))))) + (0.999f * fRec20[1]));
               fRec21[0] = ((9.999871e-04f * (fTempwah4 * fTempwah4)) + (0.999f * fRec21[1]));
               fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
-              fTemp0 = ((fTemp0 + fRec18[0]*0.75) - fRec18[1]*0.75);
+              fTemp0 = (((fSlow64 *fTemp0) + fRec18[0]) - fRec18[1]);
             }
           else
             {
@@ -1011,9 +1014,10 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
 
               fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
-              fTemp0 = ((fRec18[0] + (fSlow64 * fRec_tone0[0])) - fRec18[1]);
+              fTemp0 = ((fRec18[0] + (fSlow64 * fTemp0)) - fRec18[1]);
             }
         }                                     //crybaby ende
+
 
       if (iSlow71)     //freeverb
         {
