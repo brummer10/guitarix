@@ -906,6 +906,40 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           gx_gui::shownote = -1;
         }
 
+              if (iSlow65)    //crybaby
+        {
+
+          if (iautowah)
+            {
+              //float fTempw0 = (fTemp0*0.001);
+              //fTempw0 = (fTempw0*1000);
+              int iTempwah1 = abs(int((4194304 * (fTemp0+ 1e-20))));
+              iVecwah0[IOTAWAH&1023] = iTempwah1;
+              iRecwah2[0] = ((iVecwah0[IOTAWAH&1023] + iRecwah2[1]) - iVecwah0[(IOTAWAH-1000)&1023]);
+              float fTempwah2 = min(1, max(0, (fmapping * float(iRecwah2[0]))));
+              fRec19[0] = ((9.999872e-05f * my4powf( fTempwah2)) + (0.999f * fRec19[1]));
+              add_dc(fTempwah2);
+              float fTempwah3 = my2powf(2.3f * fTempwah2);
+              float fTempwah4 = (1 - (fConst10 * (fTempwah3 / my2powf(1.0f + (2.0f * (1.0f - fTempwah2))))));
+              fRec20[0] = ((9.999871e-04f * (0 - (2.0f * (fTempwah4 * cosf((fConst9 * fTempwah3)))))) + (0.999f * fRec20[1]));
+              fRec21[0] = ((9.999871e-04f * (fTempwah4 * fTempwah4)) + (0.999f * fRec21[1]));
+              fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
+              fTemp0 = (((fSlow64 *fTemp0) + fRec18[0]) - fRec18[1]);
+            }
+          else
+            {
+
+              fRec19[0] = (fSlow57 + (0.999f * fRec19[1])); //wah slider
+              fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
+              fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));  // wah slider
+
+
+              fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
+              fTemp0 = ((fRec18[0] + (fSlow64 * fTemp0)) - fRec18[1]);
+            }
+        }                                     //crybaby ende
+
+
       if (icheckboxcom1)     // compressor
         {
           add_dc(fTemp0);
@@ -1010,38 +1044,6 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
       fTemp0 = fRec_tone0[0];
 
-      if (iSlow65)    //crybaby
-        {
-
-          if (iautowah)
-            {
-              //float fTempw0 = (fTemp0*0.001);
-              //fTempw0 = (fTempw0*1000);
-              int iTempwah1 = abs(int((4194304 * (fTemp0+ 1e-20))));
-              iVecwah0[IOTAWAH&1023] = iTempwah1;
-              iRecwah2[0] = ((iVecwah0[IOTAWAH&1023] + iRecwah2[1]) - iVecwah0[(IOTAWAH-1000)&1023]);
-              float fTempwah2 = min(1, max(0, (fmapping * float(iRecwah2[0]))));
-              fRec19[0] = ((9.999872e-05f * my4powf( fTempwah2)) + (0.999f * fRec19[1]));
-              add_dc(fTempwah2);
-              float fTempwah3 = my2powf(2.3f * fTempwah2);
-              float fTempwah4 = (1 - (fConst10 * (fTempwah3 / my2powf(1.0f + (2.0f * (1.0f - fTempwah2))))));
-              fRec20[0] = ((9.999871e-04f * (0 - (2.0f * (fTempwah4 * cosf((fConst9 * fTempwah3)))))) + (0.999f * fRec20[1]));
-              fRec21[0] = ((9.999871e-04f * (fTempwah4 * fTempwah4)) + (0.999f * fRec21[1]));
-              fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
-              fTemp0 = (((fSlow64 *fTemp0) + fRec18[0]) - fRec18[1]);
-            }
-          else
-            {
-
-              fRec19[0] = (fSlow57 + (0.999f * fRec19[1])); //wah slider
-              fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
-              fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));  // wah slider
-
-
-              fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
-              fTemp0 = ((fRec18[0] + (fSlow64 * fTemp0)) - fRec18[1]);
-            }
-        }                                     //crybaby ende
 
 
 
