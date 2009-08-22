@@ -30,6 +30,15 @@ inline void GxEngine::add_dc (float& val)
   val += anti_denormal;
 }
 
+inline float GxEngine::my2powf(float y)
+{
+    return exp(log_2 * y);
+}
+
+inline float GxEngine::my4powf(float y)
+{
+    return exp(log_4 * y);
+}
 
 inline float GxEngine::clip (float x, float a)
 {
@@ -88,6 +97,20 @@ inline float GxEngine::valve(float in, float out)
     }
 
   return out;
+}
+
+inline void GxEngine::moving_filter(float** input, float** output, int sf)
+{
+ float *in = input[0];
+ float * out = output[0];
+
+    *out++ = *in++;
+  for (int i=1; i<sf; i++)
+    {
+        *out++ = (in[i-1]+in[i]+in[i+1])*0.3333334f;
+    }
+
+
 }
 
 // oversample the input signal 2*, give a nice antialised effect
@@ -798,10 +821,12 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   if (tuner_on > 0)
     (void)memcpy(checkfreq, input0, sizeof(float)*count);
 
+       //moving_filter(input, input, count);
   // run pre_funktions on frame base
   if (inoise_g) noise_gate (count,input);
   else ngate = 1;
-  if (ing)  noise_shaper(count,input,input);
+  if (ing) noise_shaper(count,input,input);
+
 
   // 2*oversample
   if (iupsample)
@@ -996,10 +1021,10 @@ void GxEngine::process_buffers(int count, float** input, float** output)
               iVecwah0[IOTAWAH&1023] = iTempwah1;
               iRecwah2[0] = ((iVecwah0[IOTAWAH&1023] + iRecwah2[1]) - iVecwah0[(IOTAWAH-1000)&1023]);
               float fTempwah2 = min(1, max(0, (fmapping * float(iRecwah2[0]))));
-              fRec19[0] = ((9.999872e-05f * powf(4.0f, fTempwah2)) + (0.999f * fRec19[1]));
+              fRec19[0] = ((9.999872e-05f * my4powf( fTempwah2)) + (0.999f * fRec19[1]));
               add_dc(fTempwah2);
-              float fTempwah3 = powf(2.0f, (2.3f * fTempwah2));
-              float fTempwah4 = (1 - (fConst10 * (fTempwah3 / powf(2.0f, (1.0f + (2.0f * (1.0f - fTempwah2)))))));
+              float fTempwah3 = my2powf(2.3f * fTempwah2);
+              float fTempwah4 = (1 - (fConst10 * (fTempwah3 / my2powf(1.0f + (2.0f * (1.0f - fTempwah2))))));
               fRec20[0] = ((9.999871e-04f * (0 - (2.0f * (fTempwah4 * cosf((fConst9 * fTempwah3)))))) + (0.999f * fRec20[1]));
               fRec21[0] = ((9.999871e-04f * (fTempwah4 * fTempwah4)) + (0.999f * fRec21[1]));
               fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
@@ -1017,6 +1042,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
               fTemp0 = ((fRec18[0] + (fSlow64 * fTemp0)) - fRec18[1]);
             }
         }                                     //crybaby ende
+
 
 
       if (iSlow71)     //freeverb

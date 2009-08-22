@@ -487,6 +487,9 @@ namespace gx_engine
       IOTAWAH = 0;
 
       midi_gain = 1.0;
+
+      log_2 = log(2);
+      log_4 = log(4);
       // end engine init
     }
 

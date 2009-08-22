@@ -511,6 +511,9 @@ namespace gx_engine
 
         float midi_gain;
 
+        float log_2;
+        float log_4;
+
 
         // private constructor
         GxEngine() {}
@@ -564,6 +567,8 @@ namespace gx_engine
 
         // ---- audio engine methods
         static void  add_dc     (float& val);
+         float my2powf    ( float y);
+         float my4powf    (float y);
         static float clip       (float x,  float a);
         static float fuzz       (float in, float threshold);
         static float foldback   (float in, float threshold);
@@ -575,6 +580,7 @@ namespace gx_engine
         static float normalize  (float in, float atan_shape, float shape);
 
         // non static methods (modifying object's non static private members)
+        void  moving_filter(float** input, float** output, int sf);
         void  noise_gate  (int sf, float** input);
         void  noise_shaper  (int sf, float** input, float** output);
         void  AntiAlias  (int sf, float** input, float** output);

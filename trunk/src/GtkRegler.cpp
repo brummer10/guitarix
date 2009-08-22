@@ -1203,9 +1203,10 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 //----------- toggle_button
     klass->b_toggle_image = gdk_pixbuf_new_from_xpm_data (button_xpm);
     g_assert(klass->toggle_image != NULL);
-    klass->b_toggle_image1 = gdk_pixbuf_copy( klass->b_toggle_image );
+    klass->b_toggle_image1 = gdk_pixbuf_new_from_xpm_data (button1_xpm);
+    //klass->b_toggle_image1 = gdk_pixbuf_copy( klass->b_toggle_image );
     g_assert(klass->b_toggle_image1 != NULL);
-    gdk_pixbuf_saturate_and_pixelate(klass->b_toggle_image1,klass->b_toggle_image1,3.0,FALSE);
+   // gdk_pixbuf_saturate_and_pixelate(klass->b_toggle_image1,klass->b_toggle_image1,3.0,FALSE);
 
 }
 
