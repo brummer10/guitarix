@@ -1017,7 +1017,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
             {
               //float fTempw0 = (fTemp0*0.001);
               //fTempw0 = (fTempw0*1000);
-              int iTempwah1 = abs(int((4194304 * fTemp0)));
+              int iTempwah1 = abs(int((4194304 * (fTemp0+ 1e-20))));
               iVecwah0[IOTAWAH&1023] = iTempwah1;
               iRecwah2[0] = ((iVecwah0[IOTAWAH&1023] + iRecwah2[1]) - iVecwah0[(IOTAWAH-1000)&1023]);
               float fTempwah2 = min(1, max(0, (fmapping * float(iRecwah2[0]))));
