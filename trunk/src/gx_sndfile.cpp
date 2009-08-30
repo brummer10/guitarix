@@ -34,7 +34,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstdio>
-
+#include <cmath>
 
 using namespace std;
 
@@ -46,9 +46,9 @@ using namespace std;
 
 using namespace gx_system;
 
-namespace gx_sndfile 
+namespace gx_sndfile
 {
-  
+
   // --------------- sf_open writer wrapper : returns file desc. and audio file info
   SNDFILE* openOutputSoundFile(const char* name, int chans, int sr)
   {
@@ -61,7 +61,7 @@ namespace gx_sndfile
 
     return sf_open(name, SFM_WRITE, &info);
   }
-  
+
   // --------------- sf_open reader wrapper : returns file desc. and audio file info
   SNDFILE* openInputSoundFile(const char* name, int* chans, int* sr, int* length)
   {
@@ -75,21 +75,21 @@ namespace gx_sndfile
     return sf;
   }
 
-  // --------------- sf_writer wrapper 
+  // --------------- sf_writer wrapper
   sf_count_t writeSoundOutput(SNDFILE *pOutput, float *buffer, int vecsize)
   {
     return sf_writef_float(pOutput, buffer, vecsize);
   }
-  
-  // --------------- sf_reader wrapper 
+
+  // --------------- sf_reader wrapper
   sf_count_t readSoundInput(SNDFILE *pInput, float *buffer, int vecsize)
   {
     return sf_readf_float(pInput, buffer, vecsize);
   }
 
   // --------------- audio resampler
-  GxResampleStatus resampleSoundFile(const char*  pInputi, 
-				     const char*  pOutputi, 
+  GxResampleStatus resampleSoundFile(const char*  pInputi,
+				     const char*  pOutputi,
 				     int jackframe)
   {
     int chans, length=0, length2=0, sr;
@@ -137,7 +137,7 @@ namespace gx_sndfile
       sf_close(pOutput);
 
       delete[] sig;
-      
+
       ostringstream lab;
       lab << "fileinfo: " << endl
 	  << chans        << " channel(s) "
@@ -150,7 +150,7 @@ namespace gx_sndfile
     return status;
   }
 
-  // --------------- sf_close wrapper 
+  // --------------- sf_close wrapper
   void closeSoundFile(SNDFILE *psf_in)
   {
     sf_close(psf_in);

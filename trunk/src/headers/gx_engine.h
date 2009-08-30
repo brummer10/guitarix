@@ -514,6 +514,51 @@ namespace gx_engine
         float log_2;
         float log_4;
 
+        //chorus
+        class SIG0
+          {
+          private:
+            int 	fSamplingFreq;
+            int 	iRec1[2];
+          public:
+            int getNumInputs()
+            {
+              return 0;
+            }
+            int getNumOutputs()
+            {
+              return 1;
+            }
+            void init(int samplingFreq)
+            {
+              fSamplingFreq = samplingFreq;
+              for (int i=0; i<2; i++) iRec1[i] = 0;
+            }
+            void fill (int count, float output[])
+            {
+              for (int i=0; i<count; i++)
+                {
+                  iRec1[0] = (1 + iRec1[1]);
+                  output[i] = sinf((9.587380e-05f * (iRec1[0] - 1)));
+                  // post processing
+                  iRec1[1] = iRec1[0];
+                }
+            }
+          };
+
+        int 	IOTA_CH;
+        float 	fVec_CH0[65536];
+        float 	fslider_CH0;
+        float 	fConst_CH0;
+        float 	fRec_CH0[2];
+        static float 	ftbl0[65536];
+        float 	fslider_CH1;
+        float 	fslider_CH2;
+        float 	fConst_CH1;
+        float 	fslider_CH3;
+        float fchorus;
+        float fchorusbox;
+
 
         // private constructor
         GxEngine() {}
@@ -536,6 +581,13 @@ namespace gx_engine
         static int getNumOutputs()
         {
           return 2;
+        }
+
+        static void classInit(int samplingFreq)
+        {
+          SIG0 sig0;
+          sig0.init(samplingFreq);
+          sig0.fill(65536,ftbl0);
         }
 
         void initEngine(int samplingFreq);
@@ -567,8 +619,8 @@ namespace gx_engine
 
         // ---- audio engine methods
         static void  add_dc     (float& val);
-         float my2powf    ( float y);
-         float my4powf    (float y);
+        float my2powf    ( float y);
+        float my4powf    (float y);
         static float clip       (float x,  float a);
         static float fuzz       (float in, float threshold);
         static float foldback   (float in, float threshold);

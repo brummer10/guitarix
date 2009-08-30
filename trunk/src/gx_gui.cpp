@@ -1361,7 +1361,8 @@ namespace gx_gui
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
     gtk_widget_modify_font(lw, style->font_desc);
     openVerticalBox("");
-    addWidget(label, lw);
+    string laba = label;
+    if(laba !="")addWidget(label, lw);
     addWidget(label, slider);
     closeBox();
   }

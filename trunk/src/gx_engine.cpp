@@ -490,6 +490,20 @@ namespace gx_engine
 
       log_2 = log(2);
       log_4 = log(4);
+
+      //chorus
+      IOTA_CH = 0;
+      zeroize(fVec_CH0,65536);
+      fslider_CH0 = 3.0f;
+      fConst_CH0 = (1.0f / fSamplingFreq);
+      zeroize(fRec_CH0,2);
+      fslider_CH1 = 2.000000e-02f;
+      fslider_CH2 = 2.500000e-02f;
+      fConst_CH1 = (0.5f * fSamplingFreq);
+      fslider_CH3 = 0.5f;
+      fchorus = 0;
+      fchorusbox = 0;
+
       // end engine init
     }
 
@@ -534,6 +548,7 @@ namespace gx_engine
       gx_gui::GxMainInterface* interface =
               gx_gui::GxMainInterface::instance(jname, &argc, &argv);
 
+      engine->classInit((int)gx_jack::jack_sr);
       engine->initEngine((int)gx_jack::jack_sr);
       engine->buildUserInterface(interface);
 

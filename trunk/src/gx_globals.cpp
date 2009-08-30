@@ -51,6 +51,7 @@ namespace gx_engine
   float* get_frame   = NULL;
   float* checkfreq   = NULL;
   float* oversample  = NULL;
+  float 	GxEngine::ftbl0[65536];
 
   /* number of channels */
   int    gNumInChans;

@@ -144,27 +144,27 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                 interface->openHorizontalBox("");
                 {
 
-                  interface->openVerticalBox("noise shaper  ");
+                  interface->openVerticalBox("shaper ");
                   {
-                    interface->addtoggle("noise_shaper ", &fng);
+                    interface->addswitch("", &fng);
                     interface->openFrameBox("");
                     {
-                      interface->addHorizontalSlider("sharper",&fsharp0, 1.f, 1.f, 10.f, 1.0f);
+                      interface->addHorizontalWheel("sharper",&fsharp0, 1.f, 1.f, 10.f, 1.0f);
                     }
                     interface->closeBox();
                   }
                   interface->closeBox();
                   interface->openVerticalBox("noise gate ");
                   {
-                    interface->addtoggle("noise_g", &fnoise_g);
-                    interface->addHorizontalSlider(" threshold ", &fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
+                    interface->addswitch("", &fnoise_g);
+                    interface->addHorizontalWheel(" threshold ", &fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
                   }
                   interface->closeBox();
 
                   interface->openVerticalBox("anti aliase");
                   {
-                    interface->addtoggle("a.aliase", &antialis0);
-                    interface->addHorizontalSlider(" feedback ", &faas1, 0.3f, 0.3f, 0.9f, 0.01f);
+                    interface->addswitch("", &antialis0);
+                    interface->addHorizontalWheel(" feedback ", &faas1, 0.3f, 0.3f, 0.9f, 0.01f);
                   }
                   interface->closeBox();
                 }
@@ -455,12 +455,12 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                   //----- end freeverb
 
                   //----- IR
-                  interface->openVerticalBox("ImpulseResponse");
+                  interface->openVerticalBox("IR");
                   {
                     interface->openHorizontalBox("");
                     {
                       interface->addregler("   freq   ", &fslider21, 440.000000f, 20.000000f, 2200.000000f, 10.000000f);
-                      interface->addregler(" peak ", &fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
+                      //interface->addregler(" peak ", &fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
                     }
                     interface->closeBox();
 
@@ -490,6 +490,39 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                   interface->closeBox();
                   //----- end IR
 
+                  interface->openVerticalBox("chorus");
+                  {
+
+                    interface->addregler("level", &fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
+                    interface->openHorizontalBox("");
+                    {
+                      interface->addtoggle("", &fchorus);
+                      interface->openDialogBox("chorus", &fchorusbox);
+                      {
+                        interface->openHandleBox("  ");
+                        {
+                          interface->openVerticalBox("");
+                          {
+                            interface->openHorizontalBox("");
+                            {
+                              interface->addregler("  delay  ", &fslider_CH2, 2.500000e-02f, 0.0f, 0.2f, 1.000000e-03f);
+                              interface->addregler("  depth  ", &fslider_CH1, 2.000000e-02f, 0.0f, 1.0f, 1.000000e-03f);
+                              interface->addregler("  freq  ", &fslider_CH0, 3.0f, 0.0f, 10.0f, 1.000000e-02f);
+                              interface->addregler("  level  ", &fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
+
+                            }
+                            interface->closeBox();
+                          }
+                          interface->closeBox();
+                        }
+                        interface->closeBox();
+                      }
+                      interface->closeBox();
+                    }
+                    interface->closeBox();
+                  }
+                  interface->closeBox();
+
                   //----- crybaby
                   interface->openVerticalBox("crybaby");
                   {
@@ -514,7 +547,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                             }
                             interface->closeBox();
 
-                             interface->addminiswitch(" autowah", &fautowah);
+                            interface->addminiswitch(" autowah", &fautowah);
                           }
                           interface->closeBox();
                         }

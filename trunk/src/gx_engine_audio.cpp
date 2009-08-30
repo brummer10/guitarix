@@ -32,12 +32,12 @@ inline void GxEngine::add_dc (float& val)
 
 inline float GxEngine::my2powf(float y)
 {
-    return exp(log_2 * y);
+  return exp(log_2 * y);
 }
 
 inline float GxEngine::my4powf(float y)
 {
-    return exp(log_4 * y);
+  return exp(log_4 * y);
 }
 
 inline float GxEngine::clip (float x, float a)
@@ -101,13 +101,13 @@ inline float GxEngine::valve(float in, float out)
 
 inline void GxEngine::moving_filter(float** input, float** output, int sf)
 {
- float *in = input[0];
- float * out = output[0];
+  float *in = input[0];
+  float * out = output[0];
 
-    *out++ = *in++;
+  *out++ = *in++;
   for (int i=1; i<sf; i++)
     {
-        *out++ = (in[i-1]+in[i]+in[i+1])*0.3333334f;
+      *out++ = (in[i-1]+in[i]+in[i+1])*0.3333334f;
     }
 
 
@@ -722,6 +722,11 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   float threshold = fthreshold;
   float	f_resotube1 = fresotube1;
   float f_resotube2 = fresotube2;
+  //chorus
+  float 	fSlow_CH0 = (fConst_CH0 * fslider_CH0);
+  float 	fSlow_CH1 = fslider_CH1;
+  float 	fSlow_CH2 = (fConst_CH1 * fslider_CH2);
+  float 	fSlow_CH3 = fslider_CH3;
 
   //----- tone only reset when value have change
   fslider_tone_check1 = (fslider_tone1+fslider_tone0+fslider_tone2)*100;
@@ -813,6 +818,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   int inoise_g = int(fnoise_g);
   // autowah
   int iautowah = int(fautowah);
+  //chorus
+  int ichorus = fchorus;
 
 
   // pointer to the jack_buffer
@@ -821,7 +828,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   if (tuner_on > 0)
     (void)memcpy(checkfreq, input0, sizeof(float)*count);
 
-       //moving_filter(input, input, count);
+  //moving_filter(input, input, count);
   // run pre_funktions on frame base
   if (inoise_g) noise_gate (count,input);
   else ngate = 1;
@@ -906,7 +913,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           gx_gui::shownote = -1;
         }
 
-              if (iSlow65)    //crybaby
+      if (iSlow65)    //crybaby
         {
 
           if (iautowah)
@@ -963,7 +970,6 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
       fTemp0 = (fRec4[0] * fTemp0);
 
-      // I have move the preamp to the frame based section, leef it here for . . .
       if (icheckbox1)     // preamp
         {
           float  fTemp0in = (fTemp0-0.15*(fTemp0*fTemp0))-(0.15*(fTemp0*fTemp0*fTemp0));
@@ -1044,9 +1050,6 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
       fTemp0 = fRec_tone0[0];
 
-
-
-
       if (iSlow71)     //freeverb
         {
           float fTemp9 = (1.500000e-02f * fTemp0);
@@ -1098,6 +1101,21 @@ void GxEngine::process_buffers(int count, float** input, float** output)
         {
           fRec_boost0[0] = (fTemp0 - (fConst_boost4 * ((fConst_boost3 * fRec_boost0[2]) + (fConst_boost2 * fRec_boost0[1]))));
           fTemp0 = (fConst_boost4 * (((fConst_boost8 * fRec_boost0[0]) + (fConst_boost7 * fRec_boost0[1])) + (fConst_boost6 * fRec_boost0[2])));
+        }
+
+      //chorus
+      if (ichorus)
+        {
+          fVec_CH0[IOTA_CH&65535] = fTemp0;
+          float fTemp_CH1 = (fSlow_CH0 + fRec_CH0[1]);
+          fRec_CH0[0] = (fTemp_CH1 - floorf(fTemp_CH1));
+          float fTemp_CH2 = (65536 * (fRec_CH0[0] - floorf(fRec_CH0[0])));
+          float fTemp_CH3 = floorf(fTemp_CH2);
+          int iTemp_CH4 = int(fTemp_CH3);
+          float fTemp_CH5 = (fSlow_CH2 * (1 + (fSlow_CH1 * ((ftbl0[((1 + iTemp_CH4) & 65535)] * (fTemp_CH2 - fTemp_CH3)) + (ftbl0[(iTemp_CH4 & 65535)] * ((1 + fTemp_CH3) - fTemp_CH2))))));
+          int iTemp_CH6 = int(fTemp_CH5);
+          int iTemp_CH7 = (1 + iTemp_CH6);
+          fTemp0 = (fVec_CH0[IOTA_CH&65535] + (fSlow_CH3 * (((fTemp_CH5 - iTemp_CH6) * fVec_CH0[(IOTA_CH-int((int(iTemp_CH7) & 65535)))&65535]) + ((iTemp_CH7 - fTemp_CH5) * fVec_CH0[(IOTA_CH-int((iTemp_CH6 & 65535)))&65535]))));
         }
 
       if (iSlow75)    //echo
@@ -1240,10 +1258,12 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       // post processing bass booster
       fRec_boost0[2] = fRec_boost0[1];
       fRec_boost0[1] = fRec_boost0[0];
-
       //autowah
       iRecwah2[1] = iRecwah2[0];
       IOTAWAH = IOTAWAH+1;
+      //chorus
+      fRec_CH0[1] = fRec_CH0[0];
+      IOTA_CH = IOTA_CH+1;
 
     }
 
