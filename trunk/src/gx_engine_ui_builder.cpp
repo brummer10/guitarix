@@ -541,8 +541,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                           {
                             interface->openHorizontalBox("");
                             {
-                              interface->addregler(" wah ", &fslider11, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
-                              interface->addregler("level", &fslider12, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
+                              interface->addregler("  wah   ", &fslider11, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
+                              interface->addregler("  level  ", &fslider12, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
                               interface->addregler("wet/dry", &fslider13, 0.f, -1.f, 1.f, 1.e-01f);
                             }
                             interface->closeBox();

@@ -258,7 +258,7 @@ namespace gx_gui
   //----- show extendend settings slider
   void gx_show_extended_settings(GtkWidget *widget, gpointer data)
   {
-    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget)) == TRUE) {
+    if (gtk_range_get_value(GTK_RANGE(widget))) {
       gtk_widget_show(GTK_WIDGET(data));
       gint root_x, root_y;
       gtk_window_get_position (GTK_WINDOW(data), &root_x, &root_y);
@@ -1437,42 +1437,28 @@ namespace gx_gui
     GtkWidget * box = gtk_hbox_new (homogene, 4);
     GtkWidget * box4 = gtk_vbox_new (homogene, 4);
     GtkWidget * box5 = gtk_hbox_new (homogene, 4);
-    GtkWidget * box6 = gtk_hbox_new (homogene, 4);
-    GtkWidget * box7 = gtk_vbox_new (homogene, 4);
     gtk_container_set_border_width (GTK_CONTAINER (box), 2);
     GdkColor colorRed;
     GdkColor colorOwn;
     gdk_color_parse ("#000094", &colorRed);
     gdk_color_parse ("#7f7f7f", &colorOwn);
     *zone = 0.0;
-    GtkWidget* 	button = gtk_toggle_button_new ();
-    gtk_widget_set_size_request (GTK_WIDGET(button), 20.0, 5.0);
-    gtk_widget_set_size_request (GTK_WIDGET(box6), 20.0, 1.0);
+
+    GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
+    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+    g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+    GtkRegler myGtkRegler;
+    GtkWidget* button = myGtkRegler.gtk_button_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
+
     GtkWidget * box3 = gtk_hbox_new (homogene, 4);
-    GtkWidget * box1 = gtk_vbox_new (homogene, 4);
     gtk_container_set_border_width (GTK_CONTAINER (box3), 0);
-    gtk_container_set_border_width (GTK_CONTAINER (box1), 0);
-    gtk_container_add (GTK_CONTAINER(box3), box1);
-    GtkWidget * box2 = gtk_vbox_new (homogene, 4);
-    gtk_container_set_border_width (GTK_CONTAINER (box2), 0);
-    gtk_widget_set_size_request (GTK_WIDGET(box2), 5.0, 5.0);
-    gtk_container_add (GTK_CONTAINER(box3), box7);
-    gtk_container_add (GTK_CONTAINER(box7), box6);
-    gtk_container_add (GTK_CONTAINER(box7), button);
-    gtk_container_add (GTK_CONTAINER(box3), box2);
-    gtk_widget_set_size_request (GTK_WIDGET(box1), 5.0, 5.0);
+    gtk_container_add (GTK_CONTAINER(box3), button);
     gtk_widget_show (button);
-    gtk_widget_show (box1);
-    gtk_widget_show (box2);
     gtk_widget_show (box3);
-    gtk_widget_show (box6);
-    gtk_widget_show (box7);
     gtk_container_add (GTK_CONTAINER(fBox[fTop]), box3);
-    uiToggleButton* c = new uiToggleButton(this, zone, GTK_TOGGLE_BUTTON(button));
     gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
     gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
-    g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
-    g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (gx_show_extended_settings), (gpointer) dialog);
+    g_signal_connect (GTK_OBJECT (button), "value-changed", G_CALLBACK (gx_show_extended_settings), (gpointer) dialog);
 
     GtkWidget * frame =  gtk_frame_new (label);
     GtkWidget* 	lab = gtk_label_new("reset");
@@ -1484,8 +1470,6 @@ namespace gx_gui
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
     gtk_widget_modify_font(lab, style->font_desc);
 
-   // gtk_widget_set_size_request (GTK_WIDGET(button1), 60.0, 20.0);
-   // gtk_widget_set_size_request (GTK_WIDGET(frame), 100.0, 20.0);
     gtk_container_add (GTK_CONTAINER(box5), frame);
     gtk_container_add (GTK_CONTAINER(box5), button1);
     g_signal_connect (GTK_OBJECT (button1), "pressed", G_CALLBACK (gx_reset_units), (gpointer) dialog);

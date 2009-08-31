@@ -1147,7 +1147,7 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
     klass->wheel_step = 100;
 //--------- switch size and steps
     klass->b_toggle_x = 25 ;
-    klass->b_toggle_y = 20 ;
+    klass->b_toggle_y = 15 ;
     klass->b_toggle_step = 1;
 
 //--------- connect the events with funktions

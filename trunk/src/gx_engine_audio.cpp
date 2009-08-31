@@ -1195,7 +1195,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fRec30[1] = fRec30[0];
       fRec31[1] = fRec31[0];
       fRec18[2] = fRec18[1];
-      fRec18[1] = fRec18[0];
+      fRec18[1] = fRec18[0] *0.996f;
       fRec21[1] = fRec21[0];
       fRec20[1] = fRec20[0];
       fRec19[1] = fRec19[0];
