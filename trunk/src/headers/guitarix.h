@@ -22,7 +22,7 @@
  *    self-contained, i.e. only depends on system declarations.  Let's
  *    try to keep it that way.
  *
- * 
+ *
  * --------------------------------------------------------------------------
  */
 
@@ -44,6 +44,5 @@
 #include "gx_gui.h"
 
 /* special "home-made" GTK classes */
-#include "BEATDETECTOR.h"
 #include "GtkRegler.h"
 #include "GtkWaveView.h"

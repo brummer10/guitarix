@@ -69,7 +69,6 @@ void GxEngine::compute_midi(int len)
 //----- jack process callback for the midi output
 void GxEngine::process_midi(int len)
 {
-  TBeatDetector myTBeatDetector;
 
   float 	fConsta2 = 0;
   float fTemps45 = fslider45;
@@ -96,7 +95,7 @@ void GxEngine::process_midi(int len)
   int iTemps42 = int(fslider42)*12;
   int iTemps40 = int(fslider40);
   int step = fslider39;
-  int iTemps37  = int(fSamplingFreq/fslider37);
+  int iTemps37  = int(48000/fslider37);
   int iTemps37a  = iTemps37+20;
   int iTemps46 = int(fslider46);
   int iTemps47 = int(fslider47);
@@ -388,14 +387,13 @@ void GxEngine::process_midi(int len)
                         }
                     }
 
-                  myTBeatDetector.setSampleRate (fSamplingFreq);
-                  myTBeatDetector.AudioProcess (rms,  fTemps38);
-                  if (myTBeatDetector.BeatPulse == TRUE)
+                  if ( rms >= (fTemps45 + fTemps38))
                     {
                       send+=step;
                       if (fcheckbox10 == 1.0) send1+=step;
                       if (fcheckbox11 == 1.0) send2+=step;
                     }
+                  else weg +=step;
                 }
 
               // end if playmidi = 1
@@ -406,6 +404,7 @@ void GxEngine::process_midi(int len)
                 {
                   if ((weg > iTemps37) || (gx_jack::jcpu_load > 64.0))
                     {
+                      send = send1 = send2 = 0;
                       if (weg <  iTemps37a)   // 5.0
                         {
                           midistat += 1.0f;
