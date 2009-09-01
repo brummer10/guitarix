@@ -459,7 +459,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                   {
                     interface->openHorizontalBox("");
                     {
-                      interface->addregler("   freq   ", &fslider21, 440.000000f, 20.000000f, 2200.000000f, 10.000000f);
+                      interface->addregler("   freq   ", &fslider21, 440.000000f, 20.000000f, 12000.000000f, 10.000000f);
                       //interface->addregler(" peak ", &fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
                     }
                     interface->closeBox();
@@ -473,7 +473,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                       {
                         interface->openHandleBox("  ");
                         {
-                          interface->addregler("    freq     ", &fslider21, 440.000000f, 20.000000f, 2200.000000f, 10.000000f);
+                          interface->addregler("    freq     ", &fslider21, 440.000000f, 20.000000f, 12000.000000f, 10.000000f);
                           interface->addregler("     peak    ", &fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
                           interface->addregler("    bandwidth    ", &fslider20, 100.0f, 20.0f, 20000.0f, 10.0f);
                         }

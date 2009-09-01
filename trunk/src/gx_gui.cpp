@@ -1450,7 +1450,7 @@ namespace gx_gui
     GtkRegler myGtkRegler;
     GtkWidget* button = myGtkRegler.gtk_button_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
 
-    GtkWidget * box3 = gtk_hbox_new (homogene, 4);
+    GtkWidget * box3 = gtk_hbox_new (homogene, 0);
     gtk_container_set_border_width (GTK_CONTAINER (box3), 0);
     gtk_container_add (GTK_CONTAINER(box3), button);
     gtk_widget_show (button);
