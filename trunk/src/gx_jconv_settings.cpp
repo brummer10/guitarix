@@ -663,7 +663,7 @@ namespace gx_jconv
 	lab << "IR file info: " << endl
 	    << chans            << " channel(s) "
 	    << gx_jack::jack_sr << " Sample rate "
-	    << framescount      << " Frames ";
+	    << framescount      << " Samples ";
 
 	gx_waveview_set_value(widget, data);
         gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
