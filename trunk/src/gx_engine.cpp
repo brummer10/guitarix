@@ -504,6 +504,8 @@ namespace gx_engine
       fchorus = 0;
       fchorusbox = 0;
 
+      fmove_filter = 0;
+
       // end engine init
     }
 

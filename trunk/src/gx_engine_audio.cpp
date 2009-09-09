@@ -54,8 +54,8 @@ inline float GxEngine::clip (float x, float a)
   return x;
 }
 
-// the fuzz unit run on sample base
-inline float GxEngine::fuzz(float in, float threshold)
+// the hard_cut unit run on sample base
+inline float GxEngine::hard_cut(float in, float threshold)
 {
   if ( in > threshold)
     {
@@ -81,6 +81,15 @@ inline float GxEngine::foldback(float in, float threshold)
   return in;
 }
 
+// it isn't normalize, it's more a waveshaper funktion
+inline float GxEngine::normalize(float in, float atan_shape, float shape)
+{
+  float out = atan_shape * atan(in*shape);
+  return out;
+}
+
+
+
 // tube unit to run on sample base, it's unused for now, dont know if we need it any more
 inline float GxEngine::valve(float in, float out)
 {
@@ -104,12 +113,13 @@ inline void GxEngine::moving_filter(float** input, float** output, int sf)
   float *in = input[0];
   float * out = output[0];
 
-  *out++ = *in++;
+  *out++ = fmove_filter;
+  *in++;
   for (int i=1; i<sf; i++)
     {
       *out++ = (in[i-1]+in[i]+in[i+1])*0.3333334f;
     }
-
+  fmove_filter = *out;
 
 }
 
@@ -242,7 +252,7 @@ inline void GxEngine::reso_tube (int fuzzy, int sf, float reso, float vibra,
       ot = fRecRESO0[0];
       //bit shift back
       ot = (ot*fuzzy) *1000;
-      *out++ = fuzz(x + clip(ot*0.5,0.7),0.7);
+      *out++ = hard_cut(x + clip(ot*0.5,0.7),0.7);
       // post processing
       fRecRESO0[1] = fRecRESO0[0];
       IOTARESO = IOTARESO+1;
@@ -345,15 +355,8 @@ inline void GxEngine::fuzzy_tube (int fuzzy, int mode, int sf,
         {
           ot =  ((a * x + b * x * x) -x)*c;
         }
-      *out++ = fuzz(x + ot*fuzzy*0.5,0.7);
+      *out++ = hard_cut(x + ot*fuzzy*0.5,0.7);
     }
-}
-
-// it isn't normalize, it's more a waveshaper funktion
-inline float GxEngine::normalize(float in, float atan_shape, float shape)
-{
-  float out = atan_shape * atan(in*shape);
-  return out;
 }
 
 // the preamp on frame base, it's a gloubi-boulga followed by a third-degree polynomial
@@ -976,14 +979,14 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fTemp0 = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
           fTemp0in = normalize(fTemp0,atan_shape,f_atan);
           //fTemp0 = valve(fTemp0in,fTemp0in)*0.75;
-          fTemp0 = fuzz(fTemp0in,0.7);
+          fTemp0 = hard_cut(fTemp0in,0.7);
         }  //preamp ende
 
 
       // vibrato
       if (fresoon)
         {
-          fRec3[0] = fuzz (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])),0.7);  //resonanz 1.76f
+          fRec3[0] = hard_cut (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])),0.7);  //resonanz 1.76f
           fTemp0 = fRec3[0];
         }
 
@@ -1134,14 +1137,14 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
       // this is the output value from the mono process
       fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]))*ngate;
-      // switch between fuzz or foldback distortion, or plain output
+      // switch between hard_cut or foldback distortion, or plain output
 
       switch (ifuse)
         {
         case 0:
           break;
         case 1:
-          fRec0[0] = fuzz(clip(fRec0[0],threshold),threshold);
+          fRec0[0] = hard_cut(clip(fRec0[0],threshold),threshold);
           break;
         case 2:
           fRec0[0] = foldback(fRec0[0],threshold);

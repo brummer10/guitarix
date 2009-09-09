@@ -111,8 +111,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                 {
                   interface->openVerticalBox("");
                   {
-                    interface->addbigregler(" in ", &fslider3, 0.f, -40.f, 40.f, 0.1f);
-                    interface->addbigregler("out", &fslider17, 0.f, -40.f, 40.f, 0.1f);
+                    interface->addbigregler(" in / level ", &fslider3, 0.f, -40.f, 40.f, 0.1f);
+                    interface->addbigregler("out / master", &fslider17, 0.f, -40.f, 40.f, 0.1f);
                   }
                   interface->closeBox();
 
@@ -224,6 +224,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
                 }
                 interface->closeBox();
+                interface->openFrameBox("");
+                interface->closeBox();
 
                 interface->openVerticalBox("");
                 {
@@ -245,6 +247,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                   interface->closeBox();
 
                 }
+                interface->closeBox();
+                interface->openFrameBox("");
                 interface->closeBox();
 
                 interface->openVerticalBox("");
@@ -283,10 +287,10 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
               }
               interface->closeBox();
-
-              interface->openHorizontalBox("");
+              interface->openFrameBox("");
               interface->closeBox();
-
+              interface->openFrameBox("");
+              interface->closeBox();
             }
             interface->closeBox();
             //----- end

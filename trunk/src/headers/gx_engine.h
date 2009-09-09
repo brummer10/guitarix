@@ -558,6 +558,9 @@ namespace gx_engine
         float 	fslider_CH3;
         float fchorus;
         float fchorusbox;
+        //chorus end
+
+        float fmove_filter;
 
 
         // private constructor
@@ -622,7 +625,7 @@ namespace gx_engine
         float my2powf    ( float y);
         float my4powf    (float y);
         static float clip       (float x,  float a);
-        static float fuzz       (float in, float threshold);
+        static float hard_cut   (float in, float threshold);
         static float foldback   (float in, float threshold);
         static float valve      (float in, float out);
         static void  over_sample(float** input, float** output, int sf);
