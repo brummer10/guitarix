@@ -252,8 +252,7 @@ namespace gx_system
   // ---- log message handler
   void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
   {
-
-    string msgbuf = ">  ";
+    string msgbuf("\t"); 
     msgbuf += func;
     msgbuf += "  ***  ";
     msgbuf += msg;
@@ -272,10 +271,43 @@ namespace gx_system
 
       if (logw)
       {
-
+	// retrieve gtk text buffer
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(logw));
-	gtk_text_buffer_set_text(buffer, msgbuf.c_str(), -1);
 
+	// number of lines (we only keep 5 lines all the time)
+	const int nlines = gtk_text_buffer_get_line_count(buffer);
+
+	// counter
+	static int i = 0; 
+	int j = i;
+
+	// cosmetic
+	ostringstream spos; spos << "[" << i+1 << "]";
+	msgbuf.insert(0, spos.str());
+
+
+	GtkTextIter iter1;
+	GtkTextIter iter2;
+
+	// delete first line when window filled up
+	if (i >= nlines)
+	{
+	  gtk_text_buffer_get_iter_at_line(buffer, &iter1, 0);
+	  gtk_text_buffer_get_iter_at_line(buffer, &iter2, 1);
+	  gtk_text_buffer_delete(buffer, &iter1, &iter2);
+
+	  GtkTextIter iter;
+	  gtk_text_buffer_get_end_iter(buffer, &iter);
+	  gtk_text_buffer_insert(buffer, &iter, "\n", -1);
+
+	  j = nlines-1;
+	} 
+
+	// replace existing text between marks
+	gtk_text_buffer_get_iter_at_line(buffer, &iter1, j);
+	gtk_text_buffer_insert(buffer, &iter1, msgbuf.c_str(), -1);
+
+	// add color depending on msg type
 	static GtkTextTag* taginfo =
 	  gtk_text_buffer_create_tag(buffer, "colinfo", "foreground", "#00ced1", NULL);
 
@@ -295,10 +327,13 @@ namespace gx_system
 	case kError:   col = "#ff0000"; tag = tagerror; break;
 	}
 
+	gtk_text_buffer_get_iter_at_line(buffer, &iter1, j);
+	gtk_text_buffer_get_iter_at_line(buffer, &iter2, j+1);
 
-	GtkTextIter start, end;
-	gtk_text_buffer_get_bounds (buffer, &start, &end);
-	gtk_text_buffer_apply_tag(buffer, tag, &start, &end);
+	if (j+1 == nlines)
+	  gtk_text_buffer_get_end_iter(buffer, &iter2);
+
+	gtk_text_buffer_apply_tag(buffer, tag, &iter1, &iter2);
 
 	// modify expander bg color is closed
 	GtkExpander* exbox = interface->getLoggingBox();
@@ -308,6 +343,9 @@ namespace gx_system
 	  gdk_color_parse(col.c_str(), &exp_color);
 	  gtk_widget_modify_fg(GTK_WIDGET(exbox), GTK_STATE_NORMAL, &exp_color);
 	}
+
+	i++;
+
       }
       else
 	terminal = true;
@@ -315,8 +353,8 @@ namespace gx_system
     else terminal = true;
 
     // if no window, then terminal
-    if (terminal)
-      {  msgbuf += "\n"; cerr << msgbuf; }
+    if (terminal) cerr << msgbuf << endl;
+
   }
 
 

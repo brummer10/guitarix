@@ -107,8 +107,8 @@ namespace gx_gui
   //---- menu function gx_midi_out
   void gx_log_window (GtkWidget* menuitem, gpointer arg)
   {
-    // ugly init hack (GTK peculiar init stuff).
-    static bool init = false; if (!init) { init = true; return; }
+//     // ugly init hack (GTK peculiar init stuff).
+//     static bool init = false; if (!init) { init = true; return; }
 
     GtkExpander* const exbox = GxMainInterface::instance()->getLoggingBox();
 
@@ -116,12 +116,13 @@ namespace gx_gui
     if (!exbox) return;
 
     // open it
-    if (gtk_expander_get_expanded(exbox) ==  TRUE)
-      gtk_expander_set_expanded(exbox, FALSE);
+    if (gtk_expander_get_expanded(exbox) ==  FALSE ||
+	gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == TRUE)
+      gtk_expander_set_expanded(exbox, TRUE);
 
     // close it
     else
-      gtk_expander_set_expanded(exbox, TRUE);
+      gtk_expander_set_expanded(exbox, FALSE);
 
     // in any case, reset handle color
     GdkColor exp_color;
@@ -710,15 +711,19 @@ namespace gx_gui
     GtkWidget* frame = addWidget(label, gtk_expander_new(label));
     gtk_container_add (GTK_CONTAINER(frame), box);
     gtk_widget_show(frame);
-    gtk_expander_set_expanded(GTK_EXPANDER(frame), TRUE);
+    gtk_expander_set_expanded(GTK_EXPANDER(frame), FALSE);
     fLoggingBox = GTK_EXPANDER(frame);
 
-    GtkWidget* tbox = gtk_text_view_new ();
+    // create text buffer
+    GtkTextBuffer* buffer = gtk_text_buffer_new(NULL);
+    gtk_text_buffer_set_text(buffer, "\n\n\n\n", -1);
+
+    GtkWidget* tbox = gtk_text_view_new_with_buffer(buffer);
     gtk_container_set_border_width (GTK_CONTAINER (tbox), 0);
     gtk_text_view_set_editable(GTK_TEXT_VIEW(tbox), FALSE);
     gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(tbox), FALSE);
-    gtk_text_view_set_pixels_above_lines (GTK_TEXT_VIEW(tbox), 5);
-    gtk_text_view_set_pixels_below_lines (GTK_TEXT_VIEW(tbox), 5);
+    gtk_text_view_set_pixels_above_lines (GTK_TEXT_VIEW(tbox), 0);
+    gtk_text_view_set_pixels_below_lines (GTK_TEXT_VIEW(tbox), 2);
     gtk_text_view_set_justification(GTK_TEXT_VIEW(tbox), GTK_JUSTIFY_LEFT);
     gtk_text_view_set_left_margin(GTK_TEXT_VIEW(tbox), 5);
     gtk_text_view_set_indent(GTK_TEXT_VIEW(tbox), 0);
@@ -726,9 +731,6 @@ namespace gx_gui
     gtk_container_add (GTK_CONTAINER(box), tbox);
     gtk_widget_show(tbox);
     fLoggingWindow = GTK_TEXT_VIEW(tbox);
-
-    GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tbox));
-    gtk_text_buffer_set_text(buffer, ">", -1);
 
     gtk_widget_show(box);
   }
@@ -1976,10 +1978,11 @@ namespace gx_gui
     gtk_widget_show (menuitem);
 
     /*-- Create log window check menu item under Options submenu --*/
-    menuitem = gtk_menu_item_new_with_mnemonic ("Open/Close _Log message");
+    menuitem = gtk_check_menu_item_new_with_mnemonic ("Open/Close _Log message");
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_l, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_log_window), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM (menuitem), FALSE);
     gtk_widget_show (menuitem);
 
     /*-- add a separator line --*/
