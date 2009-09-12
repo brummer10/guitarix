@@ -113,13 +113,13 @@ inline void GxEngine::moving_filter(float** input, float** output, int sf)
   float *in = input[0];
   float * out = output[0];
 
-  *out++ = fmove_filter;
-  *in++;
-  for (int i=1; i<sf; i++)
+  *out++ = (in[0]+in[1])*0.5;
+
+  for (int i=1; i<sf-1; i++)
     {
       *out++ = (in[i-1]+in[i]+in[i+1])*0.3333334f;
     }
-  fmove_filter = *out;
+  *out++ = (in[sf]+in[sf-1])*0.5;
 
 }
 

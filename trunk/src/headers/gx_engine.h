@@ -560,7 +560,6 @@ namespace gx_engine
         float fchorusbox;
         //chorus end
 
-        float fmove_filter;
 
 
         // private constructor

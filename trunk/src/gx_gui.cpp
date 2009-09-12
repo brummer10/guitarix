@@ -253,6 +253,9 @@ namespace gx_gui
 
     else if (strcmp(witchres, "compressor") == 0)
       interface->recalladState(filename.c_str(),  72,  78, 5);
+
+    else if (strcmp(witchres, "chorus") == 0)
+      interface->recalladState(filename.c_str(),  110,  115, 6);
   }
 
   //----- show extendend settings slider

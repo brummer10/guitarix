@@ -11,7 +11,7 @@ import re
 import Logs
 
 # used by waf dist and waf build
-VERSION='0.05.0-1'
+VERSION='0.05.1-1'
 APPNAME='guitarix'
 
 # these variables are mandatory ('/' are converted automatically)
@@ -58,7 +58,7 @@ def configure(conf):
 
     conf.check_cfg(package='jack', atleast_version='0.109.1', args='--cflags --libs', uselib_store='JACK', mandatory=1)
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
-    conf.check_cfg(package='gtk+-2.0', atleast_version='2.12.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
+    conf.check_cfg(package='gtk+-2.0', atleast_version='2.14.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
     conf.check(header_name='ladspa.h', mandatory=1)
     conf.check(header_name='boost/program_options.hpp', mandatory=1)
     conf.check_cxx(lib='boost_program_options-mt', uselib_store='BOOST', mandatory=1)
