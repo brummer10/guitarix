@@ -559,6 +559,7 @@ namespace gx_engine
         float fchorus;
         float fchorusbox;
         //chorus end
+        int Beat_is;
 
 
 

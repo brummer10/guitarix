@@ -387,8 +387,9 @@ void GxEngine::process_midi(int len)
                         }
                     }
 
-                  if ( rms >= (fTemps45 + fTemps38))
+                  if ( rms >= (Beat_is + fTemps38))
                     {
+                      Beat_is = rms;
                       send+=step;
                       if (fcheckbox10 == 1.0) send1+=step;
                       if (fcheckbox11 == 1.0) send2+=step;
@@ -405,6 +406,7 @@ void GxEngine::process_midi(int len)
                   if ((weg > iTemps37) || (gx_jack::jcpu_load > 64.0))
                     {
                       send = send1 = send2 = 0;
+                      Beat_is = fTemps45;
                       if (weg <  iTemps37a)   // 5.0
                         {
                           midistat += 1.0f;

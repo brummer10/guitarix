@@ -504,6 +504,8 @@ namespace gx_engine
       fchorus = 0;
       fchorusbox = 0;
 
+      Beat_is = 0;
+
 
 
 
