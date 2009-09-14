@@ -40,7 +40,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
     interface->closeBox();
 
     //----- the upper box,
-    interface->openVerticalBox("                                                ");
+    interface->openVerticalBox("");
     {
       interface->openEventBox(" ");
       interface->openHorizontalBox("");
@@ -102,13 +102,17 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
           //----- arange all widgets in a vertical scale
           interface->openVerticalBox("");
           {
+              interface->openPaintBox("");
+                  {
             //----- the left widget side, volume, tone, fuzz
             interface->openHorizontalBox("");
             {
+
               //----- open a box for the volume controllers
               {
                 interface->openVerticalBox("volume");
                 {
+
                   interface->openVerticalBox("");
                   {
                     interface->addbigregler(" in / level ", &fslider3, 0.f, -40.f, 40.f, 0.1f);
@@ -152,12 +156,20 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                       interface->addHorizontalWheel("sharper",&fsharp0, 1.f, 1.f, 10.f, 1.0f);
                     }
                     interface->closeBox();
+                     interface->openFrameBox("");
+                    {
+                    }
+                    interface->closeBox();
                   }
                   interface->closeBox();
                   interface->openVerticalBox("noise gate ");
                   {
                     interface->addswitch("", &fnoise_g);
                     interface->addHorizontalWheel(" threshold ", &fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
+                     interface->openFrameBox("");
+                    {
+                    }
+                    interface->closeBox();
                   }
                   interface->closeBox();
 
@@ -165,12 +177,17 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                   {
                     interface->addswitch("", &antialis0);
                     interface->addHorizontalWheel(" feedback ", &faas1, 0.3f, 0.3f, 0.9f, 0.01f);
+                     interface->openFrameBox("");
+                    {
+                    }
+                    interface->closeBox();
                   }
                   interface->closeBox();
                 }
                 interface->closeBox();
 
-
+                interface->openPaintBox("");
+                  {
                 interface->openVerticalBox("amp  ");
                 {
                   interface->openHorizontalBox("");
@@ -193,104 +210,109 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                     interface->closeBox();
                   }
                   interface->closeBox();
-                }
-                interface->closeBox();
-              }
-
-              interface->closeBox();
-              //-----
-
-              //----- the second part in the vertical box
-              interface->openHorizontalBox("");
-              {
-                interface->openVerticalBox("");
-                {
-                  interface->openVerticalBox("");
-                  {
-                    interface->addswitch("preamp", &fcheckbox1);
-                    interface->addHorizontalWheel("atan",&fatan, 1.f, 1.f, 10.f, 1.0f);
-                  }
-                  interface->closeBox();
-                  interface->openFrameBox("");
-                  {
-                  }
-                  interface->closeBox();
-                  interface->openVerticalBox("");
-                  {
-                    interface->addswitch("drive", &fprdr);
-                    interface->addHorizontalWheel("drive", &fpredrive, 1.f, 1.f, 10.f, 1.0f);
                   }
                   interface->closeBox();
 
-                }
-                interface->closeBox();
-                interface->openFrameBox("");
-                interface->closeBox();
+                  //-----
 
-                interface->openVerticalBox("");
-                {
-                  interface->openVerticalBox("");
+                  //----- the second part in the vertical box
+                  interface->openHorizontalBox("");
                   {
-                    interface->addswitch("tube", &ftube);
-                    interface->addHorizontalWheel("tube",&ffuzzytube, 1.f, 1.f, 10.f, 1.0f);
-                  }
-                  interface->closeBox();
-                  interface->openFrameBox("");
-                  {
-                  }
-                  interface->closeBox();
-                  interface->openVerticalBox("");
-                  {
-                    interface->addswitch("vibrato", &fresoon);
-                    interface->addHorizontalWheel("vibrato", &fvibrato, 0.f, 0.f, 2.f, 0.02f);
-                  }
-                  interface->closeBox();
+                    interface->openVerticalBox("");
+                    {
+                      interface->openVerticalBox("");
+                      {
+                        interface->addswitch("preamp", &fcheckbox1);
+                        interface->addHorizontalWheel("atan",&fatan, 1.f, 1.f, 10.f, 1.0f);
+                      }
+                      interface->closeBox();
+                      interface->openFrameBox("");
+                      {
+                      }
+                      interface->closeBox();
+                      interface->openVerticalBox("");
+                      {
+                        interface->addswitch("drive", &fprdr);
+                        interface->addHorizontalWheel("drive", &fpredrive, 1.f, 1.f, 10.f, 1.0f);
+                      }
+                      interface->closeBox();
 
-                }
-                interface->closeBox();
-                interface->openFrameBox("");
-                interface->closeBox();
-
-                interface->openVerticalBox("");
-                {
-                  interface->openVerticalBox("");
-                  {
-                    interface->addswitch("tube2", &ftube3);
+                    }
+                    interface->closeBox();
                     interface->openFrameBox("");
+                    interface->closeBox();
+
+                    interface->openVerticalBox("");
                     {
-                      interface->addHorizontalWheel("tube",&fresotube3, 1.f, 1.f, 10.f, 1.0f);
+                      interface->openVerticalBox("");
+                      {
+                        interface->addswitch("tube", &ftube);
+                        interface->addHorizontalWheel("tube",&ffuzzytube, 1.f, 1.f, 10.f, 1.0f);
+                      }
+                      interface->closeBox();
+                      interface->openFrameBox("");
+                      {
+                      }
+                      interface->closeBox();
+                      interface->openVerticalBox("");
+                      {
+                        interface->addswitch("vibrato", &fresoon);
+                        interface->addHorizontalWheel("vibrato", &fvibrato, 0.f, 0.f, 2.f, 0.02f);
+                      }
+                      interface->closeBox();
+
+                    }
+                    interface->closeBox();
+                    interface->openFrameBox("");
+                    interface->closeBox();
+
+                    interface->openVerticalBox("");
+                    {
+                      interface->openVerticalBox("");
+                      {
+                        interface->addswitch("tube2", &ftube3);
+                        interface->openFrameBox("");
+                        {
+                          interface->addHorizontalWheel("tube",&fresotube3, 1.f, 1.f, 10.f, 1.0f);
+                        }
+                        interface->closeBox();
+
+                      }
+                      interface->closeBox();
+
+                      interface->openVerticalBox("");
+                      {
+                        interface->openVerticalBox1("resonanz");
+                        {
+                          interface->addHorizontalWheel("reso",&fresotube1, 0.5f, 0.f, 0.9f, 0.01f);
+                        }
+                        interface->closeBox();
+
+                        interface->openVerticalBox1("vibrato");
+                        {
+                          interface->addHorizontalWheel("vibrato",&fresotube2, 1.f, 0.f, 1.f, 0.01f);
+                        }
+                        interface->closeBox();
+
+                      }
+                      interface->closeBox();
+
                     }
                     interface->closeBox();
 
                   }
                   interface->closeBox();
-
-                  interface->openVerticalBox("");
-                  {
-                    interface->openVerticalBox1("resonanz");
-                    {
-                      interface->addHorizontalWheel("reso",&fresotube1, 0.5f, 0.f, 0.9f, 0.01f);
-                    }
-                    interface->closeBox();
-
-                    interface->openVerticalBox1("vibrato");
-                    {
-                      interface->addHorizontalWheel("vibrato",&fresotube2, 1.f, 0.f, 1.f, 0.01f);
-                    }
-                    interface->closeBox();
-
-                  }
+                  interface->openFrameBox("");
                   interface->closeBox();
-
+                  interface->openFrameBox("");
+                  interface->closeBox();
                 }
                 interface->closeBox();
-
               }
               interface->closeBox();
-              interface->openFrameBox("");
+               }
               interface->closeBox();
-              interface->openFrameBox("");
-              interface->closeBox();
+
             }
             interface->closeBox();
             //----- end
@@ -299,10 +321,15 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
             interface->openVerticalBox("");
             {
               //----- fill empty space
+               interface->openPaintBox("");
+                  {
               interface->openHorizontalBox("");
+              {
+              }
               interface->closeBox();
 
               //----- this box include only the effects
+
               interface->openHorizontalBox("");
               {
                 //----- the compressor
@@ -586,6 +613,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                 }
                 //----- end echo
 
+              }
+              interface->closeBox();
               }
               interface->closeBox();
               //----- close vertical effect box

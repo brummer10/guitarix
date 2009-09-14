@@ -633,6 +633,8 @@ namespace gx_engine
         static void  fuzzy_tube (int fuzzy, int mode, int sf,
                                  float** input, float** output);
         static float normalize  (float in, float atan_shape, float shape);
+        static float saturate(float x, float t);
+        static float sigmoid(float x);
 
         // non static methods (modifying object's non static private members)
         void  moving_filter(float** input, float** output, int sf);

@@ -89,6 +89,23 @@ inline float GxEngine::normalize(float in, float atan_shape, float shape)
 }
 
 
+inline float GxEngine::sigmoid(float x)
+{
+  return x*(1.5f - 0.5f*x*x);
+}
+
+inline float GxEngine::saturate(float x, float t)
+{
+  if (fabs(x)<t)
+    return x;
+  else
+    {
+      if (x > 0.f)
+        return t + (1.f-t)*sigmoid((x-t)/((1-t)*1.5f));
+      else
+        return -(t + (1.f-t)*sigmoid((-x-t)/((1-t)*1.5f)));
+    }
+}
 
 // tube unit to run on sample base, it's unused for now, dont know if we need it any more
 inline float GxEngine::valve(float in, float out)
@@ -1144,7 +1161,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
         case 0:
           break;
         case 1:
-          fRec0[0] = hard_cut(clip(fRec0[0],threshold),threshold);
+          fRec0[0] = hard_cut(saturate(fRec0[0],threshold),threshold);
           break;
         case 2:
           fRec0[0] = foldback(fRec0[0],threshold);
