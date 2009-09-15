@@ -740,7 +740,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 	GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->ringis = bufspeed;
 
       cairo_pattern_t* linpat =
-	cairo_pattern_create_linear (450, 0, 450, 42);
+	cairo_pattern_create_linear (450, -20, 450, 20);
 
       cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
       cairo_pattern_add_color_stop_rgba (linpat, 0.2, 1, 0.2, 0,0.8);
@@ -932,9 +932,8 @@ static gboolean gtk_waveview_button_press(GtkWidget *widget, GdkEventButton *eve
   // --------- live wave view
   else if (waveview->waveview_type == kWvTypeLive) {
     int liveviewx = widget->allocation.x, liveviewy = widget->allocation.y;
-    liveviewx += (widget->allocation.width - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x) *0.5+475;
-    liveviewy += (widget->allocation.height - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y) *0.5+15;
-
+    liveviewx += (widget->allocation.width - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x) *0.5+287;
+    liveviewy += (widget->allocation.height - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y) *0.5-122;
     if ((event->button == 1)        &&
 	(event->x < liveviewx + 55) &&
 	(event->x > liveviewx + 10) &&
@@ -973,11 +972,11 @@ static gboolean gtk_waveview_button_press(GtkWidget *widget, GdkEventButton *eve
       }
 
       cairo_t* cr        = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-      double x0          = liveviewx+16;
+      double x0          = liveviewx+204;
       double rect_width  = 40.;
       double rect_height = 15.;
       double x1, y1;
-
+      y0 += 137;
       x1 = x0 + rect_width;
       y1 = y0 + rect_height;
 

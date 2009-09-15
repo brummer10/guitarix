@@ -901,6 +901,49 @@ namespace gx_gui
       return FALSE;
     }
 
+    gboolean box2_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+    {
+      cairo_t *cr;
+      cairo_pattern_t *pat;
+
+      gint x, y;
+      gint w, h;
+
+      /* get the dimensions */
+      x = wi->allocation.x+2;
+      y = wi->allocation.y+2;
+      w = wi->allocation.width-4;
+      h = wi->allocation.height-4;
+
+      /* create a cairo context */
+      cr = gdk_cairo_create(wi->window);
+
+      cairo_move_to (cr, x, y);
+      //cairo_line_to (cr, x , y+h);
+      cairo_curve_to (cr, x+w*0.33, y, x+w*0.66, y+h, x+w, y+h);
+      cairo_line_to (cr, x+w , y);
+
+      cairo_set_line_width (cr, 3.0);
+
+      cairo_close_path (cr);
+
+      pat = cairo_pattern_create_linear (0, y, 0, y+h);
+
+      cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0., 0., 0.8);
+      cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
+      cairo_set_source (cr, pat);
+
+      cairo_fill_preserve (cr);
+
+
+      cairo_stroke (cr);
+      cairo_pattern_destroy (pat);
+      cairo_destroy(cr);
+
+      return FALSE;
+
+    }
+
     // static member
     bool GxMainInterface::fInitialized = false;
 
@@ -1164,6 +1207,36 @@ namespace gx_gui
       GtkWidget * box = gtk_vbox_new (homogene, 2);
       gtk_container_set_border_width (GTK_CONTAINER (box), 2);
       g_signal_connect(box, "expose-event", G_CALLBACK(box_expose), NULL);
+
+      if (fMode[fTop] != kTabMode && label[0] != 0)
+        {
+          // GtkWidget * frame = addWidget(label, gtk_frame_new (label));
+          // gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
+          GtkWidget* lw = gtk_label_new(label);
+          GdkColor colorGreen;
+          gdk_color_parse("#a6a9aa", &colorGreen);
+          gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+          GtkStyle *style = gtk_widget_get_style(lw);
+          pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+          pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+          gtk_widget_modify_font(lw, style->font_desc);
+          gtk_container_add (GTK_CONTAINER(box), lw);
+          gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+          gtk_widget_show(lw);
+          gtk_widget_show(box);
+          pushBox(kBoxMode, box);
+        }
+      else
+        {
+          pushBox(kBoxMode, addWidget(label, box));
+        }
+    }
+
+    void GxMainInterface::openPaintBox2(const char* label)
+    {
+      GtkWidget * box = gtk_vbox_new (homogene, 2);
+      gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+      g_signal_connect(box, "expose-event", G_CALLBACK(box2_expose), NULL);
 
       if (fMode[fTop] != kTabMode && label[0] != 0)
         {
