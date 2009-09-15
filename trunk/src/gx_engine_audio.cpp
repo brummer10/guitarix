@@ -703,7 +703,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   float fSlow44 = (9.999871e-04f * powf(10, (5.000000e-02f * (fslider10 - 10))));
   // distortion end
   float fSlow56 = fslider11;
-  float fmapping = (2.384186e-10f*(7.5*fSlow56));
+  float fmapping = (2.384186e-10f*(20*fSlow56));
   float fSlow57 = (9.999872e-05f * powf(4.0f, fSlow56));
   float fSlow58 = fslider13;
   float fSlow59 = ((1 - max(0, (0 - fSlow58))) * fslider12);

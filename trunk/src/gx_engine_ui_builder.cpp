@@ -624,8 +624,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
               }
               interface->closeBox();
               //----- close vertical effect box
-              interface->openPaintBox("");
-              {
+
 
                 //----- open a box for the oscilloscope
                 interface->openVerticalBox("");
@@ -641,6 +640,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
                   }
                   interface->closeBox();
+                  interface->openPaintBox("");
+              {
 
                   interface->openHorizontalBox("");
                   {

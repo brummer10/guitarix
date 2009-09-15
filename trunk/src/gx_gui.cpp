@@ -702,7 +702,7 @@ namespace gx_gui
       cairo_set_source (cr, pat);
 
       cairo_fill_preserve (cr);
-      cairo_set_source_rgba (cr, 0, 0, 0, 0.4);
+      cairo_set_source_rgba (cr, 0, 0, 0, 0.8);
       cairo_set_line_width (cr, 5.0);
       cairo_stroke (cr);
 
@@ -751,7 +751,7 @@ namespace gx_gui
             }
         }
       cairo_close_path (cr);
-      cairo_set_source_rgb (cr, 0, 0, 0);
+      cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
       cairo_set_line_width (cr, 1.0);
       cairo_stroke (cr);
       cairo_pattern_destroy (pat);
@@ -839,11 +839,11 @@ namespace gx_gui
       pat = cairo_pattern_create_linear (0, y0, 0, y1);
 
       cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
-      cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
+      cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0, 0, 0.4);
       cairo_set_source (cr, pat);
 
       cairo_fill_preserve (cr);
-      cairo_set_source_rgba (cr, 0, 0, 0, 0.4);
+      cairo_set_source_rgba (cr, 0, 0, 0, 0.8);
       cairo_set_line_width (cr, 5.0);
       cairo_stroke (cr);
 
@@ -892,7 +892,7 @@ namespace gx_gui
             }
         }
       cairo_close_path (cr);
-      cairo_set_source_rgb (cr, 0, 0, 0);
+      cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
       cairo_set_line_width (cr, 1.0);
       cairo_stroke (cr);
       cairo_pattern_destroy (pat);
