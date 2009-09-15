@@ -607,7 +607,7 @@ namespace gx_gui
 
   /* ---------- GxMainInterface method definition ---------- */
 
-  gboolean label_expose_cb(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+  gboolean box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
     cairo_t *cr;
     cairo_pattern_t *pat;
@@ -675,8 +675,8 @@ if (rect_width/2<radius) {
 cairo_close_path (cr);
 
 pat = cairo_pattern_create_linear (0, y0, 0, y1);
-cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0.2, 0.2, 0);
-cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.2, 0.6);
+cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0., 0., 0);
+cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0., 0., 0.6);
 cairo_set_source (cr, pat);
 
 
@@ -742,6 +742,141 @@ cairo_stroke (cr);
     return FALSE;
 }
 
+  gboolean box1_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+{
+    cairo_t *cr;
+    cairo_pattern_t *pat;
+
+    gint x, y;
+    gint w, h;
+
+    /* get the dimensions */
+    x = wi->allocation.x+2;
+    y = wi->allocation.y+2;
+    w = wi->allocation.width-4;
+    h = wi->allocation.height-4;
+
+    /* create a cairo context */
+    cr = gdk_cairo_create(wi->window);
+
+ /* a custom shape that could be wrapped in a function */
+double x0      = x,   /* parameters like cairo_rectangle */
+       y0      = y,
+       rect_width  = w,
+       rect_height = h,
+       radius = 25.;   /* and an approximate curvature radius */
+
+double x1,y1;
+
+x1=x0+rect_width;
+y1=y0+rect_height;
+if (!rect_width || !rect_height)
+    return 1;
+if (rect_width/2<radius) {
+    if (rect_height/2<radius) {
+        cairo_move_to  (cr, x0, (y0 + y1)/2);
+        cairo_curve_to (cr, x0 ,y0, x0, y0, (x0 + x1)/2, y0);
+        cairo_curve_to (cr, x1, y0, x1, y0, x1, (y0 + y1)/2);
+        cairo_curve_to (cr, x1, y1, x1, y1, (x1 + x0)/2, y1);
+        cairo_curve_to (cr, x0, y1, x0, y1, x0, (y0 + y1)/2);
+    } else {
+        cairo_move_to  (cr, x0, y0 + radius);
+        cairo_curve_to (cr, x0 ,y0, x0, y0, (x0 + x1)/2, y0);
+        cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+        cairo_line_to (cr, x1 , y1 - radius);
+        cairo_curve_to (cr, x1, y1, x1, y1, (x1 + x0)/2, y1);
+        cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+    }
+} else {
+    if (rect_height/2<radius) {
+        cairo_move_to  (cr, x0, (y0 + y1)/2);
+        cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+        cairo_line_to (cr, x1 - radius, y0);
+        cairo_curve_to (cr, x1, y0, x1, y0, x1, (y0 + y1)/2);
+        cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+        cairo_line_to (cr, x0 + radius, y1);
+        cairo_curve_to (cr, x0, y1, x0, y1, x0, (y0 + y1)/2);
+    } else {
+        cairo_move_to  (cr, x0, y0 + radius);
+        cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+        cairo_line_to (cr, x1 - radius, y0);
+        cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+        cairo_line_to (cr, x1 , y1 - radius);
+        cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+        cairo_line_to (cr, x0 + radius, y1);
+        cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+    }
+}
+cairo_close_path (cr);
+
+pat = cairo_pattern_create_linear (0, y0, 0, y1);
+
+cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
+cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
+cairo_set_source (cr, pat);
+
+
+//cairo_set_source_rgba (cr, 0.2, 0.2, 0.2, 0.2);
+cairo_fill_preserve (cr);
+cairo_set_source_rgba (cr, 0, 0, 0, 0.4);
+cairo_set_line_width (cr, 5.0);
+cairo_stroke (cr);
+
+if (rect_width/2<radius) {
+    if (rect_height/2<radius) {
+        cairo_move_to  (cr, x0, (y0 + y1)/2);
+        cairo_curve_to (cr, x0 ,y0, x0, y0, (x0 + x1)/2, y0);
+        cairo_curve_to (cr, x1, y0, x1, y0, x1, (y0 + y1)/2);
+        cairo_curve_to (cr, x1, y1, x1, y1, (x1 + x0)/2, y1);
+        cairo_curve_to (cr, x0, y1, x0, y1, x0, (y0 + y1)/2);
+    } else {
+        cairo_move_to  (cr, x0, y0 + radius);
+        cairo_curve_to (cr, x0 ,y0, x0, y0, (x0 + x1)/2, y0);
+        cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+        cairo_line_to (cr, x1 , y1 - radius);
+        cairo_curve_to (cr, x1, y1, x1, y1, (x1 + x0)/2, y1);
+        cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+    }
+} else {
+    if (rect_height/2<radius) {
+        cairo_move_to  (cr, x0, (y0 + y1)/2);
+        cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+        cairo_line_to (cr, x1 - radius, y0);
+        cairo_curve_to (cr, x1, y0, x1, y0, x1, (y0 + y1)/2);
+        cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+        cairo_line_to (cr, x0 + radius, y1);
+        cairo_curve_to (cr, x0, y1, x0, y1, x0, (y0 + y1)/2);
+    } else {
+        cairo_move_to  (cr, x0, y0 + radius);
+        cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+        cairo_line_to (cr, x1 - radius, y0);
+        cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+        cairo_line_to (cr, x1 , y1 - radius);
+        cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+        cairo_line_to (cr, x0 + radius, y1);
+        cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+    }
+}
+cairo_close_path (cr);
+
+//cairo_set_source_rgba (cr, 0.2, 0.2, 0.2, 0.2);
+//cairo_fill_preserve (cr);
+cairo_set_source_rgb (cr, 0, 0, 0);
+cairo_set_line_width (cr, 1.0);
+cairo_stroke (cr);
+
+    /* set it to white */
+   // cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.666);
+    /* draw a rectangle */
+   // cairo_rectangle(cr, x, y, w, h);
+    /* fill it in */
+   // cairo_fill(cr);
+    cairo_pattern_destroy (pat);
+
+    cairo_destroy(cr);
+
+    return FALSE;
+}
 
   // static member
   bool GxMainInterface::fInitialized = false;
@@ -984,7 +1119,7 @@ cairo_stroke (cr);
         pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
         pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
         gtk_widget_modify_font(lw, style->font_desc);
-      //  g_signal_connect(box, "expose-event", G_CALLBACK(label_expose_cb), NULL);
+      //  g_signal_connect(box, "expose-event", G_CALLBACK(box_expose), NULL);
 
         gtk_container_add (GTK_CONTAINER(box), lw);
         gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
@@ -1002,7 +1137,7 @@ cairo_stroke (cr);
   {
     GtkWidget * box = gtk_vbox_new (homogene, 2);
     gtk_container_set_border_width (GTK_CONTAINER (box), 2);
-    g_signal_connect(box, "expose-event", G_CALLBACK(label_expose_cb), NULL);
+    g_signal_connect(box, "expose-event", G_CALLBACK(box_expose), NULL);
 
     if (fMode[fTop] != kTabMode && label[0] != 0)
       {
@@ -1768,16 +1903,18 @@ cairo_stroke (cr);
 
     livewa = gx_wave_live_view(zone,zone1,GTK_ADJUSTMENT(adj));
 
-    GtkWidget * nolivewa = gtk_event_box_new ();
+    //GtkWidget * nolivewa = gtk_event_box_new ();
     GtkWidget * box      = gtk_vbox_new (false, 4);
+    g_signal_connect(box, "expose-event", G_CALLBACK(box1_expose), NULL);
 
-    gtk_widget_set_size_request (nolivewa, 550, 80);
+    //gtk_widget_set_size_request (nolivewa, 550, 80);
     gtk_widget_set_size_request (box, 550, 80);
-    gtk_container_add (GTK_CONTAINER(nolivewa),box );
-    openPaintBox(label);
+   // gtk_container_add (GTK_CONTAINER(nolivewa),box );
+   // openPaintBox("");
     gtk_container_add (GTK_CONTAINER(box),livewa );
-    closeBox();
-    addWidget(label, nolivewa);
+    addWidget(label, box);
+    //closeBox();
+    //addWidget(label, nolivewa);
 
     gtk_widget_show(box);
     gtk_widget_hide(livewa);

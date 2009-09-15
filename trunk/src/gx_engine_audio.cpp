@@ -848,7 +848,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   if (tuner_on > 0)
     (void)memcpy(checkfreq, input0, sizeof(float)*count);
 
-  //moving_filter(input, input, count);
+  moving_filter(input, input, count);
   // run pre_funktions on frame base
   if (inoise_g) noise_gate (count,input);
   else ngate = 1;

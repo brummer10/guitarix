@@ -316,10 +316,14 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
             }
             interface->closeBox();
             //----- end
+              interface->openFrameBox("");
+                interface->closeBox();
 
             //----- this box include all effects and the osccilloscope
+
             interface->openVerticalBox("");
             {
+
               //----- fill empty space
                interface->openPaintBox("");
                   {
@@ -332,6 +336,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
               interface->openHorizontalBox("");
               {
+                  interface->openFrameBox("");
+                  interface->closeBox();
                 //----- the compressor
                 interface->openVerticalBox("compressor");
                 {
@@ -618,32 +624,30 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
               }
               interface->closeBox();
               //----- close vertical effect box
+              interface->openPaintBox("");
+                  {
 
               //----- open a box for the oscilloscope
               interface->openVerticalBox("");
               {
-                //----- fill empty space
-                interface->openFrameBox("");
-                interface->closeBox();
+
 
                 interface->openHorizontalBox("");
                 {
-                  //----- fill empty space
-                  interface->openFrameBox("");
-                  interface->closeBox();
+
 
                   //----- the oscilloscope
                   interface->addLiveWaveDisplay(" ", &viv , &vivi);
 
-                  //----- fill empty space
-                  interface->openFrameBox("");
-                  interface->closeBox();
+
 
                 }
                 interface->closeBox();
-
+               // interface->openPaintBox("");
+               //   {
                 //----- fill empty space
                 interface->openHorizontalBox("");
+                {
 
                 interface->openVerticalBox("");
                 {
@@ -691,25 +695,35 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
                 interface->openFrameBox("");
                 interface->closeBox();
-
+                }
                 interface->closeBox();
 
-              }
-              interface->closeBox();
+
 
               //----- fill empty space
               interface->openFrameBox("");
               interface->closeBox();
+            //  }
+            //  interface->closeBox();
 
             }
             interface->closeBox();
+             }
+              interface->closeBox();
 
           }
           //----- close ocsilloscope box
           interface->closeBox();
+         }
+        interface->closeBox();
+
+                    interface->openFrameBox("");
+                interface->closeBox();
+
 
         }
         interface->closeBox();
+
 
       }
       interface->closeBox();
