@@ -321,309 +321,312 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
             //----- this box include all effects and the osccilloscope
 
+
             interface->openVerticalBox("");
             {
+            //  interface->openScrollBox("  ");
+            //  {
 
-              //----- fill empty space
-              interface->openPaintBox("");
-              {
-                interface->openHorizontalBox("");
+                //----- fill empty space
+                interface->openPaintBox("");
                 {
+                  interface->openHorizontalBox("");
+                  {
+                  }
+                  interface->closeBox();
+
+                  //----- this box include only the effects
+
+                  interface->openHorizontalBox("");
+                  {
+                    interface->openFrameBox("");
+                    interface->closeBox();
+                    //----- the compressor
+                    interface->openVerticalBox("compressor");
+                    {
+                      interface->addregler("ratio", &fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
+                      interface->openHorizontalBox("");
+                      {
+                        interface->addtoggle("", &fcheckboxcom1);
+
+                        //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
+                        interface->openDialogBox("compressor", &fdialogbox8);
+                        {
+                          interface->openHandleBox("  ");
+                          {
+                            interface->openVerticalBox("compressor");
+                            {
+                              interface->openHorizontalBox("");
+                              {
+                                interface->addregler("knee", &fentrycom1, 3.000000f, 0.000000f, 20.000000f, 0.100000f);
+                                interface->addregler("ratio", &fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
+                                interface->addregler("threshold", &fentrycom0, -20.000000f, -96.000000f, 10.000000f, 0.100000f);
+                              }
+                              interface->closeBox();
+
+                              interface->openVerticalBox("envelop");
+                              {
+                                interface->addslider("attack", &fslidercom0, 2.000000e-03f, 0.000000f, 1.000000f, 1.000000e-03f);
+                                interface->addslider("release", &fslidercom1, 0.500000f, 0.000000f, 10.000000f, 1.000000e-02f);
+                              }
+                              interface->closeBox();
+
+                            }
+                            interface->closeBox();
+
+                          }
+                          interface->closeBox();
+
+                        }
+                        interface->closeBox();
+
+                      }
+                      //----- end advanced settings widget
+                      interface->closeBox();
+
+                    }
+                    interface->closeBox();
+                    //----- end compressor
+
+
+                    //----- overdrive
+                    interface->openVerticalBox("overdrive");
+                    {
+                      interface->addregler("  drive ", &drive, 1.f, 1.f, 20.f, 0.1f);
+                      interface->addtoggle("", &foverdrive4);
+                    }
+                    interface->closeBox();
+                    //-----end overdrive
+
+
+                    //----- distortion
+                    interface->openVerticalBox(" distortion");
+                    {
+                      interface->addregler("  drive ", &fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
+                      interface->openHorizontalBox("");
+                      {
+                        interface->addtoggle("", &fcheckbox4);
+
+                        //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
+                        {
+                          interface->openDialogBox("distortion", &fdialogbox1);
+                          {
+                            interface->openHandleBox("  ");
+                            {
+                              interface->addbigregler("  drive ", &fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
+                              interface->addregler("level", &fslider8, 1.000000e-02f, 0.0f, 0.50f, 1.000000e-02f);
+                              interface->addregler("gain", &fslider10, 2.0f, -10.0f, 10.0f, 0.1f);
+
+                              interface->openVerticalBox("low/highpass");
+                              {
+                                interface->openHorizontalBox("");
+                                {
+                                  interface->addregler("high-freq ", &fentry1, 130.0f, 20.0f, 7040.0f, 10.0f);
+                                  interface->addregler(" low-freq ", &fentry0, 5000.0f, 20.0f, 12000.0f, 10.0f);
+                                }
+                                interface->closeBox();
+
+                                interface->addtoggle("", &fcheckbox2);
+                              }
+                              interface->closeBox();
+
+                              interface->openVerticalBox("low/highcutoff");
+                              {
+                                interface->openHorizontalBox("");
+                                {
+                                  interface->addregler("high-freq ", &fslider6, 5000.0f, 1000.0f, 12000.0f, 10.0f);
+                                  interface->addregler(" low-freq ", &fslider7, 130.0f, 20.0f, 1000.0f, 10.0f);
+                                }
+                                interface->closeBox();
+
+                                interface->addtoggle("", &fcheckbox3);
+                              }
+                              interface->closeBox();
+
+                              interface->openHorizontalBox("resonanz");
+                              {
+                                interface->addregler("trigger ", &fslider4, 0.12f, 0.0f, 1.0f, 1.000000e-02f);
+                                interface->addregler(" vibrato ", &fslider5, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
+                              }
+                              interface->closeBox();
+
+                            }
+                            interface->closeBox();
+
+                          }
+                          interface->closeBox();
+
+                        }
+                        //----- end advanced settings widget
+                        interface->closeBox();
+
+                      }
+                      interface->closeBox();
+                      //----- end distortion
+
+                      //----- freeverb
+                      interface->openVerticalBox(" freeverb");
+                      {
+                        interface->addregler("RoomSize", &fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
+
+                        interface->openHorizontalBox("");
+                        {
+                          interface->addtoggle("", &fcheckbox6);
+
+                          //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
+                          interface->openDialogBox("freeverb", &fdialogbox2);
+                          {
+                            interface->openHandleBox("  ");
+                            {
+                              interface->addregler("RoomSize", &fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
+                              interface->addregler("damp", &fslider15, 0.5f, 0.0f, 1.0f, 2.500000e-02f);
+                              interface->addregler("wet/dry", &fslider14, 0.0f, -0.5f, 0.5f, 1.e-01f);
+                            }
+                            interface->closeBox();
+                          }
+                          interface->closeBox();
+
+                        }
+                        //----- end advanced settings widget
+                        interface->closeBox();
+
+                      }
+                      interface->closeBox();
+                      //----- end freeverb
+
+                      //----- IR
+                      interface->openVerticalBox("IR");
+                      {
+                        interface->openHorizontalBox("");
+                        {
+                          interface->addregler("   freq   ", &fslider21, 440.000000f, 20.000000f, 12000.000000f, 10.000000f);
+                          //interface->addregler(" peak ", &fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
+                        }
+                        interface->closeBox();
+
+                        interface->openHorizontalBox("");
+                        {
+                          interface->addtoggle("", &fcheckbox8);
+
+                          //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
+                          interface->openDialogBox("ImpulseResponse", &fdialogbox3);
+                          {
+                            interface->openHandleBox("  ");
+                            {
+                              interface->addregler("    freq     ", &fslider21, 440.000000f, 20.000000f, 12000.000000f, 10.000000f);
+                              interface->addregler("     peak    ", &fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
+                              interface->addregler("    bandwidth    ", &fslider20, 100.0f, 20.0f, 20000.0f, 10.0f);
+                            }
+                            interface->closeBox();
+
+                          }
+                          interface->closeBox();
+
+                        }
+                        //----- end advanced settings widget
+                        interface->closeBox();
+
+                      }
+                      interface->closeBox();
+                      //----- end IR
+
+                      interface->openVerticalBox("chorus");
+                      {
+
+                        interface->addregler("level", &fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
+                        interface->openHorizontalBox("");
+                        {
+                          interface->addtoggle("", &fchorus);
+                          interface->openDialogBox("chorus", &fchorusbox);
+                          {
+                            interface->openHandleBox("  ");
+                            {
+                              interface->openVerticalBox("");
+                              {
+                                interface->openHorizontalBox("");
+                                {
+                                  interface->addregler("  delay  ", &fslider_CH2, 2.500000e-02f, 0.0f, 0.2f, 1.000000e-03f);
+                                  interface->addregler("  depth  ", &fslider_CH1, 2.000000e-02f, 0.0f, 1.0f, 1.000000e-03f);
+                                  interface->addregler("  freq  ", &fslider_CH0, 3.0f, 0.0f, 10.0f, 1.000000e-02f);
+                                  interface->addregler("  level  ", &fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
+
+                                }
+                                interface->closeBox();
+                              }
+                              interface->closeBox();
+                            }
+                            interface->closeBox();
+                          }
+                          interface->closeBox();
+                        }
+                        interface->closeBox();
+                      }
+                      interface->closeBox();
+
+                      //----- crybaby
+                      interface->openVerticalBox("crybaby");
+                      {
+                        interface->addregler(" wah ", &fslider11, 0.000000f, 0.000000f, 1.000000f, 1.000000e-02f);
+
+                        interface->openHorizontalBox("");
+                        {
+                          interface->addtoggle("", &fcheckbox5);
+
+                          //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
+                          interface->openDialogBox("crybaby", &fdialogbox4);
+                          {
+                            interface->openHandleBox("  ");
+                            {
+                              interface->openVerticalBox("");
+                              {
+                                interface->openHorizontalBox("");
+                                {
+                                  interface->addregler("  wah   ", &fslider11, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
+                                  interface->addregler("  level  ", &fslider12, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
+                                  interface->addregler("wet/dry", &fslider13, 0.f, -1.f, 1.f, 1.e-01f);
+                                }
+                                interface->closeBox();
+
+                                interface->addminiswitch(" autowah", &fautowah);
+                              }
+                              interface->closeBox();
+                            }
+                            interface->closeBox();
+
+                          }
+                          interface->closeBox();
+
+                        }
+                        //----- end advanced settings widget
+                        interface->closeBox();
+
+                      }
+                      interface->closeBox();
+                      //----- end crybaby
+
+                      //----- echo
+                      interface->openVerticalBox("echo");
+                      {
+                        interface->openHorizontalBox("");
+                        {
+                          interface->addregler("    %    ", &fslider19, 0.000000f, 0.000000f, 100.000000f, 0.100000f);
+                          interface->addregler("  time  ", &fslider18, 1.000000f, 1.000000f, 2000.000000f, 1.000000f);
+                        }
+                        interface->closeBox();
+
+                        interface->addtoggle("", &fcheckbox7);
+
+                      }
+                      interface->closeBox();
+
+                    }
+                    //----- end echo
+
+                  }
+                  interface->closeBox();
                 }
                 interface->closeBox();
-
-                //----- this box include only the effects
-
-                interface->openHorizontalBox("");
-                {
-                  interface->openFrameBox("");
-                  interface->closeBox();
-                  //----- the compressor
-                  interface->openVerticalBox("compressor");
-                  {
-                    interface->addregler("ratio", &fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
-                    interface->openHorizontalBox("");
-                    {
-                      interface->addtoggle("", &fcheckboxcom1);
-
-                      //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-                      interface->openDialogBox("compressor", &fdialogbox8);
-                      {
-                        interface->openHandleBox("  ");
-                        {
-                          interface->openVerticalBox("compressor");
-                          {
-                            interface->openHorizontalBox("");
-                            {
-                              interface->addregler("knee", &fentrycom1, 3.000000f, 0.000000f, 20.000000f, 0.100000f);
-                              interface->addregler("ratio", &fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
-                              interface->addregler("threshold", &fentrycom0, -20.000000f, -96.000000f, 10.000000f, 0.100000f);
-                            }
-                            interface->closeBox();
-
-                            interface->openVerticalBox("envelop");
-                            {
-                              interface->addslider("attack", &fslidercom0, 2.000000e-03f, 0.000000f, 1.000000f, 1.000000e-03f);
-                              interface->addslider("release", &fslidercom1, 0.500000f, 0.000000f, 10.000000f, 1.000000e-02f);
-                            }
-                            interface->closeBox();
-
-                          }
-                          interface->closeBox();
-
-                        }
-                        interface->closeBox();
-
-                      }
-                      interface->closeBox();
-
-                    }
-                    //----- end advanced settings widget
-                    interface->closeBox();
-
-                  }
-                  interface->closeBox();
-                  //----- end compressor
-
-
-                  //----- overdrive
-                  interface->openVerticalBox("overdrive");
-                  {
-                    interface->addregler("  drive ", &drive, 1.f, 1.f, 20.f, 0.1f);
-                    interface->addtoggle("", &foverdrive4);
-                  }
-                  interface->closeBox();
-                  //-----end overdrive
-
-
-                  //----- distortion
-                  interface->openVerticalBox(" distortion");
-                  {
-                    interface->addregler("  drive ", &fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
-                    interface->openHorizontalBox("");
-                    {
-                      interface->addtoggle("", &fcheckbox4);
-
-                      //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-                      {
-                        interface->openDialogBox("distortion", &fdialogbox1);
-                        {
-                          interface->openHandleBox("  ");
-                          {
-                            interface->addbigregler("  drive ", &fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
-                            interface->addregler("level", &fslider8, 1.000000e-02f, 0.0f, 0.50f, 1.000000e-02f);
-                            interface->addregler("gain", &fslider10, 2.0f, -10.0f, 10.0f, 0.1f);
-
-                            interface->openVerticalBox("low/highpass");
-                            {
-                              interface->openHorizontalBox("");
-                              {
-                                interface->addregler("high-freq ", &fentry1, 130.0f, 20.0f, 7040.0f, 10.0f);
-                                interface->addregler(" low-freq ", &fentry0, 5000.0f, 20.0f, 12000.0f, 10.0f);
-                              }
-                              interface->closeBox();
-
-                              interface->addtoggle("", &fcheckbox2);
-                            }
-                            interface->closeBox();
-
-                            interface->openVerticalBox("low/highcutoff");
-                            {
-                              interface->openHorizontalBox("");
-                              {
-                                interface->addregler("high-freq ", &fslider6, 5000.0f, 1000.0f, 12000.0f, 10.0f);
-                                interface->addregler(" low-freq ", &fslider7, 130.0f, 20.0f, 1000.0f, 10.0f);
-                              }
-                              interface->closeBox();
-
-                              interface->addtoggle("", &fcheckbox3);
-                            }
-                            interface->closeBox();
-
-                            interface->openHorizontalBox("resonanz");
-                            {
-                              interface->addregler("trigger ", &fslider4, 0.12f, 0.0f, 1.0f, 1.000000e-02f);
-                              interface->addregler(" vibrato ", &fslider5, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
-                            }
-                            interface->closeBox();
-
-                          }
-                          interface->closeBox();
-
-                        }
-                        interface->closeBox();
-
-                      }
-                      //----- end advanced settings widget
-                      interface->closeBox();
-
-                    }
-                    interface->closeBox();
-                    //----- end distortion
-
-                    //----- freeverb
-                    interface->openVerticalBox(" freeverb");
-                    {
-                      interface->addregler("RoomSize", &fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
-
-                      interface->openHorizontalBox("");
-                      {
-                        interface->addtoggle("", &fcheckbox6);
-
-                        //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-                        interface->openDialogBox("freeverb", &fdialogbox2);
-                        {
-                          interface->openHandleBox("  ");
-                          {
-                            interface->addregler("RoomSize", &fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
-                            interface->addregler("damp", &fslider15, 0.5f, 0.0f, 1.0f, 2.500000e-02f);
-                            interface->addregler("wet/dry", &fslider14, 0.0f, -0.5f, 0.5f, 1.e-01f);
-                          }
-                          interface->closeBox();
-                        }
-                        interface->closeBox();
-
-                      }
-                      //----- end advanced settings widget
-                      interface->closeBox();
-
-                    }
-                    interface->closeBox();
-                    //----- end freeverb
-
-                    //----- IR
-                    interface->openVerticalBox("IR");
-                    {
-                      interface->openHorizontalBox("");
-                      {
-                        interface->addregler("   freq   ", &fslider21, 440.000000f, 20.000000f, 12000.000000f, 10.000000f);
-                        //interface->addregler(" peak ", &fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
-                      }
-                      interface->closeBox();
-
-                      interface->openHorizontalBox("");
-                      {
-                        interface->addtoggle("", &fcheckbox8);
-
-                        //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-                        interface->openDialogBox("ImpulseResponse", &fdialogbox3);
-                        {
-                          interface->openHandleBox("  ");
-                          {
-                            interface->addregler("    freq     ", &fslider21, 440.000000f, 20.000000f, 12000.000000f, 10.000000f);
-                            interface->addregler("     peak    ", &fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
-                            interface->addregler("    bandwidth    ", &fslider20, 100.0f, 20.0f, 20000.0f, 10.0f);
-                          }
-                          interface->closeBox();
-
-                        }
-                        interface->closeBox();
-
-                      }
-                      //----- end advanced settings widget
-                      interface->closeBox();
-
-                    }
-                    interface->closeBox();
-                    //----- end IR
-
-                    interface->openVerticalBox("chorus");
-                    {
-
-                      interface->addregler("level", &fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
-                      interface->openHorizontalBox("");
-                      {
-                        interface->addtoggle("", &fchorus);
-                        interface->openDialogBox("chorus", &fchorusbox);
-                        {
-                          interface->openHandleBox("  ");
-                          {
-                            interface->openVerticalBox("");
-                            {
-                              interface->openHorizontalBox("");
-                              {
-                                interface->addregler("  delay  ", &fslider_CH2, 2.500000e-02f, 0.0f, 0.2f, 1.000000e-03f);
-                                interface->addregler("  depth  ", &fslider_CH1, 2.000000e-02f, 0.0f, 1.0f, 1.000000e-03f);
-                                interface->addregler("  freq  ", &fslider_CH0, 3.0f, 0.0f, 10.0f, 1.000000e-02f);
-                                interface->addregler("  level  ", &fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
-
-                              }
-                              interface->closeBox();
-                            }
-                            interface->closeBox();
-                          }
-                          interface->closeBox();
-                        }
-                        interface->closeBox();
-                      }
-                      interface->closeBox();
-                    }
-                    interface->closeBox();
-
-                    //----- crybaby
-                    interface->openVerticalBox("crybaby");
-                    {
-                      interface->addregler(" wah ", &fslider11, 0.000000f, 0.000000f, 1.000000f, 1.000000e-02f);
-
-                      interface->openHorizontalBox("");
-                      {
-                        interface->addtoggle("", &fcheckbox5);
-
-                        //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-                        interface->openDialogBox("crybaby", &fdialogbox4);
-                        {
-                          interface->openHandleBox("  ");
-                          {
-                            interface->openVerticalBox("");
-                            {
-                              interface->openHorizontalBox("");
-                              {
-                                interface->addregler("  wah   ", &fslider11, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
-                                interface->addregler("  level  ", &fslider12, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
-                                interface->addregler("wet/dry", &fslider13, 0.f, -1.f, 1.f, 1.e-01f);
-                              }
-                              interface->closeBox();
-
-                              interface->addminiswitch(" autowah", &fautowah);
-                            }
-                            interface->closeBox();
-                          }
-                          interface->closeBox();
-
-                        }
-                        interface->closeBox();
-
-                      }
-                      //----- end advanced settings widget
-                      interface->closeBox();
-
-                    }
-                    interface->closeBox();
-                    //----- end crybaby
-
-                    //----- echo
-                    interface->openVerticalBox("echo");
-                    {
-                      interface->openHorizontalBox("");
-                      {
-                        interface->addregler("    %    ", &fslider19, 0.000000f, 0.000000f, 100.000000f, 0.100000f);
-                        interface->addregler("  time  ", &fslider18, 1.000000f, 1.000000f, 2000.000000f, 1.000000f);
-                      }
-                      interface->closeBox();
-
-                      interface->addtoggle("", &fcheckbox7);
-
-                    }
-                    interface->closeBox();
-
-                  }
-                  //----- end echo
-
-                }
-                interface->closeBox();
-              }
-              interface->closeBox();
-              //----- close vertical effect box
+                //----- close vertical effect box
 
 
                 //----- open a box for the oscilloscope
@@ -641,73 +644,75 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                   }
                   interface->closeBox();
                   interface->openPaintBox("");
-              {
-
-                  interface->openHorizontalBox("");
                   {
 
-                    interface->openVerticalBox("");
+                    interface->openHorizontalBox("");
                     {
+
+                      interface->openVerticalBox("");
+                      {
+                        interface->openFrameBox("");
+                        interface->closeBox();
+                        interface->openFrameBox("");
+                        interface->closeBox();
+                        interface->addregler("fuzz",&fthreshold, 1.f, 0.f, 1.f, 0.01f);
+                        interface->addHorizontalSlider("threshold", &ffuse, 0.f, 0.f, 2.f, 1.f);
+                      }
+                      interface->closeBox();
+
                       interface->openFrameBox("");
                       interface->closeBox();
+
                       interface->openFrameBox("");
                       interface->closeBox();
-                      interface->addregler("fuzz",&fthreshold, 1.f, 0.f, 1.f, 0.01f);
-                      interface->addHorizontalSlider("threshold", &ffuse, 0.f, 0.f, 2.f, 1.f);
+
+                      interface->openFrameBox("");
+                      interface->closeBox();
+
+                      interface->openFrameBox("");
+                      interface->closeBox();
+
+                      interface->openFrameBox("");
+                      interface->closeBox();
+
+                      interface->openFrameBox("");
+                      interface->closeBox();
+
+                      interface->openFrameBox("");
+                      interface->closeBox();
+
+                      interface->openFrameBox("");
+                      interface->closeBox();
+
+                      interface->openFrameBox("");
+                      interface->closeBox();
+
+                      interface->openFrameBox("");
+                      interface->closeBox();
+
+                      interface->openFrameBox("");
+                      interface->closeBox();
+
+                      interface->openFrameBox("");
+                      interface->closeBox();
                     }
                     interface->closeBox();
 
+
+
+                    //----- fill empty space
                     interface->openFrameBox("");
                     interface->closeBox();
 
-                    interface->openFrameBox("");
-                    interface->closeBox();
-
-                    interface->openFrameBox("");
-                    interface->closeBox();
-
-                    interface->openFrameBox("");
-                    interface->closeBox();
-
-                    interface->openFrameBox("");
-                    interface->closeBox();
-
-                    interface->openFrameBox("");
-                    interface->closeBox();
-
-                    interface->openFrameBox("");
-                    interface->closeBox();
-
-                    interface->openFrameBox("");
-                    interface->closeBox();
-
-                    interface->openFrameBox("");
-                    interface->closeBox();
-
-                    interface->openFrameBox("");
-                    interface->closeBox();
-
-                    interface->openFrameBox("");
-                    interface->closeBox();
-
-                    interface->openFrameBox("");
-                    interface->closeBox();
                   }
                   interface->closeBox();
+                //}
+                //interface->closeBox();
 
-
-
-                  //----- fill empty space
-                  interface->openFrameBox("");
-                  interface->closeBox();
-
-                }
-                interface->closeBox();
               }
+              //----- close ocsilloscope box
               interface->closeBox();
-
             }
-            //----- close ocsilloscope box
             interface->closeBox();
           }
           interface->closeBox();

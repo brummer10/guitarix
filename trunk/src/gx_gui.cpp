@@ -625,75 +625,29 @@ namespace gx_gui
       cairo_t *cr;
       cairo_pattern_t *pat;
 
-      gint x, y;
-      gint w, h;
-
-      /* get the dimensions */
-      x = wi->allocation.x+2;
-      y = wi->allocation.y+2;
-      w = wi->allocation.width-4;
-      h = wi->allocation.height-4;
-
       /* create a cairo context */
       cr = gdk_cairo_create(wi->window);
 
-      /* a custom shape that could be wrapped in a function */
-      double x0      = x,   /* parameters like cairo_rectangle */
-                       y0      = y,
-                                 rect_width  = w,
-                                               rect_height = h,
-                                                             radius = 25.;   /* and an approximate curvature radius */
+      double x0      = wi->allocation.x+2;
+      double y0      = wi->allocation.y+2;
+      double rect_width  = wi->allocation.width-4;
+      double rect_height = wi->allocation.height-4;
+      double radius = 25.;
 
       double x1,y1;
 
       x1=x0+rect_width;
       y1=y0+rect_height;
-      if (!rect_width || !rect_height)
-        return 1;
-      if (rect_width/2<radius)
-        {
-          if (rect_height/2<radius)
-            {
-              cairo_move_to  (cr, x0, (y0 + y1)/2);
-              cairo_curve_to (cr, x0 ,y0, x0, y0, (x0 + x1)/2, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, (y0 + y1)/2);
-              cairo_curve_to (cr, x1, y1, x1, y1, (x1 + x0)/2, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, (y0 + y1)/2);
-            }
-          else
-            {
-              cairo_move_to  (cr, x0, y0 + radius);
-              cairo_curve_to (cr, x0 ,y0, x0, y0, (x0 + x1)/2, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-              cairo_line_to (cr, x1 , y1 - radius);
-              cairo_curve_to (cr, x1, y1, x1, y1, (x1 + x0)/2, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-            }
-        }
-      else
-        {
-          if (rect_height/2<radius)
-            {
-              cairo_move_to  (cr, x0, (y0 + y1)/2);
-              cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-              cairo_line_to (cr, x1 - radius, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, (y0 + y1)/2);
-              cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-              cairo_line_to (cr, x0 + radius, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, (y0 + y1)/2);
-            }
-          else
-            {
-              cairo_move_to  (cr, x0, y0 + radius);
-              cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-              cairo_line_to (cr, x1 - radius, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-              cairo_line_to (cr, x1 , y1 - radius);
-              cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-              cairo_line_to (cr, x0 + radius, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-            }
-        }
+
+      cairo_move_to  (cr, x0, y0 + radius);
+      cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+      cairo_line_to (cr, x1 - radius, y0);
+      cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+      cairo_line_to (cr, x1 , y1 - radius);
+      cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+      cairo_line_to (cr, x0 + radius, y1);
+      cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+
       cairo_close_path (cr);
 
       pat = cairo_pattern_create_linear (0, y0, 0, y1);
@@ -706,50 +660,15 @@ namespace gx_gui
       cairo_set_line_width (cr, 5.0);
       cairo_stroke (cr);
 
-      if (rect_width/2<radius)
-        {
-          if (rect_height/2<radius)
-            {
-              cairo_move_to  (cr, x0, (y0 + y1)/2);
-              cairo_curve_to (cr, x0 ,y0, x0, y0, (x0 + x1)/2, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, (y0 + y1)/2);
-              cairo_curve_to (cr, x1, y1, x1, y1, (x1 + x0)/2, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, (y0 + y1)/2);
-            }
-          else
-            {
-              cairo_move_to  (cr, x0, y0 + radius);
-              cairo_curve_to (cr, x0 ,y0, x0, y0, (x0 + x1)/2, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-              cairo_line_to (cr, x1 , y1 - radius);
-              cairo_curve_to (cr, x1, y1, x1, y1, (x1 + x0)/2, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-            }
-        }
-      else
-        {
-          if (rect_height/2<radius)
-            {
-              cairo_move_to  (cr, x0, (y0 + y1)/2);
-              cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-              cairo_line_to (cr, x1 - radius, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, (y0 + y1)/2);
-              cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-              cairo_line_to (cr, x0 + radius, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, (y0 + y1)/2);
-            }
-          else
-            {
-              cairo_move_to  (cr, x0, y0 + radius);
-              cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-              cairo_line_to (cr, x1 - radius, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-              cairo_line_to (cr, x1 , y1 - radius);
-              cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-              cairo_line_to (cr, x0 + radius, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-            }
-        }
+      cairo_move_to  (cr, x0, y0 + radius);
+      cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+      cairo_line_to (cr, x1 - radius, y0);
+      cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+      cairo_line_to (cr, x1 , y1 - radius);
+      cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+      cairo_line_to (cr, x0 + radius, y1);
+      cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+
       cairo_close_path (cr);
       cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
       cairo_set_line_width (cr, 1.0);
@@ -765,75 +684,29 @@ namespace gx_gui
       cairo_t *cr;
       cairo_pattern_t *pat;
 
-      gint x, y;
-      gint w, h;
-
-      /* get the dimensions */
-      x = wi->allocation.x+2;
-      y = wi->allocation.y+2;
-      w = wi->allocation.width-4;
-      h = wi->allocation.height-4;
-
       /* create a cairo context */
       cr = gdk_cairo_create(wi->window);
 
-      /* a custom shape that could be wrapped in a function */
-      double x0      = x,   /* parameters like cairo_rectangle */
-                       y0      = y,
-                                 rect_width  = w,
-                                               rect_height = h,
-                                                             radius = 25.;   /* and an approximate curvature radius */
+      double x0      = wi->allocation.x+2;
+      double y0      = wi->allocation.y+2;
+      double rect_width  = wi->allocation.width-4;
+      double rect_height = wi->allocation.height-4;
+      double radius = 25.;
 
       double x1,y1;
 
       x1=x0+rect_width;
       y1=y0+rect_height;
-      if (!rect_width || !rect_height)
-        return 1;
-      if (rect_width/2<radius)
-        {
-          if (rect_height/2<radius)
-            {
-              cairo_move_to  (cr, x0, (y0 + y1)/2);
-              cairo_curve_to (cr, x0 ,y0, x0, y0, (x0 + x1)/2, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, (y0 + y1)/2);
-              cairo_curve_to (cr, x1, y1, x1, y1, (x1 + x0)/2, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, (y0 + y1)/2);
-            }
-          else
-            {
-              cairo_move_to  (cr, x0, y0 + radius);
-              cairo_curve_to (cr, x0 ,y0, x0, y0, (x0 + x1)/2, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-              cairo_line_to (cr, x1 , y1 - radius);
-              cairo_curve_to (cr, x1, y1, x1, y1, (x1 + x0)/2, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-            }
-        }
-      else
-        {
-          if (rect_height/2<radius)
-            {
-              cairo_move_to  (cr, x0, (y0 + y1)/2);
-              cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-              cairo_line_to (cr, x1 - radius, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, (y0 + y1)/2);
-              cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-              cairo_line_to (cr, x0 + radius, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, (y0 + y1)/2);
-            }
-          else
-            {
-              cairo_move_to  (cr, x0, y0 + radius);
-              cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-              cairo_line_to (cr, x1 - radius, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-              cairo_line_to (cr, x1 , y1 - radius);
-              cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-              cairo_line_to (cr, x0 + radius, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-            }
-        }
+
+      cairo_move_to  (cr, x0, y0 + radius);
+      cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+      cairo_line_to (cr, x1 - radius, y0);
+      cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+      cairo_line_to (cr, x1 , y1 - radius);
+      cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+      cairo_line_to (cr, x0 + radius, y1);
+      cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+
       cairo_close_path (cr);
 
       pat = cairo_pattern_create_linear (0, y0, 0, y1);
@@ -847,50 +720,16 @@ namespace gx_gui
       cairo_set_line_width (cr, 5.0);
       cairo_stroke (cr);
 
-      if (rect_width/2<radius)
-        {
-          if (rect_height/2<radius)
-            {
-              cairo_move_to  (cr, x0, (y0 + y1)/2);
-              cairo_curve_to (cr, x0 ,y0, x0, y0, (x0 + x1)/2, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, (y0 + y1)/2);
-              cairo_curve_to (cr, x1, y1, x1, y1, (x1 + x0)/2, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, (y0 + y1)/2);
-            }
-          else
-            {
-              cairo_move_to  (cr, x0, y0 + radius);
-              cairo_curve_to (cr, x0 ,y0, x0, y0, (x0 + x1)/2, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-              cairo_line_to (cr, x1 , y1 - radius);
-              cairo_curve_to (cr, x1, y1, x1, y1, (x1 + x0)/2, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-            }
-        }
-      else
-        {
-          if (rect_height/2<radius)
-            {
-              cairo_move_to  (cr, x0, (y0 + y1)/2);
-              cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-              cairo_line_to (cr, x1 - radius, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, (y0 + y1)/2);
-              cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-              cairo_line_to (cr, x0 + radius, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, (y0 + y1)/2);
-            }
-          else
-            {
-              cairo_move_to  (cr, x0, y0 + radius);
-              cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-              cairo_line_to (cr, x1 - radius, y0);
-              cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-              cairo_line_to (cr, x1 , y1 - radius);
-              cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-              cairo_line_to (cr, x0 + radius, y1);
-              cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-            }
-        }
+
+      cairo_move_to  (cr, x0, y0 + radius);
+      cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+      cairo_line_to (cr, x1 - radius, y0);
+      cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+      cairo_line_to (cr, x1 , y1 - radius);
+      cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+      cairo_line_to (cr, x0 + radius, y1);
+      cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+
       cairo_close_path (cr);
       cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
       cairo_set_line_width (cr, 1.0);
@@ -1210,19 +1049,7 @@ namespace gx_gui
 
       if (fMode[fTop] != kTabMode && label[0] != 0)
         {
-          // GtkWidget * frame = addWidget(label, gtk_frame_new (label));
-          // gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
-          GtkWidget* lw = gtk_label_new(label);
-          GdkColor colorGreen;
-          gdk_color_parse("#a6a9aa", &colorGreen);
-          gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
-          GtkStyle *style = gtk_widget_get_style(lw);
-          pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-          pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-          gtk_widget_modify_font(lw, style->font_desc);
-          gtk_container_add (GTK_CONTAINER(box), lw);
           gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
-          gtk_widget_show(lw);
           gtk_widget_show(box);
           pushBox(kBoxMode, box);
         }
@@ -1240,19 +1067,7 @@ namespace gx_gui
 
       if (fMode[fTop] != kTabMode && label[0] != 0)
         {
-          // GtkWidget * frame = addWidget(label, gtk_frame_new (label));
-          // gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
-          GtkWidget* lw = gtk_label_new(label);
-          GdkColor colorGreen;
-          gdk_color_parse("#a6a9aa", &colorGreen);
-          gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
-          GtkStyle *style = gtk_widget_get_style(lw);
-          pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-          pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-          gtk_widget_modify_font(lw, style->font_desc);
-          gtk_container_add (GTK_CONTAINER(box), lw);
           gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
-          gtk_widget_show(lw);
           gtk_widget_show(box);
           pushBox(kBoxMode, box);
         }
@@ -1306,6 +1121,54 @@ namespace gx_gui
           pushBox(kBoxMode, addWidget(label, midibox));
         }
       gtk_widget_hide(midibox);
+    }
+
+    void GxMainInterface::openToolBar(const char* label)
+    {
+      GtkWidget * box = gtk_toolbar_new  ();
+
+
+      if (fMode[fTop] != kTabMode && label[0] != 0)
+        {
+          // GtkWidget * frame = addWidget(label, gtk_frame_new (label));
+          // gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
+          GtkWidget* lw = gtk_label_new(label);
+          GdkColor colorGreen;
+          gdk_color_parse("#a6a9aa", &colorGreen);
+          gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+          GtkStyle *style = gtk_widget_get_style(lw);
+          pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+          pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+          gtk_widget_modify_font(lw, style->font_desc);
+          //  g_signal_connect(box, "expose-event", G_CALLBACK(box_expose), NULL);
+
+          gtk_container_add (GTK_CONTAINER(box), lw);
+          gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+          gtk_widget_show(lw);
+          gtk_widget_show(box);
+          pushBox(kBoxMode, box);
+        }
+      else
+        {
+          pushBox(kBoxMode, addWidget(label, box));
+        }
+    }
+
+    void GxMainInterface::openScrollBox(const char* label)
+    {
+
+
+      GtkWidget * scrollbox = gtk_scrolled_window_new(NULL,NULL);
+      gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollbox),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
+      gtk_widget_set_size_request (scrollbox, 580, 250);
+      GtkWidget * box = gtk_vbox_new (homogene, 0);
+      gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbox),GTK_WIDGET(box));
+
+          gtk_container_add (GTK_CONTAINER(fBox[fTop]), scrollbox);
+          gtk_widget_show_all(scrollbox);
+          pushBox(kBoxMode, box);
+
     }
 
     GtkWidget* GxMainInterface::addWidget(const char* label, GtkWidget* w)

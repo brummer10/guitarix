@@ -134,7 +134,9 @@ namespace gx_ui
     virtual void openTabBox(const char* label) {};
     virtual void openPaintBox(const char* label){};
     virtual void openPaintBox2(const char* label){};
+    virtual void openScrollBox(const char* label){};
     virtual void openTextLoggingBox(const char* label) {};
+    virtual void openToolBar(const char* label){};
     virtual void setSkinBox(const char* label, float* zone){};
     virtual void closeBox() {};
 

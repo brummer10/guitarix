@@ -844,11 +844,12 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
   // pointer to the jack_buffer
   float*  input0 = input[0];
+  moving_filter(input, input, count);
   // copy clean audio input for the tuner and midi_process
   if (tuner_on > 0)
     (void)memcpy(checkfreq, input0, sizeof(float)*count);
 
-  moving_filter(input, input, count);
+
   // run pre_funktions on frame base
   if (inoise_g) noise_gate (count,input);
   else ngate = 1;
