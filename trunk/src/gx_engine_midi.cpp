@@ -395,7 +395,7 @@ void GxEngine::process_midi(int len)
                       if (fcheckbox10 == 1.0) send1+=step;
                       if (fcheckbox11 == 1.0) send2+=step;
                     }
-                  else weg +=step;
+                 // else weg +=step;
                 }
 
               // end if playmidi = 1

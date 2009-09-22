@@ -759,7 +759,7 @@ namespace gx_gui
 
       cairo_move_to (cr, x, y);
       //cairo_line_to (cr, x , y+h);
-      cairo_curve_to (cr, x+w*0.33, y, x+w*0.66, y+h, x+w, y+h);
+      cairo_curve_to (cr, x+w*0.66, y, x+w*0.33, y+h, x+w, y+h);
       cairo_line_to (cr, x+w , y);
 
       cairo_set_line_width (cr, 3.0);
@@ -773,6 +773,7 @@ namespace gx_gui
       cairo_set_source (cr, pat);
 
       cairo_fill_preserve (cr);
+
 
 
       cairo_stroke (cr);

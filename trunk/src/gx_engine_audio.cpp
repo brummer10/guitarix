@@ -844,7 +844,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
   // pointer to the jack_buffer
   float*  input0 = input[0];
-  moving_filter(input, input, count);
+  //moving_filter(input, input, count);
   // copy clean audio input for the tuner and midi_process
   if (tuner_on > 0) {
     (void)memcpy(checkfreq, input0, sizeof(float)*count);
