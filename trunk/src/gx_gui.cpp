@@ -623,7 +623,7 @@ namespace gx_gui
     gboolean box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
     {
       cairo_t *cr;
-      cairo_pattern_t *pat;
+     // cairo_pattern_t *pat;
 
       /* create a cairo context */
       cr = gdk_cairo_create(wi->window);
@@ -632,7 +632,7 @@ namespace gx_gui
       double y0      = wi->allocation.y+2;
       double rect_width  = wi->allocation.width-4;
       double rect_height = wi->allocation.height-4;
-      double radius = 25.;
+      double radius = 40.;
 
       double x1,y1;
 
@@ -650,13 +650,13 @@ namespace gx_gui
 
       cairo_close_path (cr);
 
-      pat = cairo_pattern_create_linear (0, y0, 0, y1);
+    /*  pat = cairo_pattern_create_linear (0, y0, 0, y1);
       cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0., 0., 0);
       cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0., 0., 0.6);
       cairo_set_source (cr, pat);
 
-      cairo_fill_preserve (cr);
-      cairo_set_source_rgba (cr, 0, 0, 0, 0.8);
+      cairo_fill_preserve (cr); */
+      cairo_set_source_rgb (cr, 0, 0, 0);
       cairo_set_line_width (cr, 5.0);
       cairo_stroke (cr);
 
@@ -673,7 +673,7 @@ namespace gx_gui
       cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
       cairo_set_line_width (cr, 1.0);
       cairo_stroke (cr);
-      cairo_pattern_destroy (pat);
+   //   cairo_pattern_destroy (pat);
       cairo_destroy(cr);
 
       return FALSE;
@@ -682,7 +682,7 @@ namespace gx_gui
     gboolean box1_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
     {
       cairo_t *cr;
-      cairo_pattern_t *pat;
+     // cairo_pattern_t *pat;
 
       /* create a cairo context */
       cr = gdk_cairo_create(wi->window);
@@ -691,7 +691,7 @@ namespace gx_gui
       double y0      = wi->allocation.y+2;
       double rect_width  = wi->allocation.width-4;
       double rect_height = wi->allocation.height-4;
-      double radius = 25.;
+      double radius = 45.;
 
       double x1,y1;
 
@@ -709,14 +709,14 @@ namespace gx_gui
 
       cairo_close_path (cr);
 
-      pat = cairo_pattern_create_linear (0, y0, 0, y1);
+     /* pat = cairo_pattern_create_linear (0, y0, 0, y1);
 
       cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
       cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0, 0, 0.4);
       cairo_set_source (cr, pat);
 
-      cairo_fill_preserve (cr);
-      cairo_set_source_rgba (cr, 0, 0, 0, 0.8);
+      cairo_fill_preserve (cr); */
+      cairo_set_source_rgb (cr, 0, 0, 0);
       cairo_set_line_width (cr, 5.0);
       cairo_stroke (cr);
 
@@ -734,7 +734,7 @@ namespace gx_gui
       cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
       cairo_set_line_width (cr, 1.0);
       cairo_stroke (cr);
-      cairo_pattern_destroy (pat);
+     // cairo_pattern_destroy (pat);
       cairo_destroy(cr);
 
       return FALSE;
@@ -1044,7 +1044,7 @@ namespace gx_gui
     void GxMainInterface::openPaintBox(const char* label)
     {
       GtkWidget * box = gtk_vbox_new (homogene, 2);
-      gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+      gtk_container_set_border_width (GTK_CONTAINER (box), 3);
       g_signal_connect(box, "expose-event", G_CALLBACK(box_expose), NULL);
 
       if (fMode[fTop] != kTabMode && label[0] != 0)
@@ -1160,10 +1160,13 @@ namespace gx_gui
 
       GtkWidget * scrollbox = gtk_scrolled_window_new(NULL,NULL);
       gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollbox),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
-      gtk_widget_set_size_request (scrollbox, 580, 250);
+     // gtk_widget_set_size_request (scrollbox, 580, 250);
       GtkWidget * box = gtk_vbox_new (homogene, 0);
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbox),GTK_WIDGET(box));
+      GtkWidget * frame =  gtk_handle_box_new ();
+      gtk_handle_box_set_handle_position(GTK_HANDLE_BOX(frame),GTK_POS_TOP);
+      gtk_container_add (GTK_CONTAINER(frame), box);
+      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbox),GTK_WIDGET(frame));
 
           gtk_container_add (GTK_CONTAINER(fBox[fTop]), scrollbox);
           gtk_widget_show_all(scrollbox);

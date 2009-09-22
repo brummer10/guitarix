@@ -846,8 +846,10 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   float*  input0 = input[0];
   moving_filter(input, input, count);
   // copy clean audio input for the tuner and midi_process
-  if (tuner_on > 0)
+  if (tuner_on > 0) {
     (void)memcpy(checkfreq, input0, sizeof(float)*count);
+   moving_filter(&checkfreq, &checkfreq, count);
+  }
 
 
   // run pre_funktions on frame base

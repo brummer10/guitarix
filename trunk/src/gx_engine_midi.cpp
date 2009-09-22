@@ -389,7 +389,8 @@ void GxEngine::process_midi(int len)
 
                   if ( rms >= (Beat_is + fTemps38))
                     {
-                      Beat_is = rms;
+                      if(Beat_is < rms)Beat_is += 2;
+                      //Beat_is = rms;
                       send+=step;
                       if (fcheckbox10 == 1.0) send1+=step;
                       if (fcheckbox11 == 1.0) send2+=step;
