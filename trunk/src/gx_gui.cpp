@@ -672,6 +672,7 @@ namespace gx_gui
       cairo_close_path (cr);
       cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
       cairo_set_line_width (cr, 1.0);
+
       cairo_stroke (cr);
      // cairo_pattern_destroy (pat);
       cairo_destroy(cr);
@@ -687,11 +688,11 @@ namespace gx_gui
       /* create a cairo context */
       cr = gdk_cairo_create(wi->window);
 
-      double x0      = wi->allocation.x+2;
-      double y0      = wi->allocation.y+2;
-      double rect_width  = wi->allocation.width-4;
-      double rect_height = wi->allocation.height-4;
-      double radius = 40.;
+      double x0      = wi->allocation.x+5;
+      double y0      = wi->allocation.y+5;
+      double rect_width  = wi->allocation.width-10;
+      double rect_height = wi->allocation.height-10;
+      double radius = 38.;
 
       double x1,y1;
 
@@ -714,10 +715,10 @@ namespace gx_gui
       cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
       cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0.4);
       cairo_set_source (cr, pat);
-
+      //cairo_rectangle(cr, x0,y0, rect_width, rect_height);
       cairo_fill_preserve (cr);
       cairo_set_source_rgba (cr, 0, 0, 0, 0.8);
-      cairo_set_line_width (cr, 5.0);
+      cairo_set_line_width (cr, 9.0);
       cairo_stroke (cr);
 
 
@@ -731,6 +732,8 @@ namespace gx_gui
       cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
 
       cairo_close_path (cr);
+
+
       cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
       cairo_set_line_width (cr, 1.0);
       cairo_stroke (cr);
@@ -1873,7 +1876,7 @@ namespace gx_gui
       g_signal_connect(box, "expose-event", G_CALLBACK(box1_expose), NULL);
 
       //gtk_widget_set_size_request (nolivewa, 550, 80);
-      gtk_widget_set_size_request (box, 550, 80);
+      gtk_widget_set_size_request (box, 552, 82);
       // gtk_container_add (GTK_CONTAINER(nolivewa),box );
       // openPaintBox("");
       gtk_container_add (GTK_CONTAINER(box),livewa );
