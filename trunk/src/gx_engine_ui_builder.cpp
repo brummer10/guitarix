@@ -43,6 +43,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
     interface->openVerticalBox("");
     {
       interface->openEventBox(" ");
+      interface->openPaintBox2("");
+            {
       interface->openHorizontalBox("");
       {
         //----- the tuner widget
@@ -85,7 +87,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
       }
       interface->closeBox();
-
+     }
+    interface->closeBox();
     }
     interface->closeBox();
     //----- end of the upper box
@@ -102,8 +105,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
           //----- arange all widgets in a vertical scale
           interface->openVerticalBox("");
           {
-            interface->openPaintBox("");
-            {
+           // interface->openPaintBox("");
+           // {
               //----- the left widget side, volume, tone, fuzz
               interface->openHorizontalBox("");
               {
@@ -186,8 +189,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                   }
                   interface->closeBox();
 
-                  interface->openPaintBox("");
-                  {
+                 // interface->openPaintBox("");
+                 // {
                     interface->openVerticalBox("amp  ");
                     {
                       interface->openHorizontalBox("");
@@ -306,15 +309,15 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                     interface->closeBox();
                     interface->openFrameBox("");
                     interface->closeBox();
-                  }
-                  interface->closeBox();
+                 // }
+                 // interface->closeBox();
                 }
                 interface->closeBox();
               }
               interface->closeBox();
 
-            }
-            interface->closeBox();
+          //  }
+          //  interface->closeBox();
             //----- end
             interface->openFrameBox("");
             interface->closeBox();
@@ -328,8 +331,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
             //  {
 
                 //----- fill empty space
-                interface->openPaintBox("");
-                {
+               // interface->openPaintBox("");
+               // {
                   interface->openHorizontalBox("");
                   {
                   }
@@ -339,8 +342,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
                   interface->openHorizontalBox("");
                   {
-                    interface->openFrameBox("");
-                    interface->closeBox();
+                  //  interface->openFrameBox("");
+                  //  interface->closeBox();
                     //----- the compressor
                     interface->openVerticalBox("compressor");
                     {
@@ -624,8 +627,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
                   }
                   interface->closeBox();
-                }
-                interface->closeBox();
+               // }
+               // interface->closeBox();
                 //----- close vertical effect box
 
 
@@ -643,8 +646,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
 
                   }
                   interface->closeBox();
-                  interface->openPaintBox("");
-                  {
+                 // interface->openPaintBox("");
+                 // {
 
                     interface->openHorizontalBox("");
                     {
@@ -704,8 +707,8 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                     interface->openFrameBox("");
                     interface->closeBox();
 
-                  }
-                  interface->closeBox();
+                //  }
+                //  interface->closeBox();
                 //}
                 //interface->closeBox();
 
