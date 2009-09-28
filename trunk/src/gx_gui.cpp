@@ -1271,13 +1271,15 @@ namespace gx_gui
       if (zone) local_zone = *zone;
       GtkWidget* 	button = gtk_toggle_button_new_with_label (label);
       addWidget(label, button);
-      // uiToggleButton* c = new uiToggleButton(this, &local_zone, GTK_TOGGLE_BUTTON(button));
+
       gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
       gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
-      // g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
+
       g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (gx_start_stop_jack_capture), NULL);
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
       gtk_widget_add_accelerator(button, "activate", fAccelGroup, GDK_r, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+
+      record_button = button;
     }
 
     void GxMainInterface::addPToggleButton(const char* label, float* zone)
@@ -1946,6 +1948,8 @@ namespace gx_gui
       GtkWidget *menuEdit;
       GtkWidget *menuHelp;
       GtkWidget *menubar;
+      GtkWidget *menuJack;
+      GtkWidget *menujack;
       GtkWidget *menuLatency;
       GtkWidget *menulat;
       GtkWidget *menuSkinChooser;
@@ -2020,10 +2024,15 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (menuitem), "activate",
                         G_CALLBACK (gx_engine::gx_engine_switch), (gpointer)1);
 
-      /*---------------- Create Latency menu items --------------------*/
-      /*-- Create  Latency submenu under Engine submenu --*/
-      menuLatency = gtk_menu_item_new_with_mnemonic ("Jack _Latency...");
-      gtk_menu_append (GTK_MENU(menuh), menuLatency);
+      /*---------------- Create Jack Server menu --------------------*/
+      menuJack = gtk_menu_item_new_with_label ("Jack Server");
+      gtk_menu_append (GTK_MENU(menuh), menuJack);
+      menujack = gtk_menu_new();
+      gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuJack), menujack);
+
+      /*-- Create  Latency submenu under Jack Server submenu --*/
+      menuLatency = gtk_menu_item_new_with_mnemonic ("_Latency");
+      gtk_menu_append (GTK_MENU(menujack), menuLatency);
       menulat = gtk_menu_new();
       gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuLatency), menulat);
 
@@ -2033,27 +2042,39 @@ namespace gx_gui
       const int max_pow = 13; // 2**13 = 8192
       group = NULL;
 
-      for (int i = min_pow; i <= max_pow; i++)
-        {
-          int jack_buffer_size = (int)pow(2.,i);
-          (void)snprintf(buf_size, 5, "%d", jack_buffer_size);
-          menuitem = gtk_radio_menu_item_new_with_label (group, buf_size);
-          group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
-          gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
+      for (int i = min_pow; i <= max_pow; i++) {
+	int jack_buffer_size = (int)pow(2.,i);
+	(void)snprintf(buf_size, 5, "%d", jack_buffer_size);
+	menuitem = gtk_radio_menu_item_new_with_label (group, buf_size);
+	group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
+	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
+	
+	g_signal_connect (GTK_OBJECT (menuitem), "activate",
+			  G_CALLBACK (gx_jack::gx_set_jack_buffer_size),
+			  GINT_TO_POINTER(jack_buffer_size));
+	
+	// display actual buffer size as default
+	if (gx_jack::client)
+	  if (jack_buffer_size == (int)jack_get_buffer_size(gx_jack::client))
+	    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
+	
+	gtk_menu_shell_append(GTK_MENU_SHELL(menulat), menuitem);
+	gtk_widget_show (menuitem);
+      }
 
-          g_signal_connect (GTK_OBJECT (menuitem), "activate",
-                            G_CALLBACK (gx_jack::gx_set_jack_buffer_size),
-                            GINT_TO_POINTER(jack_buffer_size));
+      /*-- Create Jack Connection toggle button --*/
+      menuitem = gtk_check_menu_item_new_with_mnemonic ("Server _Connection ");
+      gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_c, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+      g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_jack::gx_jack_connection), NULL);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menujack), menuitem);
 
-          // display actual buffer size as default
-          if (gx_jack::client)
-            if (jack_buffer_size == (int)jack_get_buffer_size(gx_jack::client))
-              gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
+      if (gx_jack::client)
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM (menuitem), TRUE);
 
-          gtk_menu_shell_append(GTK_MENU_SHELL(menulat), menuitem);
-          gtk_widget_show (menuitem);
-        }
-      /*---------------- End Latency menu declarations ----------------*/
+      gtk_widget_show (menuitem);
+
+
+      /*---------------- End Jack server menu declarations ----------------*/
 
       /*-- add a separator line --*/
       GtkWidget* sep = gtk_separator_menu_item_new();
@@ -2348,6 +2369,7 @@ namespace gx_gui
       gtk_widget_show(menuitem);
       gtk_widget_show(menuFile);
       gtk_widget_show(menuLatency);
+      gtk_widget_show(menuJack);
       gtk_widget_show(menuEdit);
       for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
         gtk_widget_show(presMenu[i]);

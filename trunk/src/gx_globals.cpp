@@ -74,7 +74,6 @@ namespace gx_jack
   const int nIPorts = 1; // mono input
   const int nOPorts = 4; // stereo output + jconv
   int NO_CONNECTION = 0;
-  bool  manual_startup = false;;
 
   /* variables */
   jack_nframes_t      last_xrun_time;
@@ -97,6 +96,8 @@ namespace gx_jack
   struct MidiMessage  ev;
   jack_ringbuffer_t*  jack_ringbuffer;
 #endif
+
+  string client_name  = "";
 }
 
 /* ------------------------------------------------------------------------- */
@@ -227,6 +228,7 @@ namespace gx_gui
   GtkWidget* pb;
   GtkWidget* midibox;
   GtkWidget* fbutton;
+  GtkWidget* record_button;
 
   /* wave view widgets */
   GtkWidget* livewa;

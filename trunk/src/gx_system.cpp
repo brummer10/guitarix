@@ -625,20 +625,10 @@ namespace gx_system
   //-----Function that must be called before complete shutdown
   void gx_clean_exit(GtkWidget* widget, gpointer data)
   {
-
-    // clean jack client stuff
-    string jcl_name = "guitarix";
-
-    if (jack_is_running) {
-      jcl_name = jack_get_client_name(client);
-      gx_jack_cleanup();
-      jack_is_running = false;
-    }
-
     // save DSP state
     GxEngine* engine = GxEngine::instance();
     if (engine->isInitialized()) {
-      string previous_state = gx_user_dir + jcl_name + "rc";
+      string previous_state = gx_user_dir + client_name + "rc";
       engine->get_latency_warning_change();
       gx_gui::gx_get_skin_change(&engine->fskin);
 
@@ -658,6 +648,9 @@ namespace gx_system
       delete[] get_frame;
     if (oversample)
       delete[] oversample;
+
+    // clean jack client stuff
+    gx_jack_cleanup();
 
     exit(GPOINTER_TO_INT(data));
   }

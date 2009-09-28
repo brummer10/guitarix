@@ -76,7 +76,6 @@ namespace gx_jack
   extern const int nIPorts; // mono input
   extern const int nOPorts; // stereo output + jconv
   extern int NO_CONNECTION;
-  extern bool  manual_startup;
 
   /* variables */
   extern jack_nframes_t      last_xrun_time;   // jack sample rate
@@ -99,6 +98,7 @@ namespace gx_jack
   extern jack_port_t*        midi_output_ports;
   extern jack_nframes_t      time_is;
   extern bool                jack_is_running;
+  extern string              client_name;
 
 }
 
@@ -203,6 +203,7 @@ namespace gx_gui
   extern GtkWidget* pb;
   extern GtkWidget* midibox;
   extern GtkWidget* fbutton;
+  extern GtkWidget* record_button;
 
   /* wave view widgets */
   extern GtkWidget* livewa;

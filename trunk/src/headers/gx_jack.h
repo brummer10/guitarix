@@ -52,6 +52,7 @@ namespace gx_jack
   void gx_start_jack_dialog(int*  argc, char*** argv);
   void gx_start_jack(void* arg);
   void gx_set_jack_buffer_size(GtkCheckMenuItem*, gpointer);
+  void gx_jack_connection(GtkCheckMenuItem*, gpointer);
   void gx_jack_cleanup();
 
   /* client callbacks */

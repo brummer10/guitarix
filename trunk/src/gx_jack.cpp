@@ -41,6 +41,7 @@ using namespace std;
 using namespace gx_system;
 using namespace gx_engine;
 using namespace gx_jconv;
+using namespace gx_child_process;
 
 namespace gx_jack
 {
@@ -48,8 +49,10 @@ namespace gx_jack
   //----- pop up a dialog for starting jack
   void gx_jack_init(int& argc, char**& argv)
   {
-    jack_status_t  jackstat;
-    char*          jname = (char*)basename(argv[0]);
+    jack_status_t jackstat;
+    
+    if (argv)
+      client_name = basename(argv[0]);
 
     // init the pointer to the jackbuffer
     for (int i=0; i < nOPorts; i++) output_ports[i] = 0;
@@ -57,16 +60,16 @@ namespace gx_jack
 
     AVOIDDENORMALS;
 
-    client = jack_client_open (jname, JackNoStartServer, &jackstat);
+    client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
     if (client == 0) {
       gx_print_warning("main",
 		       string("JACK not running, trying to start jack"));
 
-      manual_startup = true;
       gx_start_jack_dialog(&argc, &argv);
+
       if (jack_is_running) {
 	// so let's try to be a jack client again
-	client = jack_client_open (jname, JackNoStartServer, &jackstat);
+	client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
 
 	if (!client) {
 	  gx_print_error("main",
@@ -80,9 +83,6 @@ namespace gx_jack
 		       string("I tried to get jack up and running, sorry ... "));
 	exit(1);
       }
-
-      // let's mark GTK as initialized
-      gx_gui::GxMainInterface::fInitialized = true;
     }
 
     // so jack is running, fine :)
@@ -90,7 +90,7 @@ namespace gx_jack
 
     // it is maybe not the 1st guitarix instance ?
     if (jackstat & JackNameNotUnique)
-      jname = jack_get_client_name (client);
+      client_name = jack_get_client_name (client);
 
 #ifdef USE_RINGBUFFER
     jack_ringbuffer = jack_ringbuffer_create(2048*sizeof(struct MidiMessage));
@@ -165,7 +165,7 @@ namespace gx_jack
       }
     }
 
-    // set autoconnect to user playback oprts
+    // set autoconnect to user playback ports
     int idx = JACK_OUT1;
     for (int i = 0; i < 2; i++)
     {
@@ -180,7 +180,13 @@ namespace gx_jack
   //----- pop up a dialog for starting jack
   void gx_start_jack_dialog(int* argc, char*** argv)
   {
-    gtk_init(argc, argv);
+    if (gx_gui::GxMainInterface::fInitialized == false)
+    {
+      gtk_init(argc, argv);
+
+      // let's mark GTK as initialized
+      gx_gui::GxMainInterface::fInitialized = true;
+    }
 
     //--- run dialog and check response
     gint response =
@@ -249,6 +255,90 @@ namespace gx_jack
     }
   }
 
+  //---- Jack server connection / disconnection 
+  void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
+  {
+    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM (menuitem)) == TRUE)
+    {
+      if (!client)
+      {
+	int    dummy = 0;
+	char** dummy_ptr = NULL;
+	gx_jack_init(dummy, dummy_ptr);
+
+	string optvar[NUM_SHELL_VAR];
+	gx_assign_shell_var(shell_var_name[JACK_INP],  optvar[JACK_INP] );
+	gx_assign_shell_var(shell_var_name[JACK_OUT1], optvar[JACK_OUT1]);
+	gx_assign_shell_var(shell_var_name[JACK_OUT2], optvar[JACK_OUT2]);
+
+	gx_jack_callbacks_and_activate(optvar);
+
+	// refresh latency check menu
+	gx_set_jack_buffer_size(NULL, NULL);
+	
+	// check jconv stuff
+	if (gx_jconv::jconv_is_running)
+	{
+	  ostringstream buf;
+	
+	  // extra guitarix jack ports for jconv
+	  for (int i = 2; i < 4; i++)
+	  {
+	    buf.str("");
+	    buf << "out_" << i;
+	    
+	    output_ports[i] =
+	      jack_port_register(client,
+				 buf.str().c_str(),
+				 JACK_DEFAULT_AUDIO_TYPE,
+				 JackPortIsOutput, 0);
+	    gx_engine::gNumOutChans++;
+	  }
+	
+	  // ---- port connection
+	
+	  // guitarix outs to jconv ins
+	  jack_connect(client, jack_port_name(output_ports[2]), "jconv:In-1");
+	  jack_connect(client, jack_port_name(output_ports[3]), "jconv:In-2");
+
+	}      
+      }
+
+      gx_print_info("Jack Server", "Connected to Jack Server"); 
+    }
+
+    else
+    {
+      gx_jack_cleanup();
+      
+      if (gx_jconv::jconv_is_running)
+	gNumOutChans -= 2;
+
+
+      // we bring down jack capture and meterbridge but not jconv 
+      // meterbridge
+      if (child_pid[METERBG_IDX] != NO_PID)
+      {
+	(void)kill(child_pid[METERBG_IDX], SIGTERM);
+	(void)gx_system_call("rm -f", mbg_pidfile.c_str(), true);
+	child_pid[METERBG_IDX] = NO_PID;
+      }
+
+      // jack_capture
+      if (child_pid[JACKCAP_IDX] != NO_PID)
+      {
+	(void)kill(child_pid[JACKCAP_IDX], SIGINT);
+	(void)gx_pclose(jcap_stream, JACKCAP_IDX);
+
+	if (gx_gui::record_button)
+	  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gx_gui::record_button), 
+				       FALSE);
+      }
+
+      gx_print_warning("Jack Server", "Disconnected from Jack Server"); 
+    }  
+  }
+
   //----jack latency change
   void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
   {
@@ -256,7 +346,7 @@ namespace gx_jack
     if (!client) {
       gx_print_error(
 	"Jack Buffer Size setting",
-	string("we are not a jack client, server may be down")
+	"we are not a jack client, server may be down"
       );
 
       return;
@@ -364,13 +454,30 @@ namespace gx_jack
   //---- jack shutdown callback in case jackd shuts down on us
   void gx_jack_shutdown_callback(void *arg)
   {
-    gx_print_warning("jack_shutdown",
-		     string("jack has bumped us out , exiting ..."));
+    gx_print_warning("Jack Shutdown",
+		     "jack has bumped us out!!");
 
     jack_is_running = false;
+    client = NULL;
 
-    // the jack client has been destroyed by jackd
-    // all we need now is shutting down guitarix cleanly
+//     // the jack client has been destroyed by jackd
+//     // all we need now is shutting down guitarix cleanly
+//     gint response =
+//       gx_gui::gx_choice_dialog_without_entry (
+// 	" Exit Dialog ",
+// 	"\n                        WARNING                        \n\n"
+// 	"   The jack server has probably gone down\n"
+// 	"   You can exit or stay alive but idle (jackless)  \n",
+// 	"Exit", "Stay idle",
+// 	GTK_RESPONSE_YES, GTK_RESPONSE_CANCEL, GTK_RESPONSE_YES
+//       );
+
+//     // we are cancelling
+//     if (response == GTK_RESPONSE_CANCEL) {
+//       gx_print_warning("Exit", "Staying idle without jack");
+//       return;
+//     }
+
     gx_clean_exit(NULL, NULL);
   }
 
