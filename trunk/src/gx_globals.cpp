@@ -86,6 +86,9 @@ namespace gx_jack
   jack_port_t*        input_ports [nIPorts];
   void*               midi_port_buf;
 
+  float max_left_level  = 0;
+  float max_right_level = 0;
+
   jack_port_t*        midi_output_ports;
   jack_nframes_t      time_is;
 

@@ -88,6 +88,9 @@ namespace gx_jack
   extern jack_port_t*        input_ports [];
   extern void*               midi_port_buf;
 
+  extern float               max_left_level;
+  extern float               max_right_level;
+
   extern GxJackLatencyChange change_latency;
 
 #ifdef USE_RINGBUFFER

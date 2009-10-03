@@ -653,6 +653,18 @@ namespace gx_jack
     if (gx_gui::showwave == 1)
       time_is =  jack_frame_time (client);
 
+    
+    
+    // update level bars
+    max_left_level  = 0;
+    max_right_level = 0;
+
+    for (guint f = 0; f < nframes; f++)
+    {
+      max_left_level  = max(max_left_level,  abs(gOutChannel[0][f]));
+      max_right_level = max(max_right_level, abs(gOutChannel[1][f]));
+    }
+
     return 0;
   }
 

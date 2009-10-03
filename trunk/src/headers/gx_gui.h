@@ -24,6 +24,7 @@
 namespace gx_gui
 {
   /* function declarations */
+  gboolean refresh_signal_level(gpointer args);
   unsigned int gx_fetch_available_skins();
 
   void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
@@ -86,6 +87,7 @@ namespace gx_gui
     bool		fStopped;
     GtkTextView*        fLoggingWindow;
     GtkExpander*        fLoggingBox;
+    GtkWidget*          fSignalLevelBar[2];
 
     GtkWidget* addWidget(const char* label, GtkWidget* w);
     virtual void pushBox(int mode, GtkWidget* w);
@@ -105,6 +107,7 @@ namespace gx_gui
     // acquire a pointer to the logging window
     GtkTextView* const getLoggingWindow() const { return fLoggingWindow; }
     GtkExpander* const getLoggingBox()    const { return fLoggingBox; }
+    GtkWidget*   const getSignalLevelBar(const int b) { return fSignalLevelBar[b]; }
 
     // -- layout groups
     virtual void openFrameBox(const char* label);
@@ -122,6 +125,7 @@ namespace gx_gui
     virtual void openPaintBox2(const char* label = "");
     virtual void openScrollBox(const char* label = "");
     virtual void openTextLoggingBox(const char* label = "");
+    virtual void openSignalLevelBox(const char* label = "");
     virtual void openToolBar(const char* label = "");
     virtual void setSkinBox(const char* label, float* zone);
     virtual void closeBox();

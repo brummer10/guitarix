@@ -959,6 +959,9 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
   interface->closeBox();
   //----- close main box
 
+  // add a signal level box: out of box stack, no need to closeBox
+  interface->openSignalLevelBox("Signal Level");
+
   // add a log message box: out of box stack, no need to closeBox
   interface->openTextLoggingBox("Logging Window");
 

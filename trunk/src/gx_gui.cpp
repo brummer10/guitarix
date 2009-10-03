@@ -47,7 +47,19 @@ using namespace gx_child_process;
 using namespace gx_preset;
 
 namespace gx_gui
-  {
+{
+
+    gboolean refresh_signal_level(gpointer args)
+    {
+      GxMainInterface* interface = GxMainInterface::instance();
+
+      /* refresh stuff */
+      gtk_level_bar_light_percent(interface->getSignalLevelBar(0), gx_jack::max_left_level);
+      gtk_level_bar_light_percent(interface->getSignalLevelBar(1), gx_jack::max_right_level);
+
+      return TRUE;
+    }
+
 
     // get the last used skin as default
     void gx_set_skin_change(float fskin)
@@ -914,6 +926,24 @@ namespace gx_gui
       gtk_widget_show(tbox);
       fLoggingWindow = GTK_TEXT_VIEW(tbox);
 
+      gtk_widget_show(box);
+    }
+
+    void GxMainInterface::openSignalLevelBox(const char* label)
+    {
+      GtkWidget* box = addWidget(label, gtk_vbox_new (homogene, 0));
+      gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+
+      // input level
+      for (int i = 0; i < 2; i++)
+      {
+	GtkWidget* lvl = gtk_level_bar_new(40, 0);
+	gtk_box_pack_start(GTK_BOX(box), lvl, TRUE, TRUE, 3);
+	gtk_level_bar_light_percent(lvl, 0.);
+
+	gtk_widget_show(lvl);
+	fSignalLevelBar[i] = lvl;
+      }
       gtk_widget_show(box);
     }
 
@@ -2393,7 +2423,14 @@ namespace gx_gui
       assert(fTop == 0);
       gtk_widget_show  (fBox[0]);
       gtk_widget_show  (fWindow);
+
       gtk_timeout_add(40, callUpdateAllGuis, 0);
+
+      int to = (int)(gx_jack::jack_bs*2 / gx_jack::jack_sr) * 1000;
+      to = max(60, to*10);
+
+      gtk_timeout_add(to, refresh_signal_level, 0);
+
       gtk_main ();
       stop();
     }
