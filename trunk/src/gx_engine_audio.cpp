@@ -84,8 +84,7 @@ inline float GxEngine::foldback(float in, float threshold)
 // it isn't normalize, it's more a waveshaper funktion
 inline float GxEngine::normalize(float in, float atan_shape, float shape)
 {
-  float out = atan_shape * atan(in*shape);
-  return out;
+  return atan_shape * atan(in*shape);
 }
 
 

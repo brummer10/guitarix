@@ -250,7 +250,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                         interface->openVerticalBox("");
                         {
                           interface->addswitch("tube", &ftube);
-                          interface->addHorizontalWheel("tube",&ffuzzytube, 1.f, 1.f, 10.f, 1.0f);
+                          interface->addHorizontalWheel("tube",&ffuzzytube, 1.f, -3.f, 10.f, 1.0f);
                         }
                         interface->closeBox();
                         interface->openFrameBox("");
@@ -276,7 +276,7 @@ void GxEngine::buildUserInterface(gx_ui::GxUI* interface)
                           interface->addswitch("tube2", &ftube3);
                           interface->openFrameBox("");
                           {
-                            interface->addHorizontalWheel("tube",&fresotube3, 1.f, 1.f, 10.f, 1.0f);
+                            interface->addHorizontalWheel("tube",&fresotube3, 1.f, -3.f, 10.f, 1.0f);
                           }
                           interface->closeBox();
 
