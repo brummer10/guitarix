@@ -401,7 +401,7 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
         reglery += (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y) *0.5;
         int reglerstate = (int)((adj->value - adj->lower) * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_step / (adj->upper - adj->lower));
         int smoth_pointer = 0;
-        if (reglerstate>3)smoth_pointer=-4;
+        if (reglerstate>(adj->upper - adj->lower))smoth_pointer=-4;
         if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
         {
             gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image1, 0, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
@@ -591,7 +591,7 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
         reglery += (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y) *0.5;
         int reglerstate = (int)((adj->value - adj->lower) * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_step / (adj->upper - adj->lower));
         int smoth_pointer = 0;
-        if (reglerstate>3)smoth_pointer=-4;
+        if (reglerstate>(adj->upper - adj->lower))smoth_pointer=-4;
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image1, 0, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image, reglerstate + GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->pointer_image1,0, 0, reglerx+smoth_pointer+reglerstate*0.4, reglery, 2, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
@@ -771,7 +771,7 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
         reglery += (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y) *0.5;
         int reglerstate = (int)((adj->value - adj->lower) * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_step / (adj->upper - adj->lower));
         int smoth_pointer = 0;
-        if (reglerstate>3)smoth_pointer=-4;
+        if (reglerstate>(adj->upper - adj->lower))smoth_pointer=-4;
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image1, 0, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image, reglerstate + GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->pointer_image1,0, 0, reglerx+smoth_pointer+reglerstate*0.4, reglery, 2, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
