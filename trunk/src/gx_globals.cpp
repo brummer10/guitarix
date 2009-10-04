@@ -86,9 +86,6 @@ namespace gx_jack
   jack_port_t*        input_ports [nIPorts];
   void*               midi_port_buf;
 
-  float max_left_level  = 0;
-  float max_right_level = 0;
-
   jack_port_t*        midi_output_ports;
   jack_nframes_t      time_is;
 
@@ -244,6 +241,9 @@ namespace gx_gui
   GtkWidget* warn_dialog;
   GtkWidget* disable_warn ;
 
+  GtkWidget* gx_jackd_on_image;
+  GtkWidget* gx_jackd_off_image;
+
   /* engine status images */
   GtkWidget* gx_engine_on_image;
   GtkWidget* gx_engine_off_image;
@@ -264,6 +264,10 @@ namespace gx_gui
   gint gx_current_skin = 0;
   int last_skin = 0;
   int no_opt_skin = 0;
+
+  /* for level display */
+  float max_level[2];
+  float rms_level[2];
 }
 
 /* ------------------------------------------------------------------------- */

@@ -34,6 +34,7 @@ extern "C" {
 #define GTK_IS_LEVEL_BAR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass),  GTK_TYPE_LEVEL_BAR))
 
 #define MAX_SEGMENTS         80
+#define MAX_CHANS            2
 
 typedef struct _GtkLevelBar       GtkLevelBar;
 typedef struct _GtkLevelBarClass  GtkLevelBarClass;
@@ -42,12 +43,14 @@ struct _GtkLevelBar
 {
   GtkVBox   vbox;
 
-  GtkWidget* segments[MAX_SEGMENTS];
-  gint      num_segments;         /* How many segmanets in this bar */
-  gint      lit_segments;         /* last segment that is lit */
-  gint      seq_segment;          /* which led in the sequence we are at */
-  gint      seq_dir;              /* direction */
-  gint      orientation;          /* vertical (0), or horizontal (1) */
+  GtkWidget* segments[MAX_CHANS][MAX_SEGMENTS];
+
+  gint      num_segments;            /* How many segmanets in this bar */
+  gint      lit_segments[MAX_CHANS]; /* last segment that is lit */
+  gint      seq_segment;             /* which led in the sequence we are at */
+  gint      seq_dir;                 /* direction */
+  gint      orientation;             /* vertical (1), or horizontal (0) */
+  gint      nchan;                   /* number of audio channels */
 };
 
 struct _GtkLevelBarClass
@@ -57,7 +60,8 @@ struct _GtkLevelBarClass
 
 GType         gtk_level_bar_get_type        (void);
 GtkWidget*    gtk_level_bar_new             (gint segments,
-					     gint orientation);
+					     gint orientation,
+					     gint nchan);
 gint          gtk_level_bar_get_num_segments(GtkWidget* bar);
 void          gtk_level_bar_light_segments  (GtkWidget* bar,
 					     gint       num);
@@ -68,7 +72,9 @@ void          gtk_level_bar_light_segment   (GtkWidget* bar,
 void          gtk_level_bar_unlight_segment (GtkWidget*bar,
 					     gint       segment);
 void          gtk_level_bar_light_percent   (GtkWidget*bar,
-					     gfloat     percent);
+					     float     percent[]);
+void          gtk_level_bar_light_percent_max(GtkWidget*bar,
+					      float     percent[]);
 void          gtk_level_bar_sequence_step   (GtkWidget* bar);
 void          gtk_level_bar_clear           (GtkWidget* bar);
 

@@ -303,6 +303,12 @@ namespace gx_jack
 
 	}      
       }
+      
+      if (gx_gui::gx_jackd_on_image)
+      {
+	gtk_widget_show(gx_gui::gx_jackd_on_image);
+	gtk_widget_hide(gx_gui::gx_jackd_off_image);
+      }
 
       gx_print_info("Jack Server", "Connected to Jack Server"); 
     }
@@ -333,6 +339,12 @@ namespace gx_jack
 	if (gx_gui::record_button)
 	  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gx_gui::record_button), 
 				       FALSE);
+      }
+
+      if (gx_gui::gx_jackd_on_image)
+      {
+	gtk_widget_hide(gx_gui::gx_jackd_on_image);
+	gtk_widget_show(gx_gui::gx_jackd_off_image);
       }
 
       gx_print_warning("Jack Server", "Disconnected from Jack Server"); 
@@ -656,14 +668,20 @@ namespace gx_jack
     
     
     // update level bars
-    max_left_level  = 0;
-    max_right_level = 0;
+    (void)memset(gx_gui::max_level, 0, sizeof(gx_gui::max_level));
+    (void)memset(gx_gui::rms_level, 0, sizeof(gx_gui::max_level));
 
     for (guint f = 0; f < nframes; f++)
     {
-      max_left_level  = max(max_left_level,  abs(gOutChannel[0][f]));
-      max_right_level = max(max_right_level, abs(gOutChannel[1][f]));
+      gx_gui::max_level[0] = max(gx_gui::max_level[0], abs(gOutChannel[0][f]));
+      gx_gui::max_level[1] = max(gx_gui::max_level[1], abs(gOutChannel[1][f]));
+
+      gx_gui::rms_level[0] += gOutChannel[0][f]*gOutChannel[0][f];
+      gx_gui::rms_level[1] += gOutChannel[1][f]*gOutChannel[1][f];
     }
+
+    gx_gui::rms_level[0] = sqrt(gx_gui::rms_level[0]/(float)nframes);
+    gx_gui::rms_level[1] = sqrt(gx_gui::rms_level[1]/(float)nframes);
 
     return 0;
   }

@@ -48,17 +48,16 @@ using namespace gx_preset;
 
 namespace gx_gui
 {
+  gboolean gx_refresh_signal_level(gpointer args)
+  {
+    GxMainInterface* interface = GxMainInterface::instance();
+    
+    /* refresh stuff */
+    gtk_level_bar_light_percent(interface->getSignalLevelBar(), rms_level);
+    gtk_level_bar_light_percent_max(interface->getSignalLevelBar(), max_level);
 
-    gboolean refresh_signal_level(gpointer args)
-    {
-      GxMainInterface* interface = GxMainInterface::instance();
-
-      /* refresh stuff */
-      gtk_level_bar_light_percent(interface->getSignalLevelBar(0), gx_jack::max_left_level);
-      gtk_level_bar_light_percent(interface->getSignalLevelBar(1), gx_jack::max_right_level);
-
-      return TRUE;
-    }
+    return TRUE;
+  }
 
 
     // get the last used skin as default
@@ -931,19 +930,39 @@ namespace gx_gui
 
     void GxMainInterface::openSignalLevelBox(const char* label)
     {
-      GtkWidget* box = addWidget(label, gtk_vbox_new (homogene, 0));
+      GtkWidget* box = addWidget(label, gtk_hbox_new (homogene, 0));
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 
-      // input level
-      for (int i = 0; i < 2; i++)
-      {
-	GtkWidget* lvl = gtk_level_bar_new(40, 0);
-	gtk_box_pack_start(GTK_BOX(box), lvl, TRUE, TRUE, 3);
-	gtk_level_bar_light_percent(lvl, 0.);
+      /*-- Jack server status image --*/
 
-	gtk_widget_show(lvl);
-	fSignalLevelBar[i] = lvl;
-      }
+      // jackd ON image 
+      string img_path = gx_pixmap_dir + "jackd_on.png";
+
+      gx_jackd_on_image = gtk_image_new_from_file(img_path.c_str());
+      gtk_box_pack_start(GTK_BOX(box), gx_jackd_on_image, TRUE, TRUE, 0);
+      gtk_widget_show(gx_jackd_on_image);
+
+      // jackd OFF image: hidden by default
+      img_path = gx_pixmap_dir + "jackd_off.png";
+
+      gx_jackd_off_image = gtk_image_new_from_file(img_path.c_str());
+      gtk_box_pack_start(GTK_BOX(box), gx_jackd_off_image, TRUE, TRUE, 0);
+      gtk_widget_hide(gx_jackd_off_image);
+
+      GtkWidget* vbox = gtk_vbox_new(homogene, 1);
+      gtk_container_set_border_width (GTK_CONTAINER (vbox), 0);
+      gtk_box_pack_start(GTK_BOX(box), vbox, TRUE, TRUE, 0);
+
+      // input level
+      GtkWidget* lvl = gtk_level_bar_new(60, 0, 2);
+      gtk_box_pack_start(GTK_BOX(vbox), lvl, TRUE, TRUE, 3);
+
+      float sig_init[2] = { 0, 0 };
+      gtk_level_bar_light_percent(lvl, sig_init);
+      gtk_widget_show(lvl);
+      fSignalLevelBar = lvl;
+
+      gtk_widget_show(vbox);
       gtk_widget_show(box);
     }
 
@@ -2426,10 +2445,11 @@ namespace gx_gui
 
       gtk_timeout_add(40, callUpdateAllGuis, 0);
 
-      int to = (int)(gx_jack::jack_bs*2 / gx_jack::jack_sr) * 1000;
-      to = max(60, to*10);
+      /* one way latency in milliseconds */
+      float one_way_latency = 1000*(float)gx_jack::jack_bs/(float)gx_jack::jack_sr;
 
-      gtk_timeout_add(to, refresh_signal_level, 0);
+      int timeout = min(50, (int)ceil(one_way_latency) * 50);
+      gtk_timeout_add(timeout, gx_refresh_signal_level, 0);
 
       gtk_main ();
       stop();

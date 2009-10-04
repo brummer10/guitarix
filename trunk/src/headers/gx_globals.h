@@ -88,9 +88,6 @@ namespace gx_jack
   extern jack_port_t*        input_ports [];
   extern void*               midi_port_buf;
 
-  extern float               max_left_level;
-  extern float               max_right_level;
-
   extern GxJackLatencyChange change_latency;
 
 #ifdef USE_RINGBUFFER
@@ -218,6 +215,9 @@ namespace gx_gui
   extern GtkWidget* warn_dialog;
   extern GtkWidget* disable_warn ;
 
+  extern GtkWidget* gx_jackd_on_image;
+  extern GtkWidget* gx_jackd_off_image;
+
   /* engine status images */
   extern GtkWidget* gx_engine_on_image;
   extern GtkWidget* gx_engine_off_image;
@@ -238,6 +238,10 @@ namespace gx_gui
   extern gint gx_current_skin;
   extern int last_skin;
   extern int no_opt_skin;
+
+  /* for level display */
+  extern float max_level[2];
+  extern float rms_level[2];
 }
 
 /* -------------------------------------------------------------------------- */
