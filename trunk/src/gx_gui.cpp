@@ -50,11 +50,37 @@ namespace gx_gui
 {
   gboolean gx_refresh_signal_level(gpointer args)
   {
-    GxMainInterface* interface = GxMainInterface::instance();
+//     (void)memset(rms_level, 0, sizeof(rms_level));
+    (void)memset(max_level, 0, sizeof(max_level));
+
+    if (gx_jack::client)
+    {
+      jack_nframes_t nframes = gx_jack::jack_bs;
+      
+      float ldata[nframes];
+      float rdata[nframes];
+
+      (void)memcpy(ldata, gx_engine::gOutChannel[0], sizeof(ldata));
+      (void)memcpy(rdata, gx_engine::gOutChannel[1], sizeof(ldata));
+
+      for (guint f = 0; f < nframes; f++)
+      {
+	max_level[0] = max(max_level[0], abs(ldata[f]));
+	max_level[1] = max(max_level[1], abs(rdata[f]));
+	
+	rms_level[0] += ldata[f]*ldata[f];
+	rms_level[1] += rdata[f]*rdata[f];
+      }
+      
+      rms_level[0] = sqrt(rms_level[0]/(float)nframes);
+      rms_level[1] = sqrt(rms_level[1]/(float)nframes);
     
-    /* refresh stuff */
-    gtk_level_bar_light_percent(interface->getSignalLevelBar(), rms_level);
-    gtk_level_bar_light_percent_max(interface->getSignalLevelBar(), max_level);
+      GxMainInterface* interface = GxMainInterface::instance();
+    
+      /* refresh stuff */
+      gtk_level_bar_light_percent(interface->getSignalLevelBar(), rms_level);
+      gtk_level_bar_light_percent_max(interface->getSignalLevelBar(), max_level);
+    }
 
     return TRUE;
   }
@@ -954,7 +980,7 @@ namespace gx_gui
       gtk_box_pack_start(GTK_BOX(box), vbox, TRUE, TRUE, 0);
 
       // input level
-      GtkWidget* lvl = gtk_level_bar_new(60, 0, 2);
+      GtkWidget* lvl = gtk_level_bar_new(100, 0, 2);
       gtk_box_pack_start(GTK_BOX(vbox), lvl, TRUE, TRUE, 3);
 
       float sig_init[2] = { 0, 0 };
@@ -2445,10 +2471,8 @@ namespace gx_gui
 
       gtk_timeout_add(40, callUpdateAllGuis, 0);
 
-      /* one way latency in milliseconds */
-      float one_way_latency = 1000*(float)gx_jack::jack_bs/(float)gx_jack::jack_sr;
-
-      int timeout = min(50, (int)ceil(one_way_latency) * 50);
+      /* timeout in milliseconds */
+      int timeout = 120;
       gtk_timeout_add(timeout, gx_refresh_signal_level, 0);
 
       gtk_main ();

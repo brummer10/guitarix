@@ -33,7 +33,7 @@ extern "C" {
 #define GTK_LEVEL_BAR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass),  GTK_TYPE_LEVEL_BAR, GtkLevelBarClass))
 #define GTK_IS_LEVEL_BAR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass),  GTK_TYPE_LEVEL_BAR))
 
-#define MAX_SEGMENTS         80
+#define MAX_SEGMENTS         100
 #define MAX_CHANS            2
 
 typedef struct _GtkLevelBar       GtkLevelBar;

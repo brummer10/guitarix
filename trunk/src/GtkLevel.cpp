@@ -24,7 +24,7 @@
 #include <gtk/gtk.h>
 #include "GtkLevel.h"
 
-#define	LEVEL_WIDTH	(10)
+#define	LEVEL_WIDTH	(7)
 #define	LEVEL_HEIGHT	(5)
 #define	BOTTOM_SPACE	(2)
 

@@ -110,8 +110,9 @@ namespace gx_jack
     gx_print_info("Jack init", s.str().c_str());
 
     jack_bs = jack_get_buffer_size (client); // jack buffer size
-    s.str(""); s << "The jack buffer size is " << jack_bs << "/frames";
-    gx_print_info("Jack init", s.str().c_str());
+    s.str(""); s << "The jack buffer size is " << jack_bs << "/frames ... ";
+
+    gx_print_info("Jack init", s.str());
   }
 
   //----- activate and connect ports if we know them
@@ -664,24 +665,6 @@ namespace gx_jack
     // some info display
     if (gx_gui::showwave == 1)
       time_is =  jack_frame_time (client);
-
-    
-    
-    // update level bars
-    (void)memset(gx_gui::max_level, 0, sizeof(gx_gui::max_level));
-    (void)memset(gx_gui::rms_level, 0, sizeof(gx_gui::max_level));
-
-    for (guint f = 0; f < nframes; f++)
-    {
-      gx_gui::max_level[0] = max(gx_gui::max_level[0], abs(gOutChannel[0][f]));
-      gx_gui::max_level[1] = max(gx_gui::max_level[1], abs(gOutChannel[1][f]));
-
-      gx_gui::rms_level[0] += gOutChannel[0][f]*gOutChannel[0][f];
-      gx_gui::rms_level[1] += gOutChannel[1][f]*gOutChannel[1][f];
-    }
-
-    gx_gui::rms_level[0] = sqrt(gx_gui::rms_level[0]/(float)nframes);
-    gx_gui::rms_level[1] = sqrt(gx_gui::rms_level[1]/(float)nframes);
 
     return 0;
   }
