@@ -270,7 +270,7 @@ void gtk_level_bar_light_percent(GtkWidget* bar, float percent[])
   {
     gint num = percent[c] * lbar->num_segments;
     lbar->lit_segments[c] = num;
-    if (num > lbar->num_segments)
+    if (num >= lbar->num_segments)
       num = (lbar->num_segments-1);
 
     for (gint i = 0; i < lbar->num_segments; i++) 
@@ -307,7 +307,7 @@ void gtk_level_bar_light_percent_max(GtkWidget* bar, float percent[])
   for (int c = 0; c < lbar->nchan; c++)
   {
     gint num = percent[c] * lbar->num_segments;
-    if (num > lbar->num_segments)
+    if (num >= lbar->num_segments)
       num = (lbar->num_segments-1);
 
     lbar->lit_segments[c] = num;
