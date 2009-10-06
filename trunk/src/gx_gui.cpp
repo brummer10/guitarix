@@ -50,8 +50,13 @@ namespace gx_gui
 {
   gboolean gx_refresh_signal_level(gpointer args)
   {
-    (void)memset(rms_level, 0, sizeof(rms_level));
-    (void)memset(max_level, 0, sizeof(max_level));
+    static int count = 0;
+
+    if (count == 0)
+    {
+      (void)memset(rms_level, 0, sizeof(rms_level));
+      (void)memset(max_level, 0, sizeof(max_level));
+    }
 
     if (gx_jack::client)
     {
@@ -71,15 +76,24 @@ namespace gx_gui
 	rms_level[0] += ldata[f]*ldata[f];
 	rms_level[1] += rdata[f]*rdata[f];
       }
+
+      count++;
+    }
+
+    /* display only when we have a good average */
+    if (count == 5)
+    {
+      jack_nframes_t nframes = gx_jack::jack_bs;
+
+      rms_level[0] = sqrt(rms_level[0]/(float)(nframes*count));
+      rms_level[1] = sqrt(rms_level[1]/(float)(nframes*count));
       
-      rms_level[0] = sqrt(rms_level[0]/(float)nframes);
-      rms_level[1] = sqrt(rms_level[1]/(float)nframes);
-    
-      GxMainInterface* interface = GxMainInterface::instance();
-    
       /* refresh stuff */
+      GxMainInterface* interface = GxMainInterface::instance();
       gtk_level_bar_light_percent(interface->getSignalLevelBar(), rms_level);
       gtk_level_bar_light_percent_max(interface->getSignalLevelBar(), max_level);
+
+      count = 0;
     }
 
     return TRUE;
@@ -980,7 +994,7 @@ namespace gx_gui
       gtk_box_pack_start(GTK_BOX(box), vbox, TRUE, TRUE, 0);
 
       // input level
-      GtkWidget* lvl = gtk_level_bar_new(100, 0, 2);
+      GtkWidget* lvl = gtk_level_bar_new(32, 0, 2);
       gtk_box_pack_start(GTK_BOX(vbox), lvl, TRUE, TRUE, 3);
 
       float sig_init[2] = { 0, 0 };
@@ -2472,8 +2486,7 @@ namespace gx_gui
       gtk_timeout_add(40, callUpdateAllGuis, 0);
 
       /* timeout in milliseconds */
-      int timeout = 120;
-      gtk_timeout_add(timeout, gx_refresh_signal_level, 0);
+      gtk_timeout_add(20, gx_refresh_signal_level, 0);
 
       gtk_main ();
       stop();

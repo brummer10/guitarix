@@ -21,7 +21,7 @@
   *
   * -------------------------------------------------------------------------
 */
-
+#include <iostream>
 #include <gtk/gtk.h>
 #include <gtk/gtktable.h>
 #include "GtkLevelBar.h"
@@ -136,11 +136,11 @@ GtkWidget* gtk_level_bar_new(gint segments, gint orientation, int nchan)
       if (!orientation ) /* horizontal */
 	gtk_table_attach(GTK_TABLE(table), lbar->segments[c][i],
 			 i, (i + 1), c, c+1, 
-			 GTK_FILL, GTK_FILL, 0, 2);
+			 GTK_EXPAND, GTK_FILL, 0, 2);
       else /* vertical */
 	gtk_table_attach(GTK_TABLE(table), lbar->segments[c][i],
 			 c, c+1, (segments - i - 1), (segments - i), 
-			 GTK_FILL, GTK_FILL, 2, 0);
+			 GTK_FILL, GTK_EXPAND, 2, 0);
 
       gtk_widget_show (lbar->segments[c][i]);
     }
@@ -269,27 +269,30 @@ void gtk_level_bar_light_percent(GtkWidget* bar, float percent[])
   for (int c = 0; c < lbar->nchan; c++)
   {
     gint num = percent[c] * lbar->num_segments;
-    lbar->lit_segments[c] = num;
     if (num >= lbar->num_segments)
       num = (lbar->num_segments-1);
 
-    for (gint i = 0; i < lbar->num_segments; i++) 
+    lbar->lit_segments[c] = num;
+
+    if (num == 0)
     {
-      if (num > 0 ) 
-      {
-	if (! (GTK_LEVEL(lbar->segments[c][i])->is_on))
+      gtk_level_set_state(GTK_LEVEL(lbar->segments[c][0]),
+			  GTK_STATE_SELECTED,
+			  FALSE);
+    }
+    else 
+    {
+      for (int i = 0; i <= num; i++)
+	if (gtk_level_is_on(GTK_LEVEL(lbar->segments[c][i])) == FALSE)
 	  gtk_level_set_state(GTK_LEVEL(lbar->segments[c][i]),
 			      GTK_STATE_SELECTED,
 			      TRUE);
-	num--;
-      } 
-      else 
-      {
-	if (GTK_LEVEL(lbar->segments[c][i])->is_on)
+      
+      for (int i = num + 1; i < lbar->num_segments; i++)
+	if (gtk_level_is_on(GTK_LEVEL(lbar->segments[c][i])) == TRUE)
 	  gtk_level_set_state(GTK_LEVEL(lbar->segments[c][i]),
 			      GTK_STATE_SELECTED,
 			      FALSE);
-      }
     }
   }
 }
@@ -304,6 +307,8 @@ void gtk_level_bar_light_percent_max(GtkWidget* bar, float percent[])
 
   lbar = GTK_LEVEL_BAR(bar);
 
+  static gint old_num[MAX_CHANS] = {0, 0};
+
   for (int c = 0; c < lbar->nchan; c++)
   {
     gint num = percent[c] * lbar->num_segments;
@@ -312,19 +317,23 @@ void gtk_level_bar_light_percent_max(GtkWidget* bar, float percent[])
 
     lbar->lit_segments[c] = num;
 
-    if (num > 0 ) 
+    if (num == 0)
     {
-      if (! (GTK_LEVEL(lbar->segments[c][num])->is_on))
-	gtk_level_set_state(GTK_LEVEL(lbar->segments[c][num]),
-			    GTK_STATE_SELECTED,
-			    TRUE);
-    } 
-    else 
+      gtk_level_set_state(GTK_LEVEL(lbar->segments[c][0]),
+			  GTK_STATE_SELECTED,
+			  FALSE);
+    }
+    else
     {
-      if (GTK_LEVEL(lbar->segments[c][num])->is_on)
-	gtk_level_set_state(GTK_LEVEL(lbar->segments[c][num]),
+      gtk_level_set_state(GTK_LEVEL(lbar->segments[c][num]),
+			  GTK_STATE_SELECTED,
+			  TRUE);
+      
+      if (old_num[c] != num) 
+	gtk_level_set_state(GTK_LEVEL(lbar->segments[c][old_num[c]]),
 			    GTK_STATE_SELECTED,
 			    FALSE);
+      old_num[c] = num;
     }
   }
 }
