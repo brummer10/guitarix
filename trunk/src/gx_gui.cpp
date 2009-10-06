@@ -50,7 +50,7 @@ namespace gx_gui
 {
   gboolean gx_refresh_signal_level(gpointer args)
   {
-//     (void)memset(rms_level, 0, sizeof(rms_level));
+    (void)memset(rms_level, 0, sizeof(rms_level));
     (void)memset(max_level, 0, sizeof(max_level));
 
     if (gx_jack::client)
