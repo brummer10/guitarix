@@ -276,9 +276,11 @@ void gtk_level_bar_light_percent(GtkWidget* bar, float percent[])
 
     if (num == 0)
     {
-      gtk_level_set_state(GTK_LEVEL(lbar->segments[c][0]),
-			  GTK_STATE_SELECTED,
-			  FALSE);
+      for (int i = 0; i < lbar->num_segments; i++)
+	if (gtk_level_is_on(GTK_LEVEL(lbar->segments[c][i])) == TRUE)
+	  gtk_level_set_state(GTK_LEVEL(lbar->segments[c][i]),
+			      GTK_STATE_SELECTED,
+			      FALSE);
     }
     else 
     {
@@ -319,9 +321,11 @@ void gtk_level_bar_light_percent_max(GtkWidget* bar, float percent[])
 
     if (num == 0)
     {
-      gtk_level_set_state(GTK_LEVEL(lbar->segments[c][0]),
-			  GTK_STATE_SELECTED,
-			  FALSE);
+      for (int i = 0; i < lbar->num_segments; i++)
+	if (gtk_level_is_on(GTK_LEVEL(lbar->segments[c][i])) == TRUE)
+	  gtk_level_set_state(GTK_LEVEL(lbar->segments[c][i]),
+			      GTK_STATE_SELECTED,
+			      FALSE);
     }
     else
     {

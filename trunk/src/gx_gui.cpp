@@ -58,38 +58,40 @@ namespace gx_gui
       (void)memset(max_level, 0, sizeof(max_level));
     }
 
+    GxMainInterface* interface = GxMainInterface::instance();
+    int nc = GTK_LEVEL_BAR(interface->getSignalLevelBar())->nchan;
+
     if (gx_jack::client)
     {
-      jack_nframes_t nframes = gx_jack::jack_bs;
-      
-      float ldata[nframes];
-      float rdata[nframes];
 
-      (void)memcpy(ldata, gx_engine::gOutChannel[0], sizeof(ldata));
-      (void)memcpy(rdata, gx_engine::gOutChannel[1], sizeof(ldata));
-
-      for (guint f = 0; f < nframes; f++)
+      for (int c = 0; c < nc; c++)
       {
-	max_level[0] = max(max_level[0], abs(ldata[f]));
-	max_level[1] = max(max_level[1], abs(rdata[f]));
+	jack_nframes_t nframes = gx_jack::jack_bs;
 	
-	rms_level[0] += ldata[f]*ldata[f];
-	rms_level[1] += rdata[f]*rdata[f];
+	float data[nframes];
+	
+	(void)memcpy(data, gx_engine::gOutChannel[c], sizeof(data));
+
+	for (guint f = 0; f < nframes; f++)
+	{
+	  max_level[c] = max(max_level[c], abs(data[f]));
+	  rms_level[c] += data[f]*data[f];
+	}
       }
 
       count++;
     }
 
-    /* display only when we have a good average */
+    /* display only when we have a good average. */
     if (count == 5)
     {
       jack_nframes_t nframes = gx_jack::jack_bs;
 
-      rms_level[0] = sqrt(rms_level[0]/(float)(nframes*count));
-      rms_level[1] = sqrt(rms_level[1]/(float)(nframes*count));
+      for (int c = 0; c < nc; c++)
+	rms_level[c] = sqrt(rms_level[c]/(float)(nframes*count));
+
       
       /* refresh stuff */
-      GxMainInterface* interface = GxMainInterface::instance();
       gtk_level_bar_light_percent(interface->getSignalLevelBar(), rms_level);
       gtk_level_bar_light_percent_max(interface->getSignalLevelBar(), max_level);
 
@@ -970,39 +972,18 @@ namespace gx_gui
 
     void GxMainInterface::openSignalLevelBox(const char* label)
     {
-      GtkWidget* box = addWidget(label, gtk_hbox_new (homogene, 0));
+      GtkWidget* box = addWidget(label, gtk_vbox_new (FALSE, 0));
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 
-      /*-- Jack server status image --*/
-
-      // jackd ON image 
-      string img_path = gx_pixmap_dir + "jackd_on.png";
-
-      gx_jackd_on_image = gtk_image_new_from_file(img_path.c_str());
-      gtk_box_pack_start(GTK_BOX(box), gx_jackd_on_image, TRUE, TRUE, 0);
-      gtk_widget_show(gx_jackd_on_image);
-
-      // jackd OFF image: hidden by default
-      img_path = gx_pixmap_dir + "jackd_off.png";
-
-      gx_jackd_off_image = gtk_image_new_from_file(img_path.c_str());
-      gtk_box_pack_start(GTK_BOX(box), gx_jackd_off_image, TRUE, TRUE, 0);
-      gtk_widget_hide(gx_jackd_off_image);
-
-      GtkWidget* vbox = gtk_vbox_new(homogene, 1);
-      gtk_container_set_border_width (GTK_CONTAINER (vbox), 0);
-      gtk_box_pack_start(GTK_BOX(box), vbox, TRUE, TRUE, 0);
-
       // input level
-      GtkWidget* lvl = gtk_level_bar_new(32, 0, 2);
-      gtk_box_pack_start(GTK_BOX(vbox), lvl, TRUE, TRUE, 3);
+      GtkWidget* lvl = gtk_level_bar_new(64, 1, 1);
+      gtk_box_pack_end(GTK_BOX(box), lvl, FALSE, FALSE, 0);
 
       float sig_init[2] = { 0, 0 };
       gtk_level_bar_light_percent(lvl, sig_init);
       gtk_widget_show(lvl);
       fSignalLevelBar = lvl;
 
-      gtk_widget_show(vbox);
       gtk_widget_show(box);
     }
 
@@ -2062,9 +2043,24 @@ namespace gx_gui
       menubar = gtk_menu_bar_new();
       gtk_box_pack_start(GTK_BOX(hbox), menubar, TRUE, TRUE, 0);
 
+      /*-- Jack server status image --*/
+      // jackd ON image 
+      string img_path = gx_pixmap_dir + "jackd_on.png";
+
+      gx_jackd_on_image = gtk_image_new_from_file(img_path.c_str());
+      gtk_box_pack_end(GTK_BOX(hbox), gx_jackd_on_image, FALSE, FALSE, 0);
+      gtk_widget_show(gx_jackd_on_image);
+
+      // jackd OFF image: hidden by default
+      img_path = gx_pixmap_dir + "jackd_off.png";
+
+      gx_jackd_off_image = gtk_image_new_from_file(img_path.c_str());
+      gtk_box_pack_end(GTK_BOX(hbox), gx_jackd_off_image, FALSE, FALSE, 0);
+      gtk_widget_hide(gx_jackd_off_image);
+
       /*-- Engine on/off and status --*/
       // set up ON image: shown by default
-      string img_path = gx_pixmap_dir + "gx_on.png";
+      img_path = gx_pixmap_dir + "gx_on.png";
 
       gx_engine_on_image = gtk_image_new_from_file(img_path.c_str());
       gtk_box_pack_end(GTK_BOX(hbox), gx_engine_on_image, FALSE, TRUE, 0);
