@@ -83,7 +83,7 @@ namespace gx_gui
     }
 
     /* display only when we have a good average. */
-    if (count == 5)
+    if (count == 8)
     {
       jack_nframes_t nframes = gx_jack::jack_bs;
 
@@ -976,7 +976,7 @@ namespace gx_gui
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 
       // input level
-      GtkWidget* lvl = gtk_level_bar_new(64, 1, 1);
+      GtkWidget* lvl = gtk_level_bar_new(48, 1, 2);
       gtk_box_pack_end(GTK_BOX(box), lvl, FALSE, FALSE, 0);
 
       float sig_init[2] = { 0, 0 };

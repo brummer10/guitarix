@@ -24,8 +24,8 @@
 #include <gtk/gtk.h>
 #include "GtkLevel.h"
 
-#define	LEVEL_WIDTH	(6)
-#define	LEVEL_HEIGHT	(4)
+#define	LEVEL_WIDTH	(5)
+#define	LEVEL_HEIGHT	(6)
 #define	BOTTOM_SPACE	(1)
 
 static void gtk_level_class_init   (GtkLevelClass*  klass);
