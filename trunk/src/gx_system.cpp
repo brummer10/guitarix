@@ -29,6 +29,7 @@
 #include <list>
 #include <map>
 #include <cmath>
+#include <ctime>
 
 using namespace std;
 
@@ -252,7 +253,7 @@ namespace gx_system
   // ---- log message handler
   void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
   {
-    string msgbuf("\t"); 
+    string msgbuf("  "); 
     msgbuf += func;
     msgbuf += "  ***  ";
     msgbuf += msg;
@@ -282,7 +283,16 @@ namespace gx_system
 	int j = i;
 
 	// cosmetic
-	ostringstream spos; spos << "[" << i+1 << "]";
+	time_t now;
+        struct tm *tm_now;
+        char buf[16];
+
+        time(&now);
+        tm_now = localtime (&now);
+
+        sprintf(buf, "[%02d:%02d:%02d]", 
+		tm_now->tm_hour, tm_now->tm_min, tm_now->tm_sec);
+	ostringstream spos; spos << buf;
 	msgbuf.insert(0, spos.str());
 
 
