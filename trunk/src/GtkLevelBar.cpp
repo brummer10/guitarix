@@ -22,9 +22,15 @@
   * -------------------------------------------------------------------------
 */
 #include <iostream>
+#include <cmath>
 #include <gtk/gtk.h>
 #include <gtk/gtktable.h>
 #include "GtkLevelBar.h"
+
+#define MIN_DB       (-40.)
+#define MAX_DB       (6.)
+#define PERCENT2DB(x)     (20.*log10((x)))
+#define DB2HEIGHT(x) (((x) - MIN_DB)/(MAX_DB - MIN_DB)) 
 
 static void gtk_level_bar_class_init (GtkLevelBarClass* klass);
 static void gtk_level_bar_init       (GtkLevelBar*      lbar);
@@ -108,8 +114,8 @@ GtkWidget* gtk_level_bar_new(gint segments, gint orientation, int nchan)
   gtk_widget_show(table);
 
   /* initialize segment color with idle colors */
-  gint half = .50 * segments;
-  gint full = .75 * segments;
+  gint half = .648 * segments; // -10 dB
+  gint full = .870 * segments; //   0 dB
 
   for (int c = 0; c < nchan; c++)
   {
@@ -257,7 +263,8 @@ void gtk_level_bar_unlight_segment(GtkWidget* bar, gint segment)
 }
 
 /* -------------- */
-void gtk_level_bar_light_percent(GtkWidget* bar, float percent[])
+void gtk_level_bar_light_percent(GtkWidget* bar, 
+				 float percent[])
 {
   GtkLevelBar* lbar;
 
@@ -268,34 +275,35 @@ void gtk_level_bar_light_percent(GtkWidget* bar, float percent[])
 
   for (int c = 0; c < lbar->nchan; c++)
   {
-    gint num = percent[c] * lbar->num_segments;
-    if (num >= lbar->num_segments)
-      num = (lbar->num_segments-1);
-
-    lbar->lit_segments[c] = num;
-
-    if (num == 0)
+    float db = PERCENT2DB(percent[c]);
+    if (db < MIN_DB)
     {
       for (int i = 0; i < lbar->num_segments; i++)
 	if (gtk_level_is_on(GTK_LEVEL(lbar->segments[c][i])) == TRUE)
 	  gtk_level_set_state(GTK_LEVEL(lbar->segments[c][i]),
 			      GTK_STATE_SELECTED,
 			      FALSE);
+      continue;
     }
-    else 
-    {
-      for (int i = 0; i <= num; i++)
-	if (gtk_level_is_on(GTK_LEVEL(lbar->segments[c][i])) == FALSE)
-	  gtk_level_set_state(GTK_LEVEL(lbar->segments[c][i]),
-			      GTK_STATE_SELECTED,
-			      TRUE);
-      
-      for (int i = num + 1; i < lbar->num_segments; i++)
-	if (gtk_level_is_on(GTK_LEVEL(lbar->segments[c][i])) == TRUE)
-	  gtk_level_set_state(GTK_LEVEL(lbar->segments[c][i]),
-			      GTK_STATE_SELECTED,
-			      FALSE);
-    }
+
+    gint num = DB2HEIGHT(db) * lbar->num_segments;
+
+    if (num >= lbar->num_segments)
+      num = (lbar->num_segments-1);
+
+    lbar->lit_segments[c] = num;
+
+    for (int i = 0; i <= num; i++)
+      if (gtk_level_is_on(GTK_LEVEL(lbar->segments[c][i])) == FALSE)
+	gtk_level_set_state(GTK_LEVEL(lbar->segments[c][i]),
+			    GTK_STATE_SELECTED,
+			    TRUE);
+    
+    for (int i = num + 1; i < lbar->num_segments; i++)
+      if (gtk_level_is_on(GTK_LEVEL(lbar->segments[c][i])) == TRUE)
+	gtk_level_set_state(GTK_LEVEL(lbar->segments[c][i]),
+			    GTK_STATE_SELECTED,
+			    FALSE);
   }
 }
 
@@ -313,32 +321,32 @@ void gtk_level_bar_light_percent_max(GtkWidget* bar, float percent[])
 
   for (int c = 0; c < lbar->nchan; c++)
   {
-    gint num = percent[c] * lbar->num_segments;
-    if (num >= lbar->num_segments)
-      num = (lbar->num_segments-1);
-
-    lbar->lit_segments[c] = num;
-
-    if (num == 0)
+    float db = PERCENT2DB(percent[c]);
+    if (db < MIN_DB)
     {
       for (int i = 0; i < lbar->num_segments; i++)
 	if (gtk_level_is_on(GTK_LEVEL(lbar->segments[c][i])) == TRUE)
 	  gtk_level_set_state(GTK_LEVEL(lbar->segments[c][i]),
 			      GTK_STATE_SELECTED,
 			      FALSE);
+      continue;
     }
-    else
-    {
-      gtk_level_set_state(GTK_LEVEL(lbar->segments[c][num]),
-			  GTK_STATE_SELECTED,
-			  TRUE);
+
+    gint num = DB2HEIGHT(db) * lbar->num_segments;
+    if (num >= lbar->num_segments)
+      num = (lbar->num_segments-1);
+
+    lbar->lit_segments[c] = num;
+
+    gtk_level_set_state(GTK_LEVEL(lbar->segments[c][num]),
+			GTK_STATE_SELECTED,
+			TRUE);
       
-      if (old_num[c] != num) 
-	gtk_level_set_state(GTK_LEVEL(lbar->segments[c][old_num[c]]),
-			    GTK_STATE_SELECTED,
-			    FALSE);
-      old_num[c] = num;
-    }
+    if (old_num[c] != num) 
+      gtk_level_set_state(GTK_LEVEL(lbar->segments[c][old_num[c]]),
+			  GTK_STATE_SELECTED,
+			  FALSE);
+    old_num[c] = num;
   }
 }
 
