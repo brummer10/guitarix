@@ -21,6 +21,7 @@
   *
   * -------------------------------------------------------------------------
 */
+#include <string.h>
 #include <iostream>
 #include <cmath>
 #include <gtk/gtk.h>
@@ -72,13 +73,14 @@ static void gtk_level_bar_class_init (GtkLevelBarClass* klass)
 
 static void gtk_level_bar_init (GtkLevelBar* lbar)
 {
-  lbar->num_segments    = 0;
-  lbar->lit_segments[0] = 0;
-  lbar->lit_segments[1] = 0;
-  lbar->seq_segment     = 0;
-  lbar->seq_dir         = 1;
-  lbar->orientation     = 0;
-  lbar->nchan           = 1;
+  (void)memset(lbar->lit_rms_segments,0,sizeof(lbar->lit_rms_segments));
+  (void)memset(lbar->lit_max_segments,0,sizeof(lbar->lit_max_segments));
+
+  lbar->num_segments        = 0;
+  lbar->seq_segment         = 0;
+  lbar->seq_dir             = 1;
+  lbar->orientation         = 0;
+  lbar->nchan               = 1;
 }
 
 /* create a new GtkLevelBar object */
@@ -142,11 +144,11 @@ GtkWidget* gtk_level_bar_new(gint segments, gint orientation, int nchan)
       if (!orientation ) /* horizontal */
 	gtk_table_attach(GTK_TABLE(table), lbar->segments[c][i],
 			 i, (i + 1), c, c+1, 
-			 GTK_EXPAND, GTK_FILL, 0, 2);
+			 GTK_FILL, GTK_FILL, 0, 1);
       else /* vertical */
 	gtk_table_attach(GTK_TABLE(table), lbar->segments[c][i],
 			 c, c+1, (segments - i - 1), (segments - i), 
-			 GTK_FILL, GTK_EXPAND, 2, 0);
+			 GTK_FILL, GTK_FILL, 1, 0);
 
       gtk_widget_show (lbar->segments[c][i]);
     }
@@ -156,115 +158,8 @@ GtkWidget* gtk_level_bar_new(gint segments, gint orientation, int nchan)
 }
 
 /* -------------- */
-gint gtk_level_bar_get_num_segments(GtkWidget* bar)
-{
-  g_return_val_if_fail (bar != NULL, 0);
-  g_return_val_if_fail (GTK_IS_LEVEL_BAR(bar), 0);
-
-  return (GTK_LEVEL_BAR(bar)->num_segments);
-}
-
-
-/* -------------- */
-void gtk_level_bar_light_segments(GtkWidget* bar, gint num)
-{
-  GtkLevelBar* lbar;
-  gint i;
-
-  g_return_if_fail(bar != NULL);
-  g_return_if_fail(GTK_IS_LEVEL_BAR(bar));
-
-  lbar = GTK_LEVEL_BAR (bar);
-
-  for (int c = 0; c < lbar->nchan; c++)
-  {
-    if (num == 0 && lbar->lit_segments[c] == 0)
-      continue;
-
-    if (num < lbar->lit_segments[c])
-    {
-      for (i = 0; i < num; i++) 
-      {
-	gtk_level_set_state (GTK_LEVEL(lbar->segments[c][i]), 
-			     GTK_STATE_SELECTED,
-			     TRUE);
-      }
-    }
-    else
-    {
-      for (i = lbar->lit_segments[c]; i < num; i++)
-	gtk_level_set_state(GTK_LEVEL(lbar->segments[c][i]),
-			    GTK_STATE_SELECTED,
-			    TRUE);
-    }
-
-    lbar->lit_segments[c] = i;
-  }
-}
-
-/* -------------- */
-void gtk_level_bar_unlight_segments(GtkWidget* bar, gint num)
-{
-  GtkLevelBar* lbar;
-
-  g_return_if_fail(bar != NULL);
-  g_return_if_fail(GTK_IS_LEVEL_BAR(bar));
-
-  lbar = GTK_LEVEL_BAR(bar);
-
-  for (int c = 0; c < lbar->nchan; c++)
-  {
-    if (lbar->lit_segments[c] == 0)
-      continue;
-
-    for (gint i = 0; i < num; i++) 
-    {
-      gtk_level_set_state(GTK_LEVEL(lbar->segments[c][i]),
-			  GTK_STATE_SELECTED,
-			  FALSE);
-    }
-
-    lbar->lit_segments[c] -= num;
-    if (lbar->lit_segments[c] < 0)
-      lbar->lit_segments[c] = 0;
-  }
-}
-
-/* -------------- */
-void gtk_level_bar_light_segment(GtkWidget* bar, gint segment)
-{
-  GtkLevelBar* lbar;
-
-  g_return_if_fail(bar != NULL);
-  g_return_if_fail(GTK_IS_LEVEL_BAR(bar));
-
-  lbar = GTK_LEVEL_BAR(bar);
-
-  for (int c = 0; c < lbar->nchan; c++)
-    gtk_level_set_state (GTK_LEVEL(lbar->segments[c][segment]),
-			 GTK_STATE_SELECTED,
-			 TRUE);
-}
-
-/* -------------- */
-void gtk_level_bar_unlight_segment(GtkWidget* bar, gint segment)
-{
-  GtkLevelBar* lbar;
-
-  g_return_if_fail (bar != NULL);
-  g_return_if_fail (GTK_IS_LEVEL_BAR(bar));
-
-  lbar = GTK_LEVEL_BAR(bar);
-
-  for (int c = 0; c < lbar->nchan; c++)
-    gtk_level_set_state(GTK_LEVEL(lbar->segments[c][segment]),
-			GTK_STATE_SELECTED,
-			FALSE);
-}
-
-/* -------------- */
-void gtk_level_bar_light_percent(GtkWidget* bar, 
-				 float percent[])
+void gtk_level_bar_light_rms(GtkWidget* bar, 
+			     float percent[])
 {
   GtkLevelBar* lbar;
 
@@ -291,7 +186,7 @@ void gtk_level_bar_light_percent(GtkWidget* bar,
     if (num >= lbar->num_segments)
       num = (lbar->num_segments-1);
 
-    lbar->lit_segments[c] = num;
+    lbar->lit_rms_segments[c] = num;
 
     for (int i = 0; i <= num; i++)
       if (gtk_level_is_on(GTK_LEVEL(lbar->segments[c][i])) == FALSE)
@@ -308,7 +203,7 @@ void gtk_level_bar_light_percent(GtkWidget* bar,
 }
 
 /* -------------- */
-void gtk_level_bar_light_percent_max(GtkWidget* bar, float percent[])
+void gtk_level_bar_light_max(GtkWidget* bar, float percent[])
 {
   GtkLevelBar* lbar;
 
@@ -316,8 +211,6 @@ void gtk_level_bar_light_percent_max(GtkWidget* bar, float percent[])
   g_return_if_fail(GTK_IS_LEVEL_BAR(bar));
 
   lbar = GTK_LEVEL_BAR(bar);
-
-  static gint old_num[MAX_CHANS] = {0, 0};
 
   for (int c = 0; c < lbar->nchan; c++)
   {
@@ -336,59 +229,18 @@ void gtk_level_bar_light_percent_max(GtkWidget* bar, float percent[])
     if (num >= lbar->num_segments)
       num = (lbar->num_segments-1);
 
-    lbar->lit_segments[c] = num;
+    gint old_num = lbar->lit_max_segments[c];
+    lbar->lit_max_segments[c] = num;
 
     gtk_level_set_state(GTK_LEVEL(lbar->segments[c][num]),
 			GTK_STATE_SELECTED,
 			TRUE);
       
-    if (old_num[c] != num) 
-      gtk_level_set_state(GTK_LEVEL(lbar->segments[c][old_num[c]]),
+    if (old_num != num) 
+      gtk_level_set_state(GTK_LEVEL(lbar->segments[c][old_num]),
 			  GTK_STATE_SELECTED,
 			  FALSE);
-    old_num[c] = num;
   }
-}
-
-/* -------------- */
-void gtk_level_bar_clear(GtkWidget *bar)
-{
-  GtkLevelBar* lbar;
-
-  g_return_if_fail(bar != NULL);
-  g_return_if_fail(GTK_IS_LEVEL_BAR(bar));
-
-  lbar = GTK_LEVEL_BAR (bar);
-
-  for (int c = 0; c < lbar->nchan; c++)
-    for (gint i = 0; i < lbar->num_segments; i++) 
-      if (GTK_LEVEL(lbar->segments[c][i])->is_on)
-	gtk_level_set_state(GTK_LEVEL(lbar->segments[c][i]),
-			    GTK_STATE_SELECTED,
-			    FALSE);
-}
-
-/* -------------- */
-void
-gtk_level_bar_sequence_step(GtkWidget *bar)
-{
-  GtkLevelBar* lbar;
-
-  g_return_if_fail(bar != NULL);
-  g_return_if_fail(GTK_IS_LEVEL_BAR (bar));
-
-  lbar = GTK_LEVEL_BAR(bar);
-
-  if (lbar->seq_segment >= (lbar->num_segments - 1))
-    lbar->seq_dir = -1;
-
-  else if (lbar->seq_segment <= 0)
-    lbar->seq_dir = 1;
-
-  gtk_level_bar_unlight_segment(GTK_WIDGET(lbar), lbar->seq_segment);
-  lbar->seq_segment += lbar->seq_dir;
-
-  gtk_level_bar_light_segment(GTK_WIDGET(lbar), lbar->seq_segment);
 }
 
 /* EOF */

@@ -34,7 +34,6 @@
 #include <cstdio>
 #include <cmath>
 
-
 using namespace std;
 
 #include <sndfile.h>
@@ -64,6 +63,7 @@ namespace gx_preset
       while (!f.eof()) {
 	// get line
 	getline(f, buffer);
+
 	if (buffer.empty()) continue;
 
 	// parse buffer
@@ -73,6 +73,7 @@ namespace gx_preset
 	string pname; values >> pname;
 	plist.push_back(pname);
       }
+
       f.close();
     }
 
@@ -665,12 +666,7 @@ namespace gx_preset
   // read name for presset
   void gx_recall_main_setting(GtkMenuItem* item, gpointer arg)
   {
-    if (!gx_jack::client || !gx_jack::jack_is_running) {
-      gx_print_warning("Main Setting recalling", "We are not a jack client!");
-      return;
-    }
-
-    string jname = jack_get_client_name(gx_jack::client);
+    string jname = gx_jack::client_name;
     string previous_state = gx_user_dir + jname + "rc";
 
     gx_gui::GxMainInterface* interface =
@@ -693,12 +689,7 @@ namespace gx_preset
   // ----- save current setting as main setting
   void gx_save_main_setting(GtkMenuItem* item, gpointer arg)
   {
-    if (!gx_jack::client || !gx_jack::jack_is_running) {
-      gx_print_warning("Main Setting Saving", "We are not a jack client!");
-      return;
-    }
-
-    string jname = jack_get_client_name(gx_jack::client);
+    string jname = gx_jack::client_name;
     string previous_state = gx_user_dir + jname + "rc";
 
     gx_gui::GxMainInterface* interface =

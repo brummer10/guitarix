@@ -141,6 +141,7 @@ namespace gx_ui
     virtual void setSkinBox(const char* label, float* zone){};
     virtual void closeBox() {};
 
+    virtual void setup() {};
     virtual void show() {};
     virtual void run() {};
 

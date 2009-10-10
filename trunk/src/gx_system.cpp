@@ -259,7 +259,7 @@ namespace gx_system
     msgbuf += msg;
 
     // log the stuff to the log message window if possible
-    bool terminal  = false;
+    bool terminal  = true;
     bool gui_is_up = gx_gui::GxMainInterface::fInitialized;
 
     if (gui_is_up)
@@ -272,6 +272,8 @@ namespace gx_system
 
       if (logw)
       {
+	terminal = false;
+
 	// retrieve gtk text buffer
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(logw));
 
@@ -357,10 +359,7 @@ namespace gx_system
 	i++;
 
       }
-      else
-	terminal = true;
     }
-    else terminal = true;
 
     // if no window, then terminal
     if (terminal) cerr << msgbuf << endl;

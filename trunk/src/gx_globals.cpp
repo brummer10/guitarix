@@ -63,6 +63,9 @@ namespace gx_engine
   /* latency warning  switch */
   float fwarn_swap;
   float fwarn;
+
+  /* engine init state  */
+  bool initialized = false;
 }
 
 
@@ -89,7 +92,7 @@ namespace gx_jack
   jack_port_t*        midi_output_ports;
   jack_nframes_t      time_is;
 
-  bool                jack_is_running = false;
+  bool                jack_is_down = false;
   GxJackLatencyChange change_latency;
 
 #ifdef USE_RINGBUFFER
@@ -97,7 +100,7 @@ namespace gx_jack
   jack_ringbuffer_t*  jack_ringbuffer;
 #endif
 
-  string client_name  = "";
+  string client_name  = "guitarix";
 }
 
 /* ------------------------------------------------------------------------- */
@@ -268,5 +271,7 @@ namespace gx_gui
   /* for level display */
   float max_level[2];
   float rms_level[2];
+  float rms_jclevel[2];
+  float max_jclevel[2];
 }
 /* ------------------------------------------------------------------------- */

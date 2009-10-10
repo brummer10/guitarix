@@ -21,19 +21,28 @@
 
 #pragma once
 
+#ifndef NJACKLAT
+#define NJACKLAT (9)
+#endif
+
 namespace gx_gui
 {
   /* function declarations */
-  gboolean gx_refresh_signal_level(gpointer args);
+  gboolean gx_refresh_signal_level(gpointer arg);
+  gboolean gx_refresh_jcsignal_level(gpointer arg);
+  gboolean gx_survive_jack_shutdown(gpointer arg);
+
   unsigned int gx_fetch_available_skins();
 
-  void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
-  void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg);
-  bool  gx_update_skin(const gint idx, const char* calling_func);
-  void  gx_actualize_skin_index(const string& skin_name);
+  void gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
+  void gx_cycle_through_skin(GtkWidget *widget, gpointer arg);
+  bool gx_update_skin(const gint idx, const char* calling_func);
+  void gx_actualize_skin_index(const string& skin_name);
   bool gx_set_skin(GtkWidget *widget, gpointer data);
   void gx_get_skin_change(float * fskin);
   void gx_set_skin_change(float fskin);
+  void gx_refresh_engine_status_display();
+  void gx_engine_switch (GtkWidget* widget, gpointer arg);
 
   /* choice dialog windows */
   void gx_get_text_entry(GtkEntry*, string&);
@@ -56,6 +65,15 @@ namespace gx_gui
 	const char* label2,
 	const gint  resp1,
 	const gint  resp2,
+	const gint  default_response
+  );
+
+  gint gx_nchoice_dialog_without_entry (
+	const char* window_title,
+	const char* msg,
+	const guint nchoice,
+	const char* label[],
+	const gint  resp[],
 	const gint  default_response
   );
 
@@ -88,6 +106,11 @@ namespace gx_gui
     GtkTextView*        fLoggingWindow;
     GtkExpander*        fLoggingBox;
     GtkWidget*          fSignalLevelBar;
+    GtkWidget*          fJCSignalLevelBar;
+
+    // jack menu widgets
+    GtkWidget*          fJackConnectItem;
+    GtkWidget*          fJackLatencyItem[NJACKLAT];
 
     GtkWidget* addWidget(const char* label, GtkWidget* w);
     virtual void pushBox(int mode, GtkWidget* w);
@@ -105,9 +128,13 @@ namespace gx_gui
     GtkAccelGroup* fAccelGroup;
 
     // acquire a pointer to the logging window
-    GtkTextView* const getLoggingWindow() const  { return fLoggingWindow; }
-    GtkExpander* const getLoggingBox()    const  { return fLoggingBox; }
-    GtkWidget*   const getSignalLevelBar() const { return fSignalLevelBar; }
+    GtkTextView* const getLoggingWindow()    const { return fLoggingWindow;   }
+    GtkExpander* const getLoggingBox()       const { return fLoggingBox;      }
+    GtkWidget*   const getSignalLevelBar()   const { return fSignalLevelBar;  }
+    GtkWidget*   const getJCSignalLevelBar() const { return fJCSignalLevelBar;}
+    GtkWidget*   const getJackConnectItem()  const { return fJackConnectItem; }
+
+    GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
 
     // -- layout groups
     virtual void openFrameBox(const char* label);
@@ -154,6 +181,7 @@ namespace gx_gui
     virtual void addHorizontalBargraph(const char* label, float* zone, float min, float max);
     virtual void addVerticalBargraph(const char* label, float* zone, float min, float max);
 
+    virtual void setup();
     virtual void show();
     virtual void run();
   };

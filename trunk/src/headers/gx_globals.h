@@ -59,6 +59,9 @@ namespace gx_engine
   /* latency warning  switch */
   extern float fwarn_swap;
   extern float fwarn;
+
+  /* engine init state  */
+  extern bool initialized;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -97,7 +100,7 @@ namespace gx_jack
 
   extern jack_port_t*        midi_output_ports;
   extern jack_nframes_t      time_is;
-  extern bool                jack_is_running;
+  extern bool                jack_is_down;
   extern string              client_name;
 
 }
@@ -242,6 +245,8 @@ namespace gx_gui
   /* for level display */
   extern float max_level[2];
   extern float rms_level[2];
+  extern float max_jclevel[2];
+  extern float rms_jclevel[2];
 }
 
 /* -------------------------------------------------------------------------- */

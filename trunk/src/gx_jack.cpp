@@ -47,12 +47,10 @@ namespace gx_jack
 {
 
   //----- pop up a dialog for starting jack
-  void gx_jack_init(int& argc, char**& argv)
+  bool gx_jack_init()
   {
     jack_status_t jackstat;
-    
-    if (argv)
-      client_name = basename(argv[0]);
+    client_name = "guitarix";
 
     // init the pointer to the jackbuffer
     for (int i=0; i < nOPorts; i++) output_ports[i] = 0;
@@ -60,33 +58,41 @@ namespace gx_jack
 
     AVOIDDENORMALS;
 
+    // try to open jack client
     client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
+
     if (client == 0) {
-      gx_print_warning("main",
-		       string("JACK not running, trying to start jack"));
+      gx_print_warning("Jack Init", "not yet a jack client");
 
-      gx_start_jack_dialog(&argc, &argv);
+      // if jackd is running, let's call ourselves again
+      if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK)
+      {
+	gx_print_warning("Jack Init", "jackd OK, trying to be a client");
+	usleep(500000);	
+	return gx_jack_init();
+      }
 
-      if (jack_is_running) {
+      // start a dialog 
+      if (gx_start_jack_dialog()) {
 	// so let's try to be a jack client again
 	client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
 
 	if (!client) {
 	  gx_print_error("main",
 			 string("I really tried to get jack up and running, sorry ... "));
-	  exit(1);
+	  return false;
 	}
       }
 
       else { // we give up
 	gx_print_error("main",
-		       string("I tried to get jack up and running, sorry ... "));
-	exit(1);
+		       string("Ignoring jackd ..."));
+	return false;
       }
     }
 
-    // so jack is running, fine :)
-    jack_is_running = true;
+    // ----------------------------------
+    jack_is_down = false;
 
     // it is maybe not the 1st guitarix instance ?
     if (jackstat & JackNameNotUnique)
@@ -113,6 +119,8 @@ namespace gx_jack
     s.str(""); s << "The jack buffer size is " << jack_bs << "/frames ... ";
 
     gx_print_info("Jack init", s.str());
+
+    return true;
   }
 
   //----- activate and connect ports if we know them
@@ -179,50 +187,69 @@ namespace gx_jack
   }
 
   //----- pop up a dialog for starting jack
-  void gx_start_jack_dialog(int* argc, char*** argv)
+  bool gx_start_jack_dialog()
   {
-    if (gx_gui::GxMainInterface::fInitialized == false)
-    {
-      gtk_init(argc, argv);
-
-      // let's mark GTK as initialized
-      gx_gui::GxMainInterface::fInitialized = true;
-    }
-
     //--- run dialog and check response
+    const guint nchoices    = 3;
+
+    const char* labels[]    = {
+      "Start Jack", "Ignore Jack", "Exit"
+    };
+
+    const gint  responses[] = { 
+      GTK_RESPONSE_YES, GTK_RESPONSE_NO, GTK_RESPONSE_CANCEL
+    };
+
     gint response =
-      gx_gui::gx_choice_dialog_without_entry (
+      gx_gui::gx_nchoice_dialog_without_entry (
 	" Jack Starter ",
 	"\n                        WARNING                        \n\n"
 	"   The jack server is not currently running\n"
-	"   You can choose to activate it or terminate guitarix   \n",
-	"Start Jack", "Exit",
-	GTK_RESPONSE_YES, GTK_RESPONSE_CANCEL, GTK_RESPONSE_YES
+	"   You can choose to activate it or terminate guitarix   \n\n"
+	"       1) activate jack   \n"
+	"       2) ignore jack, start guitarix anyway   \n"
+	"       3) exit guitarix   \n",
+	nchoices,
+	labels,
+	responses,
+	GTK_RESPONSE_YES
       );
 
     // we are cancelling
-    if (response == GTK_RESPONSE_CANCEL) {
+    bool retstat = false;
+
+    switch (response) 
+    { 
+    case GTK_RESPONSE_NO:
+      jack_is_down = true;
+      break;
+
+    case GTK_RESPONSE_CANCEL:
       gx_abort(NULL);
-      return;
+      break;
+
+    default:
+    case GTK_RESPONSE_YES:
+      retstat = gx_start_jack(NULL);
+      break;
     }
 
     // start jack
-    gx_start_jack(NULL);
+    return retstat;
   }
 
 
   //----start jack if possible
-  void gx_start_jack(void* arg)
+  bool gx_start_jack(void* arg)
   {
     // first, let's try via qjackctl
     if (gx_system_call("which", "qjackctl", false) == SYSTEM_OK) {
       if (gx_system_call("qjackctl", "--start", true, true) == SYSTEM_OK) {
-	sleep(2);
+	sleep(1);
 
 	// let's check it is really running
 	if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
-	  jack_is_running = true;
-	  return;
+	  return true;
 	}
       }
     }
@@ -244,16 +271,17 @@ namespace gx_jack
       // launch jackd
       if (!cmdline.empty())
 	if (gx_system_call(cmdline.c_str(), "", true, true) == SYSTEM_OK) {
-	  sleep(2);
+	  sleep(1);
 
 	  // let's check it is really running
 	  if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
-	    jack_is_running = true;
-	    return;
+	    return true;
 	  }
 	}
-
+      
     }
+
+    return false;
   }
 
   //---- Jack server connection / disconnection 
@@ -263,57 +291,68 @@ namespace gx_jack
     {
       if (!client)
       {
-	int    dummy = 0;
-	char** dummy_ptr = NULL;
-	gx_jack_init(dummy, dummy_ptr);
-
-	string optvar[NUM_SHELL_VAR];
-	gx_assign_shell_var(shell_var_name[JACK_INP],  optvar[JACK_INP] );
-	gx_assign_shell_var(shell_var_name[JACK_OUT1], optvar[JACK_OUT1]);
-	gx_assign_shell_var(shell_var_name[JACK_OUT2], optvar[JACK_OUT2]);
-
-	gx_jack_callbacks_and_activate(optvar);
-
-	// refresh latency check menu
-	gx_set_jack_buffer_size(NULL, NULL);
-	
-	// check jconv stuff
-	if (gx_jconv::jconv_is_running)
+	if (gx_jack_init())
 	{
-	  ostringstream buf;
-	
-	  // extra guitarix jack ports for jconv
-	  for (int i = 2; i < 4; i++)
-	  {
-	    buf.str("");
-	    buf << "out_" << i;
-	    
-	    output_ports[i] =
-	      jack_port_register(client,
-				 buf.str().c_str(),
-				 JACK_DEFAULT_AUDIO_TYPE,
-				 JackPortIsOutput, 0);
-	    gx_engine::gNumOutChans++;
-	  }
-	
-	  // ---- port connection
-	
-	  // guitarix outs to jconv ins
-	  jack_connect(client, jack_port_name(output_ports[2]), "jconv:In-1");
-	  jack_connect(client, jack_port_name(output_ports[3]), "jconv:In-2");
+	  string optvar[NUM_SHELL_VAR];
+	  gx_assign_shell_var(shell_var_name[JACK_INP],  optvar[JACK_INP] );
+	  gx_assign_shell_var(shell_var_name[JACK_OUT1], optvar[JACK_OUT1]);
+	  gx_assign_shell_var(shell_var_name[JACK_OUT2], optvar[JACK_OUT2]);
 
-	}      
-      }
+	  cerr << " str1 : " << optvar[JACK_INP] << endl
+	       << " str2 : " << optvar[JACK_OUT1] << endl
+	       << " str3 : " << optvar[JACK_OUT2] << endl;
+
+	  // initialize guitarix engine if necessary
+	  if (!gx_engine::initialized)
+	    gx_engine::gx_engine_init();
+	  
+	  gx_jack_callbacks_and_activate(optvar);
+	  
+	  // refresh latency check menu
+	  gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
+	  GtkWidget* wd = gui->getJackLatencyItem(gx_jack::jack_bs);
+	  if (wd)
+	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
       
-      if (gx_gui::gx_jackd_on_image)
-      {
-	gtk_widget_show(gx_gui::gx_jackd_on_image);
-	gtk_widget_hide(gx_gui::gx_jackd_off_image);
+	  // check jconv stuff
+	  if (gx_jconv::jconv_is_running)
+	  {
+	    ostringstream buf;
+	    
+	    // extra guitarix jack ports for jconv
+	    for (int i = 2; i < 4; i++)
+	    {
+	      buf.str("");
+	      buf << "out_" << i;
+	      
+	      output_ports[i] =
+		jack_port_register(client,
+				   buf.str().c_str(),
+				   JACK_DEFAULT_AUDIO_TYPE,
+				   JackPortIsOutput, 0);
+	      gx_engine::gNumOutChans++;
+	    }
+	    
+	    // ---- port connection
+	    
+	    // guitarix outs to jconv ins
+	    jack_connect(client, jack_port_name(output_ports[2]), "jconv:In-1");
+	    jack_connect(client, jack_port_name(output_ports[3]), "jconv:In-2");
+	  }
+	}
       }
 
-      gx_print_info("Jack Server", "Connected to Jack Server"); 
-    }
+      if (client)
+      {
+	if (gx_gui::gx_jackd_on_image)
+	{
+	  gtk_widget_show(gx_gui::gx_jackd_on_image);
+	  gtk_widget_hide(gx_gui::gx_jackd_off_image);
+	}
 
+	gx_print_info("Jack Server", "Connected to Jack Server"); 
+      }
+    }
     else
     {
       gx_jack_cleanup();
@@ -365,67 +404,54 @@ namespace gx_jack
       return;
     }
 
-    // static variable that keeps track of active item
-    static GtkCheckMenuItem* refreshItem = NULL;
-
     // ----- if check button triggered menually
-    if (menuitem) {
-      // let's avoid triggering the jack server on "inactive"
-      if (gtk_check_menu_item_get_active(menuitem) == false)
-	return;
 
-      // requested latency
-      jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
+    // let's avoid triggering the jack server on "inactive"
+    if (gtk_check_menu_item_get_active(menuitem) == false)
+      return;
 
-      if (buf_size == jack_get_buffer_size(client)) {
-	// let's save the item for eventual display refreshing
-	refreshItem = menuitem;
+    // requested latency
+    jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
 
-	// since the actual buffer size is the same, no need further action
-	return;
+    // if the actual buffer size is the same, no need further action
+    if (buf_size == jack_get_buffer_size(client))
+      return;
+
+
+    // first time useage warning
+    if (fwarn_swap == 0.0)
+      gx_gui::gx_wait_latency_warn();
+
+    else change_latency = kChangeLatency;
+
+    if (change_latency == kChangeLatency) 
+    {
+      int jcio = 0;
+      if (jconv_is_running) {
+	jcio = 1;
+	gx_jconv::GxJConvSettings::checkbutton7 = 0;
+	gx_jconv::checkbox7 = 0.0;
+	gx_child_process::gx_start_stop_jconv(NULL, NULL);
       }
 
-      // first time useage warning
-      if (fwarn_swap == 0.0)
-	gx_gui::gx_wait_latency_warn();
+      // let's resize the buffer
+      if (jack_set_buffer_size (client, buf_size) != 0)
+	gx_print_warning("Setting Jack Buffer Size",
+			 "Could not change latency");
 
-      else change_latency = kChangeLatency;
-
-      if (change_latency == kChangeLatency) {
-	int jcio = 0;
-	if (jconv_is_running) {
-	  jcio = 1;
-	  gx_jconv::GxJConvSettings::checkbutton7 = 0;
-	  gx_jconv::checkbox7 = 0.0;
-	  gx_child_process::gx_start_stop_jconv(NULL, NULL);
-	}
-
-	// let's resize the buffer
-	if (jack_set_buffer_size (client, buf_size) != 0)
-	  gx_print_warning("Setting Jack Buffer Size",
-			   "Could not change latency");
-
-	else // save the item pointer for eventual display refreshing
-	  refreshItem = menuitem;
-
-	if (jcio == 1) {
-	  jcio = 0;
-	  gx_jconv::GxJConvSettings::checkbutton7 = 1;
-	  gx_jconv::checkbox7 = 1.0;
-	  gx_child_process::gx_start_stop_jconv(NULL, NULL);
-	}
-	change_latency = kUnknownAction;
+      if (jcio == 1) 
+      {
+	jcio = 0;
+	gx_jconv::GxJConvSettings::checkbutton7 = 1;
+	gx_jconv::checkbox7 = 1.0;
+	gx_child_process::gx_start_stop_jconv(NULL, NULL);
       }
+      change_latency = kUnknownAction;
     }
 
-    // we are called only to refresh the menu display
-    if (refreshItem)
-      gtk_check_menu_item_set_active (refreshItem, TRUE);
-
-    if (menuitem)
-      gx_print_info("Jack Buffer Size",
-		    string("latency is ") +
-		    gx_i2a(jack_get_buffer_size(client)));
+    gx_print_info("Jack Buffer Size",
+		  string("latency is ") +
+		  gx_i2a(jack_get_buffer_size(client)));
   }
 
   //-----Function that cleans the jack stuff on shutdown
@@ -470,28 +496,7 @@ namespace gx_jack
     gx_print_warning("Jack Shutdown",
 		     "jack has bumped us out!!");
 
-    jack_is_running = false;
-    client = NULL;
-
-//     // the jack client has been destroyed by jackd
-//     // all we need now is shutting down guitarix cleanly
-//     gint response =
-//       gx_gui::gx_choice_dialog_without_entry (
-// 	" Exit Dialog ",
-// 	"\n                        WARNING                        \n\n"
-// 	"   The jack server has probably gone down\n"
-// 	"   You can exit or stay alive but idle (jackless)  \n",
-// 	"Exit", "Stay idle",
-// 	GTK_RESPONSE_YES, GTK_RESPONSE_CANCEL, GTK_RESPONSE_YES
-//       );
-
-//     // we are cancelling
-//     if (response == GTK_RESPONSE_CANCEL) {
-//       gx_print_warning("Exit", "Staying idle without jack");
-//       return;
-//     }
-
-    gx_clean_exit(NULL, NULL);
+    jack_is_down = true;
   }
 
   //---- jack client callbacks
@@ -543,12 +548,9 @@ namespace gx_jack
 		  string("the buffer size is now ") +
 		  gx_i2a(jack_bs) + string("/frames"));
 
-    if (checkfreq)
-      delete[] checkfreq;
-    if (get_frame)
-      delete[] get_frame;
-    if (oversample)
-      delete[] oversample;
+    if (checkfreq)  delete[] checkfreq;
+    if (get_frame)  delete[] get_frame;
+    if (oversample) delete[] oversample;
 
     get_frame = new float[jack_bs];
     (void)memset(get_frame, 0, sizeof(float)*jack_bs);

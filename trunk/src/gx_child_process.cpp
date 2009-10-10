@@ -443,6 +443,7 @@ namespace gx_child_process
 	  usleep(100000);
 	  
 	  gx_jconv::jconv_is_running = false;
+	  gtk_widget_hide(gx_gui::GxMainInterface::instance()->getJCSignalLevelBar());
 
 	  // unregister our own jconv dedicated ports
 	  if (gx_jack::client)
@@ -571,6 +572,7 @@ namespace gx_child_process
 	      
 	      // tell the compute method that JConv is running
 	      gx_jconv::jconv_is_running = true;
+	      gtk_widget_show(gx_gui::GxMainInterface::instance()->getJCSignalLevelBar());
 	      
 	      gx_print_info("JConv Start / Stop", string("Started JConv, PID = ") +
 			    gx_system::gx_i2a(child_pid[JCONV_IDX]));
@@ -594,24 +596,17 @@ namespace gx_child_process
     {
 
       // no need to do all this if jack is not running
-      if (!gx_jack::jack_is_running)
+      if (!gx_jack::client)
       {
 	// let's make sure we have no proc stuff left
 	string old_lock = gx_user_dir + string(".mbg_") + "*";
 	(void)gx_system_call("rm -f", old_lock.c_str());
 	child_pid[METERBG_IDX] = NO_PID;
 	
-	return;
-      }
-
-      // check that we are a valid jack client
-      if (gx_jack::client == NULL)
-      {
 	(void)gx_gui::gx_message_popup(
 	  "  WARNING [Meterbridge]\n\n  "
 	  "  Reconnect to Jack server first (Shift+C)"
         );
-	gx_child_process::child_pid[METERBG_IDX] = NO_PID;
 	return;
       }
 

@@ -34,6 +34,8 @@
 #define AVOIDDENORMALS
 #endif
 
+#define NJACKLAT (9) // number of possible latencies
+
 namespace gx_jack 
 {
 #ifdef USE_RINGBUFFER
@@ -46,11 +48,12 @@ namespace gx_jack
 #endif
 
   /* -------- functions ---------- */
-  void gx_jack_init(int&, char**&);
+  bool gx_jack_init();
   void gx_jack_callbacks_and_activate(const string* optvar);
   
-  void gx_start_jack_dialog(int*  argc, char*** argv);
-  void gx_start_jack(void* arg);
+  bool gx_start_jack_dialog();
+  bool gx_start_jack(void* arg);
+
   void gx_set_jack_buffer_size(GtkCheckMenuItem*, gpointer);
   void gx_jack_connection(GtkCheckMenuItem*, gpointer);
   void gx_jack_cleanup();
