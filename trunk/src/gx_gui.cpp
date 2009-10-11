@@ -62,7 +62,7 @@ namespace gx_gui
     GxMainInterface* interface = GxMainInterface::instance();
     int nc  = GTK_LEVEL_BAR(interface->getSignalLevelBar())->nchan;
 
-    if (gx_jack::client)
+    if (gx_jack::client && gx_engine::buffers_ready)
     {
 
       for (int c = 0; c < nc; c++)
@@ -123,7 +123,7 @@ namespace gx_gui
     GxMainInterface* interface = GxMainInterface::instance();
     int jnc = GTK_LEVEL_BAR(interface->getJCSignalLevelBar())->nchan;
 
-    if (gx_jack::client)
+    if (gx_jack::client && gx_engine::buffers_ready)
     {
       for (int c = 0; c < jnc; c++)
       {

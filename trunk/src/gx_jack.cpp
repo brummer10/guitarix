@@ -657,6 +657,9 @@ namespace gx_jack
     // guitarix DSP computing
     GxEngine::instance()->compute(nframes, gInChannel, gOutChannel);
 
+    // ready to go for e.g. level display
+    gx_engine::buffers_ready = true;
+
     // midi processing
 #ifdef USE_RINGBUFFER
     gx_jack_midi_process_ringbuffer(nframes, 0);

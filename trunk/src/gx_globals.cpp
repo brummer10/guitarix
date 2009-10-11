@@ -66,6 +66,9 @@ namespace gx_engine
 
   /* engine init state  */
   bool initialized = false;
+
+  /* buffer ready state */
+  bool buffers_ready = false;
 }
 
 

@@ -62,6 +62,9 @@ namespace gx_engine
 
   /* engine init state  */
   extern bool initialized;
+
+  /* buffer ready state */
+  extern bool buffers_ready;
 }
 
 /* -------------------------------------------------------------------------- */
