@@ -387,6 +387,9 @@ namespace gx_jack
 	gtk_widget_show(gx_gui::gx_jackd_off_image);
       }
 
+      // engine buffers no longer ready
+      gx_engine::buffers_ready = false;
+
       gx_print_warning("Jack Server", "Disconnected from Jack Server"); 
     }  
   }
