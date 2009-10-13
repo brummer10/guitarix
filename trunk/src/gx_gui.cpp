@@ -956,6 +956,32 @@ namespace gx_gui
 
   }
 
+  gboolean box3_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+  {
+     cairo_t *cr;
+
+
+    /* create a cairo context */
+    cr = gdk_cairo_create(wi->window);
+
+    double x0      = wi->allocation.x;
+    double y0      = wi->allocation.y;
+    double rect_width  = wi->allocation.width;
+    double rect_height = wi->allocation.height-10;
+
+    cairo_rectangle (cr, x0,y0,rect_width,rect_height);
+
+    cairo_set_source_rgb (cr, 0.05, 0.05, 0.05);
+    cairo_fill_preserve (cr);
+    //cairo_set_source_rgb (cr, 0, 0, 0);
+    //cairo_set_line_width (cr, 1.0);
+    cairo_stroke (cr);
+
+    cairo_destroy(cr);
+
+    return FALSE;
+  }
+
   // -------------------------------------------------------------
   // GxMainInterface method definitions
   //
@@ -1115,7 +1141,9 @@ namespace gx_gui
     GtkWidget* box = addWidget(label, gtk_hbox_new (FALSE, 0));
     gtk_container_set_border_width (GTK_CONTAINER (box), 1);
     gtk_box_set_spacing(GTK_BOX(box), 3);
-
+    gtk_widget_set_size_request (GTK_WIDGET(box), 20.0, 145.0);
+    g_signal_connect(box, "expose-event", G_CALLBACK(box3_expose), NULL);
+    g_signal_connect(GTK_CONTAINER(box), "check-resize", G_CALLBACK(box3_expose), NULL);
     // guitarix output levels
     GtkWidget* lvl = gtk_level_bar_new(47, 1, 2);
     gtk_box_pack_start(GTK_BOX(box), lvl, FALSE, FALSE, 0);
@@ -1898,6 +1926,9 @@ namespace gx_gui
 
   gboolean deleteevent( GtkWidget *widget, gpointer   data )
   {
+      gtk_range_set_value(GTK_RANGE(widget), 0);
+      //gtk_button_pressed(GTK_WIDGET(widget));
+     // gtk_widget_hide(GTK_WIDGET(data));
     return TRUE;
   }
 
@@ -1921,14 +1952,14 @@ namespace gx_gui
   {
     GtkWidget * dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
-    gtk_window_set_deletable(GTK_WINDOW(dialog), FALSE);
+   // gtk_window_set_deletable(GTK_WINDOW(dialog), FALSE);
     gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
     gtk_window_set_gravity(GTK_WINDOW(dialog), GDK_GRAVITY_SOUTH);
     gtk_window_set_transient_for (GTK_WINDOW(dialog), GTK_WINDOW(fWindow));
     gtk_window_set_position (GTK_WINDOW(dialog), GTK_WIN_POS_MOUSE);
     gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
     gtk_window_set_title (GTK_WINDOW (dialog), label);
-    g_signal_connect (G_OBJECT (dialog), "delete_event", G_CALLBACK (deleteevent), NULL);
+
     gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
     GtkWidget * box = gtk_hbox_new (homogene, 4);
     GtkWidget * box4 = gtk_vbox_new (homogene, 4);
@@ -1955,7 +1986,7 @@ namespace gx_gui
     gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
     gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
     g_signal_connect (GTK_OBJECT (button), "value-changed", G_CALLBACK (gx_show_extended_settings), (gpointer) dialog);
-
+    g_signal_connect_swapped (G_OBJECT (dialog), "delete_event", G_CALLBACK (deleteevent), (gpointer) button);
     GtkWidget * frame =  gtk_frame_new (label);
     GtkWidget* 	lab = gtk_label_new("reset");
     GtkWidget* 	button1 = gtk_button_new();
@@ -2673,8 +2704,7 @@ namespace gx_gui
       //----- the middle box,
       openExpanderBox(" CONTROLS ", &engine->fexpand);
       {
-	// add a signal level box: out of box stack, no need to closeBox
-	openSignalLevelBox("Signal Level");
+
 
 	//----- a handle box is a vertical box
 	openHandleBox("  ");
@@ -2682,6 +2712,7 @@ namespace gx_gui
 	  //----- arange all widgets in a horizontal scale
 	  openHorizontalBox("");
 	  {
+
 	    //----- arange all widgets in a vertical scale
 	    openVerticalBox("");
 	    {
@@ -2693,6 +2724,19 @@ namespace gx_gui
 
                 //----- open a box for the volume controllers
                 {
+                     openFrameBox("");
+                    closeBox();
+                                      openVerticalBox("");
+              {
+                  openFrameBox("");
+                    closeBox();
+
+	      	// add a signal level box: out of box stack, no need to closeBox
+	openSignalLevelBox("Signal Level");
+
+	}
+                  closeBox();
+
                   openVerticalBox("volume");
                   {
 
@@ -2706,7 +2750,6 @@ namespace gx_gui
                   }
                   closeBox();
                   //----- volume controll ready
-
 
                   //----- open a box for the tone and the fuzz controllers
                   openVerticalBox("tone");
