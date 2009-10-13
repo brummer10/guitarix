@@ -905,7 +905,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fTemphp0 = tunerstage2-tunerstageh2;
           // waveshaper
           float fTemphps0 = (1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0);
-          // now run a fft
+          // now calculate the frequence
           fVechp0[0] = fTemphps0;
           fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
           float fTemphp1  = fRechp0[0];

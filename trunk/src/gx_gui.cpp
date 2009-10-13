@@ -68,9 +68,9 @@ namespace gx_gui
       for (int c = 0; c < nc; c++)
       {
 	jack_nframes_t nframes = gx_jack::jack_bs;
-	
+
 	float data[nframes];
-	
+
 	(void)memcpy(data, gx_engine::gOutChannel[c], sizeof(data));
 
 	for (guint f = 0; f < nframes; f++)
@@ -86,11 +86,11 @@ namespace gx_gui
       if (count == 8)
       {
 	jack_nframes_t nframes = gx_jack::jack_bs;
-	
+
 	for (int c = 0; c < nc; c++)
 	  rms_level[c] = sqrt(rms_level[c]/(float)(nframes*count));
-	
-	
+
+
 	/* refresh stuff */
 	gtk_level_bar_light_rms(interface->getSignalLevelBar(), rms_level);
 	gtk_level_bar_light_max(interface->getSignalLevelBar(), max_level);
@@ -130,9 +130,9 @@ namespace gx_gui
 	int i = c + 2;
 
 	jack_nframes_t nframes = gx_jack::jack_bs;
-	
+
 	float data[nframes];
-	
+
 	(void)memcpy(data, gx_engine::gOutChannel[i], sizeof(data));
 
 	for (guint f = 0; f < nframes; f++)
@@ -148,17 +148,17 @@ namespace gx_gui
       if (count == 8)
       {
 	jack_nframes_t nframes = gx_jack::jack_bs;
-	
+
 	for (int c = 0; c < jnc; c++)
 	  rms_jclevel[c] = sqrt(rms_jclevel[c]/(float)(nframes*count));
-	
+
 	gtk_level_bar_light_rms(interface->getJCSignalLevelBar(), rms_jclevel);
 	gtk_level_bar_light_max(interface->getJCSignalLevelBar(), max_jclevel);
 
 	count = 0;
       }
     }
-    
+
     return TRUE;
   }
 
@@ -169,7 +169,7 @@ namespace gx_gui
 
     // return if jack is not down
     if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK)
-    { 
+    {
       if (gx_jack::jack_is_down)
       {
 	// let's make sure we get out of here
@@ -181,12 +181,12 @@ namespace gx_gui
     {
       // set jack client to NULL
       gx_jack::client = 0;
-      
-      // refresh some stuff. Note that it can be executed 
+
+      // refresh some stuff. Note that it can be executed
       // more than once, no harm here
       gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), FALSE);
-    
-    
+
+
       gx_jconv::GxJConvSettings::checkbutton7 = 0;
       gx_jconv::jconv_is_running = false;
       gx_jack::jack_is_down = true;
@@ -255,7 +255,7 @@ namespace gx_gui
   void gx_log_window (GtkWidget* menuitem, gpointer arg)
   {
     GtkExpander* const exbox = GxMainInterface::instance()->getLoggingBox();
-    
+
     // we could be called before UI is built up
     if (!exbox) return;
 
@@ -288,9 +288,9 @@ namespace gx_gui
 	"\n<http://ccrma.stanford.edu/realsimple/faust/>"
 	"\n and Albert Graef\n <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html> "
 	"\n\n\n guitarix ";
-      
+
       about += GX_VERSION;
-      
+
       about +=
 	" use jack_capture >= 0.9.30for record"
 	"\n by Kjetil S. Matheussen "
@@ -303,17 +303,17 @@ namespace gx_gui
 	"\n authors: James Warden <warjamy@yahoo.com>"
 	"\n home: http://guitarix.sourceforge.net/\n";
     }
-    
+
     gx_message_popup(about.c_str());
   }
 
-  
+
   //----- change the jack buffersize on the fly is still experimental, give a warning
   void gx_wait_latency_warn()
   {
     warn_dialog = gtk_dialog_new();
     gtk_window_set_destroy_with_parent(GTK_WINDOW(warn_dialog), TRUE);
-    
+
     GtkWidget* box     = gtk_vbox_new (0, 4);
     GtkWidget* labelt  = gtk_label_new("\nWARNING\n");
     GtkWidget* labelt1 = gtk_label_new("CHANGING THE JACK_BUFFER_SIZE ON THE FLY \n"
@@ -323,28 +323,28 @@ namespace gx_gui
     GdkColor colorGreen;
     gdk_color_parse("#a6a9aa", &colorGreen);
     gtk_widget_modify_fg (labelt1, GTK_STATE_NORMAL, &colorGreen);
-    
+
     GtkStyle *style1 = gtk_widget_get_style(labelt1);
     pango_font_description_set_size(style1->font_desc, 10*PANGO_SCALE);
     pango_font_description_set_weight(style1->font_desc, PANGO_WEIGHT_BOLD);
     gtk_widget_modify_font(labelt1, style1->font_desc);
-    
+
     gdk_color_parse("#ffffff", &colorGreen);
     gtk_widget_modify_fg (labelt, GTK_STATE_NORMAL, &colorGreen);
     style1 = gtk_widget_get_style(labelt);
     pango_font_description_set_size(style1->font_desc, 14*PANGO_SCALE);
     pango_font_description_set_weight(style1->font_desc, PANGO_WEIGHT_BOLD);
     gtk_widget_modify_font(labelt, style1->font_desc);
-    
+
     GtkWidget* box2    = gtk_hbox_new (0, 4);
     GtkWidget* button1 = gtk_dialog_add_button(GTK_DIALOG (warn_dialog),"Yes",1);
     GtkWidget* button2 = gtk_dialog_add_button(GTK_DIALOG (warn_dialog),"No",2);
     GtkWidget* box1    = gtk_hbox_new (0, 4);
-    
+
     disable_warn = gtk_check_button_new ();
-    
+
     GtkWidget * labelt2 = gtk_label_new ("Don't bother me again with such a question, I know what I am doing");
-    
+
     gtk_container_add (GTK_CONTAINER(box),  labelt);
     gtk_container_add (GTK_CONTAINER(box),  labelt1);
     gtk_container_add (GTK_CONTAINER(box),  box2);
@@ -352,22 +352,22 @@ namespace gx_gui
     gtk_container_add (GTK_CONTAINER(box1), disable_warn);
     gtk_container_add (GTK_CONTAINER(box1), labelt2);
     gtk_container_add (GTK_CONTAINER(GTK_DIALOG(warn_dialog)->vbox), box);
-    
+
     gtk_widget_modify_fg (labelt2, GTK_STATE_NORMAL, &colorGreen);
-    
+
     GtkStyle *style = gtk_widget_get_style(labelt2);
     pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
     gtk_widget_modify_font(labelt2, style->font_desc);
-    
+
     g_signal_connect (button1, "clicked",
 		      G_CALLBACK (gx_jack::gx_confirm_latency_change), warn_dialog);
     g_signal_connect (button2, "clicked",
 		      G_CALLBACK (gx_jack::gx_cancel_latency_change), warn_dialog);
     gtk_widget_show_all(box);
-    
+
     gtk_dialog_run (GTK_DIALOG (warn_dialog));
-    
+
     int woff = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(disable_warn));
     gx_engine::fwarn_swap = woff;
     gtk_widget_destroy (warn_dialog);
@@ -377,31 +377,31 @@ namespace gx_gui
   void gx_reset_units( GtkWidget *widget, gpointer data )
   {
     const char* witchres = gtk_window_get_title(GTK_WINDOW(data));
-    
+
     string filename = gx_user_dir + guitarix_reset;
     GxMainInterface* interface = GxMainInterface::instance();
-   
+
     // Note (thorgal): to be revisited, too fragile design
     // Introduce XML based config
 
     if (strcmp(witchres, "distortion") == 0)
       interface->recalladState(filename.c_str(),  4,  16, 0);
-    
+
     else if (strcmp(witchres, "freeverb") == 0)
       interface->recalladState(filename.c_str(),  20,  24, 1);
-    
+
     else if (strcmp(witchres, "ImpulseResponse") == 0)
       interface->recalladState(filename.c_str(),  28,  32, 2);
-    
+
     else if (strcmp(witchres, "crybaby") == 0)
       interface->recalladState(filename.c_str(),  16,  20, 3);
-    
+
     else if (strcmp(witchres, "midi out") == 0)
       interface->recalladState(filename.c_str(),  44,  50, 4);
-    
+
     else if (strcmp(witchres, "compressor") == 0)
       interface->recalladState(filename.c_str(),  72,  78, 5);
-    
+
     else if (strcmp(witchres, "chorus") == 0)
       interface->recalladState(filename.c_str(),  110,  115, 6);
   }
@@ -417,7 +417,7 @@ namespace gx_gui
       root_y -= 120;
       gtk_window_move(GTK_WINDOW(data), root_x, root_y);
     }
-    
+
     else gtk_widget_hide(GTK_WIDGET(data));
   }
 
@@ -458,39 +458,39 @@ namespace gx_gui
     GtkWidget* dialog   = gtk_dialog_new();
     GtkWidget* text_label = gtk_label_new (msg);
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), text_label);
-    
+
     GdkColor colorGreen;
     gdk_color_parse("#a6a9aa", &colorGreen);
     gtk_widget_modify_fg (text_label, GTK_STATE_NORMAL, &colorGreen);
-    
+
     GdkColor colorBlack;
     gdk_color_parse("#000000", &colorBlack);
     gtk_widget_modify_bg (dialog, GTK_STATE_NORMAL, &colorBlack);
-    
+
     GtkStyle* text_style = gtk_widget_get_style(text_label);
     pango_font_description_set_size(text_style->font_desc, 10*PANGO_SCALE);
     pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);
-    
+
     gtk_widget_modify_font(text_label, text_style->font_desc);
-    
+
     for (guint i = 0; i < nchoice; i++)
     {
-      GtkWidget* button = 
+      GtkWidget* button =
 	gtk_dialog_add_button(GTK_DIALOG (dialog), label[i], resp[i]);
-    
+
       gdk_color_parse("#555555", &colorBlack);
       gtk_widget_modify_bg(button, GTK_STATE_NORMAL, &colorBlack);
-    
+
       g_signal_connect_swapped(button, "clicked",  G_CALLBACK (gtk_widget_destroy), dialog);
     }
-    
+
     // set default
     gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), default_response);
     gtk_window_set_title(GTK_WINDOW(dialog), window_title);
-    
+
     gtk_widget_show(text_label);
-    
+
     //--- run dialog and check response
     gint response = gtk_dialog_run (GTK_DIALOG (dialog));
     return response;
@@ -543,54 +543,54 @@ namespace gx_gui
     dialog  = gtk_dialog_new();
     button1 = gtk_dialog_add_button(GTK_DIALOG (dialog), label1, resp1);
     button2 = gtk_dialog_add_button(GTK_DIALOG (dialog), label2, resp2);
-    
+
     GtkWidget* text_label = gtk_label_new (msg);
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), text_label);
-    
-    
+
+
     GtkWidget* gtk_entry = gtk_entry_new_with_max_length(32);
     gtk_entry_set_text(GTK_ENTRY(gtk_entry), "");
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), gtk_entry);
-    
+
     g_signal_connect_swapped (button1, "clicked",  G_CALLBACK (func), gtk_entry);
     //    g_signal_connect_swapped (button2, "clicked",  G_CALLBACK (gtk_widget_destroy), dialog);
-    
+
     gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), default_response);
     gtk_entry_set_activates_default(GTK_ENTRY(gtk_entry), TRUE);
     GTK_BOX(GTK_DIALOG(dialog)->action_area)->spacing = 4;
-    
+
     // some display style
     GdkColor colorGreen;
     gdk_color_parse("#a6a9aa", &colorGreen);
     gtk_widget_modify_fg (text_label, GTK_STATE_NORMAL, &colorGreen);
-    
+
     GdkColor colorBlack;
     gdk_color_parse("#000000", &colorBlack);
     gtk_widget_modify_bg (dialog, GTK_STATE_NORMAL, &colorBlack);
-    
+
     GtkStyle* text_style = gtk_widget_get_style(text_label);
     pango_font_description_set_size(text_style->font_desc, 10*PANGO_SCALE);
     pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);
-    
+
     gtk_widget_modify_font(text_label, text_style->font_desc);
-    
+
     gdk_color_parse("#555555", &colorBlack);
     gtk_widget_modify_bg (button1, GTK_STATE_NORMAL, &colorBlack);
-    
+
     gdk_color_parse("#555555", &colorBlack);
     gtk_widget_modify_bg (button2, GTK_STATE_NORMAL, &colorBlack);
-    
+
     // display extra stuff
     gtk_widget_show (text_label);
     gtk_widget_show (gtk_entry);
     gtk_window_set_title(GTK_WINDOW(dialog), window_title);
-    
+
     // run the dialog and wait for response
     gint response = gtk_dialog_run (GTK_DIALOG(dialog));
-    
+
     if (dialog) gtk_widget_destroy(dialog);
-    
+
     return response;
   }
 
@@ -609,22 +609,22 @@ namespace gx_gui
   unsigned int gx_fetch_available_skins()
   {
     string tmpfile = gx_user_dir + ".n_skins";
-    
+
     // make sure user dir exists
     gx_system_call("mkdir -p", gx_user_dir);
-    
+
     // create a tmpfile
     gx_system_call("rm -f", tmpfile.c_str());
     gx_system_call("touch", tmpfile.c_str());
-    
+
     string filelist  =
       gx_style_dir + string("guitarix*.rc") + " > " + tmpfile;
-    
+
     gx_system_call("ls -1", filelist.c_str(), false);
-    
+
     // read out number of files
     ifstream f(tmpfile.c_str());
-    
+
     string rcfile;
     if (f.good())
     {
@@ -632,7 +632,7 @@ namespace gx_gui
       {
 	// retrieve filename
 	getline(f, rcfile);
-	
+
 	// trim it
 	if (!rcfile.empty())
 	{
@@ -641,13 +641,13 @@ namespace gx_gui
 	  skin_list.push_back(rcfile);
 	}
       }
-      
+
       f.close();
     }
 
     // remove tmp file
     gx_system_call("rm -f", tmpfile.c_str());
-    
+
     return skin_list.size();
   }
 
@@ -670,7 +670,7 @@ namespace gx_gui
 
     gint idx = gx_current_skin + 1;
     idx %= skin_list.size();
-    
+
     // did it work ? if yes, update current skin
     if (gx_update_skin(idx, "gx_cycle_through_skin"))
       gx_current_skin = idx;
@@ -689,20 +689,20 @@ namespace gx_gui
     string rcfile = GX_STYLE_DIR + string("/") + "guitarix_";
     rcfile += skin_list[idx];
     rcfile += ".rc";
-    
+
     gtk_rc_parse(rcfile.c_str());
     gtk_rc_reset_styles(gtk_settings_get_default());
-    
+
     gx_current_skin = idx;
-    
+
     // refresh wave view
     gx_waveview_refresh (GTK_WIDGET(livewa), NULL);
-    
+
     // refresh latency check menu
     gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
     GtkWidget* wd = gui->getJackLatencyItem(gx_jack::jack_bs);
     if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
-    
+
     return true;
   }
 
@@ -716,24 +716,24 @@ namespace gx_gui
       gx_print_warning("gx_set_skin", "skin index out of range, keeping actual skin");
       return false;
     }
-    
+
     string rcfile = GX_STYLE_DIR + string("/") + "guitarix_";
     rcfile += skin_list[idx];
     rcfile += ".rc";
-    
+
     gtk_rc_parse(rcfile.c_str());
     gtk_rc_reset_styles(gtk_settings_get_default());
-    
+
     gx_current_skin = idx;
-    
+
     // refresh wave view
     gx_waveview_refresh (GTK_WIDGET(livewa), NULL);
-    
+
     // refresh latency check menu
     gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
     GtkWidget* wd = gui->getJackLatencyItem(gx_jack::jack_bs);
     if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
-    
+
     return true;
   }
 
@@ -747,34 +747,34 @@ namespace gx_gui
 		       string("warning message does not exist"));
       return -1;
     }
-    
+
     // build popup window
     GtkWidget *about;
     GtkWidget *label;
     GtkWidget *ok_button;
-    
+
     about = gtk_dialog_new();
     ok_button  = gtk_button_new_from_stock(GTK_STOCK_OK);
-    
+
     label = gtk_label_new (msg);
-    
+
     GtkStyle *style = gtk_widget_get_style(label);
-    
+
     pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-    
+
     gtk_widget_modify_font(label, style->font_desc);
-    
+
     gtk_label_set_selectable(GTK_LABEL(label), TRUE);
-    
+
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->vbox), label);
-    
+
     GTK_BOX(GTK_DIALOG(about)->action_area)->spacing = 3;
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG(about)->action_area), ok_button);
-    
+
     g_signal_connect_swapped (ok_button, "clicked",
 			      G_CALLBACK (gtk_widget_destroy), about);
-    
+
     gtk_widget_show (ok_button);
     gtk_widget_show (label);
     return gtk_dialog_run (GTK_DIALOG(about));
@@ -803,12 +803,12 @@ namespace gx_gui
     double rect_width  = wi->allocation.width-4;
     double rect_height = wi->allocation.height-4;
     double radius = 25.;
-    
+
     double x1,y1;
-    
+
     x1=x0+rect_width;
     y1=y0+rect_height;
-    
+
     cairo_move_to  (cr, x0, y0 + radius);
     cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
     cairo_line_to (cr, x1 - radius, y0);
@@ -817,19 +817,19 @@ namespace gx_gui
     cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
     cairo_line_to (cr, x0 + radius, y1);
     cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-    
+
     cairo_close_path (cr);
-    
+
     /* pat = cairo_pattern_create_linear (0, y0, 0, y1);
        cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0., 0., 0);
        cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0., 0., 0.6);
        cairo_set_source (cr, pat);
-       
+
        cairo_fill_preserve (cr);*/
     cairo_set_source_rgba (cr, 0, 0, 0, 0.8);
     cairo_set_line_width (cr, 5.0);
     cairo_stroke (cr);
-    
+
     cairo_move_to  (cr, x0, y0 + radius);
     cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
     cairo_line_to (cr, x1 - radius, y0);
@@ -838,15 +838,15 @@ namespace gx_gui
     cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
     cairo_line_to (cr, x0 + radius, y1);
     cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-    
+
     cairo_close_path (cr);
     cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
     cairo_set_line_width (cr, 1.0);
-    
+
     cairo_stroke (cr);
     // cairo_pattern_destroy (pat);
     cairo_destroy(cr);
-    
+
     return FALSE;
   }
 
@@ -854,10 +854,10 @@ namespace gx_gui
   {
     cairo_t *cr;
     cairo_pattern_t *pat;
-    
+
     /* create a cairo context */
     cr = gdk_cairo_create(wi->window);
-    
+
     double x0      = wi->allocation.x+5;
     double y0      = wi->allocation.y+5;
     double rect_width  = wi->allocation.width-10;
@@ -958,26 +958,26 @@ namespace gx_gui
 
   // -------------------------------------------------------------
   // GxMainInterface method definitions
-  // 
+  //
   // static member
   bool GxMainInterface::fInitialized = false;
-  
+
   GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
   {
     gtk_init(pargc, pargv);
 
     /*-- set rc file overwrite it with export--*/
     gtk_rc_parse(rcpath.c_str());
-    
+
     /*-- Declare the GTK Widgets --*/
     fWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    
+
     /*---------------- set window defaults ----------------*/
     gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
     gtk_window_set_title (GTK_WINDOW (fWindow), name);
-    
+
     /*---------------- singnals ----------------*/
-    g_signal_connect (GTK_OBJECT (fWindow), "destroy", 
+    g_signal_connect (GTK_OBJECT (fWindow), "destroy",
 		      G_CALLBACK (gx_clean_exit), NULL);
 
     /*---------------- status icon ----------------*/
@@ -990,7 +990,7 @@ namespace gx_gui
     }
     else
     {
-      gx_print_error("Main Interface Constructor", 
+      gx_print_error("Main Interface Constructor",
 		     "pixmap check failed, giving up");
       gx_clean_exit(NULL, (gpointer)1);
     }
@@ -1003,10 +1003,10 @@ namespace gx_gui
     fTop = 0;
     fBox[fTop] = gtk_vbox_new (homogene, 4);
     fMode[fTop] = kBoxMode;
-    
+
     /*---------------- add mainbox to main window ---------------*/
     gtk_container_add (GTK_CONTAINER (fWindow), fBox[fTop]);
-    
+
     fStopped = false;
   }
 
@@ -1019,11 +1019,11 @@ namespace gx_gui
 
 
   //------- retrieve jack latency menu item
-  GtkWidget* const 
-  GxMainInterface::getJackLatencyItem(const jack_nframes_t bufsize) const 
+  GtkWidget* const
+  GxMainInterface::getJackLatencyItem(const jack_nframes_t bufsize) const
   {
     int index = (int)(log((float)bufsize)/log(2)) - 5;
-    
+
     if (index >= 0 && index < NJACKLAT)
       return fJackLatencyItem[index];
 
@@ -1077,17 +1077,20 @@ namespace gx_gui
   {
     GtkWidget* box = gtk_hbox_new (homogene, 0);
     gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-    
+
+    GtkWidget * scrollbox = gtk_scrolled_window_new(NULL,NULL);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollbox),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
+
     GtkWidget* frame = addWidget(label, gtk_expander_new(label));
     gtk_container_add (GTK_CONTAINER(frame), box);
     gtk_widget_show(frame);
     gtk_expander_set_expanded(GTK_EXPANDER(frame), FALSE);
     fLoggingBox = GTK_EXPANDER(frame);
-    
+
     // create text buffer
     GtkTextBuffer* buffer = gtk_text_buffer_new(NULL);
-    gtk_text_buffer_set_text(buffer, "\n\n\n\n", -1);
-    
+    gtk_text_buffer_set_text(buffer, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", -1);
+
     GtkWidget* tbox = gtk_text_view_new_with_buffer(buffer);
     gtk_container_set_border_width (GTK_CONTAINER (tbox), 0);
     gtk_text_view_set_editable(GTK_TEXT_VIEW(tbox), FALSE);
@@ -1097,11 +1100,13 @@ namespace gx_gui
     gtk_text_view_set_justification(GTK_TEXT_VIEW(tbox), GTK_JUSTIFY_LEFT);
     gtk_text_view_set_left_margin(GTK_TEXT_VIEW(tbox), 5);
     gtk_text_view_set_indent(GTK_TEXT_VIEW(tbox), 0);
-    
-    gtk_container_add (GTK_CONTAINER(box), tbox);
+
+    gtk_container_add (GTK_CONTAINER(box), scrollbox);
+    gtk_container_add(GTK_CONTAINER(scrollbox),GTK_WIDGET(tbox));
     gtk_widget_show(tbox);
+    gtk_widget_show(scrollbox);
     fLoggingWindow = GTK_TEXT_VIEW(tbox);
-    
+
     gtk_widget_show(box);
   }
 
@@ -1114,7 +1119,7 @@ namespace gx_gui
     // guitarix output levels
     GtkWidget* lvl = gtk_level_bar_new(47, 1, 2);
     gtk_box_pack_start(GTK_BOX(box), lvl, FALSE, FALSE, 0);
-    
+
     float sig_init[MAX_CHANS];
     (void)memset(sig_init, 0, sizeof(sig_init));
 
@@ -1134,7 +1139,7 @@ namespace gx_gui
   {
     GtkWidget * box = gtk_hbox_new (homogene, 0);
     gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-    
+
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
       GtkWidget * frame = addWidget(label, gtk_frame_new (label));
@@ -1197,7 +1202,7 @@ namespace gx_gui
 
       ((gx_ui::GxUiItem*)data)->modifyZone(v);
     }
-    
+
     virtual void reflectZone()
     {
       float 	v = *fZone;
@@ -1230,7 +1235,7 @@ namespace gx_gui
   {
     GtkWidget * box = gtk_vbox_new (homogene, 0);
     gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-    
+
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
       // GtkWidget * frame = addWidget(label, gtk_frame_new (label));
@@ -1262,7 +1267,7 @@ namespace gx_gui
     GtkWidget * box = gtk_vbox_new (homogene, 2);
     gtk_container_set_border_width (GTK_CONTAINER (box), 4);
     g_signal_connect(box, "expose-event", G_CALLBACK(box_expose), NULL);
-    
+
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
       gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
@@ -1280,7 +1285,7 @@ namespace gx_gui
     GtkWidget * box = gtk_vbox_new (homogene, 2);
     gtk_container_set_border_width (GTK_CONTAINER (box), 2);
     g_signal_connect(box, "expose-event", G_CALLBACK(box2_expose), NULL);
-    
+
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
       gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
@@ -1342,8 +1347,8 @@ namespace gx_gui
   void GxMainInterface::openToolBar(const char* label)
   {
     GtkWidget * box = gtk_toolbar_new  ();
-    
-    
+
+
     if (fMode[fTop] != kTabMode && label[0] != 0)
     {
       // GtkWidget * frame = addWidget(label, gtk_frame_new (label));
@@ -1357,7 +1362,7 @@ namespace gx_gui
       pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
       gtk_widget_modify_font(lw, style->font_desc);
       //  g_signal_connect(box, "expose-event", G_CALLBACK(box_expose), NULL);
-      
+
       gtk_container_add (GTK_CONTAINER(box), lw);
       gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
       gtk_widget_show(lw);
@@ -1381,11 +1386,11 @@ namespace gx_gui
     gtk_handle_box_set_handle_position(GTK_HANDLE_BOX(frame),GTK_POS_TOP);
     gtk_container_add (GTK_CONTAINER(frame), box);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbox),GTK_WIDGET(frame));
-    
+
     gtk_container_add (GTK_CONTAINER(fBox[fTop]), scrollbox);
     gtk_widget_show_all(scrollbox);
     pushBox(kBoxMode, box);
-    
+
   }
 
   GtkWidget* GxMainInterface::addWidget(const char* label, GtkWidget* w)
@@ -1407,7 +1412,7 @@ namespace gx_gui
   }
 
   // --------------------------- Press button ---------------------------
-  
+
   struct uiButton : public gx_ui::GxUiItem
   {
     GtkButton* 	fButton;
@@ -1417,13 +1422,13 @@ namespace gx_gui
       gx_ui::GxUiItem* c = (gx_ui::GxUiItem*) data;
       c->modifyZone(1.0);
     }
-    
+
     static void released( GtkWidget *widget, gpointer   data )
     {
       gx_ui::GxUiItem* c = (gx_ui::GxUiItem*) data;
       c->modifyZone(0.0);
     }
-    
+
     virtual void reflectZone()
     {
       float 	v = *fZone;
@@ -1432,28 +1437,28 @@ namespace gx_gui
       else gtk_button_released(fButton);
     }
   };
-  
+
   void GxMainInterface::addJConvButton(const char* label, float* zone)
   {
     *zone = 0.0;
     GtkWidget* 	button = gtk_button_new_with_label (label);
     addWidget(label, button);
-    
+
     uiButton* c = new uiButton(this, zone, GTK_BUTTON(button));
-    
+
     g_signal_connect (GTK_OBJECT (button), "pressed",
 		      G_CALLBACK (uiButton::pressed), (gpointer) c);
-    
+
     g_signal_connect (GTK_OBJECT (button), "released",
 		      G_CALLBACK (uiButton::released), (gpointer) c);
-    
+
     g_signal_connect (GTK_OBJECT (button), "clicked",
 		      G_CALLBACK (gx_jconv::gx_setting_jconv_dialog_gui),
 		      button);
   }
 
   // ---------------------------	Toggle Buttons ---------------------------
-  
+
   struct uiToggleButton : public gx_ui::GxUiItem
   {
     GtkToggleButton* fButton;
@@ -1463,7 +1468,7 @@ namespace gx_gui
       float	v = (GTK_TOGGLE_BUTTON (widget)->active) ? 1.0 : 0.0;
       ((gx_ui::GxUiItem*)data)->modifyZone(v);
     }
-    
+
     virtual void reflectZone()
     {
       float v = *fZone;
@@ -1482,17 +1487,17 @@ namespace gx_gui
     if (zone) local_zone = *zone;
     GtkWidget* 	button = gtk_toggle_button_new_with_label (label);
     addWidget(label, button);
-    
+
     gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
     gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
-    
+
     g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (gx_start_stop_jack_capture), NULL);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
     gtk_widget_add_accelerator(button, "activate", fAccelGroup, GDK_r, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    
+
     record_button = button;
   }
-  
+
   void GxMainInterface::addPToggleButton(const char* label, float* zone)
   {
     GdkColor colorRed;
@@ -1571,7 +1576,7 @@ namespace gx_gui
   }
 
   // ---------------------------	Check Button ---------------------------
-  
+
   struct uiCheckButton : public gx_ui::GxUiItem
   {
     GtkToggleButton* fButton;
@@ -1581,7 +1586,7 @@ namespace gx_gui
       float	v = (GTK_TOGGLE_BUTTON (widget)->active) ? 1.0 : 0.0;
       ((gx_ui::GxUiItem*)data)->modifyZone(v);
     }
-    
+
     virtual void reflectZone()
     {
       float 	v = *fZone;
@@ -1589,7 +1594,7 @@ namespace gx_gui
       gtk_toggle_button_set_active(fButton, v > 0.0);
     }
   };
-  
+
   void GxMainInterface::addCheckButton(const char* label, float* zone)
   {
     GdkColor   colorRed;
@@ -2102,16 +2107,16 @@ namespace gx_gui
 
 
   // ------------------------------ Progress Bar -----------------------------------
-  
+
   struct uiBargraph : public gx_ui::GxUiItem
   {
     GtkProgressBar*		fProgressBar;
     float				fMin;
     float				fMax;
-    
+
     uiBargraph(gx_ui::GxUI* ui, float* zone, GtkProgressBar* pbar, float lo, float hi)
       : gx_ui::GxUiItem(ui, zone), fProgressBar(pbar), fMin(lo), fMax(hi) {}
-    
+
     float scale(float v)
     {
       return (v-fMin)/(fMax-fMin);
@@ -2179,7 +2184,7 @@ namespace gx_gui
     gtk_box_pack_start(GTK_BOX(hbox), menubar, TRUE, TRUE, 0);
 
     /*-- Jack server status image --*/
-    // jackd ON image 
+    // jackd ON image
     string img_path = gx_pixmap_dir + "jackd_on.png";
 
     gx_jackd_on_image = gtk_image_new_from_file(img_path.c_str());
@@ -2268,15 +2273,15 @@ namespace gx_gui
       menuitem = gtk_radio_menu_item_new_with_label (group, buf_size);
       group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
       gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
-	
+
       g_signal_connect (GTK_OBJECT (menuitem), "activate",
 			G_CALLBACK (gx_jack::gx_set_jack_buffer_size),
 			GINT_TO_POINTER(jack_buffer_size));
-	
+
       // display actual buffer size as default
       gtk_menu_shell_append(GTK_MENU_SHELL(menulat), menuitem);
       gtk_widget_show (menuitem);
-      
+
       fJackLatencyItem[i-min_pow] = menuitem;
     }
 
@@ -3544,7 +3549,7 @@ namespace gx_gui
   //----menu function play stop
   void gx_engine_switch (GtkWidget* widget, gpointer arg)
   {
-    gx_engine::GxEngineState estate = 
+    gx_engine::GxEngineState estate =
       (gx_engine::GxEngineState)gx_engine::checky;
 
     switch (estate)
@@ -3559,14 +3564,14 @@ namespace gx_gui
         );
 	estate = gx_engine::kEngineBypass;
       }
-      
+
       break;
 
     case gx_engine::kEngineOff:
       if (!arg)
 	estate = gx_engine::kEngineOn;
 	break;
-	
+
     default:
       estate = gx_engine::kEngineOn;
       gtk_check_menu_item_set_active(
@@ -3581,7 +3586,7 @@ namespace gx_gui
   //----refresh status display
   void gx_refresh_engine_status_display()
   {
-    gx_engine::GxEngineState estate = 
+    gx_engine::GxEngineState estate =
       (gx_engine::GxEngineState)gx_engine::checky;
 
     string state;
@@ -3632,7 +3637,7 @@ namespace gx_gui
     assert(fTop == 0);
 
     fInitialized = true;
-    
+
     if (gx_jack::client)
     {
       // refresh some GUI stuff
@@ -3650,7 +3655,7 @@ namespace gx_gui
     gtk_widget_show  (fBox[0]);
     gtk_widget_show  (fWindow);
   }
-  
+
   //---- show main GUI thread and more
   void GxMainInterface::run()
   {
@@ -3670,12 +3675,12 @@ namespace gx_gui
       gx_set_skin_change(gx_engine::GxEngine::instance()->fskin);
 
     gtk_timeout_add(40, callUpdateAllGuis, 0);
-    
+
     /* timeout in milliseconds */
     gtk_timeout_add(20, gx_refresh_signal_level, 0);
     gtk_timeout_add(20, gx_refresh_jcsignal_level, 0);
     gtk_timeout_add(200, gx_survive_jack_shutdown, 0);
-    
+
     gtk_main();
     stop();
   }

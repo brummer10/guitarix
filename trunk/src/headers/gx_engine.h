@@ -40,14 +40,14 @@ class GxMainInterface;
 namespace gx_engine
 {
   /* --------------- function declarations --------------- */
-  
+
   /* inline functions */
   inline void* aligned_calloc(size_t nmemb, size_t size)
   {
     return (void*)(((size_t)(calloc((nmemb*size)+15,
 				    sizeof(char)))+15) & (~15));
   }
-  
+
   /* right bit-shifting by n */
   inline int lsr (int x, int n)
   {
@@ -558,6 +558,8 @@ namespace gx_engine
     float fchorusbox;
     //chorus end
     int Beat_is;
+    float cache_note;
+
 
 
 

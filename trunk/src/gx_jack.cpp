@@ -68,11 +68,11 @@ namespace gx_jack
       if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK)
       {
 	gx_print_warning("Jack Init", "jackd OK, trying to be a client");
-	usleep(500000);	
+	usleep(500000);
 	return gx_jack_init();
       }
 
-      // start a dialog 
+      // start a dialog
       if (gx_start_jack_dialog()) {
 	// so let's try to be a jack client again
 	client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
@@ -196,7 +196,7 @@ namespace gx_jack
       "Start Jack", "Ignore Jack", "Exit"
     };
 
-    const gint  responses[] = { 
+    const gint  responses[] = {
       GTK_RESPONSE_YES, GTK_RESPONSE_NO, GTK_RESPONSE_CANCEL
     };
 
@@ -218,8 +218,8 @@ namespace gx_jack
     // we are cancelling
     bool retstat = false;
 
-    switch (response) 
-    { 
+    switch (response)
+    {
     case GTK_RESPONSE_NO:
       jack_is_down = true;
       break;
@@ -278,13 +278,13 @@ namespace gx_jack
 	    return true;
 	  }
 	}
-      
+
     }
 
     return false;
   }
 
-  //---- Jack server connection / disconnection 
+  //---- Jack server connection / disconnection
   void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
   {
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM (menuitem)) == TRUE)
@@ -305,26 +305,26 @@ namespace gx_jack
 	  // initialize guitarix engine if necessary
 	  if (!gx_engine::initialized)
 	    gx_engine::gx_engine_init();
-	  
+
 	  gx_jack_callbacks_and_activate(optvar);
-	  
+
 	  // refresh latency check menu
 	  gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
 	  GtkWidget* wd = gui->getJackLatencyItem(gx_jack::jack_bs);
 	  if (wd)
 	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
-      
+
 	  // check jconv stuff
 	  if (gx_jconv::jconv_is_running)
 	  {
 	    ostringstream buf;
-	    
+
 	    // extra guitarix jack ports for jconv
 	    for (int i = 2; i < 4; i++)
 	    {
 	      buf.str("");
 	      buf << "out_" << i;
-	      
+
 	      output_ports[i] =
 		jack_port_register(client,
 				   buf.str().c_str(),
@@ -332,9 +332,9 @@ namespace gx_jack
 				   JackPortIsOutput, 0);
 	      gx_engine::gNumOutChans++;
 	    }
-	    
+
 	    // ---- port connection
-	    
+
 	    // guitarix outs to jconv ins
 	    jack_connect(client, jack_port_name(output_ports[2]), "jconv:In-1");
 	    jack_connect(client, jack_port_name(output_ports[3]), "jconv:In-2");
@@ -350,18 +350,18 @@ namespace gx_jack
 	  gtk_widget_hide(gx_gui::gx_jackd_off_image);
 	}
 
-	gx_print_info("Jack Server", "Connected to Jack Server"); 
+	gx_print_info("Jack Server", "Connected to Jack Server");
       }
     }
     else
     {
       gx_jack_cleanup();
-      
+
       if (gx_jconv::jconv_is_running)
 	gNumOutChans -= 2;
 
 
-      // we bring down jack capture and meterbridge but not jconv 
+      // we bring down jack capture and meterbridge but not jconv
       // meterbridge
       if (child_pid[METERBG_IDX] != NO_PID)
       {
@@ -377,7 +377,7 @@ namespace gx_jack
 	(void)gx_pclose(jcap_stream, JACKCAP_IDX);
 
 	if (gx_gui::record_button)
-	  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gx_gui::record_button), 
+	  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gx_gui::record_button),
 				       FALSE);
       }
 
@@ -390,8 +390,8 @@ namespace gx_jack
       // engine buffers no longer ready
       gx_engine::buffers_ready = false;
 
-      gx_print_warning("Jack Server", "Disconnected from Jack Server"); 
-    }  
+      gx_print_warning("Jack Server", "Disconnected from Jack Server");
+    }
   }
 
   //----jack latency change
@@ -427,7 +427,7 @@ namespace gx_jack
 
     else change_latency = kChangeLatency;
 
-    if (change_latency == kChangeLatency) 
+    if (change_latency == kChangeLatency)
     {
       int jcio = 0;
       if (jconv_is_running) {
@@ -442,7 +442,7 @@ namespace gx_jack
 	gx_print_warning("Setting Jack Buffer Size",
 			 "Could not change latency");
 
-      if (jcio == 1) 
+      if (jcio == 1)
       {
 	jcio = 0;
 	gx_jconv::GxJConvSettings::checkbutton7 = 1;
@@ -505,8 +505,24 @@ namespace gx_jack
   //---- jack client callbacks
   int gx_jack_graph_callback (void* arg)
   {
-    if (jack_port_connected (input_ports[0])) NO_CONNECTION = 0;
+
+    if (jack_port_connected (input_ports[0]))
+    {
+      const char** port = jack_port_get_connections(gx_jack::input_ports[0]);
+      setenv("GUITARIX2JACK_INPUTS",port[0],0);
+      NO_CONNECTION = 0;
+    }
     else NO_CONNECTION = 1;
+    if (jack_port_connected (output_ports[0]))
+    {
+      const char** port1 = jack_port_get_connections(gx_jack::output_ports[0]);
+      setenv("GUITARIX2JACK_OUTPUTS1",port1[0],0);
+    }
+    if (jack_port_connected (output_ports[1]))
+    {
+      const char** port2 = jack_port_get_connections(gx_jack::output_ports[1]);
+      setenv("GUITARIX2JACK_OUTPUTS2",port2[0],0);
+    }
     return 0;
   }
 

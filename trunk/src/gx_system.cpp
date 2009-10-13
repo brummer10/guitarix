@@ -253,7 +253,7 @@ namespace gx_system
   // ---- log message handler
   void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
   {
-    string msgbuf("  "); 
+    string msgbuf("  ");
     msgbuf += func;
     msgbuf += "  ***  ";
     msgbuf += msg;
@@ -281,7 +281,7 @@ namespace gx_system
 	const int nlines = gtk_text_buffer_get_line_count(buffer);
 
 	// counter
-	static int i = 0; 
+	static int i = 0;
 	int j = i;
 
 	// cosmetic
@@ -292,7 +292,7 @@ namespace gx_system
         time(&now);
         tm_now = localtime (&now);
 
-        sprintf(buf, "[%02d:%02d:%02d]", 
+        sprintf(buf, "[%02d:%02d:%02d]",
 		tm_now->tm_hour, tm_now->tm_min, tm_now->tm_sec);
 	ostringstream spos; spos << buf;
 	msgbuf.insert(0, spos.str());
@@ -313,12 +313,13 @@ namespace gx_system
 	  gtk_text_buffer_insert(buffer, &iter, "\n", -1);
 
 	  j = nlines-1;
-	} 
+	}
 
 	// replace existing text between marks
 	gtk_text_buffer_get_iter_at_line(buffer, &iter1, j);
 	gtk_text_buffer_insert(buffer, &iter1, msgbuf.c_str(), -1);
-
+GtkTextMark *   scroll_to  =  gtk_text_buffer_create_mark(buffer, NULL, &iter1,true);
+gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW(logw),scroll_to);
 	// add color depending on msg type
 	static GtkTextTag* taginfo =
 	  gtk_text_buffer_create_tag(buffer, "colinfo", "foreground", "#00ced1", NULL);

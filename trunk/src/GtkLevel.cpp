@@ -15,7 +15,7 @@
   * along with this program; if not, write to the Free Software
   * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
   * -------------------------------------------------------------------------
-  * 
+  *
   * Code greatly inspired by the LED bars found in gnome_wave_cleaner,
   * by Jeff Welty (jeff@redhawk.org)
   *
@@ -48,7 +48,7 @@ enum {
 GType gtk_level_get_type(void)
 {
   static GType level_type = 0;
-  
+
   if (!level_type)
   {
     static const GTypeInfo level_info =
@@ -63,10 +63,10 @@ GType gtk_level_get_type(void)
       0,
       (GInstanceInitFunc)gtk_level_init
     };
-    
+
     level_type = g_type_register_static(GTK_TYPE_MISC, "GtkLevel", &level_info, (GTypeFlags)0);
   }
-  
+
   return level_type;
 }
 
@@ -74,14 +74,14 @@ void gtk_level_class_init(GtkLevelClass* klass)
 {
   GtkObjectClass* object_class;
   GtkWidgetClass* widget_class;
-  
+
   object_class = (GtkObjectClass*)klass;
   widget_class = (GtkWidgetClass*)klass;
-  
+
   parent_class = (GtkMiscClass*)gtk_type_class(gtk_misc_get_type());
-  
+
   object_class->destroy = gtk_level_destroy;
-  
+
   widget_class->size_request  = gtk_level_size_request;
   widget_class->expose_event  = gtk_level_expose;
   widget_class->realize       = gtk_level_realize;
@@ -90,11 +90,11 @@ void gtk_level_class_init(GtkLevelClass* klass)
 void gtk_level_init (GtkLevel *level)
 {
   GtkMisc *misc;
-  
+
   misc = GTK_MISC(level);
 
   GTK_WIDGET_SET_FLAGS(level, GTK_NO_WINDOW);
-  
+
   level->is_on = FALSE;
   level->gc    = NULL;
 }
@@ -107,8 +107,8 @@ GtkWidget* gtk_level_new ()
 }
 
 /* -------------- */
-void gtk_level_set_colors (GtkLevel* level, 
-			   GdkColor* active, 
+void gtk_level_set_colors (GtkLevel* level,
+			   GdkColor* active,
 			   GdkColor* inactive)
 {
   g_return_if_fail(level != NULL);
@@ -146,7 +146,7 @@ gboolean gtk_level_is_on (GtkLevel *level)
 {
   g_return_val_if_fail(level != NULL, FALSE);
   g_return_val_if_fail(GTK_IS_LEVEL (level), FALSE);
-  
+
   return level->is_on;
 }
 
@@ -154,16 +154,16 @@ gboolean gtk_level_is_on (GtkLevel *level)
 static void gtk_level_destroy(GtkObject* object)
 {
   GtkLevel* level;
-  
+
   g_return_if_fail(object != NULL);
   g_return_if_fail(GTK_IS_LEVEL (object));
-  
+
   level = GTK_LEVEL(object);
-  
+
   if (GTK_WIDGET(object)->parent &&
       GTK_WIDGET_MAPPED(object))
     gtk_widget_unmap(GTK_WIDGET(object));
-  
+
   if (GTK_OBJECT_CLASS(parent_class)->destroy)
     (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
@@ -173,13 +173,13 @@ static void gtk_level_size_request(GtkWidget*      widget,
 				   GtkRequisition* requisition)
 {
   GtkLevel* level;
-  
+
   g_return_if_fail(widget != NULL);
   g_return_if_fail(GTK_IS_LEVEL (widget));
   g_return_if_fail(requisition != NULL);
-  
+
   level = GTK_LEVEL(widget);
-  
+
   requisition->width  = LEVEL_WIDTH  + level->misc.xpad * 2;
   requisition->height = LEVEL_HEIGHT + level->misc.ypad * 2 + BOTTOM_SPACE;
 }
@@ -204,7 +204,7 @@ static void gtk_level_realize(GtkWidget *widget)
   if (!level->gc)
   {
     cmap = gtk_widget_get_colormap (widget);
-    
+
     if (!(&(level->fg[LEVEL_COLOR_ON])))
       gdk_color_parse ("#00F100", &(level->fg[LEVEL_COLOR_ON]));
 
@@ -230,7 +230,7 @@ static gint gtk_level_expose(GtkWidget*      widget,
   g_return_val_if_fail(widget != NULL, FALSE);
   g_return_val_if_fail(GTK_IS_LEVEL (widget), FALSE);
   g_return_val_if_fail(event  != NULL, FALSE);
-  
+
   level = GTK_LEVEL (widget);
   misc  = GTK_MISC (widget);
 
@@ -241,19 +241,19 @@ static gint gtk_level_expose(GtkWidget*      widget,
     {
       guint x, y;
 
-      win_bg = (level->is_on) ? &(level->fg[LEVEL_COLOR_ON]) : 
+      win_bg = (level->is_on) ? &(level->fg[LEVEL_COLOR_ON]) :
 	&(level->fg[LEVEL_COLOR_OFF]);
 
       gdk_gc_set_foreground (level->gc, win_bg);
 
       x = widget->allocation.x + misc->xpad +
-	(widget->allocation.width - widget->requisition.width) * 
+	(widget->allocation.width - widget->requisition.width) *
 	misc->xalign + 0.5;
 
       y = widget->allocation.y + misc->ypad + LEVEL_HEIGHT/2 +
-	(widget->allocation.height - widget->requisition.height) * 
+	(widget->allocation.height - widget->requisition.height) *
 	misc->yalign + 0.5 - BOTTOM_SPACE;
-      
+
       gdk_draw_rectangle (widget->window,
 			  level->gc,
 			  TRUE,
@@ -262,7 +262,7 @@ static gint gtk_level_expose(GtkWidget*      widget,
 			  LEVEL_HEIGHT);
     }
   }
-  
+
   return TRUE;
 }
 /* EOF */

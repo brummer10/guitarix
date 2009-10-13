@@ -505,6 +505,7 @@ namespace gx_engine
     fchorusbox = 0;
 
     Beat_is = 0;
+    cache_note = 0;
 
 
 

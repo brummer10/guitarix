@@ -76,6 +76,7 @@ void GxEngine::process_midi(int len)
   float rms = 0;
   float midi_db = 0;
   float sum = 0;
+  float fnote = 0;
   float *audiodata = checkfreq;
 
   int preNote = 0;
@@ -108,6 +109,15 @@ void GxEngine::process_midi(int len)
   //----- only run it when midi out or tuner is enabled
   if ((gx_gui::shownote == 1) || (dsp::isMidiOn() == true))
     {
+
+              fnote = 12 * log2f(2.272727e-03f *  (cache_note + fConsta4)*0.5);
+              cache_note = fConsta4;
+              preNote = round(fnote)+57;
+              fConsta2 = fnote - (preNote - 57);
+              piwe = (fConsta2+1) * 8192; // pitch wheel value
+             // weg = 0;
+
+
       for (int i=0; i<len; i+=step)
         {
 
@@ -133,12 +143,11 @@ void GxEngine::process_midi(int len)
                 }
 
               beat0 = sqrtf(sum/cs);
-
-              fConsta1 = 12 * log2f(2.272727e-03f *  fConsta4);
-              preNote = round(fConsta1)+57;
-              fConsta2 = fConsta1 - (preNote - 57);
-              piwe = (fConsta2+1) * 8192; // pitch wheel value
+              fConsta1 = fnote;
               weg = 0;
+
+
+
 
               //----- start the midi output
               if (dsp::isMidiOn() == true)
