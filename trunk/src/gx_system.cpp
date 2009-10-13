@@ -277,7 +277,7 @@ namespace gx_system
 	// retrieve gtk text buffer
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(logw));
 
-	// number of lines (we only keep 5 lines all the time)
+	// number of lines (we only keep ~ 50 lines all the time)
 	const int nlines = gtk_text_buffer_get_line_count(buffer);
 
 	// counter
@@ -318,8 +318,12 @@ namespace gx_system
 	// replace existing text between marks
 	gtk_text_buffer_get_iter_at_line(buffer, &iter1, j);
 	gtk_text_buffer_insert(buffer, &iter1, msgbuf.c_str(), -1);
-GtkTextMark *   scroll_to  =  gtk_text_buffer_create_mark(buffer, NULL, &iter1,true);
-gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW(logw),scroll_to);
+
+	gtk_text_buffer_get_iter_at_line(buffer, &iter1, j);
+	GtkTextMark* scroll_to = 
+	  gtk_text_buffer_create_mark(buffer, NULL, &iter1, true);
+	gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW(logw),scroll_to);
+
 	// add color depending on msg type
 	static GtkTextTag* taginfo =
 	  gtk_text_buffer_create_tag(buffer, "colinfo", "foreground", "#00ced1", NULL);
