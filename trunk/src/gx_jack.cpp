@@ -20,6 +20,8 @@
  *
  * --------------------------------------------------------------------------
  */
+#include <errno.h>
+
 #include <cstring>
 #include <vector>
 #include <list>
@@ -120,12 +122,16 @@ namespace gx_jack
 
     gx_print_info("Jack init", s.str());
 
+
+    if (gx_gui::fWindow)
+      gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), client_name.c_str());
+
     return true;
   }
 
-  //----- activate and connect ports if we know them
+  //----- set client callbacks and activate client
   // Note: to be called after gx_engine::gx_engine_init()
-  void gx_jack_callbacks_and_activate(const string* optvar)
+  void gx_jack_callbacks_and_activate()
   {
     //----- set the jack callbacks
     jack_set_port_registration_callback (client, gx_jack_port_callback, NULL);
@@ -135,6 +141,8 @@ namespace gx_jack
     jack_on_shutdown(client, gx_jack_shutdown_callback, NULL);
     jack_set_buffer_size_callback (client, gx_jack_buffersize_callback, 0);
     jack_set_process_callback(client, gx_jack_process, 0);
+    jack_set_client_registration_callback(client, gx_jack_clientreg_callback, 0);
+    jack_set_port_registration_callback(client, gx_jack_portreg_callback, 0);
 
     //----- register the input channel
     for (int i = 0; i < gNumInChans; i++) {
@@ -163,7 +171,11 @@ namespace gx_jack
 		     string("Can't activate JACK client"));
       gx_clean_exit(NULL, NULL);
     }
+  }
 
+  //----- connect ports if we know them
+  void gx_jack_init_port_connection(const string* optvar)
+  {
     // set autoconnect capture to user capture port
     if (!optvar[JACK_INP].empty())
     {
@@ -243,7 +255,7 @@ namespace gx_jack
   bool gx_start_jack(void* arg)
   {
     // first, let's try via qjackctl
-    if (gx_system_call("which", "qjackctl", false) == SYSTEM_OK) {
+    if (gx_system_call("which", "qjackctl", true) == SYSTEM_OK) {
       if (gx_system_call("qjackctl", "--start", true, true) == SYSTEM_OK) {
 	sleep(1);
 
@@ -298,15 +310,12 @@ namespace gx_jack
 	  gx_assign_shell_var(shell_var_name[JACK_OUT1], optvar[JACK_OUT1]);
 	  gx_assign_shell_var(shell_var_name[JACK_OUT2], optvar[JACK_OUT2]);
 
-	  cerr << " str1 : " << optvar[JACK_INP] << endl
-	       << " str2 : " << optvar[JACK_OUT1] << endl
-	       << " str3 : " << optvar[JACK_OUT2] << endl;
-
 	  // initialize guitarix engine if necessary
 	  if (!gx_engine::initialized)
 	    gx_engine::gx_engine_init();
 
-	  gx_jack_callbacks_and_activate(optvar);
+	  gx_jack_callbacks_and_activate();
+	  gx_jack_init_port_connection(optvar);
 
 	  // refresh latency check menu
 	  gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
@@ -506,7 +515,7 @@ namespace gx_jack
   int gx_jack_graph_callback (void* arg)
   {
 
-    if (jack_port_connected (input_ports[0]))
+    if (jack_port_connected(input_ports[0]))
     {
       const char** port = jack_port_get_connections(gx_jack::input_ports[0]);
       setenv("GUITARIX2JACK_INPUTS",port[0],0);
@@ -517,11 +526,13 @@ namespace gx_jack
     {
       const char** port1 = jack_port_get_connections(gx_jack::output_ports[0]);
       setenv("GUITARIX2JACK_OUTPUTS1",port1[0],0);
+      free(port1);
     }
     if (jack_port_connected (output_ports[1]))
     {
       const char** port2 = jack_port_get_connections(gx_jack::output_ports[1]);
       setenv("GUITARIX2JACK_OUTPUTS2",port2[0],0);
+      free(port2);
     }
     return 0;
   }
@@ -703,5 +714,170 @@ namespace gx_jack
   {
     change_latency = kKeepLatency;
   }
+
+
+  //----- fetch available jack ports other than guitarix ports
+  void gx_jack_portreg_callback(jack_port_id_t pid, int reg, void* arg)
+  {
+    // just to be safe
+    if (!client) return;
+
+    // retrieve port
+    jack_port_t* port = jack_port_by_id(client, pid);
+
+    // if it is our own, get out of here
+    if (jack_port_is_mine(client, port)) return;
+      
+    // OK, let's get to it
+    const char* name  = jack_port_name(port);
+    const char* type  = jack_port_type(port);
+    const int   flags = jack_port_flags(port);
+
+    // get GUI to act upon the stuff
+    gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
+    switch(reg) 
+    {
+
+    case 0: gui->deleteJackPortItem(name); break;
+    case 1: gui->addJackPortItem(name, type, flags); break;
+
+    default: break; 
+    }
+  }
+
+  //----- client registration callback
+  void gx_jack_clientreg_callback(const char* clname, int reg, void* arg)
+  {
+    // just to be safe
+    if (!client) return;
+
+    // if it is outselves, get out of here
+    if (client_name == clname) return;
+      
+    client_out_graph = "";
+    client_in_graph = "";
+
+    // get GUI to act upon the stuff
+    // see gx_gui::gx_monitor_jack_clients
+    switch(reg) 
+    {
+    case 0: client_out_graph = clname; break;
+    case 1: client_in_graph = clname; break;
+    default: break; 
+    }
+  }
+
+  //---- GTK callback from port item for port connection 
+  void gx_jack_port_connect(GtkWidget* wd, gpointer data)
+  {
+    GtkCheckMenuItem* item = GTK_CHECK_MENU_ITEM(wd);
+
+    // don't bother if not a jack client
+    if (!client)
+    {  
+      gtk_check_menu_item_set_active(item,  FALSE);
+      return;
+    }
+
+    // check client port name
+    string wname = gtk_widget_get_name(wd);
+    if (wname.empty())
+    {
+      gtk_check_menu_item_set_active(item,  FALSE);
+      return;
+    }
+
+    // configure connection
+    // Note: for some reason, jack_connect is not symmetric and one has to 
+    // connect out-to-in, jack_connect() does not take in-to-out.
+    // weird but that's how it is, so we must know if we deal with
+    // an input or output port (yeah, it sucks a bit). 
+ 
+    gint gxport_type = GPOINTER_TO_INT(data); 
+
+    // check we do have a proper gxport_type
+    if (gxport_type < kAudioInput || gxport_type > kAudioOutput2)
+      return;
+
+    string port1;
+    string port2;
+
+    jack_port_t* ports[] = {
+      input_ports [0],
+      output_ports[0],
+      output_ports[1]
+    };
+
+
+    switch (gxport_type)
+    {
+    case kAudioInput:
+      port1  = wname;
+      port2  = client_name + string(":") + gx_port_names[kAudioInput];
+      break;
+
+    default:
+      port1 = client_name + string(":") + gx_port_names[gxport_type];
+      port2 = wname;
+      break;
+    }
+
+    // check direct connection
+    int nconn = jack_port_connected_to(ports[gxport_type], wname.c_str());
+    if (gtk_check_menu_item_get_active(item) == TRUE)
+    {
+      if (nconn == 0)
+      {
+	int ret = jack_connect(client, port1.c_str(), port2.c_str());
+      
+	switch (ret)
+        {
+	case 0:
+	  gx_print_info("Jack Port Connect", 
+			port1 + string(" and  ") + port2 
+			+ string("are now _CONNECTED_"));
+	  break;
+	  
+	case EEXIST: // already connected
+	  gx_print_info("Jack Port Connect", 
+			port1 + string(" and  ") + port2 +
+			string(" ALREADY connected"));
+	  break;
+	  
+	default:
+	  gx_print_warning("Jack Port Connect", 
+			   string("Could NOT CONNECT ") +
+			   port1 + string(" and  ") + port2);
+	  
+	  gtk_check_menu_item_set_active(item,  FALSE);
+	  break;
+	}
+      }
+    }
+    else
+    {
+      if (nconn > 0)
+      {
+	int ret = jack_disconnect(client, port1.c_str(), port2.c_str());
+      
+	switch (ret)
+        {
+	case 0:
+	  gx_print_info("Jack Port Connect", 
+			port1 + string(" and  ") + port2 
+			+ string(" are now _DISCONNECTED_"));
+	  break;
+	  
+	default:
+	  gx_print_warning("Jack Port Disconnect", 
+			   string("Could NOT DISCONNECT ") +
+			   port1 + string(" and  ") + port2);
+	  gtk_check_menu_item_set_active(item,  TRUE);
+	  break;
+	}
+      }
+    }
+  }
+
 } /* end of gx_jack namespace */
 

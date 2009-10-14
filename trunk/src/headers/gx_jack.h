@@ -49,13 +49,14 @@ namespace gx_jack
 
   /* -------- functions ---------- */
   bool gx_jack_init();
-  void gx_jack_callbacks_and_activate(const string* optvar);
+  void gx_jack_callbacks_and_activate();
   
   bool gx_start_jack_dialog();
   bool gx_start_jack(void* arg);
 
   void gx_set_jack_buffer_size(GtkCheckMenuItem*, gpointer);
   void gx_jack_connection(GtkCheckMenuItem*, gpointer);
+  void gx_jack_port_connect(GtkWidget*, gpointer);
   void gx_jack_cleanup();
 
   /* client callbacks */
@@ -65,6 +66,9 @@ namespace gx_jack
   int  gx_jack_xrun_callback       (void*);
   void gx_jack_port_callback       (jack_port_id_t, int, void*);
   int  gx_jack_buffersize_callback (jack_nframes_t, void*);
+  void gx_jack_portreg_callback    (jack_port_id_t, int, void*);
+  void gx_jack_clientreg_callback  (const char*, int, void*);
+  void gx_jack_init_port_connection(const string*);
 
   /* processing */
   int gx_jack_process (jack_nframes_t, void*);

@@ -104,7 +104,10 @@ int main(int argc, char *argv[])
     gx_engine::gx_engine_init();
 
     // -------- set jack callbacks and activation -------------------
-    gx_jack::gx_jack_callbacks_and_activate(optvar);
+    gx_jack::gx_jack_callbacks_and_activate();
+
+    // -------- init port connections
+    gx_jack::gx_jack_init_port_connection(optvar);
   }
 
   // ----------------------- run GTK main loop ----------------------

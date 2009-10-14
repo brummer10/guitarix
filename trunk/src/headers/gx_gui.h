@@ -25,12 +25,18 @@
 #define NJACKLAT (9)
 #endif
 
+#ifndef NUM_PORT_LISTS
+#define NUM_PORT_LISTS (3)
+#endif
+
 namespace gx_gui
 {
   /* function declarations */
   gboolean gx_refresh_signal_level(gpointer arg);
   gboolean gx_refresh_jcsignal_level(gpointer arg);
   gboolean gx_survive_jack_shutdown(gpointer arg);
+  gboolean gx_monitor_jack_clients(gpointer args);
+  gboolean gx_monitor_port_connection(gpointer args);
 
   unsigned int gx_fetch_available_skins();
 
@@ -98,6 +104,20 @@ namespace gx_gui
     // private constructor
     GxMainInterface(const char* name, int* pargc, char*** pargv);
 
+    void addMainMenu();
+
+    void addEngineMenu();
+    void addJackServerMenu();
+    void addJackPortMenu();
+
+    void addPresetMenu();
+    void addExtraPresetMenu();
+
+    void addOptionMenu();
+    void addGuiSkinMenu();
+
+    void addAboutMenu();
+
   protected :
     int			fTop;
     GtkWidget*          fBox[stackSize];
@@ -107,6 +127,9 @@ namespace gx_gui
     GtkExpander*        fLoggingBox;
     GtkWidget*          fSignalLevelBar;
     GtkWidget*          fJCSignalLevelBar;
+
+    // menu items
+    map<string, GtkWidget*> fMenuList;
 
     // jack menu widgets
     GtkWidget*          fJackConnectItem;
@@ -127,7 +150,14 @@ namespace gx_gui
 
     GtkAccelGroup* fAccelGroup;
 
-    // acquire a pointer to the logging window
+    // portmap: pairs of port_name / menuitem widget
+    typedef map<const string, GtkWidget*> GxJackPortList;
+
+    // client portmaps: pairs of client name / pointer to portmap 
+    map<const string, GxJackPortList*> fJackClientMenu;
+
+
+    // -- acquire a pointer to the logging window
     GtkTextView* const getLoggingWindow()    const { return fLoggingWindow;   }
     GtkExpander* const getLoggingBox()       const { return fLoggingBox;      }
     GtkWidget*   const getSignalLevelBar()   const { return fSignalLevelBar;  }
@@ -135,6 +165,17 @@ namespace gx_gui
     GtkWidget*   const getJackConnectItem()  const { return fJackConnectItem; }
 
     GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
+
+    // -- update jack client port lists
+    void addJackPortItem   (const string, const string, const int);
+    void deleteJackPortItem(const string);
+
+    void initJackClientMenus ();
+    void addJackClientMenu   (const string, const string);
+    void deleteJackClientMenu(const string);
+    void deleteAllJackClientMenus();
+
+    GtkWidget* getJackPortItem(const string, const int);
 
     // -- layout groups
     virtual void openFrameBox(const char* label);
@@ -158,7 +199,6 @@ namespace gx_gui
     virtual void closeBox();
 
     // -- active widgets
-    virtual void addMenu();
     virtual void addJConvButton(const char* label, float* zone);
     virtual void addToggleButton(const char* label, float* zone);
     virtual void addPToggleButton(const char* label, float* zone);

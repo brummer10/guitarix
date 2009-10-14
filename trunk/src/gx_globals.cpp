@@ -104,6 +104,18 @@ namespace gx_jack
 #endif
 
   string client_name  = "guitarix";
+
+  string client_in_graph  = ""; 
+  string client_out_graph = ""; 
+
+  string gx_port_names[] = {
+    "in_0",
+    "out_0",
+    "out_1",
+    "out_2",
+    "out_3"
+  };
+
 }
 
 /* ------------------------------------------------------------------------- */
@@ -276,5 +288,12 @@ namespace gx_gui
   float rms_level[2];
   float rms_jclevel[2];
   float max_jclevel[2];
+
+  /* names of port lists (exclude MIDI for now) */
+  string plist_names[NUM_PORT_LISTS] = {
+    string("AudioIP"), 
+    string("AudioOPL"), 
+    string("AudioOPR")
+  };
 }
 /* ------------------------------------------------------------------------- */

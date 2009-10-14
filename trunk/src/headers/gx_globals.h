@@ -24,9 +24,6 @@
 
 #pragma once
 
-
-/* -------------------------------------------------------------------------- */
-
 /* ----- main engine ----- */
 namespace gx_engine
 {
@@ -106,6 +103,18 @@ namespace gx_jack
   extern bool                jack_is_down;
   extern string              client_name;
 
+  extern string              client_in_graph; 
+  extern string              client_out_graph; 
+
+  extern string              gx_port_names[];
+
+  /* lists of jack port types for menu items */
+  enum {
+    kAudioInput    = 0,
+    kAudioOutput1  = 1,
+    kAudioOutput2  = 2,
+    kMidiOutput    = 3
+  };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -250,6 +259,9 @@ namespace gx_gui
   extern float rms_level[2];
   extern float max_jclevel[2];
   extern float rms_jclevel[2];
+
+  /* names of port lists (exclude MIDI for now) */
+  extern string plist_names[];
 }
 
 /* -------------------------------------------------------------------------- */

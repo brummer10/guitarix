@@ -20,6 +20,7 @@
  *
  * ----------------------------------------------------------------------------
  */
+#include <errno.h>
 
 #include <assert.h>
 #include <cstring>
@@ -48,7 +49,7 @@ using namespace gx_preset;
 
 namespace gx_gui
 {
-  /* refresh GX level display function running in extra GUI thread */
+  /* ----------------- refresh GX level display function ---------------- */
   gboolean gx_refresh_signal_level(gpointer args)
   {
     static int count = 0;
@@ -103,7 +104,7 @@ namespace gx_gui
   }
 
 
-  /* refresh JConv level display function running in extra GUI thread */
+  /* -------------- refresh JConv level display function -------------- */
   gboolean gx_refresh_jcsignal_level(gpointer args)
   {
     static int count = 0;
@@ -162,10 +163,10 @@ namespace gx_gui
     return TRUE;
   }
 
-  // for thread that checks jackd liveliness
+  /* -------------- for thread that checks jackd liveliness -------------- */
   gboolean gx_survive_jack_shutdown(gpointer arg)
   {
-    GtkWidget* wd = gx_gui::GxMainInterface::instance()->getJackConnectItem();
+    GtkWidget* wd = GxMainInterface::instance()->getJackConnectItem();
 
     // return if jack is not down
     if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK)
@@ -174,6 +175,9 @@ namespace gx_gui
       {
 	// let's make sure we get out of here
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
+
+	// revive existing client menus
+	GxMainInterface::instance()->initJackClientMenus();
 	return TRUE;
       }
     }
@@ -185,12 +189,116 @@ namespace gx_gui
       // refresh some stuff. Note that it can be executed
       // more than once, no harm here
       gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), FALSE);
-
+      GxMainInterface::instance()->deleteAllJackClientMenus();
 
       gx_jconv::GxJConvSettings::checkbutton7 = 0;
       gx_jconv::jconv_is_running = false;
       gx_jack::jack_is_down = true;
     }
+    return TRUE;
+  }
+
+  /* ---- callback action when a jack client comes in or goes out --- */
+  // Note1: 
+  // when a client comes in the graph, this callback only logs it, we
+  // let the port registration callback take care of adding stuff to
+  // the menus.
+  //
+  // Note2: 
+  // when the client goes out of the graph, we delete all its ports
+  // from the GTK menu.
+  gboolean gx_monitor_jack_clients(gpointer args)
+  {
+    GxMainInterface* gui = GxMainInterface::instance();
+
+    // did a client leave the graph ?
+    if (!gx_jack::client_out_graph.empty()) 
+    {
+      gui->deleteJackClientMenu(gx_jack::client_out_graph);
+      gx_jack::client_out_graph = "";
+    }
+
+    if (!gx_jack::client_in_graph.empty()) 
+    {
+      if (gx_jack::client_in_graph != "ardourprobe" && 
+	  gx_jack::client_in_graph != "freewheel"   && 
+	  gx_jack::client_in_graph != "qjackctl")
+	gx_print_info("Jack Client Add", 
+		      gx_jack::client_in_graph + 
+		      " has joined the graph, adding audio ports to Jack Ports menu");
+
+      gx_jack::client_in_graph = "";
+    }
+
+    return TRUE;
+  }
+
+  /* --------- refresh port connection status for menu items ----------- */ 
+  // Note: we do not rely on the port_connect_callback the jack API offers
+  // We just call this function every 500 ms or so and check whether
+  // we have something connected to our ports
+  gboolean gx_monitor_port_connection(gpointer args)
+  {
+    // don't bother if we are not a valid client
+    if (!gx_jack::client || gx_jack::jack_is_down)
+      return TRUE;
+
+    // guitarix ports to monitor 
+    jack_port_t* ports[] = {
+      gx_jack::input_ports [0],
+      gx_jack::output_ports[0],
+      gx_jack::output_ports[1]
+    };
+
+    // get gui instance
+    GxMainInterface* gui = GxMainInterface::instance();
+
+
+    for (int p = gx_jack::kAudioInput; p <= gx_jack::kAudioOutput2; p++)
+    {
+      // do it the "brutal" way
+      map<const string, GxMainInterface::GxJackPortList*>::iterator menu_it;
+      
+      for (menu_it  = gui->fJackClientMenu.begin(); 
+	   menu_it != gui->fJackClientMenu.end(); 
+	   menu_it++)
+      {
+	
+	// fetching the right menu
+	const string menuname = menu_it->first;
+	int s = menuname.find(plist_names[p]);
+	if (s == -1) continue;
+	
+	// some client port list
+	GxMainInterface::GxJackPortList* portlist = menu_it->second;
+	if (!portlist) continue;
+
+	// look up within port list
+	map<const string, GtkWidget*>::iterator it;
+
+	for (it = portlist->begin(); it != portlist->end(); it++)
+	{
+	  GtkWidget* item = it->second;
+	  if (!item) continue;
+	  if (GTK_IS_CHECK_MENU_ITEM(item) == FALSE) continue;
+
+	  // fetch port name from widget name
+	  const string port_name = gtk_widget_get_name(item);
+	  
+	  // connection to port 
+	  int nconn = jack_port_connected_to(ports[p], port_name.c_str());
+
+	  // update status
+	  if (nconn == 0) // no connection
+	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), FALSE);
+
+	  else if (nconn > 0)
+	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item),  TRUE);
+	  
+	}
+      }
+    }
+
     return TRUE;
   }
 
@@ -1139,17 +1247,17 @@ namespace gx_gui
   void GxMainInterface::openSignalLevelBox(const char* label)
   {
     GtkWidget* box = addWidget(label, gtk_hbox_new (FALSE, 0));
+
     gtk_container_set_border_width (GTK_CONTAINER (box), 1);
     gtk_box_set_spacing(GTK_BOX(box), 3);
     gtk_widget_set_size_request (GTK_WIDGET(box), 20.0, 145.0);
     g_signal_connect(box, "expose-event", G_CALLBACK(box3_expose), NULL);
-    g_signal_connect(GTK_CONTAINER(box), "check-resize", G_CALLBACK(box3_expose), NULL);
+    g_signal_connect(GTK_CONTAINER(box), "check-resize", 
+		     G_CALLBACK(box3_expose), NULL);
+
     // guitarix output levels
     GtkWidget* lvl = gtk_level_bar_new(47, 1, 2);
     gtk_box_pack_start(GTK_BOX(box), lvl, FALSE, FALSE, 0);
-
-    float sig_init[MAX_CHANS];
-    (void)memset(sig_init, 0, sizeof(sig_init));
 
     gtk_widget_show(lvl);
     fSignalLevelBar = lvl;
@@ -2184,35 +2292,19 @@ namespace gx_gui
     closeBox();
   }
 
-  //----------------------------- menu ----------------------------
-  void GxMainInterface::addMenu()
+  //----------------------------- main menu ----------------------------
+  void GxMainInterface::addMainMenu()
   {
     /*-- Declare the GTK Widgets used in the menu --*/
-    GtkWidget *menucap;
-    GtkWidget *menuFile;
-    GtkWidget *menuEdit;
-    GtkWidget *menuHelp;
-    GtkWidget *menubar;
-    GtkWidget *menuJack;
-    GtkWidget *menujack;
-    GtkWidget *menuLatency;
-    GtkWidget *menulat;
-    GtkWidget *menuSkinChooser;
-    GtkWidget *menuskin;
-    GtkWidget *menuMorePresetAction;
-    GtkWidget *menumpa;
-    GtkWidget *menu;
-    GtkWidget *menu1;
-    GtkWidget *menuitem;
-    GtkWidget *hbox;
-    GSList    *group = NULL;
+    GtkWidget* menucont;  // menu container
+    GtkWidget* hbox;      // top menu bar box container
 
-    /*-- Create hbox --*/
+    /*------------------ TOP Menu BAR ------------------*/
     hbox = gtk_hbox_new(FALSE, 0);
 
     /*-- Create the menu bar --*/
-    menubar = gtk_menu_bar_new();
-    gtk_box_pack_start(GTK_BOX(hbox), menubar, TRUE, TRUE, 0);
+    menucont = gtk_menu_bar_new();
+    gtk_box_pack_start(GTK_BOX(hbox), menucont, TRUE, TRUE, 0);
 
     /*-- Jack server status image --*/
     // jackd ON image
@@ -2250,47 +2342,507 @@ namespace gx_gui
     gx_engine_bypass_image = gtk_image_new_from_file(img_path.c_str());
     gtk_box_pack_end(GTK_BOX(hbox), gx_engine_bypass_image, FALSE, TRUE, 0);
     gtk_widget_hide(gx_engine_bypass_image);
+    
+    /* ----------------------------------------------------------- */
+    fMenuList["Top"] = menucont; 
+
+    addEngineMenu();
+    addPresetMenu();
+    addOptionMenu();
+    addAboutMenu();
+
+    /*---------------- add menu to main window box----------------*/
+    gtk_box_pack_start (GTK_BOX (fBox[fTop]), hbox , FALSE, FALSE, 0);
+    gtk_widget_show(menucont);
+    gtk_widget_show(hbox);
+  }
+
+  //----------------------------- engine menu ----------------------------
+  void GxMainInterface::addEngineMenu()
+  {
+    GtkWidget* menulabel;   // menu label
+    GtkWidget* menucont;    // menu container
+    GtkWidget* menuitem;    // menu item
+    GSList   * group = NULL;
 
     /*---------------- Create Engine menu items ------------------*/
-    menuFile = gtk_menu_item_new_with_mnemonic ("_Engine");
-    gtk_menu_bar_append (GTK_MENU_BAR(menubar), menuFile);
-    gtk_widget_show(menuFile);
+    menucont = fMenuList["Top"];
+
+    menulabel = gtk_menu_item_new_with_mnemonic ("_Engine");
+    gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
+    gtk_widget_show(menulabel);
 
     /*-- Create Engine submenu  --*/
-    menuh = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuFile), menuh);
-    /* Some thing went wrong when compile without __SSE__ with that funktion. So I disable it in this case.*/
+    menucont = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+    gtk_widget_show(menucont);
+    fMenuList["Engine"] = menucont; 
 
-    /*-- Create New radio check menu item and set active under Engine submenu --*/
+    /*-- Create Engine start / stop item  --*/
     group = NULL;
 
     menuitem = gtk_check_menu_item_new_with_mnemonic ("Engine _Start / _Stop");
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_space, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_space, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
     gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
-    gtk_widget_show (menuitem);
     g_signal_connect (GTK_OBJECT (menuitem), "activate",
 		      G_CALLBACK (gx_engine_switch), (gpointer)0);
-    gx_engine_item = menuitem;
-
-    menuitem = gtk_menu_item_new_with_mnemonic ("Engine _Bypass");
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_b, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
+    gx_engine_item = menuitem; // save into global var
     gtk_widget_show (menuitem);
+
+    /*-- Create Engine bypass item  --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("Engine _Bypass");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_b, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
     g_signal_connect (GTK_OBJECT (menuitem), "activate",
 		      G_CALLBACK (gx_engine_switch), (gpointer)1);
+    gtk_widget_show (menuitem);
+
+    /*-- add a separator line --*/
+    GtkWidget* sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+    gtk_widget_show (sep);
 
     /*---------------- Create Jack Server menu --------------------*/
-    menuJack = gtk_menu_item_new_with_label ("Jack Server");
-    gtk_menu_append (GTK_MENU(menuh), menuJack);
-    menujack = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuJack), menujack);
+    addJackServerMenu();
+
+    /*---------------- Create Jack Port menu --------------------*/
+    addJackPortMenu();
+
+    /*---------------- End Jack server menu declarations ----------------*/
+
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+    gtk_widget_show (sep);
+
+    /*-- Create Open check menu item under Engine submenu --*/
+    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Midi Out ");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_m, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_midi_out), NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+    gtk_widget_show (sep);
+
+    /*-- Create Exit menu item under Engine submenu --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Quit");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_q, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect(G_OBJECT (menuitem), "activate", 
+		     G_CALLBACK (gx_clean_exit), NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+    /*---------------- End Engine menu declarations ----------------*/
+  }
+
+  //----------------------------- preset menu ----------------------------
+  void GxMainInterface::addPresetMenu()
+  {
+    GtkWidget* menulabel; // menu label
+    GtkWidget* menucont;  // menu container
+    GtkWidget* menuitem;  // menu item
+
+    menucont = fMenuList["Top"];
+
+    /*---------------- Create Presets menu items --------------------*/
+    menulabel = gtk_menu_item_new_with_mnemonic ("_Presets");
+    gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
+    gtk_widget_show(menulabel);
+
+    /*-- Create Presets submenus --*/
+    menucont = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+    gtk_widget_show(menucont);
+    fMenuList["Presets"] = menucont; 
+
+    /* special treatment of preset lists, from gx_preset namespace */
+    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+    {
+      GtkWidget* menuItem =
+	gtk_menu_item_new_with_mnemonic (preset_menu_name[i]);
+      gtk_menu_shell_append (GTK_MENU_SHELL(menucont), menuItem);
+
+      GtkWidget* menu = gtk_menu_new();
+      gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuItem), menu);
+
+      gtk_menu_set_accel_path(GTK_MENU(menu), preset_accel_path[i]);
+
+      presmenu[i] = menu;
+      presMenu[i] = menuItem;
+    }
+
+
+    /*-- add New Preset saving under Save Presets menu */
+    menuitem = gtk_menu_item_new_with_mnemonic ("New _Preset");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_save_newpreset_dialog), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_p, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_insert(GTK_MENU_SHELL(presmenu[SAVE_PRESET_LIST]), menuitem, 0);
+    gtk_widget_show (menuitem);
+
+    /*-- add a separator line --*/
+    GtkWidget* sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_insert(GTK_MENU_SHELL(presmenu[SAVE_PRESET_LIST]), sep, 1);
+    gtk_widget_show (sep);
+
+    /*-- initial preset list --*/
+    gx_preset::gx_build_preset_list();
+
+    vector<string>::iterator it;
+    for (it = gx_preset::plist.begin() ; it < gx_preset::plist.end(); it++ )
+    {
+      const string presname = *it;
+      gx_add_preset_to_menus(presname);
+    }
+
+    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+      gtk_widget_show(presMenu[i]);
+
+    /* ------------------- */
+
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+    gtk_widget_show (sep);
+
+    /*-- Create  Main setting submenu --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("Recall Main _Setting");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_recall_main_setting), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_s, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Save As Main _Setting");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_save_main_setting), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+    gtk_widget_show (sep);
+
+    /*-- Create sub menu More Preset Action --*/
+    menulabel = gtk_menu_item_new_with_mnemonic("More Preset Options...");
+    gtk_menu_shell_append (GTK_MENU_SHELL(menucont), menulabel);
+    gtk_widget_show(menulabel);
+
+    menucont = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+    gtk_widget_show(menucont);
+    fMenuList["ExtraPresets"] = menucont; 
+
+    /*--------------- Extra preset menu */
+    addExtraPresetMenu();
+  }
+
+
+  //------------------------ extra preset menu ----------------------------
+  void GxMainInterface::addExtraPresetMenu()
+  {
+    GtkWidget* menucont;  // menu container
+    GtkWidget* menuitem;  // menu item
+
+    menucont = fMenuList["ExtraPresets"];
+
+    /*---------------- Create Presets menu items --------------------*/
+
+    /* forward preset */
+    menuitem = gtk_menu_item_new_with_mnemonic("Next _Preset");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
+		      G_CALLBACK (gx_next_preset), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate",
+			       fAccelGroup, GDK_Page_Down,
+			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show(menuitem);
+
+    /* rewind preset */
+    menuitem = gtk_menu_item_new_with_mnemonic("Previous _Preset");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
+		      G_CALLBACK (gx_previous_preset), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate",
+			       fAccelGroup, GDK_Page_Up,
+			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show(menuitem);
+
+    /*-- add a separator line --*/
+    GtkWidget* sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+    gtk_widget_show (sep);
+
+    /*-- Create  menu item Delete Active preset --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Save _Active Preset");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
+		      G_CALLBACK (gx_save_oldpreset), (gpointer)1);
+    gtk_widget_add_accelerator(menuitem, "activate",
+			       fAccelGroup, GDK_s,
+			       GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Rename _Active Preset");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
+		      G_CALLBACK (gx_rename_active_preset_dialog), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate",
+			       fAccelGroup, GDK_r,
+			       GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Delete Active Preset");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
+		      G_CALLBACK (gx_delete_active_preset_dialog), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate",
+			       fAccelGroup, GDK_Delete,
+			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+    gtk_widget_show (sep);
+
+    /*-- Create  menu item Delete All presets --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Delete All Presets");
+    g_signal_connect (GTK_OBJECT (menuitem), "activate",
+		      G_CALLBACK (gx_delete_all_presets_dialog), NULL);
+    gtk_widget_add_accelerator(menuitem, "activate",
+			       fAccelGroup, GDK_d,
+			       GdkModifierType(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+  }
+
+  //----------------------------- option menu ----------------------------
+  void GxMainInterface::addOptionMenu()
+  {
+    GtkWidget* menulabel; // menu label
+    GtkWidget* menucont;  // menu container
+    GtkWidget* menuitem;  // menu item
+
+    menucont = fMenuList["Top"];
+    
+    /*---------------- Create Options menu items ------------------*/
+    menulabel = gtk_menu_item_new_with_mnemonic ("_Options");
+    gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
+    gtk_widget_show(menulabel);
+
+    /*-- Create Options submenu  --*/
+    menucont = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+    gtk_widget_show(menucont);
+    fMenuList["Options"] = menucont; 
+
+    /*-- Create oscilloscope check menu item under Options submenu --*/
+    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Oscilloscope");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_o, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_show_oscilloscope), NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+    /*-- Create tuner check menu item under Options submenu --*/
+    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Tuner");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_t, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_tuner), NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+    /*-- Create log window check menu item under Options submenu --*/
+    menuitem = gtk_check_menu_item_new_with_mnemonic ("Open/Close _Log message");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_l, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_log_window), NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM (menuitem), FALSE);
+    gtk_widget_show (menuitem);
+
+    /*-- add a separator line --*/
+    GtkWidget* sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+    gtk_widget_show (sep);
+
+    /*-- Create Open check menu item under Options submenu --*/
+    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Meterbridge");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_m, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_start_stop_meterbridge), NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+    /*-- Create Open check menu item under Options submenu --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Jack Capture Settings");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_j, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    g_signal_connect(GTK_OBJECT (menuitem), "activate",
+		     G_CALLBACK (gx_child_process::gx_show_jack_capture_gui), NULL);
+    gtk_widget_show (menuitem);
+
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+    gtk_widget_show (sep);
+
+    /*-- Create skin menu under Options submenu--*/
+    addGuiSkinMenu();
+  }
+
+
+  //----------------------------- skin menu ----------------------------
+  void GxMainInterface::addGuiSkinMenu()
+  {
+    GtkWidget* menulabel; // menu label
+    GtkWidget* menucont;  // menu container
+    GtkWidget* menuitem;  // menu item
+    GSList   * group = NULL;
+
+    menucont = fMenuList["Options"];
+
+    /*---------------- Create skin menu items ------------------*/
+    menulabel = gtk_menu_item_new_with_mnemonic ("_Skin...");
+    gtk_menu_append (GTK_MENU(menucont), menulabel);
+    gtk_widget_show(menulabel);
+
+    menucont = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+    gtk_widget_show(menucont);
+    fMenuList["Skin"] = menucont; 
+
+    /* Create black skin item under skin submenu --*/
+    guint idx = 0;
+
+    while (idx < skin_list.size())
+    {
+      menuitem = 
+	gtk_radio_menu_item_new_with_label (group, skin_list[idx].c_str());
+
+      group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
+
+      gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM (menuitem), FALSE);
+      g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+			G_CALLBACK (gx_change_skin), GINT_TO_POINTER(idx));
+      gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+      gtk_widget_show (menuitem);
+      idx++;
+    }
+
+    menucont = fMenuList["Options"];
+
+    menuitem = gtk_menu_item_new();
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_s, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_cycle_through_skin), NULL);
+    gtk_menu_append (GTK_MENU(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+    /*-- End skin menu declarations --*/
+  }
+
+  //----------------------------- about menu ----------------------------
+  void GxMainInterface::addAboutMenu()
+  {
+    GtkWidget* menulabel; // menu label
+    GtkWidget* menucont;  // menu container
+    GtkWidget* menuitem;  // menu item
+
+    menucont = fMenuList["Top"];
+
+    /*---------------- Start About menu declarations ----------------*/
+    menulabel = gtk_menu_item_new_with_mnemonic ("_About");
+    gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
+    gtk_widget_show(menulabel);
+
+    /*-- Create About submenu --*/
+    menucont = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+
+    /*-- Create About menu item under About submenu --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("_About");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_a, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    g_signal_connect(GTK_OBJECT (menuitem), "activate", 
+		     G_CALLBACK (gx_show_about), NULL);
+    gtk_widget_show (menuitem);
+
+    /*-- Create Help menu item under About submenu --*/
+    menuitem = gtk_menu_item_new_with_mnemonic ("_Help");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_h, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    //    g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_about), NULL);
+    gtk_widget_show (menuitem);
+
+    /*---------------- End About menu declarations ----------------*/
+  }
+
+  /*---------------- Jack Server Menu ----------------*/
+  void GxMainInterface::addJackServerMenu()
+  {
+    GtkWidget* menulabel; // menu label
+    GtkWidget* menucont;  // menu container
+    GtkWidget* menuitem;  // menu item
+    GSList   * group = NULL;
+
+    menucont = fMenuList["Engine"];
+
+    /* ----------- create Jack Server menu list -------- */
+    menulabel = gtk_menu_item_new_with_label ("Jack Server");
+    gtk_menu_append (GTK_MENU(menucont), menulabel);
+    gtk_widget_show(menulabel);
+
+    menucont = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+    gtk_widget_show(menucont);
+    fMenuList["JackServer"] = menucont; 
+
+    /*-- Create Jack Connection toggle button --*/
+    menuitem = gtk_check_menu_item_new_with_mnemonic ("Server _Connection ");
+    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, 
+			       GDK_c, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (GTK_OBJECT (menuitem), "activate", 
+		      G_CALLBACK (gx_jack::gx_jack_connection), NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+
+    gtk_widget_show (menuitem);
+    fJackConnectItem = menuitem;
 
     /*-- Create  Latency submenu under Jack Server submenu --*/
-    menuLatency = gtk_menu_item_new_with_mnemonic ("_Latency");
-    gtk_menu_append (GTK_MENU(menujack), menuLatency);
-    menulat = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuLatency), menulat);
+    menulabel = gtk_menu_item_new_with_mnemonic ("_Latency");
+    gtk_menu_append (GTK_MENU(menucont), menulabel);
+    gtk_widget_show(menulabel);
+
+    menucont = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
 
     /*-- Create  menu item under Latency submenu --*/
     gchar buf_size[8];
@@ -2304,330 +2856,347 @@ namespace gx_gui
       menuitem = gtk_radio_menu_item_new_with_label (group, buf_size);
       group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
       gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
-
+	
       g_signal_connect (GTK_OBJECT (menuitem), "activate",
 			G_CALLBACK (gx_jack::gx_set_jack_buffer_size),
 			GINT_TO_POINTER(jack_buffer_size));
-
+	
       // display actual buffer size as default
-      gtk_menu_shell_append(GTK_MENU_SHELL(menulat), menuitem);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
       gtk_widget_show (menuitem);
-
+      
       fJackLatencyItem[i-min_pow] = menuitem;
     }
+  }
 
-    /*-- Create Jack Connection toggle button --*/
-    menuitem = gtk_check_menu_item_new_with_mnemonic ("Server _Connection ");
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_c, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_jack::gx_jack_connection), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menujack), menuitem);
+  /*---------------- Jack Port Menu ----------------*/
+  void GxMainInterface::addJackPortMenu()
+  {
+    GtkWidget* menulabel; // menu label
+    GtkWidget* menucont;  // menu container
 
-    gtk_widget_show (menuitem);
-    fJackConnectItem = menuitem;
+    menucont = fMenuList["Engine"];
 
-    /*---------------- End Jack server menu declarations ----------------*/
+    /* ----------- create Jack Server menu list -------- */
+    menulabel = gtk_menu_item_new_with_label ("Jack Ports");
+    gtk_menu_append (GTK_MENU(menucont), menulabel);
+    gtk_widget_show(menulabel);
 
-    /*-- add a separator line --*/
+    menucont = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+    gtk_widget_show(menucont);
+    fMenuList["JackPorts"] = menucont; 
+
+    /* ------- audio ports sublist --------*/
+    for (int p = gx_jack::kAudioInput; p <= gx_jack::kAudioOutput2; p++)
+    {
+      string item_name = gx_jack::client_name + " : ";
+      item_name += gx_jack::gx_port_names[p];
+
+      menucont = fMenuList["JackPorts"];
+      menulabel = gtk_menu_item_new_with_label(item_name.c_str());
+      gtk_menu_append (GTK_MENU(menucont), menulabel);
+      gtk_widget_show(menulabel);
+
+      menucont = gtk_menu_new();
+      gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+      gtk_widget_show(menucont);
+      fMenuList[plist_names[p]] = menucont; 
+    }
+    
+    /* separator */
+    menucont = fMenuList["JackPorts"];
     GtkWidget* sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
     gtk_widget_show (sep);
 
-    /*-- Create Open check menu item under Engine submenu --*/
-    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Midi Out ");
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_m, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_midi_out), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
-    gtk_widget_show (menuitem);
+    /* ------- midi ports sublist --------*/
+    menucont = fMenuList["JackPorts"];
+    menulabel = gtk_menu_item_new_with_label ("No Midi Yet");
+    gtk_menu_append (GTK_MENU(menucont), menulabel);
+    gtk_widget_show(menulabel);
+    gtk_widget_set_sensitive(menulabel, FALSE);
 
-    /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);
-    gtk_widget_show (sep);
+    // Not yet jack2 friendly with names
+//     menucont = gtk_menu_new();
+//     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+//     gtk_widget_show(menucont);
+//     fMenuList["MidiOP"] = menucont; 
+  }
 
-    /*-- Create Exit menu item under Engine submenu --*/
-    menuitem = gtk_menu_item_new_with_mnemonic ("_Quit");
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_q, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect(G_OBJECT (menuitem), "activate", G_CALLBACK (gx_clean_exit), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
-    gtk_widget_show (menuitem);
-    /*---------------- End Engine menu declarations ----------------*/
+  /* -------- init jack client menus ---------- */
+  void GxMainInterface::initJackClientMenus()
+  {
+    // if jack down, no bother 
+    // (should not be called when jack is down anyway) 
+    if (!gx_jack::client)
+      return;
 
+    // get all existing port names (no MIDI stuff for now)
+    const char** iportnames = 
+      jack_get_ports(gx_jack::client, NULL, 
+		     JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput);
 
-    /*---------------- Create Presets menu items --------------------*/
-    menuEdit = gtk_menu_item_new_with_mnemonic ("_Presets");
-    gtk_menu_bar_append (GTK_MENU_BAR(menubar), menuEdit);
-    gtk_widget_show(menuEdit);
+    const char** oportnames = 
+      jack_get_ports(gx_jack::client, NULL, 
+		     JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput);
 
-    /*-- Create Presets submenus --*/
-    menu1 = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuEdit), menu1);
+    // populating input port menus
+    int p = 0;
 
-    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+    while (iportnames[p] != 0)
     {
-      GtkWidget* menuItem =
-	gtk_menu_item_new_with_mnemonic (preset_menu_name[i]);
-      gtk_menu_shell_append (GTK_MENU_SHELL(menu1), menuItem);
-
-      GtkWidget* menu = gtk_menu_new();
-      gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuItem), menu);
-
-      gtk_menu_set_accel_path(GTK_MENU(menu), preset_accel_path[i]);
-
-      presmenu[i] = menu;
-      presMenu[i] = menuItem;
+      addJackPortItem(iportnames[p], JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput);
+      p++;
     }
 
-    /*-- add New Preset saving under Save Presets menu */
-    menuitem = gtk_menu_item_new_with_mnemonic ("New _Preset");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_newpreset_dialog), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_p, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_insert(GTK_MENU_SHELL(presmenu[SAVE_PRESET_LIST]), menuitem, 0);
-    gtk_widget_show (menuitem);
-
-    /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_insert(GTK_MENU_SHELL(presmenu[SAVE_PRESET_LIST]), sep, 1);
-    gtk_widget_show (sep);
-
-    /* ------------------- */
-    /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), sep);
-    gtk_widget_show (sep);
-
-    /*-- Create  Main setting submenu --*/
-    menuitem = gtk_menu_item_new_with_mnemonic ("Recall Main _Setting");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_recall_main_setting), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_s, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
-    gtk_widget_show (menuitem);
-
-    menuitem = gtk_menu_item_new_with_mnemonic ("_Save As Main _Setting");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_save_main_setting), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), menuitem);
-    gtk_widget_show (menuitem);
-
-
-    /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu1), sep);
-    gtk_widget_show (sep);
-
-    /*-- Create sub menu More Preset Action --*/
-    menuMorePresetAction = gtk_menu_item_new_with_mnemonic("More Preset Options...");
-    gtk_menu_shell_append (GTK_MENU_SHELL(menu1), menuMorePresetAction);
-    menumpa = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuMorePresetAction), menumpa);
-
-    /*--------------- Extra preset menu */
-
-    /* forward preset */
-    menuitem = gtk_menu_item_new_with_mnemonic("Next _Preset");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate",
-		      G_CALLBACK (gx_next_preset), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate",
-			       fAccelGroup, GDK_Page_Down,
-			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
-    gtk_widget_show(menuitem);
-
-    /* rewind preset */
-    menuitem = gtk_menu_item_new_with_mnemonic("Previous _Preset");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate",
-		      G_CALLBACK (gx_previous_preset), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate",
-			       fAccelGroup, GDK_Page_Up,
-			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
-    gtk_widget_show(menuitem);
-
-    /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), sep);
-    gtk_widget_show (sep);
-
-    /*-- Create  menu item Delete Active preset --*/
-    menuitem = gtk_menu_item_new_with_mnemonic ("_Save _Active Preset");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate",
-		      G_CALLBACK (gx_save_oldpreset), (gpointer)1);
-    gtk_widget_add_accelerator(menuitem, "activate",
-			       fAccelGroup, GDK_s,
-			       GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
-    gtk_widget_show (menuitem);
-
-    menuitem = gtk_menu_item_new_with_mnemonic ("_Rename _Active Preset");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate",
-		      G_CALLBACK (gx_rename_active_preset_dialog), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate",
-			       fAccelGroup, GDK_r,
-			       GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
-    gtk_widget_show (menuitem);
-
-    menuitem = gtk_menu_item_new_with_mnemonic ("_Delete Active Preset");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate",
-		      G_CALLBACK (gx_delete_active_preset_dialog), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate",
-			       fAccelGroup, GDK_Delete,
-			       GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
-    gtk_widget_show (menuitem);
-
-    /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), sep);
-    gtk_widget_show (sep);
-
-    /*-- Create  menu item Delete All presets --*/
-    menuitem = gtk_menu_item_new_with_mnemonic ("_Delete All Presets");
-    g_signal_connect (GTK_OBJECT (menuitem), "activate",
-		      G_CALLBACK (gx_delete_all_presets_dialog), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate",
-			       fAccelGroup, GDK_d,
-			       GdkModifierType(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menumpa), menuitem);
-    gtk_widget_show (menuitem);
-
-
-    /*-- initial preset list --*/
-    gx_preset::gx_build_preset_list();
-
-    vector<string>::iterator it;
-    for (it = gx_preset::plist.begin() ; it < gx_preset::plist.end(); it++ )
+    // populating output port menus
+    p = 0;
+    while (oportnames[p] != 0)
     {
-      const string presname = *it;
-      gx_add_preset_to_menus(presname);
+      addJackPortItem(oportnames[p], JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput);
+      p++;
     }
 
-    /*---------------- End Settingsmenu declarations ----------------*/
+    // free port name lists (cf. JACK API doc)
+    free(iportnames);
+    free(oportnames);
+  }
 
-    /*---------------- Create Options menu items ------------------*/
-    menucap = gtk_menu_item_new_with_mnemonic ("_Options");
-    gtk_menu_bar_append (GTK_MENU_BAR(menubar), menucap);
-    gtk_widget_show(menucap);
-    /*-- Create Options submenu  --*/
-    menu = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menucap), menu);
-
-    /*-- Create oscilloscope check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Oscilloscope");
-    //  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_o, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_oscilloscope), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show (menuitem);
-
-    /*-- Create tuner check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Tuner");
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_t, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_tuner), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show (menuitem);
-
-    /*-- Create log window check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_mnemonic ("Open/Close _Log message");
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_l, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_log_window), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM (menuitem), FALSE);
-    gtk_widget_show (menuitem);
-
-    /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), sep);
-    gtk_widget_show (sep);
-
-    /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_mnemonic ("_Meterbridge");
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_m, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_start_stop_meterbridge), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show (menuitem);
-
-    /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_menu_item_new_with_mnemonic ("_Jack Capture Settings");
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_j, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    g_signal_connect(GTK_OBJECT (menuitem), "activate",
-		     G_CALLBACK (gx_child_process::gx_show_jack_capture_gui), NULL);
-    gtk_widget_show (menuitem);
-
-    /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), sep);
-    gtk_widget_show (sep);
-
-    /*-- Create skin menu under Options submenu--*/
-    menuSkinChooser = gtk_menu_item_new_with_mnemonic ("_Skin...");
-    gtk_menu_append (GTK_MENU(menu), menuSkinChooser);
-    menuskin = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuSkinChooser), menuskin);
-
-    /* Create black skin item under skin submenu --*/
-    guint idx = 0;
-
-    while (idx < skin_list.size())
+  /* -------- add  jack client item ---------- */
+  void GxMainInterface::addJackClientMenu(const string clname,
+					  const string menu_name)
+  {
+    // no need to bother if are not a jack client
+    if (gx_jack::client == NULL)
     {
-      menuitem = gtk_radio_menu_item_new_with_label (group, skin_list[idx].c_str());
-      group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
-      gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), FALSE);
-      g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_change_skin), GINT_TO_POINTER(idx));
-      gtk_menu_shell_append(GTK_MENU_SHELL(menuskin), menuitem);
-      gtk_widget_show (menuitem);
-      idx++;
+      gx_print_warning("Jack Client Add", "we are not yet a jack client");
+      return;
     }
 
-    menuitem = gtk_menu_item_new();
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_s, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_cycle_through_skin), NULL);
-    gtk_menu_append (GTK_MENU(menu), menuitem);
-    gtk_widget_show (menuitem);
+    // exceptions that we don't want to consider ... 
+    if (clname == "ardourprobe" || 
+	clname == "freewheel"   || 
+	clname == "qjackctl")
+      return;
 
-    /*-- End skin menu declarations --*/
+    string submenu = clname + menu_name; 
+    if (fJackClientMenu[submenu]) // already done it for this client
+      return;
 
-    /*---------------- Start About menu declarations ----------------*/
-    menuHelp = gtk_menu_item_new_with_mnemonic ("_About");
-    gtk_menu_bar_append (GTK_MENU_BAR(menubar), menuHelp);
-    gtk_widget_show(menuHelp);
+    // fetch parent menu container
+    GtkWidget* menucont  = fMenuList[menu_name];
 
-    /*-- Create About submenu --*/
-    menu = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuHelp), menu);
+    // add menu item for this client
+    GtkWidget* menulabel = gtk_menu_item_new_with_label(clname.c_str());
+    gtk_menu_shell_append (GTK_MENU_SHELL(menucont), menulabel);
+    gtk_widget_show(menulabel);
 
-    /*-- Create About menu item under About submenu --*/
-    menuitem = gtk_menu_item_new_with_mnemonic ("_About");
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_a, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_about), NULL);
-    gtk_widget_show (menuitem);
+    // create client submenu
+    menucont = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+    gtk_widget_show(menucont);
 
-    /*-- Create Help menu item under About submenu --*/
-    menuitem = gtk_menu_item_new_with_mnemonic ("_Help");
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup, GDK_h, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    //    g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_about), NULL);
-    gtk_widget_show (menuitem);
+    // create list of client ports. 
+    GxJackPortList* ports = new GxJackPortList;
+    (*ports)[submenu + "label"]  = menulabel;
+    (*ports)[submenu + "cont"] = menucont;
 
-    /*---------------- End About menu declarations ----------------*/
+    // save the port list for future deletion
+    fJackClientMenu[submenu] = ports;
+  } 
 
-    /*---------------- add menu to main window box----------------*/
-    gtk_box_pack_start (GTK_BOX (fBox[fTop]), hbox , FALSE, FALSE, 0);
-    /*---------------- show menu ----------------*/
-    gtk_widget_show(menuitem);
-    gtk_widget_show(menuFile);
-    gtk_widget_show(menuLatency);
-    gtk_widget_show(menuJack);
-    gtk_widget_show(menuEdit);
-    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
-      gtk_widget_show(presMenu[i]);
-    gtk_widget_show(menuSkinChooser);
-    gtk_widget_show(menuMorePresetAction);
-    gtk_widget_show(menuHelp);
-    gtk_widget_show(menubar);
-    gtk_widget_show(hbox);
-    /*---------------- end show menu ----------------*/
+  /* -------- add port lists for a given jack client ---------- */
+  void GxMainInterface::addJackPortItem(const string port_name,
+					const string port_type,
+					const int flags) 
+  {
+
+    // no need to bother if are not a jack client
+    if (gx_jack::client == NULL)
+    {
+      gx_print_warning("Jack Client Port Add", 
+		       "we are not yet a jack client");
+      return;
+    }
+
+    // if it is ourselves, get out of here
+    string client_name = port_name.substr(0, port_name.find(':'));
+    if (client_name == gx_jack::client_name)
+      return;
+
+    // don't bother with MIDI for now
+    if (port_type != JACK_DEFAULT_AUDIO_TYPE)
+      return;
+
+    string short_name  = port_name.substr(port_name.find(':')+1);
+
+    // set up how many menus we should consider:
+    // 1 for guitarix input (mono)
+    // 2 for guitarix outputs (stereo)
+
+    int gxport_index = gx_jack::kAudioInput, nmenu = 1;
+    if ((flags & JackPortIsOutput) == 0)
+    {  
+      gxport_index = gx_jack::kAudioOutput1;
+      nmenu = 2;
+    }
+
+    // add port item 
+    for (int i = gxport_index; i < gxport_index + nmenu; i++)
+    {
+      string submenu = client_name + plist_names[i]; 
+      if (!fJackClientMenu[submenu]) // need to create submenu first
+	addJackClientMenu(client_name, plist_names[i]);
+      
+      if (fJackClientMenu[submenu])
+      {
+	GxJackPortList*	ports = fJackClientMenu[submenu];
+
+	// only add it if menuitem not yet created
+	if (!(*ports)[port_name])
+	{
+	  // get menu container
+	  GtkWidget* menucont = (*ports)[submenu + "cont"];
+	  
+	  // create menuitem
+	  GtkWidget* menuitem =
+	    gtk_check_menu_item_new_with_label(short_name.c_str());
+	  
+	  gtk_widget_set_name(menuitem,  (gchar*)port_name.c_str());
+	  gtk_menu_append (GTK_MENU(menucont), menuitem);
+	  gtk_widget_show(menuitem);
+	  
+	  g_signal_connect(GTK_OBJECT (menuitem), "activate",
+			   G_CALLBACK (gx_jack::gx_jack_port_connect), 
+			   GINT_TO_POINTER(i));
+	  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), FALSE);
+
+
+	  (*ports)[port_name] = menuitem;
+	}
+      }
+    }
+  }
+    
+  /* -------- delete jack client item ---------- */
+  void GxMainInterface::deleteJackClientMenu(string clname)
+  {
+    // exceptions that we don't want to consider ... 
+    if (clname == "ardourprobe" || 
+	clname == "freewheel"   || 
+	clname == "qjackctl")
+      return;
+
+    for (int l = 0; l < NUM_PORT_LISTS; l++)
+    {
+
+      string submenu = clname + plist_names[l]; 
+      if (!fJackClientMenu[submenu]) // already done it for this client
+	continue;
+
+      GxJackPortList* ports = fJackClientMenu[submenu];
+
+      if ((*ports)[submenu + "cont"] ) 
+	gtk_widget_destroy((*ports)[submenu + "cont"]);
+
+      if ((*ports)[submenu + "label"]) 
+	gtk_widget_destroy((*ports)[submenu + "label"]);
+
+      delete ports;
+
+      // clean up internal map
+      fJackClientMenu[submenu] = NULL;
+      fJackClientMenu.erase(submenu);
+    }
+
+    // print warning
+    gx_print_warning("Jack Client Delete", 
+		     clname + " left the jack graph, deleting ports from menu");
+  } 
+
+  /* -------- delete all jack client menus ---------- */
+  void GxMainInterface::deleteAllJackClientMenus()
+  {
+    map<const string, GxJackPortList*>::iterator it;
+    bool deleted = false;
+
+    for (it = fJackClientMenu.begin(); it != fJackClientMenu.end(); it++)
+    {
+      GxJackPortList* ports = it->second;
+      if (!ports) continue;
+
+      const string submenu = it->first;
+
+      if ((*ports)[submenu + "cont"] ) 
+	gtk_widget_destroy((*ports)[submenu + "cont"]);
+
+      if ((*ports)[submenu + "label"]) 
+	gtk_widget_destroy((*ports)[submenu + "label"]);
+
+      delete ports;
+      it->second = NULL;
+      deleted = true;
+    }
+
+    fJackClientMenu.clear();
+
+    // print warning
+    if (deleted)
+      gx_print_warning("Jack Client Delete All", 
+		       "All client port menus have been deleted");
+  } 
+
+  /* -------- delete port lists for a given jack client ---------- */
+  void GxMainInterface::deleteJackPortItem(const string port_name) 
+
+  {
+    // create client item to be displayed as a submenu if some ports exist
+    string clname = port_name.substr(0, port_name.find(':'));
+
+    for (int l = 0; l < NUM_PORT_LISTS; l++)
+    {
+      string submenu = clname + plist_names[l]; 
+
+      GxJackPortList* ports = fJackClientMenu[submenu];
+      if (!ports)
+	continue;
+
+      // deleting menuitem
+      if ((*ports)[port_name]) 
+      {
+	gtk_widget_destroy((*ports)[port_name]);
+
+	// clean up internal map
+	ports->erase(port_name);
+      }
+    }
+  }
+
+  /* ------------ retrieve a port item particular widget ------------ */
+  GtkWidget* GxMainInterface::getJackPortItem(const string port_name, 
+					      const int list_index)
+  {
+
+    // client name
+    string clname = port_name.substr(0, port_name.find(':'));
+
+    // menu key name
+    string submenu = clname + plist_names[list_index]; 
+    GxJackPortList* ports = fJackClientMenu[submenu];
+
+    // wow, no port item widget for this client ??
+    if (!ports) 
+      return NULL;
+
+    // try to find a match
+    map<const string, GtkWidget*>::iterator it;
+    for (it = ports->begin(); it != ports->end(); it++)
+      if (it->second)
+	if (port_name == gtk_widget_get_name(it->second))
+	  return it->second; // got it
+
+    return NULL;
   }
 
   /* -------- user interface builder ---------- */
@@ -2640,7 +3209,7 @@ namespace gx_gui
 
     //----- add the menubar on top
     {
-      addMenu();
+      addMainMenu();
 
       //----- this is a dummy widget, only for save settings for the latency warning dialog
       openWarningBox("WARNING", &engine->fwarn);
@@ -3688,6 +4257,12 @@ namespace gx_gui
 
       GtkWidget* wd = getJackLatencyItem(gx_jack::jack_bs);
       if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
+
+      gtk_window_set_title(GTK_WINDOW(fWindow), gx_jack::client_name.c_str());
+
+      // build port menus for existing jack clients
+      initJackClientMenus();
+
     }
     else
     {
@@ -3702,11 +4277,6 @@ namespace gx_gui
   //---- show main GUI thread and more
   void GxMainInterface::run()
   {
-    assert(fTop == 0);
-
-    gtk_widget_show  (fBox[0]);
-    gtk_widget_show  (fWindow);
-
     string previous_state = gx_user_dir + gx_jack::client_name + "rc";
     recallState(previous_state.c_str());
 
@@ -3723,6 +4293,8 @@ namespace gx_gui
     gtk_timeout_add(20, gx_refresh_signal_level, 0);
     gtk_timeout_add(20, gx_refresh_jcsignal_level, 0);
     gtk_timeout_add(200, gx_survive_jack_shutdown, 0);
+    gtk_timeout_add(500, gx_monitor_jack_clients, 0);
+    gtk_timeout_add(500, gx_monitor_port_connection, 0);
 
     gtk_main();
     stop();
