@@ -835,7 +835,7 @@ namespace gx_jack
 	case 0:
 	  gx_print_info("Jack Port Connect", 
 			port1 + string(" and  ") + port2 
-			+ string("are now _CONNECTED_"));
+			+ string(" are now _CONNECTED_"));
 	  break;
 	  
 	case EEXIST: // already connected
