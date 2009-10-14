@@ -4290,11 +4290,11 @@ namespace gx_gui
     gtk_timeout_add(40, callUpdateAllGuis, 0);
 
     /* timeout in milliseconds */
-    gtk_timeout_add(20, gx_refresh_signal_level, 0);
-    gtk_timeout_add(20, gx_refresh_jcsignal_level, 0);
-    gtk_timeout_add(200, gx_survive_jack_shutdown, 0);
-    gtk_timeout_add(500, gx_monitor_jack_clients, 0);
-    gtk_timeout_add(500, gx_monitor_port_connection, 0);
+    g_timeout_add(20,  gx_refresh_signal_level, 0);
+    g_timeout_add(20,  gx_refresh_jcsignal_level, 0);
+    g_timeout_add(200, gx_survive_jack_shutdown, 0);
+    g_timeout_add(500, gx_monitor_jack_clients, 0);
+    g_timeout_add(500, gx_monitor_port_connection, 0);
 
     gtk_main();
     stop();
