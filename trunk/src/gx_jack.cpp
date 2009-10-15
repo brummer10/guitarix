@@ -348,6 +348,10 @@ namespace gx_jack
 	    jack_connect(client, jack_port_name(output_ports[2]), "jconv:In-1");
 	    jack_connect(client, jack_port_name(output_ports[3]), "jconv:In-2");
 	  }
+	  
+	  // restore jack client menus
+	  gx_gui::GxMainInterface::instance()->initJackClientMenus();
+
 	}
       }
 
@@ -398,6 +402,9 @@ namespace gx_jack
 
       // engine buffers no longer ready
       gx_engine::buffers_ready = false;
+
+      // delete all jack client menus
+      gx_gui::GxMainInterface::instance()->deleteAllJackClientMenus();
 
       gx_print_warning("Jack Server", "Disconnected from Jack Server");
     }
