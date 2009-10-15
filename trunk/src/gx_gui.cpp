@@ -100,6 +100,11 @@ namespace gx_gui
               count = 0;
             }
         }
+           /*      if ((showwave == 1) &&
+          ((wave_view_mode == kWvMode1) ||
+           (wave_view_mode == kWvMode2)))
+            gx_engine::GxEngine::instance()->viv = gx_engine::gOutChannel[0][0]; */
+
 
       return TRUE;
     }
@@ -1074,19 +1079,24 @@ namespace gx_gui
       /* create a cairo context */
       cr = gdk_cairo_create(wi->window);
 
-      double x0      = wi->allocation.x;
-      double y0      = wi->allocation.y;
-      double rect_width  = wi->allocation.width;
-      double rect_height = wi->allocation.height-10;
+      double x0      = wi->allocation.x+1;
+      double y0      = wi->allocation.y+1;
+      double rect_width  = wi->allocation.width-2;
+      double rect_height = wi->allocation.height-11;
 
-      cairo_rectangle (cr, x0,y0,rect_width,rect_height);
+      cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
+      cairo_set_source_rgb (cr, 0, 0, 0);
+      cairo_fill (cr);
 
-      cairo_set_source_rgb (cr, 0.05, 0.05, 0.05);
-      cairo_fill_preserve (cr);
-      //cairo_set_source_rgb (cr, 0, 0, 0);
-      //cairo_set_line_width (cr, 1.0);
-      cairo_stroke (cr);
+      cairo_pattern_t*pat =
+	  cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+      cairo_set_source (cr, pat);
+      cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
+      cairo_fill (cr);
 
+      cairo_pattern_destroy (pat);
       cairo_destroy(cr);
 
       return FALSE;
@@ -1250,7 +1260,7 @@ namespace gx_gui
     {
       GtkWidget* box = addWidget(label, gtk_hbox_new (FALSE, 0));
 
-      gtk_container_set_border_width (GTK_CONTAINER (box), 1);
+      gtk_container_set_border_width (GTK_CONTAINER (box), 2);
       gtk_box_set_spacing(GTK_BOX(box), 3);
       gtk_widget_set_size_request (GTK_WIDGET(box), 20.0, 145.0);
       g_signal_connect(box, "expose-event", G_CALLBACK(box3_expose), NULL);

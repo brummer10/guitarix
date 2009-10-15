@@ -47,6 +47,7 @@ namespace gx_engine
   extern float* checkfreq;
   extern float* oversample;
 
+
   /* number of channels */
   extern int    gNumInChans;
   extern int    gNumOutChans;
