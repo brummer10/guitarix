@@ -2373,22 +2373,22 @@ namespace gx_gui
     void GxMainInterface::addEngineMenu()
     {
       GtkWidget* menulabel;   // menu label
-      GtkWidget* menucont;    // menu container
+      //GtkWidget* menucont;    // menu container use menuh for systray menu here
       GtkWidget* menuitem;    // menu item
       GSList   * group = NULL;
 
       /*---------------- Create Engine menu items ------------------*/
-      menucont = fMenuList["Top"];
+      menuh = fMenuList["Top"];
 
       menulabel = gtk_menu_item_new_with_mnemonic ("_Engine");
-      gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
+      gtk_menu_bar_append (GTK_MENU_BAR(menuh), menulabel);
       gtk_widget_show(menulabel);
 
       /*-- Create Engine submenu  --*/
-      menucont = gtk_menu_new();
-      gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
-      gtk_widget_show(menucont);
-      fMenuList["Engine"] = menucont;
+      menuh = gtk_menu_new();
+      gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menuh);
+      gtk_widget_show(menuh);
+      fMenuList["Engine"] = menuh;
 
       /*-- Create Engine start / stop item  --*/
       group = NULL;
@@ -2397,7 +2397,7 @@ namespace gx_gui
       gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
                                  GDK_space, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
 
-      gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
       gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem), TRUE);
       g_signal_connect (GTK_OBJECT (menuitem), "activate",
                         G_CALLBACK (gx_engine_switch), (gpointer)0);
@@ -2409,14 +2409,14 @@ namespace gx_gui
       gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
                                  GDK_b, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
 
-      gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
       g_signal_connect (GTK_OBJECT (menuitem), "activate",
                         G_CALLBACK (gx_engine_switch), (gpointer)1);
       gtk_widget_show (menuitem);
 
       /*-- add a separator line --*/
       GtkWidget* sep = gtk_separator_menu_item_new();
-      gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);
       gtk_widget_show (sep);
 
       /*---------------- Create Jack Server menu --------------------*/
@@ -2429,7 +2429,7 @@ namespace gx_gui
 
       /*-- add a separator line --*/
       sep = gtk_separator_menu_item_new();
-      gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);
       gtk_widget_show (sep);
 
       /*-- Create Open check menu item under Engine submenu --*/
@@ -2438,12 +2438,12 @@ namespace gx_gui
                                  GDK_m, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
       g_signal_connect (GTK_OBJECT (menuitem), "activate",
                         G_CALLBACK (gx_midi_out), NULL);
-      gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
       gtk_widget_show (menuitem);
 
       /*-- add a separator line --*/
       sep = gtk_separator_menu_item_new();
-      gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);
       gtk_widget_show (sep);
 
       /*-- Create Exit menu item under Engine submenu --*/
@@ -2452,7 +2452,7 @@ namespace gx_gui
                                  GDK_q, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
       g_signal_connect(G_OBJECT (menuitem), "activate",
                        G_CALLBACK (gx_clean_exit), NULL);
-      gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
       gtk_widget_show (menuitem);
 
       /*---------------- End Engine menu declarations ----------------*/
