@@ -73,7 +73,7 @@ namespace gx_gui
               float data[nframes];
 
               if (c == 0) (void)memcpy(data, gx_engine::get_frame, sizeof(data));
-              else if (c == 0) (void)memcpy(data, gx_engine::get_frame1, sizeof(data));
+              else if (c == 1) (void)memcpy(data, gx_engine::get_frame1, sizeof(data));
 
               for (guint f = 0; f < nframes; f++)
                 {
