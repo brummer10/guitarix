@@ -508,6 +508,8 @@ namespace gx_engine
     cache_note = 0;
 
 
+    fjc_ingain = 0;
+    zeroize(fRecinjc, 2);
 
 
     // end engine init
@@ -538,10 +540,12 @@ namespace gx_engine
     const int frag = (const int)gx_jack::jack_bs;
 
     get_frame  = new float[frag];
+    get_frame1  = new float[frag];
     checkfreq  = new float[frag];
     oversample = new float[frag*2];
 
     (void)memset(get_frame,  0, frag*sizeof(float));
+    (void)memset(get_frame1,  0, frag*sizeof(float));
     (void)memset(checkfreq,  0, frag*sizeof(float));
     (void)memset(oversample, 0, frag*2*sizeof(float));
 
@@ -556,6 +560,7 @@ namespace gx_engine
   {
     if (checkfreq)  delete[] checkfreq;
     if (get_frame)  delete[] get_frame;
+    if (get_frame1)  delete[] get_frame1;
     if (oversample) delete[] oversample;
 
     initialized = false;

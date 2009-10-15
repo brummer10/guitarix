@@ -560,7 +560,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
       //----- draw the frame
       for (int i = 0; i < frag; i++)
 	cairo_line_to (cr, liveviewx+350-(250.0/frag)-((250.0/frag)*i+1),
-		       liveviewy+25+double(gx_engine::get_frame[i])*75.0);
+		       liveviewy+25+double(gx_engine::gOutChannel[0][i])*75.0);
 
       cairo_line_to (cr, liveviewx, liveviewy+25);
       cairo_pattern_t* linpat =
@@ -642,7 +642,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
       //----- draw the frame
       for (int i=0; i < frag; i++)
       {
-	double fgh = 0.25-fabs(gx_engine::get_frame[i]);
+	double fgh = 0.25-fabs(gx_engine::gOutChannel[0][i]);
 	double tgh = 1-2*fabs(fgh); fgh *= 8;
 	double out = fgh*tgh*15;
 	cairo_line_to (cr, liveviewx+350-(250.0/frag)-((250.0/frag)*i+1), liveviewy+30+out);

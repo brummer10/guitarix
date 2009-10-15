@@ -561,6 +561,8 @@ namespace gx_engine
     float cache_note;
 
 
+    float fjc_ingain;
+    float fRecinjc[2];
 
 
     // private constructor
@@ -646,7 +648,7 @@ namespace gx_engine
 		      float** input, float** output);
     void  preamp     (int sf, float** input, float** output,
 		      float atan_shape, float f_atan);
-
+    void  get_jconv_output(float **input,float **output,int sf);
     // main audio processing
     void compute (int count, float** input, float** output);
 

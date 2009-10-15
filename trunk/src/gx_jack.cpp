@@ -580,10 +580,14 @@ namespace gx_jack
 
     if (checkfreq)  delete[] checkfreq;
     if (get_frame)  delete[] get_frame;
+    if (get_frame1)  delete[] get_frame1;
     if (oversample) delete[] oversample;
 
     get_frame = new float[jack_bs];
     (void)memset(get_frame, 0, sizeof(float)*jack_bs);
+
+    get_frame1 = new float[jack_bs];
+    (void)memset(get_frame1, 0, sizeof(float)*jack_bs);
 
     checkfreq = new float[jack_bs];
     (void)memset(checkfreq, 0, sizeof(float)*jack_bs);
@@ -678,7 +682,7 @@ namespace gx_jack
     AVOIDDENORMALS;
 
     // retrieve buffers at jack ports
-    for (int i = 0; i < gNumInChans; i++)
+    for (int i = 0; i < 1; i++)
       gInChannel[i] = (float *)jack_port_get_buffer(input_ports[i], nframes);
 
     for (int i = 0; i < gNumOutChans; i++)
@@ -687,6 +691,11 @@ namespace gx_jack
     // guitarix DSP computing
     GxEngine::instance()->compute(nframes, gInChannel, gOutChannel);
 
+    if (gx_jconv::jconv_is_running) {
+     for (int i = 1; i < gNumInChans; i++)
+      gInChannel[i] = (float *)jack_port_get_buffer(input_ports[i], nframes);
+    GxEngine::instance()->get_jconv_output( gInChannel, gOutChannel,nframes);
+    }
     // ready to go for e.g. level display
     gx_engine::buffers_ready = true;
 
@@ -727,7 +736,7 @@ namespace gx_jack
 
     // if it is our own, get out of here
     if (jack_port_is_mine(client, port)) return;
-      
+
     // OK, let's get to it
     const char* name  = jack_port_name(port);
     const char* type  = jack_port_type(port);
@@ -735,13 +744,13 @@ namespace gx_jack
 
     // get GUI to act upon the stuff
     gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
-    switch(reg) 
+    switch(reg)
     {
 
     case 0: gui->deleteJackPortItem(name); break;
     case 1: gui->addJackPortItem(name, type, flags); break;
 
-    default: break; 
+    default: break;
     }
   }
 
@@ -753,28 +762,28 @@ namespace gx_jack
 
     // if it is outselves, get out of here
     if (client_name == clname) return;
-      
+
     client_out_graph = "";
     client_in_graph = "";
 
     // get GUI to act upon the stuff
     // see gx_gui::gx_monitor_jack_clients
-    switch(reg) 
+    switch(reg)
     {
     case 0: client_out_graph = clname; break;
     case 1: client_in_graph = clname; break;
-    default: break; 
+    default: break;
     }
   }
 
-  //---- GTK callback from port item for port connection 
+  //---- GTK callback from port item for port connection
   void gx_jack_port_connect(GtkWidget* wd, gpointer data)
   {
     GtkCheckMenuItem* item = GTK_CHECK_MENU_ITEM(wd);
 
     // don't bother if not a jack client
     if (!client)
-    {  
+    {
       gtk_check_menu_item_set_active(item,  FALSE);
       return;
     }
@@ -788,12 +797,12 @@ namespace gx_jack
     }
 
     // configure connection
-    // Note: for some reason, jack_connect is not symmetric and one has to 
+    // Note: for some reason, jack_connect is not symmetric and one has to
     // connect out-to-in, jack_connect() does not take in-to-out.
     // weird but that's how it is, so we must know if we deal with
-    // an input or output port (yeah, it sucks a bit). 
- 
-    gint gxport_type = GPOINTER_TO_INT(data); 
+    // an input or output port (yeah, it sucks a bit).
+
+    gint gxport_type = GPOINTER_TO_INT(data);
 
     // check we do have a proper gxport_type
     if (gxport_type < kAudioInput || gxport_type > kAudioOutput2)
@@ -829,26 +838,26 @@ namespace gx_jack
       if (nconn == 0)
       {
 	int ret = jack_connect(client, port1.c_str(), port2.c_str());
-      
+
 	switch (ret)
         {
 	case 0:
-	  gx_print_info("Jack Port Connect", 
-			port1 + string(" and  ") + port2 
+	  gx_print_info("Jack Port Connect",
+			port1 + string(" and  ") + port2
 			+ string(" are now _CONNECTED_"));
 	  break;
-	  
+
 	case EEXIST: // already connected
-	  gx_print_info("Jack Port Connect", 
+	  gx_print_info("Jack Port Connect",
 			port1 + string(" and  ") + port2 +
 			string(" ALREADY connected"));
 	  break;
-	  
+
 	default:
-	  gx_print_warning("Jack Port Connect", 
+	  gx_print_warning("Jack Port Connect",
 			   string("Could NOT CONNECT ") +
 			   port1 + string(" and  ") + port2);
-	  
+
 	  gtk_check_menu_item_set_active(item,  FALSE);
 	  break;
 	}
@@ -859,17 +868,17 @@ namespace gx_jack
       if (nconn > 0)
       {
 	int ret = jack_disconnect(client, port1.c_str(), port2.c_str());
-      
+
 	switch (ret)
         {
 	case 0:
-	  gx_print_info("Jack Port Connect", 
-			port1 + string(" and  ") + port2 
+	  gx_print_info("Jack Port Connect",
+			port1 + string(" and  ") + port2
 			+ string(" are now _DISCONNECTED_"));
 	  break;
-	  
+
 	default:
-	  gx_print_warning("Jack Port Disconnect", 
+	  gx_print_warning("Jack Port Disconnect",
 			   string("Could NOT DISCONNECT ") +
 			   port1 + string(" and  ") + port2);
 	  gtk_check_menu_item_set_active(item,  TRUE);

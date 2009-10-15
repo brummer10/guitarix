@@ -43,6 +43,7 @@ namespace gx_engine
   extern const char* stopit;
   extern float  checky;
   extern float* get_frame;
+  extern float* get_frame1;
   extern float* checkfreq;
   extern float* oversample;
 
@@ -50,7 +51,7 @@ namespace gx_engine
   extern int    gNumInChans;
   extern int    gNumOutChans;
 
-  extern float* gInChannel [1];
+  extern float* gInChannel [3];
   extern float* gOutChannel[4];
 
   /* latency warning  switch */
@@ -103,8 +104,8 @@ namespace gx_jack
   extern bool                jack_is_down;
   extern string              client_name;
 
-  extern string              client_in_graph; 
-  extern string              client_out_graph; 
+  extern string              client_in_graph;
+  extern string              client_out_graph;
 
   extern string              gx_port_names[];
 

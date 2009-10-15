@@ -49,6 +49,7 @@ namespace gx_engine
   const char* stopit = "go";
   float  checky      = 1.0;
   float* get_frame   = NULL;
+  float* get_frame1   = NULL;
   float* checkfreq   = NULL;
   float* oversample  = NULL;
   float 	GxEngine::ftbl0[65536];
@@ -57,7 +58,7 @@ namespace gx_engine
   int    gNumInChans;
   int    gNumOutChans;
 
-  float* gInChannel [1];
+  float* gInChannel [3];
   float* gOutChannel[4];
 
   /* latency warning  switch */
@@ -77,7 +78,7 @@ namespace gx_engine
 /* ----- jack namespace ----- */
 namespace gx_jack
 {
-  const int nIPorts = 1; // mono input
+  const int nIPorts = 3; // mono input
   const int nOPorts = 4; // stereo output + jconv
   int NO_CONNECTION = 0;
 
@@ -105,8 +106,8 @@ namespace gx_jack
 
   string client_name  = "guitarix";
 
-  string client_in_graph  = ""; 
-  string client_out_graph = ""; 
+  string client_in_graph  = "";
+  string client_out_graph = "";
 
   string gx_port_names[] = {
     "in_0",
@@ -291,8 +292,8 @@ namespace gx_gui
 
   /* names of port lists (exclude MIDI for now) */
   string plist_names[NUM_PORT_LISTS] = {
-    string("AudioIP"), 
-    string("AudioOPL"), 
+    string("AudioIP"),
+    string("AudioOPL"),
     string("AudioOPR")
   };
 }

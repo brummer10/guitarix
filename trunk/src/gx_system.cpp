@@ -320,7 +320,7 @@ namespace gx_system
 	gtk_text_buffer_insert(buffer, &iter1, msgbuf.c_str(), -1);
 
 	gtk_text_buffer_get_iter_at_line(buffer, &iter1, j);
-	GtkTextMark* scroll_to = 
+	GtkTextMark* scroll_to =
 	  gtk_text_buffer_create_mark(buffer, NULL, &iter1, true);
 	gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW(logw),scroll_to);
 
@@ -616,6 +616,7 @@ namespace gx_system
 
     gx_gui::shownote = -1;
     gx_gui::showwave = 0;
+    gx_jack::NO_CONNECTION = 1;
 
     gx_engine::stopit = "stop";
     dsp::turnOffMidi();
@@ -660,6 +661,8 @@ namespace gx_system
       delete[] checkfreq;
     if (get_frame)
       delete[] get_frame;
+    if (get_frame1)
+      delete[] get_frame1;
     if (oversample)
       delete[] oversample;
 

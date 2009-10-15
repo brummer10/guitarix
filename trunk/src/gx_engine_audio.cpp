@@ -395,6 +395,21 @@ inline void GxEngine::preamp(int sf, float** input, float** output,
 
 }
 
+void GxEngine::get_jconv_output(float **input,float **output,int sf)
+{
+  float*  input1 = input[1];
+  float*  input2 = input[2];
+  float*  out1 = output[0];
+  float*  out2 = output[1];
+
+  for (int i=0; i<sf; i++)
+    {
+      *out1++ +=  (*input1++ );
+      *out2++ +=  (*input2++ );
+    }
+
+}
+
 //==============================================================================
 //
 //             this is the process callback called from jack
@@ -514,13 +529,13 @@ void GxEngine::compute (int count, float** input, float** output)
 
             }
 
+           (void)memcpy(get_frame, output[0], sizeof(float)*count);
+           (void)memcpy(get_frame1, output[1], sizeof(float)*count);
+
           if ((gx_gui::showwave == 1) &&
               ((gx_gui::wave_view_mode == gx_gui::kWvMode1) ||
                (gx_gui::wave_view_mode == gx_gui::kWvMode2)))
-            {
-              (void)memcpy(get_frame, output[0], sizeof(float)*count);
               viv = output[0][0];
-            }
         }
       else // when jconv is running, init the wet/dry slider and run a minimal loop
         {
@@ -624,12 +639,12 @@ void GxEngine::compute (int count, float** input, float** output)
           if ((gx_gui::showwave == 1) &&
               ((gx_gui::wave_view_mode == gx_gui::kWvMode1) ||
                (gx_gui::wave_view_mode == gx_gui::kWvMode2)))
-            {
-              output2 = output[3];
-              (void)memcpy(get_frame, output2, sizeof(float)*count);
-              viv = output2[0];
-            }
+              viv = output[0][0];
 
+            output1 = output[0];
+            output3 = output[1];
+            (void)memcpy(get_frame, output1, sizeof(float)*count);
+            (void)memcpy(get_frame1, output3, sizeof(float)*count);
         }
 
 
@@ -746,6 +761,9 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   float 	fSlow_CH1 = fslider_CH1;
   float 	fSlow_CH2 = (fConst_CH1 * fslider_CH2);
   float 	fSlow_CH3 = fslider_CH3;
+
+  float fSlowinjc = (9.999871e-04f * powf(10, (5.000000e-02f * fjc_ingain)));
+
 
   //----- tone only reset when value have change
   fslider_tone_check1 = (fslider_tone1+fslider_tone0+fslider_tone2)*100;
@@ -1172,8 +1190,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       // trigger the oscilloscope to update peer sample. I know that some samples dont will show, but it will
       // update fast as  posible this way (mode 3)
       if ((gx_gui::showwave == 1) &&(gx_gui::wave_view_mode == gx_gui::kWvMode3)) viv = fRec0[0];
-      // this is the left "extra" port to run jconv in bybass mode
-      if (gx_jconv::jconv_is_running) *output0++ = (fSlow85 * fRec0[0]);
+
+
       float 	S9[2];
       // copy the output for the frame based mode of the oscilloscope
       //  if ((gx_gui::showwave == 1) &&((gx_gui::wave_view_mode == 1) || (gx_gui::wave_view_mode == 2) )) get_frame[i] = fRec0[0];
@@ -1181,8 +1199,15 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       S9[1] = (fSlow84 * fRec0[0]);
       // the left output port
       *output1++ = S9[iSlow88];
-      // this is the right "extra" port to run jconv in bybass mode
-      if (gx_jconv::jconv_is_running) *output2++ = (fSlow90 * fRec0[0]);
+
+      if (gx_jconv::jconv_is_running)
+      {
+       fRecinjc[0] = (fSlowinjc + (0.999f * fRecinjc[1]));
+       // this is the left "extra" port to run jconv in bybass mode
+       *output0++ = (fSlow85 * fRec0[0]* fRecinjc[0]);
+       // this is the right "extra" port to run jconv in bybass mode
+       *output2++ = (fSlow90 * fRec0[0]* fRecinjc[0]);
+      }
       float 	S10[2];
       S10[0] = (fSlow91 * fRec0[0]);
       S10[1] = (fSlow89 * fRec0[0]);
@@ -1286,6 +1311,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       //chorus
       fRec_CH0[1] = fRec_CH0[0];
       IOTA_CH = IOTA_CH+1;
+      fRecinjc[1] = fRecinjc[0];
 
     }
 
@@ -1293,13 +1319,12 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   if ((gx_gui::showwave == 1) &&
       ((gx_gui::wave_view_mode == gx_gui::kWvMode1) ||
        (gx_gui::wave_view_mode == gx_gui::kWvMode2)))
-    {
-      if (gx_jconv::jconv_is_running)
-        output1 = output[2];
-      else output1 = output[0];
-      (void)memcpy(get_frame, output1, sizeof(float)*count);
       viv = fRec0[1];
-    }
+
+    output1 = output[0];
+    output3 = output[1];
+    (void)memcpy(get_frame, output1, sizeof(float)*count);
+    (void)memcpy(get_frame1, output3, sizeof(float)*count);
 }
 
 
