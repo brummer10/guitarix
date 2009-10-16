@@ -431,23 +431,24 @@ namespace gx_jconv
     GtkWidget* box4    = gtk_vbox_new (FALSE, 4);
     GtkWidget* box5    = gtk_hbox_new (FALSE, 4);
     GtkWidget* box6    = gtk_vbox_new (FALSE, 8);
-    GtkWidget* box7    = gtk_vbox_new (FALSE, 8);
-    GtkWidget* box8    = gtk_vbox_new (FALSE, 8);
-    GtkWidget* viewbox = gtk_hbox_new (FALSE,  4);
+    GtkWidget* box7    = gtk_hbox_new (FALSE, 8);
 
-    gtk_widget_set_size_request (GTK_WIDGET(box6), 8.0, 200.0);
-    gtk_widget_set_size_request (GTK_WIDGET(box7), 8.0, 200.0);
-    gtk_widget_set_size_request (GTK_WIDGET(box8), 300.0, 8.0);
+    GtkWidget* box9    = gtk_hbox_new (FALSE, 8);
+    GtkWidget* viewbox = gtk_vbox_new (FALSE,  4);
+
+    gtk_container_set_border_width (GTK_CONTAINER (box7), 8);
+    gtk_container_set_border_width (GTK_CONTAINER (viewbox), 8);
+    gtk_container_set_border_width (GTK_CONTAINER (box9), 14);
+    gtk_widget_set_size_request (GTK_WIDGET(box6), 300.0, 8.0);
 
     gtk_container_add (GTK_CONTAINER (box4),   label);
     gtk_container_add (GTK_CONTAINER (box4),    viewbox);
-    gtk_container_add (GTK_CONTAINER (box4),    box8);
-    gtk_container_add (GTK_CONTAINER (viewbox), box6);
     gtk_container_add (GTK_CONTAINER (viewbox), waveview);
-    gtk_container_add (GTK_CONTAINER (viewbox), box7);
+    gtk_container_add (GTK_CONTAINER (viewbox),    box6);
+    gtk_container_add (GTK_CONTAINER (dialog), box7);
 
-
-    gtk_container_add (GTK_CONTAINER (dialog), box4);
+    gtk_container_add (GTK_CONTAINER (box7),   box9);
+    gtk_container_add (GTK_CONTAINER (box9),   box4);
     gtk_container_add (GTK_CONTAINER (box5),   gx_gui::label6);
     gtk_container_add (GTK_CONTAINER (box5),   gx_gui::fbutton);
     gtk_container_add (GTK_CONTAINER (box4),   box5);
@@ -466,7 +467,13 @@ namespace gx_jconv
     gtk_container_add (GTK_CONTAINER (box1),   label3);
     gtk_container_add (GTK_CONTAINER (box4),   ok_button);
 
+
+
     //----- connect signals to callback funcs
+    g_signal_connect(box9, "expose-event", G_CALLBACK(gx_gui::box1_expose), NULL);
+    g_signal_connect(box7, "expose-event", G_CALLBACK(gx_gui::box3_expose), NULL);
+    g_signal_connect(viewbox, "expose-event", G_CALLBACK(gx_gui::box3_expose), NULL);
+
     // IR resampling
     g_signal_connect_swapped (gx_gui::fbutton, "file-set",
 			      G_CALLBACK(gx_select_and_draw_jconv_ir), gx_gui::fbutton);

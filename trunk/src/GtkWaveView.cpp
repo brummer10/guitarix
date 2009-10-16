@@ -772,7 +772,9 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
 
       if (GTK_WIDGET_HAS_GRAB(widget))
         {
+           // cairo_scale (cr, 2, 1);
           cairo_set_source_surface (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file,0,0);
+
           cairo_paint (cr);
           cairo_set_source_rgba (cr, 0.5, 0.8, 0.5,0.3);
           double event_x;

@@ -37,6 +37,8 @@ namespace gx_gui
   gboolean gx_survive_jack_shutdown(gpointer arg);
   gboolean gx_monitor_jack_clients(gpointer args);
   gboolean gx_monitor_port_connection(gpointer args);
+  gboolean box3_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+  gboolean box1_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 
   unsigned int gx_fetch_available_skins();
 
@@ -153,7 +155,7 @@ namespace gx_gui
     // portmap: pairs of port_name / menuitem widget
     typedef map<const string, GtkWidget*> GxJackPortList;
 
-    // client portmaps: pairs of client name / pointer to portmap 
+    // client portmaps: pairs of client name / pointer to portmap
     map<const string, GxJackPortList*> fJackClientMenu;
 
 
