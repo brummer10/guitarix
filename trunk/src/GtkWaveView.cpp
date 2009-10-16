@@ -134,11 +134,14 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           cairo_set_line_join(cr,CAIRO_LINE_JOIN_ROUND);
           cairo_set_line_cap(cr,CAIRO_LINE_CAP_ROUND);
           // draw the background
-          cairo_move_to (cr, widget->allocation.x, widget->allocation.y);
-          cairo_rectangle (cr, widget->allocation.x, widget->allocation.y, widget->allocation.width, widget->allocation.height);
-          cairo_fill (cr);
+          cairo_move_to (cr, 0, 0);
+          cairo_rectangle (cr, 0, 0, widget->allocation.width, widget->allocation.height);
+          cairo_fill_preserve (cr);
+          cairo_set_line_width (cr, 1.0);
+          cairo_set_source_rgb (cr, 0.3, 0.7, 0.3);
+          cairo_stroke (cr);
 
-          cairo_move_to (cr, widget->allocation.x, widget->allocation.height*0.5);
+          cairo_move_to (cr, 0, widget->allocation.height*0.5);
           cairo_line_to (cr, widget->allocation.width, widget->allocation.height*0.5);
           cairo_set_line_width (cr, 2.0);
           cairo_set_source_rgb (cr, 0.3, 0.7, 0.3);
@@ -154,9 +157,9 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                                           GxJConvSettings::instance()->getIRFile() +
                                           " cannot be exposed ");
 
-              cairo_move_to (cr, widget->allocation.x, widget->allocation.height);
-              cairo_line_to (cr, widget->allocation.width, widget->allocation.x);
-              cairo_move_to (cr, widget->allocation.x, widget->allocation.y);
+              cairo_move_to (cr, 0, widget->allocation.height);
+              cairo_line_to (cr, widget->allocation.width, 0);
+              cairo_move_to (cr, 0, 0);
               cairo_line_to (cr, widget->allocation.width, widget->allocation.height);
               cairo_set_line_width (cr, 8.0);
               cairo_set_source_rgb (cr, 0.8, 0.2, 0.2);
@@ -215,9 +218,9 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                   //----- stereo file
                 case 2:
 
-                  cairo_move_to (cr, widget->allocation.x, widget->allocation.height*0.75);
+                  cairo_move_to (cr, 0, widget->allocation.height*0.75);
                   cairo_line_to (cr, widget->allocation.width, widget->allocation.height*0.75);
-                  cairo_move_to (cr, widget->allocation.x, widget->allocation.height*0.25);
+                  cairo_move_to (cr, 0, widget->allocation.height*0.25);
                   cairo_line_to (cr, widget->allocation.width, widget->allocation.height*0.25);
                   cairo_set_line_width (cr, 2.0);
                   cairo_set_source_rgb (cr, 0.3, 0.7, 0.3);
@@ -265,7 +268,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             }
 
           cr = cairo_create (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_selection);
-          cairo_set_source_surface (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file, widget->allocation.x, widget->allocation.y);
+          cairo_set_source_surface (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file, 0,0);
           cairo_paint (cr);
 
           // done with new view:
@@ -279,7 +282,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
               GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut = jcset->getLength();
 
               cairo_set_source_rgba (cr, 0.5, 0.8, 0.5,0.3);
-              cairo_rectangle (cr, jcset->getOffset()*GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale, widget->allocation.y,
+              cairo_rectangle (cr, jcset->getOffset()*GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale, 0,
                                jcset->getLength()*GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale, widget->allocation.height);
               cairo_fill (cr);
 
@@ -769,16 +772,17 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
 
       if (GTK_WIDGET_HAS_GRAB(widget))
         {
-          cairo_set_source_surface (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file, widget->allocation.x, widget->allocation.y);
+          cairo_set_source_surface (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file,0,0);
           cairo_paint (cr);
           cairo_set_source_rgba (cr, 0.5, 0.8, 0.5,0.3);
+          double event_x;
 
           switch (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavebutton)
             {
             case 1:
 
               cairo_rectangle (cr, waveview->start_x, 0,
-                               event->x - waveview->start_x, 200);
+                               event->x - waveview->start_x, widget->allocation.height);
               cairo_fill (cr);
 
               GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveleft = event->x - waveview->start_x;
@@ -786,16 +790,17 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
               break;
 
             case 2:
-              cairo_rectangle (cr, event->x, 0,
-                               GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveleft,200);
+              event_x =  event->x -( GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveleft *0.5 );
+              cairo_rectangle (cr, event_x, 0,
+                               GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveleft,widget->allocation.height);
               cairo_fill (cr);
 
-              GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavestay = event->x;
+              GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavestay = event_x;
               break;
 
             case 3:
               cairo_rectangle (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavestay, 0,
-                               event->x-GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavestay,200);
+                               event->x-GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavestay,widget->allocation.height);
               cairo_fill (cr);
 
               GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveleft =
@@ -899,7 +904,7 @@ static gboolean gtk_waveview_button_press(GtkWidget *widget, GdkEventButton *eve
           cairo_set_source_surface (cr_show, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file, widget->allocation.x, widget->allocation.y);
           cairo_paint (cr_show);
 
-          cairo_set_source_surface (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file, widget->allocation.x, widget->allocation.y);
+          cairo_set_source_surface (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file,0,0);
           cairo_paint (cr);
 
           cairo_destroy (cr);

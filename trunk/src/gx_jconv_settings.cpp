@@ -430,12 +430,23 @@ namespace gx_jconv
     GtkWidget* box3    = gtk_hbox_new (TRUE,  4);
     GtkWidget* box4    = gtk_vbox_new (FALSE, 4);
     GtkWidget* box5    = gtk_hbox_new (FALSE, 4);
-    GtkWidget* viewbox = gtk_vbox_new (TRUE,  4);
+    GtkWidget* box6    = gtk_vbox_new (FALSE, 8);
+    GtkWidget* box7    = gtk_vbox_new (FALSE, 8);
+    GtkWidget* box8    = gtk_vbox_new (FALSE, 8);
+    GtkWidget* viewbox = gtk_hbox_new (FALSE,  4);
 
-    gtk_container_add (GTK_CONTAINER (box4),    viewbox);
-    gtk_container_add (GTK_CONTAINER (viewbox), waveview);
+    gtk_widget_set_size_request (GTK_WIDGET(box6), 8.0, 200.0);
+    gtk_widget_set_size_request (GTK_WIDGET(box7), 8.0, 200.0);
+    gtk_widget_set_size_request (GTK_WIDGET(box8), 300.0, 8.0);
 
     gtk_container_add (GTK_CONTAINER (box4),   label);
+    gtk_container_add (GTK_CONTAINER (box4),    viewbox);
+    gtk_container_add (GTK_CONTAINER (box4),    box8);
+    gtk_container_add (GTK_CONTAINER (viewbox), box6);
+    gtk_container_add (GTK_CONTAINER (viewbox), waveview);
+    gtk_container_add (GTK_CONTAINER (viewbox), box7);
+
+
     gtk_container_add (GTK_CONTAINER (dialog), box4);
     gtk_container_add (GTK_CONTAINER (box5),   gx_gui::label6);
     gtk_container_add (GTK_CONTAINER (box5),   gx_gui::fbutton);
