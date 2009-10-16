@@ -347,11 +347,11 @@ namespace gx_jconv
 
 	  // we are cancelling
 	if (response == GTK_RESPONSE_CANCEL) {
-	  jcset->invalidate(); // invalidating
+	 // jcset->invalidate(); // invalidating
 
 	  gx_print_warning("IR Resampling",
 			   "Resampling has been cancelled"
-			   ", JConv setting invalidated");
+			   ", use file as it is with JConv");
 	}
 	else { // OK, resampling it
 	  gx_resample_jconv_ir(NULL, NULL);
@@ -657,9 +657,12 @@ namespace gx_jconv
 	  if (response == GTK_RESPONSE_CANCEL) {
 	    gx_print_warning("IR Resampling",
 			     "Resampling has been cancelled"
-			     ", JConv setting invalidated");
+			     ", use file as it is with JConv");
 
-	    jcset->setIRFile("nofile");
+	    // let's save it into the JConv settings
+        tmp_file = basename((char*)file.c_str());
+        jcset->setIRFile(tmp_file);
+
 	    jcset->setIRDir(folder);
 	    jcset->validate(); // invalidate
 	  }
@@ -673,7 +676,7 @@ namespace gx_jconv
 	lab.str("");
 	lab << "IR file info: " << endl
 	    << chans            << " channel(s) "
-	    << gx_jack::jack_sr << " Sample rate "
+	    << sr << " Sample rate "
 	    << framescount      << " Samples ";
 
 	gx_waveview_set_value(widget, data);
