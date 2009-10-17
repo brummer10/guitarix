@@ -540,6 +540,7 @@ namespace gx_jack
       const char** port = jack_port_get_connections(input_ports[0]);
       setenv("GUITARIX2JACK_INPUTS",port[0],0);
       NO_CONNECTION = 0;
+      free(port);
     }
     else NO_CONNECTION = 1;
     if (jack_port_connected (output_ports[0]))

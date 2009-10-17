@@ -80,7 +80,7 @@ namespace gx_jack
 {
   const int nIPorts = 3; // mono input
   const int nOPorts = 4; // stereo output + jconv
-  int NO_CONNECTION = 0;
+  int NO_CONNECTION = 1;
 
   /* variables */
   jack_nframes_t      last_xrun_time;
