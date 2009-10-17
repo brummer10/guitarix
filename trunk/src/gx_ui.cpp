@@ -60,7 +60,7 @@ namespace gx_ui
   void GxUI::saveStateToFile(const char* filename)
   {
     ofstream f(filename);
-    for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++) 
+    for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
       f << *(i->first) << ' ';
 
     f << endl;
@@ -71,13 +71,13 @@ namespace gx_ui
   void GxUI::dumpStateToString(string& setting)
   {
     // string containing preset data
-    // will be flushed into preset file 
+    // will be flushed into preset file
     string space = " ";
-    
+
     for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
     {
       // build buffer with ostringstream's
-      ostringstream val; val << *(i->first); 
+      ostringstream val; val << *(i->first);
       setting +=  space + val.str();
     }
   }
@@ -86,23 +86,23 @@ namespace gx_ui
   bool GxUI::applyStateFromString(const string& setting)
   {
     if (setting.empty()) return false;
-    
+
     // parse buffer
     istringstream values(setting);
     for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
       values >> *(i->first);
-    
+
     return true;
   }
 
   // -- fetch state from file
-  void GxUI::fetchPresetStateFromFile(const char* filename, 
-				      const char* presname, 
+  void GxUI::fetchPresetStateFromFile(const char* filename,
+				      const char* presname,
 				      string& state)
   {
     ifstream fa(filename);
     string buffer;
-    
+
     if (fa.good())
     {
       do {
@@ -111,70 +111,70 @@ namespace gx_ui
         {
 	  // do we have a match ?
 	  if ((int)buffer.find(presname) == -1) continue;
-	  
+
 	  buffer.erase(0, buffer.find(" ")+1);
 	  break;
-	}  
+	}
       }
       while (buffer != "");
       fa.close();
     }
-    
+
     state = buffer;
   }
 
-  // -- recall a preset setting by name 
+  // -- recall a preset setting by name
   bool GxUI::recallPresetByname(const char* filename, const char* presname)
   {
     string buffer;
-    
+
     // lookup preset file until we find a match
     fetchPresetStateFromFile(filename, presname, buffer);
-    
+
     // set the found state
     return applyStateFromString(buffer);
   }
 
-  // -- recall a preset setting by name 
+  // -- recall a preset setting by name
   bool GxUI::renamePreset(const char* filename, const char* oldname, const char* newname)
   {
     string buffer, buf, space = " ";
-    
+
     const string prefile = filename;
     const string tmpfile = prefile + "_tmp";
-    
+
     // lookup preset file until we find a match
     fetchPresetStateFromFile(filename, oldname, buffer);
-    
+
     // did we find anything ? weird if not ...
     if (buffer.empty()) return false;
-    
-    // let's use a tmp file that does not contain the preset 
-    ostringstream cat_tmpfile("cat"); 
-    cat_tmpfile << "cat" << space << prefile << space 
+
+    // let's use a tmp file that does not contain the preset
+    ostringstream cat_tmpfile("cat");
+    cat_tmpfile << "cat" << space << prefile << space
 		<< "| grep -v" << space << oldname << space
-		<< ">" << tmpfile;    
-    
+		<< ">" << tmpfile;
+
     (void)system(cat_tmpfile.str().c_str());
     usleep(200);
-    
-    // add new name 
+
+    // add new name
     ostringstream presline;
     presline << "echo" << space << newname << space << buffer
 	     << " >> " << tmpfile;
-    
+
     // save preset in tmp file
-    if (system(presline.str().c_str()) != 0) 
+    if (system(presline.str().c_str()) != 0)
     {
       string cmd = string("rm -f ") + tmpfile;
       system(cmd.c_str());
       return false;
     }
-    
+
     // rename tmp file to filename
     string cmd = string("rm -f ") + prefile; system(cmd.c_str());
     rename(tmpfile.c_str(), prefile.c_str());
-    
+
     return true;
   }
 
@@ -252,13 +252,13 @@ namespace gx_ui
 
 
   /* ---------------- GxUiItem stuff --------------- */
-  GxUiItem::GxUiItem (GxUI* ui, float* zone) 
+  GxUiItem::GxUiItem (GxUI* ui, float* zone)
   : fGUI(ui), fZone(zone), fCache(-123456.654321)
   {
     ui->registerZone(zone, this);
   }
-  
-  // modify zone 
+
+  // modify zone
   void GxUiItem::modifyZone(float v)
   {
     fCache = v;

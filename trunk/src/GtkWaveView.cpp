@@ -64,6 +64,7 @@ struct GtkWaveViewClass
     int waveleft;
     int wavestay;
     int wavebutton;
+    double scale_view;
 
     int offset_cut;
     int length_cut;
@@ -772,7 +773,7 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
 
       if (GTK_WIDGET_HAS_GRAB(widget))
         {
-           // cairo_scale (cr, 2, 1);
+         // cairo_scale (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->scale_view, 1);
           cairo_set_source_surface (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file,0,0);
 
           cairo_paint (cr);
@@ -782,13 +783,24 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
           switch (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavebutton)
             {
             case 1:
-
+              if (event->x>waveview->start_x)
+              {
               cairo_rectangle (cr, waveview->start_x, 0,
                                event->x - waveview->start_x, widget->allocation.height);
               cairo_fill (cr);
 
               GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveleft = event->x - waveview->start_x;
               GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavestay = waveview->start_x;
+              }
+              else
+              {
+              cairo_rectangle (cr, waveview->start_x, 0,
+                               event->x - waveview->start_x, widget->allocation.height);
+              cairo_fill (cr);
+
+              GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveleft = waveview->start_x - event->x;
+              GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavestay = event->x;
+              }
               break;
 
             case 2:
@@ -801,12 +813,16 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
               break;
 
             case 3:
+              if (event->x>GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavestay)
+              {
+
               cairo_rectangle (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavestay, 0,
                                event->x-GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavestay,widget->allocation.height);
               cairo_fill (cr);
 
               GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveleft =
                 event->x-GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavestay;
+              }
               break;
 
             default: // do nothing
@@ -902,12 +918,14 @@ static gboolean gtk_waveview_button_press(GtkWidget *widget, GdkEventButton *eve
           cairo_t *cr, *cr_show;
 
           cr = cairo_create (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_selection);
-          cr_show = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-          cairo_set_source_surface (cr_show, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file, widget->allocation.x, widget->allocation.y);
-          cairo_paint (cr_show);
-
           cairo_set_source_surface (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file,0,0);
           cairo_paint (cr);
+          cr_show = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+
+          cairo_set_source_surface (cr_show, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_selection, widget->allocation.x, widget->allocation.y);
+          cairo_paint (cr_show);
+
+
 
           cairo_destroy (cr);
           cairo_destroy (cr_show);
@@ -1069,6 +1087,19 @@ static gboolean gtk_waveview_scroll (GtkWidget *widget, GdkEventScroll *event)
       GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->ringis =
         (ARRAY_SIZE-1)/GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->speed;
     }
+    // ----------- JConv view
+    else if (waveview->waveview_type == kWvTypeJConv)
+    {
+      double setscale;
+
+      if (event->direction == 0) setscale = -0.1;
+      else setscale = 0.1;
+      GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->scale_view += setscale;
+      if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->scale_view <1)
+        GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->scale_view = 1;
+      else if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->scale_view >4)
+        GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->scale_view = 4;
+    }
 
   return FALSE;
 }
@@ -1104,6 +1135,7 @@ static void gtk_waveview_class_init (GtkWaveViewClass *klass)
   klass->livecontrol_y = 80;
   klass->mode = 1;
   klass->speed = 5;
+  klass->scale_view = 1;
   klass->wave_save     = new float[ARRAY_SIZE];
   (void)memset(klass->wave_save, 0, sizeof(float)*ARRAY_SIZE);
 

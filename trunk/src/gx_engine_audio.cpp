@@ -532,10 +532,7 @@ void GxEngine::compute (int count, float** input, float** output)
            (void)memcpy(get_frame, output[0], sizeof(float)*count);
            (void)memcpy(get_frame1, output[1], sizeof(float)*count);
 
-          if ((gx_gui::showwave == 1) &&
-              ((gx_gui::wave_view_mode == gx_gui::kWvMode1) ||
-               (gx_gui::wave_view_mode == gx_gui::kWvMode2)))
-              viv = output[0][0];
+
         }
       else // when jconv is running, init the wet/dry slider and run a minimal loop
         {
@@ -636,10 +633,7 @@ void GxEngine::compute (int count, float** input, float** output)
 
             }
 
-          if ((gx_gui::showwave == 1) &&
-              ((gx_gui::wave_view_mode == gx_gui::kWvMode1) ||
-               (gx_gui::wave_view_mode == gx_gui::kWvMode2)))
-              viv = output[0][0];
+
 
             output1 = output[0];
             output3 = output[1];
@@ -1316,10 +1310,10 @@ void GxEngine::process_buffers(int count, float** input, float** output)
     }
 
   // trigger the oscilloscope to update on frame base (mode 1 and 2)
-  if ((gx_gui::showwave == 1) &&
+ /* if ((gx_gui::showwave == 1) &&
       ((gx_gui::wave_view_mode == gx_gui::kWvMode1) ||
        (gx_gui::wave_view_mode == gx_gui::kWvMode2)))
-      viv = fRec0[1];
+      viv = fRec0[1]; */
 
     output1 = output[0];
     output3 = output[1];

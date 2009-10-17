@@ -37,8 +37,12 @@ namespace gx_gui
   gboolean gx_survive_jack_shutdown(gpointer arg);
   gboolean gx_monitor_jack_clients(gpointer args);
   gboolean gx_monitor_port_connection(gpointer args);
+  gboolean box5_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+  gboolean box4_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
   gboolean box3_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+  gboolean box2_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
   gboolean box1_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+  gboolean box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 
   unsigned int gx_fetch_available_skins();
 

@@ -335,11 +335,24 @@ namespace gx_jack
 	      buf << "out_" << i;
 
 	      output_ports[i] =
-		jack_port_register(client,
+		  jack_port_register(client,
 				   buf.str().c_str(),
 				   JACK_DEFAULT_AUDIO_TYPE,
 				   JackPortIsOutput, 0);
 	      gx_engine::gNumOutChans++;
+	    }
+	    for (int i = 2; i < 4; i++)
+	    {
+
+	      buf.str("");
+          buf << "in_" << i-1;
+
+          input_ports[i-1] =
+          jack_port_register(client,
+				       buf.str().c_str(),
+				       JACK_DEFAULT_AUDIO_TYPE,
+				       JackPortIsInput, 0);
+		  gx_engine::gNumInChans++;
 	    }
 
 	    // ---- port connection
@@ -348,7 +361,7 @@ namespace gx_jack
 	    jack_connect(client, jack_port_name(output_ports[2]), "jconv:In-1");
 	    jack_connect(client, jack_port_name(output_ports[3]), "jconv:In-2");
 	  }
-	  
+
 	  // restore jack client menus
 	  gx_gui::GxMainInterface::instance()->initJackClientMenus();
 
@@ -524,20 +537,20 @@ namespace gx_jack
 
     if (jack_port_connected(input_ports[0]))
     {
-      const char** port = jack_port_get_connections(gx_jack::input_ports[0]);
+      const char** port = jack_port_get_connections(input_ports[0]);
       setenv("GUITARIX2JACK_INPUTS",port[0],0);
       NO_CONNECTION = 0;
     }
     else NO_CONNECTION = 1;
     if (jack_port_connected (output_ports[0]))
     {
-      const char** port1 = jack_port_get_connections(gx_jack::output_ports[0]);
+      const char** port1 = jack_port_get_connections(output_ports[0]);
       setenv("GUITARIX2JACK_OUTPUTS1",port1[0],0);
       free(port1);
     }
     if (jack_port_connected (output_ports[1]))
     {
-      const char** port2 = jack_port_get_connections(gx_jack::output_ports[1]);
+      const char** port2 = jack_port_get_connections(output_ports[1]);
       setenv("GUITARIX2JACK_OUTPUTS2",port2[0],0);
       free(port2);
     }

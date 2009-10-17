@@ -298,8 +298,8 @@ namespace gx_jconv
     gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
 
     // -- labels
-    GtkWidget* label  = gtk_label_new ("           settings for              \n"
-				       "      JConv  by  Fons Adriaensen     ");
+    GtkWidget* label  = gtk_label_new ("\n           settings for              \n"
+				       "      JConv  by  Fons Adriaensen     \n");
     gx_gui::label1    = gtk_label_new (" \n");
 
     GtkWidget* label2 = gtk_label_new (" partition size");
@@ -467,12 +467,17 @@ namespace gx_jconv
     gtk_container_add (GTK_CONTAINER (box1),   label3);
     gtk_container_add (GTK_CONTAINER (box4),   ok_button);
 
-
+    GtkStyle *style = gtk_widget_get_style(label);
+    pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+    gtk_widget_modify_font(label, style->font_desc);
 
     //----- connect signals to callback funcs
     g_signal_connect(box9, "expose-event", G_CALLBACK(gx_gui::box1_expose), NULL);
     g_signal_connect(box7, "expose-event", G_CALLBACK(gx_gui::box3_expose), NULL);
     g_signal_connect(viewbox, "expose-event", G_CALLBACK(gx_gui::box3_expose), NULL);
+    g_signal_connect(gx_gui::label6, "expose-event", G_CALLBACK(gx_gui::box4_expose), NULL);
+    g_signal_connect(label, "expose-event", G_CALLBACK(gx_gui::box5_expose), NULL);
 
     // IR resampling
     g_signal_connect_swapped (gx_gui::fbutton, "file-set",

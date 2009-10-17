@@ -553,7 +553,9 @@ namespace gx_child_process
 				       JACK_DEFAULT_AUDIO_TYPE,
 				       JackPortIsOutput, 0);
 		  gx_engine::gNumOutChans++;
-
+		}
+		for (int i = 2; i < 4; i++)
+	    {
           buf.str("");
           buf << "in_" << i-1;
 
