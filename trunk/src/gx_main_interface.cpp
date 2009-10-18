@@ -174,7 +174,8 @@ namespace gx_gui
     gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 
     GtkWidget * scrollbox = gtk_scrolled_window_new(NULL,NULL);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollbox),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollbox),
+				    GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
 
     GtkWidget* frame = addWidget(label, gtk_expander_new(label));
     gtk_container_add (GTK_CONTAINER(frame), box);
@@ -270,7 +271,7 @@ namespace gx_gui
     // scrolled window
     GtkWidget* scrlwd = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrlwd),
-				   GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
+				   GTK_POLICY_NEVER,GTK_POLICY_ALWAYS);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrlwd),
 					GTK_SHADOW_IN);
 
