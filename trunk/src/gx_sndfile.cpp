@@ -29,6 +29,7 @@
 #include <cstring>
 #include <list>
 #include <map>
+#include <set>
 #include <vector>
 #include <sstream>
 #include <iostream>

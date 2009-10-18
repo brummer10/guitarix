@@ -26,6 +26,7 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <set>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -141,8 +142,8 @@ namespace gx_jack
     jack_on_shutdown(client, gx_jack_shutdown_callback, NULL);
     jack_set_buffer_size_callback (client, gx_jack_buffersize_callback, 0);
     jack_set_process_callback(client, gx_jack_process, 0);
-    jack_set_client_registration_callback(client, gx_jack_clientreg_callback, 0);
     jack_set_port_registration_callback(client, gx_jack_portreg_callback, 0);
+    jack_set_client_registration_callback(client, gx_jack_clientreg_callback, 0);
 
     //----- register the input channel
     for (int i = 0; i < gNumInChans; i++) {
@@ -363,7 +364,7 @@ namespace gx_jack
 	  }
 
 	  // restore jack client menus
-	  gx_gui::GxMainInterface::instance()->initJackClientMenus();
+	  gx_gui::GxMainInterface::instance()->initClientPortMaps();
 
 	}
       }
@@ -417,7 +418,7 @@ namespace gx_jack
       gx_engine::buffers_ready = false;
 
       // delete all jack client menus
-      gx_gui::GxMainInterface::instance()->deleteAllJackClientMenus();
+      gx_gui::GxMainInterface::instance()->deleteAllClientPortMaps();
 
       gx_print_warning("Jack Server", "Disconnected from Jack Server");
     }
@@ -759,40 +760,49 @@ namespace gx_jack
     if (jack_port_is_mine(client, port)) return;
 
     // OK, let's get to it
-    const char* name  = jack_port_name(port);
-    const char* type  = jack_port_type(port);
+    
+    // don't process MIDI ports, too messy with jack2 ATM
+    const string type  = jack_port_type(port);
+    if (type == JACK_DEFAULT_MIDI_TYPE) return;
+      
+    const string name = jack_port_name(port);
     const int   flags = jack_port_flags(port);
 
-    // get GUI to act upon the stuff
-    gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
     switch(reg)
     {
-
-    case 0: gui->deleteJackPortItem(name); break;
-    case 1: gui->addJackPortItem(name, type, flags); break;
-
+    case 0: gx_gui::gx_dequeue_client_port(name, type, flags); break;
+    case 1: gx_gui::gx_queue_client_port  (name, type, flags); break;
     default: break;
     }
   }
 
   //----- client registration callback
-  void gx_jack_clientreg_callback(const char* clname, int reg, void* arg)
+  void gx_jack_clientreg_callback(const char* name, int reg, void* arg)
   {
     // just to be safe
     if (!client) return;
 
+    string clname = name; 
     // if it is outselves, get out of here
-    if (client_name == clname) return;
-
+    if (clname == client_name   ||
+	clname == "ardourprobe" ||
+	clname == "freewheel"   ||
+	clname == "qjackctl"    ||
+	clname == "Patchage")
+      return;
+  
     client_out_graph = "";
-    client_in_graph = "";
 
     // get GUI to act upon the stuff
     // see gx_gui::gx_monitor_jack_clients
     switch(reg)
     {
     case 0: client_out_graph = clname; break;
-    case 1: client_in_graph = clname; break;
+
+      // in case of registration, just log it, the port registration
+      // routines will take care of things
+    case 1: gx_print_info("Jack Client", 
+			  clname + string(" joined the graph")); break;
     default: break;
     }
   }
@@ -800,20 +810,20 @@ namespace gx_jack
   //---- GTK callback from port item for port connection
   void gx_jack_port_connect(GtkWidget* wd, gpointer data)
   {
-    GtkCheckMenuItem* item = GTK_CHECK_MENU_ITEM(wd);
+    GtkToggleButton* button = GTK_TOGGLE_BUTTON(wd);
 
     // don't bother if not a jack client
     if (!client)
     {
-      gtk_check_menu_item_set_active(item,  FALSE);
+      gtk_toggle_button_set_active(button,  FALSE);
       return;
     }
 
-    // check client port name
+    // toggle client port name
     string wname = gtk_widget_get_name(wd);
     if (wname.empty())
     {
-      gtk_check_menu_item_set_active(item,  FALSE);
+      gtk_toggle_button_set_active(button,  FALSE);
       return;
     }
 
@@ -854,7 +864,7 @@ namespace gx_jack
 
     // check direct connection
     int nconn = jack_port_connected_to(ports[gxport_type], wname.c_str());
-    if (gtk_check_menu_item_get_active(item) == TRUE)
+    if (gtk_toggle_button_get_active(button) == TRUE)
     {
       if (nconn == 0)
       {
@@ -879,7 +889,7 @@ namespace gx_jack
 			   string("Could NOT CONNECT ") +
 			   port1 + string(" and  ") + port2);
 
-	  gtk_check_menu_item_set_active(item,  FALSE);
+	  gtk_toggle_button_set_active(button,  FALSE);
 	  break;
 	}
       }
@@ -902,7 +912,7 @@ namespace gx_jack
 	  gx_print_warning("Jack Port Disconnect",
 			   string("Could NOT DISCONNECT ") +
 			   port1 + string(" and  ") + port2);
-	  gtk_check_menu_item_set_active(item,  TRUE);
+	  gtk_toggle_button_set_active(button,  TRUE);
 	  break;
 	}
       }

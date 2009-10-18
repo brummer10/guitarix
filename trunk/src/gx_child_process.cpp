@@ -29,6 +29,7 @@
 #include <sstream>
 #include <cstring>
 #include <vector>
+#include <set>
 #include <list>
 #include <map>
 #include <cstdlib>
@@ -726,6 +727,9 @@ namespace gx_child_process
 			string("meterbridge started at PID = ") +
 			gx_i2a(child_pid[METERBG_IDX]));
 	}
+
+	// in any case, keep window focus on guitarix
+	gtk_widget_grab_focus(gx_gui::fWindow);
       }
 
       else   // -- deactivate meterbridge

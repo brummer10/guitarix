@@ -56,6 +56,7 @@
 #include <fstream>
 #include <sstream>
 #include <iterator>
+#include <set>
 #include <map>
 #include <list>
 #include <vector>

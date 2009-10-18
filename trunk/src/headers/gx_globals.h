@@ -105,9 +105,7 @@ namespace gx_jack
   extern bool                jack_is_down;
   extern string              client_name;
 
-  extern string              client_in_graph;
   extern string              client_out_graph;
-
   extern string              gx_port_names[];
 
   /* lists of jack port types for menu items */
@@ -263,7 +261,11 @@ namespace gx_gui
   extern float rms_jclevel[2];
 
   /* names of port lists (exclude MIDI for now) */
-  extern string plist_names[];
+  extern string port_list_names[];
+
+  /* client port queues */
+  extern map<string, int> gx_client_port_queue;
+  extern map<string, int> gx_client_port_dequeue;
 }
 
 /* -------------------------------------------------------------------------- */

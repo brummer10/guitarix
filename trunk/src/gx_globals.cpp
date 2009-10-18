@@ -25,6 +25,7 @@
 #include <list>
 #include <map>
 #include <vector>
+#include <set>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -105,8 +106,6 @@ namespace gx_jack
 #endif
 
   string client_name  = "guitarix";
-
-  string client_in_graph  = "";
   string client_out_graph = "";
 
   string gx_port_names[] = {
@@ -291,10 +290,14 @@ namespace gx_gui
   float max_jclevel[2];
 
   /* names of port lists (exclude MIDI for now) */
-  string plist_names[NUM_PORT_LISTS] = {
+  string port_list_names[NUM_PORT_LISTS] = {
     string("AudioIP"),
     string("AudioOPL"),
     string("AudioOPR")
   };
+
+  /* client port queues */
+  map<string, int> gx_client_port_queue;
+  map<string, int> gx_client_port_dequeue;
 }
 /* ------------------------------------------------------------------------- */

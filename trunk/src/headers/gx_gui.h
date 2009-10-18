@@ -32,11 +32,11 @@
 namespace gx_gui
 {
   /* function declarations */
-  gboolean gx_refresh_signal_level(gpointer arg);
-  gboolean gx_refresh_jcsignal_level(gpointer arg);
-  gboolean gx_survive_jack_shutdown(gpointer arg);
-  gboolean gx_monitor_jack_clients(gpointer args);
-  gboolean gx_monitor_port_connection(gpointer args);
+  gboolean gx_refresh_signal_level   (gpointer arg);
+  gboolean gx_refresh_jcsignal_level (gpointer arg);
+  gboolean gx_survive_jack_shutdown  (gpointer arg);
+  gboolean gx_monitor_jack_clients   (gpointer args);
+  gboolean gx_monitor_jack_ports     (gpointer args);
   gboolean box5_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
   gboolean box4_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
   gboolean box3_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
@@ -55,6 +55,16 @@ namespace gx_gui
   void gx_set_skin_change(float fskin);
   void gx_refresh_engine_status_display();
   void gx_engine_switch (GtkWidget* widget, gpointer arg);
+  void gx_show_portmap_window (GtkWidget* widget, gpointer arg);
+  void gx_hide_portmap_window (GtkWidget* widget, gpointer arg);
+  void gx_refresh_portconn_status(GtkWidget* button, gpointer data);
+  void gx_cycle_through_client_tabs(GtkWidget* item, gpointer data);
+
+  void gx_queue_client_port(const string, const string, const int);
+  void gx_queue_client(const string);
+
+  void gx_dequeue_client_port(const string, const string, const int);
+  void gx_dequeue_client(const string);
 
   /* choice dialog windows */
   void gx_get_text_entry(GtkEntry*, string&);
@@ -114,7 +124,6 @@ namespace gx_gui
 
     void addEngineMenu();
     void addJackServerMenu();
-    void addJackPortMenu();
 
     void addPresetMenu();
     void addExtraPresetMenu();
@@ -131,6 +140,8 @@ namespace gx_gui
     bool		fStopped;
     GtkTextView*        fLoggingWindow;
     GtkExpander*        fLoggingBox;
+    GtkNotebook*        fPortMapTabs;
+    GtkWindow*          fPortMapWindow;
     GtkWidget*          fSignalLevelBar;
     GtkWidget*          fJCSignalLevelBar;
 
@@ -147,25 +158,26 @@ namespace gx_gui
   public :
     static bool	 fInitialized;
 
-    static const gboolean expand = TRUE;
-    static const gboolean fill = TRUE;
+    static const gboolean expand   = TRUE;
+    static const gboolean fill     = TRUE;
     static const gboolean homogene = FALSE;
 
     static GxMainInterface* instance(const char* name = "",
 				     int* pargc = NULL, char*** pargv = NULL);
 
+    // for key acclerators
     GtkAccelGroup* fAccelGroup;
 
-    // portmap: pairs of port_name / menuitem widget
-    typedef map<const string, GtkWidget*> GxJackPortList;
-
-    // client portmaps: pairs of client name / pointer to portmap
-    map<const string, GxJackPortList*> fJackClientMenu;
-
+    // list of client portmaps
+    set<GtkWidget*> fClientPortMap;
 
     // -- acquire a pointer to the logging window
     GtkTextView* const getLoggingWindow()    const { return fLoggingWindow;   }
     GtkExpander* const getLoggingBox()       const { return fLoggingBox;      }
+
+    GtkNotebook* const getPortMapTabs()      const { return fPortMapTabs;     }
+    GtkWindow*   const getPortMapWindow()    const { return fPortMapWindow;   }
+
     GtkWidget*   const getSignalLevelBar()   const { return fSignalLevelBar;  }
     GtkWidget*   const getJCSignalLevelBar() const { return fJCSignalLevelBar;}
     GtkWidget*   const getJackConnectItem()  const { return fJackConnectItem; }
@@ -173,15 +185,22 @@ namespace gx_gui
     GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
 
     // -- update jack client port lists
-    void addJackPortItem   (const string, const string, const int);
-    void deleteJackPortItem(const string);
+    void initClientPortMaps      ();
 
-    void initJackClientMenus ();
-    void addJackClientMenu   (const string, const string);
-    void deleteJackClientMenu(const string);
-    void deleteAllJackClientMenus();
+    void addClientPorts          ();
+    void addClientPortMap        (const string);
 
-    GtkWidget* getJackPortItem(const string, const int);
+    void deleteClientPorts       ();
+    void deleteClientPortMap     (const string);
+
+    void deleteAllClientPortMaps ();
+
+    GtkWidget* getClientPort       (const string, const int);
+    GtkWidget* getClientPortTable  (const string, const int);
+    GtkWidget* getClientPortMap    (const string);
+
+    // -- create jack portmap window
+    void createPortMapWindow(const char* label = "");
 
     // -- layout groups
     virtual void openFrameBox(const char* label);
