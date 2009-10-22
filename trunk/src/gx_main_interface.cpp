@@ -1973,13 +1973,15 @@ namespace gx_gui
 
     GtkWidget* label   = gtk_label_new(clname.c_str());
 
-    GtkWidget* mapbox  = gtk_hbox_new(TRUE, 10);
+    GtkWidget* mapbox  = gtk_hbox_new(FALSE, 10);
     gtk_widget_set_name(mapbox, clname.c_str());
 
     for (int t = gx_jack::kAudioInput; t <= gx_jack::kAudioOutput2; t++)
       {
 	GtkWidget* table  = gtk_vbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(mapbox), table, TRUE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(mapbox), table, FALSE, FALSE, 0);
+	gtk_container_set_border_width(GTK_CONTAINER(table), 8);
+	g_signal_connect(table, "expose-event", G_CALLBACK(box6_expose), NULL);
 	gtk_widget_show(table);
       }
 
@@ -2046,27 +2048,28 @@ namespace gx_gui
 	    // retrieve port table
 	    GtkVBox* portbox =
 	      GTK_VBOX(getClientPortTable(client_name, i));
-	      gtk_container_set_border_width (GTK_CONTAINER (portbox), 8);
-            g_signal_connect(portbox, "expose-event", G_CALLBACK(box6_expose), NULL);
+
 	    // create checkbutton
 	    GtkWidget* button =
 	      gtk_check_button_new_with_label(short_name.c_str());
-        GtkWidget *button_text = gtk_bin_get_child(GTK_BIN(button));
 
+	    GtkWidget *button_text = gtk_bin_get_child(GTK_BIN(button));
 
-        GdkColor colorGreen;
-        GdkColor color1;
-        GdkColor color2;
-        gdk_color_parse("#000000", &colorGreen);
-        gtk_widget_modify_fg (button_text, GTK_STATE_NORMAL, &colorGreen);
-        gdk_color_parse("#292995", &color1);
-        gtk_widget_modify_fg (button_text, GTK_STATE_ACTIVE, &color1);
-        gdk_color_parse("#444444", &color2);
-        gtk_widget_modify_fg (button_text, GTK_STATE_PRELIGHT, &color2);
-        GtkStyle *style = gtk_widget_get_style(button_text);
-        pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-        pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-        gtk_widget_modify_font(button_text, style->font_desc);
+	    GdkColor colorGreen;
+	    GdkColor color1;
+	    GdkColor color2;
+
+	    gdk_color_parse("#000000", &colorGreen);
+	    gtk_widget_modify_fg (button_text, GTK_STATE_NORMAL, &colorGreen);
+	    gdk_color_parse("#292995", &color1);
+	    gtk_widget_modify_fg (button_text, GTK_STATE_ACTIVE, &color1);
+	    gdk_color_parse("#444444", &color2);
+	    gtk_widget_modify_fg (button_text, GTK_STATE_PRELIGHT, &color2);
+
+	    GtkStyle *style = gtk_widget_get_style(button_text);
+	    pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+	    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+	    gtk_widget_modify_font(button_text, style->font_desc);
 
 	    gtk_widget_set_name(button,  (gchar*)port_name.c_str());
 	    gtk_box_pack_start(GTK_BOX(portbox), button, FALSE, FALSE, 0);
