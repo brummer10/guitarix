@@ -1267,7 +1267,7 @@ namespace gx_gui
       cairo_fill (cr);
 
       cairo_pattern_t*pat =
-	  cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	  cairo_pattern_create_radial (-50, y0, 5,rect_width+100,  rect_height, 0.0);
       cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
       cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
       switch (skin_is)
@@ -1389,7 +1389,7 @@ namespace gx_gui
       cairo_fill (cr);
 
       cairo_pattern_t*pat =
-	  cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	  cairo_pattern_create_radial (-50, y0, 5,rect_width+100,  rect_height, 0.0);
       cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
       cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
       switch (skin_is)

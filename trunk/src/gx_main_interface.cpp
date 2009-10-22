@@ -2050,10 +2050,9 @@ namespace gx_gui
             g_signal_connect(portbox, "expose-event", G_CALLBACK(box6_expose), NULL);
 	    // create checkbutton
 	    GtkWidget* button =
-	      gtk_check_button_new();
-	    GtkWidget* button_text =
-	      gtk_label_new (short_name.c_str());
-	      gtk_container_add (GTK_CONTAINER(button), button_text);
+	      gtk_check_button_new_with_label(short_name.c_str());
+        GtkWidget *button_text = gtk_bin_get_child(GTK_BIN(button));
+
 
         GdkColor colorGreen;
         GdkColor color1;
