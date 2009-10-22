@@ -1260,6 +1260,7 @@ namespace gx_gui
       double y0      = wi->allocation.y+1;
       double rect_width  = wi->allocation.width-2;
       double rect_height = wi->allocation.height-11;
+      int skin_is = int(float(gx_current_skin));
 
       cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
       cairo_set_source_rgb (cr, 0, 0, 0);
@@ -1269,6 +1270,33 @@ namespace gx_gui
 	  cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
       cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
       cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+      switch (skin_is)
+        {
+	  case 0:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+      break;
+      case 1:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.3, 0.2, 0.3);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+      break;
+      case 2:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.5, 0.02, 0.03);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.1);
+      break;
+      case 3:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.5, 0.2);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.1, 0.05);
+      break;
+      case 4:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.8, 0.2, 0.02);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.2, 0.09, 0.005);
+      break;
+      case 5:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.8, 0.3, 0.02);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.2, 0.06, 0.005);
+      break;
+        }
       cairo_set_source (cr, pat);
       cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
       cairo_fill (cr);
@@ -1291,6 +1319,7 @@ namespace gx_gui
       double y0      = wi->allocation.y+1;
       double rect_width  = wi->allocation.width-2;
       double rect_height = wi->allocation.height-2;
+      int skin_is = int(float(gx_current_skin));
 
       cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
       cairo_set_source_rgb (cr, 0, 0, 0);
@@ -1298,8 +1327,35 @@ namespace gx_gui
 
       cairo_pattern_t*pat =
 	  cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	  cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+	  switch (skin_is)
+        {
+	  case 0:
       cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
       cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+      break;
+      case 1:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.3, 0.2, 0.3);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+      break;
+      case 2:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.5, 0.02, 0.03);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.5);
+      break;
+      case 3:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.5, 0.2);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.1, 0.1);
+      break;
+      case 4:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.8, 0.2, 0.02);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.2, 0.09, 0.005);
+      break;
+      case 5:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.8, 0.3, 0.02);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.2, 0.06, 0.005);
+      break;
+        }
       cairo_set_source (cr, pat);
 
       cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
@@ -1323,6 +1379,7 @@ namespace gx_gui
       double y0      = wi->allocation.y+1;
       double rect_width  = wi->allocation.width-2;
       double rect_height = wi->allocation.height-2;
+      int skin_is = int(float(gx_current_skin));
 
        /* create a cairo context */
       cr = gdk_cairo_create(wi->window);
@@ -1335,6 +1392,33 @@ namespace gx_gui
 	  cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
       cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
       cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+      switch (skin_is)
+        {
+	  case 0:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+      break;
+      case 1:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.3, 0.2, 0.3);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+      break;
+      case 2:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.5, 0.02, 0.03);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.1);
+      break;
+      case 3:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.5, 0.2);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.1, 0.05);
+      break;
+      case 4:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.8, 0.2, 0.02);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.2, 0.09, 0.005);
+      break;
+      case 5:
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.8, 0.3, 0.02);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.2, 0.06, 0.005);
+      break;
+        }
       cairo_set_source (cr, pat);
 
       cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
@@ -1385,10 +1469,51 @@ namespace gx_gui
       double rect_height = wi->allocation.height-11;
 
       cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
-      cairo_set_source_rgb (cr, 0.6, 0.6, 0.6);
+      cairo_pattern_t*pat =
+	  cairo_pattern_create_radial (200, rect_height*0.5, 5,200,  rect_height*0.5, 200.0);
+	  cairo_pattern_add_color_stop_rgb (pat, 0, 0.8, 0.8, 0.8);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.3, 0.3, 0.3);
+
+      cairo_set_source (cr, pat);
+      //cairo_set_source_rgb (cr, 0.6, 0.6, 0.6);
       cairo_fill (cr);
 
+      cairo_pattern_destroy (pat);
+      cairo_destroy(cr);
 
+      return FALSE;
+    }
+
+
+    gboolean box7_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+    {
+      cairo_t *cr;
+
+
+      /* create a cairo context */
+      cr = gdk_cairo_create(wi->window);
+
+      double x0      = wi->allocation.x+1;
+      double y0      = wi->allocation.y+1;
+      double rect_width  = wi->allocation.width-2;
+      double rect_height = wi->allocation.height-2;
+
+
+      cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
+      cairo_set_source_rgb (cr, 0, 0, 0);
+      cairo_fill (cr);
+
+      cairo_pattern_t*pat =
+	  cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	  cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+
+      cairo_set_source (cr, pat);
+
+      cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
+      cairo_fill (cr);
+
+      cairo_pattern_destroy (pat);
       cairo_destroy(cr);
 
       return FALSE;

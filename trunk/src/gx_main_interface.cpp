@@ -213,7 +213,7 @@ namespace gx_gui
     gtk_container_set_border_width (GTK_CONTAINER (box), 2);
     gtk_box_set_spacing(GTK_BOX(box), 3);
     gtk_widget_set_size_request (GTK_WIDGET(box), 20.0, 145.0);
-    g_signal_connect(box, "expose-event", G_CALLBACK(box3_expose), NULL);
+    g_signal_connect(box, "expose-event", G_CALLBACK(box7_expose), NULL);
     g_signal_connect(GTK_CONTAINER(box), "check-resize",
 		     G_CALLBACK(box3_expose), NULL);
 
@@ -2060,7 +2060,7 @@ namespace gx_gui
         GdkColor color2;
         gdk_color_parse("#000000", &colorGreen);
         gtk_widget_modify_fg (button_text, GTK_STATE_NORMAL, &colorGreen);
-        gdk_color_parse("#1616E0", &color1);
+        gdk_color_parse("#292995", &color1);
         gtk_widget_modify_fg (button_text, GTK_STATE_ACTIVE, &color1);
         gdk_color_parse("#444444", &color2);
         gtk_widget_modify_fg (button_text, GTK_STATE_PRELIGHT, &color2);
