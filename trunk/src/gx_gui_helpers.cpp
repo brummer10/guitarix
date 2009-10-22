@@ -1487,7 +1487,7 @@ namespace gx_gui
 
     gboolean box7_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
     {
-      cairo_t *cr;
+ cairo_t *cr;
 
 
       /* create a cairo context */
@@ -1496,8 +1496,7 @@ namespace gx_gui
       double x0      = wi->allocation.x+1;
       double y0      = wi->allocation.y+1;
       double rect_width  = wi->allocation.width-2;
-      double rect_height = wi->allocation.height-2;
-
+      double rect_height = wi->allocation.height-11;
 
       cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
       cairo_set_source_rgb (cr, 0, 0, 0);
@@ -1505,11 +1504,10 @@ namespace gx_gui
 
       cairo_pattern_t*pat =
 	  cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
-	  cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
       cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
 
       cairo_set_source (cr, pat);
-
       cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
       cairo_fill (cr);
 
