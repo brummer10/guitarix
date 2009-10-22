@@ -71,6 +71,8 @@ namespace gx_engine
 
   /* buffer ready state */
   bool buffers_ready = false;
+
+  int is_setup = 0;
 }
 
 

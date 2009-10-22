@@ -263,13 +263,26 @@ namespace gx_gui
       return TRUE;
     }
 
-     gboolean gx_refresh_oscilloscope(gpointer args)
+    /* -------------- refresh oscilloscope function -------------- */
+    gboolean gx_refresh_oscilloscope(gpointer args)
     {
       if ((showwave == 1) &&
           ((wave_view_mode == kWvMode1) ||
            (wave_view_mode == kWvMode2)))
             gx_engine::GxEngine::instance()->viv = gx_engine::gOutChannel[0][0];
       return TRUE;
+    }
+
+    /* -------------- timeout for jconv startup when guitarix init -------------- */
+    gboolean gx_check_startup(gpointer args)
+    {
+    gx_engine::is_setup = 1;
+    if (gx_jconv::GxJConvSettings::checkbutton7 == 1)
+      {
+          gx_start_stop_jconv(NULL,NULL);
+      }
+      return FALSE;
+
     }
 
     /* -------------- for thread that checks jackd liveliness -------------- */
@@ -308,23 +321,23 @@ namespace gx_gui
     }
 
     /* --------- queue up new client ports as they are registered -------- */
-    void gx_queue_client_port(const string name, 
-			      const string type, 
+    void gx_queue_client_port(const string name,
+			      const string type,
 			      const int flags)
     {
       // add the port
       gx_client_port_queue[name] = flags;
     }
-    
+
     /* --------- dequeue client ports as they are deregistered -------- */
-    void gx_dequeue_client_port(const string name, 
-				const string type, 
+    void gx_dequeue_client_port(const string name,
+				const string type,
 				const int flags)
     {
       // remove the port
       gx_client_port_dequeue[name] = flags;
     }
-    
+
 
     /* ---------------------- monitor jack ports  items ------------------ */
     // we also refresh the connection status of these buttons
@@ -345,7 +358,7 @@ namespace gx_gui
       }
 
       // if the external client left without "unregistering" its ports
-      // (yes, it happens, shame on the devs ...), we catch it here 
+      // (yes, it happens, shame on the devs ...), we catch it here
       if (!gx_jack::client_out_graph.empty())
       {
 	gx_client_port_dequeue.clear();
@@ -354,20 +367,20 @@ namespace gx_gui
 	return TRUE;
       }
 
-      // browse queue of added ports and update if needed 
+      // browse queue of added ports and update if needed
       gui->addClientPorts();
 
-      // browse queue of removed ports and update if needed 
+      // browse queue of removed ports and update if needed
       gui->deleteClientPorts();
-	
+
       // loop over all existing clients
       set<GtkWidget*>::iterator cit = gui->fClientPortMap.begin();
       while (cit != gui->fClientPortMap.end())
 	{
-	  // fetch client port map 
+	  // fetch client port map
 	  GtkWidget* portmap = *cit;
 	  GList* list = gtk_container_get_children(GTK_CONTAINER(portmap));
-	  
+
 	  guint len = g_list_length(list);
 	  if (len == NUM_PORT_LISTS) // something weird ...
 	    for (guint i = 0; i < len; i++)
@@ -376,15 +389,15 @@ namespace gx_gui
 		GtkWidget* table = (GtkWidget*)g_list_nth_data(list, i);
 
 		// check port connection status for each port
-		gtk_container_foreach(GTK_CONTAINER(table), 
-				      gx_refresh_portconn_status, 
+		gtk_container_foreach(GTK_CONTAINER(table),
+				      gx_refresh_portconn_status,
 				      GINT_TO_POINTER(i));
 	      }
-	  
+
 	  // next client
 	  cit++;
 	}
-      
+
       return TRUE;
     }
 
@@ -412,12 +425,12 @@ namespace gx_gui
       // update status
       if (nconn == 0) // no connection
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
-      
+
       else if (nconn > 0)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),  TRUE);
-      
+
     }
-    
+
     /* ----- cycle through client tabs in client portmaps notebook  ------*/
     void gx_cycle_through_client_tabs(GtkWidget* item, gpointer data)
     {
@@ -425,7 +438,7 @@ namespace gx_gui
 
       // current page
       int page = gtk_notebook_get_current_page(gui->getPortMapTabs());
-      
+
       // next page
       gtk_notebook_next_page(gui->getPortMapTabs());
 
@@ -1036,15 +1049,15 @@ namespace gx_gui
 
 	      // set position of port map window (north west gravity)
 	      gtk_window_move(gui->getPortMapWindow(), x+wx, y);
-	      gtk_widget_set_size_request(GTK_WIDGET(gui->getPortMapWindow()), 
-					  500, wy);
+	      gtk_widget_set_size_request(GTK_WIDGET(gui->getPortMapWindow()),
+					  400, 200);
 
 	      gtk_widget_show(GTK_WIDGET(gui->getPortMapWindow()));
 	    }
 	  else
 	    {
 	      gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(widget), FALSE);
-	      gx_print_warning("Show Port Maps", 
+	      gx_print_warning("Show Port Maps",
 			       "No Clients to show, jackd either down or we are disconnected");
 	    }
 	}
@@ -1351,6 +1364,29 @@ namespace gx_gui
       cairo_arc (cr, 0., 0., 1., 0., 2 * M_PI);
       cairo_restore (cr);
       cairo_fill (cr);  */
+
+
+      cairo_destroy(cr);
+
+      return FALSE;
+    }
+
+    gboolean box6_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+    {
+      cairo_t *cr;
+
+
+      /* create a cairo context */
+      cr = gdk_cairo_create(wi->window);
+
+      double x0      = wi->allocation.x+1;
+      double y0      = wi->allocation.y+1;
+      double rect_width  = wi->allocation.width-2;
+      double rect_height = wi->allocation.height-11;
+
+      cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
+      cairo_set_source_rgb (cr, 0.6, 0.6, 0.6);
+      cairo_fill (cr);
 
 
       cairo_destroy(cr);

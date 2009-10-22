@@ -238,14 +238,16 @@ namespace gx_gui
   {
     // static box containing all
     GtkWidget* vbox = gtk_vbox_new(FALSE, 2);
+    gtk_container_set_border_width (GTK_CONTAINER (vbox), 8);
+    g_signal_connect(vbox, "expose-event", G_CALLBACK(box4_expose), NULL);
     gtk_widget_show(vbox);
 
     // static hbox containing guitarix port names
     GtkWidget* hbox = gtk_hbox_new(FALSE, 2);
     for (int i = gx_jack::kAudioInput; i <= gx_jack::kAudioOutput2; i++)
       {
-	string pname = 
-	  gx_jack::client_name + string(" : ") + 
+	string pname =
+	  gx_jack::client_name + string(" : ") +
 	  gx_jack::gx_port_names[i];
 
 	GtkWidget* label = gtk_label_new(pname.c_str());
@@ -261,7 +263,7 @@ namespace gx_gui
     GtkWidget* sep = gtk_hseparator_new();
     gtk_box_pack_start(GTK_BOX(vbox), sep, FALSE, FALSE, 0);
     gtk_widget_show(sep);
-      
+
     // notebook
     GtkWidget* nb = gtk_notebook_new();
     gtk_notebook_set_scrollable(GTK_NOTEBOOK(nb), TRUE);
@@ -271,7 +273,7 @@ namespace gx_gui
     // scrolled window
     GtkWidget* scrlwd = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrlwd),
-				   GTK_POLICY_NEVER,GTK_POLICY_ALWAYS);
+				   GTK_POLICY_AUTOMATIC,GTK_POLICY_ALWAYS);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrlwd),
 					GTK_SHADOW_IN);
 
@@ -1847,7 +1849,7 @@ namespace gx_gui
     g_signal_connect (GTK_OBJECT (menuitem), "activate",
 		      G_CALLBACK (gx_show_portmap_window), NULL);
 
-    g_signal_connect_swapped(G_OBJECT(fPortMapWindow), "delete_event", 
+    g_signal_connect_swapped(G_OBJECT(fPortMapWindow), "delete_event",
 			     G_CALLBACK(gx_hide_portmap_window), menuitem);
 
 
@@ -1905,7 +1907,7 @@ namespace gx_gui
   {
     // make sure everything is reset
     deleteAllClientPortMaps();
-      
+
     // if jack down, no bother
     // (should not be called when jack is down anyway)
     if (!gx_jack::client)
@@ -1973,7 +1975,7 @@ namespace gx_gui
 
     GtkWidget* mapbox  = gtk_hbox_new(TRUE, 10);
     gtk_widget_set_name(mapbox, clname.c_str());
-      
+
     for (int t = gx_jack::kAudioInput; t <= gx_jack::kAudioOutput2; t++)
       {
 	GtkWidget* table  = gtk_vbox_new(FALSE, 0);
@@ -2007,8 +2009,8 @@ namespace gx_gui
 
     // go through list
     map<string, int>::iterator pn;
-    for (pn  = gx_client_port_queue.begin(); 
-	 pn != gx_client_port_queue.end(); 
+    for (pn  = gx_client_port_queue.begin();
+	 pn != gx_client_port_queue.end();
 	 pn++)
       {
 	string port_name = pn->first;
@@ -2030,35 +2032,53 @@ namespace gx_gui
 	// set up how many port tables we should deal with:
 	// 1 for guitarix input (mono)
 	// 2 for guitarix outputs (stereo)
-	  
+
 	int table_index = gx_jack::kAudioInput, ntables = 1;
 	if ((flags & JackPortIsOutput) == 0)
 	  {
 	    table_index = gx_jack::kAudioOutput1;
 	    ntables = 2;
 	  }
-	  
+
 	// add port item
 	for (int i = table_index; i < table_index + ntables; i++)
 	  {
 	    // retrieve port table
-	    GtkVBox* portbox = 
+	    GtkVBox* portbox =
 	      GTK_VBOX(getClientPortTable(client_name, i));
-
+	      gtk_container_set_border_width (GTK_CONTAINER (portbox), 8);
+            g_signal_connect(portbox, "expose-event", G_CALLBACK(box6_expose), NULL);
 	    // create checkbutton
 	    GtkWidget* button =
-	      gtk_check_button_new_with_label(short_name.c_str());
-	      
+	      gtk_check_button_new();
+	    GtkWidget* button_text =
+	      gtk_label_new (short_name.c_str());
+	      gtk_container_add (GTK_CONTAINER(button), button_text);
+
+        GdkColor colorGreen;
+        GdkColor color1;
+        GdkColor color2;
+        gdk_color_parse("#000000", &colorGreen);
+        gtk_widget_modify_fg (button_text, GTK_STATE_NORMAL, &colorGreen);
+        gdk_color_parse("#1616E0", &color1);
+        gtk_widget_modify_fg (button_text, GTK_STATE_ACTIVE, &color1);
+        gdk_color_parse("#444444", &color2);
+        gtk_widget_modify_fg (button_text, GTK_STATE_PRELIGHT, &color2);
+        GtkStyle *style = gtk_widget_get_style(button_text);
+        pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+        pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+        gtk_widget_modify_font(button_text, style->font_desc);
+
 	    gtk_widget_set_name(button,  (gchar*)port_name.c_str());
 	    gtk_box_pack_start(GTK_BOX(portbox), button, FALSE, FALSE, 0);
 	    g_signal_connect(GTK_OBJECT (button), "toggled",
 			     G_CALLBACK (gx_jack::gx_jack_port_connect),
 			     GINT_TO_POINTER(i));
 	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
-	    gtk_widget_show(button);
+	    gtk_widget_show_all(button);
 	  }
       }
-      
+
     // empty queue
     gx_client_port_queue.clear();
 
@@ -2115,9 +2135,9 @@ namespace gx_gui
 	    GtkWidget* wd = getClientPortMap(clname);
 	    if (wd)
 	      {
-		GList* list = 
+		GList* list =
 		  gtk_container_get_children(GTK_CONTAINER(wd));
-		  
+
 		if (g_list_length(list) > 0)
 		  {
 		    mapempty = false;
@@ -2178,14 +2198,14 @@ namespace gx_gui
     for (it = fClientPortMap.begin(); it != fClientPortMap.end(); it++)
       {
 	GtkWidget* mapbox = *it;
-	  
+
 	int page = gtk_notebook_page_num(fPortMapTabs, mapbox);
 	gtk_notebook_remove_page(fPortMapTabs, page);
 
 	if (GTK_IS_WIDGET(mapbox))
 	  gtk_widget_destroy(mapbox);
       }
-      
+
     fClientPortMap.clear();
 
     // move focus back to guitarix main window
@@ -3271,6 +3291,7 @@ namespace gx_gui
     g_timeout_add(60,  gx_refresh_oscilloscope, 0);
     g_timeout_add(200, gx_survive_jack_shutdown, 0);
     g_timeout_add(600, gx_monitor_jack_ports, 0);
+    g_timeout_add(500, gx_check_startup, 0);
 
     gtk_main();
     stop();

@@ -479,7 +479,7 @@ namespace gx_child_process
 	}
       }
 
-      else if(gx_engine::initialized == true)
+      else if(gx_engine::is_setup == 1)
       {
 	// check whether jconv is installed in PATH
 	int const jconv_ok = gx_system_call("which", "jconv");
