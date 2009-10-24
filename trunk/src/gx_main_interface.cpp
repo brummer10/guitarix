@@ -209,10 +209,13 @@ namespace gx_gui
   void GxMainInterface::openLevelMeterBox(const char* label)
   {
     GtkWidget* box = addWidget(label, gtk_hbox_new (FALSE, 0));
+    
+    gint boxheight = 155;
+    gint boxwidth  = 20;
 
     gtk_container_set_border_width (GTK_CONTAINER (box), 2);
     gtk_box_set_spacing(GTK_BOX(box), 3);
-    gtk_widget_set_size_request (GTK_WIDGET(box), 20, 155);
+    gtk_widget_set_size_request (GTK_WIDGET(box), boxwidth, boxheight);
     g_signal_connect(box, "expose-event", G_CALLBACK(box7_expose), NULL);
     g_signal_connect(GTK_CONTAINER(box), "check-resize",
 		     G_CALLBACK(box7_expose), NULL);
@@ -224,7 +227,7 @@ namespace gx_gui
     int clip = 0x00fd5dff;
 
     // width of meter
-    int width    = 3;  
+    int width    = 4;  
 
     // how long we hold the peak bar = hold * thread call timeout
     // Note: 30 * 80 = 2.4 sec
@@ -237,7 +240,7 @@ namespace gx_gui
 	fLevelMeters[i] = 0;
     
 	GtkWidget* meter = 
-	  gtk_fast_meter_new(hold, width, 0,
+	  gtk_fast_meter_new(hold, width, boxheight,
 			     base, mid, top, clip);
 	
 	gtk_widget_add_events(meter, GDK_BUTTON_RELEASE_MASK);
@@ -258,7 +261,7 @@ namespace gx_gui
 	fJCLevelMeters[i] = 0;
     
 	GtkWidget* meter = 
-	  gtk_fast_meter_new(hold, width, 0,
+	  gtk_fast_meter_new(hold, width, boxheight,
 			     base, mid, top, clip);
 	
 	gtk_widget_add_events(meter, GDK_BUTTON_RELEASE_MASK);
