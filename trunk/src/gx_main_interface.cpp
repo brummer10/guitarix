@@ -208,29 +208,39 @@ namespace gx_gui
 
   void GxMainInterface::openSignalLevelBox(const char* label)
   {
-    GtkWidget* box = addWidget(label, gtk_hbox_new (FALSE, 0));
 
-    gtk_container_set_border_width (GTK_CONTAINER (box), 2);
-    gtk_box_set_spacing(GTK_BOX(box), 3);
-    gtk_widget_set_size_request (GTK_WIDGET(box), 20.0, 145.0);
-    g_signal_connect(box, "expose-event", G_CALLBACK(box7_expose), NULL);
-    g_signal_connect(GTK_CONTAINER(box), "check-resize",
-		     G_CALLBACK(box3_expose), NULL);
+    GtkWidget* hbox = addWidget(label, gtk_hbox_new (FALSE, 0));
+
+    gtk_container_set_border_width (GTK_CONTAINER (hbox), 2);
+    gtk_box_set_spacing(GTK_BOX(hbox), 3);
+    gtk_widget_set_size_request (GTK_WIDGET(hbox), 20.0, 145.0);
+    g_signal_connect(hbox, "expose-event", G_CALLBACK(box7_expose), NULL);
+    g_signal_connect(GTK_CONTAINER(hbox), "check-resize",
+		     G_CALLBACK(box7_expose), NULL);
+
 
     // guitarix output levels
     GtkWidget* lvl = gtk_level_bar_new(47, 1, 2);
-    gtk_box_pack_start(GTK_BOX(box), lvl, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), lvl, FALSE, FALSE, 0);
+    GtkTooltips *comandline = gtk_tooltips_new ();
+    gtk_tooltips_set_tip(comandline,
+                       lvl, "guitarix engine output", " ");
+
 
     gtk_widget_show(lvl);
     fSignalLevelBar = lvl;
 
     /* jconv levels */
     lvl = gtk_level_bar_new(47, 1, 2);
-    gtk_box_pack_end(GTK_BOX(box), lvl, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(hbox), lvl, FALSE, FALSE, 0);
     gtk_widget_hide(lvl);
     fJCSignalLevelBar = lvl;
+    GtkTooltips *comandline1 = gtk_tooltips_new ();
+    gtk_tooltips_set_tip(comandline1,
+                       lvl, "jconv output", " ");
 
-    gtk_widget_show(box);
+    gtk_widget_show(hbox);
+
   }
 
   /* --- create the portmap window with tabbed client port tables --- */
@@ -398,6 +408,7 @@ namespace gx_gui
   {
     GtkWidget * box = gtk_vbox_new (homogene, 0);
     gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+    g_signal_connect(box, "expose-event", G_CALLBACK(box10_expose), NULL);
 
     if (fMode[fTop] != kTabMode && label[0] != 0)
       {
@@ -1973,15 +1984,15 @@ namespace gx_gui
 
     GtkWidget* label   = gtk_label_new(clname.c_str());
 
-    GtkWidget* mapbox  = gtk_hbox_new(FALSE, 10);
+    GtkWidget* mapbox  = gtk_hbox_new(TRUE, 10);
     gtk_widget_set_name(mapbox, clname.c_str());
 
     for (int t = gx_jack::kAudioInput; t <= gx_jack::kAudioOutput2; t++)
       {
 	GtkWidget* table  = gtk_vbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(mapbox), table, FALSE, FALSE, 0);
-	gtk_container_set_border_width(GTK_CONTAINER(table), 8);
-	g_signal_connect(table, "expose-event", G_CALLBACK(box6_expose), NULL);
+	gtk_box_pack_start(GTK_BOX(mapbox), table, TRUE, FALSE, 0);
+
+    g_signal_connect(table, "expose-event", G_CALLBACK(box6_expose), NULL);
 	gtk_widget_show(table);
       }
 
@@ -2048,28 +2059,26 @@ namespace gx_gui
 	    // retrieve port table
 	    GtkVBox* portbox =
 	      GTK_VBOX(getClientPortTable(client_name, i));
-
+        gtk_container_set_border_width (GTK_CONTAINER (portbox), 8);
 	    // create checkbutton
 	    GtkWidget* button =
 	      gtk_check_button_new_with_label(short_name.c_str());
+        GtkWidget *button_text = gtk_bin_get_child(GTK_BIN(button));
 
-	    GtkWidget *button_text = gtk_bin_get_child(GTK_BIN(button));
 
-	    GdkColor colorGreen;
-	    GdkColor color1;
-	    GdkColor color2;
-
-	    gdk_color_parse("#000000", &colorGreen);
-	    gtk_widget_modify_fg (button_text, GTK_STATE_NORMAL, &colorGreen);
-	    gdk_color_parse("#292995", &color1);
-	    gtk_widget_modify_fg (button_text, GTK_STATE_ACTIVE, &color1);
-	    gdk_color_parse("#444444", &color2);
-	    gtk_widget_modify_fg (button_text, GTK_STATE_PRELIGHT, &color2);
-
-	    GtkStyle *style = gtk_widget_get_style(button_text);
-	    pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-	    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-	    gtk_widget_modify_font(button_text, style->font_desc);
+        GdkColor colorGreen;
+        GdkColor color1;
+        GdkColor color2;
+        gdk_color_parse("#000000", &colorGreen);
+        gtk_widget_modify_fg (button_text, GTK_STATE_NORMAL, &colorGreen);
+        gdk_color_parse("#292995", &color1);
+        gtk_widget_modify_fg (button_text, GTK_STATE_ACTIVE, &color1);
+        gdk_color_parse("#444444", &color2);
+        gtk_widget_modify_fg (button_text, GTK_STATE_PRELIGHT, &color2);
+        GtkStyle *style = gtk_widget_get_style(button_text);
+        pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+        pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+        gtk_widget_modify_font(button_text, style->font_desc);
 
 	    gtk_widget_set_name(button,  (gchar*)port_name.c_str());
 	    gtk_box_pack_start(GTK_BOX(portbox), button, FALSE, FALSE, 0);
@@ -2303,7 +2312,7 @@ namespace gx_gui
 	  openHorizontalBox("");
 	  {
 	    //----- the tuner widget
-	    openFrameBox("");
+	    openVerticalBox("");
 	    {
 	      addNumDisplay("", &engine->fConsta1);
 	    }
@@ -2376,8 +2385,9 @@ namespace gx_gui
 
 		//----- open a box for the volume controllers
 		{
-		  openFrameBox("");
-		  closeBox();
+            openFrameBox("");
+		    closeBox();
+
 		  openVerticalBox("");
 		  {
 		    openFrameBox("");
@@ -2600,7 +2610,7 @@ namespace gx_gui
 	      //----- this box include all effects and the osccilloscope
 
 
-	      openVerticalBox("");
+	      openVerticalBox1("");
 	      {
 		//  openScrollBox("  ");
 		//  {
@@ -2908,7 +2918,7 @@ namespace gx_gui
 
 
 		//----- open a box for the oscilloscope
-		openVerticalBox("");
+		openVerticalBox1("");
 		{
 
 
@@ -3012,7 +3022,7 @@ namespace gx_gui
 	{
 	  openHorizontalBox("");
 	  {
-	    openFrameBox("");
+	    openVerticalBox("");
 	    {
 	      //----- the midi widget
 	      openVerticalMidiBox("");

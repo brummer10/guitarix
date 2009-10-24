@@ -34,6 +34,9 @@ namespace gx_gui
   gboolean gx_update_all_gui         (gpointer args);
   gboolean gx_check_startup          (gpointer args);
 
+  gboolean box10_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+  gboolean box9_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+  gboolean box8_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
   gboolean box7_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
   gboolean box6_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
   gboolean box5_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);

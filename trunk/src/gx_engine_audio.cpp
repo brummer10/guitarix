@@ -937,9 +937,15 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           // get the frequence here
           float fConsta4s = fRect0[0];
           // smoth tuner output by rms the value peer frame
+          if (fTemphp0>0.0001)
+          {
+          cts += 1;
+          sumt += sqrf(old_freq);
           cts += 1;
           sumt += sqrf(fConsta4s);
           fConsta4 = sqrtf(sumt/cts);
+          }
+          else if(fConsta4>0) fConsta4 -= 0.05;
         }
       if (gx_gui::shownote == 0)
         {
@@ -1306,6 +1312,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fRec_CH0[1] = fRec_CH0[0];
       IOTA_CH = IOTA_CH+1;
       fRecinjc[1] = fRecinjc[0];
+      old_freq = fConsta4;
 
     }
 

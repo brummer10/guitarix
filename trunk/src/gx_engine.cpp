@@ -511,6 +511,7 @@ namespace gx_engine
 
     fjc_ingain = 0;
     zeroize(fRecinjc, 2);
+    old_freq = 0;
 
 
     // end engine init

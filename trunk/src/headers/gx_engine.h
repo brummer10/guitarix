@@ -563,6 +563,7 @@ namespace gx_engine
 
     float fjc_ingain;
     float fRecinjc[2];
+    float old_freq;
 
 
     // private constructor
