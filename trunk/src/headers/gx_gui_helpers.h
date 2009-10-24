@@ -25,8 +25,7 @@ namespace gx_gui
 {
   /* --------------  function declarations ---------------- */
   /* slow GTK threads, see GxMainInterface::run() */
-  gboolean gx_refresh_signal_level   (gpointer arg);
-  gboolean gx_refresh_jcsignal_level (gpointer arg);
+  gboolean gx_refresh_meter_level    (gpointer arg);
   gboolean gx_refresh_oscilloscope   (gpointer args);
   gboolean gx_survive_jack_shutdown  (gpointer arg);
   gboolean gx_monitor_jack_clients   (gpointer args);
@@ -123,6 +122,8 @@ namespace gx_gui
   int  gx_message_popup          (const char*);
 
   gboolean gx_delete_event       (GtkWidget*, gpointer);
+
+  void gx_meter_button_release(GdkEventButton* ev, gpointer arg);
 
   /* -------------------------------------------------------------------------- */
 } /* end of gx_gui namespace */

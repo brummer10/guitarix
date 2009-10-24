@@ -56,6 +56,47 @@ using namespace gx_system;
 using namespace gx_child_process;
 using namespace gx_preset;
 
+
+/* -------- helper for level meter display -------- */
+inline float
+log_meter (float db)
+{
+  gfloat def = 0.0f; /* Meter deflection %age */
+  
+  if (db < -70.0f) {
+    def = 0.0f;
+  } else if (db < -60.0f) {
+    def = (db + 70.0f) * 0.25f;
+  } else if (db < -50.0f) {
+    def = (db + 60.0f) * 0.5f + 2.5f;
+  } else if (db < -40.0f) {
+    def = (db + 50.0f) * 0.75f + 7.5f;
+  } else if (db < -30.0f) {
+    def = (db + 40.0f) * 1.5f + 15.0f;
+  } else if (db < -20.0f) {
+    def = (db + 30.0f) * 2.0f + 30.0f;
+  } else if (db < 6.0f) {
+    def = (db + 20.0f) * 2.5f + 50.0f;
+  } else {
+    def = 115.0f;
+  }
+  
+  /* 115 is the deflection %age that would be 
+     when db=6.0. this is an arbitrary
+     endpoint for our scaling.
+  */
+  
+  return def/115.0f;
+}
+
+/* --------- calculate power (percent) to decibel -------- */
+// Note: could use fast_log10 (see ardour code) to make it faster
+inline float power2db(float power)  
+{
+  return  20.*log10(power);
+} 
+
+
 namespace gx_gui
   {
     /* --------- menu function triggering engine on/off/bypass --------- */
@@ -144,120 +185,82 @@ namespace gx_gui
     }
 
     /* ----------------- refresh GX level display function ---------------- */
-    gboolean gx_refresh_signal_level(gpointer args)
+    gboolean gx_refresh_meter_level(gpointer args)
     {
-      static int count = 0;
-
-      if (count == 0)
-        {
-          (void)memset(rms_level, 0, sizeof(rms_level));
-          (void)memset(max_level, 0, sizeof(max_level));
-        }
-
-      GxMainInterface* interface = GxMainInterface::instance();
-      int nc  = GTK_LEVEL_BAR(interface->getSignalLevelBar())->nchan;
-
       if (gx_jack::client && gx_engine::buffers_ready)
         {
 
-          for (int c = 0; c < nc; c++)
-            {
-              jack_nframes_t nframes = gx_jack::jack_bs;
+	  GxMainInterface* gui = GxMainInterface::instance();
 
+	  // data holders for meters
+	  float rms_level[2]; (void)memset(rms_level, 0, sizeof(rms_level));
+	  float max_level[2]; (void)memset(max_level, 0, sizeof(max_level));
+
+	  float rms_jclevel[2]; (void)memset(rms_jclevel, 0, sizeof(rms_jclevel));
+	  float max_jclevel[2]; (void)memset(max_jclevel, 0, sizeof(max_jclevel));
+
+	  jack_nframes_t nframes = gx_jack::jack_bs;
+	      
+	  // fill up from engine buffers
+          for (int c = 0; c < 2; c++)
+            {
+	      // guitarix output levels
               float data[nframes];
 
-              if (c == 0) (void)memcpy(data, gx_engine::get_frame, sizeof(data));
-              else if (c == 1) (void)memcpy(data, gx_engine::get_frame1, sizeof(data));
+	      // jconv output levels
+              float jcdata[nframes];
 
+	      // need to differentiate between channels due to stereo 
+              switch(c) 
+		{
+		default:
+		case 0: 
+		  (void)memcpy(data, gx_engine::get_frame,  sizeof(data)); break;
+
+		case 1: 
+		  (void)memcpy(data, gx_engine::get_frame1, sizeof(data)); break;
+		}
+
+	      // jconv: note that jconv monitor channels are input[1] and [2]
+	      if (gx_jconv::jconv_is_running && gx_engine::is_setup)
+		(void)memcpy(jcdata, gx_engine::gInChannel[c+1], sizeof(jcdata));
+
+	      // calculate peak and rms
               for (guint f = 0; f < nframes; f++)
                 {
                   max_level[c] = max(max_level[c], abs(data[f]));
                   rms_level[c] += data[f]*data[f];
+
+		  if (gx_jconv::jconv_is_running && gx_engine::is_setup)
+		    {
+		      max_jclevel[c] = max(max_jclevel[c], abs(jcdata[f]));
+		      rms_jclevel[c] += jcdata[f]*jcdata[f];
+		    }
                 }
             }
 
-          count++;
+	  // retrieve meter widget
+	  GtkWidget* const* meters   = gui->getLevelMeters();
+	  GtkWidget* const* jcmeters = gui->getJCLevelMeters();
 
-          /* display only when we have a good average. */
-          if (count == 8)
-            {
-              jack_nframes_t nframes = gx_jack::jack_bs;
+	  for (int c = 0; c < 2; c++) 
+	    {
+	      if (meters[c])
+		{
+		  float rms = sqrt(rms_level[c]/(float)(nframes));
+		  float db  = power2db(rms);
 
-              for (int c = 0; c < nc; c++)
-                rms_level[c] = sqrt(rms_level[c]/(float)(nframes*count));
+		  gtk_fast_meter_set(GTK_FAST_METER(meters[c]), log_meter(db));
+		}
 
+	      if (gx_jconv::jconv_is_running && jcmeters && gx_engine::is_setup)
+		{
+		  float rms = sqrt(rms_jclevel[c]/(float)(nframes));
+		  float db  = power2db(rms);
 
-              /* refresh stuff */
-              gtk_level_bar_light_rms(interface->getSignalLevelBar(), rms_level);
-              gtk_level_bar_light_max(interface->getSignalLevelBar(), max_level);
-
-              count = 0;
-            }
-        }
-           /*      if ((showwave == 1) &&
-          ((wave_view_mode == kWvMode1) ||
-           (wave_view_mode == kWvMode2)))
-            gx_engine::GxEngine::instance()->viv = gx_engine::gOutChannel[0][0]; */
-
-
-      return TRUE;
-    }
-
-
-    /* -------------- refresh JConv level display function -------------- */
-    gboolean gx_refresh_jcsignal_level(gpointer args)
-    {
-      static int count = 0;
-      if (!gx_jconv::jconv_is_running)
-        {
-          count = 0;
-          return TRUE;
-        }
-
-      /* initialize levels */
-      if (count == 0)
-        {
-          (void)memset(rms_jclevel, 0, sizeof(rms_jclevel));
-          (void)memset(max_jclevel, 0, sizeof(max_jclevel));
-        }
-
-      GxMainInterface* interface = GxMainInterface::instance();
-      int jnc = GTK_LEVEL_BAR(interface->getJCSignalLevelBar())->nchan;
-
-      if (gx_jack::client && gx_engine::buffers_ready)
-        {
-          for (int c = 0; c < jnc; c++)
-            {
-              int i = c + 1;
-
-              jack_nframes_t nframes = gx_jack::jack_bs;
-
-              float data[nframes];
-
-              (void)memcpy(data, gx_engine::gInChannel[i], sizeof(data));
-
-              for (guint f = 0; f < nframes; f++)
-                {
-                  max_jclevel[c] = max(max_jclevel[c], abs(data[f]));
-                  rms_jclevel[c] += data[f]*data[f];
-                }
-            }
-
-          count++;
-
-          /* display only when we have a good average. */
-          if (count == 8)
-            {
-              jack_nframes_t nframes = gx_jack::jack_bs;
-
-              for (int c = 0; c < jnc; c++)
-                rms_jclevel[c] = sqrt(rms_jclevel[c]/(float)(nframes*count));
-
-              gtk_level_bar_light_rms(interface->getJCSignalLevelBar(), rms_jclevel);
-              gtk_level_bar_light_max(interface->getJCSignalLevelBar(), max_jclevel);
-
-              count = 0;
-            }
+		  gtk_fast_meter_set(GTK_FAST_METER(jcmeters[c]), log_meter(db));
+		}
+	    }
         }
 
       return TRUE;
@@ -1072,6 +1075,27 @@ namespace gx_gui
     void gx_hide_portmap_window (GtkWidget* widget, gpointer arg)
     {
       gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(widget), FALSE);
+    }
+
+    /* meter button release   */
+    void gx_meter_button_release(GdkEventButton* ev, gpointer arg)
+    {
+      if (ev->button == 1)
+	{
+	  cerr << " button event " << endl;
+	  GxMainInterface* gui = GxMainInterface::instance();
+	  
+	  GtkWidget* const*  meters = gui->getLevelMeters();
+	  GtkWidget* const* jmeters = gui->getJCLevelMeters();
+
+	  for (int i = 0; i < 2; i++)
+	    {
+	      if (meters[i])
+		gtk_fast_meter_clear(GTK_FAST_METER(meters[i]));
+	      if (jmeters[i])
+		gtk_fast_meter_clear(GTK_FAST_METER(jmeters[i]));
+	    }
+	}
     }
 
     /* Update all user items reflecting zone z */

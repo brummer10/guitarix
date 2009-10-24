@@ -783,8 +783,10 @@ namespace gx_jack
     if (!client) return;
 
     string clname = name; 
-    // if it is outselves, get out of here
+
+    // ignore these clients
     if (clname == client_name   ||
+	clname == "probe"       ||
 	clname == "ardourprobe" ||
 	clname == "freewheel"   ||
 	clname == "qjackctl"    ||

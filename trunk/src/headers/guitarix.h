@@ -47,5 +47,6 @@
 /* special "home-made" GTK classes */
 #include "GtkRegler.h"
 #include "GtkWaveView.h"
+#include "GtkFastMeter.h"
 #include "GtkLevel.h"
 #include "GtkLevelBar.h"

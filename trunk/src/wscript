@@ -17,8 +17,7 @@ def build(bld):
         'gx_sndfile.cpp',
         'gx_system.cpp',
         'gx_ui.cpp',
-        'GtkLevel.cpp',
-        'GtkLevelBar.cpp',
+        'GtkFastMeter.cpp',
         'GtkRegler.cpp',
         'GtkWaveView.cpp',
         'gx_main.cpp'

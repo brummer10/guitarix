@@ -444,7 +444,9 @@ namespace gx_child_process
 	  usleep(100000);
 
 	  gx_jconv::jconv_is_running = false;
-	  gtk_widget_hide(gx_gui::GxMainInterface::instance()->getJCSignalLevelBar());
+	  for (int c = 0; c < 2; c++)
+	    gtk_widget_hide(gx_gui::GxMainInterface::instance()->
+			    getJCLevelMeters()[c]);
 
 	  // unregister our own jconv dedicated ports
 	  if (gx_jack::client)
@@ -602,7 +604,10 @@ namespace gx_child_process
 
 	      // tell the compute method that JConv is running
 	      gx_jconv::jconv_is_running = true;
-	      gtk_widget_show(gx_gui::GxMainInterface::instance()->getJCSignalLevelBar());
+	      
+	      for (int c = 0; c < 2; c++)
+		gtk_widget_show(gx_gui::GxMainInterface::instance()->
+				getJCLevelMeters()[c]);
 
 	      gx_print_info("JConv Start / Stop", string("Started JConv, PID = ") +
 			    gx_system::gx_i2a(child_pid[JCONV_IDX]));

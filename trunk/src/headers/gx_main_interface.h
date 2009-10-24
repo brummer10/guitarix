@@ -62,6 +62,9 @@ namespace gx_gui
     GtkExpander*        fLoggingBox;
     GtkNotebook*        fPortMapTabs;
     GtkWindow*          fPortMapWindow;
+    GtkWidget*          fLevelMeters[2];
+    GtkWidget*          fJCLevelMeters[2];
+
     GtkWidget*          fSignalLevelBar;
     GtkWidget*          fJCSignalLevelBar;
 
@@ -98,9 +101,10 @@ namespace gx_gui
     GtkNotebook* const getPortMapTabs()      const { return fPortMapTabs;     }
     GtkWindow*   const getPortMapWindow()    const { return fPortMapWindow;   }
 
-    GtkWidget*   const getSignalLevelBar()   const { return fSignalLevelBar;  }
-    GtkWidget*   const getJCSignalLevelBar() const { return fJCSignalLevelBar;}
     GtkWidget*   const getJackConnectItem()  const { return fJackConnectItem; }
+
+    GtkWidget*   const* getLevelMeters()     const { return fLevelMeters;     }
+    GtkWidget*   const* getJCLevelMeters()   const { return fJCLevelMeters;   }
 
     GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
 
@@ -138,7 +142,7 @@ namespace gx_gui
     virtual void openPaintBox2(const char* label = "");
     virtual void openScrollBox(const char* label = "");
     virtual void openTextLoggingBox(const char* label = "");
-    virtual void openSignalLevelBox(const char* label = "");
+    virtual void openLevelMeterBox(const char* label);
     virtual void openToolBar(const char* label = "");
     virtual void setSkinBox(const char* label, float* zone);
     virtual void closeBox();

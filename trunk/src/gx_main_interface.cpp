@@ -206,41 +206,74 @@ namespace gx_gui
     gtk_widget_show(box);
   }
 
-  void GxMainInterface::openSignalLevelBox(const char* label)
+  void GxMainInterface::openLevelMeterBox(const char* label)
   {
+    GtkWidget* box = addWidget(label, gtk_hbox_new (FALSE, 0));
 
-    GtkWidget* hbox = addWidget(label, gtk_hbox_new (FALSE, 0));
-
-    gtk_container_set_border_width (GTK_CONTAINER (hbox), 2);
-    gtk_box_set_spacing(GTK_BOX(hbox), 3);
-    gtk_widget_set_size_request (GTK_WIDGET(hbox), 20.0, 145.0);
-    g_signal_connect(hbox, "expose-event", G_CALLBACK(box7_expose), NULL);
-    g_signal_connect(GTK_CONTAINER(hbox), "check-resize",
+    gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+    gtk_box_set_spacing(GTK_BOX(box), 3);
+    gtk_widget_set_size_request (GTK_WIDGET(box), 20, 155);
+    g_signal_connect(box, "expose-event", G_CALLBACK(box7_expose), NULL);
+    g_signal_connect(GTK_CONTAINER(box), "check-resize",
 		     G_CALLBACK(box7_expose), NULL);
 
+    // meter level colors
+    int base = 0x0000ffff;
+    int mid  = 0xff0000ff;
+    int top  = 0x73f9baff;
+    int clip = 0x00fd5dff;
+
+    // width of meter
+    int width    = 3;  
+
+    // how long we hold the peak bar = hold * thread call timeout
+    // Note: 30 * 80 = 2.4 sec
+    int hold     = 30; 
 
     // guitarix output levels
-    GtkWidget* lvl = gtk_level_bar_new(47, 1, 2);
-    gtk_box_pack_start(GTK_BOX(hbox), lvl, FALSE, FALSE, 0);
-    GtkTooltips *comandline = gtk_tooltips_new ();
-    gtk_tooltips_set_tip(comandline,
-                       lvl, "guitarix engine output", " ");
+
+    for (int i = 0; i < 2; i++)
+      {
+	fLevelMeters[i] = 0;
+    
+	GtkWidget* meter = 
+	  gtk_fast_meter_new(hold, width, 0,
+			     base, mid, top, clip);
+	
+	gtk_widget_add_events(meter, GDK_BUTTON_RELEASE_MASK);
+	g_signal_connect(G_OBJECT(meter), "button-release-event",
+			 G_CALLBACK(gx_meter_button_release), 0);
+
+	gtk_box_pack_start(GTK_BOX(box), meter, FALSE, FALSE, 0);
+	gtk_widget_show(meter);
+
+	GtkTooltips* tooltips = gtk_tooltips_new ();
+	gtk_tooltips_set_tip(tooltips, meter, "guitarix output", " ");
+	fLevelMeters[i] = meter;
+      }
 
 
-    gtk_widget_show(lvl);
-    fSignalLevelBar = lvl;
+    for (int i = 0; i < 2; i++)
+      {
+	fJCLevelMeters[i] = 0;
+    
+	GtkWidget* meter = 
+	  gtk_fast_meter_new(hold, width, 0,
+			     base, mid, top, clip);
+	
+	gtk_widget_add_events(meter, GDK_BUTTON_RELEASE_MASK);
+	g_signal_connect(G_OBJECT(meter), "button-release-event",
+			 G_CALLBACK(gx_meter_button_release), 0);
 
-    /* jconv levels */
-    lvl = gtk_level_bar_new(47, 1, 2);
-    gtk_box_pack_end(GTK_BOX(hbox), lvl, FALSE, FALSE, 0);
-    gtk_widget_hide(lvl);
-    fJCSignalLevelBar = lvl;
-    GtkTooltips *comandline1 = gtk_tooltips_new ();
-    gtk_tooltips_set_tip(comandline1,
-                       lvl, "jconv output", " ");
+	gtk_box_pack_start(GTK_BOX(box), meter, FALSE, FALSE, 0);
+	GtkTooltips* tooltips = gtk_tooltips_new ();
+	gtk_tooltips_set_tip(tooltips, meter, "jconv output", " ");
 
-    gtk_widget_show(hbox);
+	gtk_widget_hide(meter);
+	fJCLevelMeters[i] = meter;
+      }
 
+    gtk_widget_show(box);
   }
 
   /* --- create the portmap window with tabbed client port tables --- */
@@ -2393,8 +2426,8 @@ namespace gx_gui
 		    openFrameBox("");
 		    closeBox();
 
-		    // add a signal level box: out of box stack, no need to closeBox
-		    openSignalLevelBox("Signal Level");
+		    // add a meter level box: out of box stack, no need to closeBox
+		    openLevelMeterBox("Signal Level");
 
 		  }
 		  closeBox();
@@ -3294,15 +3327,13 @@ namespace gx_gui
     //----- set the last used skin when no cmd is given
     if (no_opt_skin == 1)
       gx_set_skin_change(gx_engine::GxEngine::instance()->fskin);
-
-    g_timeout_add(40, gx_update_all_gui, 0);
-
+ 
     /* timeout in milliseconds */
-    g_timeout_add(20,  gx_refresh_signal_level, 0);
-    g_timeout_add(20,  gx_refresh_jcsignal_level, 0);
-    g_timeout_add(60,  gx_refresh_oscilloscope, 0);
+    g_timeout_add(40,  gx_update_all_gui,        0);
+    g_timeout_add(80,  gx_refresh_meter_level,   0);
+    g_timeout_add(60,  gx_refresh_oscilloscope,  0);
     g_timeout_add(200, gx_survive_jack_shutdown, 0);
-    g_timeout_add(600, gx_monitor_jack_ports, 0);
+    g_timeout_add(600, gx_monitor_jack_ports,    0);
     g_timeout_add(500, gx_check_startup, 0);
 
     gtk_main();
