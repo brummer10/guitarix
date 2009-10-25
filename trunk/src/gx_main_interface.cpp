@@ -1973,6 +1973,9 @@ namespace gx_gui
     // make sure everything is reset
     deleteAllClientPortMaps();
 
+    gx_client_port_dequeue.clear();
+    gx_client_port_queue.clear();
+
     // if jack down, no bother
     // (should not be called when jack is down anyway)
     if (!gx_jack::client)
