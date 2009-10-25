@@ -211,10 +211,10 @@ namespace gx_gui
     GtkWidget* box = addWidget(label, gtk_hbox_new (FALSE, 0));
     
     gint boxheight = 155;
-    gint boxwidth  = 20;
+    gint boxwidth  = 22;
 
     gtk_container_set_border_width (GTK_CONTAINER (box), 2);
-    gtk_box_set_spacing(GTK_BOX(box), 3);
+    gtk_box_set_spacing(GTK_BOX(box), 4);
     gtk_widget_set_size_request (GTK_WIDGET(box), boxwidth, boxheight);
     g_signal_connect(box, "expose-event", G_CALLBACK(box7_expose), NULL);
     g_signal_connect(GTK_CONTAINER(box), "check-resize",
@@ -227,13 +227,16 @@ namespace gx_gui
     int clip = 0x00fd5dff;
 
     // width of meter
-    int width    = 4;  
+    int width    = 5;  
 
     // how long we hold the peak bar = hold * thread call timeout
-    // Note: 30 * 80 = 2.4 sec
-    int hold     = 30; 
+    // Note: 20 * 100ms = 2 sec
+    int hold = 20; 
 
     // guitarix output levels
+    GtkWidget* gxbox = gtk_hbox_new (FALSE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (gxbox), 1);
+    gtk_box_set_spacing(GTK_BOX(gxbox), 1);
 
     for (int i = 0; i < 2; i++)
       {
@@ -247,7 +250,7 @@ namespace gx_gui
 	g_signal_connect(G_OBJECT(meter), "button-release-event",
 			 G_CALLBACK(gx_meter_button_release), 0);
 
-	gtk_box_pack_start(GTK_BOX(box), meter, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(gxbox), meter, FALSE, TRUE, 0);
 	gtk_widget_show(meter);
 
 	GtkTooltips* tooltips = gtk_tooltips_new ();
@@ -255,6 +258,14 @@ namespace gx_gui
 	fLevelMeters[i] = meter;
       }
 
+    gtk_box_pack_start(GTK_BOX(box), gxbox, FALSE, TRUE, 0);
+    gtk_widget_show(gxbox);
+
+
+    // jconv output levels
+    GtkWidget* jcbox = gtk_hbox_new (FALSE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (jcbox), 1);
+    gtk_box_set_spacing(GTK_BOX(jcbox), 1);
 
     for (int i = 0; i < 2; i++)
       {
@@ -268,7 +279,7 @@ namespace gx_gui
 	g_signal_connect(G_OBJECT(meter), "button-release-event",
 			 G_CALLBACK(gx_meter_button_release), 0);
 
-	gtk_box_pack_start(GTK_BOX(box), meter, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(jcbox), meter, FALSE, TRUE, 0);
 	GtkTooltips* tooltips = gtk_tooltips_new ();
 	gtk_tooltips_set_tip(tooltips, meter, "jconv output", " ");
 
@@ -276,6 +287,10 @@ namespace gx_gui
 	fJCLevelMeters[i] = meter;
       }
 
+    gtk_box_pack_end(GTK_BOX(box), jcbox, FALSE, TRUE, 0);
+    gtk_widget_show(jcbox);
+
+    // show main box
     gtk_widget_show(box);
   }
 
@@ -3333,7 +3348,7 @@ namespace gx_gui
  
     /* timeout in milliseconds */
     g_timeout_add(40,  gx_update_all_gui,        0);
-    g_timeout_add(80,  gx_refresh_meter_level,   0);
+    g_timeout_add(100,  gx_refresh_meter_level,   0);
     g_timeout_add(60,  gx_refresh_oscilloscope,  0);
     g_timeout_add(200, gx_survive_jack_shutdown, 0);
     g_timeout_add(600, gx_monitor_jack_ports,    0);

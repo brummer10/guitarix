@@ -155,7 +155,7 @@ GtkWidget* gtk_fast_meter_new (long hold,
   fm->pixrect.x = 0;
   fm->pixrect.y = 0;
 
-  if (!len) len = 140;
+  if (len == 0) len = 140;
   fm->pixbuf = request_vertical_meter(dimen, len);
 
   fm->pixheight = gdk_pixbuf_get_height(fm->pixbuf);
@@ -298,11 +298,8 @@ void gtk_fast_meter_size_allocate (GtkWidget* wd, GtkAllocation* alloc)
   wd->allocation = *alloc;
 
   if (GTK_WIDGET_REALIZED (wd))
-    {
-      
-      gdk_window_move_resize (wd->window,
-                              alloc->x, alloc->y, alloc->width, alloc->height);
-    }
+    gdk_window_move_resize (wd->window,
+			    alloc->x, alloc->y, alloc->width, alloc->height);
 }
 
 

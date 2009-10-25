@@ -193,11 +193,8 @@ namespace gx_gui
 	  GxMainInterface* gui = GxMainInterface::instance();
 
 	  // data holders for meters
-	  float rms_level[2]; (void)memset(rms_level, 0, sizeof(rms_level));
-	  float max_level[2]; (void)memset(max_level, 0, sizeof(max_level));
-
+	  float rms_level  [2]; (void)memset(rms_level, 0, sizeof(rms_level));
 	  float rms_jclevel[2]; (void)memset(rms_jclevel, 0, sizeof(rms_jclevel));
-	  float max_jclevel[2]; (void)memset(max_jclevel, 0, sizeof(max_jclevel));
 
 	  jack_nframes_t nframes = gx_jack::jack_bs;
 	      
@@ -228,14 +225,10 @@ namespace gx_gui
 	      // calculate peak and rms
               for (guint f = 0; f < nframes; f++)
                 {
-                  max_level[c] = max(max_level[c], abs(data[f]));
                   rms_level[c] += data[f]*data[f];
 
 		  if (gx_jconv::jconv_is_running && gx_engine::is_setup)
-		    {
-		      max_jclevel[c] = max(max_jclevel[c], abs(jcdata[f]));
-		      rms_jclevel[c] += jcdata[f]*jcdata[f];
-		    }
+		    rms_jclevel[c] += jcdata[f]*jcdata[f];
                 }
             }
 
@@ -1523,8 +1516,7 @@ namespace gx_gui
 
     gboolean box7_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
     {
- cairo_t *cr;
-
+      cairo_t *cr;
 
       /* create a cairo context */
       cr = gdk_cairo_create(wi->window);
@@ -1532,7 +1524,7 @@ namespace gx_gui
       double x0      = wi->allocation.x+1;
       double y0      = wi->allocation.y+1;
       double rect_width  = wi->allocation.width-2;
-      double rect_height = wi->allocation.height-11;
+      double rect_height = wi->allocation.height-5;
 
       cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
       cairo_set_source_rgb (cr, 0, 0, 0);
