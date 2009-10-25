@@ -178,7 +178,10 @@ namespace gx_system
 	// if garbage, let's initialize to guitarix_default.rc
 	guint s = 0;
 	while (s < gx_gui::skin_list.size()) {
-	  if (tmp == gx_gui::skin_list[s]) break;
+	  if (tmp == gx_gui::skin_list[s]) {
+	   gx_gui::rcskin = float(s);
+	  break;
+	  }
 	  s++;
 	}
 

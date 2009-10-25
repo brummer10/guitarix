@@ -263,6 +263,8 @@ namespace gx_gui
   /* names of port lists (exclude MIDI for now) */
   extern string port_list_names[];
 
+  extern float rcskin;
+
   /* client port queues */
   extern map<string, int> gx_client_port_queue;
   extern map<string, int> gx_client_port_dequeue;

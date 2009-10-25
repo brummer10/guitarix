@@ -284,6 +284,8 @@ namespace gx_gui
   gint gx_current_skin = 0;
   int last_skin = 0;
   int no_opt_skin = 0;
+  // set rcskin to default skin
+  float rcskin = 2;
 
   /* for level display */
   int meter_falloff = 27; // in dB/sec.
