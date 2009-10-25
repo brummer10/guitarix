@@ -143,7 +143,7 @@ namespace gx_gui
   {
     GtkWidget * box = gtk_hbox_new (homogene, 2);
     gtk_container_set_border_width (GTK_CONTAINER (box), 2);
-
+    g_signal_connect(box, "expose-event", G_CALLBACK(box10_expose), NULL);
     if (fMode[fTop] != kTabMode && label[0] != 0)
       {
 	GtkWidget * frame = addWidget(label, gtk_frame_new (label));

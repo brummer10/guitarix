@@ -532,7 +532,10 @@ namespace gx_child_process
 	      warning +=
 		"  WARNING [JConv]\n\n  "
 		"  Sorry, jconv startup failed ... giving up!";
-
+        else if (!system(" pidof jconv > /dev/null") == 0)
+        warning +=
+		"  WARNING [JConv]\n\n  "
+		"  Sorry, jconv startup failed ... giving up!";
 	    else
 	    {
 	      // store pid for future process monitoring
@@ -604,7 +607,7 @@ namespace gx_child_process
 
 	      // tell the compute method that JConv is running
 	      gx_jconv::jconv_is_running = true;
-	      
+
 	      for (int c = 0; c < 2; c++)
 		gtk_widget_show(gx_gui::GxMainInterface::instance()->
 				getJCLevelMeters()[c]);
@@ -621,6 +624,7 @@ namespace gx_child_process
 	  (void)gx_gui::gx_message_popup(warning.c_str());
 	  gx_jconv::GxJConvSettings::checkbutton7 = 0;
 	  gx_jconv::jconv_is_running = false;
+	  gx_child_process::child_pid[JCONV_IDX] = NO_PID;
 	}
 	gx_jconv::checkbox7 = 0.0;
       }
