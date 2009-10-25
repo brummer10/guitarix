@@ -86,7 +86,7 @@ style "bc_style"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "controlsbl3.jpg"
+			file			= "cairo2.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -96,7 +96,7 @@ style "bc_style"
 			recolorable		= TRUE
 			state			= PRELIGHT
 			shadow			= OUT
-			file			= "controlsbl4.jpg"
+			file			= "cairo1.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -106,7 +106,7 @@ style "bc_style"
 			recolorable		= TRUE
 			state			= ACTIVE
 			shadow			= OUT
-			file			= "controlsbl3.jpg"
+			file			= "cairo2.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -123,7 +123,7 @@ style "cc_style"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "controlsbl.jpg"
+			file			= "cairo.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -164,7 +164,7 @@ style "pc_style"
 			recolorable		= TRUE
 			state			= PRELIGHT
 			shadow			= OUT
-			file			= "controls4.jpg"
+			file			= "cairo.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}

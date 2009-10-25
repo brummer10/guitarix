@@ -760,11 +760,11 @@ namespace gx_jack
     if (jack_port_is_mine(client, port)) return;
 
     // OK, let's get to it
-    
+
     // don't process MIDI ports, too messy with jack2 ATM
     const string type  = jack_port_type(port);
     if (type == JACK_DEFAULT_MIDI_TYPE) return;
-      
+
     const string name = jack_port_name(port);
     const int   flags = jack_port_flags(port);
 
@@ -782,7 +782,7 @@ namespace gx_jack
     // just to be safe
     if (!client) return;
 
-    string clname = name; 
+    string clname = name;
 
     // ignore these clients
     if (clname == client_name   ||
@@ -792,7 +792,7 @@ namespace gx_jack
 	clname == "qjackctl"    ||
 	clname == "Patchage")
       return;
-  
+
     client_out_graph = "";
 
     // get GUI to act upon the stuff
@@ -803,7 +803,7 @@ namespace gx_jack
 
       // in case of registration, just log it, the port registration
       // routines will take care of things
-    case 1: gx_print_info("Jack Client", 
+    case 1: gx_print_info("Jack Client",
 			  clname + string(" joined the graph")); break;
     default: break;
     }

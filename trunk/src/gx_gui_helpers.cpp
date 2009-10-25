@@ -62,7 +62,7 @@ inline float
 log_meter (float db)
 {
   gfloat def = 0.0f; /* Meter deflection %age */
-  
+
   if (db < -70.0f) {
     def = 0.0f;
   } else if (db < -60.0f) {
@@ -80,27 +80,27 @@ log_meter (float db)
   } else {
     def = 115.0f;
   }
-  
-  /* 115 is the deflection %age that would be 
+
+  /* 115 is the deflection %age that would be
      when db=6.0. this is an arbitrary
      endpoint for our scaling.
   */
-  
+
   return def/115.0f;
 }
 
 /* --------- calculate power (percent) to decibel -------- */
 // Note: could use fast_log10 (see ardour code) to make it faster
-inline float power2db(float power)  
+inline float power2db(float power)
 {
   return  20.*log10(power);
-} 
+}
 
 /* --------------------------- gx_gui namespace ------------------------ */
 namespace gx_gui
 {
 
-  static const float falloff = meter_falloff * meter_display_timeout * 0.001; 
+  static const float falloff = meter_falloff * meter_display_timeout * 0.001;
 
   /* --------- menu function triggering engine on/off/bypass --------- */
   void gx_engine_switch (GtkWidget* widget, gpointer arg)
@@ -192,9 +192,9 @@ namespace gx_gui
   {
     if (gx_jack::client && gx_engine::buffers_ready)
       {
-	  
+
 	GxMainInterface* gui = GxMainInterface::instance();
-	  
+
 	// data holders for meters
 	// Note: removed RMS calculation, we will only focus on max peaks
 	float max_level  [2]; (void)memset(max_level,   0, sizeof(max_level));
@@ -202,54 +202,54 @@ namespace gx_gui
 
 	static float old_peak_db  [2] = {-INFINITY, -INFINITY};
 	static float old_jcpeak_db[2] = {-INFINITY, -INFINITY};
-	  
+
 	jack_nframes_t nframes = gx_jack::jack_bs;
-	  
+
 	// retrieve meter widgets
 	GtkWidget* const* meters   = gui->getLevelMeters();
 	GtkWidget* const* jcmeters = gui->getJCLevelMeters();
-	  
+
 	// fill up from engine buffers
 	for (int c = 0; c < 2; c++)
 	  {
 	    // guitarix output levels
 	    float data[nframes];
-	      
+
 	    // jconv output levels
 	    float jcdata[nframes];
-	      
-	    // need to differentiate between channels due to stereo 
-	    switch(c) 
+
+	    // need to differentiate between channels due to stereo
+	    switch(c)
 	      {
 	      default:
-	      case 0: 
+	      case 0:
 		(void)memcpy(data, gx_engine::get_frame,  sizeof(data)); break;
-		  
-	      case 1: 
+
+	      case 1:
 		(void)memcpy(data, gx_engine::get_frame1, sizeof(data)); break;
 	      }
-	      
+
 	    // jconv: note that jconv monitor channels are input[1] and [2]
 	    if (gx_jconv::jconv_is_running && gx_engine::is_setup)
 	      (void)memcpy(jcdata, gx_engine::gInChannel[c+1], sizeof(jcdata));
-	      
+
 	    // calculate  max peak
 	    for (guint f = 0; f < nframes; f++)
 	      {
 		max_level[c] = max(max_level[c], abs(data[f]));
-		  
+
 		if (gx_jconv::jconv_is_running && gx_engine::is_setup)
 		  max_jclevel[c] = max(max_jclevel[c], abs(jcdata[f]));
 	      }
-	      
-	      
+
+
 	    // update meters (consider falloff as well)
 	    if (meters[c])
 	      {
 		// calculate peak dB and translate into meter
 		float peak_db = -INFINITY;
 		if (max_level[c] > 0.) peak_db = power2db(max_level[c]);
-	      
+
 		// retrieve old meter value and consider falloff
 		if (peak_db < old_peak_db[c])
 		  peak_db = old_peak_db[c] - falloff;
@@ -258,12 +258,13 @@ namespace gx_gui
 		old_peak_db[c] = max(peak_db, -INFINITY);
 	      }
 
+
 	    if (gx_jconv::jconv_is_running && jcmeters[c] && gx_engine::is_setup)
 	      {
 		// calculate peak dB and translate into meter
 		float peak_db = -INFINITY;
 		if (max_jclevel[c] > 0.) peak_db = power2db(max_jclevel[c]);
-	      
+
 		// retrieve old meter value and consider falloff
 		if (peak_db < old_jcpeak_db[c])
 		  peak_db = old_jcpeak_db[c] - falloff;
@@ -273,6 +274,7 @@ namespace gx_gui
 	      }
 	  }
       }
+
 
     return TRUE;
   }
@@ -287,9 +289,11 @@ namespace gx_gui
     return TRUE;
   }
 
+
   /* -------------- timeout for jconv startup when guitarix init -------------- */
   gboolean gx_check_startup(gpointer args)
   {
+
     gx_engine::is_setup = 1;
     if (gx_jconv::GxJConvSettings::checkbutton7 == 1)
       {
@@ -1095,7 +1099,7 @@ namespace gx_gui
       {
 	cerr << " button event " << endl;
 	GxMainInterface* gui = GxMainInterface::instance();
-	  
+
 	GtkWidget* const*  meters = gui->getLevelMeters();
 	GtkWidget* const* jmeters = gui->getJCLevelMeters();
 
@@ -1539,26 +1543,43 @@ namespace gx_gui
     /* create a cairo context */
     cr = gdk_cairo_create(wi->window);
 
-    double x0      = wi->allocation.x+1;
-    double y0      = wi->allocation.y+1;
-    double rect_width  = wi->allocation.width-2;
-    double rect_height = wi->allocation.height-5;
 
-    cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
-    cairo_set_source_rgb (cr, 0, 0, 0);
-    cairo_fill (cr);
+      double x0      = wi->allocation.x+1;
+      double y0      = wi->allocation.y+2;
+      double rect_width  = wi->allocation.width-2;
+      double rect_height = wi->allocation.height-4;
+
+
+
+
+      cairo_rectangle (cr, x0,y0,rect_width,rect_height+2);
+      cairo_set_source_rgb (cr, 0, 0, 0);
+      cairo_fill (cr);
 
     cairo_pattern_t*pat =
       cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
     cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
     cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
 
-    cairo_set_source (cr, pat);
-    cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
-    cairo_fill (cr);
 
-    cairo_pattern_destroy (pat);
-    cairo_destroy(cr);
+      cairo_set_source (cr, pat);
+      cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-2);
+      cairo_fill (cr);
+
+
+      cairo_move_to (cr, x0+rect_width*0.5, y0+1);
+      cairo_line_to (cr, x0+rect_width*0.5 , y0+rect_height);
+      for(int i =5;i<rect_height;i+=(5+(i*0.3))) {
+      cairo_move_to (cr, x0+rect_width*0.45, y0+i);
+      cairo_line_to (cr, x0+rect_width*0.55 , y0+i);
+      }
+      cairo_set_source_rgb (cr, 0.4, 0.8, 0.4);
+      cairo_set_line_width (cr, 0.5);
+      cairo_stroke (cr);
+
+      cairo_pattern_destroy (pat);
+      cairo_destroy(cr);
+
 
     return FALSE;
   }

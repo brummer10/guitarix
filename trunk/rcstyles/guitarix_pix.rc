@@ -5,7 +5,7 @@
 pixmap_path './:/usr/share/guitarix:/usr/local/share/guitarix'
 
 
-style "guitarix"
+style "guitarixp"
 {
   
   
@@ -21,10 +21,10 @@ style "guitarix"
   fg[SELECTED] = { 0.80, 0.80, 0.80 }	
   
   bg[NORMAL] = { 0.30, 0.30, 0.30 }
-  bg[PRELIGHT] = "#303084"
+  bg[PRELIGHT] = "#760608"
   bg[ACTIVE] = { 0.0, 0.0, 0.0 }
   bg[INSENSITIVE] = "#c4c0c0"
-  bg[SELECTED] = "#000094"
+  bg[SELECTED] = "#760608"
  
   text[NORMAL] = { 0.80, 0.80, 0.80 }	
   text[ACTIVE] = { 0.80, 0.80, 0.80 }	
@@ -42,14 +42,14 @@ style "guitarix"
 }
 
 
-class "GtkWidget" style:highest "guitarix"
-class "GtkLabel" style:highest "guitarix"
-class "GtkHScale" style:highest "guitarix"
-class "GtkVScale" style:highest "guitarix"
-class "GtkCheckButton" style:highest "guitarix"
-class "GtkButton" style:highest "guitarix"
-class "GtkFrame" style:highest "guitarix"
-class "GtkExpander" style:highest "guitarix"
+class "GtkWidget" style:highest "guitarixp"
+class "GtkLabel" style:highest "guitarixp"
+class "GtkHScale" style:highest "guitarixp"
+class "GtkVScale" style:highest "guitarixp"
+class "GtkCheckButton" style:highest "guitarixp"
+class "GtkButton" style:highest "guitarixp"
+class "GtkFrame" style:highest "guitarixp"
+class "GtkExpander" style:highest "guitarixp"
 
 
 style "guitarix-event"
@@ -59,22 +59,23 @@ style "guitarix-event"
 
 class "GtkEventBox" style:highest "guitarix-event"
 
-style "guitarix-dialog"
+style "guitarix-pdialog"
 { 
  bg_pixmap[NORMAL] = "controls1.jpg"
 }
 
-widget_class "GtkDialog*" style:highest "guitarix-dialog"
+widget_class "GtkDialog*" style:highest "guitarix-pdialog"
 
-style "guitarix-menu"
+style "guitarix-pmenu"
 { 
   fg[NORMAL] = { 0.80, 0.80, 0.80 }	
-  bg[NORMAL] =  "#303084"
+  bg[NORMAL] =  "#600405"
+  bg[SELECTED] =  "#120202"
   font_name = "sans 9"
 }
 
-class "GtkMenu" style:highest "guitarix-menu"
-class "GtkMenuBar" style:highest "guitarix-menu"
+class "GtkMenu" style:highest "guitarix-pmenu"
+class "GtkMenuBar" style:highest "guitarix-pmenu"
 
 style "bix_style"
 {

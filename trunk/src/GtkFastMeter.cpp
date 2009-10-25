@@ -56,12 +56,12 @@ static void      gtk_fast_meter_init	         (GtkFastMeter*);
 extern gboolean  gtk_fast_meter_expose_event  (GtkWidget*, GdkEventExpose*);
 static void      gtk_fast_meter_size_request  (GtkWidget*, GtkRequisition*);
 static void      gtk_fast_meter_size_allocate (GtkWidget*, GtkAllocation*);
-static void      gtk_fast_meter_realize       (GtkWidget*); 
+static void      gtk_fast_meter_realize       (GtkWidget*);
 
 static gboolean   vertical_expose         (GtkFastMeter*, GdkEventExpose*);
 static void       queue_vertical_redraw   (GtkFastMeter*, GdkWindow*, float);
 static GdkPixbuf* request_vertical_meter  (int w, int h);
-  
+
 static GtkWidgetClass* parent_class = NULL;
 
 /* ----- fast meter widget type ----- */
@@ -84,8 +84,8 @@ GType gtk_fast_meter_get_type(void)
       (GInstanceInitFunc)gtk_fast_meter_init
     };
 
-    fm_type = 
-      g_type_register_static(GTK_TYPE_WIDGET, 
+    fm_type =
+      g_type_register_static(GTK_TYPE_WIDGET,
 			     "GtkFastMeter", &fm_info, (GTypeFlags)0);
   }
 
@@ -101,7 +101,7 @@ void gtk_fast_meter_class_init(GtkFastMeterClass* klass)
   object_class = (GtkObjectClass*)klass;
   widget_class = (GtkWidgetClass*)klass;
 
-  parent_class = 
+  parent_class =
     (GtkWidgetClass*)gtk_type_class(gtk_widget_get_type());
 
   object_class->destroy = gtk_fast_meter_destroy;
@@ -131,10 +131,10 @@ void gtk_fast_meter_init (GtkFastMeter* fm)
 }
 
 /* -------------- */
-GtkWidget* gtk_fast_meter_new (long hold, 
-			       unsigned long dimen, 
-			       int len, 
-			       int clr0, 
+GtkWidget* gtk_fast_meter_new (long hold,
+			       unsigned long dimen,
+			       int len,
+			       int clr0,
 			       int clr1,
 			       int clr2,
 			       int clr3)
@@ -149,7 +149,7 @@ GtkWidget* gtk_fast_meter_new (long hold,
   GtkFastMeter::rgb2 = clr2;
   GtkFastMeter::rgb3 = clr0;
 
-  gtk_widget_set_events(GTK_WIDGET(fm), 
+  gtk_widget_set_events(GTK_WIDGET(fm),
 			GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
 
   fm->pixrect.x = 0;
@@ -178,7 +178,7 @@ static GdkPixbuf* request_vertical_meter(int width, int height)
 
   if (height > GtkFastMeter::max_v_pixbuf_size)
     height = GtkFastMeter::max_v_pixbuf_size;
-	
+
   GdkPixbuf* ret;
   guint8*    data = (guint8*)malloc(width*height * 3);
 
@@ -189,59 +189,59 @@ static GdkPixbuf* request_vertical_meter(int width, int height)
   UINT_TO_RGBA (GtkFastMeter::rgb2, &r2, &g2, &b2, &a);
   UINT_TO_RGBA (GtkFastMeter::rgb3, &r3, &g3, &b3, &a);
 
-  int knee = (int)floor((float)height * 100.0f / 115.0f);
+  int knee = (int)floor((float)height *0.996f );
   int y;
 
-  for (y = 0; y < knee/2; y++) 
+  for (y = 0; y < knee/2; y++)
     {
       r = (guint8)floor((float)abs(r1 - r0) * (float)y / (float)(knee/2));
       (r0 >= r1) ? r = r0 - r : r += r0;
-      
+
       g = (guint8)floor((float)abs(g1 - g0) * (float)y / (float)(knee/2));
       (g0 >= g1) ? g = g0 - g : g += g0;
-      
+
       b = (guint8)floor((float)abs(b1 - b0) * (float)y / (float)(knee/2));
       (b0 >= b1) ? b = b0 - b : b += b0;
-      
-      for (int x = 0; x < width; x++) 
+
+      for (int x = 0; x < width; x++)
 	{
 	  data[ (x+(height-y-1)*width) * 3 + 0 ] = r;
-	  data[ (x+(height-y-1)*width) * 3 + 1 ] = g;
-	  data[ (x+(height-y-1)*width) * 3 + 2 ] = b;
+	  data[ (x+(height-y-1)*width) * 3 + 2 ] = g;
+	  data[ (x+(height-y-1)*width) * 3 + 1 ] = b;
 	}
     }
 
 
   int offset = knee - y;
-  for (int i=0; i < offset; i++,y++) 
+  for (int i=0; i < offset; i++,y++)
     {
-      
+
       r = (guint8)floor((float)abs(r2 - r1) * (float)i / (float)offset);
       (r1 >= r2) ? r = r1 - r : r += r1;
-      
+
       g = (guint8)floor((float)abs(g2 - g1) * (float)i / (float)offset);
       (g1 >= g2) ? g = g1 - g : g += g1;
-      
+
       b = (guint8)floor((float)abs(b2 - b1) * (float)i / (float)offset);
       (b1 >= b2) ? b = b1 - b : b += b1;
-      
-      for (int x = 0; x < width; x++) 
+
+      for (int x = 0; x < width; x++)
 	{
 	  data[ (x+(height-y-1)*width) * 3 + 0 ] = r;
-	  data[ (x+(height-y-1)*width) * 3 + 1 ] = g;
-	  data[ (x+(height-y-1)*width) * 3 + 2 ] = b;
+	  data[ (x+(height-y-1)*width) * 3 + 2 ] = g;
+	  data[ (x+(height-y-1)*width) * 3 + 1 ] = b;
 	}
     }
-  
-  for (; y < height; y++) 
+
+  for (; y < height; y++)
     {
       for (int x = 0; x < width; x++) {
 	data[ (x+(height-y-1)*width) * 3 + 0 ] = r3;
-	data[ (x+(height-y-1)*width) * 3 + 1 ] = g3;
-	data[ (x+(height-y-1)*width) * 3 + 2 ] = b3;
+	data[ (x+(height-y-1)*width) * 3 + 2 ] = g3;
+	data[ (x+(height-y-1)*width) * 3 + 1 ] = b3;
       }
     }
-	
+
   ret = gdk_pixbuf_new_from_data(data, GDK_COLORSPACE_RGB, false, 8, width, height, width * 3, NULL, NULL);
   return ret;
 }
@@ -250,11 +250,11 @@ static GdkPixbuf* request_vertical_meter(int width, int height)
 void gtk_fast_meter_set_hold_count(GtkFastMeter* fm, long val)
 {
   if (val < 1) val = 1;
-	
+
   fm->hold_cnt     = val;
   fm->hold_state   = 0;
   fm->current_peak = 0;
-	
+
   gtk_widget_queue_draw(GTK_WIDGET(fm));
 }
 
@@ -266,7 +266,7 @@ void gtk_fast_meter_size_request (GtkWidget* wd, GtkRequisition* req)
   req->height = fm->request_height;
   req->height = max(req->height, GtkFastMeter::min_v_pixbuf_size);
   req->height = min(req->height, GtkFastMeter::max_v_pixbuf_size);
-  
+
   req->width  = fm->request_width;
 }
 
@@ -281,14 +281,14 @@ void gtk_fast_meter_size_allocate (GtkWidget* wd, GtkAllocation* alloc)
 
   if (alloc->width != fm->request_width)
     alloc->width = fm->request_width;
-  
+
   int h = alloc->height;
   h = max(h, GtkFastMeter::min_v_pixbuf_size);
   h = min(h, GtkFastMeter::max_v_pixbuf_size);
-  
+
   if (h != alloc->height)
     alloc->height = h;
-  
+
   if (fm->pixheight != h)
     fm->pixbuf = request_vertical_meter(fm->request_width, h);
 
@@ -347,19 +347,19 @@ void gtk_fast_meter_set(GtkFastMeter* fm, float lvl)
   float old_peak  = fm->current_peak;
 
   fm->current_level = lvl;
-	
-  if (lvl > fm->current_peak) 
+
+  if (lvl > fm->current_peak)
     {
       fm->current_peak = lvl;
       fm->hold_state   = fm->hold_cnt;
     }
-	
+
   if (fm->hold_state > 0)
     if (--fm->hold_state == 0)
       fm->current_peak = lvl;
 
-  if (fm->current_level == old_level && 
-      fm->current_peak  == old_peak  && 
+  if (fm->current_level == old_level &&
+      fm->current_peak  == old_peak  &&
       fm->hold_state == 0)
     return;
 
@@ -369,7 +369,7 @@ void gtk_fast_meter_set(GtkFastMeter* fm, float lvl)
       gtk_widget_queue_draw(GTK_WIDGET(fm));
       return;
     }
-  
+
   queue_vertical_redraw(fm, window, old_level);
 }
 
@@ -423,59 +423,59 @@ gboolean vertical_expose (GtkFastMeter* fm, GdkEventExpose* ev)
   background.width  = fm->pixrect.width;
   background.height = fm->pixheight - top_of_meter;
 
-  if (gdk_rectangle_intersect (&background, &ev->area, &intersection)) 
+  if (gdk_rectangle_intersect (&background, &ev->area, &intersection))
     {
       GdkWindow* window = gtk_widget_get_window(GTK_WIDGET(fm));
       GtkStyle*  style  = gtk_widget_get_style (GTK_WIDGET(fm));
 
       gdk_draw_rectangle(GDK_DRAWABLE(window),
-			 style->black_gc, 
-			 TRUE, 
-			 intersection.x, 
+			 style->black_gc,
+			 TRUE,
+			 intersection.x,
 			 intersection.y,
-			 intersection.width, 
+			 intersection.width,
 			 intersection.height);
     }
 
-  if (gdk_rectangle_intersect(&fm->pixrect, &ev->area, &intersection)) 
+  if (gdk_rectangle_intersect(&fm->pixrect, &ev->area, &intersection))
     {
-      // draw the part of the meter image that we need. 
+      // draw the part of the meter image that we need.
       // the area we draw is bounded "in reverse" (top->bottom)
       GdkWindow*   window = gtk_widget_get_window(GTK_WIDGET(fm));
       GtkStyle*    style  = gtk_widget_get_style (GTK_WIDGET(fm));
 
       gdk_draw_pixbuf(GDK_DRAWABLE(window),
-		      style->fg_gc[GTK_WIDGET_STATE(GTK_WIDGET(fm))], 
-		      fm->pixbuf, 
+		      style->fg_gc[GTK_WIDGET_STATE(GTK_WIDGET(fm))],
+		      fm->pixbuf,
 		      intersection.x, intersection.y,
 		      intersection.x, intersection.y,
 		      intersection.width, intersection.height,
 		      GDK_RGB_DITHER_NONE, 0, 0);
     }
-  
-  // draw peak bar 
 
-  if (fm->hold_state) 
+  // draw peak bar
+
+  if (fm->hold_state)
     {
       fm->last_peak_rect.x     = 0;
       fm->last_peak_rect.width = fm->pixwidth;
-      fm->last_peak_rect.y     = fm->pixheight - 
+      fm->last_peak_rect.y     = fm->pixheight -
                                  (gint)floor(fm->pixheight * fm->current_peak);
 
       fm->last_peak_rect.height = min(3, fm->pixheight - fm->last_peak_rect.y);
-      
+
       GdkWindow*   window = gtk_widget_get_window(GTK_WIDGET(fm));
       GtkStyle*    style  = gtk_widget_get_style (GTK_WIDGET(fm));
 
       gdk_draw_pixbuf(GDK_DRAWABLE(window),
-		      style->fg_gc[GTK_WIDGET_STATE(GTK_WIDGET(fm))], 
+		      style->fg_gc[GTK_WIDGET_STATE(GTK_WIDGET(fm))],
 		      fm->pixbuf,
 		      0, fm->last_peak_rect.y,
 		      0, fm->last_peak_rect.y,
 		      fm->pixwidth, fm->last_peak_rect.height,
 		      GDK_RGB_DITHER_NONE, 0, 0);
-    } 
-  else 
+    }
+  else
     {
       fm->last_peak_rect.width  = 0;
       fm->last_peak_rect.height = 0;
@@ -485,20 +485,20 @@ gboolean vertical_expose (GtkFastMeter* fm, GdkEventExpose* ev)
 }
 
 /* --------- vertical drawing queue ----------- */
-void queue_vertical_redraw (GtkFastMeter* fm, 
-			    GdkWindow*    win, 
+void queue_vertical_redraw (GtkFastMeter* fm,
+			    GdkWindow*    win,
 			    float         old_level)
 {
   GdkRectangle rect;
-	
+
   gint new_top = (gint)floor(fm->pixheight * fm->current_level);
-	
+
   rect.x      = 0;
   rect.width  = fm->pixwidth;
   rect.height = new_top;
   rect.y      = fm->pixheight - new_top;
 
-  if (fm->current_level > old_level) 
+  if (fm->current_level > old_level)
     {
       /* colored/pixbuf got larger, just draw the new section */
       /* rect.y stays where it is because of X coordinates */
@@ -507,8 +507,8 @@ void queue_vertical_redraw (GtkFastMeter* fm,
 	 X coordinates just make my brain hurt.
       */
       rect.height = fm->pixrect.y - rect.y;
-    } 
-  else 
+    }
+  else
     {
       /* it got smaller, compute the difference */
       /* rect.y becomes old.y (the smaller value) */
@@ -521,7 +521,7 @@ void queue_vertical_redraw (GtkFastMeter* fm,
   GdkRegion* region = 0;
   bool queue = false;
 
-  if (rect.height != 0) 
+  if (rect.height != 0)
     {
       /* ok, first region to draw ... */
       region = gdk_region_rectangle (&rect);
@@ -531,23 +531,23 @@ void queue_vertical_redraw (GtkFastMeter* fm,
   /* redraw the last place where the last peak hold bar was;
      the next expose will draw the new one whether its part of
      expose region or not. */
-	
-  if (fm->last_peak_rect.width * fm->last_peak_rect.height != 0) 
+
+  if (fm->last_peak_rect.width * fm->last_peak_rect.height != 0)
     {
-      if (!queue) 
+      if (!queue)
 	{
 	  region = gdk_region_new ();
-	  queue = true; 
+	  queue = true;
 	}
 
       gdk_region_union_with_rect (region, &fm->last_peak_rect);
-    } 
-  
-  if (queue) 
+    }
+
+  if (queue)
     gdk_window_invalidate_region (win, region, TRUE);
 
   // avoid mem leak
-  if (region) 
+  if (region)
     {
       gdk_region_destroy(region);
       region = 0;

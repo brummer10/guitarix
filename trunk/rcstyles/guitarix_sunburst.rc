@@ -24,7 +24,7 @@ style "guitarix_sunburst"
   bg[PRELIGHT] = "#1e0000"
   bg[ACTIVE] = { 0.0, 0.0, 0.0 }
   bg[INSENSITIVE] = "#c4c0c0"
-  bg[SELECTED] = "#000094"
+  bg[SELECTED] = "#973419"
  
   text[NORMAL] = { 0.80, 0.80, 0.80 }	
   text[ACTIVE] = { 0.80, 0.80, 0.80 }	
@@ -86,7 +86,7 @@ style "b_style_sunburst"
 			recolorable		= TRUE
 			state			= NORMAL	
 			shadow			= OUT
-			file			= "sunburst.jpg"
+			file			= "sunburst3.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -96,7 +96,7 @@ style "b_style_sunburst"
 			recolorable		= TRUE
 			state			= PRELIGHT	
 			shadow			= OUT
-			file			= "sunburst1.jpg"
+			file			= "sunburst4.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -106,7 +106,7 @@ style "b_style_sunburst"
 			recolorable		= TRUE
 			state			= ACTIVE	
 			shadow			= OUT
-			file			= "sunburst.jpg"
+			file			= "sunburst3.jpg"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}

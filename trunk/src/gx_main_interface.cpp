@@ -209,12 +209,13 @@ namespace gx_gui
   void GxMainInterface::openLevelMeterBox(const char* label)
   {
     GtkWidget* box = addWidget(label, gtk_hbox_new (FALSE, 0));
-    
-    gint boxheight = 155;
+
+    gint boxheight = 135;
     gint boxwidth  = 22;
 
-    gtk_container_set_border_width (GTK_CONTAINER (box), 2);
-    gtk_box_set_spacing(GTK_BOX(box), 4);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 3);
+    gtk_box_set_spacing(GTK_BOX(box), 1);
+
     gtk_widget_set_size_request (GTK_WIDGET(box), boxwidth, boxheight);
     g_signal_connect(box, "expose-event", G_CALLBACK(box7_expose), NULL);
     g_signal_connect(GTK_CONTAINER(box), "check-resize",
@@ -227,11 +228,12 @@ namespace gx_gui
     int clip = 0x00fd5dff;
 
     // width of meter
-    int width    = 5;  
+    int width    = 4;
 
     // how long we hold the peak bar = hold * thread call timeout
-    // Note: 20 * 100ms = 2 sec
-    int hold = 20; 
+
+    // Note: 30 * 80 = 2.4 sec
+    int hold     = 20;
 
     // guitarix output levels
     GtkWidget* gxbox = gtk_hbox_new (FALSE, 0);
@@ -241,11 +243,11 @@ namespace gx_gui
     for (int i = 0; i < 2; i++)
       {
 	fLevelMeters[i] = 0;
-    
-	GtkWidget* meter = 
+
+	GtkWidget* meter =
 	  gtk_fast_meter_new(hold, width, boxheight,
 			     base, mid, top, clip);
-	
+
 	gtk_widget_add_events(meter, GDK_BUTTON_RELEASE_MASK);
 	g_signal_connect(G_OBJECT(meter), "button-release-event",
 			 G_CALLBACK(gx_meter_button_release), 0);
@@ -270,16 +272,17 @@ namespace gx_gui
     for (int i = 0; i < 2; i++)
       {
 	fJCLevelMeters[i] = 0;
-    
-	GtkWidget* meter = 
+
+	GtkWidget* meter =
 	  gtk_fast_meter_new(hold, width, boxheight,
 			     base, mid, top, clip);
-	
+
 	gtk_widget_add_events(meter, GDK_BUTTON_RELEASE_MASK);
 	g_signal_connect(G_OBJECT(meter), "button-release-event",
 			 G_CALLBACK(gx_meter_button_release), 0);
 
-	gtk_box_pack_start(GTK_BOX(jcbox), meter, FALSE, TRUE, 0);
+	gtk_box_pack_end(GTK_BOX(box), meter, FALSE, FALSE, 0);
+
 	GtkTooltips* tooltips = gtk_tooltips_new ();
 	gtk_tooltips_set_tip(tooltips, meter, "jconv output", " ");
 
@@ -2446,7 +2449,8 @@ namespace gx_gui
 
 		    // add a meter level box: out of box stack, no need to closeBox
 		    openLevelMeterBox("Signal Level");
-
+             openFrameBox("");
+		    closeBox();
 		  }
 		  closeBox();
 
@@ -3345,7 +3349,7 @@ namespace gx_gui
     //----- set the last used skin when no cmd is given
     if (no_opt_skin == 1)
       gx_set_skin_change(gx_engine::GxEngine::instance()->fskin);
- 
+
     /* timeout in milliseconds */
     g_timeout_add(40,  gx_update_all_gui,        0);
     g_timeout_add(60,  gx_refresh_oscilloscope,  0);
