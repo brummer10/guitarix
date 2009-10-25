@@ -347,7 +347,7 @@ namespace gx_gui
 			    const int flags)
   {
     // add the port
-    gx_client_port_queue[name] = flags;
+    gx_client_port_queue.insert(pair<string, int>(name, flags));
   }
 
   /* --------- dequeue client ports as they are deregistered -------- */
@@ -356,7 +356,7 @@ namespace gx_gui
 			      const int flags)
   {
     // remove the port
-    gx_client_port_dequeue[name] = flags;
+    gx_client_port_dequeue.insert(pair<string, int>(name, flags));
   }
 
 

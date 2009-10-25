@@ -297,7 +297,9 @@ namespace gx_gui
   };
 
   /* client port queues */
-  map<string, int> gx_client_port_queue;
-  map<string, int> gx_client_port_dequeue;
+  class StringComp;
+
+  multimap<string, int, StringComp> gx_client_port_queue;
+  multimap<string, int, StringComp> gx_client_port_dequeue;
 }
 /* ------------------------------------------------------------------------- */

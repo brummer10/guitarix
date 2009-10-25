@@ -264,8 +264,17 @@ namespace gx_gui
   extern string port_list_names[];
 
   /* client port queues */
-  extern map<string, int> gx_client_port_queue;
-  extern map<string, int> gx_client_port_dequeue;
+  class StringComp
+  {
+  public:
+    bool operator()(const string s1, const string s2) const
+    {
+      return s1.size() < s2.size();
+    }
+  };
+
+  extern multimap<string, int, StringComp> gx_client_port_queue;
+  extern multimap<string, int, StringComp> gx_client_port_dequeue;
 }
 
 /* -------------------------------------------------------------------------- */

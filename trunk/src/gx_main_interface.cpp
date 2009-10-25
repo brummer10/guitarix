@@ -1991,9 +1991,9 @@ namespace gx_gui
     int p = 0;
     while (oportnames[p] != 0)
       {
-	const string pname = oportnames[p];
+	string pname = oportnames[p];
 	if (pname.substr(0, pname.find(":")) != gx_jack::client_name)
-	  gx_client_port_queue[pname] = JackPortIsOutput;
+	  gx_client_port_queue.insert(pair<string, int>(pname, JackPortIsOutput));
 
 	p++;
       }
@@ -2002,9 +2002,9 @@ namespace gx_gui
     p = 0;
     while (iportnames[p] != 0)
       {
-	const string pname = iportnames[p];
+	string pname = iportnames[p];
 	if (pname.substr(0, pname.find(":")) != gx_jack::client_name)
-	  gx_client_port_queue[pname] = JackPortIsInput;
+	  gx_client_port_queue.insert(pair<string, int>(pname, JackPortIsInput));
 	p++;
       }
 
@@ -2075,7 +2075,7 @@ namespace gx_gui
       }
 
     // go through list
-    map<string, int>::iterator pn;
+    multimap<string, int>::iterator pn;
     for (pn  = gx_client_port_queue.begin();
 	 pn != gx_client_port_queue.end();
 	 pn++)
@@ -2170,7 +2170,7 @@ namespace gx_gui
     // go through list
     string clname;
 
-    map<string, int>::iterator pn;
+    multimap<string, int>::iterator pn;
     for (pn = gx_client_port_dequeue.begin(); pn != gx_client_port_dequeue.end(); pn++)
       {
 	string port_name = pn->first;
