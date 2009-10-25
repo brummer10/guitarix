@@ -206,8 +206,8 @@ static GdkPixbuf* request_vertical_meter(int width, int height)
       for (int x = 0; x < width; x++)
 	{
 	  data[ (x+(height-y-1)*width) * 3 + 0 ] = r;
-	  data[ (x+(height-y-1)*width) * 3 + 2 ] = g;
-	  data[ (x+(height-y-1)*width) * 3 + 1 ] = b;
+	  data[ (x+(height-y-1)*width) * 3 + 1 ] = g;
+	  data[ (x+(height-y-1)*width) * 3 + 2 ] = b;
 	}
     }
 
@@ -228,8 +228,8 @@ static GdkPixbuf* request_vertical_meter(int width, int height)
       for (int x = 0; x < width; x++)
 	{
 	  data[ (x+(height-y-1)*width) * 3 + 0 ] = r;
-	  data[ (x+(height-y-1)*width) * 3 + 2 ] = g;
-	  data[ (x+(height-y-1)*width) * 3 + 1 ] = b;
+	  data[ (x+(height-y-1)*width) * 3 + 1 ] = g;
+	  data[ (x+(height-y-1)*width) * 3 + 2 ] = b;
 	}
     }
 
@@ -237,8 +237,8 @@ static GdkPixbuf* request_vertical_meter(int width, int height)
     {
       for (int x = 0; x < width; x++) {
 	data[ (x+(height-y-1)*width) * 3 + 0 ] = r3;
-	data[ (x+(height-y-1)*width) * 3 + 2 ] = g3;
-	data[ (x+(height-y-1)*width) * 3 + 1 ] = b3;
+	data[ (x+(height-y-1)*width) * 3 + 1 ] = g3;
+	data[ (x+(height-y-1)*width) * 3 + 2 ] = b3;
       }
     }
 

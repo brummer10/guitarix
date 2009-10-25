@@ -222,10 +222,10 @@ namespace gx_gui
 		     G_CALLBACK(box7_expose), NULL);
 
     // meter level colors
-    int base = 0x0000ffff;
-    int mid  = 0xff0000ff;
-    int top  = 0x73f9baff;
-    int clip = 0x00fd5dff;
+    int base = 0x0038f800;
+    int mid  = 0x00ff0000;
+    int top  = 0xff000000;
+    int clip = 0xff000000;
 
     // width of meter
     int width    = 4;
