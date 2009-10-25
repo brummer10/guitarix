@@ -257,10 +257,8 @@ namespace gx_gui
   extern int no_opt_skin;
 
   /* for level display */
-  extern float max_level[2];
-  extern float rms_level[2];
-  extern float max_jclevel[2];
-  extern float rms_jclevel[2];
+  extern int meter_falloff;
+  extern int meter_display_timeout;
 
   /* names of port lists (exclude MIDI for now) */
   extern string port_list_names[];

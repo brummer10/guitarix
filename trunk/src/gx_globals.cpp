@@ -286,10 +286,8 @@ namespace gx_gui
   int no_opt_skin = 0;
 
   /* for level display */
-  float max_level[2];
-  float rms_level[2];
-  float rms_jclevel[2];
-  float max_jclevel[2];
+  int meter_falloff = 27; // in dB/sec.
+  int meter_display_timeout = 60; // in millisec
 
   /* names of port lists (exclude MIDI for now) */
   string port_list_names[NUM_PORT_LISTS] = {

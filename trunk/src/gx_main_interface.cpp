@@ -3348,11 +3348,13 @@ namespace gx_gui
  
     /* timeout in milliseconds */
     g_timeout_add(40,  gx_update_all_gui,        0);
-    g_timeout_add(100,  gx_refresh_meter_level,   0);
     g_timeout_add(60,  gx_refresh_oscilloscope,  0);
     g_timeout_add(200, gx_survive_jack_shutdown, 0);
     g_timeout_add(600, gx_monitor_jack_ports,    0);
     g_timeout_add(500, gx_check_startup, 0);
+
+    // Note: meter display timeout is a global var in gx_gui namespace
+    g_timeout_add(meter_display_timeout, gx_refresh_meter_level,   0);
 
     gtk_main();
     stop();
