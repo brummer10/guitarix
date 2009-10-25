@@ -3347,9 +3347,12 @@ namespace gx_gui
     gx_engine::GxEngine::instance()->set_latency_warning_change();
 
     //----- set the last used skin when no cmd is given
+    int skin_index = gx_current_skin;
     if (no_opt_skin == 1)
-      gx_set_skin_change(gx_engine::GxEngine::instance()->fskin);
-    else  gx_set_skin_change(gx_current_skin);
+      skin_index = gx_engine::GxEngine::instance()->fskin;
+
+    gx_set_skin_change(skin_index);
+    gx_update_skin_menu_item(skin_index);  
 
     /* timeout in milliseconds */
     g_timeout_add(40,  gx_update_all_gui,        0);

@@ -948,6 +948,21 @@ namespace gx_gui
     // did it work ? if yes, update current skin
     if (gx_update_skin(idx, "gx_cycle_through_skin"))
       gx_current_skin = idx;
+
+    // update menu item state
+    gx_update_skin_menu_item(gx_current_skin);  
+  }
+
+  // ----- cycling through skin
+  void  gx_update_skin_menu_item(const int index)
+  {
+    // update menu item state
+    GxMainInterface* gui = GxMainInterface::instance();
+    GtkWidget* skinmenu = gui->getMenu("Skin");
+    
+    GList*     list = gtk_container_get_children(GTK_CONTAINER(skinmenu));
+    GtkWidget* item = (GtkWidget*)g_list_nth_data(list, index);
+    if (item) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), TRUE);
   }
 
   // ---- skin changer, used internally frm callbacks
@@ -983,32 +998,7 @@ namespace gx_gui
   // ---- set last used skin as default
   bool gx_set_skin(GtkWidget *widget, gpointer data)
   {
-    const gint idx = last_skin;
-    // check skin validity
-    if (idx < 0 || idx >= (gint)gx_fetch_available_skins())
-      {
-	gx_print_warning("gx_set_skin", "skin index out of range, keeping actual skin");
-	return false;
-      }
-
-    string rcfile = GX_STYLE_DIR + string("/") + "guitarix_";
-    rcfile += skin_list[idx];
-    rcfile += ".rc";
-
-    gtk_rc_parse(rcfile.c_str());
-    gtk_rc_reset_styles(gtk_settings_get_default());
-
-    gx_current_skin = idx;
-
-    // refresh wave view
-    gx_waveview_refresh (GTK_WIDGET(livewa), NULL);
-
-    // refresh latency check menu
-    gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
-    GtkWidget* wd = gui->getJackLatencyItem(gx_jack::jack_bs);
-    if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
-
-    return true;
+    return gx_update_skin(last_skin, "Set Skin");
   }
 
   //---- popup warning

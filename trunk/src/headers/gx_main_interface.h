@@ -108,6 +108,8 @@ namespace gx_gui
 
     GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
 
+    GtkWidget*   const getMenu(const string name) const { return fMenuList.at(name); }
+
     // -- update jack client port lists
     void initClientPortMaps      ();
 
