@@ -3349,7 +3349,7 @@ namespace gx_gui
     //----- set the last used skin when no cmd is given
     if (no_opt_skin == 1)
       gx_set_skin_change(gx_engine::GxEngine::instance()->fskin);
-    else  gx_set_skin_change(rcskin);
+    else  gx_set_skin_change(gx_current_skin);
 
     /* timeout in milliseconds */
     g_timeout_add(40,  gx_update_all_gui,        0);
