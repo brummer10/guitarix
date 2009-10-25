@@ -1673,7 +1673,7 @@ namespace gx_gui
 	double x0      = wi->allocation.x+1;
 	double y0      = wi->allocation.y+1;
 	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
+	double rect_height = wi->allocation.height-3;
 
 
 	cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
