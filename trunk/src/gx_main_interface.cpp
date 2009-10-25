@@ -237,7 +237,7 @@ namespace gx_gui
 
     // guitarix output levels
     GtkWidget* gxbox = gtk_hbox_new (FALSE, 0);
-    gtk_container_set_border_width (GTK_CONTAINER (gxbox), 1);
+    gtk_container_set_border_width (GTK_CONTAINER (gxbox), 0);
     gtk_box_set_spacing(GTK_BOX(gxbox), 1);
 
     for (int i = 0; i < 2; i++)

@@ -229,9 +229,12 @@ namespace gx_gui
 		(void)memcpy(data, gx_engine::get_frame1, sizeof(data)); break;
 	      }
 
-	    // jconv: note that jconv monitor channels are input[1] and [2]
+	    // turn channels for box_pack_end
+        int b;
+	    if (c)b=1;else b=2;
+	     // jconv: note that jconv monitor channels are input[1] and [2]
 	    if (gx_jconv::jconv_is_running && gx_engine::is_setup)
-	      (void)memcpy(jcdata, gx_engine::gInChannel[c+1], sizeof(jcdata));
+	      (void)memcpy(jcdata, gx_engine::gInChannel[b], sizeof(jcdata));
 
 	    // calculate  max peak
 	    for (guint f = 0; f < nframes; f++)
