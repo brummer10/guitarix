@@ -950,7 +950,7 @@ namespace gx_gui
       gx_current_skin = idx;
 
     // update menu item state
-    gx_update_skin_menu_item(gx_current_skin);  
+    gx_update_skin_menu_item(gx_current_skin);
   }
 
   // ----- cycling through skin
@@ -959,7 +959,7 @@ namespace gx_gui
     // update menu item state
     GxMainInterface* gui = GxMainInterface::instance();
     GtkWidget* skinmenu = gui->getMenu("Skin");
-    
+
     GList*     list = gtk_container_get_children(GTK_CONTAINER(skinmenu));
     GtkWidget* item = (GtkWidget*)g_list_nth_data(list, index);
     if (item) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), TRUE);
@@ -1531,28 +1531,28 @@ namespace gx_gui
 
   gboolean box7_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
   {
-    cairo_t *cr;
+      cairo_t *cr;
 
     /* create a cairo context */
-    cr = gdk_cairo_create(wi->window);
-
+      cr = gdk_cairo_create(wi->window);
+      cairo_set_font_size (cr, 7.0);
 
       double x0      = wi->allocation.x+1;
       double y0      = wi->allocation.y+2;
       double rect_width  = wi->allocation.width-2;
       double rect_height = wi->allocation.height-4;
 
-
-
+      int  db_points[] = { -50, -40, -20, -30, -10, -3, 0, 4 };
+      char  buf[32];
 
       cairo_rectangle (cr, x0,y0,rect_width,rect_height+2);
       cairo_set_source_rgb (cr, 0, 0, 0);
       cairo_fill (cr);
 
-    cairo_pattern_t*pat =
+      cairo_pattern_t*pat =
       cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
-    cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
-    cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
 
 
       cairo_set_source (cr, pat);
@@ -1560,12 +1560,25 @@ namespace gx_gui
       cairo_fill (cr);
 
 
-      cairo_move_to (cr, x0+rect_width*0.5, y0+1);
-      cairo_line_to (cr, x0+rect_width*0.5 , y0+rect_height);
-      for(int i =5;i<rect_height;i+=(5+(i*0.3))) {
-      cairo_move_to (cr, x0+rect_width*0.45, y0+i);
-      cairo_line_to (cr, x0+rect_width*0.55 , y0+i);
-      }
+
+      for (uint32_t i = 0; i < sizeof (db_points)/sizeof (db_points[0]); ++i) {
+        float fraction = log_meter (db_points[i]);
+        cairo_set_source_rgb (cr, 0.12*i, 1, 0.1);
+
+        cairo_move_to (cr, x0+rect_width*0.2,y0+rect_height - (rect_height * fraction));
+        cairo_line_to (cr, x0+rect_width*0.8 ,y0+rect_height -  (rect_height * fraction));
+        if(i<6) {
+        snprintf (buf, sizeof (buf), "%d", db_points[i]);
+        cairo_move_to (cr, x0+rect_width*0.32,y0+rect_height - (rect_height * fraction));
+        }
+        else
+        {
+        snprintf (buf, sizeof (buf), " %d", db_points[i]);
+        cairo_move_to (cr, x0+rect_width*0.34,y0+rect_height - (rect_height * fraction));
+        }
+        cairo_show_text (cr, buf);
+	  }
+
       cairo_set_source_rgb (cr, 0.4, 0.8, 0.4);
       cairo_set_line_width (cr, 0.5);
       cairo_stroke (cr);
@@ -1664,7 +1677,6 @@ namespace gx_gui
 	double y0      = wi->allocation.y+1;
 	double rect_width  = wi->allocation.width-2;
 	double rect_height = wi->allocation.height-3;
-
 
 	cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
 	cairo_set_source_rgb (cr, 0, 0, 0);

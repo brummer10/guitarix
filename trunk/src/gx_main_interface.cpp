@@ -211,7 +211,7 @@ namespace gx_gui
     GtkWidget* box = addWidget(label, gtk_hbox_new (FALSE, 0));
 
     gint boxheight = 135;
-    gint boxwidth  = 22;
+    gint boxwidth  = 26;
 
     gtk_container_set_border_width (GTK_CONTAINER (box), 3);
     gtk_box_set_spacing(GTK_BOX(box), 1);
