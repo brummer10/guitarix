@@ -257,10 +257,7 @@ namespace gx_gui
   GdkPixbuf* ibr;
   GdkPixbuf* bbr;
 
-  /* jack latency change warning */
-  GtkWidget* warn_dialog;
-  GtkWidget* disable_warn ;
-
+  /* jack server status icons */
   GtkWidget* gx_jackd_on_image;
   GtkWidget* gx_jackd_off_image;
 

@@ -117,10 +117,11 @@ namespace gx_gui
   void gx_reset_units             (GtkWidget*, gpointer);
   void gx_show_about              (GtkWidget*, gpointer);
 
-  void gx_show_extended_settings (GtkWidget*, gpointer);
-  void gx_hide_extended_settings (GtkWidget*, gpointer);
-  void gx_wait_latency_warn      ();
-  int  gx_message_popup          (const char*);
+  void gx_show_extended_settings    (GtkWidget*, gpointer);
+  void gx_hide_extended_settings    (GtkWidget*, gpointer);
+  void gx_user_disable_latency_warn (GtkWidget*, gpointer);
+  gint gx_wait_latency_warn         ();
+  int  gx_message_popup             (const char*);
 
   gboolean gx_delete_event       (GtkWidget*, gpointer);
 

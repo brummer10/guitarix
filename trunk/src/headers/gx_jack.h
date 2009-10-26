@@ -79,8 +79,4 @@ namespace gx_jack
   int gx_jack_midi_process_ringbuffer(jack_nframes_t, void*);
 #endif
 
-  /* latency change confirmation */
-  void gx_confirm_latency_change(void);
-  void gx_cancel_latency_change(void);
-
 } /* end of jack namespace */

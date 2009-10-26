@@ -75,9 +75,8 @@ namespace gx_jack
 {
   /* latency change confirmation */
   typedef enum {
-    kUnknownAction = 0,
-    kChangeLatency,
-    kKeepLatency
+    kChangeLatency = 1,
+    kKeepLatency   = 2
   } GxJackLatencyChange;
 
   extern const int nIPorts; // mono input
@@ -228,10 +227,7 @@ namespace gx_gui
   extern GdkPixbuf* ibm;
   extern GdkPixbuf* ibr;
 
-  /* jack latency change warning */
-  extern GtkWidget* warn_dialog;
-  extern GtkWidget* disable_warn ;
-
+  /* jack server status */
   extern GtkWidget* gx_jackd_on_image;
   extern GtkWidget* gx_jackd_off_image;
 

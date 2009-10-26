@@ -425,7 +425,7 @@ namespace gx_jack
   }
 
   //----jack latency change
-  void gx_set_jack_buffer_size(GtkCheckMenuItem *menuitem, gpointer arg)
+  void gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg)
   {
     // are we a proper jack client ?
     if (!client) {
@@ -452,11 +452,13 @@ namespace gx_jack
 
 
     // first time useage warning
+    GxJackLatencyChange change_latency = kChangeLatency;
+
+    // if user still wants to be given a choice, let's trigger dialog
     if (fwarn_swap == 0.0)
-      gx_gui::gx_wait_latency_warn();
+      change_latency = (GxJackLatencyChange)gx_gui::gx_wait_latency_warn();
 
-    else change_latency = kChangeLatency;
-
+    // let's see
     if (change_latency == kChangeLatency)
     {
       int jcio = 0;
@@ -479,7 +481,13 @@ namespace gx_jack
 	gx_jconv::checkbox7 = 1.0;
 	gx_child_process::gx_start_stop_jconv(NULL, NULL);
       }
-      change_latency = kUnknownAction;
+    }
+    else // restore latency status
+    {
+      // refresh latency check menu
+      gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
+      GtkWidget* wd = gui->getJackLatencyItem(jack_bs);
+      if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
     }
 
     gx_print_info("Jack Buffer Size",
@@ -734,18 +742,6 @@ namespace gx_jack
 
     return 0;
   }
-
-  //----- read the result from the latency change warning widget
-  void gx_confirm_latency_change()
-  {
-    change_latency = kChangeLatency;
-  }
-
-  void gx_cancel_latency_change()
-  {
-    change_latency = kKeepLatency;
-  }
-
 
   //----- fetch available jack ports other than guitarix ports
   void gx_jack_portreg_callback(jack_port_id_t pid, int reg, void* arg)

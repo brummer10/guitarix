@@ -583,9 +583,9 @@ namespace gx_gui
 
 
   //----- change the jack buffersize on the fly is still experimental, give a warning
-  void gx_wait_latency_warn()
+  gint gx_wait_latency_warn()
   {
-    warn_dialog = gtk_dialog_new();
+    GtkWidget* warn_dialog = gtk_dialog_new();
     gtk_window_set_destroy_with_parent(GTK_WINDOW(warn_dialog), TRUE);
 
     GtkWidget* box     = gtk_vbox_new (0, 4);
@@ -610,14 +610,26 @@ namespace gx_gui
     pango_font_description_set_weight(style1->font_desc, PANGO_WEIGHT_BOLD);
     gtk_widget_modify_font(labelt, style1->font_desc);
 
-    GtkWidget* box2    = gtk_hbox_new (0, 4);
-    GtkWidget* button1 = gtk_dialog_add_button(GTK_DIALOG (warn_dialog),"Yes",1);
-    GtkWidget* button2 = gtk_dialog_add_button(GTK_DIALOG (warn_dialog),"No",2);
+    GtkWidget* button1 = 
+      gtk_dialog_add_button(GTK_DIALOG (warn_dialog), 
+			    "Yes", gx_jack::kChangeLatency);
+
+    GtkWidget* button2 = 
+      gtk_dialog_add_button(GTK_DIALOG (warn_dialog), 
+			    "No",  gx_jack::kKeepLatency);
+
+
     GtkWidget* box1    = gtk_hbox_new (0, 4);
+    GtkWidget* box2    = gtk_hbox_new (0, 4);
 
-    disable_warn = gtk_check_button_new ();
+    GtkWidget* disable_warn = gtk_check_button_new(); 
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(disable_warn), FALSE);
+    g_signal_connect(disable_warn, "clicked",  
+		     G_CALLBACK(gx_user_disable_latency_warn), NULL);
 
-    GtkWidget * labelt2 = gtk_label_new ("Don't bother me again with such a question, I know what I am doing");
+    GtkWidget * labelt2 = 
+      gtk_label_new ("Don't bother me again with such a question, "
+		     "I know what I am doing");
 
     gtk_container_add (GTK_CONTAINER(box),  labelt);
     gtk_container_add (GTK_CONTAINER(box),  labelt1);
@@ -634,17 +646,21 @@ namespace gx_gui
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
     gtk_widget_modify_font(labelt2, style->font_desc);
 
-    g_signal_connect (button1, "clicked",
-		      G_CALLBACK (gx_jack::gx_confirm_latency_change), warn_dialog);
-    g_signal_connect (button2, "clicked",
-		      G_CALLBACK (gx_jack::gx_cancel_latency_change), warn_dialog);
+    g_signal_connect_swapped(button1, "clicked",  
+			     G_CALLBACK (gtk_widget_destroy), warn_dialog);
+    g_signal_connect_swapped(button2, "clicked",  
+			     G_CALLBACK (gtk_widget_destroy), warn_dialog);
+
     gtk_widget_show_all(box);
 
-    gtk_dialog_run (GTK_DIALOG (warn_dialog));
+    return gtk_dialog_run (GTK_DIALOG (warn_dialog));
+  }
 
-    int woff = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(disable_warn));
-    gx_engine::fwarn_swap = woff;
-    gtk_widget_destroy (warn_dialog);
+  // check user's decision to turn off latency change warning
+  void gx_user_disable_latency_warn(GtkWidget* wd, gpointer arg)
+  {
+    GtkToggleButton* button = GTK_TOGGLE_BUTTON(wd);
+    gx_engine::fwarn_swap = (int)gtk_toggle_button_get_active(button);
   }
 
   // reset the extended sliders to default settings
@@ -988,7 +1004,7 @@ namespace gx_gui
     gx_waveview_refresh (GTK_WIDGET(livewa), NULL);
 
     // refresh latency check menu
-    gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
+    GxMainInterface* gui = GxMainInterface::instance();
     GtkWidget* wd = gui->getJackLatencyItem(gx_jack::jack_bs);
     if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 
