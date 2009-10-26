@@ -222,7 +222,7 @@ namespace gx_gui
 		     G_CALLBACK(box7_expose), NULL);
 
     // meter level colors
-    int base = 0x0038f800;
+    int base = 0x00380800;
     int mid  = 0x00ff0000;
     int top  = 0xff000000;
     int clip = 0xff000000;
@@ -3355,7 +3355,7 @@ namespace gx_gui
       skin_index = gx_engine::GxEngine::instance()->fskin;
 
     gx_set_skin_change(skin_index);
-    gx_update_skin_menu_item(skin_index);  
+    gx_update_skin_menu_item(skin_index);
 
     /* timeout in milliseconds */
     g_timeout_add(40,  gx_update_all_gui,        0);
