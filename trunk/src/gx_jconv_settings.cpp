@@ -483,8 +483,8 @@ namespace gx_jconv
     // IR resampling
     g_signal_connect_swapped (gx_gui::fbutton, "file-set",
 			      G_CALLBACK(gx_select_and_draw_jconv_ir), gx_gui::fbutton);
-    g_signal_connect_swapped (gx_gui::fbutton, "file-set",
-			      G_CALLBACK(gx_waveview_set_value), gx_gui::fbutton);
+   // g_signal_connect_swapped (gx_gui::fbutton, "file-set",
+	//		      G_CALLBACK(gx_waveview_set_value), gx_gui::fbutton);
 
     // confirm and save setting
     g_signal_connect_swapped(ok_button, "pressed",
@@ -522,6 +522,7 @@ namespace gx_jconv
 
     //----- show the JConv setting dialog
     gtk_widget_show_all(dialog);
+    gx_waveview_set_value(GTK_WIDGET(gx_gui::fbutton),NULL);
   }
 
 

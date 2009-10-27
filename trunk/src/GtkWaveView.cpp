@@ -1214,7 +1214,7 @@ GtkWidget* GtkWaveView::gtk_wave_view()
   GtkWidget* widget = GTK_WIDGET( g_object_new (GTK_TYPE_WAVEVIEW, NULL ));
   GtkWaveView *waveview = GTK_WAVEVIEW(widget);
 
-  gx_gui::new_wave_view   = true;
+  gx_gui::new_wave_view   = false;
   waveview->waveview_type = kWvTypeJConv;
 
   // retrieve JConv settings

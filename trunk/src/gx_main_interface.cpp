@@ -1381,6 +1381,7 @@ namespace gx_gui
   {
     /*-- Declare the GTK Widgets used in the menu --*/
     GtkWidget* menucont;  // menu container
+    GtkWidget* menupix;  // menu container
     GtkWidget* hbox;      // top menu bar box container
 
     /*------------------ TOP Menu BAR ------------------*/
@@ -1390,41 +1391,74 @@ namespace gx_gui
     menucont = gtk_menu_bar_new();
     gtk_box_pack_start(GTK_BOX(hbox), menucont, TRUE, TRUE, 0);
 
+    /*-- Create the pixmap menu bar --*/
+    menupix = gtk_menu_bar_new();
+    gtk_box_pack_end(GTK_BOX(hbox), menupix, TRUE, TRUE, 0);
+
+    /*-- set packdirection for pixmaps from right to left --*/
+    gtk_menu_bar_set_pack_direction(GTK_MENU_BAR(menupix),GTK_PACK_DIRECTION_RTL);
+
     /*-- Jack server status image --*/
     // jackd ON image
     string img_path = gx_pixmap_dir + "jackd_on.png";
 
-    gx_jackd_on_image = gtk_image_new_from_file(img_path.c_str());
-    gtk_box_pack_end(GTK_BOX(hbox), gx_jackd_on_image, FALSE, FALSE, 0);
+    gx_jackd_on_image =  gtk_image_menu_item_new_with_label("");
+    GtkWidget*   jackstateon = gtk_image_new_from_file(img_path.c_str());
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gx_jackd_on_image),jackstateon);
+    gtk_menu_bar_append (GTK_MENU_BAR(menupix), gx_jackd_on_image);
+
+    GtkTooltips* comandline = gtk_tooltips_new ();
+
+    gtk_tooltips_set_tip(GTK_TOOLTIPS (comandline),
+                       gx_jackd_on_image, "jack server is connectet", "jack server state.");
+
     gtk_widget_show(gx_jackd_on_image);
 
     // jackd OFF image: hidden by default
     img_path = gx_pixmap_dir + "jackd_off.png";
 
-    gx_jackd_off_image = gtk_image_new_from_file(img_path.c_str());
-    gtk_box_pack_end(GTK_BOX(hbox), gx_jackd_off_image, FALSE, FALSE, 0);
+    gx_jackd_off_image =  gtk_image_menu_item_new_with_label("");
+    GtkWidget*   jackstateoff = gtk_image_new_from_file(img_path.c_str());
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gx_jackd_off_image),jackstateoff);
+    gtk_menu_bar_append (GTK_MENU_BAR(menupix), gx_jackd_off_image);
+    gtk_tooltips_set_tip(GTK_TOOLTIPS (comandline),
+                       gx_jackd_off_image, "jack server is unconnectet", "jack server state.");
     gtk_widget_hide(gx_jackd_off_image);
 
     /*-- Engine on/off and status --*/
     // set up ON image: shown by default
     img_path = gx_pixmap_dir + "gx_on.png";
 
-    gx_engine_on_image = gtk_image_new_from_file(img_path.c_str());
-    gtk_box_pack_end(GTK_BOX(hbox), gx_engine_on_image, FALSE, TRUE, 0);
+    gx_engine_on_image =  gtk_image_menu_item_new_with_label("");
+    GtkWidget* engineon = gtk_image_new_from_file(img_path.c_str());
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gx_engine_on_image),engineon);
+    gtk_menu_bar_append (GTK_MENU_BAR(menupix), gx_engine_on_image);
+    GtkTooltips* comandlin = gtk_tooltips_new ();
+
+    gtk_tooltips_set_tip(GTK_TOOLTIPS (comandlin),
+                       gx_engine_on_image, "engine is on", "engine state.");
     gtk_widget_show(gx_engine_on_image);
 
     // set up OFF image: hidden by default
     img_path = gx_pixmap_dir + "gx_off.png";
 
-    gx_engine_off_image = gtk_image_new_from_file(img_path.c_str());
-    gtk_box_pack_end(GTK_BOX(hbox), gx_engine_off_image, FALSE, TRUE, 0);
+    gx_engine_off_image =  gtk_image_menu_item_new_with_label("");
+    GtkWidget* engineoff = gtk_image_new_from_file(img_path.c_str());
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gx_engine_off_image),engineoff);
+    gtk_menu_bar_append (GTK_MENU_BAR(menupix), gx_engine_off_image);
+    gtk_tooltips_set_tip(GTK_TOOLTIPS (comandlin),
+                       gx_engine_off_image, "engine is off", "engine state.");
     gtk_widget_hide(gx_engine_off_image);
 
     // set up BYPASS image: hidden by default
     img_path = gx_pixmap_dir + "gx_bypass.png";
 
-    gx_engine_bypass_image = gtk_image_new_from_file(img_path.c_str());
-    gtk_box_pack_end(GTK_BOX(hbox), gx_engine_bypass_image, FALSE, TRUE, 0);
+    gx_engine_bypass_image  =  gtk_image_menu_item_new_with_label("");
+    GtkWidget* engineby = gtk_image_new_from_file(img_path.c_str());
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gx_engine_bypass_image),engineby);
+    gtk_menu_bar_append (GTK_MENU_BAR(menupix), gx_engine_bypass_image);
+    gtk_tooltips_set_tip(GTK_TOOLTIPS (comandlin),
+                       gx_engine_bypass_image, "engine is in bypass mode", "engine state.");
     gtk_widget_hide(gx_engine_bypass_image);
 
     /* ----------------------------------------------------------- */
@@ -1438,6 +1472,7 @@ namespace gx_gui
     /*---------------- add menu to main window box----------------*/
     gtk_box_pack_start (GTK_BOX (fBox[fTop]), hbox , FALSE, FALSE, 0);
     gtk_widget_show(menucont);
+    gtk_widget_show(menupix);
     gtk_widget_show(hbox);
   }
 
