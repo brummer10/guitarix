@@ -1398,36 +1398,9 @@ namespace gx_gui
     /*-- set packdirection for pixmaps from right to left --*/
     gtk_menu_bar_set_pack_direction(GTK_MENU_BAR(menupix),GTK_PACK_DIRECTION_RTL);
 
-    /*-- Jack server status image --*/
-    // jackd ON image
-    string img_path = gx_pixmap_dir + "jackd_on.png";
-
-    gx_jackd_on_image =  gtk_image_menu_item_new_with_label("");
-    GtkWidget*   jackstateon = gtk_image_new_from_file(img_path.c_str());
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gx_jackd_on_image),jackstateon);
-    gtk_menu_bar_append (GTK_MENU_BAR(menupix), gx_jackd_on_image);
-
-    GtkTooltips* comandline = gtk_tooltips_new ();
-
-    gtk_tooltips_set_tip(GTK_TOOLTIPS (comandline),
-                       gx_jackd_on_image, "jack server is connectet", "jack server state.");
-
-    gtk_widget_show(gx_jackd_on_image);
-
-    // jackd OFF image: hidden by default
-    img_path = gx_pixmap_dir + "jackd_off.png";
-
-    gx_jackd_off_image =  gtk_image_menu_item_new_with_label("");
-    GtkWidget*   jackstateoff = gtk_image_new_from_file(img_path.c_str());
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gx_jackd_off_image),jackstateoff);
-    gtk_menu_bar_append (GTK_MENU_BAR(menupix), gx_jackd_off_image);
-    gtk_tooltips_set_tip(GTK_TOOLTIPS (comandline),
-                       gx_jackd_off_image, "jack server is unconnectet", "jack server state.");
-    gtk_widget_hide(gx_jackd_off_image);
-
-    /*-- Engine on/off and status --*/
+/*-- Engine on/off and status --*/
     // set up ON image: shown by default
-    img_path = gx_pixmap_dir + "gx_on.png";
+    string img_path = gx_pixmap_dir + "gx_on.png";
 
     gx_engine_on_image =  gtk_image_menu_item_new_with_label("");
     GtkWidget* engineon = gtk_image_new_from_file(img_path.c_str());
@@ -1460,6 +1433,35 @@ namespace gx_gui
     gtk_tooltips_set_tip(GTK_TOOLTIPS (comandlin),
                        gx_engine_bypass_image, "engine is in bypass mode", "engine state.");
     gtk_widget_hide(gx_engine_bypass_image);
+
+
+    /*-- Jack server status image --*/
+    // jackd ON image
+    img_path = gx_pixmap_dir + "jackd_on.png";
+
+    gx_jackd_on_image =  gtk_image_menu_item_new_with_label("");
+    GtkWidget*   jackstateon = gtk_image_new_from_file(img_path.c_str());
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gx_jackd_on_image),jackstateon);
+    gtk_menu_bar_append (GTK_MENU_BAR(menupix), gx_jackd_on_image);
+
+    GtkTooltips* comandline = gtk_tooltips_new ();
+
+    gtk_tooltips_set_tip(GTK_TOOLTIPS (comandline),
+                       gx_jackd_on_image, "jack server is connectet", "jack server state.");
+
+    gtk_widget_show(gx_jackd_on_image);
+
+    // jackd OFF image: hidden by default
+    img_path = gx_pixmap_dir + "jackd_off.png";
+
+    gx_jackd_off_image =  gtk_image_menu_item_new_with_label("");
+    GtkWidget*   jackstateoff = gtk_image_new_from_file(img_path.c_str());
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gx_jackd_off_image),jackstateoff);
+    gtk_menu_bar_append (GTK_MENU_BAR(menupix), gx_jackd_off_image);
+    gtk_tooltips_set_tip(GTK_TOOLTIPS (comandline),
+                       gx_jackd_off_image, "jack server is unconnectet", "jack server state.");
+    gtk_widget_hide(gx_jackd_off_image);
+
 
     /* ----------------------------------------------------------- */
     fMenuList["Top"] = menucont;

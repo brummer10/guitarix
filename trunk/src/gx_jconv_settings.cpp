@@ -311,64 +311,6 @@ namespace gx_jconv
     // -- OK button
     GtkWidget* ok_button = gtk_button_new_with_label("OK");
 
-    ostringstream lab; // label text
-
-    // -- wave file info
-    int chans      = 0; // channels
-    int sr         = 0; // sample rate
-    int framecount = 0; // number of frames
-    SNDFILE* sf    = NULL;
-
-    // try to open IR file
-    jcset->validate();
-
-    if (jcset->isValid()) {
-      sf = openInputSoundFile(jcset->getFullIRPath().c_str(),
-			      &chans, &sr, &framecount);
-      closeSoundFile(sf);
-
-      // check file sample rate vs jackd's
-      if (sr != (int)gx_jack::jack_sr) {
-	// dump some new text
-	lab << "   The " << chans   << " channel Soundfile" << endl
-	    << "   Sample rate ("   << sr << ")" << endl
-	    << "   does not match"  << endl
-	    << "   the jack Sample rate (" << gx_jack::jack_sr << ")" << endl
-	    << "   Do you wish to resample it ?     " << endl;
-
-	gint response =
-	  gx_gui::gx_choice_dialog_without_entry (
-               " IR Resampling ",
-	       lab.str().c_str(),
-	       "DO IT!", "Nope",
-	       GTK_RESPONSE_YES,
-	       GTK_RESPONSE_CANCEL,
-	       GTK_RESPONSE_YES
-	  );
-
-	  // we are cancelling
-	if (response == GTK_RESPONSE_CANCEL) {
-	 // jcset->invalidate(); // invalidating
-
-	  gx_print_warning("IR Resampling",
-			   "Resampling has been cancelled"
-			   ", use file as it is with JConv");
-	}
-	else { // OK, resampling it
-	  gx_resample_jconv_ir(NULL, NULL);
-	  sr = gx_jack::jack_sr;
-	}
-      }
-    }
-
-    // display IR file info
-    lab.str("");
-    lab << "IR file info: " << endl
-	<< chans            << " channel(s) "
-	<< sr               << " Sample rate "
-	<< framecount       << " Samples ";
-
-    gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
 
     // ----- setting GUI stuff with current initial values
 
@@ -424,6 +366,18 @@ namespace gx_jconv
     GtkWidget* waveview = gx_wave_view();
     gtk_widget_set_size_request (GTK_WIDGET(waveview), 300.0, 200.0);
 
+     // scrolled window
+    GtkWidget* scrlwd = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrlwd),
+				   GTK_POLICY_ALWAYS,GTK_POLICY_NEVER);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrlwd),
+					GTK_SHADOW_IN);
+
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrlwd), waveview);
+    gtk_widget_set_size_request (GTK_WIDGET(scrlwd), 304.0, -1);
+    //gtk_widget_show(nb);
+    gtk_widget_show(scrlwd);
+
     //----- arrange widgets
     GtkWidget* box     = gtk_hbox_new (TRUE,  4);
     GtkWidget* box1    = gtk_hbox_new (TRUE,  4);
@@ -444,7 +398,7 @@ namespace gx_jconv
 
     gtk_container_add (GTK_CONTAINER (box4),   label);
     gtk_container_add (GTK_CONTAINER (box4),    viewbox);
-    gtk_container_add (GTK_CONTAINER (viewbox), waveview);
+    gtk_container_add (GTK_CONTAINER (viewbox), scrlwd);
     gtk_container_add (GTK_CONTAINER (viewbox),    box6);
     gtk_container_add (GTK_CONTAINER (dialog), box7);
 
@@ -522,7 +476,68 @@ namespace gx_jconv
 
     //----- show the JConv setting dialog
     gtk_widget_show_all(dialog);
+    //----- load file to wave view
     gx_waveview_set_value(GTK_WIDGET(gx_gui::fbutton),NULL);
+
+    ostringstream lab; // label text
+
+    // -- wave file info
+    int chans      = 0; // channels
+    int sr         = 0; // sample rate
+    int framecount = 0; // number of frames
+    SNDFILE* sf    = NULL;
+
+    // try to open IR file
+    jcset->validate();
+
+    if (jcset->isValid()) {
+      sf = openInputSoundFile(jcset->getFullIRPath().c_str(),
+			      &chans, &sr, &framecount);
+      closeSoundFile(sf);
+
+      // check file sample rate vs jackd's
+      if (sr != (int)gx_jack::jack_sr) {
+	// dump some new text
+	lab << "   The " << chans   << " channel Soundfile" << endl
+	    << "   Sample rate ("   << sr << ")" << endl
+	    << "   does not match"  << endl
+	    << "   the jack Sample rate (" << gx_jack::jack_sr << ")" << endl
+	    << "   Do you wish to resample it ?     " << endl;
+
+	gint response =
+	  gx_gui::gx_choice_dialog_without_entry (
+               " IR Resampling ",
+	       lab.str().c_str(),
+	       "DO IT!", "Nope",
+	       GTK_RESPONSE_YES,
+	       GTK_RESPONSE_CANCEL,
+	       GTK_RESPONSE_YES
+	  );
+
+	  // we are cancelling
+	if (response == GTK_RESPONSE_CANCEL) {
+	 // jcset->invalidate(); // invalidating
+
+	  gx_print_warning("IR Resampling",
+			   "Resampling has been cancelled"
+			   ", use file as it is with JConv");
+	}
+	else { // OK, resampling it
+	  gx_resample_jconv_ir(NULL, NULL);
+	  sr = gx_jack::jack_sr;
+	}
+      }
+    }
+
+    // display IR file info
+    lab.str("");
+    lab << "IR file info: " << endl
+	<< chans            << " channel(s) "
+	<< sr               << " Sample rate "
+	<< framecount       << " Samples ";
+
+    gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
+
   }
 
 
@@ -693,17 +708,21 @@ namespace gx_jconv
 	    << sr << " Sample rate "
 	    << framescount      << " Samples ";
 
-	gx_waveview_set_value(widget, data);
+	    gx_waveview_set_value(widget, data);
         gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
 
 
       } // end of if (file is wave audio)
       else
       {
-	jcset->invalidate();
-	gx_print_error("IR File Processing",
+	    jcset->invalidate();
+	    gx_print_error("IR File Processing",
 		       jcset->getIRFile() +
 		       string(" is not a WAVE Audio file! Invalidating ... "));
+        gx_waveview_set_value(widget, data);
+        gtk_label_set_text(GTK_LABEL(gx_gui::label1), "IR file empty\n");
+        gtk_label_set_text(GTK_LABEL(gx_gui::label6),
+			   "empty");
       }
 
     } // end of if (!file.empty())
@@ -711,6 +730,10 @@ namespace gx_jconv
     {
       gx_print_error("IR File Processing",
 		     "Filename empty, you probably need to re-pick a file");
+	  gx_waveview_set_value(widget, data);
+      gtk_label_set_text(GTK_LABEL(gx_gui::label1), "No file name\n");
+      gtk_label_set_text(GTK_LABEL(gx_gui::label6),
+			   "empty");
     }
   }
 } /* end of gx_jconv namespace */
