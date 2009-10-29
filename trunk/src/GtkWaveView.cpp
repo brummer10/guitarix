@@ -128,6 +128,11 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           int chans;
           int sr;
 
+          double waw = widget->allocation.width*4;
+          double wah = widget->allocation.height*0.5;
+          double wah1 = widget->allocation.height*0.25;
+          GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->scale_view = 0.25;
+
           float* sig;
           // some usefull cairo settings
           cr = cairo_create (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file);
@@ -137,14 +142,14 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           cairo_set_line_cap(cr,CAIRO_LINE_CAP_ROUND);
           // draw the background
           cairo_move_to (cr, 0, 0);
-          cairo_rectangle (cr, 0, 0, widget->allocation.width*4, widget->allocation.height);
+          cairo_rectangle (cr, 0, 0, waw, widget->allocation.height);
           cairo_fill_preserve (cr);
           cairo_set_line_width (cr, 1.0);
           cairo_set_source_rgb (cr, 0.3, 0.7, 0.3);
           cairo_stroke (cr);
           // draw the widget frame
-          cairo_move_to (cr, 0, widget->allocation.height*0.5);
-          cairo_line_to (cr, widget->allocation.width*4, widget->allocation.height*0.5);
+          cairo_move_to (cr, 0, wah);
+          cairo_line_to (cr, waw, wah);
           cairo_set_line_width (cr, 2.0);
           cairo_set_source_rgb (cr, 0.3, 0.7, 0.3);
           cairo_stroke (cr);
@@ -157,9 +162,9 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                                           " cannot be exposed ");
 
               cairo_move_to (cr, 0, widget->allocation.height);
-              cairo_line_to (cr, widget->allocation.width*4, 0);
+              cairo_line_to (cr, waw, 0);
               cairo_move_to (cr, 0, 0);
-              cairo_line_to (cr, widget->allocation.width*4, widget->allocation.height);
+              cairo_line_to (cr, waw, widget->allocation.height);
               cairo_set_line_width (cr, 8.0);
               cairo_set_source_rgb (cr, 0.8, 0.2, 0.2);
               cairo_stroke (cr);
@@ -176,7 +181,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 
               sig = new float[vecsize*2];
 
-              GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale = ((double)widget->allocation.width*4)/length2;
+              double dws = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale = ((double)waw)/length2;
               GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->filelength = length2;
 
               vector<float>yval;
@@ -185,25 +190,26 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                 {
                   //----- mono file
                 case 1:
-                  yval.push_back(widget->allocation.height*0.5);
+                  yval.push_back(wah);
 
                   while (counter < length+length2-1)
                     {
                       gx_sndfile::readSoundInput(pvInput, sig, vecsize);
                       counter   += vecsize;
                       countfloat = 0;
+                      float *sfsig = &sig[0];
 
                       while (countfloat < vecsize*chans)
                         {
-                          cairo_move_to (cr, countframe*GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale, (widget->allocation.height*0.5));
-                          cairo_line_to (cr, countframe*GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale,
-                                         sig[countfloat]*(widget->allocation.height*0.5)+ yval[0]);
+                          cairo_move_to (cr, countframe*dws, (wah));
+                          cairo_line_to (cr, countframe*dws,
+                                         *sfsig++ *(wah)+ yval[0]);
                           countfloat++;
                           countframe++;
                         }
                     }
 
-                  cairo_set_line_width (cr, 1 + GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale*0.5);
+                  cairo_set_line_width (cr, 1 + dws*0.5);
                   cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
                   cairo_stroke (cr);
 
@@ -215,10 +221,13 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                   //----- stereo file
                 case 2:
 
-                  cairo_move_to (cr, 0, widget->allocation.height*0.75);
-                  cairo_line_to (cr, widget->allocation.width*4, widget->allocation.height*0.75);
-                  cairo_move_to (cr, 0, widget->allocation.height*0.25);
-                  cairo_line_to (cr, widget->allocation.width*4, widget->allocation.height*0.25);
+                  wah = widget->allocation.height*0.75;
+                  wah1 = widget->allocation.height*0.25;
+
+                  cairo_move_to (cr, 0, wah);
+                  cairo_line_to (cr, waw, wah);
+                  cairo_move_to (cr, 0, wah1);
+                  cairo_line_to (cr, waw, wah1);
                   cairo_set_line_width (cr, 2.0);
                   cairo_set_source_rgb (cr, 0.3, 0.7, 0.3);
                   cairo_stroke (cr);
@@ -231,21 +240,22 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                       gx_sndfile::readSoundInput(pvInput, sig, vecsize);
                       counter   += vecsize;
                       countfloat = 0;
+                      float *sfsig = &sig[0];
 
                       //----- here we do the stereo draw, tingel tangel split the samples
                       while (countfloat < vecsize*chans)
                         {
                           for (int c = 0; c < 2; c++)
                             {
-                              cairo_move_to (cr, countframe*GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale, yval[c]);
-                              cairo_line_to (cr, countframe*GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale,
-                                             sig[countfloat]*widget->allocation.height*0.25 + yval[c]);
+                              cairo_move_to (cr, countframe*dws, yval[c]);
+                              cairo_line_to (cr, countframe*dws,
+                                             *sfsig++ *wah1 + yval[c]);
                               countfloat++;
                             }
                           countframe++;
                         }
                     }
-                  cairo_set_line_width (cr, 1 + GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale*0.5);
+                  cairo_set_line_width (cr, 1 + dws*0.5);
                   cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
                   cairo_stroke (cr);
 
