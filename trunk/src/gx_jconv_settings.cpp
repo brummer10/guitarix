@@ -660,12 +660,28 @@ namespace gx_jconv
 					 &chans, &sr, &framescount);
         closeSoundFile(sf);
 
-	ostringstream lab;
+        /* We set the sndfile info here to the label, if resampling is needed/done. */
+        //----- set label text
+        ostringstream lab;
+        lab.str("");
+	    lab << "IR file info: " << endl
+	    << chans            << " channel(s) "
+	    << sr << " Sample rate "
+	    << framescount      << " Samples ";
+        gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
+
+        /* Note, resample the file didn't change the samples, so we could draw it here
+        already, independend from the result of resampling. Also a no resampled file could be used
+        if the user wish so.*/
+
+        //----- draw the wave file
+        gx_waveview_set_value(widget, data);
 
 	// check file sample rate vs jackd's
         if (sr != (int)gx_jack::jack_sr)
         {
 	  // dump some new text
+	  lab.str("");
 	  lab << "   The " << chans   << " channel Soundfile" << endl
 	      << "   Sample rate ("   << sr << ")" << endl
 	      << "   does not match"  << endl
@@ -698,19 +714,16 @@ namespace gx_jconv
 	  else { // OK, resampling it
 	    gx_resample_jconv_ir(NULL, NULL);
 	    sr = gx_jack::jack_sr;
-	  }
-        }
-
-	// display in the wave viewer
-	lab.str("");
-	lab << "IR file info: " << endl
+	    // display in the wave viewer
+	    lab.str("");
+	    lab << "IR file info: " << endl
 	    << chans            << " channel(s) "
 	    << sr << " Sample rate "
 	    << framescount      << " Samples ";
-
-	    gx_waveview_set_value(widget, data);
         gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
 
+	  }
+        }
 
       } // end of if (file is wave audio)
       else
@@ -719,10 +732,11 @@ namespace gx_jconv
 	    gx_print_error("IR File Processing",
 		       jcset->getIRFile() +
 		       string(" is not a WAVE Audio file! Invalidating ... "));
+		// force the wave view to draw a red X
         gx_waveview_set_value(widget, data);
+        // set label text
         gtk_label_set_text(GTK_LABEL(gx_gui::label1), "IR file empty\n");
-        gtk_label_set_text(GTK_LABEL(gx_gui::label6),
-			   "empty");
+        gtk_label_set_text(GTK_LABEL(gx_gui::label6), "empty");
       }
 
     } // end of if (!file.empty())

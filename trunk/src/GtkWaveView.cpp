@@ -100,11 +100,6 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
       // retrieve JConv settings
       GxJConvSettings* const jcset = GxJConvSettings::instance();
 
-      int waveviewx = widget->allocation.x;
-      int waveviewy = widget->allocation.y;
-
-      waveviewx += (widget->allocation.width  - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_x) *0.5;
-      waveviewy += (widget->allocation.height - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_y) *0.5;
       cairo_t *cr, *cr_show;
       cr = cairo_create (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file);
       cr_show = gdk_cairo_create(GDK_DRAWABLE(widget->window));
@@ -128,10 +123,10 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           int chans;
           int sr;
 
-          double waw = widget->allocation.width*4;
+          double waw = 1200; // widget->allocation.width*4 we cant use width in a scrolable window
           double wah = widget->allocation.height*0.5;
           double wah1 = widget->allocation.height*0.25;
-          GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->scale_view = 0.25;
+
 
           float* sig;
           // some usefull cairo settings
