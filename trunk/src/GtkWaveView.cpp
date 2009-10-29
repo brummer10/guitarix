@@ -24,6 +24,7 @@ part of guitarix, show a wave with Gtk
 #include <cstring>
 #include <sstream>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <map>
 #include <set>
@@ -39,6 +40,7 @@ using namespace std;
 #include <jack/jack.h>
 
 #include "guitarix.h"
+
 
 using namespace gx_jconv;
 
@@ -106,6 +108,10 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
       //----- create the background widget when opening a new file
       if (gx_gui::new_wave_view == true)
         {
+         /* read the floating points from a wave file as string to a file */
+         // ofstream outfile ("test.txt");
+         // string cim = "";
+
           gx_system::gx_print_info("Wave view NEW expose", jcset->getIRFile().c_str());
 
           GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut = 0;
@@ -245,7 +251,12 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                               cairo_move_to (cr, countframe*dws, yval[c]);
                               cairo_line_to (cr, countframe*dws,
                                              *sfsig++ *wah1 + yval[c]);
+                             /* if((c==0)&&(countfloat<=52)&&(countfloat>9)){
+                               outfile << cim <<*sfsig;
+                               outfile << cim <<", ";
+                              } */
                               countfloat++;
+
                             }
                           countframe++;
                         }
@@ -253,6 +264,8 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                   cairo_set_line_width (cr, 1 + dws*0.5);
                   cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
                   cairo_stroke (cr);
+
+                  //outfile.close();
 
                   gx_sndfile::closeSoundFile(pvInput);
                   sf_close(pvInput);
@@ -303,6 +316,8 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
       // destroy surface handler
       cairo_destroy (cr);
       cairo_destroy (cr_show);
+
+
 
     } //----- end of the JConv IR file section,
 

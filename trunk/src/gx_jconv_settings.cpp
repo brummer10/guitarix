@@ -496,7 +496,7 @@ namespace gx_jconv
       closeSoundFile(sf);
 
       // check file sample rate vs jackd's
-      if (sr != (int)gx_jack::jack_sr) {
+      if (sr != ((int)gx_jack::jack_sr)&&(gx_jack::client)) {
 	// dump some new text
 	lab << "   The " << chans   << " channel Soundfile" << endl
 	    << "   Sample rate ("   << sr << ")" << endl
@@ -678,7 +678,7 @@ namespace gx_jconv
         gx_waveview_set_value(widget, data);
 
 	// check file sample rate vs jackd's
-        if (sr != (int)gx_jack::jack_sr)
+        if (sr != ((int)gx_jack::jack_sr)&&(gx_jack::client))
         {
 	  // dump some new text
 	  lab.str("");
