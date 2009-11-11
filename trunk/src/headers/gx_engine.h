@@ -565,7 +565,6 @@ namespace gx_engine
     float fRecinjc[2];
     float old_freq;
 
-
     // private constructor
     GxEngine() {}
 

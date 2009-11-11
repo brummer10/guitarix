@@ -853,6 +853,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   int ichorus = fchorus;
 
 
+
   // pointer to the jack_buffer
   float*  input0 = input[0];
   //moving_filter(input, input, count);
@@ -873,7 +874,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   if (iupsample)
     {
       over_sample(input,&oversample,count);
-      //  if (icheckbox1 == 1)  preamp(count*2,&oversample,&oversample,atan_shape,f_atan);
+
       // if (ing)  noise_gate(count*2,&oversample,&oversample);
       if (itube)    fuzzy_tube(ifuzzytube, 0,count*2,&oversample,&oversample);
       if (itube3)   reso_tube(iresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
@@ -884,7 +885,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   // or plain sample
   else
     {
-      //   if (icheckbox1 == 1)  preamp(count,input,input,atan_shape,f_atan);
+
       //if (ing)  noise_gate(count,input,input);
       if (itube)    fuzzy_tube(ifuzzytube, 0,count,input,input);
       if (itube3)   osc_tube(iresotube3,count,f_resotube1, f_resotube2,input,input);

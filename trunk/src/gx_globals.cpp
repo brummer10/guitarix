@@ -249,6 +249,7 @@ namespace gx_gui
   GtkWidget* midibox;
   GtkWidget* fbutton;
   GtkWidget* record_button;
+  GtkWidget* jc_dialog;
 
   /* wave view widgets */
   GtkWidget* livewa;

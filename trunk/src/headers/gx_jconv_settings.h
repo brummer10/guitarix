@@ -19,7 +19,7 @@
  *  This is the JConv settings handler class used by guitarix
  *  There can only be one instance at all time. To get a pointer
  *  to the unique instance, simply call
- *  
+ *
  *  GxJConvSettings* jcset = GxJConvSettings::instance();
  *
  *  throughout the entire program.
@@ -51,6 +51,7 @@ namespace gx_jconv
   } GxJConvParamType;
 
   /* GUI stuff  */
+  void gx_show_jconv_dialog_gui (GtkWidget *, gpointer );
   void gx_setting_jconv_dialog_gui(GtkWidget*, gpointer);
   bool gx_save_jconv_settings     (GtkWidget*, gpointer);
   void gx_acquire_jconv_value     (GtkWidget*, gpointer);
@@ -64,7 +65,7 @@ namespace gx_jconv
     // main jconv setting
     string          fIRFile;
     string          fIRDir;
-  		  
+
     float           fGain;       // jconv gain
     guint           fMem;        // memory partition
     GxJConvMode     fMode;       // mode (copy or read)
@@ -75,7 +76,7 @@ namespace gx_jconv
 
     // private constructor (don't call it, call instance())
     GxJConvSettings();
-  
+
     // invalid IR
     bool fValidSettings;
 
@@ -87,7 +88,7 @@ namespace gx_jconv
     inline string getIRFile() const { return fIRFile; }
     inline string getIRDir () const { return fIRDir;  }
 
-    inline string getFullIRPath() const { 
+    inline string getFullIRPath() const {
       static string slash = "/";
       return fIRDir + slash + fIRFile;
     }
@@ -110,11 +111,11 @@ namespace gx_jconv
     inline void setLength    (guint          leng) { fLength     = leng; }
     inline void setDelay     (guint          del)  { fDelay      = del;  }
 
-    // internal setting manipulation 
+    // internal setting manipulation
     inline bool isValid()  { return fValidSettings;  }
     void validate();
     void invalidate();
-    void resetSetting(); 
+    void resetSetting();
 
     // instance getter / creation
     static GxJConvSettings* instance();

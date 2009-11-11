@@ -681,8 +681,9 @@ namespace gx_gui
 		      G_CALLBACK (uiButton::released), (gpointer) c);
 
     g_signal_connect (GTK_OBJECT (button), "clicked",
-		      G_CALLBACK (gx_jconv::gx_setting_jconv_dialog_gui),
+		      G_CALLBACK (gx_jconv::gx_show_jconv_dialog_gui),
 		      button);
+
   }
 
   // ---------------------------	Toggle Buttons ---------------------------
@@ -2478,7 +2479,7 @@ namespace gx_gui
 	      {
 
 		//----- open a box for the volume controllers
-		{
+		//
             openFrameBox("");
 		    closeBox();
 
@@ -2516,7 +2517,7 @@ namespace gx_gui
 		    addregler("treble", &engine->fslider_tone0, 0.f, -20.f, 20.f, 0.1f);
 
 		    //----- I have set a framebox to fill space beetween the widgets
-		    openFrameBox("");
+		    openVerticalBox1("");
 		    closeBox();
 		  }
 		  closeBox();
@@ -2536,11 +2537,11 @@ namespace gx_gui
 		      addswitch("", &engine->fng);
 		      openFrameBox("");
 		      {
+
 			addHorizontalWheel("sharper",&engine->fsharp0, 1.f, 1.f, 10.f, 1.0f);
-		      }
-		      closeBox();
-		      openFrameBox("");
-		      {
+
+
+
 		      }
 		      closeBox();
 		    }
@@ -2548,9 +2549,10 @@ namespace gx_gui
 		    openVerticalBox("noise gate ");
 		    {
 		      addswitch("", &engine->fnoise_g);
-		      addHorizontalWheel(" threshold ", &engine->fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
 		      openFrameBox("");
 		      {
+		      addHorizontalWheel(" threshold ", &engine->fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
+
 		      }
 		      closeBox();
 		    }
@@ -2559,9 +2561,10 @@ namespace gx_gui
 		    openVerticalBox("anti aliase");
 		    {
 		      addswitch("", &engine->antialis0);
-		      addHorizontalWheel(" feedback ", &engine->faas1, 0.3f, 0.3f, 0.9f, 0.01f);
 		      openFrameBox("");
 		      {
+		      addHorizontalWheel(" feedback ", &engine->faas1, 0.3f, 0.3f, 0.9f, 0.01f);
+
 		      }
 		      closeBox();
 		    }
@@ -2581,13 +2584,13 @@ namespace gx_gui
 
 		      closeBox();
 		      addminiswitch(" oversample  ", &engine->fupsample);
-		      openFrameBox("");
+		      openVerticalBox1("");
 		      {
 		      }
 
 		      closeBox();
-		      addminiswitch(" bass booster", &engine->fboost);
-		      openFrameBox("");
+		      addminiswitch(" bass booster ", &engine->fboost);
+		      openVerticalBox1("");
 		      {
 		      }
 		      closeBox();
@@ -3284,7 +3287,7 @@ namespace gx_gui
 			  addregler("note_off", &engine->fslider37, 2.f, 1.f, 127.f, 1.f);
 			  addregler("atack_gain", &engine->fslider45, 5.f, 1.f, 127.f, 1.f);
 			  addregler("beat_gain", &engine->fslider38, 1.f, 0.0f, 127.f, 1.f);
-			}
+
 		      }
 		      closeBox();
 
@@ -3373,6 +3376,7 @@ namespace gx_gui
 	gtk_widget_show(gx_gui::gx_jackd_off_image);
       }
 
+    gx_jconv::gx_setting_jconv_dialog_gui(NULL,NULL);
     gtk_widget_show  (fBox[0]);
     gtk_widget_show  (fWindow);
   }
@@ -3382,6 +3386,7 @@ namespace gx_gui
   {
     string previous_state = gx_user_dir + gx_jack::client_name + "rc";
     recallState(previous_state.c_str());
+
 
     //----- set the state for the latency change warning widget
     gx_engine::GxEngine::instance()->set_latency_warning_change();
@@ -3394,12 +3399,14 @@ namespace gx_gui
     gx_set_skin_change(skin_index);
     gx_update_skin_menu_item(skin_index);
 
+
+
     /* timeout in milliseconds */
     g_timeout_add(40,  gx_update_all_gui,        0);
     g_timeout_add(60,  gx_refresh_oscilloscope,  0);
     g_timeout_add(200, gx_survive_jack_shutdown, 0);
     g_timeout_add(600, gx_monitor_jack_ports,    0);
-    g_timeout_add(500, gx_check_startup, 0);
+    g_timeout_add(600, gx_check_startup, 0);
 
     // Note: meter display timeout is a global var in gx_gui namespace
     g_timeout_add(meter_display_timeout, gx_refresh_meter_level,   0);

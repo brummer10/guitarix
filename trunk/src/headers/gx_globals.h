@@ -220,6 +220,7 @@ namespace gx_gui
   extern GtkWidget* midibox;
   extern GtkWidget* fbutton;
   extern GtkWidget* record_button;
+  extern GtkWidget* jc_dialog;
 
   /* wave view widgets */
   extern GtkWidget* livewa;
