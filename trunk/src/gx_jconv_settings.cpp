@@ -432,7 +432,6 @@ namespace gx_jconv
     gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*.wav");
     gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (gx_gui::fbutton), GTK_FILE_FILTER(filter));
 
-
     // label for display the filename
     gx_gui::label6 = gtk_label_new(jcset->getIRFile().c_str());
 
@@ -459,21 +458,21 @@ namespace gx_jconv
     GtkWidget* box3    = gtk_hbox_new (TRUE,  4);
     GtkWidget* box4    = gtk_vbox_new (FALSE, 4);
     GtkWidget* box5    = gtk_hbox_new (FALSE, 4);
-    GtkWidget* box6    = gtk_vbox_new (FALSE, 8);
+   // GtkWidget* box6    = gtk_vbox_new (FALSE, 8);
     GtkWidget* box7    = gtk_hbox_new (FALSE, 8);
 
     GtkWidget* box9    = gtk_hbox_new (FALSE, 8);
-    GtkWidget* viewbox = gtk_vbox_new (FALSE,  4);
+    GtkWidget* viewbox = gtk_event_box_new ();
 
     gtk_container_set_border_width (GTK_CONTAINER (box7), 8);
     gtk_container_set_border_width (GTK_CONTAINER (viewbox), 8);
     gtk_container_set_border_width (GTK_CONTAINER (box9), 14);
-    gtk_widget_set_size_request (GTK_WIDGET(box6), 300.0, 8.0);
+   // gtk_widget_set_size_request (GTK_WIDGET(box6), 300.0, 8.0);
 
     gtk_container_add (GTK_CONTAINER (box4),   label);
     gtk_container_add (GTK_CONTAINER (box4),    viewbox);
     gtk_container_add (GTK_CONTAINER (viewbox), scrlwd);
-    gtk_container_add (GTK_CONTAINER (viewbox),    box6);
+    //gtk_container_add (GTK_CONTAINER (viewbox),    box6);
     gtk_container_add (GTK_CONTAINER (gx_gui::jc_dialog), box7);
 
     gtk_container_add (GTK_CONTAINER (box7),   box9);
@@ -504,7 +503,7 @@ namespace gx_jconv
     //----- connect signals to callback funcs
     g_signal_connect(box9, "expose-event", G_CALLBACK(gx_gui::box1_expose), NULL);
     g_signal_connect(box7, "expose-event", G_CALLBACK(gx_gui::box3_expose), NULL);
-    g_signal_connect(viewbox, "expose-event", G_CALLBACK(gx_gui::box3_expose), NULL);
+    //g_signal_connect(viewbox, "expose-event", G_CALLBACK(gx_gui::box3_expose), NULL);
     g_signal_connect(gx_gui::label6, "expose-event", G_CALLBACK(gx_gui::box4_expose), NULL);
     g_signal_connect(label, "expose-event", G_CALLBACK(gx_gui::box5_expose), NULL);
 
@@ -519,6 +518,9 @@ namespace gx_jconv
 			     G_CALLBACK(gx_save_jconv_settings), gx_gui::fbutton);
     g_signal_connect_swapped(ok_button, "clicked",
 			     G_CALLBACK(gx_delete_event), gx_gui::jc_dialog);
+    g_signal_connect_swapped (G_OBJECT (gx_gui::jc_dialog), "delete_event",
+                 G_CALLBACK (gx_delete_event), (gpointer) ok_button);
+
 
     // gain setting
     g_signal_connect(GTK_OBJECT(gadj), "value-changed",

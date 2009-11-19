@@ -175,17 +175,17 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           //----- okay, here we go, draw the wave view per sample
           else
             {
-              pvInput =
-                gx_sndfile::openInputSoundFile(jcset->getFullIRPath().c_str(), &chans, &sr, &length2);
 
               gx_system::gx_print_info("Wave view expose", jcset->getIRFile());
 
               sig = new float[vecsize*2];
+              vector<float>yval;
+
+              pvInput =
+                gx_sndfile::openInputSoundFile(jcset->getFullIRPath().c_str(), &chans, &sr, &length2);
 
               double dws = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale = ((double)waw)/length2;
               GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->filelength = length2;
-
-              vector<float>yval;
 
               switch (chans)
                 {
