@@ -674,15 +674,15 @@ namespace gx_gui
 
     uiButton* c = new uiButton(this, zone, GTK_BUTTON(button));
 
-    g_signal_connect (GTK_OBJECT (button), "pressed",
+  /*  g_signal_connect (GTK_OBJECT (button), "pressed",
 		      G_CALLBACK (uiButton::pressed), (gpointer) c);
 
     g_signal_connect (GTK_OBJECT (button), "released",
-		      G_CALLBACK (uiButton::released), (gpointer) c);
+		      G_CALLBACK (uiButton::released), (gpointer) c); */
 
     g_signal_connect (GTK_OBJECT (button), "clicked",
 		      G_CALLBACK (gx_jconv::gx_show_jconv_dialog_gui),
-		      button);
+		      (gpointer) c);
 
   }
 
@@ -3376,9 +3376,10 @@ namespace gx_gui
 	gtk_widget_show(gx_gui::gx_jackd_off_image);
       }
 
-    gx_jconv::gx_setting_jconv_dialog_gui(NULL,NULL);
+
     gtk_widget_show  (fBox[0]);
     gtk_widget_show  (fWindow);
+    gx_jconv::gx_setting_jconv_dialog_gui(NULL,NULL);
   }
 
   //---- show main GUI thread and more

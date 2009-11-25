@@ -282,9 +282,9 @@ namespace gx_jconv
   }
   void gx_show_jconv_dialog_gui(GtkWidget *widget, gpointer data)
   {
-    GxJConvSettings* jcset = GxJConvSettings::instance();
+  /*  GxJConvSettings* jcset = GxJConvSettings::instance();
 
-    gtk_widget_show_all(gx_gui::jc_dialog);
+
 
     ostringstream lab; // label text
 
@@ -343,9 +343,9 @@ namespace gx_jconv
 	<< sr               << " Sample rate "
 	<< framecount       << " Samples ";
 
-    gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
+    gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str()); */
 
-
+    gtk_widget_show_all(gx_gui::jc_dialog);
 
   }
   gboolean gx_delete_event( GtkWidget *widget, gpointer   data )
@@ -362,7 +362,7 @@ namespace gx_jconv
     // -- main window
     gx_gui::jc_dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     gtk_window_set_decorated(GTK_WINDOW(gx_gui::jc_dialog), TRUE);
-    gtk_window_set_deletable(GTK_WINDOW(gx_gui::jc_dialog), FALSE);
+    //gtk_window_set_deletable(GTK_WINDOW(gx_gui::jc_dialog), FALSE);
     gtk_window_set_resizable(GTK_WINDOW(gx_gui::jc_dialog), FALSE);
     gtk_window_set_gravity(GTK_WINDOW(gx_gui::jc_dialog), GDK_GRAVITY_SOUTH);
     gtk_window_set_transient_for (GTK_WINDOW(gx_gui::jc_dialog), GTK_WINDOW(gx_gui::fWindow));
@@ -449,7 +449,33 @@ namespace gx_jconv
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrlwd), waveview);
     gtk_widget_set_size_request (GTK_WIDGET(scrlwd), 304.0, -1);
     //gtk_widget_show(nb);
-    gtk_widget_show(scrlwd);
+    //gtk_widget_show(scrlwd);
+
+    ostringstream lab; // label text
+
+    // -- wave file info
+    int chans      = 0; // channels
+    int sr         = 0; // sample rate
+    int framecount = 0; // number of frames
+    SNDFILE* sf    = NULL;
+
+    // try to open IR file
+    jcset->validate();
+
+    if (jcset->isValid()) {
+      sf = openInputSoundFile(jcset->getFullIRPath().c_str(),
+			      &chans, &sr, &framecount);
+      closeSoundFile(sf);
+
+       // display IR file info
+    lab.str("");
+    lab << "IR file info: " << endl
+	<< chans            << " channel(s) "
+	<< sr               << " Sample rate "
+	<< framecount       << " Samples ";
+
+    gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
+    }
 
     //----- arrange widgets
     GtkWidget* box     = gtk_hbox_new (TRUE,  4);
@@ -543,16 +569,12 @@ namespace gx_jconv
 		     (gpointer)kJConvMode);
 
     // gtk_file_filter is brocken in >gtk-2.16.1 when used with ...set_filename
-    gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(gx_gui::fbutton),
-				  jcset->getIRFile().c_str());
+   // gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(gx_gui::fbutton),
+   //				  jcset->getIRFile().c_str());
 
     // get path from used wav file
     gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER (gx_gui::fbutton),
 					jcset->getIRDir().c_str());
-
-    //----- show the JConv setting dialog
-  //  gtk_widget_show_all(gx_gui::jc_dialog);
-
 
     //----- load file to wave view
     gx_waveview_set_value(GTK_WIDGET(gx_gui::fbutton),NULL);

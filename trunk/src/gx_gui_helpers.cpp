@@ -610,24 +610,24 @@ namespace gx_gui
     pango_font_description_set_weight(style1->font_desc, PANGO_WEIGHT_BOLD);
     gtk_widget_modify_font(labelt, style1->font_desc);
 
-    GtkWidget* button1 = 
-      gtk_dialog_add_button(GTK_DIALOG (warn_dialog), 
+    GtkWidget* button1 =
+      gtk_dialog_add_button(GTK_DIALOG (warn_dialog),
 			    "Yes", gx_jack::kChangeLatency);
 
-    GtkWidget* button2 = 
-      gtk_dialog_add_button(GTK_DIALOG (warn_dialog), 
+    GtkWidget* button2 =
+      gtk_dialog_add_button(GTK_DIALOG (warn_dialog),
 			    "No",  gx_jack::kKeepLatency);
 
 
     GtkWidget* box1    = gtk_hbox_new (0, 4);
     GtkWidget* box2    = gtk_hbox_new (0, 4);
 
-    GtkWidget* disable_warn = gtk_check_button_new(); 
+    GtkWidget* disable_warn = gtk_check_button_new();
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(disable_warn), FALSE);
-    g_signal_connect(disable_warn, "clicked",  
+    g_signal_connect(disable_warn, "clicked",
 		     G_CALLBACK(gx_user_disable_latency_warn), NULL);
 
-    GtkWidget * labelt2 = 
+    GtkWidget * labelt2 =
       gtk_label_new ("Don't bother me again with such a question, "
 		     "I know what I am doing");
 
@@ -646,9 +646,9 @@ namespace gx_gui
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
     gtk_widget_modify_font(labelt2, style->font_desc);
 
-    g_signal_connect_swapped(button1, "clicked",  
+    g_signal_connect_swapped(button1, "clicked",
 			     G_CALLBACK (gtk_widget_destroy), warn_dialog);
-    g_signal_connect_swapped(button2, "clicked",  
+    g_signal_connect_swapped(button2, "clicked",
 			     G_CALLBACK (gtk_widget_destroy), warn_dialog);
 
     gtk_widget_show_all(box);
