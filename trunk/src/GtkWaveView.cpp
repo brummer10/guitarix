@@ -128,6 +128,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           int countfloat;
           int chans;
           int sr;
+          float *sfsig;
 
           double waw = 600; // widget->allocation.width*4 we cant use width in a scrolable window
           double wah = widget->allocation.height*0.5;
@@ -192,27 +193,29 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                   //----- mono file
                 case 1:
                   yval.push_back(wah);
+                  cairo_set_line_width (cr, 1 + dws*0.5);
+                  cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
 
+                  //cairo_move_to (cr, dws, wah);
                   while (counter < length+length2-1)
                     {
                       gx_sndfile::readSoundInput(pvInput, sig, vecsize);
                       counter   += vecsize;
                       countfloat = 0;
-                      float *sfsig = &sig[0];
+                      sfsig = &sig[0];
 
                       while (countfloat < vecsize*chans)
                         {
-                          cairo_move_to (cr, countframe*dws, (wah));
+                          cairo_move_to (cr, countframe*dws, wah);
                           cairo_line_to (cr, countframe*dws,
-                                         *sfsig++ *(wah)+ yval[0]);
+                                         *sfsig++ *wah + yval[0]);
                           countfloat++;
                           countframe++;
                         }
+                        cairo_stroke (cr);
                     }
 
-                  cairo_set_line_width (cr, 1 + dws*0.5);
-                  cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
-                  cairo_stroke (cr);
+
 
                   /// close file desc.
                   gx_sndfile::closeSoundFile(pvInput);
@@ -235,13 +238,15 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 
                   yval.push_back(50);
                   yval.push_back(150);
+                  cairo_set_line_width (cr, 1 + dws*0.5);
+                  cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
 
                   while (counter<length+length2-1)
                     {
                       gx_sndfile::readSoundInput(pvInput, sig, vecsize);
                       counter   += vecsize;
                       countfloat = 0;
-                      float *sfsig = &sig[0];
+                      sfsig = &sig[0];
 
                       //----- here we do the stereo draw, tingel tangel split the samples
                       while (countfloat < vecsize*chans)
@@ -260,15 +265,13 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                             }
                           countframe++;
                         }
+                        cairo_stroke (cr);
                     }
-                  cairo_set_line_width (cr, 1 + dws*0.5);
-                  cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
-                  cairo_stroke (cr);
 
                   //outfile.close();
 
                   gx_sndfile::closeSoundFile(pvInput);
-                  sf_close(pvInput);
+                 // sf_close(pvInput);
                   delete[] sig;
                   break;
 
