@@ -109,7 +109,15 @@ void GxEngine::process_midi(int len)
   //----- only run it when midi out or tuner is enabled
   if ((gx_gui::shownote == 1) || (dsp::isMidiOn() == true))
     {
-
+              /**fConsta4 is the frequence value from the actuell frame, here we
+              calculate the Note from the freq by log2(freq/440)*12
+              the result is the Note (as float) related to the note "A"
+              To smoth the output we mix the last detected frequence (from the last frame)
+              in by 1/1.
+              preNote contains the next posible Note, related by round float to int.
+              piwe contain the pitchweel value witch show the diff beetween the detected Note and
+              the real Note by frequency.
+              **/
               fnote = 12 * log2f(2.272727e-03f *  (cache_note + fConsta4)*0.5);
               cache_note = fConsta4;
               preNote = round(fnote)+57;
@@ -143,7 +151,9 @@ void GxEngine::process_midi(int len)
                 }
 
               beat0 = sqrtf(sum/cs);
+              //set the value for the tuner
               fConsta1 = fnote;
+              //set timeout for tuner fallback
               weg = 0;
 
 
