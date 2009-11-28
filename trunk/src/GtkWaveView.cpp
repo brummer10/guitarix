@@ -280,15 +280,48 @@ static gboolean gtk_waveview_paint(gpointer obj)
   cairo_set_source_surface (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file, 0,0);
   cairo_paint (cr);
 
-  // done with new view:
-  gx_gui::new_wave_view = false;
+
 
   //----- draw the selected part (offset  length) with transparent green rectangle
   if ((jcset->getOffset() != (guint)GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut) ||
       (jcset->getLength() != (guint)GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut))
     {
-      GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut = jcset->getOffset();
-      GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut = jcset->getLength();
+      // -- IR offset
+      GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut =
+        jcset->getOffset();
+
+      GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut =
+        jcset->getLength();
+
+      jcset->setOffset(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut);
+
+      if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut < 0)
+        {
+          jcset->setOffset(0);
+          GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut
+          += GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut;
+          GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut = 0;
+        }
+
+      // -- IR length (starting at offset)
+      jcset->setLength(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut);
+      if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut +
+          GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut >
+          GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->filelength)
+        {
+          jcset->setLength(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->filelength -
+                           GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut);
+          GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut = jcset->getLength();
+        }
+
+      // -- tooltips
+      ostringstream tip;
+      tip << "offset ("    << jcset->getOffset()
+      << ")  length (" << jcset->getLength() << ") ";
+
+      gtk_widget_set_sensitive(widget, TRUE);
+      gtk_tooltips_set_tip (GTK_TOOLTIPS (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->comandline),
+                            widget, tip.str().c_str(), "the offset and length.");
 
       cairo_set_source_rgba (cr, 0.5, 0.8, 0.5,0.3);
       cairo_rectangle (cr, jcset->getOffset()*GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale, 0,
@@ -343,6 +376,8 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           cairo_stroke (cr);
           // paint the wave in a low prio idle thread
           g_idle_add(gtk_waveview_paint,gpointer (widget));
+          // done with new view:
+          gx_gui::new_wave_view = false;
         }
       // set scal range to the surface and the screen
       gtk_widget_set_size_request (GTK_WIDGET(waveview), 300.0*GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->scale_view*2, 200.0);
