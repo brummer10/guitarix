@@ -28,15 +28,14 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <set>
 #include <cmath>
 #include <ctime>
 
 using namespace std;
 
-#include <boost/program_options.hpp>
-namespace bpo = boost::program_options;
-
 #include <sys/stat.h>
+#include <string.h>
 #include <sndfile.h>
 #include <jack/jack.h>
 #include <gtk/gtk.h>
@@ -85,90 +84,92 @@ namespace gx_system
       exit(1);
     }
 
-    // ---- parse command line arguments, using the boost::program_options lib
+    // ---- parse command line arguments
     try {
-      // Note: using the boost_program_options framework
-      // We could set defaults in option declaration but we won't
-      //
+      gboolean version = FALSE;
+      GOptionEntry opt_entries[] = {
+        { "version", 'v', 0, G_OPTION_ARG_NONE, &version, "Print version string and exit", NULL },
+        { NULL }
+      };
+      GError* error = NULL;
+      GOptionContext* opt_context = NULL;
 
-      // generic options: version and help
-      bpo::options_description opt_gen;
-      opt_gen.add_options()
-	("help,h",    "Print this help")
-	("version,v", "Print version string and exit")
-	;
+      opt_context = g_option_context_new(NULL);
+      g_option_context_set_summary(opt_context,
+          "All parameters are optional. Examples:\n"
+          "\tguitarix\n"
+          "\tguitarix -r black -i system:capture_3\n"
+          "\tguitarix -c -o system:playback_1 -o system:playback_2");
+      g_option_context_add_main_entries(opt_context, opt_entries, NULL);
 
       // GTK options: rc style (aka skin)
-      ostringstream opskin("Style to use");
+      string opskin("Style to use");
 
       vector<string>::iterator it;
 
       for (it = gx_gui::skin_list.begin(); it != gx_gui::skin_list.end(); it++)
       {
-	gx_print_info("skin", *it);
-	opskin << ", '" << *it << "'";
+	opskin += ", '" + *it + "'";
       }
 
-      bpo::options_description opt_gtk("\033[1;32m GTK configuration options\033[0m");
-      opt_gtk.add_options()
-	("clear,c", "Use 'default' GTK style")
-	("rcset,r", bpo::value<string>(), opskin.str().c_str())
-	;
+      gboolean clear = FALSE;
+      gchar* rcset = NULL;
+      GOptionGroup* optgroup_gtk = g_option_group_new("gtk",
+          "\033[1;32mGTK configuration options\033[0m",
+          "\033[1;32mGTK configuration options\033[0m",
+          NULL, NULL);
+      GOptionEntry opt_entries_gtk[] = {
+        { "clear", 'c', 0, G_OPTION_ARG_NONE, &clear, "Use 'default' GTK style", NULL },
+        { "rcset", 'r', 0, G_OPTION_ARG_STRING, &rcset, opskin.c_str(), "STYLE" },
+        { NULL }
+      };
+      g_option_group_add_entries(optgroup_gtk, opt_entries_gtk);
 
       // JACK options: input and output ports
-      bpo::options_description opt_jack("\033[1;32m JACK configuration options\033[0m");
-      opt_jack.add_options()
-	("jack-input,i",   bpo::value<string>(), "Guitarix jack input")
-	("jack-output,o",  bpo::value<vector <string> >()->multitoken(),
-	 "Guitarix jack outputs")
-	;
+      gchar* jack_input = NULL;
+      gchar** jack_outputs = NULL;
+      GOptionGroup* optgroup_jack = g_option_group_new("jack",
+          "\033[1;32mJACK configuration options\033[0m",
+          "\033[1;32mJACK configuration options\033[0m",
+          NULL, NULL);
+      GOptionEntry opt_entries_jack[] = {
+        { "jack-input", 'i', 0, G_OPTION_ARG_STRING, &jack_input, "Guitarix JACK input", "PORT" },
+        {"jack-output", 'o', 0, G_OPTION_ARG_STRING_ARRAY, &jack_outputs, "Guitarix JACK outputs", "PORT" },
+        { NULL }
+      };
+      g_option_group_add_entries(optgroup_jack, opt_entries_jack);
 
       // collecting all option groups
-      bpo::options_description cmdline_opt(
-          "\033[1;34m guitarix usage\033[0m\n"
-          " all parameters are optional. Examples:\n"
-          "\tguitarix\n"
-          "\tguitarix -r black -i system:capture_3\n"
-          "\tguitarix -c -o system:playback_1 system:playback_2\n"
-      );
-      cmdline_opt.add(opt_gen).add(opt_gtk).add(opt_jack);
-
+      g_option_context_add_group(opt_context, optgroup_gtk);
+      g_option_context_add_group(opt_context, optgroup_jack);
 
       // parsing command options
-      bpo::variables_map vm;
-      bpo::store(bpo::parse_command_line(argc, argv, cmdline_opt), vm);
-      bpo::notify(vm);
+      if (!g_option_context_parse(opt_context, &argc, &argv, &error)) {
+        throw string(error->message);
+      }
+      g_option_context_free(opt_context);
 
 
       // ----------- processing user options -----------
-      bool gx_exit = false;
-
-      // *** display help if requested
-      if (vm.count("help")) {
-	cout << cmdline_opt << endl;
-	gx_exit = true;
-      }
 
       // *** display version if requested
-      if (vm.count("version")) {
+      if (version) {
 	cout << "Guitarix version \033[1;32m"
 	     << GX_VERSION << endl
 	     << "\033[0m   Copyright " << (char)0x40 << " 2009 "
 	     << "Hermman Meyer - James Warden"
 	     << endl;
-	gx_exit = true;
+	exit(0);
       }
-
-      if (gx_exit) exit(0);
 
       // *** process GTK rc style
       bool previous_conflict = false;
-      if (vm.count("rcset")) {
+      if (rcset != NULL) {
 	// retrieve user value
-	string tmp = vm["rcset"].as<string>();
+	string tmp = rcset;
 
 	// check contradiction (clear and rcset cannot be used in the same call)
-	if (vm.count("clear")) {
+	if (clear) {
 	  gx_print_error("main",
 			 string("-c and -r cannot be used together, defaulting to 'default' style"));
 	  tmp = "default";
@@ -199,37 +200,44 @@ namespace gx_system
       }
 
       // *** process GTK clear
-      if (vm.count("clear")) {
+      if (clear) {
 	// check contradiction (clear and rcset cannot be used in the same call)
-	if (vm.count("rcset") && !previous_conflict)
+	if (rcset != NULL && !previous_conflict)
 	  gx_print_error("main",
 			 string("-c and -r cannot be used together, defaulting to 'default' style"));
 
 	optvar[RC_STYLE] = "default";
       }
 
+      if (rcset != NULL) {
+        g_free(rcset);
+      }
+
       // *** process jack input
-      if (vm.count("jack-input")) {
-	optvar[JACK_INP] = vm["jack-input"].as<string>();
+      if (jack_input != NULL) {
+	optvar[JACK_INP] = jack_input;
+        g_free(jack_input);
       }
       else if (!gx_shellvar_exists(optvar[JACK_INP])) {
 	optvar[JACK_INP] = ""; // leads to no automatic connection
       }
 
       // *** process jack outputs
-      if (vm.count("jack-output")) {
-	// loop through output port strings
-	const vector<string>& s = vm["jack-output"].as<vector <string> >();
+      if (jack_outputs != NULL) {
+        int idx = JACK_OUT1;
+        unsigned int i = 0;
 
-	int idx = JACK_OUT1;
-	for (unsigned int i = 0; i < min(2, s.size()); i++)
-	  optvar[idx++] = s[i];
-
-	if (s.size() > 2)
-	  gx_print_warning("main",
-			   string("Warning --> provided more than 2 output ports, "
-				  "ignoring extra ports")
-			   );
+        while (jack_outputs[i] != NULL) {
+          if (i >= 2) {
+            gx_print_warning("main",
+                "Warning --> provided more than 2 output ports, ignoring extra ports");
+            break;
+          }
+          optvar[idx] = string(jack_outputs[i]);
+          i++;
+          idx++;
+        }
+        g_strfreev(jack_outputs);
       }
       else {
 	if (!gx_shellvar_exists(optvar[JACK_OUT1])) optvar[JACK_OUT1] = "";
@@ -244,8 +252,8 @@ namespace gx_system
     }
 
     // ---- catch exceptions that occured during user option parsing
-    catch(exception& e) {
-      string msg = string("Error in user options! ") + e.what();
+    catch(string& e) {
+      string msg = string("Error in user options! ") + e;
       gx_print_error("main", msg);
       exit(1);
     }

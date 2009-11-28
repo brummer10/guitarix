@@ -41,7 +41,7 @@ the /usr/local filesystem, e.g. /usr/local/bin.
 The installation prefix can be provided at configure time, e.g.:
 
   ./waf configure --prefix=/usr
-  ./waf builf
+  ./waf build
   sudo ./waf install
 
 Thus, guitarix will be installed in /usr/bin.
@@ -54,7 +54,6 @@ packages (runtime binaries/libraries and development packages):
   GTK+-2.0 >= 2.12.0 
   libsndfile  >= 1.0.17
   JACK (jackd, libjack, and their development packages) >= 0.109.1
-  boost library >= 1.38, in particular 'boost_program_options'
 
 By the way, most package managers usually list development packages as 
 'packagename-dev', e.g. libsndfile-dev.
