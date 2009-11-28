@@ -371,8 +371,8 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           cairo_fill_preserve (cr);
           cairo_set_source_rgba (cr, 0.8, 0.8, 0.2,0.6);
           cairo_set_font_size (cr, 84.0);
-          cairo_move_to (cr, 50, 150);
-          cairo_show_text(cr, "LOAD FILE");
+          cairo_move_to (cr, 120, 150);
+          cairo_show_text(cr, "loading");
           cairo_stroke (cr);
           // paint the wave in a low prio idle thread
           g_idle_add(gtk_waveview_paint,gpointer (widget));
