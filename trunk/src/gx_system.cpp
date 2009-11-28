@@ -31,6 +31,8 @@
 #include <set>
 #include <cmath>
 #include <ctime>
+#include <cstdlib>
+#include <cstdio>
 
 using namespace std;
 
@@ -535,7 +537,7 @@ namespace gx_system
   {
     s = "";
 
-    int abs_i = abs(i);
+    int abs_i = abs(double(i));
     do {
       // note: using base 10 since 10 digits (0123456789)
       char c = static_cast<char>(ASCII_START+abs_i%10);
