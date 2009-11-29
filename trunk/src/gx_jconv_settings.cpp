@@ -442,7 +442,7 @@ namespace gx_jconv
       if (chans == 1) jcset->setMode ( kJConvCopy);
 
       // -- Delay
-      GtkWidget* dslider = gx_knob ("delay msec",0, 0, 2000, 1);
+      GtkWidget* dslider = gx_knob ("delay msec",0, 0, 6000, 1);
       GtkAdjustment *dadj = gtk_range_get_adjustment(GTK_RANGE(dslider));
       GtkWidget * dslider_box = gtk_widget_get_parent(GTK_WIDGET(dslider));
       jcset->setDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(dadj)));
