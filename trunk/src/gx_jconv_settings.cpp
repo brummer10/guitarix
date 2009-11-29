@@ -336,6 +336,7 @@ namespace gx_jconv
       GtkWidget* label3 = gtk_label_new (" gain ");
       GtkWidget* label4 = gtk_label_new (" max mem ");
       GtkWidget* label5 = gtk_label_new (" mode ");
+      GtkWidget* label6 = gtk_label_new (" delay msec ");
 
       // -- OK button
       GtkWidget* ok_button = gtk_button_new_with_label("OK");
@@ -343,7 +344,40 @@ namespace gx_jconv
 
       // ----- setting GUI stuff with current initial values
 
+       ostringstream lab; // label text
+
+      // -- wave file info
+      int chans      = 0; // channels
+      int sr         = 0; // sample rate
+      int framecount = 0; // number of frames
+      SNDFILE* sf    = NULL;
+
+      // try to open IR file
+      jcset->validate();
+
+      if (jcset->isValid())
+        {
+          sf = openInputSoundFile(jcset->getFullIRPath().c_str(),
+                                  &chans, &sr, &framecount);
+          closeSoundFile(sf);
+
+          // display IR file info
+          lab.str("");
+          lab << "IR file info: " << endl
+          << chans            << " channel(s) "
+          << sr               << " Sample rate "
+          << framecount       << " Samples ";
+
+          gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
+        }
+        if (chans == 1) jcset->setMode ( kJConvCopy);
+
+      // -- Delay
+      GtkObject* dadj    = gtk_adjustment_new(jcset->getDelay(), 0, 2000, 1, 1, 0);
+      GtkWidget* dslider = gtk_spin_button_new (GTK_ADJUSTMENT(dadj), 1.0, 1);
+      jcset->setDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(dadj)));
       // -- GAIN
+
       GtkObject* gadj    = gtk_adjustment_new(jcset->getGain(), 0.0, 5.0, 0.1, 1.0, 0);
       GtkWidget* gslider = gtk_spin_button_new (GTK_ADJUSTMENT(gadj), 1.0, 1);
       jcset->setGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(gadj)));
@@ -408,33 +442,6 @@ namespace gx_jconv
       gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrlwd), waveview);
       gtk_widget_set_size_request (GTK_WIDGET(scrlwd), 304.0, -1);
 
-      ostringstream lab; // label text
-
-      // -- wave file info
-      int chans      = 0; // channels
-      int sr         = 0; // sample rate
-      int framecount = 0; // number of frames
-      SNDFILE* sf    = NULL;
-
-      // try to open IR file
-      jcset->validate();
-
-      if (jcset->isValid())
-        {
-          sf = openInputSoundFile(jcset->getFullIRPath().c_str(),
-                                  &chans, &sr, &framecount);
-          closeSoundFile(sf);
-
-          // display IR file info
-          lab.str("");
-          lab << "IR file info: " << endl
-          << chans            << " channel(s) "
-          << sr               << " Sample rate "
-          << framecount       << " Samples ";
-
-          gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
-        }
-
       //----- arrange widgets
       GtkWidget* box     = gtk_hbox_new (TRUE,  4);
       GtkWidget* box1    = gtk_hbox_new (TRUE,  4);
@@ -442,6 +449,7 @@ namespace gx_jconv
       GtkWidget* box3    = gtk_hbox_new (TRUE,  4);
       GtkWidget* box4    = gtk_vbox_new (FALSE, 4);
       GtkWidget* box5    = gtk_hbox_new (FALSE, 4);
+      GtkWidget* box6    = gtk_hbox_new (TRUE, 4);
       GtkWidget* box7    = gtk_hbox_new (FALSE, 8);
       GtkWidget* box9    = gtk_hbox_new (FALSE, 8);
       GtkWidget* viewbox = gtk_event_box_new ();
@@ -473,6 +481,9 @@ namespace gx_jconv
       gtk_container_add (GTK_CONTAINER (box4),   box1);
       gtk_container_add (GTK_CONTAINER (box1),   gslider);
       gtk_container_add (GTK_CONTAINER (box1),   label3);
+      gtk_container_add (GTK_CONTAINER (box4),   box6);
+      gtk_container_add (GTK_CONTAINER (box6),   dslider);
+      gtk_container_add (GTK_CONTAINER (box6),   label6);
       gtk_container_add (GTK_CONTAINER (box4),   ok_button);
 
       GtkStyle *style = gtk_widget_get_style(label);
@@ -520,6 +531,11 @@ namespace gx_jconv
                        G_CALLBACK(gx_acquire_jconv_value),
                        (gpointer)kJConvMode);
 
+      // delay setting
+      g_signal_connect(GTK_OBJECT(dadj), "value-changed",
+                       G_CALLBACK(gx_acquire_jconv_value),
+                       (gpointer)kJConvDelay);
+
       g_idle_add(gx_set_file_filter,NULL);
 
       //----- load file to wave view
@@ -555,10 +571,12 @@ namespace gx_jconv
           s = gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget));
           jcset->setMode(((int)s.find("copy") != -1 ? kJConvCopy : kJConvRead));
           break;
-
+        case kJConvDelay:
+          jcset->setDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(widget)));
+          break;
         case kJConvOffset:
         case kJConvLength:
-        case kJConvDelay:
+
         default:  // do nothing
           break;
         }
