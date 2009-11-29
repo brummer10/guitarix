@@ -103,7 +103,9 @@ namespace gx_jconv
 
     inline void setIRFile    (string         name) { fIRFile     = name; }
     inline void setIRDir     (string         name) { fIRDir      = name; }
-    inline void setGain      (float          gain) { fGain       = gain; }
+    inline void setGain      (float          gain) {
+        gain = int(gain*10);
+        fGain       = gain*0.1; }
     inline void setMem       (guint          mem ) { fMem        = mem;  }
     inline void setMode      (GxJConvMode    mode) { fMode       = mode; }
     inline void setBufferSize(jack_nframes_t bs)   { fBufferSize = bs;   }
