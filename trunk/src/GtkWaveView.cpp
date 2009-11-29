@@ -295,7 +295,9 @@ static gboolean gtk_waveview_paint(gpointer obj)
 
       jcset->setOffset(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut);
 
-      if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut < 0)
+      if ((GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut < 0) ||
+          (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->offset_cut >
+          (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->filelength)))
         {
           jcset->setOffset(0);
           GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->length_cut
