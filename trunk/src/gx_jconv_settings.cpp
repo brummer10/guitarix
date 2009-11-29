@@ -74,6 +74,7 @@ namespace gx_jconv
       fOffset     = 0;
       fLength     = 0;
       fDelay      = 0;
+      if (gx_jack::jack_bs == 0)fBufferSize = 128;
 
       // invalidate due to no IR
       invalidate();
@@ -93,6 +94,7 @@ namespace gx_jconv
       fOffset     = 0;
       fLength     = 0;
       fDelay      = 0;
+      if (gx_jack::jack_bs == 0)fBufferSize = 128;
 
       // invalidate due to no IR
       invalidate();
@@ -300,13 +302,72 @@ namespace gx_jconv
       return TRUE;
     }
 
-        //------- idle thread to reset the file chooser filter
+    //------- idle thread to reset the file chooser filter
     gboolean gx_set_file_filter(gpointer data)
     {
       GxJConvSettings* jcset = GxJConvSettings::instance();
       gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(gx_gui::fbutton),
                                           jcset->getIRDir().c_str());
       return false;
+
+    }
+
+    //----- show value to a label
+    void gx_set_value(GtkObject * widget, gpointer obj)
+    {
+      GtkWidget *lw = (GtkWidget *)obj;
+      float	v = GTK_ADJUSTMENT (widget)->value;
+      int fPrecision = GTK_ADJUSTMENT (widget)->step_increment;
+      char s[64];
+      if (fPrecision >= 1)
+        snprintf(s, 63, "%d", int(v));
+
+      else if (fPrecision == 0)
+        {
+          const char* format[] = {"%.1f", "%.2f", "%.3f"};
+          snprintf(s, 63, format[1-1], v);
+        }
+      gtk_label_set_text(GTK_LABEL(lw), s);
+    }
+
+    //----- create knobs with labels
+    GtkWidget * gx_knob(const char* label, float init, float min, float max, float step)
+    {
+
+      GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
+      GtkWidget* lw = gtk_label_new("");
+      GtkWidget* lwl = gtk_label_new(label);
+      GdkColor colorGreen;
+      gdk_color_parse("#a6a9aa", &colorGreen);
+      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+      GtkStyle *style = gtk_widget_get_style(lw);
+      pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+      gtk_widget_modify_font(lw, style->font_desc);
+      gtk_widget_modify_font(lwl, style->font_desc);
+
+      GtkRegler myGtkRegler;
+      GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
+      gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
+      gx_set_value(GTK_OBJECT(adj), lw);
+      // connect label with value
+      g_signal_connect(GTK_OBJECT(adj), "value-changed",
+                       G_CALLBACK(gx_set_value),
+                       (gpointer)lw);
+
+      GtkWidget* box     = gtk_vbox_new (FALSE,  2);
+      gtk_container_set_border_width (GTK_CONTAINER (box), 4);
+
+      gtk_container_add (GTK_CONTAINER (box),    lwl);
+      gtk_container_add (GTK_CONTAINER (box),    slider);
+      gtk_container_add (GTK_CONTAINER (box),    lw);
+
+      gtk_widget_show(lwl);
+      gtk_widget_show(slider);
+      gtk_widget_show(lw);
+      gtk_widget_show(box);
+
+      return slider;
 
     }
 
@@ -333,10 +394,18 @@ namespace gx_jconv
       gx_gui::label1    = gtk_label_new (" \n");
 
       GtkWidget* label2 = gtk_label_new (" partition size");
-      GtkWidget* label3 = gtk_label_new (" gain ");
-      GtkWidget* label4 = gtk_label_new (" max mem ");
       GtkWidget* label5 = gtk_label_new (" mode ");
-      GtkWidget* label6 = gtk_label_new (" delay msec ");
+
+      GdkColor colorGreen;
+      gdk_color_parse("#a6a9aa", &colorGreen);
+      gtk_widget_modify_fg (label2, GTK_STATE_NORMAL, &colorGreen);
+      gtk_widget_modify_fg (label5, GTK_STATE_NORMAL, &colorGreen);
+      GtkStyle *style = gtk_widget_get_style(label2);
+      pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+      gtk_widget_modify_font(label2, style->font_desc);
+      gtk_widget_modify_font(label5, style->font_desc);
+      gtk_widget_modify_font(label, style->font_desc);
 
       // -- OK button
       GtkWidget* ok_button = gtk_button_new_with_label("OK");
@@ -344,7 +413,7 @@ namespace gx_jconv
 
       // ----- setting GUI stuff with current initial values
 
-       ostringstream lab; // label text
+      ostringstream lab; // label text
 
       // -- wave file info
       int chans      = 0; // channels
@@ -370,22 +439,25 @@ namespace gx_jconv
 
           gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
         }
-        if (chans == 1) jcset->setMode ( kJConvCopy);
+      if (chans == 1) jcset->setMode ( kJConvCopy);
 
       // -- Delay
-      GtkObject* dadj    = gtk_adjustment_new(jcset->getDelay(), 0, 2000, 1, 1, 0);
-      GtkWidget* dslider = gtk_spin_button_new (GTK_ADJUSTMENT(dadj), 1.0, 1);
+      GtkWidget* dslider = gx_knob ("delay msec",0, 0, 2000, 1);
+      GtkAdjustment *dadj = gtk_range_get_adjustment(GTK_RANGE(dslider));
+      GtkWidget * dslider_box = gtk_widget_get_parent(GTK_WIDGET(dslider));
       jcset->setDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(dadj)));
-      // -- GAIN
 
-      GtkObject* gadj    = gtk_adjustment_new(jcset->getGain(), 0.0, 5.0, 0.1, 1.0, 0);
-      GtkWidget* gslider = gtk_spin_button_new (GTK_ADJUSTMENT(gadj), 1.0, 1);
+      // -- GAIN
+      GtkWidget* gslider = gx_knob ("gain",0.2, 0.0, 5.0, 0.1);
+      GtkAdjustment *gadj = gtk_range_get_adjustment(GTK_RANGE(gslider));
+      GtkWidget * gslider_box = gtk_widget_get_parent(GTK_WIDGET(gslider));
       jcset->setGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(gadj)));
 
       // -- MEMORY
-      GtkObject* madj    = gtk_adjustment_new((float)jcset->getMem(), 8000.0, 200000.0, 1000.0, 10000.0, 0);
-      GtkWidget* mslider = gtk_spin_button_new (GTK_ADJUSTMENT(madj), 1.0, 1);
-      jcset->setMem((guint)gtk_adjustment_get_value(GTK_ADJUSTMENT(madj)));
+      GtkWidget* mslider = gx_knob ("max mem",8000, 8000, 200000, 1000);
+      GtkAdjustment *madj = gtk_range_get_adjustment(GTK_RANGE(mslider));
+      GtkWidget * mslider_box = gtk_widget_get_parent(GTK_WIDGET(mslider));
+      jcset->setMem(gtk_adjustment_get_value(GTK_ADJUSTMENT(madj)));
 
       // -- READ MODE
       GtkWidget* jcmode_combo = gtk_combo_box_new_text();
@@ -443,10 +515,10 @@ namespace gx_jconv
       gtk_widget_set_size_request (GTK_WIDGET(scrlwd), 304.0, -1);
 
       //----- arrange widgets
-      GtkWidget* box     = gtk_hbox_new (TRUE,  4);
-      GtkWidget* box1    = gtk_hbox_new (TRUE,  4);
-      GtkWidget* box2    = gtk_hbox_new (TRUE,  4);
-      GtkWidget* box3    = gtk_hbox_new (TRUE,  4);
+      GtkWidget* box     = gtk_vbox_new (FALSE,  4);
+      GtkWidget* box1    = gtk_vbox_new (TRUE,  4);
+      GtkWidget* box2    = gtk_hbox_new (FALSE,  2);
+      GtkWidget* box3    = gtk_vbox_new (FALSE,  4);
       GtkWidget* box4    = gtk_vbox_new (FALSE, 4);
       GtkWidget* box5    = gtk_hbox_new (FALSE, 4);
       GtkWidget* box6    = gtk_hbox_new (TRUE, 4);
@@ -457,44 +529,37 @@ namespace gx_jconv
       gtk_container_set_border_width (GTK_CONTAINER (box7), 8);
       gtk_container_set_border_width (GTK_CONTAINER (viewbox), 8);
       gtk_container_set_border_width (GTK_CONTAINER (box9), 14);
+      gtk_container_set_border_width (GTK_CONTAINER (box6), 4);
+      gtk_container_set_border_width (GTK_CONTAINER (box2), 2);
 
       gtk_container_add (GTK_CONTAINER (box4),   label);
       gtk_container_add (GTK_CONTAINER (box4),    viewbox);
       gtk_container_add (GTK_CONTAINER (viewbox), scrlwd);
       gtk_container_add (GTK_CONTAINER (gx_gui::jc_dialog), box7);
-
       gtk_container_add (GTK_CONTAINER (box7),   box9);
       gtk_container_add (GTK_CONTAINER (box9),   box4);
       gtk_container_add (GTK_CONTAINER (box5),   gx_gui::label6);
       gtk_container_add (GTK_CONTAINER (box5),   gx_gui::fbutton);
       gtk_container_add (GTK_CONTAINER (box4),   box5);
       gtk_container_add (GTK_CONTAINER (box4),   gx_gui::label1);
-      gtk_container_add (GTK_CONTAINER (box4),   box3);
-      gtk_container_add (GTK_CONTAINER (box3),   jcmode_combo);
-      gtk_container_add (GTK_CONTAINER (box3),   label5);
-      gtk_container_add (GTK_CONTAINER (box4),   box);
-      gtk_container_add (GTK_CONTAINER (box),    bs_combo);
-      gtk_container_add (GTK_CONTAINER (box),    label2);
-      gtk_container_add (GTK_CONTAINER (box4),   box2);
-      gtk_container_add (GTK_CONTAINER (box2),   mslider);
-      gtk_container_add (GTK_CONTAINER (box2),   label4);
-      gtk_container_add (GTK_CONTAINER (box4),   box1);
-      gtk_container_add (GTK_CONTAINER (box1),   gslider);
-      gtk_container_add (GTK_CONTAINER (box1),   label3);
       gtk_container_add (GTK_CONTAINER (box4),   box6);
-      gtk_container_add (GTK_CONTAINER (box6),   dslider);
-      gtk_container_add (GTK_CONTAINER (box6),   label6);
+      gtk_container_add (GTK_CONTAINER (box4),   box2);
+      gtk_container_add (GTK_CONTAINER (box2),   mslider_box);
+      gtk_container_add (GTK_CONTAINER (box2),   gslider_box);
+      gtk_container_add (GTK_CONTAINER (box2),   dslider_box);
+      gtk_container_add (GTK_CONTAINER (box2),   box1);
+      gtk_container_add (GTK_CONTAINER (box1),   box3);
+      gtk_container_add (GTK_CONTAINER (box3),   label5);
+      gtk_container_add (GTK_CONTAINER (box3),   jcmode_combo);
+      gtk_container_add (GTK_CONTAINER (box1),   box);
+      gtk_container_add (GTK_CONTAINER (box),    label2);
+      gtk_container_add (GTK_CONTAINER (box),    bs_combo);
       gtk_container_add (GTK_CONTAINER (box4),   ok_button);
 
-      GtkStyle *style = gtk_widget_get_style(label);
-      pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-      gtk_widget_modify_font(label, style->font_desc);
-
-      //----- connect signals to callback funcs
+      //----- connect signals to callback cairo funcs
       g_signal_connect(box9, "expose-event", G_CALLBACK(gx_gui::box1_expose), NULL);
       g_signal_connect(box7, "expose-event", G_CALLBACK(gx_gui::box3_expose), NULL);
-
+      g_signal_connect(box2, "expose-event", G_CALLBACK(gx_gui::box4_expose), NULL);
       g_signal_connect(gx_gui::label6, "expose-event", G_CALLBACK(gx_gui::box4_expose), NULL);
       g_signal_connect(label, "expose-event", G_CALLBACK(gx_gui::box5_expose), NULL);
 
@@ -536,6 +601,7 @@ namespace gx_jconv
                        G_CALLBACK(gx_acquire_jconv_value),
                        (gpointer)kJConvDelay);
 
+      // set courent folder to file chooser
       g_idle_add(gx_set_file_filter,NULL);
 
       //----- load file to wave view
