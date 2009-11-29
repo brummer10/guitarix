@@ -42,12 +42,14 @@ namespace gx_jconv
   // parameter type
   typedef enum {
     kJConvGain = 0,
+    kJConvlGain,
     kJConvMem,
     kJConvBuffersize,
     kJConvMode,
     kJConvOffset,
     kJConvLength,
-    kJConvDelay
+    kJConvDelay,
+    kJConvlDelay
   } GxJConvParamType;
 
   /* GUI stuff  */
@@ -67,12 +69,14 @@ namespace gx_jconv
     string          fIRDir;
 
     float           fGain;       // jconv gain
+    float           flGain;       // jconv left gain
     guint           fMem;        // memory partition
     GxJConvMode     fMode;       // mode (copy or read)
     jack_nframes_t  fBufferSize; // frag
     guint           fOffset;     // offset in IR where to start comvolution
     guint           fLength;     // length of the IR to use for convolution
     guint           fDelay;      // delay when to apply reverb
+    guint           flDelay;      // left channel delay when to apply reverb
 
     // private constructor (don't call it, call instance())
     GxJConvSettings();
@@ -94,24 +98,30 @@ namespace gx_jconv
     }
 
     inline float          getGain      () const { return fGain;       }
+    inline float          getlGain      () const { return flGain;       }
     inline guint          getMem       () const { return fMem;        }
     inline GxJConvMode    getMode      () const { return fMode;       }
     inline jack_nframes_t getBufferSize() const { return fBufferSize; }
     inline guint          getOffset    () const { return fOffset;     }
     inline guint          getLength    () const { return fLength;     }
     inline guint          getDelay     () const { return fDelay;      }
+    inline guint          getlDelay     () const { return flDelay;      }
 
     inline void setIRFile    (string         name) { fIRFile     = name; }
     inline void setIRDir     (string         name) { fIRDir      = name; }
     inline void setGain      (float          gain) {
-        gain = int(gain*10);
-        fGain       = gain*0.1; }
+        gain = round(gain*100);
+        fGain       = gain*0.01; }
+    inline void setlGain      (float          gain) {
+        gain = round(gain*100);
+        flGain       = gain*0.01; }
     inline void setMem       (guint          mem ) { fMem        = mem;  }
     inline void setMode      (GxJConvMode    mode) { fMode       = mode; }
     inline void setBufferSize(jack_nframes_t bs)   { fBufferSize = bs;   }
     inline void setOffset    (guint          offs) { fOffset     = offs; }
     inline void setLength    (guint          leng) { fLength     = leng; }
     inline void setDelay     (guint          del)  { fDelay      = del;  }
+    inline void setlDelay     (guint          del)  { flDelay      = del;  }
 
     // internal setting manipulation
     inline bool isValid()  { return fValidSettings;  }

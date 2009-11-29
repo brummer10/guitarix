@@ -68,12 +68,14 @@ namespace gx_jconv
       fIRFile     = "nofile";
 
       fGain       = 0.2;
+      flGain       = 0.2;
       fMem        = 8000;
       fMode       = kJConvCopy;
       fBufferSize = gx_jack::jack_bs;
       fOffset     = 0;
       fLength     = 0;
       fDelay      = 0;
+      flDelay      = 0;
       if (gx_jack::jack_bs == 0)fBufferSize = 128;
 
       // invalidate due to no IR
@@ -88,12 +90,14 @@ namespace gx_jconv
       fIRFile     = "nofile";
 
       fGain       = 0.2;
+      flGain       = 0.2;
       fMem        = 8000;
       fMode       = kJConvCopy;
       fBufferSize = gx_jack::jack_bs;
       fOffset     = 0;
       fLength     = 0;
       fDelay      = 0;
+      flDelay      = 0;
       if (gx_jack::jack_bs == 0)fBufferSize = 128;
 
       // invalidate due to no IR
@@ -182,7 +186,12 @@ namespace gx_jconv
       if ((int)sval.find("copy") != -1)
         fMode = kJConvCopy;
       else
+        {
         fMode = kJConvRead;
+        istringstream sline5(buffer);
+      sline5 >> sval  >> ival >> ival
+      >> flGain >> flDelay >> ival >> ival >> ival >> ival;
+        }
 
       // validate
       validate();
@@ -232,8 +241,8 @@ namespace gx_jconv
         {
         case kJConvRead:
           f << "/impulse/read" << tab << "2" << tab << "2" << tab
-          << jcset->getGain()   << tab
-          << jcset->getDelay()  << tab
+          << jcset->getlGain()   << tab
+          << jcset->getlDelay()  << tab
           << jcset->getOffset() << tab
           << jcset->getLength() << tab
           << "2 " << jcset->getIRFile() << endl;
@@ -281,7 +290,9 @@ namespace gx_jconv
       << tab << "memory: "      << fMem  << endl
 
       << tab << "gain: "   << fGain   << tab
+      << tab << "left gain: "   << flGain   << tab
       << tab << "delay: "  << fDelay  << tab
+      << tab << "left delay: "  << flDelay  << tab
       << tab << "offset: " << fOffset << tab
       << tab << "length: " << fLength << tab;
 
@@ -325,7 +336,7 @@ namespace gx_jconv
       else if (fPrecision == 0)
         {
           const char* format[] = {"%.1f", "%.2f", "%.3f"};
-          snprintf(s, 63, format[1-1], v);
+          snprintf(s, 63, format[2-1], v);
         }
       gtk_label_set_text(GTK_LABEL(lw), s);
     }
@@ -355,8 +366,8 @@ namespace gx_jconv
                        G_CALLBACK(gx_set_value),
                        (gpointer)lw);
 
-      GtkWidget* box     = gtk_vbox_new (FALSE,  2);
-      gtk_container_set_border_width (GTK_CONTAINER (box), 4);
+      GtkWidget* box     = gtk_vbox_new (FALSE,  1);
+      gtk_container_set_border_width (GTK_CONTAINER (box), 1);
 
       gtk_container_add (GTK_CONTAINER (box),    lwl);
       gtk_container_add (GTK_CONTAINER (box),    slider);
@@ -442,21 +453,33 @@ namespace gx_jconv
       if (chans == 1) jcset->setMode ( kJConvCopy);
 
       // -- Delay
-      GtkWidget* dslider = gx_knob ("delay msec",jcset->getDelay(), 0, 6000, 1);
+      GtkWidget* dslider = gx_knob ("left delay ",jcset->getDelay(), 0, 6000, 1);
       GtkAdjustment *dadj = gtk_range_get_adjustment(GTK_RANGE(dslider));
 
       GtkWidget * dslider_box = gtk_widget_get_parent(GTK_WIDGET(dslider));
       jcset->setDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(dadj)));
+      // -- Delay
+      GtkWidget* dlslider = gx_knob ("right delay ",jcset->getlDelay(), 0, 6000, 1);
+      GtkAdjustment *dladj = gtk_range_get_adjustment(GTK_RANGE(dlslider));
+
+      GtkWidget * dlslider_box = gtk_widget_get_parent(GTK_WIDGET(dlslider));
+      jcset->setlDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(dladj)));
 
       // -- GAIN
-      GtkWidget* gslider = gx_knob ("gain",jcset->getGain(), 0.0, 5.0, 0.1);
+      GtkWidget* gslider = gx_knob ("left gain",jcset->getGain(), 0.0, 5.0, 0.01);
       GtkAdjustment *gadj = gtk_range_get_adjustment(GTK_RANGE(gslider));
 
       GtkWidget * gslider_box = gtk_widget_get_parent(GTK_WIDGET(gslider));
       jcset->setGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(gadj)));
+      // -- GAIN
+      GtkWidget* glslider = gx_knob ("right gain",jcset->getlGain(), 0.0, 5.0, 0.01);
+      GtkAdjustment *gladj = gtk_range_get_adjustment(GTK_RANGE(glslider));
+
+      GtkWidget * glslider_box = gtk_widget_get_parent(GTK_WIDGET(glslider));
+      jcset->setlGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(gladj)));
 
       // -- MEMORY
-      GtkWidget* mslider = gx_knob ("max mem",jcset->getMem(), 8000, 200000, 1000);
+      GtkWidget* mslider = gx_knob ("max mem",jcset->getMem(), 8000, 400000, 1000);
       GtkAdjustment *madj = gtk_range_get_adjustment(GTK_RANGE(mslider));
 
       GtkWidget * mslider_box = gtk_widget_get_parent(GTK_WIDGET(mslider));
@@ -520,13 +543,17 @@ namespace gx_jconv
       //----- arrange widgets
       GtkWidget* box     = gtk_vbox_new (FALSE,  4);
       GtkWidget* box1    = gtk_vbox_new (TRUE,  4);
-      GtkWidget* box2    = gtk_hbox_new (FALSE,  2);
+      GtkWidget* box2    = gtk_hbox_new (FALSE,  0);
       GtkWidget* box3    = gtk_vbox_new (FALSE,  4);
       GtkWidget* box4    = gtk_vbox_new (FALSE, 4);
       GtkWidget* box5    = gtk_hbox_new (FALSE, 4);
       GtkWidget* box6    = gtk_hbox_new (TRUE, 4);
       GtkWidget* box7    = gtk_hbox_new (FALSE, 8);
+      GtkWidget* box8    = gtk_vbox_new (FALSE, 0);
       GtkWidget* box9    = gtk_hbox_new (FALSE, 8);
+      GtkWidget* box10    = gtk_vbox_new (FALSE, 0);
+      GtkWidget* box11    = gtk_vbox_new (TRUE, 0);
+      GtkWidget* box12    = gtk_vbox_new (FALSE, 4);
       GtkWidget* viewbox = gtk_event_box_new ();
 
       gtk_container_set_border_width (GTK_CONTAINER (box7), 8);
@@ -547,9 +574,15 @@ namespace gx_jconv
       gtk_container_add (GTK_CONTAINER (box4),   gx_gui::label1);
       gtk_container_add (GTK_CONTAINER (box4),   box6);
       gtk_container_add (GTK_CONTAINER (box4),   box2);
-      gtk_container_add (GTK_CONTAINER (box2),   mslider_box);
-      gtk_container_add (GTK_CONTAINER (box2),   gslider_box);
-      gtk_container_add (GTK_CONTAINER (box2),   dslider_box);
+      gtk_container_add (GTK_CONTAINER (box2),   box8);
+      gtk_container_add (GTK_CONTAINER (box8),   gslider_box);
+      gtk_container_add (GTK_CONTAINER (box8),   glslider_box);
+      gtk_container_add (GTK_CONTAINER (box2),   box10);
+      gtk_container_add (GTK_CONTAINER (box10),   dslider_box);
+      gtk_container_add (GTK_CONTAINER (box10),   dlslider_box);
+      gtk_container_add (GTK_CONTAINER (box2),   box11);
+      gtk_container_add (GTK_CONTAINER (box11),   mslider_box);
+      gtk_container_add (GTK_CONTAINER (box11),   box12);
       gtk_container_add (GTK_CONTAINER (box2),   box1);
       gtk_container_add (GTK_CONTAINER (box1),   box3);
       gtk_container_add (GTK_CONTAINER (box3),   label5);
@@ -583,6 +616,10 @@ namespace gx_jconv
       g_signal_connect(GTK_OBJECT(gadj), "value-changed",
                        G_CALLBACK(gx_acquire_jconv_value),
                        (gpointer)kJConvGain);
+      // gain setting
+      g_signal_connect(GTK_OBJECT(gladj), "value-changed",
+                       G_CALLBACK(gx_acquire_jconv_value),
+                       (gpointer)kJConvlGain);
 
       // memory
       g_signal_connect(GTK_OBJECT(madj), "value-changed",
@@ -603,6 +640,10 @@ namespace gx_jconv
       g_signal_connect(GTK_OBJECT(dadj), "value-changed",
                        G_CALLBACK(gx_acquire_jconv_value),
                        (gpointer)kJConvDelay);
+      // delay setting
+      g_signal_connect(GTK_OBJECT(dladj), "value-changed",
+                       G_CALLBACK(gx_acquire_jconv_value),
+                       (gpointer)kJConvlDelay);
 
       // set courent folder to file chooser
       g_idle_add(gx_set_file_filter,NULL);
@@ -627,6 +668,10 @@ namespace gx_jconv
           jcset->setGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(widget)));
           break;
 
+        case kJConvlGain:
+          jcset->setlGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(widget)));
+          break;
+
         case kJConvMem:
           jcset->setMem((guint)gtk_adjustment_get_value(GTK_ADJUSTMENT(widget)));
           break;
@@ -640,9 +685,15 @@ namespace gx_jconv
           s = gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget));
           jcset->setMode(((int)s.find("copy") != -1 ? kJConvCopy : kJConvRead));
           break;
+
         case kJConvDelay:
           jcset->setDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(widget)));
           break;
+
+        case kJConvlDelay:
+          jcset->setlDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(widget)));
+          break;
+
         case kJConvOffset:
         case kJConvLength:
 
