@@ -347,7 +347,7 @@ namespace gx_jconv
       gtk_widget_modify_font(lwl, style->font_desc);
 
       GtkRegler myGtkRegler;
-      GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
+      GtkWidget* slider = myGtkRegler.gtk_big_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       gx_set_value(GTK_OBJECT(adj), lw);
       // connect label with value
