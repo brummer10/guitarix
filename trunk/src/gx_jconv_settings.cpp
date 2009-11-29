@@ -442,20 +442,23 @@ namespace gx_jconv
       if (chans == 1) jcset->setMode ( kJConvCopy);
 
       // -- Delay
-      GtkWidget* dslider = gx_knob ("delay msec",0, 0, 6000, 1);
+      GtkWidget* dslider = gx_knob ("delay msec",jcset->getDelay(), 0, 6000, 1);
       GtkAdjustment *dadj = gtk_range_get_adjustment(GTK_RANGE(dslider));
+
       GtkWidget * dslider_box = gtk_widget_get_parent(GTK_WIDGET(dslider));
       jcset->setDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(dadj)));
 
       // -- GAIN
-      GtkWidget* gslider = gx_knob ("gain",0.2, 0.0, 5.0, 0.1);
+      GtkWidget* gslider = gx_knob ("gain",jcset->getGain(), 0.0, 5.0, 0.1);
       GtkAdjustment *gadj = gtk_range_get_adjustment(GTK_RANGE(gslider));
+
       GtkWidget * gslider_box = gtk_widget_get_parent(GTK_WIDGET(gslider));
       jcset->setGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(gadj)));
 
       // -- MEMORY
-      GtkWidget* mslider = gx_knob ("max mem",8000, 8000, 200000, 1000);
+      GtkWidget* mslider = gx_knob ("max mem",jcset->getMem(), 8000, 200000, 1000);
       GtkAdjustment *madj = gtk_range_get_adjustment(GTK_RANGE(mslider));
+
       GtkWidget * mslider_box = gtk_widget_get_parent(GTK_WIDGET(mslider));
       jcset->setMem(gtk_adjustment_get_value(GTK_ADJUSTMENT(madj)));
 
