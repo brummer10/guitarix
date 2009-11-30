@@ -306,6 +306,7 @@ namespace gx_jconv
 
     }
 
+    //----- disable the right gain and delay when run in copy mode
     void gx_set_sensitive(GtkWidget *gwidget, gpointer obj)
     {
       GtkWidget *widget = (GtkWidget *)obj;
@@ -360,7 +361,7 @@ namespace gx_jconv
       gtk_label_set_text(GTK_LABEL(lw), s);
     }
 
-    //----- create knobs with labels
+    //----- create knobs/sliders with labels
     GtkWidget * gx_knob(const char* label,int mode, float init, float min, float max, float step)
     {
 
@@ -621,8 +622,8 @@ namespace gx_jconv
       g_signal_connect(label, "expose-event", G_CALLBACK(gx_gui::box5_expose), NULL);
 
       // IR resampling
-      g_signal_connect_swapped (gx_gui::fbutton, "file-set",
-                                G_CALLBACK(gx_select_and_draw_jconv_ir), gx_gui::fbutton);
+      g_signal_connect (gx_gui::fbutton, "file-set",
+                                G_CALLBACK(gx_select_and_draw_jconv_ir), (gpointer) jcmode_combo);
 
       // confirm and save setting
       g_signal_connect_swapped(ok_button, "pressed",
@@ -768,9 +769,10 @@ namespace gx_jconv
     }
 
     // --------------- IR file processing
-    void gx_select_and_draw_jconv_ir(GtkWidget* widget, gpointer data )
+    void gx_select_and_draw_jconv_ir(GtkWidget* widget, gpointer obj )
     {
       GxJConvSettings* jcset = GxJConvSettings::instance();
+      GtkWidget *combo = (GtkWidget *)obj;
 
       // get the chosen file from the file chooser
       string file   = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(widget));
@@ -823,7 +825,15 @@ namespace gx_jconv
               if the user wish so.*/
 
               //----- draw the wave file
-              gx_waveview_set_value(widget, data);
+              gx_waveview_set_value(widget, NULL);
+
+              if(chans == 1)
+              {
+              jcset->setMode ( kJConvCopy);
+              gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0);
+              gtk_widget_set_sensitive(GTK_WIDGET(combo),FALSE);
+              }
+              else gtk_widget_set_sensitive(GTK_WIDGET(combo),TRUE);
 
               // check file sample rate vs jackd's
               if (sr != ((int)gx_jack::jack_sr)&&(gx_jack::client))
@@ -884,7 +894,7 @@ namespace gx_jconv
                              jcset->getIRFile() +
                              string(" is not a WAVE Audio file! Invalidating ... "));
               // force the wave view to draw a red X
-              gx_waveview_set_value(widget, data);
+              gx_waveview_set_value(widget, NULL);
               // set label text
               gtk_label_set_text(GTK_LABEL(gx_gui::label1), "IR file empty\n");
               gtk_label_set_text(GTK_LABEL(gx_gui::label6), "empty");
@@ -895,7 +905,7 @@ namespace gx_jconv
         {
           gx_print_error("IR File Processing",
                          "Filename empty, you probably need to re-pick a file");
-          gx_waveview_set_value(widget, data);
+          gx_waveview_set_value(widget, NULL);
           gtk_label_set_text(GTK_LABEL(gx_gui::label1), "No file name\n");
           gtk_label_set_text(GTK_LABEL(gx_gui::label6),
                              "empty");
