@@ -342,7 +342,7 @@ namespace gx_jconv
     }
 
     //----- create knobs with labels
-    GtkWidget * gx_knob(const char* label, float init, float min, float max, float step)
+    GtkWidget * gx_knob(const char* label,int mode, float init, float min, float max, float step)
     {
 
       GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
@@ -356,9 +356,11 @@ namespace gx_jconv
       pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
       gtk_widget_modify_font(lw, style->font_desc);
       gtk_widget_modify_font(lwl, style->font_desc);
+      GtkWidget* slider;
 
       GtkRegler myGtkRegler;
-      GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
+      if(!mode) slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
+      else slider = myGtkRegler.gtk_vslider_new_with_adjustment(GTK_ADJUSTMENT(adj));
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       gx_set_value(GTK_OBJECT(adj), lw);
       // connect label with value
@@ -453,33 +455,33 @@ namespace gx_jconv
       if (chans == 1) jcset->setMode ( kJConvCopy);
 
       // -- Delay
-      GtkWidget* dslider = gx_knob ("left delay ",jcset->getDelay(), 0, 6000, 1);
+      GtkWidget* dslider = gx_knob ("left delay ",0,jcset->getDelay(), 0, 6000, 1);
       GtkAdjustment *dadj = gtk_range_get_adjustment(GTK_RANGE(dslider));
 
       GtkWidget * dslider_box = gtk_widget_get_parent(GTK_WIDGET(dslider));
       jcset->setDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(dadj)));
       // -- Delay
-      GtkWidget* dlslider = gx_knob ("right delay ",jcset->getlDelay(), 0, 6000, 1);
+      GtkWidget* dlslider = gx_knob ("right delay ",0,jcset->getlDelay(), 0, 6000, 1);
       GtkAdjustment *dladj = gtk_range_get_adjustment(GTK_RANGE(dlslider));
 
       GtkWidget * dlslider_box = gtk_widget_get_parent(GTK_WIDGET(dlslider));
       jcset->setlDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(dladj)));
 
       // -- GAIN
-      GtkWidget* gslider = gx_knob ("left gain",jcset->getGain(), 0.0, 5.0, 0.01);
+      GtkWidget* gslider = gx_knob ("left gain",0,jcset->getGain(), 0.0, 5.0, 0.01);
       GtkAdjustment *gadj = gtk_range_get_adjustment(GTK_RANGE(gslider));
 
       GtkWidget * gslider_box = gtk_widget_get_parent(GTK_WIDGET(gslider));
       jcset->setGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(gadj)));
       // -- GAIN
-      GtkWidget* glslider = gx_knob ("right gain",jcset->getlGain(), 0.0, 5.0, 0.01);
+      GtkWidget* glslider = gx_knob ("right gain",0,jcset->getlGain(), 0.0, 5.0, 0.01);
       GtkAdjustment *gladj = gtk_range_get_adjustment(GTK_RANGE(glslider));
 
       GtkWidget * glslider_box = gtk_widget_get_parent(GTK_WIDGET(glslider));
       jcset->setlGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(gladj)));
 
       // -- MEMORY
-      GtkWidget* mslider = gx_knob ("max mem",jcset->getMem(), 8000, 400000, 1000);
+      GtkWidget* mslider = gx_knob ("max mem",1,jcset->getMem(), 8000, 400000, 1000);
       GtkAdjustment *madj = gtk_range_get_adjustment(GTK_RANGE(mslider));
 
       GtkWidget * mslider_box = gtk_widget_get_parent(GTK_WIDGET(mslider));
@@ -553,7 +555,7 @@ namespace gx_jconv
       GtkWidget* box9    = gtk_hbox_new (FALSE, 8);
       GtkWidget* box10    = gtk_vbox_new (FALSE, 0);
       GtkWidget* box11    = gtk_vbox_new (TRUE, 0);
-      GtkWidget* box12    = gtk_vbox_new (FALSE, 4);
+     // GtkWidget* box12    = gtk_vbox_new (FALSE, 4);
       GtkWidget* viewbox = gtk_event_box_new ();
 
       gtk_container_set_border_width (GTK_CONTAINER (box7), 8);
@@ -582,7 +584,7 @@ namespace gx_jconv
       gtk_container_add (GTK_CONTAINER (box10),   dlslider_box);
       gtk_container_add (GTK_CONTAINER (box2),   box11);
       gtk_container_add (GTK_CONTAINER (box11),   mslider_box);
-      gtk_container_add (GTK_CONTAINER (box11),   box12);
+      //gtk_container_add (GTK_CONTAINER (box11),   box12);
       gtk_container_add (GTK_CONTAINER (box2),   box1);
       gtk_container_add (GTK_CONTAINER (box1),   box3);
       gtk_container_add (GTK_CONTAINER (box3),   label5);

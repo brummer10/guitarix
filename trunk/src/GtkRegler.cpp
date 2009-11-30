@@ -56,6 +56,8 @@ struct GtkReglerClass
     GdkPixbuf *switch_image1;
     GdkPixbuf *slider_image;
     GdkPixbuf *slider_image1;
+    GdkPixbuf *vslider_image;
+    GdkPixbuf *vslider_image1;
     GdkPixbuf *minislider_image;
     GdkPixbuf *minislider_image1;
     GdkPixbuf *wheel_image;
@@ -87,7 +89,9 @@ struct GtkReglerClass
 //----------- horizontal slider
     int slider_x;
     int slider_y;
+    int vslider_x;
     int slider_step;
+    int vslider_step;
 //----------- horizontal slider
     int minislider_x;
     int minislider_y;
@@ -366,6 +370,38 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
             gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1, 0, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
     }
+
+    //--------- vertical slider
+    else if (regler->regler_type == 9)
+    {
+        reglerx += (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y) *0.5;
+        reglery += (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x) *0.5;
+
+        int reglerstate = (int)((adj->upper - adj->value ) * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_step / (adj->upper - adj->lower));
+
+        if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
+        {
+            gtk_paint_focus(widget->style, window, GTK_STATE_NORMAL, NULL, widget, NULL, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x);
+
+            gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,20,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,0,0);
+
+            gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,10,20,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,0, reglerstate);
+
+            gdk_pixbuf_saturate_and_pixelate(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,70.0,FALSE);
+
+            gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x, GDK_RGB_DITHER_NORMAL, 0, 0);
+        }
+        else
+        {
+
+            gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,20,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,0,0);
+
+            gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,10,20,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0,reglerstate);
+
+            gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x, GDK_RGB_DITHER_NORMAL, 0, 0);
+        }
+    }
+
 //--------- mini slider
     else if (regler->regler_type == 4)
     {
@@ -571,6 +607,20 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
 
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1, 0, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
+
+    //----------- vertical slider
+    else if (regler->regler_type == 9)
+    {
+        reglerx += (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y) *0.5;
+        reglery += (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x) *0.5;
+        int reglerstate = (int)((adj->upper -adj->value ) * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_step / (adj->upper - adj->lower));
+
+        gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,20,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,0,0);
+
+        gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,10,20,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0,reglerstate);
+
+        gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x, GDK_RGB_DITHER_NORMAL, 0, 0);
+    }
 //----------- mini slider
     else if (regler->regler_type == 4)
     {
@@ -749,6 +799,22 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 
         gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1, 0, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
+
+    //----------- vertical slider
+    else if (regler->regler_type == 9)
+    {
+        reglerx += (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y) *0.5;
+        reglery += (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x) *0.5;
+        int reglerstate = (int)((adj->upper -adj->value ) * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_step / (adj->upper - adj->lower));
+
+        gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,20,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,0,0);
+
+        gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,10,20,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0,reglerstate);
+
+        gdk_pixbuf_saturate_and_pixelate(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,70.0,FALSE);
+
+        gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0], GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0, 0, reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x, GDK_RGB_DITHER_NORMAL, 0, 0);
+    }
 //----------- mini slider
     else if (regler->regler_type == 4)
     {
@@ -850,6 +916,13 @@ static void gtk_regler_size_request (GtkWidget *widget, GtkRequisition *requisit
         requisition->width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_x;
         requisition->height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y;
     }
+    //----------- vertical slider
+    else if (regler->regler_type == 9)
+    {
+        requisition->width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y;
+        requisition->height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x;
+    }
+
 }
 
 //----------- set value
@@ -961,6 +1034,18 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
         else pos = floor (pos);
         gtk_range_set_value(GTK_RANGE(widget),  pos);
     }
+    //----------- slider
+    else if (regler->regler_type == 9)
+    {
+
+        int  reglery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x) *0.5;
+        double pos = adj->upper - (((event->y - reglery-10)*0.02)* (adj->upper - adj->lower));
+        if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
+        else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
+        else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
+        else pos = floor (pos);
+        gtk_range_set_value(GTK_RANGE(widget),  pos);
+    }
 //----------- minislider
     else if (regler->regler_type == 4)
     {
@@ -1063,6 +1148,20 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
                 gtk_range_set_value(GTK_RANGE(widget),  pos);
             }
         }
+        //----------- slider
+        else if (regler->regler_type == 9)
+        {
+            if (event->y > 0)
+            {
+                int  slidery = (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x)*0.5;
+                double pos = adj->upper - (((event->y - slidery-10)*0.02)* (adj->upper - adj->lower));
+                if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
+                else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
+                else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
+                else pos = floor (pos);
+                gtk_range_set_value(GTK_RANGE(widget),  pos);
+            }
+        }
 //----------- minislider
         else if (regler->regler_type == 4)
         {
@@ -1133,8 +1232,10 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
     klass->minitoggle_step = 1;
 //--------- horizontal slider size and steps
     klass->slider_x = 120 ;  //this is the scale size
+    klass->vslider_x = 70 ;  //this is the scale size
     klass->slider_y = 10 ;   // this is the knob size x and y be the same
     klass->slider_step = 100;
+    klass->vslider_step = 50;
 
 //--------- mini slider size and steps
     klass->minislider_x = 34 ;  //this is the scale size
@@ -1187,6 +1288,13 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
     g_assert(klass->slider_image != NULL);
     klass->slider_image1 = gdk_pixbuf_copy( klass->slider_image );
     g_assert(klass->slider_image1 != NULL);
+
+//----------- vertical slider
+    klass->vslider_image = gdk_pixbuf_rotate_simple(klass->slider_image, GDK_PIXBUF_ROTATE_CLOCKWISE);
+    g_assert(klass->vslider_image != NULL);
+    klass->vslider_image = gdk_pixbuf_flip(klass->vslider_image, TRUE);
+    klass->vslider_image1 = gdk_pixbuf_copy( klass->vslider_image );
+    g_assert(klass->vslider_image1 != NULL);
 
 //----------- mini slider
     klass->minislider_image = gdk_pixbuf_scale_simple(klass->slider_image,40,6,GDK_INTERP_HYPER);
@@ -1256,6 +1364,16 @@ static void gtk_regler_init (GtkRegler *regler)
         widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x;
         widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y;
     }
+    else if (regler->regler_type == 8)
+    {
+        widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_x;
+        widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y;
+    }
+    else if (regler->regler_type == 9)
+    {
+        widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y;
+        widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x;
+    }
 }
 
 //----------- redraw when value changed
@@ -1298,6 +1416,10 @@ void GtkRegler::gtk_regler_destroy ( )
         g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image1);
     if (G_IS_OBJECT(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))-> b_toggle_image))
         g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_image);
+    if (G_IS_OBJECT(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))-> vslider_image))
+        g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image);
+    if (G_IS_OBJECT(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))-> vslider_image1))
+        g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1);
 }
 
 
@@ -1427,7 +1549,19 @@ GtkWidget *GtkRegler::gtk_button_toggle_new_with_adjustment(GtkAdjustment *_adju
     return widget;
 }
 
-
+//----------- create a vertical slider
+GtkWidget *GtkRegler::gtk_vslider_new_with_adjustment(GtkAdjustment *_adjustment)
+{
+    GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
+    GtkRegler *regler = GTK_REGLER(widget);
+    regler->regler_type = 9;
+    if (widget)
+    {
+        gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
+        g_signal_connect(GTK_OBJECT(widget), "value-changed", G_CALLBACK(gtk_regler_value_changed), widget);
+    }
+    return widget;
+}
 
 //----------- get the Regler type
 GType gtk_regler_get_type (void)

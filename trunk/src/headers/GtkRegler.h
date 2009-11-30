@@ -36,6 +36,7 @@ public:
 
     static void gtk_regler_destroy ( );
     GtkWidget *gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment);
+    GtkWidget *gtk_vslider_new_with_adjustment(GtkAdjustment *_adjustment);
     GtkWidget *gtk_mini_slider_new_with_adjustment(GtkAdjustment *_adjustment);
     GtkWidget *gtk_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
     GtkWidget *gtk_switch_new_with_adjustment(GtkAdjustment *_adjustment);
