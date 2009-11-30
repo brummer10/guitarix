@@ -306,6 +306,25 @@ namespace gx_jconv
 
     }
 
+    void gx_set_sensitive(GtkWidget *gwidget, gpointer obj)
+    {
+      GtkWidget *widget = (GtkWidget *)obj;
+      GxJConvSettings* jcset = GxJConvSettings::instance();
+      switch (jcset->getMode())
+        {
+        case kJConvRead:
+          gtk_widget_set_sensitive(GTK_WIDGET(widget),TRUE);
+          break;
+
+        case kJConvCopy:
+        default:
+          gtk_widget_set_sensitive(GTK_WIDGET(widget),FALSE);
+          break;
+        }
+
+
+    }
+
     //----- hide the jconv settings widget
     gboolean gx_delete_event( GtkWidget *widget, gpointer   data )
     {
@@ -637,6 +656,12 @@ namespace gx_jconv
       g_signal_connect(GTK_OBJECT (jcmode_combo), "changed",
                        G_CALLBACK(gx_acquire_jconv_value),
                        (gpointer)kJConvMode);
+      g_signal_connect(GTK_OBJECT (jcmode_combo), "changed",
+                       G_CALLBACK(gx_set_sensitive),
+                       (gpointer)glslider);
+      g_signal_connect(GTK_OBJECT (jcmode_combo), "changed",
+                       G_CALLBACK(gx_set_sensitive),
+                       (gpointer)dlslider);
 
       // delay setting
       g_signal_connect(GTK_OBJECT(dadj), "value-changed",
