@@ -49,12 +49,8 @@ namespace gx_engine
   // static member
   GxMidiState dsp::midistate = kMidiOff;
 
-  // instanciation
-  inline GxEngine* GxEngine::instance()
-  {
-    static GxEngine engine;
-    return &engine;
-  }
+
+
 
   void GxEngine::metadata(Meta* m)
   {

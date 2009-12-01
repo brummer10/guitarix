@@ -587,7 +587,11 @@ namespace gx_engine
   public:
     float fskin;
     // unique instance : use this instead of constructor
-    static GxEngine* instance();
+    static GxEngine* instance()
+    {
+    static GxEngine engine;
+    return &engine;
+    }
 
     static void metadata(Meta* m);
 
