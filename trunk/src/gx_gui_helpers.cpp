@@ -555,27 +555,27 @@ namespace gx_gui
     if (about.empty())
       {
 	about +=
-	  "\n This Aplication is to a large extent provided"
-	  "\n with the marvelous faust compiler.Yann Orlary"
-	  "\n <http://faust.grame.fr/>"
-	  "\n A large part is based on the work of Julius Orion Smith"
-	  "\n<http://ccrma.stanford.edu/realsimple/faust/>"
-	  "\n and Albert Graef\n <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html> "
-	  "\n\n\n guitarix ";
+	  "\n  This Aplication is to a large extent provided"
+	  "\n  with the marvelous faust compiler.Yann Orlary"
+	  "\n  <http://faust.grame.fr/>"
+	  "\n  A large part is based on the work of Julius Orion Smith"
+	  "\n <http://ccrma.stanford.edu/realsimple/faust/>"
+	  "\n  and Albert Graef\n  <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html>  "
+	  "\n\n\n  guitarix ";
 
 	about += GX_VERSION;
 
 	about +=
 	  " use jack_capture >= 0.9.30for record"
-	  "\n by Kjetil S. Matheussen "
-	  "\n http://old.notam02.no/arkiv/src/?M=D"
+	  "\n  by Kjetil S. Matheussen "
+	  "\n  http://old.notam02.no/arkiv/src/?M=D"
 	  "\n  it will allways record to ~/guitarix_sessionX.xxx "
-	  "\n for impulse response it use jconv "
-	  "\n byFons Adriaensen "
+	  "\n  for impulse response it use jconv "
+	  "\n  byFons Adriaensen "
 	  "\n  http://www.kokkinizita.net/linuxaudio/index.html "
-	  "\n\n authors: Hermann Meyer <brummer-@web.de>"
-	  "\n authors: James Warden <warjamy@yahoo.com>"
-	  "\n home: http://guitarix.sourceforge.net/\n";
+	  "\n\n  authors: Hermann Meyer <brummer-@web.de>"
+	  "\n  authors: James Warden <warjamy@yahoo.com>"
+	  "\n  home: http://guitarix.sourceforge.net/\n";
       }
 
     gx_message_popup(about.c_str());
@@ -1055,6 +1055,7 @@ namespace gx_gui
     g_signal_connect_swapped (ok_button, "clicked",
 			      G_CALLBACK (gtk_widget_destroy), about);
 
+    g_signal_connect(label, "expose-event", G_CALLBACK(box1_expose), NULL);
     gtk_widget_show (ok_button);
     gtk_widget_show (label);
     return gtk_dialog_run (GTK_DIALOG(about));

@@ -861,7 +861,7 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
   GtkWaveView *waveview = GTK_WAVEVIEW(widget);
 
   // JConv IR file
-  if (waveview->waveview_type == kWvTypeJConv)
+  if ((waveview->waveview_type == kWvTypeJConv)&&(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavebutton))
     {
       // retrieve JConv settings handler
       GxJConvSettings* const jcset = GxJConvSettings::instance();
@@ -980,6 +980,7 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
 
       cairo_destroy (cr);
       cairo_destroy (cr_show);
+
 
     }
   return FALSE;
@@ -1152,6 +1153,7 @@ static gboolean gtk_waveview_button_release (GtkWidget *widget, GdkEventButton *
 
   if (GTK_WIDGET_HAS_GRAB(widget))
     gtk_grab_remove(widget);
+    GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavebutton=0;
 
   return FALSE;
 }

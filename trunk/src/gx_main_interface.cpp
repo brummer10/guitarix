@@ -2432,7 +2432,7 @@ namespace gx_gui
 		    openHorizontalBox("");
 		    {
 		      addregler("gain", &engine->fjc_ingain,  0.f, -20.f, 20.f, 0.1f);
-		      addregler("  delay  ", &engine->fsliderdel0,  0.f, 0.f, 5000.0f, 0.1f);
+		      addregler("  delay  ", &engine->fsliderdel0,  0.f, 0.f, 5000.0f, 1.f);
 		      addslider("wet/dry", &engine->fslider24,  0.f, -1.f, 1.f, 1.e-01f);
 		    }
 		    closeBox();
@@ -3408,7 +3408,7 @@ namespace gx_gui
     g_timeout_add(60,  gx_refresh_oscilloscope,  0);
     g_timeout_add(200, gx_survive_jack_shutdown, 0);
     g_timeout_add(600, gx_monitor_jack_ports,    0);
-    g_timeout_add(800, gx_check_startup, 0);
+    g_timeout_add(750, gx_check_startup, 0);
 
     // Note: meter display timeout is a global var in gx_gui namespace
     g_timeout_add(meter_display_timeout, gx_refresh_meter_level,   0);
