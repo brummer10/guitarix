@@ -49,9 +49,6 @@ namespace gx_engine
   // static member
   GxMidiState dsp::midistate = kMidiOff;
 
-
-
-
   void GxEngine::metadata(Meta* m)
   {
     m->declare("name", "guitarix");

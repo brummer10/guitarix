@@ -125,14 +125,6 @@ namespace gx_jconv
       fValidSettings = false;
     }
 
-    // --------------- instanciation of jconv handler
-    inline GxJConvSettings* GxJConvSettings::instance()
-    {
-      static GxJConvSettings jcset;
-
-      // return static instance
-      return &jcset;
-    }
 
     // --------------- configure JConv handler from file
     void GxJConvSettings::configureJConvSettings(string& presname)

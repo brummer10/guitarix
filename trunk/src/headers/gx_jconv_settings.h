@@ -133,8 +133,16 @@ namespace gx_jconv
     void invalidate();
     void resetSetting();
 
-    // instance getter / creation
-    static GxJConvSettings* instance();
+
+    // --------------- instanciation of jconv handler
+    static inline GxJConvSettings* instance()
+    {
+      static GxJConvSettings jcset;
+
+      // return static instance
+      return &jcset;
+    }
+
 
     // checkbutton state
     static float checkbutton7;
