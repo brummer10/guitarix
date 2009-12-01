@@ -517,6 +517,10 @@ namespace gx_engine
     zeroize(fVecdel0,262144);
     fsliderdel0 = 0.0f;
     fConstdel0 = (1.000000e-03f * fSamplingFreq);
+    zeroize(fVec_CH1,65536);
+    zeroize(fVecdel1,262144);
+    out_to_1 = 0;
+    out_to_2 = 0;
 
 
     // end engine init

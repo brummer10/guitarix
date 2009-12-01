@@ -570,6 +570,11 @@ namespace gx_engine
 	float 	fsliderdel0;
 	float 	fConstdel0;
 
+	float 	fVec_CH1[65536];
+	float 	fVecdel1[262144];
+	float out_to_1;
+	float out_to_2;
+
     // private constructor
     GxEngine() {}
 

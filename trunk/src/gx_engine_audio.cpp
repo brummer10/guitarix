@@ -1144,20 +1144,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fTemp0 = (fConst_boost4 * (((fConst_boost8 * fRec_boost0[0]) + (fConst_boost7 * fRec_boost0[1])) + (fConst_boost6 * fRec_boost0[2])));
         }
 
-      //chorus
-      if (ichorus)
-        {
-          fVec_CH0[IOTA_CH&65535] = fTemp0;
-          float fTemp_CH1 = (fSlow_CH0 + fRec_CH0[1]);
-          fRec_CH0[0] = (fTemp_CH1 - floorf(fTemp_CH1));
-          float fTemp_CH2 = (65536 * (fRec_CH0[0] - floorf(fRec_CH0[0])));
-          float fTemp_CH3 = floorf(fTemp_CH2);
-          int iTemp_CH4 = int(fTemp_CH3);
-          float fTemp_CH5 = (fSlow_CH2 * (1 + (fSlow_CH1 * ((ftbl0[((1 + iTemp_CH4) & 65535)] * (fTemp_CH2 - fTemp_CH3)) + (ftbl0[(iTemp_CH4 & 65535)] * ((1 + fTemp_CH3) - fTemp_CH2))))));
-          int iTemp_CH6 = int(fTemp_CH5);
-          int iTemp_CH7 = (1 + iTemp_CH6);
-          fTemp0 = (fVec_CH0[IOTA_CH&65535] + (fSlow_CH3 * (((fTemp_CH5 - iTemp_CH6) * fVec_CH0[(IOTA_CH-int((int(iTemp_CH7) & 65535)))&65535]) + ((iTemp_CH7 - fTemp_CH5) * fVec_CH0[(IOTA_CH-int((iTemp_CH6 & 65535)))&65535]))));
-        }
+
 
       if (iSlow75)    //echo
         {
@@ -1175,8 +1162,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
       // this is the output value from the mono process
       fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]))*ngate;
-      // switch between hard_cut or foldback distortion, or plain output
 
+      // switch between hard_cut or foldback distortion, or plain output
       switch (ifuse)
         {
         case 0:
@@ -1192,30 +1179,62 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       // update fast as  posible this way (mode 3)
       if ((gx_gui::showwave == 1) &&(gx_gui::wave_view_mode == gx_gui::kWvMode3)) viv = fRec0[0];
 
+      // split into left and right channel
+      out_to_1 = fRec0[0];
+      out_to_2 = fRec0[0];
 
-      float 	S9[2];
-      // copy the output for the frame based mode of the oscilloscope
-      //  if ((gx_gui::showwave == 1) &&((gx_gui::wave_view_mode == 1) || (gx_gui::wave_view_mode == 2) )) get_frame[i] = fRec0[0];
-      S9[0] = (fSlow87 * fRec0[0]);
-      S9[1] = (fSlow84 * fRec0[0]);
+      // stereo chorus
+      if (ichorus)
+        { // left channel
+          fVec_CH0[IOTA_CH&65535] = out_to_1;
+          float fTemp_CH1 = (fSlow_CH0 + fRec_CH0[1]);
+          fRec_CH0[0] = (fTemp_CH1 - floorf(fTemp_CH1));
+          float fTemp_CH2 = (65536 * (fRec_CH0[0] - floorf(fRec_CH0[0])));
+          float fTemp_CH3 = floorf(fTemp_CH2);
+          int iTemp_CH4 = int(fTemp_CH3);
+          float fTemp_CH5 = (fSlow_CH2 * (1 + (fSlow_CH1 * ((ftbl0[((1 + iTemp_CH4) & 65535)] * (fTemp_CH2 - fTemp_CH3)) + (ftbl0[(iTemp_CH4 & 65535)] * ((1 + fTemp_CH3) - fTemp_CH2))))));
+          int iTemp_CH6 = int(fTemp_CH5);
+          int iTemp_CH7 = (1 + iTemp_CH6);
+          out_to_1 = (fVec_CH0[IOTA_CH&65535] + (fSlow_CH3 * (((fTemp_CH5 - iTemp_CH6) * fVec_CH0[(IOTA_CH-int((int(iTemp_CH7) & 65535)))&65535]) + ((iTemp_CH7 - fTemp_CH5) * fVec_CH0[(IOTA_CH-int((iTemp_CH6 & 65535)))&65535]))));
+          // right channel
+          float fTemp_CH8 = out_to_2;
+          fVec_CH1[IOTA_CH&65535] = fTemp_CH8;
+          float fTemp_CH9 = (0.25f + fRec_CH0[0]);
+          float fTemp_CH10 = (65536 * (fTemp_CH9 - floorf(fTemp_CH9)));
+          float fTemp_CH11 = floorf(fTemp_CH10);
+          int iTemp_CH12 = int(fTemp_CH11);
+          float fTemp_CH13 = (fSlow_CH2 * (1 + (fSlow_CH1 * ((ftbl0[((1 + iTemp_CH12) & 65535)] * (fTemp_CH10 - fTemp_CH11)) + (ftbl0[(iTemp_CH12 & 65535)] * ((1 + fTemp_CH11) - fTemp_CH10))))));
+          int iTemp_CH14 = int(fTemp_CH13);
+          int iTemp_CH15 = (1 + iTemp_CH14);
+          out_to_2 = (fVec_CH1[IOTA_CH&65535] + (fSlow_CH3 * (((fTemp_CH13 - iTemp_CH14) * fVec_CH1[(IOTA_CH-int((int(iTemp_CH15) & 65535)))&65535]) + ((iTemp_CH15 - fTemp_CH13) * fVec_CH1[(IOTA_CH-int((iTemp_CH14 & 65535)))&65535]))));
+        }
+
       // the left output port
+      float 	S9[2];
+      S9[0] = (fSlow87 * out_to_1);
+      S9[1] = (fSlow84 * out_to_1);
       *output1++ = S9[iSlow88];
-      float 	S10[2];
-      S10[0] = (fSlow91 * fRec0[0]);
-      S10[1] = (fSlow89 * fRec0[0]);
+
       // the right output port
+      float 	S10[2];
+      S10[0] = (fSlow91 * out_to_2);
+      S10[1] = (fSlow89 * out_to_2);
       *output3++ = S10[iSlow88];
 
       if (gx_jconv::jconv_is_running)
       {
-          fVecdel0[IOTAdel&262143] = fRec0[0];
-          float out_to_jc = fVecdel0[(IOTAdel-iSlowdel0)&262143];
+          // delay to jconv
+          fVecdel0[IOTAdel&262143] = out_to_1;
+          float out_to_jc1 = fVecdel0[(IOTAdel-iSlowdel0)&262143];
+          fVecdel1[IOTAdel&262143] = out_to_2;
+          float out_to_jc2 = fVecdel1[(IOTAdel-iSlowdel0)&262143];
 
+       // gain to jconv
        fRecinjc[0] = (fSlowinjc + (0.999f * fRecinjc[1]));
        // this is the left "extra" port to run jconv in bybass mode
-       *output0++ = (fSlow85 * out_to_jc* fRecinjc[0]);
+       *output0++ = (fSlow85 * out_to_jc1* fRecinjc[0]);
        // this is the right "extra" port to run jconv in bybass mode
-       *output2++ = (fSlow90 * out_to_jc* fRecinjc[0]);
+       *output2++ = (fSlow90 * out_to_jc2* fRecinjc[0]);
       }
 
       // post processing
