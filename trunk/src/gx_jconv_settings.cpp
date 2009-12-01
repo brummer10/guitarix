@@ -827,6 +827,7 @@ namespace gx_jconv
               //----- draw the wave file
               gx_waveview_set_value(widget, NULL);
 
+              //----- set mode chooser to copy and disable it when a 1 channel file is loaded
               if(chans == 1)
               {
               jcset->setMode ( kJConvCopy);

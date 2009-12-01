@@ -851,7 +851,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   int iautowah = int(fautowah);
   //chorus
   int ichorus = fchorus;
-
+  int 	iSlowdel0 = int((int((fConstdel0 * fsliderdel0)) & 262143));
 
 
   // pointer to the jack_buffer
@@ -1200,20 +1200,24 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       S9[1] = (fSlow84 * fRec0[0]);
       // the left output port
       *output1++ = S9[iSlow88];
-
-      if (gx_jconv::jconv_is_running)
-      {
-       fRecinjc[0] = (fSlowinjc + (0.999f * fRecinjc[1]));
-       // this is the left "extra" port to run jconv in bybass mode
-       *output0++ = (fSlow85 * fRec0[0]* fRecinjc[0]);
-       // this is the right "extra" port to run jconv in bybass mode
-       *output2++ = (fSlow90 * fRec0[0]* fRecinjc[0]);
-      }
       float 	S10[2];
       S10[0] = (fSlow91 * fRec0[0]);
       S10[1] = (fSlow89 * fRec0[0]);
       // the right output port
       *output3++ = S10[iSlow88];
+
+      if (gx_jconv::jconv_is_running)
+      {
+          fVecdel0[IOTAdel&262143] = fRec0[0];
+          float out_to_jc = fVecdel0[(IOTAdel-iSlowdel0)&262143];
+
+       fRecinjc[0] = (fSlowinjc + (0.999f * fRecinjc[1]));
+       // this is the left "extra" port to run jconv in bybass mode
+       *output0++ = (fSlow85 * out_to_jc* fRecinjc[0]);
+       // this is the right "extra" port to run jconv in bybass mode
+       *output2++ = (fSlow90 * out_to_jc* fRecinjc[0]);
+      }
+
       // post processing
       for (int i=5; i>0; i--) fRec0[i] = fRec0[i-1];
       for (int i=3; i>0; i--) fVec23[i] = fVec23[i-1];
@@ -1314,6 +1318,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       IOTA_CH = IOTA_CH+1;
       fRecinjc[1] = fRecinjc[0];
       old_freq = fConsta4;
+      IOTAdel = IOTAdel+1;
 
     }
 

@@ -2432,6 +2432,7 @@ namespace gx_gui
 		    openHorizontalBox("");
 		    {
 		      addregler("gain", &engine->fjc_ingain,  0.f, -20.f, 20.f, 0.1f);
+		      addregler("  delay  ", &engine->fsliderdel0,  0.f, 0.f, 5000.0f, 0.1f);
 		      addslider("wet/dry", &engine->fslider24,  0.f, -1.f, 1.f, 1.e-01f);
 		    }
 		    closeBox();

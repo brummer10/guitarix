@@ -513,6 +513,11 @@ namespace gx_engine
     zeroize(fRecinjc, 2);
     old_freq = 0;
 
+    IOTAdel = 0;
+    zeroize(fVecdel0,262144);
+    fsliderdel0 = 0.0f;
+    fConstdel0 = (1.000000e-03f * fSamplingFreq);
+
 
     // end engine init
   }

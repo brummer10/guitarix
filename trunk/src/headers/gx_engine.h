@@ -565,6 +565,11 @@ namespace gx_engine
     float fRecinjc[2];
     float old_freq;
 
+    int 	IOTAdel;
+	float 	fVecdel0[262144];
+	float 	fsliderdel0;
+	float 	fConstdel0;
+
     // private constructor
     GxEngine() {}
 

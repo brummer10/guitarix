@@ -98,30 +98,34 @@ namespace gx_jconv
     }
 
     inline float          getGain      () const { return fGain;       }
-    inline float          getlGain      () const { return flGain;       }
+    inline float          getlGain     () const { return flGain;       }
     inline guint          getMem       () const { return fMem;        }
     inline GxJConvMode    getMode      () const { return fMode;       }
     inline jack_nframes_t getBufferSize() const { return fBufferSize; }
     inline guint          getOffset    () const { return fOffset;     }
     inline guint          getLength    () const { return fLength;     }
     inline guint          getDelay     () const { return fDelay;      }
-    inline guint          getlDelay     () const { return flDelay;      }
+    inline guint          getlDelay    () const { return flDelay;      }
 
     inline void setIRFile    (string         name) { fIRFile     = name; }
     inline void setIRDir     (string         name) { fIRDir      = name; }
-    inline void setGain      (float          gain) {
+    inline void setGain      (float          gain)
+    {
         gain = round(gain*100);
-        fGain       = gain*0.01; }
-    inline void setlGain      (float          gain) {
+        fGain       = gain*0.01;
+    }
+    inline void setlGain      (float          gain)
+    {
         gain = round(gain*100);
-        flGain       = gain*0.01; }
+        flGain       = gain*0.01;
+    }
     inline void setMem       (guint          mem ) { fMem        = mem;  }
     inline void setMode      (GxJConvMode    mode) { fMode       = mode; }
     inline void setBufferSize(jack_nframes_t bs)   { fBufferSize = bs;   }
     inline void setOffset    (guint          offs) { fOffset     = offs; }
     inline void setLength    (guint          leng) { fLength     = leng; }
     inline void setDelay     (guint          del)  { fDelay      = del;  }
-    inline void setlDelay     (guint          del)  { flDelay      = del;  }
+    inline void setlDelay    (guint          del)  { flDelay     = del;  }
 
     // internal setting manipulation
     inline bool isValid()  { return fValidSettings;  }
