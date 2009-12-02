@@ -514,6 +514,7 @@ namespace gx_engine
     zeroize(fVecdel1,262144);
     out_to_1 = 0;
     out_to_2 = 0;
+    fsliderdel1 = 0.0f;
 
 
     // end engine init

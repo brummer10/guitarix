@@ -572,6 +572,7 @@ namespace gx_engine
 
 	float 	fVec_CH1[65536];
 	float 	fVecdel1[262144];
+	float 	fsliderdel1;
 	float out_to_1;
 	float out_to_2;
 

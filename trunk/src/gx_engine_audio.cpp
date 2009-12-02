@@ -852,6 +852,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   //chorus
   int ichorus = fchorus;
   int 	iSlowdel0 = int((int((fConstdel0 * fsliderdel0)) & 262143));
+  int 	iSlowdel1 = int((int((fConstdel0 * fsliderdel1)) & 262143));
 
 
   // pointer to the jack_buffer
@@ -1227,7 +1228,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fVecdel0[IOTAdel&262143] = out_to_1;
           float out_to_jc1 = fVecdel0[(IOTAdel-iSlowdel0)&262143];
           fVecdel1[IOTAdel&262143] = out_to_2;
-          float out_to_jc2 = fVecdel1[(IOTAdel-iSlowdel0)&262143];
+          float out_to_jc2 = fVecdel1[(IOTAdel-iSlowdel1)&262143];
 
        // gain to jconv
        fRecinjc[0] = (fSlowinjc + (0.999f * fRecinjc[1]));
