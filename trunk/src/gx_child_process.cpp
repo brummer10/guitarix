@@ -484,14 +484,21 @@ namespace gx_child_process
       else if(gx_engine::is_setup == 1)
       {
 	// check whether jconv is installed in PATH
-	int const jconv_ok = gx_system_call("which", "jconv");
+	int  jconv_ok = gx_system_call("which", "jconvolver");
 
 	// popup message if something goes funny
 	string warning;
+	string witch_convolver = "jconvolver";
 
-	// is jconv installed ?
-	if (jconv_ok != SYSTEM_OK)   // no jconv in PATH! :(
+	// is jconvolver installed ?
+	if (jconv_ok != SYSTEM_OK)   // no jconvolver in PATH! :(
         {
+             jconv_ok = gx_system_call("which", "jconv");
+             witch_convolver = "jconv";
+        }
+    // is jconv installed ?
+	if (jconv_ok != SYSTEM_OK)   // no jconv in PATH! :(
+	{
 	  warning +=
 	    "  WARNING [JConv]\n\n  "
 	    "  You need jconv by  Fons Adriaensen "
@@ -515,8 +522,8 @@ namespace gx_child_process
 	  else
 	  {
 
-	    string cmd("jconv ");
-	    cmd += gx_user_dir + "jconv_";
+	    string cmd(witch_convolver);
+	    cmd += " " + gx_user_dir + "jconv_";
 	    cmd += gx_preset::gx_current_preset.empty() ? "set" :
 	      gx_preset::gx_current_preset;
 	    cmd += ".conf 2> /dev/null";
@@ -525,14 +532,18 @@ namespace gx_child_process
 	    sleep (2);
 
 	    // let's fetch the pid of the new jconv process
-	    pid_t pid = gx_find_child_pid("jconv");
+	    pid_t pid = gx_find_child_pid(witch_convolver.c_str());
+
+	    string check_double(" pidof ");
+	    check_double += witch_convolver;
+	    check_double += " > /dev/null";
 
 	    // failed ?
 	    if (pid == NO_PID)
 	      warning +=
 		"  WARNING [JConv]\n\n  "
 		"  Sorry, jconv startup failed ... giving up!";
-        else if (!system(" pidof jconv > /dev/null") == 0)
+        else if (!system(check_double.c_str()) == 0)
         warning +=
 		"  WARNING [JConv]\n\n  "
 		"  Sorry, jconv startup failed ... giving up!";
@@ -575,13 +586,17 @@ namespace gx_child_process
 		}
 
 		// ---- port connection
+		string jc_port = witch_convolver +":In-1";
 		// guitarix outs to jconv ins
-		jack_connect(gx_jack::client, jack_port_name(gx_jack::output_ports[2]), "jconv:In-1");
-		jack_connect(gx_jack::client, jack_port_name(gx_jack::output_ports[3]), "jconv:In-2");
+		jack_connect(gx_jack::client, jack_port_name(gx_jack::output_ports[2]), jc_port.c_str());
+		jc_port = witch_convolver +":In-2";
+		jack_connect(gx_jack::client, jack_port_name(gx_jack::output_ports[3]), jc_port.c_str());
 
 		//  jconv to guitarix monitor
-		jack_connect(gx_jack::client, "jconv:Out-1", jack_port_name(gx_jack::input_ports[1]));
-		jack_connect(gx_jack::client, "jconv:Out-2", jack_port_name(gx_jack::input_ports[2]));
+		jc_port = witch_convolver +":Out-1";
+		jack_connect(gx_jack::client, jc_port.c_str(), jack_port_name(gx_jack::input_ports[1]));
+		jc_port = witch_convolver +":Out-2";
+		jack_connect(gx_jack::client, jc_port.c_str(), jack_port_name(gx_jack::input_ports[2]));
 
 		// jconv outs to system ins
 	/*	int i = 0;
