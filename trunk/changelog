@@ -1,3 +1,99 @@
+guitarix (0.05.4-1) unstable; urgency=low
+  * performace boost by remove float to int casts from engine
+  * reorder GUI
+     
+ -- brummer <brummer-@web.de>  Mon, 02 Dec 2009 16:20:56 +0200
+
+guitarix (0.05.3-1) unstable; urgency=low
+  * quick update to cover renaming of jconv to jconvolver
+     
+ -- brummer <brummer-@web.de>  Mon, 02 Dec 2009 16:20:56 +0200
+
+guitarix (0.05.2-1) unstable; urgency=low
+  * varios improvements
+     
+ -- brummer <brummer-@web.de>  Mon, 30 Nov 2009 13:20:56 +0200
+
+guitarix (0.05.1-1) unstable; urgency=low
+  * varios improvements
+     
+ -- brummer <brummer-@web.de>  Mon, 26 Oct 2009 08:24:42 +0200
+
+guitarix (0.05.0-1) unstable; urgency=low
+  * add keyboard shortcuts
+  * new code structure by James
+  * impruved skin handling
+  * add middle tone control
+  * reworked audio engine
+  * add bypass mode
+  * add logging window
+  * add engine state widget
+     
+ -- brummer <brummer-@web.de>  Mon, 27 Jul 2009 08:24:42 +0200
+
+guitarix (0.04.6-1) unstable; urgency=low
+  * switch to waf build system
+  * use boost libary for cmd commands
+  * varios code cleanups by James
+  * new tube model
+  * add scrollwheel controlls
+     
+ -- brummer <brummer-@web.de>  Wed, 24 Jun 2009 14:24:42 +0200
+
+guitarix (0.04.5-1) unstable; urgency=low
+  * fix wrong porthandling in dsp
+  * add latency menu by James Warden
+  * impruve  midi out
+     
+ -- brummer <brummer-@web.de>  Thu, 26 May 2009 14:24:42 +0200
+
+guitarix (0.04.4-1) unstable; urgency=low
+  * switch back to use portbuffer for midi output
+  * add some audio effect's
+  * impruve tuner and midi out
+  * add fix's for makefile/readme/changlog submit by Orcan Ogetbil 
+     
+ -- brummer <brummer-@web.de>  Wed, 21 May 2009 14:24:42 +0200
+
+guitarix (0.04.3-1) unstable; urgency=low
+  * fix denormals 
+
+ -- brummer <brummer-@web.de>  Wed, 06 Mar 2009 07:24:42 +0200
+
+guitarix (0.04.2-1) unstable; urgency=low
+  * bug fix release, fix wrong porthandling 
+  * add anti aliase unit
+
+ -- brummer <brummer-@web.de>  Tue, 05 Mar 2009 07:24:42 +0200
+
+guitarix (0.04.1-1) unstable; urgency=low
+  * bug fix (upload the wrong source, sorry)
+
+ -- brummer <brummer-@web.de>  Thu, 28 Mar 2009 07:24:42 +0200
+
+guitarix (0.04.0-1) unstable; urgency=low
+  * add more Oscilloscope modes  
+  * fix bug port_registration with jackdmp
+  * set jack_midi_port stable
+  * improve UI
+
+ -- brummer <brummer-@web.de>  Thu, 23 Mar 2009 17:24:42 +0200
+
+guitarix (0.03.9-1) unstable; urgency=low
+  * add Oscilloscope like wave view widget  
+  * fix bug in jconv gain settings
+  * set jack_midi_port to be temporarly (off by default)
+  * remove sse and fast-math flags from makefile
+
+ -- brummer <brummer-@web.de>  Thu, 26 Mar 2009 18:24:42 +0200
+
+guitarix (0.03.8-1) unstable; urgency=low
+  * add wave view and select samples widget to the jconv settings
+  * some bugfixe's, some cleanup's
+  * add auto gain correction to Overdrive
+
+ -- brummer <brummer-@web.de>  Wed, 18 Mar 2009 11:24:42 +0200
+
 guitarix (0.03.7-svn-1) unstable; urgency=low
   * make single ladspa plugins from the inbuild effects
   * new sorce structure

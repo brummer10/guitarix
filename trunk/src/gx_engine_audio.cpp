@@ -819,6 +819,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
   int iSlow21 = int((int((fSlow20 - 1)) & 4095));
   int iSlow22 = int((int(fSlow20) & 4095));
+  int iSlow40 = max(0,min(1,(fcheckbox3)));
+  int iSlow41 = max(0,min(1,(fcheckbox2)));
   int iSlow73 = int((1 + int((int((int((fConst11 * fslider18)) - 1)) & 131071))));
   int iSlow88 = int(gx_jconv::checkbox7);
   int cts = 0;
@@ -1026,7 +1028,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fVec3[0] = (fSlow28 * fRec8[0]);
           fRec7[0] = ((fVec3[0] + (fSlow29 * fRec7[1])) - fVec3[1]);
           S8[1] = fRec7[0];
-          float fTemp3 = S8[fcheckbox2];
+          float fTemp3 = S8[iSlow41];
           add_dc(fTemp3);
           S7[0] = fTemp3;
           fVec4[0] = (fSlow39 * fTemp3);
@@ -1037,7 +1039,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fRec9[0] = ((fSlow37 * (fRec10[2] + (fRec10[0] + (2 * fRec10[1])))) - (fSlow35 * ((fSlow34 * fRec9[2]) + (fSlow32 * fRec9[1]))));
           S7[1] = (fSlow35 * (fRec9[2] + (fRec9[0] + (2 * fRec9[1]))));
           add_dc(S7[1]);
-          float fTemp4 = max(-1, min(1, (fSlow43 * (fSlow42 + S7[fcheckbox3]))));
+          float fTemp4 = max(-1, min(1, (fSlow43 * (fSlow42 + S7[iSlow40]))));
           add_dc(fTemp4);
           fVec6[0] = (fTemp4 * (1 - (0.333333f * (fTemp4 * fTemp4))));
           fRec5[0] = ((fVec6[0] + (0.995f * fRec5[1])) - fVec6[1]);
@@ -1052,7 +1054,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fRec15[0] = (fRec16[0] - (fSlow37 * ((fSlow36 * fRec15[2]) + (fSlow32 * fRec15[1]))));
           fRec14[0] = ((fSlow37 * (fRec15[2] + (fRec15[0] + (2 * fRec15[1])))) - (fSlow35 * ((fSlow34 * fRec14[2]) + (fSlow32 * fRec14[1]))));
           S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
-          fVec_tone0[0] = S6[fcheckbox3];
+          fVec_tone0[0] = S6[iSlow40];
         }
       else  fVec_tone0[0] = fTemp0;   		// distortion end
 
