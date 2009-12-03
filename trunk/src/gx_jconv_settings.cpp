@@ -318,6 +318,16 @@ namespace gx_jconv
 
     }
 
+    //----- refresh jcconv settings GUI
+    void gx_reload_jcgui()
+    {
+    gtk_widget_destroy(gx_gui::jc_dialog);
+
+    gx_setting_jconv_dialog_gui(gx_gui::jc_dialog,NULL);
+
+    }
+
+
     //----- hide the jconv settings widget
     gboolean gx_delete_event( GtkWidget *widget, gpointer   data )
     {

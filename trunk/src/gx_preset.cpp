@@ -495,7 +495,6 @@ namespace gx_preset
     gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
     gx_jconv::GxJConvSettings::checkbutton7 = 0;
 
-
     gx_gui::GxMainInterface* interface = gx_gui::GxMainInterface::instance();
     interface->updateAllGuis();
 
@@ -518,7 +517,7 @@ namespace gx_preset
       gx_print_error("Preset Loading", string("Could not load preset ") + preset_name);
       return;
     }
-    gtk_widget_destroy(gx_gui::jc_dialog);
+
     // refresh main window name
     string title = string("guitarix ") + preset_name;
     gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), title.c_str());
@@ -528,7 +527,7 @@ namespace gx_preset
 
     setting_is_preset = true;
     gx_current_preset = preset_name;
-    gx_jconv::gx_setting_jconv_dialog_gui(gx_gui::jc_dialog,NULL);
+    gx_jconv::gx_reload_jcgui();
   }
 
 
@@ -600,6 +599,7 @@ namespace gx_preset
     gx_jconv::gx_save_jconv_settings(NULL, NULL);
 
     gx_print_info("Preset Saving", string("saved preset ") + string(presname));
+    gx_jconv::gx_reload_jcgui();
   }
 
   //----menu funktion save
@@ -664,6 +664,7 @@ namespace gx_preset
 
     // finally save to preset file
     gx_save_preset(presname.c_str(), true);
+    gx_jconv::gx_reload_jcgui();
   }
 
   // read name for presset
@@ -687,6 +688,7 @@ namespace gx_preset
     // recall jconv main setting
     string s = ""; // empty string = main setting
     gx_jconv::GxJConvSettings::instance()->configureJConvSettings(s);
+    gx_jconv::gx_reload_jcgui();
   }
 
   // ----- save current setting as main setting
@@ -709,6 +711,7 @@ namespace gx_preset
 
     gtk_window_set_title(GTK_WINDOW(gx_gui::fWindow), jname.c_str());
     setting_is_preset = false;
+    gx_jconv::gx_reload_jcgui();
   }
 
   //----menu function save new preset
@@ -808,6 +811,7 @@ namespace gx_preset
     gx_print_info("Preset Renaming", string("preset ") + old_preset_name +
 		  string(" renamed into ") + newname);
     old_preset_name = "";
+    gx_jconv::gx_reload_jcgui();
   }
 
   //----preset renaming dialog

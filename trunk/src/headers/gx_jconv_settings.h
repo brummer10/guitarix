@@ -53,6 +53,7 @@ namespace gx_jconv
   } GxJConvParamType;
 
   /* GUI stuff  */
+  void gx_reload_jcgui();
   void gx_show_jconv_dialog_gui (GtkWidget *, gpointer );
   void gx_setting_jconv_dialog_gui(GtkWidget*, gpointer);
   bool gx_save_jconv_settings     (GtkWidget*, gpointer);
