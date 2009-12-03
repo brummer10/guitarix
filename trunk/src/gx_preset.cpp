@@ -495,6 +495,7 @@ namespace gx_preset
     gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
     gx_jconv::GxJConvSettings::checkbutton7 = 0;
 
+
     gx_gui::GxMainInterface* interface = gx_gui::GxMainInterface::instance();
     interface->updateAllGuis();
 
@@ -517,7 +518,7 @@ namespace gx_preset
       gx_print_error("Preset Loading", string("Could not load preset ") + preset_name);
       return;
     }
-
+    gtk_widget_destroy(gx_gui::jc_dialog);
     // refresh main window name
     string title = string("guitarix ") + preset_name;
     gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), title.c_str());
@@ -527,6 +528,7 @@ namespace gx_preset
 
     setting_is_preset = true;
     gx_current_preset = preset_name;
+    gx_jconv::gx_setting_jconv_dialog_gui(gx_gui::jc_dialog,NULL);
   }
 
 
