@@ -2751,6 +2751,10 @@ namespace gx_gui
                       {
                         openHandleBox("  ");
                         {
+                          openFrameBox("");
+                          closeBox();
+                          openFrameBox("");
+                          closeBox();
                           openVerticalBox("compressor");
                           {
                             openHorizontalBox("");
@@ -2769,6 +2773,10 @@ namespace gx_gui
                             closeBox();
 
                           }
+                          closeBox();
+                          openFrameBox("");
+                          closeBox();
+                          openFrameBox("");
                           closeBox();
 
                         }
@@ -2875,9 +2883,17 @@ namespace gx_gui
                         {
                           openHandleBox("  ");
                           {
+                            openFrameBox("");
+                            closeBox();
+                            openFrameBox("");
+                            closeBox();
                             addregler("RoomSize", &engine->fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
                             addregler("damp", &engine->fslider15, 0.5f, 0.0f, 1.0f, 2.500000e-02f);
                             addregler("wet/dry", &engine->fslider14, 0.0f, -0.5f, 0.5f, 1.e-01f);
+                            openFrameBox("");
+                            closeBox();
+                            openFrameBox("");
+                            closeBox();
                           }
                           closeBox();
                         }
@@ -2910,9 +2926,17 @@ namespace gx_gui
                         {
                           openHandleBox("  ");
                           {
+                            openFrameBox("");
+                            closeBox();
+                            openFrameBox("");
+                            closeBox();
                             addregler("    freq     ", &engine->fslider21, 440.000000f, 20.000000f, 12000.000000f, 10.000000f);
                             addregler("     peak    ", &engine->fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
                             addregler("    bandwidth    ", &engine->fslider20, 100.0f, 20.0f, 20000.0f, 10.0f);
+                            openFrameBox("");
+                            closeBox();
+                            openFrameBox("");
+                            closeBox();
                           }
                           closeBox();
 
@@ -2974,6 +2998,10 @@ namespace gx_gui
                         {
                           openHandleBox("  ");
                           {
+                            openFrameBox("");
+                            closeBox();
+                            openFrameBox("");
+                            closeBox();
                             openVerticalBox("");
                             {
                               openHorizontalBox("");
@@ -2986,6 +3014,10 @@ namespace gx_gui
 
                               addminiswitch(" autowah", &engine->fautowah);
                             }
+                            closeBox();
+                            openFrameBox("");
+                            closeBox();
+                            openFrameBox("");
                             closeBox();
                           }
                           closeBox();
