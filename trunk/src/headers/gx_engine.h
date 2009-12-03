@@ -151,7 +151,7 @@ namespace gx_engine
     // tone end
 
     //float fVec0[2];
-    float fcheckbox1;
+    int fcheckbox1;
     float fslider3;
     float fRec4[2];
     float fRec3[2];
@@ -169,7 +169,7 @@ namespace gx_engine
     float fConst8;
     float fVec3[2];
     float fRec7[2];
-    float fcheckbox2;
+    int fcheckbox2;
     float fslider6;
     float fslider7;
     float fVec4[2];
@@ -178,7 +178,7 @@ namespace gx_engine
     float fRec11[2];
     float fRec10[3];
     float fRec9[3];
-    float fcheckbox3;
+    int fcheckbox3;
     float fslider8;
     float fslider9;
     float fVec6[2];
@@ -191,7 +191,7 @@ namespace gx_engine
     float fRec16[2];
     float fRec15[3];
     float fRec14[3];
-    float fcheckbox4;
+    int fcheckbox4;
     float fslider11;
     float fRec19[2];
     float fslider12;
@@ -201,7 +201,7 @@ namespace gx_engine
     float fRec20[2];
     float fRec21[2];
     float fRec18[3];
-    float fcheckbox5;
+    int fcheckbox5;
     float fslider14;
     float fslider15;
     float fRec31[2];
@@ -237,21 +237,21 @@ namespace gx_engine
     float fRec24[2];
     float fVec21[256];
     float fRec22[2];
-    float fcheckbox6;
+    int fcheckbox6;
     float fslider17;
     float fRec46[2];
     float fslider18;
     float fConst11;
     float fslider19;
     float fRec47[262144];
-    float fcheckbox7;
+    int fcheckbox7;
     float fVec22[3];
     float fslider20;
     float fslider21;
     float fConst12;
     float fslider22;
     float fRec48[3];
-    float fcheckbox8;
+    int fcheckbox8;
     float fVec23[4];
     float fslider23;
     float fRec0[6];
@@ -299,7 +299,7 @@ namespace gx_engine
     float fslider34;
     float fslider35;
     float fslider36;
-    float fcheckbox10;
+    int fcheckbox10;
     int   program1;
     int   send1;
     int   noten1;
@@ -313,7 +313,7 @@ namespace gx_engine
     float fslider42;
     float fslider43;
     float fslider44;
-    float fcheckbox11;
+    int fcheckbox11;
     int   program2;
     float fslider45;
     float midistat;
@@ -346,11 +346,11 @@ namespace gx_engine
     float fentrycom1;
     float fentrycom2;
     float fdialogbox8;
-    float fcheckboxcom1;
+    int fcheckboxcom1;
     // compressor end
 
     float drive;
-    float foverdrive4;
+    int foverdrive4;
     float fTemprec1;
     float fRecover0[2];
     float viv;
@@ -359,16 +359,16 @@ namespace gx_engine
 
     // float rms;
     float beat0;
-    float antialis0;
+    int antialis0;
     float faas1;
     float ffuzzytube;
-    float ftube;
+    int ftube;
     float fpredrive;
-    float fprdr;
+    int fprdr;
     float fautogain;
     float fautogain1;
     float fautogain2;
-    float fresoon;
+    int fresoon;
     float fvibrato;
     float fConstun0;
     float tunerfilter;
@@ -382,12 +382,12 @@ namespace gx_engine
     float fConstlog2;
     float fatan;
     float fwarn;
-    float fupsample;
+    int fupsample;
     float ffuse;
     float fthreshold;
     //float ftubemode;
 
-    float ftube3;
+    int ftube3;
     float fresotube1;
     float fresotube2;
     float fresotube3;
@@ -481,7 +481,7 @@ namespace gx_engine
     float 	fSlowgate2;
     float 	fSlowgate3;
     float 	fSlowgate4;
-    float fng;
+    int fng;
     float fsharp0;
 
     // bass booster
@@ -495,14 +495,14 @@ namespace gx_engine
     float 	fConst_boost6;
     float 	fConst_boost7;
     float 	fConst_boost8;
-    float   fboost;
+    int   fboost;
     // bass booster end
     float ngate;
-    float fnoise_g;
+    int fnoise_g;
     float fnglevel;
 
     // autowah
-    float fautowah;
+    int fautowah;
     float iVecwah0[1024];
     float iRecwah2[2];
     int IOTAWAH;
@@ -554,7 +554,7 @@ namespace gx_engine
     float 	fslider_CH2;
     float 	fConst_CH1;
     float 	fslider_CH3;
-    float fchorus;
+    int fchorus;
     float fchorusbox;
     //chorus end
     int Beat_is;
@@ -647,7 +647,7 @@ namespace gx_engine
     static float valve      (float in, float out);
     static void  over_sample(float** input, float** output, int sf);
     static void  down_sample(float** input, float** output, int sf);
-    static void  fuzzy_tube (int fuzzy, int mode, int sf,
+    static void  fuzzy_tube (float fuzzy, int mode, int sf,
 			     float** input, float** output);
     static float normalize  (float in, float atan_shape, float shape);
     static float saturate(float x, float t);
@@ -658,9 +658,9 @@ namespace gx_engine
     void  noise_gate  (int sf, float** input);
     void  noise_shaper  (int sf, float** input, float** output);
     void  AntiAlias  (int sf, float** input, float** output);
-    void  reso_tube  (int fuzzy, int sf, float reso, float vibra,
+    void  reso_tube  (float fuzzy, int sf, float reso, float vibra,
 		      float** input, float** output);
-    void  osc_tube   (int fuzzy, int sf, float reso, float vibra,
+    void  osc_tube   (float fuzzy, int sf, float reso, float vibra,
 		      float** input, float** output);
     void  preamp     (int sf, float** input, float** output,
 		      float atan_shape, float f_atan);

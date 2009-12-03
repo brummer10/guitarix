@@ -236,7 +236,7 @@ inline void GxEngine::AntiAlias (int sf, float** input, float** output)
 }
 
 // the resonace tube unit on frame base
-inline void GxEngine::reso_tube (int fuzzy, int sf, float reso, float vibra,
+inline void GxEngine::reso_tube (float fuzzy, int sf, float reso, float vibra,
                                  float** input, float** output)
 {
   float* in = input[0];
@@ -278,7 +278,7 @@ inline void GxEngine::reso_tube (int fuzzy, int sf, float reso, float vibra,
 
 
 // the oscilate tube unit on frame base
-inline void GxEngine::osc_tube (int fuzzy, int sf, float reso, float vibra,
+inline void GxEngine::osc_tube (float fuzzy, int sf, float reso, float vibra,
                                 float** input, float** output)
 {
   float* in = input[0];
@@ -342,7 +342,7 @@ inline void GxEngine::osc_tube (int fuzzy, int sf, float reso, float vibra,
 }
 
 // the tube unit on frame base, it's also the drive unit just with other variables
-inline void GxEngine::fuzzy_tube (int fuzzy, int mode, int sf,
+inline void GxEngine::fuzzy_tube (float fuzzy, int mode, int sf,
                                   float** input, float** output)
 {
   float* in = input[0];
@@ -817,40 +817,13 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   // tone end
 
 
-  int ifuzzytube = int(ffuzzytube);
-  int itube = int(ftube);
-  int iresotube3 = int(fresotube3);
-  int itube3 = int(ftube3);
-  int ipredrive = int(fpredrive);
-  int iprdr = int(fprdr);
-  int iupsample = int(fupsample);
-
-  // distortion
   int iSlow21 = int((int((fSlow20 - 1)) & 4095));
   int iSlow22 = int((int(fSlow20) & 4095));
-  int iSlow30 = int(fcheckbox2);
-  int iSlow41 = int(fcheckbox3);
-  // distortion end
-  int iSlow45 = int(fcheckbox4);
-  int iSlow65 = int(fcheckbox5);
-  int iSlow71 = int(fcheckbox6);
   int iSlow73 = int((1 + int((int((int((fConst11 * fslider18)) - 1)) & 131071))));
-  int iSlow75 = int(fcheckbox7);
-  int iSlow79 = int(fcheckbox8);
   int iSlow88 = int(gx_jconv::checkbox7);
-  int icheckboxcom1 = int(fcheckboxcom1);
-  int icheckbox1 = int(fcheckbox1);
-  int ioverdrive4 = int(foverdrive4);
   int cts = 0;
-  int ifuse = ffuse;
+  int ifuse = int(ffuse);
   int tuner_on = gx_gui::shownote + (int)dsp::isMidiOn() + 1;
-  int ing = int(fng);
-  int iboost = int(fboost);
-  int inoise_g = int(fnoise_g);
-  // autowah
-  int iautowah = int(fautowah);
-  //chorus
-  int ichorus = fchorus;
   int 	iSlowdel0 = int((int((fConstdel0 * fsliderdel0)) & 262143));
   int 	iSlowdel1 = int((int((fConstdel0 * fsliderdel1)) & 262143));
 
@@ -866,20 +839,20 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
 
   // run pre_funktions on frame base
-  if (inoise_g) noise_gate (count,input);
+  if (fnoise_g) noise_gate (count,input);
   else ngate = 1;
-  if (ing) noise_shaper(count,input,input);
+  if (fng) noise_shaper(count,input,input);
 
 
   // 2*oversample
-  if (iupsample)
+  if (fupsample)
     {
       over_sample(input,&oversample,count);
 
       // if (ing)  noise_gate(count*2,&oversample,&oversample);
-      if (itube)    fuzzy_tube(ifuzzytube, 0,count*2,&oversample,&oversample);
-      if (itube3)   reso_tube(iresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
-      if (iprdr)    fuzzy_tube(ipredrive, 1,count*2,&oversample,&oversample);
+      if (ftube)    fuzzy_tube(ffuzzytube, 0,count*2,&oversample,&oversample);
+      if (ftube3)   reso_tube(fresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
+      if (fprdr)    fuzzy_tube(fpredrive, 1,count*2,&oversample,&oversample);
       if (antialis0)  AntiAlias(count*2,&oversample,&oversample);
       down_sample(&oversample,input,count);
     }
@@ -888,9 +861,9 @@ void GxEngine::process_buffers(int count, float** input, float** output)
     {
 
       //if (ing)  noise_gate(count,input,input);
-      if (itube)    fuzzy_tube(ifuzzytube, 0,count,input,input);
-      if (itube3)   osc_tube(iresotube3,count,f_resotube1, f_resotube2,input,input);
-      if (iprdr)    fuzzy_tube(ipredrive, 1,count,input,input);
+      if (ftube)    fuzzy_tube(ffuzzytube, 0,count,input,input);
+      if (ftube3)   osc_tube(fresotube3,count,f_resotube1, f_resotube2,input,input);
+      if (fprdr)    fuzzy_tube(fpredrive, 1,count,input,input);
       if (antialis0)  AntiAlias(count,input,input);
     }
 
@@ -955,10 +928,10 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           gx_gui::shownote = -1;
         }
 
-      if (iSlow65)    //crybaby
+      if (fcheckbox5)    //crybaby
         {
 
-          if (iautowah)
+          if (fautowah)
             {
               //float fTempw0 = (fTemp0*0.001);
               //fTempw0 = (fTempw0*1000);
@@ -989,7 +962,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
         }                                     //crybaby ende
 
 
-      if (icheckboxcom1)     // compressor
+      if (fcheckboxcom1)     // compressor
         {
           add_dc(fTemp0);
           float fTempcom0 = fTemp0;
@@ -1012,7 +985,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
       fTemp0 = (fRec4[0] * fTemp0);
 
-      if (icheckbox1)     // preamp
+      if (fcheckbox1)     // preamp
         {
           float  fTemp0in = (fTemp0-0.15*(fTemp0*fTemp0))-(0.15*(fTemp0*fTemp0*fTemp0));
           fTemp0 = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
@@ -1029,7 +1002,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fTemp0 = fRec3[0];
         }
 
-      if (ioverdrive4)     // overdrive
+      if (foverdrive4)     // overdrive
         {
           //float fTempdr0 = fTemp0;
           float fTempdr1 = fabs(fTemp0);
@@ -1038,7 +1011,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
         }
 
-      if (iSlow45)     // distortion
+      if (fcheckbox4)     // distortion
         {
           float 	S6[2];
           float 	S7[2];
@@ -1053,7 +1026,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fVec3[0] = (fSlow28 * fRec8[0]);
           fRec7[0] = ((fVec3[0] + (fSlow29 * fRec7[1])) - fVec3[1]);
           S8[1] = fRec7[0];
-          float fTemp3 = S8[iSlow30];
+          float fTemp3 = S8[fcheckbox2];
           add_dc(fTemp3);
           S7[0] = fTemp3;
           fVec4[0] = (fSlow39 * fTemp3);
@@ -1064,7 +1037,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fRec9[0] = ((fSlow37 * (fRec10[2] + (fRec10[0] + (2 * fRec10[1])))) - (fSlow35 * ((fSlow34 * fRec9[2]) + (fSlow32 * fRec9[1]))));
           S7[1] = (fSlow35 * (fRec9[2] + (fRec9[0] + (2 * fRec9[1]))));
           add_dc(S7[1]);
-          float fTemp4 = max(-1, min(1, (fSlow43 * (fSlow42 + S7[iSlow41]))));
+          float fTemp4 = max(-1, min(1, (fSlow43 * (fSlow42 + S7[fcheckbox3]))));
           add_dc(fTemp4);
           fVec6[0] = (fTemp4 * (1 - (0.333333f * (fTemp4 * fTemp4))));
           fRec5[0] = ((fVec6[0] + (0.995f * fRec5[1])) - fVec6[1]);
@@ -1079,7 +1052,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fRec15[0] = (fRec16[0] - (fSlow37 * ((fSlow36 * fRec15[2]) + (fSlow32 * fRec15[1]))));
           fRec14[0] = ((fSlow37 * (fRec15[2] + (fRec15[0] + (2 * fRec15[1])))) - (fSlow35 * ((fSlow34 * fRec14[2]) + (fSlow32 * fRec14[1]))));
           S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
-          fVec_tone0[0] = S6[iSlow41];
+          fVec_tone0[0] = S6[fcheckbox3];
         }
       else  fVec_tone0[0] = fTemp0;   		// distortion end
 
@@ -1092,7 +1065,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
       fTemp0 = fRec_tone0[0];
 
-      if (iSlow71)     //freeverb
+      if (fcheckbox6)     //freeverb
         {
           float fTemp9 = (1.500000e-02f * fTemp0);
           fRec31[0] = ((fSlow69 * fRec30[1]) + (fSlow68 * fRec31[1]));
@@ -1139,7 +1112,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fTemp0 =  (fRec46[0] * fTemp0);
 
       // bass booster
-      if (iboost)
+      if (fboost)
         {
           fRec_boost0[0] = (fTemp0 - (fConst_boost4 * ((fConst_boost3 * fRec_boost0[2]) + (fConst_boost2 * fRec_boost0[1]))));
           fTemp0 = (fConst_boost4 * (((fConst_boost8 * fRec_boost0[0]) + (fConst_boost7 * fRec_boost0[1])) + (fConst_boost6 * fRec_boost0[2])));
@@ -1147,13 +1120,13 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
 
 
-      if (iSlow75)    //echo
+      if (fcheckbox7)    //echo
         {
           fRec47[IOTA&262143] = (fTemp0 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
           fTemp0 = fRec47[(IOTA-0)&262143];
         }                                     //echo ende
 
-      if (iSlow79)     //impulseResponse
+      if (fcheckbox8)     //impulseResponse
         {
           fVec22[0] = fTemp0;
           fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
@@ -1185,7 +1158,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       out_to_2 = fRec0[0];
 
       // stereo chorus
-      if (ichorus)
+      if (fchorus)
         { // left channel
           fVec_CH0[IOTA_CH&65535] = out_to_1;
           float fTemp_CH1 = (fSlow_CH0 + fRec_CH0[1]);

@@ -242,7 +242,7 @@ void GxEngine::process_midi(int len)
                     }
 
                   // channel1
-                  if (fcheckbox10 == 1.0)
+                  if (fcheckbox10)
                     {
                       if (program1 != iTemps36)
                         {
@@ -324,7 +324,7 @@ void GxEngine::process_midi(int len)
                         }
                     }
 
-                  if (fcheckbox11 == 1.0)
+                  if (fcheckbox11)
                     {
                       if (program2 != iTemps43)
                         {
