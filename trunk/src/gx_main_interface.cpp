@@ -907,11 +907,11 @@ namespace gx_gui
     // -------------------------- Horizontal Slider -----------------------------------
 
 
-    void GxMainInterface::addHorizontalSlider(const char* label, float* zone, float init, float min, float max, float step)
+    void GxMainInterface::addHorizontalSlider(const char* label, int* zone, float init, float min, float max, float step)
     {
       *zone = init;
       GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
-      uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+      uiAdjustment* c = new uiAdjustment(this,(float*) zone, GTK_ADJUSTMENT(adj));
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_mini_slider_new_with_adjustment (GTK_ADJUSTMENT(adj));
