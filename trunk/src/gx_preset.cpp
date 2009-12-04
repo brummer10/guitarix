@@ -191,8 +191,8 @@ namespace gx_preset
 	// refresh acc path for this item
 	guint accel_key = GDK_1 + n - 1;
 
-	gtk_widget_add_accelerator (menu_widget, "activate", gx_gui::GxMainInterface::instance()->fAccelGroup,
-                              accel_key, list_mod[i], GTK_ACCEL_VISIBLE);
+	gtk_widget_add_accelerator (GTK_WIDGET(item), "activate", gx_gui::GxMainInterface::instance()->fAccelGroup,
+                              accel_key, list_mod[n], GTK_ACCEL_VISIBLE);
 
 	/*acc_path = gtk_menu_get_accel_path(GTK_MENU(presmenu[i]));
 	acc_path += "/";
