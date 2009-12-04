@@ -31,6 +31,8 @@
 #include <sstream>
 #include <fstream>
 #include <cmath>
+#include <sys/types.h>
+#include <signal.h>
 
 using namespace std;
 

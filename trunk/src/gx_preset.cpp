@@ -118,17 +118,19 @@ namespace gx_preset
 
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
-    string acc_path = gtk_menu_get_accel_path(GTK_MENU(menu));
-    acc_path += "/";
-    acc_path += gx_i2a(accel_key);
+   // string acc_path = gtk_menu_get_accel_path(GTK_MENU(menu));
+   // acc_path += "/";
+   // acc_path += gx_i2a(accel_key);
 
     // add accelerator in accel path if not added (up to pos = 9)
     if (pos < 10) {
-      if (!gtk_accel_map_lookup_entry(acc_path.c_str(), NULL))
-	gtk_accel_map_add_entry(acc_path.c_str(), accel_key, list_mod[lindex]);
+        gtk_widget_add_accelerator (menuitem, "activate", gx_gui::GxMainInterface::instance()->fAccelGroup,
+                              accel_key, list_mod[lindex], GTK_ACCEL_VISIBLE);
+    //  if (!gtk_accel_map_lookup_entry(acc_path.c_str(), NULL))
+	//gtk_accel_map_add_entry(acc_path.c_str(), accel_key, list_mod[lindex]);
 
-      gtk_widget_set_accel_path(menuitem, acc_path.c_str(),
-				gx_gui::GxMainInterface::instance()->fAccelGroup);
+      //gtk_widget_set_accel_path(menuitem, acc_path.c_str(),
+		//		gx_gui::GxMainInterface::instance()->fAccelGroup);
     }
 
     gtk_widget_show (menuitem);
@@ -188,11 +190,15 @@ namespace gx_preset
 
 	// refresh acc path for this item
 	guint accel_key = GDK_1 + n - 1;
-	acc_path = gtk_menu_get_accel_path(GTK_MENU(presmenu[i]));
+
+	gtk_widget_add_accelerator (menu_widget, "activate", gx_gui::GxMainInterface::instance()->fAccelGroup,
+                              accel_key, list_mod[i], GTK_ACCEL_VISIBLE);
+
+	/*acc_path = gtk_menu_get_accel_path(GTK_MENU(presmenu[i]));
 	acc_path += "/";
 	acc_path += gx_i2a(accel_key);
 	gtk_widget_set_accel_path(GTK_WIDGET(item), acc_path.c_str(),
-				  gx_gui::GxMainInterface::instance()->fAccelGroup);
+				  gx_gui::GxMainInterface::instance()->fAccelGroup);*/
 
 	n++;
       }

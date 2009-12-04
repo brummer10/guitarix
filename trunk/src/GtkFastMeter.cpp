@@ -363,7 +363,7 @@ void gtk_fast_meter_set(GtkFastMeter* fm, float lvl)
       fm->hold_state == 0)
     return;
 
-  GdkWindow* window = gtk_widget_get_window(GTK_WIDGET(fm));
+  GdkWindow* window = GTK_WIDGET(fm)->window;/*gtk_widget_get_window(GTK_WIDGET(fm));*/;
   if (window == 0)
     {
       gtk_widget_queue_draw(GTK_WIDGET(fm));
@@ -425,7 +425,7 @@ gboolean vertical_expose (GtkFastMeter* fm, GdkEventExpose* ev)
 
   if (gdk_rectangle_intersect (&background, &ev->area, &intersection))
     {
-      GdkWindow* window = gtk_widget_get_window(GTK_WIDGET(fm));
+      GdkWindow* window = GTK_WIDGET(fm)->window;/*gtk_widget_get_window(GTK_WIDGET(fm));*/
       GtkStyle*  style  = gtk_widget_get_style (GTK_WIDGET(fm));
 
       gdk_draw_rectangle(GDK_DRAWABLE(window),
@@ -441,7 +441,7 @@ gboolean vertical_expose (GtkFastMeter* fm, GdkEventExpose* ev)
     {
       // draw the part of the meter image that we need.
       // the area we draw is bounded "in reverse" (top->bottom)
-      GdkWindow*   window = gtk_widget_get_window(GTK_WIDGET(fm));
+      GdkWindow*   window = GTK_WIDGET(fm)->window;/*gtk_widget_get_window(GTK_WIDGET(fm));*/
       GtkStyle*    style  = gtk_widget_get_style (GTK_WIDGET(fm));
 
       gdk_draw_pixbuf(GDK_DRAWABLE(window),
