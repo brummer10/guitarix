@@ -773,11 +773,18 @@ namespace gx_jconv
     // --------------- IR file processing
     void gx_select_and_draw_jconv_ir(GtkWidget* widget, gpointer obj )
     {
+        // get the chosen file from the file chooser
+      gchar * _file   = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(widget));
+      // return when file is empty
+      if (!_file){
+         g_free(_file);
+       return;
+      }
       GxJConvSettings* jcset = GxJConvSettings::instance();
       GtkWidget *combo = (GtkWidget *)obj;
 
-      // get the chosen file from the file chooser
-      string file   = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(widget));
+      string file = _file;
+      g_free(_file);
       string folder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER(widget));
 
       if (!file.empty())
