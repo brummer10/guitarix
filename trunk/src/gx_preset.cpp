@@ -48,6 +48,38 @@ using namespace gx_system;
 namespace gx_preset
   {
 
+    /* get the accel path to connect the mnemonic key on the fly
+       this is a replacement for gtk_widget_get_accel_path()
+       witch is not avaluable in <= Gtk+2.12 */
+    string gx_get_accel_path(int lindex)
+    {
+
+      // set accel_path
+      string label  ;
+      switch (lindex)
+        {
+        case 0:
+          label = "Load";
+          break;
+        case 1:
+          label = "Save";
+          break;
+        case 2:
+          label = "Rename";
+          break;
+        case 3:
+          label = "Delete";
+          break;
+
+        }
+      //string acc_path = gtk_menu_get_accel_path(GTK_MENU(menu));
+      string acc_path = "<guitarix>/";
+      acc_path += label;
+      acc_path += "/";
+
+      return acc_path;
+    }
+
     //---- parsing preset file to build up a string vector of preset names
     void gx_build_preset_list()
     {
@@ -105,12 +137,14 @@ namespace gx_preset
       // index for keyboard shortcut (can take any list)
       int pos = preset_list[lindex].size() + 1;
 
+
+
       // add small mnemonic
       string name("_");
       name += gx_i2a(pos) + "  ";
       name += presname;
 
-      // GDK numbers
+        // GDK numbers
       guint accel_key = GDK_1  + pos - 1;
 
       // create item
@@ -121,28 +155,8 @@ namespace gx_preset
 
       gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
-      // set accel_path
-      string label  ;
-      switch (lindex)
-        {
-        case 0:
-          label = "Load";
-          break;
-        case 1:
-          label = "Save";
-          break;
-        case 2:
-          label = "Rename";
-          break;
-        case 3:
-          label = "Delete";
-          break;
-
-        }
-      //string acc_path = gtk_menu_get_accel_path(GTK_MENU(menu));
-      string acc_path = "<guitarix>/";
-      acc_path += label;
-      acc_path += "/";
+      // get accel_path for menuitem
+      string acc_path = gx_get_accel_path(lindex);
       acc_path += gx_i2a(accel_key);
 
       if (pos < 10)
@@ -216,34 +230,20 @@ namespace gx_preset
               gtk_label_set_text_with_mnemonic(GTK_LABEL(menu_widget),label.c_str());
 
 
-              // refresh acc path for this item
+              // refresh acc key for this item
               guint accel_key = GDK_1 + n - 1;
 
-              // set acc path
-              string mlabel  ;
-              switch (i)
-                {
-                case 0:
-                  mlabel = "Load";
-                  break;
-                case 1:
-                  mlabel = "Save";
-                  break;
-                case 2:
-                  mlabel = "Rename";
-                  break;
-                case 3:
-                  mlabel = "Delete";
-                  break;
-
-                }
-
-              //string acc_path = gtk_menu_get_accel_path(GTK_MENU(menu));
-              string acc_path = "<guitarix>/";
-              acc_path += mlabel;
-              acc_path += "/";
+              // get accel_path for menuitem
+              string acc_path = gx_get_accel_path(i);
               acc_path += gx_i2a(accel_key);
 
+              if (n < 10)
+              {
+              if (!gtk_accel_map_lookup_entry(acc_path.c_str(), NULL))
+              gtk_accel_map_add_entry(acc_path.c_str(), accel_key, list_mod[i]);
+              }
+
+              // connect acc key with menuitem and group
               gtk_widget_set_accel_path(GTK_WIDGET(item), acc_path.c_str(),
                                         gx_gui::GxMainInterface::instance()->fAccelGroup);
 

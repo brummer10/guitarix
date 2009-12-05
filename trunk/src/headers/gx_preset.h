@@ -22,54 +22,56 @@
 #pragma once
 
 // number of preset action lists, can expand to 4 if required
-#define GX_NUM_OF_PRESET_LISTS (3) 
+#define GX_NUM_OF_PRESET_LISTS (3)
 
 // preset action index
 #define LOAD_PRESET_LIST   (0)
 #define SAVE_PRESET_LIST   (1)
 #define RENAME_PRESET_LIST (2)
 #define DELETE_PRESET_LIST (3)
-    
+
 namespace gx_preset
 {
   /* function declarations */
+  string gx_get_accel_path(int lindex);
+
   void  gx_build_preset_list();
-    
+
   void  gx_save_newpreset_dialog (GtkMenuItem*, gpointer);
   void  gx_save_newpreset (GtkEntry*);
   void  gx_save_preset (const gchar*, bool);
   void  gx_save_oldpreset (GtkMenuItem*, gpointer);
-    
+
   void  gx_load_preset (GtkMenuItem*, gpointer);
   void  gx_recall_main_setting(GtkMenuItem*, gpointer);
   void  gx_save_main_setting(GtkMenuItem*, gpointer);
-    
+
   void  gx_rename_preset (GtkEntry*);
   void  gx_rename_preset_dialog (GtkMenuItem*, gpointer);
   void  gx_rename_active_preset_dialog(GtkWidget*, gpointer);
-    
+
   void  gx_delete_preset(GtkMenuItem*, gpointer);
   void  gx_delete_preset_dialog (GtkMenuItem*, gpointer);
   void  gx_delete_active_preset_dialog(GtkWidget*, gpointer);
-    
+
   void  gx_delete_all_presets_dialog(GtkMenuItem*, gpointer);
   void  gx_delete_all_presets();
-    
+
   void  gx_add_preset_to_menus(const string&);
   void  gx_add_single_preset_menu_item(const string&,
 				       const gint,
 				       GCallback);
-    
+
   void  gx_del_single_preset_menu_item(const string&,
 				       const gint);
   void  gx_del_preset_from_menus(const string&);
   void  gx_refresh_preset_menus();
   void  gx_cleanup_preset_name(string& presname);
-    
+
   void  gx_next_preset(GtkWidget*, gpointer);
   void  gx_previous_preset(GtkWidget*, gpointer);
-    
+
   GtkMenuItem* const gx_get_preset_item_from_name(int, const string&);
-  
+
   /* --------------------------------------------------------------------- */
 } /* end of gx_preset namespace */
