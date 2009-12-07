@@ -936,7 +936,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
 for (int m=0; m<7; m++)
     {
-      if ((fcheckbox5) &&(posit5==m))   //crybaby
+      if ((fcheckbox5) &&(posit0==m))   //crybaby
         {
 
           if (fautowah)
@@ -969,7 +969,7 @@ for (int m=0; m<7; m++)
             }
         }                                     //crybaby ende
 
-      if(posit0==m)
+      if(posit5==m)
       {
       if (fcheckboxcom1)     // compressor
         {

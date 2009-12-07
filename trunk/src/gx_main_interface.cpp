@@ -394,7 +394,6 @@ namespace gx_gui
           GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
           GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
           GValue  pos = {0};
-
           g_value_init (&pos, G_TYPE_INT);
 
           gtk_container_child_get_property(GTK_CONTAINER(parent),GTK_WIDGET(box),"position", &pos);
@@ -412,8 +411,11 @@ namespace gx_gui
               ((gx_ui::GxUiItem*)data)->modifyZone(per+1);
               gtk_button_clicked(GTK_BUTTON(obibi));
 
-
               g_list_free(child_list);
+              ostringstream s;
+              s.str(""); s << "Move Effekt " << per << "to" << per+1;
+
+              gx_print_info("Move", s.str());
             }
 
         }
@@ -424,9 +426,7 @@ namespace gx_gui
           GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(widget));
           GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
           GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
-
           GValue  pos = {0};
-
           g_value_init (&pos, G_TYPE_INT);
 
           gtk_container_child_get_property(GTK_CONTAINER(parent),GTK_WIDGET(box),"position", &pos);
@@ -443,9 +443,13 @@ namespace gx_gui
               gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per -1);
               ((gx_ui::GxUiItem*)data)->modifyZone(per-1);
               gtk_button_clicked(GTK_BUTTON(obibi));
-
-
+gx_update_all_gui (NULL);
               g_list_free(child_list);
+
+              ostringstream s;
+              s.str(""); s << "Move Effekt " << per << "to" << per-1;
+
+              gx_print_info("Move", s.str());
             }
 
 
@@ -457,7 +461,6 @@ namespace gx_gui
           GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
           GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
           GValue  pos = {0};
-
           g_value_init (&pos, G_TYPE_INT);
 
           gtk_container_child_get_property(GTK_CONTAINER(parent),GTK_WIDGET(box),"position", &pos);
@@ -465,6 +468,7 @@ namespace gx_gui
           gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per);
 
           ((gx_ui::GxUiItem*)data)->modifyZone(per);
+
         }
         // set the init order
         virtual void reflectZone()
@@ -480,7 +484,6 @@ namespace gx_gui
           GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(fButton));
           GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
           GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
-
 
           gtk_container_child_set_property(GTK_CONTAINER(parent),GTK_WIDGET(box),"position", &pos);
           guint per = g_value_get_int(&pos);
@@ -2911,7 +2914,7 @@ namespace gx_gui
                   //  openFrameBox("");
                   //  closeBox();
                   //----- the compressor
-                  openHorizontalOrderBox("", &engine->posit0);
+                  openHorizontalOrderBox("", &engine->posit5);
                   {
                     openVerticalBox("compressor");
                     {
@@ -3145,7 +3148,7 @@ namespace gx_gui
 
 
 
-                    openHorizontalOrderBox("", &engine->posit5);
+                    openHorizontalOrderBox("", &engine->posit0);
                     {
 
                       //----- crybaby

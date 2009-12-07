@@ -518,14 +518,14 @@ namespace gx_engine
     fsliderdel1 = 0.0f;
     fdialogboxj = 0.0f;
     fjc_ingain1 = 0.0f;
-    posit0 = 0;
+    posit0 = 5;
     posit1 = 1;
     posit2 = 2;
     posit3 = 3;
     posit4 = 4;
-    posit5 = 5;
+    posit5 = 0;
     posit6 = 6;
-    posit7 = 7;
+    posit7 = 7;  //unused
 
     // end engine init
   }
