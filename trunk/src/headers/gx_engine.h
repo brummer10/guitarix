@@ -383,7 +383,7 @@ namespace gx_engine
     float fatan;
     float fwarn;
     int fupsample;
-    int ffuse;
+    float ffuse;
     float fthreshold;
     //float ftubemode;
 
