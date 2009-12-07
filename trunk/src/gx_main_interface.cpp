@@ -412,10 +412,6 @@ namespace gx_gui
               gtk_button_clicked(GTK_BUTTON(obibi));
 
               g_list_free(child_list);
-              ostringstream s;
-              s.str(""); s << "Move Effekt " << per << "to" << per+1;
-
-              gx_print_info("Move", s.str());
             }
 
         }
@@ -443,13 +439,8 @@ namespace gx_gui
               gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per -1);
               ((gx_ui::GxUiItem*)data)->modifyZone(per-1);
               gtk_button_clicked(GTK_BUTTON(obibi));
-gx_update_all_gui (NULL);
+
               g_list_free(child_list);
-
-              ostringstream s;
-              s.str(""); s << "Move Effekt " << per << "to" << per-1;
-
-              gx_print_info("Move", s.str());
             }
 
 
@@ -468,7 +459,6 @@ gx_update_all_gui (NULL);
           gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per);
 
           ((gx_ui::GxUiItem*)data)->modifyZone(per);
-
         }
         // set the init order
         virtual void reflectZone()
