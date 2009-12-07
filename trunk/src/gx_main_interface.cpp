@@ -402,16 +402,17 @@ namespace gx_gui
           if (per<6)
             {
               GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
-              gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per +1);
-
               GtkWidget *obi = (GtkWidget *) g_list_nth_data(child_list,per+1);
               child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
               GtkWidget *obib = (GtkWidget *) g_list_nth_data(child_list,0);
               child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
               GtkWidget *obibi = (GtkWidget *) g_list_nth_data(child_list,0);
+
+              gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per +1);
+              ((gx_ui::GxUiItem*)data)->modifyZone(per+1);
               gtk_button_clicked(GTK_BUTTON(obibi));
 
-              ((gx_ui::GxUiItem*)data)->modifyZone(per+1);
+
               g_list_free(child_list);
             }
 
@@ -419,7 +420,7 @@ namespace gx_gui
         // box move to the left
         static void pressed_left( GtkWidget *widget, gpointer   data )
         {
-            gx_engine::GxEngine* engine = gx_engine::GxEngine::instance();
+
           GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(widget));
           GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
           GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
@@ -434,19 +435,19 @@ namespace gx_gui
             {
               GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
               GtkWidget *obi = (GtkWidget *) g_list_nth_data(child_list,per-1);
-              gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per -1);
-
               child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
               GtkWidget *obib = (GtkWidget *) g_list_nth_data(child_list,0);
               child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
               GtkWidget *obibi = (GtkWidget *) g_list_nth_data(child_list,1);
+
+              gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per -1);
+              ((gx_ui::GxUiItem*)data)->modifyZone(per-1);
               gtk_button_clicked(GTK_BUTTON(obibi));
 
-              ((gx_ui::GxUiItem*)data)->modifyZone(per-1);
+
               g_list_free(child_list);
             }
-            ostringstream s; s << "move " << engine->posit0 << "";
-          gx_print_info("PluginMove", s.str().c_str());
+
 
         }
         // save order for neigbor box
