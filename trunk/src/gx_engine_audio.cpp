@@ -827,7 +827,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   int iSlow73 = int((1 + int((int((int((fConst11 * fslider18)) - 1)) & 131071))));
   int iSlow88 = int(gx_jconv::checkbox7);
   int cts = 0;
-  //int ifuse = int(ffuse);
+  int ifuse = int(ffuse);
   int tuner_on = gx_gui::shownote + (int)dsp::isMidiOn() + 1;
   int 	iSlowdel0 = int((int((fConstdel0 * fsliderdel0)) & 262143));
   int 	iSlowdel1 = int((int((fConstdel0 * fsliderdel1)) & 262143));
@@ -1160,7 +1160,7 @@ for (int m=0; m<7; m++)
       fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]))*ngate;
 
       // switch between hard_cut or foldback distortion, or plain output
-      switch (ffuse)
+      switch (ifuse)
         {
         case 0:
           break;
