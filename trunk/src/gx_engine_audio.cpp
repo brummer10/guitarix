@@ -992,6 +992,7 @@ for (int m=0; m<7; m++)
 
       if (m==0)
       {
+      add_dc(fTemp0);
       // gain in
       fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
       fTemp0 = (fRec4[0] * fTemp0);
@@ -1071,6 +1072,7 @@ for (int m=0; m<7; m++)
 
       if (m==0)
       {
+      add_dc(fTemp0);
       // tone
       fVec_tone0[0] = fTemp0;
       fRec_tone3[0] = (fSlow_tone32 * ((fSlow_tone21 * ((fSlow_tone31 * fVec_tone0[2]) + ((fSlow_tone30 * fVec_tone0[0]) + (fSlow_tone28 * fVec_tone0[1])))) - ((fSlow_tone27 * fRec_tone3[2]) + (fSlow_tone24 * fRec_tone3[1]))));
@@ -1130,7 +1132,7 @@ for (int m=0; m<7; m++)
       // gain out
       fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
       fTemp0 =  (fRec46[0] * fTemp0);
-
+      add_dc(fTemp0);
       // bass booster
       if (fboost)
         {
