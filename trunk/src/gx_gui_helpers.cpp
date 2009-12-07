@@ -704,7 +704,8 @@ namespace gx_gui
 	gtk_widget_show(GTK_WIDGET(data));
 	gint root_x, root_y;
 	gtk_window_get_position (GTK_WINDOW(data), &root_x, &root_y);
-	root_y -= 120;
+	if(root_y>120)root_y -= 120;
+	else root_y +=120;
 	gtk_window_move(GTK_WINDOW(data), root_x, root_y);
       }
 

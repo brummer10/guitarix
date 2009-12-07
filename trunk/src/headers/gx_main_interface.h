@@ -129,6 +129,7 @@ namespace gx_gui
     void createPortMapWindow(const char* label = "");
 
     // -- layout groups
+    virtual void openHorizontalOrderBox(const char* label,  float* posit);
     virtual void openFrameBox(const char* label);
     virtual void openHorizontalBox(const char* label = "");
     virtual void openVerticalBox(const char* label = "");

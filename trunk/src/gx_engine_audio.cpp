@@ -757,7 +757,10 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   float 	fSlow_CH3 = fslider_CH3;
 
   float fSlowinjc = (9.999871e-04f * powf(10, (5.000000e-02f * fjc_ingain)));
+  float fSlowinjcr = (9.999871e-04f * powf(10, (5.000000e-02f * fjc_ingain1)));
 
+  float out_to_1 = fRec0[0];
+  float out_to_2 = fRec0[0];
 
   //----- tone only reset when value have change
   fslider_tone_check1 = (fslider_tone1+fslider_tone0+fslider_tone2)*100;
@@ -874,7 +877,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   float* output1 = output[0];
   float* output2 = output[3];
   float* output3 = output[1];
-  register float fTemp0 = input0[0];
+  register  float fTemp0 = input0[0];
+
   // start the inner loop count = jack_frame
   for (int i=0; i<count; i++)
     {
@@ -930,7 +934,9 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           gx_gui::shownote = -1;
         }
 
-      if (fcheckbox5)    //crybaby
+for (int m=0; m<7; m++)
+    {
+      if ((fcheckbox5) &&(posit5==m))   //crybaby
         {
 
           if (fautowah)
@@ -963,7 +969,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
             }
         }                                     //crybaby ende
 
-
+      if(posit0==m)
+      {
       if (fcheckboxcom1)     // compressor
         {
           add_dc(fTemp0);
@@ -981,8 +988,10 @@ void GxEngine::process_buffers(int count, float** input, float** output)
         }
       else  add_dc(fTemp0);
       // compressor end
+      }
 
-
+      if (m==0)
+      {
       // gain in
       fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
       fTemp0 = (fRec4[0] * fTemp0);
@@ -1003,8 +1012,9 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fRec3[0] = hard_cut (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])),0.7);  //resonanz 1.76f
           fTemp0 = fRec3[0];
         }
+      }
 
-      if (foverdrive4)     // overdrive
+      if ((foverdrive4) &&(posit1==m))     // overdrive
         {
           //float fTempdr0 = fTemp0;
           float fTempdr1 = fabs(fTemp0);
@@ -1013,7 +1023,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
         }
 
-      if (fcheckbox4)     // distortion
+      if ((fcheckbox4)&&(posit2==m))      // distortion
         {
           float 	S6[2];
           float 	S7[2];
@@ -1054,11 +1064,15 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fRec15[0] = (fRec16[0] - (fSlow37 * ((fSlow36 * fRec15[2]) + (fSlow32 * fRec15[1]))));
           fRec14[0] = ((fSlow37 * (fRec15[2] + (fRec15[0] + (2 * fRec15[1])))) - (fSlow35 * ((fSlow34 * fRec14[2]) + (fSlow32 * fRec14[1]))));
           S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
-          fVec_tone0[0] = S6[iSlow40];
-        }
-      else  fVec_tone0[0] = fTemp0;   		// distortion end
+          fTemp0 = S6[iSlow40];
 
+        }
+      //else if (m==0)   		// distortion end
+
+      if (m==0)
+      {
       // tone
+      fVec_tone0[0] = fTemp0;
       fRec_tone3[0] = (fSlow_tone32 * ((fSlow_tone21 * ((fSlow_tone31 * fVec_tone0[2]) + ((fSlow_tone30 * fVec_tone0[0]) + (fSlow_tone28 * fVec_tone0[1])))) - ((fSlow_tone27 * fRec_tone3[2]) + (fSlow_tone24 * fRec_tone3[1]))));
       fRec_tone2[0] = (fSlow_tone37 * ((fSlow_tone7 * (((fSlow_tone36 * fRec_tone3[0]) + (fSlow_tone34 * fRec_tone3[1])) + (fSlow_tone33 * fRec_tone3[2]))) - ((fSlow_tone20 * fRec_tone2[2]) + (fSlow_tone17 * fRec_tone2[1]))));
       fRec_tone1[0] = (fSlow_tone42 * ((((fSlow_tone41 * fRec_tone2[1]) + (fSlow_tone40 * fRec_tone2[0])) + (fSlow_tone38 * fRec_tone2[2])) + (0 - ((fSlow_tone15 * fRec_tone1[2]) + (fSlow_tone10 * fRec_tone1[1])))));
@@ -1066,8 +1080,9 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       // tone end
 
       fTemp0 = fRec_tone0[0];
+      }
 
-      if (fcheckbox6)     //freeverb
+      if ((fcheckbox6) &&(posit3==m))     //freeverb
         {
           float fTemp9 = (1.500000e-02f * fTemp0);
           fRec31[0] = ((fSlow69 * fRec30[1]) + (fSlow68 * fRec31[1]));
@@ -1109,6 +1124,9 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           float 	fRec23 = (fRec22[1] - fRec25);
           fTemp0 = ((fSlow66 * (fRec23 + fTemp9)) + (fSlow67 * fTemp0));
         }
+
+      if (m==0)
+      {
       // gain out
       fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
       fTemp0 =  (fRec46[0] * fTemp0);
@@ -1119,23 +1137,25 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fRec_boost0[0] = (fTemp0 - (fConst_boost4 * ((fConst_boost3 * fRec_boost0[2]) + (fConst_boost2 * fRec_boost0[1]))));
           fTemp0 = (fConst_boost4 * (((fConst_boost8 * fRec_boost0[0]) + (fConst_boost7 * fRec_boost0[1])) + (fConst_boost6 * fRec_boost0[2])));
         }
+      }
 
 
 
-      if (fcheckbox7)    //echo
+      if ((fcheckbox7) &&(posit6==m))    //echo
         {
           fRec47[IOTA&262143] = (fTemp0 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
           fTemp0 = fRec47[(IOTA-0)&262143];
         }                                     //echo ende
 
-      if (fcheckbox8)     //impulseResponse
+      if ((fcheckbox8) &&(posit4==m))     //impulseResponse
         {
           fVec22[0] = fTemp0;
           fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
           fVec23[0] = (fRec48[0] + fVec22[0]);
         }
-      else  fVec23[0] = fTemp0;   //impulseResponse ende
-
+     // else  fVec23[0] = fTemp0;   //impulseResponse ende
+    }
+      fVec23[0] = fTemp0;
       // this is the output value from the mono process
       fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]))*ngate;
 
@@ -1207,10 +1227,11 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
        // gain to jconv
        fRecinjc[0] = (fSlowinjc + (0.999f * fRecinjc[1]));
+       fRecinjcr[0] = (fSlowinjcr + (0.999f * fRecinjcr[1]));
        // this is the left "extra" port to run jconv in bybass mode
        *output0++ = (fSlow85 * out_to_jc1* fRecinjc[0]);
        // this is the right "extra" port to run jconv in bybass mode
-       *output2++ = (fSlow90 * out_to_jc2* fRecinjc[0]);
+       *output2++ = (fSlow90 * out_to_jc2* fRecinjcr[0]);
       }
 
       // post processing
@@ -1312,6 +1333,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fRec_CH0[1] = fRec_CH0[0];
       IOTA_CH = IOTA_CH+1;
       fRecinjc[1] = fRecinjc[0];
+      fRecinjcr[1] = fRecinjcr[0];
       old_freq = fConsta4;
       IOTAdel = IOTAdel+1;
 

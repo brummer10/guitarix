@@ -573,8 +573,20 @@ namespace gx_engine
 	float 	fVec_CH1[65536];
 	float 	fVecdel1[262144];
 	float 	fsliderdel1;
-	float out_to_1;
-	float out_to_2;
+	float   fdialogboxj;
+	float fjc_ingain1;
+	float fRecinjcr[2];
+	float posit0;
+	float posit1;
+	float posit2;
+	float posit3;
+	float posit4;
+	float posit5;
+	float posit6;
+	float posit7;
+
+	//float out_to_1;
+	//float out_to_2;
 
     // private constructor
     GxEngine() {}

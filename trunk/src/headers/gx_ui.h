@@ -121,6 +121,7 @@ namespace gx_ui
     void addCallback(float* zone, GxUiCallback foo, void* data);
 
     // -- widget's layouts
+    virtual void openHorizontalOrderBox(const char* label, float* posit){};
     virtual void openFrameBox(const char* label) {};
     virtual void openHorizontalBox(const char* label) {};
     virtual void openVerticalBox(const char* label) {};

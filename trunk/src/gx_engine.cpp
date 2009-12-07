@@ -504,6 +504,7 @@ namespace gx_engine
 
     fjc_ingain = 0;
     zeroize(fRecinjc, 2);
+    zeroize(fRecinjcr, 2);
     old_freq = 0;
 
     IOTAdel = 0;
@@ -512,10 +513,19 @@ namespace gx_engine
     fConstdel0 = (1.000000e-03f * fSamplingFreq);
     zeroize(fVec_CH1,65536);
     zeroize(fVecdel1,262144);
-    out_to_1 = 0;
-    out_to_2 = 0;
+    //out_to_1 = 0;
+    //out_to_2 = 0;
     fsliderdel1 = 0.0f;
-
+    fdialogboxj = 0.0f;
+    fjc_ingain1 = 0.0f;
+    posit0 = 0;
+    posit1 = 1;
+    posit2 = 2;
+    posit3 = 3;
+    posit4 = 4;
+    posit5 = 5;
+    posit6 = 6;
+    posit7 = 7;
 
     // end engine init
   }
