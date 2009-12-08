@@ -1153,7 +1153,7 @@ for (int m=0; m<7; m++)
         {
           fVec22[0] = fTemp0;
           fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
-          fVec23[0] = (fRec48[0] + fVec22[0]);
+          fTemp0 = (fRec48[0] + fVec22[0]);
         }
      // else  fVec23[0] = fTemp0;   //impulseResponse ende
     }
