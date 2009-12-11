@@ -115,6 +115,7 @@ namespace gx_gui
 
   void gx_systray_menu            (GtkWidget*, gpointer);
   void gx_reset_units             (GtkWidget*, gpointer);
+  void gx_reset_effects           (GtkWidget*, gpointer);
   void gx_show_about              (GtkWidget*, gpointer);
 
   void gx_show_extended_settings    (GtkWidget*, gpointer);

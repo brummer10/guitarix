@@ -381,6 +381,26 @@ namespace gx_gui
         }
     }
 
+    void GxMainInterface::openHorizontalTableBox(const char* label)
+    {
+      GtkWidget * box = gtk_hbox_new (TRUE, 0);
+      gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+
+      if (fMode[fTop] != kTabMode && label[0] != 0)
+        {
+          GtkWidget * frame = addWidget(label, gtk_frame_new (label));
+          gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
+          gtk_container_add (GTK_CONTAINER(frame), box);
+          gtk_widget_show(box);
+          pushBox(kBoxMode, box);
+        }
+      else
+        {
+          pushBox(kBoxMode, addWidget(label, box));
+        }
+    }
+
+
 
     struct uiOrderButton : public gx_ui::GxUiItem
       {
@@ -486,16 +506,18 @@ namespace gx_gui
     void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
     {
       GtkWidget * box = gtk_vbox_new (homogene, 0);
-      GtkWidget * box1 = gtk_hbox_new (false, 0);
+      GtkWidget * box1 = gtk_fixed_new ();
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-      gtk_container_set_border_width (GTK_CONTAINER (box1), 15);
+      //gtk_container_set_border_width (GTK_CONTAINER (box1), 15);
 
       GtkWidget* 	button = gtk_button_new_with_label (">");
       GtkWidget* 	button1 = gtk_button_new_with_label ("<");
-      gtk_widget_set_size_request (GTK_WIDGET(button), 20.0, 15.0);
-      gtk_widget_set_size_request (GTK_WIDGET(button1), 20.0, 15.0);
+      gtk_widget_set_size_request (GTK_WIDGET(button), 20.0, 18.0);
+      gtk_widget_set_size_request (GTK_WIDGET(button1), 20.0, 18.0);
 
       uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(button));
+
+     // g_signal_connect(box, "expose-event", G_CALLBACK(box10_expose), NULL);
 
       g_signal_connect (GTK_OBJECT (button), "pressed",
                         G_CALLBACK (uiOrderButton::pressed_right), (gpointer) c);
@@ -508,11 +530,41 @@ namespace gx_gui
 
 
       gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
-      gtk_box_pack_start (GTK_BOX(box1), button1, false, fill, 0);
-      gtk_box_pack_end (GTK_BOX(box1), button, false, fill, 0);
+      gtk_fixed_put (GTK_FIXED(box1), button1, 15, 1);
+      gtk_fixed_put (GTK_FIXED(box1), button, 35, 1);
       gtk_container_add (GTK_CONTAINER(box), box1);
       gtk_widget_show(button);
       gtk_widget_show(button1);
+      gtk_widget_show(box);
+      gtk_widget_show(box1);
+      pushBox(kBoxMode, box);
+
+    }
+
+    void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
+    {
+      GtkWidget * box = gtk_vbox_new (homogene, 0);
+      GtkWidget * box1 = gtk_fixed_new ();
+      gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+      //gtk_container_set_border_width (GTK_CONTAINER (box1), 15);
+
+      GtkWidget* 	button = gtk_button_new_with_label ("reset");
+     // GtkWidget* 	button1 = gtk_button_new_with_label ("<");
+      gtk_widget_set_size_request (GTK_WIDGET(button), 45.0, 18.0);
+     // gtk_widget_set_size_request (GTK_WIDGET(button1), 20.0, 18.0);
+      uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(button));
+      g_signal_connect (GTK_OBJECT (button), "clicked",
+                        G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
+      g_signal_connect  (GTK_OBJECT (button), "pressed",
+                        G_CALLBACK (gx_reset_effects), (gpointer) c);
+
+
+      gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+     // gtk_fixed_put (GTK_FIXED(box1), button1, 15, 1);
+      gtk_fixed_put (GTK_FIXED(box1), button, 10, 1);
+      gtk_container_add (GTK_CONTAINER(box), box1);
+      gtk_widget_show(button);
+     // gtk_widget_show(button1);
       gtk_widget_show(box);
       gtk_widget_show(box1);
       pushBox(kBoxMode, box);
@@ -2579,16 +2631,13 @@ namespace gx_gui
                             closeBox();
                             openVerticalBox("");
                             {
-                              openHorizontalBox("");
+                              openHorizontalTableBox("");
                               {
                                 addregler(" left delay ", &engine->fsliderdel0,  0.f, 0.f, 5000.0f, 10.f);
                                 addregler(" right delay ", &engine->fsliderdel1,  0.f, 0.f, 5000.0f, 10.f);
-                              }
-                              closeBox();
-                              openHorizontalBox("");
-                              {
-                                addregler("left gain", &engine->fjc_ingain,  0.f, -20.f, 20.f, 0.1f);
-                                addregler("right gain", &engine->fjc_ingain1,  0.f, -20.f, 20.f, 0.1f);
+
+                                addregler(" left gain ", &engine->fjc_ingain,  0.f, -20.f, 20.f, 0.1f);
+                                addregler(" right gain ", &engine->fjc_ingain1,  0.f, -20.f, 20.f, 0.1f);
                               }
                               closeBox();
                             }
@@ -2899,7 +2948,7 @@ namespace gx_gui
 
                 //----- this box include only the effects
 
-                openHorizontalBox("");
+                openHorizontalTableBox("");
                 {
                   //  openFrameBox("");
                   //  closeBox();
@@ -3161,7 +3210,7 @@ namespace gx_gui
                               closeBox();
                               openVerticalBox("");
                               {
-                                openHorizontalBox("");
+                                openHorizontalTableBox("");
                                 {
                                   addregler("  wah   ", &engine->fslider11, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
                                   addregler("  level  ", &engine->fslider12, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
@@ -3216,6 +3265,8 @@ namespace gx_gui
 
 
                       //----- chorus
+                      openHorizontalRestetBox("", &engine->posit7);
+                    {
                       openVerticalBox("chorus");
                       {
 
@@ -3229,13 +3280,12 @@ namespace gx_gui
                             {
                               openVerticalBox("");
                               {
-                                openHorizontalBox("");
+                                openHorizontalTableBox("");
                                 {
+                                  addregler("  level  ", &engine->fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
                                   addregler("  delay  ", &engine->fslider_CH2, 2.500000e-02f, 0.0f, 0.2f, 1.000000e-03f);
                                   addregler("  depth  ", &engine->fslider_CH1, 2.000000e-02f, 0.0f, 1.0f, 1.000000e-03f);
                                   addregler("  freq  ", &engine->fslider_CH0, 3.0f, 0.0f, 10.0f, 1.000000e-02f);
-                                  addregler("  level  ", &engine->fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
-
                                 }
                                 closeBox();
                               }
@@ -3246,6 +3296,8 @@ namespace gx_gui
                           closeBox();
                         }
                         closeBox();
+                      }
+                      closeBox();
                       }
                       closeBox();
                       //end chorus

@@ -663,6 +663,13 @@ namespace gx_gui
     gx_engine::fwarn_swap = (int)gtk_toggle_button_get_active(button);
   }
 
+  void gx_reset_effects( GtkWidget *widget, gpointer data )
+  {
+    string filename = gx_user_dir + guitarix_reset;
+    GxMainInterface* interface = GxMainInterface::instance();
+    interface->recalladState(filename.c_str(),  121,  129, 7);
+  }
+
   // reset the extended sliders to default settings
   void gx_reset_units( GtkWidget *widget, gpointer data )
   {
@@ -694,6 +701,8 @@ namespace gx_gui
 
     else if (strcmp(witchres, "chorus") == 0)
       interface->recalladState(filename.c_str(),  110,  115, 6);
+    else if (strcmp(witchres, "jconv") == 0)
+      interface->recalladState(filename.c_str(),  116,  121, 8);
   }
 
   //----- show extendend settings slider
@@ -704,7 +713,7 @@ namespace gx_gui
 	gtk_widget_show(GTK_WIDGET(data));
 	gint root_x, root_y;
 	gtk_window_get_position (GTK_WINDOW(data), &root_x, &root_y);
-	if(root_y>120)root_y -= 120;
+	if(root_y>160)root_y -= 120;
 	else root_y +=120;
 	gtk_window_move(GTK_WINDOW(data), root_x, root_y);
       }

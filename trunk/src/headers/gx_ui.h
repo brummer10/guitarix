@@ -122,6 +122,8 @@ namespace gx_ui
 
     // -- widget's layouts
     virtual void openHorizontalOrderBox(const char* label, float* posit){};
+    virtual void openHorizontalTableBox(const char* label){};
+    virtual void openHorizontalRestetBox(const char* label, float* posit){};
     virtual void openFrameBox(const char* label) {};
     virtual void openHorizontalBox(const char* label) {};
     virtual void openVerticalBox(const char* label) {};

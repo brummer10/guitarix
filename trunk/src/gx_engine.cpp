@@ -516,11 +516,11 @@ namespace gx_engine
     //out_to_1 = 0;
     //out_to_2 = 0;
     fsliderdel1 = 0.0f;
-    fdialogboxj = 0.0f;
     fjc_ingain1 = 0.0f;
+    fdialogboxj = 0.0f;
     posit0 = 5;
-    posit1 = 1;
-    posit2 = 2;
+    posit1 = 2;
+    posit2 = 1;
     posit3 = 3;
     posit4 = 4;
     posit5 = 0;

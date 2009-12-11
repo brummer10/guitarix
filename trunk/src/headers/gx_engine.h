@@ -573,8 +573,9 @@ namespace gx_engine
 	float 	fVec_CH1[65536];
 	float 	fVecdel1[262144];
 	float 	fsliderdel1;
-	float   fdialogboxj;
 	float fjc_ingain1;
+	float   fdialogboxj;
+
 	float fRecinjcr[2];
 	float posit0;
 	float posit1;

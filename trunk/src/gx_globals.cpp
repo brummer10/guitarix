@@ -217,7 +217,8 @@ namespace gx_system
     "0.62 0.12 0 \n"
     "84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n"
     "-64.0 0.52 10 1.5 1.5 0 \n"
-    "0.32 0.022 0.1 0.5 \n";
+    "0.32 0.022 0.1 0.5 \n"
+    "5 2 1 3 4 0 6 7 \n";
 
   const string gx_pixmap_dir = string(GX_PIXMAPS_DIR) + "/";
   const string gx_style_dir  = string(GX_STYLE_DIR) + "/";
