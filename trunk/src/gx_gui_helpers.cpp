@@ -317,10 +317,12 @@ namespace gx_gui
 	if (gx_jack::jack_is_down)
 	  {
 	    // let's make sure we get out of here
+	    if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(wd)))
 	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 
 	    // revive existing client menus
 	    GxMainInterface::instance()->initClientPortMaps();
+
 	    return TRUE;
 	  }
       }
