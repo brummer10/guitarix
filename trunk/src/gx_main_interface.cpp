@@ -423,7 +423,7 @@ namespace gx_gui
               GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
               GtkWidget *obi = (GtkWidget *) g_list_nth_data(child_list,per+1);
               child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
-              GtkWidget *obib = (GtkWidget *) g_list_nth_data(child_list,0);
+              GtkWidget *obib = (GtkWidget *) g_list_nth_data(child_list,1);
               child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
               GtkWidget *obibi = (GtkWidget *) g_list_nth_data(child_list,0);
 
@@ -452,7 +452,7 @@ namespace gx_gui
               GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
               GtkWidget *obi = (GtkWidget *) g_list_nth_data(child_list,per-1);
               child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
-              GtkWidget *obib = (GtkWidget *) g_list_nth_data(child_list,0);
+              GtkWidget *obib = (GtkWidget *) g_list_nth_data(child_list,1);
               child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
               GtkWidget *obibi = (GtkWidget *) g_list_nth_data(child_list,1);
 
@@ -510,15 +510,28 @@ namespace gx_gui
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
       //gtk_container_set_border_width (GTK_CONTAINER (box1), 15);
 
-      GtkWidget* 	button = gtk_button_new_with_label (">");
-      GtkWidget* 	button1 = gtk_button_new_with_label ("<");
-      gtk_widget_set_size_request (GTK_WIDGET(button), 20.0, 18.0);
-      gtk_widget_set_size_request (GTK_WIDGET(button1), 20.0, 18.0);
+      GtkWidget* 	button = gtk_button_new ();
+      GtkWidget* 	button1 = gtk_button_new ();
+      GtkWidget* lw = gtk_label_new(">");
+      GtkWidget* lw1 = gtk_label_new("<");
+      gtk_container_add (GTK_CONTAINER(button), lw);
+      gtk_container_add (GTK_CONTAINER(button1), lw1);
+      gtk_widget_set_size_request (GTK_WIDGET(button), 20.0, 15.0);
+      gtk_widget_set_size_request (GTK_WIDGET(button1), 20.0, 15.0);
+
+      GdkColor colorGreen;
+      gdk_color_parse("#a6a9aa", &colorGreen);
+      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+      GtkStyle *style = gtk_widget_get_style(lw);
+      pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+      gtk_widget_modify_font(lw, style->font_desc);
+      gtk_widget_modify_font(lw1, style->font_desc);
 
       uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(button));
 
-     // g_signal_connect(box, "expose-event", G_CALLBACK(box10_expose), NULL);
-
+      g_signal_connect (box, "expose-event",
+                        G_CALLBACK(box10_expose), NULL);
       g_signal_connect (GTK_OBJECT (button), "pressed",
                         G_CALLBACK (uiOrderButton::pressed_right), (gpointer) c);
       g_signal_connect (GTK_OBJECT (button1), "pressed",
@@ -532,9 +545,10 @@ namespace gx_gui
       gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
       gtk_fixed_put (GTK_FIXED(box1), button1, 15, 1);
       gtk_fixed_put (GTK_FIXED(box1), button, 35, 1);
-      gtk_container_add (GTK_CONTAINER(box), box1);
-      gtk_widget_show(button);
-      gtk_widget_show(button1);
+      // gtk_container_add (GTK_CONTAINER(box), box1);
+      gtk_box_pack_end (GTK_BOX(box), box1, expand, fill, 0);
+      gtk_widget_show_all(button);
+      gtk_widget_show_all(button1);
       gtk_widget_show(box);
       gtk_widget_show(box1);
       pushBox(kBoxMode, box);
@@ -548,23 +562,38 @@ namespace gx_gui
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
       //gtk_container_set_border_width (GTK_CONTAINER (box1), 15);
 
-      GtkWidget* 	button = gtk_button_new_with_label ("reset");
-     // GtkWidget* 	button1 = gtk_button_new_with_label ("<");
-      gtk_widget_set_size_request (GTK_WIDGET(button), 45.0, 18.0);
-     // gtk_widget_set_size_request (GTK_WIDGET(button1), 20.0, 18.0);
+      GtkWidget* 	button = gtk_button_new ();
+      GtkWidget* lw = gtk_label_new("reset");
+      gtk_container_add (GTK_CONTAINER(button), lw);
+      GdkColor colorGreen;
+      gdk_color_parse("#a6a9aa", &colorGreen);
+      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+      GtkStyle *style = gtk_widget_get_style(lw);
+      pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+      gtk_widget_modify_font(lw, style->font_desc);
+
+
+      // GtkWidget* 	button1 = gtk_button_new_with_label ("<");
+      gtk_widget_set_size_request (GTK_WIDGET(button), 45.0, 15.0);
+      // gtk_widget_set_size_request (GTK_WIDGET(button1), 20.0, 18.0);
       uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(button));
+
+      g_signal_connect(box, "expose-event",
+                       G_CALLBACK(box10_expose), NULL);
       g_signal_connect (GTK_OBJECT (button), "clicked",
                         G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
       g_signal_connect  (GTK_OBJECT (button), "pressed",
-                        G_CALLBACK (gx_reset_effects), (gpointer) c);
+                         G_CALLBACK (gx_reset_effects), (gpointer) c);
 
 
       gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
-     // gtk_fixed_put (GTK_FIXED(box1), button1, 15, 1);
+      // gtk_fixed_put (GTK_FIXED(box1), button1, 15, 1);
       gtk_fixed_put (GTK_FIXED(box1), button, 10, 1);
-      gtk_container_add (GTK_CONTAINER(box), box1);
-      gtk_widget_show(button);
-     // gtk_widget_show(button1);
+      //gtk_container_add (GTK_CONTAINER(box), box1);
+      gtk_box_pack_end (GTK_BOX(box), box1, expand, fill, 0);
+      gtk_widget_show_all(button);
+      // gtk_widget_show(button1);
       gtk_widget_show(box);
       gtk_widget_show(box1);
       pushBox(kBoxMode, box);
@@ -1348,6 +1377,7 @@ namespace gx_gui
       GtkWidget * box4 = gtk_vbox_new (homogene, 4);
       GtkWidget * box5 = gtk_hbox_new (homogene, 4);
       gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+      g_signal_connect(box4, "expose-event", G_CALLBACK(box3_expose), NULL);
       GdkColor colorRed;
       GdkColor colorOwn;
       gdk_color_parse ("#000094", &colorRed);
@@ -3264,30 +3294,28 @@ namespace gx_gui
                   //----- end echo
 
 
-                      //----- chorus
-                      openHorizontalRestetBox("", &engine->posit7);
+                  //----- chorus
+                  openHorizontalRestetBox("", &engine->posit7);
+                  {
+                    openVerticalBox("chorus");
                     {
-                      openVerticalBox("chorus");
-                      {
 
-                        addregler("level", &engine->fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
-                        openHorizontalBox("");
+                      addregler("level", &engine->fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
+                      openHorizontalBox("");
+                      {
+                        addtoggle("", &engine->fchorus);
+                        openDialogBox("chorus", &engine->fchorusbox);
                         {
-                          addtoggle("", &engine->fchorus);
-                          openDialogBox("chorus", &engine->fchorusbox);
+                          openHandleBox("  ");
                           {
-                            openHandleBox("  ");
+                            openVerticalBox("");
                             {
-                              openVerticalBox("");
+                              openHorizontalTableBox("");
                               {
-                                openHorizontalTableBox("");
-                                {
-                                  addregler("  level  ", &engine->fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
-                                  addregler("  delay  ", &engine->fslider_CH2, 2.500000e-02f, 0.0f, 0.2f, 1.000000e-03f);
-                                  addregler("  depth  ", &engine->fslider_CH1, 2.000000e-02f, 0.0f, 1.0f, 1.000000e-03f);
-                                  addregler("  freq  ", &engine->fslider_CH0, 3.0f, 0.0f, 10.0f, 1.000000e-02f);
-                                }
-                                closeBox();
+                                addregler("  level  ", &engine->fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
+                                addregler("  delay  ", &engine->fslider_CH2, 2.500000e-02f, 0.0f, 0.2f, 1.000000e-03f);
+                                addregler("  depth  ", &engine->fslider_CH1, 2.000000e-02f, 0.0f, 1.0f, 1.000000e-03f);
+                                addregler("  freq  ", &engine->fslider_CH0, 3.0f, 0.0f, 10.0f, 1.000000e-02f);
                               }
                               closeBox();
                             }
@@ -3298,9 +3326,11 @@ namespace gx_gui
                         closeBox();
                       }
                       closeBox();
-                      }
-                      closeBox();
-                      //end chorus
+                    }
+                    closeBox();
+                  }
+                  closeBox();
+                  //end chorus
 
 
 

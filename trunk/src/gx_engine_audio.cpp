@@ -935,6 +935,30 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           gx_gui::shownote = -1;
         }
 
+
+      add_dc(fTemp0);
+      // gain in
+      fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
+      fTemp0 = (fRec4[0] * fTemp0);
+
+      if (fcheckbox1)     // preamp
+        {
+          float  fTemp0in = (fTemp0-0.15*(fTemp0*fTemp0))-(0.15*(fTemp0*fTemp0*fTemp0));
+          fTemp0 = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
+          fTemp0in = normalize(fTemp0,atan_shape,f_atan);
+          //fTemp0 = valve(fTemp0in,fTemp0in)*0.75;
+          fTemp0 = hard_cut(fTemp0in,0.7);
+        }  //preamp ende
+
+
+      // vibrato
+      if (fresoon)
+        {
+          fRec3[0] = hard_cut (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])),0.7);  //resonanz 1.76f
+          fTemp0 = fRec3[0];
+        }
+
+
       for (int m=0; m<7; m++)
         {
           if ((fcheckbox5) &&(posit0==m))   //crybaby
@@ -987,34 +1011,11 @@ void GxEngine::process_buffers(int count, float** input, float** output)
                   float fTempcom8 = powf(10, (5.000000e-02f * fTempcom7));
                   fTemp0 = (fTempcom0 * fTempcom8);
                 }
-             // else  add_dc(fTemp0);
+              // else  add_dc(fTemp0);
               // compressor end
             }
 
-          if (m==0)
-            {
-              add_dc(fTemp0);
-              // gain in
-              fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
-              fTemp0 = (fRec4[0] * fTemp0);
 
-              if (fcheckbox1)     // preamp
-                {
-                  float  fTemp0in = (fTemp0-0.15*(fTemp0*fTemp0))-(0.15*(fTemp0*fTemp0*fTemp0));
-                  fTemp0 = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
-                  fTemp0in = normalize(fTemp0,atan_shape,f_atan);
-                  //fTemp0 = valve(fTemp0in,fTemp0in)*0.75;
-                  fTemp0 = hard_cut(fTemp0in,0.7);
-                }  //preamp ende
-
-
-              // vibrato
-              if (fresoon)
-                {
-                  fRec3[0] = hard_cut (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])),0.7);  //resonanz 1.76f
-                  fTemp0 = fRec3[0];
-                }
-            }
 
           if ((foverdrive4) &&(posit1==m))     // overdrive
             {
@@ -1071,19 +1072,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
             }
           //else if (m==0)   		// distortion end
 
-          if (m==0)
-            {
-              add_dc(fTemp0);
-              // tone
-              fVec_tone0[0] = fTemp0;
-              fRec_tone3[0] = (fSlow_tone32 * ((fSlow_tone21 * ((fSlow_tone31 * fVec_tone0[2]) + ((fSlow_tone30 * fVec_tone0[0]) + (fSlow_tone28 * fVec_tone0[1])))) - ((fSlow_tone27 * fRec_tone3[2]) + (fSlow_tone24 * fRec_tone3[1]))));
-              fRec_tone2[0] = (fSlow_tone37 * ((fSlow_tone7 * (((fSlow_tone36 * fRec_tone3[0]) + (fSlow_tone34 * fRec_tone3[1])) + (fSlow_tone33 * fRec_tone3[2]))) - ((fSlow_tone20 * fRec_tone2[2]) + (fSlow_tone17 * fRec_tone2[1]))));
-              fRec_tone1[0] = (fSlow_tone42 * ((((fSlow_tone41 * fRec_tone2[1]) + (fSlow_tone40 * fRec_tone2[0])) + (fSlow_tone38 * fRec_tone2[2])) + (0 - ((fSlow_tone15 * fRec_tone1[2]) + (fSlow_tone10 * fRec_tone1[1])))));
-              fRec_tone0[0] = (fSlow_tone47 * ((((fSlow_tone46 * fRec_tone1[1]) + (fSlow_tone45 * fRec_tone1[0])) + (fSlow_tone43 * fRec_tone1[2])) + (0 - ((fSlow_tone6 * fRec_tone0[2]) + (fSlow_tone3 * fRec_tone0[1])))));
-              // tone end
 
-              fTemp0 = fRec_tone0[0];
-            }
 
           if ((fcheckbox6) &&(posit3==m))     //freeverb
             {
@@ -1128,21 +1117,6 @@ void GxEngine::process_buffers(int count, float** input, float** output)
               fTemp0 = ((fSlow66 * (fRec23 + fTemp9)) + (fSlow67 * fTemp0));
             }
 
-          if (m==0)
-            {
-              // gain out
-              fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
-              fTemp0 =  (fRec46[0] * fTemp0);
-              add_dc(fTemp0);
-              // bass booster
-              if (fboost)
-                {
-                  fRec_boost0[0] = (fTemp0 - (fConst_boost4 * ((fConst_boost3 * fRec_boost0[2]) + (fConst_boost2 * fRec_boost0[1]))));
-                  fTemp0 = (fConst_boost4 * (((fConst_boost8 * fRec_boost0[0]) + (fConst_boost7 * fRec_boost0[1])) + (fConst_boost6 * fRec_boost0[2])));
-                }
-            }
-
-
 
           if ((fcheckbox7) &&(posit6==m))    //echo
             {
@@ -1158,6 +1132,31 @@ void GxEngine::process_buffers(int count, float** input, float** output)
             }
           // else  fVec23[0] = fTemp0;   //impulseResponse ende
         }
+
+
+
+      // tone
+      fVec_tone0[0] = fTemp0;
+      fRec_tone3[0] = (fSlow_tone32 * ((fSlow_tone21 * ((fSlow_tone31 * fVec_tone0[2]) + ((fSlow_tone30 * fVec_tone0[0]) + (fSlow_tone28 * fVec_tone0[1])))) - ((fSlow_tone27 * fRec_tone3[2]) + (fSlow_tone24 * fRec_tone3[1]))));
+      fRec_tone2[0] = (fSlow_tone37 * ((fSlow_tone7 * (((fSlow_tone36 * fRec_tone3[0]) + (fSlow_tone34 * fRec_tone3[1])) + (fSlow_tone33 * fRec_tone3[2]))) - ((fSlow_tone20 * fRec_tone2[2]) + (fSlow_tone17 * fRec_tone2[1]))));
+      fRec_tone1[0] = (fSlow_tone42 * ((((fSlow_tone41 * fRec_tone2[1]) + (fSlow_tone40 * fRec_tone2[0])) + (fSlow_tone38 * fRec_tone2[2])) + (0 - ((fSlow_tone15 * fRec_tone1[2]) + (fSlow_tone10 * fRec_tone1[1])))));
+      fRec_tone0[0] = (fSlow_tone47 * ((((fSlow_tone46 * fRec_tone1[1]) + (fSlow_tone45 * fRec_tone1[0])) + (fSlow_tone43 * fRec_tone1[2])) + (0 - ((fSlow_tone6 * fRec_tone0[2]) + (fSlow_tone3 * fRec_tone0[1])))));
+      // tone end
+
+      fTemp0 = fRec_tone0[0];
+
+
+      // gain out
+      fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
+      fTemp0 =  (fRec46[0] * fTemp0);
+
+      // bass booster
+      if (fboost)
+        {
+          fRec_boost0[0] = (fTemp0 - (fConst_boost4 * ((fConst_boost3 * fRec_boost0[2]) + (fConst_boost2 * fRec_boost0[1]))));
+          fTemp0 = (fConst_boost4 * (((fConst_boost8 * fRec_boost0[0]) + (fConst_boost7 * fRec_boost0[1])) + (fConst_boost6 * fRec_boost0[2])));
+        }
+
       fVec23[0] = fTemp0;
       // this is the output value from the mono process
       fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]))*ngate;
