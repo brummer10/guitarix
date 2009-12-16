@@ -44,6 +44,7 @@ namespace gx_gui
   gboolean box2_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
   gboolean box1_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
   gboolean box_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+  gboolean label_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 
   /* guitarix skin related functions */
   unsigned int gx_fetch_available_skins();

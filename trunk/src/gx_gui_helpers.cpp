@@ -1525,6 +1525,33 @@ namespace gx_gui
       return FALSE;
     }
 
+    gboolean label_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+    {
+      if (int(float(gx_current_skin)==1))
+        {
+      GdkColor colorGreen;
+      gdk_color_parse("#000000", &colorGreen);
+      gtk_widget_modify_fg (wi, GTK_STATE_NORMAL, &colorGreen);
+      gdk_color_parse("#111111", &colorGreen);
+      gtk_widget_modify_fg (wi, GTK_STATE_PRELIGHT, &colorGreen);
+      gdk_color_parse("#222222", &colorGreen);
+      gtk_widget_modify_fg (wi, GTK_STATE_ACTIVE, &colorGreen);
+      gdk_color_parse("#333333", &colorGreen);
+      gtk_widget_modify_fg (wi, GTK_STATE_SELECTED, &colorGreen);
+        }
+        else{
+           GdkColor colorGreen;
+      gdk_color_parse("#a6a9aa", &colorGreen);
+      gtk_widget_modify_fg (wi, GTK_STATE_NORMAL, &colorGreen);
+      gdk_color_parse("#ffffff", &colorGreen);
+      gtk_widget_modify_fg (wi, GTK_STATE_PRELIGHT, &colorGreen);
+      gdk_color_parse("#ffffff", &colorGreen);
+      gtk_widget_modify_fg (wi, GTK_STATE_ACTIVE, &colorGreen);
+      gdk_color_parse("#a6a9aa", &colorGreen);
+      gtk_widget_modify_fg (wi, GTK_STATE_SELECTED, &colorGreen);
+        }
+      return FALSE;
+    }
 
     gboolean box7_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
     {

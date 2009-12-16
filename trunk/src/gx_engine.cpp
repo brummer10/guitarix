@@ -533,11 +533,11 @@ namespace gx_engine
   /* --- adding rest of engine class by file inclusion for readability --- */
 
   /* MIDI engine */
-#ifdef USE_RINGBUFFER
-#include "gx_engine_midi_ringbuf.cpp"
-#else
+//#ifdef USE_RINGBUFFER
+//#include "gx_engine_midi_ringbuf.cpp"
+//#else
 #include "gx_engine_midi.cpp"
-#endif
+//#endif
 
   /* audio engine */
 #include "gx_engine_audio.cpp"

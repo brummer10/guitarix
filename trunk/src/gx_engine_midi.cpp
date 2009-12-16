@@ -411,8 +411,8 @@ void GxEngine::process_midi(int len)
                       if(Beat_is < rms)Beat_is += 2;
                       //Beat_is = rms;
                       send+=step;
-                      if (fcheckbox10 == 1.0) send1+=step;
-                      if (fcheckbox11 == 1.0) send2+=step;
+                      if (fcheckbox10 ) send1+=step;
+                      if (fcheckbox11 ) send2+=step;
                     }
                  // else weg +=step;
                 }
