@@ -503,8 +503,9 @@ namespace gx_jconv
       jcset->setlGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(gladj)));
 
       // -- MEMORY
-      GtkWidget* mslider = gx_knob ("max mem",1,jcset->getMem(), 8000, 400000, 1000);
+      mslider = gx_knob ("max mem",1,jcset->getMem(), 32, 400000, 1000);
       GtkAdjustment *madj = gtk_range_get_adjustment(GTK_RANGE(mslider));
+      gtk_range_set_value(GTK_RANGE(mslider), framecount );
 
       GtkWidget * mslider_box = gtk_widget_get_parent(GTK_WIDGET(mslider));
       jcset->setMem(gtk_adjustment_get_value(GTK_ADJUSTMENT(madj)));
@@ -835,6 +836,8 @@ namespace gx_jconv
 
               //----- draw the wave file
               gx_waveview_set_value(widget, NULL);
+              gtk_range_set_value(GTK_RANGE(mslider), framescount );
+
 
               //----- set mode chooser to copy and disable it when a 1 channel file is loaded
               if(chans == 1)
@@ -843,8 +846,22 @@ namespace gx_jconv
               gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0);
               gtk_widget_set_sensitive(GTK_WIDGET(combo),FALSE);
               }
-              else gtk_widget_set_sensitive(GTK_WIDGET(combo),TRUE);
+              else if (chans == 2) gtk_widget_set_sensitive(GTK_WIDGET(combo),TRUE);
+              else if (chans > 2)
+                {
 
+                  ostringstream msg;
+                  msg << "Error opening file " << jcset->getIRFile() << "\n have more then 2 Channels";
+                  (void)gx_gui::gx_message_popup(msg.str().c_str());
+
+                  jcset->invalidate();
+                  // force the wave view to draw a red X
+                  gx_waveview_set_value(widget, NULL);
+                  // set label text
+                  gtk_label_set_text(GTK_LABEL(gx_gui::label1), "IR file empty\n");
+                  gtk_label_set_text(GTK_LABEL(gx_gui::label6), "empty");
+                  return;
+                }
               // check file sample rate vs jackd's
               if (sr != ((int)gx_jack::jack_sr)&&(gx_jack::client))
                 {

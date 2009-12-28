@@ -104,6 +104,7 @@ namespace gx_jack
   extern jack_port_t*        midi_output_ports;
   extern jack_nframes_t      time_is;
   extern bool                jack_is_down;
+  extern bool                jack_is_exit;
   extern string              client_name;
 
   extern string              client_out_graph;
@@ -125,7 +126,7 @@ namespace gx_jconv
 {
   /* some global vars */
   extern float checkbox7;
-
+  extern GtkWidget* mslider;
   extern bool jconv_is_running;
 }
 
@@ -227,6 +228,8 @@ namespace gx_gui
   extern GdkPixbuf* ib;
   extern GdkPixbuf* ibm;
   extern GdkPixbuf* ibr;
+  extern GdkPixbuf *tribeimage;
+  extern GdkPixbuf *_image;
 
   /* jack server status */
   extern GtkWidget* gx_jackd_on_image;

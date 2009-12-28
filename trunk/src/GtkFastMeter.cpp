@@ -464,7 +464,7 @@ gboolean vertical_expose (GtkFastMeter* fm, GdkEventExpose* ev)
 
       fm->last_peak_rect.height = min(3, fm->pixheight - fm->last_peak_rect.y);
 
-      GdkWindow*   window = gtk_widget_get_window(GTK_WIDGET(fm));
+      GdkWindow*   window = GTK_WIDGET(fm)->window;
       GtkStyle*    style  = gtk_widget_get_style (GTK_WIDGET(fm));
 
       gdk_draw_pixbuf(GDK_DRAWABLE(window),

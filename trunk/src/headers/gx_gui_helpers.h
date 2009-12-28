@@ -33,6 +33,7 @@ namespace gx_gui
   gboolean gx_update_all_gui         (gpointer args);
   gboolean gx_check_startup          (gpointer args);
 
+  gboolean box11_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
   gboolean box10_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
   gboolean box9_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
   gboolean box8_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
@@ -114,6 +115,7 @@ namespace gx_gui
   void gx_midi_out               (GtkCheckMenuItem*, gpointer);
   void gx_log_window             (GtkWidget*, gpointer);
 
+  void gx_init_pixmaps();
   void gx_systray_menu            (GtkWidget*, gpointer);
   void gx_reset_units             (GtkWidget*, gpointer);
   void gx_reset_effects           (GtkWidget*, gpointer);

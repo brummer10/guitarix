@@ -100,6 +100,7 @@ namespace gx_jack
   jack_nframes_t      time_is;
 
   bool                jack_is_down = false;
+  bool                jack_is_exit = false;
   GxJackLatencyChange change_latency;
 
 #ifdef USE_RINGBUFFER
@@ -127,7 +128,7 @@ namespace gx_jconv
 {
   /* some global vars */
   float checkbox7;
-
+  GtkWidget* mslider;
   bool jconv_is_running = false;
 }
 
@@ -258,6 +259,8 @@ namespace gx_gui
   GdkPixbuf* ibm;
   GdkPixbuf* ibr;
   GdkPixbuf* bbr;
+  GdkPixbuf *tribeimage;
+  GdkPixbuf *_image;
 
   /* jack server status icons */
   GtkWidget* gx_jackd_on_image;

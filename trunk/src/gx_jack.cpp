@@ -357,7 +357,7 @@ namespace gx_jack
 				       JackPortIsInput, 0);
 		  gx_engine::gNumInChans++;
 	    }
-
+        jack_is_exit = false;
 	    // ---- port connection
 
 	    // guitarix outs to jconv ins
@@ -378,7 +378,7 @@ namespace gx_jack
 	  gtk_widget_show(gx_gui::gx_jackd_on_image);
 	  gtk_widget_hide(gx_gui::gx_jackd_off_image);
 	}
-
+    jack_is_exit = false;
 	gx_print_info("Jack Server", "Connected to Jack Server");
       }
     }
@@ -387,7 +387,10 @@ namespace gx_jack
       gx_jack_cleanup();
 
       if (gx_jconv::jconv_is_running)
+      {
 	gNumOutChans -= 2;
+	gNumInChans -= 2;
+      }
 
 
       // we bring down jack capture and meterbridge but not jconv
@@ -501,6 +504,8 @@ namespace gx_jack
   void gx_jack_cleanup()
   {
     if (client) {
+
+      jack_is_exit = true;
       // disable input ports
       for (int i = 0; i < gNumInChans; i++)
 	jack_port_unregister(client, input_ports[i]);
@@ -711,6 +716,9 @@ namespace gx_jack
   // ----- main jack process method
   int gx_jack_process (jack_nframes_t nframes, void *arg)
   {
+
+    if (!jack_is_exit)
+        {
     AVOIDDENORMALS;
 
     // retrieve buffers at jack ports
@@ -741,6 +749,8 @@ namespace gx_jack
     // some info display
     if (gx_gui::showwave == 1)
       time_is =  jack_frame_time (client);
+
+    } else gx_engine::buffers_ready = false;
 
     return 0;
   }

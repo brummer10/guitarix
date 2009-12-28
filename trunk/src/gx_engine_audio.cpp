@@ -842,7 +842,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       (void)memcpy(checkfreq, input0, sizeof(float)*count);
       moving_filter(&checkfreq, &checkfreq, count);
     }
-
+   //moving_filter(input,input,count);
 
   // run pre_funktions on frame base
   if (fnoise_g) noise_gate (count,input);

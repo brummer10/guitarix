@@ -211,7 +211,7 @@ namespace gx_gui
       GtkWidget* box = addWidget(label, gtk_hbox_new (FALSE, 0));
 
       gint boxheight = 135;
-      gint boxwidth  = 26;
+      gint boxwidth  = 36;
 
       gtk_container_set_border_width (GTK_CONTAINER (box), 3);
       gtk_box_set_spacing(GTK_BOX(box), 1);
@@ -713,7 +713,7 @@ namespace gx_gui
     {
       GtkWidget * box = gtk_vbox_new (homogene, 2);
       gtk_container_set_border_width (GTK_CONTAINER (box), 4);
-      g_signal_connect(box, "expose-event", G_CALLBACK(box_expose), NULL);
+      g_signal_connect(box, "expose-event", G_CALLBACK(box11_expose), NULL);
 
       if (fMode[fTop] != kTabMode && label[0] != 0)
         {
@@ -3679,7 +3679,7 @@ namespace gx_gui
     void GxMainInterface::show()
     {
       assert(fTop == 0);
-
+      gx_init_pixmaps();
       fInitialized = true;
 
       if (gx_jack::client)

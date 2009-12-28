@@ -1169,32 +1169,32 @@ namespace gx_gui
       switch (skin_is)
         {
         case 0:
-          cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
-          cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+          cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 0.6);
+          cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);
           break;
         case 1:
-          cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
-          cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+          cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 0.6);
+          cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);
           break;
         case 2:
-          cairo_pattern_add_color_stop_rgb (pat, 0, 0.3, 0.2, 0.3);
-          cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+          cairo_pattern_add_color_stop_rgba (pat, 0, 0.3, 0.2, 0.3, 0.6);
+          cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);
           break;
         case 3:
-          cairo_pattern_add_color_stop_rgb (pat, 0, 0.5, 0.02, 0.03);
-          cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.1);
+          cairo_pattern_add_color_stop_rgba (pat, 0, 0.5, 0.02, 0.03, 0.6);
+          cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.1, 0.6);
           break;
         case 4:
-          cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.5, 0.2);
-          cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.1, 0.05);
+          cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.5, 0.2, 0.6);
+          cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.1, 0.05, 0.6);
           break;
         case 5:
-          cairo_pattern_add_color_stop_rgb (pat, 0, 0.8, 0.2, 0.02);
-          cairo_pattern_add_color_stop_rgb (pat, 1, 0.2, 0.09, 0.005);
+          cairo_pattern_add_color_stop_rgba (pat, 0, 0.8, 0.2, 0.02, 0.6);
+          cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0.09, 0.005, 0.6);
           break;
         case 6:
-          cairo_pattern_add_color_stop_rgb (pat, 0, 0.8, 0.3, 0.02);
-          cairo_pattern_add_color_stop_rgb (pat, 1, 0.2, 0.06, 0.005);
+          cairo_pattern_add_color_stop_rgba (pat, 0, 0.8, 0.3, 0.02, 0.6);
+          cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0.06, 0.005, 0.6);
           break;
         }
 
@@ -1719,9 +1719,116 @@ namespace gx_gui
 
           cairo_pattern_destroy (pat);
           cairo_destroy(cr);
-        }
+        } else if (int(float(gx_current_skin)==0)) box11_expose(wi,ev,user_data);
       return FALSE;
     }
+
+     gboolean box11_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+    {
+
+      cairo_t *cr;
+
+
+      /* create a cairo context */
+      cr = gdk_cairo_create(wi->window);
+
+      double x0      = wi->allocation.x+1;
+      double y0      = wi->allocation.y+1;
+      double rect_width  = wi->allocation.width-2;
+      double rect_height = wi->allocation.height-3;
+
+
+      _image = gdk_pixbuf_scale_simple(gx_gui::tribeimage,rect_width,rect_height,GDK_INTERP_HYPER);
+
+
+    /*  cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
+      cairo_set_source_rgb (cr, 0, 0, 0);
+      cairo_fill (cr);*/
+
+      cairo_pattern_t*pat =
+        cairo_pattern_create_radial (-50, y0, 5,rect_width+100,  rect_height, 0.0);
+      cairo_pattern_add_color_stop_rgb (pat, 1, 0.1, 0.1, 0.2);
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.05, 0.05, 0.05);
+
+    /*  cairo_set_source (cr, pat);
+      cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
+      cairo_fill (cr); */
+
+      gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                      _image, 0, 0,
+                      x0, y0, rect_width,rect_height,
+                      GDK_RGB_DITHER_NORMAL, 0, 0);
+
+      double radius = 38.;
+      if (rect_width<38) radius = rect_width;
+      else if (rect_height<38) radius = rect_height;
+      double x1,y1;
+
+      x1=x0+rect_width;
+      y1=y0+rect_height;
+
+      cairo_move_to  (cr, x0, y0 + radius);
+      cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+      cairo_line_to (cr, x1 - radius, y0);
+      cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+      cairo_line_to (cr, x1 , y1 - radius);
+      cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+      cairo_line_to (cr, x0 + radius, y1);
+      cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+
+      cairo_close_path (cr);
+
+      pat = cairo_pattern_create_linear (0, y0, 0, y1);
+
+    //  cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0, 0.8);
+    //  cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.1, 0.1, 0.1, 0.6);
+    //  cairo_pattern_add_color_stop_rgba (pat, 0, 0.4, 0.4, 0.4, 0.4);
+       gx_skin_color(pat);
+      cairo_set_source (cr, pat);
+      //cairo_rectangle(cr, x0,y0, rect_width, rect_height);
+      cairo_fill (cr);
+
+      cairo_pattern_destroy (pat);
+      cairo_destroy(cr);
+      g_object_unref(_image);
+
+      return FALSE;
+    }
+
+    void gx_init_pixmaps()
+    {
+      /* XPM */
+      static const char * tribe_xpm[] =
+      {
+        "65 20 3 1",
+        " 	c None",
+        ".	c #656565",
+        "+	c #646464",
+        "                                                                 ",
+        "                                                                 ",
+        "                                                                 ",
+        "                                                                 ",
+        "                          .           +                          ",
+        "                    ..  ++.+++     .   ...++                     ",
+        "                    . ++.    +     + +  +.+                      ",
+        "   +                 ++  .+ .+     +. +.  ..+                ++  ",
+        "  +..    .+        . ++  .+. +       +..  +. .         +    ++.+ ",
+        " +   +    .         .   +  .+       +.      +  .      .+   ..  + ",
+        " +       +.   .   .  .  +  +.++    .++. +.    +   +.   +    .  + ",
+        " ++   .. . +++++.   +  ++.... .   + .++.+   .   ....... ++.   +. ",
+        "   + ++ +..+++.++. +      ..          +       . + +.++.++  .+.   ",
+        "   .  .+                                                     .   ",
+        "   +..                                                      ++   ",
+        "   +.                                                        .   ",
+        "                                                                 ",
+        "                                                                 ",
+        "                                                                 ",
+        "                                                                 "
+      };
+
+      tribeimage = gdk_pixbuf_new_from_xpm_data(tribe_xpm);
+    }
+
 
     /* ----- delete event ---- */
     gboolean gx_delete_event( GtkWidget *widget, gpointer   data )

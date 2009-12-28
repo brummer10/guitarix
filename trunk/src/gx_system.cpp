@@ -645,6 +645,12 @@ namespace gx_system
     if (G_IS_OBJECT(gx_gui::ibr))
       g_object_unref(gx_gui::ibr);
 
+    if (G_IS_OBJECT(gx_gui::tribeimage))
+        g_object_unref(gx_gui::tribeimage);
+
+      if (G_IS_OBJECT(gx_gui::_image))
+        g_object_unref(gx_gui::_image);
+
     gtk_main_quit();
   }
 
@@ -664,23 +670,22 @@ namespace gx_system
 	  saveStateToFile(previous_state.c_str());
     }
 
-    if (gx_gui::fWindow)
-      gx_destroy_event();
+     if (gx_gui::fWindow)
+       gx_destroy_event();
 
-    // delete the locked mem buffers
-    if (checkfreq)
-      delete[] checkfreq;
-    if (get_frame)
-      delete[] get_frame;
-    if (get_frame1)
-      delete[] get_frame1;
-    if (oversample)
-      delete[] oversample;
+     // clean jack client stuff
+     gx_jack_cleanup();
+     // delete the locked mem buffers
+     if (checkfreq)
+       delete[] checkfreq;
+     if (get_frame)
+       delete[] get_frame;
+     if (get_frame1)
+       delete[] get_frame1;
+     if (oversample)
+       delete[] oversample;
 
-    // clean jack client stuff
-    gx_jack_cleanup();
-
-    exit(GPOINTER_TO_INT(data));
+     exit(GPOINTER_TO_INT(data));
   }
 
 
