@@ -1373,10 +1373,11 @@ namespace gx_gui
       gtk_window_set_title (GTK_WINDOW (dialog), label);
 
       gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
-      GtkWidget * box = gtk_hbox_new (homogene, 4);
+      GtkWidget * box = gtk_hbox_new (homogene, 8);
       GtkWidget * box4 = gtk_vbox_new (homogene, 4);
       GtkWidget * box5 = gtk_hbox_new (homogene, 4);
       gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+      gtk_container_set_border_width (GTK_CONTAINER (box4), 8);
       g_signal_connect(box4, "expose-event", G_CALLBACK(box3_expose), NULL);
       GdkColor colorRed;
       GdkColor colorOwn;
