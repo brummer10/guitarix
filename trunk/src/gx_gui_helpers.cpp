@@ -1759,10 +1759,10 @@ namespace gx_gui
       cairo_set_source_rgb (cr, 0, 0, 0);
       cairo_fill (cr);*/
 
-      cairo_pattern_t*pat =
+      cairo_pattern_t*pat; /* =
         cairo_pattern_create_radial (-50, y0, 5,rect_width+100,  rect_height, 0.0);
       cairo_pattern_add_color_stop_rgb (pat, 1, 0.1, 0.1, 0.2);
-      cairo_pattern_add_color_stop_rgb (pat, 0, 0.05, 0.05, 0.05);
+      cairo_pattern_add_color_stop_rgb (pat, 0, 0.05, 0.05, 0.05);*/
 
     /*  cairo_set_source (cr, pat);
       cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
@@ -1794,10 +1794,10 @@ namespace gx_gui
 
       pat = cairo_pattern_create_linear (0, y0, 0, y1);
 
-    //  cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0, 0.8);
-    //  cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.1, 0.1, 0.1, 0.6);
-    //  cairo_pattern_add_color_stop_rgba (pat, 0, 0.4, 0.4, 0.4, 0.4);
-       gx_skin_color(pat);
+      cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0, 0.8);
+      cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.05, 0.05, 0.05, 0.6);
+      cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.2, 0.4);
+      // gx_skin_color(pat);
       cairo_set_source (cr, pat);
       //cairo_rectangle(cr, x0,y0, rect_width, rect_height);
       cairo_fill (cr);
