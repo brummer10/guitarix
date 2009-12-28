@@ -35,6 +35,7 @@ public:
     ~GtkRegler();
 
     static void gtk_regler_destroy ( );
+    static void gtk_regler_init_pixmaps(int change_knob);
     GtkWidget *gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment);
     GtkWidget *gtk_vslider_new_with_adjustment(GtkAdjustment *_adjustment);
     GtkWidget *gtk_mini_slider_new_with_adjustment(GtkAdjustment *_adjustment);

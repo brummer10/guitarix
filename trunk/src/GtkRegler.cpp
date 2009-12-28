@@ -113,6 +113,8 @@ struct GtkReglerClass
     int b_toggle_step;
 //----------- event button
     int button_is;
+    int pix_is;
+    int pix_switch;
 
   };
 
@@ -1256,13 +1258,96 @@ static gboolean gtk_regler_scroll (GtkWidget *widget, GdkEventScroll *event)
   return FALSE;
 }
 
+void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
+{
+  GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
+  g_assert(GTK_IS_REGLER(widget));
+  GtkReglerClass *klass =  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
+
+  //---------- here are the inline pixmaps for regler
+#include "GtkReglerpix.cpp"
+  klass->pix_switch = change_knob;
+  if(klass->pix_switch != 1)
+  {
+  //----------- Big knob
+  klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob1_xpm);
+  g_assert(klass->bigregler_image != NULL);
+
+//----------- small knob
+  klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
+  g_assert(klass->regler_image != NULL);
+  klass->pix_switch = 1;
+  }
+  else
+  {
+   //----------- Big knob
+  klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob2_xpm);
+  g_assert(klass->bigregler_image != NULL);
+
+//----------- small knob
+  klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
+  g_assert(klass->regler_image != NULL);
+  klass->pix_switch = 0;
+  }
+
+  if (klass->pix_is != 1)
+  {
+//----------- switch
+  klass->toggle_image = gdk_pixbuf_new_from_xpm_data (switchit_xpm);
+  g_assert(klass->toggle_image != NULL);
+  klass->toggle_image1 = gdk_pixbuf_copy( klass->toggle_image );
+  g_assert(klass->toggle_image1 != NULL);
+  gdk_pixbuf_saturate_and_pixelate(klass->toggle_image1,klass->toggle_image1,10.0,FALSE);
+
+//----------- switchII
+  klass->switch_image = gdk_pixbuf_new_from_xpm_data (switch_xpm);
+  g_assert(klass->toggle_image != NULL);
+  klass->switch_image1 = gdk_pixbuf_copy( klass->switch_image );
+  g_assert(klass->switch_image1 != NULL);
+  gdk_pixbuf_saturate_and_pixelate(klass->switch_image1,klass->switch_image1,10.0,FALSE);
+
+//----------- horizontal slider
+  klass->slider_image = gdk_pixbuf_new_from_xpm_data(slidersm_xpm);
+  g_assert(klass->slider_image != NULL);
+  klass->slider_image1 = gdk_pixbuf_copy( klass->slider_image );
+  g_assert(klass->slider_image1 != NULL);
+
+//----------- vertical slider
+  klass->vslider_image = gdk_pixbuf_rotate_simple(klass->slider_image, GDK_PIXBUF_ROTATE_CLOCKWISE);
+  g_assert(klass->vslider_image != NULL);
+  klass->vslider_image = gdk_pixbuf_flip(klass->vslider_image, TRUE);
+  klass->vslider_image1 = gdk_pixbuf_copy( klass->vslider_image );
+  g_assert(klass->vslider_image1 != NULL);
+
+//----------- mini slider
+  klass->minislider_image = gdk_pixbuf_scale_simple(klass->slider_image,40,6,GDK_INTERP_HYPER);
+  g_assert(klass->minislider_image != NULL);
+  klass->minislider_image1 = gdk_pixbuf_copy( klass->minislider_image );
+  g_assert(klass->minislider_image1 != NULL);
+//----------- horizontal wheel
+  klass->wheel_image = gdk_pixbuf_new_from_xpm_data(wheel_xpm);
+  g_assert(klass->wheel_image != NULL);
+  klass->wheel_image1 = gdk_pixbuf_new_from_xpm_data(wheel_s_xpm);
+  g_assert(klass->wheel_image1 != NULL);
+  klass->pointer_image1 = gdk_pixbuf_new_from_xpm_data(pointer_xpm);
+  g_assert(klass->pointer_image1 != NULL);
+//----------- toggle_button
+  klass->b_toggle_image = gdk_pixbuf_new_from_xpm_data (button_xpm);
+  g_assert(klass->b_toggle_image != NULL);
+  klass->b_toggle_image1 = gdk_pixbuf_new_from_xpm_data (button1_xpm);
+  //klass->b_toggle_image1 = gdk_pixbuf_copy( klass->b_toggle_image );
+  g_assert(klass->b_toggle_image1 != NULL);
+  // gdk_pixbuf_saturate_and_pixelate(klass->b_toggle_image1,klass->b_toggle_image1,3.0,FALSE);
+  klass->pix_is = 1;
+  }
+}
+
 //----------- init the GtkReglerClass
 static void gtk_regler_class_init (GtkReglerClass *klass)
 {
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
-//---------- here are the inline pixmaps for regler
-#include "GtkReglerpix.cpp"
+
 
   /** set here the sizes and steps for the used regler **/
 //--------- small knob size and steps
@@ -1327,59 +1412,7 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
   widget_class->key_press_event = gtk_regler_key_press;
   widget_class->scroll_event = gtk_regler_scroll;
 
-//----------- Big knob
-  klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob1_xpm);
-  g_assert(klass->bigregler_image != NULL);
-
-//----------- small knob
-  klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
-  g_assert(klass->regler_image != NULL);
-//----------- switch
-  klass->toggle_image = gdk_pixbuf_new_from_xpm_data (switchit_xpm);
-  g_assert(klass->toggle_image != NULL);
-  klass->toggle_image1 = gdk_pixbuf_copy( klass->toggle_image );
-  g_assert(klass->toggle_image1 != NULL);
-  gdk_pixbuf_saturate_and_pixelate(klass->toggle_image1,klass->toggle_image1,10.0,FALSE);
-
-//----------- switchII
-  klass->switch_image = gdk_pixbuf_new_from_xpm_data (switch_xpm);
-  g_assert(klass->toggle_image != NULL);
-  klass->switch_image1 = gdk_pixbuf_copy( klass->switch_image );
-  g_assert(klass->switch_image1 != NULL);
-  gdk_pixbuf_saturate_and_pixelate(klass->switch_image1,klass->switch_image1,10.0,FALSE);
-
-//----------- horizontal slider
-  klass->slider_image = gdk_pixbuf_new_from_xpm_data(slidersm_xpm);
-  g_assert(klass->slider_image != NULL);
-  klass->slider_image1 = gdk_pixbuf_copy( klass->slider_image );
-  g_assert(klass->slider_image1 != NULL);
-
-//----------- vertical slider
-  klass->vslider_image = gdk_pixbuf_rotate_simple(klass->slider_image, GDK_PIXBUF_ROTATE_CLOCKWISE);
-  g_assert(klass->vslider_image != NULL);
-  klass->vslider_image = gdk_pixbuf_flip(klass->vslider_image, TRUE);
-  klass->vslider_image1 = gdk_pixbuf_copy( klass->vslider_image );
-  g_assert(klass->vslider_image1 != NULL);
-
-//----------- mini slider
-  klass->minislider_image = gdk_pixbuf_scale_simple(klass->slider_image,40,6,GDK_INTERP_HYPER);
-  g_assert(klass->minislider_image != NULL);
-  klass->minislider_image1 = gdk_pixbuf_copy( klass->minislider_image );
-  g_assert(klass->minislider_image1 != NULL);
-//----------- horizontal wheel
-  klass->wheel_image = gdk_pixbuf_new_from_xpm_data(wheel_xpm);
-  g_assert(klass->wheel_image != NULL);
-  klass->wheel_image1 = gdk_pixbuf_new_from_xpm_data(wheel_s_xpm);
-  g_assert(klass->wheel_image1 != NULL);
-  klass->pointer_image1 = gdk_pixbuf_new_from_xpm_data(pointer_xpm);
-  g_assert(klass->pointer_image1 != NULL);
-//----------- toggle_button
-  klass->b_toggle_image = gdk_pixbuf_new_from_xpm_data (button_xpm);
-  g_assert(klass->b_toggle_image != NULL);
-  klass->b_toggle_image1 = gdk_pixbuf_new_from_xpm_data (button1_xpm);
-  //klass->b_toggle_image1 = gdk_pixbuf_copy( klass->b_toggle_image );
-  g_assert(klass->b_toggle_image1 != NULL);
-  // gdk_pixbuf_saturate_and_pixelate(klass->b_toggle_image1,klass->b_toggle_image1,3.0,FALSE);
+  GtkRegler::gtk_regler_init_pixmaps(0);
 
 }
 

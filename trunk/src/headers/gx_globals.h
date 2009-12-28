@@ -255,6 +255,7 @@ namespace gx_gui
   extern gint gx_current_skin;
   extern int last_skin;
   extern int no_opt_skin;
+  extern int set_knob;
 
   /* for level display */
   extern int meter_falloff;

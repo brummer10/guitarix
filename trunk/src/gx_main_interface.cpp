@@ -3363,9 +3363,9 @@ namespace gx_gui
 
                     openVerticalBox("");
                     {
-                      openFrameBox("");
+                      openVerticalBox1("");
                       closeBox();
-                      openFrameBox("");
+                      openVerticalBox1("");
                       closeBox();
                       addregler("fuzz",&engine->fthreshold, 1.f, 0.f, 1.f, 0.01f);
                       addHorizontalSlider("threshold", &engine->ffuse, 0.f, 0.f, 2.f, 1.f);
