@@ -462,6 +462,13 @@ namespace gx_gui
       // fetch port name from widget name
       const string port_name = gtk_widget_get_name(button);
 
+      // delete unaktive clients from portmap
+      if (!jack_port_by_name(gx_jack::client, port_name.c_str()))
+        {
+          gx_dequeue_client_port(port_name.c_str(),JACK_DEFAULT_MIDI_TYPE,0);
+          return;
+        }
+
       // connection to port
       int nconn = jack_port_connected_to(ports[index], port_name.c_str());
 

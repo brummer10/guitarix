@@ -1537,7 +1537,7 @@ namespace gx_gui
       g_signal_connect(box, "expose-event", G_CALLBACK(box1_expose), NULL);
 
       //gtk_widget_set_size_request (nolivewa, 550, 80);
-      gtk_widget_set_size_request (box, 552, 82);
+      gtk_widget_set_size_request (box, 303, 82);
       // gtk_container_add (GTK_CONTAINER(nolivewa),box );
       // openPaintBox("");
       gtk_container_add (GTK_CONTAINER(box),livewa );
@@ -3345,34 +3345,60 @@ namespace gx_gui
                 //----- open a box for the oscilloscope
                 openVerticalBox1("");
                 {
-
-
                   openHorizontalBox("");
                   {
-
-
-                    //----- the oscilloscope
-                    addLiveWaveDisplay(" ", &engine->viv , &engine->vivi);
-
-                  }
-                  closeBox();
-                  // openPaintBox("");
-                  // {
-
-                  openHorizontalBox("");
-                  {
-
-                    openVerticalBox("");
+                    openVerticalBox1("");
                     {
-                      openVerticalBox1("");
+                      openHorizontalBox("");
+                      {
+
+
+                        //----- the oscilloscope
+                        addLiveWaveDisplay(" ", &engine->viv , &engine->vivi);
+
+                      }
                       closeBox();
-                      openVerticalBox1("");
+                      // openPaintBox("");
+                      // {
+
+                      openHorizontalBox("");
+                      {
+
+                        openVerticalBox("");
+                        {
+                          openVerticalBox1("");
+                          closeBox();
+                          openVerticalBox1("");
+                          closeBox();
+                          addregler("fuzz",&engine->fthreshold, 1.f, 0.f, 1.f, 0.01f);
+                          addHorizontalSlider("threshold", &engine->ffuse, 0.f, 0.f, 2.f, 1.f);
+                        }
+                        closeBox();
+
+                        openFrameBox("");
+                        closeBox();
+
+                        openFrameBox("");
+                        closeBox();
+
+                        openFrameBox("");
+                        closeBox();
+
+                        openFrameBox("");
+                        closeBox();
+
+                        openFrameBox("");
+                        closeBox();
+
+
+
+                      }
                       closeBox();
-                      addregler("fuzz",&engine->fthreshold, 1.f, 0.f, 1.f, 0.01f);
-                      addHorizontalSlider("threshold", &engine->ffuse, 0.f, 0.f, 2.f, 1.f);
+
                     }
                     closeBox();
 
+                    //----- fill empty space
                     openFrameBox("");
                     closeBox();
 
@@ -3381,50 +3407,25 @@ namespace gx_gui
 
                     openFrameBox("");
                     closeBox();
-
                     openFrameBox("");
                     closeBox();
 
-                    openFrameBox("");
-                    closeBox();
-
-                    openFrameBox("");
-                    closeBox();
-
-                    openFrameBox("");
-                    closeBox();
-
-                    openFrameBox("");
-                    closeBox();
-
-                    openFrameBox("");
-                    closeBox();
-
-                    openFrameBox("");
-                    closeBox();
-
-                    openFrameBox("");
-                    closeBox();
-
-                    openFrameBox("");
-                    closeBox();
                   }
+                  //----- close ocsilloscope box
                   closeBox();
-
-
-
-                  //----- fill empty space
                   openFrameBox("");
                   closeBox();
 
-                  //  }
-                  //  closeBox();
-                  //}
-                  //closeBox();
+                  openFrameBox("");
+                  closeBox();
+
+                  openFrameBox("");
+                  closeBox();
+
 
                 }
-                //----- close ocsilloscope box
                 closeBox();
+
               }
               closeBox();
             }
