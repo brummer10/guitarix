@@ -2837,13 +2837,13 @@ namespace gx_gui
                       }
 
                       closeBox();
-                      addminiswitch(" oversample  ", &engine->fupsample);
+                      addminiswitch(" oversample       ", &engine->fupsample);
                       openVerticalBox1("");
                       {
                       }
 
                       closeBox();
-                      addminiswitch(" bass booster ", &engine->fboost);
+                      addminiswitch(" bass booster      ", &engine->fboost);
                       openVerticalBox1("");
                       {
                       }

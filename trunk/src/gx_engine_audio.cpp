@@ -848,29 +848,29 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   if (fnoise_g) noise_gate (count,input);
   else ngate = 1;
   if (fng) noise_shaper(count,input,input);
-
+  if (fcheckbox1) preamp(count,input,input,atan_shape,f_atan);
 
   // 2*oversample
   if (fupsample)
     {
       over_sample(input,&oversample,count);
 
-      // if (ing)  noise_gate(count*2,&oversample,&oversample);
+
+      if (antialis0)  AntiAlias(count*2,&oversample,&oversample);
       if (ftube)    fuzzy_tube(ffuzzytube, 0,count*2,&oversample,&oversample);
       if (ftube3)   reso_tube(fresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
       if (fprdr)    fuzzy_tube(fpredrive, 1,count*2,&oversample,&oversample);
-      if (antialis0)  AntiAlias(count*2,&oversample,&oversample);
+
       down_sample(&oversample,input,count);
     }
   // or plain sample
   else
     {
 
-      //if (ing)  noise_gate(count,input,input);
+      if (antialis0)  AntiAlias(count,input,input);
       if (ftube)    fuzzy_tube(ffuzzytube, 0,count,input,input);
       if (ftube3)   osc_tube(fresotube3,count,f_resotube1, f_resotube2,input,input);
       if (fprdr)    fuzzy_tube(fpredrive, 1,count,input,input);
-      if (antialis0)  AntiAlias(count,input,input);
     }
 
   // pointers to the jack_output_buffers
@@ -941,7 +941,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
       fTemp0 = (fRec4[0] * fTemp0);
 
-      if (fcheckbox1)     // preamp
+      /* *****DEPRACTED***** */
+    /*  if (fcheckbox1)     // preamp
         {
           float  fTemp0in = (fTemp0-0.15*(fTemp0*fTemp0))-(0.15*(fTemp0*fTemp0*fTemp0));
           fTemp0 = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
@@ -949,7 +950,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           //fTemp0 = valve(fTemp0in,fTemp0in)*0.75;
           fTemp0 = hard_cut(fTemp0in,0.7);
         }  //preamp ende
-
+     */
 
       // vibrato
       if (fresoon)
@@ -961,7 +962,9 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
       for (int m=0; m<7; m++)
         {
-          if ((fcheckbox5) &&(posit0==m))   //crybaby
+          if (posit0==m)
+          {
+          if (fcheckbox5)    //crybaby
             {
 
               if (fautowah)
@@ -992,9 +995,10 @@ void GxEngine::process_buffers(int count, float** input, float** output)
                   fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
                   fTemp0 = ((fRec18[0] + (fSlow64 * fTemp0)) - fRec18[1]);
                 }
-            }                                     //crybaby ende
+            }
+            }                                   //crybaby ende
 
-          if (posit5==m)
+          else if (posit5==m)
             {
               if (fcheckboxcom1)     // compressor
                 {
@@ -1016,8 +1020,9 @@ void GxEngine::process_buffers(int count, float** input, float** output)
             }
 
 
-
-          if ((foverdrive4) &&(posit1==m))     // overdrive
+          else if (posit1==m)
+          {
+          if (foverdrive4)    // overdrive
             {
               //float fTempdr0 = fTemp0;
               float fTempdr1 = fabs(fTemp0);
@@ -1025,8 +1030,11 @@ void GxEngine::process_buffers(int count, float** input, float** output)
               fTemp0 = (fTemp0*(fTempdr1 + drive)/(fTemp0*fTemp0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
 
             }
+          }
 
-          if ((fcheckbox4)&&(posit2==m))      // distortion
+          else if (posit2==m)
+          {
+          if (fcheckbox4)      // distortion
             {
               float 	S6[2];
               float 	S7[2];
@@ -1070,11 +1078,13 @@ void GxEngine::process_buffers(int count, float** input, float** output)
               fTemp0 = S6[iSlow40];
 
             }
+          }
           //else if (m==0)   		// distortion end
 
 
-
-          if ((fcheckbox6) &&(posit3==m))     //freeverb
+          else if (posit3==m)
+          {
+          if (fcheckbox6)      //freeverb
             {
               float fTemp9 = (1.500000e-02f * fTemp0);
               fRec31[0] = ((fSlow69 * fRec30[1]) + (fSlow68 * fRec31[1]));
@@ -1116,20 +1126,25 @@ void GxEngine::process_buffers(int count, float** input, float** output)
               float 	fRec23 = (fRec22[1] - fRec25);
               fTemp0 = ((fSlow66 * (fRec23 + fTemp9)) + (fSlow67 * fTemp0));
             }
+          }
 
-
-          if ((fcheckbox7) &&(posit6==m))    //echo
+          else if (posit6==m)
+          {
+          if (fcheckbox7)   //echo
             {
               fRec47[IOTA&262143] = (fTemp0 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
               fTemp0 = fRec47[(IOTA-0)&262143];
-            }                                     //echo ende
-
-          if ((fcheckbox8) &&(posit4==m))     //impulseResponse
+            }
+            }                                    //echo ende
+          else if (posit4==m)
+          {
+          if (fcheckbox8)     //impulseResponse
             {
               fVec22[0] = fTemp0;
               fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
               fTemp0 = (fRec48[0] + fVec22[0]);
             }
+          }
           // else  fVec23[0] = fTemp0;   //impulseResponse ende
         }
 
