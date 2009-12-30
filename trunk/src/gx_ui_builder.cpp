@@ -633,21 +633,21 @@ void GxMainInterface::setup()
                   }
                   //----- end echo
                   openHorizontalOrderBox("", &engine->posit7);
+                  {
+                    openVerticalBox("delay");
                     {
-                        openVerticalBox("delay");
+                      openHorizontalBox("");
                       {
-openHorizontalBox("");
-                        {
-                  addregler(" delay ", &engine->fsliderdel2,  0.f, 0.f, 5000.0f, 10.f);
-                  addregler("  gain ", &engine->fdel_gain1, 0.0f, -20.0f, 20.0f, 0.1f);
-                  }
-                    closeBox();
-                  addtoggle("", &engine->fdelay);
-
-                   }
+                        addregler(" delay ", &engine->fsliderdel2,  0.f, 0.f, 5000.0f, 10.f);
+                        addregler("  gain ", &engine->fdel_gain1, 0.0f, -20.0f, 20.0f, 0.1f);
+                      }
                       closeBox();
+                      addtoggle("", &engine->fdelay);
+
                     }
                     closeBox();
+                  }
+                  closeBox();
 
 
                   //----- chorus

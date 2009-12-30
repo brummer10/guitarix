@@ -843,7 +843,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       (void)memcpy(checkfreq, input0, sizeof(float)*count);
       moving_filter(&checkfreq, &checkfreq, count);
     }
-   //moving_filter(input,input,count);
+  //moving_filter(input,input,count);
 
   // run pre_funktions on frame base
   if (fnoise_g) noise_gate (count,input);
@@ -943,15 +943,15 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fTemp0 = (fRec4[0] * fTemp0);
 
       /* *****DEPRACTED***** */
-    /*  if (fcheckbox1)     // preamp
-        {
-          float  fTemp0in = (fTemp0-0.15*(fTemp0*fTemp0))-(0.15*(fTemp0*fTemp0*fTemp0));
-          fTemp0 = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
-          fTemp0in = normalize(fTemp0,atan_shape,f_atan);
-          //fTemp0 = valve(fTemp0in,fTemp0in)*0.75;
-          fTemp0 = hard_cut(fTemp0in,0.7);
-        }  //preamp ende
-     */
+      /*  if (fcheckbox1)     // preamp
+          {
+            float  fTemp0in = (fTemp0-0.15*(fTemp0*fTemp0))-(0.15*(fTemp0*fTemp0*fTemp0));
+            fTemp0 = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
+            fTemp0in = normalize(fTemp0,atan_shape,f_atan);
+            //fTemp0 = valve(fTemp0in,fTemp0in)*0.75;
+            fTemp0 = hard_cut(fTemp0in,0.7);
+          }  //preamp ende
+       */
 
       // vibrato
       if (fresoon)
@@ -964,39 +964,39 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       for (int m=0; m<8; m++)
         {
           if (posit0==m)
-          {
-          if (fcheckbox5)    //crybaby
             {
-
-              if (fautowah)
-                {
-                  //float fTempw0 = (fTemp0*0.001);
-                  //fTempw0 = (fTempw0*1000);
-                  int iTempwah1 = abs(int((4194304 * (fTemp0+ 1e-20))));
-                  iVecwah0[IOTAWAH&1023] = iTempwah1;
-                  iRecwah2[0] = ((iVecwah0[IOTAWAH&1023] + iRecwah2[1]) - iVecwah0[(IOTAWAH-1000)&1023]);
-                  float fTempwah2 = min(1, max(0, (fmapping * float(iRecwah2[0]))));
-                  fRec19[0] = ((9.999872e-05f * my4powf( fTempwah2)) + (0.999f * fRec19[1]));
-                  add_dc(fTempwah2);
-                  float fTempwah3 = my2powf(2.3f * fTempwah2);
-                  float fTempwah4 = (1 - (fConst10 * (fTempwah3 / my2powf(1.0f + (2.0f * (1.0f - fTempwah2))))));
-                  fRec20[0] = ((9.999871e-04f * (0 - (2.0f * (fTempwah4 * cosf((fConst9 * fTempwah3)))))) + (0.999f * fRec20[1]));
-                  fRec21[0] = ((9.999871e-04f * (fTempwah4 * fTempwah4)) + (0.999f * fRec21[1]));
-                  fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
-                  fTemp0 = (((fSlow64 *fTemp0) + fRec18[0]) - fRec18[1]);
-                }
-              else
+              if (fcheckbox5)    //crybaby
                 {
 
-                  fRec19[0] = (fSlow57 + (0.999f * fRec19[1])); //wah slider
-                  fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
-                  fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));  // wah slider
+                  if (fautowah)
+                    {
+                      //float fTempw0 = (fTemp0*0.001);
+                      //fTempw0 = (fTempw0*1000);
+                      int iTempwah1 = abs(int((4194304 * (fTemp0+ 1e-20))));
+                      iVecwah0[IOTAWAH&1023] = iTempwah1;
+                      iRecwah2[0] = ((iVecwah0[IOTAWAH&1023] + iRecwah2[1]) - iVecwah0[(IOTAWAH-1000)&1023]);
+                      float fTempwah2 = min(1, max(0, (fmapping * float(iRecwah2[0]))));
+                      fRec19[0] = ((9.999872e-05f * my4powf( fTempwah2)) + (0.999f * fRec19[1]));
+                      add_dc(fTempwah2);
+                      float fTempwah3 = my2powf(2.3f * fTempwah2);
+                      float fTempwah4 = (1 - (fConst10 * (fTempwah3 / my2powf(1.0f + (2.0f * (1.0f - fTempwah2))))));
+                      fRec20[0] = ((9.999871e-04f * (0 - (2.0f * (fTempwah4 * cosf((fConst9 * fTempwah3)))))) + (0.999f * fRec20[1]));
+                      fRec21[0] = ((9.999871e-04f * (fTempwah4 * fTempwah4)) + (0.999f * fRec21[1]));
+                      fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
+                      fTemp0 = (((fSlow64 *fTemp0) + fRec18[0]) - fRec18[1]);
+                    }
+                  else
+                    {
+
+                      fRec19[0] = (fSlow57 + (0.999f * fRec19[1])); //wah slider
+                      fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
+                      fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));  // wah slider
 
 
-                  fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
-                  fTemp0 = ((fRec18[0] + (fSlow64 * fTemp0)) - fRec18[1]);
+                      fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
+                      fTemp0 = ((fRec18[0] + (fSlow64 * fTemp0)) - fRec18[1]);
+                    }
                 }
-            }
             }                                   //crybaby ende
 
           else if (posit5==m)
@@ -1022,139 +1022,139 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
 
           else if (posit1==m)
-          {
-          if (foverdrive4)    // overdrive
             {
-              //float fTempdr0 = fTemp0;
-              float fTempdr1 = fabs(fTemp0);
-              fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
-              fTemp0 = (fTemp0*(fTempdr1 + drive)/(fTemp0*fTemp0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
+              if (foverdrive4)    // overdrive
+                {
+                  //float fTempdr0 = fTemp0;
+                  float fTempdr1 = fabs(fTemp0);
+                  fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
+                  fTemp0 = (fTemp0*(fTempdr1 + drive)/(fTemp0*fTemp0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
 
+                }
             }
-          }
 
           else if (posit2==m)
-          {
-          if (fcheckbox4)      // distortion
             {
-              float 	S6[2];
-              float 	S7[2];
-              float 	S8[2];
-              fTemp0 = (fTemp0*0.001);
-              fVec1[IOTA&4095] = ((fTemp0*1000) + (fSlow19 * fRec6[1]));
-              fRec6[0] = (0.5f * (fVec1[(IOTA-iSlow22)&4095] + fVec1[(IOTA-iSlow21)&4095]));
-              add_dc(fRec6[0]);
-              S8[0] = fRec6[0];
-              fVec2[0] = (fSlow25 * fRec6[0]);
-              fRec8[0] = (fVec2[1] + (fSlow25 * (fRec6[0] + (fSlow24 * fRec8[1]))));
-              fVec3[0] = (fSlow28 * fRec8[0]);
-              fRec7[0] = ((fVec3[0] + (fSlow29 * fRec7[1])) - fVec3[1]);
-              S8[1] = fRec7[0];
-              float fTemp3 = S8[iSlow41];
-              add_dc(fTemp3);
-              S7[0] = fTemp3;
-              fVec4[0] = (fSlow39 * fTemp3);
-              fRec12[0] = ((fSlow39 * (fTemp3 + (fSlow40 * fRec12[1]))) - fVec4[1]);
-              fVec5[0] = (fSlow39 * fRec12[0]);
-              fRec11[0] = ((fSlow39 * (fRec12[0] + (fSlow40 * fRec11[1]))) - fVec5[1]);
-              fRec10[0] = (fRec11[0] - (fSlow37 * ((fSlow36 * fRec10[2]) + (fSlow32 * fRec10[1]))));
-              fRec9[0] = ((fSlow37 * (fRec10[2] + (fRec10[0] + (2 * fRec10[1])))) - (fSlow35 * ((fSlow34 * fRec9[2]) + (fSlow32 * fRec9[1]))));
-              S7[1] = (fSlow35 * (fRec9[2] + (fRec9[0] + (2 * fRec9[1]))));
-              add_dc(S7[1]);
-              float fTemp4 = max(-1, min(1, (fSlow43 * (fSlow42 + S7[iSlow40]))));
-              add_dc(fTemp4);
-              fVec6[0] = (fTemp4 * (1 - (0.333333f * (fTemp4 * fTemp4))));
-              fRec5[0] = ((fVec6[0] + (0.995f * fRec5[1])) - fVec6[1]);
-              fRec13[0] = (fSlow44 + (0.999f * fRec13[1]));
-              float fTemp6 = (fRec13[0] * fRec5[0]);
-              add_dc(fTemp6);
-              S6[0] = fTemp6;
-              fVec7[0] = (fSlow39 * fTemp6);
-              fRec17[0] = ((fSlow39 * (fTemp6 + (fSlow40 * fRec17[1]))) - fVec7[1]);
-              fVec8[0] = (fSlow39 * fRec17[0]);
-              fRec16[0] = ((fSlow39 * (fRec17[0] + (fSlow40 * fRec16[1]))) - fVec8[1]);
-              fRec15[0] = (fRec16[0] - (fSlow37 * ((fSlow36 * fRec15[2]) + (fSlow32 * fRec15[1]))));
-              fRec14[0] = ((fSlow37 * (fRec15[2] + (fRec15[0] + (2 * fRec15[1])))) - (fSlow35 * ((fSlow34 * fRec14[2]) + (fSlow32 * fRec14[1]))));
-              S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
-              fTemp0 = S6[iSlow40];
+              if (fcheckbox4)      // distortion
+                {
+                  float 	S6[2];
+                  float 	S7[2];
+                  float 	S8[2];
+                  fTemp0 = (fTemp0*0.001);
+                  fVec1[IOTA&4095] = ((fTemp0*1000) + (fSlow19 * fRec6[1]));
+                  fRec6[0] = (0.5f * (fVec1[(IOTA-iSlow22)&4095] + fVec1[(IOTA-iSlow21)&4095]));
+                  add_dc(fRec6[0]);
+                  S8[0] = fRec6[0];
+                  fVec2[0] = (fSlow25 * fRec6[0]);
+                  fRec8[0] = (fVec2[1] + (fSlow25 * (fRec6[0] + (fSlow24 * fRec8[1]))));
+                  fVec3[0] = (fSlow28 * fRec8[0]);
+                  fRec7[0] = ((fVec3[0] + (fSlow29 * fRec7[1])) - fVec3[1]);
+                  S8[1] = fRec7[0];
+                  float fTemp3 = S8[iSlow41];
+                  add_dc(fTemp3);
+                  S7[0] = fTemp3;
+                  fVec4[0] = (fSlow39 * fTemp3);
+                  fRec12[0] = ((fSlow39 * (fTemp3 + (fSlow40 * fRec12[1]))) - fVec4[1]);
+                  fVec5[0] = (fSlow39 * fRec12[0]);
+                  fRec11[0] = ((fSlow39 * (fRec12[0] + (fSlow40 * fRec11[1]))) - fVec5[1]);
+                  fRec10[0] = (fRec11[0] - (fSlow37 * ((fSlow36 * fRec10[2]) + (fSlow32 * fRec10[1]))));
+                  fRec9[0] = ((fSlow37 * (fRec10[2] + (fRec10[0] + (2 * fRec10[1])))) - (fSlow35 * ((fSlow34 * fRec9[2]) + (fSlow32 * fRec9[1]))));
+                  S7[1] = (fSlow35 * (fRec9[2] + (fRec9[0] + (2 * fRec9[1]))));
+                  add_dc(S7[1]);
+                  float fTemp4 = max(-1, min(1, (fSlow43 * (fSlow42 + S7[iSlow40]))));
+                  add_dc(fTemp4);
+                  fVec6[0] = (fTemp4 * (1 - (0.333333f * (fTemp4 * fTemp4))));
+                  fRec5[0] = ((fVec6[0] + (0.995f * fRec5[1])) - fVec6[1]);
+                  fRec13[0] = (fSlow44 + (0.999f * fRec13[1]));
+                  float fTemp6 = (fRec13[0] * fRec5[0]);
+                  add_dc(fTemp6);
+                  S6[0] = fTemp6;
+                  fVec7[0] = (fSlow39 * fTemp6);
+                  fRec17[0] = ((fSlow39 * (fTemp6 + (fSlow40 * fRec17[1]))) - fVec7[1]);
+                  fVec8[0] = (fSlow39 * fRec17[0]);
+                  fRec16[0] = ((fSlow39 * (fRec17[0] + (fSlow40 * fRec16[1]))) - fVec8[1]);
+                  fRec15[0] = (fRec16[0] - (fSlow37 * ((fSlow36 * fRec15[2]) + (fSlow32 * fRec15[1]))));
+                  fRec14[0] = ((fSlow37 * (fRec15[2] + (fRec15[0] + (2 * fRec15[1])))) - (fSlow35 * ((fSlow34 * fRec14[2]) + (fSlow32 * fRec14[1]))));
+                  S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
+                  fTemp0 = S6[iSlow40];
 
+                }
             }
-          }
           //else if (m==0)   		// distortion end
 
 
           else if (posit3==m)
-          {
-          if (fcheckbox6)      //freeverb
             {
-              float fTemp9 = (1.500000e-02f * fTemp0);
-              fRec31[0] = ((fSlow69 * fRec30[1]) + (fSlow68 * fRec31[1]));
-              fVec10[IOTA&2047] = (fTemp9 + (fSlow70 * fRec31[0]));
-              fRec30[0] = fVec10[(IOTA-1640)&2047];
-              fRec33[0] = ((fSlow69 * fRec32[1]) + (fSlow68 * fRec33[1]));
-              fVec11[IOTA&2047] = (fTemp9 + (fSlow70 * fRec33[0]));
-              fRec32[0] = fVec11[(IOTA-1580)&2047];
-              fRec35[0] = ((fSlow69 * fRec34[1]) + (fSlow68 * fRec35[1]));
-              fVec12[IOTA&2047] = (fTemp9 + (fSlow70 * fRec35[0]));
-              fRec34[0] = fVec12[(IOTA-1514)&2047];
-              fRec37[0] = ((fSlow69 * fRec36[1]) + (fSlow68 * fRec37[1]));
-              fVec13[IOTA&2047] = (fTemp9 + (fSlow70 * fRec37[0]));
-              fRec36[0] = fVec13[(IOTA-1445)&2047];
-              fRec39[0] = ((fSlow69 * fRec38[1]) + (fSlow68 * fRec39[1]));
-              fVec14[IOTA&2047] = (fTemp9 + (fSlow70 * fRec39[0]));
-              fRec38[0] = fVec14[(IOTA-1379)&2047];
-              fRec41[0] = ((fSlow69 * fRec40[1]) + (fSlow68 * fRec41[1]));
-              fVec15[IOTA&2047] = (fTemp9 + (fSlow70 * fRec41[0]));
-              fRec40[0] = fVec15[(IOTA-1300)&2047];
-              fRec43[0] = ((fSlow69 * fRec42[1]) + (fSlow68 * fRec43[1]));
-              fVec16[IOTA&2047] = (fTemp9 + (fSlow70 * fRec43[0]));
-              fRec42[0] = fVec16[(IOTA-1211)&2047];
-              fRec45[0] = ((fSlow69 * fRec44[1]) + (fSlow68 * fRec45[1]));
-              fVec17[IOTA&2047] = (fTemp9 + (fSlow70 * fRec45[0]));
-              fRec44[0] = fVec17[(IOTA-1139)&2047];
-              float fTemp10 = (((((((fRec44[0] + fRec42[0]) + fRec40[0]) + fRec38[0]) + fRec36[0]) + fRec34[0]) + fRec32[0]) + fRec30[0]);
-              fVec18[IOTA&1023] = (fTemp10 + (0.5f * fRec28[1]));
-              fRec28[0] = fVec18[(IOTA-579)&1023];
-              float 	fRec29 = (0 - (fTemp10 - fRec28[1]));
-              fVec19[IOTA&511] = (fRec29 + (0.5f * fRec26[1]));
-              fRec26[0] = fVec19[(IOTA-464)&511];
-              float 	fRec27 = (fRec26[1] - fRec29);
-              fVec20[IOTA&511] = (fRec27 + (0.5f * fRec24[1]));
-              fRec24[0] = fVec20[(IOTA-364)&511];
-              float 	fRec25 = (fRec24[1] - fRec27);
-              fVec21[IOTA&255] = (fRec25 + (0.5f * fRec22[1]));
-              fRec22[0] = fVec21[(IOTA-248)&255];
-              float 	fRec23 = (fRec22[1] - fRec25);
-              fTemp0 = ((fSlow66 * (fRec23 + fTemp9)) + (fSlow67 * fTemp0));
+              if (fcheckbox6)      //freeverb
+                {
+                  float fTemp9 = (1.500000e-02f * fTemp0);
+                  fRec31[0] = ((fSlow69 * fRec30[1]) + (fSlow68 * fRec31[1]));
+                  fVec10[IOTA&2047] = (fTemp9 + (fSlow70 * fRec31[0]));
+                  fRec30[0] = fVec10[(IOTA-1640)&2047];
+                  fRec33[0] = ((fSlow69 * fRec32[1]) + (fSlow68 * fRec33[1]));
+                  fVec11[IOTA&2047] = (fTemp9 + (fSlow70 * fRec33[0]));
+                  fRec32[0] = fVec11[(IOTA-1580)&2047];
+                  fRec35[0] = ((fSlow69 * fRec34[1]) + (fSlow68 * fRec35[1]));
+                  fVec12[IOTA&2047] = (fTemp9 + (fSlow70 * fRec35[0]));
+                  fRec34[0] = fVec12[(IOTA-1514)&2047];
+                  fRec37[0] = ((fSlow69 * fRec36[1]) + (fSlow68 * fRec37[1]));
+                  fVec13[IOTA&2047] = (fTemp9 + (fSlow70 * fRec37[0]));
+                  fRec36[0] = fVec13[(IOTA-1445)&2047];
+                  fRec39[0] = ((fSlow69 * fRec38[1]) + (fSlow68 * fRec39[1]));
+                  fVec14[IOTA&2047] = (fTemp9 + (fSlow70 * fRec39[0]));
+                  fRec38[0] = fVec14[(IOTA-1379)&2047];
+                  fRec41[0] = ((fSlow69 * fRec40[1]) + (fSlow68 * fRec41[1]));
+                  fVec15[IOTA&2047] = (fTemp9 + (fSlow70 * fRec41[0]));
+                  fRec40[0] = fVec15[(IOTA-1300)&2047];
+                  fRec43[0] = ((fSlow69 * fRec42[1]) + (fSlow68 * fRec43[1]));
+                  fVec16[IOTA&2047] = (fTemp9 + (fSlow70 * fRec43[0]));
+                  fRec42[0] = fVec16[(IOTA-1211)&2047];
+                  fRec45[0] = ((fSlow69 * fRec44[1]) + (fSlow68 * fRec45[1]));
+                  fVec17[IOTA&2047] = (fTemp9 + (fSlow70 * fRec45[0]));
+                  fRec44[0] = fVec17[(IOTA-1139)&2047];
+                  float fTemp10 = (((((((fRec44[0] + fRec42[0]) + fRec40[0]) + fRec38[0]) + fRec36[0]) + fRec34[0]) + fRec32[0]) + fRec30[0]);
+                  fVec18[IOTA&1023] = (fTemp10 + (0.5f * fRec28[1]));
+                  fRec28[0] = fVec18[(IOTA-579)&1023];
+                  float 	fRec29 = (0 - (fTemp10 - fRec28[1]));
+                  fVec19[IOTA&511] = (fRec29 + (0.5f * fRec26[1]));
+                  fRec26[0] = fVec19[(IOTA-464)&511];
+                  float 	fRec27 = (fRec26[1] - fRec29);
+                  fVec20[IOTA&511] = (fRec27 + (0.5f * fRec24[1]));
+                  fRec24[0] = fVec20[(IOTA-364)&511];
+                  float 	fRec25 = (fRec24[1] - fRec27);
+                  fVec21[IOTA&255] = (fRec25 + (0.5f * fRec22[1]));
+                  fRec22[0] = fVec21[(IOTA-248)&255];
+                  float 	fRec23 = (fRec22[1] - fRec25);
+                  fTemp0 = ((fSlow66 * (fRec23 + fTemp9)) + (fSlow67 * fTemp0));
+                }
             }
-          }
 
           else if (posit6==m)
-          {
-          if (fcheckbox7)   //echo
             {
-              fRec47[IOTA&262143] = (fTemp0 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
-              fTemp0 = fRec47[(IOTA-0)&262143];
-            }
+              if (fcheckbox7)   //echo
+                {
+                  fRec47[IOTA&262143] = (fTemp0 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
+                  fTemp0 = fRec47[(IOTA-0)&262143];
+                }
             }                                    //echo ende
           else if (posit4==m)
-          {
-          if (fcheckbox8)     //impulseResponse
             {
-              fVec22[0] = fTemp0;
-              fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
-              fTemp0 = (fRec48[0] + fVec22[0]);
+              if (fcheckbox8)     //impulseResponse
+                {
+                  fVec22[0] = fTemp0;
+                  fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
+                  fTemp0 = (fRec48[0] + fVec22[0]);
+                }
             }
-          }
           else if (posit7==m)
-          {
-              if (fdelay)     //delay
             {
-           fRecdel[0] = (fdelgain + (0.999f * fRecdel[1]));
-           fVecdel2[IOTAdel&262143] = fTemp0;
-           fTemp0 += fVecdel2[(IOTAdel-iSlowdel2)&262143] * fRecdel[0];
+              if (fdelay)     //delay
+                {
+                  fRecdel[0] = (fdelgain + (0.999f * fRecdel[1]));
+                  fVecdel2[IOTAdel&262143] = fTemp0;
+                  fTemp0 += fVecdel2[(IOTAdel-iSlowdel2)&262143] * fRecdel[0];
+                }
             }
-          }
 
           // else  fVec23[0] = fTemp0;   //impulseResponse ende
         }
