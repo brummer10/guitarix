@@ -1188,9 +1188,6 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fRec0[0] = foldback(fRec0[0],threshold);
           break;
         }
-      // trigger the oscilloscope to update peer sample. I know that some samples dont will show, but it will
-      // update fast as  posible this way (mode 3)
-      if ((gx_gui::showwave == 1) &&(gx_gui::wave_view_mode == gx_gui::kWvMode3)) viv = fRec0[0];
 
       // split into left and right channel
       out_to_1 = fRec0[0];
@@ -1357,11 +1354,6 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
     }
 
-  // trigger the oscilloscope to update on frame base (mode 1 and 2)
-  /* if ((gx_gui::showwave == 1) &&
-       ((gx_gui::wave_view_mode == gx_gui::kWvMode1) ||
-        (gx_gui::wave_view_mode == gx_gui::kWvMode2)))
-       viv = fRec0[1]; */
 
   output1 = output[0];
   output3 = output[1];

@@ -115,8 +115,7 @@ namespace gx_ui
     virtual void addNumDisplay(const char* label, float* zone) {};
     virtual void addLiveWaveDisplay(const char* label, float* zone , float* zone1) {};
     virtual void addStatusDisplay(const char* label, float* zone ) {};
-    virtual void addHorizontalBargraph(const char* label, float* zone, float min, float max){};
-    virtual void addVerticalBargraph(const char* label, float* zone, float min, float max){};
+
 
     void addCallback(float* zone, GxUiCallback foo, void* data);
 
