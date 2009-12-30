@@ -825,14 +825,12 @@ namespace gx_gui
     void GxMainInterface::openScrollBox(const char* label)
     {
       GtkWidget * scrollbox = gtk_scrolled_window_new(NULL,NULL);
-      gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollbox),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
-      // gtk_widget_set_size_request (scrollbox, 580, 250);
+      gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollbox),GTK_POLICY_AUTOMATIC,GTK_POLICY_NEVER);
+       gtk_widget_set_size_request (scrollbox, 338, -1);
       GtkWidget * box = gtk_vbox_new (homogene, 0);
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-      GtkWidget * frame =  gtk_handle_box_new ();
-      gtk_handle_box_set_handle_position(GTK_HANDLE_BOX(frame),GTK_POS_TOP);
-      gtk_container_add (GTK_CONTAINER(frame), box);
-      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbox),GTK_WIDGET(frame));
+      g_signal_connect(box, "expose-event", G_CALLBACK(box4_expose), NULL);
+      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbox),GTK_WIDGET(box));
 
       gtk_container_add (GTK_CONTAINER(fBox[fTop]), scrollbox);
       gtk_widget_show_all(scrollbox);
@@ -2963,7 +2961,17 @@ namespace gx_gui
 
               //----- this box include all effects and the osccilloscope
 
+openHorizontalBox("");
+                {
 
+                    openFrameBox("");
+                  closeBox();
+
+                  openFrameBox("");
+                  closeBox();
+
+                  openFrameBox("");
+                  closeBox();
               openVerticalBox1("");
               {
                 //  openScrollBox("  ");
@@ -2978,7 +2986,8 @@ namespace gx_gui
                 closeBox();
 
                 //----- this box include only the effects
-
+                openScrollBox("");
+                {
                 openHorizontalTableBox("");
                 {
                   //  openFrameBox("");
@@ -3337,8 +3346,8 @@ namespace gx_gui
 
                 }
                 closeBox();
-                // }
-                // closeBox();
+                 }
+                closeBox();
                 //----- close vertical effect box
 
 
@@ -3428,10 +3437,28 @@ namespace gx_gui
 
               }
               closeBox();
-            }
-            closeBox();
+              }
+              closeBox();
+              openFrameBox("");
+                  closeBox();
 
+                  openFrameBox("");
+                  closeBox();
+
+                  openFrameBox("");
+                  closeBox();
             openFrameBox("");
+            closeBox();
+openFrameBox("");
+                  closeBox();
+
+                  openFrameBox("");
+                  closeBox();
+
+                  openFrameBox("");
+                  closeBox();
+
+            }
             closeBox();
 
 
@@ -3664,6 +3691,7 @@ namespace gx_gui
         }
         closeBox();
         //----- close botton box
+
       }
 
       closeBox();

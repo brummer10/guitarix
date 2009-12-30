@@ -884,13 +884,12 @@ namespace gx_jack
         {
 	case 0:
 	  gx_print_info("Jack Port Connect",
-			port1 + string(" and  ") + port2
-			+ string(" are now _CONNECTED_"));
+			port1 + string(" connected to  ") + port2);
 	  break;
 
 	case EEXIST: // already connected
 	  gx_print_info("Jack Port Connect",
-			port1 + string(" and  ") + port2 +
+			port1 + string(" and ") + port2 +
 			string(" ALREADY connected"));
 	  break;
 
@@ -914,8 +913,7 @@ namespace gx_jack
         {
 	case 0:
 	  gx_print_info("Jack Port Connect",
-			port1 + string(" and  ") + port2
-			+ string(" are now _DISCONNECTED_"));
+			port1 + string(" disconnect  ") + port2);
 	  break;
 
 	default:
