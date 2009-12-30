@@ -758,6 +758,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
   float fSlowinjc = (9.999871e-04f * powf(10, (5.000000e-02f * fjc_ingain)));
   float fSlowinjcr = (9.999871e-04f * powf(10, (5.000000e-02f * fjc_ingain1)));
+  float fdelgain = (9.999871e-04f * powf(10, (5.000000e-02f * fdel_gain1)));
 
   float out_to_1 = fRec0[0];
   float out_to_2 = fRec0[0];
@@ -831,7 +832,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   int tuner_on = gx_gui::shownote + (int)dsp::isMidiOn() + 1;
   int 	iSlowdel0 = int((int((fConstdel0 * fsliderdel0)) & 262143));
   int 	iSlowdel1 = int((int((fConstdel0 * fsliderdel1)) & 262143));
-
+  int 	iSlowdel2 = int((int((fConstdel0 * fsliderdel2)) & 262143));
 
   // pointer to the jack_buffer
   float*  input0 = input[0];
@@ -960,7 +961,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
         }
 
 
-      for (int m=0; m<7; m++)
+      for (int m=0; m<8; m++)
         {
           if (posit0==m)
           {
@@ -1145,6 +1146,16 @@ void GxEngine::process_buffers(int count, float** input, float** output)
               fTemp0 = (fRec48[0] + fVec22[0]);
             }
           }
+          else if (posit7==m)
+          {
+              if (fdelay)     //delay
+            {
+           fRecdel[0] = (fdelgain + (0.999f * fRecdel[1]));
+           fVecdel2[IOTAdel&262143] = fTemp0;
+           fTemp0 += fVecdel2[(IOTAdel-iSlowdel2)&262143] * fRecdel[0];
+            }
+          }
+
           // else  fVec23[0] = fTemp0;   //impulseResponse ende
         }
 
@@ -1349,6 +1360,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       IOTA_CH = IOTA_CH+1;
       fRecinjc[1] = fRecinjc[0];
       fRecinjcr[1] = fRecinjcr[0];
+      fRecdel[1] = fRecdel[0];
       old_freq = fConsta4;
       IOTAdel = IOTAdel+1;
 

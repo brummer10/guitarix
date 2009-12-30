@@ -513,9 +513,11 @@ namespace gx_engine
     fConstdel0 = (1.000000e-03f * fSamplingFreq);
     zeroize(fVec_CH1,65536);
     zeroize(fVecdel1,262144);
+    zeroize(fVecdel2,262144);
     //out_to_1 = 0;
     //out_to_2 = 0;
     fsliderdel1 = 0.0f;
+    fsliderdel2 = 0.0f;
     fjc_ingain1 = 0.0f;
     fdialogboxj = 0.0f;
     posit0 = 5;
@@ -525,8 +527,11 @@ namespace gx_engine
     posit4 = 4;
     posit5 = 0;
     posit6 = 6;
-    posit7 = 7;  //unused
-
+    posit7 = 8;
+    posit8 = 7;
+    fdelay = 0;
+    fdel_gain1 = 0;
+    zeroize(fRecdel, 2);
     // end engine init
   }
 

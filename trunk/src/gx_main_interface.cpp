@@ -415,7 +415,7 @@ namespace gx_gui
 
           gtk_container_child_get_property(GTK_CONTAINER(parent),GTK_WIDGET(box),"position", &pos);
           guint per = g_value_get_int(&pos);
-          if (per<6)
+          if (per<7)
             {
               GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
               GtkWidget *obi = (GtkWidget *) g_list_nth_data(child_list,per+1);

@@ -584,7 +584,14 @@ namespace gx_engine
 	float posit4;
 	float posit5;
 	float posit6;
+	float posit8;
 	float posit7;
+
+	float 	fVecdel2[262144];
+	float 	fsliderdel2;
+	int fdelay;
+	float fdel_gain1;
+	float fRecdel[2];
 
 	//float out_to_1;
 	//float out_to_2;
