@@ -699,7 +699,7 @@ namespace gx_gui
     {
       string filename = gx_user_dir + guitarix_reset;
       GxMainInterface* interface = GxMainInterface::instance();
-      interface->recalladState(filename.c_str(),  121,  129, 7);
+      interface->recalladState(filename.c_str(),  121,  130, 7);
     }
 
     // reset the extended sliders to default settings

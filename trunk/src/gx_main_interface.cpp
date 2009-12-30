@@ -556,7 +556,7 @@ namespace gx_gui
       GtkWidget * box1 = gtk_fixed_new ();
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
       GtkWidget* 	button = gtk_button_new ();
-      GtkWidget* lw = gtk_label_new("reset");
+      GtkWidget* lw = gtk_label_new("");
       gtk_container_add (GTK_CONTAINER(button), lw);
       GdkColor colorGreen;
       gdk_color_parse("#a6a9aa", &colorGreen);
@@ -570,12 +570,11 @@ namespace gx_gui
 
       uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(button));
 
-      g_signal_connect(box, "expose-event",
-                       G_CALLBACK(box10_expose), NULL);
       g_signal_connect (GTK_OBJECT (button), "clicked",
                         G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
-      g_signal_connect  (GTK_OBJECT (button), "pressed",
-                         G_CALLBACK (gx_reset_effects), (gpointer) c);
+      /***FIXME***/
+     /*  g_signal_connect  (GTK_OBJECT (button), "pressed",
+                         G_CALLBACK (gx_reset_effects), (gpointer) c); */
 
       gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
       gtk_fixed_put (GTK_FIXED(box1), button, 10, 1);
