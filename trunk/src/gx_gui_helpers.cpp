@@ -1270,7 +1270,7 @@ namespace gx_gui
       double y0      = wi->allocation.y+5;
       double rect_width  = wi->allocation.width-10;
       double rect_height = wi->allocation.height-10;
-      double radius = 38.;
+      double radius = 36.;
       double x1,y1;
       x1=x0+rect_width;
       y1=y0+rect_height;
