@@ -380,16 +380,17 @@ inline void GxEngine::fuzzy_tube (float fuzzy, int mode, int sf,
 inline void GxEngine::preamp(int sf, float** input, float** output,
                              float atan_shape,float f_atan)
 {
+  moving_filter(input,input,sf);
   float* in = input[0];
   float* out = output[0];
 
   for (int i=0; i<sf; i++)
     {
-      float  x = *in++ *0.001 ;
+      float  x = *in++ *0.0001 ;
       float  fTemp0in = (x-0.15*(x*x))-(0.15*(x*x*x));
       x = 1.5f * fTemp0in - 0.5f * fTemp0in *fTemp0in * fTemp0in;
       fTemp0in = normalize(x,atan_shape,f_atan);
-      *out++ = fTemp0in*750;
+      *out++ = fTemp0in*7500;
 
     }
 

@@ -356,300 +356,303 @@ void GxMainInterface::setup()
               //----- this box include only the effects
               openScrollBox("");
               {
-                openHorizontalTableBox("");
+                openHorizontalBox("");
                 {
-                  //----- the compressor
-                  openHorizontalOrderBox("", &engine->posit5);
+                  openHorizontalTableBox("");
                   {
-                    openVerticalBox("compressor");
+                    //----- the compressor
+                    openHorizontalOrderBox("", &engine->posit5);
                     {
-                      addregler("ratio", &engine->fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
-                      openHorizontalBox("");
+                      openVerticalBox("compressor");
                       {
-                        addtoggle("", &engine->fcheckboxcom1);
-                        //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-                        openDialogBox("compressor", &engine->fdialogbox8);
+                        addregler("ratio", &engine->fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
+                        openHorizontalBox("");
                         {
-                          openHandleBox("  ");
-                          {
-                            openFrameBox("");
-                            closeBox();
-                            openFrameBox("");
-                            closeBox();
-                            openVerticalBox("compressor");
-                            {
-                              openHorizontalBox("");
-                              {
-                                addregler("knee",      &engine->fentrycom1, 3.000000f, 0.000000f, 20.000000f, 0.100000f);
-                                addregler("ratio",     &engine->fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
-                                addregler("threshold", &engine->fentrycom0, -20.000000f, -96.000000f, 10.000000f, 0.100000f);
-                              }
-                              closeBox();
-                              openVerticalBox("envelop");
-                              {
-                                addslider("attack",  &engine->fslidercom0, 2.000000e-03f, 0.000000f, 1.000000f, 1.000000e-03f);
-                                addslider("release", &engine->fslidercom1, 0.500000f, 0.000000f, 10.000000f, 1.000000e-02f);
-                              }
-                              closeBox();
-                            }
-                            closeBox();
-                            openFrameBox("");
-                            closeBox();
-                            openFrameBox("");
-                            closeBox();
-                          }
-                          closeBox();
-                        }
-                        closeBox();
-                      }
-                      //----- end advanced settings widget
-                      closeBox();
-                    }
-                    closeBox();
-                    //----- end compressor
-                  }
-                  closeBox();
-                  openHorizontalOrderBox("", &engine->posit1);
-                  {
-                    //----- overdrive
-                    openVerticalBox("overdrive");
-                    {
-                      addregler("  drive ", &engine->drive, 1.f, 1.f, 20.f, 0.1f);
-                      addtoggle("", &engine->foverdrive4);
-                    }
-                    closeBox();
-                    //-----end overdrive
-                  }
-                  closeBox();
-                  openHorizontalOrderBox("", &engine->posit2);
-                  {
-                    //----- distortion
-                    openVerticalBox(" distortion");
-                    {
-                      addregler("  drive ", &engine->fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
-                      openHorizontalBox("");
-                      {
-                        addtoggle("", &engine->fcheckbox4);
-
-                        //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-                        {
-                          openDialogBox("distortion", &engine->fdialogbox1);
+                          addtoggle("", &engine->fcheckboxcom1);
+                          //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
+                          openDialogBox("compressor", &engine->fdialogbox8);
                           {
                             openHandleBox("  ");
                             {
-                              addbigregler("  drive ", &engine->fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
-                              addregler("level", &engine->fslider8, 1.000000e-02f, 0.0f, 0.50f, 1.000000e-02f);
-                              addregler("gain",  &engine->fslider10, 2.0f, -10.0f, 10.0f, 0.1f);
-
-                              openVerticalBox("low/highpass");
+                              openFrameBox("");
+                              closeBox();
+                              openFrameBox("");
+                              closeBox();
+                              openVerticalBox("compressor");
                               {
                                 openHorizontalBox("");
                                 {
-                                  addregler("high-freq ", &engine->fentry1, 130.0f, 20.0f, 7040.0f, 10.0f);
-                                  addregler(" low-freq ", &engine->fentry0, 5000.0f, 20.0f, 12000.0f, 10.0f);
+                                  addregler("knee",      &engine->fentrycom1, 3.000000f, 0.000000f, 20.000000f, 0.100000f);
+                                  addregler("ratio",     &engine->fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
+                                  addregler("threshold", &engine->fentrycom0, -20.000000f, -96.000000f, 10.000000f, 0.100000f);
                                 }
                                 closeBox();
-
-                                addtoggle("", &engine->fcheckbox2);
-                              }
-                              closeBox();
-
-                              openVerticalBox("low/highcutoff");
-                              {
-                                openHorizontalBox("");
+                                openVerticalBox("envelop");
                                 {
-                                  addregler("high-freq ", &engine->fslider6, 5000.0f, 1000.0f, 12000.0f, 10.0f);
-                                  addregler(" low-freq ", &engine->fslider7, 130.0f, 20.0f, 1000.0f, 10.0f);
+                                  addslider("attack",  &engine->fslidercom0, 2.000000e-03f, 0.000000f, 1.000000f, 1.000000e-03f);
+                                  addslider("release", &engine->fslidercom1, 0.500000f, 0.000000f, 10.000000f, 1.000000e-02f);
                                 }
                                 closeBox();
-
-                                addtoggle("", &engine->fcheckbox3);
                               }
                               closeBox();
+                              openFrameBox("");
+                              closeBox();
+                              openFrameBox("");
+                              closeBox();
+                            }
+                            closeBox();
+                          }
+                          closeBox();
+                        }
+                        //----- end advanced settings widget
+                        closeBox();
+                      }
+                      closeBox();
+                      //----- end compressor
+                    }
+                    closeBox();
+                    openHorizontalOrderBox("", &engine->posit1);
+                    {
+                      //----- overdrive
+                      openVerticalBox("overdrive");
+                      {
+                        addregler("  drive ", &engine->drive, 1.f, 1.f, 20.f, 0.1f);
+                        addtoggle("", &engine->foverdrive4);
+                      }
+                      closeBox();
+                      //-----end overdrive
+                    }
+                    closeBox();
+                    openHorizontalOrderBox("", &engine->posit2);
+                    {
+                      //----- distortion
+                      openVerticalBox(" distortion");
+                      {
+                        addregler("  drive ", &engine->fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
+                        openHorizontalBox("");
+                        {
+                          addtoggle("", &engine->fcheckbox4);
 
-                              openHorizontalBox("resonanz");
+                          //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
+                          {
+                            openDialogBox("distortion", &engine->fdialogbox1);
+                            {
+                              openHandleBox("  ");
                               {
-                                addregler("trigger ",  &engine->fslider4, 0.12f, 0.0f, 1.0f, 1.000000e-02f);
-                                addregler(" vibrato ", &engine->fslider5, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
-                              }
-                              closeBox();
-                            }
-                            closeBox();
-                          }
-                          closeBox();
-                        }
-                        //----- end advanced settings widget
-                        closeBox();
-                      }
-                      closeBox();
-                      //----- end distortion
-                    }
-                    closeBox();
+                                addbigregler("  drive ", &engine->fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
+                                addregler("level", &engine->fslider8, 1.000000e-02f, 0.0f, 0.50f, 1.000000e-02f);
+                                addregler("gain",  &engine->fslider10, 2.0f, -10.0f, 10.0f, 0.1f);
 
-                    openHorizontalOrderBox("", &engine->posit3);
-                    {
-                      //----- freeverb
-                      openVerticalBox(" freeverb");
-                      {
-                        addregler("RoomSize", &engine->fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
-                        openHorizontalBox("");
-                        {
-                          addtoggle("", &engine->fcheckbox6);
-                          //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-                          openDialogBox("freeverb", &engine->fdialogbox2);
-                          {
-                            openHandleBox("  ");
-                            {
-                              openFrameBox("");
-                              closeBox();
-                              openFrameBox("");
-                              closeBox();
-                              addregler("RoomSize", &engine->fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
-                              addregler("damp", &engine->fslider15, 0.5f, 0.0f, 1.0f, 2.500000e-02f);
-                              addregler("wet/dry", &engine->fslider14, 0.0f, -0.5f, 0.5f, 1.e-01f);
-                              openFrameBox("");
-                              closeBox();
-                              openFrameBox("");
-                              closeBox();
-                            }
-                            closeBox();
-                          }
-                          closeBox();
-                        }
-                        //----- end advanced settings widget
-                        closeBox();
-                      }
-                      closeBox();
-                      //----- end freeverb
-                    }
-                    closeBox();
-
-                    openHorizontalOrderBox("", &engine->posit4);
-                    {
-                      //----- IR
-                      openVerticalBox("IR");
-                      {
-                        openHorizontalBox("");
-                        {
-                          addregler("   freq   ", &engine->fslider21, 440.000000f, 20.000000f, 12000.000000f, 10.000000f);
-                          //addregler(" peak ", &engine->fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
-                        }
-                        closeBox();
-                        openHorizontalBox("");
-                        {
-                          addtoggle("", &engine->fcheckbox8);
-                          //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-                          openDialogBox("ImpulseResponse", &engine->fdialogbox3);
-                          {
-                            openHandleBox("  ");
-                            {
-                              openFrameBox("");
-                              closeBox();
-                              openFrameBox("");
-                              closeBox();
-                              addregler("    freq     ", &engine->fslider21, 440.000000f, 20.000000f, 12000.000000f, 10.000000f);
-                              addregler("     peak    ", &engine->fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
-                              addregler("    bandwidth    ", &engine->fslider20, 100.0f, 20.0f, 20000.0f, 10.0f);
-                              openFrameBox("");
-                              closeBox();
-                              openFrameBox("");
-                              closeBox();
-                            }
-                            closeBox();
-                          }
-                          closeBox();
-                        }
-                        //----- end advanced settings widget
-                        closeBox();
-                      }
-                      closeBox();
-                      //----- end IR
-                    }
-                    closeBox();
-
-                    openHorizontalOrderBox("", &engine->posit0);
-                    {
-                      //----- crybaby
-                      openVerticalBox("crybaby");
-                      {
-                        addregler(" wah ", &engine->fslider11, 0.000000f, 0.000000f, 1.000000f, 1.000000e-02f);
-                        openHorizontalBox("");
-                        {
-                          addtoggle("", &engine->fcheckbox5);
-                          //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-                          openDialogBox("crybaby", &engine->fdialogbox4);
-                          {
-                            openHandleBox("  ");
-                            {
-                              openFrameBox("");
-                              closeBox();
-                              openFrameBox("");
-                              closeBox();
-                              openVerticalBox("");
-                              {
-                                openHorizontalTableBox("");
+                                openVerticalBox("low/highpass");
                                 {
-                                  addregler("  wah   ", &engine->fslider11, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
-                                  addregler("  level  ", &engine->fslider12, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
-                                  addregler("wet/dry", &engine->fslider13, 0.f, -1.f, 1.f, 1.e-01f);
+                                  openHorizontalBox("");
+                                  {
+                                    addregler("high-freq ", &engine->fentry1, 130.0f, 20.0f, 7040.0f, 10.0f);
+                                    addregler(" low-freq ", &engine->fentry0, 5000.0f, 20.0f, 12000.0f, 10.0f);
+                                  }
+                                  closeBox();
+
+                                  addtoggle("", &engine->fcheckbox2);
                                 }
                                 closeBox();
-                                addminiswitch(" autowah", &engine->fautowah);
+
+                                openVerticalBox("low/highcutoff");
+                                {
+                                  openHorizontalBox("");
+                                  {
+                                    addregler("high-freq ", &engine->fslider6, 5000.0f, 1000.0f, 12000.0f, 10.0f);
+                                    addregler(" low-freq ", &engine->fslider7, 130.0f, 20.0f, 1000.0f, 10.0f);
+                                  }
+                                  closeBox();
+
+                                  addtoggle("", &engine->fcheckbox3);
+                                }
+                                closeBox();
+
+                                openHorizontalBox("resonanz");
+                                {
+                                  addregler("trigger ",  &engine->fslider4, 0.12f, 0.0f, 1.0f, 1.000000e-02f);
+                                  addregler(" vibrato ", &engine->fslider5, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
+                                }
+                                closeBox();
                               }
-                              closeBox();
-                              openFrameBox("");
-                              closeBox();
-                              openFrameBox("");
                               closeBox();
                             }
                             closeBox();
                           }
+                          //----- end advanced settings widget
                           closeBox();
                         }
-                        //----- end advanced settings widget
+                        closeBox();
+                        //----- end distortion
+                      }
+                      closeBox();
+
+                      openHorizontalOrderBox("", &engine->posit3);
+                      {
+                        //----- freeverb
+                        openVerticalBox(" freeverb");
+                        {
+                          addregler("RoomSize", &engine->fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
+                          openHorizontalBox("");
+                          {
+                            addtoggle("", &engine->fcheckbox6);
+                            //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
+                            openDialogBox("freeverb", &engine->fdialogbox2);
+                            {
+                              openHandleBox("  ");
+                              {
+                                openFrameBox("");
+                                closeBox();
+                                openFrameBox("");
+                                closeBox();
+                                addregler("RoomSize", &engine->fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
+                                addregler("damp", &engine->fslider15, 0.5f, 0.0f, 1.0f, 2.500000e-02f);
+                                addregler("wet/dry", &engine->fslider14, 0.0f, -0.5f, 0.5f, 1.e-01f);
+                                openFrameBox("");
+                                closeBox();
+                                openFrameBox("");
+                                closeBox();
+                              }
+                              closeBox();
+                            }
+                            closeBox();
+                          }
+                          //----- end advanced settings widget
+                          closeBox();
+                        }
+                        closeBox();
+                        //----- end freeverb
+                      }
+                      closeBox();
+
+                      openHorizontalOrderBox("", &engine->posit4);
+                      {
+                        //----- IR
+                        openVerticalBox("IR");
+                        {
+                          openHorizontalBox("");
+                          {
+                            addregler("   freq   ", &engine->fslider21, 440.000000f, 20.000000f, 12000.000000f, 10.000000f);
+                            //addregler(" peak ", &engine->fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
+                          }
+                          closeBox();
+                          openHorizontalBox("");
+                          {
+                            addtoggle("", &engine->fcheckbox8);
+                            //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
+                            openDialogBox("ImpulseResponse", &engine->fdialogbox3);
+                            {
+                              openHandleBox("  ");
+                              {
+                                openFrameBox("");
+                                closeBox();
+                                openFrameBox("");
+                                closeBox();
+                                addregler("    freq     ", &engine->fslider21, 440.000000f, 20.000000f, 12000.000000f, 10.000000f);
+                                addregler("     peak    ", &engine->fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
+                                addregler("    bandwidth    ", &engine->fslider20, 100.0f, 20.0f, 20000.0f, 10.0f);
+                                openFrameBox("");
+                                closeBox();
+                                openFrameBox("");
+                                closeBox();
+                              }
+                              closeBox();
+                            }
+                            closeBox();
+                          }
+                          //----- end advanced settings widget
+                          closeBox();
+                        }
+                        closeBox();
+                        //----- end IR
+                      }
+                      closeBox();
+
+                      openHorizontalOrderBox("", &engine->posit0);
+                      {
+                        //----- crybaby
+                        openVerticalBox("crybaby");
+                        {
+                          addregler(" wah ", &engine->fslider11, 0.000000f, 0.000000f, 1.000000f, 1.000000e-02f);
+                          openHorizontalBox("");
+                          {
+                            addtoggle("", &engine->fcheckbox5);
+                            //----- open a dialogbox(toplevel widget) and put the advanced controlls in it
+                            openDialogBox("crybaby", &engine->fdialogbox4);
+                            {
+                              openHandleBox("  ");
+                              {
+                                openFrameBox("");
+                                closeBox();
+                                openFrameBox("");
+                                closeBox();
+                                openVerticalBox("");
+                                {
+                                  openHorizontalTableBox("");
+                                  {
+                                    addregler("  wah   ", &engine->fslider11, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
+                                    addregler("  level  ", &engine->fslider12, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
+                                    addregler("wet/dry", &engine->fslider13, 0.f, -1.f, 1.f, 1.e-01f);
+                                  }
+                                  closeBox();
+                                  addminiswitch(" autowah", &engine->fautowah);
+                                }
+                                closeBox();
+                                openFrameBox("");
+                                closeBox();
+                                openFrameBox("");
+                                closeBox();
+                              }
+                              closeBox();
+                            }
+                            closeBox();
+                          }
+                          //----- end advanced settings widget
+                          closeBox();
+                        }
+                        closeBox();
+                        //----- end crybaby
+                      }
+                      closeBox();
+
+                      openHorizontalOrderBox("", &engine->posit6);
+                      {
+                        //----- echo
+                        openVerticalBox("echo");
+                        {
+                          openHorizontalBox("");
+                          {
+                            addregler("    %    ", &engine->fslider19, 0.000000f, 0.000000f, 100.000000f, 0.100000f);
+                            addregler("  time  ", &engine->fslider18, 1.000000f, 1.000000f, 2000.000000f, 1.000000f);
+                          }
+                          closeBox();
+                          addtoggle("", &engine->fcheckbox7);
+                        }
                         closeBox();
                       }
                       closeBox();
-                      //----- end crybaby
                     }
-                    closeBox();
-
-                    openHorizontalOrderBox("", &engine->posit6);
+                    //----- end echo
+                    openHorizontalOrderBox("", &engine->posit7);
                     {
-                      //----- echo
-                      openVerticalBox("echo");
+                      openVerticalBox("delay");
                       {
                         openHorizontalBox("");
                         {
-                          addregler("    %    ", &engine->fslider19, 0.000000f, 0.000000f, 100.000000f, 0.100000f);
-                          addregler("  time  ", &engine->fslider18, 1.000000f, 1.000000f, 2000.000000f, 1.000000f);
+                          addregler(" delay ", &engine->fsliderdel2,  0.f, 0.f, 5000.0f, 10.f);
+                          addregler("  gain ", &engine->fdel_gain1, 0.0f, -20.0f, 20.0f, 0.1f);
                         }
                         closeBox();
-                        addtoggle("", &engine->fcheckbox7);
-                      }
-                      closeBox();
-                    }
-                    closeBox();
-                  }
-                  //----- end echo
-                  openHorizontalOrderBox("", &engine->posit7);
-                  {
-                    openVerticalBox("delay");
-                    {
-                      openHorizontalBox("");
-                      {
-                        addregler(" delay ", &engine->fsliderdel2,  0.f, 0.f, 5000.0f, 10.f);
-                        addregler("  gain ", &engine->fdel_gain1, 0.0f, -20.0f, 20.0f, 0.1f);
-                      }
-                      closeBox();
-                      addtoggle("", &engine->fdelay);
+                        addtoggle("", &engine->fdelay);
 
+                      }
+                      closeBox();
                     }
                     closeBox();
+
                   }
                   closeBox();
-
-
                   //----- chorus
                   openHorizontalRestetBox("", &engine->posit8);
                   {
