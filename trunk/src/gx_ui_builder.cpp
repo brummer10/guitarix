@@ -140,6 +140,12 @@ void GxMainInterface::setup()
         //----- arange all widgets in a horizontal scale
         openHorizontalBox("");
         {
+            openFrameBox("");
+            closeBox();
+            openFrameBox("");
+            closeBox();
+            openFrameBox("");
+            closeBox();
           //----- arange all widgets in a vertical scale
           openVerticalBox("");
           {
@@ -750,9 +756,9 @@ void GxMainInterface::setup()
                 }
                 //----- close ocsilloscope box
                 closeBox();
-                openFrameBox("");
+                openHorizontalBox("");
                 closeBox();
-                openFrameBox("");
+                openHorizontalBox("");
                 closeBox();
               }
               closeBox();
