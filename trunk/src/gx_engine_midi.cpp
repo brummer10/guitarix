@@ -439,7 +439,7 @@ void GxEngine::process_midi(int len)
                               midi_send[0] = 0xB0 | iTemps30 ;	// controller
                             }
 
-                          if (fcheckbox10 == 1.0)
+                          if (fcheckbox10)
                             {
                               midistat += 1.0f;
                               midi_send1 = jack_midi_event_reserve(gx_jack::midi_port_buf, i, 3);
@@ -452,7 +452,7 @@ void GxEngine::process_midi(int len)
                                 }
                             }
 
-                          if (fcheckbox11 == 1.0)
+                          if (fcheckbox11)
                             {
                               midistat += 1.0f;
                               midi_send2 = jack_midi_event_reserve(gx_jack::midi_port_buf, i, 3);

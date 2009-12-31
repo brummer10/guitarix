@@ -50,7 +50,6 @@ using namespace gx_jconv;
 #define GTK_WAVEVIEW_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GTK_TYPE_WAVEVIEW, GtkWaveViewClass))
 #define GTK_IS_WAVEVIEW_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GTK_TYPE_WAVEVIEW))
 
-#define ARRAY_SIZE (451)
 
 struct GtkWaveViewClass
   {
@@ -75,16 +74,12 @@ struct GtkWaveViewClass
 
     int liveview_x;
     int liveview_y;
-    int livecontrol_x;
-    int livecontrol_y;
     float *live_view;
     float *live_viewin;
     // float *live_freq;
     int new_pig;
     int mode;
-    int speed;
-    float *wave_save;
-    int ringis;
+
   };
 
 GType gtk_waveview_get_type ();
@@ -526,16 +521,17 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 
           double redline = 0.2;
           double greenline = 1.0;
-          if (xl > 70.0)
-            {
-              redline = 0.8;
-              //xl = 140.0;
-            }
-          if (xl > 100)
+
+          if ((xl > 100)||(xl< -100))
             {
               redline = 1;
               greenline = 0.2;
-              xl = 100.0;
+             // xl = 100.0;
+            }
+          else if ((xl > 70)||(xl< -70))
+            {
+              redline = 0.8;
+              //xl = 140.0;
             }
 
           cairo_set_source_rgba (cr,  redline, greenline, 0.2,0.8);
@@ -862,15 +858,8 @@ static void gtk_waveview_class_init (GtkWaveViewClass *klass)
   klass->waveview_y = 200;
   klass->liveview_x = 300;
   klass->liveview_y = 80;
-  klass->livecontrol_x = 50;
-  klass->livecontrol_y = 80;
   klass->mode = 1;
-  klass->speed = 5;
   klass->scale_view = 0.5;
-  klass->wave_save     = new float[ARRAY_SIZE];
-  (void)memset(klass->wave_save, 0, sizeof(float)*ARRAY_SIZE);
-
-  klass->ringis        = (ARRAY_SIZE-1)/5;
 
   widget_class->expose_event = gtk_waveview_expose;
   widget_class->size_request = gtk_waveview_size_request;
@@ -930,8 +919,7 @@ void GtkWaveView::gtk_waveview_destroy (GtkWidget *weidget, gpointer data )
   if (G_IS_OBJECT(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> liveview_image))
     g_object_unref(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image);
 
-  if (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save)
-    delete[] GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wave_save;
+
 }
 
 //----------- create waveview widget
