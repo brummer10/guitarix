@@ -1423,7 +1423,7 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
       usleep(50000);
       if (regler->regler_type == 0)
         {
-          usleep(50000);
+
           double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x,
                                 GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) * 0.5;
           int  reglerx = (widget->allocation.width -
@@ -1447,7 +1447,7 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
         }
       else if (regler->regler_type == 1)
         {
-          usleep(50000);
+
           double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x,
                                 GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
           int  reglerx = (widget->allocation.width -
