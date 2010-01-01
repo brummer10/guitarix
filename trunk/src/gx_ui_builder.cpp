@@ -551,6 +551,11 @@ void GxMainInterface::setup()
                             {
                               openHandleBox("  ");
                               {
+                                  openVerticalBox1("");
+                        {
+
+                                openHorizontalBox("");
+                          {
                                 openFrameBox("");
                                 closeBox();
                                 openFrameBox("");
@@ -562,6 +567,13 @@ void GxMainInterface::setup()
                                 closeBox();
                                 openFrameBox("");
                                 closeBox();
+
+                                }
+                              closeBox();
+                              addminiswitch(" auto_freq                             ", &engine->auto_ir);
+                              }
+                              closeBox();
+
                               }
                               closeBox();
                             }

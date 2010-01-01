@@ -532,6 +532,7 @@ namespace gx_engine
     fdelay = 0;
     fdel_gain1 = 0;
     zeroize(fRecdel, 2);
+    auto_ir = 0;
     // end engine init
   }
 

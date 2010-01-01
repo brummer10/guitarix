@@ -592,6 +592,7 @@ namespace gx_engine
 	int fdelay;
 	float fdel_gain1;
 	float fRecdel[2];
+	int auto_ir;
 
 	//float out_to_1;
 	//float out_to_2;
