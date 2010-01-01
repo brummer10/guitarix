@@ -291,6 +291,7 @@ namespace gx_gui
   /* for level display */
   int meter_falloff = 27; // in dB/sec.
   int meter_display_timeout = 60; // in millisec
+  int update_gui = 40; //in millisec
 
   /* names of port lists (exclude MIDI for now) */
   string port_list_names[NUM_PORT_LISTS] = {

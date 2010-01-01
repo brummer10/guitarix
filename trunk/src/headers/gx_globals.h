@@ -260,6 +260,7 @@ namespace gx_gui
   /* for level display */
   extern int meter_falloff;
   extern int meter_display_timeout;
+  extern int update_gui;
 
   /* names of port lists (exclude MIDI for now) */
   extern string port_list_names[];
