@@ -333,7 +333,7 @@ namespace gx_gui
     gboolean gx_survive_jack_shutdown(gpointer arg)
     {
       GtkWidget* wd = GxMainInterface::instance()->getJackConnectItem();
-
+      jack_suv_timeout = 2000;
       // return if jack is not down
       if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK)
         {
@@ -391,7 +391,7 @@ namespace gx_gui
     {
       // get gui instance
       GxMainInterface* gui = GxMainInterface::instance();
-
+      jack_con_timeout = 2100;
       // don't bother if we are not a valid client or if we are in the middle
       // of deleting stuff
       // if we are off jack or jack is down, delete everything
