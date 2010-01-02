@@ -462,6 +462,30 @@ namespace gx_gui
 
 
         }
+        static void resize( GtkWidget *widget, gpointer   data )
+        {
+          GtkWidget * label =  gtk_bin_get_child(GTK_BIN(widget));
+          GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(widget));
+          GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
+          GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
+          box1 = gtk_widget_get_parent(GTK_WIDGET(parent));
+          box = gtk_widget_get_parent(GTK_WIDGET(box1));
+          parent = gtk_widget_get_parent(GTK_WIDGET(box));
+          int width, height;
+          gtk_widget_get_size_request (parent, &width, &height);
+          if (width<400)
+          {
+          gtk_widget_set_size_request (parent, 600, -1);
+          gtk_label_set_text(GTK_LABEL(label), "<<<<");
+          }
+          else
+          {
+          gtk_widget_set_size_request (parent, 338, -1);
+          gtk_label_set_text(GTK_LABEL(label), ">>>>");
+          }
+
+        }
+
         // save order for neigbor box
         static void clicked( GtkWidget *widget, gpointer   data )
         {
@@ -556,7 +580,7 @@ namespace gx_gui
       GtkWidget * box1 = gtk_fixed_new ();
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
       GtkWidget* 	button = gtk_button_new ();
-      GtkWidget* lw = gtk_label_new("");
+      GtkWidget* lw = gtk_label_new(">>>>");
       gtk_container_add (GTK_CONTAINER(button), lw);
       GdkColor colorGreen;
       gdk_color_parse("#a6a9aa", &colorGreen);
@@ -569,6 +593,9 @@ namespace gx_gui
       gtk_widget_set_size_request (GTK_WIDGET(button), 45.0, 15.0);
 
       uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(button));
+
+      g_signal_connect (GTK_OBJECT (button), "clicked",
+                        G_CALLBACK (uiOrderButton::resize), (gpointer) c);
 
       g_signal_connect (GTK_OBJECT (button), "clicked",
                         G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
