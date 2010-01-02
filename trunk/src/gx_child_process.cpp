@@ -56,25 +56,25 @@ namespace gx_child_process
     {
       // meterbridge
       if (child_pid[METERBG_IDX] != NO_PID)
-      {
-	(void)kill(child_pid[METERBG_IDX], SIGTERM);
-	(void)gx_system_call("rm -f", mbg_pidfile.c_str(), true);
-	child_pid[METERBG_IDX] = NO_PID;
-      }
+        {
+          (void)kill(child_pid[METERBG_IDX], SIGTERM);
+          (void)gx_system_call("rm -f", mbg_pidfile.c_str(), true);
+          child_pid[METERBG_IDX] = NO_PID;
+        }
 
       // jack_capture
       if (child_pid[JACKCAP_IDX] != NO_PID)
-      {
-	(void)kill(child_pid[JACKCAP_IDX], SIGINT);
-	(void)gx_pclose(jcap_stream, JACKCAP_IDX);
-      }
+        {
+          (void)kill(child_pid[JACKCAP_IDX], SIGINT);
+          (void)gx_pclose(jcap_stream, JACKCAP_IDX);
+        }
 
       // jconv
       if (child_pid[JCONV_IDX] != NO_PID)
-      {
-	(void)kill(child_pid[JCONV_IDX], SIGINT);
-	(void)gx_pclose(jconv_stream, JCONV_IDX);
-      }
+        {
+          (void)kill(child_pid[JCONV_IDX], SIGINT);
+          (void)gx_pclose(jconv_stream, JCONV_IDX);
+        }
       return 0;
     }
 
@@ -251,7 +251,7 @@ namespace gx_child_process
     //---- wav file construction for jack_capture
     bool gx_capture_command(const int idx, string& capcmd)
     {
-     // bool ret_status = false;
+      // bool ret_status = false;
 
       // jack_capture setup file
       string gfilename = gx_user_dir + jcapsetup_file;
@@ -274,11 +274,11 @@ namespace gx_child_process
           f.close();
         }
 
-          // jack_capture command
-          // Note: this version of the code does not add a wav file by
-          // default to ja_ca_ssetrc, so we try to avoid the wav filename if one
-          // by putting the / delimiter in getline
-          // it is backward compatible with older ja_ca_ssetrc files
+      // jack_capture command
+      // Note: this version of the code does not add a wav file by
+      // default to ja_ca_ssetrc, so we try to avoid the wav filename if one
+      // by putting the / delimiter in getline
+      // it is backward compatible with older ja_ca_ssetrc files
 
 // this version didn't work for ogg and mp3, so I have switch back to pre version.
 
@@ -318,15 +318,15 @@ namespace gx_child_process
 
       // avoid running it at startup
       // (ugly hack due to GTK+ signalling side effect)
-/*#if ( __GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
-      static bool cap_init = false;
-      if (!cap_init)
-        {
-          gtk_toggle_button_set_active(cap_button, FALSE);
-          cap_init = true;
-          return;
-        }
-#endif */
+      /*#if ( __GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
+            static bool cap_init = false;
+            if (!cap_init)
+              {
+                gtk_toggle_button_set_active(cap_button, FALSE);
+                cap_init = true;
+                return;
+              }
+      #endif */
 
       // is the button toggled ?
       const gboolean tggl_state = gtk_toggle_button_get_active(cap_button);
@@ -366,17 +366,17 @@ namespace gx_child_process
 
       // check that we are a valid jack client
       if (gx_jack::client == NULL)
-      {
-	gtk_toggle_button_set_active(cap_button, FALSE);
+        {
+          gtk_toggle_button_set_active(cap_button, FALSE);
 
-	(void)gx_gui::gx_message_popup(
-	  "  WARNING [Record]\n\n  "
-	  "  Reconnect to Jack server first (Shift+C)"
-        );
+          (void)gx_gui::gx_message_popup(
+            "  WARNING [Record]\n\n  "
+            "  Reconnect to Jack server first (Shift+C)"
+          );
 
-	child_pid[JACKCAP_IDX] = NO_PID;
-	return;
-      }
+          child_pid[JACKCAP_IDX] = NO_PID;
+          return;
+        }
 
       gx_print_info("Record", " Trying to run jack_capture");
 
@@ -428,221 +428,210 @@ namespace gx_child_process
     {
 
       if (gx_jconv::GxJConvSettings::checkbutton7 == 0)
-      {
-	gx_jconv::checkbox7 = 1.0;
-
-	pid_t pid = gx_child_process::child_pid[JCONV_IDX];
-
-	// if jconv is already running, we have to kill it
-	// applying a new jconv setting is not a runtime thing ... :(
-	if (pid != NO_PID)
         {
-	  gx_print_info("JConv Start / Stop", string("killing JConv, PID = ") +
-			gx_system::gx_i2a(pid));
+          gx_jconv::checkbox7 = 1.0;
 
-	  (void)kill(pid, SIGINT);
-	  usleep(100000);
+          pid_t pid = gx_child_process::child_pid[JCONV_IDX];
 
-	  gx_jconv::jconv_is_running = false;
-	  for (int c = 0; c < 2; c++)
-	    gtk_widget_hide(gx_gui::GxMainInterface::instance()->
-			    getJCLevelMeters()[c]);
-
-	  // unregister our own jconv dedicated ports
-	  if (gx_jack::client)
-	  {
-	    if (jack_port_is_mine (gx_jack::client, gx_jack::output_ports[3]))
+          // if jconv is already running, we have to kill it
+          // applying a new jconv setting is not a runtime thing ... :(
+          if (pid != NO_PID)
             {
-	      jack_port_unregister(gx_jack::client, gx_jack::output_ports[3]);
-	      gx_engine::gNumOutChans--;
-	    }
+              gx_print_info("JConv Start / Stop", string("killing JConv, PID = ") +
+                            gx_system::gx_i2a(pid));
 
-	    if (jack_port_is_mine (gx_jack::client, gx_jack::output_ports[2]))
-            {
-	      jack_port_unregister(gx_jack::client, gx_jack::output_ports[2]);
-	      gx_engine::gNumOutChans--;
-	    }
+              (void)kill(pid, SIGINT);
+              usleep(100000);
 
-        if (jack_port_is_mine (gx_jack::client, gx_jack::input_ports[2]))
-            {
-	      jack_port_unregister(gx_jack::client, gx_jack::input_ports[2]);
-	      gx_engine::gNumInChans--;
-	    }
+              gx_jconv::jconv_is_running = false;
+              for (int c = 0; c < 2; c++)
+                gtk_widget_hide(gx_gui::GxMainInterface::instance()->
+                                getJCLevelMeters()[c]);
 
-	    if (jack_port_is_mine (gx_jack::client, gx_jack::input_ports[1]))
-            {
-	      jack_port_unregister(gx_jack::client, gx_jack::input_ports[1]);
-	      gx_engine::gNumInChans--;
-	    }
+              // unregister our own jconv dedicated ports
+              if (gx_jack::client)
+                {
+                  if (jack_port_is_mine (gx_jack::client, gx_jack::output_ports[3]))
+                    {
+                      jack_port_unregister(gx_jack::client, gx_jack::output_ports[3]);
+                      gx_engine::gNumOutChans--;
+                    }
 
-	    usleep(100000);
-	    (void)gx_pclose(jconv_stream, JCONV_IDX);
-	  }
-	}
-      }
+                  if (jack_port_is_mine (gx_jack::client, gx_jack::output_ports[2]))
+                    {
+                      jack_port_unregister(gx_jack::client, gx_jack::output_ports[2]);
+                      gx_engine::gNumOutChans--;
+                    }
 
-      else if(gx_engine::is_setup == 1)
-      {
-	// check whether jconv is installed in PATH
-	int  jconv_ok = gx_system_call("which", "jconvolver");
+                  if (jack_port_is_mine (gx_jack::client, gx_jack::input_ports[2]))
+                    {
+                      jack_port_unregister(gx_jack::client, gx_jack::input_ports[2]);
+                      gx_engine::gNumInChans--;
+                    }
 
-	// popup message if something goes funny
-	string warning;
-	string witch_convolver = "jconvolver";
+                  if (jack_port_is_mine (gx_jack::client, gx_jack::input_ports[1]))
+                    {
+                      jack_port_unregister(gx_jack::client, gx_jack::input_ports[1]);
+                      gx_engine::gNumInChans--;
+                    }
 
-	// is jconvolver installed ?
-	if (jconv_ok != SYSTEM_OK)   // no jconvolver in PATH! :(
-        {
-             jconv_ok = gx_system_call("which", "jconv");
-             witch_convolver = "jconv";
+                  usleep(100000);
+                  (void)gx_pclose(jconv_stream, JCONV_IDX);
+                }
+            }
         }
-    // is jconv installed ?
-	if (jconv_ok != SYSTEM_OK)   // no jconv in PATH! :(
-	{
-	  warning +=
-	    "  WARNING [JConv]\n\n  "
-	    "  You need jconv by  Fons Adriaensen "
-	    "  Please look here\n  "
-	    "  http://www.kokkinizita.net/linuxaudio/index.html\n";
-	}
 
-	// yeps
-	else
-	{
-	  if (gx_jack::client == NULL)
-	  {
-	    warning +=
-	      "  WARNING [JConv]\n\n  "
-	      "  Reconnect to Jack server first (Shift+C)";
-	    gx_jconv::GxJConvSettings::checkbutton7 = 0;
-	    gx_jconv::jconv_is_running = false;
-
-	    gx_child_process::child_pid[JCONV_IDX] = NO_PID;
-	  }
-	  else
-	  {
-
-	    string cmd(witch_convolver);
-	    cmd += " " + gx_user_dir + "jconv_";
-	    cmd += gx_preset::gx_current_preset.empty() ? "set" :
-	      gx_preset::gx_current_preset;
-	    cmd += ".conf 2> /dev/null";
-
-	    jconv_stream = gx_popen (cmd.c_str(), "r", JCONV_IDX);
-	    sleep (2);
-
-	    // let's fetch the pid of the new jconv process
-	    pid_t pid = gx_find_child_pid(witch_convolver.c_str());
-
-	    string check_double(" pidof ");
-	    check_double += witch_convolver;
-	    check_double += " > /dev/null";
-
-	    // failed ?
-	    if (pid == NO_PID)
-	      warning +=
-		"  WARNING [JConv]\n\n  "
-		"  Sorry, jconv startup failed ... giving up!";
-        else if (!system(check_double.c_str()) == 0)
-        warning +=
-		"  WARNING [JConv]\n\n  "
-		"  Sorry, jconv startup failed ... giving up!";
-	    else
-	    {
-	      // store pid for future process monitoring
-	      child_pid[JCONV_IDX] = pid;
-
-	      // let's (re)open our dedicated ports to jconv
-	      if (!gx_jconv::jconv_is_running)
-	      {
-
-		ostringstream buf;
-
-		// extra guitarix jack ports for jconv
-		for (int i = 2; i < 4; i++)
-		{
-		  buf.str("");
-		  buf << "out_" << i;
-
-		  gx_jack::output_ports[i] =
-		    jack_port_register(gx_jack::client,
-				       buf.str().c_str(),
-				       JACK_DEFAULT_AUDIO_TYPE,
-				       JackPortIsOutput, 0);
-		  gx_engine::gNumOutChans++;
-		}
-		for (int i = 2; i < 4; i++)
-	    {
-          buf.str("");
-          buf << "in_" << i-1;
-
-		  gx_jack::input_ports[i-1] =
-		    jack_port_register(gx_jack::client,
-				       buf.str().c_str(),
-				       JACK_DEFAULT_AUDIO_TYPE,
-				       JackPortIsInput, 0);
-		  gx_engine::gNumInChans++;
-
-		}
-
-		// ---- port connection
-		string jc_port = witch_convolver +":In-1";
-		// guitarix outs to jconv ins
-		jack_connect(gx_jack::client, jack_port_name(gx_jack::output_ports[2]), jc_port.c_str());
-		jc_port = witch_convolver +":In-2";
-		jack_connect(gx_jack::client, jack_port_name(gx_jack::output_ports[3]), jc_port.c_str());
-
-		//  jconv to guitarix monitor
-		jc_port = witch_convolver +":Out-1";
-		jack_connect(gx_jack::client, jc_port.c_str(), jack_port_name(gx_jack::input_ports[1]));
-		jc_port = witch_convolver +":Out-2";
-		jack_connect(gx_jack::client, jc_port.c_str(), jack_port_name(gx_jack::input_ports[2]));
-
-		// jconv outs to system ins
-	/*	int i = 0;
-
-		while (i < 2)
-		{
-		  const char** port = jack_port_get_connections(gx_jack::output_ports[i]);
-		  ostringstream jcp, env;
-		  buf.str("");
-
-		  jcp << "jconv:Out-" << i+1;
-		  env << "GUITARIX2JACK_OUTPUTS" << i+1;
-		  buf << getenv(env.str().c_str());
-
-		  if (port != NULL && port[0] != NULL)
-		    jack_connect(gx_jack::client, jcp.str().c_str(), port[0]);
-		  else
-		    jack_connect(gx_jack::client, jcp.str().c_str(), buf.str().c_str());
-
-		  i++;
-		}*/
-	      }
-
-	      // tell the compute method that JConv is running
-	      gx_jconv::jconv_is_running = true;
-
-	      for (int c = 0; c < 2; c++)
-		gtk_widget_show(gx_gui::GxMainInterface::instance()->
-				getJCLevelMeters()[c]);
-
-	      gx_print_info("JConv Start / Stop", string("Started JConv, PID = ") +
-			    gx_system::gx_i2a(child_pid[JCONV_IDX]));
-	    }
-	  }
-	}
-
-	// pop up warning if any
-	if (!warning.empty())
+      else if (gx_engine::is_setup == 1)
         {
-	  (void)gx_gui::gx_message_popup(warning.c_str());
-	  gx_jconv::GxJConvSettings::checkbutton7 = 0;
-	  gx_jconv::jconv_is_running = false;
-	  gx_child_process::child_pid[JCONV_IDX] = NO_PID;
-	}
-	gx_jconv::checkbox7 = 0.0;
-      }
+          // check whether jconv is installed in PATH
+          int  jconv_ok = gx_system_call("which", "jconvolver");
+
+          // popup message if something goes funny
+          string warning;
+          string witch_convolver = "jconvolver";
+
+          // is jconvolver installed ?
+          if (jconv_ok != SYSTEM_OK)   // no jconvolver in PATH! :(
+            {
+              jconv_ok = gx_system_call("which", "jconv");
+              witch_convolver = "jconv";
+            }
+          // is jconv installed ?
+          if (jconv_ok != SYSTEM_OK)   // no jconv in PATH! :(
+            {
+              warning +=
+                "  WARNING [JConv]\n\n  "
+                "  You need jconv by  Fons Adriaensen "
+                "  Please look here\n  "
+                "  http://www.kokkinizita.net/linuxaudio/index.html\n";
+            }
+
+          // yeps
+          else
+            {
+              if (gx_jack::client == NULL)
+                {
+                  warning +=
+                    "  WARNING [JConv]\n\n  "
+                    "  Reconnect to Jack server first (Shift+C)";
+                  gx_jconv::GxJConvSettings::checkbutton7 = 0;
+                  gx_jconv::jconv_is_running = false;
+
+                  gx_child_process::child_pid[JCONV_IDX] = NO_PID;
+                }
+              else
+                {
+
+                  string cmd(witch_convolver);
+                  cmd += " -N jconvgx";
+                  cmd += " " + gx_user_dir + "jconv_";
+                  cmd += gx_preset::gx_current_preset.empty() ? "set" :
+                         gx_preset::gx_current_preset;
+                  cmd += ".conf 2> /dev/null";
+
+                  jconv_stream = gx_popen (cmd.c_str(), "r", JCONV_IDX);
+                  sleep (2);
+
+                  // let's fetch the pid of the new jconv process
+                  pid_t pid = gx_find_child_pid(witch_convolver.c_str());
+
+                  string check_double(" pidof ");
+                  check_double += witch_convolver;
+                  check_double += " > /dev/null";
+
+                  // failed ?
+                  if (pid == NO_PID)
+                    warning +=
+                      "  WARNING [JConv]\n\n  "
+                      "  Sorry, jconv startup failed ... giving up!";
+                  else if (!system(check_double.c_str()) == 0)
+                    warning +=
+                      "  WARNING [JConv]\n\n  "
+                      "  Sorry, jconv startup failed ... giving up!";
+                  else
+                    {
+                      // store pid for future process monitoring
+                      child_pid[JCONV_IDX] = pid;
+
+                      // let's (re)open our dedicated ports to jconv
+                      if (!gx_jconv::jconv_is_running)
+                        {
+
+                          ostringstream buf;
+
+                          // extra guitarix jack ports for jconv
+                          for (int i = 2; i < 4; i++)
+                            {
+                              buf.str("");
+                              buf << "out_" << i;
+
+                              gx_jack::output_ports[i] =
+                                jack_port_register(gx_jack::client,
+                                                   buf.str().c_str(),
+                                                   JACK_DEFAULT_AUDIO_TYPE,
+                                                   JackPortIsOutput, 0);
+                              gx_engine::gNumOutChans++;
+                            }
+                          for (int i = 2; i < 4; i++)
+                            {
+                              buf.str("");
+                              buf << "in_" << i-1;
+
+                              gx_jack::input_ports[i-1] =
+                                jack_port_register(gx_jack::client,
+                                                   buf.str().c_str(),
+                                                   JACK_DEFAULT_AUDIO_TYPE,
+                                                   JackPortIsInput, 0);
+                              gx_engine::gNumInChans++;
+
+                            }
+
+                          // ---- port connection
+                          witch_convolver = "jconvgx";
+                          string jc_port = witch_convolver +":In-1";
+                          if (jack_port_by_name(gx_jack::client,jc_port.c_str()))
+                            {
+                              // guitarix outs to jconv ins
+                              jack_connect(gx_jack::client, jack_port_name(gx_jack::output_ports[2]), jc_port.c_str());
+                              jc_port = witch_convolver +":In-2";
+                              jack_connect(gx_jack::client, jack_port_name(gx_jack::output_ports[3]), jc_port.c_str());
+
+                              //  jconv to guitarix monitor
+                              jc_port = witch_convolver +":Out-1";
+                              jack_connect(gx_jack::client, jc_port.c_str(), jack_port_name(gx_jack::input_ports[1]));
+                              jc_port = witch_convolver +":Out-2";
+                              jack_connect(gx_jack::client, jc_port.c_str(), jack_port_name(gx_jack::input_ports[2]));
+                            }
+                          else
+                            {
+                              (void)gx_gui::gx_message_popup("sorry, connection faild");
+                            }
+
+                        }
+
+                      // tell the compute method that JConv is running
+                      gx_jconv::jconv_is_running = true;
+
+                      for (int c = 0; c < 2; c++)
+                        gtk_widget_show(gx_gui::GxMainInterface::instance()->
+                                        getJCLevelMeters()[c]);
+
+                      gx_print_info("JConv Start / Stop", string("Started JConv, PID = ") +
+                                    gx_system::gx_i2a(child_pid[JCONV_IDX]));
+                    }
+                }
+            }
+
+          // pop up warning if any
+          if (!warning.empty())
+            {
+              (void)gx_gui::gx_message_popup(warning.c_str());
+              gx_jconv::GxJConvSettings::checkbutton7 = 0;
+              gx_jconv::jconv_is_running = false;
+              gx_child_process::child_pid[JCONV_IDX] = NO_PID;
+            }
+          gx_jconv::checkbox7 = 0.0;
+        }
     }
 
     //----menu function gx_meterbridge
@@ -651,18 +640,18 @@ namespace gx_child_process
 
       // no need to do all this if jack is not running
       if (!gx_jack::client)
-      {
-	// let's make sure we have no proc stuff left
-	string old_lock = gx_user_dir + string(".mbg_") + "*";
-	(void)gx_system_call("rm -f", old_lock.c_str());
-	child_pid[METERBG_IDX] = NO_PID;
+        {
+          // let's make sure we have no proc stuff left
+          string old_lock = gx_user_dir + string(".mbg_") + "*";
+          (void)gx_system_call("rm -f", old_lock.c_str());
+          child_pid[METERBG_IDX] = NO_PID;
 
-	(void)gx_gui::gx_message_popup(
-	  "  WARNING [Meterbridge]\n\n  "
-	  "  Reconnect to Jack server first (Shift+C)"
-        );
-	return;
-      }
+          (void)gx_gui::gx_message_popup(
+            "  WARNING [Meterbridge]\n\n  "
+            "  Reconnect to Jack server first (Shift+C)"
+          );
+          return;
+        }
 
       // PID file (used as lock file)
       const char* app_name = "meterbridge";
@@ -684,109 +673,109 @@ namespace gx_child_process
 
       // ---- if triggered by GUI or Alt + M
       if (gtk_check_menu_item_get_active(menuitem) == TRUE)
-      {
-	if (gx_system_call("ls", mbg_pidfile.c_str(), true) == SYSTEM_OK)
         {
-	  // get PID from lock file
-	  pid_t old_pid;
+          if (gx_system_call("ls", mbg_pidfile.c_str(), true) == SYSTEM_OK)
+            {
+              // get PID from lock file
+              pid_t old_pid;
 
-	  ifstream fi(mbg_pidfile.c_str());
-	  if (fi.good())
-          {
-	    fi >> old_pid;
-	    fi.close();
-	  }
+              ifstream fi(mbg_pidfile.c_str());
+              if (fi.good())
+                {
+                  fi >> old_pid;
+                  fi.close();
+                }
 
-	  // do we have meterbridge running ?
-	  if (gx_lookup_pid(old_pid))   // yeps
-          {
-	    // refresh internal pid store
-	    child_pid[METERBG_IDX] = old_pid;
-	    gx_print_info("Meterbridge",
-			  string("meterbridge started at PID = ") +
-			  gx_i2a(old_pid));
-	    return;
-	  }
+              // do we have meterbridge running ?
+              if (gx_lookup_pid(old_pid))   // yeps
+                {
+                  // refresh internal pid store
+                  child_pid[METERBG_IDX] = old_pid;
+                  gx_print_info("Meterbridge",
+                                string("meterbridge started at PID = ") +
+                                gx_i2a(old_pid));
+                  return;
+                }
 
-	  // if not running, preliminary clean up
-	  (void)gx_system_call("rm -f", mbg_pidfile.c_str());
-	  child_pid[METERBG_IDX] = NO_PID;
-	}
+              // if not running, preliminary clean up
+              (void)gx_system_call("rm -f", mbg_pidfile.c_str());
+              child_pid[METERBG_IDX] = NO_PID;
+            }
 
-	string mbg_opt("-n ");
-	mbg_opt += gx_jack::client_name;
-	mbg_opt += "_";
-	mbg_opt += app_name;
-	mbg_opt += " -t sco guitarix:in_0  guitarix:out_0";
+          string mbg_opt("-n ");
+          mbg_opt += gx_jack::client_name;
+          mbg_opt += "_";
+          mbg_opt += app_name;
+          mbg_opt += " -t sco guitarix:in_0  guitarix:out_0";
 
-	meterbridge_ok = gx_system_call(app_name, mbg_opt.c_str(), true, true);
-	usleep(1000); // let's give it 1ms
+          meterbridge_ok = gx_system_call(app_name, mbg_opt.c_str(), true, true);
+          usleep(1000); // let's give it 1ms
 
-	// not running, ? oops ...
-	if (meterbridge_ok != SYSTEM_OK)
-        {
-	  // reset meterbridge GUI button state to inactive
-	  gtk_check_menu_item_set_active(menuitem, FALSE);
-	  gx_gui::gx_message_popup(
-	     "  "
-	     "WARNING [meterbridge]\n\n  "
-	     "meterbridge could not be launched!"
-          );
+          // not running, ? oops ...
+          if (meterbridge_ok != SYSTEM_OK)
+            {
+              // reset meterbridge GUI button state to inactive
+              gtk_check_menu_item_set_active(menuitem, FALSE);
+              gx_gui::gx_message_popup(
+                "  "
+                "WARNING [meterbridge]\n\n  "
+                "meterbridge could not be launched!"
+              );
 
-	  gx_print_error("Meterbridge",
-			 string("meterbridge could not be launched!"));
+              gx_print_error("Meterbridge",
+                             string("meterbridge could not be launched!"));
 
-	  return;
-	}
+              return;
+            }
 
-	// running, so let's store PID in lock file
-	ofstream fo(mbg_pidfile.c_str());
-	if (fo.good())
-        {
-	  child_pid[METERBG_IDX] = gx_find_child_pid(app_name);
-	  fo << child_pid[METERBG_IDX];
-	  fo.close();
+          // running, so let's store PID in lock file
+          ofstream fo(mbg_pidfile.c_str());
+          if (fo.good())
+            {
+              child_pid[METERBG_IDX] = gx_find_child_pid(app_name);
+              fo << child_pid[METERBG_IDX];
+              fo.close();
 
-	  gx_print_info("Meterbridge",
-			string("meterbridge started at PID = ") +
-			gx_i2a(child_pid[METERBG_IDX]));
-	}
+              gx_print_info("Meterbridge",
+                            string("meterbridge started at PID = ") +
+                            gx_i2a(child_pid[METERBG_IDX]));
+            }
 
-	// in any case, keep window focus on guitarix
-	gtk_widget_grab_focus(gx_gui::fWindow);
-      }
+          // in any case, keep window focus on guitarix
+          gtk_widget_grab_focus(gx_gui::fWindow);
+        }
 
       else   // -- deactivate meterbridge
-      {
-	if (child_pid[METERBG_IDX] != NO_PID)
         {
-	  // do we really have meterbridge running ?
+          if (child_pid[METERBG_IDX] != NO_PID)
+            {
+              // do we really have meterbridge running ?
 
-	  if (!gx_lookup_pid(child_pid[METERBG_IDX]))   // nope
-          {
+              if (!gx_lookup_pid(child_pid[METERBG_IDX]))   // nope
+                {
 
-	    // it could be that the user closed meterbridge
-	    // by hand and is trying to bring it back via guitarix
-	    child_pid[METERBG_IDX] = NO_PID;
+                  // it could be that the user closed meterbridge
+                  // by hand and is trying to bring it back via guitarix
+                  child_pid[METERBG_IDX] = NO_PID;
 
-	    // try again
-	    gtk_check_menu_item_set_active(menuitem, TRUE);
-	    gx_start_stop_meterbridge (menuitem, 0);
-	    return;
-	  }
+                  // try again
+                  gtk_check_menu_item_set_active(menuitem, TRUE);
+                  gx_start_stop_meterbridge (menuitem, 0);
+                  return;
+                }
 
-	  // remove lock file
-	  (void)gx_system_call("rm -f", mbg_pidfile.c_str());
+              // remove lock file
+              (void)gx_system_call("rm -f", mbg_pidfile.c_str());
 
-	  // kill process
-	  (void)kill(child_pid[METERBG_IDX], SIGTERM);
-	  gx_print_warning("Meterbridge",
-			   string("meterbridge terminated - was PID ") +
-			   gx_i2a(child_pid[METERBG_IDX]));
+              // kill process
+              (void)kill(child_pid[METERBG_IDX], SIGTERM);
+              gx_print_warning("Meterbridge",
+                               string("meterbridge terminated - was PID ") +
+                               gx_i2a(child_pid[METERBG_IDX]));
 
-	  child_pid[METERBG_IDX] = NO_PID;
-	}
-      }
+              child_pid[METERBG_IDX] = NO_PID;
+            }
+        }
     }
 
     //----use jack_capture for record the session
