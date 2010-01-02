@@ -268,7 +268,16 @@ namespace gx_child_process
           std::string b(".");
           std::string::size_type in = a.find(b);
           in -= 1;
-          if (int(in) != -1) a.replace(in,1,gx_i2a(idx));
+          if (int(in) >= 0) a.replace(in,1,gx_i2a(idx));
+          else
+            {
+              (void)gx_gui::gx_message_popup(
+                "  WARNING [Record]\n\n  "
+                "  Please run jack capture settings first [alt+j]"
+              );
+              return false;
+            }
+
           bufi = a;
           capcmd = bufi.c_str();
           f.close();
