@@ -1044,6 +1044,52 @@ namespace gx_gui
 
       // refresh wave view
       gx_waveview_refresh (GTK_WIDGET(livewa), NULL);
+      if (int(float(gx_current_skin)==0))
+      {
+      if (set_knob !=1)
+        {
+          GtkRegler::gtk_regler_init_pixmaps(1);
+          set_knob = 1;
+        }
+      }
+      else if (int(float(gx_current_skin)==1))
+        {
+          if (set_knob !=2)
+            {
+              GtkRegler::gtk_regler_init_pixmaps(2);
+              set_knob = 2;
+            }
+        }
+
+      else if (int(float(gx_current_skin)==3))
+      {
+          if (set_knob !=3)
+            {
+        GtkRegler::gtk_regler_init_pixmaps(3);
+          set_knob = 3;
+            }
+      }
+      else if (int(float(gx_current_skin)==5))
+      {
+          if (set_knob !=4)
+            {
+        GtkRegler::gtk_regler_init_pixmaps(4);
+          set_knob = 4;
+            }
+      }
+      else if (int(float(gx_current_skin)==4))
+      {
+          if (set_knob !=5)
+            {
+        GtkRegler::gtk_regler_init_pixmaps(5);
+          set_knob = 5;
+            }
+      }
+       else
+        {
+          GtkRegler::gtk_regler_init_pixmaps(0);
+          set_knob = 0;
+        }
 
       // refresh latency check menu
       GxMainInterface* gui = GxMainInterface::instance();

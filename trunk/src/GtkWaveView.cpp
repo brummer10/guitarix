@@ -463,7 +463,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           cairo_stroke (cr);
           gdk_pixbuf_get_from_drawable(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image,
                                        GDK_DRAWABLE(widget->window), gdk_colormap_get_system(),
-                                       liveviewx-15, liveviewy-15,0,0,300,80);
+                                       liveviewx, liveviewy,0,0,280,50);
 
 
           // done with background def.
@@ -474,7 +474,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
       //----- background created, now we just need to copy the pixbuffs every expose event to the widget
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
                       GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image,
-                      0,0,liveviewx-15, liveviewy-15 , 300, 80, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      0,0,liveviewx, liveviewy , 280, 50, GDK_RGB_DITHER_NORMAL, 0, 0);
 
 
       //----- some maybe usfull infos about the jack server
@@ -873,7 +873,7 @@ static void gtk_waveview_class_init (GtkWaveViewClass *klass)
   klass->surface_selection = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, klass->waveview_x*2, klass->waveview_y);
   g_assert(klass->surface_selection != NULL);
 
-  klass->liveview_image = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,310,80);
+  klass->liveview_image = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,280,50);
   g_assert(klass->liveview_image != NULL);
 
 }

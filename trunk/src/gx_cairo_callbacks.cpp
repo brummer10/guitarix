@@ -462,11 +462,6 @@
       if (int(float(gx_current_skin)==1))
         {
           cairo_t *cr;
-          if (set_knob ==1)
-            {
-              GtkRegler::gtk_regler_init_pixmaps(0);
-              set_knob = 0;
-            }
 
           /* create a cairo context */
           cr = gdk_cairo_create(wi->window);
@@ -492,13 +487,9 @@
           cairo_pattern_destroy (pat);
           cairo_destroy(cr);
         }
-      else if (int(float(gx_current_skin)==0))
-        box11_expose(wi,ev,user_data);
-      else if (set_knob ==1)
-        {
-          GtkRegler::gtk_regler_init_pixmaps(0);
-          set_knob = 0;
-        }
+        else if (int(float(gx_current_skin)==0))
+                 box11_expose(wi,ev,user_data);
+
       return FALSE;
     }
 
@@ -507,11 +498,7 @@
 
       cairo_t *cr;
 
-      if (set_knob ==0)
-        {
-          GtkRegler::gtk_regler_init_pixmaps(1);
-          set_knob = 1;
-        }
+
       /* create a cairo context */
       cr = gdk_cairo_create(wi->window);
 

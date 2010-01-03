@@ -1550,7 +1550,7 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
   //---------- here are the inline pixmaps for regler
 #include "GtkReglerpix.cpp"
   klass->pix_switch = change_knob;
-  if (klass->pix_switch != 1)
+  if (klass->pix_switch == 0)
     {
       //----------- Big knob
       klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob1_xpm);
@@ -1561,10 +1561,54 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
       g_assert(klass->regler_image != NULL);
       klass->pix_switch = 1;
     }
-  else
+  else if (klass->pix_switch == 1)
     {
       //----------- Big knob
       klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob2_xpm);
+      g_assert(klass->bigregler_image != NULL);
+
+//----------- small knob
+      klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
+      g_assert(klass->regler_image != NULL);
+      klass->pix_switch = 0;
+    }
+  else if (klass->pix_switch == 2)
+    {
+      //----------- Big knob
+      klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob3_xpm);
+      g_assert(klass->bigregler_image != NULL);
+
+//----------- small knob
+      klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
+      g_assert(klass->regler_image != NULL);
+      klass->pix_switch = 0;
+    }
+  else if (klass->pix_switch == 3)
+    {
+      //----------- Big knob
+      klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob4_xpm);
+      g_assert(klass->bigregler_image != NULL);
+
+//----------- small knob
+      klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
+      g_assert(klass->regler_image != NULL);
+      klass->pix_switch = 0;
+    }
+   else if (klass->pix_switch == 4)
+    {
+      //----------- Big knob
+      klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob5_xpm);
+      g_assert(klass->bigregler_image != NULL);
+
+//----------- small knob
+      klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
+      g_assert(klass->regler_image != NULL);
+      klass->pix_switch = 0;
+    }
+  else if (klass->pix_switch == 5)
+    {
+      //----------- Big knob
+      klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob6_xpm);
       g_assert(klass->bigregler_image != NULL);
 
 //----------- small knob
@@ -1683,6 +1727,8 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 
 //--------- event button
   klass->button_is = 0;
+
+  klass->pix_is = 0;
 
 
 //--------- connect the events with funktions
