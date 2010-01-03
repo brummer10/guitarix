@@ -533,6 +533,70 @@ namespace gx_engine
     fdel_gain1 = 0;
     zeroize(fRecdel, 2);
     auto_ir = 0;
+
+    // Multibandfilter
+    fCoMulti0 = tanf((50265.484375f / fSamplingFreq));
+		fCoMulti1 = (2 * ((fCoMulti0 * fCoMulti0) - 1));
+		fslMulti0 = 0.0f;
+		fCoMulti2 = tanf((25132.742188f / fSamplingFreq));
+		fCoMulti3 = (2 * ((fCoMulti2 * fCoMulti2) - 1));
+		fslMulti1 = 0.0f;
+		fCoMulti4 = tanf((12566.371094f / fSamplingFreq));
+		fCoMulti5 = (2 * ((fCoMulti4 * fCoMulti4) - 1));
+		fslMulti2 = 0.0f;
+		fCoMulti6 = tanf((6283.185547f / fSamplingFreq));
+		fCoMulti7 = (2 * ((fCoMulti6 * fCoMulti6) - 1));
+		fslMulti3 = 0.0f;
+		fCoMulti8 = tanf((3141.592773f / fSamplingFreq));
+		fCoMulti9 = (2 * ((fCoMulti8 * fCoMulti8) - 1));
+		fslMulti4 = 0.0f;
+		fCoMulti10 = tanf((1570.796387f / fSamplingFreq));
+		fCoMulti11 = (2 * ((fCoMulti10 * fCoMulti10) - 1));
+		fslMulti5 = 0.0f;
+		fCoMulti12 = tanf((785.398193f / fSamplingFreq));
+		fCoMulti13 = (2 * ((fCoMulti12 * fCoMulti12) - 1));
+		fslMulti6 = 0.0f;
+		fCoMulti14 = tanf((392.699097f / fSamplingFreq));
+		fCoMulti15 = (2 * ((fCoMulti14 * fCoMulti14) - 1));
+		fslMulti7 = 0.0f;
+		fCoMulti16 = tanf((196.349548f / fSamplingFreq));
+		fCoMulti17 = (2 * ((fCoMulti16 * fCoMulti16) - 1));
+		fslMulti8 = 0.0f;
+		fCoMulti18 = tanf((98.174774f / fSamplingFreq));
+		fCoMulti19 = (2 * ((fCoMulti18 * fCoMulti18) - 1));
+		fslMulti9 = 0.0f;
+		zeroize(fReMulti9,3);
+		fCoMulti20 = (1 + (fCoMulti18 * (fCoMulti18 - 1.000000e-02f)));
+		fCoMulti21 = (1 + (fCoMulti18 * (1.000000e-02f + fCoMulti18)));
+		zeroize(fReMulti8,3);
+		fCoMulti22 = (1 + (fCoMulti16 * (fCoMulti16 - 1.000000e-02f)));
+		fCoMulti23 = (1 + (fCoMulti16 * (1.000000e-02f + fCoMulti16)));
+		zeroize(fReMulti7,3);
+		fCoMulti24 = (1 + (fCoMulti14 * (fCoMulti14 - 1.000000e-02f)));
+		fCoMulti25 = (1 + (fCoMulti14 * (1.000000e-02f + fCoMulti14)));
+		zeroize(fReMulti6,3);
+		fCoMulti26 = (1 + (fCoMulti12 * (fCoMulti12 - 1.000000e-02f)));
+		fCoMulti27 = (1 + (fCoMulti12 * (1.000000e-02f + fCoMulti12)));
+		zeroize(fReMulti5,3);
+		fCoMulti28 = (1 + (fCoMulti10 * (fCoMulti10 - 1.000000e-02f)));
+		fCoMulti29 = (1 + (fCoMulti10 * (1.000000e-02f + fCoMulti10)));
+		zeroize(fReMulti4,3);
+		fCoMulti30 = (1 + (fCoMulti8 * (fCoMulti8 - 1.000000e-02f)));
+		fCoMulti31 = (1 + (fCoMulti8 * (1.000000e-02f + fCoMulti8)));
+		zeroize(fReMulti3,3);
+		fCoMulti32 = (1 + (fCoMulti6 * (fCoMulti6 - 1.000000e-02f)));
+		fCoMulti33 = (1 + (fCoMulti6 * (1.000000e-02f + fCoMulti6)));
+		zeroize(fReMulti2,3);
+		fCoMulti34 = (1 + (fCoMulti4 * (fCoMulti4 - 1.000000e-02f)));
+		fCoMulti35 = (1 + (fCoMulti4 * (1.000000e-02f + fCoMulti4)));
+		zeroize(fReMulti1,3);
+		fCoMulti36 = (1 + (fCoMulti2 * (fCoMulti2 - 1.000000e-02f)));
+		fCoMulti37 = (1 + (fCoMulti2 * (1.000000e-02f + fCoMulti2)));
+		zeroize(fReMulti0,3);
+		fCoMulti38 = (1 + (fCoMulti0 * (fCoMulti0 - 1.000000e-02f)));
+		fCoMulti39 = (1 + (fCoMulti0 * (fCoMulti0 + 1.000000e-02f)));
+		fmultifilter = 0;
+
     // end engine init
   }
 

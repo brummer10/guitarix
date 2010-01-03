@@ -744,15 +744,25 @@ void GxMainInterface::setup()
                         addHorizontalSlider("threshold", &engine->ffuse, 0.f, 0.f, 2.f, 1.f);
                       }
                       closeBox();
-                      openFrameBox("");
-                      closeBox();
-                      openFrameBox("");
-                      closeBox();
-                      openFrameBox("");
-                      closeBox();
-                      openFrameBox("");
-                      closeBox();
-                      openFrameBox("");
+                      openVerticalBox1("");
+                      {
+                        addminiswitch(" MultiBandFilter                         ", &engine->fmultifilter);
+                        openHorizontalBox("");
+                        {
+                          addVerticalSlider(" 31,25", &engine->fslMulti9, 0.0f, -50.0f, 10.0f, 0.1f);
+                          addVerticalSlider(" 62,5 ", &engine->fslMulti8, 0.0f, -50.0f, 10.0f, 0.1f);
+                          addVerticalSlider(" 125 ", &engine->fslMulti7, 0.0f, -50.0f, 10.0f, 0.1f);
+                          addVerticalSlider(" 250 ", &engine->fslMulti6, 0.0f, -50.0f, 10.0f, 0.1f);
+                          addVerticalSlider(" 500 ", &engine->fslMulti5, 0.0f, -50.0f, 10.0f, 0.1f);
+                          addVerticalSlider("  1k  ", &engine->fslMulti4, 0.0f, -50.0f, 10.0f, 0.1f);
+                          addVerticalSlider("  2k  ", &engine->fslMulti3, 0.0f, -50.0f, 10.0f, 0.1f);
+                          addVerticalSlider("  4k  ", &engine->fslMulti2, 0.0f, -50.0f, 10.0f, 0.1f);
+                          addVerticalSlider("  8k  ", &engine->fslMulti1, 0.0f, -50.0f, 10.0f, 0.1f);
+                          addVerticalSlider(" 16k ", &engine->fslMulti0, 0.0f, -50.0f, 10.0f, 0.1f);
+
+                        }
+                        closeBox();
+                      }
                       closeBox();
                     }
                     closeBox();

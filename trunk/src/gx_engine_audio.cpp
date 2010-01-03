@@ -393,7 +393,7 @@ inline void GxEngine::preamp(int sf, float** input, float** output,
       *out++ = fTemp0in*7500;
 
     }
- // moving_filter(output,output,sf);
+// moving_filter(output,output,sf);
 }
 
 void GxEngine::get_jconv_output(float **input,float **output,int sf)
@@ -821,6 +821,38 @@ void GxEngine::process_buffers(int count, float** input, float** output)
     }
   // tone end
 
+// multibandfilter
+  float 	fSlMulti0 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti0))));
+  float 	fSlMulti1 = (1 + (fCoMulti0 * (fCoMulti0 - fSlMulti0)));
+  float 	fSlMulti2 = (1.0f / (1 + (fCoMulti0 * (fCoMulti0 + fSlMulti0))));
+  float 	fSlMulti3 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti1))));
+  float 	fSlMulti4 = (1 + (fCoMulti2 * (fCoMulti2 - fSlMulti3)));
+  float 	fSlMulti5 = (1.0f / (1 + (fCoMulti2 * (fCoMulti2 + fSlMulti3))));
+  float 	fSlMulti6 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti2))));
+  float 	fSlMulti7 = (1 + (fCoMulti4 * (fCoMulti4 - fSlMulti6)));
+  float 	fSlMulti8 = (1.0f / (1 + (fCoMulti4 * (fCoMulti4 + fSlMulti6))));
+  float 	fSlMulti9 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti3))));
+  float 	fSlMulti10 = (1 + (fCoMulti6 * (fCoMulti6 - fSlMulti9)));
+  float 	fSlMulti11 = (1.0f / (1 + (fCoMulti6 * (fCoMulti6 + fSlMulti9))));
+  float 	fSlMulti12 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti4))));
+  float 	fSlMulti13 = (1 + (fCoMulti8 * (fCoMulti8 - fSlMulti12)));
+  float 	fSlMulti14 = (1.0f / (1 + (fCoMulti8 * (fCoMulti8 + fSlMulti12))));
+  float 	fSlMulti15 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti5))));
+  float 	fSlMulti16 = (1 + (fCoMulti10 * (fCoMulti10 - fSlMulti15)));
+  float 	fSlMulti17 = (1.0f / (1 + (fCoMulti10 * (fCoMulti10 + fSlMulti15))));
+  float 	fSlMulti18 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti6))));
+  float 	fSlMulti19 = (1 + (fCoMulti12 * (fCoMulti12 - fSlMulti18)));
+  float 	fSlMulti20 = (1.0f / (1 + (fCoMulti12 * (fCoMulti12 + fSlMulti18))));
+  float 	fSlMulti21 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti7))));
+  float 	fSlMulti22 = (1 + (fCoMulti14 * (fCoMulti14 - fSlMulti21)));
+  float 	fSlMulti23 = (1.0f / (1 + (fCoMulti14 * (fCoMulti14 + fSlMulti21))));
+  float 	fSlMulti24 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti8))));
+  float 	fSlMulti25 = (1 + (fCoMulti16 * (fCoMulti16 - fSlMulti24)));
+  float 	fSlMulti26 = (1.0f / (1 + (fCoMulti16 * (fCoMulti16 + fSlMulti24))));
+  float 	fSlMulti27 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti9))));
+  float 	fSlMulti28 = (1 + (fCoMulti18 * (fCoMulti18 - fSlMulti27)));
+  float 	fSlMulti29 = (1.0f / (1 + (fCoMulti18 * (fCoMulti18 + fSlMulti27))));
+// multibandfilter end
 
   int iSlow21 = int((int((fSlow20 - 1)) & 4095));
   int iSlow22 = int((int(fSlow20) & 4095));
@@ -953,6 +985,16 @@ void GxEngine::process_buffers(int count, float** input, float** output)
             fTemp0 = hard_cut(fTemp0in,0.7);
           }  //preamp ende
        */
+
+         // tone
+      fVec_tone0[0] = fTemp0;
+      fRec_tone3[0] = (fSlow_tone32 * ((fSlow_tone21 * ((fSlow_tone31 * fVec_tone0[2]) + ((fSlow_tone30 * fVec_tone0[0]) + (fSlow_tone28 * fVec_tone0[1])))) - ((fSlow_tone27 * fRec_tone3[2]) + (fSlow_tone24 * fRec_tone3[1]))));
+      fRec_tone2[0] = (fSlow_tone37 * ((fSlow_tone7 * (((fSlow_tone36 * fRec_tone3[0]) + (fSlow_tone34 * fRec_tone3[1])) + (fSlow_tone33 * fRec_tone3[2]))) - ((fSlow_tone20 * fRec_tone2[2]) + (fSlow_tone17 * fRec_tone2[1]))));
+      fRec_tone1[0] = (fSlow_tone42 * ((((fSlow_tone41 * fRec_tone2[1]) + (fSlow_tone40 * fRec_tone2[0])) + (fSlow_tone38 * fRec_tone2[2])) + (0 - ((fSlow_tone15 * fRec_tone1[2]) + (fSlow_tone10 * fRec_tone1[1])))));
+      fRec_tone0[0] = (fSlow_tone47 * ((((fSlow_tone46 * fRec_tone1[1]) + (fSlow_tone45 * fRec_tone1[0])) + (fSlow_tone43 * fRec_tone1[2])) + (0 - ((fSlow_tone6 * fRec_tone0[2]) + (fSlow_tone3 * fRec_tone0[1])))));
+      // tone end
+
+      fTemp0 = fRec_tone0[0];
 
       // vibrato
       if (fresoon)
@@ -1143,7 +1185,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
               if (fcheckbox8)     //impulseResponse
                 {
                   fVec22[0] = fTemp0;
-                  if(auto_ir) fSlow77 = fTemp0;
+                  if (auto_ir) fSlow77 = fTemp0;
                   fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
                   fTemp0 = (fRec48[0] + fVec22[0]);
                 }
@@ -1163,17 +1205,33 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
 
 
-      // tone
-      fVec_tone0[0] = fTemp0;
-      fRec_tone3[0] = (fSlow_tone32 * ((fSlow_tone21 * ((fSlow_tone31 * fVec_tone0[2]) + ((fSlow_tone30 * fVec_tone0[0]) + (fSlow_tone28 * fVec_tone0[1])))) - ((fSlow_tone27 * fRec_tone3[2]) + (fSlow_tone24 * fRec_tone3[1]))));
-      fRec_tone2[0] = (fSlow_tone37 * ((fSlow_tone7 * (((fSlow_tone36 * fRec_tone3[0]) + (fSlow_tone34 * fRec_tone3[1])) + (fSlow_tone33 * fRec_tone3[2]))) - ((fSlow_tone20 * fRec_tone2[2]) + (fSlow_tone17 * fRec_tone2[1]))));
-      fRec_tone1[0] = (fSlow_tone42 * ((((fSlow_tone41 * fRec_tone2[1]) + (fSlow_tone40 * fRec_tone2[0])) + (fSlow_tone38 * fRec_tone2[2])) + (0 - ((fSlow_tone15 * fRec_tone1[2]) + (fSlow_tone10 * fRec_tone1[1])))));
-      fRec_tone0[0] = (fSlow_tone47 * ((((fSlow_tone46 * fRec_tone1[1]) + (fSlow_tone45 * fRec_tone1[0])) + (fSlow_tone43 * fRec_tone1[2])) + (0 - ((fSlow_tone6 * fRec_tone0[2]) + (fSlow_tone3 * fRec_tone0[1])))));
-      // tone end
-
-      fTemp0 = fRec_tone0[0];
 
 
+      // Multibandfilter
+      if (fmultifilter)
+        {
+          float fTeMulti0 = (fCoMulti1 * fReMulti0[1]);
+          float fTeMulti1 = (fCoMulti3 * fReMulti1[1]);
+          float fTeMulti2 = (fCoMulti5 * fReMulti2[1]);
+          float fTeMulti3 = (fCoMulti7 * fReMulti3[1]);
+          float fTeMulti4 = (fCoMulti9 * fReMulti4[1]);
+          float fTeMulti5 = (fCoMulti11 * fReMulti5[1]);
+          float fTeMulti6 = (fCoMulti13 * fReMulti6[1]);
+          float fTeMulti7 = (fCoMulti15 * fReMulti7[1]);
+          float fTeMulti8 = (fCoMulti17 * fReMulti8[1]);
+          float fTeMulti9 = (fCoMulti19 * fReMulti9[1]);
+          fReMulti9[0] = (fTemp0 - (fSlMulti29 * ((fSlMulti28 * fReMulti9[2]) + fTeMulti9)));
+          fReMulti8[0] = ((fSlMulti29 * ((fTeMulti9 + (fCoMulti21 * fReMulti9[0])) + (fCoMulti20 * fReMulti9[2]))) - (fSlMulti26 * ((fSlMulti25 * fReMulti8[2]) + fTeMulti8)));
+          fReMulti7[0] = ((fSlMulti26 * ((fTeMulti8 + (fCoMulti23 * fReMulti8[0])) + (fCoMulti22 * fReMulti8[2]))) - (fSlMulti23 * ((fSlMulti22 * fReMulti7[2]) + fTeMulti7)));
+          fReMulti6[0] = ((fSlMulti23 * ((fTeMulti7 + (fCoMulti25 * fReMulti7[0])) + (fCoMulti24 * fReMulti7[2]))) - (fSlMulti20 * ((fSlMulti19 * fReMulti6[2]) + fTeMulti6)));
+          fReMulti5[0] = ((fSlMulti20 * ((fTeMulti6 + (fCoMulti27 * fReMulti6[0])) + (fCoMulti26 * fReMulti6[2]))) - (fSlMulti17 * ((fSlMulti16 * fReMulti5[2]) + fTeMulti5)));
+          fReMulti4[0] = ((fSlMulti17 * ((fTeMulti5 + (fCoMulti29 * fReMulti5[0])) + (fCoMulti28 * fReMulti5[2]))) - (fSlMulti14 * ((fSlMulti13 * fReMulti4[2]) + fTeMulti4)));
+          fReMulti3[0] = ((fSlMulti14 * ((fTeMulti4 + (fCoMulti31 * fReMulti4[0])) + (fCoMulti30 * fReMulti4[2]))) - (fSlMulti11 * ((fSlMulti10 * fReMulti3[2]) + fTeMulti3)));
+          fReMulti2[0] = ((fSlMulti11 * ((fTeMulti3 + (fCoMulti33 * fReMulti3[0])) + (fCoMulti32 * fReMulti3[2]))) - (fSlMulti8 * ((fSlMulti7 * fReMulti2[2]) + fTeMulti2)));
+          fReMulti1[0] = ((fSlMulti8 * ((fTeMulti2 + (fCoMulti35 * fReMulti2[0])) + (fCoMulti34 * fReMulti2[2]))) - (fSlMulti5 * ((fSlMulti4 * fReMulti1[2]) + fTeMulti1)));
+          fReMulti0[0] = ((fSlMulti5 * ((fTeMulti1 + (fCoMulti37 * fReMulti1[0])) + (fCoMulti36 * fReMulti1[2]))) - (fSlMulti2 * ((fSlMulti1 * fReMulti0[2]) + fTeMulti0)));
+          fTemp0 = (fSlMulti2 * ((fTeMulti0 + (fCoMulti39 * fReMulti0[0])) + (fCoMulti38 * fReMulti0[2])));
+        }
       // gain out
       fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
       fTemp0 =  (fRec46[0] * fTemp0);
@@ -1365,6 +1423,28 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fRecdel[1] = fRecdel[0];
       old_freq = fConsta4;
       IOTAdel = IOTAdel+1;
+
+      //Multibandfilter
+      fReMulti0[2] = fReMulti0[1];
+      fReMulti0[1] = fReMulti0[0];
+      fReMulti1[2] = fReMulti1[1];
+      fReMulti1[1] = fReMulti1[0];
+      fReMulti2[2] = fReMulti2[1];
+      fReMulti2[1] = fReMulti2[0];
+      fReMulti3[2] = fReMulti3[1];
+      fReMulti3[1] = fReMulti3[0];
+      fReMulti4[2] = fReMulti4[1];
+      fReMulti4[1] = fReMulti4[0];
+      fReMulti5[2] = fReMulti5[1];
+      fReMulti5[1] = fReMulti5[0];
+      fReMulti6[2] = fReMulti6[1];
+      fReMulti6[1] = fReMulti6[0];
+      fReMulti7[2] = fReMulti7[1];
+      fReMulti7[1] = fReMulti7[0];
+      fReMulti8[2] = fReMulti8[1];
+      fReMulti8[1] = fReMulti8[0];
+      fReMulti9[2] = fReMulti9[1];
+      fReMulti9[1] = fReMulti9[0];
 
     }
 

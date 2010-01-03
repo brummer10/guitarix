@@ -1214,7 +1214,7 @@ namespace gx_gui
     /* Update all user items reflecting zone z */
     gboolean gx_update_all_gui(gpointer)
     {
-      update_gui = 1000;
+      update_gui = 800;
       gx_ui::GxUI::updateAllGuis();
       return TRUE;
     }

@@ -1091,32 +1091,6 @@ namespace gx_gui
       else return 0;
     }
 
-    // -------------------------- Vertical Slider -----------------------------------
-
-    void GxMainInterface::addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step)
-    {
-      *zone = init;
-      GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
-      uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-      g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-      GdkColor colorRed;
-      GdkColor colorGreen;
-      GdkColor colorYellow;
-      GtkWidget* slider = gtk_vscale_new (GTK_ADJUSTMENT(adj));
-      gdk_color_parse("#c4c0c0", &colorGreen);
-      gdk_color_parse("#96a2a7", &colorYellow);
-      gdk_color_parse("#7b8a90", &colorRed);
-      gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-      gtk_scale_set_digits(GTK_SCALE(slider), precision(step));
-      gtk_widget_set_usize(slider, -1, 120);
-      gtk_widget_modify_bg (slider, GTK_STATE_NORMAL, &colorRed);
-      gtk_widget_modify_bg (slider, GTK_STATE_PRELIGHT, &colorYellow);
-      gtk_widget_modify_bg(slider, GTK_STATE_ACTIVE, &colorYellow);
-      gtk_widget_modify_bg(slider, GTK_STATE_SELECTED, &colorGreen);
-      openFrameBox(label);
-      addWidget(label, slider);
-      closeBox();
-    }
 
     // -------------------------- Horizontal Slider -----------------------------------
 
@@ -1182,6 +1156,35 @@ namespace gx_gui
           gtk_label_set_text(fLabel, s);
         }
       };
+
+    // -------------------------- Vertical Slider -----------------------------------
+
+    void GxMainInterface::addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step)
+    {
+     *zone = init;
+      GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
+      uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+      g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+      GtkRegler myGtkRegler;
+      GtkWidget* slider = myGtkRegler.gtk_vslider_new_with_adjustment (GTK_ADJUSTMENT(adj));
+      gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
+      GtkWidget* lw = gtk_label_new("");
+
+      GdkColor colorGreen;
+      gdk_color_parse("#a6a9aa", &colorGreen);
+      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+      GtkStyle *style = gtk_widget_get_style(lw);
+      pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+      gtk_widget_modify_font(lw, style->font_desc);
+
+      new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
+
+      openVerticalBox(label);
+      addWidget(label, slider);
+      addWidget(label, lw);
+      closeBox();
+    }
 
 
     void GxMainInterface::addregler(const char* label, float* zone, float init, float min, float max, float step)
