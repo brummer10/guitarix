@@ -732,25 +732,17 @@ void GxMainInterface::setup()
                       addLiveWaveDisplay(" ", &engine->viv , &engine->vivi);
                     }
                     closeBox();
+                    openVerticalBox1("");
+                      {
                     openHorizontalBox("");
                     {
-                      openVerticalBox("");
-                      {
-                        openVerticalBox1("");
-                        closeBox();
-                        openVerticalBox1("");
-                        closeBox();
-                        addregler("fuzz",&engine->fthreshold, 1.f, 0.f, 1.f, 0.01f);
-                        addHorizontalSlider("threshold", &engine->ffuse, 0.f, 0.f, 2.f, 1.f);
-                      }
-                      closeBox();
                       openVerticalBox1("");
                       {
                         addminiswitch(" MultiBandFilter                         ", &engine->fmultifilter);
                         openHorizontalBox("");
                         {
-                          addVerticalSlider(" 31,25", &engine->fslMulti9, 0.0f, -50.0f, 10.0f, 0.1f);
-                          addVerticalSlider(" 62,5 ", &engine->fslMulti8, 0.0f, -50.0f, 10.0f, 0.1f);
+                          addVerticalSlider("31,25", &engine->fslMulti9, 0.0f, -50.0f, 10.0f, 0.1f);
+                          addVerticalSlider(" 62,5", &engine->fslMulti8, 0.0f, -50.0f, 10.0f, 0.1f);
                           addVerticalSlider(" 125 ", &engine->fslMulti7, 0.0f, -50.0f, 10.0f, 0.1f);
                           addVerticalSlider(" 250 ", &engine->fslMulti6, 0.0f, -50.0f, 10.0f, 0.1f);
                           addVerticalSlider(" 500 ", &engine->fslMulti5, 0.0f, -50.0f, 10.0f, 0.1f);
@@ -764,8 +756,22 @@ void GxMainInterface::setup()
                         closeBox();
                       }
                       closeBox();
+                      openVerticalBox("");
+                      {
+                        openVerticalBox1("");
+                        closeBox();
+                        openVerticalBox1("");
+                        closeBox();
+                        addregler("fuzz",&engine->fthreshold, 1.f, 0.f, 1.f, 0.01f);
+                        addHorizontalSlider("threshold", &engine->ffuse, 0.f, 0.f, 2.f, 1.f);
+                      }
+                      closeBox();
                     }
                     closeBox();
+                  }
+                  closeBox();
+                  openVerticalBox1("");
+                  closeBox();
                   }
                   closeBox();
                   //----- fill empty space
