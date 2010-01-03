@@ -462,28 +462,20 @@ namespace gx_gui
 
 
         }
+        // resize the effect box
         static void resize( GtkWidget *widget, gpointer   data )
         {
-          GtkWidget * label =  gtk_bin_get_child(GTK_BIN(widget));
           GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(widget));
-          GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
-          GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
-          box1 = gtk_widget_get_parent(GTK_WIDGET(parent));
-          box = gtk_widget_get_parent(GTK_WIDGET(box1));
-          parent = gtk_widget_get_parent(GTK_WIDGET(box));
+          GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+          GtkWidget *parent = (GtkWidget *) g_list_nth_data(child_list,1);
+          g_list_free(child_list);
+
           int width, height;
           gtk_widget_get_size_request (parent, &width, &height);
           if (width<400)
-          {
-          gtk_widget_set_size_request (parent, 600, -1);
-          gtk_label_set_text(GTK_LABEL(label), "<<<<");
-          }
+            gtk_widget_set_size_request (parent, 600, -1);
           else
-          {
-          gtk_widget_set_size_request (parent, 338, -1);
-          gtk_label_set_text(GTK_LABEL(label), ">>>>");
-          }
-
+            gtk_widget_set_size_request (parent, 338, -1);
         }
 
         // save order for neigbor box
@@ -580,7 +572,7 @@ namespace gx_gui
       GtkWidget * box1 = gtk_fixed_new ();
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
       GtkWidget* 	button = gtk_button_new ();
-      GtkWidget* lw = gtk_label_new(">>>>");
+      GtkWidget* lw = gtk_label_new("");
       gtk_container_add (GTK_CONTAINER(button), lw);
       GdkColor colorGreen;
       gdk_color_parse("#a6a9aa", &colorGreen);
@@ -594,8 +586,6 @@ namespace gx_gui
 
       uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(button));
 
-      g_signal_connect (GTK_OBJECT (button), "clicked",
-                        G_CALLBACK (uiOrderButton::resize), (gpointer) c);
 
       g_signal_connect (GTK_OBJECT (button), "clicked",
                         G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
@@ -833,12 +823,21 @@ namespace gx_gui
       gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollbox),GTK_POLICY_AUTOMATIC,GTK_POLICY_NEVER);
       gtk_widget_set_size_request (scrollbox, 338, -1);
       GtkWidget * box = gtk_vbox_new (homogene, 0);
+      GtkWidget * box1 = gtk_hbox_new (homogene, 0);
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
       g_signal_connect(box, "expose-event", G_CALLBACK(box4_expose), NULL);
-      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbox),GTK_WIDGET(box));
 
-      gtk_container_add (GTK_CONTAINER(fBox[fTop]), scrollbox);
-      gtk_widget_show_all(scrollbox);
+      GtkWidget* 	button = gtk_button_new ();
+
+      g_signal_connect (GTK_OBJECT (button), "clicked",
+                        G_CALLBACK (uiOrderButton::resize), NULL);
+
+      gtk_widget_set_size_request (GTK_WIDGET(button), 10.0, -1.0);
+      gtk_container_add (GTK_CONTAINER(box1), button);
+      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbox),GTK_WIDGET(box));
+      gtk_container_add (GTK_CONTAINER(box1), scrollbox);
+      gtk_container_add (GTK_CONTAINER(fBox[fTop]), box1);
+      gtk_widget_show_all(box1);
       pushBox(kBoxMode, box);
 
     }
