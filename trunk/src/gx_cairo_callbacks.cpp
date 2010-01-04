@@ -487,8 +487,8 @@
           cairo_pattern_destroy (pat);
           cairo_destroy(cr);
         }
-        else if (int(float(gx_current_skin)==0))
-                 box11_expose(wi,ev,user_data);
+       /* else if (int(float(gx_current_skin)==0))
+                 box11_expose(wi,ev,user_data); */
 
       return FALSE;
     }
