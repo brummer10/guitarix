@@ -319,7 +319,8 @@ namespace gx_gui
     /* -------------- timeout for jconv startup when guitarix init -------------- */
     gboolean gx_check_startup(gpointer args)
     {
-
+      gx_survive_jack_shutdown(NULL);
+      gx_monitor_jack_ports(NULL);
       gx_engine::is_setup = 1;
       if (gx_jconv::GxJConvSettings::checkbutton7 == 1)
         {
@@ -333,7 +334,7 @@ namespace gx_gui
     gboolean gx_survive_jack_shutdown(gpointer arg)
     {
       GtkWidget* wd = GxMainInterface::instance()->getJackConnectItem();
-      jack_suv_timeout = 2000;
+
       // return if jack is not down
       if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK)
         {
@@ -391,7 +392,7 @@ namespace gx_gui
     {
       // get gui instance
       GxMainInterface* gui = GxMainInterface::instance();
-      jack_con_timeout = 2100;
+
       // don't bother if we are not a valid client or if we are in the middle
       // of deleting stuff
       // if we are off jack or jack is down, delete everything
@@ -439,7 +440,7 @@ namespace gx_gui
                                       gx_refresh_portconn_status,
                                       GINT_TO_POINTER(i));
               }
-
+          g_list_free(list);
           // next client
           cit++;
         }
@@ -1020,6 +1021,7 @@ namespace gx_gui
 
       GList*     list = gtk_container_get_children(GTK_CONTAINER(skinmenu));
       GtkWidget* item = (GtkWidget*)g_list_nth_data(list, index);
+      g_list_free(list);
       if (item) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), TRUE);
     }
 
@@ -1214,7 +1216,6 @@ namespace gx_gui
     /* Update all user items reflecting zone z */
     gboolean gx_update_all_gui(gpointer)
     {
-      update_gui = 800;
       gx_ui::GxUI::updateAllGuis();
       return TRUE;
     }

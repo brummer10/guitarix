@@ -2503,9 +2503,12 @@ namespace gx_gui
         {
           GtkWidget* wd = (GtkWidget*)g_list_nth_data(list, p);
           if (port_name == gtk_widget_get_name(wd))
+            {
             return wd;
+            g_list_free(list);
+            }
         }
-
+      g_list_free(list);
       return NULL;
     }
 
@@ -2521,7 +2524,9 @@ namespace gx_gui
 
       // look up list of vboxes in portmap
       GList* list = gtk_container_get_children(GTK_CONTAINER(portmap));
-      return (GtkWidget*)g_list_nth_data(list, index);
+      GtkWidget * glnd = (GtkWidget*)g_list_nth_data(list, index);
+      g_list_free(list);
+      return (GtkWidget*)glnd;
     }
 
     /* ----------------- retrieve a client portmap widget --------------- */
@@ -2593,10 +2598,10 @@ namespace gx_gui
 
 
       /* timeout in milliseconds */
-      g_timeout_add(update_gui, gx_update_all_gui, 0);
+      g_timeout_add(40, gx_update_all_gui, 0);
       g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, 60,  gx_refresh_oscilloscope, 0, NULL);
-      g_timeout_add_full(G_PRIORITY_LOW,jack_suv_timeout, gx_survive_jack_shutdown, 0, NULL);
-      g_timeout_add_full(G_PRIORITY_LOW,jack_con_timeout, gx_monitor_jack_ports,0, NULL);
+      g_timeout_add_full(G_PRIORITY_LOW,2000, gx_survive_jack_shutdown, 0, NULL);
+      g_timeout_add_full(G_PRIORITY_LOW,2200, gx_monitor_jack_ports,0, NULL);
       g_timeout_add(750, gx_check_startup, 0);
 
       // Note: meter display timeout is a global var in gx_gui namespace
