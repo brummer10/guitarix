@@ -714,7 +714,7 @@ namespace gx_gui
     {
       GtkWidget * box = gtk_vbox_new (homogene, 2);
       gtk_container_set_border_width (GTK_CONTAINER (box), 4);
-      g_signal_connect(box, "expose-event", G_CALLBACK(box11_expose), NULL);
+      g_signal_connect(box, "expose-event", G_CALLBACK(box12_expose), NULL);
 
       if (fMode[fTop] != kTabMode && label[0] != 0)
         {

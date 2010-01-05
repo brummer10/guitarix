@@ -736,7 +736,7 @@ void GxMainInterface::setup()
                       {
                     openHorizontalBox("");
                     {
-                      openVerticalBox1("");
+                      openPaintBox("");
                       {
                         addminiswitch(" MultiBandFilter                         ", &engine->fmultifilter);
                         openHorizontalBox("");
