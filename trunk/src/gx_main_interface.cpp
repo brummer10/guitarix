@@ -2504,8 +2504,8 @@ namespace gx_gui
           GtkWidget* wd = (GtkWidget*)g_list_nth_data(list, p);
           if (port_name == gtk_widget_get_name(wd))
             {
-            return wd;
             g_list_free(list);
+            return wd;
             }
         }
       g_list_free(list);
