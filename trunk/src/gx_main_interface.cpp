@@ -2407,8 +2407,10 @@ namespace gx_gui
                   if (g_list_length(list) > 0)
                     {
                       mapempty = false;
+                      g_list_free(list);
                       break;
                     }
+                    g_list_free(list);
                 }
             }
         }
