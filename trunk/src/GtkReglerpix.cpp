@@ -1162,7 +1162,7 @@ static const char * eqslider_xpm[] = {
 ">	c #515152",
 ",	c #525251",
 "'	c #666666",
-")	c #00AA00",
+")	c #0A9003",
 "!	c #7A7A7A",
 "~	c #8F8E8F",
 "{	c #21DA14",
