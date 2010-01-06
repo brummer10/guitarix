@@ -1166,7 +1166,7 @@ namespace gx_gui
       uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
-      GtkWidget* slider = myGtkRegler.gtk_vslider_new_with_adjustment (GTK_ADJUSTMENT(adj));
+      GtkWidget* slider = myGtkRegler.gtk_eq_slider_new_with_adjustment (GTK_ADJUSTMENT(adj));
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       GtkWidget* lw = gtk_label_new("");
 
