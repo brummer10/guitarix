@@ -111,6 +111,7 @@ namespace gx_ui
     virtual void addbtoggle(const char* label, float* zone){};
     virtual void addswitch(const char* label, float* zone){};
     virtual void addminiswitch(const char* label, float* zone){};
+    virtual void addminieqswitch(const char* label, float* zone){};
     virtual void addNumEntry(const char* label, float* zone, float init, float min, float max, float step) {};
     virtual void addNumDisplay(const char* label, float* zone) {};
     virtual void addLiveWaveDisplay(const char* label, float* zone , float* zone1) {};
@@ -125,6 +126,7 @@ namespace gx_ui
     virtual void openHorizontalRestetBox(const char* label, float* posit){};
     virtual void openFrameBox(const char* label) {};
     virtual void openHorizontalBox(const char* label) {};
+    virtual void openHorizontalhideBox(const char* label) {};
     virtual void openVerticalBox(const char* label) {};
     virtual void openVerticalBox1(const char* label) {};
     virtual void openVerticalMidiBox(const char* label) {};

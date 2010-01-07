@@ -115,7 +115,7 @@ inline float power2db(float power)
 namespace gx_gui
   {
     //***** the cairo callbacks *****//
-    #include "gx_cairo_callbacks.cpp"
+#include "gx_cairo_callbacks.cpp"
 
 
     static const float falloff = meter_falloff * meter_display_timeout * 0.001;
@@ -1047,13 +1047,13 @@ namespace gx_gui
       // refresh wave view
       gx_waveview_refresh (GTK_WIDGET(livewa), NULL);
       if (int(float(gx_current_skin)==0))
-      {
-      if (set_knob !=1)
         {
-          GtkRegler::gtk_regler_init_pixmaps(1);
-          set_knob = 1;
+          if (set_knob !=1)
+            {
+              GtkRegler::gtk_regler_init_pixmaps(1);
+              set_knob = 1;
+            }
         }
-      }
       else if (int(float(gx_current_skin)==1))
         {
           if (set_knob !=2)
@@ -1064,30 +1064,30 @@ namespace gx_gui
         }
 
       else if (int(float(gx_current_skin)==3))
-      {
+        {
           if (set_knob !=3)
             {
-        GtkRegler::gtk_regler_init_pixmaps(3);
-          set_knob = 3;
+              GtkRegler::gtk_regler_init_pixmaps(3);
+              set_knob = 3;
             }
-      }
+        }
       else if (int(float(gx_current_skin)==5))
-      {
+        {
           if (set_knob !=4)
             {
-        GtkRegler::gtk_regler_init_pixmaps(4);
-          set_knob = 4;
+              GtkRegler::gtk_regler_init_pixmaps(4);
+              set_knob = 4;
             }
-      }
+        }
       else if (int(float(gx_current_skin)==4))
-      {
+        {
           if (set_knob !=5)
             {
-        GtkRegler::gtk_regler_init_pixmaps(5);
-          set_knob = 5;
+              GtkRegler::gtk_regler_init_pixmaps(5);
+              set_knob = 5;
             }
-      }
-       else
+        }
+      else
         {
           GtkRegler::gtk_regler_init_pixmaps(0);
           set_knob = 0;
@@ -1227,4 +1227,31 @@ namespace gx_gui
       gtk_range_set_value(GTK_RANGE(widget), 0);
       return TRUE;
     }
+
+    gboolean gx_hide_eq( GtkWidget *widget, gpointer   obj )
+    {
+      int show_eq = (int) GTK_ADJUSTMENT (widget)->value;
+      GtkWidget *wi = (GtkWidget *)obj;
+      GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(wi));
+      GtkWidget *box = gtk_widget_get_parent(GTK_WIDGET(box1));
+      GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(box));
+      GtkWidget *parent_eq = (GtkWidget *) g_list_nth_data(child_list,1);
+      g_list_free(child_list);
+
+      // gtk_widget_set_size_request (parent_eq, 280,80);
+      if (show_eq)
+        {
+          gtk_widget_show(parent_eq);
+          gtk_widget_set_size_request (box, -1, -1);
+        }
+      else
+        {
+          gtk_widget_hide(parent_eq);
+          gtk_widget_set_size_request (box, -1,-1);
+        }
+
+      return TRUE;
+    }
+
+
   } /* end of gx_gui namespace */

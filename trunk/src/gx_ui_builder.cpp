@@ -738,8 +738,8 @@ void GxMainInterface::setup()
                     {
                       openPaintBox("");
                       {
-                        addminiswitch(" MultiBandFilter                         ", &engine->fmultifilter);
-                        openHorizontalBox("");
+                        addminieqswitch(" MultiBandFilter                         ", &engine->fmultifilter);
+                        openHorizontalhideBox("");
                         {
                           addVerticalSlider("31,25", &engine->fslMulti9, 0.0f, -50.0f, 10.0f, 0.1f);
                           addVerticalSlider(" 62,5", &engine->fslMulti8, 0.0f, -50.0f, 10.0f, 0.1f);
