@@ -657,6 +657,40 @@ namespace gx_engine
 	float 	fCoMulti39;
 	int fmultifilter;
 	//Multibandfilter end
+	// multibandfilter
+  float 	fSlMulti0;
+  float 	fSlMulti1;
+  float 	fSlMulti2;
+  float 	fSlMulti3;
+  float 	fSlMulti4;
+  float 	fSlMulti5;
+  float 	fSlMulti6;
+  float 	fSlMulti7;
+  float 	fSlMulti8;
+  float 	fSlMulti9;
+  float 	fSlMulti10;
+  float 	fSlMulti11;
+  float 	fSlMulti12;
+  float 	fSlMulti13;
+  float 	fSlMulti14;
+  float 	fSlMulti15;
+  float 	fSlMulti16;
+  float 	fSlMulti17;
+  float 	fSlMulti18;
+  float 	fSlMulti19;
+  float 	fSlMulti20;
+  float 	fSlMulti21;
+  float 	fSlMulti22;
+  float 	fSlMulti23;
+  float 	fSlMulti24;
+  float 	fSlMulti25;
+  float 	fSlMulti26;
+  float 	fSlMulti27;
+  float 	fSlMulti28;
+  float 	fSlMulti29;
+  float     frefreshfilter;
+  float     foldfilter;
+// multibandfilter end
 
 	//float out_to_1;
 	//float out_to_2;

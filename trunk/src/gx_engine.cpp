@@ -597,6 +597,42 @@ namespace gx_engine
 		fCoMulti39 = (1 + (fCoMulti0 * (fCoMulti0 + 1.000000e-02f)));
 		fmultifilter = 0;
 
+		// multibandfilter
+  fSlMulti0 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti0))));
+   	fSlMulti1 = (1 + (fCoMulti0 * (fCoMulti0 - fSlMulti0)));
+   	fSlMulti2 = (1.0f / (1 + (fCoMulti0 * (fCoMulti0 + fSlMulti0))));
+   	fSlMulti3 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti1))));
+   	fSlMulti4 = (1 + (fCoMulti2 * (fCoMulti2 - fSlMulti3)));
+   	fSlMulti5 = (1.0f / (1 + (fCoMulti2 * (fCoMulti2 + fSlMulti3))));
+   	fSlMulti6 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti2))));
+   	fSlMulti7 = (1 + (fCoMulti4 * (fCoMulti4 - fSlMulti6)));
+   	fSlMulti8 = (1.0f / (1 + (fCoMulti4 * (fCoMulti4 + fSlMulti6))));
+   	fSlMulti9 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti3))));
+   	fSlMulti10 = (1 + (fCoMulti6 * (fCoMulti6 - fSlMulti9)));
+   	fSlMulti11 = (1.0f / (1 + (fCoMulti6 * (fCoMulti6 + fSlMulti9))));
+   	fSlMulti12 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti4))));
+   	fSlMulti13 = (1 + (fCoMulti8 * (fCoMulti8 - fSlMulti12)));
+   	fSlMulti14 = (1.0f / (1 + (fCoMulti8 * (fCoMulti8 + fSlMulti12))));
+   	fSlMulti15 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti5))));
+   	fSlMulti16 = (1 + (fCoMulti10 * (fCoMulti10 - fSlMulti15)));
+   	fSlMulti17 = (1.0f / (1 + (fCoMulti10 * (fCoMulti10 + fSlMulti15))));
+   	fSlMulti18 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti6))));
+   	fSlMulti19 = (1 + (fCoMulti12 * (fCoMulti12 - fSlMulti18)));
+   	fSlMulti20 = (1.0f / (1 + (fCoMulti12 * (fCoMulti12 + fSlMulti18))));
+   	fSlMulti21 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti7))));
+   	fSlMulti22 = (1 + (fCoMulti14 * (fCoMulti14 - fSlMulti21)));
+   	fSlMulti23 = (1.0f / (1 + (fCoMulti14 * (fCoMulti14 + fSlMulti21))));
+   	fSlMulti24 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti8))));
+   	fSlMulti25 = (1 + (fCoMulti16 * (fCoMulti16 - fSlMulti24)));
+   	fSlMulti26 = (1.0f / (1 + (fCoMulti16 * (fCoMulti16 + fSlMulti24))));
+   	fSlMulti27 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti9))));
+   	fSlMulti28 = (1 + (fCoMulti18 * (fCoMulti18 - fSlMulti27)));
+   	fSlMulti29 = (1.0f / (1 + (fCoMulti18 * (fCoMulti18 + fSlMulti27))));
+   	frefreshfilter = (fslMulti0 + fslMulti1 + fslMulti2 + fslMulti3 + fslMulti4 +
+   	                 fslMulti5 + fslMulti6 + fslMulti7 + fslMulti8 + fslMulti9)*100;
+   	foldfilter = 0;
+// multibandfilter end
+
     // end engine init
   }
 
