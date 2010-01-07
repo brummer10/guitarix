@@ -820,45 +820,45 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       fslider_tone_check = (fslider_tone1+fslider_tone0+fslider_tone2)*100;
     }
   // tone end
-frefreshfilter = (fslMulti0 + fslMulti1 + fslMulti2 + fslMulti3 + fslMulti4 +
-   	                 fslMulti5 + fslMulti6 + fslMulti7 + fslMulti8 + fslMulti9)*100;
+  frefreshfilter = (fslMulti0 + fslMulti1 + fslMulti2 + fslMulti3 + fslMulti4 +
+                    fslMulti5 + fslMulti6 + fslMulti7 + fslMulti8 + fslMulti9)*100;
   if (frefreshfilter != foldfilter)
-  {
+    {
 // multibandfilter
-  fSlMulti0 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti0))));
-  fSlMulti1 = (1 + (fCoMulti0 * (fCoMulti0 - fSlMulti0)));
-  fSlMulti2 = (1.0f / (1 + (fCoMulti0 * (fCoMulti0 + fSlMulti0))));
-  fSlMulti3 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti1))));
-  fSlMulti4 = (1 + (fCoMulti2 * (fCoMulti2 - fSlMulti3)));
-  fSlMulti5 = (1.0f / (1 + (fCoMulti2 * (fCoMulti2 + fSlMulti3))));
-  fSlMulti6 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti2))));
-  fSlMulti7 = (1 + (fCoMulti4 * (fCoMulti4 - fSlMulti6)));
-  fSlMulti8 = (1.0f / (1 + (fCoMulti4 * (fCoMulti4 + fSlMulti6))));
-  fSlMulti9 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti3))));
-  fSlMulti10 = (1 + (fCoMulti6 * (fCoMulti6 - fSlMulti9)));
-  fSlMulti11 = (1.0f / (1 + (fCoMulti6 * (fCoMulti6 + fSlMulti9))));
-  fSlMulti12 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti4))));
-  fSlMulti13 = (1 + (fCoMulti8 * (fCoMulti8 - fSlMulti12)));
-  fSlMulti14 = (1.0f / (1 + (fCoMulti8 * (fCoMulti8 + fSlMulti12))));
-  fSlMulti15 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti5))));
-  fSlMulti16 = (1 + (fCoMulti10 * (fCoMulti10 - fSlMulti15)));
-  fSlMulti17 = (1.0f / (1 + (fCoMulti10 * (fCoMulti10 + fSlMulti15))));
-  fSlMulti18 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti6))));
-  fSlMulti19 = (1 + (fCoMulti12 * (fCoMulti12 - fSlMulti18)));
-  fSlMulti20 = (1.0f / (1 + (fCoMulti12 * (fCoMulti12 + fSlMulti18))));
-  fSlMulti21 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti7))));
-  fSlMulti22 = (1 + (fCoMulti14 * (fCoMulti14 - fSlMulti21)));
-  fSlMulti23 = (1.0f / (1 + (fCoMulti14 * (fCoMulti14 + fSlMulti21))));
-  fSlMulti24 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti8))));
-  fSlMulti25 = (1 + (fCoMulti16 * (fCoMulti16 - fSlMulti24)));
-  fSlMulti26 = (1.0f / (1 + (fCoMulti16 * (fCoMulti16 + fSlMulti24))));
-  fSlMulti27 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti9))));
-  fSlMulti28 = (1 + (fCoMulti18 * (fCoMulti18 - fSlMulti27)));
-  fSlMulti29 = (1.0f / (1 + (fCoMulti18 * (fCoMulti18 + fSlMulti27))));
+      fSlMulti0 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti0))));
+      fSlMulti1 = (1 + (fCoMulti0 * (fCoMulti0 - fSlMulti0)));
+      fSlMulti2 = (1.0f / (1 + (fCoMulti0 * (fCoMulti0 + fSlMulti0))));
+      fSlMulti3 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti1))));
+      fSlMulti4 = (1 + (fCoMulti2 * (fCoMulti2 - fSlMulti3)));
+      fSlMulti5 = (1.0f / (1 + (fCoMulti2 * (fCoMulti2 + fSlMulti3))));
+      fSlMulti6 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti2))));
+      fSlMulti7 = (1 + (fCoMulti4 * (fCoMulti4 - fSlMulti6)));
+      fSlMulti8 = (1.0f / (1 + (fCoMulti4 * (fCoMulti4 + fSlMulti6))));
+      fSlMulti9 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti3))));
+      fSlMulti10 = (1 + (fCoMulti6 * (fCoMulti6 - fSlMulti9)));
+      fSlMulti11 = (1.0f / (1 + (fCoMulti6 * (fCoMulti6 + fSlMulti9))));
+      fSlMulti12 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti4))));
+      fSlMulti13 = (1 + (fCoMulti8 * (fCoMulti8 - fSlMulti12)));
+      fSlMulti14 = (1.0f / (1 + (fCoMulti8 * (fCoMulti8 + fSlMulti12))));
+      fSlMulti15 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti5))));
+      fSlMulti16 = (1 + (fCoMulti10 * (fCoMulti10 - fSlMulti15)));
+      fSlMulti17 = (1.0f / (1 + (fCoMulti10 * (fCoMulti10 + fSlMulti15))));
+      fSlMulti18 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti6))));
+      fSlMulti19 = (1 + (fCoMulti12 * (fCoMulti12 - fSlMulti18)));
+      fSlMulti20 = (1.0f / (1 + (fCoMulti12 * (fCoMulti12 + fSlMulti18))));
+      fSlMulti21 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti7))));
+      fSlMulti22 = (1 + (fCoMulti14 * (fCoMulti14 - fSlMulti21)));
+      fSlMulti23 = (1.0f / (1 + (fCoMulti14 * (fCoMulti14 + fSlMulti21))));
+      fSlMulti24 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti8))));
+      fSlMulti25 = (1 + (fCoMulti16 * (fCoMulti16 - fSlMulti24)));
+      fSlMulti26 = (1.0f / (1 + (fCoMulti16 * (fCoMulti16 + fSlMulti24))));
+      fSlMulti27 = (1.000000e-02f * powf(10, (5.000000e-02f * (0 - fslMulti9))));
+      fSlMulti28 = (1 + (fCoMulti18 * (fCoMulti18 - fSlMulti27)));
+      fSlMulti29 = (1.0f / (1 + (fCoMulti18 * (fCoMulti18 + fSlMulti27))));
 // multibandfilter end
-  foldfilter = (fslMulti0 + fslMulti1 + fslMulti2 + fslMulti3 + fslMulti4 +
-   	                 fslMulti5 + fslMulti6 + fslMulti7 + fslMulti8 + fslMulti9)*100;
-  }
+      foldfilter = (fslMulti0 + fslMulti1 + fslMulti2 + fslMulti3 + fslMulti4 +
+                    fslMulti5 + fslMulti6 + fslMulti7 + fslMulti8 + fslMulti9)*100;
+    }
 
   int iSlow21 = int((int((fSlow20 - 1)) & 4095));
   int iSlow22 = int((int(fSlow20) & 4095));
@@ -992,7 +992,7 @@ frefreshfilter = (fslMulti0 + fslMulti1 + fslMulti2 + fslMulti3 + fslMulti4 +
           }  //preamp ende
        */
 
-         // tone
+      // tone
       fVec_tone0[0] = fTemp0;
       fRec_tone3[0] = (fSlow_tone32 * ((fSlow_tone21 * ((fSlow_tone31 * fVec_tone0[2]) + ((fSlow_tone30 * fVec_tone0[0]) + (fSlow_tone28 * fVec_tone0[1])))) - ((fSlow_tone27 * fRec_tone3[2]) + (fSlow_tone24 * fRec_tone3[1]))));
       fRec_tone2[0] = (fSlow_tone37 * ((fSlow_tone7 * (((fSlow_tone36 * fRec_tone3[0]) + (fSlow_tone34 * fRec_tone3[1])) + (fSlow_tone33 * fRec_tone3[2]))) - ((fSlow_tone20 * fRec_tone2[2]) + (fSlow_tone17 * fRec_tone2[1]))));
@@ -1432,27 +1432,27 @@ frefreshfilter = (fslMulti0 + fslMulti1 + fslMulti2 + fslMulti3 + fslMulti4 +
 
       if (fmultifilter)
         {
-      //Multibandfilter
-      fReMulti0[2] = fReMulti0[1];
-      fReMulti0[1] = fReMulti0[0];
-      fReMulti1[2] = fReMulti1[1];
-      fReMulti1[1] = fReMulti1[0];
-      fReMulti2[2] = fReMulti2[1];
-      fReMulti2[1] = fReMulti2[0];
-      fReMulti3[2] = fReMulti3[1];
-      fReMulti3[1] = fReMulti3[0];
-      fReMulti4[2] = fReMulti4[1];
-      fReMulti4[1] = fReMulti4[0];
-      fReMulti5[2] = fReMulti5[1];
-      fReMulti5[1] = fReMulti5[0];
-      fReMulti6[2] = fReMulti6[1];
-      fReMulti6[1] = fReMulti6[0];
-      fReMulti7[2] = fReMulti7[1];
-      fReMulti7[1] = fReMulti7[0];
-      fReMulti8[2] = fReMulti8[1];
-      fReMulti8[1] = fReMulti8[0];
-      fReMulti9[2] = fReMulti9[1];
-      fReMulti9[1] = fReMulti9[0];
+          //Multibandfilter
+          fReMulti0[2] = fReMulti0[1];
+          fReMulti0[1] = fReMulti0[0];
+          fReMulti1[2] = fReMulti1[1];
+          fReMulti1[1] = fReMulti1[0];
+          fReMulti2[2] = fReMulti2[1];
+          fReMulti2[1] = fReMulti2[0];
+          fReMulti3[2] = fReMulti3[1];
+          fReMulti3[1] = fReMulti3[0];
+          fReMulti4[2] = fReMulti4[1];
+          fReMulti4[1] = fReMulti4[0];
+          fReMulti5[2] = fReMulti5[1];
+          fReMulti5[1] = fReMulti5[0];
+          fReMulti6[2] = fReMulti6[1];
+          fReMulti6[1] = fReMulti6[0];
+          fReMulti7[2] = fReMulti7[1];
+          fReMulti7[1] = fReMulti7[0];
+          fReMulti8[2] = fReMulti8[1];
+          fReMulti8[1] = fReMulti8[0];
+          fReMulti9[2] = fReMulti9[1];
+          fReMulti9[1] = fReMulti9[0];
         }
 
     }
