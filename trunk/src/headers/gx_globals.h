@@ -182,6 +182,8 @@ namespace gx_system
 
   /* variables and constants */
   extern const int SYSTEM_OK;
+  extern GtkTextIter iter1;
+  extern GtkTextIter iter2;
 
   extern string rcpath;
 

@@ -309,8 +309,7 @@ namespace gx_system
 	msgbuf.insert(0, spos.str());
 
 
-	GtkTextIter iter1;
-	GtkTextIter iter2;
+
 
 	// delete first line when window filled up
 	if (i >= nlines)
