@@ -1237,20 +1237,26 @@ namespace gx_gui
       GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(box));
       GtkWidget *parent_eq = (GtkWidget *) g_list_nth_data(child_list,1);
       g_list_free(child_list);
+      box1 = gtk_widget_get_parent(GTK_WIDGET(livewa));
+
 
       // gtk_widget_set_size_request (parent_eq, 280,80);
       if (show_eq)
         {
           gtk_widget_show(parent_eq);
-          gtk_widget_set_size_request (box, -1, -1);
+          //gtk_widget_set_size_request (box, -1, -1);
+          if (GDK_IS_WINDOW (box1->window))
+            gdk_window_invalidate_rect(GDK_WINDOW(box1->window),NULL,TRUE);
         }
       else
         {
           gtk_widget_hide(parent_eq);
-          gtk_widget_set_size_request (box, -1,-1);
+          //gtk_widget_set_size_request (box, -1,-1);
+          if (GDK_IS_WINDOW (box1->window))
+            gdk_window_invalidate_rect(GDK_WINDOW(box1->window),NULL,TRUE);
         }
 
-      return TRUE;
+      return false;
     }
 
 

@@ -320,7 +320,7 @@ namespace gx_engine
 
       zeroize(fRecover0, 2);
 
-      viv = 0.;
+      viv = 1.;
       vivi = 0.;
 
       dsp::turnOffMidi();

@@ -926,7 +926,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
       fTemp0 = *input0++;
       // when the ocilloscope draw wav by sample (mode 3) get the input value
-      if (gx_gui::showwave == 1) vivi = fTemp0;
+      //if (gx_gui::showwave == 1) vivi = fTemp0;
 
       if (tuner_on > 0) // enable tuner when show note or play midi
         {

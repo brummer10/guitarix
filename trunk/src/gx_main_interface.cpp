@@ -382,7 +382,7 @@ namespace gx_gui
     {
       GtkWidget * box = gtk_hbox_new (homogene, 0);
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-      gtk_widget_set_size_request (box, 270, 75);
+     // gtk_widget_set_size_request (box, 270, 75);
       if (fMode[fTop] != kTabMode && label[0] != 0)
         {
           GtkWidget * frame = addWidget(label, gtk_frame_new (label));
@@ -490,14 +490,31 @@ namespace gx_gui
           GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(widget));
           GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
           GtkWidget *parent = (GtkWidget *) g_list_nth_data(child_list,1);
+          child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
+          box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+          child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+          box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+          child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+          box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+          child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+          box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+          child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+          box1 = (GtkWidget *) g_list_nth_data(child_list,0);
           g_list_free(child_list);
 
           int width, height;
           gtk_widget_get_size_request (parent, &width, &height);
-          if (width<400)
-            gtk_widget_set_size_request (parent, 600, -1);
+          if (width!=-1)
+           {
+            gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(parent),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
+            gtk_widget_set_size_request (parent, -1, -1);
+           }
           else
-            gtk_widget_set_size_request (parent, 338, -1);
+          {
+            width= box1->allocation.width;
+            gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(parent),GTK_POLICY_AUTOMATIC,GTK_POLICY_NEVER);
+            gtk_widget_set_size_request (parent, width*5, -1);
+          }
         }
 
         // save order for neigbor box
