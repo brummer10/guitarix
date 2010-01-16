@@ -260,6 +260,7 @@ namespace gx_gui
   GdkPixbuf* ibr;
   GdkPixbuf* bbr;
   GdkPixbuf *tribeimage;
+  GdkPixbuf *tribeimage1;
   GdkPixbuf *_image;
 
   /* jack server status icons */
@@ -292,7 +293,7 @@ namespace gx_gui
   int meter_falloff = 27; // in dB/sec.
   int meter_display_timeout = 60; // in millisec
 
-
+  int show_eq;
   /* names of port lists (exclude MIDI for now) */
   string port_list_names[NUM_PORT_LISTS] = {
     string("AudioIP"),

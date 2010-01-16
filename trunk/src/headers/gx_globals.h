@@ -229,6 +229,7 @@ namespace gx_gui
   extern GdkPixbuf* ibm;
   extern GdkPixbuf* ibr;
   extern GdkPixbuf *tribeimage;
+  extern GdkPixbuf *tribeimage1;
   extern GdkPixbuf *_image;
 
   /* jack server status */
@@ -261,7 +262,7 @@ namespace gx_gui
   extern int meter_falloff;
   extern int meter_display_timeout;
 
-
+  extern int show_eq;
 
   /* names of port lists (exclude MIDI for now) */
   extern string port_list_names[];

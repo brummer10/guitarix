@@ -1230,7 +1230,7 @@ namespace gx_gui
 
     gboolean gx_hide_eq( GtkWidget *widget, gpointer   obj )
     {
-      int show_eq = (int) GTK_ADJUSTMENT (widget)->value;
+      show_eq = (int) GTK_ADJUSTMENT (widget)->value;
       GtkWidget *wi = (GtkWidget *)obj;
       GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(wi));
       GtkWidget *box = gtk_widget_get_parent(GTK_WIDGET(box1));
