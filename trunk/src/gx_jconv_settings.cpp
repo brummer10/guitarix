@@ -371,7 +371,7 @@ namespace gx_jconv
       GtkWidget* lw = gtk_label_new("");
       GtkWidget* lwl = gtk_label_new(label);
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
@@ -432,7 +432,7 @@ namespace gx_jconv
       GtkWidget* label5 = gtk_label_new (" mode ");
 
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (label2, GTK_STATE_NORMAL, &colorGreen);
       gtk_widget_modify_fg (label5, GTK_STATE_NORMAL, &colorGreen);
       GtkStyle *style = gtk_widget_get_style(label2);

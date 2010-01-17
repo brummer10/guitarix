@@ -440,19 +440,38 @@
       double x0      = wi->allocation.x+1;
       double y0      = wi->allocation.y+1;
       double rect_width  = wi->allocation.width-2;
-      double rect_height = wi->allocation.height-10;
+      double rect_height = wi->allocation.height-3;
 
-      cairo_move_to (cr, x0+rect_width, y0+rect_height*0.6);
-      cairo_curve_to (cr, x0, y0+rect_height*0.7, x0, y0+rect_height*0.7, x0, y0+rect_height);
-      cairo_line_to (cr, x0+rect_width , y0+rect_height);
-      cairo_set_line_width (cr, 1.0);
+
+      cairo_pattern_t*pat;
+
+      double radius = 38.;
+      if (rect_width<38) radius = rect_width;
+      else if (rect_height<38) radius = rect_height;
+      double x1,y1;
+
+      x1=x0+rect_width;
+      y1=y0+rect_height;
+
+      cairo_move_to  (cr, x0, y0 + radius);
+      cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+      cairo_line_to (cr, x1 - radius, y0);
+      cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+      cairo_line_to (cr, x1 , y1 - radius);
+      cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+      cairo_line_to (cr, x0 + radius, y1);
+      cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
       cairo_close_path (cr);
-      cairo_set_source_rgba (cr, 0, 0, 0, 0.8);
-      cairo_fill_preserve (cr);
-      cairo_set_source_rgb (cr, 0.5, 0.5, 0.5);
-      cairo_stroke (cr);
+      pat = cairo_pattern_create_linear (0, y0, 0, y1);
+      cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0, 0.8);
+      cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.05, 0.05, 0.05, 0.6);
+      cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.2, 0.4);
+      cairo_set_source (cr, pat);
+      cairo_fill (cr);
 
+      cairo_pattern_destroy (pat);
       cairo_destroy(cr);
+
 
       return FALSE;
     }

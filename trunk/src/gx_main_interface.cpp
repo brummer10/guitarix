@@ -560,6 +560,7 @@ namespace gx_gui
       GtkWidget * box = gtk_vbox_new (homogene, 0);
       GtkWidget * box1 = gtk_fixed_new ();
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+      g_signal_connect(box, "expose-event", G_CALLBACK(box9_expose), NULL);
 
       GtkWidget* 	button = gtk_button_new ();
       GtkWidget* 	button1 = gtk_button_new ();
@@ -571,7 +572,7 @@ namespace gx_gui
       gtk_widget_set_size_request (GTK_WIDGET(button1), 20.0, 15.0);
 
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
@@ -608,13 +609,14 @@ namespace gx_gui
     void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
     {
       GtkWidget * box = gtk_vbox_new (homogene, 0);
+      g_signal_connect(box, "expose-event", G_CALLBACK(box9_expose), NULL);
       GtkWidget * box1 = gtk_fixed_new ();
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
       GtkWidget* 	button = gtk_button_new ();
       GtkWidget* lw = gtk_label_new("");
       gtk_container_add (GTK_CONTAINER(button), lw);
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
@@ -730,7 +732,7 @@ namespace gx_gui
         {
           GtkWidget* lw = gtk_label_new(label);
           GdkColor colorGreen;
-          gdk_color_parse("#a6a9aa", &colorGreen);
+          gdk_color_parse("#969292", &colorGreen);
           gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
           GtkStyle *style = gtk_widget_get_style(lw);
           pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
@@ -793,11 +795,11 @@ namespace gx_gui
         {
           GtkWidget* lw = gtk_label_new(label);
           GdkColor colorGreen;
-          gdk_color_parse("#a6a9aa", &colorGreen);
+          gdk_color_parse("#969292", &colorGreen);
           gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
           GtkStyle *style = gtk_widget_get_style(lw);
           pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-          pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+          pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
           gtk_widget_modify_font(lw, style->font_desc);
           gtk_container_add (GTK_CONTAINER(box), lw);
           gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
@@ -838,7 +840,7 @@ namespace gx_gui
         {
           GtkWidget* lw = gtk_label_new(label);
           GdkColor colorGreen;
-          gdk_color_parse("#a6a9aa", &colorGreen);
+          gdk_color_parse("#969292", &colorGreen);
           gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
           GtkStyle *style = gtk_widget_get_style(lw);
           pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
@@ -1095,7 +1097,7 @@ namespace gx_gui
       gtk_widget_modify_base (button, GTK_STATE_NORMAL, &colorba);
       GtkStyle *style = gtk_widget_get_style(lab);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
       gtk_widget_modify_font(lab, style->font_desc);
       uiCheckButton* c = new uiCheckButton(this, zone, GTK_TOGGLE_BUTTON(button));
       g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK(uiCheckButton::toggled), (gpointer) c);
@@ -1210,7 +1212,7 @@ namespace gx_gui
       GtkWidget* lw = gtk_label_new("");
 
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
@@ -1235,11 +1237,12 @@ namespace gx_gui
       GtkWidget* lw = gtk_label_new("");
       GtkWidget* lwl = gtk_label_new(label);
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+      gtk_widget_modify_fg (lwl, GTK_STATE_NORMAL, &colorGreen);
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
       gtk_widget_modify_font(lw, style->font_desc);
       gtk_widget_modify_font(lwl, style->font_desc);
       new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
@@ -1262,11 +1265,12 @@ namespace gx_gui
       GtkWidget* lw = gtk_label_new("");
       GtkWidget* lwl = gtk_label_new(label);
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+      gtk_widget_modify_fg (lwl, GTK_STATE_NORMAL, &colorGreen);
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
       gtk_widget_modify_font(lw, style->font_desc);
       gtk_widget_modify_font(lwl, style->font_desc);
 
@@ -1289,11 +1293,11 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkWidget* lw = gtk_label_new("");
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
       gtk_widget_modify_font(lw, style->font_desc);
       new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
       GtkRegler myGtkRegler;
@@ -1335,11 +1339,11 @@ namespace gx_gui
       GtkWidget* slider = myGtkRegler.gtk_switch_new_with_adjustment(GTK_ADJUSTMENT(adj));
       GtkWidget* lw = gtk_label_new(label);
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
       gtk_widget_modify_font(lw, style->font_desc);
       openVerticalBox("");
       string laba = label;
@@ -1357,11 +1361,11 @@ namespace gx_gui
       GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
       GtkWidget* lw = gtk_label_new(label);
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
       gtk_widget_modify_font(lw, style->font_desc);
       openHorizontalBox("");
       addWidget(label, slider);
@@ -1381,7 +1385,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_hide_eq), (gpointer) slider);
       GtkWidget* lw = gtk_label_new(label);
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);

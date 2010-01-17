@@ -628,7 +628,7 @@ namespace gx_gui
                                          "TO OTHER RUNNING JACK APPLICATIONS. \n"
                                          "DO YOU WANT TO PROCEED ?");
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (labelt1, GTK_STATE_NORMAL, &colorGreen);
 
       GtkStyle *style1 = gtk_widget_get_style(labelt1);
@@ -676,7 +676,7 @@ namespace gx_gui
 
       GtkStyle *style = gtk_widget_get_style(labelt2);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_LIGHT);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
       gtk_widget_modify_font(labelt2, style->font_desc);
 
       g_signal_connect_swapped(button1, "clicked",
@@ -794,7 +794,7 @@ namespace gx_gui
       gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), text_label);
 
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (text_label, GTK_STATE_NORMAL, &colorGreen);
 
       GdkColor colorBlack;
@@ -895,7 +895,7 @@ namespace gx_gui
 
       // some display style
       GdkColor colorGreen;
-      gdk_color_parse("#a6a9aa", &colorGreen);
+      gdk_color_parse("#969292", &colorGreen);
       gtk_widget_modify_fg (text_label, GTK_STATE_NORMAL, &colorGreen);
 
       GdkColor colorBlack;
