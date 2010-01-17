@@ -1191,7 +1191,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
               if (fcheckbox8)     //impulseResponse
                 {
                   fVec22[0] = fTemp0;
-                  if (auto_ir) fSlow77 = fTemp0;
+
+                  if (auto_ir) fSlow77 = min(0.6, max(-0.6,fTemp0));
                   fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
                   fTemp0 = (fRec48[0] + fVec22[0]);
                 }

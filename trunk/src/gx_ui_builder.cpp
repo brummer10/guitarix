@@ -147,7 +147,7 @@ void GxMainInterface::setup()
           openFrameBox("");
           closeBox();
           //----- arange all widgets in a vertical scale
-          openVerticalBox("");
+          openPaintBox1("");
           {
             //----- the left widget side, volume, tone, fuzz
             openHorizontalBox("");

@@ -91,7 +91,7 @@
       cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
       cairo_close_path (cr);
 
-      cairo_set_source_rgba (cr, 0, 0, 0, 0.8);
+      cairo_set_source_rgba (cr, 0, 0, 0, 0.6);
       cairo_set_line_width (cr, 5.0);
       cairo_stroke (cr);
 
@@ -105,7 +105,7 @@
       cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
       cairo_close_path (cr);
 
-      cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
+      cairo_set_source_rgb (cr, 0.02, 0.02, 0.02);
       cairo_set_line_width (cr, 1.0);
       cairo_stroke (cr);
 

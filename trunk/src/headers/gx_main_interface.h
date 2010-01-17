@@ -145,6 +145,7 @@ namespace gx_gui
     virtual void openExpanderBox(const char* label, float* zone);
     virtual void openTabBox(const char* label = "");
     virtual void openPaintBox(const char* label = "");
+    virtual void openPaintBox1(const char* label = "");
     virtual void openPaintBox2(const char* label = "");
     virtual void openScrollBox(const char* label = "");
     virtual void openTextLoggingBox(const char* label = "");
