@@ -442,6 +442,7 @@
       double rect_width  = wi->allocation.width-2;
       double rect_height = wi->allocation.height-3;
 
+      _image = gdk_pixbuf_scale_simple(gx_gui::tribeimage1,rect_width,rect_height,GDK_INTERP_HYPER);
 
       cairo_pattern_t*pat;
 
@@ -471,7 +472,11 @@
 
       cairo_pattern_destroy (pat);
       cairo_destroy(cr);
-
+      gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                      _image, 0, 0,
+                      x0, y0, rect_width,rect_height,
+                      GDK_RGB_DITHER_NORMAL, 0, 0);
+      g_object_unref(_image);
 
       return FALSE;
     }
@@ -756,7 +761,35 @@
 "                                                                                                                                                                                                        ",
 "                                                                                                                                                                                                        "};
 
+/* XPM */
+static const char * guitar_xpm[] = {
+"65 20 3 1",
+" 	c None",
+".	c #353535",
+"+	c #343434",
+"                                                                 ",
+"                                                                 ",
+"                                                                 ",
+"                                                                 ",
+"                          .           +                          ",
+"                    ..  ++.+++     .   ...++                     ",
+"                    . ++.    +     + +  +.+                      ",
+"   +                 ++  .+ .+     +. +.  ..+                ++  ",
+"  +..    .+        . ++  .+. +       +..  +. .         +    ++.+ ",
+" +   +    .         .   +  .+       +.      +  .      .+   ..  + ",
+" +       +.   .   .  .  +  +.++    .++. +.    +   +.   +    .  + ",
+" ++   .. . +++++.   +  ++.... .   + .++.+   .   ....... ++.   +. ",
+"   + ++ +..+++.++. +      ..          +       . + +.++.++  .+.   ",
+"   .  .+                                                     .   ",
+"   +..                                                      ++   ",
+"   +.                                                        .   ",
+"                                                                 ",
+"                                                                 ",
+"                                                                 ",
+"                                                                 "};
+
 
       tribeimage = gdk_pixbuf_new_from_xpm_data(tribe_xpm);
+      tribeimage1 = gdk_pixbuf_new_from_xpm_data(guitar_xpm);
     }
 

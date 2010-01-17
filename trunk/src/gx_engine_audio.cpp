@@ -967,7 +967,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
               sumt += sqrf(fConsta4s);
               fConsta4 = sqrtf(sumt/cts);
             }
-          else if (fConsta4>0) fConsta4 -= 0.05;
+         // else if (fConsta4>0) fConsta4 -= 0.05;
         }
       if (gx_gui::shownote == 0)
         {

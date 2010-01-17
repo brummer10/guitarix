@@ -578,7 +578,7 @@ namespace gx_jack
   //---- jack xrun callback
   int gx_jack_xrun_callback (void* arg)
   {
-    if ((last_xrun_time + 1000) < jack_last_frame_time(client)) {
+    if ((last_xrun_time + 10000) < jack_last_frame_time(client)) {
     float xdel = jack_get_xrun_delayed_usecs(client);
     ostringstream s; s << " delay of at least " << xdel << " microsecs";
     gx_print_warning("Jack XRun", s.str());
