@@ -370,9 +370,9 @@ namespace gx_jconv
       GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
       GtkWidget* lw = gtk_label_new("");
       GtkWidget* lwl = gtk_label_new(label);
-      GdkColor colorGreen;
-      gdk_color_parse("#969292", &colorGreen);
-      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+      gtk_widget_set_name (lw,"value_label");
+      gtk_widget_set_name (lwl,"effekt_label");
+
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
       pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
@@ -427,6 +427,7 @@ namespace gx_jconv
       GtkWidget* label  = gtk_label_new ("\n           settings for              \n"
                                          "      JConv  by  Fons Adriaensen     \n");
       gx_gui::label1    = gtk_label_new (" \n");
+      gtk_widget_set_name (gx_gui::label1,"effekt_label");
 
       GtkWidget* label2 = gtk_label_new (" partition size");
       GtkWidget* label5 = gtk_label_new (" mode ");

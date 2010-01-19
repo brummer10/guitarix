@@ -39,6 +39,7 @@ style_files += ' guitarix_sunburst.rc'
 style_files += ' guitarix_rainbow.rc'
 style_files += ' guitarix_yellow.rc'
 style_files += ' guitarix_default.rc'
+style_files += ' guitarix_zzz.rc'
     
 def configure(conf):
     pass

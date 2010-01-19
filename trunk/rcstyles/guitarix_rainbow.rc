@@ -7,38 +7,38 @@ pixmap_path './:/usr/share/guitarix:/usr/local/share/guitarix'
 
 style "guitarix_rainbow"
 {
-  
-  
+
+
   GtkButton::default_border = { 0, 0, 0, 0 }
   GtkButton::default_outside_border = { 0, 0, 0, 0 }
   GtkButton::button_relief = GTK_RELIEF_NONE
- 
-  
-  fg[NORMAL] = { 0.80, 0.80, 0.80 }	
-  fg[ACTIVE] = { 0.80, 0.80, 0.80 }	
+
+
+  fg[NORMAL] = { 0.80, 0.80, 0.80 }
+  fg[ACTIVE] = { 0.80, 0.80, 0.80 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
-  fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }	
-  fg[SELECTED] = { 0.80, 0.80, 0.80 }	
-  
+  fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }
+  fg[SELECTED] = { 0.80, 0.80, 0.80 }
+
   bg[NORMAL] = { 0.0, 0.0, 0.0 }
   bg[PRELIGHT] = "#1c5d09"
   bg[ACTIVE] = { 0.0, 0.0, 0.0 }
   bg[INSENSITIVE] = "#c4c0c0"
   bg[SELECTED] = "#103004"
- 
-  text[NORMAL] = { 0.80, 0.80, 0.80 }	
-  text[ACTIVE] = { 0.80, 0.80, 0.80 }	
-  text[PRELIGHT] = { 0.80, 0.80, 0.80 }	
-  text[INSENSITIVE] = { 0.80, 0.80, 0.80}	
+
+  text[NORMAL] = { 0.80, 0.80, 0.80 }
+  text[ACTIVE] = { 0.80, 0.80, 0.80 }
+  text[PRELIGHT] = { 0.80, 0.80, 0.80 }
+  text[INSENSITIVE] = { 0.80, 0.80, 0.80}
   text[SELECTED] = { 1.0, 1.0, 1.0 }
-  
+
   base[ACTIVE]     = "#103004"
   base[NORMAL]      =  "#103004"
   base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
   base[INSENSITIVE]  = "#4c5159"
   base[SELECTED]     = { 0.25, 0.25, 0.25 }
   font_name = "sans 10"
- 
+
 }
 
 
@@ -53,28 +53,63 @@ class "GtkExpander" style:highest "guitarix_rainbow"
 
 
 style "guitarix-event_rainbow"
-{ 
+{
  bg_pixmap[NORMAL] = "rainbow3.jpg"
 }
 
 class "GtkEventBox" style:highest "guitarix-event_rainbow"
 
 style "guitarix-dialog_rainbow"
-{ 
+{
  bg_pixmap[NORMAL] = "rainbow3.jpg"
 }
 
 widget_class "GtkDialog*" style:highest "guitarix-dialog_rainbow"
 
 style "guitarix-m_rainbow"
-{ 
-  fg[NORMAL] = "#8c5214"	
+{
+  fg[NORMAL] = "#8c5214"
   bg[NORMAL] =  "#1c5d09"
   font_name = "sans 9"
 }
 
 class "GtkMenu" style:highest "guitarix-m_rainbow"
 class "GtkMenuBar" style:highest "guitarix-m_rainbow"
+
+
+style "guitarix-l_rainbow"
+{
+  fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
+  fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+
+style "guitarix-v_rainbow"
+{
+  fg[NORMAL] = 	{ 0.6, 0.6, 0.6 }
+  fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+
+style "guitarix-b_rainbow"
+{
+  fg[NORMAL] = 	{ 0.5, 0.5, 0.5 }
+  fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+widget "*.effekt_label" style:highest "guitarix-v_rainbow"
+widget "*.value_label" style:highest "guitarix-l_rainbow"
+widget "*.beffekt_label" style:highest "guitarix-b_rainbow"
+
 
 style "b_style_rainbow"
 {
@@ -84,7 +119,7 @@ style "b_style_rainbow"
 		{
 			function		= BOX
 			recolorable		= TRUE
-			state			= NORMAL	
+			state			= NORMAL
 			shadow			= OUT
 			file			= "rainbow1.jpg"
 			border			= { 0, 0, 0, 0 }
@@ -94,7 +129,7 @@ style "b_style_rainbow"
 		{
 			function		= BOX
 			recolorable		= TRUE
-			state			= PRELIGHT	
+			state			= PRELIGHT
 			shadow			= OUT
 			file			= "rainbow2.jpg"
 			border			= { 0, 0, 0, 0 }
@@ -104,7 +139,7 @@ style "b_style_rainbow"
 		{
 			function		= BOX
 			recolorable		= TRUE
-			state			= ACTIVE	
+			state			= ACTIVE
 			shadow			= OUT
 			file			= "rainbow1.jpg"
 			border			= { 0, 0, 0, 0 }
@@ -121,7 +156,7 @@ style "c_style_rainbow"
 		{
 			function		= BOX
 			recolorable		= TRUE
-			state			= NORMAL	
+			state			= NORMAL
 			shadow			= OUT
 			file			= "rainbow.jpg"
 			border			= { 0, 0, 0, 0 }

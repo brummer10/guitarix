@@ -131,6 +131,40 @@ style "c_style"
 	}
 }
 
+style "guitarix-l_black"
+{
+  fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
+  fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+
+style "guitarix-v_black"
+{
+  fg[NORMAL] = 	{ 0.6, 0.6, 0.6 }
+  fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+
+style "guitarix-b_black"
+{
+  fg[NORMAL] = 	{ 0.5, 0.5, 0.5 }
+  fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+widget "*.effekt_label" style:highest "guitarix-v_black"
+widget "*.value_label" style:highest "guitarix-l_black"
+widget "*.beffekt_label" style:highest "guitarix-b_black"
+
+
 style "h_style"
 {
  	engine "pixmap"

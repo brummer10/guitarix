@@ -60,6 +60,10 @@
           cairo_pattern_add_color_stop_rgba (pat, 0, 0.8, 0.3, 0.02, 0.6);
           cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0.06, 0.005, 0.6);
           break;
+        case 7:
+          cairo_pattern_add_color_stop_rgba (pat, 0, 0.8, 0.8, 0.8, 0.6);
+          cairo_pattern_add_color_stop_rgba (pat, 1, 0.3, 0.3, 0.3, 0.6);
+          break;
         }
 
     }
@@ -327,7 +331,7 @@
       double x0      = wi->allocation.x+1;
       double y0      = wi->allocation.y+1;
       double rect_width  = wi->allocation.width-2;
-      double rect_height = wi->allocation.height-11;
+      double rect_height = wi->allocation.height-3;
 
       cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
       cairo_pattern_t*pat =
@@ -511,8 +515,8 @@
           cairo_pattern_destroy (pat);
           cairo_destroy(cr);
         }
-       /* else if (int(float(gx_current_skin)==0))
-                 box11_expose(wi,ev,user_data); */
+        else if (int(float(gx_current_skin)==7))
+                 box6_expose(wi,ev,user_data);
 
       return FALSE;
     }

@@ -14,24 +14,24 @@ style "guitarix_default"
   GtkButton::button_relief = GTK_RELIEF_NONE
 
 
-  fg[NORMAL] = { 0.80, 0.80, 0.80 }
-  fg[ACTIVE] = { 0.80, 0.80, 0.80 }
-  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[NORMAL] = { 0.1, 0.1, 0.1 }
+  fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+  fg[PRELIGHT] = { 0.3, 0.3, 0.3 }
   fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }
-  fg[SELECTED] = { 0.80, 0.80, 0.80 }
+  fg[SELECTED] = { 0.4, 0.4, 0.4 }
 
-  bg[NORMAL] = { 0.03, 0.03, 0.03 }
+  bg[NORMAL] = { 0.5, 0.5, 0.5 }
   # bg[NORMAL] = { 0.35, 0.35, 0.40 }
   # bg_pixmap[NORMAL] = "guitarixback4.jpg"
   bg[PRELIGHT] = { 0.40, 0.40, 0.45 }
   bg[ACTIVE] = { 0.0, 0.0, 0.0 }
   bg[SELECTED] = "#c4c0c0"
 
-  text[NORMAL] = { 0.80, 0.80, 0.80 }
-  text[ACTIVE] = { 0.80, 0.80, 0.80 }
-  text[PRELIGHT] = { 0.80, 0.80, 0.80 }
-  text[INSENSITIVE] = { 0.80, 0.80, 0.80}
-  text[SELECTED] = { 1.0, 1.0, 1.0 }
+  text[NORMAL] = { 0.1, 0.1, 0.1 }
+  text[ACTIVE] = { 0.2, 0.2, 0.2 }
+  text[PRELIGHT] = { 0.3, 0.3, 0.3 }
+  text[INSENSITIVE] = { 0.5, 0.5, 0.5}
+  text[SELECTED] = { 0.4, 0.4, 0.4 }
 
   base[ACTIVE]     = "#272a2f"
   base[NORMAL]      =  "#1a1e20"
@@ -63,8 +63,8 @@ style "guitarix_handle_default"
 {
   fg[NORMAL] = { 0.80, 0.80, 0.80 }
 
-  bg[NORMAL] = { 0.05, 0.05, 0.04 }
-  engine "clearlooks" {}
+  bg[NORMAL] = { 0.5, 0.5, 0.5 }
+  #engine "clearlooks" {}
   #font_name = "sans 9"
 
 }
@@ -98,7 +98,7 @@ class "GtkMenuBar" style:highest "guitarix_menu_default"
 
 style "guitarix-l_default"
 {
-  fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
+  fg[NORMAL] = 	{ 0.03, 0.03, 0.03 }
   fg[ACTIVE] = { 0.8, 0.8, 0.8 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
   fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
@@ -108,7 +108,7 @@ style "guitarix-l_default"
 
 style "guitarix-v_default"
 {
-  fg[NORMAL] = 	{ 0.6, 0.6, 0.6 }
+  fg[NORMAL] = 	{ 0.01, 0.01, 0.02 }
   fg[ACTIVE] = { 0.8, 0.8, 0.8 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
   fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
@@ -118,7 +118,7 @@ style "guitarix-v_default"
 
 style "guitarix-b_default"
 {
-  fg[NORMAL] = 	{ 0.2, 0.2, 0.2 }
+  fg[NORMAL] = 	{ 0.15, 0.15, 0.15 }
   fg[ACTIVE] = { 0.2, 0.2, 0.2 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
   fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
@@ -128,4 +128,5 @@ style "guitarix-b_default"
 widget "*.effekt_label" style:highest "guitarix-v_default"
 widget "*.value_label" style:highest "guitarix-l_default"
 widget "*.beffekt_label" style:highest "guitarix-b_default"
+
 

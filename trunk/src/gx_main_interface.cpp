@@ -571,9 +571,8 @@ namespace gx_gui
       gtk_widget_set_size_request (GTK_WIDGET(button), 20.0, 15.0);
       gtk_widget_set_size_request (GTK_WIDGET(button1), 20.0, 15.0);
 
-      GdkColor colorGreen;
-      gdk_color_parse("#969292", &colorGreen);
-      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+      gtk_widget_set_name (lw,"effekt_label");
+      gtk_widget_set_name (lw1,"effekt_label");
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
       pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
@@ -615,9 +614,8 @@ namespace gx_gui
       GtkWidget* 	button = gtk_button_new ();
       GtkWidget* lw = gtk_label_new("");
       gtk_container_add (GTK_CONTAINER(button), lw);
-      GdkColor colorGreen;
-      gdk_color_parse("#969292", &colorGreen);
-      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+
+      gtk_widget_set_name (lw,"effekt_label");
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
       pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
@@ -731,9 +729,9 @@ namespace gx_gui
       if (fMode[fTop] != kTabMode && label[0] != 0)
         {
           GtkWidget* lw = gtk_label_new(label);
-          GdkColor colorGreen;
-          gdk_color_parse("#969292", &colorGreen);
-          gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+
+
+          gtk_widget_set_name (lw,"beffekt_label");
           GtkStyle *style = gtk_widget_get_style(lw);
           pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
           pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
@@ -812,9 +810,8 @@ namespace gx_gui
       if (fMode[fTop] != kTabMode && label[0] != 0)
         {
           GtkWidget* lw = gtk_label_new(label);
-          GdkColor colorGreen;
-          gdk_color_parse("#969292", &colorGreen);
-          gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+
+          gtk_widget_set_name (lw,"effekt_label");
           GtkStyle *style = gtk_widget_get_style(lw);
           pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
           pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
@@ -857,9 +854,8 @@ namespace gx_gui
       if (fMode[fTop] != kTabMode && label[0] != 0)
         {
           GtkWidget* lw = gtk_label_new(label);
-          GdkColor colorGreen;
-          gdk_color_parse("#969292", &colorGreen);
-          gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+
+          gtk_widget_set_name (lw,"effekt_label");
           GtkStyle *style = gtk_widget_get_style(lw);
           pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
           pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
@@ -949,8 +945,18 @@ namespace gx_gui
     void GxMainInterface::addJConvButton(const char* label, float* zone)
     {
       *zone = 0.0;
-      GtkWidget* 	button = gtk_button_new_with_label (label);
+      GtkWidget* 	button = gtk_button_new ();
+
+      GtkWidget* 	lab = gtk_label_new(label);
+      GtkStyle *style = gtk_widget_get_style(lab);
+      pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
+      gtk_widget_modify_font(lab, style->font_desc);
+      gtk_container_add (GTK_CONTAINER(button), lab);
+
+      gtk_widget_set_name (lab,"beffekt_label");
       addWidget(label, button);
+      gtk_widget_show (lab);
 
       uiButton* c = new uiButton(this, zone, GTK_BUTTON(button));
       g_signal_connect (GTK_OBJECT (button), "clicked",
@@ -987,7 +993,15 @@ namespace gx_gui
       gdk_color_parse ("#7f7f7f", &colorOwn);
       float local_zone = 0.0;
       if (zone) local_zone = *zone;
-      GtkWidget* 	button = gtk_toggle_button_new_with_label (label);
+      GtkWidget* 	button = gtk_toggle_button_new();
+      GtkWidget* 	lab = gtk_label_new(label);
+      GtkStyle *style = gtk_widget_get_style(lab);
+      pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
+      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
+      gtk_widget_modify_font(lab, style->font_desc);
+      gtk_container_add (GTK_CONTAINER(button), lab);
+
+      gtk_widget_set_name (lab,"beffekt_label");
       addWidget(label, button);
 
       gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
@@ -996,7 +1010,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (gx_start_stop_jack_capture), NULL);
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
       gtk_widget_add_accelerator(button, "activate", fAccelGroup, GDK_r, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-
+      gtk_widget_show (lab);
       record_button = button;
     }
 
@@ -1036,7 +1050,7 @@ namespace gx_gui
       uiToggleButton* c = new uiToggleButton(this, zone, GTK_TOGGLE_BUTTON(button));
       gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
       gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
-      gtk_widget_modify_fg (lab, GTK_STATE_ACTIVE, &colorwn);
+      gtk_widget_set_name (lab,"beffekt_label");
       g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
     }
 
@@ -1044,16 +1058,17 @@ namespace gx_gui
     {
       GdkColor colorRed;
       GdkColor colorOwn;
-      GdkColor colorwn;
+
 
       gdk_color_parse ("#58b45e", &colorRed);
-      gdk_color_parse ("#000000", &colorwn);
+
       gdk_color_parse ("#7f7f7f", &colorOwn);
 
       *zone = 0.0;
 
       GtkWidget* 	button = gtk_toggle_button_new();
       GtkWidget* 	lab = gtk_label_new(label);
+      gtk_widget_set_name (lab,"beffekt_label");
       GtkStyle *style = gtk_widget_get_style(lab);
 
       pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
@@ -1068,7 +1083,7 @@ namespace gx_gui
 
       gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
       gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
-      gtk_widget_modify_fg (lab, GTK_STATE_ACTIVE, &colorwn);
+
 
       g_signal_connect (GTK_OBJECT (button), "toggled",
                         G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
@@ -1229,9 +1244,8 @@ namespace gx_gui
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       GtkWidget* lw = gtk_label_new("");
 
-      GdkColor colorGreen;
-      gdk_color_parse("#969292", &colorGreen);
-      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+      gtk_widget_set_name (lw,"value_label");
+
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
       pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
@@ -1254,10 +1268,8 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkWidget* lw = gtk_label_new("");
       GtkWidget* lwl = gtk_label_new(label);
-      GdkColor colorGreen;
-      gdk_color_parse("#969292", &colorGreen);
-      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
-      gtk_widget_modify_fg (lwl, GTK_STATE_NORMAL, &colorGreen);
+      gtk_widget_set_name (lw,"value_label");
+      gtk_widget_set_name (lwl,"effekt_label");
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
       pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
@@ -1282,10 +1294,10 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkWidget* lw = gtk_label_new("");
       GtkWidget* lwl = gtk_label_new(label);
-      GdkColor colorGreen;
-      gdk_color_parse("#969292", &colorGreen);
-      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
-      gtk_widget_modify_fg (lwl, GTK_STATE_NORMAL, &colorGreen);
+
+      gtk_widget_set_name (lw,"value_label");
+      gtk_widget_set_name (lwl,"effekt_label");
+
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
       pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
@@ -1310,9 +1322,8 @@ namespace gx_gui
       uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkWidget* lw = gtk_label_new("");
-      GdkColor colorGreen;
-      gdk_color_parse("#969292", &colorGreen);
-      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+      gtk_widget_set_name (lw,"value_label");
+
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
       pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
@@ -1356,9 +1367,8 @@ namespace gx_gui
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_switch_new_with_adjustment(GTK_ADJUSTMENT(adj));
       GtkWidget* lw = gtk_label_new(label);
-      GdkColor colorGreen;
-      gdk_color_parse("#969292", &colorGreen);
-      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+      gtk_widget_set_name (lw,"effekt_label");
+
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
       pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
@@ -1378,9 +1388,8 @@ namespace gx_gui
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
       GtkWidget* lw = gtk_label_new(label);
-      GdkColor colorGreen;
-      gdk_color_parse("#969292", &colorGreen);
-      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+      gtk_widget_set_name (lw,"effekt_label");
+
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
       pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
@@ -1402,9 +1411,8 @@ namespace gx_gui
       GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_hide_eq), (gpointer) slider);
       GtkWidget* lw = gtk_label_new(label);
-      GdkColor colorGreen;
-      gdk_color_parse("#969292", &colorGreen);
-      gtk_widget_modify_fg (lw, GTK_STATE_NORMAL, &colorGreen);
+      gtk_widget_set_name (lw,"effekt_label");
+
       GtkStyle *style = gtk_widget_get_style(lw);
       pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
       pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
