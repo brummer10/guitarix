@@ -33,11 +33,11 @@ style "guitarix_default"
   text[INSENSITIVE] = { 0.5, 0.5, 0.5}
   text[SELECTED] = { 0.4, 0.4, 0.4 }
 
-  base[ACTIVE]     = "#272a2f"
-  base[NORMAL]      =  "#1a1e20"
-  base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
+  base[ACTIVE]     = { 0.0, 0.0, 0.0 }
+  base[NORMAL]      =  { 0.8, 0.8, 0.8 }
+  base[PRELIGHT]     = { 0.6, 0.6, 0.6 }
   base[INSENSITIVE]  = "#4c5159"
-  base[SELECTED]     = { 0.25, 0.25, 0.25 }
+  base[SELECTED]     = { 0.0, 0.0, 0.0 }
   font_name = "sans 10"
   engine "clearlooks"
   {
