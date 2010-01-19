@@ -691,7 +691,7 @@ namespace gx_engine
         float     frefreshfilter;
         float     foldfilter;
 // multibandfilter end
-
+        int fconvolve;
         //float out_to_1;
         //float out_to_2;
 
@@ -773,6 +773,7 @@ namespace gx_engine
         static float sigmoid(float x);
 
         // non static methods (modifying object's non static private members)
+        void  convolver_filter(float** input, float** output, int sf);
         void  moving_filter(float** input, float** output, int sf);
         void  noise_gate  (int sf, float** input);
         void  noise_shaper  (int sf, float** input, float** output);

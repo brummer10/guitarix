@@ -240,16 +240,17 @@ void GxMainInterface::setup()
                   {
                   }
                   closeBox();
-                  addminiswitch(" oversample       ", &engine->fupsample);
+                  addminiswitch(" oversample ", &engine->fupsample);
                   openVerticalBox1("");
                   {
                   }
                   closeBox();
-                  addminiswitch(" bass booster      ", &engine->fboost);
+                  addminiswitch(" bass boost ", &engine->fboost);
                   openVerticalBox1("");
                   {
                   }
                   closeBox();
+                  addminiswitch(" convolve ", &engine->fconvolve);
                 }
                 closeBox();
               }

@@ -632,6 +632,7 @@ namespace gx_engine
                         fslMulti5 + fslMulti6 + fslMulti7 + fslMulti8 + fslMulti9)*100;
       foldfilter = 0;
 // multibandfilter end
+      fconvolve = 0;
 
       // end engine init
     }
@@ -664,11 +665,13 @@ namespace gx_engine
       get_frame1  = new float[frag];
       checkfreq  = new float[frag];
       oversample = new float[frag*2];
+      result = new float[frag+46];
 
       (void)memset(get_frame,  0, frag*sizeof(float));
       (void)memset(get_frame1,  0, frag*sizeof(float));
       (void)memset(checkfreq,  0, frag*sizeof(float));
       (void)memset(oversample, 0, frag*2*sizeof(float));
+      (void)memset(result, 0, (frag+46)*sizeof(float));
 
       engine->classInit((int)gx_jack::jack_sr);
       engine->initEngine((int)gx_jack::jack_sr);
@@ -683,6 +686,7 @@ namespace gx_engine
       if (get_frame)  delete[] get_frame;
       if (get_frame1)  delete[] get_frame1;
       if (oversample) delete[] oversample;
+      if (result) delete[] result;
 
       initialized = false;
     }

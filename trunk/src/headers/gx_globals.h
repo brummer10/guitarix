@@ -46,6 +46,7 @@ namespace gx_engine
   extern float* get_frame1;
   extern float* checkfreq;
   extern float* oversample;
+  extern float* result;
 
 
   /* number of channels */

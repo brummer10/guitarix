@@ -683,6 +683,8 @@ namespace gx_system
        delete[] get_frame1;
      if (oversample)
        delete[] oversample;
+     if (result)
+       delete[] result;
 
      exit(GPOINTER_TO_INT(data));
   }

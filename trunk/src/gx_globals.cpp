@@ -53,6 +53,7 @@ namespace gx_engine
   float* get_frame1   = NULL;
   float* checkfreq   = NULL;
   float* oversample  = NULL;
+  float* result      = NULL ;
   float 	GxEngine::ftbl0[65536];
 
   /* number of channels */

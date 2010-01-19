@@ -260,7 +260,7 @@ namespace gx_jack
     // first, let's try via qjackctl
     if (gx_system_call("which", "qjackctl", true) == SYSTEM_OK) {
       if (gx_system_call("qjackctl", "--start", true, true) == SYSTEM_OK) {
-	sleep(1);
+	sleep(2);
 
 	// let's check it is really running
 	if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
@@ -619,6 +619,7 @@ namespace gx_jack
     if (get_frame)  delete[] get_frame;
     if (get_frame1)  delete[] get_frame1;
     if (oversample) delete[] oversample;
+    if (result) delete[] result;
 
     get_frame = new float[jack_bs];
     (void)memset(get_frame, 0, sizeof(float)*jack_bs);
@@ -631,6 +632,9 @@ namespace gx_jack
 
     oversample = new float[jack_bs*2];
     (void)memset(oversample, 0, sizeof(float)*jack_bs*2);
+
+    result = new float[jack_bs+46];
+    (void)memset(result, 0, sizeof(float)*jack_bs+46);
 
     // restore previous state
     checky = (float)estate;
