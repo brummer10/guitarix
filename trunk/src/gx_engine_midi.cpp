@@ -123,6 +123,7 @@ void GxEngine::process_midi(int len)
               preNote = round(fnote)+57;
               fConsta2 = fnote - (preNote - 57);
               piwe = (fConsta2+1) * 8192; // pitch wheel value
+              preNote = round(fConsta1t)+57;
              // weg = 0;
 
 

@@ -633,7 +633,7 @@ namespace gx_engine
       foldfilter = 0;
 // multibandfilter end
       fconvolve = 0;
-
+      fConsta1t = 0;
       // end engine init
     }
 

@@ -54,7 +54,7 @@ void GxMainInterface::setup()
           //----- the tuner widget
           openVerticalBox("");
           {
-            addNumDisplay("", &engine->fConsta1);
+            addNumDisplay("", &engine->fConsta1t);
           }
           closeBox();
 

@@ -315,6 +315,11 @@ namespace gx_gui
       return TRUE;
     }
 
+gboolean gx_refresh_tuner(gpointer args)
+    {
+    gx_engine::GxEngine::instance()->fConsta1t = gx_engine::GxEngine::instance()->fConsta1;
+return TRUE;
+    }
 
     /* -------------- timeout for jconv startup when guitarix init -------------- */
     gboolean gx_check_startup(gpointer args)

@@ -32,6 +32,7 @@ namespace gx_gui
   gboolean gx_monitor_jack_ports     (gpointer args);
   gboolean gx_update_all_gui         (gpointer args);
   gboolean gx_check_startup          (gpointer args);
+  gboolean gx_refresh_tuner          (gpointer args);
   gboolean gx_hide_eq( GtkWidget *widget, gpointer   data );
 
   gboolean box12_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);

@@ -692,6 +692,7 @@ namespace gx_engine
         float     foldfilter;
 // multibandfilter end
         int fconvolve;
+        float fConsta1t;
         //float out_to_1;
         //float out_to_2;
 
