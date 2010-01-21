@@ -180,6 +180,8 @@ style "h_style"
 			stretch			= TRUE
 		}
 	}
+	fg[NORMAL] = { 0.80, 0.80, 0.80 }
+    bg[NORMAL] = { 0.0, 0.0, 0.0 }
 }
 
 class "GtkHandleBox" style:highest "h_style"

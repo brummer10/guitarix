@@ -285,6 +285,8 @@ namespace gx_gui
 
   int showwave = 0;
   int shownote = -1;
+  int smoth_tuner = 0;
+  float tuner_snother = 0;
 
   /* skin handling */
   vector<string> skin_list;

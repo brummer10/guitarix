@@ -314,11 +314,13 @@ namespace gx_gui
         gx_engine::GxEngine::instance()->viv = gx_engine::gOutChannel[0][0];
       return TRUE;
     }
-
-gboolean gx_refresh_tuner(gpointer args)
+    /* -------------- refresh tuner function -------------- */
+    gboolean gx_refresh_tuner(gpointer args)
     {
-    gx_engine::GxEngine::instance()->fConsta1t = gx_engine::GxEngine::instance()->fConsta1;
-return TRUE;
+      gx_engine::GxEngine* engine = gx_engine::GxEngine::instance();
+      if (shownote )
+          engine->fConsta1t = engine->fConsta1;
+      return TRUE;
     }
 
     /* -------------- timeout for jconv startup when guitarix init -------------- */

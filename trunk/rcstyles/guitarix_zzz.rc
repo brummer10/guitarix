@@ -59,18 +59,18 @@ widget_class "*GtkToggleButton*" style:highest "guitarix_default"
 class "GtkButton" style:highest "guitarix_default"
 class "GtkSpinButton" style:highest "guitarix_default"
 
-style "guitarix_handle_default"
+style "guitarix_zhandle_default"
 {
   fg[NORMAL] = { 0.80, 0.80, 0.80 }
 
   bg[NORMAL] = { 0.5, 0.5, 0.5 }
-  #engine "clearlooks" {}
+  engine "clearlooks" {}
   #font_name = "sans 9"
 
 }
 
 
-class "GtkHandleBox" style:highest "guitarix_handle_default"
+class "GtkHandleBox" style:highest "guitarix_zhandle_default"
 
 style "guitarix_event_default"
 {

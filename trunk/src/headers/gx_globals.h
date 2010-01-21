@@ -253,6 +253,8 @@ namespace gx_gui
 
   extern int showwave;
   extern int shownote;
+  extern int smoth_tuner;
+  extern float tuner_snother;
 
   /* skin handling */
   extern vector<string> skin_list;

@@ -286,7 +286,7 @@ namespace gx_jack
       // launch jackd
       if (!cmdline.empty())
 	if (gx_system_call(cmdline.c_str(), "", true, true) == SYSTEM_OK) {
-	  sleep(1);
+	  sleep(2);
 
 	  // let's check it is really running
 	  if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {

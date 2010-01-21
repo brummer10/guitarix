@@ -142,20 +142,29 @@ inline void GxEngine::moving_filter(float** input, float** output, int sf)
 inline void GxEngine::convolver_filter(float** input, float** output, int sf)
 {
 //double[] signal = (some 1d signal);
-static float filter[45] = {0.0222473, 0.0253601, 0.0159607, 0.0184326, 0.0240784, 0.02771, 0.0483398, 0.0802917, 0.12915, 0.196259, 0.259521, 0.334656, 0.398376, 0.421448, 0.401306, 0.340759, 0.216827, 0.058197, -0.117432, -0.287354, -0.438507, -0.540161, 0.0583801, 0.0596924, 0.0499573, 0.0406799, 0.0445862, 0.0334473, 0.0296021, 0.022644, 0.0142212, 0.0027771, -0.00805664, -0.0206909, -0.0270386, -0.0247498, -0.0259399, -0.0132751, 0.216827, 0.058197, -0.117432, -0.287354, -0.438507, -0.540161}; // box-car filter
+  static float filter[45] = {0.0222473, 0.0253601, 0.0159607, 0.0184326, 0.0240784,
+                             0.02771, 0.0483398, 0.0802917, 0.12915, 0.196259, 0.259521,
+                             0.334656, 0.398376, 0.421448, 0.401306, 0.340759, 0.216827,
+                             0.058197, -0.117432, -0.287354, -0.438507, -0.540161,
+                             0.0583801, 0.0596924, 0.0499573, 0.0406799, 0.0445862,
+                             0.0334473, 0.0296021, 0.022644, 0.0142212, 0.0027771,
+                             -0.00805664, -0.0206909, -0.0270386, -0.0247498,
+                             -0.0259399, -0.0132751, 0.216827, 0.058197, -0.117432,
+                             -0.287354, -0.438507, -0.540161
+                            }; //  filter
 
- float * in = input[0];
+  float * in = input[0];
 
 // Set result to zero:
-for (int i=0; i < 44; i++) result[i] = result[sf+i];
-for (int i=44; i < sf+44; i++) result[i] = 0;
+  for (int i=0; i < 44; i++) result[i] = result[sf+i];
+  for (int i=44; i < sf+44; i++) result[i] = 0;
 
 // Do convolution:
-for (int i=0; i < sf; i++)
-  for (int j=0; j < 44; j++)
-    result[i+j] = result[i+j] + in[i] * filter[j];
-for (int i=0; i < sf; i++)
-     *in++ = result[i];
+  for (int i=0; i < sf; i++)
+    for (int j=0; j < 44; j++)
+      result[i+j] += in[i] * filter[j];
+  for (int i=0; i < sf; i++)
+    *in++ = result[i];
 
 //(void)memcpy(input, result, sizeof(float)*sf);
 }
@@ -952,6 +961,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       if (tuner_on > 0) // enable tuner when show note or play midi
         {
           float fTemphp0 = checkfreq[i] *2;
+           add_dc(fTemphp0);
           // low and highpass filter
           tunerstage1=tunerstage1+(tunerfilter*(fTemphp0-tunerstage1));
           tunerstage2=tunerstage2+(tunerfilter*(tunerstage1-tunerstage2));
@@ -988,7 +998,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
               sumt += sqrf(fConsta4s);
               fConsta4 = sqrtf(sumt/cts);
             }
-         // else if (fConsta4>0) fConsta4 -= 0.05;
+          // else if (fConsta4>0) fConsta4 -= 0.05;
         }
       if (gx_gui::shownote == 0)
         {
