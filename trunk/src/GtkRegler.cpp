@@ -1647,7 +1647,6 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
       klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
       g_assert(klass->regler_image != NULL);
       klass->pix_switch = 1;
-
     }
   else if (klass->pix_switch == 1)
     {

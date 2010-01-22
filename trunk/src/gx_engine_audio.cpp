@@ -917,7 +917,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   if (fnoise_g) noise_gate (count,input);
   else ngate = 1;
   if (fng) noise_shaper(count,input,input);
-  if (fconvolve)convolver_filter(input, input, count);
+
   if (fcheckbox1) preamp(count,input,input,atan_shape,f_atan);
 
   // 2*oversample
@@ -942,6 +942,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       if (ftube3)   osc_tube(fresotube3,count,f_resotube1, f_resotube2,input,input);
       if (fprdr)    fuzzy_tube(fpredrive, 1,count,input,input);
     }
+  if (fconvolve)convolver_filter(input, input, count);
 
   // pointers to the jack_output_buffers
   float* output0 = output[2];
