@@ -647,6 +647,9 @@ namespace gx_system
     if (G_IS_OBJECT(gx_gui::tribeimage))
         g_object_unref(gx_gui::tribeimage);
 
+    if (G_IS_OBJECT(gx_gui::tribeimage1))
+        g_object_unref(gx_gui::tribeimage1);
+
     if (G_IS_OBJECT(gx_gui::_image))
         g_object_unref(gx_gui::_image);
 

@@ -1647,9 +1647,7 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
       klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
       g_assert(klass->regler_image != NULL);
       klass->pix_switch = 1;
-      //----------- wheel
-      klass->wheel_image1 = gdk_pixbuf_new_from_xpm_data(wheel_s_xpm);
-      g_assert(klass->wheel_image1 != NULL);
+
     }
   else if (klass->pix_switch == 1)
     {
