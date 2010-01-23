@@ -95,7 +95,10 @@ namespace gx_jack
   jack_client_t*      client ;
   jack_port_t*        output_ports[nOPorts];
   jack_port_t*        input_ports [nIPorts];
+  void*               midi_input_port_buf;
   void*               midi_port_buf;
+
+  jack_port_t*        midi_input_port;
 
   jack_port_t*        midi_output_ports;
   jack_nframes_t      time_is;
@@ -234,6 +237,7 @@ namespace gx_system
     "GUITARIX2JACK_INPUTS",
     "GUITARIX2JACK_OUTPUTS1",
     "GUITARIX2JACK_OUTPUTS2",
+    "GUITARIX2JACK_MIDI",
     "GUITARIX_RC_STYLE"
   };
 }
@@ -298,6 +302,10 @@ namespace gx_gui
   /* for level display */
   int meter_falloff = 27; // in dB/sec.
   int meter_display_timeout = 60; // in millisec
+
+  /* midi_in preset switch */
+  volatile gint       program_change = -1;
+  sem_t               program_change_sem;
 
   int show_eq;
   /* names of port lists (exclude MIDI for now) */

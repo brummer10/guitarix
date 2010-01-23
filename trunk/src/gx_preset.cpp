@@ -252,6 +252,30 @@ namespace gx_preset
         }
     }
 
+    // ---------- load nth preset (return true if successful)
+    bool gx_nth_preset(unsigned char n)
+    {
+      // check that we do have presets
+      if (preset_list[LOAD_PRESET_LIST].size() == 0)
+        {
+          gx_print_warning("Preset Switching",
+                           "Preset list is empty, make some :)");
+          return false;
+        }
+
+      map<GtkMenuItem*, string>::iterator it = preset_list[LOAD_PRESET_LIST].begin();
+      while (n > 0) {
+	it++;
+	if (it == preset_list[LOAD_PRESET_LIST].end())
+	  return false;
+	n--;
+      }
+
+      // load the preset
+      gx_load_preset(it->first, NULL);
+      return true;
+    }
+
     // ---------- switch to next preset in queue
     void gx_next_preset(GtkWidget* item, gpointer arg)
     {

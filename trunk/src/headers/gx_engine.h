@@ -280,7 +280,7 @@ namespace gx_engine
         float fdialogbox4;
         float fdialogbox5;
         float fdialogbox6;
-        float fConsta1;
+        float fConsta1t;
         float fslider26;
         float fslider27;
         float fslider29;
@@ -692,7 +692,7 @@ namespace gx_engine
         float     foldfilter;
 // multibandfilter end
         int fconvolve;
-        float fConsta1t;
+        float fConsta1;
         //float out_to_1;
         //float out_to_2;
 
@@ -791,6 +791,7 @@ namespace gx_engine
 
         // ---- MIDI engine methods
         void compute_midi(int len);
+        void compute_midi_in(void* midi_input_port_buf);
 #ifdef USE_RINGBUFFER
         void queue_message(struct MidiMessage *ev);
 #endif

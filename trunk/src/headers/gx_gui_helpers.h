@@ -33,6 +33,7 @@ namespace gx_gui
   gboolean gx_update_all_gui         (gpointer args);
   gboolean gx_check_startup          (gpointer args);
   gboolean gx_refresh_tuner          (gpointer args);
+  gpointer gx_program_change_helper_thread  (gpointer args);
   gboolean gx_hide_eq( GtkWidget *widget, gpointer   data );
 
   gboolean box12_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
@@ -65,6 +66,7 @@ namespace gx_gui
   /* engine status and switch */
   void gx_refresh_engine_status_display();
   void gx_engine_switch (GtkWidget* widget, gpointer arg);
+  gboolean gx_do_program_change(gpointer arg);
 
   /* jack client and port mapping functions */
   void gx_show_portmap_window (GtkWidget* widget, gpointer arg);

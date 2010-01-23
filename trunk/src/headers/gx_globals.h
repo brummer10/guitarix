@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <semaphore.h>
+
 /* ----- main engine ----- */
 namespace gx_engine
 {
@@ -93,6 +95,8 @@ namespace gx_jack
   extern jack_client_t*      client ;
   extern jack_port_t*        output_ports[];
   extern jack_port_t*        input_ports [];
+
+  extern void*               midi_input_port_buf;
   extern void*               midi_port_buf;
 
   extern GxJackLatencyChange change_latency;
@@ -102,6 +106,7 @@ namespace gx_jack
   extern jack_ringbuffer_t*  jack_ringbuffer;
 #endif
 
+  extern jack_port_t*        midi_input_port;
   extern jack_port_t*        midi_output_ports;
   extern jack_nframes_t      time_is;
   extern bool                jack_is_down;
@@ -248,13 +253,11 @@ namespace gx_gui
   /* some more widgets */
   extern GtkWidget* label6;
   extern GtkWidget* label1;
-
   extern GtkStatusIcon* status_icon;
 
+  /* tuner and osilloscope*/
   extern int showwave;
   extern int shownote;
-  extern int smoth_tuner;
-  extern float tuner_snother;
 
   /* skin handling */
   extern vector<string> skin_list;
@@ -266,6 +269,10 @@ namespace gx_gui
   /* for level display */
   extern int meter_falloff;
   extern int meter_display_timeout;
+
+  /*midi_in preset switch */
+  extern volatile gint       program_change;
+  extern sem_t               program_change_sem;
 
   extern int show_eq;
 

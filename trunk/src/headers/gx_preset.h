@@ -68,6 +68,7 @@ namespace gx_preset
   void  gx_refresh_preset_menus();
   void  gx_cleanup_preset_name(string& presname);
 
+  bool gx_nth_preset(unsigned char pgm);
   void  gx_next_preset(GtkWidget*, gpointer);
   void  gx_previous_preset(GtkWidget*, gpointer);
 

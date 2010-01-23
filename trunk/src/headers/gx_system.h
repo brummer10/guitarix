@@ -28,9 +28,10 @@
 #define JACK_INP      (0)
 #define JACK_OUT1     (1)
 #define JACK_OUT2     (2)
-#define RC_STYLE      (3)
+#define JACK_MIDI     (3)
+#define RC_STYLE      (4)
 
-#define NUM_SHELL_VAR (4)
+#define NUM_SHELL_VAR (5)
 
 namespace gx_system
 {

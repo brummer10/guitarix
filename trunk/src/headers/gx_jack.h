@@ -36,7 +36,7 @@
 
 #define NJACKLAT (9) // number of possible latencies
 
-namespace gx_jack 
+namespace gx_jack
 {
 #ifdef USE_RINGBUFFER
   typedef struct
@@ -50,7 +50,7 @@ namespace gx_jack
   /* -------- functions ---------- */
   bool gx_jack_init();
   void gx_jack_callbacks_and_activate();
-  
+
   bool gx_start_jack_dialog();
   bool gx_start_jack(void* arg);
 
@@ -78,5 +78,6 @@ namespace gx_jack
 #else
   int gx_jack_midi_process_ringbuffer(jack_nframes_t, void*);
 #endif
+  int gx_jack_midi_input_process(jack_nframes_t, void*);
 
 } /* end of jack namespace */

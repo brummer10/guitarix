@@ -157,6 +157,26 @@ namespace gx_gui
       gx_refresh_engine_status_display();
     }
 
+    /* --------- load preset triggered by midi program change --------- */
+    gboolean gx_do_program_change(gpointer arg)
+    {
+      int pgm = (int)arg;
+      gx_engine::GxEngineState estate =
+	(gx_engine::GxEngineState)gx_engine::checky;
+      if (gx_preset::gx_nth_preset(pgm)) {
+	if (estate == gx_engine::kEngineBypass)
+	  // engine bypass but preset found -> engine on
+	  gx_engine_switch ((GtkWidget*)0, (gpointer)1);
+      }
+      else {
+	if (estate == gx_engine::kEngineOn)
+	  // engine on but preset not found -> engine bypass
+	  gx_engine_switch ((GtkWidget*)0, (gpointer)1);
+      }
+      // mainloop idle callback: do not call again
+      return FALSE;
+    }
+
     /* -------------- refresh engine status display ---------------- */
     void gx_refresh_engine_status_display()
     {
@@ -336,6 +356,26 @@ namespace gx_gui
       return FALSE;
 
     }
+
+    //---- feed a midi program change from realtime thread to ui thread
+gpointer gx_program_change_helper_thread(gpointer data)
+{
+  gint pgm;
+  while (TRUE) {
+    // wait for a semaphore post from jack realtime thread
+    sem_wait(&program_change_sem);
+    // atomic read and reset the variable
+    do {
+      pgm = g_atomic_int_get(&program_change);
+    } while (!g_atomic_int_compare_and_exchange(&program_change, pgm, -1));
+    assert(pgm != -1);
+    // get the work done by ui thread
+    g_idle_add(gx_gui::gx_do_program_change, (gpointer)pgm);
+  }
+ //notreached
+  return NULL;
+}
+
 
     /* -------------- for thread that checks jackd liveliness -------------- */
     gboolean gx_survive_jack_shutdown(gpointer arg)

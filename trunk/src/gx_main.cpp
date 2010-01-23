@@ -76,6 +76,7 @@ using namespace std;
 
 using namespace gx_system;
 
+
 /* --------- Guitarix main ---------- */
 int main(int argc, char *argv[])
 {
@@ -91,6 +92,9 @@ int main(int argc, char *argv[])
   string optvar[NUM_SHELL_VAR];
   gx_process_cmdline_options(argc, argv, optvar);
 
+  // ----------------------- init GLIB threads ----------------------
+  g_thread_init(NULL);
+
   // ---------------- Check for working user directory  -------------
   gx_system::gx_version_check();
 
@@ -100,16 +104,16 @@ int main(int argc, char *argv[])
 
   // ---------------------- initialize jack client ------------------
   if (gx_jack::gx_jack_init())
-  {
-    // -------- initialize guitarix engine --------------------------
-    gx_engine::gx_engine_init();
+    {
+      // -------- initialize guitarix engine --------------------------
+      gx_engine::gx_engine_init();
 
-    // -------- set jack callbacks and activation -------------------
-    gx_jack::gx_jack_callbacks_and_activate();
+      // -------- set jack callbacks and activation -------------------
+      gx_jack::gx_jack_callbacks_and_activate();
 
-    // -------- init port connections
-    gx_jack::gx_jack_init_port_connection(optvar);
-  }
+      // -------- init port connections
+      gx_jack::gx_jack_init_port_connection(optvar);
+    }
 
   // ----------------------- run GTK main loop ----------------------
   gui->show();

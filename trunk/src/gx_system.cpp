@@ -129,6 +129,7 @@ namespace gx_system
 
       // JACK options: input and output ports
       gchar* jack_input = NULL;
+      gchar* jack_midi = NULL;
       gchar** jack_outputs = NULL;
       GOptionGroup* optgroup_jack = g_option_group_new("jack",
           "\033[1;32mJACK configuration options\033[0m",
@@ -137,6 +138,7 @@ namespace gx_system
       GOptionEntry opt_entries_jack[] = {
         { "jack-input", 'i', 0, G_OPTION_ARG_STRING, &jack_input, "Guitarix JACK input", "PORT" },
         {"jack-output", 'o', 0, G_OPTION_ARG_STRING_ARRAY, &jack_outputs, "Guitarix JACK outputs", "PORT" },
+	{ "jack-midi",  'm', 0, G_OPTION_ARG_STRING, &jack_midi, "Guitarix JACK midi control", "PORT" },
         { NULL }
       };
       g_option_group_add_entries(optgroup_jack, opt_entries_jack);
@@ -222,6 +224,15 @@ namespace gx_system
       }
       else if (!gx_shellvar_exists(optvar[JACK_INP])) {
 	optvar[JACK_INP] = ""; // leads to no automatic connection
+      }
+
+      // *** process jack midi
+      if (jack_midi != NULL) {
+	optvar[JACK_MIDI] = jack_midi;
+        g_free(jack_midi);
+      }
+      else if (!gx_shellvar_exists(optvar[JACK_MIDI])) {
+	optvar[JACK_MIDI] = ""; // leads to no automatic connection
       }
 
       // *** process jack outputs

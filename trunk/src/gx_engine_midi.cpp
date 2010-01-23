@@ -22,6 +22,80 @@
  *
  * --------------------------------------------------------------------------
  */
+
+//---- convert midi value into a value for a ui toggle
+int toggle_from_midi(int midi_value)
+{
+  return (midi_value >= 64) * 1065353216;
+}
+
+//---- convert midi value into a value for a ui scale
+float scale_from_midi(int midi_value, float low, float high)
+{
+  return low + ((float)midi_value / 127) * (high - low);
+}
+
+void GxEngine::compute_midi_in(void* midi_input_port_buf)
+{
+  jack_midi_event_t in_event;
+  jack_nframes_t event_count = jack_midi_get_event_count(midi_input_port_buf);
+  unsigned int i;
+  for (i=0; i<event_count; i++)
+    {
+      jack_midi_event_get(&in_event, midi_input_port_buf, i);
+      if ((in_event.buffer[0] & 0xf0) == 0xc0)   // program change on any midi channel
+        {
+          g_atomic_int_set(&gx_gui::program_change, in_event.buffer[1]);
+          sem_post(&gx_gui::program_change_sem);
+        }
+      else if ((in_event.buffer[0] & 0xf0) == 0xb0)    // controller
+        {
+          // gx_engine::GxEngine* engine = gx_engine::GxEngine::instance();
+          int value = in_event.buffer[2];
+
+          switch (in_event.buffer[1])
+            {
+            case 0x07: // main volume
+              fslider17 = scale_from_midi(value, -40, 40);
+              break;
+            case 0x28: // input level
+              fslider3 = scale_from_midi(value, -40, 40);
+              break;
+            case 0x29: // wah
+              fslider11 = scale_from_midi(value, 0, 1);
+              break;
+            case 0x44: // compressor
+              fcheckboxcom1 = toggle_from_midi(value);
+              break;
+            case 0x45: // distortion
+              fcheckbox4 = toggle_from_midi(value);
+              break;
+            case 0x46: // overdrive
+              foverdrive4 = toggle_from_midi(value);
+              break;
+            case 0x47: // freeverb
+              fcheckbox6 = toggle_from_midi(value);
+              break;
+            case 0x48: // impulseResponse
+              fcheckbox8 = toggle_from_midi(value);
+              break;
+            case 0x49: // crybaby
+              fcheckbox5 = toggle_from_midi(value);
+              break;
+            case 0x4a: // echo
+              fcheckbox7 = toggle_from_midi(value);
+              break;
+            case 0x4b: // delay
+              fdelay = toggle_from_midi(value);
+              break;
+            case 0x4c: // chorus
+              fchorus = toggle_from_midi(value);
+              break;
+            }
+        }
+    }
+}
+
 void GxEngine::compute_midi(int len)
 {
 
@@ -109,22 +183,22 @@ void GxEngine::process_midi(int len)
   //----- only run it when midi out or tuner is enabled
   if ((gx_gui::shownote == 1) || (dsp::isMidiOn() == true))
     {
-              /**fConsta4 is the frequence value from the actuell frame, here we
-              calculate the Note from the freq by log2(freq/440)*12
-              the result is the Note (as float) related to the note "A"
-              To smoth the output we mix the last detected frequence (from the last frame)
-              in by 1/1.
-              preNote contains the next posible Note, related by round float to int.
-              piwe contain the pitchweel value witch show the diff beetween the detected Note and
-              the real Note by frequency.
-              **/
-              fnote = 12 * log2f(2.272727e-03f *  (cache_note + fConsta4)*0.5);
-              cache_note = fConsta4;
-              preNote = round(fnote)+57;
-              fConsta2 = fnote - (preNote - 57);
-              piwe = (fConsta2+1) * 8192; // pitch wheel value
-              preNote = round(fConsta1t)+57;
-             // weg = 0;
+      /**fConsta4 is the frequence value from the actuell frame, here we
+      calculate the Note from the freq by log2(freq/440)*12
+      the result is the Note (as float) related to the note "A"
+      To smoth the output we mix the last detected frequence (from the last frame)
+      in by 1/1.
+      preNote contains the next posible Note, related by round float to int.
+      piwe contain the pitchweel value witch show the diff beetween the detected Note and
+      the real Note by frequency.
+      **/
+      fnote = 12 * log2f(2.272727e-03f *  (cache_note + fConsta4)*0.5);
+      cache_note = fConsta4;
+      preNote = round(fnote)+57;
+      fConsta2 = fnote - (preNote - 57);
+      piwe = (fConsta2+1) * 8192; // pitch wheel value
+      preNote = round(fConsta1t)+57;
+      // weg = 0;
 
 
       for (int i=0; i<len; i+=step)
@@ -409,13 +483,13 @@ void GxEngine::process_midi(int len)
 
                   if ( rms >= (Beat_is + fTemps38))
                     {
-                      if(Beat_is < rms)Beat_is += 2;
+                      if (Beat_is < rms)Beat_is += 2;
                       //Beat_is = rms;
                       send+=step;
                       if (fcheckbox10 ) send1+=step;
                       if (fcheckbox11 ) send2+=step;
                     }
-                 // else weg +=step;
+                  // else weg +=step;
                 }
 
               // end if playmidi = 1

@@ -51,7 +51,7 @@ using namespace gx_preset;
 namespace gx_gui
   {
     //-------- the guitarix user interface build instruktions
-     #include"gx_ui_builder.cpp"
+#include"gx_ui_builder.cpp"
     // -------------------------------------------------------------
     // GxMainInterface widget and method definitions
     //
@@ -382,7 +382,7 @@ namespace gx_gui
     {
       GtkWidget * box = gtk_hbox_new (homogene, 0);
       gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-     // gtk_widget_set_size_request (box, 270, 75);
+      // gtk_widget_set_size_request (box, 270, 75);
       if (fMode[fTop] != kTabMode && label[0] != 0)
         {
           GtkWidget * frame = addWidget(label, gtk_frame_new (label));
@@ -505,16 +505,16 @@ namespace gx_gui
           int width, height;
           gtk_widget_get_size_request (parent, &width, &height);
           if (width!=-1)
-           {
-            gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(parent),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
-            gtk_widget_set_size_request (parent, -1, -1);
-           }
+            {
+              gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(parent),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
+              gtk_widget_set_size_request (parent, -1, -1);
+            }
           else
-          {
-            width= box1->allocation.width;
-            gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(parent),GTK_POLICY_AUTOMATIC,GTK_POLICY_NEVER);
-            gtk_widget_set_size_request (parent, width*5, -1);
-          }
+            {
+              width= box1->allocation.width;
+              gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(parent),GTK_POLICY_AUTOMATIC,GTK_POLICY_NEVER);
+              gtk_widget_set_size_request (parent, width*5, -1);
+            }
         }
 
         // save order for neigbor box
@@ -629,8 +629,8 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (button), "clicked",
                         G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
       /***FIXME***/
-     /*  g_signal_connect  (GTK_OBJECT (button), "pressed",
-                         G_CALLBACK (gx_reset_effects), (gpointer) c); */
+      /*  g_signal_connect  (GTK_OBJECT (button), "pressed",
+                          G_CALLBACK (gx_reset_effects), (gpointer) c); */
 
       gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
       gtk_fixed_put (GTK_FIXED(box1), button, 10, 1);
@@ -1235,7 +1235,7 @@ namespace gx_gui
 
     void GxMainInterface::addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step)
     {
-     *zone = init;
+      *zone = init;
       GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
       uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
@@ -2503,7 +2503,7 @@ namespace gx_gui
                       g_list_free(list);
                       break;
                     }
-                    g_list_free(list);
+                  g_list_free(list);
                 }
             }
         }
@@ -2599,8 +2599,8 @@ namespace gx_gui
           GtkWidget* wd = (GtkWidget*)g_list_nth_data(list, p);
           if (port_name == gtk_widget_get_name(wd))
             {
-            g_list_free(list);
-            return wd;
+              g_list_free(list);
+              return wd;
             }
         }
       g_list_free(list);
@@ -2678,7 +2678,6 @@ namespace gx_gui
       string previous_state = gx_user_dir + gx_jack::client_name + "rc";
       recallState(previous_state.c_str());
 
-
       //----- set the state for the latency change warning widget
       gx_engine::GxEngine::instance()->set_latency_warning_change();
 
@@ -2690,8 +2689,6 @@ namespace gx_gui
       gx_set_skin_change(skin_index);
       gx_update_skin_menu_item(skin_index);
 
-
-
       /* timeout in milliseconds */
       g_timeout_add(40, gx_update_all_gui, 0);
       g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, 60,  gx_refresh_oscilloscope, 0, NULL);
@@ -2699,9 +2696,17 @@ namespace gx_gui
       g_timeout_add_full(G_PRIORITY_LOW,2200, gx_monitor_jack_ports,0, NULL);
       g_timeout_add_full(G_PRIORITY_LOW,200, gx_refresh_tuner,0, NULL);
       g_timeout_add(750, gx_check_startup, 0);
-
       // Note: meter display timeout is a global var in gx_gui namespace
       g_timeout_add(meter_display_timeout, gx_refresh_meter_level,   0);
+
+      // -------------- start helper thread for midi control ------------
+      sem_init (&program_change_sem, 0, 0);
+      GError* err;
+      if (g_thread_create(gx_program_change_helper_thread, NULL, FALSE, &err)  == NULL)
+        {
+          printf("Thread create failed: %s!!\n", err->message );
+          g_error_free(err);
+        }
 
       gtk_main();
       stop();
