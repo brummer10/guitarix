@@ -35,6 +35,7 @@ float scale_from_midi(int midi_value, float low, float high)
   return low + ((float)midi_value / 127) * (high - low);
 }
 
+//----- jack process callback for the midi input
 void GxEngine::compute_midi_in(void* midi_input_port_buf)
 {
   jack_midi_event_t in_event;
@@ -50,7 +51,7 @@ void GxEngine::compute_midi_in(void* midi_input_port_buf)
         }
       else if ((in_event.buffer[0] & 0xf0) == 0xb0)    // controller
         {
-          // gx_engine::GxEngine* engine = gx_engine::GxEngine::instance();
+
           int value = in_event.buffer[2];
 
           switch (in_event.buffer[1])

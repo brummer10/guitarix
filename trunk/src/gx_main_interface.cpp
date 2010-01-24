@@ -2675,8 +2675,8 @@ namespace gx_gui
     //---- show main GUI thread and more
     void GxMainInterface::run()
     {
-      string previous_state = gx_user_dir + gx_jack::client_name + "rc";
-      recallState(previous_state.c_str());
+    //  string previous_state = gx_user_dir + gx_jack::client_name + "rc";
+    //  recallState(previous_state.c_str());
 
       //----- set the state for the latency change warning widget
       gx_engine::GxEngine::instance()->set_latency_warning_change();
@@ -2689,23 +2689,38 @@ namespace gx_gui
       gx_set_skin_change(skin_index);
       gx_update_skin_menu_item(skin_index);
 
+      // ----------------------- init GLIB threads ----------------------
+      g_thread_init(NULL);
+
+
       /* timeout in milliseconds */
       g_timeout_add(40, gx_update_all_gui, 0);
       g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, 60,  gx_refresh_oscilloscope, 0, NULL);
-      g_timeout_add_full(G_PRIORITY_LOW,2000, gx_survive_jack_shutdown, 0, NULL);
+     // g_timeout_add_full(G_PRIORITY_LOW,2000, gx_survive_jack_shutdown, 0, NULL);
       g_timeout_add_full(G_PRIORITY_LOW,2200, gx_monitor_jack_ports,0, NULL);
       g_timeout_add_full(G_PRIORITY_LOW,200, gx_refresh_tuner,0, NULL);
       g_timeout_add(750, gx_check_startup, 0);
       // Note: meter display timeout is a global var in gx_gui namespace
       g_timeout_add(meter_display_timeout, gx_refresh_meter_level,   0);
 
+      // -------------- start helper thread for jack shutdown survive ------------
+      sem_init (&jack_change_sem, 0, 0);
+      GError* err = NULL;
+      if (g_thread_create(gx_jack_change_helper_thread, NULL, FALSE, &err)  == NULL)
+        {
+          printf("Thread create failed: %s!!\n", err->message );
+          g_error_free(err);
+          err = NULL;
+        }
+
       // -------------- start helper thread for midi control ------------
       sem_init (&program_change_sem, 0, 0);
-      GError* err;
+
       if (g_thread_create(gx_program_change_helper_thread, NULL, FALSE, &err)  == NULL)
         {
           printf("Thread create failed: %s!!\n", err->message );
           g_error_free(err);
+          err = NULL;
         }
 
       gtk_main();

@@ -273,6 +273,8 @@ namespace gx_gui
   /*midi_in preset switch */
   extern volatile gint       program_change;
   extern sem_t               program_change_sem;
+  extern volatile bool       jack_change;
+  extern sem_t               jack_change_sem;
 
   extern int show_eq;
 

@@ -779,7 +779,7 @@ namespace gx_preset
       // recall jconv main setting
       string s = ""; // empty string = main setting
       gx_jconv::GxJConvSettings::instance()->configureJConvSettings(s);
-      gx_jconv::gx_reload_jcgui();
+      if(arg != false) gx_jconv::gx_reload_jcgui();
     }
 
     // ----- save current setting as main setting

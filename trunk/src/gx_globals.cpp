@@ -306,6 +306,8 @@ namespace gx_gui
   /* midi_in preset switch */
   volatile gint       program_change = -1;
   sem_t               program_change_sem;
+  volatile bool                jack_change = false;
+  sem_t               jack_change_sem;
 
   int show_eq;
   /* names of port lists (exclude MIDI for now) */

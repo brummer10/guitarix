@@ -569,9 +569,9 @@ namespace gx_jack
     {
       /* Note: just reporting log for now  */
 
-      ostringstream s;
+    /*  ostringstream s;
       s << " jack sample rate changed to " << frames;
-      gx_print_warning("Jack sample rate", s.str());
+      gx_print_warning("Jack sample rate", s.str()); */
 
       return 0;
     }
@@ -583,6 +583,8 @@ namespace gx_jack
                        "jack has bumped us out!!");
 
       jack_is_down = true;
+      g_atomic_int_set(&gx_gui::jack_change, jack_is_down);
+          sem_post(&gx_gui::jack_change_sem);
     }
 
     //---- jack client callbacks

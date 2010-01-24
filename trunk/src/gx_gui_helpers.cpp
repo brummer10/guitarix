@@ -157,26 +157,6 @@ namespace gx_gui
       gx_refresh_engine_status_display();
     }
 
-    /* --------- load preset triggered by midi program change --------- */
-    gboolean gx_do_program_change(gpointer arg)
-    {
-      int pgm = (int)arg;
-      gx_engine::GxEngineState estate =
-	(gx_engine::GxEngineState)gx_engine::checky;
-      if (gx_preset::gx_nth_preset(pgm)) {
-	if (estate == gx_engine::kEngineBypass)
-	  // engine bypass but preset found -> engine on
-	  gx_engine_switch ((GtkWidget*)0, (gpointer)1);
-      }
-      else {
-	if (estate == gx_engine::kEngineOn)
-	  // engine on but preset not found -> engine bypass
-	  gx_engine_switch ((GtkWidget*)0, (gpointer)1);
-      }
-      // mainloop idle callback: do not call again
-      return FALSE;
-    }
-
     /* -------------- refresh engine status display ---------------- */
     void gx_refresh_engine_status_display()
     {
@@ -224,6 +204,10 @@ namespace gx_gui
 
       gx_print_info("Engine State: ", state);
     }
+
+    /** ----------- MULTI THREADS RUNNING BY GUITARIX -----------------  **/
+    /** ----------- -------------------------------- ------------------  **/
+
 
     /* ----------------- refresh GX level display function ---------------- */
     gboolean gx_refresh_meter_level(gpointer args)
@@ -320,8 +304,7 @@ namespace gx_gui
                 }
             }
         }
-
-
+      // run thread again
       return TRUE;
     }
 
@@ -332,14 +315,17 @@ namespace gx_gui
           ((wave_view_mode == kWvMode1) ||
            (wave_view_mode == kWvMode2)))
         gx_engine::GxEngine::instance()->viv = gx_engine::gOutChannel[0][0];
+      // run thread again
       return TRUE;
     }
+
     /* -------------- refresh tuner function -------------- */
     gboolean gx_refresh_tuner(gpointer args)
     {
       gx_engine::GxEngine* engine = gx_engine::GxEngine::instance();
       if (shownote )
-          engine->fConsta1t = engine->fConsta1;
+        engine->fConsta1t = engine->fConsta1;
+      // run thread again
       return TRUE;
     }
 
@@ -349,32 +335,72 @@ namespace gx_gui
       gx_survive_jack_shutdown(NULL);
       gx_monitor_jack_ports(NULL);
       gx_engine::is_setup = 1;
+      // case jconvolver is on at startup
       if (gx_jconv::GxJConvSettings::checkbutton7 == 1)
         {
           gx_start_stop_jconv(NULL,NULL);
         }
+      // run only one time
       return FALSE;
+    }
 
+    /* --------- load preset triggered by midi program change --------- */
+    gboolean gx_do_program_change(gpointer arg)
+    {
+      int pgm = (int)arg;
+      gx_engine::GxEngineState estate =
+        (gx_engine::GxEngineState)gx_engine::checky;
+      if (gx_preset::gx_nth_preset(pgm))
+        {
+          if (estate == gx_engine::kEngineBypass)
+            // engine bypass but preset found -> engine on
+            gx_engine_switch ((GtkWidget*)0, (gpointer)1);
+        }
+      else
+        {
+          if (estate == gx_engine::kEngineOn)
+            // engine on but preset not found -> engine bypass
+            gx_engine_switch ((GtkWidget*)0, (gpointer)1);
+        }
+      // mainloop idle callback: do not call again
+      return FALSE;
+    }
+
+    //--- recive post when jack shutdown and start a watchdog for jack restart
+    gpointer gx_jack_change_helper_thread(gpointer data)
+    {
+      while (TRUE)
+        {
+          // wait for a semaphore post from jack thread
+          sem_wait(&jack_change_sem);
+          // get the work done by ui thread
+          g_timeout_add_full(G_PRIORITY_LOW,200, gx_survive_jack_shutdown, 0, NULL);
+        }
+      //notreached
+      return NULL;
     }
 
     //---- feed a midi program change from realtime thread to ui thread
-gpointer gx_program_change_helper_thread(gpointer data)
-{
-  gint pgm;
-  while (TRUE) {
-    // wait for a semaphore post from jack realtime thread
-    sem_wait(&program_change_sem);
-    // atomic read and reset the variable
-    do {
-      pgm = g_atomic_int_get(&program_change);
-    } while (!g_atomic_int_compare_and_exchange(&program_change, pgm, -1));
-    assert(pgm != -1);
-    // get the work done by ui thread
-    g_idle_add(gx_gui::gx_do_program_change, (gpointer)pgm);
-  }
- //notreached
-  return NULL;
-}
+    gpointer gx_program_change_helper_thread(gpointer data)
+    {
+      gint pgm;
+      while (TRUE)
+        {
+          // wait for a semaphore post from jack realtime thread
+          sem_wait(&program_change_sem);
+          // atomic read and reset the variable
+          do
+            {
+              pgm = g_atomic_int_get(&program_change);
+            }
+          while (!g_atomic_int_compare_and_exchange(&program_change, pgm, -1));
+          assert(pgm != -1);
+          // get the work done by ui thread
+          g_idle_add(gx_do_program_change, (gpointer)pgm);
+        }
+      //notreached
+      return NULL;
+    }
 
 
     /* -------------- for thread that checks jackd liveliness -------------- */
@@ -393,8 +419,8 @@ gpointer gx_program_change_helper_thread(gpointer data)
 
               // revive existing client menus
               GxMainInterface::instance()->initClientPortMaps();
-
-              return TRUE;
+              // run only one time whem jackd is running
+              return false;
             }
         }
       else
@@ -411,27 +437,9 @@ gpointer gx_program_change_helper_thread(gpointer data)
           gx_jconv::jconv_is_running = false;
           gx_jack::jack_is_down = true;
         }
-      return TRUE;
+      // run as long jackd is down
+      return true;
     }
-
-    /* --------- queue up new client ports as they are registered -------- */
-    void gx_queue_client_port(const string name,
-                              const string type,
-                              const int flags)
-    {
-      // add the port
-      gx_client_port_queue.insert(pair<string, int>(name, flags));
-    }
-
-    /* --------- dequeue client ports as they are deregistered -------- */
-    void gx_dequeue_client_port(const string name,
-                                const string type,
-                                const int flags)
-    {
-      // remove the port
-      gx_client_port_dequeue.insert(pair<string, int>(name, flags));
-    }
-
 
     /* ---------------------- monitor jack ports  items ------------------ */
     // we also refresh the connection status of these buttons
@@ -491,8 +499,30 @@ gpointer gx_program_change_helper_thread(gpointer data)
           // next client
           cit++;
         }
-
+      // run thraed again
       return TRUE;
+    }
+
+    /** ------------------- MULTI THREADS END -------------------------  **/
+    /** ----------- -------------------------------- ------------------  **/
+
+
+    /* --------- queue up new client ports as they are registered -------- */
+    void gx_queue_client_port(const string name,
+                              const string type,
+                              const int flags)
+    {
+      // add the port
+      gx_client_port_queue.insert(pair<string, int>(name, flags));
+    }
+
+    /* --------- dequeue client ports as they are deregistered -------- */
+    void gx_dequeue_client_port(const string name,
+                                const string type,
+                                const int flags)
+    {
+      // remove the port
+      gx_client_port_dequeue.insert(pair<string, int>(name, flags));
     }
 
     /* --------------- refresh port connection button status -------------- */

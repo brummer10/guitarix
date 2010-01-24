@@ -33,6 +33,7 @@ namespace gx_gui
   gboolean gx_update_all_gui         (gpointer args);
   gboolean gx_check_startup          (gpointer args);
   gboolean gx_refresh_tuner          (gpointer args);
+  gpointer gx_jack_change_helper_thread(gpointer data);
   gpointer gx_program_change_helper_thread  (gpointer args);
   gboolean gx_hide_eq( GtkWidget *widget, gpointer   data );
 

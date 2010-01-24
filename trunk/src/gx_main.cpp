@@ -92,9 +92,6 @@ int main(int argc, char *argv[])
   string optvar[NUM_SHELL_VAR];
   gx_process_cmdline_options(argc, argv, optvar);
 
-  // ----------------------- init GLIB threads ----------------------
-  g_thread_init(NULL);
-
   // ---------------- Check for working user directory  -------------
   gx_system::gx_version_check();
 

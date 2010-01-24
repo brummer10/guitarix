@@ -635,6 +635,9 @@ namespace gx_engine
       fconvolve = 0;
       fConsta1t = 0;
       // end engine init
+
+      // call the preset handler to read the last used settings
+      gx_preset::gx_recall_main_setting(NULL,NULL);
     }
 
     /* --- adding rest of engine class by file inclusion for readability --- */

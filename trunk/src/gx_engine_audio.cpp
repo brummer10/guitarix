@@ -157,7 +157,7 @@ inline void GxEngine::convolver_filter(float** input, float** output, int sf)
 
 // Set result to zero:
   for (int i=0; i < 44; i++) result[i] = result[sf+i];
-  for (int i=44; i < sf+44; i++) result[i] = 0;
+  for (int i=44; i < sf+46; i++) result[i] = 0;
 
 // Do convolution:
   for (int i=0; i < sf; i++)
