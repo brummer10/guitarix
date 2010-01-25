@@ -52,8 +52,7 @@ using namespace gx_threads;
 
 namespace gx_gui
   {
-    //-------- the guitarix user interface build instruktions
-    //#include"gx_ui_builder.cpp"
+
     // -------------------------------------------------------------
     // GxMainInterface widget and method definitions
     //

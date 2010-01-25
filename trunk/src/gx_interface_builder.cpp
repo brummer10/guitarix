@@ -45,7 +45,7 @@ using namespace std;
 
 #include "guitarix.h"
 
-
+ //-------- the guitarix user interface build instruktions
 
 namespace gx_gui
   {

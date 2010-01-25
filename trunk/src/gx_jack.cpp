@@ -144,7 +144,6 @@ namespace gx_jack
     void gx_jack_callbacks_and_activate()
     {
       //----- set the jack callbacks
-      jack_set_port_registration_callback (client, gx_jack_port_callback, NULL);
       jack_set_graph_order_callback (client, gx_jack_graph_callback, NULL);
       jack_set_xrun_callback(client, gx_jack_xrun_callback, NULL);
       jack_set_sample_rate_callback(client, gx_jack_srate_callback, 0);
@@ -569,9 +568,9 @@ namespace gx_jack
     {
       /* Note: just reporting log for now  */
 
-    /*  ostringstream s;
-      s << " jack sample rate changed to " << frames;
-      gx_print_warning("Jack sample rate", s.str()); */
+      /*  ostringstream s;
+        s << " jack sample rate changed to " << frames;
+        gx_print_warning("Jack sample rate", s.str()); */
 
       return 0;
     }
@@ -584,7 +583,7 @@ namespace gx_jack
 
       jack_is_down = true;
       g_atomic_int_set(&gx_gui::jack_change, jack_is_down);
-          sem_post(&gx_gui::jack_change_sem);
+      sem_post(&gx_gui::jack_change_sem);
     }
 
     //---- jack client callbacks
@@ -627,12 +626,6 @@ namespace gx_jack
         }
       last_xrun_time = jack_last_frame_time(client);
       return 0;
-    }
-
-    //---- jack port callback
-    void gx_jack_port_callback (jack_port_id_t port, int yn, void* arg)
-    {
-      //printf ("Port %d %s\n", port, (yn ? "registered" : "unregistered"));
     }
 
     //---- jack buffer size change callback

@@ -72,6 +72,16 @@ namespace gx_system
     gx_clean_exit(NULL, NULL);
   }
 
+// ---- ladi signal handler -----
+  void gx_ladi_handler(int sig)
+  {
+    // print out a warning
+    string msg = string("signal ") + gx_i2a(sig) + " received, save settings";
+    gx_print_warning("signal_handler", msg);
+    string previous_state = gx_user_dir + client_name + "rc";
+    gx_gui::GxMainInterface::instance()->
+	  saveStateToFile(previous_state.c_str());
+  }
   // ---- command line options
   void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
   {

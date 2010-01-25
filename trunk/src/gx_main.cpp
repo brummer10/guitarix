@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
   signal(SIGHUP,  gx_signal_handler);
   signal(SIGINT,  gx_signal_handler);
   signal(SIGSEGV, gx_signal_handler);
+  signal(SIGUSR1, gx_ladi_handler);
 
   // ---------------------- user options handling ------------------
   string optvar[NUM_SHELL_VAR];

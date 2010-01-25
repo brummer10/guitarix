@@ -64,7 +64,6 @@ namespace gx_jack
   void gx_jack_shutdown_callback   (void*);
   int  gx_jack_graph_callback      (void*);
   int  gx_jack_xrun_callback       (void*);
-  void gx_jack_port_callback       (jack_port_id_t, int, void*);
   int  gx_jack_buffersize_callback (jack_nframes_t, void*);
   void gx_jack_portreg_callback    (jack_port_id_t, int, void*);
   void gx_jack_clientreg_callback  (const char*, int, void*);
