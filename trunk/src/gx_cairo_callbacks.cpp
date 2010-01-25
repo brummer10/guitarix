@@ -23,12 +23,38 @@
  * --------------------------------------------------------------------------
  */
 
+#include <errno.h>
 
+#include <assert.h>
+#include <cstring>
+#include <list>
+#include <map>
+#include <set>
+#include <vector>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
+
+using namespace std;
+
+#include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
+#include <jack/jack.h>
+#include <sndfile.h>
+
+#include "guitarix.h"
+
+/* --------------------------- gx_cairo namespace ------------------------ */
+namespace gx_cairo
+  {
 
     // set cairo color related to the used skin
     void gx_skin_color(cairo_pattern_t *pat)
     {
-      int skin_is = int(float(gx_current_skin));
+      int skin_is = int(float(gx_gui::gx_current_skin));
 
       switch (skin_is)
         {
@@ -377,7 +403,7 @@
 
       for (uint32_t i = 0; i < sizeof (db_points)/sizeof (db_points[0]); ++i)
         {
-          float fraction = log_meter (db_points[i]);
+          float fraction = gx_threads::log_meter (db_points[i]);
           cairo_set_source_rgb (cr, 0.12*i, 1, 0.1);
 
           cairo_move_to (cr, x0+rect_width*0.2,y0+rect_height - (rect_height * fraction));
@@ -446,7 +472,7 @@
       double rect_width  = wi->allocation.width-2;
       double rect_height = wi->allocation.height-3;
 
-      _image = gdk_pixbuf_scale_simple(gx_gui::tribeimage1,rect_width,rect_height,GDK_INTERP_HYPER);
+      _image = gdk_pixbuf_scale_simple(tribeimage1,rect_width,rect_height,GDK_INTERP_HYPER);
 
       cairo_pattern_t*pat;
 
@@ -487,7 +513,7 @@
 
     gboolean box10_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
     {
-      if (int(float(gx_current_skin)==1))
+      if (int(float(gx_gui::gx_current_skin)==1))
         {
           cairo_t *cr;
 
@@ -515,7 +541,7 @@
           cairo_pattern_destroy (pat);
           cairo_destroy(cr);
         }
-        else if (int(float(gx_current_skin)==7))
+        else if (int(float(gx_gui::gx_current_skin)==7))
                  box6_expose(wi,ev,user_data);
 
       return FALSE;
@@ -535,7 +561,7 @@
       double rect_width  = wi->allocation.width-2;
       double rect_height = wi->allocation.height-3;
 
-      _image = gdk_pixbuf_scale_simple(gx_gui::tribeimage,rect_width,rect_height,GDK_INTERP_HYPER);
+      _image = gdk_pixbuf_scale_simple(tribeimage,rect_width,rect_height,GDK_INTERP_HYPER);
 
       cairo_pattern_t*pat;
 
@@ -577,7 +603,7 @@
 
     gboolean box12_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
     {
-      if (show_eq)
+      if (gx_gui::show_eq)
       {
       cairo_t *cr;
 
@@ -797,3 +823,4 @@ static const char * guitar_xpm[] = {
       tribeimage1 = gdk_pixbuf_new_from_xpm_data(guitar_xpm);
     }
 
+  }

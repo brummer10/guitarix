@@ -236,9 +236,6 @@ namespace gx_gui
   extern GdkPixbuf* ib;
   extern GdkPixbuf* ibm;
   extern GdkPixbuf* ibr;
-  extern GdkPixbuf *tribeimage;
-  extern GdkPixbuf *tribeimage1;
-  extern GdkPixbuf *_image;
 
   /* jack server status */
   extern GtkWidget* gx_jackd_on_image;
@@ -296,3 +293,12 @@ namespace gx_gui
 }
 
 /* -------------------------------------------------------------------------- */
+
+/* ----- cairo namespace ----- */
+namespace gx_cairo
+{
+  extern GdkPixbuf *tribeimage;
+  extern GdkPixbuf *tribeimage1;
+  extern GdkPixbuf *_image;
+
+}

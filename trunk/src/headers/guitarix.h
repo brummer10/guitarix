@@ -41,8 +41,11 @@
 #include "gx_engine.h"
 #include "gx_preset.h"
 #include "gx_jconv_settings.h"
+#include "gx_threads.h"
+#include "gx_cairo_callbacks.h"
 #include "gx_gui_helpers.h"
 #include "gx_main_interface.h"
+
 
 /* special "home-made" GTK classes */
 #include "GtkRegler.h"

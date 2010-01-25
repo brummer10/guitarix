@@ -267,9 +267,7 @@ namespace gx_gui
   GdkPixbuf* ibm;
   GdkPixbuf* ibr;
   GdkPixbuf* bbr;
-  GdkPixbuf *tribeimage;
-  GdkPixbuf *tribeimage1;
-  GdkPixbuf *_image;
+
 
   /* jack server status icons */
   GtkWidget* gx_jackd_on_image;
@@ -323,4 +321,14 @@ namespace gx_gui
   multimap<string, int, StringComp> gx_client_port_queue;
   multimap<string, int, StringComp> gx_client_port_dequeue;
 }
+
 /* ------------------------------------------------------------------------- */
+
+/* ----- cairo namespace ----- */
+namespace gx_cairo
+{
+  GdkPixbuf *tribeimage;
+  GdkPixbuf *tribeimage1;
+  GdkPixbuf *_image;
+
+}

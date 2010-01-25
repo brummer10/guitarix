@@ -619,11 +619,11 @@ namespace gx_jconv
       gtk_container_add (GTK_CONTAINER (box4),   ok_button);
 
       //----- connect signals to callback cairo funcs
-      g_signal_connect(box9, "expose-event", G_CALLBACK(gx_gui::box1_expose), NULL);
-      g_signal_connect(box7, "expose-event", G_CALLBACK(gx_gui::box3_expose), NULL);
-      g_signal_connect(box2, "expose-event", G_CALLBACK(gx_gui::box4_expose), NULL);
-      g_signal_connect(gx_gui::label6, "expose-event", G_CALLBACK(gx_gui::box4_expose), NULL);
-      g_signal_connect(label, "expose-event", G_CALLBACK(gx_gui::box5_expose), NULL);
+      g_signal_connect(box9, "expose-event", G_CALLBACK(gx_cairo::box1_expose), NULL);
+      g_signal_connect(box7, "expose-event", G_CALLBACK(gx_cairo::box3_expose), NULL);
+      g_signal_connect(box2, "expose-event", G_CALLBACK(gx_cairo::box4_expose), NULL);
+      g_signal_connect(gx_gui::label6, "expose-event", G_CALLBACK(gx_cairo::box4_expose), NULL);
+      g_signal_connect(label, "expose-event", G_CALLBACK(gx_cairo::box5_expose), NULL);
 
       // IR resampling
       g_signal_connect (gx_gui::fbutton, "file-set",

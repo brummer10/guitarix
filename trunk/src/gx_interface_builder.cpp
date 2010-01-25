@@ -16,11 +16,39 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 * ---------------------------------------------------------------------------
 *
-*    This is the guitarix GUI builder
+*    This is the guitarix interface builder,
+*    it's a part of the class GxMainInterface
 *
 * ----------------------------------------------------------------------------
 */
+#include <errno.h>
 
+#include <assert.h>
+#include <cstring>
+#include <list>
+#include <map>
+#include <set>
+#include <vector>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
+
+using namespace std;
+
+#include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
+#include <jack/jack.h>
+#include <sndfile.h>
+
+#include "guitarix.h"
+
+
+
+namespace gx_gui
+  {
 /* -------- user interface builder ---------- */
 void GxMainInterface::setup()
 {
@@ -998,3 +1026,4 @@ void GxMainInterface::setup()
   closeBox();
 }
 
+  }

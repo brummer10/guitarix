@@ -47,11 +47,13 @@ using namespace std;
 using namespace gx_system;
 using namespace gx_child_process;
 using namespace gx_preset;
+using namespace gx_cairo;
+using namespace gx_threads;
 
 namespace gx_gui
   {
     //-------- the guitarix user interface build instruktions
-#include"gx_ui_builder.cpp"
+    //#include"gx_ui_builder.cpp"
     // -------------------------------------------------------------
     // GxMainInterface widget and method definitions
     //

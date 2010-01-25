@@ -22,121 +22,97 @@
 #pragma once
 
 namespace gx_gui
-{
-  /* --------------  function declarations ---------------- */
-  /* slow GTK threads, see GxMainInterface::run() */
-  gboolean gx_refresh_meter_level    (gpointer arg);
-  gboolean gx_refresh_oscilloscope   (gpointer args);
-  gboolean gx_survive_jack_shutdown  (gpointer arg);
-  gboolean gx_monitor_jack_clients   (gpointer args);
-  gboolean gx_monitor_jack_ports     (gpointer args);
-  gboolean gx_update_all_gui         (gpointer args);
-  gboolean gx_check_startup          (gpointer args);
-  gboolean gx_refresh_tuner          (gpointer args);
-  gpointer gx_jack_change_helper_thread(gpointer data);
-  gpointer gx_program_change_helper_thread  (gpointer args);
-  gboolean gx_hide_eq( GtkWidget *widget, gpointer   data );
+  {
 
-  gboolean box12_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-  gboolean box11_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-  gboolean box10_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-  gboolean box9_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-  gboolean box8_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-  gboolean box7_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-  gboolean box6_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-  gboolean box5_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-  gboolean box4_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-  gboolean box3_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-  gboolean box2_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-  gboolean box1_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-  gboolean box_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-  gboolean label_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+    /* --------------  function declarations ---------------- */
+    gboolean gx_hide_eq( GtkWidget *widget, gpointer   data );
 
-  /* guitarix skin related functions */
-  unsigned int gx_fetch_available_skins();
+    /* guitarix skin related functions */
+    unsigned int gx_fetch_available_skins();
 
-  void gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
-  void gx_cycle_through_skin(GtkWidget *widget, gpointer arg);
-  bool gx_update_skin(const gint idx, const char* calling_func);
-  void gx_update_skin_menu_item(const int);
-  void gx_actualize_skin_index(const string& skin_name);
-  bool gx_set_skin(GtkWidget *widget, gpointer data);
-  void gx_get_skin_change(float* fskin);
-  void gx_set_skin_change(float fskin);
+    void gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
+    void gx_cycle_through_skin(GtkWidget *widget, gpointer arg);
+    bool gx_update_skin(const gint idx, const char* calling_func);
+    void gx_update_skin_menu_item(const int);
+    void gx_actualize_skin_index(const string& skin_name);
+    bool gx_set_skin(GtkWidget *widget, gpointer data);
+    void gx_get_skin_change(float* fskin);
+    void gx_set_skin_change(float fskin);
 
-  /* engine status and switch */
-  void gx_refresh_engine_status_display();
-  void gx_engine_switch (GtkWidget* widget, gpointer arg);
-  gboolean gx_do_program_change(gpointer arg);
+    /* engine status and switch */
+    void gx_refresh_engine_status_display();
+    void gx_engine_switch (GtkWidget* widget, gpointer arg);
 
-  /* jack client and port mapping functions */
-  void gx_show_portmap_window (GtkWidget* widget, gpointer arg);
-  void gx_hide_portmap_window (GtkWidget* widget, gpointer arg);
 
-  void gx_refresh_portconn_status(GtkWidget* button, gpointer data);
-  void gx_cycle_through_client_tabs(GtkWidget* item, gpointer data);
+    /* jack client and port mapping functions */
+    void gx_show_portmap_window (GtkWidget* widget, gpointer arg);
+    void gx_hide_portmap_window (GtkWidget* widget, gpointer arg);
 
-  void gx_queue_client_port(const string, const string, const int);
-  void gx_queue_client(const string);
+    void gx_refresh_portconn_status(GtkWidget* button, gpointer data);
+    void gx_cycle_through_client_tabs(GtkWidget* item, gpointer data);
 
-  void gx_dequeue_client_port(const string, const string, const int);
-  void gx_dequeue_client(const string);
+    void gx_queue_client_port(const string, const string, const int);
+    void gx_queue_client(const string);
 
-  /* choice dialog windows */
-  void gx_get_text_entry(GtkEntry*, string&);
+    void gx_dequeue_client_port(const string, const string, const int);
+    void gx_dequeue_client(const string);
 
-  gint gx_choice_dialog_with_text_entry (
-	const char* window_title,
-	const char* msg,
-	const char* label1,
-	const char* label2,
-	const gint  resp1,
-	const gint  resp2,
-	const gint  default_response,
-	GCallback   func
-  );
+    /* choice dialog windows */
+    void gx_get_text_entry(GtkEntry*, string&);
 
-  gint gx_choice_dialog_without_entry (
-	const char* window_title,
-	const char* msg,
-	const char* label1,
-	const char* label2,
-	const gint  resp1,
-	const gint  resp2,
-	const gint  default_response
-  );
+    gint gx_choice_dialog_with_text_entry (
+      const char* window_title,
+      const char* msg,
+      const char* label1,
+      const char* label2,
+      const gint  resp1,
+      const gint  resp2,
+      const gint  default_response,
+      GCallback   func
+    );
 
-  gint gx_nchoice_dialog_without_entry (
-	const char* window_title,
-	const char* msg,
-	const guint nchoice,
-	const char* label[],
-	const gint  resp[],
-	const gint  default_response
-  );
+    gint gx_choice_dialog_without_entry (
+      const char* window_title,
+      const char* msg,
+      const char* label1,
+      const char* label2,
+      const gint  resp1,
+      const gint  resp2,
+      const gint  default_response
+    );
 
-  /* extra GUI helpers */
-  void gx_show_oscilloscope      (GtkCheckMenuItem*, gpointer);
-  void gx_tuner                  (GtkCheckMenuItem*, gpointer);
-  void gx_midi_out               (GtkCheckMenuItem*, gpointer);
-  void gx_log_window             (GtkWidget*, gpointer);
+    gint gx_nchoice_dialog_without_entry (
+      const char* window_title,
+      const char* msg,
+      const guint nchoice,
+      const char* label[],
+      const gint  resp[],
+      const gint  default_response
+    );
 
-  void gx_init_pixmaps();
-  void gx_systray_menu            (GtkWidget*, gpointer);
-  void gx_reset_units             (GtkWidget*, gpointer);
-  void gx_reset_effects           (GtkWidget*, gpointer);
-  void gx_show_about              (GtkWidget*, gpointer);
+    /* extra GUI helpers */
+    void gx_show_oscilloscope      (GtkCheckMenuItem*, gpointer);
+    void gx_tuner                  (GtkCheckMenuItem*, gpointer);
+    void gx_midi_out               (GtkCheckMenuItem*, gpointer);
+    void gx_log_window             (GtkWidget*, gpointer);
 
-  void gx_show_extended_settings    (GtkWidget*, gpointer);
-  void gx_hide_extended_settings    (GtkWidget*, gpointer);
-  void gx_user_disable_latency_warn (GtkWidget*, gpointer);
-  gint gx_wait_latency_warn         ();
-  int  gx_message_popup             (const char*);
 
-  gboolean gx_delete_event       (GtkWidget*, gpointer);
+    void gx_systray_menu            (GtkWidget*, gpointer);
+    void gx_reset_units             (GtkWidget*, gpointer);
+    void gx_reset_effects           (GtkWidget*, gpointer);
+    void gx_show_about              (GtkWidget*, gpointer);
 
-  void gx_meter_button_release(GdkEventButton* ev, gpointer arg);
+    void gx_show_extended_settings    (GtkWidget*, gpointer);
+    void gx_hide_extended_settings    (GtkWidget*, gpointer);
+    void gx_user_disable_latency_warn (GtkWidget*, gpointer);
+    gint gx_wait_latency_warn         ();
+    int  gx_message_popup             (const char*);
 
-  /* -------------------------------------------------------------------------- */
-} /* end of gx_gui namespace */
+    gboolean gx_delete_event       (GtkWidget*, gpointer);
+
+    void gx_meter_button_release(GdkEventButton* ev, gpointer arg);
+
+
+    /* -------------------------------------------------------------------------- */
+  } /* end of gx_gui namespace */
 
