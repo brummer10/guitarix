@@ -37,6 +37,7 @@ namespace gx_threads
     gboolean gx_do_program_change             (gpointer arg);
     /* this are the glib threads*/
     gpointer gx_jack_change_helper_thread     (gpointer data);
+    gpointer gx_signal_helper_thread          (gpointer data);
     gpointer gx_program_change_helper_thread  (gpointer args);
 
 

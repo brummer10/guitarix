@@ -64,7 +64,7 @@ namespace gx_system
   bool  gx_version_check();
   int   gx_pixmap_check();
   void  gx_signal_handler(int);
-  void  gx_ladi_handler(int);
+  gboolean gx_ladi_handler(gpointer);
   void  gx_abort(void* arg);
   void  gx_log_window(GtkWidget*, gpointer);
   void  gx_nospace_in_name(string& presname, const char* subs = "-");

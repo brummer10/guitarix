@@ -223,6 +223,30 @@ namespace gx_threads
       return NULL;
     }
 
+    //--- wait for USR1 signal to arrive and invoke ladi handler via mainloop
+    gpointer gx_signal_helper_thread(gpointer data)
+      {
+	int sig;
+	int ret;
+	sigset_t waitset;
+	guint source_id = 0;
+	sigemptyset(&waitset);
+	sigaddset(&waitset, SIGUSR1);
+	sigprocmask(SIG_BLOCK, &waitset, NULL);
+	while (true) {
+	  ret = sigwait(&waitset, &sig);
+	  if (ret == 0) {
+	    // do not add a new call if another one is already pending
+	    if (source_id == 0 || g_main_context_find_source_by_id(NULL, source_id) == NULL)
+	      source_id = g_idle_add(gx_ladi_handler, NULL);
+	  }
+	  else
+	    assert(errno == EINTR);
+	}
+	//notreached
+	return NULL;
+      }
+
     //---- feed a midi program change from realtime thread to ui thread
     gpointer gx_program_change_helper_thread(gpointer data)
     {

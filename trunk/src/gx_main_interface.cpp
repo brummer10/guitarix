@@ -2712,7 +2712,17 @@ namespace gx_gui
           printf("Thread create failed: %s!!\n", err->message );
           g_error_free(err);
           err = NULL;
+	  //FIXME: abort program
         }
+
+      // -------------- start helper thread for ladi signal USR1 ------------
+      if (g_thread_create(gx_signal_helper_thread, NULL, FALSE, &err)  == NULL)
+	{
+	  printf("Thread create failed: %s!!\n", err->message );
+	  g_error_free(err);
+	  err = NULL;
+	  //FIXME: abort program
+	}
 
       // -------------- start helper thread for midi control ------------
       sem_init (&program_change_sem, 0, 0);
@@ -2722,6 +2732,7 @@ namespace gx_gui
           printf("Thread create failed: %s!!\n", err->message );
           g_error_free(err);
           err = NULL;
+	  //FIXME: abort program
         }
 
       gtk_main();
