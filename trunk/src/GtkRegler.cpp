@@ -1449,7 +1449,9 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
       dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
       spinner = gtk_spin_button_new (GTK_ADJUSTMENT(adj), adj->step_increment,
                                      precision(adj->step_increment));
+      gtk_entry_set_activates_default(GTK_ENTRY(spinner), TRUE);
       ok_button  = gtk_button_new_from_stock(GTK_STOCK_OK);
+      gtk_widget_set_can_default(ok_button, TRUE);
       vbox = gtk_vbox_new (false, 4);
       gtk_container_add (GTK_CONTAINER(vbox), spinner);
       gtk_container_add (GTK_CONTAINER(vbox), ok_button);
@@ -1460,6 +1462,7 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
       gtk_window_set_gravity(GTK_WINDOW(dialog), GDK_GRAVITY_SOUTH);
       gtk_window_set_position (GTK_WINDOW(dialog), GTK_WIN_POS_MOUSE);
       gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
+      gtk_widget_grab_default(ok_button);
 
       gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
       g_signal_connect_swapped (ok_button, "clicked",
