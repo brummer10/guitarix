@@ -30,6 +30,7 @@ def build(bld):
     prog.includes = './headers'
     prog.cxxflags= bld.env['CXXFLAGS']
     prog.source = [] + sources
+   # prog.uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GTK2', 'FFTW3']
     prog.uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GTK2']
     prog.target = bld.env['BIN_NAME']
     prog.chmod=0755

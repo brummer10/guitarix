@@ -511,6 +511,7 @@ namespace gx_engine
 
         float log_2;
         float log_4;
+        float tweg;
 
         //chorus
         class SIG0
@@ -695,6 +696,8 @@ namespace gx_engine
         float fConsta1;
         //float out_to_1;
         //float out_to_2;
+
+
 
         // private constructor
         GxEngine() {}

@@ -50,14 +50,14 @@ class "GtkCheckButton" style:highest "guitarix"
 class "GtkButton" style:highest "guitarix"
 class "GtkFrame" style:highest "guitarix"
 class "GtkExpander" style:highest "guitarix"
-
+class "GtkEventBox" style:highest "guitarix"
 
 style "guitarix-event"
 {
  bg_pixmap[NORMAL] = "controlsbl2.jpg"
 }
-
-class "GtkEventBox" style:highest "guitarix-event"
+widget "*.osc_box" style:highest "guitarix-event"
+#class "GtkEventBox" style:highest "guitarix-event"
 
 style "guitarix-dialog"
 {

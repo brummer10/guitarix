@@ -42,6 +42,7 @@ using namespace std;
 #include <gdk/gdkkeysyms.h>
 #include <jack/jack.h>
 #include <sndfile.h>
+#include <fftw3.h>
 
 #include "guitarix.h"
 
@@ -49,8 +50,7 @@ using namespace gx_system;
 using namespace gx_child_process;
 using namespace gx_gui;
 
-/** ----------- MULTI THREADS RUNNING BY GUITARIX -----------------  **/
-/** ----------- -------------------------------- ------------------  **/
+
 
 namespace gx_threads
   {
@@ -158,8 +158,9 @@ namespace gx_threads
     /* -------------- refresh oscilloscope function -------------- */
     gboolean gx_refresh_oscilloscope(gpointer args)
     {
-      if ((showwave == 1) && (gx_jack::NO_CONNECTION == 0))
-        gx_engine::GxEngine::instance()->viv *= -1;
+      if ((showwave == 1) && ((gx_engine::GxEngineState)gx_engine::checky) &&(!gx_jack::NO_CONNECTION ))
+        gdk_window_invalidate_rect(GDK_WINDOW(livewa->window),NULL,TRUE);
+        //gx_engine::GxEngine::instance()->viv *= -1;
       // run thread again
       return TRUE;
     }
@@ -208,67 +209,6 @@ namespace gx_threads
       // mainloop idle callback: do not call again
       return FALSE;
     }
-
-    //--- recive post when jack shutdown and start a watchdog for jack restart
-    gpointer gx_jack_change_helper_thread(gpointer data)
-    {
-      while (TRUE)
-        {
-          // wait for a semaphore post from jack thread
-          sem_wait(&jack_change_sem);
-          // start watchdog thread when jackd is down
-          g_timeout_add_full(G_PRIORITY_LOW,200, gx_survive_jack_shutdown, 0, NULL);
-        }
-      //notreached
-      return NULL;
-    }
-
-    //--- wait for USR1 signal to arrive and invoke ladi handler via mainloop
-    gpointer gx_signal_helper_thread(gpointer data)
-      {
-	int sig;
-	int ret;
-	sigset_t waitset;
-	guint source_id = 0;
-	sigemptyset(&waitset);
-	sigaddset(&waitset, SIGUSR1);
-	sigprocmask(SIG_BLOCK, &waitset, NULL);
-	while (true) {
-	  ret = sigwait(&waitset, &sig);
-	  if (ret == 0) {
-	    // do not add a new call if another one is already pending
-	    if (source_id == 0 || g_main_context_find_source_by_id(NULL, source_id) == NULL)
-	      source_id = g_idle_add(gx_ladi_handler, NULL);
-	  }
-	  else
-	    assert(errno == EINTR);
-	}
-	//notreached
-	return NULL;
-      }
-
-    //---- feed a midi program change from realtime thread to ui thread
-    gpointer gx_program_change_helper_thread(gpointer data)
-    {
-      gint pgm;
-      while (TRUE)
-        {
-          // wait for a semaphore post from jack realtime thread
-          sem_wait(&program_change_sem);
-          // atomic read and reset the variable
-          do
-            {
-              pgm = g_atomic_int_get(&program_change);
-            }
-          while (!g_atomic_int_compare_and_exchange(&program_change, pgm, -1));
-          assert(pgm != -1);
-          // get the work done by ui thread
-          g_idle_add(gx_do_program_change, (gpointer)pgm);
-        }
-      //notreached
-      return NULL;
-    }
-
 
     /* -------------- for thread that checks jackd liveliness -------------- */
     gboolean gx_survive_jack_shutdown(gpointer arg)
@@ -377,8 +317,47 @@ namespace gx_threads
       return TRUE;
     }
 
+    /** ----------- Glibc THREADS RUNNING BY GUITARIX -----------------  **/
+    /** ----------- -------------------------------- ------------------  **/
 
-    /** ------------------- MULTI THREADS END -------------------------  **/
+    //--- recive post when jack shutdown and start a watchdog for jack restart
+    gpointer gx_jack_change_helper_thread(gpointer data)
+    {
+      while (TRUE)
+        {
+          // wait for a semaphore post from jack thread
+          sem_wait(&jack_change_sem);
+          // start watchdog thread when jackd is down
+          jack_change = NULL;
+          g_timeout_add_full(G_PRIORITY_LOW,200, gx_survive_jack_shutdown, 0, NULL);
+        }
+      //notreached
+      return NULL;
+    }
+
+    //---- feed a midi program change from realtime thread to ui thread
+    gpointer gx_program_change_helper_thread(gpointer data)
+    {
+      gint pgm;
+      while (TRUE)
+        {
+          // wait for a semaphore post from jack realtime thread
+          sem_wait(&program_change_sem);
+          // atomic read and reset the variable
+          do
+            {
+              pgm = g_atomic_int_get(&program_change);
+            }
+          while (!g_atomic_int_compare_and_exchange(&program_change, pgm, -1));
+          assert(pgm != -1);
+          // get the work done by ui thread
+          g_idle_add(gx_do_program_change, (gpointer)pgm);
+        }
+      //notreached
+      return NULL;
+    }
+
+    /** ------------------- Glibc THREADS END -------------------------  **/
     /** ----------- -------------------------------- ------------------  **/
 
   }

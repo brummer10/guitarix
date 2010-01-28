@@ -5,7 +5,7 @@
 pixmap_path './skins:./:/usr/share/guitarix:/usr/local/share/guitarix'
 
 
-style "guitarix_default"
+style "guitarix_zzz"
 {
 
 
@@ -46,20 +46,20 @@ style "guitarix_default"
 }
 
 
-class "GtkWidget" style:highest "guitarix_default"
-class "GtkLabel" style:highest "guitarix_default"
-class "GtkHScale" style:highest "guitarix_default"
-class "GtkVScale" style:highest "guitarix_default"
-class "GtkCheckButton" style:highest "guitarix_default"
-class "GtkButton" style:highest "guitarix_default"
-class "GtkFrame" style:highest "guitarix_default"
-class "GtkExpander" style:highest "guitarix_default"
+class "GtkWidget" style:highest "guitarix_zzz"
+class "GtkLabel" style:highest "guitarix_zzz"
+class "GtkHScale" style:highest "guitarix_zzz"
+class "GtkVScale" style:highest "guitarix_zzz"
+class "GtkCheckButton" style:highest "guitarix_zzz"
+class "GtkButton" style:highest "guitarix_zzz"
+class "GtkFrame" style:highest "guitarix_zzz"
+class "GtkExpander" style:highest "guitarix_zzz"
 
-widget_class "*GtkToggleButton*" style:highest "guitarix_default"
-class "GtkButton" style:highest "guitarix_default"
-class "GtkSpinButton" style:highest "guitarix_default"
+widget_class "*GtkToggleButton*" style:highest "guitarix_zzz"
+class "GtkButton" style:highest "guitarix_zzz"
+class "GtkSpinButton" style:highest "guitarix_zzz"
 
-style "guitarix_zhandle_default"
+style "guitarix_zhandle_zzz"
 {
   fg[NORMAL] = { 0.80, 0.80, 0.80 }
 
@@ -70,17 +70,17 @@ style "guitarix_zhandle_default"
 }
 
 
-class "GtkHandleBox" style:highest "guitarix_zhandle_default"
+class "GtkHandleBox" style:highest "guitarix_zhandle_zzz"
 
-style "guitarix_event_default"
+style "guitarix_event_zzz"
 {
   bg[NORMAL] = { 0.2, 0.2, 0.2 }
   bg_pixmap[NORMAL] = ""
   engine "clearlooks" {}
 }
 
-
-class "GtkEventBox" style:highest "guitarix_event_default"
+widget "*.osc_box" style:highest "guitarix_event_zzz"
+class "GtkEventBox" style:highest "guitarix_event_zzz"
 
 style "guitarix_menu_default"
 {

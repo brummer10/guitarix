@@ -69,6 +69,13 @@ namespace gx_engine
   extern bool buffers_ready;
 
   extern int is_setup;
+
+   /** disable fft need some fix for work prop **/
+   /*
+  // fftw buffer and plans
+  extern fftw_complex *fftin, *fftout,*fftin1, *fftout1, *fftresult;
+  extern fftw_plan p, p1, pf;
+  */
 }
 
 /* -------------------------------------------------------------------------- */
@@ -91,6 +98,7 @@ namespace gx_jack
   extern jack_nframes_t      jack_sr;   // jack sample rate
   extern jack_nframes_t      jack_bs;   // jack buffer size
   extern float               jcpu_load; // jack cpu_load
+  extern int                 is_rt;     // jack is realtime ?
 
   extern jack_client_t*      client ;
   extern jack_port_t*        output_ports[];
@@ -185,6 +193,8 @@ namespace gx_system
     kWarning,
     kError
   } GxMsgType;
+
+  extern bool only_one_message;
 
   /* variables and constants */
   extern const int SYSTEM_OK;

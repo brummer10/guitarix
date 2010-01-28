@@ -37,6 +37,7 @@ using namespace std;
 #include <cmath>
 #include <gtk/gtk.h>
 #include <sndfile.h>
+//#include <fftw3.h>
 #include <jack/jack.h>
 
 #include "guitarix.h"
@@ -412,7 +413,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 1);
           cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 1);
           cairo_set_source_rgb(cr, 0.05, 0.05, 0.05);
-          cairo_rectangle (cr, liveviewx-4, liveviewy-5, 288, 60);
+          cairo_rectangle (cr, liveviewx, liveviewy, 280, 50);
           cairo_set_source (cr, pat);
           cairo_fill (cr);
           cairo_pattern_destroy (pat);
@@ -463,7 +464,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           cairo_stroke (cr);
           gdk_pixbuf_get_from_drawable(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image,
                                        GDK_DRAWABLE(widget->window), gdk_colormap_get_system(),
-                                       liveviewx, liveviewy,0,0,280,50);
+                                       liveviewx-1, liveviewy-1,0,0,282,52);
 
 
           // done with background def.
@@ -474,11 +475,13 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
       //----- background created, now we just need to copy the pixbuffs every expose event to the widget
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
                       GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image,
-                      0,0,liveviewx, liveviewy , 280, 50, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      0,0,liveviewx-1, liveviewy-1 , 282, 52, GDK_RGB_DITHER_NORMAL, 0, 0);
 
 
       //----- some maybe usfull infos about the jack server
       // we can add more stuff here ?
+      const int frag = (const int)gx_jack::jack_bs;
+      const int dsp_load = round(gx_jack::jcpu_load);
       ostringstream tir;
       tir << " ht frames " << (gx_jack::time_is/100000);
 
@@ -488,12 +491,32 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
       cairo_show_text(cr, tir.str().c_str());
 
       tir.str("");
-      tir << " dsp load " << gx_jack::jcpu_load << " %";
+      tir << " latency    " << frag ;
+      cairo_move_to (cr, liveviewx+210, liveviewy+10);
+      cairo_show_text(cr, tir.str().c_str());
+
+      tir.str("");
+      if (gx_jack::is_rt == 1)tir << " RT mode  yes ";
+      else
+      {
+          cairo_stroke_preserve (cr);
+      cairo_set_source_rgba (cr, 0.8, 0.1, 0.1,0.6);
+      tir << " RT mode  NO ";
+      cairo_stroke_preserve (cr);
+      }
+
+      cairo_move_to (cr, liveviewx+210, liveviewy+48);
+      cairo_show_text(cr, tir.str().c_str());
+
+      cairo_set_source_rgba (cr, 0.8, 0.8, 0.2,0.6);
+      tir.str("");
+      tir << " dsp load  " << dsp_load << " %";
       cairo_move_to (cr, liveviewx, liveviewy+10);
       cairo_show_text(cr, tir.str().c_str());
+
       cairo_stroke (cr);
 
-      const int frag = (const int)gx_jack::jack_bs;
+
 
       //----- we come to the first oscilloscope mode, draw the wav per frame
       if (scaletype == gx_gui::kWvMode1)
@@ -501,13 +524,15 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           cairo_move_to (cr, liveviewx+280, liveviewy+25);
 
           float wave_go = 0;
-
+          float sc = 260.0/frag;
+          float sc1 = liveviewx+270-sc;
+          float sc2 = liveviewy+25;
           //----- draw the frame
           for (int i = 0; i < frag; i++)
             {
               float x_in = gx_engine::gOutChannel[0][i];
-              cairo_line_to (cr, liveviewx+270-(260.0/frag)-((260.0/frag)*i+1),
-                             liveviewy+25+double(x_in)*75.0);
+              cairo_line_to (cr, sc1 - sc*i+1,
+                             sc2 + double(x_in)*75.0);
               wave_go = max(wave_go, abs(double(x_in)));
             }
 
@@ -873,7 +898,7 @@ static void gtk_waveview_class_init (GtkWaveViewClass *klass)
   klass->surface_selection = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, klass->waveview_x*2, klass->waveview_y);
   g_assert(klass->surface_selection != NULL);
 
-  klass->liveview_image = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,280,50);
+  klass->liveview_image = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,282,52);
   g_assert(klass->liveview_image != NULL);
 
 }
@@ -901,7 +926,9 @@ static void gtk_waveview_init (GtkWaveView *waveview)
 static gboolean gtk_waveview_value_changed(gpointer obj)
 {
   GtkWidget *widget = (GtkWidget *)obj;
-  gtk_widget_queue_draw(widget);
+ // gtk_widget_queue_draw(widget);
+  if(GDK_IS_WINDOW(widget->window))
+  gdk_window_invalidate_rect(GDK_WINDOW(widget->window),NULL,TRUE);
   return FALSE;
 }
 

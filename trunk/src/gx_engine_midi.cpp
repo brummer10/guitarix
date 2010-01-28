@@ -198,18 +198,20 @@ void GxEngine::process_midi(int len)
       preNote = round(fnote)+57;
       fConsta2 = fnote - (preNote - 57);
       piwe = (fConsta2+1) * 8192; // pitch wheel value
-      preNote = round(fConsta1t)+57;
+     // preNote = round(fConsta1t)+57;
       // weg = 0;
 
 
       for (int i=0; i<len; i+=step)
         {
-
+          float audio_db = *audiodata++;
+          if(audio_db > 0.00001)
+          {
           //----- convert the audio gain to midi gain value
-          midi_db = (log(fabs(*audiodata++))*fConstlog2);
+          midi_db = (log(fabs(audio_db))*fConstlog2);
           beat0 = 254- floor(exp(fConstlog*midi_db)*127)+ midi_gain;
           rms = beat0 ;
-
+          }
           //----- check gain value and run only when gain is higher then the selected value
           if (( beat0 >= fTemps45) && (gx_jack::jcpu_load < 65.0))
             {
@@ -484,7 +486,7 @@ void GxEngine::process_midi(int len)
 
                   if ( rms >= (Beat_is + fTemps38))
                     {
-                      if (Beat_is < rms)Beat_is += 2;
+                     // if (Beat_is < rms)Beat_is += 2;
                       //Beat_is = rms;
                       send+=step;
                       if (fcheckbox10 ) send1+=step;

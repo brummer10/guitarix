@@ -154,8 +154,39 @@ inline void GxEngine::convolver_filter(float** input, float** output, int sf)
                             }; //  filter
 
   float * in = input[0];
+   /** disable fft need some fix for work prop **/
+/*  float * out = output[0];
 
+  for (int i = 0; i < sf; i++ )
+  {
+    fftin[i][0] = *in++;
+    fftin[i][1] = 0;
+  }
+
+
+  fftw_execute(p);
 // Set result to zero:
+int j = 0;
+for (int i = 0; i < sf; i++ )
+  {
+    fftin1[i][0] = filter[j];
+    fftin1[i][1] = 0;
+    j++;
+    if(j>45)j=0;
+  }
+   fftw_execute(pf);
+for (int i = 0; i < sf; i++ )
+  {
+   fftout[i][0] *= 1.3666  ;
+   fftout[i][1] *= 1.3322  ;
+  }
+  fftw_execute(p1);
+  for (int i = 0; i < sf; i++ )
+  {
+   *out++ = fftresult[i][0] /sf  ;
+
+  }*/
+
   for (int i=0; i < 44; i++) result[i] = result[sf+i];
   for (int i=44; i < sf+46; i++) result[i] = 0;
 
@@ -500,7 +531,7 @@ void GxEngine::compute (int count, float** input, float** output)
               for (int i=0; i<count; i++)
                 {
 
-                  if (gx_gui::showwave == 1) vivi = checkfreq[i];
+                  //if (gx_gui::showwave == 1) vivi = checkfreq[i];
 
                   float fTemphp0 = checkfreq[i] *2;
                   // low and highpass filter
@@ -593,7 +624,7 @@ void GxEngine::compute (int count, float** input, float** output)
           for (int i=0; i<count; i++)
             {
 
-              if (gx_gui::showwave == 1) vivi = input0[i];
+            //  if (gx_gui::showwave == 1) vivi = input0[i];
 
               if (tuner_on > 0) // enable tuner when show note or play midi
                 {

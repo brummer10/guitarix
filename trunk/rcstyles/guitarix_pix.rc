@@ -52,12 +52,12 @@ class "GtkFrame" style:highest "guitarixp"
 class "GtkExpander" style:highest "guitarixp"
 
 
-style "guitarix-event"
+style "guitarix-event-xp"
 {
  bg_pixmap[NORMAL] = "controls3.jpg"
 }
-
-class "GtkEventBox" style:highest "guitarix-event"
+widget "*.osc_box" style:highest "guitarix-event-xp"
+class "GtkEventBox" style:highest "guitarix-event-xp"
 
 style "guitarix-pdialog"
 {

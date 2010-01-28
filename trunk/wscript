@@ -60,6 +60,7 @@ def configure(conf):
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.10', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='gtk+-2.0', atleast_version='2.12.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
+   # conf.check_cfg(package='fftw3', atleast_version='3.2.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
     conf.check(header_name='ladspa.h', mandatory=1)
 
     conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'

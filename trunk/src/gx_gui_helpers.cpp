@@ -49,6 +49,7 @@ using namespace std;
 #include <gdk/gdkkeysyms.h>
 #include <jack/jack.h>
 #include <sndfile.h>
+//#include <fftw3.h>
 
 #include "guitarix.h"
 
@@ -234,11 +235,15 @@ namespace gx_gui
       if (gtk_check_menu_item_get_active(menuitem) == TRUE)
         {
           showwave = 1;
+          GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(livewa));
+          gtk_widget_show(parent);
           gtk_widget_show(livewa);
         }
       else
         {
           showwave = 0;
+          GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(livewa));
+          gtk_widget_hide(parent);
           gtk_widget_hide(livewa);
         }
     }
@@ -946,8 +951,8 @@ namespace gx_gui
       GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(box));
       GtkWidget *parent_eq = (GtkWidget *) g_list_nth_data(child_list,1);
       g_list_free(child_list);
-      box1 = gtk_widget_get_parent(GTK_WIDGET(livewa));
-
+      box = gtk_widget_get_parent(GTK_WIDGET(livewa));
+      box1 = gtk_widget_get_parent(GTK_WIDGET(box1));
 
       // gtk_widget_set_size_request (parent_eq, 280,80);
       if (show_eq)

@@ -5,7 +5,7 @@
 pixmap_path './:/usr/share/guitarix:/usr/local/share/guitarix'
 
 
-style "guitarix"
+style "guitarix_cairo"
 {
 
 
@@ -42,22 +42,22 @@ style "guitarix"
 }
 
 
-class "GtkWidget" style:highest "guitarix"
-class "GtkLabel" style:highest "guitarix"
-class "GtkHScale" style:highest "guitarix"
-class "GtkVScale" style:highest "guitarix"
-class "GtkCheckButton" style:highest "guitarix"
-class "GtkButton" style:highest "guitarix"
-class "GtkFrame" style:highest "guitarix"
-class "GtkExpander" style:highest "guitarix"
+class "GtkWidget" style:highest "guitarix_cairo"
+class "GtkLabel" style:highest "guitarix_cairo"
+class "GtkHScale" style:highest "guitarix_cairo"
+class "GtkVScale" style:highest "guitarix_cairo"
+class "GtkCheckButton" style:highest "guitarix_cairo"
+class "GtkButton" style:highest "guitarix_cairo"
+class "GtkFrame" style:highest "guitarix_cairo"
+class "GtkExpander" style:highest "guitarix_cairo"
 
 
-style "guitarix-event"
+style "guitarix-cairo-event"
 {
  bg_pixmap[NORMAL] = "controlsbl2.jpg"
 }
+widget "*.osc_box" style:highest "guitarix-cairo-event"
 
-class "GtkEventBox" style:highest "guitarix-event"
 
 style "guitarix-dialog"
 {
@@ -96,7 +96,12 @@ style "guitarix-v_cairo"
   fg[SELECTED] = { 0.8, 0.8, 0.8 }
 
 }
+style "guitarix-o_cairo"
+{
+  bg[NORMAL] = 	{ 0.01, 0.02, 0.03 }
 
+
+}
 style "guitarix-b_cairo"
 {
   fg[NORMAL] = 	{ 0.5, 0.5, 0.5 }
@@ -109,7 +114,7 @@ style "guitarix-b_cairo"
 widget "*.effekt_label" style:highest "guitarix-v_cairo"
 widget "*.value_label" style:highest "guitarix-l_cairo"
 widget "*.beffekt_label" style:highest "guitarix-b_cairo"
-
+class "GtkEventBox" style:highest "guitarix-o_cairo"
 
 style "bc_style"
 {

@@ -38,9 +38,11 @@
 using namespace std;
 
 #include <sndfile.h>
+//#include <fftw3.h>
 #include <jack/jack.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+
 #include "guitarix.h"
 
 using namespace gx_system;

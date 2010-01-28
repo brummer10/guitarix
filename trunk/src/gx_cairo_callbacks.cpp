@@ -44,6 +44,7 @@ using namespace std;
 #include <gdk/gdkkeysyms.h>
 #include <jack/jack.h>
 #include <sndfile.h>
+//#include <fftw3.h>
 
 #include "guitarix.h"
 
@@ -461,6 +462,8 @@ namespace gx_cairo
 
     gboolean box9_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
     {
+         if (int(float(gx_gui::gx_current_skin)!=1) && int(float(gx_gui::gx_current_skin)!=7))
+        {
       cairo_t *cr;
 
 
@@ -507,7 +510,7 @@ namespace gx_cairo
                       x0, y0, rect_width,rect_height,
                       GDK_RGB_DITHER_NORMAL, 0, 0);
       g_object_unref(_image);
-
+        }
       return FALSE;
     }
 

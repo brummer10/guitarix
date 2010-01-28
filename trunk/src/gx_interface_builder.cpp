@@ -42,6 +42,7 @@ using namespace std;
 #include <gdk/gdkkeysyms.h>
 #include <jack/jack.h>
 #include <sndfile.h>
+//#include <fftw3.h>
 
 #include "guitarix.h"
 

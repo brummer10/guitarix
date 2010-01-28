@@ -37,10 +37,12 @@
 using namespace std;
 
 #include <sndfile.h>
+//#include <fftw3.h>
 #include <jack/jack.h>
 #include <jack/statistics.h>
 #include <jack/midiport.h>
 #include <gtk/gtk.h>
+
 #include "guitarix.h"
 
 using namespace gx_system;
@@ -102,6 +104,7 @@ namespace gx_jack
 
       // ----------------------------------
       jack_is_down = false;
+      is_rt = jack_is_realtime (client);
 
       // it is maybe not the 1st guitarix instance ?
       if (jackstat & JackNameNotUnique)
@@ -285,7 +288,7 @@ namespace gx_jack
         {
           if (gx_system_call("qjackctl", "--start", true, true) == SYSTEM_OK)
             {
-              sleep(2);
+              sleep(3);
 
               // let's check it is really running
               if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK)
@@ -595,20 +598,20 @@ namespace gx_jack
           const char** port = jack_port_get_connections(input_ports[0]);
           setenv("GUITARIX2JACK_INPUTS",port[0],0);
           NO_CONNECTION = 0;
-          free(port);
+          jack_free(port);
         }
       else NO_CONNECTION = 1;
       if (jack_port_connected (output_ports[0]))
         {
           const char** port1 = jack_port_get_connections(output_ports[0]);
           setenv("GUITARIX2JACK_OUTPUTS1",port1[0],0);
-          free(port1);
+          jack_free(port1);
         }
       if (jack_port_connected (output_ports[1]))
         {
           const char** port2 = jack_port_get_connections(output_ports[1]);
           setenv("GUITARIX2JACK_OUTPUTS2",port2[0],0);
-          free(port2);
+          jack_free(port2);
         }
       return 0;
     }
@@ -656,6 +659,17 @@ namespace gx_jack
       if (oversample) delete[] oversample;
       if (result) delete[] result;
 
+       /** disable fft need some fix for work prop **/
+       /*
+      fftw_destroy_plan(p);
+      fftw_destroy_plan(p1);
+      fftw_destroy_plan(pf);
+      fftw_free(fftin);
+      fftw_free(fftout);
+      fftw_free(fftin1);
+      fftw_free(fftout1);
+      fftw_free(fftresult);
+      */
       get_frame = new float[jack_bs];
       (void)memset(get_frame, 0, sizeof(float)*jack_bs);
 
@@ -670,6 +684,17 @@ namespace gx_jack
 
       result = new float[jack_bs+46];
       (void)memset(result, 0, sizeof(float)*jack_bs+46);
+      /*
+      fftin = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * jack_bs);
+      fftout = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * jack_bs);
+      fftin1 = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * jack_bs);
+      fftout1 = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * jack_bs);
+      fftresult = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * jack_bs);
+
+      p = fftw_plan_dft_1d(jack_bs, fftin, fftout, FFTW_FORWARD, FFTW_ESTIMATE);
+      p1 = fftw_plan_dft_1d(jack_bs, fftout, fftresult, FFTW_BACKWARD, FFTW_ESTIMATE);
+      pf = fftw_plan_dft_1d(jack_bs, fftin1, fftout1, FFTW_FORWARD, FFTW_ESTIMATE);
+      */
 
       // restore previous state
       checky = (float)estate;

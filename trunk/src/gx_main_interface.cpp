@@ -41,6 +41,7 @@ using namespace std;
 #include <gdk/gdkkeysyms.h>
 #include <jack/jack.h>
 #include <sndfile.h>
+//#include <fftw3.h>
 
 #include "guitarix.h"
 
@@ -664,10 +665,13 @@ namespace gx_gui
     void GxMainInterface::openEventBox(const char* label)
     {
       GtkWidget * box = gtk_hbox_new (homogene, 4);
+
       gtk_container_set_border_width (GTK_CONTAINER (box), 2);
       if (fMode[fTop] != kTabMode && label[0] != 0)
         {
-          GtkWidget * frame = addWidget(label, gtk_event_box_new ());
+          GtkWidget * e_box =  gtk_event_box_new ();
+          GtkWidget * frame = addWidget(label, e_box);
+          gtk_widget_set_name (e_box,"osc_box");
           gtk_container_add (GTK_CONTAINER(frame), box);
           gtk_widget_show(box);
           pushBox(kBoxMode, box);
@@ -1623,11 +1627,16 @@ namespace gx_gui
 
       livewa = gx_wave_live_view(zone,zone1,GTK_ADJUSTMENT(adj));
       GtkWidget * box      = gtk_vbox_new (false, 4);
+      GtkWidget * e_box =  gtk_event_box_new ();
       g_signal_connect(box, "expose-event", G_CALLBACK(box1_expose), NULL);
       gtk_widget_set_size_request (box, 303, 82);
-      gtk_container_add (GTK_CONTAINER(box),livewa );
+      gtk_widget_set_size_request (e_box, 280, 50);
+      gtk_container_set_border_width (GTK_CONTAINER (box), 12);
+      gtk_container_add (GTK_CONTAINER(e_box),livewa );
+      gtk_container_add (GTK_CONTAINER(box),e_box );
       addWidget(label, box);
       gtk_widget_show(box);
+      gtk_widget_hide(e_box);
       gtk_widget_hide(livewa);
     };
 
@@ -2304,8 +2313,8 @@ namespace gx_gui
         }
 
       // free port name lists (cf. JACK API doc)
-      free(iportnames);
-      free(oportnames);
+      jack_free(iportnames);
+      jack_free(oportnames);
     }
 
     /* -------- add  jack client item ---------- */
@@ -2689,9 +2698,6 @@ namespace gx_gui
 
       gx_set_skin_change(skin_index);
       gx_update_skin_menu_item(skin_index);
-
-      // ----------------------- init GLIB threads ----------------------
-      g_thread_init(NULL);
 
 
       /* timeout in milliseconds */

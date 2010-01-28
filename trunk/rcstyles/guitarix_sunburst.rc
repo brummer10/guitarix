@@ -56,7 +56,7 @@ style "guitarix-event_sunburst"
 {
  bg_pixmap[NORMAL] = "sunburst2.jpg"
 }
-
+widget "*.osc_box" style:highest "guitarix-event_sunburst"
 class "GtkEventBox" style:highest "guitarix-event_sunburst"
 
 style "guitarix-dialog_sunburst"

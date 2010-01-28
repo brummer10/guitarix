@@ -62,9 +62,11 @@
 #include <vector>
 
 #include <sndfile.hh>
+//#include <fftw3.h>
 #include <libgen.h>
 #include <jack/jack.h>
 #include <jack/midiport.h>
+
 #ifdef USE_RINGBUFFER
 #include <jack/ringbuffer.h>
 #endif
@@ -80,6 +82,8 @@ using namespace gx_system;
 /* --------- Guitarix main ---------- */
 int main(int argc, char *argv[])
 {
+  // ----------------------- init GLIB threads ----------------------
+  g_thread_init(NULL);
 
   //----- connect the signal handler for propper shutdown when a error appears
   signal(SIGQUIT, gx_signal_handler);

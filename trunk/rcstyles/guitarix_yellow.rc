@@ -58,7 +58,7 @@ style "guitarix-event_yellow"
 {
  bg_pixmap[NORMAL] = "yellow2.jpg"
 }
-
+widget "*.osc_box" style:highest "guitarix-event_yellow"
 class "GtkEventBox" style:highest "guitarix-event_yellow"
 
 style "guitarix-dialog_yellow"

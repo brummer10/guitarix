@@ -79,8 +79,8 @@ style "guitarix_event_default"
   engine "clearlooks" {}
 }
 
-
-class "GtkEventBox" style:highest "guitarix_event_default"
+widget "*.osc_box" style:highest "guitarix_event_default"
+class "GtkEventBox" style:highest "guitarix_default"
 
 style "guitarix_menu_default"
 {

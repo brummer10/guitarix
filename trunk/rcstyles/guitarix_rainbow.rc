@@ -56,7 +56,7 @@ style "guitarix-event_rainbow"
 {
  bg_pixmap[NORMAL] = "rainbow3.jpg"
 }
-
+widget "*.osc_box" style:highest "guitarix-event_rainbow"
 class "GtkEventBox" style:highest "guitarix-event_rainbow"
 
 style "guitarix-dialog_rainbow"

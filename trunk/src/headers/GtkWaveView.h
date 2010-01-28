@@ -45,6 +45,7 @@ class GtkWaveView
   virtual gboolean gtk_waveview_refresh   (GtkWidget*, gpointer);
   virtual gboolean gtk_waveview_set_value (GtkWidget*, gpointer);
 
+
   virtual GtkWidget* gtk_wave_view();
   virtual GtkWidget* gtk_wave_live_view(float*, float*, GtkAdjustment*);
 };
