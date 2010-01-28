@@ -39,7 +39,7 @@ using namespace std;
 #include <sys/stat.h>
 #include <string.h>
 #include <sndfile.h>
-#include <fftw3.h>
+//#include <fftw3.h>
 #include <jack/jack.h>
 #include <gtk/gtk.h>
 
@@ -75,14 +75,13 @@ namespace gx_system
     }
 
 // ---- ladi signal handler -----
-    void gx_ladi_handler(int sig)
+    gboolean  gx_ladi_handler(gpointer)
     {
-      // print out a warning
-      string msg = string("signal ") + gx_i2a(sig) + " received, save settings";
-      gx_print_warning("signal_handler", msg);
+      gx_print_warning("signal_handler", "signal USR1 received, save settings");
       string previous_state = gx_user_dir + client_name + "rc";
       gx_gui::GxMainInterface::instance()->
       saveStateToFile(previous_state.c_str());
+      return false;
     }
     // ---- command line options
     void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
@@ -759,6 +758,8 @@ namespace gx_system
       if (result)
         delete[] result;
 
+       /** disable fft need some fix for work prop **/
+       /*
       fftw_destroy_plan(p);
       fftw_destroy_plan(p1);
       fftw_destroy_plan(pf);
@@ -767,6 +768,7 @@ namespace gx_system
       fftw_free(fftin1);
       fftw_free(fftout1);
       fftw_free(fftresult);
+      */
 
       exit(GPOINTER_TO_INT(data));
     }

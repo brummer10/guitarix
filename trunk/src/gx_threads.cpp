@@ -42,7 +42,7 @@ using namespace std;
 #include <gdk/gdkkeysyms.h>
 #include <jack/jack.h>
 #include <sndfile.h>
-#include <fftw3.h>
+//#include <fftw3.h>
 
 #include "guitarix.h"
 
@@ -160,7 +160,7 @@ namespace gx_threads
     {
       if ((showwave == 1) && ((gx_engine::GxEngineState)gx_engine::checky) &&(!gx_jack::NO_CONNECTION ))
         gdk_window_invalidate_rect(GDK_WINDOW(livewa->window),NULL,TRUE);
-        //gx_engine::GxEngine::instance()->viv *= -1;
+      //gx_engine::GxEngine::instance()->viv *= -1;
       // run thread again
       return TRUE;
     }
@@ -330,6 +330,32 @@ namespace gx_threads
           // start watchdog thread when jackd is down
           jack_change = NULL;
           g_timeout_add_full(G_PRIORITY_LOW,200, gx_survive_jack_shutdown, 0, NULL);
+        }
+      //notreached
+      return NULL;
+    }
+
+    //--- wait for USR1 signal to arrive and invoke ladi handler via mainloop
+    gpointer gx_signal_helper_thread(gpointer data)
+    {
+      int sig;
+      int ret;
+      sigset_t waitset;
+      guint source_id = 0;
+      sigemptyset(&waitset);
+      sigaddset(&waitset, SIGUSR1);
+      sigprocmask(SIG_BLOCK, &waitset, NULL);
+      while (true)
+        {
+          ret = sigwait(&waitset, &sig);
+          if (ret == 0)
+            {
+              // do not add a new call if another one is already pending
+              if (source_id == 0 || g_main_context_find_source_by_id(NULL, source_id) == NULL)
+                source_id = g_idle_add(gx_ladi_handler, NULL);
+            }
+          else
+            assert(errno == EINTR);
         }
       //notreached
       return NULL;
