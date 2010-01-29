@@ -194,8 +194,6 @@ namespace gx_system
     kError
   } GxMsgType;
 
-  extern bool only_one_message;
-
   /* variables and constants */
   extern const int SYSTEM_OK;
   extern GtkTextIter iter1;

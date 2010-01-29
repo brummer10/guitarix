@@ -221,7 +221,6 @@ namespace gx_child_process
 /* ----- system namespace ----- */
 namespace gx_system
   {
-    bool only_one_message = FALSE;
     /* variables and constants */
     const int SYSTEM_OK = 0;
 

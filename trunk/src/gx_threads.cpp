@@ -158,6 +158,7 @@ namespace gx_threads
     /* -------------- refresh oscilloscope function -------------- */
     gboolean gx_refresh_oscilloscope(gpointer args)
     {
+      // repaint the oscilloscope without involve updateAllGui().
       if ((showwave == 1) && ((gx_engine::GxEngineState)gx_engine::checky) &&(!gx_jack::NO_CONNECTION ))
         gdk_window_invalidate_rect(GDK_WINDOW(livewa->window),NULL,TRUE);
       //gx_engine::GxEngine::instance()->viv *= -1;
@@ -168,6 +169,7 @@ namespace gx_threads
     /* -------------- refresh tuner function -------------- */
     gboolean gx_refresh_tuner(gpointer args)
     {
+      // set the value to the tuner and let updateAllGui() do the repaint
       gx_engine::GxEngine* engine = gx_engine::GxEngine::instance();
       if (shownote )
         engine->fConsta1t = engine->fConsta1;
@@ -178,8 +180,11 @@ namespace gx_threads
     /* -------------- timeout for jconv startup when guitarix init -------------- */
     gboolean gx_check_startup(gpointer args)
     {
+      // check if jack is alive
       gx_survive_jack_shutdown(NULL);
+      // get avaluable ports
       gx_monitor_jack_ports(NULL);
+      // set global variable the all whent well
       gx_engine::is_setup = 1;
       // case jconvolver is on at startup
       if (gx_jconv::GxJConvSettings::checkbutton7 == 1)
@@ -313,6 +318,7 @@ namespace gx_threads
     /* Update all user items reflecting zone z */
     gboolean gx_update_all_gui(gpointer)
     {
+      // the general Gui update handler
       gx_ui::GxUI::updateAllGuis();
       return TRUE;
     }

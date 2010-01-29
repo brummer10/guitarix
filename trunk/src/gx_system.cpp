@@ -315,10 +315,6 @@ namespace gx_system
       // log the stuff to the log message window if possible
       bool terminal  = true;
 
-      if (!only_one_message)
-        {
-          only_one_message = TRUE;
-
           bool gui_is_up = gx_gui::GxMainInterface::fInitialized;
 
           string msgbuf("  ");
@@ -441,8 +437,7 @@ namespace gx_system
 
       // if no window, then terminal
       if (terminal) cerr << msgbuf << endl;
-      only_one_message = FALSE;
-     }
+
     }
 
 

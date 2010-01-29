@@ -288,7 +288,7 @@ namespace gx_jack
         {
           if (gx_system_call("qjackctl", "--start", true, true) == SYSTEM_OK)
             {
-              sleep(3);
+              sleep(5);
 
               // let's check it is really running
               if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK)
@@ -620,7 +620,7 @@ namespace gx_jack
     //---- jack xrun callback
     int gx_jack_xrun_callback (void* arg)
     {
-      if ((last_xrun_time + 10000) < jack_last_frame_time(client))
+      if ((last_xrun_time + 20000) < jack_last_frame_time(client))
         {
           float xdel = jack_get_xrun_delayed_usecs(client);
           ostringstream s;
