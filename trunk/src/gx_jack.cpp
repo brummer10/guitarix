@@ -581,12 +581,15 @@ namespace gx_jack
     //---- jack shutdown callback in case jackd shuts down on us
     void gx_jack_shutdown_callback(void *arg)
     {
-      gx_print_warning("Jack Shutdown",
-                       "jack has bumped us out!!");
-
       jack_is_down = true;
       g_atomic_int_set(&gx_gui::jack_change, jack_is_down);
       sem_post(&gx_gui::jack_change_sem);
+      // print GTK message
+      gdk_threads_enter ();
+      gx_print_warning("Jack Shutdown",
+                       "jack has bumped us out!!");
+      gdk_threads_leave ();
+
     }
 
     //---- jack client callbacks
@@ -649,9 +652,7 @@ namespace gx_jack
         checky = (float)kEngineOff;
 
       jack_bs = nframes;
-      gx_print_info("buffersize_callback",
-                    string("the buffer size is now ") +
-                    gx_i2a(jack_bs) + string("/frames"));
+
 
       if (checkfreq)  delete[] checkfreq;
       if (get_frame)  delete[] get_frame;
@@ -698,7 +699,9 @@ namespace gx_jack
 
       // restore previous state
       checky = (float)estate;
+      // return 0 to jack
       return 0;
+
     }
 
     //---- jack midi control input processing
@@ -902,8 +905,10 @@ namespace gx_jack
           // in case of registration, just log it, the port registration
           // routines will take care of things
         case 1:
+          gdk_threads_enter();
           gx_print_info("Jack Client",
                         clname + string(" joined the graph"));
+          gdk_threads_leave ();
           break;
         default:
           break;
