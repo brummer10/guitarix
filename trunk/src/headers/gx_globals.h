@@ -94,7 +94,6 @@ namespace gx_jack
   extern int NO_CONNECTION;
 
   /* variables */
-  extern jack_nframes_t      last_xrun_time;   // jack sample rate
   extern jack_nframes_t      jack_sr;   // jack sample rate
   extern jack_nframes_t      jack_bs;   // jack buffer size
   extern float               jcpu_load; // jack cpu_load

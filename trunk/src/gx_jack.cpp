@@ -620,14 +620,14 @@ namespace gx_jack
     //---- jack xrun callback
     int gx_jack_xrun_callback (void* arg)
     {
-      if ((last_xrun_time + 20000) < jack_last_frame_time(client))
-        {
-          float xdel = jack_get_xrun_delayed_usecs(client);
-          ostringstream s;
-          s << " delay of at least " << xdel << " microsecs";
-          gx_print_warning("Jack XRun", s.str());
-        }
-      last_xrun_time = jack_last_frame_time(client);
+
+      float xdel = jack_get_xrun_delayed_usecs(client);
+      gdk_threads_enter ();
+      ostringstream s;
+      s << " delay of at least " << xdel << " microsecs";
+      gx_print_warning("Jack XRun", s.str());
+      gdk_threads_leave ();
+
       return 0;
     }
 
@@ -659,8 +659,8 @@ namespace gx_jack
       if (oversample) delete[] oversample;
       if (result) delete[] result;
 
-       /** disable fft need some fix for work prop **/
-       /*
+      /** disable fft need some fix for work prop **/
+      /*
       fftw_destroy_plan(p);
       fftw_destroy_plan(p1);
       fftw_destroy_plan(pf);

@@ -96,7 +96,6 @@ namespace gx_jack
     int NO_CONNECTION = 1;
 
     /* variables */
-    jack_nframes_t      last_xrun_time;
     jack_nframes_t      jack_sr;   // jack sample rate
     jack_nframes_t      jack_bs;   // jack buffer size
     float               jcpu_load; // jack cpu_load

@@ -544,7 +544,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           if (xl > 125.0) xl = 125.0;
           else if (xl < -125.0) xl = -125.0;
 
-          double redline = 0.2;
+         /* double redline = 0.2;
           double greenline = 1.0;
 
           if ((xl > 100)||(xl< -100))
@@ -558,7 +558,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
               redline = 0.8;
               //xl = 140.0;
             }
-
+           */
 
           cairo_set_line_width (cr, 1.0);
           cairo_line_to (cr, liveviewx, liveviewy+25);
@@ -582,7 +582,14 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
           cairo_line_to (cr, liveviewx+140+xl, liveviewy);
           cairo_move_to (cr, liveviewx+140-xl, liveviewy+50);
           cairo_line_to (cr, liveviewx+140+xl, liveviewy+50);
-          cairo_set_source_rgba (cr,  redline, greenline, 0.2,0.8);
+          //cairo_set_source_rgba (cr,  redline, greenline, 0.2,0.8);
+          linpat =
+            cairo_pattern_create_linear (liveviewx, liveviewy,liveviewx+140, liveviewy);
+
+          cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
+          cairo_pattern_add_color_stop_rgba (linpat, 0.2, 1, 0.2, 0,0.8);
+          cairo_pattern_add_color_stop_rgba (linpat, 0.8, 0.2, 1, 0.2,0.8);
+          cairo_set_source (cr, linpat);
           cairo_set_line_width (cr, 3.0);
           cairo_stroke (cr);
           cairo_destroy(cr);
@@ -907,11 +914,12 @@ static void gtk_waveview_class_init (GtkWaveViewClass *klass)
 static void gtk_waveview_init (GtkWaveView *waveview)
 {
   GtkWidget *widget = GTK_WIDGET(waveview);
-  GTK_WIDGET_SET_FLAGS (GTK_WIDGET(waveview), GTK_CAN_FOCUS);
-  GTK_WIDGET_SET_FLAGS (GTK_WIDGET(waveview), GTK_CAN_DEFAULT);
+
 
   if (waveview->waveview_type == kWvTypeJConv)
     {
+      GTK_WIDGET_SET_FLAGS (GTK_WIDGET(waveview), GTK_CAN_FOCUS);
+      GTK_WIDGET_SET_FLAGS (GTK_WIDGET(waveview), GTK_CAN_DEFAULT);
       widget->requisition.width = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_x;
       widget->requisition.height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->waveview_y;
     }
