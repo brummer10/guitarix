@@ -24,7 +24,7 @@ def set_options(opt):
 
     opt.add_option('--cxxflags', 
                    type='string', 
-                   default='-O3  -march=native -Wall', 
+                   default='-O3  -march=native -Wall -std=c++0x',
                    dest='cxxflags', 
                    help='C++ compiler flags [Default: -O3  -march=native -Wall]')
 

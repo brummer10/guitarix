@@ -92,6 +92,8 @@ namespace gx_ui
     void updateAllZones();
     void updateZone(float* z);
     static void updateAllGuis();
+    static int zone2index(float *z);
+    static float* index2zone(int index);
 
     //    virtual GtkTextView* const getLoggingWindow() const { return NULL; }
 

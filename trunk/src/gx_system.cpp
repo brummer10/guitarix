@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Hermann Meyer and James Warden
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +51,205 @@ using namespace gx_preset;
 
 namespace gx_system
   {
+    // ---- classes for reading and writing JSON files
+
+    JsonException::JsonException(const char* desc)
+    {
+      what_str = string("Json parse error: ") + desc;
+    }
+
+    JsonWriter::JsonWriter(ostream &o):
+      os(o),
+      first(true),
+      deferred_nl(false)
+    {
+    }
+
+    void JsonWriter::write(const char* p, bool nl)
+    {
+      komma();
+      os << '"';
+      while (*p) {
+	switch (*p) {
+	case '\\': case '/': case '"': os << '\\'; os << *p; break;
+	case '\b': os << '\\'; os << 'b'; continue;
+	case '\f': os << '\\'; os << 'f'; continue;
+	case '\n': os << '\\'; os << 'n'; continue;
+	case '\r': os << '\\'; os << 'r'; continue;
+	case '\t': os << '\\'; os << 't'; continue;
+	}
+	os << *p++;
+      }
+      os << '"';
+      snl(nl);
+    }
+
+    JsonParser::JsonParser(istream& i):
+      is(i),
+      depth(0),
+      cur_tok(no_token),
+      next_tok(no_token)
+    {
+    }
+
+    const char* unicode2utf8(unsigned int input)
+    {
+      const int maskbits   = 0x3F;
+      const int maskbyte   = 0x80;
+      const int mask2bytes = 0xC0;
+      const int mask3bytes = 0xE0;
+      static char result[4];
+      int n = 0;
+      // 0xxxxxxx
+      if (input < 0x80) {
+	result[n++] = (char)input;
+      }
+      // 110xxxxx 10xxxxxx
+      else if (input < 0x800) {
+	result[n++] = ((char)(mask2bytes | (input >> 6)));
+	result[n++] = ((char)(maskbyte | (input & maskbits)));
+      }
+      // 1110xxxx 10xxxxxx 10xxxxxx
+      else {
+	result[n++] = ((char)(mask3bytes | (input >> 12)));
+	result[n++] = ((char)(maskbyte | ((input >> 6) & maskbits)));
+	result[n++] = ((char)(maskbyte | (input & maskbits)));
+      }
+      result[n++] = '\0';
+      return result;
+    }
+
+    const char* JsonParser::readcode()
+    {
+      int code = 0;
+      for (int i = 0; i < 4; i++) {
+	int n = is.get();
+	if (!is.good())
+	  throw JsonException("eof");
+	if ('0' <= n && n <= '9')
+	  n = n - '0';
+	else
+	  n = 10 + (toupper(n) - 'A');
+	code = code * 16 + n;
+      }
+      return unicode2utf8(code);
+    }
+
+    string JsonParser::readstring()
+    {
+      ostringstream os("");
+      char c;
+      do {
+	is.get(c);
+	if (!is.good())
+	  return "";
+	if (c == '\\') {
+	  is.get(c);
+	  if (!is.good())
+	    return "";
+	  switch (c) {
+	  case 'b': os << '\b'; break;
+	  case 'f': os << '\f'; break;
+	  case 'n': os << '\n'; break;
+	  case 'r': os << '\r'; break;
+	  case 't': os << '\t'; break;
+	  case 'u': os << readcode(); break;
+	  default: is.get(c); os << c; break;
+	  }
+	}
+	else if (c == '"')
+	  return os.str();
+	else
+	  os << c;
+      } while (true);
+    }
+
+    string JsonParser::readnumber(char c)
+    {
+      ostringstream os("");
+      do {
+	os << c;
+	c = is.peek();
+	switch (c) {
+	case '+': case '-': case '0': case '1': case '2': case '3': case '4':
+	case '5': case '6': case '7': case '8': case '9': case 'e': case 'E':
+	case '.':
+	  break;
+	default:
+	  return os.str();
+	}
+	is.get(c);
+      } while (is.good());
+      return "";
+    }
+
+    void JsonParser::read_next()
+    {
+      if (next_tok == end_token)
+	return;
+      if (next_tok != no_token and depth == 0) {
+	next_tok = end_token;
+	return;
+      }
+      char c;
+      while (true) {
+	is >> c;
+	if (!is.good())
+	  throw JsonException("eof");
+	switch (c) {
+	case '[': next_tok = begin_array; depth++; break;
+
+	case ']': next_tok = end_array; depth--; break;
+
+	case '{': next_tok = begin_object; depth++; break;
+
+	case '}': next_tok = end_object; depth--; break;
+
+	case ',': continue;
+
+	case '"':
+	  next_str = readstring();
+	  is >> c;
+	  if (!is.good())
+	    throw JsonException("eof");
+	  if (c == ':')
+	    next_tok = value_key;
+	  else {
+	    is.unget();
+	    next_tok = value_string;
+	  }
+	  break;
+
+	case '-': case '0': case '1': case '2': case '3': case '4':
+	case '5': case '6': case '7': case '8': case '9':
+	  next_str = readnumber(c);
+	  next_tok = value_number;
+	  break;
+
+	default:
+	  throw JsonException("bad token");
+	}
+	break;
+      }
+    }
+
+    JsonParser::token JsonParser::next(token expect)
+    {
+      if (cur_tok != end_token) {
+	if (next_tok == no_token)
+	  read_next();
+	cur_tok = next_tok;
+	str = next_str;
+	if (next_tok != end_token)
+	  read_next();
+      }
+      if (expect != no_token)
+	check_expect(expect);
+      return cur_tok;
+    }
+
+
+
     // ---- retrieve and store the shell variable if not NULL
     void gx_assign_shell_var(const char* name, string& value)
     {

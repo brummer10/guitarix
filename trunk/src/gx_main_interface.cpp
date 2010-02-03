@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Hermann Meyer and James Warden
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1160,6 +1160,10 @@ namespace gx_gui
           fCache = v;
           gtk_adjustment_set_value(fAdj, v);
         }
+
+	static gboolean button_press_toggle_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
+	static gboolean button_press_scale_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
+
       };
 
     int precision(double n)
@@ -1170,6 +1174,142 @@ namespace gx_gui
       else return 0;
     }
 
+    class MidiConnect
+    {
+    private:
+      float *fZone;
+      GtkAdjustment* adj_lower;
+      GtkAdjustment* adj_upper;
+      GtkWidget* ok_button;
+      GtkWidget* label_old;
+      GtkWidget* label_new;
+      int current_control;
+      static const char *ctl_to_str(int n);
+    public:
+      MidiConnect(GdkEventButton *event, float *zone, float lower = 0, float upper = 0, float step = 0);
+      static void midi_ok_cb(GtkWidget *widget, gpointer data);
+      static void midi_destroy_cb(GtkWidget *widget, gpointer data);
+      static gboolean check_midi_cb(gpointer);
+    };
+
+    void MidiConnect::midi_ok_cb(GtkWidget *widget, gpointer data)
+    {
+      MidiConnect* m = (MidiConnect*)data;
+      gx_engine::controller_map.modifyCurrent(m->fZone,
+					   gtk_adjustment_get_value(m->adj_lower),
+					   gtk_adjustment_get_value(m->adj_upper));
+      gx_engine::save_midi_controller_map();
+    }
+
+    void MidiConnect::midi_destroy_cb(GtkWidget *widget, gpointer data)
+    {
+      MidiConnect* m = (MidiConnect*)data;
+      gx_engine::controller_map.set_config_mode(false);
+      delete m;
+    }
+
+    const char* MidiConnect::ctl_to_str(int n)
+    {
+      static char buf[4];
+      if (n < 0)
+	strcpy(buf, "---");
+      else
+	snprintf(buf, sizeof(buf), "%3d", n);
+      return buf;
+    }
+
+    gboolean MidiConnect::check_midi_cb(gpointer data)
+    {
+      MidiConnect* m = (MidiConnect*)data;
+      if (!gx_engine::controller_map.get_config_mode())
+	return FALSE;
+      int ctl = gx_engine::controller_map.get_current_control();
+      gtk_label_set_text(GTK_LABEL(m->label_new), ctl_to_str(ctl));
+      if (ctl != -1)
+	gtk_widget_set_sensitive(m->ok_button, TRUE);
+      return TRUE;
+    }
+
+    MidiConnect::MidiConnect(GdkEventButton *event, float *zone, float lower, float upper, float step):
+      fZone(zone),
+      current_control(gx_engine::controller_map.zone2controller(zone))
+    {
+      GtkWidget * dialog,* spinner, *cancel_button, *vbox, *hbox;
+      bool toggle = (upper == 0 && lower == 0);
+      dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+      vbox = gtk_vbox_new (false, 5);
+      gtk_container_add (GTK_CONTAINER(vbox), gtk_label_new("Move a Midi-Controller"));
+      hbox = gtk_hbox_new (true, 2);
+      gtk_container_add (GTK_CONTAINER(hbox), gtk_label_new("old"));
+      label_old = gtk_label_new("-b-");
+      gtk_container_add (GTK_CONTAINER(hbox), label_old);
+      gtk_container_add (GTK_CONTAINER(vbox), hbox);
+      hbox = gtk_hbox_new (true, 2);
+      gtk_container_add (GTK_CONTAINER(hbox), gtk_label_new("new"));
+      label_new = gtk_label_new("-a-");
+      gtk_container_add (GTK_CONTAINER(hbox), label_new);
+      gtk_container_add (GTK_CONTAINER(vbox), hbox);
+      if (!toggle) {
+	adj_lower = GTK_ADJUSTMENT(gtk_adjustment_new(lower, lower, upper, step, 10*step, 0));
+	spinner = gtk_spin_button_new (adj_lower, step, precision(step));
+	gtk_entry_set_activates_default(GTK_ENTRY(spinner), TRUE);
+	gtk_container_add (GTK_CONTAINER(vbox), spinner);
+	adj_upper = GTK_ADJUSTMENT(gtk_adjustment_new(upper, lower, upper, step, 10*step, 0));
+	spinner = gtk_spin_button_new (adj_upper, step, precision(step));
+	gtk_entry_set_activates_default(GTK_ENTRY(spinner), TRUE);
+	gtk_container_add (GTK_CONTAINER(vbox), spinner);
+      }
+      hbox = gtk_hbox_new (false, 2);
+      cancel_button  = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+      gtk_container_add (GTK_CONTAINER(hbox), cancel_button);
+      ok_button  = gtk_button_new_from_stock(GTK_STOCK_OK);
+      if (current_control == -1)
+	gtk_widget_set_sensitive(ok_button, FALSE);
+      gtk_widget_set_can_default(ok_button, TRUE);
+      gtk_container_add (GTK_CONTAINER(hbox), ok_button);
+      gtk_container_add (GTK_CONTAINER(vbox), hbox);
+      gtk_container_add (GTK_CONTAINER(dialog), vbox);
+      gtk_window_set_decorated(GTK_WINDOW(dialog), false);
+      gtk_window_set_title (GTK_WINDOW (dialog), "set");
+      gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
+      gtk_window_set_gravity(GTK_WINDOW(dialog), GDK_GRAVITY_SOUTH);
+      gtk_window_set_position (GTK_WINDOW(dialog), GTK_WIN_POS_MOUSE);
+      gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
+      gtk_widget_grab_default(ok_button);
+
+      gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+      g_signal_connect(ok_button, "clicked", G_CALLBACK (midi_ok_cb), this);
+      g_signal_connect_swapped (ok_button, "clicked",
+				G_CALLBACK (gtk_widget_destroy), dialog);
+      g_signal_connect_swapped (cancel_button, "clicked",
+				G_CALLBACK (gtk_widget_destroy), dialog);
+      g_signal_connect(dialog, "destroy", G_CALLBACK(midi_destroy_cb), this);
+      gtk_label_set_text(GTK_LABEL(label_old), ctl_to_str(current_control));
+      gx_engine::controller_map.set_config_mode(true);
+      g_timeout_add(40, check_midi_cb, this);
+      gtk_widget_show_all(dialog);
+    }
+
+    gboolean uiAdjustment::button_press_scale_cb (GtkWidget *widget, GdkEventButton *event, gpointer data)
+    {
+      if (event->button != 2)
+	return FALSE;
+      uiAdjustment* adj = (uiAdjustment*)data;
+      new MidiConnect(event, adj->fZone,
+		      gtk_adjustment_get_lower(adj->fAdj),
+		      gtk_adjustment_get_upper(adj->fAdj),
+		      gtk_adjustment_get_step_increment(adj->fAdj));
+      return TRUE;
+    }
+
+    gboolean uiAdjustment::button_press_toggle_cb (GtkWidget *widget, GdkEventButton *event, gpointer data)
+    {
+      if (event->button != 2)
+	return FALSE;
+      uiAdjustment* adj = (uiAdjustment*)data;
+      new MidiConnect(event, adj->fZone);
+      return TRUE;
+    }
 
     // -------------------------- Horizontal Slider -----------------------------------
 
@@ -1182,6 +1322,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_mini_slider_new_with_adjustment (GTK_ADJUSTMENT(adj));
+      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)c);
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       addWidget(label, slider);
     }
@@ -1194,6 +1335,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_wheel_new_with_adjustment (GTK_ADJUSTMENT(adj));
+      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)c);
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       addWidget(label, slider);
     }
@@ -1246,6 +1388,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_eq_slider_new_with_adjustment (GTK_ADJUSTMENT(adj));
+      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)c);
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       GtkWidget* lw = gtk_label_new("");
 
@@ -1283,6 +1426,7 @@ namespace gx_gui
       new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
+      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)c);
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       openVerticalBox("");
       addWidget(label, lwl);
@@ -1312,6 +1456,7 @@ namespace gx_gui
       new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_big_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
+      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)c);
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       openVerticalBox("");
       addWidget(label, lwl);
@@ -1336,6 +1481,7 @@ namespace gx_gui
       new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_hslider_new_with_adjustment(GTK_ADJUSTMENT(adj));
+      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)c);
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       openVerticalBox(label);
       addWidget(label, slider);
@@ -1351,6 +1497,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
+      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)c);
       addWidget(label, slider);
     }
 
@@ -1361,6 +1508,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_button_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
+      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)c);
       addWidget(label, slider);
     }
 
@@ -1371,6 +1519,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_switch_new_with_adjustment(GTK_ADJUSTMENT(adj));
+      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)c);
       GtkWidget* lw = gtk_label_new(label);
       gtk_widget_set_name (lw,"effekt_label");
 
@@ -1392,6 +1541,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
+      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)c);
       GtkWidget* lw = gtk_label_new(label);
       gtk_widget_set_name (lw,"effekt_label");
 
@@ -1414,6 +1564,7 @@ namespace gx_gui
 
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
+      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)c);
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_hide_eq), (gpointer) slider);
       GtkWidget* lw = gtk_label_new(label);
       gtk_widget_set_name (lw,"effekt_label");
@@ -1435,6 +1586,7 @@ namespace gx_gui
       uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkWidget* spinner = gtk_spin_button_new (GTK_ADJUSTMENT(adj), step, precision(step));
+      g_signal_connect(spinner, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)c);
       openFrameBox(label);
       addWidget(label, spinner);
       closeBox();

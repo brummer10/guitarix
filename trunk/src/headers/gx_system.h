@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Hermann Meyer and James Warden
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,90 @@
 
 namespace gx_system
 {
+  /* classes for reading and writing JSON files */
+    class JsonException: public exception
+    {
+    private:
+      string what_str;
+    public:
+      JsonException(const char* desc);
+      ~JsonException() throw() { }
+      virtual const char* what() const throw() { return what_str.c_str(); }
+    };
+
+    class JsonWriter
+    {
+    private:
+      ostream &os;
+      bool first;
+      bool deferred_nl;
+      void snl(bool v) { deferred_nl = v; }
+      void komma();
+      void space();
+    public:
+      JsonWriter(ostream& o);
+      ~JsonWriter() { flush(); }
+      bool good() { return os.good(); }
+      void flush() { if (deferred_nl) { newline(); deferred_nl = false; } }
+      void write(float v, bool nl=false) { komma(); os << v; snl(nl); }
+      void write(double v, bool nl=false) { komma(); os << v; snl(nl); }
+      void write(int i, bool nl=false) { komma(); os << i; snl(nl); }
+      void write(unsigned int i, bool nl=false) { komma(); os << i; snl(nl); }
+      void write(const char* p, bool nl=false);
+      void begin_object(bool nl=false) { space(); os << '{'; snl(nl); first = true; }
+      void end_object(bool nl=false) { space(); os << '}'; snl(nl); }
+      void begin_array(bool nl=false) { space(); os << '['; snl(nl); first = true; }
+      void end_array(bool nl=false) { space(); os << ']'; snl(nl); }
+      void write_key(const char* p, bool nl=false) { write(p, nl); os << ": "; first = true; }
+      void newline() { os << '\n'; deferred_nl = false; }
+    };
+
+    class JsonParser
+    {
+    public:
+      JsonParser(istream& i);
+      enum token {
+	no_token, end_token, begin_object, end_object, begin_array, end_array,
+	value_string, value_number, value_key };
+      bool good() { return is.good(); }
+      token next(token expect=no_token);
+      token peek() { return next_tok; }
+      void check_expect(token expect) { if (cur_tok != expect) throw JsonException("unexpected token"); }
+      string current_value() { return str; }
+      int current_value_int() { return atoi(str.c_str()); }
+      float current_value_float() { return strtof(str.c_str(), NULL); }
+      double current_value_double() { return strtod(str.c_str(), NULL); }
+    private:
+      istream& is;
+      int depth;
+      token cur_tok;
+      string str;
+      token next_tok;
+      string next_str;
+      const char* readcode();
+      string readstring();
+      string readnumber(char c);
+      void read_next();
+    };
+
+    inline void JsonWriter::komma()
+    {
+      if (first)
+	first = false;
+      else
+	os << ", ";
+      flush();
+    }
+
+    inline void JsonWriter::space()
+    {
+      if (first)
+	first = false;
+      else
+	os << " ";
+      flush();
+    }
+
   /* function declaration */
   void  gx_print_logmsg (const char*, const string&, GxMsgType);
   void  gx_print_warning(const char*, const string&);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Hermann Meyer and James Warden
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <array>
+
 // --- defines the processing type
 #define ZEROIZE_BUFFERS  (0)
 #define JUSTCOPY_BUFFERS (1)
@@ -39,6 +41,60 @@ class GxMainInterface;
 
 namespace gx_engine
   {
+    class MidiController
+    {
+    private:
+      enum { toggle, continuous } ctr_type;
+      string name;
+      union 
+      {
+	float* fvalue;
+	int* ivalue;
+      };
+      float lower;
+      float upper;
+
+    public:
+      MidiController(string name, float* param, float lower, float upper);
+      MidiController(string name, int* param);
+      MidiController(gx_system::JsonParser&);
+      void set(int);
+      bool isZone(float *p) const { return p == fvalue; }
+      bool isZone(int *p) const { return p == ivalue; }
+      void writeJSON(gx_system::JsonWriter& jw) const;
+    };
+
+    typedef std::list<MidiController> midi_controller_list;
+
+    class GxEngine;
+
+    class MidiControllerList
+    {
+    private:
+      typedef std::array<midi_controller_list,128> controller_array;
+      controller_array map;
+      bool midi_config_mode;
+      int last_midi_control;
+      int last_midi_control_value;
+    public:
+      MidiControllerList();
+      MidiControllerList(gx_system::JsonParser&);
+      midi_controller_list operator[](int n) { return map[n]; }
+      void set_config_mode(bool mode);
+      bool get_config_mode() { return midi_config_mode; }
+      int get_current_control() { return last_midi_control; }
+      void set(int ctr, int val);
+      void modifyCurrent(float* zone, float lower, float upper);
+      int zone2controller(float *zone);
+      void load_defaults();
+      void writeJSON(gx_system::JsonWriter& jw);
+    };
+
+    extern MidiControllerList controller_map;
+
+    void recall_midi_controller_map();
+    void save_midi_controller_map();
+
     /* --------------- function declarations --------------- */
 
     /* inline functions */

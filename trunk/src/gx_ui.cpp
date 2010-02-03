@@ -34,6 +34,7 @@
 #include <map>
 #include <cstdlib>
 #include <cstdio>
+#include <cassert>
 
 using namespace std;
 
@@ -54,6 +55,42 @@ namespace gx_ui
   {
     if (fZoneMap.find(z) == fZoneMap.end()) fZoneMap[z] = new clist();
     fZoneMap[z]->push_back(c);
+  }
+
+  int GxUI::zone2index(float *zone)
+  {
+    int n = 0;
+    list<GxUI*>::iterator g;
+    for (g = fGuiList.begin(); g != fGuiList.end(); g++)
+      {
+	zmap m = (*g)->fZoneMap;
+	for (zmap::iterator i=m.begin(); i != m.end(); i++)
+	  {
+	    if (i->first == zone)
+	      return n;
+	    n++;
+	  }
+      }
+    assert(false);
+    return -1;
+  }
+
+  float* GxUI::index2zone(int index)
+  {
+    int n = 0;
+    list<GxUI*>::iterator g;
+    for (g = fGuiList.begin(); g != fGuiList.end(); g++)
+      {
+	zmap m = (*g)->fZoneMap;
+	for (zmap::iterator i=m.begin(); i != m.end(); i++)
+	  {
+	    if (n == index)
+	      return i->first;
+	    n++;
+	  }
+      }
+    assert(false);
+    return NULL;
   }
 
   // -- saveState(filename) : save the value of every zone to a file
