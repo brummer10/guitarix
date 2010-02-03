@@ -129,6 +129,7 @@ int main(int argc, char *argv[])
     }
 
   // ----------------------- run GTK main loop ----------------------
+  gx_threads::gx_update_all_gui(NULL);
   gui->show();
   gui->run();
 
