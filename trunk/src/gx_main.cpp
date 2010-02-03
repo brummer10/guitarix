@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
   signal(SIGTERM, gx_signal_handler);
   signal(SIGHUP,  gx_signal_handler);
   signal(SIGINT,  gx_signal_handler);
-  signal(SIGSEGV, gx_signal_handler);
+  //signal(SIGSEGV, gx_signal_handler); // quits application silently
 
   /* ----- block signal USR1 ---------
   ** inherited by all threads which are created later
