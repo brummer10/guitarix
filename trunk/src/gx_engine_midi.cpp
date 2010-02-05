@@ -221,7 +221,7 @@ namespace gx_engine
     jp.next(gx_system::JsonParser::begin_array);
     while (jp.peek() != gx_system::JsonParser::end_array) {
       jp.next(gx_system::JsonParser::value_number);
-      midi_controller_list l = map[jp.current_value_int()];
+      midi_controller_list& l = map[jp.current_value_int()];
       jp.next(gx_system::JsonParser::begin_array);
       while (jp.peek() != gx_system::JsonParser::end_array)
 	l.push_front(MidiController(jp));
