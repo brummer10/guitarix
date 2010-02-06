@@ -133,38 +133,41 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 {
   g_assert(GTK_IS_REGLER(widget));
   GtkRegler *regler = GTK_REGLER(widget);
+  GtkReglerClass *klass =  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
   GdkWindow *window = widget->window;
+
   GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+
   int reglerx = widget->allocation.x, reglery = widget->allocation.y;
 
 //----------- small knob
   if (regler->regler_type == 0)
     {
-      reglerx += (widget->allocation.width - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x) *0.5;
-      reglery += (widget->allocation.height - GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) *0.5;
-      int reglerstate = (int)((adj->value - adj->lower) * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_step / (adj->upper - adj->lower));
+      reglerx += (widget->allocation.width - klass->regler_x) *0.5;
+      reglery += (widget->allocation.height - klass->regler_y) *0.5;
+      int reglerstate = (int)((adj->value - adj->lower) * klass->regler_step / (adj->upper - adj->lower));
 
       if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
         {
           gtk_paint_focus(widget->style, window, GTK_STATE_NORMAL, NULL, widget, NULL,
-                          reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y);
+                          reglerx, reglery, klass->regler_x, klass->regler_y);
 
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_image, 0,0,
-                          reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->regler_image, 0,0,
+                          reglerx, reglery, klass->regler_x,
+                          klass->regler_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
           /** this is to create a pointer rotating on the knob with painting funktions **/
           GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
           GdkColor color ;
 
-          double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-5.,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-5.) * 0.5;
+          double radius = MIN (klass->regler_x-5.,
+                               klass->regler_y-5.) * 0.5;
           double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));// 3.14159/180.)) ;
           double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
 
-          double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x,
-                                GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) * 0.5;
+          double radius1 = MIN (klass->regler_x,
+                                klass->regler_y) * 0.5;
 
           cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
           cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
@@ -185,29 +188,29 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
           gdk_gc_set_rgb_fg_color(line, &color);
           gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
           gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,reglerx, reglery,
-                       GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-1 ,
-                       GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-1,-90*64,360*64);
+                       klass->regler_x-1 ,
+                       klass->regler_y-1,-90*64,360*64);
           g_object_unref(line );
           /** pointer ready  **/
         }
       else
         {
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_image, 0,0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->regler_image, 0,0, reglerx, reglery,
+                          klass->regler_x,
+                          klass->regler_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
           /** this is to create a pointer rotating on the knob with painting funktions **/
           GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
           GdkColor color ;
 
-          double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-5.,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-5.) * 0.5;
+          double radius = MIN (klass->regler_x-5.,
+                               klass->regler_y-5.) * 0.5;
           double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
           double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
 
-          double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x,
-                                GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) * 0.5;
+          double radius1 = MIN (klass->regler_x,
+                                klass->regler_y) * 0.5;
 
           cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
           cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
@@ -228,8 +231,8 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
           gdk_gc_set_rgb_fg_color(line, &color);
           gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
           gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,reglerx, reglery,
-                       GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-1 ,
-                       GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-1,-90*64,360*64);
+                       klass->regler_x-1 ,
+                       klass->regler_y-1,-90*64,360*64);
           g_object_unref(line );
           /** pointer ready  **/
         }
@@ -238,34 +241,34 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
   else if (regler->regler_type == 1)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x) *0.5;
+                  klass->bigknob_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) *0.5;
+                  klass->bigknob_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_step / (adj->upper - adj->lower));
+                              klass->bigknob_step / (adj->upper - adj->lower));
 
       if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
         {
           gtk_paint_focus(widget->style, window, GTK_STATE_NORMAL, NULL, widget, NULL,
-                          reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y);
+                          reglerx, reglery, klass->bigknob_x,
+                          klass->bigknob_y);
 
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigregler_image, 0,0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->bigregler_image, 0,0, reglerx, reglery,
+                          klass->bigknob_x,
+                          klass->bigknob_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
           /** this is to create a pointer rotating on the knob with painting funktions **/
           GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
           GdkColor color ;
 
-          double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5.,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5.) * 0.5;
+          double radius = MIN (klass->bigknob_x-5.,
+                               klass->bigknob_y-5.) * 0.5;
           double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
           double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
 
-          double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x,
-                                GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
+          double radius1 = MIN (klass->bigknob_x,
+                                klass->bigknob_y) * 0.5;
 
           cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
           cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
@@ -286,8 +289,8 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
           gdk_gc_set_rgb_fg_color(line, &color);
           gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
           gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,reglerx+2, reglery+2,
-                       GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5 ,
-                       GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5,-90*64,360*64);
+                       klass->bigknob_x-5 ,
+                       klass->bigknob_y-5,-90*64,360*64);
           g_object_unref(line );
           /** pointer ready  **/
 
@@ -295,21 +298,21 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
       else
         {
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigregler_image, 0,0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->bigregler_image, 0,0, reglerx, reglery,
+                          klass->bigknob_x,
+                          klass->bigknob_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
           /** this is to create a pointer rotating on the knob with painting funktions **/
           GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
           GdkColor color ;
 
-          double radius = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5.,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5.) * 0.5;
+          double radius = MIN (klass->bigknob_x-5.,
+                               klass->bigknob_y-5.) * 0.5;
           double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
           double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
 
-          double radius1 = MIN (GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x,
-                                GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) * 0.5;
+          double radius1 = MIN (klass->bigknob_x,
+                                klass->bigknob_y) * 0.5;
 
           cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
           cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
@@ -330,8 +333,8 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
           gdk_gc_set_rgb_fg_color(line, &color);
           gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
           gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,reglerx+2, reglery+2,
-                       GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5 ,
-                       GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5,-90*64,360*64);
+                       klass->bigknob_x-5 ,
+                       klass->bigknob_y-5,-90*64,360*64);
           g_object_unref(line );
           /** pointer ready  **/
         }
@@ -341,26 +344,26 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
   else if (regler->regler_type == 2)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_x) *0.5;
+                  klass->toggle_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_y) *0.5;
+                  klass->toggle_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_step / (adj->upper - adj->lower));
+                              klass->toggle_step / (adj->upper - adj->lower));
       if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
         {
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_image1, reglerstate *
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_x, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->toggle_image1, reglerstate *
+                          klass->toggle_x, 0, reglerx, reglery,
+                          klass->toggle_x,
+                          klass->toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
       else
         {
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_image, reglerstate *
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_x, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->toggle_image, reglerstate *
+                          klass->toggle_x, 0, reglerx, reglery,
+                          klass->toggle_x,
+                          klass->toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
     }
 
@@ -368,26 +371,26 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
   else if (regler->regler_type == 5)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x) *0.5;
+                  klass->switch_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_y) *0.5;
+                  klass->switch_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_step / (adj->upper - adj->lower));
+                              klass->switch_step / (adj->upper - adj->lower));
       if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
         {
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image1, reglerstate *
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->switch_image1, reglerstate *
+                          klass->switch_x, 0, reglerx, reglery,
+                          klass->switch_x,
+                          klass->switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
       else
         {
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image, reglerstate *
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->switch_image, reglerstate *
+                          klass->switch_x, 0, reglerx, reglery,
+                          klass->switch_x,
+                          klass->switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
     }
 
@@ -395,27 +398,27 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
   else if (regler->regler_type == 6)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x) *0.5;
+                  klass->minitoggle_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y) *0.5;
+                  klass->minitoggle_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_step / (adj->upper - adj->lower));
+                              klass->switch_step / (adj->upper - adj->lower));
       if (reglerstate > 0) reglerstate =2;
       if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
         {
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image1, reglerstate *
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->switch_image1, reglerstate *
+                          klass->minitoggle_x, 0, reglerx, reglery,
+                          klass->minitoggle_x,
+                          klass->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
       else
         {
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image, reglerstate *
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->switch_image, reglerstate *
+                          klass->minitoggle_x, 0, reglerx, reglery,
+                          klass->minitoggle_x,
+                          klass->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
     }
 
@@ -423,54 +426,54 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
   else if (regler->regler_type == 3)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x) *0.5;
+                  klass->slider_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y) *0.5;
+                  klass->slider_y) *0.5;
 
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_step / (adj->upper - adj->lower));
+                              klass->slider_step / (adj->upper - adj->lower));
 
       if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
         {
           gtk_paint_focus(widget->style, window, GTK_STATE_NORMAL, NULL, widget, NULL,
-                          reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y);
+                          reglerx, reglery, klass->slider_x,
+                          klass->slider_y);
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image,0,0,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1,0,0);
+          gdk_pixbuf_copy_area(klass->slider_image,0,0,
+                               klass->slider_x,
+                               klass->slider_y,
+                               klass->slider_image1,0,0);
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,0,20,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1, reglerstate,0);
+          gdk_pixbuf_copy_area(klass->slider_image,
+                               klass->slider_x,0,20,
+                               klass->slider_y,
+                               klass->slider_image1, reglerstate,0);
 
-          gdk_pixbuf_saturate_and_pixelate(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1,
-                                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1,70.0,FALSE);
+          gdk_pixbuf_saturate_and_pixelate(klass->slider_image1,
+                                           klass->slider_image1,70.0,FALSE);
 
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1, 0, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->slider_image1, 0, 0, reglerx, reglery,
+                          klass->slider_x,
+                          klass->slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
       else
         {
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image,0,0,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1,0,0);
+          gdk_pixbuf_copy_area(klass->slider_image,0,0,
+                               klass->slider_x,
+                               klass->slider_y,
+                               klass->slider_image1,0,0);
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,0,20,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1, reglerstate,0);
+          gdk_pixbuf_copy_area(klass->slider_image,
+                               klass->slider_x,0,20,
+                               klass->slider_y,
+                               klass->slider_image1, reglerstate,0);
 
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1, 0, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->slider_image1, 0, 0, reglerx, reglery,
+                          klass->slider_x,
+                          klass->slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
     }
 
@@ -478,52 +481,52 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
   else if (regler->regler_type == 9)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y) *0.5;
+                  klass->slider_y) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x) *0.5;
+                  klass->vslider_x) *0.5;
 
       int reglerstate = (int)((adj->upper - adj->value ) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_step / (adj->upper - adj->lower));
+                              klass->vslider_step / (adj->upper - adj->lower));
 
       if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
         {
           gtk_paint_focus(widget->style, window, GTK_STATE_NORMAL, NULL, widget, NULL,
-                          reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x);
+                          reglerx, reglery, klass->slider_y,
+                          klass->vslider_x);
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,20,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,0,0);
+          gdk_pixbuf_copy_area(klass->vslider_image,0,20,
+                               klass->slider_y,
+                               klass->vslider_x,
+                               klass->vslider_image1,0,0);
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,10,20,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,0, reglerstate);
+          gdk_pixbuf_copy_area(klass->vslider_image,0,
+                               klass->slider_x,10,20,
+                               klass->vslider_image1,0, reglerstate);
 
-          gdk_pixbuf_saturate_and_pixelate(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,
-                                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,70.0,FALSE);
+          gdk_pixbuf_saturate_and_pixelate(klass->vslider_image1,
+                                           klass->vslider_image1,70.0,FALSE);
 
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->vslider_image1, 0, 0, reglerx, reglery,
+                          klass->slider_y,
+                          klass->vslider_x, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
       else
         {
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,20,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,0,0);
+          gdk_pixbuf_copy_area(klass->vslider_image,0,20,
+                               klass->slider_y,
+                               klass->vslider_x,
+                               klass->vslider_image1,0,0);
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,10,20,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0,reglerstate);
+          gdk_pixbuf_copy_area(klass->vslider_image,0,
+                               klass->slider_x,10,20,
+                               klass->vslider_image1, 0,reglerstate);
 
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->vslider_image1, 0, 0, reglerx, reglery,
+                          klass->slider_y,
+                          klass->vslider_x, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
     }
 
@@ -531,95 +534,95 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
   else if (regler->regler_type == 4)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x) *0.5;
+                  klass->minislider_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y) *0.5;
+                  klass->minislider_y) *0.5;
 
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_step / (adj->upper - adj->lower));
+                              klass->minislider_step / (adj->upper - adj->lower));
 
       if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
         {
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,0,0,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,0,0);
+          gdk_pixbuf_copy_area(klass->minislider_image,0,0,
+                               klass->minislider_x,
+                               klass->minislider_y,
+                               klass->minislider_image1,0,0);
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,0,6,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, reglerstate,0);
+          gdk_pixbuf_copy_area(klass->minislider_image,
+                               klass->minislider_x,0,6,
+                               klass->minislider_y,
+                               klass->minislider_image1, reglerstate,0);
 
-          gdk_pixbuf_saturate_and_pixelate(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,
-                                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,99.0,FALSE);
+          gdk_pixbuf_saturate_and_pixelate(klass->minislider_image1,
+                                           klass->minislider_image1,99.0,FALSE);
 
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, 0, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->minislider_image1, 0, 0, reglerx, reglery,
+                          klass->minislider_x,
+                          klass->minislider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
       else
         {
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,0,0,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,0,0);
+          gdk_pixbuf_copy_area(klass->minislider_image,0,0,
+                               klass->minislider_x,
+                               klass->minislider_y,
+                               klass->minislider_image1,0,0);
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,0,6,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, reglerstate,0);
+          gdk_pixbuf_copy_area(klass->minislider_image,
+                               klass->minislider_x,0,6,
+                               klass->minislider_y,
+                               klass->minislider_image1, reglerstate,0);
 
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, 0, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->minislider_image1, 0, 0, reglerx, reglery,
+                          klass->minislider_x,
+                          klass->minislider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
     }
 //----------- wheel
   else if (regler->regler_type == 7)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x) *0.5;
+                  klass->wheel_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y) *0.5;
+                  klass->wheel_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_step / (adj->upper - adj->lower));
+                              klass->wheel_step / (adj->upper - adj->lower));
       int smoth_pointer = 0;
       if (reglerstate>(adj->upper - adj->lower))smoth_pointer=-4;
       if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
         {
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image1, 0, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->wheel_image1, 0, 0, reglerx, reglery,
+                          klass->wheel_x,
+                          klass->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image,
-                          reglerstate + GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x, 0,
-                          reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->wheel_image,
+                          reglerstate + klass->wheel_x, 0,
+                          reglerx, reglery, klass->wheel_x,
+                          klass->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->pointer_image1,0, 0,
+                          klass->pointer_image1,0, 0,
                           reglerx+smoth_pointer+reglerstate*0.4, reglery, 2,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
         }
       else
         {
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image1, 0, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->wheel_image1, 0, 0, reglerx, reglery,
+                          klass->wheel_x,
+                          klass->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image,
-                          reglerstate + GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x, 0,
-                          reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->wheel_image,
+                          reglerstate + klass->wheel_x, 0,
+                          reglerx, reglery, klass->wheel_x,
+                          klass->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->pointer_image1,0, 0,
+                          klass->pointer_image1,0, 0,
                           reglerx+smoth_pointer+reglerstate*0.4, reglery, 2,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
         }
     }
@@ -627,26 +630,26 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
   else if (regler->regler_type == 8)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_x) *0.5;
+                  klass->b_toggle_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y) *0.5;
+                  klass->b_toggle_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_step / (adj->upper - adj->lower));
+                              klass->b_toggle_step / (adj->upper - adj->lower));
       if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE)
         {
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_image1, 0,
-                          reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->b_toggle_image1, 0,
+                          reglerstate * klass->b_toggle_y, reglerx, reglery,
+                          klass->b_toggle_x,
+                          klass->b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
       else
         {
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_image, 0,
-                          reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y,
-                          reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->b_toggle_image, 0,
+                          reglerstate * klass->b_toggle_y,
+                          reglerx, reglery, klass->b_toggle_x,
+                          klass->b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
     }
 
@@ -654,45 +657,45 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
   else if (regler->regler_type == 10)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_x) *0.5;
+                  klass->eqslider_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_y) *0.5;
+                  klass->eqslider_y) *0.5;
 
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_step / (adj->upper - adj->lower));
+                              klass->eqslider_step / (adj->upper - adj->lower));
 
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_image,0,reglerstate+18,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_x,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_y,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_image1,0,0);
+          gdk_pixbuf_copy_area(klass->eqslider_image,0,reglerstate+18,
+                               klass->eqslider_x,
+                               klass->eqslider_y,
+                               klass->eqslider_image1,0,0);
 
 
-       //   gdk_pixbuf_saturate_and_pixelate(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_image1,
-         //                                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_image1,99.0,FALSE);
+       //   gdk_pixbuf_saturate_and_pixelate(klass->eqslider_image1,
+         //                                  klass->eqslider_image1,99.0,FALSE);
 
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_image1, 0, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->eqslider_image1, 0, 0, reglerx, reglery,
+                          klass->eqslider_x,
+                          klass->eqslider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
      /* else
         {
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,0,0,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,0,0);
+          gdk_pixbuf_copy_area(klass->minislider_image,0,0,
+                               klass->minislider_x,
+                               klass->minislider_y,
+                               klass->minislider_image1,0,0);
 
-          gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,0,6,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,
-                               GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, reglerstate,0);
+          gdk_pixbuf_copy_area(klass->minislider_image,
+                               klass->minislider_x,0,6,
+                               klass->minislider_y,
+                               klass->minislider_image1, reglerstate,0);
 
           gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, 0, 0, reglerx, reglery,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,
-                          GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                          klass->minislider_image1, 0, 0, reglerx, reglery,
+                          klass->minislider_x,
+                          klass->minislider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
         } */
     }
 
@@ -704,6 +707,7 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
 {
   g_assert(GTK_IS_REGLER(widget));
   GtkRegler *regler = GTK_REGLER(widget);
+  GtkReglerClass *klass =  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
 
   GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
   int reglerx = widget->allocation.x, reglery = widget->allocation.y;
@@ -712,9 +716,9 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
   if (regler->regler_type == 0)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x) *0.5;
+                  klass->regler_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) *0.5;
+                  klass->regler_y) *0.5;
 
       GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
       GdkColor color ;
@@ -725,8 +729,8 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
       gdk_gc_set_rgb_fg_color(line, &color);
       gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
       gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,reglerx, reglery,
-                   GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-1 ,
-                   GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-1,-90*64,360*64);
+                   klass->regler_x-1 ,
+                   klass->regler_y-1,-90*64,360*64);
       g_object_unref(line );
     }
 
@@ -734,9 +738,9 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
   else if (regler->regler_type == 1)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x) *0.5;
+                  klass->bigknob_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) *0.5;
+                  klass->bigknob_y) *0.5;
 
       GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
       GdkColor color ;
@@ -747,8 +751,8 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
       gdk_gc_set_rgb_fg_color(line, &color);
       gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
       gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,reglerx+2, reglery+2,
-                   GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5 ,
-                   GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5,-90*64,360*64);
+                   klass->bigknob_x-5 ,
+                   klass->bigknob_y-5,-90*64,360*64);
       g_object_unref(line );
     }
 
@@ -756,169 +760,169 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
   else if (regler->regler_type == 2)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_x) *0.5;
+                  klass->toggle_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_y) *0.5;
+                  klass->toggle_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_step / (adj->upper - adj->lower));
+                              klass->toggle_step / (adj->upper - adj->lower));
 
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_image,
-                      reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_x, 0,
-                      reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->toggle_image,
+                      reglerstate * klass->toggle_x, 0,
+                      reglerx, reglery, klass->toggle_x,
+                      klass->toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 
 //----------- switchII
   else if (regler->regler_type == 5)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x) *0.5;
+                  klass->switch_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_y) *0.5;
+                  klass->switch_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_step / (adj->upper - adj->lower));
+                              klass->switch_step / (adj->upper - adj->lower));
 
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image,
-                      reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x, 0,
-                      reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->switch_image,
+                      reglerstate * klass->switch_x, 0,
+                      reglerx, reglery, klass->switch_x,
+                      klass->switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 
 //----------- minitoggle
   else if (regler->regler_type == 6)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x) *0.5;
+                  klass->minitoggle_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y) *0.5;
+                  klass->minitoggle_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_step / (adj->upper - adj->lower));
+                              klass->minitoggle_step / (adj->upper - adj->lower));
       if (reglerstate > 0) reglerstate =2;
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image,
-                      reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, 0,
-                      reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->switch_image,
+                      reglerstate * klass->minitoggle_x, 0,
+                      reglerx, reglery, klass->minitoggle_x,
+                      klass->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 
 //----------- horizontal slider
   else if (regler->regler_type == 3)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x) *0.5;
+                  klass->slider_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y) *0.5;
+                  klass->slider_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_step / (adj->upper - adj->lower));
+                              klass->slider_step / (adj->upper - adj->lower));
 
-      gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image,0,0,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1,0,0);
+      gdk_pixbuf_copy_area(klass->slider_image,0,0,
+                           klass->slider_x,
+                           klass->slider_y,
+                           klass->slider_image1,0,0);
 
-      gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,0,20,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1, reglerstate,0);
+      gdk_pixbuf_copy_area(klass->slider_image,
+                           klass->slider_x,0,20,
+                           klass->slider_y,
+                           klass->slider_image1, reglerstate,0);
 
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1, 0, 0, reglerx, reglery,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->slider_image1, 0, 0, reglerx, reglery,
+                      klass->slider_x,
+                      klass->slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 
   //----------- vertical slider
   else if (regler->regler_type == 9)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y) *0.5;
+                  klass->slider_y) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x) *0.5;
+                  klass->vslider_x) *0.5;
       int reglerstate = (int)((adj->upper -adj->value ) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_step / (adj->upper - adj->lower));
+                              klass->vslider_step / (adj->upper - adj->lower));
 
-      gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,20,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,0,0);
+      gdk_pixbuf_copy_area(klass->vslider_image,0,20,
+                           klass->slider_y,
+                           klass->vslider_x,
+                           klass->vslider_image1,0,0);
 
-      gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,10,20,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0,reglerstate);
+      gdk_pixbuf_copy_area(klass->vslider_image,0,
+                           klass->slider_x,10,20,
+                           klass->vslider_image1, 0,reglerstate);
 
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0, 0, reglerx, reglery,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->vslider_image1, 0, 0, reglerx, reglery,
+                      klass->slider_y,
+                      klass->vslider_x, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 //----------- mini slider
   else if (regler->regler_type == 4)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x) *0.5;
+                  klass->minislider_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y) *0.5;
+                  klass->minislider_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_step / (adj->upper - adj->lower));
+                              klass->minislider_step / (adj->upper - adj->lower));
 
-      gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,0,0,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,0,0);
+      gdk_pixbuf_copy_area(klass->minislider_image,0,0,
+                           klass->minislider_x,
+                           klass->minislider_y,
+                           klass->minislider_image1,0,0);
 
-      gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,0,6,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, reglerstate,0);
+      gdk_pixbuf_copy_area(klass->minislider_image,
+                           klass->minislider_x,0,6,
+                           klass->minislider_y,
+                           klass->minislider_image1, reglerstate,0);
 
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, 0, 0, reglerx, reglery,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->minislider_image1, 0, 0, reglerx, reglery,
+                      klass->minislider_x,
+                      klass->minislider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 //----------- wheel
   else if (regler->regler_type == 7)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x) *0.5;
+                  klass->wheel_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y) *0.5;
+                  klass->wheel_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_step / (adj->upper - adj->lower));
+                              klass->wheel_step / (adj->upper - adj->lower));
       int smoth_pointer = 0;
       if (reglerstate>(adj->upper - adj->lower))smoth_pointer=-4;
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image1, 0, 0, reglerx, reglery,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->wheel_image1, 0, 0, reglerx, reglery,
+                      klass->wheel_x,
+                      klass->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image,
-                      reglerstate + GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x, 0, reglerx, reglery,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->wheel_image,
+                      reglerstate + klass->wheel_x, 0, reglerx, reglery,
+                      klass->wheel_x,
+                      klass->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->pointer_image1,0, 0,
+                      klass->pointer_image1,0, 0,
                       reglerx+smoth_pointer+reglerstate*0.4, reglery, 2,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
     }
   //---------- toggle button
   else if (regler->regler_type == 8)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_x) *0.5;
+                  klass->b_toggle_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y) *0.5;
+                  klass->b_toggle_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_step / (adj->upper - adj->lower));
+                              klass->b_toggle_step / (adj->upper - adj->lower));
 
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_image, 0,
-                      reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y,
-                      reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->b_toggle_image, 0,
+                      reglerstate * klass->b_toggle_y,
+                      reglerx, reglery, klass->b_toggle_x,
+                      klass->b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
     }
 
@@ -930,6 +934,7 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
   g_assert(GTK_IS_REGLER(widget));
   GtkRegler *regler = GTK_REGLER(widget);
+  GtkReglerClass *klass =  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
 
   GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
   int reglerx = widget->allocation.x, reglery = widget->allocation.y;
@@ -938,11 +943,11 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
   if (regler->regler_type == 0)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x) *0.5;
+                  klass->regler_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y) *0.5;
+                  klass->regler_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_step / (adj->upper - adj->lower));
+                              klass->regler_step / (adj->upper - adj->lower));
 
       GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
       GdkColor color ;
@@ -953,8 +958,8 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
       gdk_gc_set_rgb_fg_color(line, &color);
       gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
       gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,reglerx, reglery,
-                   GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x-1 ,
-                   GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y-1,
+                   klass->regler_x-1 ,
+                   klass->regler_y-1,
                    (-reglerstate-90)*64,(-reglerstate-360)*64);
       g_object_unref(line );
 
@@ -964,11 +969,11 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
   else if (regler->regler_type == 1)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x) *0.5;
+                  klass->bigknob_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y) *0.5;
+                  klass->bigknob_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_step / (adj->upper - adj->lower));
+                              klass->bigknob_step / (adj->upper - adj->lower));
 
       GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
       GdkColor color ;
@@ -979,8 +984,8 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
       gdk_gc_set_rgb_fg_color(line, &color);
       gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
       gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,reglerx+2, reglery+2,
-                   GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x-5 ,
-                   GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y-5,
+                   klass->bigknob_x-5 ,
+                   klass->bigknob_y-5,
                    (-reglerstate-90)*64,(-reglerstate-360)*64);
       g_object_unref(line );
 
@@ -990,178 +995,178 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
   else if (regler->regler_type == 2)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_x) *0.5;
+                  klass->toggle_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_y) *0.5;
+                  klass->toggle_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_step / (adj->upper - adj->lower));
+                              klass->toggle_step / (adj->upper - adj->lower));
 
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_image1,
-                      reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_x, 0,
-                      reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->toggle_image1,
+                      reglerstate * klass->toggle_x, 0,
+                      reglerx, reglery, klass->toggle_x,
+                      klass->toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 
 //----------- switch
   else if (regler->regler_type == 5)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x) *0.5;
+                  klass->switch_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_y) *0.5;
+                  klass->switch_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_step / (adj->upper - adj->lower));
+                              klass->switch_step / (adj->upper - adj->lower));
 
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image1,
-                      reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x, 0,
-                      reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->switch_image1,
+                      reglerstate * klass->switch_x, 0,
+                      reglerx, reglery, klass->switch_x,
+                      klass->switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 
 //----------- minitoggle
   else if (regler->regler_type == 6)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x) *0.5;
+                  klass->minitoggle_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y) *0.5;
+                  klass->minitoggle_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_step / (adj->upper - adj->lower));
+                              klass->minitoggle_step / (adj->upper - adj->lower));
       if (reglerstate > 0) reglerstate =2;
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image1, reglerstate *
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x, 0, reglerx, reglery,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->switch_image1, reglerstate *
+                      klass->minitoggle_x, 0, reglerx, reglery,
+                      klass->minitoggle_x,
+                      klass->minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 
 //----------- horizontal slider
   else if (regler->regler_type == 3)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x) *0.5;
+                  klass->slider_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y) *0.5;
+                  klass->slider_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_step / (adj->upper - adj->lower));
+                              klass->slider_step / (adj->upper - adj->lower));
 
-      gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image,0,0,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1,0,0);
+      gdk_pixbuf_copy_area(klass->slider_image,0,0,
+                           klass->slider_x,
+                           klass->slider_y,
+                           klass->slider_image1,0,0);
 
-      gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,0,20,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1, reglerstate,0);
+      gdk_pixbuf_copy_area(klass->slider_image,
+                           klass->slider_x,0,20,
+                           klass->slider_y,
+                           klass->slider_image1, reglerstate,0);
 
-      gdk_pixbuf_saturate_and_pixelate(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1,
-                                       GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1,70.0,FALSE);
+      gdk_pixbuf_saturate_and_pixelate(klass->slider_image1,
+                                       klass->slider_image1,70.0,FALSE);
 
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1, 0, 0,
-                      reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->slider_image1, 0, 0,
+                      reglerx, reglery, klass->slider_x,
+                      klass->slider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 
   //----------- vertical slider
   else if (regler->regler_type == 9)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y) *0.5;
+                  klass->slider_y) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x) *0.5;
+                  klass->vslider_x) *0.5;
       int reglerstate = (int)((adj->upper -adj->value ) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_step / (adj->upper - adj->lower));
+                              klass->vslider_step / (adj->upper - adj->lower));
 
-      gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,20,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,0,0);
+      gdk_pixbuf_copy_area(klass->vslider_image,0,20,
+                           klass->slider_y,
+                           klass->vslider_x,
+                           klass->vslider_image1,0,0);
 
-      gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image,0,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x,10,20,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0,reglerstate);
+      gdk_pixbuf_copy_area(klass->vslider_image,0,
+                           klass->slider_x,10,20,
+                           klass->vslider_image1, 0,reglerstate);
 
-      gdk_pixbuf_saturate_and_pixelate(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,
-                                       GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1,70.0,FALSE);
+      gdk_pixbuf_saturate_and_pixelate(klass->vslider_image1,
+                                       klass->vslider_image1,70.0,FALSE);
 
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1, 0, 0,
-                      reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->vslider_image1, 0, 0,
+                      reglerx, reglery, klass->slider_y,
+                      klass->vslider_x, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 //----------- mini slider
   else if (regler->regler_type == 4)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x) *0.5;
+                  klass->minislider_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y) *0.5;
+                  klass->minislider_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_step / (adj->upper - adj->lower));
+                              klass->minislider_step / (adj->upper - adj->lower));
 
-      gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,0,0,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,0,0);
+      gdk_pixbuf_copy_area(klass->minislider_image,0,0,
+                           klass->minislider_x,
+                           klass->minislider_y,
+                           klass->minislider_image1,0,0);
 
-      gdk_pixbuf_copy_area(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,0,6,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y,
-                           GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, reglerstate,0);
+      gdk_pixbuf_copy_area(klass->minislider_image,
+                           klass->minislider_x,0,6,
+                           klass->minislider_y,
+                           klass->minislider_image1, reglerstate,0);
 
-      gdk_pixbuf_saturate_and_pixelate(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,
-                                       GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1,99.0,FALSE);
+      gdk_pixbuf_saturate_and_pixelate(klass->minislider_image1,
+                                       klass->minislider_image1,99.0,FALSE);
 
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1, 0, 0,
-                      reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->minislider_image1, 0, 0,
+                      reglerx, reglery, klass->minislider_x,
+                      klass->minislider_y, GDK_RGB_DITHER_NORMAL, 0, 0);
     }
 //----------- wheel
   else if (regler->regler_type == 7)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x) *0.5;
+                  klass->wheel_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y) *0.5;
+                  klass->wheel_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_step / (adj->upper - adj->lower));
+                              klass->wheel_step / (adj->upper - adj->lower));
       int smoth_pointer = 0;
       if (reglerstate>(adj->upper - adj->lower))smoth_pointer=-4;
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image1, 0, 0, reglerx, reglery,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->wheel_image1, 0, 0, reglerx, reglery,
+                      klass->wheel_x,
+                      klass->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image,
-                      reglerstate + GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x, 0,
-                      reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->wheel_image,
+                      reglerstate + klass->wheel_x, 0,
+                      reglerx, reglery, klass->wheel_x,
+                      klass->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->pointer_image1,0, 0,
+                      klass->pointer_image1,0, 0,
                       reglerx+smoth_pointer+reglerstate*0.4, reglery, 2,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->wheel_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
     }
   //---------- toggle button
   else if (regler->regler_type == 8)
     {
       reglerx += (widget->allocation.width -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_x) *0.5;
+                  klass->b_toggle_x) *0.5;
       reglery += (widget->allocation.height -
-                  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y) *0.5;
+                  klass->b_toggle_y) *0.5;
       int reglerstate = (int)((adj->value - adj->lower) *
-                              GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_step / (adj->upper - adj->lower));
+                              klass->b_toggle_step / (adj->upper - adj->lower));
 
       gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_image1, 0,
-                      reglerstate * GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y,
-                      reglerx, reglery, GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_x,
-                      GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+                      klass->b_toggle_image1, 0,
+                      reglerstate * klass->b_toggle_y,
+                      reglerx, reglery, klass->b_toggle_x,
+                      klass->b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
     }
 
@@ -1852,62 +1857,65 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 static void gtk_regler_init (GtkRegler *regler)
 {
   GtkWidget *widget = GTK_WIDGET(regler);
+  GtkReglerClass *klass =  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
+
   GTK_WIDGET_SET_FLAGS (GTK_WIDGET(regler), GTK_CAN_FOCUS);
   GTK_WIDGET_SET_FLAGS (GTK_WIDGET(regler), GTK_CAN_DEFAULT);
+
   if (regler->regler_type == 0)
     {
-      widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_x;
-      widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->regler_y;
+      widget->requisition.width = klass->regler_x;
+      widget->requisition.height = klass->regler_y;
     }
   else if (regler->regler_type == 1)
     {
-      widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_x;
-      widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->bigknob_y;
+      widget->requisition.width = klass->bigknob_x;
+      widget->requisition.height = klass->bigknob_y;
     }
   else if (regler->regler_type == 2)
     {
-      widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_x;
-      widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_y;
+      widget->requisition.width = klass->toggle_x;
+      widget->requisition.height = klass->toggle_y;
     }
   else if (regler->regler_type == 3)
     {
-      widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_x;
-      widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y;
+      widget->requisition.width = klass->slider_x;
+      widget->requisition.height = klass->slider_y;
     }
   else if (regler->regler_type == 4)
     {
-      widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_x;
-      widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_y;
+      widget->requisition.width = klass->minislider_x;
+      widget->requisition.height = klass->minislider_y;
     }
   else if (regler->regler_type == 5)
     {
-      widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_x;
-      widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_y;
+      widget->requisition.width = klass->switch_x;
+      widget->requisition.height = klass->switch_y;
     }
   else if (regler->regler_type == 6)
     {
-      widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_x;
-      widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->minitoggle_y;
+      widget->requisition.width = klass->minitoggle_x;
+      widget->requisition.height = klass->minitoggle_y;
     }
   else if (regler->regler_type == 7)
     {
-      widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_x;
-      widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_y;
+      widget->requisition.width = klass->wheel_x;
+      widget->requisition.height = klass->wheel_y;
     }
   else if (regler->regler_type == 8)
     {
-      widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_x;
-      widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_y;
+      widget->requisition.width = klass->b_toggle_x;
+      widget->requisition.height = klass->b_toggle_y;
     }
   else if (regler->regler_type == 9)
     {
-      widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_y;
-      widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_x;
+      widget->requisition.width = klass->slider_y;
+      widget->requisition.height = klass->vslider_x;
     }
   else if (regler->regler_type == 10)
     {
-      widget->requisition.width = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_x;
-      widget->requisition.height = GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_y;
+      widget->requisition.width = klass->eqslider_x;
+      widget->requisition.height = klass->eqslider_y;
     }
 }
 

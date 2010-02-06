@@ -905,10 +905,10 @@ namespace gx_jack
           // in case of registration, just log it, the port registration
           // routines will take care of things
         case 1:
-          gdk_threads_enter();
+
           gx_print_info("Jack Client",
                         clname + string(" joined the graph"));
-          gdk_threads_leave ();
+
           break;
         default:
           break;
