@@ -162,8 +162,9 @@ namespace gx_threads
       if ((showwave == 1) && ((gx_engine::GxEngineState)gx_engine::checky) &&(!gx_jack::NO_CONNECTION ))
         gdk_window_invalidate_rect(GDK_WINDOW(livewa->window),NULL,TRUE);
       //gx_engine::GxEngine::instance()->viv *= -1;
-      // run thread again
-      return TRUE;
+      // run thread again when needed
+      if(showwave) return TRUE;
+      else return FALSE;
     }
 
     /* -------------- refresh tuner function -------------- */
@@ -172,18 +173,31 @@ namespace gx_threads
       // set the value to the tuner and let updateAllGui() do the repaint
       gx_engine::GxEngine* engine = gx_engine::GxEngine::instance();
       if (shownote )
+        {
         engine->fConsta1t = engine->fConsta1;
-      // run thread again
-      return TRUE;
+        // run thread again
+        return TRUE;
+        }
+      // dont run again
+      return FALSE;
+    }
+    gboolean gx_xrun_report(gpointer arg)
+    {
+
+        ostringstream s;
+        s << " delay of at least " << gx_jack::xdel << " microsecs";
+        gx_print_warning("Jack XRun", s.str());
+
+        return FALSE;
     }
 
     /* -------------- timeout for jconv startup when guitarix init -------------- */
     gboolean gx_check_startup(gpointer args)
     {
       // check if jack is alive
-      gx_survive_jack_shutdown(NULL);
+     // gx_survive_jack_shutdown(NULL);
       // get avaluable ports
-      gx_monitor_jack_ports(NULL);
+     // gx_monitor_jack_ports(NULL);
       // set global variable the all whent well
       gx_engine::is_setup = 1;
       // case jconvolver is on at startup
@@ -326,20 +340,6 @@ namespace gx_threads
     /** ----------- Glibc THREADS RUNNING BY GUITARIX -----------------  **/
     /** ----------- -------------------------------- ------------------  **/
 
-    //--- recive post when jack shutdown and start a watchdog for jack restart
-    gpointer gx_jack_change_helper_thread(gpointer data)
-    {
-      while (TRUE)
-        {
-          // wait for a semaphore post from jack thread
-          sem_wait(&jack_change_sem);
-          // start watchdog thread when jackd is down
-          jack_change = NULL;
-          g_timeout_add_full(G_PRIORITY_LOW,200, gx_survive_jack_shutdown, 0, NULL);
-        }
-      //notreached
-      return NULL;
-    }
 
     //--- wait for USR1 signal to arrive and invoke ladi handler via mainloop
     gpointer gx_signal_helper_thread(gpointer data)

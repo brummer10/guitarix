@@ -581,14 +581,10 @@ namespace gx_jack
     //---- jack shutdown callback in case jackd shuts down on us
     void gx_jack_shutdown_callback(void *arg)
     {
+      // global var to let all know that jack is down
       jack_is_down = true;
-      g_atomic_int_set(&gx_gui::jack_change, jack_is_down);
-      sem_post(&gx_gui::jack_change_sem);
-      // print GTK message
-      gdk_threads_enter ();
-      gx_print_warning("Jack Shutdown",
-                       "jack has bumped us out!!");
-      gdk_threads_leave ();
+      // helper funktion to start gx_survive_jack_shutdown thread
+      gx_gui::gx_jack_is_down();
 
     }
 
@@ -623,14 +619,8 @@ namespace gx_jack
     //---- jack xrun callback
     int gx_jack_xrun_callback (void* arg)
     {
-
-      float xdel = jack_get_xrun_delayed_usecs(client);
-      gdk_threads_enter ();
-      ostringstream s;
-      s << " delay of at least " << xdel << " microsecs";
-      gx_print_warning("Jack XRun", s.str());
-      gdk_threads_leave ();
-
+      xdel = jack_get_xrun_delayed_usecs(client);
+      gx_gui::gx_jack_report_xrun();
       return 0;
     }
 

@@ -23,6 +23,27 @@
  * --------------------------------------------------------------------------
  */
 
+#include <assert.h>
+#include <cstring>
+#include <list>
+#include <map>
+#include <set>
+#include <vector>
+#include <iostream>
+#include <fstream>
+
+#include <cmath>
+#include <gtk/gtk.h>
+#include <jack/midiport.h>
+#include <sndfile.h>
+using namespace std;
+
+#include "guitarix.h"
+
+namespace gx_engine
+{
+
+
 // denormal prevention is needed in the distortion unit for the low/high/cut part.
 inline void GxEngine::add_dc (float& val)
 {
@@ -1529,3 +1550,4 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 }
 
 
+}

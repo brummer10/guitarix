@@ -97,6 +97,7 @@ namespace gx_jack
   extern jack_nframes_t      jack_sr;   // jack sample rate
   extern jack_nframes_t      jack_bs;   // jack buffer size
   extern float               jcpu_load; // jack cpu_load
+  extern float               xdel;      // last xrun delay
   extern int                 is_rt;     // jack is realtime ?
 
   extern jack_client_t*      client ;
@@ -277,8 +278,6 @@ namespace gx_gui
   /*midi_in preset switch */
   extern volatile gint       program_change;
   extern sem_t               program_change_sem;
-  extern volatile bool       jack_change;
-  extern sem_t               jack_change_sem;
 
   extern int show_eq;
 

@@ -229,12 +229,26 @@ namespace gx_gui
       *fskin  = float(gx_current_skin);
     }
 
+    void gx_jack_is_down()
+    {
+        gx_print_warning("Jack Shutdown",
+                       "jack has bumped us out!!");
+
+        g_timeout_add_full(G_PRIORITY_LOW,200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
+    }
+
+    void gx_jack_report_xrun()
+    {
+      g_idle_add(gx_threads::gx_xrun_report,gpointer (NULL));
+    }
+
     //----menu function gx_show_oscilloscope
     void gx_show_oscilloscope (GtkCheckMenuItem *menuitem, gpointer checkplay)
     {
       if (gtk_check_menu_item_get_active(menuitem) == TRUE)
         {
           showwave = 1;
+          g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, 60,  gx_threads::gx_refresh_oscilloscope, 0, NULL);
           GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(livewa));
           gtk_widget_show(parent);
           gtk_widget_show(livewa);
@@ -254,6 +268,7 @@ namespace gx_gui
       if (gtk_check_menu_item_get_active(menuitem) == TRUE)
         {
           shownote = 1;
+          g_timeout_add_full(G_PRIORITY_LOW,200, gx_threads::gx_refresh_tuner,0, NULL);
           gtk_widget_show(pb);
         }
       else

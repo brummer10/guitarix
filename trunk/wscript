@@ -26,7 +26,7 @@ def set_options(opt):
                    type='string', 
                    default='-O3  -march=native -Wall -std=c++0x',
                    dest='cxxflags', 
-                   help='C++ compiler flags [Default: -O3  -march=native -Wall]')
+                   help='C++ compiler flags [Default: -O3  -march=native -Wall -std=c++0x]')
 
     opt.add_option('--ladspadir', 
                    type='string', 

@@ -57,6 +57,9 @@ namespace gx_gui
     void gx_dequeue_client_port(const string, const string, const int);
     void gx_dequeue_client(const string);
 
+    void gx_jack_is_down();
+    void gx_jack_report_xrun();
+
     /* choice dialog windows */
     void gx_get_text_entry(GtkEntry*, string&);
 

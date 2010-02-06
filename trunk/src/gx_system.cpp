@@ -915,6 +915,7 @@ namespace gx_system
       if (G_IS_OBJECT(gx_cairo::_image))
         g_object_unref(gx_cairo::_image);
 
+      gdk_threads_leave ();
       gtk_main_quit();
     }
 

@@ -99,6 +99,7 @@ namespace gx_jack
     jack_nframes_t      jack_sr;   // jack sample rate
     jack_nframes_t      jack_bs;   // jack buffer size
     float               jcpu_load; // jack cpu_load
+    float               xdel;      // last xrun delay
     int                 is_rt;
 
     jack_client_t*      client ;
@@ -320,8 +321,6 @@ namespace gx_gui
     /* midi_in preset switch */
     volatile gint       program_change = -1;
     sem_t               program_change_sem;
-    volatile bool                jack_change = false;
-    sem_t               jack_change_sem;
 
     int show_eq;
     /* names of port lists (exclude MIDI for now) */

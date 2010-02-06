@@ -653,7 +653,7 @@ namespace gx_engine
 //#endif
 
     /* audio engine */
-#include "gx_engine_audio.cpp"
+//#include "gx_engine_audio.cpp"
 
 
     /* --- forward definition of useful namespace functions --- */
