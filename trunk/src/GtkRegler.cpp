@@ -683,8 +683,8 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
           cairo_set_source_rgba (cr, 0, 0, 0,0.5);
           cairo_fill_preserve (cr);
           cairo_set_line_width (cr, 1.0);
-      cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
-      cairo_stroke (cr);
+          cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
+          cairo_stroke (cr);
 
           ostringstream tir;
           if(reglerstate==1) tir << regler->labels[1] ;
@@ -1400,6 +1400,13 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
                else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
                else pos = floor (pos);
                gtk_range_set_value(GTK_RANGE(widget),  pos);
+          }
+
+          else if (regler->regler_type == 11) {
+               regler->start_value = gtk_range_get_value(GTK_RANGE(widget));
+               if ( regler->start_value == 0) gtk_range_set_value(GTK_RANGE(widget), 1);
+               else if ( regler->start_value == 1) gtk_range_set_value(GTK_RANGE(widget), 2);
+               else gtk_range_set_value(GTK_RANGE(widget), 0);
           }
 
           //----------- switch
