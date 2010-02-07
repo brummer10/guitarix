@@ -279,7 +279,12 @@ void GxMainInterface::setup()
                   {
                   }
                   closeBox();
-                  addminiswitch(" convolve ", &engine->fconvolve);
+                  openHorizontalBox("");
+                  {
+                  addminiswitch("", &engine->fconvolve);
+                  addselector("",&engine->convolvefilter,"amp 1","amp 2", "amp 3");
+                  }
+                  closeBox();
                 }
                 closeBox();
               }
@@ -793,7 +798,9 @@ void GxMainInterface::setup()
                         openVerticalBox1("");
                         closeBox();
                         addregler("fuzz",&engine->fthreshold, 1.f, 0.f, 1.f, 0.01f);
-                        addHorizontalSlider("threshold", &engine->ffuse, 0.f, 0.f, 2.f, 1.f);
+                        addselector("threshold", &engine->ffuse, "    off","    clip","foldback");
+                        openVerticalBox1("");
+                        closeBox();
                       }
                       closeBox();
                     }

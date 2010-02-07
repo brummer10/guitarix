@@ -636,6 +636,7 @@ namespace gx_engine
       fconvolve = 0;
       fConsta1t = 0;
       tweg = 0;
+      convolvefilter = 0;
       // end engine init
 
       // call the preset handler to read the last used settings

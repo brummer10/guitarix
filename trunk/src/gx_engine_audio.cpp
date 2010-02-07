@@ -160,10 +160,10 @@ inline void GxEngine::moving_filter(float** input, float** output, int sf)
 
 }
 
-inline void GxEngine::convolver_filter(float** input, float** output, int sf)
+inline void GxEngine::convolver_filter(float** input, float** output, int sf, int iconvolvefilter)
 {
-//double[] signal = (some 1d signal);
-  static float filter[45] = {0.0222473, 0.0253601, 0.0159607, 0.0184326, 0.0240784,
+
+  static float filter0[45] = {0.0222473, 0.0253601, 0.0159607, 0.0184326, 0.0240784,
                              0.02771, 0.0483398, 0.0802917, 0.12915, 0.196259, 0.259521,
                              0.334656, 0.398376, 0.421448, 0.401306, 0.340759, 0.216827,
                              0.058197, -0.117432, -0.287354, -0.438507, -0.540161,
@@ -171,8 +171,28 @@ inline void GxEngine::convolver_filter(float** input, float** output, int sf)
                              0.0334473, 0.0296021, 0.022644, 0.0142212, 0.0027771,
                              -0.00805664, -0.0206909, -0.0270386, -0.0247498,
                              -0.0259399, -0.0132751, 0.216827, 0.058197, -0.117432,
-                             -0.287354, -0.438507, -0.540161
+                             -0.287354, -0.438507, -0.540161, -0.438507
                             }; //  filter
+
+ static float filter1[45] ={-0.00756836, 0.0719299, 0.145752, 0.219635, 0.266205,
+                           0.281891, 0.301056, 0.320465, 0.358887, 0.403046,
+                           0.454254, 0.478577, 0.463593, 0.393097, 0.271088,
+                           0.0704956, -0.157654, -0.40921, -0.640778, -0.800903,
+                           -0.845001, -0.722443, -0.402222, 0.0526123, 0.552765,
+                           0.910217, 0.973633, 0.695374, 0.150055, -0.374664,
+                           -0.645386, -0.60434, -0.299316, 0.0405273, 0.296844,
+                           0.414734, 0.402374, 0.290192, 0.0842896, -0.10791,
+                           -0.205719, -0.199463, -0.101807, -0.00393677, 0.0560303};
+
+ static float filter2[45]={-0.0400391, 0.0591736, 0.0404663, 0.065155, 0.065094,
+                          0.0524597, 0.0325012, -0.0254211, -0.0797119, -0.118561,
+                          -0.192902, -0.1763, -0.169861, -0.0974426, 0.0567932,
+                          0.207458, 0.468079, 0.637085, 0.786072, 0.911835, 0.868347,
+                          0.873199, 0.720001, 0.598633, 0.416168, 0.24173, 0.0201416,
+                          -0.177277, -0.397614, -0.538208, -0.64505, -0.582642,
+                          -0.43161, -0.0495605, 0.361603, 0.724304, 0.981934, 0.953583,
+                          0.770233, 0.515625, 0.21106, -0.0998535, -0.162781,
+                          -0.171173, 0.042572};
 
   float * in = input[0];
    /** disable fft need some fix for work prop **/
@@ -207,14 +227,30 @@ for (int i = 0; i < sf; i++ )
    *out++ = fftresult[i][0] /sf  ;
 
   }*/
+  static float*filter_use = &filter0[0];
+  switch (iconvolvefilter)
+        {
+        case 0:
+          filter_use = &filter0[0];
+          break;
+        case 1:
+          filter_use = &filter1[0];
+          break;
+        case 2:
+          filter_use = &filter2[0];
+          break;
+        default:
+          filter_use = &filter0[0];
+          break;
+        }
 
-  for (int i=0; i < 44; i++) result[i] = result[sf+i];
-  for (int i=44; i < sf+46; i++) result[i] = 0;
+  for (int i=0; i < 45; i++) result[i] = result[sf+i];
+  for (int i=45; i < sf+46; i++) result[i] = 0;
 
 // Do convolution:
   for (int i=0; i < sf; i++)
-    for (int j=0; j < 44; j++)
-      result[i+j] += in[i] * filter[j];
+    for (int j=0; j < 45; j++)
+      result[i+j] += in[i] * filter_use[j];
   for (int i=0; i < sf; i++)
     *in++ = result[i];
 
@@ -362,7 +398,7 @@ inline void GxEngine::reso_tube (float fuzzy, int sf, float reso, float vibra,
 inline void GxEngine::osc_tube (float fuzzy, int sf, float reso, float vibra,
                                 float** input, float** output)
 {
-  moving_filter(input,input,sf);
+  //moving_filter(input,input,sf);
   float* in = input[0];
   float* out = output[0];
   float ot = 0;
@@ -954,6 +990,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
   int 	iSlowdel0 = int((int((fConstdel0 * fsliderdel0)) & 262143));
   int 	iSlowdel1 = int((int((fConstdel0 * fsliderdel1)) & 262143));
   int 	iSlowdel2 = int((int((fConstdel0 * fsliderdel2)) & 262143));
+  int iconvolvefilter = (int)convolvefilter;
 
   // pointer to the jack_buffer
   float*  input0 = input[0];
@@ -995,7 +1032,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
       if (ftube3)   osc_tube(fresotube3,count,f_resotube1, f_resotube2,input,input);
       if (fprdr)    fuzzy_tube(fpredrive, 1,count,input,input);
     }
-  if (fconvolve)convolver_filter(input, input, count);
+  if (fconvolve)convolver_filter(input, input, count,iconvolvefilter);
 
   // pointers to the jack_output_buffers
   float* output0 = output[2];

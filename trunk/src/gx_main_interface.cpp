@@ -1534,6 +1534,21 @@ namespace gx_gui
       closeBox();
     }
 
+    void GxMainInterface::addselector(const char* label, float* zone,const char* label0, const char* label1, const char* label2)
+    {
+      GtkObject* adjs = gtk_adjustment_new(0, 0, 2, 1, 10*1, 0);
+      uiAdjustment* cs = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adjs));
+      g_signal_connect (GTK_OBJECT (adjs), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) cs);
+
+      GtkRegler myGtkRegler;
+      GtkWidget* ser = myGtkRegler.gtk_selector_new_with_adjustment(GTK_ADJUSTMENT(adjs),label0, label1, label2);
+      g_signal_connect(ser, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)cs);
+
+      openHorizontalBox("");
+      addWidget(label, ser);
+      closeBox();
+    }
+
     void GxMainInterface::addminiswitch(const char* label, int* zone)
     {
       GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);

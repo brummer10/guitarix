@@ -175,6 +175,7 @@ namespace gx_gui
     virtual void addNumDisplay(const char* label, float* zone);
     virtual void addLiveWaveDisplay(const char* label, float* zone , float* zone1);
     virtual void addStatusDisplay(const char* label, float* zone );
+    virtual void addselector(const char* label, float* zone,const char* label0, const char* label1, const char* label2);
 
     virtual void setup();
     virtual void show();

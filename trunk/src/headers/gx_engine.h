@@ -46,7 +46,7 @@ namespace gx_engine
     private:
       enum { toggle, continuous } ctr_type;
       string name;
-      union 
+      union
       {
 	float* fvalue;
 	int* ivalue;
@@ -750,6 +750,7 @@ namespace gx_engine
 // multibandfilter end
         int fconvolve;
         float fConsta1;
+        float convolvefilter;
         //float out_to_1;
         //float out_to_2;
 
@@ -833,7 +834,7 @@ namespace gx_engine
         static float sigmoid(float x);
 
         // non static methods (modifying object's non static private members)
-        void  convolver_filter(float** input, float** output, int sf);
+        void  convolver_filter(float** input, float** output, int sf, int iconvolvefilter);
         void  moving_filter(float** input, float** output, int sf);
         void  noise_gate  (int sf, float** input);
         void  noise_shaper  (int sf, float** input, float** output);
