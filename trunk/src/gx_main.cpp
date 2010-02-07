@@ -84,9 +84,6 @@ int main(int argc, char *argv[])
 {
   // ----------------------- init GLIB threads ----------------------
   g_thread_init(NULL);
-  gdk_threads_init ();
-  gdk_threads_enter();
-
 
   //----- connect the signal handler for propper shutdown when a error appears
   signal(SIGQUIT, gx_signal_handler);

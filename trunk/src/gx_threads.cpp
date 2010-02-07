@@ -159,7 +159,7 @@ namespace gx_threads
     gboolean gx_refresh_oscilloscope(gpointer args)
     {
       // repaint the oscilloscope without involve updateAllGui().
-      if ((showwave == 1) && ((gx_engine::GxEngineState)gx_engine::checky) &&(!gx_jack::NO_CONNECTION ))
+     // if ((showwave == 1) && ((gx_engine::GxEngineState)gx_engine::checky) &&(!gx_jack::NO_CONNECTION ))
         gdk_window_invalidate_rect(GDK_WINDOW(livewa->window),NULL,TRUE);
       //gx_engine::GxEngine::instance()->viv *= -1;
       // run thread again when needed

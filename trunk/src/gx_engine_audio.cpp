@@ -342,13 +342,13 @@ inline void GxEngine::reso_tube (float fuzzy, int sf, float reso, float vibra,
           ot =  ((2.f * x + 1.f * x * x) -x)*0.5;
         }
       //bit shifting
-      ot = ot*0.001;
+     // ot = ot*0.001;
       //----- resonator
       fVecRESO0[IOTARESO&4095] = (ot + (reso * fRecRESO0[1]));
       fRecRESO0[0] = (0.5f * (fVecRESO0[(IOTARESO-iSlowRESO3)&4095] + fVecRESO0[(IOTARESO-iSlowRESO2)&4095]));
       ot = fRecRESO0[0];
       //bit shift back
-      ot = (ot*fuzzy) *1000;
+      ot = (ot*fuzzy); // *1000;
       *out++ = hard_cut(x + clip(ot*0.5,0.7),0.7);
       // post processing
       fRecRESO0[1] = fRecRESO0[0];
@@ -362,6 +362,7 @@ inline void GxEngine::reso_tube (float fuzzy, int sf, float reso, float vibra,
 inline void GxEngine::osc_tube (float fuzzy, int sf, float reso, float vibra,
                                 float** input, float** output)
 {
+  moving_filter(input,input,sf);
   float* in = input[0];
   float* out = output[0];
   float ot = 0;
@@ -387,7 +388,7 @@ inline void GxEngine::osc_tube (float fuzzy, int sf, float reso, float vibra,
       iVecoscb0[0] = 1;
       fRecoscb0[0] = (0 - (((fRecoscb0[2] + (fConstoscb0 * fRecoscb0[1])) + iVecoscb0[1]) - 1));
       //bit shifting
-      ot = ot*0.001;
+     // ot = ot*0.001;
 
       // resonator
       fVecRESO0[IOTARESO&4095] = (ot + (reso * fRecRESO0[1]));
@@ -400,7 +401,7 @@ inline void GxEngine::osc_tube (float fuzzy, int sf, float reso, float vibra,
       fRecsp0[0] = ((fConstsp6 * (fRecsp1[2] + (fRecsp1[0] + (2 * fRecsp1[1])))) - (fConstsp4 * ((fConstsp3 * fRecsp0[2]) + (fConstsp1 * fRecsp0[1]))));
       ot = (fConstsp4 * (fRecsp0[2] + (fRecsp0[0] + (2 * fRecsp0[1]))));
       //bit shift back
-      ot = (ot*fuzzy) *1000;
+      ot = (ot*fuzzy);// *1000;
       // output
       *out++ = clip(x + (ot*0.5),0.7);
       // post processing
