@@ -282,7 +282,8 @@ void GxMainInterface::setup()
                   openHorizontalBox("");
                   {
                   addminiswitch("", &engine->fconvolve);
-                  addselector("",&engine->convolvefilter,"amp 1","amp 2", "amp 3");
+                  const char* labels[7]  ={"amp 1","amp 2", "amp 3","amp 4","amp 5", "amp 6", "amp 7"};
+                  addselector("",&engine->convolvefilter,7, labels);
                   }
                   closeBox();
                 }
@@ -798,7 +799,8 @@ void GxMainInterface::setup()
                         openVerticalBox1("");
                         closeBox();
                         addregler("fuzz",&engine->fthreshold, 1.f, 0.f, 1.f, 0.01f);
-                        addselector("threshold", &engine->ffuse, "    off","    clip","foldback");
+                        const char* lab[3] = {"    off","    clip","foldback"};
+                        addselector("threshold", &engine->ffuse,3, lab);
                         openVerticalBox1("");
                         closeBox();
                       }

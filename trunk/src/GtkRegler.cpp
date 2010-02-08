@@ -672,15 +672,21 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
           reglery += (widget->allocation.height -
                       klass->selector_y) *0.5;
           int reglerstate = (int)((adj->value - adj->lower) *
-                                  klass->selector_step / (adj->upper - adj->lower));
+                                  regler->max_value / (adj->upper - adj->lower));
+          if(reglerstate > regler->max_value-1) {
+            reglerstate =  0 ;
+            gtk_range_set_value(GTK_RANGE(widget), 0);
+          }
 
           cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
           cairo_set_line_width (cr, 2.0);
-          cairo_rectangle (cr, reglerx+1,reglery+1,widget->allocation.width-4,widget->allocation.height-2);
+          cairo_rectangle (cr, reglerx+1,reglery+1,51,widget->allocation.height-2);
+          cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
+          cairo_fill_preserve (cr);
           cairo_set_source_rgb (cr, 0, 0, 0);
           cairo_stroke (cr);
-          cairo_rectangle (cr, reglerx+42,reglery+2,widget->allocation.width-46,widget->allocation.height-4);
-          cairo_set_source_rgba (cr, 0, 0, 0,0.5);
+          cairo_rectangle (cr, reglerx+42,reglery+2,9,widget->allocation.height-4);
+          cairo_set_source_rgb (cr, 0, 0, 0);
           cairo_fill_preserve (cr);
           cairo_set_line_width (cr, 1.0);
           cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
@@ -690,6 +696,11 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
           if(reglerstate==1) tir << regler->labels[1] ;
           else if(reglerstate==0) tir << regler->labels[0] ;
           else if(reglerstate==2) tir << regler->labels[2] ;
+          else if(reglerstate==3) tir << regler->labels[3] ;
+          else if(reglerstate==4) tir << regler->labels[4] ;
+          else if(reglerstate==5) tir << regler->labels[5] ;
+          else if(reglerstate==6) tir << regler->labels[6] ;
+
 
           cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
           cairo_set_font_size (cr, 10.0);
@@ -915,6 +926,24 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
                           reglerx, reglery, klass->b_toggle_x,
                           klass->b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
+     }
+
+      //---------- selector button
+     else if (regler->regler_type == 11) {
+          reglerx += (widget->allocation.width -
+                      klass->selector_x) *0.5;
+          reglery += (widget->allocation.height -
+                      klass->selector_y) *0.5;
+
+          cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+
+          cairo_rectangle (cr, reglerx+42,reglery+2,9,widget->allocation.height-4);
+          cairo_set_source_rgb (cr, 0, 0, 0);
+          cairo_fill_preserve (cr);
+          cairo_set_line_width (cr, 1.0);
+          cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
+          cairo_stroke (cr);
+          cairo_destroy(cr);
      }
 
 
@@ -1150,6 +1179,24 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
                           reglerx, reglery, klass->b_toggle_x,
                           klass->b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
+     }
+
+        //---------- selector button
+     else if (regler->regler_type == 11) {
+          reglerx += (widget->allocation.width -
+                      klass->selector_x) *0.5;
+          reglery += (widget->allocation.height -
+                      klass->selector_y) *0.5;
+
+          cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+
+          cairo_rectangle (cr, reglerx+42,reglery+2,9,widget->allocation.height-4);
+          cairo_set_source_rgb (cr, 0, 0, 0);
+          cairo_fill_preserve (cr);
+          cairo_set_line_width (cr, 1.0);
+          cairo_set_source_rgb (cr, 0.3, 0.3, 0.3);
+          cairo_stroke (cr);
+          cairo_destroy(cr);
      }
 
      return TRUE;
@@ -1401,11 +1448,11 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
                else pos = floor (pos);
                gtk_range_set_value(GTK_RANGE(widget),  pos);
           }
-
+          //---------- selector
           else if (regler->regler_type == 11) {
                regler->start_value = gtk_range_get_value(GTK_RANGE(widget));
-               if ( regler->start_value == 0) gtk_range_set_value(GTK_RANGE(widget), 1);
-               else if ( regler->start_value == 1) gtk_range_set_value(GTK_RANGE(widget), 2);
+               if ( regler->start_value < regler->max_value-1) gtk_range_set_value(GTK_RANGE(widget),regler->start_value +1);
+               //else if ( regler->start_value == 1) gtk_range_set_value(GTK_RANGE(widget), 2);
                else gtk_range_set_value(GTK_RANGE(widget), 0);
           }
 
@@ -1779,7 +1826,7 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
      //--------- selector size and steps
      klass->selector_x = 55 ;
      klass->selector_y = 15 ;
-     klass->selector_step = 2;
+     klass->selector_step = 6;
 
 //--------- event button
      klass->button_is = 0;
@@ -2054,14 +2101,16 @@ GtkWidget *GtkRegler::gtk_vslider_new_with_adjustment(GtkAdjustment *_adjustment
 }
 
 //----------- create a selector
-GtkWidget *GtkRegler::gtk_selector_new_with_adjustment(GtkAdjustment *_adjustment,const char* label0, const char* label1, const char* label2)
+GtkWidget *GtkRegler::gtk_selector_new_with_adjustment(GtkAdjustment *_adjustment, int maxv, const char* label[])
 {
      GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
      GtkRegler *regler = GTK_REGLER(widget);
      regler->regler_type = 11;
-     regler->labels[0]=label0;
-     regler->labels[1]=label1;
-     regler->labels[2]=label2;
+     regler->max_value = maxv;
+     for (int i=0; i < maxv; i++)
+     regler->labels[i]=label[i];
+     //regler->labels[1]=label1;
+     //regler->labels[2]=label2;
      if (widget) {
           gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
           g_signal_connect(GTK_OBJECT(widget), "value-changed",
