@@ -100,8 +100,8 @@ static gboolean gtk_waveview_paint(gpointer obj)
   GxJConvSettings* const jcset = GxJConvSettings::instance();
 
   /* read the floating points from a wave file as string to a file */
-   ofstream outfile ("test.txt");
-   string cim = "";
+  // ofstream outfile ("test.txt");
+  // string cim = "";
 
   // gx_system::gx_print_info("Wave view NEW expose", jcset->getIRFile().c_str());
 
@@ -172,7 +172,7 @@ static gboolean gtk_waveview_paint(gpointer obj)
 
       sig = new float[vecsize*2];
       vector<float>yval;
-       float magic = 0;
+
       pvInput =
         gx_sndfile::openInputSoundFile(jcset->getFullIRPath().c_str(), &chans, &sr, &length2);
 
@@ -247,11 +247,10 @@ static gboolean gtk_waveview_paint(gpointer obj)
                       cairo_move_to (cr, countframe*dws, yval[c]);
                       cairo_line_to (cr, countframe*dws,
                                      *sfsig++ *wah1 + yval[c]);
-                       if((c==0)&&(countframe<=45)&&(countframe>0)){
-                           magic += *sfsig;
+                      /* if((c==0)&&(countfloat<=52)&&(countfloat>9)){
                         outfile << cim <<*sfsig;
                         outfile << cim <<", ";
-                       }
+                       } */
                       countfloat++;
 
                     }
@@ -259,9 +258,8 @@ static gboolean gtk_waveview_paint(gpointer obj)
                 }
               cairo_stroke (cr);
             }
-            outfile << cim <<magic;
-            outfile << cim <<", ";
-          outfile.close();
+
+          //outfile.close();
 
           gx_sndfile::closeSoundFile(pvInput);
           // sf_close(pvInput);
