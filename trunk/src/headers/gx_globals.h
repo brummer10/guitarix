@@ -281,6 +281,8 @@ namespace gx_gui
 
   extern int show_eq;
 
+  extern int g_threads[];
+
   /* names of port lists (exclude MIDI for now) */
   extern string port_list_names[];
 

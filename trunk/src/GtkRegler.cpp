@@ -1193,6 +1193,9 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
           cairo_rectangle (cr, reglerx+42,reglery+2,9,widget->allocation.height-4);
           cairo_set_source_rgb (cr, 0, 0, 0);
           cairo_fill_preserve (cr);
+          cairo_move_to(cr,reglerx+43,reglery+10);
+          cairo_line_to (cr,reglerx+47 , reglery+4);
+          cairo_line_to (cr,reglerx+51 , reglery+10);
           cairo_set_line_width (cr, 1.0);
           cairo_set_source_rgb (cr, 0.3, 0.3, 0.3);
           cairo_stroke (cr);

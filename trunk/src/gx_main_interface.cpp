@@ -2867,11 +2867,11 @@ namespace gx_gui
       gx_update_skin_menu_item(skin_index);
 
       /* timeout in milliseconds */
-      g_timeout_add(40, gx_update_all_gui, 0);
-      g_timeout_add_full(G_PRIORITY_LOW,2200, gx_monitor_jack_ports,0, NULL);
-      g_timeout_add(750, gx_check_startup, 0);
+      g_threads[0] = g_timeout_add(40, gx_update_all_gui, 0);
+      g_threads[1] = g_timeout_add_full(G_PRIORITY_LOW,2200, gx_monitor_jack_ports,0, NULL);
+      g_threads[2] = g_timeout_add(750, gx_check_startup, 0);
       // Note: meter display timeout is a global var in gx_gui namespace
-      g_timeout_add(meter_display_timeout, gx_refresh_meter_level,   0);
+      g_threads[3] = g_timeout_add(meter_display_timeout, gx_refresh_meter_level,   0);
 
       GError* err = NULL;
       // -------------- start helper thread for ladi signal USR1 ------------

@@ -893,10 +893,8 @@ namespace gx_system
       gx_engine::stopit = "stop";
       dsp::turnOffMidi();
 
-      gx_waveview_destroy(GTK_WIDGET(gx_gui::livewa), NULL);
 
-      GtkRegler::gtk_regler_destroy();
-
+      // remove image buffers
       if (G_IS_OBJECT(gx_gui::ib))
         g_object_unref(gx_gui::ib);
 
@@ -914,6 +912,16 @@ namespace gx_system
 
       if (G_IS_OBJECT(gx_cairo::_image))
         g_object_unref(gx_cairo::_image);
+
+      // remove threads from main GTK thread
+      g_source_remove(gx_gui::g_threads[0]);
+      g_source_remove(gx_gui::g_threads[1]);
+      g_source_remove(gx_gui::g_threads[2]);
+      g_source_remove(gx_gui::g_threads[3]);
+
+      GtkRegler::gtk_regler_destroy();
+
+      gx_waveview_destroy(GTK_WIDGET(gx_gui::livewa), NULL);
 
       gtk_main_quit();
     }
@@ -935,22 +943,44 @@ namespace gx_system
             saveStateToFile(previous_state.c_str());
         }
 
+      // clean jack client stuff
+      gx_jack_cleanup();
+
+      // clean GTK stuff
       if (gx_gui::fWindow)
         gx_destroy_event();
 
-      // clean jack client stuff
-      gx_jack_cleanup();
       // delete the locked mem buffers
       if (checkfreq)
-        delete[] checkfreq;
+        {
+          checkfreq = NULL;
+          delete[] checkfreq;
+        }
+
       if (get_frame)
-        delete[] get_frame;
+        {
+          get_frame = NULL;
+          delete[] get_frame;
+        }
+
       if (get_frame1)
-        delete[] get_frame1;
+        {
+          get_frame1 = NULL;
+          delete[] get_frame1;
+        }
+
       if (oversample)
-        delete[] oversample;
+        {
+          oversample = NULL;
+          delete[] oversample;
+        }
+
       if (result)
-        delete[] result;
+        {
+          result = NULL;
+          delete[] result;
+        }
+
 
        /** disable fft need some fix for work prop **/
        /*
@@ -963,7 +993,7 @@ namespace gx_system
       fftw_free(fftout1);
       fftw_free(fftresult);
       */
-
+      printf("  guitarix exit  ***  ciao . . \n");
       exit(GPOINTER_TO_INT(data));
     }
 
