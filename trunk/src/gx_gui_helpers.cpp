@@ -239,7 +239,9 @@ namespace gx_gui
 
     void gx_jack_report_xrun()
     {
-      g_idle_add(gx_threads::gx_xrun_report,gpointer (NULL));
+      guint xrun_id = 0;
+      if (xrun_id == 0 ||g_main_context_find_source_by_id(NULL, xrun_id) == NULL)
+                xrun_id =g_idle_add(gx_threads::gx_xrun_report,gpointer (NULL));
     }
 
     //----menu function gx_show_oscilloscope
