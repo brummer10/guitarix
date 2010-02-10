@@ -183,7 +183,7 @@ namespace gx_threads
     }
     gboolean gx_xrun_report(gpointer arg)
     {
-
+        usleep(40);
         ostringstream s;
         s << " delay of at least " << gx_jack::xdel << " microsecs";
         gx_print_warning("Jack XRun", s.str());

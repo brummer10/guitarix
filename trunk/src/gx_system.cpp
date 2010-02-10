@@ -886,14 +886,6 @@ namespace gx_system
     {
       (void)gx_child_process::gx_terminate_child_procs();
 
-      gx_gui::shownote = -1;
-      gx_gui::showwave = 0;
-      gx_jack::NO_CONNECTION = 1;
-
-      gx_engine::stopit = "stop";
-      dsp::turnOffMidi();
-
-
       // remove image buffers
       if (G_IS_OBJECT(gx_gui::ib))
         g_object_unref(gx_gui::ib);
@@ -942,6 +934,13 @@ namespace gx_system
             gx_gui::GxMainInterface::instance()->
             saveStateToFile(previous_state.c_str());
         }
+
+      gx_gui::shownote = -1;
+      gx_gui::showwave = 0;
+      gx_jack::NO_CONNECTION = 1;
+
+      gx_engine::stopit = "stop";
+      dsp::turnOffMidi();
 
       // clean jack client stuff
       gx_jack_cleanup();
