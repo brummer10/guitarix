@@ -1542,7 +1542,7 @@ namespace gx_gui
 
       GtkRegler myGtkRegler;
       GtkWidget* ser = myGtkRegler.gtk_selector_new_with_adjustment(GTK_ADJUSTMENT(adjs), maxv, labels);
-      g_signal_connect(ser, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)cs);
+      g_signal_connect(ser, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)cs);
 
       openHorizontalBox("");
       addWidget(label, ser);
