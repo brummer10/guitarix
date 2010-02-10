@@ -906,11 +906,11 @@ namespace gx_system
         g_object_unref(gx_cairo::_image);
 
       // remove threads from main GTK thread
-      g_source_remove(gx_gui::g_threads[0]);
-      g_source_remove(gx_gui::g_threads[1]);
-      g_source_remove(gx_gui::g_threads[2]);
-      g_source_remove(gx_gui::g_threads[3]);
-      g_source_remove(gx_gui::g_threads[4]);
+      if(gx_gui::g_threads[0] > 0)g_source_remove(gx_gui::g_threads[0]);
+      if(gx_gui::g_threads[1] > 0)g_source_remove(gx_gui::g_threads[1]);
+      if(gx_gui::g_threads[2] > 0)g_source_remove(gx_gui::g_threads[2]);
+      if(gx_gui::g_threads[3] > 0)g_source_remove(gx_gui::g_threads[3]);
+      if(gx_gui::g_threads[4] > 0)g_source_remove(gx_gui::g_threads[4]);
 
       GtkRegler::gtk_regler_destroy();
 
