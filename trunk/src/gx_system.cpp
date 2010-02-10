@@ -910,6 +910,7 @@ namespace gx_system
       g_source_remove(gx_gui::g_threads[1]);
       g_source_remove(gx_gui::g_threads[2]);
       g_source_remove(gx_gui::g_threads[3]);
+      g_source_remove(gx_gui::g_threads[4]);
 
       GtkRegler::gtk_regler_destroy();
 
