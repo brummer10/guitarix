@@ -80,10 +80,11 @@ namespace gx_engine
       MidiControllerList();
       MidiControllerList(gx_system::JsonParser&);
       midi_controller_list operator[](int n) { return map[n]; }
-      void set_config_mode(bool mode);
+      void set_config_mode(bool mode, int ctl=-1);
       bool get_config_mode() { return midi_config_mode; }
       int get_current_control() { return last_midi_control; }
       void set(int ctr, int val);
+      void deleteZone(float* zone);
       void modifyCurrent(float* zone, float lower, float upper);
       int zone2controller(float *zone);
       void load_defaults();
@@ -93,7 +94,7 @@ namespace gx_engine
     extern MidiControllerList controller_map;
 
     void recall_midi_controller_map();
-    void save_midi_controller_map();
+    bool save_midi_controller_map();
 
     /* --------------- function declarations --------------- */
 

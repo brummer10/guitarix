@@ -52,7 +52,7 @@ using namespace gx_cairo;
 using namespace gx_threads;
 
 namespace gx_gui
-  {
+{
 
     // -------------------------------------------------------------
     // GxMainInterface widget and method definitions
@@ -1174,126 +1174,215 @@ namespace gx_gui
       else return 0;
     }
 
+    class MidiStandardControllers
+    {
+    private:
+	 map<int,const char*> m;
+    public:
+	 MidiStandardControllers();
+	 const char* operator[](int ctr) { return m[ctr]; }
+    };
+
+    MidiStandardControllers midi_std_ctr;
+
+    MidiStandardControllers::MidiStandardControllers()
+    {
+	 m.insert(pair<int, const char*>(0, "Bank Select MSB"));
+	 m.insert(pair<int, const char*>(1, "Modulation MSB"));
+	 m.insert(pair<int, const char*>(2, "Breath Contoller"));
+
+	 m.insert(pair<int, const char*>(4, "Foot Controller MSB"));
+	 m.insert(pair<int, const char*>(5, "Portamento Time MSB"));
+	 m.insert(pair<int, const char*>(6, "Data Entry MSB"));
+	 m.insert(pair<int, const char*>(7, "Main Volume"));
+	 m.insert(pair<int, const char*>(8, "Balance"));
+
+	 m.insert(pair<int, const char*>(10, "Pan"));
+	 m.insert(pair<int, const char*>(11, "Expression"));
+	 m.insert(pair<int, const char*>(12, "Effect Control 1"));
+	 m.insert(pair<int, const char*>(13, "Effect Control 2"));
+
+	 m.insert(pair<int, const char*>(32, "Bank Select LSB"));
+
+	 m.insert(pair<int, const char*>(64, "Sustain"));
+	 m.insert(pair<int, const char*>(65, "Portamento"));
+	 m.insert(pair<int, const char*>(66, "Sostenuto"));
+	 m.insert(pair<int, const char*>(67, "Soft Pedal"));
+	 m.insert(pair<int, const char*>(68, "Legato Footswitch"));
+	 m.insert(pair<int, const char*>(69, "Hold 2"));
+	 m.insert(pair<int, const char*>(70, "Sound Contr. 1")); // default: Sound Variation
+	 m.insert(pair<int, const char*>(71, "Sound Contr. 2")); // default: Timbre/Harmonic Content
+	 m.insert(pair<int, const char*>(72, "Sound Contr. 3")); // default: Release Time
+	 m.insert(pair<int, const char*>(73, "Sound Contr. 4")); // default: Attack Time
+	 m.insert(pair<int, const char*>(74, "Sound Contr. 5")); // default: Brightness
+	 m.insert(pair<int, const char*>(75, "Sound Contr. 6"));
+	 m.insert(pair<int, const char*>(76, "Sound Contr. 7"));
+	 m.insert(pair<int, const char*>(77, "Sound Contr. 8"));
+	 m.insert(pair<int, const char*>(78, "Sound Contr. 9"));
+	 m.insert(pair<int, const char*>(79, "Sound Contr. 10"));
+
+	 m.insert(pair<int, const char*>(84, "Portamento Control"));
+
+	 m.insert(pair<int, const char*>(91, "Eff. 1 Depth"));
+	 m.insert(pair<int, const char*>(92, "Eff. 2 Depth"));
+	 m.insert(pair<int, const char*>(93, "Eff. 3 Depth"));
+	 m.insert(pair<int, const char*>(94, "Eff. 4 Depth"));
+	 m.insert(pair<int, const char*>(95, "Eff. 5 Depth"));
+	 m.insert(pair<int, const char*>(96, "Data Inc"));
+	 m.insert(pair<int, const char*>(97, "Data Dec"));
+	 m.insert(pair<int, const char*>(98, "NRPN LSB"));
+	 m.insert(pair<int, const char*>(99, "NRPN MSB"));
+	 m.insert(pair<int, const char*>(100, "RPN LSB"));
+	 m.insert(pair<int, const char*>(101, "RPN MSB"));
+	 //Channel Mode Messages
+	 m.insert(pair<int, const char*>(120, "All Sounds Off"));
+	 m.insert(pair<int, const char*>(121, "Controller Reset"));
+	 m.insert(pair<int, const char*>(122, "Local Control"));
+	 m.insert(pair<int, const char*>(123, "All Notes Off"));
+	 m.insert(pair<int, const char*>(124, "Omni Off"));
+	 m.insert(pair<int, const char*>(125, "Omni On"));
+	 m.insert(pair<int, const char*>(126, "Mono On (Poly Off)"));
+	 m.insert(pair<int, const char*>(127, "Poly On (Mono Off)"));
+    }
+
     class MidiConnect
     {
     private:
-      float *fZone;
-      GtkAdjustment* adj_lower;
-      GtkAdjustment* adj_upper;
-      GtkWidget* ok_button;
-      GtkWidget* label_old;
-      GtkWidget* label_new;
-      int current_control;
-      static const char *ctl_to_str(int n);
+	 enum { RESPONSE_DELETE = 1 };
+	 float *fZone;
+	 GtkAdjustment* adj_lower;
+	 GtkAdjustment* adj_upper;
+	 GtkWidget* dialog;
+	 GtkWidget* entry_new;
+	 GtkWidget* label_desc;
+	 int current_control;
+	 static string ctr_desc(int ctr);
+	 static const char *ctl_to_str(int n);
     public:
-      MidiConnect(GdkEventButton *event, float *zone, float lower = 0, float upper = 0, float step = 0);
-      static void midi_ok_cb(GtkWidget *widget, gpointer data);
-      static void midi_destroy_cb(GtkWidget *widget, gpointer data);
-      static gboolean check_midi_cb(gpointer);
+	 MidiConnect(GdkEventButton *event, float *zone, float lower = 0, float upper = 0, float step = 0);
+	 static void midi_response_cb(GtkWidget *widget, gint response_id, gpointer data);
+	 static void midi_destroy_cb(GtkWidget *widget, gpointer data);
+	 static gboolean check_midi_cb(gpointer);
     };
 
-    void MidiConnect::midi_ok_cb(GtkWidget *widget, gpointer data)
+    string MidiConnect::ctr_desc(int ctr)
     {
-      MidiConnect* m = (MidiConnect*)data;
-      gx_engine::controller_map.modifyCurrent(m->fZone,
-					   gtk_adjustment_get_value(m->adj_lower),
-					   gtk_adjustment_get_value(m->adj_upper));
-      gx_engine::save_midi_controller_map();
+	 const char *p = midi_std_ctr[ctr];
+	 if (!p)
+	      return "";
+	 return "(" + string(p) + ")";
+    }
+
+
+    void MidiConnect::midi_response_cb(GtkWidget *widget, gint response_id, gpointer data)
+    {
+	 MidiConnect* m = (MidiConnect*)data;
+	 switch (response_id) {
+	 case GTK_RESPONSE_OK:
+	      gx_engine::controller_map.modifyCurrent(m->fZone,
+						      gtk_adjustment_get_value(m->adj_lower),
+						      gtk_adjustment_get_value(m->adj_upper));
+	      gx_engine::save_midi_controller_map();
+	      break;
+	 case RESPONSE_DELETE:
+	      gx_engine::controller_map.deleteZone(m->fZone);
+	      gx_engine::save_midi_controller_map();
+	      break;
+	 }
+	 gtk_widget_destroy(m->dialog);
     }
 
     void MidiConnect::midi_destroy_cb(GtkWidget *widget, gpointer data)
     {
-      MidiConnect* m = (MidiConnect*)data;
-      gx_engine::controller_map.set_config_mode(false);
-      delete m;
+	 MidiConnect *m = (MidiConnect*)data;
+	 gx_engine::controller_map.set_config_mode(false);
+	 delete m;
     }
 
     const char* MidiConnect::ctl_to_str(int n)
     {
-      static char buf[4];
-      if (n < 0)
-	strcpy(buf, "---");
-      else
-	snprintf(buf, sizeof(buf), "%3d", n);
-      return buf;
+	 static char buf[12];
+	 if (n < 0)
+	      strcpy(buf, "---");
+	 else
+	      snprintf(buf, sizeof(buf), "%3d", n);
+	 return buf;
     }
 
     gboolean MidiConnect::check_midi_cb(gpointer data)
     {
-      MidiConnect* m = (MidiConnect*)data;
-      if (!gx_engine::controller_map.get_config_mode())
-	return FALSE;
-      int ctl = gx_engine::controller_map.get_current_control();
-      gtk_label_set_text(GTK_LABEL(m->label_new), ctl_to_str(ctl));
-      if (ctl != -1)
-	gtk_widget_set_sensitive(m->ok_button, TRUE);
-      return TRUE;
+	 MidiConnect *m = (MidiConnect*)data;
+	 if (!gx_engine::controller_map.get_config_mode())
+	      return FALSE;
+	 int ctl = gx_engine::controller_map.get_current_control();
+	 if (m->current_control == ctl)
+	      return TRUE;
+	 if (m->current_control != -1) {
+	      gtk_dialog_set_response_sensitive(GTK_DIALOG(m->dialog), GTK_RESPONSE_OK, TRUE);
+	      gtk_dialog_set_default_response(GTK_DIALOG(m->dialog), GTK_RESPONSE_OK);
+	 }
+	 m->current_control = ctl;
+	 gtk_entry_set_text(GTK_ENTRY(m->entry_new), ctl_to_str(ctl));
+	 gtk_label_set_text(GTK_LABEL(m->label_desc), ctr_desc(ctl).c_str());
+	 return TRUE;
     }
 
+     
     MidiConnect::MidiConnect(GdkEventButton *event, float *zone, float lower, float upper, float step):
-      fZone(zone),
-      current_control(gx_engine::controller_map.zone2controller(zone))
+	 fZone(zone),
+	 current_control(-1)
     {
-      GtkWidget * dialog,* spinner, *cancel_button, *vbox, *hbox;
-      bool toggle = (upper == 0 && lower == 0);
-      dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-      vbox = gtk_vbox_new (false, 5);
-      gtk_container_add (GTK_CONTAINER(vbox), gtk_label_new("Move a Midi-Controller"));
-      hbox = gtk_hbox_new (true, 2);
-      gtk_container_add (GTK_CONTAINER(hbox), gtk_label_new("old"));
-      label_old = gtk_label_new("-b-");
-      gtk_container_add (GTK_CONTAINER(hbox), label_old);
-      gtk_container_add (GTK_CONTAINER(vbox), hbox);
-      hbox = gtk_hbox_new (true, 2);
-      gtk_container_add (GTK_CONTAINER(hbox), gtk_label_new("new"));
-      label_new = gtk_label_new("-a-");
-      gtk_container_add (GTK_CONTAINER(hbox), label_new);
-      gtk_container_add (GTK_CONTAINER(vbox), hbox);
-      if (!toggle) {
-	adj_lower = GTK_ADJUSTMENT(gtk_adjustment_new(lower, lower, upper, step, 10*step, 0));
-	spinner = gtk_spin_button_new (adj_lower, step, precision(step));
-	gtk_entry_set_activates_default(GTK_ENTRY(spinner), TRUE);
-	gtk_container_add (GTK_CONTAINER(vbox), spinner);
-	adj_upper = GTK_ADJUSTMENT(gtk_adjustment_new(upper, lower, upper, step, 10*step, 0));
-	spinner = gtk_spin_button_new (adj_upper, step, precision(step));
-	gtk_entry_set_activates_default(GTK_ENTRY(spinner), TRUE);
-	gtk_container_add (GTK_CONTAINER(vbox), spinner);
-      }
-      hbox = gtk_hbox_new (false, 2);
-      cancel_button  = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-      gtk_container_add (GTK_CONTAINER(hbox), cancel_button);
-      ok_button  = gtk_button_new_from_stock(GTK_STOCK_OK);
-      if (current_control == -1)
-	gtk_widget_set_sensitive(ok_button, FALSE);
-      gtk_widget_set_can_default(ok_button, TRUE);
-      gtk_container_add (GTK_CONTAINER(hbox), ok_button);
-      gtk_container_add (GTK_CONTAINER(vbox), hbox);
-      gtk_container_add (GTK_CONTAINER(dialog), vbox);
-      gtk_window_set_decorated(GTK_WINDOW(dialog), false);
-      gtk_window_set_title (GTK_WINDOW (dialog), "set");
-      gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
-      gtk_window_set_gravity(GTK_WINDOW(dialog), GDK_GRAVITY_SOUTH);
-      gtk_window_set_position (GTK_WINDOW(dialog), GTK_WIN_POS_MOUSE);
-      gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
-      gtk_widget_grab_default(ok_button);
-
-      gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
-      g_signal_connect(ok_button, "clicked", G_CALLBACK (midi_ok_cb), this);
-      g_signal_connect_swapped (ok_button, "clicked",
-				G_CALLBACK (gtk_widget_destroy), dialog);
-      g_signal_connect_swapped (cancel_button, "clicked",
-				G_CALLBACK (gtk_widget_destroy), dialog);
-      g_signal_connect(dialog, "destroy", G_CALLBACK(midi_destroy_cb), this);
-      gtk_label_set_text(GTK_LABEL(label_old), ctl_to_str(current_control));
-      gx_engine::controller_map.set_config_mode(true);
-      g_timeout_add(40, check_midi_cb, this);
-      gtk_widget_show_all(dialog);
+	 bool toggle = (upper == 0 && lower == 0);
+	 GtkBuilder * builder = gtk_builder_new();
+	 GError *err = NULL;
+	 if (!gtk_builder_add_from_file(builder,(gx_builder_dir+"midi.glade").c_str(), &err)) {
+	      gx_print_fatal("gtk builder", err->message);
+	      g_error_free(err);
+	 }
+	 dialog = GTK_WIDGET(gtk_builder_get_object(builder, "MidiConnect"));
+	 const BaseParameter* p = parameter_map[zone];
+	 if (p) {
+	      gtk_label_set_text(GTK_LABEL(gtk_builder_get_object(builder, "zone_name")),
+				 (p->group() + ": " + p->name()).c_str());
+	 } else {
+	      gx_print_error("midi controller", "no description for parameter zone");
+	 }
+	 if (toggle) {
+	      gtk_widget_hide(GTK_WIDGET(gtk_builder_get_object(builder, "range_label")));
+	      gtk_widget_hide(GTK_WIDGET(gtk_builder_get_object(builder, "range_box")));
+	 } else {
+	      GtkSpinButton *spinner;
+	      adj_lower = GTK_ADJUSTMENT(gtk_adjustment_new(lower, lower, upper, step, 10*step, 0));
+	      spinner = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "lower"));
+	      float climb_rate = 0.0;
+	      gtk_spin_button_configure(spinner, adj_lower, climb_rate, precision(step));
+	      adj_upper = GTK_ADJUSTMENT(gtk_adjustment_new(upper, lower, upper, step, 10*step, 0));
+	      spinner = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "upper"));
+	      gtk_spin_button_configure(spinner, adj_upper, climb_rate, precision(step));
+	 }
+	 entry_new = GTK_WIDGET(gtk_builder_get_object(builder, "new"));
+	 label_desc = GTK_WIDGET(gtk_builder_get_object(builder, "new_desc"));
+	 g_signal_connect(dialog, "response", G_CALLBACK(midi_response_cb), this);
+	 g_signal_connect(dialog, "destroy", G_CALLBACK(midi_destroy_cb), this);
+	 int ctl = gx_engine::controller_map.zone2controller(zone);
+	 if (ctl == -1) {
+	      gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), RESPONSE_DELETE, FALSE);
+	      gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_OK, FALSE);
+	      gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+	 }
+	 gx_engine::controller_map.set_config_mode(true, ctl);
+	 check_midi_cb(this);
+	 gtk_widget_show_all(dialog);
+	 g_timeout_add(40, check_midi_cb, this);
+	 return;
     }
 
     gboolean uiAdjustment::button_press_scale_cb (GtkWidget *widget, GdkEventButton *event, gpointer data)
     {
       if (event->button != 2)
 	return FALSE;
+      if (gx_engine::controller_map.get_config_mode())
+	return TRUE;
       uiAdjustment* adj = (uiAdjustment*)data;
       new MidiConnect(event, adj->fZone,
 		      gtk_adjustment_get_lower(adj->fAdj),
@@ -1306,6 +1395,8 @@ namespace gx_gui
     {
       if (event->button != 2)
 	return FALSE;
+      if (gx_engine::controller_map.get_config_mode())
+	return TRUE;
       uiAdjustment* adj = (uiAdjustment*)data;
       new MidiConnect(event, adj->fZone);
       return TRUE;
@@ -2875,24 +2966,20 @@ namespace gx_gui
 
       GError* err = NULL;
       // -------------- start helper thread for ladi signal USR1 ------------
-      if (g_thread_create(gx_signal_helper_thread, NULL, FALSE, &err)  == NULL)
-        {
-          printf("Thread create failed: %s!!\n", err->message );
-          g_error_free(err);
-          err = NULL;
-          //FIXME: abort program
-        }
+      if (g_thread_create(gx_signal_helper_thread, NULL, FALSE, &err)  == NULL) {
+	gx_print_fatal("system startup", string("Thread create failed (signal): ") + err->message);
+	g_error_free(err);
+	return;
+      }
 
       // -------------- start helper thread for midi control ------------
       sem_init (&program_change_sem, 0, 0);
 
-      if (g_thread_create(gx_program_change_helper_thread, NULL, FALSE, &err)  == NULL)
-        {
-          printf("Thread create failed: %s!!\n", err->message );
-          g_error_free(err);
-          err = NULL;
-          //FIXME: abort program
-        }
+      if (g_thread_create(gx_program_change_helper_thread, NULL, FALSE, &err)  == NULL) {
+	gx_print_fatal("system startup", string("Thread create failed (midi): ") + err->message);
+	g_error_free(err);
+	return;
+      }
 
       gtk_main();
 

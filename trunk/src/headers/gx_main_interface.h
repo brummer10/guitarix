@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Hermann Meyer and James Warden
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 
 /* ------- This is the GUI namespace ------- */
 
+#include <cassert>
+
 #pragma once
 
 #ifndef NJACKLAT
@@ -31,6 +33,135 @@
 
 namespace gx_gui
 {
+
+class ParameterGroups
+{
+private:
+     map<string,string> groups;
+public:
+     string operator[](string id) { return groups[id]; }
+     void insert(string id, string group)
+     {
+	  groups.insert(pair<string,string>(id, group));
+     }
+};
+
+class ParameterNames
+{
+private:
+     map<string,string> names;
+public:
+     string operator[](string id) { return names[id]; }
+     void insert(string id, string name)
+     {
+	  names.insert(pair<string,string>(id, name));
+     }
+};
+
+class BaseParameter
+{
+public:
+     enum paramtype { Continuous, floatSwitch, boolSwitch, intEnum };
+     string id;
+     paramtype p_type;
+     union {
+	  struct {
+	       float *value;
+	       float std_value;
+	       float lower;
+	       float upper;
+	       float step;
+	  } f;
+	  struct {
+	       bool *value;
+	       bool std_value;
+	  } b;
+	  struct {
+	       int *value;
+	       int std_value;
+	  } i;
+     };
+
+     virtual string group() const;
+     virtual string name() const;
+
+     BaseParameter(string i, float *pv, float sv, float l, float u, float s):
+	  id(i),
+	  p_type(Continuous),
+	  f{pv,sv,l,u,s}
+     {}
+
+     BaseParameter(string i, float *pv):
+	  id(i),
+	  p_type(floatSwitch),
+	  f{pv,0}
+     {}
+
+     BaseParameter(string i, bool *pv, bool sv):
+	  id(i),
+	  p_type(boolSwitch),
+	  b{pv,sv}
+     {}
+
+     BaseParameter(string idp, int *pv, int sv):
+	  id(idp),
+	  p_type(intEnum),
+	  i{pv,sv}
+     {}
+
+};
+
+class Parameter: public BaseParameter
+{
+ public:
+     string _group;
+     string _name;
+
+     virtual string group() const;
+     virtual string name() const;
+
+     Parameter(string i, float *pv, float sv, float l, float u, float s):
+	  BaseParameter(i, pv, sv, l, u, s)
+     {
+	  init();
+     }
+     Parameter(string i, float *pv):
+	  BaseParameter(i, pv)
+     {
+	  init();
+     }
+     Parameter(string i, bool *pv, bool sv):
+	  BaseParameter(i, pv, sv)
+     {
+	  init();
+     }
+     Parameter(string idp, int *pv, int sv):
+	  BaseParameter(idp, pv, sv)
+     {
+	  init();
+     }
+private:
+     string group_id() { return id.substr(0, id.find_last_of(".")); }
+     void init();
+};
+
+class ParamMap
+{
+private:
+     map<string, const BaseParameter*> id_map;
+     map<const void*, const BaseParameter*> addr_map;
+
+public:
+     const BaseParameter* operator[](const void *p) { return addr_map[p]; }
+     const BaseParameter* operator[](string id) { return id_map[id]; }
+     void insert(const BaseParameter* param);
+};
+
+extern ParamMap parameter_map;
+
+void initParameter(gx_engine::GxEngine* engine);
+
+
   /* ---------------- the main GUI class ---------------- */
   // Note: this header file depends on gx_engine.h
 

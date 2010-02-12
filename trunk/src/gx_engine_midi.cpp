@@ -124,10 +124,11 @@ namespace gx_engine
   {
   }
 
-  void MidiControllerList::set_config_mode(bool mode)
+  void MidiControllerList::set_config_mode(bool mode, int ctl)
   {
+    assert(mode != midi_config_mode);
     if (mode)
-      last_midi_control = -1;
+      last_midi_control = ctl;
     midi_config_mode = mode;
   }
 
@@ -143,26 +144,29 @@ namespace gx_engine
     }
     return -1;
   }
-  
+
+  void MidiControllerList::deleteZone(float *zone)
+  {
+       assert(midi_config_mode == true);
+       for (controller_array::iterator pctr = map.begin(); pctr != map.end(); pctr++) {
+	    for (midi_controller_list::iterator i = pctr->begin(); i != pctr->end(); i++) {
+		 if (i->isZone(zone)) {
+		      pctr->erase(i);
+		      break;
+		 }
+	    }
+       }
+  }
+
   void MidiControllerList::modifyCurrent(float* zone, float lower, float upper)
   {
-    assert(midi_config_mode == true);
-    // maximal one controller for a zone allowed
-    for (controller_array::iterator pctr = map.begin(); pctr != map.end(); pctr++)
-      {
-	for (midi_controller_list::iterator i = pctr->begin(); i != pctr->end(); i++)
-	  {
-	    if (i->isZone(zone))
-	      {
-		pctr->erase(i);
-		break;
-	      }
-	  }
-      }
-    if (last_midi_control == -1)
-      return;
-    // add zone to controller
-    map[last_midi_control].push_front(MidiController("", zone, lower, upper));
+       assert(midi_config_mode == true);
+       // maximal one controller for a zone allowed
+       deleteZone(zone);
+       if (last_midi_control == -1)
+	    return;
+       // add zone to controller
+       map[last_midi_control].push_front(MidiController("", zone, lower, upper));
   }
 
   void MidiControllerList::set(int ctr, int val)
@@ -234,24 +238,35 @@ namespace gx_engine
   void recall_midi_controller_map()
   {
     ifstream f(gx_system::gx_user_dir + gx_jack::client_name + "_midi_rc");
-    if (!f.good())
-      {
-	controller_map.load_defaults();
-	save_midi_controller_map();
+    if (!f.good()) {
+      controller_map.load_defaults();
+      if (save_midi_controller_map()) {
+	gx_system::gx_print_warning("Midi controller settings", "initializing default settings");
       }
-    else {
+    } else {
       gx_system::JsonParser p(f);
-      //## FIXME catch JsonException
-      controller_map = MidiControllerList(p);
+      try {
+	controller_map = MidiControllerList(p);
+      }
+      catch (gx_system::JsonException& e) {
+	gx_system::gx_print_warning("Midi controller settings", "parse error");
+      }
     }
   }
 
-  void save_midi_controller_map()
+  bool save_midi_controller_map()
   {
-    ofstream f(gx_system::gx_user_dir + gx_jack::client_name + "_midi_rc");
-    //## FIXME check if stream is good
-    gx_system::JsonWriter w(f);
-    controller_map.writeJSON(w);
+    string fname = gx_system::gx_user_dir + gx_jack::client_name + "_midi_rc";
+    ofstream f(fname);
+    if (f.good()) {
+      gx_system::JsonWriter w(f);
+      controller_map.writeJSON(w);
+    }
+    if (!f.good()) {
+      gx_system::gx_print_warning("Midi controller settings", "cannot write to "+fname);
+      return false;
+    }
+    return true;
   }
 
 
@@ -260,22 +275,19 @@ namespace gx_engine
   //----- jack process callback for the midi input
   void GxEngine::compute_midi_in(void* midi_input_port_buf)
   {
-    jack_midi_event_t in_event;
-    jack_nframes_t event_count = jack_midi_get_event_count(midi_input_port_buf);
-    unsigned int i;
-    for (i=0; i<event_count; i++)
-      {
-	jack_midi_event_get(&in_event, midi_input_port_buf, i);
-	if ((in_event.buffer[0] & 0xf0) == 0xc0)   // program change on any midi channel
-	  {
-	    g_atomic_int_set(&gx_gui::program_change, in_event.buffer[1]);
-	    sem_post(&gx_gui::program_change_sem);
-	  }
-	else if ((in_event.buffer[0] & 0xf0) == 0xb0)    // controller
-	  {
-	    controller_map.set(in_event.buffer[1], in_event.buffer[2]);
-	  }
-      }
+       jack_midi_event_t in_event;
+       jack_nframes_t event_count = jack_midi_get_event_count(midi_input_port_buf);
+       unsigned int i;
+       for (i=0; i<event_count; i++) {
+	    jack_midi_event_get(&in_event, midi_input_port_buf, i);
+	    if ((in_event.buffer[0] & 0xf0) == 0xc0) {  // program change on any midi channel
+		 g_atomic_int_set(&gx_gui::program_change, in_event.buffer[1]);
+		 sem_post(&gx_gui::program_change_sem);
+	    }
+	    else if ((in_event.buffer[0] & 0xf0) == 0xb0) {   // controller
+		 controller_map.set(in_event.buffer[1], in_event.buffer[2]);
+	    }
+       }
   }
 
   void GxEngine::compute_midi(int len)

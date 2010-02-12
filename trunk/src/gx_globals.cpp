@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Hermann Meyer and James Warden
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -247,6 +247,7 @@ namespace gx_system
     const string gx_pixmap_dir = string(GX_PIXMAPS_DIR) + "/";
     const string gx_style_dir  = string(GX_STYLE_DIR) + "/";
     const string gx_user_dir   = string(getenv ("HOME")) + string("/") + string(guitarix_dir) + "/";
+    string gx_builder_dir = string(GX_BUILDER_DIR) + "/";
 
     /* shell variable names */
     const char* shell_var_name[] =

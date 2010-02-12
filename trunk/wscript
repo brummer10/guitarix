@@ -66,7 +66,8 @@ def configure(conf):
     conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'
 
     # defines for compilation
-    conf.define('GX_STYLE_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix')))
+    conf.define('GX_STYLE_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','skins')))
+    conf.define('GX_BUILDER_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','builder')))
     conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
     conf.define('GX_VERSION', VERSION)
 
@@ -101,7 +102,8 @@ def configure(conf):
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
     display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
     display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
-    display_msg("Guitarix share directory", conf.env['GX_STYLE_DIR'], 'CYAN')
+    display_msg("Guitarix style directory", conf.env['GX_STYLE_DIR'], 'CYAN')
+    display_msg("Guitarix builder directory", conf.env['GX_BUILDER_DIR'], 'CYAN')
     display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
 
     print

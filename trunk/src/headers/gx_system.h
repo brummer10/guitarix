@@ -123,6 +123,7 @@ namespace gx_system
   void  gx_print_logmsg (const char*, const string&, GxMsgType);
   void  gx_print_warning(const char*, const string&);
   void  gx_print_error  (const char*, const string&);
+  void  gx_print_fatal  (const char*, const string&);
   void  gx_print_info(const char*, const string&);
 
   void  gx_process_cmdline_options(int&, char**&, string*);

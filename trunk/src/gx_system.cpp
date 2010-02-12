@@ -329,6 +329,7 @@ namespace gx_system
 
           gboolean clear = FALSE;
           gchar* rcset = NULL;
+          gchar* builder_dir = NULL;
           GOptionGroup* optgroup_gtk = g_option_group_new("gtk",
                                        "\033[1;32mGTK configuration options\033[0m",
                                        "\033[1;32mGTK configuration options\033[0m",
@@ -337,6 +338,8 @@ namespace gx_system
           {
             { "clear", 'c', 0, G_OPTION_ARG_NONE, &clear, "Use 'default' GTK style", NULL },
             { "rcset", 'r', 0, G_OPTION_ARG_STRING, &rcset, opskin.c_str(), "STYLE" },
+            { "builder-dir", 'B', 0, G_OPTION_ARG_STRING, &builder_dir, "directory from which .glade files are loaded", "DIR" },
+
             { NULL }
           };
           g_option_group_add_entries(optgroup_gtk, opt_entries_gtk);
@@ -440,6 +443,14 @@ namespace gx_system
             {
               g_free(rcset);
             }
+
+	  // *** process builder_dir
+	  if (builder_dir != NULL) {
+	       gx_builder_dir = builder_dir;
+	       if (!gx_builder_dir.empty() && gx_builder_dir[gx_builder_dir.size()-1] != '/')
+		    gx_builder_dir += "/";
+	       g_free(builder_dir);
+	  }
 
           // *** process jack input
           if (jack_input != NULL)
@@ -650,6 +661,21 @@ namespace gx_system
     void gx_print_error(const char* func, const string& msg)
     {
       gx_print_logmsg(func, msg, kError);
+    }
+
+    // fatal error
+    void gx_print_fatal(const char* func, const string& msg)
+    {
+      string msgbuf = string("fatal system error: ") + func + "  ***  " + msg + "\n";
+      cerr << msgbuf;
+      GtkWidget* widget = gtk_message_dialog_new(NULL,
+						 GtkDialogFlags(GTK_DIALOG_MODAL|
+								GTK_DIALOG_DESTROY_WITH_PARENT),
+						 GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
+						 "%s", msgbuf.c_str());
+      gtk_window_set_title(GTK_WINDOW(widget), "Guitarix");
+      gtk_dialog_run(GTK_DIALOG(widget));
+      gx_clean_exit(NULL, (gpointer)1);
     }
 
     // info
