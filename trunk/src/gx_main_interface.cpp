@@ -1342,8 +1342,12 @@ namespace gx_gui
 	 dialog = GTK_WIDGET(gtk_builder_get_object(builder, "MidiConnect"));
 	 const BaseParameter* p = parameter_map[zone];
 	 if (p) {
-	      gtk_label_set_text(GTK_LABEL(gtk_builder_get_object(builder, "zone_name")),
-				 (p->group() + ": " + p->name()).c_str());
+	      GtkWidget *zn = GTK_WIDGET(gtk_builder_get_object(builder, "zone_name"));
+	      GtkStyle *style = gtk_widget_get_style(zn);
+	      pango_font_description_set_size(style->font_desc, 12*PANGO_SCALE);
+	      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+	      gtk_widget_modify_font(zn, style->font_desc);
+	      gtk_label_set_text(GTK_LABEL(zn), (p->group() + ": " + p->name()).c_str());
 	 } else {
 	      gx_print_error("midi controller", "no description for parameter zone");
 	 }
