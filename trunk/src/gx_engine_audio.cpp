@@ -370,6 +370,13 @@ inline void GxEngine::noise_shaper (int sf, float** input, float** output)
 
 }
 
+//FIXME
+void registerVar(const char*, const char*, float* , float=0, float=0, float=0, float=0)
+{
+}
+
+#include "faust/AntiAlias.cc"
+
 // anti aliasing the sine wav, this unit can nicly run oversampeled
 inline void GxEngine::AntiAlias (int sf, float** input, float** output)
 {
@@ -1020,6 +1027,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
 
           if (antialis0)  AntiAlias(count*2,&oversample,&oversample);
+          /*FIXME(dsp2cc) if (antialis0) AntiAlias::compute(count*2,oversample,oversample);*/
           if (ftube)    fuzzy_tube(ffuzzytube, 0,count*2,&oversample,&oversample);
           if (ftube3)   reso_tube(fresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
           if (fprdr)    fuzzy_tube(fpredrive, 1,count*2,&oversample,&oversample);
@@ -1030,6 +1038,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
      else {
 
           if (antialis0)  AntiAlias(count,input,input);
+	  /*FIXME(dsp2cc) if (antialis0)   AntiAlias::compute(count,input0,input0);*/
           if (ftube)    fuzzy_tube(ffuzzytube, 0,count,input,input);
           if (ftube3)   osc_tube(fresotube3,count,f_resotube1, f_resotube2,input,input);
           if (fprdr)    fuzzy_tube(fpredrive, 1,count,input,input);

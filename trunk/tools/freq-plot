@@ -1,0 +1,14 @@
+#! /bin/bash
+[ "$1" = "" ] && { echo "usage: freq-plot <faust dsp file> {options}"; exit 1; }
+[ -r "$1" ] || { echo "can't read input file $1"; exit 1; }
+set -e
+inp="$(/bin/pwd)/$1"
+shift
+tmpdir=/tmp/freq-plot.$$
+trap "rm -rf $tmpdir" EXIT
+mkdir $tmpdir
+cd $tmpdir
+echo "process=1-1':component(\"$inp\");" | faust -a plot.cpp -o plot_out.cpp /dev/fd/0
+g++ plot_out.cpp -o plot_out
+./plot_out "$@" > plot_out.mat
+octave -q --persist --eval "load plot_out.mat; freqz(plot_out,1,[],[],44100)"

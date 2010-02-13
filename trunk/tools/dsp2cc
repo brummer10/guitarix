@@ -1,0 +1,167 @@
+#! /usr/bin/python
+# -*- coding: utf-8 -*-
+
+import re, os, sys
+from optparse import OptionParser
+
+class Parser(object):
+
+    def skip_until(self, exp):
+        r = re.compile(exp)
+        for line in self.lines:
+            m = r.match(line)
+            if m:
+                return m
+        return None
+
+    def skip_while(self, exp):
+        m = re.compile(exp).match
+        for line in self.lines:
+            if not m(line):
+                return line
+        return ""
+
+    def copy(self, exp, line=None):
+        cp = []
+        if line:
+            cp.append(line)
+        m = re.compile(exp).match
+        for line in self.lines:
+            if m(line):
+                break
+            cp.append(line)
+        # remove indentation
+        m = re.compile("\t*").match
+        n = 10
+        for l in cp:
+            if l != "\n":
+                n = min(n, len(m(l).group(0)))
+        return [l[n:] for l in cp]
+
+    def get_section_list(self):
+        return "var-decl", "var-init", "ui", "compute"
+
+    def getIO(self, s):
+        e = r"\s*virtual int getNum%sputs\(\)\s*{\s*return\s*(\d+);\s*}" % s
+        m = re.match(e, self.lines.next())
+        if not m:
+            print "getNum%sputs not found in source" % s
+            raise SystemExit, 1
+        return int(m.group(1))
+
+    def register(self, r):
+        self.ui.append(r)
+
+    def readUI(self, exp):
+        stop = re.compile(exp).match
+        pre = r"\s*interface->"
+        nm = '"([^"]*)"'
+        vr = "([a-zA-Z_][0-9a-zA-Z_]*)"
+        vl = r"(-?\d*\.?\d*e?-?\d*f)"
+        sarg = "%s,\s*&%s,\s*%s,\s*%s,\s*%s,\s*%s" % (nm, vr, vl, vl, vl, vl)
+        openbox = re.compile(pre+r"openVerticalBox\(%s\);" % nm).match
+        closebox = re.compile(pre+r"closeBox\(\);").match
+        vslider = re.compile(pre+r"addVerticalSlider\(%s\);" % sarg).match
+        hslider = re.compile(pre+r"addHorizontalSlider\(%s\);" % sarg).match
+        checkbutton = re.compile(pre+r"addCheckButton\(%s,\s*&%s\);" % (nm, vr)).match
+        stack = []
+        for line in self.lines:
+            if stop(line):
+                return
+            m = openbox(line)
+            if m:
+                stack.append(m.group(1))
+                continue
+            if closebox(line):
+                stack.pop()
+                continue
+            m = vslider(line) or hslider(line)
+            if m:
+                self.register((".".join(stack+[m.group(1)]),"C")+ m.groups()[1:])
+                continue
+            m = checkbutton(line)
+            if m:
+                self.register((".".join(stack+[m.group(1)]), "S", m.group(2)))
+                continue
+            assert False, line
+
+    def __init__(self, lines):
+        self.lines = lines
+        s = {}
+        self.ui = []
+        r = self.skip_until(r'// name\s*:\s*"([^"]*)"\s*$')
+        if not r:
+            print "name declaration not found"
+            raise SystemExit, 1
+        self.name = r.group(1)
+        self.skip_until(r"  private:")
+        s["var-decl"] = self.copy(r"  public:")
+        self.numInputs = self.getIO("In")
+        self.numOutputs = self.getIO("Out")
+        self.skip_until(r"\s*virtual void instanceInit")
+        s["var-init"] = self.copy(r"\s*}$")
+        self.skip_until(r"\s*virtual void buildUserInterface")
+        s["ui"] = self.readUI(r"\s*}$")
+        self.skip_until(r"\s*virtual void compute")
+        line = self.skip_while(
+            r"\s*float\s*\*\s*(in|out)put(\d+)\s*=\s*\1put\[\2\];")
+        s["compute"] = self.copy("\s*}$", line)
+        self.sections = s
+
+    def getNumInputs(self):
+        return self.numInputs
+
+    def getNumOutputs(self):
+        return self.numOutputs
+
+    def __getitem__(self, n):
+        return self.sections[n]
+
+    def write(self, fp, sect, indent=0):
+        pre = "\t" * indent
+        for l in self.sections[sect]:
+            fp.write(pre)
+            fp.write(l)
+
+def output(fp, p, fname):
+    fp.write("namespace %s {\n" % p.name)
+    fp.write("// generated from file '%s'\n\n" % fname)
+    p.write(fp, "var-decl")
+    fp.write("int\tfSamplingFreq;\n\n")
+    fp.write("void init(int samplingFreq)\n{\n")
+    p.write(fp, "var-init", 1)
+    fp.write("}\n\n")
+    fp.write("void compute(int count, %s, %s)\n{\n" % (
+        ", ".join(["float *input%d" % i for i in range(p.getNumInputs())]),
+        ", ".join(["float *output%d" % i for i in range(p.getNumOutputs())])))
+    p.write(fp, "compute", 1)
+    fp.write("\t}\n}\n\n")
+    fp.write("struct RegisterParams { RegisterParams(); } RegisterParams;\n")
+    fp.write("RegisterParams::RegisterParams()\n{\n")
+    for r in p.ui:
+        fp.write('\tregisterVar("%s","%s",&%s);\n'
+                 % (r[0],r[1],",".join(r[2:])))
+    fp.write("}\n")
+    fp.write("\n} // end namespace %s\n" % p.name)
+
+def main():
+    op = OptionParser(usage="usage: %prog [options] <faust-dsp-file>")
+    op.add_option("-o", "--output", dest="oname",
+                  help="write c++ code to FILE", metavar="FILE")
+    options, args = op.parse_args()
+    if len(args) != 1:
+        op.error("exactly one input filename expected\n")
+    fname = args[0]
+    if not os.path.exists(fname):
+        print "error: can't open '%s'" % fname
+        raise SystemExit, 1
+    inp = os.popen("faust %s" % fname)
+    parser = Parser(inp)
+    if options.oname:
+        outp = file(options.oname,"w")
+    else:
+        outp = sys.stdout
+    output(outp, parser, fname)
+
+if __name__ == "__main__":
+    main()

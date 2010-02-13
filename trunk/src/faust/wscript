@@ -1,0 +1,23 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+import TaskGen
+
+TaskGen.declare_chain(
+    name      = 'dsp',
+    action    = '../tools/dsp2cc -o ${TGT} ${SRC}',
+    ext_in    = '.dsp',
+    ext_out   = '.cc',
+    reentrant = 0,
+    before    = 'cc cxx',
+)
+
+def build(bld):
+    sources = [
+        'AntiAlias.dsp',
+        'preamp.dsp',
+        ]
+    bld.new_task_gen(source=sources)
+
+def configure(conf):
+    pass

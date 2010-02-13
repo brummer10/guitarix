@@ -86,6 +86,7 @@ def configure(conf):
 
     # config subdirs
     conf.sub_config('src');
+    conf.sub_config('src/faust');
     conf.sub_config('ladspa');
     conf.sub_config('rcstyles');
 
@@ -112,6 +113,7 @@ def build(bld):
     # process subfolders from here
     bld.add_subdirs('ladspa')
     bld.add_subdirs('src')
+    bld.add_subdirs('src/faust')
     bld.add_subdirs('rcstyles')
     bld.add_subdirs('pixmaps')
 
