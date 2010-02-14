@@ -2,7 +2,7 @@
 # This is the GTK rc style file for guitarix
 #
 
-pixmap_path './skins:./:/usr/share/guitarix:/usr/local/share/guitarix'
+pixmap_path './skins:./:/usr/share/guitarix/skins:/usr/local/share/guitarix/skins'
 
 
 style "guitarix_zzz"
@@ -58,6 +58,7 @@ class "GtkExpander" style:highest "guitarix_zzz"
 widget_class "*GtkToggleButton*" style:highest "guitarix_zzz"
 class "GtkButton" style:highest "guitarix_zzz"
 class "GtkSpinButton" style:highest "guitarix_zzz"
+widget_class "GtkDialog*" style:highest "guitarix_zzz"
 
 style "guitarix_zhandle_zzz"
 {

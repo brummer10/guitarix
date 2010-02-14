@@ -54,6 +54,7 @@ void initGroups()
      pgroups.insert("jconv","JConvolver");
      pgroups.insert("amp","Amplifier");
      pgroups.insert("amp.tone","Tone");
+     pgroups.insert("amp.modles","Amplifier");
      pgroups.insert("shaper","Shaper");
      pgroups.insert("noise_gate","Noise Gate");
      pgroups.insert("anti_aliase","Anti Alias");
@@ -104,6 +105,7 @@ void initNames()
      pnames.insert("anti_aliase.feedback", "Feedback");
      pnames.insert("amp.oversample.on_off", "on/off");
      pnames.insert("amp.bass_boost.on_off", "on/off");
+     pnames.insert("amp.modles.select", "select");
      pnames.insert("convolve.type", "Type");
      pnames.insert("preamp.on_off", "on/off");
      pnames.insert("preamp.atan", "atan");
@@ -241,13 +243,14 @@ void initParams(gx_engine::GxEngine* e)
      parameter_map.insert(new Parameter("anti_aliase.feedback", &e->faas1, 0.3f, 0.3f, 0.9f, 0.01f));
      parameter_map.insert(new Parameter("amp.oversample.on_off", &e->fupsample, 0));
      parameter_map.insert(new Parameter("amp.bass_boost.on_off", &e->fboost, 0));
+     parameter_map.insert(new Parameter("amp.modles.select", &e->convolvefilter, 0.f, 0.f, 6.f, 1.0f));
      parameter_map.insert(new Parameter("convolve.type", &e->fconvolve, 0));
      parameter_map.insert(new Parameter("preamp.on_off", &e->fcheckbox1, 0));
      parameter_map.insert(new Parameter("preamp.drive",  &e->fprdr, 0));
      parameter_map.insert(new Parameter("preamp.atan", &e->fatan, 1.f, 1.f, 10.f, 1.0f));
      parameter_map.insert(new Parameter("amp.fuzz", &e->fthreshold, 1.f, 0.f, 1.f, 0.01f));
      //FIXME
-     //parameter_map.insert(new Parameter("amp.threshold", &e->ffuse,3, {"    off","    clip","foldback"}));
+     parameter_map.insert(new Parameter("amp.threshold", &e->ffuse, 0.f, 0.f, 2.f, 1.0f));
      parameter_map.insert(new Parameter("drive.on_off", &e->fprdr, 0));
      parameter_map.insert(new Parameter("drive.value", &e->fpredrive, 1.f, 1.f, 10.f, 1.0f));
      parameter_map.insert(new Parameter("tube.on_off", &e->ftube, 0));

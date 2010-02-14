@@ -2,7 +2,7 @@
 # This is the GTK rc style file for guitarix
 #
 
-pixmap_path './:/usr/share/guitarix:/usr/local/share/guitarix'
+pixmap_path './:/usr/share/guitarix/skins:/usr/local/share/guitarix/skins'
 
 
 style "guitarix_rainbow"
@@ -64,7 +64,7 @@ style "guitarix-dialog_rainbow"
  bg_pixmap[NORMAL] = "rainbow3.jpg"
 }
 
-widget_class "GtkDialog*" style:highest "guitarix-dialog_rainbow"
+#widget_class "GtkDialog*" style:highest "guitarix-dialog_rainbow"
 
 style "guitarix-m_rainbow"
 {
@@ -185,6 +185,7 @@ style "h_style_rainbow"
 
 class "GtkHandleBox" style:highest "h_style_rainbow"
 widget_class "*GtkToggleButton*" style:highest "b_style_rainbow"
+widget_class "GtkDialog*" style:highest "h_style_rainbow"
 class "GtkButton" style:highest "b_style_rainbow"
 class "GtkSpinButton" style:highest "c_style_rainbow"
 

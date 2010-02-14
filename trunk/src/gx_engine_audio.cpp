@@ -375,7 +375,7 @@ void registerVar(const char*, const char*, float* , float=0, float=0, float=0, f
 {
 }
 
-#include "faust/AntiAlias.cc"
+//#include "faust/AntiAlias.cc"
 
 // anti aliasing the sine wav, this unit can nicly run oversampeled
 inline void GxEngine::AntiAlias (int sf, float** input, float** output)

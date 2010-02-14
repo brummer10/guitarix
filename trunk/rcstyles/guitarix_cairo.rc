@@ -2,7 +2,7 @@
 # This is the GTK rc style file for guitarix
 #
 
-pixmap_path './:/usr/share/guitarix:/usr/local/share/guitarix'
+pixmap_path './:/usr/share/guitarix/skins:/usr/local/share/guitarix/skins'
 
 
 style "guitarix_cairo"
@@ -64,7 +64,7 @@ style "guitarix-dialog"
  bg_pixmap[NORMAL] = "controls4.jpg"
 }
 
-widget_class "GtkDialog*" style:highest "guitarix-dialog"
+#widget_class "GtkDialog*" style:highest "guitarix-dialog"
 
 style "guitarix-menu"
 {
@@ -192,6 +192,7 @@ style "hc_style"
 
 class "GtkHandleBox" style:highest "hc_style"
 class "GtkScrolledWindow" style:highest "hc_style"
+widget_class "GtkDialog*" style:highest "hc_style"
 widget_class "*GtkToggleButton*" style:highest "bc_style"
 class "GtkButton" style:highest "bc_style"
 class "GtkSpinButton" style:highest "cc_style"
