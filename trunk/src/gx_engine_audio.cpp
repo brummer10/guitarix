@@ -1004,6 +1004,21 @@ void GxEngine::process_buffers(int count, float** input, float** output)
      int 	iSlowdel2 = int((int((fConstdel0 * fsliderdel2)) & 262143));
      int iconvolvefilter = (int)convolvefilter;
 
+     //switch effects on/off on frame base to avoid clicks
+     int resonator = fresoon;
+     int crybaby = fcheckbox5;
+     int autowah = fautowah;
+     int compressor = fcheckboxcom1;
+     int overdrive = foverdrive4;
+     int distortion = fcheckbox4;
+     int freeverb = fcheckbox6;
+     int echo = fcheckbox7;
+     int ir = fcheckbox8;
+     int delay = fdelay;
+     int multifilter = fmultifilter;
+     int boost = fboost;
+     int chorus = fchorus;
+
      // pointer to the jack_buffer
      float*  input0 = input[0];
 
@@ -1132,7 +1147,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fTemp0 = fRec_tone0[0];
 
           // vibrato
-          if (fresoon) {
+          if (resonator) {
                fRec3[0] = hard_cut (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])),0.7);  //resonanz 1.76f
                fTemp0 = fRec3[0];
           }
@@ -1140,9 +1155,9 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
           for (int m=0; m<8; m++) {
                if (posit0==m) {
-                    if (fcheckbox5) {  //crybaby
+                    if (crybaby) {  //crybaby
 
-                         if (fautowah) {
+                         if (autowah) {
                               //float fTempw0 = (fTemp0*0.001);
                               //fTempw0 = (fTempw0*1000);
                               int iTempwah1 = abs(int((4194304 * (fTemp0+ 1e-20))));
@@ -1171,7 +1186,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
                }                                   //crybaby ende
 
                else if (posit5==m) {
-                    if (fcheckboxcom1) {   // compressor
+                    if (compressor) {   // compressor
                          add_dc(fTemp0);
                          float fTempcom0 = fTemp0;
                          fReccom1[0] = ((fConstcom1 * fabsf(fTempcom0)) + (fConstcom0 * fReccom1[1]));
@@ -1191,7 +1206,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
 
                else if (posit1==m) {
-                    if (foverdrive4) {  // overdrive
+                    if (overdrive) {  // overdrive
                          //float fTempdr0 = fTemp0;
                          float fTempdr1 = fabs(fTemp0);
                          fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
@@ -1201,7 +1216,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
                }
 
                else if (posit2==m) {
-                    if (fcheckbox4) {    // distortion
+                    if (distortion) {    // distortion
                          float 	S6[2];
                          float 	S7[2];
                          float 	S8[2];
@@ -1249,7 +1264,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
 
                else if (posit3==m) {
-                    if (fcheckbox6) {    //freeverb
+                    if (freeverb) {    //freeverb
                          float fTemp9 = (1.500000e-02f * fTemp0);
                          fRec31[0] = ((fSlow69 * fRec30[1]) + (fSlow68 * fRec31[1]));
                          fVec10[IOTA&2047] = (fTemp9 + (fSlow70 * fRec31[0]));
@@ -1293,13 +1308,13 @@ void GxEngine::process_buffers(int count, float** input, float** output)
                }
 
                else if (posit6==m) {
-                    if (fcheckbox7) { //echo
+                    if (echo) { //echo
                          fRec47[IOTA&262143] = (fTemp0 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
                          fTemp0 = fRec47[(IOTA-0)&262143];
                     }
                }                                    //echo ende
                else if (posit4==m) {
-                    if (fcheckbox8) {   //impulseResponse
+                    if (ir) {   //impulseResponse
                          fVec22[0] = fTemp0;
 
                          if (auto_ir) fSlow77 = min(0.6, max(-0.6,fTemp0));
@@ -1307,7 +1322,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
                          fTemp0 = (fRec48[0] + fVec22[0]);
                     }
                } else if (posit7==m) {
-                    if (fdelay) {   //delay
+                    if (delay) {   //delay
                          fRecdel[0] = (fdelgain + (0.999f * fRecdel[1]));
                          fVecdel2[IOTAdel&262143] = fTemp0;
                          fTemp0 += fVecdel2[(IOTAdel-iSlowdel2)&262143] * fRecdel[0];
@@ -1322,7 +1337,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 
 
           // Multibandfilter
-          if (fmultifilter) {
+          if (multifilter) {
                float fTeMulti0 = (fCoMulti1 * fReMulti0[1]);
                float fTeMulti1 = (fCoMulti3 * fReMulti1[1]);
                float fTeMulti2 = (fCoMulti5 * fReMulti2[1]);
@@ -1350,7 +1365,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           fTemp0 =  (fRec46[0] * fTemp0);
 
           // bass booster
-          if (fboost) {
+          if (boost) {
                fRec_boost0[0] = (fTemp0 - (fConst_boost4 * ((fConst_boost3 * fRec_boost0[2]) + (fConst_boost2 * fRec_boost0[1]))));
                fTemp0 = (fConst_boost4 * (((fConst_boost8 * fRec_boost0[0]) + (fConst_boost7 * fRec_boost0[1])) + (fConst_boost6 * fRec_boost0[2])));
           }
@@ -1376,7 +1391,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
           out_to_2 = fRec0[0];
 
           // stereo chorus
-          if (fchorus) {
+          if (chorus) {
                // left channel
                fVec_CH0[IOTA_CH&65535] = out_to_1;
                float fTemp_CH1 = (fSlow_CH0 + fRec_CH0[1]);
