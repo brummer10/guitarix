@@ -345,6 +345,7 @@ namespace gx_gui
             "\n  http://www.kokkinizita.net/linuxaudio/index.html "
             "\n\n  authors: Hermann Meyer <brummer-@web.de>"
             "\n  authors: James Warden <warjamy@yahoo.com>"
+            "\n  authors: Andreas Degert <andreas.degert@googlemail.com>    "
             "\n  home: http://guitarix.sourceforge.net/\n";
         }
 
