@@ -4,6 +4,37 @@
 import re, os, sys
 from optparse import OptionParser
 
+
+class UIDefs(object):
+
+    class UID(dict):
+        def write(self, fp, v):
+            print v
+            print self
+            fp.write('\tregisterVar("%(name)s","%(uname)s","%(type)s","%(tooltip)s",&%(variable)s' % self)
+            #fp.write('\tregisterVar("%s","%s",&%s);\n'
+            #         % (r[0],r[1],",".join(r[2:])))
+
+        def __getitem__(self, n):
+            try:
+                return dict.__getitem__(self, n)
+            except KeyError:
+                return ""
+
+    def __init__(self):
+        self.ui = {}
+
+    def add(self, element, key, value):
+        try:
+            uid = self.ui[element]
+        except KeyError:
+            self.ui[element] = uid = self.UID(variable=element)
+        uid[key] = value
+
+    def write(self, fp):
+        for v, r in self.ui.items():
+            r.write(fp, v)
+
 class Parser(object):
 
     def skip_until(self, exp):
@@ -43,14 +74,12 @@ class Parser(object):
 
     def getIO(self, s):
         e = r"\s*virtual int getNum%sputs\(\)\s*{\s*return\s*(\d+);\s*}" % s
-        m = re.match(e, self.lines.next())
-        if not m:
-            print "getNum%sputs not found in source" % s
-            raise SystemExit, 1
-        return int(m.group(1))
-
-    def register(self, r):
-        self.ui.append(r)
+        for line in self.lines:
+            m = re.match(e, line)
+            if m:
+                return int(m.group(1))
+        print "getNum%sputs not found in source" % s
+        raise SystemExit, 1
 
     def readUI(self, exp):
         stop = re.compile(exp).match
@@ -64,7 +93,17 @@ class Parser(object):
         vslider = re.compile(pre+r"addVerticalSlider\(%s\);" % sarg).match
         hslider = re.compile(pre+r"addHorizontalSlider\(%s\);" % sarg).match
         checkbutton = re.compile(pre+r"addCheckButton\(%s,\s*&%s\);" % (nm, vr)).match
+        declare = re.compile(pre+r"declare\(&%s,\s*%s,\s*%s\);" % (vr, nm, nm)).match
         stack = []
+        def make_name(nm):
+            stack.append(nm)
+            if stack[0] == "faust":
+                s = ".".join(stack[1:])
+            else:
+                s = ".".join(stack)
+            stack.pop()
+            return s
+
         for line in self.lines:
             if stop(line):
                 return
@@ -77,18 +116,28 @@ class Parser(object):
                 continue
             m = vslider(line) or hslider(line)
             if m:
-                self.register((".".join(stack+[m.group(1)]),"C")+ m.groups()[1:])
+                vn = m.group(2)
+                self.ui.add(vn, "type", "S")
+                self.ui.add(vn, "name", make_name(m.group(1)))
+                self.ui.add(vn, "value", m.groups()[2:])
                 continue
             m = checkbutton(line)
             if m:
-                self.register((".".join(stack+[m.group(1)]), "S", m.group(2)))
+                vn = m.group(2)
+                self.ui.add(vn, "type", "S")
+                self.ui.add(vn, "name", make_name(m.group(1)))
+                self.ui.add(vn, "value", m.group(2))
+                continue
+            m = declare(line)
+            if m:
+                self.ui.add(m.group(1), m.group(2), m.group(3))
                 continue
             assert False, line
 
     def __init__(self, lines):
         self.lines = lines
         s = {}
-        self.ui = []
+        self.ui = UIDefs()
         r = self.skip_until(r'// name\s*:\s*"([^"]*)"\s*$')
         if not r:
             print "name declaration not found"
@@ -138,9 +187,7 @@ def output(fp, p, fname):
     fp.write("\t}\n}\n\n")
     fp.write("struct RegisterParams { RegisterParams(); } RegisterParams;\n")
     fp.write("RegisterParams::RegisterParams()\n{\n")
-    for r in p.ui:
-        fp.write('\tregisterVar("%s","%s",&%s);\n'
-                 % (r[0],r[1],",".join(r[2:])))
+    p.ui.write(fp)
     fp.write("}\n")
     fp.write("\n} // end namespace %s\n" % p.name)
 
