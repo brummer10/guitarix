@@ -641,7 +641,7 @@ namespace gx_engine
 
       // call the preset handler to read the last used settings
       gx_preset::gx_recall_main_setting(NULL,NULL);
-      gx_engine::recall_midi_controller_map();
+      gx_gui::recall_midi_controller_map();
     }
 
     /* --- adding rest of engine class by file inclusion for readability --- */

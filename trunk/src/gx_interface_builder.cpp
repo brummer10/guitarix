@@ -50,6 +50,7 @@ using namespace std;
 
 namespace gx_gui
   {
+
 /* -------- user interface builder ---------- */
 void GxMainInterface::setup()
 {
@@ -204,7 +205,9 @@ void GxMainInterface::setup()
                 openVerticalBox("");
                 {
                   addbigregler(" in / level ", &engine->fslider3, 0.f, -40.f, 40.f, 0.1f);
-                  addbigregler("out / master", &engine->fslider17, 0.f, -40.f, 40.f, 0.1f);
+
+                  //addbigregler("out / master", &engine->fslider17, 0.f, -40.f, 40.f, 0.1f);
+                  addbigregler("amp.out_master"); //FIXME (just an example how to do it parameter based)
                 }
                 closeBox();
               }
@@ -1036,6 +1039,12 @@ void GxMainInterface::setup()
   // add a log message box: out of box stack, no need to closeBox
   openTextLoggingBox("Logging Window");
   closeBox();
+#ifndef NDEBUG
+  for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
+	  if (i->second->isControllable() && ! i->second->isUsed())
+		  gx_system::gx_print_error("Debug Check", "midi-parameter not assigned in ui: " + i->first);
+  }
+#endif
 }
 
-  }
+}

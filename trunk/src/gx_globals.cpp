@@ -265,7 +265,8 @@ namespace gx_system
 
 /* ----- GUI namespace ----- */
 namespace gx_gui
-  {
+{
+
     /* wave view globals */
     bool           new_wave_view;
     GxWaveviewMode wave_view_mode;

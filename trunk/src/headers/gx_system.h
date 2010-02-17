@@ -65,6 +65,7 @@ namespace gx_system
       void write(int i, bool nl=false) { komma(); os << i; snl(nl); }
       void write(unsigned int i, bool nl=false) { komma(); os << i; snl(nl); }
       void write(const char* p, bool nl=false);
+	  void write(string s, bool nl=false) { write(s.c_str(), nl); }
       void begin_object(bool nl=false) { space(); os << '{'; snl(nl); first = true; }
       void end_object(bool nl=false) { space(); os << '}'; snl(nl); }
       void begin_array(bool nl=false) { space(); os << '['; snl(nl); first = true; }

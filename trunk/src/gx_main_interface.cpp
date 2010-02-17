@@ -54,45 +54,228 @@ using namespace gx_threads;
 namespace gx_gui
 {
 
-    // -------------------------------------------------------------
-    // GxMainInterface widget and method definitions
-    //
-    // static member
-    bool GxMainInterface::fInitialized = false;
-
-    GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
+    int precision(double n)
     {
-      gtk_init(pargc, pargv);
+      if (n < 0.009999) return 3;
+      else if (n < 0.099999) return 2;
+      else if (n < 0.999999) return 1;
+      else return 0;
+    }
 
-      /*-- set rc file overwrite it with export--*/
-      gtk_rc_parse(rcpath.c_str());
+/*****************************************************************
+ ** Midi Control
+ */
 
-      /*-- Declare the GTK Widgets --*/
-      fWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+class MidiConnect
+{
+private:
+	enum { RESPONSE_DELETE = 1 };
+	Parameter &param;
+	GtkAdjustment* adj_lower;
+	GtkAdjustment* adj_upper;
+	GtkWidget* dialog;
+	GtkWidget* entry_new;
+	GtkWidget* label_desc;
+	int current_control;
+	static string ctr_desc(int ctr);
+	static const char *ctl_to_str(int n);
+public:
+	MidiConnect(GdkEventButton *event, Parameter& param);
+	static void midi_response_cb(GtkWidget *widget, gint response_id, gpointer data);
+	static void midi_destroy_cb(GtkWidget *widget, gpointer data);
+	static gboolean check_midi_cb(gpointer);
+};
 
-      /*---------------- set window defaults ----------------*/
-      gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
-      gtk_window_set_title (GTK_WINDOW (fWindow), name);
-      gtk_window_set_gravity(GTK_WINDOW(fWindow), GDK_GRAVITY_NORTH_EAST);
+string MidiConnect::ctr_desc(int ctr)
+{
+	const char *p = midi_std_ctr[ctr];
+	if (!p)
+		return "";
+	return "(" + string(p) + ")";
+}
 
-      /*---------------- singnals ----------------*/
-      g_signal_connect (GTK_OBJECT (fWindow), "destroy",
+
+void MidiConnect::midi_response_cb(GtkWidget *widget, gint response_id, gpointer data)
+{
+	MidiConnect* m = (MidiConnect*)data;
+	switch (response_id) {
+	case GTK_RESPONSE_OK:
+		if (m->param.getControlType() == Parameter::Continuous && m->param.isFloat()) {
+			assert(m->adj_lower);
+			assert(m->adj_upper);
+			float lower = gtk_adjustment_get_value(m->adj_lower);
+			float upper = gtk_adjustment_get_value(m->adj_upper);
+			controller_map.modifyCurrent(m->param, lower, upper);
+		} else {
+			controller_map.modifyCurrent(m->param, 0, 0);
+		}
+		save_midi_controller_map();
+		break;
+	case RESPONSE_DELETE:
+		controller_map.deleteParameter(m->param);
+		save_midi_controller_map();
+		break;
+	}
+	gtk_widget_destroy(m->dialog);
+}
+
+void MidiConnect::midi_destroy_cb(GtkWidget *widget, gpointer data)
+{
+	MidiConnect *m = (MidiConnect*)data;
+	controller_map.set_config_mode(false);
+	delete m;
+}
+
+const char* MidiConnect::ctl_to_str(int n)
+{
+	static char buf[12];
+	if (n < 0)
+		strcpy(buf, "---");
+	else
+		snprintf(buf, sizeof(buf), "%3d", n);
+	return buf;
+}
+
+gboolean MidiConnect::check_midi_cb(gpointer data)
+{
+	MidiConnect *m = (MidiConnect*)data;
+	if (!controller_map.get_config_mode())
+		return FALSE;
+	int ctl = controller_map.get_current_control();
+	if (m->current_control == ctl)
+		return TRUE;
+	if (m->current_control == -1) {
+		gtk_dialog_set_response_sensitive(GTK_DIALOG(m->dialog), GTK_RESPONSE_OK, TRUE);
+		gtk_dialog_set_default_response(GTK_DIALOG(m->dialog), GTK_RESPONSE_OK);
+	}
+	m->current_control = ctl;
+	gtk_entry_set_text(GTK_ENTRY(m->entry_new), ctl_to_str(ctl));
+	gtk_label_set_text(GTK_LABEL(m->label_desc), ctr_desc(ctl).c_str());
+	return TRUE;
+}
+
+
+MidiConnect::MidiConnect(GdkEventButton *event, Parameter &param):
+	param(param),
+	current_control(-1)
+{
+	GtkBuilder * builder = gtk_builder_new();
+	GError *err = NULL;
+	if (!gtk_builder_add_from_file(builder,(gx_builder_dir+"midi.glade").c_str(), &err)) {
+		gx_print_fatal("gtk builder", err->message);
+		g_error_free(err);
+	}
+	dialog = GTK_WIDGET(gtk_builder_get_object(builder, "MidiConnect"));
+	GtkWidget *zn = GTK_WIDGET(gtk_builder_get_object(builder, "zone_name"));
+	GtkStyle *style = gtk_widget_get_style(zn);
+	pango_font_description_set_size(style->font_desc, 12*PANGO_SCALE);
+	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+	gtk_widget_modify_font(zn, style->font_desc);
+	gtk_label_set_text(GTK_LABEL(zn), (param.group() + ": " + param.name()).c_str());
+	const MidiController *pctrl;
+	int nctl = controller_map.param2controller(param, &pctrl);
+	if (param.getControlType() == Parameter::Continuous) {
+		float lower, upper, step;
+		if (param.isFloat()) {
+			lower = param.getFloat().lower;
+			upper = param.getFloat().upper;
+			step = param.getFloat().step;
+		} else {
+			lower = param.getInt().lower;
+			upper = param.getInt().upper;
+			step = 1;
+		}
+		if (nctl != -1) {
+			lower = pctrl->lower();
+			upper = pctrl->upper();
+		}
+		GtkSpinButton *spinner;
+		adj_lower = GTK_ADJUSTMENT(gtk_adjustment_new(lower, lower, upper, step, 10*step, 0));
+		spinner = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "lower"));
+		float climb_rate = 0.0;
+		gtk_spin_button_configure(spinner, adj_lower, climb_rate, precision(step));
+		adj_upper = GTK_ADJUSTMENT(gtk_adjustment_new(upper, lower, upper, step, 10*step, 0));
+		spinner = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "upper"));
+		gtk_spin_button_configure(spinner, adj_upper, climb_rate, precision(step));
+	} else {
+		adj_lower = adj_upper = 0;
+		gtk_widget_hide(GTK_WIDGET(gtk_builder_get_object(builder, "range_label")));
+		gtk_widget_hide(GTK_WIDGET(gtk_builder_get_object(builder, "range_box")));
+	}
+	entry_new = GTK_WIDGET(gtk_builder_get_object(builder, "new"));
+	label_desc = GTK_WIDGET(gtk_builder_get_object(builder, "new_desc"));
+	g_signal_connect(dialog, "response", G_CALLBACK(midi_response_cb), this);
+	g_signal_connect(dialog, "destroy", G_CALLBACK(midi_destroy_cb), this);
+	if (nctl == -1) {
+		gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), RESPONSE_DELETE, FALSE);
+		gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_OK, FALSE);
+		gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+	}
+	controller_map.set_config_mode(true, nctl);
+	check_midi_cb(this);
+	gtk_widget_show(dialog);
+	g_timeout_add(40, check_midi_cb, this);
+	return;
+}
+
+gboolean button_press_cb (GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
+	if (event->button != 2)
+		return FALSE;
+	if (controller_map.get_config_mode())
+		return TRUE;
+	new MidiConnect(event, *(Parameter*)data);
+	return TRUE;
+}
+
+inline void connect_midi_controller(GtkWidget *w, void *zone)
+{
+#ifndef NDEBUG
+	assert(parameter_map[zone]);
+	parameter_map[zone]->setUsed();
+#endif
+	g_signal_connect(w, "button_press_event", G_CALLBACK (button_press_cb), (gpointer)parameter_map[zone]);
+}
+
+
+// -------------------------------------------------------------
+// GxMainInterface widget and method definitions
+//
+// static member
+bool GxMainInterface::fInitialized = false;
+
+GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
+{
+	gtk_init(pargc, pargv);
+
+	/*-- set rc file overwrite it with export--*/
+	gtk_rc_parse(rcpath.c_str());
+
+	/*-- Declare the GTK Widgets --*/
+	fWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+	/*---------------- set window defaults ----------------*/
+	gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+	gtk_window_set_title (GTK_WINDOW (fWindow), name);
+	gtk_window_set_gravity(GTK_WINDOW(fWindow), GDK_GRAVITY_NORTH_EAST);
+
+	/*---------------- singnals ----------------*/
+	g_signal_connect (GTK_OBJECT (fWindow), "destroy",
                         G_CALLBACK (gx_clean_exit), NULL);
 
-      /*---------------- status icon ----------------*/
-      if (gx_pixmap_check() == 0)
-        {
-          status_icon =    gtk_status_icon_new_from_pixbuf (GDK_PIXBUF(ib));
-          gtk_window_set_icon(GTK_WINDOW (fWindow), GDK_PIXBUF(ib));
-          g_signal_connect (G_OBJECT (status_icon), "activate", G_CALLBACK (gx_hide_extended_settings), NULL);
-          g_signal_connect (G_OBJECT (status_icon), "popup-menu", G_CALLBACK (gx_systray_menu), NULL);
-        }
-      else
-        {
-          gx_print_error("Main Interface Constructor",
-                         "pixmap check failed, giving up");
-          gx_clean_exit(NULL, (gpointer)1);
-        }
+	/*---------------- status icon ----------------*/
+	if (gx_pixmap_check() == 0) {
+		status_icon =    gtk_status_icon_new_from_pixbuf (GDK_PIXBUF(ib));
+		gtk_window_set_icon(GTK_WINDOW (fWindow), GDK_PIXBUF(ib));
+		g_signal_connect (G_OBJECT (status_icon), "activate", G_CALLBACK (gx_hide_extended_settings), NULL);
+		g_signal_connect (G_OBJECT (status_icon), "popup-menu", G_CALLBACK (gx_systray_menu), NULL);
+	}
+	else
+	{
+		gx_print_error("Main Interface Constructor",
+		               "pixmap check failed, giving up");
+		gx_clean_exit(NULL, (gpointer)1);
+	}
 
       /*-- create accelerator group for keyboard shortcuts --*/
       fAccelGroup = gtk_accel_group_new();
@@ -1057,6 +1240,7 @@ namespace gx_gui
       gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
       gtk_widget_set_name (lab,"beffekt_label");
       g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
+      connect_midi_controller(button, zone);
     }
 
     void GxMainInterface::addJToggleButton(const char* label, float* zone)
@@ -1095,6 +1279,7 @@ namespace gx_gui
 
       g_signal_connect (GTK_OBJECT (button), "toggled",
                         G_CALLBACK (gx_child_process::gx_start_stop_jconv), (gpointer)c);
+      connect_midi_controller(button, zone);
     }
 
     // ---------------------------	Check Button ---------------------------
@@ -1139,6 +1324,7 @@ namespace gx_gui
       gtk_widget_modify_font(lab, style->font_desc);
       uiCheckButton* c = new uiCheckButton(this, zone, GTK_TOGGLE_BUTTON(button));
       g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK(uiCheckButton::toggled), (gpointer) c);
+      connect_midi_controller(button, zone);
       gtk_widget_show (lab);
     }
 
@@ -1161,253 +1347,9 @@ namespace gx_gui
           gtk_adjustment_set_value(fAdj, v);
         }
 
-	static gboolean button_press_toggle_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
-	static gboolean button_press_scale_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
-
       };
 
-    int precision(double n)
-    {
-      if (n < 0.009999) return 3;
-      else if (n < 0.099999) return 2;
-      else if (n < 0.999999) return 1;
-      else return 0;
-    }
-
-    class MidiStandardControllers
-    {
-    private:
-	 map<int,const char*> m;
-    public:
-	 MidiStandardControllers();
-	 const char* operator[](int ctr) { return m[ctr]; }
-    };
-
-    MidiStandardControllers midi_std_ctr;
-
-    MidiStandardControllers::MidiStandardControllers()
-    {
-	 m.insert(pair<int, const char*>(0, "Bank Select MSB"));
-	 m.insert(pair<int, const char*>(1, "Modulation MSB"));
-	 m.insert(pair<int, const char*>(2, "Breath Contoller"));
-
-	 m.insert(pair<int, const char*>(4, "Foot Controller MSB"));
-	 m.insert(pair<int, const char*>(5, "Portamento Time MSB"));
-	 m.insert(pair<int, const char*>(6, "Data Entry MSB"));
-	 m.insert(pair<int, const char*>(7, "Main Volume"));
-	 m.insert(pair<int, const char*>(8, "Balance"));
-
-	 m.insert(pair<int, const char*>(10, "Pan"));
-	 m.insert(pair<int, const char*>(11, "Expression"));
-	 m.insert(pair<int, const char*>(12, "Effect Control 1"));
-	 m.insert(pair<int, const char*>(13, "Effect Control 2"));
-
-	 m.insert(pair<int, const char*>(32, "Bank Select LSB"));
-
-	 m.insert(pair<int, const char*>(64, "Sustain"));
-	 m.insert(pair<int, const char*>(65, "Portamento"));
-	 m.insert(pair<int, const char*>(66, "Sostenuto"));
-	 m.insert(pair<int, const char*>(67, "Soft Pedal"));
-	 m.insert(pair<int, const char*>(68, "Legato Footswitch"));
-	 m.insert(pair<int, const char*>(69, "Hold 2"));
-	 m.insert(pair<int, const char*>(70, "Sound Contr. 1")); // default: Sound Variation
-	 m.insert(pair<int, const char*>(71, "Sound Contr. 2")); // default: Timbre/Harmonic Content
-	 m.insert(pair<int, const char*>(72, "Sound Contr. 3")); // default: Release Time
-	 m.insert(pair<int, const char*>(73, "Sound Contr. 4")); // default: Attack Time
-	 m.insert(pair<int, const char*>(74, "Sound Contr. 5")); // default: Brightness
-	 m.insert(pair<int, const char*>(75, "Sound Contr. 6"));
-	 m.insert(pair<int, const char*>(76, "Sound Contr. 7"));
-	 m.insert(pair<int, const char*>(77, "Sound Contr. 8"));
-	 m.insert(pair<int, const char*>(78, "Sound Contr. 9"));
-	 m.insert(pair<int, const char*>(79, "Sound Contr. 10"));
-
-	 m.insert(pair<int, const char*>(84, "Portamento Control"));
-
-	 m.insert(pair<int, const char*>(91, "Eff. 1 Depth"));
-	 m.insert(pair<int, const char*>(92, "Eff. 2 Depth"));
-	 m.insert(pair<int, const char*>(93, "Eff. 3 Depth"));
-	 m.insert(pair<int, const char*>(94, "Eff. 4 Depth"));
-	 m.insert(pair<int, const char*>(95, "Eff. 5 Depth"));
-	 m.insert(pair<int, const char*>(96, "Data Inc"));
-	 m.insert(pair<int, const char*>(97, "Data Dec"));
-	 m.insert(pair<int, const char*>(98, "NRPN LSB"));
-	 m.insert(pair<int, const char*>(99, "NRPN MSB"));
-	 m.insert(pair<int, const char*>(100, "RPN LSB"));
-	 m.insert(pair<int, const char*>(101, "RPN MSB"));
-	 //Channel Mode Messages
-	 m.insert(pair<int, const char*>(120, "All Sounds Off"));
-	 m.insert(pair<int, const char*>(121, "Controller Reset"));
-	 m.insert(pair<int, const char*>(122, "Local Control"));
-	 m.insert(pair<int, const char*>(123, "All Notes Off"));
-	 m.insert(pair<int, const char*>(124, "Omni Off"));
-	 m.insert(pair<int, const char*>(125, "Omni On"));
-	 m.insert(pair<int, const char*>(126, "Mono On (Poly Off)"));
-	 m.insert(pair<int, const char*>(127, "Poly On (Mono Off)"));
-    }
-
-    class MidiConnect
-    {
-    private:
-	 enum { RESPONSE_DELETE = 1 };
-	 float *fZone;
-	 GtkAdjustment* adj_lower;
-	 GtkAdjustment* adj_upper;
-	 GtkWidget* dialog;
-	 GtkWidget* entry_new;
-	 GtkWidget* label_desc;
-	 int current_control;
-	 static string ctr_desc(int ctr);
-	 static const char *ctl_to_str(int n);
-    public:
-	 MidiConnect(GdkEventButton *event, float *zone, float lower = 0, float upper = 0, float step = 0);
-	 static void midi_response_cb(GtkWidget *widget, gint response_id, gpointer data);
-	 static void midi_destroy_cb(GtkWidget *widget, gpointer data);
-	 static gboolean check_midi_cb(gpointer);
-    };
-
-    string MidiConnect::ctr_desc(int ctr)
-    {
-	 const char *p = midi_std_ctr[ctr];
-	 if (!p)
-	      return "";
-	 return "(" + string(p) + ")";
-    }
-
-
-    void MidiConnect::midi_response_cb(GtkWidget *widget, gint response_id, gpointer data)
-    {
-	 MidiConnect* m = (MidiConnect*)data;
-	 switch (response_id) {
-	 case GTK_RESPONSE_OK:
-	      gx_engine::controller_map.modifyCurrent(m->fZone,
-						      gtk_adjustment_get_value(m->adj_lower),
-						      gtk_adjustment_get_value(m->adj_upper));
-	      gx_engine::save_midi_controller_map();
-	      break;
-	 case RESPONSE_DELETE:
-	      gx_engine::controller_map.deleteZone(m->fZone);
-	      gx_engine::save_midi_controller_map();
-	      break;
-	 }
-	 gtk_widget_destroy(m->dialog);
-    }
-
-    void MidiConnect::midi_destroy_cb(GtkWidget *widget, gpointer data)
-    {
-	 MidiConnect *m = (MidiConnect*)data;
-	 gx_engine::controller_map.set_config_mode(false);
-	 delete m;
-    }
-
-    const char* MidiConnect::ctl_to_str(int n)
-    {
-	 static char buf[12];
-	 if (n < 0)
-	      strcpy(buf, "---");
-	 else
-	      snprintf(buf, sizeof(buf), "%3d", n);
-	 return buf;
-    }
-
-    gboolean MidiConnect::check_midi_cb(gpointer data)
-    {
-	 MidiConnect *m = (MidiConnect*)data;
-	 if (!gx_engine::controller_map.get_config_mode())
-	      return FALSE;
-	 int ctl = gx_engine::controller_map.get_current_control();
-	 if (m->current_control == ctl)
-	      return TRUE;
-	 if (m->current_control != -1) {
-	      gtk_dialog_set_response_sensitive(GTK_DIALOG(m->dialog), GTK_RESPONSE_OK, TRUE);
-	      gtk_dialog_set_default_response(GTK_DIALOG(m->dialog), GTK_RESPONSE_OK);
-	 }
-	 m->current_control = ctl;
-	 gtk_entry_set_text(GTK_ENTRY(m->entry_new), ctl_to_str(ctl));
-	 gtk_label_set_text(GTK_LABEL(m->label_desc), ctr_desc(ctl).c_str());
-	 return TRUE;
-    }
-
-     
-    MidiConnect::MidiConnect(GdkEventButton *event, float *zone, float lower, float upper, float step):
-	 fZone(zone),
-	 current_control(-1)
-    {
-	 bool toggle = (upper == 0 && lower == 0);
-	 GtkBuilder * builder = gtk_builder_new();
-	 GError *err = NULL;
-	 if (!gtk_builder_add_from_file(builder,(gx_builder_dir+"midi.glade").c_str(), &err)) {
-	      gx_print_fatal("gtk builder", err->message);
-	      g_error_free(err);
-	 }
-	 dialog = GTK_WIDGET(gtk_builder_get_object(builder, "MidiConnect"));
-	 const BaseParameter* p = parameter_map[zone];
-	 if (p) {
-	      GtkWidget *zn = GTK_WIDGET(gtk_builder_get_object(builder, "zone_name"));
-	      GtkStyle *style = gtk_widget_get_style(zn);
-	      pango_font_description_set_size(style->font_desc, 12*PANGO_SCALE);
-	      pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-	      gtk_widget_modify_font(zn, style->font_desc);
-	      gtk_label_set_text(GTK_LABEL(zn), (p->group() + ": " + p->name()).c_str());
-	 } else {
-	      gx_print_error("midi controller", "no description for parameter zone");
-	 }
-	 if (toggle) {
-	      gtk_widget_hide(GTK_WIDGET(gtk_builder_get_object(builder, "range_label")));
-	      gtk_widget_hide(GTK_WIDGET(gtk_builder_get_object(builder, "range_box")));
-	 } else {
-	      GtkSpinButton *spinner;
-	      adj_lower = GTK_ADJUSTMENT(gtk_adjustment_new(lower, lower, upper, step, 10*step, 0));
-	      spinner = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "lower"));
-	      float climb_rate = 0.0;
-	      gtk_spin_button_configure(spinner, adj_lower, climb_rate, precision(step));
-	      adj_upper = GTK_ADJUSTMENT(gtk_adjustment_new(upper, lower, upper, step, 10*step, 0));
-	      spinner = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "upper"));
-	      gtk_spin_button_configure(spinner, adj_upper, climb_rate, precision(step));
-	 }
-	 entry_new = GTK_WIDGET(gtk_builder_get_object(builder, "new"));
-	 label_desc = GTK_WIDGET(gtk_builder_get_object(builder, "new_desc"));
-	 g_signal_connect(dialog, "response", G_CALLBACK(midi_response_cb), this);
-	 g_signal_connect(dialog, "destroy", G_CALLBACK(midi_destroy_cb), this);
-	 int ctl = gx_engine::controller_map.zone2controller(zone);
-	 if (ctl == -1) {
-	      gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), RESPONSE_DELETE, FALSE);
-	      gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_OK, FALSE);
-	      gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
-	 }
-	 gx_engine::controller_map.set_config_mode(true, ctl);
-	 check_midi_cb(this);
-	 gtk_widget_show_all(dialog);
-	 g_timeout_add(40, check_midi_cb, this);
-	 return;
-    }
-
-    gboolean uiAdjustment::button_press_scale_cb (GtkWidget *widget, GdkEventButton *event, gpointer data)
-    {
-      if (event->button != 2)
-	return FALSE;
-      if (gx_engine::controller_map.get_config_mode())
-	return TRUE;
-      uiAdjustment* adj = (uiAdjustment*)data;
-      new MidiConnect(event, adj->fZone,
-		      gtk_adjustment_get_lower(adj->fAdj),
-		      gtk_adjustment_get_upper(adj->fAdj),
-		      gtk_adjustment_get_step_increment(adj->fAdj));
-      return TRUE;
-    }
-
-    gboolean uiAdjustment::button_press_toggle_cb (GtkWidget *widget, GdkEventButton *event, gpointer data)
-    {
-      if (event->button != 2)
-	return FALSE;
-      if (gx_engine::controller_map.get_config_mode())
-	return TRUE;
-      uiAdjustment* adj = (uiAdjustment*)data;
-      new MidiConnect(event, adj->fZone);
-      return TRUE;
-    }
-
     // -------------------------- Horizontal Slider -----------------------------------
-
 
     void GxMainInterface::addHorizontalSlider(const char* label, float* zone, float init, float min, float max, float step)
     {
@@ -1417,7 +1359,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_mini_slider_new_with_adjustment (GTK_ADJUSTMENT(adj));
-      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)c);
+      connect_midi_controller(slider, zone);
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       addWidget(label, slider);
     }
@@ -1430,7 +1372,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_wheel_new_with_adjustment (GTK_ADJUSTMENT(adj));
-      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)c);
+      connect_midi_controller(slider, zone);
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       addWidget(label, slider);
     }
@@ -1483,7 +1425,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_eq_slider_new_with_adjustment (GTK_ADJUSTMENT(adj));
-      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)c);
+      connect_midi_controller(slider, zone);
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       GtkWidget* lw = gtk_label_new("");
 
@@ -1521,7 +1463,7 @@ namespace gx_gui
       new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
-      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)c);
+      connect_midi_controller(slider, zone);
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       openVerticalBox("");
       addWidget(label, lwl);
@@ -1529,6 +1471,12 @@ namespace gx_gui
       addWidget(label, lw);
       closeBox();
     }
+
+void GxMainInterface::addbigregler(string id)
+{
+	const FloatParameter &p = parameter_map[id]->getFloat();
+	addbigregler(p.name().c_str(), &p.value, p.std_value, p.lower, p.upper, p.step);
+}
 
     void GxMainInterface::addbigregler(const char* label, float* zone, float init, float min, float max, float step)
     {
@@ -1551,7 +1499,7 @@ namespace gx_gui
       new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_big_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
-      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)c);
+      connect_midi_controller(slider, zone);
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       openVerticalBox("");
       addWidget(label, lwl);
@@ -1576,7 +1524,7 @@ namespace gx_gui
       new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_hslider_new_with_adjustment(GTK_ADJUSTMENT(adj));
-      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)c);
+      connect_midi_controller(slider, zone);
       gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
       openVerticalBox(label);
       addWidget(label, slider);
@@ -1592,7 +1540,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)c);
+      connect_midi_controller(slider, zone);
       addWidget(label, slider);
     }
 
@@ -1603,7 +1551,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_button_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)c);
+      connect_midi_controller(slider, zone);
       addWidget(label, slider);
     }
 
@@ -1614,7 +1562,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_switch_new_with_adjustment(GTK_ADJUSTMENT(adj));
-      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)c);
+      connect_midi_controller(slider, zone);
       GtkWidget* lw = gtk_label_new(label);
       gtk_widget_set_name (lw,"effekt_label");
 
@@ -1637,7 +1585,7 @@ namespace gx_gui
 
       GtkRegler myGtkRegler;
       GtkWidget* ser = myGtkRegler.gtk_selector_new_with_adjustment(GTK_ADJUSTMENT(adjs), maxv, labels);
-      g_signal_connect(ser, "button_press_event", G_CALLBACK (uiAdjustment::button_press_scale_cb), (gpointer)cs);
+      connect_midi_controller(ser, zone);
 
       openHorizontalBox("");
       addWidget(label, ser);
@@ -1651,7 +1599,7 @@ namespace gx_gui
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)c);
+      connect_midi_controller(slider, zone);
       GtkWidget* lw = gtk_label_new(label);
       gtk_widget_set_name (lw,"effekt_label");
 
@@ -1674,7 +1622,7 @@ namespace gx_gui
 
       GtkRegler myGtkRegler;
       GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-      g_signal_connect(slider, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)c);
+      connect_midi_controller(slider, zone);
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_hide_eq), (gpointer) slider);
       GtkWidget* lw = gtk_label_new(label);
       gtk_widget_set_name (lw,"effekt_label");
@@ -1696,7 +1644,7 @@ namespace gx_gui
       uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
       g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
       GtkWidget* spinner = gtk_spin_button_new (GTK_ADJUSTMENT(adj), step, precision(step));
-      g_signal_connect(spinner, "button_press_event", G_CALLBACK (uiAdjustment::button_press_toggle_cb), (gpointer)c);
+      connect_midi_controller(spinner, zone);
       openFrameBox(label);
       addWidget(label, spinner);
       closeBox();
