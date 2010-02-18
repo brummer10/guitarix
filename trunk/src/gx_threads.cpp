@@ -210,7 +210,7 @@ gboolean gx_check_startup(gpointer args)
 /* --------- load preset triggered by midi program change --------- */
 gboolean gx_do_program_change(gpointer arg)
 {
-	int pgm = (int)arg;
+	int pgm = GPOINTER_TO_INT(arg);
 	gx_engine::GxEngineState estate =
 		(gx_engine::GxEngineState)gx_engine::checky;
 	if (gx_preset::gx_nth_preset(pgm))

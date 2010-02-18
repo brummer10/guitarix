@@ -217,7 +217,7 @@ void MidiControllerList::load_defaults()
 void MidiControllerList::writeJSON(gx_system::JsonWriter& w)
 {
 	w.begin_array(true);
-	for (controller_array::size_type n = 0; n < map.size(); n++)
+	for (unsigned int n = 0; n < map.size(); n++)
 	{
 		const midi_controller_list& cl = map[n];
 		if (cl.empty())
