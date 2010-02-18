@@ -9,11 +9,8 @@ class UIDefs(object):
 
     class UID(dict):
         def write(self, fp, v):
-            print v
-            print self
-            fp.write('\tregisterVar("%(name)s","%(uname)s","%(type)s","%(tooltip)s",&%(variable)s' % self)
-            #fp.write('\tregisterVar("%s","%s",&%s);\n'
-            #         % (r[0],r[1],",".join(r[2:])))
+            self.tail = "".join([", "+x for x in self["value"]])
+            fp.write('\tregisterVar("%(name)s","%(uname)s","%(type)s","%(tooltip)s",&%(variable)s%(tail)s);\n' % self)
 
         def __getitem__(self, n):
             try:
@@ -152,9 +149,10 @@ class Parser(object):
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
         self.skip_until(r"\s*virtual void compute")
-        line = self.skip_while(
-            r"\s*float\s*\*\s*(in|out)put(\d+)\s*=\s*\1put\[\2\];")
-        s["compute"] = self.copy("\s*}$", line)
+        iodef = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*\2put\[\3\];"
+        s["compute"] = self.copy(iodef)
+        line = self.skip_while(iodef)
+        s["compute"] += self.copy("\s*}$", line)
         self.sections = s
 
     def getNumInputs(self):
