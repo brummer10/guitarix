@@ -42,289 +42,286 @@ using namespace std;
 
 namespace gx_ui
 {
-  list<GxUI*> GxUI::fGuiList;
+list<GxUI*> GxUI::fGuiList;
 
-  // constructor
-  GxUI::GxUI() : fStopped(false)
-  {
-    fGuiList.push_back(this);
-  }
+// constructor
+GxUI::GxUI() : fStopped(false)
+{
+	fGuiList.push_back(this);
+}
 
-  // -- registerZone(z,c) : zone management
-  void GxUI::registerZone(float* z, GxUiItem* c)
-  {
-    if (fZoneMap.find(z) == fZoneMap.end()) fZoneMap[z] = new clist();
-    fZoneMap[z]->push_back(c);
-  }
+// -- registerZone(z,c) : zone management
+void GxUI::registerZone(float* z, GxUiItem* c)
+{
+	if (fZoneMap.find(z) == fZoneMap.end()) fZoneMap[z] = new clist();
+	fZoneMap[z]->push_back(c);
+}
 
-  int GxUI::zone2index(float *zone)
-  {
-    int n = 0;
-    list<GxUI*>::iterator g;
-    for (g = fGuiList.begin(); g != fGuiList.end(); g++)
-      {
-	zmap m = (*g)->fZoneMap;
-	for (zmap::iterator i=m.begin(); i != m.end(); i++)
-	  {
-	    if (i->first == zone)
-	      return n;
-	    n++;
-	  }
-      }
-    assert(false);
-    return -1;
-  }
-
-  float* GxUI::index2zone(int index)
-  {
-    int n = 0;
-    list<GxUI*>::iterator g;
-    for (g = fGuiList.begin(); g != fGuiList.end(); g++)
-      {
-	zmap m = (*g)->fZoneMap;
-	for (zmap::iterator i=m.begin(); i != m.end(); i++)
-	  {
-	    if (n == index)
-	      return i->first;
-	    n++;
-	  }
-      }
-    assert(false);
-    return NULL;
-  }
-
-  // -- saveState(filename) : save the value of every zone to a file
-  void GxUI::saveStateToFile(const char* filename)
-  {
-    ofstream f(filename);
-    for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-      f << *(i->first) << ' ';
-
-    f << endl;
-    f.close();
-  }
-
-  // -- acquire current state, places it in string buffer
-  void GxUI::dumpStateToString(string& setting)
-  {
-    // string containing preset data
-    // will be flushed into preset file
-    string space = " ";
-
-    for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-    {
-      // build buffer with ostringstream's
-      ostringstream val; val << *(i->first);
-      setting +=  space + val.str();
-    }
-  }
-
-  // -- set a state by string
-  bool GxUI::applyStateFromString(const string& setting)
-  {
-    if (setting.empty()) return false;
-
-    // parse buffer
-    istringstream values(setting);
-    for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-      values >> *(i->first);
-
-    return true;
-  }
-
-  // -- fetch state from file
-  void GxUI::fetchPresetStateFromFile(const char* filename,
-				      const char* presname,
-				      string& state)
-  {
-    ifstream fa(filename);
-    string buffer;
-
-    if (fa.good())
-    {
-      do {
-	getline(fa, buffer);
-	if (!buffer.empty())
-        {
-	  // do we have a match ?
-	  if ((int)buffer.find(presname) == -1) continue;
-
-	  buffer.erase(0, buffer.find(" ")+1);
-	  break;
+int GxUI::zone2index(float *zone)
+{
+	int n = 0;
+	list<GxUI*>::iterator g;
+	for (g = fGuiList.begin(); g != fGuiList.end(); g++)
+	{
+		zmap m = (*g)->fZoneMap;
+		for (zmap::iterator i=m.begin(); i != m.end(); i++)
+		{
+			if (i->first == zone)
+				return n;
+			n++;
+		}
 	}
-      }
-      while (buffer != "");
-      fa.close();
-    }
+	assert(false);
+	return -1;
+}
 
-    state = buffer;
-  }
+float* GxUI::index2zone(int index)
+{
+	int n = 0;
+	list<GxUI*>::iterator g;
+	for (g = fGuiList.begin(); g != fGuiList.end(); g++)
+	{
+		zmap m = (*g)->fZoneMap;
+		for (zmap::iterator i=m.begin(); i != m.end(); i++)
+		{
+			if (n == index)
+				return i->first;
+			n++;
+		}
+	}
+	assert(false);
+	return NULL;
+}
 
-  // -- recall a preset setting by name
-  bool GxUI::recallPresetByname(const char* filename, const char* presname)
-  {
-    string buffer;
+// -- saveState(filename) : save the value of every zone to a file
+void GxUI::saveStateToFile(const char* filename)
+{
+	ofstream f(filename);
+	for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
+		f << *(i->first) << ' ';
 
-    // lookup preset file until we find a match
-    fetchPresetStateFromFile(filename, presname, buffer);
+	f << endl;
+	f.close();
+}
 
-    // set the found state
-    return applyStateFromString(buffer);
-  }
+// -- acquire current state, places it in string buffer
+void GxUI::dumpStateToString(string& setting)
+{
+	// string containing preset data
+	// will be flushed into preset file
+	string space = " ";
 
-  // -- recall a preset setting by name
-  bool GxUI::renamePreset(const char* filename, const char* oldname, const char* newname)
-  {
-    string buffer, buf, space = " ";
+	for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
+	{
+		// build buffer with ostringstream's
+		ostringstream val; val << *(i->first);
+		setting +=  space + val.str();
+	}
+}
 
-    const string prefile = filename;
-    const string tmpfile = prefile + "_tmp";
+// -- set a state by string
+bool GxUI::applyStateFromString(const string& setting)
+{
+	if (setting.empty()) return false;
 
-    // lookup preset file until we find a match
-    fetchPresetStateFromFile(filename, oldname, buffer);
+	// parse buffer
+	istringstream values(setting);
+	for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
+		values >> *(i->first);
 
-    // did we find anything ? weird if not ...
-    if (buffer.empty()) return false;
+	return true;
+}
 
-    // let's use a tmp file that does not contain the preset
-    ostringstream cat_tmpfile("cat");
-    cat_tmpfile << "cat" << space << prefile << space
-		<< "| grep -v" << space << oldname << space
-		<< ">" << tmpfile;
+// -- fetch state from file
+void GxUI::fetchPresetStateFromFile(const char* filename,
+                                    const char* presname,
+                                    string& state)
+{
+	ifstream fa(filename);
+	string buffer;
 
-    (void)system(cat_tmpfile.str().c_str());
-    usleep(200);
+	if (fa.good())
+	{
+		do {
+			getline(fa, buffer);
+			if (!buffer.empty())
+			{
+				// do we have a match ?
+				if ((int)buffer.find(presname) == -1) continue;
 
-    // add new name
-    ostringstream presline;
-    presline << "echo" << space << newname << space << buffer
-	     << " >> " << tmpfile;
+				buffer.erase(0, buffer.find(" ")+1);
+				break;
+			}
+		}
+		while (buffer != "");
+		fa.close();
+	}
 
-    // save preset in tmp file
-    if (system(presline.str().c_str()) != 0)
-    {
-      string cmd = string("rm -f ") + tmpfile;
-      system(cmd.c_str());
-      return false;
-    }
+	state = buffer;
+}
 
-    // rename tmp file to filename
-    string cmd = string("rm -f ") + prefile; system(cmd.c_str());
-    rename(tmpfile.c_str(), prefile.c_str());
+// -- recall a preset setting by name
+bool GxUI::recallPresetByname(const char* filename, const char* presname)
+{
+	string buffer;
 
-    return true;
-  }
+	// lookup preset file until we find a match
+	fetchPresetStateFromFile(filename, presname, buffer);
 
-  // -- recallState(filename) : load the value of every zone from a file
-  void GxUI::recallState(const char* filename)
-  {
-    ifstream f(filename);
-    if (f.good())
-    {
-      for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-	f >> *(i->first);
+	// set the found state
+	return applyStateFromString(buffer);
+}
 
-      f.close();
-    }
-  }
+// -- recall a preset setting by name
+bool GxUI::renamePreset(const char* filename, const char* oldname, const char* newname)
+{
+	string buffer, buf, space = " ";
 
-  // -- recalladState(filename) : load the value of every zone for extra sets from a file
-  void GxUI::recalladState(const char* filename, int a, int b, int lin)
-  {
-    ifstream f(filename);
-    int is = 0;
-    string buffer;
-    if (f.good())
-      for (is=0; is<lin; is++)
-      {
-	getline(f, buffer);
-      }
-    is = 0;
-    {
-      for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-      {
-	if ((is>a) && ( is<b))  f >> *(i->first);
-	is++;
-      }
-    }
-    f.close();
-  }
+	const string prefile = filename;
+	const string tmpfile = prefile + "_tmp";
 
-  void GxUI::updateAllGuis()
-  {
-    list<GxUI*>::iterator g;
-    for (g = fGuiList.begin(); g != fGuiList.end(); g++)
-    {
-      (*g)->updateAllZones();
-    }
-  }
+	// lookup preset file until we find a match
+	fetchPresetStateFromFile(filename, oldname, buffer);
 
-  // Update all user items reflecting zone z
-  inline void GxUI::updateZone(float* z)
-  {
-    float 	v = *z;
-    clist* 	l = fZoneMap[z];
-    for (clist::iterator c = l->begin(); c != l->end(); c++)
-      if ((*c)->cache() != v) (*c)->reflectZone();
-  }
+	// did we find anything ? weird if not ...
+	if (buffer.empty()) return false;
 
-  // Update all user items not up to date
-  inline void GxUI::updateAllZones()
-  {
-    for (zmap::iterator m = fZoneMap.begin(); m != fZoneMap.end(); m++)
-    {
-      float* 	z = m->first;
-      clist*	l = m->second;
-      float	v = *z;
-      for (clist::iterator c = l->begin(); c != l->end(); c++)
-	if ((*c)->cache() != v) (*c)->reflectZone();
-    }
-  }
+	// let's use a tmp file that does not contain the preset
+	ostringstream cat_tmpfile("cat");
+	cat_tmpfile << "cat" << space << prefile << space
+	            << "| grep -v" << space << oldname << space
+	            << ">" << tmpfile;
 
-  // add a callback item
-  inline void GxUI::addCallback(float* zone, GxUiCallback foo, void* data)
-  {
-    new GxUiCallbackItem(this, zone, foo, data);
-  };
+	(void)system(cat_tmpfile.str().c_str());
+	usleep(200);
+
+	// add new name
+	ostringstream presline;
+	presline << "echo" << space << newname << space << buffer
+	         << " >> " << tmpfile;
+
+	// save preset in tmp file
+	if (system(presline.str().c_str()) != 0)
+	{
+		string cmd = string("rm -f ") + tmpfile;
+		system(cmd.c_str());
+		return false;
+	}
+
+	// rename tmp file to filename
+	string cmd = string("rm -f ") + prefile; system(cmd.c_str());
+	rename(tmpfile.c_str(), prefile.c_str());
+
+	return true;
+}
+
+// -- recallState(filename) : load the value of every zone from a file
+void GxUI::recallState(const char* filename)
+{
+	ifstream f(filename);
+	if (f.good())
+	{
+		for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
+			f >> *(i->first);
+
+		f.close();
+	}
+}
+
+// -- recalladState(filename) : load the value of every zone for extra sets from a file
+void GxUI::recalladState(const char* filename, int a, int b, int lin)
+{
+	ifstream f(filename);
+	int is = 0;
+	string buffer;
+	if (f.good())
+		for (is=0; is<lin; is++)
+		{
+			getline(f, buffer);
+		}
+	is = 0;
+	{
+		for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
+		{
+			if ((is>a) && ( is<b))  f >> *(i->first);
+			is++;
+		}
+	}
+	f.close();
+}
+
+void GxUI::updateAllGuis()
+{
+	list<GxUI*>::iterator g;
+	for (g = fGuiList.begin(); g != fGuiList.end(); g++)
+	{
+		(*g)->updateAllZones();
+	}
+}
+
+// Update all user items reflecting zone z
+inline void GxUI::updateZone(float* z)
+{
+	float 	v = *z;
+	clist* 	l = fZoneMap[z];
+	for (clist::iterator c = l->begin(); c != l->end(); c++)
+		if ((*c)->cache() != v) (*c)->reflectZone();
+}
+
+// Update all user items not up to date
+inline void GxUI::updateAllZones()
+{
+	for (zmap::iterator m = fZoneMap.begin(); m != fZoneMap.end(); m++)
+	{
+		float* 	z = m->first;
+		clist*	l = m->second;
+		float	v = *z;
+		for (clist::iterator c = l->begin(); c != l->end(); c++)
+			if ((*c)->cache() != v) (*c)->reflectZone();
+	}
+}
+
+// add a callback item
+inline void GxUI::addCallback(float* zone, GxUiCallback foo, void* data)
+{
+	new GxUiCallbackItem(this, zone, foo, data);
+};
 
 
-  /* ---------------- GxUiItem stuff --------------- */
-  GxUiItem::GxUiItem (GxUI* ui, float* zone)
-  : fGUI(ui), fZone(zone), fCache(-123456.654321)
-  {
-    ui->registerZone(zone, this);
-  }
+/* ---------------- GxUiItem stuff --------------- */
+GxUiItem::GxUiItem (GxUI* ui, float* zone)
+	: fGUI(ui), fZone(zone), fCache(-123456.654321)
+{
+	ui->registerZone(zone, this);
+}
 
-  // modify zone
-  void GxUiItem::modifyZone(float v)
-  {
-    fCache = v;
-    if (*fZone != v)
-    {
-      *fZone = v;
-      fGUI->updateZone(fZone);
-    }
-  }
+// modify zone
+void GxUiItem::modifyZone(float v)
+{
+	fCache = v;
+	if (*fZone != v)
+	{
+		*fZone = v;
+		fGUI->updateZone(fZone);
+	}
+}
 
-  // item cache
-  float	GxUiItem::cache()
-  {
-    return fCache;
-  }
+// item cache
+float	GxUiItem::cache()
+{
+	return fCache;
+}
 
-  /* ----------------- GxUiCallbackItem stuff ---------------- */
-  GxUiCallbackItem::GxUiCallbackItem(GxUI* ui, float* zone, GxUiCallback foo, void* data)
-    : GxUiItem(ui, zone), fCallback(foo), fData(data) {}
+/* ----------------- GxUiCallbackItem stuff ---------------- */
+GxUiCallbackItem::GxUiCallbackItem(GxUI* ui, float* zone, GxUiCallback foo, void* data)
+	: GxUiItem(ui, zone), fCallback(foo), fData(data) {}
 
-  // reflect zone
-  void GxUiCallbackItem::reflectZone()
-  {
-    float v = *fZone;
-    fCache  = v;
-    fCallback(v, fData);
-  }
+// reflect zone
+void GxUiCallbackItem::reflectZone()
+{
+	float v = *fZone;
+	fCache  = v;
+	fCallback(v, fData);
+}
 
 } /* end of guitarix namespace */
-
-
-

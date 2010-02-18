@@ -23,20 +23,20 @@
 
 namespace gx_sndfile
 {
-  // --------------- a simple resampling status
-  typedef enum {
-    kNoError     = 0,
-    kErrorInput  = 1,
-    kErrorOutput = 2
-  } GxResampleStatus;
+// --------------- a simple resampling status
+typedef enum {
+	kNoError     = 0,
+	kErrorInput  = 1,
+	kErrorOutput = 2
+} GxResampleStatus;
 
-  SNDFILE* openOutputSoundFile(const char*, int,  int);
-  SNDFILE* openInputSoundFile (const char*, int*, int*, int*);
-  void     closeSoundFile     (SNDFILE*);
+SNDFILE* openOutputSoundFile(const char*, int,  int);
+SNDFILE* openInputSoundFile (const char*, int*, int*, int*);
+void     closeSoundFile     (SNDFILE*);
 
-  sf_count_t writeSoundOutput(SNDFILE*, float*, int);
-  sf_count_t readSoundInput  (SNDFILE*, float*, int);
+sf_count_t writeSoundOutput(SNDFILE*, float*, int);
+sf_count_t readSoundInput  (SNDFILE*, float*, int);
 
-  GxResampleStatus resampleSoundFile(const char*, const char*, int);
+GxResampleStatus resampleSoundFile(const char*, const char*, int);
 
 } /* end of gx_sndfile namespace */

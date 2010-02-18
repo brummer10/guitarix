@@ -52,110 +52,111 @@ using namespace gx_system;
 namespace gx_sndfile
 {
 
-  // --------------- sf_open writer wrapper : returns file desc. and audio file info
-  SNDFILE* openOutputSoundFile(const char* name, int chans, int sr)
-  {
-    // initialise the SF_INFO structure
-    SF_INFO info;
+// --------------- sf_open writer wrapper : returns file desc. and audio file info
+SNDFILE* openOutputSoundFile(const char* name, int chans, int sr)
+{
+	// initialise the SF_INFO structure
+	SF_INFO info;
 
-    info.samplerate = sr;
-    info.channels   = chans;
-    info.format     = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+	info.samplerate = sr;
+	info.channels   = chans;
+	info.format     = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
 
-    return sf_open(name, SFM_WRITE, &info);
-  }
+	return sf_open(name, SFM_WRITE, &info);
+}
 
-  // --------------- sf_open reader wrapper : returns file desc. and audio file info
-  SNDFILE* openInputSoundFile(const char* name, int* chans, int* sr, int* length)
-  {
-    SF_INFO info;
-    SNDFILE *sf = sf_open(name, SFM_READ, &info);
+// --------------- sf_open reader wrapper : returns file desc. and audio file info
+SNDFILE* openInputSoundFile(const char* name, int* chans, int* sr, int* length)
+{
+	SF_INFO info;
+	SNDFILE *sf = sf_open(name, SFM_READ, &info);
 
-    *sr     = info.samplerate;
-    *chans  = info.channels;
-    *length = info.frames;
+	*sr     = info.samplerate;
+	*chans  = info.channels;
+	*length = info.frames;
 
-    return sf;
-  }
+	return sf;
+}
 
-  // --------------- sf_writer wrapper
-  sf_count_t writeSoundOutput(SNDFILE *pOutput, float *buffer, int vecsize)
-  {
-    return sf_writef_float(pOutput, buffer, vecsize);
-  }
+// --------------- sf_writer wrapper
+sf_count_t writeSoundOutput(SNDFILE *pOutput, float *buffer, int vecsize)
+{
+	return sf_writef_float(pOutput, buffer, vecsize);
+}
 
-  // --------------- sf_reader wrapper
-  sf_count_t readSoundInput(SNDFILE *pInput, float *buffer, int vecsize)
-  {
-    return sf_readf_float(pInput, buffer, vecsize);
-  }
+// --------------- sf_reader wrapper
+sf_count_t readSoundInput(SNDFILE *pInput, float *buffer, int vecsize)
+{
+	return sf_readf_float(pInput, buffer, vecsize);
+}
 
-  // --------------- audio resampler
-  GxResampleStatus resampleSoundFile(const char*  pInputi,
-				     const char*  pOutputi,
-				     int jackframe)
-  {
-    int chans, length=0, length2=0, sr;
-    GxResampleStatus status = kNoError;
+// --------------- audio resampler
+GxResampleStatus resampleSoundFile(const char*  pInputi,
+                                   const char*  pOutputi,
+                                   int jackframe)
+{
+	int chans, length=0, length2=0, sr;
+	GxResampleStatus status = kNoError;
 
-    // Note: what is length used for ? only length2 used
+	// Note: what is length used for ? only length2 used
 
-    // --- open audio files
-    SNDFILE* pInput  = openInputSoundFile (pInputi,  &chans, &sr, &length2);
-    SNDFILE* pOutput = openOutputSoundFile(pOutputi, chans, jackframe);
+	// --- open audio files
+	SNDFILE* pInput  = openInputSoundFile (pInputi,  &chans, &sr, &length2);
+	SNDFILE* pOutput = openOutputSoundFile(pOutputi, chans, jackframe);
 
-    // check input
-    if (!pInput)
-    {
-      ostringstream msg;
-      msg << "Error opening input file " << pInputi;
-      (void)gx_gui::gx_message_popup(msg.str().c_str());
-      status = kErrorInput;
-    }
+	// check input
+	if (!pInput)
+	{
+		ostringstream msg;
+		msg << "Error opening input file " << pInputi;
+		(void)gx_gui::gx_message_popup(msg.str().c_str());
+		status = kErrorInput;
+	}
 
-    // check input
-    else if (!pOutput)
-    {
-      ostringstream msg;
-      msg << "Error opening output file " << pOutputi;
-      (void)gx_gui::gx_message_popup(msg.str().c_str());
-      status = kErrorOutput;
-    }
-    else
-    {
-      const int	vecsize=64;
-      float* sig = new float[vecsize*2];
-      int counter = 0;
+	// check input
+	else if (!pOutput)
+	{
+		ostringstream msg;
+		msg << "Error opening output file " << pOutputi;
+		(void)gx_gui::gx_message_popup(msg.str().c_str());
+		status = kErrorOutput;
+	}
+	else
+	{
+		const int	vecsize=64;
+		float* sig = new float[vecsize*2];
+		int counter = 0;
 
-      // note: what is the length variable doing ??
-      while (counter < length+length2-1)
-      {
-	readSoundInput   (pInput,  sig, vecsize);
-	writeSoundOutput (pOutput, sig, vecsize);
-	counter += vecsize;
-      }
+		// note: what is the length variable doing ??
+		while (counter < length+length2-1)
+		{
+			readSoundInput   (pInput,  sig, vecsize);
+			writeSoundOutput (pOutput, sig, vecsize);
+			counter += vecsize;
+		}
 
-      // close files
-      sf_close(pInput);
-      sf_close(pOutput);
+		// close files
+		sf_close(pInput);
+		sf_close(pOutput);
 
-      delete[] sig;
+		delete[] sig;
 
-      ostringstream lab;
-      lab << "fileinfo: " << endl
-	  << chans        << " channel(s) "
-	  << jackframe    << " Sample rate "
-	  << length2      << " Frames ";
+		ostringstream lab;
+		lab << "fileinfo: " << endl
+		    << chans        << " channel(s) "
+		    << jackframe    << " Sample rate "
+		    << length2      << " Frames ";
 
-      gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
-    }
+		gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
+	}
 
-    return status;
-  }
+	return status;
+}
 
-  // --------------- sf_close wrapper
-  void closeSoundFile(SNDFILE *psf_in)
-  {
-    sf_close(psf_in);
-  }
+// --------------- sf_close wrapper
+void closeSoundFile(SNDFILE *psf_in)
+{
+	sf_close(psf_in);
+}
+
 } /* end of gx_sndfile namespace */

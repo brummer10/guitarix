@@ -30,22 +30,22 @@
 
 namespace gx_child_process
 {
-  /* --------------- function declarations -------------- */
+/* --------------- function declarations -------------- */
 
-  FILE*    gx_popen(const char*, const char*, const int);
-  int      gx_pclose(FILE*, const int);
-  pid_t    gx_find_child_pid(const char*); 
-  bool     gx_lookup_pid(const pid_t); 
+FILE*    gx_popen(const char*, const char*, const int);
+int      gx_pclose(FILE*, const int);
+pid_t    gx_find_child_pid(const char*); 
+bool     gx_lookup_pid(const pid_t); 
 
-  bool     gx_capture_command(const int, string&);
-  bool     gx_capture(const char*);
-  void     gx_show_jack_capture_gui (GtkWidget* , gpointer);
+bool     gx_capture_command(const int, string&);
+bool     gx_capture(const char*);
+void     gx_show_jack_capture_gui (GtkWidget* , gpointer);
 
-  void     gx_start_stop_jack_capture (GtkWidget*, gpointer);
-  void     gx_start_stop_jconv(GtkWidget*, gpointer);
-  void     gx_start_stop_meterbridge (GtkCheckMenuItem*, gpointer);
+void     gx_start_stop_jack_capture (GtkWidget*, gpointer);
+void     gx_start_stop_jconv(GtkWidget*, gpointer);
+void     gx_start_stop_meterbridge (GtkCheckMenuItem*, gpointer);
 
-  int      gx_terminate_child_procs();
+int      gx_terminate_child_procs();
 
-  /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 } /* end of gx_child_process namespace */

@@ -29,135 +29,135 @@
 
 namespace gx_ui
 {
-  /* ------------- UI Classes ------------- */
-  /* base interface classes interfacing with the GUI  */
-  class GxUI;
+/* ------------- UI Classes ------------- */
+/* base interface classes interfacing with the GUI  */
+class GxUI;
 
-  /* --- GxUiItem (virtual class) --- */
-  class GxUiItem
-  {
-  protected :
-    GxUI*	fGUI;
-    float*	fZone;
-    float	fCache;
+/* --- GxUiItem (virtual class) --- */
+class GxUiItem
+{
+protected :
+	GxUI*	fGUI;
+	float*	fZone;
+	float	fCache;
 
-    GxUiItem (GxUI* ui, float* zone);
+	GxUiItem (GxUI* ui, float* zone);
 
-  public :
-    virtual ~GxUiItem() {}
+public :
+	virtual ~GxUiItem() {}
 
-    void  modifyZone(float v);
-    float cache();
-    virtual void reflectZone() = 0;
-  };
-
-
-  /* --- Callback Item --- */
-  typedef void (*GxUiCallback)(float val, void* data);
-
-  struct GxUiCallbackItem : public GxUiItem
-  {
-    GxUiCallback fCallback;
-    void*	 fData;
-
-    GxUiCallbackItem(GxUI* ui, float* zone, GxUiCallback foo, void* data);
-    virtual void reflectZone();
-  };
-
-  /* --- Main UI base class --- */
-  class GxUI
-  {
-    typedef list< GxUiItem* > clist;
-    typedef map < float*, clist* > zmap;
-
-  private:
-    static list<GxUI*>	fGuiList;
-    zmap		fZoneMap;
-    bool		fStopped;
-
-  public:
-    GxUI();
-    virtual ~GxUI() {}
-
-    // public methods
-    void registerZone(float*, GxUiItem*);
-    void saveStateToFile(const char*);
-    void dumpStateToString(string&);
-    bool applyStateFromString(const string&);
-    void fetchPresetStateFromFile(const char*, const char*, string&);
-    bool recallPresetByname(const char*, const char*);
-    bool renamePreset(const char*, const char*, const char*);
-    void recallState(const char* filename);
-    void recalladState(const char* filename, int a, int b, int lin);
-    void updateAllZones();
-    void updateZone(float* z);
-    static void updateAllGuis();
-    static int zone2index(float *z);
-    static float* index2zone(int index);
-
-    //    virtual GtkTextView* const getLoggingWindow() const { return NULL; }
-
-    virtual void addMenu() {};
-    virtual void addJConvButton(const char* label, float* zone) {};
-    virtual void addToggleButton(const char* label, float* zone) {};
-    virtual void addPToggleButton(const char* label, float* zone) {};
-    virtual void addJToggleButton(const char* label, float* zone) {};
-    virtual void addCheckButton(const char* label, float* zone) {};
-    virtual void addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step) {};
-    virtual void addHorizontalSlider(const char* label, float* zone, float init, float min, float max, float step) {};
-    virtual void addHorizontalWheel(const char* label, float* zone, float init, float min, float max, float step){};
-    virtual void addregler(const char* label, float* zone, float init, float min, float max, float step){};
-    virtual void addbigregler(const char* label, float* zone, float init, float min, float max, float step) {};
-    virtual void addslider(const char* label, float* zone, float init, float min, float max, float step){};
-    virtual void addtoggle(const char* label, float* zone){};
-    virtual void addbtoggle(const char* label, float* zone){};
-    virtual void addswitch(const char* label, float* zone){};
-    virtual void addminiswitch(const char* label, float* zone){};
-    virtual void addminieqswitch(const char* label, float* zone){};
-    virtual void addNumEntry(const char* label, float* zone, float init, float min, float max, float step) {};
-    virtual void addNumDisplay(const char* label, float* zone) {};
-    virtual void addLiveWaveDisplay(const char* label, float* zone , float* zone1) {};
-    virtual void addStatusDisplay(const char* label, float* zone ) {};
-    virtual void addselector(const char* label, float* zone, int maxv, const char* []){};
+	void  modifyZone(float v);
+	float cache();
+	virtual void reflectZone() = 0;
+};
 
 
-    void addCallback(float* zone, GxUiCallback foo, void* data);
+/* --- Callback Item --- */
+typedef void (*GxUiCallback)(float val, void* data);
 
-    // -- widget's layouts
-    virtual void openHorizontalOrderBox(const char* label, float* posit){};
-    virtual void openHorizontalTableBox(const char* label){};
-    virtual void openHorizontalRestetBox(const char* label, float* posit){};
-    virtual void openFrameBox(const char* label) {};
-    virtual void openHorizontalBox(const char* label) {};
-    virtual void openHorizontalhideBox(const char* label) {};
-    virtual void openVerticalBox(const char* label) {};
-    virtual void openVerticalBox1(const char* label) {};
-    virtual void openVerticalMidiBox(const char* label) {};
-    virtual void openDialogBox(const char* label, float* zone) {};
-    virtual void openWarningBox(const char* label, float* zone){};
-    virtual void openEventBox(const char* label) {};
-    virtual void openHandleBox(const char* label) {};
-    virtual void openExpanderBox(const char* label, float* zone) {};
-    virtual void openTabBox(const char* label) {};
-    virtual void openPaintBox(const char* label){};
-    virtual void openPaintBox1(const char* label){};
-    virtual void openPaintBox2(const char* label){};
-    virtual void openScrollBox(const char* label){};
-    virtual void openTextLoggingBox(const char* label) {};
-    virtual void openLevelMeterBox(const char* label)  {};
-    virtual void openJackClientBox(const char* label) {};
-    virtual void openToolBar(const char* label){};
-    virtual void setSkinBox(const char* label, float* zone){};
-    virtual void closeBox() {};
+struct GxUiCallbackItem : public GxUiItem
+{
+	GxUiCallback fCallback;
+	void*	 fData;
 
-    virtual void setup() {};
-    virtual void show() {};
-    virtual void run() {};
+	GxUiCallbackItem(GxUI* ui, float* zone, GxUiCallback foo, void* data);
+	virtual void reflectZone();
+};
 
-    void stop()    { fStopped = true; }
-    bool stopped() { return fStopped; }
+/* --- Main UI base class --- */
+class GxUI
+{
+	typedef list< GxUiItem* > clist;
+	typedef map < float*, clist* > zmap;
 
-    virtual void declare(float* zone, const char* key, const char* value) {}
-  };
+private:
+	static list<GxUI*>	fGuiList;
+	zmap		fZoneMap;
+	bool		fStopped;
+
+public:
+	GxUI();
+	virtual ~GxUI() {}
+
+	// public methods
+	void registerZone(float*, GxUiItem*);
+	void saveStateToFile(const char*);
+	void dumpStateToString(string&);
+	bool applyStateFromString(const string&);
+	void fetchPresetStateFromFile(const char*, const char*, string&);
+	bool recallPresetByname(const char*, const char*);
+	bool renamePreset(const char*, const char*, const char*);
+	void recallState(const char* filename);
+	void recalladState(const char* filename, int a, int b, int lin);
+	void updateAllZones();
+	void updateZone(float* z);
+	static void updateAllGuis();
+	static int zone2index(float *z);
+	static float* index2zone(int index);
+
+	//    virtual GtkTextView* const getLoggingWindow() const { return NULL; }
+
+	virtual void addMenu() {};
+	virtual void addJConvButton(const char* label, float* zone) {};
+	virtual void addToggleButton(const char* label, float* zone) {};
+	virtual void addPToggleButton(const char* label, float* zone) {};
+	virtual void addJToggleButton(const char* label, float* zone) {};
+	virtual void addCheckButton(const char* label, float* zone) {};
+	virtual void addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step) {};
+	virtual void addHorizontalSlider(const char* label, float* zone, float init, float min, float max, float step) {};
+	virtual void addHorizontalWheel(const char* label, float* zone, float init, float min, float max, float step){};
+	virtual void addregler(const char* label, float* zone, float init, float min, float max, float step){};
+	virtual void addbigregler(const char* label, float* zone, float init, float min, float max, float step) {};
+	virtual void addslider(const char* label, float* zone, float init, float min, float max, float step){};
+	virtual void addtoggle(const char* label, float* zone){};
+	virtual void addbtoggle(const char* label, float* zone){};
+	virtual void addswitch(const char* label, float* zone){};
+	virtual void addminiswitch(const char* label, float* zone){};
+	virtual void addminieqswitch(const char* label, float* zone){};
+	virtual void addNumEntry(const char* label, float* zone, float init, float min, float max, float step) {};
+	virtual void addNumDisplay(const char* label, float* zone) {};
+	virtual void addLiveWaveDisplay(const char* label, float* zone , float* zone1) {};
+	virtual void addStatusDisplay(const char* label, float* zone ) {};
+	virtual void addselector(const char* label, float* zone, int maxv, const char* []){};
+
+
+	void addCallback(float* zone, GxUiCallback foo, void* data);
+
+	// -- widget's layouts
+	virtual void openHorizontalOrderBox(const char* label, float* posit){};
+	virtual void openHorizontalTableBox(const char* label){};
+	virtual void openHorizontalRestetBox(const char* label, float* posit){};
+	virtual void openFrameBox(const char* label) {};
+	virtual void openHorizontalBox(const char* label) {};
+	virtual void openHorizontalhideBox(const char* label) {};
+	virtual void openVerticalBox(const char* label) {};
+	virtual void openVerticalBox1(const char* label) {};
+	virtual void openVerticalMidiBox(const char* label) {};
+	virtual void openDialogBox(const char* label, float* zone) {};
+	virtual void openWarningBox(const char* label, float* zone){};
+	virtual void openEventBox(const char* label) {};
+	virtual void openHandleBox(const char* label) {};
+	virtual void openExpanderBox(const char* label, float* zone) {};
+	virtual void openTabBox(const char* label) {};
+	virtual void openPaintBox(const char* label){};
+	virtual void openPaintBox1(const char* label){};
+	virtual void openPaintBox2(const char* label){};
+	virtual void openScrollBox(const char* label){};
+	virtual void openTextLoggingBox(const char* label) {};
+	virtual void openLevelMeterBox(const char* label)  {};
+	virtual void openJackClientBox(const char* label) {};
+	virtual void openToolBar(const char* label){};
+	virtual void setSkinBox(const char* label, float* zone){};
+	virtual void closeBox() {};
+
+	virtual void setup() {};
+	virtual void show() {};
+	virtual void run() {};
+
+	void stop()    { fStopped = true; }
+	bool stopped() { return fStopped; }
+
+	virtual void declare(float* zone, const char* key, const char* value) {}
+};
 
 } /* end of gx_ui namespace */

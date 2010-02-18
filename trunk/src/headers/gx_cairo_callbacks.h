@@ -22,23 +22,23 @@
 #pragma once
 
 namespace gx_cairo
-  {
+{
 
-    gboolean box12_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-    gboolean box11_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-    gboolean box10_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-    gboolean box9_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-    gboolean box8_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-    gboolean box7_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-    gboolean box6_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-    gboolean box5_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-    gboolean box4_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-    gboolean box3_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-    gboolean box2_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-    gboolean box1_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-    gboolean box_expose  (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-    gboolean label_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box12_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box11_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box10_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box9_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box8_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box7_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box6_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box5_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box4_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box3_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box2_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box1_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean box_expose  (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean label_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 
-    void gx_init_pixmaps();
+void gx_init_pixmaps();
 
-  }
+}

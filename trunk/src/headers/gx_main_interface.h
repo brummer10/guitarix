@@ -49,25 +49,25 @@ namespace gx_gui
 
 inline string group_id(const string id)
 {
-     return id.substr(0, id.find_last_of("."));
+	return id.substr(0, id.find_last_of("."));
 }
 
 class ParameterGroups
 {
 private:
-     map<string,string> groups;
+	map<string,string> groups;
 public:
-     string operator[](string id) { return groups[id]; }
-     void insert(string id, string group)
-     {
-	  assert(groups.find(id) == groups.end());
-	  groups.insert(pair<string,string>(id, group));
-     }
-     void fill_map(map<string,bool>& m)
-     {
-     for (map<string,string>::iterator i = groups.begin(); i != groups.end(); i++)
-	  m[i->first] = false;
-     }
+	string operator[](string id) { return groups[id]; }
+	void insert(string id, string group)
+		{
+			assert(groups.find(id) == groups.end());
+			groups.insert(pair<string,string>(id, group));
+		}
+	void fill_map(map<string,bool>& m)
+		{
+			for (map<string,string>::iterator i = groups.begin(); i != groups.end(); i++)
+				m[i->first] = false;
+		}
 };
 
 extern ParameterGroups param_groups; // map group id -> group name
@@ -188,17 +188,17 @@ inline const BoolParameter &Parameter::getBool() const
 class ParamMap
 {
 private:
-     map<string, Parameter*> id_map;
-     map<const void*, Parameter*> addr_map;
+	map<string, Parameter*> id_map;
+	map<const void*, Parameter*> addr_map;
 
 public:
-     typedef map<string, Parameter*>::iterator iterator;
-     iterator begin() { return id_map.begin(); }
-     iterator end() { return id_map.end(); }
-     Parameter* operator[](const void *p) { return addr_map[p]; }
-     Parameter* operator[](string id) { return id_map[id]; }
-	 Parameter* operator[](const char *p) { return id_map[p]; }
-     void insert(Parameter* param);
+	typedef map<string, Parameter*>::iterator iterator;
+	iterator begin() { return id_map.begin(); }
+	iterator end() { return id_map.end(); }
+	Parameter* operator[](const void *p) { return addr_map[p]; }
+	Parameter* operator[](string id) { return id_map[id]; }
+	Parameter* operator[](const char *p) { return id_map[p]; }
+	void insert(Parameter* param);
 };
 
 extern ParamMap parameter_map; // map id -> parameter, zone -> parameter
@@ -294,157 +294,157 @@ extern MidiControllerList controller_map; // map ctrl num -> controlled paramete
  **
  */
 
-  class GxMainInterface : public gx_ui::GxUI
-  {
-  private:
-    // private constructor
-    GxMainInterface(const char* name, int* pargc, char*** pargv);
+class GxMainInterface : public gx_ui::GxUI
+{
+private:
+	// private constructor
+	GxMainInterface(const char* name, int* pargc, char*** pargv);
 
-    void addMainMenu();
+	void addMainMenu();
 
-    void addEngineMenu();
-    void addJackServerMenu();
+	void addEngineMenu();
+	void addJackServerMenu();
 
-    void addPresetMenu();
-    void addExtraPresetMenu();
+	void addPresetMenu();
+	void addExtraPresetMenu();
 
-    void addOptionMenu();
-    void addGuiSkinMenu();
+	void addOptionMenu();
+	void addGuiSkinMenu();
 
-    void addAboutMenu();
+	void addAboutMenu();
 
-  protected :
-    int			fTop;
-    GtkWidget*          fBox[stackSize];
-    int 		fMode[stackSize];
-    bool		fStopped;
-    GtkTextView*        fLoggingWindow;
-    GtkExpander*        fLoggingBox;
-    GtkNotebook*        fPortMapTabs;
-    GtkWindow*          fPortMapWindow;
-    GtkWidget*          fLevelMeters[2];
-    GtkWidget*          fJCLevelMeters[2];
+protected :
+	int			fTop;
+	GtkWidget*          fBox[stackSize];
+	int 		fMode[stackSize];
+	bool		fStopped;
+	GtkTextView*        fLoggingWindow;
+	GtkExpander*        fLoggingBox;
+	GtkNotebook*        fPortMapTabs;
+	GtkWindow*          fPortMapWindow;
+	GtkWidget*          fLevelMeters[2];
+	GtkWidget*          fJCLevelMeters[2];
 
-    GtkWidget*          fSignalLevelBar;
-    GtkWidget*          fJCSignalLevelBar;
+	GtkWidget*          fSignalLevelBar;
+	GtkWidget*          fJCSignalLevelBar;
 
-    // menu items
-    map<string, GtkWidget*> fMenuList;
+	// menu items
+	map<string, GtkWidget*> fMenuList;
 
-    // jack menu widgets
-    GtkWidget*          fJackConnectItem;
-    GtkWidget*          fJackLatencyItem[NJACKLAT];
+	// jack menu widgets
+	GtkWidget*          fJackConnectItem;
+	GtkWidget*          fJackLatencyItem[NJACKLAT];
 
-    GtkWidget* addWidget(const char* label, GtkWidget* w);
-    virtual void pushBox(int mode, GtkWidget* w);
+	GtkWidget* addWidget(const char* label, GtkWidget* w);
+	virtual void pushBox(int mode, GtkWidget* w);
 
-  public :
-    static bool	 fInitialized;
+public :
+	static bool	 fInitialized;
 
-    static const gboolean expand   = TRUE;
-    static const gboolean fill     = TRUE;
-    static const gboolean homogene = FALSE;
+	static const gboolean expand   = TRUE;
+	static const gboolean fill     = TRUE;
+	static const gboolean homogene = FALSE;
 
-    static GxMainInterface* instance(const char* name = "",
-				     int* pargc = NULL, char*** pargv = NULL);
+	static GxMainInterface* instance(const char* name = "",
+	                                 int* pargc = NULL, char*** pargv = NULL);
 
-    // for key acclerators
-    GtkAccelGroup* fAccelGroup;
+	// for key acclerators
+	GtkAccelGroup* fAccelGroup;
 
-    // list of client portmaps
-    set<GtkWidget*> fClientPortMap;
+	// list of client portmaps
+	set<GtkWidget*> fClientPortMap;
 
-    // -- acquire a pointer to the logging window
-    GtkTextView* const getLoggingWindow()    const { return fLoggingWindow;   }
-    GtkExpander* const getLoggingBox()       const { return fLoggingBox;      }
+	// -- acquire a pointer to the logging window
+	GtkTextView* const getLoggingWindow()    const { return fLoggingWindow;   }
+	GtkExpander* const getLoggingBox()       const { return fLoggingBox;      }
 
-    GtkNotebook* const getPortMapTabs()      const { return fPortMapTabs;     }
-    GtkWindow*   const getPortMapWindow()    const { return fPortMapWindow;   }
+	GtkNotebook* const getPortMapTabs()      const { return fPortMapTabs;     }
+	GtkWindow*   const getPortMapWindow()    const { return fPortMapWindow;   }
 
-    GtkWidget*   const getJackConnectItem()  const { return fJackConnectItem; }
+	GtkWidget*   const getJackConnectItem()  const { return fJackConnectItem; }
 
-    GtkWidget*   const* getLevelMeters()     const { return fLevelMeters;     }
-    GtkWidget*   const* getJCLevelMeters()   const { return fJCLevelMeters;   }
+	GtkWidget*   const* getLevelMeters()     const { return fLevelMeters;     }
+	GtkWidget*   const* getJCLevelMeters()   const { return fJCLevelMeters;   }
 
-    GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
+	GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
 
-    GtkWidget*   const getMenu(const string name) const { return fMenuList.at(name); }
+	GtkWidget*   const getMenu(const string name) const { return fMenuList.at(name); }
 
-    // -- update jack client port lists
-    void initClientPortMaps      ();
+	// -- update jack client port lists
+	void initClientPortMaps      ();
 
-    void addClientPorts          ();
-    void addClientPortMap        (const string);
+	void addClientPorts          ();
+	void addClientPortMap        (const string);
 
-    void deleteClientPorts       ();
-    void deleteClientPortMap     (const string);
+	void deleteClientPorts       ();
+	void deleteClientPortMap     (const string);
 
-    void deleteAllClientPortMaps ();
+	void deleteAllClientPortMaps ();
 
-    GtkWidget* getClientPort       (const string, const int);
-    GtkWidget* getClientPortTable  (const string, const int);
-    GtkWidget* getClientPortMap    (const string);
+	GtkWidget* getClientPort       (const string, const int);
+	GtkWidget* getClientPortTable  (const string, const int);
+	GtkWidget* getClientPortMap    (const string);
 
-    // -- create jack portmap window
-    void createPortMapWindow(const char* label = "");
+	// -- create jack portmap window
+	void createPortMapWindow(const char* label = "");
 
-    // -- layout groups
-    virtual void openHorizontalOrderBox(const char* label,  float* posit);
-    virtual void openHorizontalTableBox(const char* label);
-    virtual void openHorizontalRestetBox(const char* label,  float* posit);
-    virtual void openFrameBox(const char* label);
-    virtual void openHorizontalBox(const char* label = "");
-    virtual void openHorizontalhideBox(const char* label = "");
-    virtual void openVerticalBox(const char* label = "");
-    virtual void openVerticalBox1(const char* label = "");
-    virtual void openVerticalMidiBox(const char* label = "");
-    virtual void openDialogBox(const char* label, float* zone);
-    virtual void openWarningBox(const char* label, float* zone);
-    virtual void openEventBox(const char* label = "");
-    virtual void openHandleBox(const char* label = "");
-    virtual void openExpanderBox(const char* label, float* zone);
-    virtual void openTabBox(const char* label = "");
-    virtual void openPaintBox(const char* label = "");
-    virtual void openPaintBox1(const char* label = "");
-    virtual void openPaintBox2(const char* label = "");
-    virtual void openScrollBox(const char* label = "");
-    virtual void openTextLoggingBox(const char* label = "");
-    virtual void openLevelMeterBox(const char* label);
-    virtual void openToolBar(const char* label = "");
-    virtual void setSkinBox(const char* label, float* zone);
-    virtual void closeBox();
+	// -- layout groups
+	virtual void openHorizontalOrderBox(const char* label,  float* posit);
+	virtual void openHorizontalTableBox(const char* label);
+	virtual void openHorizontalRestetBox(const char* label,  float* posit);
+	virtual void openFrameBox(const char* label);
+	virtual void openHorizontalBox(const char* label = "");
+	virtual void openHorizontalhideBox(const char* label = "");
+	virtual void openVerticalBox(const char* label = "");
+	virtual void openVerticalBox1(const char* label = "");
+	virtual void openVerticalMidiBox(const char* label = "");
+	virtual void openDialogBox(const char* label, float* zone);
+	virtual void openWarningBox(const char* label, float* zone);
+	virtual void openEventBox(const char* label = "");
+	virtual void openHandleBox(const char* label = "");
+	virtual void openExpanderBox(const char* label, float* zone);
+	virtual void openTabBox(const char* label = "");
+	virtual void openPaintBox(const char* label = "");
+	virtual void openPaintBox1(const char* label = "");
+	virtual void openPaintBox2(const char* label = "");
+	virtual void openScrollBox(const char* label = "");
+	virtual void openTextLoggingBox(const char* label = "");
+	virtual void openLevelMeterBox(const char* label);
+	virtual void openToolBar(const char* label = "");
+	virtual void setSkinBox(const char* label, float* zone);
+	virtual void closeBox();
 
-    // -- active widgets
-    virtual void addJConvButton(const char* label, float* zone);
-    virtual void addToggleButton(const char* label, float* zone);
-    virtual void addPToggleButton(const char* label, float* zone);
-    virtual void addJToggleButton(const char* label, float* zone);
-    virtual void addCheckButton(const char* label, float* zone);
-    virtual void addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step);
-    virtual void addHorizontalSlider(const char* label, float* zone, float init, float min, float max, float step);
-    virtual void addHorizontalWheel(const char* label, float* zone, float init, float min, float max, float step);
-    virtual void addregler(const char* label, float* zone, float init, float min, float max, float step);
-    virtual void addbigregler(const char* label, float* zone, float init, float min, float max, float step);
-    virtual void addslider(const char* label, float* zone, float init, float min, float max, float step);
-    virtual void addtoggle(const char* label, int* zone);
-    virtual void addbtoggle(const char* label, float* zone);
-    virtual void addswitch(const char* label, int* zone);
-    virtual void addminiswitch(const char* label, int* zone);
-    virtual void addminieqswitch(const char* label, int* zone);
-    virtual void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
-    virtual void addNumDisplay(const char* label, float* zone);
-    virtual void addLiveWaveDisplay(const char* label, float* zone , float* zone1);
-    virtual void addStatusDisplay(const char* label, float* zone );
-    virtual void addselector(const char* label, float* zone,int maxv, const char* []);
+	// -- active widgets
+	virtual void addJConvButton(const char* label, float* zone);
+	virtual void addToggleButton(const char* label, float* zone);
+	virtual void addPToggleButton(const char* label, float* zone);
+	virtual void addJToggleButton(const char* label, float* zone);
+	virtual void addCheckButton(const char* label, float* zone);
+	virtual void addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step);
+	virtual void addHorizontalSlider(const char* label, float* zone, float init, float min, float max, float step);
+	virtual void addHorizontalWheel(const char* label, float* zone, float init, float min, float max, float step);
+	virtual void addregler(const char* label, float* zone, float init, float min, float max, float step);
+	virtual void addbigregler(const char* label, float* zone, float init, float min, float max, float step);
+	virtual void addslider(const char* label, float* zone, float init, float min, float max, float step);
+	virtual void addtoggle(const char* label, int* zone);
+	virtual void addbtoggle(const char* label, float* zone);
+	virtual void addswitch(const char* label, int* zone);
+	virtual void addminiswitch(const char* label, int* zone);
+	virtual void addminieqswitch(const char* label, int* zone);
+	virtual void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
+	virtual void addNumDisplay(const char* label, float* zone);
+	virtual void addLiveWaveDisplay(const char* label, float* zone , float* zone1);
+	virtual void addStatusDisplay(const char* label, float* zone );
+	virtual void addselector(const char* label, float* zone,int maxv, const char* []);
 
-    virtual void setup();
-    virtual void show();
-    virtual void run();
-	  void addbigregler(string id);
+	virtual void setup();
+	virtual void show();
+	virtual void run();
+	void addbigregler(string id);
 
 
-  };
+};
 
-  /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 } /* end of gx_gui namespace */
 
