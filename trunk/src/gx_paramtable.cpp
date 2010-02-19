@@ -7,6 +7,7 @@
 #include <fstream>
 #include <cmath>
 #include <cstring>
+#include <cstdlib>
 #include <gtk/gtk.h>
 #include <jack/jack.h>
 #include <sndfile.h>
@@ -255,7 +256,8 @@ MidiControllerList::MidiControllerList(gx_system::JsonParser& jp):
 
 void recall_midi_controller_map()
 {
-	ifstream f(gx_system::gx_user_dir + gx_jack::client_name + "_midi_rc");
+    string filename = gx_system::gx_user_dir + gx_jack::client_name  + "_midi_rc";
+	ifstream f(filename.c_str());
 	if (!f.good()) {
 		controller_map.load_defaults();
 		if (save_midi_controller_map()) {

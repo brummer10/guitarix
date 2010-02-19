@@ -1479,7 +1479,7 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 		                               precision(adj->step_increment));
 		gtk_entry_set_activates_default(GTK_ENTRY(spinner), TRUE);
 		ok_button  = gtk_button_new_from_stock(GTK_STOCK_OK);
-		gtk_widget_set_can_default(ok_button, TRUE);
+		GTK_WIDGET_SET_FLAGS (GTK_WIDGET(ok_button), GTK_CAN_DEFAULT);
 		vbox = gtk_vbox_new (false, 4);
 		gtk_container_add (GTK_CONTAINER(vbox), spinner);
 		gtk_container_add (GTK_CONTAINER(vbox), ok_button);
