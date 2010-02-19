@@ -9,8 +9,8 @@ class UIDefs(object):
 
     class UID(dict):
         def write(self, fp, v):
-            self.tail = "".join([", "+x for x in self["value"]])
-            fp.write('\tregisterVar("%(name)s","%(uname)s","%(type)s","%(tooltip)s",&%(variable)s%(tail)s);\n' % self)
+            self["tail"] = "".join([", "+x for x in self["value"]])
+            fp.write('\tregisterVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",&%(variable)s%(tail)s);\n' % self)
 
         def __getitem__(self, n):
             try:
@@ -115,14 +115,14 @@ class Parser(object):
             if m:
                 vn = m.group(2)
                 self.ui.add(vn, "type", "S")
-                self.ui.add(vn, "name", make_name(m.group(1)))
+                self.ui.add(vn, "id", make_name(m.group(1)))
                 self.ui.add(vn, "value", m.groups()[2:])
                 continue
             m = checkbutton(line)
             if m:
                 vn = m.group(2)
                 self.ui.add(vn, "type", "S")
-                self.ui.add(vn, "name", make_name(m.group(1)))
+                self.ui.add(vn, "id", make_name(m.group(1)))
                 self.ui.add(vn, "value", m.group(2))
                 continue
             m = declare(line)
@@ -183,7 +183,7 @@ def output(fp, p, fname):
         ", ".join(["float *output%d" % i for i in range(p.getNumOutputs())])))
     p.write(fp, "compute", 1)
     fp.write("\t}\n}\n\n")
-    fp.write("struct RegisterParams { RegisterParams(); } RegisterParams;\n")
+    fp.write("static struct RegisterParams { RegisterParams(); } RegisterParams;\n")
     fp.write("RegisterParams::RegisterParams()\n{\n")
     p.ui.write(fp)
     fp.write("}\n")

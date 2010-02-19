@@ -1,16 +1,57 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import TaskGen
+import Task, TaskGen, Utils, Logs, os, errno, shutil
 
-TaskGen.declare_chain(
-    name      = 'dsp',
-    action    = '../tools/dsp2cc -o ${TGT} ${SRC}',
-    ext_in    = '.dsp',
-    ext_out   = '.cc',
-    reentrant = 0,
-    before    = 'cc cxx',
-)
+# task function for task "dsp"
+# use "tools/dsp2cc" to create the output file and copy
+# the output file to a corresponding directory in the
+# source tree (the directory will be created if it doesn't
+# yet exist)
+def dsp2cc(task):
+    src = task.inputs[0].srcpath(task.env)
+    o = task.outputs[0]
+    dst = o.bldpath(task.env)
+    cpy = o.relpath_gen(o.bld.bldnode)
+    cpydir = os.path.dirname(cpy)
+    try:
+        os.mkdir(cpydir)
+    except OSError, e:
+        if e.errno != errno.EEXIST:
+            Logs.error("runner: cannot create directory -> %s" % e)
+            return e.errno
+    lst = ["../tools/dsp2cc","-o",dst,src]
+    Logs.debug("runner: system command -> %s" % " ".join(lst))
+    ret = Utils.exec_command(lst,shell=False)
+    if ret != 0:
+        return ret
+    try:
+        shutil.copy2(dst, cpy)
+    except (OSError, IOError), e:
+        Logs.error("runner: cannot copy file -> %s" % e)
+        return e.errno
+    return 0
+
+# definition of task "dsp"
+Task.task_type_from_func(
+    name    = 'dsp',
+    func    = dsp2cc,
+    color   = 'BLUE',
+    ext_in  = '.dsp',
+    ext_out = '.cc',
+    before  = 'cc cxx')
+
+@TaskGen.extension('.dsp')
+def dsp_file(self, node):
+    # process all ".dsp" files with task "dsp", put the
+    # output file with extension ".cc" in a sibling directory
+    # of the source directory with "-cc" appended to its name
+    tsk = self.create_task('dsp')
+    tsk.set_inputs(node)
+    parent = node.parent
+    o = parent.parent.find_or_declare([parent.name+"-cc",node.name])
+    o = o.change_ext('.cc')
+    tsk.set_outputs(o)
 
 def build(bld):
     sources = [
