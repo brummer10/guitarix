@@ -246,7 +246,12 @@ pid_t gx_find_child_pid(const char* procname)
 void gx_show_jack_capture_gui( GtkWidget *widget, gpointer data )
 {
 	// Note: to be updated ...
-	(void)system("jack_capture_gui2 -o yes -f ~/guitarix_session -n guitarix -p /.guitarix/ja_ca_ssetrc &");
+	int ret = system("jack_capture_gui2 -o yes -f ~/guitarix_session -n guitarix -p /.guitarix/ja_ca_ssetrc &");
+	if (ret != 0) {
+		ostringstream buf;
+		buf << "error code: " << ret;
+		gx_print_error("jack_capture_gui2", buf.str());
+	}
 }
 
 //---- wav file construction for jack_capture

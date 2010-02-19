@@ -17,7 +17,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	./waf configure --prefix=/usr
+	./waf configure --prefix=/usr --no-faust
 	touch configure-stamp
 
 
