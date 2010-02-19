@@ -71,6 +71,21 @@ def check_faust(conf):
     if vers not in good_faust_versions and not Options.options.faust:
         conv.env['FAUST'] = None
 
+def check_faust_cc(conf, cpy_dir):
+    if os.path.exists(cpy_dir):
+        return
+    if not conf.env['FAUST']:
+        raise ConfigurationError(
+            "directory %s doesn't exist and no faust compiler"
+            % cpy_dir)
+    try:
+        os.mkdir(cpy_dir)
+    except OSError, e:
+        raise ConfigurationError(
+            "directory %s doesn't exist and can't be created"
+            % cpy_dir)
+    Logs.info("directory %s created" % cpy_dir)
+
 def print_msg(msg, nl=True):
     if HEXVERSION > 0x10500:
         s = sys.stderr
@@ -115,6 +130,7 @@ def configure(conf):
     # conf.check_cfg(package='fftw3', atleast_version='3.2.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
     conf.check(header_name='ladspa.h', mandatory=1)
     check_faust(conf)
+    check_faust_cc(conf, "src/faust-cc")
 
     conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'
 
