@@ -9,10 +9,15 @@ g_maxlen = 40
 import shutil
 import re
 import Logs
+import sys
+from Constants import HEXVERSION
+from Configure import ConfigurationError
 
 # used by waf dist and waf build
 VERSION='0.05.4-1'
 APPNAME='guitarix'
+
+good_faust_versions = ['0.9.10',]
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
@@ -32,38 +37,87 @@ def set_options(opt):
                    type='string', 
                    help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
 
+    opt.add_option('--faust',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=('build with faust even if the installed version is not in (%s)'
+                         % ", ".join(good_faust_versions)))
+
+    opt.add_option('--no-faust',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help="don't build with faust")
+
+def check_faust(conf):
+    if Options.options.no_faust:
+        conf.env['FAUST'] = None
+        return
+    conf.find_program("faust", var='FAUST')
+    if not conf.env['FAUST']:
+        return
+    try:
+        s = Utils.cmd_output('%s --version' % conf.env['FAUST'])
+    except ValueError:
+        Logs.warn('count not execute faust')
+        return
+    m = re.match(r".*Version\s*(.*)", s)
+    if not m:
+        Logs.warn('could not determine faust version')
+    vers = m.group(1)
+    conf.env["FAUST_VERSION"] = vers
+    conf.check_message('faust','version',1,vers)
+    if vers not in good_faust_versions and not Options.options.faust:
+        conv.env['FAUST'] = None
+
+def print_msg(msg, nl=True):
+    if HEXVERSION > 0x10500:
+        s = sys.stderr
+    else:
+        s = sys.stdout
+    if nl:
+        t = "\n"
+    else:
+        t = " "
+    s.write(msg+t)
+
 # a bit of waf display formatting
 def display_msg(msg, status = None, color = None):
     sr = msg
     global g_maxlen
     g_maxlen = max(g_maxlen, len(msg))
     if status:
-        print "%s :" % msg.ljust(g_maxlen),
+        print_msg("%s :" % msg.ljust(g_maxlen),False)
         Utils.pprint(color, status)
     else:
-        print "%s" % msg.ljust(g_maxlen)
+        print_msg("%s" % msg.ljust(g_maxlen))
 
 def error_msg(msg):
     Utils.pprint('RED', msg)
 
 def display_feature(msg, build):
     if build:
-        display_msg(msg, "yes", 'GREEN')
+        display_msg(msg, "yes", 'CYAN')
     else:
         display_msg(msg, "no", 'YELLOW')
 
 # guitarix waf configuration
 def configure(conf):
     conf.check_tool('compiler_cxx')
-
-    conf.check_cfg(package='jack', atleast_version='0.109.1', args='--cflags --libs', uselib_store='JACK', mandatory=1)
+    try:
+        conf.check_cfg(package='jack', atleast_version='0.117.0', max_version='1.9.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
+    except ConfigurationError:
+        conf.check_cfg(package='jack', atleast_version='1.9.3', args='--cflags --libs', uselib_store='JACK', mandatory=1)
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.10', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='gtk+-2.0', atleast_version='2.12.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
-   # conf.check_cfg(package='fftw3', atleast_version='3.2.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
+    # conf.check_cfg(package='fftw3', atleast_version='3.2.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
     conf.check(header_name='ladspa.h', mandatory=1)
+    check_faust(conf)
 
     conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'
+
 
     # defines for compilation
     conf.define('GX_STYLE_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','skins')))
@@ -82,11 +136,12 @@ def configure(conf):
     conf.define('BINDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin')))
     conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
     conf.define('BIN_NAME', APPNAME)
-    conf.define('CXXFLAGS', Options.options.cxxflags)
+    conf.env['CXXFLAGS'] = Options.options.cxxflags.split()
 
     # config subdirs
     conf.sub_config('src');
-    #conf.sub_config('src/faust');
+    if conf.env['FAUST']:
+        conf.sub_config('src/faust');
     conf.sub_config('ladspa');
     conf.sub_config('rcstyles');
 
@@ -95,11 +150,12 @@ def configure(conf):
     display_msg("==================")
     version_msg = "GUITARIX " + VERSION
 
-    print version_msg
+    print_msg(version_msg)
 
-    print
+    print_msg("")
 
-    display_msg("C++ flags", conf.env['CXXFLAGS'], 'CYAN')
+    display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
+    display_feature("Use faust", conf.env['FAUST'])
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
     display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
     display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
@@ -107,16 +163,15 @@ def configure(conf):
     display_msg("Guitarix builder directory", conf.env['GX_BUILDER_DIR'], 'CYAN')
     display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
 
-    print
+    print_msg("")
 
 def build(bld):
     # process subfolders from here
     bld.add_subdirs('ladspa')
     bld.add_subdirs('src')
-    #bld.add_subdirs('src/faust')
+    if bld.env['FAUST']:
+        bld.add_subdirs('src/faust')
     bld.add_subdirs('rcstyles')
     bld.add_subdirs('pixmaps')
 
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
-
-    

@@ -33,7 +33,7 @@ def build(bld):
         'midi.glade',
         ]
     prog = bld.new_task_gen('cxx', 'program')
-    prog.includes = './headers'
+    prog.includes = '. .. headers' # need ".." for config.h
     prog.cxxflags= bld.env['CXXFLAGS']
     prog.source = [] + sources
    # prog.uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GTK2', 'FFTW3']
