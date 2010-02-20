@@ -277,7 +277,7 @@ void recall_midi_controller_map()
 bool save_midi_controller_map()
 {
 	string fname = gx_system::gx_user_dir + gx_jack::client_name + "_midi_rc";
-	ofstream f(fname);
+	ofstream f(fname.c_str());
 	if (f.good()) {
 		gx_system::JsonWriter w(f);
 		controller_map.writeJSON(w);
