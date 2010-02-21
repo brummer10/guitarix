@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Hermann Meyer and James Warden
+ * Copyright (C) 2009-2010 Hermann Meyer, James Warden, Andreas Degert
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include <cmath>
 #include <gtk/gtk.h>
@@ -370,13 +371,18 @@ inline void GxEngine::noise_shaper (int sf, float** input, float** output)
 
 }
 
-//FIXME
-void registerVar(const char*, const char*, float* , float=0, float=0, float=0, float=0)
+void registerVar(const char* id, const char* name, const char* tp,
+                 const char* tooltip, float* var, float val=0,
+                 float low=0, float up=0, float step=0)
 {
+	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(id, name, gx_gui::Parameter::Continuous, true, *var, val, low, up, step, true));
 }
 
-//#include "faust/AntiAlias.cc"
+#define FAUSTFLOAT float
+#include "faust-cc/AntiAlias.cc"
+#include "faust-cc/preamp.cc"
 
+/*
 // anti aliasing the sine wav, this unit can nicly run oversampeled
 inline void GxEngine::AntiAlias (int sf, float** input, float** output)
 {
@@ -394,6 +400,7 @@ inline void GxEngine::AntiAlias (int sf, float** input, float** output)
 		*out++ = a ;
 	}
 }
+*/
 
 // the resonace tube unit on frame base
 inline void GxEngine::reso_tube (float fuzzy, int sf, float reso, float vibra,
@@ -1041,8 +1048,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 		over_sample(input,&oversample,count);
 
 
-		if (antialis0)  AntiAlias(count*2,&oversample,&oversample);
-		/*FIXME(dsp2cc) if (antialis0) AntiAlias::compute(count*2,oversample,oversample);*/
+		//if (antialis0) AntiAlias(count*2,&oversample,&oversample);
+		if (antialis0) AntiAlias::compute(count*2,oversample,oversample);
 		if (ftube)    fuzzy_tube(ffuzzytube, 0,count*2,&oversample,&oversample);
 		if (ftube3)   reso_tube(fresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
 		if (fprdr)    fuzzy_tube(fpredrive, 1,count*2,&oversample,&oversample);
@@ -1052,8 +1059,8 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 	// or plain sample
 	else {
 
-		if (antialis0)  AntiAlias(count,input,input);
-		/*FIXME(dsp2cc) if (antialis0)   AntiAlias::compute(count,input0,input0);*/
+		//if (antialis0)   AntiAlias(count,input,input);
+		if (antialis0)   AntiAlias::compute(count,input0,input0);
 		if (ftube)    fuzzy_tube(ffuzzytube, 0,count,input,input);
 		if (ftube3)   osc_tube(fresotube3,count,f_resotube1, f_resotube2,input,input);
 		if (fprdr)    fuzzy_tube(fpredrive, 1,count,input,input);

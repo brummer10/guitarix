@@ -192,21 +192,13 @@ void GxJConvSettings::configureJConvSettings(string& presname)
 }
 
 // --------------------- save JConv parameters to file
-bool gx_save_jconv_settings(GtkWidget* widget, gpointer data)
+bool gx_jconv_write_conffile(string conffile)
 {
-	// preset or main setting
-	string presname = "set";
-	if (!gx_current_preset.empty())
-		presname = gx_current_preset;
-
-	string jcfile = gx_user_dir + string("jconv_") + presname + ".conf";
-
 	// open file for writing
-	ofstream f(jcfile.c_str());
-	if (!f.good())
-	{
+	ofstream f(conffile.c_str());
+	if (!f.good()) {
 		(void)gx_print_error("JConv Settings",
-		                     string("configuration could not be saved to ") + jcfile +
+		                     string("configuration could not be saved to ") + conffile +
 		                     string(" giving up "));
 		return false;;
 	}
@@ -231,8 +223,7 @@ bool gx_save_jconv_settings(GtkWidget* widget, gpointer data)
 	  << jcset->getLength() << tab
 	  << "1 " << jcset->getIRFile() << endl;
 
-	switch (jcset->getMode())
-	{
+	switch (jcset->getMode()) {
 	case kJConvRead:
 		f << "/impulse/read" << tab << "2" << tab << "2" << tab
 		  << jcset->getlGain()   << tab
@@ -251,8 +242,7 @@ bool gx_save_jconv_settings(GtkWidget* widget, gpointer data)
 
 	// for backward compatibility, insert 2 comment lines
 	f << "# " << jcset->getFullIRPath() << endl;
-	switch (jcset->getMode())
-	{
+	switch (jcset->getMode()) {
 	case kJConvRead:
 		f << "# /impulse/read" << endl;
 		break;
@@ -267,6 +257,81 @@ bool gx_save_jconv_settings(GtkWidget* widget, gpointer data)
 	f.close();
 
 	return true;
+}
+
+bool gx_save_jconv_settings(GtkWidget* widget, gpointer data)
+{
+	// preset or main setting
+	string presname = "set";
+	if (!gx_current_preset.empty())
+		presname = gx_current_preset;
+
+	string jcfile = gx_user_dir + string("jconv_") + presname + ".conf";
+
+	return gx_jconv_write_conffile(jcfile);
+}
+
+void GxJConvSettings::writeJSON(JsonWriter& w)
+{
+	w.begin_object(true);
+	w.write_key("jconv.IRFile"); w.write(fIRFile, true);
+	w.write_key("jconv.IRDir"); w.write(fIRDir, true);
+	w.write_key("jconv.Gain"); w.write(fGain, true);
+	w.write_key("jconv.lGain"); w.write(flGain, true);
+	w.write_key("jconv.Mem"); w.write(fMem, true);
+	w.write_key("jconv.Mode"); w.write(fMode, true);
+	w.write_key("jconv.BufferSize"); w.write(fBufferSize, true);
+	w.write_key("jconv.Offset"); w.write(fOffset, true);
+	w.write_key("jconv.Length"); w.write(fLength, true);
+	w.write_key("jconv.Delay"); w.write(fDelay, true);
+	w.write_key("jconv.lDelay"); w.write(flDelay, true);
+	w.end_object();
+}
+
+GxJConvSettings::GxJConvSettings(JsonParser& jp)
+{
+	jp.next(JsonParser::begin_object);
+	do {
+		jp.next(JsonParser::value_key);
+		if (jp.current_value() == "jconv.IRFile") {
+			jp.next(JsonParser::value_string);
+			fIRFile = jp.current_value();
+		} else if (jp.current_value() == "jconv.IRDir") {
+			jp.next(JsonParser::value_string);
+			fIRDir = jp.current_value();
+		} else if (jp.current_value() == "jconv.Gain") {
+			jp.next(JsonParser::value_number);
+			fGain = jp.current_value_float();
+		} else if (jp.current_value() == "jconv.lGain") {
+			jp.next(JsonParser::value_number);
+			flGain = jp.current_value_float();
+		} else if (jp.current_value() == "jconv.Mem") {
+			jp.next(JsonParser::value_number);
+			fMem = jp.current_value_int();
+		} else if (jp.current_value() == "jconv.Mode") {
+			jp.next(JsonParser::value_number);
+			fMode = (GxJConvMode)jp.current_value_int(); //FIXME check
+		} else if (jp.current_value() == "jconv.BufferSize") {
+			jp.next(JsonParser::value_number);
+			fBufferSize = jp.current_value_int();
+		} else if (jp.current_value() == "jconv.Offset") {
+			jp.next(JsonParser::value_number);
+			fOffset = jp.current_value_int();
+		} else if (jp.current_value() == "jconv.Length") {
+			jp.next(JsonParser::value_number);
+			fLength = jp.current_value_int();
+		} else if (jp.current_value() == "jconv.Delay") {
+			jp.next(JsonParser::value_number);
+			fDelay = jp.current_value_int();
+		} else if (jp.current_value() == "jconv.lDelay") {
+			jp.next(JsonParser::value_number);
+			flDelay = jp.current_value_int();
+		} else {
+			jp.skip_object();
+			gx_print_warning("jconv settings", "unknown key: " + jp.current_value());
+		}
+	} while (jp.peek() == JsonParser::value_key);
+	jp.next(JsonParser::end_object);
 }
 
 // --------------------- dump parameters on demand to a string

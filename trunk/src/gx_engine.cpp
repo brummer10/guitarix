@@ -29,6 +29,7 @@
 #include <set>
 #include <vector>
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include <cstdio>
 
@@ -641,21 +642,7 @@ void GxEngine::initEngine(int samplingFreq)
 
 	// call the preset handler to read the last used settings
 	gx_preset::gx_recall_main_setting(NULL,NULL);
-	gx_gui::recall_midi_controller_map();
 }
-
-/* --- adding rest of engine class by file inclusion for readability --- */
-
-/* MIDI engine */
-//#ifdef USE_RINGBUFFER
-//#include "gx_engine_midi_ringbuf.cpp"
-//#else
-//#include "gx_engine_midi.cpp"
-//#endif
-
-/* audio engine */
-//#include "gx_engine_audio.cpp"
-
 
 /* --- forward definition of useful namespace functions --- */
 void gx_engine_init()

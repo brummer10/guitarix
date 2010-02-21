@@ -71,7 +71,6 @@
                   <object class="GtkSpinButton" id="lower">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="has_focus">True</property>
                     <property name="invisible_char">&#x25CF;</property>
                     <property name="activates_default">True</property>
                     <property name="numeric">True</property>
@@ -106,9 +105,10 @@
             <child>
               <object class="GtkEntry" id="new">
                 <property name="visible">True</property>
-                <property name="editable">False</property>
-                <property name="has_frame">False</property>
+                <property name="can_focus">True</property>
+                <property name="has_focus">True</property>
                 <property name="invisible_char">&#x25CF;</property>
+                <property name="activates_default">True</property>
                 <property name="width_chars">4</property>
                 <property name="xalign">1</property>
               </object>

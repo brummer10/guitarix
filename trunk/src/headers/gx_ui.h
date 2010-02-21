@@ -81,7 +81,6 @@ public:
 
 	// public methods
 	void registerZone(float*, GxUiItem*);
-	void saveStateToFile(const char*);
 	void dumpStateToString(string&);
 	bool applyStateFromString(const string&);
 	void fetchPresetStateFromFile(const char*, const char*, string&);

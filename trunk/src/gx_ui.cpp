@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Hermann Meyer and James Warden
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,17 +91,6 @@ float* GxUI::index2zone(int index)
 	}
 	assert(false);
 	return NULL;
-}
-
-// -- saveState(filename) : save the value of every zone to a file
-void GxUI::saveStateToFile(const char* filename)
-{
-	ofstream f(filename);
-	for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-		f << *(i->first) << ' ';
-
-	f << endl;
-	f.close();
 }
 
 // -- acquire current state, places it in string buffer
@@ -215,6 +204,7 @@ bool GxUI::renamePreset(const char* filename, const char* oldname, const char* n
 	return true;
 }
 
+/* //FIXME
 // -- recallState(filename) : load the value of every zone from a file
 void GxUI::recallState(const char* filename)
 {
@@ -227,6 +217,7 @@ void GxUI::recallState(const char* filename)
 		f.close();
 	}
 }
+*/
 
 // -- recalladState(filename) : load the value of every zone for extra sets from a file
 void GxUI::recalladState(const char* filename, int a, int b, int lin)

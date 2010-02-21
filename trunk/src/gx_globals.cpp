@@ -231,7 +231,7 @@ string rcpath;
 
 const char* guitarix_dir     = ".guitarix";
 const char* guitarix_reset   = "resettings";
-const char* guitarix_preset  = "guitarixprerc";
+const char* guitarix_preset  = "guitarixpre_rc";
 const char* jcapsetup_file   = "ja_ca_ssetrc";
 const char* jcapfile_wavbase = "guitarix_session";
 const char* default_setting  =

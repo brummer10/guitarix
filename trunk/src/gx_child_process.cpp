@@ -441,17 +441,14 @@ void gx_start_stop_jack_capture(GtkWidget *widget, gpointer data)
 // ---------------  start stop JConv
 void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 {
-
-	if (gx_jconv::GxJConvSettings::checkbutton7 == 0)
-	{
+	if (gx_jconv::GxJConvSettings::checkbutton7 == 0) {
 		gx_jconv::checkbox7 = 1.0;
 
 		pid_t pid = gx_child_process::child_pid[JCONV_IDX];
 
 		// if jconv is already running, we have to kill it
 		// applying a new jconv setting is not a runtime thing ... :(
-		if (pid != NO_PID)
-		{
+		if (pid != NO_PID) {
 			gx_print_info("JConv Start / Stop", string("killing JConv, PID = ") +
 			              gx_system::gx_i2a(pid));
 
@@ -464,28 +461,23 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 				                getJCLevelMeters()[c]);
 
 			// unregister our own jconv dedicated ports
-			if (gx_jack::client)
-			{
-				if (jack_port_is_mine (gx_jack::client, gx_jack::output_ports[3]))
-				{
+			if (gx_jack::client) {
+				if (jack_port_is_mine (gx_jack::client, gx_jack::output_ports[3])) {
 					jack_port_unregister(gx_jack::client, gx_jack::output_ports[3]);
 					gx_engine::gNumOutChans--;
 				}
 
-				if (jack_port_is_mine (gx_jack::client, gx_jack::output_ports[2]))
-				{
+				if (jack_port_is_mine (gx_jack::client, gx_jack::output_ports[2])) {
 					jack_port_unregister(gx_jack::client, gx_jack::output_ports[2]);
 					gx_engine::gNumOutChans--;
 				}
 
-				if (jack_port_is_mine (gx_jack::client, gx_jack::input_ports[2]))
-				{
+				if (jack_port_is_mine (gx_jack::client, gx_jack::input_ports[2])) {
 					jack_port_unregister(gx_jack::client, gx_jack::input_ports[2]);
 					gx_engine::gNumInChans--;
 				}
 
-				if (jack_port_is_mine (gx_jack::client, gx_jack::input_ports[1]))
-				{
+				if (jack_port_is_mine (gx_jack::client, gx_jack::input_ports[1])) {
 					jack_port_unregister(gx_jack::client, gx_jack::input_ports[1]);
 					gx_engine::gNumInChans--;
 				}
@@ -494,10 +486,7 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 				(void)gx_pclose(jconv_stream, JCONV_IDX);
 			}
 		}
-	}
-
-	else if (gx_engine::is_setup == 1)
-	{
+	} else if (gx_engine::is_setup == 1) {
 		// check whether jconv is installed in PATH
 		int  jconv_ok = gx_system_call("which", "jconvolver");
 
@@ -506,26 +495,19 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 		string witch_convolver = "jconvolver";
 
 		// is jconvolver installed ?
-		if (jconv_ok != SYSTEM_OK)   // no jconvolver in PATH! :(
-		{
+		if (jconv_ok != SYSTEM_OK) { // no jconvolver in PATH! :(
 			jconv_ok = gx_system_call("which", "jconv");
 			witch_convolver = "jconv";
 		}
 		// is jconv installed ?
-		if (jconv_ok != SYSTEM_OK)   // no jconv in PATH! :(
-		{
+		if (jconv_ok != SYSTEM_OK) { // no jconv in PATH! :(
 			warning +=
 				"  WARNING [JConv]\n\n  "
 				"  You need jconv by  Fons Adriaensen "
 				"  Please look here\n  "
 				"  http://www.kokkinizita.net/linuxaudio/index.html\n";
-		}
-
-		// yeps
-		else
-		{
-			if (gx_jack::client == NULL)
-			{
+		} else { // yeps
+			if (gx_jack::client == NULL) {
 				warning +=
 					"  WARNING [JConv]\n\n  "
 					"  Reconnect to Jack server first (Shift+C)";
@@ -533,16 +515,12 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 				gx_jconv::jconv_is_running = false;
 
 				gx_child_process::child_pid[JCONV_IDX] = NO_PID;
-			}
-			else
-			{
-
+			} else{
+				string conffile = gx_user_dir + "jconv_set.conf";
+				gx_jconv::gx_jconv_write_conffile(conffile); //FIXME check return
 				string cmd(witch_convolver);
 				cmd += " -N jconvgx";
-				cmd += " " + gx_user_dir + "jconv_";
-				cmd += gx_preset::gx_current_preset.empty() ? "set" :
-					gx_preset::gx_current_preset;
-				cmd += ".conf 2> /dev/null";
+				cmd += " " + conffile + " 2> /dev/null";
 
 				jconv_stream = gx_popen (cmd.c_str(), "r", JCONV_IDX);
 				sleep (2);
@@ -555,28 +533,24 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 				check_double += " > /dev/null";
 
 				// failed ?
-				if (pid == NO_PID)
+				if (pid == NO_PID) {
 					warning +=
 						"  WARNING [JConv]\n\n  "
 						"  Sorry, jconv startup failed ... giving up!";
-				else if (!system(check_double.c_str()) == 0)
+				} else if (!system(check_double.c_str()) == 0) {
 					warning +=
 						"  WARNING [JConv]\n\n  "
 						"  Sorry, jconv startup failed ... giving up!";
-				else
-				{
+				} else {
 					// store pid for future process monitoring
 					child_pid[JCONV_IDX] = pid;
 
 					// let's (re)open our dedicated ports to jconv
-					if (!gx_jconv::jconv_is_running)
-					{
-
+					if (!gx_jconv::jconv_is_running) {
 						ostringstream buf;
 
 						// extra guitarix jack ports for jconv
-						for (int i = 2; i < 4; i++)
-						{
+						for (int i = 2; i < 4; i++) {
 							buf.str("");
 							buf << "out_" << i;
 
@@ -587,8 +561,7 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 								                   JackPortIsOutput, 0);
 							gx_engine::gNumOutChans++;
 						}
-						for (int i = 2; i < 4; i++)
-						{
+						for (int i = 2; i < 4; i++) {
 							buf.str("");
 							buf << "in_" << i-1;
 
@@ -604,8 +577,7 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 						// ---- port connection
 						witch_convolver = "jconvgx";
 						string jc_port = witch_convolver +":In-1";
-						if (jack_port_by_name(gx_jack::client,jc_port.c_str()))
-						{
+						if (jack_port_by_name(gx_jack::client,jc_port.c_str()))	{
 							// guitarix outs to jconv ins
 							jack_connect(gx_jack::client, jack_port_name(gx_jack::output_ports[2]), jc_port.c_str());
 							jc_port = witch_convolver +":In-2";
@@ -616,9 +588,7 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 							jack_connect(gx_jack::client, jc_port.c_str(), jack_port_name(gx_jack::input_ports[1]));
 							jc_port = witch_convolver +":Out-2";
 							jack_connect(gx_jack::client, jc_port.c_str(), jack_port_name(gx_jack::input_ports[2]));
-						}
-						else
-						{
+						} else {
 							(void)gx_gui::gx_message_popup("sorry, connection faild");
 						}
 
@@ -627,10 +597,10 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 					// tell the compute method that JConv is running
 					gx_jconv::jconv_is_running = true;
 
-					for (int c = 0; c < 2; c++)
+					for (int c = 0; c < 2; c++) {
 						gtk_widget_show(gx_gui::GxMainInterface::instance()->
 						                getJCLevelMeters()[c]);
-
+					}
 					gx_print_info("JConv Start / Stop", string("Started JConv, PID = ") +
 					              gx_system::gx_i2a(child_pid[JCONV_IDX]));
 				}
@@ -638,8 +608,7 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 		}
 
 		// pop up warning if any
-		if (!warning.empty())
-		{
+		if (!warning.empty()) {
 			(void)gx_gui::gx_message_popup(warning.c_str());
 			gx_jconv::GxJConvSettings::checkbutton7 = 0;
 			gx_jconv::jconv_is_running = false;

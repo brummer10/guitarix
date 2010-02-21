@@ -84,6 +84,7 @@ public:
 	static void midi_response_cb(GtkWidget *widget, gint response_id, gpointer data);
 	static void midi_destroy_cb(GtkWidget *widget, gpointer data);
 	static gboolean check_midi_cb(gpointer);
+	static void changed_text_handler (GtkEditable *entry, gpointer data);
 };
 
 string MidiConnect::ctr_desc(int ctr)
@@ -109,11 +110,11 @@ void MidiConnect::midi_response_cb(GtkWidget *widget, gint response_id, gpointer
 		} else {
 			controller_map.modifyCurrent(m->param, 0, 0);
 		}
-		save_midi_controller_map();
+		//save_midi_controller_map(); FIXME
 		break;
 	case RESPONSE_DELETE:
 		controller_map.deleteParameter(m->param);
-		save_midi_controller_map();
+		//save_midi_controller_map(); FIXME
 		break;
 	}
 	gtk_widget_destroy(m->dialog);
@@ -144,14 +145,52 @@ gboolean MidiConnect::check_midi_cb(gpointer data)
 	int ctl = controller_map.get_current_control();
 	if (m->current_control == ctl)
 		return TRUE;
-	if (m->current_control == -1) {
-		gtk_dialog_set_response_sensitive(GTK_DIALOG(m->dialog), GTK_RESPONSE_OK, TRUE);
-		gtk_dialog_set_default_response(GTK_DIALOG(m->dialog), GTK_RESPONSE_OK);
-	}
 	m->current_control = ctl;
 	gtk_entry_set_text(GTK_ENTRY(m->entry_new), ctl_to_str(ctl));
-	gtk_label_set_text(GTK_LABEL(m->label_desc), ctr_desc(ctl).c_str());
 	return TRUE;
+}
+
+void MidiConnect::changed_text_handler (GtkEditable *editable, gpointer data)
+{
+	MidiConnect *m = (MidiConnect*)data;
+	gchar *p = gtk_editable_get_chars(editable, 0, -1);
+	ostringstream buf;
+	for (const char *q = p; *q; q++) {
+		if (isdigit(*q)) {
+			buf << *q;
+		}
+	}
+	string str = buf.str();
+	int n = -1;
+	if (!str.empty()) {
+		istringstream i(buf.str());
+		i >> n;
+		if (n > 127) {
+			n = 127;
+		}
+		ostringstream b;
+		b << n;
+		str = b.str().substr(0,3);
+	}
+	// prevent infinite loop because after it has changed the text
+	// the handler will be called again (and make sure the text
+	// tranformation in this handler is idempotent!)
+	if (str == p) {
+		if (str.empty()) {
+			gtk_dialog_set_response_sensitive(GTK_DIALOG(m->dialog), GTK_RESPONSE_OK, FALSE);
+			gtk_dialog_set_default_response(GTK_DIALOG(m->dialog), GTK_RESPONSE_CANCEL);
+		} else {
+			gtk_dialog_set_response_sensitive(GTK_DIALOG(m->dialog), GTK_RESPONSE_OK, TRUE);
+			gtk_dialog_set_default_response(GTK_DIALOG(m->dialog), GTK_RESPONSE_OK);
+		}
+		gtk_label_set_text(GTK_LABEL(m->label_desc), ctr_desc(n).c_str());
+		controller_map.set_current_control(n);
+		m->current_control = n;
+		return;
+	}
+	gtk_editable_delete_text(editable, 0, -1);
+	gint position = 0;
+	gtk_editable_insert_text(editable, str.c_str(), str.size(), &position);
 }
 
 
@@ -206,6 +245,7 @@ MidiConnect::MidiConnect(GdkEventButton *event, Parameter &param):
 	label_desc = GTK_WIDGET(gtk_builder_get_object(builder, "new_desc"));
 	g_signal_connect(dialog, "response", G_CALLBACK(midi_response_cb), this);
 	g_signal_connect(dialog, "destroy", G_CALLBACK(midi_destroy_cb), this);
+	g_signal_connect(entry_new, "changed", G_CALLBACK(changed_text_handler), this);
 	if (nctl == -1) {
 		gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), RESPONSE_DELETE, FALSE);
 		gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_OK, FALSE);
@@ -228,12 +268,23 @@ gboolean button_press_cb (GtkWidget *widget, GdkEventButton *event, gpointer dat
 	return TRUE;
 }
 
+// debug_check
+inline void check_zone(GtkWidget *w, void *zone)
+{
+	if (!parameter_map[zone]) {
+		gchar *p;
+		gtk_widget_path(w, NULL, &p, NULL);
+		cerr << "zone not found in definition of widget: "
+		     << p << endl;
+		g_free(p);
+		assert(parameter_map[zone]);
+	}
+	parameter_map[zone]->setUsed();
+}
+
 inline void connect_midi_controller(GtkWidget *w, void *zone)
 {
-#ifndef NDEBUG
-	assert(parameter_map[zone]);
-	parameter_map[zone]->setUsed();
-#endif
+	debug_check(check_zone, w, zone);
 	g_signal_connect(w, "button_press_event", G_CALLBACK (button_press_cb), (gpointer)parameter_map[zone]);
 }
 
@@ -1363,6 +1414,13 @@ void GxMainInterface::addHorizontalSlider(const char* label, float* zone, float 
 	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
 	addWidget(label, slider);
 }
+
+void GxMainInterface::addHorizontalWheel(string id)
+{
+	const FloatParameter &p = parameter_map[id]->getFloat();
+	addHorizontalWheel(p.name().c_str(), &p.value, p.std_value, p.lower, p.upper, p.step);
+}
+
 
 void GxMainInterface::addHorizontalWheel(const char* label, float* zone, float init, float min, float max, float step)
 {

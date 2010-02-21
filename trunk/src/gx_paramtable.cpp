@@ -1,3 +1,26 @@
+/*
+ * Copyright (C) 2010 Hermann Meyer, James Warden, Andreas Degert
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * ---------------------------------------------------------------------------
+ *
+ *    parameter and midi data
+ *
+ * ----------------------------------------------------------------------------
+ */
+
 #include <map>
 #include <set>
 #include <string>
@@ -5,6 +28,7 @@
 #include <list>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
@@ -17,14 +41,21 @@ using namespace std;
 namespace gx_gui
 {
 
-/* Parameters */
-ParameterGroups param_groups; // map group id -> group name
-ParamMap parameter_map; // map id -> parameter, zone -> parameter
+/****************************************************************
+ ** Global Variables
+ */
 
 /* Midi */
 MidiStandardControllers midi_std_ctr; // map ctrl num -> standard name
 MidiControllerList controller_map; // map ctrl num -> controlled parameters
 
+/* Parameters */
+ParamMap parameter_map; // map id -> parameter, zone -> parameter
+
+
+/****************************************************************
+ ** Midi
+ */
 
 MidiStandardControllers::MidiStandardControllers()
 {
@@ -118,7 +149,7 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp)
 	} else {
 		lower = upper = 0;
 	}
-	jp.next(gx_system::JsonParser::end_array);
+	while (jp.next() != gx_system::JsonParser::end_array); // be tolerant
 	return new MidiController(*param, lower, upper);
 }
 
@@ -199,6 +230,7 @@ void MidiControllerList::MidiDef(int ctr, const char* p, float l, float u)
 	map[ctr].push_front(MidiController(*pm, l, u));
 }
 
+/* FIXME
 void MidiControllerList::load_defaults()
 {
 	MidiDef(0x07,"amp.out_master", -40, 40);
@@ -214,6 +246,7 @@ void MidiControllerList::load_defaults()
 	MidiDef(0x4b,"delay.on_off");
 	MidiDef(0x4c,"chorus.on_off");
 }
+*/
 
 void MidiControllerList::writeJSON(gx_system::JsonWriter& w)
 {
@@ -251,11 +284,12 @@ MidiControllerList::MidiControllerList(gx_system::JsonParser& jp):
 		jp.next(gx_system::JsonParser::end_array);
 	}
 	jp.next(gx_system::JsonParser::end_array);
-	jp.next(gx_system::JsonParser::end_token);
 }
 
+/* FIXME
 void recall_midi_controller_map()
 {
+	return;
     string filename = gx_system::gx_user_dir + gx_jack::client_name  + "_midi_rc";
 	ifstream f(filename.c_str());
 	if (!f.good()) {
@@ -276,6 +310,7 @@ void recall_midi_controller_map()
 
 bool save_midi_controller_map()
 {
+	return true;
 	string fname = gx_system::gx_user_dir + gx_jack::client_name + "_midi_rc";
 	ofstream f(fname.c_str());
 	if (f.good()) {
@@ -288,7 +323,107 @@ bool save_midi_controller_map()
 	}
 	return true;
 }
+*/
 
+/****************************************************************
+ ** Parameter Groups
+ */
+
+class ParameterGroups
+{
+private:
+	map<string,string> groups;
+
+#ifndef NDEBUG
+	map<string,bool> used;
+
+	void group_exists(string id)
+		{
+			if (groups.find(id) == groups.end()) {
+				gx_system::gx_print_error("Debug Check", "Group does not exist: " + id);
+			} else {
+				used[id] = true;
+			}
+		}
+	void group_is_new(string id)
+		{
+			if (groups.find(id) != groups.end()) {
+				gx_system::gx_print_error("Debug Check", "Group already exists: " + id);
+			}
+		}
+
+	~ParameterGroups()
+		{
+			for (map<string,bool>::iterator i = used.begin(); i != used.end(); i++) {
+				if (!i->second) {
+					gx_system::gx_print_error("Debug Check", "Group not used: " + i->first);
+				}
+			}
+		}
+	friend string param_group(string id);
+#endif
+
+public:
+	ParameterGroups();
+
+	inline string operator[](string id)
+		{
+			debug_check(group_exists, id); return groups[id];
+		}
+	inline void insert(string id, string group)
+		{
+			debug_check(group_is_new, id);
+			groups.insert(pair<string,string>(id, group));
+		}
+};
+
+ParameterGroups::ParameterGroups()
+{
+	insert("jconv","JConvolver");
+	insert("amp","Amplifier");
+	insert("amp.tone","Tone");
+	insert("shaper","Shaper");
+	insert("noise_gate","Noise Gate");
+	insert("anti_aliase","Anti Alias");
+	insert("amp.oversample","Oversampling");
+	insert("amp.bass_boost","Bass Boost");
+	insert("convolve","Amp Model");
+	insert("preamp","Pre-Amp");
+	insert("drive","Drive");
+	insert("tube","Tube 1");
+	insert("tube.vibrato","Tube 1 Vibrato");
+	insert("tube2","Tube 2");
+	insert("compressor","Compressor");
+	insert("overdrive","Overdrive");
+	insert("distortion","Distortion");
+	insert("distortion.low_highpass","Distortion low/highpass");
+	insert("distortion.low_highcutoff","Distortion low/highcutoff");
+	insert("freeverb","Freeverb");
+	insert("IR","IR");
+	insert("crybaby","Crybaby");
+	insert("echo","Echo");
+	insert("delay","Delay");
+	insert("chorus","Chorus");
+	insert("MultiBandFilter","Multiband Filter");
+	insert("midi_out","Midi Out");
+	insert("midi_out.channel_1","Midi Out 1");
+	insert("midi_out.channel_2","Midi Out 2");
+	insert("midi_out.channel_3","Midi Out 3");
+	insert("beat_detector","Beat Detector");
+	insert("ui","User Interface");
+	insert("system", "System");
+}
+
+string param_group(string id)
+{
+	static ParameterGroups groups = ParameterGroups();
+	return groups[id.substr(0, id.find_last_of("."))];
+}
+
+
+/****************************************************************
+ ** Parameter
+ */
 
 void *FloatParameter::zone() const
 {
@@ -310,6 +445,18 @@ void FloatParameter::set(int n, int high, float llimit, float ulimit)
 		assert(false);
 		break;
 	}
+}
+
+void FloatParameter::writeJSON(gx_system::JsonWriter& jw)
+{
+	jw.write_key(_id.c_str());
+	jw.write(value);
+}
+
+void FloatParameter::readJSON_value(gx_system::JsonParser& jp)
+{
+	jp.next(gx_system::JsonParser::value_number);
+	value = jp.current_value_float();
 }
 
 void *IntParameter::zone() const
@@ -334,6 +481,18 @@ void IntParameter::set(int n, int high, float llimit, float ulimit)
 	}
 }
 
+void IntParameter::writeJSON(gx_system::JsonWriter& jw)
+{
+	jw.write_key(_id.c_str());
+	jw.write(value);
+}
+
+void IntParameter::readJSON_value(gx_system::JsonParser& jp)
+{
+	jp.next(gx_system::JsonParser::value_number);
+	value = jp.current_value_int();
+}
+
 void *BoolParameter::zone() const
 {
 	return &value;
@@ -350,48 +509,37 @@ void BoolParameter::set(int n, int high, float llimit, float ulimit)
 	}
 }
 
-void initGroups()
+void BoolParameter::writeJSON(gx_system::JsonWriter& jw)
 {
-	param_groups.insert("jconv","JConvolver");
-	param_groups.insert("amp","Amplifier");
-	param_groups.insert("amp.tone","Tone");
-	param_groups.insert("shaper","Shaper");
-	param_groups.insert("noise_gate","Noise Gate");
-	param_groups.insert("anti_aliase","Anti Alias");
-	param_groups.insert("amp.oversample","Oversampling");
-	param_groups.insert("amp.bass_boost","Bass Boost");
-	param_groups.insert("convolve","Amp Model");
-	param_groups.insert("preamp","Pre-Amp");
-	param_groups.insert("drive","Drive");
-	param_groups.insert("tube","Tube 1");
-	param_groups.insert("tube.vibrato","Tube 1 Vibrato");
-	param_groups.insert("tube2","Tube 2");
-	param_groups.insert("compressor","Compressor");
-	param_groups.insert("overdrive","Overdrive");
-	param_groups.insert("distortion","Distortion");
-	param_groups.insert("distortion.low_highpass","Distortion low/highpass");
-	param_groups.insert("distortion.low_highcutoff","Distortion low/highcutoff");
-	param_groups.insert("freeverb","Freeverb");
-	param_groups.insert("IR","IR");
-	param_groups.insert("crybaby","Crybaby");
-	param_groups.insert("echo","Echo");
-	param_groups.insert("delay","Delay");
-	param_groups.insert("chorus","Chorus");
-	param_groups.insert("MultiBandFilter","Multiband Filter");
-	param_groups.insert("midi_out","Midi Out");
-	param_groups.insert("midi_out.channel_1","Midi Out 1");
-	param_groups.insert("midi_out.channel_2","Midi Out 2");
-	param_groups.insert("midi_out.channel_3","Midi Out 3");
-	param_groups.insert("beat_detector","Beat Detector");
-	param_groups.insert("ui","User Interface");
-	param_groups.insert("system", "System");
+	jw.write_key(_id.c_str());
+	jw.write(value);
+}
+
+void BoolParameter::readJSON_value(gx_system::JsonParser& jp)
+{
+	jp.next(gx_system::JsonParser::value_number);
+	value = jp.current_value_int();
+}
+
+void ParamMap::unique_zone(Parameter* param)
+{
+	if (addr_map.find(param->zone()) != addr_map.end()) {
+		gx_system::gx_print_error("Debug Check", "zone registered twice (id: " + param->id() +")");
+	}
+}
+
+void ParamMap::unique_id(Parameter* param)
+{
+	if (id_map.find(param->id()) != id_map.end()) {
+		gx_system::gx_print_error("Debug Check", "id registered twice: " + param->id());
+	}
 }
 
 void ParamMap::insert(Parameter* param)
 {
-	assert(addr_map.find(param->zone()) == addr_map.end());
+	debug_check(unique_zone, param);
 	addr_map.insert(pair<const void*, Parameter*>(param->zone(), param));
-	assert(id_map.find(param->id()) == id_map.end());
+	debug_check(unique_id, param);
 	id_map.insert(pair<string, Parameter*>(param->id(), param));
 }
 
@@ -452,10 +600,10 @@ void initParams(gx_engine::GxEngine* e)
 	Pa("noise_gate.threshold", "Threshold", &e->fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
 
 	Pa("anti_aliase.on_off", "on/off", &e->antialis0, 0);
-	Pa("anti_aliase.feedback", "Feedback", &e->faas1, 0.3f, 0.3f, 0.9f, 0.01f);
+	//Pa("anti_aliase.feedback", "Feedback", &e->faas1, 0.3f, 0.3f, 0.9f, 0.01f);
 
 	Pa("preamp.on_off", "on/off", &e->fcheckbox1, 0);
-	Pa("preamp.atan", "drive", &e->fatan, 1.f, 1.f, 10.f, 1.0f);
+	//Pa("preamp.atan", "drive", &e->fatan, 1.f, 1.f, 10.f, 1.0f);
 
 	Pa("tube.on_off", "on/off", &e->ftube, 0);
 	Pa("tube.fuzzy", "count", &e->ffuzzytube, 1.f, -3.f, 10.f, 1.0f);
@@ -612,27 +760,6 @@ void initParams(gx_engine::GxEngine* e)
 	PaN("system.fConsta1t", &e->fConsta1t, false);
 	PaN("system.midistat", &e->midistat, false);
 	PaN("system.waveview", &e->viv, false);
-}
-
-void initParameter(gx_engine::GxEngine* engine)
-{
-	initGroups();
-	initParams(engine);
-
-#ifndef NDEBUG
-	map<string,bool> gmap;
-	param_groups.fill_map(gmap);
-	for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
-		string gp = group_id(i->first);
-		if (param_groups[gp] == "" && !gmap[gp])
-			gx_system::gx_print_error("Debug Check", "group not found: " + gp);
-		gmap[gp] = true;
-	}
-	for (map<string,bool>::iterator i = gmap.begin(); i != gmap.end(); i++) {
-		if (not i->second)
-			gx_system::gx_print_error("Debug Check", "group not used: " + i->first);
-	}
-#endif
 }
 
 }

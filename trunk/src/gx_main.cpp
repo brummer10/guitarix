@@ -108,6 +108,9 @@ int main(int argc, char *argv[])
 	// ---------------- Check for working user directory  -------------
 	gx_system::gx_version_check();
 
+	// ------ create engine object and initialize parameter list ------
+	gx_gui::initParams(gx_engine::GxEngine::instance());
+
 	// ----------------------- init GTK interface----------------------
 	gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("guitarix", &argc, &argv);
 	gui->setup();

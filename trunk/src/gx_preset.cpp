@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Hermann Meyer and James Warden
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,6 +82,17 @@ string gx_get_accel_path(int lindex)
 	return acc_path;
 }
 
+void gx_empty_preset_file(const char* filename)
+{
+	ofstream nfile(filename);
+	JsonWriter jw(nfile);
+	jw.begin_array();
+	writeHeader(jw);
+	jw.end_array(true);
+	jw.close();
+	nfile.close();
+}
+
 //---- parsing preset file to build up a string vector of preset names
 void gx_build_preset_list()
 {
@@ -93,31 +104,28 @@ void gx_build_preset_list()
 
 	// parse it if any
 	ifstream f(filename.c_str());
-	if (f.good())
-	{
-		string buffer;
-		while (!f.eof())
-		{
-			// get line
-			getline(f, buffer);
-
-			if (buffer.empty()) continue;
-
-			// parse buffer
-			istringstream values(buffer);
-
-			// grab first item in line
-			string pname;
-			values >> pname;
-			plist.push_back(pname);
+	try {
+		if (f.good()) {
+			JsonParser jp(f);
+			jp.next(JsonParser::begin_array);
+			readHeader(jp);
+			while (jp.peek() == JsonParser::value_string) {
+				jp.next();
+				plist.push_back(jp.current_value());
+				jp.skip_object();
+			}
+			jp.next(JsonParser::end_array);
+			jp.next(JsonParser::end_token);
+			f.close();
+			// ---- how many did we get ?
+			gx_print_warning("Preset List Building",
+			                 gx_i2a(plist.size()) + string(" presets found"));
+			return;
 		}
-
-		f.close();
+	} catch (gx_system::JsonException& e) {
+		gx_system::gx_print_warning("preset settings", "parse error");
 	}
-
-	// ---- how many did we get ?
-	gx_print_warning("Preset List Building",
-	                 gx_i2a(plist.size()) + string(" presets found"));
+	gx_empty_preset_file(filename.c_str());
 }
 
 // ----------- add new preset to menus
@@ -458,7 +466,7 @@ void  gx_delete_all_presets()
 	// delete jconv files
 	ostringstream cmd;
 	cmd << "cd " << gx_user_dir << " && ls -1";
-	(void)gx_system_call(cmd.str(), "jconv* | grep -v jconv_set | xargs rm -f");
+	(void)gx_system_call(cmd.str(), "jconv* | grep -v jconv_set | xargs rm -f"); //FIXME
 
 	// clear list
 	for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
@@ -478,6 +486,89 @@ void  gx_delete_all_presets()
 	gx_print_info("All Presets Deleting", string("deleted ALL presets!"));
 }
 
+bool gx_load_preset_from_file(const char* presname)
+{
+	string presetfile = gx_user_dir + guitarix_preset;
+	string tmpfile    = presetfile + "_tmp";
+
+	ifstream ofile(presetfile);
+	JsonParser jp(ofile);
+
+	jp.next(JsonParser::begin_array);
+	jp.skip_object(); // header
+	jp.skip_object(); // header
+
+	bool found = false;
+	while (jp.peek() != JsonParser::end_array) {
+		jp.next(JsonParser::value_string);
+		if (jp.current_value() == presname) {
+			found = true;
+			read_preset(jp);
+			return true;
+		} else {
+			jp.skip_object();
+		}
+	} 
+	jp.next(JsonParser::end_array);
+	jp.next(JsonParser::end_token);
+
+	return false;
+}
+
+bool gx_modify_preset(const char* presname, const char* newname, bool remove)
+{
+	string presetfile = gx_user_dir + guitarix_preset;
+	string tmpfile    = presetfile + "_tmp";
+
+	ifstream ofile(presetfile);
+	ofstream nfile(tmpfile);
+	JsonParser jp(ofile);
+	JsonWriter jw(nfile);
+
+	jp.next(JsonParser::begin_array);
+	jw.begin_array();
+	jp.copy_object(jw); // header
+	jp.copy_object(jw); // header
+
+	bool found = false;
+	while (jp.peek() != JsonParser::end_array) {
+		jp.next(JsonParser::value_string);
+		if (jp.current_value() == presname) {
+			found = true;
+			if (newname) {
+				jw.write(newname);
+				jp.copy_object(jw);
+			} else if (remove) {
+				jp.skip_object();
+			} else {
+				jw.write(presname);
+				write_preset(jw);
+				jp.skip_object();
+			}
+		} else {
+			jw.write(jp.current_value().c_str());
+			jp.copy_object(jw);
+		}
+	} 
+	jp.next(JsonParser::end_array);
+	jp.next(JsonParser::end_token);
+
+	if (!found && !remove && !newname) {
+		jw.write(presname);
+		write_preset(jw);
+	}
+	jw.end_array(true);
+	jw.close();
+	if (!nfile.good()) {
+		; // FIXME
+	}
+	nfile.close();
+	ofile.close();
+
+	rename(tmpfile.c_str(), presetfile.c_str());
+	return found;
+}
+
 //----preset deletion
 void gx_delete_preset (GtkMenuItem* item, gpointer arg)
 {
@@ -486,38 +577,10 @@ void gx_delete_preset (GtkMenuItem* item, gpointer arg)
 	const string presname =
 		item ? preset_list[DELETE_PRESET_LIST][item] : gx_current_preset;
 
-	const string presfile = gx_user_dir + guitarix_preset;
-	const string tmpfile  = presfile + "_tmp";
-	const string space    = " ";
-
-	// let's use a tmp file that does not contain the preset
-	ostringstream cat_tmpfile("cat");
-	cat_tmpfile << presfile << space
-	            << "| grep -v" << space << presname << space
-	            << ">" << tmpfile;
-
-	cerr << cat_tmpfile.str() << endl;
-
-	(void)gx_system_call("cat", cat_tmpfile.str());
-	usleep(200);
-
-	// rename tmp file
-	rename(tmpfile.c_str(), presfile.c_str());
-
-	// did we really delete it ?
-	if (gx_system_call("grep", presname + space + presfile) == SYSTEM_OK)
-	{
-		gx_print_error("Preset Deleting",
-		               string("Could not deleted preset ") +
-		               preset_list[DELETE_PRESET_LIST][item]);
-		return;
-	}
-
-	// remove tmp file (not necessary)
-	(void)gx_system_call("rm -f", tmpfile);
+	(void)gx_modify_preset(presname.c_str(), NULL, true);
 
 	// remove jconv file
-	string jc_preset = gx_user_dir + string("jconv_") + presname + ".conf";
+	string jc_preset = gx_user_dir + string("jconv_") + presname + ".conf"; //FIXME
 	(void)gx_system_call("rm -f", jc_preset);
 
 	// update menu
@@ -581,21 +644,19 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 	gx_jconv::GxJConvSettings::checkbutton7 = 0;
 
 	gx_gui::GxMainInterface* interface = gx_gui::GxMainInterface::instance();
-	interface->updateAllGuis();
+	interface->updateAllGuis(); //FIXME why before, not after load?
 
 	// retrieve preset name
 	string preset_name = preset_list[LOAD_PRESET_LIST][menuitem];
 
 	// load jconv setting
 	string jc_preset   = gx_user_dir + string("jconv_") + preset_name + ".conf ";
-	jcset->configureJConvSettings(preset_name);
+	jcset->configureJConvSettings(preset_name); //FIXME
 
 	// recall preset by name
 	// Note: the UI does not know anything about guitarix's directory stuff
 	// Need to pass it on
-	string presetfile = gx_user_dir + "guitarixprerc";
-	bool preset_ok = interface->recallPresetByname(presetfile.c_str(),
-	                                               preset_name.c_str());
+	bool preset_ok = gx_load_preset_from_file(preset_name.c_str());
 
 	// check result
 	if (!preset_ok)
@@ -620,58 +681,10 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 //---- funktion save
 void gx_save_preset (const char* presname, bool expand_menu)
 {
-
-	string setting;
-	gx_gui::GxMainInterface* interface =
-		gx_gui::GxMainInterface::instance();
-
-	interface->updateAllGuis();
-	interface->dumpStateToString(setting);
-
-	// save preset and update menus
-	if (setting.empty())
-	{
-		gx_print_error("Preset Saving",
-		               string("setting EMPTY!! could not save preset ")
-		               + string(presname));
-		return;
-	}
-
-	// append preset name in front
-	setting.insert(0, presname);
-
-	// manipulate preset file
-	string presetfile = gx_user_dir + guitarix_preset;
-	string tmpfile    = presetfile + "_tmp";
-
-	(void)gx_system_call("touch", presetfile.c_str());
-	usleep(200);
-
-	(void)gx_system_call("touch", tmpfile.c_str());
-	usleep(200);
-
-	// copy actual presetfile to tmpfile minus preset to be saved
-	ostringstream cat_tmpfile;
-	string space = " ";
-	cat_tmpfile << presetfile << space
-	            << "| grep -v" << space << presname << space
-	            << ">" << tmpfile;
-
-	(void)gx_system_call("cat", cat_tmpfile.str());
-	usleep(200);
-
-	// append saved preset to tmpfile
-	(void)gx_system_call("echo", setting + string(" >> ") + tmpfile);
-	usleep(200);
-
-	// rename tmp file to preset file
-	rename(tmpfile.c_str(), presetfile.c_str());
-
-
-	// remove tmp file (not necessary)
-	(void)gx_system_call("rm -f", tmpfile);
+	bool found = gx_modify_preset(presname, NULL, false);
 
 	// update preset menus if needed
+	assert(expand_menu == !found);
 	if (expand_menu)
 		gx_add_preset_to_menus(string(presname));
 
@@ -684,7 +697,7 @@ void gx_save_preset (const char* presname, bool expand_menu)
 	gx_current_preset = presname;
 
 	// save current jconv setting to jconv preset
-	gx_jconv::gx_save_jconv_settings(NULL, NULL);
+	gx_jconv::gx_save_jconv_settings(NULL, NULL); //FIXME
 
 	gx_print_info("Preset Saving", string("saved preset ") + string(presname));
 	gx_jconv::gx_reload_jcgui();
@@ -764,12 +777,8 @@ void gx_save_newpreset (GtkEntry* entry)
 void gx_recall_main_setting(GtkMenuItem* item, gpointer arg)
 {
 	string jname = gx_jack::client_name;
-	string previous_state = gx_user_dir + jname + "rc";
 
-	gx_gui::GxMainInterface* interface =
-		gx_gui::GxMainInterface::instance();
-
-	interface->recallState(previous_state.c_str());
+	gx_system::recallState();
 	gtk_window_set_title(GTK_WINDOW(gx_gui::fWindow), jname.c_str());
 
 	gx_print_info("Main Setting recalling",
@@ -778,22 +787,17 @@ void gx_recall_main_setting(GtkMenuItem* item, gpointer arg)
 	setting_is_preset = false;
 	gx_current_preset = "";
 
-	// recall jconv main setting
-	string s = ""; // empty string = main setting
-	gx_jconv::GxJConvSettings::instance()->configureJConvSettings(s);
-	if(arg != false) gx_jconv::gx_reload_jcgui();
+	if (arg != false) {
+		gx_jconv::gx_reload_jcgui();
+	}
 }
 
 // ----- save current setting as main setting
 void gx_save_main_setting(GtkMenuItem* item, gpointer arg)
 {
 	string jname = gx_jack::client_name;
-	string previous_state = gx_user_dir + jname + "rc";
 
-	gx_gui::GxMainInterface* interface =
-		gx_gui::GxMainInterface::instance();
-
-	interface->saveStateToFile(previous_state.c_str());
+	saveStateToFile();
 
 	if (setting_is_preset)
 		gx_print_info("Main Setting",
@@ -853,13 +857,7 @@ void gx_rename_preset (GtkEntry* entry)
 	// get the UI to manipulate the preset file
 	string presetfile = gx_user_dir + guitarix_preset;
 
-	gx_gui::GxMainInterface* interface =
-		gx_gui::GxMainInterface::instance();
-
-	if (!interface->renamePreset(presetfile.c_str(),
-	                             old_preset_name.c_str(),
-	                             newname.c_str()))
-	{
+	if (!gx_modify_preset(old_preset_name.c_str(), newname.c_str(), false))	{
 		gx_print_error("Preset Renaming",
 		               string("Could not rename preset ") + old_preset_name);
 		old_preset_name = "";
@@ -873,8 +871,7 @@ void gx_rename_preset (GtkEntry* entry)
 	(void)gx_system_call("mv", file_move.c_str(), true);
 
 	// refresh the menus
-	for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
-	{
+	for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++) {
 		GtkMenuItem* const item  =
 			gx_get_preset_item_from_name(i, old_preset_name);
 

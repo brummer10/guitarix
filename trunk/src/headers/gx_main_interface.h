@@ -35,6 +35,11 @@
 namespace gx_gui
 {
 
+#ifndef NDEBUG
+#define debug_check(func, ...) func(__VA_ARGS__)
+#else
+#define debug_check(...)
+#endif
 
 /****************************************************************
  **
@@ -42,36 +47,7 @@ namespace gx_gui
  **
  */
 
-
-/****************************************************************
- ** Parameter Groups
- */
-
-inline string group_id(const string id)
-{
-	return id.substr(0, id.find_last_of("."));
-}
-
-class ParameterGroups
-{
-private:
-	map<string,string> groups;
-public:
-	string operator[](string id) { return groups[id]; }
-	void insert(string id, string group)
-		{
-			assert(groups.find(id) == groups.end());
-			groups.insert(pair<string,string>(id, group));
-		}
-	void fill_map(map<string,bool>& m)
-		{
-			for (map<string,string>::iterator i = groups.begin(); i != groups.end(); i++)
-				m[i->first] = false;
-		}
-};
-
-extern ParameterGroups param_groups; // map group id -> group name
-
+string param_group(string id);
 
 /****************************************************************
  ** Parameter
@@ -80,6 +56,8 @@ extern ParameterGroups param_groups; // map group id -> group name
 class FloatParameter;
 class IntParameter;
 class BoolParameter;
+
+void initGroups();
 
 class Parameter
 {
@@ -93,10 +71,16 @@ protected:
 	enum ctrl_type c_type : 3;
 	bool save_in_preset : 1;
 	bool controllable : 1;
+#ifndef NDEBUG
 	bool used : 1;
 public:
+	bool isUsed() const { return used; }
+	void setUsed() { assert(controllable); used = true; }
+#endif
+
+public:
 	Parameter(string id, string name, value_type vtp, ctrl_type ctp, bool preset, bool ctrl):
-		_id(id), _name(name), _group(param_groups[group_id(id)]), v_type(vtp),
+		_id(id), _name(name), _group(param_group(id)), v_type(vtp),
 		c_type(ctp), save_in_preset(preset), controllable(ctrl), used(false)
 		{}
 	bool isFloat() const { return v_type == tp_float; }
@@ -105,14 +89,14 @@ public:
 	ctrl_type getControlType() const { return c_type; }
 	bool isControllable() const { return controllable; }
 	bool isInPreset() const { return save_in_preset; }
-	bool isUsed() const { return used; }
-	void setUsed() { assert(controllable); used = true; }
 	string id() const { return _id; }
 	string group() const { return _group; }
 	string name() const { return _name; }
 	bool operator==(const Parameter& p) const { return &p == this; }
 	virtual void *zone() const = 0;
 	virtual void set(int n, int high, float llimit, float ulimit) = 0;
+	virtual void writeJSON(gx_system::JsonWriter& jw) = 0;
+	virtual void readJSON_value(gx_system::JsonParser& jp) = 0;
 	const FloatParameter &getFloat() const;
 	const IntParameter &getInt() const;
 	const BoolParameter &getBool() const;
@@ -126,6 +110,8 @@ public:
 	float lower, upper, step;
 	virtual void *zone() const;
 	virtual void set(int n, int high, float llimit, float ulimit);
+	virtual void writeJSON(gx_system::JsonWriter& jw);
+	virtual void readJSON_value(gx_system::JsonParser& jp);
 	FloatParameter(string id, string name, ctrl_type ctp, bool preset,
 	               float &v, float sv, float lv, float uv, float tv, bool ctrl):
 		Parameter(id, name, tp_float, ctp, preset, ctrl),
@@ -141,6 +127,8 @@ public:
 	int lower, upper;
 	virtual void *zone() const;
 	virtual void set(int n, int high, float llimit, float ulimit);
+	virtual void writeJSON(gx_system::JsonWriter& jw);
+	virtual void readJSON_value(gx_system::JsonParser& jp);
 	IntParameter(string id, string name, ctrl_type ctp, bool preset,
 	             int &v, int sv, int lv, int uv, bool ctrl):
 		Parameter(id, name, tp_int, ctp, preset, ctrl),
@@ -155,6 +143,8 @@ public:
 	bool std_value;
 	virtual void *zone() const;
 	virtual void set(int n, int high, float llimit, float ulimit);
+	virtual void writeJSON(gx_system::JsonWriter& jw);
+	virtual void readJSON_value(gx_system::JsonParser& jp);
 	BoolParameter(string id, string name, ctrl_type ctp, bool preset,
 	              bool &v, bool sv, bool ctrl):
 		Parameter(id, name, tp_float, ctp, preset, ctrl),
@@ -191,19 +181,24 @@ private:
 	map<string, Parameter*> id_map;
 	map<const void*, Parameter*> addr_map;
 
+#ifndef NDEBUG
+	void unique_zone(Parameter* param);
+	void unique_id(Parameter* param);
+#endif
+
 public:
 	typedef map<string, Parameter*>::iterator iterator;
 	iterator begin() { return id_map.begin(); }
 	iterator end() { return id_map.end(); }
-	Parameter* operator[](const void *p) { return addr_map[p]; }
-	Parameter* operator[](string id) { return id_map[id]; }
-	Parameter* operator[](const char *p) { return id_map[p]; }
+	Parameter* operator[](const void *p) { return addr_map.find(p)->second; }
+	Parameter* operator[](string id) { return id_map.find(id)->second; }
+	Parameter* operator[](const char *p) { return id_map.find(p)->second; }
 	void insert(Parameter* param);
 };
 
 extern ParamMap parameter_map; // map id -> parameter, zone -> parameter
 
-void initParameter(gx_engine::GxEngine* engine);
+void initParams(gx_engine::GxEngine* engine);
 
 
 /****************************************************************
@@ -273,6 +268,7 @@ public:
 	void set_config_mode(bool mode, int ctl=-1);
 	bool get_config_mode() { return midi_config_mode; }
 	int get_current_control() { return last_midi_control; }
+	void set_current_control(int ctl) { last_midi_control = ctl; }
 	void set(int ctr, int val);
 	void deleteParameter(Parameter& param);
 	void modifyCurrent(Parameter& param, float lower, float upper);
@@ -441,8 +437,7 @@ public :
 	virtual void show();
 	virtual void run();
 	void addbigregler(string id);
-
-
+	void addHorizontalWheel(string id);
 };
 
 /* -------------------------------------------------------------------------- */

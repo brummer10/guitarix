@@ -52,26 +52,31 @@ private:
 	ostream &os;
 	bool first;
 	bool deferred_nl;
+	string indent;
 	void snl(bool v) { deferred_nl = v; }
 	void komma();
 	void space();
+	void iplus();
+	void iminus();
 public:
 	JsonWriter(ostream& o);
-	~JsonWriter() { flush(); }
+	~JsonWriter() { close(); }
 	bool good() { return os.good(); }
-	void flush() { if (deferred_nl) { newline(); deferred_nl = false; } }
-	void write(float v, bool nl=false) { komma(); os << v; snl(nl); }
-	void write(double v, bool nl=false) { komma(); os << v; snl(nl); }
-	void write(int i, bool nl=false) { komma(); os << i; snl(nl); }
-	void write(unsigned int i, bool nl=false) { komma(); os << i; snl(nl); }
+	void flush();
+	void close() { if (deferred_nl) os << endl; }
+	void write(float v, bool nl=false);
+	void write(double v, bool nl=false);
+	void write(int i, bool nl=false);
+	void write(unsigned int i, bool nl=false);
 	void write(const char* p, bool nl=false);
 	void write(string s, bool nl=false) { write(s.c_str(), nl); }
-	void begin_object(bool nl=false) { space(); os << '{'; snl(nl); first = true; }
-	void end_object(bool nl=false) { space(); os << '}'; snl(nl); }
-	void begin_array(bool nl=false) { space(); os << '['; snl(nl); first = true; }
-	void end_array(bool nl=false) { space(); os << ']'; snl(nl); }
-	void write_key(const char* p, bool nl=false) { write(p, nl); os << ": "; first = true; }
-	void newline() { os << '\n'; deferred_nl = false; }
+	void write_lit(string s, bool nl=false);
+	void begin_object(bool nl=false);
+	void end_object(bool nl=false);
+	void begin_array(bool nl=false);
+	void end_array(bool nl=false);
+	void write_key(const char* p, bool nl=false);
+	void newline() { snl(true); }
 };
 
 class JsonParser
@@ -81,44 +86,39 @@ public:
 	enum token {
 		no_token, end_token, begin_object, end_object, begin_array, end_array,
 		value_string, value_number, value_key };
+	static const char* token_names[];
 	bool good() { return is.good(); }
 	token next(token expect=no_token);
 	token peek() { return next_tok; }
-	void check_expect(token expect) { if (cur_tok != expect) throw JsonException("unexpected token"); }
-	string current_value() { return str; }
+	void check_expect(token expect) { if (cur_tok != expect) throw_unexpected(expect); }
+	inline string current_value() const { return str; }
 	int current_value_int() { return atoi(str.c_str()); }
-	float current_value_float() { return strtof(str.c_str(), NULL); }
-	double current_value_double() { return strtod(str.c_str(), NULL); }
+	float current_value_float() { istringstream b(str); float f; b >> f; return f; }
+	double current_value_double() { istringstream b(str); double d; b >> d; return d; }
+	void copy_object(JsonWriter& jw);
+	void skip_object();
 private:
 	istream& is;
 	int depth;
 	token cur_tok;
 	string str;
+	bool nl;
+	int next_depth;
 	token next_tok;
 	string next_str;
 	const char* readcode();
 	string readstring();
 	string readnumber(char c);
 	void read_next();
+	void throw_unexpected(token expect);
 };
 
-inline void JsonWriter::komma()
-{
-	if (first)
-		first = false;
-	else
-		os << ", ";
-	flush();
-}
-
-inline void JsonWriter::space()
-{
-	if (first)
-		first = false;
-	else
-		os << " ";
-	flush();
-}
+void writeHeader(JsonWriter& jw);
+void readHeader(JsonParser& jp);
+void write_preset(JsonWriter& w);
+void read_preset(JsonParser &jp);
+void saveStateToFile();
+void recallState();
 
 /* function declaration */
 void  gx_print_logmsg (const char*, const string&, GxMsgType);

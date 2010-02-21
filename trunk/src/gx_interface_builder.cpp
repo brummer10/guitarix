@@ -51,6 +51,16 @@ using namespace std;
 namespace gx_gui
 {
 
+// debug_check
+inline void all_midi_params_assigned()
+{
+	for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
+		if (i->second->isControllable() && ! i->second->isUsed())
+			gx_system::gx_print_error("Debug Check",
+			                          "midi-parameter not assigned in ui: " + i->first);
+	}
+}
+
 /* -------- user interface builder ---------- */
 void GxMainInterface::setup()
 {
@@ -59,8 +69,6 @@ void GxMainInterface::setup()
 	createPortMapWindow("Jack Port Maps");
 
 	gx_engine::GxEngine* engine = gx_engine::GxEngine::instance();
-
-	initParameter(engine);
 
 	//----- the main box, all visible widgets are a child of this box
 	openVerticalBox("");
@@ -258,7 +266,8 @@ void GxMainInterface::setup()
 									addswitch("", &engine->antialis0);
 									openFrameBox("");
 									{
-										addHorizontalWheel(" feedback ", &engine->faas1, 0.3f, 0.3f, 0.9f, 0.01f);
+										//addHorizontalWheel(" feedback ", &engine->faas1, 0.3f, 0.3f, 0.9f, 0.01f);
+										addHorizontalWheel("anti_aliase.feedback");
 									}
 									closeBox();
 								}
@@ -303,7 +312,8 @@ void GxMainInterface::setup()
 									openVerticalBox("");
 									{
 										addswitch("preamp", &engine->fcheckbox1);
-										addHorizontalWheel("atan",&engine->fatan, 1.f, 1.f, 10.f, 1.0f);
+										//addHorizontalWheel("atan",&engine->fatan, 1.f, 1.f, 10.f, 1.0f);
+										addHorizontalWheel("preamp.atan");
 									}
 									closeBox();
 									openFrameBox("");
@@ -1039,12 +1049,7 @@ void GxMainInterface::setup()
 	// add a log message box: out of box stack, no need to closeBox
 	openTextLoggingBox("Logging Window");
 	closeBox();
-#ifndef NDEBUG
-	for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
-		if (i->second->isControllable() && ! i->second->isUsed())
-			gx_system::gx_print_error("Debug Check", "midi-parameter not assigned in ui: " + i->first);
-	}
-#endif
+	debug_check(all_midi_params_assigned);
 }
 
 }
