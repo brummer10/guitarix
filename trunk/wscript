@@ -69,7 +69,7 @@ def check_faust(conf):
     conf.env["FAUST_VERSION"] = vers
     conf.check_message('faust','version',1,vers)
     if vers not in good_faust_versions and not Options.options.faust:
-        conv.env['FAUST'] = None
+        conf.env['FAUST'] = None
 
 def check_faust_cc(conf, cpy_dir):
     if os.path.exists(cpy_dir):
