@@ -127,7 +127,7 @@ class Parser(object):
                 vn = m.group(2)
                 self.ui.add(vn, "type", "S")
                 self.ui.add(vn, "id", make_name(m.group(1)))
-                self.ui.add(vn, "value", m.group(2))
+                self.ui.add(vn, "value", m.groups()[2:])
                 continue
             m = declare(line)
             if m:
