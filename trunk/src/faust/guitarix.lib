@@ -1,0 +1,18 @@
+anti_denormal = pow(10,-20);
+add_dc = +(anti_denormal);
+
+clip(lo,hi) = min(hi) : max(lo);
+sym_clip(thr) = clip(-thr,thr);
+g_clip(thr) = sym_clip(thr) : neg;
+
+saturate(t, x) = select2(abs(x) < t, x, v)
+with {
+  sigmoid(x) = x * (1.5 - 0.5 * x * x);
+  sat(x) = t + (1 - t)*sigmoid((abs(x)-t)/((1-t)*1.5));
+  v = copysign(x, sat(x));
+};
+
+nonlin(a,b,c,x) = ((a * x - b * abs(x) * x) - x) * c;
+nonlin1 = nonlin(2,1,0.5);
+
+fuzzy_tube(a,b,c,fuzzy) = _ <: _ + nonlin(a,b,c) * fuzzy * 0.5 : sym_clip(0.7);

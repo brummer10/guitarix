@@ -56,7 +56,14 @@ def dsp_file(self, node):
 def build(bld):
     sources = [
         'AntiAlias.dsp',
+        'distortion.dsp',
+        'drive.dsp',
+        #'freeverb.dsp',
+        'osc_tube.dsp',
+        'overdrive.dsp',
         'preamp.dsp',
+        'reso_tube.dsp',
+        'tube.dsp',
         'HighShelf.dsp',
         ]
     bld.new_task_gen(source=sources)

@@ -371,6 +371,20 @@ inline void GxEngine::noise_shaper (int sf, float** input, float** output)
 
 }
 
+/****************************************************************
+ ** faust
+ */
+
+typedef void (*inifunc)(int);
+list<inifunc> inilist;
+
+void faust_init(int samplingFreq)
+{
+	for (list<inifunc>::iterator i = inilist.begin(); i != inilist.end(); i++) {
+		(*i)(samplingFreq);
+	}
+}
+
 void registerVar(const char* id, const char* name, const char* tp,
                  const char* tooltip, float* var, float val=0,
                  float low=0, float up=0, float step=0)
@@ -378,9 +392,21 @@ void registerVar(const char* id, const char* name, const char* tp,
 	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(id, name, gx_gui::Parameter::Continuous, true, *var, val, low, up, step, true));
 }
 
+void registerInit(inifunc f)
+{
+	inilist.push_back(f);
+}
+
 #define FAUSTFLOAT float
-#include "faust-cc/AntiAlias.cc"
 #include "faust-cc/preamp.cc"
+#include "faust-cc/AntiAlias.cc"
+#include "faust-cc/drive.cc"
+#include "faust-cc/osc_tube.cc"
+#include "faust-cc/reso_tube.cc"
+#include "faust-cc/tube.cc"
+#include "faust-cc/overdrive.cc"
+#include "faust-cc/distortion.cc"
+//#include "faust-cc/freeverb.cc"
 #include "faust-cc/HighShelf.cc"
 
 /*

@@ -1,5 +1,3 @@
-declare name "preamp";
-
 fatan = vslider("atan[name:drive][tooltip:Input level for pre-amp (higher level gives more distortion)]", 1, 1, 10, 1);
 moving_filter(x) = (x+x'+x'')/3;
 nonlin1(x) = (x-0.15*x*x)-(0.15*x*x*x);
