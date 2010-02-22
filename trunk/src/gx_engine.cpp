@@ -682,6 +682,7 @@ void gx_engine_init()
 
 	engine->classInit((int)gx_jack::jack_sr);
 	engine->initEngine((int)gx_jack::jack_sr);
+	faust_init((int)gx_jack::jack_sr);
 
 	initialized = true;
 }

@@ -94,6 +94,7 @@ public:
 	string name() const { return _name; }
 	bool operator==(const Parameter& p) const { return &p == this; }
 	virtual void *zone() const = 0;
+	virtual void set_std_value() const = 0;
 	virtual void set(int n, int high, float llimit, float ulimit) = 0;
 	virtual void writeJSON(gx_system::JsonWriter& jw) = 0;
 	virtual void readJSON_value(gx_system::JsonParser& jp) = 0;
@@ -109,6 +110,7 @@ public:
 	float std_value;
 	float lower, upper, step;
 	virtual void *zone() const;
+	virtual void set_std_value() const;
 	virtual void set(int n, int high, float llimit, float ulimit);
 	virtual void writeJSON(gx_system::JsonWriter& jw);
 	virtual void readJSON_value(gx_system::JsonParser& jp);
@@ -126,6 +128,7 @@ public:
 	int std_value;
 	int lower, upper;
 	virtual void *zone() const;
+	virtual void set_std_value() const;
 	virtual void set(int n, int high, float llimit, float ulimit);
 	virtual void writeJSON(gx_system::JsonWriter& jw);
 	virtual void readJSON_value(gx_system::JsonParser& jp);
@@ -142,6 +145,7 @@ public:
 	bool &value;
 	bool std_value;
 	virtual void *zone() const;
+	virtual void set_std_value() const;
 	virtual void set(int n, int high, float llimit, float ulimit);
 	virtual void writeJSON(gx_system::JsonWriter& jw);
 	virtual void readJSON_value(gx_system::JsonParser& jp);
@@ -194,6 +198,7 @@ public:
 	Parameter* operator[](string id) { return id_map.find(id)->second; }
 	Parameter* operator[](const char *p) { return id_map.find(p)->second; }
 	void insert(Parameter* param);
+	void set_init_values();
 };
 
 extern ParamMap parameter_map; // map id -> parameter, zone -> parameter

@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import re, os, sys
+from subprocess import Popen, PIPE
 from optparse import OptionParser
 
+
+num_re = r"(-?\d*\.?\d*e?-?\d*f)"
 
 class UIDefs(object):
 
@@ -27,6 +30,10 @@ class UIDefs(object):
         except KeyError:
             self.ui[element] = uid = self.UID(variable=element)
         uid[key] = value
+
+    def var_filter(self):
+        s = "|".join([r"%s\s*=\s*%s" % (v, num_re) for v in self.ui.keys()])
+        return re.compile(r"\s*("+s+");").match
 
     def write(self, fp):
         for v, r in self.ui.items():
@@ -75,29 +82,26 @@ class Parser(object):
             m = re.match(e, line)
             if m:
                 return int(m.group(1))
-        print "getNum%sputs not found in source" % s
-        raise SystemExit, 1
+        raise ValueError("getNum%sputs not found in source" % s)
 
     def readUI(self, exp):
         stop = re.compile(exp).match
         pre = r"\s*interface->"
         nm = '"([^"]*)"'
         vr = "([a-zA-Z_][0-9a-zA-Z_]*)"
-        vl = r"(-?\d*\.?\d*e?-?\d*f)"
-        sarg = "%s,\s*&%s,\s*%s,\s*%s,\s*%s,\s*%s" % (nm, vr, vl, vl, vl, vl)
-        openbox = re.compile(pre+r"openVerticalBox\(%s\);" % nm).match
+        sarg = ("%s,\s*&%s,\s*%s,\s*%s,\s*%s,\s*%s"
+                % (nm, vr, num_re, num_re, num_re, num_re))
+        openbox = re.compile(pre+r"open(Horizontal|Vertical)Box\(%s\);" % nm).match
         closebox = re.compile(pre+r"closeBox\(\);").match
         vslider = re.compile(pre+r"addVerticalSlider\(%s\);" % sarg).match
         hslider = re.compile(pre+r"addHorizontalSlider\(%s\);" % sarg).match
+        numentry = re.compile(pre+r"addNumEntry\(%s\);" % sarg).match
         checkbutton = re.compile(pre+r"addCheckButton\(%s,\s*&%s\);" % (nm, vr)).match
         declare = re.compile(pre+r"declare\(&%s,\s*%s,\s*%s\);" % (vr, nm, nm)).match
         stack = []
         def make_name(nm):
             stack.append(nm)
-            if stack[0] == "faust":
-                s = ".".join(stack[1:])
-            else:
-                s = ".".join(stack)
+            s = ".".join(stack)
             stack.pop()
             return s
 
@@ -106,12 +110,12 @@ class Parser(object):
                 return
             m = openbox(line)
             if m:
-                stack.append(m.group(1))
+                stack.append(m.group(2))
                 continue
             if closebox(line):
                 stack.pop()
                 continue
-            m = vslider(line) or hslider(line)
+            m = vslider(line) or hslider(line) or numentry(line)
             if m:
                 vn = m.group(2)
                 self.ui.add(vn, "type", "S")
@@ -129,17 +133,30 @@ class Parser(object):
             if m:
                 self.ui.add(m.group(1), m.group(2), m.group(3))
                 continue
+            
             assert False, line
 
-    def __init__(self, lines):
+    def readMeta(self):
+        self.meta = {}
+        stop = re.compile(r'// Code generated with Faust').match
+        declare = re.compile(r'// ([^:]+):\s*"([^"]*)"\s*$').match
+        for line in self.lines:
+            if stop(line):
+                return
+            m = declare(line)
+            if m:
+                key = m.group(1)
+                value = m.group(2)
+                self.meta[key] = value
+                if key == "name":
+                    self.modname = value
+
+    def __init__(self, lines, modname):
+        self.modname = modname
         self.lines = lines
         s = {}
         self.ui = UIDefs()
-        r = self.skip_until(r'// name\s*:\s*"([^"]*)"\s*$')
-        if not r:
-            print "name declaration not found"
-            raise SystemExit, 1
-        self.name = r.group(1)
+        self.readMeta()
         self.skip_until(r"  private:")
         s["var-decl"] = self.copy(r"  public:")
         self.numInputs = self.getIO("In")
@@ -164,19 +181,21 @@ class Parser(object):
     def __getitem__(self, n):
         return self.sections[n]
 
-    def write(self, fp, sect, indent=0):
+    def write(self, fp, sect, indent=0, filt=lambda l: False):
         pre = "\t" * indent
         for l in self.sections[sect]:
+            if filt(l):
+                continue
             fp.write(pre)
             fp.write(l)
 
 def output(fp, p, fname):
-    fp.write("namespace %s {\n" % p.name)
+    fp.write("namespace %s {\n" % p.modname)
     fp.write("// generated from file '%s'\n\n" % fname)
     p.write(fp, "var-decl")
     fp.write("int\tfSamplingFreq;\n\n")
     fp.write("void init(int samplingFreq)\n{\n")
-    p.write(fp, "var-init", 1)
+    p.write(fp, "var-init", 1, filt=p.ui.var_filter())
     fp.write("}\n\n")
     fp.write("void compute(int count, %s, %s)\n{\n" % (
         ", ".join(["float *input%d" % i for i in range(p.getNumInputs())]),
@@ -186,8 +205,9 @@ def output(fp, p, fname):
     fp.write("static struct RegisterParams { RegisterParams(); } RegisterParams;\n")
     fp.write("RegisterParams::RegisterParams()\n{\n")
     p.ui.write(fp)
+    fp.write('\tregisterInit(init);\n')
     fp.write("}\n")
-    fp.write("\n} // end namespace %s\n" % p.name)
+    fp.write("\n} // end namespace %s\n" % p.modname)
 
 def main():
     op = OptionParser(usage="usage: %prog [options] <faust-dsp-file>")
@@ -200,8 +220,13 @@ def main():
     if not os.path.exists(fname):
         print "error: can't open '%s'" % fname
         raise SystemExit, 1
-    inp = os.popen("faust %s" % fname)
-    parser = Parser(inp)
+    faust = Popen("faust %s" % fname, shell=True, stdout=PIPE)
+    try:
+        parser = Parser(faust.stdout, os.path.splitext(os.path.basename(fname))[0])
+    except ValueError, e:
+        if faust.wait() == 0:
+            print e
+        raise SystemExit, 1
     if options.oname:
         outp = file(options.oname,"w")
     else:

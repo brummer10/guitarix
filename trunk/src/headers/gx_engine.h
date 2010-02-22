@@ -74,6 +74,7 @@ inline double sqrf(float x)
 /* function declarations  */
 void gx_engine_init();
 void gx_engine_reset();
+void faust_init(int samplingFreq);
 
 /* ------------- Engine Processing Classes ------------- */
 // metadata

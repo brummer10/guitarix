@@ -447,6 +447,11 @@ void FloatParameter::set(int n, int high, float llimit, float ulimit)
 	}
 }
 
+void FloatParameter::set_std_value() const
+{
+	value = std_value;
+}
+
 void FloatParameter::writeJSON(gx_system::JsonWriter& jw)
 {
 	jw.write_key(_id.c_str());
@@ -481,6 +486,11 @@ void IntParameter::set(int n, int high, float llimit, float ulimit)
 	}
 }
 
+void IntParameter::set_std_value() const
+{
+	value = std_value;
+}
+
 void IntParameter::writeJSON(gx_system::JsonWriter& jw)
 {
 	jw.write_key(_id.c_str());
@@ -507,6 +517,11 @@ void BoolParameter::set(int n, int high, float llimit, float ulimit)
 		assert(false);
 		break;
 	}
+}
+
+void BoolParameter::set_std_value() const
+{
+	value = std_value;
 }
 
 void BoolParameter::writeJSON(gx_system::JsonWriter& jw)
@@ -541,6 +556,13 @@ void ParamMap::insert(Parameter* param)
 	addr_map.insert(pair<const void*, Parameter*>(param->zone(), param));
 	debug_check(unique_id, param);
 	id_map.insert(pair<string, Parameter*>(param->id(), param));
+}
+
+void ParamMap::set_init_values()
+{
+	for (iterator i = begin(); i == end(); i++) {
+		i->second->set_std_value();
+	}
 }
 
 inline void Pa(const char*a,const char*b,float*c,float std,float lower,float upper,float step)
@@ -760,6 +782,7 @@ void initParams(gx_engine::GxEngine* e)
 	PaN("system.fConsta1t", &e->fConsta1t, false);
 	PaN("system.midistat", &e->midistat, false);
 	PaN("system.waveview", &e->viv, false);
+	parameter_map.set_init_values();
 }
 
 }
