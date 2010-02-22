@@ -9,7 +9,6 @@ void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<3; i++) fVec0[i] = 0;
-	fslider0 = 1.0f;
 }
 
 void compute(int count, float *input0, float *output0)
@@ -32,6 +31,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("preamp.atan","drive","S","Input level for pre-amp (higher level gives more distortion)",&fslider0, 1.0f, 1.0f, 10.0f, 1.0f);
+	registerInit(init);
 }
 
 } // end namespace preamp

@@ -44,6 +44,7 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
+	registerInit(init);
 }
 
 } // end namespace HighShelf

@@ -8,7 +8,6 @@ int	fSamplingFreq;
 void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fslider0 = 0.3f;
 	for (int i=0; i<4; i++) fRec0[i] = 0;
 }
 
@@ -27,6 +26,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("anti_aliase.feedback","Feedback","S","",&fslider0, 0.3f, 0.3f, 0.9f, 1.000000e-02f);
+	registerInit(init);
 }
 
 } // end namespace AntiAlias
