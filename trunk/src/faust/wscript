@@ -57,6 +57,7 @@ def build(bld):
     sources = [
         'AntiAlias.dsp',
         'preamp.dsp',
+        'HighShelf.dsp',
         ]
     bld.new_task_gen(source=sources)
 

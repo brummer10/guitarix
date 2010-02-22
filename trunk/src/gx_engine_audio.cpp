@@ -381,6 +381,7 @@ void registerVar(const char* id, const char* name, const char* tp,
 #define FAUSTFLOAT float
 #include "faust-cc/AntiAlias.cc"
 #include "faust-cc/preamp.cc"
+#include "faust-cc/HighShelf.cc"
 
 /*
 // anti aliasing the sine wav, this unit can nicly run oversampeled
@@ -1035,7 +1036,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 		moving_filter(&checkfreq, &checkfreq, count);
 	}
 	//moving_filter(input,input,count);
-
+    HighShelf::compute(count,input0,input0);
 	// run pre_funktions on frame base
 	if (fnoise_g) noise_gate (count,input);
 	else ngate = 1;
