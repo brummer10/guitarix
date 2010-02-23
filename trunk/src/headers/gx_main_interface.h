@@ -188,6 +188,8 @@ private:
 #ifndef NDEBUG
 	void unique_zone(Parameter* param);
 	void unique_id(Parameter* param);
+	void check_id(string id);
+	void check_p(const char *p);
 #endif
 
 public:
@@ -195,8 +197,10 @@ public:
 	iterator begin() { return id_map.begin(); }
 	iterator end() { return id_map.end(); }
 	Parameter* operator[](const void *p) { return addr_map.find(p)->second; }
-	Parameter* operator[](string id) { return id_map.find(id)->second; }
-	Parameter* operator[](const char *p) { return id_map.find(p)->second; }
+	Parameter* find(string id) { return id_map.find(id)->second; }
+	Parameter* find(const char *p) { return id_map.find(p)->second; }
+	Parameter& operator[](string id) { debug_check(check_id, id); return *find(id); }
+	Parameter& operator[](const char *p) { debug_check(check_p, p); return *find(p); }
 	void insert(Parameter* param);
 	void set_init_values();
 };
@@ -441,8 +445,8 @@ public :
 	virtual void setup();
 	virtual void show();
 	virtual void run();
-	void addbigregler(string id);
-	void addHorizontalWheel(string id);
+	void addbigregler(string id, const char* label=0);
+	void addHorizontalWheel(string id, const char* label=0);
 };
 
 /* -------------------------------------------------------------------------- */

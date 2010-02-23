@@ -133,7 +133,7 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp)
 	jp.next(gx_system::JsonParser::begin_array);
 	jp.next(gx_system::JsonParser::value_string);
 	string id = jp.current_value();
-	Parameter* param = parameter_map[id];
+	Parameter* param = parameter_map.find(id);
 	if (!param) {
 		gx_system::gx_print_warning("Midi controller settings",
 		                            "unknown parameter: " + id);
@@ -224,7 +224,7 @@ void MidiControllerList::set(int ctr, int val)
 
 void MidiControllerList::MidiDef(int ctr, const char* p, float l, float u)
 {
-	Parameter *pm = parameter_map[p];
+	Parameter *pm = parameter_map.find(p);
 	cout << p << endl;
 	assert(pm);
 	map[ctr].push_front(MidiController(*pm, l, u));
@@ -399,7 +399,7 @@ ParameterGroups::ParameterGroups()
 	insert("distortion.low_highpass","Distortion low/highpass");
 	insert("distortion.low_highcutoff","Distortion low/highcutoff");
 	insert("freeverb","Freeverb");
-	insert("IR","IR");
+	insert("IR","ImpulseResponse");
 	insert("crybaby","Crybaby");
 	insert("echo","Echo");
 	insert("delay","Delay");
@@ -419,7 +419,6 @@ string param_group(string id)
 	static ParameterGroups groups = ParameterGroups();
 	return groups[id.substr(0, id.find_last_of("."))];
 }
-
 
 /****************************************************************
  ** Parameter
@@ -536,6 +535,7 @@ void BoolParameter::readJSON_value(gx_system::JsonParser& jp)
 	value = jp.current_value_int();
 }
 
+#ifndef NDEBUG
 void ParamMap::unique_zone(Parameter* param)
 {
 	if (addr_map.find(param->zone()) != addr_map.end()) {
@@ -550,6 +550,21 @@ void ParamMap::unique_id(Parameter* param)
 	}
 }
 
+void ParamMap::check_id(string id)
+{
+	if (!find(id)) {
+		cerr << "id not found: " << id << endl;
+	}
+}
+
+void ParamMap::check_p(const char *p)
+{
+	if (!find(p)) {
+		cerr << "id not found: " << p << endl;
+	}
+}
+#endif
+
 void ParamMap::insert(Parameter* param)
 {
 	debug_check(unique_zone, param);
@@ -560,7 +575,7 @@ void ParamMap::insert(Parameter* param)
 
 void ParamMap::set_init_values()
 {
-	for (iterator i = begin(); i == end(); i++) {
+	for (iterator i = id_map.begin(); i != id_map.end(); i++) {
 		i->second->set_std_value();
 	}
 }
@@ -592,9 +607,9 @@ inline void Pa(const char*a,const char*b,bool*c,bool d=false)
 	parameter_map.insert(new BoolParameter(a,b,Parameter::Switch,true,*c,d,true));
 }
 
-inline void PaN(const char*a, float*c, bool d)
+inline void PaN(const char*a, float*c, bool d, float std=0)
 {
-	parameter_map.insert(new FloatParameter(a,"",Parameter::None,d,*c,0,0,0,0,false));
+	parameter_map.insert(new FloatParameter(a,"",Parameter::None,d,*c,std,0,0,0,false));
 }
 
 void initParams(gx_engine::GxEngine* e)
@@ -751,15 +766,15 @@ void initParams(gx_engine::GxEngine* e)
 	// only save and restore, no midi control
 
 	// positions of effects
-	PaN("crybaby.position", &e->posit0, true);
-	PaN("overdrive.position", &e->posit1, true);
-	PaN("distortion.position", &e->posit2, true);
-	PaN("freeverb.position", &e->posit3, true);
-	PaN("IR.position", &e->posit4, true);
-	PaN("compressor.position", &e->posit5, true);
-	PaN("echo.position", &e->posit6, true);
-	PaN("delay.position", &e->posit7, true);
-	PaN("system.unused1", &e->posit8, true); // unused?
+	PaN("crybaby.position", &e->posit0, true, 5);
+	PaN("overdrive.position", &e->posit1, true, 2);
+	PaN("distortion.position", &e->posit2, true, 1);
+	PaN("freeverb.position", &e->posit3, true, 3);
+	PaN("IR.position", &e->posit4, true, 4);
+	PaN("compressor.position", &e->posit5, true, 0);
+	PaN("echo.position", &e->posit6, true, 6);
+	PaN("delay.position", &e->posit7, true, 8);
+	PaN("chorus.position", &e->posit8, true, 7);
 
 	// togglebuttons for dialogboxes and expander for effect details
 	PaN("compressor.dialog", &e->fdialogbox8, false);

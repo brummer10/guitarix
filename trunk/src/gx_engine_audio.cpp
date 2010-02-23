@@ -400,13 +400,15 @@ void registerInit(inifunc f)
 #define FAUSTFLOAT float
 #include "faust-cc/preamp.cc"
 #include "faust-cc/AntiAlias.cc"
+#if 0
 #include "faust-cc/drive.cc"
 #include "faust-cc/osc_tube.cc"
 #include "faust-cc/reso_tube.cc"
 #include "faust-cc/tube.cc"
 #include "faust-cc/overdrive.cc"
 #include "faust-cc/distortion.cc"
-//#include "faust-cc/freeverb.cc"
+#include "faust-cc/freeverb.cc"
+#endif
 #include "faust-cc/HighShelf.cc"
 
 /*

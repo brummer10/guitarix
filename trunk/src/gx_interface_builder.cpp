@@ -598,7 +598,7 @@ void GxMainInterface::setup()
 													{
 														addtoggle("", &engine->fcheckbox8);
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-														openDialogBox("ImpulseResponse", &engine->fdialogbox3);
+														openDialogBox("IR", &engine->fdialogbox3);
 														{
 															openHandleBox("  ");
 															{
@@ -883,7 +883,7 @@ void GxMainInterface::setup()
 						openHorizontalBox("midi_out");
 						{
 							//----- create the midi settings dialog
-							openDialogBox("midi out", &engine->fdialogbox6);
+							openDialogBox("midi_out", &engine->fdialogbox6);
 							{
 								openTabBox("");
 								{

@@ -154,7 +154,7 @@ old_vars = [
     "IR.position",
     "compressor.position",
     "echo.position",
-    "system.unused1",
+    "chorus.position",
     "delay.position",
     "delay.delay",
     "delay.on_off",
@@ -288,6 +288,10 @@ def main():
     convert_presets()
     convert_state()
     print "done."
+
+def param_range(a, b):
+    for i in range(a+1, b):
+        print old_vars[i];
 
 if __name__ == '__main__':
     main()

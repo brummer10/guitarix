@@ -308,7 +308,7 @@ GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
 	/*---------------- set window defaults ----------------*/
 	gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 	gtk_window_set_title (GTK_WINDOW (fWindow), name);
-	gtk_window_set_gravity(GTK_WINDOW(fWindow), GDK_GRAVITY_NORTH_EAST);
+	gtk_window_set_gravity(GTK_WINDOW(fWindow), GDK_GRAVITY_NORTH_WEST);
 
 	/*---------------- singnals ----------------*/
 	g_signal_connect (GTK_OBJECT (fWindow), "destroy",
@@ -673,7 +673,7 @@ struct uiOrderButton : public gx_ui::GxUiItem
 
 			gtk_container_child_get_property(GTK_CONTAINER(parent),GTK_WIDGET(box),"position", &pos);
 			guint per = g_value_get_int(&pos);
-			if (per<7)
+			if (per<7) //FIXME (magic value)
 			{
 				GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
 				GtkWidget *obi = (GtkWidget *) g_list_nth_data(child_list,per+1);
@@ -864,9 +864,8 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 
 	g_signal_connect (GTK_OBJECT (button), "clicked",
 	                  G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
-	/***FIXME***/
-	/*  g_signal_connect  (GTK_OBJECT (button), "pressed",
-	    G_CALLBACK (gx_reset_effects), (gpointer) c); */
+	g_signal_connect  (GTK_OBJECT (button), "pressed",
+	                   G_CALLBACK (gx_reset_effects), (gpointer) c);
 
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
 	gtk_fixed_put (GTK_FIXED(box1), button, 10, 1);
@@ -1415,10 +1414,13 @@ void GxMainInterface::addHorizontalSlider(const char* label, float* zone, float 
 	addWidget(label, slider);
 }
 
-void GxMainInterface::addHorizontalWheel(string id)
+void GxMainInterface::addHorizontalWheel(string id, const char* label)
 {
-	const FloatParameter &p = parameter_map[id]->getFloat();
-	addHorizontalWheel(p.name().c_str(), &p.value, p.std_value, p.lower, p.upper, p.step);
+	const FloatParameter &p = parameter_map[id].getFloat();
+	if (!label) {
+		label = p.name().c_str();
+	}
+	addHorizontalWheel(label, &p.value, p.std_value, p.lower, p.upper, p.step);
 }
 
 
@@ -1530,10 +1532,13 @@ void GxMainInterface::addregler(const char* label, float* zone, float init, floa
 	closeBox();
 }
 
-void GxMainInterface::addbigregler(string id)
+void GxMainInterface::addbigregler(string id, const char* label)
 {
-	const FloatParameter &p = parameter_map[id]->getFloat();
-	addbigregler(p.name().c_str(), &p.value, p.std_value, p.lower, p.upper, p.step);
+	const FloatParameter &p = parameter_map[id].getFloat();
+	if (!label) {
+		label = p.name().c_str();
+	}
+	addbigregler(label, &p.value, p.std_value, p.lower, p.upper, p.step);
 }
 
 void GxMainInterface::addbigregler(const char* label, float* zone, float init, float min, float max, float step)
@@ -1724,8 +1729,9 @@ void GxMainInterface::setSkinBox(const char* label, float* zone)
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_set_skin),  (gpointer) c);
 }
 
-void GxMainInterface::openDialogBox(const char* label, float* zone)
+void GxMainInterface::openDialogBox(const char* id, float* zone)
 {
+	const char *label = param_group(id).c_str();
 	GtkWidget * dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
 	gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
@@ -1734,7 +1740,7 @@ void GxMainInterface::openDialogBox(const char* label, float* zone)
 	gtk_window_set_position (GTK_WINDOW(dialog), GTK_WIN_POS_MOUSE);
 	gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
 	gtk_window_set_title (GTK_WINDOW (dialog), label);
-
+	gtk_window_set_type_hint (GTK_WINDOW (dialog), GDK_WINDOW_TYPE_HINT_UTILITY);
 	gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
 	GtkWidget * box = gtk_hbox_new (homogene, 8);
 	GtkWidget * box4 = gtk_vbox_new (homogene, 4);
@@ -1776,7 +1782,7 @@ void GxMainInterface::openDialogBox(const char* label, float* zone)
 
 	gtk_container_add (GTK_CONTAINER(box5), frame);
 	gtk_container_add (GTK_CONTAINER(box5), button1);
-	g_signal_connect  (GTK_OBJECT (button1), "pressed", G_CALLBACK (gx_reset_units), (gpointer) dialog);
+	g_signal_connect  (GTK_OBJECT (button1), "pressed", G_CALLBACK (gx_reset_units), (gpointer) id);
 	gtk_container_add (GTK_CONTAINER(box4), box5);
 	gtk_container_add (GTK_CONTAINER(box4), box);
 	gtk_container_add (GTK_CONTAINER(dialog), box4);

@@ -463,7 +463,7 @@ void read_parameters(JsonParser &jp, bool preset)
 	jp.next(JsonParser::begin_object);
 	do {
 		jp.next(JsonParser::value_key);
-		gx_gui::Parameter *param = gx_gui::parameter_map[jp.current_value()];
+		gx_gui::Parameter *param = gx_gui::parameter_map.find(jp.current_value());
 		if (!param) {
 			gx_print_warning("recall settings", "unknown parameter: "+jp.current_value());
 			jp.skip_object();

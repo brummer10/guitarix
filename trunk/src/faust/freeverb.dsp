@@ -10,14 +10,6 @@ import("effect.lib");
 import("filter.lib");
 
 /*-----------------------------------------------
-		boxes
-  -----------------------------------------------*/
-switch1		= checkbox("on/off");
-monomono 	=  _ <:  _,_;
-verb    	= select2(switch1, _, _);
-
-
-/*-----------------------------------------------
 		freeverb  by "Grame"
   -----------------------------------------------*/
 
@@ -38,14 +30,14 @@ allpasstuningL3	= 341;
 allpasstuningL4	= 225;
 
 
-dampslider 		= vslider("damp",0.5, 0, 1, 0.025)*0.4;
+dampslider 	= vslider("damp",0.5, 0, 1, 0.025)*0.4;
 roomsizeSlider 	= vslider("RoomSize", 0.5, 0, 1, 0.025)*0.28 + 0.7;
-combfeed 		= roomsizeSlider;
-wetslider 		= vslider("wet", 0.3333, 0, 1, 0.025);
+combfeed 	= roomsizeSlider;
+wetslider 	= 0.5 + vslider("wet_dry[name:wet/dry]", 0, -0.5, 0.5, 0.1);
 
 // Comb and Allpass filters
 
-allpass(dt,fb) = (_,_ <: (*(fb):+:@(dt)), -) ~ _ : (!,_);
+allpass(dt,fb) = (_,_ <: (*(fb),_:+:@(dt)), -) ~ _ : (!,_);
 comb(dt, fb, damp) = (+:@(dt)) ~ (*(1-damp) : (+ ~ *(damp)) : *(fb));
 
 // Reverb components
@@ -68,11 +60,5 @@ monoReverb(fb1, fb2, damp, spread)
 
 //----------------------------------------------------------------
 
-fxctrl(g,w,Fx) =  _ <: (*(g),*(g) : Fx : *(w),*(w)), *(1-w), *(1-w) +> _;
-//freeverb = fxctrl(0.015, 0.5, monoReverb(combfeed, 0.5, 0.5, 23));
-freeverb = fxctrl(0.015, wetslider, monoReverb(combfeed, 0.5, dampslider, 23));
-
-
-process = vgroup("freeverb", monomono : _, freeverb : verb);
-
-
+fxctrl(g,w,Fx) =  _ <: (*(g) : Fx : *(w)), *(1-w) +> _;
+process = fxctrl(0.015, wetslider, monoReverb(combfeed, 0.5, dampslider, 23));

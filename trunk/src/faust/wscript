@@ -58,7 +58,7 @@ def build(bld):
         'AntiAlias.dsp',
         'distortion.dsp',
         'drive.dsp',
-        #'freeverb.dsp',
+        'freeverb.dsp',
         'osc_tube.dsp',
         'overdrive.dsp',
         'preamp.dsp',

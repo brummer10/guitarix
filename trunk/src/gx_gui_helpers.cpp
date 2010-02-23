@@ -436,45 +436,33 @@ void gx_user_disable_latency_warn(GtkWidget* wd, gpointer arg)
 
 void gx_reset_effects( GtkWidget *widget, gpointer data )
 {
-	string filename = gx_user_dir + guitarix_reset;
-	GxMainInterface* interface = GxMainInterface::instance();
-	interface->recalladState(filename.c_str(),  121,  130, 7);
+	string pos(".position");
+	for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
+		string id = i->first;
+		if (id.size() > pos.size() &&
+		    id.compare(id.size()-pos.size(), pos.size(), pos) == 0) {
+			cout << i->first << " " << endl;
+			i->second->set_std_value();
+		}
+	}
 }
 
 // reset the extended sliders to default settings
 void gx_reset_units( GtkWidget *widget, gpointer data )
 {
-	const char* witchres = gtk_window_get_title(GTK_WINDOW(data));
-
-	string filename = gx_user_dir + guitarix_reset;
-	GxMainInterface* interface = GxMainInterface::instance();
-
-	// Note (thorgal): to be revisited, too fragile design
-	// Introduce XML based config
-
-	if (strcmp(witchres, "distortion") == 0)
-		interface->recalladState(filename.c_str(),  4,  16, 0);
-
-	else if (strcmp(witchres, "freeverb") == 0)
-		interface->recalladState(filename.c_str(),  20,  24, 1);
-
-	else if (strcmp(witchres, "ImpulseResponse") == 0)
-		interface->recalladState(filename.c_str(),  28,  32, 2);
-
-	else if (strcmp(witchres, "crybaby") == 0)
-		interface->recalladState(filename.c_str(),  16,  20, 3);
-
-	else if (strcmp(witchres, "midi out") == 0)
-		interface->recalladState(filename.c_str(),  44,  50, 4);
-
-	else if (strcmp(witchres, "compressor") == 0)
-		interface->recalladState(filename.c_str(),  72,  78, 5);
-
-	else if (strcmp(witchres, "chorus") == 0)
-		interface->recalladState(filename.c_str(),  110,  115, 6);
-
-	else if (strcmp(witchres, "jconv") == 0)
-		interface->recalladState(filename.c_str(),  116,  121, 8);
+	string group_id = string((const char*)data) + ".";
+	string on_off = group_id + "on_off";
+	for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
+		if (i->first.compare(0, group_id.size(), group_id) == 0) {
+			if (i->second->isControllable()) {
+				string id = i->first;
+				if (i->first != on_off) {
+					cout << i->first << " " << endl;
+					i->second->set_std_value();
+				}
+			}
+		}
+	}
 }
 
 //----- show extendend settings slider
