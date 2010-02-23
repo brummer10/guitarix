@@ -230,24 +230,6 @@ void MidiControllerList::MidiDef(int ctr, const char* p, float l, float u)
 	map[ctr].push_front(MidiController(*pm, l, u));
 }
 
-/* FIXME
-void MidiControllerList::load_defaults()
-{
-	MidiDef(0x07,"amp.out_master", -40, 40);
-	MidiDef(0x28,"amp.in_level", -40, 40);
-	MidiDef(0x29,"crybaby.wah", 0, 1);
-	MidiDef(0x44,"compressor.on_off");
-	MidiDef(0x45,"distortion.on_off");
-	MidiDef(0x46,"overdrive.on_off");
-	MidiDef(0x47,"freeverb.on_off");
-	MidiDef(0x48,"IR.on_off");
-	MidiDef(0x49,"crybaby.on_off");
-	MidiDef(0x4a,"echo.on_off");
-	MidiDef(0x4b,"delay.on_off");
-	MidiDef(0x4c,"chorus.on_off");
-}
-*/
-
 void MidiControllerList::writeJSON(gx_system::JsonWriter& w)
 {
 	w.begin_array(true);
@@ -286,44 +268,6 @@ MidiControllerList::MidiControllerList(gx_system::JsonParser& jp):
 	jp.next(gx_system::JsonParser::end_array);
 }
 
-/* FIXME
-void recall_midi_controller_map()
-{
-	return;
-    string filename = gx_system::gx_user_dir + gx_jack::client_name  + "_midi_rc";
-	ifstream f(filename.c_str());
-	if (!f.good()) {
-		controller_map.load_defaults();
-		if (save_midi_controller_map()) {
-			gx_system::gx_print_warning("Midi controller settings", "initializing default settings");
-		}
-	} else {
-		gx_system::JsonParser p(f);
-		try {
-			controller_map = MidiControllerList(p);
-		}
-		catch (gx_system::JsonException& e) {
-			gx_system::gx_print_warning("Midi controller settings", "parse error");
-		}
-	}
-}
-
-bool save_midi_controller_map()
-{
-	return true;
-	string fname = gx_system::gx_user_dir + gx_jack::client_name + "_midi_rc";
-	ofstream f(fname.c_str());
-	if (f.good()) {
-		gx_system::JsonWriter w(f);
-		controller_map.writeJSON(w);
-	}
-	if (!f.good()) {
-		gx_system::gx_print_warning("Midi controller settings", "cannot write to "+fname);
-		return false;
-	}
-	return true;
-}
-*/
 
 /****************************************************************
  ** Parameter Groups
@@ -433,12 +377,12 @@ void FloatParameter::set(int n, int high, float llimit, float ulimit)
 {
 	switch (c_type) {
 	case Continuous:
+		assert(n > 0 && n <= high);
 		value = llimit + ((float)(n) / (high)) * (ulimit - llimit);
 		break;
 	case Switch:
 	case Enum:
 		value = lower + min(n, upper-lower-1); //FIXME "-1" ??
-		cout << value << endl;
 		break;
 	default:
 		assert(false);
@@ -460,7 +404,7 @@ void FloatParameter::writeJSON(gx_system::JsonWriter& jw)
 void FloatParameter::readJSON_value(gx_system::JsonParser& jp)
 {
 	jp.next(gx_system::JsonParser::value_number);
-	value = jp.current_value_float();
+	set(jp.current_value_float());
 }
 
 void *IntParameter::zone() const
@@ -499,7 +443,7 @@ void IntParameter::writeJSON(gx_system::JsonWriter& jw)
 void IntParameter::readJSON_value(gx_system::JsonParser& jp)
 {
 	jp.next(gx_system::JsonParser::value_number);
-	value = jp.current_value_int();
+	set(jp.current_value_int());
 }
 
 void *BoolParameter::zone() const
@@ -607,9 +551,9 @@ inline void Pa(const char*a,const char*b,bool*c,bool d=false)
 	parameter_map.insert(new BoolParameter(a,b,Parameter::Switch,true,*c,d,true));
 }
 
-inline void PaN(const char*a, float*c, bool d, float std=0)
+inline void PaN(const char*a, float*c, bool d, float std=0, float lower=0, float upper=1)
 {
-	parameter_map.insert(new FloatParameter(a,"",Parameter::None,d,*c,std,0,0,0,false));
+	parameter_map.insert(new FloatParameter(a,"",Parameter::None,d,*c,std,lower,upper,0,false));
 }
 
 void initParams(gx_engine::GxEngine* e)
@@ -766,15 +710,15 @@ void initParams(gx_engine::GxEngine* e)
 	// only save and restore, no midi control
 
 	// positions of effects
-	PaN("crybaby.position", &e->posit0, true, 5);
-	PaN("overdrive.position", &e->posit1, true, 2);
-	PaN("distortion.position", &e->posit2, true, 1);
-	PaN("freeverb.position", &e->posit3, true, 3);
-	PaN("IR.position", &e->posit4, true, 4);
-	PaN("compressor.position", &e->posit5, true, 0);
-	PaN("echo.position", &e->posit6, true, 6);
-	PaN("delay.position", &e->posit7, true, 8);
-	PaN("chorus.position", &e->posit8, true, 7);
+	PaN("crybaby.position", &e->posit0, true, 5, 0, 8);
+	PaN("overdrive.position", &e->posit1, true, 2, 0, 8);
+	PaN("distortion.position", &e->posit2, true, 1, 0, 8);
+	PaN("freeverb.position", &e->posit3, true, 3, 0, 8);
+	PaN("IR.position", &e->posit4, true, 4, 0, 8);
+	PaN("compressor.position", &e->posit5, true, 0, 0, 8);
+	PaN("echo.position", &e->posit6, true, 6, 0, 8);
+	PaN("delay.position", &e->posit7, true, 8, 0, 8);
+	PaN("chorus.position", &e->posit8, true, 7, 0, 8);
 
 	// togglebuttons for dialogboxes and expander for effect details
 	PaN("compressor.dialog", &e->fdialogbox8, false);
@@ -789,8 +733,8 @@ void initParams(gx_engine::GxEngine* e)
 	PaN("jconv.filedialog", &e->filebutton, false);
 
 	// user interface options
-	PaN("ui.latency_nowarn", &e->fwarn, false);
-	PaN("ui.skin", &e->fskin, false);
+	PaN("ui.latency_nowarn", &e->fwarn, false, 0);
+	PaN("ui.skin", &e->fskin, false, 0, 0, 100);
 	PaN("ui.main_expander", &e->fexpand, false);
 
 	// shouldn't be saved, only output?

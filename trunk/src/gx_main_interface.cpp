@@ -110,11 +110,9 @@ void MidiConnect::midi_response_cb(GtkWidget *widget, gint response_id, gpointer
 		} else {
 			controller_map.modifyCurrent(m->param, 0, 0);
 		}
-		//save_midi_controller_map(); FIXME
 		break;
 	case RESPONSE_DELETE:
 		controller_map.deleteParameter(m->param);
-		//save_midi_controller_map(); FIXME
 		break;
 	}
 	gtk_widget_destroy(m->dialog);

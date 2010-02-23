@@ -109,6 +109,7 @@ public:
 	float &value;
 	float std_value;
 	float lower, upper, step;
+	void set(float val) const { value = min(max(val, lower), upper); }
 	virtual void *zone() const;
 	virtual void set_std_value() const;
 	virtual void set(int n, int high, float llimit, float ulimit);
@@ -127,6 +128,7 @@ public:
 	int &value;
 	int std_value;
 	int lower, upper;
+	void set(int val) const { value = min(max(val, lower), upper); }
 	virtual void *zone() const;
 	virtual void set_std_value() const;
 	virtual void set(int n, int high, float llimit, float ulimit);
@@ -144,6 +146,7 @@ class BoolParameter: public Parameter
 public:
 	bool &value;
 	bool std_value;
+	void set(bool val) const { value = val; }
 	virtual void *zone() const;
 	virtual void set_std_value() const;
 	virtual void set(int n, int high, float llimit, float ulimit);

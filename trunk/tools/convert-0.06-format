@@ -177,7 +177,7 @@ old_vars = [
     "jconv.on_off",
     ]
 
-head = ["guitarix_file_version", [1, 0, "0.05.4-1"]]
+head = ["guitarix_file_version", [0, 0, "0.05.4-1"]]
 
 def int_list(l):
     return [int(v) for v in l]
@@ -217,7 +217,7 @@ def conv_varlist(l, preset):
     return d
 
 def convert_presets():
-    fn = "old/guitarixprerc.old"
+    fn = "guitarixprerc"
     if not os.path.exists(fn):
         print "no presets file"
         return
@@ -264,7 +264,7 @@ def midi(fn):
     return outl
 
 def convert_state():
-    fn = "old/guitarixrc.old"
+    fn = "guitarixrc"
     if not os.path.exists(fn):
         print "no state file"
         return

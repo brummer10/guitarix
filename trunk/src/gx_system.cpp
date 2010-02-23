@@ -489,7 +489,7 @@ void write_preset(JsonWriter &w)
 	w.write_key("engine");
 	write_parameters(w, true);
 	w.write_key("jconv");
-	gx_jconv::GxJConvSettings::instance()->writeJSON(w); //FIXME ok when not valid?
+	gx_jconv::GxJConvSettings::instance()->writeJSON(w);
 	w.newline();
 	w.end_object(true);
 }
@@ -502,7 +502,7 @@ void read_preset(JsonParser &jp)
 		if (jp.current_value() == "engine") {
 			read_parameters(jp, true);
 		} else if (jp.current_value() == "jconv") {
-			*gx_jconv::GxJConvSettings::instance() = gx_jconv::GxJConvSettings(jp); //FIXME if not jconv section
+			*gx_jconv::GxJConvSettings::instance() = gx_jconv::GxJConvSettings(jp);
 		} else {
 			gx_print_warning("recall settings",
 			                 "unknown preset section: " + jp.current_value());
@@ -510,9 +510,6 @@ void read_preset(JsonParser &jp)
 	} while (jp.peek() == JsonParser::value_key);
 	jp.next(JsonParser::end_object);
 }
-
-const int majorversion = 1;
-const int minorversion = 0;
 
 void writeHeader(JsonWriter& jw)
 {
@@ -524,32 +521,34 @@ void writeHeader(JsonWriter& jw)
 	jw.end_array(true);
 }
 
-void readHeader(JsonParser& jp)
+bool readHeader(JsonParser& jp, int *major, int *minor)
 {
 	// header
 	jp.next(JsonParser::value_string);
 	if (jp.current_value() != "guitarix_file_version") {
-		throw JsonException("??");//FIXME
+		throw JsonException("invalid guitarix file header");
 	}
 	jp.next(JsonParser::begin_array);
 	jp.next(JsonParser::value_number);
-	int major = jp.current_value_int();
-	if (major != majorversion) {
-		stringstream s;
-		s << "major version mismatch: found " << major
-		  << ", expected " << majorversion << endl;
-		gx_print_warning("recall settings", s.str());
+	int m = jp.current_value_int();
+	if (major) {
+		*major = m;
 	}
 	jp.next(JsonParser::value_number); // minorversion
+	int n = jp.current_value_int();
+	if (minor) {
+		*minor = n;
+	}
 	jp.next(JsonParser::value_string); // guitarix version
 	jp.next(JsonParser::end_array);
+	return m == majorversion && n == minorversion;
 }
 
 // -- save state including current preset data
 void saveStateToFile()
 {
 	string filename = gx_user_dir + client_name + "_rc";
-	string tmpfile = filename + ".tmp";
+	string tmpfile = filename + "_tmp";
 	ofstream f(tmpfile.c_str());
 	JsonWriter w(f);
 
@@ -578,32 +577,45 @@ void recallState()
 	string filename = gx_user_dir + client_name + "_rc";
 	ifstream f(filename);
 	if (!f.good()) {
-		saveStateToFile();
-		//throw JsonException("??");//FIXME
 		return;
 	}
 	gx_system::JsonParser jp(f);
-	jp.next(JsonParser::begin_array);
+	try {
+		jp.next(JsonParser::begin_array);
 
-	readHeader(jp);
-
-	// other sections (settings, current_preset)
-	do {
-		jp.next(JsonParser::value_string);
-		if (jp.current_value() == "settings") {
-			read_parameters(jp, false);
-		} else if (jp.current_value() == "current_preset") {
-			read_preset(jp);
-		} else if (jp.current_value() == "midi_controller") {
-			gx_gui::controller_map = gx_gui::MidiControllerList(jp);
-		} else {
-			gx_print_warning("recall settings",
-			                 "unknown section: " + jp.current_value());
-			jp.skip_object();
+		int major;
+		readHeader(jp, &major);
+		if (major != majorversion) {
+			if (major == 0) {
+				gx_print_info("recall settings", "loading converted state");
+			} else {
+				stringstream s;
+				s << "major version mismatch in "+filename+": found "
+				  << major << ", expected " << majorversion << endl;
+				gx_print_warning("recall settings", s.str());
+			}
 		}
-	} while (jp.peek() == JsonParser::value_string);
-	jp.next(JsonParser::end_array);
-	jp.next(JsonParser::end_token);
+
+		// other sections (settings, current_preset)
+		do {
+			jp.next(JsonParser::value_string);
+			if (jp.current_value() == "settings") {
+				read_parameters(jp, false);
+			} else if (jp.current_value() == "current_preset") {
+				read_preset(jp);
+			} else if (jp.current_value() == "midi_controller") {
+				gx_gui::controller_map = gx_gui::MidiControllerList(jp);
+			} else {
+				gx_print_warning("recall settings",
+				                 "unknown section: " + jp.current_value());
+				jp.skip_object();
+			}
+		} while (jp.peek() == JsonParser::value_string);
+		jp.next(JsonParser::end_array);
+		jp.next(JsonParser::end_token);
+	} catch (JsonException& e) {
+		gx_print_error("recall settings", "invalid settings file: " + filename);
+	}
 }
 
 /****************************************************************
@@ -656,8 +668,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 	}
 
 	// ---- parse command line arguments
-	try
-	{
+	try	{
 		gboolean version = FALSE;
 		GOptionEntry opt_entries[] =
 			{
@@ -833,15 +844,12 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 		}
 
 		// *** process jack outputs
-		if (jack_outputs != NULL)
-		{
+		if (jack_outputs != NULL) {
 			int idx = JACK_OUT1;
 			unsigned int i = 0;
 
-			while (jack_outputs[i] != NULL)
-			{
-				if (i >= 2)
-				{
+			while (jack_outputs[i] != NULL) {
+				if (i >= 2) {
 					gx_print_warning("main",
 					                 "Warning --> provided more than 2 output ports, ignoring extra ports");
 					break;
@@ -851,9 +859,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 				idx++;
 			}
 			g_strfreev(jack_outputs);
-		}
-		else
-		{
+		} else {
 			if (!gx_shellvar_exists(optvar[JACK_OUT1])) optvar[JACK_OUT1] = "";
 			if (!gx_shellvar_exists(optvar[JACK_OUT2])) optvar[JACK_OUT2] = "";
 		}
@@ -866,8 +872,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 	}
 
 	// ---- catch exceptions that occured during user option parsing
-	catch (string& e)
-	{
+	catch (string& e) {
 		string msg = string("Error in user options! ") + e;
 		gx_print_error("main", msg);
 		exit(1);
@@ -890,16 +895,14 @@ void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
 	msgbuf += "  ***  ";
 	msgbuf += msg;
 
-	if (gui_is_up)
-	{
+	if (gui_is_up) {
 		gx_gui::GxMainInterface* interface =
 			gx_gui::GxMainInterface::instance();
 
 		// retrievw window
 		GtkTextView* logw = interface->getLoggingWindow();
 
-		if (logw)
-		{
+		if (logw) {
 			terminal = false;
 
 			// retrieve gtk text buffer
@@ -926,12 +929,8 @@ void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
 			spos << buf;
 			msgbuf.insert(0, spos.str());
 
-
-
-
 			// delete first line when window filled up
-			if (i >= nlines)
-			{
+			if (i >= nlines) {
 				gtk_text_buffer_get_iter_at_line(buffer, &iter1, 0);
 				gtk_text_buffer_get_iter_at_line(buffer, &iter2, 1);
 				gtk_text_buffer_delete(buffer, &iter1, &iter2);
@@ -965,8 +964,7 @@ void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
 			GtkTextTag* tag = taginfo;
 
 			static string col;
-			switch (msgtype)
-			{
+			switch (msgtype) {
 			case kInfo:
 			default:
 				col = "#00ced1";
@@ -991,8 +989,7 @@ void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
 
 			// modify expander bg color is closed
 			GtkExpander* exbox = interface->getLoggingBox();
-			if (gtk_expander_get_expanded(exbox) == FALSE)
-			{
+			if (gtk_expander_get_expanded(exbox) == FALSE) {
 				GdkColor exp_color;
 				gdk_color_parse(col.c_str(), &exp_color);
 				gtk_widget_modify_fg(GTK_WIDGET(exbox), GTK_STATE_NORMAL, &exp_color);
@@ -1005,7 +1002,6 @@ void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
 
 	// if no window, then terminal
 	if (terminal) cerr << msgbuf << endl;
-
 }
 
 

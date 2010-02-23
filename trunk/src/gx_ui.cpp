@@ -57,6 +57,7 @@ void GxUI::registerZone(float* z, GxUiItem* c)
 	fZoneMap[z]->push_back(c);
 }
 
+/*
 int GxUI::zone2index(float *zone)
 {
 	int n = 0;
@@ -203,43 +204,7 @@ bool GxUI::renamePreset(const char* filename, const char* oldname, const char* n
 
 	return true;
 }
-
-/* //FIXME
-// -- recallState(filename) : load the value of every zone from a file
-void GxUI::recallState(const char* filename)
-{
-	ifstream f(filename);
-	if (f.good())
-	{
-		for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-			f >> *(i->first);
-
-		f.close();
-	}
-}
 */
-
-// -- recalladState(filename) : load the value of every zone for extra sets from a file
-void GxUI::recalladState(const char* filename, int a, int b, int lin)
-{
-	ifstream f(filename);
-	int is = 0;
-	string buffer;
-	if (f.good())
-		for (is=0; is<lin; is++)
-		{
-			getline(f, buffer);
-		}
-	is = 0;
-	{
-		for (zmap::iterator i=fZoneMap.begin(); i!=fZoneMap.end(); i++)
-		{
-			if ((is>a) && ( is<b))  f >> *(i->first);
-			is++;
-		}
-	}
-	f.close();
-}
 
 void GxUI::updateAllGuis()
 {

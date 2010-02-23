@@ -93,6 +93,87 @@ void gx_empty_preset_file(const char* filename)
 	nfile.close();
 }
 
+bool gx_modify_preset(const char* presname, const char* newname=0, bool remove=false, bool rewrite=false)
+{
+	string presetfile = gx_user_dir + guitarix_preset;
+	string tmpfile    = presetfile + "_tmp";
+
+	ifstream ofile(presetfile.c_str());
+	ofstream nfile(tmpfile.c_str());
+	JsonParser jp(ofile);
+	JsonWriter jw(nfile);
+
+	bool found = false;
+	try {
+		jp.next(JsonParser::begin_array);
+		jw.begin_array();
+		int major, minor;
+		if (!readHeader(jp, &major, &minor)) {
+			if (rewrite) {
+				if (major == 0 && minor == 0) {
+					gx_print_info("loading presets","rewriting convertet presets");
+				} else {
+					stringstream s;
+					s << "major version mismatch in "+presetfile+": found "
+					  << major << ", expected " << majorversion << endl;
+					gx_print_warning("recall settings", s.str());
+				}
+			}
+		}
+		writeHeader(jw);
+
+		while (jp.peek() != JsonParser::end_array) {
+			jp.next(JsonParser::value_string);
+			if (rewrite) {
+				jw.write(jp.current_value());
+				gx_gui::parameter_map.set_init_values(); //FIXME what about jconv values?
+				read_preset(jp);
+				write_preset(jw);
+			} else if (jp.current_value() == presname) {
+				found = true;
+				if (newname) {
+					jw.write(newname);
+					jp.copy_object(jw);
+				} else if (remove) {
+					jp.skip_object();
+				} else {
+					jw.write(presname);
+					write_preset(jw);
+					jp.skip_object();
+				}
+			} else {
+				jw.write(jp.current_value().c_str());
+				jp.copy_object(jw);
+			}
+		} 
+		jp.next(JsonParser::end_array);
+		jp.next(JsonParser::end_token);
+
+		if (!found && !remove && !newname && !rewrite) {
+			jw.write(presname);
+			write_preset(jw);
+		}
+		jw.end_array(true);
+		jw.close();
+		nfile.close();
+		ofile.close();
+		if (!nfile.good()) {
+			gx_print_error("save preset","couldn't write " + tmpfile);
+			return false;
+		}
+
+		int rc = rename(tmpfile.c_str(), presetfile.c_str());
+		if (rc != 0) {
+			gx_print_error("save preset","couldn't rename "
+			               + tmpfile + " to " + presetfile);
+			return false;
+		}
+	} catch (gx_system::JsonException& e) {
+		gx_print_error("save/modify preset", "invalid preset file: " + presetfile);
+	}
+	return found;
+}
+
 //---- parsing preset file to build up a string vector of preset names
 void gx_build_preset_list()
 {
@@ -104,11 +185,11 @@ void gx_build_preset_list()
 
 	// parse it if any
 	ifstream f(filename.c_str());
-	try {
-		if (f.good()) {
+	if (f.good()) {
+		try {
 			JsonParser jp(f);
 			jp.next(JsonParser::begin_array);
-			readHeader(jp);
+			int samevers = readHeader(jp);
 			while (jp.peek() == JsonParser::value_string) {
 				jp.next();
 				plist.push_back(jp.current_value());
@@ -120,10 +201,13 @@ void gx_build_preset_list()
 			// ---- how many did we get ?
 			gx_print_warning("Preset List Building",
 			                 gx_i2a(plist.size()) + string(" presets found"));
+			if (!samevers) {
+				gx_modify_preset(0,0,false,true);
+			}
 			return;
+		} catch (gx_system::JsonException& e) {
+			gx_system::gx_print_warning("preset settings", "parse error");
 		}
-	} catch (gx_system::JsonException& e) {
-		gx_system::gx_print_warning("preset settings", "parse error");
 	}
 	gx_empty_preset_file(filename.c_str());
 }
@@ -459,14 +543,14 @@ void  gx_delete_all_presets()
 	// this function will simply delete the preset file,
 	// clear the preset list and refresh the menus
 
-	// delete preset file
-	string filename = gx_user_dir + guitarix_preset;
-	(void)gx_system_call("rm -f", filename.c_str(), true);
-
-	// delete jconv files
-	ostringstream cmd;
-	cmd << "cd " << gx_user_dir << " && ls -1";
-	(void)gx_system_call(cmd.str(), "jconv* | grep -v jconv_set | xargs rm -f"); //FIXME
+	// write empty preset file
+	ofstream f((gx_user_dir + guitarix_preset).c_str());
+	JsonWriter jw(f);
+	jw.begin_array();
+	writeHeader(jw);
+	jw.end_array(true);
+	jw.close();
+	f.close();
 
 	// clear list
 	for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
@@ -489,84 +573,31 @@ void  gx_delete_all_presets()
 bool gx_load_preset_from_file(const char* presname)
 {
 	string presetfile = gx_user_dir + guitarix_preset;
-	string tmpfile    = presetfile + "_tmp";
 
-	ifstream ofile(presetfile);
+	ifstream ofile(presetfile.c_str());
 	JsonParser jp(ofile);
 
-	jp.next(JsonParser::begin_array);
-	jp.skip_object(); // header
-	jp.skip_object(); // header
+	try {
+		jp.next(JsonParser::begin_array);
+		readHeader(jp);
 
-	bool found = false;
-	while (jp.peek() != JsonParser::end_array) {
-		jp.next(JsonParser::value_string);
-		if (jp.current_value() == presname) {
-			found = true;
-			read_preset(jp);
-			return true;
-		} else {
-			jp.skip_object();
-		}
-	} 
-	jp.next(JsonParser::end_array);
-	jp.next(JsonParser::end_token);
-
-	return false;
-}
-
-bool gx_modify_preset(const char* presname, const char* newname, bool remove)
-{
-	string presetfile = gx_user_dir + guitarix_preset;
-	string tmpfile    = presetfile + "_tmp";
-
-	ifstream ofile(presetfile);
-	ofstream nfile(tmpfile);
-	JsonParser jp(ofile);
-	JsonWriter jw(nfile);
-
-	jp.next(JsonParser::begin_array);
-	jw.begin_array();
-	jp.copy_object(jw); // header
-	jp.copy_object(jw); // header
-
-	bool found = false;
-	while (jp.peek() != JsonParser::end_array) {
-		jp.next(JsonParser::value_string);
-		if (jp.current_value() == presname) {
-			found = true;
-			if (newname) {
-				jw.write(newname);
-				jp.copy_object(jw);
-			} else if (remove) {
-				jp.skip_object();
+		bool found = false;
+		while (jp.peek() != JsonParser::end_array) {
+			jp.next(JsonParser::value_string);
+			if (jp.current_value() == presname) {
+				found = true;
+				read_preset(jp);
+				return true;
 			} else {
-				jw.write(presname);
-				write_preset(jw);
 				jp.skip_object();
 			}
-		} else {
-			jw.write(jp.current_value().c_str());
-			jp.copy_object(jw);
-		}
-	} 
-	jp.next(JsonParser::end_array);
-	jp.next(JsonParser::end_token);
-
-	if (!found && !remove && !newname) {
-		jw.write(presname);
-		write_preset(jw);
+		} 
+		jp.next(JsonParser::end_array);
+		jp.next(JsonParser::end_token);
+	} catch (JsonException& e) {
+		gx_print_error("load preset", "invalid preset file: " + presetfile);
 	}
-	jw.end_array(true);
-	jw.close();
-	if (!nfile.good()) {
-		; // FIXME
-	}
-	nfile.close();
-	ofile.close();
-
-	rename(tmpfile.c_str(), presetfile.c_str());
-	return found;
+	return false;
 }
 
 //----preset deletion
@@ -578,10 +609,6 @@ void gx_delete_preset (GtkMenuItem* item, gpointer arg)
 		item ? preset_list[DELETE_PRESET_LIST][item] : gx_current_preset;
 
 	(void)gx_modify_preset(presname.c_str(), NULL, true);
-
-	// remove jconv file
-	string jc_preset = gx_user_dir + string("jconv_") + presname + ".conf"; //FIXME
-	(void)gx_system_call("rm -f", jc_preset);
 
 	// update menu
 	gx_del_preset_from_menus(presname);
@@ -640,18 +667,8 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 		return;
 	}
 
-	gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
-	gx_jconv::GxJConvSettings::checkbutton7 = 0;
-
-	gx_gui::GxMainInterface* interface = gx_gui::GxMainInterface::instance();
-	interface->updateAllGuis(); //FIXME why before, not after load?
-
 	// retrieve preset name
 	string preset_name = preset_list[LOAD_PRESET_LIST][menuitem];
-
-	// load jconv setting
-	string jc_preset   = gx_user_dir + string("jconv_") + preset_name + ".conf ";
-	jcset->configureJConvSettings(preset_name); //FIXME
 
 	// recall preset by name
 	// Note: the UI does not know anything about guitarix's directory stuff
@@ -681,7 +698,7 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 //---- funktion save
 void gx_save_preset (const char* presname, bool expand_menu)
 {
-	bool found = gx_modify_preset(presname, NULL, false);
+	bool found = gx_modify_preset(presname);
 
 	// update preset menus if needed
 	assert(expand_menu == !found);
@@ -696,11 +713,8 @@ void gx_save_preset (const char* presname, bool expand_menu)
 	setting_is_preset = true;
 	gx_current_preset = presname;
 
-	// save current jconv setting to jconv preset
-	gx_jconv::gx_save_jconv_settings(NULL, NULL); //FIXME
-
 	gx_print_info("Preset Saving", string("saved preset ") + string(presname));
-	gx_jconv::gx_reload_jcgui();
+	gx_jconv::gx_reload_jcgui(); //FIXME why reload after saving?
 }
 
 //----menu funktion save
@@ -857,7 +871,7 @@ void gx_rename_preset (GtkEntry* entry)
 	// get the UI to manipulate the preset file
 	string presetfile = gx_user_dir + guitarix_preset;
 
-	if (!gx_modify_preset(old_preset_name.c_str(), newname.c_str(), false))	{
+	if (!gx_modify_preset(old_preset_name.c_str(), newname.c_str()))	{
 		gx_print_error("Preset Renaming",
 		               string("Could not rename preset ") + old_preset_name);
 		old_preset_name = "";
