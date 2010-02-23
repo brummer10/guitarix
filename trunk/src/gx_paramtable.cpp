@@ -543,7 +543,7 @@ inline void PaE(const char*a,const char*b,float*c,float std=0,float lower=0,floa
 // should be bool
 inline void Pa(const char*a,const char*b,int*c,int d)
 {
-	parameter_map.insert(new IntParameter(a,b,Parameter::Switch,true,*c,d,0,1,true));
+	parameter_map.insert(new IntParameter(a,b,Parameter::Switch,true,*c,d,0,1065353216,true)); //FIXME (see above float/int)
 }
 
 inline void Pa(const char*a,const char*b,bool*c,bool d=false)
