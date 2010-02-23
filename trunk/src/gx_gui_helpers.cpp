@@ -174,7 +174,8 @@ void gx_refresh_portconn_status(GtkWidget* button, gpointer data)
 		{
 			gx_jack::input_ports [0],
 			gx_jack::output_ports[0],
-			gx_jack::output_ports[1]
+			gx_jack::output_ports[1],
+			gx_jack::midi_input_port,
 		};
 
 	int index = GPOINTER_TO_INT(data);
@@ -894,7 +895,7 @@ void gx_show_portmap_window (GtkWidget* widget, gpointer arg)
 			// set position of port map window (north west gravity)
 			gtk_window_move(gui->getPortMapWindow(), x+wx, y);
 			gtk_widget_set_size_request(GTK_WIDGET(gui->getPortMapWindow()),
-			                            400, 200);
+			                            600, 200);
 
 			gtk_widget_show(GTK_WIDGET(gui->getPortMapWindow()));
 		}

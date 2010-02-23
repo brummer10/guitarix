@@ -130,7 +130,7 @@ string gx_port_names[] =
 	"in_0",
 	"out_0",
 	"out_1",
-	"out_2",
+	"midi_in_1",
 	"out_3"
 };
 

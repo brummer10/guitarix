@@ -151,6 +151,8 @@ int   gx_system_call(const string&,
 // 		             const bool devnull = false,
 // 		             const bool escape  = false);
 
+extern list<string> jack_connection_lists[4];
+
 bool  gx_version_check();
 int   gx_pixmap_check();
 void  gx_signal_handler(int);

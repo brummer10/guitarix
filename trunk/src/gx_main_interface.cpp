@@ -540,7 +540,7 @@ void GxMainInterface::createPortMapWindow(const char* label)
 
 	// static hbox containing guitarix port names
 	GtkWidget* hbox = gtk_hbox_new(FALSE, 2);
-	for (int i = gx_jack::kAudioInput; i <= gx_jack::kAudioOutput2; i++)
+	for (int i = gx_jack::kAudioInput; i <= gx_jack::kMidiInput; i++)
 	{
 		string pname =
 			gx_jack::client_name + string(" : ") +
@@ -2540,6 +2540,19 @@ void GxMainInterface::addJackServerMenu()
 	}
 }
 
+
+static void insertPorts(const char **portnames, int flags)
+{
+	if (!portnames) {
+		return;
+	}
+	for (int p = 0; portnames[p] != 0; p++) {
+		string pname = portnames[p];
+		if (pname.substr(0, pname.find(":")) != gx_jack::client_name)
+			gx_client_port_queue.insert(pair<string, int>(pname, flags));
+	}
+}
+
 /* -------- init jack client menus ---------- */
 void GxMainInterface::initClientPortMaps()
 {
@@ -2554,39 +2567,23 @@ void GxMainInterface::initClientPortMaps()
 	if (!gx_jack::client)
 		return;
 
-	// get all existing port names (no MIDI stuff for now)
-	const char** iportnames =
-		jack_get_ports(gx_jack::client, NULL,
-		               JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput);
-
-	const char** oportnames =
-		jack_get_ports(gx_jack::client, NULL,
-		               JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput);
-
-	// populating output port menus
-	int p = 0;
-	while (oportnames[p] != 0)
-	{
-		string pname = oportnames[p];
-		if (pname.substr(0, pname.find(":")) != gx_jack::client_name)
-			gx_client_port_queue.insert(pair<string, int>(pname, JackPortIsOutput));
-
-		p++;
+	// get all interesting port names
+	const char **ports;
+	ports = jack_get_ports(gx_jack::client, NULL, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput);
+	if (ports) {
+		insertPorts(ports, JACK_AUDIO_IN);
+		free(ports);
 	}
-
-	// populating input port menus
-	p = 0;
-	while (iportnames[p] != 0)
-	{
-		string pname = iportnames[p];
-		if (pname.substr(0, pname.find(":")) != gx_jack::client_name)
-			gx_client_port_queue.insert(pair<string, int>(pname, JackPortIsInput));
-		p++;
+	ports = jack_get_ports(gx_jack::client, NULL, JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput);
+	if (ports) {
+		insertPorts(ports, JACK_MIDI_IN);
+		free(ports);
 	}
-
-	// free port name lists (cf. JACK API doc)
-	jack_free(iportnames);
-	jack_free(oportnames);
+	ports = jack_get_ports(gx_jack::client, NULL, JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput);
+	if (ports) {
+		insertPorts(ports, JACK_AUDIO_OUT);
+		free(ports);
+	}
 }
 
 /* -------- add  jack client item ---------- */
@@ -2617,7 +2614,7 @@ void GxMainInterface::addClientPortMap(const string clname)
 	GtkWidget* mapbox  = gtk_hbox_new(TRUE, 10);
 	gtk_widget_set_name(mapbox, clname.c_str());
 
-	for (int t = gx_jack::kAudioInput; t <= gx_jack::kAudioOutput2; t++)
+	for (int t = gx_jack::kAudioInput; t <= gx_jack::kMidiInput; t++)
 	{
 		GtkWidget* table  = gtk_vbox_new(FALSE, 0);
 		gtk_box_pack_start(GTK_BOX(mapbox), table, TRUE, FALSE, 0);
@@ -2676,11 +2673,17 @@ void GxMainInterface::addClientPorts()
 		// 1 for guitarix input (mono)
 		// 2 for guitarix outputs (stereo)
 
-		int table_index = gx_jack::kAudioInput, ntables = 1;
-		if ((flags & JackPortIsOutput) == 0)
-		{
-			table_index = gx_jack::kAudioOutput1;
+		int table_index, ntables;
+		if (flags == JACK_AUDIO_IN) {
+			table_index = 0;
+			ntables = 1;
+		} else if (flags == JACK_AUDIO_OUT) {
+			table_index = 1;
 			ntables = 2;
+		} else {
+			assert(flags == JACK_MIDI_IN);
+			table_index = 3;
+			ntables = 1;
 		}
 
 		// add port item

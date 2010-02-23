@@ -29,7 +29,7 @@
 #endif
 
 #ifndef NUM_PORT_LISTS
-#define NUM_PORT_LISTS (3)
+#define NUM_PORT_LISTS (4)
 #endif
 
 namespace gx_gui
@@ -379,6 +379,8 @@ public :
 	GtkWidget*   const getMenu(const string name) const { return fMenuList.at(name); }
 
 	// -- update jack client port lists
+	enum { JACK_AUDIO_IN, JACK_AUDIO_OUT, JACK_MIDI_IN };
+
 	void initClientPortMaps      ();
 
 	void addClientPorts          ();

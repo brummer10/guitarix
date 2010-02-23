@@ -180,6 +180,7 @@ void JsonWriter::end_array(bool nl)
 {
 	iminus();
 	flush();
+	first = false;
 	os << ']';
 	snl(nl);
 }
@@ -523,7 +524,6 @@ void writeHeader(JsonWriter& jw)
 
 bool readHeader(JsonParser& jp, int *major, int *minor)
 {
-	// header
 	jp.next(JsonParser::value_string);
 	if (jp.current_value() != "guitarix_file_version") {
 		throw JsonException("invalid guitarix file header");
@@ -542,6 +542,30 @@ bool readHeader(JsonParser& jp, int *major, int *minor)
 	jp.next(JsonParser::value_string); // guitarix version
 	jp.next(JsonParser::end_array);
 	return m == majorversion && n == minorversion;
+}
+
+static void write_jack_port_connections(JsonWriter& w, const char *key, jack_port_t *port)
+{
+	w.write_key(key);
+	w.begin_array();
+	const char** pl = jack_port_get_connections(port);
+	if (pl) {
+		for (const char **p = pl; *p; p++) {
+			w.write(*p);
+		}
+		free(pl);
+	}
+	w.end_array(true);
+}
+
+void write_jack_connections(JsonWriter& w)
+{
+	w.begin_object(true);
+	write_jack_port_connections(w, "input", input_ports[0]);
+	write_jack_port_connections(w, "output1", output_ports[0]);
+	write_jack_port_connections(w, "output2", output_ports[1]);
+	write_jack_port_connections(w, "midi_input", midi_input_port);
+	w.end_object(true);
 }
 
 // -- save state including current preset data
@@ -564,11 +588,45 @@ void saveStateToFile()
 	w.write("current_preset");
 	write_preset(w);
 
+	w.write("jack_connections");
+	write_jack_connections(w);
+
 	w.newline();
 	w.end_array(true);
 	w.close();
 	f.close();
 	rename(tmpfile.c_str(), filename.c_str());
+}
+
+list<string> jack_connection_lists[4];
+
+static void read_jack_connections(JsonParser& jp)
+{
+	jp.next(JsonParser::begin_object);
+	while (jp.peek() == JsonParser::value_key) {
+		int i;
+		jp.next(JsonParser::value_key);
+		if (jp.current_value() == "input") {
+			i = kAudioInput;
+		} else if (jp.current_value() == "output1") {
+			i = kAudioOutput1;
+		} else if (jp.current_value() == "output2") {
+			i = kAudioOutput2;
+		} else if (jp.current_value() == "midi_input") {
+			i = kMidiInput;
+		} else {
+			gx_print_warning("recall state","unknown jack ports sections" + jp.current_value());
+			jp.skip_object();
+			continue;
+		}
+		jp.next(JsonParser::begin_array);
+		while (jp.peek() == JsonParser::value_string) {
+			jp.next();
+			jack_connection_lists[i].push_back(jp.current_value());
+		}
+		jp.next(JsonParser::end_array);
+	}
+	jp.next(JsonParser::end_object);
 }
 
 // -- recallState(filename) : load state from file
@@ -605,6 +663,8 @@ void recallState()
 				read_preset(jp);
 			} else if (jp.current_value() == "midi_controller") {
 				gx_gui::controller_map = gx_gui::MidiControllerList(jp);
+			} else if (jp.current_value() == "jack_connections") {
+				read_jack_connections(jp);
 			} else {
 				gx_print_warning("recall settings",
 				                 "unknown section: " + jp.current_value());

@@ -204,6 +204,11 @@ void gx_jack_init_port_connection(const string* optvar)
 			jack_connect(client, optvar[JACK_INP].c_str(),
 			             jack_port_name(input_ports[i]));
 		}
+	} else {
+		list<string>& l = jack_connection_lists[kAudioInput];
+		for (list<string>::iterator i = l.begin(); i != l.end(); i++) {
+			jack_connect(client, i->c_str(), jack_port_name(input_ports[0]));
+		}
 	}
 
 	// set autoconnect midi to user midi port
@@ -211,17 +216,32 @@ void gx_jack_init_port_connection(const string* optvar)
 	{
 		jack_connect(client, optvar[JACK_MIDI].c_str(),
 		             jack_port_name(midi_input_port));
+	} else {
+		list<string>& l = jack_connection_lists[kMidiInput];
+		for (list<string>::iterator i = l.begin(); i != l.end(); i++) {
+			jack_connect(client, i->c_str(), jack_port_name(midi_input_port));
+		}
 	}
 
 	// set autoconnect to user playback ports
-	int idx = JACK_OUT1;
-	for (int i = 0; i < 2; i++)
-	{
-		if (!optvar[idx].empty())
-			jack_connect(client,
-			             jack_port_name(output_ports[i]), optvar[idx].c_str());
-
-		idx++;
+	if (optvar[JACK_OUT1].empty() && optvar[JACK_OUT2].empty()) {
+		list<string>& l1 = jack_connection_lists[kAudioOutput1];
+		for (list<string>::iterator i = l1.begin(); i != l1.end(); i++) {
+			jack_connect(client, jack_port_name(output_ports[0]), i->c_str());
+		}
+		list<string>& l2 = jack_connection_lists[kAudioOutput2];
+		for (list<string>::iterator i = l2.begin(); i != l2.end(); i++) {
+			jack_connect(client, jack_port_name(output_ports[1]), i->c_str());
+		}
+	} else {
+		int idx = JACK_OUT1;
+		for (int i = 0; i < 2; i++) {
+			if (!optvar[idx].empty()) {
+				jack_connect(client,
+				             jack_port_name(output_ports[i]), optvar[idx].c_str());
+			}
+			idx++;
+		}
 	}
 }
 
@@ -597,20 +617,20 @@ int gx_jack_graph_callback (void* arg)
 		const char** port = jack_port_get_connections(input_ports[0]);
 		setenv("GUITARIX2JACK_INPUTS",port[0],0);
 		NO_CONNECTION = 0;
-		jack_free(port);
+		free(port);
 	}
 	else NO_CONNECTION = 1;
 	if (jack_port_connected (output_ports[0]))
 	{
 		const char** port1 = jack_port_get_connections(output_ports[0]);
 		setenv("GUITARIX2JACK_OUTPUTS1",port1[0],0);
-		jack_free(port1);
+		free(port1);
 	}
 	if (jack_port_connected (output_ports[1]))
 	{
 		const char** port2 = jack_port_get_connections(output_ports[1]);
 		setenv("GUITARIX2JACK_OUTPUTS2",port2[0],0);
-		jack_free(port2);
+		free(port2);
 	}
 	return 0;
 }
@@ -934,17 +954,17 @@ void gx_jack_port_connect(GtkWidget* wd, gpointer data)
 	gint gxport_type = GPOINTER_TO_INT(data);
 
 	// check we do have a proper gxport_type
-	if (gxport_type < kAudioInput || gxport_type > kAudioOutput2)
+	if (gxport_type < kAudioInput || gxport_type > kMidiInput)
 		return;
 
 	string port1;
 	string port2;
 
-	jack_port_t* ports[] =
-		{
+	jack_port_t* ports[] = {
 			input_ports [0],
 			output_ports[0],
-			output_ports[1]
+			output_ports[1],
+			midi_input_port,
 		};
 
 
@@ -953,6 +973,11 @@ void gx_jack_port_connect(GtkWidget* wd, gpointer data)
 	case kAudioInput:
 		port1  = wname;
 		port2  = client_name + string(":") + gx_port_names[kAudioInput];
+		break;
+
+	case kMidiInput:
+		port1  = wname;
+		port2  = client_name + string(":") + gx_port_names[kMidiInput];
 		break;
 
 	default:
