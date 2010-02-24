@@ -190,15 +190,14 @@ namespace gx_system
 {
 /* message handling */
 typedef enum {
-	kInfo    = 1,
+	kInfo,
 	kWarning,
-	kError
+	kError,
+	kMessageTypeCount, // just count, must be last
 } GxMsgType;
 
 /* variables and constants */
 extern const int SYSTEM_OK;
-extern GtkTextIter iter1;
-extern GtkTextIter iter2;
 
 extern string rcpath;
 

@@ -199,7 +199,7 @@ void gx_build_preset_list()
 			jp.next(JsonParser::end_token);
 			f.close();
 			// ---- how many did we get ?
-			gx_print_warning("Preset List Building",
+			gx_print_info("Preset List Building",
 			                 gx_i2a(plist.size()) + string(" presets found"));
 			if (!samevers) {
 				gx_modify_preset(0,0,false,true);
@@ -788,22 +788,17 @@ void gx_save_newpreset (GtkEntry* entry)
 }
 
 // read name for presset
-void gx_recall_main_setting(GtkMenuItem* item, gpointer arg)
+void gx_recall_main_setting(GtkMenuItem* item, gpointer)
 {
 	string jname = gx_jack::client_name;
 
 	gx_system::recallState();
 	gtk_window_set_title(GTK_WINDOW(gx_gui::fWindow), jname.c_str());
 
-	gx_print_info("Main Setting recalling",
-	              string("Called back main setting"));
+	gx_print_info("Main Setting recalling","Called back main setting");
 
 	setting_is_preset = false;
 	gx_current_preset = "";
-
-	if (arg != false) {
-		gx_jconv::gx_reload_jcgui();
-	}
 }
 
 // ----- save current setting as main setting
@@ -811,15 +806,14 @@ void gx_save_main_setting(GtkMenuItem* item, gpointer arg)
 {
 	string jname = gx_jack::client_name;
 
-	saveStateToFile();
-
-	if (setting_is_preset)
+	if (!saveStateToFile()) {
+		gx_print_error("Main Setting","can't save main setting");
+	} else if (setting_is_preset) {
 		gx_print_info("Main Setting",
-		              string("Saved current preset into main setting"));
-	else
-		gx_print_info("Main Setting",
-		              string("Saved main setting"));
-
+		              "Saved current preset into main setting");
+	} else {
+		gx_print_info("Main Setting", "Saved main setting");
+	}
 	gtk_window_set_title(GTK_WINDOW(gx_gui::fWindow), jname.c_str());
 	setting_is_preset = false;
 	gx_jconv::gx_reload_jcgui();

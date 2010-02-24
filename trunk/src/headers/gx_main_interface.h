@@ -328,6 +328,7 @@ protected :
 	bool		fStopped;
 	GtkTextView*        fLoggingWindow;
 	GtkExpander*        fLoggingBox;
+	GtkAdjustment*      fLoggingVAdjustment;
 	GtkNotebook*        fPortMapTabs;
 	GtkWindow*          fPortMapWindow;
 	GtkWidget*          fLevelMeters[2];
@@ -348,6 +349,7 @@ protected :
 
 public :
 	static bool	 fInitialized;
+	int          highest_unseen_msg_level;
 
 	static const gboolean expand   = TRUE;
 	static const gboolean fill     = TRUE;
@@ -446,12 +448,16 @@ public :
 	virtual void addLiveWaveDisplay(const char* label, float* zone , float* zone1);
 	virtual void addStatusDisplay(const char* label, float* zone );
 	virtual void addselector(const char* label, float* zone,int maxv, const char* []);
+	void addbigregler(string id, const char* label=0);
+	void addHorizontalWheel(string id, const char* label=0);
+
+	// -- other
+	void show_msg(string msgbuf, gx_system::GxMsgType msgtype);
+	void set_logging_expander_color(const char *color);
 
 	virtual void setup();
 	virtual void show();
 	virtual void run();
-	void addbigregler(string id, const char* label=0);
-	void addHorizontalWheel(string id, const char* label=0);
 };
 
 /* -------------------------------------------------------------------------- */

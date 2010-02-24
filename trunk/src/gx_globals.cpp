@@ -224,9 +224,6 @@ namespace gx_system
 /* variables and constants */
 const int SYSTEM_OK = 0;
 
-GtkTextIter iter1;
-GtkTextIter iter2;
-
 string rcpath;
 
 const char* guitarix_dir     = ".guitarix";

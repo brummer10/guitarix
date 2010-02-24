@@ -479,6 +479,11 @@ void BoolParameter::readJSON_value(gx_system::JsonParser& jp)
 	value = jp.current_value_int();
 }
 
+
+/****************************************************************
+ ** Parameter Map
+ */
+
 #ifndef NDEBUG
 void ParamMap::unique_zone(Parameter* param)
 {

@@ -23,6 +23,7 @@
 
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -569,7 +570,7 @@ void write_jack_connections(JsonWriter& w)
 }
 
 // -- save state including current preset data
-void saveStateToFile()
+bool saveStateToFile()
 {
 	string filename = gx_user_dir + client_name + "_rc";
 	string tmpfile = filename + "_tmp";
@@ -595,7 +596,11 @@ void saveStateToFile()
 	w.end_array(true);
 	w.close();
 	f.close();
-	rename(tmpfile.c_str(), filename.c_str());
+	if (!f.good()) {
+		return false;
+	}
+	int rc = rename(tmpfile.c_str(), filename.c_str());
+	return rc == 0;
 }
 
 list<string> jack_connection_lists[4];
@@ -630,12 +635,12 @@ static void read_jack_connections(JsonParser& jp)
 }
 
 // -- recallState(filename) : load state from file
-void recallState()
+bool recallState()
 {
 	string filename = gx_user_dir + client_name + "_rc";
 	ifstream f(filename);
 	if (!f.good()) {
-		return;
+		return false; 
 	}
 	gx_system::JsonParser jp(f);
 	try {
@@ -675,7 +680,9 @@ void recallState()
 		jp.next(JsonParser::end_token);
 	} catch (JsonException& e) {
 		gx_print_error("recall settings", "invalid settings file: " + filename);
+		return false;
 	}
+	return true;
 }
 
 /****************************************************************
@@ -939,129 +946,53 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 	}
 }
 
+struct logmsg {
+	string msg;
+	GxMsgType msgtype;
+};
+
 // ---- log message handler
 void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
 {
+	static list<logmsg> msglist;
 
-
+	// timestamp
+	time_t now;
+	time(&now);
+	struct tm *tm_now = localtime (&now);
+	ostringstream msgbuf;
+	msgbuf << "[" << setfill('0')
+	       << setw(2) << tm_now->tm_hour << ":"
+	       << setw(2) << tm_now->tm_min  << ":"
+	       << setw(2) << tm_now->tm_sec  << "]"
+	       << "  " << func << "  ***  " << msg;
 
 	// log the stuff to the log message window if possible
 	bool terminal  = true;
-
-	bool gui_is_up = gx_gui::GxMainInterface::fInitialized;
-
-	string msgbuf("  ");
-	msgbuf += func;
-	msgbuf += "  ***  ";
-	msgbuf += msg;
-
-	if (gui_is_up) {
+	if (gx_gui::GxMainInterface::fInitialized) {
 		gx_gui::GxMainInterface* interface =
 			gx_gui::GxMainInterface::instance();
 
-		// retrievw window
+		// retrieve window
 		GtkTextView* logw = interface->getLoggingWindow();
 
 		if (logw) {
 			terminal = false;
-
-			// retrieve gtk text buffer
-			GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(logw));
-
-			// number of lines (we only keep ~ 50 lines all the time)
-			const int nlines = gtk_text_buffer_get_line_count(buffer);
-
-			// counter
-			static int i = 0;
-			int j = i;
-
-			// cosmetic
-			time_t now;
-			struct tm *tm_now;
-			char buf[16];
-
-			time(&now);
-			tm_now = localtime (&now);
-
-			sprintf(buf, "[%02d:%02d:%02d]",
-			        tm_now->tm_hour, tm_now->tm_min, tm_now->tm_sec);
-			ostringstream spos;
-			spos << buf;
-			msgbuf.insert(0, spos.str());
-
-			// delete first line when window filled up
-			if (i >= nlines) {
-				gtk_text_buffer_get_iter_at_line(buffer, &iter1, 0);
-				gtk_text_buffer_get_iter_at_line(buffer, &iter2, 1);
-				gtk_text_buffer_delete(buffer, &iter1, &iter2);
-
-				GtkTextIter iter;
-				gtk_text_buffer_get_end_iter(buffer, &iter);
-				gtk_text_buffer_insert(buffer, &iter, "\n", -1);
-
-				j = nlines-1;
+			if (!msglist.empty()) {
+				for (list<logmsg>::iterator i = msglist.begin(); i != msglist.end(); i++) {
+					interface->show_msg(i->msg, i->msgtype);
+				}
+				msglist.clear();
 			}
-
-			// replace existing text between marks
-			gtk_text_buffer_get_iter_at_line(buffer, &iter1, j);
-			gtk_text_buffer_insert(buffer, &iter1, msgbuf.c_str(), -1);
-
-			gtk_text_buffer_get_iter_at_line(buffer, &iter1, j);
-			GtkTextMark* scroll_to =
-				gtk_text_buffer_create_mark(buffer, NULL, &iter1, true);
-			gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW(logw),scroll_to);
-
-			// add color depending on msg type
-			static GtkTextTag* taginfo =
-				gtk_text_buffer_create_tag(buffer, "colinfo", "foreground", "#00ced1", NULL);
-
-			static GtkTextTag* tagwarn =
-				gtk_text_buffer_create_tag(buffer, "colwarn", "foreground", "#ff8800", NULL);
-
-			static GtkTextTag* tagerror =
-				gtk_text_buffer_create_tag(buffer, "colerr", "foreground", "#ff0000", NULL);
-
-			GtkTextTag* tag = taginfo;
-
-			static string col;
-			switch (msgtype) {
-			case kInfo:
-			default:
-				col = "#00ced1";
-				break;
-			case kWarning:
-				col = "#ff8800";
-				tag = tagwarn;
-				break;
-			case kError:
-				col = "#ff0000";
-				tag = tagerror;
-				break;
-			}
-
-			gtk_text_buffer_get_iter_at_line(buffer, &iter1, j);
-			gtk_text_buffer_get_iter_at_line(buffer, &iter2, j+1);
-
-			if (j+1 == nlines)
-				gtk_text_buffer_get_end_iter(buffer, &iter2);
-
-			gtk_text_buffer_apply_tag(buffer, tag, &iter1, &iter2);
-
-			// modify expander bg color is closed
-			GtkExpander* exbox = interface->getLoggingBox();
-			if (gtk_expander_get_expanded(exbox) == FALSE) {
-				GdkColor exp_color;
-				gdk_color_parse(col.c_str(), &exp_color);
-				gtk_widget_modify_fg(GTK_WIDGET(exbox), GTK_STATE_NORMAL, &exp_color);
-			}
-
-			i++;
-
+			interface->show_msg(msgbuf.str(), msgtype);
 		}
 	}
 
 	// if no window, then terminal
-	if (terminal) cerr << msgbuf << endl;
+	if (terminal) {
+		cerr << msgbuf.str() << endl;
+		msglist.push_back(logmsg{msgbuf.str(), msgtype});
+	}
 }
 
 

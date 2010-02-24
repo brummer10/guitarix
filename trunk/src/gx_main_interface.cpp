@@ -295,6 +295,7 @@ bool GxMainInterface::fInitialized = false;
 
 GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
 {
+	highest_unseen_msg_level = -1;
 	gtk_init(pargc, pargv);
 
 	/*-- set rc file overwrite it with export--*/
@@ -400,12 +401,23 @@ void GxMainInterface::openTabBox(const char* label)
 	pushBox(kTabMode, addWidget(label, gtk_notebook_new ()));
 }
 
+static void logging_set_color(GtkWidget *w, gpointer data)
+{
+	if (gtk_expander_get_expanded(GTK_EXPANDER(w)) == FALSE) {
+		GxMainInterface *p = (GxMainInterface*)data;
+		// expander will be opened
+		p->highest_unseen_msg_level = -1;
+		p->set_logging_expander_color("#ffffff");
+	}
+}
+
 void GxMainInterface::openTextLoggingBox(const char* label)
 {
 	GtkWidget* box = gtk_hbox_new (homogene, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 
 	GtkWidget * scrollbox = gtk_scrolled_window_new(NULL,NULL);
+	fLoggingVAdjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrollbox));
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollbox),
 	                                GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
 
@@ -417,7 +429,6 @@ void GxMainInterface::openTextLoggingBox(const char* label)
 
 	// create text buffer
 	GtkTextBuffer* buffer = gtk_text_buffer_new(NULL);
-	gtk_text_buffer_set_text(buffer, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", -1);
 
 	GtkWidget* tbox = gtk_text_view_new_with_buffer(buffer);
 	gtk_container_set_border_width (GTK_CONTAINER (tbox), 0);
@@ -434,9 +445,78 @@ void GxMainInterface::openTextLoggingBox(const char* label)
 	gtk_widget_show(tbox);
 	gtk_widget_show(scrollbox);
 	fLoggingWindow = GTK_TEXT_VIEW(tbox);
+	gtk_widget_set_size_request(tbox, -1, 100);
+	g_signal_connect(fLoggingBox, "activate", G_CALLBACK(logging_set_color), this);
 
 	gtk_widget_show(box);
 }
+
+void GxMainInterface::set_logging_expander_color(const char *color)
+{
+	GtkExpander* exbox = getLoggingBox();
+	if (gtk_expander_get_expanded(exbox) == FALSE) {
+		GdkColor c;
+		gdk_color_parse(color, &c);
+		gtk_widget_modify_fg(GTK_WIDGET(exbox), GTK_STATE_NORMAL, &c);
+		gtk_widget_modify_fg(gtk_expander_get_label_widget(exbox), GTK_STATE_NORMAL, &c);
+	}
+}
+
+void GxMainInterface::show_msg(string msgbuf, gx_system::GxMsgType msgtype)
+{
+	// color depending on msg type
+	// initialize static tag table
+	static struct tab_table {
+		const char *tagname;
+		const char *tag_color;
+		GtkTextTag *tag;
+	} tags[kMessageTypeCount] = {
+		{"colinfo", "#00ced1"},
+		{"colwarn", "#ff8800"},
+		{"colerr", "#ff0000"},
+	};
+
+	assert(0 <= msgtype && msgtype < kMessageTypeCount);
+
+	// retrieve gtk text buffer
+	GtkTextBuffer* buffer = gtk_text_view_get_buffer(getLoggingWindow());
+
+	if (!tags[0].tag) { // fill static table
+		for (int i = 0; i < kMessageTypeCount; i++) {
+			tags[i].tag = gtk_text_buffer_create_tag(buffer, tags[i].tagname, "foreground",
+			                                         tags[i].tag_color, NULL);
+		}
+	}
+
+	// how many lines to keep
+	const int nlines = 50;
+
+	// delete first line when window filled up
+	int linecount = gtk_text_buffer_get_line_count(buffer); // empty buffer == 1 line
+	if (linecount >= nlines) {
+		GtkTextIter iter1;
+		GtkTextIter iter2;
+		gtk_text_buffer_get_iter_at_line(buffer, &iter1, 0);
+		gtk_text_buffer_get_iter_at_line(buffer, &iter2, 1);
+		gtk_text_buffer_delete(buffer, &iter1, &iter2);
+	}
+	GtkTextIter iter;
+	gtk_text_buffer_get_end_iter(buffer, &iter);
+	if (gtk_text_buffer_get_char_count(buffer) > 0) {
+		gtk_text_buffer_insert(buffer, &iter, "\n", -1);
+	}
+
+	gtk_text_buffer_insert_with_tags(buffer, &iter, msgbuf.c_str(), -1,
+	                                 tags[msgtype].tag, NULL);
+	gtk_adjustment_set_value(fLoggingVAdjustment, 10000); // scroll to end (big value, gets clamped to max)
+
+	// modify expander bg color is closed
+	if (msgtype > highest_unseen_msg_level) {
+		set_logging_expander_color(tags[msgtype].tag_color);
+		highest_unseen_msg_level = msgtype;
+	}
+}
+
 
 void GxMainInterface::openLevelMeterBox(const char* label)
 {

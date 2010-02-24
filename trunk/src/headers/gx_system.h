@@ -117,8 +117,8 @@ void writeHeader(JsonWriter& jw);
 bool readHeader(JsonParser& jp, int *major=0, int *minor=0);
 void write_preset(JsonWriter& w);
 void read_preset(JsonParser &jp);
-void saveStateToFile();
-void recallState();
+bool saveStateToFile();
+bool recallState();
 
 // file format versions
 const int majorversion = 1;
