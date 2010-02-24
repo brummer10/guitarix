@@ -493,7 +493,7 @@ void write_preset(JsonWriter &w, bool write_midi)
 	w.write_key("jconv");
 	gx_jconv::GxJConvSettings::instance()->writeJSON(w);
 	if (write_midi && gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
-		w.write("midi_controller");
+		w.write_key("midi_controller");
 		gx_gui::controller_map.writeJSON(w);
 	}
 	w.newline();

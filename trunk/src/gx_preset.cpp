@@ -701,7 +701,7 @@ void gx_save_preset (const char* presname, bool expand_menu)
 	bool found = gx_modify_preset(presname);
 
 	// update preset menus if needed
-	if (expand_menu == !found) {
+	if (expand_menu == found) {
 		assert(false);
 	}
 	if (expand_menu)

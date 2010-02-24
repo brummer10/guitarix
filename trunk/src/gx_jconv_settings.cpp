@@ -285,7 +285,7 @@ void GxJConvSettings::writeJSON(JsonWriter& w)
 	w.write_key("jconv.Length"); w.write(fLength, true);
 	w.write_key("jconv.Delay"); w.write(fDelay, true);
 	w.write_key("jconv.lDelay"); w.write(flDelay, true);
-	w.end_object();
+	w.end_object(true);
 }
 
 GxJConvSettings::GxJConvSettings(JsonParser& jp)
