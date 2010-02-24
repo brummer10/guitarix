@@ -14,7 +14,7 @@ from Constants import HEXVERSION
 from Configure import ConfigurationError
 
 # used by waf dist and waf build
-VERSION='0.05.4-1'
+VERSION='0.07.0svn'
 APPNAME='guitarix'
 
 good_faust_versions = ['0.9.10',]
@@ -23,32 +23,62 @@ good_faust_versions = ['0.9.10',]
 srcdir = '.'
 blddir = 'build'
 
+def faust_vers_str():
+    if len(good_faust_versions) == 1:
+        return good_faust_versions[0]
+    else:
+        return "in [%s]" % ", ".join(good_faust_versions)
+
 # options defined for waf configure
 def set_options(opt):
     opt.tool_options('compiler_cxx')
 
-    opt.add_option('--cxxflags', 
-                   type='string', 
-                   default='-O3  -march=native -Wall -std=c++0x',
-                   dest='cxxflags', 
-                   help='C++ compiler flags [Default: -O3  -march=native -Wall -std=c++0x]')
+    comp = opt.add_option_group("Compiler / Linker flags")
 
-    opt.add_option('--ladspadir', 
-                   type='string', 
-                   help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
+    comp.add_option('--debug',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help='set compiler flags for a debug build')
 
-    opt.add_option('--faust',
-                   action='store_const',
-                   default=False,
-                   const=True,
-                   help=('build with faust even if the installed version is not in (%s)'
-                         % ", ".join(good_faust_versions)))
+    comp.add_option('--cxxflags-release',
+                    type='string',
+                    default='-O3 -DNDEBUG',
+                    dest='cxxflags_release',
+                    help='additional C++ compiler flags for release version (not used if --debug) [Default: -O3 -DNDEBUG]')
 
-    opt.add_option('--no-faust',
-                   action='store_const',
-                   default=False,
-                   const=True,
-                   help="don't build with faust")
+    comp.add_option('--cxxflags-debug',
+                    type='string',
+                    default='-g',
+                    dest='cxxflags_debug',
+                    help='additional C++ compiler flags for debug version (only used if --debug) [Default: -g]')
+
+    comp.add_option('--cxxflags',
+                    type='string', 
+                    default='-march=native -Wall -std=c++0x',
+                    dest='cxxflags', 
+                    help='C++ base compiler flags [Default: -march=native -Wall -std=c++0x]')
+
+    faust = opt.add_option_group("faust-Compiler")
+
+    faust.add_option('--faust',
+                     action='store_const',
+                     default=False,
+                     const=True,
+                     help=('build with faust even if the installed version is not %s'
+                           % faust_vers_str()))
+
+    faust.add_option('--no-faust',
+                     action='store_const',
+                     default=False,
+                     const=True,
+                     help="don't build with faust")
+
+    ladspa = opt.add_option_group("other options")
+
+    ladspa.add_option('--ladspadir', 
+                    type='string', 
+                    help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
 
 def check_faust(conf):
     if Options.options.no_faust:
@@ -127,6 +157,7 @@ def configure(conf):
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.10', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='gtk+-2.0', atleast_version='2.12.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
+    conf.check_cfg(package='sigc++-2.0', args='--cflags --libs', uselib_store='SIGC', mandatory=1)
     # conf.check_cfg(package='fftw3', atleast_version='3.2.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
     conf.check(header_name='ladspa.h', mandatory=1)
     check_faust(conf)
@@ -152,7 +183,12 @@ def configure(conf):
     conf.define('BINDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin')))
     conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
     conf.define('BIN_NAME', APPNAME)
-    conf.env['CXXFLAGS'] = Options.options.cxxflags.split()
+    cxxflags = Options.options.cxxflags.split()
+    if Options.options.debug:
+        cxxflags += Options.options.cxxflags_debug.split()
+    else:
+        cxxflags += Options.options.cxxflags_release.split()
+    conf.env['CXXFLAGS'] = cxxflags
 
     # config subdirs
     conf.sub_config('src');
