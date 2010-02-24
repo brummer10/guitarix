@@ -121,9 +121,9 @@ def display_feature(msg, build):
 def configure(conf):
     conf.check_tool('compiler_cxx')
     try:
-        conf.check_cfg(package='jack', atleast_version='0.117.0', max_version='1.9.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
+        conf.check_cfg(package='jack', atleast_version='0.109.1', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
     except ConfigurationError:
-        conf.check_cfg(package='jack', atleast_version='1.9.3', args='--cflags --libs', uselib_store='JACK', mandatory=1)
+        conf.check_cfg(package='jack', atleast_version='1.9.1', args='--cflags --libs', uselib_store='JACK', mandatory=1)
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.10', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='gtk+-2.0', atleast_version='2.12.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
