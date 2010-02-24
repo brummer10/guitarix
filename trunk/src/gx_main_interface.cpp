@@ -365,14 +365,16 @@ GxMainInterface::getJackLatencyItem(const jack_nframes_t bufsize) const
 //------- box stacking up
 void GxMainInterface::pushBox(int mode, GtkWidget* w)
 {
-	assert(++fTop < stackSize);
+	++fTop;
+	assert(fTop < stackSize);
 	fMode[fTop] 	= mode;
 	fBox[fTop] 		= w;
 }
 
 void GxMainInterface::closeBox()
 {
-	assert(--fTop >= 0);
+	--fTop;
+	assert(fTop >= 0);
 }
 
 //-------- different box styles
