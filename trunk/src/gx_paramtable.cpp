@@ -368,7 +368,7 @@ string param_group(string id)
  ** Parameter
  */
 
-void *FloatParameter::zone() const
+void *FloatParameter::zone()
 {
 	return &value;
 }
@@ -390,7 +390,7 @@ void FloatParameter::set(int n, int high, float llimit, float ulimit)
 	}
 }
 
-void FloatParameter::set_std_value() const
+void FloatParameter::set_std_value()
 {
 	value = std_value;
 }
@@ -407,7 +407,7 @@ void FloatParameter::readJSON_value(gx_system::JsonParser& jp)
 	set(jp.current_value_float());
 }
 
-void *IntParameter::zone() const
+void *IntParameter::zone()
 {
 	return &value;
 }
@@ -429,7 +429,7 @@ void IntParameter::set(int n, int high, float llimit, float ulimit)
 	}
 }
 
-void IntParameter::set_std_value() const
+void IntParameter::set_std_value()
 {
 	value = std_value;
 }
@@ -446,7 +446,7 @@ void IntParameter::readJSON_value(gx_system::JsonParser& jp)
 	set(jp.current_value_int());
 }
 
-void *BoolParameter::zone() const
+void *BoolParameter::zone()
 {
 	return &value;
 }
@@ -462,7 +462,7 @@ void BoolParameter::set(int n, int high, float llimit, float ulimit)
 	}
 }
 
-void BoolParameter::set_std_value() const
+void BoolParameter::set_std_value()
 {
 	value = std_value;
 }
@@ -477,6 +477,39 @@ void BoolParameter::readJSON_value(gx_system::JsonParser& jp)
 {
 	jp.next(gx_system::JsonParser::value_number);
 	value = jp.current_value_int();
+}
+
+void SwitchParameter::set(bool val)
+{
+	value = val;
+	changed(value);
+}
+
+void *SwitchParameter::zone()
+{
+	return &value;
+}
+
+void SwitchParameter::set_std_value()
+{
+	set(std_value);
+}
+
+void SwitchParameter::set(int n, int high, float llimit, float ulimit)
+{
+	assert(false);
+}
+
+void SwitchParameter::writeJSON(gx_system::JsonWriter& jw)
+{
+	jw.write_key(_id.c_str());
+	jw.write(value);
+}
+
+void SwitchParameter::readJSON_value(gx_system::JsonParser& jp)
+{
+	jp.next(gx_system::JsonParser::value_number);
+	set(jp.current_value_int());
 }
 
 

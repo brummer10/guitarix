@@ -39,6 +39,7 @@
 #include "gx_sndfile.h"
 #include "gx_ui.h"
 #include "gx_engine.h"
+#include "gx_parameter.h"
 #include "gx_preset.h"
 #include "gx_jconv_settings.h"
 #include "gx_threads.h"

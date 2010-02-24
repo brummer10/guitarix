@@ -37,7 +37,7 @@ def build(bld):
     prog.cxxflags= bld.env['CXXFLAGS']
     prog.source = [] + sources
    # prog.uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GTK2', 'FFTW3']
-    prog.uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GTK2']
+    prog.uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GTK2', 'SIGC']
     prog.target = bld.env['BIN_NAME']
     prog.chmod=0755
     prog.install_path = bld.env['BINDIR']

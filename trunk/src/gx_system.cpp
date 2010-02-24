@@ -485,13 +485,17 @@ void read_parameters(JsonParser &jp, bool preset)
 	jp.next(JsonParser::end_object);
 }
 
-void write_preset(JsonWriter &w)
+void write_preset(JsonWriter &w, bool write_midi)
 {
 	w.begin_object(true);
 	w.write_key("engine");
 	write_parameters(w, true);
 	w.write_key("jconv");
 	gx_jconv::GxJConvSettings::instance()->writeJSON(w);
+	if (write_midi && gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
+		w.write("midi_controller");
+		gx_gui::controller_map.writeJSON(w);
+	}
 	w.newline();
 	w.end_object(true);
 }
@@ -505,6 +509,13 @@ void read_preset(JsonParser &jp)
 			read_parameters(jp, true);
 		} else if (jp.current_value() == "jconv") {
 			*gx_jconv::GxJConvSettings::instance() = gx_jconv::GxJConvSettings(jp);
+		} else if (jp.current_value() == "midi_controller") {
+			if (gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
+				//FIXME: clash with jack rt thread (unprobable)
+				gx_gui::controller_map = gx_gui::MidiControllerList(jp);
+			} else {
+				jp.skip_object();
+			}
 		} else {
 			gx_print_warning("recall settings",
 			                 "unknown preset section: " + jp.current_value());
@@ -587,7 +598,7 @@ bool saveStateToFile()
 	gx_gui::controller_map.writeJSON(w);
 
 	w.write("current_preset");
-	write_preset(w);
+	write_preset(w, false);
 
 	w.write("jack_connections");
 	write_jack_connections(w);
@@ -719,6 +730,9 @@ gboolean  gx_ladi_handler(gpointer)
 	saveStateToFile();
 	return false;
 }
+
+gboolean terminal  = FALSE;
+
 // ---- command line options
 void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 {
@@ -765,7 +779,6 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 
 		gboolean clear = FALSE;
 		gchar* rcset = NULL;
-		gchar* builder_dir = NULL;
 		GOptionGroup* optgroup_gtk = g_option_group_new("gtk",
 		                                                "\033[1;32mGTK configuration options\033[0m",
 		                                                "\033[1;32mGTK configuration options\033[0m",
@@ -774,7 +787,6 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 			{
 				{ "clear", 'c', 0, G_OPTION_ARG_NONE, &clear, "Use 'default' GTK style", NULL },
 				{ "rcset", 'r', 0, G_OPTION_ARG_STRING, &rcset, opskin.c_str(), "STYLE" },
-				{ "builder-dir", 'B', 0, G_OPTION_ARG_STRING, &builder_dir, "directory from which .glade files are loaded", "DIR" },
 
 				{ NULL }
 			};
@@ -797,9 +809,25 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 			};
 		g_option_group_add_entries(optgroup_jack, opt_entries_jack);
 
+		// DEBUG options
+		gchar* builder_dir = NULL;
+
+		GOptionGroup* optgroup_debug = g_option_group_new("debug",
+		                                                "\033[1;32mDebug options\033[0m",
+		                                                "\033[1;32mDebug options\033[0m",
+		                                                NULL, NULL);
+		GOptionEntry opt_entries_debug[] =
+			{
+				{ "builder-dir", 'B', 0, G_OPTION_ARG_STRING, &builder_dir, "directory from which .glade files are loaded", "DIR" },
+				{ "log-terminal", 't', 0, G_OPTION_ARG_NONE, &terminal, "print log on terminal", NULL },
+				{ NULL }
+			};
+		g_option_group_add_entries(optgroup_debug, opt_entries_debug);
+
 		// collecting all option groups
 		g_option_context_add_group(opt_context, optgroup_gtk);
 		g_option_context_add_group(opt_context, optgroup_jack);
+		g_option_context_add_group(opt_context, optgroup_debug);
 
 		// parsing command options
 		if (!g_option_context_parse(opt_context, &argc, &argv, &error))
@@ -968,16 +996,11 @@ void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
 	       << "  " << func << "  ***  " << msg;
 
 	// log the stuff to the log message window if possible
-	bool terminal  = true;
+	bool written = false;
 	if (gx_gui::GxMainInterface::fInitialized) {
-		gx_gui::GxMainInterface* interface =
-			gx_gui::GxMainInterface::instance();
+		gx_gui::GxMainInterface* interface = gx_gui::GxMainInterface::instance();
 
-		// retrieve window
-		GtkTextView* logw = interface->getLoggingWindow();
-
-		if (logw) {
-			terminal = false;
+		if (interface->getLoggingWindow()) {
 			if (!msglist.empty()) {
 				for (list<logmsg>::iterator i = msglist.begin(); i != msglist.end(); i++) {
 					interface->show_msg(i->msg, i->msgtype);
@@ -985,13 +1008,15 @@ void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
 				msglist.clear();
 			}
 			interface->show_msg(msgbuf.str(), msgtype);
+			written = true;
 		}
 	}
-
-	// if no window, then terminal
+	
+	if (!written) { // queue the messages
+		msglist.push_back(logmsg{msgbuf.str(), msgtype});
+	}
 	if (terminal) {
 		cerr << msgbuf.str() << endl;
-		msglist.push_back(logmsg{msgbuf.str(), msgtype});
 	}
 }
 

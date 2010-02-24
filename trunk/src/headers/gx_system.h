@@ -115,7 +115,7 @@ private:
 
 void writeHeader(JsonWriter& jw);
 bool readHeader(JsonParser& jp, int *major=0, int *minor=0);
-void write_preset(JsonWriter& w);
+void write_preset(JsonWriter& w, bool write_midi = true);
 void read_preset(JsonParser &jp);
 bool saveStateToFile();
 bool recallState();

@@ -266,6 +266,7 @@ gboolean button_press_cb (GtkWidget *widget, GdkEventButton *event, gpointer dat
 	return TRUE;
 }
 
+#ifndef NDEBUG
 // debug_check
 inline void check_zone(GtkWidget *w, void *zone)
 {
@@ -279,6 +280,7 @@ inline void check_zone(GtkWidget *w, void *zone)
 	}
 	parameter_map[zone]->setUsed();
 }
+#endif
 
 inline void connect_midi_controller(GtkWidget *w, void *zone)
 {
@@ -2449,6 +2451,14 @@ void GxMainInterface::addOptionMenu()
 
 	/*-- Create skin menu under Options submenu--*/
 	addGuiSkinMenu();
+
+	/*-- create option for saving midi controller settings in presets --*/
+	menuitem = gtk_check_menu_item_new_with_mnemonic ("Save Midi in _Presets");
+	gtk_widget_show (menuitem);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+	fMidiInPreset.init(
+		GTK_CHECK_MENU_ITEM(menuitem),
+		new SwitchParameter("system.midi_in_preset", false, false, false));
 }
 
 

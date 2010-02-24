@@ -21,8 +21,23 @@
 
 #pragma once
 
+#include <sigc++/sigc++.h>
+
 namespace gx_gui
 {
+
+/* ---- linking menu items and parameter ---- */
+class MenuCheckItem: public sigc::trackable
+{
+private:
+	GtkCheckMenuItem *item;
+	static void activateMenuSetSwitch(GtkWidget *w, gpointer data);
+public:
+	MenuCheckItem(): item(0) {}
+	void init(GtkCheckMenuItem *item, SwitchParameter *p);
+	void set(bool v);
+};
+
 
 /* --------------  function declarations ---------------- */
 gboolean gx_hide_eq( GtkWidget *widget, gpointer   data );

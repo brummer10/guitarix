@@ -60,6 +60,30 @@ using namespace gx_cairo;
 /* --------------------------- gx_gui namespace ------------------------ */
 namespace gx_gui
 {
+
+/* ----- Menu check item signaled from parameter ------ */
+
+void MenuCheckItem::set(bool v)
+{
+	assert(item); // assign an item before calling
+	gtk_check_menu_item_set_active(item, v);
+}
+
+void MenuCheckItem::activateMenuSetSwitch(GtkWidget *w, gpointer data)
+{
+	SwitchParameter *p = (SwitchParameter*)data;
+	p->set(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w)));
+}
+
+void MenuCheckItem::init(GtkCheckMenuItem *it, SwitchParameter *p)
+{
+	item = it;
+	parameter_map.insert(p);
+	p->changed.connect(sigc::mem_fun(*this, &MenuCheckItem::set));
+	g_signal_connect(GTK_OBJECT(item), "activate",
+	                 G_CALLBACK(activateMenuSetSwitch), p);
+}
+
 /* --------- menu function triggering engine on/off/bypass --------- */
 void gx_engine_switch (GtkWidget* widget, gpointer arg)
 {

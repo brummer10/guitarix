@@ -51,6 +51,7 @@ using namespace std;
 namespace gx_gui
 {
 
+#ifndef NDEBUG
 // debug_check
 inline void all_midi_params_assigned()
 {
@@ -60,6 +61,7 @@ inline void all_midi_params_assigned()
 			                          "midi-parameter not assigned in ui: " + i->first);
 	}
 }
+#endif
 
 /* -------- user interface builder ---------- */
 void GxMainInterface::setup()
