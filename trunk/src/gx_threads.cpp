@@ -59,9 +59,7 @@ static const float falloff = meter_falloff * meter_display_timeout * 0.001;
 /* ----------------- refresh GX level display function ---------------- */
 gboolean gx_refresh_meter_level(gpointer args)
 {
-	if (gx_jack::client && gx_engine::buffers_ready)
-	{
-
+	if (gx_jack::client && gx_engine::buffers_ready) {
 		gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
 
 		// data holders for meters
@@ -81,8 +79,7 @@ gboolean gx_refresh_meter_level(gpointer args)
 		GtkWidget* const* jcmeters = gui->getJCLevelMeters();
 
 		// fill up from engine buffers
-		for (int c = 0; c < 2; c++)
-		{
+		for (int c = 0; c < 2; c++) {
 			// guitarix output levels
 			float data[nframes];
 
@@ -103,26 +100,28 @@ gboolean gx_refresh_meter_level(gpointer args)
 			}
 
 			// turn channels for box_pack_end
-			int b;
-			if (c)b=1;
-			else b=2;
+			float *gfp;
+			if (c) {
+				gfp = gx_engine::get_frame2;
+			} else {
+				gfp = gx_engine::get_frame3;
+			}
 			// jconv: note that jconv monitor channels are input[1] and [2]
-			if (gx_jconv::jconv_is_running && gx_engine::is_setup)
-				(void)memcpy(jcdata, gx_engine::gInChannel[b], sizeof(jcdata));
+			if (gx_jconv::jconv_is_running && gx_engine::is_setup) {
+				(void)memcpy(jcdata, gfp, sizeof(jcdata));
+			}
 
 			// calculate  max peak
 			for (guint f = 0; f < nframes; f++)
 			{
 				max_level[c] = max(max_level[c], abs(data[f]));
-
-				if (gx_jconv::jconv_is_running && gx_engine::is_setup)
+				if (gx_jconv::jconv_is_running && gx_engine::is_setup) {
 					max_jclevel[c] = max(max_jclevel[c], abs(jcdata[f]));
+				}
 			}
 
-
 			// update meters (consider falloff as well)
-			if (meters[c])
-			{
+			if (meters[c]) {
 				// calculate peak dB and translate into meter
 				float peak_db = -INFINITY;
 				if (max_level[c] > 0.) peak_db = power2db(max_level[c]);
@@ -135,9 +134,7 @@ gboolean gx_refresh_meter_level(gpointer args)
 				old_peak_db[c] = max(peak_db, -INFINITY);
 			}
 
-
-			if (gx_jconv::jconv_is_running && jcmeters[c] && gx_engine::is_setup)
-			{
+			if (gx_jconv::jconv_is_running && jcmeters[c] && gx_engine::is_setup) {
 				// calculate peak dB and translate into meter
 				float peak_db = -INFINITY;
 				if (max_jclevel[c] > 0.) peak_db = power2db(max_jclevel[c]);

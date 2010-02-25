@@ -657,12 +657,16 @@ void gx_engine_init()
 
 	get_frame  = new float[frag];
 	get_frame1  = new float[frag];
+	get_frame2  = new float[frag];
+	get_frame3  = new float[frag];
 	checkfreq  = new float[frag];
 	oversample = new float[frag*2];
 	result = new float[frag+46];
 
 	(void)memset(get_frame,  0, frag*sizeof(float));
 	(void)memset(get_frame1,  0, frag*sizeof(float));
+	(void)memset(get_frame2,  0, frag*sizeof(float));
+	(void)memset(get_frame3,  0, frag*sizeof(float));
 	(void)memset(checkfreq,  0, frag*sizeof(float));
 	(void)memset(oversample, 0, frag*2*sizeof(float));
 	(void)memset(result, 0, (frag+46)*sizeof(float));
@@ -693,6 +697,8 @@ void gx_engine_reset()
 	if (checkfreq)  delete[] checkfreq;
 	if (get_frame)  delete[] get_frame;
 	if (get_frame1)  delete[] get_frame1;
+	if (get_frame2)  delete[] get_frame2;
+	if (get_frame3)  delete[] get_frame3;
 	if (oversample) delete[] oversample;
 	if (result) delete[] result;
 

@@ -667,6 +667,8 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 	if (checkfreq)  delete[] checkfreq;
 	if (get_frame)  delete[] get_frame;
 	if (get_frame1)  delete[] get_frame1;
+	if (get_frame2)  delete[] get_frame2;
+	if (get_frame3)  delete[] get_frame3;
 	if (oversample) delete[] oversample;
 	if (result) delete[] result;
 
@@ -686,6 +688,12 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 
 	get_frame1 = new float[jack_bs];
 	(void)memset(get_frame1, 0, sizeof(float)*jack_bs);
+
+	get_frame2 = new float[jack_bs];
+	(void)memset(get_frame2, 0, sizeof(float)*jack_bs);
+
+	get_frame3 = new float[jack_bs];
+	(void)memset(get_frame3, 0, sizeof(float)*jack_bs);
 
 	checkfreq = new float[jack_bs];
 	(void)memset(checkfreq, 0, sizeof(float)*jack_bs);
@@ -807,27 +815,29 @@ int gx_jack_midi_process_ringbuffer (jack_nframes_t nframes, void *arg)
 // ----- main jack process method
 int gx_jack_process (jack_nframes_t nframes, void *arg)
 {
-
-	if (!jack_is_exit)
-	{
+	if (!jack_is_exit) {
 		AVOIDDENORMALS;
 
 		// retrieve buffers at jack ports
-		for (int i = 0; i < 1; i++)
+		for (int i = 0; i < 1; i++) {
 			gInChannel[i] = (float *)jack_port_get_buffer(input_ports[i], nframes);
-
-		for (int i = 0; i < gNumOutChans; i++)
+		}
+		for (int i = 0; i < gNumOutChans; i++) {
 			gOutChannel[i] = (float *)jack_port_get_buffer(output_ports[i], nframes);
-
+		}
 		// guitarix DSP computing
 		GxEngine::instance()->compute(nframes, gInChannel, gOutChannel);
 
-		if (gx_jconv::jconv_is_running)
-		{
-			for (int i = 1; i < gNumInChans; i++)
+		if (gx_jconv::jconv_is_running) {
+			for (int i = 1; i < gNumInChans; i++) {
 				gInChannel[i] = (float *)jack_port_get_buffer(input_ports[i], nframes);
+			}
+			(void)memcpy(get_frame2, gInChannel[1], sizeof(float)*nframes);
+			(void)memcpy(get_frame3, gInChannel[2], sizeof(float)*nframes);
+
 			GxEngine::instance()->get_jconv_output( gInChannel, gOutChannel,nframes);
 		}
+
 		// ready to go for e.g. level display
 		gx_engine::buffers_ready = true;
 
@@ -842,12 +852,12 @@ int gx_jack_process (jack_nframes_t nframes, void *arg)
 #endif
 
 		// some info display
-		if (gx_gui::showwave == 1)
+		if (gx_gui::showwave == 1) {
 			time_is =  jack_frame_time (client);
-
+		}
+	} else {
+		gx_engine::buffers_ready = false;
 	}
-	else gx_engine::buffers_ready = false;
-
 	return 0;
 }
 

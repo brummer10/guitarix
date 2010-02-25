@@ -1345,36 +1345,34 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 		gx_destroy_event();
 
 	// delete the locked mem buffers
-	if (checkfreq)
-	{
-		checkfreq = NULL;
+	if (checkfreq) {
 		delete[] checkfreq;
+		checkfreq = NULL;
 	}
-
-	if (get_frame)
-	{
-		get_frame = NULL;
+	if (get_frame) {
 		delete[] get_frame;
+		get_frame = NULL;
 	}
-
-	if (get_frame1)
-	{
-		get_frame1 = NULL;
+	if (get_frame1) {
 		delete[] get_frame1;
+		get_frame1 = NULL;
 	}
-
-	if (oversample)
-	{
-		oversample = NULL;
+	if (get_frame2) {
+		delete[] get_frame2;
+		get_frame2 = NULL;
+	}
+	if (get_frame3) {
+		delete[] get_frame3;
+		get_frame3 = NULL;
+	}
+	if (oversample) {
 		delete[] oversample;
+		oversample = NULL;
 	}
-
-	if (result)
-	{
-		result = NULL;
+	if (result) {
 		delete[] result;
+		result = NULL;
 	}
-
 
 	/** disable fft need some fix for work prop **/
 	/*

@@ -52,6 +52,8 @@ const char* stopit = "go";
 float  checky      = 1.0;
 float* get_frame   = NULL;
 float* get_frame1   = NULL;
+float* get_frame2   = NULL;
+float* get_frame3   = NULL;
 float* checkfreq   = NULL;
 float* oversample  = NULL;
 float* result      = NULL ;
@@ -91,7 +93,7 @@ fftw_plan p, p1, pf;
 /* ----- jack namespace ----- */
 namespace gx_jack
 {
-const int nIPorts = 3; // mono input
+const int nIPorts = 3; // mono input + jconv
 const int nOPorts = 4; // stereo output + jconv
 int NO_CONNECTION = 1;
 

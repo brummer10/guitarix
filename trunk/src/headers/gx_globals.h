@@ -46,6 +46,8 @@ extern const char* stopit;
 extern float  checky;
 extern float* get_frame;
 extern float* get_frame1;
+extern float* get_frame2;
+extern float* get_frame3;
 extern float* checkfreq;
 extern float* oversample;
 extern float* result;
