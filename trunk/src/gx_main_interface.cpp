@@ -78,6 +78,25 @@ string fformat(float value, float step)
 	return buf.str();
 }
 
+GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname)
+{
+	string fname = gx_builder_dir+filename;
+	GError *err = NULL;
+	if (!gtk_builder_add_from_file(builder,fname.c_str(), &err)) {
+		g_object_unref(G_OBJECT(builder));
+		gx_print_fatal("gtk builder", err->message);
+		g_error_free(err);
+		return NULL;
+	}
+	GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(builder, windowname));
+	if (!w) {
+		g_object_unref(G_OBJECT(builder));
+		gx_print_fatal("gtk builder", string(windowname)+" not found in "+fname);
+		return NULL;
+	}
+	return w;
+}
+
 /* show midi controller table window  */
 void gx_show_midi_window(GtkWidget* widget, gpointer data)
 {
@@ -91,14 +110,7 @@ void gx_show_midi_window(GtkWidget* widget, gpointer data)
 		return;
 	}
 	GtkBuilder * builder = gtk_builder_new();
-	GError *err = NULL;
-	if (!gtk_builder_add_from_file(builder,(gx_builder_dir+"midi.glade").c_str(), &err)) {
-		gx_print_fatal("gtk builder", err->message);
-		g_error_free(err);
-		g_object_unref(G_OBJECT(builder));
-		return;
-	}
-	midilist_window = GTK_WIDGET(gtk_builder_get_object(builder, "MidiControllerTable"));
+	midilist_window = load_toplevel(builder, "midi.glade", "MidiControllerTable");
 	GtkListStore *store = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore1"));
 	GtkTreeIter iter;
 	for (int i = 0; i < controller_map.size(); i++) {
@@ -270,15 +282,7 @@ MidiConnect::MidiConnect(GdkEventButton *event, Parameter &param):
 	current_control(-1)
 {
 	GtkBuilder * builder = gtk_builder_new();
-	GError *err = NULL;
-	if (!gtk_builder_add_from_file(builder,(gx_builder_dir+"midi.glade").c_str(), &err)) {
-		gx_print_fatal("gtk builder", err->message);
-		g_error_free(err);
-		g_object_unref(G_OBJECT(builder));
-		delete this;
-		return;
-	}
-	dialog = GTK_WIDGET(gtk_builder_get_object(builder, "MidiConnect"));
+	dialog = load_toplevel(builder, "midi.glade", "MidiConnect");
 	GtkWidget *zn = GTK_WIDGET(gtk_builder_get_object(builder, "zone_name"));
 	GtkStyle *style = gtk_widget_get_style(zn);
 	pango_font_description_set_size(style->font_desc, 12*PANGO_SCALE);
