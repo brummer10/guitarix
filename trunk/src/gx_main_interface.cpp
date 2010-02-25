@@ -29,6 +29,7 @@
 #include <set>
 #include <vector>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <fstream>
 #include <cmath>
@@ -60,6 +61,78 @@ int precision(double n)
 	else if (n < 0.099999) return 2;
 	else if (n < 0.999999) return 1;
 	else return 0;
+}
+
+static GtkWidget *midilist_window;
+
+static void midilist_response_cb(GtkWidget *widget, gint response_id, gpointer data)
+{
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(data), FALSE);
+	gtk_widget_unref(GTK_WIDGET(data));
+}
+
+string fformat(float value, float step)
+{
+	ostringstream buf;
+	buf << setprecision(precision(step)+1) << value;
+	return buf.str();
+}
+
+/* show midi controller table window  */
+void gx_show_midi_window(GtkWidget* widget, gpointer data)
+{
+	if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(data))) {
+		if (midilist_window) {
+			gtk_widget_destroy(midilist_window);
+			midilist_window = NULL;
+		}
+		return;
+	} else if (midilist_window) {
+		return;
+	}
+	GtkBuilder * builder = gtk_builder_new();
+	GError *err = NULL;
+	if (!gtk_builder_add_from_file(builder,(gx_builder_dir+"midi.glade").c_str(), &err)) {
+		gx_print_fatal("gtk builder", err->message);
+		g_error_free(err);
+		g_object_unref(G_OBJECT(builder));
+		return;
+	}
+	midilist_window = GTK_WIDGET(gtk_builder_get_object(builder, "MidiControllerTable"));
+	GtkListStore *store = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore1"));
+	GtkTreeIter iter;
+	for (int i = 0; i < controller_map.size(); i++) {
+		midi_controller_list& cl = controller_map[i];
+		for (midi_controller_list::iterator j = cl.begin(); j != cl.end(); j++) {
+			Parameter& p = j->getParameter();
+			string low, up;
+			const char *tp;
+			if (p.getControlType() == Parameter::Continuous) {
+				tp = "Scale";
+				assert(p.isFloat()); // only float implemented
+				const FloatParameter& fp = p.getFloat(); //FIXME
+				low = fformat(j->lower(), fp.step);
+				up = fformat(j->upper(), fp.step);
+			} else {
+				tp = "Switch";
+				low = up = "";
+			}
+			gtk_list_store_append(store, &iter);
+			gtk_list_store_set(store, &iter,
+			                   0, i,
+			                   1, midi_std_ctr[i],
+			                   2, p.group().c_str(),
+			                   3, p.name().c_str(),
+			                   4, tp,
+			                   5, low.c_str(),
+			                   6, up.c_str(),
+			                   -1);
+		}
+	}
+	gtk_widget_ref(GTK_WIDGET(data));
+	g_signal_connect(midilist_window, "response", G_CALLBACK(midilist_response_cb), data);
+	gtk_widget_show(midilist_window);
+	g_object_unref(G_OBJECT(builder));
 }
 
 /*****************************************************************
@@ -201,6 +274,9 @@ MidiConnect::MidiConnect(GdkEventButton *event, Parameter &param):
 	if (!gtk_builder_add_from_file(builder,(gx_builder_dir+"midi.glade").c_str(), &err)) {
 		gx_print_fatal("gtk builder", err->message);
 		g_error_free(err);
+		g_object_unref(G_OBJECT(builder));
+		delete this;
+		return;
 	}
 	dialog = GTK_WIDGET(gtk_builder_get_object(builder, "MidiConnect"));
 	GtkWidget *zn = GTK_WIDGET(gtk_builder_get_object(builder, "zone_name"));
@@ -253,6 +329,7 @@ MidiConnect::MidiConnect(GdkEventButton *event, Parameter &param):
 	check_midi_cb(this);
 	gtk_widget_show(dialog);
 	g_timeout_add(40, check_midi_cb, this);
+	g_object_unref(G_OBJECT(builder));
 	return;
 }
 
@@ -2158,6 +2235,15 @@ void GxMainInterface::addEngineMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);
 	gtk_widget_show (sep);
 
+	/*-- create Midi Controller Table menu item --*/
+	menuitem = gtk_check_menu_item_new_with_mnemonic ("M_idi Controller");
+	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
+	                           GDK_i, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+	g_signal_connect (GTK_OBJECT (menuitem), "activate",
+	                  G_CALLBACK (gx_show_midi_window), menuitem);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
+	gtk_widget_show (menuitem);
+
 	/*-- Create Open check menu item under Engine submenu --*/
 	menuitem = gtk_check_menu_item_new_with_mnemonic ("_Midi Out ");
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
@@ -2585,8 +2671,6 @@ void GxMainInterface::addJackServerMenu()
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
-
-	menucont = fMenuList["Engine"];
 
 	/* add item for client tab cycling through */
 	menuitem = gtk_menu_item_new_with_mnemonic("Next Client _Tab");

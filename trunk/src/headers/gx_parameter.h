@@ -283,6 +283,7 @@ public:
 	float upper() const { return _upper; }
 	void operator=(MidiController m) { param = m.param; _lower = m._lower; _upper = m._upper; }
 	bool hasParameter(const Parameter& p) const { return param == p; }
+	Parameter& getParameter() { return param; }
 	static MidiController* readJSON(gx_system::JsonParser&);
 	void set(int n) { param.set(n, 127, _lower, _upper); }
 	void writeJSON(gx_system::JsonWriter& jw) const;
@@ -306,7 +307,8 @@ private:
 public:
 	MidiControllerList();
 	MidiControllerList(gx_system::JsonParser&);
-	midi_controller_list operator[](int n) { return map[n]; }
+	midi_controller_list& operator[](int n) { return map[n]; }
+	int size() { return map.size(); }
 	void set_config_mode(bool mode, int ctl=-1);
 	bool get_config_mode() { return midi_config_mode; }
 	int get_current_control() { return last_midi_control; }

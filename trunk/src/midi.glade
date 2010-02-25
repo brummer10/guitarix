@@ -199,4 +199,187 @@
       <action-widget response="-5">button1</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkListStore" id="liststore1">
+    <columns>
+      <!-- column-name Midi -->
+      <column type="gint"/>
+      <!-- column-name Midi1 -->
+      <column type="gchararray"/>
+      <!-- column-name Group -->
+      <column type="gchararray"/>
+      <!-- column-name Parameter -->
+      <column type="gchararray"/>
+      <!-- column-name Type -->
+      <column type="gchararray"/>
+      <!-- column-name lower -->
+      <column type="gchararray"/>
+      <!-- column-name upper -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkDialog" id="MidiControllerTable">
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">Midi Controller</property>
+    <property name="type_hint">normal</property>
+    <property name="has_separator">False</property>
+    <child internal-child="vbox">
+      <object class="GtkVBox" id="dialog-vbox2">
+        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child>
+          <object class="GtkLabel" id="label2">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">&lt;big&gt;&lt;b&gt;Midi Controller&lt;/b&gt;&lt;/big&gt;</property>
+            <property name="use_markup">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkTreeView" id="treeview1">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="model">liststore1</property>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                <property name="sizing">autosize</property>
+                <property name="title">Midi CC</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext1">
+                    <property name="xalign">1</property>
+                  </object>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                <property name="sizing">autosize</property>
+                <property name="title">Midi Name</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext2"/>
+                  <attributes>
+                    <attribute name="text">1</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+                <property name="sizing">autosize</property>
+                <property name="title">Group</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext3"/>
+                  <attributes>
+                    <attribute name="text">2</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn4">
+                <property name="sizing">autosize</property>
+                <property name="title">Parameter</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext4"/>
+                  <attributes>
+                    <attribute name="text">3</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn7">
+                <property name="sizing">autosize</property>
+                <property name="title">Type</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext7"/>
+                  <attributes>
+                    <attribute name="text">4</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn5">
+                <property name="sizing">autosize</property>
+                <property name="title">Range</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext5">
+                    <property name="xalign">1</property>
+                  </object>
+                  <attributes>
+                    <attribute name="text">5</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn6">
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext6">
+                    <property name="xalign">1</property>
+                  </object>
+                  <attributes>
+                    <attribute name="text">6</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area2">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="button5">
+                <property name="label">gtk-cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button4">
+                <property name="label">gtk-ok</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-2">button5</action-widget>
+      <action-widget response="-1">button4</action-widget>
+    </action-widgets>
+  </object>
 </interface>
