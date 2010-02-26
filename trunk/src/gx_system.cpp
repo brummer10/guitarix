@@ -193,6 +193,13 @@ void JsonWriter::write_key(const char* p, bool nl)
 	first = true;
 }
 
+void JsonWriter::write_key(string p, bool nl)
+{
+	write(p, nl);
+	os << ": ";
+	first = true;
+}
+
 // called before output of next element
 void JsonWriter::flush()
 {
@@ -512,7 +519,7 @@ void read_preset(JsonParser &jp)
 		} else if (jp.current_value() == "midi_controller") {
 			if (gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
 				//FIXME: clash with jack rt thread (unprobable)
-				gx_gui::controller_map = gx_gui::MidiControllerList(jp);
+				gx_gui::controller_map.readJSON(jp);
 			} else {
 				jp.skip_object();
 			}
@@ -597,6 +604,9 @@ bool saveStateToFile()
 	w.write("midi_controller");
 	gx_gui::controller_map.writeJSON(w);
 
+	w.write("midi_ctrl_names");
+	gx_gui::midi_std_ctr.writeJSON(w);
+
 	w.write("current_preset");
 	write_preset(w, false);
 
@@ -678,7 +688,9 @@ bool recallState()
 			} else if (jp.current_value() == "current_preset") {
 				read_preset(jp);
 			} else if (jp.current_value() == "midi_controller") {
-				gx_gui::controller_map = gx_gui::MidiControllerList(jp);
+				gx_gui::controller_map.readJSON(jp);
+			} else if (jp.current_value() == "midi_ctrl_names") {
+				gx_gui::midi_std_ctr.readJSON(jp);
 			} else if (jp.current_value() == "jack_connections") {
 				read_jack_connections(jp);
 			} else {

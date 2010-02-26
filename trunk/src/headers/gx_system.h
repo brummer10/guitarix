@@ -76,6 +76,7 @@ public:
 	void begin_array(bool nl=false);
 	void end_array(bool nl=false);
 	void write_key(const char* p, bool nl=false);
+	void write_key(string p, bool nl=false);
 	void newline() { snl(true); }
 };
 

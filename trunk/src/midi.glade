@@ -4,7 +4,7 @@
   <!-- interface-naming-policy project-wide -->
   <object class="GtkDialog" id="MidiConnect">
     <property name="border_width">5</property>
-    <property name="title" translatable="yes">Guitarix: Set Midi Controller</property>
+    <property name="title" translatable="yes">guitarix: Set MIDI Controller</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
     <property name="window_position">mouse</property>
@@ -27,7 +27,7 @@
         <child>
           <object class="GtkLabel" id="label1">
             <property name="visible">True</property>
-            <property name="label" translatable="yes">operate a midi controller to set the controller number</property>
+            <property name="label" translatable="yes">operate a MIDI controller to set the controller number</property>
           </object>
           <packing>
             <property name="position">3</property>
@@ -57,7 +57,7 @@
               <object class="GtkLabel" id="label3">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">Midi Controller Number</property>
+                <property name="label" translatable="yes">MIDI Controller Number</property>
               </object>
               <packing>
                 <property name="x_options">GTK_FILL</property>
@@ -215,13 +215,16 @@
       <column type="gchararray"/>
       <!-- column-name upper -->
       <column type="gchararray"/>
+      <!-- column-name id -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkDialog" id="MidiControllerTable">
     <property name="border_width">5</property>
-    <property name="title" translatable="yes">Midi Controller</property>
-    <property name="type_hint">normal</property>
-    <property name="has_separator">False</property>
+    <property name="title" translatable="yes">guitarix: MIDI Controller</property>
+    <property name="default_height">400</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
@@ -230,7 +233,7 @@
         <child>
           <object class="GtkLabel" id="label2">
             <property name="visible">True</property>
-            <property name="label" translatable="yes">&lt;big&gt;&lt;b&gt;Midi Controller&lt;/b&gt;&lt;/big&gt;</property>
+            <property name="label" translatable="yes">&lt;big&gt;&lt;b&gt;MIDI Controller&lt;/b&gt;&lt;/big&gt;</property>
             <property name="use_markup">True</property>
           </object>
           <packing>
@@ -239,95 +242,114 @@
           </packing>
         </child>
         <child>
-          <object class="GtkTreeView" id="treeview1">
+          <object class="GtkScrolledWindow" id="scroller">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="model">liststore1</property>
+            <property name="hscrollbar_policy">never</property>
+            <property name="vscrollbar_policy">automatic</property>
             <child>
-              <object class="GtkTreeViewColumn" id="treeviewcolumn1">
-                <property name="sizing">autosize</property>
-                <property name="title">Midi CC</property>
+              <object class="GtkTreeView" id="treeview1">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="model">liststore1</property>
+                <property name="headers_clickable">False</property>
+                <property name="search_column">0</property>
                 <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext1">
-                    <property name="xalign">1</property>
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                    <property name="sizing">autosize</property>
+                    <property name="title">MIDI CC</property>
+                    <property name="clickable">True</property>
+                    <property name="sort_indicator">True</property>
+                    <property name="sort_column_id">0</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext1">
+                        <property name="xalign">1</property>
+                      </object>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
                   </object>
-                  <attributes>
-                    <attribute name="text">0</attribute>
-                  </attributes>
                 </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkTreeViewColumn" id="treeviewcolumn2">
-                <property name="sizing">autosize</property>
-                <property name="title">Midi Name</property>
                 <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext2"/>
-                  <attributes>
-                    <attribute name="text">1</attribute>
-                  </attributes>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkTreeViewColumn" id="treeviewcolumn3">
-                <property name="sizing">autosize</property>
-                <property name="title">Group</property>
-                <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext3"/>
-                  <attributes>
-                    <attribute name="text">2</attribute>
-                  </attributes>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkTreeViewColumn" id="treeviewcolumn4">
-                <property name="sizing">autosize</property>
-                <property name="title">Parameter</property>
-                <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext4"/>
-                  <attributes>
-                    <attribute name="text">3</attribute>
-                  </attributes>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkTreeViewColumn" id="treeviewcolumn7">
-                <property name="sizing">autosize</property>
-                <property name="title">Type</property>
-                <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext7"/>
-                  <attributes>
-                    <attribute name="text">4</attribute>
-                  </attributes>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkTreeViewColumn" id="treeviewcolumn5">
-                <property name="sizing">autosize</property>
-                <property name="title">Range</property>
-                <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext5">
-                    <property name="xalign">1</property>
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                    <property name="sizing">autosize</property>
+                    <property name="title">MIDI Name</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext2">
+                        <property name="editable">True</property>
+                      </object>
+                      <attributes>
+                        <attribute name="text">1</attribute>
+                      </attributes>
+                    </child>
                   </object>
-                  <attributes>
-                    <attribute name="text">5</attribute>
-                  </attributes>
                 </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkTreeViewColumn" id="treeviewcolumn6">
                 <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext6">
-                    <property name="xalign">1</property>
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+                    <property name="sizing">autosize</property>
+                    <property name="title">Group</property>
+                    <property name="clickable">True</property>
+                    <property name="sort_column_id">2</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext3"/>
+                      <attributes>
+                        <attribute name="text">2</attribute>
+                      </attributes>
+                    </child>
                   </object>
-                  <attributes>
-                    <attribute name="text">6</attribute>
-                  </attributes>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn4">
+                    <property name="sizing">autosize</property>
+                    <property name="title">Parameter</property>
+                    <property name="clickable">True</property>
+                    <property name="sort_column_id">3</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext4"/>
+                      <attributes>
+                        <attribute name="text">3</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn7">
+                    <property name="sizing">autosize</property>
+                    <property name="title">Type</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext7"/>
+                      <attributes>
+                        <attribute name="text">4</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn5">
+                    <property name="sizing">autosize</property>
+                    <property name="title">Range</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext5">
+                        <property name="xalign">1</property>
+                      </object>
+                      <attributes>
+                        <attribute name="text">5</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn6">
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext6">
+                        <property name="xalign">1</property>
+                      </object>
+                      <attributes>
+                        <attribute name="text">6</attribute>
+                      </attributes>
+                    </child>
+                  </object>
                 </child>
               </object>
             </child>
@@ -336,17 +358,63 @@
             <property name="position">2</property>
           </packing>
         </child>
+        <child>
+          <object class="GtkAlignment" id="alignment1">
+            <property name="visible">True</property>
+            <property name="left_padding">11</property>
+            <child>
+              <object class="GtkHBox" id="hbox1">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkLabel" id="label4">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Edit a MIDI name to choose you own</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="save_controller">
+                    <property name="label" translatable="yes">include MIDI controllers in _presets</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="tooltip_text" translatable="yes">When checked, MIDI controller settings are saved into a preset.
+When a preset is loaded, controller settings are changed if
+this button is checked and the preset actually contains
+controller settings.
+MIDI controller settings are always saved and loaded with the
+main session.</property>
+                    <property name="use_underline">True</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="dialog-action_area2">
             <property name="visible">True</property>
-            <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="button5">
-                <property name="label">gtk-cancel</property>
+              <object class="GtkButton" id="button4">
+                <property name="label" translatable="yes">_Delete Selected</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
+                <property name="image">image1</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -355,8 +423,8 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button4">
-                <property name="label">gtk-ok</property>
+              <object class="GtkButton" id="button5">
+                <property name="label">gtk-close</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -378,8 +446,12 @@
       </object>
     </child>
     <action-widgets>
-      <action-widget response="-2">button5</action-widget>
-      <action-widget response="-1">button4</action-widget>
+      <action-widget response="0">button4</action-widget>
+      <action-widget response="-7">button5</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkImage" id="image1">
+    <property name="visible">True</property>
+    <property name="stock">gtk-delete</property>
   </object>
 </interface>

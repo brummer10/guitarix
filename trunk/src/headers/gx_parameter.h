@@ -101,10 +101,10 @@ public:
 	virtual void set(int n, int high, float llimit, float ulimit) = 0;
 	virtual void writeJSON(gx_system::JsonWriter& jw) = 0;
 	virtual void readJSON_value(gx_system::JsonParser& jp) = 0;
-	const FloatParameter &getFloat() const;
-	const IntParameter &getInt() const;
-	const BoolParameter &getBool() const;
-	const SwitchParameter &getSwitch() const;
+	FloatParameter& getFloat();
+	IntParameter& getInt();
+	BoolParameter& getBool();
+	SwitchParameter& getSwitch();
 };
 
 class FloatParameter: public Parameter
@@ -183,28 +183,28 @@ public:
 		{}
 };
 
-inline const FloatParameter &Parameter::getFloat() const
+inline FloatParameter &Parameter::getFloat()
 {
 	assert(isFloat());
-	return static_cast<const FloatParameter&>(*this);
+	return static_cast<FloatParameter&>(*this);
 }
 
-inline const IntParameter &Parameter::getInt() const
+inline IntParameter &Parameter::getInt()
 {
 	assert(isInt());
-	return static_cast<const IntParameter&>(*this);
+	return static_cast<IntParameter&>(*this);
 }
 
-inline const BoolParameter &Parameter::getBool() const
+inline BoolParameter &Parameter::getBool()
 {
 	assert(isBool());
-	return static_cast<const BoolParameter&>(*this);
+	return static_cast<BoolParameter&>(*this);
 }
 
-inline const SwitchParameter &Parameter::getSwitch() const
+inline SwitchParameter &Parameter::getSwitch()
 {
 	assert(isSwitch());
-	return static_cast<const SwitchParameter&>(*this);
+	return static_cast<SwitchParameter&>(*this);
 }
 
 
@@ -257,10 +257,19 @@ void initParams(gx_engine::GxEngine* engine);
 class MidiStandardControllers
 {
 private:
-	map<int,const char*> m;
+	struct modstring {
+		string name;
+		bool modified;
+		const char *std;
+	};
+	map<int,modstring> m;
+
 public:
 	MidiStandardControllers();
-	const char* operator[](int ctr) { return m[ctr]; }
+	const string operator[](int ctr) { return m[ctr].name; }
+	void replace(int ctr, string name);
+	void writeJSON(gx_system::JsonWriter& jw) const;
+	void readJSON(gx_system::JsonParser& jp);
 };
 
 extern MidiStandardControllers midi_std_ctr; // map ctrl num -> standard name
@@ -306,7 +315,6 @@ private:
 	int last_midi_control_value;
 public:
 	MidiControllerList();
-	MidiControllerList(gx_system::JsonParser&);
 	midi_controller_list& operator[](int n) { return map[n]; }
 	int size() { return map.size(); }
 	void set_config_mode(bool mode, int ctl=-1);
@@ -314,12 +322,12 @@ public:
 	int get_current_control() { return last_midi_control; }
 	void set_current_control(int ctl) { last_midi_control = ctl; }
 	void set(int ctr, int val);
-	void deleteParameter(Parameter& param);
+	void deleteParameter(Parameter& param, bool quiet=false);
 	void modifyCurrent(Parameter& param, float lower, float upper);
 	int param2controller(Parameter& param, const MidiController** p);
-	void load_defaults();
 	void writeJSON(gx_system::JsonWriter& jw);
-	void MidiDef(int ctr, const char* p, float l=0, float u=0);
+	void readJSON(gx_system::JsonParser& jp);
+	sigc::signal<void> changed;
 };
 
 void recall_midi_controller_map();

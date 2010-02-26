@@ -57,73 +57,140 @@ ParamMap parameter_map; // map id -> parameter, zone -> parameter
  ** Midi
  */
 
+static struct {
+	int ctrl;
+	const char *name;
+} midi_std_itab[] = {
+	{ 0, "Bank Select MSB"},
+	{ 1, "Modulation MSB"},
+	{ 2, "Breath Contoller"},
+
+	{ 4, "Foot Controller MSB"},
+	{ 5, "Portamento Time MSB"},
+	{ 6, "Data Entry MSB"},
+	{ 7, "Main Volume"},
+	{ 8, "Balance"},
+
+	{10, "Pan"},
+	{11, "Expression"},
+	{12, "Effect Control 1"},
+	{13, "Effect Control 2"},
+
+	{32, "Bank Select LSB"},
+
+	{64, "Sustain"},
+	{65, "Portamento"},
+	{66, "Sostenuto"},
+	{67, "Soft Pedal"},
+	{68, "Legato Footswitch"},
+	{69, "Hold 2"},
+	{70, "Sound Contr. 1"}, // default: Sound Variation
+	{71, "Sound Contr. 2"}, // default: Timbre/Harmonic Content
+	{72, "Sound Contr. 3"}, // default: Release Time
+	{73, "Sound Contr. 4"}, // default: Attack Time
+	{74, "Sound Contr. 5"}, // default: Brightness
+	{75, "Sound Contr. 6"},
+	{76, "Sound Contr. 7"},
+	{77, "Sound Contr. 8"},
+	{78, "Sound Contr. 9"},
+	{79, "Sound Contr. 10"},
+
+	{84, "Portamento Control"},
+
+	{91, "Eff. 1 Depth"},
+	{92, "Eff. 2 Depth"},
+	{93, "Eff. 3 Depth"},
+	{94, "Eff. 4 Depth"},
+	{95, "Eff. 5 Depth"},
+	{96, "Data Inc"},
+	{97, "Data Dec"},
+	{98, "NRPN LSB"},
+	{99, "NRPN MSB"},
+	{100, "RPN LSB"},
+	{101, "RPN MSB"},
+
+	{120, "All Sounds Off"},
+	{121, "Controller Reset"},
+	{122, "Local Control"},
+	{123, "All Notes Off"},
+	{124, "Omni Off"},
+	{125, "Omni On"},
+	{126, "Mono On (Poly Off)"},
+	{127, "Poly On (Mono Off)"},
+};
+
 MidiStandardControllers::MidiStandardControllers()
 {
-	m.insert(pair<int, const char*>(0, "Bank Select MSB"));
-	m.insert(pair<int, const char*>(1, "Modulation MSB"));
-	m.insert(pair<int, const char*>(2, "Breath Contoller"));
+	for (unsigned int i = 0; i < sizeof(midi_std_itab)/sizeof(midi_std_itab[0]); i++) {
+		m.insert(pair<int, modstring>(midi_std_itab[i].ctrl, {midi_std_itab[i].name, false, midi_std_itab[i].name}));
+	}
+}
 
-	m.insert(pair<int, const char*>(4, "Foot Controller MSB"));
-	m.insert(pair<int, const char*>(5, "Portamento Time MSB"));
-	m.insert(pair<int, const char*>(6, "Data Entry MSB"));
-	m.insert(pair<int, const char*>(7, "Main Volume"));
-	m.insert(pair<int, const char*>(8, "Balance"));
+void MidiStandardControllers::replace(int ctr, string name)
+{
+	map<int,modstring>::iterator i = m.find(ctr);
+	if (name.empty()) {
+		if (i != m.end()) {
+			if (i->second.modified) {
+				if (i->second.std) {
+					i->second.name = m[ctr].std;
+					m[ctr].modified = false;
+				} else {
+					m.erase(i);
+				}
+			}
+		}
+	} else {
+		if (i == m.end()) {
+			m[ctr] = {name, true, 0};
+		} else {
+			i->second.modified = true;
+			i->second.name = name;
+		}
+	}
+}
 
-	m.insert(pair<int, const char*>(10, "Pan"));
-	m.insert(pair<int, const char*>(11, "Expression"));
-	m.insert(pair<int, const char*>(12, "Effect Control 1"));
-	m.insert(pair<int, const char*>(13, "Effect Control 2"));
+void MidiStandardControllers::writeJSON(gx_system::JsonWriter& jw) const
+{
+	jw.begin_object(true);
+	for (map<int,modstring>::const_iterator i = m.cbegin(); i != m.cend(); i++) {
+		if (i->second.modified) {
+			ostringstream ostr;
+			ostr << i->first;
+			jw.write_key(ostr.str());
+			jw.write(i->second.name, true);
+		}
+	}
+	jw.end_object(true);
+}
 
-	m.insert(pair<int, const char*>(32, "Bank Select LSB"));
-
-	m.insert(pair<int, const char*>(64, "Sustain"));
-	m.insert(pair<int, const char*>(65, "Portamento"));
-	m.insert(pair<int, const char*>(66, "Sostenuto"));
-	m.insert(pair<int, const char*>(67, "Soft Pedal"));
-	m.insert(pair<int, const char*>(68, "Legato Footswitch"));
-	m.insert(pair<int, const char*>(69, "Hold 2"));
-	m.insert(pair<int, const char*>(70, "Sound Contr. 1")); // default: Sound Variation
-	m.insert(pair<int, const char*>(71, "Sound Contr. 2")); // default: Timbre/Harmonic Content
-	m.insert(pair<int, const char*>(72, "Sound Contr. 3")); // default: Release Time
-	m.insert(pair<int, const char*>(73, "Sound Contr. 4")); // default: Attack Time
-	m.insert(pair<int, const char*>(74, "Sound Contr. 5")); // default: Brightness
-	m.insert(pair<int, const char*>(75, "Sound Contr. 6"));
-	m.insert(pair<int, const char*>(76, "Sound Contr. 7"));
-	m.insert(pair<int, const char*>(77, "Sound Contr. 8"));
-	m.insert(pair<int, const char*>(78, "Sound Contr. 9"));
-	m.insert(pair<int, const char*>(79, "Sound Contr. 10"));
-
-	m.insert(pair<int, const char*>(84, "Portamento Control"));
-
-	m.insert(pair<int, const char*>(91, "Eff. 1 Depth"));
-	m.insert(pair<int, const char*>(92, "Eff. 2 Depth"));
-	m.insert(pair<int, const char*>(93, "Eff. 3 Depth"));
-	m.insert(pair<int, const char*>(94, "Eff. 4 Depth"));
-	m.insert(pair<int, const char*>(95, "Eff. 5 Depth"));
-	m.insert(pair<int, const char*>(96, "Data Inc"));
-	m.insert(pair<int, const char*>(97, "Data Dec"));
-	m.insert(pair<int, const char*>(98, "NRPN LSB"));
-	m.insert(pair<int, const char*>(99, "NRPN MSB"));
-	m.insert(pair<int, const char*>(100, "RPN LSB"));
-	m.insert(pair<int, const char*>(101, "RPN MSB"));
-	//Channel Mode Messages
-	m.insert(pair<int, const char*>(120, "All Sounds Off"));
-	m.insert(pair<int, const char*>(121, "Controller Reset"));
-	m.insert(pair<int, const char*>(122, "Local Control"));
-	m.insert(pair<int, const char*>(123, "All Notes Off"));
-	m.insert(pair<int, const char*>(124, "Omni Off"));
-	m.insert(pair<int, const char*>(125, "Omni On"));
-	m.insert(pair<int, const char*>(126, "Mono On (Poly Off)"));
-	m.insert(pair<int, const char*>(127, "Poly On (Mono Off)"));
+void MidiStandardControllers::readJSON(gx_system::JsonParser& jp)
+{
+	jp.next(gx_system::JsonParser::begin_object);
+	while (jp.peek() == gx_system::JsonParser::value_key) {
+		jp.next();
+		istringstream istr(jp.current_value());
+		int ctl;
+		istr >> ctl;
+		if (istr.fail()) {
+			throw gx_system::JsonException("midi standard controllers: number expected");
+		}
+		jp.next();
+		replace(ctl, jp.current_value());
+	}
+	jp.next(gx_system::JsonParser::end_object);
 }
 
 void MidiController::writeJSON(gx_system::JsonWriter& jw) const
 {
 	jw.begin_array();
 	jw.write(param.id());
-	if (param.getControlType() == Parameter::Continuous) {
+	if (param.getControlType() == Parameter::Continuous ||
+	    param.getControlType() == Parameter::Enum) {
 		jw.write(_lower);
 		jw.write(_upper);
+	} else {
+		assert(param.getControlType() == Parameter::Switch);
 	}
 	jw.end_array();
 }
@@ -141,15 +208,60 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp)
 		return 0;
 	}
 	float lower, upper;
-	if (param->getControlType() == Parameter::Continuous) {
-		jp.next(gx_system::JsonParser::value_number);
-		lower = jp.current_value_float();
-		jp.next(gx_system::JsonParser::value_number);
-		upper = jp.current_value_float();
+	bool bad = false;
+	bool chg = false;
+	if (param->getControlType() == Parameter::Continuous ||
+	    param->getControlType() == Parameter::Enum) {
+		if (jp.peek() != gx_system::JsonParser::end_array) {
+			float pmin, pmax;
+			if (param->isFloat()) {
+				FloatParameter& fp = param->getFloat();
+				pmin = fp.lower;
+				pmax = fp.upper;
+			} else if (param->isInt()) {
+				IntParameter& ip = param->getInt();
+				pmin = ip.lower;
+				pmax = ip.upper;
+			} else {
+				bad = true;
+			}
+			jp.next(gx_system::JsonParser::value_number);
+			lower = jp.current_value_float();
+			jp.next(gx_system::JsonParser::value_number);
+			upper = jp.current_value_float();
+			if (lower > pmax) {
+				lower = pmax;
+				chg = true;
+			} else if (lower < pmin) {
+				lower = pmin;
+				chg = true;
+			}
+			if (upper > pmax) {
+				upper = pmax;
+				chg = true;
+			} else if (upper < pmin) {
+				upper = pmin;
+				chg = true;
+			}
+		} else {
+			bad = true;
+		}
 	} else {
+		assert(param->getControlType() == Parameter::Switch);
 		lower = upper = 0;
 	}
 	while (jp.next() != gx_system::JsonParser::end_array); // be tolerant
+	if (bad) {
+		gx_system::gx_print_warning(
+			"recall MIDI state",
+			"invalid format, Parameter skipped: " + id);
+		return 0;
+	}
+	if (chg) {
+		gx_system::gx_print_warning(
+			"recall MIDI state",
+			"Parameter range outside bounds, changed: " + id);
+	}
 	return new MidiController(*param, lower, upper);
 }
 
@@ -183,16 +295,21 @@ int MidiControllerList::param2controller(Parameter& param, const MidiController*
 	return -1;
 }
 
-void MidiControllerList::deleteParameter(Parameter& p)
+void MidiControllerList::deleteParameter(Parameter& p, bool quiet)
 {
-	assert(midi_config_mode == true);
+	//assert(midi_config_mode == true); //FIXME, used from MidiControllerTable
+	bool found = false;
 	for (controller_array::iterator pctr = map.begin(); pctr != map.end(); pctr++) {
 		for (midi_controller_list::iterator i = pctr->begin(); i != pctr->end(); i++) {
 			if (i->hasParameter(p)) {
 				pctr->erase(i);
+				found = true;
 				break;
 			}
 		}
+	}
+	if (found && !quiet) {
+		changed();
 	}
 }
 
@@ -206,6 +323,7 @@ void MidiControllerList::modifyCurrent(Parameter &param,
 		return;
 	// add zone to controller
 	map[last_midi_control].push_front(MidiController(param, lower, upper));
+	changed();
 }
 
 void MidiControllerList::set(int ctr, int val)
@@ -220,14 +338,6 @@ void MidiControllerList::set(int ctr, int val)
 		for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); i++)
 			i->set(val);
 	}
-}
-
-void MidiControllerList::MidiDef(int ctr, const char* p, float l, float u)
-{
-	Parameter *pm = parameter_map.find(p);
-	cout << p << endl;
-	assert(pm);
-	map[ctr].push_front(MidiController(*pm, l, u));
 }
 
 void MidiControllerList::writeJSON(gx_system::JsonWriter& w)
@@ -248,14 +358,13 @@ void MidiControllerList::writeJSON(gx_system::JsonWriter& w)
 	w.end_array(true);
 }
 
-MidiControllerList::MidiControllerList(gx_system::JsonParser& jp):
-	midi_config_mode(false),
-	last_midi_control(-1)
+void MidiControllerList::readJSON(gx_system::JsonParser& jp)
 {
+	controller_array m;
 	jp.next(gx_system::JsonParser::begin_array);
 	while (jp.peek() != gx_system::JsonParser::end_array) {
 		jp.next(gx_system::JsonParser::value_number);
-		midi_controller_list& l = map[jp.current_value_int()];
+		midi_controller_list& l = m[jp.current_value_int()];
 		jp.next(gx_system::JsonParser::begin_array);
 		while (jp.peek() != gx_system::JsonParser::end_array) {
 			MidiController *p = MidiController::readJSON(jp);
@@ -266,6 +375,8 @@ MidiControllerList::MidiControllerList(gx_system::JsonParser& jp):
 		jp.next(gx_system::JsonParser::end_array);
 	}
 	jp.next(gx_system::JsonParser::end_array);
+	map = m;
+	changed();
 }
 
 
@@ -576,6 +687,11 @@ inline void Pa(const char*a,const char*b,float*c,float std=0)
 inline void PaE(const char*a,const char*b,float*c,float std=0,float lower=0,float upper=1,float step=1)
 {
 	parameter_map.insert(new FloatParameter(a,b,Parameter::Enum,true,*c,std,lower,upper,step,true));
+}
+
+inline void PaE(const char*a,const char*b,int*c,int std=0,int lower=0,int upper=1)
+{
+	parameter_map.insert(new IntParameter(a,b,Parameter::Enum,true,*c,std,lower,upper,true));
 }
 
 // should be bool

@@ -63,18 +63,10 @@ int precision(double n)
 	else return 0;
 }
 
-static GtkWidget *midilist_window;
-
-static void midilist_response_cb(GtkWidget *widget, gint response_id, gpointer data)
-{
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(data), FALSE);
-	gtk_widget_unref(GTK_WIDGET(data));
-}
-
 string fformat(float value, float step)
 {
 	ostringstream buf;
-	buf << setprecision(precision(step)+1) << value;
+	buf << fixed << setprecision(precision(step)) << value;
 	return buf.str();
 }
 
@@ -97,22 +89,87 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
 	return w;
 }
 
-/* show midi controller table window  */
-void gx_show_midi_window(GtkWidget* widget, gpointer data)
+/****************************************************************
+ ** MidiControllerTable
+ */
+
+class MidiControllerTable: public sigc::trackable
 {
-	if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(data))) {
-		if (midilist_window) {
-			gtk_widget_destroy(midilist_window);
-			midilist_window = NULL;
+private:
+	enum {RESPONSE_DELETE_SELECTED};
+	static GtkWidget *window; // there can only be 1 window
+	GtkToggleButton *togglebutton;
+	GtkTreeSelection *selection;
+	GtkListStore *store;
+	GtkCheckMenuItem *menuitem;
+	static void response_cb(GtkWidget *widget, gint response_id, gpointer data);
+	static void edited_cb(GtkCellRendererText *renderer, gchar *path, gchar *new_text, gpointer data);
+	static void destroy_cb(GtkWidget*, gpointer data);
+	static void toggleButtonSetSwitch(GtkWidget *w, gpointer data);
+	void set(bool);
+	void load();
+	MidiControllerTable(GtkCheckMenuItem *item);
+	~MidiControllerTable();
+public:
+	static void toggle(GtkWidget* widget, gpointer data);
+};
+
+GtkWidget *MidiControllerTable::window = 0;
+
+void MidiControllerTable::response_cb(GtkWidget *widget, gint response_id, gpointer data)
+{
+	MidiControllerTable& m = *(MidiControllerTable*)data;
+	if (response_id == RESPONSE_DELETE_SELECTED) {
+		GtkTreeModel *model;
+		GList *list = gtk_tree_selection_get_selected_rows(m.selection, &model);
+		gtk_tree_selection_unselect_all(m.selection);
+		for (GList *p = g_list_last(list); p; p = g_list_previous(p)) {
+			GtkTreeIter iter;
+			gtk_tree_model_get_iter(GTK_TREE_MODEL(model), &iter, (GtkTreePath*)p->data);
+			const char* id;
+			gtk_tree_model_get(GTK_TREE_MODEL(model), &iter, 7, &id, -1);
+			controller_map.deleteParameter(parameter_map[id], true);
+			gtk_tree_path_free((GtkTreePath*)p->data);
 		}
-		return;
-	} else if (midilist_window) {
+		g_list_free (list);
+		m.load();
 		return;
 	}
-	GtkBuilder * builder = gtk_builder_new();
-	midilist_window = load_toplevel(builder, "midi.glade", "MidiControllerTable");
-	GtkListStore *store = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore1"));
+	gtk_check_menu_item_set_active(m.menuitem, FALSE);
+}
+
+void MidiControllerTable::destroy_cb(GtkWidget*, gpointer data)
+{
+	delete (MidiControllerTable*)data;
+}
+
+void  MidiControllerTable::edited_cb(
+	GtkCellRendererText *renderer, gchar *path, gchar *new_text, gpointer data)
+{
+	GtkListStore *store = GTK_LIST_STORE(data);
 	GtkTreeIter iter;
+	gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(store), &iter, path);
+	int ctrl;
+	gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 0, &ctrl, -1);
+	midi_std_ctr.replace(ctrl, new_text);
+	gtk_list_store_set(store, &iter, 1, midi_std_ctr[ctrl].c_str(), -1);
+}
+
+void MidiControllerTable::toggleButtonSetSwitch(GtkWidget *w, gpointer data)
+{
+	SwitchParameter *p = (SwitchParameter*)data;
+	p->set(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w)));
+}
+
+void MidiControllerTable::set(bool v)
+{
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), v);
+}
+
+void MidiControllerTable::load()
+{
+	GtkTreeIter iter;
+	gtk_list_store_clear(store);
 	for (int i = 0; i < controller_map.size(); i++) {
 		midi_controller_list& cl = controller_map[i];
 		for (midi_controller_list::iterator j = cl.begin(); j != cl.end(); j++) {
@@ -121,31 +178,87 @@ void gx_show_midi_window(GtkWidget* widget, gpointer data)
 			const char *tp;
 			if (p.getControlType() == Parameter::Continuous) {
 				tp = "Scale";
-				assert(p.isFloat()); // only float implemented
-				const FloatParameter& fp = p.getFloat(); //FIXME
+				assert(p.isFloat()); //FIXME only float implemented
+				const FloatParameter& fp = p.getFloat();
 				low = fformat(j->lower(), fp.step);
 				up = fformat(j->upper(), fp.step);
-			} else {
+			} else if (p.getControlType() == Parameter::Enum) {
+				tp = "Select";
+				assert(p.isFloat()); //FIXME only float implemented
+				const FloatParameter& fp = p.getFloat();
+				low = fformat(j->lower(), fp.step);
+				up = fformat(j->upper(), fp.step);
+			} else if (p.getControlType() == Parameter::Switch) {
 				tp = "Switch";
 				low = up = "";
+			} else {
+				assert(false);
 			}
 			gtk_list_store_append(store, &iter);
 			gtk_list_store_set(store, &iter,
 			                   0, i,
-			                   1, midi_std_ctr[i],
+			                   1, midi_std_ctr[i].c_str(),
 			                   2, p.group().c_str(),
 			                   3, p.name().c_str(),
 			                   4, tp,
 			                   5, low.c_str(),
 			                   6, up.c_str(),
+			                   7, p.id().c_str(),
 			                   -1);
 		}
 	}
-	gtk_widget_ref(GTK_WIDGET(data));
-	g_signal_connect(midilist_window, "response", G_CALLBACK(midilist_response_cb), data);
-	gtk_widget_show(midilist_window);
-	g_object_unref(G_OBJECT(builder));
 }
+
+void MidiControllerTable::toggle(GtkWidget* widget, gpointer data)
+{
+	if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(data))) {
+		if (window) {
+			gtk_widget_destroy(window);
+		}
+	} else {
+		if (!window) {
+			new MidiControllerTable(GTK_CHECK_MENU_ITEM(data));
+		}
+	}
+}
+
+MidiControllerTable::~MidiControllerTable()
+{
+	window = NULL;
+	gtk_widget_unref(GTK_WIDGET(menuitem));
+}
+
+MidiControllerTable::MidiControllerTable(GtkCheckMenuItem *item)
+{
+	menuitem = item;
+	gtk_widget_ref(GTK_WIDGET(item));
+
+	GtkBuilder * builder = gtk_builder_new();
+	window = load_toplevel(builder, "midi.glade", "MidiControllerTable");
+	store = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore1"));
+	togglebutton = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "save_controller"));
+
+	SwitchParameter& param = parameter_map["system.midi_in_preset"].getSwitch();
+	gtk_toggle_button_set_active(togglebutton, param.get());
+	param.changed.connect(sigc::mem_fun(*this, &MidiControllerTable::set));
+	g_signal_connect(GTK_OBJECT(togglebutton), "toggled",
+	                 G_CALLBACK(toggleButtonSetSwitch), (gpointer)&param);
+	selection = gtk_tree_view_get_selection(
+		GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview1")));
+	gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
+
+	load();
+
+	g_signal_connect(window, "destroy", G_CALLBACK(destroy_cb), this);
+	g_signal_connect(window, "response", G_CALLBACK(response_cb), this);
+	g_signal_connect(G_OBJECT(gtk_builder_get_object(builder, "cellrenderertext2")),
+	                 "edited", G_CALLBACK(edited_cb), store);
+
+	gtk_widget_show(window);
+	g_object_unref(G_OBJECT(builder));
+	controller_map.changed.connect(sigc::mem_fun(*this, &MidiControllerTable::load));
+}
+
 
 /*****************************************************************
  ** Midi Control
@@ -174,10 +287,10 @@ public:
 
 string MidiConnect::ctr_desc(int ctr)
 {
-	const char *p = midi_std_ctr[ctr];
-	if (!p)
-		return "";
-	return "(" + string(p) + ")";
+	string p = midi_std_ctr[ctr];
+	if (p.empty())
+		return p;
+	return "(" + p + ")";
 }
 
 
@@ -186,7 +299,8 @@ void MidiConnect::midi_response_cb(GtkWidget *widget, gint response_id, gpointer
 	MidiConnect* m = (MidiConnect*)data;
 	switch (response_id) {
 	case GTK_RESPONSE_OK:
-		if (m->param.getControlType() == Parameter::Continuous && m->param.isFloat()) {
+		if (m->param.getControlType() == Parameter::Continuous ||
+		    m->param.getControlType() == Parameter::Enum) {
 			assert(m->adj_lower);
 			assert(m->adj_upper);
 			float lower = gtk_adjustment_get_value(m->adj_lower);
@@ -291,20 +405,19 @@ MidiConnect::MidiConnect(GdkEventButton *event, Parameter &param):
 	gtk_label_set_text(GTK_LABEL(zn), (param.group() + ": " + param.name()).c_str());
 	const MidiController *pctrl;
 	int nctl = controller_map.param2controller(param, &pctrl);
-	if (param.getControlType() == Parameter::Continuous) {
+	if (param.getControlType() == Parameter::Continuous ||
+		param.getControlType() == Parameter::Enum) {
 		float lower, upper, step;
 		if (param.isFloat()) {
 			lower = param.getFloat().lower;
 			upper = param.getFloat().upper;
 			step = param.getFloat().step;
-		} else {
+		} else if (param.isInt()) {
 			lower = param.getInt().lower;
 			upper = param.getInt().upper;
 			step = 1;
-		}
-		if (nctl != -1) {
-			lower = pctrl->lower();
-			upper = pctrl->upper();
+		} else {
+			assert(false);
 		}
 		GtkSpinButton *spinner;
 		adj_lower = GTK_ADJUSTMENT(gtk_adjustment_new(lower, lower, upper, step, 10*step, 0));
@@ -314,6 +427,10 @@ MidiConnect::MidiConnect(GdkEventButton *event, Parameter &param):
 		adj_upper = GTK_ADJUSTMENT(gtk_adjustment_new(upper, lower, upper, step, 10*step, 0));
 		spinner = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "upper"));
 		gtk_spin_button_configure(spinner, adj_upper, climb_rate, precision(step));
+		if (nctl != -1) {
+			gtk_adjustment_set_value(adj_lower, pctrl->lower());
+			gtk_adjustment_set_value(adj_upper, pctrl->upper());
+		}
 	} else {
 		adj_lower = adj_upper = 0;
 		gtk_widget_hide(GTK_WIDGET(gtk_builder_get_object(builder, "range_label")));
@@ -2244,7 +2361,7 @@ void GxMainInterface::addEngineMenu()
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_i, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
-	                  G_CALLBACK (gx_show_midi_window), menuitem);
+	                  G_CALLBACK (MidiControllerTable::toggle), menuitem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
 	gtk_widget_show (menuitem);
 
@@ -2543,7 +2660,7 @@ void GxMainInterface::addOptionMenu()
 	addGuiSkinMenu();
 
 	/*-- create option for saving midi controller settings in presets --*/
-	menuitem = gtk_check_menu_item_new_with_mnemonic ("Save Midi in _Presets");
+	menuitem = gtk_check_menu_item_new_with_mnemonic ("Include MIDI in _presets");
 	gtk_widget_show (menuitem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	fMidiInPreset.init(
