@@ -227,3 +227,9 @@ def build(bld):
     bld.add_subdirs('pixmaps')
 
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
+
+def etags(ctx):
+    "Create an Emacs ETAGS file for the src directory"
+    cmd = "etags -l c++ --members -o src/TAGS src/*.cpp src/headers/*.h"
+    Logs.debug("runner: system command -> %s" % cmd)
+    Utils.exec_command(cmd)
