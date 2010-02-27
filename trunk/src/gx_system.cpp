@@ -518,7 +518,6 @@ void read_preset(JsonParser &jp)
 			*gx_jconv::GxJConvSettings::instance() = gx_jconv::GxJConvSettings(jp);
 		} else if (jp.current_value() == "midi_controller") {
 			if (gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
-				//FIXME: clash with jack rt thread (unprobable)
 				gx_gui::controller_map.readJSON(jp);
 			} else {
 				jp.skip_object();

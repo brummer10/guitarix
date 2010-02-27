@@ -214,16 +214,12 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp)
 	    param->getControlType() == Parameter::Enum) {
 		if (jp.peek() != gx_system::JsonParser::end_array) {
 			float pmin, pmax;
-			if (param->isFloat()) {
-				FloatParameter& fp = param->getFloat();
-				pmin = fp.lower;
-				pmax = fp.upper;
-			} else if (param->isInt()) {
-				IntParameter& ip = param->getInt();
-				pmin = ip.lower;
-				pmax = ip.upper;
+			if (param->hasRange()) {
+				pmin = param->getLowerAsFloat();
+				pmax = param->getUpperAsFloat();
 			} else {
 				bad = true;
+				pmin = pmax = 0;
 			}
 			jp.next(gx_system::JsonParser::value_number);
 			lower = jp.current_value_float();
@@ -247,7 +243,9 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp)
 			bad = true;
 		}
 	} else {
-		assert(param->getControlType() == Parameter::Switch);
+		if (param->getControlType() != Parameter::Switch) {
+			bad = true;
+		}
 		lower = upper = 0;
 	}
 	while (jp.next() != gx_system::JsonParser::end_array); // be tolerant
@@ -297,7 +295,10 @@ int MidiControllerList::param2controller(Parameter& param, const MidiController*
 
 void MidiControllerList::deleteParameter(Parameter& p, bool quiet)
 {
-	//assert(midi_config_mode == true); //FIXME, used from MidiControllerTable
+	bool mode = get_config_mode();
+	if (!mode) {
+		set_config_mode(true); // keep rt thread away from table
+	}
 	bool found = false;
 	for (controller_array::iterator pctr = map.begin(); pctr != map.end(); pctr++) {
 		for (midi_controller_list::iterator i = pctr->begin(); i != pctr->end(); i++) {
@@ -311,12 +312,15 @@ void MidiControllerList::deleteParameter(Parameter& p, bool quiet)
 	if (found && !quiet) {
 		changed();
 	}
+	if (!mode) {
+		set_config_mode(false);
+	}
 }
 
 void MidiControllerList::modifyCurrent(Parameter &param,
                                        float lower, float upper)
 {
-	assert(midi_config_mode == true);
+	assert(midi_config_mode == true); // keep rt thread away from table
 	// maximal one controller for a zone allowed
 	deleteParameter(param);
 	if (last_midi_control == -1)
@@ -375,7 +379,14 @@ void MidiControllerList::readJSON(gx_system::JsonParser& jp)
 		jp.next(gx_system::JsonParser::end_array);
 	}
 	jp.next(gx_system::JsonParser::end_array);
+	bool mode = get_config_mode();
+	if (!mode) {
+		set_config_mode(true); // keep rt thread away from table
+	}
 	map = m;
+	if (!mode) {
+		set_config_mode(false);
+	}
 	changed();
 }
 
@@ -479,6 +490,29 @@ string param_group(string id)
  ** Parameter
  */
 
+bool Parameter::hasRange() const
+{
+	return false;
+}
+
+float Parameter::getStepAsFloat() const
+{
+	return 1;
+}
+
+float Parameter::getLowerAsFloat() const
+{
+	return 0;
+}
+
+float Parameter::getUpperAsFloat() const
+{
+	return 0;
+}
+
+
+/* FloatParameter */
+
 void *FloatParameter::zone()
 {
 	return &value;
@@ -517,6 +551,29 @@ void FloatParameter::readJSON_value(gx_system::JsonParser& jp)
 	jp.next(gx_system::JsonParser::value_number);
 	set(jp.current_value_float());
 }
+
+bool FloatParameter::hasRange() const
+{
+	return true;
+}
+
+float FloatParameter::getLowerAsFloat() const
+{
+	return lower;
+}
+
+float FloatParameter::getUpperAsFloat() const
+{
+	return upper;
+}
+
+float FloatParameter::getStepAsFloat() const
+{
+	return step;
+}
+
+
+/* IntParameter */
 
 void *IntParameter::zone()
 {
@@ -557,6 +614,24 @@ void IntParameter::readJSON_value(gx_system::JsonParser& jp)
 	set(jp.current_value_int());
 }
 
+bool IntParameter::hasRange() const
+{
+	return true;
+}
+
+float IntParameter::getLowerAsFloat() const
+{
+	return lower;
+}
+
+float IntParameter::getUpperAsFloat() const
+{
+	return upper;
+}
+
+
+/* BoolParameter */
+
 void *BoolParameter::zone()
 {
 	return &value;
@@ -589,6 +664,9 @@ void BoolParameter::readJSON_value(gx_system::JsonParser& jp)
 	jp.next(gx_system::JsonParser::value_number);
 	value = jp.current_value_int();
 }
+
+
+/* SwitchParameter */
 
 void SwitchParameter::set(bool val)
 {

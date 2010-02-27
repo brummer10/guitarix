@@ -152,7 +152,16 @@ void  MidiControllerTable::edited_cb(
 	int ctrl;
 	gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 0, &ctrl, -1);
 	midi_std_ctr.replace(ctrl, new_text);
-	gtk_list_store_set(store, &iter, 1, midi_std_ctr[ctrl].c_str(), -1);
+	bool valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
+	const char *name = midi_std_ctr[ctrl].c_str();
+	while (valid) {
+		int n;
+		gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 0, &n, -1);
+		if (n == ctrl) {
+			gtk_list_store_set(store, &iter, 1, name, -1);
+		}
+		valid = gtk_tree_model_iter_next (GTK_TREE_MODEL(store), &iter);
+	}
 }
 
 void MidiControllerTable::toggleButtonSetSwitch(GtkWidget *w, gpointer data)
@@ -176,18 +185,15 @@ void MidiControllerTable::load()
 			Parameter& p = j->getParameter();
 			string low, up;
 			const char *tp;
+			float step = p.getStepAsFloat();
 			if (p.getControlType() == Parameter::Continuous) {
 				tp = "Scale";
-				assert(p.isFloat()); //FIXME only float implemented
-				const FloatParameter& fp = p.getFloat();
-				low = fformat(j->lower(), fp.step);
-				up = fformat(j->upper(), fp.step);
+				low = fformat(j->lower(), step);
+				up = fformat(j->upper(), step);
 			} else if (p.getControlType() == Parameter::Enum) {
 				tp = "Select";
-				assert(p.isFloat()); //FIXME only float implemented
-				const FloatParameter& fp = p.getFloat();
-				low = fformat(j->lower(), fp.step);
-				up = fformat(j->upper(), fp.step);
+				low = fformat(j->lower(), step);
+				up = fformat(j->upper(), step);
 			} else if (p.getControlType() == Parameter::Switch) {
 				tp = "Switch";
 				low = up = "";
@@ -407,18 +413,9 @@ MidiConnect::MidiConnect(GdkEventButton *event, Parameter &param):
 	int nctl = controller_map.param2controller(param, &pctrl);
 	if (param.getControlType() == Parameter::Continuous ||
 		param.getControlType() == Parameter::Enum) {
-		float lower, upper, step;
-		if (param.isFloat()) {
-			lower = param.getFloat().lower;
-			upper = param.getFloat().upper;
-			step = param.getFloat().step;
-		} else if (param.isInt()) {
-			lower = param.getInt().lower;
-			upper = param.getInt().upper;
-			step = 1;
-		} else {
-			assert(false);
-		}
+		float lower = param.getLowerAsFloat();
+		float upper = param.getUpperAsFloat();
+		float step = param.getStepAsFloat();
 		GtkSpinButton *spinner;
 		adj_lower = GTK_ADJUSTMENT(gtk_adjustment_new(lower, lower, upper, step, 10*step, 0));
 		spinner = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "lower"));
@@ -605,11 +602,13 @@ void GxMainInterface::openTabBox(const char* label)
 
 static void logging_set_color(GtkWidget *w, gpointer data)
 {
+	GxMainInterface *p = (GxMainInterface*)data;
 	if (gtk_expander_get_expanded(GTK_EXPANDER(w)) == FALSE) {
-		GxMainInterface *p = (GxMainInterface*)data;
 		// expander will be opened
-		p->highest_unseen_msg_level = -1;
+		p->highest_unseen_msg_level = kMessageTypeCount;
 		p->set_logging_expander_color("#ffffff");
+	} else {
+		p->highest_unseen_msg_level = -1;
 	}
 }
 

@@ -101,6 +101,10 @@ public:
 	virtual void set(int n, int high, float llimit, float ulimit) = 0;
 	virtual void writeJSON(gx_system::JsonWriter& jw) = 0;
 	virtual void readJSON_value(gx_system::JsonParser& jp) = 0;
+	virtual bool hasRange() const;
+	virtual float getLowerAsFloat() const;
+	virtual float getUpperAsFloat() const;
+	virtual float getStepAsFloat() const;
 	FloatParameter& getFloat();
 	IntParameter& getInt();
 	BoolParameter& getBool();
@@ -119,6 +123,10 @@ public:
 	virtual void set(int n, int high, float llimit, float ulimit);
 	virtual void writeJSON(gx_system::JsonWriter& jw);
 	virtual void readJSON_value(gx_system::JsonParser& jp);
+	virtual bool hasRange() const;
+	virtual float getLowerAsFloat() const;
+	virtual float getUpperAsFloat() const;
+	virtual float getStepAsFloat() const;
 	FloatParameter(string id, string name, ctrl_type ctp, bool preset,
 	               float &v, float sv, float lv, float uv, float tv, bool ctrl):
 		Parameter(id, name, tp_float, ctp, preset, ctrl),
@@ -138,6 +146,9 @@ public:
 	virtual void set(int n, int high, float llimit, float ulimit);
 	virtual void writeJSON(gx_system::JsonWriter& jw);
 	virtual void readJSON_value(gx_system::JsonParser& jp);
+	virtual bool hasRange() const;
+	virtual float getLowerAsFloat() const;
+	virtual float getUpperAsFloat() const;
 	IntParameter(string id, string name, ctrl_type ctp, bool preset,
 	             int &v, int sv, int lv, int uv, bool ctrl):
 		Parameter(id, name, tp_int, ctp, preset, ctrl),
