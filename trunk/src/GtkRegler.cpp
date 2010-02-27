@@ -246,8 +246,14 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 		            klass->bigknob_x) *0.5;
 		reglery += (widget->allocation.height -
 		            klass->bigknob_y) *0.5;
-		int reglerstate = (int)((adj->value - adj->lower) *
-		                        klass->bigknob_step / (adj->upper - adj->lower));
+		double reglerstate = (adj->value - adj->lower) / (adj->upper - adj->lower);
+		const double scale_zero = 10 * (M_PI/180);
+		double angle = scale_zero + reglerstate * 2 * (M_PI - scale_zero);
+		const double pointer_off = 5;
+		double radius = min(klass->bigknob_x-pointer_off, klass->bigknob_y-pointer_off) / 2;
+		double lengh_x = (reglerx+radius+pointer_off/2) - radius * sin(angle);
+		double lengh_y = (reglery+radius+pointer_off/2) + radius * cos(angle);
+		double radius1 = min(klass->bigknob_x, klass->bigknob_y) / 2;
 
 		if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE) {
 			gtk_paint_focus(widget->style, window, GTK_STATE_NORMAL, NULL, widget, NULL,
@@ -263,14 +269,6 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 			GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
 			GdkColor color ;
 
-			double radius = MIN (klass->bigknob_x-5.,
-			                     klass->bigknob_y-5.) * 0.5;
-			double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
-			double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
-
-			double radius1 = MIN (klass->bigknob_x,
-			                      klass->bigknob_y) * 0.5;
-
 			cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
 			cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
 			cairo_set_line_width (cr, 5.0);
@@ -284,9 +282,10 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 			cairo_stroke (cr);
 			cairo_destroy(cr);
 
-			color.red = (205-reglerstate*2) * 256;
-			color.blue = 20 * 256;
-			color.green = reglerstate*742;
+			// linear color change in RGB space from (52480, 0, 5120) to (8448, 46004, 5120)
+			color.red = 52480 - int(44032 * reglerstate);
+			color.green = int(46004 * reglerstate);
+			color.blue = 5120;
 			gdk_gc_set_rgb_fg_color(line, &color);
 			gdk_gc_set_line_attributes (line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
 			gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,reglerx+2, reglery+2,
@@ -304,14 +303,6 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 			/** this is to create a pointer rotating on the knob with painting funktions **/
 			GdkGC * line = gdk_gc_new(GDK_DRAWABLE(widget->window));
 			GdkColor color ;
-
-			double radius = MIN (klass->bigknob_x-5.,
-			                     klass->bigknob_y-5.) * 0.5;
-			double lengh_x = (reglerx+2.5)+radius*(1+cos(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
-			double lengh_y = (reglery+2.5)+radius*(1+sin(((reglerstate*3.6)+115.)*0.017453278));//3.14159/180.)) ;
-
-			double radius1 = MIN (klass->bigknob_x,
-			                      klass->bigknob_y) * 0.5;
 
 			cairo_t *     cr =       gdk_cairo_create(GDK_DRAWABLE(widget->window));
 			cairo_set_source_rgb (cr,  0.1, 0.1, 0.1);
@@ -747,6 +738,9 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
 
 //----------- Big knob
 	else if (regler->regler_type == 1) {
+		if (GTK_WIDGET_HAS_GRAB(widget) || GTK_WIDGET_HAS_FOCUS(widget)== TRUE) {
+			return TRUE;
+		}
 		reglerx += (widget->allocation.width -
 		            klass->bigknob_x) *0.5;
 		reglery += (widget->allocation.height -
@@ -987,6 +981,9 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 
 //----------- Big knob
 	else if (regler->regler_type == 1) {
+		if (GTK_WIDGET_HAS_GRAB(widget) || GTK_WIDGET_HAS_FOCUS(widget)== TRUE) {
+			return TRUE;
+		}
 		reglerx += (widget->allocation.width -
 		            klass->bigknob_x) *0.5;
 		reglery += (widget->allocation.height -
@@ -1545,25 +1542,30 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
 				                    ((angle+pause)*0.003030303) *(adj->upper - adj->lower) );
 			} else gtk_grab_remove(widget);
 		} else if (regler->regler_type == 1) {
-
-			double radius1 = MIN (klass->bigknob_x,
-			                      klass->bigknob_y) * 0.5;
-			int  reglerx = (widget->allocation.width -
-			                klass->bigknob_x) *0.5;
-			int  reglery = (widget->allocation.height -
-			                klass->bigknob_y) *0.5;
-			double posx = (( reglerx+radius1 - event->x ));
-			double posy = ((reglery+radius1 - event->y ));
-			double angle = acos(posy/sqrt(posx*posx+posy*posy))*57.295828 ; // 180.0 / 3.14159;
-			if (posx<0) angle =  170+angle;
-			else angle = 170-angle;
-			if ((angle > 0) && (angle < 340)) {
-				int pause;
-				if (angle < 335 ) pause = -10;
-				else pause = 10;
-				gtk_range_set_value(GTK_RANGE(widget),adj->lower +
-				                    ((angle+pause)*0.003030303) *(adj->upper - adj->lower) );
-			} else gtk_grab_remove(widget);
+			double radius =  min(klass->bigknob_x, klass->bigknob_y) / 2;
+			int  reglerx = (widget->allocation.width - klass->bigknob_x) / 2;
+			int  reglery = (widget->allocation.height - klass->bigknob_y) / 2;
+			double posx = (reglerx + radius) - event->x; // x axis right -> left
+			double posy = (reglery + radius) - event->y; // y axis top -> bottom
+			double angle = atan2(-posx, posy) + M_PI; // clockwise, zero at 6 o'clock, 0 .. 2*M_PI
+			const double scale_zero = 10 * (M_PI/180);
+			static int last_quadrant = 2;
+			int quadrant = 1 + int(angle/M_PI_2);
+			// block "forbidden zone" and direct moves between quadrant 1 and 4
+			if (last_quadrant == 1 && quadrant == 4) {
+				angle = scale_zero;
+			} else if (last_quadrant == 4 && quadrant == 1) {
+				angle = 2*M_PI - scale_zero;
+			} else {
+				if (angle < scale_zero) {
+					angle = scale_zero;
+				} else if (angle > 2*M_PI - scale_zero) {
+					angle = 2*M_PI - scale_zero;
+				}
+				last_quadrant = quadrant;
+			}
+			angle = (angle - scale_zero) / (2 * (M_PI-scale_zero)); // normalize to 0..1
+			gtk_range_set_value(GTK_RANGE(widget), adj->lower + angle * (adj->upper - adj->lower));
 		}
 //----------- slider
 		else if (regler->regler_type == 3) {
