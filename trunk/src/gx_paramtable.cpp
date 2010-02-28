@@ -207,7 +207,7 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp)
 		while (jp.next() != gx_system::JsonParser::end_array);
 		return 0;
 	}
-	float lower, upper;
+	float lower = 0, upper = 0;
 	bool bad = false;
 	bool chg = false;
 	if (param->getControlType() == Parameter::Continuous ||
@@ -246,7 +246,6 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp)
 		if (param->getControlType() != Parameter::Switch) {
 			bad = true;
 		}
-		lower = upper = 0;
 	}
 	while (jp.next() != gx_system::JsonParser::end_array); // be tolerant
 	if (bad) {

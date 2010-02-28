@@ -198,6 +198,7 @@ void MidiControllerTable::load()
 				tp = "Switch";
 				low = up = "";
 			} else {
+				tp = "??";
 				assert(false);
 			}
 			gtk_list_store_append(store, &iter);
