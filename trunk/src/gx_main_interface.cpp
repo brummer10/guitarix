@@ -2664,8 +2664,7 @@ void GxMainInterface::addOptionMenu()
 	gtk_widget_show (menuitem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	fMidiInPreset.init(
-		GTK_CHECK_MENU_ITEM(menuitem),
-		new SwitchParameter("system.midi_in_preset", false, false, false));
+		GTK_CHECK_MENU_ITEM(menuitem), new SwitchParameter("system.midi_in_preset"));
 }
 
 
@@ -2721,6 +2720,13 @@ void GxMainInterface::addGuiSkinMenu()
 }
 
 //----------------------------- about menu ----------------------------
+static void set_tooltips(bool v)
+{
+	gtk_settings_set_long_property(
+		gtk_settings_get_default(),"gtk-enable-tooltips",v,
+		"guitarix menu-option");
+}
+
 void GxMainInterface::addAboutMenu()
 {
 	GtkWidget* menulabel; // menu label
@@ -2754,6 +2760,14 @@ void GxMainInterface::addAboutMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	//    g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_about), NULL);
 	gtk_widget_show (menuitem);
+
+	/*-- Create menu item to control tooltip display --*/
+	menuitem = gtk_check_menu_item_new_with_mnemonic ("Show _Tooltips");
+	gtk_widget_show (menuitem);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+	SwitchParameter *p = new SwitchParameter("system.show_tooltips");
+	fShowTooltips.init(GTK_CHECK_MENU_ITEM(menuitem), p);
+	p->changed.connect(ptr_fun(set_tooltips));
 
 	/*---------------- End About menu declarations ----------------*/
 }

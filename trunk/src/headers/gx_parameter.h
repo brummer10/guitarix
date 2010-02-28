@@ -188,7 +188,7 @@ public:
 	virtual void set(int n, int high, float llimit, float ulimit);
 	virtual void writeJSON(gx_system::JsonWriter& jw);
 	virtual void readJSON_value(gx_system::JsonParser& jp);
-	SwitchParameter(string id, bool preset, bool v, bool sv):
+	SwitchParameter(string id, bool preset=false, bool v=false, bool sv=false):
 		Parameter(id, "", tp_switch, Switch, preset, false),
 		value(v), std_value(sv)
 		{}

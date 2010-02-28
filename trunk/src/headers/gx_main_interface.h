@@ -80,6 +80,7 @@ protected :
 	// menu items
 	map<string, GtkWidget*> fMenuList;
 	MenuCheckItem       fMidiInPreset;
+	MenuCheckItem       fShowTooltips;
 
 	// jack menu widgets
 	GtkWidget*          fJackConnectItem;
