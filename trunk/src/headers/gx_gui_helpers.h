@@ -66,10 +66,10 @@ void gx_hide_portmap_window (GtkWidget* widget, gpointer arg);
 void gx_refresh_portconn_status(GtkWidget* button, gpointer data);
 void gx_cycle_through_client_tabs(GtkWidget* item, gpointer data);
 
-void gx_queue_client_port(const string, const string, const int);
+void gx_queue_client_port(const string, const int);
 void gx_queue_client(const string);
 
-void gx_dequeue_client_port(const string, const string, const int);
+void gx_dequeue_client_port(const string, const int);
 void gx_dequeue_client(const string);
 
 void gx_jack_is_down();

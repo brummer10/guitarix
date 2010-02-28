@@ -172,7 +172,6 @@ void gx_refresh_engine_status_display()
 
 /* --------- queue up new client ports as they are registered -------- */
 void gx_queue_client_port(const string name,
-                          const string type,
                           const int flags)
 {
 	// add the port
@@ -181,7 +180,6 @@ void gx_queue_client_port(const string name,
 
 /* --------- dequeue client ports as they are deregistered -------- */
 void gx_dequeue_client_port(const string name,
-                            const string type,
                             const int flags)
 {
 	// remove the port
@@ -210,7 +208,7 @@ void gx_refresh_portconn_status(GtkWidget* button, gpointer data)
 	// delete unaktive clients from portmap
 	if (!jack_port_by_name(gx_jack::client, port_name.c_str()))
 	{
-		gx_dequeue_client_port(port_name.c_str(),JACK_DEFAULT_MIDI_TYPE,0);
+		gx_dequeue_client_port(port_name.c_str(),0);
 		return;
 	}
 

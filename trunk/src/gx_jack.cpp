@@ -874,21 +874,16 @@ void gx_jack_portreg_callback(jack_port_id_t pid, int reg, void* arg)
 	if (jack_port_is_mine(client, port)) return;
 
 	// OK, let's get to it
-
-	// don't process MIDI ports, too messy with jack2 ATM
-	const string type  = jack_port_type(port);
-	if (type == JACK_DEFAULT_MIDI_TYPE) return;
-
 	const string name = jack_port_name(port);
 	const int   flags = jack_port_flags(port);
 
 	switch (reg)
 	{
 	case 0:
-		gx_gui::gx_dequeue_client_port(name, type, flags);
+		gx_gui::gx_dequeue_client_port(name, flags);
 		break;
 	case 1:
-		gx_gui::gx_queue_client_port  (name, type, flags);
+		gx_gui::gx_queue_client_port  (name, flags);
 		break;
 	default:
 		break;
