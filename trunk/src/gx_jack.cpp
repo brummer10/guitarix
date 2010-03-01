@@ -612,25 +612,29 @@ void gx_jack_shutdown_callback(void *arg)
 int gx_jack_graph_callback (void* arg)
 {
 
-	if (jack_port_connected(input_ports[0]))
-	{
+	if (jack_port_connected(input_ports[0])) {
 		const char** port = jack_port_get_connections(input_ports[0]);
-		setenv("GUITARIX2JACK_INPUTS",port[0],0);
-		NO_CONNECTION = 0;
-		free(port);
+		if (port) { // might be 0 (e.g. due to race conditions)
+			setenv("GUITARIX2JACK_INPUTS",port[0],0);
+			NO_CONNECTION = 0;
+			free(port);
+		}
+	} else {
+		NO_CONNECTION = 1;
 	}
-	else NO_CONNECTION = 1;
-	if (jack_port_connected (output_ports[0]))
-	{
+	if (jack_port_connected (output_ports[0])) {
 		const char** port1 = jack_port_get_connections(output_ports[0]);
-		setenv("GUITARIX2JACK_OUTPUTS1",port1[0],0);
-		free(port1);
+		if (port1) {
+			setenv("GUITARIX2JACK_OUTPUTS1",port1[0],0);
+			free(port1);
+		}
 	}
-	if (jack_port_connected (output_ports[1]))
-	{
+	if (jack_port_connected (output_ports[1])) {
 		const char** port2 = jack_port_get_connections(output_ports[1]);
-		setenv("GUITARIX2JACK_OUTPUTS2",port2[0],0);
-		free(port2);
+		if (port2) {
+			setenv("GUITARIX2JACK_OUTPUTS2",port2[0],0);
+			free(port2);
+		}
 	}
 	return 0;
 }
