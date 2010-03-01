@@ -620,6 +620,7 @@ static gboolean gtk_waveview_pointer_motion (GtkWidget *widget, GdkEventMotion *
 	g_assert(GTK_IS_WAVEVIEW(widget));
 	GtkWaveView *waveview = GTK_WAVEVIEW(widget);
 
+	gdk_event_request_motions (event);
 	// JConv IR file
 	if ((waveview->waveview_type == kWvTypeJConv)&&(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->wavebutton))
 	{

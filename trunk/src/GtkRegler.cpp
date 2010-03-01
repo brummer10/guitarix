@@ -1519,6 +1519,7 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
 	GtkRegler *regler = GTK_REGLER(widget);
 	GtkReglerClass *klass =  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+	gdk_event_request_motions (event);
 	if (GTK_WIDGET_HAS_GRAB(widget)) {
 		// usleep(50000);
 		if (regler->regler_type == 0) {
