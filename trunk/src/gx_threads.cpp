@@ -198,8 +198,8 @@ gboolean gx_check_startup(gpointer args)
 	// set global variable the all whent well
 	gx_engine::is_setup = 1;
 	// case jconvolver is on at startup
-	if (gx_jconv::GxJConvSettings::checkbutton7 == 1)
-		gx_start_stop_jconv(NULL,NULL);
+	//if (gx_jconv::GxJConvSettings::checkbutton7 == 1) //FIXME remove after jconvolver transition
+	//	gx_start_stop_jconv(NULL,NULL);
 	// run only one time
 	return FALSE;
 }

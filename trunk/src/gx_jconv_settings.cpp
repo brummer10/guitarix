@@ -677,12 +677,12 @@ void gx_setting_jconv_dialog_gui(GtkWidget *widget, gpointer data)
 	gtk_container_add (GTK_CONTAINER (box11),   mslider_box);
 	//gtk_container_add (GTK_CONTAINER (box11),   box12);
 	gtk_container_add (GTK_CONTAINER (box2),   box1);
-	gtk_container_add (GTK_CONTAINER (box1),   box3);
+	//gtk_container_add (GTK_CONTAINER (box1),   box3); //FIXME mode (read/copy) remove after jconvolver transition
 	gtk_container_add (GTK_CONTAINER (box3),   label5);
 	gtk_container_add (GTK_CONTAINER (box3),   jcmode_combo);
 	gtk_container_add (GTK_CONTAINER (box1),   box);
-	gtk_container_add (GTK_CONTAINER (box),    label2);
-	gtk_container_add (GTK_CONTAINER (box),    bs_combo);
+	gtk_box_pack_start(GTK_BOX(box), label2, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(box), bs_combo, FALSE, FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (box4),   ok_button);
 
 	//----- connect signals to callback cairo funcs

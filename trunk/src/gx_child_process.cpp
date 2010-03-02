@@ -438,6 +438,24 @@ void gx_start_stop_jack_capture(GtkWidget *widget, gpointer data)
 	gx_print_warning("Record", warning);
 }
 
+void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
+{
+	if (gx_jconv::GxJConvSettings::checkbutton7 == 0) {
+		conv.stop();
+	} else {
+		gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
+		bool rc = conv.configure(
+			gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
+			jcset->getGain(), jcset->getlGain(), jcset->getDelay(), jcset->getlDelay(),
+			jcset->getOffset(), jcset->getLength(), jcset->getMem(), jcset->getBufferSize());
+		if (!rc || !conv.start()) {
+			gx_jconv::GxJConvSettings::checkbutton7 = 0;
+			return;
+		}
+	}
+}
+
+#if FALSE
 // ---------------  start stop JConv
 void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 {
@@ -617,6 +635,7 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 		gx_jconv::checkbox7 = 0.0;
 	}
 }
+#endif
 
 //----menu function gx_meterbridge
 void gx_start_stop_meterbridge(GtkCheckMenuItem *menuitem, gpointer checkplay)
