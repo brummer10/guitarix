@@ -464,7 +464,6 @@ void gx_reset_effects( GtkWidget *widget, gpointer data )
 		string id = i->first;
 		if (id.size() > pos.size() &&
 		    id.compare(id.size()-pos.size(), pos.size(), pos) == 0) {
-			cout << i->first << " " << endl;
 			i->second->set_std_value();
 		}
 	}
@@ -480,7 +479,6 @@ void gx_reset_units( GtkWidget *widget, gpointer data )
 			if (i->second->isControllable()) {
 				string id = i->first;
 				if (i->first != on_off) {
-					cout << i->first << " " << endl;
 					i->second->set_std_value();
 				}
 			}

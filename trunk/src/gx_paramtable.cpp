@@ -521,7 +521,7 @@ void FloatParameter::set(int n, int high, float llimit, float ulimit)
 {
 	switch (c_type) {
 	case Continuous:
-		assert(n > 0 && n <= high);
+		assert(n >= 0 && n <= high);
 		value = llimit + ((float)(n) / (high)) * (ulimit - llimit);
 		break;
 	case Switch:
