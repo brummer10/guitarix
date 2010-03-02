@@ -879,15 +879,25 @@ void gx_jack_portreg_callback(jack_port_id_t pid, int reg, void* arg)
 
 	// OK, let's get to it
 	const string name = jack_port_name(port);
-	const int   flags = jack_port_flags(port);
-
+	const int   jackflags = jack_port_flags(port);
+	const char *tp    = jack_port_type(port);
+	int flags;
+	if (strcmp(tp, JACK_DEFAULT_AUDIO_TYPE) == 0 && (jackflags & JackPortIsOutput)) {
+		flags = gx_gui::GxMainInterface::JACK_AUDIO_IN;
+	} else if (strcmp(tp, JACK_DEFAULT_MIDI_TYPE) == 0 && (jackflags & JackPortIsOutput)) {
+		flags = gx_gui::GxMainInterface::JACK_MIDI_IN;
+	} else if (strcmp(tp, JACK_DEFAULT_AUDIO_TYPE) == 0 && (jackflags & JackPortIsInput)) {
+		flags = gx_gui::GxMainInterface::JACK_AUDIO_OUT;
+	} else {
+		return;
+	}
 	switch (reg)
 	{
 	case 0:
-		gx_gui::gx_dequeue_client_port(name, flags);
+		gx_gui::gx_dequeue_client_port(name, flags); //FIXME no locking?
 		break;
 	case 1:
-		gx_gui::gx_queue_client_port  (name, flags);
+		gx_gui::gx_queue_client_port  (name, flags); //FIXME no locking?
 		break;
 	default:
 		break;
@@ -911,7 +921,7 @@ void gx_jack_clientreg_callback(const char* name, int reg, void* arg)
 	    clname == "Patchage")
 		return;
 
-	client_out_graph = "";
+	client_out_graph = ""; //FIXME no locking?
 
 	// get GUI to act upon the stuff
 	// see gx_gui::gx_monitor_jack_clients
