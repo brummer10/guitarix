@@ -1220,6 +1220,44 @@ int precision(double n)
 	else return 0;
 }
 
+static void knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, int knob_x, int knob_y, bool drag)
+{
+	GtkRegler *regler = GTK_REGLER(widget);
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+	double radius =  min(knob_x, knob_y) / 2;
+	int  reglerx = (widget->allocation.width - knob_x) / 2;
+	int  reglery = (widget->allocation.height - knob_y) / 2;
+	double posx = (reglerx + radius) - x; // x axis right -> left
+	double posy = (reglery + radius) - y; // y axis top -> bottom
+	double angle = atan2(-posx, posy) + M_PI; // clockwise, zero at 6 o'clock, 0 .. 2*M_PI
+	int quadrant = 1 + int(angle/M_PI_2);
+	if (drag) {
+		// block "forbidden zone" and direct moves between quadrant 1 and 4
+		if (regler->last_quadrant == 1 && (quadrant == 3 || quadrant == 4)) {
+			angle = scale_zero;
+		} else if (regler->last_quadrant == 4 && (quadrant == 1 || quadrant == 2)) {
+			angle = 2*M_PI - scale_zero;
+		} else {
+			if (angle < scale_zero) {
+				angle = scale_zero;
+			} else if (angle > 2*M_PI - scale_zero) {
+				angle = 2*M_PI - scale_zero;
+			}
+			regler->last_quadrant = quadrant;
+		}
+	} else {
+		if (angle < scale_zero) {
+			angle = scale_zero;
+		} else if (angle > 2*M_PI - scale_zero) {
+			angle = 2*M_PI - scale_zero;
+		}
+		regler->last_quadrant = 0;
+	}
+	angle = (angle - scale_zero) / (2 * (M_PI-scale_zero)); // normalize to 0..1
+	gtk_range_set_value(GTK_RANGE(widget), adj->lower + angle * (adj->upper - adj->lower));
+}
+
+
 //----------- mouse button pressed set value
 static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *event)
 {
@@ -1240,43 +1278,9 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 
 		klass->button_is = 1;
 		if (regler->regler_type == 0) { //| (regler->regler_type < 2))
-			double radius1 = MIN (klass->regler_x,
-			                      klass->regler_y) * 0.5;
-			int  reglerx = (widget->allocation.width -
-			                klass->regler_x) *0.5;
-			int  reglery = (widget->allocation.height -
-			                klass->regler_y) *0.5;
-			double posx = (( reglerx+radius1 - event->x )) ;
-			double posy = ((reglery+radius1 - event->y ));
-			double angle = acos(posy/sqrt(posx*posx+posy*posy))* 57.295828; //180.0 / 3.14159;
-			if (posx<0) angle =  170+angle;
-			else angle = 170-angle;
-			if ((angle > 0) && (angle < 340)) {
-				int pause;
-				if (angle < 335 ) pause = -10;
-				else pause = 10;
-				gtk_range_set_value(GTK_RANGE(widget),adj->lower +
-				                    ((angle+pause)*0.003030303) *(adj->upper - adj->lower) );
-			}
+			knob_pointer_event(widget, event->x, event->y, klass->regler_x, klass->regler_y, false);
 		} else if (regler->regler_type == 1) {
-			double radius1 = MIN (klass->bigknob_x,
-			                      klass->bigknob_y) * 0.5;
-			int  reglerx = (widget->allocation.width -
-			                klass->bigknob_x) * 0.5;
-			int  reglery = (widget->allocation.height -
-			                klass->bigknob_y) * 0.5;
-			double posx = (( reglerx+radius1 - event->x ));
-			double posy = ((reglery+radius1 - event->y ));
-			double angle = acos(posy/sqrt(posx*posx+posy*posy))*57.295828; // 180.0 / 3.14159;
-			if (posx<0) angle =  170+angle;
-			else angle = 170-angle;
-			if ((angle > 0) && (angle < 340)) {
-				int pause;
-				if (angle < 335 ) pause = -10;
-				else pause = 10;
-				gtk_range_set_value(GTK_RANGE(widget),adj->lower +
-				                    ((angle+pause)*0.003030303) *(adj->upper - adj->lower) );
-			}
+			knob_pointer_event(widget, event->x, event->y, klass->bigknob_x, klass->bigknob_y, false);
 		}
 
 //----------- slider
@@ -1404,34 +1408,6 @@ static gboolean gtk_regler_button_release (GtkWidget *widget, GdkEventButton *ev
 }
 
 //----------- set the value from mouse movement
-static void knob_pointer_motion(GtkWidget *widget, GdkEventMotion *event, int knob_x, int knob_y)
-{
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	double radius =  min(knob_x, knob_y) / 2;
-	int  reglerx = (widget->allocation.width - knob_x) / 2;
-	int  reglery = (widget->allocation.height - knob_y) / 2;
-	double posx = (reglerx + radius) - event->x; // x axis right -> left
-	double posy = (reglery + radius) - event->y; // y axis top -> bottom
-	double angle = atan2(-posx, posy) + M_PI; // clockwise, zero at 6 o'clock, 0 .. 2*M_PI
-	static int last_quadrant = 2;
-	int quadrant = 1 + int(angle/M_PI_2);
-	// block "forbidden zone" and direct moves between quadrant 1 and 4
-	if (last_quadrant == 1 && (quadrant == 3 || quadrant == 4)) {
-		angle = scale_zero;
-	} else if (last_quadrant == 4 && (quadrant == 1 || quadrant == 2)) {
-		angle = 2*M_PI - scale_zero;
-	} else {
-		if (angle < scale_zero) {
-			angle = scale_zero;
-		} else if (angle > 2*M_PI - scale_zero) {
-			angle = 2*M_PI - scale_zero;
-		}
-		last_quadrant = quadrant;
-	}
-	angle = (angle - scale_zero) / (2 * (M_PI-scale_zero)); // normalize to 0..1
-	gtk_range_set_value(GTK_RANGE(widget), adj->lower + angle * (adj->upper - adj->lower));
-}
-
 static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *event)
 {
 	g_assert(GTK_IS_REGLER(widget));
@@ -1441,9 +1417,9 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
 	gdk_event_request_motions (event);
 	if (GTK_WIDGET_HAS_GRAB(widget)) {
 		if (regler->regler_type == 0) {
-			knob_pointer_motion(widget, event, klass->regler_x, klass->regler_y);
+			knob_pointer_event(widget, event->x, event->y, klass->regler_x, klass->regler_y, true);
 		} else if (regler->regler_type == 1) {
-			knob_pointer_motion(widget, event, klass->bigknob_x, klass->bigknob_y);
+			knob_pointer_event(widget, event->x, event->y, klass->bigknob_x, klass->bigknob_y, true);
 		}
 //----------- slider
 		else if (regler->regler_type == 3) {
@@ -1837,6 +1813,7 @@ GtkWidget *GtkRegler::gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment)
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
 	GtkRegler *regler = GTK_REGLER(widget);
 	regler->regler_type = 0;
+	regler->last_quadrant = 0;
 	if (widget) {
 		gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
 		g_signal_connect(GTK_OBJECT(widget), "value-changed",
@@ -1851,6 +1828,7 @@ GtkWidget *GtkRegler::gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustm
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
 	GtkRegler *regler = GTK_REGLER(widget);
 	regler->regler_type = 1;
+	regler->last_quadrant = 0;
 	if (widget) {
 		gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
 		g_signal_connect(GTK_OBJECT(widget), "value-changed",
