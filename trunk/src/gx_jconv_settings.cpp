@@ -111,7 +111,7 @@ void GxJConvSettings::resetSetting()
 void GxJConvSettings::validate()
 {
 	gx_engine::Audiofile audio;
-	fValidSettings = audio.open_read(getFullIRPath()) &&
+	fValidSettings = audio.open_read(getFullIRPath()) == 0 &&
 		audio.type() == gx_engine::Audiofile::TYPE_WAV;
 }
 
