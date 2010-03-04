@@ -111,6 +111,11 @@ int main(int argc, char *argv[])
 	// ------ create engine object and initialize parameter list ------
 	gx_gui::initParams(gx_engine::GxEngine::instance());
 
+	// ------ time measurement (debug) ------
+#ifndef NDEBUG
+	add_time_measurement();
+#endif
+
 	// ----------------------- init GTK interface----------------------
 	gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("guitarix", &argc, &argv);
 	gui->setup();

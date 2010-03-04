@@ -125,7 +125,112 @@ bool recallState();
 const int majorversion = 1;
 const int minorversion = 0;
 
-/* function declaration */
+/****************************************************************
+ ** Measuring times
+ */
+
+#ifndef NDEBUG
+
+class Accum
+{
+private:
+	int n;
+	int mn;
+	int mx;
+	float sx;
+	float sx2;
+public:
+	inline void reset() { n = 0; mn = 1e9; mx = 0; sx = 0; sx2 = 0; }
+	void add(int diff);
+	int count() const { return n; }
+	float mean() const { return sx / n; }
+	float stddev() const { return sqrt((n * sx2 - sx * sx) / (n * (n-1))); }
+	float minimum() const { return mn; }
+	float maximum() const { return mx; }
+};
+
+inline void Accum::add(int diff)
+{
+	n += 1;
+	sx += diff;
+	sx2 += float(diff) * diff;
+	mn = min(mn, diff);
+	mx = max(mx, diff);
+}
+
+
+class Measure
+{
+private:
+	typedef unsigned long long ts_type;
+	Accum period;
+	Accum duration;
+	ts_type t;
+	static inline void rdtscll(ts_type& val)
+		{ __asm__ __volatile__ ("rdtsc" : "=A" (val)); }
+	static inline int diff(ts_type t1, ts_type t2) { return (signed int)(t1 - t2); }
+	static float ts_diff(struct timespec ts1, struct timespec ts2);
+
+public:
+	inline void reset() { period.reset(); duration.reset(); t = 0; }
+	Measure() { reset(); }
+	static float calibrate();
+	void start_process();
+	void stop_process();
+	void print_accum(Accum& accum, const char* prefix, float scale, bool verbose, float total=0);
+	void print(float scale, bool verbose);
+};
+
+inline void Measure::start_process()
+{
+	ts_type n;
+	rdtscll(n);
+	if (t != 0) {
+		period.add(diff(n, t));
+	}
+	t = n;
+}
+	
+inline void Measure::stop_process()
+{
+	ts_type n;
+	rdtscll(n);
+	duration.add(diff(n, t));
+}
+
+class MeasureThreadsafe
+{
+private:
+	Measure *pmeasure;
+	Measure m[2];
+	float scale;
+	inline Measure *access() { return (Measure*)g_atomic_pointer_get(&pmeasure); }
+public:
+	MeasureThreadsafe(): pmeasure(m), scale(Measure::calibrate()) {}
+	inline void start() { access()->start_process(); }
+	inline void stop() { access()->stop_process(); }
+	void print(bool verbose=false);
+};
+
+extern MeasureThreadsafe measure;
+
+void add_time_measurement();
+
+inline void measure_start() { measure.start(); }
+inline void measure_stop()  { measure.stop(); }
+
+#else
+
+inline void measure_start() {}
+inline void measure_stop()  {}
+
+#endif
+
+
+/****************************************************************
+ ** misc function declarations
+ */
+
 void  gx_print_logmsg (const char*, const string&, GxMsgType);
 void  gx_print_warning(const char*, const string&);
 void  gx_print_error  (const char*, const string&);

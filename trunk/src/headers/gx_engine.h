@@ -114,7 +114,7 @@ public:
 	~Audiofile (void);
 
 	//int mode(void) const { return _mode; }
-	//int type(void) const { return _type; }
+	int type(void) const { return _type; }
 	//int form(void) const { return _form; }
 	int rate(void) const { return _rate; }
 	int chan(void) const { return _chan; }
@@ -146,8 +146,8 @@ private:
 	bool read_sndfile (Audiofile& audio, int nchan, const float *gain, unsigned int *delay,
 	                   unsigned int offset, unsigned int length);
 	void adjust_values(unsigned int audio_size, unsigned int& count, unsigned int& offset,
-	                   unsigned int& delay, unsigned int& length, unsigned int& size,
-	                   unsigned int& bufsize);
+	                   unsigned int& delay, unsigned int& ldelay, unsigned int& length,
+	                   unsigned int& size, unsigned int& bufsize);
 public:
 	GxConvolver(): ready(false) {}
 	bool configure(
@@ -162,6 +162,7 @@ public:
 };
 
 extern GxConvolver conv;
+
 
 /* ------------- Engine Processing Classes ------------- */
 // metadata

@@ -559,23 +559,21 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg)
 //-----Function that cleans the jack stuff on shutdown
 void gx_jack_cleanup()
 {
-	if (client)
-	{
-
+	if (client && !jack_is_down) {
 		jack_is_exit = true;
 		// disable input ports
-		for (int i = 0; i < gNumInChans; i++)
+		for (int i = 0; i < gNumInChans; i++) {
 			jack_port_unregister(client, input_ports[i]);
-
-		if (midi_input_port != NULL)
+		}
+		if (midi_input_port != NULL) {
 			jack_port_unregister(client, midi_input_port);
-
-		for (int i = 0; i < gNumOutChans; i++)
+		}
+		for (int i = 0; i < gNumOutChans; i++) {
 			jack_port_unregister(client, output_ports[i]);
-
-		if (midi_output_ports != NULL)
+		}
+		if (midi_output_ports != NULL) {
 			jack_port_unregister(client, midi_output_ports);
-
+		}
 #ifdef USE_RINGBUFFER
 		jack_ringbuffer_free(jack_ringbuffer);
 #endif
@@ -611,7 +609,6 @@ void gx_jack_shutdown_callback(void *arg)
 //---- jack client callbacks
 int gx_jack_graph_callback (void* arg)
 {
-
 	if (jack_port_connected(input_ports[0])) {
 		const char** port = jack_port_get_connections(input_ports[0]);
 		if (port) { // might be 0 (e.g. due to race conditions)
@@ -819,6 +816,7 @@ int gx_jack_midi_process_ringbuffer (jack_nframes_t nframes, void *arg)
 // ----- main jack process method
 int gx_jack_process (jack_nframes_t nframes, void *arg)
 {
+	measure_start();
 	if (!jack_is_exit) {
 		AVOIDDENORMALS;
 
@@ -862,6 +860,7 @@ int gx_jack_process (jack_nframes_t nframes, void *arg)
 	} else {
 		gx_engine::buffers_ready = false;
 	}
+	measure_stop();
 	return 0;
 }
 

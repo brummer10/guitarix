@@ -1012,8 +1012,8 @@ bool GxConvolver::read_sndfile (
 
 void GxConvolver::adjust_values(
 	unsigned int audio_size, unsigned int& count, unsigned int& offset,
-	unsigned int& delay, unsigned int& length, unsigned int& size,
-	unsigned int& bufsize)
+	unsigned int& delay, unsigned int& ldelay, unsigned int& length,
+	unsigned int& size, unsigned int& bufsize)
 {
 	if (bufsize < count) {
 		bufsize = count;
@@ -1029,20 +1029,23 @@ void GxConvolver::adjust_values(
 		if (!length) {
 			length = audio_size - offset;
 		}
-		size = delay + offset + length;
+		size = max(delay, ldelay) + offset + length;
 	} else {
 		if (delay > size) {
 			delay = size;
 		}
-		if (offset > size - delay) {
-			offset = size - delay;
+		if (ldelay > size) {
+			ldelay = size;
 		}
-		if (length > size - delay - offset) {
-			length = size - delay - offset;
+		if (offset > size - max(delay, ldelay)) {
+			offset = size - max(delay, ldelay);
+		}
+		if (length > size - max(delay, ldelay) - offset) {
+			length = size - max(delay, ldelay) - offset;
 			gx_system::gx_print_warning("convolver", "data truncated");
 		}
 		if (!length) {
-			length = size - delay - offset;
+			length = size - max(delay, ldelay) - offset;
 		}
 	}
 }
@@ -1069,13 +1072,14 @@ bool GxConvolver::configure(
 		gx_system::gx_print_error("convolver", buf.str());
 		return false;
 	}
-	adjust_values(audio.size(), count, offset, delay, length, size, bufsize);
+	adjust_values(audio.size(), count, offset, delay, ldelay, length, size, bufsize);
 	cout << "state=" << state() << ", ready=" << ready << endl;
 	cout << "fname=" << fname << ", size=" << audio.size()
 	     << ", channels=" << audio.chan() << endl;
 	cout << "convolver: size=" << size << ", count=" << count << ", bufsize="
 	     << bufsize << ", offset=" << offset << ", delay=" << delay
-	     << ", length=" << length << endl;
+	     << ", ldelay=" << ldelay << ", length=" << length << ", gain" << gain
+	     << ", lgain" << lgain << endl;
 	if (Convproc::configure(2, 2, size, count, bufsize, Convproc::MAXPART)) {
 		gx_system::gx_print_error("convolver", "error in Convproc::configure");
 		return false;
@@ -1457,7 +1461,6 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 			gx_gui::shownote = -1;
 		}
 
-
 		add_dc(fTemp0);
 		// gain in
 		fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
@@ -1670,10 +1673,6 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 			// else  fVec23[0] = fTemp0;   //impulseResponse ende
 		}
 
-
-
-
-
 		// Multibandfilter
 		if (multifilter) {
 			float fTeMulti0 = (fCoMulti1 * fReMulti0[1]);
@@ -1698,6 +1697,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 			fReMulti0[0] = ((fSlMulti5 * ((fTeMulti1 + (fCoMulti37 * fReMulti1[0])) + (fCoMulti36 * fReMulti1[2]))) - (fSlMulti2 * ((fSlMulti1 * fReMulti0[2]) + fTeMulti0)));
 			fTemp0 = (fSlMulti2 * ((fTeMulti0 + (fCoMulti39 * fReMulti0[0])) + (fCoMulti38 * fReMulti0[2])));
 		}
+
 		// gain out
 		fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
 		fTemp0 =  (fRec46[0] * fTemp0);
@@ -1923,7 +1923,6 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 			fReMulti9[2] = fReMulti9[1];
 			fReMulti9[1] = fReMulti9[0];
 		}
-
 	}
 
 	//FIXME resusing the oversampling buffer is a dirty hack..
@@ -1947,7 +1946,6 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 	output3 = output[1];
 	(void)memcpy(get_frame, output1, sizeof(float)*count);
 	(void)memcpy(get_frame1, output3, sizeof(float)*count);
-
 }
 
 
