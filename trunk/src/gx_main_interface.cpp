@@ -491,6 +491,14 @@ inline void connect_midi_controller(GtkWidget *w, void *zone)
 // static member
 bool GxMainInterface::fInitialized = false;
 
+/* FIXME remove when done */
+void switch_old_new(GtkObject *b, gpointer)
+{
+	gx_engine::old_new = !gx_engine::old_new;
+	gx_print_info("switch engine", (gx_engine::old_new ? "new code" : "old code"));
+}
+/* END FIXME */
+
 GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
 {
 	highest_unseen_msg_level = -1;
@@ -528,6 +536,15 @@ GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
 	/*-- create accelerator group for keyboard shortcuts --*/
 	fAccelGroup = gtk_accel_group_new();
 	gtk_window_add_accel_group(GTK_WINDOW(fWindow), fAccelGroup);
+
+	/* FIXME remove when done
+	** -- add switch for test old/new --
+	*/
+	{
+		GClosure* cp = g_cclosure_new(G_CALLBACK(switch_old_new), 0, 0);
+		gtk_accel_group_connect(fAccelGroup, GDK_F5, GDK_CONTROL_MASK, (GtkAccelFlags)0, cp);
+	}
+	/*END FIXME*/
 
 	/*---------------- create boxes ----------------*/
 	fTop = 0;

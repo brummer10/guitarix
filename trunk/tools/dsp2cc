@@ -31,6 +31,9 @@ class UIDefs(object):
             self.ui[element] = uid = self.UID(variable=element)
         uid[key] = value
 
+    def get(self, element, key):
+        return self.ui[element][key]
+
     def var_filter(self):
         s = "|".join([r"%s\s*=\s*%s" % (v, num_re) for v in self.ui.keys()])
         return re.compile(r"\s*("+s+");").match
@@ -137,6 +140,7 @@ class Parser(object):
             assert False, line
 
     def readMeta(self):
+        "only needed for faust 9.4; not used at the moment"
         self.meta = {}
         stop = re.compile(r'// Code generated with Faust').match
         declare = re.compile(r'// ([^:]+):\s*"([^"]*)"\s*$').match
@@ -151,20 +155,53 @@ class Parser(object):
                 if key == "name":
                     self.modname = value
 
+    def readMeta2(self, stop_expr):
+        self.meta = {}
+        stop = re.compile(stop_expr).match
+        declare = re.compile(r'\s*m->declare\s*\("([^"]+)"\s*,\s*"([^"]*)"\);').match
+        for line in self.lines:
+            if stop(line):
+                return
+            m = declare(line)
+            if m:
+                key = m.group(1)
+                value = m.group(2)
+                self.meta[key] = value
+                if key == "name":
+                    self.modname = value
+
+    def debug_change_var_decl(self, lines):
+        matcher = re.compile("FAUSTFLOAT\s+([a-zA-Z_0-9]+);\n$").match
+        out = []
+        for l in lines:
+            m = matcher(l);
+            if m:
+                var = m.group(1)
+                oldvar = self.ui.get(var,"old")
+                if not oldvar:
+                    raise ValueError, "error: no oldvar for " + self.ui.get(var,"id")
+                l = ("FAUSTFLOAT&\t%s=GxEngine::instance()->%s;\n"
+                     % (var, oldvar))
+            out.append(l)
+        return out
+
     def __init__(self, lines, modname):
         self.modname = modname
         self.lines = lines
         s = {}
         self.ui = UIDefs()
-        self.readMeta()
+        #self.readMeta()  # (needed only for faust 9.4
         self.skip_until(r"  private:")
-        s["var-decl"] = self.copy(r"  public:")
+        var_decl = self.copy(r"  public:")
+        self.skip_until(r"^\s*static\s+void\s+metadata\s*\(\s*Meta\s*\*\s*m\s*\)\s*{")
+        self.readMeta2(r"\s*}\s*\n$")
         self.numInputs = self.getIO("In")
         self.numOutputs = self.getIO("Out")
         self.skip_until(r"\s*virtual void instanceInit")
         s["var-init"] = self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
+        s["var-decl"] = self.debug_change_var_decl(var_decl)
         self.skip_until(r"\s*virtual void compute")
         iodef = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*\2put\[\3\];"
         s["compute"] = self.copy(iodef)

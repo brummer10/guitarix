@@ -587,6 +587,7 @@ void IntParameter::set(int n, int high, float llimit, float ulimit)
 		break;
 	case Switch:
 		value = (2*n > high ? 1065353216 : 0); // FIXME float/int problem
+		break;
 	case Enum:
 		assert(false); // not implemented
 		break;
@@ -789,6 +790,11 @@ inline void PaN(const char*a, float*c, bool d, float std=0, float lower=0, float
 
 void initParams(gx_engine::GxEngine* e)
 {
+	/* FIXME remove when done */
+	static bool inited = false;
+	if (inited) return;
+	inited = true;
+	/* END FIXME */
 	Pa("amp.feedback", "Feedback", &e->fslider0, 0.0f, -1.0f, 1.0f, 1.0e-02f);
 	Pa("amp.feedforward", "Feedforward", &e->fslider23, 0.0f, -1.0f, 1.0f, 1.0e-02f);
 	Pa("amp.balance", "Balance", &e->fslider25, 0.f, -1.f, 1.f, 1.e-01f);
@@ -812,10 +818,10 @@ void initParams(gx_engine::GxEngine* e)
 	Pa("noise_gate.threshold", "Threshold", &e->fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
 
 	Pa("anti_aliase.on_off", "on/off", &e->antialis0, 0);
-	//Pa("anti_aliase.feedback", "Feedback", &e->faas1, 0.3f, 0.3f, 0.9f, 0.01f);
+	Pa("anti_aliase.feedback", "Feedback", &e->faas1, 0.3f, 0.3f, 0.9f, 0.01f);
 
 	Pa("preamp.on_off", "on/off", &e->fcheckbox1, 0);
-	//Pa("preamp.atan", "drive", &e->fatan, 1.f, 1.f, 10.f, 1.0f);
+	Pa("preamp.atan", "drive", &e->fatan, 1.f, 1.f, 10.f, 1.0f);
 
 	Pa("tube.on_off", "on/off", &e->ftube, 0);
 	Pa("tube.fuzzy", "count", &e->ffuzzytube, 1.f, -3.f, 10.f, 1.0f);

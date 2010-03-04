@@ -77,6 +77,8 @@ void gx_engine_init();
 void gx_engine_reset();
 void faust_init(int samplingFreq);
 
+extern bool old_new; //FIXME remove when done
+
 /* GxConvolver */
 
 class Audiofile
@@ -797,6 +799,7 @@ public:
 
 	// private audio processing
 	void process_buffers(int count, float** input, float** output);
+	void process_buffers_new(int count, float** input, float** output);
 	void process_midi(int count);
 
 	friend class GxMainInterface;
