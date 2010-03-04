@@ -1,7 +1,7 @@
 namespace AntiAlias {
 // generated from file '../src/faust/AntiAlias.dsp'
 
-FAUSTFLOAT 	fslider0;
+FAUSTFLOAT&	fslider0=GxEngine::instance()->faas1;
 float 	fRec0[4];
 int	fSamplingFreq;
 

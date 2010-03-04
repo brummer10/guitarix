@@ -1,7 +1,7 @@
 namespace overdrive {
 // generated from file '../src/faust/overdrive.dsp'
 
-FAUSTFLOAT 	fslider0;
+FAUSTFLOAT&	fslider0=GxEngine::instance()->drive;
 int	fSamplingFreq;
 
 void init(int samplingFreq)

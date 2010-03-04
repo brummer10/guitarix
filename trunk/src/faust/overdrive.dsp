@@ -1,4 +1,4 @@
-drive = vslider("drive", 1, 1, 20, 0.1);
+drive = vslider("drive[old:drive]", 1, 1, 20, 0.1);
 f0 = 0.001 * pow(10, (0.05 * (drive * -0.5)));
 f1 = +(f0) ~ 0.999;
 

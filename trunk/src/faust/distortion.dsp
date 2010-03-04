@@ -35,13 +35,13 @@ pass = hgroup("low/highpass",_<:(_, passo) : passon);
 drivelevel = vslider("drivelevel", 0.01, 0, 1, 0.01);
 drivegain1		= vslider("gain", 2, 0, 10, 0.1)-10 : db2linear : smoothi(0.999);
 //drivegain		= (-8.0) : db2linear : smoothi(0.999);
-drive		= vslider("drive", 0.64, 0, 1, 0.01);
+drive		= vslider("drive[old:fslider9]", 0.64, 0, 1, 0.01);
 distortion 	= cubicnl(drive,drivelevel); 
 
 //-resonator
 resonator(d,a) 	= (+ <: (delay(4096, d-1) + delay(4096, d))/2.0)~*(1.0-a) ;
-d 		= vslider("vibrato", 0.5, 0, 1, 0.01);
-a 		= vslider("trigger", 0.12, 0, 1, 0.01);
+d 		= vslider("vibrato[old:fslider5", 1, 0, 1, 0.01);
+a 		= vslider("trigger[old:fslider4]", 0.12, 0, 1, 0.01);
 reso = vgroup("resonans", resonator(d,a));
 pregain		= vslider("pregain", 2, 0, 10, 0.1)-10 : db2linear : smoothi(0.999);
 

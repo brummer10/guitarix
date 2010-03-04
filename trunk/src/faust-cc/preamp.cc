@@ -2,7 +2,7 @@ namespace preamp {
 // generated from file '../src/faust/preamp.dsp'
 
 float 	fVec0[3];
-FAUSTFLOAT 	fslider0;
+FAUSTFLOAT&	fslider0=GxEngine::instance()->fatan;
 int	fSamplingFreq;
 
 void init(int samplingFreq)

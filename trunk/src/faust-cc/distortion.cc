@@ -1,35 +1,35 @@
 namespace distortion {
 // generated from file '../src/faust/distortion.dsp'
 
-FAUSTFLOAT 	fslider0;
+FAUSTFLOAT&	fslider0=GxEngine::instance()->fslider4;
 int 	IOTA;
 float 	fVec0[4096];
-FAUSTFLOAT 	fslider1;
+FAUSTFLOAT&	fslider1=GxEngine::instance()->;
 float 	fRec1[2];
-FAUSTFLOAT 	fentry0;
+FAUSTFLOAT&	fentry0=GxEngine::instance()->;
 float 	fConst0;
 float 	fVec1[2];
 float 	fRec3[2];
-FAUSTFLOAT 	fentry1;
+FAUSTFLOAT&	fentry1=GxEngine::instance()->;
 float 	fConst1;
 float 	fConst2;
 float 	fVec2[2];
 float 	fRec2[2];
-FAUSTFLOAT 	fcheckbox0;
-FAUSTFLOAT 	fslider2;
-FAUSTFLOAT 	fslider3;
+FAUSTFLOAT&	fcheckbox0=GxEngine::instance()->;
+FAUSTFLOAT&	fslider2=GxEngine::instance()->;
+FAUSTFLOAT&	fslider3=GxEngine::instance()->;
 float 	fVec3[2];
 float 	fRec7[2];
 float 	fVec4[2];
 float 	fRec6[2];
 float 	fRec5[3];
 float 	fRec4[3];
-FAUSTFLOAT 	fcheckbox1;
-FAUSTFLOAT 	fslider4;
-FAUSTFLOAT 	fslider5;
+FAUSTFLOAT&	fcheckbox1=GxEngine::instance()->;
+FAUSTFLOAT&	fslider4=GxEngine::instance()->;
+FAUSTFLOAT&	fslider5=GxEngine::instance()->fslider9;
 float 	fVec5[2];
 float 	fRec0[2];
-FAUSTFLOAT 	fslider6;
+FAUSTFLOAT&	fslider6=GxEngine::instance()->;
 float 	fRec8[2];
 float 	fVec6[2];
 float 	fRec12[2];
@@ -37,7 +37,7 @@ float 	fVec7[2];
 float 	fRec11[2];
 float 	fRec10[3];
 float 	fRec9[3];
-FAUSTFLOAT 	fslider7;
+FAUSTFLOAT&	fslider7=GxEngine::instance()->;
 float 	fRec13[2];
 int	fSamplingFreq;
 
@@ -182,7 +182,7 @@ RegisterParams::RegisterParams()
 	registerVar("distortion.drivelevel","","S","",&fslider4, 1.000000e-02f, 0.0f, 1.0f, 1.000000e-02f);
 	registerVar("distortion.sp.low-freq cutoff Hz","","S","",&fslider3, 130.0f, 20.0f, 1000.0f, 1.0f);
 	registerVar("distortion.sp.high-freq cutoff Hz","","S","",&fslider2, 5000.0f, 1000.0f, 10000.0f, 1.0f);
-	registerVar("distortion.resonans.vibrato","","S","",&fslider1, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
+	registerVar("distortion.resonans.vibrato","","S","",&fslider1, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
 	registerVar("distortion.resonans.trigger","","S","",&fslider0, 0.12f, 0.0f, 1.0f, 1.000000e-02f);
 	registerInit(init);
 }
