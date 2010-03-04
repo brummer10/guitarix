@@ -850,7 +850,7 @@ gboolean  gx_ladi_handler(gpointer)
 	return false;
 }
 
-gboolean terminal  = FALSE;
+gboolean terminal  = TRUE; // make messages before main() appear on terminal
 
 // ---- command line options
 void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
@@ -930,6 +930,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 
 		// DEBUG options
 		gchar* builder_dir = NULL;
+		gboolean lterminal = FALSE;
 
 		GOptionGroup* optgroup_debug = g_option_group_new("debug",
 		                                                "\033[1;32mDebug options\033[0m",
@@ -938,7 +939,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 		GOptionEntry opt_entries_debug[] =
 			{
 				{ "builder-dir", 'B', 0, G_OPTION_ARG_STRING, &builder_dir, "directory from which .glade files are loaded", "DIR" },
-				{ "log-terminal", 't', 0, G_OPTION_ARG_NONE, &terminal, "print log on terminal", NULL },
+				{ "log-terminal", 't', 0, G_OPTION_ARG_NONE, &lterminal, "print log on terminal", NULL },
 				{ NULL }
 			};
 		g_option_group_add_entries(optgroup_debug, opt_entries_debug);
@@ -957,6 +958,8 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 
 
 		// ----------- processing user options -----------
+
+		terminal = lterminal;
 
 		// *** display version if requested
 		if (version)
