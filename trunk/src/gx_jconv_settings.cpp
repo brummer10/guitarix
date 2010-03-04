@@ -106,17 +106,13 @@ void GxJConvSettings::resetSetting()
 	invalidate();
 }
 
-
 // --------------- attempt to validate the settings
 // Note: for now, simply check that the IR file is a wav file
 void GxJConvSettings::validate()
 {
-	static string cmd;
-	cmd = getFullIRPath() + " | grep 'WAVE audio' > /dev/null";
-
-	fValidSettings =
-		(gx_system::gx_system_call("file", cmd) != gx_system::SYSTEM_OK) ?
-		false : true;
+	gx_engine::Audiofile audio;
+	fValidSettings = audio.open_read(getFullIRPath()) &&
+		audio.type() == gx_engine::Audiofile::TYPE_WAV;
 }
 
 
@@ -473,7 +469,6 @@ GtkWidget * gx_knob(const char* label,int mode, float init, float min, float max
 
 }
 
-
 // ---------------------  The JConv setting dialog GUI
 void gx_setting_jconv_dialog_gui(GtkWidget *widget, gpointer data)
 {
@@ -749,7 +744,6 @@ void gx_setting_jconv_dialog_gui(GtkWidget *widget, gpointer data)
 
 	//----- load file to wave view
 	gx_waveview_set_value(GTK_WIDGET(gx_gui::fbutton),NULL);
-
 }
 
 
