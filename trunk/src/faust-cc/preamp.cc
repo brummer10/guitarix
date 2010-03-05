@@ -3,26 +3,31 @@ namespace preamp {
 
 float 	fVec0[3];
 FAUSTFLOAT&	fslider0=GxEngine::instance()->fatan;
+float 	fVec1[3];
 int	fSamplingFreq;
 
 void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<3; i++) fVec0[i] = 0;
+	for (int i=0; i<3; i++) fVec1[i] = 0;
 }
 
 void compute(int count, float *input0, float *output0)
 {
 	float 	fSlow0 = fslider0;
+	float 	fSlow1 = (0.75f / atanf(fSlow0));
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
 		fVec0[0] = fTemp0;
 		float fTemp1 = (fVec0[2] + (fVec0[0] + fVec0[1]));
 		float fTemp2 = (fTemp1 * fTemp1);
-		float fTemp3 = ((3.333333e-04f - (1.666667e-08f * fTemp1)) - (5.555556e-12f * fTemp2));
-		float fTemp4 = ((fTemp1 * fTemp3) * (1.5f - (0.5f * (fTemp2 * (fTemp3 * fTemp3)))));
-		output0[i] = (FAUSTFLOAT)(750 * (atanf((fSlow0 * fTemp4)) / atanf(fTemp4)));
+		float fTemp3 = ((0.333333f - (1.666667e-02f * fTemp1)) - (5.555556e-03f * fTemp2));
+		float fTemp4 = (fSlow1 * atanf((fSlow0 * ((fTemp1 * fTemp3) * (1.5f - (0.5f * (fTemp2 * (fTemp3 * fTemp3))))))));
+		fVec1[0] = fTemp4;
+		output0[i] = (FAUSTFLOAT)(0.333333f * (fVec1[2] + (fVec1[0] + fVec1[1])));
 		// post processing
+		fVec1[2] = fVec1[1]; fVec1[1] = fVec1[0];
 		fVec0[2] = fVec0[1]; fVec0[1] = fVec0[0];
 	}
 }

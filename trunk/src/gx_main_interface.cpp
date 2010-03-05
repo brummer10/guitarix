@@ -497,6 +497,11 @@ void switch_old_new(GtkObject *b, gpointer)
 	gx_engine::old_new = !gx_engine::old_new;
 	gx_print_info("switch engine", (gx_engine::old_new ? "new code" : "old code"));
 }
+void switch_test(GtkObject *b, gpointer)
+{
+	gx_engine::test_switch = !gx_engine::test_switch;
+	gx_print_info("test switch", (gx_engine::test_switch ? "on" : "off"));
+}
 /* END FIXME */
 
 GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
@@ -543,6 +548,8 @@ GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
 	{
 		GClosure* cp = g_cclosure_new(G_CALLBACK(switch_old_new), 0, 0);
 		gtk_accel_group_connect(fAccelGroup, GDK_F5, GDK_CONTROL_MASK, (GtkAccelFlags)0, cp);
+		cp = g_cclosure_new(G_CALLBACK(switch_test), 0, 0);
+		gtk_accel_group_connect(fAccelGroup, GDK_F6, GDK_CONTROL_MASK, (GtkAccelFlags)0, cp);
 	}
 	/*END FIXME*/
 

@@ -11,17 +11,17 @@ float 	fConst6;
 float 	fConst7;
 float 	fConst8;
 float 	fConst9;
-FAUSTFLOAT 	fslider0;
+FAUSTFLOAT&	fslider0=GxEngine::instance()->fresotube1;
 int 	IOTA;
 float 	fVec0[4096];
-FAUSTFLOAT 	fslider1;
+FAUSTFLOAT&	fslider1=GxEngine::instance()->fresotube2;
 float 	fRec4[2];
 float 	fConst10;
 float 	fRec3[2];
 float 	fRec2[2];
 float 	fRec1[3];
 float 	fRec0[3];
-FAUSTFLOAT 	fslider2;
+FAUSTFLOAT&	fslider2=GxEngine::instance()->fresotube3;
 float 	fConst11;
 int	fSamplingFreq;
 
@@ -80,9 +80,9 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("osc_tube.fuzzy","","S","",&fslider2, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
-	registerVar("osc_tube.vibrato","","S","",&fslider1, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
-	registerVar("osc_tube.trigger","","S","",&fslider0, 0.12f, 0.0f, 1.0f, 1.000000e-02f);
+	registerVar("tube2.fuzzy","count","S","",&fslider2, 1.0f, -3.0f, 10.0f, 1.0f);
+	registerVar("tube2.vibrato","","S","",&fslider1, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
+	registerVar("tube2.resonanz","","S","",&fslider0, 0.5f, 0.0f, 0.9f, 1.000000e-02f);
 	registerInit(init);
 }
 

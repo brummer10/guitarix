@@ -57,7 +57,7 @@ def build(bld):
     sources = [
         'AntiAlias.dsp',
         'compressor.dsp',
-        'distortion.dsp',
+        #'distortion.dsp',
         'drive.dsp',
         'freeverb.dsp',
         'osc_tube.dsp',

@@ -141,6 +141,10 @@ void GxEngine::initEngine(int samplingFreq)
 	fslider4 = 0.12f;
 
 	IOTA = 0;
+	IOTA_DIST = 0;
+	IOTA_FW = 0;
+	IOTA_ECHO = 0;
+	IOTAdelJ = 0;
 
 	zeroize(fVec1, 4096);
 	fslider5 = 0.5f;

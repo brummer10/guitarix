@@ -1955,16 +1955,97 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/preamp.cc"
 #include "faust-cc/AntiAlias.cc"
 #include "faust-cc/drive.cc"
-//#include "faust-cc/osc_tube.cc"
-//#include "faust-cc/reso_tube.cc"
-//#include "faust-cc/tube.cc"
+#include "faust-cc/osc_tube.cc"
+#include "faust-cc/reso_tube.cc"
+#include "faust-cc/tube.cc"
 #include "faust-cc/overdrive.cc"
 //#include "faust-cc/distortion.cc"
-#include "faust-cc/freeverb.cc"
+//#include "faust-cc/freeverb.cc"
 #include "faust-cc/HighShelf.cc"
 #include "faust-cc/compressor.cc"
 
-bool old_new = false; //FIXME remove when done
+bool old_new = false, test_switch = false; //FIXME remove when done
+
+void GxEngine::tuner(int count, float* workbuf)
+{
+	moving_filter(&workbuf, &workbuf, count);
+	float sumt = 0;
+	int cts = 0;
+	for (int i=0; i<count; i++) {
+		// when the ocilloscope draw wav by sample (mode 3) get the input value
+		//if (gx_gui::showwave == 1) vivi = fTemp0;
+		float fTemphp0 = workbuf[i] *2;
+		add_dc(fTemphp0);
+		// low and highpass filter
+		tunerstage1=tunerstage1+(tunerfilter*(fTemphp0-tunerstage1));
+		tunerstage2=tunerstage2+(tunerfilter*(tunerstage1-tunerstage2));
+		tunerstageh1=tunerstageh1+(tunerfilterh*(tunerstage2-tunerstageh1));
+		tunerstageh2=tunerstageh2+(tunerfilterh*(tunerstageh1-tunerstageh2));
+		fTemphp0 = tunerstage2-tunerstageh2;
+		// waveshaper
+		float fTemphps0 = (1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0);
+		// now calculate the frequence
+		fVechp0[0] = fTemphps0;
+		fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
+		float fTemphp1  = fRechp0[0];
+		int iTempt0 = (1 + iRect2[1]);
+		float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
+		float fTempt2 = (1 + fTempt1);
+		fVect0[0] = fTemphp1;
+		fRect5[0] = (fConstan3 * ((fVect0[0] - fVect0[1]) + (fConstan2 * fRect5[1])));
+		fVect1[0] = (fRect5[0] / fTempt2);
+		fRect4[0] = (fVect1[1] + ((fRect5[0] + ((fTempt1 - 1) * fRect4[1])) / fTempt2));
+		int iTempt4 = ((fRect4[1] < 0) & (fRect4[0] >= 0));
+		iRect3[0] = (iTempt4 + (iRect3[1] % 10));
+		iRect2[0] = ((1 - (iTempt4 & (iRect3[0] ==  10.0f))) * iTempt0);
+		int iTempt5 = (iRect2[0] == 0);
+		iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
+		fRect0[0] = (fSamplingFreq * ((10.0f / max(iRect1[0], 1)) - (10.0f * (iRect1[0] == 0))));
+		// get the frequence here
+		float fConsta4s = fRect0[0];
+		// smoth tuner output by rms the value peer frame
+		if (fTemphp0>0.0001) {
+			cts += 1;
+			sumt += sqrf(old_freq);
+			cts += 1;
+			sumt += sqrf(fConsta4s);
+			fConsta4 = sqrtf(sumt/cts);
+		}
+		// post processing tuner
+		fRect0[1] = fRect0[0];
+		iRect1[1] = iRect1[0];
+		iRect2[1] = iRect2[0];
+		iRect3[1] = iRect3[0];
+		fRect4[1] = fRect4[0];
+		fVect1[1] = fVect1[0];
+		fRect5[1] = fRect5[0];
+		fVect0[1] = fVect0[0];
+		fRechp0[1] = fRechp0[0];
+		fVechp0[1] = fVechp0[0];
+	}
+	if (gx_gui::shownote == 0) {
+		fConsta1 = 1000.0f;
+		gx_gui::shownote = -1;
+	}
+}
+
+inline void over_sampleX(int sf, float *input, float *output)
+{
+	static float old = 0;
+	for (int i = 0; i < sf; i++) {
+		float x = *input++;
+		*output++ = (old + x) * 0.5;
+		*output++ = x;
+		old = x;
+	}
+}
+
+inline void down_sampleX(int sf, float *input, float *output)
+{
+	for (int i=0; i<sf; i++) {
+		*output++ = (*input++ + *input++) * 0.5;
+	}
+}
 
 void GxEngine::process_buffers_new(int count, float** input, float** output)
 {
@@ -1989,20 +2070,19 @@ void GxEngine::process_buffers_new(int count, float** input, float** output)
 	int chorus = fchorus;
 
 	// pointer to the jack_buffer
-	float* input0 = input[0];
 	float* workbuf = output[0];
 	float* workbuf2 = output[1];
-	(void)memcpy(workbuf, input0, sizeof(float)*count);
 
 	// copy clean audio input for the tuner and midi_process
 	int tuner_on = gx_gui::shownote + (int)dsp::isMidiOn() + 1; //used also further down!
 	if (tuner_on > 0) {
-		moving_filter(&workbuf, &checkfreq, count);
+		memcpy(workbuf, input[0], count * sizeof(workbuf[0]));
+	    tuner(count, workbuf);
 	}
 
 	// First stage 
 	//moving_filter(workbuf, workbuf, count);
-    HighShelf::compute(count, workbuf, workbuf);
+    HighShelf::compute(count, input[0], workbuf);
 
     if (fnoise_g) {
 	    noise_gate (count,&workbuf); //FIXME ngate -> return value
@@ -2016,511 +2096,470 @@ void GxEngine::process_buffers_new(int count, float** input, float** output)
 	    preamp::compute(count, workbuf, workbuf);
     }
 
-	float	f_resotube1 = fresotube1;
-	float f_resotube2 = fresotube2;
+    static int fupsample_old = 0;
     if (fupsample) {
+	    if (fupsample != fupsample_old) {
+		    fupsample_old = fupsample;
+		    osc_tube::init(gx_jack::jack_sr*2);
+	    }
 		// 2*oversample
-	    over_sample(&workbuf,&oversample,count);
-		if (antialis0) AntiAlias::compute(count*2,oversample,oversample);
-		if (ftube)    fuzzy_tube(ffuzzytube, 0,count*2,&oversample,&oversample);
-		if (ftube3)   reso_tube(fresotube3,count*2,f_resotube1, f_resotube2, &oversample,&oversample);
-		if (fprdr)    fuzzy_tube(fpredrive, 1,count*2,&oversample,&oversample);
-		down_sample(&oversample,&workbuf,count);
+	    over_sampleX(count, workbuf, oversample);
+		if (antialis0) AntiAlias::compute(count*2, oversample, oversample);
+		if (ftube)     tube::compute(count*2, oversample, oversample);
+		if (ftube3)    osc_tube::compute(count*2, oversample, oversample);
+		//if (ftube3)    reso_tube::compute(count*2, oversample, oversample);
+		if (fprdr)     drive::compute(count*2, oversample, oversample);
+		down_sampleX(count, oversample, workbuf);
 	} else {
+	    if (fupsample != fupsample_old) {
+		    fupsample_old = fupsample;
+		    osc_tube::init(gx_jack::jack_sr);
+	    }
 		// or plain sample
-		if (antialis0)   AntiAlias::compute(count,workbuf,workbuf);
-		if (ftube)    fuzzy_tube(ffuzzytube, 0,count,&workbuf,&workbuf);
-		if (ftube3)   osc_tube(fresotube3,count,f_resotube1, f_resotube2,&workbuf,&workbuf);
-		if (fprdr)    fuzzy_tube(fpredrive, 1,count,&workbuf,&workbuf);
+		if (antialis0) AntiAlias::compute(count, workbuf, workbuf);
+		if (ftube)     tube::compute(count, workbuf, workbuf);
+		if (ftube3)    osc_tube::compute(count, workbuf, workbuf);
+		if (fprdr)     drive::compute(count, workbuf, workbuf);
 	}
 
     if (fconvolve) {
-	    int iconvolvefilter = (int)convolvefilter;
+	    int iconvolvefilter = (int)convolvefilter; //FIXME kann raus
 	    convolver_filter(&workbuf, &workbuf, count,iconvolvefilter);
     }
 
-	float sumt = 0;
-	int cts = 0;
-    for (int i=0; i<count; i++) {
-	    float fTemp0 = workbuf[i];
-	    // when the ocilloscope draw wav by sample (mode 3) get the input value
-	    //if (gx_gui::showwave == 1) vivi = fTemp0;
-	    if (tuner_on > 0) { // enable tuner when show note or play midi
-		    float fTemphp0 = checkfreq[i] *2;
-			add_dc(fTemphp0);
-			// low and highpass filter
-			tunerstage1=tunerstage1+(tunerfilter*(fTemphp0-tunerstage1));
-			tunerstage2=tunerstage2+(tunerfilter*(tunerstage1-tunerstage2));
-			tunerstageh1=tunerstageh1+(tunerfilterh*(tunerstage2-tunerstageh1));
-			tunerstageh2=tunerstageh2+(tunerfilterh*(tunerstageh1-tunerstageh2));
-			fTemphp0 = tunerstage2-tunerstageh2;
-			// waveshaper
-			float fTemphps0 = (1.5f * fTemphp0 - 0.5f * fTemphp0 *fTemphp0 * fTemphp0);
-			// now calculate the frequence
-			fVechp0[0] = fTemphps0;
-			fRechp0[0] = ((fConsthp3 * (fVechp0[0] - fVechp0[1])) + (fConsthp2 * fRechp0[1]));
-			float fTemphp1  = fRechp0[0];
-			int iTempt0 = (1 + iRect2[1]);
-			float fTempt1 = (1.0f / tanf((fConstan0 * max(100, fRect0[1]))));
-			float fTempt2 = (1 + fTempt1);
-			fVect0[0] = fTemphp1;
-			fRect5[0] = (fConstan3 * ((fVect0[0] - fVect0[1]) + (fConstan2 * fRect5[1])));
-			fVect1[0] = (fRect5[0] / fTempt2);
-			fRect4[0] = (fVect1[1] + ((fRect5[0] + ((fTempt1 - 1) * fRect4[1])) / fTempt2));
-			int iTempt4 = ((fRect4[1] < 0) & (fRect4[0] >= 0));
-			iRect3[0] = (iTempt4 + (iRect3[1] % 10));
-			iRect2[0] = ((1 - (iTempt4 & (iRect3[0] ==  10.0f))) * iTempt0);
-			int iTempt5 = (iRect2[0] == 0);
-			iRect1[0] = ((iTempt5 * iTempt0) + ((1 - iTempt5) * iRect1[1]));
-			fRect0[0] = (fSamplingFreq * ((10.0f / max(iRect1[0], 1)) - (10.0f * (iRect1[0] == 0))));
-			// get the frequence here
-			float fConsta4s = fRect0[0];
-			// smoth tuner output by rms the value peer frame
-			if (fTemphp0>0.0001) {
-				cts += 1;
-				sumt += sqrf(old_freq);
-				cts += 1;
-				sumt += sqrf(fConsta4s);
-				fConsta4 = sqrtf(sumt/cts);
-			}
-			// post processing tuner
-			fRect0[1] = fRect0[0];
-			iRect1[1] = iRect1[0];
-			iRect2[1] = iRect2[0];
-			iRect3[1] = iRect3[0];
-			fRect4[1] = fRect4[0];
-			fVect1[1] = fVect1[0];
-			fRect5[1] = fRect5[0];
-			fVect0[1] = fVect0[0];
-			fRechp0[1] = fRechp0[0];
-			fVechp0[1] = fVechp0[0];
+    { // input gain with parameter smoothing
+	    float fSlow18 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider3)));
+	    for (int i=0; i<count; i++) {
+		    float fTemp0 = workbuf[i];
+		    add_dc(fTemp0);
+		    // gain in
+		    fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
+		    fTemp0 = (fRec4[0] * fTemp0);
+		    workbuf[i] = fTemp0;
+		    // post processing
+		    fRec4[1] = fRec4[0];
 	    }
-	    if (gx_gui::shownote == 0) {
-		    fConsta1 = 1000.0f;
-		    gx_gui::shownote = -1;
+    }
+
+    {
+	    //----- tone only reset when value have change
+	    fslider_tone_check1 = (fslider_tone1+fslider_tone0+fslider_tone2)*100;
+	    if (fslider_tone_check1 != fslider_tone_check) {
+		    fSlow_mid_tone = (fslider_tone1*0.5);
+		    fSlow_tone0 = powf(10, (2.500000e-02f * (fslider_tone0- fSlow_mid_tone)));
+		    fSlow_tone1 = (1 + fSlow_tone0);
+		    fSlow_tone2 = (fConst_tone1 * fSlow_tone1);
+		    fSlow_tone3 = (2 * (0 - ((1 + fSlow_tone2) - fSlow_tone0)));
+		    fSlow_tone4 = (fConst_tone1 * (fSlow_tone0 - 1));
+		    fSlow_tone5 = (fConst_tone2 * sqrtf(fSlow_tone0));
+		    fSlow_tone6 = (fSlow_tone1 - (fSlow_tone5 + fSlow_tone4));
+		    fSlow_tone7 = powf(10, (2.500000e-02f * fSlow_mid_tone));
+		    fSlow_tone8 = (1 + fSlow_tone7);
+		    fSlow_tone9 = (fConst_tone4 * fSlow_tone8);
+		    fSlow_tone10 = (2 * (0 - ((1 + fSlow_tone9) - fSlow_tone7)));
+		    fSlow_tone11 = (fSlow_tone7 - 1);
+		    fSlow_tone12 = (fConst_tone4 * fSlow_tone11);
+		    fSlow_tone13 = sqrtf(fSlow_tone7);
+		    fSlow_tone14 = (fConst_tone5 * fSlow_tone13);
+		    fSlow_tone15 = (fSlow_tone8 - (fSlow_tone14 + fSlow_tone12));
+		    fSlow_tone16 = (fConst_tone1 * fSlow_tone8);
+		    fSlow_tone17 = (0 - (2 * ((fSlow_tone7 + fSlow_tone16) - 1)));
+		    fSlow_tone18 = (fConst_tone2 * fSlow_tone13);
+		    fSlow_tone19 = (fConst_tone1 * fSlow_tone11);
+		    fSlow_tone20 = ((1 + (fSlow_tone7 + fSlow_tone19)) - fSlow_tone18);
+		    fSlow_tone21 = powf(10, (2.500000e-02f * (fslider_tone2-fSlow_mid_tone)));
+		    fSlow_tone22 = (1 + fSlow_tone21);
+		    fSlow_tone23 = (fConst_tone4 * fSlow_tone22);
+		    fSlow_tone24 = (0 - (2 * ((fSlow_tone21 + fSlow_tone23) - 1)));
+		    fSlow_tone25 = (fConst_tone5 * sqrtf(fSlow_tone21));
+		    fSlow_tone26 = (fConst_tone4 * (fSlow_tone21 - 1));
+		    fSlow_tone27 = ((1 + (fSlow_tone21 + fSlow_tone26)) - fSlow_tone25);
+		    fSlow_tone28 = (2 * (0 - ((1 + fSlow_tone23) - fSlow_tone21)));
+		    fSlow_tone29 = (fSlow_tone21 + fSlow_tone25);
+		    fSlow_tone30 = ((1 + fSlow_tone29) - fSlow_tone26);
+		    fSlow_tone31 = (fSlow_tone22 - (fSlow_tone25 + fSlow_tone26));
+		    fSlow_tone32 = (1.0f / (1 + (fSlow_tone26 + fSlow_tone29)));
+		    fSlow_tone33 = (fSlow_tone8 - (fSlow_tone18 + fSlow_tone19));
+		    fSlow_tone34 = (2 * (0 - ((1 + fSlow_tone16) - fSlow_tone7)));
+		    fSlow_tone35 = (fSlow_tone7 + fSlow_tone18);
+		    fSlow_tone36 = ((1 + fSlow_tone35) - fSlow_tone19);
+		    fSlow_tone37 = (1.0f / (1 + (fSlow_tone19 + fSlow_tone35)));
+		    fSlow_tone38 = (fSlow_tone7 * ((1 + (fSlow_tone7 + fSlow_tone12)) - fSlow_tone14));
+		    fSlow_tone39 = (fSlow_tone7 + fSlow_tone14);
+		    fSlow_tone40 = (fSlow_tone7 * (1 + (fSlow_tone12 + fSlow_tone39)));
+		    fSlow_tone41 = (((fSlow_tone7 + fSlow_tone9) - 1) * (0 - (2 * fSlow_tone7)));
+		    fSlow_tone42 = (1.0f / ((1 + fSlow_tone39) - fSlow_tone12));
+		    fSlow_tone43 = (fSlow_tone0 * ((1 + (fSlow_tone0 + fSlow_tone4)) - fSlow_tone5));
+		    fSlow_tone44 = (fSlow_tone0 + fSlow_tone5);
+		    fSlow_tone45 = (fSlow_tone0 * (1 + (fSlow_tone4 + fSlow_tone44)));
+		    fSlow_tone46 = (((fSlow_tone0 + fSlow_tone2) - 1) * (0 - (2 * fSlow_tone0)));
+		    fSlow_tone47 = (1.0f / ((1 + fSlow_tone44) - fSlow_tone4));
+		    fslider_tone_check = (fslider_tone1+fslider_tone0+fslider_tone2)*100;
 	    }
-	    workbuf[i] = fTemp0;
-    }
+	    for (int i=0; i<count; i++) {	    // tone
+		    float fTemp0 = workbuf[i];
+		    fVec_tone0[0] = fTemp0;
+		    fRec_tone3[0] = (fSlow_tone32 * ((fSlow_tone21 * ((fSlow_tone31 * fVec_tone0[2]) + ((fSlow_tone30 * fVec_tone0[0]) + (fSlow_tone28 * fVec_tone0[1])))) - ((fSlow_tone27 * fRec_tone3[2]) + (fSlow_tone24 * fRec_tone3[1]))));
+		    fRec_tone2[0] = (fSlow_tone37 * ((fSlow_tone7 * (((fSlow_tone36 * fRec_tone3[0]) + (fSlow_tone34 * fRec_tone3[1])) + (fSlow_tone33 * fRec_tone3[2]))) - ((fSlow_tone20 * fRec_tone2[2]) + (fSlow_tone17 * fRec_tone2[1]))));
+		    fRec_tone1[0] = (fSlow_tone42 * ((((fSlow_tone41 * fRec_tone2[1]) + (fSlow_tone40 * fRec_tone2[0])) + (fSlow_tone38 * fRec_tone2[2])) + (0 - ((fSlow_tone15 * fRec_tone1[2]) + (fSlow_tone10 * fRec_tone1[1])))));
+		    fRec_tone0[0] = (fSlow_tone47 * ((((fSlow_tone46 * fRec_tone1[1]) + (fSlow_tone45 * fRec_tone1[0])) + (fSlow_tone43 * fRec_tone1[2])) + (0 - ((fSlow_tone6 * fRec_tone0[2]) + (fSlow_tone3 * fRec_tone0[1])))));
 
-	float fSlow18 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider3)));
-    for (int i=0; i<count; i++) {
-	    float fTemp0 = workbuf[i];
-	    add_dc(fTemp0);
-	    // gain in
-	    fRec4[0] = ((0.999f * fRec4[1]) + fSlow18);
-	    fTemp0 = (fRec4[0] * fTemp0);
-	    workbuf[i] = fTemp0;
-		// post processing
-		fRec4[1] = fRec4[0];
-    }
-
-	//----- tone only reset when value have change
-	fslider_tone_check1 = (fslider_tone1+fslider_tone0+fslider_tone2)*100;
-	if (fslider_tone_check1 != fslider_tone_check) {
-		fSlow_mid_tone = (fslider_tone1*0.5);
-		fSlow_tone0 = powf(10, (2.500000e-02f * (fslider_tone0- fSlow_mid_tone)));
-		fSlow_tone1 = (1 + fSlow_tone0);
-		fSlow_tone2 = (fConst_tone1 * fSlow_tone1);
-		fSlow_tone3 = (2 * (0 - ((1 + fSlow_tone2) - fSlow_tone0)));
-		fSlow_tone4 = (fConst_tone1 * (fSlow_tone0 - 1));
-		fSlow_tone5 = (fConst_tone2 * sqrtf(fSlow_tone0));
-		fSlow_tone6 = (fSlow_tone1 - (fSlow_tone5 + fSlow_tone4));
-		fSlow_tone7 = powf(10, (2.500000e-02f * fSlow_mid_tone));
-		fSlow_tone8 = (1 + fSlow_tone7);
-		fSlow_tone9 = (fConst_tone4 * fSlow_tone8);
-		fSlow_tone10 = (2 * (0 - ((1 + fSlow_tone9) - fSlow_tone7)));
-		fSlow_tone11 = (fSlow_tone7 - 1);
-		fSlow_tone12 = (fConst_tone4 * fSlow_tone11);
-		fSlow_tone13 = sqrtf(fSlow_tone7);
-		fSlow_tone14 = (fConst_tone5 * fSlow_tone13);
-		fSlow_tone15 = (fSlow_tone8 - (fSlow_tone14 + fSlow_tone12));
-		fSlow_tone16 = (fConst_tone1 * fSlow_tone8);
-		fSlow_tone17 = (0 - (2 * ((fSlow_tone7 + fSlow_tone16) - 1)));
-		fSlow_tone18 = (fConst_tone2 * fSlow_tone13);
-		fSlow_tone19 = (fConst_tone1 * fSlow_tone11);
-		fSlow_tone20 = ((1 + (fSlow_tone7 + fSlow_tone19)) - fSlow_tone18);
-		fSlow_tone21 = powf(10, (2.500000e-02f * (fslider_tone2-fSlow_mid_tone)));
-		fSlow_tone22 = (1 + fSlow_tone21);
-		fSlow_tone23 = (fConst_tone4 * fSlow_tone22);
-		fSlow_tone24 = (0 - (2 * ((fSlow_tone21 + fSlow_tone23) - 1)));
-		fSlow_tone25 = (fConst_tone5 * sqrtf(fSlow_tone21));
-		fSlow_tone26 = (fConst_tone4 * (fSlow_tone21 - 1));
-		fSlow_tone27 = ((1 + (fSlow_tone21 + fSlow_tone26)) - fSlow_tone25);
-		fSlow_tone28 = (2 * (0 - ((1 + fSlow_tone23) - fSlow_tone21)));
-		fSlow_tone29 = (fSlow_tone21 + fSlow_tone25);
-		fSlow_tone30 = ((1 + fSlow_tone29) - fSlow_tone26);
-		fSlow_tone31 = (fSlow_tone22 - (fSlow_tone25 + fSlow_tone26));
-		fSlow_tone32 = (1.0f / (1 + (fSlow_tone26 + fSlow_tone29)));
-		fSlow_tone33 = (fSlow_tone8 - (fSlow_tone18 + fSlow_tone19));
-		fSlow_tone34 = (2 * (0 - ((1 + fSlow_tone16) - fSlow_tone7)));
-		fSlow_tone35 = (fSlow_tone7 + fSlow_tone18);
-		fSlow_tone36 = ((1 + fSlow_tone35) - fSlow_tone19);
-		fSlow_tone37 = (1.0f / (1 + (fSlow_tone19 + fSlow_tone35)));
-		fSlow_tone38 = (fSlow_tone7 * ((1 + (fSlow_tone7 + fSlow_tone12)) - fSlow_tone14));
-		fSlow_tone39 = (fSlow_tone7 + fSlow_tone14);
-		fSlow_tone40 = (fSlow_tone7 * (1 + (fSlow_tone12 + fSlow_tone39)));
-		fSlow_tone41 = (((fSlow_tone7 + fSlow_tone9) - 1) * (0 - (2 * fSlow_tone7)));
-		fSlow_tone42 = (1.0f / ((1 + fSlow_tone39) - fSlow_tone12));
-		fSlow_tone43 = (fSlow_tone0 * ((1 + (fSlow_tone0 + fSlow_tone4)) - fSlow_tone5));
-		fSlow_tone44 = (fSlow_tone0 + fSlow_tone5);
-		fSlow_tone45 = (fSlow_tone0 * (1 + (fSlow_tone4 + fSlow_tone44)));
-		fSlow_tone46 = (((fSlow_tone0 + fSlow_tone2) - 1) * (0 - (2 * fSlow_tone0)));
-		fSlow_tone47 = (1.0f / ((1 + fSlow_tone44) - fSlow_tone4));
-		fslider_tone_check = (fslider_tone1+fslider_tone0+fslider_tone2)*100;
-	}
-    for (int i=0; i<count; i++) {	    // tone
-	    float fTemp0 = workbuf[i];
-	    fVec_tone0[0] = fTemp0;
-	    fRec_tone3[0] = (fSlow_tone32 * ((fSlow_tone21 * ((fSlow_tone31 * fVec_tone0[2]) + ((fSlow_tone30 * fVec_tone0[0]) + (fSlow_tone28 * fVec_tone0[1])))) - ((fSlow_tone27 * fRec_tone3[2]) + (fSlow_tone24 * fRec_tone3[1]))));
-	    fRec_tone2[0] = (fSlow_tone37 * ((fSlow_tone7 * (((fSlow_tone36 * fRec_tone3[0]) + (fSlow_tone34 * fRec_tone3[1])) + (fSlow_tone33 * fRec_tone3[2]))) - ((fSlow_tone20 * fRec_tone2[2]) + (fSlow_tone17 * fRec_tone2[1]))));
-	    fRec_tone1[0] = (fSlow_tone42 * ((((fSlow_tone41 * fRec_tone2[1]) + (fSlow_tone40 * fRec_tone2[0])) + (fSlow_tone38 * fRec_tone2[2])) + (0 - ((fSlow_tone15 * fRec_tone1[2]) + (fSlow_tone10 * fRec_tone1[1])))));
-	    fRec_tone0[0] = (fSlow_tone47 * ((((fSlow_tone46 * fRec_tone1[1]) + (fSlow_tone45 * fRec_tone1[0])) + (fSlow_tone43 * fRec_tone1[2])) + (0 - ((fSlow_tone6 * fRec_tone0[2]) + (fSlow_tone3 * fRec_tone0[1])))));
-
-	    fTemp0 = fRec_tone0[0];
-	    workbuf[i] = fTemp0;
-		// postprocessing
-		fRec_tone0[2] = fRec_tone0[1];
-		fRec_tone0[1] = fRec_tone0[0];
-		fRec_tone1[2] = fRec_tone1[1];
-		fRec_tone1[1] = fRec_tone1[0];
-		fRec_tone2[2] = fRec_tone2[1];
-		fRec_tone2[1] = fRec_tone2[0];
-		fRec_tone3[2] = fRec_tone3[1];
-		fRec_tone3[1] = fRec_tone3[0];
-		fVec_tone0[2] = fVec_tone0[1];
-		fVec_tone0[1] = fVec_tone0[0];
-    }
-	// tone end
-
-	float fSlowvib0 = fvibrato;
-    for (int i=0; i<count; i++) {
-	    float fTemp0 = workbuf[i];
-	    // vibrato
-	    if (resonator) {
-		    fRec3[0] = hard_cut (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])),0.7);  //resonanz 1.76f
-		    fTemp0 = fRec3[0];
+		    fTemp0 = fRec_tone0[0];
+		    workbuf[i] = fTemp0;
+		    // postprocessing
+		    fRec_tone0[2] = fRec_tone0[1];
+		    fRec_tone0[1] = fRec_tone0[0];
+		    fRec_tone1[2] = fRec_tone1[1];
+		    fRec_tone1[1] = fRec_tone1[0];
+		    fRec_tone2[2] = fRec_tone2[1];
+		    fRec_tone2[1] = fRec_tone2[0];
+		    fRec_tone3[2] = fRec_tone3[1];
+		    fRec_tone3[1] = fRec_tone3[0];
+		    fVec_tone0[2] = fVec_tone0[1];
+		    fVec_tone0[1] = fVec_tone0[0];
 	    }
-	    workbuf[i] = fTemp0;
-		// post processing
-		fRec3[1] = fRec3[0];
+	    // tone end
     }
 
-    for (int m = 0; m < 8; m++) {
-	    if (posit0 == m) {  //crybaby
-		    if (!crybaby) {
-			    continue;
+    {
+	    float fSlowvib0 = fvibrato;
+	    for (int i=0; i<count; i++) {
+		    float fTemp0 = workbuf[i];
+		    // vibrato
+		    if (resonator) {
+			    fRec3[0] = hard_cut (0.5f * ((2.0 * fTemp0) + ( fSlowvib0* fRec3[1])),0.7);  //resonanz 1.76f
+			    fTemp0 = fRec3[0];
 		    }
-		    float fSlow56 = fslider11;
-		    float fmapping = (2.384186e-10f*(20*fSlow56));
-		    float fSlow57 = (9.999872e-05f * powf(4.0f, fSlow56));
-		    float fSlow58 = fslider13;
-		    float fSlow59 = ((1 - max(0, (0 - fSlow58))) * fslider12);
-		    float fSlow60 = powf(2.0f, (2.3f * fSlow56));
-		    float fSlow61 = (1 - (fConst10 * (fSlow60 / powf(2.0f, (1.0f + (2.0f * (1.0f - fSlow56)))))));
-		    float fSlow62 = (9.999871e-04f * (0 - (2.0f * (fSlow61 * cosf((fConst9 * fSlow60))))));
-		    float fSlow63 = (9.999871e-04f * (fSlow61 * fSlow61));
-		    float fSlow64 = (1 - max(0, fSlow58));
-			for (int i = 0; i < count; i++) {
-				float fTemp0 = workbuf[i];
-				if (autowah) {
-					//float fTempw0 = (fTemp0*0.001);
-					//fTempw0 = (fTempw0*1000);
-					int iTempwah1 = abs(int((4194304 * (fTemp0+ 1e-20))));
-					iVecwah0[IOTAWAH&1023] = iTempwah1;
-					iRecwah2[0] = ((iVecwah0[IOTAWAH&1023] + iRecwah2[1]) - iVecwah0[(IOTAWAH-1000)&1023]);
-					float fTempwah2 = min(1, max(0, (fmapping * float(iRecwah2[0]))));
-					fRec19[0] = ((9.999872e-05f * my4powf( fTempwah2)) + (0.999f * fRec19[1]));
-					add_dc(fTempwah2);
-					float fTempwah3 = my2powf(2.3f * fTempwah2);
-					float fTempwah4 = (1 - (fConst10 * (fTempwah3 / my2powf(1.0f + (2.0f * (1.0f - fTempwah2))))));
-					fRec20[0] = ((9.999871e-04f * (0 - (2.0f * (fTempwah4 * cosf((fConst9 * fTempwah3)))))) + (0.999f * fRec20[1]));
-					fRec21[0] = ((9.999871e-04f * (fTempwah4 * fTempwah4)) + (0.999f * fRec21[1]));
-					fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
-					fTemp0 = (((fSlow64 *fTemp0) + fRec18[0]) - fRec18[1]);
-				} else {
+		    workbuf[i] = fTemp0;
+		    // post processing
+		    fRec3[1] = fRec3[0];
+	    }
+    }
 
-					fRec19[0] = (fSlow57 + (0.999f * fRec19[1])); //wah slider
-					fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
-					fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));  // wah slider
+    {
+	    for (int m = 0; m < 8; m++) {
+		    if (posit0 == m) {  //crybaby
+			    if (!crybaby) {
+				    continue;
+			    }
+			    float fSlow56 = fslider11;
+			    float fmapping = (2.384186e-10f*(20*fSlow56));
+			    float fSlow57 = (9.999872e-05f * powf(4.0f, fSlow56));
+			    float fSlow58 = fslider13;
+			    float fSlow59 = ((1 - max(0, (0 - fSlow58))) * fslider12);
+			    float fSlow60 = powf(2.0f, (2.3f * fSlow56));
+			    float fSlow61 = (1 - (fConst10 * (fSlow60 / powf(2.0f, (1.0f + (2.0f * (1.0f - fSlow56)))))));
+			    float fSlow62 = (9.999871e-04f * (0 - (2.0f * (fSlow61 * cosf((fConst9 * fSlow60))))));
+			    float fSlow63 = (9.999871e-04f * (fSlow61 * fSlow61));
+			    float fSlow64 = (1 - max(0, fSlow58));
+			    for (int i = 0; i < count; i++) {
+				    float fTemp0 = workbuf[i];
+				    if (autowah) {
+					    //float fTempw0 = (fTemp0*0.001);
+					    //fTempw0 = (fTempw0*1000);
+					    int iTempwah1 = abs(int((4194304 * (fTemp0+ 1e-20))));
+					    iVecwah0[IOTAWAH&1023] = iTempwah1;
+					    iRecwah2[0] = ((iVecwah0[IOTAWAH&1023] + iRecwah2[1]) - iVecwah0[(IOTAWAH-1000)&1023]);
+					    float fTempwah2 = min(1, max(0, (fmapping * float(iRecwah2[0]))));
+					    fRec19[0] = ((9.999872e-05f * my4powf( fTempwah2)) + (0.999f * fRec19[1]));
+					    add_dc(fTempwah2);
+					    float fTempwah3 = my2powf(2.3f * fTempwah2);
+					    float fTempwah4 = (1 - (fConst10 * (fTempwah3 / my2powf(1.0f + (2.0f * (1.0f - fTempwah2))))));
+					    fRec20[0] = ((9.999871e-04f * (0 - (2.0f * (fTempwah4 * cosf((fConst9 * fTempwah3)))))) + (0.999f * fRec20[1]));
+					    fRec21[0] = ((9.999871e-04f * (fTempwah4 * fTempwah4)) + (0.999f * fRec21[1]));
+					    fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
+					    fTemp0 = (((fSlow64 *fTemp0) + fRec18[0]) - fRec18[1]);
+				    } else {
+
+					    fRec19[0] = (fSlow57 + (0.999f * fRec19[1])); //wah slider
+					    fRec20[0] = (fSlow62 + (0.999f * fRec20[1]));
+					    fRec21[0] = (fSlow63 + (0.999f * fRec21[1]));  // wah slider
 
 
-					fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
-					fTemp0 = ((fRec18[0] + (fSlow64 * fTemp0)) - fRec18[1]);
-				}
-				workbuf[i] = fTemp0;
-				// postprocessing
-				iRecwah2[1] = iRecwah2[0];
-				IOTAWAH = IOTAWAH+1;
-				fRec18[2] = fRec18[1];
-				fRec18[1] = fRec18[0] *0.996f;
-				fRec21[1] = fRec21[0];
-				fRec20[1] = fRec20[0];
-				fRec19[1] = fRec19[0];
-			}
-		} else if (posit5 == m) {   // compressor
-			if (!compressor) {
-				continue;
-			}
-			float fSlowcom0 = fentrycom0;
-			float fSlowcom1 = expf((0 - (fConstcom2 / max(fConstcom2, fslidercom0))));
-			float fSlowcom2 = expf((0 - (fConstcom2 / max(fConstcom2, fslidercom1))));
-			float fSlowcom3 = fentrycom1;
-			float fSlowcom4 = (1.000000f / (1.000000e-03f + fSlowcom3));
-			float fSlowcom5 = fentrycom2;
-			for (int i = 0; i < count; i++) {
-				float fTemp0 = workbuf[i];
-				add_dc(fTemp0);
-				float fTempcom0 = fTemp0;
-				fReccom1[0] = ((fConstcom1 * fabsf(fTempcom0)) + (fConstcom0 * fReccom1[1]));
-				float fTempcom2 = max(fReccom1[0], fReccom1[0]);
-				float fTempcom3 = ((fSlowcom2 * (fReccom0[1] >= fTempcom2)) + (fSlowcom1 * (fReccom0[1] < fTempcom2)));
-				fReccom0[0] = ((fTempcom2 * (1 - fTempcom3)) + (fReccom0[1] * fTempcom3));
-				float fTempcom4 = max(0, ((fSlowcom3 + (20 * log10f(fReccom0[0]))) - fSlowcom0));
-				float fTempcom5 = min(1, max(0, (fSlowcom4 * fTempcom4)));
-				float fTempcom6 = (fSlowcom5 * fTempcom5);
-				float fTempcom7 = ((fTempcom4 / ((1 + fTempcom6) - fTempcom5)) * (fTempcom5 - fTempcom6));
-				float fTempcom8 = powf(10, (5.000000e-02f * fTempcom7));
-				fTemp0 = (fTempcom0 * fTempcom8);
-				workbuf[i] = fTemp0;
-				// post processing
-				fReccom0[1] = fReccom0[0];
-				fReccom1[1] = fReccom1[0];
-			}
-		} else if (posit1 == m) {  // overdrive
-			if (!overdrive) {
-				continue;
-			}
-			float drivem1 = drive - 1.0f;
-			float fSlowover0 = (9.999871e-04f * powf(10, (5.000000e-02f * (drive*-0.5))));
-			for (int i = 0; i < count; i++) {
-				float fTemp0 = workbuf[i];
-				float fTempdr1 = fabs(fTemp0);
-				fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
-				fTemp0 = (fTemp0*(fTempdr1 + drive)/(fTemp0*fTemp0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
-				workbuf[i] = fTemp0;
-				// post processing
-				fRecover0[1] = fRecover0[0];
-			}
-		} else if (posit2 == m) {    // distortion
-			if (!distortion) {
-				continue;
-			}
-			float fSlow19 = (1.0f - fslider4);
-			float fSlow20 = fslider5;
-			float fSlow23 = (1.0f / tanf((fConst6 * fentry0)));
-			float fSlow24 = (fSlow23 - 1);
-			float fSlow25 = (1.0f / (1 + fSlow23));
-			float fSlow26 = (1.0f / tanf((fConst8 * (fConst7 - (6.283185f * fentry1)))));
-			float fSlow27 = (1 + fSlow26);
-			float fSlow28 = (1.0f / fSlow27);
-			float fSlow29 = (0 - ((fSlow26 - 1) / fSlow27));
-			float fSlow31 = tanf((fConst6 * fslider6));
-			float fSlow32 = (2 * (1 - (1.0f / (fSlow31 * fSlow31))));
-			float fSlow33 = (1.0f / fSlow31);
-			float fSlow34 = (1 + ((fSlow33 - 0.765367f) / fSlow31));
-			float fSlow35 = (1.0f / (1 + ((0.765367f + fSlow33) / fSlow31)));
-			float fSlow36 = (1 + ((fSlow33 - 1.847759f) / fSlow31));
-			float fSlow37 = (1.0f / (1 + ((1.847759f + fSlow33) / fSlow31)));
-			float fSlow38 = (fConst6 * fslider7);
-			float fSlow39 = (1.0f / (1 + fSlow38));
-			float fSlow40 = (1 - fSlow38);
-			float fSlow42 = fslider8;
-			float fSlow43 = powf(10.0f, (2 * fslider9));
-			float fSlow44 = (9.999871e-04f * powf(10, (5.000000e-02f * (fslider10 - 10))));
-			int iSlow21 = int((int((fSlow20 - 1)) & 4095));
-			int iSlow22 = int((int(fSlow20) & 4095));
-			int iSlow40 = max(0,min(1,(fcheckbox3)));
-			int iSlow41 = max(0,min(1,(fcheckbox2)));
-			for (int i = 0; i < count; i++) {
-				float fTemp0 = workbuf[i];
-				float 	S6[2];
-				float 	S7[2];
-				float 	S8[2];
-				fTemp0 = (fTemp0*0.001);
-				fVec1[IOTA&4095] = ((fTemp0*1000) + (fSlow19 * fRec6[1]));
-				fRec6[0] = (0.5f * (fVec1[(IOTA-iSlow22)&4095] + fVec1[(IOTA-iSlow21)&4095]));
-				add_dc(fRec6[0]);
-				S8[0] = fRec6[0];
-				fVec2[0] = (fSlow25 * fRec6[0]);
-				fRec8[0] = (fVec2[1] + (fSlow25 * (fRec6[0] + (fSlow24 * fRec8[1]))));
-				fVec3[0] = (fSlow28 * fRec8[0]);
-				fRec7[0] = ((fVec3[0] + (fSlow29 * fRec7[1])) - fVec3[1]);
-				S8[1] = fRec7[0];
-				float fTemp3 = S8[iSlow41];
-				add_dc(fTemp3);
-				S7[0] = fTemp3;
-				fVec4[0] = (fSlow39 * fTemp3);
-				fRec12[0] = ((fSlow39 * (fTemp3 + (fSlow40 * fRec12[1]))) - fVec4[1]);
-				fVec5[0] = (fSlow39 * fRec12[0]);
-				fRec11[0] = ((fSlow39 * (fRec12[0] + (fSlow40 * fRec11[1]))) - fVec5[1]);
-				fRec10[0] = (fRec11[0] - (fSlow37 * ((fSlow36 * fRec10[2]) + (fSlow32 * fRec10[1]))));
-				fRec9[0] = ((fSlow37 * (fRec10[2] + (fRec10[0] + (2 * fRec10[1])))) - (fSlow35 * ((fSlow34 * fRec9[2]) + (fSlow32 * fRec9[1]))));
-				S7[1] = (fSlow35 * (fRec9[2] + (fRec9[0] + (2 * fRec9[1]))));
-				add_dc(S7[1]);
-				float fTemp4 = max(-1, min(1, (fSlow43 * (fSlow42 + S7[iSlow40]))));
-				add_dc(fTemp4);
-				fVec6[0] = (fTemp4 * (1 - (0.333333f * (fTemp4 * fTemp4))));
-				fRec5[0] = ((fVec6[0] + (0.995f * fRec5[1])) - fVec6[1]);
-				fRec13[0] = (fSlow44 + (0.999f * fRec13[1]));
-				float fTemp6 = (fRec13[0] * fRec5[0]);
-				add_dc(fTemp6);
-				S6[0] = fTemp6;
-				fVec7[0] = (fSlow39 * fTemp6);
-				fRec17[0] = ((fSlow39 * (fTemp6 + (fSlow40 * fRec17[1]))) - fVec7[1]);
-				fVec8[0] = (fSlow39 * fRec17[0]);
-				fRec16[0] = ((fSlow39 * (fRec17[0] + (fSlow40 * fRec16[1]))) - fVec8[1]);
-				fRec15[0] = (fRec16[0] - (fSlow37 * ((fSlow36 * fRec15[2]) + (fSlow32 * fRec15[1]))));
-				fRec14[0] = ((fSlow37 * (fRec15[2] + (fRec15[0] + (2 * fRec15[1])))) - (fSlow35 * ((fSlow34 * fRec14[2]) + (fSlow32 * fRec14[1]))));
-				S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
-				fTemp0 = S6[iSlow40];
-				workbuf[i] = fTemp0;
-				// postprocessing
-				fRec14[2] = fRec14[1];
-				fRec14[1] = fRec14[0];
-				fRec15[2] = fRec15[1];
-				fRec15[1] = fRec15[0];
-				fRec16[1] = fRec16[0];
-				fVec8[1] = fVec8[0];
-				fRec17[1] = fRec17[0];
-				fVec7[1] = fVec7[0];
-				fRec13[1] = fRec13[0];
-				fRec5[1] = fRec5[0];
-				fVec6[1] = fVec6[0];
-				fRec9[2] = fRec9[1];
-				fRec9[1] = fRec9[0];
-				fRec10[2] = fRec10[1];
-				fRec10[1] = fRec10[0];
-				fRec11[1] = fRec11[0];
-				fVec5[1] = fVec5[0];
-				fRec12[1] = fRec12[0];
-				fVec4[1] = fVec4[0];
-				fRec7[1] = fRec7[0];
-				fVec3[1] = fVec3[0];
-				fRec8[1] = fRec8[0];
-				fVec2[1] = fVec2[0];
-				fRec6[1] = fRec6[0];
-			}
-		} else if (posit3==m) {    //freeverb
-			if (!freeverb) {
-				continue;
-			}
-			float fSlow66 = (0.5 + fslider14);
-			float fSlow67 = (2 * (1 - fSlow66));
-			float fSlow68 = fslider15;
-			float fSlow69 = (1 - fSlow68);
-			float fSlow70 = (0.7f + (0.28f * fslider16));
-			for (int i = 0; i < count; i++) {
-				float fTemp0 = workbuf[i];
-				float fTemp9 = (1.500000e-02f * fTemp0);
-				fRec31[0] = ((fSlow69 * fRec30[1]) + (fSlow68 * fRec31[1]));
-				fVec10[IOTA&2047] = (fTemp9 + (fSlow70 * fRec31[0]));
-				fRec30[0] = fVec10[(IOTA-1640)&2047];
-				fRec33[0] = ((fSlow69 * fRec32[1]) + (fSlow68 * fRec33[1]));
-				fVec11[IOTA&2047] = (fTemp9 + (fSlow70 * fRec33[0]));
-				fRec32[0] = fVec11[(IOTA-1580)&2047];
-				fRec35[0] = ((fSlow69 * fRec34[1]) + (fSlow68 * fRec35[1]));
-				fVec12[IOTA&2047] = (fTemp9 + (fSlow70 * fRec35[0]));
-				fRec34[0] = fVec12[(IOTA-1514)&2047];
-				fRec37[0] = ((fSlow69 * fRec36[1]) + (fSlow68 * fRec37[1]));
-				fVec13[IOTA&2047] = (fTemp9 + (fSlow70 * fRec37[0]));
-				fRec36[0] = fVec13[(IOTA-1445)&2047];
-				fRec39[0] = ((fSlow69 * fRec38[1]) + (fSlow68 * fRec39[1]));
-				fVec14[IOTA&2047] = (fTemp9 + (fSlow70 * fRec39[0]));
-				fRec38[0] = fVec14[(IOTA-1379)&2047];
-				fRec41[0] = ((fSlow69 * fRec40[1]) + (fSlow68 * fRec41[1]));
-				fVec15[IOTA&2047] = (fTemp9 + (fSlow70 * fRec41[0]));
-				fRec40[0] = fVec15[(IOTA-1300)&2047];
-				fRec43[0] = ((fSlow69 * fRec42[1]) + (fSlow68 * fRec43[1]));
-				fVec16[IOTA&2047] = (fTemp9 + (fSlow70 * fRec43[0]));
-				fRec42[0] = fVec16[(IOTA-1211)&2047];
-				fRec45[0] = ((fSlow69 * fRec44[1]) + (fSlow68 * fRec45[1]));
-				fVec17[IOTA&2047] = (fTemp9 + (fSlow70 * fRec45[0]));
-				fRec44[0] = fVec17[(IOTA-1139)&2047];
-				float fTemp10 = (((((((fRec44[0] + fRec42[0]) + fRec40[0]) + fRec38[0]) + fRec36[0]) + fRec34[0]) + fRec32[0]) + fRec30[0]);
-				fVec18[IOTA&1023] = (fTemp10 + (0.5f * fRec28[1]));
-				fRec28[0] = fVec18[(IOTA-579)&1023];
-				float 	fRec29 = (0 - (fTemp10 - fRec28[1]));
-				fVec19[IOTA&511] = (fRec29 + (0.5f * fRec26[1]));
-				fRec26[0] = fVec19[(IOTA-464)&511];
-				float 	fRec27 = (fRec26[1] - fRec29);
-				fVec20[IOTA&511] = (fRec27 + (0.5f * fRec24[1]));
-				fRec24[0] = fVec20[(IOTA-364)&511];
-				float 	fRec25 = (fRec24[1] - fRec27);
-				fVec21[IOTA&255] = (fRec25 + (0.5f * fRec22[1]));
-				fRec22[0] = fVec21[(IOTA-248)&255];
-				float 	fRec23 = (fRec22[1] - fRec25);
-				fTemp0 = ((fSlow66 * (fRec23 + fTemp9)) + (fSlow67 * fTemp0));
-				workbuf[i] = fTemp0;
-				// post processing
-				fRec22[1] = fRec22[0];
-				fRec24[1] = fRec24[0];
-				fRec26[1] = fRec26[0];
-				fRec28[1] = fRec28[0];
-				fRec44[1] = fRec44[0];
-				fRec45[1] = fRec45[0];
-				fRec42[1] = fRec42[0];
-				fRec43[1] = fRec43[0];
-				fRec40[1] = fRec40[0];
-				fRec41[1] = fRec41[0];
-				fRec38[1] = fRec38[0];
-				fRec39[1] = fRec39[0];
-				fRec36[1] = fRec36[0];
-				fRec37[1] = fRec37[0];
-				fRec34[1] = fRec34[0];
-				fRec35[1] = fRec35[0];
-				fRec32[1] = fRec32[0];
-				fRec33[1] = fRec33[0];
-				fRec30[1] = fRec30[0];
-				fRec31[1] = fRec31[0];
-			}
-		} else if (posit6 == m) { //echo
-			if (!echo) {
-				continue;
-			}
-			float fSlow74 = (1.000000e-02f * fslider19);
-			int iSlow73 = int((1 + int((int((int((fConst11 * fslider18)) - 1)) & 131071))));
-			for (int i = 0; i < count; i++) {
-				float fTemp0 = workbuf[i];
-				fRec47[IOTA&262143] = (fTemp0 + (fSlow74 * fRec47[(IOTA-iSlow73)&262143]));
-				fTemp0 = fRec47[(IOTA-0)&262143];
-				workbuf[i] = fTemp0;
-			}
-		} else if (posit4 == m) {   //impulseResponse
-			if (!ir) {
-				continue;
-			}
-			float fSlow76 = expf((0 - (fConst6 * fslider20)));
-			float fSlow77 = (2 * cosf((fConst12 * fslider21)));
-			float fSlow78 = (0.5f * (fslider22 * (1 - (fSlow76 * fSlow76))));
-			for (int i = 0; i < count; i++) {
-				float fTemp0 = workbuf[i];
-				fVec22[0] = fTemp0;
-				if (auto_ir) {
-					fSlow77 = min(0.6, max(-0.6,fTemp0));
-				}
-				fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
-				fTemp0 = (fRec48[0] + fVec22[0]);
-				workbuf[i] = fTemp0;
-				// post processing
-				fRec48[2] = fRec48[1];
-				fRec48[1] = fRec48[0];
-				fVec22[2] = fVec22[1];
-				fVec22[1] = fVec22[0];
-			}
-		} else if (posit7==m) {   //delay
-		    if (!delay) {
-			    continue;
+					    fRec18[0] = (0 - (((fRec21[0] * fRec18[2]) + (fRec20[0] * fRec18[1])) - (fSlow59 * (fTemp0 * fRec19[0]))));
+					    fTemp0 = ((fRec18[0] + (fSlow64 * fTemp0)) - fRec18[1]);
+				    }
+				    workbuf[i] = fTemp0;
+				    // postprocessing
+				    iRecwah2[1] = iRecwah2[0];
+				    IOTAWAH = IOTAWAH+1;
+				    fRec18[2] = fRec18[1];
+				    fRec18[1] = fRec18[0] *0.996f;
+				    fRec21[1] = fRec21[0];
+				    fRec20[1] = fRec20[0];
+				    fRec19[1] = fRec19[0];
+			    }
+		    } else if (posit5 == m) {   // compressor
+			    if (!compressor) {
+				    continue;
+			    }
+			    float fSlowcom0 = fentrycom0;
+			    float fSlowcom1 = expf((0 - (fConstcom2 / max(fConstcom2, fslidercom0))));
+			    float fSlowcom2 = expf((0 - (fConstcom2 / max(fConstcom2, fslidercom1))));
+			    float fSlowcom3 = fentrycom1;
+			    float fSlowcom4 = (1.000000f / (1.000000e-03f + fSlowcom3));
+			    float fSlowcom5 = fentrycom2;
+			    for (int i = 0; i < count; i++) {
+				    float fTemp0 = workbuf[i];
+				    add_dc(fTemp0);
+				    float fTempcom0 = fTemp0;
+				    fReccom1[0] = ((fConstcom1 * fabsf(fTempcom0)) + (fConstcom0 * fReccom1[1]));
+				    float fTempcom2 = max(fReccom1[0], fReccom1[0]);
+				    float fTempcom3 = ((fSlowcom2 * (fReccom0[1] >= fTempcom2)) + (fSlowcom1 * (fReccom0[1] < fTempcom2)));
+				    fReccom0[0] = ((fTempcom2 * (1 - fTempcom3)) + (fReccom0[1] * fTempcom3));
+				    float fTempcom4 = max(0, ((fSlowcom3 + (20 * log10f(fReccom0[0]))) - fSlowcom0));
+				    float fTempcom5 = min(1, max(0, (fSlowcom4 * fTempcom4)));
+				    float fTempcom6 = (fSlowcom5 * fTempcom5);
+				    float fTempcom7 = ((fTempcom4 / ((1 + fTempcom6) - fTempcom5)) * (fTempcom5 - fTempcom6));
+				    float fTempcom8 = powf(10, (5.000000e-02f * fTempcom7));
+				    fTemp0 = (fTempcom0 * fTempcom8);
+				    workbuf[i] = fTemp0;
+				    // post processing
+				    fReccom0[1] = fReccom0[0];
+				    fReccom1[1] = fReccom1[0];
+			    }
+		    } else if (posit1 == m) {  // overdrive
+			    if (!overdrive) {
+				    continue;
+			    }
+			    float drivem1 = drive - 1.0f;
+			    float fSlowover0 = (9.999871e-04f * powf(10, (5.000000e-02f * (drive*-0.5))));
+			    for (int i = 0; i < count; i++) {
+				    float fTemp0 = workbuf[i];
+				    float fTempdr1 = fabs(fTemp0);
+				    fRecover0[0] = (fSlowover0 + (0.999000f * fRecover0[1]));
+				    fTemp0 = (fTemp0*(fTempdr1 + drive)/(fTemp0*fTemp0 + drivem1*fTempdr1 + 1.0f)) * fRecover0[0];
+				    workbuf[i] = fTemp0;
+				    // post processing
+				    fRecover0[1] = fRecover0[0];
+			    }
+		    } else if (posit2 == m) {    // distortion
+			    if (!distortion) {
+				    continue;
+			    }
+			    float fSlow19 = (1.0f - fslider4);
+			    float fSlow20 = fslider5;
+			    float fSlow23 = (1.0f / tanf((fConst6 * fentry0)));
+			    float fSlow24 = (fSlow23 - 1);
+			    float fSlow25 = (1.0f / (1 + fSlow23));
+			    float fSlow26 = (1.0f / tanf((fConst8 * (fConst7 - (6.283185f * fentry1)))));
+			    float fSlow27 = (1 + fSlow26);
+			    float fSlow28 = (1.0f / fSlow27);
+			    float fSlow29 = (0 - ((fSlow26 - 1) / fSlow27));
+			    float fSlow31 = tanf((fConst6 * fslider6));
+			    float fSlow32 = (2 * (1 - (1.0f / (fSlow31 * fSlow31))));
+			    float fSlow33 = (1.0f / fSlow31);
+			    float fSlow34 = (1 + ((fSlow33 - 0.765367f) / fSlow31));
+			    float fSlow35 = (1.0f / (1 + ((0.765367f + fSlow33) / fSlow31)));
+			    float fSlow36 = (1 + ((fSlow33 - 1.847759f) / fSlow31));
+			    float fSlow37 = (1.0f / (1 + ((1.847759f + fSlow33) / fSlow31)));
+			    float fSlow38 = (fConst6 * fslider7);
+			    float fSlow39 = (1.0f / (1 + fSlow38));
+			    float fSlow40 = (1 - fSlow38);
+			    float fSlow42 = fslider8;
+			    float fSlow43 = powf(10.0f, (2 * fslider9));
+			    float fSlow44 = (9.999871e-04f * powf(10, (5.000000e-02f * (fslider10 - 10))));
+			    int iSlow21 = int((int((fSlow20 - 1)) & 4095));
+			    int iSlow22 = int((int(fSlow20) & 4095));
+			    int iSlow40 = max(0,min(1,(fcheckbox3)));
+			    int iSlow41 = max(0,min(1,(fcheckbox2)));
+			    for (int i = 0; i < count; i++) {
+				    float fTemp0 = workbuf[i];
+				    float 	S6[2];
+				    float 	S7[2];
+				    float 	S8[2];
+				    fTemp0 = (fTemp0*0.001);
+				    fVec1[IOTA_DIST&4095] = ((fTemp0*1000) + (fSlow19 * fRec6[1]));
+				    fRec6[0] = (0.5f * (fVec1[(IOTA_DIST-iSlow22)&4095] + fVec1[(IOTA_DIST-iSlow21)&4095]));
+				    add_dc(fRec6[0]);
+				    S8[0] = fRec6[0];
+				    fVec2[0] = (fSlow25 * fRec6[0]);
+				    fRec8[0] = (fVec2[1] + (fSlow25 * (fRec6[0] + (fSlow24 * fRec8[1]))));
+				    fVec3[0] = (fSlow28 * fRec8[0]);
+				    fRec7[0] = ((fVec3[0] + (fSlow29 * fRec7[1])) - fVec3[1]);
+				    S8[1] = fRec7[0];
+				    float fTemp3 = S8[iSlow41];
+				    add_dc(fTemp3);
+				    S7[0] = fTemp3;
+				    fVec4[0] = (fSlow39 * fTemp3);
+				    fRec12[0] = ((fSlow39 * (fTemp3 + (fSlow40 * fRec12[1]))) - fVec4[1]);
+				    fVec5[0] = (fSlow39 * fRec12[0]);
+				    fRec11[0] = ((fSlow39 * (fRec12[0] + (fSlow40 * fRec11[1]))) - fVec5[1]);
+				    fRec10[0] = (fRec11[0] - (fSlow37 * ((fSlow36 * fRec10[2]) + (fSlow32 * fRec10[1]))));
+				    fRec9[0] = ((fSlow37 * (fRec10[2] + (fRec10[0] + (2 * fRec10[1])))) - (fSlow35 * ((fSlow34 * fRec9[2]) + (fSlow32 * fRec9[1]))));
+				    S7[1] = (fSlow35 * (fRec9[2] + (fRec9[0] + (2 * fRec9[1]))));
+				    add_dc(S7[1]);
+				    float fTemp4 = max(-1, min(1, (fSlow43 * (fSlow42 + S7[iSlow40]))));
+				    add_dc(fTemp4);
+				    fVec6[0] = (fTemp4 * (1 - (0.333333f * (fTemp4 * fTemp4))));
+				    fRec5[0] = ((fVec6[0] + (0.995f * fRec5[1])) - fVec6[1]);
+				    fRec13[0] = (fSlow44 + (0.999f * fRec13[1]));
+				    float fTemp6 = (fRec13[0] * fRec5[0]);
+				    add_dc(fTemp6);
+				    S6[0] = fTemp6;
+				    fVec7[0] = (fSlow39 * fTemp6);
+				    fRec17[0] = ((fSlow39 * (fTemp6 + (fSlow40 * fRec17[1]))) - fVec7[1]);
+				    fVec8[0] = (fSlow39 * fRec17[0]);
+				    fRec16[0] = ((fSlow39 * (fRec17[0] + (fSlow40 * fRec16[1]))) - fVec8[1]);
+				    fRec15[0] = (fRec16[0] - (fSlow37 * ((fSlow36 * fRec15[2]) + (fSlow32 * fRec15[1]))));
+				    fRec14[0] = ((fSlow37 * (fRec15[2] + (fRec15[0] + (2 * fRec15[1])))) - (fSlow35 * ((fSlow34 * fRec14[2]) + (fSlow32 * fRec14[1]))));
+				    S6[1] = (fSlow35 * (fRec14[2] + (fRec14[0] + (2 * fRec14[1]))));
+				    fTemp0 = S6[iSlow40];
+				    workbuf[i] = fTemp0;
+				    // postprocessing
+				    IOTA_DIST = IOTA_DIST+1;
+				    fRec14[2] = fRec14[1];
+				    fRec14[1] = fRec14[0];
+				    fRec15[2] = fRec15[1];
+				    fRec15[1] = fRec15[0];
+				    fRec16[1] = fRec16[0];
+				    fVec8[1] = fVec8[0];
+				    fRec17[1] = fRec17[0];
+				    fVec7[1] = fVec7[0];
+				    fRec13[1] = fRec13[0];
+				    fRec5[1] = fRec5[0];
+				    fVec6[1] = fVec6[0];
+				    fRec9[2] = fRec9[1];
+				    fRec9[1] = fRec9[0];
+				    fRec10[2] = fRec10[1];
+				    fRec10[1] = fRec10[0];
+				    fRec11[1] = fRec11[0];
+				    fVec5[1] = fVec5[0];
+				    fRec12[1] = fRec12[0];
+				    fVec4[1] = fVec4[0];
+				    fRec7[1] = fRec7[0];
+				    fVec3[1] = fVec3[0];
+				    fRec8[1] = fRec8[0];
+				    fVec2[1] = fVec2[0];
+				    fRec6[1] = fRec6[0];
+			    }
+		    } else if (posit3==m) {    //freeverb
+			    if (!freeverb) {
+				    continue;
+			    }
+			    float fSlow66 = (0.5 + fslider14);
+			    float fSlow67 = (2 * (1 - fSlow66));
+			    float fSlow68 = fslider15;
+			    float fSlow69 = (1 - fSlow68);
+			    float fSlow70 = (0.7f + (0.28f * fslider16));
+			    for (int i = 0; i < count; i++) {
+				    float fTemp0 = workbuf[i];
+				    float fTemp9 = (1.500000e-02f * fTemp0);
+				    fRec31[0] = ((fSlow69 * fRec30[1]) + (fSlow68 * fRec31[1]));
+				    fVec10[IOTA_FW&2047] = (fTemp9 + (fSlow70 * fRec31[0]));
+				    fRec30[0] = fVec10[(IOTA_FW-1640)&2047];
+				    fRec33[0] = ((fSlow69 * fRec32[1]) + (fSlow68 * fRec33[1]));
+				    fVec11[IOTA_FW&2047] = (fTemp9 + (fSlow70 * fRec33[0]));
+				    fRec32[0] = fVec11[(IOTA_FW-1580)&2047];
+				    fRec35[0] = ((fSlow69 * fRec34[1]) + (fSlow68 * fRec35[1]));
+				    fVec12[IOTA_FW&2047] = (fTemp9 + (fSlow70 * fRec35[0]));
+				    fRec34[0] = fVec12[(IOTA_FW-1514)&2047];
+				    fRec37[0] = ((fSlow69 * fRec36[1]) + (fSlow68 * fRec37[1]));
+				    fVec13[IOTA_FW&2047] = (fTemp9 + (fSlow70 * fRec37[0]));
+				    fRec36[0] = fVec13[(IOTA_FW-1445)&2047];
+				    fRec39[0] = ((fSlow69 * fRec38[1]) + (fSlow68 * fRec39[1]));
+				    fVec14[IOTA_FW&2047] = (fTemp9 + (fSlow70 * fRec39[0]));
+				    fRec38[0] = fVec14[(IOTA_FW-1379)&2047];
+				    fRec41[0] = ((fSlow69 * fRec40[1]) + (fSlow68 * fRec41[1]));
+				    fVec15[IOTA_FW&2047] = (fTemp9 + (fSlow70 * fRec41[0]));
+				    fRec40[0] = fVec15[(IOTA_FW-1300)&2047];
+				    fRec43[0] = ((fSlow69 * fRec42[1]) + (fSlow68 * fRec43[1]));
+				    fVec16[IOTA_FW&2047] = (fTemp9 + (fSlow70 * fRec43[0]));
+				    fRec42[0] = fVec16[(IOTA_FW-1211)&2047];
+				    fRec45[0] = ((fSlow69 * fRec44[1]) + (fSlow68 * fRec45[1]));
+				    fVec17[IOTA_FW&2047] = (fTemp9 + (fSlow70 * fRec45[0]));
+				    fRec44[0] = fVec17[(IOTA_FW-1139)&2047];
+				    float fTemp10 = (((((((fRec44[0] + fRec42[0]) + fRec40[0]) + fRec38[0]) + fRec36[0]) + fRec34[0]) + fRec32[0]) + fRec30[0]);
+				    fVec18[IOTA_FW&1023] = (fTemp10 + (0.5f * fRec28[1]));
+				    fRec28[0] = fVec18[(IOTA_FW-579)&1023];
+				    float 	fRec29 = (0 - (fTemp10 - fRec28[1]));
+				    fVec19[IOTA_FW&511] = (fRec29 + (0.5f * fRec26[1]));
+				    fRec26[0] = fVec19[(IOTA_FW-464)&511];
+				    float 	fRec27 = (fRec26[1] - fRec29);
+				    fVec20[IOTA_FW&511] = (fRec27 + (0.5f * fRec24[1]));
+				    fRec24[0] = fVec20[(IOTA_FW-364)&511];
+				    float 	fRec25 = (fRec24[1] - fRec27);
+				    fVec21[IOTA_FW&255] = (fRec25 + (0.5f * fRec22[1]));
+				    fRec22[0] = fVec21[(IOTA_FW-248)&255];
+				    float 	fRec23 = (fRec22[1] - fRec25);
+				    fTemp0 = ((fSlow66 * (fRec23 + fTemp9)) + (fSlow67 * fTemp0));
+				    workbuf[i] = fTemp0;
+				    // post processing
+				    IOTA_FW = IOTA_FW+1;
+				    fRec22[1] = fRec22[0];
+				    fRec24[1] = fRec24[0];
+				    fRec26[1] = fRec26[0];
+				    fRec28[1] = fRec28[0];
+				    fRec44[1] = fRec44[0];
+				    fRec45[1] = fRec45[0];
+				    fRec42[1] = fRec42[0];
+				    fRec43[1] = fRec43[0];
+				    fRec40[1] = fRec40[0];
+				    fRec41[1] = fRec41[0];
+				    fRec38[1] = fRec38[0];
+				    fRec39[1] = fRec39[0];
+				    fRec36[1] = fRec36[0];
+				    fRec37[1] = fRec37[0];
+				    fRec34[1] = fRec34[0];
+				    fRec35[1] = fRec35[0];
+				    fRec32[1] = fRec32[0];
+				    fRec33[1] = fRec33[0];
+				    fRec30[1] = fRec30[0];
+				    fRec31[1] = fRec31[0];
+			    }
+		    } else if (posit6 == m) { //echo
+			    if (!echo) {
+				    continue;
+			    }
+			    float fSlow74 = (1.000000e-02f * fslider19);
+			    int iSlow73 = int((1 + int((int((int((fConst11 * fslider18)) - 1)) & 131071))));
+			    for (int i = 0; i < count; i++) {
+				    float fTemp0 = workbuf[i];
+				    fRec47[IOTA_ECHO&262143] = (fTemp0 + (fSlow74 * fRec47[(IOTA_ECHO-iSlow73)&262143]));
+				    fTemp0 = fRec47[(IOTA_ECHO-0)&262143];
+				    workbuf[i] = fTemp0;
+				    // post processing
+				    IOTA_ECHO = IOTA_ECHO+1;
+			    }
+		    } else if (posit4 == m) {   //impulseResponse
+			    if (!ir) {
+				    continue;
+			    }
+			    float fSlow76 = expf((0 - (fConst6 * fslider20)));
+			    float fSlow77 = (2 * cosf((fConst12 * fslider21)));
+			    float fSlow78 = (0.5f * (fslider22 * (1 - (fSlow76 * fSlow76))));
+			    for (int i = 0; i < count; i++) {
+				    float fTemp0 = workbuf[i];
+				    fVec22[0] = fTemp0;
+				    if (auto_ir) {
+					    fSlow77 = min(0.6, max(-0.6,fTemp0));
+				    }
+				    fRec48[0] = ((fSlow78 * (fVec22[0] - fVec22[2])) + (fSlow76 * ((fSlow77 * fRec48[1]) - (fSlow76 * fRec48[2]))));
+				    fTemp0 = (fRec48[0] + fVec22[0]);
+				    workbuf[i] = fTemp0;
+				    // post processing
+				    fRec48[2] = fRec48[1];
+				    fRec48[1] = fRec48[0];
+				    fVec22[2] = fVec22[1];
+				    fVec22[1] = fVec22[0];
+			    }
+		    } else if (posit7==m) {   //delay
+			    if (!delay) {
+				    continue;
+			    }
+			    float fdelgain = (9.999871e-04f * powf(10, (5.000000e-02f * fdel_gain1)));
+			    int iSlowdel2 = int((int((fConstdel0 * fsliderdel2)) & 262143));
+			    for (int i = 0; i < count; i++) {
+				    float fTemp0 = workbuf[i];
+				    fRecdel[0] = (fdelgain + (0.999f * fRecdel[1]));
+				    fVecdel2[IOTAdel&262143] = fTemp0;
+				    fTemp0 += fVecdel2[(IOTAdel-iSlowdel2)&262143] * fRecdel[0];
+				    workbuf[i] = fTemp0;
+				    // post processing
+				    IOTAdel = IOTAdel+1;
+			    }
 		    }
-		    float fdelgain = (9.999871e-04f * powf(10, (5.000000e-02f * fdel_gain1)));
-		    int iSlowdel2 = int((int((fConstdel0 * fsliderdel2)) & 262143));
-			for (int i = 0; i < count; i++) {
-				float fTemp0 = workbuf[i];
-				fRecdel[0] = (fdelgain + (0.999f * fRecdel[1]));
-				fVecdel2[IOTAdel&262143] = fTemp0;
-				fTemp0 += fVecdel2[(IOTAdel-iSlowdel2)&262143] * fRecdel[0];
-				workbuf[i] = fTemp0;
-			}
-		}
+	    }
     }
 
 	// Multibandfilter
@@ -2609,54 +2648,60 @@ void GxEngine::process_buffers_new(int count, float** input, float** output)
 		}
 	}
 
-	// gain out
-	float fSlow72 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider17)));
-	for (int i = 0; i < count; i++) {
-		float fTemp0 = workbuf[i];
-		fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
-		fTemp0 =  (fRec46[0] * fTemp0);
-		workbuf[i] = fTemp0;
-		// post processing
-		fRec46[1] = fRec46[0];
-	}
-
-	// bass booster
-	if (boost) {
+	{
+		// gain out
+		float fSlow72 = (9.999871e-04f * powf(10, (5.000000e-02f * fslider17)));
 		for (int i = 0; i < count; i++) {
 			float fTemp0 = workbuf[i];
-			fRec_boost0[0] = (fTemp0 - (fConst_boost4 * ((fConst_boost3 * fRec_boost0[2]) + (fConst_boost2 * fRec_boost0[1]))));
-			fTemp0 = (fConst_boost4 * (((fConst_boost8 * fRec_boost0[0]) + (fConst_boost7 * fRec_boost0[1])) + (fConst_boost6 * fRec_boost0[2])));
+			fRec46[0] = (fSlow72 + (0.999f * fRec46[1]));
+			fTemp0 =  (fRec46[0] * fTemp0);
 			workbuf[i] = fTemp0;
 			// post processing
-			fRec_boost0[2] = fRec_boost0[1];
-			fRec_boost0[1] = fRec_boost0[0];
+			fRec46[1] = fRec46[0];
 		}
 	}
 
-	float fSlow0 = fslider0;
-	float fSlow80 = fslider23;
-	float threshold = fthreshold;
-	int ifuse = int(ffuse);
-	for (int i = 0; i < count; i++) {
-		float fTemp0 = workbuf[i];
-		fVec23[0] = fTemp0;
-		// this is the output value from the mono process
-		fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]))*ngate;
-		// switch between hard_cut or foldback distortion, or plain output
-		switch (ifuse) {
-		case 0:
-			break;
-		case 1:
-			fRec0[0] = hard_cut(saturate(fRec0[0],threshold),threshold);
-			break;
-		case 2:
-			fRec0[0] = foldback(fRec0[0],threshold);
-			break;
+	{
+		// bass booster
+		if (boost) {
+			for (int i = 0; i < count; i++) {
+				float fTemp0 = workbuf[i];
+				fRec_boost0[0] = (fTemp0 - (fConst_boost4 * ((fConst_boost3 * fRec_boost0[2]) + (fConst_boost2 * fRec_boost0[1]))));
+				fTemp0 = (fConst_boost4 * (((fConst_boost8 * fRec_boost0[0]) + (fConst_boost7 * fRec_boost0[1])) + (fConst_boost6 * fRec_boost0[2])));
+				workbuf[i] = fTemp0;
+				// post processing
+				fRec_boost0[2] = fRec_boost0[1];
+				fRec_boost0[1] = fRec_boost0[0];
+			}
 		}
-		workbuf[i] = workbuf2[i] = fRec0[0];
-		// post processing
-		for (int i=5; i>0; i--) fRec0[i] = fRec0[i-1];
-		for (int i=3; i>0; i--) fVec23[i] = fVec23[i-1];
+	}
+
+	{
+		float fSlow0 = fslider0;
+		float fSlow80 = fslider23;
+		float threshold = fthreshold;
+		int ifuse = int(ffuse);
+		for (int i = 0; i < count; i++) {
+			float fTemp0 = workbuf[i];
+			fVec23[0] = fTemp0;
+			// this is the output value from the mono process
+			fRec0[0] = ((fVec23[0] + (fSlow80 * fVec23[3])) - (fSlow0 * fRec0[5]))*ngate;
+			// switch between hard_cut or foldback distortion, or plain output
+			switch (ifuse) {
+			case 0:
+				break;
+			case 1:
+				fRec0[0] = hard_cut(saturate(fRec0[0],threshold),threshold);
+				break;
+			case 2:
+				fRec0[0] = foldback(fRec0[0],threshold);
+				break;
+			}
+			workbuf[i] = workbuf2[i] = fRec0[0];
+			// post processing
+			for (int i=5; i>0; i--) fRec0[i] = fRec0[i-1];
+			for (int i=3; i>0; i--) fVec23[i] = fVec23[i-1];
+		}
 	}
 
 	if (chorus) {		// stereo chorus
@@ -2698,79 +2743,79 @@ void GxEngine::process_buffers_new(int count, float** input, float** output)
 			fRecinjcr[1] = fRecinjcr[0];
 			fRecdel[1] = fRecdel[0];
 			old_freq = fConsta4;
-			IOTAdel = IOTAdel+1;
 		}
 	}
 
-	float* conv_out0 = oversample;
-	float* conv_out1 = oversample+count;
-	float fSlow81 = fslider24;
-	float fSlow82 = (1 - max(0, (0 - fSlow81)));
-	float fSlow83 = fslider25;
-	float fSlow84 = (1 - max(0, fSlow83));
-	float fSlow85 = (fSlow84 * fSlow82);
-	float fSlow86 = (1 - max(0, fSlow81));
-	float fSlow87 = (fSlow84 * fSlow86);
-	float fSlow89 = (1 - max(0, (0 - fSlow83)));
-	float fSlow90 = (fSlow89 * fSlow82);
-	float fSlow91 = (fSlow89 * fSlow86);
-	if (conv.is_runnable()) {
-		float fSlowinjc = (9.999871e-04f * powf(10, (5.000000e-02f * fjc_ingain)));
-		float fSlowinjcr = (9.999871e-04f * powf(10, (5.000000e-02f * fjc_ingain1)));
-		int iSlowdel0 = int((int((fConstdel0 * fsliderdel0)) & 262143));
-		int iSlowdel1 = int((int((fConstdel0 * fsliderdel1)) & 262143));
+	{
+		float* conv_out0 = oversample;
+		float* conv_out1 = oversample+count;
+		float fSlow81 = fslider24;
+		float fSlow82 = (1 - max(0, (0 - fSlow81)));
+		float fSlow83 = fslider25;
+		float fSlow84 = (1 - max(0, fSlow83));
+		float fSlow85 = (fSlow84 * fSlow82);
+		float fSlow86 = (1 - max(0, fSlow81));
+		float fSlow87 = (fSlow84 * fSlow86);
+		float fSlow89 = (1 - max(0, (0 - fSlow83)));
+		float fSlow90 = (fSlow89 * fSlow82);
+		float fSlow91 = (fSlow89 * fSlow86);
+		if (conv.is_runnable()) {
+			float fSlowinjc = (9.999871e-04f * powf(10, (5.000000e-02f * fjc_ingain)));
+			float fSlowinjcr = (9.999871e-04f * powf(10, (5.000000e-02f * fjc_ingain1)));
+			int iSlowdel0 = int((int((fConstdel0 * fsliderdel0)) & 262143));
+			int iSlowdel1 = int((int((fConstdel0 * fsliderdel1)) & 262143));
+			for (int i = 0; i < count; i++) {
+				float out_to_1 = workbuf[i];
+				float out_to_2 = workbuf2[i];
+				//FIXME dirty hack for the moment...
+				// delay to jconv
+				fVecdel0[IOTAdelJ&262143] = out_to_1;
+				float out_to_jc1 = fVecdel0[(IOTAdelJ-iSlowdel0)&262143];
+				fVecdel1[IOTAdelJ&262143] = out_to_2;
+				float out_to_jc2 = fVecdel1[(IOTAdelJ-iSlowdel1)&262143];
+
+				// gain to jconv
+				fRecinjc[0] = (fSlowinjc + (0.999f * fRecinjc[1]));
+				fRecinjcr[0] = (fSlowinjcr + (0.999f * fRecinjcr[1]));
+				conv_out0[i] = (fSlow85 * out_to_jc1* fRecinjc[0]);
+				conv_out1[i] = (fSlow90 * out_to_jc2* fRecinjcr[0]);
+				// post processing
+				IOTAdelJ = IOTAdelJ+1;
+			}
+		}
+
+		int iSlow88 = int(gx_jconv::checkbox7);
 		for (int i = 0; i < count; i++) {
 			float out_to_1 = workbuf[i];
 			float out_to_2 = workbuf2[i];
-			//FIXME dirty hack for the moment...
-			// delay to jconv
-			fVecdel0[IOTAdel&262143] = out_to_1;
-			float out_to_jc1 = fVecdel0[(IOTAdel-iSlowdel0)&262143];
-			fVecdel1[IOTAdel&262143] = out_to_2;
-			float out_to_jc2 = fVecdel1[(IOTAdel-iSlowdel1)&262143];
+			// the left output port
+			float 	S9[2];
+			S9[0] = (fSlow87 * out_to_1);
+			S9[1] = (fSlow84 * out_to_1);
+			workbuf[i] = S9[iSlow88];
 
-			// gain to jconv
-			fRecinjc[0] = (fSlowinjc + (0.999f * fRecinjc[1]));
-			fRecinjcr[0] = (fSlowinjcr + (0.999f * fRecinjcr[1]));
-			conv_out0[i] = (fSlow85 * out_to_jc1* fRecinjc[0]);
-			conv_out1[i] = (fSlow90 * out_to_jc2* fRecinjcr[0]);
+			// the right output port
+			float 	S10[2];
+			S10[0] = (fSlow91 * out_to_2);
+			S10[1] = (fSlow89 * out_to_2);
+			workbuf2[i] = S10[iSlow88];
 		}
-	}
 
-	int iSlow88 = int(gx_jconv::checkbox7);
-	for (int i = 0; i < count; i++) {
-		float out_to_1 = workbuf[i];
-		float out_to_2 = workbuf2[i];
-		// the left output port
-		float 	S9[2];
-		S9[0] = (fSlow87 * out_to_1);
-		S9[1] = (fSlow84 * out_to_1);
-		workbuf[i] = S9[iSlow88];
-
-		// the right output port
-		float 	S10[2];
-		S10[0] = (fSlow91 * out_to_2);
-		S10[1] = (fSlow89 * out_to_2);
-		workbuf2[i] = S10[iSlow88];
-	}
-
-	for (int i = 0; i < count; i++) {
-		// post processing for freeverb, echo, distortion
-		IOTA = IOTA+1;
-	}
-
-	if (conv.is_runnable()) {
-		if (!conv.compute(count, conv_out0, conv_out1, conv_out0, conv_out1)) {
-			gx_jconv::GxJConvSettings::checkbutton7 = 0;
-			cout << "overload" << endl;
-			//FIXME error message??
-		} else {
-			for (int i = 0; i < count; i++) {
-				workbuf[i]  += conv_out0[i];
-				workbuf2[i] += conv_out1[i];
+		if (conv.is_runnable()) {
+			if (!conv.compute(count, conv_out0, conv_out1, conv_out0, conv_out1)) {
+				gx_jconv::GxJConvSettings::checkbutton7 = 0;
+				cout << "overload" << endl;
+				//FIXME error message??
+			} else {
+				for (int i = 0; i < count; i++) {
+					workbuf[i]  += conv_out0[i];
+					workbuf2[i] += conv_out1[i];
+				}
 			}
 		}
 	}
+	(void)memcpy(get_frame, output[0], sizeof(float)*count);
+	(void)memcpy(get_frame1, output[1], sizeof(float)*count);
 }
 
 } // namespace gx_engine

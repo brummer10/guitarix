@@ -113,7 +113,11 @@ class Parser(object):
                 return
             m = openbox(line)
             if m:
-                stack.append(m.group(2))
+                grp = m.group(2)
+                if not stack:
+                    if self.toplevel and grp == self.modname:
+                        grp = self.toplevel
+                stack.append(grp)
                 continue
             if closebox(line):
                 stack.pop()
@@ -153,7 +157,7 @@ class Parser(object):
                 value = m.group(2)
                 self.meta[key] = value
                 if key == "name":
-                    self.modname = value
+                    self.toplevel = value
 
     def readMeta2(self, stop_expr):
         self.meta = {}
@@ -168,7 +172,7 @@ class Parser(object):
                 value = m.group(2)
                 self.meta[key] = value
                 if key == "name":
-                    self.modname = value
+                    self.toplevel = value
 
     def debug_change_var_decl(self, lines):
         matcher = re.compile("FAUSTFLOAT\s+([a-zA-Z_0-9]+);\n$").match
@@ -187,6 +191,7 @@ class Parser(object):
 
     def __init__(self, lines, modname):
         self.modname = modname
+        self.toplevel = None
         self.lines = lines
         s = {}
         self.ui = UIDefs()

@@ -77,7 +77,7 @@ void gx_engine_init();
 void gx_engine_reset();
 void faust_init(int samplingFreq);
 
-extern bool old_new; //FIXME remove when done
+extern bool old_new, test_switch; //FIXME remove when done
 
 /* GxConvolver */
 
@@ -791,14 +791,17 @@ public:
 	float convolvefilter;
 	//float out_to_1;
 	//float out_to_2;
-
-
+	int   IOTA_DIST;
+	int   IOTA_FW;
+	int   IOTA_ECHO;
+	int   IOTAdelJ;
 
 	// private constructor
 	GxEngine() {}
 
 	// private audio processing
 	void process_buffers(int count, float** input, float** output);
+	void tuner(int count, float* workbuf);
 	void process_buffers_new(int count, float** input, float** output);
 	void process_midi(int count);
 
