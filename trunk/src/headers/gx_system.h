@@ -162,40 +162,36 @@ inline void Accum::add(int diff)
 class Measure
 {
 private:
-	typedef unsigned long long ts_type;
 	Accum period;
 	Accum duration;
-	ts_type t;
-	static inline void rdtscll(ts_type& val)
-		{ __asm__ __volatile__ ("rdtsc" : "=A" (val)); }
-	static inline int diff(ts_type t1, ts_type t2) { return (signed int)(t1 - t2); }
-	static float ts_diff(struct timespec ts1, struct timespec ts2);
+	timespec t;
+	static int ts_diff(struct timespec ts1, struct timespec ts2);
+	inline float ns2ms(int n) { return n * 1e-6; }
 
 public:
-	inline void reset() { period.reset(); duration.reset(); t = 0; }
+	inline void reset() { period.reset(); duration.reset(); t = {0,0}; }
 	Measure() { reset(); }
-	static float calibrate();
 	void start_process();
 	void stop_process();
-	void print_accum(Accum& accum, const char* prefix, float scale, bool verbose, float total=0);
-	void print(float scale, bool verbose);
+	void print_accum(Accum& accum, const char* prefix, bool verbose, int total=0);
+	void print(bool verbose);
 };
 
 inline void Measure::start_process()
 {
-	ts_type n;
-	rdtscll(n);
-	if (t != 0) {
-		period.add(diff(n, t));
+	timespec n;
+	clock_gettime(CLOCK_MONOTONIC, &n);
+	if (!(t.tv_sec == 0 and t.tv_nsec == 0)) {
+		period.add(ts_diff(n, t));
 	}
 	t = n;
 }
 	
 inline void Measure::stop_process()
 {
-	ts_type n;
-	rdtscll(n);
-	duration.add(diff(n, t));
+	timespec n;
+	clock_gettime(CLOCK_MONOTONIC, &n);
+	duration.add(ts_diff(n, t));
 }
 
 class MeasureThreadsafe
@@ -203,10 +199,9 @@ class MeasureThreadsafe
 private:
 	Measure *pmeasure;
 	Measure m[2];
-	float scale;
 	inline Measure *access() { return (Measure*)g_atomic_pointer_get(&pmeasure); }
 public:
-	MeasureThreadsafe(): pmeasure(m), scale(Measure::calibrate()) {}
+	MeasureThreadsafe(): pmeasure(m) {}
 	inline void start() { access()->start_process(); }
 	inline void stop() { access()->stop_process(); }
 	void print(bool verbose=false);

@@ -713,67 +713,40 @@ bool recallState()
 
 #ifndef NDEBUG
 
-float Measure::ts_diff(struct timespec ts1, struct timespec ts2)
+/* return time difference in ns, fail if > sec (doesn't fit int 32 bit int) */
+int Measure::ts_diff(struct timespec ts1, struct timespec ts2)
 {
-	return (ts1.tv_sec - ts2.tv_sec) * 1e3 + (ts1.tv_nsec - ts2.tv_nsec) * 1e-6;
+	time_t df = ts1.tv_sec - ts2.tv_sec;
+	if (abs(df) > 2) {
+		return -1; // failed
+	}
+	return df * 1000000000 + (ts1.tv_nsec - ts2.tv_nsec);
 }
 
-float Measure::calibrate()
+void Measure::print_accum(Accum& accum, const char* prefix, bool verbose, int total)
 {
-	const int cnt = 5;
-	const int usec = 10000;
-	float scale = 0;
-	int old_policy = sched_getscheduler(0);
-	sched_param old_sp;
-	if (sched_getparam(0, &old_sp) != 0) {
-		return 0;
-	}
-	sched_param sp = old_sp;
-	sp.sched_priority = sched_get_priority_max(SCHED_FIFO);
-	for (int i = 0; i < cnt; i++) {
-		struct timespec ts1, ts2;
-		ts_type t1, t2;
-		if (sched_setscheduler(0, SCHED_FIFO, &sp) != 0) {
-			return 0;
-		}
-		clock_gettime(CLOCK_REALTIME, &ts1);
-		rdtscll(t1);
-		usleep(usec);
-		clock_gettime(CLOCK_REALTIME, &ts2);
-		rdtscll(t2);
-		if (sched_setscheduler(0, old_policy, &old_sp) != 0) {
-			cout << "can't set original scheduling parameters!" << endl;
-			return 0;
-		}
-		scale += ts_diff(ts2, ts1) / diff(t2, t1);
-	}
-	return scale / cnt;
-}
-
-void Measure::print_accum(Accum& accum, const char* prefix, float scale, bool verbose, float total)
-{
-	cout << prefix << "mean: " << fixed << setprecision(4) << accum.mean()*scale;
+	cout << prefix << "mean: " << fixed << setprecision(4) << ns2ms(accum.mean());
 	if (total > 0) {
-		cout << " (" << setprecision(2) << 100*accum.mean()/total << "%)";
+		cout << " (" << setprecision(2) << 100.0*accum.mean()/float(total) << "%)";
 	}
-	cout << ", min: " << setprecision(4) << accum.minimum()*scale
-	     << ", max: " << accum.maximum()*scale;
+	cout << ", min: " << setprecision(4) << ns2ms(accum.minimum())
+	     << ", max: " << ns2ms(accum.maximum());
 	if (total > 0) {
-		cout << " (" << setprecision(2) << 100*accum.maximum()/total << "%)";
+		cout << " (" << setprecision(2) << 100.0*accum.maximum()/float(total) << "%)";
 	}
 	if (verbose) {
-		cout << ", stddev: " << setprecision(4) << accum.stddev()*scale
+		cout << ", stddev: " << setprecision(4) << ns2ms(accum.stddev())
 		     << ", n: " << accum.count();
 	}
 	cout << endl;
 }
 
-void Measure::print(float scale, bool verbose)
+void Measure::print(bool verbose)
 {
 	if (verbose) {
-		print_accum(period,   "period    ", scale, verbose);
+		print_accum(period,   "period    ", verbose);
 	}
-	print_accum(duration, "duration  ", scale, verbose, period.mean());
+	print_accum(duration, "duration  ", verbose, period.mean());
 }
 
 void MeasureThreadsafe::print(bool verbose)
@@ -786,7 +759,7 @@ void MeasureThreadsafe::print(bool verbose)
 		pn = m;
 	}
 	g_atomic_pointer_set(&pmeasure, pn);
-	p->print(scale, verbose);
+	p->print(verbose);
 	p->reset();
 }
 
