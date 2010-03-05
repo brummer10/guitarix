@@ -2043,17 +2043,13 @@ inline void over_sampleX(int sf, float *input, float *output)
 inline void down_sampleX(int sf, float *input, float *output)
 {
 	for (int i=0; i<sf; i++) {
-		*output++ = (*input++ + *input++) * 0.5;
+		float x = *input++;
+		*output++ = (x + *input++) * 0.5;
 	}
 }
 
 void GxEngine::process_buffers_new(int count, float** input, float** output)
 {
-	// precalculate values with need update peer frame
-	// unused atm
-	//float atan_shape = 1.0/atan(fatan);
-	//float f_atan = fatan;
-
 	//switch effects on/off on frame base to avoid clicks
 	int resonator = fresoon;
 	int crybaby = fcheckbox5;
@@ -2074,7 +2070,7 @@ void GxEngine::process_buffers_new(int count, float** input, float** output)
 	float* workbuf2 = output[1];
 
 	// copy clean audio input for the tuner and midi_process
-	int tuner_on = gx_gui::shownote + (int)dsp::isMidiOn() + 1; //used also further down!
+	int tuner_on = gx_gui::shownote + (int)dsp::isMidiOn() + 1;
 	if (tuner_on > 0) {
 		memcpy(workbuf, input[0], count * sizeof(workbuf[0]));
 	    tuner(count, workbuf);
