@@ -57,7 +57,12 @@ def build(bld):
     sources = [
         'AntiAlias.dsp',
         'compressor.dsp',
-        #'distortion.dsp',
+        'crybaby.dsp',
+        'autowah.dsp',
+        'echo.dsp',
+        'delay.dsp',
+        'distortion.dsp',
+        'inputgain.dsp',
         'drive.dsp',
         'freeverb.dsp',
         'osc_tube.dsp',
@@ -65,7 +70,17 @@ def build(bld):
         'preamp.dsp',
         'reso_tube.dsp',
         'tube.dsp',
+        'tubevibrato.dsp',
         'HighShelf.dsp',
+        'tone.dsp',
+        'multifilter.dsp',
+        'bassbooster.dsp',
+        'outputgain.dsp',
+        'feed.dsp',
+        'impulseresponse.dsp',
+        'chorus.dsp',
+        'jconv_post.dsp',
+        'balance.dsp',
         ]
     bld.new_task_gen(source=sources)
 

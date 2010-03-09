@@ -1,7 +1,7 @@
 namespace tube {
 // generated from file '../src/faust/tube.dsp'
 
-FAUSTFLOAT&	fslider0=GxEngine::instance()->ffuzzytube;
+FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->ffuzzytube;
 int	fSamplingFreq;
 
 void init(int samplingFreq)

@@ -254,9 +254,11 @@ void gx_get_skin_change(float *fskin)
 
 void gx_jack_is_down()
 {
+	/* FIXME send to ui thread
 	gx_print_warning("Jack Shutdown",
 	                 "jack has bumped us out!!");
-
+	*/
+	cout << "jack has bumped us out!!" << endl;
 	g_timeout_add_full(G_PRIORITY_LOW,200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
 }
 

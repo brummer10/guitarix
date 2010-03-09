@@ -103,10 +103,13 @@ class Parser(object):
         declare = re.compile(pre+r"declare\(&%s,\s*%s,\s*%s\);" % (vr, nm, nm)).match
         stack = []
         def make_name(nm):
-            stack.append(nm)
-            s = ".".join(stack)
-            stack.pop()
-            return s
+            if nm.startswith("."):
+                nm = nm[1:]
+            else:
+                stack.append(nm)
+                nm = ".".join(stack)
+                stack.pop()
+            return nm
 
         for line in self.lines:
             if stop(line):
@@ -184,7 +187,7 @@ class Parser(object):
                 oldvar = self.ui.get(var,"old")
                 if not oldvar:
                     raise ValueError, "error: no oldvar for " + self.ui.get(var,"id")
-                l = ("FAUSTFLOAT&\t%s=GxEngine::instance()->%s;\n"
+                l = ("FAUSTFLOAT&\t%s=*(float*)&GxEngine::instance()->%s;\n"
                      % (var, oldvar))
             out.append(l)
         return out

@@ -25,7 +25,7 @@ release		= hslider("release[old:fslidercom1]", 0.5, 0, 10, 0.01) : max(1/SR);
 
 // gain controls: make-up gain, compression gain meter
 makeup_gain	= gain_group(hslider("makeup gain", 0, -96, 96, 0.1));
-gain(x)		= x; //attach(x, x : gain_group(hbargraph("gain", -96, 0)));
+gain(x)		= attach(x, x : gain_group(hbargraph("gain", -96, 0)));
 
 
 
@@ -70,8 +70,8 @@ with {
 	r	= 1-p+p*ratio;
 };
 
-process(x)	= (g*x)
+process(x)	= g(x)*x
 with {
 	//g	= env2(x) : compress : gain : +(makeup_gain) : db2linear ;
-	g	= env2(x) : compress : gain : db2linear ;
+	g	= env2(x) : compress : db2linear ;
 };

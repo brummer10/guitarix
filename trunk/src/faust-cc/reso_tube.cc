@@ -1,12 +1,12 @@
 namespace reso_tube {
 // generated from file '../src/faust/reso_tube.dsp'
 
-FAUSTFLOAT&	fslider0=GxEngine::instance()->fresotube1;
+FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fresotube1;
 int 	IOTA;
 float 	fVec0[4096];
-FAUSTFLOAT&	fslider1=GxEngine::instance()->fresotube2;
+FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fresotube2;
 float 	fRec0[2];
-FAUSTFLOAT&	fslider2=GxEngine::instance()->fresotube3;
+FAUSTFLOAT&	fslider2=*(float*)&GxEngine::instance()->fresotube3;
 int	fSamplingFreq;
 
 void init(int samplingFreq)

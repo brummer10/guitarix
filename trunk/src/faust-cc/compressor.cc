@@ -1,15 +1,15 @@
 namespace compressor {
 // generated from file '../src/faust/compressor.dsp'
 
-FAUSTFLOAT&	fentry0=GxEngine::instance()->fentrycom0;
-FAUSTFLOAT&	fentry1=GxEngine::instance()->fentrycom1;
+FAUSTFLOAT&	fentry0=*(float*)&GxEngine::instance()->fentrycom0;
+FAUSTFLOAT&	fentry1=*(float*)&GxEngine::instance()->fentrycom1;
 float 	fConst0;
 float 	fConst1;
 float 	fConst2;
-FAUSTFLOAT&	fslider0=GxEngine::instance()->fslidercom0;
-FAUSTFLOAT&	fslider1=GxEngine::instance()->fslidercom1;
+FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslidercom0;
+FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fslidercom1;
 float 	fRec0[2];
-FAUSTFLOAT&	fentry2=GxEngine::instance()->fentrycom2;
+FAUSTFLOAT&	fentry2=*(float*)&GxEngine::instance()->fentrycom2;
 int	fSamplingFreq;
 
 void init(int samplingFreq)
@@ -21,7 +21,7 @@ void init(int samplingFreq)
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 }
 
-void compute(int count, float *input0, float *input1, float *output0)
+void compute(int count, float *input0, float *output0)
 {
 	float 	fSlow0 = fentry1;
 	float 	fSlow1 = (fSlow0 - fentry0);
@@ -32,7 +32,7 @@ void compute(int count, float *input0, float *input1, float *output0)
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
 		float 	fRec1 = (fConst0 + (fConst1 * fabsf(fTemp0)));
-		float fTemp1 = max(fRec1, (float)input1[i]);
+		float fTemp1 = max(fRec1, fTemp0);
 		float fTemp2 = ((fSlow3 * (fRec0[1] >= fTemp1)) + (fSlow2 * (fRec0[1] < fTemp1)));
 		fRec0[0] = ((fTemp1 * (0 - (fTemp2 - 1))) + (fRec0[1] * fTemp2));
 		float fTemp3 = max(0, ((20 * log10f(fRec0[0])) + fSlow1));

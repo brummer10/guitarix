@@ -1,4 +1,4 @@
-declare name 		"emptty";
+//declare name 		"emptty";
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";

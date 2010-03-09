@@ -1,4 +1,4 @@
-declare name 		"distortion";
+//declare name 		"distortion";
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";
@@ -8,47 +8,34 @@ import("math.lib");
 import("music.lib");
 import("effect.lib"); 
 import("filter.lib");
+import("guitarix.lib");
 
 //----------distortion---------
 
-//-boxes-
-switch		= checkbox("on/off");
-switch1		= checkbox("on/off");
-dist    	= select2(switch, _, _);
-echo = _ ;
-smoothi(c)	= *(1-c) : +~*(c);
-
 //-speaker emulation
-sbp1  = vslider("low-freq cutoff Hz",130,20,1000,1);
-sbp2  = vslider("high-freq cutoff Hz",5000,1000,10000,1);
-sbpon =  select2(switch1, _, _);
-sbp = hgroup("sp",_<:(_, speakerbp(sbp1,sbp2)) : sbpon);
+sbp1    = vslider("low_freq[name:low freq][tooltip:low-freq cutoff Hz][old:fslider7]",130,20,1000,10);
+sbp2    = vslider("high_freq[name:high freq][tooltip:high-freq cutoff Hz][old:fslider6]",5000,1000,12000,10);
+switch1 = checkbox("on_off[name:low highcutoff][old:fcheckbox3]") : clip(0, 1);
+sbp = hgroup("low_highcutoff", bypass(switch1, speakerbp(sbp1,sbp2)));
 
 //-low and highpass
-lowpassfreq = nentry("freqlow", 723, 20, 7040, 1);  // Hz723.431
-highpassfreq = nentry("freqhigh", 720, 20, 7040, 1);  // Hz720.484
-passon =  select2(switch1, _, _);
-passo = vgroup("",lowpass1(lowpassfreq) : highpass1(highpassfreq ));
-pass = hgroup("low/highpass",_<:(_, passo) : passon);
+lowpassfreq  = nentry("low_freq[name:low freq][old:fentry0]", 5000, 20, 12000, 10);
+highpassfreq = nentry("high_freq[name:high freq][old:fentry1]", 130, 20, 7040, 10);
+switch       = checkbox("on_off[name:low highpass][old:fcheckbox2]") : clip(0, 1);
+passo = lowpass1(lowpassfreq) : highpass1(highpassfreq );
+pass = hgroup("low_highpass", bypass(switch, passo));
 
 //-distortion
-drivelevel = vslider("drivelevel", 0.01, 0, 1, 0.01);
-drivegain1		= vslider("gain", 2, 0, 10, 0.1)-10 : db2linear : smoothi(0.999);
-//drivegain		= (-8.0) : db2linear : smoothi(0.999);
+drivelevel      = vslider("level[old:fslider8]", 0.01, 0, 0.5, 0.01);
+drivegain1      = vslider("gain[old:fslider10]", 2, -10, 10, 0.1)-10 : db2linear : smoothi(0.999);
 drive		= vslider("drive[old:fslider9]", 0.64, 0, 1, 0.01);
 distortion 	= cubicnl(drive,drivelevel); 
 
 //-resonator
-resonator(d,a) 	= (+ <: (delay(4096, d-1) + delay(4096, d))/2.0)~*(1.0-a) ;
-d 		= vslider("vibrato[old:fslider5", 1, 0, 1, 0.01);
-a 		= vslider("trigger[old:fslider4]", 0.12, 0, 1, 0.01);
-reso = vgroup("resonans", resonator(d,a));
-pregain		= vslider("pregain", 2, 0, 10, 0.1)-10 : db2linear : smoothi(0.999);
+resonator = (+ <: (delay(4096, d-1) + delay(4096, d)) / 2) ~ *(1.0-a)
+with {
+  d = vslider("vibrato[old:fslider5]", 1, 0, 1, 0.01);
+  a = vslider("trigger[old:fslider4]", 0.12, 0, 1, 0.01);
+};
 
-showme		= hgroup("distortion", (_<:*(pregain), (reso :pass : sbp  : distortion : *(drivegain1, echo) : sbp)) : >:_);
-
-
-process = showme;
-
-
-//process = _<:_,_;
+process = resonator : pass : sbp : distortion : *(drivegain1) : sbp;

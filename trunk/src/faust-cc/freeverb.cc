@@ -1,9 +1,9 @@
 namespace freeverb {
 // generated from file '../src/faust/freeverb.dsp'
 
-FAUSTFLOAT&	fslider0=GxEngine::instance()->fslider15;
+FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslider15;
 float 	fRec9[2];
-FAUSTFLOAT&	fslider1=GxEngine::instance()->fslider16;
+FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fslider16;
 int 	IOTA;
 float 	fVec0[2048];
 float 	fRec8[2];
@@ -36,7 +36,7 @@ float 	fVec10[512];
 float 	fRec2[2];
 float 	fVec11[256];
 float 	fRec0[2];
-FAUSTFLOAT&	fslider2=GxEngine::instance()->fslider14;
+FAUSTFLOAT&	fslider2=*(float*)&GxEngine::instance()->fslider14;
 int	fSamplingFreq;
 
 void init(int samplingFreq)
@@ -154,9 +154,9 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("emptty.wet_dry","wet/dry","S","",&fslider2, 0.0f, -0.5f, 0.5f, 0.1f);
-	registerVar("emptty.RoomSize","","S","",&fslider1, 0.5f, 0.0f, 1.0f, 2.500000e-02f);
-	registerVar("emptty.damp","","S","",&fslider0, 0.5f, 0.0f, 1.0f, 2.500000e-02f);
+	registerVar("freeverb.wet_dry","wet/dry","S","",&fslider2, 0.0f, -0.5f, 0.5f, 0.1f);
+	registerVar("freeverb.RoomSize","","S","",&fslider1, 0.5f, 0.0f, 1.0f, 2.500000e-02f);
+	registerVar("freeverb.damp","","S","",&fslider0, 0.5f, 0.0f, 1.0f, 2.500000e-02f);
 	registerInit(init);
 }
 
