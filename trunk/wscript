@@ -150,6 +150,9 @@ def display_feature(msg, build):
 # guitarix waf configuration
 def configure(conf):
     conf.check_tool('compiler_cxx')
+    cxx_version = conf.env["CC_VERSION"];
+    if conf.env["CXX"][0][:3] == "g++" and cxx_version[:2] < ('4','3'):
+        display_msg("Warning: at least g++ 4.3 needed", "(found %s)" % ".".join(cxx_version), "YELLOW")
     try:
         conf.check_cfg(package='jack', atleast_version='0.109.1', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
     except ConfigurationError:

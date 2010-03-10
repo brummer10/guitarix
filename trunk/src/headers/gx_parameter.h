@@ -272,6 +272,9 @@ private:
 		string name;
 		bool modified;
 		const char *std;
+		modstring(string n, bool m, const char* s): name(n), modified(m), std(s) {}
+		modstring(const char* n): name(n), modified(false), std(n) {}
+		modstring(): name(""), modified(false), std(0) {}
 	};
 	map<int,modstring> m;
 

@@ -658,7 +658,7 @@ static void read_jack_connections(JsonParser& jp)
 bool recallState()
 {
 	string filename = gx_user_dir + client_name + "_rc";
-	ifstream f(filename);
+	ifstream f(filename.c_str());
 	if (!f.good()) {
 		return false; 
 	}
@@ -1072,6 +1072,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 struct logmsg {
 	string msg;
 	GxMsgType msgtype;
+	logmsg(string m, GxMsgType t): msg(m), msgtype(t) {}
 };
 
 // ---- log message handler
@@ -1108,7 +1109,7 @@ void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
 	}
 	
 	if (!written) { // queue the messages
-		msglist.push_back(logmsg{msgbuf.str(), msgtype});
+		msglist.push_back(logmsg(msgbuf.str(), msgtype));
 	}
 	if (terminal) {
 		cerr << msgbuf.str() << endl;

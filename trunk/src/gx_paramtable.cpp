@@ -57,7 +57,7 @@ ParamMap parameter_map; // map id -> parameter, zone -> parameter
  ** Midi
  */
 
-static struct {
+static struct midi_std_init {
 	int ctrl;
 	const char *name;
 } midi_std_itab[] = {
@@ -122,7 +122,7 @@ static struct {
 MidiStandardControllers::MidiStandardControllers()
 {
 	for (unsigned int i = 0; i < sizeof(midi_std_itab)/sizeof(midi_std_itab[0]); i++) {
-		m.insert(pair<int, modstring>(midi_std_itab[i].ctrl, {midi_std_itab[i].name, false, midi_std_itab[i].name}));
+		m.insert(pair<int, modstring>(midi_std_itab[i].ctrl, modstring(midi_std_itab[i].name)));
 	}
 }
 
@@ -142,7 +142,7 @@ void MidiStandardControllers::replace(int ctr, string name)
 		}
 	} else {
 		if (i == m.end()) {
-			m[ctr] = {name, true, 0};
+			m[ctr] = modstring(name, true, 0);
 		} else {
 			i->second.modified = true;
 			i->second.name = name;

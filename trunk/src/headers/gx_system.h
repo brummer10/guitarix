@@ -169,7 +169,7 @@ private:
 	inline float ns2ms(int n) { return n * 1e-6; }
 
 public:
-	inline void reset() { period.reset(); duration.reset(); t = {0,0}; }
+	inline void reset() { period.reset(); duration.reset(); t.tv_sec = 0; t.tv_nsec = 0; }
 	Measure() { reset(); }
 	void start_process();
 	void stop_process();
