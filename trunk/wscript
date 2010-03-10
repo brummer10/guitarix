@@ -97,9 +97,11 @@ def check_faust(conf):
         Logs.warn('could not determine faust version')
     vers = m.group(1)
     conf.env["FAUST_VERSION"] = vers
-    conf.check_message('faust','version',1,vers)
     if vers not in good_faust_versions and not Options.options.faust:
         conf.env['FAUST'] = None
+        conf.check_message_custom('faust','version',"can't use %s (check ./waf --help)" % vers,color='YELLOW')
+    else:
+        conf.check_message('faust','version',1,vers)
 
 def check_faust_cc(conf, cpy_dir):
     if os.path.exists(cpy_dir):
