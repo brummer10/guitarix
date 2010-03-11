@@ -12,4 +12,4 @@ bal = vslider(".amp.balance[name:Balance][old:fslider25]", 0, -1, 1, 0.1);
 
 dry = 1 - max(0, wet_dry);
 wet = 1 - max(0, -wet_dry);
-process = *(dry), *(dry), lgain * fdelay43s(ldelay) * wet, rgain * fdelay43s(rdelay) * wet :> balance;
+process = *(dry), *(dry), lgain * fdelay43s(ldelay) * wet, rgain * fdelay43s(rdelay) * wet :> balance(bal);
