@@ -574,13 +574,20 @@ GxMainInterface* GxMainInterface::instance(const char* name, int* pargc, char***
 
 //------- retrieve jack latency menu item
 GtkWidget* const
-GxMainInterface::getJackLatencyItem(const jack_nframes_t bufsize) const
+GxMainInterface::getJackLatencyItem(jack_nframes_t bufsize) const
 {
-	int index = (int)(log((float)bufsize)/log(2)) - 5;
-
-	if (index >= 0 && index < NJACKLAT)
+	if (bufsize & (bufsize-1)) {
+		return NULL; // not power of 2
+	}
+	const int minbuf = 5; // 2**5 = 32 //FIXME magic value
+	int index = -(minbuf+1);
+	while (bufsize) {
+		bufsize >>= 1;
+		index++;
+	}
+	if (index >= 0 && index < NJACKLAT) {
 		return fJackLatencyItem[index];
-
+	}
 	return NULL;
 }
 
