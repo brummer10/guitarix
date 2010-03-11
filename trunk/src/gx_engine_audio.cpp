@@ -917,7 +917,7 @@ bool GxConvolver::read_sndfile (
 		gx_system::gx_print_error("convolver", "Can't seek to offset");
 		audio.close ();
 		return false;
-	} 
+	}
 	try {
 		buff = new float [BSIZE * nchan];
 	} catch (...) {
@@ -1626,6 +1626,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 				}
 			}
 
+
 			// else  fVec23[0] = fTemp0;   //impulseResponse ende
 		}
 
@@ -2024,9 +2025,9 @@ void registerInit(inifunc f)
 	inilist.push_back(f);
 }
 
-template <int N> inline float faustpower(float x)       { return powf(x,N); } 
+template <int N> inline float faustpower(float x)       { return powf(x,N); }
 template <int N> inline double faustpower(double x)     { return pow(x,N); }
-template <int N> inline int faustpower(int x)           { return faustpower<N/2>(x) * faustpower<N-N/2>(x); } 
+template <int N> inline int faustpower(int x)           { return faustpower<N/2>(x) * faustpower<N-N/2>(x); }
 template <>      inline int faustpower<0>(int x)        { return 1; }
 template <>      inline int faustpower<1>(int x)        { return x; }
 #define FAUSTFLOAT float

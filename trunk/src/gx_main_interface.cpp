@@ -547,9 +547,9 @@ GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
 	*/
 	{
 		GClosure* cp = g_cclosure_new(G_CALLBACK(switch_old_new), 0, 0);
-		gtk_accel_group_connect(fAccelGroup, GDK_F5, GDK_CONTROL_MASK, (GtkAccelFlags)0, cp);
+		gtk_accel_group_connect(fAccelGroup, GDK_F5, GDK_SHIFT_MASK, (GtkAccelFlags)0, cp);
 		cp = g_cclosure_new(G_CALLBACK(switch_test), 0, 0);
-		gtk_accel_group_connect(fAccelGroup, GDK_F6, GDK_CONTROL_MASK, (GtkAccelFlags)0, cp);
+		gtk_accel_group_connect(fAccelGroup, GDK_F6, GDK_SHIFT_MASK, (GtkAccelFlags)0, cp);
 	}
 	/*END FIXME*/
 
