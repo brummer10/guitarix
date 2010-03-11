@@ -135,7 +135,7 @@ struct GtkReglerClass {
 
 GType gtk_regler_get_type ();
 
-const double scale_zero = 10 * (M_PI/180); // defines "dead zone" for knobs
+const double scale_zero = 20 * (M_PI/180); // defines "dead zone" for knobs
 
 static void knob_expose(GtkWidget *widget, int knob_x, int knob_y,
                         GdkPixbuf *regler_image, int arc_offset)
@@ -1220,8 +1220,10 @@ int precision(double n)
 	else return 0;
 }
 
-static void knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, int knob_x, int knob_y, bool drag)
+static void knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, int knob_x, int knob_y,
+                               bool drag, int state)
 {
+	static double last_y = 2e20;
 	GtkRegler *regler = GTK_REGLER(widget);
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	double radius =  min(knob_x, knob_y) / 2;
@@ -1229,10 +1231,28 @@ static void knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, int knob
 	int  reglery = (widget->allocation.height - knob_y) / 2;
 	double posx = (reglerx + radius) - x; // x axis right -> left
 	double posy = (reglery + radius) - y; // y axis top -> bottom
+	double value;
+	if (!drag) {
+		if (state & GDK_CONTROL_MASK) {
+			last_y = posy;
+			return;
+		} else {
+			last_y = 2e20;
+		}
+	}
+	if (last_y < 1e20) { // in drag started with Control Key
+		const double scaling = 0.01;
+		double scal = (state & GDK_CONTROL_MASK ? scaling : scaling*0.1);
+		value = (posy - last_y) * scal;
+		last_y = posy;
+		gtk_range_set_value(GTK_RANGE(widget), adj->value + value * (adj->upper - adj->lower));
+		return;
+	}
+
 	double angle = atan2(-posx, posy) + M_PI; // clockwise, zero at 6 o'clock, 0 .. 2*M_PI
-	int quadrant = 1 + int(angle/M_PI_2);
 	if (drag) {
 		// block "forbidden zone" and direct moves between quadrant 1 and 4
+		int quadrant = 1 + int(angle/M_PI_2);
 		if (regler->last_quadrant == 1 && (quadrant == 3 || quadrant == 4)) {
 			angle = scale_zero;
 		} else if (regler->last_quadrant == 4 && (quadrant == 1 || quadrant == 2)) {
@@ -1278,9 +1298,11 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 
 		klass->button_is = 1;
 		if (regler->regler_type == 0) { //| (regler->regler_type < 2))
-			knob_pointer_event(widget, event->x, event->y, klass->regler_x, klass->regler_y, false);
+			knob_pointer_event(widget, event->x, event->y, klass->regler_x, klass->regler_y,
+			                   false, event->state);
 		} else if (regler->regler_type == 1) {
-			knob_pointer_event(widget, event->x, event->y, klass->bigknob_x, klass->bigknob_y, false);
+			knob_pointer_event(widget, event->x, event->y, klass->bigknob_x, klass->bigknob_y,
+			                   false, event->state);
 		}
 
 //----------- slider
@@ -1417,9 +1439,11 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
 	gdk_event_request_motions (event);
 	if (GTK_WIDGET_HAS_GRAB(widget)) {
 		if (regler->regler_type == 0) {
-			knob_pointer_event(widget, event->x, event->y, klass->regler_x, klass->regler_y, true);
+			knob_pointer_event(widget, event->x, event->y, klass->regler_x, klass->regler_y,
+			                   true, event->state);
 		} else if (regler->regler_type == 1) {
-			knob_pointer_event(widget, event->x, event->y, klass->bigknob_x, klass->bigknob_y, true);
+			knob_pointer_event(widget, event->x, event->y, klass->bigknob_x, klass->bigknob_y,
+			                   true, event->state);
 		}
 //----------- slider
 		else if (regler->regler_type == 3) {
