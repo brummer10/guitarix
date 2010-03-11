@@ -4,6 +4,7 @@ namespace autowah {
 int 	IOTA;
 int 	iVec0[1024];
 int 	iRec2[2];
+FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslider11;
 float 	fRec1[2];
 float 	fConst0;
 float 	fConst1;
@@ -28,12 +29,13 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
+	float 	fSlow0 = (4.768372e-09f * fslider0);
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
 		int iTemp1 = abs(int((4194304 * fTemp0)));
 		iVec0[IOTA&1023] = iTemp1;
 		iRec2[0] = ((iVec0[IOTA&1023] + iRec2[1]) - iVec0[(IOTA-1000)&1023]);
-		float fTemp2 = min(1, max(0, (2.384186e-10f * float(iRec2[0]))));
+		float fTemp2 = min(1, max(0, (fSlow0 * float(iRec2[0]))));
 		fRec1[0] = ((1.000000e-04f * powf(4.0f,fTemp2)) + (0.999f * fRec1[1]));
 		float fTemp3 = powf(2.0f,(2.3f * fTemp2));
 		float fTemp4 = (1 - (fConst1 * (fTemp3 / powf(2.0f,(1.0f + (2.0f * (1.0f - fTemp2)))))));
@@ -54,6 +56,7 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
+	registerVar("crybaby.wah","","S","",&fslider0, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
 	registerInit(init);
 }
 

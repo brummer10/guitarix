@@ -32,8 +32,9 @@ void compute(int count, float *input0, float *output0)
 {
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
-		fVec0[0] = fTemp0;
-		fRec0[0] = (fVec0[0] + (fConst7 * (((fConst6 * fVec0[2]) + (fConst5 * fVec0[1])) + ((fConst4 * fRec0[2]) + (fConst2 * fRec0[1])))));
+		float fTemp1 = (fTemp0 + 1.000000e-20f);
+		fVec0[0] = fTemp1;
+		fRec0[0] = (1.000000e-20f + (fTemp0 + (fConst7 * (((fConst6 * fVec0[2]) + (fConst5 * fVec0[1])) + ((fConst4 * fRec0[2]) + (fConst2 * fRec0[1]))))));
 		output0[i] = (FAUSTFLOAT)fRec0[0];
 		// post processing
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];

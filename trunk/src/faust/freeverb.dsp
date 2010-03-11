@@ -29,9 +29,8 @@ allpasstuningL2	= 441;
 allpasstuningL3	= 341;
 allpasstuningL4	= 225;
 
-
-dampslider 	= vslider("damp[old:fslider15]",0.5, 0, 1, 0.025)*0.4;
 roomsizeSlider 	= vslider("RoomSize[old:fslider16]", 0.5, 0, 1, 0.025)*0.28 + 0.7;
+dampslider 	= vslider("damp[old:fslider15]",0.5, 0, 1, 0.025);
 combfeed 	= roomsizeSlider;
 wetslider 	= 0.5 + vslider("wet_dry[name:wet/dry][old:fslider14]", 0, -0.5, 0.5, 0.1);
 
@@ -60,5 +59,5 @@ monoReverb(fb1, fb2, damp, spread)
 
 //----------------------------------------------------------------
 
-fxctrl(g,w,Fx) =  _ <: (*(g) : Fx : *(w)), *(1-w) +> _;
+fxctrl(g,w,Fx) =  _ <: (*(g) <: _ + Fx : *(w)), *(2*(1-w)) +> _;
 process = fxctrl(0.015, wetslider, monoReverb(combfeed, 0.5, dampslider, 23));

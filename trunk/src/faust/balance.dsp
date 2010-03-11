@@ -1,3 +1,5 @@
-balance = vslider(".amp.balance[name:Balance][old:fslider25]", 0, -1, 1, 0.1);
+import("guitarix.lib");
 
-process = *(1 - max(0, balance)), *(1 - max(0, -balance));
+bal = vslider(".amp.balance[name:Balance][old:fslider25]", 0, -1, 1, 0.1);
+
+process = balance(bal);

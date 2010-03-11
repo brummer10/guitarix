@@ -58,15 +58,14 @@ void compute(int count, float *input0, float *output0)
 	float 	fSlow4 = (fConst11 * fslider2);
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
-		float fTemp1 = (fTemp0 + 1.000000e-20f);
-		float fTemp2 = ((0.5f * ((fTemp1 * (2 - fabsf(fTemp1))) - fTemp1)) + (fSlow0 * fRec4[1]));
-		fVec0[IOTA&4095] = fTemp2;
+		float fTemp1 = ((0.5f * (fTemp0 * ((2 - fabsf(fTemp0)) - 1))) + (fSlow0 * fRec4[1]));
+		fVec0[IOTA&4095] = fTemp1;
 		fRec4[0] = (0.5f * (fVec0[(IOTA-iSlow3)&4095] + fVec0[(IOTA-iSlow2)&4095]));
 		fRec3[0] = (fConst10 * ((fRec4[0] - fRec4[1]) + (fConst9 * fRec3[1])));
 		fRec2[0] = (fConst10 * ((fRec3[0] - fRec3[1]) + (fConst9 * fRec2[1])));
 		fRec1[0] = (fRec2[0] - (fConst7 * ((fConst6 * fRec1[2]) + (fConst1 * fRec1[1]))));
 		fRec0[0] = ((fConst7 * (fRec1[2] + (fRec1[0] + (2 * fRec1[1])))) - (fConst5 * ((fConst3 * fRec0[2]) + (fConst1 * fRec0[1]))));
-		output0[i] = (FAUSTFLOAT)max(-0.7f, min(0.7f, (1.000000e-20f + (fTemp0 + (fSlow4 * (fRec0[2] + (fRec0[0] + (2 * fRec0[1]))))))));
+		output0[i] = (FAUSTFLOAT)max(-0.7f, min(0.7f, (fTemp0 + (fSlow4 * (fRec0[2] + (fRec0[0] + (2 * fRec0[1])))))));
 		// post processing
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];

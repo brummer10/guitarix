@@ -1,13 +1,20 @@
-bypass(switch, block) = _ <: select2(switch, block, _);
+bypass(switch, block) = _ <: select2(switch, _, block);
 
-anti_denormal = pow(10,-20);
-add_dc = +(anti_denormal);
+// add_dc as ffunction generates error with faust 0.9.10 in HighShelf.dsp:
+// No vector name for : add_dc(IN[1])
+// faust: generator/compile_scal.cpp:1109: virtual std::string ScalarCompiler::generateFixDelay(CTree*, CTree*, CTree*): Assertion `0' failed.
+//
+//add_dc = ffunction(float add_dc(float), <math.h>, "");
+add_dc = +(pow(10,-20));
 
 smoothi(c) = *(1-c) : +~*(c);
 
 clip(lo,hi) = min(hi) : max(lo);
 sym_clip(thr) = clip(-thr,thr);
 g_clip(thr) = sym_clip(thr) : neg;
+
+balance(b) = *(1 - max(0, b)), *(1 - max(0, -b));
+wet_dry_mix(w, Fx) = _ <: _, Fx : balance(w) : +;
 
 saturate(t, x) = select2(abs(x) < t, x, v)
 with {

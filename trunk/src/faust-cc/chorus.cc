@@ -36,6 +36,9 @@ int	fSamplingFreq;
 
 void init(int samplingFreq)
 {
+	SIG0 sig0;
+	sig0.init(samplingFreq);
+	sig0.fill(65536,ftbl0);
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
 	for (int i=0; i<65536; i++) fVec0[i] = 0;

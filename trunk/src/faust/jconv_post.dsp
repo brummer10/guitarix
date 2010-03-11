@@ -10,8 +10,6 @@ lgain = vslider("left_gain[name:Left Gain][old:fjc_ingain]", 0, -20, 20, 0.1) : 
 rgain = vslider("right_gain[name:Right Gain][old:fjc_ingain1]", 0, -20, 20, 0.1): db2linear : smoothi(0.999);
 bal = vslider(".amp.balance[name:Balance][old:fslider25]", 0, -1, 1, 0.1);
 
-balance = *(1 - max(0, bal)), *(1 - max(0, -bal));
 dry = 1 - max(0, wet_dry);
 wet = 1 - max(0, -wet_dry);
 process = *(dry), *(dry), lgain * fdelay43s(ldelay) * wet, rgain * fdelay43s(rdelay) * wet :> balance;
-//FIXME: fdelay for time needed (not 5s)

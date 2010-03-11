@@ -5,6 +5,7 @@ FAUSTFLOAT&	fentry0=*(float*)&GxEngine::instance()->fentrycom0;
 FAUSTFLOAT&	fentry1=*(float*)&GxEngine::instance()->fentrycom1;
 float 	fConst0;
 float 	fConst1;
+float 	fRec1[2];
 float 	fConst2;
 FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslidercom0;
 FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fslidercom1;
@@ -17,6 +18,7 @@ void init(int samplingFreq)
 	fSamplingFreq = samplingFreq;
 	fConst0 = expf((0 - (10.0f / fSamplingFreq)));
 	fConst1 = (1 - fConst0);
+	for (int i=0; i<2; i++) fRec1[i] = 0;
 	fConst2 = (1.0f / fSamplingFreq);
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 }
@@ -31,15 +33,15 @@ void compute(int count, float *input0, float *output0)
 	float 	fSlow5 = (fentry2 - 1);
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
-		float 	fRec1 = (fConst0 + (fConst1 * fabsf(fTemp0)));
-		float fTemp1 = max(fRec1, fTemp0);
-		float fTemp2 = ((fSlow3 * (fRec0[1] >= fTemp1)) + (fSlow2 * (fRec0[1] < fTemp1)));
-		fRec0[0] = ((fTemp1 * (0 - (fTemp2 - 1))) + (fRec0[1] * fTemp2));
-		float fTemp3 = max(0, ((20 * log10f(fRec0[0])) + fSlow1));
-		float fTemp4 = (fSlow5 * min(1, max(0, (fSlow4 * fTemp3))));
-		output0[i] = (FAUSTFLOAT)(fTemp0 * powf(10,(5.000000e-02f * ((fTemp3 * (0 - fTemp4)) / (1 + fTemp4)))));
+		fRec1[0] = ((fConst1 * fabsf(fTemp0)) + (fConst0 * fRec1[1]));
+		float fTemp1 = ((fSlow3 * (fRec0[1] >= fRec1[0])) + (fSlow2 * (fRec0[1] < fRec1[0])));
+		fRec0[0] = ((fRec1[0] * (0 - (fTemp1 - 1))) + (fRec0[1] * fTemp1));
+		float fTemp2 = max(0, ((20 * log10f(fRec0[0])) + fSlow1));
+		float fTemp3 = (fSlow5 * min(1, max(0, (fSlow4 * fTemp2))));
+		output0[i] = (FAUSTFLOAT)(fTemp0 * powf(10,(5.000000e-02f * ((fTemp2 * (0 - fTemp3)) / (1 + fTemp3)))));
 		// post processing
 		fRec0[1] = fRec0[0];
+		fRec1[1] = fRec1[0];
 	}
 }
 

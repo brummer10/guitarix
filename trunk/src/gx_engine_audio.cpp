@@ -1906,7 +1906,7 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 }
 
 /****************************************************************
- ** functions
+ ** functions and variables used by faust dsp files
  */
 
 inline float sigmoid(float x)
@@ -1947,16 +1947,9 @@ inline float foldback(float in, float threshold)
 	return in;
 }
 
-inline float fold(float v)
+inline float fold(float threshold, float v)
 {
-	float& threshold = GxEngine::instance()->fthreshold;
 	float& ffuse = GxEngine::instance()->ffuse;
-	float& ngate = GxEngine::instance()->ngate;
-	if (ngate == 0.0) {
-		return 0.0;
-	} else {
-		v *= ngate;
-	}
 	// switch between hard_cut or foldback distortion, or plain output
 	switch ((int)ffuse) {
 	case 0:
@@ -1971,9 +1964,15 @@ inline float fold(float v)
 	return v;
 }
 
+inline float add_dc (float val)
+{
+	return val + 1e-20; // avoid denormals
+}
+
+static float ngate = 1;
 
 /****************************************************************
- ** faust
+ ** definitions for code generated with faust / dsp2cc
  */
 
 typedef void (*inifunc)(int);
@@ -2035,6 +2034,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 // amp
 #include "faust-cc/preamp.cc"
 #include "faust-cc/inputgain.cc"
+#include "faust-cc/noise_shaper.cc"
 #include "faust-cc/AntiAlias.cc"
 #include "faust-cc/HighShelf.cc"
 #include "faust-cc/drive.cc"
@@ -2054,15 +2054,15 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/overdrive.cc"
 #include "faust-cc/compressor.cc"
 #include "faust-cc/crybaby.cc"
+#include "faust-cc/autowah.cc"
 #include "faust-cc/echo.cc"
 #include "faust-cc/delay.cc"
-#include "faust-cc/autowah.cc"
 #include "faust-cc/distortion.cc"
 #include "faust-cc/freeverb.cc"
 #include "faust-cc/impulseresponse.cc"
 #include "faust-cc/chorus.cc"
 
-bool old_new = false, test_switch = false; //FIXME remove when done
+bool old_new = true, test_switch = false; //FIXME remove when done
 
 void GxEngine::tuner(int count, float* input, float* workbuf)
 {
@@ -2127,6 +2127,22 @@ void GxEngine::tuner(int count, float* input, float* workbuf)
 	}
 }
 
+inline float noise_gateX(int sf, float* input, float ngate)
+{
+	float sumnoise = 0;
+	for (int i = 0; i < sf; i++) {
+		sumnoise += sqrf(fabs(input[i]));
+	}
+	float noisepulse = sqrtf(sumnoise/sf);
+	if (noisepulse > GxEngine::instance()->fnglevel * 0.01) {
+		return 1; // -75db 0.001 = 65db
+	} else if (ngate > 0.01) {
+		return ngate * 0.996;
+	} else {
+		return ngate;
+	}
+}
+
 inline void over_sampleX(int sf, float *input, float *output)
 {
 	static float old = 0;
@@ -2156,52 +2172,69 @@ void GxEngine::process_buffers_new(int count, float** input, float** output)
 	if (tuner_on > 0) {
 		tuner(count, input[0], workbuf);
 	}
+	HighShelf::compute(count, input[0], workbuf);
 
-    HighShelf::compute(count, input[0], workbuf);
-
-    if (fnoise_g) {
-	    noise_gate (count,&workbuf); //FIXME ngate -> return value
+	if (fnoise_g) { // ngate used by fold(), called from feed::compute()
+	    ngate = noise_gateX(count,workbuf, ngate);
     } else {
 	    ngate = 1;
     }
     if (fng) {
-	    noise_shaper(count,&workbuf,&workbuf);
+	    noise_shaper::compute(count, workbuf, workbuf);
     }
     if (fcheckbox1) {
 	    preamp::compute(count, workbuf, workbuf);
     }
 
-    static int fupsample_old = 0;
+    static int fupsample_old = 0; // startup always initialises with SR
     if (fupsample) {
+		// 2*oversample
 	    if (fupsample != fupsample_old) {
 		    fupsample_old = fupsample;
 		    osc_tube::init(gx_jack::jack_sr*2);
 	    }
-		// 2*oversample
 	    over_sampleX(count, workbuf, oversample);
-		if (antialis0) AntiAlias::compute(count*2, oversample, oversample);
-		if (ftube)     tube::compute(count*2, oversample, oversample);
-		if (ftube3)    osc_tube::compute(count*2, oversample, oversample);
-		//if (ftube3)    reso_tube::compute(count*2, oversample, oversample);
-		if (fprdr)     drive::compute(count*2, oversample, oversample);
+	    if (antialis0) {
+		    AntiAlias::compute(count*2, oversample, oversample);
+	    }
+	    if (ftube) {
+		    tube::compute(count*2, oversample, oversample);
+	    }
+	    if (ftube3) {
+		    osc_tube::compute(count*2, oversample, oversample);
+		    //reso_tube::compute(count*2, oversample, oversample);
+	    }
+	    if (fprdr) {
+		    drive::compute(count*2, oversample, oversample);
+	    }
 		down_sampleX(count, oversample, workbuf);
 	} else {
+		// or plain sample
 	    if (fupsample != fupsample_old) {
 		    fupsample_old = fupsample;
 		    osc_tube::init(gx_jack::jack_sr);
 	    }
-		// or plain sample
-		if (antialis0) AntiAlias::compute(count, workbuf, workbuf);
-		if (ftube)     tube::compute(count, workbuf, workbuf);
-		if (ftube3)    osc_tube::compute(count, workbuf, workbuf);
-		if (fprdr)     drive::compute(count, workbuf, workbuf);
+	    if (antialis0) {
+		    AntiAlias::compute(count, workbuf, workbuf);
+	    }
+	    if (ftube) {
+		    tube::compute(count, workbuf, workbuf);
+	    }
+	    if (ftube3) {
+		    osc_tube::compute(count, workbuf, workbuf);
+	    }
+	    if (fprdr) {
+		    drive::compute(count, workbuf, workbuf);
+	    }
 	}
-
-    if (fconvolve) convolver_filter(&workbuf, &workbuf, count, (int)convolvefilter);
+    if (fconvolve) {
+	    convolver_filter(&workbuf, &workbuf, count, (int)convolvefilter);
+    }
     inputgain::compute(count, workbuf, workbuf);
     tone::compute(count, workbuf, workbuf);
-    if (fresoon) tone::compute(count, workbuf, workbuf);
-
+    if (fresoon) {
+	    tone::compute(count, workbuf, workbuf);
+    }
     for (int m = 0; m < 8; m++) {
 	    if (posit0 == m && fcheckbox5 && !fautowah) {
 		    crybaby::compute(count, workbuf, workbuf);
@@ -2218,7 +2251,6 @@ void GxEngine::process_buffers_new(int count, float** input, float** output)
 	    } else if (posit6 == m && fcheckbox7) {
 		    echo::compute(count, workbuf, workbuf);
 	    } else if (posit4 == m && fcheckbox8) {
-		    //FIXME auto_ir
 		    impulseresponse::compute(count, workbuf, workbuf);
 	    } else if (posit7 == m && fdelay) {
 		    delay::compute(count, workbuf, workbuf);
@@ -2231,10 +2263,13 @@ void GxEngine::process_buffers_new(int count, float** input, float** output)
 	}
 
     outputgain::compute(count, workbuf, workbuf);
-    if (fboost) bassbooster::compute(count, workbuf, workbuf);
+    if (fboost) {
+	    bassbooster::compute(count, workbuf, workbuf);
+    }
     feed::compute(count, workbuf, workbuf, workbuf2);
-    if (fchorus) chorus::compute(count, workbuf, workbuf2, workbuf, workbuf2);
-
+    if (fchorus) {
+	    chorus::compute(count, workbuf, workbuf2, workbuf, workbuf2);
+    }
     if (conv.is_runnable()) {
 	    // reuse oversampling buffer
 	    float *conv_out0 = oversample;

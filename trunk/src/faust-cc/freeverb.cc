@@ -79,16 +79,16 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	float 	fSlow0 = (0.4f * fslider0);
+	float 	fSlow0 = fslider0;
 	float 	fSlow1 = (1 - fSlow0);
 	float 	fSlow2 = (0.7f + (0.28f * fslider1));
 	float 	fSlow3 = fslider2;
 	float 	fSlow4 = (0.5f + fSlow3);
-	float 	fSlow5 = (0.5f - fSlow3);
+	float 	fSlow5 = (2 * (0.5f - fSlow3));
 	for (int i=0; i<count; i++) {
-		fRec9[0] = ((fSlow1 * fRec8[1]) + (fSlow0 * fRec9[1]));
 		float fTemp0 = (float)input0[i];
 		float fTemp1 = (1.500000e-02f * fTemp0);
+		fRec9[0] = ((fSlow1 * fRec8[1]) + (fSlow0 * fRec9[1]));
 		fVec0[IOTA&2047] = (fTemp1 + (fSlow2 * fRec9[0]));
 		fRec8[0] = fVec0[(IOTA-1640)&2047];
 		fRec11[0] = ((fSlow1 * fRec10[1]) + (fSlow0 * fRec11[1]));
@@ -125,7 +125,7 @@ void compute(int count, float *input0, float *output0)
 		fVec11[IOTA&255] = (fRec3 + (0.5f * fRec0[1]));
 		fRec0[0] = fVec11[(IOTA-248)&255];
 		float 	fRec1 = (fRec0[1] - fRec3);
-		output0[i] = (FAUSTFLOAT)((fSlow5 * fTemp0) + (fSlow4 * fRec1));
+		output0[i] = (FAUSTFLOAT)((fSlow5 * fTemp0) + (fSlow4 * (fRec1 + fTemp1)));
 		// post processing
 		fRec0[1] = fRec0[0];
 		fRec2[1] = fRec2[0];

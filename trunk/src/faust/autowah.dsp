@@ -23,7 +23,8 @@ balancecb		= *(1-max(0,0-balcb)), *(1-max(0,balcb));
 
  
 //a = hslider("Mapping",1,1,50,0.1) ;
-a = 1;
+//a = 1;
+a = 20 * vslider(".crybaby.wah[old:fslider11]", 0, 0, 1, 0.01);
 
 Sum(n,x) = +(x - (x @ n)) ~_ ;
 

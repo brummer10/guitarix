@@ -205,8 +205,10 @@ class Parser(object):
         self.readMeta2(r"\s*}\s*\n$")
         self.numInputs = self.getIO("In")
         self.numOutputs = self.getIO("Out")
-        self.skip_until(r"\s*virtual void instanceInit")
+        self.skip_until(r"\s*static void classInit")
         s["var-init"] = self.copy(r"\s*}$")
+        self.skip_until(r"\s*virtual void instanceInit")
+        s["var-init"] += self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
         s["var-decl"] = self.debug_change_var_decl(var_decl)
@@ -216,6 +218,7 @@ class Parser(object):
         line = self.skip_while(iodef)
         s["compute"] += self.copy("\s*}$", line)
         self.sections = s
+        # ignore any following definitions of static class members
 
     def getNumInputs(self):
         return self.numInputs
@@ -242,9 +245,9 @@ def output(fp, p, fname):
     fp.write("void init(int samplingFreq)\n{\n")
     p.write(fp, "var-init", 1, filt=p.ui.var_filter())
     fp.write("}\n\n")
-    fp.write("void compute(int count, %s, %s)\n{\n" % (
-        ", ".join(["float *input%d" % i for i in range(p.getNumInputs())]),
-        ", ".join(["float *output%d" % i for i in range(p.getNumOutputs())])))
+    fp.write("void compute(int count%s%s)\n{\n" % (
+        "".join([", float *input%d" % i for i in range(p.getNumInputs())]),
+        "".join([", float *output%d" % i for i in range(p.getNumOutputs())])))
     p.write(fp, "compute", 1)
     fp.write("\t}\n}\n\n")
     fp.write("static struct RegisterParams { RegisterParams(); } RegisterParams;\n")

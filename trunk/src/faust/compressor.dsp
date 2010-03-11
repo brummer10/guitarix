@@ -31,7 +31,7 @@ gain(x)		= attach(x, x : gain_group(hbargraph("gain", -96, 0)));
 
 t		= 0.1;
 g		= exp(-1/(SR*t));
-env		= abs : *(1-g) : + ~ (g);
+env		= abs : *(1-g) : + ~ *(g);
 rms		= sqr : *(1-g) : + ~ *(g) : sqrt;
 sqr(x)		= x*x;
 
@@ -73,5 +73,5 @@ with {
 process(x)	= g(x)*x
 with {
 	//g	= env2(x) : compress : gain : +(makeup_gain) : db2linear ;
-	g	= env2(x) : compress : db2linear ;
+	g	= env : compress : db2linear ;
 };
