@@ -1969,7 +1969,10 @@ inline float add_dc (float val)
 	return val + 1e-20; // avoid denormals
 }
 
-static float ngate = 1;
+// foreign variable added to faust module feed
+// it's set in process_buffers()
+namespace feed { float ngate = 1; }  // noise-gate, modifies output gain
+
 
 /****************************************************************
  ** definitions for code generated with faust / dsp2cc
@@ -2174,10 +2177,10 @@ void GxEngine::process_buffers_new(int count, float** input, float** output)
 	}
 	HighShelf::compute(count, input[0], workbuf);
 
-	if (fnoise_g) { // ngate used by fold(), called from feed::compute()
-	    ngate = noise_gateX(count,workbuf, ngate);
+	if (fnoise_g) {
+		feed::ngate = noise_gateX(count,workbuf, feed::ngate);
     } else {
-	    ngate = 1;
+		feed::ngate = 1;
     }
     if (fng) {
 	    noise_shaper::compute(count, workbuf, workbuf);
