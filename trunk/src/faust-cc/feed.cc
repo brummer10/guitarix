@@ -17,7 +17,7 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0, float *output1)
 {
-	float 	fSlow0 = fslider0;
+	float 	fSlow0 = min(0.999999f, fslider0);
 	float 	fSlow1 = fslider1;
 	float 	fSlow2 = fslider2;
 	float 	fSlow3 = ngate;

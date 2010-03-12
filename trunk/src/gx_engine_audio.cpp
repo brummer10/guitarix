@@ -2262,10 +2262,12 @@ void GxEngine::process_buffers_new(int count, float** input, float** output)
 	}
 
     outputgain::compute(count, workbuf, workbuf);
+
     if (fboost) {
 	    bassbooster::compute(count, workbuf, workbuf);
     }
     feed::compute(count, workbuf, workbuf, workbuf2);
+
     if (fchorus) {
 	    chorus::compute(count, workbuf, workbuf2, workbuf, workbuf2);
     }
