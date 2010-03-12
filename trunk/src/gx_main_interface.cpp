@@ -490,6 +490,9 @@ inline void connect_midi_controller(GtkWidget *w, void *zone)
 //
 // static member
 bool GxMainInterface::fInitialized = false;
+#ifndef NDEBUG
+static pthread_t ui_thread;
+#endif
 
 /* FIXME remove when done */
 void switch_old_new(GtkObject *b, gpointer)
@@ -710,6 +713,7 @@ void GxMainInterface::show_msg(string msgbuf, gx_system::GxMsgType msgtype)
 	};
 
 	assert(0 <= msgtype && msgtype < kMessageTypeCount);
+	assert(pthread_equal(pthread_self(), ui_thread));
 
 	// retrieve gtk text buffer
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(getLoggingWindow());
@@ -3269,6 +3273,9 @@ GtkWidget* GxMainInterface::getClientPortMap(const string clname)
 //---- show main GUI
 void GxMainInterface::show()
 {
+#ifndef NDEBUG
+	ui_thread = pthread_self();
+#endif
 	assert(fTop == 0);
 	gx_init_pixmaps();
 	fInitialized = true;

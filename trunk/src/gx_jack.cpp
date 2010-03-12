@@ -903,6 +903,14 @@ void gx_jack_portreg_callback(jack_port_id_t pid, int reg, void* arg)
 	}
 }
 
+static int gx_jack_clientreg_helper(gpointer data)
+{
+	string *clname = (string*)data;
+	gx_print_info("Jack Client", *clname + " joined the graph");
+	delete clname;
+	return FALSE;
+}
+
 //----- client registration callback
 void gx_jack_clientreg_callback(const char* name, int reg, void* arg)
 {
@@ -930,15 +938,10 @@ void gx_jack_clientreg_callback(const char* name, int reg, void* arg)
 		client_out_graph = clname;
 		break;
 
+	case 1:
 		// in case of registration, just log it, the port registration
 		// routines will take care of things
-	case 1:
-
-		gx_print_info("Jack Client",
-		              clname + string(" joined the graph"));
-
-		break;
-	default:
+		gtk_idle_add(gx_jack_clientreg_helper, new string(clname));
 		break;
 	}
 }
