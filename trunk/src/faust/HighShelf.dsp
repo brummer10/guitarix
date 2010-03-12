@@ -10,4 +10,4 @@ with {
     Q = 100;
 };
 
-process = add_dc : hs;
+process = +(anti_denormal_ac) : hs;

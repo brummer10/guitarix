@@ -8,6 +8,7 @@ import("math.lib");
 import("music.lib");
 import("effect.lib"); 
 import("filter.lib");
+import("guitarix.lib");
 
 /*-----------------------------------------------
 		      The tone control
@@ -59,7 +60,8 @@ treble_freq	= 2400;
 bass_gain	= vslider("bass[name:Bass][old:fslider_tone2]", 0, -20, 20, 0.1);
 mid_gain	= vslider("middle[name:Middle][old:fslider_tone1]", 0, -20, 20, 0.1)/2;
 treble_gain	= vslider("treble[name:Treble][old:fslider_tone0]", 0, -20, 20, 0.1);
-process		= low_shelf(bass_freq,bass_gain-mid_gain) :
+process		= add_dc :
+                  low_shelf(bass_freq,bass_gain-mid_gain) :
                   low_shelf(treble_freq,mid_gain):
                   high_shelf(bass_freq,mid_gain) :
                   high_shelf(treble_freq,treble_gain-mid_gain);

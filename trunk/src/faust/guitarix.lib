@@ -5,7 +5,10 @@ bypass(switch, block) = _ <: select2(switch, _, block);
 // faust: generator/compile_scal.cpp:1109: virtual std::string ScalarCompiler::generateFixDelay(CTree*, CTree*, CTree*): Assertion `0' failed.
 //
 //add_dc = ffunction(float add_dc(float), <math.h>, "");
-add_dc = +(pow(10,-20));
+anti_denormal = pow(10,-20);
+//add_dc = +(anti_denormal);
+add_dc = +(0);
+anti_denormal_ac = 1 - 1' : *(anti_denormal) : + ~ *(-1);
 
 smoothi(c) = *(1-c) : +~*(c);
 

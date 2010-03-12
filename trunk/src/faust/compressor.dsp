@@ -6,6 +6,7 @@ declare author "Albert Graef";
 declare version "1.0";
 
 import("music.lib");
+import("guitarix.lib");
 
 /* Controls. */
 
@@ -73,5 +74,5 @@ with {
 process(x)	= g(x)*x
 with {
 	//g	= env2(x) : compress : gain : +(makeup_gain) : db2linear ;
-	g	= env : compress : db2linear ;
+	g	= add_dc : env : compress : db2linear ;
 };

@@ -25,8 +25,8 @@ void compute(int count, float *input0, float *output0)
 	int 	iSlow3 = int((int(fSlow1) & 4095));
 	float 	fSlow4 = (0.5f * fslider2);
 	for (int i=0; i<count; i++) {
-		float fTemp0 = ((float)input0[i] + 1.000000e-20f);
-		float fTemp1 = ((0.5f * ((fTemp0 * (2 - fabsf(fTemp0))) - fTemp0)) + (fSlow0 * fRec0[1]));
+		float fTemp0 = (float)input0[i];
+		float fTemp1 = ((0.5f * (fTemp0 * ((2 - fabsf(fTemp0)) - 1))) + (fSlow0 * fRec0[1]));
 		fVec0[IOTA&4095] = fTemp1;
 		fRec0[0] = (0.5f * (fVec0[(IOTA-iSlow3)&4095] + fVec0[(IOTA-iSlow2)&4095]));
 		output0[i] = (FAUSTFLOAT)max(-0.7f, min(0.7f, (fTemp0 - max(-0.7f, min(0.7f, (fSlow4 * fRec0[0]))))));
