@@ -17,7 +17,7 @@ from Configure import ConfigurationError
 VERSION='0.07.0svn'
 APPNAME='guitarix'
 
-good_faust_versions = ['0.9.10','0.9.12',]
+good_faust_versions = ['0.9.10','0.9.13',]
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'

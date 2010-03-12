@@ -34,8 +34,6 @@
 #define AVOIDDENORMALS
 #endif
 
-#define NJACKLAT (9) // number of possible latencies
-
 namespace gx_jack
 {
 #ifdef USE_RINGBUFFER

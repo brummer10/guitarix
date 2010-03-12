@@ -2186,47 +2186,43 @@ void GxEngine::process_buffers_new(int count, float** input, float** output)
 	    preamp::compute(count, workbuf, workbuf);
     }
 
+    // *** Start (maybe) oversampled processing ***
     static int fupsample_old = 0; // startup always initialises with SR
+    int ovs_count, ovs_sr;
+    float *ovs_buffer;
     if (fupsample) {
 		// 2*oversample
-	    if (fupsample != fupsample_old) {
-		    fupsample_old = fupsample;
-		    osc_tube::init(gx_jack::jack_sr*2);
-	    }
 	    over_sampleX(count, workbuf, oversample);
-	    if (antialis0) {
-		    AntiAlias::compute(count*2, oversample, oversample);
-	    }
-	    if (ftube) {
-		    tube::compute(count*2, oversample, oversample);
-	    }
-	    if (ftube3) {
-		    osc_tube::compute(count*2, oversample, oversample);
-		    //reso_tube::compute(count*2, oversample, oversample);
-	    }
-	    if (fprdr) {
-		    drive::compute(count*2, oversample, oversample);
-	    }
-		down_sampleX(count, oversample, workbuf);
-	} else {
-		// or plain sample
-	    if (fupsample != fupsample_old) {
-		    fupsample_old = fupsample;
-		    osc_tube::init(gx_jack::jack_sr);
-	    }
-	    if (antialis0) {
-		    AntiAlias::compute(count, workbuf, workbuf);
-	    }
-	    if (ftube) {
-		    tube::compute(count, workbuf, workbuf);
-	    }
-	    if (ftube3) {
-		    osc_tube::compute(count, workbuf, workbuf);
-	    }
-	    if (fprdr) {
-		    drive::compute(count, workbuf, workbuf);
-	    }
-	}
+	    ovs_sr = 2 * gx_jack::jack_sr;
+	    ovs_count = 2 * count;
+	    ovs_buffer = oversample;
+    } else {
+	    ovs_sr = gx_jack::jack_sr;
+	    ovs_count = count;
+	    ovs_buffer = workbuf;
+    }
+    if (fupsample != fupsample_old) {
+	    fupsample_old = fupsample;
+	    osc_tube::init(ovs_sr);
+    }
+    if (antialis0) {
+	    AntiAlias::compute(ovs_count, ovs_buffer, ovs_buffer);
+    }
+    if (ftube) {
+	    tube::compute(ovs_count, ovs_buffer, ovs_buffer);
+    }
+    if (ftube3) {
+	    osc_tube::compute(ovs_count, ovs_buffer, ovs_buffer);
+	    //reso_tube::compute(ovs_count, ovs_buffer, ovs_buffer);
+    }
+    if (fprdr) {
+	    drive::compute(ovs_count, ovs_buffer, ovs_buffer);
+    }
+    if (fupsample) {
+	    down_sampleX(count, oversample, workbuf);
+    }
+    //*** End (maybe) oversampled processing ***
+
     if (fconvolve) {
 	    convolver_filter(&workbuf, &workbuf, count, (int)convolvefilter);
     }

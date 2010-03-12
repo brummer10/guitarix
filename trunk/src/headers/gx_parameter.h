@@ -25,14 +25,6 @@
 
 #pragma once
 
-#ifndef NJACKLAT
-#define NJACKLAT (9)
-#endif
-
-#ifndef NUM_PORT_LISTS
-#define NUM_PORT_LISTS (4)
-#endif
-
 namespace gx_gui
 {
 

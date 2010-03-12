@@ -326,13 +326,6 @@ volatile gint       program_change = -1;
 sem_t               program_change_sem;
 
 int show_eq;
-/* names of port lists (exclude MIDI for now) */
-string port_list_names[NUM_PORT_LISTS] =
-{
-	string("AudioIP"),
-	string("AudioOPL"),
-	string("AudioOPR")
-};
 
 /* client port queues */
 class StringComp;

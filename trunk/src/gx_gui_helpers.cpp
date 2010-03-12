@@ -20,14 +20,6 @@
  *
  * ----------------------------------------------------------------------------
  */
-#ifndef NJACKLAT
-#define NJACKLAT (9)
-#endif
-
-#ifndef NUM_PORT_LISTS
-#define NUM_PORT_LISTS (3)
-#endif
-
 #include <errno.h>
 
 #include <assert.h>
