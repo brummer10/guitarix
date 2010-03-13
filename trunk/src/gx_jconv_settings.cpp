@@ -482,12 +482,12 @@ void gx_setting_jconv_dialog_gui(GtkWidget *widget, gpointer data)
 	gtk_window_set_transient_for (GTK_WINDOW(gx_gui::jc_dialog), GTK_WINDOW(gx_gui::fWindow));
 	gtk_window_set_position (GTK_WINDOW(gx_gui::jc_dialog), GTK_WIN_POS_MOUSE);
 	gtk_window_set_keep_below (GTK_WINDOW(gx_gui::jc_dialog), FALSE);
-	gtk_window_set_title (GTK_WINDOW (gx_gui::jc_dialog), "JConv Settings");
+	gtk_window_set_title (GTK_WINDOW (gx_gui::jc_dialog), "Convolver Settings");
 	gtk_window_set_destroy_with_parent(GTK_WINDOW(gx_gui::jc_dialog), TRUE);
 
 	// -- labels
-	GtkWidget* label  = gtk_label_new ("\n           settings for              \n"
-	                                   "      JConv  by  Fons Adriaensen     \n");
+	GtkWidget* label  = gtk_label_new ("\n         Convolver  Settings      \n"
+	                                   "\n");
 	gx_gui::label1    = gtk_label_new (" \n");
 	gtk_widget_set_name (gx_gui::label1,"effekt_label");
 

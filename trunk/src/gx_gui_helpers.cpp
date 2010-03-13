@@ -357,7 +357,7 @@ void gx_show_about( GtkWidget *widget, gpointer data )
 			"\n  by Kjetil S. Matheussen "
 			"\n  http://old.notam02.no/arkiv/src/?M=D"
 			"\n  it will allways record to ~/guitarix_sessionX.xxx "
-			"\n  for impulse response it use jconv "
+			"\n  for impulse response it use zita-convolver "
 			"\n  byFons Adriaensen "
 			"\n  http://www.kokkinizita.net/linuxaudio/index.html "
 			"\n\n  authors: Hermann Meyer <brummer-@web.de>"

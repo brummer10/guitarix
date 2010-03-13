@@ -110,7 +110,7 @@ void GxMainInterface::setup()
 					//----- the jconv widget on the main window
 					openFrameBox("");
 					{
-						openExpanderBox(" jconv ", &engine->fexpand2);
+						openExpanderBox(" convolver ", &engine->fexpand2);
 						{
 							openHandleBox("  ");
 							{
@@ -153,8 +153,8 @@ void GxMainInterface::setup()
 
 									openVerticalBox("");
 									{
-										addJConvButton("jconv settings", &engine->filebutton);
-										addJToggleButton("run jconv", &gx_jconv::GxJConvSettings::checkbutton7);
+										addJConvButton("convolver settings", &engine->filebutton);
+										addJToggleButton("run convolver", &gx_jconv::GxJConvSettings::checkbutton7);
 									}
 									closeBox();
 								}

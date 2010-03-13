@@ -19,10 +19,10 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	float 	fSlow0 = (1.0f - fslider0);
+	float 	fSlow0 = (fslider0 + 1.000000e-01f);
 	float 	fSlow1 = fslider1;
-	int 	iSlow2 = int((int((fSlow1 - 1)) & 4095));
-	int 	iSlow3 = int((int(fSlow1) & 4095));
+	int 	iSlow2 = int((int((0 - fSlow1)) & 4095));
+	int 	iSlow3 = int((int((1 - fSlow1)) & 4095));
 	float 	fSlow4 = (0.5f * fslider2);
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];

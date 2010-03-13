@@ -1626,7 +1626,6 @@ void GxEngine::process_buffers(int count, float** input, float** output)
 				}
 			}
 
-
 			// else  fVec23[0] = fTemp0;   //impulseResponse ende
 		}
 
@@ -2232,7 +2231,7 @@ void GxEngine::process_buffers_new(int count, float** input, float** output)
     inputgain::compute(count, workbuf, workbuf);
     tone::compute(count, workbuf, workbuf);
     if (fresoon) {
-	    tone::compute(count, workbuf, workbuf);
+	    tubevibrato::compute(count, workbuf, workbuf);
     }
     for (int m = 0; m < 8; m++) {
 	    if (posit0 == m && fcheckbox5 && !fautowah) {
