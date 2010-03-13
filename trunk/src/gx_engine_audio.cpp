@@ -1999,16 +1999,22 @@ void registerVar(const char* id, const char* name, const char* tp,
 	}
 	gx_gui::Parameter& p = gx_gui::parameter_map[id];
 	assert(p.name() == name);
-	assert(strcmp(tp,"S") == 0);
 	if (p.isFloat()) {
-		assert(p.getControlType() == gx_gui::Parameter::Continuous);
 		gx_gui::FloatParameter& fp = p.getFloat();
 		assert(&fp.value == var);
 		assert(fp.value == val);
+		if (p.getControlType() == gx_gui::Parameter::Continuous) {
+			assert(strcmp(tp,"S") == 0);
+		} else if (p.getControlType() == gx_gui::Parameter::Switch) {
+			assert(strcmp(tp,"B") == 0);
+		} else {
+			assert(0);
+		}
 		assert(fp.lower == low);
 		assert(fp.upper == up);
 		assert(fp.step == step);
 	} else {
+		assert(strcmp(tp,"S") == 0);
 		assert(p.getControlType() == gx_gui::Parameter::Switch);
 		gx_gui::IntParameter& ip = p.getInt();
 		assert((float*)&ip.value == var);

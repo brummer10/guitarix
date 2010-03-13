@@ -57,14 +57,12 @@ void init(int samplingFreq)
 	fConst2 = (0.5f / fSamplingFreq);
 	for (int i=0; i<2; i++) fVec3[i] = 0;
 	for (int i=0; i<2; i++) fRec3[i] = 0;
-	fcheckbox0 = 0.0;
 	for (int i=0; i<2; i++) fVec4[i] = 0;
 	for (int i=0; i<2; i++) fRec9[i] = 0;
 	for (int i=0; i<2; i++) fVec5[i] = 0;
 	for (int i=0; i<2; i++) fRec8[i] = 0;
 	for (int i=0; i<3; i++) fRec7[i] = 0;
 	for (int i=0; i<3; i++) fRec6[i] = 0;
-	fcheckbox1 = 0.0;
 	for (int i=0; i<2; i++) fVec6[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	for (int i=0; i<2; i++) fVec7[i] = 0;
@@ -176,8 +174,8 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("distortion.low_highcutoff.on_off","low highcutoff","S","",&fcheckbox1);
-	registerVar("distortion.low_highpass.on_off","low highpass","S","",&fcheckbox0);
+	registerVar("distortion.low_highcutoff.on_off","low highcutoff","B","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
+	registerVar("distortion.low_highpass.on_off","low highpass","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	registerVar("distortion.low_highpass.high_freq","high freq","S","",&fentry1, 130.0f, 20.0f, 7040.0f, 10.0f);
 	registerVar("distortion.low_highpass.low_freq","low freq","S","",&fentry0, 5000.0f, 20.0f, 12000.0f, 10.0f);
 	registerVar("distortion.drive","","S","",&fslider6, 0.64f, 0.0f, 1.0f, 1.000000e-02f);

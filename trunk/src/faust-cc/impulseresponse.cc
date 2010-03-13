@@ -17,7 +17,6 @@ void init(int samplingFreq)
 	fConst0 = (3.141593f / fSamplingFreq);
 	fConst1 = (6.283185f / fSamplingFreq);
 	for (int i=0; i<3; i++) fVec0[i] = 0;
-	fcheckbox0 = 0.0;
 	for (int i=0; i<3; i++) fRec0[i] = 0;
 }
 
@@ -45,7 +44,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("IR.peak","","S","peak gain",&fslider2, 1.0f, 0.0f, 10.0f, 0.2f);
-	registerVar("IR.auto_freq","auto freq","S","",&fcheckbox0);
+	registerVar("IR.auto_freq","auto freq","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	registerVar("IR.freq","","S","frequency (Hz)",&fslider1, 440.0f, 20.0f, 12000.0f, 10.0f);
 	registerVar("IR.bandwidth","","S","bandwidth (Hz)",&fslider0, 100.0f, 20.0f, 20000.0f, 10.0f);
 	registerInit(init);
