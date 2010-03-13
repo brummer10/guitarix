@@ -6,7 +6,7 @@ from subprocess import Popen, PIPE
 from optparse import OptionParser
 
 
-num_re = r"(-?\d*\.?\d*e?-?\d*f)"
+num_re = r"(-?\d*\.?\d*e?-?\d*f?)"
 
 class UIDefs(object):
 
@@ -135,9 +135,9 @@ class Parser(object):
             m = checkbutton(line)
             if m:
                 vn = m.group(2)
-                self.ui.add(vn, "type", "S")
+                self.ui.add(vn, "type", "B")
                 self.ui.add(vn, "id", make_name(m.group(1)))
-                self.ui.add(vn, "value", m.groups()[2:])
+                self.ui.add(vn, "value", ("0.0","0.0","1.0","1.0"))
                 continue
             m = declare(line)
             if m:
