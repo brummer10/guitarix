@@ -263,7 +263,7 @@ public:
 	float fConst8;
 	float fVec3[2];
 	float fRec7[2];
-	int fcheckbox2;
+	float fcheckbox2;
 	float fslider6;
 	float fslider7;
 	float fVec4[2];
@@ -272,7 +272,7 @@ public:
 	float fRec11[2];
 	float fRec10[3];
 	float fRec9[3];
-	int fcheckbox3;
+	float fcheckbox3;
 	float fslider8;
 	float fslider9;
 	float fVec6[2];
@@ -687,7 +687,7 @@ public:
 	int fdelay;
 	float fdel_gain1;
 	float fRecdel[2];
-	int auto_ir;
+	float auto_ir;
 
 	// Multibamdfilter
 	float 	fCoMulti0;

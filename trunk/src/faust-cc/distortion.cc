@@ -89,7 +89,7 @@ void compute(int count, float *input0, float *output0)
 	float 	fSlow9 = (1 + fSlow8);
 	float 	fSlow10 = (1.0f / fSlow9);
 	float 	fSlow11 = (0 - ((fSlow8 - 1) / fSlow9));
-	int 	iSlow12 = int(max(0, min(1, fcheckbox0)));
+	int 	iSlow12 = int(fcheckbox0);
 	float 	fSlow13 = tanf((fConst0 * fslider3));
 	float 	fSlow14 = (2 * (1 - (1.0f / (fSlow13 * fSlow13))));
 	float 	fSlow15 = (1.0f / fSlow13);
@@ -100,7 +100,7 @@ void compute(int count, float *input0, float *output0)
 	float 	fSlow20 = (fConst0 * fslider4);
 	float 	fSlow21 = (1.0f / (1 + fSlow20));
 	float 	fSlow22 = (1 - fSlow20);
-	int 	iSlow23 = int(max(0, min(1, fcheckbox1)));
+	int 	iSlow23 = int(fcheckbox1);
 	float 	fSlow24 = fslider5;
 	float 	fSlow25 = powf(10.0f,(2 * fslider6));
 	for (int i=0; i<count; i++) {

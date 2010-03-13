@@ -26,7 +26,7 @@ void compute(int count, float *input0, float *output0)
 	float 	S0[2];
 	float 	fSlow0 = expf((0 - (fConst0 * fslider0)));
 	float 	fSlow1 = (2 * cosf((fConst1 * fslider1)));
-	int 	iSlow2 = int(fcheckbox0);
+	int 	iSlow2 = int(max(0, min(1, fcheckbox0)));
 	float 	fSlow3 = (0.5f * (fslider2 * (1 - (fSlow0 * fSlow0))));
 	S0[0] = fSlow1;
 	for (int i=0; i<count; i++) {

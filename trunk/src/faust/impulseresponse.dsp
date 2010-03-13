@@ -12,7 +12,7 @@ import("guitarix.lib");
 
 g3  = hslider("peak[tooltip:peak gain][old:fslider22]", 1, 0, 10, 0.2);
 fr = hslider("freq[tooltip:frequency (Hz)][old:fslider21]", 440, 20, 12000, 10);
-auto_ir = checkbox("auto_freq[name:auto freq][old:auto_ir]");
+auto_ir = checkbox("auto_freq[name:auto freq][old:auto_ir]") : clip(0, 1);
 
 check_auto_ir(v) = select2(auto_ir, v, sym_clip(0.6));
 
