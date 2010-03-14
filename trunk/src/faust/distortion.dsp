@@ -38,4 +38,4 @@ with {
   a = vslider("trigger[old:fslider4]", 0.12, 0, 1, 0.01);
 };
 
-process = add_dc : resonator : add_dc : pass : add_dc : sbp : distortion : *(drivegain1) : add_dc : sbp;
+process = add_dc : resonator : add_dc : pass : add_dc : sbp : component("HighShelf.dsp").hs : distortion : *(drivegain1) : component("HighShelf.dsp").hs : add_dc : sbp;

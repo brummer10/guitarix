@@ -444,7 +444,7 @@ public:
 
 ParameterGroups::ParameterGroups()
 {
-	insert("jconv","JConvolver");
+	insert("jconv","Convolver");
 	insert("amp","Amplifier");
 	insert("amp.tone","Tone");
 	insert("shaper","Shaper");
