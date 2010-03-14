@@ -2072,7 +2072,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 
 bool old_new = true, test_switch = false; //FIXME remove when done
 
-void GxEngine::tuner(int count, float* input, float* workbuf)
+void GxEngine::tuner(int count, float* input)
 {
     (void)memcpy(checkfreq, input, sizeof(float)*count);
 	moving_filter(&checkfreq, &checkfreq, count);
@@ -2180,7 +2180,7 @@ void GxEngine::process_buffers_new(int count, float** input, float** output)
 
 	int tuner_on = gx_gui::shownote + (int)dsp::isMidiOn() + 1;
 	if (tuner_on > 0) {
-		tuner(count, input[0], workbuf);
+		tuner(count, input[0]);
 	}
 	HighShelf::compute(count, input[0], workbuf);
 

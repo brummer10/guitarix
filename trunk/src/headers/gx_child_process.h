@@ -46,6 +46,7 @@ void     gx_start_stop_jconv(GtkWidget*, gpointer);
 void     gx_start_stop_meterbridge (GtkCheckMenuItem*, gpointer);
 
 int      gx_terminate_child_procs();
+gboolean gx_sigchld_handler(gpointer);
 
 /* -------------------------------------------------------------------------- */
 } /* end of gx_child_process namespace */

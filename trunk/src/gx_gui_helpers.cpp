@@ -320,19 +320,12 @@ void gx_log_window (GtkWidget* menuitem, gpointer arg)
 	// we could be called before UI is built up
 	if (!exbox) return;
 
-	// open it
-	if (gtk_expander_get_expanded(exbox) ==  FALSE ||
-	    gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == TRUE)
-		gtk_expander_set_expanded(exbox, TRUE);
-
-	// close it
-	else
-		gtk_expander_set_expanded(exbox, FALSE);
-
-	// in any case, reset handle color
-	GdkColor exp_color;
-	gdk_color_parse("#ffffff", &exp_color);
-	gtk_widget_modify_fg (GTK_WIDGET(exbox), GTK_STATE_NORMAL, &exp_color);
+	bool expanded = gtk_expander_get_expanded(exbox);
+	bool checked = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem));
+	if (!(expanded ^ checked)) {
+		return;
+	}
+	gtk_signal_emit_by_name(GTK_OBJECT(exbox), "activate");
 }
 
 //----menu funktion about
@@ -499,17 +492,13 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 //----- hide the extendend settings slider
 void gx_hide_extended_settings( GtkWidget *widget, gpointer data )
 {
-	static bool showit = false;
 
-	if (showit == false)
-	{
-		gtk_widget_hide(GTK_WIDGET(fWindow));
-		showit = true;
-	}
-	else
-	{
-		gtk_widget_show(GTK_WIDGET(fWindow));
-		showit = false;
+	if (gdk_window_get_state(gtk_widget_get_window(fWindow))
+	    & (GDK_WINDOW_STATE_ICONIFIED|GDK_WINDOW_STATE_WITHDRAWN)) {
+		gtk_window_present(GTK_WINDOW(fWindow));
+	} else {
+		gtk_widget_hide(fWindow);
+		//better(?): gtk_window_iconify(GTK_WINDOW(fWindow));
 	}
 }
 

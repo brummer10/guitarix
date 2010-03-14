@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
 	sigset_t waitset;
 	sigemptyset(&waitset);
 	sigaddset(&waitset, SIGUSR1);
+	sigaddset(&waitset, SIGCHLD);
 	sigprocmask(SIG_BLOCK, &waitset, NULL);
 
 	// ---------------------- user options handling ------------------

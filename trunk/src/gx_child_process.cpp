@@ -52,15 +52,53 @@ using namespace gx_engine;
 namespace gx_child_process
 {
 
+gboolean gx_sigchld_handler(gpointer)
+{
+	int status;
+	pid_t pid = waitpid(-1, &status, WNOHANG);
+	if (pid == 0 || pid == -1) {
+		return false;
+	}
+	bool not_found = false;
+	if (WIFEXITED(status)) {
+		if (WEXITSTATUS(status) == 127) {
+			not_found = true;
+		}
+	} else if (!WIFSIGNALED(status)) {
+		return false;
+	}
+	// child pid has terminated
+	int idx;
+	for (idx = 0; idx < NUM_OF_CHILD_PROC; idx++) {
+		if (child_pid[idx] == pid) {
+			child_pid[idx] = NO_PID;
+			break;
+		}
+	}
+	switch (idx) {
+	case JACKCAP_IDX:
+		//FIXME
+		break;
+	case METERBG_IDX:
+		if (not_found) {
+			gx_gui::gx_message_popup(
+				"  "
+				" WARNING [meterbridge]\n\n "
+				" meterbridge is not installed! "
+				);
+		}
+		gx_gui::GxMainInterface::instance()->meterbridge_terminated();
+		break;
+	}
+	return false;
+}
+
 //----- terminate child processes
 int gx_terminate_child_procs()
 {
 	// meterbridge
-	if (child_pid[METERBG_IDX] != NO_PID)
-	{
+	if (child_pid[METERBG_IDX] != NO_PID) {
 		(void)kill(child_pid[METERBG_IDX], SIGTERM);
-		(void)gx_system_call("rm -f", mbg_pidfile.c_str(), true);
-		child_pid[METERBG_IDX] = NO_PID;
 	}
 
 	// jack_capture
@@ -642,13 +680,7 @@ void gx_start_stop_meterbridge(GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
 
 	// no need to do all this if jack is not running
-	if (!gx_jack::client)
-	{
-		// let's make sure we have no proc stuff left
-		string old_lock = gx_user_dir + string(".mbg_") + "*";
-		(void)gx_system_call("rm -f", old_lock.c_str());
-		child_pid[METERBG_IDX] = NO_PID;
-
+	if (!gx_jack::client) {
 		(void)gx_gui::gx_message_popup(
 			"  WARNING [Meterbridge]\n\n  "
 			"  Reconnect to Jack server first (Shift+C)"
@@ -656,69 +688,17 @@ void gx_start_stop_meterbridge(GtkCheckMenuItem *menuitem, gpointer checkplay)
 		return;
 	}
 
-	// PID file (used as lock file)
-	const char* app_name = "meterbridge";
-	mbg_pidfile = gx_user_dir + string(".mbg_") + gx_jack::client_name;
-
-	// is it installed ?
-	int meterbridge_ok = gx_system_call("which", app_name);
-	if (meterbridge_ok != SYSTEM_OK)   // no meterbridge installed
-	{
-		// reset meterbridge GUI button state to inactive
-		gtk_check_menu_item_set_active(menuitem, FALSE);
-		gx_gui::gx_message_popup(
-			"  "
-			" WARNING [meterbridge]\n\n "
-			" meterbridge is not installed! "
-			);
-		return;
-	}
-
 	// ---- if triggered by GUI or Alt + M
-	if (gtk_check_menu_item_get_active(menuitem) == TRUE)
-	{
-		if (gx_system_call("ls", mbg_pidfile.c_str(), true) == SYSTEM_OK)
-		{
-			// get PID from lock file
-			pid_t old_pid;
-
-			ifstream fi(mbg_pidfile.c_str());
-			if (fi.good())
-			{
-				fi >> old_pid;
-				fi.close();
-			}
-
-			// do we have meterbridge running ?
-			if (gx_lookup_pid(old_pid))   // yeps
-			{
-				// refresh internal pid store
-				child_pid[METERBG_IDX] = old_pid;
-				gx_print_info("Meterbridge",
-				              string("meterbridge started at PID = ") +
-				              gx_i2a(old_pid));
-				return;
-			}
-
-			// if not running, preliminary clean up
-			(void)gx_system_call("rm -f", mbg_pidfile.c_str());
-			child_pid[METERBG_IDX] = NO_PID;
-		}
-
+	if (gtk_check_menu_item_get_active(menuitem) == TRUE) {
+		const char *app_name = "meterbridge";
 		string mbg_opt("-n ");
 		mbg_opt += gx_jack::client_name;
 		mbg_opt += "_";
 		mbg_opt += app_name;
 		mbg_opt += " -t sco guitarix:in_0  guitarix:out_0";
 
-		meterbridge_ok = gx_system_call(app_name, mbg_opt.c_str(), true, true);
-		usleep(1000); // let's give it 1ms
-
-		// not running, ? oops ...
-		if (meterbridge_ok != SYSTEM_OK)
-		{
-			// reset meterbridge GUI button state to inactive
-			gtk_check_menu_item_set_active(menuitem, FALSE);
+		int pid = fork();
+		if (pid == -1) {
 			gx_gui::gx_message_popup(
 				"  "
 				"WARNING [meterbridge]\n\n  "
@@ -726,58 +706,23 @@ void gx_start_stop_meterbridge(GtkCheckMenuItem *menuitem, gpointer checkplay)
 				);
 
 			gx_print_error("Meterbridge",
-			               string("meterbridge could not be launched!"));
-
+			               string("meterbridge could not be launched (fork failed)!"));
+			gtk_check_menu_item_set_active(menuitem, FALSE);
 			return;
 		}
-
-		// running, so let's store PID in lock file
-		ofstream fo(mbg_pidfile.c_str());
-		if (fo.good())
-		{
-			child_pid[METERBG_IDX] = gx_find_child_pid(app_name);
-			fo << child_pid[METERBG_IDX];
-			fo.close();
-
-			gx_print_info("Meterbridge",
-			              string("meterbridge started at PID = ") +
-			              gx_i2a(child_pid[METERBG_IDX]));
+		if (pid == 0) {
+			execlp(app_name, app_name, "-t", "sco", "guitarix:in_0", "guitarix:out_0", 0);
+			exit(1);
 		}
-
-		// in any case, keep window focus on guitarix
-		gtk_widget_grab_focus(gx_gui::fWindow);
-	}
-
-	else   // -- deactivate meterbridge
-	{
-		if (child_pid[METERBG_IDX] != NO_PID)
-		{
-			// do we really have meterbridge running ?
-
-			if (!gx_lookup_pid(child_pid[METERBG_IDX]))   // nope
-			{
-
-				// it could be that the user closed meterbridge
-				// by hand and is trying to bring it back via guitarix
-				child_pid[METERBG_IDX] = NO_PID;
-
-				// try again
-				gtk_check_menu_item_set_active(menuitem, TRUE);
-				gx_start_stop_meterbridge (menuitem, 0);
-				return;
-			}
-
-			// remove lock file
-			(void)gx_system_call("rm -f", mbg_pidfile.c_str());
-
-			// kill process
-			(void)kill(child_pid[METERBG_IDX], SIGTERM);
-			gx_print_warning("Meterbridge",
-			                 string("meterbridge terminated - was PID ") +
-			                 gx_i2a(child_pid[METERBG_IDX]));
-
-			child_pid[METERBG_IDX] = NO_PID;
+		child_pid[METERBG_IDX] = pid;
+	} else {  // -- deactivate meterbridge
+		if (child_pid[METERBG_IDX] == NO_PID) {
+			return;
 		}
+		(void)kill(child_pid[METERBG_IDX], SIGTERM);
+		gx_print_info("Meterbridge",
+		              string("meterbridge terminated - was PID ") +
+		              gx_i2a(child_pid[METERBG_IDX]));
 	}
 }
 

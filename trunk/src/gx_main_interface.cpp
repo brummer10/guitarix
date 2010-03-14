@@ -2707,6 +2707,7 @@ void GxMainInterface::addOptionMenu()
 	                  G_CALLBACK (gx_start_stop_meterbridge), NULL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
+	fMeterBridge = GTK_CHECK_MENU_ITEM(menuitem);
 
 	/*-- Create Open check menu item under Options submenu --*/
 	menuitem = gtk_menu_item_new_with_mnemonic ("_Jack Capture Settings");

@@ -801,7 +801,7 @@ public:
 
 	// private audio processing
 	void process_buffers(int count, float** input, float** output);
-	void tuner(int count, float *input, float* workbuf);
+	void tuner(int count, float *input);
 	void process_buffers_new(int count, float** input, float** output);
 	void process_midi(int count);
 
