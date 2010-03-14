@@ -25,6 +25,7 @@ style "guitarixp"
   bg[ACTIVE] = { 0.0, 0.0, 0.0 }
   bg[INSENSITIVE] = "#c4c0c0"
   bg[SELECTED] = "#760608"
+  bg_pixmap[NORMAL] = ""
 
   text[NORMAL] = { 0.80, 0.80, 0.80 }
   text[ACTIVE] = { 0.80, 0.80, 0.80 }

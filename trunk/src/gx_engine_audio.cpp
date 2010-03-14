@@ -2074,13 +2074,14 @@ bool old_new = true, test_switch = false; //FIXME remove when done
 
 void GxEngine::tuner(int count, float* input, float* workbuf)
 {
-	moving_filter(&input, &workbuf, count);
+    (void)memcpy(checkfreq, input, sizeof(float)*count);
+	moving_filter(&checkfreq, &checkfreq, count);
 	float sumt = 0;
 	int cts = 0;
 	for (int i=0; i<count; i++) {
 		// when the ocilloscope draw wav by sample (mode 3) get the input value
 		//if (gx_gui::showwave == 1) vivi = fTemp0;
-		float fTemphp0 = workbuf[i] *2;
+		float fTemphp0 = checkfreq[i] *2;
 		add_dc(fTemphp0);
 		// low and highpass filter
 		tunerstage1=tunerstage1+(tunerfilter*(fTemphp0-tunerstage1));
@@ -2128,6 +2129,7 @@ void GxEngine::tuner(int count, float* input, float* workbuf)
 		fVect0[1] = fVect0[0];
 		fRechp0[1] = fRechp0[0];
 		fVechp0[1] = fVechp0[0];
+		old_freq = fConsta4;
 	}
 	if (gx_gui::shownote == 0) {
 		fConsta1 = 1000.0f;

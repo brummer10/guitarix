@@ -26,6 +26,7 @@ style "guitarix_default"
   bg[PRELIGHT] = { 0.40, 0.40, 0.45 }
   bg[ACTIVE] = { 0.0, 0.0, 0.0 }
   bg[SELECTED] = "#c4c0c0"
+  bg_pixmap[NORMAL] = ""
 
   text[NORMAL] = { 0.80, 0.80, 0.80 }
   text[ACTIVE] = { 0.80, 0.80, 0.80 }
