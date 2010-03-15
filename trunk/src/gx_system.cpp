@@ -1342,7 +1342,13 @@ int gx_system_call(const char* name1,
 
 	//    cerr << " ********* \n system command = " << str.c_str() << endl;
 
-	return system(str.c_str());
+	sigset_t waitset;
+	sigemptyset(&waitset);
+	sigaddset(&waitset, SIGCHLD);
+	sigprocmask(SIG_UNBLOCK, &waitset, NULL);
+	int rc = system(str.c_str());
+	sigprocmask(SIG_BLOCK, &waitset, NULL);
+	return rc;
 }
 
 // polymorph1
