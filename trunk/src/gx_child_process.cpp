@@ -712,7 +712,7 @@ void gx_start_stop_meterbridge(GtkCheckMenuItem *menuitem, gpointer checkplay)
 		}
 		if (pid == 0) {
 			execlp(app_name, app_name, "-t", "sco", "guitarix:in_0", "guitarix:out_0", 0);
-			exit(1);
+			_exit(127);
 		}
 		child_pid[METERBG_IDX] = pid;
 	} else {  // -- deactivate meterbridge

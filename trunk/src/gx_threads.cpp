@@ -50,8 +50,6 @@ using namespace gx_system;
 using namespace gx_child_process;
 using namespace gx_gui;
 
-
-
 namespace gx_threads
 {
 static const float falloff = meter_falloff * meter_display_timeout * 0.001;
@@ -165,13 +163,14 @@ gboolean gx_refresh_oscilloscope(gpointer args)
 }
 
 /* -------------- refresh tuner function -------------- */
-gboolean gx_refresh_tuner(gpointer args)
+gboolean gx_refresh_tuner(gpointer args) // FIXME: cleanup (refresh can be done by tuner os thread)
 {
 	// set the value to the tuner and let updateAllGui() do the repaint
 	gx_engine::GxEngine* engine = gx_engine::GxEngine::instance();
 	if (shownote )
 	{
-		engine->fConsta1t = engine->fConsta1;
+		engine->fConsta1t = gx_engine::pitch_tracker.tuner_estimate();
+		//engine->fConsta1t = engine->fConsta1;
 		// run thread again
 		return TRUE;
 	}

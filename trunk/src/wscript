@@ -33,11 +33,15 @@ def build(bld):
         'midi.glade',
         ]
     prog = bld.new_task_gen('cxx', 'program')
-    prog.includes = '. .. headers' # need ".." for config.h
+    prog.includes = ['.','..','headers'] # need ".." for config.h
     prog.cxxflags= bld.env['CXXFLAGS']
+    if not bld.env['ZITA_RESAMPLER']:
+        sources.append('zita-resampler/zita-resampler.cc')
+        prog.includes.append('zita-resampler')
+    else:
+        prog.lib = 'zita-resampler';
     prog.source = [] + sources
-   # prog.uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GTK2', 'FFTW3']
-    prog.uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GTK2', 'SIGC', 'ZITA_CONVOLVER']
+    prog.uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GTK2', 'SIGC', 'ZITA_CONVOLVER', 'FFTW3']
     prog.target = bld.env['BIN_NAME']
     prog.chmod=0755
     prog.install_path = bld.env['BINDIR']

@@ -23,6 +23,8 @@
 
 #include <array>
 #include <zita-convolver.h>
+#include <fftw3.h>
+#include <zita-resampler.h>
 
 // --- defines the processing type
 #define ZEROIZE_BUFFERS  (0)
@@ -164,6 +166,47 @@ public:
 };
 
 extern GxConvolver conv;
+
+/* ------------- Pitch Tracker ------------- */
+
+const int MAX_FFT_SIZE = 512; // The size of the read buffer (max FFT window size).
+
+class PitchTracker
+{
+public:
+	PitchTracker();
+	~PitchTracker();
+	bool setParameters( int sampleRate, int fftSize );
+	void init() { setParameters((int)gx_jack::jack_sr, MAX_FFT_SIZE); }
+	void add(int count, float *input);
+	float tuner_estimate();
+
+private:
+	void run();
+	static void *static_run(void*);
+	int find_minimum();
+	int find_maximum(int l);
+	void start_thread();
+	void copy();
+	bool error;
+	volatile bool busy;
+	int tick;
+    sem_t m_trig;
+    pthread_t m_pthr;
+	Resampler resamp;
+	int m_sampleRate;
+	int	m_fftSize; // Size of the FFT window.
+	float *m_buffer; // The audio buffer that stores the input signal.
+	int m_bufferIndex; // Index of the first empty position in the buffer.
+	bool m_audioLevel; // Whether or not the input level is high enough.
+	volatile float m_estimatedFrequency; // The estimated frequency of the signal.
+	float *m_fftwBufferTime; // Support buffer used to store signals in the time domain.
+	fftwf_complex *m_fftwBufferFreq; // Support buffer used to store signals in the frequency domain.
+	fftwf_plan m_fftwPlanFFT; // Plan to compute the FFT of a given signal.
+	fftwf_plan m_fftwPlanIFFT; // Plan to compute the IFFT of a given signal (with additional zero-padding).
+};
+
+extern PitchTracker pitch_tracker;
 
 
 /* ------------- Engine Processing Classes ------------- */
@@ -897,7 +940,6 @@ public:
 #ifdef USE_RINGBUFFER
 	void queue_message(struct MidiMessage *ev);
 #endif
-
 };
 
 /* ------------------------------------------------------------------- */

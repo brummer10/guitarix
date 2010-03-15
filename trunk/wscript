@@ -164,8 +164,10 @@ def configure(conf):
     conf.check_cfg(package='gthread-2.0', atleast_version='2.10', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='sigc++-2.0', args='--cflags --libs', uselib_store='SIGC', mandatory=1)
     conf.check_cxx(header_name='zita-convolver.h', lib="zita-convolver", uselib_store='ZITA_CONVOLVER', mandatory=1)
-    # conf.check_cfg(package='fftw3', atleast_version='3.2.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
+    conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
     conf.check(header_name='ladspa.h', mandatory=1)
+    conf.check(lib='zita-resampler', msg='Checking for zita-resampler', header_name='stdlib.h zita-resampler.h',
+               errmsg="using local version", define_name="ZITA_RESAMPLER")
     check_faust(conf)
     check_faust_cc(conf, "src/faust-cc")
 

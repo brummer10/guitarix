@@ -132,6 +132,9 @@ int main(int argc, char *argv[])
 
 		// -------- init port connections
 		gx_jack::gx_jack_init_port_connection(optvar);
+
+		// -------- pitch tracker (needs jack thread running) -------------
+		gx_engine::pitch_tracker.init();
 	}
 
 	// ----------------------- run GTK main loop ----------------------
