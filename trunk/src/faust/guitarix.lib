@@ -1,10 +1,8 @@
+/****************************************************************
+** helper definitions
+*/
 bypass(switch, block) = _ <: select2(switch, _, block);
 
-// add_dc as ffunction generates error with faust 0.9.10 in HighShelf.dsp:
-// No vector name for : add_dc(IN[1])
-// faust: generator/compile_scal.cpp:1109: virtual std::string ScalarCompiler::generateFixDelay(CTree*, CTree*, CTree*): Assertion `0' failed.
-//
-//add_dc = ffunction(float add_dc(float), <math.h>, "");
 anti_denormal = pow(10,-20);
 //add_dc = +(anti_denormal);
 add_dc = +(0);
@@ -14,10 +12,29 @@ smoothi(c) = *(1-c) : +~*(c);
 
 clip(lo,hi) = min(hi) : max(lo);
 sym_clip(thr) = clip(-thr,thr);
-g_clip(thr) = sym_clip(thr) : neg;
 
 balance(b) = *(1 - max(0, b)), *(1 - max(0, -b));
 wet_dry_mix(w, Fx) = _ <: _, Fx : balance(w) : +;
+
+
+/****************************************************************
+** nonlinear functions
+*/
+
+// from thesis of Ragnar Bendiksen (used in swh ladspa valve plugin)
+
+valve_transfer(dist, q, x) = xq / (1 - exp(-dist * xq)) + qm / (1 - exp(dist * qm))
+with {
+    // punch a whole around v into the number range by shifting values
+    // in opposite directions
+    exclude0(v) = v + copysign(eps, v)
+    with {
+	copysign = ffunction(float copysign(float,float), <math.h>, "");
+	eps = pow(10,-20);
+    };
+    xq = x - q : exclude0;
+    qm = q : exclude0;
+};
 
 saturate(t, x) = select2(abs(x) < t, x, v)
 with {
@@ -29,4 +46,8 @@ with {
 nonlin(a,b,c,x) = ((a * x - b * abs(x) * x) - x) * c;
 nonlin1 = nonlin(2,1,0.5);
 
+
+/****************************************************************
+** building blocks
+*/
 fuzzy_tube(a,b,c,fuzzy) = _ <: _ + nonlin(a,b,c) * fuzzy * 0.5 : sym_clip(0.7);
