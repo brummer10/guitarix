@@ -1,7 +1,7 @@
 namespace drive {
 // generated from file '../src/faust/drive.dsp'
 
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fpredrive;
+FAUSTFLOAT 	fslider0;
 int	fSamplingFreq;
 
 void init(int samplingFreq)

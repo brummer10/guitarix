@@ -1,7 +1,7 @@
 namespace balance {
 // generated from file '../src/faust/balance.dsp'
 
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslider25;
+FAUSTFLOAT 	fslider0;
 int	fSamplingFreq;
 
 void init(int samplingFreq)

@@ -126,7 +126,7 @@ bool gx_modify_preset(const char* presname, const char* newname=0, bool remove=f
 			jp.next(JsonParser::value_string);
 			if (rewrite) {
 				jw.write(jp.current_value());
-				gx_gui::parameter_map.set_init_values(); //FIXME what about jconv values?
+				gx_gui::parameter_map.set_init_values();
 				read_preset(jp);
 				write_preset(jw);
 			} else if (jp.current_value() == presname) {

@@ -200,23 +200,23 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp)
 	jp.next(gx_system::JsonParser::begin_array);
 	jp.next(gx_system::JsonParser::value_string);
 	string id = jp.current_value();
-	Parameter* param = parameter_map.find(id);
-	if (!param) {
+	if (!parameter_map.hasId(id)) {
 		gx_system::gx_print_warning("Midi controller settings",
 		                            "unknown parameter: " + id);
 		while (jp.next() != gx_system::JsonParser::end_array);
 		return 0;
 	}
+	Parameter& param = parameter_map[id];
 	float lower = 0, upper = 0;
 	bool bad = false;
 	bool chg = false;
-	if (param->getControlType() == Parameter::Continuous ||
-	    param->getControlType() == Parameter::Enum) {
+	if (param.getControlType() == Parameter::Continuous ||
+	    param.getControlType() == Parameter::Enum) {
 		if (jp.peek() != gx_system::JsonParser::end_array) {
 			float pmin, pmax;
-			if (param->hasRange()) {
-				pmin = param->getLowerAsFloat();
-				pmax = param->getUpperAsFloat();
+			if (param.hasRange()) {
+				pmin = param.getLowerAsFloat();
+				pmax = param.getUpperAsFloat();
 			} else {
 				bad = true;
 				pmin = pmax = 0;
@@ -243,7 +243,7 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp)
 			bad = true;
 		}
 	} else {
-		if (param->getControlType() != Parameter::Switch) {
+		if (param.getControlType() != Parameter::Switch) {
 			bad = true;
 		}
 	}
@@ -259,7 +259,7 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp)
 			"recall MIDI state",
 			"Parameter range outside bounds, changed: " + id);
 	}
-	return new MidiController(*param, lower, upper);
+	return new MidiController(param, lower, upper);
 }
 
 MidiControllerList::MidiControllerList():
@@ -526,7 +526,7 @@ void FloatParameter::set(int n, int high, float llimit, float ulimit)
 		break;
 	case Switch:
 	case Enum:
-		value = lower + min(n, upper-lower-1); //FIXME "-1" ??
+		value = lower + min((float)n, upper-lower-1); //FIXME "-1" ??
 		break;
 	default:
 		assert(false);
@@ -721,17 +721,23 @@ void ParamMap::unique_id(Parameter* param)
 	}
 }
 
+void ParamMap::check_addr(const void *p)
+{
+	if (!hasZone(p)) {
+		cerr << "zone not found: " << p << endl;
+	}
+}
 void ParamMap::check_id(string id)
 {
-	if (!find(id)) {
-		cerr << "id not found: " << id << endl;
+	if (!hasId(id)) {
+		cerr << "string-id not found: " << id << endl;
 	}
 }
 
 void ParamMap::check_p(const char *p)
 {
-	if (!find(p)) {
-		cerr << "id not found: " << p << endl;
+	if (!hasId(p)) {
+		cerr << "char-id not found: " << p << endl;
 	}
 }
 #endif
@@ -788,196 +794,103 @@ inline void PaN(const char*a, float*c, bool d, float std=0, float lower=0, float
 	parameter_map.insert(new FloatParameter(a,"",Parameter::None,d,*c,std,lower,upper,0,false));
 }
 
-void initParams(gx_engine::GxEngine* e)
+void initParams()
 {
-	/* FIXME remove when done */
-	static bool inited = false;
-	if (inited) return;
-	inited = true;
-	/* END FIXME */
-	Pa("amp.feedback", "Feedback", &e->fslider0, 0.0f, -1.0f, 1.0f, 1.0e-02f);
-	Pa("amp.feedforward", "Feedforward", &e->fslider23, 0.0f, -1.0f, 1.0f, 1.0e-02f);
-	Pa("amp.balance", "Balance", &e->fslider25, 0.f, -1.f, 1.f, 1.e-01f);
-	Pa("amp.in_level", "in level", &e->fslider3, 0.f, -40.f, 40.f, 0.1f);
-	Pa("amp.out_master", "out / master", &e->fslider17, 0.f, -40.f, 40.f, 0.1f);
-	Pa("amp.tone.bass", "Bass", &e->fslider_tone2, 0.f, -20.f, 20.f, 0.1f);
-	Pa("amp.tone.middle", "Middle", &e->fslider_tone1, 0.f, -20.f, 20.f, 0.1f);
-	Pa("amp.tone.treble", "Treble", &e->fslider_tone0, 0.f, -20.f, 20.f, 0.1f);
-	Pa("amp.oversample.on_off", "on/off", &e->fupsample, 0);
-	Pa("amp.bass_boost.on_off", "on/off", &e->fboost, 0);
-	Pa("amp.fuzz", "fuzz", &e->fthreshold, 1.f, 0.f, 1.f, 0.01f);
-	PaE("amp.threshold", "threshold", &e->ffuse, 0.f, 0.f, 3.f, 1.0f);
+	Pa("midi_out.channel_1.velocity", "velocity", &gx_engine::fslider26, 64.f, 0.f, 127.f, 1.f);
+	Pa("midi_out.channel_1.volume", "volume", &gx_engine::fslider46, 64.f, 0.f, 127.f, 1.f);
+	Pa("midi_out.channel_1.autogain", "autogain", &gx_engine::fautogain);
+	Pa("midi_out.channel_1.channel", "channel 1", &gx_engine::fslider30, 0.f, 0.f, 16.f, 1.f);
+	Pa("midi_out.channel_1.program", "program", &gx_engine::fslider31, 0.f, 0.f, 248.f, 1.f);
+	Pa("midi_out.channel_1.oktave", "oktave", &gx_engine::fslider29, 0.f, -2.f, 2.f, 1.f);
+	Pa("midi_out.channel_1.sensity", "sensity", &gx_engine::fslider27, 20.f, 1.f, 500.f, 1.f);
+	Pa("midi_out.channel_1.auto_pitch", "auto pitch", &gx_engine::fpitch);
 
-	Pa("convolve.on_off", "on/off", &e->fconvolve, 0);
-	PaE("convolve.select", "select", &e->convolvefilter, 0.f, 0.f, 7.f, 1.0f);
+	Pa("midi_out.channel_2.on_off", "on/off", &gx_engine::fcheckbox10, 0);
+	Pa("midi_out.channel_2.velocity", "velocity", &gx_engine::fslider32, 64.f, 0.f, 127.f, 1.f);
+	Pa("midi_out.channel_2.volume", "volume", &gx_engine::fslider47, 64.f, 0.f, 127.f, 1.f);
+	Pa("midi_out.channel_2.autogain", "autogain", &gx_engine::fautogain1);
+	Pa("midi_out.channel_2.channel", "channel 2", &gx_engine::fslider35, 0.f, 0.f, 16.f, 1.f);
+	Pa("midi_out.channel_2.program", "program", &gx_engine::fslider36, 0.f, 0.f, 248.f, 1.f);
+	Pa("midi_out.channel_2.oktave", "oktave", &gx_engine::fslider34, 0.f, -2.f, 2.f, 1.f);
+	Pa("midi_out.channel_2.sensity", "sensity", &gx_engine::fslider33, 20.f, 1.f, 500.f, 1.f);
+	Pa("midi_out.channel_2.auto_pitch", "auto pitch", &gx_engine::fpitch1);
 
-	Pa("shaper.on_off", "on/off", &e->fng, 0);
-	Pa("shaper.sharper", "Sharper", &e->fsharp0, 1.f, 1.f, 10.f, 1.0f);
+	Pa("midi_out.channel_3.on_off", "on/off", &gx_engine::fcheckbox11, 0);
+	Pa("midi_out.channel_3.velocity", "velocity", &gx_engine::fslider40, 64.f, 0.f, 127.f, 1.f);
+	Pa("midi_out.channel_3.volume", "volume", &gx_engine::fslider48, 64.f, 0.f, 127.f, 1.f);
+	Pa("midi_out.channel_3.autogain", "autogain", &gx_engine::fautogain2);
+	Pa("midi_out.channel_3.channel", "channel 3", &gx_engine::fslider44, 0.f, 0.f, 16.f, 1.f);
+	Pa("midi_out.channel_3.program", "program", &gx_engine::fslider43, 0.f, 0.f, 248.f, 1.f);
+	Pa("midi_out.channel_3.oktave", "oktave", &gx_engine::fslider42, 0.f, -2.f, 2.f, 1.f);
+	Pa("midi_out.channel_3.sensity", "sensity", &gx_engine::fslider41, 20.f, 1.f, 500.f, 1.f);
+	Pa("midi_out.channel_3.auto_pitch", "auto pitch", &gx_engine::fpitch2);
 
-	Pa("noise_gate.on_off", "on/off", &e->fnoise_g, 0);
-	Pa("noise_gate.threshold", "Threshold", &e->fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
+	Pa("beat_detector.stepper", "stepper", &gx_engine::fslider39, 1.f, 1.f, 32.f, 1.f);
+	Pa("beat_detector.note_off", "note off", &gx_engine::fslider37, 2.f, 1.f, 127.f, 1.f);
+	Pa("beat_detector.atack_gain", "atack gain", &gx_engine::fslider45, 5.f, 1.f, 127.f, 1.f);
+	Pa("beat_detector.beat_gain", "beat gain", &gx_engine::fslider38, 1.f, 0.0f, 127.f, 1.f);
+	Pa("beat_detector.midi_gain", "midi gain", &gx_engine::midi_gain, 0.f, -20.f, 60.f, 1.f);
 
-	Pa("anti_aliase.on_off", "on/off", &e->antialis0, 0);
-	Pa("anti_aliase.feedback", "Feedback", &e->faas1, 0.3f, 0.3f, 0.9f, 0.01f);
-
-	Pa("preamp.on_off", "on/off", &e->fcheckbox1, 0);
-	Pa("preamp.atan", "drive", &e->fatan, 1.f, 1.f, 10.f, 1.0f);
-
-	Pa("tube.on_off", "on/off", &e->ftube, 0);
-	Pa("tube.fuzzy", "count", &e->ffuzzytube, 1.f, -3.f, 10.f, 1.0f);
-	Pa("tube.vibrato.on_off", "on/off", &e->fresoon, 0);
-	Pa("tube.vibrato", "vibrato", &e->fvibrato, 0.f, 0.f, 2.f, 0.02f);
-
-	Pa("tube2.on_off", "on/off", &e->ftube3, 0);
-	Pa("tube2.fuzzy", "count", &e->fresotube3, 1.f, -3.f, 10.f, 1.0f);
-	Pa("tube2.resonanz", "resonanz", &e->fresotube1, 0.5f, 0.f, 0.9f, 0.01f);
-	Pa("tube2.vibrato", "vibrato", &e->fresotube2, 1.f, 0.f, 1.f, 0.01f);
-
-	Pa("drive.on_off", "on/off", &e->fprdr, 0);
-	Pa("drive.value", "drive", &e->fpredrive, 1.f, 1.f, 10.f, 1.0f);
-
+	PaE("amp.threshold", "threshold", &gx_engine::ffuse, 0.f, 0.f, 3.f, 1.0f);
+	Pa("MultiBandFilter.on_off", "on/off", &gx_engine::fmultifilter, 0);
+	Pa("crybaby.autowah", "autowah", &gx_engine::fautowah, 0);
+	Pa("overdrive.on_off", "on/off", &gx_engine::foverdrive4, 0);
+	Pa("distortion.on_off", "on/off", &gx_engine::fcheckbox4, 0);
+	Pa("freeverb.on_off", "on/off", &gx_engine::fcheckbox6, 0);
+	Pa("IR.on_off", "on/off", &gx_engine::fcheckbox8, 0);
+	Pa("crybaby.on_off", "on/off", &gx_engine::fcheckbox5, 0);
+	Pa("echo.on_off", "on/off", &gx_engine::fcheckbox7, 0);
+	Pa("delay.on_off", "on/off", &gx_engine::fdelay, 0);
+	Pa("chorus.on_off", "on/off", &gx_engine::fchorus, 0);
+	Pa("compressor.on_off", "on/off", &gx_engine::fcheckboxcom1, 0);
+	Pa("tube2.on_off", "on/off", &gx_engine::ftube3, 0);
+	Pa("tube.vibrato.on_off", "on/off", &gx_engine::fresoon, 0);
+	Pa("tube.on_off", "on/off", &gx_engine::ftube, 0);
+	Pa("drive.on_off", "on/off", &gx_engine::fprdr, 0);
+	Pa("preamp.on_off", "on/off", &gx_engine::fcheckbox1, 0);
+	PaE("convolve.select", "select", &gx_engine::convolvefilter, 0.f, 0.f, 7.f, 1.0f);
+	Pa("convolve.on_off", "on/off", &gx_engine::fconvolve, 0);
+	Pa("amp.bass_boost.on_off", "on/off", &gx_engine::fboost, 0);
+	Pa("amp.oversample.on_off", "on/off", &gx_engine::fupsample, 0);
+	Pa("anti_aliase.on_off", "on/off", &gx_engine::antialis0, 0);
+	Pa("noise_gate.on_off", "on/off", &gx_engine::fnoise_g, 0);
+	Pa("noise_gate.threshold", "Threshold", &gx_engine::fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
+	Pa("shaper.on_off", "on/off", &gx_engine::fng, 0);
 	Pa("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
-	Pa("jconv.left_delay", "Left Delay", &e->fsliderdel0,  0.f, 0.f, 5000.0f, 10.f);
-	Pa("jconv.right_delay", "Right Delay", &e->fsliderdel1,  0.f, 0.f, 5000.0f, 10.f);
-	Pa("jconv.left_gain", "Left Gain", &e->fjc_ingain,  0.f, -20.f, 20.f, 0.1f);
-	Pa("jconv.right_gain", "Right Gain", &e->fjc_ingain1,  0.f, -20.f, 20.f, 0.1f);
-	Pa("jconv.wet_dry", "wet/dry", &e->fslider24,  0.f, -1.f, 1.f, 1.e-01f);
-
-	Pa("compressor.on_off", "on/off", &e->fcheckboxcom1, 0);
-	Pa("compressor.knee", "knee", &e->fentrycom1, 3.0f, 0.0f, 20.0f, 0.10f);
-	Pa("compressor.ratio", "ratio", &e->fentrycom2, 2.0f, 1.0f, 20.0f, 0.10f);
-	Pa("compressor.threshold", "threshold", &e->fentrycom0, -20.0f, -96.0f, 10.0f, 0.10f);
-	Pa("compressor.attack", "attack", &e->fslidercom0, 2.0e-03f, 0.0f, 1.0f, 1.0e-03f);
-	Pa("compressor.release", "release", &e->fslidercom1, 0.50f, 0.0f, 10.0f, 1.0e-02f);
-
-	Pa("overdrive.on_off", "on/off", &e->foverdrive4, 0);
-	Pa("overdrive.drive", "drive", &e->drive, 1.f, 1.f, 20.f, 0.1f);
-
-	Pa("distortion.on_off", "on/off", &e->fcheckbox4, 0);
-	Pa("distortion.level", "level", &e->fslider8, 1.0e-02f, 0.0f, 0.50f, 1.0e-02f);
-	Pa("distortion.gain", "gain", &e->fslider10, 2.0f, -10.0f, 10.0f, 0.1f);
-	Pa("distortion.drive", "drive", &e->fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
-	Pa("distortion.trigger", "trigger", &e->fslider4, 0.12f, 0.0f, 1.0f, 1.0e-02f);
-	Pa("distortion.vibrato", "vibrato", &e->fslider5, 1.0f, 0.0f, 1.0f, 1.0e-02f);
-	Pa("distortion.low_highpass.high_freq", "high freq", &e->fentry1, 130.0f, 20.0f, 7040.0f, 10.0f);
-	Pa("distortion.low_highpass.low_freq", "low freq", &e->fentry0, 5000.0f, 20.0f, 12000.0f, 10.0f);
-	Pa("distortion.low_highpass.on_off", "low highpass", &e->fcheckbox2, 0);
-	Pa("distortion.low_highcutoff.high_freq", "high freq", &e->fslider6, 5000.f, 1000.f, 12000.f, 10.f);
-	Pa("distortion.low_highcutoff.low_freq", "low freq", &e->fslider7, 130.f, 20.f, 1000.f, 10.f);
-	Pa("distortion.low_highcutoff.on_off", "low highcutoff", &e->fcheckbox3, 0);
-
-	Pa("freeverb.on_off", "on/off", &e->fcheckbox6, 0);
-	Pa("freeverb.wet_dry", "wet/dry", &e->fslider14, 0.0f, -0.5f, 0.5f, 1.e-01f);
-	Pa("freeverb.damp", "damp", &e->fslider15, 0.5f, 0.0f, 1.0f, 2.50e-02f);
-	Pa("freeverb.RoomSize", "RoomSize", &e->fslider16, 0.50f, 0.0f, 1.0f, 2.50e-02f);
-
-	Pa("IR.on_off", "on/off", &e->fcheckbox8, 0);
-	Pa("IR.freq", "freq", &e->fslider21, 440.0f, 20.0f, 12000.0f, 10.0f);
-	Pa("IR.peak", "peak", &e->fslider22, 1.0f, 0.0f, 10.0f, 0.20f);
-	Pa("IR.bandwidth", "bandwidth", &e->fslider20, 100.0f, 20.0f, 20000.0f, 10.0f);
-	Pa("IR.auto_freq", "auto freq", &e->auto_ir, 0);
-
-	Pa("crybaby.on_off", "on/off", &e->fcheckbox5, 0);
-	Pa("crybaby.wah", "wah", &e->fslider11, 0.0f, 0.0f, 1.0f, 1.0e-02f);
-	Pa("crybaby.level", "level", &e->fslider12, 0.1f, 0.0f, 1.0f, 1.0e-02f);
-	Pa("crybaby.wet_dry", "wet/dry", &e->fslider13, 0.f, -1.f, 1.f, 1.e-01f);
-	Pa("crybaby.autowah", "autowah", &e->fautowah, 0);
-
-	Pa("echo.on_off", "on/off", &e->fcheckbox7, 0);
-	Pa("echo.time", "time", &e->fslider18, 1.0f, 1.0f, 2000.0f, 1.0f);
-	Pa("echo.percent", "percent", &e->fslider19, 0.0f, 0.0f, 100.0f, 0.10f);
-
-	Pa("delay.on_off", "on/off", &e->fdelay, 0);
-	Pa("delay.delay", "delay", &e->fsliderdel2,  0.f, 0.f, 5000.0f, 10.f);
-	Pa("delay.gain", "gain", &e->fdel_gain1, 0.0f, -20.0f, 20.0f, 0.1f);
-
-	Pa("chorus.on_off", "on/off", &e->fchorus, 0);
-	Pa("chorus.freq", "freq", &e->fslider_CH0, 3.0f, 0.0f, 10.0f, 1.0e-02f);
-	Pa("chorus.depth", "depth", &e->fslider_CH1, 2.0e-02f, 0.0f, 1.0f, 1.0e-03f);
-	Pa("chorus.delay", "delay", &e->fslider_CH2, 2.50e-02f, 0.0f, 0.2f, 1.0e-03f);
-	Pa("chorus.level", "level", &e->fslider_CH3, 0.5f, 0.0f, 1.0f, 1.0e-02f);
-
-	Pa("MultiBandFilter.on_off", "on/off", &e->fmultifilter, 0);
-	Pa("MultiBandFilter.f31_25", "f31_25", &e->fslMulti9, 0.0f, -50.0f, 10.0f, 0.1f);
-	Pa("MultiBandFilter.f62_5", "f62_5", &e->fslMulti8, 0.0f, -50.0f, 10.0f, 0.1f);
-	Pa("MultiBandFilter.f125", "f125", &e->fslMulti7, 0.0f, -50.0f, 10.0f, 0.1f);
-	Pa("MultiBandFilter.f250", "f250", &e->fslMulti6, 0.0f, -50.0f, 10.0f, 0.1f);
-	Pa("MultiBandFilter.f500", "f500", &e->fslMulti5, 0.0f, -50.0f, 10.0f, 0.1f);
-	Pa("MultiBandFilter.f1k", "f1k", &e->fslMulti4, 0.0f, -50.0f, 10.0f, 0.1f);
-	Pa("MultiBandFilter.f2k", "f2k", &e->fslMulti3, 0.0f, -50.0f, 10.0f, 0.1f);
-	Pa("MultiBandFilter.f4k", "f4k", &e->fslMulti2, 0.0f, -50.0f, 10.0f, 0.1f);
-	Pa("MultiBandFilter.f8k", "f8k", &e->fslMulti1, 0.0f, -50.0f, 10.0f, 0.1f);
-	Pa("MultiBandFilter.f16k", "f16k", &e->fslMulti0, 0.0f, -50.0f, 10.0f, 0.1f);
-
-	Pa("midi_out.channel_1.velocity", "velocity", &e->fslider26, 64.f, 0.f, 127.f, 1.f);
-	Pa("midi_out.channel_1.volume", "volume", &e->fslider46, 64.f, 0.f, 127.f, 1.f);
-	Pa("midi_out.channel_1.autogain", "autogain", &e->fautogain);
-	Pa("midi_out.channel_1.channel", "channel", &e->fslider30, 0.f, 0.f, 16.f, 1.f);
-	Pa("midi_out.channel_1.program", "program", &e->fslider31, 0.f, 0.f, 248.f, 1.f);
-	Pa("midi_out.channel_1.oktave", "oktave", &e->fslider29, 0.f, -2.f, 2.f, 1.f);
-	Pa("midi_out.channel_1.sensity", "sensity", &e->fslider27, 20.f, 1.f, 500.f, 1.f);
-	Pa("midi_out.channel_1.auto_pitch", "auto pitch", &e->fpitch);
-
-	Pa("midi_out.channel_2.on_off", "on/off", &e->fcheckbox10, 0);
-	Pa("midi_out.channel_2.velocity", "velocity", &e->fslider32, 64.f, 0.f, 127.f, 1.f);
-	Pa("midi_out.channel_2.volume", "volume", &e->fslider47, 64.f, 0.f, 127.f, 1.f);
-	Pa("midi_out.channel_2.autogain", "autogain", &e->fautogain1);
-	Pa("midi_out.channel_2.channel", "channel", &e->fslider35, 0.f, 0.f, 16.f, 1.f);
-	Pa("midi_out.channel_2.program", "program", &e->fslider36, 0.f, 0.f, 248.f, 1.f);
-	Pa("midi_out.channel_2.oktave", "oktave", &e->fslider34, 0.f, -2.f, 2.f, 1.f);
-	Pa("midi_out.channel_2.sensity", "sensity", &e->fslider33, 20.f, 1.f, 500.f, 1.f);
-	Pa("midi_out.channel_2.auto_pitch", "auto pitch", &e->fpitch1);
-
-	Pa("midi_out.channel_3.on_off", "on/off", &e->fcheckbox11, 0);
-	Pa("midi_out.channel_3.velocity", "velocity", &e->fslider40, 64.f, 0.f, 127.f, 1.f);
-	Pa("midi_out.channel_3.volume", "volume", &e->fslider48, 64.f, 0.f, 127.f, 1.f);
-	Pa("midi_out.channel_3.autogain", "autogain", &e->fautogain2);
-	Pa("midi_out.channel_3.channel", "channel", &e->fslider44, 0.f, 0.f, 16.f, 1.f);
-	Pa("midi_out.channel_3.program", "program", &e->fslider43, 0.f, 0.f, 248.f, 1.f);
-	Pa("midi_out.channel_3.oktave", "oktave", &e->fslider42, 0.f, -2.f, 2.f, 1.f);
-	Pa("midi_out.channel_3.sensity", "sensity", &e->fslider41, 20.f, 1.f, 500.f, 1.f);
-	Pa("midi_out.channel_3.auto_pitch", "auto pitch", &e->fpitch2);
-
-	Pa("beat_detector.stepper", "stepper", &e->fslider39, 1.f, 1.f, 32.f, 1.f);
-	Pa("beat_detector.note_off", "note off", &e->fslider37, 2.f, 1.f, 127.f, 1.f);
-	Pa("beat_detector.atack_gain", "atack gain", &e->fslider45, 5.f, 1.f, 127.f, 1.f);
-	Pa("beat_detector.beat_gain", "beat gain", &e->fslider38, 1.f, 0.0f, 127.f, 1.f);
-	Pa("beat_detector.midi_gain", "midi gain", &e->midi_gain, 0.f, -20.f, 60.f, 1.f);
-
 	// only save and restore, no midi control
 
 	// positions of effects
-	PaN("crybaby.position", &e->posit0, true, 5, 0, 8);
-	PaN("overdrive.position", &e->posit1, true, 2, 0, 8);
-	PaN("distortion.position", &e->posit2, true, 1, 0, 8);
-	PaN("freeverb.position", &e->posit3, true, 3, 0, 8);
-	PaN("IR.position", &e->posit4, true, 4, 0, 8);
-	PaN("compressor.position", &e->posit5, true, 0, 0, 8);
-	PaN("echo.position", &e->posit6, true, 6, 0, 8);
-	PaN("delay.position", &e->posit7, true, 8, 0, 8);
-	PaN("chorus.position", &e->posit8, true, 7, 0, 8);
+	PaN("crybaby.position", &gx_engine::posit0, true, 5, 0, 8);
+	PaN("overdrive.position", &gx_engine::posit1, true, 2, 0, 8);
+	PaN("distortion.position", &gx_engine::posit2, true, 1, 0, 8);
+	PaN("freeverb.position", &gx_engine::posit3, true, 3, 0, 8);
+	PaN("IR.position", &gx_engine::posit4, true, 4, 0, 8);
+	PaN("compressor.position", &gx_engine::posit5, true, 0, 0, 8);
+	PaN("echo.position", &gx_engine::posit6, true, 6, 0, 8);
+	PaN("delay.position", &gx_engine::posit7, true, 8, 0, 8);
+	PaN("chorus.position", &gx_engine::posit8, true, 7, 0, 8);
 
 	// togglebuttons for dialogboxes and expander for effect details
-	PaN("compressor.dialog", &e->fdialogbox8, false);
-	PaN("distortion.dialog", &e->fdialogbox1, false);
-	PaN("freeverb.dialog", &e->fdialogbox2, false);
-	PaN("IR.dialog", &e->fdialogbox3, false);
-	PaN("crybaby.dialog", &e->fdialogbox4, false);
-	PaN("chorus.dialog", &e->fchorusbox, false);
-	PaN("midi_out.dialog", &e->fdialogbox6, false);
-	PaN("jconv.dialog", &e->fdialogboxj, false);
-	PaN("jconv.expander", &e->fexpand2, false);
-	PaN("jconv.filedialog", &e->filebutton, false);
+	PaN("compressor.dialog", &gx_engine::fdialogbox8, false);
+	PaN("distortion.dialog", &gx_engine::fdialogbox1, false);
+	PaN("freeverb.dialog", &gx_engine::fdialogbox2, false);
+	PaN("IR.dialog", &gx_engine::fdialogbox3, false);
+	PaN("crybaby.dialog", &gx_engine::fdialogbox4, false);
+	PaN("chorus.dialog", &gx_engine::fchorusbox, false);
+	PaN("midi_out.dialog", &gx_engine::fdialogbox6, false);
+	PaN("jconv.dialog", &gx_engine::fdialogboxj, false);
+	PaN("jconv.expander", &gx_engine::fexpand2, false);
+	PaN("jconv.filedialog", &gx_engine::filebutton, false);
 
 	// user interface options
-	PaN("ui.latency_nowarn", &e->fwarn, false, 0);
-	PaN("ui.skin", &e->fskin, false, 0, 0, 100);
-	PaN("ui.main_expander", &e->fexpand, false);
+	PaN("ui.latency_nowarn", &gx_engine::fwarn, false, 0);
+	PaN("ui.skin", &gx_engine::fskin, false, 0, 0, 100);
+	PaN("ui.main_expander", &gx_engine::fexpand, false);
 
 	// shouldn't be saved, only output?
-	PaN("system.fConsta1t", &e->fConsta1t, false);
-	PaN("system.midistat", &e->midistat, false);
-	PaN("system.waveview", &e->viv, false);
+	PaN("system.fConsta1t", &gx_engine::fConsta1t, false);
+	PaN("system.midistat", &gx_engine::midistat, false);
+	PaN("system.waveview", &gx_engine::viv, false);
 	parameter_map.set_init_values();
 }
 

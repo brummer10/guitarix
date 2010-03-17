@@ -1,7 +1,7 @@
 namespace tubevibrato {
 // generated from file '../src/faust/tubevibrato.dsp'
 
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fvibrato;
+FAUSTFLOAT 	fslider0;
 float 	fRec0[2];
 int	fSamplingFreq;
 

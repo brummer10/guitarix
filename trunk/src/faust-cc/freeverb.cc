@@ -1,9 +1,9 @@
 namespace freeverb {
 // generated from file '../src/faust/freeverb.dsp'
 
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslider15;
+FAUSTFLOAT 	fslider0;
 float 	fRec9[2];
-FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fslider16;
+FAUSTFLOAT 	fslider1;
 int 	IOTA;
 float 	fVec0[2048];
 float 	fRec8[2];
@@ -36,7 +36,7 @@ float 	fVec10[512];
 float 	fRec2[2];
 float 	fVec11[256];
 float 	fRec0[2];
-FAUSTFLOAT&	fslider2=*(float*)&GxEngine::instance()->fslider14;
+FAUSTFLOAT 	fslider2;
 int	fSamplingFreq;
 
 void init(int samplingFreq)

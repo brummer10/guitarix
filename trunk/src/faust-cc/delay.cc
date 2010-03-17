@@ -3,9 +3,9 @@ namespace delay {
 
 int 	IOTA;
 float 	fVec0[2097152];
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fsliderdel2;
+FAUSTFLOAT 	fslider0;
 float 	fConst0;
-FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fdel_gain1;
+FAUSTFLOAT 	fslider1;
 float 	fRec0[2];
 int	fSamplingFreq;
 

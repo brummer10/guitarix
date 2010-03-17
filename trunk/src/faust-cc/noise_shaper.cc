@@ -4,7 +4,7 @@ namespace noise_shaper {
 float 	fConst0;
 float 	fConst1;
 float 	fRec0[2];
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fsharp0;
+FAUSTFLOAT 	fslider0;
 int	fSamplingFreq;
 
 void init(int samplingFreq)
@@ -35,7 +35,7 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("shaper.sharper","Sharper","S","",&fslider0, 1.0f, 1.0f, 10.0f, 1.0f);
+	registerVar("shaper.sharper","sharper","S","",&fslider0, 1.0f, 1.0f, 10.0f, 1.0f);
 	registerInit(init);
 }
 

@@ -52,23 +52,13 @@ const char* stopit = "go";
 float  checky      = 1.0;
 float* get_frame   = NULL;
 float* get_frame1   = NULL;
-float* get_frame2   = NULL;
-float* get_frame3   = NULL;
 float* checkfreq   = NULL;
 float* oversample  = NULL;
 float* result      = NULL ;
-float 	GxEngine::ftbl0[65536];
-
-/* number of channels */
-int    gNumInChans;
-int    gNumOutChans;
-
-float* gInChannel [3];
-float* gOutChannel[4];
 
 /* latency warning  switch */
-float fwarn_swap;
 float fwarn;
+float fwarn_swap;
 
 /* engine init state  */
 bool initialized = false;
@@ -146,7 +136,6 @@ namespace gx_jconv
 /* some global vars */
 float checkbox7;
 GtkWidget* mslider;
-bool jconv_is_running = false;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -207,8 +196,6 @@ namespace gx_child_process
 /* global var declarations */
 
 FILE*    jcap_stream;
-FILE*    jconv_stream;
-string   mbg_pidfile;
 
 pid_t child_pid[NUM_OF_CHILD_PROC] =
 {

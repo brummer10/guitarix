@@ -1,10 +1,10 @@
 namespace feed {
 // generated from file '../src/faust/feed.dsp'
 
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fthreshold;
-FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fslider0;
+FAUSTFLOAT 	fslider0;
+FAUSTFLOAT 	fslider1;
 float 	fVec0[4];
-FAUSTFLOAT&	fslider2=*(float*)&GxEngine::instance()->fslider23;
+FAUSTFLOAT 	fslider2;
 float 	fRec0[6];
 int	fSamplingFreq;
 

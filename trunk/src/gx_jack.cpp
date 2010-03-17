@@ -161,22 +161,15 @@ void gx_jack_callbacks_and_activate()
 		jack_port_register(client, "midi_in_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
 
 	//----- register the input channel
-	for (int i = 0; i < gNumInChans; i++)
-	{
-		ostringstream buf;
-		buf <<  "in_" << i;
-		input_ports[i] =
-			jack_port_register(client, buf.str().c_str(),
-			                   JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
-	}
+	input_ports[0] =
+		jack_port_register(client, "in_0", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
 
 	//----- register the midi output channel
 	midi_output_ports =
 		jack_port_register(client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
 
 	//----- register the audio output channels
-	for (int i = 0; i < gNumOutChans; i++)
-	{
+	for (int i = 0; i < 2; i++) {
 		ostringstream buf;
 		buf <<  "out_" << i;
 		output_ports[i] =
@@ -199,11 +192,8 @@ void gx_jack_init_port_connection(const string* optvar)
 	// set autoconnect capture to user capture port
 	if (!optvar[JACK_INP].empty())
 	{
-		for (int i = 0; i < gNumInChans; i++)
-		{
-			jack_connect(client, optvar[JACK_INP].c_str(),
-			             jack_port_name(input_ports[i]));
-		}
+		jack_connect(client, optvar[JACK_INP].c_str(),
+		             jack_port_name(input_ports[0]));
 	} else {
 		list<string>& l = jack_connection_lists[kAudioInput];
 		for (list<string>::iterator i = l.begin(); i != l.end(); i++) {
@@ -355,12 +345,9 @@ bool gx_start_jack(void* arg)
 //---- Jack server connection / disconnection
 void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 {
-	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM (menuitem)) == TRUE)
-	{
-		if (!client)
-		{
-			if (gx_jack_init())
-			{
+	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM (menuitem)) == TRUE) {
+		if (!client) {
+			if (gx_jack_init()) {
 				string optvar[NUM_SHELL_VAR];
 				gx_assign_shell_var(shell_var_name[JACK_INP],  optvar[JACK_INP] );
 				gx_assign_shell_var(shell_var_name[JACK_MIDI], optvar[JACK_MIDI] );
@@ -368,97 +355,43 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 				gx_assign_shell_var(shell_var_name[JACK_OUT2], optvar[JACK_OUT2]);
 
 				// initialize guitarix engine if necessary
-				if (!gx_engine::initialized)
+				if (!gx_engine::initialized) {
 					gx_engine::gx_engine_init();
-
+				}
 				gx_jack_callbacks_and_activate();
 				gx_jack_init_port_connection(optvar);
 
 				// refresh latency check menu
 				gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
 				GtkWidget* wd = gui->getJackLatencyItem(gx_jack::jack_bs);
-				if (wd)
+				if (wd) {
 					gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
-
-				// check jconv stuff
-				if (gx_jconv::jconv_is_running)
-				{
-					ostringstream buf;
-
-					// extra guitarix jack ports for jconv
-					for (int i = 2; i < 4; i++)
-					{
-						buf.str("");
-						buf << "out_" << i;
-
-						output_ports[i] =
-							jack_port_register(client,
-							                   buf.str().c_str(),
-							                   JACK_DEFAULT_AUDIO_TYPE,
-							                   JackPortIsOutput, 0);
-						gx_engine::gNumOutChans++;
-					}
-					for (int i = 2; i < 4; i++)
-					{
-
-						buf.str("");
-						buf << "in_" << i-1;
-
-						input_ports[i-1] =
-							jack_port_register(client,
-							                   buf.str().c_str(),
-							                   JACK_DEFAULT_AUDIO_TYPE,
-							                   JackPortIsInput, 0);
-						gx_engine::gNumInChans++;
-					}
-					jack_is_exit = false;
-					// ---- port connection
-
-					// guitarix outs to jconv ins
-					jack_connect(client, jack_port_name(output_ports[2]), "jconv:In-1");
-					jack_connect(client, jack_port_name(output_ports[3]), "jconv:In-2");
 				}
-
 				// restore jack client menus
 				gx_gui::GxMainInterface::instance()->initClientPortMaps();
-
 			}
 		}
 
-		if (client)
-		{
-			if (gx_gui::gx_jackd_on_image)
-			{
+		if (client) {
+			if (gx_gui::gx_jackd_on_image) {
 				gtk_widget_show(gx_gui::gx_jackd_on_image);
 				gtk_widget_hide(gx_gui::gx_jackd_off_image);
 			}
 			jack_is_exit = false;
 			gx_print_info("Jack Server", "Connected to Jack Server");
 		}
-	}
-	else
-	{
+	} else {
 		gx_jack_cleanup();
-
-		if (gx_jconv::jconv_is_running)
-		{
-			gNumOutChans -= 2;
-			gNumInChans -= 2;
-		}
-
 
 		// we bring down jack capture and meterbridge but not jconv
 		// meterbridge
-		if (child_pid[METERBG_IDX] != NO_PID)
-		{
+		if (child_pid[METERBG_IDX] != NO_PID) {
 			(void)kill(child_pid[METERBG_IDX], SIGTERM);
-			(void)gx_system_call("rm -f", mbg_pidfile.c_str(), true);
 			child_pid[METERBG_IDX] = NO_PID;
 		}
 
 		// jack_capture
-		if (child_pid[JACKCAP_IDX] != NO_PID)
-		{
+		if (child_pid[JACKCAP_IDX] != NO_PID) {
 			(void)kill(child_pid[JACKCAP_IDX], SIGINT);
 			(void)gx_pclose(jcap_stream, JACKCAP_IDX);
 
@@ -467,8 +400,7 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 				                             FALSE);
 		}
 
-		if (gx_gui::gx_jackd_on_image)
-		{
+		if (gx_gui::gx_jackd_on_image) {
 			gtk_widget_hide(gx_gui::gx_jackd_on_image);
 			gtk_widget_show(gx_gui::gx_jackd_off_image);
 		}
@@ -515,14 +447,14 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg)
 	GxJackLatencyChange change_latency = kChangeLatency;
 
 	// if user still wants to be given a choice, let's trigger dialog
-	if (fwarn_swap == 0.0)
+	if (fwarn == 0.0)
 		change_latency = (GxJackLatencyChange)gx_gui::gx_wait_latency_warn();
 
 	// let's see
 	if (change_latency == kChangeLatency)
 	{
 		int jcio = 0;
-		if (jconv_is_running)
+		if (conv.is_runnable())
 		{
 			jcio = 1;
 			gx_jconv::GxJConvSettings::checkbutton7 = 0;
@@ -562,13 +494,11 @@ void gx_jack_cleanup()
 	if (client && !jack_is_down) {
 		jack_is_exit = true;
 		// disable input ports
-		for (int i = 0; i < gNumInChans; i++) {
-			jack_port_unregister(client, input_ports[i]);
-		}
+		jack_port_unregister(client, input_ports[0]);
 		if (midi_input_port != NULL) {
 			jack_port_unregister(client, midi_input_port);
 		}
-		for (int i = 0; i < gNumOutChans; i++) {
+		for (int i = 0; i < 2; i++) {
 			jack_port_unregister(client, output_ports[i]);
 		}
 		if (midi_output_ports != NULL) {
@@ -668,8 +598,6 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 	if (checkfreq)  delete[] checkfreq;
 	if (get_frame)  delete[] get_frame;
 	if (get_frame1)  delete[] get_frame1;
-	if (get_frame2)  delete[] get_frame2;
-	if (get_frame3)  delete[] get_frame3;
 	if (oversample) delete[] oversample;
 	if (result) delete[] result;
 
@@ -689,12 +617,6 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 
 	get_frame1 = new float[jack_bs];
 	(void)memset(get_frame1, 0, sizeof(float)*jack_bs);
-
-	get_frame2 = new float[jack_bs];
-	(void)memset(get_frame2, 0, sizeof(float)*jack_bs);
-
-	get_frame3 = new float[jack_bs];
-	(void)memset(get_frame3, 0, sizeof(float)*jack_bs);
 
 	checkfreq = new float[jack_bs];
 	(void)memset(checkfreq, 0, sizeof(float)*jack_bs);
@@ -729,7 +651,7 @@ int gx_jack_midi_input_process(jack_nframes_t nframes, void *arg)
 	if (midi_input_port != NULL)
 	{
 		midi_input_port_buf =  jack_port_get_buffer(midi_input_port, nframes);
-		GxEngine::instance()->compute_midi_in(midi_input_port_buf);
+		compute_midi_in(midi_input_port_buf);
 	}
 	return 0;
 }
@@ -745,10 +667,10 @@ int gx_jack_midi_process (jack_nframes_t nframes, void *arg)
 		midi_port_buf =  jack_port_get_buffer(midi_output_ports, nframes);
 		jack_midi_clear_buffer(midi_port_buf);
 
-		if ((dsp::isMidiOn() == true) || (gx_gui::showwave == 1))
+		if ((isMidiOn() == true) || (gx_gui::showwave == 1))
 			jcpu_load = jack_cpu_load(client);
 
-		GxEngine::instance()->compute_midi(nframes);
+		compute_midi(nframes);
 	}
 	return 0;
 }
@@ -821,24 +743,11 @@ int gx_jack_process (jack_nframes_t nframes, void *arg)
 		AVOIDDENORMALS;
 
 		// retrieve buffers at jack ports
-		for (int i = 0; i < 1; i++) {
-			gInChannel[i] = (float *)jack_port_get_buffer(input_ports[i], nframes);
-		}
-		for (int i = 0; i < gNumOutChans; i++) {
-			gOutChannel[i] = (float *)jack_port_get_buffer(output_ports[i], nframes);
-		}
+		float *input = (float *)jack_port_get_buffer(input_ports[0], nframes);
+		float *output0 = (float *)jack_port_get_buffer(output_ports[0], nframes);
+		float *output1 = (float *)jack_port_get_buffer(output_ports[1], nframes);
 		// guitarix DSP computing
-		GxEngine::instance()->compute(nframes, gInChannel, gOutChannel);
-
-		if (gx_jconv::jconv_is_running) {
-			for (int i = 1; i < gNumInChans; i++) {
-				gInChannel[i] = (float *)jack_port_get_buffer(input_ports[i], nframes);
-			}
-			(void)memcpy(get_frame2, gInChannel[1], sizeof(float)*nframes);
-			(void)memcpy(get_frame3, gInChannel[2], sizeof(float)*nframes);
-
-			GxEngine::instance()->get_jconv_output( gInChannel, gOutChannel,nframes);
-		}
+		compute(nframes, input, output0, output1);
 
 		// ready to go for e.g. level display
 		gx_engine::buffers_ready = true;

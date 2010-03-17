@@ -233,6 +233,7 @@ void  gx_print_fatal  (const char*, const string&);
 void  gx_print_info(const char*, const string&);
 
 void  gx_process_cmdline_options(int&, char**&, string*);
+void  gx_set_override_options(string* optvar);
 void  gx_assign_shell_var(const char*, string&);
 bool  gx_shellvar_exists(const string&);
 int   gx_system_call(const char*,

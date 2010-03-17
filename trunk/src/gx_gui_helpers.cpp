@@ -235,7 +235,7 @@ void gx_cycle_through_client_tabs(GtkWidget* item, gpointer data)
 // get the last used skin as default
 void gx_set_skin_change(float fskin)
 {
-	last_skin = int(fskin);
+       last_skin = int(fskin);
 }
 
 // save the current used skin as default
@@ -284,14 +284,10 @@ void gx_show_oscilloscope (GtkCheckMenuItem *menuitem, gpointer checkplay)
 //----menu function gx_tuner
 void gx_tuner (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
-	if (gtk_check_menu_item_get_active(menuitem) == TRUE)
-	{
+	if (gtk_check_menu_item_get_active(menuitem) == TRUE) {
 		shownote = 1;
-		g_timeout_add_full(G_PRIORITY_LOW,200, gx_threads::gx_refresh_tuner,0, NULL);
 		gtk_widget_show(pb);
-	}
-	else
-	{
+	} else {
 		shownote = 0;
 		gtk_widget_hide(pb);
 	}
@@ -302,12 +298,12 @@ void gx_midi_out (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
 	if (gtk_check_menu_item_get_active(menuitem) == TRUE)
 	{
-		gx_engine::dsp::turnOnMidi();
+		gx_engine::turnOnMidi();
 		gtk_widget_show(midibox);
 	}
 	else
 	{
-		gx_engine::dsp::turnOffMidi();
+		gx_engine::turnOffMidi();
 		gtk_widget_hide(midibox);
 	}
 }
@@ -441,7 +437,7 @@ gint gx_wait_latency_warn()
 void gx_user_disable_latency_warn(GtkWidget* wd, gpointer arg)
 {
 	GtkToggleButton* button = GTK_TOGGLE_BUTTON(wd);
-	gx_engine::fwarn_swap = (int)gtk_toggle_button_get_active(button);
+	gx_engine::fwarn = (int)gtk_toggle_button_get_active(button);
 }
 
 void gx_reset_effects( GtkWidget *widget, gpointer data )
@@ -660,12 +656,12 @@ gint gx_choice_dialog_with_text_entry (
 //---- retrive skin array index from skin name
 void gx_actualize_skin_index(const string& skin_name)
 {
-	for (guint s = 0; s < skin_list.size(); s++)
-		if (skin_name == skin_list[s])
-		{
+	for (guint s = 0; s < skin_list.size(); s++) {
+		if (skin_name == skin_list[s]) {
 			gx_current_skin = s;
 			return;
 		}
+	}
 }
 
 //------- count the number of available skins
@@ -931,14 +927,11 @@ void gx_meter_button_release(GdkEventButton* ev, gpointer arg)
 		GxMainInterface* gui = GxMainInterface::instance();
 
 		GtkWidget* const*  meters = gui->getLevelMeters();
-		GtkWidget* const* jmeters = gui->getJCLevelMeters();
 
-		for (int i = 0; i < 2; i++)
-		{
-			if (meters[i])
+		for (int i = 0; i < 2; i++) {
+			if (meters[i]) {
 				gtk_fast_meter_clear(GTK_FAST_METER(meters[i]));
-			if (jmeters[i])
-				gtk_fast_meter_clear(GTK_FAST_METER(jmeters[i]));
+			}
 		}
 	}
 }

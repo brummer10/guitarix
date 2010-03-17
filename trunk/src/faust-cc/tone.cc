@@ -1,15 +1,15 @@
 namespace tone {
 // generated from file '../src/faust/tone.dsp'
 
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslider_tone1;
-FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fslider_tone0;
+FAUSTFLOAT 	fslider0;
+FAUSTFLOAT 	fslider1;
 float 	fConst0;
 float 	fConst1;
 float 	fConst2;
 float 	fConst3;
 float 	fConst4;
 float 	fConst5;
-FAUSTFLOAT&	fslider2=*(float*)&GxEngine::instance()->fslider_tone2;
+FAUSTFLOAT 	fslider2;
 float 	fVec0[3];
 float 	fRec3[3];
 float 	fRec2[3];
@@ -105,9 +105,9 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("amp.tone.bass","Bass","S","",&fslider2, 0.0f, -20.0f, 20.0f, 0.1f);
-	registerVar("amp.tone.treble","Treble","S","",&fslider1, 0.0f, -20.0f, 20.0f, 0.1f);
-	registerVar("amp.tone.middle","Middle","S","",&fslider0, 0.0f, -20.0f, 20.0f, 0.1f);
+	registerVar("amp.tone.bass","bass","S","",&fslider2, 0.0f, -20.0f, 20.0f, 0.1f);
+	registerVar("amp.tone.treble","treble","S","",&fslider1, 0.0f, -20.0f, 20.0f, 0.1f);
+	registerVar("amp.tone.middle","middle","S","",&fslider0, 0.0f, -20.0f, 20.0f, 0.1f);
 	registerInit(init);
 }
 

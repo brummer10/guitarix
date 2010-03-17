@@ -1,12 +1,12 @@
 namespace reso_tube {
 // generated from file '../src/faust/reso_tube.dsp'
 
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fresotube1;
+FAUSTFLOAT&	fslider0 = get_alias("tube2.resonanz");
 int 	IOTA;
 float 	fVec0[4096];
-FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fresotube2;
+FAUSTFLOAT&	fslider1 = get_alias("tube2.vibrato");
 float 	fRec0[2];
-FAUSTFLOAT&	fslider2=*(float*)&GxEngine::instance()->fresotube3;
+FAUSTFLOAT&	fslider2 = get_alias("tube2.fuzzy");
 int	fSamplingFreq;
 
 void init(int samplingFreq)
@@ -39,9 +39,6 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("tube2.fuzzy","count","S","",&fslider2, 1.0f, -3.0f, 10.0f, 1.0f);
-	registerVar("tube2.vibrato","","S","",&fslider1, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
-	registerVar("tube2.resonanz","","S","",&fslider0, 0.5f, 0.0f, 0.9f, 1.000000e-02f);
 	registerInit(init);
 }
 

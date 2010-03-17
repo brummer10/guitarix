@@ -23,14 +23,14 @@ class SIG0 {
 };
 int 	IOTA;
 float 	fVec0[65536];
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslider_CH0;
+FAUSTFLOAT 	fslider0;
 float 	fConst0;
 float 	fRec0[2];
 static float 	ftbl0[65536];
-FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fslider_CH1;
-FAUSTFLOAT&	fslider2=*(float*)&GxEngine::instance()->fslider_CH2;
+FAUSTFLOAT 	fslider1;
+FAUSTFLOAT 	fslider2;
 float 	fConst1;
-FAUSTFLOAT&	fslider3=*(float*)&GxEngine::instance()->fslider_CH3;
+FAUSTFLOAT 	fslider3;
 float 	fVec1[65536];
 int	fSamplingFreq;
 

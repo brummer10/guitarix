@@ -43,8 +43,71 @@ using namespace std;
 namespace gx_engine
 {
 
+float fslider45;
+float fslider38;
+float fslider31;
+float fslider27;
+float fslider29;
+float fslider30;
+float fslider26;
+float fslider33;
+float fslider34;
+float fslider35;
+float fslider36;
+float fslider42;
+float fslider43;
+float fslider40;
+float fslider41;
+float fslider44;
+float fslider37;
+float fslider39;
+float fslider46;
+float fslider47;
+float fslider48;
+float fConsta4;
+float fConstlog;
+float fConstlog2;
+float beat0;
+float midi_gain;
+float fConstun0;
+int   weg;
+int   program;
+unsigned char* midi_send;
+int   send;
+float fautogain;
+int   volume;
+float fpitch;
+int   noten;
+float fslider32;
+float cache_note;
+int fcheckbox10;
+int   program1;
+int   send1;
+int   noten1;
+float fautogain1;
+int   volume1;
+unsigned char* midi_send1;
+int   send2;
+int   noten2;
+float fpitch1;
+float fpitch2;
+int fcheckbox11;
+int   program2;
+int   volume2;
+int Beat_is;
+unsigned char* midi_send2;
+float fautogain2;
+
+void initMidi(int samplingFreq)
+{
+	fConstlog = log(1.055)*0.5;;
+	fConstlog2 = 6/log(2)*-1;
+	midi_gain = 1.0;
+	fConstun0  = (0.001*300*samplingFreq)*36;
+}
+
 //----- jack process callback for the midi input
-void GxEngine::compute_midi_in(void* midi_input_port_buf)
+void compute_midi_in(void* midi_input_port_buf)
 {
 	jack_midi_event_t in_event;
 	jack_nframes_t event_count = jack_midi_get_event_count(midi_input_port_buf);
@@ -61,7 +124,7 @@ void GxEngine::compute_midi_in(void* midi_input_port_buf)
 	}
 }
 
-void GxEngine::compute_midi(int len)
+void compute_midi(int len)
 {
 
 	// retrieve engine state
@@ -106,7 +169,7 @@ void GxEngine::compute_midi(int len)
 
 
 //----- jack process callback for the midi output
-void GxEngine::process_midi(int len)
+void process_midi(int len)
 {
 
 	float 	fConsta2 = 0;
@@ -146,7 +209,7 @@ void GxEngine::process_midi(int len)
 	double stepper = 1./step;
 
 	//----- only run it when midi out or tuner is enabled
-	if ((gx_gui::shownote == 1) || (dsp::isMidiOn() == true))
+	if (gx_gui::shownote == 1 || isMidiOn() == true)
 	{
 		/**fConsta4 is the frequence value from the actuell frame, here we
 		   calculate the Note from the freq by log2(freq/440)*12
@@ -202,7 +265,7 @@ void GxEngine::process_midi(int len)
 
 
 				//----- start the midi output
-				if (dsp::isMidiOn() == true)
+				if (isMidiOn() == true)
 				{
 					// channel0
 					if (program != iTemps31)
@@ -463,7 +526,7 @@ void GxEngine::process_midi(int len)
 			}
 			else
 			{
-				if  (dsp::isMidiOn() == true)
+				if  (isMidiOn() == true)
 				{
 					if ((weg > iTemps37) || (gx_jack::jcpu_load > 64.0))
 					{
@@ -514,7 +577,7 @@ void GxEngine::process_midi(int len)
 
 				if (gx_gui::shownote == 1)
 				{
-					if (weg > (fSamplingFreq)/2)
+					if (weg > (int)gx_jack::jack_sr / 2)
 					{
 						fConsta1 = 2000.0f;
 					}

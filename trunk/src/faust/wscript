@@ -73,6 +73,7 @@ def build(bld):
         'feed.dsp',
         'jconv_post.dsp',
         'balance.dsp',
+        'balance1.dsp',
 
         # effects
         'overdrive.dsp',

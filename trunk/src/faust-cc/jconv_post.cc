@@ -1,17 +1,17 @@
 namespace jconv_post {
 // generated from file '../src/faust/jconv_post.dsp'
 
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslider24;
+FAUSTFLOAT 	fslider0;
 int 	IOTA;
 float 	fVec0[2097152];
-FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fsliderdel0;
+FAUSTFLOAT 	fslider1;
 float 	fConst0;
-FAUSTFLOAT&	fslider2=*(float*)&GxEngine::instance()->fjc_ingain;
+FAUSTFLOAT 	fslider2;
 float 	fRec0[2];
-FAUSTFLOAT&	fslider3=*(float*)&GxEngine::instance()->fslider25;
+FAUSTFLOAT&	fslider3 = get_alias("amp.balance");
 float 	fVec1[2097152];
-FAUSTFLOAT&	fslider4=*(float*)&GxEngine::instance()->fsliderdel1;
-FAUSTFLOAT&	fslider5=*(float*)&GxEngine::instance()->fjc_ingain1;
+FAUSTFLOAT 	fslider4;
+FAUSTFLOAT 	fslider5;
 float 	fRec1[2];
 int	fSamplingFreq;
 
@@ -71,7 +71,6 @@ RegisterParams::RegisterParams()
 {
 	registerVar("jconv.right_gain","Right Gain","S","",&fslider5, 0.0f, -20.0f, 20.0f, 0.1f);
 	registerVar("jconv.right_delay","Right Delay","S","",&fslider4, 0.0f, 0.0f, 5000.0f, 10.0f);
-	registerVar("amp.balance","Balance","S","",&fslider3, 0.0f, -1.0f, 1.0f, 0.1f);
 	registerVar("jconv.left_gain","Left Gain","S","",&fslider2, 0.0f, -20.0f, 20.0f, 0.1f);
 	registerVar("jconv.left_delay","Left Delay","S","",&fslider1, 0.0f, 0.0f, 5000.0f, 10.0f);
 	registerVar("jconv.wet_dry","wet/dry","S","",&fslider0, 0.0f, -1.0f, 1.0f, 0.1f);

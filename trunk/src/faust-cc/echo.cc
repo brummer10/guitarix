@@ -1,9 +1,9 @@
 namespace echo {
 // generated from file '../src/faust/echo.dsp'
 
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslider18;
+FAUSTFLOAT 	fslider0;
 float 	fConst0;
-FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fslider19;
+FAUSTFLOAT 	fslider1;
 int 	IOTA;
 float 	fRec0[262144];
 int	fSamplingFreq;

@@ -56,8 +56,6 @@ typedef enum {
 void gx_reload_jcgui();
 void gx_show_jconv_dialog_gui (GtkWidget *, gpointer );
 void gx_setting_jconv_dialog_gui(GtkWidget*, gpointer);
-bool gx_jconv_write_conffile    (string conffile);
-bool gx_save_jconv_settings     (GtkWidget*, gpointer);
 void gx_acquire_jconv_value     (GtkWidget*, gpointer);
 void gx_resample_jconv_ir       (GtkWidget*, gpointer);
 void gx_select_and_draw_jconv_ir(GtkWidget*, gpointer);
@@ -88,8 +86,6 @@ private:
 
 public:
 	GxJConvSettings(gx_system::JsonParser& jp);
-	// configuration file operations (GUI less)
-	void configureJConvSettings(string& presname);
 
 	// getters and setters
 	inline string getIRFile() const { return fIRFile; }

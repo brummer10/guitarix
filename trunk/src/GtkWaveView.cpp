@@ -530,10 +530,10 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 			//----- draw the frame
 			for (int i = 0; i < frag; i++)
 			{
-				float x_in = gx_engine::gOutChannel[0][i];
+				float x_in = gx_engine::get_frame[i]; //FIXME get_frame correct???
 				cairo_line_to (cr, sc1 - sc*i+1,
 				               sc2 + double(x_in)*75.0);
-				wave_go = max(wave_go, abs(double(x_in)));
+				wave_go = max(wave_go, abs(x_in));
 			}
 
 			//----- get the sample, for display the gain value

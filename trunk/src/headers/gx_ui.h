@@ -81,18 +81,9 @@ public:
 
 	// public methods
 	void registerZone(float*, GxUiItem*);
-	void dumpStateToString(string&);
-	bool applyStateFromString(const string&);
-	void fetchPresetStateFromFile(const char*, const char*, string&);
-	bool recallPresetByname(const char*, const char*);
-	bool renamePreset(const char*, const char*, const char*);
-	void recallState(const char* filename);
-	void recalladState(const char* filename, int a, int b, int lin);
 	void updateAllZones();
 	void updateZone(float* z);
 	static void updateAllGuis();
-	static int zone2index(float *z);
-	static float* index2zone(int index);
 
 	//    virtual GtkTextView* const getLoggingWindow() const { return NULL; }
 

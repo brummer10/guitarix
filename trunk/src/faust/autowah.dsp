@@ -4,7 +4,7 @@
 
 import("effect.lib"); //for crybaby definition
 
-a = 20 * vslider(".crybaby.wah[old:fslider11]", 0, 0, 1, 0.01);
+a = 20 * vslider(".crybaby.wah[alias][old:fslider11]", 0, 0, 1, 0.01);
 
 Sum(n,x) = +(x - (x @ n)) ~_ ;
 

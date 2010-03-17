@@ -1,7 +1,7 @@
 namespace outputgain {
 // generated from file '../src/faust/outputgain.dsp'
 
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslider17;
+FAUSTFLOAT 	fslider0;
 float 	fRec0[2];
 int	fSamplingFreq;
 

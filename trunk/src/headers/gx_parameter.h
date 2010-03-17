@@ -226,24 +226,26 @@ private:
 	void unique_id(Parameter* param);
 	void check_id(string id);
 	void check_p(const char *p);
+	void check_addr(const void *p);
 #endif
 
 public:
 	typedef map<string, Parameter*>::iterator iterator;
 	iterator begin() { return id_map.begin(); }
 	iterator end() { return id_map.end(); }
-	Parameter* operator[](const void *p) { return addr_map.find(p)->second; }
-	Parameter* find(string id) { return id_map.find(id)->second; }
-	Parameter* find(const char *p) { return id_map.find(p)->second; }
-	Parameter& operator[](string id) { debug_check(check_id, id); return *find(id); }
-	Parameter& operator[](const char *p) { debug_check(check_p, p); return *find(p); }
+	bool hasZone(const void *p) const { return addr_map.find(p) != addr_map.end(); }
+	bool hasId(string id) const { return id_map.find(id) != id_map.end(); }
+	bool hasId(const char *p) const { return id_map.find(p) != id_map.end(); }
+	Parameter& operator[](const void *p) { debug_check(check_addr, p); return *addr_map[p]; }
+	Parameter& operator[](string id) { debug_check(check_id, id); return *id_map[id]; }
+	Parameter& operator[](const char *p) { debug_check(check_p, p); return *id_map[p]; }
 	void insert(Parameter* param);
 	void set_init_values();
 };
 
 extern ParamMap parameter_map; // map id -> parameter, zone -> parameter
 
-void initParams(gx_engine::GxEngine* engine);
+void initParams();
 
 
 /****************************************************************

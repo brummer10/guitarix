@@ -1,16 +1,16 @@
 namespace compressor {
 // generated from file '../src/faust/compressor.dsp'
 
-FAUSTFLOAT&	fentry0=*(float*)&GxEngine::instance()->fentrycom0;
-FAUSTFLOAT&	fentry1=*(float*)&GxEngine::instance()->fentrycom1;
+FAUSTFLOAT 	fentry0;
+FAUSTFLOAT 	fentry1;
 float 	fConst0;
 float 	fConst1;
 float 	fRec1[2];
 float 	fConst2;
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslidercom0;
-FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fslidercom1;
+FAUSTFLOAT 	fslider0;
+FAUSTFLOAT 	fslider1;
 float 	fRec0[2];
-FAUSTFLOAT&	fentry2=*(float*)&GxEngine::instance()->fentrycom2;
+FAUSTFLOAT 	fentry2;
 int	fSamplingFreq;
 
 void init(int samplingFreq)

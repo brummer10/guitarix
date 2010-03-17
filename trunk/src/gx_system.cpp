@@ -472,22 +472,22 @@ void read_parameters(JsonParser &jp, bool preset)
 	jp.next(JsonParser::begin_object);
 	do {
 		jp.next(JsonParser::value_key);
-		gx_gui::Parameter *param = gx_gui::parameter_map.find(jp.current_value());
-		if (!param) {
+		if (!gx_gui::parameter_map.hasId(jp.current_value())) {
 			gx_print_warning("recall settings", "unknown parameter: "+jp.current_value());
 			jp.skip_object();
 			continue;
 		}
-		if (!preset and param->isInPreset()) {
-			gx_print_warning("recall settings", "preset-parameter "+param->id()+" in settings");
+		gx_gui::Parameter& param = gx_gui::parameter_map[jp.current_value()];
+		if (!preset and param.isInPreset()) {
+			gx_print_warning("recall settings", "preset-parameter "+param.id()+" in settings");
 			jp.skip_object();
 			continue;
-		} else if (preset and !param->isInPreset()) {
-			gx_print_warning("recall settings", "non preset-parameter "+param->id()+" in preset");
+		} else if (preset and !param.isInPreset()) {
+			gx_print_warning("recall settings", "non preset-parameter "+param.id()+" in preset");
 			jp.skip_object();
 			continue;
 		}
-		param->readJSON_value(jp);
+		param.readJSON_value(jp);
 	} while (jp.peek() == JsonParser::value_key);
 	jp.next(JsonParser::end_object);
 }
@@ -1058,7 +1058,6 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 		//
 		rcpath = GX_STYLE_DIR + string("/") + string("guitarix_") + optvar[RC_STYLE] + ".rc";
 
-		gx_gui::gx_actualize_skin_index(optvar[RC_STYLE]);
 	}
 
 	// ---- catch exceptions that occured during user option parsing
@@ -1066,6 +1065,14 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 		string msg = string("Error in user options! ") + e;
 		gx_print_error("main", msg);
 		exit(1);
+	}
+}
+
+void gx_set_override_options(string* optvar)
+{
+	if (!gx_gui::no_opt_skin) {
+		gx_gui::gx_actualize_skin_index(optvar[RC_STYLE]);
+		fskin = gx_gui::last_skin = gx_gui::gx_current_skin;
 	}
 }
 
@@ -1197,9 +1204,6 @@ bool gx_version_check()
 				tmpstr.c_str(),
 				false
 				);
-
-			// --- default jconv setting
-			(void)gx_jconv::gx_save_jconv_settings(NULL, NULL);
 		}
 	}
 	else // directory does not exist
@@ -1223,9 +1227,6 @@ bool gx_version_check()
 			false
 			);
 
-		// --- default jconv setting
-		(void)gx_jconv::gx_save_jconv_settings(NULL, NULL);
-
 		// --- version file
 		//same here, we only change this file, when the presethandling is broken,
 		// otherwise we can let it untouched
@@ -1242,10 +1243,6 @@ bool gx_version_check()
 		cim = "echo -e '" + string(default_setting) + "' >";
 		(void)gx_system_call(cim.c_str(), tmpstr.c_str(), false);
 	}
-
-	// initialize with what we already have, if we have something
-	string s;
-	gx_jconv::GxJConvSettings::instance()->configureJConvSettings(s);
 
 	return TRUE;
 }
@@ -1421,11 +1418,10 @@ void gx_destroy_event()
 void gx_clean_exit(GtkWidget* widget, gpointer data)
 {
 	// save DSP state
-	GxEngine* engine = GxEngine::instance();
-	if (engine->isInitialized())
+	if (isInitialized())
 	{
-		engine->get_latency_warning_change();
-		gx_gui::gx_get_skin_change(&engine->fskin);
+		get_latency_warning_change();
+		gx_gui::gx_get_skin_change(&gx_engine::fskin);
 
 		// only save if we are not in a preset context
 		if (!setting_is_preset)
@@ -1437,7 +1433,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 	gx_jack::NO_CONNECTION = 1;
 
 	gx_engine::stopit = "stop";
-	dsp::turnOffMidi();
+	turnOffMidi();
 
 	// clean jack client stuff
 	gx_jack_cleanup();
@@ -1458,14 +1454,6 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 	if (get_frame1) {
 		delete[] get_frame1;
 		get_frame1 = NULL;
-	}
-	if (get_frame2) {
-		delete[] get_frame2;
-		get_frame2 = NULL;
-	}
-	if (get_frame3) {
-		delete[] get_frame3;
-		get_frame3 = NULL;
 	}
 	if (oversample) {
 		delete[] oversample;

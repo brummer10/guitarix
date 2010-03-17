@@ -72,10 +72,8 @@ protected :
 	GtkNotebook*        fPortMapTabs;
 	GtkWindow*          fPortMapWindow;
 	GtkWidget*          fLevelMeters[2];
-	GtkWidget*          fJCLevelMeters[2];
 
 	GtkWidget*          fSignalLevelBar;
-	GtkWidget*          fJCSignalLevelBar;
 	GtkCheckMenuItem*   fMeterBridge;
 
 	// menu items
@@ -117,7 +115,6 @@ public :
 	GtkWidget*   const getJackConnectItem()  const { return fJackConnectItem; }
 
 	GtkWidget*   const* getLevelMeters()     const { return fLevelMeters;     }
-	GtkWidget*   const* getJCLevelMeters()   const { return fJCLevelMeters;   }
 
 	GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
 
@@ -196,6 +193,17 @@ public :
 	virtual void addselector(const char* label, float* zone,int maxv, const char* []);
 	void addbigregler(string id, const char* label=0);
 	void addHorizontalWheel(string id, const char* label=0);
+	void addslider(string id, const char* label=0);
+	void addregler(string id, const char* label=0);
+	void addswitch(string id, const char* label=0);
+	void addminiswitch(string id, const char* label=0);
+	void addselector(string id, int, const char**, const char* label=0);
+	void addtoggle(string id, const char* label=0);
+	void addminieqswitch(string id, const char* label=0);
+	void addVerticalSlider(string id, const char* label=0);
+	void addCheckButton(string id, const char* label=0);
+	void addNumEntry(string id, const char* label=0);
+	void addPToggleButton(string id, const char* label=0);
 
 	// -- other
 	void show_msg(string msgbuf, gx_system::GxMsgType msgtype);

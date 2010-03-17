@@ -1,14 +1,14 @@
 namespace crybaby {
 // generated from file '../src/faust/crybaby.dsp'
 
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslider13;
-FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fslider11;
+FAUSTFLOAT 	fslider0;
+FAUSTFLOAT 	fslider1;
 float 	fConst0;
 float 	fConst1;
 float 	fRec1[2];
 float 	fRec2[2];
 float 	fRec3[2];
-FAUSTFLOAT&	fslider2=*(float*)&GxEngine::instance()->fslider12;
+FAUSTFLOAT 	fslider2;
 float 	fRec0[3];
 int	fSamplingFreq;
 

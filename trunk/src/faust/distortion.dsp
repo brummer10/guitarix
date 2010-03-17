@@ -22,7 +22,7 @@ sbp = hgroup("low_highcutoff", bypass(switch1, +(anti_denormal_ac) : speakerbp(s
 lowpassfreq  = nentry("low_freq[name:low freq][old:fentry0]", 5000, 20, 12000, 10);
 highpassfreq = nentry("high_freq[name:high freq][old:fentry1]", 130, 20, 7040, 10);
 switch       = checkbox("on_off[name:low highpass][old:fcheckbox2]");
-passo = +(anti_denormal_ac) : lowpass1(lowpassfreq) : highpass1(highpassfreq );
+passo = +(anti_denormal_ac) : lowpass1(lowpassfreq) : highpass1(highpassfreq);
 pass = hgroup("low_highpass", bypass(switch, passo));
 
 //-distortion
@@ -38,4 +38,5 @@ with {
   a = vslider("trigger[old:fslider4]", 0.12, 0, 1, 0.01);
 };
 
-process = add_dc : resonator : add_dc : pass : add_dc : sbp : component("HighShelf.dsp").hs : distortion : *(drivegain1) : component("HighShelf.dsp").hs : add_dc : sbp;
+hs = component("HighShelf.dsp").hs;
+process = resonator : pass  : sbp : hs : distortion : *(drivegain1) : hs : sbp;

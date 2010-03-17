@@ -12,6 +12,8 @@ class UIDefs(object):
 
     class UID(dict):
         def write(self, fp, v):
+            if self.has_key("alias"):
+                return
             self["tail"] = "".join([", "+x for x in self["value"]])
             fp.write('\tregisterVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",&%(variable)s%(tail)s);\n' % self)
 
@@ -33,6 +35,9 @@ class UIDefs(object):
 
     def get(self, element, key):
         return self.ui[element][key]
+
+    def has(self, element, key):
+        return self.ui[element].has_key(key)
 
     def var_filter(self):
         s = "|".join([r"%s\s*=\s*%s" % (v, num_re) for v in self.ui.keys()])
@@ -177,18 +182,22 @@ class Parser(object):
                 if key == "name":
                     self.toplevel = value
 
-    def debug_change_var_decl(self, lines):
+    def change_var_decl(self, lines):
         matcher = re.compile("FAUSTFLOAT\s+([a-zA-Z_0-9]+);\n$").match
         out = []
         for l in lines:
             m = matcher(l);
             if m:
                 var = m.group(1)
-                oldvar = self.ui.get(var,"old")
-                if not oldvar:
-                    raise ValueError, "error: no oldvar for " + self.ui.get(var,"id")
-                l = ("FAUSTFLOAT&\t%s=*(float*)&GxEngine::instance()->%s;\n"
-                     % (var, oldvar))
+                alias = self.ui.has(var,"alias")
+                if alias:
+                    l = ('FAUSTFLOAT&\t%s = get_alias("%s");\n'
+                         % (var, self.ui.get(var, "id")))
+                #oldvar = self.ui.get(var,"old")
+                #if not oldvar:
+                #    raise ValueError, "error: no oldvar for " + self.ui.get(var,"id")
+                #l = ("FAUSTFLOAT&\t%s=*(float*)&GxEngine::instance()->%s;\n"
+                #     % (var, oldvar))
             out.append(l)
         return out
 
@@ -211,7 +220,7 @@ class Parser(object):
         s["var-init"] += self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
-        s["var-decl"] = self.debug_change_var_decl(var_decl)
+        s["var-decl"] = self.change_var_decl(var_decl)
         self.skip_until(r"\s*virtual void compute")
         iodef = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*\2put\[\3\];"
         s["compute"] = self.copy(iodef)

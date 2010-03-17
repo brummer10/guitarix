@@ -102,15 +102,15 @@ int main(int argc, char *argv[])
 	sigaddset(&waitset, SIGCHLD);
 	sigprocmask(SIG_BLOCK, &waitset, NULL);
 
+	// ------ initialize parameter list ------
+	gx_gui::initParams();
+
 	// ---------------------- user options handling ------------------
 	string optvar[NUM_SHELL_VAR];
 	gx_process_cmdline_options(argc, argv, optvar);
 
 	// ---------------- Check for working user directory  -------------
 	gx_system::gx_version_check();
-
-	// ------ create engine object and initialize parameter list ------
-	gx_gui::initParams(gx_engine::GxEngine::instance());
 
 	// ------ time measurement (debug) ------
 #ifndef NDEBUG
@@ -138,7 +138,8 @@ int main(int argc, char *argv[])
 	}
 
 	// ----------------------- run GTK main loop ----------------------
-	gx_threads::gx_update_all_gui(NULL);
+	gx_set_override_options(optvar);
+	gx_ui::GxUI::updateAllGuis();
 	gui->show();
 	gui->run();
 

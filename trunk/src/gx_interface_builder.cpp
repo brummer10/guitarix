@@ -70,8 +70,6 @@ void GxMainInterface::setup()
 	// Note: out of box stack scheme.
 	createPortMapWindow("Jack Port Maps");
 
-	gx_engine::GxEngine* engine = gx_engine::GxEngine::instance();
-
 	//----- the main box, all visible widgets are a child of this box
 	openVerticalBox("");
 
@@ -80,8 +78,8 @@ void GxMainInterface::setup()
 		addMainMenu();
 
 		//----- this is a dummy widget, only for save settings for the latency warning dialog
-		openWarningBox("WARNING", &engine->fwarn);
-		setSkinBox("SKIN", &engine->fskin);
+		openWarningBox("WARNING", &gx_engine::fwarn);
+		setSkinBox("SKIN", &gx_engine::fskin);
 		closeBox();
 
 		//----- the upper box,
@@ -96,21 +94,21 @@ void GxMainInterface::setup()
 					//----- the tuner widget
 					openVerticalBox("");
 					{
-						addNumDisplay("", &engine->fConsta1t);
+						addNumDisplay("", &gx_engine::fConsta1t);
 					}
 					closeBox();
 
 					//----- the balance widget
 					openVerticalBox("");
 					{
-						addslider("balance", &engine->fslider25, 0.f, -1.f, 1.f, 1.e-01f);
+						addslider("amp.balance", "");
 					}
 					closeBox();
 
 					//----- the jconv widget on the main window
 					openFrameBox("");
 					{
-						openExpanderBox(" convolver ", &engine->fexpand2);
+						openExpanderBox(" convolver ", &gx_engine::fexpand2);
 						{
 							openHandleBox("  ");
 							{
@@ -118,7 +116,7 @@ void GxMainInterface::setup()
 								{
 									openHorizontalBox("");
 									{
-										openDialogBox("jconv", &engine->fdialogboxj);
+										openDialogBox("jconv", &gx_engine::fdialogboxj);
 										{
 											openHandleBox("  ");
 											{
@@ -130,11 +128,11 @@ void GxMainInterface::setup()
 												{
 													openHorizontalTableBox("");
 													{
-														addregler(" left delay ", &engine->fsliderdel0,  0.f, 0.f, 5000.0f, 10.f);
-														addregler(" right delay ", &engine->fsliderdel1,  0.f, 0.f, 5000.0f, 10.f);
+														addregler("jconv.left_delay"," left delay ");
+														addregler("jconv.right_delay"," right delay ");
 
-														addregler(" left gain ", &engine->fjc_ingain,  0.f, -20.f, 20.f, 0.1f);
-														addregler(" right gain ", &engine->fjc_ingain1,  0.f, -20.f, 20.f, 0.1f);
+														addregler("jconv.left_gain"," left gain ");
+														addregler("jconv.right_gain"," right gain ");
 													}
 													closeBox();
 												}
@@ -147,13 +145,13 @@ void GxMainInterface::setup()
 											closeBox();
 										}
 										closeBox();
-										addslider("wet/dry", &engine->fslider24,  0.f, -1.f, 1.f, 1.e-01f);
+										addslider("jconv.wet_dry");
 									}
 									closeBox();
 
 									openVerticalBox("");
 									{
-										addJConvButton("convolver settings", &engine->filebutton);
+										addJConvButton("convolver settings", &gx_engine::filebutton);
 										addJToggleButton("run convolver", &gx_jconv::GxJConvSettings::checkbutton7);
 									}
 									closeBox();
@@ -174,7 +172,7 @@ void GxMainInterface::setup()
 		//----- end of the upper box
 
 		//----- the middle box,
-		openExpanderBox(" CONTROLS ", &engine->fexpand);
+		openExpanderBox(" CONTROLS ", &gx_engine::fexpand);
 		{
 			//----- a handle box is a vertical box
 			openHandleBox("  ");
@@ -214,10 +212,8 @@ void GxMainInterface::setup()
 							{
 								openVerticalBox("");
 								{
-									addbigregler(" in / level ", &engine->fslider3, 0.f, -40.f, 40.f, 0.1f);
-
-									//addbigregler("out / master", &engine->fslider17, 0.f, -40.f, 40.f, 0.1f);
-									addbigregler("amp.out_master"); //FIXME (just an example how to do it parameter based)
+									addbigregler("amp.in_level");
+									addbigregler("amp.out_master");
 								}
 								closeBox();
 							}
@@ -227,9 +223,9 @@ void GxMainInterface::setup()
 							//----- open a box for the tone and the fuzz controllers
 							openVerticalBox("tone");
 							{
-								addregler("bass",   &engine->fslider_tone2, 0.f, -20.f, 20.f, 0.1f);
-								addregler("middle", &engine->fslider_tone1, 0.f, -20.f, 20.f, 0.1f);
-								addregler("treble", &engine->fslider_tone0, 0.f, -20.f, 20.f, 0.1f);
+								addregler("amp.tone.bass");
+								addregler("amp.tone.middle");
+								addregler("amp.tone.treble");
 								openVerticalBox1("");
 								closeBox();
 							}
@@ -245,31 +241,30 @@ void GxMainInterface::setup()
 							{
 								openVerticalBox("shaper ");
 								{
-									addswitch("", &engine->fng);
+									addswitch("shaper.on_off", "");
 									openFrameBox("");
 									{
-										addHorizontalWheel("sharper",&engine->fsharp0, 1.f, 1.f, 10.f, 1.0f);
+										addHorizontalWheel("shaper.sharper");
 									}
 									closeBox();
 								}
 								closeBox();
 								openVerticalBox("     noise gate      ");
 								{
-									addswitch("", &engine->fnoise_g);
+									addswitch("noise_gate.on_off", "");
 									openFrameBox("");
 									{
-										addHorizontalWheel(" threshold ", &engine->fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
+										addHorizontalWheel("noise_gate.threshold"," threshold ");
 									}
 									closeBox();
 								}
 								closeBox();
 								openVerticalBox("anti aliase");
 								{
-									addswitch("", &engine->antialis0);
+									addswitch("anti_aliase.on_off", "");
 									openFrameBox("");
 									{
-										//addHorizontalWheel(" feedback ", &engine->faas1, 0.3f, 0.3f, 0.9f, 0.01f);
-										addHorizontalWheel("anti_aliase.feedback");
+										addHorizontalWheel("anti_aliase.feedback", " feedback ");
 									}
 									closeBox();
 								}
@@ -285,21 +280,21 @@ void GxMainInterface::setup()
 									{
 									}
 									closeBox();
-									addminiswitch(" oversample ", &engine->fupsample);
+									addminiswitch("amp.oversample.on_off", " oversample ");
 									openVerticalBox1("");
 									{
 									}
 									closeBox();
-									addminiswitch(" bass boost ", &engine->fboost);
+									addminiswitch("amp.bass_boost.on_off", " bass boost ");
 									openVerticalBox1("");
 									{
 									}
 									closeBox();
 									openHorizontalBox("");
 									{
-										addminiswitch("", &engine->fconvolve);
+										addminiswitch("convolve.on_off", "");
 										const char* labels[7]  ={"amp 1","amp 2", "amp 3","amp 4","amp 5", "amp 6", "amp 7"};
-										addselector("",&engine->convolvefilter,7, labels);
+										addselector("convolve.select",7,labels,"");
 									}
 									closeBox();
 								}
@@ -313,8 +308,7 @@ void GxMainInterface::setup()
 								{
 									openVerticalBox("");
 									{
-										addswitch("preamp", &engine->fcheckbox1);
-										//addHorizontalWheel("atan",&engine->fatan, 1.f, 1.f, 10.f, 1.0f);
+										addswitch("preamp.on_off", "preamp");
 										addHorizontalWheel("preamp.atan");
 									}
 									closeBox();
@@ -324,8 +318,8 @@ void GxMainInterface::setup()
 									closeBox();
 									openVerticalBox("");
 									{
-										addswitch("drive", &engine->fprdr);
-										addHorizontalWheel("drive", &engine->fpredrive, 1.f, 1.f, 10.f, 1.0f);
+										addswitch("drive.on_off", "drive");
+										addHorizontalWheel("drive.value", "drive");
 									}
 									closeBox();
 								}
@@ -336,8 +330,8 @@ void GxMainInterface::setup()
 								{
 									openVerticalBox("");
 									{
-										addswitch("tube", &engine->ftube);
-										addHorizontalWheel("tube",&engine->ffuzzytube, 1.f, -3.f, 10.f, 1.0f);
+										addswitch("tube.on_off", "tube");
+										addHorizontalWheel("tube.fuzzy");
 									}
 									closeBox();
 									openFrameBox("");
@@ -346,8 +340,8 @@ void GxMainInterface::setup()
 									closeBox();
 									openVerticalBox("");
 									{
-										addswitch("vibrato", &engine->fresoon);
-										addHorizontalWheel("vibrato", &engine->fvibrato, 0.f, 0.f, 2.f, 0.02f);
+										addswitch("tube.vibrato.on_off", "vibrato");
+										addHorizontalWheel("tube.vibrato", "vibrato");
 									}
 									closeBox();
 
@@ -359,10 +353,10 @@ void GxMainInterface::setup()
 								{
 									openVerticalBox("");
 									{
-										addswitch("tube2", &engine->ftube3);
+										addswitch("tube2.on_off", "tube2");
 										openFrameBox("");
 										{
-											addHorizontalWheel("tube", &engine->fresotube3, 1.f, -3.f, 10.f, 1.0f);
+											addHorizontalWheel("tube2.fuzzy");
 										}
 										closeBox();
 									}
@@ -371,12 +365,12 @@ void GxMainInterface::setup()
 									{
 										openVerticalBox1("resonanz");
 										{
-											addHorizontalWheel("reso", &engine->fresotube1, 0.5f, 0.f, 0.9f, 0.01f);
+											addHorizontalWheel("tube2.resonanz", "reso");
 										}
 										closeBox();
 										openVerticalBox1("vibrato");
 										{
-											addHorizontalWheel("vibrato", &engine->fresotube2, 1.f, 0.f, 1.f, 0.01f);
+											addHorizontalWheel("tube2.vibrato");
 										}
 										closeBox();
 									}
@@ -420,16 +414,16 @@ void GxMainInterface::setup()
 									openHorizontalTableBox("");
 									{
 										//----- the compressor
-										openHorizontalOrderBox("", &engine->posit5);
+										openHorizontalOrderBox("", &gx_engine::posit5);
 										{
 											openVerticalBox("compressor");
 											{
-												addregler("ratio", &engine->fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
+												addregler("compressor.ratio");
 												openHorizontalBox("");
 												{
-													addtoggle("", &engine->fcheckboxcom1);
+													addtoggle("compressor.on_off", "");
 													//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-													openDialogBox("compressor", &engine->fdialogbox8);
+													openDialogBox("compressor", &gx_engine::fdialogbox8);
 													{
 														openHandleBox("  ");
 														{
@@ -441,15 +435,15 @@ void GxMainInterface::setup()
 															{
 																openHorizontalBox("");
 																{
-																	addregler("knee",      &engine->fentrycom1, 3.000000f, 0.000000f, 20.000000f, 0.100000f);
-																	addregler("ratio",     &engine->fentrycom2, 2.000000f, 1.000000f, 20.000000f, 0.100000f);
-																	addregler("threshold", &engine->fentrycom0, -20.000000f, -96.000000f, 10.000000f, 0.100000f);
+																	addregler("compressor.knee");
+																	addregler("compressor.ratio");
+																	addregler("compressor.threshold");
 																}
 																closeBox();
 																openVerticalBox("envelop");
 																{
-																	addslider("attack",  &engine->fslidercom0, 2.000000e-03f, 0.000000f, 1.000000f, 1.000000e-03f);
-																	addslider("release", &engine->fslidercom1, 0.500000f, 0.000000f, 10.000000f, 1.000000e-02f);
+																	addslider("compressor.attack");
+																	addslider("compressor.release");
 																}
 																closeBox();
 															}
@@ -470,48 +464,48 @@ void GxMainInterface::setup()
 											//----- end compressor
 										}
 										closeBox();
-										openHorizontalOrderBox("", &engine->posit1);
+										openHorizontalOrderBox("", &gx_engine::posit1);
 										{
 											//----- overdrive
 											openVerticalBox("overdrive");
 											{
-												addregler("  drive ", &engine->drive, 1.f, 1.f, 20.f, 0.1f);
-												addtoggle("", &engine->foverdrive4);
+												addregler("overdrive.drive","  drive ");
+												addtoggle("overdrive.on_off", "");
 											}
 											closeBox();
 											//-----end overdrive
 										}
 										closeBox();
-										openHorizontalOrderBox("", &engine->posit2);
+										openHorizontalOrderBox("", &gx_engine::posit2);
 										{
 											//----- distortion
 											openVerticalBox(" distortion");
 											{
-												addregler("  drive ", &engine->fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
+												addregler("distortion.drive","  drive ");
 												openHorizontalBox("");
 												{
-													addtoggle("", &engine->fcheckbox4);
+													addtoggle("distortion.on_off", "");
 
 													//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
 													{
-														openDialogBox("distortion", &engine->fdialogbox1);
+														openDialogBox("distortion", &gx_engine::fdialogbox1);
 														{
 															openHandleBox("  ");
 															{
-																addbigregler("  drive ", &engine->fslider9, 0.64f, 0.f, 1.f, 1.e-02f);
-																addregler("level", &engine->fslider8, 1.000000e-02f, 0.0f, 0.50f, 1.000000e-02f);
-																addregler("gain",  &engine->fslider10, 2.0f, -10.0f, 10.0f, 0.1f);
+																addbigregler("distortion.drive","  drive ");
+																addregler("distortion.level");
+																addregler("distortion.gain","gain");
 
 																openVerticalBox("low/highpass");
 																{
 																	openHorizontalBox("");
 																	{
-																		addregler("high-freq ", &engine->fentry1, 130.0f, 20.0f, 7040.0f, 10.0f);
-																		addregler(" low-freq ", &engine->fentry0, 5000.0f, 20.0f, 12000.0f, 10.0f);
+																		addregler("distortion.low_highpass.high_freq","high-freq ");
+																		addregler("distortion.low_highpass.low_freq"," low-freq ");
 																	}
 																	closeBox();
 
-																	addtoggle("", &engine->fcheckbox2);
+																	addtoggle("distortion.low_highpass.on_off", "");
 																}
 																closeBox();
 
@@ -519,19 +513,19 @@ void GxMainInterface::setup()
 																{
 																	openHorizontalBox("");
 																	{
-																		addregler("high-freq ", &engine->fslider6, 5000.0f, 1000.0f, 12000.0f, 10.0f);
-																		addregler(" low-freq ", &engine->fslider7, 130.0f, 20.0f, 1000.0f, 10.0f);
+																		addregler("distortion.low_highcutoff.high_freq","high-freq ");
+																		addregler("distortion.low_highcutoff.low_freq"," low-freq ");
 																	}
 																	closeBox();
 
-																	addtoggle("", &engine->fcheckbox3);
+																	addtoggle("distortion.low_highcutoff.on_off","");
 																}
 																closeBox();
 
 																openHorizontalBox("resonanz");
 																{
-																	addregler("trigger ",  &engine->fslider4, 0.12f, 0.0f, 1.0f, 1.000000e-02f);
-																	addregler(" vibrato ", &engine->fslider5, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
+																	addregler("distortion.trigger","trigger ");
+																	addregler("distortion.vibrato"," vibrato ");
 																}
 																closeBox();
 															}
@@ -547,17 +541,17 @@ void GxMainInterface::setup()
 											}
 											closeBox();
 
-											openHorizontalOrderBox("", &engine->posit3);
+											openHorizontalOrderBox("", &gx_engine::posit3);
 											{
 												//----- freeverb
 												openVerticalBox(" freeverb");
 												{
-													addregler("RoomSize", &engine->fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
+													addregler("freeverb.RoomSize");
 													openHorizontalBox("");
 													{
-														addtoggle("", &engine->fcheckbox6);
+														addtoggle("freeverb.on_off","");
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-														openDialogBox("freeverb", &engine->fdialogbox2);
+														openDialogBox("freeverb", &gx_engine::fdialogbox2);
 														{
 															openHandleBox("  ");
 															{
@@ -565,9 +559,9 @@ void GxMainInterface::setup()
 																closeBox();
 																openFrameBox("");
 																closeBox();
-																addregler("RoomSize", &engine->fslider16, 0.500000f, 0.000000f, 1.000000f, 2.500000e-02f);
-																addregler("damp", &engine->fslider15, 0.5f, 0.0f, 1.0f, 2.500000e-02f);
-																addregler("wet/dry", &engine->fslider14, 0.0f, -0.5f, 0.5f, 1.e-01f);
+																addregler("freeverb.RoomSize");
+																addregler("freeverb.damp");
+																addregler("freeverb.wet_dry");
 																openFrameBox("");
 																closeBox();
 																openFrameBox("");
@@ -585,22 +579,22 @@ void GxMainInterface::setup()
 											}
 											closeBox();
 
-											openHorizontalOrderBox("", &engine->posit4);
+											openHorizontalOrderBox("", &gx_engine::posit4);
 											{
 												//----- IR
 												openVerticalBox("IR");
 												{
 													openHorizontalBox("");
 													{
-														addregler("   freq   ", &engine->fslider21, 440.000000f, 20.000000f, 12000.000000f, 10.000000f);
-														//addregler(" peak ", &engine->fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
+														addregler("IR.freq","   freq   ");
+														//addregler("IR.peak"," peak ");
 													}
 													closeBox();
 													openHorizontalBox("");
 													{
-														addtoggle("", &engine->fcheckbox8);
+														addtoggle("", &gx_engine::fcheckbox8);
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-														openDialogBox("IR", &engine->fdialogbox3);
+														openDialogBox("IR", &gx_engine::fdialogbox3);
 														{
 															openHandleBox("  ");
 															{
@@ -613,9 +607,9 @@ void GxMainInterface::setup()
 																		closeBox();
 																		openFrameBox("");
 																		closeBox();
-																		addregler("    freq     ", &engine->fslider21, 440.000000f, 20.000000f, 12000.000000f, 10.000000f);
-																		addregler("     peak    ", &engine->fslider22, 1.000000f, 0.000000f, 10.000000f, 0.200000f);
-																		addregler("    bandwidth    ", &engine->fslider20, 100.0f, 20.0f, 20000.0f, 10.0f);
+																		addregler("IR.freq","    freq     ");
+																		addregler("IR.peak","     peak    ");
+																		addregler("IR.bandwidth","    bandwidth    ");
 																		openFrameBox("");
 																		closeBox();
 																		openFrameBox("");
@@ -623,7 +617,7 @@ void GxMainInterface::setup()
 
 																	}
 																	closeBox();
-																	addminiswitch(" auto_freq                             ", &engine->auto_ir);
+																	addminiswitch("IR.auto_freq"," auto_freq                             ");
 																}
 																closeBox();
 
@@ -640,17 +634,17 @@ void GxMainInterface::setup()
 											}
 											closeBox();
 
-											openHorizontalOrderBox("", &engine->posit0);
+											openHorizontalOrderBox("", &gx_engine::posit0);
 											{
 												//----- crybaby
 												openVerticalBox("crybaby");
 												{
-													addregler(" wah ", &engine->fslider11, 0.000000f, 0.000000f, 1.000000f, 1.000000e-02f);
+													addregler("crybaby.wah"," wah ");
 													openHorizontalBox("");
 													{
-														addtoggle("", &engine->fcheckbox5);
+														addtoggle("", &gx_engine::fcheckbox5);
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-														openDialogBox("crybaby", &engine->fdialogbox4);
+														openDialogBox("crybaby", &gx_engine::fdialogbox4);
 														{
 															openHandleBox("  ");
 															{
@@ -662,12 +656,12 @@ void GxMainInterface::setup()
 																{
 																	openHorizontalTableBox("");
 																	{
-																		addregler("  wah   ", &engine->fslider11, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
-																		addregler("  level  ", &engine->fslider12, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
-																		addregler("wet/dry", &engine->fslider13, 0.f, -1.f, 1.f, 1.e-01f);
+																		addregler("crybaby.wah","  wah   ");
+																		addregler("crybaby.level","  level  ");
+																		addregler("crybaby.wet_dry","wet/dry");
 																	}
 																	closeBox();
-																	addminiswitch(" autowah", &engine->fautowah);
+																	addminiswitch("crybaby.autowah"," autowah");
 																}
 																closeBox();
 																openFrameBox("");
@@ -687,53 +681,51 @@ void GxMainInterface::setup()
 											}
 											closeBox();
 
-											openHorizontalOrderBox("", &engine->posit6);
+											openHorizontalOrderBox("", &gx_engine::posit6);
 											{
 												//----- echo
 												openVerticalBox("echo");
 												{
 													openHorizontalBox("");
 													{
-														addregler("    %    ", &engine->fslider19, 0.000000f, 0.000000f, 100.000000f, 0.100000f);
-														addregler("  time  ", &engine->fslider18, 1.000000f, 1.000000f, 2000.000000f, 1.000000f);
+														addregler("echo.percent","    %    ");
+														addregler("echo.time","  time  ");
 													}
 													closeBox();
-													addtoggle("", &engine->fcheckbox7);
+													addtoggle("echo.on_off","");
 												}
 												closeBox();
 											}
 											closeBox();
 										}
 										//----- end echo
-										openHorizontalOrderBox("", &engine->posit7);
+										openHorizontalOrderBox("", &gx_engine::posit7);
 										{
 											openVerticalBox("delay");
 											{
 												openHorizontalBox("");
 												{
-													addregler(" delay ", &engine->fsliderdel2,  0.f, 0.f, 5000.0f, 10.f);
-													addregler("  gain ", &engine->fdel_gain1, 0.0f, -20.0f, 20.0f, 0.1f);
+													addregler("delay.delay"," delay ");
+													addregler("delay.gain","  gain ");
 												}
 												closeBox();
-												addtoggle("", &engine->fdelay);
-
+												addtoggle("delay.on_off","");
 											}
 											closeBox();
 										}
 										closeBox();
-
 									}
 									closeBox();
 									//----- chorus
-									openHorizontalRestetBox("", &engine->posit8);
+									openHorizontalRestetBox("", &gx_engine::posit8);
 									{
 										openVerticalBox("chorus");
 										{
-											addregler("level", &engine->fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
+											addregler("chorus.level");
 											openHorizontalBox("");
 											{
-												addtoggle("", &engine->fchorus);
-												openDialogBox("chorus", &engine->fchorusbox);
+												addtoggle("chorus.on_off","");
+												openDialogBox("chorus", &gx_engine::fchorusbox);
 												{
 													openHandleBox("  ");
 													{
@@ -741,10 +733,10 @@ void GxMainInterface::setup()
 														{
 															openHorizontalTableBox("");
 															{
-																addregler("  level  ", &engine->fslider_CH3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
-																addregler("  delay  ", &engine->fslider_CH2, 2.500000e-02f, 0.0f, 0.2f, 1.000000e-03f);
-																addregler("  depth  ", &engine->fslider_CH1, 2.000000e-02f, 0.0f, 1.0f, 1.000000e-03f);
-																addregler("  freq  ", &engine->fslider_CH0, 3.0f, 0.0f, 10.0f, 1.000000e-02f);
+																addregler("chorus.level","  level  ");
+																addregler("chorus.delay","  delay  ");
+																addregler("chorus.depth","  depth  ");
+																addregler("chorus.freq","  freq  ");
 															}
 															closeBox();
 														}
@@ -782,7 +774,7 @@ void GxMainInterface::setup()
 										openHorizontalBox("");
 										{
 											//----- the oscilloscope
-											addLiveWaveDisplay(" ", &engine->viv , &engine->vivi);
+											addLiveWaveDisplay(" ", &gx_engine::viv , &gx_engine::vivi);
 										}
 										closeBox();
 										openVerticalBox1("");
@@ -791,20 +783,19 @@ void GxMainInterface::setup()
 											{
 												openPaintBox("");
 												{
-													addminieqswitch(" MultiBandFilter                         ", &engine->fmultifilter);
+													addminieqswitch("MultiBandFilter.on_off"," MultiBandFilter                         ");
 													openHorizontalhideBox("");
 													{
-														addVerticalSlider("31,25", &engine->fslMulti9, 0.0f, -50.0f, 10.0f, 0.1f);
-														addVerticalSlider(" 62,5", &engine->fslMulti8, 0.0f, -50.0f, 10.0f, 0.1f);
-														addVerticalSlider(" 125 ", &engine->fslMulti7, 0.0f, -50.0f, 10.0f, 0.1f);
-														addVerticalSlider(" 250 ", &engine->fslMulti6, 0.0f, -50.0f, 10.0f, 0.1f);
-														addVerticalSlider(" 500 ", &engine->fslMulti5, 0.0f, -50.0f, 10.0f, 0.1f);
-														addVerticalSlider("  1k  ", &engine->fslMulti4, 0.0f, -50.0f, 10.0f, 0.1f);
-														addVerticalSlider("  2k  ", &engine->fslMulti3, 0.0f, -50.0f, 10.0f, 0.1f);
-														addVerticalSlider("  4k  ", &engine->fslMulti2, 0.0f, -50.0f, 10.0f, 0.1f);
-														addVerticalSlider("  8k  ", &engine->fslMulti1, 0.0f, -50.0f, 10.0f, 0.1f);
-														addVerticalSlider(" 16k ", &engine->fslMulti0, 0.0f, -50.0f, 10.0f, 0.1f);
-
+														addVerticalSlider("MultiBandFilter.f31_25","31,25");
+														addVerticalSlider("MultiBandFilter.f62_5"," 62,5");
+														addVerticalSlider("MultiBandFilter.f125"," 125 ");
+														addVerticalSlider("MultiBandFilter.f250"," 250 ");
+														addVerticalSlider("MultiBandFilter.f500"," 500 ");
+														addVerticalSlider("MultiBandFilter.f1k","  1k  ");
+														addVerticalSlider("MultiBandFilter.f2k","  2k  ");
+														addVerticalSlider("MultiBandFilter.f4k","  4k  ");
+														addVerticalSlider("MultiBandFilter.f8k","  8k  ");
+														addVerticalSlider("MultiBandFilter.f16k"," 16k ");
 													}
 													closeBox();
 												}
@@ -815,9 +806,9 @@ void GxMainInterface::setup()
 													closeBox();
 													openVerticalBox1("");
 													closeBox();
-													addregler("fuzz",&engine->fthreshold, 1.f, 0.f, 1.f, 0.01f);
+													addregler("amp.fuzz");
 													const char* lab[3] = {"    off","    clip","foldback"};
-													addselector("threshold", &engine->ffuse,3, lab);
+													addselector("amp.threshold",3,lab);
 													openVerticalBox1("");
 													closeBox();
 												}
@@ -885,7 +876,7 @@ void GxMainInterface::setup()
 						openHorizontalBox("midi_out");
 						{
 							//----- create the midi settings dialog
-							openDialogBox("midi_out", &engine->fdialogbox6);
+							openDialogBox("midi_out", &gx_engine::fdialogbox6);
 							{
 								openTabBox("");
 								{
@@ -895,21 +886,21 @@ void GxMainInterface::setup()
 										{
 											openHorizontalBox("");
 											{
-												addregler("velocity", &engine->fslider26, 64.f, 0.f, 127.f, 1.f);
+												addregler("midi_out.channel_1.velocity");
 												openVerticalBox("");
 												{
-													addregler("volume", &engine->fslider46, 64.f, 0.f, 127.f, 1.f);
-													addCheckButton("autogain", &engine->fautogain);
+													addregler("midi_out.channel_1.volume");
+													addCheckButton("midi_out.channel_1.autogain");
 												}
 												closeBox();
 												openVerticalBox("");
 												{
-													addNumEntry("channel 1", &engine->fslider30, 0.f, 0.f, 16.f, 1.f);
-													addNumEntry("program", &engine->fslider31, 0.f, 0.f, 248.f, 1.f);
+													addNumEntry("midi_out.channel_1.channel");
+													addNumEntry("midi_out.channel_1.program");
 												}
 												closeBox();
-												addregler("oktave", &engine->fslider29, 0.f, -2.f, 2.f, 1.f);
-												addregler("sensity", &engine->fslider27, 20.f, 1.f, 500.f, 1.f);
+												addregler("midi_out.channel_1.oktave");
+												addregler("midi_out.channel_1.sensity");
 											}
 											closeBox();
 										}
@@ -920,7 +911,7 @@ void GxMainInterface::setup()
 											closeBox();
 											openHorizontalBox(" ");
 											{
-												addPToggleButton("auto pitch", &engine->fpitch);
+												addPToggleButton("midi_out.channel_1.auto_pitch");
 											}
 											closeBox();
 										}
@@ -933,31 +924,31 @@ void GxMainInterface::setup()
 										{
 											openHorizontalBox("");
 											{
-												addregler("velocity", &engine->fslider32, 64.f, 0.f, 127.f, 1.f);
+												addregler("midi_out.channel_2.velocity");
 												openVerticalBox("");
 												{
-													addregler("volume", &engine->fslider47, 64.f, 0.f, 127.f, 1.f);
-													addCheckButton("autogain", &engine->fautogain1);
+													addregler("midi_out.channel_2.volume");
+													addCheckButton("midi_out.channel_2.autogain");
 												}
 												closeBox();
 												openVerticalBox("");
 												{
-													addNumEntry("channel 2", &engine->fslider35, 0.f, 0.f, 16.f, 1.f);
-													addNumEntry("program", &engine->fslider36, 0.f, 0.f, 248.f, 1.f);
+													addNumEntry("midi_out.channel_2.channel");
+													addNumEntry("midi_out.channel_2.program");
 												}
 												closeBox();
-												addregler("oktave", &engine->fslider34, 0.f, -2.f, 2.f, 1.f);
-												addregler("sensity", &engine->fslider33, 20.f, 1.f, 500.f, 1.f);
+												addregler("midi_out.channel_2.oktave");
+												addregler("midi_out.channel_2.sensity");
 											}
 											closeBox();
 										}
 										closeBox();
 										openHorizontalBox("");
 										{
-											addtoggle("", &engine->fcheckbox10);
+											addtoggle("midi_out.channel_2.on_off", "");
 											openHorizontalBox(" ");
 											{
-												addPToggleButton("auto pitch", &engine->fpitch1);
+												addPToggleButton("midi_out.channel_2.auto_pitch");
 											}
 											closeBox();
 										}
@@ -969,31 +960,31 @@ void GxMainInterface::setup()
 										openEventBox(" ");
 										openHorizontalBox("");
 										{
-											addregler("velocity", &engine->fslider40, 64.f, 0.f, 127.f, 1.f);
+											addregler("midi_out.channel_3.velocity");
 											openVerticalBox("");
 											{
-												addregler("volume", &engine->fslider48, 64.f, 0.f, 127.f, 1.f);
-												addCheckButton("autogain", &engine->fautogain2);
+												addregler("midi_out.channel_3.volume");
+												addCheckButton("midi_out.channel_3.autogain");
 											}
 											closeBox();
 											openVerticalBox("");
 											{
-												addNumEntry("channel 3", &engine->fslider44, 0.f, 0.f, 16.f, 1.f);
-												addNumEntry("program", &engine->fslider43, 0.f, 0.f, 248.f, 1.f);
+												addNumEntry("midi_out.channel_3.channel");
+												addNumEntry("midi_out.channel_3.program");
 											}
 											closeBox();
-											addregler("oktave", &engine->fslider42, 0.f, -2.f, 2.f, 1.f);
-											addregler("sensity", &engine->fslider41, 20.f, 1.f, 500.f, 1.f);
+											addregler("midi_out.channel_3.oktave");
+											addregler("midi_out.channel_3.sensity");
 										}
 										closeBox();
 									}
 									closeBox();
 									openHorizontalBox("");
 									{
-										addtoggle("", &engine->fcheckbox11);
+										addtoggle("midi_out.channel_3.on_off", "");
 										openHorizontalBox(" ");
 										{
-											addPToggleButton("auto pitch", &engine->fpitch2);
+											addPToggleButton("midi_out.channel_3.auto_pitch");
 										}
 										closeBox();
 									}
@@ -1006,18 +997,18 @@ void GxMainInterface::setup()
 									{
 										openHorizontalBox("");
 										{
-											addregler("stepper", &engine->fslider39, 1.f, 1.f, 32.f, 1.f);
-											addregler("note_off", &engine->fslider37, 2.f, 1.f, 127.f, 1.f);
-											addregler("atack_gain", &engine->fslider45, 5.f, 1.f, 127.f, 1.f);
-											addregler("beat_gain", &engine->fslider38, 1.f, 0.0f, 127.f, 1.f);
+											addregler("beat_detector.stepper");
+											addregler("beat_detector.note_off");
+											addregler("beat_detector.atack_gain");
+											addregler("beat_detector.beat_gain");
 										}
 										closeBox();
 									}
 									closeBox();
-									addStatusDisplay("", &engine->midistat);
+									addStatusDisplay("", &gx_engine::midistat);
 									openVerticalBox("Midi gain");
 									{
-										addHorizontalWheel("midi gain", &engine->midi_gain, 0.f, -20.f, 60.f, 1.f);
+										addHorizontalWheel("beat_detector.midi_gain");
 									}
 									closeBox();
 								}
@@ -1033,8 +1024,8 @@ void GxMainInterface::setup()
 			}
 			closeBox();
 			//----- add the controlers for feedback feedforward to the bottob box
-			addslider(" feedback", &engine->fslider0, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
-			addslider(" feedforward", &engine->fslider23, 0.000000f, -1.000000f, 1.000000f, 1.000000e-02f);
+			addslider("amp.feedback"," feedback");
+			addslider("amp.feedforward"," feedforward");
 			//----- the toggle button to start/stop jack_capture
 			openFrameBox("");
 			{

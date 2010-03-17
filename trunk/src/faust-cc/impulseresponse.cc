@@ -1,13 +1,13 @@
 namespace impulseresponse {
 // generated from file '../src/faust/impulseresponse.dsp'
 
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslider20;
+FAUSTFLOAT 	fslider0;
 float 	fConst0;
-FAUSTFLOAT&	fslider1=*(float*)&GxEngine::instance()->fslider21;
+FAUSTFLOAT 	fslider1;
 float 	fConst1;
 float 	fVec0[3];
-FAUSTFLOAT&	fcheckbox0=*(float*)&GxEngine::instance()->auto_ir;
-FAUSTFLOAT&	fslider2=*(float*)&GxEngine::instance()->fslider22;
+FAUSTFLOAT 	fcheckbox0;
+FAUSTFLOAT 	fslider2;
 float 	fRec0[3];
 int	fSamplingFreq;
 

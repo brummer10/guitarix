@@ -466,22 +466,22 @@ gboolean button_press_cb (GtkWidget *widget, GdkEventButton *event, gpointer dat
 // debug_check
 inline void check_zone(GtkWidget *w, void *zone)
 {
-	if (!parameter_map[zone]) {
+	if (!parameter_map.hasZone(zone)) {
 		gchar *p;
 		gtk_widget_path(w, NULL, &p, NULL);
 		cerr << "zone not found in definition of widget: "
 		     << p << endl;
 		g_free(p);
-		assert(parameter_map[zone]);
+		assert(false);
 	}
-	parameter_map[zone]->setUsed();
+	parameter_map[zone].setUsed();
 }
 #endif
 
 inline void connect_midi_controller(GtkWidget *w, void *zone)
 {
 	debug_check(check_zone, w, zone);
-	g_signal_connect(w, "button_press_event", G_CALLBACK (button_press_cb), (gpointer)parameter_map[zone]);
+	g_signal_connect(w, "button_press_event", G_CALLBACK (button_press_cb), (gpointer)&parameter_map[zone]);
 }
 
 
@@ -493,19 +493,6 @@ bool GxMainInterface::fInitialized = false;
 #ifndef NDEBUG
 static pthread_t ui_thread;
 #endif
-
-/* FIXME remove when done */
-void switch_old_new(GtkObject *b, gpointer)
-{
-	gx_engine::old_new = !gx_engine::old_new;
-	gx_print_info("switch engine", (gx_engine::old_new ? "new code" : "old code"));
-}
-void switch_test(GtkObject *b, gpointer)
-{
-	gx_engine::test_switch = !gx_engine::test_switch;
-	gx_print_info("test switch", (gx_engine::test_switch ? "on" : "off"));
-}
-/* END FIXME */
 
 GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
 {
@@ -544,17 +531,6 @@ GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
 	/*-- create accelerator group for keyboard shortcuts --*/
 	fAccelGroup = gtk_accel_group_new();
 	gtk_window_add_accel_group(GTK_WINDOW(fWindow), fAccelGroup);
-
-	/* FIXME remove when done
-	** -- add switch for test old/new --
-	*/
-	{
-		GClosure* cp = g_cclosure_new(G_CALLBACK(switch_old_new), 0, 0);
-		gtk_accel_group_connect(fAccelGroup, GDK_F5, GDK_SHIFT_MASK, (GtkAccelFlags)0, cp);
-		cp = g_cclosure_new(G_CALLBACK(switch_test), 0, 0);
-		gtk_accel_group_connect(fAccelGroup, GDK_F6, GDK_SHIFT_MASK, (GtkAccelFlags)0, cp);
-	}
-	/*END FIXME*/
 
 	/*---------------- create boxes ----------------*/
 	fTop = 0;
@@ -811,36 +787,6 @@ void GxMainInterface::openLevelMeterBox(const char* label)
 
 	gtk_box_pack_start(GTK_BOX(box), gxbox, FALSE, TRUE, 0);
 	gtk_widget_show(gxbox);
-
-
-	// jconv output levels
-	GtkWidget* jcbox = gtk_hbox_new (FALSE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (jcbox), 1);
-	gtk_box_set_spacing(GTK_BOX(jcbox), 1);
-
-	for (int i = 0; i < 2; i++)
-	{
-		fJCLevelMeters[i] = 0;
-
-		GtkWidget* meter =
-			gtk_fast_meter_new(hold, width, boxheight,
-			                   base, mid, top, clip);
-
-		gtk_widget_add_events(meter, GDK_BUTTON_RELEASE_MASK);
-		g_signal_connect(G_OBJECT(meter), "button-release-event",
-		                 G_CALLBACK(gx_meter_button_release), 0);
-
-		gtk_box_pack_end(GTK_BOX(box), meter, FALSE, FALSE, 0);
-
-		GtkTooltips* tooltips = gtk_tooltips_new ();
-		gtk_tooltips_set_tip(tooltips, meter, "jconv output", " ");
-
-		gtk_widget_hide(meter);
-		fJCLevelMeters[i] = meter;
-	}
-
-	gtk_box_pack_end(GTK_BOX(box), jcbox, FALSE, TRUE, 0);
-	gtk_widget_show(jcbox);
 
 	// show main box
 	gtk_widget_show(box);
@@ -1856,6 +1802,113 @@ void GxMainInterface::addbigregler(string id, const char* label)
 	addbigregler(label, &p.value, p.std_value, p.lower, p.upper, p.step);
 }
 
+void GxMainInterface::addslider(string id, const char* label)
+{
+	const FloatParameter &p = parameter_map[id].getFloat();
+	if (!label) {
+		label = p.name().c_str();
+	}
+	addslider(label, &p.value, p.std_value, p.lower, p.upper, p.step);
+}
+
+void GxMainInterface::addregler(string id, const char* label)
+{
+	const FloatParameter &p = parameter_map[id].getFloat();
+	if (!label) {
+		label = p.name().c_str();
+	}
+	addregler(label, &p.value, p.std_value, p.lower, p.upper, p.step);
+}
+
+void GxMainInterface::addswitch(string id, const char* label)
+{
+	const IntParameter &p = parameter_map[id].getInt();
+	if (!label) {
+		label = p.name().c_str();
+	}
+	addswitch(label, &p.value);
+}
+
+void GxMainInterface::addminiswitch(string id, const char* label)
+{
+	Parameter& p = parameter_map[id];
+	if (!label) {
+		label = p.name().c_str();
+	}
+	if (p.isFloat()) {
+		addminiswitch(label, &p.getFloat().value);
+	} else {
+		addminiswitch(label, &p.getInt().value);
+	}
+}
+
+void GxMainInterface::addselector(string id, int nvalues, const char** pvalues, const char* label)
+{
+	const FloatParameter &p = parameter_map[id].getFloat();
+	if (!label) {
+		label = p.name().c_str();
+	}
+	addselector(label, &p.value, nvalues, pvalues);
+}
+
+void GxMainInterface::addtoggle(string id, const char* label)
+{
+	Parameter& p = parameter_map[id];
+	if (!label) {
+		label = p.name().c_str();
+	}
+	if (p.isFloat()) {
+		addtoggle(label, &p.getFloat().value);
+	} else {
+		addtoggle(label, &p.getInt().value);
+	}
+}
+
+void GxMainInterface::addminieqswitch(string id, const char* label)
+{
+	const IntParameter &p = parameter_map[id].getInt();
+	if (!label) {
+		label = p.name().c_str();
+	}
+	addminieqswitch(label, &p.value);
+}
+
+void GxMainInterface::addVerticalSlider(string id, const char* label)
+{
+	const FloatParameter &p = parameter_map[id].getFloat();
+	if (!label) {
+		label = p.name().c_str();
+	}
+	addVerticalSlider(label, &p.value, p.std_value, p.lower, p.upper, p.step);
+}
+
+void GxMainInterface::addCheckButton(string id, const char* label)
+{
+	const FloatParameter &p = parameter_map[id].getFloat();
+	if (!label) {
+		label = p.name().c_str();
+	}
+	addCheckButton(label, &p.value);
+}
+
+void GxMainInterface::addNumEntry(string id, const char* label)
+{
+	const FloatParameter &p = parameter_map[id].getFloat();
+	if (!label) {
+		label = p.name().c_str();
+	}
+	addNumEntry(label, &p.value, p.std_value, p.lower, p.upper, p.step);
+}
+
+void GxMainInterface::addPToggleButton(string id, const char* label)
+{
+	const FloatParameter &p = parameter_map[id].getFloat();
+	if (!label) {
+		label = p.name().c_str();
+	}
+	addPToggleButton(label, &p.value);
+}
+
 void GxMainInterface::addbigregler(const char* label, float* zone, float init, float min, float max, float step)
 {
 	*zone = init;
@@ -2216,13 +2269,13 @@ struct uiStatusDisplay : public gx_ui::GxUiItem
 		{
 			float 	v = *fZone;
 			fCache = v;
-			if ((gx_engine::dsp::isMidiOn() == true) &&
+			if ((gx_engine::isMidiOn() == true) &&
 			    (gx_jack::jcpu_load < 65.0))
 			{
 				if (v > 0.0f) gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ibm));
 				else  gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ib));
 			}
-			else if (gx_engine::dsp::isMidiOn() == false)
+			else if (gx_engine::isMidiOn() == false)
 			{
 				gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(status_icon), GDK_PIXBUF(ib));
 			}
@@ -2545,6 +2598,14 @@ void GxMainInterface::addPresetMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
 
+	menuitem = gtk_menu_item_new_with_mnemonic ("_Save As Main _Setting");
+	g_signal_connect (GTK_OBJECT (menuitem), "activate",
+	                  G_CALLBACK (gx_save_main_setting), NULL);
+	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
+	                           GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+	gtk_widget_show (menuitem);
+
 
 	/*-- add a separator line --*/
 	sep = gtk_separator_menu_item_new();
@@ -2647,6 +2708,14 @@ void GxMainInterface::addExtraPresetMenu()
 }
 
 //----------------------------- option menu ----------------------------
+
+void reset_all_parameters(GtkWidget*, gpointer)
+{
+	for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
+		i->second->set_std_value();
+	}
+}
+
 void GxMainInterface::addOptionMenu()
 {
 	GtkWidget* menulabel; // menu label
@@ -2732,6 +2801,13 @@ void GxMainInterface::addOptionMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	fMidiInPreset.init(
 		GTK_CHECK_MENU_ITEM(menuitem), new SwitchParameter("system.midi_in_preset"));
+
+	/*-- create option for resetting guitarix settings --*/
+	menuitem = gtk_menu_item_new_with_mnemonic ("Reset _All Parameters");
+	gtk_widget_show (menuitem);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+	g_signal_connect(GTK_OBJECT(menuitem), "activate",
+	                 G_CALLBACK(reset_all_parameters), NULL);
 }
 
 
@@ -3205,8 +3281,8 @@ void GxMainInterface::deleteClientPortMap(string clname)
 	// move focus back to guitarix main window
 	gtk_widget_grab_focus(fWindow);
 
-	// print warning
-	gx_print_warning("Jack Client Delete", clname + " portmap deleted");
+	// print info
+	gx_print_info("Jack Client Delete", clname + " portmap deleted");
 }
 
 /* -------- delete all jack client menus ---------- */
@@ -3341,16 +3417,13 @@ void GxMainInterface::show()
 //---- show main GUI thread and more
 void GxMainInterface::run()
 {
-	//  string previous_state = gx_user_dir + gx_jack::client_name + "rc";
-	//  recallState(previous_state.c_str());
-
 	//----- set the state for the latency change warning widget
-	gx_engine::GxEngine::instance()->set_latency_warning_change();
+	gx_engine::set_latency_warning_change();
 
 	//----- set the last used skin when no cmd is given
 	int skin_index = gx_current_skin;
 	if (no_opt_skin == 1)
-		skin_index = gx_engine::GxEngine::instance()->fskin;
+		skin_index = gx_engine::fskin;
 
 	gx_set_skin_change(skin_index);
 	gx_update_skin_menu_item(skin_index);

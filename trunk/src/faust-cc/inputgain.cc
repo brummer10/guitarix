@@ -1,7 +1,7 @@
 namespace inputgain {
 // generated from file '../src/faust/inputgain.dsp'
 
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslider3;
+FAUSTFLOAT 	fslider0;
 float 	fRec0[2];
 int	fSamplingFreq;
 
@@ -25,7 +25,7 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("amp.in_level","in level","S","",&fslider0, 0.0f, -40.0f, 40.0f, 0.1f);
+	registerVar("amp.in_level","in / level","S","",&fslider0, 0.0f, -40.0f, 40.0f, 0.1f);
 	registerInit(init);
 }
 

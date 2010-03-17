@@ -46,26 +46,17 @@ extern const char* stopit;
 extern float  checky;
 extern float* get_frame;
 extern float* get_frame1;
-extern float* get_frame2;
-extern float* get_frame3;
 extern float* checkfreq;
 extern float* oversample;
 extern float* result;
 
-
-/* number of channels */
-extern int    gNumInChans;
-extern int    gNumOutChans;
-
-extern float* gInChannel [3];
-extern float* gOutChannel[4];
-
 /* latency warning  switch */
-extern float fwarn_swap;
 extern float fwarn;
 
 /* engine init state  */
 extern bool initialized;
+inline bool isInitialized() { return initialized; }
+
 
 /* buffer ready state */
 extern bool buffers_ready;
@@ -144,7 +135,6 @@ namespace gx_jconv
 /* some global vars */
 extern float checkbox7;
 extern GtkWidget* mslider;
-extern bool jconv_is_running;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -178,8 +168,6 @@ namespace gx_child_process
 /* global var declarations  */
 
 extern FILE*    jcap_stream;
-extern FILE*    jconv_stream;
-extern string   mbg_pidfile;
 
 extern pid_t child_pid[];
 }

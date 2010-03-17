@@ -64,29 +64,21 @@ gboolean gx_refresh_meter_level(gpointer args)
 		// Note: removed RMS calculation, we will only focus on max peaks
 		float max_level  [2];
 		(void)memset(max_level,   0, sizeof(max_level));
-		float max_jclevel[2];
-		(void)memset(max_jclevel, 0, sizeof(max_jclevel));
 
 		static float old_peak_db  [2] = {-INFINITY, -INFINITY};
-		static float old_jcpeak_db[2] = {-INFINITY, -INFINITY};
 
 		jack_nframes_t nframes = gx_jack::jack_bs;
 
 		// retrieve meter widgets
 		GtkWidget* const* meters   = gui->getLevelMeters();
-		GtkWidget* const* jcmeters = gui->getJCLevelMeters();
 
 		// fill up from engine buffers
 		for (int c = 0; c < 2; c++) {
 			// guitarix output levels
 			float data[nframes];
 
-			// jconv output levels
-			float jcdata[nframes];
-
 			// need to differentiate between channels due to stereo
-			switch (c)
-			{
+			switch (c) {
 			default:
 			case 0:
 				(void)memcpy(data, gx_engine::get_frame,  sizeof(data));
@@ -97,25 +89,9 @@ gboolean gx_refresh_meter_level(gpointer args)
 				break;
 			}
 
-			// turn channels for box_pack_end
-			float *gfp;
-			if (c) {
-				gfp = gx_engine::get_frame2;
-			} else {
-				gfp = gx_engine::get_frame3;
-			}
-			// jconv: note that jconv monitor channels are input[1] and [2]
-			if (gx_jconv::jconv_is_running && gx_engine::is_setup) {
-				(void)memcpy(jcdata, gfp, sizeof(jcdata));
-			}
-
 			// calculate  max peak
-			for (guint f = 0; f < nframes; f++)
-			{
+			for (guint f = 0; f < nframes; f++) {
 				max_level[c] = max(max_level[c], abs(data[f]));
-				if (gx_jconv::jconv_is_running && gx_engine::is_setup) {
-					max_jclevel[c] = max(max_jclevel[c], abs(jcdata[f]));
-				}
 			}
 
 			// update meters (consider falloff as well)
@@ -130,19 +106,6 @@ gboolean gx_refresh_meter_level(gpointer args)
 
 				gtk_fast_meter_set(GTK_FAST_METER(meters[c]), log_meter(peak_db));
 				old_peak_db[c] = max(peak_db, -INFINITY);
-			}
-
-			if (gx_jconv::jconv_is_running && jcmeters[c] && gx_engine::is_setup) {
-				// calculate peak dB and translate into meter
-				float peak_db = -INFINITY;
-				if (max_jclevel[c] > 0.) peak_db = power2db(max_jclevel[c]);
-
-				// retrieve old meter value and consider falloff
-				if (peak_db < old_jcpeak_db[c])
-					peak_db = old_jcpeak_db[c] - falloff;
-
-				gtk_fast_meter_set(GTK_FAST_METER(jcmeters[c]), log_meter(peak_db));
-				old_jcpeak_db[c] = max(peak_db, -INFINITY);
 			}
 		}
 	}
@@ -162,21 +125,6 @@ gboolean gx_refresh_oscilloscope(gpointer args)
 	else return FALSE;
 }
 
-/* -------------- refresh tuner function -------------- */
-gboolean gx_refresh_tuner(gpointer args) // FIXME: cleanup (refresh can be done by tuner os thread)
-{
-	// set the value to the tuner and let updateAllGui() do the repaint
-	gx_engine::GxEngine* engine = gx_engine::GxEngine::instance();
-	if (shownote )
-	{
-		engine->fConsta1t = gx_engine::pitch_tracker.tuner_estimate();
-		//engine->fConsta1t = engine->fConsta1;
-		// run thread again
-		return TRUE;
-	}
-	// dont run again
-	return FALSE;
-}
 gboolean gx_xrun_report(gpointer arg)
 {
 	usleep(40);
@@ -190,16 +138,7 @@ gboolean gx_xrun_report(gpointer arg)
 /* -------------- timeout for jconv startup when guitarix init -------------- */
 gboolean gx_check_startup(gpointer args)
 {
-	// check if jack is alive
-	// gx_survive_jack_shutdown(NULL);
-	// get avaluable ports
-	// gx_monitor_jack_ports(NULL);
-	// set global variable the all whent well
-	gx_engine::is_setup = 1;
-	// case jconvolver is on at startup
-	//if (gx_jconv::GxJConvSettings::checkbutton7 == 1) //FIXME remove after jconvolver transition
-	//	gx_start_stop_jconv(NULL,NULL);
-	// run only one time
+	gx_engine::is_setup = 1; //FIXME still needed?
 	return FALSE;
 }
 
@@ -256,7 +195,6 @@ gboolean gx_survive_jack_shutdown(gpointer arg)
 		gx_gui::GxMainInterface::instance()->deleteAllClientPortMaps();
 
 		gx_jconv::GxJConvSettings::checkbutton7 = 0;
-		gx_jconv::jconv_is_running = false;
 		gx_jack::jack_is_down = true;
 	}
 	// run as long jackd is down

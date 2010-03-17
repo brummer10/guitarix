@@ -4,7 +4,7 @@ namespace autowah {
 int 	IOTA;
 int 	iVec0[1024];
 int 	iRec2[2];
-FAUSTFLOAT&	fslider0=*(float*)&GxEngine::instance()->fslider11;
+FAUSTFLOAT&	fslider0 = get_alias("crybaby.wah");
 float 	fRec1[2];
 float 	fConst0;
 float 	fConst1;
@@ -56,7 +56,6 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("crybaby.wah","","S","",&fslider0, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
 	registerInit(init);
 }
 
