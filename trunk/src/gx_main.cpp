@@ -129,6 +129,9 @@ int main(int argc, char *argv[])
 
 		// -------- set jack callbacks and activation -------------------
 		gx_jack::gx_jack_callbacks_and_activate();
+		
+		// -------- give gx_engine_init() some time to finish
+		usleep(50);
 
 		// -------- init port connections
 		gx_jack::gx_jack_init_port_connection(optvar);
