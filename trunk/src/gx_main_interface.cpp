@@ -2598,15 +2598,6 @@ void GxMainInterface::addPresetMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
 
-	menuitem = gtk_menu_item_new_with_mnemonic ("_Save As Main _Setting");
-	g_signal_connect (GTK_OBJECT (menuitem), "activate",
-	                  G_CALLBACK (gx_save_main_setting), NULL);
-	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
-	                           GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-	gtk_widget_show (menuitem);
-
-
 	/*-- add a separator line --*/
 	sep = gtk_separator_menu_item_new();
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
