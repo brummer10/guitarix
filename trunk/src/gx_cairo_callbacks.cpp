@@ -96,6 +96,113 @@ void gx_skin_color(cairo_pattern_t *pat)
 }
 
 //----- paint boxes with cairo -----
+gboolean tuner_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+{
+
+    static int tuner_background = 0;
+    char s[64];
+    int vis = round(gx_engine::fConsta1t);
+    float scale = ((gx_engine::fConsta1t-vis)-(-1.0))/(1.0-(-1.0));
+    if ((scale <= 0.0) || (scale > 1.0)) scale = 0.0;
+    vis += 9;
+    static const char* note[] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};
+    if (gx_gui::shownote == 1)
+    {
+        if ((vis>=0)&&(vis<=11)) snprintf(s, 63, "%s",  note[vis]);
+        else if ((vis>=-24)&&(vis<=-13)) snprintf(s, 63, "%s", note[vis+24]);
+        else if ((vis>=-12)&&(vis<=-1)) snprintf(s, 63, "%s", note[vis+12]);
+        else if ((vis>=12)&&(vis<=23)) snprintf(s, 63, "%s", note[vis-12]);
+        else if ((vis>=24)&&(vis<=35)) snprintf(s, 63,"%s", note[vis-24]);
+        else if ((vis>=36)&&(vis<=47)) snprintf(s, 63,"%s", note[vis-36]);
+        else
+        {
+            snprintf(s, 63, "%s", "");
+            scale = 0.0;
+        }
+        if ((scale >= 0.0) && (scale < 1.0)) {
+            scale -= 0.5;
+            cairo_t *cr;
+
+            double x0      = 0;
+            double y0      = 0;
+            double rect_width  = 100;
+            double rect_height = 60;
+            // paint tuner background picture only once
+            if(!tuner_background) {
+                surface_tuner = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, rect_width+2,rect_height+2);
+                cr = cairo_create(surface_tuner);
+
+                cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
+                cairo_set_source_rgb (cr, 0, 0, 0);
+                cairo_fill (cr);
+
+                cairo_pattern_t*pat =
+                cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+                cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
+                cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+                cairo_set_source (cr, pat);
+                cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-2);
+                cairo_fill (cr);
+
+                cairo_set_source_rgb(cr,  0.1, 0.5, 0.1);
+                double dashes[] = {
+                    0.0,  /* ink */
+                    rect_height,  /* skip */
+                    10.0,  /* ink */
+                    10.0   /* skip*/
+                };
+                int    ndash  = sizeof (dashes)/sizeof(dashes[0]);
+                double offset = 100.0;
+
+                cairo_set_dash (cr, dashes, ndash, offset);
+                cairo_set_line_width(cr, 3.0);
+                for (int i = -5;i<6;i++) {
+                cairo_move_to(cr,x0+50, y0+rect_height-5);
+                cairo_line_to(cr, (((i*0.1))*rect_width)+x0+50, y0+(((i*0.1*i*0.1))*30)+2);
+                }
+                cairo_stroke(cr);
+                cairo_set_source_rgb(cr,  0.1, 0.8, 0.1);
+                cairo_move_to(cr,x0+50, y0+rect_height-5);
+                cairo_line_to(cr, x0+50, y0+2);
+                cairo_stroke(cr);
+                tuner_background = 1;
+            } // backgroundpicture ready to use
+            x0      = gx_gui::pb->allocation.x+2;
+            y0      = gx_gui::pb->allocation.y+2;
+            cr = gdk_cairo_create(gx_gui::pb->window);
+
+            cairo_set_source_surface (cr, surface_tuner,x0,y0);
+			cairo_paint (cr);
+            ostringstream tir;
+            tir << s;
+            cairo_set_source_rgba (cr, 0.2, 0.8, 0.2,1-(scale*scale*4));
+            cairo_set_font_size (cr, 18.0);
+            cairo_move_to (cr,x0+50 -9 , y0+30 +9 );
+            cairo_show_text(cr, tir.str().c_str());
+
+            cairo_move_to(cr, x0+50, y0+rect_height-5);
+            double dashe[] = {
+                rect_height-10,  /* ink */
+                rect_height,  /* skip */
+                0.0,  /* ink */
+                10.0   /* skip*/
+            };
+            cairo_set_dash (cr, dashe, 1, 0);
+
+            cairo_set_source_rgb(cr,  0.5, 0.1, 0.1);
+            cairo_set_line_width(cr, 1.0);
+            cairo_arc (cr, x0+50, y0+rect_height-5, 2.0, 0, 2*M_PI);
+            cairo_move_to(cr,x0+50, y0+rect_height-5);
+            cairo_line_to(cr, (scale*rect_width)+x0+50, y0+(scale*scale*30)+2);
+            cairo_stroke(cr);
+
+            cairo_destroy(cr);
+        }
+    }
+    return FALSE;
+}
+
+//----- paint boxes with cairo -----
 gboolean box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;

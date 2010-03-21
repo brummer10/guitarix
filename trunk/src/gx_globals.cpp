@@ -329,5 +329,5 @@ namespace gx_cairo
 GdkPixbuf *tribeimage;
 GdkPixbuf *tribeimage1;
 GdkPixbuf *_image;
-
+cairo_surface_t *surface_tuner;
 }

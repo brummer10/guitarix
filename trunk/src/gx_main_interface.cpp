@@ -2206,35 +2206,15 @@ struct uiNumDisplay : public gx_ui::GxUiItem
 
 	virtual void reflectZone()
 		{
-			float v = *fZone;
-			fCache = v;
-			char s[64];
-			int vis = round(v);
-			float scale = ((v-vis)-(-1.0))/(1.0-(-1.0));
-			if ((scale <= 0.0) || (scale > 1.0)) scale = 0.0;
-			vis += 9;
-			const char* note[] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};
+
+			fCache = *fZone;
 			if (shownote == 1)
 			{
-				if ((vis>=0)&&(vis<=11)) snprintf(s, 63, "%s",  note[vis]);
-				else if ((vis>=-24)&&(vis<=-13)) snprintf(s, 63, "%s", note[vis+24]);
-				else if ((vis>=-12)&&(vis<=-1)) snprintf(s, 63, "%s", note[vis+12]);
-				else if ((vis>=12)&&(vis<=23)) snprintf(s, 63, "%s", note[vis-12]);
-				else if ((vis>=24)&&(vis<=35)) snprintf(s, 63,"%s", note[vis-24]);
-				else if ((vis>=36)&&(vis<=47)) snprintf(s, 63,"%s", note[vis-36]);
-				else
-				{
-					snprintf(s, 63, "%s", "");
-					scale = 0.0;
-				}
-				if ((scale >= 0.0) && (scale < 1.0)) gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
-				gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), s);
+			    static const GdkRectangle rect = {0,0,100,70};
+                gdk_window_invalidate_rect(GDK_WINDOW(pb->window),&rect,TRUE);
 			}
 			else if (shownote == 0)
 			{
-				gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pb), scale);
-				snprintf(s, 63, "%s", "");
-				gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), s);
 				shownote = -1;
 			}
 		}
@@ -2243,15 +2223,13 @@ struct uiNumDisplay : public gx_ui::GxUiItem
 
 void GxMainInterface::addNumDisplay(const char* label, float* zone )
 {
-	openVerticalBox(label);
-	pb = gtk_progress_bar_new();
-	gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(pb), GTK_PROGRESS_LEFT_TO_RIGHT);
+	openEventBox(label);
+	pb = gtk_vbox_new (false, 4);
+    g_signal_connect(pb, "expose-event", G_CALLBACK(tuner_expose), NULL);
+
 	new uiNumDisplay(this, zone, GTK_WIDGET(pb));
-	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pb), label);
-	gtk_widget_set_size_request(pb, 40.0, 20.0);
-	GtkStyle *style = gtk_widget_get_style(pb);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-	gtk_widget_modify_font(pb, style->font_desc);
+	gtk_widget_set_size_request(pb, 100.0, 60.0);
+
 	addWidget(label, pb);
 	gtk_widget_hide(pb);
 	closeBox();
