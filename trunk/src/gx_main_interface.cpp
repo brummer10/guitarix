@@ -2228,7 +2228,7 @@ void GxMainInterface::addNumDisplay(const char* label, float* zone )
     g_signal_connect(pb, "expose-event", G_CALLBACK(tuner_expose), NULL);
 
 	new uiNumDisplay(this, zone, GTK_WIDGET(pb));
-	gtk_widget_set_size_request(pb, 100.0, 60.0);
+	gtk_widget_set_size_request(pb, 100.0, 90.0);
 
 	addWidget(label, pb);
 	gtk_widget_hide(pb);

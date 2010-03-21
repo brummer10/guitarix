@@ -127,6 +127,7 @@ gboolean tuner_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
             double y0      = 0;
             double rect_width  = 100;
             double rect_height = 60;
+
             // paint tuner background picture only once
             if(!tuner_background) {
                 surface_tuner = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, rect_width+2,rect_height+2);
@@ -167,15 +168,23 @@ gboolean tuner_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
                 cairo_stroke(cr);
                 tuner_background = 1;
             } // backgroundpicture ready to use
-            x0      = gx_gui::pb->allocation.x+2;
-            y0      = gx_gui::pb->allocation.y+2;
+            x0      = gx_gui::pb->allocation.x;
+            y0      = gx_gui::pb->allocation.y;
             cr = gdk_cairo_create(gx_gui::pb->window);
+            cairo_rectangle (cr, x0,y0+60,rect_width+1,30);
+            cairo_set_source_rgb (cr, 0, 0, 0);
+            cairo_fill (cr);
+            cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+            cairo_set_line_width(cr, 5.0);
+            cairo_move_to(cr,x0+2, y0+63);
+            cairo_line_to(cr, x0+99, y0+63);
+            cairo_stroke(cr);
 
             cairo_set_source_surface (cr, surface_tuner,x0,y0);
 			cairo_paint (cr);
             ostringstream tir;
             tir << s;
-            cairo_set_source_rgba (cr, 0.2, 0.8, 0.2,1-(scale*scale*4));
+            cairo_set_source_rgba (cr, 0.2, 1-(scale*scale*4), 0.2,1-(scale*scale*4));
             cairo_set_font_size (cr, 18.0);
             cairo_move_to (cr,x0+50 -9 , y0+30 +9 );
             cairo_show_text(cr, tir.str().c_str());

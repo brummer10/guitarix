@@ -287,6 +287,7 @@ void gx_tuner (GtkCheckMenuItem *menuitem, gpointer checkplay)
 	if (gtk_check_menu_item_get_active(menuitem) == TRUE) {
 		shownote = 1;
 		gtk_widget_show(pb);
+		tuner_expose(pb,NULL,NULL);
 	} else {
 		shownote = 0;
 		gtk_widget_hide(pb);
