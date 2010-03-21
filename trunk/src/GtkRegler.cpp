@@ -1223,7 +1223,7 @@ int precision(double n)
 static void knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, int knob_x, int knob_y,
                                bool drag, int state)
 {
-	static double last_y = 2e20;
+	static double last_x = 2e20;
 	GtkRegler *regler = GTK_REGLER(widget);
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	double radius =  min(knob_x, knob_y) / 2;
@@ -1234,17 +1234,17 @@ static void knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, int knob
 	double value;
 	if (!drag) {
 		if (state & GDK_CONTROL_MASK) {
-			last_y = posy;
+			last_x = posx;
 			return;
 		} else {
-			last_y = 2e20;
+			last_x = 2e20;
 		}
 	}
-	if (last_y < 1e20) { // in drag started with Control Key
-		const double scaling = 0.01;
+	if (last_x < 1e20) { // in drag started with Control Key
+		const double scaling = 0.005;
 		double scal = (state & GDK_CONTROL_MASK ? scaling : scaling*0.1);
-		value = (posy - last_y) * scal;
-		last_y = posy;
+		value = (last_x - posx) * scal;
+		last_x = posx;
 		gtk_range_set_value(GTK_RANGE(widget), adj->value + value * (adj->upper - adj->lower));
 		return;
 	}
