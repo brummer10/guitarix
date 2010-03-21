@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 	gx_process_cmdline_options(argc, argv, optvar);
 
 	// ---------------- Check for working user directory  -------------
-	gx_system::gx_version_check();
+	//gx_system::gx_version_check();
 
 	// ------ time measurement (debug) ------
 #ifndef NDEBUG

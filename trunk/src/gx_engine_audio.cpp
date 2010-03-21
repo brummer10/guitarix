@@ -416,6 +416,7 @@ bool GxConvolver::configure(
 		return false;
 	}
 	adjust_values(audio.size(), count, offset, delay, ldelay, length, size, bufsize);
+	/* FIXME remove
 	cout << "state=" << state() << ", ready=" << ready << endl;
 	cout << "fname=" << fname << ", size=" << audio.size()
 	     << ", channels=" << audio.chan() << endl;
@@ -423,6 +424,7 @@ bool GxConvolver::configure(
 	     << bufsize << ", offset=" << offset << ", delay=" << delay
 	     << ", ldelay=" << ldelay << ", length=" << length << ", gain" << gain
 	     << ", lgain" << lgain << endl;
+	*/
 	if (Convproc::configure(2, 2, size, count, bufsize, Convproc::MAXPART)) {
 		gx_system::gx_print_error("convolver", "error in Convproc::configure");
 		return false;
@@ -745,8 +747,8 @@ void PitchTracker::run()
 
 void PitchTracker::setEstimatedFrequency(float freq)
 {
-	fConsta4 = freq;
-	fConsta1t = (freq == 0.0 ? 1000.0 : 12 * log2f(2.272727e-03f * freq));
+	midi.fConsta4 = freq;
+	audio.fConsta1t = (freq == 0.0 ? 1000.0 : 12 * log2f(2.272727e-03f * freq));
 }
 
 PitchTracker pitch_tracker;
@@ -797,7 +799,7 @@ inline float foldback(float in, float threshold)
 inline float fold(float threshold, float v)
 {
 	// switch between hard_cut or foldback distortion, or plain output
-	switch ((int)ffuse) {
+	switch ((int)audio.ffuse) {
 	case 0:
 		break;
 	case 1:
@@ -976,7 +978,7 @@ inline float noise_gate(int sf, float* input, float ngate)
 		sumnoise += sqrf(fabs(input[i]));
 	}
 	float noisepulse = sqrtf(sumnoise/sf);
-	if (noisepulse > gx_engine::fnglevel * 0.01) {
+	if (noisepulse > audio.fnglevel * 0.01) {
 		return 1; // -75db 0.001 = 65db
 	} else if (ngate > 0.01) {
 		return ngate * 0.996;
@@ -1004,64 +1006,95 @@ inline void down_sample(int sf, float *input, float *output)
 	}
 }
 
-// Variables
-//FIXME combine with parameter definitions
-float fConsta1;
-float fConsta1t;
-int fnoise_g;
-int fng;
-float fnglevel;
-int antialis0;
-int fupsample;
-int ftube;
-int ftube3;
-int fprdr;
-int fconvolve;
-float convolvefilter;
-int fresoon;
-float posit0;
-float posit1;
-float posit2;
-float posit3;
-float posit4;
-float posit5;
-float posit6;
-float posit7;
-float posit8;
-int fautowah;
-int fcheckboxcom1;
-int foverdrive4;
-int fcheckbox1;
-int fcheckbox4;
-int fcheckbox5;
-int fcheckbox6;
-int fcheckbox7;
-int fcheckbox8;
-int fdelay;
-int fmultifilter;
-int fboost;
-int fchorus;
-float fdialogbox1;
-float fdialogbox2;
-float fdialogbox3;
-float fdialogbox4;
-float fdialogbox6;
-float fdialogbox8;
-float fdialogboxj;
-float fchorusbox;
-float filebutton;
-float fexpand;
-float fexpand2;
-float viv;
-float vivi;
+// registering of audio variables
+inline void registerNonPresetParam(const char*a, float*c, bool d, float std=0, float lower=0, float upper=1)
+{
+	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a,"",gx_gui::Parameter::None,d,*c,std,lower,upper,0,false));
+}
 
+// should be int
+inline void registerEnumParam(const char*a,const char*b,float*c,float std=0,float lower=0,float upper=1,float step=1)
+{
+	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,step,true));
+}
+
+inline void registerEnumParam(const char*a,const char*b,int*c,int std=0,int lower=0,int upper=1)
+{
+	gx_gui::parameter_map.insert(new gx_gui::IntParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,true));
+}
+
+AudioVariables::AudioVariables()
+{
+	registerEnumParam("amp.threshold", "threshold", &ffuse, 0.f, 0.f, 3.f, 1.0f);
+	gx_gui::registerParam("MultiBandFilter.on_off", "on/off", &fmultifilter, 0);
+	gx_gui::registerParam("crybaby.autowah", "autowah", &fautowah, 0);
+	gx_gui::registerParam("overdrive.on_off", "on/off", &foverdrive4, 0);
+	gx_gui::registerParam("distortion.on_off", "on/off", &fcheckbox4, 0);
+	gx_gui::registerParam("freeverb.on_off", "on/off", &fcheckbox6, 0);
+	gx_gui::registerParam("IR.on_off", "on/off", &fcheckbox8, 0);
+	gx_gui::registerParam("crybaby.on_off", "on/off", &fcheckbox5, 0);
+	gx_gui::registerParam("echo.on_off", "on/off", &fcheckbox7, 0);
+	gx_gui::registerParam("delay.on_off", "on/off", &fdelay, 0);
+	gx_gui::registerParam("chorus.on_off", "on/off", &fchorus, 0);
+	gx_gui::registerParam("compressor.on_off", "on/off", &fcheckboxcom1, 0);
+	gx_gui::registerParam("tube2.on_off", "on/off", &ftube3, 0);
+	gx_gui::registerParam("tube.vibrato.on_off", "on/off", &fresoon, 0);
+	gx_gui::registerParam("tube.on_off", "on/off", &ftube, 0);
+	gx_gui::registerParam("drive.on_off", "on/off", &fprdr, 0);
+	gx_gui::registerParam("preamp.on_off", "on/off", &fcheckbox1, 0);
+	registerEnumParam("convolve.select", "select", &convolvefilter, 0.f, 0.f, 7.f, 1.0f);
+	gx_gui::registerParam("convolve.on_off", "on/off", &fconvolve, 0);
+	gx_gui::registerParam("amp.bass_boost.on_off", "on/off", &fboost, 0);
+	gx_gui::registerParam("amp.oversample.on_off", "on/off", &fupsample, 0);
+	gx_gui::registerParam("anti_aliase.on_off", "on/off", &antialis0, 0);
+	gx_gui::registerParam("noise_gate.on_off", "on/off", &fnoise_g, 0);
+	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
+	gx_gui::registerParam("shaper.on_off", "on/off", &fng, 0);
+	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
+	// only save and restore, no midi control
+
+	// positions of effects
+	registerNonPresetParam("crybaby.position", &posit0, true, 5, 0, 8);
+	registerNonPresetParam("overdrive.position", &posit1, true, 2, 0, 8);
+	registerNonPresetParam("distortion.position", &posit2, true, 1, 0, 8);
+	registerNonPresetParam("freeverb.position", &posit3, true, 3, 0, 8);
+	registerNonPresetParam("IR.position", &posit4, true, 4, 0, 8);
+	registerNonPresetParam("compressor.position", &posit5, true, 0, 0, 8);
+	registerNonPresetParam("echo.position", &posit6, true, 6, 0, 8);
+	registerNonPresetParam("delay.position", &posit7, true, 8, 0, 8);
+	registerNonPresetParam("chorus.position", &posit8, true, 7, 0, 8);
+
+	// togglebuttons for dialogboxes and expander for effect details
+	registerNonPresetParam("compressor.dialog", &fdialogbox8, false);
+	registerNonPresetParam("distortion.dialog", &fdialogbox1, false);
+	registerNonPresetParam("freeverb.dialog", &fdialogbox2, false);
+	registerNonPresetParam("IR.dialog", &fdialogbox3, false);
+	registerNonPresetParam("crybaby.dialog", &fdialogbox4, false);
+	registerNonPresetParam("chorus.dialog", &fchorusbox, false);
+	registerNonPresetParam("midi_out.dialog", &fdialogbox6, false);
+	registerNonPresetParam("jconv.dialog", &fdialogboxj, false);
+	registerNonPresetParam("jconv.expander", &fexpand2, false);
+	registerNonPresetParam("jconv.filedialog", &filebutton, false);
+
+	// user interface options
+	registerNonPresetParam("ui.latency_nowarn", &fwarn, false, 0);
+	registerNonPresetParam("ui.skin", &fskin, false, 0, 0, 100);
+	registerNonPresetParam("ui.main_expander", &fexpand, false);
+
+	// shouldn't be saved, only output?
+	registerNonPresetParam("system.fConsta1t", &fConsta1t, false);
+	registerNonPresetParam("system.midistat", &midistat, false);
+	registerNonPresetParam("system.waveview", &viv, false);
+}
+
+AudioVariables audio;
 
 void process_buffers(int count, float* input, float* output0, float* output1)
 {
 	int tuner_on = gx_gui::shownote + (int)isMidiOn() + 1;
 	if (tuner_on > 0) {
 		if (gx_gui::shownote == 0) {
-			fConsta1 = 1000.0f;
+			audio.fConsta1 = 1000.0f;
 			gx_gui::shownote = -1;
 		} else {
 			pitch_tracker.add(count, input);
@@ -1070,15 +1103,15 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 	}
 	HighShelf::compute(count, input, output0);
 
-	if (fnoise_g) {
+	if (audio.fnoise_g) {
 		feed::ngate = noise_gate(count,output0, feed::ngate);
     } else {
 		feed::ngate = 1;
     }
-    if (fng) {
+    if (audio.fng) {
 	    noise_shaper::compute(count, output0, output0);
     }
-    if (fcheckbox1) {
+    if (audio.fcheckbox1) {
 	    preamp::compute(count, output0, output0);
     }
 
@@ -1086,7 +1119,7 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     static int fupsample_old = 0; // startup always initialises with SR
     int ovs_count, ovs_sr;
     float *ovs_buffer;
-    if (fupsample) {
+    if (audio.fupsample) {
 		// 2*oversample
 	    over_sample(count, output0, oversample);
 	    ovs_sr = 2 * gx_jack::jack_sr;
@@ -1097,71 +1130,71 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 	    ovs_count = count;
 	    ovs_buffer = output0;
     }
-    if (fupsample != fupsample_old) {
-	    fupsample_old = fupsample;
+    if (audio.fupsample != fupsample_old) {
+	    fupsample_old = audio.fupsample;
 	    osc_tube::init(ovs_sr);
     }
-    if (antialis0) {
+    if (audio.antialis0) {
 	    AntiAlias::compute(ovs_count, ovs_buffer, ovs_buffer);
     }
-    if (ftube) {
+    if (audio.ftube) {
 	    tube::compute(ovs_count, ovs_buffer, ovs_buffer);
     }
-    if (ftube3) {
+    if (audio.ftube3) {
 	    osc_tube::compute(ovs_count, ovs_buffer, ovs_buffer);
 	    //reso_tube::compute(ovs_count, ovs_buffer, ovs_buffer);
     }
-    if (fprdr) {
+    if (audio.fprdr) {
 	    drive::compute(ovs_count, ovs_buffer, ovs_buffer);
     }
-    if (fupsample) {
+    if (audio.fupsample) {
 	    down_sample(count, oversample, output0);
     }
     //*** End (maybe) oversampled processing ***
 
-    if (fconvolve) {
-	    convolver_filter(output0, output0, count, (unsigned int)convolvefilter);
+    if (audio.fconvolve) {
+	    convolver_filter(output0, output0, count, (unsigned int)audio.convolvefilter);
     }
     inputgain::compute(count, output0, output0);
     tone::compute(count, output0, output0);
-    if (fresoon) {
+    if (audio.fresoon) {
 	    tubevibrato::compute(count, output0, output0);
     }
     for (int m = 0; m < 8; m++) {
-	    if (posit0 == m && fcheckbox5 && !fautowah) {
+	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah) {
 		    crybaby::compute(count, output0, output0);
-	    } else if (posit0 == m && fcheckbox5 && fautowah) {
+	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah) {
 		    autowah::compute(count, output0, output0);
-	    } else if (posit5 == m && fcheckboxcom1) {
+	    } else if (audio.posit5 == m && audio.fcheckboxcom1) {
 		    compressor::compute(count, output0, output0);
-	    } else if (posit1 == m && foverdrive4) {
+	    } else if (audio.posit1 == m && audio.foverdrive4) {
 		    overdrive::compute(count, output0, output0);
-	    } else if (posit2 == m && fcheckbox4) {
+	    } else if (audio.posit2 == m && audio.fcheckbox4) {
 		    distortion::compute(count, output0, output0);
-	    } else if (posit3 == m && fcheckbox6) {
+	    } else if (audio.posit3 == m && audio.fcheckbox6) {
 		    freeverb::compute(count, output0, output0);
-	    } else if (posit6 == m && fcheckbox7) {
+	    } else if (audio.posit6 == m && audio.fcheckbox7) {
 		    echo::compute(count, output0, output0);
-	    } else if (posit4 == m && fcheckbox8) {
+	    } else if (audio.posit4 == m && audio.fcheckbox8) {
 		    impulseresponse::compute(count, output0, output0);
-	    } else if (posit7 == m && fdelay) {
+	    } else if (audio.posit7 == m && audio.fdelay) {
 		    delay::compute(count, output0, output0);
 	    }
     }
 
     // Multibandfilter
-    if (fmultifilter) {
+    if (audio.fmultifilter) {
 		multifilter::compute(count, output0, output0);
 	}
 
     outputgain::compute(count, output0, output0);
 
-    if (fboost) {
+    if (audio.fboost) {
 	    bassbooster::compute(count, output0, output0);
     }
     feed::compute(count, output0, output0, output1);
 
-    if (fchorus) {
+    if (audio.fchorus) {
 	    chorus::compute(count, output0, output1, output0, output1);
     }
     if (conv.is_runnable()) {

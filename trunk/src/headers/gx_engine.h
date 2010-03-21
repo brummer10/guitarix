@@ -164,139 +164,150 @@ extern PitchTracker pitch_tracker;
 
 /* -- guitarix main engine -- */
 
-// variables
-extern GxMidiState midistate;
-extern float fConsta1;
-extern int fnoise_g;
-extern int fng;
-extern float fnglevel;
-extern int fcheckbox1;
-extern int fupsample;
-extern int antialis0;
-extern int ftube;
-extern int ftube3;
-extern int fprdr;
-extern int fconvolve;
-extern float convolvefilter;
-extern int fresoon;
-extern float posit0;
-extern int fcheckbox5;
-extern int fautowah;
-extern int fcheckboxcom1;
-extern float posit1;
-extern float posit2;
-extern float posit3;
-extern float posit4;
-extern float posit5;
-extern float posit6;
-extern float posit7;
-extern float posit8;
-extern int foverdrive4;
-extern int fcheckbox4;
-extern int fcheckbox6;
-extern int fcheckbox7;
-extern int fcheckbox8;
-extern int fdelay;
-extern int fmultifilter;
-extern int   fboost;
-extern int fchorus;
-extern float ffuse;
-extern float fdialogbox1;
-extern float fdialogbox2;
-extern float fdialogbox3;
-extern float fdialogbox4;
-//extern float fdialogbox5;
-extern float fdialogbox6;
-extern float fdialogbox8;
-extern float fdialogboxj;
-extern float fexpand;
-extern float fexpand2;
-extern float fwarn;
-extern float fwarn_swap;
-extern float fskin;
-extern float viv;
-extern float vivi;
-extern float fchorusbox;
-extern float filebutton;
-extern float fConsta1t;
-extern float midistat;
+class AudioVariables
+{
+public:
+	GxMidiState midistate;
+	float fConsta1;
+	int fnoise_g;
+	int fng;
+	float fnglevel;
+	int fcheckbox1;
+	int fupsample;
+	int antialis0;
+	int ftube;
+	int ftube3;
+	int fprdr;
+	int fconvolve;
+	float convolvefilter;
+	int fresoon;
+	float posit0;
+	int fcheckbox5;
+	int fautowah;
+	int fcheckboxcom1;
+	float posit1;
+	float posit2;
+	float posit3;
+	float posit4;
+	float posit5;
+	float posit6;
+	float posit7;
+	float posit8;
+	int foverdrive4;
+	int fcheckbox4;
+	int fcheckbox6;
+	int fcheckbox7;
+	int fcheckbox8;
+	int fdelay;
+	int fmultifilter;
+	int   fboost;
+	int fchorus;
+	float ffuse;
+	float fdialogbox1;
+	float fdialogbox2;
+	float fdialogbox3;
+	float fdialogbox4;
+//float fdialogbox5;
+	float fdialogbox6;
+	float fdialogbox8;
+	float fdialogboxj;
+	float fexpand;
+	float fexpand2;
+	float fwarn;
+	float fwarn_swap;
+	float fskin;
+	float viv;
+	float vivi;
+	float fchorusbox;
+	float filebutton;
+	float fConsta1t;
+	float midistat;
+
+	AudioVariables();
+};
+
+extern AudioVariables audio;
 
 
-// MIDI variables
+class MidiVariables {
+public:
+	float fslider45;
+	float fslider38;
+	float fslider31;
+	float fslider27;
+	float fslider29;
+	float fslider30;
+	float fslider26;
+	float fslider33;
+	float fslider34;
+	float fslider35;
+	float fslider36;
+	float fslider42;
+	float fslider43;
+	float fslider40;
+	float fslider41;
+	float fslider44;
+	float fslider37;
+	float fslider39;
+	float fslider46;
+	float fslider47;
+	float fslider48;
+	float fConsta4;
+	float fConstlog;
+	float fConstlog2;
+	float beat0;
+	float midi_gain;
+	float fConstun0;
+	int   weg;
+	int   program;
+	unsigned char* midi_send;
+	int   send;
+	float fautogain;
+	int   volume;
+	float fpitch;
+	int   noten;
+	float fslider32;
+	float cache_note;
+	int fcheckbox10;
+	int   program1;
+	int   send1;
+	int   noten1;
+	float fautogain1;
+	int   volume1;
+	unsigned char* midi_send1;
+	int   send2;
+	int   noten2;
+	float fpitch1;
+	float fpitch2;
+	int fcheckbox11;
+	int   program2;
+	int   volume2;
+	int Beat_is;
+	unsigned char* midi_send2;
+	float fautogain2;
 
-extern float fslider45;
-extern float fslider38;
-extern float fslider31;
-extern float fslider27;
-extern float fslider29;
-extern float fslider30;
-extern float fslider26;
-extern float fslider33;
-extern float fslider34;
-extern float fslider35;
-extern float fslider36;
-extern float fslider42;
-extern float fslider43;
-extern float fslider40;
-extern float fslider41;
-extern float fslider44;
-extern float fslider37;
-extern float fslider39;
-extern float fslider46;
-extern float fslider47;
-extern float fslider48;
-extern float fConsta4;
-extern float fConstlog;
-extern float fConstlog2;
-extern float beat0;
-extern float midi_gain;
-extern float fConstun0;
-extern int   weg;
-extern int   program;
-extern unsigned char* midi_send;
-extern int   send;
-extern float fautogain;
-extern int   volume;
-extern float fpitch;
-extern int   noten;
-extern float fslider32;
-extern float cache_note;
-extern int fcheckbox10;
-extern int   program1;
-extern int   send1;
-extern int   noten1;
-extern float fautogain1;
-extern int   volume1;
-extern unsigned char* midi_send1;
-extern int   send2;
-extern int   noten2;
-extern float fpitch1;
-extern float fpitch2;
-extern int fcheckbox11;
-extern int   program2;
-extern int   volume2;
-extern int Beat_is;
-extern unsigned char* midi_send2;
-extern float fautogain2;
+	MidiVariables();
+	void init(int samplingFreq);
+};
 
+extern MidiVariables midi;
 
 /* square function */
 inline double sqrf(float x) { return x * x; }
 
 // wrap the state of the latency change warning (dis/enable) to
 // the interface settings to load and save it
-inline void set_latency_warning_change() { fwarn_swap = fwarn; }
-inline void get_latency_warning_change() { fwarn = fwarn_swap; }
+inline void set_latency_warning_change() { audio.fwarn_swap = audio.fwarn; }
+inline void get_latency_warning_change() { audio.fwarn = audio.fwarn_swap; }
 
-inline bool isMidiOn() { return (midistate == kMidiOn ? true : false); }
-inline void turnOffMidi() { midistate = kMidiOff; }
-inline void turnOnMidi() { midistate = kMidiOn; }
+inline bool isMidiOn() { return (audio.midistate == kMidiOn ? true : false); }
+inline void turnOffMidi() { audio.midistate = kMidiOff; }
+inline void turnOnMidi() { audio.midistate = kMidiOn; }
 
 /* function declarations  */
 void gx_engine_init();
 void gx_engine_reset();
 void faust_init(int samplingFreq);
-void initMidi(int samplingFreq);
 void compute_midi(int len);
 void compute_midi_in(void* midi_input_port_buf);
 void process_midi(int count);

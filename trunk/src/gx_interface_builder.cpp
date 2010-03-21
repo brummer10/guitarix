@@ -78,8 +78,8 @@ void GxMainInterface::setup()
 		addMainMenu();
 
 		//----- this is a dummy widget, only for save settings for the latency warning dialog
-		openWarningBox("WARNING", &gx_engine::fwarn);
-		setSkinBox("SKIN", &gx_engine::fskin);
+		openWarningBox("WARNING", &gx_engine::audio.fwarn);
+		setSkinBox("SKIN", &gx_engine::audio.fskin);
 		closeBox();
 
 		//----- the upper box,
@@ -94,7 +94,7 @@ void GxMainInterface::setup()
 					//----- the tuner widget
 					openVerticalBox("");
 					{
-						addNumDisplay("", &gx_engine::fConsta1t);
+						addNumDisplay("", &gx_engine::audio.fConsta1t);
 					}
 					closeBox();
 
@@ -108,7 +108,7 @@ void GxMainInterface::setup()
 					//----- the jconv widget on the main window
 					openFrameBox("");
 					{
-						openExpanderBox(" convolver ", &gx_engine::fexpand2);
+						openExpanderBox(" convolver ", &gx_engine::audio.fexpand2);
 						{
 							openHandleBox("  ");
 							{
@@ -116,7 +116,7 @@ void GxMainInterface::setup()
 								{
 									openHorizontalBox("");
 									{
-										openDialogBox("jconv", &gx_engine::fdialogboxj);
+										openDialogBox("jconv", &gx_engine::audio.fdialogboxj);
 										{
 											openHandleBox("  ");
 											{
@@ -151,7 +151,7 @@ void GxMainInterface::setup()
 
 									openVerticalBox("");
 									{
-										addJConvButton("convolver settings", &gx_engine::filebutton);
+										addJConvButton("convolver settings", &gx_engine::audio.filebutton);
 										addJToggleButton("run convolver", &gx_jconv::GxJConvSettings::checkbutton7);
 									}
 									closeBox();
@@ -172,7 +172,7 @@ void GxMainInterface::setup()
 		//----- end of the upper box
 
 		//----- the middle box,
-		openExpanderBox(" CONTROLS ", &gx_engine::fexpand);
+		openExpanderBox(" CONTROLS ", &gx_engine::audio.fexpand);
 		{
 			//----- a handle box is a vertical box
 			openHandleBox("  ");
@@ -414,7 +414,7 @@ void GxMainInterface::setup()
 									openHorizontalTableBox("");
 									{
 										//----- the compressor
-										openHorizontalOrderBox("", &gx_engine::posit5);
+										openHorizontalOrderBox("", &gx_engine::audio.posit5);
 										{
 											openVerticalBox("compressor");
 											{
@@ -423,7 +423,7 @@ void GxMainInterface::setup()
 												{
 													addtoggle("compressor.on_off", "");
 													//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-													openDialogBox("compressor", &gx_engine::fdialogbox8);
+													openDialogBox("compressor", &gx_engine::audio.fdialogbox8);
 													{
 														openHandleBox("  ");
 														{
@@ -464,7 +464,7 @@ void GxMainInterface::setup()
 											//----- end compressor
 										}
 										closeBox();
-										openHorizontalOrderBox("", &gx_engine::posit1);
+										openHorizontalOrderBox("", &gx_engine::audio.posit1);
 										{
 											//----- overdrive
 											openVerticalBox("overdrive");
@@ -476,7 +476,7 @@ void GxMainInterface::setup()
 											//-----end overdrive
 										}
 										closeBox();
-										openHorizontalOrderBox("", &gx_engine::posit2);
+										openHorizontalOrderBox("", &gx_engine::audio.posit2);
 										{
 											//----- distortion
 											openVerticalBox(" distortion");
@@ -488,7 +488,7 @@ void GxMainInterface::setup()
 
 													//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
 													{
-														openDialogBox("distortion", &gx_engine::fdialogbox1);
+														openDialogBox("distortion", &gx_engine::audio.fdialogbox1);
 														{
 															openHandleBox("  ");
 															{
@@ -541,7 +541,7 @@ void GxMainInterface::setup()
 											}
 											closeBox();
 
-											openHorizontalOrderBox("", &gx_engine::posit3);
+											openHorizontalOrderBox("", &gx_engine::audio.posit3);
 											{
 												//----- freeverb
 												openVerticalBox(" freeverb");
@@ -551,7 +551,7 @@ void GxMainInterface::setup()
 													{
 														addtoggle("freeverb.on_off","");
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-														openDialogBox("freeverb", &gx_engine::fdialogbox2);
+														openDialogBox("freeverb", &gx_engine::audio.fdialogbox2);
 														{
 															openHandleBox("  ");
 															{
@@ -579,7 +579,7 @@ void GxMainInterface::setup()
 											}
 											closeBox();
 
-											openHorizontalOrderBox("", &gx_engine::posit4);
+											openHorizontalOrderBox("", &gx_engine::audio.posit4);
 											{
 												//----- IR
 												openVerticalBox("IR");
@@ -592,9 +592,9 @@ void GxMainInterface::setup()
 													closeBox();
 													openHorizontalBox("");
 													{
-														addtoggle("", &gx_engine::fcheckbox8);
+														addtoggle("", &gx_engine::audio.fcheckbox8);
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-														openDialogBox("IR", &gx_engine::fdialogbox3);
+														openDialogBox("IR", &gx_engine::audio.fdialogbox3);
 														{
 															openHandleBox("  ");
 															{
@@ -634,7 +634,7 @@ void GxMainInterface::setup()
 											}
 											closeBox();
 
-											openHorizontalOrderBox("", &gx_engine::posit0);
+											openHorizontalOrderBox("", &gx_engine::audio.posit0);
 											{
 												//----- crybaby
 												openVerticalBox("crybaby");
@@ -642,9 +642,9 @@ void GxMainInterface::setup()
 													addregler("crybaby.wah"," wah ");
 													openHorizontalBox("");
 													{
-														addtoggle("", &gx_engine::fcheckbox5);
+														addtoggle("", &gx_engine::audio.fcheckbox5);
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-														openDialogBox("crybaby", &gx_engine::fdialogbox4);
+														openDialogBox("crybaby", &gx_engine::audio.fdialogbox4);
 														{
 															openHandleBox("  ");
 															{
@@ -681,7 +681,7 @@ void GxMainInterface::setup()
 											}
 											closeBox();
 
-											openHorizontalOrderBox("", &gx_engine::posit6);
+											openHorizontalOrderBox("", &gx_engine::audio.posit6);
 											{
 												//----- echo
 												openVerticalBox("echo");
@@ -699,7 +699,7 @@ void GxMainInterface::setup()
 											closeBox();
 										}
 										//----- end echo
-										openHorizontalOrderBox("", &gx_engine::posit7);
+										openHorizontalOrderBox("", &gx_engine::audio.posit7);
 										{
 											openVerticalBox("delay");
 											{
@@ -717,7 +717,7 @@ void GxMainInterface::setup()
 									}
 									closeBox();
 									//----- chorus
-									openHorizontalRestetBox("", &gx_engine::posit8);
+									openHorizontalRestetBox("", &gx_engine::audio.posit8);
 									{
 										openVerticalBox("chorus");
 										{
@@ -725,7 +725,7 @@ void GxMainInterface::setup()
 											openHorizontalBox("");
 											{
 												addtoggle("chorus.on_off","");
-												openDialogBox("chorus", &gx_engine::fchorusbox);
+												openDialogBox("chorus", &gx_engine::audio.fchorusbox);
 												{
 													openHandleBox("  ");
 													{
@@ -774,7 +774,7 @@ void GxMainInterface::setup()
 										openHorizontalBox("");
 										{
 											//----- the oscilloscope
-											addLiveWaveDisplay(" ", &gx_engine::viv , &gx_engine::vivi);
+											addLiveWaveDisplay(" ", &gx_engine::audio.viv , &gx_engine::audio.vivi);
 										}
 										closeBox();
 										openVerticalBox1("");
@@ -876,7 +876,7 @@ void GxMainInterface::setup()
 						openHorizontalBox("midi_out");
 						{
 							//----- create the midi settings dialog
-							openDialogBox("midi_out", &gx_engine::fdialogbox6);
+							openDialogBox("midi_out", &gx_engine::audio.fdialogbox6);
 							{
 								openTabBox("");
 								{
@@ -1005,7 +1005,7 @@ void GxMainInterface::setup()
 										closeBox();
 									}
 									closeBox();
-									addStatusDisplay("", &gx_engine::midistat);
+									addStatusDisplay("", &gx_engine::audio.midistat);
 									openVerticalBox("Midi gain");
 									{
 										addHorizontalWheel("beat_detector.midi_gain");

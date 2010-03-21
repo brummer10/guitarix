@@ -247,6 +247,26 @@ extern ParamMap parameter_map; // map id -> parameter, zone -> parameter
 
 void initParams();
 
+inline void registerParam(const char*a,const char*b,float*c,float std,float lower,float upper,float step)
+{
+	parameter_map.insert(new FloatParameter(a,b,Parameter::Continuous,true,*c,std,lower,upper,step,true));
+}
+
+inline void registerParam(const char*a,const char*b,float*c,float std=0)
+{
+	parameter_map.insert(new FloatParameter(a,b,Parameter::Switch,true,*c,std,0,1,1,true));
+}
+
+// should be bool
+inline void registerParam(const char*a,const char*b,int*c,int d)
+{
+	parameter_map.insert(new IntParameter(a,b,Parameter::Switch,true,*c,d,0,1065353216,true)); //FIXME (see above float/int)
+}
+
+inline void registerParam(const char*a,const char*b,bool*c,bool d=false)
+{
+	parameter_map.insert(new BoolParameter(a,b,Parameter::Switch,true,*c,d,true));
+}
 
 /****************************************************************
  **

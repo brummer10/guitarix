@@ -162,19 +162,6 @@ extern GCallback preset_action_func[];
 
 /* -------------------------------------------------------------------------- */
 
-/* ----- child process namespace ----- */
-namespace gx_child_process
-{
-/* global var declarations  */
-
-extern FILE*    jcap_stream;
-
-extern pid_t child_pid[];
-}
-
-
-/* -------------------------------------------------------------------------- */
-
 /* ----- system namespace ----- */
 namespace gx_system
 {

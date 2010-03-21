@@ -101,8 +101,8 @@ gboolean tuner_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
     static int tuner_background = 0;
     char s[64];
-    int vis = round(gx_engine::fConsta1t);
-    float scale = ((gx_engine::fConsta1t-vis)-(-1.0))/(1.0-(-1.0));
+    int vis = round(gx_engine::audio.fConsta1t);
+    float scale = ((gx_engine::audio.fConsta1t-vis)-(-1.0))/(1.0-(-1.0));
     if ((scale <= 0.0) || (scale > 1.0)) scale = 0.0;
     vis += 9;
     static const char* note[] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};

@@ -42,6 +42,8 @@ namespace gx_gui
  **
  */
 
+void gx_start_stop_jconv(GtkWidget*, gpointer);
+
 class GxMainInterface : public gx_ui::GxUI
 {
 private:
@@ -74,7 +76,6 @@ protected :
 	GtkWidget*          fLevelMeters[2];
 
 	GtkWidget*          fSignalLevelBar;
-	GtkCheckMenuItem*   fMeterBridge;
 
 	// menu items
 	map<string, GtkWidget*> fMenuList;
@@ -119,7 +120,6 @@ public :
 	GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
 
 	GtkWidget*   const getMenu(const string name) const { return fMenuList.at(name); }
-	void meterbridge_terminated() { gtk_check_menu_item_set_active(fMeterBridge, FALSE); }
 
 	// -- update jack client port lists
 	enum { JACK_AUDIO_IN, JACK_AUDIO_OUT, JACK_MIDI_IN };

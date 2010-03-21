@@ -190,23 +190,6 @@ GCallback preset_action_func[] =
 
 /* ------------------------------------------------------------------------- */
 
-/* ----- child process namespace ----- */
-namespace gx_child_process
-{
-/* global var declarations */
-
-FILE*    jcap_stream;
-
-pid_t child_pid[NUM_OF_CHILD_PROC] =
-{
-	NO_PID,
-	NO_PID,
-	NO_PID
-};
-}
-
-/* ------------------------------------------------------------------------- */
-
 /* ----- system namespace ----- */
 namespace gx_system
 {

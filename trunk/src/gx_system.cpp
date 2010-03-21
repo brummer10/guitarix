@@ -1072,7 +1072,7 @@ void gx_set_override_options(string* optvar)
 {
 	if (!gx_gui::no_opt_skin) {
 		gx_gui::gx_actualize_skin_index(optvar[RC_STYLE]);
-		fskin = gx_gui::last_skin = gx_gui::gx_current_skin;
+		audio.fskin = gx_gui::last_skin = gx_gui::gx_current_skin;
 	}
 }
 
@@ -1379,8 +1379,6 @@ int gx_system_call(const string& name1,
 //----- clean up when shut down
 void gx_destroy_event()
 {
-	(void)gx_child_process::gx_terminate_child_procs();
-
 	// remove image buffers
 	if (G_IS_OBJECT(gx_gui::ib))
 		g_object_unref(gx_gui::ib);
@@ -1421,7 +1419,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 	if (isInitialized())
 	{
 		get_latency_warning_change();
-		gx_gui::gx_get_skin_change(&gx_engine::fskin);
+		gx_gui::gx_get_skin_change(&audio.fskin);
 
 		// only save if we are not in a preset context
 		if (!setting_is_preset)

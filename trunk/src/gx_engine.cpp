@@ -85,7 +85,7 @@ void gx_engine_init()
 	  pf = fftw_plan_dft_1d(frag, fftin1, fftout1, FFTW_FORWARD, FFTW_ESTIMATE);
 	*/
 
-	initMidi(gx_jack::jack_sr);
+	midi.init(gx_jack::jack_sr);
 	faust_init(gx_jack::jack_sr);
 	gx_preset::gx_recall_main_setting(NULL, NULL);
 	initialized = true;

@@ -45,6 +45,8 @@ using namespace std;
 
 #include "guitarix.h"
 
+#include <dirent.h>
+
 using namespace gx_system;
 using namespace gx_preset;
 using namespace gx_cairo;
@@ -668,46 +670,26 @@ void gx_actualize_skin_index(const string& skin_name)
 //------- count the number of available skins
 unsigned int gx_fetch_available_skins()
 {
-	string tmpfile = gx_user_dir + ".n_skins";
-
-	// make sure user dir exists
-	gx_system_call("mkdir -p", gx_user_dir);
-
-	// create a tmpfile
-	gx_system_call("rm -f", tmpfile.c_str());
-	gx_system_call("touch", tmpfile.c_str());
-
-	string filelist  =
-		gx_style_dir + string("guitarix*.rc") + " > " + tmpfile;
-
-	gx_system_call("ls -1", filelist.c_str(), false);
-
-	// read out number of files
-	ifstream f(tmpfile.c_str());
-
-	string rcfile;
-	if (f.good())
-	{
-		while (!f.eof())
-		{
-			// retrieve filename
-			getline(f, rcfile);
-
-			// trim it
-			if (!rcfile.empty())
-			{
-				rcfile.erase(rcfile.find(".rc"));
-				rcfile.erase(0, rcfile.find("_")+1);
-				skin_list.push_back(rcfile);
-			}
-		}
-
-		f.close();
+	DIR *d;
+	d = opendir(gx_style_dir.c_str());
+	if (!d) {
+		return 0;
 	}
-
-	// remove tmp file
-	gx_system_call("rm -f", tmpfile.c_str());
-
+	// look for guitarix_*.rc and extract *-part
+    struct dirent *de;
+	while ((de = readdir(d)) != 0) {
+		char *p = de->d_name;
+		if (strncmp(p, "guitarix_", 9) != 0) {
+			continue;
+		}
+		p += 9;
+		int n = strlen(p) - 3;
+		if (strcmp(p+n, ".rc") != 0) {
+			continue;
+		}
+		skin_list.push_back(string(p, n));
+	}
+	closedir(d);
 	return skin_list.size();
 }
 

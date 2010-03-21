@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Hermann Meyer and James Warden
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,33 +20,83 @@
 /* ------- This is the Child Processes namespace ------- */
 
 #pragma once
-
-#define NUM_OF_CHILD_PROC (3)
-#define NO_PID (-1)
-    
-#define JACKCAP_IDX (0)
-#define METERBG_IDX (1)
-#define JCONV_IDX   (2)
+#include <sigc++/sigc++.h>
 
 namespace gx_child_process
 {
-/* --------------- function declarations -------------- */
 
-FILE*    gx_popen(const char*, const char*, const int);
-int      gx_pclose(FILE*, const int);
-pid_t    gx_find_child_pid(const char*); 
-bool     gx_lookup_pid(const pid_t); 
+class GxChild
+{
+public:
+	sigc::signal<void, bool> terminated;
+	bool kill();
+	bool hasPid(pid_t pid) { return pid == m_pid; }
+	bool hasName(string name) { return name == m_name; }
 
-bool     gx_capture_command(const int, string&);
-bool     gx_capture(const char*);
-void     gx_show_jack_capture_gui (GtkWidget* , gpointer);
+private:
+	string m_name;
+	int m_killsignal;
+	int m_pid;
+	GxChild(string name, int killsignal, int pid): m_name(name), m_killsignal(killsignal), m_pid(pid) {}
+	friend class GxChildProcs;
+};
 
-void     gx_start_stop_jack_capture (GtkWidget*, gpointer);
-void     gx_start_stop_jconv(GtkWidget*, gpointer);
-void     gx_start_stop_meterbridge (GtkCheckMenuItem*, gpointer);
+class GxChildProcs
+{
+private:
+	list<GxChild*> children;
 
-int      gx_terminate_child_procs();
+public:
+	~GxChildProcs();
+	bool killall();
+	bool kill(string name);
+	GxChild *find(string name);
+	GxChild *launch(string name, const char* const args[], int killsignal);
+	GxChild *launch(string name, list<string> args, int killsignal);
+	friend gboolean gx_sigchld_handler(gpointer);
+};
+
+extern GxChildProcs childprocs;
 gboolean gx_sigchld_handler(gpointer);
+
+
+/****************************************************************
+ ** classes for UI callbacks
+ */
+
+class JackCaptureGui: public sigc::trackable
+{
+private:
+	GtkCheckMenuItem *item;
+	void terminated(bool pgm_found);
+	JackCaptureGui(GxChild *p, GtkCheckMenuItem *i);
+public:
+	static void start_stop(GtkCheckMenuItem *menuitem, gpointer);
+};
+
+class JackCapture: public sigc::trackable
+{
+private:
+	GtkToggleButton *button;
+	void terminated(bool pgm_found);
+	static string make_fname(string buf, size_t j, size_t i, int n);
+	static list<string> capture_command(int& seq);
+	JackCapture(GxChild *p, GtkToggleButton *b);
+public:
+	static void start_stop(GtkWidget *widget, gpointer data);
+	static void stop();
+};
+
+class Meterbridge: public sigc::trackable
+{
+private:
+	GtkCheckMenuItem *item;
+	void terminated(bool pgm_found);
+	Meterbridge(GxChild *p, GtkCheckMenuItem *i);
+public:
+	static void start_stop(GtkCheckMenuItem *menuitem, gpointer);
+	static void stop();
+};
 
 /* -------------------------------------------------------------------------- */
 } /* end of gx_child_process namespace */

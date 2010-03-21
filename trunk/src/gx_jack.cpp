@@ -382,23 +382,10 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 		}
 	} else {
 		gx_jack_cleanup();
-
-		// we bring down jack capture and meterbridge but not jconv
-		// meterbridge
-		if (child_pid[METERBG_IDX] != NO_PID) {
-			(void)kill(child_pid[METERBG_IDX], SIGTERM);
-			child_pid[METERBG_IDX] = NO_PID;
-		}
-
-		// jack_capture
-		if (child_pid[JACKCAP_IDX] != NO_PID) {
-			(void)kill(child_pid[JACKCAP_IDX], SIGINT);
-			(void)gx_pclose(jcap_stream, JACKCAP_IDX);
-
-			if (gx_gui::record_button)
-				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gx_gui::record_button),
-				                             FALSE);
-		}
+		
+		// we bring down jack capture and meterbridge
+		Meterbridge::stop();
+		JackCapture::stop();
 
 		if (gx_gui::gx_jackd_on_image) {
 			gtk_widget_hide(gx_gui::gx_jackd_on_image);
@@ -459,7 +446,7 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg)
 			jcio = 1;
 			gx_jconv::GxJConvSettings::checkbutton7 = 0;
 			gx_jconv::checkbox7 = 0.0;
-			gx_child_process::gx_start_stop_jconv(NULL, NULL);
+			gx_gui::gx_start_stop_jconv(NULL, NULL);
 		}
 
 		// let's resize the buffer
@@ -472,7 +459,7 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg)
 			jcio = 0;
 			gx_jconv::GxJConvSettings::checkbutton7 = 1;
 			gx_jconv::checkbox7 = 1.0;
-			gx_child_process::gx_start_stop_jconv(NULL, NULL);
+			gx_gui::gx_start_stop_jconv(NULL, NULL);
 		}
 	}
 	else // restore latency status

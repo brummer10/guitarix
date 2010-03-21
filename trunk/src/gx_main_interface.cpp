@@ -1506,7 +1506,7 @@ void GxMainInterface::addToggleButton(const char* label, float* zone)
 	gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
 	gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
 
-	g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (gx_start_stop_jack_capture), NULL);
+	g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (JackCapture::start_stop), NULL);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
 	gtk_widget_add_accelerator(button, "activate", fAccelGroup, GDK_r, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
 	gtk_widget_show (lab);
@@ -1554,6 +1554,22 @@ void GxMainInterface::addPToggleButton(const char* label, float* zone)
 	connect_midi_controller(button, zone);
 }
 
+void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
+{
+	if (gx_jconv::GxJConvSettings::checkbutton7 == 0) {
+		gx_engine::conv.stop();
+	} else {
+		gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
+		bool rc = gx_engine::conv.configure(
+			gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
+			jcset->getGain(), jcset->getlGain(), jcset->getDelay(), jcset->getlDelay(),
+			jcset->getOffset(), jcset->getLength(), jcset->getMem(), jcset->getBufferSize());
+		if (!rc || !gx_engine::conv.start()) {
+			gx_jconv::GxJConvSettings::checkbutton7 = 0;
+		}
+	}
+}
+
 void GxMainInterface::addJToggleButton(const char* label, float* zone)
 {
 	GdkColor colorRed;
@@ -1589,7 +1605,7 @@ void GxMainInterface::addJToggleButton(const char* label, float* zone)
 	                  G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
 
 	g_signal_connect (GTK_OBJECT (button), "toggled",
-	                  G_CALLBACK (gx_child_process::gx_start_stop_jconv), (gpointer)c);
+	                  G_CALLBACK (gx_start_stop_jconv), (gpointer)c);
 	connect_midi_controller(button, zone);
 }
 
@@ -2742,18 +2758,17 @@ void GxMainInterface::addOptionMenu()
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_m, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
-	                  G_CALLBACK (gx_start_stop_meterbridge), NULL);
+	                  G_CALLBACK (Meterbridge::start_stop), NULL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
-	fMeterBridge = GTK_CHECK_MENU_ITEM(menuitem);
 
 	/*-- Create Open check menu item under Options submenu --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("_Jack Capture Settings");
+	menuitem = gtk_check_menu_item_new_with_mnemonic ("_Jack Capture Settings");
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_j, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	g_signal_connect(GTK_OBJECT (menuitem), "activate",
-	                 G_CALLBACK (gx_child_process::gx_show_jack_capture_gui), NULL);
+	                 G_CALLBACK (JackCaptureGui::start_stop), NULL);
 	gtk_widget_show (menuitem);
 
 	/*-- add a separator line --*/
@@ -3392,7 +3407,7 @@ void GxMainInterface::run()
 	//----- set the last used skin when no cmd is given
 	int skin_index = gx_current_skin;
 	if (no_opt_skin == 1)
-		skin_index = gx_engine::fskin;
+		skin_index = gx_engine::audio.fskin;
 
 	gx_set_skin_change(skin_index);
 	gx_update_skin_menu_item(skin_index);
