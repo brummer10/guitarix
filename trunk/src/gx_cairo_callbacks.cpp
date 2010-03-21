@@ -190,10 +190,10 @@ gboolean tuner_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
             cairo_set_dash (cr, dashe, 1, 0);
 
             cairo_set_source_rgb(cr,  0.5, 0.1, 0.1);
-            cairo_set_line_width(cr, 1.0);
+            cairo_set_line_width(cr, 2.0);
             cairo_arc (cr, x0+50, y0+rect_height-5, 2.0, 0, 2*M_PI);
             cairo_move_to(cr,x0+50, y0+rect_height-5);
-            cairo_line_to(cr, (scale*rect_width)+x0+50, y0+(scale*scale*30)+2);
+            cairo_line_to(cr, ((scale*2)*rect_width)+x0+50, y0+(scale*scale*30)+2);
             cairo_stroke(cr);
 
             cairo_destroy(cr);
