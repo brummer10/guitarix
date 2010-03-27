@@ -99,7 +99,6 @@ void gx_skin_color(cairo_pattern_t *pat)
 gboolean tuner_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 
-    static int tuner_background = 0;
     char s[64];
     int vis = round(gx_engine::audio.fConsta1t);
     float scale = ((gx_engine::audio.fConsta1t-vis)-(-1.0))/(1.0-(-1.0));
@@ -123,53 +122,11 @@ gboolean tuner_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
             scale -= 0.5;
             cairo_t *cr;
 
-            double x0      = 0;
-            double y0      = 0;
+            double x0      = gx_gui::pb->allocation.x;
+            double y0      = gx_gui::pb->allocation.y;
             double rect_width  = 100;
             double rect_height = 60;
 
-            // paint tuner background picture only once
-            if(!tuner_background) {
-                surface_tuner = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, rect_width+2,rect_height+2);
-                cr = cairo_create(surface_tuner);
-
-                cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
-                cairo_set_source_rgb (cr, 0, 0, 0);
-                cairo_fill (cr);
-
-                cairo_pattern_t*pat =
-                cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
-                cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
-                cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
-                cairo_set_source (cr, pat);
-                cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-2);
-                cairo_fill (cr);
-
-                cairo_set_source_rgb(cr,  0.1, 0.5, 0.1);
-                double dashes[] = {
-                    0.0,  /* ink */
-                    rect_height,  /* skip */
-                    10.0,  /* ink */
-                    10.0   /* skip*/
-                };
-                int    ndash  = sizeof (dashes)/sizeof(dashes[0]);
-                double offset = 100.0;
-
-                cairo_set_dash (cr, dashes, ndash, offset);
-                cairo_set_line_width(cr, 3.0);
-                for (int i = -5;i<6;i++) {
-                cairo_move_to(cr,x0+50, y0+rect_height-5);
-                cairo_line_to(cr, (((i*0.1))*rect_width)+x0+50, y0+(((i*0.1*i*0.1))*30)+2);
-                }
-                cairo_stroke(cr);
-                cairo_set_source_rgb(cr,  0.1, 0.8, 0.1);
-                cairo_move_to(cr,x0+50, y0+rect_height-5);
-                cairo_line_to(cr, x0+50, y0+2);
-                cairo_stroke(cr);
-                tuner_background = 1;
-            } // backgroundpicture ready to use
-            x0      = gx_gui::pb->allocation.x;
-            y0      = gx_gui::pb->allocation.y;
             cr = gdk_cairo_create(gx_gui::pb->window);
             cairo_rectangle (cr, x0,y0+60,rect_width+1,30);
             cairo_set_source_rgb (cr, 0, 0, 0);
@@ -190,7 +147,7 @@ gboolean tuner_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
             cairo_show_text(cr, tir.str().c_str());
 
             cairo_move_to(cr, x0+50, y0+rect_height-5);
-            double dashe[] = {
+            static double dashe[] = {
                 rect_height-10,  /* ink */
                 rect_height,  /* skip */
                 0.0,  /* ink */
@@ -773,6 +730,55 @@ gboolean box12_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
 void gx_init_pixmaps()
 {
+
+    cairo_t *cr;
+
+    double x0      = 0;
+    double y0      = 0;
+    double rect_width  = 100;
+    double rect_height = 60;
+
+    // paint tuner background picture only once
+
+    surface_tuner = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, rect_width+2,rect_height+2);
+    cr = cairo_create(surface_tuner);
+
+    cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
+    cairo_set_source_rgb (cr, 0, 0, 0);
+    cairo_fill (cr);
+
+    cairo_pattern_t*pat =
+    cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+    cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
+    cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+    cairo_set_source (cr, pat);
+    cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-2);
+    cairo_fill (cr);
+
+    cairo_set_source_rgb(cr,  0.1, 0.5, 0.1);
+    double dashes[] = {
+        0.0,  /* ink */
+        rect_height,  /* skip */
+        10.0,  /* ink */
+        10.0   /* skip*/
+    };
+    int    ndash  = sizeof (dashes)/sizeof(dashes[0]);
+    double offset = 100.0;
+
+    cairo_set_dash (cr, dashes, ndash, offset);
+    cairo_set_line_width(cr, 3.0);
+    for (int i = -5;i<6;i++) {
+        cairo_move_to(cr,x0+50, y0+rect_height-5);
+        cairo_line_to(cr, (((i*0.1))*rect_width)+x0+50, y0+(((i*0.1*i*0.1))*30)+2);
+    }
+    cairo_stroke(cr);
+    cairo_set_source_rgb(cr,  0.1, 0.8, 0.1);
+    cairo_move_to(cr,x0+50, y0+rect_height-5);
+    cairo_line_to(cr, x0+50, y0+2);
+    cairo_stroke(cr);
+    cairo_destroy(cr);
+
+
 	/* XPM */
 	static const char * tribe_xpm[] =
 		{

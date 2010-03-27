@@ -34,6 +34,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
+#include <algorithm>
 
 using namespace std;
 
@@ -688,6 +689,7 @@ unsigned int gx_fetch_available_skins()
 			continue;
 		}
 		skin_list.push_back(string(p, n));
+		sort(skin_list.begin(), skin_list.end());
 	}
 	closedir(d);
 	return skin_list.size();
