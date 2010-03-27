@@ -20,10 +20,10 @@
 /* ------- This is the GUI namespace ------- */
 // Note: this header file depends on gx_engine.h
 
+#pragma once
+
 #include <cassert>
 #include <sigc++/sigc++.h>
-
-#pragma once
 
 #ifndef NJACKLAT
 #define NJACKLAT (9)

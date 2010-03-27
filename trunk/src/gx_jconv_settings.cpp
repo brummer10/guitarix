@@ -465,6 +465,8 @@ void gx_setting_jconv_dialog_gui(GtkWidget *widget, gpointer data)
 
 	GtkFileFilter* filter = gtk_file_filter_new ();
 	gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*.wav");
+	gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*.WAV");
+	gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*.Wav");
 	gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (gx_gui::fbutton), GTK_FILE_FILTER(filter));
 
 	// label for display the filename

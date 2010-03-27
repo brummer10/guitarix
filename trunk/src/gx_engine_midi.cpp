@@ -239,7 +239,7 @@ void process_midi(int len)
 	int iTemps41 = int(midi.fslider41);
 	int iTemps42 = int(midi.fslider42)*12;
 	int iTemps40 = int(midi.fslider40);
-	int step = midi.fslider39;
+	int step = int(midi.fslider39);
 	int iTemps37  = int(48000/midi.fslider37);
 	int iTemps37a  = iTemps37+20;
 	int iTemps46 = int(midi.fslider46);
@@ -596,6 +596,7 @@ void process_midi(int len)
 									midi.midi_send1[2] = iTemps32; // velocity
 									midi.midi_send1[1] = 123;  // all notes off
 									midi.midi_send1[0] = 0xB0 |  iTemps35;	// controller
+									//fprintf(stderr, "Send %i , %i, %i.\n",iTemps32,123,0xB0 |  iTemps35);
 								}
 							}
 
