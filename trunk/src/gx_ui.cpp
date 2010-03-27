@@ -36,6 +36,15 @@
 #include <cstdio>
 #include <cassert>
 
+#include <array>
+#include <zita-convolver.h>
+#include <fftw3.h>
+#include <zita-resampler.h>
+
+#include <cassert>
+#include <sigc++/sigc++.h>
+#include <semaphore.h>
+
 using namespace std;
 
 #include "gx_ui.h"

@@ -35,12 +35,20 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <array>
+#include <zita-convolver.h>
+#include <fftw3.h>
+#include <zita-resampler.h>
+
+#include <cassert>
+#include <sigc++/sigc++.h>
+#include <semaphore.h>
+
 using namespace std;
 
 #include <sys/stat.h>
 #include <string.h>
 #include <sndfile.h>
-//#include <fftw3.h>
 #include <jack/jack.h>
 #include <gtk/gtk.h>
 
@@ -660,7 +668,7 @@ bool recallState()
 	string filename = gx_user_dir + client_name + "_rc";
 	ifstream f(filename.c_str());
 	if (!f.good()) {
-		return false; 
+		return false;
 	}
 	gx_system::JsonParser jp(f);
 	try {
@@ -1114,7 +1122,7 @@ void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype)
 			written = true;
 		}
 	}
-	
+
 	if (!written) { // queue the messages
 		msglist.push_back(logmsg(msgbuf.str(), msgtype));
 	}

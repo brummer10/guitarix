@@ -32,10 +32,20 @@
 #include <fstream>
 #include <sstream>
 
+#include <array>
+#include <zita-convolver.h>
+#include <fftw3.h>
+#include <zita-resampler.h>
+
+#include <cassert>
+#include <sigc++/sigc++.h>
+#include <semaphore.h>
+
 #include <cmath>
 #include <gtk/gtk.h>
 #include <jack/midiport.h>
 #include <sndfile.h>
+
 using namespace std;
 
 #include "guitarix.h"

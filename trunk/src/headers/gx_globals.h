@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include <semaphore.h>
-
 /* ----- main engine ----- */
 namespace gx_engine
 {

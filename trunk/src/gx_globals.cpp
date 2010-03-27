@@ -33,6 +33,15 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <cassert>
+#include <sigc++/sigc++.h>
+#include <semaphore.h>
+
+#include <array>
+#include <zita-convolver.h>
+#include <fftw3.h>
+#include <zita-resampler.h>
+
 using namespace std;
 
 //#include <fftw3.h>

@@ -32,6 +32,16 @@
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
+
+#include <array>
+#include <zita-convolver.h>
+#include <fftw3.h>
+#include <zita-resampler.h>
+
+#include <cassert>
+#include <sigc++/sigc++.h>
+#include <semaphore.h>
+
 #include <gtk/gtk.h>
 #include <jack/jack.h>
 #include <sndfile.h>

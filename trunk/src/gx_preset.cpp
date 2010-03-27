@@ -35,10 +35,18 @@
 #include <cstdio>
 #include <cmath>
 
+#include <array>
+#include <zita-convolver.h>
+#include <fftw3.h>
+#include <zita-resampler.h>
+
+#include <cassert>
+#include <sigc++/sigc++.h>
+#include <semaphore.h>
+
 using namespace std;
 
 #include <sndfile.h>
-//#include <fftw3.h>
 #include <jack/jack.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -145,7 +153,7 @@ bool gx_modify_preset(const char* presname, const char* newname=0, bool remove=f
 				jw.write(jp.current_value().c_str());
 				jp.copy_object(jw);
 			}
-		} 
+		}
 		jp.next(JsonParser::end_array);
 		jp.next(JsonParser::end_token);
 
@@ -591,7 +599,7 @@ bool gx_load_preset_from_file(const char* presname)
 			} else {
 				jp.skip_object();
 			}
-		} 
+		}
 		jp.next(JsonParser::end_array);
 		jp.next(JsonParser::end_token);
 	} catch (JsonException& e) {

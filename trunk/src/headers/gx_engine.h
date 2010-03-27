@@ -21,11 +21,6 @@
 
 #pragma once
 
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
 // --- defines the processing type
 #define ZEROIZE_BUFFERS  (0)
 #define JUSTCOPY_BUFFERS (1)

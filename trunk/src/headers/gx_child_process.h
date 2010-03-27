@@ -20,7 +20,6 @@
 /* ------- This is the Child Processes namespace ------- */
 
 #pragma once
-#include <sigc++/sigc++.h>
 
 namespace gx_child_process
 {

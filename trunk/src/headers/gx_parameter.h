@@ -22,10 +22,6 @@
 
 #pragma once
 
-#include <cassert>
-#include <sigc++/sigc++.h>
-
-
 namespace gx_gui
 {
 

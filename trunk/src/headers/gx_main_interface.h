@@ -22,9 +22,6 @@
 
 #pragma once
 
-#include <cassert>
-#include <sigc++/sigc++.h>
-
 #ifndef NJACKLAT
 #define NJACKLAT (9)
 #endif

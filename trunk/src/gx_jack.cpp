@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Hermann Meyer and James Warden
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,10 +34,18 @@
 #include <sys/types.h>
 #include <signal.h>
 
+#include <array>
+#include <zita-convolver.h>
+#include <fftw3.h>
+#include <zita-resampler.h>
+
+#include <cassert>
+#include <sigc++/sigc++.h>
+#include <semaphore.h>
+
 using namespace std;
 
 #include <sndfile.h>
-//#include <fftw3.h>
 #include <jack/jack.h>
 #include <jack/statistics.h>
 #include <jack/midiport.h>
@@ -382,7 +390,7 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 		}
 	} else {
 		gx_jack_cleanup();
-		
+
 		// we bring down jack capture and meterbridge
 		Meterbridge::stop();
 		JackCapture::stop();
