@@ -2234,7 +2234,7 @@ struct uiNumDisplay : public gx_ui::GxUiItem
 			fCache = *fZone;
 			if (shownote == 1)
 			{
-			    static const GdkRectangle rect = {0,0,110,70};
+			    static const GdkRectangle rect = {6,6,110,70};
                 gdk_window_invalidate_rect(GDK_WINDOW(pb->window),&rect,TRUE);
 			}
 			else if (shownote == 0)

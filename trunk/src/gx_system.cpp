@@ -1406,6 +1406,10 @@ void gx_destroy_event()
 	if (G_IS_OBJECT(gx_cairo::_image))
 		g_object_unref(gx_cairo::_image);
 
+	if (G_IS_OBJECT(gx_cairo::surface_tuner))
+		cairo_surface_destroy(gx_cairo::surface_tuner);
+
+
 	// remove threads from main GTK thread
 	if(gx_gui::g_threads[0] > 0)g_source_remove(gx_gui::g_threads[0]);
 	if(gx_gui::g_threads[1] > 0)g_source_remove(gx_gui::g_threads[1]);

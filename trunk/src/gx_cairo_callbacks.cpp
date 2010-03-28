@@ -145,8 +145,8 @@ gboolean tuner_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
             cairo_line_to(cr, x0+99, y0+63);
             cairo_stroke(cr);
 
-            x0      = gx_gui::pb->allocation.x;
-            y0      = gx_gui::pb->allocation.y;
+            //x0      = gx_gui::pb->allocation.x;
+            //y0      = gx_gui::pb->allocation.y;
             cairo_set_source_surface (cr, surface_tuner,x0,y0);
 			cairo_paint (cr);
             ostringstream tir;
@@ -762,8 +762,21 @@ void gx_init_pixmaps()
     cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
     cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
     cairo_set_source (cr, pat);
-    cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-2);
+    cairo_rectangle (cr, x0+2,y0+2,rect_width-3,rect_height-3);
     cairo_fill (cr);
+
+    cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+98, y0+3);
+    cairo_line_to(cr, x0+98, y0+64);
+    cairo_stroke(cr);
+
+    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+3, y0+64);
+    cairo_line_to(cr, x0+3, y0+3);
+    cairo_line_to(cr, x0+98, y0+3);
+    cairo_stroke(cr);
 
     cairo_set_source_rgb(cr,  0.1, 0.5, 0.1);
     double dashes[] = {
