@@ -595,9 +595,9 @@ void write_jack_connections(JsonWriter& w)
 }
 
 // -- save state including current preset data
-bool saveStateToFile()
+bool saveStateToFile( const string &filename )
 {
-	string filename = gx_user_dir + client_name + "_rc";
+    printf( "wrinting to %s\n", filename.c_str() );
 	string tmpfile = filename + "_tmp";
 	ofstream f(tmpfile.c_str());
 	JsonWriter w(f);
@@ -663,9 +663,8 @@ static void read_jack_connections(JsonParser& jp)
 }
 
 // -- recallState(filename) : load state from file
-bool recallState()
+bool recallState( const string &filename )
 {
-	string filename = gx_user_dir + client_name + "_rc";
 	ifstream f(filename.c_str());
 	if (!f.good()) {
 		return false;
@@ -827,7 +826,8 @@ void gx_signal_handler(int sig)
 gboolean  gx_ladi_handler(gpointer)
 {
 	gx_print_warning("signal_handler", "signal USR1 received, save settings");
-	saveStateToFile();
+	
+	saveStateToFile(gx_user_dir + client_name + "_rc");
 	return false;
 }
 
@@ -896,6 +896,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 		gchar* jack_input = NULL;
 		gchar* jack_midi = NULL;
 		gchar** jack_outputs = NULL;
+		gchar* jack_uuid = NULL;
 		GOptionGroup* optgroup_jack = g_option_group_new("jack",
 		                                                 "\033[1;32mJACK configuration options\033[0m",
 		                                                 "\033[1;32mJACK configuration options\033[0m",
@@ -905,9 +906,24 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 				{ "jack-input", 'i', 0, G_OPTION_ARG_STRING, &jack_input, "Guitarix JACK input", "PORT" },
 				{"jack-output", 'o', 0, G_OPTION_ARG_STRING_ARRAY, &jack_outputs, "Guitarix JACK outputs", "PORT" },
 				{ "jack-midi",  'm', 0, G_OPTION_ARG_STRING, &jack_midi, "Guitarix JACK midi control", "PORT" },
+				{ "jack-uuid",  'U', 0, G_OPTION_ARG_STRING, &jack_uuid, "JackSession ID", NULL },
 				{ NULL }
 			};
 		g_option_group_add_entries(optgroup_jack, opt_entries_jack);
+
+		// FILE options
+		gchar* load_file = NULL;
+
+		GOptionGroup* optgroup_file = g_option_group_new("file",
+		                                                "\033[1;32mFile options\033[0m",
+		                                                "\033[1;32mFile options\033[0m",
+		                                                NULL, NULL);
+		GOptionEntry opt_entries_file[] =
+			{
+				{ "load-file", 'f', 0, G_OPTION_ARG_STRING, &load_file, "load state file on startup", "FILE" },
+				{ NULL }
+			};
+		g_option_group_add_entries(optgroup_file, opt_entries_file);
 
 		// DEBUG options
 		gchar* builder_dir = NULL;
@@ -928,6 +944,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 		// collecting all option groups
 		g_option_context_add_group(opt_context, optgroup_gtk);
 		g_option_context_add_group(opt_context, optgroup_jack);
+		g_option_context_add_group(opt_context, optgroup_file);
 		g_option_context_add_group(opt_context, optgroup_debug);
 
 		// parsing command options
@@ -1041,6 +1058,14 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 			optvar[JACK_MIDI] = ""; // leads to no automatic connection
 		}
 
+		if (jack_uuid != NULL)
+		{
+			optvar[JACK_UUID] = jack_uuid;
+			g_free(jack_uuid);
+		} else {
+			optvar[JACK_UUID] = "";
+		}
+
 		// *** process jack outputs
 		if (jack_outputs != NULL) {
 			int idx = JACK_OUT1;
@@ -1060,6 +1085,13 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 		} else {
 			if (!gx_shellvar_exists(optvar[JACK_OUT1])) optvar[JACK_OUT1] = "";
 			if (!gx_shellvar_exists(optvar[JACK_OUT2])) optvar[JACK_OUT2] = "";
+		}
+
+		if (load_file != NULL) {
+			optvar[LOAD_FILE] = load_file;
+			g_free(load_file);
+		} else {
+			optvar[LOAD_FILE] = "";
 		}
 
 
@@ -1435,7 +1467,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 
 		// only save if we are not in a preset context
 		if (!setting_is_preset)
-			saveStateToFile();
+			saveStateToFile(gx_user_dir + client_name + "_rc");
 	}
 
 	gx_gui::shownote = -1;

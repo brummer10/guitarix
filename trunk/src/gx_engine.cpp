@@ -63,7 +63,7 @@ float ffuse;
 float fskin;
 
 /* --- forward definition of useful namespace functions --- */
-void gx_engine_init()
+void gx_engine_init( const string *optvar )
 {
 	//----- lock the buffer for the oscilloscope
 	const int frag = (const int)gx_jack::jack_bs;
@@ -95,7 +95,11 @@ void gx_engine_init()
 
 	midi.init(gx_jack::jack_sr);
 	faust_init(gx_jack::jack_sr);
-	gx_preset::gx_recall_main_setting(NULL, NULL);
+	if( !optvar[LOAD_FILE].empty() )
+		gx_preset::gx_recall_settings_file( optvar[LOAD_FILE] );
+	else
+		gx_preset::gx_recall_main_setting(NULL, NULL);
+
 	initialized = true;
 }
 

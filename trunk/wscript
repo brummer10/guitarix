@@ -173,6 +173,7 @@ def configure(conf):
 
     conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'
 
+    conf.check(header_name='jack/session.h', define_name='HAVE_JACK_SESSION')
 
     # defines for compilation
     conf.define('GX_STYLE_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','skins')))

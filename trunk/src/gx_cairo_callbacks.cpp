@@ -156,7 +156,7 @@ gboolean tuner_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
             cairo_move_to(cr, x0+50, y0+rect_height-5);
             static double dashe[] = {
-                rect_height-10,  /* ink */
+                rect_height-15,  /* ink */
                 rect_height,  /* skip */
                 0.0,  /* ink */
                 10.0   /* skip*/
@@ -167,7 +167,7 @@ gboolean tuner_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
             cairo_set_line_width(cr, 2.0);
             cairo_arc (cr, x0+50, y0+rect_height-5, 2.0, 0, 2*M_PI);
             cairo_move_to(cr,x0+50, y0+rect_height-5);
-            cairo_line_to(cr, ((scale*2)*rect_width)+x0+50, y0+(scale*scale*30)+2);
+            cairo_line_to(cr, (scale*2*rect_width)+x0+50, y0+(scale*scale*30)+2);
             cairo_stroke(cr);
 
             cairo_destroy(cr);
@@ -790,7 +790,7 @@ void gx_init_pixmaps()
     cairo_set_line_width(cr, 3.0);
     for (int i = -5;i<6;i++) {
         cairo_move_to(cr,x0+50, y0+rect_height-5);
-        cairo_line_to(cr, (((i*0.1))*rect_width)+x0+50, y0+(((i*0.1*i*0.1))*30)+2);
+        cairo_line_to(cr, (((i*0.08))*rect_width)+x0+50, y0+(((i*0.1*i*0.1))*30)+2);
     }
     cairo_stroke(cr);
     cairo_set_source_rgb(cr,  0.1, 0.8, 0.1);

@@ -130,10 +130,10 @@ int main(int argc, char *argv[])
 	gui->setup();
 
 	// ---------------------- initialize jack client ------------------
-	if (gx_jack::gx_jack_init())
+	if (gx_jack::gx_jack_init(optvar))
 	{
 		// -------- initialize guitarix engine --------------------------
-		gx_engine::gx_engine_init();
+		gx_engine::gx_engine_init(optvar);
 
 		// -------- set jack callbacks and activation -------------------
 		gx_jack::gx_jack_callbacks_and_activate();

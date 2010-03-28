@@ -34,6 +34,10 @@
 #define AVOIDDENORMALS
 #endif
 
+#ifdef HAVE_JACK_SESSION
+#include <jack/session.h>
+#endif
+
 namespace gx_jack
 {
 #ifdef USE_RINGBUFFER
@@ -46,7 +50,7 @@ typedef struct
 #endif
 
 /* -------- functions ---------- */
-bool gx_jack_init();
+bool gx_jack_init( const string *optvar );
 void gx_jack_callbacks_and_activate();
 
 bool gx_start_jack_dialog();
@@ -66,6 +70,9 @@ int  gx_jack_buffersize_callback (jack_nframes_t, void*);
 void gx_jack_portreg_callback    (jack_port_id_t, int, void*);
 void gx_jack_clientreg_callback  (const char*, int, void*);
 void gx_jack_init_port_connection(const string*);
+#ifdef HAVE_JACK_SESSION
+void gx_jack_session_callback(jack_session_event_t *event, void *arg);
+#endif
 
 /* processing */
 int gx_jack_process (jack_nframes_t, void*);

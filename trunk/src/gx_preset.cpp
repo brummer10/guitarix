@@ -802,10 +802,23 @@ void gx_recall_main_setting(GtkMenuItem* item, gpointer)
 {
 	string jname = gx_jack::client_name;
 
-	gx_system::recallState();
+	gx_system::recallState(gx_user_dir + jname + "_rc");
 	gtk_window_set_title(GTK_WINDOW(gx_gui::fWindow), jname.c_str());
 
 	gx_print_info("Main Setting recalling","Called back main setting");
+
+	setting_is_preset = false;
+	gx_current_preset = "";
+}
+
+void gx_recall_settings_file( const string & filename )
+{
+	string jname = gx_jack::client_name;
+
+	gx_system::recallState(filename);
+	gtk_window_set_title(GTK_WINDOW(gx_gui::fWindow), jname.c_str());
+
+	gx_print_info("loading Settings file","loaded settings file");
 
 	setting_is_preset = false;
 	gx_current_preset = "";
@@ -816,7 +829,7 @@ void gx_save_main_setting(GtkMenuItem* item, gpointer arg)
 {
 	string jname = gx_jack::client_name;
 
-	if (!saveStateToFile()) {
+	if (! saveStateToFile(gx_user_dir + jname + "_rc")) {
 		gx_print_error("Main Setting","can't save main setting");
 	} else if (setting_is_preset) {
 		gx_print_info("Main Setting",

@@ -31,7 +31,10 @@
 #define JACK_MIDI     (3)
 #define RC_STYLE      (4)
 
-#define NUM_SHELL_VAR (5)
+#define JACK_UUID     (5)
+#define LOAD_FILE     (6)
+
+#define NUM_SHELL_VAR (7)
 
 namespace gx_system
 {
@@ -118,8 +121,8 @@ void writeHeader(JsonWriter& jw);
 bool readHeader(JsonParser& jp, int *major=0, int *minor=0);
 void write_preset(JsonWriter& w, bool write_midi = true);
 void read_preset(JsonParser &jp);
-bool saveStateToFile();
-bool recallState();
+bool saveStateToFile( const std::string & filename );
+bool recallState( const std::string & filename );
 
 // file format versions
 const int majorversion = 1;

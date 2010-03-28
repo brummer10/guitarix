@@ -53,6 +53,10 @@ using namespace std;
 
 #include "guitarix.h"
 
+#ifdef HAVE_JACK_SESSION
+#include <jack/session.h>
+#endif
+
 using namespace gx_system;
 using namespace gx_engine;
 using namespace gx_jconv;
@@ -62,7 +66,7 @@ namespace gx_jack
 {
 
 //----- pop up a dialog for starting jack
-bool gx_jack_init()
+bool gx_jack_init( const string *optvar )
 {
 	jack_status_t jackstat;
 	client_name = "guitarix";
@@ -73,8 +77,14 @@ bool gx_jack_init()
 
 	AVOIDDENORMALS;
 
+#ifdef HAVE_JACK_SESSION
 	// try to open jack client
-	client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
+	if (! optvar[JACK_UUID].empty())
+
+	    client = jack_client_open (client_name.c_str(), jack_options_t(JackNoStartServer | JackSessionID), &jackstat, optvar[JACK_UUID].c_str());
+	else
+#endif
+	    client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
 
 	if (client == 0)
 	{
@@ -85,7 +95,7 @@ bool gx_jack_init()
 		{
 			gx_print_warning("Jack Init", "jackd OK, trying to be a client");
 			usleep(500000);
-			return gx_jack_init();
+			return gx_jack_init( optvar );
 		}
 
 		// start a dialog
@@ -163,6 +173,10 @@ void gx_jack_callbacks_and_activate()
 	jack_set_process_callback(client, gx_jack_process, 0);
 	jack_set_port_registration_callback(client, gx_jack_portreg_callback, 0);
 	jack_set_client_registration_callback(client, gx_jack_clientreg_callback, 0);
+#ifdef HAVE_JACK_SESSION
+	if (jack_set_session_callback)
+		jack_set_session_callback (client, gx_jack_session_callback, 0);
+#endif
 
 	//----- register the midi input channel
 	midi_input_port =
@@ -355,16 +369,18 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 {
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM (menuitem)) == TRUE) {
 		if (!client) {
-			if (gx_jack_init()) {
-				string optvar[NUM_SHELL_VAR];
-				gx_assign_shell_var(shell_var_name[JACK_INP],  optvar[JACK_INP] );
-				gx_assign_shell_var(shell_var_name[JACK_MIDI], optvar[JACK_MIDI] );
-				gx_assign_shell_var(shell_var_name[JACK_OUT1], optvar[JACK_OUT1]);
-				gx_assign_shell_var(shell_var_name[JACK_OUT2], optvar[JACK_OUT2]);
+			string optvar[NUM_SHELL_VAR];
+			gx_assign_shell_var(shell_var_name[JACK_INP],  optvar[JACK_INP] );
+			gx_assign_shell_var(shell_var_name[JACK_MIDI], optvar[JACK_MIDI] );
+			gx_assign_shell_var(shell_var_name[JACK_OUT1], optvar[JACK_OUT1]);
+			gx_assign_shell_var(shell_var_name[JACK_OUT2], optvar[JACK_OUT2]);
+			gx_assign_shell_var(shell_var_name[JACK_UUID], optvar[JACK_UUID]);
+
+			if (gx_jack_init(optvar)) {
 
 				// initialize guitarix engine if necessary
 				if (!gx_engine::initialized) {
-					gx_engine::gx_engine_init();
+					gx_engine::gx_engine_init( optvar );
 				}
 				gx_jack_callbacks_and_activate();
 				gx_jack_init_port_connection(optvar);
@@ -854,6 +870,32 @@ void gx_jack_clientreg_callback(const char* name, int reg, void* arg)
 		break;
 	}
 }
+
+#ifdef HAVE_JACK_SESSION
+static int gx_jack_session_callback_helper(gpointer data) {
+    jack_session_event_t *event = (jack_session_event_t *) data;
+    string fname( event->session_dir );
+    fname += "guitarix.state";
+    string cmd( "guitarix -U " );
+    cmd += event->client_uuid;
+    cmd += " -f ${SESSION_DIR}guitarix.state";
+
+    saveStateToFile( fname );
+
+    event->command_line = strdup( cmd.c_str() );
+
+    jack_session_reply( client, event );
+
+    jack_session_event_free( event );
+
+    return 0;
+}
+
+void gx_jack_session_callback(jack_session_event_t *event, void *arg)
+{
+    gtk_idle_add(gx_jack_session_callback_helper, (void *)event); 
+}
+#endif
 
 //---- GTK callback from port item for port connection
 void gx_jack_port_connect(GtkWidget* wd, gpointer data)
