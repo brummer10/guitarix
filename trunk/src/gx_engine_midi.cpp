@@ -251,7 +251,7 @@ void process_midi(int len)
 	int iTemps40 = int(midi.fslider40);
 	int step = int(midi.fslider39);
 	int iTemps37  = int(48000/midi.fslider37);
-	int iTemps37a  = iTemps37+20;
+	int iTemps37a  = iTemps37+2;
 	int iTemps46 = int(midi.fslider46);
 	int iTemps47 = int(midi.fslider47);
 	int iTemps48 = int(midi.fslider48);
@@ -570,6 +570,7 @@ void process_midi(int len)
 						midi.send+=step;
 						if (midi.fcheckbox10 ) midi.send1+=step;
 						if (midi.fcheckbox11 ) midi.send2+=step;
+						midi.weg -= step;
 					}
 					// else weg +=step;
 				}
@@ -592,7 +593,7 @@ void process_midi(int len)
 							if (midi.midi_send)
 							{
 								midi.midi_send[2] = iTemps26; // velocity
-								midi.midi_send[1] = 123;  // all notes off
+								midi.midi_send[1] = 120; //123;  // fix me all notes off
 								midi.midi_send[0] = 0xB0 | iTemps30 ;	// controller
 							}
 
@@ -604,7 +605,7 @@ void process_midi(int len)
 								if (midi.midi_send1)
 								{
 									midi.midi_send1[2] = iTemps32; // velocity
-									midi.midi_send1[1] = 123;  // all notes off
+									midi.midi_send1[1] = 120;  // 123; // fix me all notes off
 									midi.midi_send1[0] = 0xB0 |  iTemps35;	// controller
 									//fprintf(stderr, "Send %i , %i, %i.\n",iTemps32,123,0xB0 |  iTemps35);
 								}
@@ -618,7 +619,7 @@ void process_midi(int len)
 								if (midi.midi_send2)
 								{
 									midi.midi_send2[2] = iTemps40; // velocity
-									midi.midi_send2[1] = 123;  // all notes off
+									midi.midi_send2[1] = 120; // 123;  // fix me all notes off
 									midi.midi_send2[0] = 0xB0 |  iTemps44;	// controller
 								}
 							}
