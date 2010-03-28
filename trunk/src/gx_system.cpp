@@ -597,7 +597,7 @@ void write_jack_connections(JsonWriter& w)
 // -- save state including current preset data
 bool saveStateToFile( const string &filename )
 {
-    printf( "wrinting to %s\n", filename.c_str() );
+    gx_print_info( "wrinting to ", filename.c_str() );
 	string tmpfile = filename + "_tmp";
 	ofstream f(tmpfile.c_str());
 	JsonWriter w(f);
@@ -826,7 +826,7 @@ void gx_signal_handler(int sig)
 gboolean  gx_ladi_handler(gpointer)
 {
 	gx_print_warning("signal_handler", "signal USR1 received, save settings");
-	
+
 	saveStateToFile(gx_user_dir + client_name + "_rc");
 	return false;
 }
