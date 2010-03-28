@@ -72,6 +72,9 @@ float fwarn_swap;
 /* engine init state  */
 bool initialized = false;
 
+/* engine init state  */
+bool pt_initialized = false;
+
 /* buffer ready state */
 bool buffers_ready = false;
 

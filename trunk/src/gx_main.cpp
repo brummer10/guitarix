@@ -138,20 +138,20 @@ int main(int argc, char *argv[])
 		// -------- set jack callbacks and activation -------------------
 		gx_jack::gx_jack_callbacks_and_activate();
 
-		// -------- give gx_engine_init() some time to finish
-		usleep(80);
-
 		// -------- init port connections
 		gx_jack::gx_jack_init_port_connection(optvar);
-
-		// -------- pitch tracker (needs jack thread running) -------------
-		gx_engine::pitch_tracker.init();
 	}
 
 	// ----------------------- run GTK main loop ----------------------
 	gx_set_override_options(optvar);
 	gx_ui::GxUI::updateAllGuis();
 	gui->show();
+
+	if(gx_jack::client) {
+	    // -------- pitch tracker (needs jack thread running) -------------
+		gx_engine::pitch_tracker.init();
+	}
+
 	gui->run();
 
 	// ------------- shut things down

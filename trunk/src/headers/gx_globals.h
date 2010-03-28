@@ -55,6 +55,8 @@ extern float fwarn;
 extern bool initialized;
 inline bool isInitialized() { return initialized; }
 
+/* pitchtracker init state  */
+extern bool pt_initialized;
 
 /* buffer ready state */
 extern bool buffers_ready;

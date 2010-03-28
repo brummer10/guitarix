@@ -581,6 +581,7 @@ bool PitchTracker::setParameters(int sampleRate, int fftSize)
 	if (!m_pthr) {
 		start_thread();
 	}
+	pt_initialized = true;
 	return !error;
 }
 

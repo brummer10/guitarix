@@ -145,8 +145,6 @@ gboolean tuner_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
             cairo_line_to(cr, x0+99, y0+63);
             cairo_stroke(cr);
 
-            //x0      = gx_gui::pb->allocation.x;
-            //y0      = gx_gui::pb->allocation.y;
             cairo_set_source_surface (cr, surface_tuner,x0,y0);
 			cairo_paint (cr);
             ostringstream tir;

@@ -377,6 +377,11 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 				}
 				// restore jack client menus
 				gx_gui::GxMainInterface::instance()->initClientPortMaps();
+				if (!gx_engine::pt_initialized) {
+				    sleep(5);
+                    // -------- pitch tracker (needs jack thread running) -------------
+                    gx_engine::pitch_tracker.init();
+                }
 			}
 		}
 
