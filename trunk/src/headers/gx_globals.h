@@ -61,8 +61,6 @@ extern bool pt_initialized;
 /* buffer ready state */
 extern bool buffers_ready;
 
-extern int is_setup;
-
 /** disable fft need some fix for work prop **/
 /*
 // fftw buffer and plans
@@ -259,7 +257,7 @@ extern sem_t               program_change_sem;
 
 extern int show_eq;
 
-extern int g_threads[];
+extern int g_threads[3];
 
 /* client port queues */
 class StringComp

@@ -87,6 +87,28 @@ void MenuCheckItem::init(GtkCheckMenuItem *it, SwitchParameter *p)
 	                 G_CALLBACK(activateMenuSetSwitch), p);
 }
 
+
+/* ----- load a top level window from gtk builder file ------ */
+
+GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname)
+{
+	string fname = gx_builder_dir+filename;
+	GError *err = NULL;
+	if (!gtk_builder_add_from_file(builder,fname.c_str(), &err)) {
+		g_object_unref(G_OBJECT(builder));
+		gx_print_fatal("gtk builder", err->message);
+		g_error_free(err);
+		return NULL;
+	}
+	GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(builder, windowname));
+	if (!w) {
+		g_object_unref(G_OBJECT(builder));
+		gx_print_fatal("gtk builder", string(windowname)+" not found in "+fname);
+		return NULL;
+	}
+	return w;
+}
+
 /* --------- menu function triggering engine on/off/bypass --------- */
 void gx_engine_switch (GtkWidget* widget, gpointer arg)
 {
@@ -173,76 +195,6 @@ void gx_refresh_engine_status_display()
 }
 
 
-/* --------- queue up new client ports as they are registered -------- */
-void gx_queue_client_port(const string name,
-                          const int flags)
-{
-	// add the port
-	gx_client_port_queue.insert(pair<string, int>(name, flags));
-}
-
-/* --------- dequeue client ports as they are deregistered -------- */
-void gx_dequeue_client_port(const string name,
-                            const int flags)
-{
-	// remove the port
-	gx_client_port_dequeue.insert(pair<string, int>(name, flags));
-}
-
-/* --------------- refresh port connection button status -------------- */
-void gx_refresh_portconn_status(GtkWidget* button, gpointer data)
-{
-	if (GTK_IS_CHECK_BUTTON(button) == FALSE) return;
-
-	// our ports
-	jack_port_t* ports[] =
-		{
-			gx_jack::input_ports [0],
-			gx_jack::output_ports[0],
-			gx_jack::output_ports[1],
-			gx_jack::midi_input_port,
-		};
-
-	int index = GPOINTER_TO_INT(data);
-
-	// fetch port name from widget name
-	const string port_name = gtk_widget_get_name(button);
-
-	// delete unaktive clients from portmap
-	if (!jack_port_by_name(gx_jack::client, port_name.c_str()))
-	{
-		gx_dequeue_client_port(port_name.c_str(),0);
-		return;
-	}
-
-	// connection to port
-	int nconn = jack_port_connected_to(ports[index], port_name.c_str());
-
-	// update status
-	if (nconn == 0) // no connection
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
-
-	else if (nconn > 0)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),  TRUE);
-
-}
-
-/* ----- cycle through client tabs in client portmaps notebook  ------*/
-void gx_cycle_through_client_tabs(GtkWidget* item, gpointer data)
-{
-	GxMainInterface* gui = GxMainInterface::instance();
-
-	// current page
-	int page = gtk_notebook_get_current_page(gui->getPortMapTabs());
-
-	// next page
-	gtk_notebook_next_page(gui->getPortMapTabs());
-
-	// are we reaching the end of the notebook ?
-	if (page == gtk_notebook_get_current_page(gui->getPortMapTabs()))
-		gtk_notebook_set_current_page(gui->getPortMapTabs(), 0);
-}
-
 // get the last used skin as default
 void gx_set_skin_change(float fskin)
 {
@@ -267,9 +219,9 @@ void gx_jack_is_down()
 
 void gx_jack_report_xrun()
 {
-	g_threads[4] = 0;
-	if (g_threads[4] == 0 ||g_main_context_find_source_by_id(NULL, g_threads[4]) == NULL)
-		g_threads[4] =g_idle_add(gx_threads::gx_xrun_report,gpointer (NULL));
+	g_threads[2] = 0;
+	if (g_threads[2] == 0 ||g_main_context_find_source_by_id(NULL, g_threads[2]) == NULL)
+		g_threads[2] =g_idle_add(gx_threads::gx_xrun_report,gpointer (NULL));
 }
 
 //----menu function gx_show_oscilloscope
@@ -868,47 +820,6 @@ int gx_message_popup(const char* msg)
 	gtk_widget_show (ok_button);
 	gtk_widget_show (label);
 	return gtk_dialog_run (GTK_DIALOG(about));
-}
-
-/* show jack portmap window  */
-void gx_show_portmap_window (GtkWidget* widget, gpointer arg)
-{
-	GxMainInterface* gui = GxMainInterface::instance();
-	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)) == TRUE)
-	{
-		if (!gui->fClientPortMap.empty())
-		{
-			// get main window position (north east gravity)
-			gint x,  y;
-			gint wx, wy;
-			gtk_window_get_position(GTK_WINDOW(fWindow), &x, &y);
-			gtk_window_get_size(GTK_WINDOW(fWindow), &wx, &wy);
-
-			// set position of port map window (north west gravity)
-			gtk_window_move(gui->getPortMapWindow(), x+wx, y);
-			gtk_widget_set_size_request(GTK_WIDGET(gui->getPortMapWindow()),
-			                            600, 200);
-
-			gtk_widget_show(GTK_WIDGET(gui->getPortMapWindow()));
-		}
-		else
-		{
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(widget), FALSE);
-			gx_print_warning("Show Port Maps",
-			                 "No Clients to show, jackd either down or we are disconnected");
-		}
-	}
-	else
-	{
-		gtk_widget_hide(GTK_WIDGET(gui->getPortMapWindow()));
-		gtk_widget_grab_focus(fWindow);
-	}
-}
-
-/* show jack portmap window  */
-void gx_hide_portmap_window (GtkWidget* widget, gpointer arg)
-{
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(widget), FALSE);
 }
 
 /* meter button release   */

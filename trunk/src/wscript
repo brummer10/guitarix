@@ -12,6 +12,7 @@ def build(bld):
         'gx_engine_midi.cpp',
         'gx_engine_audio.cpp',
         'gx_main_interface.cpp',
+        'gx_portmap.cpp',
         'gx_paramtable.cpp',
         'gx_interface_builder.cpp',
         'gx_cairo_callbacks.cpp',
@@ -31,6 +32,7 @@ def build(bld):
 
     builder_files = [
         'midi.glade',
+        'ports.glade',
         ]
     prog = bld.new_task_gen('cxx', 'program')
     prog.includes = ['.','..','headers'] # need ".." for config.h

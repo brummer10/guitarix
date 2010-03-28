@@ -74,10 +74,6 @@ inline void all_midi_params_assigned()
 /* -------- user interface builder ---------- */
 void GxMainInterface::setup()
 {
-	//----- notebook window with tabs representing jack clients and portmaps
-	// Note: out of box stack scheme.
-	createPortMapWindow("Jack Port Maps");
-
 	//----- the main box, all visible widgets are a child of this box
 	openVerticalBox("");
 

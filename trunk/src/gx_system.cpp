@@ -1443,11 +1443,11 @@ void gx_destroy_event()
 
 
 	// remove threads from main GTK thread
-	if(gx_gui::g_threads[0] > 0)g_source_remove(gx_gui::g_threads[0]);
-	if(gx_gui::g_threads[1] > 0)g_source_remove(gx_gui::g_threads[1]);
-	if(gx_gui::g_threads[2] > 0)g_source_remove(gx_gui::g_threads[2]);
-	if(gx_gui::g_threads[3] > 0)g_source_remove(gx_gui::g_threads[3]);
-	if(gx_gui::g_threads[4] > 0)g_source_remove(gx_gui::g_threads[4]);
+	for (unsigned int i = 0; i < sizeof(gx_gui::g_threads)/sizeof(gx_gui::g_threads[0]); i++) {
+		if(gx_gui::g_threads[i] > 0) {
+			g_source_remove(gx_gui::g_threads[i]);
+		}
+	}
 
 	GtkRegler::gtk_regler_destroy();
 

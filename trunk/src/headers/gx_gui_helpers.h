@@ -38,6 +38,7 @@ public:
 
 
 /* --------------  function declarations ---------------- */
+GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname);
 gboolean gx_hide_eq( GtkWidget *widget, gpointer   data );
 
 /* guitarix skin related functions */
@@ -58,18 +59,6 @@ void gx_engine_switch (GtkWidget* widget, gpointer arg);
 
 
 /* jack client and port mapping functions */
-void gx_show_portmap_window (GtkWidget* widget, gpointer arg);
-void gx_hide_portmap_window (GtkWidget* widget, gpointer arg);
-
-void gx_refresh_portconn_status(GtkWidget* button, gpointer data);
-void gx_cycle_through_client_tabs(GtkWidget* item, gpointer data);
-
-void gx_queue_client_port(const string, const int);
-void gx_queue_client(const string);
-
-void gx_dequeue_client_port(const string, const int);
-void gx_dequeue_client(const string);
-
 void gx_jack_is_down();
 void gx_jack_report_xrun();
 

@@ -143,13 +143,6 @@ gboolean gx_xrun_report(gpointer arg)
 	return FALSE;
 }
 
-/* -------------- timeout for jconv startup when guitarix init -------------- */
-gboolean gx_check_startup(gpointer args)
-{
-	gx_engine::is_setup = 1; //FIXME still needed?
-	return FALSE;
-}
-
 /* --------- load preset triggered by midi program change --------- */
 gboolean gx_do_program_change(gpointer arg)
 {
@@ -186,8 +179,6 @@ gboolean gx_survive_jack_shutdown(gpointer arg)
 			if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(wd)))
 				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 
-			// revive existing client menus
-			gx_gui::GxMainInterface::instance()->initClientPortMaps();
 			// run only one time whem jackd is running
 			return false;
 		}
@@ -200,75 +191,11 @@ gboolean gx_survive_jack_shutdown(gpointer arg)
 		// refresh some stuff. Note that it can be executed
 		// more than once, no harm here
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), FALSE);
-		gx_gui::GxMainInterface::instance()->deleteAllClientPortMaps();
-
 		gx_jconv::GxJConvSettings::checkbutton7 = 0;
 		gx_jack::jack_is_down = true;
 	}
 	// run as long jackd is down
 	return true;
-}
-
-/* ---------------------- monitor jack ports  items ------------------ */
-// we also refresh the connection status of these buttons
-gboolean gx_monitor_jack_ports(gpointer args)
-{
-	// get gui instance
-	gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
-
-	// don't bother if we are not a valid client or if we are in the middle
-	// of deleting stuff
-	// if we are off jack or jack is down, delete everything
-	if (!gx_jack::client || gx_jack::jack_is_down)
-	{
-		gui->deleteAllClientPortMaps();
-		gx_client_port_dequeue.clear();
-		gx_client_port_queue.clear();
-		return TRUE;
-	}
-
-	// if the external client left without "unregistering" its ports
-	// (yes, it happens, shame on the devs ...), we catch it here
-	if (!gx_jack::client_out_graph.empty())
-	{
-		gx_client_port_dequeue.clear();
-		gui->deleteClientPortMap(gx_jack::client_out_graph);
-		gx_jack::client_out_graph = "";
-		return TRUE;
-	}
-
-	// browse queue of added ports and update if needed
-	gui->addClientPorts();
-
-	// browse queue of removed ports and update if needed
-	gui->deleteClientPorts();
-
-	// loop over all existing clients
-	set<GtkWidget*>::iterator cit = gui->fClientPortMap.begin();
-	while (cit != gui->fClientPortMap.end())
-	{
-		// fetch client port map
-		GtkWidget* portmap = *cit;
-		GList* list = gtk_container_get_children(GTK_CONTAINER(portmap));
-
-		guint len = g_list_length(list);
-		if (len == NUM_PORT_LISTS) // something weird ...
-			for (guint i = 0; i < len; i++)
-			{
-				// fetch client table
-				GtkWidget* table = (GtkWidget*)g_list_nth_data(list, i);
-
-				// check port connection status for each port
-				gtk_container_foreach(GTK_CONTAINER(table),
-				                      gx_refresh_portconn_status,
-				                      GINT_TO_POINTER(i));
-			}
-		g_list_free(list);
-		// next client
-		cit++;
-	}
-	// run thraed again
-	return TRUE;
 }
 
 /* Update all user items reflecting zone z */

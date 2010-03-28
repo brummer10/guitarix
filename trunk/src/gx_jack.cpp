@@ -160,19 +160,51 @@ bool gx_jack_init( const string *optvar )
 	return true;
 }
 
+struct PortConnData
+{
+	string name_a, name_b;
+	int connect;
+	PortConnData(string a, string b, int conn): name_a(a), name_b(b), connect(conn) {}
+};
+
+static gboolean gx_jack_portconn_helper(gpointer data)
+{
+	PortConnData *pc = (PortConnData*)data;
+	if (gx_gui::PortMapWindow::instance) {
+		gx_gui::PortMapWindow::instance->connection_changed(pc->name_a, pc->name_b, pc->connect);
+	}
+	delete pc;
+	return FALSE;
+}
+
+static void gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int connect, void*)
+{
+	if (!client) {
+		return;
+	}
+	jack_port_t* port_a = jack_port_by_id(client, a);
+	jack_port_t* port_b = jack_port_by_id(client, b);
+	if (!port_a || !port_b) {
+		return;
+	}
+	gtk_idle_add(gx_jack_portconn_helper,
+	             new PortConnData(jack_port_name(port_a), jack_port_name(port_b),
+	                              connect));
+}
+
+
 //----- set client callbacks and activate client
 // Note: to be called after gx_engine::gx_engine_init()
 void gx_jack_callbacks_and_activate()
 {
 	//----- set the jack callbacks
-	jack_set_graph_order_callback (client, gx_jack_graph_callback, NULL);
 	jack_set_xrun_callback(client, gx_jack_xrun_callback, NULL);
 	jack_set_sample_rate_callback(client, gx_jack_srate_callback, 0);
 	jack_on_shutdown(client, gx_jack_shutdown_callback, NULL);
 	jack_set_buffer_size_callback (client, gx_jack_buffersize_callback, 0);
 	jack_set_process_callback(client, gx_jack_process, 0);
 	jack_set_port_registration_callback(client, gx_jack_portreg_callback, 0);
-	jack_set_client_registration_callback(client, gx_jack_clientreg_callback, 0);
+	jack_set_port_connect_callback(client, gx_jack_portconn_callback, 0);
 #ifdef HAVE_JACK_SESSION
 	if (jack_set_session_callback)
 		jack_set_session_callback (client, gx_jack_session_callback, 0);
@@ -391,8 +423,6 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 				if (wd) {
 					gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 				}
-				// restore jack client menus
-				gx_gui::GxMainInterface::instance()->initClientPortMaps();
 				if (!gx_engine::pt_initialized) {
 				    sleep(5);
                     // -------- pitch tracker (needs jack thread running) -------------
@@ -423,9 +453,6 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 
 		// engine buffers no longer ready
 		gx_engine::buffers_ready = false;
-
-		// delete all jack client menus
-		gx_gui::GxMainInterface::instance()->deleteAllClientPortMaps();
 
 		gx_print_warning("Jack Server", "Disconnected from Jack Server");
 	}
@@ -551,37 +578,6 @@ void gx_jack_shutdown_callback(void *arg)
 	gx_gui::gx_jack_is_down();
 
 }
-
-//---- jack client callbacks
-int gx_jack_graph_callback (void* arg)
-{
-	if (jack_port_connected(input_ports[0])) {
-		const char** port = jack_port_get_connections(input_ports[0]);
-		if (port) { // might be 0 (e.g. due to race conditions)
-			setenv("GUITARIX2JACK_INPUTS",port[0],0);
-			NO_CONNECTION = 0;
-			free(port);
-		}
-	} else {
-		NO_CONNECTION = 1;
-	}
-	if (jack_port_connected (output_ports[0])) {
-		const char** port1 = jack_port_get_connections(output_ports[0]);
-		if (port1) {
-			setenv("GUITARIX2JACK_OUTPUTS1",port1[0],0);
-			free(port1);
-		}
-	}
-	if (jack_port_connected (output_ports[1])) {
-		const char** port2 = jack_port_get_connections(output_ports[1]);
-		if (port2) {
-			setenv("GUITARIX2JACK_OUTPUTS2",port2[0],0);
-			free(port2);
-		}
-	}
-	return 0;
-}
-
 
 //---- jack xrun callback
 int gx_jack_xrun_callback (void* arg)
@@ -789,86 +785,38 @@ int gx_jack_process (jack_nframes_t nframes, void *arg)
 	return 0;
 }
 
-//----- fetch available jack ports other than guitarix ports
-void gx_jack_portreg_callback(jack_port_id_t pid, int reg, void* arg)
+struct PortRegData
 {
-	// just to be safe
-	if (!client) return;
+	string name;
+	const char *tp;
+	int jackflags;
+	int reg;
+	PortRegData(string nm, const char *t, int flags, int r): name(nm), tp(t), jackflags(flags), reg(r) {}
+};
 
-	// retrieve port
-	jack_port_t* port = jack_port_by_id(client, pid);
-
-	// if it is our own, get out of here
-	if (jack_port_is_mine(client, port)) return;
-
-	// OK, let's get to it
-	const string name = jack_port_name(port);
-	const int   jackflags = jack_port_flags(port);
-	const char *tp    = jack_port_type(port);
-	int flags;
-	if (strcmp(tp, JACK_DEFAULT_AUDIO_TYPE) == 0 && (jackflags & JackPortIsOutput)) {
-		flags = gx_gui::GxMainInterface::JACK_AUDIO_IN;
-	} else if (strcmp(tp, JACK_DEFAULT_MIDI_TYPE) == 0 && (jackflags & JackPortIsOutput)) {
-		flags = gx_gui::GxMainInterface::JACK_MIDI_IN;
-	} else if (strcmp(tp, JACK_DEFAULT_AUDIO_TYPE) == 0 && (jackflags & JackPortIsInput)) {
-		flags = gx_gui::GxMainInterface::JACK_AUDIO_OUT;
-	} else {
-		return;
-	}
-	switch (reg)
-	{
-	case 0:
-		gx_gui::gx_dequeue_client_port(name, flags); //FIXME no locking?
-		break;
-	case 1:
-		gx_gui::gx_queue_client_port  (name, flags); //FIXME no locking?
-		break;
-	default:
-		break;
-	}
-}
-
-static int gx_jack_clientreg_helper(gpointer data)
+static gboolean gx_jack_portreg_helper(gpointer data)
 {
-	string *clname = (string*)data;
-	gx_print_info("Jack Client", *clname + " joined the graph");
-	delete clname;
+	PortRegData *pm = (PortRegData*)data;
+	if (gx_gui::PortMapWindow::instance) {
+		gx_gui::PortMapWindow::instance->port_changed(pm->name, pm->tp, pm->jackflags, pm->reg);
+	}
+	delete pm;
 	return FALSE;
 }
 
-//----- client registration callback
-void gx_jack_clientreg_callback(const char* name, int reg, void* arg)
+//----- fetch available jack ports other than guitarix ports
+void gx_jack_portreg_callback(jack_port_id_t pid, int reg, void* arg)
 {
-	// just to be safe
-	if (!client) return;
-
-	string clname = name;
-
-	// ignore these clients
-	if (clname == client_name   ||
-	    clname == "probe"       ||
-	    clname == "ardourprobe" ||
-	    clname == "freewheel"   ||
-	    clname == "qjackctl"    ||
-	    clname == "Patchage")
+	if (!client) {
 		return;
-
-	client_out_graph = ""; //FIXME no locking?
-
-	// get GUI to act upon the stuff
-	// see gx_gui::gx_monitor_jack_clients
-	switch (reg)
-	{
-	case 0:
-		client_out_graph = clname;
-		break;
-
-	case 1:
-		// in case of registration, just log it, the port registration
-		// routines will take care of things
-		gtk_idle_add(gx_jack_clientreg_helper, new string(clname));
-		break;
 	}
+	jack_port_t* port = jack_port_by_id(client, pid);
+	if (!port || jack_port_is_mine(client, port)) {
+		return;
+	}
+	gtk_idle_add(gx_jack_portreg_helper,
+	             new PortRegData(jack_port_name(port), jack_port_type(port),
+	                             jack_port_flags(port), reg));
 }
 
 #ifdef HAVE_JACK_SESSION
@@ -878,7 +826,7 @@ static int gx_jack_session_callback_helper(gpointer data) {
     fname += "guitarix.state";
     string cmd( "guitarix -U " );
     cmd += event->client_uuid;
-    cmd += " -f ${SESSION_DIR}guitarix.state";
+    cmd += " -f ${SESSION_DIR}/guitarix.state";
 
     saveStateToFile( fname );
 
@@ -896,122 +844,6 @@ void gx_jack_session_callback(jack_session_event_t *event, void *arg)
     gtk_idle_add(gx_jack_session_callback_helper, (void *)event); 
 }
 #endif
-
-//---- GTK callback from port item for port connection
-void gx_jack_port_connect(GtkWidget* wd, gpointer data)
-{
-	GtkToggleButton* button = GTK_TOGGLE_BUTTON(wd);
-
-	// don't bother if not a jack client
-	if (!client)
-	{
-		gtk_toggle_button_set_active(button,  FALSE);
-		return;
-	}
-
-	// toggle client port name
-	string wname = gtk_widget_get_name(wd);
-	if (wname.empty())
-	{
-		gtk_toggle_button_set_active(button,  FALSE);
-		return;
-	}
-
-	// configure connection
-	// Note: for some reason, jack_connect is not symmetric and one has to
-	// connect out-to-in, jack_connect() does not take in-to-out.
-	// weird but that's how it is, so we must know if we deal with
-	// an input or output port (yeah, it sucks a bit).
-
-	gint gxport_type = GPOINTER_TO_INT(data);
-
-	// check we do have a proper gxport_type
-	if (gxport_type < kAudioInput || gxport_type > kMidiInput)
-		return;
-
-	string port1;
-	string port2;
-
-	jack_port_t* ports[] = {
-			input_ports [0],
-			output_ports[0],
-			output_ports[1],
-			midi_input_port,
-		};
-
-
-	switch (gxport_type)
-	{
-	case kAudioInput:
-		port1  = wname;
-		port2  = client_name + string(":") + gx_port_names[kAudioInput];
-		break;
-
-	case kMidiInput:
-		port1  = wname;
-		port2  = client_name + string(":") + gx_port_names[kMidiInput];
-		break;
-
-	default:
-		port1 = client_name + string(":") + gx_port_names[gxport_type];
-		port2 = wname;
-		break;
-	}
-
-	// check direct connection
-	int nconn = jack_port_connected_to(ports[gxport_type], wname.c_str());
-	if (gtk_toggle_button_get_active(button) == TRUE)
-	{
-		if (nconn == 0)
-		{
-			int ret = jack_connect(client, port1.c_str(), port2.c_str());
-
-			switch (ret)
-			{
-			case 0:
-				gx_print_info("Jack Port Connect",
-				              port1 + string(" connected to  ") + port2);
-				break;
-
-			case EEXIST: // already connected
-				gx_print_info("Jack Port Connect",
-				              port1 + string(" and ") + port2 +
-				              string(" ALREADY connected"));
-				break;
-
-			default:
-				gx_print_warning("Jack Port Connect",
-				                 string("Could NOT CONNECT ") +
-				                 port1 + string(" and  ") + port2);
-
-				gtk_toggle_button_set_active(button,  FALSE);
-				break;
-			}
-		}
-	}
-	else
-	{
-		if (nconn > 0)
-		{
-			int ret = jack_disconnect(client, port1.c_str(), port2.c_str());
-
-			switch (ret)
-			{
-			case 0:
-				gx_print_info("Jack Port Connect",
-				              port1 + string(" disconnect  ") + port2);
-				break;
-
-			default:
-				gx_print_warning("Jack Port Disconnect",
-				                 string("Could NOT DISCONNECT ") +
-				                 port1 + string(" and  ") + port2);
-				gtk_toggle_button_set_active(button,  TRUE);
-				break;
-			}
-		}
-	}
-}
 
 } /* end of gx_jack namespace */
 

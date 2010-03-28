@@ -78,25 +78,6 @@ string fformat(float value, float step)
 	return buf.str();
 }
 
-GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname)
-{
-	string fname = gx_builder_dir+filename;
-	GError *err = NULL;
-	if (!gtk_builder_add_from_file(builder,fname.c_str(), &err)) {
-		g_object_unref(G_OBJECT(builder));
-		gx_print_fatal("gtk builder", err->message);
-		g_error_free(err);
-		return NULL;
-	}
-	GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(builder, windowname));
-	if (!w) {
-		g_object_unref(G_OBJECT(builder));
-		gx_print_fatal("gtk builder", string(windowname)+" not found in "+fname);
-		return NULL;
-	}
-	return w;
-}
-
 /****************************************************************
  ** MidiControllerTable
  */
@@ -268,6 +249,9 @@ MidiControllerTable::MidiControllerTable(GtkCheckMenuItem *item)
 	g_signal_connect(window, "response", G_CALLBACK(response_cb), this);
 	g_signal_connect(G_OBJECT(gtk_builder_get_object(builder, "cellrenderertext2")),
 	                 "edited", G_CALLBACK(edited_cb), store);
+
+	gtk_window_add_accel_group(GTK_WINDOW(window),
+	                           GxMainInterface::instance()->fAccelGroup);
 
 	gtk_widget_show(window);
 	g_object_unref(G_OBJECT(builder));
@@ -798,70 +782,6 @@ void GxMainInterface::openLevelMeterBox(const char* label)
 
 	// show main box
 	gtk_widget_show(box);
-}
-
-/* --- create the portmap window with tabbed client port tables --- */
-void GxMainInterface::createPortMapWindow(const char* label)
-{
-	// static box containing all
-	GtkWidget* vbox = gtk_vbox_new(FALSE, 2);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox), 8);
-	g_signal_connect(vbox, "expose-event", G_CALLBACK(box4_expose), NULL);
-	gtk_widget_show(vbox);
-
-	// static hbox containing guitarix port names
-	GtkWidget* hbox = gtk_hbox_new(FALSE, 2);
-	for (int i = gx_jack::kAudioInput; i <= gx_jack::kMidiInput; i++)
-	{
-		string pname =
-			gx_jack::client_name + string(" : ") +
-			gx_jack::gx_port_names[i];
-
-		GtkWidget* label = gtk_label_new(pname.c_str());
-		gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, FALSE, 2);
-		gtk_widget_show(label);
-	}
-
-	gtk_widget_show(hbox);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox,   FALSE, FALSE, 2);
-
-	// add seperator
-	GtkWidget* sep = gtk_hseparator_new();
-	gtk_box_pack_start(GTK_BOX(vbox), sep, FALSE, FALSE, 0);
-	gtk_widget_show(sep);
-
-	// notebook
-	GtkWidget* nb = gtk_notebook_new();
-	gtk_notebook_set_scrollable(GTK_NOTEBOOK(nb), TRUE);
-
-	fPortMapTabs = GTK_NOTEBOOK(nb);
-
-	// scrolled window
-	GtkWidget* scrlwd = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrlwd),
-	                               GTK_POLICY_AUTOMATIC,GTK_POLICY_ALWAYS);
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrlwd),
-	                                    GTK_SHADOW_IN);
-
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrlwd), nb);
-	gtk_widget_show(nb);
-	gtk_widget_show(scrlwd);
-
-	// add scrolled window in vbox
-	gtk_box_pack_start(GTK_BOX(vbox), scrlwd, TRUE, TRUE, 2);
-
-	// main window
-	GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW (window), label);
-	gtk_window_set_transient_for(GTK_WINDOW(window), GTK_WINDOW(fWindow));
-	gtk_window_set_destroy_with_parent(GTK_WINDOW(window), TRUE);
-	gtk_window_add_accel_group(GTK_WINDOW(window), fAccelGroup);
-	gtk_window_set_gravity(GTK_WINDOW(window), GDK_GRAVITY_NORTH_WEST);
-
-	gtk_container_add(GTK_CONTAINER(window), vbox);
-	gtk_widget_hide(window);
-
-	fPortMapWindow = GTK_WINDOW(window);
 }
 
 void GxMainInterface::openHorizontalBox(const char* label)
@@ -2481,8 +2401,9 @@ void GxMainInterface::addEngineMenu()
 	menuitem = gtk_check_menu_item_new_with_mnemonic ("M_idi Controller");
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_i, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-	g_signal_connect (GTK_OBJECT (menuitem), "activate",
-	                  G_CALLBACK (MidiControllerTable::toggle), menuitem);
+	g_signal_connect (
+		GTK_OBJECT (menuitem), "activate",
+		G_CALLBACK (MidiControllerTable::toggle), menuitem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
 	gtk_widget_show (menuitem);
 
@@ -2933,24 +2854,9 @@ void GxMainInterface::addJackServerMenu()
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_p, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
-	                  G_CALLBACK (gx_show_portmap_window), NULL);
-
-	g_signal_connect_swapped(G_OBJECT(fPortMapWindow), "delete_event",
-	                         G_CALLBACK(gx_hide_portmap_window), menuitem);
-
-
-	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+	                  G_CALLBACK (PortMapWindow::toggle), menuitem);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
 	gtk_widget_show (menuitem);
-
-	/* add item for client tab cycling through */
-	menuitem = gtk_menu_item_new_with_mnemonic("Next Client _Tab");
-	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
-	                           GDK_t, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-	g_signal_connect (GTK_OBJECT (menuitem), "activate",
-	                  G_CALLBACK (gx_cycle_through_client_tabs), NULL);
-	gtk_menu_append (GTK_MENU_SHELL(menucont), menuitem);
-	gtk_widget_show (menuitem);
-
 
 	/*-- Create  Latency submenu under Jack Server submenu --*/
 	menulabel = gtk_menu_item_new_with_mnemonic ("_Latency");
@@ -2986,390 +2892,6 @@ void GxMainInterface::addJackServerMenu()
 	}
 }
 
-
-static void insertPorts(const char **portnames, int flags)
-{
-	if (!portnames) {
-		return;
-	}
-	for (int p = 0; portnames[p] != 0; p++) {
-		string pname = portnames[p];
-		if (pname.substr(0, pname.find(":")) != gx_jack::client_name)
-			gx_client_port_queue.insert(pair<string, int>(pname, flags));
-	}
-}
-
-/* -------- init jack client menus ---------- */
-void GxMainInterface::initClientPortMaps()
-{
-	// make sure everything is reset
-	deleteAllClientPortMaps();
-
-	gx_client_port_dequeue.clear();
-	gx_client_port_queue.clear();
-
-	// if jack down, no bother
-	// (should not be called when jack is down anyway)
-	if (!gx_jack::client)
-		return;
-
-	// get all interesting port names
-	const char **ports;
-	ports = jack_get_ports(gx_jack::client, NULL, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput);
-	if (ports) {
-		insertPorts(ports, JACK_AUDIO_IN);
-		free(ports);
-	}
-	ports = jack_get_ports(gx_jack::client, NULL, JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput);
-	if (ports) {
-		insertPorts(ports, JACK_MIDI_IN);
-		free(ports);
-	}
-	ports = jack_get_ports(gx_jack::client, NULL, JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput);
-	if (ports) {
-		insertPorts(ports, JACK_AUDIO_OUT);
-		free(ports);
-	}
-}
-
-/* -------- add  jack client item ---------- */
-void GxMainInterface::addClientPortMap(const string clname)
-{
-	// no need to bother if are not a jack client
-	if (gx_jack::client == NULL)
-	{
-		gx_print_warning("Jack Client", "Connect back to jack first");
-		return;
-	}
-
-	// we don't want these guys here :)
-	if (clname == gx_jack::client_name ||
-	    clname == "ardourprobe"        ||
-	    clname == "freewheel"          ||
-	    clname == "qjackctl"           ||
-	    clname == "Patchage")
-		return;
-
-	// add tab in client notebook if needed
-	// Note: one-to-one mapping: only ONE tab per client
-	if (getClientPortMap(clname))
-		return;
-
-	GtkWidget* label   = gtk_label_new(clname.c_str());
-
-	GtkWidget* mapbox  = gtk_hbox_new(TRUE, 10);
-	gtk_widget_set_name(mapbox, clname.c_str());
-
-	for (int t = gx_jack::kAudioInput; t <= gx_jack::kMidiInput; t++)
-	{
-		GtkWidget* table  = gtk_vbox_new(FALSE, 0);
-		gtk_box_pack_start(GTK_BOX(mapbox), table, TRUE, FALSE, 0);
-
-		g_signal_connect(table, "expose-event", G_CALLBACK(box6_expose), NULL);
-		gtk_widget_show(table);
-	}
-
-	gtk_notebook_append_page(fPortMapTabs, mapbox, label);
-	gtk_widget_show(label);
-	gtk_widget_show(mapbox);
-	fClientPortMap.insert(mapbox);
-
-	// move focus back to guitarix main window
-	gtk_widget_grab_focus(fWindow);
-
-	gx_print_info("Jack Client",  clname + " added to port map");
-}
-
-/* -------- add port to a given jack client portmap  ---------- */
-void GxMainInterface::addClientPorts()
-{
-
-	// no need to bother if are not a jack client
-	if (gx_jack::client == NULL)
-	{
-		gx_print_warning("Jack Client Port Add",
-		                 "we are not yet a jack client");
-		gx_client_port_queue.clear();
-		return;
-	}
-
-	// go through list
-	multimap<string, int>::iterator pn;
-	for (pn  = gx_client_port_queue.begin();
-	     pn != gx_client_port_queue.end();
-	     pn++)
-	{
-		string port_name = pn->first;
-
-		// retrieve the client name from the port name
-		string client_name = port_name.substr(0, port_name.find(':'));
-		string short_name  = port_name.substr(port_name.find(':')+1);
-
-		// if client portmap does not exist, create it
-		if (!getClientPortMap(client_name))
-			addClientPortMap(client_name);
-
-		if (!getClientPortMap(client_name))
-			continue;
-
-		// port flags
-		int flags          = pn->second;
-
-		// set up how many port tables we should deal with:
-		// 1 for guitarix input (mono)
-		// 2 for guitarix outputs (stereo)
-
-		int table_index, ntables;
-		if (flags == JACK_AUDIO_IN) {
-			table_index = 0;
-			ntables = 1;
-		} else if (flags == JACK_AUDIO_OUT) {
-			table_index = 1;
-			ntables = 2;
-		} else {
-			assert(flags == JACK_MIDI_IN);
-			table_index = 3;
-			ntables = 1;
-		}
-
-		// add port item
-		for (int i = table_index; i < table_index + ntables; i++)
-		{
-			// retrieve port table
-			GtkVBox* portbox =
-				GTK_VBOX(getClientPortTable(client_name, i));
-			gtk_container_set_border_width (GTK_CONTAINER (portbox), 8);
-			// create checkbutton
-			GtkWidget* button =
-				gtk_check_button_new_with_label(short_name.c_str());
-			GtkWidget *button_text = gtk_bin_get_child(GTK_BIN(button));
-
-
-			GdkColor colorGreen;
-			GdkColor color1;
-			GdkColor color2;
-			gdk_color_parse("#000000", &colorGreen);
-			gtk_widget_modify_fg (button_text, GTK_STATE_NORMAL, &colorGreen);
-			gdk_color_parse("#292995", &color1);
-			gtk_widget_modify_fg (button_text, GTK_STATE_ACTIVE, &color1);
-			gdk_color_parse("#444444", &color2);
-			gtk_widget_modify_fg (button_text, GTK_STATE_PRELIGHT, &color2);
-			GtkStyle *style = gtk_widget_get_style(button_text);
-			pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-			pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-			gtk_widget_modify_font(button_text, style->font_desc);
-
-			gtk_widget_set_name(button,  (gchar*)port_name.c_str());
-			gtk_box_pack_start(GTK_BOX(portbox), button, FALSE, FALSE, 0);
-			g_signal_connect(GTK_OBJECT (button), "toggled",
-			                 G_CALLBACK (gx_jack::gx_jack_port_connect),
-			                 GINT_TO_POINTER(i));
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
-			gtk_widget_show_all(button);
-		}
-	}
-
-	// empty queue
-	gx_client_port_queue.clear();
-
-	// move focus back to guitarix main window
-	gtk_widget_grab_focus(fWindow);
-}
-
-/* -------- delete port lists for a given jack client ---------- */
-void GxMainInterface::deleteClientPorts()
-
-{
-	// no need to bother if are not a jack client
-	if (gx_jack::client == NULL)
-	{
-		gx_print_warning("Jack Client Port Add",
-		                 "we are not yet a jack client");
-		gx_client_port_dequeue.clear();
-		return;
-	}
-
-	if (gx_client_port_dequeue.empty())
-		return;
-
-	// go through list
-	string clname;
-
-	multimap<string, int>::iterator pn;
-	for (pn = gx_client_port_dequeue.begin(); pn != gx_client_port_dequeue.end(); pn++)
-	{
-		string port_name = pn->first;
-
-		// delete port item to be displayed as a submenu if some ports exist
-		clname = port_name.substr(0, port_name.find(':'));
-
-		// check that portmap does exists, otherwise, no point
-		if (!getClientPortMap(clname))
-			break;
-
-		// lookup port tables
-		for (int l = 0; l < NUM_PORT_LISTS; l++)
-		{
-			GtkWidget* wd = getClientPort(port_name, l);
-			if (wd)
-				gtk_widget_destroy(wd);
-		}
-	}
-
-	// we could delete the tab if needed
-	bool mapempty = true;
-	if (getClientPortMap(clname))
-	{
-		for (int l = 0; l < NUM_PORT_LISTS; l++)
-		{
-			GtkWidget* wd = getClientPortMap(clname);
-			if (wd)
-			{
-				GList* list =
-					gtk_container_get_children(GTK_CONTAINER(wd));
-
-				if (g_list_length(list) > 0)
-				{
-					mapempty = false;
-					g_list_free(list);
-					break;
-				}
-				g_list_free(list);
-			}
-		}
-	}
-
-	if (mapempty)
-		deleteClientPortMap(clname);
-
-	// empty queue
-	gx_client_port_dequeue.clear();
-
-	// move focus back to guitarix main window
-	gtk_widget_grab_focus(fWindow);
-
-
-}
-
-/* -------- delete jack client item ---------- */
-void GxMainInterface::deleteClientPortMap(string clname)
-{
-	// no need to delete it if nothing to delete
-	GtkWidget* tab = getClientPortMap(clname);
-	if (!tab)
-		return;
-
-	// remove it from our list
-	fClientPortMap.erase(fClientPortMap.find(tab));
-
-	// remove the notebook tab
-	int page = gtk_notebook_page_num(fPortMapTabs, tab);
-	gtk_notebook_remove_page(fPortMapTabs, page);
-
-	// destroy the widget
-	if (GTK_IS_WIDGET(tab))
-		gtk_widget_destroy(tab);
-
-	// move focus back to guitarix main window
-	gtk_widget_grab_focus(fWindow);
-
-	// print info
-	gx_print_info("Jack Client Delete", clname + " portmap deleted");
-}
-
-/* -------- delete all jack client menus ---------- */
-void GxMainInterface::deleteAllClientPortMaps()
-{
-	// don't do it if nothing to do
-	if (fClientPortMap.empty())
-		return;
-
-	set<GtkWidget*>::iterator it;
-
-	// all port maps deletion
-	for (it = fClientPortMap.begin(); it != fClientPortMap.end(); it++)
-	{
-		GtkWidget* mapbox = *it;
-
-		int page = gtk_notebook_page_num(fPortMapTabs, mapbox);
-		gtk_notebook_remove_page(fPortMapTabs, page);
-
-		if (GTK_IS_WIDGET(mapbox))
-			gtk_widget_destroy(mapbox);
-	}
-
-	fClientPortMap.clear();
-
-	// move focus back to guitarix main window
-	gtk_widget_grab_focus(fWindow);
-
-	// print warning
-	gx_print_warning("Jack Client Delete All",
-	                 "All client portmaps have been deleted");
-}
-
-/* ---------------- retrieve a client port widget --------------- */
-GtkWidget* GxMainInterface::getClientPort(const string port_name,
-                                          const int    tab_index)
-{
-
-	// client name
-	string clname = port_name.substr(0, port_name.find(':'));
-
-	// get client port table
-	GtkWidget* table = getClientPortTable(clname, tab_index);
-	if (!table)
-		return NULL;
-
-	// get list of elements
-	GList* list = gtk_container_get_children(GTK_CONTAINER(table));
-
-	// retrieve element
-	for (guint p = 0; p < g_list_length(list); p++)
-	{
-		GtkWidget* wd = (GtkWidget*)g_list_nth_data(list, p);
-		if (port_name == gtk_widget_get_name(wd))
-		{
-			g_list_free(list);
-			return wd;
-		}
-	}
-	g_list_free(list);
-	return NULL;
-}
-
-/* --------------- retrieve a client port table widget -------------- */
-GtkWidget* GxMainInterface::getClientPortTable(const string clname,
-                                               const int    index)
-{
-
-	// get port map
-	GtkWidget* portmap = getClientPortMap(clname);
-	if (!portmap)
-		return NULL;
-
-	// look up list of vboxes in portmap
-	GList* list = gtk_container_get_children(GTK_CONTAINER(portmap));
-	GtkWidget * glnd = (GtkWidget*)g_list_nth_data(list, index);
-	g_list_free(list);
-	return (GtkWidget*)glnd;
-}
-
-/* ----------------- retrieve a client portmap widget --------------- */
-GtkWidget* GxMainInterface::getClientPortMap(const string clname)
-{
-	// try to find a match
-	set<GtkWidget*>::iterator it;
-
-	for (it = fClientPortMap.begin(); it != fClientPortMap.end(); it++)
-		if (clname == gtk_widget_get_name(*it))
-			return *it; // got it
-
-	return NULL;
-}
-
-
-
 //---- show main GUI
 void GxMainInterface::show()
 {
@@ -3380,8 +2902,7 @@ void GxMainInterface::show()
 	gx_init_pixmaps();
 	fInitialized = true;
 
-	if (gx_jack::client)
-	{
+	if (gx_jack::client) {
 		// refresh some GUI stuff
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(fJackConnectItem), TRUE);
 
@@ -3390,16 +2911,10 @@ void GxMainInterface::show()
 
 		gtk_window_set_title(GTK_WINDOW(fWindow), gx_jack::client_name.c_str());
 
-		// build port menus for existing jack clients
-		initClientPortMaps();
-
-	}
-	else
-	{
+	} else {
 		gtk_widget_hide(gx_gui::gx_jackd_on_image);
 		gtk_widget_show(gx_gui::gx_jackd_off_image);
 	}
-
 
 	gtk_widget_show  (fBox[0]);
 	gtk_widget_show  (fWindow);
@@ -3422,10 +2937,8 @@ void GxMainInterface::run()
 
 	/* timeout in milliseconds */
 	g_threads[0] = g_timeout_add(40, gx_update_all_gui, 0);
-	g_threads[1] = g_timeout_add_full(G_PRIORITY_LOW,2200, gx_monitor_jack_ports,0, NULL);
-	g_threads[2] = g_timeout_add(750, gx_check_startup, 0);
 	// Note: meter display timeout is a global var in gx_gui namespace
-	g_threads[3] = g_timeout_add(meter_display_timeout, gx_refresh_meter_level,   0);
+	g_threads[1] = g_timeout_add(meter_display_timeout, gx_refresh_meter_level,   0);
 
 	GError* err = NULL;
 	// -------------- start helper thread for ladi signal USR1 ------------
