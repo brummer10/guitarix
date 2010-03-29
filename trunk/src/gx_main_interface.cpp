@@ -1418,8 +1418,6 @@ void GxMainInterface::addToggleButton(const char* label, float* zone)
 	GdkColor colorOwn;
 	gdk_color_parse ("#d56161", &colorRed);
 	gdk_color_parse ("#7f7f7f", &colorOwn);
-	float local_zone = 0.0;
-	if (zone) local_zone = *zone;
 	GtkWidget* 	button = gtk_toggle_button_new();
 	GtkWidget* 	lab = gtk_label_new(label);
 	GtkStyle *style = gtk_widget_get_style(lab);

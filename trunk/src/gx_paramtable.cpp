@@ -535,6 +535,8 @@ void FloatParameter::set(int n, int high, float llimit, float ulimit)
 		value = llimit + ((float)(n) / (high)) * (ulimit - llimit);
 		break;
 	case Switch:
+		value = (2*n > high ? 1.0 : 0.0);
+		break;
 	case Enum:
 		value = lower + min((float)n, upper-lower-1); //FIXME "-1" ??
 		break;

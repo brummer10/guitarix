@@ -33,6 +33,7 @@
 #include <cmath>
 #include <sys/types.h>
 #include <signal.h>
+#include <cstdlib>
 
 #include <array>
 #include <zita-convolver.h>
