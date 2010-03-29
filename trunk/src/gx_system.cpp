@@ -965,7 +965,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 			cout << "Guitarix version \033[1;32m"
 			     << GX_VERSION << endl
 			     << "\033[0m   Copyright " << (char)0x40 << " 2009 "
-			     << "Hermman Meyer - James Warden"
+			     << "Hermman Meyer - James Warden - Andreas Degert"
 			     << endl;
 			exit(0);
 		}

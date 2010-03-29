@@ -191,6 +191,16 @@ static void gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int co
 	gtk_idle_add(gx_jack_portconn_helper,
 	             new PortConnData(jack_port_name(port_a), jack_port_name(port_b),
 	                              connect));
+	// check if we are connected
+	const char** port = jack_port_get_connections(input_ports[0]);
+	if (port) { // might be 0 (e.g. due to race conditions)
+
+        NO_CONNECTION = 0;
+        free(port);
+    }
+    else {
+        NO_CONNECTION = 1;
+    }
 }
 
 
@@ -842,7 +852,7 @@ static int gx_jack_session_callback_helper(gpointer data) {
 
 void gx_jack_session_callback(jack_session_event_t *event, void *arg)
 {
-    gtk_idle_add(gx_jack_session_callback_helper, (void *)event); 
+    gtk_idle_add(gx_jack_session_callback_helper, (void *)event);
 }
 #endif
 
