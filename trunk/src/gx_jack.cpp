@@ -217,8 +217,9 @@ void gx_jack_callbacks_and_activate()
 	jack_set_port_registration_callback(client, gx_jack_portreg_callback, 0);
 	jack_set_port_connect_callback(client, gx_jack_portconn_callback, 0);
 #ifdef HAVE_JACK_SESSION
-	if (jack_set_session_callback)
+	if (jack_set_session_callback) {
 		jack_set_session_callback (client, gx_jack_session_callback, 0);
+	}
 #endif
 
 	//----- register the midi input channel
@@ -837,15 +838,18 @@ static int gx_jack_session_callback_helper(gpointer data) {
     fname += "guitarix.state";
     string cmd( "guitarix -U " );
     cmd += event->client_uuid;
-    cmd += " -f ${SESSION_DIR}/guitarix.state";
+    cmd += " -f ${SESSION_DIR}guitarix.state";
 
-    saveStateToFile( fname );
+    saveStateToFile(fname);
 
-    event->command_line = strdup( cmd.c_str() );
+    event->command_line = strdup(cmd.c_str());
 
-    jack_session_reply( client, event );
+    jack_session_reply(client, event);
 
-    jack_session_event_free( event );
+    if (event->type == JackSessionSaveAndQuit) {
+	    gtk_main_quit();
+    }
+    jack_session_event_free(event);
 
     return 0;
 }
