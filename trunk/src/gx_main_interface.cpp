@@ -1619,6 +1619,9 @@ void GxMainInterface::addHorizontalSlider(const char* label, float* zone, float 
 
 void GxMainInterface::addHorizontalWheel(string id, const char* label)
 {
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
 	const FloatParameter &p = parameter_map[id].getFloat();
 	if (!label) {
 		label = p.name().c_str();
@@ -1737,6 +1740,9 @@ void GxMainInterface::addregler(const char* label, float* zone, float init, floa
 
 void GxMainInterface::addbigregler(string id, const char* label)
 {
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
 	const FloatParameter &p = parameter_map[id].getFloat();
 	if (!label) {
 		label = p.name().c_str();
@@ -1746,6 +1752,9 @@ void GxMainInterface::addbigregler(string id, const char* label)
 
 void GxMainInterface::addslider(string id, const char* label)
 {
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
 	const FloatParameter &p = parameter_map[id].getFloat();
 	if (!label) {
 		label = p.name().c_str();
@@ -1755,6 +1764,9 @@ void GxMainInterface::addslider(string id, const char* label)
 
 void GxMainInterface::addregler(string id, const char* label)
 {
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
 	const FloatParameter &p = parameter_map[id].getFloat();
 	if (!label) {
 		label = p.name().c_str();
@@ -1764,6 +1776,9 @@ void GxMainInterface::addregler(string id, const char* label)
 
 void GxMainInterface::addswitch(string id, const char* label)
 {
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
 	const IntParameter &p = parameter_map[id].getInt();
 	if (!label) {
 		label = p.name().c_str();
@@ -1773,6 +1788,9 @@ void GxMainInterface::addswitch(string id, const char* label)
 
 void GxMainInterface::addminiswitch(string id, const char* label)
 {
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
 	Parameter& p = parameter_map[id];
 	if (!label) {
 		label = p.name().c_str();
@@ -1786,6 +1804,9 @@ void GxMainInterface::addminiswitch(string id, const char* label)
 
 void GxMainInterface::addselector(string id, int nvalues, const char** pvalues, const char* label)
 {
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
 	const FloatParameter &p = parameter_map[id].getFloat();
 	if (!label) {
 		label = p.name().c_str();
@@ -1795,6 +1816,9 @@ void GxMainInterface::addselector(string id, int nvalues, const char** pvalues, 
 
 void GxMainInterface::addtoggle(string id, const char* label)
 {
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
 	Parameter& p = parameter_map[id];
 	if (!label) {
 		label = p.name().c_str();
@@ -1808,6 +1832,9 @@ void GxMainInterface::addtoggle(string id, const char* label)
 
 void GxMainInterface::addminieqswitch(string id, const char* label)
 {
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
 	const IntParameter &p = parameter_map[id].getInt();
 	if (!label) {
 		label = p.name().c_str();
@@ -1817,6 +1844,9 @@ void GxMainInterface::addminieqswitch(string id, const char* label)
 
 void GxMainInterface::addVerticalSlider(string id, const char* label)
 {
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
 	const FloatParameter &p = parameter_map[id].getFloat();
 	if (!label) {
 		label = p.name().c_str();
@@ -1826,6 +1856,9 @@ void GxMainInterface::addVerticalSlider(string id, const char* label)
 
 void GxMainInterface::addCheckButton(string id, const char* label)
 {
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
 	const FloatParameter &p = parameter_map[id].getFloat();
 	if (!label) {
 		label = p.name().c_str();
@@ -1835,6 +1868,9 @@ void GxMainInterface::addCheckButton(string id, const char* label)
 
 void GxMainInterface::addNumEntry(string id, const char* label)
 {
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
 	const FloatParameter &p = parameter_map[id].getFloat();
 	if (!label) {
 		label = p.name().c_str();
@@ -1844,6 +1880,9 @@ void GxMainInterface::addNumEntry(string id, const char* label)
 
 void GxMainInterface::addPToggleButton(string id, const char* label)
 {
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
 	const FloatParameter &p = parameter_map[id].getFloat();
 	if (!label) {
 		label = p.name().c_str();
