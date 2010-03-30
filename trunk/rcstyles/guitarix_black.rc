@@ -183,6 +183,18 @@ style "h_style"
 	}
 	fg[NORMAL] = { 0.80, 0.80, 0.80 }
     bg[NORMAL] = { 0.0, 0.0, 0.0 }
+    
+    text[NORMAL] = { 0.80, 0.80, 0.80 }
+	text[ACTIVE] = { 0.80, 0.80, 0.80 }
+	text[PRELIGHT] = { 0.80, 0.80, 0.80 }
+	text[INSENSITIVE] = { 0.80, 0.80, 0.80}
+	text[SELECTED] = { 1.0, 1.0, 1.0 }
+
+  base[ACTIVE]     = "#272a2f"
+  base[NORMAL]      =  "#1a1e20"
+  base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
+  base[INSENSITIVE]  = "#4c5159"
+  base[SELECTED]     = { 0.25, 0.25, 0.25 }
 }
 
 class "GtkHandleBox" style:highest "h_style"
