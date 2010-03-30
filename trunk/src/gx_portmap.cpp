@@ -597,6 +597,7 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item)
 
 	GtkBuilder * builder = gtk_builder_new();
 	window = load_toplevel(builder, "ports.glade", "PortMapWindow");
+	gtk_window_set_icon(GTK_WINDOW (window), GDK_PIXBUF(ib));
 	for (int i = 0; i < number_of_ports; i++) {
 		portsection[i].port_attr = &guitarix_ports[i];
 		char name[30];
