@@ -55,6 +55,7 @@
   <object class="GtkDialog" id="PortMapWindow">
     <property name="border_width">5</property>
     <property name="title" translatable="yes">guitarix port connections</property>
+    <property name="resizable">False</property>
     <property name="default_width">320</property>
     <property name="type_hint">normal</property>
     <child internal-child="vbox">

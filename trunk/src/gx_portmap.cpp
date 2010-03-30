@@ -398,6 +398,9 @@ void PortMapWindow::connection_changed(string port1, string port2, bool conn)
 		if (s.compare(port1) == 0) {
 			update_summary(p, &port2, conn);
 		}
+		else if (s.compare(port2) == 0) {
+			update_summary(p, &port1, conn);
+		}
 	}
 }
 
