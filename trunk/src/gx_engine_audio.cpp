@@ -1144,6 +1144,7 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     if (audio.fupsample != fupsample_old) {
 	    fupsample_old = audio.fupsample;
 	    osc_tube::init(ovs_sr);
+	    distortion::init(ovs_sr);
     }
     if (audio.antialis0) {
 	    AntiAlias::compute(ovs_count, ovs_buffer, ovs_buffer);
@@ -1181,7 +1182,14 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 	    } else if (audio.posit1 == m && audio.foverdrive4) {
 		    overdrive::compute(count, output0, output0);
 	    } else if (audio.posit2 == m && audio.fcheckbox4) {
-		    distortion::compute(count, output0, output0);
+	        if (audio.fupsample) {
+                // 2*oversample
+                over_sample(count, output0, oversample);
+                distortion::compute(ovs_count, oversample, oversample);
+                down_sample(count, oversample, output0);
+	        } else {
+                distortion::compute(count, output0, output0);
+	        }
 	    } else if (audio.posit3 == m && audio.fcheckbox6) {
 		    freeverb::compute(count, output0, output0);
 	    } else if (audio.posit6 == m && audio.fcheckbox7) {
