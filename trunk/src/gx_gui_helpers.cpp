@@ -758,6 +758,14 @@ bool gx_update_skin(const gint idx, const char* calling_func)
 			set_knob = 5;
 		}
 	}
+	else if (int(float(gx_current_skin)==8))
+	{
+		if (set_knob !=3)
+		{
+			GtkRegler::gtk_regler_init_pixmaps(3);
+			set_knob = 3;
+		}
+	}
 	else
 	{
 		GtkRegler::gtk_regler_init_pixmaps(0);

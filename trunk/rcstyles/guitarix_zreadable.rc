@@ -1,0 +1,243 @@
+#
+# This is the GTK rc style file for guitarix
+#
+
+pixmap_path './:/usr/share/guitarix/skins:/usr/local/share/guitarix/skins'
+
+
+style "guitarix_zreadable"
+{
+
+
+  GtkButton::default_border = { 0, 0, 0, 0 }
+  GtkButton::default_outside_border = { 0, 0, 0, 0 }
+  GtkButton::button_relief = GTK_RELIEF_NONE
+
+#font-color menu
+  fg[NORMAL] = "#1e2e44"
+  fg[ACTIVE] = { 0.80, 0.80, 0.80 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }
+  fg[SELECTED] = { 0.80, 0.80, 0.80 }
+# background below main-menu
+  bg[NORMAL] = "#bdd9eb"
+  bg[PRELIGHT] = "#84919c"
+  bg[ACTIVE] = { 0.0, 0.0, 0.0 }
+  bg[INSENSITIVE] = "#c4c0c0"
+  bg[SELECTED] = "#867e81"
+  bg_pixmap[NORMAL] = "zreadable5.jpg"
+
+  text[NORMAL] = { 0.80, 0.80, 0.80 }
+  text[ACTIVE] = { 0.80, 0.80, 0.80 }
+  text[PRELIGHT] = { 0.80, 0.80, 0.80 }
+  text[INSENSITIVE] = { 0.80, 0.80, 0.80}
+  text[SELECTED] = { 1.0, 1.0, 1.0 }
+
+  base[ACTIVE]     = "#bcd9f6"
+  base[NORMAL]      =  "#1a1e20"
+  base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
+  base[INSENSITIVE]  = "#4c5159"
+  base[SELECTED]     = { 0.25, 0.25, 0.25 }
+  font_name = "sans 10"
+
+}
+
+
+class "GtkWidget" style:highest "guitarix_zreadable"
+class "GtkLabel" style:highest "guitarix_zreadable"
+class "GtkHScale" style:highest "guitarix_zreadable"
+class "GtkVScale" style:highest "guitarix_zreadable"
+class "GtkCheckButton" style:highest "guitarix_zreadable"
+class "GtkButton" style:highest "guitarix_zreadable"
+class "GtkFrame" style:highest "guitarix_zreadable"
+class "GtkExpander" style:highest "guitarix_zreadable"
+
+
+style "guitarix-event_zreadable"
+{
+ bg_pixmap[NORMAL] = "zreadable2.jpg"
+}
+widget "*.osc_box" style:highest "guitarix-event_zreadable"
+
+style "guitarix-osc_zreadable"
+{
+ bg[NORMAL] = 	{ 0.7, 0.7, 0.8 }
+}
+class "GtkEventBox" style:highest "guitarix-osc_zreadable"
+
+style "guitarix-dialog_zreadable"
+{
+ bg_pixmap[NORMAL] = "zreadable2.jpg"
+}
+
+#widget_class "GtkDialog*" style:highest "guitarix-dialog_zreadable"
+
+style "guitarix-m_zreadable"
+{
+  fg[NORMAL] = "#222a3b"
+  bg[NORMAL] =  "#b8c5d9"
+  font_name = "sans 9"
+}
+
+class "GtkMenu" style:highest "guitarix-m_zreadable"
+class "GtkMenuBar" style:highest "guitarix-m_zreadable"
+
+
+style "guitarix-l_zreadable"
+{
+  fg[NORMAL] = 	"#222a3b"
+  bg[NORMAL] = 	"#b8c5d9"
+  fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+
+style "guitarix-v_zreadable"
+{
+  fg[NORMAL] = 	"#062f56"
+    bg[NORMAL] = 	"#b8c5d9"
+  fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+
+style "guitarix-b_zreadable"
+{
+  fg[NORMAL] = 	"#2389e8" 
+  bg[NORMAL] = 	"#b8c5d9"
+  fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+widget "*.effekt_label" style:highest "guitarix-v_zreadable"
+widget "*.value_label" style:highest "guitarix-l_zreadable"
+widget "*.beffekt_label" style:highest "guitarix-b_zreadable"
+
+
+style "b_style_zreadable"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL
+			shadow			= OUT
+			file			= "zreadable3.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= PRELIGHT
+			shadow			= OUT
+			file			= "zreadable4.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= PRELIGHT
+			shadow			= OUT
+			file			= "zreadable5.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= ACTIVE
+			shadow			= OUT
+			file			= "zreadable3.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+}
+
+style "c_style_zreadable"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL
+			shadow			= OUT
+			file			= "zreadable.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+
+	}
+}
+
+style "h_style_zreadable"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL
+			shadow			= OUT
+			file			= "zreadable.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+	fg[NORMAL] = { 0.0, 0.0, 0.80 }
+    bg[NORMAL] = { 0.0, 0.0, 0.0 }
+    
+    text[NORMAL] = { 0.1, 0.1, 0.2 }
+	text[ACTIVE] = { 0.1, 0.1, 0.3 }
+	text[PRELIGHT] = { 0.1, 0.1, 0.4 }
+	text[INSENSITIVE] = { 0.80, 0.80, 0.80}
+	text[SELECTED] = { 1.0, 1.0, 1.0 }
+
+	base[ACTIVE]     = "#bcd9f6"
+	base[NORMAL]      =  "#bdd9eb"
+	base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
+	base[INSENSITIVE]  = "#4c5159"
+	base[SELECTED]     = { 0.25, 0.25, 0.25 }
+}
+
+class "GtkHandleBox" style:highest "h_style_zreadable"
+widget_class "*GtkToggleButton*" style:highest "b_style_zreadable"
+widget_class "GtkDialog*" style:highest "h_style_zreadable"
+class "GtkButton" style:highest "b_style_zreadable"
+class "GtkSpinButton" style:highest "c_style_zreadable"
+
+style "p_style_zreadable"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= PRELIGHT
+			shadow			= OUT
+			file			= "zreadable2.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+}
+widget_class "*GtkProgressBar*" style:highest "p_style_zreadable"
+

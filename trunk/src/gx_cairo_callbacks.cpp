@@ -99,6 +99,11 @@ void gx_skin_color(cairo_pattern_t *pat)
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.8, 0.8, 0.8, 0.6);
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.3, 0.3, 0.3, 0.6);
 		break;
+	case 8:
+		cairo_pattern_add_color_stop_rgba (pat, 0, 1, 1, 1, 0.9);
+		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0.9, 0.9, 1, 0.9);
+		cairo_pattern_add_color_stop_rgba (pat, 1, 0.8, 0.8, 0.9, 0.5);
+		break;
 	}
 
 }
@@ -256,10 +261,17 @@ gboolean box1_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
 	pat = cairo_pattern_create_linear (0, y0, 0, y1);
 
-	cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
-	cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0.4);
-	cairo_set_source (cr, pat);
-	cairo_fill_preserve (cr);
+	if (int(float(gx_gui::gx_current_skin)==8))
+    {
+        cairo_pattern_add_color_stop_rgba (pat, 1, 0.8, 0.8, 1, 0.8);
+        cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.7, 0.7, 0.8, 0.6);
+        cairo_pattern_add_color_stop_rgba (pat, 0, 0.5, 0.5, 0.6, 0.4);
+    } else {
+        cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
+        cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0.4);
+    }
+    cairo_set_source (cr, pat);
+    cairo_fill_preserve (cr);
 
 	cairo_set_source_rgba (cr, 0, 0, 0, 0.8);
 	cairo_set_line_width (cr, 9.0);
@@ -578,18 +590,28 @@ gboolean box9_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 		cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
 		cairo_close_path (cr);
 		pat = cairo_pattern_create_linear (0, y0, 0, y1);
-		cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0, 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.05, 0.05, 0.05, 0.6);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.2, 0.4);
+		if (int(float(gx_gui::gx_current_skin)==8))
+		{
+            cairo_pattern_add_color_stop_rgba (pat, 1, 0.8, 0.8, 1, 0.8);
+            cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.7, 0.7, 0.8, 0.6);
+            cairo_pattern_add_color_stop_rgba (pat, 0, 0.5, 0.5, 0.6, 0.4);
+		} else {
+            cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0, 0.8);
+            cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.05, 0.05, 0.05, 0.6);
+            cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.2, 0.4);
+		}
 		cairo_set_source (cr, pat);
 		cairo_fill (cr);
 
 		cairo_pattern_destroy (pat);
 		cairo_destroy(cr);
-		gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-		                _image, 0, 0,
-		                x0, y0, rect_width,rect_height,
-		                GDK_RGB_DITHER_NORMAL, 0, 0);
+		if (int(float(gx_gui::gx_current_skin)!=8))
+		{
+            gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                            _image, 0, 0,
+                            x0, y0, rect_width,rect_height,
+                            GDK_RGB_DITHER_NORMAL, 0, 0);
+		}
 		g_object_unref(_image);
 	}
 	return FALSE;
@@ -721,9 +743,16 @@ gboolean box12_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 		cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
 		cairo_close_path (cr);
 		pat = cairo_pattern_create_linear (0, y0, 0, y1);
-		cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0, 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.05, 0.05, 0.05, 0.6);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.2, 0.4);
+		if (int(float(gx_gui::gx_current_skin)==8))
+        {
+            cairo_pattern_add_color_stop_rgba (pat, 1, 0.8, 0.8, 1, 0.8);
+            cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.7, 0.7, 0.8, 0.6);
+            cairo_pattern_add_color_stop_rgba (pat, 0, 0.5, 0.5, 0.6, 0.4);
+        } else {
+            cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0, 0.8);
+            cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.05, 0.05, 0.05, 0.6);
+            cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.2, 0.4);
+        }
 		cairo_set_source (cr, pat);
 		cairo_fill (cr);
 
