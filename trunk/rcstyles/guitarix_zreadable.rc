@@ -61,7 +61,8 @@ widget "*.osc_box" style:highest "guitarix-event_zreadable"
 
 style "guitarix-osc_zreadable"
 {
- bg[NORMAL] = 	{ 0.7, 0.7, 0.8 }
+ bg[NORMAL] = 	{ 0.5, 0.5, 0.5 }
+ bg_pixmap[NORMAL] = ""
 }
 class "GtkEventBox" style:highest "guitarix-osc_zreadable"
 

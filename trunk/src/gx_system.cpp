@@ -1466,7 +1466,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 		gx_gui::gx_get_skin_change(&audio.fskin);
 
 		// only save if we are not in a preset context
-		if (!setting_is_preset)
+		if (!setting_is_preset && gx_jack::client)
 			saveStateToFile(gx_user_dir + client_name + "_rc");
 	}
 
