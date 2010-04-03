@@ -409,13 +409,25 @@ void PortMapWindow::connection_changed(string port1, string port2, bool conn)
 ** gtk callback functions
 */
 
+void PortMapWindow::on_check_resize(GtkWidget *widget, gpointer data)
+{
+	// cf. comment at the end of on_expander()
+	PortMapWindow *p = (PortMapWindow*)data;
+	if (p->monitored_expander_child &&
+	    !gtk_widget_get_child_visible(p->monitored_expander_child)) {
+		p->monitored_expander_child = 0;
+		gint width;
+		gdk_window_get_geometry(gtk_widget_get_window(window), 0, 0, &width, 0, 0);
+		gtk_window_resize(GTK_WINDOW(window), width, 1);
+	}
+}
+
 void PortMapWindow::on_expander(GtkWidget *widget, gpointer data)
 {
 	PortMapWindow *p = (PortMapWindow*)data;
-	gboolean v = gtk_expander_get_expanded(GTK_EXPANDER(widget));
-	PortSection *ps = 0;
-	bool expand = v;
-	if (v) {
+	gboolean expanded = gtk_expander_get_expanded(GTK_EXPANDER(widget));
+	if (expanded) {
+		// close all other expanders and unset their expand child property
 		for (int i = 0; i < number_of_ports; i++) {
 			GtkWidget *w = GTK_WIDGET(p->portsection[i].expander);
 			if (widget != w) {
@@ -424,15 +436,23 @@ void PortMapWindow::on_expander(GtkWidget *widget, gpointer data)
 				g_value_set_boolean(&v, FALSE);
 				gtk_container_child_set_property(GTK_CONTAINER(gtk_widget_get_parent(w)), w, "expand", &v);
 				gtk_expander_set_expanded(GTK_EXPANDER(w), FALSE);
-			} else {
-				ps = &p->portsection[i];
 			}
 		}
 	}
+	// set the expand child property of the current expander if its expanded
 	GValue value = {0};
 	g_value_init(&value, G_TYPE_BOOLEAN);
-	g_value_set_boolean(&value, expand);
+	g_value_set_boolean(&value, expanded);
 	gtk_container_child_set_property(GTK_CONTAINER(gtk_widget_get_parent(widget)), widget, "expand", &value);
+	if (!expanded) {
+		// when the expander is explicitely closed (so all expanders are
+		// closed now) we want to shrink the portmap window with
+		// gtk_window_resize().
+		// But GtkExpander uses a timer before the child is made
+		// unvisible and a resize of the window is triggered.
+		// So we defer resizing to the "check-resize"-signal handler
+		p->monitored_expander_child = gtk_bin_get_child(GTK_BIN(widget));
+	}
 }
 
 void PortMapWindow::response_cb(GtkWidget *widget, gint response_id, gpointer data)
@@ -588,6 +608,7 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port)
 
 PortMapWindow::PortMapWindow(GtkCheckMenuItem *item)
 {
+	monitored_expander_child = 0;
 	menuitem = item;
 	gtk_widget_ref(GTK_WIDGET(item));
 
@@ -625,10 +646,9 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item)
 	// connect widget with rcstyle cairo callback
 	GtkWidget * box = gtk_bin_get_child(GTK_BIN(window));
 	g_signal_connect(box, "expose-event", G_CALLBACK(gx_cairo::box4_expose), this);
-
 	gtk_window_add_accel_group(GTK_WINDOW(window),
 	                           GxMainInterface::instance()->fAccelGroup);
-
+	g_signal_connect_after(window, "check-resize", G_CALLBACK(on_check_resize), this);
 	gtk_widget_show(window);
 	g_object_unref(G_OBJECT(builder));
 	instance = this;
@@ -638,6 +658,7 @@ PortMapWindow::~PortMapWindow()
 {
 	instance = 0;
 	window = NULL;
+	monitored_expander_child = 0;
 	gtk_widget_unref(GTK_WIDGET(menuitem));
 }
 

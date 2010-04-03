@@ -60,7 +60,9 @@ private:
 	PortSection portsection[number_of_ports];
 	GtkCheckMenuItem *menuitem;
 	list<string> excluded_clients;
+	GtkWidget *monitored_expander_child;
 	static void on_expander(GtkWidget *widget, gpointer data);
+	static void on_check_resize(GtkWidget *widget, gpointer data);
 	static void response_cb(GtkWidget *widget, gint response_id, gpointer data);
 	static void destroy_cb(GtkWidget*, gpointer data);
 	static void on_cell_toggle(GtkCellRendererToggle *widget, gchar *path, gpointer data);

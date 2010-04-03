@@ -56,7 +56,7 @@
     <property name="border_width">5</property>
     <property name="title" translatable="yes">guitarix port connections</property>
     <property name="default_width">320</property>
-    <property name="type_hint">normal</property>
+    <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
@@ -124,12 +124,12 @@
                 <child type="label">
                   <object class="GtkHBox" id="hbox1">
                     <property name="visible">True</property>
+                    <property name="spacing">10</property>
                     <child>
                       <object class="GtkLabel" id="label1">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Input</property>
-                        <property name="width_chars">18</property>
                       </object>
                       <packing>
                         <property name="position">0</property>
@@ -208,12 +208,12 @@
                 <child type="label">
                   <object class="GtkHBox" id="hbox2">
                     <property name="visible">True</property>
+                    <property name="spacing">10</property>
                     <child>
                       <object class="GtkLabel" id="label2">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Output 1</property>
-                        <property name="width_chars">18</property>
                       </object>
                       <packing>
                         <property name="position">0</property>
@@ -292,12 +292,12 @@
                 <child type="label">
                   <object class="GtkHBox" id="hbox3">
                     <property name="visible">True</property>
+                    <property name="spacing">10</property>
                     <child>
                       <object class="GtkLabel" id="label3">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Output 2</property>
-                        <property name="width_chars">18</property>
                       </object>
                       <packing>
                         <property name="position">0</property>
@@ -376,12 +376,12 @@
                 <child type="label">
                   <object class="GtkHBox" id="hbox4">
                     <property name="visible">True</property>
+                    <property name="spacing">10</property>
                     <child>
                       <object class="GtkLabel" id="label4">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Midi Input (Control)</property>
-                        <property name="width_chars">18</property>
                       </object>
                       <packing>
                         <property name="position">0</property>
@@ -460,12 +460,12 @@
                 <child type="label">
                   <object class="GtkHBox" id="hbox5">
                     <property name="visible">True</property>
+                    <property name="spacing">10</property>
                     <child>
                       <object class="GtkLabel" id="label5">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Midi Output</property>
-                        <property name="width_chars">18</property>
                       </object>
                       <packing>
                         <property name="position">0</property>
@@ -522,5 +522,14 @@
     <action-widgets>
       <action-widget response="0">button1</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkSizeGroup" id="sizegroup1">
+    <widgets>
+      <widget name="label1"/>
+      <widget name="label2"/>
+      <widget name="label3"/>
+      <widget name="label4"/>
+      <widget name="label5"/>
+    </widgets>
   </object>
 </interface>
