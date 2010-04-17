@@ -661,15 +661,15 @@ void PortMapWindow::refresh()
 {
     if(window) {
         if(!gx_jack::client) {
-            for(int i = 0; i<5;i++){
-            PortSection& ps = portsection[i];
-            GtkTreeStore *tree = ps.treestore;
-            assert(tree);
-            assert(GTK_IS_TREE_STORE(tree));
-            gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(tree), 0, sort_func, 0, 0);
-            gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(tree), 0, GTK_SORT_ASCENDING);
-            gtk_tree_store_clear(tree);
-            update_summary(&portsection[i]);
+            for(int i = 0; i< number_of_ports;i++){
+                PortSection& ps = portsection[i];
+                GtkTreeStore *tree = ps.treestore;
+                assert(tree);
+                assert(GTK_IS_TREE_STORE(tree));
+                gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(tree), 0, sort_func, 0, 0);
+                gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(tree), 0, GTK_SORT_ASCENDING);
+                gtk_tree_store_clear(tree);
+                update_summary(&portsection[i]);
             }
         } else {
             load(0, gx_jack::input_ports[0]);
