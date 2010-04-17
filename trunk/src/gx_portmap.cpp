@@ -552,58 +552,60 @@ static gint sort_func(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpoin
 
 void PortMapWindow::load(int sect, jack_port_t *jack_port)
 {
-	const unsigned int max_items_unfolded = 2;
-	PortSection& ps = portsection[sect];
-	GtkTreeStore *tree = ps.treestore;
-	assert(tree);
-	assert(GTK_IS_TREE_STORE(tree));
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(tree), 0, sort_func, 0, 0);
-	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(tree), 0, GTK_SORT_ASCENDING);
-	gtk_tree_store_clear(tree);
-	const char **ports;
-	ports = jack_get_ports(gx_jack::client, NULL, ps.port_attr->port_type,
-	                       (ps.port_attr->is_input ? JackPortIsOutput : JackPortIsInput));
-	if (!ports) {
-		return;
-	}
-	const char** conn_ports = jack_port_get_connections(jack_port);
-	ClientList cl(ports);
-	cl.remove(excluded_clients);
-	GtkTreeIter iter, parent, *parentp;
-	for (ClientList::iterator i = cl.begin(); i != cl.end(); i++) {
-		ClientPortList *p = *i;
-		if (cl.size() > 1 && p->ports.size() > max_items_unfolded) {
-			gtk_tree_store_append(tree, &parent, 0);
-			gtk_tree_store_set(tree, &parent,
-			                   0, p->clientname().c_str(),
-			                   1, false,
-			                   2, false,
-			                   -1);
-			parentp = &parent;
-		} else {
-			parentp = 0;
-		}
-		for (list<const char*>::iterator j = p->ports.begin(); j != p->ports.end(); j++) {
-			bool conn = false;
-			if (conn_ports) {
-				for (const char** q = conn_ports; *q; q++) {
-					if (strcmp(*q, *j) == 0) {
-						conn = true;
-						break;
-					}
-				}
-			}
-			gtk_tree_store_append(tree, &iter, parentp);
-			gtk_tree_store_set(tree, &iter,
-			                   0, *j,
-			                   1, conn,
-			                   2, true,
-			                   -1);
-		}
-	}
-	free(conn_ports);
-	free(ports);
-	update_summary(&portsection[sect]);
+    if (gx_jack::client) {
+        const unsigned int max_items_unfolded = 4;
+        PortSection& ps = portsection[sect];
+        GtkTreeStore *tree = ps.treestore;
+        assert(tree);
+        assert(GTK_IS_TREE_STORE(tree));
+        gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(tree), 0, sort_func, 0, 0);
+        gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(tree), 0, GTK_SORT_ASCENDING);
+        gtk_tree_store_clear(tree);
+        const char **ports;
+        ports = jack_get_ports(gx_jack::client, NULL, ps.port_attr->port_type,
+                                (ps.port_attr->is_input ? JackPortIsOutput : JackPortIsInput));
+        if (!ports) {
+            return;
+        }
+        const char** conn_ports = jack_port_get_connections(jack_port);
+        ClientList cl(ports);
+        cl.remove(excluded_clients);
+        GtkTreeIter iter, parent, *parentp;
+        for (ClientList::iterator i = cl.begin(); i != cl.end(); i++) {
+            ClientPortList *p = *i;
+            if (cl.size() > 1 && p->ports.size() > max_items_unfolded) {
+                gtk_tree_store_append(tree, &parent, 0);
+                gtk_tree_store_set(tree, &parent,
+                                    0, p->clientname().c_str(),
+                                    1, false,
+                                    2, false,
+                                    -1);
+                parentp = &parent;
+            } else {
+                parentp = 0;
+            }
+            for (list<const char*>::iterator j = p->ports.begin(); j != p->ports.end(); j++) {
+                bool conn = false;
+                if (conn_ports) {
+                    for (const char** q = conn_ports; *q; q++) {
+                        if (strcmp(*q, *j) == 0) {
+                            conn = true;
+                            break;
+                        }
+                    }
+                }
+                gtk_tree_store_append(tree, &iter, parentp);
+                gtk_tree_store_set(tree, &iter,
+                                    0, *j,
+                                    1, conn,
+                                    2, true,
+                                    -1);
+            }
+        }
+        free(conn_ports);
+        free(ports);
+        update_summary(&portsection[sect]);
+    }
 }
 
 PortMapWindow::PortMapWindow(GtkCheckMenuItem *item)
@@ -652,6 +654,31 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item)
 	gtk_widget_show(window);
 	g_object_unref(G_OBJECT(builder));
 	instance = this;
+}
+
+// refresh portmap widget when connect/disconnect with jack server
+void PortMapWindow::refresh()
+{
+    if(window) {
+        if(!gx_jack::client) {
+            for(int i = 0; i<5;i++){
+            PortSection& ps = portsection[i];
+            GtkTreeStore *tree = ps.treestore;
+            assert(tree);
+            assert(GTK_IS_TREE_STORE(tree));
+            gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(tree), 0, sort_func, 0, 0);
+            gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(tree), 0, GTK_SORT_ASCENDING);
+            gtk_tree_store_clear(tree);
+            update_summary(&portsection[i]);
+            }
+        } else {
+            load(0, gx_jack::input_ports[0]);
+            load(1, gx_jack::output_ports[0]);
+            load(2, gx_jack::output_ports[1]);
+            load(3, gx_jack::midi_input_port);
+            load(4, gx_jack::midi_output_ports);
+        }
+    }
 }
 
 PortMapWindow::~PortMapWindow()

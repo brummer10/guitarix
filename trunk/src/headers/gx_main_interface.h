@@ -78,6 +78,7 @@ public:
 	static GtkWidget *window; // there can only be 1 window
 	static PortMapWindow* instance;
 	void client_removed(string name);
+	void refresh();
 	void port_changed(string name, const char *tp, int flags, bool reg);
 	void connection_changed(string port1, string port2, bool conn);
 	static void toggle(GtkWidget* widget, gpointer data);
