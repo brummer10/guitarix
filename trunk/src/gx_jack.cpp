@@ -449,11 +449,7 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 				gtk_widget_hide(gx_gui::gx_jackd_off_image);
 			}
 			jack_is_exit = false;
-			// reload ports for portmap widget when needed
-			if(gx_gui::PortMapWindow::instance)
-			{
-			   gx_gui::PortMapWindow::instance->refresh();
-			}
+
 			gx_print_info("Jack Server", "Connected to Jack Server");
 		}
 	} else {
@@ -470,10 +466,13 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 
 		// engine buffers no longer ready
 		gx_engine::buffers_ready = false;
-		// delet ports from portmap widget
-        gx_gui::PortMapWindow::instance->refresh();
+
 		gx_print_warning("Jack Server", "Disconnected from Jack Server");
 	}
+	// reload ports for portmap widget when needed
+    if (gx_gui::PortMapWindow::instance) {
+        gx_gui::PortMapWindow::instance->refresh();
+    }
 }
 
 //----jack latency change
