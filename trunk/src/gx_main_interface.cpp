@@ -2191,7 +2191,9 @@ struct uiNumDisplay : public gx_ui::GxUiItem
 			fCache = *fZone;
 			if (shownote == 1)
 			{
-			    static const GdkRectangle rect = {6,6,100,60};
+			    static int tx      =  pb->allocation.x + (pb->allocation.width - 100) * 0.5;
+                static int ty      =  pb->allocation.y + (pb->allocation.height - 90) * 0.5;
+			    static const GdkRectangle rect = {tx,ty,100,60};
                 gdk_window_invalidate_rect(GDK_WINDOW(pb->window),&rect,TRUE);
 			}
 			else if (shownote == 0)
@@ -2205,8 +2207,9 @@ struct uiNumDisplay : public gx_ui::GxUiItem
 void GxMainInterface::addNumDisplay(const char* label, float* zone )
 {
 	openEventBox(label);
-	pb = gtk_vbox_new (false, 4);
-    g_signal_connect(pb, "expose-event", G_CALLBACK(tuner_expose), NULL);
+
+	pb = gx_tuner_view ();
+   // g_signal_connect(pb, "expose-event", G_CALLBACK(tuner_expose), NULL);
 
 	new uiNumDisplay(this, zone, GTK_WIDGET(pb));
 	gtk_widget_set_size_request(pb, 100.0, 90.0);

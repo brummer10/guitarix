@@ -90,6 +90,10 @@ struct GtkWaveViewClass
 	int new_pig;
 	int mode;
 
+	int tunerview_x;
+	int tunerview_y;
+	cairo_surface_t *surface_tuner;
+
 };
 
 GType gtk_waveview_get_type ();
@@ -606,6 +610,148 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 
 
 	}
+	else if (waveview->waveview_type == kWvTypeTuner)
+	{
+	    static int is_init = 0;
+	    if (is_init == 0)
+	    {
+            cairo_t *cr;
+
+            double x0      = 0;
+            double y0      = 0;
+            double rect_width  = 100;
+            double rect_height = 60;
+
+            // paint tuner background picture only once
+
+            cr = cairo_create(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_tuner);
+
+            cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
+            cairo_set_source_rgb (cr, 0, 0, 0);
+            cairo_fill (cr);
+
+            cairo_pattern_t*pat =
+            cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+            cairo_pattern_add_color_stop_rgb (pat, 0, 1, 1, 1);
+            cairo_pattern_add_color_stop_rgb (pat, 0.3, 0.4, 0.4, 0.4);
+            cairo_pattern_add_color_stop_rgb (pat, 0.6, 0.05, 0.05, 0.05);
+            cairo_pattern_add_color_stop_rgb (pat, 1, 0.0, 0.0, 0.0);
+            cairo_set_source (cr, pat);
+            cairo_rectangle (cr, x0+2,y0+2,rect_width-3,rect_height-3);
+            cairo_fill (cr);
+
+            cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+            cairo_set_line_width(cr, 2.0);
+            cairo_move_to(cr,x0+98, y0+3);
+            cairo_line_to(cr, x0+98, y0+64);
+            cairo_stroke(cr);
+
+            cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+            cairo_set_line_width(cr, 2.0);
+            cairo_move_to(cr,x0+3, y0+64);
+            cairo_line_to(cr, x0+3, y0+3);
+            cairo_line_to(cr, x0+98, y0+3);
+            cairo_stroke(cr);
+
+            pat = cairo_pattern_create_linear (x0+50, y0,x0, y0);
+            cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
+            cairo_pattern_add_color_stop_rgb (pat, 0, 0.1, 0.8, 0.1);
+            cairo_pattern_add_color_stop_rgb (pat, 1, 1, 0.1, 0.1);
+            cairo_set_source (cr, pat);
+
+            double dashes[] = {
+                0.0,  /* ink */
+                rect_height,  /* skip */
+                10.0,  /* ink */
+                10.0   /* skip*/
+            };
+            int    ndash  = sizeof (dashes)/sizeof(dashes[0]);
+            double offset = 100.0;
+
+            cairo_set_dash (cr, dashes, ndash, offset);
+            cairo_set_line_width(cr, 3.0);
+            for (int i = -5;i<6;i++) {
+                cairo_move_to(cr,x0+50, y0+rect_height-5);
+                cairo_line_to(cr, (((i*0.08))*rect_width)+x0+50, y0+(((i*0.1*i*0.1))*30)+2);
+            }
+            cairo_stroke(cr);
+
+            cairo_set_source_rgb(cr,  0.1, 1, 0.1);
+            cairo_move_to(cr,x0+50, y0+rect_height-5);
+            cairo_line_to(cr, x0+50, y0+2);
+            cairo_stroke(cr);
+            cairo_destroy(cr);
+	        is_init = 1; //TUNER BACKGROUND IMAGE IS FINISH
+	    }
+
+        char s[64];
+        int vis = round(gx_engine::audio.fConsta1t);
+        float scale = ((gx_engine::audio.fConsta1t-vis)-(-1.0))/(1.0-(-1.0));
+        if ((scale <= 0.0) || (scale > 1.0)) scale = 0.0;
+        vis += 9;
+        static const char* note[] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};
+        if (gx_gui::shownote == 1)
+        {
+            if ((vis>=0)&&(vis<=11)) snprintf(s, 63, "%s",  note[vis]);
+            else if ((vis>=-24)&&(vis<=-13)) snprintf(s, 63, "%s", note[vis+24]);
+            else if ((vis>=-12)&&(vis<=-1)) snprintf(s, 63, "%s", note[vis+12]);
+            else if ((vis>=12)&&(vis<=23)) snprintf(s, 63, "%s", note[vis-12]);
+            else if ((vis>=24)&&(vis<=35)) snprintf(s, 63,"%s", note[vis-24]);
+            else if ((vis>=36)&&(vis<=47)) snprintf(s, 63,"%s", note[vis-36]);
+            else
+            {
+                snprintf(s, 63, "%s", "");
+                scale = 0.0;
+            }
+            if ((scale >= 0.0) && (scale < 1.0)) {
+                scale -= 0.5;
+                cairo_t *cr;
+
+                double x0      = widget->allocation.x + (widget->allocation.width - 100) * 0.5;
+                double y0      =  widget->allocation.y + (widget->allocation.height - 90) * 0.5;
+                double rect_width  = 100;
+                double rect_height = 60;
+
+                cr = gdk_cairo_create(gx_gui::pb->window);
+                cairo_rectangle (cr, x0,y0+60,rect_width+1,30);
+                cairo_set_source_rgb (cr, 0, 0, 0);
+                cairo_fill (cr);
+                cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+                cairo_set_line_width(cr, 5.0);
+                cairo_move_to(cr,x0+2, y0+63);
+                cairo_line_to(cr, x0+99, y0+63);
+                cairo_stroke(cr);
+
+                cairo_set_source_surface (cr, GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_tuner,x0,y0);
+                cairo_paint (cr);
+                ostringstream tir;
+                tir << s;
+                cairo_set_source_rgba (cr, scale*scale*4, 1-(scale*scale*4), 0.2,1-(scale*scale*4));
+                cairo_set_font_size (cr, 18.0);
+                cairo_move_to (cr,x0+50 -9 , y0+30 +9 );
+                cairo_show_text(cr, tir.str().c_str());
+
+                cairo_move_to(cr, x0+50, y0+rect_height-5);
+                static double dashe[] = {
+                    rect_height-15,  /* ink */
+                    rect_height,  /* skip */
+                    0.0,  /* ink */
+                    10.0   /* skip*/
+                };
+                cairo_set_dash (cr, dashe, 4, 0);
+
+                cairo_set_source_rgb(cr,  0.5, 0.1, 0.1);
+                cairo_set_line_width(cr, 2.0);
+                cairo_arc (cr, x0+50, y0+rect_height-5, 2.0, 0, 2*M_PI);
+                cairo_move_to(cr,x0+50, y0+rect_height-5);
+                cairo_line_to(cr, (scale*2*rect_width)+x0+50, y0+(scale*scale*30)+2);
+                cairo_stroke(cr);
+
+                cairo_destroy(cr);
+            }
+        }
+
+	}
 	return TRUE;
 }
 
@@ -889,6 +1035,11 @@ static void gtk_waveview_size_request (GtkWidget *widget, GtkRequisition *requis
 		requisition->width = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x;
 		requisition->height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y;
 	}
+	else if (waveview->waveview_type == kWvTypeTuner)
+	{
+		requisition->width = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->tunerview_x;
+		requisition->height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->tunerview_y;
+	}
 }
 
 //----------- init the GtkWaveViewClass
@@ -900,6 +1051,8 @@ static void gtk_waveview_class_init (GtkWaveViewClass *klass)
 	klass->waveview_y = 200;
 	klass->liveview_x = 300;
 	klass->liveview_y = 80;
+	klass->tunerview_x = 102;
+	klass->tunerview_y = 92;
 	klass->mode = 1;
 	klass->scale_view = 0.5;
 
@@ -918,6 +1071,8 @@ static void gtk_waveview_class_init (GtkWaveViewClass *klass)
 	klass->liveview_image = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,282,52);
 	g_assert(klass->liveview_image != NULL);
 
+    klass->surface_tuner = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, klass->tunerview_x, klass->tunerview_y);
+	g_assert(klass->surface_tuner != NULL);
 }
 
 //----------- init the WaveView type
@@ -937,6 +1092,11 @@ static void gtk_waveview_init (GtkWaveView *waveview)
 	{
 		widget->requisition.width = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x;
 		widget->requisition.height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y;
+	}
+	else if (waveview->waveview_type == kWvTypeTuner)
+	{
+		widget->requisition.width = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->tunerview_x;
+		widget->requisition.height = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->tunerview_y;
 	}
 }
 
@@ -964,6 +1124,8 @@ void GtkWaveView::gtk_waveview_destroy (GtkWidget *weidget, gpointer data )
 	if (G_IS_OBJECT(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> liveview_image))
 		g_object_unref(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_image);
 
+    if (G_IS_OBJECT(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))-> surface_tuner))
+		g_object_unref(GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_tuner);
 
 }
 
@@ -1012,6 +1174,16 @@ GtkWidget* GtkWaveView::gtk_wave_live_view(float* outfloat, float* infloat,GtkAd
 	return widget;
 }
 
+//----------- create live waveview widget
+GtkWidget* GtkWaveView::gtk_tuner_view()
+{
+	GtkWidget*     widget = GTK_WIDGET( g_object_new (GTK_TYPE_WAVEVIEW, NULL ));
+	GtkWaveView* waveview = GTK_WAVEVIEW(widget);
+
+	waveview->waveview_type = kWvTypeTuner;
+
+	return widget;
+}
 
 //----------- get the WaveView type
 GType gtk_waveview_get_type (void)
@@ -1062,6 +1234,12 @@ GtkWidget* gx_wave_view()
 	return wave_view.gtk_wave_view();
 }
 
+//----
+GtkWidget* gx_tuner_view()
+{
+	GtkWaveView wave_view;
+	return wave_view.gtk_tuner_view();
+}
 //----
 GtkWidget* gx_wave_live_view(float* outfloat, float* infloat, GtkAdjustment* _adjustment)
 {

@@ -25,7 +25,8 @@ part of guitarix, plot a wave with Gtk
 /* internal enum sets */
 typedef enum {
 	kWvTypeJConv = 0,
-	kWvTypeLive
+	kWvTypeLive,
+	kWvTypeTuner
 } GxWaveviewType;
 
 class GtkWaveView
@@ -48,6 +49,7 @@ public:
 
 	virtual GtkWidget* gtk_wave_view();
 	virtual GtkWidget* gtk_wave_live_view(float*, float*, GtkAdjustment*);
+	virtual GtkWidget* gtk_tuner_view();
 };
 
 
@@ -57,4 +59,5 @@ void gx_waveview_destroy(GtkWidget*, gpointer);
 void gx_waveview_refresh(GtkWidget*, gpointer);
 
 GtkWidget* gx_wave_view();
+GtkWidget* gx_tuner_view();
 GtkWidget* gx_wave_live_view(float*, float*, GtkAdjustment*);
