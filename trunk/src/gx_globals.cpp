@@ -78,13 +78,6 @@ bool pt_initialized = false;
 /* buffer ready state */
 bool buffers_ready = false;
 
-/** disable fft need some fix for work prop **/
-/*
-// fftw buffer and plans
-fftw_complex *fftin, *fftout,*fftin1, *fftout1, *fftresult;
-fftw_plan p, p1, pf;
-*/
-
 }
 
 

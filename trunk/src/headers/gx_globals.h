@@ -61,12 +61,7 @@ extern bool pt_initialized;
 /* buffer ready state */
 extern bool buffers_ready;
 
-/** disable fft need some fix for work prop **/
-/*
-// fftw buffer and plans
-extern fftw_complex *fftin, *fftout,*fftin1, *fftout1, *fftresult;
-extern fftw_plan p, p1, pf;
-*/
+
 }
 
 /* -------------------------------------------------------------------------- */

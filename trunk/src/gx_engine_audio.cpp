@@ -139,37 +139,6 @@ static float filters[][45] = {
 
 inline void convolver_filter(float* input, float* output, int sf, unsigned int iconvolvefilter)
 {
-	/** disable fft need some fix for work prop **/
-	/*
-	    for (int i = 0; i < sf; i++ )
-	    {
-	    fftin[i][0] = *input++;
-	    fftin[i][1] = 0;
-	    }
-
-
-	    fftw_execute(p);
-	    // Set result to zero:
-	    int j = 0;
-	    for (int i = 0; i < sf; i++ )
-	    {
-	    fftin1[i][0] = filter[j];
-	    fftin1[i][1] = 0;
-	    j++;
-	    if(j>45)j=0;
-	    }
-	    fftw_execute(pf);
-	    for (int i = 0; i < sf; i++ )
-	    {
-	    fftout[i][0] *= 1.3666  ;
-	    fftout[i][1] *= 1.3322  ;
-	    }
-	    fftw_execute(p1);
-	    for (int i = 0; i < sf; i++ )
-	    {
-	    *output++ = fftresult[i][0] /sf  ;
-
-	    }*/
 	if (iconvolvefilter >= sizeof(filters) / sizeof(filters[0])) {
 		iconvolvefilter = 0;
 	}

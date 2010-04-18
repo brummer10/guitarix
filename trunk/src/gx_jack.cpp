@@ -636,17 +636,6 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 	if (oversample) delete[] oversample;
 	if (result) delete[] result;
 
-	/** disable fft need some fix for work prop **/
-	/*
-	  fftw_destroy_plan(p);
-	  fftw_destroy_plan(p1);
-	  fftw_destroy_plan(pf);
-	  fftw_free(fftin);
-	  fftw_free(fftout);
-	  fftw_free(fftin1);
-	  fftw_free(fftout1);
-	  fftw_free(fftresult);
-	*/
 	get_frame = new float[jack_bs];
 	(void)memset(get_frame, 0, sizeof(float)*jack_bs);
 
@@ -661,17 +650,6 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 
 	result = new float[jack_bs+46];
 	(void)memset(result, 0, sizeof(float)*jack_bs+46);
-	/*
-	  fftin = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * jack_bs);
-	  fftout = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * jack_bs);
-	  fftin1 = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * jack_bs);
-	  fftout1 = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * jack_bs);
-	  fftresult = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * jack_bs);
-
-	  p = fftw_plan_dft_1d(jack_bs, fftin, fftout, FFTW_FORWARD, FFTW_ESTIMATE);
-	  p1 = fftw_plan_dft_1d(jack_bs, fftout, fftresult, FFTW_BACKWARD, FFTW_ESTIMATE);
-	  pf = fftw_plan_dft_1d(jack_bs, fftin1, fftout1, FFTW_FORWARD, FFTW_ESTIMATE);
-	*/
 
 	// restore previous state
 	checky = (float)estate;

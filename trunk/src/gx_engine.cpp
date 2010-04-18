@@ -80,19 +80,6 @@ void gx_engine_init( const string *optvar )
 	(void)memset(oversample, 0, frag*2*sizeof(float));
 	(void)memset(result, 0, (frag+46)*sizeof(float));
 
-	/** disable fft need some fix for work prop **/
-	/*
-	  fftin = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * frag);
-	  fftout = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * frag);
-	  fftin1 = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * frag);
-	  fftout1 = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * frag);
-	  fftresult = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * frag);
-
-	  p = fftw_plan_dft_1d(frag, fftin, fftout, FFTW_FORWARD, FFTW_ESTIMATE);
-	  p1 = fftw_plan_dft_1d(frag, fftout, fftresult, FFTW_BACKWARD, FFTW_ESTIMATE);
-	  pf = fftw_plan_dft_1d(frag, fftin1, fftout1, FFTW_FORWARD, FFTW_ESTIMATE);
-	*/
-
 	midi.init(gx_jack::jack_sr);
 	faust_init(gx_jack::jack_sr);
 	if( !optvar[LOAD_FILE].empty() )
@@ -111,18 +98,6 @@ void gx_engine_reset()
 	if (get_frame1)  delete[] get_frame1;
 	if (oversample) delete[] oversample;
 	if (result) delete[] result;
-
-	/** disable fft need some fix for work prop **/
-	/*
-	  fftw_destroy_plan(p);
-	  fftw_destroy_plan(p1);
-	  fftw_destroy_plan(pf);
-	  fftw_free(fftin);
-	  fftw_free(fftout);
-	  fftw_free(fftin1);
-	  fftw_free(fftout1);
-	  fftw_free(fftresult);
-	*/
 
 	initialized = false;
 }

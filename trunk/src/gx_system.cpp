@@ -1502,17 +1502,6 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 		result = NULL;
 	}
 
-	/** disable fft need some fix for work prop **/
-	/*
-	  fftw_destroy_plan(p);
-	  fftw_destroy_plan(p1);
-	  fftw_destroy_plan(pf);
-	  fftw_free(fftin);
-	  fftw_free(fftout);
-	  fftw_free(fftin1);
-	  fftw_free(fftout1);
-	  fftw_free(fftresult);
-	*/
 	printf("  guitarix exit  ***  ciao . . \n");
 	exit(GPOINTER_TO_INT(data));
 }
