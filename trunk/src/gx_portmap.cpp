@@ -553,7 +553,7 @@ static gint sort_func(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpoin
 void PortMapWindow::load(int sect, jack_port_t *jack_port)
 {
     if (gx_jack::client) {
-        const unsigned int max_items_unfolded = 4;
+        const unsigned int max_items_unfolded = 1;
         PortSection& ps = portsection[sect];
         GtkTreeStore *tree = ps.treestore;
         assert(tree);
@@ -673,9 +673,13 @@ void PortMapWindow::refresh()
             }
         } else {
             load(0, gx_jack::input_ports[0]);
+            usleep(10);
             load(1, gx_jack::output_ports[0]);
+            usleep(10);
             load(2, gx_jack::output_ports[1]);
+            usleep(10);
             load(3, gx_jack::midi_input_port);
+            usleep(10);
             load(4, gx_jack::midi_output_ports);
         }
     }

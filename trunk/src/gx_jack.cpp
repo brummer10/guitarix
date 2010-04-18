@@ -408,6 +408,15 @@ bool gx_start_jack(void* arg)
 	return false;
 }
 
+static gboolean gx_ports_refresh(gpointer data)
+{
+    	// reload ports for portmap widget when needed
+    if (gx_gui::PortMapWindow::instance) {
+        gx_gui::PortMapWindow::instance->refresh();
+    }
+    return false;
+}
+
 //---- Jack server connection / disconnection
 void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 {
@@ -469,10 +478,7 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 
 		gx_print_warning("Jack Server", "Disconnected from Jack Server");
 	}
-	// reload ports for portmap widget when needed
-    if (gx_gui::PortMapWindow::instance) {
-        gx_gui::PortMapWindow::instance->refresh();
-    }
+    g_idle_add(gx_ports_refresh,NULL);
 }
 
 //----jack latency change
@@ -813,11 +819,12 @@ struct PortRegData
 
 static gboolean gx_jack_portreg_helper(gpointer data)
 {
-	PortRegData *pm = (PortRegData*)data;
+	//PortRegData *pm = (PortRegData*)data;
 	if (gx_gui::PortMapWindow::instance) {
-		gx_gui::PortMapWindow::instance->port_changed(pm->name, pm->tp, pm->jackflags, pm->reg);
+	    gx_gui::PortMapWindow::instance->refresh();
+		//gx_gui::PortMapWindow::instance->port_changed(pm->name, pm->tp, pm->jackflags, pm->reg);
 	}
-	delete pm;
+	//delete pm;
 	return FALSE;
 }
 
