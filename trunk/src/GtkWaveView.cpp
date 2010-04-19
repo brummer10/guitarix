@@ -686,6 +686,8 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 
         char s[64];
         int vis = round(gx_engine::audio.fConsta1t);
+        int freq = round(gx_engine::midi.fConsta4);
+        int set = 0;
         float scale = ((gx_engine::audio.fConsta1t-vis)-(-1.0))/(1.0-(-1.0));
         if ((scale <= 0.0) || (scale > 1.0)) scale = 0.0;
         vis += 9;
@@ -702,6 +704,20 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
             {
                 snprintf(s, 63, "%s", "");
                 scale = 0.0;
+                freq  = 0;
+            }
+
+            if (freq>9) {
+                set = 5;
+            }
+            if (freq > 99) {
+                set = 10;
+            }
+            if (freq > 999) {
+                set = 15;
+            }
+            if (freq > 9999) {
+                set = 20;
             }
             if ((scale >= 0.0) && (scale < 1.0)) {
                 scale -= 0.5;
@@ -731,12 +747,21 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                 cairo_move_to (cr,x0+50 -9 , y0+30 +9 );
                 cairo_show_text(cr, tir.str().c_str());
 
+                tir.str("");
+                tir << (freq) << " hz";
+
+                cairo_set_source_rgba (cr, 0.8, 0.8, 0.2,0.6);
+                cairo_set_font_size (cr, 8.0);
+                cairo_move_to (cr, x0+72-set, y0+58);
+                cairo_show_text(cr, tir.str().c_str());
+
+
                 cairo_move_to(cr, x0+50, y0+rect_height-5);
                 static double dashe[] = {
-                    rect_height-15,  /* ink */
-                    rect_height,  /* skip */
-                    0.0,  /* ink */
-                    10.0   /* skip*/
+                    0,  /* ink */
+                    5,  /* skip */
+                    rect_height-20,  /* ink */
+                    100.0   /* skip*/
                 };
                 cairo_set_dash (cr, dashe, 4, 0);
 

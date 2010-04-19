@@ -6,28 +6,8 @@ declare copyright 	"(c)GRAME 2006";
 
 import("math.lib");
 import("music.lib");
+import("guitarix.lib");
 
-//---------------------second order filter--------------------------
-// filter(Q,F,G)
-//  			Q : quality factor [1..100]
-//				F :	frequency (Hz)
-//				G : gain [0..1]
-//------------------------------------------------------------------
-
-filter(Q,F,G)	= TF2(  (1 +  K/Q + K*K) 	/ D,
-						 2 * (K*K - 1) 		/ D,
-						(1 - K/Q + K*K) 	/ D,
-						 2 * (K*K - 1) 		/ D,
-						(1 - V*K/Q + K*K) 	/ D
-					 )
-		with {
-				V = db2linear(G);
-				K = tan(PI*F/SR);
-				D = 1 + V*K/Q + K*K;
-		};
-
-
-ifilter(Q,F,G) = filter(Q,F,-G);
 
 //------------------------- Process --------------------------------
 

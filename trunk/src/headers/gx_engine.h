@@ -195,7 +195,7 @@ public:
 	int fcheckbox8;
 	int fdelay;
 	int fmultifilter;
-	int   fboost;
+	int fboost;
 	int fchorus;
 	float ffuse;
 	float fdialogbox1;
@@ -217,6 +217,8 @@ public:
 	float filebutton;
 	float fConsta1t;
 	float midistat;
+	int feq;
+	float fdialogbox_eq;
 
 	AudioVariables();
 };

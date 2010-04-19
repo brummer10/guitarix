@@ -201,11 +201,60 @@ void GxMainInterface::setup()
 							closeBox();
 							openVerticalBox("");
 							{
-								openFrameBox("");
-								closeBox();
-								// add a meter level box: out of box stack, no need to closeBox
-								openLevelMeterBox("Signal Level");
-								openFrameBox("");
+                                openHorizontalBox("");
+                                    {
+                                        openFrameBox("");
+                                        closeBox();
+                                        // add a meter level box: out of box stack, no need to closeBox
+                                        openLevelMeterBox("Signal Level");
+                                        openFrameBox("");
+                                        closeBox();
+                                    }
+                                    closeBox();
+                                    openVerticalBox("");
+                                    {
+                                        openHorizontalBox("");
+                                        {
+                                            addminiswitch("eq.on_off", "EQ");
+                                            openDialogBox("eq", &gx_engine::audio.fdialogbox_eq);
+                                            {
+                                                openVerticalBox("");
+                                                {
+                                                    openHorizontalBox("");
+                                                    {
+                                                        addVerticalSlider("eq.f31_25","31,25");
+                                                        addVerticalSlider("eq.f62_5"," 62,5");
+                                                        addVerticalSlider("eq.f125"," 125 ");
+                                                        addVerticalSlider("eq.f250"," 250 ");
+                                                        addVerticalSlider("eq.f500"," 500 ");
+                                                        addVerticalSlider("eq.f1k","  1k  ");
+                                                        addVerticalSlider("eq.f2k","  2k  ");
+                                                        addVerticalSlider("eq.f4k","  4k  ");
+                                                        addVerticalSlider("eq.f8k","  8k  ");
+                                                        addVerticalSlider("eq.f16k"," 16k ");
+                                                    }
+                                                    closeBox();
+                                                    openHorizontalBox("");
+                                                    {
+                                                        addregler("eq.Q31_25","Q");
+                                                        addregler("eq.Q62_5","Q");
+                                                        addregler("eq.Q125","Q");
+                                                        addregler("eq.Q250","Q");
+                                                        addregler("eq.Q500","Q");
+                                                        addregler("eq.Q1k","Q");
+                                                        addregler("eq.Q2k","Q");
+                                                        addregler("eq.Q4k","Q");
+                                                        addregler("eq.Q8k","Q");
+                                                        addregler("eq.Q16k","Q");
+                                                    }
+                                                    closeBox();
+                                                }
+                                                closeBox();
+                                            }
+                                            closeBox();
+                                        }
+                                    closeBox();
+								}
 								closeBox();
 							}
 							closeBox();

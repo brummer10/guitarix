@@ -728,7 +728,7 @@ void GxMainInterface::openLevelMeterBox(const char* label)
 	GtkWidget* box = addWidget(label, gtk_hbox_new (FALSE, 0));
 
 	gint boxheight = 135;
-	gint boxwidth  = 36;
+	gint boxwidth  = 47;
 
 	gtk_container_set_border_width (GTK_CONTAINER (box), 3);
 	gtk_box_set_spacing(GTK_BOX(box), 1);
@@ -1830,6 +1830,21 @@ void GxMainInterface::addtoggle(string id, const char* label)
 	}
 }
 
+void GxMainInterface::addbtoggle(string id, const char* label)
+{
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
+	Parameter& p = parameter_map[id];
+	if (!label) {
+		label = p.name().c_str();
+	}
+	if (p.isFloat()) {
+		addbtoggle(label, &p.getFloat().value);
+	} else {
+		addbtoggle(label, &p.getInt().value);
+	}
+}
 void GxMainInterface::addminieqswitch(string id, const char* label)
 {
 	if (!parameter_map.hasId(id)) {
@@ -1963,6 +1978,17 @@ void GxMainInterface::addtoggle(const char* label, float* zone)
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
 	GtkRegler myGtkRegler;
 	GtkWidget* slider = myGtkRegler.gtk_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
+	connect_midi_controller(slider, zone);
+	addWidget(label, slider);
+}
+
+void GxMainInterface::addbtoggle(const char* label, int* zone)
+{
+	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
+	uiAdjustment* c = new uiAdjustment(this,(float*) zone, GTK_ADJUSTMENT(adj));
+	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+	GtkRegler myGtkRegler;
+	GtkWidget* slider = myGtkRegler.gtk_button_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
 	connect_midi_controller(slider, zone);
 	addWidget(label, slider);
 }

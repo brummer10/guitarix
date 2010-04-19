@@ -68,6 +68,7 @@ def build(bld):
         'tubevibrato.dsp',
         'tone.dsp',
         'multifilter.dsp',
+        'eq.dsp',
         'bassbooster.dsp',
         'outputgain.dsp',
         'feed.dsp',
