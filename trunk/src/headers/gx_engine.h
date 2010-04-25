@@ -36,7 +36,6 @@ class AudioVariables
 {
 public:
 	GxMidiState midistate;
-	float fConsta1;
 	int fnoise_g;
 	int fng;
 	float fnglevel;

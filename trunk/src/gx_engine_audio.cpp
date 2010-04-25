@@ -517,7 +517,6 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 	int tuner_on = gx_gui::shownote + (int)isMidiOn() + 1;
 	if (tuner_on > 0) {
 		if (gx_gui::shownote == 0) {
-			audio.fConsta1 = 1000.0f;
 			gx_gui::shownote = -1;
 		} else {
 			pitch_tracker.add(count, input);

@@ -309,7 +309,7 @@ void process_midi(int len)
 
 				midi.beat0 = sqrtf(sum/cs);
 				//set the value for the tuner
-				audio.fConsta1 = fnote;
+				//audio.fConsta1 = fnote;
 				//set timeout for tuner fallback
 				midi.weg = 0;
 
@@ -572,7 +572,7 @@ void process_midi(int len)
 						if (midi.fcheckbox11 ) midi.send2+=step;
 						midi.weg -= step;
 					}
-					 else midi.weg +=step;
+					// else midi.weg +=step;
 				}
 
 				// end if playmidi = 1
