@@ -40,7 +40,6 @@ typedef enum {
 } GxMidiState;
 
 /* global var  declarations */
-extern const char* stopit;
 extern float  checky;
 extern float* get_frame;
 extern float* get_frame1;

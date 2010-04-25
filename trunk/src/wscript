@@ -10,6 +10,8 @@ def build(bld):
         'gx_child_process.cpp',
         'gx_engine.cpp',
         'gx_engine_midi.cpp',
+        'gx_convolver.cpp',
+        'gx_pitch_tracker.cpp',
         'gx_engine_audio.cpp',
         'gx_main_interface.cpp',
         'gx_portmap.cpp',

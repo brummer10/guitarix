@@ -1236,14 +1236,14 @@ bool gx_version_check()
 			fa.close();
 
 			// --- create jack_capture setting file
-			string tmpstr = gx_user_dir + jcapsetup_file;
+			/*string tmpstr = gx_user_dir + jcapsetup_file;
 
 			(void)gx_system_call("touch", tmpstr.c_str(), false);
 			(void)gx_system_call(
 				"echo 'jack_capture -c 2 --silent --disable-meter --port guitarix:out* ' >",
 				tmpstr.c_str(),
 				false
-				);
+				); */
 		}
 	}
 	else // directory does not exist
@@ -1260,12 +1260,12 @@ bool gx_version_check()
 		// --- create jack_capture setting file
 		string tmpstr = gx_user_dir + jcapsetup_file;
 
-		(void)gx_system_call("touch", tmpstr.c_str(), false);
+	/*	(void)gx_system_call("touch", tmpstr.c_str(), false);
 		(void)gx_system_call(
 			"echo 'jack_capture -c 2 --silent --disable-meter --port guitarix:out* ' >",
 			tmpstr.c_str(),
 			false
-			);
+			); */
 
 		// --- version file
 		//same here, we only change this file, when the presethandling is broken,
@@ -1470,7 +1470,6 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 	gx_gui::showwave = 0;
 	gx_jack::NO_CONNECTION = 1;
 
-	gx_engine::stopit = "stop";
 	turnOffMidi();
 
 	// clean jack client stuff

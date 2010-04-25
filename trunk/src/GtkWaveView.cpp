@@ -707,19 +707,24 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                 freq  = 0;
             }
 
-            if (freq>9999) {
+            if (freq>9999)
+            {
                 set = 20;
             }
-            else if (freq > 999) {
+            else if (freq > 999)
+            {
                 set = 15;
             }
-            else if (freq > 99) {
+            else if (freq > 99)
+            {
                 set = 10;
             }
-            else if (freq > 9) {
+            else if (freq > 9)
+            {
                 set = 5;
             }
-            if ((scale >= 0.0) && (scale < 1.0)) {
+            if ((scale >= 0.0) && (scale < 1.0))
+            {
                 scale -= 0.5;
                 cairo_t *cr;
 

@@ -518,10 +518,10 @@ gboolean box9_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 		cairo_pattern_destroy (pat);
 		cairo_destroy(cr);
 
-            gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-                            _image, 0, 0,
-                            x0, y0, rect_width,rect_height,
-                            GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                        _image, 0, 0,
+                        x0, y0, rect_width,rect_height,
+                        GDK_RGB_DITHER_NORMAL, 0, 0);
 
 		g_object_unref(_image);
 	}

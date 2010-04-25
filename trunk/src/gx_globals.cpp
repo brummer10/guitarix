@@ -57,7 +57,6 @@ using namespace std;
 /* ----- main engine ----- */
 namespace gx_engine
 {
-const char* stopit = "go";
 float  checky      = 1.0;
 float* get_frame   = NULL;
 float* get_frame1   = NULL;
