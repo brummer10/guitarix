@@ -252,7 +252,7 @@ void process_midi(int len)
 	int iTemps40 = int(midi.fslider40);
 	int step = int(midi.fslider39);
 	int iTemps37  = int(48000/midi.fslider37);
-	int iTemps37a  = iTemps37+2;
+	int iTemps37a  = iTemps37+5;
 	int iTemps46 = int(midi.fslider46);
 	int iTemps47 = int(midi.fslider47);
 	int iTemps48 = int(midi.fslider48);
@@ -267,14 +267,13 @@ void process_midi(int len)
 		/**fConsta4 is the frequence value from the actuell frame, here we
 		   calculate the Note from the freq by log2(freq/440)*12
 		   the result is the Note (as float) related to the note "A"
-		   To smoth the output we mix the last detected frequence (from the last frame)
-		   in by 1/1.
+
 		   preNote contains the next posible Note, related by round float to int.
-		   piwe contain the pitchweel value witch show the diff beetween the detected Note and
+		   piwe contain the pitchweel value witch show the diff
+		   beetween the detected Note and
 		   the real Note by frequency.
 		**/
-		fnote = 12 * log2f(2.272727e-03f *  (midi.cache_note + midi.fConsta4)*0.5);
-		midi.cache_note = midi.fConsta4;
+		fnote = 12 * log2f(2.272727e-03f * midi.fConsta4);
 		preNote = round(fnote)+57;
 		fConsta2 = fnote - (preNote - 57);
 		piwe = (fConsta2+1) * 8192; // pitch wheel value
@@ -290,7 +289,7 @@ void process_midi(int len)
 				//----- convert the audio gain to midi gain value
 				midi_db = (log(fabs(audio_db))*midi.fConstlog2);
 				midi.beat0 = 254- floor(exp(midi.fConstlog*midi_db)*127)+ midi.midi_gain;
-				rms = midi.beat0 ;
+				rms = midi.beat0 *2;
 			}
 			//----- check gain value and run only when gain is higher then the selected value
 			if (( midi.beat0 >= fTemps45) && (gx_jack::jcpu_load < 65.0))
@@ -329,8 +328,8 @@ void process_midi(int len)
 
 						if (midi.midi_send)
 						{
-							midi.midi_send[1] =  iTemps31;  // program value
-							midi.midi_send[0] = 0xC0 | iTemps30;  // controller+ channel
+							midi.midi_send[1] =  (int)iTemps31;  // program value
+							midi.midi_send[0] = 0xC0 | (int)iTemps30;  // controller+ channel
 						}
 					}
 
@@ -351,9 +350,9 @@ void process_midi(int len)
 
 							if (midi.midi_send)
 							{
-								midi.midi_send[2] = iTemps46;	// volume value
+								midi.midi_send[2] = (int)iTemps46;	// volume value
 								midi.midi_send[1] =  0x07;     // set controler volume
-								midi.midi_send[0] = 0xB0 | iTemps30;  // controller + channel
+								midi.midi_send[0] = 0xB0 | (int)iTemps30;  // controller + channel
 							}
 						}
 
@@ -371,15 +370,15 @@ void process_midi(int len)
 								{
 									midi.midi_send[2] =  0x40;  // pitch value
 									midi.midi_send[1] = 0x00 ; // pitch value
-									midi.midi_send[0] = 0xE0 |  iTemps30; // controller + channel
+									midi.midi_send[0] = 0xE0 |  (int)iTemps30; // controller + channel
 								}
 							}
 							midi.midi_send = jack_midi_event_reserve(gx_jack::midi_port_buf, i, 3);
 							if (midi.midi_send)
 							{
-								midi.midi_send[2] = iTemps26; // velocity
+								midi.midi_send[2] = (int)iTemps26; // velocity
 								midi.midi_send[1] = midi.noten ; // note
-								midi.midi_send[0] = 0x90 |  iTemps30;	// controller + channel
+								midi.midi_send[0] = 0x90 |  (int)iTemps30;	// controller + channel
 							}
 
 							// pitch wheel set auto
@@ -393,7 +392,7 @@ void process_midi(int len)
 								{
 									midi.midi_send[2] = (piwe >> 7) & 0x7f;  // pitch
 									midi.midi_send[1] = piwe & 0x7f ; // pitch
-									midi.midi_send[0] = 0xE0 |  iTemps30; // controller + channel
+									midi.midi_send[0] = 0xE0 |  (int)iTemps30; // controller + channel
 								}
 							}
 						}
@@ -410,8 +409,8 @@ void process_midi(int len)
 
 							if (midi.midi_send1)
 							{
-								midi.midi_send1[1] = iTemps36;  // program value
-								midi.midi_send1[0] = 0xC0 | iTemps35; // controller+ channel
+								midi.midi_send1[1] = (int)iTemps36;  // program value
+								midi.midi_send1[0] = 0xC0 | (int)iTemps35; // controller+ channel
 							}
 						}
 
@@ -433,9 +432,9 @@ void process_midi(int len)
 								midi.midi_send1 = jack_midi_event_reserve(gx_jack::midi_port_buf, i, 3);
 								if (midi.midi_send1)
 								{
-									midi.midi_send1[2] = iTemps47;  // volume value
+									midi.midi_send1[2] = (int)iTemps47;  // volume value
 									midi.midi_send1[1] =  0x07; // set controler channel volume
-									midi.midi_send1[0] = 0xB0 | iTemps35; // controller + channel
+									midi.midi_send1[0] = 0xB0 | (int)iTemps35; // controller + channel
 								}
 							}
 
@@ -452,16 +451,16 @@ void process_midi(int len)
 									{
 										midi.midi_send1[2] =  0x40;  // pitch value
 										midi.midi_send1[1] = 0x00 ; // pitch value
-										midi.midi_send1[0] = 0xE0 |  iTemps35;  // controller + channel
+										midi.midi_send1[0] = 0xE0 |  (int)iTemps35;  // controller + channel
 									}
 								}
 								midi.midi_send1 = jack_midi_event_reserve(gx_jack::midi_port_buf, i, 3);
 
 								if (midi.midi_send1)
 								{
-									midi.midi_send1[2] = iTemps32; // velocity
+									midi.midi_send1[2] = (int)iTemps32; // velocity
 									midi.midi_send1[1] = midi.noten1; // note
-									midi.midi_send1[0] = 0x90 | iTemps35; // note on + channel
+									midi.midi_send1[0] = 0x90 | (int)iTemps35; // note on + channel
 								}
 
 								// pitch wheel set auto
@@ -475,7 +474,7 @@ void process_midi(int len)
 									{
 										midi.midi_send1[2] = (piwe >> 7) & 0x7f;  // pitch
 										midi.midi_send1[1] = piwe & 0x7f ; // pitch
-										midi.midi_send1[0] = 0xE0 |  iTemps35; // controller + channel
+										midi.midi_send1[0] = 0xE0 |  (int)iTemps35; // controller + channel
 									}
 								}
 							}
@@ -492,8 +491,8 @@ void process_midi(int len)
 
 							if (midi.midi_send2)
 							{
-								midi.midi_send2[1] =  iTemps43;  // program value
-								midi.midi_send2[0] = 0xC0 | iTemps44; // controller
+								midi.midi_send2[1] =  (int)iTemps43;  // program value
+								midi.midi_send2[0] = 0xC0 | (int)iTemps44; // controller
 							}
 						}
 
@@ -514,9 +513,9 @@ void process_midi(int len)
 								midi.midi_send2 = jack_midi_event_reserve(gx_jack::midi_port_buf, i, 3);
 								if (midi.midi_send2)
 								{
-									midi.midi_send2[2] = iTemps48;  // volume value
+									midi.midi_send2[2] = (int)iTemps48;  // volume value
 									midi.midi_send2[1] =  0x07; // set controler channel volume
-									midi.midi_send2[0] = 0xB0 | iTemps44; // controller + channel
+									midi.midi_send2[0] = 0xB0 | (int)iTemps44; // controller + channel
 								}
 							}
 
@@ -528,7 +527,7 @@ void process_midi(int len)
 								{
 									midi.midi_send2[2] =  0x40;  // pitch value
 									midi.midi_send2[1] = 0x00 ; // pitch value
-									midi.midi_send2[0] = 0xE0 |  iTemps44;	// controller + channel
+									midi.midi_send2[0] = 0xE0 |  (int)iTemps44;	// controller + channel
 								}
 							}
 
@@ -542,9 +541,9 @@ void process_midi(int len)
 
 								if (midi.midi_send2)
 								{
-									midi.midi_send2[2] = iTemps40; // velocity
+									midi.midi_send2[2] = (int)iTemps40; // velocity
 									midi.midi_send2[1] = midi.noten2; //  note
-									midi.midi_send2[0] = 0x90 | iTemps44;  // note on + channel
+									midi.midi_send2[0] = 0x90 | (int)iTemps44;  // note on + channel
 								}
 
 								// pitch wheel set auto
@@ -557,7 +556,7 @@ void process_midi(int len)
 									{
 										midi.midi_send2[2] = (piwe >> 7) & 0x7f;  // pitch
 										midi.midi_send2[1] = piwe & 0x7f ; // pitch
-										midi.midi_send2[0] = 0xE0 |  iTemps44; // controller + channel
+										midi.midi_send2[0] = 0xE0 |  (int)iTemps44; // controller + channel
 									}
 								}
 							}
@@ -566,14 +565,14 @@ void process_midi(int len)
 
 					if ( rms >= (midi.Beat_is + fTemps38))
 					{
-						// if (Beat_is < rms)Beat_is += 2;
-						//Beat_is = rms;
+						 if (midi.Beat_is < rms)midi.Beat_is += 2;
+						midi.Beat_is = rms;
 						midi.send+=step;
 						if (midi.fcheckbox10 ) midi.send1+=step;
 						if (midi.fcheckbox11 ) midi.send2+=step;
 						midi.weg -= step;
 					}
-					// else weg +=step;
+					 else midi.weg +=step;
 				}
 
 				// end if playmidi = 1
@@ -593,9 +592,9 @@ void process_midi(int len)
 
 							if (midi.midi_send)
 							{
-								midi.midi_send[2] = iTemps26; // velocity
-								midi.midi_send[1] = 120; //123;  // fix me all notes off
-								midi.midi_send[0] = 0xB0 | iTemps30 ;	// controller
+								midi.midi_send[2] = (int)iTemps26; // velocity
+								midi.midi_send[1] = 123;  // fix me all notes off
+								midi.midi_send[0] = 0xB0 | (int)iTemps30 ;	// controller
 							}
 
 							if (midi.fcheckbox10)
@@ -605,9 +604,9 @@ void process_midi(int len)
 
 								if (midi.midi_send1)
 								{
-									midi.midi_send1[2] = iTemps32; // velocity
-									midi.midi_send1[1] = 120;  // 123; // fix me all notes off
-									midi.midi_send1[0] = 0xB0 |  iTemps35;	// controller
+									midi.midi_send1[2] = (int)iTemps32; // velocity
+									midi.midi_send1[1] = 123; // fix me all notes off
+									midi.midi_send1[0] = 0xB0 |  (int)iTemps35;	// controller
 									//fprintf(stderr, "Send %i , %i, %i.\n",iTemps32,123,0xB0 |  iTemps35);
 								}
 							}
@@ -619,9 +618,9 @@ void process_midi(int len)
 
 								if (midi.midi_send2)
 								{
-									midi.midi_send2[2] = iTemps40; // velocity
-									midi.midi_send2[1] = 120; // 123;  // fix me all notes off
-									midi.midi_send2[0] = 0xB0 |  iTemps44;	// controller
+									midi.midi_send2[2] = (int)iTemps40; // velocity
+									midi.midi_send2[1] =  123;  // fix me all notes off
+									midi.midi_send2[0] = 0xB0 |  (int)iTemps44;	// controller
 								}
 							}
 							audio.midistat = 0.0f;
@@ -630,14 +629,14 @@ void process_midi(int len)
 					midi.weg+=step;
 				}
 
-				if (gx_gui::shownote == 1)
+				/*if (gx_gui::shownote == 1)
 				{
 					if (midi.weg > (int)gx_jack::jack_sr / 2)
 					{
 						audio.fConsta1 = 2000.0f;
 					}
 					midi.weg+=step;
-				}
+				}*/
 			}
 
 		}

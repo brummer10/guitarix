@@ -137,7 +137,6 @@ public:
 	float fpitch;
 	int   noten;
 	float fslider32;
-	float cache_note;
 	int fcheckbox10;
 	int   program1;
 	int   send1;

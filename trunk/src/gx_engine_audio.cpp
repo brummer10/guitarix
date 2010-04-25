@@ -521,7 +521,8 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 			gx_gui::shownote = -1;
 		} else {
 			pitch_tracker.add(count, input);
-			moving_filter(input, checkfreq, count);
+			//moving_filter(input, checkfreq, count);
+			(void)memcpy(checkfreq, input, sizeof(float)*count);
 		}
 	}
 	HighShelf::compute(count, input, output0);
