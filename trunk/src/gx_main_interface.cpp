@@ -1696,7 +1696,7 @@ void GxMainInterface::addminieqswitch(const char* label, int* zone)
 	GtkRegler myGtkRegler;
 	GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
 	connect_midi_controller(slider, zone);
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_hide_eq), (gpointer) slider);
+	//g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_hide_eq), (gpointer) slider);
 	GtkWidget* lw = gtk_label_new(label);
 	gtk_widget_set_name (lw,"effekt_label");
 

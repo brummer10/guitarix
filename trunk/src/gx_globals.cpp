@@ -240,9 +240,8 @@ const char* shell_var_name[] =
 namespace gx_gui
 {
 
-/* wave view globals */
+/* wave view global */
 bool           new_wave_view;
-GxWaveviewMode wave_view_mode;
 
 /* global GUI widgets */
 GtkWidget* fWindow;
@@ -301,11 +300,6 @@ sem_t               program_change_sem;
 
 int show_eq;
 
-/* client port queues */
-class StringComp;
-
-multimap<string, int, StringComp> gx_client_port_queue;
-multimap<string, int, StringComp> gx_client_port_dequeue;
 }
 
 /* ------------------------------------------------------------------------- */

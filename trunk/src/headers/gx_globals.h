@@ -196,9 +196,8 @@ typedef enum {
 	kWvMode3
 } GxWaveviewMode;
 
-/* wave view globals */
+/* wave view global */
 extern bool           new_wave_view;
-extern GxWaveviewMode wave_view_mode;
 
 /* global GUI widgets */
 extern GtkWidget* fWindow;
@@ -253,18 +252,6 @@ extern int show_eq;
 
 extern int g_threads[3];
 
-/* client port queues */
-class StringComp
-{
-public:
-	bool operator()(const string s1, const string s2) const
-		{
-			return s1.size() < s2.size();
-		}
-};
-
-extern multimap<string, int, StringComp> gx_client_port_queue;
-extern multimap<string, int, StringComp> gx_client_port_dequeue;
 }
 
 /* -------------------------------------------------------------------------- */

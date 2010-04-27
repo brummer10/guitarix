@@ -273,7 +273,8 @@ void process_midi(int len)
 		   beetween the detected Note and
 		   the real Note by frequency.
 		**/
-		fnote = 12 * log2f(2.272727e-03f * midi.fConsta4);
+		//fnote = 12 * log2f(2.272727e-03f * midi.fConsta4);
+		fnote = audio.fConsta1t;
 		preNote = round(fnote)+57;
 		fConsta2 = fnote - (preNote - 57);
 		piwe = (fConsta2+1) * 8192; // pitch wheel value
@@ -565,7 +566,7 @@ void process_midi(int len)
 
 					if ( rms >= (midi.Beat_is + fTemps38))
 					{
-						 if (midi.Beat_is < rms)midi.Beat_is += 2;
+						// if (midi.Beat_is < rms)midi.Beat_is += 2;
 						midi.Beat_is = rms;
 						midi.send+=step;
 						if (midi.fcheckbox10 ) midi.send1+=step;

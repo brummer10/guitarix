@@ -88,7 +88,6 @@ struct GtkWaveViewClass
 	float *live_viewin;
 	// float *live_freq;
 	int new_pig;
-	int mode;
 
 	int tunerview_x;
 	int tunerview_y;
@@ -412,9 +411,6 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 		liveviewx += (widget->allocation.width  - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_x) *0.5+10;
 		liveviewy += (widget->allocation.height - GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->liveview_y) *0.5+15;
 
-		int scaletype = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->mode;
-		gx_gui::wave_view_mode = (gx_gui::GxWaveviewMode)GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->mode;
-
 		cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
 
 		//----- create the background, done only once at oscilloscope init.
@@ -529,85 +525,62 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
 
 		cairo_stroke (cr);
 
+        cairo_move_to (cr, liveviewx+280, liveviewy+25);
 
+        float wave_go = 0;
+        float sc = 260.0/frag;
+        float sc1 = liveviewx+270-sc;
+        float sc2 = liveviewy+25;
+        //----- draw the frame
+        for (int i = 0; i < frag; i++)
+        {
+            float x_in = gx_engine::get_frame[i]; //FIXME get_frame correct???
+            cairo_line_to (cr, sc1 - sc*i+1,
+                           sc2 + double(x_in)*75.0);
+            wave_go = max(wave_go, abs(x_in));
+        }
 
-		//----- we come to the first oscilloscope mode, draw the wav per frame
-		if (scaletype == gx_gui::kWvMode1)
-		{
-			cairo_move_to (cr, liveviewx+280, liveviewy+25);
+        //----- get the sample, for display the gain value
 
-			float wave_go = 0;
-			float sc = 260.0/frag;
-			float sc1 = liveviewx+270-sc;
-			float sc2 = liveviewy+25;
-			//----- draw the frame
-			for (int i = 0; i < frag; i++)
-			{
-				float x_in = gx_engine::get_frame[i]; //FIXME get_frame correct???
-				cairo_line_to (cr, sc1 - sc*i+1,
-				               sc2 + double(x_in)*75.0);
-				wave_go = max(wave_go, abs(x_in));
-			}
+        float wave_db = log(fabs( wave_go))*6/log(2);
+        double xl     = floor(exp(log(1.055)*2.1*wave_db)*150);
 
-			//----- get the sample, for display the gain value
+        if (xl > 125.0) xl = 125.0;
+        else if (xl < -125.0) xl = -125.0;
 
-			float wave_db = log(fabs( wave_go))*6/log(2);
-			double xl     = floor(exp(log(1.055)*2.1*wave_db)*150);
+        cairo_set_line_width (cr, 1.0);
+        cairo_line_to (cr, liveviewx, liveviewy+25);
+        cairo_pattern_t* linpat =
+            cairo_pattern_create_linear (liveviewx, liveviewy-15,liveviewx, liveviewy+25);
 
-			if (xl > 125.0) xl = 125.0;
-			else if (xl < -125.0) xl = -125.0;
+        cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
+        cairo_pattern_add_color_stop_rgba (linpat, 0.4, 1, 0.2, 0,0.8);
+        cairo_pattern_add_color_stop_rgba (linpat, 0.8, 0.2, 1, 0.2,0.8);
+        cairo_set_source (cr, linpat);
+        cairo_close_path (cr);
 
-			/* double redline = 0.2;
-			   double greenline = 1.0;
+        cairo_fill_preserve (cr);
+        cairo_stroke (cr);
+        cairo_pattern_destroy (linpat);
 
-			   if ((xl > 100)||(xl< -100))
-			   {
-			   redline = 1;
-			   greenline = 0.2;
-			   // xl = 100.0;
-			   }
-			   else if ((xl > 70)||(xl< -70))
-			   {
-			   redline = 0.8;
-			   //xl = 140.0;
-			   }
-			*/
+        //----- draw the gain value
+        double dashes[] = {5.0, 1.0 };
+        cairo_set_dash (cr, dashes, 2, -0.25);
+        cairo_move_to (cr, liveviewx+140-xl, liveviewy);
+        cairo_line_to (cr, liveviewx+140+xl, liveviewy);
+        cairo_move_to (cr, liveviewx+140-xl, liveviewy+50);
+        cairo_line_to (cr, liveviewx+140+xl, liveviewy+50);
+        //cairo_set_source_rgba (cr,  redline, greenline, 0.2,0.8);
+        linpat =
+            cairo_pattern_create_linear (liveviewx, liveviewy,liveviewx+140, liveviewy);
 
-			cairo_set_line_width (cr, 1.0);
-			cairo_line_to (cr, liveviewx, liveviewy+25);
-			cairo_pattern_t* linpat =
-				cairo_pattern_create_linear (liveviewx, liveviewy-15,liveviewx, liveviewy+25);
-
-			cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
-			cairo_pattern_add_color_stop_rgba (linpat, 0.4, 1, 0.2, 0,0.8);
-			cairo_pattern_add_color_stop_rgba (linpat, 0.8, 0.2, 1, 0.2,0.8);
-			cairo_set_source (cr, linpat);
-			cairo_close_path (cr);
-
-			cairo_fill_preserve (cr);
-			cairo_stroke (cr);
-			cairo_pattern_destroy (linpat);
-
-			//----- draw the gain value
-			double dashes[] = {5.0, 1.0 };
-			cairo_set_dash (cr, dashes, 2, -0.25);
-			cairo_move_to (cr, liveviewx+140-xl, liveviewy);
-			cairo_line_to (cr, liveviewx+140+xl, liveviewy);
-			cairo_move_to (cr, liveviewx+140-xl, liveviewy+50);
-			cairo_line_to (cr, liveviewx+140+xl, liveviewy+50);
-			//cairo_set_source_rgba (cr,  redline, greenline, 0.2,0.8);
-			linpat =
-				cairo_pattern_create_linear (liveviewx, liveviewy,liveviewx+140, liveviewy);
-
-			cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
-			cairo_pattern_add_color_stop_rgba (linpat, 0.2, 1, 0.2, 0,0.8);
-			cairo_pattern_add_color_stop_rgba (linpat, 0.8, 0.2, 1, 0.2,0.8);
-			cairo_set_source (cr, linpat);
-			cairo_set_line_width (cr, 3.0);
-			cairo_stroke (cr);
-			cairo_destroy(cr);
-		}
-
+        cairo_pattern_set_extend(linpat, CAIRO_EXTEND_REFLECT);
+        cairo_pattern_add_color_stop_rgba (linpat, 0.2, 1, 0.2, 0,0.8);
+        cairo_pattern_add_color_stop_rgba (linpat, 0.8, 0.2, 1, 0.2,0.8);
+        cairo_set_source (cr, linpat);
+        cairo_set_line_width (cr, 3.0);
+        cairo_stroke (cr);
+        cairo_destroy(cr);
 
 	}
 	else if (waveview->waveview_type == kWvTypeTuner)
@@ -1083,7 +1056,6 @@ static void gtk_waveview_class_init (GtkWaveViewClass *klass)
 	klass->liveview_y = 80;
 	klass->tunerview_x = 102;
 	klass->tunerview_y = 92;
-	klass->mode = 1;
 	klass->scale_view = 0.5;
 
 	widget_class->expose_event = gtk_waveview_expose;

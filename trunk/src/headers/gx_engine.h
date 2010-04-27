@@ -91,6 +91,9 @@ public:
 	float midistat;
 	int feq;
 	float fdialogbox_eq;
+	float fdialogbox_mbf;
+	float fdialogbox_moo;
+	float fmoog;
 
 	AudioVariables();
 };

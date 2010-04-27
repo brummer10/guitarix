@@ -201,6 +201,8 @@ void GxMainInterface::setup()
 							closeBox();
 							openVerticalBox("");
 							{
+							    openFrameBox("");
+                                closeBox();
                                 openHorizontalBox("");
                                     {
                                         openFrameBox("");
@@ -836,21 +838,65 @@ void GxMainInterface::setup()
 											{
 												openPaintBox("");
 												{
-													addminieqswitch("MultiBandFilter.on_off"," MultiBandFilter                         ");
-													openHorizontalhideBox("");
-													{
-														addVerticalSlider("MultiBandFilter.f31_25","31,25");
-														addVerticalSlider("MultiBandFilter.f62_5"," 62,5");
-														addVerticalSlider("MultiBandFilter.f125"," 125 ");
-														addVerticalSlider("MultiBandFilter.f250"," 250 ");
-														addVerticalSlider("MultiBandFilter.f500"," 500 ");
-														addVerticalSlider("MultiBandFilter.f1k","  1k  ");
-														addVerticalSlider("MultiBandFilter.f2k","  2k  ");
-														addVerticalSlider("MultiBandFilter.f4k","  4k  ");
-														addVerticalSlider("MultiBandFilter.f8k","  8k  ");
-														addVerticalSlider("MultiBandFilter.f16k"," 16k ");
+												    openHorizontalBox("");
+                                                    {
+                                                        addminieqswitch("MultiBandFilter.on_off"," MultiBandFilter");
+                                                        openDialogBox("MultiBandFilter", &gx_engine::audio.fdialogbox_mbf);
+                                                        {
+                                                            openVerticalBox("");
+                                                            {
+                                                                openHorizontalBox("");
+                                                                {
+                                                                    addVerticalSlider("MultiBandFilter.f31_25","31,25");
+                                                                    addVerticalSlider("MultiBandFilter.f62_5"," 62,5");
+                                                                    addVerticalSlider("MultiBandFilter.f125"," 125 ");
+                                                                    addVerticalSlider("MultiBandFilter.f250"," 250 ");
+                                                                    addVerticalSlider("MultiBandFilter.f500"," 500 ");
+                                                                    addVerticalSlider("MultiBandFilter.f1k","  1k  ");
+                                                                    addVerticalSlider("MultiBandFilter.f2k","  2k  ");
+                                                                    addVerticalSlider("MultiBandFilter.f4k","  4k  ");
+                                                                    addVerticalSlider("MultiBandFilter.f8k","  8k  ");
+                                                                    addVerticalSlider("MultiBandFilter.f16k"," 16k ");
+                                                                }
+                                                                closeBox();
+                                                                openHorizontalBox("");
+                                                                {
+                                                                    addregler("MultiBandFilter.Q31_25","Q");
+                                                                    addregler("MultiBandFilter.Q62_5","Q");
+                                                                    addregler("MultiBandFilter.Q125","Q");
+                                                                    addregler("MultiBandFilter.Q250","Q");
+                                                                    addregler("MultiBandFilter.Q500","Q");
+                                                                    addregler("MultiBandFilter.Q1k","Q");
+                                                                    addregler("MultiBandFilter.Q2k","Q");
+                                                                    addregler("MultiBandFilter.Q4k","Q");
+                                                                    addregler("MultiBandFilter.Q8k","Q");
+                                                                    addregler("MultiBandFilter.Q16k","Q");
+                                                                }
+                                                                closeBox();
+                                                            }
+                                                            closeBox();
+                                                        }
+                                                        closeBox();
 													}
 													closeBox();
+													openHorizontalBox("");
+                                                    {
+													addminieqswitch("moog.on_off"," Moog Filter      ");
+													//openHorizontalhideBox("");
+													//{
+													openDialogBox("moog", &gx_engine::audio.fdialogbox_moo);
+                                                    {
+                                                        openHorizontalBox("");
+                                                        {
+                                                            addregler("moog.Q","Q");
+                                                            addregler("moog.fr","Hz");
+
+                                                        }
+                                                        closeBox();
+                                                    }
+                                                    closeBox();
+													}
+                                                    closeBox();
 												}
 												closeBox();
 												openVerticalBox("");

@@ -87,6 +87,7 @@ def build(bld):
         'freeverb.dsp',
         'impulseresponse.dsp',
         'chorus.dsp',
+        'moog.dsp',
         ]
     bld.new_task_gen(source=sources)
 

@@ -200,25 +200,25 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("eq.f250","","S","gain (dB) at 250 Hz",&fslider13, 0.0f, -50.0f, 10.0f, 0.1f);
-	registerVar("eq.Q250","","S","",&fslider12, 1.0f, 1.0f, 100.0f, 1.0f);
+	registerVar("eq.Q250","","S","",&fslider12, 50.0f, 1.0f, 100.0f, 1.0f);
 	registerVar("eq.f500","","S","gain (dB) at 500 Hz",&fslider11, 0.0f, -50.0f, 10.0f, 0.1f);
-	registerVar("eq.Q500","","S","",&fslider10, 1.0f, 1.0f, 100.0f, 1.0f);
+	registerVar("eq.Q500","","S","",&fslider10, 50.0f, 1.0f, 100.0f, 1.0f);
 	registerVar("eq.f62_5","","S","gain (dB) at 62.5 Hz",&fslider17, 0.0f, -50.0f, 10.0f, 0.1f);
-	registerVar("eq.Q62_5","","S","",&fslider16, 1.0f, 1.0f, 100.0f, 1.0f);
+	registerVar("eq.Q62_5","","S","",&fslider16, 50.0f, 1.0f, 100.0f, 1.0f);
 	registerVar("eq.f125","","S","gain (dB) at 125 Hz",&fslider15, 0.0f, -50.0f, 10.0f, 0.1f);
-	registerVar("eq.Q125","","S","",&fslider14, 1.0f, 1.0f, 100.0f, 1.0f);
+	registerVar("eq.Q125","","S","",&fslider14, 50.0f, 1.0f, 100.0f, 1.0f);
 	registerVar("eq.f31_25","","S","gain (dB) at 31.25 Hz",&fslider19, 0.0f, -50.0f, 10.0f, 0.1f);
-	registerVar("eq.Q31_25","","S","",&fslider18, 1.0f, 1.0f, 100.0f, 1.0f);
+	registerVar("eq.Q31_25","","S","",&fslider18, 50.0f, 1.0f, 100.0f, 1.0f);
 	registerVar("eq.f2k","","S","gain (dB) at 2 kHz",&fslider7, 0.0f, -50.0f, 10.0f, 0.1f);
-	registerVar("eq.Q2k","","S","",&fslider6, 1.0f, 1.0f, 100.0f, 1.0f);
+	registerVar("eq.Q2k","","S","",&fslider6, 50.0f, 1.0f, 100.0f, 1.0f);
 	registerVar("eq.f4k","","S","gain (dB) at 4 kHz",&fslider5, 0.0f, -50.0f, 10.0f, 0.1f);
-	registerVar("eq.Q4k","","S","",&fslider4, 1.0f, 1.0f, 100.0f, 1.0f);
+	registerVar("eq.Q4k","","S","",&fslider4, 50.0f, 1.0f, 100.0f, 1.0f);
 	registerVar("eq.f8k","","S","gain (dB) at 8 kHz",&fslider3, 0.0f, -50.0f, 10.0f, 0.1f);
-	registerVar("eq.Q8k","","S","",&fslider2, 1.0f, 1.0f, 100.0f, 1.0f);
+	registerVar("eq.Q8k","","S","",&fslider2, 50.0f, 1.0f, 100.0f, 1.0f);
 	registerVar("eq.f16k","","S","gain (dB) at 16 kHz",&fslider1, 0.0f, -50.0f, 10.0f, 0.1f);
-	registerVar("eq.Q16k","","S","",&fslider0, 1.0f, 1.0f, 100.0f, 1.0f);
+	registerVar("eq.Q16k","","S","",&fslider0, 50.0f, 1.0f, 100.0f, 1.0f);
 	registerVar("eq.f1k","","S","gain (dB) at 1 kHz",&fslider9, 0.0f, -50.0f, 10.0f, 0.1f);
-	registerVar("eq.Q1k","","S","",&fslider8, 1.0f, 1.0f, 100.0f, 1.0f);
+	registerVar("eq.Q1k","","S","",&fslider8, 50.0f, 1.0f, 100.0f, 1.0f);
 	registerInit(init);
 }
 

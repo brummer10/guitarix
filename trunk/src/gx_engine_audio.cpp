@@ -323,6 +323,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/freeverb.cc"
 #include "faust-cc/impulseresponse.cc"
 #include "faust-cc/chorus.cc"
+#include "faust-cc/moog.cc"
 
 
 //==============================================================================
@@ -471,9 +472,9 @@ AudioVariables::AudioVariables()
 	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
 	gx_gui::registerParam("shaper.on_off", "on/off", &fng, 0);
 	gx_gui::registerParam("eq.on_off", "on/off", &feq, 0);
+	gx_gui::registerParam("moog.on_off", "on/off", &fmoog, 0);
 	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
 	// only save and restore, no midi control
-
 
 	// positions of effects
 	registerNonPresetParam("crybaby.position", &posit0, true, 5, 0, 8);
@@ -498,6 +499,8 @@ AudioVariables::AudioVariables()
 	registerNonPresetParam("jconv.expander", &fexpand2, false);
 	registerNonPresetParam("jconv.filedialog", &filebutton, false);
 	registerNonPresetParam("eq.dialog", &fdialogbox_eq, false);
+	registerNonPresetParam("MultiBandFilter.dialog", &fdialogbox_mbf, false);
+	registerNonPresetParam("moog.dialog", &fdialogbox_moo, false);
 
 	// user interface options
 	registerNonPresetParam("ui.latency_nowarn", &fwarn, false, 0);
@@ -644,6 +647,9 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 	    }
     } else {
 	    balance::compute(count, output0, output1, output0, output1);
+    }
+    if (audio.fmoog) {
+        moog::compute(count, output0, output1, output0, output1);
     }
 	(void)memcpy(get_frame, output0, sizeof(float)*count);
 	(void)memcpy(get_frame1, output1, sizeof(float)*count);
