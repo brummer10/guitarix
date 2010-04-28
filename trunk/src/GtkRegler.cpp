@@ -1285,8 +1285,7 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 	GtkRegler *regler = GTK_REGLER(widget);
 	GtkReglerClass *klass =  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	GtkWidget * dialog,* spinner, *ok_button, *vbox;
-
+	GtkWidget * dialog,* spinner, *ok_button, *vbox, *toplevel;
 
 	switch (event->button) {
 	case 1:  // left button
@@ -1405,6 +1404,11 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 		gtk_window_set_position (GTK_WINDOW(dialog), GTK_WIN_POS_MOUSE);
 		gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
 		gtk_widget_grab_default(ok_button);
+		toplevel = gtk_widget_get_toplevel (widget);
+        if (gtk_widget_is_toplevel (toplevel))
+           {
+             gtk_window_set_transient_for (GTK_WINDOW(dialog), GTK_WINDOW(toplevel));
+           }
 
 		gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
 		g_signal_connect_swapped (ok_button, "clicked",

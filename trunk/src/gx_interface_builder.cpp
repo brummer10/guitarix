@@ -881,7 +881,7 @@ void GxMainInterface::setup()
 													closeBox();
 													openHorizontalBox("");
                                                     {
-													addminieqswitch("moog.on_off"," Moog Filter      ");
+													addminieqswitch("moog.on_off","  Moog Filter       ");
 													//openHorizontalhideBox("");
 													//{
 													openDialogBox("moog", &gx_engine::audio.fdialogbox_moo);
