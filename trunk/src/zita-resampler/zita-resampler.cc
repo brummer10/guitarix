@@ -98,7 +98,7 @@ Resampler_table *Resampler_table::create (unsigned int ra,
     P = _list;
     while (P)
     {
-	if ((ra == P->_ra) && (rb = P->_rb) && (hl == P->_hl) && (fr = P->_fr))
+	if ((ra == P->_ra) && (rb == P->_rb) && (hl == P->_hl) && (fr == P->_fr))
 	{
 	    P->_refc++;
             _mutex.unlock ();
