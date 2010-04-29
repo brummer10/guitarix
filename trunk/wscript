@@ -17,7 +17,7 @@ from Configure import ConfigurationError
 VERSION='0.08.0svn'
 APPNAME='guitarix'
 
-good_faust_versions = ['0.9.10','0.9.17',]
+good_faust_versions = ['0.9.10','0.9.17','0.9.22']
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
@@ -58,6 +58,12 @@ def set_options(opt):
                     default='-march=native -Wall -std=c++0x',
                     dest='cxxflags', 
                     help='C++ base compiler flags [Default: %default]')
+
+    comp.add_option('--experimental',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help='build with support for experimental modules build with faust')
 
     faust = opt.add_option_group("faust-Compiler")
 
@@ -180,6 +186,8 @@ def configure(conf):
     conf.define('GX_BUILDER_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','builder')))
     conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
     conf.define('GX_VERSION', VERSION)
+    if Options.options.experimental:
+        conf.define('EXPERIMENTAL', '')
 
     # writing config.h
     conf.write_config_header('config.h')
@@ -217,6 +225,7 @@ def configure(conf):
 
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
     display_feature("Use faust", conf.env['FAUST'])
+    display_feature("Experimental Extensions", conf.env['EXPERIMENTAL']=="")
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
     display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
     display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')

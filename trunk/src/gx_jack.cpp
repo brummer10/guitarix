@@ -645,8 +645,8 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 	checkfreq = new float[jack_bs];
 	(void)memset(checkfreq, 0, sizeof(float)*jack_bs);
 
-	oversample = new float[jack_bs*2];
-	(void)memset(oversample, 0, sizeof(float)*jack_bs*2);
+	oversample = new float[jack_bs*MAX_UPSAMPLE];
+	(void)memset(oversample, 0, sizeof(float)*jack_bs*MAX_UPSAMPLE);
 
 	result = new float[jack_bs+46];
 	(void)memset(result, 0, sizeof(float)*jack_bs+46);

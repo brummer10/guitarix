@@ -2,6 +2,9 @@
 ** helper definitions
 */
 bypass(switch, block) = _ <: select2(switch, _, block);
+BP(block) = bypass(checkbox("ON"), block);
+
+copysign = ffunction(float copysign(float,float), <math.h>, "");
 
 anti_denormal = pow(10,-20);
 //add_dc = +(anti_denormal);
@@ -23,17 +26,33 @@ wet_dry_mix(w, Fx) = _ <: _, Fx : balance(w) : +;
 
 // from thesis of Ragnar Bendiksen (used in swh ladspa valve plugin)
 
-valve_transfer(dist, q, x) = xq / (1 - exp(-dist * xq)) + qm / (1 - exp(dist * qm))
-with {
-    // punch a whole around v into the number range by shifting values
-    // in opposite directions
-    exclude0(v) = v + copysign(eps, v)
-    with {
-	copysign = ffunction(float copysign(float,float), <math.h>, "");
-	eps = pow(10,-20);
+valve = environment {
+    ex(x) = (1 - exp(-x));
+    nlim = 50; // exp(-nlim)+1 == 1, exp(nlim)/(exp(nlim)+1) == 1
+
+    tr(x) = select2(abs(x) > eps, tr_taylor(x), tr_func(max(-600,x))) with
+    {
+        eps = pow(10,-4);
+        tr_func(x) = select2(x < -nlim, x / ex(x), -x*exp(x));
+        tr_taylor(x) = 1 + x/2 + x*x/12;
     };
-    xq = x - q : exclude0;
-    qm = q : exclude0;
+    df(x) = select2(abs(x) > eps, df_taylor(x), df_func(max(-600,x))) with
+    {
+        eps = pow(10,-4);
+        df_func(x) = select2(x < -nlim, 1/ex(x) - (x * exp(-x)) / (ex(x)*ex(x)), -x*exp(x));
+        df_taylor(x) = 0.5 + x/6 - x*x*x/180;
+    };
+    qd(dist, q, x) = dist * (x - q);
+    vt(dist, q, x) = (tr(qd(dist, q, x)) - tr(qd(dist, q, 0))) / dist;
+    vt_scaled(dist, q, x) = select2(dist*q > nlim, vt(dist, q, x) / df(qd(dist, q, 0)), vt_lim(dist, q, x)) with
+    {
+        bigval = pow(10,10);
+        f(dist, q, x) = (qd(dist, q, x)/(1 - exp(-qd(dist, q, x)))*exp(dist*q) - dist*q)/(dist*dist*q);
+        vt_lim(dist, q, x) = select2(dist*x > nlim, select2(dist*x < -nlim, f(dist, q, x), -1/dist), bigval);
+    };
+    vts(dist, q, x) = abs(x) : neg : vt_scaled(dist, q) : copysign(_, x);
+    vtu(dist, q, g) = vt_scaled(dist, q) : *(g) : neg : vt(dist, q) : neg;
+    vtu_(dist, q, g) = vt_scaled(dist, q) :neg :  *(g) : vt_scaled(dist, q) : /(g) : neg;
 };
 
 saturate(t, x) = select2(abs(x) < t, x, v)

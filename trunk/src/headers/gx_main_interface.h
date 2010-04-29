@@ -127,6 +127,9 @@ protected :
 	map<string, GtkWidget*> fMenuList;
 	MenuCheckItem       fMidiInPreset;
 	MenuCheckItem       fShowTooltips;
+#ifdef EXPERIMENTAL
+	MenuCheckItem       fShowExpWindow;
+#endif
 
 	// jack menu widgets
 	GtkWidget*          fJackConnectItem;

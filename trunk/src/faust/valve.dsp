@@ -1,14 +1,32 @@
 // dsp algorithm from swh ladspa valve plugin (Steve Harrison)
 
+import("music.lib");
 import("guitarix.lib");
 
-
-q_p = vslider("q", 0, 0, 1, 0.01);
-dist_p = vslider("dist", 0, 0, 1, 0.01);
-
-process = valve_transfer(dist, q) : filter
-with {
-    q = q_p - 0.999 ;
-    dist = dist_p * 40 + 0.1;
-    filter(x) = +(x - x') ~ *(0.999);
+vt = valve.vt(dist, q) : neg : valve.vt(dist, q) : neg with
+{
+        q_p = vslider("q", 0, -1.7, 1.7, 0.01);
+        dist_p = vslider("dist", 0, -2, 2, 0.01);
+        q = q_p*q_p*q_p;
+        dist = pow(10,dist_p);
 };
+
+vtu = valve.vt(dist, q) with
+{
+        q_p = vslider("q", 0, -1.7, 1.7, 0.01);
+        dist_p = vslider("dist", 0, -2, 2, 0.01);
+        q = q_p*q_p*q_p;
+        dist = pow(10,dist_p);
+};
+
+vts(x) = abs(x) : neg : valve.vt(dist, q) : neg : copysign(_,x)
+with
+{
+        q_p = vslider("q", 0, -1.7, 1.7, 0.01);
+        dist_p = vslider("dist", 0, -2, 2, 0.01);
+        q = q_p*q_p*q_p;
+        dist = pow(10,dist_p);
+	copysign = ffunction(float copysign(float,float), <math.h>, "");
+};
+
+process = vt;

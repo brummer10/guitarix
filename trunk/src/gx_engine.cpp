@@ -56,13 +56,7 @@ using namespace gx_system;
 
 namespace gx_engine
 {
-// static member
-GxMidiState midistate = kMidiOff;
-float midistat;
-float ffuse;
-float fskin;
 
-/* --- forward definition of useful namespace functions --- */
 void gx_engine_init( const string *optvar )
 {
 	//----- lock the buffer for the oscilloscope
@@ -71,17 +65,19 @@ void gx_engine_init( const string *optvar )
 	get_frame  = new float[frag];
 	get_frame1  = new float[frag];
 	checkfreq  = new float[frag];
-	oversample = new float[frag*2];
+	oversample = new float[frag*MAX_UPSAMPLE];
 	result = new float[frag+46];
 
 	(void)memset(get_frame,  0, frag*sizeof(float));
 	(void)memset(get_frame1,  0, frag*sizeof(float));
 	(void)memset(checkfreq,  0, frag*sizeof(float));
-	(void)memset(oversample, 0, frag*2*sizeof(float));
+	(void)memset(oversample, 0, frag*MAX_UPSAMPLE*sizeof(float));
 	(void)memset(result, 0, (frag+46)*sizeof(float));
 
 	midi.init(gx_jack::jack_sr);
 	faust_init(gx_jack::jack_sr);
+	resampTube.setup(gx_jack::jack_sr, 2);
+	resampDist.setup(gx_jack::jack_sr, 2);
 	if( !optvar[LOAD_FILE].empty() )
 		gx_preset::gx_recall_settings_file( optvar[LOAD_FILE] );
 	else
@@ -90,7 +86,6 @@ void gx_engine_init( const string *optvar )
 	initialized = true;
 }
 
-/* --- forward definition of useful namespace functions --- */
 void gx_engine_reset()
 {
 	if (checkfreq)  delete[] checkfreq;

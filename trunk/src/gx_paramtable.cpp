@@ -435,12 +435,13 @@ private:
 				}
 			}
 		}
-	friend string param_group(string id);
+	friend string param_group(string id, bool nowarn);
 #endif
 
 public:
 	ParameterGroups();
 
+	inline string get(string id) { return groups[id]; }
 	inline string operator[](string id)
 		{
 			debug_check(group_exists, id); return groups[id];
@@ -491,10 +492,15 @@ ParameterGroups::ParameterGroups()
 	insert("system", "System");
 }
 
-string param_group(string id)
+string param_group(string id, bool nowarn)
 {
 	static ParameterGroups groups = ParameterGroups();
-	return groups[id.substr(0, id.find_last_of("."))];
+	const string& group_id = id.substr(0, id.find_last_of("."));
+	if (nowarn) {
+		return groups.get(group_id);
+	} else {
+		return groups[group_id];
+	}
 }
 
 /****************************************************************

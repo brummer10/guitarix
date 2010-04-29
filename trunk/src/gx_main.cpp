@@ -86,7 +86,6 @@ using namespace std;
 
 using namespace gx_system;
 
-
 /* --------- Guitarix main ---------- */
 int main(int argc, char *argv[])
 {
@@ -128,6 +127,9 @@ int main(int argc, char *argv[])
 	// ----------------------- init GTK interface----------------------
 	gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("guitarix", &argc, &argv);
 	gui->setup();
+#ifdef EXPERIMENTAL
+	gx_engine::faust_setup();
+#endif
 
 	// ---------------------- initialize jack client ------------------
 	if (gx_jack::gx_jack_init(optvar))

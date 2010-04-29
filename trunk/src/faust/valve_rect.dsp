@@ -6,7 +6,7 @@ import("guitarix.lib");
 sag = vslider("sag", 0, 0, 1, 0.01);
 dist_p = vslider("dist", 0, 0, 1, 0.01);
 
-process(x) = valve_transfer(dist, q(x), x)
+process(x) = valve.vt(dist, q(x), x)
 with {
     dist = dist_p * 40 + 0.1;
     q(x) = lp1tm1(x) * sag - lp2tm1(x) * 1.02 - 1.0 : clip(-1,-0.01);

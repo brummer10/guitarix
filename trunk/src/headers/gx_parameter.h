@@ -37,7 +37,7 @@ namespace gx_gui
  **
  */
 
-string param_group(string id);
+string param_group(string id, bool nowarn=false);
 
 /****************************************************************
  ** Parameter
@@ -62,11 +62,19 @@ protected:
 	bool save_in_preset : 1;
 	bool controllable : 1;
 	bool used : 1; // debug
+	bool experimental : 1; // experimental faust code, suppress warnings
 
 public:
-	Parameter(string id, string name, value_type vtp, ctrl_type ctp, bool preset, bool ctrl):
-		_id(id), _name(name), _group(param_group(id)), v_type(vtp),
-		c_type(ctp), save_in_preset(preset), controllable(ctrl), used(false)
+	Parameter(string id, string name, value_type vtp, ctrl_type ctp, bool preset, bool ctrl, bool exp=false):
+		_id(id),
+		_name(name),
+		_group(param_group(id, exp)),
+		v_type(vtp),
+		c_type(ctp),
+		save_in_preset(preset),
+		controllable(ctrl),
+		used(false),
+		experimental(exp)
 		{}
 
 #ifndef NDEBUG
@@ -81,6 +89,7 @@ public:
 	ctrl_type getControlType() const { return c_type; }
 	bool isControllable() const { return controllable; }
 	bool isInPreset() const { return save_in_preset; }
+	bool isExperimental() const { return experimental; }
 	string id() const { return _id; }
 	string group() const { return _group; }
 	string name() const { return _name; }
@@ -117,8 +126,8 @@ public:
 	virtual float getUpperAsFloat() const;
 	virtual float getStepAsFloat() const;
 	FloatParameter(string id, string name, ctrl_type ctp, bool preset,
-	               float &v, float sv, float lv, float uv, float tv, bool ctrl):
-		Parameter(id, name, tp_float, ctp, preset, ctrl),
+	               float &v, float sv, float lv, float uv, float tv, bool ctrl, bool exp=false):
+		Parameter(id, name, tp_float, ctp, preset, ctrl, exp),
 		value(v), std_value(sv), lower(lv), upper(uv), step(tv)
 		{}
 };
@@ -139,8 +148,8 @@ public:
 	virtual float getLowerAsFloat() const;
 	virtual float getUpperAsFloat() const;
 	IntParameter(string id, string name, ctrl_type ctp, bool preset,
-	             int &v, int sv, int lv, int uv, bool ctrl):
-		Parameter(id, name, tp_int, ctp, preset, ctrl),
+	             int &v, int sv, int lv, int uv, bool ctrl, bool exp=false):
+		Parameter(id, name, tp_int, ctp, preset, ctrl, exp),
 		value(v), std_value(sv), lower(lv), upper(uv)
 		{}
 };
@@ -157,8 +166,8 @@ public:
 	virtual void writeJSON(gx_system::JsonWriter& jw);
 	virtual void readJSON_value(gx_system::JsonParser& jp);
 	BoolParameter(string id, string name, ctrl_type ctp, bool preset,
-	              bool &v, bool sv, bool ctrl):
-		Parameter(id, name, tp_float, ctp, preset, ctrl),
+	              bool &v, bool sv, bool ctrl, bool exp=false):
+		Parameter(id, name, tp_float, ctp, preset, ctrl, exp),
 		value(v), std_value(sv)
 		{}
 };
@@ -260,9 +269,9 @@ inline void registerParam(const char*a,const char*b,int*c,int d)
 	parameter_map.insert(new IntParameter(a,b,Parameter::Switch,true,*c,d,0,1065353216,true)); //FIXME (see above float/int)
 }
 
-inline void registerParam(const char*a,const char*b,bool*c,bool d=false)
+inline void registerParam(const char*a,const char*b,bool*c,bool d=false, bool exp=false)
 {
-	parameter_map.insert(new BoolParameter(a,b,Parameter::Switch,true,*c,d,true));
+	parameter_map.insert(new BoolParameter(a,b,Parameter::Switch,true,*c,d,true,exp));
 }
 
 /****************************************************************

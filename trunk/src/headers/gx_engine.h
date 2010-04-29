@@ -93,7 +93,7 @@ public:
 	float fdialogbox_eq;
 	float fdialogbox_mbf;
 	float fdialogbox_moo;
-	float fmoog;
+	int fmoog;
 
 	AudioVariables();
 };
@@ -163,6 +163,21 @@ public:
 
 extern MidiVariables midi;
 
+#define MAX_UPSAMPLE 8
+
+class SimpleResampler
+{
+private:
+	Resampler r_up, r_down;
+	int m_fact;
+public:
+	void setup(int sampleRate, unsigned int fact);
+	void up(int count, float *input, float *output);
+	void down(int count, float *input, float *output);
+};
+
+extern SimpleResampler resampTube, resampDist;
+
 /* square function */
 inline double sqrf(float x) { return x * x; }
 
@@ -188,6 +203,10 @@ void convolver_filter(float* input, float* output, int sf, int iconvolvefilter);
 void moving_filter(float* input, float* output, int sf);
 void process_buffers(int count, float* input, float* output0, float* output1);
 
+#ifdef EXPERIMENTAL
+void faust_setup();
+void toggle_exp_window(bool v);
+#endif
 
 /* ------------------------------------------------------------------- */
 } /* end of gx_engine namespace */

@@ -173,6 +173,26 @@ inline void moving_filter(float* input, float* output, int sf)
 }
 
 /****************************************************************
+ ** registering of audio variables
+ */
+
+inline void registerNonPresetParam(const char*a, float*c, bool d, float std=0, float lower=0, float upper=1)
+{
+	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a,"",gx_gui::Parameter::None,d,*c,std,lower,upper,0,false));
+}
+
+// should be int
+inline void registerEnumParam(const char*a,const char*b,float*c,float std=0,float lower=0,float upper=1,float step=1,bool exp=false)
+{
+	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,step,true,exp));
+}
+
+inline void registerEnumParam(const char*a,const char*b,int*c,int std=0,int lower=0,int upper=1,bool exp=false)
+{
+	gx_gui::parameter_map.insert(new gx_gui::IntParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,true,exp));
+}
+
+/****************************************************************
  ** functions and variables used by faust dsp files
  */
 
@@ -267,13 +287,13 @@ float& get_alias(const char *id)
 
 void registerVar(const char* id, const char* name, const char* tp,
                  const char* tooltip, float* var, float val=0,
-                 float low=0, float up=0, float step=0)
+                 float low=0, float up=0, float step=0, bool exp=false)
 {
 	if (!name[0]) {
 		assert(strrchr(id, '.'));
 		name = strrchr(id, '.')+1;
 	}
-	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(id, name, gx_gui::Parameter::Continuous, true, *var, val, low, up, step, true));
+	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(id, name, gx_gui::Parameter::Continuous, true, *var, val, low, up, step, true, exp));
 }
 
 void registerInit(inifunc f)
@@ -325,6 +345,113 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/chorus.cc"
 #include "faust-cc/moog.cc"
 
+#ifdef EXPERIMENTAL
+typedef void (*setupfunc)(GtkWidget *);
+list<setupfunc> setuplist;
+
+void registerSetup(setupfunc f)
+{
+	setuplist.push_back(f);
+}
+
+#define registerVar(id,name,tp,tooltip,var,val,low,up,step) registerVar(id,name,tp,tooltip,var,val,low,up,step,true)
+
+#include  "faust-cc/ExpFilter.cc"
+#include  "faust-cc/Exp.cc"
+
+#undef registerVar
+
+static GtkWidget *exp_window = 0;
+
+static gint delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	gtk_widget_hide(widget);
+    return TRUE;
+}
+
+static void on_show(GtkWidget *widget, gpointer data)
+{
+	gx_gui::parameter_map["system.show_exp_window"].getSwitch().set(true);
+}
+
+static void on_hide(GtkWidget *widget, gpointer data)
+{
+	gx_gui::parameter_map["system.show_exp_window"].getSwitch().set(false);
+}
+
+volatile int exp_upsample;
+volatile bool exp_hs;
+GtkWidget *exp_sample_spin;
+SimpleResampler resampExp;
+
+static void exp_sr_changed(GtkWidget *widget, gpointer data)
+{
+	exp_upsample = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(widget));
+}
+
+static void exp_hs_toggled(GtkWidget *widget, gpointer data)
+{
+	exp_hs = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+}
+
+void faust_setup()
+{
+	registerEnumParam("test.upsample", "Upsample", (int*)&exp_upsample, 4, 1, 8, true);
+	gx_gui::registerParam("test.highshelf", "HighShelf", (bool*)&exp_hs, true, true);
+    exp_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title (GTK_WINDOW(exp_window), "Experimental");
+    gtk_window_set_transient_for(GTK_WINDOW(exp_window), GTK_WINDOW(gx_gui::fWindow));
+    //FIXME prevents digit entry (-> preset selection)
+    //gtk_window_add_accel_group(GTK_WINDOW(exp_window),
+    //                           gx_gui::GxMainInterface::instance()->fAccelGroup);
+    gtk_signal_connect (GTK_OBJECT (exp_window), "delete_event", GTK_SIGNAL_FUNC(delete_event), NULL);
+    gtk_signal_connect (GTK_OBJECT (exp_window), "hide", GTK_SIGNAL_FUNC(on_hide), NULL);
+    gtk_signal_connect (GTK_OBJECT (exp_window), "show", GTK_SIGNAL_FUNC(on_show), NULL);
+    GtkWidget *vbox = gtk_vbox_new(false, 10);
+    gtk_widget_show(vbox);
+    GtkWidget *hbox = gtk_hbox_new(false, 10);
+    gtk_widget_show(hbox);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, 0, 0, 5);
+    GtkWidget *w = gtk_label_new("Upsample:");
+    gtk_widget_show(w);
+    gtk_box_pack_start(GTK_BOX(hbox), w, 0, 0, 5);
+	GtkObject *adj = gtk_adjustment_new(4, 1, 8, 1, 2, 0);
+	exp_sample_spin = gtk_spin_button_new(GTK_ADJUSTMENT(adj), 1, 0);
+    gtk_signal_connect (GTK_OBJECT(exp_sample_spin), "value-changed", GTK_SIGNAL_FUNC(exp_sr_changed), NULL);
+    gtk_widget_show(exp_sample_spin);
+    gtk_box_pack_start(GTK_BOX(hbox), exp_sample_spin, 0, 0, 5);
+    w = gtk_check_button_new_with_label("HighShelf");
+    gtk_widget_show(w);
+    gtk_box_pack_start(GTK_BOX(hbox), w, 0, 0, 20);
+    gtk_signal_connect(GTK_OBJECT(w), "toggled", GTK_SIGNAL_FUNC(exp_hs_toggled), NULL);
+    hbox = gtk_hbox_new(false, 10);
+    gtk_widget_show(hbox);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, 0, 0, 5);
+    gtk_container_add(GTK_CONTAINER(exp_window), vbox);
+    gtk_window_set_type_hint (GTK_WINDOW(exp_window), GDK_WINDOW_TYPE_HINT_UTILITY);
+	for (list<setupfunc>::iterator i = setuplist.begin(); i != setuplist.end(); i++) {
+		(*i)(hbox);
+	}
+}
+
+void toggle_exp_window(bool v)
+{
+	if (v) {
+		if (!GTK_WIDGET_VISIBLE(exp_window)) {
+			gtk_spin_button_set_value(GTK_SPIN_BUTTON(exp_sample_spin), exp_upsample);
+			gtk_window_present(GTK_WINDOW(exp_window));
+		}
+	} else {
+		if (GTK_WIDGET_VISIBLE(exp_window)) {
+			gtk_widget_hide(exp_window);
+		}
+	}
+}
+
+#define IF_HS(fn) {if (exp_hs) { fn; }}
+#else
+#define IF_HS(fn) {fn;}
+#endif // EXPERIMENTAL
 
 //==============================================================================
 //
@@ -427,23 +554,6 @@ inline void down_sample(int sf, float *input, float *output)
 	}
 }
 
-// registering of audio variables
-inline void registerNonPresetParam(const char*a, float*c, bool d, float std=0, float lower=0, float upper=1)
-{
-	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a,"",gx_gui::Parameter::None,d,*c,std,lower,upper,0,false));
-}
-
-// should be int
-inline void registerEnumParam(const char*a,const char*b,float*c,float std=0,float lower=0,float upper=1,float step=1)
-{
-	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,step,true));
-}
-
-inline void registerEnumParam(const char*a,const char*b,int*c,int std=0,int lower=0,int upper=1)
-{
-	gx_gui::parameter_map.insert(new gx_gui::IntParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,true));
-}
-
 AudioVariables::AudioVariables()
 {
 	registerEnumParam("amp.threshold", "threshold", &ffuse, 0.f, 0.f, 3.f, 1.0f);
@@ -515,6 +625,52 @@ AudioVariables::AudioVariables()
 
 AudioVariables audio;
 
+void SimpleResampler::setup(int sampleRate, unsigned int fact)
+{
+	assert(fact <= MAX_UPSAMPLE);
+	const int qual = 16;
+	r_up.setup(sampleRate, sampleRate*fact, 1, qual);
+	r_up.inp_count = (2*qual);
+	r_up.out_count = (2*qual) * fact;
+	r_up.inp_data = r_up.out_data = 0;
+	r_up.process();
+	assert(r_up.inp_count == 0);
+	assert(r_up.out_count != (2*qual) * fact);
+	r_down.setup(sampleRate*fact, sampleRate, 1, qual);
+	r_down.inp_count = (2*qual) * fact;
+	r_down.out_count = (2*qual);
+	r_down.inp_data = r_down.out_data = 0;
+	r_down.process();
+	m_fact = fact;
+	assert(r_down.inp_count == 0);
+	assert(r_down.out_count != (2*qual));
+}
+
+void SimpleResampler::up(int count, float *input, float *output)
+{
+	r_up.inp_count = count;
+	r_up.inp_data = input;
+	r_up.out_count = count * m_fact;
+	r_up.out_data = output;
+	r_up.process();
+	assert(r_up.inp_count == 0);
+	//assert(r_up.out_count == 0);
+	//if (r_up.out_count != 0) cout << "# " << r_up.out_count << endl;
+}
+
+void SimpleResampler::down(int count, float *input, float *output)
+{
+	r_down.inp_count = count * m_fact;
+	r_down.inp_data = input;
+	r_down.out_count = count;
+	r_down.out_data = output;
+	r_down.process();
+	assert(r_down.inp_count == 0);
+	assert(r_down.out_count == 0);
+}
+
+SimpleResampler resampTube, resampDist;
+
 void process_buffers(int count, float* input, float* output0, float* output1)
 {
 	int tuner_on = gx_gui::shownote + (int)isMidiOn() + 1;
@@ -527,7 +683,8 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 			(void)memcpy(checkfreq, input, sizeof(float)*count);
 		}
 	}
-	HighShelf::compute(count, input, output0);
+	IF_HS(HighShelf::compute(count, input, output0));
+	memcpy(output0, input, count*sizeof(float));
 
     if (audio.feq) {
 	    eq::compute(count, output0, output0);
@@ -550,7 +707,8 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     float *ovs_buffer;
     if (audio.fupsample) {
 		// 2*oversample
-	    over_sample(count, output0, oversample);
+	    resampTube.up(count, output0, oversample);
+	    //over_sample(count, output0, oversample);
 	    ovs_sr = 2 * gx_jack::jack_sr;
 	    ovs_count = 2 * count;
 	    ovs_buffer = oversample;
@@ -578,9 +736,37 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 	    drive::compute(ovs_count, ovs_buffer, ovs_buffer);
     }
     if (audio.fupsample) {
-	    down_sample(count, oversample, output0);
+	    //down_sample(count, oversample, output0);
+	    resampTube.down(count, oversample, output0);
     }
     //*** End (maybe) oversampled processing ***
+
+#ifdef EXPERIMENTAL
+    ExpFilter::compute(count, output0, output0);
+    static int exp_upsample_old = 0;
+    if (exp_upsample != exp_upsample_old) {
+	    exp_upsample_old = exp_upsample;
+	    if (exp_upsample > 1) {
+		    //FIXME non-rt
+		    resampExp.setup(gx_jack::jack_sr, exp_upsample);
+	    }
+	    Exp::init(exp_upsample * gx_jack::jack_sr);
+    }
+    if (exp_upsample > 1) {
+	    resampExp.up(count, output0, oversample);
+	    ovs_sr = exp_upsample * gx_jack::jack_sr;
+	    ovs_count = exp_upsample * count;
+	    ovs_buffer = oversample;
+    } else {
+	    ovs_sr = gx_jack::jack_sr;
+	    ovs_count = count;
+	    ovs_buffer = output0;
+    }
+    Exp::compute(ovs_count, ovs_buffer, ovs_buffer);
+    if (exp_upsample > 1) {
+	    resampExp.down(count, oversample, output0);
+    }
+#endif // EXPERIMENTAL
 
     if (audio.fconvolve) {
 	    convolver_filter(output0, output0, count, (unsigned int)audio.convolvefilter);
@@ -602,9 +788,11 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 	    } else if (audio.posit2 == m && audio.fcheckbox4) {
 	        if (audio.fupsample) {
                 // 2*oversample
-                over_sample(count, output0, oversample);
+                //over_sample(count, output0, oversample);
+                resampDist.up(count, output0, oversample);
                 distortion::compute(ovs_count, oversample, oversample);
-                down_sample(count, oversample, output0);
+                resampDist.down(count, oversample, output0);
+                //down_sample(count, oversample, output0);
 	        } else {
                 distortion::compute(count, output0, output0);
 	        }

@@ -2073,6 +2073,20 @@ void GxMainInterface::addEngineMenu()
 
 	/*---------------- End Jack server menu declarations ----------------*/
 
+#ifdef EXPERIMENTAL
+	sep = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);
+	gtk_widget_show (sep);
+	menuitem = gtk_check_menu_item_new_with_mnemonic ("_Experimental");
+	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
+	                           GDK_e, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+	gtk_widget_show(menuitem);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
+	SwitchParameter *p = new SwitchParameter("system.show_exp_window");
+	fShowExpWindow.init(GTK_CHECK_MENU_ITEM(menuitem), p);
+	p->changed.connect(ptr_fun(gx_engine::toggle_exp_window));
+#endif
+
 	/*-- add a separator line --*/
 	sep = gtk_separator_menu_item_new();
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);

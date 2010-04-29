@@ -1,0 +1,244 @@
+#! /usr/bin/python
+# -*- coding: utf-8 -*-
+
+import sys, re, os, subprocess
+from xml.etree.ElementTree import parse
+from optparse import OptionParser
+
+
+template = """\
+namespace %(modname)s {
+// generated from file '%(fname)s'
+
+%(includeclass)s
+struct DspBlock: mydsp
+{
+	DspBlock();
+        static void static_init(int);
+};
+
+DspBlock instance;
+
+void init(int samplingRate)
+{
+	instance.init(samplingRate);
+}
+
+#ifdef DSP_HAS_SETUP
+void setup(GtkWidget *w)
+{
+	instance.setup(w);
+}
+#endif
+
+DspBlock::DspBlock()
+{
+%(uidefs)s	registerInit(%(modname)s::init);
+#ifdef DSP_HAS_SETUP
+	registerSetup(%(modname)s::setup);
+#endif
+}
+
+void compute(int len%(iargs)s%(oargs)s)
+{
+	FAUSTFLOAT* inputs[%(inputs)s] = { %(input_init)s };
+	FAUSTFLOAT* outputs[%(outputs)s] = { %(output_init)s };
+	instance.compute(len, inputs, outputs);
+}
+
+} // end namespace %(modname)s
+"""
+
+class Faust(object):
+
+    def __init__(self, xml, cc, fname):
+        self.xml = parse(xml).getroot()
+        self.cc = list(cc)
+        self.fname = fname
+        self.modname = os.path.splitext(os.path.basename(fname))[0]
+        n = self.xml.find("name")
+        if n is None:
+            self.toplevel = None
+        else:
+            self.toplevel = n.text
+        self.widgets = {}
+        self.read_layout()
+        self.meta = self.read_meta()
+
+    def xml_get_number(self, name):
+        return int(self.xml.find(name).text)
+
+    def read_meta(self):
+        pre = r"\s*interface->"
+        nm = '"([^"]*)"'
+        vr = "([a-zA-Z_][0-9a-zA-Z_]*)"
+        declare = re.compile(pre+r"declare\(&%s,\s*%s,\s*%s\);" % (vr, nm, nm)).match
+        meta = {}
+        for line in self.cc:
+            m = declare(line)
+            if m:
+                vn = m.group(1)
+                if vn not in meta:
+                    meta[vn] = {}
+                meta[vn][m.group(2)] = m.group(3)
+        return meta
+
+    def group(self, g, stack):
+        grp = g.find("label").text
+        if not stack:
+            if self.toplevel and grp == self.modname:
+                grp = self.toplevel
+	if grp:
+            stack.append(grp)
+        for w in g.findall("widgetref"):
+            self.widgets[w.attrib["id"]] = stack[:]
+        for w in g.findall("group"):
+            self.group(w, stack)
+        if grp:
+            stack.pop()
+
+    def read_layout(self):
+        stack = []
+        self.group(self.xml.find("ui").find("layout").find("group"), stack)
+        
+    def make_name(self, w):
+        nm = w.find("label").text
+        stack = self.widgets[w.attrib["id"]]
+        if nm.startswith("."):
+            nm = nm[1:]
+        else:
+            stack.append(nm)
+            nm = ".".join(stack)
+            stack.pop()
+        return nm
+
+    def uidefs(self):
+        vardict = {}
+        l = []
+        for w in self.xml.find("ui").find("activewidgets").findall("widget"):
+            d = {}
+            d["id"] = self.make_name(w)
+            varname = w.find("varname").text
+            try:
+                if "alias" in self.meta[varname]:
+                    continue
+            except KeyError:
+                pass
+            try:
+                d["name"] = self.meta[varname]["name"]
+            except KeyError:
+                d["name"] = ""
+            if w.attrib["type"] == "checkbox":
+                for n in "varname",:
+                    d[n] = w.find(n).text
+                    d["init"] = d["min"] = "0"
+                    d["max"] = d["step"] = "1"
+                d["tp"] = "B"
+            else:
+                for n in "varname", "init", "min", "max", "step":
+                    d[n] = w.find(n).text
+                d["tp"] = "S"
+            l.append('\tregisterVar("%(id)s","%(name)s","%(tp)s","",'
+                     '&%(varname)s,%(init)s,%(min)s,%(max)s,%(step)s);\n' % d)
+            vardict[varname] = {}
+        vardict.update(self.meta)
+        return "".join(l), vardict
+
+    def mod_cc(self, vardict):
+        """
+        reworks the c++ output of faust:
+        - delete include-lines
+        - delete initialisation of parameters
+        - change private to protected
+        - change parameter declaration to a reference if "alias" is set
+        """
+        num_re = r"(-?\d*\.?\d*e?[+-]?\d*f?)"
+        s = "|".join([r"%s\s*=\s*%s" % (v, num_re) for v in vardict.keys()])
+        init_matcher = re.compile(r"\s*("+s+");").match
+        decl_matcher = re.compile("FAUSTFLOAT\s+([a-zA-Z_0-9]+);\n$").match
+        private_matcher = re.compile(r"(\s*)private:\s*\n$").match
+        sample_matcher = re.compile(r"^\s*int\s+fSamplingFreq;").match
+        l = []
+        for line in self.cc:
+            if line.startswith("#include ") or init_matcher(line):
+                continue
+            m = private_matcher(line)
+            if m:
+                l.append(m.group(1) + "protected:\n")
+                continue
+            if sample_matcher(line):
+                l.append("\tfloat fSamplingFreq;\n")
+                continue
+            m = decl_matcher(line)
+            if m:
+                var = m.group(1)
+                try:
+                    vd = vardict[var]
+                except KeyError:
+                    pass
+                else:
+                    if "alias" in vd:
+                        line = ('FAUSTFLOAT&\t%s = get_alias("%s");\n'
+                                % (var, vd["id"]))
+            l.append(line)
+        return "".join(l)
+
+    def output(self, fp):
+        inputs = self.xml_get_number("inputs")
+        outputs = self.xml_get_number("outputs")
+        uidefs, vardict = self.uidefs()
+        d = dict(
+            modname = self.modname,
+            fname = self.fname,
+            includeclass = self.mod_cc(vardict),
+            uidefs = uidefs,
+            iargs = "".join([", FAUSTFLOAT *input%d" % i for i in range(inputs)]),
+            oargs = "".join([", FAUSTFLOAT *output%d" % i for i in range(outputs)]),
+            inputs = inputs,
+            outputs = outputs,
+            input_init = ",".join(["input%d" % i for i in range(inputs)]),
+            output_init = ",".join(["output%d" % i for i in range(outputs)]),
+            )
+        fp.write(template % d)
+
+
+def main():
+    op = OptionParser(usage="usage: %prog [options] <faust-dsp-file>")
+    op.add_option("-o", "--output", dest="oname",
+                  help="write c++ code to FILE", metavar="FILE")
+    op.add_option("-a", "--architecture", dest="arch",
+                  help="faust architecture file")
+    op.add_option("-f", "--faust", dest="faust", action="append",
+                  help="additional faust options")
+    options, args = op.parse_args()
+    if len(args) != 1:
+        op.error("exactly one input filename expected\n")
+    fname = args[0]
+    if not os.path.exists(fname):
+        print "error: can't open '%s'" % fname
+        raise SystemExit, 1
+    if options.oname:
+        outp = file(options.oname,"w")
+    else:
+        outp = sys.stdout
+    if options.arch:
+        arch = options.arch
+    else:
+        arch = "minimal.cpp"
+    pgm = ["faust","-xml","-a",arch,"-o",fname+".cc"]
+    if options.faust:
+        for v in options.faust:
+            pgm.extend(v.split())
+    pgm.append(fname)
+    try:
+        subprocess.call(pgm)
+        Faust(file(fname+".xml"), file(fname+".cc"), fname).output(outp)
+    finally:
+        for ext in ".cc", ".xml":
+            try:
+                os.remove(fname+ext)
+            except OSError:
+                pass
+
+if __name__ == "__main__":
+    main()

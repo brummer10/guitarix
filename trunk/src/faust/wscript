@@ -4,7 +4,7 @@
 import Task, TaskGen, Utils, Logs, os, errno, shutil
 
 # task function for task "dsp"
-# use "tools/dsp2cc" to create the output file and copy
+# use the specified processor to create the output file and copy
 # the output file to a corresponding directory in the
 # source tree (the directory will be created if it doesn't
 # yet exist)
@@ -20,7 +20,7 @@ def dsp2cc(task):
         if e.errno != errno.EEXIST:
             Logs.error("runner: cannot create directory -> %s" % e)
             return e.errno
-    lst = ["../tools/dsp2cc","-o",dst,src]
+    lst = [task.proc,"-o",dst] + task.proc_args + [src]
     Logs.debug("runner: system command -> %s" % " ".join(lst))
     ret = Utils.exec_command(lst,shell=False)
     if ret != 0:
@@ -47,6 +47,8 @@ def dsp_file(self, node):
     # output file with extension ".cc" in a sibling directory
     # of the source directory with "-cc" appended to its name
     tsk = self.create_task('dsp')
+    tsk.proc = self.proc
+    tsk.proc_args = getattr(self, "proc_args", [])
     tsk.set_inputs(node)
     parent = node.parent
     o = parent.parent.find_or_declare([parent.name+"-cc",node.name])
@@ -89,7 +91,24 @@ def build(bld):
         'chorus.dsp',
         'moog.dsp',
         ]
-    bld.new_task_gen(source=sources)
+
+    experimental_soures = [
+        "valve.dsp",
+        "valve_rect.dsp",
+        "Exp.dsp",
+        "ExpFilter.dsp",
+        ]
+
+    bld.new_task_gen(
+        source = sources,
+        proc = "../tools/dsp2cc",
+        )
+
+    bld.new_task_gen(
+        source=experimental_soures,
+        proc = "../tools/dsp2cc_exp",
+        proc_args = ["-a","../src/faust-include.cpp","-f","-double"],
+        )
 
 def configure(conf):
     pass
