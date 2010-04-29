@@ -105,7 +105,7 @@ void GxMainInterface::setup()
 					//----- the balance widget
 					openVerticalBox("");
 					{
-						addslider("amp.balance", "");
+						addslider("amp.balance", "balance");
 					}
 					closeBox();
 
@@ -120,7 +120,7 @@ void GxMainInterface::setup()
 								{
 									openHorizontalBox("");
 									{
-										openDialogBox("jconv", &gx_engine::audio.fdialogboxj);
+										openDialogBox("jconv", &gx_engine::audio.fdialogboxj,(int*)&gx_jconv::GxJConvSettings::checkbutton7);
 										{
 											openHandleBox("  ");
 											{
@@ -218,7 +218,7 @@ void GxMainInterface::setup()
                                         openHorizontalBox("");
                                         {
                                             addminiswitch("eq.on_off", "EQ");
-                                            openDialogBox("eq", &gx_engine::audio.fdialogbox_eq);
+                                            openDialogBox("eq", &gx_engine::audio.fdialogbox_eq,  &gx_engine::audio.feq);
                                             {
                                                 openVerticalBox("");
                                                 {
@@ -478,7 +478,7 @@ void GxMainInterface::setup()
 												{
 													addtoggle("compressor.on_off", "");
 													//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-													openDialogBox("compressor", &gx_engine::audio.fdialogbox8);
+													openDialogBox("compressor", &gx_engine::audio.fdialogbox8, &gx_engine::audio.fcheckboxcom1);
 													{
 														openHandleBox("  ");
 														{
@@ -543,7 +543,7 @@ void GxMainInterface::setup()
 
 													//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
 													{
-														openDialogBox("distortion", &gx_engine::audio.fdialogbox1);
+														openDialogBox("distortion", &gx_engine::audio.fdialogbox1, &gx_engine::audio.fcheckbox4);
 														{
 															openHandleBox("  ");
 															{
@@ -606,7 +606,7 @@ void GxMainInterface::setup()
 													{
 														addtoggle("freeverb.on_off","");
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-														openDialogBox("freeverb", &gx_engine::audio.fdialogbox2);
+														openDialogBox("freeverb", &gx_engine::audio.fdialogbox2, &gx_engine::audio.fcheckbox6);
 														{
 															openHandleBox("  ");
 															{
@@ -649,7 +649,7 @@ void GxMainInterface::setup()
 													{
 														addtoggle("", &gx_engine::audio.fcheckbox8);
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-														openDialogBox("IR", &gx_engine::audio.fdialogbox3);
+														openDialogBox("IR", &gx_engine::audio.fdialogbox3, &gx_engine::audio.fcheckbox8);
 														{
 															openHandleBox("  ");
 															{
@@ -699,7 +699,7 @@ void GxMainInterface::setup()
 													{
 														addtoggle("", &gx_engine::audio.fcheckbox5);
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-														openDialogBox("crybaby", &gx_engine::audio.fdialogbox4);
+														openDialogBox("crybaby", &gx_engine::audio.fdialogbox4, &gx_engine::audio.fcheckbox5);
 														{
 															openHandleBox("  ");
 															{
@@ -780,7 +780,7 @@ void GxMainInterface::setup()
 											openHorizontalBox("");
 											{
 												addtoggle("chorus.on_off","");
-												openDialogBox("chorus", &gx_engine::audio.fchorusbox);
+												openDialogBox("chorus", &gx_engine::audio.fchorusbox, &gx_engine::audio.fchorus);
 												{
 													openHandleBox("  ");
 													{
@@ -841,7 +841,7 @@ void GxMainInterface::setup()
 												    openHorizontalBox("");
                                                     {
                                                         addminieqswitch("MultiBandFilter.on_off"," MultiBandFilter");
-                                                        openDialogBox("MultiBandFilter", &gx_engine::audio.fdialogbox_mbf);
+                                                        openDialogBox("MultiBandFilter", &gx_engine::audio.fdialogbox_mbf, &gx_engine::audio.fmultifilter);
                                                         {
                                                             openVerticalBox("");
                                                             {
@@ -881,21 +881,27 @@ void GxMainInterface::setup()
 													closeBox();
 													openHorizontalBox("");
                                                     {
-													addminieqswitch("moog.on_off","  Moog Filter       ");
-													//openHorizontalhideBox("");
-													//{
-													openDialogBox("moog", &gx_engine::audio.fdialogbox_moo);
-                                                    {
-                                                        openHorizontalBox("");
+                                                        addminieqswitch("moog.on_off","  Moog Filter       ");
+                                                        openDialogBox("moog", &gx_engine::audio.fdialogbox_moo, (int*)&gx_engine::audio.fmoog);
                                                         {
-                                                            addregler("moog.Q","Q");
-                                                            addregler("moog.fr","Hz");
+                                                            openHandleBox("  ");
+                                                                {
+                                                                openVerticalBox("");
+                                                                {
+                                                                    openHorizontalBox("");
+                                                                    {
+                                                                        addregler("moog.Q","            Q            ");
+                                                                        addregler("moog.fr","            Hz           ");
 
+                                                                    }
+                                                                    closeBox();
+                                                                }
+                                                                closeBox();
+                                                            }
+                                                            closeBox();
                                                         }
                                                         closeBox();
                                                     }
-                                                    closeBox();
-													}
                                                     closeBox();
 												}
 												closeBox();
@@ -975,7 +981,7 @@ void GxMainInterface::setup()
 						openHorizontalBox("midi_out");
 						{
 							//----- create the midi settings dialog
-							openDialogBox("midi_out", &gx_engine::audio.fdialogbox6);
+							openDialogBox("midi_out", &gx_engine::audio.fdialogbox6, (int*)&gx_engine::audio.midistat);
 							{
 								openTabBox("");
 								{

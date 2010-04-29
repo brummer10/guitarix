@@ -71,6 +71,7 @@ struct GtkReglerClass {
 	GdkPixbuf *pointer_image1;
 	GdkPixbuf *b_toggle_image;
 	GdkPixbuf *b_toggle_image1;
+	GdkPixbuf *led_image;
 
 //----------- small knob
 	int regler_x;
@@ -129,6 +130,9 @@ struct GtkReglerClass {
 	int selector_x;
 	int selector_y ;
 	int selector_step;
+
+	int led_x;
+	int led_y;
 
 
 };
@@ -586,6 +590,21 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 		cairo_destroy(cr);
 	}
 
+//---------- led
+	else if (regler->regler_type == 12) {
+		reglerx += (widget->allocation.x);
+		reglery += (widget->allocation.height -
+		            klass->led_y) *0.5;
+		int reglerstate = (int)((adj->value - adj->lower) *
+		                        klass->b_toggle_step / (adj->upper - adj->lower));
+
+			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
+			                klass->led_image, 0,
+			                reglerstate * klass->led_y, reglerx, reglery,
+			                klass->led_x,
+			                klass->led_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+
+	}
 
 
 	return TRUE;
@@ -1160,6 +1179,11 @@ static void gtk_regler_size_request (GtkWidget *widget, GtkRequisition *requisit
 		requisition->width = klass->selector_x;
 		requisition->height = klass->selector_y;
 	}
+	//-----------  led
+	else if (regler->regler_type == 12) {
+		requisition->width = klass->led_x;
+		requisition->height = klass->led_y;
+	}
 
 }
 
@@ -1601,10 +1625,14 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 
 //----------- switchII
 		klass->switch_image = gdk_pixbuf_new_from_xpm_data (switch_xpm);
-		g_assert(klass->toggle_image != NULL);
+		g_assert(klass->switch_image != NULL);
 		klass->switch_image1 = gdk_pixbuf_copy( klass->switch_image );
 		g_assert(klass->switch_image1 != NULL);
 		gdk_pixbuf_saturate_and_pixelate(klass->switch_image1,klass->switch_image1,10.0,FALSE);
+
+//----------- led
+        klass->led_image = gdk_pixbuf_new_from_xpm_data (led_xpm);
+		g_assert(klass->led_image != NULL);
 
 //----------- horizontal slider
 		klass->slider_image = gdk_pixbuf_new_from_xpm_data(slidersm_xpm);
@@ -1720,6 +1748,9 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 
 	klass->pix_is = 0;
 
+	klass->led_x = 20 ;
+	klass->led_y = 20 ;
+
 
 //--------- connect the events with funktions
 	widget_class->enter_notify_event = gtk_regler_enter_in;
@@ -1781,6 +1812,9 @@ static void gtk_regler_init (GtkRegler *regler)
 	} else if (regler->regler_type == 11) {
 		widget->requisition.width = klass->selector_x;
 		widget->requisition.height = klass->selector_y;
+	} else if (regler->regler_type == 12) {
+		widget->requisition.width = klass->led_x;
+		widget->requisition.height = klass->led_y;
 	}
 }
 
@@ -1832,6 +1866,8 @@ void GtkRegler::gtk_regler_destroy ( )
 		g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_image);
 	if (G_IS_OBJECT(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))-> eqslider_image1))
 		g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_image1);
+	if (G_IS_OBJECT(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))-> led_image))
+		g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->led_image);
 }
 
 
@@ -1906,19 +1942,7 @@ GtkWidget *GtkRegler::gtk_mini_slider_new_with_adjustment(GtkAdjustment *_adjust
 	}
 	return widget;
 }
-//----------- create a eqslider
-GtkWidget *GtkRegler::gtk_eq_slider_new_with_adjustment(GtkAdjustment *_adjustment)
-{
-	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
-	GtkRegler *regler = GTK_REGLER(widget);
-	regler->regler_type = 10;
-	if (widget) {
-		gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
-		g_signal_connect(GTK_OBJECT(widget), "value-changed",
-		                 G_CALLBACK(gtk_regler_value_changed), widget);
-	}
-	return widget;
-}
+
 //----------- create a switcher
 GtkWidget *GtkRegler::gtk_switch_new_with_adjustment(GtkAdjustment *_adjustment)
 {
@@ -1989,6 +2013,20 @@ GtkWidget *GtkRegler::gtk_vslider_new_with_adjustment(GtkAdjustment *_adjustment
 	return widget;
 }
 
+//----------- create a eqslider
+GtkWidget *GtkRegler::gtk_eq_slider_new_with_adjustment(GtkAdjustment *_adjustment)
+{
+	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
+	GtkRegler *regler = GTK_REGLER(widget);
+	regler->regler_type = 10;
+	if (widget) {
+		gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
+		g_signal_connect(GTK_OBJECT(widget), "value-changed",
+		                 G_CALLBACK(gtk_regler_value_changed), widget);
+	}
+	return widget;
+}
+
 //----------- create a selector
 GtkWidget *GtkRegler::gtk_selector_new_with_adjustment(GtkAdjustment *_adjustment, int maxv, const char* label[])
 {
@@ -2000,6 +2038,20 @@ GtkWidget *GtkRegler::gtk_selector_new_with_adjustment(GtkAdjustment *_adjustmen
 		regler->labels[i]=label[i];
 	//regler->labels[1]=label1;
 	//regler->labels[2]=label2;
+	if (widget) {
+		gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
+		g_signal_connect(GTK_OBJECT(widget), "value-changed",
+		                 G_CALLBACK(gtk_regler_value_changed), widget);
+	}
+	return widget;
+}
+
+//----------- create a eqslider
+GtkWidget *GtkRegler::gtk_led_new_with_adjustment(GtkAdjustment *_adjustment)
+{
+	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
+	GtkRegler *regler = GTK_REGLER(widget);
+	regler->regler_type = 12;
 	if (widget) {
 		gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
 		g_signal_connect(GTK_OBJECT(widget), "value-changed",

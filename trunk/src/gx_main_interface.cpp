@@ -1739,7 +1739,7 @@ void GxMainInterface::setSkinBox(const char* label, float* zone)
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_set_skin),  (gpointer) c);
 }
 
-void GxMainInterface::openDialogBox(const char* id, float* zone)
+void GxMainInterface::openDialogBox(const char* id, float* zone, int * z1)
 {
 	const char *label = param_group(id).c_str();
 	GtkWidget * dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -1790,6 +1790,16 @@ void GxMainInterface::openDialogBox(const char* id, float* zone)
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
 	gtk_widget_modify_font(lab, style->font_desc);
 
+    GtkObject* adjl = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
+	uiAdjustment* cl = new uiAdjustment(this,(float*) z1, GTK_ADJUSTMENT(adjl));
+	g_signal_connect (GTK_OBJECT (adjl), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) cl);
+
+
+
+	GtkWidget* led = myGtkRegler.gtk_led_new_with_adjustment(GTK_ADJUSTMENT(adjl));
+
+	//connect_midi_controller(slider, zone);
+    gtk_container_add (GTK_CONTAINER(box5), led);
 	gtk_container_add (GTK_CONTAINER(box5), frame);
 	gtk_container_add (GTK_CONTAINER(box5), button1);
 	g_signal_connect  (GTK_OBJECT (button1), "pressed", G_CALLBACK (gx_reset_units), (gpointer) id);
@@ -1798,6 +1808,7 @@ void GxMainInterface::openDialogBox(const char* id, float* zone)
 	gtk_container_add (GTK_CONTAINER(dialog), box4);
 	// gtk_widget_show(dialog);
 	gtk_widget_show(lab);
+	gtk_widget_show(led);
 	gtk_widget_show(frame);
 	gtk_widget_show(button1);
 	gtk_widget_show(box);
