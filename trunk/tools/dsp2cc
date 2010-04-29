@@ -6,7 +6,7 @@ from subprocess import Popen, PIPE
 from optparse import OptionParser
 
 
-num_re = r"(-?\d*\.?\d*e?-?\d*f?)"
+num_re = r"(-?\d*\.?\d*e?[+-]?\d*f?)"
 
 class UIDefs(object):
 
