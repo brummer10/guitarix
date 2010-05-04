@@ -807,6 +807,46 @@ void GxMainInterface::setup()
 									}
 									closeBox();
 									//end chorus
+
+									openHorizontalRestetBox("", &gx_engine::audio.posit9);
+									{
+										openVerticalBox("flanger");
+										{
+											addregler("flanger.level");
+											openHorizontalBox("");
+											{
+												addtoggle("flanger.on_off","");
+												openDialogBox("flanger", &gx_engine::audio.fflangerbox, &gx_engine::audio.fflanger);
+												{
+													openHandleBox("  ");
+													{
+														openVerticalBox("");
+														{
+															openHorizontalTableBox("");
+															{
+																addregler("flanger.level","  level  ");
+																addregler("flanger.feedback gain"," feedback gain ");
+																addregler("flanger.depth","  depth  ");
+																addregler("flanger.flange delay","  delay  ");
+																addregler("flanger.flange delay offset"," delay offset");
+																addregler("flanger.LFO freq"," LFO freq  ");
+
+															}
+															closeBox();
+															addminiswitch("flanger.invert"," invert                                          ");
+														}
+														closeBox();
+													}
+													closeBox();
+												}
+												closeBox();
+											}
+											closeBox();
+										}
+										closeBox();
+									}
+									closeBox();
+
 								}
 								closeBox();
 							}

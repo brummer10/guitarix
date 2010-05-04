@@ -25,7 +25,7 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("tube.vibrato","","S","",&fslider0, 0.0f, 0.0f, 2.0f, 2.000000e-02f);
+	registerVar("tube.vibrato","","S","",&fslider0, 0.0f, 0.0f, 2.0f, 0.02f);
 	registerInit(init);
 }
 

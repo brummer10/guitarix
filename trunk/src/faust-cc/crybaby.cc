@@ -15,8 +15,8 @@ int	fSamplingFreq;
 void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (1413.716694f / fSamplingFreq);
-	fConst1 = (2827.433388f / fSamplingFreq);
+	fConst0 = (1413.7166941154069f / fSamplingFreq);
+	fConst1 = (2827.4333882308138f / fSamplingFreq);
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<2; i++) fRec3[i] = 0;
@@ -30,9 +30,9 @@ void compute(int count, float *input0, float *output0)
 	float 	fSlow2 = fslider1;
 	float 	fSlow3 = powf(2.0f,(2.3f * fSlow2));
 	float 	fSlow4 = (1 - (fConst0 * (fSlow3 / powf(2.0f,(1.0f + (2.0f * (1.0f - fSlow2)))))));
-	float 	fSlow5 = (1.000000e-03f * (0 - (2.0f * (cosf((fConst1 * fSlow3)) * fSlow4))));
-	float 	fSlow6 = (1.000000e-03f * (fSlow4 * fSlow4));
-	float 	fSlow7 = (1.000000e-04f * powf(4.0f,fSlow2));
+	float 	fSlow5 = (0.0010000000000000009f * (0 - (2.0f * (cosf((fConst1 * fSlow3)) * fSlow4))));
+	float 	fSlow6 = (0.0010000000000000009f * faustpower<2>(fSlow4));
+	float 	fSlow7 = (0.0001000000000000001f * powf(4.0f,fSlow2));
 	float 	fSlow8 = fslider2;
 	float 	fSlow9 = (1 - max(0, (0 - fSlow0)));
 	for (int i=0; i<count; i++) {
@@ -53,8 +53,8 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("crybaby.level","","S","",&fslider2, 0.1f, 0.0f, 1.0f, 1.000000e-02f);
-	registerVar("crybaby.wah","","S","",&fslider1, 0.0f, 0.0f, 1.0f, 1.000000e-02f);
+	registerVar("crybaby.level","","S","",&fslider2, 0.1f, 0.0f, 1.0f, 0.01f);
+	registerVar("crybaby.wah","","S","",&fslider1, 0.0f, 0.0f, 1.0f, 0.01f);
 	registerVar("crybaby.wet_dry","wet/dry","S","",&fslider0, 0.0f, -1.0f, 1.0f, 0.1f);
 	registerInit(init);
 }

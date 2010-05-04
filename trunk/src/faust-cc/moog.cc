@@ -21,7 +21,7 @@ void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
-	fConst0 = (6.283185f / fSamplingFreq);
+	fConst0 = (6.283185307179586f / fSamplingFreq);
 	for (int i=0; i<2; i++) fRec5[i] = 0;
 	for (int i=0; i<2; i++) fRec4[i] = 0;
 	for (int i=0; i<2; i++) fRec3[i] = 0;
@@ -36,12 +36,12 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
-	float 	fSlow0 = (1.000000e-03f * fslider0);
+	float 	fSlow0 = (0.0010000000000000009f * fslider0);
 	float 	fSlow1 = (0 - fslider1);
 	for (int i=0; i<count; i++) {
 		fRec1[0] = (fSlow0 + (0.999f * fRec1[1]));
 		float fTemp0 = (fConst0 * fRec1[0]);
-		float fTemp1 = powf(fTemp0,4);
+		float fTemp1 = faustpower<4>(fTemp0);
 		float fTemp2 = (1.0f - fTemp0);
 		fRec5[0] = (((float)input0[i] + (fSlow1 * fRec0[1])) + (fTemp2 * fRec5[1]));
 		fRec4[0] = (fRec5[0] + (fTemp2 * fRec4[1]));
@@ -74,7 +74,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("moog.Q","","S","",&fslider1, 1.0f, 0.0f, 4.0f, 0.1f);
-	registerVar("moog.fr","","S","",&fslider0, 3000.0f, 440.0f, 6000.0f, 10.0f);
+	registerVar("moog.fr","","S","",&fslider0, 3e+03f, 4.4e+02f, 6e+03f, 1e+01f);
 	registerInit(init);
 }
 

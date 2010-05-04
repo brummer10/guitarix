@@ -87,7 +87,7 @@ void compute(int count, float *input0, float *output0)
 	float 	fSlow5 = (2 * (0.5f - fSlow3));
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
-		float fTemp1 = (1.500000e-02f * fTemp0);
+		float fTemp1 = (0.015f * fTemp0);
 		fRec9[0] = ((fSlow1 * fRec8[1]) + (fSlow0 * fRec9[1]));
 		fVec0[IOTA&2047] = (fTemp1 + (fSlow2 * fRec9[0]));
 		fRec8[0] = fVec0[(IOTA-1640)&2047];
@@ -155,8 +155,8 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("freeverb.wet_dry","wet/dry","S","",&fslider2, 0.0f, -0.5f, 0.5f, 0.1f);
-	registerVar("freeverb.RoomSize","","S","",&fslider1, 0.5f, 0.0f, 1.0f, 2.500000e-02f);
-	registerVar("freeverb.damp","","S","",&fslider0, 0.5f, 0.0f, 1.0f, 2.500000e-02f);
+	registerVar("freeverb.RoomSize","","S","",&fslider1, 0.5f, 0.0f, 1.0f, 0.025f);
+	registerVar("freeverb.damp","","S","",&fslider0, 0.5f, 0.0f, 1.0f, 0.025f);
 	registerInit(init);
 }
 

@@ -36,9 +36,9 @@ void compute(int count, float *input0, float *output0, float *output1)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("amp.feedforward","Feedforward","S","",&fslider2, 0.0f, -1.0f, 1.0f, 1.000000e-02f);
-	registerVar("amp.feedback","Feedback","S","",&fslider1, 0.0f, -1.0f, 1.0f, 1.000000e-02f);
-	registerVar("amp.fuzz","fuzz","S","",&fslider0, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
+	registerVar("amp.feedforward","Feedforward","S","",&fslider2, 0.0f, -1.0f, 1.0f, 0.01f);
+	registerVar("amp.feedback","Feedback","S","",&fslider1, 0.0f, -1.0f, 1.0f, 0.01f);
+	registerVar("amp.fuzz","fuzz","S","",&fslider0, 1.0f, 0.0f, 1.0f, 0.01f);
 	registerInit(init);
 }
 

@@ -21,7 +21,7 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("tube.fuzzy","count","S","",&fslider0, 1.0f, -3.0f, 10.0f, 1.0f);
+	registerVar("tube.fuzzy","count","S","",&fslider0, 1.0f, -3.0f, 1e+01f, 1.0f);
 	registerInit(init);
 }
 

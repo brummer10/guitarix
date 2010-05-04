@@ -57,20 +57,20 @@ void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
-	fConst0 = (6.283185f * (max(0, ((0.5f * fSamplingFreq) - 100)) / fSamplingFreq));
+	fConst0 = (6.283185307179586f * (max(0, ((0.5f * fSamplingFreq) - 100)) / fSamplingFreq));
 	fConst1 = cosf(fConst0);
 	fConst2 = (0 - (2 * (0 - (2.0f * fConst1))));
-	fConst3 = (1.000000e-02f * sinf(fConst0));
+	fConst3 = (0.01f * sinf(fConst0));
 	fConst4 = (fConst3 - 2.0f);
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	IOTA = 0;
 	for (int i=0; i<4096; i++) fVec1[i] = 0;
 	for (int i=0; i<2; i++) fRec4[i] = 0;
-	fConst5 = (3.141593f / fSamplingFreq);
+	fConst5 = (3.141592653589793f / fSamplingFreq);
 	for (int i=0; i<2; i++) fRec7[i] = 0;
 	for (int i=0; i<2; i++) fVec2[i] = 0;
 	for (int i=0; i<2; i++) fRec6[i] = 0;
-	fConst6 = (3.141593f * fSamplingFreq);
+	fConst6 = (3.141592653589793f * fSamplingFreq);
 	fConst7 = (0.5f / fSamplingFreq);
 	for (int i=0; i<2; i++) fVec3[i] = 0;
 	for (int i=0; i<2; i++) fRec5[i] = 0;
@@ -99,7 +99,7 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	float 	fSlow0 = (1.000000e-03f * powf(10,(5.000000e-02f * (fslider0 - 10))));
+	float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * (fslider0 - 10))));
 	float 	fSlow1 = (1.0f - fslider1);
 	float 	fSlow2 = fslider2;
 	int 	iSlow3 = int((int((fSlow2 - 1)) & 4095));
@@ -107,44 +107,38 @@ void compute(int count, float *input0, float *output0)
 	float 	fSlow5 = (1.0f / tanf((fConst5 * fentry0)));
 	float 	fSlow6 = (fSlow5 - 1);
 	float 	fSlow7 = (1.0f / (1 + fSlow5));
-	float 	fSlow8 = (1.0f / tanf((fConst7 * (fConst6 - (6.283185f * fentry1)))));
+	float 	fSlow8 = (1.0f / tanf((fConst7 * (fConst6 - (6.283185307179586f * fentry1)))));
 	float 	fSlow9 = (1 + fSlow8);
 	float 	fSlow10 = (1.0f / fSlow9);
 	float 	fSlow11 = (0 - ((fSlow8 - 1) / fSlow9));
 	int 	iSlow12 = int(fcheckbox0);
 	float 	fSlow13 = tanf((fConst5 * fslider3));
-	float 	fSlow14 = (2 * (1 - (1.0f / (fSlow13 * fSlow13))));
+	float 	fSlow14 = (2 * (1 - (1.0f / faustpower<2>(fSlow13))));
 	float 	fSlow15 = (1.0f / fSlow13);
-	float 	fSlow16 = (1 + ((fSlow15 - 0.765367f) / fSlow13));
-	float 	fSlow17 = (1.0f / (1 + ((0.765367f + fSlow15) / fSlow13)));
-	float 	fSlow18 = (1 + ((fSlow15 - 1.847759f) / fSlow13));
-	float 	fSlow19 = (1.0f / (1 + ((1.847759f + fSlow15) / fSlow13)));
+	float 	fSlow16 = (1 + ((fSlow15 - 0.76536686473018f) / fSlow13));
+	float 	fSlow17 = (1.0f / (1 + ((0.76536686473018f + fSlow15) / fSlow13)));
+	float 	fSlow18 = (1 + ((fSlow15 - 1.847759065022573f) / fSlow13));
+	float 	fSlow19 = (1.0f / (1 + ((1.847759065022573f + fSlow15) / fSlow13)));
 	float 	fSlow20 = (fConst5 * fslider4);
 	float 	fSlow21 = (1.0f / (1 + fSlow20));
 	float 	fSlow22 = (1 - fSlow20);
 	int 	iSlow23 = int(fcheckbox1);
 	float 	fSlow24 = fslider5;
-	float 	fSlow25 = powf(10.0f,(2 * fslider6));
+	float 	fSlow25 = powf(1e+01f,(2 * fslider6));
 	for (int i=0; i<count; i++) {
-		float 	S0[2];
 		iVec0[0] = 1;
 		fRec1[0] = (fSlow0 + (0.999f * fRec1[1]));
-		float 	S1[2];
-		float 	S2[2];
 		float fTemp0 = ((float)input0[i] + (fSlow1 * fRec4[1]));
 		fVec1[IOTA&4095] = fTemp0;
 		fRec4[0] = (0.5f * (fVec1[(IOTA-iSlow4)&4095] + fVec1[(IOTA-iSlow3)&4095]));
-		S2[0] = fRec4[0];
-		fRec7[0] = ((1.000000e-20f * (1 - iVec0[1])) - fRec7[1]);
+		fRec7[0] = ((1e-20f * (1 - iVec0[1])) - fRec7[1]);
 		float fTemp1 = (fRec4[0] + fRec7[0]);
 		fVec2[0] = (fSlow7 * fTemp1);
 		fRec6[0] = (fVec2[1] + (fSlow7 * (fTemp1 + (fSlow6 * fRec6[1]))));
 		float fTemp2 = (fSlow10 * fRec6[0]);
 		fVec3[0] = fTemp2;
 		fRec5[0] = ((fVec3[0] + (fSlow11 * fRec5[1])) - fVec3[1]);
-		S2[1] = fRec5[0];
-		float fTemp3 = S2[iSlow12];
-		S1[0] = fTemp3;
+		float fTemp3 = ((iSlow12)?fRec5[0]:fRec4[0]);
 		float fTemp4 = (fRec7[0] + fTemp3);
 		fVec4[0] = (fSlow21 * fTemp4);
 		fRec11[0] = ((fSlow21 * (fTemp4 + (fSlow22 * fRec11[1]))) - fVec4[1]);
@@ -152,18 +146,16 @@ void compute(int count, float *input0, float *output0)
 		fRec10[0] = ((fSlow21 * (fRec11[0] + (fSlow22 * fRec10[1]))) - fVec5[1]);
 		fRec9[0] = (fRec10[0] - (fSlow19 * ((fSlow18 * fRec9[2]) + (fSlow14 * fRec9[1]))));
 		fRec8[0] = ((fSlow19 * (fRec9[2] + (fRec9[0] + (2 * fRec9[1])))) - (fSlow17 * ((fSlow16 * fRec8[2]) + (fSlow14 * fRec8[1]))));
-		S1[1] = (fSlow17 * (fRec8[2] + (fRec8[0] + (2 * fRec8[1]))));
-		float fTemp5 = S1[iSlow23];
+		float fTemp5 = ((iSlow23)?(fSlow17 * (fRec8[2] + (fRec8[0] + (2 * fRec8[1])))):fTemp3);
 		fVec6[0] = fTemp5;
 		fRec3[0] = (fVec6[0] + (fConst10 * (((fConst9 * fVec6[2]) + (fConst8 * fVec6[1])) + ((fConst4 * fRec3[2]) + (fConst2 * fRec3[1])))));
 		float fTemp6 = max(-1, min(1, (fSlow25 * (fSlow24 + fRec3[0]))));
-		float fTemp7 = (fTemp6 * (1 - (0.333333f * (fTemp6 * fTemp6))));
+		float fTemp7 = (fTemp6 * (1 - (0.3333333333333333f * faustpower<2>(fTemp6))));
 		fVec7[0] = fTemp7;
 		fRec2[0] = ((fVec7[0] + (0.995f * fRec2[1])) - fVec7[1]);
 		float fTemp8 = (fRec2[0] * fRec1[0]);
 		fVec8[0] = fTemp8;
 		fRec0[0] = (fVec8[0] + (fConst10 * (((fConst9 * fVec8[2]) + (fConst8 * fVec8[1])) + ((fConst4 * fRec0[2]) + (fConst2 * fRec0[1])))));
-		S0[0] = fRec0[0];
 		float fTemp9 = (fRec7[0] + fRec0[0]);
 		fVec9[0] = (fSlow21 * fTemp9);
 		fRec15[0] = ((fSlow21 * (fTemp9 + (fSlow22 * fRec15[1]))) - fVec9[1]);
@@ -171,8 +163,7 @@ void compute(int count, float *input0, float *output0)
 		fRec14[0] = ((fSlow21 * (fRec15[0] + (fSlow22 * fRec14[1]))) - fVec10[1]);
 		fRec13[0] = (fRec14[0] - (fSlow19 * ((fSlow18 * fRec13[2]) + (fSlow14 * fRec13[1]))));
 		fRec12[0] = ((fSlow19 * (fRec13[2] + (fRec13[0] + (2 * fRec13[1])))) - (fSlow17 * ((fSlow16 * fRec12[2]) + (fSlow14 * fRec12[1]))));
-		S0[1] = (fSlow17 * (fRec12[2] + (fRec12[0] + (2 * fRec12[1]))));
-		output0[i] = (FAUSTFLOAT)S0[iSlow23];
+		output0[i] = (FAUSTFLOAT)((iSlow23)?(fSlow17 * (fRec12[2] + (fRec12[0] + (2 * fRec12[1])))):fRec0[0]);
 		// post processing
 		fRec12[2] = fRec12[1]; fRec12[1] = fRec12[0];
 		fRec13[2] = fRec13[1]; fRec13[1] = fRec13[0];
@@ -209,15 +200,15 @@ RegisterParams::RegisterParams()
 {
 	registerVar("distortion.low_highcutoff.on_off","low highcutoff","B","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
 	registerVar("distortion.low_highpass.on_off","low highpass","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	registerVar("distortion.low_highpass.high_freq","high freq","S","",&fentry1, 130.0f, 20.0f, 7040.0f, 10.0f);
-	registerVar("distortion.low_highpass.low_freq","low freq","S","",&fentry0, 5000.0f, 20.0f, 12000.0f, 10.0f);
-	registerVar("distortion.drive","","S","",&fslider6, 0.64f, 0.0f, 1.0f, 1.000000e-02f);
-	registerVar("distortion.level","","S","",&fslider5, 1.000000e-02f, 0.0f, 0.5f, 1.000000e-02f);
-	registerVar("distortion.low_highcutoff.low_freq","low freq","S","low-freq cutoff Hz",&fslider4, 130.0f, 20.0f, 1000.0f, 10.0f);
-	registerVar("distortion.low_highcutoff.high_freq","high freq","S","high-freq cutoff Hz",&fslider3, 5000.0f, 1000.0f, 12000.0f, 10.0f);
-	registerVar("distortion.vibrato","","S","",&fslider2, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
-	registerVar("distortion.trigger","","S","",&fslider1, 0.12f, 0.0f, 1.0f, 1.000000e-02f);
-	registerVar("distortion.gain","","S","",&fslider0, 2.0f, -10.0f, 10.0f, 0.1f);
+	registerVar("distortion.low_highpass.high_freq","high freq","S","",&fentry1, 1.3e+02f, 2e+01f, 7.04e+03f, 1e+01f);
+	registerVar("distortion.low_highpass.low_freq","low freq","S","",&fentry0, 5e+03f, 2e+01f, 1.2e+04f, 1e+01f);
+	registerVar("distortion.drive","","S","",&fslider6, 0.64f, 0.0f, 1.0f, 0.01f);
+	registerVar("distortion.level","","S","",&fslider5, 0.01f, 0.0f, 0.5f, 0.01f);
+	registerVar("distortion.low_highcutoff.low_freq","low freq","S","low-freq cutoff Hz",&fslider4, 1.3e+02f, 2e+01f, 1e+03f, 1e+01f);
+	registerVar("distortion.low_highcutoff.high_freq","high freq","S","high-freq cutoff Hz",&fslider3, 5e+03f, 1e+03f, 1.2e+04f, 1e+01f);
+	registerVar("distortion.vibrato","","S","",&fslider2, 1.0f, 0.0f, 1.0f, 0.01f);
+	registerVar("distortion.trigger","","S","",&fslider1, 0.12f, 0.0f, 1.0f, 0.01f);
+	registerVar("distortion.gain","","S","",&fslider0, 2.0f, -1e+01f, 1e+01f, 0.1f);
 	registerInit(init);
 }
 

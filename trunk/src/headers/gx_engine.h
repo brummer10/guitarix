@@ -60,6 +60,7 @@ public:
 	float posit6;
 	float posit7;
 	float posit8;
+	float posit9;
 	int foverdrive4;
 	int fcheckbox4;
 	int fcheckbox6;
@@ -94,6 +95,8 @@ public:
 	float fdialogbox_mbf;
 	float fdialogbox_moo;
 	int fmoog;
+	int fflanger;
+	float fflangerbox;
 
 	AudioVariables();
 };

@@ -15,7 +15,7 @@ class SIG0 {
 	void fill (int count, float output[]) {
 		for (int i=0; i<count; i++) {
 			iRec1[0] = (1 + iRec1[1]);
-			output[i] = sinf((9.587380e-05f * (iRec1[0] - 1)));
+			output[i] = sinf((9.587379924285257e-05f * (iRec1[0] - 1)));
 			// post processing
 			iRec1[1] = iRec1[0];
 		}
@@ -85,10 +85,10 @@ void compute(int count, float *input0, float *input1, float *output0, float *out
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("chorus.level","","S","",&fslider3, 0.5f, 0.0f, 1.0f, 1.000000e-02f);
-	registerVar("chorus.delay","","S","",&fslider2, 2.500000e-02f, 0.0f, 0.2f, 1.000000e-03f);
-	registerVar("chorus.depth","","S","",&fslider1, 2.000000e-02f, 0.0f, 1.0f, 1.000000e-03f);
-	registerVar("chorus.freq","","S","",&fslider0, 3.0f, 0.0f, 10.0f, 1.000000e-02f);
+	registerVar("chorus.level","","S","",&fslider3, 0.5f, 0.0f, 1.0f, 0.01f);
+	registerVar("chorus.delay","","S","",&fslider2, 0.025f, 0.0f, 0.2f, 0.001f);
+	registerVar("chorus.depth","","S","",&fslider1, 0.02f, 0.0f, 1.0f, 0.001f);
+	registerVar("chorus.freq","","S","",&fslider0, 3.0f, 0.0f, 1e+01f, 0.01f);
 	registerInit(init);
 }
 

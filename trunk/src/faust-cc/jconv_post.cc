@@ -20,7 +20,7 @@ void init(int samplingFreq)
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
 	for (int i=0; i<2097152; i++) fVec0[i] = 0;
-	fConst0 = (1.000000e-03f * fSamplingFreq);
+	fConst0 = (0.001f * fSamplingFreq);
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 	for (int i=0; i<2097152; i++) fVec1[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
@@ -37,7 +37,7 @@ void compute(int count, float *input0, float *input1, float *input2, float *inpu
 	float 	fSlow6 = (iSlow5 - fSlow2);
 	int 	iSlow7 = int((int(iSlow5) & 2097151));
 	float 	fSlow8 = (fSlow2 - iSlow3);
-	float 	fSlow9 = (1.000000e-03f * powf(10,(5.000000e-02f * fslider2)));
+	float 	fSlow9 = (0.0010000000000000009f * powf(10,(0.05f * fslider2)));
 	float 	fSlow10 = (1 - max(0, (0 - fSlow0)));
 	float 	fSlow11 = fslider3;
 	float 	fSlow12 = (1 - max(0, fSlow11));
@@ -48,7 +48,7 @@ void compute(int count, float *input0, float *input1, float *input2, float *inpu
 	float 	fSlow17 = (iSlow16 - fSlow13);
 	int 	iSlow18 = int((int(iSlow16) & 2097151));
 	float 	fSlow19 = (fSlow13 - iSlow14);
-	float 	fSlow20 = (1.000000e-03f * powf(10,(5.000000e-02f * fslider5)));
+	float 	fSlow20 = (0.0010000000000000009f * powf(10,(0.05f * fslider5)));
 	float 	fSlow21 = (1 - max(0, (0 - fSlow11)));
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input2[i];
@@ -69,10 +69,10 @@ void compute(int count, float *input0, float *input1, float *input2, float *inpu
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("jconv.right_gain","Right Gain","S","",&fslider5, 0.0f, -20.0f, 20.0f, 0.1f);
-	registerVar("jconv.right_delay","Right Delay","S","",&fslider4, 0.0f, 0.0f, 5000.0f, 10.0f);
-	registerVar("jconv.left_gain","Left Gain","S","",&fslider2, 0.0f, -20.0f, 20.0f, 0.1f);
-	registerVar("jconv.left_delay","Left Delay","S","",&fslider1, 0.0f, 0.0f, 5000.0f, 10.0f);
+	registerVar("jconv.right_gain","Right Gain","S","",&fslider5, 0.0f, -2e+01f, 2e+01f, 0.1f);
+	registerVar("jconv.right_delay","Right Delay","S","",&fslider4, 0.0f, 0.0f, 5e+03f, 1e+01f);
+	registerVar("jconv.left_gain","Left Gain","S","",&fslider2, 0.0f, -2e+01f, 2e+01f, 0.1f);
+	registerVar("jconv.left_delay","Left Delay","S","",&fslider1, 0.0f, 0.0f, 5e+03f, 1e+01f);
 	registerVar("jconv.wet_dry","wet/dry","S","",&fslider0, 0.0f, -1.0f, 1.0f, 0.1f);
 	registerInit(init);
 }

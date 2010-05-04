@@ -25,7 +25,7 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("anti_aliase.feedback","Feedback","S","",&fslider0, 0.3f, 0.3f, 0.9f, 1.000000e-02f);
+	registerVar("anti_aliase.feedback","Feedback","S","",&fslider0, 0.3f, 0.3f, 0.9f, 0.01f);
 	registerInit(init);
 }
 

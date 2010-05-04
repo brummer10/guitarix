@@ -42,21 +42,21 @@ void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
-	fConst0 = tanf((15707.963268f / fSamplingFreq));
-	fConst1 = (2 * (1 - (1.0f / (fConst0 * fConst0))));
+	fConst0 = tanf((15707.963267948966f / fSamplingFreq));
+	fConst1 = (2 * (1 - (1.0f / faustpower<2>(fConst0))));
 	fConst2 = (1.0f / fConst0);
-	fConst3 = (1 + ((fConst2 - 0.765367f) / fConst0));
-	fConst4 = (1 + ((0.765367f + fConst2) / fConst0));
+	fConst3 = (1 + ((fConst2 - 0.76536686473018f) / fConst0));
+	fConst4 = (1 + ((0.76536686473018f + fConst2) / fConst0));
 	fConst5 = (1.0f / fConst4);
-	fConst6 = (1 + ((fConst2 - 1.847759f) / fConst0));
-	fConst7 = (1.0f / (1 + ((1.847759f + fConst2) / fConst0)));
-	fConst8 = (408.407045f / fSamplingFreq);
+	fConst6 = (1 + ((fConst2 - 1.847759065022573f) / fConst0));
+	fConst7 = (1.0f / (1 + ((1.847759065022573f + fConst2) / fConst0)));
+	fConst8 = (408.4070449666731f / fSamplingFreq);
 	fConst9 = (1 - fConst8);
 	for (int i=0; i<2; i++) fRec4[i] = 0;
-	fConst10 = (6.283185f * (max(0, ((0.5f * fSamplingFreq) - 100)) / fSamplingFreq));
+	fConst10 = (6.283185307179586f * (max(0, ((0.5f * fSamplingFreq) - 100)) / fSamplingFreq));
 	fConst11 = cosf(fConst10);
 	fConst12 = (0 - (2 * (0 - (2.0f * fConst11))));
-	fConst13 = (1.000000e-02f * sinf(fConst10));
+	fConst13 = (0.01f * sinf(fConst10));
 	fConst14 = (fConst13 - 2.0f);
 	for (int i=0; i<3; i++) fVec1[i] = 0;
 	fConst15 = (0 - (4.0f * fConst11));
@@ -77,14 +77,14 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	float 	fSlow0 = (fslider0 + 1.000000e-01f);
+	float 	fSlow0 = (fslider0 + 0.09999999999999998f);
 	float 	fSlow1 = fslider1;
 	int 	iSlow2 = int((int((0 - fSlow1)) & 4095));
 	int 	iSlow3 = int((int((1 - fSlow1)) & 4095));
 	float 	fSlow4 = (fConst19 * fslider2);
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;
-		fRec4[0] = ((1.000000e-20f * (1 - iVec0[1])) - fRec4[1]);
+		fRec4[0] = ((1e-20f * (1 - iVec0[1])) - fRec4[1]);
 		float fTemp0 = (float)input0[i];
 		fVec1[0] = fTemp0;
 		fRec6[0] = (fVec1[0] + (fConst17 * (((fConst16 * fVec1[2]) + (fConst15 * fVec1[1])) + ((fConst14 * fRec6[2]) + (fConst12 * fRec6[1])))));
@@ -116,9 +116,9 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("tube2.fuzzy","tube","S","",&fslider2, 1.0f, -3.0f, 10.0f, 1.0f);
-	registerVar("tube2.vibrato","","S","",&fslider1, 1.0f, 0.0f, 1.0f, 1.000000e-02f);
-	registerVar("tube2.resonanz","","S","",&fslider0, 0.5f, 0.0f, 0.9f, 1.000000e-02f);
+	registerVar("tube2.fuzzy","tube","S","",&fslider2, 1.0f, -3.0f, 1e+01f, 1.0f);
+	registerVar("tube2.vibrato","","S","",&fslider1, 1.0f, 0.0f, 1.0f, 0.01f);
+	registerVar("tube2.resonanz","","S","",&fslider0, 0.5f, 0.0f, 0.9f, 0.01f);
 	registerInit(init);
 }
 

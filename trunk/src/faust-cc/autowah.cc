@@ -20,8 +20,8 @@ void init(int samplingFreq)
 	for (int i=0; i<1024; i++) iVec0[i] = 0;
 	for (int i=0; i<2; i++) iRec2[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
-	fConst0 = (2827.433388f / fSamplingFreq);
-	fConst1 = (1413.716694f / fSamplingFreq);
+	fConst0 = (2827.4333882308138f / fSamplingFreq);
+	fConst1 = (1413.7166941154069f / fSamplingFreq);
 	for (int i=0; i<2; i++) fRec3[i] = 0;
 	for (int i=0; i<2; i++) fRec4[i] = 0;
 	for (int i=0; i<3; i++) fRec0[i] = 0;
@@ -29,18 +29,18 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	float 	fSlow0 = (4.768372e-09f * fslider0);
+	float 	fSlow0 = (4.76837158203125e-09f * fslider0);
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
 		int iTemp1 = abs(int((4194304 * fTemp0)));
 		iVec0[IOTA&1023] = iTemp1;
 		iRec2[0] = ((iVec0[IOTA&1023] + iRec2[1]) - iVec0[(IOTA-1000)&1023]);
 		float fTemp2 = min(1, max(0, (fSlow0 * float(iRec2[0]))));
-		fRec1[0] = ((1.000000e-04f * powf(4.0f,fTemp2)) + (0.999f * fRec1[1]));
+		fRec1[0] = ((0.0001000000000000001f * powf(4.0f,fTemp2)) + (0.999f * fRec1[1]));
 		float fTemp3 = powf(2.0f,(2.3f * fTemp2));
 		float fTemp4 = (1 - (fConst1 * (fTemp3 / powf(2.0f,(1.0f + (2.0f * (1.0f - fTemp2)))))));
-		fRec3[0] = ((1.000000e-03f * (0 - (2.0f * (fTemp4 * cosf((fConst0 * fTemp3)))))) + (0.999f * fRec3[1]));
-		fRec4[0] = ((1.000000e-03f * (fTemp4 * fTemp4)) + (0.999f * fRec4[1]));
+		fRec3[0] = ((0.0010000000000000009f * (0 - (2.0f * (fTemp4 * cosf((fConst0 * fTemp3)))))) + (0.999f * fRec3[1]));
+		fRec4[0] = ((0.0010000000000000009f * faustpower<2>(fTemp4)) + (0.999f * fRec4[1]));
 		fRec0[0] = (0 - (((fRec4[0] * fRec0[2]) + (fRec3[0] * fRec0[1])) - (fTemp0 * fRec1[0])));
 		output0[i] = (FAUSTFLOAT)(fRec0[0] - fRec0[1]);
 		// post processing

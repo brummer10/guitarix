@@ -14,7 +14,7 @@ void init(int samplingFreq)
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
 	for (int i=0; i<2097152; i++) fVec0[i] = 0;
-	fConst0 = (1.000000e-03f * fSamplingFreq);
+	fConst0 = (0.001f * fSamplingFreq);
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 }
 
@@ -27,7 +27,7 @@ void compute(int count, float *input0, float *output0)
 	float 	fSlow4 = (iSlow3 - fSlow0);
 	int 	iSlow5 = int((int(iSlow3) & 2097151));
 	float 	fSlow6 = (fSlow0 - iSlow1);
-	float 	fSlow7 = (1.000000e-03f * powf(10,(5.000000e-02f * fslider1)));
+	float 	fSlow7 = (0.0010000000000000009f * powf(10,(0.05f * fslider1)));
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
 		fVec0[IOTA&2097151] = fTemp0;
@@ -42,8 +42,8 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("delay.gain","","S","",&fslider1, 0.0f, -20.0f, 20.0f, 0.1f);
-	registerVar("delay.delay","","S","",&fslider0, 0.0f, 0.0f, 5000.0f, 10.0f);
+	registerVar("delay.gain","","S","",&fslider1, 0.0f, -2e+01f, 2e+01f, 0.1f);
+	registerVar("delay.delay","","S","",&fslider0, 0.0f, 0.0f, 5e+03f, 1e+01f);
 	registerInit(init);
 }
 

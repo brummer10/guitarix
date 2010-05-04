@@ -20,12 +20,12 @@ int	fSamplingFreq;
 void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (15079.644737f / fSamplingFreq);
+	fConst0 = (15079.644737231007f / fSamplingFreq);
 	fConst1 = cosf(fConst0);
-	fConst2 = (1.414214f * sinf(fConst0));
-	fConst3 = (3769.911184f / fSamplingFreq);
+	fConst2 = (1.4142135623730951f * sinf(fConst0));
+	fConst3 = (3769.9111843077517f / fSamplingFreq);
 	fConst4 = cosf(fConst3);
-	fConst5 = (1.414214f * sinf(fConst3));
+	fConst5 = (1.4142135623730951f * sinf(fConst3));
 	for (int i=0; i<3; i++) fVec0[i] = 0;
 	for (int i=0; i<3; i++) fRec3[i] = 0;
 	for (int i=0; i<3; i++) fRec2[i] = 0;
@@ -37,14 +37,14 @@ void compute(int count, float *input0, float *output0)
 {
 	float 	fSlow0 = fslider0;
 	float 	fSlow1 = (0.5f * fSlow0);
-	float 	fSlow2 = powf(10,(2.500000e-02f * (fslider1 - fSlow1)));
+	float 	fSlow2 = powf(10,(0.025f * (fslider1 - fSlow1)));
 	float 	fSlow3 = (1 + fSlow2);
 	float 	fSlow4 = (fConst1 * fSlow3);
 	float 	fSlow5 = (2 * (0 - ((1 + fSlow4) - fSlow2)));
 	float 	fSlow6 = (fConst1 * (fSlow2 - 1));
 	float 	fSlow7 = (fConst2 * sqrtf(fSlow2));
 	float 	fSlow8 = (fSlow3 - (fSlow7 + fSlow6));
-	float 	fSlow9 = powf(10,(1.250000e-02f * fSlow0));
+	float 	fSlow9 = powf(10,(0.0125f * fSlow0));
 	float 	fSlow10 = (1 + fSlow9);
 	float 	fSlow11 = (fConst4 * fSlow10);
 	float 	fSlow12 = (2 * (0 - ((1 + fSlow11) - fSlow9)));
@@ -58,7 +58,7 @@ void compute(int count, float *input0, float *output0)
 	float 	fSlow20 = (fConst2 * fSlow15);
 	float 	fSlow21 = (fConst1 * fSlow13);
 	float 	fSlow22 = ((1 + (fSlow9 + fSlow21)) - fSlow20);
-	float 	fSlow23 = powf(10,(2.500000e-02f * (fslider2 - fSlow1)));
+	float 	fSlow23 = powf(10,(0.025f * (fslider2 - fSlow1)));
 	float 	fSlow24 = (1 + fSlow23);
 	float 	fSlow25 = (fConst4 * fSlow24);
 	float 	fSlow26 = (0 - (2 * ((fSlow23 + fSlow25) - 1)));
@@ -105,9 +105,9 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("amp.tone.bass","bass","S","",&fslider2, 0.0f, -20.0f, 20.0f, 0.1f);
-	registerVar("amp.tone.treble","treble","S","",&fslider1, 0.0f, -20.0f, 20.0f, 0.1f);
-	registerVar("amp.tone.middle","middle","S","",&fslider0, 0.0f, -20.0f, 20.0f, 0.1f);
+	registerVar("amp.tone.bass","bass","S","",&fslider2, 0.0f, -2e+01f, 2e+01f, 0.1f);
+	registerVar("amp.tone.treble","treble","S","",&fslider1, 0.0f, -2e+01f, 2e+01f, 0.1f);
+	registerVar("amp.tone.middle","middle","S","",&fslider0, 0.0f, -2e+01f, 2e+01f, 0.1f);
 	registerInit(init);
 }
 

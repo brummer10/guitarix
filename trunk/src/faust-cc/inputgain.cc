@@ -13,7 +13,7 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	float 	fSlow0 = (1.000000e-03f * powf(10,(5.000000e-02f * fslider0)));
+	float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * fslider0)));
 	for (int i=0; i<count; i++) {
 		fRec0[0] = (fSlow0 + (0.999f * fRec0[1]));
 		output0[i] = (FAUSTFLOAT)((float)input0[i] * fRec0[0]);
@@ -25,7 +25,7 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("amp.in_level","in / level","S","",&fslider0, 0.0f, -40.0f, 40.0f, 0.1f);
+	registerVar("amp.in_level","in / level","S","",&fslider0, 0.0f, -4e+01f, 4e+01f, 0.1f);
 	registerInit(init);
 }
 

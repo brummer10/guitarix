@@ -16,16 +16,16 @@ int	fSamplingFreq;
 void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = tanf((376.991118f / fSamplingFreq));
-	fConst1 = (fConst0 * fConst0);
+	fConst0 = tanf((376.99111843077515f / fSamplingFreq));
+	fConst1 = faustpower<2>(fConst0);
 	fConst2 = (2 * (fConst1 - 1));
-	fConst3 = (1 + (fConst0 * (fConst0 - 1.414214f)));
-	fConst4 = (1.0f / (1 + (fConst0 * (1.414214f + fConst0))));
+	fConst3 = (1 + (fConst0 * (fConst0 - 1.4142135623730951f)));
+	fConst4 = (1.0f / (1 + (fConst0 * (1.4142135623730951f + fConst0))));
 	for (int i=0; i<3; i++) fRec0[i] = 0;
-	fConst5 = (3.162278f * fConst0);
-	fConst6 = (1 + (fConst0 * (fConst5 - 2.514867f)));
-	fConst7 = (2 * ((3.162278f * fConst1) - 1));
-	fConst8 = (1 + (fConst0 * (fConst5 + 2.514867f)));
+	fConst5 = (3.1622776601683795f * fConst0);
+	fConst6 = (1 + (fConst0 * (fConst5 - 2.514866859365871f)));
+	fConst7 = (2 * ((3.1622776601683795f * fConst1) - 1));
+	fConst8 = (1 + (fConst0 * (fConst5 + 2.514866859365871f)));
 }
 
 void compute(int count, float *input0, float *output0)
