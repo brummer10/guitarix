@@ -483,6 +483,7 @@ ParameterGroups::ParameterGroups()
 	insert("chorus","Chorus");
 	insert("MultiBandFilter","Multiband Filter");
 	insert("moog","Moog Filter");
+	insert("biquad","BiQuad Filter");
 	insert("flanger","Flanger");
 	insert("midi_out","Midi Out");
 	insert("midi_out.channel_1","Midi Out 1");

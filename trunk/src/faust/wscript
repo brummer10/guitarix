@@ -90,6 +90,7 @@ def build(bld):
         'impulseresponse.dsp',
         'chorus.dsp',
         'moog.dsp',
+        'biquad.dsp',
         ]
 
     experimental_soures = [

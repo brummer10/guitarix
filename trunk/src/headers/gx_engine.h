@@ -97,6 +97,8 @@ public:
 	int fmoog;
 	int fflanger;
 	float fflangerbox;
+	int fbiquad;
+	float fbiquadbox;
 
 	AudioVariables();
 };

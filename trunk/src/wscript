@@ -44,11 +44,9 @@ def build(bld):
         prog.includes.append('zita-resampler')
     else:
         prog.lib = 'zita-resampler';
-    if not bld.env['ZITA_CONVOLVER']:
+    if not bld.env['INTERN_ZITA_CONVOLVER']:
         sources.append('zita-convolver/zita-convolver.cc')
-        prog.includes.append('zita-convolver')
-    else:
-        prog.lib = 'zita-convolver';    
+        prog.includes.append('zita-convolver'); 
     prog.source = [] + sources
     prog.uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GTK2', 'SIGC', 'ZITA_CONVOLVER', 'FFTW3']
     prog.target = bld.env['BIN_NAME']

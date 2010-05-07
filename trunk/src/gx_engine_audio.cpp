@@ -344,6 +344,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/impulseresponse.cc"
 #include "faust-cc/chorus.cc"
 #include "faust-cc/moog.cc"
+#include "faust-cc/biquad.cc"
 #include "faust-cc/flanger.cc"
 
 #ifdef EXPERIMENTAL
@@ -357,7 +358,7 @@ void registerSetup(setupfunc f)
 
 #define registerVar(id,name,tp,tooltip,var,val,low,up,step) registerVar(id,name,tp,tooltip,var,val,low,up,step,true)
 
-#include  "faust-cc/ExpFilter.cc"
+//#include  "faust-cc/ExpFilter.cc"
 #include  "faust-cc/Exp.cc"
 
 #undef registerVar
@@ -584,6 +585,7 @@ AudioVariables::AudioVariables()
 	gx_gui::registerParam("shaper.on_off", "on/off", &fng, 0);
 	gx_gui::registerParam("eq.on_off", "on/off", &feq, 0);
 	gx_gui::registerParam("moog.on_off", "on/off", &fmoog, 0);
+	gx_gui::registerParam("biquad.on_off", "on/off", &fbiquad, 0);
 	gx_gui::registerParam("flanger.on_off", "on/off", &fflanger, 0);
 	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
 
@@ -615,6 +617,7 @@ AudioVariables::AudioVariables()
 	registerNonPresetParam("eq.dialog", &fdialogbox_eq, false);
 	registerNonPresetParam("MultiBandFilter.dialog", &fdialogbox_mbf, false);
 	registerNonPresetParam("moog.dialog", &fdialogbox_moo, false);
+	registerNonPresetParam("biquad.dialog", &fbiquadbox, false);
 	registerNonPresetParam("flanger.dialog", &fflangerbox, false);
 
 	// user interface options
@@ -702,6 +705,9 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     if (audio.fng) {
 	    noise_shaper::compute(count, output0, output0);
     }
+    if (audio.fbiquad) {
+	    biquad::compute(count, output0, output0);
+    }
     if (audio.fcheckbox1) {
 	    preamp::compute(count, output0, output0);
     }
@@ -747,7 +753,7 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     //*** End (maybe) oversampled processing ***
 
 #ifdef EXPERIMENTAL
-    ExpFilter::compute(count, output0, output0);
+   // ExpFilter::compute(count, output0, output0);
     static int exp_upsample_old = 0;
     if (exp_upsample != exp_upsample_old) {
 	    exp_upsample_old = exp_upsample;

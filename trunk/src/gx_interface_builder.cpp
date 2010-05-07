@@ -880,7 +880,30 @@ void GxMainInterface::setup()
 												{
 												    openHorizontalBox("");
                                                     {
-                                                        addminieqswitch("MultiBandFilter.on_off"," MultiBandFilter");
+                                                        addminieqswitch("biquad.on_off","  BiQuad Filter    ");
+                                                        openDialogBox("biquad", &gx_engine::audio.fbiquadbox, (int*)&gx_engine::audio.fbiquad);
+                                                        {
+                                                            openHandleBox("  ");
+                                                                {
+                                                                openVerticalBox("");
+                                                                {
+                                                                    openHorizontalBox("");
+                                                                    {
+                                                                        addregler("biquad.Freq","                    Hz                    ");
+
+                                                                    }
+                                                                    closeBox();
+                                                                }
+                                                                closeBox();
+                                                            }
+                                                            closeBox();
+                                                        }
+                                                        closeBox();
+                                                    }
+                                                    closeBox();
+												    openHorizontalBox("");
+                                                    {
+                                                        addminieqswitch("MultiBandFilter.on_off","  MultiBandFilter");
                                                         openDialogBox("MultiBandFilter", &gx_engine::audio.fdialogbox_mbf, &gx_engine::audio.fmultifilter);
                                                         {
                                                             openVerticalBox("");
