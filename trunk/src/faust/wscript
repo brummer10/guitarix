@@ -67,6 +67,7 @@ def build(bld):
         'osc_tube.dsp',
         'reso_tube.dsp',
         'tube.dsp',
+        'tube3.dsp',
         'tubevibrato.dsp',
         'tone.dsp',
         'multifilter.dsp',

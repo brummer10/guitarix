@@ -346,6 +346,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/moog.cc"
 #include "faust-cc/biquad.cc"
 #include "faust-cc/flanger.cc"
+#include "faust-cc/tube3.cc"
 
 #ifdef EXPERIMENTAL
 typedef void (*setupfunc)(GtkWidget *);
@@ -571,6 +572,7 @@ AudioVariables::AudioVariables()
 	gx_gui::registerParam("chorus.on_off", "on/off", &fchorus, 0);
 	gx_gui::registerParam("compressor.on_off", "on/off", &fcheckboxcom1, 0);
 	gx_gui::registerParam("tube2.on_off", "on/off", &ftube3, 0);
+	gx_gui::registerParam("tube3.on_off", "on/off", &ftube3e, 0);
 	gx_gui::registerParam("tube.vibrato.on_off", "on/off", &fresoon, 0);
 	gx_gui::registerParam("tube.on_off", "on/off", &ftube, 0);
 	gx_gui::registerParam("drive.on_off", "on/off", &fprdr, 0);
@@ -691,8 +693,9 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 			(void)memcpy(checkfreq, input, sizeof(float)*count);
 		}
 	}
-	IF_HS(HighShelf::compute(count, input, output0));
 	memcpy(output0, input, count*sizeof(float));
+	IF_HS(HighShelf::compute(count, input, output0));
+
 
     if (audio.feq) {
 	    eq::compute(count, output0, output0);
@@ -705,11 +708,11 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     if (audio.fng) {
 	    noise_shaper::compute(count, output0, output0);
     }
-    if (audio.fbiquad) {
-	    biquad::compute(count, output0, output0);
-    }
     if (audio.fcheckbox1) {
 	    preamp::compute(count, output0, output0);
+    }
+    if (audio.fbiquad) {
+	    biquad::compute(count, output0, output0);
     }
 
     // *** Start (maybe) oversampled processing ***
@@ -718,8 +721,11 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     float *ovs_buffer;
     if (audio.fupsample) {
 		// 2*oversample
+#ifdef EXPERIMENTAL
 	    resampTube.up(count, output0, oversample);
-	    //over_sample(count, output0, oversample);
+#else
+	    over_sample(count, output0, oversample);
+#endif
 	    ovs_sr = 2 * gx_jack::jack_sr;
 	    ovs_count = 2 * count;
 	    ovs_buffer = oversample;
@@ -748,7 +754,12 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     }
     if (audio.fupsample) {
 	    //down_sample(count, oversample, output0);
+#ifdef EXPERIMENTAL
 	    resampTube.down(count, oversample, output0);
+#else
+        down_sample(count, oversample, output0);
+#endif
+
     }
     //*** End (maybe) oversampled processing ***
 
@@ -800,10 +811,17 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 	        if (audio.fupsample) {
                 // 2*oversample
                 //over_sample(count, output0, oversample);
+#ifdef EXPERIMENTAL
                 resampDist.up(count, output0, oversample);
+#else
+                over_sample(count, output0, oversample);
+#endif
                 distortion::compute(ovs_count, oversample, oversample);
+#ifdef EXPERIMENTAL
                 resampDist.down(count, oversample, output0);
-                //down_sample(count, oversample, output0);
+#else
+                down_sample(count, oversample, output0);
+#endif
 	        } else {
                 distortion::compute(count, output0, output0);
 	        }
@@ -835,6 +853,9 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     }
     if (audio.fflanger) {
 	    flanger::compute(count, output0, output1, output0, output1);
+    }
+    if (audio.ftube3e) {
+	    tube3::compute(count, output0, output1, output0, output1);
     }
     if (conv.is_runnable()) {
 	    // reuse oversampling buffer

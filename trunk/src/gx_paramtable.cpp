@@ -470,6 +470,7 @@ ParameterGroups::ParameterGroups()
 	insert("tube","Tube 1");
 	insert("tube.vibrato","Tube 1 Vibrato");
 	insert("tube2","Tube 2");
+	insert("tube3","Tube 3");
 	insert("compressor","Compressor");
 	insert("overdrive","Overdrive");
 	insert("distortion","Distortion");

@@ -432,6 +432,42 @@ void GxMainInterface::setup()
 									closeBox();
 								}
 								closeBox();
+								openFrameBox("");
+								closeBox();
+
+                                openVerticalBox("");
+								{
+									openVerticalBox("");
+									{
+										addswitch("tube3.on_off", "tube3");
+										openFrameBox("");
+										{
+											addHorizontalWheel("tube3.q");
+										}
+										closeBox();
+										openFrameBox("");
+                                        closeBox();
+									}
+									closeBox();
+									openVerticalBox("");
+									{
+										openVerticalBox1("dist");
+										{
+											addHorizontalWheel("tube3.dist", "dist");
+										}
+										closeBox();
+										openFrameBox("");
+                                        closeBox();
+                                        openFrameBox("");
+                                        closeBox();
+                                        openFrameBox("");
+                                        closeBox();
+
+									}
+									closeBox();
+								}
+								closeBox();
+
 							}
 							closeBox();
 							openFrameBox("");
@@ -614,7 +650,7 @@ void GxMainInterface::setup()
 																closeBox();
 																openFrameBox("");
 																closeBox();
-																addregler("freeverb.RoomSize");
+																addbigregler("freeverb.RoomSize");
 																addregler("freeverb.damp");
 																addregler("freeverb.wet_dry");
 																openFrameBox("");
@@ -711,7 +747,7 @@ void GxMainInterface::setup()
 																{
 																	openHorizontalTableBox("");
 																	{
-																		addregler("crybaby.wah","  wah   ");
+																		addbigregler("crybaby.wah","  wah   ");
 																		addregler("crybaby.level","  level  ");
 																		addregler("crybaby.wet_dry","wet/dry");
 																	}
@@ -788,7 +824,7 @@ void GxMainInterface::setup()
 														{
 															openHorizontalTableBox("");
 															{
-																addregler("chorus.level","  level  ");
+																addbigregler("chorus.level","  level  ");
 																addregler("chorus.delay","  delay  ");
 																addregler("chorus.depth","  depth  ");
 																addregler("chorus.freq","  freq  ");
@@ -824,7 +860,7 @@ void GxMainInterface::setup()
 														{
 															openHorizontalTableBox("");
 															{
-																addregler("flanger.level","  level  ");
+																addbigregler("flanger.level","  level  ");
 																addregler("flanger.feedback gain"," feedback gain ");
 																addregler("flanger.depth","  depth  ");
 																addregler("flanger.flange delay","  delay  ");
@@ -889,7 +925,7 @@ void GxMainInterface::setup()
                                                                 {
                                                                     openHorizontalBox("");
                                                                     {
-                                                                        addregler("biquad.Freq","                    Hz                    ");
+                                                                        addregler("biquad.Freq","                                 Hz                                    ");
 
                                                                     }
                                                                     closeBox();

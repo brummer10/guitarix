@@ -99,6 +99,8 @@ public:
 	float fflangerbox;
 	int fbiquad;
 	float fbiquadbox;
+	int ftube3e;
+
 
 	AudioVariables();
 };
