@@ -442,11 +442,10 @@ void GxMainInterface::setup()
 										addswitch("tube3.on_off", "tube3");
 										openFrameBox("");
 										{
-											addHorizontalWheel("tube3.q");
+											addHorizontalWheel("tube3.g");
 										}
 										closeBox();
-										openFrameBox("");
-                                        closeBox();
+
 									}
 									closeBox();
 									openVerticalBox("");
@@ -456,13 +455,11 @@ void GxMainInterface::setup()
 											addHorizontalWheel("tube3.dist", "dist");
 										}
 										closeBox();
-										openFrameBox("");
+										openVerticalBox1("qualy");
+										{
+											addHorizontalWheel("tube3.q", "qualy");
+										}
                                         closeBox();
-                                        openFrameBox("");
-                                        closeBox();
-                                        openFrameBox("");
-                                        closeBox();
-
 									}
 									closeBox();
 								}
