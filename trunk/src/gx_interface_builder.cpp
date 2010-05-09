@@ -455,9 +455,9 @@ void GxMainInterface::setup()
 											addHorizontalWheel("tube3.dist", "dist");
 										}
 										closeBox();
-										openVerticalBox1("qualy");
+										openVerticalBox1("level");
 										{
-											addHorizontalWheel("tube3.q", "qualy");
+											addHorizontalWheel("tube3.q", "level");
 										}
                                         closeBox();
 									}
@@ -695,9 +695,13 @@ void GxMainInterface::setup()
 																		closeBox();
 																		openFrameBox("");
 																		closeBox();
-																		addregler("IR.freq","    freq     ");
-																		addregler("IR.peak","     peak    ");
-																		addregler("IR.bandwidth","    bandwidth    ");
+																		openHorizontalTableBox("");
+                                                                        {
+                                                                            addbigregler("IR.freq","    freq     ");
+                                                                            addregler("IR.peak","     peak    ");
+                                                                            addregler("IR.bandwidth","    bandwidth    ");
+																		}
+                                                                        closeBox();
 																		openFrameBox("");
 																		closeBox();
 																		openFrameBox("");
@@ -866,7 +870,7 @@ void GxMainInterface::setup()
 
 															}
 															closeBox();
-															addminiswitch("flanger.invert"," invert                                          ");
+															addminiswitch("flanger.invert"," invert                                                             ");
 														}
 														closeBox();
 													}

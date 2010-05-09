@@ -39,4 +39,4 @@ with {
 };
 
 hs = component("HighShelf.dsp").hs;
-process = resonator : pass  : sbp : hs : distortion : *(drivegain1) : hs : sbp;
+process = resonator : +(anti_denormal_ac) : pass  : sbp : hs : distortion : *(drivegain1) : hs : sbp;
