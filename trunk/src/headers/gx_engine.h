@@ -170,20 +170,6 @@ public:
 
 extern MidiVariables midi;
 
-#define MAX_UPSAMPLE 8
-
-class SimpleResampler
-{
-private:
-	Resampler r_up, r_down;
-	int m_fact;
-public:
-	void setup(int sampleRate, unsigned int fact);
-	void up(int count, float *input, float *output);
-	void down(int count, float *input, float *output);
-};
-
-extern SimpleResampler resampTube, resampDist;
 
 /* square function */
 inline double sqrf(float x) { return x * x; }

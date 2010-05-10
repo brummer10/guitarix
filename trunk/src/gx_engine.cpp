@@ -53,6 +53,7 @@ using namespace std;
 #include "guitarix.h"
 
 using namespace gx_system;
+using namespace gx_resample;
 
 namespace gx_engine
 {

@@ -15,7 +15,7 @@ void compute(int count, float *input0, float *output0)
 {
 	float 	fSlow0 = fslider0;
 	for (int i=0; i<count; i++) {
-		fRec0[0] = ((float)input0[i] + (fSlow0 * fRec0[3]));
+		fRec0[0] = (1e-20f + ((float)input0[i] + (fSlow0 * fRec0[3])));
 		output0[i] = (FAUSTFLOAT)fRec0[0];
 		// post processing
 		for (int i=3; i>0; i--) fRec0[i] = fRec0[i-1];

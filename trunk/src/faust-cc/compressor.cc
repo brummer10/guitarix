@@ -33,7 +33,7 @@ void compute(int count, float *input0, float *output0)
 	float 	fSlow5 = (fentry2 - 1);
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
-		fRec1[0] = ((fConst1 * fabsf(fTemp0)) + (fConst0 * fRec1[1]));
+		fRec1[0] = ((fConst1 * fabsf((fTemp0 + 1e-20f))) + (fConst0 * fRec1[1]));
 		float fTemp1 = ((fSlow3 * (fRec0[1] >= fRec1[0])) + (fSlow2 * (fRec0[1] < fRec1[0])));
 		fRec0[0] = ((fRec1[0] * (0 - (fTemp1 - 1))) + (fRec0[1] * fTemp1));
 		float fTemp2 = max(0, ((20 * log10f(fRec0[0])) + fSlow1));

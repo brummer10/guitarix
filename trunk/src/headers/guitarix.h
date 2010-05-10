@@ -40,6 +40,7 @@
 #include "gx_ui.h"
 #include "gx_convolver.h"
 #include "gx_pitch_tracker.h"
+#include "gx_resampler.h"
 #include "gx_engine.h"
 #include "gx_parameter.h"
 #include "gx_preset.h"

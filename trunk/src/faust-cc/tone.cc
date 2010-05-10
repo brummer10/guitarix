@@ -86,7 +86,7 @@ void compute(int count, float *input0, float *output0)
 	float 	fSlow48 = (((fSlow2 + fSlow4) - 1) * (0 - (2 * fSlow2)));
 	float 	fSlow49 = (1.0f / ((1 + fSlow46) - fSlow6));
 	for (int i=0; i<count; i++) {
-		float fTemp0 = (float)input0[i];
+		float fTemp0 = ((float)input0[i] + 1e-20f);
 		fVec0[0] = fTemp0;
 		fRec3[0] = (fSlow34 * ((fSlow23 * (((fSlow33 * fVec0[0]) + (fSlow31 * fVec0[1])) + (fSlow30 * fVec0[2]))) - ((fSlow29 * fRec3[2]) + (fSlow26 * fRec3[1]))));
 		fRec2[0] = (fSlow39 * ((fSlow9 * (((fSlow38 * fRec3[0]) + (fSlow36 * fRec3[1])) + (fSlow35 * fRec3[2]))) - ((fSlow22 * fRec2[2]) + (fSlow19 * fRec2[1]))));
