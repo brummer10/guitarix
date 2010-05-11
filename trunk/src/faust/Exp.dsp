@@ -16,10 +16,11 @@ distort(x) = x : *(pregain) : (+ : flt : BP(vtu) : flt) ~ *(back) : gain with
     gain = BP(*(0.4/(vtu(0.2)-vtu(-0.2))));
 };
 
-process = hgroup("Tube", BP(
+
+process = hgroup("Tube [option : detachable]", BP(
 	hgroup("1 Amp",distort) :
-        hgroup("2 Highpass",BP(highpass1(fch))) :
-        hgroup("3 Lowpass",BP(lowpass1(fcl)))
+        vgroup("2 Highpass",BP(highpass1(fch))) :
+        vgroup("3 Lowpass",BP(lowpass1(fcl)))
 	)) with
 {
     fch = vslider("freq",130,50,200,1);

@@ -57,8 +57,118 @@ using namespace gx_resample;
 
 namespace gx_engine {
 
+/****************************************************************
+ ** registering of audio variables
+ */
 
-// static convolution filters
+inline void registerNonPresetParam(const char*a, float*c, bool d, float std=0, float lower=0, float upper=1)
+{
+	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a,"",gx_gui::Parameter::None,d,*c,std,lower,upper,0,false));
+}
+
+// should be int
+inline void registerEnumParam(const char*a,const char*b,float*c,float std=0,float lower=0,float upper=1,float step=1,bool exp=false)
+{
+	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,step,true,exp));
+}
+
+inline void registerEnumParam(const char*a,const char*b,int*c,int std=0,int lower=0,int upper=1,bool exp=false)
+{
+	gx_gui::parameter_map.insert(new gx_gui::IntParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,true,exp));
+}
+
+/****************************************************************
+ ** definitions for code generated with faust / dsp2cc
+ */
+
+#include "gx_faust_includes.cc"
+
+/****************************************************************
+ ** register audio variables to paramtable
+ */
+
+AudioVariables::AudioVariables()
+{
+	registerEnumParam("amp.threshold", "threshold", &ffuse, 0.f, 0.f, 3.f, 1.0f);
+	gx_gui::registerParam("MultiBandFilter.on_off", "on/off", &fmultifilter, 0);
+	gx_gui::registerParam("crybaby.autowah", "autowah", &fautowah, 0);
+	gx_gui::registerParam("overdrive.on_off", "on/off", &foverdrive4, 0);
+	gx_gui::registerParam("distortion.on_off", "on/off", &fcheckbox4, 0);
+	gx_gui::registerParam("freeverb.on_off", "on/off", &fcheckbox6, 0);
+	gx_gui::registerParam("IR.on_off", "on/off", &fcheckbox8, 0);
+	gx_gui::registerParam("crybaby.on_off", "on/off", &fcheckbox5, 0);
+	gx_gui::registerParam("echo.on_off", "on/off", &fcheckbox7, 0);
+	gx_gui::registerParam("delay.on_off", "on/off", &fdelay, 0);
+	gx_gui::registerParam("chorus.on_off", "on/off", &fchorus, 0);
+	gx_gui::registerParam("compressor.on_off", "on/off", &fcheckboxcom1, 0);
+	gx_gui::registerParam("tube2.on_off", "on/off", &ftube3, 0);
+	gx_gui::registerParam("tube3.on_off", "on/off", &ftube3e, 0);
+	gx_gui::registerParam("tube.vibrato.on_off", "on/off", &fresoon, 0);
+	gx_gui::registerParam("tube.on_off", "on/off", &ftube, 0);
+	gx_gui::registerParam("drive.on_off", "on/off", &fprdr, 0);
+	gx_gui::registerParam("preamp.on_off", "on/off", &fcheckbox1, 0);
+	registerEnumParam("convolve.select", "select", &convolvefilter, 0.f, 0.f, 7.f, 1.0f);
+	gx_gui::registerParam("convolve.on_off", "on/off", &fconvolve, 0);
+	gx_gui::registerParam("amp.bass_boost.on_off", "on/off", &fboost, 0);
+	gx_gui::registerParam("amp.oversample.on_off", "on/off", &fupsample, 0);
+	gx_gui::registerParam("anti_aliase.on_off", "on/off", &antialis0, 0);
+	gx_gui::registerParam("noise_gate.on_off", "on/off", &fnoise_g, 0);
+	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
+	gx_gui::registerParam("shaper.on_off", "on/off", &fng, 0);
+	gx_gui::registerParam("eq.on_off", "on/off", &feq, 0);
+	gx_gui::registerParam("moog.on_off", "on/off", &fmoog, 0);
+	gx_gui::registerParam("biquad.on_off", "on/off", &fbiquad, 0);
+	gx_gui::registerParam("flanger.on_off", "on/off", &fflanger, 0);
+	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
+
+	// only save and restore, no midi control
+
+	// positions of effects
+	registerNonPresetParam("crybaby.position", &posit0, true, 5, 0, 8);
+	registerNonPresetParam("overdrive.position", &posit1, true, 2, 0, 8);
+	registerNonPresetParam("distortion.position", &posit2, true, 1, 0, 8);
+	registerNonPresetParam("freeverb.position", &posit3, true, 3, 0, 8);
+	registerNonPresetParam("IR.position", &posit4, true, 4, 0, 8);
+	registerNonPresetParam("compressor.position", &posit5, true, 0, 0, 8);
+	registerNonPresetParam("echo.position", &posit6, true, 6, 0, 8);
+	registerNonPresetParam("delay.position", &posit7, true, 8, 0, 8);
+	registerNonPresetParam("chorus.position", &posit8, true, 7, 0, 8);
+	registerNonPresetParam("flanger.position", &posit9, true, 9, 0, 8);
+
+	// togglebuttons for dialogboxes and expander for effect details
+	registerNonPresetParam("compressor.dialog", &fdialogbox8, false);
+	registerNonPresetParam("distortion.dialog", &fdialogbox1, false);
+	registerNonPresetParam("freeverb.dialog", &fdialogbox2, false);
+	registerNonPresetParam("IR.dialog", &fdialogbox3, false);
+	registerNonPresetParam("crybaby.dialog", &fdialogbox4, false);
+	registerNonPresetParam("chorus.dialog", &fchorusbox, false);
+	registerNonPresetParam("midi_out.dialog", &fdialogbox6, false);
+	registerNonPresetParam("jconv.dialog", &fdialogboxj, false);
+	registerNonPresetParam("jconv.expander", &fexpand2, false);
+	registerNonPresetParam("jconv.filedialog", &filebutton, false);
+	registerNonPresetParam("eq.dialog", &fdialogbox_eq, false);
+	registerNonPresetParam("MultiBandFilter.dialog", &fdialogbox_mbf, false);
+	registerNonPresetParam("moog.dialog", &fdialogbox_moo, false);
+	registerNonPresetParam("biquad.dialog", &fbiquadbox, false);
+	registerNonPresetParam("flanger.dialog", &fflangerbox, false);
+
+	// user interface options
+	registerNonPresetParam("ui.latency_nowarn", &fwarn, false, 0);
+	registerNonPresetParam("ui.skin", &fskin, false, 0, 0, 100);
+	registerNonPresetParam("ui.main_expander", &fexpand, false);
+
+	// shouldn't be saved, only output?
+	registerNonPresetParam("system.fConsta1t", &fConsta1t, false);
+	registerNonPresetParam("system.midistat", &midistat, false);
+	registerNonPresetParam("system.waveview", &viv, false);
+}
+
+AudioVariables audio;
+
+/****************************************************************
+ ** some dsp funktions
+ */
+
 static float filters[][45] = {
 
 	// filter 0
@@ -174,104 +284,46 @@ inline void moving_filter(float* input, float* output, int sf)
 
 }
 
-/****************************************************************
- ** registering of audio variables
- */
-
-inline void registerNonPresetParam(const char*a, float*c, bool d, float std=0, float lower=0, float upper=1)
+inline float noise_gate(int sf, float* input, float ngate)
 {
-	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a,"",gx_gui::Parameter::None,d,*c,std,lower,upper,0,false));
-}
-
-// should be int
-inline void registerEnumParam(const char*a,const char*b,float*c,float std=0,float lower=0,float upper=1,float step=1,bool exp=false)
-{
-	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,step,true,exp));
-}
-
-inline void registerEnumParam(const char*a,const char*b,int*c,int std=0,int lower=0,int upper=1,bool exp=false)
-{
-	gx_gui::parameter_map.insert(new gx_gui::IntParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,true,exp));
-}
-
-/****************************************************************
- ** functions and variables used by faust dsp files
- */
-
-inline float sigmoid(float x)
-{
-	return x*(1.5f - 0.5f*x*x);
-}
-
-inline float saturate(float x, float t)
-{
-	if (fabs(x)<t)
-		return x;
-	else {
-		if (x > 0.f)
-			return t + (1.f-t)*sigmoid((x-t)/((1-t)*1.5f));
-		else
-			return -(t + (1.f-t)*sigmoid((-x-t)/((1-t)*1.5f)));
+	float sumnoise = 0;
+	for (int i = 0; i < sf; i++) {
+		sumnoise += sqrf(fabs(input[i]));
+	}
+	float noisepulse = sqrtf(sumnoise/sf);
+	if (noisepulse > audio.fnglevel * 0.01) {
+		return 1; // -75db 0.001 = 65db
+	} else if (ngate > 0.01) {
+		return ngate * 0.996;
+	} else {
+		return ngate;
 	}
 }
 
-inline float hard_cut(float in, float threshold)
+inline void over_sample(int sf, float *input, float *output)
 {
-	if ( in > threshold) {
-		in = threshold;
-	} else if ( in < -threshold) {
-		in = -threshold;
+	static float old = 0;
+	for (int i = 0; i < sf; i++) {
+		float x = *input++;
+		*output++ = (old + x) * 0.5;
+		*output++ = x;
+		old = x;
 	}
-
-	return in;
 }
 
-inline float foldback(float in, float threshold)
+inline void down_sample(int sf, float *input, float *output)
 {
-	if (threshold == 0) threshold = 0.01f;
-
-	if (fabs(in) > threshold) {
-		in = fabs(fabs(fmod(in - threshold, threshold*4)) - threshold*2) - threshold;
+	for (int i=0; i<sf; i++) {
+		float x = *input++;
+		*output++ = (x + *input++) * 0.5;
 	}
-	return in;
 }
-
-inline float fold(float threshold, float v)
-{
-	// switch between hard_cut or foldback distortion, or plain output
-	switch ((int)audio.ffuse) {
-	case 0:
-		break;
-	case 1:
-		v = hard_cut(saturate(v,threshold),threshold);
-		break;
-	case 2:
-		v = foldback(v,threshold);
-		break;
-	}
-	return v;
-}
-
-inline float add_dc (float val)
-{
-	return val + 1e-20; // avoid denormals
-}
-
-// foreign variable added to faust module feed
-// it's set in process_buffers()
-namespace feed { float ngate = 1; }  // noise-gate, modifies output gain
 
 /****************************************************************
- ** definitions for code generated with faust / dsp2cc
- */
+ **  this is the process callback called from jack
+ **
+ ***************************************************************/
 
-#include "gx_faust_includes.cc"
-
-//==============================================================================
-//
-//             this is the process callback called from jack
-//
-//==============================================================================
 void compute (int count, float* input, float* output0, float* output1)
 {
 	// retrieve engine state
@@ -331,121 +383,9 @@ void compute (int count, float* input, float* output0, float* output1)
 	}
 }
 
-//****************************************************************
-
-inline float noise_gate(int sf, float* input, float ngate)
-{
-	float sumnoise = 0;
-	for (int i = 0; i < sf; i++) {
-		sumnoise += sqrf(fabs(input[i]));
-	}
-	float noisepulse = sqrtf(sumnoise/sf);
-	if (noisepulse > audio.fnglevel * 0.01) {
-		return 1; // -75db 0.001 = 65db
-	} else if (ngate > 0.01) {
-		return ngate * 0.996;
-	} else {
-		return ngate;
-	}
-}
-
-inline void over_sample(int sf, float *input, float *output)
-{
-	static float old = 0;
-	for (int i = 0; i < sf; i++) {
-		float x = *input++;
-		*output++ = (old + x) * 0.5;
-		*output++ = x;
-		old = x;
-	}
-}
-
-inline void down_sample(int sf, float *input, float *output)
-{
-	for (int i=0; i<sf; i++) {
-		float x = *input++;
-		*output++ = (x + *input++) * 0.5;
-	}
-}
-
-AudioVariables::AudioVariables()
-{
-	registerEnumParam("amp.threshold", "threshold", &ffuse, 0.f, 0.f, 3.f, 1.0f);
-	gx_gui::registerParam("MultiBandFilter.on_off", "on/off", &fmultifilter, 0);
-	gx_gui::registerParam("crybaby.autowah", "autowah", &fautowah, 0);
-	gx_gui::registerParam("overdrive.on_off", "on/off", &foverdrive4, 0);
-	gx_gui::registerParam("distortion.on_off", "on/off", &fcheckbox4, 0);
-	gx_gui::registerParam("freeverb.on_off", "on/off", &fcheckbox6, 0);
-	gx_gui::registerParam("IR.on_off", "on/off", &fcheckbox8, 0);
-	gx_gui::registerParam("crybaby.on_off", "on/off", &fcheckbox5, 0);
-	gx_gui::registerParam("echo.on_off", "on/off", &fcheckbox7, 0);
-	gx_gui::registerParam("delay.on_off", "on/off", &fdelay, 0);
-	gx_gui::registerParam("chorus.on_off", "on/off", &fchorus, 0);
-	gx_gui::registerParam("compressor.on_off", "on/off", &fcheckboxcom1, 0);
-	gx_gui::registerParam("tube2.on_off", "on/off", &ftube3, 0);
-	gx_gui::registerParam("tube3.on_off", "on/off", &ftube3e, 0);
-	gx_gui::registerParam("tube.vibrato.on_off", "on/off", &fresoon, 0);
-	gx_gui::registerParam("tube.on_off", "on/off", &ftube, 0);
-	gx_gui::registerParam("drive.on_off", "on/off", &fprdr, 0);
-	gx_gui::registerParam("preamp.on_off", "on/off", &fcheckbox1, 0);
-	registerEnumParam("convolve.select", "select", &convolvefilter, 0.f, 0.f, 7.f, 1.0f);
-	gx_gui::registerParam("convolve.on_off", "on/off", &fconvolve, 0);
-	gx_gui::registerParam("amp.bass_boost.on_off", "on/off", &fboost, 0);
-	gx_gui::registerParam("amp.oversample.on_off", "on/off", &fupsample, 0);
-	gx_gui::registerParam("anti_aliase.on_off", "on/off", &antialis0, 0);
-	gx_gui::registerParam("noise_gate.on_off", "on/off", &fnoise_g, 0);
-	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.21f, 0.001f);
-	gx_gui::registerParam("shaper.on_off", "on/off", &fng, 0);
-	gx_gui::registerParam("eq.on_off", "on/off", &feq, 0);
-	gx_gui::registerParam("moog.on_off", "on/off", &fmoog, 0);
-	gx_gui::registerParam("biquad.on_off", "on/off", &fbiquad, 0);
-	gx_gui::registerParam("flanger.on_off", "on/off", &fflanger, 0);
-	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
-
-	// only save and restore, no midi control
-
-	// positions of effects
-	registerNonPresetParam("crybaby.position", &posit0, true, 5, 0, 8);
-	registerNonPresetParam("overdrive.position", &posit1, true, 2, 0, 8);
-	registerNonPresetParam("distortion.position", &posit2, true, 1, 0, 8);
-	registerNonPresetParam("freeverb.position", &posit3, true, 3, 0, 8);
-	registerNonPresetParam("IR.position", &posit4, true, 4, 0, 8);
-	registerNonPresetParam("compressor.position", &posit5, true, 0, 0, 8);
-	registerNonPresetParam("echo.position", &posit6, true, 6, 0, 8);
-	registerNonPresetParam("delay.position", &posit7, true, 8, 0, 8);
-	registerNonPresetParam("chorus.position", &posit8, true, 7, 0, 8);
-	registerNonPresetParam("flanger.position", &posit9, true, 9, 0, 8);
-
-	// togglebuttons for dialogboxes and expander for effect details
-	registerNonPresetParam("compressor.dialog", &fdialogbox8, false);
-	registerNonPresetParam("distortion.dialog", &fdialogbox1, false);
-	registerNonPresetParam("freeverb.dialog", &fdialogbox2, false);
-	registerNonPresetParam("IR.dialog", &fdialogbox3, false);
-	registerNonPresetParam("crybaby.dialog", &fdialogbox4, false);
-	registerNonPresetParam("chorus.dialog", &fchorusbox, false);
-	registerNonPresetParam("midi_out.dialog", &fdialogbox6, false);
-	registerNonPresetParam("jconv.dialog", &fdialogboxj, false);
-	registerNonPresetParam("jconv.expander", &fexpand2, false);
-	registerNonPresetParam("jconv.filedialog", &filebutton, false);
-	registerNonPresetParam("eq.dialog", &fdialogbox_eq, false);
-	registerNonPresetParam("MultiBandFilter.dialog", &fdialogbox_mbf, false);
-	registerNonPresetParam("moog.dialog", &fdialogbox_moo, false);
-	registerNonPresetParam("biquad.dialog", &fbiquadbox, false);
-	registerNonPresetParam("flanger.dialog", &fflangerbox, false);
-
-	// user interface options
-	registerNonPresetParam("ui.latency_nowarn", &fwarn, false, 0);
-	registerNonPresetParam("ui.skin", &fskin, false, 0, 0, 100);
-	registerNonPresetParam("ui.main_expander", &fexpand, false);
-
-	// shouldn't be saved, only output?
-	registerNonPresetParam("system.fConsta1t", &fConsta1t, false);
-	registerNonPresetParam("system.midistat", &midistat, false);
-	registerNonPresetParam("system.waveview", &viv, false);
-}
-
-AudioVariables audio;
-
+/****************************************************************
+ ** this is the guitarix audio engine
+ */
 
 void process_buffers(int count, float* input, float* output0, float* output1)
 {

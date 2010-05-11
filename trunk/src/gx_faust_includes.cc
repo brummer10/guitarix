@@ -18,11 +18,81 @@
  *
  *
  *    definitions for code generated with faust / dsp2cc
- *
+ *    part of gx_engine_audio.cpp
  *
  * --------------------------------------------------------------------------
  */
 
+/****************************************************************
+ ** functions and variables used by faust dsp files
+ */
+
+inline float sigmoid(float x)
+{
+	return x*(1.5f - 0.5f*x*x);
+}
+
+inline float saturate(float x, float t)
+{
+	if (fabs(x)<t)
+		return x;
+	else {
+		if (x > 0.f)
+			return t + (1.f-t)*sigmoid((x-t)/((1-t)*1.5f));
+		else
+			return -(t + (1.f-t)*sigmoid((-x-t)/((1-t)*1.5f)));
+	}
+}
+
+inline float hard_cut(float in, float threshold)
+{
+	if ( in > threshold) {
+		in = threshold;
+	} else if ( in < -threshold) {
+		in = -threshold;
+	}
+
+	return in;
+}
+
+inline float foldback(float in, float threshold)
+{
+	if (threshold == 0) threshold = 0.01f;
+
+	if (fabs(in) > threshold) {
+		in = fabs(fabs(fmod(in - threshold, threshold*4)) - threshold*2) - threshold;
+	}
+	return in;
+}
+
+inline float fold(float threshold, float v)
+{
+	// switch between hard_cut or foldback distortion, or plain output
+	switch ((int)audio.ffuse) {
+	case 0:
+		break;
+	case 1:
+		v = hard_cut(saturate(v,threshold),threshold);
+		break;
+	case 2:
+		v = foldback(v,threshold);
+		break;
+	}
+	return v;
+}
+
+inline float add_dc (float val)
+{
+	return val + 1e-20; // avoid denormals
+}
+
+// foreign variable added to faust module feed
+// it's set in process_buffers()
+namespace feed { float ngate = 1; }  // noise-gate, modifies output gain
+
+/****************************************************************
+ **  definitions for code generated with faust / dsp2cc
+ */
 
 typedef void (*inifunc)(int);
 list<inifunc> inilist;
@@ -71,6 +141,10 @@ template <>      inline int faustpower<0>(int x)        { return 1; }
 template <>      inline int faustpower<1>(int x)        { return x; }
 #define FAUSTFLOAT float
 
+/****************************************************************
+ **  include faust/dsp2cc generated files
+ */
+
 // amp
 #include "faust-cc/preamp.cc"
 #include "faust-cc/inputgain.cc"
@@ -107,6 +181,10 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/biquad.cc"
 #include "faust-cc/flanger.cc"
 #include "faust-cc/tube3.cc"
+
+/****************************************************************
+ **  the Eperimental widget
+ */
 
 #ifdef EXPERIMENTAL
 typedef void (*setupfunc)(GtkWidget *);
