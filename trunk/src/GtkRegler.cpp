@@ -552,13 +552,15 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 		cairo_stroke (cr);
 
 		ostringstream tir;
-		if(reglerstate==1) tir << regler->labels[1] ;
+		/*if(reglerstate==1) tir << regler->labels[1] ;
 		else if(reglerstate==0) tir << regler->labels[0] ;
 		else if(reglerstate==2) tir << regler->labels[2] ;
 		else if(reglerstate==3) tir << regler->labels[3] ;
 		else if(reglerstate==4) tir << regler->labels[4] ;
 		else if(reglerstate==5) tir << regler->labels[5] ;
 		else if(reglerstate==6) tir << regler->labels[6] ;
+		else if(reglerstate==8) tir << regler->labels[8] ;*/
+		tir << regler->labels[reglerstate] ;
 
 		cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
 		cairo_set_font_size (cr, 10.0);

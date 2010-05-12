@@ -221,18 +221,24 @@ static void on_hide(GtkWidget *widget, gpointer data)
 }
 
 volatile int exp_upsample;
+volatile int exp_upsample_on;
 volatile bool exp_hs;
 GtkWidget *exp_sample_spin;
 SimpleResampler resampExp;
 
-static void exp_sr_changed(GtkWidget *widget, gpointer data)
+/*static void exp_sr_changed(GtkWidget *widget, gpointer data)
 {
 	exp_upsample = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(widget));
-}
+}*/
 
 static void exp_hs_toggled(GtkWidget *widget, gpointer data)
 {
 	exp_hs = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+}
+
+static void exp_up_toggled(GtkWidget *widget, gpointer data)
+{
+	exp_upsample_on = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
 }
 
 void faust_setup()
@@ -253,14 +259,17 @@ void faust_setup()
     GtkWidget *hbox = gtk_hbox_new(false, 10);
     gtk_widget_show(hbox);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, 0, 0, 5);
-    GtkWidget *w = gtk_label_new("Upsample:");
+    GtkWidget *w = gtk_label_new("Select:");
     gtk_widget_show(w);
     gtk_box_pack_start(GTK_BOX(hbox), w, 0, 0, 5);
-	GtkObject *adj = gtk_adjustment_new(4, 1, 8, 1, 2, 0);
-	exp_sample_spin = gtk_spin_button_new(GTK_ADJUSTMENT(adj), 1, 0);
-    gtk_signal_connect (GTK_OBJECT(exp_sample_spin), "value-changed", GTK_SIGNAL_FUNC(exp_sr_changed), NULL);
-    gtk_widget_show(exp_sample_spin);
-    gtk_box_pack_start(GTK_BOX(hbox), exp_sample_spin, 0, 0, 5);
+	//GtkObject *adj = gtk_adjustment_new(4, 1, 8, 1, 2, 0);
+	//exp_sample_spin = gtk_spin_button_new(GTK_ADJUSTMENT(adj), 1, 0);
+    //gtk_signal_connect (GTK_OBJECT(exp_sample_spin), "value-changed", GTK_SIGNAL_FUNC(exp_sr_changed), NULL);
+    //gtk_widget_show(exp_sample_spin);
+    w = gtk_check_button_new_with_label("upsample");
+    gtk_signal_connect(GTK_OBJECT(w), "toggled", GTK_SIGNAL_FUNC(exp_up_toggled), NULL);
+    gtk_box_pack_start(GTK_BOX(hbox), w, 0, 0, 5);
+    gtk_widget_show(w);
     w = gtk_check_button_new_with_label("HighShelf");
     gtk_widget_show(w);
     gtk_box_pack_start(GTK_BOX(hbox), w, 0, 0, 20);
@@ -279,7 +288,7 @@ void toggle_exp_window(bool v)
 {
 	if (v) {
 		if (!GTK_WIDGET_VISIBLE(exp_window)) {
-			gtk_spin_button_set_value(GTK_SPIN_BUTTON(exp_sample_spin), exp_upsample);
+			//gtk_spin_button_set_value(GTK_SPIN_BUTTON(exp_sample_spin), exp_upsample);
 			gtk_window_present(GTK_WINDOW(exp_window));
 		}
 	} else {

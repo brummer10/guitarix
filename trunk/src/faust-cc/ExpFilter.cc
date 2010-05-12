@@ -615,6 +615,7 @@ void GTKUI::openVerticalBox(const char* fullLabel)
     int      adjust = checkLabelOptions(box, fullLabel, label);
 
     gtk_container_set_border_width (GTK_CONTAINER (box), 10);
+    g_signal_connect(box, "expose-event", G_CALLBACK(gx_cairo::box9_expose), NULL);
 
     if (fMode[fTop] != kTabMode && label[0] != 0) {
         GtkWidget * frame = addWidget(label.c_str(), gtk_frame_new (label.c_str()));
@@ -846,44 +847,6 @@ void GTKUI::openDialogBox(const char* label, float* zone)
     pushBox(kBoxMode, box);
 }
 
-
-
-
-// ---------------------------  Check Button ---------------------------
-
-struct uiCheckButton : public uiItem
-{
-    GtkToggleButton* fButton;
-
-    uiCheckButton(UI* ui, float* zone, GtkToggleButton* b) : uiItem(ui, zone), fButton(b) {}
-
-    static void toggled (GtkWidget *widget, gpointer data)
-    {
-        float   v = (GTK_TOGGLE_BUTTON (widget)->active) ? 1.0 : 0.0;
-        ((uiItem*)data)->modifyZone(v);
-    }
-
-    virtual void reflectZone()
-    {
-        float   v = *fZone;
-        fCache = v;
-        gtk_toggle_button_set_active(fButton, v > 0.0);
-    }
-};
-
-void GTKUI::addCheckButton(const char* label, float* zone)
-{
-    *zone = 0.0;
-    GtkWidget*  button = gtk_check_button_new_with_label (label);
-    addWidget(label, button);
-
-    uiCheckButton* c = new uiCheckButton(this, zone, GTK_TOGGLE_BUTTON(button));
-    gtk_signal_connect (GTK_OBJECT (button), "toggled", GTK_SIGNAL_FUNC(uiCheckButton::toggled), (gpointer) c);
-
-    checkForTooltip(zone, button);
-}
-
-
 // ---------------------------  Adjustmenty based widgets ---------------------------
 
 struct uiAdjustment : public uiItem
@@ -914,31 +877,116 @@ static int precision(double n)
     else return 0;
 }
 
+struct uiValueDisplay : public uiItem
+{
+	GtkLabel* fLabel;
+	int	fPrecision ;
+
+	uiValueDisplay(UI* ui, float* zone, GtkLabel* label, int precision)
+		: uiItem(ui, zone), fLabel(label), fPrecision(precision) {}
+
+	virtual void reflectZone()
+		{
+			float v = *fZone;
+			fCache = v;
+			char s[64];
+			if (fPrecision <= 0)
+				snprintf(s, 63, "%d", int(v));
+
+			else if (fPrecision > 3)
+				snprintf(s, 63, "%f", v);
+
+			else if (fPrecision == 1)
+			{
+				const char* format[] = {"%.1f", "%.2f", "%.3f"};
+				snprintf(s, 63, format[1-1], v);
+			}
+			else if (fPrecision == 2)
+			{
+				const char* format[] = {"%.1f", "%.2f", "%.3f"};
+				snprintf(s, 63, format[2-1], v);
+			}
+			else
+			{
+				const char* format[] = {"%.1f", "%.2f", "%.3f"};
+				snprintf(s, 63, format[3-1], v);
+			}
+			gtk_label_set_text(fLabel, s);
+		}
+};
+
+// ---------------------------  Check Button ---------------------------
+
+struct uiCheckButton : public uiItem
+{
+    GtkToggleButton* fButton;
+
+    uiCheckButton(UI* ui, float* zone, GtkToggleButton* b) : uiItem(ui, zone), fButton(b) {}
+
+    static void toggled (GtkWidget *widget, gpointer data)
+    {
+        float   v = (GTK_TOGGLE_BUTTON (widget)->active) ? 1.0 : 0.0;
+        ((uiItem*)data)->modifyZone(v);
+    }
+
+    virtual void reflectZone()
+    {
+        float   v = *fZone;
+        fCache = v;
+        gtk_toggle_button_set_active(fButton, v > 0.0);
+    }
+};
+
+void GTKUI::addCheckButton(const char* label, float* zone)
+{
+    GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
+	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+	GtkRegler myGtkRegler;
+	GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
+
+	GtkWidget* lw = gtk_label_new(label);
+	gtk_widget_set_name (lw,"effekt_label");
+
+	GtkStyle *style = gtk_widget_get_style(lw);
+	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
+	gtk_widget_modify_font(lw, style->font_desc);
+	openHorizontalBox("");
+	addWidget(label, slider);
+	addWidget(label, lw);
+	closeBox();
+    checkForTooltip(zone, slider);
+}
+
+
 // -------------------------- Vertical Slider -----------------------------------
 
 void GTKUI::addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step)
 {
     *zone = init;
-    GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
+	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
+	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+	GtkWidget* lw = gtk_label_new("");
+	GtkWidget* lwl = gtk_label_new(label);
+	gtk_widget_set_name (lw,"value_label");
+	gtk_widget_set_name (lwl,"effekt_label");
+	GtkStyle *style = gtk_widget_get_style(lw);
+	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
+	gtk_widget_modify_font(lw, style->font_desc);
+	gtk_widget_modify_font(lwl, style->font_desc);
+	new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
+	GtkRegler myGtkRegler;
+	GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
 
-    uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-
-    gtk_signal_connect (GTK_OBJECT (adj), "value-changed", GTK_SIGNAL_FUNC (uiAdjustment::changed), (gpointer) c);
-
-    GtkWidget* slider = gtk_vscale_new (GTK_ADJUSTMENT(adj));
-    gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-    gtk_scale_set_digits(GTK_SCALE(slider), precision(step));
-    float size = 160 * pow(2, fGuiSize[zone]);
-    gtk_widget_set_usize(slider, -1, size);
-
-    if (label && label[0]!=0) {
-        openFrameBox(label);
-        addWidget(label, slider);
-        closeBox();
-    } else {
-        addWidget(label, slider);
-    }
-
+	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
+	openVerticalBox("");
+	addWidget(label, lwl);
+	addWidget(label, slider);
+	addWidget(label, lw);
+	closeBox();
     checkForTooltip(zone, slider);
 }
 

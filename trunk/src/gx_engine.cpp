@@ -77,8 +77,8 @@ void gx_engine_init( const string *optvar )
 
 	midi.init(gx_jack::jack_sr);
 	faust_init(gx_jack::jack_sr);
-	resampTube.setup(gx_jack::jack_sr, 2);
-	resampDist.setup(gx_jack::jack_sr, 2);
+	//resampTube.setup(gx_jack::jack_sr, 2);
+	//resampDist.setup(gx_jack::jack_sr, 2);
 	if( !optvar[LOAD_FILE].empty() )
 		gx_preset::gx_recall_settings_file( optvar[LOAD_FILE] );
 	else

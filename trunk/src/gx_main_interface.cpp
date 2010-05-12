@@ -1832,10 +1832,11 @@ struct uiNumDisplay : public gx_ui::GxUiItem
 			fCache = *fZone;
 			if (shownote == 1)
 			{
-			    static int tx      =  pb->allocation.x + (pb->allocation.width - 100) * 0.5;
+			    /*static int tx      =  pb->allocation.x + (pb->allocation.width - 100) * 0.5;
                 static int ty      =  pb->allocation.y + (pb->allocation.height - 90) * 0.5;
 			    static const GdkRectangle rect = {tx,ty,100,60};
-                gdk_window_invalidate_rect(GDK_WINDOW(pb->window),&rect,TRUE);
+                gdk_window_invalidate_rect(GDK_WINDOW(pb->window),&rect,TRUE);*/
+                gx_tuner_refresh(pb,NULL);
 			}
 			else if (shownote == 0)
 			{

@@ -706,7 +706,7 @@ static gboolean gtk_waveview_expose (GtkWidget *widget, GdkEventExpose *event)
                 double rect_width  = 100;
                 double rect_height = 60;
 
-                cr = gdk_cairo_create(gx_gui::pb->window);
+                cr = gdk_cairo_create(widget->window);
                 cairo_rectangle (cr, x0,y0+60,rect_width+1,30);
                 cairo_set_source_rgb (cr, 0, 0, 0);
                 cairo_fill (cr);
@@ -769,6 +769,16 @@ gboolean GtkWaveView::gtk_waveview_set_value (GtkWidget *cwidget, gpointer data 
 gboolean GtkWaveView::gtk_waveview_refresh (GtkWidget *widget, gpointer data )
 {
 	GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->new_pig = 0;
+	return TRUE;
+}
+
+//----- refresh osiloscope when change rcstyle
+gboolean GtkWaveView::gtk_tuner_refresh (GtkWidget *widget, gpointer data )
+{
+	static int tx      =  widget->allocation.x + (widget->allocation.width - 100) * 0.5;
+    static int ty      =  widget->allocation.y + (widget->allocation.height - 90) * 0.5;
+    static const GdkRectangle rect = {tx,ty,135,80};
+    gdk_window_invalidate_rect(GDK_WINDOW(widget->window),&rect,TRUE);
 	return TRUE;
 }
 
@@ -1227,6 +1237,14 @@ void gx_waveview_refresh(GtkWidget* widget, gpointer data)
 
 	GtkWaveView wave_view;
 	wave_view.gtk_waveview_refresh(widget, data);
+}
+
+//----
+void gx_tuner_refresh(GtkWidget* widget, gpointer data)
+{
+
+	GtkWaveView wave_view;
+	wave_view.gtk_tuner_refresh(widget, data);
 }
 
 //----

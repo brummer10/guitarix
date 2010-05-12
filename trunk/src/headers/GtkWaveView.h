@@ -45,6 +45,7 @@ public:
 	virtual void     gtk_waveview_destroy   (GtkWidget*, gpointer);
 	virtual gboolean gtk_waveview_refresh   (GtkWidget*, gpointer);
 	virtual gboolean gtk_waveview_set_value (GtkWidget*, gpointer);
+	virtual gboolean gtk_tuner_refresh   (GtkWidget*, gpointer);
 
 
 	virtual GtkWidget* gtk_wave_view();
@@ -57,6 +58,7 @@ public:
 void gx_waveview_set_value(GtkWidget*, gpointer);
 void gx_waveview_destroy(GtkWidget*, gpointer);
 void gx_waveview_refresh(GtkWidget*, gpointer);
+void gx_tuner_refresh(GtkWidget*, gpointer);
 
 GtkWidget* gx_wave_view();
 GtkWidget* gx_tuner_view();

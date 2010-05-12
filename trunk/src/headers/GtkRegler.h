@@ -30,7 +30,7 @@ public:
 	GtkRange parent;
 	int regler_type;
 	int last_quadrant;
-	const char* labels[7];
+	const char* labels[12];
 	double start_x, start_y, start_value, max_value;
 
 	GtkRegler();

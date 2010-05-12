@@ -335,21 +335,41 @@ void GxMainInterface::setup()
 									{
 									}
 									closeBox();
-									addminiswitch("amp.oversample.on_off", " oversample ");
+									openVerticalBox1("");
+									{
+									    addminiswitch("amp.oversample.on_off", " oversample ");
+									    const char* labels[8]  ={"  1x","  2x", "  3x","  4x","  5x", "  6x", "  7x", "  8x"};
+										addselector("amp.select",8,labels,"");
+
+
+									}
+									closeBox();
 									openVerticalBox1("");
 									{
 									}
 									closeBox();
+									openVerticalBox1("");
+									{
 									addminiswitch("amp.bass_boost.on_off", " bass boost ");
 									openVerticalBox1("");
+									closeBox();
+									openVerticalBox1("");
+									closeBox();
+									}
+									closeBox();
+									openVerticalBox1("");
 									{
 									}
 									closeBox();
-									openHorizontalBox("");
+									openVerticalBox1("");
 									{
-										addminiswitch("convolve.on_off", "");
-										const char* labels[7]  ={"amp 1","amp 2", "amp 3","amp 4","amp 5", "amp 6", "amp 7"};
-										addselector("convolve.select",7,labels,"");
+
+                                            addminiswitch("convolve.on_off", "amp tune  ");
+                                            const char* labels[7]  ={"amp 1","amp 2", "amp 3","amp 4","amp 5", "amp 6", "amp 7"};
+                                            addselector("convolve.select",7,labels,"");
+
+                                        openVerticalBox1("");
+                                        closeBox();
 									}
 									closeBox();
 								}
@@ -580,42 +600,54 @@ void GxMainInterface::setup()
 														{
 															openHandleBox("  ");
 															{
-																addbigregler("distortion.drive","  drive ");
-																addregler("distortion.level");
-																addregler("distortion.gain","gain");
+															    openHorizontalBox("");
+                                                                {
+                                                                    openHorizontalTableBox("");
+                                                                    {
+                                                                        addbigregler("distortion.drive","  drive ");
+                                                                        addregler("distortion.level","\n\n level");
+                                                                        addregler("distortion.gain","\n\n gain");
+                                                                    }
+                                                                    closeBox();
+                                                                    openHorizontalTableBox("");
+                                                                    {
+                                                                        openVerticalBox("low/highpass");
+                                                                        {
+                                                                            openHorizontalBox("");
+                                                                            {
+                                                                                addregler("distortion.low_highpass.high_freq","high-freq ");
+                                                                                addregler("distortion.low_highpass.low_freq"," low-freq ");
+                                                                            }
+                                                                            closeBox();
+                                                                            addtoggle("distortion.low_highpass.on_off", "");
+                                                                        }
+                                                                        closeBox();
+                                                                        openVerticalBox("low/highcutoff");
+                                                                        {
+                                                                            openHorizontalBox("");
+                                                                            {
+                                                                                addregler("distortion.low_highcutoff.high_freq","high-freq ");
+                                                                                addregler("distortion.low_highcutoff.low_freq"," low-freq ");
+                                                                            }
+                                                                            closeBox();
 
-																openVerticalBox("low/highpass");
-																{
-																	openHorizontalBox("");
-																	{
-																		addregler("distortion.low_highpass.high_freq","high-freq ");
-																		addregler("distortion.low_highpass.low_freq"," low-freq ");
-																	}
-																	closeBox();
-
-																	addtoggle("distortion.low_highpass.on_off", "");
-																}
-																closeBox();
-
-																openVerticalBox("low/highcutoff");
-																{
-																	openHorizontalBox("");
-																	{
-																		addregler("distortion.low_highcutoff.high_freq","high-freq ");
-																		addregler("distortion.low_highcutoff.low_freq"," low-freq ");
-																	}
-																	closeBox();
-
-																	addtoggle("distortion.low_highcutoff.on_off","");
-																}
-																closeBox();
-
-																openHorizontalBox("resonanz");
-																{
-																	addregler("distortion.trigger","trigger ");
-																	addregler("distortion.vibrato"," vibrato ");
-																}
-																closeBox();
+                                                                            addtoggle("distortion.low_highcutoff.on_off","");
+                                                                        }
+                                                                        closeBox();
+                                                                        openVerticalBox("resonanz");
+                                                                        {
+                                                                            openHorizontalBox("");
+                                                                            {
+                                                                                addregler("distortion.trigger","trigger ");
+                                                                                addregler("distortion.vibrato"," vibrato ");
+                                                                            }
+                                                                            closeBox();
+                                                                        }
+                                                                        closeBox();
+                                                                    }
+                                                                    closeBox();
+                                                                }
+                                                                closeBox();
 															}
 															closeBox();
 														}
@@ -647,9 +679,13 @@ void GxMainInterface::setup()
 																closeBox();
 																openFrameBox("");
 																closeBox();
-																addbigregler("freeverb.RoomSize");
-																addregler("freeverb.damp");
-																addregler("freeverb.wet_dry");
+																openHorizontalTableBox("");
+                                                                {
+                                                                    addbigregler("freeverb.RoomSize");
+                                                                    addregler("freeverb.damp");
+                                                                    addregler("freeverb.wet_dry");
+																}
+                                                                closeBox();
 																openFrameBox("");
 																closeBox();
 																openFrameBox("");
@@ -870,7 +906,7 @@ void GxMainInterface::setup()
 
 															}
 															closeBox();
-															addminiswitch("flanger.invert"," invert                                                             ");
+															addminiswitch("flanger.invert"," invert                                                                                                                         ");
 														}
 														closeBox();
 													}

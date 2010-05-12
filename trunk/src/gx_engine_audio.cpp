@@ -120,6 +120,7 @@ AudioVariables::AudioVariables()
 	gx_gui::registerParam("biquad.on_off", "on/off", &fbiquad, 0);
 	gx_gui::registerParam("flanger.on_off", "on/off", &fflanger, 0);
 	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
+	registerEnumParam("amp.select", "select", &upsample_mode, 4.f, 1.f, 8.f, 1.0f);
 
 	// only save and restore, no midi control
 
@@ -426,14 +427,18 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     int ovs_count, ovs_sr;
     float *ovs_buffer;
     if (audio.fupsample) {
-		// 2*oversample
-#ifdef EXPERIMENTAL
+		// *oversample
+        static int t_upsample_old = 0;
+        static int t_upsample = min(8,audio.upsample_mode+1);
+        if (t_upsample != t_upsample_old) {
+            t_upsample_old = t_upsample;
+            //FIXME non-rt
+            resampTube.setup(gx_jack::jack_sr, t_upsample);
+            resampDist.setup(gx_jack::jack_sr, t_upsample);
+        }
 	    resampTube.up(count, output0, oversample);
-#else
-	    over_sample(count, output0, oversample);
-#endif
-	    ovs_sr = 2 * gx_jack::jack_sr;
-	    ovs_count = 2 * count;
+	    ovs_sr = t_upsample * gx_jack::jack_sr;
+	    ovs_count = t_upsample * count;
 	    ovs_buffer = oversample;
     } else {
 	    ovs_sr = gx_jack::jack_sr;
@@ -459,39 +464,37 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 	    drive::compute(ovs_count, ovs_buffer, ovs_buffer);
     }
     if (audio.fupsample) {
-	    //down_sample(count, oversample, output0);
-#ifdef EXPERIMENTAL
 	    resampTube.down(count, oversample, output0);
-#else
-        down_sample(count, oversample, output0);
-#endif
-
     }
     //*** End (maybe) oversampled processing ***
 
 #ifdef EXPERIMENTAL
    // ExpFilter::compute(count, output0, output0);
     static int exp_upsample_old = 0;
-    if (exp_upsample != exp_upsample_old) {
-	    exp_upsample_old = exp_upsample;
-	    if (exp_upsample > 1) {
-		    //FIXME non-rt
-		    resampExp.setup(gx_jack::jack_sr, exp_upsample);
-	    }
-	    Exp::init(exp_upsample * gx_jack::jack_sr);
-    }
-    if (exp_upsample > 1) {
-	    resampExp.up(count, output0, oversample);
-	    ovs_sr = exp_upsample * gx_jack::jack_sr;
-	    ovs_count = exp_upsample * count;
-	    ovs_buffer = oversample;
-    } else {
-	    ovs_sr = gx_jack::jack_sr;
-	    ovs_count = count;
-	    ovs_buffer = output0;
-    }
-    Exp::compute(ovs_count, ovs_buffer, ovs_buffer);
-    if (exp_upsample > 1) {
+    int ovs_exp_count, ovs_exp_sr;
+    float *ovs_exp_buffer;
+    if (exp_upsample_on) {
+        exp_upsample = min(8,audio.upsample_mode+1);
+        if (exp_upsample != exp_upsample_old) {
+            exp_upsample_old = exp_upsample;
+            //FIXME non-rt
+            resampExp.setup(gx_jack::jack_sr, exp_upsample);
+            Exp::init(exp_upsample * gx_jack::jack_sr);
+        }
+            resampExp.up(count, output0, oversample);
+            ovs_exp_sr = exp_upsample * gx_jack::jack_sr;
+            ovs_exp_count = exp_upsample * count;
+            ovs_exp_buffer = oversample;
+          }
+         else {
+            ovs_exp_sr = gx_jack::jack_sr;
+            ovs_exp_count = count;
+            ovs_exp_buffer = output0;
+        }
+
+    Exp::compute(ovs_exp_count, ovs_exp_buffer, ovs_exp_buffer);
+
+    if (exp_upsample_on) {
 	    resampExp.down(count, oversample, output0);
     }
 #endif // EXPERIMENTAL
@@ -517,17 +520,10 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 	        if (audio.fupsample) {
                 // 2*oversample
                 //over_sample(count, output0, oversample);
-#ifdef EXPERIMENTAL
                 resampDist.up(count, output0, oversample);
-#else
-                over_sample(count, output0, oversample);
-#endif
                 distortion::compute(ovs_count, oversample, oversample);
-#ifdef EXPERIMENTAL
                 resampDist.down(count, oversample, output0);
-#else
-                down_sample(count, oversample, output0);
-#endif
+                //down_sample(count, oversample, output0);
 	        } else {
                 distortion::compute(count, output0, output0);
 	        }
