@@ -63,14 +63,19 @@ def set_options(opt):
                     action='store_const',
                     default=False,
                     const=True,
-                    help='build with support for experimental modules build with faust')
+                    help='build with support for experimental modules build with faust (set --debug flag)')
                     
     comp.add_option('--includeresampler',
                     action='store_const',
                     default=False,
                     const=True,
-                    help='build with included zita-resample libary')
-               
+                    help='build with included local zita-resample libary (Default NO)')
+                    
+    comp.add_option('--includeconvolver',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help='build with included local zita-convolver libary (Default NO)')              
 
     faust = opt.add_option_group("faust-Compiler")
 
@@ -99,6 +104,14 @@ def check_comp(conf):
         conf.env['ZITARESAMPLER'] = True
         conf.env['ZITA_RESAMPLER'] = None  
         return
+        
+def check_comp(conf):
+    if Options.options.includeconvolver:
+        define_name="INTERN_ZITA_CONVOLVER"
+        conf.env['ZITACONVOLVER'] = True
+        conf.env['INTERN_ZITA_CONVOLVER'] = None
+        conf.env['ZITA_CONVOLVER'] = None  
+        return        
 
 def check_faust(conf):
     if Options.options.no_faust:
@@ -184,9 +197,11 @@ def configure(conf):
     conf.check_cfg(package='gthread-2.0', atleast_version='2.10', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='sigc++-2.0', args='--cflags --libs', uselib_store='SIGC', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
-    conf.check_cxx(header_name='zita-convolver.h', lib="zita-convolver", uselib_store='ZITA_CONVOLVER',
-			   errmsg="not found, using local version", define_name="INTERN_ZITA_CONVOLVER")
     conf.check(header_name='ladspa.h', mandatory=1)
+    if not Options.options.includeconvolver:
+        conf.check_cxx(header_name='zita-convolver.h', lib="zita-convolver", uselib_store='ZITA_CONVOLVER',
+			   errmsg="not found, using local version", define_name="INTERN_ZITA_CONVOLVER")
+    
     if not Options.options.includeresampler:
         conf.check(lib='zita-resampler', msg='Checking for zita-resampler', header_name='stdlib.h zita-resampler.h',
                errmsg="not found, using local version", define_name="ZITA_RESAMPLER")
@@ -204,6 +219,7 @@ def configure(conf):
     conf.define('GX_VERSION', VERSION)
     if Options.options.experimental:
         conf.define('EXPERIMENTAL', '')
+        conf.env['DEBUG'] = True
 
     # writing config.h
     conf.write_config_header('config.h')
@@ -217,7 +233,7 @@ def configure(conf):
     conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
     conf.define('BIN_NAME', APPNAME)
     cxxflags = Options.options.cxxflags.split()
-    if Options.options.debug:
+    if Options.options.debug or conf.env['DEBUG']:
         cxxflags += Options.options.cxxflags_debug.split()
     else:
         cxxflags += Options.options.cxxflags_release.split()
@@ -233,7 +249,10 @@ def configure(conf):
     if not conf.env['ZITA_RESAMPLER']:
         conf.env['ZITARESAMPLER'] = True
         check_comp(conf)
-     
+        
+    if not conf.env['INTERN_ZITA_CONVOLVER']:
+        conf.env['ZITACONVOLVER'] = True
+        check_comp(conf) 
     
     # some output
     print
@@ -247,6 +266,7 @@ def configure(conf):
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
     display_feature("Use faust", conf.env['FAUST'])
     display_feature("Use internal zita-resampler", conf.env['ZITARESAMPLER'])
+    display_feature("Use internal zita-convolver", conf.env['ZITACONVOLVER'])
     display_feature("Experimental Extensions", conf.env['EXPERIMENTAL']=="")
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
     display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
