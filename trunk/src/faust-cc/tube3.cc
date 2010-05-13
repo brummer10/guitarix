@@ -49,7 +49,7 @@ RegisterParams::RegisterParams()
 {
 	registerVar("tube3.g","","S","",&fslider2, 1.0f, 0.5f, 2.0f, 0.1f);
 	registerVar("tube3.dist","","S","",&fslider1, 0.0f, 0.0f, 1.7f, 0.01f);
-	registerVar("tube3.q","","S","",&fslider0, 0.0f, 0.4f, 1.0f, 0.001f);
+	registerVar("tube3.q","","S","",&fslider0, 0.4f, 0.4f, 1.0f, 0.001f);
 	registerInit(init);
 }
 
