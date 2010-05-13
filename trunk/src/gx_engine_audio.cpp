@@ -424,12 +424,14 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 
     // *** Start (maybe) oversampled processing ***
     static int fupsample_old = 0; // startup always initialises with SR
+    static int t_upsample_old = 0;
+    static int t_upsample = 0;
     int ovs_count, ovs_sr;
     float *ovs_buffer;
     if (audio.fupsample) {
 		// *oversample
-        static int t_upsample_old = 0;
-        static int t_upsample = min(8,audio.upsample_mode+1);
+
+        t_upsample = min(8,audio.upsample_mode+1);
         if (t_upsample != t_upsample_old) {
             t_upsample_old = t_upsample;
             //FIXME non-rt
