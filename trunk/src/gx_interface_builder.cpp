@@ -132,12 +132,11 @@ void GxMainInterface::setup()
 												{
 													openHorizontalTableBox("");
 													{
+													    addbigregler("jconv.left_gain","     left gain     ");
 														addregler("jconv.left_delay"," left delay ");
+														addbigregler("jconv.right_gain"," right gain ");
 														addregler("jconv.right_delay"," right delay ");
-
-														addregler("jconv.left_gain"," left gain ");
-														addregler("jconv.right_gain"," right gain ");
-													}
+                                                    }
 													closeBox();
 												}
 												closeBox();
@@ -222,7 +221,7 @@ void GxMainInterface::setup()
                                             {
                                                 openVerticalBox("");
                                                 {
-                                                    openHorizontalBox("");
+                                                    openHorizontalTableBox("");
                                                     {
                                                         addVerticalSlider("eq.f31_25","31,25");
                                                         addVerticalSlider("eq.f62_5"," 62,5");
@@ -236,9 +235,9 @@ void GxMainInterface::setup()
                                                         addVerticalSlider("eq.f16k"," 16k ");
                                                     }
                                                     closeBox();
-                                                    openHorizontalBox("");
+                                                    openHorizontalTableBox("");
                                                     {
-                                                        addregler("eq.Q31_25","Q");
+                                                        addregler("eq.Q31_25","    Q    ");
                                                         addregler("eq.Q62_5","Q");
                                                         addregler("eq.Q125","Q");
                                                         addregler("eq.Q250","Q");
@@ -981,7 +980,7 @@ void GxMainInterface::setup()
                                                         {
                                                             openVerticalBox("");
                                                             {
-                                                                openHorizontalBox("");
+                                                                openHorizontalTableBox("");
                                                                 {
                                                                     addVerticalSlider("MultiBandFilter.f31_25","31,25");
                                                                     addVerticalSlider("MultiBandFilter.f62_5"," 62,5");
@@ -995,9 +994,9 @@ void GxMainInterface::setup()
                                                                     addVerticalSlider("MultiBandFilter.f16k"," 16k ");
                                                                 }
                                                                 closeBox();
-                                                                openHorizontalBox("");
+                                                                openHorizontalTableBox("");
                                                                 {
-                                                                    addregler("MultiBandFilter.Q31_25","Q");
+                                                                    addregler("MultiBandFilter.Q31_25","    Q    ");
                                                                     addregler("MultiBandFilter.Q62_5","Q");
                                                                     addregler("MultiBandFilter.Q125","Q");
                                                                     addregler("MultiBandFilter.Q250","Q");

@@ -430,7 +430,6 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     float *ovs_buffer;
     if (audio.fupsample) {
 		// *oversample
-
         t_upsample = min(8,audio.upsample_mode+1);
         if (t_upsample != t_upsample_old) {
             t_upsample_old = t_upsample;

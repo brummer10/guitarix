@@ -775,9 +775,8 @@ gboolean GtkWaveView::gtk_waveview_refresh (GtkWidget *widget, gpointer data )
 //----- refresh osiloscope when change rcstyle
 gboolean GtkWaveView::gtk_tuner_refresh (GtkWidget *widget, gpointer data )
 {
-	static int tx      =  widget->allocation.x + (widget->allocation.width - 100) * 0.5;
-    static int ty      =  widget->allocation.y + (widget->allocation.height - 90) * 0.5;
-    static const GdkRectangle rect = {tx,ty,135,80};
+    const GdkRectangle rect = {int(widget->allocation.x + (widget->allocation.width - 100) * 0.5),
+                                int(widget->allocation.y + (widget->allocation.height - 90) * 0.5),100,60};
     gdk_window_invalidate_rect(GDK_WINDOW(widget->window),&rect,TRUE);
 	return TRUE;
 }
