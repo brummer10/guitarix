@@ -433,9 +433,12 @@ void process_buffers(int count, float* input, float* output0, float* output1)
         t_upsample = min(8,audio.upsample_mode+1);
         if (t_upsample != t_upsample_old) {
             t_upsample_old = t_upsample;
+            fupsample_old = audio.fupsample;
             //FIXME non-rt
             resampTube.setup(gx_jack::jack_sr, t_upsample);
             resampDist.setup(gx_jack::jack_sr, t_upsample);
+            osc_tube::init(t_upsample * gx_jack::jack_sr);
+            distortion::init(t_upsample * gx_jack::jack_sr);
         }
 	    resampTube.up(count, output0, oversample);
 	    ovs_sr = t_upsample * gx_jack::jack_sr;
