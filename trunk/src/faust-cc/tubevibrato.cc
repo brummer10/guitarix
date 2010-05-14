@@ -2,7 +2,7 @@ namespace tubevibrato {
 // generated from file '../src/faust/tubevibrato.dsp'
 
 FAUSTFLOAT 	fslider0;
-double 	fRec0[2];
+float 	fRec0[2];
 int	fSamplingFreq;
 
 void init(int samplingFreq)
@@ -13,10 +13,10 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	double 	fSlow0 = (0.5 * fslider0);
+	float 	fSlow0 = (0.5f * fslider0);
 	for (int i=0; i<count; i++) {
-		fRec0[0] = ((double)input0[i] + (fSlow0 * fRec0[1]));
-		output0[i] = (FAUSTFLOAT)max(-0.7, min(0.7, fRec0[0]));
+		fRec0[0] = ((float)input0[i] + (fSlow0 * fRec0[1]));
+		output0[i] = (FAUSTFLOAT)max(-0.7f, min(0.7f, fRec0[0]));
 		// post processing
 		fRec0[1] = fRec0[0];
 	}
@@ -25,7 +25,7 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("tube.vibrato","","S","",&fslider0, 0.0, 0.0, 2.0, 0.02);
+	registerVar("tube.vibrato","","S","",&fslider0, 0.0f, 0.0f, 2.0f, 0.02f);
 	registerInit(init);
 }
 

@@ -2,40 +2,40 @@ namespace freeverb {
 // generated from file '../src/faust/freeverb.dsp'
 
 FAUSTFLOAT 	fslider0;
-double 	fRec9[2];
+float 	fRec9[2];
 FAUSTFLOAT 	fslider1;
 int 	IOTA;
-double 	fVec0[2048];
-double 	fRec8[2];
-double 	fRec11[2];
-double 	fVec1[2048];
-double 	fRec10[2];
-double 	fRec13[2];
-double 	fVec2[2048];
-double 	fRec12[2];
-double 	fRec15[2];
-double 	fVec3[2048];
-double 	fRec14[2];
-double 	fRec17[2];
-double 	fVec4[2048];
-double 	fRec16[2];
-double 	fRec19[2];
-double 	fVec5[2048];
-double 	fRec18[2];
-double 	fRec21[2];
-double 	fVec6[2048];
-double 	fRec20[2];
-double 	fRec23[2];
-double 	fVec7[2048];
-double 	fRec22[2];
-double 	fVec8[1024];
-double 	fRec6[2];
-double 	fVec9[512];
-double 	fRec4[2];
-double 	fVec10[512];
-double 	fRec2[2];
-double 	fVec11[256];
-double 	fRec0[2];
+float 	fVec0[2048];
+float 	fRec8[2];
+float 	fRec11[2];
+float 	fVec1[2048];
+float 	fRec10[2];
+float 	fRec13[2];
+float 	fVec2[2048];
+float 	fRec12[2];
+float 	fRec15[2];
+float 	fVec3[2048];
+float 	fRec14[2];
+float 	fRec17[2];
+float 	fVec4[2048];
+float 	fRec16[2];
+float 	fRec19[2];
+float 	fVec5[2048];
+float 	fRec18[2];
+float 	fRec21[2];
+float 	fVec6[2048];
+float 	fRec20[2];
+float 	fRec23[2];
+float 	fVec7[2048];
+float 	fRec22[2];
+float 	fVec8[1024];
+float 	fRec6[2];
+float 	fVec9[512];
+float 	fRec4[2];
+float 	fVec10[512];
+float 	fRec2[2];
+float 	fVec11[256];
+float 	fRec0[2];
 FAUSTFLOAT 	fslider2;
 int	fSamplingFreq;
 
@@ -79,15 +79,15 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	double 	fSlow0 = fslider0;
-	double 	fSlow1 = (1 - fSlow0);
-	double 	fSlow2 = (0.7 + (0.28 * fslider1));
-	double 	fSlow3 = fslider2;
-	double 	fSlow4 = (0.5 + fSlow3);
-	double 	fSlow5 = (2 * (0.5 - fSlow3));
+	float 	fSlow0 = fslider0;
+	float 	fSlow1 = (1 - fSlow0);
+	float 	fSlow2 = (0.7f + (0.28f * fslider1));
+	float 	fSlow3 = fslider2;
+	float 	fSlow4 = (0.5f + fSlow3);
+	float 	fSlow5 = (2 * (0.5f - fSlow3));
 	for (int i=0; i<count; i++) {
-		double fTemp0 = (double)input0[i];
-		double fTemp1 = (0.015 * fTemp0);
+		float fTemp0 = (float)input0[i];
+		float fTemp1 = (0.015f * fTemp0);
 		fRec9[0] = ((fSlow1 * fRec8[1]) + (fSlow0 * fRec9[1]));
 		fVec0[IOTA&2047] = (fTemp1 + (fSlow2 * fRec9[0]));
 		fRec8[0] = fVec0[(IOTA-1640)&2047];
@@ -112,19 +112,19 @@ void compute(int count, float *input0, float *output0)
 		fRec23[0] = ((fSlow1 * fRec22[1]) + (fSlow0 * fRec23[1]));
 		fVec7[IOTA&2047] = (fTemp1 + (fSlow2 * fRec23[0]));
 		fRec22[0] = fVec7[(IOTA-1139)&2047];
-		double fTemp2 = (((((((fRec22[0] + fRec20[0]) + fRec18[0]) + fRec16[0]) + fRec14[0]) + fRec12[0]) + fRec10[0]) + fRec8[0]);
-		fVec8[IOTA&1023] = (fTemp2 + (0.5 * fRec6[1]));
+		float fTemp2 = (((((((fRec22[0] + fRec20[0]) + fRec18[0]) + fRec16[0]) + fRec14[0]) + fRec12[0]) + fRec10[0]) + fRec8[0]);
+		fVec8[IOTA&1023] = (fTemp2 + (0.5f * fRec6[1]));
 		fRec6[0] = fVec8[(IOTA-579)&1023];
-		double 	fRec7 = (0 - (fTemp2 - fRec6[1]));
-		fVec9[IOTA&511] = (fRec7 + (0.5 * fRec4[1]));
+		float 	fRec7 = (0 - (fTemp2 - fRec6[1]));
+		fVec9[IOTA&511] = (fRec7 + (0.5f * fRec4[1]));
 		fRec4[0] = fVec9[(IOTA-464)&511];
-		double 	fRec5 = (fRec4[1] - fRec7);
-		fVec10[IOTA&511] = (fRec5 + (0.5 * fRec2[1]));
+		float 	fRec5 = (fRec4[1] - fRec7);
+		fVec10[IOTA&511] = (fRec5 + (0.5f * fRec2[1]));
 		fRec2[0] = fVec10[(IOTA-364)&511];
-		double 	fRec3 = (fRec2[1] - fRec5);
-		fVec11[IOTA&255] = (fRec3 + (0.5 * fRec0[1]));
+		float 	fRec3 = (fRec2[1] - fRec5);
+		fVec11[IOTA&255] = (fRec3 + (0.5f * fRec0[1]));
 		fRec0[0] = fVec11[(IOTA-248)&255];
-		double 	fRec1 = (fRec0[1] - fRec3);
+		float 	fRec1 = (fRec0[1] - fRec3);
 		output0[i] = (FAUSTFLOAT)((fSlow5 * fTemp0) + (fSlow4 * (fRec1 + fTemp1)));
 		// post processing
 		fRec0[1] = fRec0[0];
@@ -154,9 +154,9 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("freeverb.wet_dry","wet/dry","S","",&fslider2, 0.0, -0.5, 0.5, 0.1);
-	registerVar("freeverb.RoomSize","","S","",&fslider1, 0.5, 0.0, 1.0, 0.025);
-	registerVar("freeverb.damp","","S","",&fslider0, 0.5, 0.0, 1.0, 0.025);
+	registerVar("freeverb.wet_dry","wet/dry","S","",&fslider2, 0.0f, -0.5f, 0.5f, 0.1f);
+	registerVar("freeverb.RoomSize","","S","",&fslider1, 0.5f, 0.0f, 1.0f, 0.025f);
+	registerVar("freeverb.damp","","S","",&fslider0, 0.5f, 0.0f, 1.0f, 0.025f);
 	registerInit(init);
 }
 
