@@ -512,7 +512,7 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 		                        klass->eqslider_step / (adj->upper - adj->lower));
 
 
-		gdk_pixbuf_copy_area(klass->eqslider_image,0,reglerstate+18,
+		gdk_pixbuf_copy_area(klass->eqslider_image,0,reglerstate+8,
 		                     klass->eqslider_x,
 		                     klass->eqslider_y,
 		                     klass->eqslider_image1,0,0);
@@ -552,14 +552,6 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 		cairo_stroke (cr);
 
 		ostringstream tir;
-		/*if(reglerstate==1) tir << regler->labels[1] ;
-		else if(reglerstate==0) tir << regler->labels[0] ;
-		else if(reglerstate==2) tir << regler->labels[2] ;
-		else if(reglerstate==3) tir << regler->labels[3] ;
-		else if(reglerstate==4) tir << regler->labels[4] ;
-		else if(reglerstate==5) tir << regler->labels[5] ;
-		else if(reglerstate==6) tir << regler->labels[6] ;
-		else if(reglerstate==8) tir << regler->labels[8] ;*/
 		tir << regler->labels[reglerstate] ;
 
 		cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
@@ -572,15 +564,15 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 
 //---------- led
 	else if (regler->regler_type == 12) {
-		reglerx += (widget->allocation.x);
+		/*reglerx += (widget->allocation.x);
 		reglery += (widget->allocation.height -
-		            klass->led_y) *0.5;
+		            klass->led_y) *0.5;*/
 		int reglerstate = (int)((adj->value - adj->lower) *
 		                        klass->b_toggle_step / (adj->upper - adj->lower));
 
 			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
 			                klass->led_image, 0,
-			                reglerstate * klass->led_y, reglerx, reglery,
+			                reglerstate * klass->led_y, 8, 12, //left upper corner, else use reglex,reglery
 			                klass->led_x,
 			                klass->led_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 
@@ -1229,6 +1221,17 @@ int precision(double n)
 	else return 0;
 }
 
+//------------ calculate value for display
+static double gtk_regler_get_value(GtkAdjustment *adj,double pos)
+{
+    if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
+    else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
+    else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
+    else pos = floor (pos);
+    return pos;
+
+}
+
 static void knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, int knob_x, int knob_y,
                                bool drag, int state)
 {
@@ -1319,11 +1322,7 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 			int  reglerx = (widget->allocation.width -
 			                klass->slider_x) *0.5;
 			double pos = adj->lower + (((event->x - reglerx-10)*0.01)* (adj->upper - adj->lower));
-			if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
-			else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
-			else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
-			else pos = floor (pos);
-			gtk_range_set_value(GTK_RANGE(widget),  pos);
+			gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 		}
 		//----------- slider
 		else if (regler->regler_type == 9) {
@@ -1331,23 +1330,15 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 			int  reglery = (widget->allocation.height -
 			                klass->vslider_x) *0.5;
 			double pos = adj->upper - (((event->y - reglery-10)*0.02)* (adj->upper - adj->lower));
-			if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
-			else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
-			else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
-			else pos = floor (pos);
-			gtk_range_set_value(GTK_RANGE(widget),  pos);
+			gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 		}
 		//----------- slider
 		else if (regler->regler_type == 10) {
 
 			int  reglery = (widget->allocation.height -
 			                klass->eqslider_x) *0.5;
-			double pos = adj->upper - (((event->y - reglery+12)*0.025)* (adj->upper - adj->lower));
-			if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
-			else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
-			else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
-			else pos = floor (pos);
-			gtk_range_set_value(GTK_RANGE(widget),  pos);
+			double pos = adj->upper - (((event->y - reglery+18)*0.02)* (adj->upper - adj->lower));
+			gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 		}
 //----------- minislider
 		else if (regler->regler_type == 4) {
@@ -1355,11 +1346,7 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 			int  reglerx = (widget->allocation.width -
 			                klass->minislider_x) *0.5;
 			double pos = adj->lower + (((event->x - reglerx-3)*0.03575)* (adj->upper - adj->lower));
-			if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
-			else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
-			else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
-			else pos = floor (pos);
-			gtk_range_set_value(GTK_RANGE(widget),  pos);
+			gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 		}
 //----------- wheel
 		else if (regler->regler_type == 7) {
@@ -1367,11 +1354,7 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 			int  wheelx = (widget->allocation.width -
 			               klass->wheel_x) *0.5;
 			double pos = adj->lower + (((event->x - wheelx)*0.03)* (adj->upper - adj->lower));
-			if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
-			else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
-			else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
-			else pos = floor (pos);
-			gtk_range_set_value(GTK_RANGE(widget),  pos);
+			gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 		}
 		//---------- selector
 		else if (regler->regler_type == 11) {
@@ -1464,11 +1447,7 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
 				int  sliderx = (widget->allocation.width -
 				                klass->slider_x)*0.5;
 				double pos = adj->lower + (((event->x - sliderx-10)*0.01)* (adj->upper - adj->lower));
-				if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
-				else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
-				else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
-				else pos = floor (pos);
-				gtk_range_set_value(GTK_RANGE(widget),  pos);
+				gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 			}
 		}
 //----------- minislider
@@ -1477,11 +1456,7 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
 				int  sliderx = (widget->allocation.width -
 				                klass->minislider_x)*0.5;
 				double pos = adj->lower + (((event->x - sliderx-3)*0.03575)* (adj->upper - adj->lower));
-				if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
-				else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
-				else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
-				else pos = floor (pos);
-				gtk_range_set_value(GTK_RANGE(widget),  pos);
+				gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 			}
 		}
 //----------- wheel
@@ -1490,11 +1465,7 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
 				int  wheelx = (widget->allocation.width -
 				               klass->wheel_x)*0.5;
 				double pos = adj->lower + (((event->x - wheelx)*0.03)* (adj->upper - adj->lower));
-				if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
-				else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
-				else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
-				else pos = floor (pos);
-				gtk_range_set_value(GTK_RANGE(widget),  pos);
+				gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 			}
 		}
 //----------- slider
@@ -1503,11 +1474,7 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
 				int  slidery = (widget->allocation.height -
 				                klass->vslider_x)*0.5;
 				double pos = adj->upper - (((event->y - slidery-10)*0.02)* (adj->upper - adj->lower));
-				if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
-				else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
-				else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
-				else pos = floor (pos);
-				gtk_range_set_value(GTK_RANGE(widget),  pos);
+				gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 			}
 		}
 //----------- slider
@@ -1515,12 +1482,8 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
 			if (event->y > 0) {
 				int  slidery = (widget->allocation.height -
 				                klass->eqslider_x)*0.5;
-				double pos = adj->upper - (((event->y - slidery+12)*0.025)* (adj->upper - adj->lower));
-				if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
-				else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
-				else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
-				else pos = floor (pos);
-				gtk_range_set_value(GTK_RANGE(widget),  pos);
+				double pos = adj->upper - (((event->y - slidery+18)*0.02)* (adj->upper - adj->lower));
+				gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 			}
 		}
 	}
@@ -1709,8 +1672,8 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 
 //--------- eqslider size and steps
 	klass->eqslider_x = 13 ;  //this is the scale size
-	klass->eqslider_y = 45 ;   // this is the knob size x and y be the same
-	klass->eqslider_step = 40;
+	klass->eqslider_y = 55 ;   // this is the knob size x and y be the same
+	klass->eqslider_step = 50;
 
 
 //--------- horizontal wheel size and steps

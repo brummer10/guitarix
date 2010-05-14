@@ -11,11 +11,11 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0, float *output1)
 {
-	float 	fSlow0 = fslider0;
-	float 	fSlow1 = (1 - max(0, fSlow0));
-	float 	fSlow2 = (1 - max(0, (0 - fSlow0)));
+	double 	fSlow0 = fslider0;
+	double 	fSlow1 = (1 - max(0, fSlow0));
+	double 	fSlow2 = (1 - max(0, (0 - fSlow0)));
 	for (int i=0; i<count; i++) {
-		float fTemp0 = (float)input0[i];
+		double fTemp0 = (double)input0[i];
 		output0[i] = (FAUSTFLOAT)(fSlow1 * fTemp0);
 		output1[i] = (FAUSTFLOAT)(fSlow2 * fTemp0);
 	}

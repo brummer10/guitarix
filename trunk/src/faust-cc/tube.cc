@@ -11,17 +11,17 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	float 	fSlow0 = (0.25f * fslider0);
+	double 	fSlow0 = (0.25 * fslider0);
 	for (int i=0; i<count; i++) {
-		float fTemp0 = (float)input0[i];
-		output0[i] = (FAUSTFLOAT)max(-0.7f, min(0.7f, (fTemp0 * (1 + (fSlow0 * ((2 - fabsf(fTemp0)) - 1))))));
+		double fTemp0 = (double)input0[i];
+		output0[i] = (FAUSTFLOAT)max(-0.7, min(0.7, (fTemp0 * (1 + (fSlow0 * ((2 - fabs(fTemp0)) - 1))))));
 	}
 }
 
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("tube.fuzzy","count","S","",&fslider0, 1.0f, -3.0f, 1e+01f, 1.0f);
+	registerVar("tube.fuzzy","count","S","",&fslider0, 1.0, -3.0, 1e+01, 1.0);
 	registerInit(init);
 }
 

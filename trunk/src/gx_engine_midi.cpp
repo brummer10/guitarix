@@ -285,12 +285,15 @@ void process_midi(int len)
 		for (int i=0; i<len; i+=step)
 		{
 			float audio_db = *audiodata++;
+			midi.BeatFilter1 = midi.BeatFilter1+(midi.BeatFilterk*(audio_db-midi.BeatFilter1));
+            midi.BeatFilter2 = midi.BeatFilter2+(midi.BeatFilterk*(midi.BeatFilter1-midi.BeatFilter2));
+            audio_db = midi.BeatFilter2*10;
 			if(audio_db > 0.00001)
 			{
 				//----- convert the audio gain to midi gain value
 				midi_db = (log(fabs(audio_db))*midi.fConstlog2);
 				midi.beat0 = 254- floor(exp(midi.fConstlog*midi_db)*127)+ midi.midi_gain;
-				rms = midi.beat0 *2;
+				rms = midi.beat0;
 			}
 			//----- check gain value and run only when gain is higher then the selected value
 			if (( midi.beat0 >= fTemps45) && (gx_jack::jcpu_load < 65.0))

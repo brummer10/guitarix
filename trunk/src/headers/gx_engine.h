@@ -164,6 +164,9 @@ public:
 	int Beat_is;
 	unsigned char* midi_send2;
 	float fautogain2;
+	float BeatFilter1;
+	float BeatFilter2;
+	float BeatFilterk;
 
 	MidiVariables();
 	void init(int samplingFreq);

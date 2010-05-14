@@ -549,6 +549,9 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     if (audio.fboost) {
 	    bassbooster::compute(count, output0, output0);
     }
+    if (audio.ftube3e) {
+	    tube3::compute(count, output0, output0);
+    }
     feed::compute(count, output0, output0, output1);
 
     if (audio.fchorus) {
@@ -557,9 +560,7 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     if (audio.fflanger) {
 	    flanger::compute(count, output0, output1, output0, output1);
     }
-    if (audio.ftube3e) {
-	    tube3::compute(count, output0, output1, output0, output1);
-    }
+
     if (conv.is_runnable()) {
 	    // reuse oversampling buffer
 	    float *conv_out0 = oversample;
