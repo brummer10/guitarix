@@ -1,9 +1,23 @@
+guitarix (0.09.0SVN) unstable; urgency=low
+
+  * SVN HEAD
+  
+-- brummer <brummer-@web.de>  Fri, 14 May 2010 17:18:15 +0200
+
 guitarix (0.08.0) unstable; urgency=low
 
   * new portmap window
-  * (ADD ADDIONAL CHANGES AND CLOSE AGAIN BEFORE RELEASE)
+  * add Quad Filter
+  * add Moog Filter
+  * add Flanger
+  * add new post processing tube3
+  * add two 10 band parametric EQ's
+  * add oversample mode selector
+  * fix some bugs in midi out
+  * reworked tuner interface (show frequency(hz))
+  * add new configure options (see ./waf --help form more info)
 
- -- Andreas Degert <andreas.degert@googlemail.com>  Tue, 30 Mar 2010 22:18:15 +0200
+ -- Andreas Degert <andreas.degert@googlemail.com>  Fri, 14 May 2010 15:18:15 +0200
 
 guitarix (0.07.1) unstable; urgency=low
 
