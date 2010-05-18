@@ -3,7 +3,7 @@ namespace ExpFilter {
 
 //-----------------------------------------------------
 //
-// Code generated with Faust 0.9.22 (http://faust.grame.fr)
+// Code generated with Faust 0.9.24 (http://faust.grame.fr)
 //-----------------------------------------------------
 /* link with  */
 struct Meta : map<const char*, const char*>

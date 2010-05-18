@@ -403,7 +403,6 @@ void process_buffers(int count, float* input, float* output0, float* output1)
 	memcpy(output0, input, count*sizeof(float));
 	IF_HS(HighShelf::compute(count, input, output0));
 
-
     if (audio.feq) {
 	    eq::compute(count, output0, output0);
     }

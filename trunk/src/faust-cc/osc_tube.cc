@@ -2,102 +2,102 @@ namespace osc_tube {
 // generated from file '../src/faust/osc_tube.dsp'
 
 int 	iVec0[2];
-float 	fConst0;
-float 	fConst1;
-float 	fConst2;
-float 	fConst3;
-float 	fConst4;
-float 	fConst5;
-float 	fConst6;
-float 	fConst7;
-float 	fConst8;
-float 	fConst9;
-float 	fRec4[2];
+double 	fConst0;
+double 	fConst1;
+double 	fConst2;
+double 	fConst3;
+double 	fConst4;
+double 	fConst5;
+double 	fConst6;
+double 	fConst7;
+double 	fConst8;
+double 	fConst9;
+double 	fRec4[2];
 FAUSTFLOAT 	fslider0;
-float 	fConst10;
-float 	fConst11;
-float 	fConst12;
-float 	fConst13;
-float 	fConst14;
-float 	fVec1[3];
-float 	fConst15;
-float 	fConst16;
-float 	fConst17;
-float 	fRec6[3];
+double 	fConst10;
+double 	fConst11;
+double 	fConst12;
+double 	fConst13;
+double 	fConst14;
+double 	fVec1[3];
+double 	fConst15;
+double 	fConst16;
+double 	fConst17;
+double 	fRec6[3];
 int 	IOTA;
-float 	fVec2[4096];
+double 	fVec2[4096];
 FAUSTFLOAT 	fslider1;
-float 	fRec5[2];
-float 	fVec3[2];
-float 	fConst18;
-float 	fRec3[2];
-float 	fRec2[2];
-float 	fRec1[3];
-float 	fRec0[3];
+double 	fRec5[2];
+double 	fVec3[2];
+double 	fConst18;
+double 	fRec3[2];
+double 	fRec2[2];
+double 	fRec1[3];
+double 	fRec0[3];
 FAUSTFLOAT 	fslider2;
-float 	fConst19;
+double 	fConst19;
 int	fSamplingFreq;
 
 void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
-	fConst0 = tanf((15707.963267948966f / fSamplingFreq));
-	fConst1 = (2 * (1 - (1.0f / faustpower<2>(fConst0))));
-	fConst2 = (1.0f / fConst0);
-	fConst3 = (1 + ((fConst2 - 0.76536686473018f) / fConst0));
-	fConst4 = (1 + ((0.76536686473018f + fConst2) / fConst0));
-	fConst5 = (1.0f / fConst4);
-	fConst6 = (1 + ((fConst2 - 1.847759065022573f) / fConst0));
-	fConst7 = (1.0f / (1 + ((1.847759065022573f + fConst2) / fConst0)));
-	fConst8 = (408.4070449666731f / fSamplingFreq);
+	fConst0 = tan((15707.963267948966 / fSamplingFreq));
+	fConst1 = (2 * (1 - (1.0 / faustpower<2>(fConst0))));
+	fConst2 = (1.0 / fConst0);
+	fConst3 = (1 + ((fConst2 - 0.76536686473018) / fConst0));
+	fConst4 = (1 + ((0.76536686473018 + fConst2) / fConst0));
+	fConst5 = (1.0 / fConst4);
+	fConst6 = (1 + ((fConst2 - 1.847759065022573) / fConst0));
+	fConst7 = (1.0 / (1 + ((1.847759065022573 + fConst2) / fConst0)));
+	fConst8 = (408.4070449666731 / fSamplingFreq);
 	fConst9 = (1 - fConst8);
 	for (int i=0; i<2; i++) fRec4[i] = 0;
-	fConst10 = (6.283185307179586f * (max(0, ((0.5f * fSamplingFreq) - 100)) / fSamplingFreq));
-	fConst11 = cosf(fConst10);
-	fConst12 = (0 - (2 * (0 - (2.0f * fConst11))));
-	fConst13 = (0.01f * sinf(fConst10));
-	fConst14 = (fConst13 - 2.0f);
+	fConst10 = (6.283185307179586 * (max(0, ((0.5 * fSamplingFreq) - 100)) / fSamplingFreq));
+	fConst11 = cos(fConst10);
+	fConst12 = (0 - (2 * (0 - (2.0 * fConst11))));
+	fConst13 = (0.01 * sin(fConst10));
+	fConst14 = (fConst13 - 2.0);
 	for (int i=0; i<3; i++) fVec1[i] = 0;
-	fConst15 = (0 - (4.0f * fConst11));
-	fConst16 = (2.0f - fConst13);
-	fConst17 = (1.0f / (2.0f + fConst13));
+	fConst15 = (0 - (4.0 * fConst11));
+	fConst16 = (2.0 - fConst13);
+	fConst17 = (1.0 / (2.0 + fConst13));
 	for (int i=0; i<3; i++) fRec6[i] = 0;
 	IOTA = 0;
 	for (int i=0; i<4096; i++) fVec2[i] = 0;
 	for (int i=0; i<2; i++) fRec5[i] = 0;
 	for (int i=0; i<2; i++) fVec3[i] = 0;
-	fConst18 = (1.0f / (1 + fConst8));
+	fConst18 = (1.0 / (1 + fConst8));
 	for (int i=0; i<2; i++) fRec3[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<3; i++) fRec1[i] = 0;
 	for (int i=0; i<3; i++) fRec0[i] = 0;
-	fConst19 = (0.5f / fConst4);
+	fConst19 = (0.5 / fConst4);
 }
 
 void compute(int count, float *input0, float *output0)
 {
-	float 	fSlow0 = (fslider0 + 0.09999999999999998f);
-	float 	fSlow1 = fslider1;
+	double 	fSlow0 = (fslider0 + 0.09999999999999998);
+	double 	fSlow1 = fslider1;
 	int 	iSlow2 = int((int((0 - fSlow1)) & 4095));
 	int 	iSlow3 = int((int((1 - fSlow1)) & 4095));
-	float 	fSlow4 = (fConst19 * fslider2);
+	double 	fSlow4 = (fConst19 * fslider2);
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;
-		fRec4[0] = ((1e-20f * (1 - iVec0[1])) - fRec4[1]);
-		float fTemp0 = (float)input0[i];
+		fRec4[0] = ((1e-20 * (1 - iVec0[1])) - fRec4[1]);
+		double fTemp0 = (double)input0[i];
 		fVec1[0] = fTemp0;
 		fRec6[0] = (fVec1[0] + (fConst17 * (((fConst16 * fVec1[2]) + (fConst15 * fVec1[1])) + ((fConst14 * fRec6[2]) + (fConst12 * fRec6[1])))));
-		float fTemp1 = ((0.5f * (fRec6[0] * ((2 - fabsf(fRec6[0])) - 1))) + (fSlow0 * fRec5[1]));
+		double fTemp1 = ((0.5 * (fRec6[0] * ((2 - fabs(fRec6[0])) - 1))) + (fSlow0 * fRec5[1]));
 		fVec2[IOTA&4095] = fTemp1;
-		fRec5[0] = (0.5f * (fVec2[(IOTA-iSlow3)&4095] + fVec2[(IOTA-iSlow2)&4095]));
-		float fTemp2 = (fRec5[0] + fRec4[0]);
+		fRec5[0] = (0.5 * (fVec2[(IOTA-iSlow3)&4095] + fVec2[(IOTA-iSlow2)&4095]));
+		double fTemp2 = (fRec5[0] + fRec4[0]);
 		fVec3[0] = fTemp2;
 		fRec3[0] = (fConst18 * ((fVec3[0] - fVec3[1]) + (fConst9 * fRec3[1])));
 		fRec2[0] = (fConst18 * ((fRec3[0] - fRec3[1]) + (fConst9 * fRec2[1])));
 		fRec1[0] = (fRec2[0] - (fConst7 * ((fConst6 * fRec1[2]) + (fConst1 * fRec1[1]))));
 		fRec0[0] = ((fConst7 * (fRec1[2] + (fRec1[0] + (2 * fRec1[1])))) - (fConst5 * ((fConst3 * fRec0[2]) + (fConst1 * fRec0[1]))));
-		output0[i] = (FAUSTFLOAT)max(-0.7f, min(0.7f, (fVec1[0] + (fSlow4 * (fRec0[2] + (fRec0[0] + (2 * fRec0[1])))))));
+		output0[i] = (FAUSTFLOAT)max(-0.7, min(0.7, (fVec1[0] + (fSlow4 * (fRec0[2] + (fRec0[0] + (2 * fRec0[1])))))));
 		// post processing
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];
@@ -116,9 +116,9 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("tube2.fuzzy","tube","S","",&fslider2, 1.0f, -3.0f, 1e+01f, 1.0f);
-	registerVar("tube2.vibrato","","S","",&fslider1, 1.0f, 0.0f, 1.0f, 0.01f);
-	registerVar("tube2.resonanz","","S","",&fslider0, 0.5f, 0.0f, 0.9f, 0.01f);
+	registerVar("tube2.fuzzy","tube","S","",&fslider2, 1.0, -3.0, 1e+01, 1.0);
+	registerVar("tube2.vibrato","","S","",&fslider1, 1.0, 0.0, 1.0, 0.01);
+	registerVar("tube2.resonanz","","S","",&fslider0, 0.5, 0.0, 0.9, 0.01);
 	registerInit(init);
 }
 

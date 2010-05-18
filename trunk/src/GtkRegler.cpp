@@ -133,11 +133,14 @@ struct GtkReglerClass {
 
 	int led_x;
 	int led_y;
-
-
 };
 
+//------forward declaration
 GType gtk_regler_get_type ();
+
+/****************************************************************
+ ** calculate the knop pointer with dead zone
+ */
 
 const double scale_zero = 20 * (M_PI/180); // defines "dead zone" for knobs
 
@@ -197,6 +200,10 @@ static void knob_expose(GtkWidget *widget, int knob_x, int knob_y,
 	g_object_unref(line);
 	/** pointer ready  **/
 }
+
+/****************************************************************
+ ** general expose events for all "regler" controllers
+ */
 
 //----------- draw the Regler when moved
 static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
@@ -429,7 +436,8 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 
 		}
 	}
-	//---------- toggle button
+
+//---------- toggle button
 	else if (regler->regler_type == 8) {
 		reglerx += (widget->allocation.width -
 		            klass->b_toggle_x) *0.5;
@@ -452,7 +460,7 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 		}
 	}
 
-	//--------- vertical slider
+//--------- vertical slider
 	else if (regler->regler_type == 9) {
 		reglerx += (widget->allocation.width -
 		            klass->slider_y) *0.5;
@@ -501,7 +509,7 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 		}
 	}
 
-	//--------- mini slider
+//--------- mini slider
 	else if (regler->regler_type == 10) {
 		reglerx += (widget->allocation.width -
 		            klass->eqslider_x) *0.5;
@@ -524,7 +532,7 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 
 	}
 
-	//---------- selector button
+//---------- selector button
 	else if (regler->regler_type == 11) {
 		reglerx += (widget->allocation.width -
 		            klass->selector_x) *0.5;
@@ -575,12 +583,15 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 			                reglerstate * klass->led_y, 8, 12, //left upper corner, else use reglex,reglery
 			                klass->led_x,
 			                klass->led_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-
 	}
 
 	return TRUE;
 }
-//-------------- redraw when leave
+
+/****************************************************************
+ ** redraw when leave
+ */
+
 static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GTK_IS_REGLER(widget));
@@ -821,11 +832,13 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
 		cairo_destroy(cr);
 	}
 
-
 	return TRUE;
 }
 
-//----------- redraw when enter
+/****************************************************************
+ ** redraw when enter
+ */
+
 static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GTK_IS_REGLER(widget));
@@ -1089,7 +1102,10 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 	return TRUE;
 }
 
-//----------- set size for GdkDrawable per type
+/****************************************************************
+ ** set size for GdkDrawable per type
+ */
+
 static void gtk_regler_size_request (GtkWidget *widget, GtkRequisition *requisition)
 {
 	g_assert(GTK_IS_REGLER(widget));
@@ -1121,12 +1137,12 @@ static void gtk_regler_size_request (GtkWidget *widget, GtkRequisition *requisit
 		requisition->width = klass->minislider_x;
 		requisition->height = klass->minislider_y;
 	}
-//----------- switch//
+//----------- switch2
 	else if (regler->regler_type == 5) {
 		requisition->width = klass->switch_x;
 		requisition->height = klass->switch_y;
 	}
-	//----------- minitoggle
+//----------- minitoggle
 	else if (regler->regler_type == 6) {
 		requisition->width = klass->minitoggle_x;
 		requisition->height = klass->minitoggle_y;
@@ -1136,27 +1152,27 @@ static void gtk_regler_size_request (GtkWidget *widget, GtkRequisition *requisit
 		requisition->width = klass->wheel_x;
 		requisition->height = klass->wheel_y;
 	}
-	//----------- switch
+//----------- togglebutton
 	else if (regler->regler_type == 8) {
 		requisition->width = klass->b_toggle_x;
 		requisition->height = klass->b_toggle_y;
 	}
-	//----------- vertical slider
+//----------- vertical slider
 	else if (regler->regler_type == 9) {
 		requisition->width = klass->slider_y;
 		requisition->height = klass->vslider_x;
 	}
-	//-----------  eqslider
+//-----------  eqslider
 	else if (regler->regler_type == 10) {
 		requisition->width = klass->eqslider_x;
 		requisition->height = klass->eqslider_y;
 	}
-	//-----------  eqslider
+//-----------  selector
 	else if (regler->regler_type == 11) {
 		requisition->width = klass->selector_x;
 		requisition->height = klass->selector_y;
 	}
-	//-----------  led
+//-----------  led
 	else if (regler->regler_type == 12) {
 		requisition->width = klass->led_x;
 		requisition->height = klass->led_y;
@@ -1164,7 +1180,10 @@ static void gtk_regler_size_request (GtkWidget *widget, GtkRequisition *requisit
 
 }
 
-//----------- set value
+/****************************************************************
+ ** set value from key bindings
+ */
+
 static void gtk_regler_set_value (GtkWidget *widget, int dir_down)
 {
 	g_assert(GTK_IS_REGLER(widget));
@@ -1183,7 +1202,10 @@ static void gtk_regler_set_value (GtkWidget *widget, int dir_down)
 	gtk_range_set_value(GTK_RANGE(widget), value);
 }
 
-//----------- keyboard bindings
+/****************************************************************
+ ** keyboard bindings
+ */
+
 static gboolean gtk_regler_key_press (GtkWidget *widget, GdkEventKey *event)
 {
 	g_assert(GTK_IS_REGLER(widget));
@@ -1213,6 +1235,7 @@ static gboolean gtk_regler_key_press (GtkWidget *widget, GdkEventKey *event)
 	return FALSE;
 }
 
+//------------ calculate needed precision
 int precision(double n)
 {
 	if (n < 0.009999) return 3;
@@ -1231,6 +1254,10 @@ static double gtk_regler_get_value(GtkAdjustment *adj,double pos)
     return pos;
 
 }
+
+/****************************************************************
+ ** alternative knob motion mode (ctrl + mouse pressed)
+ */
 
 static void knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, int knob_x, int knob_y,
                                bool drag, int state)
@@ -1289,8 +1316,10 @@ static void knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, int knob
 	gtk_range_set_value(GTK_RANGE(widget), adj->lower + angle * (adj->upper - adj->lower));
 }
 
+/****************************************************************
+ ** mouse button pressed set value
+ */
 
-//----------- mouse button pressed set value
 static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *event)
 {
 	g_assert(GTK_IS_REGLER(widget));
@@ -1305,39 +1334,24 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 		gtk_widget_grab_focus(widget);
 		gtk_widget_grab_default (widget);
 		gtk_grab_add(widget);
-		//----------- knobs
-
 		klass->button_is = 1;
+
+//----------- knob
 		if (regler->regler_type == 0) { //| (regler->regler_type < 2))
 			knob_pointer_event(widget, event->x, event->y, klass->regler_x, klass->regler_y,
 			                   false, event->state);
-		} else if (regler->regler_type == 1) {
+		}
+//----------- big knob
+		else if (regler->regler_type == 1) {
 			knob_pointer_event(widget, event->x, event->y, klass->bigknob_x, klass->bigknob_y,
 			                   false, event->state);
 		}
-
 //----------- slider
 		else if (regler->regler_type == 3) {
 
 			int  reglerx = (widget->allocation.width -
 			                klass->slider_x) *0.5;
 			double pos = adj->lower + (((event->x - reglerx-10)*0.01)* (adj->upper - adj->lower));
-			gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
-		}
-		//----------- slider
-		else if (regler->regler_type == 9) {
-
-			int  reglery = (widget->allocation.height -
-			                klass->vslider_x) *0.5;
-			double pos = adj->upper - (((event->y - reglery-10)*0.02)* (adj->upper - adj->lower));
-			gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
-		}
-		//----------- slider
-		else if (regler->regler_type == 10) {
-
-			int  reglery = (widget->allocation.height -
-			                klass->eqslider_x) *0.5;
-			double pos = adj->upper - (((event->y - reglery+18)*0.02)* (adj->upper - adj->lower));
 			gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 		}
 //----------- minislider
@@ -1356,15 +1370,30 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 			double pos = adj->lower + (((event->x - wheelx)*0.03)* (adj->upper - adj->lower));
 			gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 		}
-		//---------- selector
+//----------- vertical slider
+		else if (regler->regler_type == 9) {
+
+			int  reglery = (widget->allocation.height -
+			                klass->vslider_x) *0.5;
+			double pos = adj->upper - (((event->y - reglery-10)*0.02)* (adj->upper - adj->lower));
+			gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
+		}
+//----------- eqslider
+		else if (regler->regler_type == 10) {
+
+			int  reglery = (widget->allocation.height -
+			                klass->eqslider_x) *0.5;
+			double pos = adj->upper - (((event->y - reglery+18)*0.02)* (adj->upper - adj->lower));
+			gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
+		}
+//---------- selector
 		else if (regler->regler_type == 11) {
 			regler->start_value = gtk_range_get_value(GTK_RANGE(widget));
 			if ( regler->start_value < regler->max_value-1) gtk_range_set_value(GTK_RANGE(widget),regler->start_value +1);
 			//else if ( regler->start_value == 1) gtk_range_set_value(GTK_RANGE(widget), 2);
 			else gtk_range_set_value(GTK_RANGE(widget), 0);
 		}
-
-		//----------- switch
+//----------- switches and toggle
 		else { // if ((regler->regler_type == 2) || (regler->regler_type == 5) || (regler->regler_type == 6)|| (regler->regler_type == 8))
 			regler->start_value = gtk_range_get_value(GTK_RANGE(widget));
 			if ( regler->start_value == 0) gtk_range_set_value(GTK_RANGE(widget), 1);
@@ -1415,7 +1444,10 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 	return TRUE;
 }
 
-//----------- mouse button release
+/****************************************************************
+ ** mouse button release
+ */
+
 static gboolean gtk_regler_button_release (GtkWidget *widget, GdkEventButton *event)
 {
 	g_assert(GTK_IS_REGLER(widget));
@@ -1425,7 +1457,10 @@ static gboolean gtk_regler_button_release (GtkWidget *widget, GdkEventButton *ev
 	return FALSE;
 }
 
-//----------- set the value from mouse movement
+/****************************************************************
+ ** set the value from mouse movement
+ */
+
 static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *event)
 {
 	g_assert(GTK_IS_REGLER(widget));
@@ -1468,7 +1503,7 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
 				gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 			}
 		}
-//----------- slider
+//----------- vertical slider
 		else if (regler->regler_type == 9) {
 			if (event->y > 0) {
 				int  slidery = (widget->allocation.height -
@@ -1477,7 +1512,7 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
 				gtk_range_set_value(GTK_RANGE(widget), gtk_regler_get_value(adj,pos));
 			}
 		}
-//----------- slider
+//----------- eqslider
 		else if (regler->regler_type == 10) {
 			if (event->y > 0) {
 				int  slidery = (widget->allocation.height -
@@ -1490,7 +1525,10 @@ static gboolean gtk_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *ev
 	return FALSE;
 }
 
-//----------- set value from mouseweel
+/****************************************************************
+ ** set value from mouseweel
+ */
+
 static gboolean gtk_regler_scroll (GtkWidget *widget, GdkEventScroll *event)
 {
 	usleep(5000);
@@ -1498,71 +1536,70 @@ static gboolean gtk_regler_scroll (GtkWidget *widget, GdkEventScroll *event)
 	return FALSE;
 }
 
+/****************************************************************
+ ** init the used background images to the used skins
+ */
+
 void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
 	g_assert(GTK_IS_REGLER(widget));
 	GtkReglerClass *klass =  GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
 
-	//---------- here are the inline pixmaps for regler
+//---------- here are the inline pixmaps for regler
 #include "GtkReglerpix.cpp"
 	klass->pix_switch = change_knob;
 	if (klass->pix_switch == 0) {
-		//----------- Big knob
+//----------- Big knob
 		klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob1_xpm);
 		g_assert(klass->bigregler_image != NULL);
-
-		//----------- small knob
+//----------- small knob
 		klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
 		g_assert(klass->regler_image != NULL);
 		klass->pix_switch = 1;
 	} else if (klass->pix_switch == 1) {
-		//----------- Big knob
+//----------- Big knob
 		klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob2_xpm);
 		g_assert(klass->bigregler_image != NULL);
-
-		//----------- small knob
+//----------- small knob
 		klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
 		g_assert(klass->regler_image != NULL);
 		klass->pix_switch = 0;
 	} else if (klass->pix_switch == 2) {
-		//----------- Big knob
+//----------- Big knob
 		klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob3_xpm);
 		g_assert(klass->bigregler_image != NULL);
-
-		//----------- small knob
+//----------- small knob
 		klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
 		g_assert(klass->regler_image != NULL);
 		klass->pix_switch = 0;
 	} else if (klass->pix_switch == 3) {
-		//----------- Big knob
+//----------- Big knob
 		klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob4_xpm);
 		g_assert(klass->bigregler_image != NULL);
-
-		//----------- small knob
+//----------- small knob
 		klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
 		g_assert(klass->regler_image != NULL);
 		klass->pix_switch = 0;
 	} else if (klass->pix_switch == 4) {
-		//----------- Big knob
+//----------- Big knob
 		klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob5_xpm);
 		g_assert(klass->bigregler_image != NULL);
-
-		//----------- small knob
+//----------- small knob
 		klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
 		g_assert(klass->regler_image != NULL);
 		klass->pix_switch = 0;
 	} else if (klass->pix_switch == 5) {
-		//----------- Big knob
+//----------- Big knob
 		klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob6_xpm);
 		g_assert(klass->bigregler_image != NULL);
-
-		//----------- small knob
+//----------- small knob
 		klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
 		g_assert(klass->regler_image != NULL);
 		klass->pix_switch = 0;
 	}
 
+//----------- general pixmap init
 	if (klass->pix_is != 1) {
 //----------- switch
 		klass->toggle_image = gdk_pixbuf_new_from_xpm_data (switchit_xpm);
@@ -1570,24 +1607,20 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 		klass->toggle_image1 = gdk_pixbuf_copy( klass->toggle_image );
 		g_assert(klass->toggle_image1 != NULL);
 		gdk_pixbuf_saturate_and_pixelate(klass->toggle_image1,klass->toggle_image1,10.0,FALSE);
-
 //----------- switchII
 		klass->switch_image = gdk_pixbuf_new_from_xpm_data (switch_xpm);
 		g_assert(klass->switch_image != NULL);
 		klass->switch_image1 = gdk_pixbuf_copy( klass->switch_image );
 		g_assert(klass->switch_image1 != NULL);
 		gdk_pixbuf_saturate_and_pixelate(klass->switch_image1,klass->switch_image1,10.0,FALSE);
-
 //----------- led
         klass->led_image = gdk_pixbuf_new_from_xpm_data (led_xpm);
 		g_assert(klass->led_image != NULL);
-
 //----------- horizontal slider
 		klass->slider_image = gdk_pixbuf_new_from_xpm_data(slidersm_xpm);
 		g_assert(klass->slider_image != NULL);
 		klass->slider_image1 = gdk_pixbuf_copy( klass->slider_image );
 		g_assert(klass->slider_image1 != NULL);
-
 //----------- vertical slider
 		klass->vslider_image = gdk_pixbuf_rotate_simple(klass->slider_image,
 		                                                GDK_PIXBUF_ROTATE_CLOCKWISE);
@@ -1595,7 +1628,6 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 		klass->vslider_image = gdk_pixbuf_flip(klass->vslider_image, TRUE);
 		klass->vslider_image1 = gdk_pixbuf_copy( klass->vslider_image );
 		g_assert(klass->vslider_image1 != NULL);
-
 //----------- mini slider
 		klass->minislider_image = gdk_pixbuf_scale_simple(klass->slider_image,40,6,GDK_INTERP_HYPER);
 		g_assert(klass->minislider_image != NULL);
@@ -1606,7 +1638,6 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 		g_assert(klass->eqslider_image != NULL);
 		klass->eqslider_image1 = gdk_pixbuf_copy( klass->eqslider_image );
 		g_assert(klass->eqslider_image1 != NULL);
-
 //----------- horizontal wheel
 		klass->wheel_image = gdk_pixbuf_new_from_xpm_data(wheel_xpm);
 		g_assert(klass->wheel_image != NULL);
@@ -1618,19 +1649,18 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 		klass->b_toggle_image = gdk_pixbuf_new_from_xpm_data (button_xpm);
 		g_assert(klass->b_toggle_image != NULL);
 		klass->b_toggle_image1 = gdk_pixbuf_new_from_xpm_data (button1_xpm);
-		//klass->b_toggle_image1 = gdk_pixbuf_copy( klass->b_toggle_image );
 		g_assert(klass->b_toggle_image1 != NULL);
-		// gdk_pixbuf_saturate_and_pixelate(klass->b_toggle_image1,klass->b_toggle_image1,3.0,FALSE);
 		klass->pix_is = 1;
 	}
 }
 
-//----------- init the GtkReglerClass
+/****************************************************************
+ ** init the GtkReglerClass
+ */
+
 static void gtk_regler_class_init (GtkReglerClass *klass)
 {
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-
-
 
 	/** set here the sizes and steps for the used regler **/
 //--------- small knob size and steps
@@ -1675,7 +1705,6 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 	klass->eqslider_y = 55 ;   // this is the knob size x and y be the same
 	klass->eqslider_step = 50;
 
-
 //--------- horizontal wheel size and steps
 	klass->wheel_x = 40 ;  //this is the scale size
 	klass->wheel_y = 8 ;   // this is the knob size x and y be the same
@@ -1686,19 +1715,20 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 	klass->b_toggle_y = 15 ;
 	klass->b_toggle_step = 1;
 
-	//--------- selector size and steps
+//--------- selector size and steps
 	klass->selector_x = 55 ;
 	klass->selector_y = 15 ;
 	klass->selector_step = 6;
 
-//--------- event button
-	klass->button_is = 0;
-
-	klass->pix_is = 0;
-
+//--------- led
 	klass->led_x = 20 ;
 	klass->led_y = 20 ;
 
+//--------- event button
+	klass->button_is = 0;
+
+//--------- init pixmaps
+	klass->pix_is = 0;
 
 //--------- connect the events with funktions
 	widget_class->enter_notify_event = gtk_regler_enter_in;
@@ -1712,10 +1742,12 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 	widget_class->scroll_event = gtk_regler_scroll;
 
 	GtkRegler::gtk_regler_init_pixmaps(0);
-
 }
 
-//----------- init the Regler type
+/****************************************************************
+ ** init the Regler type/size
+ */
+
 static void gtk_regler_init (GtkRegler *regler)
 {
 	GtkWidget *widget = GTK_WIDGET(regler);
@@ -1766,7 +1798,10 @@ static void gtk_regler_init (GtkRegler *regler)
 	}
 }
 
-//----------- redraw when value changed
+/****************************************************************
+ ** redraw when value changed
+ */
+
 static gboolean gtk_regler_value_changed(gpointer obj)
 {
 	GtkWidget *widget = (GtkWidget *)obj;
@@ -1774,9 +1809,12 @@ static gboolean gtk_regler_value_changed(gpointer obj)
 	return FALSE;
 }
 
+/****************************************************************
+ ** destructer
+ */
 //-------- the destructer doesen't work in virtual mode, so we need this destroy funktion
 //-------- to clean up when exit. This must call in the destroy funktion of the main app.
-void GtkRegler::gtk_regler_destroy ( )
+void GtkRegler::gtk_regler_destroy ()
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
 	g_assert(GTK_IS_REGLER(widget));
@@ -1818,8 +1856,10 @@ void GtkRegler::gtk_regler_destroy ( )
 		g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->led_image);
 }
 
+/****************************************************************
+ ** create small knob
+ */
 
-//----------- create small knob
 GtkWidget *GtkRegler::gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment)
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
@@ -1834,7 +1874,10 @@ GtkWidget *GtkRegler::gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment)
 	return widget;
 }
 
-//----------- create Big knob
+/****************************************************************
+ ** create Big knob
+ */
+
 GtkWidget *GtkRegler::gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustment)
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
@@ -1849,7 +1892,10 @@ GtkWidget *GtkRegler::gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustm
 	return widget;
 }
 
-//----------- create a switcher
+/****************************************************************
+ ** create a switcher
+ */
+
 GtkWidget *GtkRegler::gtk_toggle_new_with_adjustment(GtkAdjustment *_adjustment)
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
@@ -1863,7 +1909,10 @@ GtkWidget *GtkRegler::gtk_toggle_new_with_adjustment(GtkAdjustment *_adjustment)
 	return widget;
 }
 
-//----------- create a horizontal slider
+/****************************************************************
+ ** create a horizontal slider
+ */
+
 GtkWidget *GtkRegler::gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment)
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
@@ -1877,7 +1926,10 @@ GtkWidget *GtkRegler::gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment
 	return widget;
 }
 
-//----------- create a horizontal mini slider
+/****************************************************************
+ ** create a horizontal mini slider
+ */
+
 GtkWidget *GtkRegler::gtk_mini_slider_new_with_adjustment(GtkAdjustment *_adjustment)
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
@@ -1891,7 +1943,10 @@ GtkWidget *GtkRegler::gtk_mini_slider_new_with_adjustment(GtkAdjustment *_adjust
 	return widget;
 }
 
-//----------- create a switcher
+/****************************************************************
+ ** create a switcher
+ */
+
 GtkWidget *GtkRegler::gtk_switch_new_with_adjustment(GtkAdjustment *_adjustment)
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
@@ -1905,7 +1960,10 @@ GtkWidget *GtkRegler::gtk_switch_new_with_adjustment(GtkAdjustment *_adjustment)
 	return widget;
 }
 
-//----------- create a minitoggle
+/****************************************************************
+ ** create a minitoggle
+ */
+
 GtkWidget *GtkRegler::gtk_mini_toggle_new_with_adjustment(GtkAdjustment *_adjustment)
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
@@ -1919,7 +1977,10 @@ GtkWidget *GtkRegler::gtk_mini_toggle_new_with_adjustment(GtkAdjustment *_adjust
 	return widget;
 }
 
-//----------- create a horizontal wheel
+/****************************************************************
+ ** create a horizontal wheel
+ */
+
 GtkWidget *GtkRegler::gtk_wheel_new_with_adjustment(GtkAdjustment *_adjustment)
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
@@ -1933,7 +1994,10 @@ GtkWidget *GtkRegler::gtk_wheel_new_with_adjustment(GtkAdjustment *_adjustment)
 	return widget;
 }
 
-//----------- create a toggle button
+/****************************************************************
+ ** create a toggle button
+ */
+
 GtkWidget *GtkRegler::gtk_button_toggle_new_with_adjustment(GtkAdjustment *_adjustment)
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
@@ -1947,7 +2011,10 @@ GtkWidget *GtkRegler::gtk_button_toggle_new_with_adjustment(GtkAdjustment *_adju
 	return widget;
 }
 
-//----------- create a vertical slider
+/****************************************************************
+ ** create a vertical slider
+ */
+
 GtkWidget *GtkRegler::gtk_vslider_new_with_adjustment(GtkAdjustment *_adjustment)
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
@@ -1961,7 +2028,10 @@ GtkWidget *GtkRegler::gtk_vslider_new_with_adjustment(GtkAdjustment *_adjustment
 	return widget;
 }
 
-//----------- create a eqslider
+/****************************************************************
+ ** create a eqslider
+ */
+
 GtkWidget *GtkRegler::gtk_eq_slider_new_with_adjustment(GtkAdjustment *_adjustment)
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
@@ -1975,7 +2045,10 @@ GtkWidget *GtkRegler::gtk_eq_slider_new_with_adjustment(GtkAdjustment *_adjustme
 	return widget;
 }
 
-//----------- create a selector
+/****************************************************************
+ ** create a selector
+ */
+
 GtkWidget *GtkRegler::gtk_selector_new_with_adjustment(GtkAdjustment *_adjustment, int maxv, const char* label[])
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
@@ -1984,8 +2057,6 @@ GtkWidget *GtkRegler::gtk_selector_new_with_adjustment(GtkAdjustment *_adjustmen
 	regler->max_value = maxv;
 	for (int i=0; i < maxv; i++)
 		regler->labels[i]=label[i];
-	//regler->labels[1]=label1;
-	//regler->labels[2]=label2;
 	if (widget) {
 		gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
 		g_signal_connect(GTK_OBJECT(widget), "value-changed",
@@ -1994,7 +2065,10 @@ GtkWidget *GtkRegler::gtk_selector_new_with_adjustment(GtkAdjustment *_adjustmen
 	return widget;
 }
 
-//----------- create a led
+/****************************************************************
+ ** create a led
+ */
+
 GtkWidget *GtkRegler::gtk_led_new_with_adjustment(GtkAdjustment *_adjustment)
 {
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
@@ -2008,7 +2082,10 @@ GtkWidget *GtkRegler::gtk_led_new_with_adjustment(GtkAdjustment *_adjustment)
 	return widget;
 }
 
-//----------- get the Regler type
+/****************************************************************
+ ** get the Regler type
+ */
+
 GType gtk_regler_get_type (void)
 {
 	static GType kn_type = 0;

@@ -645,6 +645,6 @@ void process_midi(int len)
 
 		}
 	}
-};
+}
 
 } /* end of gx_engine namespace */

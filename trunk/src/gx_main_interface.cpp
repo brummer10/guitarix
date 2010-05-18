@@ -63,6 +63,10 @@ using namespace gx_threads;
 namespace gx_gui
 {
 
+/****************************************************************
+ ** format controller values
+ */
+
 int precision(double n)
 {
 	if (n < 0.009999) return 3;
@@ -78,12 +82,16 @@ string fformat(float value, float step)
 	return buf.str();
 }
 
-// GxMidiController definitions and connecting method
+/****************************************************************
+ ** GxMidiController definitions and connecting method
+ */
+
 #include "gx_main_midi.cc"
 
-// -------------------------------------------------------------
-// GxMainInterface widget and method definitions
-//
+/****************************************************************
+ ** GxMainInterface widget and method definitions
+ */
+
 // static member
 bool GxMainInterface::fInitialized = false;
 #ifndef NDEBUG
@@ -146,6 +154,9 @@ GxMainInterface* GxMainInterface::instance(const char* name, int* pargc, char***
 	return &maingui;
 }
 
+/****************************************************************
+ ** virtual GUI discriptions
+ */
 
 //------- retrieve jack latency menu item
 GtkWidget* const
@@ -1895,7 +1906,7 @@ void GxMainInterface::addStatusDisplay(const char* label, float* zone )
 	addWidget(label, lw);
 	closeBox();
 	gtk_widget_hide(lw);
-};
+}
 
 void GxMainInterface::addLiveWaveDisplay(const char* label, float* zone , float* zone1)
 {
@@ -1915,7 +1926,7 @@ void GxMainInterface::addLiveWaveDisplay(const char* label, float* zone , float*
 	gtk_widget_show(box);
 	gtk_widget_hide(e_box);
 	gtk_widget_hide(livewa);
-};
+}
 
 //----------------------------- main menu ----------------------------
 void GxMainInterface::addMainMenu()

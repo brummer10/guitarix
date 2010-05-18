@@ -162,7 +162,7 @@ typedef enum {
 	kInfo,
 	kWarning,
 	kError,
-	kMessageTypeCount, // just count, must be last
+	kMessageTypeCount // just count, must be last
 } GxMsgType;
 
 /* variables and constants */

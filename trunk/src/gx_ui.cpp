@@ -102,7 +102,7 @@ inline void GxUI::updateAllZones()
 inline void GxUI::addCallback(float* zone, GxUiCallback foo, void* data)
 {
 	new GxUiCallbackItem(this, zone, foo, data);
-};
+}
 
 
 /* ---------------- GxUiItem stuff --------------- */

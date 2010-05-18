@@ -165,6 +165,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/jconv_post.cc"
 #include "faust-cc/balance1.cc"
 #include "faust-cc/eq.cc"
+#include "faust-cc/tube3.cc"
 
 // effects
 #include "faust-cc/overdrive.cc"
@@ -180,7 +181,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/moog.cc"
 #include "faust-cc/biquad.cc"
 #include "faust-cc/flanger.cc"
-#include "faust-cc/tube3.cc"
+
 
 /****************************************************************
  **  the Eperimental widget

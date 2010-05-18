@@ -17,7 +17,7 @@ from Configure import ConfigurationError
 VERSION='0.09.0svn'
 APPNAME='guitarix'
 
-good_faust_versions = ['0.9.10','0.9.17','0.9.22']
+good_faust_versions = ['0.9.10','0.9.17','0.9.22','0.9.23','0.9.24']
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
@@ -55,10 +55,16 @@ def set_options(opt):
 
     comp.add_option('--cxxflags',
                     type='string', 
-                    default='-march=native -Wall -std=c++0x',
+                    default='-Wall -std=c++0x', # -fomit-frame-pointer -ffast-math -fstrength-reduce -mmmx -mfpmath=sse -DUSE_XMMINTRIN -pipe
                     dest='cxxflags', 
                     help='C++ base compiler flags [Default: %default]')
-
+                    
+    comp.add_option('--optimization',
+                    action='store_const', 
+                    default=False, #'-fomit-frame-pointer -ffast-math -fstrength-reduce -pipe',
+                    const=True, 
+                    help='C++ optimization compiler flags [Default: %default]')
+                    
     comp.add_option('--experimental',
                     action='store_const',
                     default=False,
@@ -91,6 +97,12 @@ def set_options(opt):
                      default=False,
                      const=True,
                      help="don't build with faust")
+                     
+    faust.add_option('--faust-float',
+                     action='store_const',
+                     default=False,
+                     const=True,
+                     help="build with faust, single precision")                
 
     ladspa = opt.add_option_group("other options")
 
@@ -135,6 +147,11 @@ def check_faust(conf):
         conf.check_message_custom('faust','version',"can't use %s (check ./waf --help)" % vers,color='YELLOW')
     else:
         conf.check_message('faust','version',1,vers)
+    if Options.options.faust_float:
+		conf.env['FAUST_DOUBLE'] =None
+    else:
+		conf.env['FAUST_DOUBLE'] =True 
+        
 
 def check_faust_cc(conf, cpy_dir):
     if os.path.exists(cpy_dir):
@@ -186,8 +203,10 @@ def display_feature(msg, build):
 def configure(conf):
     conf.check_tool('compiler_cxx')
     cxx_version = conf.env["CC_VERSION"];
-    if conf.env["CXX"][0][:3] == "g++" and cxx_version[:2] < ('4','3'):
-        display_msg("Warning: at least g++ 4.3 needed", "(found %s)" % ".".join(cxx_version), "YELLOW")
+    if cxx_version[:2] < ('4','3'):
+        conf.env['g++'] = True
+        display_msg("Warning: at least g++ 4.3 needed", "found %s" % ".".join(cxx_version), "YELLOW")
+
     try:
         conf.check_cfg(package='jack', atleast_version='0.109.1', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
     except ConfigurationError:
@@ -238,6 +257,35 @@ def configure(conf):
     else:
         cxxflags += Options.options.cxxflags_release.split()
     conf.env['CXXFLAGS'] = cxxflags
+    
+    if Options.options.optimization and not (Options.options.debug or conf.env['DEBUG']):   
+        flag_line = os.popen ("cat /proc/cpuinfo | grep '^flags'").read()[:-1]
+        x86_flags = flag_line.split (": ")[1:][0].split ()
+        arch = os.popen ("uname -m").read()[:-1]
+        if "i386" in arch:
+		    cxxflags.append ("-march=i386")
+        elif "i586" in arch:
+		    cxxflags.append ("-march=i586")
+        elif "i686" in arch:
+		    cxxflags.append ("-march=i686")
+        else:
+			cxxflags.append ("-march=native")  
+
+        if "mmx" in x86_flags:
+            cxxflags.append ("-mmmx")
+        if "sse2" in x86_flags:
+            cxxflags.append ("-msse2")
+            cxxflags.append ("-mfpmath=sse") 
+            #cxxflags.append ("-DUSE_XMMINTRIN")    
+        else: 
+            if "sse" in x86_flags:
+                cxxflags.append ("-msse")
+                cxxflags.append ("-mfpmath=sse")
+               # cxxflags.append ("-DUSE_XMMINTRIN")
+        cxxflags.append ("-fomit-frame-pointer")
+        cxxflags.append ("-ffast-math")
+        cxxflags.append ("-fstrength-reduce")
+        cxxflags.append ("-pipe")
 
     # config subdirs
     conf.sub_config('src');
@@ -264,7 +312,12 @@ def configure(conf):
     print_msg("")
 
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
+    #display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(cxx_version), "CYAN")
     display_feature("Use faust", conf.env['FAUST'])
+    if conf.env['FAUST_DOUBLE']:
+        display_msg("Use faust precision", "double", 'CYAN')
+    else:
+		display_msg("Use faust precision", "single", 'CYAN')    
     display_feature("Use internal zita-resampler", conf.env['ZITARESAMPLER'])
     display_feature("Use internal zita-convolver", conf.env['ZITACONVOLVER'])
     display_feature("Experimental Extensions", conf.env['EXPERIMENTAL']=="")
@@ -274,7 +327,9 @@ def configure(conf):
     display_msg("Guitarix style directory", conf.env['GX_STYLE_DIR'], 'CYAN')
     display_msg("Guitarix builder directory", conf.env['GX_BUILDER_DIR'], 'CYAN')
     display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
-
+    if conf.env['g++']:
+       error_msg("ERROR       !!! Compiler version is to old !!!")
+       
     print_msg("")
 
 def build(bld):

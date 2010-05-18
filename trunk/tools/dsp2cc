@@ -270,6 +270,10 @@ def main():
     op = OptionParser(usage="usage: %prog [options] <faust-dsp-file>")
     op.add_option("-o", "--output", dest="oname",
                   help="write c++ code to FILE", metavar="FILE")
+    op.add_option("-d", "--double", dest="faust", action="append",
+                  help="additional faust options, build with double precison") 
+    op.add_option("-f", "--float", dest="faustf", action="append",
+                  help="additional faust options, build with single precison")                           
     options, args = op.parse_args()
     if len(args) != 1:
         op.error("exactly one input filename expected\n")
@@ -277,7 +281,11 @@ def main():
     if not os.path.exists(fname):
         print "error: can't open '%s'" % fname
         raise SystemExit, 1
-    faust = Popen("faust %s" % fname, shell=True, stdout=PIPE)
+    if options.faust:
+		precison = '-double'
+    elif options.faustf:
+		precison = '-single'	    
+    faust = Popen("faust %s %s" %( fname, precison), shell=True, stdout=PIPE)
     try:
         parser = Parser(faust.stdout, os.path.splitext(os.path.basename(fname))[0])
     except ValueError, e:

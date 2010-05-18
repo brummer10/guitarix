@@ -56,6 +56,10 @@ def dsp_file(self, node):
     tsk.set_outputs(o)
 
 def build(bld):
+    if bld.env['FAUST_DOUBLE']:
+		arg = ["-double"]
+    else:
+		arg = ["-float"]		
     sources = [
         # amp
         'preamp.dsp',
@@ -104,6 +108,7 @@ def build(bld):
     bld.new_task_gen(
         source = sources,
         proc = "../tools/dsp2cc",
+        proc_args = arg,
         )
 
     bld.new_task_gen(
