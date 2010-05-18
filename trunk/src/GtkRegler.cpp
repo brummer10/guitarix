@@ -1426,7 +1426,7 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 		gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
 		gtk_widget_grab_default(ok_button);
 		toplevel = gtk_widget_get_toplevel (widget);
-        if (gtk_widget_is_toplevel (toplevel))
+        if (GTK_WIDGET_TOPLEVEL (toplevel))
            {
              gtk_window_set_transient_for (GTK_WINDOW(dialog), GTK_WINDOW(toplevel));
            }

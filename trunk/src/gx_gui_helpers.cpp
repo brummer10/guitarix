@@ -453,7 +453,7 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 void gx_hide_extended_settings( GtkWidget *widget, gpointer data )
 {
 
-	if (gdk_window_get_state(gtk_widget_get_window(fWindow))
+	if (gdk_window_get_state(fWindow->window)
 	    & (GDK_WINDOW_STATE_ICONIFIED|GDK_WINDOW_STATE_WITHDRAWN)) {
 		gtk_window_present(GTK_WINDOW(fWindow));
 	} else {

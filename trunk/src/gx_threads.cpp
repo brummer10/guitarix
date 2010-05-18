@@ -36,6 +36,7 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <signal.h>
 #include <array>
 #include <zita-convolver.h>
 #include <fftw3.h>

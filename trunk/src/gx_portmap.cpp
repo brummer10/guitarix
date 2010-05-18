@@ -417,7 +417,7 @@ void PortMapWindow::on_check_resize(GtkWidget *widget, gpointer data)
 	    !gtk_widget_get_child_visible(p->monitored_expander_child)) {
 		p->monitored_expander_child = 0;
 		gint width;
-		gdk_window_get_geometry(gtk_widget_get_window(window), 0, 0, &width, 0, 0);
+		gdk_window_get_geometry(window->window, 0, 0, &width, 0, 0);
 		gtk_window_resize(GTK_WINDOW(window), width, 1);
 	}
 }
