@@ -289,7 +289,9 @@ void GxMainInterface::setup()
 						//----- end tone and fuzz controll
 
 						//----- the next part in the vertical box,
-						openVerticalBox("");
+						openExpanderBox(" amplifier", &gx_engine::audio.fampexpand);
+                        {
+						openAmpBox("");
 						{
 							openHorizontalBox("");
 							{
@@ -326,14 +328,11 @@ void GxMainInterface::setup()
 							}
 							closeBox();
 
-							openVerticalBox("amp  ");
+							openAmpBox("  ");
 							{
 								openHorizontalBox("");
 								{
-									openFrameBox("");
-									{
-									}
-									closeBox();
+
 									openVerticalBox1("");
 									{
 									    addminiswitch("amp.oversample.on_off", " oversample ");
@@ -376,120 +375,123 @@ void GxMainInterface::setup()
 							}
 							closeBox();
 							//----- the second part in the vertical box
-							openHorizontalBox("");
+							openAmpBox("  ");
 							{
-								openVerticalBox("");
-								{
-									openVerticalBox("");
-									{
-										addswitch("preamp.on_off", "preamp");
-										addHorizontalWheel("preamp.atan");
-									}
-									closeBox();
-									openFrameBox("");
-									{
-									}
-									closeBox();
-									openVerticalBox("");
-									{
-										addswitch("drive.on_off", "drive");
-										addHorizontalWheel("drive.value", "drive");
-									}
-									closeBox();
-								}
-								closeBox();
-								openFrameBox("");
-								closeBox();
-								openVerticalBox("");
-								{
-									openVerticalBox("");
-									{
-										addswitch("tube.on_off", "tube");
-										addHorizontalWheel("tube.fuzzy");
-									}
-									closeBox();
-									openFrameBox("");
-									{
-									}
-									closeBox();
-									openVerticalBox("");
-									{
-										addswitch("tube.vibrato.on_off", "vibrato");
-										addHorizontalWheel("tube.vibrato", "vibrato");
-									}
-									closeBox();
-
-								}
-								closeBox();
-								openFrameBox("");
-								closeBox();
-								openVerticalBox("");
-								{
-									openVerticalBox("");
-									{
-										addswitch("tube2.on_off", "tube2");
-										openFrameBox("");
-										{
-											addHorizontalWheel("tube2.fuzzy");
-										}
-										closeBox();
-									}
-									closeBox();
-									openVerticalBox("");
-									{
-										openVerticalBox1("resonanz");
-										{
-											addHorizontalWheel("tube2.resonanz", "reso");
-										}
-										closeBox();
-										openVerticalBox1("vibrato");
-										{
-											addHorizontalWheel("tube2.vibrato");
-										}
-										closeBox();
-									}
-									closeBox();
-								}
-								closeBox();
-								openFrameBox("");
-								closeBox();
-
-                                openVerticalBox("");
-								{
-									openVerticalBox("");
-									{
-										addswitch("tube3.on_off", "tube3");
-										openFrameBox("");
-										{
-											addHorizontalWheel("tube3.g");
-										}
-										closeBox();
-
-									}
-									closeBox();
-									openVerticalBox("");
-									{
-										openVerticalBox1("dist");
-										{
-											addHorizontalWheel("tube3.dist", "dist");
-										}
-										closeBox();
-										openVerticalBox1("level");
-										{
-											addHorizontalWheel("tube3.q", "level");
-										}
+                                openHorizontalBox("");
+                                {
+                                    openVerticalBox("");
+                                    {
+                                        openVerticalBox("");
+                                        {
+                                            addswitch("preamp.on_off", "preamp");
+                                            addHorizontalWheel("preamp.atan");
+                                        }
                                         closeBox();
-									}
-									closeBox();
+                                        openFrameBox("");
+                                        {
+                                        }
+                                        closeBox();
+                                        openVerticalBox("");
+                                        {
+                                            addswitch("drive.on_off", "drive");
+                                            addHorizontalWheel("drive.value", "drive");
+                                        }
+                                        closeBox();
+                                    }
+                                    closeBox();
+                                    openFrameBox("");
+                                    closeBox();
+                                    openVerticalBox("");
+                                    {
+                                        openVerticalBox("");
+                                        {
+                                            addswitch("tube.on_off", "tube");
+                                            addHorizontalWheel("tube.fuzzy");
+                                        }
+                                        closeBox();
+                                        openFrameBox("");
+                                        {
+                                        }
+                                        closeBox();
+                                        openVerticalBox("");
+                                        {
+                                            addswitch("tube.vibrato.on_off", "vibrato");
+                                            addHorizontalWheel("tube.vibrato", "vibrato");
+                                        }
+                                        closeBox();
+
+                                    }
+                                    closeBox();
+                                    openFrameBox("");
+                                    closeBox();
+                                    openVerticalBox("");
+                                    {
+                                        openVerticalBox("");
+                                        {
+                                            addswitch("tube2.on_off", "tube2");
+                                            openFrameBox("");
+                                            {
+                                                addHorizontalWheel("tube2.fuzzy");
+                                            }
+                                            closeBox();
+                                        }
+                                        closeBox();
+                                        openVerticalBox("");
+                                        {
+                                            openVerticalBox1("resonanz");
+                                            {
+                                                addHorizontalWheel("tube2.resonanz", "reso");
+                                            }
+                                            closeBox();
+                                            openVerticalBox1("vibrato");
+                                            {
+                                                addHorizontalWheel("tube2.vibrato");
+                                            }
+                                            closeBox();
+                                        }
+                                        closeBox();
+                                    }
+                                    closeBox();
+                                    openFrameBox("");
+                                    closeBox();
+
+                                    openVerticalBox("");
+                                    {
+                                        openVerticalBox("");
+                                        {
+                                            addswitch("tube3.on_off", "tube3");
+                                            openFrameBox("");
+                                            {
+                                                addHorizontalWheel("tube3.g");
+                                            }
+                                            closeBox();
+
+                                        }
+                                        closeBox();
+                                        openVerticalBox("");
+                                        {
+                                            openVerticalBox1("dist");
+                                            {
+                                                addHorizontalWheel("tube3.dist", "dist");
+                                            }
+                                            closeBox();
+                                            openVerticalBox1("level");
+                                            {
+                                                addHorizontalWheel("tube3.q", "level");
+                                            }
+                                            closeBox();
+                                        }
+                                        closeBox();
+                                    }
+                                    closeBox();
 								}
 								closeBox();
 
 							}
 							closeBox();
-							openFrameBox("");
-							closeBox();
-							openFrameBox("");
-							closeBox();
+
+						}
+						closeBox();
 						}
 						closeBox();
 					}

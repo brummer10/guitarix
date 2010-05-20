@@ -71,12 +71,12 @@ bool gx_jack_init( const string *optvar )
 {
 	jack_status_t jackstat;
 	client_name = "guitarix";
+	
+	AVOIDDENORMALS;
 
 	// init the pointer to the jackbuffer
 	for (int i=0; i < nOPorts; i++) output_ports[i] = 0;
 	for (int i=0; i < nIPorts; i++) input_ports [i] = 0;
-
-	AVOIDDENORMALS;
 
 #ifdef HAVE_JACK_SESSION
 	// try to open jack client

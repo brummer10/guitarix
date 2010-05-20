@@ -157,6 +157,7 @@ AudioVariables::AudioVariables()
 	registerNonPresetParam("ui.latency_nowarn", &fwarn, false, 0);
 	registerNonPresetParam("ui.skin", &fskin, false, 0, 0, 100);
 	registerNonPresetParam("ui.main_expander", &fexpand, false);
+	registerNonPresetParam("ui.amp_expander", &fampexpand, false);
 
 	// shouldn't be saved, only output?
 	registerNonPresetParam("system.fConsta1t", &fConsta1t, false);

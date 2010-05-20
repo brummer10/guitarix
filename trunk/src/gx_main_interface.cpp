@@ -340,7 +340,9 @@ void GxMainInterface::show_msg(string msgbuf, gx_system::GxMsgType msgtype)
 
 void GxMainInterface::openLevelMeterBox(const char* label)
 {
-	GtkWidget* box = addWidget(label, gtk_hbox_new (FALSE, 0));
+	GtkWidget* box1 = addWidget(label, gtk_alignment_new (0.5, 0.5, 0, 0));
+	GtkWidget* box = gtk_hbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER(box1), box);
 
 	gint boxheight = 135;
 	gint boxwidth  = 47;
@@ -370,7 +372,7 @@ void GxMainInterface::openLevelMeterBox(const char* label)
 	// guitarix output levels
 	GtkWidget* gxbox = gtk_hbox_new (FALSE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (gxbox), 0);
-	gtk_box_set_spacing(GTK_BOX(gxbox), 28);
+	gtk_box_set_spacing(GTK_BOX(gxbox), 25);
 
 	for (int i = 0; i < 2; i++)
 	{
@@ -397,6 +399,7 @@ void GxMainInterface::openLevelMeterBox(const char* label)
 
 	// show main box
 	gtk_widget_show(box);
+	gtk_widget_show(box1);
 }
 
 void GxMainInterface::openHorizontalBox(const char* label)
@@ -782,6 +785,42 @@ void GxMainInterface::openVerticalBox(const char* label)
 		gtk_container_add (GTK_CONTAINER(box), lw);
 		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
 		gtk_widget_show(lw);
+		gtk_widget_show(box);
+		pushBox(kBoxMode, box);
+	}
+	else
+	{
+		pushBox(kBoxMode, addWidget(label, box));
+	}
+}
+
+void GxMainInterface::openSpaceBox(const char* label)
+{
+	GtkWidget * box = gtk_vbox_new (homogene, 2);
+	gtk_container_set_border_width (GTK_CONTAINER (box), 4);
+
+
+	if (fMode[fTop] != kTabMode && label[0] != 0)
+	{
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+		gtk_widget_show(box);
+		pushBox(kBoxMode, box);
+	}
+	else
+	{
+		pushBox(kBoxMode, addWidget(label, box));
+	}
+}
+
+void GxMainInterface::openAmpBox(const char* label)
+{
+	GtkWidget * box = gtk_vbox_new (homogene, 2);
+	gtk_container_set_border_width (GTK_CONTAINER (box), 6);
+	g_signal_connect(box, "expose-event", G_CALLBACK(box8_expose), NULL);
+
+	if (fMode[fTop] != kTabMode && label[0] != 0)
+	{
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
 		gtk_widget_show(box);
 		pushBox(kBoxMode, box);
 	}

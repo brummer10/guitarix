@@ -101,6 +101,7 @@ public:
 	float fbiquadbox;
 	int ftube3e;
 	float upsample_mode;
+	float fampexpand;
 
 
 	AudioVariables();

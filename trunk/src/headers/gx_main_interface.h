@@ -180,6 +180,8 @@ public :
 	virtual void openHandleBox(const char* label = "");
 	virtual void openExpanderBox(const char* label, float* zone);
 	virtual void openTabBox(const char* label = "");
+	virtual void openSpaceBox(const char* label = "");
+	virtual void openAmpBox(const char* label = "");
 	virtual void openPaintBox(const char* label = "");
 	virtual void openPaintBox1(const char* label = "");
 	virtual void openPaintBox2(const char* label = "");
