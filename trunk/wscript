@@ -204,7 +204,7 @@ def configure(conf):
 	# compiler
     conf.check_tool('compiler_cxx')
     cxx_version = conf.env["CC_VERSION"];
-    fc_line = os.popen ("gcc --help=c++ | grep 'std=c++0x' ").read()[:-1]
+    fc_line = os.popen ("gcc --help=c++ | grep 'c++0x' ").read()[:-1]
     if not "c++0x" in fc_line:
 		raise ConfigurationError(
             "!!! Compiler version %s didn't support std=c++0x flag !!!"
