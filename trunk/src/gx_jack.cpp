@@ -71,7 +71,7 @@ bool gx_jack_init( const string *optvar )
 {
 	jack_status_t jackstat;
 	client_name = "guitarix";
-	
+
 	AVOIDDENORMALS;
 
 	// init the pointer to the jackbuffer
