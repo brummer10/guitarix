@@ -726,6 +726,34 @@ gboolean box12_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	return FALSE;
 }
 
+gboolean boxamp_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+{
+    if(!gx_engine::audio.fampexpand) {
+
+        cairo_t *cr;
+        /* create a cairo context */
+        cr = gdk_cairo_create(wi->window);
+
+        double x0      = wi->allocation.x+1;
+        double y0      = wi->allocation.y;
+        double rect_width  = wi->allocation.width-2;
+        double rect_height = wi->allocation.height;
+
+        _image = gdk_pixbuf_scale_simple(tribeimage2,rect_width,rect_height,GDK_INTERP_HYPER);
+
+        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+                        _image, 0, 0,
+                        x0, y0, rect_width,rect_height,
+                        GDK_RGB_DITHER_NORMAL, 0, 0);
+
+
+        cairo_destroy(cr);
+        g_object_unref(_image);
+    }
+	return FALSE;
+}
+
+
 void gx_init_pixmaps()
 {
 	/* XPM */
@@ -892,9 +920,46 @@ void gx_init_pixmaps()
 		"                                                                 ",
 		"                                                                 "};
 
+	/* XPM */
+	static const char * skull_xpm[] = {
+ "100 26 6 1",
+" 	c None",
+".	c #000000",
+"+	c #000001",
+"@	c #000002",
+"#	c #020000",
+"$	c #020002",
+"                                                                                                    ",
+"                                                                                                    ",
+"                                                                                                    ",
+"                                                                                                    ",
+"                                                                                                    ",
+"                                                                                               .    ",
+"    .                                                                                          .    ",
+"    .                                                                                          .    ",
+"    .                                                                                           $   ",
+"   .                                                                                            .   ",
+"   .                                                                                            .   ",
+"  ..                                             .                                           .   .  ",
+"  .#   .                                         ..                                          .   .  ",
+"  .    +                                         ..                                          .   .  ",
+"  .   $.                         ...... ......     .  .......  .....                         ..  .  ",
+"  ..  ..              ..        ...   .. .......@  @ ....... ..   ...         .              ..  .  ",
+"  .......           ..         ...   .  .@ @... ..... ....  .. .  ....    .     .           ......  ",
+"  ........         ..  ....... . ....    .. .. ..   .  ..$..   .......  ......   .  .@      ......  ",
+"  ..... ...  .... ......     ..  ...       .. ...   ......       ...  ..      ... .   ...  .   ..   ",
+"   ...     ...   ......      .  ...    ..  .. .... .... ..        ..   .      .... .    ..     ..   ",
+"    ...  ...  ....  .........  .. .     ....@    ....   ....        ..  .........   ..... ..  ..    ",
+"     ......  ...      .........          ...             .      ....  .........       ..   .....    ",
+"       ..                ..                                             ....                ..      ",
+"                                                                                                    ",
+"                                                                                                    ",
+"                                                                                                    "};
+
 
 	tribeimage = gdk_pixbuf_new_from_xpm_data(tribe_xpm);
 	tribeimage1 = gdk_pixbuf_new_from_xpm_data(guitar_xpm);
+	tribeimage2 = gdk_pixbuf_new_from_xpm_data(skull_xpm);
 }
 
 }

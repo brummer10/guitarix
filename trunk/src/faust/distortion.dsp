@@ -37,8 +37,8 @@ with {
   d = vslider("vibrato[old:fslider5]", 1, 0, 1, 0.01);
   a = vslider("trigger[old:fslider4]", 0.12, 0, 1, 0.01);
 };
-switch2       = checkbox("on_off[name:resonat]");
-reso = hgroup("resonator", bypass(switch2, resonator));
+switch2       = checkbox("resonator.on_off[name:resonat]");
+//reso = hgroup("resonator", bypass(switch2, resonator));
 
 hs = component("HighShelf.dsp").hs;
-process = reso : +(anti_denormal_ac) : pass  : sbp : hs : distortion : *(drivegain1) : hs : sbp;
+process =  bypass(switch2, resonator) : +(anti_denormal_ac) : pass  : sbp : hs : distortion : *(drivegain1) : hs : sbp;

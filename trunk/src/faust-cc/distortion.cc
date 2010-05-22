@@ -211,8 +211,8 @@ RegisterParams::RegisterParams()
 	registerVar("distortion.level","","S","",&fslider5, 0.01, 0.0, 0.5, 0.01);
 	registerVar("distortion.low_highcutoff.low_freq","low freq","S","low-freq cutoff Hz",&fslider4, 1.3e+02, 2e+01, 1e+03, 1e+01);
 	registerVar("distortion.low_highcutoff.high_freq","high freq","S","high-freq cutoff Hz",&fslider3, 5e+03, 1e+03, 1.2e+04, 1e+01);
-	registerVar("distortion.resonator.vibrato","","S","",&fslider2, 1.0, 0.0, 1.0, 0.01);
-	registerVar("distortion.resonator.trigger","","S","",&fslider1, 0.12, 0.0, 1.0, 0.01);
+	registerVar("distortion.vibrato","","S","",&fslider2, 1.0, 0.0, 1.0, 0.01);
+	registerVar("distortion.trigger","","S","",&fslider1, 0.12, 0.0, 1.0, 0.01);
 	registerVar("distortion.gain","","S","",&fslider0, 2.0, -1e+01, 1e+01, 0.1);
 	registerInit(init);
 }

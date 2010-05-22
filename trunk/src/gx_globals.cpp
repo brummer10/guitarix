@@ -309,5 +309,6 @@ namespace gx_cairo
 {
 GdkPixbuf *tribeimage;
 GdkPixbuf *tribeimage1;
+GdkPixbuf *tribeimage2;
 GdkPixbuf *_image;
 }

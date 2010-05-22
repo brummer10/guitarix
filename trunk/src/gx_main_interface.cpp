@@ -848,6 +848,24 @@ void GxMainInterface::openPaintBox(const char* label)
 	}
 }
 
+void GxMainInterface::openpaintampBox(const char* label)
+{
+	GtkWidget * box = gtk_vbox_new (homogene, 2);
+	gtk_container_set_border_width (GTK_CONTAINER (box), 4);
+	g_signal_connect(box, "expose-event", G_CALLBACK(boxamp_expose), NULL);
+
+	if (fMode[fTop] != kTabMode && label[0] != 0)
+	{
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+		gtk_widget_show(box);
+		pushBox(kBoxMode, box);
+	}
+	else
+	{
+		pushBox(kBoxMode, addWidget(label, box));
+	}
+}
+
 void GxMainInterface::openPaintBox1(const char* label)
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 2);

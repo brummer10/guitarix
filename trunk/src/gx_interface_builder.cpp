@@ -494,6 +494,8 @@ void GxMainInterface::setup()
 						closeBox();
 						}
 						closeBox();
+						//openpaintampBox("");
+                        //closeBox();
 					}
 					closeBox();
 					//----- end
@@ -639,8 +641,8 @@ void GxMainInterface::setup()
                                                                         {
                                                                             openHorizontalBox("");
                                                                             {
-                                                                                addregler("distortion.resonator.trigger","trigger ");
-                                                                                addregler("distortion.resonator.vibrato"," vibrato ");
+                                                                                addregler("distortion.trigger","trigger ");
+                                                                                addregler("distortion.vibrato"," vibrato ");
                                                                             }
                                                                             closeBox();
                                                                             addtoggle("distortion.resonator.on_off","");

@@ -134,6 +134,7 @@ public:
 	virtual void openTabBox(const char* label) {};
 	virtual void openSpaceBox(const char* label){};
 	virtual void openAmpBox(const char* label){};
+	virtual void openpaintampBox(const char* label){};
 	virtual void openPaintBox(const char* label){};
 	virtual void openPaintBox1(const char* label){};
 	virtual void openPaintBox2(const char* label){};
