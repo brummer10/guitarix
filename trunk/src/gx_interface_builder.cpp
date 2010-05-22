@@ -635,14 +635,15 @@ void GxMainInterface::setup()
                                                                             addtoggle("distortion.low_highcutoff.on_off","");
                                                                         }
                                                                         closeBox();
-                                                                        openVerticalBox("resonanz");
+                                                                        openVerticalBox("resonator");
                                                                         {
                                                                             openHorizontalBox("");
                                                                             {
-                                                                                addregler("distortion.trigger","trigger ");
-                                                                                addregler("distortion.vibrato"," vibrato ");
+                                                                                addregler("distortion.resonator.trigger","trigger ");
+                                                                                addregler("distortion.resonator.vibrato"," vibrato ");
                                                                             }
                                                                             closeBox();
+                                                                            addtoggle("distortion.resonator.on_off","");
                                                                         }
                                                                         closeBox();
                                                                     }

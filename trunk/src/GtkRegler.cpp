@@ -636,11 +636,11 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 	/* create a cairo context */
 	cr = gdk_cairo_create(widget->window);
 
-	double x0      = widget->allocation.x+2+(widget->allocation.width - klass->vd_x) *0.5;
-	double y0      = widget->allocation.y+2+(widget->allocation.height -klass->vd_y) *0.5;
+	double x0      = widget->allocation.x+2;
+	double y0      = widget->allocation.y+2;
 
-	double rect_width  = 42; // widget->allocation.width-4;
-	double rect_height = 18; // widget->allocation.height-4;
+	double rect_width  =  widget->allocation.width-4;
+	double rect_height =  widget->allocation.height-4;
 
     cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
             cairo_set_source_rgb (cr, 0, 0, 0);
@@ -673,7 +673,7 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 
 		cairo_set_source_rgba (cr, 0.4, 1, 0.2, 0.8);
 		cairo_set_font_size (cr, 10.0);
-		cairo_move_to (cr, x0+6, y0+rect_height-4);
+		cairo_move_to (cr, x0+5, y0+rect_height-4);
 		cairo_show_text(cr, tir.str().c_str());
 		cairo_stroke (cr);
 
@@ -1815,7 +1815,7 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 	klass->led_x = 20 ;
 	klass->led_y = 20 ;
 //--------- led
-	klass->vd_x = 44 ;
+	klass->vd_x = -1 ;
 	klass->vd_y = 25 ;
 
 //--------- event button

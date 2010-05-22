@@ -476,6 +476,7 @@ ParameterGroups::ParameterGroups()
 	insert("distortion","Distortion");
 	insert("distortion.low_highpass","Distortion low/highpass");
 	insert("distortion.low_highcutoff","Distortion low/highcutoff");
+	insert("distortion.resoator","Distortion resonator");
 	insert("freeverb","Freeverb");
 	insert("IR","ImpulseResponse");
 	insert("crybaby","Crybaby");
