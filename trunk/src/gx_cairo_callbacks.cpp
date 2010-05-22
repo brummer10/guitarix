@@ -108,6 +108,46 @@ void gx_skin_color(cairo_pattern_t *pat)
 
 }
 
+gboolean label_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+{
+	cairo_t *cr;
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
+
+	double x0      = wi->allocation.x-2;
+	double y0      = wi->allocation.y-2;
+	double rect_width  = wi->allocation.width+4;
+	double rect_height = wi->allocation.height+4;
+
+    cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
+            cairo_set_source_rgb (cr, 0, 0, 0);
+            cairo_fill (cr);
+
+	cairo_pattern_t*pat =
+		cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	gx_skin_color(pat);
+	cairo_set_source (cr, pat);
+	cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
+	cairo_fill (cr);
+
+    cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+rect_width-3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
+    cairo_line_to(cr, x0+2, y0+rect_height-2);
+    cairo_stroke(cr);
+
+    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+3, y0+rect_height-1);
+    cairo_line_to(cr, x0+3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+3);
+    cairo_stroke(cr);
+	cairo_destroy(cr);
+
+	return FALSE;
+}
+
 //----- paint boxes with cairo -----
 gboolean box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
@@ -456,10 +496,6 @@ gboolean box8_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	double y0      = wi->allocation.y+1;
 	double rect_width  = wi->allocation.width-2;
 	double rect_height = wi->allocation.height-2;
-
-
-
-
 
     cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
             cairo_set_source_rgb (cr, 0, 0, 0);

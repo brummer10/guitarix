@@ -1371,7 +1371,14 @@ void GxMainInterface::addregler(const char* label, float* zone, float init, floa
 	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
 	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+	//GtkWidget* lw = gtk_label_new("");
+	GtkRegler myGtkRegler;
+	//GtkWidget* lw = myGtkRegler.gtk_value_display(GTK_ADJUSTMENT(adj));
 	GtkWidget* lw = gtk_label_new("");
+	//GtkWidget* labelbox = gtk_vbox_new (FALSE, 4);
+	//gtk_container_add (GTK_CONTAINER(labelbox), lw);
+	//gtk_container_set_border_width (GTK_CONTAINER (labelbox), 6);
+	//g_signal_connect(lw, "expose-event", G_CALLBACK(label_expose), NULL);
 	GtkWidget* lwl = gtk_label_new(label);
 	gtk_widget_set_name (lw,"value_label");
 	gtk_widget_set_name (lwl,"effekt_label");
@@ -1381,15 +1388,19 @@ void GxMainInterface::addregler(const char* label, float* zone, float init, floa
 	gtk_widget_modify_font(lw, style->font_desc);
 	gtk_widget_modify_font(lwl, style->font_desc);
 	new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
-	GtkRegler myGtkRegler;
+
 	GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
 	connect_midi_controller(slider, zone);
 	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-	openVerticalBox("");
-	addWidget(label, lwl);
-	addWidget(label, slider);
-	addWidget(label, lw);
-	closeBox();
+
+	GtkWidget* box1 = addWidget(label, gtk_alignment_new (0.5, 0.5, 0, 0));
+	GtkWidget* box = gtk_vbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER(box1), box);
+	gtk_container_add (GTK_CONTAINER(box), lwl);
+	gtk_container_add (GTK_CONTAINER(box), slider);
+	gtk_container_add (GTK_CONTAINER(box), lw);
+	gtk_widget_show_all(box1);
+
 }
 
 void GxMainInterface::addbigregler(string id, const char* label)
@@ -1566,6 +1577,10 @@ void GxMainInterface::addbigregler(const char* label, float* zone, float init, f
 	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
 	GtkWidget* lw = gtk_label_new("");
+	/*GtkWidget* labelbox = gtk_vbox_new (FALSE, 4);
+	gtk_container_add (GTK_CONTAINER(labelbox), lw);
+	gtk_container_set_border_width (GTK_CONTAINER (labelbox), 6);*/
+	//g_signal_connect(lw, "expose-event", G_CALLBACK(label_expose), NULL);
 	GtkWidget* lwl = gtk_label_new(label);
 
 	gtk_widget_set_name (lw,"value_label");
@@ -1582,11 +1597,13 @@ void GxMainInterface::addbigregler(const char* label, float* zone, float init, f
 	GtkWidget* slider = myGtkRegler.gtk_big_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
 	connect_midi_controller(slider, zone);
 	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-	openVerticalBox("");
-	addWidget(label, lwl);
-	addWidget(label, slider);
-	addWidget(label, lw);
-	closeBox();
+	GtkWidget* box1 = addWidget(label, gtk_alignment_new (0.5, 0.5, 0, 0));
+	GtkWidget* box = gtk_vbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER(box1), box);
+	gtk_container_add (GTK_CONTAINER(box), lwl);
+	gtk_container_add (GTK_CONTAINER(box), slider);
+	gtk_container_add (GTK_CONTAINER(box), lw);
+	gtk_widget_show_all(box1);
 }
 
 void GxMainInterface::addslider(const char* label, float* zone, float init, float min, float max, float step)

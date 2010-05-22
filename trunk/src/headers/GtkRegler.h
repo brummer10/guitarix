@@ -50,6 +50,7 @@ public:
 	GtkWidget *gtk_wheel_new_with_adjustment(GtkAdjustment *_adjustment);
 	GtkWidget *gtk_button_toggle_new_with_adjustment(GtkAdjustment *_adjustment);
 	GtkWidget *gtk_led_new_with_adjustment(GtkAdjustment *_adjustment);
+	GtkWidget *gtk_value_display(GtkAdjustment *_adjustment);
 	GtkWidget *gtk_selector_new_with_adjustment(GtkAdjustment *_adjustment,int maxv, const char* []);
 };
 

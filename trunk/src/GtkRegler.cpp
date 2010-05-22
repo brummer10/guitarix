@@ -130,9 +130,12 @@ struct GtkReglerClass {
 	int selector_x;
 	int selector_y ;
 	int selector_step;
-
+//----------- led
 	int led_x;
 	int led_y;
+//----------- value display
+	int vd_x;
+	int vd_y;
 };
 
 //------forward declaration
@@ -143,6 +146,16 @@ GType gtk_regler_get_type ();
  */
 
 const double scale_zero = 20 * (M_PI/180); // defines "dead zone" for knobs
+
+//------------ calculate needed precision
+int precision(double n)
+{
+	if (n < 0.009999) return 3;
+	else if (n < 0.099999) return 2;
+	else if (n < 0.999999) return 1;
+	else return 0;
+}
+
 
 static void knob_expose(GtkWidget *widget, int knob_x, int knob_y,
                         GdkPixbuf *regler_image, int arc_offset)
@@ -562,7 +575,7 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 		ostringstream tir;
 		tir << regler->labels[reglerstate] ;
 
-		cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
+		cairo_set_source_rgba (cr, 0.4, 1, 0.2, 0.8);
 		cairo_set_font_size (cr, 10.0);
 		cairo_move_to (cr, reglerx+1, reglery+11);
 		cairo_show_text(cr, tir.str().c_str());
@@ -583,6 +596,88 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 			                reglerstate * klass->led_y, 8, 12, //left upper corner, else use reglex,reglery
 			                klass->led_x,
 			                klass->led_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+	}
+
+	//---------- value diplay
+	else if (regler->regler_type == 13) {
+		reglerx += (widget->allocation.x);
+		reglery += (widget->allocation.height -
+		            klass->vd_y) *0.5;
+		/*int reglerstate = (int)((adj->value - adj->lower) *
+		                        klass->b_toggle_step / (adj->upper - adj->lower));*/
+            float v = adj->value;
+
+			char s[64];
+
+			if (adj->step_increment < 0.009999)
+			{
+				const char* format[] = {"%.1f", "%.2f", "%.3f"};
+				snprintf(s, 63, format[3-1], v);
+			}
+			else if (adj->step_increment < 0.09999)
+			{
+				const char* format[] = {"%.1f", "%.2f", "%.3f"};
+				snprintf(s, 63, format[2-1], v);
+			}
+			else if (adj->step_increment < 0.9999)
+			{
+				const char* format[] = {"%.1f", "%.2f", "%.3f"};
+				snprintf(s, 63, format[1-1], v);
+			}
+			else if (adj->step_increment < 9.9999)
+			{
+				snprintf(s, 63, "%d", int(v));
+			}
+			else
+			    snprintf(s, 63, "%d", int(v));
+
+
+		cairo_t *cr;
+	/* create a cairo context */
+	cr = gdk_cairo_create(widget->window);
+
+	double x0      = widget->allocation.x+2+(widget->allocation.width - klass->vd_x) *0.5;
+	double y0      = widget->allocation.y+2+(widget->allocation.height -klass->vd_y) *0.5;
+
+	double rect_width  = 42; // widget->allocation.width-4;
+	double rect_height = 18; // widget->allocation.height-4;
+
+    cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
+            cairo_set_source_rgb (cr, 0, 0, 0);
+            cairo_fill (cr);
+
+	cairo_pattern_t*pat =
+		cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
+    cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0.4);
+	cairo_set_source (cr, pat);
+	cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
+	cairo_fill (cr);
+
+    cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+rect_width-3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
+    cairo_line_to(cr, x0+2, y0+rect_height-2);
+    cairo_stroke(cr);
+
+    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+3, y0+rect_height-1);
+    cairo_line_to(cr, x0+3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+3);
+    cairo_stroke(cr);
+
+    ostringstream tir;
+		tir << s ;
+
+		cairo_set_source_rgba (cr, 0.4, 1, 0.2, 0.8);
+		cairo_set_font_size (cr, 10.0);
+		cairo_move_to (cr, x0+6, y0+rect_height-4);
+		cairo_show_text(cr, tir.str().c_str());
+		cairo_stroke (cr);
+
+	cairo_destroy(cr);
 	}
 
 	return TRUE;
@@ -1177,6 +1272,11 @@ static void gtk_regler_size_request (GtkWidget *widget, GtkRequisition *requisit
 		requisition->width = klass->led_x;
 		requisition->height = klass->led_y;
 	}
+//-----------  led
+	else if (regler->regler_type == 13) {
+		requisition->width = klass->vd_x;
+		requisition->height = klass->vd_y;
+	}
 
 }
 
@@ -1233,15 +1333,6 @@ static gboolean gtk_regler_key_press (GtkWidget *widget, GdkEventKey *event)
 	}
 
 	return FALSE;
-}
-
-//------------ calculate needed precision
-int precision(double n)
-{
-	if (n < 0.009999) return 3;
-	else if (n < 0.099999) return 2;
-	else if (n < 0.999999) return 1;
-	else return 0;
 }
 
 //------------ calculate value for display
@@ -1723,6 +1814,9 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 //--------- led
 	klass->led_x = 20 ;
 	klass->led_y = 20 ;
+//--------- led
+	klass->vd_x = 44 ;
+	klass->vd_y = 25 ;
 
 //--------- event button
 	klass->button_is = 0;
@@ -1795,6 +1889,9 @@ static void gtk_regler_init (GtkRegler *regler)
 	} else if (regler->regler_type == 12) {
 		widget->requisition.width = klass->led_x;
 		widget->requisition.height = klass->led_y;
+	} else if (regler->regler_type == 13) {
+		widget->requisition.width = klass->vd_x;
+		widget->requisition.height = klass->vd_y;
 	}
 }
 
@@ -2074,6 +2171,22 @@ GtkWidget *GtkRegler::gtk_led_new_with_adjustment(GtkAdjustment *_adjustment)
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
 	GtkRegler *regler = GTK_REGLER(widget);
 	regler->regler_type = 12;
+	if (widget) {
+		gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
+		g_signal_connect(GTK_OBJECT(widget), "value-changed",
+		                 G_CALLBACK(gtk_regler_value_changed), widget);
+	}
+	return widget;
+}
+
+/****************************************************************
+ ** create a value display
+ */
+GtkWidget *GtkRegler::gtk_value_display(GtkAdjustment *_adjustment)
+{
+	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
+	GtkRegler *regler = GTK_REGLER(widget);
+	regler->regler_type = 13;
 	if (widget) {
 		gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
 		g_signal_connect(GTK_OBJECT(widget), "value-changed",

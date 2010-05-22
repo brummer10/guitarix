@@ -279,8 +279,8 @@ def configure(conf):
         arch = os.popen ("uname -m").read()[:-1]
         if "AMD" in x86_flags and "x86_64" in arch:
 			cxxflags.append ("-march=K8")
-        elif "AMD" in x86_flags and "i686" in arch:
-			cxxflags.append ("-march=K6")
+        elif "AMD" in x86_flags and "Sempron" in x86_flags and "i686" in arch:
+			cxxflags.append ("-march=native")
         elif "Geode" in x86_flags :
 			cxxflags.append ("-march=geode")
         elif "Core" in x86_flags and "x86_64" in arch:
