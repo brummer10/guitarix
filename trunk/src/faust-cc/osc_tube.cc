@@ -117,7 +117,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("tube2.fuzzy","tube","S","",&fslider2, 1.0, -3.0, 1e+01, 1.0);
-	registerVar("tube2.vibrato","","S","",&fslider1, 1.0, 0.0, 1.0, 0.01);
+	registerVar("tube2.vibrato","","S","",&fslider1, 1.0, 0.0, 0.99, 0.01);
 	registerVar("tube2.resonanz","","S","",&fslider0, 0.5, 0.0, 0.9, 0.01);
 	registerInit(init);
 }
