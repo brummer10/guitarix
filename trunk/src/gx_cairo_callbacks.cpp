@@ -753,6 +753,39 @@ gboolean boxamp_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	return FALSE;
 }
 
+gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+{
+
+        cairo_t *cr;
+        /* create a cairo context */
+        cr = gdk_cairo_create(wi->window);
+
+        double x0      = wi->allocation.x+5;
+        double y0      = wi->allocation.y;
+        double rect_width  = wi->allocation.width-2;
+        double rect_height = wi->allocation.height-50;
+        float p = gx_gui::parameter_map["eq.f31_25"].getFloat().value;
+        float q = 100 - gx_gui::parameter_map["eq.Q31_25"].getFloat().value;
+        //float v = p.value;
+        cairo_move_to (cr, x0 , y0 + rect_height-(62*q*0.01)-p);
+        cairo_line_to (cr, x0 + 14, y0 + rect_height-62 - p);
+        cairo_line_to (cr, x0 + 33, y0 + rect_height-(62*q*0.01)-p);
+        p = gx_gui::parameter_map["eq.f62_5"].getFloat().value;
+        q = 100 - gx_gui::parameter_map["eq.Q62_5"].getFloat().value;
+        cairo_move_to (cr, x0 +35 , y0 + rect_height-(62*q*0.01)-p);
+        cairo_line_to (cr, x0 + 46, y0 + rect_height-62 - p);
+        cairo_line_to (cr, x0 +62 , y0 + rect_height-(62*q*0.01)-p);
+        cairo_set_source_rgb(cr,  0, 0, 0);
+        cairo_set_line_width(cr, 2.0);
+        cairo_stroke(cr);
+
+
+
+        cairo_destroy(cr);
+
+
+	return FALSE;
+}
 
 void gx_init_pixmaps()
 {

@@ -605,11 +605,53 @@ void GxMainInterface::setup()
 															{
 															    openHorizontalBox("");
                                                                 {
-                                                                    openHorizontalTableBox("");
+                                                                    openVerticalBox1("");
                                                                     {
-                                                                        addbigregler("distortion.drive","  drive ");
-                                                                        addregler("distortion.level","\n\n level");
-                                                                        addregler("distortion.gain","\n\n gain");
+                                                                        openHorizontalBox("");
+                                                                        {
+                                                                            openVerticalBox1("");
+                                                                            {
+                                                                                addbigregler("distortion.drive","  drive ");
+                                                                                addregler("distortion.level","  level  ");
+                                                                                addregler("distortion.gain","  gain  ");
+                                                                            }
+                                                                            closeBox();
+                                                                            openVerticalBox1("");
+                                                                            {
+                                                                                openHorizontalBox("");
+                                                                                {
+                                                                                    openVerticalBox1("");
+                                                                                    {
+                                                                                        addregler("distortion.low_drive"," low drive ");
+                                                                                        addregler("distortion.low_gain"," low gain ");
+                                                                                    }
+                                                                                    closeBox();
+                                                                                    openVerticalBox1("");
+                                                                                    {
+                                                                                        addregler("distortion.middle_drive"," middle drive ");
+                                                                                        addregler("distortion.middle_gain"," middle gain ");
+                                                                                    }
+                                                                                    closeBox();
+                                                                                    openVerticalBox1("");
+                                                                                    {
+                                                                                        addregler("distortion.high_drive"," high drive ");
+                                                                                        addregler("distortion.high_gain"," high gain ");
+                                                                                    }
+                                                                                    closeBox();
+                                                                                }
+                                                                                closeBox();
+                                                                                openHorizontalBox("");
+                                                                                {
+                                                                                    addslider("distortion.split_low_freq", "split low freq");
+                                                                                    addslider("distortion.split_high_freq", "split high freq");
+                                                                                    openSpaceBox("");
+                                                                                    closeBox();
+                                                                                }
+                                                                                closeBox();
+                                                                            }
+                                                                            closeBox();
+                                                                        }
+                                                                        closeBox();
                                                                     }
                                                                     closeBox();
                                                                     openHorizontalTableBox("");
@@ -1268,9 +1310,17 @@ void GxMainInterface::setup()
 				closeBox();
 			}
 			closeBox();
+			openVerticalBox("");
+            {
 			//----- add the controlers for feedback feedforward to the bottob box
-			addslider("amp.feedback"," feedback");
-			addslider("amp.feedforward"," feedforward");
+                addslider("amp.feedback"," feedback");
+            }
+			closeBox();
+            openVerticalBox("");
+            {
+                addslider("amp.feedforward"," feedforward");
+			}
+			closeBox();
 			//----- the toggle button to start/stop jack_capture
 			openFrameBox("");
 			{

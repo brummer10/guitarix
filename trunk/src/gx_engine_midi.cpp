@@ -570,7 +570,7 @@ void process_midi(int len)
 					if ( rms >= (midi.Beat_is + fTemps38))
 					{
 						//midi.Beat_is = rms;
-						midi.Beat_is += rms*0.2;
+						midi.Beat_is += rms*0.1;
 						midi.send+=step;
 						if (midi.fcheckbox10 ) midi.send1+=step;
 						if (midi.fcheckbox11 ) midi.send2+=step;

@@ -852,7 +852,7 @@ void GxMainInterface::openpaintampBox(const char* label)
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 2);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 4);
-	g_signal_connect(box, "expose-event", G_CALLBACK(boxamp_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(eq_expose), NULL);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{
@@ -1631,22 +1631,27 @@ void GxMainInterface::addslider(const char* label, float* zone, float init, floa
 	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
 	GtkWidget* lw = gtk_label_new("");
+	GtkWidget* lwl = gtk_label_new(label);
+
 	gtk_widget_set_name (lw,"value_label");
+	gtk_widget_set_name (lwl,"effekt_label");
 
 	GtkStyle *style = gtk_widget_get_style(lw);
 	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
 	gtk_widget_modify_font(lw, style->font_desc);
+	gtk_widget_modify_font(lwl, style->font_desc);
+
 	new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
 	GtkRegler myGtkRegler;
 	GtkWidget* slider = myGtkRegler.gtk_hslider_new_with_adjustment(GTK_ADJUSTMENT(adj));
 	connect_midi_controller(slider, zone);
 	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-	openVerticalBox(label);
-	addWidget(label, slider);
-	addWidget(label, lw);
-
-	closeBox();
+	GtkWidget* box = addWidget(label,gtk_vbox_new (FALSE, 0));
+	gtk_container_add (GTK_CONTAINER(box), lwl);
+	gtk_container_add (GTK_CONTAINER(box), slider);
+	gtk_container_add (GTK_CONTAINER(box), lw);
+	gtk_widget_show_all(box);
 }
 
 void GxMainInterface::addtoggle(const char* label, int* zone)
