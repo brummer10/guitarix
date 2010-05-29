@@ -49,11 +49,12 @@ using namespace std;
 
 #include "guitarix.h"
 
+/****************************************************************
+ ** some pieces in this file are copied from jconvolver
+ */
 
 /****************************************************************
- ** GxConvolver
- **
- ** some parts are copied from jconvolver
+ ** AudioFile
  */
 
 namespace gx_engine
@@ -153,6 +154,79 @@ int Audiofile::read (float *data, uint32_t frames)
 }
 
 
+/****************************************************************
+ ** GxConvolverBase
+ */
+
+void GxConvolverBase::adjust_values(
+	unsigned int audio_size, unsigned int& count, unsigned int& offset,
+	unsigned int& delay, unsigned int& ldelay, unsigned int& length,
+	unsigned int& size, unsigned int& bufsize)
+{
+	if (bufsize < count) {
+		bufsize = count;
+	}
+	if (offset > audio_size) {
+		offset = audio_size;
+	}
+	if (!size) {
+		if (offset + length > audio_size) {
+			gx_system::gx_print_warning("convolver", "data truncated");
+			length = audio_size - offset;
+		}
+		if (!length) {
+			length = audio_size - offset;
+		}
+		size = max(delay, ldelay) + offset + length;
+	} else {
+		if (delay > size) {
+			delay = size;
+		}
+		if (ldelay > size) {
+			ldelay = size;
+		}
+		if (offset > size - max(delay, ldelay)) {
+			offset = size - max(delay, ldelay);
+		}
+		if (length > size - max(delay, ldelay) - offset) {
+			length = size - max(delay, ldelay) - offset;
+			gx_system::gx_print_warning("convolver", "data truncated");
+		}
+		if (!length) {
+			length = size - max(delay, ldelay) - offset;
+		}
+	}
+}
+
+bool GxConvolverBase::start()
+{
+	int abspri, policy;
+    struct sched_param  spar;
+    pthread_getschedparam(jack_client_thread_id(gx_jack::client), &policy, &spar);
+    abspri = spar.sched_priority;
+	int rc = start_process(abspri, policy);
+	if (rc != 0) {
+		gx_system::gx_print_error("convolver", "can't start convolver");
+		return false;
+	}
+	ready = true;
+	return true;
+}
+
+void GxConvolverBase::checkstate()
+{
+	if (state() == Convproc::ST_WAIT) {
+		check();
+	} else if (state() == ST_STOP) {
+		ready = false;
+	}
+}
+
+
+/****************************************************************
+ ** GxConvolver
+ */
+
 bool GxConvolver::read_sndfile (
 	Audiofile& audio, int nchan, const float *gain,
 	unsigned int *delay, unsigned int offset, unsigned int length)
@@ -216,46 +290,6 @@ bool GxConvolver::read_sndfile (
 	return true;
 }
 
-void GxConvolver::adjust_values(
-	unsigned int audio_size, unsigned int& count, unsigned int& offset,
-	unsigned int& delay, unsigned int& ldelay, unsigned int& length,
-	unsigned int& size, unsigned int& bufsize)
-{
-	if (bufsize < count) {
-		bufsize = count;
-	}
-	if (offset > audio_size) {
-		offset = audio_size;
-	}
-	if (!size) {
-		if (offset + length > audio_size) {
-			gx_system::gx_print_warning("convolver", "data truncated");
-			length = audio_size - offset;
-		}
-		if (!length) {
-			length = audio_size - offset;
-		}
-		size = max(delay, ldelay) + offset + length;
-	} else {
-		if (delay > size) {
-			delay = size;
-		}
-		if (ldelay > size) {
-			ldelay = size;
-		}
-		if (offset > size - max(delay, ldelay)) {
-			offset = size - max(delay, ldelay);
-		}
-		if (length > size - max(delay, ldelay) - offset) {
-			length = size - max(delay, ldelay) - offset;
-			gx_system::gx_print_warning("convolver", "data truncated");
-		}
-		if (!length) {
-			length = size - max(delay, ldelay) - offset;
-		}
-	}
-}
-
 bool GxConvolver::configure(
 	unsigned int count, int samplerate, string fname, float gain, float lgain,
 	unsigned int delay, unsigned int ldelay, unsigned int offset,
@@ -297,30 +331,6 @@ bool GxConvolver::configure(
 	return read_sndfile(audio, 2, gain_a, delay_a, offset, length);
 }
 
-bool GxConvolver::start()
-{
-	int abspri, policy;
-    struct sched_param  spar;
-    pthread_getschedparam(jack_client_thread_id(gx_jack::client), &policy, &spar);
-    abspri = spar.sched_priority;
-	int rc = start_process(abspri, policy);
-	if (rc != 0) {
-		gx_system::gx_print_error("convolver", "can't start convolver");
-		return false;
-	}
-	ready = true;
-	return true;
-}
-
-void GxConvolver::checkstate()
-{
-	if (state() == Convproc::ST_WAIT) {
-		check();
-	} else if (state() == ST_STOP) {
-		ready = false;
-	}
-}
-
 bool GxConvolver::compute(int count, float* input1, float *input2, float *output1, float *output2)
 {
 	if (state() == Convproc::ST_WAIT) {
@@ -351,6 +361,63 @@ bool GxConvolver::compute(int count, float* input1, float *input2, float *output
 
 GxConvolver conv;
 
+
+/****************************************************************
+ ** GxSimpleConvolver
+ */
+
+bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int samplerate)
+{
+	bool dyn = false;
+	if (samplerate != gx_jack::jack_sr) {
+		gx_resample::BufferResampler r;
+		impresp = r.process(samplerate, count, impresp, gx_jack::jack_sr, count);
+		if (!impresp) {
+			gx_system::gx_print_error("convolver", "failed to resample");
+			return false;
+		}
+		dyn = true;
+	}
+	cleanup();
+	bool ret;
+    if (Convproc::configure(1, 1, count, gx_jack::jack_bs, gx_jack::jack_bs, Convproc::MAXPART)) {
+		gx_system::gx_print_error("convolver", "error in Convproc::configure");
+		ret = false;
+    } else if (impdata_create(0, 0, 1, impresp, 0, count)) {
+		gx_system::gx_print_error("convolver", "out of memory");
+		ret = false;
+    } else {
+	    ret = true;
+    }
+    if (dyn) {
+	    delete impresp;
+    }
+    return ret;
 }
 
+bool GxSimpleConvolver::compute(int count, float* input, float *output)
+{
+	if (state() == Convproc::ST_WAIT) {
+		check();
+	}
+	if (state() != Convproc::ST_PROC) {
+		if (input != output) {
+			memcpy(output, input, count * sizeof(float));
+		}
+		if (state() == ST_STOP) {
+			ready = false;
+			return flags() == 0;
+		}
+		return true;
+	}
+	memcpy(inpdata(0), input, count * sizeof(float));
 
+	process();
+
+	memcpy (output, outdata(0), count * sizeof(float));
+	return true;
+}
+
+GxSimpleConvolver cab_conv;
+
+}

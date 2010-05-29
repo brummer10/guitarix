@@ -102,5 +102,41 @@ void SimpleResampler::down(int count, float *input, float *output)
 
 SimpleResampler resampTube, resampDist;
 
+
+float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp, int& olen)
+{
+	if (setup(fs_inp, fs_outp, 1, 32) != 0) {
+		return 0;
+	}
+	int k = filtlen();
+	inp_count = k/2-1;
+	inp_data = 0;
+	out_count = 1; // must be at least 1 to get going
+	out_data = 0;
+	if (Resampler::process() != 0) {
+		return 0;
+	}
+	assert(inp_count == 0);
+	assert(out_count == 1);
+	inp_count = ilen;
+	out_count = olen = (ilen * ratio_b() + ratio_a() - 1) / ratio_a();
+	inp_data = input;
+	float *p = out_data = new float[out_count];
+	if (Resampler::process() != 0) {
+		delete out_data;
+		return 0;
+	}
+	assert(inp_count == 0);
+	inp_data = 0;
+	inp_count = k/2;
+	if (Resampler::process() != 0) {
+		delete out_data;
+		return 0;
+	}
+	assert(inp_count == 0);
+	assert(out_count == 0);
+	return p;
+}
+
 } // namespace gx_engine
 

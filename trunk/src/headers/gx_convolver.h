@@ -87,29 +87,46 @@ private:
 	uint32_t  _size;
 };
 
-class GxConvolver: Convproc
+class GxConvolverBase: protected Convproc
 {
-private:
+protected:
 	bool ready;
-	bool read_sndfile (Audiofile& audio, int nchan, const float *gain, unsigned int *delay,
-	                   unsigned int offset, unsigned int length);
 	void adjust_values(unsigned int audio_size, unsigned int& count, unsigned int& offset,
 	                   unsigned int& delay, unsigned int& ldelay, unsigned int& length,
 	                   unsigned int& size, unsigned int& bufsize);
+	GxConvolverBase(): ready(false) {}
 public:
-	GxConvolver(): ready(false) {}
-	bool configure(
-		unsigned int count, int samplerate, string fname, float gain=1.0, float lgain=1.0,
-		unsigned int delay=0, unsigned int ldelay=0, unsigned int offset=0,
-		unsigned int length=0, unsigned int size=0, unsigned int bufsize=0);
-	bool compute(int count, float* input1, float *input2, float *output1, float *output2);
 	void checkstate();
 	bool is_runnable() { return ready; }
 	bool start();
 	void stop() { stop_process(); }
 };
 
+class GxConvolver: public GxConvolverBase
+{
+private:
+	bool read_sndfile (Audiofile& audio, int nchan, const float *gain, unsigned int *delay,
+	                   unsigned int offset, unsigned int length);
+public:
+	bool configure(
+		unsigned int count, int samplerate, string fname, float gain=1.0, float lgain=1.0,
+		unsigned int delay=0, unsigned int ldelay=0, unsigned int offset=0,
+		unsigned int length=0, unsigned int size=0, unsigned int bufsize=0);
+	bool compute(int count, float* input1, float *input2, float *output1, float *output2);
+};
+
 extern GxConvolver conv;
+
+class GxSimpleConvolver: public GxConvolverBase
+{
+private:
+public:
+	bool configure(int count, float *impresp, unsigned int samplerate);
+	bool compute(int count, float* input, float *output);
+	bool compute(int count, float* buffer) { return is_runnable() ? compute(count, buffer, buffer) : true; }
+};
+
+extern GxSimpleConvolver cab_conv;
 
 } /* end of gx_engine namespace */
 

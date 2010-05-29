@@ -39,4 +39,10 @@ public:
 
 extern SimpleResampler resampTube, resampDist;
 
+class BufferResampler: Resampler
+{
+public:
+	float *process(int fs_inp, int ilen, float *input, int fs_outp, int& olen);
+};
+
 }
