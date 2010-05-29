@@ -762,7 +762,7 @@ gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
         double x0      = wi->allocation.x+5;
         double y0      = wi->allocation.y;
-        double rect_width  = wi->allocation.width-2;
+       // double rect_width  = wi->allocation.width-2;
         double rect_height = wi->allocation.height-50;
         float p = gx_gui::parameter_map["eq.f31_25"].getFloat().value;
         float q = 100 - gx_gui::parameter_map["eq.Q31_25"].getFloat().value;
