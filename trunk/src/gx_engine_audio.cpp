@@ -501,6 +501,11 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     if (exp_upsample_on) {
 	    resampExp.down(count, oversample, output0);
     }
+    if (!cab_conv.compute(count, output0)) {
+	    //FIXME switch button off
+	    cout << "overload" << endl;
+	    //FIXME error message??
+    }
 #endif // EXPERIMENTAL
 
     if (audio.fconvolve) {
