@@ -62,7 +62,7 @@ void init(int samplingFreq)
 	fConst12 = (1.316227766016838 * fConst11);
 	fConst13 = (0 - (2 * (0 - (0.683772233983162 + fConst12))));
 	fConst14 = (0.683772233983162 * fConst11);
-	fConst15 = (0.5623413251903491 * sin(fConst10));
+	fConst15 = (0.005623413251903491 * sin(fConst10));
 	fConst16 = (fConst15 - (fConst14 + 1.316227766016838));
 	for (int i=0; i<3; i++) fVec1[i] = 0;
 	fConst17 = (fConst15 + fConst14);
