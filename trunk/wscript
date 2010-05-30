@@ -276,7 +276,7 @@ def append_optimization_flags(cxxflags):
     cxxflags.append ("-ffinite-math-only")
     cxxflags.append ("-fno-math-errno")
     cxxflags.append ("-fno-signed-zeros")
-    #cxxflags.append ("-ffast-math")
+    #cxxflags.append ("-ffast-math") # quicker but doesn't seem to work (difference in sound output)
     #cxxflags.append ("-malign-double")
     cxxflags.append ("-fstrength-reduce")
     cxxflags.append ("-pipe")
