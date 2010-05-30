@@ -54,34 +54,34 @@ def set_options(opt):
                     help='additional C++ compiler flags for debug version (only used if --debug) [Default: %default]')
 
     comp.add_option('--cxxflags',
-                    type='string', 
+                    type='string',
                     default='-Wall -std=c++0x', # -fomit-frame-pointer -ffast-math -fstrength-reduce -mmmx -mfpmath=sse -DUSE_XMMINTRIN -pipe
-                    dest='cxxflags', 
+                    dest='cxxflags',
                     help='C++ base compiler flags [Default: %default]')
-                    
+
     comp.add_option('--optimization',
-                    action='store_const', 
+                    action='store_const',
                     default=False, #'-fomit-frame-pointer -ffast-math -fstrength-reduce -pipe',
-                    const=True, 
+                    const=True,
                     help='C++ optimization compiler flags [Default: %default]')
-                    
+
     comp.add_option('--experimental',
                     action='store_const',
                     default=False,
                     const=True,
-                    help='build with support for experimental modules build with faust (set --debug flag)')
-                    
+                    help='build with support for experimental modules build with faust')
+
     comp.add_option('--includeresampler',
                     action='store_const',
                     default=False,
                     const=True,
                     help='build with included local zita-resample libary (Default NO)')
-                    
+
     comp.add_option('--includeconvolver',
                     action='store_const',
                     default=False,
                     const=True,
-                    help='build with included local zita-convolver libary (Default NO)')              
+                    help='build with included local zita-convolver libary (Default NO)')
 
     faust = opt.add_option_group("faust-Compiler")
 
@@ -97,33 +97,31 @@ def set_options(opt):
                      default=False,
                      const=True,
                      help="don't build with faust")
-                     
+
     faust.add_option('--faust-float',
                      action='store_const',
                      default=False,
                      const=True,
-                     help="build with faust, single precision")                
+                     help="build with faust, single precision")
 
     ladspa = opt.add_option_group("other options")
 
-    ladspa.add_option('--ladspadir', 
-                    type='string', 
+    ladspa.add_option('--ladspadir',
+                    type='string',
                     help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
 
 def check_comp(conf):
     if Options.options.includeresampler:
         define_name="ZITA_RESAMPLER"
         conf.env['ZITARESAMPLER'] = True
-        conf.env['ZITA_RESAMPLER'] = None  
-        return
-        
-def check_comp(conf):
+        conf.env['ZITA_RESAMPLER'] = None
+
+def check_comp(conf): #FIXME: why 2nd definition?
     if Options.options.includeconvolver:
-        define_name="INTERN_ZITA_CONVOLVER"
+        define_name="INTERN_ZITA_CONVOLVER" #FIXME: statement with no effect
         conf.env['ZITACONVOLVER'] = True
         conf.env['INTERN_ZITA_CONVOLVER'] = None
-        conf.env['ZITA_CONVOLVER'] = None  
-        return        
+        conf.env['ZITA_CONVOLVER'] = None
 
 def check_faust(conf):
     if Options.options.no_faust:
@@ -148,10 +146,10 @@ def check_faust(conf):
     else:
         conf.check_message('faust','version',1,vers)
     if Options.options.faust_float:
-		conf.env['FAUST_DOUBLE'] =None
+        conf.env['FAUST_DOUBLE'] =None
     else:
-		conf.env['FAUST_DOUBLE'] =True 
-        
+        conf.env['FAUST_DOUBLE'] =True
+
 
 def check_faust_cc(conf, cpy_dir):
     if os.path.exists(cpy_dir):
@@ -199,17 +197,102 @@ def display_feature(msg, build):
     else:
         display_msg(msg, "no", 'YELLOW')
 
+def append_optimization_flags(cxxflags):
+    cpu_model = None
+    x86_flags = None
+    try:
+        for line in file("/proc/cpuinfo"):
+            if cpu_model is None:
+                if line.startswith("model name"):
+                    cpu_model = line.split(":",1)[1].strip()
+            elif x86_flags is None:
+                if line.startswith("flags"):
+                    x86_flags = line.split(":",1)[1].strip()
+            else:
+                break
+    except IOError:
+        pass
+    if cpu_model is None or x86_flags is None:
+        display_msg("Checking CPU Architecture",
+                    "cpu model not found in /proc/cpuinfo",
+                    "YELLOW")
+        return None
+    model = cpu_model.split()
+    arch = os.uname()[4]
+    if "AMD" in model and "x86_64" in arch:
+        cxxflags.append ("-march=K8")
+    elif "AMD" in model and "Sempron" in model and "i686" in arch:
+        cxxflags.append ("-march=native")
+    elif "Geode" in model :
+        cxxflags.append ("-march=geode")
+    elif "Core" in model and "x86_64" in arch:
+        cxxflags.append ("-march=core2")
+    elif "i386" in arch:
+        cxxflags.append ("-march=i386")
+    elif "i486" in arch:
+        cxxflags.append ("-march=i486")
+    elif "i586" in arch:
+        cxxflags.append ("-march=i586")
+    elif "i686" in arch:
+        cxxflags.append ("-march=i686")
+    else:
+        cxxflags.append ("-march=native")
+
+    if "mmx" in x86_flags:
+        cxxflags.append ("-mmmx")
+    if "3dnow" in x86_flags:
+        cxxflags.append ("-m3dnow")
+
+    if "sse5" in x86_flags:
+        cxxflags.append ("-msse5")
+        cxxflags.append ("-mfpmath=sse")
+    elif "sse4_2" in x86_flags:
+        cxxflags.append ("-msse4.2")
+        cxxflags.append ("-mfpmath=sse")
+    elif "sse4_1" in x86_flags:
+        cxxflags.append ("-msse4.1")
+        cxxflags.append ("-mfpmath=sse")
+    elif "ssse3" in x86_flags:
+        cxxflags.append ("-mssse3")
+        cxxflags.append ("-mfpmath=sse")
+    elif "sse4" in x86_flags:
+        cxxflags.append ("-msse4")
+        cxxflags.append ("-mfpmath=sse")
+    elif "sse3" in x86_flags:
+        cxxflags.append ("-msse3")
+        cxxflags.append ("-mfpmath=sse")
+    elif "sse2" in x86_flags:
+        cxxflags.append ("-msse2")
+        cxxflags.append ("-mfpmath=sse")
+        #cxxflags.append ("-DUSE_XMMINTRIN")
+    elif "sse" in x86_flags:
+        cxxflags.append ("-msse")
+        cxxflags.append ("-mfpmath=sse")
+        # cxxflags.append ("-DUSE_XMMINTRIN")
+
+    if not Options.options.debug:
+        cxxflags.append ("-fomit-frame-pointer")
+    cxxflags.append ("-ftree-loop-linear")
+    cxxflags.append ("-ffinite-math-only")
+    cxxflags.append ("-fno-math-errno")
+    cxxflags.append ("-fno-signed-zeros")
+    #cxxflags.append ("-ffast-math")
+    #cxxflags.append ("-malign-double")
+    cxxflags.append ("-fstrength-reduce")
+    cxxflags.append ("-pipe")
+    return cpu_model
+
 # guitarix waf configuration
 def configure(conf):
-	# compiler
+    # compiler
     conf.check_tool('compiler_cxx')
     cxx_version = conf.env["CC_VERSION"];
     fc_line = os.popen ("gcc --help=c++ | grep 'c++0x' ").read()[:-1]
     if not "c++0x" in fc_line:
-		raise ConfigurationError(
+        raise ConfigurationError(
             "!!! Compiler version %s didn't support std=c++0x flag !!!"
             % ".".join(cxx_version))
-    # needed libarys 
+    # needed libarys
     try:
         conf.check_cfg(package='jack', atleast_version='0.109.1', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
     except ConfigurationError:
@@ -223,11 +306,11 @@ def configure(conf):
     # convolver and resampler
     if not Options.options.includeconvolver:
         conf.check_cxx(header_name='zita-convolver.h', lib="zita-convolver", uselib_store='ZITA_CONVOLVER',
-			   errmsg="not found, using local version", define_name="INTERN_ZITA_CONVOLVER")
+                       errmsg="not found, using local version", define_name="INTERN_ZITA_CONVOLVER")
     if not Options.options.includeresampler:
         conf.check(lib='zita-resampler', msg='Checking for zita-resampler', header_name='stdlib.h zita-resampler.h',
                errmsg="not found, using local version", define_name="ZITA_RESAMPLER")
-    # faust           
+    # faust
     check_faust(conf)
     check_faust_cc(conf, "src/faust-cc")
     # directory
@@ -242,7 +325,6 @@ def configure(conf):
     conf.define('GX_VERSION', VERSION)
     if Options.options.experimental:
         conf.define('EXPERIMENTAL', '')
-        conf.env['DEBUG'] = True
 
     # writing config.h
     conf.write_config_header('config.h')
@@ -257,12 +339,15 @@ def configure(conf):
     conf.define('BIN_NAME', APPNAME)
     # g++ flags
     cxxflags = Options.options.cxxflags.split()
-    if Options.options.debug or conf.env['DEBUG']:
+    if Options.options.debug:
         cxxflags += Options.options.cxxflags_debug.split()
     else:
         cxxflags += Options.options.cxxflags_release.split()
+    cpu_model = None
+    if Options.options.optimization:
+        cpu_model = append_optimization_flags(cxxflags)
     conf.env['CXXFLAGS'] = cxxflags
-    
+
     # some output
     print
     display_msg("==================")
@@ -271,97 +356,30 @@ def configure(conf):
 
     print_msg("")
 
-    
-    if Options.options.optimization and not (Options.options.debug or conf.env['DEBUG']):   
-        flag_line = os.popen ("cat /proc/cpuinfo | grep '^model name'").read()[:-1]
-        x86_flags = flag_line.split (": ")[1:][0].split ()
-        display_msg("CPU version" , "%s"%flag_line[13:][:-1], "CYAN")
-        arch = os.popen ("uname -m").read()[:-1]
-        if "AMD" in x86_flags and "x86_64" in arch:
-			cxxflags.append ("-march=K8")
-        elif "AMD" in x86_flags and "Sempron" in x86_flags and "i686" in arch:
-			cxxflags.append ("-march=native")
-        elif "Geode" in x86_flags :
-			cxxflags.append ("-march=geode")
-        elif "Core" in x86_flags and "x86_64" in arch:
-			cxxflags.append ("-march=core2")							
-        elif "i386" in arch:
-		    cxxflags.append ("-march=i386")
-        elif "i486" in arch:
-		    cxxflags.append ("-march=i486")    
-        elif "i586" in arch:
-		    cxxflags.append ("-march=i586")
-        elif "i686" in arch:
-		    cxxflags.append ("-march=i686")
-        else:
-			cxxflags.append ("-march=native")    
-        
-        x86_flags = os.popen ("cat /proc/cpuinfo | grep '^flags'").read()[:-1]    
-        if "mmx" in x86_flags:
-            cxxflags.append ("-mmmx")
-        if "3dnow" in x86_flags:
-            cxxflags.append ("-m3dnow") 
-            
-        if "sse5" in x86_flags:
-            cxxflags.append ("-msse5")
-            cxxflags.append ("-mfpmath=sse")     
-        elif "sse4_2" in x86_flags:
-            cxxflags.append ("-msse4.2")
-            cxxflags.append ("-mfpmath=sse")     
-        elif "sse4_1" in x86_flags:
-            cxxflags.append ("-msse4.1")
-            cxxflags.append ("-mfpmath=sse")     
-        elif "ssse3" in x86_flags:
-            cxxflags.append ("-mssse3")
-            cxxflags.append ("-mfpmath=sse")     
-        elif "sse4" in x86_flags:
-            cxxflags.append ("-msse4")
-            cxxflags.append ("-mfpmath=sse")     
-        elif "sse3" in x86_flags:
-            cxxflags.append ("-msse3")
-            cxxflags.append ("-mfpmath=sse")     
-        elif "sse2" in x86_flags:
-            cxxflags.append ("-msse2")
-            cxxflags.append ("-mfpmath=sse") 
-            #cxxflags.append ("-DUSE_XMMINTRIN")    
-        elif "sse" in x86_flags:
-            cxxflags.append ("-msse")
-            cxxflags.append ("-mfpmath=sse")
-            # cxxflags.append ("-DUSE_XMMINTRIN")
-        
-                    
-        cxxflags.append ("-fomit-frame-pointer")
-        cxxflags.append ("-ftree-loop-linear")
-        cxxflags.append ("-ffinite-math-only")
-        cxxflags.append ("-fno-math-errno")
-        cxxflags.append ("-fno-signed-zeros")
-        #cxxflags.append ("-ffast-math")
-        #cxxflags.append ("-malign-double")
-        cxxflags.append ("-fstrength-reduce")
-        cxxflags.append ("-pipe")
-
     # config subdirs
     conf.sub_config('src');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
     conf.sub_config('ladspa');
     conf.sub_config('rcstyles');
-    
+
     if not conf.env['ZITA_RESAMPLER']:
         conf.env['ZITARESAMPLER'] = True
         check_comp(conf)
-        
+
     if not conf.env['INTERN_ZITA_CONVOLVER']:
         conf.env['ZITACONVOLVER'] = True
-        check_comp(conf) 
-    
+        check_comp(conf)
+
+    if cpu_model:
+        display_msg("CPU version" , "%s" % cpu_model, "CYAN")
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
     #display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(cxx_version), "CYAN")
     display_feature("Use faust", conf.env['FAUST'])
     if conf.env['FAUST_DOUBLE']:
         display_msg("Use faust precision", "double", 'CYAN')
     else:
-		display_msg("Use faust precision", "single", 'CYAN')    
+        display_msg("Use faust precision", "single", 'CYAN')
     display_feature("Use internal zita-resampler", conf.env['ZITARESAMPLER'])
     display_feature("Use internal zita-convolver", conf.env['ZITACONVOLVER'])
     display_feature("Experimental Extensions", conf.env['EXPERIMENTAL']=="")
@@ -373,7 +391,7 @@ def configure(conf):
     display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
     if conf.env['g++']:
        error_msg("ERROR       !!! Compiler version is to old !!!")
-       
+
     print_msg("")
 
 def build(bld):
@@ -389,6 +407,6 @@ def build(bld):
 
 def etags(ctx):
     "Create an Emacs ETAGS file for the src directory"
-    cmd = "etags -l c++ --members -o src/TAGS src/*.cpp src/headers/*.h"
+    cmd = "etags -o src/TAGS src/*.cpp src/*.cc src/headers/*.h"
     Logs.debug("runner: system command -> %s" % cmd)
     Utils.exec_command(cmd)
