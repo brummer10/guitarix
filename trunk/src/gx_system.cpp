@@ -592,6 +592,9 @@ void write_jack_connections(JsonWriter& w)
 	write_jack_port_connections(w, "output1", output_ports[2]);
 	write_jack_port_connections(w, "output2", output_ports[3]);
 	write_jack_port_connections(w, "midi_input", midi_input_port);
+	write_jack_port_connections(w, "midi_output", midi_output_ports);
+	write_jack_port_connections(w, "insert_out", output_ports[0]);
+	write_jack_port_connections(w, "insert_in", input_ports[1]);
 	w.end_object(true);
 }
 
@@ -632,7 +635,7 @@ bool saveStateToFile( const string &filename )
 	return rc == 0;
 }
 
-list<string> jack_connection_lists[4];
+list<string> jack_connection_lists[7];
 
 static void read_jack_connections(JsonParser& jp)
 {
@@ -648,6 +651,12 @@ static void read_jack_connections(JsonParser& jp)
 			i = kAudioOutput2;
 		} else if (jp.current_value() == "midi_input") {
 			i = kMidiInput;
+		} else if (jp.current_value() == "midi_output") {
+			i = kMidiOutput;
+		} else if (jp.current_value() == "insert_out") {
+			i = kAudioInsertOut;
+		} else if (jp.current_value() == "insert_in") {
+			i = kAudioInsertIn;
 		} else {
 			gx_print_warning("recall state","unknown jack ports sections" + jp.current_value());
 			jp.skip_object();

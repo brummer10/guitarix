@@ -34,10 +34,12 @@ namespace gx_gui
  */
 
 enum {
-	number_of_ports = 5
+	number_of_ports = 7
 };
 
 struct PortAttr {
+	const int client_num;
+	const bool is_insert;
 	const char *port_name;
 	bool is_input;
 	const char *port_type;
@@ -72,6 +74,7 @@ private:
 	bool walk_remove(GtkTreeStore *ts, bool (*compare)(const string&, const char*), string data);
 	void walk_insert(GtkTreeStore *ts, string data);
 	void load(int sect, jack_port_t*);
+	void load_all();
 	PortMapWindow(GtkCheckMenuItem *item);
 	~PortMapWindow();
 public:

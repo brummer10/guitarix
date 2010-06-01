@@ -322,7 +322,32 @@ void gx_jack_init_port_connection(const string* optvar)
 			idx++;
 		}
 	}
-	jack_connect(client, jack_port_name(output_ports[0]), "guitarix_fx:in_0");
+
+	// autoconnect midi output port
+	list<string>& lmo = jack_connection_lists[kMidiOutput];
+	for (list<string>::iterator i = lmo.begin(); i != lmo.end(); i++) {
+		jack_connect(client, jack_port_name(midi_output_ports), i->c_str());
+	}
+
+	// autoconnect to insert ports
+	list<string>& lins_in = jack_connection_lists[kAudioInsertIn];
+	list<string>& lins_out = jack_connection_lists[kAudioInsertOut];
+	bool ifound = false, ofound = false;
+	for (list<string>::iterator i = lins_in.begin(); i != lins_in.end(); i++) {
+		int rc = jack_connect(client_insert, i->c_str(), jack_port_name(input_ports[1]));
+		if (rc == 0 || rc == EEXIST) {
+			ifound = true;
+		}
+	}
+	for (list<string>::iterator i = lins_out.begin(); i != lins_out.end(); i++) {
+		int rc = jack_connect(client, jack_port_name(output_ports[0]), i->c_str());
+		if (rc == 0 || rc == EEXIST) {
+			ofound = true;
+		}
+	}
+	if (!ifound || !ofound) {
+		jack_connect(client_insert, jack_port_name(output_ports[0]), (client_insert_name+":in_0").c_str());
+	}
 }
 
 //----- pop up a dialog for starting jack

@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  * ---------------------------------------------------------------------------
  *
- *    This is the guitarix GUI main class
+ *    guitarix portmap window
  *
  * ----------------------------------------------------------------------------
  */
@@ -50,11 +50,14 @@ namespace gx_gui
 {
 
 PortAttr guitarix_ports[] = {
-	{ "in_0", true, JACK_DEFAULT_AUDIO_TYPE },
-	{ "out_0", false, JACK_DEFAULT_AUDIO_TYPE },
-	{ "out_1", false, JACK_DEFAULT_AUDIO_TYPE },
-	{ "midi_in_1", true, JACK_DEFAULT_MIDI_TYPE },
-	{ "midi_out_1", false, JACK_DEFAULT_MIDI_TYPE },
+	//client_num, is_insert, port_name, is_input, port_type
+	{ 0, false, "in_0", true, JACK_DEFAULT_AUDIO_TYPE },
+	{ 1, false, "out_0", false, JACK_DEFAULT_AUDIO_TYPE },
+	{ 1, false, "out_1", false, JACK_DEFAULT_AUDIO_TYPE },
+	{ 0, false, "midi_in_1", true, JACK_DEFAULT_MIDI_TYPE },
+	{ 0, false, "midi_out_1", false, JACK_DEFAULT_MIDI_TYPE },
+	{ 1, true,  "in_0", true, JACK_DEFAULT_AUDIO_TYPE },
+	{ 0, true,  "out_0", false, JACK_DEFAULT_AUDIO_TYPE },
 };
 
 #define ALSA_PCM "alsa_pcm"  // special alsa sequencer client
@@ -100,7 +103,7 @@ struct ClientList: list<ClientPortList*>
 	static bool str_compare(const char *a, const char *b);
 	ClientList(const char**);
 	~ClientList();
-	void remove(list<string> excl);
+	void remove(string excl);
 };
 
 bool ClientList::str_compare(const char *a, const char *b)
@@ -108,7 +111,7 @@ bool ClientList::str_compare(const char *a, const char *b)
 	return strcmp(b, a) > 0;
 }
 
-ClientList::ClientList(const char **ports )
+ClientList::ClientList(const char **ports)
 {
 	list<const char*> l;
 	for (int i = 0; ports[i]; i++) {
@@ -136,16 +139,16 @@ ClientList::~ClientList()
 	}
 }
 
-void ClientList::remove(list<string> excl)
+void ClientList::remove(string excl)
 {
-	for (list<ClientPortList*>::iterator i = begin(); i != end(); ) {
-		list<ClientPortList*>::iterator n = i++;
-		for (list<string>::iterator j = excl.begin(); j != excl.end(); j++) {
-			if ((*n)->sameclient(j->c_str())) {
-				delete *n;
-				erase(n);
-				break;
-			}
+	for (list<ClientPortList*>::iterator i = begin(); i != end();) {
+		if ((*i)->sameclient(excl.c_str())) {
+			list<ClientPortList*>::iterator n = i++;
+			delete *n;
+			erase(n);
+			break;
+		} else {
+			i++;
 		}
 	}
 }
@@ -378,6 +381,9 @@ list<string> PortMapWindow::walk(GtkTreeStore *ts, string *port, int connect)
 void PortMapWindow::update_summary(PortSection *p, string *port, bool conn)
 {
 	list<string> l = walk(p->treestore, port, conn);
+	if (!p->expander) {
+		return;
+	}
 	string q;
 	list<string>::iterator i = l.begin();
 	if (i != l.end()) {
@@ -394,7 +400,9 @@ void PortMapWindow::connection_changed(string port1, string port2, bool conn)
 {
 	for (int i = 0; i < number_of_ports; i++) {
 		PortSection *p = &portsection[i];
-		string s = gx_jack::client_name + ":" + p->port_attr->port_name;
+
+		string s = (p->port_attr->client_num == 0 ? gx_jack::client_name : gx_jack::client_insert_name)
+			+ ":" + p->port_attr->port_name;
 		if (s.compare(port1) == 0) {
 			update_summary(p, &port2, conn);
 		}
@@ -493,13 +501,17 @@ void PortMapWindow::on_cell_toggle(GtkCellRendererToggle *widget, gchar *path, g
 	gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(p->treestore), &iter, path);
 	gboolean v;
 	const char *q1, *q2;
-    string s;
 	gtk_tree_model_get(GTK_TREE_MODEL(p->treestore), &iter, 0, &q1, 1, &v, -1);
-    if (!strcmp(p->port_attr->port_name,"out_0") || !strcmp(p->port_attr->port_name,"out_1")){
-        s = gx_jack::client_insert_name + ":" + p->port_attr->port_name;
-    } else {
-        s = gx_jack::client_name + ":" + p->port_attr->port_name;
-    }
+	string gcln;
+	jack_client_t *gcl;
+	if (p->port_attr->client_num == 0) {
+		gcl = gx_jack::client;
+		gcln = gx_jack::client_name;
+	} else {
+		gcl = gx_jack::client_insert;
+		gcln = gx_jack::client_insert_name;
+	}
+	string s = gcln + ":" + p->port_attr->port_name;
     q2 = s.c_str();
     if (!p->port_attr->is_input) {
 		const char *sw = q1;
@@ -511,9 +523,9 @@ void PortMapWindow::on_cell_toggle(GtkCellRendererToggle *widget, gchar *path, g
 	int ret;
 
     if (v) {
-        ret = jack_connect(gx_jack::client, q1, q2);
+        ret = jack_connect(gcl, q1, q2);
     } else {
-        ret = jack_disconnect(gx_jack::client, q1, q2);
+        ret = jack_disconnect(gcl, q1, q2);
     }
 
 	if (ret != 0) {
@@ -571,18 +583,21 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port)
         gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(tree), 0, GTK_SORT_ASCENDING);
         gtk_tree_store_clear(tree);
         const char **ports;
-        if ((sect == 1)||(sect == 2)) {
-        ports = jack_get_ports(gx_jack::client_insert, NULL, ps.port_attr->port_type,
-                                (ps.port_attr->is_input ? JackPortIsOutput : JackPortIsInput));
-        }else{ ports = jack_get_ports(gx_jack::client, NULL, ps.port_attr->port_type,
-                                (ps.port_attr->is_input ? JackPortIsOutput : JackPortIsInput));
-        }
+        jack_client_t *gcl = (ps.port_attr->client_num == 0 ? gx_jack::client : gx_jack::client_insert);
+        ports = jack_get_ports(gcl, NULL, ps.port_attr->port_type,
+                               (ps.port_attr->is_input ? JackPortIsOutput : JackPortIsInput));
         if (!ports) {
-            return;
+	        return;
         }
         const char** conn_ports = jack_port_get_connections(jack_port);
         ClientList cl(ports);
-        cl.remove(excluded_clients);
+        // the following loop depends on the first 2 entries being client_name and client_insert_name
+        int idx = 0;
+        for (list<string>::iterator j = excluded_clients.begin(); j != excluded_clients.end(); j++, idx++) {
+	        if (!ps.port_attr->is_insert || ps.port_attr->client_num != idx) {
+		        cl.remove(*j);
+	        }
+        }
         GtkTreeIter iter, parent, *parentp;
         for (ClientList::iterator i = cl.begin(); i != cl.end(); i++) {
             ClientPortList *p = *i;
@@ -621,20 +636,41 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port)
     }
 }
 
+void PortMapWindow::load_all()
+{
+#define uslp() usleep(10); // prevents xruns?? (bug in jackd?)
+	load(0, gx_jack::input_ports[0]);
+	uslp();
+	load(1, gx_jack::output_ports[2]);
+	uslp();
+	load(2, gx_jack::output_ports[3]);
+	uslp();
+	load(3, gx_jack::midi_input_port);
+	uslp();
+	load(4, gx_jack::midi_output_ports);
+	uslp();
+	load(5, gx_jack::input_ports[1]);
+	uslp();
+	load(6, gx_jack::output_ports[0]);
+#undef uslp
+}
+
 PortMapWindow::PortMapWindow(GtkCheckMenuItem *item)
 {
 	monitored_expander_child = 0;
 	menuitem = item;
 	gtk_widget_ref(GTK_WIDGET(item));
 
+	// order of first 2 entries is important (check load())
+	excluded_clients.push_back(string(gx_jack::client_insert_name) + ":");
 	excluded_clients.push_back(string(gx_jack::client_name) + ":");
 	excluded_clients.push_back(string(gx_jack::client_name) + "_meterbridge:");
 	excluded_clients.push_back(string("jack_capture:"));
-	excluded_clients.push_back(string(gx_jack::client_insert_name) + ":");
 
 	GtkBuilder * builder = gtk_builder_new();
 	window = load_toplevel(builder, "ports.glade", "PortMapWindow");
 	gtk_window_set_icon(GTK_WINDOW (window), GDK_PIXBUF(ib));
+	memset(portsection, 0, sizeof(portsection));
 	for (int i = 0; i < number_of_ports; i++) {
 		portsection[i].port_attr = &guitarix_ports[i];
 		char name[30];
@@ -642,20 +678,19 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item)
 		portsection[i].scrolled_window = GTK_SCROLLED_WINDOW(gtk_builder_get_object(builder, name));
 		snprintf(name, sizeof(name), "treestore%d", i+1);
 		portsection[i].treestore = GTK_TREE_STORE(gtk_builder_get_object(builder, name));
-		snprintf(name, sizeof(name), "expander%d", i+1);
-		portsection[i].expander = GTK_EXPANDER(gtk_builder_get_object(builder, name));
-		g_signal_connect_after(portsection[i].expander, "activate", G_CALLBACK(on_expander), this);
-		snprintf(name, sizeof(name), "port%d", i+1);
-		portsection[i].label = GTK_LABEL(gtk_builder_get_object(builder, name));
 		snprintf(name, sizeof(name), "cellrenderertoggle%d", i+1);
 		g_signal_connect(gtk_builder_get_object(builder, name), "toggled", G_CALLBACK(on_cell_toggle), &portsection[i]);
+		snprintf(name, sizeof(name), "expander%d", i+1);
+		GObject *w = gtk_builder_get_object(builder, name);
+		if (w) {
+			portsection[i].expander = GTK_EXPANDER(w);
+			g_signal_connect_after(portsection[i].expander, "activate", G_CALLBACK(on_expander), this);
+			snprintf(name, sizeof(name), "port%d", i+1);
+			portsection[i].label = GTK_LABEL(gtk_builder_get_object(builder, name));
+		}
 	}
 
-	load(0, gx_jack::input_ports[0]);
-	load(1, gx_jack::output_ports[2]);
-	load(2, gx_jack::output_ports[3]);
-	load(3, gx_jack::midi_input_port);
-	load(4, gx_jack::midi_output_ports);
+	load_all();
 
 	g_signal_connect(window, "destroy", G_CALLBACK(destroy_cb), this);
 	g_signal_connect(window, "response", G_CALLBACK(response_cb), this);
@@ -686,15 +721,7 @@ void PortMapWindow::refresh()
                 update_summary(&portsection[i]);
             }
         } else {
-            load(0, gx_jack::input_ports[0]);
-            usleep(10);
-            load(1, gx_jack::output_ports[2]);
-            usleep(10);
-            load(2, gx_jack::output_ports[3]);
-            usleep(10);
-            load(3, gx_jack::midi_input_port);
-            usleep(10);
-            load(4, gx_jack::midi_output_ports);
+	        load_all();
         }
     }
 }

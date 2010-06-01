@@ -117,7 +117,9 @@ enum {
 	kAudioOutput1  = 1,
 	kAudioOutput2  = 2,
 	kMidiInput     = 3,
-	kMidiOutput    = 4
+	kMidiOutput    = 4,
+	kAudioInsertIn = 5,
+	kAudioInsertOut= 6
 };
 }
 
