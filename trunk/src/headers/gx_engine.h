@@ -195,11 +195,13 @@ void faust_init(int samplingFreq);
 void compute_midi(int len);
 void compute_midi_in(void* midi_input_port_buf);
 void process_midi(int count);
-void compute (int count, float* input, float* output0, float* output1);
+void compute (int count, float* input, float* output0);
+void compute_insert (int count, float* input1, float* output2, float* output3);
 
 void convolver_filter(float* input, float* output, int sf, int iconvolvefilter);
 void moving_filter(float* input, float* output, int sf);
-void process_buffers(int count, float* input, float* output0, float* output1);
+void process_buffers(int count, float* input, float* output0);
+void process_insert_buffers (int count, float* input1, float* output0, float* output1);
 
 #ifdef EXPERIMENTAL
 void faust_setup();

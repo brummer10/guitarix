@@ -73,6 +73,7 @@ void gx_jack_session_callback(jack_session_event_t *event, void *arg);
 
 /* processing */
 int gx_jack_process (jack_nframes_t, void*);
+int gx_jack_insert_process (jack_nframes_t, void*);
 
 #ifndef USE_RINGBUFFER
 int gx_jack_midi_process(jack_nframes_t, void*);

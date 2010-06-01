@@ -70,7 +70,8 @@ namespace gx_jack
 bool gx_jack_init( const string *optvar )
 {
 	jack_status_t jackstat;
-	client_name = "guitarix";
+	client_name = "guitarix_amp";
+	client_insert_name = "guitarix_fx";
 
 	AVOIDDENORMALS;
 
@@ -86,6 +87,7 @@ bool gx_jack_init( const string *optvar )
 	else
 #endif
 	    client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
+	    client_insert = jack_client_open (client_insert_name.c_str(), JackNoStartServer, &jackstat);
 
 	if (client == 0)
 	{
@@ -104,6 +106,7 @@ bool gx_jack_init( const string *optvar )
 		{
 			// so let's try to be a jack client again
 			client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
+            client_insert = jack_client_open (client_insert_name.c_str(), JackNoStartServer, &jackstat);
 
 			if (!client)
 			{
@@ -128,6 +131,7 @@ bool gx_jack_init( const string *optvar )
 	// it is maybe not the 1st guitarix instance ?
 	if (jackstat & JackNameNotUnique)
 		client_name = jack_get_client_name (client);
+		client_insert_name = jack_get_client_name (client_insert);
 
 #ifdef USE_RINGBUFFER
 	jack_ringbuffer = jack_ringbuffer_create(2048*sizeof(struct MidiMessage));
@@ -155,8 +159,10 @@ bool gx_jack_init( const string *optvar )
 	gx_print_info("Jack init", s.str());
 
 
-	if (gx_gui::fWindow)
-		gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), client_name.c_str());
+	if (gx_gui::fWindow) {
+	 string window_name = "guitarix";
+		gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), window_name.c_str());
+	}
 
 	return true;
 }
@@ -214,6 +220,7 @@ void gx_jack_callbacks_and_activate()
 	jack_on_shutdown(client, gx_jack_shutdown_callback, NULL);
 	jack_set_buffer_size_callback (client, gx_jack_buffersize_callback, 0);
 	jack_set_process_callback(client, gx_jack_process, 0);
+	jack_set_process_callback(client_insert, gx_jack_insert_process, 0);
 	jack_set_port_registration_callback(client, gx_jack_portreg_callback, 0);
 	jack_set_port_connect_callback(client, gx_jack_portconn_callback, 0);
 #ifdef HAVE_JACK_SESSION
@@ -229,22 +236,38 @@ void gx_jack_callbacks_and_activate()
 	//----- register the input channel
 	input_ports[0] =
 		jack_port_register(client, "in_0", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
+	input_ports[1] =
+		jack_port_register(client_insert, "in_0", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
 
 	//----- register the midi output channel
 	midi_output_ports =
 		jack_port_register(client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
 
 	//----- register the audio output channels
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 1; i++) {
 		ostringstream buf;
 		buf <<  "out_" << i;
 		output_ports[i] =
 			jack_port_register(client, buf.str().c_str(),
 			                   JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
 	}
+	//----- register the audio fx output channels
+	for (int i = 2; i < 4; i++) {
+		ostringstream buf;
+		buf <<  "out_" << i-2;
+	output_ports[i] =
+			jack_port_register(client_insert, buf.str().c_str(),
+			                   JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+	}
 
 	//----- ready to go
 	if (jack_activate(client))
+	{
+		gx_print_error("Jack Activation",
+		               string("Can't activate JACK client"));
+		gx_clean_exit(NULL, NULL);
+	}
+	if (jack_activate(client_insert))
 	{
 		gx_print_error("Jack Activation",
 		               string("Can't activate JACK client"));
@@ -283,22 +306,23 @@ void gx_jack_init_port_connection(const string* optvar)
 	if (optvar[JACK_OUT1].empty() && optvar[JACK_OUT2].empty()) {
 		list<string>& l1 = jack_connection_lists[kAudioOutput1];
 		for (list<string>::iterator i = l1.begin(); i != l1.end(); i++) {
-			jack_connect(client, jack_port_name(output_ports[0]), i->c_str());
+			jack_connect(client_insert, jack_port_name(output_ports[2]), i->c_str());
 		}
 		list<string>& l2 = jack_connection_lists[kAudioOutput2];
 		for (list<string>::iterator i = l2.begin(); i != l2.end(); i++) {
-			jack_connect(client, jack_port_name(output_ports[1]), i->c_str());
+			jack_connect(client_insert, jack_port_name(output_ports[3]), i->c_str());
 		}
 	} else {
 		int idx = JACK_OUT1;
-		for (int i = 0; i < 2; i++) {
+		for (int i = 2; i < 4; i++) {
 			if (!optvar[idx].empty()) {
-				jack_connect(client,
+				jack_connect(client_insert,
 				             jack_port_name(output_ports[i]), optvar[idx].c_str());
 			}
 			idx++;
 		}
 	}
+	jack_connect(client, jack_port_name(output_ports[0]), "guitarix_fx:in_0");
 }
 
 //----- pop up a dialog for starting jack
@@ -561,11 +585,15 @@ void gx_jack_cleanup()
 		jack_is_exit = true;
 		// disable input ports
 		jack_port_unregister(client, input_ports[0]);
+		jack_port_unregister(client_insert, input_ports[1]);
 		if (midi_input_port != NULL) {
 			jack_port_unregister(client, midi_input_port);
 		}
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 1; i++) {
 			jack_port_unregister(client, output_ports[i]);
+		}
+		for (int i = 2; i < 4; i++) {
+            jack_port_unregister(client_insert, output_ports[i]);
 		}
 		if (midi_output_ports != NULL) {
 			jack_port_unregister(client, midi_output_ports);
@@ -577,6 +605,9 @@ void gx_jack_cleanup()
 		jack_deactivate(client);
 		jack_client_close(client);
 		client = NULL;
+		jack_deactivate(client_insert);
+		jack_client_close(client_insert);
+		client_insert = NULL;
 	}
 }
 
@@ -758,9 +789,10 @@ int gx_jack_process (jack_nframes_t nframes, void *arg)
 		// retrieve buffers at jack ports
 		float *input = (float *)jack_port_get_buffer(input_ports[0], nframes);
 		float *output0 = (float *)jack_port_get_buffer(output_ports[0], nframes);
-		float *output1 = (float *)jack_port_get_buffer(output_ports[1], nframes);
+		//float *output1 = (float *)jack_port_get_buffer(output_ports[1], nframes);
+
 		// guitarix DSP computing
-		compute(nframes, input, output0, output1);
+		compute(nframes, input, output0);
 
 		// ready to go for e.g. level display
 		gx_engine::buffers_ready = true;
@@ -781,6 +813,23 @@ int gx_jack_process (jack_nframes_t nframes, void *arg)
 		}
 	} else {
 		gx_engine::buffers_ready = false;
+	}
+	measure_stop();
+	return 0;
+}
+
+// ----- main jack process method
+int gx_jack_insert_process (jack_nframes_t nframes, void *arg)
+{
+	measure_start();
+	if (!jack_is_exit) {
+		AVOIDDENORMALS;
+
+        float *input1 = (float *)jack_port_get_buffer(input_ports[1], nframes);
+		float *output2 = (float *)jack_port_get_buffer(output_ports[2], nframes);
+		float *output3 = (float *)jack_port_get_buffer(output_ports[3], nframes);
+		// guitarix DSP computing
+		compute_insert(nframes, input1, output2, output3);
 	}
 	measure_stop();
 	return 0;

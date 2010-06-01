@@ -2695,7 +2695,8 @@ void GxMainInterface::show()
 		GtkWidget* wd = getJackLatencyItem(gx_jack::jack_bs);
 		if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 
-		gtk_window_set_title(GTK_WINDOW(fWindow), gx_jack::client_name.c_str());
+		string window_name = "guitarix";
+		gtk_window_set_title (GTK_WINDOW (fWindow), window_name.c_str());
 
 	} else {
 		gtk_widget_hide(gx_gui::gx_jackd_on_image);

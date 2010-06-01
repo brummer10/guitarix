@@ -86,6 +86,7 @@ extern float               xdel;      // last xrun delay
 extern int                 is_rt;     // jack is realtime ?
 
 extern jack_client_t*      client ;
+extern jack_client_t*      client_insert ;
 extern jack_port_t*        output_ports[];
 extern jack_port_t*        input_ports [];
 
@@ -105,6 +106,7 @@ extern jack_nframes_t      time_is;
 extern bool                jack_is_down;
 extern bool                jack_is_exit;
 extern string              client_name;
+extern string              client_insert_name;
 
 extern string              client_out_graph;
 extern string              gx_port_names[];

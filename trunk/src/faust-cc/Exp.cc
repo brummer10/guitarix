@@ -3,7 +3,7 @@ namespace Exp {
 
 //-----------------------------------------------------
 //
-// Code generated with Faust 0.9.23 (http://faust.grame.fr)
+// Code generated with Faust 0.9.24 (http://faust.grame.fr)
 //-----------------------------------------------------
 /* link with : "" */
 template <int N> inline float faustpower(float x) 		{ return powf(x,N); } 

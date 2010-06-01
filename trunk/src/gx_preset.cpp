@@ -803,6 +803,7 @@ void gx_recall_main_setting(GtkMenuItem* item, gpointer)
 	string jname = gx_jack::client_name;
 
 	gx_system::recallState(gx_user_dir + jname + "_rc");
+	jname = "guitarix";
 	gtk_window_set_title(GTK_WINDOW(gx_gui::fWindow), jname.c_str());
 
 	gx_print_info("Main Setting recalling","Called back main setting");
@@ -926,7 +927,7 @@ void gx_rename_preset (GtkEntry* entry)
 		// refresh main window name we were in preset context
 		if (setting_is_preset)
 		{
-			string jname = string(jack_get_client_name(gx_jack::client)) + " ";
+			string jname = "guitarix ";
 			string title = jname + newname;
 			gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), title.c_str());
 

@@ -589,8 +589,8 @@ void write_jack_connections(JsonWriter& w)
 {
 	w.begin_object(true);
 	write_jack_port_connections(w, "input", input_ports[0]);
-	write_jack_port_connections(w, "output1", output_ports[0]);
-	write_jack_port_connections(w, "output2", output_ports[1]);
+	write_jack_port_connections(w, "output1", output_ports[2]);
+	write_jack_port_connections(w, "output2", output_ports[3]);
 	write_jack_port_connections(w, "midi_input", midi_input_port);
 	w.end_object(true);
 }
@@ -1187,7 +1187,7 @@ void gx_print_fatal(const char* func, const string& msg)
 	                                                          GTK_DIALOG_DESTROY_WITH_PARENT),
 	                                           GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
 	                                           "%s", msgbuf.c_str());
-	gtk_window_set_title(GTK_WINDOW(widget), "Guitarix");
+	gtk_window_set_title(GTK_WINDOW(widget), "guitarix");
 	gtk_dialog_run(GTK_DIALOG(widget));
 	gx_clean_exit(NULL, (gpointer)1);
 }

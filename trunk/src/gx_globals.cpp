@@ -97,6 +97,7 @@ float               xdel;      // last xrun delay
 int                 is_rt;
 
 jack_client_t*      client ;
+jack_client_t*      client_insert ;
 jack_port_t*        output_ports[nOPorts];
 jack_port_t*        input_ports [nIPorts];
 void*               midi_input_port_buf;
@@ -117,6 +118,7 @@ jack_ringbuffer_t*  jack_ringbuffer;
 #endif
 
 string client_name  = "guitarix";
+string client_insert_name  = "guitarix_fx";
 string client_out_graph = "";
 
 string gx_port_names[] =

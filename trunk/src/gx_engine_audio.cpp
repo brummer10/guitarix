@@ -325,8 +325,67 @@ inline void down_sample(int sf, float *input, float *output)
  **  this is the process callback called from jack
  **
  ***************************************************************/
+void compute_insert (int count, float* input1, float* output0, float* output1)
+{
+// retrieve engine state
+	const GxEngineState estate = (GxEngineState)checky;
 
-void compute (int count, float* input, float* output0, float* output1)
+	//------------ determine processing type
+	unsigned short process_type = ZEROIZE_BUFFERS;
+
+	if (gx_jack::NO_CONNECTION == 0) { // ports connected
+		switch (estate) {
+		case kEngineOn:
+			process_type = PROCESS_BUFFERS;
+			break;
+
+		case kEngineBypass:
+			process_type = JUSTCOPY_BUFFERS;
+			break;
+
+		default: // engine off or whatever: zeroize
+			break;
+		}
+	}
+
+	//------------ main processing routine
+	switch (process_type) {
+
+	case PROCESS_BUFFERS:
+		process_insert_buffers(count, input1, output0,output1);
+		break;
+
+		// --------- just copy input to outputs
+	case JUSTCOPY_BUFFERS:
+		if (conv.is_runnable()) {
+			conv.checkstate();
+		}
+	    balance1::compute(count, input1, output0,output1);
+	    //(void)memcpy( output0, input1, sizeof(float)*count);
+	    (void)memcpy(get_frame, output0, sizeof(float)*count);
+        (void)memcpy(get_frame1, output1, sizeof(float)*count);
+		break;
+
+
+		// ------- zeroize buffers
+	case ZEROIZE_BUFFERS:
+	default:
+
+		if (conv.is_runnable()) {
+			conv.checkstate();
+		}
+
+		// no need of loop.
+
+		(void)memset(output0, 0, count*sizeof(float));
+		(void)memset(output1, 0, count*sizeof(float));
+        (void)memset(get_frame, 0, count*sizeof(float));
+		(void)memset(get_frame1, 0, count*sizeof(float));
+		break;
+	}
+}
+
+void compute (int count, float* input, float* output0)
 {
 	// retrieve engine state
 	const GxEngineState estate = (GxEngineState)checky;
@@ -353,7 +412,7 @@ void compute (int count, float* input, float* output0, float* output1)
 	switch (process_type) {
 
 	case PROCESS_BUFFERS:
-		process_buffers(count, input, output0, output1);
+		process_buffers(count, input, output0);
 		break;
 
 		// --------- just copy input to outputs
@@ -361,9 +420,10 @@ void compute (int count, float* input, float* output0, float* output1)
 		if (conv.is_runnable()) {
 			conv.checkstate();
 		}
-	    balance1::compute(count, input, output0, output1);
-	    (void)memcpy(get_frame, output0, sizeof(float)*count);
-        (void)memcpy(get_frame1, output1, sizeof(float)*count);
+	   // balance1::compute(count, input, output0);
+	   (void)memcpy( output0, input, sizeof(float)*count);
+	    //(void)memcpy(get_frame, output0, sizeof(float)*count);
+        //(void)memcpy(get_frame1, output1, sizeof(float)*count);
 		break;
 
 
@@ -378,7 +438,7 @@ void compute (int count, float* input, float* output0, float* output1)
 		// no need of loop.
 
 		(void)memset(output0, 0, count*sizeof(float));
-		(void)memset(output1, 0, count*sizeof(float));
+		//(void)memset(output1, 0, count*sizeof(float));
         (void)memset(get_frame, 0, count*sizeof(float));
 		(void)memset(get_frame1, 0, count*sizeof(float));
 		break;
@@ -389,7 +449,7 @@ void compute (int count, float* input, float* output0, float* output1)
  ** this is the guitarix audio engine
  */
 
-void process_buffers(int count, float* input, float* output0, float* output1)
+void process_buffers(int count, float* input, float* output0)
 {
 	int tuner_on = gx_gui::shownote + (int)isMidiOn() + 1;
 	if (tuner_on > 0) {
@@ -516,6 +576,7 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     if (audio.fresoon) {
 	    tubevibrato::compute(count, output0, output0);
     }
+
     for (int m = 0; m < 8; m++) {
 	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah) {
 		    crybaby::compute(count, output0, output0);
@@ -560,6 +621,10 @@ void process_buffers(int count, float* input, float* output0, float* output1)
     if (audio.ftube3e) {
 	    tube3::compute(count, output0, output0);
     }
+}
+void process_insert_buffers (int count, float* input1, float* output0, float* output1)
+{
+    memcpy(output0, input1, count*sizeof(float));
     feed::compute(count, output0, output0, output1);
 
     if (audio.fchorus) {
