@@ -228,58 +228,95 @@ void GxConvolverBase::checkstate()
  */
 
 bool GxConvolver::read_sndfile (
-	Audiofile& audio, int nchan, const float *gain,
+	Audiofile& audio, int nchan, int samplerate, const float *gain,
 	unsigned int *delay, unsigned int offset, unsigned int length)
 {
 	unsigned int nfram;
 	float *buff, *p;
+	float *rbuff = 0;
+	float *bufp;
+	// keep BSIZE big enough so that resamp.flush() doesn't cause overflow
+	// (> 100 should be enough, and should be kept bigger anyhow)
 	const unsigned int BSIZE = 0x4000;
+	gx_resample::StreamingResampler resamp;
 
-	nfram = audio.size();
 	if (offset && audio.seek(offset)) {
 		gx_system::gx_print_error("convolver", "Can't seek to offset");
 		audio.close ();
 		return false;
 	}
 	try {
-		buff = new float [BSIZE * nchan];
+		buff = new float[BSIZE * nchan];
 	} catch (...) {
-		audio.close ();
+		audio.close();
 		gx_system::gx_print_error("convolver", "out of memory");
 		return false;
 	}
-
-	while (length) {
-		nfram = (length > BSIZE) ? BSIZE : length;
-		nfram = audio.read(buff, nfram);
-		if (nfram < 0) {
-			gx_system::gx_print_error("convolver", "Error reading file");
-			audio.close ();
-			delete[] buff;
+	if (samplerate != audio.rate()) {
+		ostringstream buf;
+		buf << "resampling from " << audio.rate() << " to " << samplerate;
+		gx_system::gx_print_info("convolver", buf.str());
+		bool rc = resamp.setup(audio.rate(), samplerate, nchan);
+		assert(rc);
+		try {
+			rbuff = new float[resamp.get_max_out_size(BSIZE)*nchan];
+		} catch (...) {
+			audio.close();
+			gx_system::gx_print_error("convolver", "out of memory");
 			return false;
 		}
-		if (nfram) {
+		bufp = rbuff;
+	} else {
+		bufp = buff;
+	}
+	bool done = false;
+	while (!done) {
+		unsigned int cnt;
+		nfram = (length > BSIZE) ? BSIZE : length;
+		if (length) {
+			nfram = audio.read(buff, nfram);
+			if (nfram < 0) {
+				gx_system::gx_print_error("convolver", "Error reading file");
+				audio.close ();
+				delete[] buff;
+				delete[] rbuff;
+				return false;
+			}
+			cnt = nfram;
+			if (rbuff) {
+				cnt = resamp.process(nfram, buff, rbuff);
+			}
+		} else {
+			if (rbuff) {
+				cnt = resamp.flush(rbuff);
+				done = true;
+			} else {
+				break;
+			}
+		}
+		if (cnt) {
 			for (int ichan = 0; ichan < nchan; ichan++) {
 				int rc;
 				if (ichan >= audio.chan()) {
 					rc = impdata_copy(0, 0, ichan, ichan);
 				} else {
-					p = buff + ichan;
+					p = bufp + ichan;
 					if (gain[ichan] != 1.0) {
-						for (unsigned int ifram = 0; ifram < nfram; ifram++) {
+						for (unsigned int ifram = 0; ifram < cnt; ifram++) {
 							p[ifram * nchan] *= gain[ichan];
 						}
 					}
 					rc = impdata_create(ichan, ichan, audio.chan(), p,
-					                    delay[ichan], delay[ichan] + nfram);
+					                    delay[ichan], delay[ichan] + cnt);
 				}
 				if (rc) {
 					audio.close ();
 					delete[] buff;
+					delete[] rbuff;
 					gx_system::gx_print_error("convolver", "out of memory");
 					return false;
 				}
-				delay[ichan] += nfram;
+				delay[ichan] += cnt;
 			}
 			length -= nfram;
 		}
@@ -287,6 +324,7 @@ bool GxConvolver::read_sndfile (
 
 	audio.close ();
 	delete[] buff;
+	delete[] rbuff;
 	return true;
 }
 
@@ -300,11 +338,6 @@ bool GxConvolver::configure(
 	if (audio.open_read (fname)) {
 		gx_system::gx_print_error("convolver", "Unable to open '" + fname + "'");
 		return false;
-	}
-	if (audio.rate() != samplerate) {
-		ostringstream buf;
-		buf << "sample rate (" << audio.rate() << ") of '" << fname << "' does not match.";
-		gx_system::gx_print_warning("convolver", buf.str());
 	}
 	if (audio.chan() > 2) {
 		ostringstream buf;
@@ -328,7 +361,7 @@ bool GxConvolver::configure(
 	}
 	float gain_a[2] = {gain, lgain};
 	unsigned int delay_a[2] = {delay, ldelay};
-	return read_sndfile(audio, 2, gain_a, delay_a, offset, length);
+	return read_sndfile(audio, 2, samplerate, gain_a, delay_a, offset, length);
 }
 
 bool GxConvolver::compute(int count, float* input1, float *input2, float *output1, float *output2)

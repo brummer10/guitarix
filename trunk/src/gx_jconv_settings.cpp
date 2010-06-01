@@ -87,8 +87,9 @@ GxJConvSettings::GxJConvSettings()
 	fLength     = 0;
 	fDelay      = 0;
 	flDelay      = 0;
-	if (gx_jack::jack_bs == 0)fBufferSize = 128;
-
+	if (gx_jack::jack_bs == 0) {
+		fBufferSize = 128;
+	}
 	// invalidate due to no IR
 	invalidate();
 }
@@ -109,8 +110,9 @@ void GxJConvSettings::resetSetting()
 	fLength     = 0;
 	fDelay      = 0;
 	flDelay      = 0;
-	if (gx_jack::jack_bs == 0)fBufferSize = 128;
-
+	if (gx_jack::jack_bs == 0) {
+		fBufferSize = 128;
+	}
 	// invalidate due to no IR
 	invalidate();
 }
@@ -120,8 +122,8 @@ void GxJConvSettings::resetSetting()
 void GxJConvSettings::validate()
 {
 	gx_engine::Audiofile audio;
-	fValidSettings = audio.open_read(getFullIRPath()) == 0 &&
-		audio.type() == gx_engine::Audiofile::TYPE_WAV;
+	fValidSettings = (audio.open_read(getFullIRPath()) == 0 &&
+	                  audio.type() == gx_engine::Audiofile::TYPE_WAV);
 }
 
 
@@ -554,7 +556,7 @@ void gx_setting_jconv_dialog_gui(GtkWidget *widget, gpointer data)
 	g_signal_connect(gx_gui::label6, "expose-event", G_CALLBACK(gx_cairo::box4_expose), NULL);
 	g_signal_connect(label, "expose-event", G_CALLBACK(gx_cairo::box5_expose), NULL);
 
-	// IR resampling
+	// IR file select
 	g_signal_connect (gx_gui::fbutton, "file-set",
 	                  G_CALLBACK(gx_select_and_draw_jconv_ir), (gpointer) jcmode_combo);
 
@@ -661,50 +663,13 @@ void gx_acquire_jconv_value(GtkWidget *widget, gpointer data )
 }
 
 
-// --------------- IR file resampler
-void gx_resample_jconv_ir(GtkWidget *widget, gpointer data)
-{
-	GxJConvSettings* jcset = GxJConvSettings::instance();
-
-	// retrieve IR filename
-	string resampled = jcset->getFullIRPath();
-
-	// add tmp chars so we dump the resampled data to a new file
-	if ((int)resampled.find(".wav") != -1)
-		resampled.insert(resampled.find(".wav"), "_tmp");
-
-	// resample it
-	GxResampleStatus status =
-		resampleSoundFile(jcset->getFullIRPath().c_str(),
-		                  resampled.c_str(),
-		                  gx_jack::jack_sr);
-
-	if (status == kNoError)
-	{
-		// make a backup of original IR file
-		string backup = jcset->getFullIRPath();
-		if ((int)backup.find(".wav") != -1)
-			backup.insert(backup.find(".wav"), "_orig");
-
-		// back it up
-		rename(jcset->getFullIRPath().c_str(), backup.c_str());
-
-		// rename resampled file to IR file
-		rename(resampled.c_str(), jcset->getFullIRPath().c_str());
-		return;
-	}
-
-	gx_print_error("Resampling JConv IR file",
-	               "resampling failed with error code " + gx_i2a(status));
-}
-
 // --------------- IR file processing
-void gx_select_and_draw_jconv_ir(GtkWidget* widget, gpointer obj )
+void gx_select_and_draw_jconv_ir(GtkWidget* widget, gpointer obj)
 {
 	// get the chosen file from the file chooser
 	gchar * _file   = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(widget));
 	// return when file is empty
-	if (!_file){
+	if (!_file) {
 		g_free(_file);
 		return;
 	}
@@ -713,27 +678,18 @@ void gx_select_and_draw_jconv_ir(GtkWidget* widget, gpointer obj )
 
 	string file = _file;
 	g_free(_file);
-	string folder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER(widget));
+	string folder = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(widget));
 
-	if (!file.empty())
-	{
-
-		// clean up name from spaces
-		string tmp_file = file;
-		gx_nospace_in_name(tmp_file, "_");
-		rename(file.c_str(), tmp_file.c_str());
-		file = tmp_file;
-
+	if (!file.empty()) {
 		// let's save it into the JConv settings
-		tmp_file = basename((char*)file.c_str());
+		string tmp_file = basename((char*)file.c_str());
 		jcset->setIRFile(tmp_file);
 		jcset->setIRDir(folder);
 
 		// let's validate it
 		jcset->validate();
 
-		if (jcset->isValid())
-		{
+		if (jcset->isValid()) {
 			g_idle_add(gx_set_file_filter,NULL);
 
 			//----- get name from used wav file
@@ -765,18 +721,14 @@ void gx_select_and_draw_jconv_ir(GtkWidget* widget, gpointer obj )
 			gx_waveview_set_value(widget, NULL);
 			gtk_range_set_value(GTK_RANGE(mslider), framescount );
 
-
 			//----- set mode chooser to copy and disable it when a 1 channel file is loaded
-			if(chans == 1)
-			{
+			if(chans == 1) {
 				jcset->setMode ( kJConvCopy);
 				gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0);
 				gtk_widget_set_sensitive(GTK_WIDGET(combo),FALSE);
-			}
-			else if (chans == 2) gtk_widget_set_sensitive(GTK_WIDGET(combo),TRUE);
-			else if (chans > 2)
-			{
-
+			} else if (chans == 2) {
+				gtk_widget_set_sensitive(GTK_WIDGET(combo),TRUE);
+			} else if (chans > 2) {
 				ostringstream msg;
 				msg << "Error opening file " << jcset->getIRFile() << "\n have more then 2 Channels";
 				(void)gx_gui::gx_message_popup(msg.str().c_str());
@@ -789,60 +741,7 @@ void gx_select_and_draw_jconv_ir(GtkWidget* widget, gpointer obj )
 				gtk_label_set_text(GTK_LABEL(gx_gui::label6), "empty");
 				return;
 			}
-			// check file sample rate vs jackd's
-			if (sr != ((int)gx_jack::jack_sr)&&(gx_jack::client))
-			{
-				// dump some new text
-				lab.str("");
-				lab << "   The " << chans   << " channel Soundfile" << endl
-				    << "   Sample rate ("   << sr << ")" << endl
-				    << "   does not match"  << endl
-				    << "   the jack Sample rate (" << gx_jack::jack_sr << ")" << endl
-				    << "   Do you wish to resample it ?     " << endl;
-
-				gint response =
-					gx_gui::gx_choice_dialog_without_entry (
-						" IR Resampling ",
-						lab.str().c_str(),
-						"DO IT!", "Nope",
-						GTK_RESPONSE_YES,
-						GTK_RESPONSE_CANCEL,
-						GTK_RESPONSE_YES
-						);
-
-				// we are cancelling
-				if (response == GTK_RESPONSE_CANCEL)
-				{
-					gx_print_warning("IR Resampling",
-					                 "Resampling has been cancelled"
-					                 ", use file as it is with JConv");
-
-					// let's save it into the JConv settings
-					tmp_file = basename((char*)file.c_str());
-					jcset->setIRFile(tmp_file);
-
-					jcset->setIRDir(folder);
-					jcset->validate(); // invalidate
-				}
-				else   // OK, resampling it
-				{
-					gx_resample_jconv_ir(NULL, NULL);
-					sr = gx_jack::jack_sr;
-					// display in the wave viewer
-					lab.str("");
-					lab << "IR file info: " << endl
-					    << chans            << " channel(s) "
-					    << sr << " Sample rate "
-					    << framescount      << " Samples ";
-					gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
-
-				}
-			}
-
-
-		} // end of if (file is wave audio)
-		else
-		{
+		} else { // end of if (file is wave audio)
 			jcset->invalidate();
 			gx_print_error("IR File Processing",
 			               jcset->getIRFile() +
@@ -853,16 +752,13 @@ void gx_select_and_draw_jconv_ir(GtkWidget* widget, gpointer obj )
 			gtk_label_set_text(GTK_LABEL(gx_gui::label1), "IR file empty\n");
 			gtk_label_set_text(GTK_LABEL(gx_gui::label6), "empty");
 		}
-
-	} // end of if (!file.empty())
-	else
-	{
+	} else { // end of if (!file.empty())
 		gx_print_error("IR File Processing",
 		               "Filename empty, you probably need to re-pick a file");
 		gx_waveview_set_value(widget, NULL);
 		gtk_label_set_text(GTK_LABEL(gx_gui::label1), "No file name\n");
-		gtk_label_set_text(GTK_LABEL(gx_gui::label6),
-		                   "empty");
+		gtk_label_set_text(GTK_LABEL(gx_gui::label6), "empty");
 	}
 }
+
 } /* end of gx_jconv namespace */

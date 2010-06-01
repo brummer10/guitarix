@@ -126,7 +126,6 @@ static gboolean gtk_waveview_paint(gpointer obj)
 	int counter    = 0;
 	int vecsize    = 64;
 	int length     = 0;
-	int length2    = 0;
 	int countframe = 1;
 	int countfloat;
 	int chans;
@@ -138,7 +137,6 @@ static gboolean gtk_waveview_paint(gpointer obj)
 	double wah1 = widget->allocation.height*0.25;
 
 
-	float* sig;
 	// some usefull cairo settings
 	cr = cairo_create (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_file);
 	cairo_set_source_rgb (cr, 0.1, 0.1, 0.1);
@@ -160,8 +158,7 @@ static gboolean gtk_waveview_paint(gpointer obj)
 	cairo_stroke (cr);
 
 	//----- draw an X if JConv IR file not valid
-	if (jcset->isValid() == false)
-	{
+	if (jcset->isValid() == false) {
 		gx_system::gx_print_warning("Wave view expose",
 		                            GxJConvSettings::instance()->getIRFile() +
 		                            " cannot be exposed ");
@@ -173,61 +170,39 @@ static gboolean gtk_waveview_paint(gpointer obj)
 		cairo_set_line_width (cr, 8.0);
 		cairo_set_source_rgb (cr, 0.8, 0.2, 0.2);
 		cairo_stroke (cr);
-
-	}
-
-	//----- okay, here we go, draw the wave view per sample
-	else
-	{
-
+	} else { //----- okay, here we go, draw the wave view per sample
 		gx_system::gx_print_info("Wave view expose", jcset->getIRFile());
+		float *sig = new float[vecsize*2];
+		pvInput = gx_sndfile::openInputSoundFile(jcset->getFullIRPath().c_str(), &chans, &sr, &length);
+		double dws = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale = ((double)waw)/length;
+		GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->filelength = length;
 
-		sig = new float[vecsize*2];
-		vector<float>yval;
-
-		pvInput =
-			gx_sndfile::openInputSoundFile(jcset->getFullIRPath().c_str(), &chans, &sr, &length2);
-
-		double dws = GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->drawscale = ((double)waw)/length2;
-		GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->filelength = length2;
-
-		switch (chans)
-		{
+		switch (chans) {
 			//----- mono file
 		case 1:
-			yval.push_back(wah);
 			cairo_set_line_width (cr, 1 + dws*0.5);
 			cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
 
 			//cairo_move_to (cr, dws, wah);
-			while (counter < length+length2-1)
-			{
+			while (counter < length-1) {
 				gx_sndfile::readSoundInput(pvInput, sig, vecsize);
-				counter   += vecsize;
-				countfloat = 0;
-				sfsig = &sig[0];
-
-				while (countfloat < vecsize*chans)
-				{
+				counter += vecsize;
+				countfloat = vecsize;
+				sfsig = sig;
+				while (countfloat-- > 0) {
 					cairo_move_to (cr, countframe*dws, wah);
-					cairo_line_to (cr, countframe*dws,
-					               *sfsig++ *wah + yval[0]);
-					countfloat++;
+					cairo_line_to (cr, countframe*dws, (1 + *sfsig++) * wah);
 					countframe++;
 				}
 				cairo_stroke (cr);
 			}
 
-
-
 			/// close file desc.
 			gx_sndfile::closeSoundFile(pvInput);
-			delete[] sig;
 			break;
 
 			//----- stereo file
-		case 2:
-
+		case 2: {
 			wah = widget->allocation.height*0.75;
 			wah1 = widget->allocation.height*0.25;
 
@@ -239,23 +214,18 @@ static gboolean gtk_waveview_paint(gpointer obj)
 			cairo_set_source_rgb (cr, 0.3, 0.7, 0.3);
 			cairo_stroke (cr);
 
-			yval.push_back(50);
-			yval.push_back(150);
+			int yval[] = { 50, 150 };
 			cairo_set_line_width (cr, 1 + dws*0.5);
 			cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
 
-			while (counter<length+length2-1)
-			{
+			while (counter<length-1) {
 				gx_sndfile::readSoundInput(pvInput, sig, vecsize);
-				counter   += vecsize;
-				countfloat = 0;
-				sfsig = &sig[0];
-
+				counter += vecsize;
+				countfloat = vecsize;
+				sfsig = sig;
 				//----- here we do the stereo draw, tingel tangel split the samples
-				while (countfloat < vecsize*chans)
-				{
-					for (int c = 0; c < 2; c++)
-					{
+				while (countfloat-- > 0) {
+					for (int c = 0; c < 2; c++) {
 						cairo_move_to (cr, countframe*dws, yval[c]);
 						cairo_line_to (cr, countframe*dws,
 						               *sfsig++ *wah1 + yval[c]);
@@ -263,8 +233,6 @@ static gboolean gtk_waveview_paint(gpointer obj)
 						   outfile << cim <<*sfsig;
 						   outfile << cim <<", ";
 						   } */
-						countfloat++;
-
 					}
 					countframe++;
 				}
@@ -275,12 +243,12 @@ static gboolean gtk_waveview_paint(gpointer obj)
 
 			gx_sndfile::closeSoundFile(pvInput);
 			// sf_close(pvInput);
-			delete[] sig;
 			break;
-
+		}
 		default: // do nothing
 			break;
 		}
+		delete[] sig;
 	}
 	// copy the surface to a packup surface for the selection
 	cr = cairo_create (GTK_WAVEVIEW_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_selection);

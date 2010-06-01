@@ -105,8 +105,8 @@ public:
 class GxConvolver: public GxConvolverBase
 {
 private:
-	bool read_sndfile (Audiofile& audio, int nchan, const float *gain, unsigned int *delay,
-	                   unsigned int offset, unsigned int length);
+	bool read_sndfile (Audiofile& audio, int nchan, int samplerate, const float *gain,
+	                   unsigned int *delay, unsigned int offset, unsigned int length);
 public:
 	bool configure(
 		unsigned int count, int samplerate, string fname, float gain=1.0, float lgain=1.0,
