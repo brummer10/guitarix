@@ -116,9 +116,7 @@ def check_comp(conf):
         conf.env['ZITARESAMPLER'] = True
         conf.env['ZITA_RESAMPLER'] = None
 
-def check_comp(conf): #FIXME: why 2nd definition?
     if Options.options.includeconvolver:
-        define_name="INTERN_ZITA_CONVOLVER" #FIXME: statement with no effect
         conf.env['ZITACONVOLVER'] = True
         conf.env['INTERN_ZITA_CONVOLVER'] = None
         conf.env['ZITA_CONVOLVER'] = None
