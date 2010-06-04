@@ -109,6 +109,8 @@ private:
 	void addPresetMenu();
 	void addExtraPresetMenu();
 
+	//void addPluginMenu();
+
 	void addOptionMenu();
 	void addGuiSkinMenu();
 

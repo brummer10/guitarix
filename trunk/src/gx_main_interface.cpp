@@ -2099,6 +2099,7 @@ void GxMainInterface::addMainMenu()
 
 	addEngineMenu();
 	addPresetMenu();
+	//addPluginMenu();
 	addOptionMenu();
 	addAboutMenu();
 
@@ -2415,6 +2416,52 @@ void reset_all_parameters(GtkWidget*, gpointer)
 		i->second->set_std_value();
 	}
 }
+/*
+void GxMainInterface::addPluginMenu()
+{
+	GtkWidget* menulabel; // menu label
+	GtkWidget* menucont;  // menu container
+	GtkWidget* menuitem;  // menu item
+
+	menucont = fMenuList["Top"];
+
+
+	menulabel = gtk_menu_item_new_with_mnemonic ("Plu_gins");
+	gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
+	gtk_widget_show(menulabel);
+
+	menucont = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+	gtk_widget_show(menucont);
+	fMenuList["Plugins"] = menucont;
+
+	menuitem = gtk_menu_item_new_with_mnemonic ("_add");
+	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
+	                           GDK_a, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+	gtk_widget_show (menuitem);
+
+	menucont = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menucont);
+	gtk_widget_show(menucont);
+	fMenuList["Plugins_add"] = menucont;
+
+    menucont =fMenuList["Plugins"];
+	menuitem = gtk_menu_item_new_with_mnemonic ("_remove");
+	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
+	                           GDK_r, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+	gtk_widget_show (menuitem);
+
+	menucont = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menucont);
+	gtk_widget_show(menucont);
+	fMenuList["Plugins_remove"] = menucont;
+
+
+}*/
 
 void GxMainInterface::addOptionMenu()
 {

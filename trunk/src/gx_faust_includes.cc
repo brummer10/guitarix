@@ -1172,6 +1172,7 @@ static void on_hide(GtkWidget *widget, gpointer data)
 
 volatile int exp_upsample;
 volatile int exp_upsample_on;
+volatile int exp_on;
 volatile bool exp_hs;
 GtkWidget *exp_sample_spin;
 SimpleResampler resampExp;
@@ -1189,6 +1190,11 @@ static void exp_hs_toggled(GtkWidget *widget, gpointer data)
 static void exp_up_toggled(GtkWidget *widget, gpointer data)
 {
 	exp_upsample_on = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+}
+
+static void exp_on_toggled(GtkWidget *widget, gpointer data)
+{
+	exp_on = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
 }
 
 void exp_cab_conv_toggled(GtkWidget *widget, gpointer data)
@@ -1217,6 +1223,7 @@ void faust_setup()
     gtk_signal_connect (GTK_OBJECT (exp_window), "hide", GTK_SIGNAL_FUNC(on_hide), NULL);
     gtk_signal_connect (GTK_OBJECT (exp_window), "show", GTK_SIGNAL_FUNC(on_show), NULL);
     GtkWidget *vbox = gtk_vbox_new(false, 10);
+    g_signal_connect(vbox, "expose-event", G_CALLBACK(gx_cairo::box8_expose), NULL);
     gtk_widget_show(vbox);
     GtkWidget *hbox = gtk_hbox_new(false, 10);
     gtk_widget_show(hbox);
@@ -1228,6 +1235,10 @@ void faust_setup()
 	//exp_sample_spin = gtk_spin_button_new(GTK_ADJUSTMENT(adj), 1, 0);
     //gtk_signal_connect (GTK_OBJECT(exp_sample_spin), "value-changed", GTK_SIGNAL_FUNC(exp_sr_changed), NULL);
     //gtk_widget_show(exp_sample_spin);
+    w = gtk_check_button_new_with_label("enable");
+    gtk_signal_connect(GTK_OBJECT(w), "toggled", GTK_SIGNAL_FUNC(exp_on_toggled), NULL);
+    gtk_box_pack_start(GTK_BOX(hbox), w, 0, 0, 5);
+    gtk_widget_show(w);
     w = gtk_check_button_new_with_label("upsample");
     gtk_signal_connect(GTK_OBJECT(w), "toggled", GTK_SIGNAL_FUNC(exp_up_toggled), NULL);
     gtk_box_pack_start(GTK_BOX(hbox), w, 0, 0, 5);

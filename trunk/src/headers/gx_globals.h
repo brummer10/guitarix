@@ -60,7 +60,6 @@ extern bool pt_initialized;
 /* buffer ready state */
 extern bool buffers_ready;
 
-
 }
 
 /* -------------------------------------------------------------------------- */
