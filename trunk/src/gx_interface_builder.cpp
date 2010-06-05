@@ -650,6 +650,7 @@ void GxMainInterface::setup()
                                                                                 closeBox();
                                                                             }
                                                                             closeBox();
+
                                                                         }
                                                                         closeBox();
                                                                     }
@@ -658,35 +659,32 @@ void GxMainInterface::setup()
                                                                     {
                                                                         openVerticalBox("low/highpass");
                                                                         {
-                                                                            openHorizontalBox("");
-                                                                            {
-                                                                                addregler("distortion.low_highpass.high_freq","high-freq ");
-                                                                                addregler("distortion.low_highpass.low_freq"," low-freq ");
-                                                                            }
-                                                                            closeBox();
+
+                                                                                addregler("distortion.low_highpass.high_freq","high-pass ");
+                                                                                addregler("distortion.low_highpass.low_freq"," low-pass ");
+
+
                                                                             addtoggle("distortion.low_highpass.on_off", "");
                                                                         }
                                                                         closeBox();
                                                                         openVerticalBox("low/highcutoff");
                                                                         {
-                                                                            openHorizontalBox("");
-                                                                            {
-                                                                                addregler("distortion.low_highcutoff.high_freq","high-freq ");
-                                                                                addregler("distortion.low_highcutoff.low_freq"," low-freq ");
-                                                                            }
-                                                                            closeBox();
+
+                                                                                addregler("distortion.low_highcutoff.high_freq","high-cut ");
+                                                                                addregler("distortion.low_highcutoff.low_freq"," low-cut ");
+
+
 
                                                                             addtoggle("distortion.low_highcutoff.on_off","");
                                                                         }
                                                                         closeBox();
                                                                         openVerticalBox("resonator");
                                                                         {
-                                                                            openHorizontalBox("");
-                                                                            {
+
                                                                                 addregler("distortion.trigger","trigger ");
                                                                                 addregler("distortion.vibrato"," vibrato ");
-                                                                            }
-                                                                            closeBox();
+
+
                                                                             addtoggle("distortion.resonator.on_off","");
                                                                         }
                                                                         closeBox();

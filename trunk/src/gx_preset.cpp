@@ -667,6 +667,8 @@ void gx_rename_active_preset_dialog(GtkWidget* item, gpointer arg)
 //----menu funktion load
 void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 {
+    /* stop covolver when running*/
+    if (gx_jconv::GxJConvSettings::checkbutton7 == 0)gx_engine::conv.stop();
 	// check that we do have presets
 	if (preset_list[LOAD_PRESET_LIST].size() == 0)
 	{
@@ -700,7 +702,7 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 	setting_is_preset = true;
 	gx_current_preset = preset_name;
 	gx_jconv::gx_reload_jcgui();
-	/* flush buffers for preste change*/
+	/* reset convolver buffer for preste change*/
 	if (gx_engine::conv.is_runnable())  {
 		gx_engine::conv.stop();
 		gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
