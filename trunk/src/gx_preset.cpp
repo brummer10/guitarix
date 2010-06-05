@@ -667,8 +667,6 @@ void gx_rename_active_preset_dialog(GtkWidget* item, gpointer arg)
 //----menu funktion load
 void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 {
-    /* stop covolver when running*/
-    if (gx_jconv::GxJConvSettings::checkbutton7 == 0)gx_engine::conv.stop();
 	// check that we do have presets
 	if (preset_list[LOAD_PRESET_LIST].size() == 0)
 	{
@@ -676,6 +674,9 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 		                 "Preset list is empty, make some :)");
 		return;
 	}
+	/* stop covolver when running*/
+    if (gx_jconv::GxJConvSettings::checkbutton7 == 0)gx_engine::conv.stop();
+
 
 	// retrieve preset name
 	string preset_name = preset_list[LOAD_PRESET_LIST][menuitem];
@@ -705,6 +706,7 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 	/* reset convolver buffer for preste change*/
 	if (gx_engine::conv.is_runnable())  {
 		gx_engine::conv.stop();
+		usleep(100);
 		gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
 		bool rc = gx_engine::conv.configure(
 			gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
