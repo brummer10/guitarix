@@ -601,6 +601,8 @@ void GxMainInterface::setup()
 													{
 														openDialogBox("distortion", &gx_engine::audio.fdialogbox1, &gx_engine::audio.fcheckbox4);
 														{
+														    openAmpBox("");
+															{
 															openHandleBox("  ");
 															{
 															    openHorizontalBox("");
@@ -682,6 +684,8 @@ void GxMainInterface::setup()
                                                                     closeBox();
                                                                 }
                                                                 closeBox();
+															}
+															closeBox();
 															}
 															closeBox();
 														}

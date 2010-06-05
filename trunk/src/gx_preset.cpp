@@ -674,9 +674,6 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 		                 "Preset list is empty, make some :)");
 		return;
 	}
-	/* stop covolver when running*/
-    if (gx_jconv::GxJConvSettings::checkbutton7 == 0)gx_engine::conv.stop();
-
 
 	// retrieve preset name
 	string preset_name = preset_list[LOAD_PRESET_LIST][menuitem];
@@ -702,7 +699,7 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 
 	setting_is_preset = true;
 	gx_current_preset = preset_name;
-	gx_jconv::gx_reload_jcgui();
+
 	/* reset convolver buffer for preste change*/
 	if (gx_engine::conv.is_runnable())  {
 		gx_engine::conv.stop();
@@ -716,7 +713,7 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 			gx_jconv::GxJConvSettings::checkbutton7 = 0;
 		}
 	}
-
+    gx_jconv::gx_reload_jcgui();
 }
 
 
