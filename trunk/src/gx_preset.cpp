@@ -663,6 +663,19 @@ void gx_rename_active_preset_dialog(GtkWidget* item, gpointer arg)
 		              string(" to ") + gx_current_preset);
 }
 
+static gboolean gx_convolver_restart(gpointer data)
+{
+    gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
+    bool rc = gx_engine::conv.configure(
+    gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
+        jcset->getGain(), jcset->getlGain(), jcset->getDelay(), jcset->getlDelay(),
+        jcset->getOffset(), jcset->getLength(), jcset->getMem(), jcset->getBufferSize());
+
+    if (!rc || !gx_engine::conv.start()) {
+        gx_jconv::GxJConvSettings::checkbutton7 = 0;
+    }
+    return false;
+}
 
 //----menu funktion load
 void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
@@ -699,23 +712,12 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 
 	setting_is_preset = true;
 	gx_current_preset = preset_name;
-
+       gx_jconv::gx_reload_jcgui();
 	/* reset convolver buffer for preste change*/
-	if (gx_engine::conv.is_runnable())  {
+	if (gx_engine::conv.is_runnable()&&gx_jconv::GxJConvSettings::checkbutton7 == 1)  {
 		gx_engine::conv.stop();
-
-		usleep(100);
-		gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
-		bool rc = gx_engine::conv.configure(
-			gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
-			jcset->getGain(), jcset->getlGain(), jcset->getDelay(), jcset->getlDelay(),
-			jcset->getOffset(), jcset->getLength(), jcset->getMem(), jcset->getBufferSize());
-        usleep(100);
-		if (!rc || !gx_engine::conv.start()) {
-			gx_jconv::GxJConvSettings::checkbutton7 = 0;
-		}
+		g_idle_add(gx_convolver_restart,NULL);
 	}
-    gx_jconv::gx_reload_jcgui();
 }
 
 
