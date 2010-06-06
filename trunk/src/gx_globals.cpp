@@ -290,7 +290,7 @@ int last_skin = 0;
 int no_opt_skin = 0;
 int set_knob = 0;
 
-int g_threads[3]={0,0,0};
+int g_threads[4]={0,0,0,0};
 
 /* for level display */
 int meter_falloff = 27; // in dB/sec.
