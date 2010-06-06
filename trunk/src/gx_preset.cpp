@@ -703,12 +703,14 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 	/* reset convolver buffer for preste change*/
 	if (gx_engine::conv.is_runnable())  {
 		gx_engine::conv.stop();
+
 		usleep(100);
 		gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
 		bool rc = gx_engine::conv.configure(
 			gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
 			jcset->getGain(), jcset->getlGain(), jcset->getDelay(), jcset->getlDelay(),
 			jcset->getOffset(), jcset->getLength(), jcset->getMem(), jcset->getBufferSize());
+        usleep(100);
 		if (!rc || !gx_engine::conv.start()) {
 			gx_jconv::GxJConvSettings::checkbutton7 = 0;
 		}
