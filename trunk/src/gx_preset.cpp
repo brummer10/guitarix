@@ -677,6 +677,16 @@ static gboolean gx_convolver_restart(gpointer data)
     return false;
 }
 
+static gboolean gx_rename_main_widget(gpointer data)
+{
+    // refresh main window name
+    string title = string("guitarix ") + gx_current_preset;
+	gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), title.c_str());
+	// reload convolver settings widget
+	gx_jconv::gx_reload_jcgui();
+    return false;
+}
+
 //----menu funktion load
 void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 {
@@ -703,23 +713,20 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 		return;
 	}
 
-	// refresh main window name
-	string title = string("guitarix ") + preset_name;
-	gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), title.c_str());
-
 	// print out info
 	gx_print_info("Preset Loading", string("loaded preset ") + preset_name);
-
 	setting_is_preset = true;
 	gx_current_preset = preset_name;
-       gx_jconv::gx_reload_jcgui();
+
+	/* do some GUI stuff*/
+	g_idle_add(gx_rename_main_widget,NULL);
+
 	/* reset convolver buffer for preste change*/
 	if (gx_engine::conv.is_runnable()&&gx_jconv::GxJConvSettings::checkbutton7 == 1)  {
 		gx_engine::conv.stop();
 		g_idle_add(gx_convolver_restart,NULL);
 	}
 }
-
 
 //---- funktion save
 void gx_save_preset (const char* presname, bool expand_menu)
