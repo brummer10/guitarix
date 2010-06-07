@@ -666,6 +666,7 @@ void gx_rename_active_preset_dialog(GtkWidget* item, gpointer arg)
 static gboolean gx_convolver_restart(gpointer data)
 {
     gx_engine::conv.stop();
+    while (gx_engine::conv.is_runnable()) gx_engine::conv.checkstate();
     gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
     bool rc = gx_engine::conv.configure(
     gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
@@ -722,7 +723,7 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 	/* do some GUI stuff*/
 	g_idle_add(gx_rename_main_widget,NULL);
 
-	/* reset convolver buffer for preste change*/
+	/* reset convolver buffer for preset change*/
 	if (gx_engine::conv.is_runnable() && gx_jconv::GxJConvSettings::checkbutton7 == 1)  {
 		gx_engine::conv.stop();
         gx_gui::g_threads[3] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,gx_convolver_restart,NULL,NULL);
