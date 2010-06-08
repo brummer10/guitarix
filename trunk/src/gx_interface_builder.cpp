@@ -122,28 +122,32 @@ void GxMainInterface::setup()
 									{
 										openDialogBox("jconv", &gx_engine::audio.fdialogboxj,(int*)&gx_jconv::GxJConvSettings::checkbutton7);
 										{
-											openHandleBox("  ");
-											{
-												openFrameBox("");
-												closeBox();
-												openFrameBox("");
-												closeBox();
-												openVerticalBox("");
-												{
-													openHorizontalTableBox("");
-													{
-													    addbigregler("jconv.left_gain","     left gain     ");
-														addregler("jconv.left_delay"," left delay ");
-														addbigregler("jconv.right_gain"," right gain ");
-														addregler("jconv.right_delay"," right delay ");
+										    openPlugBox("");
+                                            {
+                                                openHandleBox("  ");
+                                                {
+                                                    openFrameBox("");
+                                                    closeBox();
+                                                    openFrameBox("");
+                                                    closeBox();
+                                                    openVerticalBox("");
+                                                    {
+                                                        openHorizontalTableBox("");
+                                                        {
+                                                            addbigregler("jconv.left_gain","     left gain     ");
+                                                            addregler("jconv.left_delay"," left delay ");
+                                                            addbigregler("jconv.right_gain"," right gain ");
+                                                            addregler("jconv.right_delay"," right delay ");
+                                                        }
+                                                        closeBox();
                                                     }
-													closeBox();
-												}
-												closeBox();
-												openFrameBox("");
-												closeBox();
-												openFrameBox("");
-												closeBox();
+                                                    closeBox();
+                                                    openFrameBox("");
+                                                    closeBox();
+                                                    openFrameBox("");
+                                                    closeBox();
+                                                }
+                                                closeBox();
 											}
 											closeBox();
 										}
@@ -219,34 +223,38 @@ void GxMainInterface::setup()
                                             addminiswitch("eq.on_off", "EQ");
                                             openDialogBox("eq", &gx_engine::audio.fdialogbox_eq,  &gx_engine::audio.feq);
                                             {
-                                                openVerticalBox("");
+                                                openPlugBox("");
                                                 {
-                                                    openHorizontalTableBox("");
+                                                    openVerticalBox("");
                                                     {
-                                                        addVerticalSlider("eq.f31_25","31,25");
-                                                        addVerticalSlider("eq.f62_5"," 62,5");
-                                                        addVerticalSlider("eq.f125"," 125 ");
-                                                        addVerticalSlider("eq.f250"," 250 ");
-                                                        addVerticalSlider("eq.f500"," 500 ");
-                                                        addVerticalSlider("eq.f1k","  1k  ");
-                                                        addVerticalSlider("eq.f2k","  2k  ");
-                                                        addVerticalSlider("eq.f4k","  4k  ");
-                                                        addVerticalSlider("eq.f8k","  8k  ");
-                                                        addVerticalSlider("eq.f16k"," 16k ");
-                                                    }
-                                                    closeBox();
-                                                    openHorizontalTableBox("");
-                                                    {
-                                                        addregler("eq.Q31_25","    Q    ");
-                                                        addregler("eq.Q62_5","Q");
-                                                        addregler("eq.Q125","Q");
-                                                        addregler("eq.Q250","Q");
-                                                        addregler("eq.Q500","Q");
-                                                        addregler("eq.Q1k","Q");
-                                                        addregler("eq.Q2k","Q");
-                                                        addregler("eq.Q4k","Q");
-                                                        addregler("eq.Q8k","Q");
-                                                        addregler("eq.Q16k","Q");
+                                                        openHorizontalTableBox("");
+                                                        {
+                                                            addVerticalSlider("eq.f31_25","31,25");
+                                                            addVerticalSlider("eq.f62_5"," 62,5");
+                                                            addVerticalSlider("eq.f125"," 125 ");
+                                                            addVerticalSlider("eq.f250"," 250 ");
+                                                            addVerticalSlider("eq.f500"," 500 ");
+                                                            addVerticalSlider("eq.f1k","  1k  ");
+                                                            addVerticalSlider("eq.f2k","  2k  ");
+                                                            addVerticalSlider("eq.f4k","  4k  ");
+                                                            addVerticalSlider("eq.f8k","  8k  ");
+                                                            addVerticalSlider("eq.f16k"," 16k ");
+                                                        }
+                                                        closeBox();
+                                                        openHorizontalTableBox("");
+                                                        {
+                                                            addregler("eq.Q31_25","    Q    ");
+                                                            addregler("eq.Q62_5","Q");
+                                                            addregler("eq.Q125","Q");
+                                                            addregler("eq.Q250","Q");
+                                                            addregler("eq.Q500","Q");
+                                                            addregler("eq.Q1k","Q");
+                                                            addregler("eq.Q2k","Q");
+                                                            addregler("eq.Q4k","Q");
+                                                            addregler("eq.Q8k","Q");
+                                                            addregler("eq.Q16k","Q");
+                                                        }
+                                                        closeBox();
                                                     }
                                                     closeBox();
                                                 }
@@ -536,33 +544,37 @@ void GxMainInterface::setup()
 													//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
 													openDialogBox("compressor", &gx_engine::audio.fdialogbox8, &gx_engine::audio.fcheckboxcom1);
 													{
-														openHandleBox("  ");
-														{
-															openFrameBox("");
-															closeBox();
-															openFrameBox("");
-															closeBox();
-															openVerticalBox("compressor");
-															{
-																openHorizontalBox("");
-																{
-																	addregler("compressor.knee");
-																	addregler("compressor.ratio");
-																	addregler("compressor.threshold");
-																}
-																closeBox();
-																openVerticalBox("envelop");
-																{
-																	addslider("compressor.attack");
-																	addslider("compressor.release");
-																}
-																closeBox();
-															}
-															closeBox();
-															openFrameBox("");
-															closeBox();
-															openFrameBox("");
-															closeBox();
+													    openPlugBox("");
+                                                        {
+                                                            openHandleBox("  ");
+                                                            {
+                                                                openFrameBox("");
+                                                                closeBox();
+                                                                openFrameBox("");
+                                                                closeBox();
+                                                                openVerticalBox("compressor");
+                                                                {
+                                                                    openHorizontalBox("");
+                                                                    {
+                                                                        addregler("compressor.knee");
+                                                                        addregler("compressor.ratio");
+                                                                        addregler("compressor.threshold");
+                                                                    }
+                                                                    closeBox();
+                                                                    openVerticalBox("envelop");
+                                                                    {
+                                                                        addslider("compressor.attack");
+                                                                        addslider("compressor.release");
+                                                                    }
+                                                                    closeBox();
+                                                                }
+                                                                closeBox();
+                                                                openFrameBox("");
+                                                                closeBox();
+                                                                openFrameBox("");
+                                                                closeBox();
+                                                            }
+                                                            closeBox();
 														}
 														closeBox();
 													}
@@ -601,7 +613,7 @@ void GxMainInterface::setup()
 													{
 														openDialogBox("distortion", &gx_engine::audio.fdialogbox1, &gx_engine::audio.fcheckbox4);
 														{
-														    openAmpBox("");
+														    openPlugBox("");
 															{
 															openHandleBox("  ");
 															{
@@ -711,25 +723,29 @@ void GxMainInterface::setup()
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
 														openDialogBox("freeverb", &gx_engine::audio.fdialogbox2, &gx_engine::audio.fcheckbox6);
 														{
-															openHandleBox("  ");
+														    openPlugBox("");
 															{
-																openFrameBox("");
-																closeBox();
-																openFrameBox("");
-																closeBox();
-																openHorizontalTableBox("");
+                                                                openHandleBox("  ");
                                                                 {
-                                                                    addbigregler("freeverb.RoomSize");
-                                                                    addregler("freeverb.damp");
-                                                                    addregler("freeverb.wet_dry");
-																}
+                                                                    openFrameBox("");
+                                                                    closeBox();
+                                                                    openFrameBox("");
+                                                                    closeBox();
+                                                                    openHorizontalTableBox("");
+                                                                    {
+                                                                        addbigregler("freeverb.RoomSize");
+                                                                        addregler("freeverb.damp");
+                                                                        addregler("freeverb.wet_dry");
+                                                                    }
+                                                                    closeBox();
+                                                                    openFrameBox("");
+                                                                    closeBox();
+                                                                    openFrameBox("");
+                                                                    closeBox();
+                                                                }
                                                                 closeBox();
-																openFrameBox("");
-																closeBox();
-																openFrameBox("");
-																closeBox();
-															}
-															closeBox();
+                                                            }
+                                                            closeBox();
 														}
 														closeBox();
 													}
@@ -758,35 +774,39 @@ void GxMainInterface::setup()
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
 														openDialogBox("IR", &gx_engine::audio.fdialogbox3, &gx_engine::audio.fcheckbox8);
 														{
-															openHandleBox("  ");
+														    openPlugBox("");
 															{
-																openVerticalBox1("");
-																{
+                                                                openHandleBox("  ");
+                                                                {
+                                                                    openVerticalBox1("");
+                                                                    {
 
-																	openHorizontalBox("");
-																	{
-																		openFrameBox("");
-																		closeBox();
-																		openFrameBox("");
-																		closeBox();
-																		openHorizontalTableBox("");
+                                                                        openHorizontalBox("");
                                                                         {
-                                                                            addbigregler("IR.freq","    freq     ");
-                                                                            addregler("IR.peak","     peak    ");
-                                                                            addregler("IR.bandwidth","    bandwidth    ");
-																		}
+                                                                            openFrameBox("");
+                                                                            closeBox();
+                                                                            openFrameBox("");
+                                                                            closeBox();
+                                                                            openHorizontalTableBox("");
+                                                                            {
+                                                                                addbigregler("IR.freq","    freq     ");
+                                                                                addregler("IR.peak","     peak    ");
+                                                                                addregler("IR.bandwidth","    bandwidth    ");
+                                                                            }
+                                                                            closeBox();
+                                                                            openFrameBox("");
+                                                                            closeBox();
+                                                                            openFrameBox("");
+                                                                            closeBox();
+
+                                                                        }
                                                                         closeBox();
-																		openFrameBox("");
-																		closeBox();
-																		openFrameBox("");
-																		closeBox();
+                                                                        addminiswitch("IR.auto_freq"," auto_freq                             ");
+                                                                    }
+                                                                    closeBox();
 
-																	}
-																	closeBox();
-																	addminiswitch("IR.auto_freq"," auto_freq                             ");
-																}
-																closeBox();
-
+                                                                }
+                                                                closeBox();
 															}
 															closeBox();
 														}
@@ -812,28 +832,32 @@ void GxMainInterface::setup()
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
 														openDialogBox("crybaby", &gx_engine::audio.fdialogbox4, &gx_engine::audio.fcheckbox5);
 														{
-															openHandleBox("  ");
+														    openPlugBox("");
 															{
-																openFrameBox("");
-																closeBox();
-																openFrameBox("");
-																closeBox();
-																openVerticalBox("");
-																{
-																	openHorizontalTableBox("");
-																	{
-																		addbigregler("crybaby.wah","  wah   ");
-																		addregler("crybaby.level","  level  ");
-																		addregler("crybaby.wet_dry","wet/dry");
-																	}
-																	closeBox();
-																	addminiswitch("crybaby.autowah"," autowah");
-																}
-																closeBox();
-																openFrameBox("");
-																closeBox();
-																openFrameBox("");
-																closeBox();
+                                                                openHandleBox("  ");
+                                                                {
+                                                                    openFrameBox("");
+                                                                    closeBox();
+                                                                    openFrameBox("");
+                                                                    closeBox();
+                                                                    openVerticalBox("");
+                                                                    {
+                                                                        openHorizontalTableBox("");
+                                                                        {
+                                                                            addbigregler("crybaby.wah","  wah   ");
+                                                                            addregler("crybaby.level","  level  ");
+                                                                            addregler("crybaby.wet_dry","wet/dry");
+                                                                        }
+                                                                        closeBox();
+                                                                        addminiswitch("crybaby.autowah"," autowah");
+                                                                    }
+                                                                    closeBox();
+                                                                    openFrameBox("");
+                                                                    closeBox();
+                                                                    openFrameBox("");
+                                                                    closeBox();
+                                                                }
+                                                                closeBox();
 															}
 															closeBox();
 														}
@@ -893,22 +917,26 @@ void GxMainInterface::setup()
 												addtoggle("chorus.on_off","");
 												openDialogBox("chorus", &gx_engine::audio.fchorusbox, &gx_engine::audio.fchorus);
 												{
-													openHandleBox("  ");
-													{
-														openVerticalBox("");
-														{
-															openHorizontalTableBox("");
-															{
-																addbigregler("chorus.level","  level  ");
-																addregler("chorus.delay","  delay  ");
-																addregler("chorus.depth","  depth  ");
-																addregler("chorus.freq","  freq  ");
-															}
-															closeBox();
-														}
-														closeBox();
-													}
-													closeBox();
+												    openPlugBox("");
+                                                    {
+                                                        openHandleBox("  ");
+                                                        {
+                                                            openVerticalBox("");
+                                                            {
+                                                                openHorizontalTableBox("");
+                                                                {
+                                                                    addbigregler("chorus.level","  level  ");
+                                                                    addregler("chorus.delay","  delay  ");
+                                                                    addregler("chorus.depth","  depth  ");
+                                                                    addregler("chorus.freq","  freq  ");
+                                                                }
+                                                                closeBox();
+                                                            }
+                                                            closeBox();
+                                                        }
+                                                        closeBox();
+                                                    }
+                                                    closeBox();
 												}
 												closeBox();
 											}
@@ -929,24 +957,28 @@ void GxMainInterface::setup()
 												addtoggle("flanger.on_off","");
 												openDialogBox("flanger", &gx_engine::audio.fflangerbox, &gx_engine::audio.fflanger);
 												{
-													openHandleBox("  ");
-													{
-														openVerticalBox("");
-														{
-															openHorizontalTableBox("");
-															{
-																addbigregler("flanger.level","  level  ");
-																addregler("flanger.feedback gain"," feedback gain ");
-																addregler("flanger.depth","  depth  ");
-																addregler("flanger.flange delay","  delay  ");
-																addregler("flanger.flange delay offset"," delay offset");
-																addregler("flanger.LFO freq"," LFO freq  ");
+												    openPlugBox("");
+                                                    {
+                                                        openHandleBox("  ");
+                                                        {
+                                                            openVerticalBox("");
+                                                            {
+                                                                openHorizontalTableBox("");
+                                                                {
+                                                                    addbigregler("flanger.level","  level  ");
+                                                                    addregler("flanger.feedback gain"," feedback gain ");
+                                                                    addregler("flanger.depth","  depth  ");
+                                                                    addregler("flanger.flange delay","  delay  ");
+                                                                    addregler("flanger.flange delay offset"," delay offset");
+                                                                    addregler("flanger.LFO freq"," LFO freq  ");
 
-															}
-															closeBox();
-															addminiswitch("flanger.invert"," invert                                                                                                                         ");
-														}
-														closeBox();
+                                                                }
+                                                                closeBox();
+                                                                addminiswitch("flanger.invert"," invert                                                                                                                         ");
+                                                            }
+                                                            closeBox();
+                                                        }
+                                                        closeBox();
 													}
 													closeBox();
 												}
@@ -994,14 +1026,18 @@ void GxMainInterface::setup()
                                                         addminieqswitch("biquad.on_off","  BiQuad Filter    ");
                                                         openDialogBox("biquad", &gx_engine::audio.fbiquadbox, (int*)&gx_engine::audio.fbiquad);
                                                         {
-                                                            openHandleBox("  ");
+                                                            openPlugBox("");
+															{
+                                                                openHandleBox("  ");
                                                                 {
-                                                                openVerticalBox("");
-                                                                {
-                                                                    openHorizontalBox("");
+                                                                    openVerticalBox("");
                                                                     {
-                                                                        addregler("biquad.Freq","                                 Hz                                    ");
+                                                                        openHorizontalBox("");
+                                                                        {
+                                                                            addregler("biquad.Freq","                                 Hz                                    ");
 
+                                                                        }
+                                                                        closeBox();
                                                                     }
                                                                     closeBox();
                                                                 }
@@ -1017,34 +1053,38 @@ void GxMainInterface::setup()
                                                         addminieqswitch("MultiBandFilter.on_off","  MultiBandFilter");
                                                         openDialogBox("MultiBandFilter", &gx_engine::audio.fdialogbox_mbf, &gx_engine::audio.fmultifilter);
                                                         {
-                                                            openVerticalBox("");
-                                                            {
-                                                                openHorizontalTableBox("");
+                                                            openPlugBox("");
+															{
+                                                                openVerticalBox("");
                                                                 {
-                                                                    addVerticalSlider("MultiBandFilter.f31_25","31,25");
-                                                                    addVerticalSlider("MultiBandFilter.f62_5"," 62,5");
-                                                                    addVerticalSlider("MultiBandFilter.f125"," 125 ");
-                                                                    addVerticalSlider("MultiBandFilter.f250"," 250 ");
-                                                                    addVerticalSlider("MultiBandFilter.f500"," 500 ");
-                                                                    addVerticalSlider("MultiBandFilter.f1k","  1k  ");
-                                                                    addVerticalSlider("MultiBandFilter.f2k","  2k  ");
-                                                                    addVerticalSlider("MultiBandFilter.f4k","  4k  ");
-                                                                    addVerticalSlider("MultiBandFilter.f8k","  8k  ");
-                                                                    addVerticalSlider("MultiBandFilter.f16k"," 16k ");
-                                                                }
-                                                                closeBox();
-                                                                openHorizontalTableBox("");
-                                                                {
-                                                                    addregler("MultiBandFilter.Q31_25","    Q    ");
-                                                                    addregler("MultiBandFilter.Q62_5","Q");
-                                                                    addregler("MultiBandFilter.Q125","Q");
-                                                                    addregler("MultiBandFilter.Q250","Q");
-                                                                    addregler("MultiBandFilter.Q500","Q");
-                                                                    addregler("MultiBandFilter.Q1k","Q");
-                                                                    addregler("MultiBandFilter.Q2k","Q");
-                                                                    addregler("MultiBandFilter.Q4k","Q");
-                                                                    addregler("MultiBandFilter.Q8k","Q");
-                                                                    addregler("MultiBandFilter.Q16k","Q");
+                                                                    openHorizontalTableBox("");
+                                                                    {
+                                                                        addVerticalSlider("MultiBandFilter.f31_25","31,25");
+                                                                        addVerticalSlider("MultiBandFilter.f62_5"," 62,5");
+                                                                        addVerticalSlider("MultiBandFilter.f125"," 125 ");
+                                                                        addVerticalSlider("MultiBandFilter.f250"," 250 ");
+                                                                        addVerticalSlider("MultiBandFilter.f500"," 500 ");
+                                                                        addVerticalSlider("MultiBandFilter.f1k","  1k  ");
+                                                                        addVerticalSlider("MultiBandFilter.f2k","  2k  ");
+                                                                        addVerticalSlider("MultiBandFilter.f4k","  4k  ");
+                                                                        addVerticalSlider("MultiBandFilter.f8k","  8k  ");
+                                                                        addVerticalSlider("MultiBandFilter.f16k"," 16k ");
+                                                                    }
+                                                                    closeBox();
+                                                                    openHorizontalTableBox("");
+                                                                    {
+                                                                        addregler("MultiBandFilter.Q31_25","    Q    ");
+                                                                        addregler("MultiBandFilter.Q62_5","Q");
+                                                                        addregler("MultiBandFilter.Q125","Q");
+                                                                        addregler("MultiBandFilter.Q250","Q");
+                                                                        addregler("MultiBandFilter.Q500","Q");
+                                                                        addregler("MultiBandFilter.Q1k","Q");
+                                                                        addregler("MultiBandFilter.Q2k","Q");
+                                                                        addregler("MultiBandFilter.Q4k","Q");
+                                                                        addregler("MultiBandFilter.Q8k","Q");
+                                                                        addregler("MultiBandFilter.Q16k","Q");
+                                                                    }
+                                                                    closeBox();
                                                                 }
                                                                 closeBox();
                                                             }
@@ -1058,15 +1098,19 @@ void GxMainInterface::setup()
                                                         addminieqswitch("moog.on_off","  Moog Filter       ");
                                                         openDialogBox("moog", &gx_engine::audio.fdialogbox_moo, (int*)&gx_engine::audio.fmoog);
                                                         {
-                                                            openHandleBox("  ");
+                                                            openPlugBox("");
+															{
+                                                                openHandleBox("  ");
                                                                 {
-                                                                openVerticalBox("");
-                                                                {
-                                                                    openHorizontalBox("");
+                                                                    openVerticalBox("");
                                                                     {
-                                                                        addregler("moog.Q","            Q            ");
-                                                                        addregler("moog.fr","            Hz           ");
+                                                                        openHorizontalBox("");
+                                                                        {
+                                                                            addregler("moog.Q","            Q            ");
+                                                                            addregler("moog.fr","            Hz           ");
 
+                                                                        }
+                                                                        closeBox();
                                                                     }
                                                                     closeBox();
                                                                 }
@@ -1157,139 +1201,144 @@ void GxMainInterface::setup()
 							//----- create the midi settings dialog
 							openDialogBox("midi_out", &gx_engine::audio.fdialogbox6, (int*)&gx_engine::audio.midistat);
 							{
-								openTabBox("");
-								{
-									openVerticalBox("channel1");
-									{
-										openEventBox(" ");
-										{
-											openHorizontalBox("");
-											{
-												addregler("midi_out.channel_1.velocity");
-												openVerticalBox("");
-												{
-													addregler("midi_out.channel_1.volume");
-													addCheckButton("midi_out.channel_1.autogain");
-												}
-												closeBox();
-												openVerticalBox("");
-												{
-													addNumEntry("midi_out.channel_1.channel");
-													addNumEntry("midi_out.channel_1.program");
-												}
-												closeBox();
-												addregler("midi_out.channel_1.oktave");
-												addregler("midi_out.channel_1.sensity");
-											}
-											closeBox();
-										}
-										closeBox();
-										openHorizontalBox("");
-										{
-											openHorizontalBox(" ");
-											closeBox();
-											openHorizontalBox(" ");
-											{
-												addPToggleButton("midi_out.channel_1.auto_pitch");
-											}
-											closeBox();
-										}
-										closeBox();
-									}
-									closeBox();
-									openVerticalBox("channel2");
-									{
-										openEventBox(" ");
-										{
-											openHorizontalBox("");
-											{
-												addregler("midi_out.channel_2.velocity");
-												openVerticalBox("");
-												{
-													addregler("midi_out.channel_2.volume");
-													addCheckButton("midi_out.channel_2.autogain");
-												}
-												closeBox();
-												openVerticalBox("");
-												{
-													addNumEntry("midi_out.channel_2.channel");
-													addNumEntry("midi_out.channel_2.program");
-												}
-												closeBox();
-												addregler("midi_out.channel_2.oktave");
-												addregler("midi_out.channel_2.sensity");
-											}
-											closeBox();
-										}
-										closeBox();
-										openHorizontalBox("");
-										{
-											addtoggle("midi_out.channel_2.on_off", "");
-											openHorizontalBox(" ");
-											{
-												addPToggleButton("midi_out.channel_2.auto_pitch");
-											}
-											closeBox();
-										}
-										closeBox();
-									}
-									closeBox();
-									openVerticalBox("channel3");
-									{
-										openEventBox(" ");
-										openHorizontalBox("");
-										{
-											addregler("midi_out.channel_3.velocity");
-											openVerticalBox("");
-											{
-												addregler("midi_out.channel_3.volume");
-												addCheckButton("midi_out.channel_3.autogain");
-											}
-											closeBox();
-											openVerticalBox("");
-											{
-												addNumEntry("midi_out.channel_3.channel");
-												addNumEntry("midi_out.channel_3.program");
-											}
-											closeBox();
-											addregler("midi_out.channel_3.oktave");
-											addregler("midi_out.channel_3.sensity");
-										}
-										closeBox();
-									}
-									closeBox();
-									openHorizontalBox("");
-									{
-										addtoggle("midi_out.channel_3.on_off", "");
-										openHorizontalBox(" ");
-										{
-											addPToggleButton("midi_out.channel_3.auto_pitch");
-										}
-										closeBox();
-									}
-									closeBox();
-								}
-								closeBox();
-								openVerticalBox("beat_detector");
-								{
-									openEventBox(" ");
-									{
-										openHorizontalBox("");
-										{
-											addregler("beat_detector.stepper");
-											addregler("beat_detector.note_off");
-											addregler("beat_detector.atack_gain");
-											addregler("beat_detector.beat_gain");
-										}
-										closeBox();
-									}
-									closeBox();
-									addStatusDisplay("", &gx_engine::audio.midistat);
-									openVerticalBox("Midi gain");
-									{
-										addHorizontalWheel("beat_detector.midi_gain");
-									}
-									closeBox();
+                                openPlugBox("");
+                                {
+                                    openTabBox("");
+                                    {
+                                        openVerticalBox("channel1");
+                                        {
+                                            openEventBox(" ");
+                                            {
+                                                openHorizontalBox("");
+                                                {
+                                                    addregler("midi_out.channel_1.velocity");
+                                                    openVerticalBox("");
+                                                    {
+                                                        addregler("midi_out.channel_1.volume");
+                                                        addCheckButton("midi_out.channel_1.autogain");
+                                                    }
+                                                    closeBox();
+                                                    openVerticalBox("");
+                                                    {
+                                                        addNumEntry("midi_out.channel_1.channel");
+                                                        addNumEntry("midi_out.channel_1.program");
+                                                    }
+                                                    closeBox();
+                                                    addregler("midi_out.channel_1.oktave");
+                                                    addregler("midi_out.channel_1.sensity");
+                                                }
+                                                closeBox();
+                                            }
+                                            closeBox();
+                                            openHorizontalBox("");
+                                            {
+                                                openHorizontalBox(" ");
+                                                closeBox();
+                                                openHorizontalBox(" ");
+                                                {
+                                                    addPToggleButton("midi_out.channel_1.auto_pitch");
+                                                }
+                                                closeBox();
+                                            }
+                                            closeBox();
+                                        }
+                                        closeBox();
+                                        openVerticalBox("channel2");
+                                        {
+                                            openEventBox(" ");
+                                            {
+                                                openHorizontalBox("");
+                                                {
+                                                    addregler("midi_out.channel_2.velocity");
+                                                    openVerticalBox("");
+                                                    {
+                                                        addregler("midi_out.channel_2.volume");
+                                                        addCheckButton("midi_out.channel_2.autogain");
+                                                    }
+                                                    closeBox();
+                                                    openVerticalBox("");
+                                                    {
+                                                        addNumEntry("midi_out.channel_2.channel");
+                                                        addNumEntry("midi_out.channel_2.program");
+                                                    }
+                                                    closeBox();
+                                                    addregler("midi_out.channel_2.oktave");
+                                                    addregler("midi_out.channel_2.sensity");
+                                                }
+                                                closeBox();
+                                            }
+                                            closeBox();
+                                            openHorizontalBox("");
+                                            {
+                                                addtoggle("midi_out.channel_2.on_off", "");
+                                                openHorizontalBox(" ");
+                                                {
+                                                    addPToggleButton("midi_out.channel_2.auto_pitch");
+                                                }
+                                                closeBox();
+                                            }
+                                            closeBox();
+                                        }
+                                        closeBox();
+                                        openVerticalBox("channel3");
+                                        {
+                                            openEventBox(" ");
+                                            openHorizontalBox("");
+                                            {
+                                                addregler("midi_out.channel_3.velocity");
+                                                openVerticalBox("");
+                                                {
+                                                    addregler("midi_out.channel_3.volume");
+                                                    addCheckButton("midi_out.channel_3.autogain");
+                                                }
+                                                closeBox();
+                                                openVerticalBox("");
+                                                {
+                                                    addNumEntry("midi_out.channel_3.channel");
+                                                    addNumEntry("midi_out.channel_3.program");
+                                                }
+                                                closeBox();
+                                                addregler("midi_out.channel_3.oktave");
+                                                addregler("midi_out.channel_3.sensity");
+                                            }
+                                            closeBox();
+                                        }
+                                        closeBox();
+                                        openHorizontalBox("");
+                                        {
+                                            addtoggle("midi_out.channel_3.on_off", "");
+                                            openHorizontalBox(" ");
+                                            {
+                                                addPToggleButton("midi_out.channel_3.auto_pitch");
+                                            }
+                                            closeBox();
+                                        }
+                                        closeBox();
+                                    }
+                                    closeBox();
+
+                                    openVerticalBox("beat_detector");
+                                    {
+                                        openEventBox(" ");
+                                        {
+                                            openHorizontalBox("");
+                                            {
+                                                addregler("beat_detector.stepper");
+                                                addregler("beat_detector.note_off");
+                                                addregler("beat_detector.atack_gain");
+                                                addregler("beat_detector.beat_gain");
+                                            }
+                                            closeBox();
+                                        }
+                                        closeBox();
+                                        addStatusDisplay("", &gx_engine::audio.midistat);
+                                        openVerticalBox("Midi gain");
+                                        {
+                                            addHorizontalWheel("beat_detector.midi_gain");
+                                        }
+                                        closeBox();
+                                    }
+                                    closeBox();
 								}
 								closeBox();
 							}

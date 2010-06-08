@@ -14,7 +14,7 @@ from Constants import HEXVERSION
 from Configure import ConfigurationError
 
 # used by waf dist and waf build
-VERSION='0.09.0svn'
+VERSION='0.10.0svn'
 APPNAME='guitarix'
 
 good_faust_versions = ['0.9.10','0.9.17','0.9.22','0.9.23','0.9.24']
@@ -219,7 +219,7 @@ def append_optimization_flags(cxxflags):
     arch = os.uname()[4]
     if "AMD" in model and "x86_64" in arch:
         cxxflags.append ("-march=K8")
-    elif "AMD" in model and "Sempron" in model and "i686" in arch:
+    elif "AMD" in model and "Sempron" in model:
         cxxflags.append ("-march=native")
     elif "Geode" in model :
         cxxflags.append ("-march=geode")
@@ -374,7 +374,7 @@ def configure(conf):
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
     #display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(cxx_version), "CYAN")
     display_feature("Use faust", conf.env['FAUST'])
-    if conf.env['FAUST_DOUBLE']:
+    if not Options.options.faust_float:
         display_msg("Use faust precision", "double", 'CYAN')
     else:
         display_msg("Use faust precision", "single", 'CYAN')

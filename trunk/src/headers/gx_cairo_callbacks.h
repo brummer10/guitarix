@@ -39,6 +39,7 @@ gboolean box_expose  (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean label_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean boxamp_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean plug_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 
 void gx_init_pixmaps();
 
