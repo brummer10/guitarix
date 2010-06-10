@@ -257,6 +257,12 @@ void gx_tuner (GtkCheckMenuItem *menuitem, gpointer checkplay)
 	}
 }
 
+//----menu function gx_tuner
+void gx_patch(GtkCheckMenuItem *menuitem, gpointer checkplay)
+{
+    gtk_widget_show_all(patch_info);
+}
+
 //---- menu function gx_midi_out
 void gx_midi_out (GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
@@ -457,8 +463,8 @@ void gx_hide_extended_settings( GtkWidget *widget, gpointer data )
 	    & (GDK_WINDOW_STATE_ICONIFIED|GDK_WINDOW_STATE_WITHDRAWN)) {
 		gtk_window_present(GTK_WINDOW(fWindow));
 	} else {
-		gtk_widget_hide(fWindow);
-		//better(?): gtk_window_iconify(GTK_WINDOW(fWindow));
+		//gtk_widget_hide(fWindow);
+        gtk_window_iconify(GTK_WINDOW(fWindow));
 	}
 }
 

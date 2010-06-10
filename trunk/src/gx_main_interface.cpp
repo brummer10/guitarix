@@ -1852,6 +1852,7 @@ void GxMainInterface::openDialogBox(const char* id, float* zone, int * z1)
 	const char *label = param_group(id).c_str();
 	GtkWidget * dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
+	gtk_window_set_icon(GTK_WINDOW (dialog), GDK_PIXBUF(ib));
 	gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
 	gtk_window_set_gravity(GTK_WINDOW(dialog), GDK_GRAVITY_SOUTH);
 	gtk_window_set_transient_for (GTK_WINDOW(dialog), GTK_WINDOW(fWindow));
@@ -1923,6 +1924,67 @@ void GxMainInterface::openDialogBox(const char* id, float* zone, int * z1)
 	gtk_widget_show(box4);
 	gtk_widget_show(box5);
 	pushBox(kBoxMode, box);
+}
+
+struct uiPatchDisplay : public gx_ui::GxUiItem
+{
+	GtkWidget* fLabel;
+
+	uiPatchDisplay(gx_ui::GxUI* ui, float* zone, GtkWidget* label)
+		: gx_ui::GxUiItem(ui, zone), fLabel(label) {}
+
+	virtual void reflectZone()
+		{
+		    if(setting_is_preset )
+                gtk_label_set_text(GTK_LABEL(fLabel), gx_current_preset.c_str());
+            else
+                gtk_label_set_text(GTK_LABEL(fLabel), "Main Setting");
+		}
+};
+
+//----- hide the jconv settings widget
+gboolean gx_delete_pi( GtkWidget *widget, gpointer   data )
+{
+	gtk_widget_hide(patch_info);
+	return TRUE;
+}
+
+void GxMainInterface::openPatchInfoBox(float* zone)
+{
+	patch_info = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_decorated(GTK_WINDOW(patch_info), TRUE);
+	gtk_window_set_icon(GTK_WINDOW (patch_info), GDK_PIXBUF(ib));
+	gtk_window_set_resizable(GTK_WINDOW(patch_info), FALSE);
+	gtk_window_set_gravity(GTK_WINDOW(patch_info), GDK_GRAVITY_SOUTH);
+	//gtk_window_set_transient_for (GTK_WINDOW(patch_info), GTK_WINDOW(fWindow));
+	gtk_window_set_position (GTK_WINDOW(patch_info), GTK_WIN_POS_MOUSE);
+	gtk_window_set_keep_below (GTK_WINDOW(patch_info), FALSE);
+	gtk_window_set_title (GTK_WINDOW (patch_info), "Patch Info");
+	gtk_window_set_type_hint (GTK_WINDOW (patch_info), GDK_WINDOW_TYPE_HINT_UTILITY);
+	gtk_window_set_destroy_with_parent(GTK_WINDOW(patch_info), TRUE);
+	GtkWidget * box = gtk_hbox_new (homogene, 8);
+	const char *labe = "                  ";
+
+	GtkWidget* 	lab = gtk_label_new(labe);
+	new uiPatchDisplay(this, zone, GTK_WIDGET(lab));
+	g_signal_connect_swapped (G_OBJECT (patch_info), "delete_event", G_CALLBACK (gx_delete_pi), NULL);
+	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+
+
+	GdkColor colorRed;
+	GdkColor colorOwn;
+	gdk_color_parse ("#000094", &colorRed);
+	gdk_color_parse ("#7f7f7f", &colorOwn);
+
+	GtkStyle *style = gtk_widget_get_style(lab);
+	pango_font_description_set_size(style->font_desc, 40*PANGO_SCALE);
+	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
+	gtk_widget_modify_font(lab, style->font_desc);
+
+    gtk_container_add (GTK_CONTAINER(box), lab);
+	gtk_container_add (GTK_CONTAINER(patch_info), box);
+
+    gtk_widget_hide(patch_info);
 }
 
 // ------------------------------ Num Display -----------------------------------
@@ -2515,6 +2577,15 @@ void GxMainInterface::addOptionMenu()
 	                           GDK_t, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_tuner), NULL);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+	gtk_widget_show (menuitem);
+
+	/*-- Create patch info check menu item under Options submenu --*/
+	menuitem = gtk_menu_item_new_with_mnemonic ("P_atch Info");
+	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
+	                           GDK_a, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+	g_signal_connect (GTK_OBJECT (menuitem), "activate",
+	                  G_CALLBACK (gx_patch), NULL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
 

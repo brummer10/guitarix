@@ -619,7 +619,7 @@ void GxMainInterface::setup()
 															{
 															    openHorizontalBox("");
                                                                 {
-                                                                    openVerticalBox1("");
+                                                                    openVerticalBox("");
                                                                     {
                                                                         openHorizontalBox("");
                                                                         {
@@ -1378,6 +1378,9 @@ void GxMainInterface::setup()
 	// add a log message box: out of box stack, no need to closeBox
 	openTextLoggingBox("Logging Window");
 	closeBox();
+	// add a Patch Info widget
+	openPatchInfoBox(&gx_gui::show_patch_info);
+
 	debug_check(all_midi_params_assigned);
 }
 

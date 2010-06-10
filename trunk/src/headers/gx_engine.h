@@ -103,7 +103,6 @@ public:
 	float upsample_mode;
 	float fampexpand;
 
-
 	AudioVariables();
 };
 

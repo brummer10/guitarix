@@ -718,8 +718,9 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 	// print out info
 	gx_print_info("Preset Loading", string("loaded preset ") + preset_name);
 	setting_is_preset = true;
-	gx_current_preset = preset_name;
 
+	gx_current_preset = preset_name;
+    gx_gui::show_patch_info +=1;
 	/* do some GUI stuff*/
 	g_idle_add(gx_rename_main_widget,NULL);
 

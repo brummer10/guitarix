@@ -210,6 +210,7 @@ extern GtkWidget* midibox;
 extern GtkWidget* fbutton;
 extern GtkWidget* record_button;
 extern GtkWidget* jc_dialog;
+extern GtkWidget* patch_info;
 
 /* wave view widgets */
 extern GtkWidget* livewa;
@@ -235,6 +236,7 @@ extern GtkStatusIcon* status_icon;
 /* tuner and osilloscope*/
 extern int showwave;
 extern int shownote;
+extern float show_patch_info;
 
 /* skin handling */
 extern vector<string> skin_list;

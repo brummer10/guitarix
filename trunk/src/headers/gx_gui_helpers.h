@@ -100,6 +100,7 @@ void gx_show_oscilloscope      (GtkCheckMenuItem*, gpointer);
 void gx_tuner                  (GtkCheckMenuItem*, gpointer);
 void gx_midi_out               (GtkCheckMenuItem*, gpointer);
 void gx_log_window             (GtkWidget*, gpointer);
+void gx_patch                  (GtkCheckMenuItem*, gpointer );
 
 
 void gx_systray_menu            (GtkWidget*, gpointer);
