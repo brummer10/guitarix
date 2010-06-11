@@ -1996,7 +1996,7 @@ void GxMainInterface::openPatchInfoBox(float* zone)
 	GtkWidget* 	label = gtk_label_new(labe);
 	new uiPatchDisplay(this, zone, GTK_WIDGET(patch_info));
 	g_signal_connect_swapped (G_OBJECT (patch_info), "delete_event", G_CALLBACK (gx_delete_pi), NULL);
-	g_signal_connect(box, "expose-event", G_CALLBACK(plug_box_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(info_box_expose), NULL);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 8);
 
 	GtkStyle *style = gtk_widget_get_style(lab);
