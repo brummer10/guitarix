@@ -1925,20 +1925,47 @@ void GxMainInterface::openDialogBox(const char* id, float* zone, int * z1)
 	gtk_widget_show(box5);
 	pushBox(kBoxMode, box);
 }
-
+//-------- collect patch info for stage display
 struct uiPatchDisplay : public gx_ui::GxUiItem
 {
-	GtkWidget* fLabel;
+	GtkWidget* fdialog;
 
-	uiPatchDisplay(gx_ui::GxUI* ui, float* zone, GtkWidget* label)
-		: gx_ui::GxUiItem(ui, zone), fLabel(label) {}
+	uiPatchDisplay(gx_ui::GxUI* ui, float* zone, GtkWidget* dialog)
+		: gx_ui::GxUiItem(ui, zone), fdialog(dialog) {}
 
 	virtual void reflectZone()
 		{
-		    if(setting_is_preset )
-                gtk_label_set_text(GTK_LABEL(fLabel), gx_current_preset.c_str());
-            else
-                gtk_label_set_text(GTK_LABEL(fLabel), "Main Setting");
+		    GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(fdialog));
+			GtkWidget *parent = (GtkWidget *) g_list_nth_data(child_list,0);
+			if(GDK_WINDOW(parent->window)) {
+                if (fCache != *fZone) {
+                    char s[64];
+                    gdk_window_invalidate_rect(GDK_WINDOW(parent->window),NULL,false);
+                    child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
+                    parent = (GtkWidget *) g_list_nth_data(child_list,0);
+                    GtkWidget *pchild = (GtkWidget *) g_list_nth_data(child_list,1);
+                    gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
+
+                    if(gx_jconv::GxJConvSettings::checkbutton7 == 1) {
+                        snprintf(s, 63, "convolve %s",jcset->getIRFile().c_str());
+                        gtk_label_set_text(GTK_LABEL(pchild),s);
+                    }else {
+                        snprintf(s, 63, "convolver off");
+                        gtk_label_set_text(GTK_LABEL(pchild),s);
+                    }
+
+                    if(setting_is_preset ) {
+                        snprintf(s, 63, "%i%s%s", int(show_patch_info),") ",gx_current_preset.c_str());
+                        gtk_label_set_text(GTK_LABEL(parent), s);
+                    }
+                    else {
+                        show_patch_info = 0;
+                        snprintf(s, 63, "%i%sMain Setting", int(show_patch_info),") ");
+                        gtk_label_set_text(GTK_LABEL(parent), s);
+                    }
+                    fCache = *fZone;
+                }
+            }
 		}
 };
 
@@ -1956,32 +1983,29 @@ void GxMainInterface::openPatchInfoBox(float* zone)
 	gtk_window_set_icon(GTK_WINDOW (patch_info), GDK_PIXBUF(ib));
 	gtk_window_set_resizable(GTK_WINDOW(patch_info), FALSE);
 	gtk_window_set_gravity(GTK_WINDOW(patch_info), GDK_GRAVITY_SOUTH);
-	//gtk_window_set_transient_for (GTK_WINDOW(patch_info), GTK_WINDOW(fWindow));
+	gtk_window_set_transient_for (GTK_WINDOW(patch_info), GTK_WINDOW(fWindow));
 	gtk_window_set_position (GTK_WINDOW(patch_info), GTK_WIN_POS_MOUSE);
 	gtk_window_set_keep_below (GTK_WINDOW(patch_info), FALSE);
 	gtk_window_set_title (GTK_WINDOW (patch_info), "Patch Info");
 	gtk_window_set_type_hint (GTK_WINDOW (patch_info), GDK_WINDOW_TYPE_HINT_UTILITY);
 	gtk_window_set_destroy_with_parent(GTK_WINDOW(patch_info), TRUE);
-	GtkWidget * box = gtk_hbox_new (homogene, 8);
-	const char *labe = "                  ";
+	GtkWidget * box = gtk_vbox_new (homogene, 8);
+	const char *labe = "";
 
 	GtkWidget* 	lab = gtk_label_new(labe);
-	new uiPatchDisplay(this, zone, GTK_WIDGET(lab));
+	GtkWidget* 	label = gtk_label_new(labe);
+	new uiPatchDisplay(this, zone, GTK_WIDGET(patch_info));
 	g_signal_connect_swapped (G_OBJECT (patch_info), "delete_event", G_CALLBACK (gx_delete_pi), NULL);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
-
-
-	GdkColor colorRed;
-	GdkColor colorOwn;
-	gdk_color_parse ("#000094", &colorRed);
-	gdk_color_parse ("#7f7f7f", &colorOwn);
+	g_signal_connect(box, "expose-event", G_CALLBACK(plug_box_expose), NULL);
+	gtk_container_set_border_width (GTK_CONTAINER (box), 8);
 
 	GtkStyle *style = gtk_widget_get_style(lab);
-	pango_font_description_set_size(style->font_desc, 40*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
+	pango_font_description_set_size(style->font_desc, 30*PANGO_SCALE);
+	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
 	gtk_widget_modify_font(lab, style->font_desc);
 
     gtk_container_add (GTK_CONTAINER(box), lab);
+    gtk_container_add (GTK_CONTAINER(box), label);
 	gtk_container_add (GTK_CONTAINER(patch_info), box);
 
     gtk_widget_hide(patch_info);

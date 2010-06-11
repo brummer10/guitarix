@@ -283,6 +283,20 @@ void gx_del_preset_from_menus(const string& presname)
 	gx_refresh_preset_menus();
 }
 
+int gx_get_single_preset_menu_pos(const string& presname, const gint lindex)
+{
+	map<GtkMenuItem*, string>::iterator it;
+	int pos = 0;
+	for (it  = preset_list[lindex].begin(); it != preset_list[lindex].end(); it++) {
+	    pos++;
+		if (presname == it->second)
+			return pos;
+	}
+
+	return 0;
+
+}
+
 void  gx_del_single_preset_menu_item(const string& presname, const gint lindex)
 {
 	GtkMenuItem* const item = gx_get_preset_item_from_name(lindex, presname);
@@ -720,7 +734,7 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 	setting_is_preset = true;
 
 	gx_current_preset = preset_name;
-    gx_gui::show_patch_info +=1;
+
 	/* do some GUI stuff*/
 	g_idle_add(gx_rename_main_widget,NULL);
 
@@ -728,6 +742,16 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 	if (gx_engine::conv.is_runnable() && gx_jconv::GxJConvSettings::checkbutton7 == 1)  {
 		gx_engine::conv.stop();
         gx_gui::g_threads[3] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,gx_convolver_restart,NULL,NULL);
+	}
+	/* collect info for stage info display*/
+	if(GDK_WINDOW(gx_gui::patch_info->window)) {
+        int pos = 0;
+        for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++) {
+             pos = gx_get_single_preset_menu_pos(gx_current_preset, i);
+            if (pos > 0) break;
+
+        }
+        gx_gui::show_patch_info =pos;
 	}
 }
 
@@ -838,6 +862,7 @@ void gx_recall_main_setting(GtkMenuItem* item, gpointer)
 
 	setting_is_preset = false;
 	gx_current_preset = "";
+	gx_gui::show_patch_info = 0;
 }
 
 void gx_recall_settings_file( const string & filename )
