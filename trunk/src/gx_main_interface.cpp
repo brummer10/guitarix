@@ -1955,12 +1955,12 @@ struct uiPatchDisplay : public gx_ui::GxUiItem
                     }
 
                     if(setting_is_preset ) {
-                        snprintf(s, 63, "%i%s%s", int(show_patch_info),") ",gx_current_preset.c_str());
+                        snprintf(s, 63, " %i%s%s ", int(show_patch_info),". ",gx_current_preset.c_str());
                         gtk_label_set_text(GTK_LABEL(parent), s);
                     }
                     else {
                         show_patch_info = 0;
-                        snprintf(s, 63, "%i%sMain Setting", int(show_patch_info),") ");
+                        snprintf(s, 63, " %i%sMain Setting ", int(show_patch_info),". ");
                         gtk_label_set_text(GTK_LABEL(parent), s);
                     }
                     fCache = *fZone;

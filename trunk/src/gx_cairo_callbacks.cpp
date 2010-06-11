@@ -863,7 +863,7 @@ gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
     cairo_stroke(cr);
 
 	cairo_pattern_t*pat = cairo_pattern_create_linear (x0, y0+50,x0, y0);
-            cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
+    cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
     if(gx_jconv::GxJConvSettings::checkbutton7 == 1) {
         cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0.8, 0, 0.8);
         cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.05, 0.8, 0.05, 0.6);
@@ -873,6 +873,16 @@ gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
     }
 	cairo_set_source (cr, pat);
 	cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
+	cairo_fill (cr);
+
+	cairo_rectangle (cr, x0+8,y0+11,rect_width-16,rect_height-40);
+	cairo_set_source_rgb (cr, 0.5, 0.5, 0.5);
+    cairo_set_line_width(cr, 2.0);
+	cairo_stroke_preserve(cr);
+	pat = cairo_pattern_create_linear (x0, y0+50,x0, y0);
+    cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
+    gx_skin_color(pat);
+    cairo_set_source (cr, pat);
 	cairo_fill (cr);
 
     cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
