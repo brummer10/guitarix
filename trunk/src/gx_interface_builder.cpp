@@ -270,31 +270,59 @@ void GxMainInterface::setup()
 							openFrameBox("");
 							closeBox();
 
-							openVerticalBox("volume");
+							openVerticalBox("");
 							{
-								openVerticalBox("");
-								{
-									addbigregler("amp.in_level");
-									addbigregler("amp.out_master");
-								}
-								closeBox();
+
+                                openVerticalBox("volume");
+                                {
+                                    openHorizontalBox("");
+                                    {
+                                        addbigregler("amp.in_level");
+                                        addbigregler("amp.out_master");
+                                    }
+                                    closeBox();
+                                }
+                                closeBox();
+                                //----- volume controll ready
+
+                                //----- open a box for the tone and the fuzz controllers
+                                openVerticalBox("tone");
+                                {
+                                    openHorizontalBox("");
+                                    {
+                                        openSpaceBox("");
+                                        closeBox();
+                                        addregler("amp.tonestack.Bass");
+                                        openSpaceBox("");
+                                        closeBox();
+                                        addregler("amp.tonestack.Middle");
+                                        openSpaceBox("");
+                                        closeBox();
+                                        addregler("amp.tonestack.Treble");
+                                        openSpaceBox("");
+                                        closeBox();
+                                    }
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openHorizontalBox("");
+                                    {
+                                        openSpaceBox("");
+                                        closeBox();
+                                        const char* labels[9]  ={"default","Bassman", "Twin Reverb","Princeton","JCM-800", "JCM-2000", "M-Lead", "M2199", "AC-30"};
+                                                    addselector("amp.tonestack.select",9,labels,"");
+
+                                        openSpaceBox("");
+                                        closeBox();
+                                    }
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                }
+                                closeBox();
 							}
 							closeBox();
-							//----- volume controll ready
 
-							//----- open a box for the tone and the fuzz controllers
-							openVerticalBox("tone");
-							{
-								addregler("amp.tonestack.Bass");
-								addregler("amp.tonestack.Middle");
-								addregler("amp.tonestack.Treble");
-                                const char* labels[9]  ={"default","Bassman", "Twin Reverb","Princeton","JCM-800", "JCM-2000", "M-Lead", "M2199", "AC-30"};
-                                            addselector("amp.tonestack.select",9,labels,"");
-
-								openVerticalBox1("");
-								closeBox();
-							}
-							closeBox();
 						}
 						closeBox();
 						//----- end tone and fuzz controll
