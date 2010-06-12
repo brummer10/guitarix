@@ -875,7 +875,7 @@ gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
 	cairo_fill (cr);
 
-	cairo_rectangle (cr, x0+8,y0+11,rect_width-16,rect_height-40);
+	cairo_rectangle (cr, x0+8,y0+31,rect_width-16,rect_height-60);
 	cairo_set_source_rgb (cr, 0.5, 0.5, 0.5);
     cairo_set_line_width(cr, 2.0);
 	cairo_stroke_preserve(cr);

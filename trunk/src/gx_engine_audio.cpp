@@ -119,6 +119,7 @@ AudioVariables::AudioVariables()
 	gx_gui::registerParam("moog.on_off", "on/off", &fmoog, 0);
 	gx_gui::registerParam("biquad.on_off", "on/off", &fbiquad, 0);
 	gx_gui::registerParam("flanger.on_off", "on/off", &fflanger, 0);
+	gx_gui::registerParam("SampleLooper.on_off", "on/off", &fsloop, 0);
 	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
 	registerEnumParam("amp.select", "select", &upsample_mode, 4.f, 1.f, 8.f, 1.0f);
 
@@ -622,6 +623,9 @@ void process_buffers(int count, float* input, float* output0)
     }
     if (audio.ftube3e) {
 	    tube3::compute(count, output0, output0);
+    }
+    if (audio.fsloop) {
+	    sloop::compute(count, output0, output0);
     }
 }
 void process_insert_buffers (int count, float* input1, float* output0, float* output1)

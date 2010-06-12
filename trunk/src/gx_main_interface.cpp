@@ -1942,8 +1942,8 @@ struct uiPatchDisplay : public gx_ui::GxUiItem
                     char s[64];
                     gdk_window_invalidate_rect(GDK_WINDOW(parent->window),NULL,false);
                     child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
-                    parent = (GtkWidget *) g_list_nth_data(child_list,0);
-                    GtkWidget *pchild = (GtkWidget *) g_list_nth_data(child_list,1);
+                    parent = (GtkWidget *) g_list_nth_data(child_list,1);
+                    GtkWidget *pchild = (GtkWidget *) g_list_nth_data(child_list,2);
                     gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
 
                     if(gx_jconv::GxJConvSettings::checkbutton7 == 1) {
@@ -1991,7 +1991,7 @@ void GxMainInterface::openPatchInfoBox(float* zone)
 	gtk_window_set_destroy_with_parent(GTK_WINDOW(patch_info), TRUE);
 	GtkWidget * box = gtk_vbox_new (homogene, 8);
 	const char *labe = "";
-
+    GtkWidget* 	la = gtk_label_new(labe);
 	GtkWidget* 	lab = gtk_label_new(labe);
 	GtkWidget* 	label = gtk_label_new(labe);
 	new uiPatchDisplay(this, zone, GTK_WIDGET(patch_info));
@@ -2004,6 +2004,7 @@ void GxMainInterface::openPatchInfoBox(float* zone)
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
 	gtk_widget_modify_font(lab, style->font_desc);
 
+    gtk_container_add (GTK_CONTAINER(box), la);
     gtk_container_add (GTK_CONTAINER(box), lab);
     gtk_container_add (GTK_CONTAINER(box), label);
 	gtk_container_add (GTK_CONTAINER(patch_info), box);

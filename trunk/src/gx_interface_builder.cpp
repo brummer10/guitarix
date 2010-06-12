@@ -1019,6 +1019,22 @@ void GxMainInterface::setup()
 										{
 											openHorizontalBox("");
 											{
+											    openVerticalBox("slooper");
+                                                {
+                                                    openHorizontalBox("");
+                                                    {
+                                                        addregler("SampleLooper.gain"," gain ");
+                                                        openVerticalBox1("");
+                                                        {
+                                                        addswitch("SampleLooper.Capture","  capture ");
+                                                        addswitch("SampleLooper.Play","  play ");
+                                                        }
+                                                        closeBox();
+                                                    }
+                                                    closeBox();
+                                                    addtoggle("SampleLooper.on_off","");
+                                                }
+                                                closeBox();
 												openPaintBox("");
 												{
 												    openHorizontalBox("");

@@ -102,6 +102,7 @@ public:
 	int ftube3e;
 	float upsample_mode;
 	float fampexpand;
+	int fsloop;
 
 	AudioVariables();
 };
