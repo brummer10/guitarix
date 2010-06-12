@@ -575,7 +575,7 @@ void process_buffers(int count, float* input, float* output0)
 	    convolver_filter(output0, output0, count, (unsigned int)audio.convolvefilter);
     }
     inputgain::compute(count, output0, output0);
-    tone::compute(count, output0, output0);
+    tonestack::compute(count, output0, output0);
     if (audio.fresoon) {
 	    tubevibrato::compute(count, output0, output0);
     }

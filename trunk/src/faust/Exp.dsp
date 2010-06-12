@@ -81,8 +81,8 @@ tubestage(tb,fck,Rk) = tube : hpf with {
 process = hgroup("test", *(vslider("Pregain",30,-10,80,0.1):db2linear) :
           hgroup("stage1", BP(stage1)) :
           hgroup("stage2", BP(stage2)) :
-          hgroup("stage3", BP(stage3)) :
-          hgroup("tone", BP(tonestack(ts.jcm2000)))
+          hgroup("stage3", BP(stage3)) //:
+         // hgroup("tone", BP(tonestack(ts.jcm2000)))
           ) with {
     stage1 = tubestage(0,86.0,2700.0) : *(gain1) with {
         gain1 = vslider("gain1", 6, -10.0, 20.0, 0.1) : db2linear;

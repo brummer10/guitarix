@@ -73,7 +73,7 @@ def build(bld):
         'tube.dsp',
         'tube3.dsp',
         'tubevibrato.dsp',
-        'tone.dsp',
+        #'tone.dsp',
         'multifilter.dsp',
         'eq.dsp',
         'bassbooster.dsp',
@@ -82,6 +82,7 @@ def build(bld):
         'jconv_post.dsp',
         'balance.dsp',
         'balance1.dsp',
+        'tonestack.dsp',
 
         # effects
         'overdrive.dsp',

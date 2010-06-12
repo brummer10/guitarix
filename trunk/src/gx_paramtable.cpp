@@ -458,7 +458,7 @@ ParameterGroups::ParameterGroups()
 	insert("jconv","Convolver");
 	insert("eq", "EQ");
 	insert("amp","Amplifier");
-	insert("amp.tone","Tone");
+	//insert("amp.tone","Tone");
 	insert("shaper","Shaper");
 	insert("noise_gate","Noise Gate");
 	insert("anti_aliase","Anti Alias");
@@ -471,6 +471,7 @@ ParameterGroups::ParameterGroups()
 	insert("tube.vibrato","Tube 1 Vibrato");
 	insert("tube2","Tube 2");
 	insert("tube3","Tube 3");
+	insert("amp.tonestack","Tonestack");
 	insert("compressor","Compressor");
 	insert("overdrive","Overdrive");
 	insert("distortion","Distortion");

@@ -6,11 +6,6 @@ namespace Exp {
 // Code generated with Faust 0.9.24 (http://faust.grame.fr)
 //-----------------------------------------------------
 /* link with : "" */
-template <int N> inline float faustpower(float x) 		{ return powf(x,N); } 
-template <int N> inline double faustpower(double x) 	{ return pow(x,N); }
-template <int N> inline int faustpower(int x) 			{ return faustpower<N/2>(x) * faustpower<N-N/2>(x); } 
-template <> 	 inline int faustpower<0>(int x) 		{ return 1; }
-template <> 	 inline int faustpower<1>(int x) 		{ return x; }
 /*
 ** most of this file is a copy of faust architecture/jack-gtk.cpp
 ** which is licensed under GPL V2.
@@ -1303,14 +1298,6 @@ class mydsp : public dsp{
 	double 	fRec7[2];
 	FAUSTFLOAT 	fslider3;
 	FAUSTFLOAT 	fcheckbox2;
-	FAUSTFLOAT 	fslider4;
-	FAUSTFLOAT 	fslider5;
-	double 	fConst16;
-	double 	fConst17;
-	double 	fConst18;
-	double 	fRec11[4];
-	FAUSTFLOAT 	fslider6;
-	FAUSTFLOAT 	fcheckbox3;
   public:
 	static void metadata(Meta* m) 	{ 
 		m->declare("filter.lib/name", "Faust Filter Library");
@@ -1365,10 +1352,6 @@ class mydsp : public dsp{
 		for (int i=0; i<2; i++) fRec10[i] = 0;
 		for (int i=0; i<2; i++) fRec8[i] = 0;
 		for (int i=0; i<2; i++) fRec7[i] = 0;
-		fConst16 = (2 * double(fSamplingFreq));
-		fConst17 = faustpower<2>(fConst16);
-		fConst18 = (3 * fConst16);
-		for (int i=0; i<4; i++) fRec11[i] = 0;
 	}
 	virtual void init(int samplingFreq) {
 		classInit(samplingFreq);
@@ -1389,12 +1372,6 @@ class mydsp : public dsp{
 		interface->addCheckButton("ON", &fcheckbox2);
 		interface->addVerticalSlider("gain3", &fslider3, 6.0, -1e+01, 2e+01, 0.1);
 		interface->closeBox();
-		interface->openHorizontalBox("tone");
-		interface->addVerticalSlider("Bass", &fslider5, 0.5, 0.0, 1.0, 0.01);
-		interface->addVerticalSlider("Middle", &fslider4, 0.5, 0.0, 1.0, 0.01);
-		interface->addCheckButton("ON", &fcheckbox3);
-		interface->addVerticalSlider("Treble", &fslider6, 0.5, 0.0, 1.0, 0.01);
-		interface->closeBox();
 		interface->closeBox();
 	}
 	virtual void compute (int count, FAUSTFLOAT** input, FAUSTFLOAT** output) {
@@ -1405,35 +1382,6 @@ class mydsp : public dsp{
 		int 	iSlow4 = int(fcheckbox1);
 		double 	fSlow5 = pow(10,(0.05 * fslider3));
 		int 	iSlow6 = int(fcheckbox2);
-		double 	fSlow7 = fslider4;
-		double 	fSlow8 = (3.0937500000000006e-07 * fSlow7);
-		double 	fSlow9 = exp((3.4 * (fslider5 - 1)));
-		double 	fSlow10 = (1.08515e-06 + ((3.108600000000001e-05 * fSlow9) + (fSlow7 * (((1.2375000000000003e-05 * fSlow9) - 2.99475e-07) - fSlow8))));
-		double 	fSlow11 = ((1.8513000000000002e-09 * fSlow9) - (4.628250000000001e-11 * fSlow7));
-		double 	fSlow12 = (3.3880000000000003e-09 * fSlow9);
-		double 	fSlow13 = (8.470000000000002e-11 + (fSlow12 + (fSlow7 * (fSlow11 - 3.8417500000000006e-11))));
-		double 	fSlow14 = (fConst16 * fSlow13);
-		double 	fSlow15 = (0.00055 * fSlow7);
-		double 	fSlow16 = (0.022500000000000003 * fSlow9);
-		double 	fSlow17 = (fConst16 * (0.0031515000000000002 + (fSlow16 + fSlow15)));
-		double 	fSlow18 = ((fSlow17 + (fConst17 * (fSlow14 - fSlow10))) - 1);
-		double 	fSlow19 = (fConst18 * fSlow13);
-		double 	fSlow20 = ((fConst17 * (fSlow10 + fSlow19)) - (3 + fSlow17));
-		double 	fSlow21 = ((fSlow17 + (fConst17 * (fSlow10 - fSlow19))) - 3);
-		double 	fSlow22 = (1.0 / (0 - (1 + (fSlow17 + (fConst17 * (fSlow10 + fSlow14))))));
-		double 	fSlow23 = fslider6;
-		double 	fSlow24 = ((fSlow7 * (4.628250000000001e-11 + fSlow11)) + (fSlow23 * (fSlow12 + (8.470000000000002e-11 - (8.470000000000002e-11 * fSlow7)))));
-		double 	fSlow25 = (fConst18 * fSlow24);
-		double 	fSlow26 = (9.955000000000001e-08 + (((3.08e-07 * fSlow23) + (fSlow7 * (3.781250000000001e-07 - fSlow8))) + (fSlow9 * (3.982e-06 + (1.2375000000000003e-05 * fSlow7)))));
-		double 	fSlow27 = (0.0005625000000000001 + (fSlow16 + (fSlow15 + (0.000125 * fSlow23))));
-		double 	fSlow28 = (fConst16 * fSlow27);
-		double 	fSlow29 = (fSlow28 + (fConst17 * (fSlow26 - fSlow25)));
-		double 	fSlow30 = (fConst16 * fSlow24);
-		double 	fSlow31 = (fSlow28 + (fConst17 * (fSlow30 - fSlow26)));
-		double 	fSlow32 = (fConst16 * (0 - fSlow27));
-		double 	fSlow33 = (fSlow32 + (fConst17 * (fSlow26 + fSlow25)));
-		double 	fSlow34 = (fSlow32 - (fConst17 * (fSlow26 + fSlow30)));
-		int 	iSlow35 = int(fcheckbox3);
 		FAUSTFLOAT* input0 = input[0];
 		FAUSTFLOAT* output0 = output[0];
 		for (int i=0; i<count; i++) {
@@ -1459,11 +1407,8 @@ class mydsp : public dsp{
 			fRec10[0] = (fConst15 * ((fConst14 * fRec10[1]) + (0.0082 * (fVec4[0] + fVec4[1]))));
 			fRec8[0] = Ftube(1, (fRec10[0] + fRec9[0]));
 			fRec7[0] = ((fConst6 * ((0.025 * fRec8[0]) - (0.025 * fRec8[1]))) + (fConst2 * fRec7[1]));
-			double fTemp6 = ((iSlow6)?(fSlow5 * fRec7[0]):fVec3[0]);
-			fRec11[0] = (fTemp6 - (fSlow22 * (((fSlow21 * fRec11[2]) + (fSlow20 * fRec11[1])) + (fSlow18 * fRec11[3]))));
-			output0[i] = (FAUSTFLOAT)((iSlow35)?(fSlow22 * ((fSlow34 * fRec11[0]) + ((fSlow33 * fRec11[1]) + ((fSlow31 * fRec11[3]) + (fSlow29 * fRec11[2]))))):fTemp6);
+			output0[i] = (FAUSTFLOAT)((iSlow6)?(fSlow5 * fRec7[0]):fVec3[0]);
 			// post processing
-			for (int i=3; i>0; i--) fRec11[i] = fRec11[i-1];
 			fRec7[1] = fRec7[0];
 			fRec8[1] = fRec8[0];
 			fRec10[1] = fRec10[0];
@@ -1515,10 +1460,6 @@ DspBlock::DspBlock()
 	registerVar("test.stage2.gain2","","S","",&fslider2,6.0,-1e+01,2e+01,0.1);
 	registerVar("test.stage3.ON","","B","",&fcheckbox2,0,0,1,1);
 	registerVar("test.stage3.gain3","","S","",&fslider3,6.0,-1e+01,2e+01,0.1);
-	registerVar("test.tone.Bass","","S","",&fslider5,0.5,0.0,1.0,0.01);
-	registerVar("test.tone.Middle","","S","",&fslider4,0.5,0.0,1.0,0.01);
-	registerVar("test.tone.ON","","B","",&fcheckbox3,0,0,1,1);
-	registerVar("test.tone.Treble","","S","",&fslider6,0.5,0.0,1.0,0.01);
 	registerInit(Exp::init);
 #ifdef DSP_HAS_SETUP
 	registerSetup(Exp::setup);

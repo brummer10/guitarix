@@ -156,7 +156,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/reso_tube.cc"
 #include "faust-cc/tube.cc"
 #include "faust-cc/tubevibrato.cc"
-#include "faust-cc/tone.cc"
+#include "faust-cc/tonestack.cc"
 #include "faust-cc/multifilter.cc"
 #include "faust-cc/bassbooster.cc"
 #include "faust-cc/feed.cc"

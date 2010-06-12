@@ -285,9 +285,12 @@ void GxMainInterface::setup()
 							//----- open a box for the tone and the fuzz controllers
 							openVerticalBox("tone");
 							{
-								addregler("amp.tone.bass");
-								addregler("amp.tone.middle");
-								addregler("amp.tone.treble");
+								addregler("amp.tonestack.Bass");
+								addregler("amp.tonestack.Middle");
+								addregler("amp.tonestack.Treble");
+                                const char* labels[9]  ={"default","Bassman", "Twin Reverb","Princeton","JCM-800", "JCM-2000", "M-Lead", "M2199", "AC-30"};
+                                            addselector("amp.tonestack.select",9,labels,"");
+
 								openVerticalBox1("");
 								closeBox();
 							}
