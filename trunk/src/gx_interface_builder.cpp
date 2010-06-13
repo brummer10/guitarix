@@ -275,7 +275,7 @@ void GxMainInterface::setup()
 							openVerticalBox("");
 							{
 
-                                openVerticalBox("volume");
+                                openFlipLabelBox("volume");
                                 {
                                     openHorizontalBox("");
                                     {
@@ -283,12 +283,14 @@ void GxMainInterface::setup()
                                         addbigregler("amp.out_master");
                                     }
                                     closeBox();
+                                    openSpaceBox("");
+                                        closeBox();
                                 }
                                 closeBox();
                                 //----- volume controll ready
 
                                 //----- open a box for the tone and the fuzz controllers
-                                openVerticalBox("tone");
+                                openFlipLabelBox("tone");
                                 {
                                     openHorizontalBox("");
                                     {
@@ -309,10 +311,8 @@ void GxMainInterface::setup()
                                     closeBox();
                                     openHorizontalBox("");
                                     {
-
                                         const char* labels[9]  ={"default","Bassman", "Twin Reverb","Princeton","JCM-800", "JCM-2000", "M-Lead", "M2199", "AC-30"};
-                                                    addselector("amp.tonestack.select",9,labels,"");
-
+                                        addselector("amp.tonestack.select",9,labels,"");
                                         openVerticalBox1("");
                                         closeBox();
                                     }

@@ -178,6 +178,7 @@ public :
 	virtual void openHorizontalhideBox(const char* label = "");
 	virtual void openVerticalBox(const char* label = "");
 	virtual void openVerticalBox1(const char* label = "");
+	virtual void openFlipLabelBox(const char* = "");
 	virtual void openVerticalMidiBox(const char* label = "");
 	virtual void openDialogBox(const char* label, float* zone, int * z1);
 	virtual void openPatchInfoBox(float* zone);

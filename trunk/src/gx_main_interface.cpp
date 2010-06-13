@@ -794,6 +794,39 @@ void GxMainInterface::openVerticalBox(const char* label)
 	}
 }
 
+void GxMainInterface::openFlipLabelBox(const char* label)
+{
+	GtkWidget * box = gtk_vbox_new (homogene, 0);
+	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+	g_signal_connect(box, "expose-event", G_CALLBACK(box10_expose), NULL);
+
+	if (fMode[fTop] != kTabMode && label[0] != 0)
+	{
+	    GtkWidget * hbox = gtk_hbox_new (homogene, 0);
+	    GtkWidget * vbox = gtk_vbox_new (homogene, 0);
+		GtkWidget* lw = gtk_label_new(label);
+        gtk_label_set_angle (GTK_LABEL(lw),90);
+
+		gtk_widget_set_name (lw,"beffekt_label");
+		GtkStyle *style = gtk_widget_get_style(lw);
+		pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+		pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+		gtk_widget_modify_font(lw, style->font_desc);
+
+		gtk_container_add (GTK_CONTAINER(hbox), lw);
+		gtk_container_add (GTK_CONTAINER(hbox), vbox);
+		gtk_container_add (GTK_CONTAINER(box), hbox);
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+
+		gtk_widget_show_all(box);
+		pushBox(kBoxMode, vbox);
+	}
+	else
+	{
+		pushBox(kBoxMode, addWidget(label, box));
+	}
+}
+
 void GxMainInterface::openSpaceBox(const char* label)
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 2);
@@ -1184,7 +1217,7 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 			gx_jconv::GxJConvSettings::checkbutton7 = 0;
 		}
 	}
-	if(GDK_WINDOW(gx_gui::patch_info->window)) gdk_window_invalidate_rect(GDK_WINDOW(patch_info->window),NULL,false);
+	//if(GDK_WINDOW(gx_gui::patch_info->window)) gdk_window_invalidate_rect(GDK_WINDOW(patch_info->window),NULL,false);
 }
 
 void GxMainInterface::addJToggleButton(const char* label, float* zone)
