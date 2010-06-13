@@ -309,12 +309,11 @@ void GxMainInterface::setup()
                                     closeBox();
                                     openHorizontalBox("");
                                     {
-                                        openSpaceBox("");
-                                        closeBox();
+
                                         const char* labels[9]  ={"default","Bassman", "Twin Reverb","Princeton","JCM-800", "JCM-2000", "M-Lead", "M2199", "AC-30"};
                                                     addselector("amp.tonestack.select",9,labels,"");
 
-                                        openSpaceBox("");
+                                        openVerticalBox1("");
                                         closeBox();
                                     }
                                     closeBox();

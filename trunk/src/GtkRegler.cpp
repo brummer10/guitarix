@@ -1807,7 +1807,7 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 	klass->b_toggle_step = 1;
 
 //--------- selector size and steps
-	klass->selector_x = 75 ;
+	klass->selector_x = 65 ;
 	klass->selector_y = 15 ;
 	klass->selector_step = 6;
 
