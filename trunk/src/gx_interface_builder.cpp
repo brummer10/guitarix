@@ -220,6 +220,8 @@ void GxMainInterface::setup()
                                     {
                                         openHorizontalBox("");
                                         {
+                                            openSpaceBox("");
+                                            closeBox();
                                             addminiswitch("eq.on_off", "EQ");
                                             openDialogBox("eq", &gx_engine::audio.fdialogbox_eq,  &gx_engine::audio.feq);
                                             {
@@ -374,39 +376,28 @@ void GxMainInterface::setup()
 
 									openVerticalBox1("");
 									{
-									    addminiswitch("amp.oversample.on_off", " oversample ");
+									    addminiswitch("amp.oversample.on_off", "oversample ");
 									    const char* labels[8]  ={"  1x","  2x", "  3x","  4x","  5x", "  6x", "  7x", "  8x"};
 										addselector("amp.select",8,labels,"");
-
-
 									}
 									closeBox();
-									openVerticalBox1("");
-									{
-									}
-									closeBox();
-									openVerticalBox1("");
-									{
-									addminiswitch("amp.bass_boost.on_off", " bass boost ");
-									openVerticalBox1("");
-									closeBox();
-									openVerticalBox1("");
-									closeBox();
-									}
-									closeBox();
-									openVerticalBox1("");
-									{
-									}
-									closeBox();
-									openVerticalBox1("");
-									{
 
-                                            addminiswitch("convolve.on_off", "amp tune  ");
-                                            const char* labels[7]  ={"amp 1","amp 2", "amp 3","amp 4","amp 5", "amp 6", "amp 7"};
-                                            addselector("convolve.select",7,labels,"");
-
+									openVerticalBox1("");
+									{
+                                        addminiswitch("amp.bass_boost.on_off", "bass boost ");
                                         openVerticalBox1("");
                                         closeBox();
+                                        openVerticalBox1("");
+                                        closeBox();
+									}
+									closeBox();
+
+									openVerticalBox1("");
+									{
+                                        addminiswitch("convolve.on_off", "amp tune    ");
+                                        const char* labels[7]  ={"amp 1","amp 2", "amp 3","amp 4","amp 5", "amp 6", "amp 7"};
+                                        addselector("convolve.select",7,labels,"");
+
 									}
 									closeBox();
 								}
