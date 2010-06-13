@@ -1057,8 +1057,8 @@ void GxMainInterface::setup()
                                                         addregler("SampleLooper.gain"," gain ");
                                                         openVerticalBox1("");
                                                         {
-                                                        addswitch("SampleLooper.Capture","  capture ");
-                                                        addswitch("SampleLooper.Play","  play ");
+                                                        addminiswitch("SampleLooper.Capture","capture ");
+                                                        addminiswitch("SampleLooper.Play"," play       ");
                                                         }
                                                         closeBox();
                                                     }

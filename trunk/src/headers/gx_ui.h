@@ -103,6 +103,7 @@ public:
 	virtual void addtoggle(const char* label, float* zone){};
 	virtual void addbtoggle(const char* label, int* zone){};
 	virtual void addbtoggle(const char* label, float* zone){};
+	virtual void addswitch(const char* label, int* zone){};
 	virtual void addswitch(const char* label, float* zone){};
 	virtual void addminiswitch(const char* label, int* zone){};
 	virtual void addminiswitch(const char* label, float* zone){};
