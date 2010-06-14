@@ -175,6 +175,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/echo.cc"
 #include "faust-cc/delay.cc"
 #include "faust-cc/distortion.cc"
+#include "faust-cc/distortion1.cc"
 #include "faust-cc/freeverb.cc"
 #include "faust-cc/impulseresponse.cc"
 #include "faust-cc/chorus.cc"

@@ -50,7 +50,7 @@ public:
 	int fresoon;
 	float posit0;
 	int fcheckbox5;
-	int fautowah;
+	float fautowah;
 	int fcheckboxcom1;
 	float posit1;
 	float posit2;
@@ -103,6 +103,8 @@ public:
 	float upsample_mode;
 	float fampexpand;
 	int fsloop;
+	float witchdistortion;
+	float fdis1;
 
 	AudioVariables();
 };

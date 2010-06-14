@@ -294,9 +294,9 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("distortion.low_drive","","S","",&fslider12, 0.64, 0.0, 1.0, 0.01);
-	registerVar("distortion.low_gain","","S","",&fslider11, 2.0, -1e+01, 2e+01, 0.1);
-	registerVar("distortion.high_drive","","S","",&fslider10, 0.64, 0.0, 1.0, 0.01);
+	registerVar("distortion.low_drive","","S","",&fslider12, 1.0, 0.0, 1.0, 0.01);
+	registerVar("distortion.low_gain","","S","",&fslider11, 1e+01, -1e+01, 2e+01, 0.1);
+	registerVar("distortion.high_drive","","S","",&fslider10, 1.0, 0.0, 1.0, 0.01);
 	registerVar("distortion.low_highpass.on_off","low highpass","B","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
 	registerVar("distortion.resonator.on_off","resonat","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	registerVar("distortion.low_highcutoff.on_off","low highcutoff","B","",&fcheckbox2, 0.0, 0.0, 1.0, 1.0);
@@ -304,15 +304,15 @@ RegisterParams::RegisterParams()
 	registerVar("distortion.split_high_freq","","S","",&fentry0, 6.5e+02, 6e+02, 1.25e+03, 1e+01);
 	registerVar("distortion.low_highpass.high_freq","high freq","S","",&fentry3, 1.3e+02, 2e+01, 7.04e+03, 1e+01);
 	registerVar("distortion.low_highpass.low_freq","low freq","S","",&fentry2, 5e+03, 2e+01, 1.2e+04, 1e+01);
-	registerVar("distortion.middle_drive","","S","",&fslider7, 0.64, 0.0, 1.0, 0.01);
+	registerVar("distortion.middle_drive","","S","",&fslider7, 1.0, 0.0, 1.0, 0.01);
 	registerVar("distortion.level","","S","",&fslider6, 0.01, 0.0, 0.5, 0.01);
 	registerVar("distortion.low_highcutoff.low_freq","low freq","S","low-freq cutoff Hz",&fslider5, 1.3e+02, 2e+01, 1e+03, 1e+01);
 	registerVar("distortion.low_highcutoff.high_freq","high freq","S","high-freq cutoff Hz",&fslider4, 5e+03, 1e+03, 1.2e+04, 1e+01);
 	registerVar("distortion.vibrato","","S","",&fslider3, 1.0, 0.0, 1.0, 0.01);
 	registerVar("distortion.trigger","","S","",&fslider2, 0.12, 0.0, 1.0, 0.01);
-	registerVar("distortion.middle_gain","","S","",&fslider1, 2.0, -1e+01, 2e+01, 0.1);
+	registerVar("distortion.middle_gain","","S","",&fslider1, 1e+01, -1e+01, 2e+01, 0.1);
 	registerVar("distortion.gain","","S","",&fslider0, 2.0, -1e+01, 1e+01, 0.1);
-	registerVar("distortion.high_gain","","S","",&fslider9, 2.0, -1e+01, 2e+01, 0.1);
+	registerVar("distortion.high_gain","","S","",&fslider9, 1e+01, -1e+01, 2e+01, 0.1);
 	registerVar("distortion.drive","","S","",&fslider8, 0.64, 0.0, 1.0, 0.01);
 	registerInit(init);
 }

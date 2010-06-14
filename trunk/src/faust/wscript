@@ -92,6 +92,7 @@ def build(bld):
         'echo.dsp',
         'delay.dsp',
         'distortion.dsp',
+        'distortion1.dsp',
         'freeverb.dsp',
         'impulseresponse.dsp',
         'chorus.dsp',

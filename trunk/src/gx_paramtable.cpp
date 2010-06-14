@@ -474,10 +474,14 @@ ParameterGroups::ParameterGroups()
 	insert("amp.tonestack","Tonestack");
 	insert("compressor","Compressor");
 	insert("overdrive","Overdrive");
-	insert("distortion","Distortion");
+	insert("distortion","Multi Band Distortion");
 	insert("distortion.low_highpass","Distortion low/highpass");
 	insert("distortion.low_highcutoff","Distortion low/highcutoff");
 	insert("distortion.resonator","Distortion resonator");
+	insert("distortion1","Single Band Distortion");
+	insert("distortion1.low_highpass","Distortion low/highpass");
+	insert("distortion1.low_highcutoff","Distortion low/highcutoff");
+	insert("distortion1.resonator","Distortion resonator");
 	insert("freeverb","Freeverb");
 	insert("IR","ImpulseResponse");
 	insert("crybaby","Crybaby");

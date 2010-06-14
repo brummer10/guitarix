@@ -91,9 +91,11 @@ AudioVariables::AudioVariables()
 {
 	registerEnumParam("amp.threshold", "threshold", &ffuse, 0.f, 0.f, 3.f, 1.0f);
 	gx_gui::registerParam("MultiBandFilter.on_off", "on/off", &fmultifilter, 0);
-	gx_gui::registerParam("crybaby.autowah", "autowah", &fautowah, 0);
+	//gx_gui::registerParam("crybaby.autowah", "autowah", &fautowah, 0);
+	registerEnumParam("crybaby.autowah", "select", &fautowah, 0.f, 0.f, 1.f, 1.0f);
 	gx_gui::registerParam("overdrive.on_off", "on/off", &foverdrive4, 0);
 	gx_gui::registerParam("distortion.on_off", "on/off", &fcheckbox4, 0);
+	registerEnumParam("distortion.onetwo", "select", &witchdistortion, 0.f, 0.f, 1.f, 1.0f);
 	gx_gui::registerParam("freeverb.on_off", "on/off", &fcheckbox6, 0);
 	gx_gui::registerParam("IR.on_off", "on/off", &fcheckbox8, 0);
 	gx_gui::registerParam("crybaby.on_off", "on/off", &fcheckbox5, 0);
@@ -499,7 +501,8 @@ void process_buffers(int count, float* input, float* output0)
             resampTube.setup(gx_jack::jack_sr, t_upsample);
             resampDist.setup(gx_jack::jack_sr, t_upsample);
             osc_tube::init(t_upsample * gx_jack::jack_sr);
-            distortion::init(t_upsample * gx_jack::jack_sr);
+            if(audio.witchdistortion) distortion1::init(t_upsample * gx_jack::jack_sr);
+            else distortion::init(t_upsample * gx_jack::jack_sr);
         }
 	    resampTube.up(count, output0, oversample);
 	    ovs_sr = t_upsample * gx_jack::jack_sr;
@@ -513,7 +516,8 @@ void process_buffers(int count, float* input, float* output0)
     if (audio.fupsample != fupsample_old) {
 	    fupsample_old = audio.fupsample;
 	    osc_tube::init(ovs_sr);
-	    distortion::init(ovs_sr);
+	    if(audio.witchdistortion) distortion1::init(ovs_sr);
+	    else distortion::init(ovs_sr);
     }
     if (audio.antialis0) {
 	    AntiAlias::compute(ovs_count, ovs_buffer, ovs_buffer);
@@ -594,11 +598,13 @@ void process_buffers(int count, float* input, float* output0)
                 // 2*oversample
                 //over_sample(count, output0, oversample);
                 resampDist.up(count, output0, oversample);
-                distortion::compute(ovs_count, oversample, oversample);
+                if(audio.witchdistortion) distortion1::compute(ovs_count, oversample, oversample);
+                else distortion::compute(ovs_count, oversample, oversample);
                 resampDist.down(count, oversample, output0);
                 //down_sample(count, oversample, output0);
 	        } else {
-                distortion::compute(count, output0, output0);
+                if(audio.witchdistortion) distortion1::compute(count, output0, output0);
+                else distortion::compute(count, output0, output0);
 	        }
 	    } else if (audio.posit3 == m && audio.fcheckbox6) {
 		    freeverb::compute(count, output0, output0);

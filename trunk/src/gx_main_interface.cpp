@@ -1047,6 +1047,75 @@ void GxMainInterface::openScrollBox(const char* label)
 
 }
 
+struct uiSwitchBox : public gx_ui::GxUiItem
+{
+	GtkWidget* fbox;
+
+	uiSwitchBox(gx_ui::GxUI* ui, float* zone, GtkWidget* box)
+		: gx_ui::GxUiItem(ui, zone), fbox(box) {}
+
+	virtual void reflectZone()
+		{
+            GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(fbox));
+
+			GtkWidget *box0 = (GtkWidget *) g_list_nth_data(child_list,0);
+			GtkWidget *box1 = (GtkWidget *) g_list_nth_data(child_list,1);
+			fCache = *fZone;
+			if (fCache == 1)
+			{
+			    if(gx_engine::audio.fdialogbox1 ==1)
+                    gx_engine::audio.fdis1 = 1;
+                gtk_widget_hide(box0);
+
+                gx_engine::audio.fdialogbox1 = 0;
+                gtk_widget_show(box1);
+			}
+			else if (fCache == 0)
+			{
+			    if(gx_engine::audio.fdis1 ==1)
+                    gx_engine::audio.fdialogbox1 = 1;
+				gtk_widget_hide(box1);
+
+				gx_engine::audio.fdis1 = 0;
+                gtk_widget_show(box0);
+			}
+		}
+};
+
+
+void GxMainInterface::openVerticalSwitchBox(const char* label, int state, float* zone)
+{
+	GtkWidget * box = gtk_vbox_new (homogene, 0);
+	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+	g_signal_connect(box, "expose-event", G_CALLBACK(box10_expose), NULL);
+
+	if (fMode[fTop] != kTabMode && label[0] != 0)
+	{
+
+        new uiSwitchBox(this, zone, GTK_WIDGET(box));
+		//GtkWidget* lw = gtk_label_new(label);
+        GtkWidget * box0 = gtk_vbox_new (homogene, 0);
+        GtkWidget * box1 = gtk_vbox_new (homogene, 0);
+        gtk_container_set_border_width (GTK_CONTAINER (box0), 0);
+        gtk_container_set_border_width (GTK_CONTAINER (box1), 0);
+		//gtk_container_add (GTK_CONTAINER(box), lw);
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+		gtk_container_add (GTK_CONTAINER(box), box0);
+		gtk_container_add (GTK_CONTAINER(box), box1);
+
+		gtk_widget_hide(box0);
+		gtk_widget_hide(box1);
+		gtk_widget_show(box);
+		//addWidget(label,  box);
+		if(state == 0) pushBox(kBoxMode, box0);
+		else pushBox(kBoxMode, box1);
+	}
+	else
+	{
+		pushBox(kBoxMode, addWidget(label, box));
+	}
+}
+
 GtkWidget* GxMainInterface::addWidget(const char* label, GtkWidget* w)
 {
 	switch (fMode[fTop])
