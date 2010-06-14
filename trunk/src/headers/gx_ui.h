@@ -108,6 +108,7 @@ public:
 	virtual void addminiswitch(const char* label, int* zone){};
 	virtual void addminiswitch(const char* label, float* zone){};
 	virtual void addminieqswitch(const char* label, float* zone){};
+	virtual void addminicabswitch(const char* label, int* zone){};
 	virtual void addNumEntry(const char* label, float* zone, float init, float min, float max, float step) {};
 	virtual void addNumDisplay(const char* label, float* zone) {};
 	virtual void addLiveWaveDisplay(const char* label, float* zone , float* zone1) {};

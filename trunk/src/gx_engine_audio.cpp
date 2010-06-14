@@ -124,6 +124,7 @@ AudioVariables::AudioVariables()
 	gx_gui::registerParam("SampleLooper.on_off", "on/off", &fsloop, 0);
 	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
 	registerEnumParam("amp.select", "select", &upsample_mode, 4.f, 1.f, 8.f, 1.0f);
+	gx_gui::registerParam("cab.on_off", "Cab-ImpResp", &fcab,0);
 
 	// only save and restore, no midi control
 
@@ -571,10 +572,12 @@ void process_buffers(int count, float* input, float* output0)
             //FIXME switch button off
             cout << "overload" << endl;
             //FIXME error message??
-        }
     }
 #endif // EXPERIMENTAL
 
+    }
+    if(audio.fcab)
+        cab_conv.compute(count, output0);
     if (audio.fconvolve) {
 	    convolver_filter(output0, output0, count, (unsigned int)audio.convolvefilter);
     }

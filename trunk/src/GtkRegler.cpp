@@ -547,10 +547,10 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 
 //---------- selector button
 	else if (regler->regler_type == 11) {
-		reglerx += ((widget->allocation.width -
+		/*reglerx += ((widget->allocation.width -
 		            klass->selector_x) *0.5)+2;
 		reglery += (widget->allocation.height -
-		            klass->selector_y) *0.5;
+		            klass->selector_y) *0.5; */
 		int reglerstate = (int)((adj->value - adj->lower) *
 		                        regler->max_value / (adj->upper - adj->lower));
 		if(reglerstate > regler->max_value-1) {
@@ -560,12 +560,12 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 
 		cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
 		cairo_set_line_width (cr, 2.0);
-		cairo_rectangle (cr, reglerx+1,reglery+1,widget->allocation.width-12,widget->allocation.height-2);
+		cairo_rectangle (cr, reglerx+8,reglery+1,widget->allocation.width-18,widget->allocation.height-2);
 		cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
 		cairo_fill_preserve (cr);
 		cairo_set_source_rgb (cr, 0, 0, 0);
 		cairo_stroke (cr);
-		cairo_rectangle (cr, reglerx+widget->allocation.width-21,reglery+2,9,widget->allocation.height-4);
+		cairo_rectangle (cr, reglerx+widget->allocation.width-19,reglery+2,9,widget->allocation.height-4);
 		cairo_set_source_rgb (cr, 0, 0, 0);
 		cairo_fill_preserve (cr);
 		cairo_set_line_width (cr, 1.0);
@@ -577,7 +577,7 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 
 		cairo_set_source_rgba (cr, 0.4, 1, 0.2, 0.8);
 		cairo_set_font_size (cr, 10.0);
-		cairo_move_to (cr, reglerx+1, reglery+11);
+		cairo_move_to (cr, reglerx+10, reglery+11);
 		cairo_show_text(cr, tir.str().c_str());
 		cairo_stroke (cr);
 		cairo_destroy(cr);
@@ -911,14 +911,14 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
 
 //---------- selector button
 	else if (regler->regler_type == 11) {
-		reglerx += ((widget->allocation.width -
+		/*reglerx += ((widget->allocation.width -
 		            klass->selector_x) *0.5)+2;
 		reglery += (widget->allocation.height -
-		            klass->selector_y) *0.5;
+		            klass->selector_y) *0.5; */
 
 		cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
 
-		cairo_rectangle (cr, reglerx+widget->allocation.width-21,reglery+2,9,widget->allocation.height-4);
+		cairo_rectangle (cr, reglerx+widget->allocation.width-19,reglery+2,9,widget->allocation.height-4);
 		cairo_set_source_rgb (cr, 0, 0, 0);
 		cairo_fill_preserve (cr);
 		cairo_set_line_width (cr, 1.0);
@@ -1175,19 +1175,19 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 
 //---------- selector button
 	else if (regler->regler_type == 11) {
-		reglerx += ((widget->allocation.width -
+		/*reglerx += ((widget->allocation.width -
 		            klass->selector_x) *0.5)+2;
 		reglery += (widget->allocation.height -
-		            klass->selector_y) *0.5;
+		            klass->selector_y) *0.5; */
 
 		cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
 
-		cairo_rectangle (cr, reglerx+widget->allocation.width-21,reglery+2,9,widget->allocation.height-4);
+		cairo_rectangle (cr, reglerx+widget->allocation.width-19,reglery+2,9,widget->allocation.height-4);
 		cairo_set_source_rgb (cr, 0, 0, 0);
 		cairo_fill_preserve (cr);
-		cairo_move_to(cr,reglerx+widget->allocation.width-20,reglery+10);
-		cairo_line_to (cr,reglerx+widget->allocation.width-16 , reglery+4);
-		cairo_line_to (cr,reglerx+widget->allocation.width-12 , reglery+10);
+		cairo_move_to(cr,reglerx+widget->allocation.width-18,reglery+10);
+		cairo_line_to (cr,reglerx+widget->allocation.width-14 , reglery+4);
+		cairo_line_to (cr,reglerx+widget->allocation.width-10 , reglery+10);
 		cairo_set_line_width (cr, 1.0);
 		cairo_set_source_rgb (cr, 0.3, 0.3, 0.3);
 		cairo_stroke (cr);

@@ -105,6 +105,7 @@ public:
 	int fsloop;
 	float witchdistortion;
 	float fdis1;
+	int fcab;
 
 	AudioVariables();
 };

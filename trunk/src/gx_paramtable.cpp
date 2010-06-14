@@ -493,6 +493,7 @@ ParameterGroups::ParameterGroups()
 	insert("biquad","BiQuad Filter");
 	insert("flanger","Flanger");
 	insert("SampleLooper","Sample Looper");
+	insert("cab","Cab-ImpResp");
 	insert("midi_out","Midi Out");
 	insert("midi_out.channel_1","Midi Out 1");
 	insert("midi_out.channel_2","Midi Out 2");

@@ -1249,10 +1249,10 @@ void faust_setup()
     gtk_widget_show(w);
     gtk_box_pack_start(GTK_BOX(hbox), w, 0, 0, 20);
     gtk_signal_connect(GTK_OBJECT(w), "toggled", GTK_SIGNAL_FUNC(exp_hs_toggled), NULL);
-    w = gtk_check_button_new_with_label("Cab-ImpResp");
-    gtk_widget_show(w);
-    gtk_box_pack_start(GTK_BOX(hbox), w, 0, 0, 20);
-    gtk_signal_connect(GTK_OBJECT(w), "toggled", GTK_SIGNAL_FUNC(exp_cab_conv_toggled), NULL);
+   // w = gtk_check_button_new_with_label("Cab-ImpResp");
+   // gtk_widget_show(w);
+   // gtk_box_pack_start(GTK_BOX(hbox), w, 0, 0, 20);
+   // gtk_signal_connect(GTK_OBJECT(w), "toggled", GTK_SIGNAL_FUNC(exp_cab_conv_toggled), NULL);
     hbox = gtk_hbox_new(false, 10);
     gtk_widget_show(hbox);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, 0, 0, 5);
