@@ -491,7 +491,16 @@ struct uiOrderButton : public gx_ui::GxUiItem
 
 				gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per +1);
 				((gx_ui::GxUiItem*)data)->modifyZone(per+1);
-				gtk_button_clicked(GTK_BUTTON(obibi));
+				if(GTK_IS_BUTTON (obibi))
+                    gtk_button_clicked(GTK_BUTTON(obibi));
+				else {
+				    child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
+				    obib = (GtkWidget *) g_list_nth_data(child_list,2);
+				    child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
+				    obibi = (GtkWidget *) g_list_nth_data(child_list,0);
+				    if(GTK_IS_BUTTON (obibi))
+                        gtk_button_clicked(GTK_BUTTON(obibi));
+				}
 
 				g_list_free(child_list);
 			}
@@ -520,7 +529,16 @@ struct uiOrderButton : public gx_ui::GxUiItem
 
 				gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per -1);
 				((gx_ui::GxUiItem*)data)->modifyZone(per-1);
-				gtk_button_clicked(GTK_BUTTON(obibi));
+				if(GTK_IS_BUTTON (obibi))
+                    gtk_button_clicked(GTK_BUTTON(obibi));
+				else {
+				    child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
+				    obib = (GtkWidget *) g_list_nth_data(child_list,2);
+				    child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
+				    obibi = (GtkWidget *) g_list_nth_data(child_list,0);
+				    if(GTK_IS_BUTTON (obibi))
+                        gtk_button_clicked(GTK_BUTTON(obibi));
+				}
 
 				g_list_free(child_list);
 			}

@@ -642,7 +642,7 @@ void GxMainInterface::setup()
 													addtoggle("distortion.on_off", "");
 
 													//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-													{
+
 														openDialogBox("distortion", &gx_engine::audio.fdialogbox1, &gx_engine::audio.fcheckbox4);
 														{
 														    openPlugBox("");
@@ -734,7 +734,7 @@ void GxMainInterface::setup()
 															closeBox();
 														}
 														closeBox();
-													}
+
 													//----- end advanced settings widget
 													closeBox();
 												}

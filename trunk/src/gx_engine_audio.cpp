@@ -501,8 +501,8 @@ void process_buffers(int count, float* input, float* output0)
             resampTube.setup(gx_jack::jack_sr, t_upsample);
             resampDist.setup(gx_jack::jack_sr, t_upsample);
             osc_tube::init(t_upsample * gx_jack::jack_sr);
-            if(audio.witchdistortion) distortion1::init(t_upsample * gx_jack::jack_sr);
-            else distortion::init(t_upsample * gx_jack::jack_sr);
+            distortion1::init(t_upsample * gx_jack::jack_sr);
+            distortion::init(t_upsample * gx_jack::jack_sr);
         }
 	    resampTube.up(count, output0, oversample);
 	    ovs_sr = t_upsample * gx_jack::jack_sr;
@@ -516,8 +516,8 @@ void process_buffers(int count, float* input, float* output0)
     if (audio.fupsample != fupsample_old) {
 	    fupsample_old = audio.fupsample;
 	    osc_tube::init(ovs_sr);
-	    if(audio.witchdistortion) distortion1::init(ovs_sr);
-	    else distortion::init(ovs_sr);
+	    distortion1::init(ovs_sr);
+	    distortion::init(ovs_sr);
     }
     if (audio.antialis0) {
 	    AntiAlias::compute(ovs_count, ovs_buffer, ovs_buffer);
