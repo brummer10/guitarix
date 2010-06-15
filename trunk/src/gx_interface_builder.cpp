@@ -1138,31 +1138,20 @@ void GxMainInterface::setup()
 										{
 											openHorizontalBox("");
 											{
-											    openVerticalBox("slooper");
+											    openSlooperBox("slooper");
                                                 {
-                                                    openVerticalBox("");
+                                                    openVerticalBox1("");
                                                     {
-                                                        openHorizontalBox("");
-                                                        {
-                                                            openVerticalBox1("");
-                                                            {
-                                                                addminiswitch("SampleLooper.on_off","on");
-                                                                openSpaceBox("");
-                                                                closeBox();
-                                                                openSpaceBox("");
-                                                                closeBox();
-                                                                openSpaceBox("");
-                                                                closeBox();
-                                                            }
-                                                            closeBox();
 
-                                                            addregler("SampleLooper.gain"," gain ");
-                                                        }
-                                                        closeBox();
+
+                                                        addregler("SampleLooper.gain"," gain ");
+
                                                         openHorizontalBox("");
                                                         {
                                                             openSpaceBox("");
                                                             closeBox();
+                                                            addminiswitch("SampleLooper.on_off","");
+
                                                             addRecButton("SampleLooper.Capture","capture ");
                                                             addPlayButton("SampleLooper.Play"," play       ");
                                                             openSpaceBox("");
@@ -1279,7 +1268,7 @@ void GxMainInterface::setup()
                                                     addminicabswitch("cab.on_off","  Cab-ImpResp                ");
 												}
 												closeBox();
-												openVerticalBox("");
+												openSlooperBox("");
 												{
 													openVerticalBox1("");
 													closeBox();

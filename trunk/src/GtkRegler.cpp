@@ -74,6 +74,8 @@ struct GtkReglerClass {
 	GdkPixbuf *led_image;
     GdkPixbuf *rp_image;
 	GdkPixbuf *p_image;
+	GdkPixbuf *rp_image1;
+	GdkPixbuf *p_image1;
 
 //----------- small knob
 	int regler_x;
@@ -966,6 +968,39 @@ static gboolean gtk_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event
 		cairo_destroy(cr);
 	}
 
+		//---------- rec button
+	else if (regler->regler_type == 14) {
+		reglerx += (widget->allocation.width -
+		            klass->rp_x) *0.5;
+		reglery += (widget->allocation.height -
+		            klass->rp_y) *0.5;
+		int reglerstate = (int)((adj->value - adj->lower) *
+		                        klass->rp_step / (adj->upper - adj->lower));
+		if (reglerstate > 0) reglerstate =1;
+			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
+			                klass->rp_image,0, reglerstate *
+			                klass->rp_y, reglerx, reglery,
+			                klass->rp_x,
+			                klass->rp_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+	}
+
+    //---------- play button
+	else if (regler->regler_type == 15) {
+		reglerx += (widget->allocation.width -
+		            klass->rp_x) *0.5;
+		reglery += (widget->allocation.height -
+		            klass->rp_y) *0.5;
+		int reglerstate = (int)((adj->value - adj->lower) *
+		                        klass->rp_step / (adj->upper - adj->lower));
+		if (reglerstate > 0) reglerstate =1;
+			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
+			                klass->p_image,0, reglerstate *
+			                klass->rp_y, reglerx, reglery,
+			                klass->rp_x,
+			                klass->rp_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+	}
+
+
 	return TRUE;
 }
 
@@ -1232,6 +1267,39 @@ static gboolean gtk_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 		cairo_stroke (cr);
 		cairo_destroy(cr);
 	}
+
+		//---------- rec button
+	else if (regler->regler_type == 14) {
+		reglerx += (widget->allocation.width -
+		            klass->rp_x) *0.5;
+		reglery += (widget->allocation.height -
+		            klass->rp_y) *0.5;
+		int reglerstate = (int)((adj->value - adj->lower) *
+		                        klass->rp_step / (adj->upper - adj->lower));
+		if (reglerstate > 0) reglerstate =1;
+			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
+			                klass->rp_image1,0, reglerstate *
+			                klass->rp_y, reglerx, reglery,
+			                klass->rp_x,
+			                klass->rp_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+	}
+
+    //---------- play button
+	else if (regler->regler_type == 15) {
+		reglerx += (widget->allocation.width -
+		            klass->rp_x) *0.5;
+		reglery += (widget->allocation.height -
+		            klass->rp_y) *0.5;
+		int reglerstate = (int)((adj->value - adj->lower) *
+		                        klass->rp_step / (adj->upper - adj->lower));
+		if (reglerstate > 0) reglerstate =1;
+			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
+			                klass->p_image1,0, reglerstate *
+			                klass->rp_y, reglerx, reglery,
+			                klass->rp_x,
+			                klass->rp_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+	}
+
 
 	return TRUE;
 }
@@ -1783,11 +1851,16 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 //----------- rec_button
 		klass->rp_image = gdk_pixbuf_new_from_xpm_data (rbutton_xpm);
 		g_assert(klass->rp_image != NULL);
+		klass->rp_image1 = gdk_pixbuf_copy( klass->rp_image );
+		g_assert(klass->rp_image1 != NULL);
+		gdk_pixbuf_saturate_and_pixelate(klass->rp_image1,klass->rp_image1,10.0,FALSE);
 
 //----------- play_button
 		klass->p_image = gdk_pixbuf_new_from_xpm_data (pbutton_xpm);
 		g_assert(klass->p_image != NULL);
-
+        klass->p_image1 = gdk_pixbuf_copy( klass->p_image );
+		g_assert(klass->p_image1 != NULL);
+		gdk_pixbuf_saturate_and_pixelate(klass->p_image1,klass->p_image1,10.0,FALSE);
 
 		klass->pix_is = 1;
 	}

@@ -812,6 +812,35 @@ void GxMainInterface::openVerticalBox(const char* label)
 	}
 }
 
+void GxMainInterface::openSlooperBox(const char* label)
+{
+	GtkWidget * box = gtk_vbox_new (homogene, 0);
+	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+	g_signal_connect(box, "expose-event", G_CALLBACK(slooper_expose), NULL);
+
+	if (fMode[fTop] != kTabMode && label[0] != 0)
+	{
+		GtkWidget* lw = gtk_label_new(label);
+
+
+		gtk_widget_set_name (lw,"beffekt_label");
+		GtkStyle *style = gtk_widget_get_style(lw);
+		pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+		pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+		gtk_widget_modify_font(lw, style->font_desc);
+
+		gtk_container_add (GTK_CONTAINER(box), lw);
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+		gtk_widget_show(lw);
+		gtk_widget_show(box);
+		pushBox(kBoxMode, box);
+	}
+	else
+	{
+		pushBox(kBoxMode, addWidget(label, box));
+	}
+}
+
 void GxMainInterface::openFlipLabelBox(const char* label)
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 0);
