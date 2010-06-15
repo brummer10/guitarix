@@ -1668,6 +1668,34 @@ void GxMainInterface::addbtoggle(string id, const char* label)
 	}
 }
 
+void GxMainInterface::addRecButton(string id, const char* label)
+{
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
+	Parameter& p = parameter_map[id];
+	if (!label) {
+		label = p.name().c_str();
+	}
+
+		addRecButton(label, &p.getFloat().value);
+
+}
+
+void GxMainInterface::addPlayButton(string id, const char* label)
+{
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
+	Parameter& p = parameter_map[id];
+	if (!label) {
+		label = p.name().c_str();
+	}
+
+		addPlayButton(label, &p.getFloat().value);
+
+}
+
 void GxMainInterface::addminieqswitch(string id, const char* label)
 {
 	if (!parameter_map.hasId(id)) {
@@ -1846,6 +1874,28 @@ void GxMainInterface::addbtoggle(const char* label, float* zone)
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
 	GtkRegler myGtkRegler;
 	GtkWidget* slider = myGtkRegler.gtk_button_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
+	connect_midi_controller(slider, zone);
+	addWidget(label, slider);
+}
+
+void GxMainInterface::addRecButton(const char* label, float* zone)
+{
+	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
+	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+	GtkRegler myGtkRegler;
+	GtkWidget* slider = myGtkRegler.gtk_button_rec_new_with_adjustment(GTK_ADJUSTMENT(adj));
+	connect_midi_controller(slider, zone);
+	addWidget(label, slider);
+}
+
+void GxMainInterface::addPlayButton(const char* label, float* zone)
+{
+	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
+	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
+	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+	GtkRegler myGtkRegler;
+	GtkWidget* slider = myGtkRegler.gtk_button_play_new_with_adjustment(GTK_ADJUSTMENT(adj));
 	connect_midi_controller(slider, zone);
 	addWidget(label, slider);
 }

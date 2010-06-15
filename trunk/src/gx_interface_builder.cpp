@@ -1140,18 +1140,38 @@ void GxMainInterface::setup()
 											{
 											    openVerticalBox("slooper");
                                                 {
-                                                    openHorizontalBox("");
+                                                    openVerticalBox("");
                                                     {
-                                                        addregler("SampleLooper.gain"," gain ");
-                                                        openVerticalBox1("");
+                                                        openHorizontalBox("");
                                                         {
-                                                        addminiswitch("SampleLooper.Capture","capture ");
-                                                        addminiswitch("SampleLooper.Play"," play       ");
+                                                            openVerticalBox1("");
+                                                            {
+                                                                addminiswitch("SampleLooper.on_off","on");
+                                                                openSpaceBox("");
+                                                                closeBox();
+                                                                openSpaceBox("");
+                                                                closeBox();
+                                                                openSpaceBox("");
+                                                                closeBox();
+                                                            }
+                                                            closeBox();
+
+                                                            addregler("SampleLooper.gain"," gain ");
+                                                        }
+                                                        closeBox();
+                                                        openHorizontalBox("");
+                                                        {
+                                                            openSpaceBox("");
+                                                            closeBox();
+                                                            addRecButton("SampleLooper.Capture","capture ");
+                                                            addPlayButton("SampleLooper.Play"," play       ");
+                                                            openSpaceBox("");
+                                                            closeBox();
                                                         }
                                                         closeBox();
                                                     }
                                                     closeBox();
-                                                    addtoggle("SampleLooper.on_off","");
+                                                    //addtoggle("SampleLooper.on_off","");
                                                 }
                                                 closeBox();
 												openPaintBox("");

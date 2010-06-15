@@ -568,16 +568,18 @@ void process_buffers(int count, float* input, float* output0)
         if (exp_upsample_on) {
             resampExp.down(count, oversample, output0);
         }
-        if (!cab_conv.compute(count, output0)) {
+      /*  if (!cab_conv.compute(count, output0)) {
             //FIXME switch button off
             cout << "overload" << endl;
-            //FIXME error message??
+            //FIXME error message?? */
     }
 #endif // EXPERIMENTAL
 
+    if(audio.fcab) {
+        if (!cab_conv.compute(count, output0))
+            cout << "overload" << endl;
+            //FIXME error message??
     }
-    if(audio.fcab)
-        cab_conv.compute(count, output0);
     if (audio.fconvolve) {
 	    convolver_filter(output0, output0, count, (unsigned int)audio.convolvefilter);
     }

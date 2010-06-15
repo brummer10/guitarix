@@ -72,6 +72,8 @@ struct GtkReglerClass {
 	GdkPixbuf *b_toggle_image;
 	GdkPixbuf *b_toggle_image1;
 	GdkPixbuf *led_image;
+    GdkPixbuf *rp_image;
+	GdkPixbuf *p_image;
 
 //----------- small knob
 	int regler_x;
@@ -136,6 +138,11 @@ struct GtkReglerClass {
 //----------- value display
 	int vd_x;
 	int vd_y;
+//----------- rec/play button
+	int rp_x;
+	int rp_y;
+	int rp_step;
+
 };
 
 //------forward declaration
@@ -678,6 +685,38 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 		cairo_stroke (cr);
 
 	cairo_destroy(cr);
+	}
+
+	//---------- rec button
+	else if (regler->regler_type == 14) {
+		reglerx += (widget->allocation.width -
+		            klass->rp_x) *0.5;
+		reglery += (widget->allocation.height -
+		            klass->rp_y) *0.5;
+		int reglerstate = (int)((adj->value - adj->lower) *
+		                        klass->rp_step / (adj->upper - adj->lower));
+		if (reglerstate > 0) reglerstate =1;
+			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
+			                klass->rp_image,0, reglerstate *
+			                klass->rp_y, reglerx, reglery,
+			                klass->rp_x,
+			                klass->rp_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+	}
+
+    //---------- play button
+	else if (regler->regler_type == 15) {
+		reglerx += (widget->allocation.width -
+		            klass->rp_x) *0.5;
+		reglery += (widget->allocation.height -
+		            klass->rp_y) *0.5;
+		int reglerstate = (int)((adj->value - adj->lower) *
+		                        klass->rp_step / (adj->upper - adj->lower));
+		if (reglerstate > 0) reglerstate =1;
+			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
+			                klass->p_image,0, reglerstate *
+			                klass->rp_y, reglerx, reglery,
+			                klass->rp_x,
+			                klass->rp_y, GDK_RGB_DITHER_NORMAL, 0, 0);
 	}
 
 	return TRUE;
@@ -1741,6 +1780,15 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 		g_assert(klass->b_toggle_image != NULL);
 		klass->b_toggle_image1 = gdk_pixbuf_new_from_xpm_data (button1_xpm);
 		g_assert(klass->b_toggle_image1 != NULL);
+//----------- rec_button
+		klass->rp_image = gdk_pixbuf_new_from_xpm_data (rbutton_xpm);
+		g_assert(klass->rp_image != NULL);
+
+//----------- play_button
+		klass->p_image = gdk_pixbuf_new_from_xpm_data (pbutton_xpm);
+		g_assert(klass->p_image != NULL);
+
+
 		klass->pix_is = 1;
 	}
 }
@@ -1817,6 +1865,10 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 //--------- led
 	klass->vd_x = -1 ;
 	klass->vd_y = 25 ;
+//--------- led
+	klass->rp_x = 22 ;
+	klass->rp_y = 23 ;
+	klass->rp_step = 1;
 
 //--------- event button
 	klass->button_is = 0;
@@ -2187,6 +2239,40 @@ GtkWidget *GtkRegler::gtk_value_display(GtkAdjustment *_adjustment)
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
 	GtkRegler *regler = GTK_REGLER(widget);
 	regler->regler_type = 13;
+	if (widget) {
+		gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
+		g_signal_connect(GTK_OBJECT(widget), "value-changed",
+		                 G_CALLBACK(gtk_regler_value_changed), widget);
+	}
+	return widget;
+}
+
+/****************************************************************
+ ** create a toggle button
+ */
+
+GtkWidget *GtkRegler::gtk_button_rec_new_with_adjustment(GtkAdjustment *_adjustment)
+{
+	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
+	GtkRegler *regler = GTK_REGLER(widget);
+	regler->regler_type = 14;
+	if (widget) {
+		gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
+		g_signal_connect(GTK_OBJECT(widget), "value-changed",
+		                 G_CALLBACK(gtk_regler_value_changed), widget);
+	}
+	return widget;
+}
+
+/****************************************************************
+ ** create a toggle button
+ */
+
+GtkWidget *GtkRegler::gtk_button_play_new_with_adjustment(GtkAdjustment *_adjustment)
+{
+	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
+	GtkRegler *regler = GTK_REGLER(widget);
+	regler->regler_type = 15;
 	if (widget) {
 		gtk_range_set_adjustment(GTK_RANGE(widget), _adjustment);
 		g_signal_connect(GTK_OBJECT(widget), "value-changed",

@@ -218,6 +218,8 @@ public :
 	virtual void addtoggle(const char* label, float* zone);
 	virtual void addbtoggle(const char* label, int* zone);
 	virtual void addbtoggle(const char* label, float* zone);
+	virtual void addRecButton(const char* label, float* zone);
+	virtual void addPlayButton(const char* label, float* zone);
 	virtual void addswitch(const char* label, int* zone);
 	virtual void addminiswitch(const char* label, int* zone);
 	virtual void addminiswitch(const char* label, float* zone);
@@ -237,6 +239,8 @@ public :
 	void addselector(string id, int, const char**, const char* label=0);
 	void addtoggle(string id, const char* label=0);
 	void addbtoggle(string id, const char* label=0);
+	void addRecButton(string id, const char* label=0);
+	void addPlayButton(string id, const char* label=0);
 	void addminieqswitch(string id, const char* label=0);
 	void addminicabswitch(string id, const char* label=0);
 	void addVerticalSlider(string id, const char* label=0);
