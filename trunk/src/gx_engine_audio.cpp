@@ -571,15 +571,12 @@ void process_buffers(int count, float* input, float* output0)
       /*  if (!cab_conv.compute(count, output0)) {
             //FIXME switch button off
             cout << "overload" << endl;
-            //FIXME error message?? */
+            //FIXME error message??
+            }*/
     }
 #endif // EXPERIMENTAL
 
-    if(audio.fcab) {
-        if (!cab_conv.compute(count, output0))
-            cout << "overload" << endl;
-            //FIXME error message??
-    }
+
     if (audio.fconvolve) {
 	    convolver_filter(output0, output0, count, (unsigned int)audio.convolvefilter);
     }
@@ -587,6 +584,11 @@ void process_buffers(int count, float* input, float* output0)
     tonestack::compute(count, output0, output0);
     if (audio.fresoon) {
 	    tubevibrato::compute(count, output0, output0);
+    }
+    if(audio.fcab) {
+        if (!cab_conv.compute(count, output0))
+            cout << "overload" << endl;
+            //FIXME error message??
     }
 
     for (int m = 0; m < 8; m++) {

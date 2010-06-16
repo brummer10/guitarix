@@ -1268,16 +1268,15 @@ void GxMainInterface::setup()
                                                     addminicabswitch("cab.on_off","  Cab-ImpResp                ");
 												}
 												closeBox();
-												openSlooperBox("");
+												openSlooperBox("limiter");
 												{
-													openVerticalBox1("");
-													closeBox();
-													openVerticalBox1("");
-													closeBox();
+
+
 													addregler("amp.fuzz");
+													;
 													const char* lab[3] = {"    off","    clip","foldback"};
 													addselector("amp.threshold",3,lab);
-													openVerticalBox1("");
+													openSpaceBox("");
 													closeBox();
 												}
 												closeBox();
