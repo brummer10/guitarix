@@ -355,6 +355,7 @@ def configure(conf):
     print_msg("")
 
     # config subdirs
+    conf.sub_config('lib');
     conf.sub_config('src');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
@@ -395,6 +396,7 @@ def configure(conf):
 def build(bld):
     # process subfolders from here
     bld.add_subdirs('ladspa')
+    bld.add_subdirs('lib')
     bld.add_subdirs('src')
     if bld.env['FAUST']:
         bld.add_subdirs('src/faust')
@@ -405,6 +407,6 @@ def build(bld):
 
 def etags(ctx):
     "Create an Emacs ETAGS file for the src directory"
-    cmd = "etags -o src/TAGS src/*.cpp src/*.cc src/headers/*.h"
+    cmd = "etags -o TAGS lib/*.cpp lib/*.cc lib/*.h src/*.cpp src/*.cc src/headers/*.h"
     Logs.debug("runner: system command -> %s" % cmd)
     Utils.exec_command(cmd)

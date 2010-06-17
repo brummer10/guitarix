@@ -1,0 +1,27 @@
+# -*- python -*-
+# -*- coding: utf-8 -*-
+
+def build(bld):
+    sources = [
+        #'GtkGxFastMeter.cpp',
+        #'GtkGxRegler.cpp',
+        #'GtkGxWaveView.cpp',
+        'GtkGxTuner.cpp',
+        ]
+    # static library
+    if 0:
+        prog = bld.new_task_gen('cxx', 'cstaticlib')
+        prog.ccflags= bld.env['CCFLAGS']
+        prog.source = sources
+        prog.uselib = ['GTHREAD', 'GTK2']
+        prog.target = 'gxwidgets'
+        prog.chmod=0755
+        prog.install_path = bld.env['BINDIR']
+    #shared library
+    prog = bld.new_task_gen('cxx', 'cshlib')
+    prog.ccflags= bld.env['CCFLAGS']
+    prog.source = sources
+    prog.uselib = ['GTHREAD', 'GTK2']
+    prog.target = 'gxwidgets'
+    prog.chmod=0755
+    prog.install_path = bld.env['BINDIR']
