@@ -614,70 +614,61 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 		            klass->vd_y) *0.5;
 		/*int reglerstate = (int)((adj->value - adj->lower) *
 		                        klass->b_toggle_step / (adj->upper - adj->lower));*/
-            float v = adj->value;
+        float v = adj->value;
 
-			char s[64];
+        char s[64];
 
-			if (adj->step_increment < 0.009999)
-			{
-				const char* format[] = {"%.1f", "%.2f", "%.3f"};
-				snprintf(s, 63, format[3-1], v);
-			}
-			else if (adj->step_increment < 0.09999)
-			{
-				const char* format[] = {"%.1f", "%.2f", "%.3f"};
-				snprintf(s, 63, format[2-1], v);
-			}
-			else if (adj->step_increment < 0.9999)
-			{
-				const char* format[] = {"%.1f", "%.2f", "%.3f"};
-				snprintf(s, 63, format[1-1], v);
-			}
-			else if (adj->step_increment < 9.9999)
-			{
-				snprintf(s, 63, "%d", int(v));
-			}
-			else
-			    snprintf(s, 63, "%d", int(v));
-
+        if (adj->step_increment < 0.009999) {
+            const char* format[] = {"%.1f", "%.2f", "%.3f"};
+            snprintf(s, 63, format[3-1], v);
+        } else if (adj->step_increment < 0.09999) {
+            const char* format[] = {"%.1f", "%.2f", "%.3f"};
+            snprintf(s, 63, format[2-1], v);
+        } else if (adj->step_increment < 0.9999) {
+            const char* format[] = {"%.1f", "%.2f", "%.3f"};
+            snprintf(s, 63, format[1-1], v);
+        } else if (adj->step_increment < 9.9999) {
+            snprintf(s, 63, "%d", int(v));
+        } else
+            snprintf(s, 63, "%d", int(v));
 
 		cairo_t *cr;
-	/* create a cairo context */
-	cr = gdk_cairo_create(widget->window);
+        /* create a cairo context */
+        cr = gdk_cairo_create(widget->window);
 
-	double x0      = widget->allocation.x+2;
-	double y0      = widget->allocation.y+2;
+        double x0      = widget->allocation.x+2;
+        double y0      = widget->allocation.y+2;
 
-	double rect_width  =  widget->allocation.width-4;
-	double rect_height =  widget->allocation.height-4;
+        double rect_width  =  widget->allocation.width-4;
+        double rect_height =  widget->allocation.height-4;
 
-    cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
-            cairo_set_source_rgb (cr, 0, 0, 0);
-            cairo_fill (cr);
+        cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
+        cairo_set_source_rgb (cr, 0, 0, 0);
+        cairo_fill (cr);
 
-	cairo_pattern_t*pat =
-		cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
-	cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
-    cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0.4);
-	cairo_set_source (cr, pat);
-	cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
-	cairo_fill (cr);
+        cairo_pattern_t*pat =
+            cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+        cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
+        cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0.4);
+        cairo_set_source (cr, pat);
+        cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
+        cairo_fill (cr);
 
-    cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
-    cairo_set_line_width(cr, 2.0);
-    cairo_move_to(cr,x0+rect_width-3, y0+3);
-    cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
-    cairo_line_to(cr, x0+2, y0+rect_height-2);
-    cairo_stroke(cr);
+        cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+        cairo_set_line_width(cr, 2.0);
+        cairo_move_to(cr,x0+rect_width-3, y0+3);
+        cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
+        cairo_line_to(cr, x0+2, y0+rect_height-2);
+        cairo_stroke(cr);
 
-    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
-    cairo_set_line_width(cr, 2.0);
-    cairo_move_to(cr,x0+3, y0+rect_height-1);
-    cairo_line_to(cr, x0+3, y0+3);
-    cairo_line_to(cr, x0+rect_width-3, y0+3);
-    cairo_stroke(cr);
+        cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+        cairo_set_line_width(cr, 2.0);
+        cairo_move_to(cr,x0+3, y0+rect_height-1);
+        cairo_line_to(cr, x0+3, y0+3);
+        cairo_line_to(cr, x0+rect_width-3, y0+3);
+        cairo_stroke(cr);
 
-    ostringstream tir;
+        ostringstream tir;
 		tir << s ;
 
 		cairo_set_source_rgba (cr, 0.4, 1, 0.2, 0.8);
@@ -686,7 +677,7 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 		cairo_show_text(cr, tir.str().c_str());
 		cairo_stroke (cr);
 
-	cairo_destroy(cr);
+        cairo_destroy(cr);
 	}
 
 	//---------- rec button
@@ -1381,7 +1372,12 @@ static void gtk_regler_size_request (GtkWidget *widget, GtkRequisition *requisit
 	}
 //-----------  led
 	else if (regler->regler_type == 13) {
-		requisition->width = klass->vd_x;
+		GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+	    char s[64];
+        snprintf(s, 63, "%f",adj->upper);
+        string st = s;
+        double display_lenght = st.length();
+		requisition->width = display_lenght*4+4;
 		requisition->height = klass->vd_y;
 	}
 
@@ -1937,7 +1933,7 @@ static void gtk_regler_class_init (GtkReglerClass *klass)
 	klass->led_y = 20 ;
 //--------- led
 	klass->vd_x = -1 ;
-	klass->vd_y = 25 ;
+	klass->vd_y = 21 ;
 //--------- led
 	klass->rp_x = 22 ;
 	klass->rp_y = 23 ;

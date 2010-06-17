@@ -909,7 +909,30 @@ void GxMainInterface::setup()
 
                                                                         }
                                                                         closeBox();
-                                                                        //addminiswitch("IR.auto_freq"," auto_freq                             ");
+                                                                        openHorizontalBox("");
+                                                                        {
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            addselector("IR.auto_freq",2,labels,"");
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                        }
+                                                                        closeBox();
+                                                                        openSpaceBox("");
+                                                                        closeBox();
+
                                                                     }
                                                                     closeBox();
 
@@ -960,7 +983,30 @@ void GxMainInterface::setup()
                                                                             addregler("crybaby.wet_dry","wet/dry");
                                                                         }
                                                                         closeBox();
-                                                                       // addminiswitch("crybaby.autowah"," autowah");
+                                                                        openHorizontalBox("");
+                                                                        {
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            addselector("crybaby.autowah",2,labels,"");
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                            openSpaceBox("");
+                                                                            closeBox();
+                                                                        }
+                                                                        closeBox();
+                                                                        openSpaceBox("");
+                                                                        closeBox();
+
                                                                     }
                                                                     closeBox();
                                                                     openFrameBox("");
@@ -991,11 +1037,37 @@ void GxMainInterface::setup()
                                                     closeBox();
 													openHorizontalBox("");
 													{
-														addregler("echo.percent","    %    ");
+
 														addregler("echo.time","  time  ");
 													}
 													closeBox();
-													addtoggle("echo.on_off","");
+													openHorizontalBox("");
+                                                    {
+                                                        addtoggle("echo.on_off","");
+                                                        openDialogBox("echo", &gx_engine::audio.fdialogbox_echo, (int*)&gx_engine::audio.fcheckbox7);
+                                                        {
+                                                            openPlugBox("");
+															{
+                                                                openHandleBox("  ");
+                                                                {
+                                                                    openVerticalBox("");
+                                                                    {
+                                                                        openHorizontalBox("");
+                                                                        {
+                                                                            addregler("echo.time","  time  ");
+                                                                            addregler("echo.percent","    %    ");
+                                                                        }
+                                                                        closeBox();
+                                                                    }
+                                                                    closeBox();
+                                                                }
+                                                                closeBox();
+                                                            }
+                                                            closeBox();
+                                                        }
+                                                        closeBox();
+                                                    }
+                                                    closeBox();
 												}
 												closeBox();
 											}
@@ -1011,10 +1083,37 @@ void GxMainInterface::setup()
 												openHorizontalBox("");
 												{
 													addregler("delay.delay"," delay ");
-													addregler("delay.gain","  gain ");
+
 												}
 												closeBox();
-												addtoggle("delay.on_off","");
+												openHorizontalBox("");
+												{
+                                                    addtoggle("delay.on_off","");
+
+                                                    openDialogBox("delay", &gx_engine::audio.fdialogbox_delay, (int*)&gx_engine::audio.fdelay);
+                                                    {
+                                                        openPlugBox("");
+                                                        {
+                                                            openHandleBox("  ");
+                                                            {
+                                                                openVerticalBox("");
+                                                                {
+                                                                    openHorizontalBox("");
+                                                                    {
+                                                                        addregler("delay.delay"," delay ");
+                                                                        addregler("delay.gain","  gain ");
+                                                                    }
+                                                                    closeBox();
+                                                                }
+                                                                closeBox();
+                                                            }
+                                                            closeBox();
+                                                        }
+                                                        closeBox();
+                                                    }
+                                                    closeBox();
+                                                }
+                                                closeBox();
 											}
 											closeBox();
 										}
@@ -1093,7 +1192,29 @@ void GxMainInterface::setup()
 
                                                                 }
                                                                 closeBox();
-                                                               // addminiswitch("flanger.invert"," invert                                                                                                                         ");
+                                                                openHorizontalBox("");
+                                                                {
+                                                                    openSpaceBox("");
+                                                                    closeBox();
+                                                                    openSpaceBox("");
+                                                                    closeBox();
+                                                                    openSpaceBox("");
+                                                                    closeBox();
+                                                                    openSpaceBox("");
+                                                                    closeBox();
+                                                                    openSpaceBox("");
+                                                                    closeBox();
+                                                                    openSpaceBox("");
+                                                                    closeBox();
+                                                                    addselector("flanger.invert",2,labels,"");
+                                                                    openSpaceBox("");
+                                                                    closeBox();
+                                                                    openSpaceBox("");
+                                                                    closeBox();
+                                                                }
+                                                                closeBox();
+                                                                openSpaceBox("");
+                                                                closeBox();
                                                             }
                                                             closeBox();
                                                         }
@@ -1273,7 +1394,7 @@ void GxMainInterface::setup()
 
 
 													addregler("amp.fuzz");
-													;
+
 													const char* lab[3] = {"    off","    clip","foldback"};
 													addselector("amp.threshold",3,lab);
 													openSpaceBox("");

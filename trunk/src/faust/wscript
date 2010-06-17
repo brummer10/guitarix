@@ -94,6 +94,7 @@ def build(bld):
         'distortion.dsp',
         'distortion1.dsp',
         'freeverb.dsp',
+        'flanger.dsp',
         'impulseresponse.dsp',
         'chorus.dsp',
         'moog.dsp',

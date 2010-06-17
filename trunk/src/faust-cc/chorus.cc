@@ -86,8 +86,8 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("chorus.level","","S","",&fslider3, 0.5, 0.0, 1.0, 0.01);
-	registerVar("chorus.delay","","S","",&fslider2, 0.025, 0.0, 0.2, 0.001);
-	registerVar("chorus.depth","","S","",&fslider1, 0.02, 0.0, 1.0, 0.001);
+	registerVar("chorus.delay","","S","",&fslider2, 0.02, 0.0, 0.2, 0.01);
+	registerVar("chorus.depth","","S","",&fslider1, 0.02, 0.0, 1.0, 0.01);
 	registerVar("chorus.freq","","S","",&fslider0, 3.0, 0.0, 1e+01, 0.01);
 	registerInit(init);
 }

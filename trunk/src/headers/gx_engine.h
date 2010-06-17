@@ -106,6 +106,8 @@ public:
 	float witchdistortion;
 	float fdis1;
 	int fcab;
+	float fdialogbox_echo;
+	float fdialogbox_delay;
 
 	AudioVariables();
 };
