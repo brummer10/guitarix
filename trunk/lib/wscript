@@ -3,7 +3,7 @@
 
 def build(bld):
     sources = [
-        #'GtkGxFastMeter.cpp',
+        'GtkGxFastMeter.cpp',
         #'GtkGxRegler.cpp',
         #'GtkGxWaveView.cpp',
         'GtkGxTuner.cpp',

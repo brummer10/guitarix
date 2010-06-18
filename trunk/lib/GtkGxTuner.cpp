@@ -111,16 +111,21 @@ static void gtk_gx_tuner_init (GtkGxTuner *tuner)
 
 void gtk_gx_tuner_set_freq(GtkGxTuner *tuner, double freq)
 {
-	g_assert(GTK_IS_GXTUNER(tuner));
+	g_assert(GTK_IS_GX_TUNER(tuner));
 	tuner->freq = freq;
 	gtk_widget_queue_draw(GTK_WIDGET(tuner));
 	g_object_notify(G_OBJECT(tuner), "freq");
 }
 
+GtkWidget *gtk_gx_tuner_new(void)
+{
+	return (GtkWidget*)g_object_new(GTK_TYPE_GX_TUNER, NULL);
+}
+
 static void gtk_gx_tuner_set_property(GObject *object, guint prop_id,
                                       const GValue *value, GParamSpec *pspec)
 {
-	GtkGxTuner *tuner = GTK_GXTUNER(object);
+	GtkGxTuner *tuner = GTK_GX_TUNER(object);
 
 	switch(prop_id) {
 	case PROP_FREQ:
@@ -135,7 +140,7 @@ static void gtk_gx_tuner_set_property(GObject *object, guint prop_id,
 static void gtk_gx_tuner_get_property(GObject *object, guint prop_id,
                                       GValue *value, GParamSpec *pspec)
 {
-	GtkGxTuner *tuner = GTK_GXTUNER(object);
+	GtkGxTuner *tuner = GTK_GX_TUNER(object);
 
 	switch(prop_id) {
 	case PROP_FREQ:
@@ -150,14 +155,14 @@ static void gtk_gx_tuner_get_property(GObject *object, guint prop_id,
 static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
 {
 	static const char* note[12] = {"A ","A#","B ","C ","C#","D ","D#","E ","F ","F#","G ","G#"};
-	GtkGxTuner *tuner = GTK_GXTUNER(widget);
+	GtkGxTuner *tuner = GTK_GX_TUNER(widget);
 	cairo_t *cr;
 
 	double x0      = (widget->allocation.width - 100) * 0.5;
 	double y0      = (widget->allocation.height - 90) * 0.5;
 
 	cr = gdk_cairo_create(widget->window);
-	cairo_set_source_surface(cr, GTK_GXTUNER_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_tuner, x0, y0);
+	cairo_set_source_surface(cr, GTK_GX_TUNER_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_tuner, x0, y0);
 	cairo_paint (cr);
 	if (!tuner->freq) {
 		cairo_destroy(cr);
@@ -258,7 +263,7 @@ static void draw_background(cairo_surface_t *surface)
 	// division scale
 	cairo_set_dash (cr, dashes, sizeof (dashes)/sizeof(dashes[0]), 100.0);
 	cairo_set_line_width(cr, 3.0);
-	for (int i = -5;i<6;i++) {
+	for (int i = -5; i < 6; i++) {
 		cairo_move_to(cr,x0+50, y0+rect_height-5);
 		cairo_line_to(cr, (((i*0.08))*rect_width)+x0+50, y0+(((i*0.1*i*0.1))*30)+2);
 	}

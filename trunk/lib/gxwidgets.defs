@@ -1,0 +1,87 @@
+;; -*- scheme -*-
+; object definitions ...
+(define-object GxFastMeter
+  (in-module "Gtk")
+  (parent "GtkWidget")
+  (c-name "GtkGxFastMeter")
+  (gtype-id "GTK_TYPE_GX_FAST_METER")
+)
+
+(define-object GxTuner
+  (in-module "Gtk")
+  (parent "GtkDrawingArea")
+  (c-name "GtkGxTuner")
+  (gtype-id "GTK_TYPE_GX_TUNER")
+)
+
+;; Enumerations and flags ...
+
+
+;; From GtkGxTuner.h
+
+(define-function gtk_gx_tuner_get_type
+  (c-name "gtk_gx_tuner_get_type")
+  (return-type "GType")
+  (parameters
+  )
+)
+
+(define-method set_freq
+  (of-object "GtkGxTuner")
+  (c-name "gtk_gx_tuner_set_freq")
+  (return-type "none")
+  (parameters
+    '("double" "freq")
+  )
+)
+
+(define-function gtk_gx_tuner_new
+  (c-name "gtk_gx_tuner_new")
+  (is-constructor-of "GtkGxTuner")
+  (return-type "GtkWidget*")
+)
+
+
+
+;; From GtkGxFastMeter.h
+
+(define-function gtk_gx_fast_meter_get_type
+  (c-name "gtk_gx_fast_meter_get_type")
+  (return-type "GType")
+)
+
+(define-function gtk_gx_fast_meter_new
+  (c-name "gtk_gx_fast_meter_new")
+  (is-constructor-of "GtkGxFastMeter")
+  (return-type "GtkWidget*")
+  (properties
+   '("hold" (optional))
+   '("dimen" (optional))
+  )
+)
+
+(define-method set
+  (of-object "GtkGxFastMeter")
+  (c-name "gtk_gx_fast_meter_set")
+  (return-type "none")
+  (parameters
+    '("float" "lvl")
+  )
+)
+
+(define-method clear
+  (of-object "GtkGxFastMeter")
+  (c-name "gtk_gx_fast_meter_clear")
+  (return-type "none")
+)
+
+(define-method set_hold_count
+  (of-object "GtkGxFastMeter")
+  (c-name "gtk_gx_fast_meter_set_hold_count")
+  (return-type "none")
+  (parameters
+    '("long" "val")
+  )
+)
+
+

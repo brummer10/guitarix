@@ -16,18 +16,18 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __GTK_GXTUNER_H__
-#define __GTK_GXTUNER_H__
+#ifndef __GTK_GX_TUNER_H__
+#define __GTK_GX_TUNER_H__
 
 #include <gtk/gtkdrawingarea.h>
 
 G_BEGIN_DECLS
 
-#define GTK_TYPE_GXTUNER          (gtk_gx_tuner_get_type())
-#define GTK_GXTUNER(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_GXTUNER, GtkGxTuner))
-#define GTK_IS_GXTUNER(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_GXTUNER))
-#define GTK_GXTUNER_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GTK_TYPE_GXTUNER, GtkGxTunerClass))
-#define GTK_IS_GXTUNER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GTK_TYPE_GXTUNER))
+#define GTK_TYPE_GX_TUNER          (gtk_gx_tuner_get_type())
+#define GTK_GX_TUNER(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_GX_TUNER, GtkGxTuner))
+#define GTK_IS_GX_TUNER(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_GX_TUNER))
+#define GTK_GX_TUNER_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GTK_TYPE_GX_TUNER, GtkGxTunerClass))
+#define GTK_IS_GX_TUNER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GTK_TYPE_GX_TUNER))
 
 typedef struct
 {
@@ -46,7 +46,8 @@ typedef struct
 GType gtk_gx_tuner_get_type();
 
 void gtk_gx_tuner_set_freq(GtkGxTuner *tuner, double freq);
+GtkWidget *gtk_gx_tuner_new(void);
 
 G_END_DECLS
 
-#endif /* __GTK_GXTUNER_H__ */
+#endif /* __GTK_GX_TUNER_H__ */
