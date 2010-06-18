@@ -92,6 +92,7 @@ public:
 	float midistat;
 	int feq;
 	float fdialogbox_eq;
+	float fdialogbox_eqs;
 	float fdialogbox_mbf;
 	float fdialogbox_moo;
 	int fmoog;
@@ -108,6 +109,7 @@ public:
 	int fcab;
 	float fdialogbox_echo;
 	float fdialogbox_delay;
+	float witcheq;
 
 	AudioVariables();
 };

@@ -119,7 +119,7 @@ style "guitarix-v_default"
 
 style "guitarix-b_default"
 {
-  fg[NORMAL] = 	{ 0.15, 0.15, 0.15 }
+  fg[NORMAL] = 	{ 0., 0., 0. }
   fg[ACTIVE] = { 0.2, 0.2, 0.2 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
   fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }

@@ -98,6 +98,7 @@ public:
 	virtual void addHorizontalWheel(const char* label, float* zone, float init, float min, float max, float step){};
 	virtual void addregler(const char* label, float* zone, float init, float min, float max, float step){};
 	virtual void addbigregler(const char* label, float* zone, float init, float min, float max, float step) {};
+	virtual void addSpinValueBox(const char* label, float* zone, float init, float min, float max, float step){};
 	virtual void addslider(const char* label, float* zone, float init, float min, float max, float step){};
 	virtual void addtoggle(const char* label, int* zone){};
 	virtual void addtoggle(const char* label, float* zone){};
@@ -131,7 +132,7 @@ public:
 	virtual void openVerticalBox1(const char* label) {};
 	virtual void openSlooperBox(const char* label){};
 	virtual void openFlipLabelBox(const char* = ""){};
-	virtual void openVerticalSwitchBox(const char* label,int state, float* zone){};
+	virtual void openVerticalSwitchBox(const char* label,int state,int wit, float* zone){};
 	virtual void openVerticalMidiBox(const char* label) {};
 	virtual void openDialogBox(const char* label, float* zone) {};
 	virtual void openPatchInfoBox(float* zone){};

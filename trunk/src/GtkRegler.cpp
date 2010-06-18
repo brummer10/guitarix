@@ -2072,7 +2072,16 @@ void GtkRegler::gtk_regler_destroy ()
 		g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_image1);
 	if (G_IS_OBJECT(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))-> led_image))
 		g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->led_image);
+	if (G_IS_OBJECT(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))-> rp_image))
+		g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->rp_image);
+	if (G_IS_OBJECT(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))-> rp_image1))
+		g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->rp_image1);
+	if (G_IS_OBJECT(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))-> p_image))
+		g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->p_image);
+	if (G_IS_OBJECT(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))-> p_image1))
+		g_object_unref(GTK_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget))->p_image1);
 }
+
 
 /****************************************************************
  ** create small knob

@@ -182,6 +182,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/moog.cc"
 #include "faust-cc/biquad.cc"
 #include "faust-cc/flanger.cc"
+#include "faust-cc/selecteq.cc"
 #include "faust-cc/sloop.cc"
 
 

@@ -207,22 +207,27 @@ void GxMainInterface::setup()
 							    openFrameBox("");
                                 closeBox();
                                 openHorizontalBox("");
-                                    {
-                                        openFrameBox("");
-                                        closeBox();
-                                        // add a meter level box: out of box stack, no need to closeBox
-                                        openLevelMeterBox("Signal Level");
-                                        openFrameBox("");
-                                        closeBox();
-                                    }
+                                {
+                                    openFrameBox("");
                                     closeBox();
-                                    openVerticalBox("");
+                                    // add a meter level box: out of box stack, no need to closeBox
+                                    openLevelMeterBox("Signal Level");
+                                    openFrameBox("");
+                                    closeBox();
+                                }
+                                closeBox();
+                                openVerticalBox("");
+                                {
+                                    const char* labels[2]  ={"fixed","scale"};
+                                    addselector("eqt.onetwo",2,labels,"");
+                                    openHorizontalBox("");
                                     {
-                                        openHorizontalBox("");
+                                        openSpaceBox("");
+                                        closeBox();
+                                        addminiswitch("eq.on_off", "EQ");
+                                        openVerticalSwitchBox(" ",0, 1, &gx_engine::audio.witcheq);
                                         {
-                                            openSpaceBox("");
-                                            closeBox();
-                                            addminiswitch("eq.on_off", "EQ");
+
                                             openDialogBox("eq", &gx_engine::audio.fdialogbox_eq,  &gx_engine::audio.feq);
                                             {
                                                 openPlugBox("");
@@ -264,13 +269,76 @@ void GxMainInterface::setup()
                                             }
                                             closeBox();
                                         }
+                                        closeBox();
+
+                                        openVerticalSwitchBox(" ",1, 1, &gx_engine::audio.witcheq);
+                                        {
+                                            openDialogBox("eqs", &gx_engine::audio.fdialogbox_eqs,  &gx_engine::audio.feq);
+                                            {
+                                                openPlugBox("");
+                                                {
+                                                    openVerticalBox("");
+                                                    {
+                                                        openHorizontalTableBox("");
+                                                        {
+                                                            addSpinValueBox("eqs.freq31_25" ,"");
+                                                            addSpinValueBox("eqs.freq62_5" ,"");
+                                                            addSpinValueBox("eqs.freq125" ,"");
+                                                            addSpinValueBox("eqs.freq250" ,"");
+                                                            addSpinValueBox("eqs.freq500" ,"");
+                                                            addSpinValueBox("eqs.freq1k" ,"");
+                                                            addSpinValueBox("eqs.freq2k" ,"");
+                                                            addSpinValueBox("eqs.freq4k" ,"");
+                                                            addSpinValueBox("eqs.freq8k" ,"");
+                                                            addSpinValueBox("eqs.freq16k" ,"");
+
+                                                         }
+                                                        closeBox();
+                                                        openHorizontalTableBox("");
+                                                        {
+                                                            addVerticalSlider("eqs.fs31_25","");
+                                                            addVerticalSlider("eqs.fs62_5","");
+                                                            addVerticalSlider("eqs.fs125","");
+                                                            addVerticalSlider("eqs.fs250","");
+                                                            addVerticalSlider("eqs.fs500","");
+                                                            addVerticalSlider("eqs.fs1k","");
+                                                            addVerticalSlider("eqs.fs2k","");
+                                                            addVerticalSlider("eqs.fs4k","");
+                                                            addVerticalSlider("eqs.fs8k","");
+                                                            addVerticalSlider("eqs.fs16k","");
+                                                        }
+                                                        closeBox();
+                                                        openHorizontalTableBox("");
+                                                        {
+                                                            addregler("eqs.Qs31_25","    Q    ");
+                                                            addregler("eqs.Qs62_5","Q");
+                                                            addregler("eqs.Qs125","Q");
+                                                            addregler("eqs.Qs250","Q");
+                                                            addregler("eqs.Qs500","Q");
+                                                            addregler("eqs.Qs1k","Q");
+                                                            addregler("eqs.Qs2k","Q");
+                                                            addregler("eqs.Qs4k","Q");
+                                                            addregler("eqs.Qs8k","Q");
+                                                            addregler("eqs.Qs16k","Q");
+                                                        }
+                                                        closeBox();
+                                                    }
+                                                    closeBox();
+                                                }
+                                                closeBox();
+                                            }
+                                            closeBox();
+                                        }
+                                        closeBox();
+
+                                    }
                                     closeBox();
-								}
-								closeBox();
-							}
-							closeBox();
-							openFrameBox("");
-							closeBox();
+                                }
+                                closeBox();
+                            }
+                            closeBox();
+                            openFrameBox("");
+                            closeBox();
 
 							openVerticalBox("");
 							{
@@ -631,9 +699,9 @@ void GxMainInterface::setup()
 											openVerticalBox("distortion");
 											{
 											    const char* labels[2]  ={"multi","single"};
-                                                addselector("distortion.onetwo",2,labels,"");
+                                                addselector("distortiont.onetwo",2,labels,"");
 											    //addswitch("distortion.onetwo", "");
-											    openVerticalSwitchBox(" ",0,&gx_engine::audio.witchdistortion);
+											    openVerticalSwitchBox(" ",0, 0, &gx_engine::audio.witchdistortion);
 											    {
                                                     addregler("distortion.drive","  drive ");
                                                     openHorizontalBox("");
@@ -741,7 +809,7 @@ void GxMainInterface::setup()
                                                 }
                                                 closeBox();//end switchbox
 
-                                                openVerticalSwitchBox(" ",1,&gx_engine::audio.witchdistortion);
+                                                openVerticalSwitchBox(" ",1, 0, &gx_engine::audio.witchdistortion);
                                                 {
                                                     addregler("distortion1.drive","  drive ");
                                                     openHorizontalBox("");

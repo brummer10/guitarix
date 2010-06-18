@@ -95,7 +95,8 @@ AudioVariables::AudioVariables()
 	registerEnumParam("crybaby.autowah", "select", &fautowah, 0.f, 0.f, 1.f, 1.0f);
 	gx_gui::registerParam("overdrive.on_off", "on/off", &foverdrive4, 0);
 	gx_gui::registerParam("distortion.on_off", "on/off", &fcheckbox4, 0);
-	registerEnumParam("distortion.onetwo", "select", &witchdistortion, 0.f, 0.f, 1.f, 1.0f);
+	registerEnumParam("distortiont.onetwo", "select", &witchdistortion, 0.f, 0.f, 1.f, 1.0f);
+	registerEnumParam("eqt.onetwo", "select", &witcheq, 0.f, 0.f, 1.f, 1.0f);
 	gx_gui::registerParam("freeverb.on_off", "on/off", &fcheckbox6, 0);
 	gx_gui::registerParam("IR.on_off", "on/off", &fcheckbox8, 0);
 	gx_gui::registerParam("crybaby.on_off", "on/off", &fcheckbox5, 0);
@@ -152,6 +153,7 @@ AudioVariables::AudioVariables()
 	registerNonPresetParam("jconv.expander", &fexpand2, false);
 	registerNonPresetParam("jconv.filedialog", &filebutton, false);
 	registerNonPresetParam("eq.dialog", &fdialogbox_eq, false);
+	registerNonPresetParam("eqs.dialog", &fdialogbox_eqs, false);
 	registerNonPresetParam("MultiBandFilter.dialog", &fdialogbox_mbf, false);
 	registerNonPresetParam("moog.dialog", &fdialogbox_moo, false);
 	registerNonPresetParam("biquad.dialog", &fbiquadbox, false);
@@ -469,7 +471,8 @@ void process_buffers(int count, float* input, float* output0)
 	IF_HS(HighShelf::compute(count, input, output0));
 
     if (audio.feq) {
-	    eq::compute(count, output0, output0);
+	    if(audio.witcheq)selecteq::compute(count, output0, output0);
+	    else eq::compute(count, output0, output0);
     }
 	if (audio.fnoise_g) {
 		feed::ngate = noise_gate(count,output0, feed::ngate);

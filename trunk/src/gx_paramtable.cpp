@@ -457,6 +457,8 @@ ParameterGroups::ParameterGroups()
 {
 	insert("jconv","Convolver");
 	insert("eq", "EQ");
+	insert("eqs", "Scaleable EQ");
+	insert("eqt", "Scwitch EQ");
 	insert("amp","Amplifier");
 	//insert("amp.tone","Tone");
 	insert("shaper","Shaper");
@@ -482,6 +484,7 @@ ParameterGroups::ParameterGroups()
 	insert("distortion1.low_highpass","Distortion low/highpass");
 	insert("distortion1.low_highcutoff","Distortion low/highcutoff");
 	insert("distortion1.resonator","Distortion resonator");
+	insert("distortiont","Switch Distortion");
 	insert("freeverb","Freeverb");
 	insert("IR","ImpulseResponse");
 	insert("crybaby","Crybaby");

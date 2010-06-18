@@ -179,7 +179,7 @@ public :
 	virtual void openVerticalBox(const char* label = "");
 	virtual void openVerticalBox1(const char* label = "");
 	virtual void openFlipLabelBox(const char* = "");
-	virtual void openVerticalSwitchBox(const char* label, int state, float* zone);
+	virtual void openVerticalSwitchBox(const char* label, int state, int wit, float* zone);
 	virtual void openVerticalMidiBox(const char* label = "");
 	virtual void openDialogBox(const char* label, float* zone, int * z1);
 	virtual void openPatchInfoBox(float* zone);
@@ -215,6 +215,7 @@ public :
 	virtual void addregler(const char* label, float* zone, float init, float min, float max, float step);
 	virtual void addbigregler(const char* label, float* zone, float init, float min, float max, float step);
 	virtual void addslider(const char* label, float* zone, float init, float min, float max, float step);
+	virtual void addSpinValueBox(const char* label, float* zone, float init, float min, float max, float step);
 	virtual void addtoggle(const char* label, int* zone);
 	virtual void addtoggle(const char* label, float* zone);
 	virtual void addbtoggle(const char* label, int* zone);
@@ -235,6 +236,7 @@ public :
 	void addHorizontalWheel(string id, const char* label=0);
 	void addslider(string id, const char* label=0);
 	void addregler(string id, const char* label=0);
+	void addSpinValueBox(string id, const char* label=0);
 	void addswitch(string id, const char* label=0);
 	void addminiswitch(string id, const char* label=0);
 	void addselector(string id, int, const char**, const char* label=0);
