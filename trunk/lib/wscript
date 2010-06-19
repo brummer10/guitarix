@@ -1,6 +1,9 @@
 # -*- python -*-
 # -*- coding: utf-8 -*-
 
+def configure(conf):
+       pass
+
 def build(bld):
     sources = [
         'GtkGxFastMeter.cpp',

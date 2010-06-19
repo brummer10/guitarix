@@ -197,7 +197,7 @@ void GxMainInterface::openFrameBox(const char* label)
 {
 	GtkWidget * box = gtk_hbox_new (homogene, 2);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
-	g_signal_connect(box, "expose-event", G_CALLBACK(box10_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(vbox_expose), NULL);
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{
 		GtkWidget * frame = addWidget(label, gtk_frame_new (label));
@@ -643,7 +643,7 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(button));
 
 	g_signal_connect (box, "expose-event",
-	                  G_CALLBACK(box10_expose), NULL);
+	                  G_CALLBACK(vbox_expose), NULL);
 	g_signal_connect (GTK_OBJECT (button), "pressed",
 	                  G_CALLBACK (uiOrderButton::pressed_right), (gpointer) c);
 	g_signal_connect (GTK_OBJECT (button1), "pressed",
@@ -787,7 +787,7 @@ void GxMainInterface::openVerticalBox(const char* label)
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-	g_signal_connect(box, "expose-event", G_CALLBACK(box10_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(vbox_expose), NULL);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{
@@ -845,7 +845,7 @@ void GxMainInterface::openFlipLabelBox(const char* label)
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-	g_signal_connect(box, "expose-event", G_CALLBACK(box10_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(vbox_expose), NULL);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{
@@ -1170,7 +1170,7 @@ void GxMainInterface::openVerticalSwitchBox(const char* label, int state, int wi
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-	g_signal_connect(box, "expose-event", G_CALLBACK(box10_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(vbox_expose), NULL);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{

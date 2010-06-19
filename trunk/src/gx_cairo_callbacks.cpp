@@ -585,7 +585,7 @@ gboolean box9_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	return FALSE;
 }
 
-gboolean box10_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+gboolean vbox_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	if (int(float(gx_gui::gx_current_skin)==1))
 	{

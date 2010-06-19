@@ -25,7 +25,7 @@ namespace gx_cairo
 {
 gboolean box12_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean box11_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean box10_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean vbox_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean box9_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean box8_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean box7_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
