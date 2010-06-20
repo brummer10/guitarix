@@ -130,16 +130,16 @@ AudioVariables::AudioVariables()
 	// only save and restore, no midi control
 
 	// positions of effects
-	registerNonPresetParam("crybaby.position", &posit0, true, 5, 0, 8);
-	registerNonPresetParam("overdrive.position", &posit1, true, 2, 0, 8);
-	registerNonPresetParam("distortion.position", &posit2, true, 1, 0, 8);
-	registerNonPresetParam("freeverb.position", &posit3, true, 3, 0, 8);
-	registerNonPresetParam("IR.position", &posit4, true, 4, 0, 8);
-	registerNonPresetParam("compressor.position", &posit5, true, 0, 0, 8);
-	registerNonPresetParam("echo.position", &posit6, true, 6, 0, 8);
-	registerNonPresetParam("delay.position", &posit7, true, 8, 0, 8);
-	registerNonPresetParam("chorus.position", &posit8, true, 7, 0, 8);
-	registerNonPresetParam("flanger.position", &posit9, true, 9, 0, 8);
+	registerNonPresetParam("crybaby.position", &posit0, true, 5, 0, 7);
+	registerNonPresetParam("overdrive.position", &posit1, true, 2, 0, 7);
+	registerNonPresetParam("distortion.position", &posit2, true, 1, 0, 7);
+	registerNonPresetParam("freeverb.position", &posit3, true, 3, 0, 7);
+	registerNonPresetParam("IR.position", &posit4, true, 4, 0, 7);
+	registerNonPresetParam("compressor.position", &posit5, true, 0, 0, 7);
+	registerNonPresetParam("echo.position", &posit6, true, 6, 0, 7);
+	registerNonPresetParam("delay.position", &posit7, true, 7, 0, 7);
+	registerNonPresetParam("chorus.position", &posit8, true, 8, 8, 8);
+	registerNonPresetParam("flanger.position", &posit9, true, 9, 9, 9);
 
 	// togglebuttons for dialogboxes and expander for effect details
 	registerNonPresetParam("compressor.dialog", &fdialogbox8, false);
