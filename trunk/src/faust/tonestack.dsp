@@ -165,7 +165,7 @@ tonestack(tse) = 1/A0*tf3(B0,B1,B2,B3,A1/A0,A2/A0,A3/A0) with {
 
 
 aba = environment {
-	 sl = hslider("select",1,0,8,1);
+	 sl = hslider("select",1,0,9,1);
 	 a = min(2, max(0,sl)); 
 	 b = min(2, max(0,sl-1)); 
 	 c = min(2, max(0,sl-2));
@@ -174,6 +174,7 @@ aba = environment {
 	 f = min(2, max(0,sl-5));
 	 g = min(2, max(0,sl-6));
 	 h = min(2, max(0,sl-7));
+	 x = min(2, max(0,sl-8));
 };
 
 
@@ -187,11 +188,11 @@ process  = hgroup("tonestack",_<: a <: b <: c <: d <: e<: f <: g <:h :>_) with {
 	 f = select3(aba.f,_,F,_);
 	 g = select3(aba.g,_,G,_);
 	 h = select3(aba.h,_,H,_);
-
+	 x = select3(aba.x,_,X,_);
 }
 
  with {
-		N =  component("tone.dsp").tone((l*20)-10,(m*10)-5,(t*20)-10);
+		N = component("tone.dsp").tone((l*20)-10,(m*10)-5,(t*20)-10);
 		A = tonestack(ts.bassman);
 		B = tonestack(ts.twin);
 		C = tonestack(ts.princeton);
@@ -200,5 +201,5 @@ process  = hgroup("tonestack",_<: a <: b <: c <: d <: e<: f <: g <:h :>_) with {
 		F = tonestack(ts.mlead);
 		G = tonestack(ts.m2199);
 		H = tonestack(ts.ac30);
+		X = _;
 };
-

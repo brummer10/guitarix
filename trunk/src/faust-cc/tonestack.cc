@@ -368,7 +368,7 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("amp.tonestack.select","","S","",&fslider3, 1.0, 0.0, 8.0, 1.0);
+	registerVar("amp.tonestack.select","","S","",&fslider3, 1.0, 0.0, 9.0, 1.0);
 	registerVar("amp.tonestack.Treble","","S","",&fslider2, 0.5, 0.0, 1.0, 0.01);
 	registerVar("amp.tonestack.Bass","","S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
 	registerVar("amp.tonestack.Middle","","S","",&fslider0, 0.5, 0.0, 1.0, 0.01);
