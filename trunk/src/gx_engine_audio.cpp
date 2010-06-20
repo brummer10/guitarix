@@ -61,7 +61,7 @@ namespace gx_engine {
  ** registering of audio variables
  */
 
-inline void registerNonPresetParam(const char*a, float*c, bool d, float std=0, float lower=0, float upper=1)
+inline void registerNonMidiParam(const char*a, float*c, bool d, float std=0, float lower=0, float upper=1)
 {
 	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a,"",gx_gui::Parameter::None,d,*c,std,lower,upper,0,false));
 }
@@ -130,45 +130,45 @@ AudioVariables::AudioVariables()
 	// only save and restore, no midi control
 
 	// positions of effects
-	registerNonPresetParam("crybaby.position", &posit0, true, 5, 0, 7);
-	registerNonPresetParam("overdrive.position", &posit1, true, 2, 0, 7);
-	registerNonPresetParam("distortion.position", &posit2, true, 1, 0, 7);
-	registerNonPresetParam("freeverb.position", &posit3, true, 3, 0, 7);
-	registerNonPresetParam("IR.position", &posit4, true, 4, 0, 7);
-	registerNonPresetParam("compressor.position", &posit5, true, 0, 0, 7);
-	registerNonPresetParam("echo.position", &posit6, true, 6, 0, 7);
-	registerNonPresetParam("delay.position", &posit7, true, 7, 0, 7);
-	registerNonPresetParam("chorus.position", &posit8, true, 8, 8, 8);
-	registerNonPresetParam("flanger.position", &posit9, true, 9, 9, 9);
+	registerNonMidiParam("crybaby.position", &posit0, true, 5, 0, 7);
+	registerNonMidiParam("overdrive.position", &posit1, true, 2, 0, 7);
+	registerNonMidiParam("distortion.position", &posit2, true, 1, 0, 7);
+	registerNonMidiParam("freeverb.position", &posit3, true, 3, 0, 7);
+	registerNonMidiParam("IR.position", &posit4, true, 4, 0, 7);
+	registerNonMidiParam("compressor.position", &posit5, true, 0, 0, 7);
+	registerNonMidiParam("echo.position", &posit6, true, 6, 0, 7);
+	registerNonMidiParam("delay.position", &posit7, true, 7, 0, 7);
+	registerNonMidiParam("chorus.position", &posit8, true, 8, 8, 8);
+	registerNonMidiParam("flanger.position", &posit9, true, 9, 9, 9);
 
 	// togglebuttons for dialogboxes and expander for effect details
-	registerNonPresetParam("compressor.dialog", &fdialogbox8, false);
-	registerNonPresetParam("distortion.dialog", &fdialogbox1, false);
-	registerNonPresetParam("freeverb.dialog", &fdialogbox2, false);
-	registerNonPresetParam("IR.dialog", &fdialogbox3, false);
-	registerNonPresetParam("crybaby.dialog", &fdialogbox4, false);
-	registerNonPresetParam("chorus.dialog", &fchorusbox, false);
-	registerNonPresetParam("midi_out.dialog", &fdialogbox6, false);
-	registerNonPresetParam("jconv.dialog", &fdialogboxj, false);
-	registerNonPresetParam("jconv.expander", &fexpand2, false);
-	registerNonPresetParam("jconv.filedialog", &filebutton, false);
-	registerNonPresetParam("eq.dialog", &fdialogbox_eq, false);
-	registerNonPresetParam("eqs.dialog", &fdialogbox_eqs, false);
-	registerNonPresetParam("MultiBandFilter.dialog", &fdialogbox_mbf, false);
-	registerNonPresetParam("moog.dialog", &fdialogbox_moo, false);
-	registerNonPresetParam("biquad.dialog", &fbiquadbox, false);
-	registerNonPresetParam("flanger.dialog", &fflangerbox, false);
+	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
+	registerNonMidiParam("distortion.dialog", &fdialogbox1, false);
+	registerNonMidiParam("freeverb.dialog", &fdialogbox2, false);
+	registerNonMidiParam("IR.dialog", &fdialogbox3, false);
+	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);
+	registerNonMidiParam("chorus.dialog", &fchorusbox, false);
+	registerNonMidiParam("midi_out.dialog", &fdialogbox6, false);
+	registerNonMidiParam("jconv.dialog", &fdialogboxj, false);
+	registerNonMidiParam("jconv.expander", &fexpand2, false);
+	registerNonMidiParam("jconv.filedialog", &filebutton, false);
+	registerNonMidiParam("eq.dialog", &fdialogbox_eq, false);
+	registerNonMidiParam("eqs.dialog", &fdialogbox_eqs, false);
+	registerNonMidiParam("MultiBandFilter.dialog", &fdialogbox_mbf, false);
+	registerNonMidiParam("moog.dialog", &fdialogbox_moo, false);
+	registerNonMidiParam("biquad.dialog", &fbiquadbox, false);
+	registerNonMidiParam("flanger.dialog", &fflangerbox, false);
 
 	// user interface options
-	registerNonPresetParam("ui.latency_nowarn", &fwarn, false, 0);
-	registerNonPresetParam("ui.skin", &fskin, false, 0, 0, 100);
-	registerNonPresetParam("ui.main_expander", &fexpand, false);
-	registerNonPresetParam("ui.amp_expander", &fampexpand, false);
+	registerNonMidiParam("ui.latency_nowarn", &fwarn, false, 0);
+	registerNonMidiParam("ui.skin", &fskin, false, 0, 0, 100);
+	registerNonMidiParam("ui.main_expander", &fexpand, false);
+	registerNonMidiParam("ui.amp_expander", &fampexpand, false);
 
 	// shouldn't be saved, only output?
-	registerNonPresetParam("system.fConsta1t", &fConsta1t, false);
-	registerNonPresetParam("system.midistat", &midistat, false);
-	registerNonPresetParam("system.waveview", &viv, false);
+	registerNonMidiParam("system.fConsta1t", &fConsta1t, false);
+	registerNonMidiParam("system.midistat", &midistat, false);
+	registerNonMidiParam("system.waveview", &viv, false);
 }
 
 AudioVariables audio;
