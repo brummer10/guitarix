@@ -378,7 +378,7 @@ public:
 	void writeJSON(gx_system::JsonWriter& jw);
 	void readJSON(gx_system::JsonParser& jp, controller_array& m);
 	void set_controller_array(const controller_array& m);
-	void remove_controlled_parameters(paramlist& plist, const controller_array& m);
+	void remove_controlled_parameters(paramlist& plist, const controller_array *m);
 	sigc::signal<void> changed;
 };
 

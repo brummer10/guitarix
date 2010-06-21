@@ -520,7 +520,7 @@ void write_preset(JsonWriter &w, bool write_midi)
 void read_preset(JsonParser &jp)
 {
 	gx_gui::paramlist plist;
-	gx_gui::MidiControllerList::controller_array m;
+	gx_gui::MidiControllerList::controller_array *m = 0;
 	jp.next(JsonParser::begin_object);
 	do {
 		jp.next(JsonParser::value_key);
@@ -530,7 +530,8 @@ void read_preset(JsonParser &jp)
 			*gx_jconv::GxJConvSettings::instance() = gx_jconv::GxJConvSettings(jp);
 		} else if (jp.current_value() == "midi_controller") {
 			if (gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
-				gx_gui::controller_map.readJSON(jp, m);
+				m = new gx_gui::MidiControllerList::controller_array;
+				gx_gui::controller_map.readJSON(jp, *m);
 			} else {
 				jp.skip_object();
 			}
@@ -544,7 +545,10 @@ void read_preset(JsonParser &jp)
 	for (gx_gui::paramlist::iterator i = plist.begin(); i != plist.end(); i++) {
 		(*i)->setJSON_value();
 	}
-	gx_gui::controller_map.set_controller_array(m);
+	if (m) {
+		gx_gui::controller_map.set_controller_array(*m);
+		delete m;
+	}
 }
 
 void writeHeader(JsonWriter& jw)
