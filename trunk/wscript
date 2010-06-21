@@ -110,6 +110,8 @@ def set_options(opt):
                     type='string',
                     help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
 
+    opt.recurse('lib')
+
 def check_comp(conf):
     if Options.options.includeresampler:
         define_name="ZITA_RESAMPLER"
@@ -218,7 +220,7 @@ def append_optimization_flags(cxxflags):
     model = cpu_model.split()
     arch = os.uname()[4]
     if "AMD" in model and "x86_64" in arch:
-        cxxflags.append ("-march=K8")
+        cxxflags.append ("-march=k8")
     elif "AMD" in model and "Sempron(tm)" in model:
         cxxflags.append ("-march=native")
     elif "Geode" in model :
@@ -346,14 +348,6 @@ def configure(conf):
         cpu_model = append_optimization_flags(cxxflags)
     conf.env['CXXFLAGS'] = cxxflags
 
-    # some output
-    print
-    display_msg("==================")
-    version_msg = "GUITARIX " + VERSION
-    print_msg(version_msg)
-
-    print_msg("")
-
     # config subdirs
     conf.sub_config('lib');
     conf.sub_config('src');
@@ -361,6 +355,14 @@ def configure(conf):
         conf.sub_config('src/faust');
     conf.sub_config('ladspa');
     conf.sub_config('rcstyles');
+
+    # some output
+    print
+    display_msg("==================")
+    version_msg = "GUITARIX " + VERSION
+    print_msg(version_msg)
+
+    print_msg("")
 
     if not conf.env['ZITA_RESAMPLER']:
         conf.env['ZITARESAMPLER'] = True

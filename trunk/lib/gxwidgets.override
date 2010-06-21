@@ -1,15 +1,34 @@
 %%
 headers
 #include <Python.h>
+#define PY_ARRAY_UNIQUE_SYMBOL gxwidgets_ARRAY_API
+#define NO_IMPORT_ARRAY
+#include <numpy/ndarrayobject.h>
 #include "pygobject.h"
 #include "GtkGxTuner.h"
 #include "GtkGxFastMeter.h"
+#include "GtkGxWaveView.h"
 %%
 modulename gxwidgets
 %%
 import gtk.DrawingArea as PyGtkDrawingArea_Type
-import gtk.Widget as PyGtkWidget_Type
 %%
 ignore-glob
  *_get_type
+%%
+override gtk_gx_wave_view_set_frame kwargs
+static PyObject *
+_wrap_gtk_gx_wave_view_set_frame(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+    static char *kwlist[] = { "frame", NULL };
+    PyObject *frame = NULL, *arr = NULL;
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs,"O:Gtk.GxWaveView.set", kwlist, &frame))
+        return NULL;
+    if ((arr = PyArray_FromObject(frame, NPY_FLOAT, 1, 1)) == NULL)
+        return NULL;
+    //FIXME: keep a reference around
+    gtk_gx_wave_view_set_frame(GTK_GX_WAVE_VIEW(self->obj), (float*)PyArray_DATA(arr), PyArray_SIZE(arr));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 %%

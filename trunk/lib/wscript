@@ -1,30 +1,86 @@
 # -*- python -*-
 # -*- coding: utf-8 -*-
 
+import Task, TaskGen, Logs, Utils
+
+#FIXME: should be configured?
+gobj_p = "/usr/share/pygobject/2.0/codegen"
+
+def set_options(opt):
+    opt.tool_options('compiler_cc')
+
 def configure(conf):
-       pass
+    try:
+        conf.check_tool('compiler_cc')
+        conf.check_tool('python')
+        conf.check_python_headers()
+    except:
+        conf.env["HAVE_PYTHON_H"] = 0
+    conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT')
+    conf.check_cfg(package='pygtk-2.0', args='--cflags --libs', uselib_store='PYGTK')
+
+def defs2c(task):
+    inode = task.inputs[0]
+    ovr = inode.parent.find_resource(inode.name.replace('.defs', '.override')).srcpath(task.env)
+    src = inode.srcpath(task.env)
+    o = task.outputs[0]
+    dst = o.bldpath(task.env)
+    cmd = "python %s/codegen.py --prefix=gxwidgets --override %s %s > %s 2>/dev/null" % (gobj_p, ovr, src, dst)
+    Logs.debug("runner: system command -> %s" % cmd)
+    return Utils.exec_command(cmd,shell=True)
+
+Task.task_type_from_func(
+    name    = 'defs',
+    func    = defs2c,
+    color   = 'BLUE',
+    ext_in  = '.defs',
+    ext_out = '.c',
+    before  = 'cc cxx')
+
+@TaskGen.extension('.defs')
+def defs_file(self, node):
+    tsk = self.create_task('defs')
+    tsk.set_inputs(node)
+    cc_node = node.change_ext(".c")
+    tsk.set_outputs(cc_node)
+    self.allnodes.append(cc_node)
+
+def build_python_module(bld):
+    for n in "PYTHON_H", "PYGOBJECT", "PYGTK":
+        if not bld.env["HAVE_"+n]:
+            return
+    prog = bld.new_task_gen(
+        features = ['cc','pyext','cshlib'],
+        source = ['gxwidgets.defs','gxwidgets-module.c'],
+        target = 'gxwidgets',
+        uselib = ['PYGOBJECT','PYGTK','GTK2'],
+        uselib_local = ['gxwidgets'],
+        ccflags = "-g",
+        includes = ['.'],
+        )
 
 def build(bld):
     sources = [
         'GtkGxFastMeter.cpp',
         #'GtkGxRegler.cpp',
-        #'GtkGxWaveView.cpp',
+        'GtkGxWaveView.cpp',
         'GtkGxTuner.cpp',
         ]
     # static library
     if 0:
         prog = bld.new_task_gen('cxx', 'cstaticlib')
-        prog.ccflags= bld.env['CCFLAGS']
+        prog.ccflags= bld.env['CXXFLAGS']
         prog.source = sources
         prog.uselib = ['GTHREAD', 'GTK2']
         prog.target = 'gxwidgets'
         prog.chmod=0755
         prog.install_path = bld.env['BINDIR']
-    #shared library
+    # shared library
     prog = bld.new_task_gen('cxx', 'cshlib')
-    prog.ccflags= bld.env['CCFLAGS']
+    prog.ccflags= bld.env['CXXFLAGS']
     prog.source = sources
     prog.uselib = ['GTHREAD', 'GTK2']
     prog.target = 'gxwidgets'
     prog.chmod=0755
     prog.install_path = bld.env['BINDIR']
+    build_python_module(bld)
