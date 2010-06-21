@@ -371,9 +371,8 @@ void MidiControllerList::writeJSON(gx_system::JsonWriter& w)
 	w.end_array(true);
 }
 
-void MidiControllerList::readJSON(gx_system::JsonParser& jp)
+void MidiControllerList::readJSON(gx_system::JsonParser& jp, controller_array& m)
 {
-	controller_array m;
 	jp.next(gx_system::JsonParser::begin_array);
 	while (jp.peek() != gx_system::JsonParser::end_array) {
 		jp.next(gx_system::JsonParser::value_number);
@@ -388,6 +387,10 @@ void MidiControllerList::readJSON(gx_system::JsonParser& jp)
 		jp.next(gx_system::JsonParser::end_array);
 	}
 	jp.next(gx_system::JsonParser::end_array);
+}
+
+void MidiControllerList::set_controller_array(const controller_array& m)
+{
 	bool mode = get_config_mode();
 	if (!mode) {
 		set_config_mode(true); // keep rt thread away from table
@@ -399,6 +402,28 @@ void MidiControllerList::readJSON(gx_system::JsonParser& jp)
 	changed();
 }
 
+void MidiControllerList::remove_controlled_parameters(paramlist& plist, const controller_array& new_m)
+{
+	std::set<Parameter*> pset;
+	for (unsigned int i = 0; i < map.size(); i++) {
+		midi_controller_list& ctr = map[i];
+		const midi_controller_list& ctr_new = new_m[i];
+		for (midi_controller_list::iterator j = ctr.begin(); j != ctr.end(); j++) {
+			for (midi_controller_list::const_iterator jn = ctr_new.cbegin(); jn != ctr_new.end(); jn++) {
+				if (j->getParameter() == jn->getParameter()) {
+					pset.insert(&j->getParameter());
+					break;
+				}
+			}
+		}
+	}
+	for (paramlist::iterator n = plist.begin(); n != plist.end(); ) {
+		paramlist::iterator n1 = n++;
+		if (pset.find(*n1) != pset.end()) {
+			plist.erase(n1);
+		}
+	}
+}
 
 /****************************************************************
  ** Parameter Groups
@@ -582,7 +607,12 @@ void FloatParameter::writeJSON(gx_system::JsonWriter& jw)
 void FloatParameter::readJSON_value(gx_system::JsonParser& jp)
 {
 	jp.next(gx_system::JsonParser::value_number);
-	set(jp.current_value_float());
+	json_value = jp.current_value_float();
+}
+
+void FloatParameter::setJSON_value()
+{
+	set(json_value);
 }
 
 bool FloatParameter::hasRange() const
@@ -645,7 +675,12 @@ void IntParameter::writeJSON(gx_system::JsonWriter& jw)
 void IntParameter::readJSON_value(gx_system::JsonParser& jp)
 {
 	jp.next(gx_system::JsonParser::value_number);
-	set(jp.current_value_int());
+	json_value = jp.current_value_int();
+}
+
+void IntParameter::setJSON_value()
+{
+	set(json_value);
 }
 
 bool IntParameter::hasRange() const
@@ -696,7 +731,12 @@ void BoolParameter::writeJSON(gx_system::JsonWriter& jw)
 void BoolParameter::readJSON_value(gx_system::JsonParser& jp)
 {
 	jp.next(gx_system::JsonParser::value_number);
-	value = jp.current_value_int();
+	json_value = jp.current_value_int();
+}
+
+void BoolParameter::setJSON_value()
+{
+	set(json_value);
 }
 
 
@@ -732,7 +772,12 @@ void SwitchParameter::writeJSON(gx_system::JsonWriter& jw)
 void SwitchParameter::readJSON_value(gx_system::JsonParser& jp)
 {
 	jp.next(gx_system::JsonParser::value_number);
-	set(jp.current_value_int());
+	json_value = jp.current_value_int();
+}
+
+void SwitchParameter::setJSON_value()
+{
+	set(json_value);
 }
 
 

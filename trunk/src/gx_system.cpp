@@ -463,7 +463,7 @@ void JsonParser::skip_object()
  ** loading of saving application data
  */
 
-void write_parameters(JsonWriter &w, bool preset)
+static void write_parameters(JsonWriter &w, bool preset)
 {
 	w.begin_object(true);
 	for (gx_gui::ParamMap::iterator i = gx_gui::parameter_map.begin(); i != gx_gui::parameter_map.end(); i++) {
@@ -476,7 +476,7 @@ void write_parameters(JsonWriter &w, bool preset)
 	w.end_object(true);
 }
 
-void read_parameters(JsonParser &jp, bool preset)
+static void read_parameters(JsonParser &jp, gx_gui::paramlist& plist, bool preset)
 {
 	jp.next(JsonParser::begin_object);
 	do {
@@ -497,6 +497,7 @@ void read_parameters(JsonParser &jp, bool preset)
 			continue;
 		}
 		param.readJSON_value(jp);
+		plist.push_back(&param);
 	} while (jp.peek() == JsonParser::value_key);
 	jp.next(JsonParser::end_object);
 }
@@ -518,16 +519,18 @@ void write_preset(JsonWriter &w, bool write_midi)
 
 void read_preset(JsonParser &jp)
 {
+	gx_gui::paramlist plist;
+	gx_gui::MidiControllerList::controller_array m;
 	jp.next(JsonParser::begin_object);
 	do {
 		jp.next(JsonParser::value_key);
 		if (jp.current_value() == "engine") {
-			read_parameters(jp, true);
+			read_parameters(jp, plist, true);
 		} else if (jp.current_value() == "jconv") {
 			*gx_jconv::GxJConvSettings::instance() = gx_jconv::GxJConvSettings(jp);
 		} else if (jp.current_value() == "midi_controller") {
 			if (gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
-				gx_gui::controller_map.readJSON(jp);
+				gx_gui::controller_map.readJSON(jp, m);
 			} else {
 				jp.skip_object();
 			}
@@ -537,6 +540,11 @@ void read_preset(JsonParser &jp)
 		}
 	} while (jp.peek() == JsonParser::value_key);
 	jp.next(JsonParser::end_object);
+	gx_gui::controller_map.remove_controlled_parameters(plist, m);
+	for (gx_gui::paramlist::iterator i = plist.begin(); i != plist.end(); i++) {
+		(*i)->setJSON_value();
+	}
+	gx_gui::controller_map.set_controller_array(m);
 }
 
 void writeHeader(JsonWriter& jw)
@@ -679,6 +687,8 @@ bool recallState( const string &filename )
 	if (!f.good()) {
 		return false;
 	}
+	gx_gui::paramlist plist;
+	gx_gui::MidiControllerList::controller_array m;
 	gx_system::JsonParser jp(f);
 	try {
 		jp.next(JsonParser::begin_array);
@@ -700,11 +710,11 @@ bool recallState( const string &filename )
 		do {
 			jp.next(JsonParser::value_string);
 			if (jp.current_value() == "settings") {
-				read_parameters(jp, false);
+				read_parameters(jp, plist, false);
 			} else if (jp.current_value() == "current_preset") {
 				read_preset(jp);
 			} else if (jp.current_value() == "midi_controller") {
-				gx_gui::controller_map.readJSON(jp);
+				gx_gui::controller_map.readJSON(jp, m);
 			} else if (jp.current_value() == "midi_ctrl_names") {
 				gx_gui::midi_std_ctr.readJSON(jp);
 			} else if (jp.current_value() == "jack_connections") {
@@ -721,6 +731,10 @@ bool recallState( const string &filename )
 		gx_print_error("recall settings", "invalid settings file: " + filename);
 		return false;
 	}
+	for (gx_gui::paramlist::iterator i = plist.begin(); i != plist.end(); i++) {
+		(*i)->setJSON_value();
+	}
+	gx_gui::controller_map.set_controller_array(m);
 	return true;
 }
 
