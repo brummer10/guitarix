@@ -643,7 +643,7 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
         double rect_height =  widget->allocation.height-4;
 
         cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
-        cairo_set_source_rgb (cr, 0, 0, 0);
+        cairo_set_source_rgba (cr, 0, 0, 0, 0.4);
         cairo_fill (cr);
 
         cairo_pattern_t*pat =
@@ -1751,6 +1751,11 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 		klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
 		g_assert(klass->regler_image != NULL);
 		klass->pix_switch = 1;
+//----------- eq slider
+		klass->eqslider_image = gdk_pixbuf_new_from_xpm_data(eqslider1_xpm);
+		g_assert(klass->eqslider_image != NULL);
+		klass->eqslider_image1 = gdk_pixbuf_copy( klass->eqslider_image );
+		g_assert(klass->eqslider_image1 != NULL);
 	} else if (klass->pix_switch == 1) {
 //----------- Big knob
 		klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob2_xpm);
@@ -1759,6 +1764,11 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 		klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
 		g_assert(klass->regler_image != NULL);
 		klass->pix_switch = 0;
+//----------- eq slider
+		klass->eqslider_image = gdk_pixbuf_new_from_xpm_data(eqslider_xpm);
+		g_assert(klass->eqslider_image != NULL);
+		klass->eqslider_image1 = gdk_pixbuf_copy( klass->eqslider_image );
+		g_assert(klass->eqslider_image1 != NULL);
 	} else if (klass->pix_switch == 2) {
 //----------- Big knob
 		klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob3_xpm);
@@ -1767,6 +1777,11 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 		klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
 		g_assert(klass->regler_image != NULL);
 		klass->pix_switch = 0;
+//----------- eq slider
+		klass->eqslider_image = gdk_pixbuf_new_from_xpm_data(eqslider_xpm);
+		g_assert(klass->eqslider_image != NULL);
+		klass->eqslider_image1 = gdk_pixbuf_copy( klass->eqslider_image );
+		g_assert(klass->eqslider_image1 != NULL);
 	} else if (klass->pix_switch == 3) {
 //----------- Big knob
 		klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob4_xpm);
@@ -1775,6 +1790,11 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 		klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
 		g_assert(klass->regler_image != NULL);
 		klass->pix_switch = 0;
+//----------- eq slider
+		klass->eqslider_image = gdk_pixbuf_new_from_xpm_data(eqslider_xpm);
+		g_assert(klass->eqslider_image != NULL);
+		klass->eqslider_image1 = gdk_pixbuf_copy( klass->eqslider_image );
+		g_assert(klass->eqslider_image1 != NULL);
 	} else if (klass->pix_switch == 4) {
 //----------- Big knob
 		klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob5_xpm);
@@ -1783,6 +1803,11 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 		klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
 		g_assert(klass->regler_image != NULL);
 		klass->pix_switch = 0;
+//----------- eq slider
+		klass->eqslider_image = gdk_pixbuf_new_from_xpm_data(eqslider_xpm);
+		g_assert(klass->eqslider_image != NULL);
+		klass->eqslider_image1 = gdk_pixbuf_copy( klass->eqslider_image );
+		g_assert(klass->eqslider_image1 != NULL);
 	} else if (klass->pix_switch == 5) {
 //----------- Big knob
 		klass->bigregler_image = gdk_pixbuf_new_from_xpm_data (knob6_xpm);
@@ -1791,6 +1816,11 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 		klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
 		g_assert(klass->regler_image != NULL);
 		klass->pix_switch = 0;
+//----------- eq slider
+		klass->eqslider_image = gdk_pixbuf_new_from_xpm_data(eqslider1_xpm);
+		g_assert(klass->eqslider_image != NULL);
+		klass->eqslider_image1 = gdk_pixbuf_copy( klass->eqslider_image );
+		g_assert(klass->eqslider_image1 != NULL);
 	}
 
 //----------- general pixmap init
@@ -1827,11 +1857,7 @@ void GtkRegler::gtk_regler_init_pixmaps(int change_knob)
 		g_assert(klass->minislider_image != NULL);
 		klass->minislider_image1 = gdk_pixbuf_copy( klass->minislider_image );
 		g_assert(klass->minislider_image1 != NULL);
-//----------- eq slider
-		klass->eqslider_image = gdk_pixbuf_new_from_xpm_data(eqslider_xpm);
-		g_assert(klass->eqslider_image != NULL);
-		klass->eqslider_image1 = gdk_pixbuf_copy( klass->eqslider_image );
-		g_assert(klass->eqslider_image1 != NULL);
+
 //----------- horizontal wheel
 		klass->wheel_image = gdk_pixbuf_new_from_xpm_data(wheel_xpm);
 		g_assert(klass->wheel_image != NULL);

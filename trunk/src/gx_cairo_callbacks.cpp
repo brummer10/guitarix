@@ -108,48 +108,8 @@ void gx_skin_color(cairo_pattern_t *pat)
 
 }
 
-gboolean label_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
-{
-	cairo_t *cr;
-	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
-
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
-
-    cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
-            cairo_set_source_rgb (cr, 0, 0, 0);
-            cairo_fill (cr);
-
-	cairo_pattern_t*pat =
-		cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
-	gx_skin_color(pat);
-	cairo_set_source (cr, pat);
-	cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
-	cairo_fill (cr);
-
-    cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
-    cairo_set_line_width(cr, 2.0);
-    cairo_move_to(cr,x0+rect_width-3, y0+3);
-    cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
-    cairo_line_to(cr, x0+2, y0+rect_height-2);
-    cairo_stroke(cr);
-
-    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
-    cairo_set_line_width(cr, 2.0);
-    cairo_move_to(cr,x0+3, y0+rect_height-1);
-    cairo_line_to(cr, x0+3, y0+3);
-    cairo_line_to(cr, x0+rect_width-3, y0+3);
-    cairo_stroke(cr);
-	cairo_destroy(cr);
-
-	return FALSE;
-}
-
 //----- paint boxes with cairo -----
-gboolean box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+gboolean amp_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
 	cr = gdk_cairo_create(wi->window);
@@ -159,9 +119,7 @@ gboolean box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	double rect_width  = wi->allocation.width-4;
 	double rect_height = wi->allocation.height-4;
 	double radius = 25.;
-
 	double x1,y1;
-
 	x1=x0+rect_width;
 	y1=y0+rect_height;
 
@@ -194,11 +152,10 @@ gboolean box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	cairo_stroke (cr);
 
 	cairo_destroy(cr);
-
 	return FALSE;
 }
 
-gboolean box1_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+gboolean conv_widget_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
 	cairo_pattern_t *pat;
@@ -223,7 +180,6 @@ gboolean box1_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
 	cairo_line_to (cr, x0 + radius, y1);
 	cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-
 	cairo_close_path (cr);
 
 	pat = cairo_pattern_create_linear (0, y0, 0, y1);
@@ -256,14 +212,13 @@ gboolean box1_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	return FALSE;
 }
 
-gboolean box2_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+gboolean upper_widget_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
 	cairo_pattern_t *pat;
 
 	gint x, y;
 	gint w, h;
-
 	/* get the dimensions */
 	x = wi->allocation.x+2;
 	y = wi->allocation.y+2;
@@ -293,11 +248,9 @@ gboolean box2_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
 }
 
-gboolean box3_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+gboolean rectangle_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
-
-
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 
@@ -325,7 +278,7 @@ gboolean box3_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	return FALSE;
 }
 
-gboolean box4_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
 	/* create a cairo context */
@@ -353,11 +306,9 @@ gboolean box4_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	return FALSE;
 }
 
-gboolean box5_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+gboolean convolver_icon_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
-
-
 	/* create a cairo black arc to given widget */
 	cr = gdk_cairo_create(wi->window);
 
@@ -385,6 +336,7 @@ gboolean box5_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	cairo_set_source_rgb (cr, 1, 1, 1);
 	cairo_set_line_width (cr, 1.0);
 	cairo_stroke (cr);
+
 	cairo_move_to (cr, x0+10, y0 + (rect_height*0.5));
 	cairo_line_to (cr, x0+75 , y0 + (rect_height*0.5));
 	cairo_move_to (cr, x0+10, y0 + (rect_height*0.2));
@@ -399,11 +351,9 @@ gboolean box5_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	return FALSE;
 }
 
-gboolean box6_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+gboolean zac_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
-
-
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 
@@ -426,10 +376,9 @@ gboolean box6_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	return FALSE;
 }
 
-gboolean box7_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+gboolean level_meter_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
-
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 	cairo_set_font_size (cr, 7.0);
@@ -484,11 +433,9 @@ gboolean box7_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	return FALSE;
 }
 
-gboolean box8_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+gboolean AmpBox_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
-
-
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 
@@ -522,20 +469,17 @@ gboolean box8_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
     cairo_line_to(cr, x0+rect_width-3, y0+3);
     cairo_stroke(cr);
 
-
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 
 	return FALSE;
 }
 
-gboolean box9_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+gboolean tribal_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	if (int(float(gx_gui::gx_current_skin)!=1) && int(float(gx_gui::gx_current_skin)<7))
 	{
 		cairo_t *cr;
-
-
 		/* create a cairo context */
 		cr = gdk_cairo_create(wi->window);
 
@@ -590,7 +534,6 @@ gboolean vbox_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	if (int(float(gx_gui::gx_current_skin)==1))
 	{
 		cairo_t *cr;
-
 		/* create a cairo context */
 		cr = gdk_cairo_create(wi->window);
 
@@ -616,17 +559,14 @@ gboolean vbox_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 		cairo_destroy(cr);
 	}
 	else if (int(float(gx_gui::gx_current_skin)>=7))
-		box6_expose(wi,ev,user_data);
+		zac_expose(wi,ev,user_data);
 
 	return FALSE;
 }
 
-gboolean box11_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
+gboolean filter_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
-
 	cairo_t *cr;
-
-
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 
@@ -661,6 +601,7 @@ gboolean box11_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	cairo_line_to (cr, x0 + radius, y1);
 	cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
 	cairo_close_path (cr);
+
 	pat = cairo_pattern_create_linear (0, y0, 0, y1);
 	cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0, 0.8);
 	cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.05, 0.05, 0.05, 0.6);
@@ -672,57 +613,6 @@ gboolean box11_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	cairo_destroy(cr);
 	g_object_unref(_image);
 
-	return FALSE;
-}
-
-gboolean box12_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
-{
-	if (gx_gui::show_eq)
-	{
-		cairo_t *cr;
-
-
-		/* create a cairo context */
-		cr = gdk_cairo_create(wi->window);
-
-		double x0      = wi->allocation.x+1;
-		double y0      = wi->allocation.y+1;
-		double rect_width  = wi->allocation.width-2;
-		double rect_height = wi->allocation.height-3;
-
-
-		cairo_pattern_t*pat;
-
-		double radius = 38.;
-		if (rect_width<38) radius = rect_width;
-		else if (rect_height<38) radius = rect_height;
-		double x1,y1;
-
-		x1=x0+rect_width;
-		y1=y0+rect_height;
-
-		cairo_move_to  (cr, x0, y0 + radius);
-		cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-		cairo_line_to (cr, x1 - radius, y0);
-		cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-		cairo_line_to (cr, x1 , y1 - radius);
-		cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-		cairo_line_to (cr, x0 + radius, y1);
-		cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-		cairo_close_path (cr);
-		pat = cairo_pattern_create_linear (0, y0, 0, y1);
-        cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0, 0.8);
-        cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.05, 0.05, 0.05, 0.6);
-        cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.2, 0.4);
-        cairo_set_source (cr, pat);
-		cairo_fill (cr);
-
-		cairo_pattern_destroy (pat);
-		cairo_destroy(cr);
-
-
-	}
-	else box11_expose(wi, ev,  user_data);
 	return FALSE;
 }
 
@@ -746,7 +636,6 @@ gboolean boxamp_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
                         x0, y0, rect_width,rect_height,
                         GDK_RGB_DITHER_NORMAL, 0, 0);
 
-
         cairo_destroy(cr);
         g_object_unref(_image);
     }
@@ -755,43 +644,36 @@ gboolean boxamp_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
 gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
+    cairo_t *cr;
+    /* create a cairo context */
+    cr = gdk_cairo_create(wi->window);
 
-        cairo_t *cr;
-        /* create a cairo context */
-        cr = gdk_cairo_create(wi->window);
+    double x0      = wi->allocation.x+5;
+    double y0      = wi->allocation.y;
+   // double rect_width  = wi->allocation.width-2;
+    double rect_height = wi->allocation.height-50;
+    float p = gx_gui::parameter_map["eq.f31_25"].getFloat().value;
+    float q = 100 - gx_gui::parameter_map["eq.Q31_25"].getFloat().value;
+    //float v = p.value;
+    cairo_move_to (cr, x0 , y0 + rect_height-(62*q*0.01)-p);
+    cairo_line_to (cr, x0 + 14, y0 + rect_height-62 - p);
+    cairo_line_to (cr, x0 + 33, y0 + rect_height-(62*q*0.01)-p);
+    p = gx_gui::parameter_map["eq.f62_5"].getFloat().value;
+    q = 100 - gx_gui::parameter_map["eq.Q62_5"].getFloat().value;
+    cairo_move_to (cr, x0 +35 , y0 + rect_height-(62*q*0.01)-p);
+    cairo_line_to (cr, x0 + 46, y0 + rect_height-62 - p);
+    cairo_line_to (cr, x0 +62 , y0 + rect_height-(62*q*0.01)-p);
+    cairo_set_source_rgb(cr,  0, 0, 0);
+    cairo_set_line_width(cr, 2.0);
+    cairo_stroke(cr);
 
-        double x0      = wi->allocation.x+5;
-        double y0      = wi->allocation.y;
-       // double rect_width  = wi->allocation.width-2;
-        double rect_height = wi->allocation.height-50;
-        float p = gx_gui::parameter_map["eq.f31_25"].getFloat().value;
-        float q = 100 - gx_gui::parameter_map["eq.Q31_25"].getFloat().value;
-        //float v = p.value;
-        cairo_move_to (cr, x0 , y0 + rect_height-(62*q*0.01)-p);
-        cairo_line_to (cr, x0 + 14, y0 + rect_height-62 - p);
-        cairo_line_to (cr, x0 + 33, y0 + rect_height-(62*q*0.01)-p);
-        p = gx_gui::parameter_map["eq.f62_5"].getFloat().value;
-        q = 100 - gx_gui::parameter_map["eq.Q62_5"].getFloat().value;
-        cairo_move_to (cr, x0 +35 , y0 + rect_height-(62*q*0.01)-p);
-        cairo_line_to (cr, x0 + 46, y0 + rect_height-62 - p);
-        cairo_line_to (cr, x0 +62 , y0 + rect_height-(62*q*0.01)-p);
-        cairo_set_source_rgb(cr,  0, 0, 0);
-        cairo_set_line_width(cr, 2.0);
-        cairo_stroke(cr);
-
-
-
-        cairo_destroy(cr);
-
-
+    cairo_destroy(cr);
 	return FALSE;
 }
 
 gboolean plug_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
-
-
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 
@@ -847,8 +729,6 @@ gboolean plug_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
-
-
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 
@@ -921,8 +801,6 @@ gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 gboolean slooper_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
-
-
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 

@@ -351,9 +351,9 @@ void GxMainInterface::openLevelMeterBox(const char* label)
 	gtk_box_set_spacing(GTK_BOX(box), 1);
 
 	gtk_widget_set_size_request (GTK_WIDGET(box), boxwidth, boxheight);
-	g_signal_connect(box, "expose-event", G_CALLBACK(box7_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(level_meter_expose), NULL);
 	g_signal_connect(GTK_CONTAINER(box), "check-resize",
-	                 G_CALLBACK(box7_expose), NULL);
+	                 G_CALLBACK(level_meter_expose), NULL);
 
 	// meter level colors
 	int base = 0x00380800;
@@ -621,7 +621,7 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	GtkWidget * box = gtk_vbox_new (homogene, 0);
 	GtkWidget * box1 = gtk_fixed_new ();
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-	g_signal_connect(box, "expose-event", G_CALLBACK(box9_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(tribal_box_expose), NULL);
 
 	GtkWidget* 	button = gtk_button_new ();
 	GtkWidget* 	button1 = gtk_button_new ();
@@ -669,7 +669,7 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 0);
-	g_signal_connect(box, "expose-event", G_CALLBACK(box9_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(tribal_box_expose), NULL);
 	GtkWidget * box1 = gtk_fixed_new ();
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 	GtkWidget* 	button = gtk_button_new ();
@@ -896,7 +896,7 @@ void GxMainInterface::openAmpBox(const char* label)
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 2);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 4);
-	g_signal_connect(box, "expose-event", G_CALLBACK(box8_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(AmpBox_expose), NULL);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{
@@ -932,7 +932,7 @@ void GxMainInterface::openPaintBox(const char* label)
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 2);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 4);
-	g_signal_connect(box, "expose-event", G_CALLBACK(box12_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(filter_box_expose), NULL);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{
@@ -968,7 +968,7 @@ void GxMainInterface::openPaintBox1(const char* label)
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 2);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 8);
-	g_signal_connect(box, "expose-event", G_CALLBACK(box_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(amp_expose), NULL);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{
@@ -986,7 +986,7 @@ void GxMainInterface::openPaintBox2(const char* label)
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 2);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
-	g_signal_connect(box, "expose-event", G_CALLBACK(box2_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(upper_widget_expose), NULL);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{
@@ -1077,7 +1077,7 @@ void GxMainInterface::openScrollBox(const char* label)
 	GtkWidget * box = gtk_vbox_new (homogene, 0);
 	GtkWidget * box1 = gtk_hbox_new (homogene, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-	g_signal_connect(box, "expose-event", G_CALLBACK(box4_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(rectangle_skin_color_expose), NULL);
 
 	GtkWidget* 	button = gtk_button_new ();
 
@@ -1597,20 +1597,15 @@ void GxMainInterface::addregler(const char* label, float* zone, float init, floa
 	//GtkWidget* lw = gtk_label_new("");
 	GtkRegler myGtkRegler;
 	GtkWidget* lw = myGtkRegler.gtk_value_display(GTK_ADJUSTMENT(adj));
-	//GtkWidget* lw = gtk_label_new("");
-	//GtkWidget* labelbox = gtk_vbox_new (FALSE, 4);
-	//gtk_container_add (GTK_CONTAINER(labelbox), lw);
-	//gtk_container_set_border_width (GTK_CONTAINER (labelbox), 6);
-	//g_signal_connect(lw, "expose-event", G_CALLBACK(label_expose), NULL);
+
 	GtkWidget* lwl = gtk_label_new(label);
 	gtk_widget_set_name (lw,"value_label");
 	gtk_widget_set_name (lwl,"effekt_label");
 	GtkStyle *style = gtk_widget_get_style(lwl);
 	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-	//gtk_widget_modify_font(lw, style->font_desc);
+
 	gtk_widget_modify_font(lwl, style->font_desc);
-	//new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
 
 	GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
 	connect_midi_controller(slider, zone);
@@ -1893,13 +1888,9 @@ void GxMainInterface::addbigregler(const char* label, float* zone, float init, f
 	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
 	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+
 	GtkRegler myGtkRegler;
 	GtkWidget* lw = myGtkRegler.gtk_value_display(GTK_ADJUSTMENT(adj));
-	//GtkWidget* lw = gtk_label_new("");
-	/*GtkWidget* labelbox = gtk_vbox_new (FALSE, 4);
-	gtk_container_add (GTK_CONTAINER(labelbox), lw);
-	gtk_container_set_border_width (GTK_CONTAINER (labelbox), 6);*/
-	//g_signal_connect(lw, "expose-event", G_CALLBACK(label_expose), NULL);
 	GtkWidget* lwl = gtk_label_new(label);
 
 	gtk_widget_set_name (lw,"value_label");
@@ -1908,11 +1899,8 @@ void GxMainInterface::addbigregler(const char* label, float* zone, float init, f
 	GtkStyle *style = gtk_widget_get_style(lwl);
 	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-	//gtk_widget_modify_font(lw, style->font_desc);
 	gtk_widget_modify_font(lwl, style->font_desc);
 
-	//new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
-	//GtkRegler myGtkRegler;
 	GtkWidget* slider = myGtkRegler.gtk_big_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
 	connect_midi_controller(slider, zone);
 	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
@@ -2202,7 +2190,7 @@ void GxMainInterface::openDialogBox(const char* id, float* zone, int * z1)
 	GtkWidget * box5 = gtk_hbox_new (homogene, 4);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
 	gtk_container_set_border_width (GTK_CONTAINER (box4), 8);
-	g_signal_connect(box4, "expose-event", G_CALLBACK(box3_expose), NULL);
+	g_signal_connect(box4, "expose-event", G_CALLBACK(rectangle_expose), NULL);
 	GdkColor colorRed;
 	GdkColor colorOwn;
 	gdk_color_parse ("#000094", &colorRed);
@@ -2436,7 +2424,7 @@ void GxMainInterface::addLiveWaveDisplay(const char* label, float* zone , float*
 	livewa = gx_wave_live_view(zone,zone1,GTK_ADJUSTMENT(adj));
 	GtkWidget * box      = gtk_vbox_new (false, 4);
 	GtkWidget * e_box =  gtk_event_box_new ();
-	g_signal_connect(box, "expose-event", G_CALLBACK(box1_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(conv_widget_expose), NULL);
 	gtk_widget_set_size_request (box, 303, 82);
 	gtk_widget_set_size_request (e_box, 280, 50);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 12);
@@ -2732,6 +2720,20 @@ void GxMainInterface::addPresetMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
 	gtk_widget_show (sep);
 
+	/*-- Create patch info check menu item under Options submenu --*/
+	menuitem = gtk_menu_item_new_with_mnemonic ("P_atch Info");
+	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
+	                           GDK_a, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+	g_signal_connect (GTK_OBJECT (menuitem), "activate",
+	                  G_CALLBACK (gx_patch), NULL);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+	gtk_widget_show (menuitem);
+
+	/*-- add a separator line --*/
+	sep = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+	gtk_widget_show (sep);
+
 	/*-- Create  Main setting submenu --*/
 	menuitem = gtk_menu_item_new_with_mnemonic ("Recall Main _Setting");
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
@@ -2938,15 +2940,6 @@ void GxMainInterface::addOptionMenu()
 	                           GDK_t, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_tuner), NULL);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-	gtk_widget_show (menuitem);
-
-	/*-- Create patch info check menu item under Options submenu --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("P_atch Info");
-	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
-	                           GDK_a, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-	g_signal_connect (GTK_OBJECT (menuitem), "activate",
-	                  G_CALLBACK (gx_patch), NULL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
 

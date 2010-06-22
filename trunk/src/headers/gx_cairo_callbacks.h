@@ -23,20 +23,18 @@
 
 namespace gx_cairo
 {
-gboolean box12_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean box11_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean filter_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean vbox_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean box9_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean box8_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean box7_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean box6_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean box5_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean box4_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean box3_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean box2_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean box1_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean box_expose  (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean label_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean tribal_box_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean AmpBox_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean level_meter_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean zac_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean convolver_icon_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean rectangle_skin_color_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean rectangle_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean upper_widget_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean conv_widget_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean amp_expose  (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean boxamp_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean plug_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);

@@ -87,11 +87,13 @@ bool gx_jack_init( const string *optvar )
 	else
 #endif
 	    client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
-	    client_insert = jack_client_open (client_insert_name.c_str(), JackNoStartServer, &jackstat);
+	    // ----- only start the insert client when the amp client is true
+	    if (client)client_insert = jack_client_open (client_insert_name.c_str(), JackNoStartServer, &jackstat);
 
 	if (client == 0)
 	{
-		gx_print_warning("Jack Init", "not yet a jack client");
+	    // skip useless message
+		//gx_print_warning("Jack Init", "not yet a jack client");
 
 		// if jackd is running, let's call ourselves again
 		if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK)
@@ -839,14 +841,14 @@ int gx_jack_process (jack_nframes_t nframes, void *arg)
 	} else {
 		gx_engine::buffers_ready = false;
 	}
-	measure_stop();
+	//measure_stop();
 	return 0;
 }
 
 // ----- main jack process method
 int gx_jack_insert_process (jack_nframes_t nframes, void *arg)
 {
-	measure_start();
+	//measure_start();
 	if (!jack_is_exit) {
 		AVOIDDENORMALS;
 

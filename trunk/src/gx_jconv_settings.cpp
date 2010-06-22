@@ -550,11 +550,11 @@ void gx_setting_jconv_dialog_gui(GtkWidget *widget, gpointer data)
 	gtk_container_add (GTK_CONTAINER (box4),   ok_button);
 
 	//----- connect signals to callback cairo funcs
-	g_signal_connect(box9, "expose-event", G_CALLBACK(gx_cairo::box1_expose), NULL);
-	g_signal_connect(box7, "expose-event", G_CALLBACK(gx_cairo::box3_expose), NULL);
-	g_signal_connect(box2, "expose-event", G_CALLBACK(gx_cairo::box4_expose), NULL);
-	g_signal_connect(gx_gui::label6, "expose-event", G_CALLBACK(gx_cairo::box4_expose), NULL);
-	g_signal_connect(label, "expose-event", G_CALLBACK(gx_cairo::box5_expose), NULL);
+	g_signal_connect(box9, "expose-event", G_CALLBACK(gx_cairo::conv_widget_expose), NULL);
+	g_signal_connect(box7, "expose-event", G_CALLBACK(gx_cairo::rectangle_expose), NULL);
+	g_signal_connect(box2, "expose-event", G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
+	g_signal_connect(gx_gui::label6, "expose-event", G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
+	g_signal_connect(label, "expose-event", G_CALLBACK(gx_cairo::convolver_icon_expose), NULL);
 
 	// IR file select
 	g_signal_connect (gx_gui::fbutton, "file-set",

@@ -1463,6 +1463,9 @@ void gx_destroy_event()
 	if (G_IS_OBJECT(gx_cairo::tribeimage1))
 		g_object_unref(gx_cairo::tribeimage1);
 
+	if (G_IS_OBJECT(gx_cairo::tribeimage2))
+		g_object_unref(gx_cairo::tribeimage2);
+
 	if (G_IS_OBJECT(gx_cairo::_image))
 		g_object_unref(gx_cairo::_image);
 

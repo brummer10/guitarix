@@ -1226,7 +1226,7 @@ void faust_setup()
     gtk_signal_connect (GTK_OBJECT (exp_window), "hide", GTK_SIGNAL_FUNC(on_hide), NULL);
     gtk_signal_connect (GTK_OBJECT (exp_window), "show", GTK_SIGNAL_FUNC(on_show), NULL);
     GtkWidget *vbox = gtk_vbox_new(false, 10);
-    g_signal_connect(vbox, "expose-event", G_CALLBACK(gx_cairo::box8_expose), NULL);
+    g_signal_connect(vbox, "expose-event", G_CALLBACK(gx_cairo::AmpBox_expose), NULL);
     gtk_widget_show(vbox);
     GtkWidget *hbox = gtk_hbox_new(false, 10);
     gtk_widget_show(hbox);

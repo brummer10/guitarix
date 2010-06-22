@@ -218,6 +218,8 @@ void GxMainInterface::setup()
                                 closeBox();
                                 openVerticalBox("");
                                 {
+                                    openSpaceBox("");
+                                    closeBox();
                                     const char* labels[2]  ={"fixed","scale"};
                                     addselector("eqt.onetwo",2,labels,"");
                                     openHorizontalBox("");
@@ -347,8 +349,14 @@ void GxMainInterface::setup()
                                 {
                                     openHorizontalBox("");
                                     {
+                                        openSpaceBox("");
+                                        closeBox();
                                         addbigregler("amp.in_level");
+                                        openSpaceBox("");
+                                        closeBox();
                                         addbigregler("amp.out_master");
+                                        openSpaceBox("");
+                                        closeBox();
                                     }
                                     closeBox();
                                     openSpaceBox("");
@@ -397,12 +405,7 @@ void GxMainInterface::setup()
 						closeBox();
 						//----- end tone and fuzz controll
 
-						//----- the next part in the vertical box,
-						openExpanderBox(" amplifier", &gx_engine::audio.fampexpand);
-                        {
-						openAmpBox("");
-						{
-							openHorizontalBox("");
+						openHorizontalBox("");
 							{
 								openVerticalBox("shaper ");
 								{
@@ -437,14 +440,20 @@ void GxMainInterface::setup()
 							}
 							closeBox();
 
+						//----- the next part in the vertical box,
+						openExpanderBox(" amplifier", &gx_engine::audio.fampexpand);
+                        {
+						openAmpBox("");
+						{
 							openAmpBox("  ");
 							{
 								openHorizontalBox("");
 								{
-
+                                    openSpaceBox("");
+                                    closeBox();
 									openVerticalBox1("");
 									{
-									    addminiswitch("amp.oversample.on_off", "oversample ");
+									    addminiswitch("amp.oversample.on_off", "oversample  ");
 									    const char* labels[8]  ={"  1x","  2x", "  3x","  4x","  5x", "  6x", "  7x", "  8x"};
 										addselector("amp.select",8,labels,"");
 									}
@@ -452,8 +461,8 @@ void GxMainInterface::setup()
 
 									openVerticalBox1("");
 									{
-                                        addminiswitch("amp.bass_boost.on_off", "bass boost ");
-                                        openVerticalBox1("");
+                                        addminiswitch("amp.bass_boost.on_off", "bass boost  ");
+                                        openSpaceBox("");
                                         closeBox();
                                         openVerticalBox1("");
                                         closeBox();

@@ -439,6 +439,35 @@ void gx_reset_units( GtkWidget *widget, gpointer data )
 	}
 }
 
+/*
+// FIXME add some presets for the eq
+void gx_reset_eq( GtkWidget *widget, gpointer data )
+{
+	string group_id = string((const char*)data) + ".";
+	string on_off = group_id + "on_off";
+
+	string presetfile = gx_user_dir + "eq_rc";
+
+	ifstream ofile(presetfile.c_str());
+	JsonParser jp(ofile);
+
+	try {
+		jp.next(JsonParser::begin_array);
+		readHeader(jp);
+
+		while (jp.peek() != JsonParser::end_array) {
+			jp.next(JsonParser::value_string);
+				read_preset(jp);
+		}
+		jp.next(JsonParser::end_array);
+		jp.next(JsonParser::end_token);
+	}catch (JsonException& e) {
+		gx_print_error("load preset", "invalid preset file: " + presetfile);
+	}
+
+}
+*/
+
 //----- show extendend settings slider
 void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 {
@@ -951,7 +980,7 @@ int gx_message_popup(const char* msg)
 	g_signal_connect_swapped (ok_button, "clicked",
 	                          G_CALLBACK (gtk_widget_destroy), about);
 
-	g_signal_connect(label, "expose-event", G_CALLBACK(box1_expose), NULL);
+	g_signal_connect(label, "expose-event", G_CALLBACK(conv_widget_expose), NULL);
 	gtk_widget_show (ok_button);
 	gtk_widget_show (label);
 	return gtk_dialog_run (GTK_DIALOG(about));

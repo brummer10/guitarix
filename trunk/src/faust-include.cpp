@@ -616,7 +616,7 @@ void GTKUI::openVerticalBox(const char* fullLabel)
 	int      adjust = checkLabelOptions(box, fullLabel, label);
 
 	gtk_container_set_border_width (GTK_CONTAINER (box), 10);
-	g_signal_connect(box, "expose-event", G_CALLBACK(gx_cairo::box9_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(gx_cairo::tribal_box_expose), NULL);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0) {
 		GtkWidget * frame = addWidget(label.c_str(), gtk_frame_new (label.c_str()));
