@@ -24,18 +24,18 @@
  * --------------------------------------------------------------------------
  */
 
-#ifndef __GTK_GX_FAST_METER_H__
-#define __GTK_GX_FAST_METER_H__
+#ifndef __GX_FAST_METER_H__
+#define __GX_FAST_METER_H__
 
 #include <gtk/gtkdrawingarea.h>
 
 G_BEGIN_DECLS
 
-#define GTK_TYPE_GX_FAST_METER            (gtk_gx_fast_meter_get_type())
-#define GTK_GX_FAST_METER(obj)	           (G_TYPE_CHECK_INSTANCE_CAST((obj), GTK_TYPE_GX_FAST_METER, GtkGxFastMeter))
-#define GTK_IS_GX_FAST_METER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), GTK_TYPE_GX_FAST_METER))
-#define GTK_GX_FAST_METER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass),  GTK_TYPE_GX_FAST_METER, GtkGxFastMeterClass))
-#define GTK_IS_GX_FAST_METER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass),  GTK_TYPE_GX_FAST_METER))
+#define GX_TYPE_FAST_METER            (gx_fast_meter_get_type())
+#define GX_FAST_METER(obj)	           (G_TYPE_CHECK_INSTANCE_CAST((obj), GX_TYPE_FAST_METER, GxFastMeter))
+#define GX_IS_FAST_METER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), GX_TYPE_FAST_METER))
+#define GX_FAST_METER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass),  GX_TYPE_FAST_METER, GxFastMeterClass))
+#define GX_IS_FAST_METER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass),  GX_TYPE_FAST_METER))
 
 typedef struct {
 	GtkDrawingArea parent;
@@ -50,22 +50,22 @@ typedef struct {
 	float         current_level;
 	float         current_peak;
 	gint dimen, clr0, clr1, clr2, clr3;
-} GtkGxFastMeter;
+} GxFastMeter;
 
 typedef struct {
 	GtkDrawingAreaClass parent_class;
-} GtkGxFastMeterClass;
+} GxFastMeterClass;
 
-GType gtk_gx_fast_meter_get_type(void);
+GType gx_fast_meter_get_type(void);
 
 /* --------- public exposed API ---------  */
-GtkWidget* gtk_gx_fast_meter_new(long hold, gulong dimen, int clr0, int clr1, int clr2, int clr3);
+GtkWidget* gx_fast_meter_new(long hold, gulong dimen, int clr0, int clr1, int clr2, int clr3);
 
-void  gtk_gx_fast_meter_set            (GtkGxFastMeter* fastmeter, float lvl);
-void  gtk_gx_fast_meter_clear          (GtkGxFastMeter* fastmeter);
+void  gx_fast_meter_set            (GxFastMeter* fastmeter, float lvl);
+void  gx_fast_meter_clear          (GxFastMeter* fastmeter);
 
-void  gtk_gx_fast_meter_set_hold_count (GtkGxFastMeter* fastmeter, long val);
+void  gx_fast_meter_set_hold_count (GxFastMeter* fastmeter, long val);
 
 G_END_DECLS
 
-#endif /* __GTK_GX_FAST_METER_H__ */
+#endif /* __GX_FAST_METER_H__ */

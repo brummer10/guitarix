@@ -1,73 +1,139 @@
 # -*- python -*-
 # -*- coding: utf-8 -*-
 
-import Task, TaskGen, Logs, Utils
+import Task, TaskGen, Logs, Utils, Configure, Options
 
-#FIXME: should be configured?
-gobj_p = "/usr/share/pygobject/2.0/codegen"
+@Configure.conf
+def cfg_get_variable(self, package, variable):
+    p = Utils.pproc.Popen(["pkg-config", "--variable="+variable, package],
+                          stdout=Utils.pproc.PIPE, shell=False)
+    v = p.communicate()[0].strip()
+    if p.returncode or not v:
+        self.fatal('fail to get variable %s for package %s' % (variable, package))
+    self.env[variable.upper()] = v
 
 def set_options(opt):
     opt.tool_options('compiler_cc')
+    grp = opt.add_option_group("Compiler / Linker flags")
+    grp.add_option('--static-lib',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=('build static widget library'),
+                   )
+    grp.add_option('--shared-lib',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=('build shared widget library'),
+                   )
+    grp.add_option('--python-wrapper',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=('build python wrapper for library'),
+                   )
 
 def configure(conf):
-    try:
-        conf.check_tool('compiler_cc')
-        conf.check_tool('python')
-        conf.check_python_headers()
-    except:
-        conf.env["HAVE_PYTHON_H"] = 0
+    if Options.options.static_lib:
+        conf.env["GX_LIB_STATIC"] = 1
+    if Options.options.shared_lib:
+        conf.env["GX_LIB_SHARED"] = 1
+    if Options.options.python_wrapper:
+        conf.env["GX_PYTHON_WRAPPER"] = 1
+        if not Options.options.shared_lib:
+            conf.env["GX_LIB_SHARED"] = 1
+    if not Options.options.static_lib and not Options.options.shared_lib:
+        return
+    conf.check_tool("libtool")
+    if not Options.options.python_wrapper:
+        return
+    conf.check_tool('compiler_cc')
+    conf.check_tool('python')
+    conf.check_python_headers()
     conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT')
     conf.check_cfg(package='pygtk-2.0', args='--cflags --libs', uselib_store='PYGTK')
+    conf.cfg_get_variable(package='pygtk-2.0', variable='defsdir')
+    conf.cfg_get_variable(package='pygtk-2.0', variable='codegendir')
+
+def h2defs(task):
+    sources = " ".join(["'%s'" % v.srcpath(task.env) for v in task.inputs[:-2]])
+    lib = task.inputs[-2].srcpath(task.env)
+    fltr = task.inputs[-1].srcpath(task.env)
+    dst = task.outputs[0].bldpath(task.env)
+    cmd = ("python '%s'/defsgen.py -m gx -l %s -f '%s' %s > '%s' && cat '%s' >> '%s'"
+           % (task.env["CODEGENDIR"], lib, fltr, sources, dst, fltr, dst))
+    Logs.debug("runner: system command -> %s" % cmd)
+    return Utils.exec_command(cmd, shell=True)
 
 def defs2c(task):
-    inode = task.inputs[0]
-    ovr = inode.parent.find_resource(inode.name.replace('.defs', '.override')).srcpath(task.env)
-    src = inode.srcpath(task.env)
-    o = task.outputs[0]
-    dst = o.bldpath(task.env)
-    cmd = "python %s/codegen.py --prefix=gxwidgets --override %s %s > %s 2>/dev/null" % (gobj_p, ovr, src, dst)
+    ovr = task.inputs[0].srcpath(task.env)
+    src = task.inputs[1].srcpath(task.env)
+    dst = task.outputs[0].bldpath(task.env)
+    defsdir = task.env["DEFSDIR"]
+    cmd = ("pygobject-codegen-2.0"
+           " --prefix gxwidgets"
+           " --register '%s'/gdk-types.defs"
+           " --register '%s'/gtk-types.defs"
+           " --override '%s'"
+           " --outfilename '%s'"
+           " '%s'"
+           " > '%s'"
+           % (defsdir, defsdir, ovr, dst, src, dst))
     Logs.debug("runner: system command -> %s" % cmd)
     return Utils.exec_command(cmd,shell=True)
 
-Task.task_type_from_func(
-    name    = 'defs',
-    func    = defs2c,
-    color   = 'BLUE',
-    ext_in  = '.defs',
-    ext_out = '.c',
-    before  = 'cc cxx')
-
-@TaskGen.extension('.defs')
-def defs_file(self, node):
-    tsk = self.create_task('defs')
-    tsk.set_inputs(node)
-    cc_node = node.change_ext(".c")
-    tsk.set_outputs(cc_node)
-    self.allnodes.append(cc_node)
-
 def build_python_module(bld):
-    for n in "PYTHON_H", "PYGOBJECT", "PYGTK":
-        if not bld.env["HAVE_"+n]:
-            return
-    prog = bld.new_task_gen(
-        features = ['cc','pyext','cshlib'],
-        source = ['gxwidgets.defs','gxwidgets-module.c'],
+    bld(name = "h2defs",
+        target = "gxwidgets.defs",
+        rule = h2defs,
+        source = ["GxTuner.h",
+                  "GxFastMeter.h",
+                  "GxWaveView.h",
+                  "GxRegler.h",
+                  "GxSelector.h",
+                  "GxSwitch.h",
+                  "GxControlParameter.h",
+                  "libgxwidgets.so",
+                  "gxwidgets-manual.defs",
+                  ],
+        after = "cxx_link",
+        )
+    bld(name="defs2c",
+        target = "gxwidgets.c",
+        rule = defs2c,
+        source = ['gxwidgets.override','gxwidgets.defs'],
+        after = "h2defs",
+        )
+    bld.add_group()
+    prog = bld(
+        features = ['cc','cxx','pyext','cshlib'],
+        source = ['gxwidgets.c','gxwidgets-module.c'],
         target = 'gxwidgets',
         uselib = ['PYGOBJECT','PYGTK','GTK2'],
-        uselib_local = ['gxwidgets'],
         ccflags = "-g",
         includes = ['.'],
         )
+    if bld.env["GX_LIB_STATIC"]: # prefer static
+        prog.uselib_local = ['gxwidgets']
+    else:
+        prog.libpath = [bld.path.bldpath(bld.env)]
+        prog.lib = ["gxwidgets"]
 
 def build(bld):
     sources = [
-        'GtkGxFastMeter.cpp',
-        #'GtkGxRegler.cpp',
-        'GtkGxWaveView.cpp',
-        'GtkGxTuner.cpp',
+        'GxFastMeter.cpp',
+        'GxWaveView.cpp',
+        'GxTuner.cpp',
+        'GxRegler.cpp',
+        'GxSelector.cpp',
+        'GxSwitch.cpp',
+        'GxControlParameter.cpp',
         ]
-    # static library
-    if 0:
+    if not bld.env["GX_LIB_STATIC"] and not bld.env["GX_LIB_SHARED"]:
+        return
+    if bld.env["GX_LIB_STATIC"]:
+        # static library
         prog = bld.new_task_gen('cxx', 'cstaticlib')
         prog.ccflags= bld.env['CXXFLAGS']
         prog.source = sources
@@ -75,12 +141,16 @@ def build(bld):
         prog.target = 'gxwidgets'
         prog.chmod=0755
         prog.install_path = bld.env['BINDIR']
-    # shared library
-    prog = bld.new_task_gen('cxx', 'cshlib')
-    prog.ccflags= bld.env['CXXFLAGS']
-    prog.source = sources
-    prog.uselib = ['GTHREAD', 'GTK2']
-    prog.target = 'gxwidgets'
-    prog.chmod=0755
-    prog.install_path = bld.env['BINDIR']
-    build_python_module(bld)
+    if bld.env["GX_LIB_SHARED"]:
+        # shared library
+        prog = bld.new_task_gen('cxx', 'cshlib','libtool')
+        prog.type = 'cshlib'
+        prog.vnum = "0.1"
+        prog.ccflags= bld.env['CXXFLAGS']
+        prog.source = sources
+        prog.uselib = ['GTHREAD', 'GTK2']
+        prog.target = 'gxwidgets'
+        prog.chmod=0755
+        prog.install_path = bld.env['BINDIR']
+    if bld.env["GX_PYTHON_WRAPPER"]:
+        build_python_module(bld)

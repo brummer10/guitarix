@@ -1,0 +1,36 @@
+;; -*- scheme -*-
+;; definitions which replace / complement the generated definitions
+
+(define-function fast_meter_new
+  (c-name "gx_fast_meter_new")
+  (is-constructor-of "GxFastMeter")
+  (return-type "GtkWidget*")
+  (properties
+   '("hold" (optional))
+   '("dimen" (optional))
+   )
+  )
+
+(define-function regler_new
+  (c-name "gx_regler_new")
+  (is-constructor-of "GxRegler")
+  (return-type "GtkWidget*")
+  )
+
+(define-function switch_new
+  (c-name "gx_switch_new")
+  (is-constructor-of "GxSwitch")
+  (return-type "GtkWidget*")
+  )
+
+(define-function comp_regler_new
+  (c-name "gx_comp_regler_new")
+  (is-constructor-of "GxCompRegler")
+  (return-type "GtkWidget*")
+  )
+
+(define-function comp_switch_new
+  (c-name "gx_comp_switch_new")
+  (is-constructor-of "GxCompSwitch")
+  (return-type "GtkWidget*")
+  )

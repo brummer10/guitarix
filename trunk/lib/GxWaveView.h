@@ -20,18 +20,18 @@
 /******************************************************************************
 part of guitarix, plot a wave with Gtk
 ******************************************************************************/
-#ifndef __GTK_GX_WAVE_VIEW_H__
-#define __GTK_GX_WAVE_VIEW_H__
+#ifndef __GX_WAVE_VIEW_H__
+#define __GX_WAVE_VIEW_H__
 
 #include <gtk/gtkdrawingarea.h>
 
 G_BEGIN_DECLS
 
-#define GTK_TYPE_GX_WAVE_VIEW          (gtk_gx_wave_view_get_type())
-#define GTK_GX_WAVE_VIEW(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_GX_WAVE_VIEW, GtkGxWaveView))
-#define GTK_IS_GX_WAVE_VIEW(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_GX_WAVE_VIEW))
-#define GTK_GX_WAVE_VIEW_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GTK_TYPE_GX_WAVE_VIEW, GtkGxWaveViewClass))
-#define GTK_IS_GX_WAVE_VIEW_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GTK_TYPE_GX_WAVE_VIEW))
+#define GX_TYPE_WAVE_VIEW          (gx_wave_view_get_type())
+#define GX_WAVE_VIEW(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GX_TYPE_WAVE_VIEW, GxWaveView))
+#define GX_IS_WAVE_VIEW(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GX_TYPE_WAVE_VIEW))
+#define GX_WAVE_VIEW_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_WAVE_VIEW, GxWaveViewClass))
+#define GX_IS_WAVE_VIEW_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_WAVE_VIEW))
 
 typedef struct
 {
@@ -45,20 +45,20 @@ typedef struct
 	gchar *text_se;
 	double text_pos_w;
 	double text_pos_e;
-} GtkGxWaveView;
+} GxWaveView;
 
 typedef struct
 {
 	GtkDrawingAreaClass parent_class;
-} GtkGxWaveViewClass;
+} GxWaveViewClass;
 
 
-GType gtk_gx_wave_view_get_type ();
+GType gx_wave_view_get_type ();
 
-GtkWidget* gtk_gx_wave_view_new();
-void gtk_gx_wave_view_set_frame(GtkGxWaveView *waveview, const float *frame, int frame_size);
-void gtk_gx_wave_view_set_text(GtkGxWaveView *waveview, const gchar *text, GtkAnchorType pos);
+GtkWidget* gx_wave_view_new();
+void gx_wave_view_set_frame(GxWaveView *waveview, const float *frame, int frame_size);
+void gx_wave_view_set_text(GxWaveView *waveview, const gchar *text, GtkAnchorType pos);
 
 G_END_DECLS
 
-#endif /* __GTK_GX_WAVE_VIEW_H__ */
+#endif /* __GX_WAVE_VIEW_H__ */

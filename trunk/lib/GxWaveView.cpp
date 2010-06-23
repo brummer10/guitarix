@@ -16,12 +16,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-// ***** GtkGxWaveView.cpp *****
+// ***** GxWaveView.cpp *****
 /******************************************************************************
 part of guitarix, show a wave with Gtk
 ******************************************************************************/
 
-#include "GtkGxWaveView.h"
+#include "GxWaveView.h"
 #include <gtk/gtkprivate.h>
 #include <math.h>
 
@@ -36,22 +36,22 @@ enum {
 	PROP_TEXT_POS_E
 };
 
-static void gtk_gx_wave_view_destroy(GtkObject*);
-static gboolean gtk_gx_wave_view_expose(GtkWidget *widget, GdkEventExpose *event);
-static void gtk_gx_wave_view_size_request(GtkWidget *widget, GtkRequisition *requisition);
-static void gtk_gx_wave_view_set_property(
+static void gx_wave_view_destroy(GtkObject*);
+static gboolean gx_wave_view_expose(GtkWidget *widget, GdkEventExpose *event);
+static void gx_wave_view_size_request(GtkWidget *widget, GtkRequisition *requisition);
+static void gx_wave_view_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
-static void gtk_gx_wave_view_get_property(
+static void gx_wave_view_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 
-G_DEFINE_TYPE(GtkGxWaveView, gtk_gx_wave_view, GTK_TYPE_DRAWING_AREA);
+G_DEFINE_TYPE(GxWaveView, gx_wave_view, GTK_TYPE_DRAWING_AREA);
 
 static const int liveview_x = 300;
 static const int liveview_y = 80;
 static const int background_width = 282;
 static const int background_height = 52;
 
-static void wave_view_background(GtkGxWaveView *waveview, cairo_t *cr,
+static void wave_view_background(GxWaveView *waveview, cairo_t *cr,
                                  int liveviewx, int liveviewy)
 {
 	waveview->liveview_image = gdk_pixbuf_new(
@@ -142,10 +142,10 @@ static void draw_text(cairo_t *cr, GdkEventExpose *event, gchar *str,
 	pango_cairo_show_layout(cr, layout);
 }
 
-static gboolean gtk_gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
+static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 {
-	g_assert(GTK_IS_GX_WAVE_VIEW(widget));
-	GtkGxWaveView *waveview = GTK_GX_WAVE_VIEW(widget);
+	g_assert(GX_IS_WAVE_VIEW(widget));
+	GxWaveView *waveview = GX_WAVE_VIEW(widget);
 
 	int liveviewx = (widget->allocation.width  - liveview_x) * 0.5 + 10;
 	int liveviewy = (widget->allocation.height - liveview_y) * 0.5 + 15;
@@ -226,24 +226,24 @@ static gboolean gtk_gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *even
 	return FALSE;
 }
 
-static void gtk_gx_wave_view_size_request (GtkWidget *widget, GtkRequisition *requisition)
+static void gx_wave_view_size_request (GtkWidget *widget, GtkRequisition *requisition)
 {
-	g_assert(GTK_IS_GX_WAVE_VIEW(widget));
+	g_assert(GX_IS_WAVE_VIEW(widget));
 	requisition->width = liveview_x;
 	requisition->height = liveview_y;
 }
 
-static void gtk_gx_wave_view_class_init (GtkGxWaveViewClass *klass)
+static void gx_wave_view_class_init (GxWaveViewClass *klass)
 {
 	GtkObjectClass *object_class = GTK_OBJECT_CLASS(klass);
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
-	object_class->destroy = gtk_gx_wave_view_destroy;
-	gobject_class->set_property = gtk_gx_wave_view_set_property;
-	gobject_class->get_property = gtk_gx_wave_view_get_property;
-	widget_class->expose_event = gtk_gx_wave_view_expose;
-	widget_class->size_request = gtk_gx_wave_view_size_request;
+	object_class->destroy = gx_wave_view_destroy;
+	gobject_class->set_property = gx_wave_view_set_property;
+	gobject_class->get_property = gx_wave_view_get_property;
+	widget_class->expose_event = gx_wave_view_expose;
+	widget_class->size_request = gx_wave_view_size_request;
 	g_object_class_install_property (gobject_class,
 	                                 PROP_TEXT_NW,
 	                                 g_param_spec_string ("text-nw",
@@ -288,7 +288,7 @@ static void gtk_gx_wave_view_class_init (GtkGxWaveViewClass *klass)
 	                                                      GParamFlags(GTK_PARAM_READWRITE)));
 }
 
-static void gtk_gx_wave_view_init(GtkGxWaveView *waveview)
+static void gx_wave_view_init(GxWaveView *waveview)
 {
 	GtkWidget *widget = GTK_WIDGET(waveview);
 	waveview->frame = NULL;
@@ -303,33 +303,33 @@ static void gtk_gx_wave_view_init(GtkGxWaveView *waveview)
 	widget->requisition.height = liveview_y;
 }
 
-static void gtk_gx_wave_view_destroy (GtkObject *obj)
+static void gx_wave_view_destroy (GtkObject *obj)
 {
-	GtkGxWaveView *waveview = GTK_GX_WAVE_VIEW(obj);
+	GxWaveView *waveview = GX_WAVE_VIEW(obj);
 	if (G_IS_OBJECT(waveview->liveview_image)) {
 		g_object_unref(waveview->liveview_image);
 	}
 }
 
-GtkWidget* gtk_gx_wave_view_new()
+GtkWidget* gx_wave_view_new()
 {
-	GtkWidget* widget = GTK_WIDGET(g_object_new(GTK_TYPE_GX_WAVE_VIEW, NULL));
+	GtkWidget* widget = GTK_WIDGET(g_object_new(GX_TYPE_WAVE_VIEW, NULL));
 	return widget;
 }
 
-void gtk_gx_wave_view_set_frame(GtkGxWaveView *waveview, const float *frame, int frame_size)
+void gx_wave_view_set_frame(GxWaveView *waveview, const float *frame, int frame_size)
 {
-	g_assert(GTK_IS_GX_WAVE_VIEW(waveview));
+	g_assert(GX_IS_WAVE_VIEW(waveview));
 	waveview->frame = frame;
 	waveview->frame_size = frame_size;
 	gtk_widget_queue_draw(GTK_WIDGET(waveview));
 }
 
-void gtk_gx_wave_view_set_text(GtkGxWaveView *waveview, const gchar *text, GtkAnchorType pos)
+void gx_wave_view_set_text(GxWaveView *waveview, const gchar *text, GtkAnchorType pos)
 {
 	char **f;
 	const char *p;
-	g_assert(GTK_IS_GX_WAVE_VIEW(waveview));
+	g_assert(GX_IS_WAVE_VIEW(waveview));
 	switch (pos) {
 	case GTK_ANCHOR_NW:
 		f = &waveview->text_nw;
@@ -348,7 +348,7 @@ void gtk_gx_wave_view_set_text(GtkGxWaveView *waveview, const gchar *text, GtkAn
 		p = "text_se";
 		break;
 	default:
-		g_warning("gtk_gx_wave_view_set_text: unsupported GtkAnchor");
+		g_warning("gx_wave_view_set_text: unsupported GtkAnchor");
 		return;
 	}
 	g_free(*f);
@@ -357,22 +357,22 @@ void gtk_gx_wave_view_set_text(GtkGxWaveView *waveview, const gchar *text, GtkAn
 	g_object_notify(G_OBJECT(waveview), p);
 }
 
-static void gtk_gx_wave_view_set_property(GObject *object, guint prop_id,
+static void gx_wave_view_set_property(GObject *object, guint prop_id,
                                           const GValue *value, GParamSpec *pspec)
 {
-	GtkGxWaveView *wv = GTK_GX_WAVE_VIEW(object);
+	GxWaveView *wv = GX_WAVE_VIEW(object);
 	switch(prop_id) {
 	case PROP_TEXT_NW:
-		gtk_gx_wave_view_set_text(wv, g_value_get_string(value), GTK_ANCHOR_NW);
+		gx_wave_view_set_text(wv, g_value_get_string(value), GTK_ANCHOR_NW);
 		break;
 	case PROP_TEXT_NE:
-		gtk_gx_wave_view_set_text(wv, g_value_get_string(value), GTK_ANCHOR_NE);
+		gx_wave_view_set_text(wv, g_value_get_string(value), GTK_ANCHOR_NE);
 		break;
 	case PROP_TEXT_SW:
-		gtk_gx_wave_view_set_text(wv, g_value_get_string(value), GTK_ANCHOR_SW);
+		gx_wave_view_set_text(wv, g_value_get_string(value), GTK_ANCHOR_SW);
 		break;
 	case PROP_TEXT_SE:
-		gtk_gx_wave_view_set_text(wv, g_value_get_string(value), GTK_ANCHOR_SE);
+		gx_wave_view_set_text(wv, g_value_get_string(value), GTK_ANCHOR_SE);
 		break;
 	case PROP_TEXT_POS_W:
 		wv->text_pos_w = g_value_get_double(value);
@@ -388,10 +388,10 @@ static void gtk_gx_wave_view_set_property(GObject *object, guint prop_id,
 	}
 }
 
-static void gtk_gx_wave_view_get_property(GObject *object, guint prop_id,
+static void gx_wave_view_get_property(GObject *object, guint prop_id,
                                           GValue *value, GParamSpec *pspec)
 {
-	GtkGxWaveView *wv = GTK_GX_WAVE_VIEW(object);
+	GxWaveView *wv = GX_WAVE_VIEW(object);
 
 	switch(prop_id) {
 	case PROP_TEXT_NW:

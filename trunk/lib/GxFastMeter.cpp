@@ -25,7 +25,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <gtk/gtkprivate.h>
-#include "GtkGxFastMeter.h"
+#include "GxFastMeter.h"
 
 #ifndef max
 #define max(x,y) (((x)>(y)) ? (x) : (y))
@@ -44,34 +44,34 @@ enum {
 
 static const int min_size = 10;
 
-static void gtk_gx_fast_meter_class_init(GtkGxFastMeterClass*);
-static void gtk_gx_fast_meter_init(GtkGxFastMeter*);
+static void gx_fast_meter_class_init(GxFastMeterClass*);
+static void gx_fast_meter_init(GxFastMeter*);
 
-extern gboolean gtk_gx_fast_meter_expose_event(GtkWidget*, GdkEventExpose*);
-static void gtk_gx_fast_meter_size_allocate(GtkWidget *widget, GtkAllocation *allocation);
-static void gtk_gx_fast_meter_size_request(GtkWidget*, GtkRequisition*);
-static void gtk_gx_fast_meter_set_property(
+extern gboolean gx_fast_meter_expose_event(GtkWidget*, GdkEventExpose*);
+static void gx_fast_meter_size_allocate(GtkWidget *widget, GtkAllocation *allocation);
+static void gx_fast_meter_size_request(GtkWidget*, GtkRequisition*);
+static void gx_fast_meter_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
-static void gtk_gx_fast_meter_get_property(
+static void gx_fast_meter_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void queue_vertical_redraw(GtkGxFastMeter*, GdkWindow*);
+static void queue_vertical_redraw(GxFastMeter*, GdkWindow*);
 static void request_vertical_meter(GtkWidget *widget);
-static void gtk_gx_fast_meter_style_set (GtkWidget *widget, GtkStyle  *previous_style);
+static void gx_fast_meter_style_set (GtkWidget *widget, GtkStyle  *previous_style);
 
-G_DEFINE_TYPE(GtkGxFastMeter, gtk_gx_fast_meter, GTK_TYPE_DRAWING_AREA);
+G_DEFINE_TYPE(GxFastMeter, gx_fast_meter, GTK_TYPE_DRAWING_AREA);
 
 /* ----- fast meter class init ----- */
-void gtk_gx_fast_meter_class_init(GtkGxFastMeterClass* klass)
+void gx_fast_meter_class_init(GxFastMeterClass* klass)
 {
 	GtkWidgetClass* widget_class = (GtkWidgetClass*)klass;
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-	widget_class->size_request  = gtk_gx_fast_meter_size_request;
-	widget_class->size_allocate = gtk_gx_fast_meter_size_allocate;
-	widget_class->expose_event  = gtk_gx_fast_meter_expose_event;
-	widget_class->style_set = gtk_gx_fast_meter_style_set;
-	gobject_class->set_property = gtk_gx_fast_meter_set_property;
-	gobject_class->get_property = gtk_gx_fast_meter_get_property;
+	widget_class->size_request  = gx_fast_meter_size_request;
+	widget_class->size_allocate = gx_fast_meter_size_allocate;
+	widget_class->expose_event  = gx_fast_meter_expose_event;
+	widget_class->style_set = gx_fast_meter_style_set;
+	gobject_class->set_property = gx_fast_meter_set_property;
+	gobject_class->get_property = gx_fast_meter_get_property;
 
 	g_object_class_install_property(
 		gobject_class, PROP_HOLD, g_param_spec_int(
@@ -115,7 +115,7 @@ void gtk_gx_fast_meter_class_init(GtkGxFastMeterClass* klass)
 }
 
 /* ----- fast meter init ----- */
-void gtk_gx_fast_meter_init(GtkGxFastMeter* fm)
+void gx_fast_meter_init(GxFastMeter* fm)
 {
 	fm->pixbuf = 0;
 	fm->top_of_meter = 0;
@@ -132,8 +132,8 @@ void gtk_gx_fast_meter_init(GtkGxFastMeter* fm)
 /* -------------- */
 GtkWidget* gtk_fast_meter_new (long hold)
 {
-	GtkGxFastMeter* fm;
-	fm = GTK_GX_FAST_METER(g_object_new(GTK_TYPE_GX_FAST_METER, NULL));
+	GxFastMeter* fm;
+	fm = GX_FAST_METER(g_object_new(GX_TYPE_FAST_METER, NULL));
 	fm->hold_cnt = hold;
 	return GTK_WIDGET (fm);
 }
@@ -153,7 +153,7 @@ GdkColor default_gradient_color[grad_size] = {
 /* ----- create pixbuf for vertical meter ------ */
 static void request_vertical_meter(GtkWidget *widget)
 {
-	GtkGxFastMeter* fm = GTK_GX_FAST_METER(widget);
+	GxFastMeter* fm = GX_FAST_METER(widget);
 	if (fm->pixbuf) {
 		g_object_unref(G_OBJECT(fm->pixbuf));
 	}
@@ -219,7 +219,7 @@ static void request_vertical_meter(GtkWidget *widget)
 }
 
 /* ------ hold count ----- */
-void gtk_gx_fast_meter_set_hold_count(GtkGxFastMeter* fm, long val)
+void gx_fast_meter_set_hold_count(GxFastMeter* fm, long val)
 {
 	if (val < 1) val = 1;
 
@@ -230,25 +230,25 @@ void gtk_gx_fast_meter_set_hold_count(GtkGxFastMeter* fm, long val)
 	gtk_widget_queue_draw(GTK_WIDGET(fm));
 }
 
-static void gtk_gx_fast_meter_size_request (GtkWidget* wd, GtkRequisition* req)
+static void gx_fast_meter_size_request (GtkWidget* wd, GtkRequisition* req)
 {
 	req->height = min_size;
-	req->width  = GTK_GX_FAST_METER(wd)->dimen;
+	req->width  = GX_FAST_METER(wd)->dimen;
 	if (req->width == 0) {
 		gtk_widget_style_get(wd, "dimen", &req->width, NULL);
 	}
 }
 
-static void gtk_gx_fast_meter_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
+static void gx_fast_meter_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
-	GTK_WIDGET_CLASS(gtk_gx_fast_meter_parent_class)->size_allocate(widget, allocation);
+	GTK_WIDGET_CLASS(gx_fast_meter_parent_class)->size_allocate(widget, allocation);
 	request_vertical_meter(widget);
 }
 
-static void gtk_gx_fast_meter_set_property(GObject *object, guint prop_id,
+static void gx_fast_meter_set_property(GObject *object, guint prop_id,
                                            const GValue *value, GParamSpec *pspec)
 {
-	GtkGxFastMeter *fm = GTK_GX_FAST_METER(object);
+	GxFastMeter *fm = GX_FAST_METER(object);
 	switch(prop_id) {
 	case PROP_HOLD:
 		fm->hold_cnt = g_value_get_int(value);
@@ -266,10 +266,10 @@ static void gtk_gx_fast_meter_set_property(GObject *object, guint prop_id,
 	}
 }
 
-static void gtk_gx_fast_meter_get_property(GObject *object, guint prop_id,
+static void gx_fast_meter_get_property(GObject *object, guint prop_id,
                                            GValue *value, GParamSpec *pspec)
 {
-	GtkGxFastMeter *fm = GTK_GX_FAST_METER(object);
+	GxFastMeter *fm = GX_FAST_METER(object);
 
 	switch(prop_id) {
 	case PROP_HOLD:
@@ -284,15 +284,15 @@ static void gtk_gx_fast_meter_get_property(GObject *object, guint prop_id,
 	}
 }
 
-static void gtk_gx_fast_meter_style_set(GtkWidget *widget, GtkStyle  *previous_style)
+static void gx_fast_meter_style_set(GtkWidget *widget, GtkStyle  *previous_style)
 {
 	request_vertical_meter(widget);
 }
 
 /* ------- expose event -------- */
-gboolean gtk_gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
+gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
 {
-	GtkGxFastMeter* fm = GTK_GX_FAST_METER(wd);
+	GxFastMeter* fm = GX_FAST_METER(wd);
 	gint         top_of_meter;
 	GdkRectangle intersection;
 	GdkRectangle rect;
@@ -370,7 +370,7 @@ gboolean gtk_gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
 }
 
 /* ------- setting meter level ----------- */
-void gtk_gx_fast_meter_set(GtkGxFastMeter* fm, float lvl)
+void gx_fast_meter_set(GxFastMeter* fm, float lvl)
 {
 	float old_level = fm->current_level;
 	float old_peak  = fm->current_peak;
@@ -399,7 +399,7 @@ void gtk_gx_fast_meter_set(GtkGxFastMeter* fm, float lvl)
 }
 
 /* ------------- clear fast meter object ------------ */
-void gtk_gx_fast_meter_clear(GtkGxFastMeter* fm)
+void gx_fast_meter_clear(GxFastMeter* fm)
 {
 	fm->current_level = 0;
 	fm->current_peak  = 0;
@@ -410,7 +410,7 @@ void gtk_gx_fast_meter_clear(GtkGxFastMeter* fm)
 /* ------------------------------ static functions ------------------------- */
 
 /* --------- vertical drawing queue ----------- */
-void queue_vertical_redraw (GtkGxFastMeter* fm, GdkWindow* win)
+void queue_vertical_redraw (GxFastMeter* fm, GdkWindow* win)
 {
 	GdkRectangle rect;
 	if (!fm->pixbuf) {

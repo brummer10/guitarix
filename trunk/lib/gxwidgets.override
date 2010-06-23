@@ -5,29 +5,46 @@ headers
 #define NO_IMPORT_ARRAY
 #include <numpy/ndarrayobject.h>
 #include "pygobject.h"
-#include "GtkGxTuner.h"
-#include "GtkGxFastMeter.h"
-#include "GtkGxWaveView.h"
+#include "GxTuner.h"
+#include "GxFastMeter.h"
+#include "GxWaveView.h"
+#include "GxRegler.h"
+#include "GxSelector.h"
+#include "GxSwitch.h"
+#include "GxCompRegler.h"
+#include "GxCompSwitch.h"
+#include "GxControlParameter.h"
 %%
 modulename gxwidgets
 %%
 import gtk.DrawingArea as PyGtkDrawingArea_Type
+import gtk.Range as PyGtkRange_Type
+import gtk.ToggleButton as PyGtkToggleButton_Type
+import gtk.Box as PyGtkBox_Type
+%%
+ignore set_regler_connect_func
+ignore set_selector_connect_func
+ignore set_switch_connect_func
+ignore set_comp_regler_connect_func
+ignore set_comp_switch_connect_func
 %%
 ignore-glob
  *_get_type
 %%
-override gtk_gx_wave_view_set_frame kwargs
+override gx_wave_view_set_frame kwargs
 static PyObject *
-_wrap_gtk_gx_wave_view_set_frame(PyGObject *self, PyObject *args, PyObject *kwargs)
+_wrap_gx_wave_view_set_frame(PyGObject *self, PyObject *args, PyObject *kwargs)
 {
     static char *kwlist[] = { "frame", NULL };
     PyObject *frame = NULL, *arr = NULL;
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs,"O:Gtk.GxWaveView.set", kwlist, &frame))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs,"O:gx.WaveView.set", kwlist, &frame))
         return NULL;
     if ((arr = PyArray_FromObject(frame, NPY_FLOAT, 1, 1)) == NULL)
         return NULL;
-    //FIXME: keep a reference around
-    gtk_gx_wave_view_set_frame(GTK_GX_WAVE_VIEW(self->obj), (float*)PyArray_DATA(arr), PyArray_SIZE(arr));
+    PyObject *key = PyString_FromString("_arr");
+    PyObject_SetAttr((PyObject*)self, key, arr); // qick hack to keep reference
+    Py_DECREF(key);
+    gx_wave_view_set_frame(GX_WAVE_VIEW(self->obj), (float*)PyArray_DATA(arr), PyArray_SIZE(arr));
     Py_INCREF(Py_None);
     return Py_None;
 }

@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "GtkGxTuner.h"
+#include "GxTuner.h"
 #include <gtk/gtkprivate.h>
 #include <math.h>
 
@@ -28,12 +28,12 @@ enum {
 
 static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event);
 static void draw_background(cairo_surface_t *surface_tuner);
-static void gtk_gx_tuner_class_init (GtkGxTunerClass *klass);
-static void gtk_gx_tuner_base_class_finalize(GtkGxTunerClass *klass);
-static void gtk_gx_tuner_init(GtkGxTuner *tuner);
-static void gtk_gx_tuner_set_property(
+static void gx_tuner_class_init (GxTunerClass *klass);
+static void gx_tuner_base_class_finalize(GxTunerClass *klass);
+static void gx_tuner_init(GxTuner *tuner);
+static void gx_tuner_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
-static void gtk_gx_tuner_get_property(
+static void gx_tuner_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 
 static const int tuner_width = 102;
@@ -55,35 +55,35 @@ static const double dash_ind[] = {
 	100.0					/* skip */
 };
 
-GType gtk_gx_tuner_get_type(void)
+GType gx_tuner_get_type(void)
 {
 	static GType tuner_type = 0;
 
 	if (!tuner_type) {
 		const GTypeInfo tuner_info = {
-			sizeof (GtkGxTunerClass),
+			sizeof (GxTunerClass),
 			NULL,				/* base_class_init */
-			(GBaseFinalizeFunc) gtk_gx_tuner_base_class_finalize,
-			(GClassInitFunc) gtk_gx_tuner_class_init,
+			(GBaseFinalizeFunc) gx_tuner_base_class_finalize,
+			(GClassInitFunc) gx_tuner_class_init,
 			NULL,				/* class_finalize */
 			NULL,				/* class_data */
-			sizeof (GtkGxTunerClass),
+			sizeof (GxTunerClass),
 			0,					/* n_preallocs */
-			(GInstanceInitFunc) gtk_gx_tuner_init,
+			(GInstanceInitFunc) gx_tuner_init,
 			NULL,				/* value_table */
 		};
 		tuner_type = g_type_register_static(
-			GTK_TYPE_DRAWING_AREA, "GtkGxTuner", &tuner_info, (GTypeFlags)0);
+			GTK_TYPE_DRAWING_AREA, "GxTuner", &tuner_info, (GTypeFlags)0);
 	}
 	return tuner_type;
 }
 
-static void gtk_gx_tuner_class_init(GtkGxTunerClass *klass)
+static void gx_tuner_class_init(GxTunerClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 	GTK_WIDGET_CLASS(klass)->expose_event = gtk_tuner_expose;
-	gobject_class->set_property = gtk_gx_tuner_set_property;
-	gobject_class->get_property = gtk_gx_tuner_get_property;
+	gobject_class->set_property = gx_tuner_set_property;
+	gobject_class->get_property = gx_tuner_get_property;
 	g_object_class_install_property(
 		gobject_class, PROP_FREQ, g_param_spec_double (
 			"freq", P_("Frequency"),
@@ -95,41 +95,41 @@ static void gtk_gx_tuner_class_init(GtkGxTunerClass *klass)
 	draw_background(klass->surface_tuner);
 }
 
-static void gtk_gx_tuner_base_class_finalize(GtkGxTunerClass *klass)
+static void gx_tuner_base_class_finalize(GxTunerClass *klass)
 {
 	if (G_IS_OBJECT(klass->surface_tuner)) {
 		g_object_unref(klass->surface_tuner);
 	}
 }
 
-static void gtk_gx_tuner_init (GtkGxTuner *tuner)
+static void gx_tuner_init (GxTuner *tuner)
 {
 	GtkWidget *widget = GTK_WIDGET(tuner);
 	widget->requisition.width = tuner_width;
 	widget->requisition.height = tuner_height;
 }
 
-void gtk_gx_tuner_set_freq(GtkGxTuner *tuner, double freq)
+void gx_tuner_set_freq(GxTuner *tuner, double freq)
 {
-	g_assert(GTK_IS_GX_TUNER(tuner));
+	g_assert(GX_IS_TUNER(tuner));
 	tuner->freq = freq;
 	gtk_widget_queue_draw(GTK_WIDGET(tuner));
 	g_object_notify(G_OBJECT(tuner), "freq");
 }
 
-GtkWidget *gtk_gx_tuner_new(void)
+GtkWidget *gx_tuner_new(void)
 {
-	return (GtkWidget*)g_object_new(GTK_TYPE_GX_TUNER, NULL);
+	return (GtkWidget*)g_object_new(GX_TYPE_TUNER, NULL);
 }
 
-static void gtk_gx_tuner_set_property(GObject *object, guint prop_id,
+static void gx_tuner_set_property(GObject *object, guint prop_id,
                                       const GValue *value, GParamSpec *pspec)
 {
-	GtkGxTuner *tuner = GTK_GX_TUNER(object);
+	GxTuner *tuner = GX_TUNER(object);
 
 	switch(prop_id) {
 	case PROP_FREQ:
-		gtk_gx_tuner_set_freq(tuner, g_value_get_double(value));
+		gx_tuner_set_freq(tuner, g_value_get_double(value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -137,10 +137,10 @@ static void gtk_gx_tuner_set_property(GObject *object, guint prop_id,
 	}
 }
 
-static void gtk_gx_tuner_get_property(GObject *object, guint prop_id,
+static void gx_tuner_get_property(GObject *object, guint prop_id,
                                       GValue *value, GParamSpec *pspec)
 {
-	GtkGxTuner *tuner = GTK_GX_TUNER(object);
+	GxTuner *tuner = GX_TUNER(object);
 
 	switch(prop_id) {
 	case PROP_FREQ:
@@ -155,14 +155,14 @@ static void gtk_gx_tuner_get_property(GObject *object, guint prop_id,
 static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
 {
 	static const char* note[12] = {"A ","A#","B ","C ","C#","D ","D#","E ","F ","F#","G ","G#"};
-	GtkGxTuner *tuner = GTK_GX_TUNER(widget);
+	GxTuner *tuner = GX_TUNER(widget);
 	cairo_t *cr;
 
 	double x0      = (widget->allocation.width - 100) * 0.5;
 	double y0      = (widget->allocation.height - 90) * 0.5;
 
 	cr = gdk_cairo_create(widget->window);
-	cairo_set_source_surface(cr, GTK_GX_TUNER_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_tuner, x0, y0);
+	cairo_set_source_surface(cr, GX_TUNER_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_tuner, x0, y0);
 	cairo_paint (cr);
 	if (!tuner->freq) {
 		cairo_destroy(cr);
