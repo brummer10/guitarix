@@ -203,23 +203,15 @@ const int SYSTEM_OK = 0;
 string rcpath;
 
 const char* guitarix_dir     = ".guitarix";
-const char* guitarix_reset   = "resettings";
 const char* guitarix_preset  = "guitarixpre_rc";
 const char* jcapsetup_file   = "ja_ca_ssetrc";
 const char* jcapfile_wavbase = "guitarix_session";
-const char* default_setting  =
-	"0.12 1 5000 130 1 5000 130 1 0.01 0.64 2 \n"
-	"0 0.3 0.7 \n"
-	"20 440 2 \n"
-	"0.62 0.12 0 \n"
-	"84 0 -1 9 0 101 4 0 0 34 0 9 1 20 64 12 1 20 0 0 \n"
-	"-64.0 0.52 10 1.5 1.5 0 \n"
-	"0.32 0.022 0.1 0.5 \n"
-	"5 2 1 3 4 0 6 7 \n";
+
 
 const string gx_pixmap_dir = string(GX_PIXMAPS_DIR) + "/";
 const string gx_style_dir  = string(GX_STYLE_DIR) + "/";
 const string gx_user_dir   = string(getenv ("HOME")) + string("/") + string(guitarix_dir) + "/";
+ string gx_preset_dir   = gx_user_dir;
 string gx_builder_dir = string(GX_BUILDER_DIR) + "/";
 
 /* shell variable names */

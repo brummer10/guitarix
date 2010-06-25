@@ -103,7 +103,7 @@ void gx_empty_preset_file(const char* filename)
 
 bool gx_modify_preset(const char* presname, const char* newname=0, bool remove=false, bool rewrite=false)
 {
-	string presetfile = gx_user_dir + guitarix_preset;
+	string presetfile = gx_preset_dir + guitarix_preset;
 	string tmpfile    = presetfile + "_tmp";
 
 	ifstream ofile(presetfile.c_str());
@@ -186,7 +186,7 @@ bool gx_modify_preset(const char* presname, const char* newname=0, bool remove=f
 void gx_build_preset_list()
 {
 	// preset filename
-	string filename = gx_user_dir + guitarix_preset;
+	string filename = gx_preset_dir + guitarix_preset;
 
 	// initialize list
 	plist.clear();
@@ -214,9 +214,10 @@ void gx_build_preset_list()
 			}
 			return;
 		} catch (gx_system::JsonException& e) {
-			gx_system::gx_print_warning("preset settings", "parse error");
+			gx_system::gx_print_warning(filename.c_str(), "parse error");
 		}
 	}
+	gx_print_info("empty preset File ", guitarix_preset);
 	gx_empty_preset_file(filename.c_str());
 }
 
@@ -566,7 +567,7 @@ void  gx_delete_all_presets()
 	// clear the preset list and refresh the menus
 
 	// write empty preset file
-	ofstream f((gx_user_dir + guitarix_preset).c_str());
+	ofstream f((gx_preset_dir + guitarix_preset).c_str());
 	JsonWriter jw(f);
 	jw.begin_array();
 	writeHeader(jw);
@@ -594,7 +595,7 @@ void  gx_delete_all_presets()
 
 bool gx_load_preset_from_file(const char* presname)
 {
-	string presetfile = gx_user_dir + guitarix_preset;
+	string presetfile = gx_preset_dir + guitarix_preset;
 
 	ifstream ofile(presetfile.c_str());
 	JsonParser jp(ofile);
@@ -779,6 +780,85 @@ void gx_save_preset (const char* presname, bool expand_menu)
 	gx_jconv::gx_reload_jcgui(); //FIXME why reload after saving?
 }
 
+// load a preset file
+static void load_preset_file(const char* presname)
+{
+    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+    {
+        map<GtkMenuItem*, string>::iterator it = preset_list[i].begin();
+        while (it != preset_list[i].end())
+        {
+            GtkMenuItem* item = it->first;
+            gtk_widget_destroy(GTK_WIDGET(item));
+            it++;
+        }
+        preset_list[i].clear();
+    }
+    gx_build_preset_list();
+    vector<string>::iterator it;
+    for (it = gx_preset::plist.begin() ; it < gx_preset::plist.end(); it++ )
+    {
+        const string presname = *it;
+        gx_add_preset_to_menus(presname);
+    }
+    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
+        gtk_widget_show(presMenu[i]);
+}
+
+// ----- select a external preset file
+void gx_load_preset_file(const char* presname, bool expand_menu)
+{
+    GtkWidget * file_chooser = gtk_file_chooser_dialog_new ("Select a *_rc file",
+                                GTK_WINDOW(gx_gui::fWindow),
+                                GTK_FILE_CHOOSER_ACTION_OPEN,GTK_STOCK_CANCEL,
+                                GTK_RESPONSE_CANCEL,
+                                GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                NULL);
+
+    gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (file_chooser), gx_user_dir.c_str());
+    /*GtkFileFilter* filter = gtk_file_filter_new ();
+	gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*_rc");
+	gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (file_chooser), GTK_FILE_FILTER(filter)); */
+
+    if (gtk_dialog_run (GTK_DIALOG (file_chooser)) == GTK_RESPONSE_ACCEPT)
+    {
+        guitarix_preset = basename((char*)gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_chooser)));
+        gx_preset_dir = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(file_chooser));
+        gx_preset_dir += "/";
+        load_preset_file(guitarix_preset);
+    }
+    gtk_widget_destroy (file_chooser);
+}
+
+// ----- export preset file
+void gx_save_preset_file(const char* presname, bool expand_menu)
+{
+    GtkWidget * file_chooser = gtk_file_chooser_dialog_new ("Save *_rc File",
+                                GTK_WINDOW(gx_gui::fWindow),
+                                GTK_FILE_CHOOSER_ACTION_SAVE,
+                                GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+                                NULL);
+    gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (file_chooser), TRUE);
+   /* GtkFileFilter* filter = gtk_file_filter_new ();
+	gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*_rc");
+	gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (file_chooser), GTK_FILE_FILTER(filter)); */
+
+    gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (file_chooser), gx_user_dir.c_str());
+    gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_chooser), "Untitled_rc");
+
+    if (gtk_dialog_run (GTK_DIALOG (file_chooser)) == GTK_RESPONSE_ACCEPT)
+    {
+        char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_chooser));
+        string presetfile = gx_user_dir + guitarix_preset;
+        presetfile += "  ";
+        presetfile += filename;
+        (void)gx_system_call("cp -f", presetfile , false);
+        g_free (filename);
+    }
+    gtk_widget_destroy (file_chooser);
+}
+
 //----menu funktion save
 void gx_save_oldpreset (GtkMenuItem *menuitem, gpointer arg)
 {
@@ -863,6 +943,10 @@ void gx_recall_main_setting(GtkMenuItem* item, gpointer)
 	setting_is_preset = false;
 	gx_current_preset = "";
 	gx_gui::show_patch_info = 0;
+	// reload guitarix mai preset file
+	guitarix_preset  = "guitarixpre_rc";
+	gx_preset_dir   = gx_user_dir;
+	load_preset_file(guitarix_preset);
 }
 
 void gx_recall_settings_file( const string & filename )
@@ -940,7 +1024,7 @@ void gx_rename_preset (GtkEntry* entry)
 	gx_cleanup_preset_name(newname);
 
 	// get the UI to manipulate the preset file
-	string presetfile = gx_user_dir + guitarix_preset;
+	string presetfile = gx_preset_dir + guitarix_preset;
 
 	if (!gx_modify_preset(old_preset_name.c_str(), newname.c_str()))	{
 		gx_print_error("Preset Renaming",

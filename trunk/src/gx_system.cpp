@@ -1258,11 +1258,6 @@ bool gx_version_check()
 			f << cim <<endl;
 			f.close();
 
-			string resetfile = gx_user_dir + "resettings";
-			ofstream fa(resetfile.c_str());
-			fa <<  default_setting <<endl;
-			fa.close();
-
 			// --- create jack_capture setting file
 			/*string tmpstr = gx_user_dir + jcapsetup_file;
 
@@ -1304,12 +1299,7 @@ bool gx_version_check()
 		cim = string("echo 'guitarix-") + string(GX_VERSION) + "' >";
 		(void)gx_system_call(cim.c_str(), tmpstr.c_str(), false);
 
-		// --- guitarix own default settings
-		tmpstr = gx_user_dir + guitarix_reset;
-		(void)gx_system_call("touch", tmpstr.c_str(), false);
 
-		cim = "echo -e '" + string(default_setting) + "' >";
-		(void)gx_system_call(cim.c_str(), tmpstr.c_str(), false);
 	}
 
 	return TRUE;

@@ -42,6 +42,9 @@ void  gx_save_newpreset (GtkEntry*);
 void  gx_save_preset (const gchar*, bool);
 void  gx_save_oldpreset (GtkMenuItem*, gpointer);
 
+void  gx_save_preset_file (const gchar*, bool);
+void  gx_load_preset_file (const gchar*, bool);
+
 void  gx_load_preset (GtkMenuItem*, gpointer);
 void  gx_recall_main_setting(GtkMenuItem*, gpointer);
 void  gx_recall_settings_file( const std::string & filename );

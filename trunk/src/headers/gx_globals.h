@@ -174,14 +174,13 @@ extern const int SYSTEM_OK;
 extern string rcpath;
 
 extern const char*  guitarix_dir;
-extern const char*  guitarix_reset;
 extern const char*  guitarix_preset;
 extern const char*  jcapsetup_file;
 extern const char*  jcapfile_wavbase;
-extern const char*  default_setting;
 extern const string gx_pixmap_dir;
 extern const string gx_style_dir;
 extern const string gx_user_dir;
+extern string gx_preset_dir;
 extern string gx_builder_dir;
 
 /* shell variable names */

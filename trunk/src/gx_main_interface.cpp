@@ -2720,7 +2720,7 @@ void GxMainInterface::addPresetMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
 	gtk_widget_show (sep);
 
-	/*-- Create patch info check menu item under Options submenu --*/
+	/*-- Create patch info menu item under Options submenu --*/
 	menuitem = gtk_menu_item_new_with_mnemonic ("P_atch Info");
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_a, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
@@ -2730,6 +2730,29 @@ void GxMainInterface::addPresetMenu()
 	gtk_widget_show (menuitem);
 
 	/*-- add a separator line --*/
+	sep = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+	gtk_widget_show (sep);
+
+	/*-- Create load presetfile menu --*/
+	menuitem = gtk_menu_item_new_with_mnemonic ("Inport Pr_eset-file");
+	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
+	                           GDK_e, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+	g_signal_connect (GTK_OBJECT (menuitem), "activate",
+	                  G_CALLBACK (gx_load_preset_file), NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+	/*-- Create save as presetfile menu--*/
+	menuitem = gtk_menu_item_new_with_mnemonic ("E_xport Preset-file");
+	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
+	                           GDK_x, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+	g_signal_connect (GTK_OBJECT (menuitem), "activate",
+	                  G_CALLBACK (gx_save_preset_file), NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+    gtk_widget_show (menuitem);
+
+    /*-- add a separator line --*/
 	sep = gtk_separator_menu_item_new();
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
 	gtk_widget_show (sep);
