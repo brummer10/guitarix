@@ -1,37 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <glade-catalog supports="gtkbuilder" name="gxwidgets" library="gxwidgets" domain="gxwidgets" depends="gtk+">
   <glade-widget-classes>
-    <glade-widget-class title="Regler" name="GtkGxRegler" generic-name="GtkGxRegler" get-type-function="gtk_gxregler_get_type" />
-    <glade-widget-class title="Switch" name="GtkGxSwitch" generic-name="GtkGxSwitch" get-type-function="gtk_gxswitch_get_type" />
-    <glade-widget-class title="Selector" name="GtkGxSelector" generic-name="GtkGxSelector" get-type-function="gtk_gxselector_get_type">
+    <glade-widget-class title="Regler" name="GxRegler" generic-name="GxRegler" get-type-function="gx_regler_get_type" />
+    <glade-widget-class title="Switch" name="GxSwitch" generic-name="GxSwitch" get-type-function="gx_switch_get_type" />
+    <glade-widget-class title="Selector" name="GxSelector" generic-name="GxSelector" get-type-function="gx_selector_get_type">
       <properties>
       </properties>
     </glade-widget-class>
-    <glade-widget-class title="CompGxRegler" name="GtkCompGxRegler" generic-name="GtkCompGxRegler" get-type-function="gtk_comp_gxregler_get_type" >
-      <properties>
-	<property id="size" disabled="True" query="False" />
-      </properties>
-    </glade-widget-class>
-    <glade-widget-class title="CompGxSwitch" name="GtkCompGxSwitch" generic-name="GtkCompGxSwitch" get-type-function="gtk_comp_gxswitch_get_type" >
-      <properties>
-	<property id="size" disabled="True" query="False" />
-      </properties>
-    </glade-widget-class>
-    <glade-widget-class title="Fast Meter" name="GtkGxFastMeter" generic-name="GtkGxFastMeter" />
-    <glade-widget-class title="Tuner" name="GtkGxTuner" generic-name="GtkGxTuner" />
-    <glade-widget-class title="Wave View" name="GtkGxWaveView" generic-name="waveview" />
+    <glade-widget-class title="Fast Meter" name="GxFastMeter" generic-name="GxFastMeter" />
+    <glade-widget-class title="Tuner" name="GxTuner" generic-name="GxTuner" />
+    <glade-widget-class title="Wave View" name="GxWaveView" generic-name="waveview" />
 
   </glade-widget-classes>
 
   <glade-widget-group title="Gx Widgets" name="gxwidgets">
-    <glade-widget-class-ref name="GtkGxRegler"/>
-    <glade-widget-class-ref name="GtkGxSwitch"/>
-    <glade-widget-class-ref name="GtkGxSelector"/>
-    <glade-widget-class-ref name="GtkCompGxRegler"/>
-    <glade-widget-class-ref name="GtkCompGxSwitch"/>
-    <glade-widget-class-ref name="GtkGxFastMeter"/>
-    <glade-widget-class-ref name="GtkGxWaveView"/>
-    <glade-widget-class-ref name="GtkGxTuner"/>
+    <glade-widget-class-ref name="GxRegler"/>
+    <glade-widget-class-ref name="GxSwitch"/>
+    <glade-widget-class-ref name="GxSelector"/>
+    <glade-widget-class-ref name="GxFastMeter"/>
+    <glade-widget-class-ref name="GxWaveView"/>
+    <glade-widget-class-ref name="GxTuner"/>
   </glade-widget-group>
 
 </glade-catalog>

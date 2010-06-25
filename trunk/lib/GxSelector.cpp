@@ -197,8 +197,8 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 		break;
 	case 3: // right button show num entry
 		dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-		spinner = gtk_spin_button_new (GTK_ADJUSTMENT(adj), adj->step_increment,
-		                               precision(adj->step_increment));
+		spinner = gtk_spin_button_new(
+			GTK_ADJUSTMENT(adj), adj->step_increment, 0);
 		gtk_entry_set_activates_default(GTK_ENTRY(spinner), TRUE);
 		ok_button  = gtk_button_new_from_stock(GTK_STOCK_OK);
 		GTK_WIDGET_SET_FLAGS (GTK_WIDGET(ok_button), GTK_CAN_DEFAULT);

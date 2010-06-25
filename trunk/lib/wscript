@@ -84,6 +84,7 @@ def defs2c(task):
     return Utils.exec_command(cmd,shell=True)
 
 def build_python_module(bld):
+    bld.add_group()
     bld(name = "h2defs",
         target = "gxwidgets.defs",
         rule = h2defs,
@@ -97,7 +98,6 @@ def build_python_module(bld):
                   "libgxwidgets.so",
                   "gxwidgets-manual.defs",
                   ],
-        after = "cxx_link",
         )
     bld(name="defs2c",
         target = "gxwidgets.c",
@@ -111,7 +111,7 @@ def build_python_module(bld):
         source = ['gxwidgets.c','gxwidgets-module.c'],
         target = 'gxwidgets',
         uselib = ['PYGOBJECT','PYGTK','GTK2'],
-        ccflags = "-g",
+        ccflags = ["-g"],
         includes = ['.'],
         )
     if bld.env["GX_LIB_STATIC"]: # prefer static

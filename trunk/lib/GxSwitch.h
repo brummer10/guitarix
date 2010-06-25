@@ -34,12 +34,27 @@ G_BEGIN_DECLS
 #define GX_IS_SWITCH_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_SWITCH))
 #define GX_SWITCH_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_SWITCH, GxSwitchClass))
 
+typedef enum {
+	GX_SWITCH_TYPE_SWITCH,
+	GX_SWITCH_TYPE_SWITCH_II,
+	GX_SWITCH_TYPE_MINI_TOGGLE,
+	GX_SWITCH_TYPE_TOGGLE_BUTTON,
+	GX_SWITCH_TYPE_LED,
+	//GX_SWITCH_TYPE_VALUE_DISPLAY, //FIXME
+} GxSwitchType;
+
+#define GX_SWITCH_TYPE_COUNT (5)
+
 typedef struct
 {
 	GtkToggleButton parent;
 	int GSEAL(switch_type);
 	gchar *GSEAL(var_id);
-	double start_x, start_y, start_value, max_value;
+	gchar *GSEAL(label);
+	gboolean GSEAL(show_label):1;
+	gboolean GSEAL(label_from_var):1;
+	GtkPositionType GSEAL(label_position):2;
+	PangoLayout *GSEAL(layout);
 } GxSwitch;
 
 typedef struct {
@@ -51,18 +66,7 @@ typedef struct {
 	GdkPixbuf *b_toggle_image;
 	GdkPixbuf *b_toggle_image1;
 	GdkPixbuf *led_image;
-	int pix_is;
-	int pix_switch;
 } GxSwitchClass;
-
-typedef enum {
-	GX_SWITCH_TYPE_SWITCH,
-	GX_SWITCH_TYPE_SWITCH_II,
-	GX_SWITCH_TYPE_MINI_TOGGLE,
-	GX_SWITCH_TYPE_TOGGLE_BUTTON,
-	GX_SWITCH_TYPE_LED,
-	GX_SWITCH_TYPE_VALUE_DISPLAY,
-} GxSwitchType;
 
 GType switch_type_get_type(void) G_GNUC_CONST;
 #define GX_TYPE_SWITCH_TYPE (switch_type_get_type())

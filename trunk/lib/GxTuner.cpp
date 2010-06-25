@@ -67,7 +67,7 @@ GType gx_tuner_get_type(void)
 			(GClassInitFunc) gx_tuner_class_init,
 			NULL,				/* class_finalize */
 			NULL,				/* class_data */
-			sizeof (GxTunerClass),
+			sizeof (GxTuner),
 			0,					/* n_preallocs */
 			(GInstanceInitFunc) gx_tuner_init,
 			NULL,				/* value_table */

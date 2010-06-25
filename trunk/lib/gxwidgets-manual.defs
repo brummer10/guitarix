@@ -22,15 +22,3 @@
   (is-constructor-of "GxSwitch")
   (return-type "GtkWidget*")
   )
-
-(define-function comp_regler_new
-  (c-name "gx_comp_regler_new")
-  (is-constructor-of "GxCompRegler")
-  (return-type "GtkWidget*")
-  )
-
-(define-function comp_switch_new
-  (c-name "gx_comp_switch_new")
-  (is-constructor-of "GxCompSwitch")
-  (return-type "GtkWidget*")
-  )

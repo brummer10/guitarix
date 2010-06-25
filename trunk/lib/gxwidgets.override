@@ -11,8 +11,6 @@ headers
 #include "GxRegler.h"
 #include "GxSelector.h"
 #include "GxSwitch.h"
-#include "GxCompRegler.h"
-#include "GxCompSwitch.h"
 #include "GxControlParameter.h"
 %%
 modulename gxwidgets
@@ -25,8 +23,6 @@ import gtk.Box as PyGtkBox_Type
 ignore set_regler_connect_func
 ignore set_selector_connect_func
 ignore set_switch_connect_func
-ignore set_comp_regler_connect_func
-ignore set_comp_switch_connect_func
 %%
 ignore-glob
  *_get_type

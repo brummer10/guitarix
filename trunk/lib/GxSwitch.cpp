@@ -30,22 +30,21 @@
 enum {
 	PROP_TYPE = 1,
 	PROP_VAR_ID,
+	PROP_SHOW_LABEL,
+	PROP_LABEL_FROM_VAR,
+	PROP_LABEL_TEXT,
+	PROP_LABEL_POSITION,
 };
 
-static void gx_switch_buildable_interface_init(GtkBuildableIface *iface);
-static void gx_switch_parser_finished(GtkBuildable *buildable, GtkBuilder *builder);
-static void gx_switch_destroy(GtkObject*);
-static void gx_switch_init_pixmaps(int change_knob);
-static void
-gx_switch_set_property(GObject      *object,
-                        guint         prop_id,
-                        const GValue *value,
-                        GParamSpec   *pspec);
-static void
-gx_switch_get_property(GObject      *object,
-                        guint         prop_id,
-                        GValue       *value,
-                        GParamSpec   *pspec);
+static void gx_switch_class_init(GxSwitchClass *klass);
+static void gx_switch_init(GxSwitch *swtch);
+static void gx_switch_base_class_finalize(GxSwitchClass *klass);
+static void gx_switch_finalize(GObject*);
+static void gx_switch_init_pixmaps(GxSwitchClass *klass);
+static void gx_switch_set_property(
+	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
+static void gx_switch_get_property(
+	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 static gboolean gx_switch_enter_in (GtkWidget *widget, GdkEventCrossing *event);
 static gboolean gx_switch_leave_out (GtkWidget *widget, GdkEventCrossing *event);
 static gboolean gx_switch_expose (GtkWidget *widget, GdkEventExpose *event);
@@ -56,11 +55,34 @@ static gboolean gx_switch_key_press (GtkWidget *widget, GdkEventKey *event);
 static gboolean gx_switch_scroll (GtkWidget *widget, GdkEventScroll *event);
 static void gx_control_parameter_interface_init (GxControlParameterIface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (GxSwitch, gx_switch, GTK_TYPE_TOGGLE_BUTTON,
-                         G_IMPLEMENT_INTERFACE (GTK_TYPE_BUILDABLE,
-                                                gx_switch_buildable_interface_init)
-                         G_IMPLEMENT_INTERFACE (GX_TYPE_CONTROL_PARAMETER,
-                                                gx_control_parameter_interface_init));
+static gpointer gx_switch_parent_class = NULL;
+
+GType gx_switch_get_type(void)
+{
+	static GType switch_type = 0;
+
+	if (!switch_type) {
+		const GTypeInfo switch_info = {
+			sizeof (GxSwitchClass),
+			NULL,				/* base_class_init */
+			(GBaseFinalizeFunc) gx_switch_base_class_finalize,
+			(GClassInitFunc) gx_switch_class_init,
+			NULL,				/* class_finalize */
+			NULL,				/* class_data */
+			sizeof (GxSwitch),
+			0,					/* n_preallocs */
+			(GInstanceInitFunc) gx_switch_init,
+			NULL,				/* value_table */
+		};
+		switch_type = g_type_register_static(
+			GTK_TYPE_TOGGLE_BUTTON, "GxSwitch", &switch_info, (GTypeFlags)0);
+		static const GInterfaceInfo g_implement_interface_info = {
+			(GInterfaceInitFunc)gx_control_parameter_interface_init
+		};
+        g_type_add_interface_static (switch_type, GX_TYPE_CONTROL_PARAMETER, &g_implement_interface_info);
+	}
+	return switch_type;
+}
 
 GType switch_type_get_type(void)
 {
@@ -72,7 +94,7 @@ GType switch_type_get_type(void)
 			{ GX_SWITCH_TYPE_MINI_TOGGLE, "SWITCH_TYPE_MINI_TOGGLE", "mini toggle" },
 			{ GX_SWITCH_TYPE_TOGGLE_BUTTON, "SWITCH_TYPE_TOGGLE_BUTTON", "toggle button" },
 			{ GX_SWITCH_TYPE_LED, "SWITCH_TYPE_LED", "led" },
-			{ GX_SWITCH_TYPE_VALUE_DISPLAY, "GX_SWITCH_TYPE_VALUE_DISPLAY", "value display" },
+			//{ GX_SWITCH_TYPE_VALUE_DISPLAY, "GX_SWITCH_TYPE_VALUE_DISPLAY", "value display" }, //FIXME
 			{ 0, NULL, NULL }
 		};
 		etype = g_enum_register_static (g_intern_static_string ("GxSwitchType"), values);
@@ -81,40 +103,52 @@ GType switch_type_get_type(void)
 }
 
 
-static void
-gx_switch_do_action (GxControlParameter *self)
+static void gx_switch_set_label(GxSwitch *self, const gchar *text)
 {
-	GtkToggleButton *b = GTK_TOGGLE_BUTTON(self);
-	int a = gtk_toggle_button_get_active(b);
-	gtk_toggle_button_set_active(b, !a);
+	g_free(self->label);
+	self->label = g_strdup(text);
+	if (self->layout) {
+		pango_layout_set_text(self->layout, self->label, -1);
+	}
+	gtk_widget_queue_resize(GTK_WIDGET(self));
+	g_object_notify(G_OBJECT(self), "label-text");
+}
+
+static void
+gx_switch_cp_configure(GxControlParameter *self, gchar* group, gchar *name, gdouble lower, gdouble upper, gdouble step)
+{
+	gx_switch_set_label(GX_SWITCH(self), name);
+}
+
+static gdouble
+gx_switch_cp_get_value(GxControlParameter *self)
+{
+	return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(self));
+}
+
+static void
+gx_switch_cp_set_value(GxControlParameter *self, gdouble value)
+{
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(self), value == 0.0);
 }
 
 static void
 gx_control_parameter_interface_init(GxControlParameterIface *iface)
 {
-  iface->do_action = gx_switch_do_action;
+  iface->cp_configure = gx_switch_cp_configure;
+  iface->cp_set_value = gx_switch_cp_set_value;
+  iface->cp_get_value = gx_switch_cp_get_value;
 }
 
 static void gx_switch_class_init(GxSwitchClass *klass)
 {
-	GObjectClass   *gobject_class;
-	GtkObjectClass *object_class;
-	GtkWidgetClass *widget_class;
-
-	gobject_class = G_OBJECT_CLASS (klass);
-	object_class = (GtkObjectClass*) klass;
-	widget_class = (GtkWidgetClass*) klass;
-
+	GObjectClass   *gobject_class = G_OBJECT_CLASS (klass);
+	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
+	gx_switch_parent_class = g_type_class_peek_parent(klass);
+	gobject_class->finalize = gx_switch_finalize;
 	gobject_class->set_property = gx_switch_set_property;
 	gobject_class->get_property = gx_switch_get_property;
 
-	object_class->destroy = gx_switch_destroy;
-
-
-//--------- init pixmaps
-	klass->pix_is = 0;
-
-//--------- connect the events with funktions
 	widget_class->enter_notify_event = gx_switch_enter_in;
 	widget_class->leave_notify_event = gx_switch_leave_out;
 	widget_class->expose_event = gx_switch_expose;
@@ -124,250 +158,172 @@ static void gx_switch_class_init(GxSwitchClass *klass)
 	widget_class->key_press_event = gx_switch_key_press;
 	widget_class->scroll_event = gx_switch_scroll;
 
-	g_object_class_install_property(gobject_class,
-	                                PROP_TYPE,
-	                                g_param_spec_enum("switch-type",
-	                                                  P_("Type"),
-	                                                  P_("The type of the control"),
-	                                                  switch_type_get_type(),
-	                                                  GX_SWITCH_TYPE_SWITCH,
-	                                                  GParamFlags(GTK_PARAM_READWRITE)));
-	g_object_class_install_property(gobject_class,
-	                                PROP_VAR_ID,
-	                                g_param_spec_string("var-id",
-	                                                    P_("Variable"),
-	                                                    P_("The id of the linked variable"),
-	                                                    NULL,
-	                                                    GParamFlags(GTK_PARAM_READWRITE)));
+	g_object_class_install_property(
+		gobject_class, PROP_TYPE,
+		g_param_spec_enum("switch-type",
+		                  P_("Type"),
+		                  P_("The type of the control"),
+		                  switch_type_get_type(),
+		                  GX_SWITCH_TYPE_SWITCH,
+		                  GParamFlags(GTK_PARAM_READWRITE)));
+	g_object_class_install_property(
+		gobject_class, PROP_SHOW_LABEL,
+		g_param_spec_boolean("show-label",
+		                     P_("show label"),
+		                     P_("display a label"),
+		                     TRUE,
+		                     GParamFlags(GTK_PARAM_READWRITE)));
+	g_object_class_install_property(
+		gobject_class, PROP_LABEL_FROM_VAR,
+		g_param_spec_boolean("label-from-var",
+		                     P_("label from variable"),
+		                     P_("label will be set to the name of the variable"),
+		                     TRUE,
+		                     GParamFlags(GTK_PARAM_READWRITE)));
+	g_object_class_install_property(
+		gobject_class, PROP_LABEL_TEXT,
+		g_param_spec_string("label-text",
+		                    P_("Label Text"),
+		                    P_("The text of the label"),
+		                    "",
+		                    GParamFlags(GTK_PARAM_READWRITE)));
+	g_object_class_install_property(
+		gobject_class, PROP_LABEL_POSITION,
+		g_param_spec_enum("label-position",
+		                  P_("Label Position"),
+		                  P_("The position of the label"),
+		                  GTK_TYPE_POSITION_TYPE,
+		                  GTK_POS_TOP,
+		                  GParamFlags(GTK_PARAM_READWRITE)));
+	g_object_class_override_property(gobject_class, PROP_VAR_ID, "var-id");
 
-	gx_switch_init_pixmaps(0);
+	gx_switch_init_pixmaps(klass);
 }
 
-/****************************************************************
- ** Constants
- */
-
-/** set here the sizes and steps for the used switch **/
-//--------- switch size and steps
-gint class_toggle_x = 37 ;
-gint class_toggle_y = 28 ;
-gint class_toggle_step = 1;
-
-//--------- switchII size and steps
-gint class_switch_x = 20 ;
-gint class_switch_y = 10 ;
-gint class_switch_step = 1;
-
-//--------- switch minitoggle and steps
-gint class_minitoggle_x = 10 ;
-gint class_minitoggle_y = 10 ;
-gint class_minitoggle_step = 1;
-
-//--------- switch size and steps
-gint class_b_toggle_x = 25 ;
-gint class_b_toggle_y = 15 ;
-gint class_b_toggle_step = 1;
-
-//--------- led
-gint class_led_x = 20 ;
-gint class_led_y = 20 ;
-
-//--------- led
-gint class_vd_x = -1 ;
-gint class_vd_y = 25 ;
+static const GtkRequisition base_size[GX_SWITCH_TYPE_COUNT] = {
+		{ 37, 28 }, // GX_SWITCH_TYPE_SWITCH
+		{ 20, 10 }, // GX_SWITCH_TYPE_SWITCH_II
+		{ 10, 10 }, // GX_SWITCH_TYPE_MINI_TOGGLE
+		{ 25, 15 }, // GX_SWITCH_TYPE_TOGGLE_BUTTON
+		{ 20, 20 }, // GX_SWITCH_TYPE_LED
+		//{ -1, 25 }, //class_vd_y         GX_SWITCH_TYPE_VALUE_DISPLAY //FIXME
+};
 
 
-/****************************************************************
- ** general expose events for all "switch" controllers
- */
+static void gx_switch_ensure_layout(GxSwitch *swtch)
+{
+	if (swtch->layout) {
+		return;
+	}
+	swtch->layout = gtk_widget_create_pango_layout(GTK_WIDGET(swtch), swtch->label);
+}
 
-//----------- draw the Switch when moved
+static void get_positions(GtkWidget *widget, gint *text_x, gint *text_y, gint *image_x, gint *image_y)
+{
+	GxSwitch *swtch = GX_SWITCH(widget);
+	gint x = widget->allocation.x, y = widget->allocation.y;
+	gint text_width = 0, text_height = 0;
+	if (swtch->show_label) {
+		PangoRectangle logical_rect;
+		gx_switch_ensure_layout(swtch);
+		pango_layout_get_pixel_extents(swtch->layout, NULL, &logical_rect);
+		text_width = logical_rect.width;
+		text_height = logical_rect.height;
+	}
+	gint width = base_size[swtch->switch_type].width;
+	gint height = base_size[swtch->switch_type].height;
+	switch (swtch->label_position) {
+	case GTK_POS_LEFT:
+		*text_x = x + (widget->allocation.width - width - text_width) / 2;
+		*text_y = y + (widget->allocation.height - text_height) / 2;
+		*image_x = x + (widget->allocation.width - width + text_width) / 2;
+		*image_y = y + (widget->allocation.height - height) / 2;
+		break;
+	case GTK_POS_RIGHT:
+		*text_x = x + (widget->allocation.width + width - text_width) / 2;
+		*text_y = y + (widget->allocation.height - text_height) / 2;
+		*image_x = x + (widget->allocation.width - width - text_width) / 2;
+		*image_y = y + (widget->allocation.height - height) / 2;
+		break;
+	case GTK_POS_TOP:
+		*text_x = x + (widget->allocation.width - text_width) / 2;
+		*text_y = y + (widget->allocation.height - height - text_height) / 2;
+		*image_x = x + (widget->allocation.width - width) / 2;
+		*image_y = y + (widget->allocation.height - height + text_height) / 2;
+		break;
+	case GTK_POS_BOTTOM:
+		*text_x = x + (widget->allocation.width - text_width) / 2;
+		*text_y = y + (widget->allocation.height + height - text_height) / 2;
+		*image_x = x + (widget->allocation.width - width) / 2;
+		*image_y = y + (widget->allocation.height - height - text_height) / 2;
+		break;
+	}
+}
+
+static void draw_image(GtkWidget *widget, gint image_x, gint image_y, gboolean highlight)
+{
+	GxSwitch *swtch = GX_SWITCH(widget);
+	GxSwitchClass *klass =  GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget));
+	gint width = base_size[swtch->switch_type].width;
+	gint height = base_size[swtch->switch_type].height;
+	gboolean switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+	gint xoff = 0, yoff = 0;
+	GdkPixbuf *image = NULL;
+	switch (swtch->switch_type) {
+	case GX_SWITCH_TYPE_SWITCH:
+		image = (highlight ? klass->toggle_image1 : klass->toggle_image);
+		if (switchstate) {
+			xoff = width;
+		}
+		break;
+	case GX_SWITCH_TYPE_MINI_TOGGLE:
+		image = (highlight ? klass->switch_image1 : klass->switch_image);
+		if (switchstate) {
+			xoff = 2*width;
+		}
+		break;
+	case GX_SWITCH_TYPE_SWITCH_II:
+		image = (highlight ? klass->switch_image1 : klass->switch_image);
+		if (switchstate) {
+			xoff = width;
+		}
+		break;
+	case GX_SWITCH_TYPE_TOGGLE_BUTTON:
+		image = (highlight ? klass->b_toggle_image1 : klass->b_toggle_image);
+		if (switchstate) {
+			yoff = height;
+		}
+		break;
+	case GX_SWITCH_TYPE_LED:
+		image = klass->led_image;
+		if (switchstate) {
+			yoff = height;
+		}
+		break;
+	}
+	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
+	                image, xoff, yoff, image_x, image_y, width, height,
+	                GDK_RGB_DITHER_NORMAL, 0, 0);
+}
+
 static gboolean gx_switch_expose (GtkWidget *widget, GdkEventExpose *event)
 {
 	g_assert(GX_IS_SWITCH(widget));
 	GxSwitch *swtch = GX_SWITCH(widget);
-	GxSwitchClass *klass =  GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget));
-
-	int switchx = widget->allocation.x, switchy = widget->allocation.y;
-
-//---------- switch
-	if (swtch->switch_type == GX_SWITCH_TYPE_SWITCH) {
-		switchx += (widget->allocation.width -
-		            class_toggle_x) *0.5;
-		switchy += (widget->allocation.height -
-		            class_toggle_y) *0.5;
-		int switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-		if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE) {
-			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-			                klass->toggle_image1, switchstate *
-			                class_toggle_x, 0, switchx, switchy,
-			                class_toggle_x,
-			                class_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-		} else {
-			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-			                klass->toggle_image, switchstate *
-			                class_toggle_x, 0, switchx, switchy,
-			                class_toggle_x,
-			                class_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-		}
+	gint text_x, text_y, image_x, image_y;
+	get_positions(widget, &text_x, &text_y, &image_x, &image_y);
+	if (swtch->show_label) {
+		gtk_paint_layout(widget->style,
+		                 widget->window,
+		                 gtk_widget_get_state (widget),
+		                 FALSE,
+		                 &event->area,
+		                 widget,
+		                 "label",
+		                 text_x, text_y,
+		                 swtch->layout);
 	}
-
-//---------- switchII
-	else if (swtch->switch_type == GX_SWITCH_TYPE_SWITCH_II) {
-		switchx += (widget->allocation.width -
-		            class_switch_x) *0.5;
-		switchy += (widget->allocation.height -
-		            class_switch_y) *0.5;
-		int switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-		if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE) {
-			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-			                klass->switch_image1, switchstate *
-			                class_switch_x, 0, switchx, switchy,
-			                class_switch_x,
-			                class_switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-		} else {
-			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-			                klass->switch_image, switchstate *
-			                class_switch_x, 0, switchx, switchy,
-			                class_switch_x,
-			                class_switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-		}
-	}
-
-//---------- minitoggle
-	else if (swtch->switch_type == GX_SWITCH_TYPE_MINI_TOGGLE) {
-		switchx += (widget->allocation.width -
-		            class_minitoggle_x) *0.5;
-		switchy += (widget->allocation.height -
-		            class_minitoggle_y) *0.5;
-		int switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-		if (switchstate > 0) switchstate =2;
-		if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE) {
-			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-			                klass->switch_image1, switchstate *
-			                class_minitoggle_x, 0, switchx, switchy,
-			                class_minitoggle_x,
-			                class_minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-		} else {
-			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-			                klass->switch_image, switchstate *
-			                class_minitoggle_x, 0, switchx, switchy,
-			                class_minitoggle_x,
-			                class_minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-		}
-	}
-
-//---------- toggle button
-	else if (swtch->switch_type == GX_SWITCH_TYPE_TOGGLE_BUTTON) {
-		switchx += (widget->allocation.width -
-		            class_b_toggle_x) *0.5;
-		switchy += (widget->allocation.height -
-		            class_b_toggle_y) *0.5;
-		int switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-		if (GTK_WIDGET_HAS_FOCUS(widget)== TRUE) {
-			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-			                klass->b_toggle_image1, 0,
-			                switchstate * class_b_toggle_y, switchx, switchy,
-			                class_b_toggle_x,
-			                class_b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-		} else {
-			gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-			                klass->b_toggle_image, 0,
-			                switchstate * class_b_toggle_y,
-			                switchx, switchy, class_b_toggle_x,
-			                class_b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-		}
-	}
-
-//---------- led
-	else if (swtch->switch_type == GX_SWITCH_TYPE_LED) {
-		int switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-		gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-		                klass->led_image, 0,
-		                switchstate * class_led_y, 8, 12, //left upper corner, else use reglex,switchy
-		                class_led_x,
-		                class_led_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-	}
-
-	//---------- value display
-	else if (swtch->switch_type == GX_SWITCH_TYPE_VALUE_DISPLAY) {
-		switchx += (widget->allocation.x);
-		switchy += (widget->allocation.height -
-		            class_vd_y) *0.5;
-		/*FIXME
-		float adj->value;
-
-			char s[64];
-
-			if (adj->step_increment < 0.009999)
-			{
-				const char* format[] = {"%.1f", "%.2f", "%.3f"};
-				snprintf(s, 63, format[3-1], v);
-			}
-			else if (adj->step_increment < 0.09999)
-			{
-				const char* format[] = {"%.1f", "%.2f", "%.3f"};
-				snprintf(s, 63, format[2-1], v);
-			}
-			else if (adj->step_increment < 0.9999)
-			{
-				const char* format[] = {"%.1f", "%.2f", "%.3f"};
-				snprintf(s, 63, format[1-1], v);
-			}
-			else if (adj->step_increment < 9.9999)
-			{
-				snprintf(s, 63, "%d", (int)v);
-			}
-			else
-				snprintf(s, 63, "%d", (int)v);
-		*/
-		const char *s = "bla";
-
-		cairo_t *cr;
-	/* create a cairo context */
-	cr = gdk_cairo_create(widget->window);
-
-	double x0      = widget->allocation.x+2;
-	double y0      = widget->allocation.y+2;
-
-	double rect_width  =  widget->allocation.width-4;
-	double rect_height =  widget->allocation.height-4;
-
-    cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
-            cairo_set_source_rgb (cr, 0, 0, 0);
-            cairo_fill (cr);
-
-	cairo_pattern_t*pat =
-		cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
-	cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0., 0.8);
-    cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0.4);
-	cairo_set_source (cr, pat);
-	cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
-	cairo_fill (cr);
-
-    cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
-    cairo_set_line_width(cr, 2.0);
-    cairo_move_to(cr,x0+rect_width-3, y0+3);
-    cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
-    cairo_line_to(cr, x0+2, y0+rect_height-2);
-    cairo_stroke(cr);
-
-    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
-    cairo_set_line_width(cr, 2.0);
-    cairo_move_to(cr,x0+3, y0+rect_height-1);
-    cairo_line_to(cr, x0+3, y0+3);
-    cairo_line_to(cr, x0+rect_width-3, y0+3);
-    cairo_stroke(cr);
-
-		cairo_set_source_rgba (cr, 0.4, 1, 0.2, 0.8);
-		cairo_set_font_size (cr, 10.0);
-		cairo_move_to (cr, x0+5, y0+rect_height-4);
-		cairo_show_text(cr, s);
-		cairo_stroke (cr);
-
-	cairo_destroy(cr);
-	}
-
+	draw_image(widget, image_x, image_y, GTK_WIDGET_HAS_FOCUS(widget));
 	return TRUE;
 }
 
@@ -378,68 +334,11 @@ static gboolean gx_switch_expose (GtkWidget *widget, GdkEventExpose *event)
 static gboolean gx_switch_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SWITCH(widget));
-	GxSwitch *swtch = GX_SWITCH(widget);
-	GxSwitchClass *klass =  GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget));
-
-	int switchx = widget->allocation.x, switchy = widget->allocation.y;
-
-	if (swtch->switch_type == GX_SWITCH_TYPE_SWITCH) {
-		switchx += (widget->allocation.width -
-		            class_toggle_x) *0.5;
-		switchy += (widget->allocation.height -
-		            class_toggle_y) *0.5;
-		int switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-		gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-		                klass->toggle_image,
-		                switchstate * class_toggle_x, 0,
-		                switchx, switchy, class_toggle_x,
-		                class_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+	if (GX_SWITCH(widget)->switch_type != GX_SWITCH_TYPE_LED) {
+		gint text_x, text_y, image_x, image_y;
+		get_positions(widget, &text_x, &text_y, &image_x, &image_y);
+		draw_image(widget, image_x, image_y, FALSE);
 	}
-
-//----------- switchII
-	else if (swtch->switch_type == GX_SWITCH_TYPE_SWITCH_II) {
-		switchx += (widget->allocation.width -
-		            class_switch_x) *0.5;
-		switchy += (widget->allocation.height -
-		            class_switch_y) *0.5;
-		int switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-		gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-		                klass->switch_image,
-		                switchstate * class_switch_x, 0,
-		                switchx, switchy, class_switch_x,
-		                class_switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-	}
-
-//----------- minitoggle
-	else if (swtch->switch_type == GX_SWITCH_TYPE_MINI_TOGGLE) {
-		switchx += (widget->allocation.width -
-		            class_minitoggle_x) *0.5;
-		switchy += (widget->allocation.height -
-		            class_minitoggle_y) *0.5;
-		int switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-		if (switchstate > 0) switchstate =2;
-		gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-		                klass->switch_image,
-		                switchstate * class_minitoggle_x, 0,
-		                switchx, switchy, class_minitoggle_x,
-		                class_minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-	}
-
-//---------- toggle button
-	else if (swtch->switch_type == GX_SWITCH_TYPE_TOGGLE_BUTTON) {
-		switchx += (widget->allocation.width -
-		            class_b_toggle_x) *0.5;
-		switchy += (widget->allocation.height -
-		            class_b_toggle_y) *0.5;
-		int switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-		gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-		                klass->b_toggle_image, 0,
-		                switchstate * class_b_toggle_y,
-		                switchx, switchy, class_b_toggle_x,
-		                class_b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-
-	}
-
 	return TRUE;
 }
 
@@ -450,69 +349,11 @@ static gboolean gx_switch_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 static gboolean gx_switch_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SWITCH(widget));
-	GxSwitch *swtch = GX_SWITCH(widget);
-	GxSwitchClass *klass =  GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget));
-
-	int switchx = widget->allocation.x, switchy = widget->allocation.y;
-
-//----------- switch
-	if (swtch->switch_type == GX_SWITCH_TYPE_SWITCH) {
-		switchx += (widget->allocation.width -
-		            class_toggle_x) *0.5;
-		switchy += (widget->allocation.height -
-		            class_toggle_y) *0.5;
-		int switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-		gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-		                klass->toggle_image1,
-		                switchstate * class_toggle_x, 0,
-		                switchx, switchy, class_toggle_x,
-		                class_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
+	if (GX_SWITCH(widget)->switch_type != GX_SWITCH_TYPE_LED) {
+		gint text_x, text_y, image_x, image_y;
+		get_positions(widget, &text_x, &text_y, &image_x, &image_y);
+		draw_image(widget, image_x, image_y, TRUE);
 	}
-
-//----------- switch
-	else if (swtch->switch_type == GX_SWITCH_TYPE_SWITCH_II) {
-		switchx += (widget->allocation.width -
-		            class_switch_x) *0.5;
-		switchy += (widget->allocation.height -
-		            class_switch_y) *0.5;
-		int switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-		gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-		                klass->switch_image1,
-		                switchstate * class_switch_x, 0,
-		                switchx, switchy, class_switch_x,
-		                class_switch_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-	}
-
-//----------- minitoggle
-	else if (swtch->switch_type == GX_SWITCH_TYPE_MINI_TOGGLE) {
-		switchx += (widget->allocation.width -
-		            class_minitoggle_x) *0.5;
-		switchy += (widget->allocation.height -
-		            class_minitoggle_y) *0.5;
-		int switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-		if (switchstate > 0) switchstate =2;
-		gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-		                klass->switch_image1, switchstate *
-		                class_minitoggle_x, 0, switchx, switchy,
-		                class_minitoggle_x,
-		                class_minitoggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-	}
-
-//---------- toggle button
-	else if (swtch->switch_type == GX_SWITCH_TYPE_TOGGLE_BUTTON) {
-		switchx += (widget->allocation.width -
-		            class_b_toggle_x) *0.5;
-		switchy += (widget->allocation.height -
-		            class_b_toggle_y) *0.5;
-		int switchstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-		gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-		                klass->b_toggle_image1, 0,
-		                switchstate * class_b_toggle_y,
-		                switchx, switchy, class_b_toggle_x,
-		                class_b_toggle_y, GDK_RGB_DITHER_NORMAL, 0, 0);
-
-	}
-
 	return TRUE;
 }
 
@@ -526,37 +367,28 @@ static void gx_switch_size_request (GtkWidget *widget, GtkRequisition *requisiti
 	GxSwitch *swtch = GX_SWITCH(widget);
 	//GxSwitchClass *klass =  GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget));
 
-//----------- switch
-	if (swtch->switch_type == GX_SWITCH_TYPE_SWITCH) {
-		requisition->width = class_toggle_x;
-		requisition->height = class_toggle_y;
+	*requisition = base_size[swtch->switch_type];
+	if (swtch->show_label) {
+		PangoRectangle logical_rect;
+		gx_switch_ensure_layout(swtch);
+		pango_layout_get_pixel_extents(swtch->layout, NULL, &logical_rect);
+		switch (swtch->label_position) {
+		case GTK_POS_LEFT:
+		case GTK_POS_RIGHT:
+			requisition->width += logical_rect.width;
+			if (logical_rect.height > requisition->height) {
+				requisition->height = logical_rect.height;
+			}
+			break;
+		case GTK_POS_TOP:
+		case GTK_POS_BOTTOM:
+			requisition->height += logical_rect.height;
+			if (logical_rect.width > requisition->width) {
+				requisition->width = logical_rect.width;
+			}
+			break;
+		}
 	}
-//----------- switch2
-	else if (swtch->switch_type == GX_SWITCH_TYPE_SWITCH_II) {
-		requisition->width = class_switch_x;
-		requisition->height = class_switch_y;
-	}
-//----------- minitoggle
-	else if (swtch->switch_type == GX_SWITCH_TYPE_MINI_TOGGLE) {
-		requisition->width = class_minitoggle_x;
-		requisition->height = class_minitoggle_y;
-	}
-//----------- togglebutton
-	else if (swtch->switch_type == GX_SWITCH_TYPE_TOGGLE_BUTTON) {
-		requisition->width = class_b_toggle_x;
-		requisition->height = class_b_toggle_y;
-	}
-//-----------  led
-	else if (swtch->switch_type == GX_SWITCH_TYPE_LED) {
-		requisition->width = class_led_x;
-		requisition->height = class_led_y;
-	}
-//-----------  led
-	else if (swtch->switch_type == GX_SWITCH_TYPE_VALUE_DISPLAY) {
-		requisition->width = class_vd_x;
-		requisition->height = class_vd_y;
-	}
-
 }
 
 /****************************************************************
@@ -627,12 +459,8 @@ static gboolean gx_switch_scroll (GtkWidget *widget, GdkEventScroll *event)
  ** init the used background images to the used skins
  */
 
-void gx_switch_init_pixmaps(int change_knob)
+void gx_switch_init_pixmaps(GxSwitchClass *klass)
 {
-	GtkWidget *widget = GTK_WIDGET(g_object_new(GX_TYPE_SWITCH, NULL));
-	g_assert(GX_IS_SWITCH(widget));
-	GxSwitchClass *klass =  GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget));
-
 //----------- switch
 	klass->toggle_image = gdk_pixbuf_new_from_xpm_data (switchit_xpm);
 	g_assert(klass->toggle_image != NULL);
@@ -653,7 +481,6 @@ void gx_switch_init_pixmaps(int change_knob)
 	g_assert(klass->b_toggle_image != NULL);
 	klass->b_toggle_image1 = gdk_pixbuf_new_from_xpm_data (button1_xpm);
 	g_assert(klass->b_toggle_image1 != NULL);
-	klass->pix_is = 1;
 }
 
 /****************************************************************
@@ -663,125 +490,47 @@ void gx_switch_init_pixmaps(int change_knob)
 static void gx_switch_init(GxSwitch *swtch)
 {
 	GtkWidget *widget = GTK_WIDGET(swtch);
-	//GxSwitchClass *klass =  GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget));
 
 	gtk_widget_set_has_window (GTK_WIDGET (swtch), FALSE);
 	GTK_WIDGET_SET_FLAGS (GTK_WIDGET(swtch), GTK_CAN_FOCUS);
 	GTK_WIDGET_SET_FLAGS (GTK_WIDGET(swtch), GTK_CAN_DEFAULT);
+	widget->requisition = base_size[swtch->switch_type];
+}
 
-	if (swtch->switch_type == GX_SWITCH_TYPE_SWITCH) {
-		widget->requisition.width = class_toggle_x;
-		widget->requisition.height = class_toggle_y;
-	} else if (swtch->switch_type == GX_SWITCH_TYPE_SWITCH_II) {
-		widget->requisition.width = class_switch_x;
-		widget->requisition.height = class_switch_y;
-	} else if (swtch->switch_type == GX_SWITCH_TYPE_MINI_TOGGLE) {
-		widget->requisition.width = class_minitoggle_x;
-		widget->requisition.height = class_minitoggle_y;
-	} else if (swtch->switch_type == GX_SWITCH_TYPE_TOGGLE_BUTTON) {
-		widget->requisition.width = class_b_toggle_x;
-		widget->requisition.height = class_b_toggle_y;
-	} else if (swtch->switch_type == GX_SWITCH_TYPE_LED) {
-		widget->requisition.width = class_led_x;
-		widget->requisition.height = class_led_y;
-	} else if (swtch->switch_type == GX_SWITCH_TYPE_VALUE_DISPLAY) {
-		widget->requisition.width = class_vd_x;
-		widget->requisition.height = class_vd_y;
+/****************************************************************
+ */
+static void gx_switch_base_class_finalize(GxSwitchClass *klass)
+{
+	if (G_IS_OBJECT(klass-> toggle_image))
+		g_object_unref(klass->toggle_image);
+	if (G_IS_OBJECT(klass-> toggle_image1))
+		g_object_unref(klass->toggle_image1);
+
+	if (G_IS_OBJECT(klass-> switch_image))
+		g_object_unref(klass->switch_image);
+	if (G_IS_OBJECT(klass-> switch_image1))
+		g_object_unref(klass->switch_image1);
+
+	if (G_IS_OBJECT(klass-> led_image))
+		g_object_unref(klass->led_image);
+
+	if (G_IS_OBJECT(klass-> b_toggle_image))
+		g_object_unref(klass->b_toggle_image);
+	if (G_IS_OBJECT(klass-> b_toggle_image1))
+		g_object_unref(klass->b_toggle_image1);
+}
+
+static void gx_switch_finalize(GObject *object)
+{
+	GxSwitch *swtch = GX_SWITCH(object);
+	g_free(swtch->label);
+	g_free(swtch->var_id);
+	if (swtch->layout) {
+		g_object_unref(swtch->layout);
 	}
+	G_OBJECT_CLASS(gx_switch_parent_class)->finalize(object);
 }
 
-/****************************************************************
- ** redraw when value changed
- */
-
-/*
-static gboolean gx_switch_value_changed(gpointer obj)
-{
-	GtkWidget *widget = (GtkWidget *)obj;
-	gtk_widget_queue_draw(widget);
-	return FALSE;
-}
-*/
-
-/****************************************************************
- */
-void gx_switch_destroy(GtkObject *object)
-{
-/*
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> switch_image))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> switch_image);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> bigswitch_image))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> bigswitch_image);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> toggle_image))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_image);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> toggle_image1))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->toggle_image1);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> slider_image))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> slider_image1))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->slider_image1);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> minislider_image))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> minislider_image1))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->minislider_image1);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> switch_image))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> switch_image1))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->switch_image1);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> wheel_image))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> wheel_image1))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->wheel_image1);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> b_toggle_image))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->b_toggle_image);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> vslider_image))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> vslider_image1))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->vslider_image1);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> eqslider_image))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_image);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> eqslider_image1))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->eqslider_image1);
-	if (G_IS_OBJECT(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))-> led_image))
-		g_object_unref(GX_SWITCH_CLASS(GTK_OBJECT_GET_CLASS(widget))->led_image);
-*/
-	GTK_OBJECT_CLASS (gx_switch_parent_class)->destroy (object);
-}
-
-
-/****************************************************************
- ** get the Switch type
- */
-
-/*
-GType gx_switch_get_type (void)
-{
-	static GType kn_type = 0;
-	if (!kn_type) {
-		static const GTypeInfo kn_info = {
-			sizeof(GxSwitchClass), NULL,  NULL, (GClassInitFunc)gx_switch_class_init, NULL, NULL, sizeof (GxSwitch), 0, (GInstanceInitFunc)gx_switch_init
-		};
-		kn_type = g_type_register_static(GTK_TYPE_RANGE,  "GxSwitch", &kn_info, (GTypeFlags)0);
-	}
-	return kn_type;
-}
-*/
-
-/****************************************************************
- ** GtkBuildable Interface
- */
-
- //static GtkBuildableIface *buildable_parent_iface = NULL;
-
-static void gx_switch_buildable_interface_init(GtkBuildableIface *iface)
-{
-	//buildable_parent_iface = g_type_interface_peek_parent(iface);
-	iface->parser_finished = gx_switch_parser_finished;
-}
-
-static void gx_switch_parser_finished(GtkBuildable *buildable, GtkBuilder *builder)
-{
-}
 
 /****************************************************************
  ** Properties
@@ -815,14 +564,10 @@ gchar *gx_switch_get_var(GxSwitch *swtch)
 }
 
 static void
-gx_switch_set_property (GObject      *object,
-                           guint         prop_id,
-                           const GValue *value,
-                           GParamSpec   *pspec)
+gx_switch_set_property (GObject *object, guint prop_id, const GValue *value,
+                        GParamSpec *pspec)
 {
-	GxSwitch *swtch;
-
-	swtch = GX_SWITCH (object);
+	GxSwitch *swtch = GX_SWITCH (object);
 
 	switch(prop_id) {
 	case PROP_TYPE:
@@ -831,6 +576,23 @@ gx_switch_set_property (GObject      *object,
 	case PROP_VAR_ID:
 		gx_switch_set_var_id (swtch, g_value_get_string (value));
 		break;
+	case PROP_SHOW_LABEL:
+		swtch->show_label = g_value_get_boolean(value);
+		gtk_widget_queue_resize(GTK_WIDGET(object));
+		g_object_notify(object, "show-label");
+		break;
+	case PROP_LABEL_FROM_VAR:
+		swtch->label_from_var = g_value_get_boolean(value);
+		g_object_notify(object, "label-from-var");
+		break;
+	case PROP_LABEL_TEXT:
+		gx_switch_set_label(swtch, g_value_get_string(value));
+		break;
+	case PROP_LABEL_POSITION:
+		swtch->label_position = GtkPositionType(g_value_get_enum(value));
+		gtk_widget_queue_resize(GTK_WIDGET(object));
+		g_object_notify(object, "label-position");
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -838,21 +600,30 @@ gx_switch_set_property (GObject      *object,
 }
 
 static void
-gx_switch_get_property(GObject      *object,
-                        guint         prop_id,
-                        GValue       *value,
-                        GParamSpec   *pspec)
+gx_switch_get_property(GObject *object, guint prop_id, GValue *value,
+                       GParamSpec *pspec)
 {
-	GxSwitch *swtch;
-
-	swtch = GX_SWITCH(object);
+	GxSwitch *swtch = GX_SWITCH(object);
 
 	switch(prop_id) {
 	case PROP_TYPE:
 		g_value_set_enum(value, swtch->switch_type);
 		break;
 	case PROP_VAR_ID:
-		g_value_set_string (value, swtch->var_id);
+		g_value_set_string(value, swtch->var_id);
+		break;
+	case PROP_SHOW_LABEL:
+		g_value_set_boolean(value, swtch->show_label);
+		break;
+	case PROP_LABEL_FROM_VAR:
+		g_value_set_boolean(value, swtch->label_from_var);
+		break;
+	case PROP_LABEL_TEXT:
+		g_value_set_string(value, swtch->label);
+		break;
+	case PROP_LABEL_POSITION:
+		g_value_set_enum(value, swtch->label_position);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
