@@ -235,8 +235,6 @@ static void gx_selector_init(GxSelector *selector)
 	GTK_WIDGET_SET_FLAGS (GTK_WIDGET(selector), GTK_CAN_DEFAULT);
 	widget->requisition.width = class_selector_x;
 	widget->requisition.height = class_selector_y;
-	GtkAdjustment *a = gtk_range_get_adjustment(GTK_RANGE(selector));
-	gtk_adjustment_configure(a, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 }
 
 static void
@@ -276,6 +274,11 @@ gx_selector_set_model(GxSelector *selector, GtkTreeModel *model)
 		selector->model = model;
 		g_object_ref (selector->model);
 	}
+	int n = gtk_tree_model_iter_n_children(model, NULL) - 1;
+	if (n < 0) {
+		n = 0;
+	}
+	gtk_adjustment_configure(gtk_range_get_adjustment(GTK_RANGE(selector)), 0.0, 0.0, n, 1.0, 1.0, 0.0);
 	g_object_notify(G_OBJECT(selector), "model");
 }
 

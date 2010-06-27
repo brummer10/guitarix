@@ -54,6 +54,8 @@ static void ir_edit_set_scale(GxIREdit *ir_edit, gdouble scale, gint scroll_cent
 static void next_regular_tick(GxIREdit *ir_edit, gdouble calc_tick);
 static void ir_edit_precalc(GxIREdit *ir_edit);
 
+#define FP_EQUAL(x, y) (fabs((x)-(y)) < 1e-14)
+
 enum {
 	MODE_NONE,
 	MODE_BODY,
@@ -67,7 +69,6 @@ enum {
 	DELAY_CHANGED,
 	OFFSET_CHANGED,
 	LENGTH_CHANGED,
-	FILE_CHANGED,
 	SCALE_MAX_REACHED,
 	SCALE_MIN_REACHED,
 	LAST_SIGNAL
@@ -81,53 +82,12 @@ enum {
 	PROP_DOT_DIAMETER,
 	PROP_SEGMENT_DISTANCE,
 	PROP_LIMIT,
-	PROP_FILENAME,
 	PROP_FS,
-	PROP_ENC,
 	PROP_MAX_SCALE_FACT,
 	PROP_MIN_SCALE,
 	PROP_SCALE,
 	PROP_NO_DATA_TEXT,
 };
-
-static void
-gtk_marshal_VOID__STRING_INT_INT_INT_STRING(GClosure     *closure,
-                                            GValue       *return_value G_GNUC_UNUSED,
-                                            guint         n_param_values,
-                                            const GValue *param_values,
-                                            gpointer      invocation_hint G_GNUC_UNUSED,
-                                            gpointer      marshal_data)
-{
-	typedef void (*GMarshalFunc_VOID__STRING_INT_INT_INT_STRING) (gpointer     data1,
-	                                                              gpointer     arg_1,
-	                                                              gint         arg_2,
-	                                                              gint         arg_3,
-	                                                              gint         arg_4,
-	                                                              gpointer     arg_5,
-	                                                              gpointer     data2);
-	register GMarshalFunc_VOID__STRING_INT_INT_INT_STRING callback;
-	register GCClosure *cc = (GCClosure*) closure;
-	register gpointer data1, data2;
-
-	g_return_if_fail (n_param_values == 6);
-
-	if (G_CCLOSURE_SWAP_DATA (closure)) {
-		data1 = closure->data;
-		data2 = g_value_peek_pointer (param_values + 0);
-	} else {
-		data1 = g_value_peek_pointer (param_values + 0);
-		data2 = closure->data;
-	}
-	callback = (GMarshalFunc_VOID__STRING_INT_INT_INT_STRING) (marshal_data ? marshal_data : cc->callback);
-
-	callback (data1,
-	          (char*)g_value_get_string (param_values + 1),
-	          g_value_get_int (param_values + 2),
-	          g_value_get_int (param_values + 3),
-	          g_value_get_int (param_values + 4),
-	          (char*)g_value_get_string (param_values + 5),
-	          data2);
-}
 
 static guint signals[LAST_SIGNAL];
 
@@ -158,7 +118,8 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		             NULL,
 		             NULL, NULL,
 		             gtk_marshal_VOID__INT_INT,
-		             G_TYPE_NONE, 0);
+		             G_TYPE_NONE, 2,
+		             G_TYPE_INT, G_TYPE_INT);
 	signals[OFFSET_CHANGED] =
 		g_signal_new(I_("offset-changed"),
 		             G_TYPE_FROM_CLASS(gobject_class),
@@ -166,7 +127,8 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		             NULL,
 		             NULL, NULL,
 		             gtk_marshal_VOID__INT_INT,
-		             G_TYPE_NONE, 0);
+		             G_TYPE_NONE, 2,
+		             G_TYPE_INT, G_TYPE_INT);
 	signals[LENGTH_CHANGED] =
 		g_signal_new(I_("length-changed"),
 		             G_TYPE_FROM_CLASS(gobject_class),
@@ -174,15 +136,8 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		             NULL,
 		             NULL, NULL,
 		             gtk_marshal_VOID__INT_INT,
-		             G_TYPE_NONE, 0);
-	signals[FILE_CHANGED] =
-		g_signal_new(I_("file-changed"),
-		             G_TYPE_FROM_CLASS(gobject_class),
-		             G_SIGNAL_RUN_LAST,
-		             NULL,
-		             NULL, NULL,
-		             gtk_marshal_VOID__STRING_INT_INT_INT_STRING,
-		             G_TYPE_NONE, 0);
+		             G_TYPE_NONE, 2,
+		             G_TYPE_INT, G_TYPE_INT);
 	signals[SCALE_MAX_REACHED] =
 		g_signal_new(I_("scale-max-reached"),
 		             G_TYPE_FROM_CLASS(gobject_class),
@@ -190,7 +145,8 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		             NULL,
 		             NULL, NULL,
 		             gtk_marshal_VOID__BOOLEAN,
-		             G_TYPE_NONE, 0);
+		             G_TYPE_NONE, 1,
+		             G_TYPE_BOOLEAN);
 	signals[SCALE_MIN_REACHED] =
 		g_signal_new(I_("scale-min-reached"),
 		             G_TYPE_FROM_CLASS(gobject_class),
@@ -198,7 +154,8 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		             NULL,
 		             NULL, NULL,
 		             gtk_marshal_VOID__BOOLEAN,
-		             G_TYPE_NONE, 0);
+		             G_TYPE_NONE, 1,
+		             G_TYPE_BOOLEAN);
 
 	/* properties */
 	g_object_class_install_property(
@@ -237,24 +194,10 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 			P_(NULL),
 			0, G_MAXDOUBLE, 5.0, GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_install_property(
-		gobject_class, PROP_FILENAME,
-		g_param_spec_string("filename",
-		                    P_("filename"),
-		                    NULL,
-		                    "",
-		                    GParamFlags(GTK_PARAM_READWRITE)));
-	g_object_class_install_property(
 		gobject_class, PROP_FS, g_param_spec_int(
 			"fs", P_("samplerate"),
 			P_(NULL),
 			0, G_MAXINT, 4, GParamFlags(GTK_PARAM_READABLE)));
-	g_object_class_install_property(
-		gobject_class, PROP_ENC,
-		g_param_spec_string("enc",
-		                    P_("encoding"),
-		                    NULL,
-		                    "",
-		                    GParamFlags(GTK_PARAM_READABLE)));
 	g_object_class_install_property(
 		gobject_class, PROP_MAX_SCALE_FACT, g_param_spec_double(
 			"max-scale-fact", P_("max scale fact"),
@@ -288,9 +231,17 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		                    GParamFlags(GTK_PARAM_READABLE)));
 }
 
+static gdouble ir_edit_get_default_scale(GxIREdit *ir_edit)
+{
+	if (!ir_edit->graph_x) {
+		return 0.0;
+	}
+	return (ir_edit->odata_len+max(0.0,ir_edit->offset)) / (double)(ir_edit->graph_x);
+}
+
 static void ir_edit_set_default_scale(GxIREdit *ir_edit)
 {
-	gdouble s = (ir_edit->odata_len+max(0.0,ir_edit->offset)) / (float)(ir_edit->graph_x);
+	gdouble s = ir_edit_get_default_scale(ir_edit);
 	ir_edit->scale_a[0] = s;
 	ir_edit->scale_a[1] = s/10;
 	ir_edit->scale_num = 0;
@@ -374,6 +325,8 @@ static void ir_edit_reconfigure(GxIREdit *ir_edit)
 	if (!ir_edit->width) {
 		return;
 	}
+	gboolean home_pos = (FP_EQUAL(ir_edit->scale, ir_edit_get_default_scale(ir_edit)) &&
+	                     ir_edit->current_offset == min(0, int(floor(-ir_edit->offset/ir_edit->scale))));
 	ir_edit->x_off = (int)(ir_edit->text_width+ir_edit->label_sep+ir_edit->x_border);
 	ir_edit->y_off = ir_edit->text_height+ir_edit->y_border_top;
 	ir_edit->graph_x = ir_edit->width-ir_edit->x_off-ir_edit->x_border;
@@ -385,13 +338,16 @@ static void ir_edit_reconfigure(GxIREdit *ir_edit)
 		} else {
 			next_regular_tick(ir_edit, ir_edit->label_width*ir_edit->scale/ir_edit->fs);
 			ir_edit_precalc(ir_edit);
+			if (home_pos) {
+				gx_ir_edit_home(ir_edit);
+			}
 		}
 	}
 }
 
 static void ir_edit_set_scale(GxIREdit *ir_edit, gdouble scale, gint scroll_center)
 {
-	if (scale == ir_edit->scale) {
+	if (FP_EQUAL(scale, ir_edit->scale)) {
 		return;
 	}
 	gdouble mx = ir_edit->odata_len / ir_edit->max_scale_fact;
@@ -412,12 +368,12 @@ static void ir_edit_set_scale(GxIREdit *ir_edit, gdouble scale, gint scroll_cent
 		scale = mx;
 		g_signal_emit_by_name(ir_edit,"scale-max-reached", TRUE);
 	}
-	if (ir_edit->scale == scale) {
+	if (FP_EQUAL(ir_edit->scale, scale)) {
 		return;
 	}
-	if (ir_edit->scale == ir_edit->min_scale) {
+	if (FP_EQUAL(ir_edit->scale, ir_edit->min_scale)) {
 		g_signal_emit_by_name(ir_edit,"scale-min-reached", FALSE);
-	} else if (ir_edit->scale == mx) {
+	} else if (FP_EQUAL(ir_edit->scale, mx)) {
 		g_signal_emit_by_name(ir_edit,"scale-max-reached", FALSE);
 	}
 	if (scroll_center > -1) {
@@ -429,6 +385,7 @@ static void ir_edit_set_scale(GxIREdit *ir_edit, gdouble scale, gint scroll_cent
 	ir_edit->scale = scale;
 	ir_edit_reconfigure(ir_edit);
 	gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
+	g_object_notify(G_OBJECT(ir_edit), "scale");
 }
 
 
@@ -1137,13 +1094,6 @@ static int ir_edit_hit_detect(GxIREdit *ir_edit, double x, double y, gboolean ct
 	return MODE_BODY;
 }
 
-static void ir_edit_home(GxIREdit *ir_edit)
-{
-	ir_edit_set_default_scale(ir_edit);
-	ir_edit->current_offset = min(0, int(floor(-ir_edit->offset/ir_edit->scale)));
-	gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
-}
-
 // Button Events
 
 static gboolean ir_edit_button_press(GtkWidget *widget, GdkEventButton *event)
@@ -1204,7 +1154,7 @@ static gboolean ir_edit_button_press(GtkWidget *widget, GdkEventButton *event)
 					gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
 				}
 			} else if (event->type == GDK_2BUTTON_PRESS) {
-				ir_edit_home(ir_edit);
+				gx_ir_edit_home(ir_edit);
 			} else {
 				ir_edit->mode = MODE_BODY;
 				ir_edit->mode_arg = event->x + ir_edit->current_offset;
@@ -1397,18 +1347,16 @@ static void ir_edit_prepare_data(GxIREdit *ir_edit)
 	ir_edit->data = (float*)g_malloc(ir_edit->odata_len*sizeof(float));
 	if (ir_edit->linear) {
 		if (ir_edit->chan < 0) {
-			//FIXME 1 channel: just use odata?
 			for (i = 0; i < ir_edit->odata_len; i++) {
 				ir_edit->data[i] = 0;
-				for (int j = 0; j < ir_edit->chan; j++) {
-					ir_edit->data[i] += ir_edit->odata[i*ir_edit->chan+j];
+				for (int j = 0; j < ir_edit->odata_chan; j++) {
+					ir_edit->data[i] += ir_edit->odata[i*ir_edit->odata_chan+j];
 				}
-				ir_edit->data[i] /= ir_edit->chan;
+				ir_edit->data[i] /= ir_edit->odata_chan;
 			}
 		} else {
-			//FIXME: just use odata?
 			for (i = 0; i < ir_edit->odata_len; i++) {
-				ir_edit->data[i] = ir_edit->odata[i*ir_edit->chan+ir_edit->chan];
+				ir_edit->data[i] = ir_edit->odata[i*ir_edit->odata_chan+ir_edit->chan];
 			}
 		}
 	} else {
@@ -1416,8 +1364,8 @@ static void ir_edit_prepare_data(GxIREdit *ir_edit)
 		if (ir_edit->chan < 0) {
 			for (i = 0; i < ir_edit->odata_len; i++) {
 				float s = 0.0;
-				for (int j = 0; j < ir_edit->chan; j++) {
-					float v = ir_edit->odata[i*ir_edit->chan+j];
+				for (int j = 0; j < ir_edit->odata_chan; j++) {
+					float v = ir_edit->odata[i*ir_edit->odata_chan+j];
 					s += v*v;
 				}
 				if (s > mx) {
@@ -1427,7 +1375,7 @@ static void ir_edit_prepare_data(GxIREdit *ir_edit)
 			}
 		} else {
 			for (i = 0; i < ir_edit->odata_len; i++) {
-				float v = ir_edit->odata[i*ir_edit->chan+ir_edit->chan];
+				float v = ir_edit->odata[i*ir_edit->odata_chan+ir_edit->chan];
 				float s = v*v;
 				if (s > mx) {
 					mx = s;
@@ -1444,37 +1392,89 @@ static void ir_edit_prepare_data(GxIREdit *ir_edit)
 	}
 }
 
-void gx_ir_edit_set_ir_data(GxIREdit *ir_edit, float *data, int chan, int len, int samplerate)
-{
-	ir_edit_reset(ir_edit);
-	ir_edit->odata = data;
-	ir_edit->chan = chan;
-	ir_edit->odata_len = len;
-	ir_edit->cutoff_high = len;
-	g_free(ir_edit->gains);
-	ir_edit->gains = (gain_points*)g_malloc(2 * sizeof(gain_points));
-	ir_edit->gains[0].i = 0;
-	ir_edit->gains[0].g = 0.0;
-	ir_edit->gains[1].i = len-1;
-	ir_edit->gains[1].g = 0.0;
-	ir_edit->gains_len = 2;
-	ir_edit_set_fs(ir_edit, samplerate);
-	//FIXME signal
-	ir_edit_prepare_data(ir_edit);
-	ir_edit_configure_axes(ir_edit);
-	if (ir_edit->scale) {
-		ir_edit_home(ir_edit);
-	} else if (ir_edit->width) {
-		ir_edit_reconfigure(ir_edit);
-	}
-}
-
+/****************************************************************
+ ** Properties
+ */
 static void ir_edit_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {
 	GxIREdit *ir_edit = GX_IR_EDIT(object);
 
 	switch(prop_id) {
+	case PROP_Y_BORDER_TOP:
+		ir_edit->y_border_top = g_value_get_int(value);
+		gtk_widget_queue_draw(GTK_WIDGET(object));
+		g_object_notify(object, "y-border-top");
+		break;
+	case PROP_Y_BORDER_BOTTOM:
+		ir_edit->y_border_bottom = g_value_get_int(value);
+		gtk_widget_queue_draw(GTK_WIDGET(object));
+		g_object_notify(object, "y-border-bottom");
+		break;
+	case PROP_X_BORDER:
+		ir_edit->x_border = g_value_get_int(value);
+		gtk_widget_queue_draw(GTK_WIDGET(object));
+		g_object_notify(object, "x-border");
+		break;
+	case PROP_LABEL_SEP:
+		ir_edit->label_sep = g_value_get_int(value);
+		gtk_widget_queue_draw(GTK_WIDGET(object));
+		g_object_notify(object, "label-sep");
+		break;
+	case PROP_DOT_DIAMETER:
+		ir_edit->dot_diameter = g_value_get_double(value);
+		gtk_widget_queue_draw(GTK_WIDGET(object));
+		g_object_notify(object, "dot-diameter");
+		break;
+	case PROP_SEGMENT_DISTANCE:
+		ir_edit->segment_distance = g_value_get_double(value);
+		gtk_widget_queue_draw(GTK_WIDGET(object));
+		g_object_notify(object, "segment-distance");
+		break;
+	case PROP_LIMIT:
+		ir_edit->limit = g_value_get_double(value);
+		break;
+	case PROP_FS:
+		ir_edit_set_fs(ir_edit, g_value_get_int(value));
+		break;
+	case PROP_MAX_SCALE_FACT: {
+		gdouble f = g_value_get_double(value);
+		if (f != ir_edit->max_scale_fact) {
+			gdouble mx = ir_edit->odata_len / f;
+			if (ir_edit->scale > mx) {
+				ir_edit->max_scale_fact = f;
+				ir_edit_set_scale(ir_edit, mx, -1);
+			} else if (ir_edit->scale == mx) {
+				ir_edit->max_scale_fact = f;
+				g_signal_emit_by_name(ir_edit,"scale-max-reached", TRUE);
+			} else if (ir_edit->scale == ir_edit->odata_len / ir_edit->max_scale_fact) {
+				ir_edit->max_scale_fact = f;
+				g_signal_emit_by_name(ir_edit,"scale-max-reached", FALSE);
+			}
+			g_object_notify(object, "max-scale-fact");
+		}
+		break;
+	}
+	case PROP_MIN_SCALE: {
+		gdouble f = g_value_get_double(value);
+		if (f != ir_edit->min_scale) {
+			if (ir_edit->scale < f) {
+				ir_edit->min_scale = f;
+				ir_edit_set_scale(ir_edit, f, -1);
+			} else if (ir_edit->scale == f) {
+				ir_edit->min_scale = f;
+				g_signal_emit_by_name(ir_edit,"scale-min-reached", TRUE);
+			} else if (ir_edit->scale == ir_edit->min_scale) {
+				ir_edit->min_scale = f;
+				g_signal_emit_by_name(ir_edit,"scale-min-reached", FALSE);
+			}
+			g_object_notify(object, "min-scale");
+		}
+		break;
+	}
+	case PROP_SCALE:
+		ir_edit_set_scale(ir_edit, g_value_get_double(value), -1);
+		break;
 	case PROP_NO_DATA_TEXT:
 		g_free(ir_edit->no_data_text);
 		ir_edit->no_data_text = g_strdup(g_value_get_string(value));
@@ -1495,6 +1495,39 @@ static void ir_edit_get_property(
 	GxIREdit *ir_edit = GX_IR_EDIT(object);
 
 	switch(prop_id) {
+	case PROP_Y_BORDER_TOP:
+		g_value_set_int(value, ir_edit->y_border_top);
+		break;
+	case PROP_Y_BORDER_BOTTOM:
+		g_value_set_int(value, ir_edit->y_border_bottom);
+		break;
+	case PROP_X_BORDER:
+		g_value_set_int(value, ir_edit->x_border);
+		break;
+	case PROP_LABEL_SEP:
+		g_value_set_int(value, ir_edit->label_sep);
+		break;
+	case PROP_DOT_DIAMETER:
+		g_value_set_double(value, ir_edit->dot_diameter);
+		break;
+	case PROP_SEGMENT_DISTANCE:
+		g_value_set_double(value, ir_edit->segment_distance);
+		break;
+	case PROP_LIMIT:
+		g_value_set_double(value, ir_edit->limit);
+		break;
+	case PROP_FS:
+		g_value_set_int(value, ir_edit->fs);
+		break;
+	case PROP_MAX_SCALE_FACT:
+		g_value_set_double(value, ir_edit->max_scale_fact);
+		break;
+	case PROP_MIN_SCALE:
+		g_value_set_double(value, ir_edit->min_scale);
+		break;
+	case PROP_SCALE:
+		g_value_set_double(value, ir_edit->scale);
+		break;
 	case PROP_NO_DATA_TEXT:
 		g_value_set_string(value, ir_edit->no_data_text);
 		break;
@@ -1502,4 +1535,139 @@ static void ir_edit_get_property(
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
 		break;
 	}
+}
+
+/****************************************************************
+ ** external API
+ */
+
+void gx_ir_edit_set_ir_data(GxIREdit *ir_edit, float *data, int chan, int len, int samplerate)
+{
+	g_assert(GX_IS_IR_EDIT(ir_edit));
+	ir_edit_reset(ir_edit);
+	ir_edit->odata = data;
+	ir_edit->odata_chan = chan;
+	ir_edit->odata_len = len;
+	ir_edit->cutoff_high = len;
+	g_free(ir_edit->gains);
+	ir_edit->gains = (gain_points*)g_malloc(2 * sizeof(gain_points));
+	ir_edit->gains[0].i = 0;
+	ir_edit->gains[0].g = 0.0;
+	ir_edit->gains[1].i = len-1;
+	ir_edit->gains[1].g = 0.0;
+	ir_edit->gains_len = 2;
+	ir_edit_set_fs(ir_edit, samplerate);
+	//FIXME signal
+	ir_edit_prepare_data(ir_edit);
+	ir_edit_configure_axes(ir_edit);
+	if (ir_edit->scale) {
+		gx_ir_edit_home(ir_edit);
+	} else if (ir_edit->width) {
+		ir_edit_reconfigure(ir_edit);
+	}
+}
+
+void gx_ir_edit_set_state(GxIREdit *ir_edit, float *data, int chan, int data_len, int samplerate,
+                          int cutoff_low, int cutoff_high, int offset, gain_points *gains, int gains_len)
+{
+	g_assert(GX_IS_IR_EDIT(ir_edit));
+	ir_edit_reset(ir_edit);
+	gx_ir_edit_set_ir_data(ir_edit, data, chan, data_len, samplerate);
+	ir_edit_set_cutoff_low(ir_edit, cutoff_low);
+	ir_edit->cutoff_high = cutoff_high;
+	ir_edit->offset = offset;
+	ir_edit->gains = gains;
+	ir_edit->gains_len = gains_len;
+	ir_edit_prepare_data(ir_edit);
+	ir_edit_configure_axes(ir_edit);
+	gx_ir_edit_home(ir_edit);
+}
+
+void gx_ir_edit_home(GxIREdit *ir_edit)
+{
+	g_assert(GX_IS_IR_EDIT(ir_edit));
+	ir_edit_set_default_scale(ir_edit);
+	ir_edit->current_offset = min(0, int(floor(-ir_edit->offset/ir_edit->scale)));
+	gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
+}
+
+void gx_ir_edit_jump_zoom_mark(GxIREdit *ir_edit)
+{
+	g_assert(GX_IS_IR_EDIT(ir_edit));
+	ir_edit->current_offset = int(ir_edit->scroll_center/ir_edit->scale - ir_edit->graph_x/2);
+	gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
+}
+
+void gx_ir_edit_set_channel(GxIREdit *ir_edit, int chan)
+{
+	g_assert(GX_IS_IR_EDIT(ir_edit));
+	chan = min(max(chan, 0), ir_edit->odata_chan);
+	if (ir_edit->chan == chan) {
+		return;
+	}
+	ir_edit->chan = chan;
+	if (!ir_edit->odata) {
+		return;
+	}
+	ir_edit_prepare_data(ir_edit);
+	ir_edit_precalc(ir_edit);
+	gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
+}
+
+void gx_ir_edit_incr_scale(GxIREdit *ir_edit, gdouble f)
+{
+	g_assert(GX_IS_IR_EDIT(ir_edit));
+	if (f == 0.0) {
+		f = 2.0;
+	}
+	ir_edit_set_scale(ir_edit, ir_edit->scale * f, -1);
+}
+
+void gx_ir_edit_decr_scale(GxIREdit *ir_edit, gdouble f)
+{
+	g_assert(GX_IS_IR_EDIT(ir_edit));
+	if (f == 0.0) {
+		f = 2.0;
+	}
+	ir_edit_set_scale(ir_edit, ir_edit->scale / f, -1);
+}
+
+void gx_ir_edit_set_log(GxIREdit *ir_edit, gboolean m)
+{
+	g_assert(GX_IS_IR_EDIT(ir_edit));
+	if (ir_edit->linear != m) {
+		return;
+	}
+	ir_edit->linear = !m;
+	if (!ir_edit->odata) {
+		return;
+	}
+	ir_edit_configure_axes(ir_edit);
+	ir_edit_prepare_data(ir_edit);
+	ir_edit_reconfigure(ir_edit);
+	gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
+}
+
+gint gx_ir_edit_get_delay(GxIREdit *ir_edit)
+{
+	g_assert(GX_IS_IR_EDIT(ir_edit));
+	return max(0, ir_edit->offset + ir_edit->cutoff_low);
+}
+
+gint gx_ir_edit_get_offset(GxIREdit *ir_edit)
+{
+	g_assert(GX_IS_IR_EDIT(ir_edit));
+	return max(-ir_edit->offset, ir_edit->cutoff_low);
+}
+
+gint gx_ir_edit_get_length(GxIREdit *ir_edit)
+{
+	g_assert(GX_IS_IR_EDIT(ir_edit));
+	return ir_edit->cutoff_high - gx_ir_edit_get_offset(ir_edit);
+}
+
+void gx_ir_edit_get_gain(GxIREdit *ir_edit, gain_points **gains, gint *len)
+{
+	*gains = ir_edit->gains;
+	*len = ir_edit->gains_len;
 }

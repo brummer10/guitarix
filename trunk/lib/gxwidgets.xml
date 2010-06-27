@@ -10,6 +10,7 @@
     <glade-widget-class title="Fast Meter" name="GxFastMeter" generic-name="GxFastMeter" />
     <glade-widget-class title="Tuner" name="GxTuner" generic-name="GxTuner" />
     <glade-widget-class title="Wave View" name="GxWaveView" generic-name="waveview" />
+    <glade-widget-class title="IR Edit" name="GxIREdit" generic-name="iredit" />
 
   </glade-widget-classes>
 
@@ -20,6 +21,7 @@
     <glade-widget-class-ref name="GxFastMeter"/>
     <glade-widget-class-ref name="GxWaveView"/>
     <glade-widget-class-ref name="GxTuner"/>
+    <glade-widget-class-ref name="GxIREdit"/>
   </glade-widget-group>
 
 </glade-catalog>
