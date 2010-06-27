@@ -286,13 +286,23 @@ void gx_del_preset_from_menus(const string& presname)
 
 int gx_get_single_preset_menu_pos(const string& presname, const gint lindex)
 {
-	map<GtkMenuItem*, string>::iterator it;
+    vector<string>::iterator its;
+    int pos = 0;
+    for (its = plist.begin() ; its < plist.end(); its++ )
+    {
+        pos++;
+        if( presname == *its)
+        return pos;
+
+    }
+
+	/*map<GtkMenuItem*, string>::iterator it;
 	int pos = 0;
 	for (it  = preset_list[lindex].begin(); it != preset_list[lindex].end(); it++) {
 	    pos++;
 		if (presname == it->second)
 			return pos;
-	}
+	}*/
 
 	return 0;
 
@@ -746,12 +756,7 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 	}
 	/* collect info for stage info display*/
 	if(GDK_WINDOW(gx_gui::patch_info->window)) {
-        int pos = 0;
-        for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++) {
-             pos = gx_get_single_preset_menu_pos(gx_current_preset, i);
-            if (pos > 0) break;
-
-        }
+        int pos = gx_get_single_preset_menu_pos(gx_current_preset, 0);
         gx_gui::show_patch_info =pos;
 	}
 }
@@ -795,10 +800,11 @@ static void load_preset_file(const char* presname)
         preset_list[i].clear();
     }
     gx_build_preset_list();
-    vector<string>::iterator it;
-    for (it = gx_preset::plist.begin() ; it < gx_preset::plist.end(); it++ )
+
+    vector<string>::iterator its;
+    for (its = plist.begin() ; its < plist.end(); its++ )
     {
-        const string presname = *it;
+        const string presname = *its;
         gx_add_preset_to_menus(presname);
     }
     for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
@@ -816,6 +822,8 @@ void gx_load_preset_file(const char* presname, bool expand_menu)
                                 NULL);
 
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (file_chooser), gx_user_dir.c_str());
+    gtk_file_chooser_set_show_hidden  (GTK_FILE_CHOOSER (file_chooser), true);
+    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER (file_chooser), false);
     /*GtkFileFilter* filter = gtk_file_filter_new ();
 	gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*_rc");
 	gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (file_chooser), GTK_FILE_FILTER(filter)); */
@@ -840,6 +848,7 @@ void gx_save_preset_file(const char* presname, bool expand_menu)
                                 GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
                                 NULL);
     gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (file_chooser), TRUE);
+    gtk_file_chooser_set_show_hidden  (GTK_FILE_CHOOSER (file_chooser), true);
    /* GtkFileFilter* filter = gtk_file_filter_new ();
 	gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*_rc");
 	gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (file_chooser), GTK_FILE_FILTER(filter)); */
@@ -944,9 +953,11 @@ void gx_recall_main_setting(GtkMenuItem* item, gpointer)
 	gx_current_preset = "";
 	gx_gui::show_patch_info = 0;
 	// reload guitarix mai preset file
-	guitarix_preset  = "guitarixpre_rc";
-	gx_preset_dir   = gx_user_dir;
-	load_preset_file(guitarix_preset);
+	if(strcmp(guitarix_preset,"guitarixpre_rc")){
+        guitarix_preset  = "guitarixpre_rc";
+        gx_preset_dir   = gx_user_dir;
+        load_preset_file(guitarix_preset);
+	}
 }
 
 void gx_recall_settings_file( const string & filename )
