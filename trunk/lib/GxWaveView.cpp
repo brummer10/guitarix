@@ -306,7 +306,7 @@ static void gx_wave_view_init(GxWaveView *waveview)
 static void gx_wave_view_destroy (GtkObject *obj)
 {
 	GxWaveView *waveview = GX_WAVE_VIEW(obj);
-	if (G_IS_OBJECT(waveview->liveview_image)) {
+	if (waveview->liveview_image) {
 		g_object_unref(waveview->liveview_image);
 	}
 }

@@ -12,6 +12,7 @@ headers
 #include "GxSelector.h"
 #include "GxSwitch.h"
 #include "GxControlParameter.h"
+#include "GxIREdit.h"
 %%
 modulename gxwidgets
 %%
@@ -38,9 +39,33 @@ _wrap_gx_wave_view_set_frame(PyGObject *self, PyObject *args, PyObject *kwargs)
     if ((arr = PyArray_FromObject(frame, NPY_FLOAT, 1, 1)) == NULL)
         return NULL;
     PyObject *key = PyString_FromString("_arr");
-    PyObject_SetAttr((PyObject*)self, key, arr); // qick hack to keep reference
+    PyObject_SetAttr((PyObject*)self, key, arr); // quick hack to keep reference
     Py_DECREF(key);
     gx_wave_view_set_frame(GX_WAVE_VIEW(self->obj), (float*)PyArray_DATA(arr), PyArray_SIZE(arr));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+%%
+override gx_ir_edit_set_ir_data kwargs
+static PyObject *
+_wrap_gx_ir_edit_set_ir_data(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+    static char *kwlist[] = { "data", "samplerate", NULL };
+    int chan, len, samplerate;
+    PyObject *data = NULL, *arr = NULL;
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs,"Oi:Gx.IREdit.set_ir_data", kwlist, &data, &samplerate))
+        return NULL;
+    if ((arr = PyArray_FromObject(data, NPY_FLOAT, 1, 2)) == NULL)
+        return NULL;
+    PyObject *key = PyString_FromString("_arr");
+    PyObject_SetAttr((PyObject*)self, key, arr); // quick hack to keep reference
+    Py_DECREF(key);
+    if (PyArray_NDIM(arr) == 1) {
+        chan = 0;
+    } else {
+        chan = PyArray_DIM(arr, 1);
+    }
+    gx_ir_edit_set_ir_data(GX_IR_EDIT(self->obj), (float*)PyArray_DATA(arr), chan, PyArray_DIM(arr,0), samplerate);
     Py_INCREF(Py_None);
     return Py_None;
 }

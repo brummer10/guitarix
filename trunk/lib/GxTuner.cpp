@@ -97,7 +97,7 @@ static void gx_tuner_class_init(GxTunerClass *klass)
 
 static void gx_tuner_base_class_finalize(GxTunerClass *klass)
 {
-	if (G_IS_OBJECT(klass->surface_tuner)) {
+	if (klass->surface_tuner) {
 		g_object_unref(klass->surface_tuner);
 	}
 }

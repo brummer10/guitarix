@@ -47,7 +47,7 @@ static const int min_size = 10;
 static void gx_fast_meter_class_init(GxFastMeterClass*);
 static void gx_fast_meter_init(GxFastMeter*);
 
-extern gboolean gx_fast_meter_expose_event(GtkWidget*, GdkEventExpose*);
+static gboolean gx_fast_meter_expose_event(GtkWidget*, GdkEventExpose*);
 static void gx_fast_meter_size_allocate(GtkWidget *widget, GtkAllocation *allocation);
 static void gx_fast_meter_size_request(GtkWidget*, GtkRequisition*);
 static void gx_fast_meter_set_property(
@@ -290,7 +290,7 @@ static void gx_fast_meter_style_set(GtkWidget *widget, GtkStyle  *previous_style
 }
 
 /* ------- expose event -------- */
-gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
+static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
 {
 	GxFastMeter* fm = GX_FAST_METER(wd);
 	gint         top_of_meter;

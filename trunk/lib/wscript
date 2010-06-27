@@ -95,6 +95,7 @@ def build_python_module(bld):
                   "GxSelector.h",
                   "GxSwitch.h",
                   "GxControlParameter.h",
+                  "GxIREdit.h",
                   "libgxwidgets.so",
                   "gxwidgets-manual.defs",
                   ],
@@ -129,6 +130,7 @@ def build(bld):
         'GxSelector.cpp',
         'GxSwitch.cpp',
         'GxControlParameter.cpp',
+        'GxIREdit.cpp',
         ]
     if not bld.env["GX_LIB_STATIC"] and not bld.env["GX_LIB_SHARED"]:
         return

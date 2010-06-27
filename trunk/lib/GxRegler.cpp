@@ -238,7 +238,7 @@ static void gx_regler_class_init(GxReglerClass *klass)
 
 static void gx_regler_base_class_finalize(GxReglerClass *klass)
 {
-#define IMAGE_UNREF(image) if (G_IS_OBJECT(klass->image)) g_object_unref(klass->image)
+#define IMAGE_UNREF(image) if (klass->image) g_object_unref(klass->image)
 	IMAGE_UNREF(bigregler_image);
 	IMAGE_UNREF(regler_image);
 	IMAGE_UNREF(slider_image);

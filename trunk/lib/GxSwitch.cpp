@@ -94,7 +94,6 @@ GType switch_type_get_type(void)
 			{ GX_SWITCH_TYPE_MINI_TOGGLE, "SWITCH_TYPE_MINI_TOGGLE", "mini toggle" },
 			{ GX_SWITCH_TYPE_TOGGLE_BUTTON, "SWITCH_TYPE_TOGGLE_BUTTON", "toggle button" },
 			{ GX_SWITCH_TYPE_LED, "SWITCH_TYPE_LED", "led" },
-			//{ GX_SWITCH_TYPE_VALUE_DISPLAY, "GX_SWITCH_TYPE_VALUE_DISPLAY", "value display" }, //FIXME
 			{ 0, NULL, NULL }
 		};
 		etype = g_enum_register_static (g_intern_static_string ("GxSwitchType"), values);
@@ -206,7 +205,6 @@ static const GtkRequisition base_size[GX_SWITCH_TYPE_COUNT] = {
 		{ 10, 10 }, // GX_SWITCH_TYPE_MINI_TOGGLE
 		{ 25, 15 }, // GX_SWITCH_TYPE_TOGGLE_BUTTON
 		{ 20, 20 }, // GX_SWITCH_TYPE_LED
-		//{ -1, 25 }, //class_vd_y         GX_SWITCH_TYPE_VALUE_DISPLAY //FIXME
 };
 
 
@@ -501,23 +499,15 @@ static void gx_switch_init(GxSwitch *swtch)
  */
 static void gx_switch_base_class_finalize(GxSwitchClass *klass)
 {
-	if (G_IS_OBJECT(klass-> toggle_image))
-		g_object_unref(klass->toggle_image);
-	if (G_IS_OBJECT(klass-> toggle_image1))
-		g_object_unref(klass->toggle_image1);
-
-	if (G_IS_OBJECT(klass-> switch_image))
-		g_object_unref(klass->switch_image);
-	if (G_IS_OBJECT(klass-> switch_image1))
-		g_object_unref(klass->switch_image1);
-
-	if (G_IS_OBJECT(klass-> led_image))
-		g_object_unref(klass->led_image);
-
-	if (G_IS_OBJECT(klass-> b_toggle_image))
-		g_object_unref(klass->b_toggle_image);
-	if (G_IS_OBJECT(klass-> b_toggle_image1))
-		g_object_unref(klass->b_toggle_image1);
+#define IMAGE_UNREF(image) if (klass->image) g_object_unref(klass->image)
+	IMAGE_UNREF(toggle_image);
+	IMAGE_UNREF(toggle_image1);
+	IMAGE_UNREF(switch_image);
+	IMAGE_UNREF(switch_image1);
+	IMAGE_UNREF(led_image);
+	IMAGE_UNREF(b_toggle_image);
+	IMAGE_UNREF(b_toggle_image1);
+#undef IMAGE_UNREF
 }
 
 static void gx_switch_finalize(GObject *object)

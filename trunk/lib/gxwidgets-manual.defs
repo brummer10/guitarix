@@ -22,3 +22,9 @@
   (is-constructor-of "GxSwitch")
   (return-type "GtkWidget*")
   )
+
+(define-function ir_edit_new
+  (c-name "gx_ir_edit_new")
+  (is-constructor-of "GxIREdit")
+  (return-type "GtkWidget*")
+  )
