@@ -792,11 +792,14 @@ static void load_preset_file(const char* presname)
         while (it != preset_list[i].end())
         {
             GtkMenuItem* item = it->first;
-            gtk_widget_destroy(GTK_WIDGET(item));
             it++;
+            preset_list[i].erase(item);
+            gtk_widget_destroy(GTK_WIDGET(item));
         }
         preset_list[i].clear();
+       // preset_list[i] = map<GtkMenuItem*, string>();
     }
+
     gx_build_preset_list();
 
     vector<string>::iterator its;
@@ -1069,21 +1072,23 @@ void gx_rename_preset (GtkEntry* entry)
 		gtk_label_set_text(GTK_LABEL(menu_widget), label.c_str());
 
 		preset_list[i][item] = newname;
-
+        }
 		// refresh main window name we were in preset context
-		if (setting_is_preset)
-		{
-			string jname = "guitarix ";
-			string title = jname + newname;
-			gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), title.c_str());
+    if (setting_is_preset)
+    {
+        string jname = "guitarix ";
+        string title = jname + newname;
+        gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), title.c_str());
 
-			gx_current_preset = newname;
-		}
-	}
+        gx_current_preset = newname;
+    }
+
 
 	gx_print_info("Preset Renaming", string("preset ") + old_preset_name +
 	              string(" renamed into ") + newname);
 	old_preset_name = "";
+	/**FIXME**/ //--only one new entry is needed
+	gx_build_preset_list();
 	gx_jconv::gx_reload_jcgui();
 }
 
@@ -1093,7 +1098,7 @@ void gx_rename_preset_dialog (GtkMenuItem *menuitem, gpointer arg)
 	static string title;
 	if (menuitem)
 	{
-		title += "Renaming preset ";
+		title = "Renaming preset ";
 		title += preset_list[RENAME_PRESET_LIST][menuitem];
 	}
 
