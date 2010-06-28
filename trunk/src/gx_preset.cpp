@@ -422,10 +422,10 @@ void gx_next_preset(GtkWidget* item, gpointer arg)
 		it = preset_list[LOAD_PRESET_LIST].begin();
 	else
 	{
-		GtkMenuItem* const item =
+		GtkMenuItem* const itemi =
 			gx_get_preset_item_from_name(LOAD_PRESET_LIST, gx_current_preset);
 
-		it = preset_list[LOAD_PRESET_LIST].find(item);
+		it = preset_list[LOAD_PRESET_LIST].find(itemi);
 
 		// increment iterator and load preset
 		it++;
@@ -459,10 +459,10 @@ void gx_previous_preset(GtkWidget* item, gpointer arg)
 		it = preset_list[LOAD_PRESET_LIST].end();
 	else
 	{
-		GtkMenuItem* const item =
+		GtkMenuItem* const itemi =
 			gx_get_preset_item_from_name(LOAD_PRESET_LIST, gx_current_preset);
 
-		it = preset_list[LOAD_PRESET_LIST].find(item);
+		it = preset_list[LOAD_PRESET_LIST].find(itemi);
 
 	}
 
@@ -754,11 +754,9 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 		gx_engine::conv.stop();
         gx_gui::g_threads[3] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,gx_convolver_restart,NULL,NULL);
 	}
+
 	/* collect info for stage info display*/
-	if(GDK_WINDOW(gx_gui::patch_info->window)) {
-        int pos = gx_get_single_preset_menu_pos(gx_current_preset, 0);
-        gx_gui::show_patch_info =pos;
-	}
+	gx_gui::show_patch_info = gx_get_single_preset_menu_pos(gx_current_preset, 0);
 }
 
 //---- funktion save
