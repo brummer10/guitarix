@@ -797,7 +797,7 @@ static void load_preset_file(const char* presname)
             gtk_widget_destroy(GTK_WIDGET(item));
         }
         preset_list[i].clear();
-       // preset_list[i] = map<GtkMenuItem*, string>();
+        preset_list[i] = map<GtkMenuItem*, string>();
     }
 
     gx_build_preset_list();
