@@ -172,7 +172,7 @@ const char* preset_menu_name[] =
 	"_Delete Preset..."
 };
 
-map<GtkMenuItem*, string> preset_list[GX_NUM_OF_PRESET_LISTS];
+//map<GtkMenuItem*, string> preset_list[GX_NUM_OF_PRESET_LISTS];
 
 string gx_current_preset;
 string old_preset_name;
@@ -181,6 +181,8 @@ GtkWidget* presmenu[GX_NUM_OF_PRESET_LISTS];
 GtkWidget* presMenu[GX_NUM_OF_PRESET_LISTS];
 
 vector<string> plist;
+vector<GtkMenuItem*> pm_list[GX_NUM_OF_PRESET_LISTS];
+
 bool setting_is_preset = false;
 
 GCallback preset_action_func[] =

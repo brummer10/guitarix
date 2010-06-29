@@ -141,7 +141,7 @@ namespace gx_preset
 extern GdkModifierType list_mod[];
 extern const char* preset_accel_path[];
 extern const char* preset_menu_name[];
-extern map<GtkMenuItem*, string> preset_list[];
+//extern map<GtkMenuItem*, string> preset_list[];
 
 extern string gx_current_preset;
 extern string old_preset_name;
@@ -150,6 +150,7 @@ extern GtkWidget* presmenu[];
 extern GtkWidget* presMenu[];
 
 extern vector<string> plist;
+extern vector<GtkMenuItem*> pm_list[];
 extern bool setting_is_preset;
 
 extern GCallback preset_action_func[];
