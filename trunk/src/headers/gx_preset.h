@@ -66,9 +66,6 @@ void  gx_add_single_preset_menu_item(const string&,
                                      const gint,
                                      GCallback);
 
-void  gx_del_single_preset_menu_item(const string&,
-                                     const gint);
-void  gx_del_preset_from_menus(const string&);
 void  gx_refresh_preset_menus();
 void  gx_cleanup_preset_name(string& presname);
 

@@ -90,6 +90,7 @@ string gx_get_accel_path(int lindex)
 	return acc_path;
 }
 
+//----- create a empty preset file
 void gx_empty_preset_file(const char* filename)
 {
 	ofstream nfile(filename);
@@ -101,6 +102,7 @@ void gx_empty_preset_file(const char* filename)
 	nfile.close();
 }
 
+//----- modify (add/sub/change) a existing preset file
 bool gx_modify_preset(const char* presname, const char* newname=0, bool remove=false, bool rewrite=false)
 {
 	string presetfile = gx_preset_dir + guitarix_preset;
@@ -190,6 +192,7 @@ void gx_build_preset_list()
 
 	// initialize list
 	plist.clear();
+	// initialize menu pointer list
 	for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
         pm_list[i].clear();
 
@@ -226,7 +229,6 @@ void gx_build_preset_list()
 // ----------- add new preset to menus
 void gx_add_preset_to_menus(const string& presname)
 {
-
 	for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
 		gx_add_single_preset_menu_item(presname, i, preset_action_func[i]);
 }
@@ -246,12 +248,11 @@ void gx_add_single_preset_menu_item(const string& presname,
     {
         pos++;
     }
-
     pos += 1;
-
 
 	// add small mnemonic
 	string name("_");
+	if (pos > 10) name = "";
 	name += gx_i2a(pos) + "  ";
 	name += presname;
 
@@ -278,19 +279,15 @@ void gx_add_single_preset_menu_item(const string& presname,
 		gtk_widget_set_accel_path(menuitem, acc_path.c_str(),
 		                          gx_gui::GxMainInterface::instance()->fAccelGroup);
 	}
+
 	its = pm_list[lindex].end();
-
+	// add a pointer to the menuitem to the preset menu list
     pm_list[lindex].insert(its,GTK_MENU_ITEM(menuitem));
-
 	gtk_widget_show (menuitem);
 }
 
-// ----------- remove old preset from menus
-void gx_del_preset_from_menus(const string& presname)
-{
-    gx_del_single_preset_menu_item(presname, 0);
-}
 
+//----- get the preset number by name from preset list
 int gx_get_single_preset_menu_pos(const string& presname, const gint lindex)
 {
     vector<string>::iterator its;
@@ -301,45 +298,10 @@ int gx_get_single_preset_menu_pos(const string& presname, const gint lindex)
         if( presname == *its)
         return pos;
     }
-
 	return 0;
-
 }
 
-void  gx_del_single_preset_menu_item(const string& presname, const gint lindex)
-{
-    vector<string>::iterator its;
-    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++) {
-    vector<GtkMenuItem*>::iterator it = pm_list[i].begin();
-    vector<GtkMenuItem*>::iterator del = pm_list[i].begin();
-    for (its = plist.begin() ; its < plist.end(); its++ )
-    {
-        if( presname == *its){
-            del = it;
-        break;
-        }
-        it++;
-    }
-
-    for (it = pm_list[i].begin(); it != pm_list[i].end(); it++)
-		{
-        gtk_widget_destroy(GTK_WIDGET(*it));
-		}
-
-	 pm_list[i].erase(del);
-    }
-
-    plist.erase(its);
-    gx_build_preset_list();
-
-    for (its = plist.begin() ; its < plist.end(); its++ )
-    {
-        const string presname = *its;
-        gx_add_preset_to_menus(presname);
-    }
-
-}
-
+//----- get pointer to the menuitem
 GtkMenuItem* const gx_get_preset_item_from_name(int lindex, const string& name)
 {
     vector<string>::iterator its;
@@ -358,51 +320,22 @@ GtkMenuItem* const gx_get_preset_item_from_name(int lindex, const string& name)
 // ----------- update preset numbering in menus
 void gx_refresh_preset_menus()
 {
-
-	// string acc_path;
-
-	for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
-	{
-		guint n = 1;
-
-		vector<GtkMenuItem*>::iterator it = pm_list[i].begin();
-		for (it = pm_list[i].begin(); it != pm_list[i].end(); it++)
-		{
-			GtkMenuItem* const item = *it;
-
-			// add small mnemonic
-			string name("_");
-			name += gx_i2a(n) + "  ";
-
-			// get menu label
-			if(*it != NULL){
-			GtkWidget *menu_widget = gtk_bin_get_child(GTK_BIN(*it));
-			string label = gtk_label_get_text(GTK_LABEL(menu_widget));
-			// replace accel key
-			label.replace(0, 2, name);
-			gtk_label_set_text_with_mnemonic(GTK_LABEL(menu_widget),label.c_str());
+    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++) {
+        vector<GtkMenuItem*>::iterator it = pm_list[i].begin();
+        for (it = pm_list[i].begin(); it != pm_list[i].end(); it++)
+            {
+            gtk_widget_destroy(GTK_WIDGET(*it));
             }
+        }
 
-			// refresh acc key for this item
-			guint accel_key = GDK_1 + n - 1;
+    gx_build_preset_list();
 
-			// get accel_path for menuitem
-			string acc_path = gx_get_accel_path(i);
-			acc_path += gx_i2a(accel_key);
-
-			if (n < 10)
-			{
-				if (!gtk_accel_map_lookup_entry(acc_path.c_str(), NULL))
-					gtk_accel_map_add_entry(acc_path.c_str(), accel_key, list_mod[i]);
-			}
-
-			// connect acc key with menuitem and group
-			gtk_widget_set_accel_path(GTK_WIDGET(item), acc_path.c_str(),
-			                          gx_gui::GxMainInterface::instance()->fAccelGroup);
-
-			n++;
-		}
-	}
+    vector<string>::iterator its;
+    for (its = plist.begin() ; its < plist.end(); its++ )
+    {
+        const string presname = *its;
+        gx_add_preset_to_menus(presname);
+    }
 }
 
 // ---------- load nth preset (return true if successful)
@@ -412,9 +345,7 @@ bool gx_nth_preset(unsigned char n)
 	int pos = 0;
 	vector<GtkMenuItem*>::iterator it = pm_list[LOAD_PRESET_LIST].begin();
     for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
-    {
         pos++;
-    }
 
 	if (!pos)
 	{
@@ -442,9 +373,7 @@ void gx_next_preset(GtkWidget* item, gpointer arg)
 	int pos = 0;
 	vector<GtkMenuItem*>::iterator it = pm_list[0].begin();
     for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
-    {
         pos++;
-    }
 
 	if (!pos)
 	{
@@ -481,9 +410,7 @@ void gx_previous_preset(GtkWidget* item, gpointer arg)
 	int pos = 0;
 	vector<GtkMenuItem*>::iterator it = pm_list[0].begin();
     for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
-    {
         pos++;
-    }
 
 	if (!pos)
 	{
@@ -499,8 +426,7 @@ void gx_previous_preset(GtkWidget* item, gpointer arg)
 	{
 		GtkMenuItem* const itemi =
 			gx_get_preset_item_from_name(LOAD_PRESET_LIST, gx_current_preset);
-
-		      for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
+        for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
         {
             if( itemi == *it)
                 break;
@@ -572,7 +498,6 @@ void gx_delete_preset_dialog (GtkMenuItem *menuitem, gpointer arg)
 
 	// we want to delete the bugger!
 	gx_delete_preset (menuitem, arg);
-
 }
 
 //----delete all presets dialog
@@ -622,17 +547,7 @@ void  gx_delete_all_presets()
 	f.close();
 
 	// clear list
-	for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
-	{
-        vector<GtkMenuItem*>::iterator it = pm_list[i].begin();
-        for (it = pm_list[i].begin(); it != pm_list[i].end(); it++)
-		{
-        gtk_widget_destroy(GTK_WIDGET(*it));
-		}
-
-    }
-
-    gx_build_preset_list();
+	gx_refresh_preset_menus();
 	gx_print_info("All Presets Deleting", string("deleted ALL presets!"));
 }
 
@@ -676,7 +591,7 @@ void gx_delete_preset (GtkMenuItem* item, gpointer arg)
 	(void)gx_modify_preset(presname.c_str(), NULL, true);
 
 	// update menu
-	gx_del_preset_from_menus(presname);
+	gx_refresh_preset_menus();
 
 	// recalling main setting
 	gx_recall_main_setting(NULL, NULL);
@@ -750,13 +665,10 @@ static gboolean gx_rename_main_widget(gpointer data)
 void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 {
 	// check that we do have presets
-
 	int pos = 0;
 	vector<GtkMenuItem*>::iterator it = pm_list[LOAD_PRESET_LIST].begin();
     for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
-    {
         pos++;
-    }
 
 	if (!pos)
 	{
@@ -820,23 +732,7 @@ void gx_save_preset (const char* presname, bool expand_menu)
 	if (expand_menu)
 		gx_add_preset_to_menus(string(presname));
 
-		     vector<string>::iterator its;
-    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++) {
-        vector<GtkMenuItem*>::iterator it = pm_list[i].begin();
-        for (it = pm_list[i].begin(); it != pm_list[i].end(); it++)
-        {
-            gtk_widget_destroy(GTK_WIDGET(*it));
-        }
-
-    }
-
-    gx_build_preset_list();
-
-    for (its = plist.begin() ; its < plist.end(); its++ )
-    {
-        const string presname = *its;
-        gx_add_preset_to_menus(presname);
-    }
+    gx_refresh_preset_menus();
 
 	// refresh display
 	string ttle = string("guitarix ") + presname;
@@ -853,7 +749,7 @@ void gx_save_preset (const char* presname, bool expand_menu)
 // load a preset file
 static void load_preset_file(const char* presname)
 {
-    	string jname = gx_jack::client_name;
+    string jname = gx_jack::client_name;
 
 	gx_system::recallState(gx_user_dir + jname + "_rc");
 	jname = "guitarix";
@@ -865,23 +761,7 @@ static void load_preset_file(const char* presname)
 	gx_current_preset = "";
 	gx_gui::show_patch_info = 0;
 
-    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++) {
-    vector<GtkMenuItem*>::iterator it = pm_list[i].begin();
-    for (it = pm_list[i].begin(); it != pm_list[i].end(); it++)
-		{
-        gtk_widget_destroy(GTK_WIDGET(*it));
-		}
-    }
-
-    gx_build_preset_list();
-
-    vector<string>::iterator its;
-    for (its = plist.begin() ; its < plist.end(); its++ )
-    {
-        const string presname = *its;
-        gx_add_preset_to_menus(presname);
-    }
-
+    gx_refresh_preset_menus();
 }
 
 // ----- select a external preset file
@@ -1005,7 +885,6 @@ void gx_save_newpreset (GtkEntry* entry)
 
     for (its = plist.begin() ; its < plist.end(); its++ )
     {
-
 		// found a match
 		if (presname == *its)
 		{
@@ -1038,7 +917,7 @@ void gx_recall_main_setting(GtkMenuItem* item, gpointer)
 	setting_is_preset = false;
 	gx_current_preset = "";
 	gx_gui::show_patch_info = 0;
-	// reload guitarix mai preset file
+	// reload guitarix main preset file
 	if(strcmp(guitarix_preset,"guitarixpre_rc")){
         guitarix_preset  = "guitarixpre_rc";
         gx_preset_dir   = gx_user_dir;
@@ -1137,26 +1016,7 @@ void gx_rename_preset (GtkEntry* entry)
 	(void)gx_system_call("mv", file_move.c_str(), true);
 
 	// refresh the menus
-
-
-	     vector<string>::iterator its;
-    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++) {
-    vector<GtkMenuItem*>::iterator it = pm_list[i].begin();
-    for (it = pm_list[i].begin(); it != pm_list[i].end(); it++)
-		{
-        gtk_widget_destroy(GTK_WIDGET(*it));
-		}
-    }
-
-
-    gx_build_preset_list();
-
-    for (its = plist.begin() ; its < plist.end(); its++ )
-    {
-        const string presname = *its;
-        cout <<"found label  " <<presname<<endl;
-        gx_add_preset_to_menus(presname);
-    }
+    gx_refresh_preset_menus();
 
     if (setting_is_preset)
     {
@@ -1181,14 +1041,12 @@ void gx_rename_preset_dialog (GtkMenuItem *menuitem, gpointer arg)
             its++;
         }
 
-
 	static string title;
 	if (menuitem)
 	{
 		title = "Renaming preset ";
 		title += *its;
 	}
-
 
     old_preset_name = *its;
 	// running dialog and get response

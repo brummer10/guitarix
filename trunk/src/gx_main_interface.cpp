@@ -671,6 +671,7 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 	GtkWidget * box = gtk_vbox_new (homogene, 0);
 	g_signal_connect(box, "expose-event", G_CALLBACK(tribal_box_expose), NULL);
 	GtkWidget * box1 = gtk_fixed_new ();
+	g_signal_connect(box1, "expose-event", G_CALLBACK(vbox_expose), NULL);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 	GtkWidget* 	button = gtk_button_new ();
 	GtkWidget* lw = gtk_label_new("");
