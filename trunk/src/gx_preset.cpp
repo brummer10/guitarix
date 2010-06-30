@@ -252,7 +252,7 @@ void gx_add_single_preset_menu_item(const string& presname,
 
 	// add small mnemonic
 	string name("_");
-	if (pos > 10) name = "";
+	if (pos > 9) name = "";
 	name += gx_i2a(pos) + "  ";
 	name += presname;
 
@@ -342,18 +342,13 @@ void gx_refresh_preset_menus()
 bool gx_nth_preset(unsigned char n)
 {
 	// check that we do have presets
-	int pos = 0;
-	vector<GtkMenuItem*>::iterator it = pm_list[LOAD_PRESET_LIST].begin();
-    for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
-        pos++;
-
-	if (!pos)
+	if (!pm_list[LOAD_PRESET_LIST].size())
 	{
 		gx_print_warning("Preset Switching",
 		                 "Preset list is empty, make some :)");
 		return false;
 	}
-
+    vector<GtkMenuItem*>::iterator it = pm_list[LOAD_PRESET_LIST].begin();
 	while (n > 0) {
 		it++;
 		if (it == pm_list[LOAD_PRESET_LIST].end())
@@ -370,12 +365,7 @@ bool gx_nth_preset(unsigned char n)
 void gx_next_preset(GtkWidget* item, gpointer arg)
 {
 	// check that we do have presets
-	int pos = 0;
-	vector<GtkMenuItem*>::iterator it = pm_list[0].begin();
-    for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
-        pos++;
-
-	if (!pos)
+	if (!pm_list[LOAD_PRESET_LIST].size())
 	{
 		gx_print_warning("Preset Switching",
 		                 "Preset list is empty, make some :)");
@@ -383,9 +373,8 @@ void gx_next_preset(GtkWidget* item, gpointer arg)
 	}
 
 	// start from this element
-	if (!setting_is_preset)
-		it = pm_list[LOAD_PRESET_LIST].begin();
-	else
+	vector<GtkMenuItem*>::iterator it = pm_list[LOAD_PRESET_LIST].begin();
+	if (setting_is_preset)
 	{
 		GtkMenuItem* const itemi =
 			gx_get_preset_item_from_name(LOAD_PRESET_LIST, gx_current_preset);
@@ -407,12 +396,8 @@ void gx_next_preset(GtkWidget* item, gpointer arg)
 // ---------- switch to next preset in queue
 void gx_previous_preset(GtkWidget* item, gpointer arg)
 {
-	int pos = 0;
-	vector<GtkMenuItem*>::iterator it = pm_list[0].begin();
-    for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
-        pos++;
-
-	if (!pos)
+    // check that we do have presets
+	if (!pm_list[LOAD_PRESET_LIST].size())
 	{
 		gx_print_warning("Preset Switching",
 		                 "Preset list is empty, make some :)");
@@ -420,9 +405,8 @@ void gx_previous_preset(GtkWidget* item, gpointer arg)
 	}
 
 	// start from this element
-	if (!setting_is_preset)
-		it = pm_list[LOAD_PRESET_LIST].end();
-	else
+	vector<GtkMenuItem*>::iterator it = pm_list[LOAD_PRESET_LIST].end();
+	if (setting_is_preset)
 	{
 		GtkMenuItem* const itemi =
 			gx_get_preset_item_from_name(LOAD_PRESET_LIST, gx_current_preset);
@@ -665,12 +649,7 @@ static gboolean gx_rename_main_widget(gpointer data)
 void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 {
 	// check that we do have presets
-	int pos = 0;
-	vector<GtkMenuItem*>::iterator it = pm_list[LOAD_PRESET_LIST].begin();
-    for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
-        pos++;
-
-	if (!pos)
+	if (!pm_list[LOAD_PRESET_LIST].size())
 	{
 		gx_print_warning("Preset Loading",
 		                 "Preset list is empty, make some :)");
@@ -678,7 +657,7 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 	}
 
 	// retrieve preset name
-
+    vector<GtkMenuItem*>::iterator it = pm_list[LOAD_PRESET_LIST].begin();
 	vector<string>::iterator its = plist.begin() ;;
         for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
         {
@@ -767,7 +746,7 @@ static void load_preset_file(const char* presname)
 // ----- select a external preset file
 void gx_load_preset_file(const char* presname, bool expand_menu)
 {
-    GtkWidget * file_chooser = gtk_file_chooser_dialog_new ("Select a *_rc file",
+    GtkWidget * file_chooser = gtk_file_chooser_dialog_new ("Select a preset *_rc file",
                                 GTK_WINDOW(gx_gui::fWindow),
                                 GTK_FILE_CHOOSER_ACTION_OPEN,GTK_STOCK_CANCEL,
                                 GTK_RESPONSE_CANCEL,
@@ -777,9 +756,9 @@ void gx_load_preset_file(const char* presname, bool expand_menu)
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (file_chooser), gx_user_dir.c_str());
     gtk_file_chooser_set_show_hidden  (GTK_FILE_CHOOSER (file_chooser), true);
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER (file_chooser), false);
-    /*GtkFileFilter* filter = gtk_file_filter_new ();
+    GtkFileFilter* filter = gtk_file_filter_new ();
 	gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*_rc");
-	gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (file_chooser), GTK_FILE_FILTER(filter)); */
+	gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (file_chooser), GTK_FILE_FILTER(filter));
 
     if (gtk_dialog_run (GTK_DIALOG (file_chooser)) == GTK_RESPONSE_ACCEPT)
     {
@@ -794,7 +773,7 @@ void gx_load_preset_file(const char* presname, bool expand_menu)
 // ----- export preset file
 void gx_save_preset_file(const char* presname, bool expand_menu)
 {
-    GtkWidget * file_chooser = gtk_file_chooser_dialog_new ("Save *_rc File",
+    GtkWidget * file_chooser = gtk_file_chooser_dialog_new ("Save a preset *_rc File",
                                 GTK_WINDOW(gx_gui::fWindow),
                                 GTK_FILE_CHOOSER_ACTION_SAVE,
                                 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -802,9 +781,9 @@ void gx_save_preset_file(const char* presname, bool expand_menu)
                                 NULL);
     gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (file_chooser), TRUE);
     gtk_file_chooser_set_show_hidden  (GTK_FILE_CHOOSER (file_chooser), true);
-   /* GtkFileFilter* filter = gtk_file_filter_new ();
+    GtkFileFilter* filter = gtk_file_filter_new ();
 	gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*_rc");
-	gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (file_chooser), GTK_FILE_FILTER(filter)); */
+	gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (file_chooser), GTK_FILE_FILTER(filter));
 
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (file_chooser), gx_user_dir.c_str());
     gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_chooser), "Untitled_rc");
@@ -812,9 +791,14 @@ void gx_save_preset_file(const char* presname, bool expand_menu)
     if (gtk_dialog_run (GTK_DIALOG (file_chooser)) == GTK_RESPONSE_ACCEPT)
     {
         char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_chooser));
+        string save_file = filename;
+        size_t found = save_file.find("_rc");
+        if (found == string::npos)
+            save_file +="_rc";
+
         string presetfile = gx_user_dir + guitarix_preset;
         presetfile += "  ";
-        presetfile += filename;
+        presetfile += save_file;
         (void)gx_system_call("cp -f", presetfile , false);
         g_free (filename);
     }
