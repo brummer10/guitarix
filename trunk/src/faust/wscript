@@ -83,6 +83,8 @@ def build(bld):
         'balance.dsp',
         'balance1.dsp',
         'tonestack.dsp',
+        'amp2.dsp',
+        'stage3.dsp',
 
         # effects
         'overdrive.dsp',

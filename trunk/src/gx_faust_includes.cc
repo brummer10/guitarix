@@ -146,6 +146,8 @@ template <>      inline int faustpower<1>(int x)        { return x; }
  */
 
 // amp
+#include "faust-cc/amp2.cc"
+#include "faust-cc/stage3.cc"
 #include "faust-cc/preamp.cc"
 #include "faust-cc/inputgain.cc"
 #include "faust-cc/noise_shaper.cc"
@@ -166,6 +168,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/balance1.cc"
 #include "faust-cc/eq.cc"
 #include "faust-cc/tube3.cc"
+
 
 // effects
 #include "faust-cc/overdrive.cc"
@@ -190,7 +193,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 /****************************************************************
  ** Support for experimental faust dsp files
  */
-
+/*
 #define TAB_SIZE (2001)
 
 struct table1d {
@@ -214,11 +217,11 @@ inline float Ftube(int table, float Vgk)
 	f -= i;
 	return tab.data[i]*(1-f) + tab.data[i+1]*f;
 }
-
+*/
 extern int cab_ir_count;
 extern int cab_ir_sr;
 extern float cab_ir_data[];
-
+/*
 struct table1d tubetable[] = {
 	{ // Ri = 68k
 	-5,5,200, {
@@ -1029,7 +1032,7 @@ struct table1d tubetable[] = {
 	93.7636680053
 	}}
 };
-
+*/
 int cab_ir_count = 1000;
 int cab_ir_sr = 48000;
 float cab_ir_data[] = {
@@ -1151,7 +1154,7 @@ void registerSetup(setupfunc f)
 #define registerVar(id,name,tp,tooltip,var,val,low,up,step) registerVar(id,name,tp,tooltip,var,val,low,up,step,true)
 
 //#include  "faust-cc/ExpFilter.cc"
-#include  "faust-cc/Exp.cc"
+//#include  "faust-cc/Exp.cc"
 
 #undef registerVar
 
@@ -1184,7 +1187,7 @@ SimpleResampler resampExp;
 {
 	exp_upsample = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(widget));
 }*/
-
+/*
 static void exp_hs_toggled(GtkWidget *widget, gpointer data)
 {
 	exp_hs = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
@@ -1211,7 +1214,7 @@ void exp_cab_conv_toggled(GtkWidget *widget, gpointer data)
 		}
 	}
 }
-
+*/
 void faust_setup()
 {
 	registerEnumParam("test.upsample", "Upsample", (int*)&exp_upsample, 4, 1, 8, true);
@@ -1231,14 +1234,15 @@ void faust_setup()
     GtkWidget *hbox = gtk_hbox_new(false, 10);
     gtk_widget_show(hbox);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, 0, 0, 5);
-    GtkWidget *w = gtk_label_new("Select:");
+   // GtkWidget *w = gtk_label_new("Select:");
+    GtkWidget *w = gtk_label_new("empty");
     gtk_widget_show(w);
     gtk_box_pack_start(GTK_BOX(hbox), w, 0, 0, 5);
 	//GtkObject *adj = gtk_adjustment_new(4, 1, 8, 1, 2, 0);
 	//exp_sample_spin = gtk_spin_button_new(GTK_ADJUSTMENT(adj), 1, 0);
     //gtk_signal_connect (GTK_OBJECT(exp_sample_spin), "value-changed", GTK_SIGNAL_FUNC(exp_sr_changed), NULL);
     //gtk_widget_show(exp_sample_spin);
-    w = gtk_check_button_new_with_label("enable");
+  /*  w = gtk_check_button_new_with_label("enable");
     gtk_signal_connect(GTK_OBJECT(w), "toggled", GTK_SIGNAL_FUNC(exp_on_toggled), NULL);
     gtk_box_pack_start(GTK_BOX(hbox), w, 0, 0, 5);
     gtk_widget_show(w);
@@ -1253,7 +1257,7 @@ void faust_setup()
    // w = gtk_check_button_new_with_label("Cab-ImpResp");
    // gtk_widget_show(w);
    // gtk_box_pack_start(GTK_BOX(hbox), w, 0, 0, 20);
-   // gtk_signal_connect(GTK_OBJECT(w), "toggled", GTK_SIGNAL_FUNC(exp_cab_conv_toggled), NULL);
+   // gtk_signal_connect(GTK_OBJECT(w), "toggled", GTK_SIGNAL_FUNC(exp_cab_conv_toggled), NULL);*/
     hbox = gtk_hbox_new(false, 10);
     gtk_widget_show(hbox);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, 0, 0, 5);

@@ -383,7 +383,12 @@ void GxMainInterface::setup()
                                         closeBox();
                                     }
                                     closeBox();
+                                    openHorizontalBox("");
+                                    {
+                                    addminiswitch("amp.bass_boost.on_off", "bass boost  ");
                                     openSpaceBox("");
+                                    closeBox();
+                                    }
                                     closeBox();
                                     openHorizontalBox("");
                                     {
@@ -449,8 +454,17 @@ void GxMainInterface::setup()
 							{
 								openHorizontalBox("");
 								{
-                                    openSpaceBox("");
-                                    closeBox();
+                                    //openSpaceBox("");
+                                    //closeBox();
+                                    openVerticalBox1("model    ");
+									{
+                                        openVerticalBox1("");
+                                        closeBox();
+                                        const char* labels[2]  ={"amp 1","amp 2"};
+                                        addselector("amp.model",2,labels,"");
+									}
+									closeBox();
+
 									openVerticalBox1("");
 									{
 									    addminiswitch("amp.oversample.on_off", "oversample  ");
@@ -459,7 +473,7 @@ void GxMainInterface::setup()
 									}
 									closeBox();
 
-									openVerticalBox1("");
+									/*openVerticalBox1("");
 									{
                                         addminiswitch("amp.bass_boost.on_off", "bass boost  ");
                                         openSpaceBox("");
@@ -467,7 +481,7 @@ void GxMainInterface::setup()
                                         openVerticalBox1("");
                                         closeBox();
 									}
-									closeBox();
+									closeBox();*/
 
 									openVerticalBox1("");
 									{
@@ -484,6 +498,8 @@ void GxMainInterface::setup()
 							//----- the second part in the vertical box
 							openAmpBox("  ");
 							{
+							    openVerticalSwitchBox(" ",0, 2, &gx_engine::audio.witchamp);
+                                {
                                 openHorizontalBox("");
                                 {
                                     openVerticalBox("");
@@ -593,6 +609,78 @@ void GxMainInterface::setup()
                                     closeBox();
 								}
 								closeBox();
+								}
+								closeBox();
+
+								openVerticalSwitchBox(" ",1, 2, &gx_engine::audio.witchamp);
+                                {
+                                    openHorizontalBox("");
+                                {
+                                    openVerticalBox("");
+                                    {
+                                        openVerticalBox("");
+                                        {
+                                            addswitch("amp2.preamp.ON", "preamp");
+                                            openSpaceBox("");
+                                            closeBox();
+                                            addregler("amp2.preamp.Pregain","");
+                                        }
+                                        closeBox();
+
+                                    }
+                                    closeBox();
+                                    openFrameBox("");
+                                    closeBox();
+                                    openVerticalBox("");
+                                    {
+                                        openVerticalBox("");
+                                        {
+                                            addswitch("amp2.stage1.ON", "tube");
+                                            openSpaceBox("");
+                                            closeBox();
+                                            addregler("amp2.stage1.gain1","");
+                                        }
+                                        closeBox();
+
+                                    }
+                                    closeBox();
+                                    openFrameBox("");
+                                    closeBox();
+                                    openVerticalBox("");
+                                    {
+                                        openVerticalBox("");
+                                        {
+                                            addswitch("amp2.stage2.ON", "tube2");
+                                            openSpaceBox("");
+                                            closeBox();
+                                            addregler("amp2.stage2.gain2","");
+                                        }
+                                        closeBox();
+
+                                    }
+                                    closeBox();
+                                    openFrameBox("");
+                                    closeBox();
+
+                                    openVerticalBox("");
+                                    {
+                                        openVerticalBox("");
+                                        {
+                                            addswitch("stage3.ON", "tube3");
+                                            openSpaceBox("");
+                                            closeBox();
+                                            addregler("stage3.gain3","");
+                                        }
+                                        closeBox();
+
+                                    }
+                                    closeBox();
+								}
+								closeBox();
+
+                                }
+								closeBox();
+
 
 							}
 							closeBox();

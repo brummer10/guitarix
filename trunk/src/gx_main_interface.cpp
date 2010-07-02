@@ -1167,6 +1167,43 @@ struct uiSwitchEQBox : public gx_ui::GxUiItem
 		}
 };
 
+struct uiSwitchAMPBox : public gx_ui::GxUiItem
+{
+	GtkWidget* fbox;
+
+	uiSwitchAMPBox(gx_ui::GxUI* ui, float* zone, GtkWidget* box)
+		: gx_ui::GxUiItem(ui, zone), fbox(box) {}
+
+	virtual void reflectZone()
+		{
+            GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(fbox));
+
+			GtkWidget *box0 = (GtkWidget *) g_list_nth_data(child_list,0);
+			GtkWidget *box1 = (GtkWidget *) g_list_nth_data(child_list,1);
+			if(fCache != *fZone) {
+			fCache = *fZone;
+			if (fCache == 1)
+			{
+			    //if(gx_engine::audio.fdialogbox_eq ==1)
+                //    gx_engine::audio.fdialogbox_eqs = 1;
+                gtk_widget_hide(box0);
+                gx_engine::audio.famp2 = 1;
+               // gx_engine::audio.fdialogbox_eq = 0;
+                gtk_widget_show(box1);
+			}
+			else if (fCache == 0)
+			{
+			   // if(gx_engine::audio.fdialogbox_eqs ==1)
+               //     gx_engine::audio.fdialogbox_eq = 1;
+				gtk_widget_hide(box1);
+                gx_engine::audio.famp2 = 0;
+			//	gx_engine::audio.fdialogbox_eqs = 0;
+                gtk_widget_show(box0);
+			}
+			}
+		}
+};
+
 void GxMainInterface::openVerticalSwitchBox(const char* label, int state, int wit, float* zone)
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 0);
@@ -1178,6 +1215,7 @@ void GxMainInterface::openVerticalSwitchBox(const char* label, int state, int wi
 
        if(wit == 0) new uiSwitchDISTBox(this, zone, GTK_WIDGET(box));
        else if(wit == 1) new uiSwitchEQBox(this, zone, GTK_WIDGET(box));
+       else if(wit == 2) new uiSwitchAMPBox(this, zone, GTK_WIDGET(box));
 		//GtkWidget* lw = gtk_label_new(label);
         GtkWidget * box0 = gtk_vbox_new (homogene, 0);
         GtkWidget * box1 = gtk_vbox_new (homogene, 0);
@@ -1595,30 +1633,32 @@ void GxMainInterface::addregler(const char* label, float* zone, float init, floa
 	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
 	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	//GtkWidget* lw = gtk_label_new("");
+
+    GtkWidget* box1 = addWidget(label, gtk_alignment_new (0.5, 0.5, 0, 0));
+	GtkWidget* box = gtk_vbox_new (FALSE, 0);
+	GtkWidget* box2 = gtk_hbox_new (FALSE, 0);
+	GtkWidget* box3 = gtk_vbox_new (FALSE, 0);
+	GtkWidget* box4 = gtk_vbox_new (FALSE, 0);
+
 	GtkRegler myGtkRegler;
 	GtkWidget* lw = myGtkRegler.gtk_value_display(GTK_ADJUSTMENT(adj));
-
-	GtkWidget* lwl = gtk_label_new(label);
 	gtk_widget_set_name (lw,"value_label");
-	gtk_widget_set_name (lwl,"effekt_label");
-	GtkStyle *style = gtk_widget_get_style(lwl);
-	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
 
-	gtk_widget_modify_font(lwl, style->font_desc);
+	if (label[0] != 0) {
+	    GtkWidget* lwl = gtk_label_new(label);
+	    gtk_widget_set_name (lwl,"effekt_label");
+	    GtkStyle *style = gtk_widget_get_style(lwl);
+        pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+        pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
+        gtk_widget_modify_font(lwl, style->font_desc);
+        gtk_container_add (GTK_CONTAINER(box), lwl);
+	}
 
 	GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
 	connect_midi_controller(slider, zone);
 	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
 
-	GtkWidget* box1 = addWidget(label, gtk_alignment_new (0.5, 0.5, 0, 0));
-	GtkWidget* box = gtk_vbox_new (FALSE, 0);
-	GtkWidget* box2 = gtk_hbox_new (FALSE, 0);
-	GtkWidget* box3 = gtk_vbox_new (FALSE, 0);
-	GtkWidget* box4 = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER(box1), box);
-	gtk_container_add (GTK_CONTAINER(box), lwl);
 	gtk_container_add (GTK_CONTAINER(box), slider);
 	gtk_container_add (GTK_CONTAINER(box2), box3);
 	gtk_container_add (GTK_CONTAINER(box2), lw);

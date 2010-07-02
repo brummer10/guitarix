@@ -110,6 +110,8 @@ public:
 	float fdialogbox_echo;
 	float fdialogbox_delay;
 	float witcheq;
+	float witchamp;
+	int famp2;
 
 	AudioVariables();
 };

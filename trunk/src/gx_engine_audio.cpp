@@ -57,6 +57,8 @@ using namespace gx_resample;
 
 namespace gx_engine {
 
+#include "gx_engine_tubetable.cc"
+
 /****************************************************************
  ** registering of audio variables
  */
@@ -125,6 +127,8 @@ AudioVariables::AudioVariables()
 	gx_gui::registerParam("SampleLooper.on_off", "on/off", &fsloop, 0);
 	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
 	registerEnumParam("amp.select", "select", &upsample_mode, 4.f, 1.f, 8.f, 1.0f);
+	registerEnumParam("amp.model", "select", &witchamp, 0.f, 0.f, 1.f, 1.0f);
+	gx_gui::registerParam("amp.on_off", "ON", &famp2,0);
 	gx_gui::registerParam("cab.on_off", "Cab-ImpResp", &fcab,0);
 
 	// only save and restore, no midi control
@@ -482,7 +486,7 @@ void process_buffers(int count, float* input, float* output0)
     if (audio.fng) {
 	    noise_shaper::compute(count, output0, output0);
     }
-    if (audio.fcheckbox1) {
+    if (audio.fcheckbox1 && !audio.famp2) {
 	    preamp::compute(count, output0, output0);
     }
     if (audio.fbiquad) {
@@ -503,8 +507,11 @@ void process_buffers(int count, float* input, float* output0)
             fupsample_old = audio.fupsample;
             //FIXME non-rt
             resampTube.setup(gx_jack::jack_sr, t_upsample);
-            resampDist.setup(gx_jack::jack_sr, t_upsample);
+
+            amp2::init(t_upsample * gx_jack::jack_sr);
             osc_tube::init(t_upsample * gx_jack::jack_sr);
+
+            resampDist.setup(gx_jack::jack_sr, t_upsample);
             distortion1::init(t_upsample * gx_jack::jack_sr);
             distortion::init(t_upsample * gx_jack::jack_sr);
         }
@@ -519,28 +526,35 @@ void process_buffers(int count, float* input, float* output0)
     }
     if (audio.fupsample != fupsample_old) {
 	    fupsample_old = audio.fupsample;
-	    osc_tube::init(ovs_sr);
+
+        amp2::init(ovs_sr);
+        osc_tube::init(ovs_sr);
+
 	    distortion1::init(ovs_sr);
 	    distortion::init(ovs_sr);
     }
     if (audio.antialis0) {
 	    AntiAlias::compute(ovs_count, ovs_buffer, ovs_buffer);
     }
-    if (audio.ftube) {
-	    tube::compute(ovs_count, ovs_buffer, ovs_buffer);
-    }
-    if (audio.ftube3) {
-	    osc_tube::compute(ovs_count, ovs_buffer, ovs_buffer);
-	    //reso_tube::compute(ovs_count, ovs_buffer, ovs_buffer);
-    }
-    if (audio.fprdr) {
-	    drive::compute(ovs_count, ovs_buffer, ovs_buffer);
+    if(audio.famp2) {
+        amp2::compute(ovs_count, ovs_buffer, ovs_buffer);
+    } else {
+        if (audio.ftube) {
+            tube::compute(ovs_count, ovs_buffer, ovs_buffer);
+        }
+        if (audio.ftube3) {
+            osc_tube::compute(ovs_count, ovs_buffer, ovs_buffer);
+            //reso_tube::compute(ovs_count, ovs_buffer, ovs_buffer);
+        }
+        if (audio.fprdr) {
+            drive::compute(ovs_count, ovs_buffer, ovs_buffer);
+        }
     }
     if (audio.fupsample) {
 	    resampTube.down(count, oversample, output0);
     }
     //*** End (maybe) oversampled processing ***
-
+/**
 #ifdef EXPERIMENTAL
    // ExpFilter::compute(count, output0, output0);
     static int exp_upsample_old = 0;
@@ -571,21 +585,21 @@ void process_buffers(int count, float* input, float* output0)
         if (exp_upsample_on) {
             resampExp.down(count, oversample, output0);
         }
-      /*  if (!cab_conv.compute(count, output0)) {
+        if (!cab_conv.compute(count, output0)) {
             //FIXME switch button off
             cout << "overload" << endl;
             //FIXME error message??
-            }*/
+            }
     }
 #endif // EXPERIMENTAL
-
+**/
 
     if (audio.fconvolve) {
 	    convolver_filter(output0, output0, count, (unsigned int)audio.convolvefilter);
     }
     inputgain::compute(count, output0, output0);
     tonestack::compute(count, output0, output0);
-    if (audio.fresoon) {
+    if (audio.fresoon && !audio.famp2) {
 	    tubevibrato::compute(count, output0, output0);
     }
     if(audio.fcab) {
@@ -637,7 +651,9 @@ void process_buffers(int count, float* input, float* output0)
     if (audio.fboost) {
 	    bassbooster::compute(count, output0, output0);
     }
-    if (audio.ftube3e) {
+    if(audio.famp2) {
+        stage3::compute(count, output0, output0);
+    } else if (audio.ftube3e) {
 	    tube3::compute(count, output0, output0);
     }
     if (audio.fsloop) {

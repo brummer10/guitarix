@@ -489,7 +489,8 @@ ParameterGroups::ParameterGroups()
 	insert("eqs", "Scaleable EQ");
 	insert("eqt", "Scwitch EQ");
 	insert("amp","Amplifier");
-	//insert("amp.tone","Tone");
+	insert("amp2","Amplifier2");
+	insert("stage3","Amplifier2");
 	insert("shaper","Shaper");
 	insert("noise_gate","Noise Gate");
 	insert("anti_aliase","Anti Alias");
