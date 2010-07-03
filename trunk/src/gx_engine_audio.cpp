@@ -128,7 +128,7 @@ AudioVariables::AudioVariables()
 	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
 	registerEnumParam("amp.select", "select", &upsample_mode, 4.f, 1.f, 8.f, 1.0f);
 	registerEnumParam("amp.model", "select", &witchamp, 0.f, 0.f, 1.f, 1.0f);
-	gx_gui::registerParam("amp.on_off", "ON", &famp2,0);
+	//gx_gui::registerParam("amp.on_off", "ON", &famp2,0);
 	gx_gui::registerParam("cab.on_off", "Cab-ImpResp", &fcab,0);
 
 	// only save and restore, no midi control

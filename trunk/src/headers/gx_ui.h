@@ -101,6 +101,7 @@ public:
 	virtual void addSpinValueBox(const char* label, float* zone, float init, float min, float max, float step){};
 	virtual void addslider(const char* label, float* zone, float init, float min, float max, float step){};
 	virtual void addtoggle(const char* label, int* zone){};
+	virtual void addtoggle1(const char* label, float* zone){};
 	virtual void addtoggle(const char* label, float* zone){};
 	virtual void addbtoggle(const char* label, int* zone){};
 	virtual void addbtoggle(const char* label, float* zone){};

@@ -490,7 +490,11 @@ ParameterGroups::ParameterGroups()
 	insert("eqt", "Scwitch EQ");
 	insert("amp","Amplifier");
 	insert("amp2","Amplifier2");
+	insert("amp2.preamp","Preamp");
+	insert("amp2.stage1","Tube1");
+	insert("amp2.stage2","Tube2");
 	insert("stage3","Amplifier2");
+	insert("stage3.gain3","Tube3");
 	insert("shaper","Shaper");
 	insert("noise_gate","Noise Gate");
 	insert("anti_aliase","Anti Alias");

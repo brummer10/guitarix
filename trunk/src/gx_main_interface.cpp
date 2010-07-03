@@ -1807,6 +1807,20 @@ void GxMainInterface::addtoggle(string id, const char* label)
 	}
 }
 
+void GxMainInterface::addtoggle1(string id, const char* label)
+{
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
+	Parameter& p = parameter_map[id];
+	if (!label) {
+		label = p.name().c_str();
+	}
+	if (p.isFloat()) {
+		addtoggle1(label, &p.getFloat().value);
+	}
+}
+
 void GxMainInterface::addbtoggle(string id, const char* label)
 {
 	if (!parameter_map.hasId(id)) {
@@ -2060,6 +2074,28 @@ void GxMainInterface::addswitch(const char* label, int* zone)
 {
 	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
 	uiAdjustment* c = new uiAdjustment(this,(float*) zone, GTK_ADJUSTMENT(adj));
+	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
+	GtkRegler myGtkRegler;
+	GtkWidget* slider = myGtkRegler.gtk_switch_new_with_adjustment(GTK_ADJUSTMENT(adj));
+	connect_midi_controller(slider, zone);
+	GtkWidget* lw = gtk_label_new(label);
+	gtk_widget_set_name (lw,"effekt_label");
+
+	GtkStyle *style = gtk_widget_get_style(lw);
+	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
+	gtk_widget_modify_font(lw, style->font_desc);
+	openVerticalBox("");
+	string laba = label;
+	if (laba !="")addWidget(label, lw);
+	addWidget(label, slider);
+	closeBox();
+}
+
+void GxMainInterface::addtoggle1(const char* label, float* zone)
+{
+	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
+	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
 	GtkRegler myGtkRegler;
 	GtkWidget* slider = myGtkRegler.gtk_switch_new_with_adjustment(GTK_ADJUSTMENT(adj));

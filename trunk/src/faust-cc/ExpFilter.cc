@@ -1253,7 +1253,7 @@ void dsp::setup(GtkWidget *window)
 
 #ifndef FAUSTFLOAT
 #define FAUSTFLOAT float
-#endif
+#endif  
 
 typedef long double quad;
 
@@ -1264,7 +1264,7 @@ class mydsp : public dsp{
 	double 	fRec0[3];
 	FAUSTFLOAT 	fcheckbox0;
   public:
-	static void metadata(Meta* m) 	{
+	static void metadata(Meta* m) 	{ 
 		m->declare("filter.lib/name", "Faust Filter Library");
 		m->declare("filter.lib/author", "Julius O. Smith (jos at ccrma.stanford.edu)");
 		m->declare("filter.lib/copyright", "Julius O. Smith III");

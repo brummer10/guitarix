@@ -218,6 +218,7 @@ public :
 	virtual void addSpinValueBox(const char* label, float* zone, float init, float min, float max, float step);
 	virtual void addtoggle(const char* label, int* zone);
 	virtual void addtoggle(const char* label, float* zone);
+	virtual void addtoggle1(const char* label, float* zone);
 	virtual void addbtoggle(const char* label, int* zone);
 	virtual void addbtoggle(const char* label, float* zone);
 	virtual void addRecButton(const char* label, float* zone);
@@ -241,6 +242,7 @@ public :
 	void addminiswitch(string id, const char* label=0);
 	void addselector(string id, int, const char**, const char* label=0);
 	void addtoggle(string id, const char* label=0);
+	void addtoggle1(string id, const char* label=0);
 	void addbtoggle(string id, const char* label=0);
 	void addRecButton(string id, const char* label=0);
 	void addPlayButton(string id, const char* label=0);

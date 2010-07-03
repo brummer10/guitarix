@@ -620,7 +620,7 @@ void GxMainInterface::setup()
                                     {
                                         openVerticalBox("");
                                         {
-                                            addswitch("amp2.preamp.ON", "preamp");
+                                            addtoggle1("amp2.preamp.ON", "preamp");
                                             openSpaceBox("");
                                             closeBox();
                                             addregler("amp2.preamp.Pregain","");
@@ -635,7 +635,7 @@ void GxMainInterface::setup()
                                     {
                                         openVerticalBox("");
                                         {
-                                            addswitch("amp2.stage1.ON", "tube");
+                                            addtoggle1("amp2.stage1.ON", "tube");
                                             openSpaceBox("");
                                             closeBox();
                                             addregler("amp2.stage1.gain1","");
@@ -650,7 +650,7 @@ void GxMainInterface::setup()
                                     {
                                         openVerticalBox("");
                                         {
-                                            addswitch("amp2.stage2.ON", "tube2");
+                                            addtoggle1("amp2.stage2.ON", "tube2");
                                             openSpaceBox("");
                                             closeBox();
                                             addregler("amp2.stage2.gain2","");
@@ -666,7 +666,7 @@ void GxMainInterface::setup()
                                     {
                                         openVerticalBox("");
                                         {
-                                            addswitch("stage3.ON", "tube3");
+                                            addtoggle1("stage3.ON", "tube3");
                                             openSpaceBox("");
                                             closeBox();
                                             addregler("stage3.gain3","");
