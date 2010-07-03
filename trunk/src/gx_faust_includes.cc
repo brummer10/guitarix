@@ -1218,7 +1218,9 @@ void exp_cab_conv_toggled(GtkWidget *widget, gpointer data)
 static gboolean set_transient(gpointer data)
 {
 	GtkWindow *exp_window = GTK_WINDOW(data);
-	if (gtk_widget_get_realized(GTK_WIDGET(gx_gui::fWindow))) {
+	if (GTK_WIDGET_REALIZED (GTK_WIDGET(gx_gui::fWindow))) {
+    // replaced for GTK-2.13
+	//if (gtk_widget_get_realized(GTK_WIDGET(gx_gui::fWindow))) {
 	    gtk_window_set_transient_for(exp_window, GTK_WINDOW(gx_gui::fWindow));
 	}
 	return FALSE;
@@ -1230,7 +1232,9 @@ void faust_setup()
 	gx_gui::registerParam("test.highshelf", "HighShelf", (bool*)&exp_hs, true, true);
     exp_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title (GTK_WINDOW(exp_window), "Experimental");
-    if (gtk_widget_get_realized(gx_gui::fWindow)) {
+    if (GTK_WIDGET_REALIZED (gx_gui::fWindow)) {
+    // replaced for GTK-2.13
+    //if (gtk_widget_get_realized(gx_gui::fWindow)) {
 	    gtk_window_set_transient_for(GTK_WINDOW(exp_window), GTK_WINDOW(gx_gui::fWindow));
     } else {
 	    //this is a HACK. recall_state constructs this window before the main window is realized
