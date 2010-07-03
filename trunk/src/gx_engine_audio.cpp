@@ -465,6 +465,7 @@ void process_buffers(int count, float* input, float* output0)
     if (audio.fbiquad) {
 	    biquad::compute(count, output0, output0);
     }
+    EXPERIMENTAL_PROCESSING;
 
     // *** Start (maybe) oversampled processing ***
     static int fupsample_old = 0; // startup always initialises with SR
@@ -527,45 +528,6 @@ void process_buffers(int count, float* input, float* output0)
 	    resampTube.down(count, oversample, output0);
     }
     //*** End (maybe) oversampled processing ***
-/**
-#ifdef EXPERIMENTAL
-   // ExpFilter::compute(count, output0, output0);
-    static int exp_upsample_old = 0;
-    int ovs_exp_count, ovs_exp_sr;
-    float *ovs_exp_buffer;
-    if (exp_on) {
-        if (exp_upsample_on) {
-            exp_upsample = min(8,audio.upsample_mode+1);
-            if (exp_upsample != exp_upsample_old) {
-                exp_upsample_old = exp_upsample;
-                //FIXME non-rt
-                resampExp.setup(gx_jack::jack_sr, exp_upsample);
-                Exp::init(exp_upsample * gx_jack::jack_sr);
-            }
-                resampExp.up(count, output0, oversample);
-                ovs_exp_sr = exp_upsample * gx_jack::jack_sr;
-                ovs_exp_count = exp_upsample * count;
-                ovs_exp_buffer = oversample;
-              }
-             else {
-                ovs_exp_sr = gx_jack::jack_sr;
-                ovs_exp_count = count;
-                ovs_exp_buffer = output0;
-            }
-
-        Exp::compute(ovs_exp_count, ovs_exp_buffer, ovs_exp_buffer);
-
-        if (exp_upsample_on) {
-            resampExp.down(count, oversample, output0);
-        }
-        if (!cab_conv.compute(count, output0)) {
-            //FIXME switch button off
-            cout << "overload" << endl;
-            //FIXME error message??
-            }
-    }
-#endif // EXPERIMENTAL
-**/
 
     if (audio.fconvolve) {
 	    convolver_filter(output0, output0, count, (unsigned int)audio.convolvefilter);

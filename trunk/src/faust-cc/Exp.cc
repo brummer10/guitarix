@@ -5,7 +5,7 @@ namespace Exp {
 //
 // Code generated with Faust 0.9.24 (http://faust.grame.fr)
 //-----------------------------------------------------
-/* link with : "" */
+/* link with  */
 /*
 ** most of this file is a copy of faust architecture/jack-gtk.cpp
 ** which is licensed under GPL V2.
@@ -1259,45 +1259,20 @@ typedef long double quad;
 
 class mydsp : public dsp{
   protected:
-	FAUSTFLOAT 	fslider0;
+	int 	iVec0[2];
 	double 	fConst0;
+	FAUSTFLOAT 	fslider0;
 	double 	fConst1;
+	int 	iRec2[2];
+	int 	iRec1[2];
 	double 	fConst2;
-	double 	fVec0[2];
-	double 	fConst3;
-	double 	fConst4;
-	double 	fConst5;
-	double 	fRec2[2];
-	double 	fRec1[2];
-	double 	fConst6;
-	double 	fRec0[2];
-	FAUSTFLOAT 	fslider1;
-	FAUSTFLOAT 	fcheckbox0;
-	double 	fVec1[2];
-	double 	fConst7;
-	double 	fConst8;
-	double 	fConst9;
 	double 	fRec5[2];
-	double 	fVec2[2];
-	double 	fConst10;
-	double 	fConst11;
-	double 	fConst12;
-	double 	fRec6[2];
 	double 	fRec4[2];
 	double 	fRec3[2];
-	FAUSTFLOAT 	fslider2;
+	FAUSTFLOAT 	fcheckbox0;
+	FAUSTFLOAT 	fslider1;
+	double 	fRec0[2];
 	FAUSTFLOAT 	fcheckbox1;
-	double 	fVec3[2];
-	double 	fRec9[2];
-	double 	fVec4[2];
-	double 	fConst13;
-	double 	fConst14;
-	double 	fConst15;
-	double 	fRec10[2];
-	double 	fRec8[2];
-	double 	fRec7[2];
-	FAUSTFLOAT 	fslider3;
-	FAUSTFLOAT 	fcheckbox2;
   public:
 	static void metadata(Meta* m) 	{ 
 		m->declare("filter.lib/name", "Faust Filter Library");
@@ -1312,6 +1287,11 @@ class mydsp : public dsp{
 		m->declare("effect.lib/version", "1.1");
 		m->declare("effect.lib/license", "STK-4.3");
 		m->declare("effect.lib/reference", "http://ccrma.stanford.edu/realsimple/faust_strings/");
+		m->declare("osc.lib/name", "Faust Oscillator Library");
+		m->declare("osc.lib/author", "Julius O. Smith (jos at ccrma.stanford.edu)");
+		m->declare("osc.lib/copyright", "Julius O. Smith III");
+		m->declare("osc.lib/version", "1.2");
+		m->declare("osc.lib/license", "STK-4.3");
 	}
 
 	virtual int getNumInputs() 	{ return 1; }
@@ -1320,38 +1300,16 @@ class mydsp : public dsp{
 	}
 	virtual void instanceInit(int samplingFreq) {
 		fSamplingFreq = samplingFreq;
-		fConst0 = (1.0 / tan((0.5 * (((3.141592653589793 * fSamplingFreq) - 194.77874452256717) / fSamplingFreq))));
-		fConst1 = (1 + fConst0);
-		fConst2 = (0 - ((fConst0 - 1) / fConst1));
-		for (int i=0; i<2; i++) fVec0[i] = 0;
-		fConst3 = (1.0 / tan((270.1769682087222 / fSamplingFreq)));
-		fConst4 = (fConst3 - 1);
-		fConst5 = (1.0 / (1 + fConst3));
-		for (int i=0; i<2; i++) fRec2[i] = 0;
-		for (int i=0; i<2; i++) fRec1[i] = 0;
-		fConst6 = (1.0 / fConst1);
-		for (int i=0; i<2; i++) fRec0[i] = 0;
-		for (int i=0; i<2; i++) fVec1[i] = 0;
-		fConst7 = (1.0 / tan((20517.741620594938 / fSamplingFreq)));
-		fConst8 = (fConst7 - 1);
-		fConst9 = (1.0 / (1 + fConst7));
+		for (int i=0; i<2; i++) iVec0[i] = 0;
+		fConst0 = (1.0 / fSamplingFreq);
+		fConst1 = (0.5 * fSamplingFreq);
+		for (int i=0; i<2; i++) iRec2[i] = 0;
+		for (int i=0; i<2; i++) iRec1[i] = 0;
+		fConst2 = (6.283185307179586 / fSamplingFreq);
 		for (int i=0; i<2; i++) fRec5[i] = 0;
-		for (int i=0; i<2; i++) fVec2[i] = 0;
-		fConst10 = (1.0 / tan((414.6902302738527 / fSamplingFreq)));
-		fConst11 = (fConst10 - 1);
-		fConst12 = (1.0 / (1 + fConst10));
-		for (int i=0; i<2; i++) fRec6[i] = 0;
 		for (int i=0; i<2; i++) fRec4[i] = 0;
 		for (int i=0; i<2; i++) fRec3[i] = 0;
-		for (int i=0; i<2; i++) fVec3[i] = 0;
-		for (int i=0; i<2; i++) fRec9[i] = 0;
-		for (int i=0; i<2; i++) fVec4[i] = 0;
-		fConst13 = (1.0 / tan((609.4689747964198 / fSamplingFreq)));
-		fConst14 = (fConst13 - 1);
-		fConst15 = (1.0 / (1 + fConst13));
-		for (int i=0; i<2; i++) fRec10[i] = 0;
-		for (int i=0; i<2; i++) fRec8[i] = 0;
-		for (int i=0; i<2; i++) fRec7[i] = 0;
+		for (int i=0; i<2; i++) fRec0[i] = 0;
 	}
 	virtual void init(int samplingFreq) {
 		classInit(samplingFreq);
@@ -1359,72 +1317,43 @@ class mydsp : public dsp{
 	}
 	virtual void buildUserInterface(UI* interface) {
 		interface->openHorizontalBox("test");
-		interface->addVerticalSlider("Pregain", &fslider0, 3e+01, -1e+01, 8e+01, 0.1);
-		interface->openHorizontalBox("stage1");
-		interface->addCheckButton("ON", &fcheckbox0);
-		interface->addVerticalSlider("gain1", &fslider1, 6.0, -1e+01, 2e+01, 0.1);
-		interface->closeBox();
-		interface->openHorizontalBox("stage2");
+		interface->openHorizontalBox("tremolo");
 		interface->addCheckButton("ON", &fcheckbox1);
-		interface->addVerticalSlider("gain2", &fslider2, 6.0, -1e+01, 2e+01, 0.1);
-		interface->closeBox();
-		interface->openHorizontalBox("stage3");
-		interface->addCheckButton("ON", &fcheckbox2);
-		interface->addVerticalSlider("gain3", &fslider3, 6.0, -1e+01, 2e+01, 0.1);
+		interface->addCheckButton("SINE", &fcheckbox0);
+		interface->addHorizontalSlider("depth", &fslider1, 0.5, 0.0, 1.0, 0.01);
+		interface->addHorizontalSlider("freq", &fslider0, 5.0, 0.1, 5e+01, 0.1);
 		interface->closeBox();
 		interface->closeBox();
 	}
 	virtual void compute (int count, FAUSTFLOAT** input, FAUSTFLOAT** output) {
-		double 	fSlow0 = pow(10,(0.05 * fslider0));
-		double 	fSlow1 = pow(10,(0.05 * fslider1));
-		int 	iSlow2 = int(fcheckbox0);
-		double 	fSlow3 = pow(10,(0.05 * fslider2));
-		int 	iSlow4 = int(fcheckbox1);
-		double 	fSlow5 = pow(10,(0.05 * fslider3));
-		int 	iSlow6 = int(fcheckbox2);
+		double 	fSlow0 = fslider0;
+		int 	iSlow1 = int((fConst1 / double(fSlow0)));
+		double 	fSlow2 = (1.0 / iSlow1);
+		double 	fSlow3 = (fConst2 * fSlow0);
+		int 	iSlow4 = int(fcheckbox0);
+		double 	fSlow5 = fslider1;
+		int 	iSlow6 = int(fcheckbox1);
 		FAUSTFLOAT* input0 = input[0];
 		FAUSTFLOAT* output0 = output[0];
 		for (int i=0; i<count; i++) {
-			double fTemp0 = (fSlow0 * (double)input0[i]);
-			double fTemp1 = (fRec1[1] - 2.5e+02);
-			fVec0[0] = fTemp1;
-			fRec2[0] = (fConst5 * ((fConst4 * fRec2[1]) + (0.027 * (fVec0[0] + fVec0[1]))));
-			fRec1[0] = Ftube(0, (fRec2[0] + fTemp0));
-			fRec0[0] = ((fConst6 * ((0.025 * fRec1[0]) - (0.025 * fRec1[1]))) + (fConst2 * fRec0[1]));
-			double fTemp2 = ((iSlow2)?(fSlow1 * fRec0[0]):fTemp0);
-			fVec1[0] = fTemp2;
-			fRec5[0] = (fConst9 * ((fVec1[0] + fVec1[1]) + (fConst8 * fRec5[1])));
-			double fTemp3 = (fRec4[1] - 2.5e+02);
-			fVec2[0] = fTemp3;
-			fRec6[0] = (fConst12 * ((fConst11 * fRec6[1]) + (0.015 * (fVec2[0] + fVec2[1]))));
-			fRec4[0] = Ftube(1, (fRec6[0] + fRec5[0]));
-			fRec3[0] = ((fConst6 * ((0.025 * fRec4[0]) - (0.025 * fRec4[1]))) + (fConst2 * fRec3[1]));
-			double fTemp4 = ((iSlow4)?(fSlow3 * fRec3[0]):fVec1[0]);
-			fVec3[0] = fTemp4;
-			fRec9[0] = (fConst9 * ((fVec3[0] + fVec3[1]) + (fConst8 * fRec9[1])));
-			double fTemp5 = (fRec8[1] - 2.5e+02);
-			fVec4[0] = fTemp5;
-			fRec10[0] = (fConst15 * ((fConst14 * fRec10[1]) + (0.0082 * (fVec4[0] + fVec4[1]))));
-			fRec8[0] = Ftube(1, (fRec10[0] + fRec9[0]));
-			fRec7[0] = ((fConst6 * ((0.025 * fRec8[0]) - (0.025 * fRec8[1]))) + (fConst2 * fRec7[1]));
-			output0[i] = (FAUSTFLOAT)((iSlow6)?(fSlow5 * fRec7[0]):fVec3[0]);
+			double fTemp0 = (double)input0[i];
+			iVec0[0] = 1;
+			double fTemp1 = (fRec0[1] * (1 - (fConst0 / (fConst0 + (0.06 * exp((0 - (2.4849066497880004 * fRec0[1]))))))));
+			iRec2[0] = ((int((iRec2[1] > 0)))?((2 * (iRec1[1] < iSlow1)) - 1):(1 - (2 * (iRec1[1] > 0))));
+			iRec1[0] = (iRec2[0] + iRec1[1]);
+			fRec5[0] = ((fSlow3 * (0 - fRec3[1])) + fRec5[1]);
+			fRec4[0] = ((1 + ((fSlow3 * fRec5[0]) + fRec4[1])) - iVec0[1]);
+			fRec3[0] = fRec4[0];
+			fRec0[0] = (fTemp1 + (fConst0 * (pow((1 + (fSlow5 * (((iSlow4)?max(0, (0.5 * (1 + fRec3[0]))):(fSlow2 * iRec1[0])) - 1))),1.9) / (fConst0 + (0.06 * exp((0 - (2.4849066497880004 * fTemp1))))))));
+			output0[i] = (FAUSTFLOAT)((iSlow6)?(2700 * (fTemp0 / (2700 + exp((13.815510557964274 / log((2.718281828459045 + (8.551967507929417 * fRec0[0])))))))):fTemp0);
 			// post processing
-			fRec7[1] = fRec7[0];
-			fRec8[1] = fRec8[0];
-			fRec10[1] = fRec10[0];
-			fVec4[1] = fVec4[0];
-			fRec9[1] = fRec9[0];
-			fVec3[1] = fVec3[0];
+			fRec0[1] = fRec0[0];
 			fRec3[1] = fRec3[0];
 			fRec4[1] = fRec4[0];
-			fRec6[1] = fRec6[0];
-			fVec2[1] = fVec2[0];
 			fRec5[1] = fRec5[0];
-			fVec1[1] = fVec1[0];
-			fRec0[1] = fRec0[0];
-			fRec1[1] = fRec1[0];
-			fRec2[1] = fRec2[0];
-			fVec0[1] = fVec0[0];
+			iRec1[1] = iRec1[0];
+			iRec2[1] = iRec2[0];
+			iVec0[1] = iVec0[0];
 		}
 	}
 };
@@ -1453,13 +1382,10 @@ void setup(GtkWidget *w)
 
 DspBlock::DspBlock()
 {
-	registerVar("test.Pregain","","S","",&fslider0,3e+01,-1e+01,8e+01,0.1);
-	registerVar("test.stage1.ON","","B","",&fcheckbox0,0,0,1,1);
-	registerVar("test.stage1.gain1","","S","",&fslider1,6.0,-1e+01,2e+01,0.1);
-	registerVar("test.stage2.ON","","B","",&fcheckbox1,0,0,1,1);
-	registerVar("test.stage2.gain2","","S","",&fslider2,6.0,-1e+01,2e+01,0.1);
-	registerVar("test.stage3.ON","","B","",&fcheckbox2,0,0,1,1);
-	registerVar("test.stage3.gain3","","S","",&fslider3,6.0,-1e+01,2e+01,0.1);
+	registerVar("test.tremolo.ON","","B","",&fcheckbox1,0,0,1,1);
+	registerVar("test.tremolo.SINE","","B","",&fcheckbox0,0,0,1,1);
+	registerVar("test.tremolo.depth","","S","",&fslider1,0.5,0.0,1.0,0.01);
+	registerVar("test.tremolo.freq","","S","",&fslider0,5.0,0.1,5e+01,0.1);
 	registerInit(Exp::init);
 #ifdef DSP_HAS_SETUP
 	registerSetup(Exp::setup);

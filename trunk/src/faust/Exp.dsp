@@ -53,12 +53,7 @@ process = hgroup("2 Tube",
 };
 */
 
-
-/****************************************************************
- ** Tube Preamp Emulation
- */
-
-// envelope meter for insertion in front of tube
+// envelope meter for insertion
 // the log10 function might be slow, with execution
 // time depending on input
 meter = _ <: (graph*1e-50,_) :> _ with {
@@ -68,29 +63,5 @@ meter = _ <: (graph*1e-50,_) :> _ with {
     graph = env : 20*log10 :  clip(-20,20) : vbargraph("ENV",-20,20);
 };
 
-tubestage(tb,fck,Rk) = tube : hpf with {
-    lpfk = lowpass1(fck);
-    Ftube = ffunction(float Ftube(int,float), "valve.h", "");
-    vplus = 250.0;
-    divider = 40;
-    Rp = 100.0e3;
-    tube = (+ : Ftube(tb)) ~ (-(vplus) : *(Rk/Rp) : lpfk) : /(divider);
-    hpf = highpass1(31.0);
-};
 
-process = hgroup("test", *(vslider("Pregain",30,-10,80,0.1):db2linear) :
-          hgroup("stage1", BP(stage1)) :
-          hgroup("stage2", BP(stage2)) :
-          hgroup("stage3", BP(stage3)) //:
-         // hgroup("tone", BP(tonestack(ts.jcm2000)))
-          ) with {
-    stage1 = tubestage(0,86.0,2700.0) : *(gain1) with {
-        gain1 = vslider("gain1", 6, -10.0, 20.0, 0.1) : db2linear;
-    };
-    stage2 = lowpass1(6531.0) : tubestage(1,132.0,1500.0) : *(gain2) with {
-        gain2 = vslider("gain2", 6, -10.0, 20.0, 0.1) : db2linear;
-    };
-    stage3 = lowpass1(6531.0) : tubestage(1,194.0,820.0) : *(gain3) with {
-        gain3 = vslider("gain3", 6, -10.0, 20.0, 0.1) : db2linear;
-    };    
-};
+process = hgroup("test", hgroup("tremolo", BP(component("tremolo.dsp"))));
