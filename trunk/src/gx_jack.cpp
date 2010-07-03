@@ -20,38 +20,11 @@
  *
  * --------------------------------------------------------------------------
  */
-#include <errno.h>
-
 #include <cstring>
-#include <vector>
-#include <list>
-#include <map>
-#include <set>
-#include <iostream>
-#include <sstream>
 #include <fstream>
-#include <cmath>
-#include <sys/types.h>
-#include <signal.h>
-#include <cstdlib>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-using namespace std;
-
-#include <sndfile.h>
-#include <jack/jack.h>
+#include <errno.h>
 #include <jack/statistics.h>
-#include <jack/midiport.h>
-#include <gtk/gtk.h>
-
+#include <jack/jack.h>
 #include "guitarix.h"
 
 #ifdef HAVE_JACK_SESSION
@@ -72,6 +45,7 @@ bool gx_jack_init( const string *optvar )
 	jack_status_t jackstat;
 	client_name = "guitarix_amp";
 	client_insert_name = "guitarix_fx";
+	client_instance = "guitarix";
 
 	AVOIDDENORMALS;
 
@@ -81,23 +55,25 @@ bool gx_jack_init( const string *optvar )
 
 #ifdef HAVE_JACK_SESSION
 	// try to open jack client
-	if (! optvar[JACK_UUID].empty())
+	if (! optvar[JACK_UUID].empty()) {
 
 	    client = jack_client_open (client_name.c_str(), jack_options_t(JackNoStartServer | JackSessionID), &jackstat, optvar[JACK_UUID].c_str());
-	else
+	} else {
+		client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
+	}
+#else
+	client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
 #endif
-	    client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
-	    // ----- only start the insert client when the amp client is true
-	    if (client)client_insert = jack_client_open (client_insert_name.c_str(), JackNoStartServer, &jackstat);
-
-	if (client == 0)
-	{
+	// ----- only start the insert client when the amp client is true
+	if (client) {
+		client_insert = jack_client_open (client_insert_name.c_str(), JackNoStartServer, &jackstat);
+	}
+	if (client == 0) {
 	    // skip useless message
 		//gx_print_warning("Jack Init", "not yet a jack client");
 
 		// if jackd is running, let's call ourselves again
-		if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK)
-		{
+		if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
 			gx_print_warning("Jack Init", "jackd OK, trying to be a client");
 			usleep(500000);
 			return gx_jack_init( optvar );
@@ -131,9 +107,12 @@ bool gx_jack_init( const string *optvar )
 	is_rt = jack_is_realtime (client);
 
 	// it is maybe not the 1st guitarix instance ?
-	if (jackstat & JackNameNotUnique)
+	if (jackstat & JackNameNotUnique) {
 		client_name = jack_get_client_name (client);
 		client_insert_name = jack_get_client_name (client_insert);
+		assert(client_name.substr(0,12) == "guitarix_amp");
+		client_instance = client_name.substr(0,8) + client_name.substr(12);
+	}
 
 #ifdef USE_RINGBUFFER
 	jack_ringbuffer = jack_ringbuffer_create(2048*sizeof(struct MidiMessage));

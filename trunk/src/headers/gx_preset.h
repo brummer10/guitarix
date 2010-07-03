@@ -32,6 +32,8 @@
 
 namespace gx_preset
 {
+extern gx_gui::FileParameter gx_preset_file;
+
 /* function declarations */
 string gx_get_accel_path(int lindex);
 
@@ -47,7 +49,7 @@ void  gx_load_preset_file (const gchar*, bool);
 
 void  gx_load_preset (GtkMenuItem*, gpointer);
 void  gx_recall_main_setting(GtkMenuItem*, gpointer);
-void  gx_recall_settings_file( const std::string & filename );
+void  gx_recall_settings_file( const string & filename );
 void  gx_save_main_setting(GtkMenuItem*, gpointer);
 
 void  gx_rename_preset (GtkEntry*);
@@ -74,6 +76,8 @@ void  gx_next_preset(GtkWidget*, gpointer);
 void  gx_previous_preset(GtkWidget*, gpointer);
 
 GtkMenuItem* const gx_get_preset_item_from_name(int, const string&);
+
+void init();
 
 /* --------------------------------------------------------------------- */
 } /* end of gx_preset namespace */

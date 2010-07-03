@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <zita-convolver.h>
 
 namespace gx_engine
 {

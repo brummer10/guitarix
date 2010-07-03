@@ -21,20 +21,24 @@
 
 #pragma once
 
+#include <cmath>
+#include <sstream>
+#include <list>
+
 /* constant defines */
 #define ASCII_START (48)
 #define GDK_NO_MOD_MASK (GdkModifierType)0
 
-#define JACK_INP      (0)
-#define JACK_OUT1     (1)
-#define JACK_OUT2     (2)
-#define JACK_MIDI     (3)
-#define RC_STYLE      (4)
-
-#define JACK_UUID     (5)
-#define LOAD_FILE     (6)
-
-#define NUM_SHELL_VAR (7)
+enum {
+	JACK_INP,
+	JACK_OUT1,
+	JACK_OUT2,
+	JACK_MIDI,
+	RC_STYLE,
+	JACK_UUID,
+	LOAD_FILE,
+	NUM_SHELL_VAR,
+};
 
 namespace gx_system
 {
@@ -121,8 +125,8 @@ void writeHeader(JsonWriter& jw);
 bool readHeader(JsonParser& jp, int *major=0, int *minor=0);
 void write_preset(JsonWriter& w, bool write_midi = true);
 void read_preset(JsonParser &jp);
-bool saveStateToFile( const std::string & filename );
-bool recallState( const std::string & filename );
+bool saveStateToFile( const string & filename );
+bool recallState( const string & filename );
 
 // file format versions
 const int majorversion = 1;

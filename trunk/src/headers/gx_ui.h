@@ -21,6 +21,9 @@
 
 #pragma once
 
+#include <map>
+#include <list>
+
 // --- interface defines
 #define stackSize 256
 #define kSingleMode 0

@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <sndfile.hh>
+
 namespace gx_sndfile
 {
 // --------------- a simple resampling status

@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <zita-resampler.h>
+
 namespace gx_engine
 {
 /* ------------- Pitch Tracker ------------- */

@@ -21,36 +21,7 @@
 part of guitarix, show a wave with Gtk
 ******************************************************************************/
 
-#include <cstring>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <map>
-#include <set>
-#include <list>
-#include <cstdlib>
-#include <cstdio>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-using namespace std;
-
-#include <cmath>
-#include <gtk/gtk.h>
-#include <sndfile.h>
-//#include <fftw3.h>
-#include <jack/jack.h>
-
 #include "guitarix.h"
-
 
 using namespace gx_jconv;
 

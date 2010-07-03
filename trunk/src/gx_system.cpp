@@ -21,38 +21,12 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <string>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <list>
-#include <map>
-#include <set>
-#include <cmath>
-#include <ctime>
-#include <cstdlib>
-#include <cstdio>
-#include <signal.h>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-using namespace std;
-
 #include <sys/stat.h>
-#include <string.h>
-#include <sndfile.h>
+#include <cstring>
+#include <fstream>
+#include <iomanip>
 #include <jack/jack.h>
-#include <gtk/gtk.h>
-
+#include <glibmm/optioncontext.h>
 #include "guitarix.h"
 
 using namespace gx_engine;
@@ -530,7 +504,7 @@ void read_preset(JsonParser &jp)
 			*gx_jconv::GxJConvSettings::instance() = gx_jconv::GxJConvSettings(jp);
 		} else if (jp.current_value() == "midi_controller") {
 			if (gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
-				m = new gx_gui::MidiControllerList::controller_array;
+				m = new gx_gui::MidiControllerList::controller_array(gx_gui::MidiControllerList::controller_array_size);
 				gx_gui::controller_map.readJSON(jp, *m);
 			} else {
 				jp.skip_object();
@@ -692,7 +666,7 @@ bool recallState( const string &filename )
 		return false;
 	}
 	gx_gui::paramlist plist;
-	gx_gui::MidiControllerList::controller_array m;
+	gx_gui::MidiControllerList::controller_array m(gx_gui::MidiControllerList::controller_array_size);
 	gx_system::JsonParser jp(f);
 	try {
 		jp.next(JsonParser::begin_array);
@@ -834,12 +808,6 @@ void gx_assign_shell_var(const char* name, string& value)
 	value = (val != NULL) ? val : "" ;
 }
 
-// ---- is the shell variable set ?
-bool gx_shellvar_exists(const string& var)
-{
-	return !var.empty();
-}
-
 // ---- OS signal handler -----
 void gx_signal_handler(int sig)
 {
@@ -855,285 +823,254 @@ gboolean  gx_ladi_handler(gpointer)
 {
 	gx_print_warning("signal_handler", "signal USR1 received, save settings");
 
-	saveStateToFile(gx_user_dir + client_name + "_rc");
+	saveStateToFile(gx_user_dir + client_instance + "_rc");
 	return false;
 }
 
-gboolean terminal  = TRUE; // make messages before main() appear on terminal
+bool terminal  = true; // make messages before main() appear on terminal
 
 // ---- command line options
 void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 {
 	// store shell variable content
-	for (int i = 0; i < NUM_SHELL_VAR; i++)
+	for (int i = 0; i < NUM_SHELL_VAR; i++) {
 		gx_assign_shell_var(shell_var_name[i], optvar[i]);
-
+	}
 	// initialize number of skins. We just count the number of rc files
 	unsigned int n = gx_gui::gx_fetch_available_skins();
-	if (n < 1)
-	{
+	if (n < 1) {
 		gx_print_error("main", string("number of skins is 0, aborting ..."));
 		exit(1);
 	}
 
 	// ---- parse command line arguments
-	try	{
-		gboolean version = FALSE;
-		GOptionEntry opt_entries[] =
-			{
-				{ "version", 'v', 0, G_OPTION_ARG_NONE, &version, "Print version string and exit", NULL },
-				{ NULL }
-			};
-		GError* error = NULL;
-		GOptionContext* opt_context = NULL;
+	bool version = false;
+	Glib::OptionContext opt_context;
+	opt_context.set_summary(
+		"All parameters are optional. Examples:\n"
+		"\tguitarix\n"
+		"\tguitarix -r black -i system:capture_3\n"
+		"\tguitarix -c -o system:playback_1 -o system:playback_2");
+	Glib::OptionEntry opt_version;
+	opt_version.set_short_name('v');
+	opt_version.set_long_name("version");
+	opt_version.set_description("Print version string and exit");
+	Glib::OptionGroup main_group("bla1","bla2","bla3");
+	main_group.add_entry(opt_version, version);
+	opt_context.set_main_group(main_group);
 
-		opt_context = g_option_context_new(NULL);
-		g_option_context_set_summary(opt_context,
-		                             "All parameters are optional. Examples:\n"
-		                             "\tguitarix\n"
-		                             "\tguitarix -r black -i system:capture_3\n"
-		                             "\tguitarix -c -o system:playback_1 -o system:playback_2");
-		g_option_context_add_main_entries(opt_context, opt_entries, NULL);
+	// GTK options: rc style (aka skin)
+	string opskin("Style to use");
 
-		// GTK options: rc style (aka skin)
-		string opskin("Style to use");
+	vector<string>::iterator it;
 
-		vector<string>::iterator it;
-
-		for (it = gx_gui::skin_list.begin(); it != gx_gui::skin_list.end(); it++)
-		{
-			opskin += ", '" + *it + "'";
-		}
-
-		gboolean clear = FALSE;
-		gchar* rcset = NULL;
-		GOptionGroup* optgroup_gtk = g_option_group_new("gtk",
-		                                                "\033[1;32mGTK configuration options\033[0m",
-		                                                "\033[1;32mGTK configuration options\033[0m",
-		                                                NULL, NULL);
-		GOptionEntry opt_entries_gtk[] =
-			{
-				{ "clear", 'c', 0, G_OPTION_ARG_NONE, &clear, "Use 'default' GTK style", NULL },
-				{ "rcset", 'r', 0, G_OPTION_ARG_STRING, &rcset, opskin.c_str(), "STYLE" },
-
-				{ NULL }
-			};
-		g_option_group_add_entries(optgroup_gtk, opt_entries_gtk);
-
-		// JACK options: input and output ports
-		gchar* jack_input = NULL;
-		gchar* jack_midi = NULL;
-		gchar** jack_outputs = NULL;
-		gchar* jack_uuid = NULL;
-		GOptionGroup* optgroup_jack = g_option_group_new("jack",
-		                                                 "\033[1;32mJACK configuration options\033[0m",
-		                                                 "\033[1;32mJACK configuration options\033[0m",
-		                                                 NULL, NULL);
-		GOptionEntry opt_entries_jack[] =
-			{
-				{ "jack-input", 'i', 0, G_OPTION_ARG_STRING, &jack_input, "Guitarix JACK input", "PORT" },
-				{"jack-output", 'o', 0, G_OPTION_ARG_STRING_ARRAY, &jack_outputs, "Guitarix JACK outputs", "PORT" },
-				{ "jack-midi",  'm', 0, G_OPTION_ARG_STRING, &jack_midi, "Guitarix JACK midi control", "PORT" },
-				{ "jack-uuid",  'U', 0, G_OPTION_ARG_STRING, &jack_uuid, "JackSession ID", NULL },
-				{ NULL }
-			};
-		g_option_group_add_entries(optgroup_jack, opt_entries_jack);
-
-		// FILE options
-		gchar* load_file = NULL;
-
-		GOptionGroup* optgroup_file = g_option_group_new("file",
-		                                                "\033[1;32mFile options\033[0m",
-		                                                "\033[1;32mFile options\033[0m",
-		                                                NULL, NULL);
-		GOptionEntry opt_entries_file[] =
-			{
-				{ "load-file", 'f', 0, G_OPTION_ARG_STRING, &load_file, "load state file on startup", "FILE" },
-				{ NULL }
-			};
-		g_option_group_add_entries(optgroup_file, opt_entries_file);
-
-		// DEBUG options
-		gchar* builder_dir = NULL;
-		gboolean lterminal = FALSE;
-
-		GOptionGroup* optgroup_debug = g_option_group_new("debug",
-		                                                "\033[1;32mDebug options\033[0m",
-		                                                "\033[1;32mDebug options\033[0m",
-		                                                NULL, NULL);
-		GOptionEntry opt_entries_debug[] =
-			{
-				{ "builder-dir", 'B', 0, G_OPTION_ARG_STRING, &builder_dir, "directory from which .glade files are loaded", "DIR" },
-				{ "log-terminal", 't', 0, G_OPTION_ARG_NONE, &lterminal, "print log on terminal", NULL },
-				{ NULL }
-			};
-		g_option_group_add_entries(optgroup_debug, opt_entries_debug);
-
-		// collecting all option groups
-		g_option_context_add_group(opt_context, optgroup_gtk);
-		g_option_context_add_group(opt_context, optgroup_jack);
-		g_option_context_add_group(opt_context, optgroup_file);
-		g_option_context_add_group(opt_context, optgroup_debug);
-
-		// parsing command options
-		if (!g_option_context_parse(opt_context, &argc, &argv, &error))
-		{
-			throw string(error->message);
-		}
-		g_option_context_free(opt_context);
-
-
-		// ----------- processing user options -----------
-
-		terminal = lterminal;
-
-		// *** display version if requested
-		if (version)
-		{
-			cout << "Guitarix version \033[1;32m"
-			     << GX_VERSION << endl
-			     << "\033[0m   Copyright " << (char)0x40 << " 2009 "
-			     << "Hermman Meyer - James Warden - Andreas Degert"
-			     << endl;
-			exit(0);
-		}
-
-		// *** process GTK rc style
-		bool previous_conflict = false;
-		if (rcset != NULL)
-		{
-			// retrieve user value
-			string tmp = rcset;
-
-			// check contradiction (clear and rcset cannot be used in the same call)
-			if (clear)
-			{
-				gx_print_error("main",
-				               string("-c and -r cannot be used together, defaulting to 'default' style"));
-				tmp = "default";
-				previous_conflict = true;
-			}
-
-			// if garbage, let's initialize to guitarix_default.rc
-			guint s = 0;
-			while (s < gx_gui::skin_list.size())
-			{
-				if (tmp == gx_gui::skin_list[s])
-					break;
-				s++;
-			}
-
-			if (s == gx_gui::skin_list.size())
-			{
-				gx_print_error("main",
-				               string("rcset value is garbage, defaulting to 'default' style"));
-				tmp = "default";
-			}
-			optvar[RC_STYLE] = tmp;
-		}
-
-		// else, if no shell var defined for it, defaulting to guitarix_default.rc
-		else if (!gx_shellvar_exists(optvar[RC_STYLE]))
-		{
-			optvar[RC_STYLE] = "default";
-			// enable set last used skin
-			gx_gui::no_opt_skin = 1;
-		}
-
-		// *** process GTK clear
-		if (clear)
-		{
-			// check contradiction (clear and rcset cannot be used in the same call)
-			if (rcset != NULL && !previous_conflict)
-				gx_print_error("main",
-				               string("-c and -r cannot be used together, defaulting to 'default' style"));
-
-			optvar[RC_STYLE] = "default";
-		}
-
-		if (rcset != NULL)
-		{
-			g_free(rcset);
-		}
-
-		// *** process builder_dir
-		if (builder_dir != NULL) {
-			gx_builder_dir = builder_dir;
-			if (!gx_builder_dir.empty() && gx_builder_dir[gx_builder_dir.size()-1] != '/')
-				gx_builder_dir += "/";
-			g_free(builder_dir);
-		}
-
-		// *** process jack input
-		if (jack_input != NULL)
-		{
-			optvar[JACK_INP] = jack_input;
-			g_free(jack_input);
-		}
-		else if (!gx_shellvar_exists(optvar[JACK_INP]))
-		{
-			optvar[JACK_INP] = ""; // leads to no automatic connection
-		}
-
-		// *** process jack midi
-		if (jack_midi != NULL)
-		{
-			optvar[JACK_MIDI] = jack_midi;
-			g_free(jack_midi);
-		}
-		else if (!gx_shellvar_exists(optvar[JACK_MIDI]))
-		{
-			optvar[JACK_MIDI] = ""; // leads to no automatic connection
-		}
-
-		if (jack_uuid != NULL)
-		{
-			optvar[JACK_UUID] = jack_uuid;
-			g_free(jack_uuid);
-		} else {
-			optvar[JACK_UUID] = "";
-		}
-
-		// *** process jack outputs
-		if (jack_outputs != NULL) {
-			int idx = JACK_OUT1;
-			unsigned int i = 0;
-
-			while (jack_outputs[i] != NULL) {
-				if (i >= 2) {
-					gx_print_warning("main",
-					                 "Warning --> provided more than 2 output ports, ignoring extra ports");
-					break;
-				}
-				optvar[idx] = string(jack_outputs[i]);
-				i++;
-				idx++;
-			}
-			g_strfreev(jack_outputs);
-		} else {
-			if (!gx_shellvar_exists(optvar[JACK_OUT1])) optvar[JACK_OUT1] = "";
-			if (!gx_shellvar_exists(optvar[JACK_OUT2])) optvar[JACK_OUT2] = "";
-		}
-
-		if (load_file != NULL) {
-			optvar[LOAD_FILE] = load_file;
-			g_free(load_file);
-		} else {
-			optvar[LOAD_FILE] = "";
-		}
-
-
-		//
-		rcpath = GX_STYLE_DIR + string("/") + string("guitarix_") + optvar[RC_STYLE] + ".rc";
-
+	for (it = gx_gui::skin_list.begin(); it != gx_gui::skin_list.end(); it++) {
+		opskin += ", '" + *it + "'";
 	}
 
-	// ---- catch exceptions that occured during user option parsing
-	catch (string& e) {
-		string msg = string("Error in user options! ") + e;
-		gx_print_error("main", msg);
+	bool clear = false;
+	Glib::ustring rcset;
+	Glib::OptionGroup optgroup_gtk(
+		"gtk",
+		"\033[1;32mGTK configuration options\033[0m",
+		"\033[1;32mGTK configuration options\033[0m");
+	Glib::OptionEntry opt_clear;
+	opt_clear.set_short_name('c');
+	opt_clear.set_long_name("clear");
+	opt_clear.set_description("Use 'default' GTK style");
+	Glib::OptionEntry opt_rcset;
+	opt_rcset.set_short_name('r');
+	opt_rcset.set_long_name("rcset");
+	opt_rcset.set_description(opskin);
+	opt_rcset.set_arg_description("STYLE");
+	optgroup_gtk.add_entry(opt_clear, clear);
+	optgroup_gtk.add_entry(opt_rcset, rcset);
+
+	// JACK options: input and output ports
+	Glib::ustring jack_input;
+	Glib::ustring jack_midi;
+	vector<Glib::ustring> jack_outputs;
+	Glib::ustring jack_uuid;
+	Glib::OptionGroup optgroup_jack(
+		"jack",
+		"\033[1;32mJACK configuration options\033[0m",
+		"\033[1;32mJACK configuration options\033[0m");
+	Glib::OptionEntry opt_jack_input;
+	opt_jack_input.set_short_name('i');
+	opt_jack_input.set_long_name("jack-input");
+	opt_jack_input.set_description("Guitarix JACK input");
+	opt_jack_input.set_arg_description("PORT");
+	Glib::OptionEntry opt_jack_output;
+	opt_jack_output.set_short_name('o');
+	opt_jack_output.set_long_name("jack-output");
+	opt_jack_output.set_description("Guitarix JACK outputs");
+	opt_jack_output.set_arg_description("PORT");
+	Glib::OptionEntry opt_jack_midi;
+	opt_jack_midi.set_short_name('m');
+	opt_jack_midi.set_long_name("jack-midi");
+	opt_jack_midi.set_description("Guitarix JACK midi control");
+	opt_jack_midi.set_arg_description("PORT");
+	Glib::OptionEntry opt_jack_uuid;
+	opt_jack_uuid.set_short_name('U');
+	opt_jack_uuid.set_long_name("jack-uuid");
+	opt_jack_uuid.set_description("JackSession ID");
+	optgroup_jack.add_entry(opt_jack_input, jack_input);
+	optgroup_jack.add_entry(opt_jack_output, jack_outputs);
+	optgroup_jack.add_entry(opt_jack_midi, jack_midi);
+	optgroup_jack.add_entry(opt_jack_uuid, jack_uuid);
+
+	// FILE options
+	string load_file;
+
+	Glib::OptionGroup optgroup_file(
+		"file",
+		"\033[1;32mFile options\033[0m",
+		"\033[1;32mFile options\033[0m");
+	Glib::OptionEntry opt_load_file;
+	opt_load_file.set_short_name('f');
+	opt_load_file.set_long_name("load-file");
+	opt_load_file.set_description("load state file on startup");
+	opt_load_file.set_arg_description("FILE");
+	optgroup_file.add_entry_filename(opt_load_file, load_file);
+
+	// DEBUG options
+	string builder_dir;
+	bool lterminal = false;
+	Glib::OptionGroup optgroup_debug(
+		"debug",
+		"\033[1;32mDebug options\033[0m",
+		"\033[1;32mDebug options\033[0m");
+	Glib::OptionEntry opt_debug;
+	opt_debug.set_short_name('B');
+	opt_debug.set_long_name("builder-dir");
+	opt_debug.set_description("directory from which .glade files are loaded");
+	opt_debug.set_arg_description("DIR");
+	optgroup_debug.add_entry_filename(opt_debug, builder_dir);
+	Glib::OptionEntry opt_log_terminal;
+	opt_log_terminal.set_short_name('t');
+	opt_log_terminal.set_long_name("log-terminal");
+	opt_log_terminal.set_description("print log on terminal");
+	optgroup_debug.add_entry(opt_log_terminal, lterminal);
+
+	// collecting all option groups
+	opt_context.add_group(optgroup_gtk);
+	opt_context.add_group(optgroup_jack);
+	opt_context.add_group(optgroup_file);
+	opt_context.add_group(optgroup_debug);
+
+	// parsing command options
+	try {
+		opt_context.parse(argc, argv);
+	} catch (Glib::OptionError ex) {
+		gx_print_error("main", "Error in user options! " + ex.what());
 		exit(1);
 	}
+
+
+	// ----------- processing user options -----------
+
+	terminal = lterminal;
+
+	// *** display version if requested
+	if (version) {
+		cout << "Guitarix version \033[1;32m"
+			 << GX_VERSION << endl
+			 << "\033[0m   Copyright " << (char)0x40 << " 2010 "
+			 << "Hermman Meyer - James Warden - Andreas Degert"
+			 << endl;
+		exit(0);
+	}
+
+	// *** process GTK rc style
+	bool previous_conflict = false;
+	if (!rcset.empty()) {
+		// retrieve user value
+		string tmp = rcset;
+
+		// check contradiction (clear and rcset cannot be used in the same call)
+		if (clear) {
+			gx_print_error("main",
+						   string("-c and -r cannot be used together, defaulting to 'default' style"));
+			tmp = "default";
+			previous_conflict = true;
+		}
+
+		// if garbage, let's initialize to guitarix_default.rc
+		guint s = 0;
+		while (s < gx_gui::skin_list.size()) {
+			if (tmp == gx_gui::skin_list[s])
+				break;
+			s++;
+		}
+
+		if (s == gx_gui::skin_list.size()) {
+			gx_print_error("main",
+						   string("rcset value is garbage, defaulting to 'default' style"));
+			tmp = "default";
+		}
+		optvar[RC_STYLE] = tmp;
+	}
+
+	// else, if no shell var defined for it, defaulting to guitarix_default.rc
+	else if (optvar[RC_STYLE].empty()) {
+		optvar[RC_STYLE] = "default";
+		// enable set last used skin
+		gx_gui::no_opt_skin = 1;
+	}
+
+	// *** process GTK clear
+	if (clear) {
+		// check contradiction (clear and rcset cannot be used in the same call)
+		if (rcset != NULL && !previous_conflict)
+			gx_print_error("main",
+						   string("-c and -r cannot be used together, defaulting to 'default' style"));
+
+		optvar[RC_STYLE] = "default";
+	}
+
+	// *** process builder_dir
+	if (!builder_dir.empty()) {
+		gx_builder_dir = builder_dir;
+		if (gx_builder_dir[gx_builder_dir.size()-1] != '/') {
+			gx_builder_dir += "/";
+		}
+	}
+
+	// *** process jack input
+	if (!jack_input.empty()) {
+		optvar[JACK_INP] = jack_input;
+	}
+
+	// *** process jack midi
+	if (!jack_midi.empty()) {
+		optvar[JACK_MIDI] = jack_midi;
+	}
+
+	optvar[JACK_UUID] = jack_uuid;
+
+	// *** process jack outputs
+	if (!jack_outputs.empty()) {
+		int idx = JACK_OUT1;
+		for (unsigned int i = 0; i < jack_outputs.size(); i++, idx++) {
+			if (i >= 2) {
+				gx_print_warning("main",
+				                 "Warning --> provided more than 2 output ports, ignoring extra ports");
+				break;
+			}
+			optvar[idx] = jack_outputs[i];
+		}
+	} else {
+		if (optvar[JACK_OUT1].empty()) {
+			optvar[JACK_OUT1] = "";
+		}
+		if (optvar[JACK_OUT2].empty()) {
+			optvar[JACK_OUT2] = "";
+		}
+	}
+
+	optvar[LOAD_FILE] = load_file;
+
+	rcpath = GX_STYLE_DIR + string("/") + string("guitarix_") + optvar[RC_STYLE] + ".rc";
 }
 
 void gx_set_override_options(string* optvar)
@@ -1477,14 +1414,14 @@ void gx_destroy_event()
 void gx_clean_exit(GtkWidget* widget, gpointer data)
 {
 	// save DSP state
-	if (isInitialized())
-	{
+	if (isInitialized()) {
 		get_latency_warning_change();
 		gx_gui::gx_get_skin_change(&audio.fskin);
 
 		// only save if we are not in a preset context
-		if (!setting_is_preset && gx_jack::client)
-			saveStateToFile(gx_user_dir + client_name + "_rc");
+		if (!setting_is_preset && gx_jack::client) {
+			saveStateToFile(gx_user_dir + client_instance + "_rc");
+		}
 	}
 
 	gx_gui::shownote = -1;
@@ -1497,9 +1434,9 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 	gx_jack_cleanup();
 
 	// clean GTK stuff
-	if (gx_gui::fWindow)
+	if (gx_gui::fWindow) {
 		gx_destroy_event();
-
+	}
 	// delete the locked mem buffers
 	if (checkfreq) {
 		delete[] checkfreq;

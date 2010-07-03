@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include <giomm/file.h>
+
 namespace gx_gui
 {
 
@@ -47,6 +49,7 @@ class FloatParameter;
 class IntParameter;
 class BoolParameter;
 class SwitchParameter;
+class FileParameter;
 
 class Parameter
 {
@@ -54,10 +57,10 @@ public:
 	enum ctrl_type { None, Continuous, Switch, Enum };
 
 protected:
-	enum value_type { tp_float, tp_int, tp_bool, tp_switch };
+	enum value_type { tp_float, tp_int, tp_bool, tp_switch, tp_file };
 	string _id;
 	string _name, _group;
-	enum value_type v_type : 2;
+	enum value_type v_type : 3;
 	enum ctrl_type c_type : 3;
 	bool save_in_preset : 1;
 	bool controllable : 1;
@@ -86,6 +89,7 @@ public:
 	bool isInt() const { return v_type == tp_int; }
 	bool isBool() const { return v_type == tp_bool; }
 	bool isSwitch() const { return v_type == tp_switch; }
+	bool isFile() const { return v_type == tp_file; }
 	ctrl_type getControlType() const { return c_type; }
 	bool isControllable() const { return controllable; }
 	bool isInPreset() const { return save_in_preset; }
@@ -108,6 +112,7 @@ public:
 	IntParameter& getInt();
 	BoolParameter& getBool();
 	SwitchParameter& getSwitch();
+	FileParameter &getFile();
 };
 
 typedef list<gx_gui::Parameter*> paramlist;
@@ -207,6 +212,42 @@ public:
 		{}
 };
 
+class FileParameter: public Parameter
+{
+private:
+	Glib::RefPtr<Gio::File> value;
+	Glib::RefPtr<Gio::File> std_value;
+	Glib::RefPtr<Gio::File> json_value;
+public:
+	sigc::signal<void, const Glib::RefPtr<Gio::File>& > changed;
+	void set(const Glib::RefPtr<Gio::File>& val);
+	void set_path(const string& path);
+	const Glib::RefPtr<Gio::File>& get() const { return value; }
+	virtual void *zone();
+	virtual void set_std_value();
+	virtual void set(int n, int high, float llimit, float ulimit);
+	virtual void writeJSON(gx_system::JsonWriter& jw);
+	virtual void readJSON_value(gx_system::JsonParser& jp);
+	virtual void setJSON_value();
+	FileParameter(string id, string filename, bool preset=false):
+		Parameter(id, "", tp_file, None, preset, false),
+		value(Gio::File::create_for_path(filename)),
+		std_value(value->dup())
+		{}
+	FileParameter(string id, bool preset=false):
+		Parameter(id, "", tp_file, None, preset, false),
+		value(0),
+		std_value(0)
+		{}
+	void set_standard(const string& filename);
+	bool is_standard() const;
+	string get_path();
+	string get_directory_path();
+	string get_parse_name();
+	string get_display_name();
+	void copy(const string& destination);
+};
+
 inline FloatParameter &Parameter::getFloat()
 {
 	assert(isFloat());
@@ -231,6 +272,11 @@ inline SwitchParameter &Parameter::getSwitch()
 	return static_cast<SwitchParameter&>(*this);
 }
 
+inline FileParameter &Parameter::getFile()
+{
+	assert(isFile());
+	return static_cast<FileParameter&>(*this);
+}
 
 /****************************************************************
  ** ParamMap
@@ -265,8 +311,6 @@ public:
 };
 
 extern ParamMap parameter_map; // map id -> parameter, zone -> parameter
-
-void initParams();
 
 inline void registerParam(const char*a,const char*b,float*c,float std,float lower,float upper,float step)
 {
@@ -347,7 +391,7 @@ public:
 	void writeJSON(gx_system::JsonWriter& jw) const;
 };
 
-typedef std::list<MidiController> midi_controller_list;
+typedef list<MidiController> midi_controller_list;
 
 
 /*
@@ -357,7 +401,8 @@ typedef std::list<MidiController> midi_controller_list;
 class MidiControllerList
 {
 public:
-	typedef std::array<midi_controller_list,128> controller_array;
+	typedef vector<midi_controller_list> controller_array;
+	enum { controller_array_size = 128 };
 private:
 	controller_array map;
 	bool midi_config_mode;

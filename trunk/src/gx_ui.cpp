@@ -24,30 +24,8 @@
  *
  * --------------------------------------------------------------------------
  */
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <list>
-#include <map>
-#include <cstdlib>
-#include <cstdio>
-#include <cassert>
-
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
 
 using namespace std;
-
 #include "gx_ui.h"
 
 namespace gx_ui

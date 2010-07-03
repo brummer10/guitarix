@@ -21,35 +21,6 @@
  * --------------------------------------------------------------------------
  */
 
-#include <cstring>
-#include <list>
-#include <map>
-#include <vector>
-#include <set>
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <cmath>
-#include <cstdlib>
-#include <cstdio>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-using namespace std;
-
-//#include <fftw3.h>
-#include <sndfile.h>
-#include <jack/jack.h>
-#include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
-
 #include "guitarix.h"
 
 /* ------------------------------------------------------------------------- */
@@ -117,8 +88,10 @@ struct MidiMessage  ev;
 jack_ringbuffer_t*  jack_ringbuffer;
 #endif
 
-string client_name  = "guitarix";
+string client_name  = "guitarix_amp";
 string client_insert_name  = "guitarix_fx";
+string client_instance  = "guitarix";
+
 string client_out_graph = "";
 
 string gx_port_names[] =
@@ -144,10 +117,48 @@ GtkWidget* mslider;
 
 /* ------------------------------------------------------------------------- */
 
+/* ----- system namespace ----- */
+namespace gx_system
+{
+/* variables and constants */
+const int SYSTEM_OK = 0;
+
+string rcpath;
+
+const char* guitarix_dir     = ".guitarix";
+const char* jcapsetup_file   = "ja_ca_ssetrc";
+const char* jcapfile_wavbase = "guitarix_session";
+
+const string gx_pixmap_dir = string(GX_PIXMAPS_DIR) + "/";
+const string gx_style_dir  = string(GX_STYLE_DIR) + "/";
+const string gx_user_dir   = string(getenv ("HOME")) + string("/") + string(guitarix_dir) + "/";
+
+string gx_builder_dir = string(GX_BUILDER_DIR) + "/";
+
+/* shell variable names */
+const char* shell_var_name[] =
+{
+	"GUITARIX2JACK_INPUTS",
+	"GUITARIX2JACK_OUTPUTS1",
+	"GUITARIX2JACK_OUTPUTS2",
+	"GUITARIX2JACK_MIDI",
+	"GUITARIX_RC_STYLE",
+	"GUITARIX2JACK_UUID",
+	"GUITARIX_LOAD_FILE"
+};
+}
+
+
+/* ------------------------------------------------------------------------- */
+
 /* ----- preset namespace ----- */
 namespace gx_preset
 {
 /* global var declarations */
+
+gx_gui::FileParameter gx_preset_file("system.current_preset_file");
+
+
 GdkModifierType list_mod[] =
 {
 	GDK_NO_MOD_MASK,
@@ -193,42 +204,6 @@ GCallback preset_action_func[] =
 	G_CALLBACK(gx_delete_preset_dialog)
 };
 }
-
-/* ------------------------------------------------------------------------- */
-
-/* ----- system namespace ----- */
-namespace gx_system
-{
-/* variables and constants */
-const int SYSTEM_OK = 0;
-
-string rcpath;
-
-const char* guitarix_dir     = ".guitarix";
-const char* guitarix_preset  = "guitarixpre_rc";
-const char* jcapsetup_file   = "ja_ca_ssetrc";
-const char* jcapfile_wavbase = "guitarix_session";
-
-
-const string gx_pixmap_dir = string(GX_PIXMAPS_DIR) + "/";
-const string gx_style_dir  = string(GX_STYLE_DIR) + "/";
-const string gx_user_dir   = string(getenv ("HOME")) + string("/") + string(guitarix_dir) + "/";
-string gx_preset_dir   = gx_user_dir;
-string gx_builder_dir = string(GX_BUILDER_DIR) + "/";
-
-/* shell variable names */
-const char* shell_var_name[] =
-{
-	"GUITARIX2JACK_INPUTS",
-	"GUITARIX2JACK_OUTPUTS1",
-	"GUITARIX2JACK_OUTPUTS2",
-	"GUITARIX2JACK_MIDI",
-	"GUITARIX_RC_STYLE",
-	"GUITARIX2JACK_UUID",
-	"GUITARIX_LOAD_FILE"
-};
-}
-
 
 /* ------------------------------------------------------------------------- */
 

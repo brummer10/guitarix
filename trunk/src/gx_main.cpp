@@ -32,73 +32,15 @@
  * ----------------------------------------------------------------------------
  */
 
-/* link with  */
-#include <sys/ioctl.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <stdlib.h>
-#include <cmath>
-#include <assert.h>
-#include <gtk/gtk.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sysexits.h>
-#include <errno.h>
-#include <cstring>
-#include <cstdlib>
-#include <cstdio>
-#include <dlfcn.h>
-#include <pthread.h>
-#include <limits.h>
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <iterator>
-#include <set>
-#include <map>
-#include <list>
-#include <vector>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-#include <sndfile.hh>
-#include <libgen.h>
-#include <jack/jack.h>
-#include <jack/midiport.h>
-
-#ifdef USE_RINGBUFFER
-#include <jack/ringbuffer.h>
-#endif
-
-using namespace std;
-
-/* guitarix own defines */
+#include "giomm/init.h"
+#include "gtkmm/main.h"
 #include "guitarix.h"
 
 using namespace gx_system;
 
-/* --------- Guitarix main ---------- */
-int main(int argc, char *argv[])
+
+void init_unix_signal_handlers()
 {
-	// ----------------------- init GLIB threads ----------------------
-	g_thread_init(NULL);
-
-	//----- connect the signal handler for propper shutdown when a error appears
-	signal(SIGQUIT, gx_signal_handler);
-	signal(SIGTERM, gx_signal_handler);
-	signal(SIGHUP,  gx_signal_handler);
-	signal(SIGINT,  gx_signal_handler);
-	//signal(SIGSEGV, gx_signal_handler); // quits application silently
-
 	/* ----- block signal USR1 ---------
 	** inherited by all threads which are created later
 	** USR1 is processed synchronously by gx_signal_helper_thread
@@ -109,12 +51,31 @@ int main(int argc, char *argv[])
 	sigaddset(&waitset, SIGCHLD);
 	sigprocmask(SIG_BLOCK, &waitset, NULL);
 
+	//----- set unix signal handlers for proper shutdown
+	signal(SIGQUIT, gx_signal_handler);
+	signal(SIGTERM, gx_signal_handler);
+	signal(SIGHUP,  gx_signal_handler);
+	signal(SIGINT,  gx_signal_handler);
+	//signal(SIGSEGV, gx_signal_handler); // no good, quits application silently
+}
+
+/* --------- Guitarix main ---------- */
+int main(int argc, char *argv[])
+{
+	init_unix_signal_handlers();
+
+	// ----------------------- init basic subsystems ----------------------
+	Glib::thread_init();
+	Glib::init();
+
 	// ------ initialize parameter list ------
-	gx_gui::initParams();
+	gx_preset::init();
+	gx_gui::parameter_map.set_init_values();
 
 	// ---------------------- user options handling ------------------
 	string optvar[NUM_SHELL_VAR];
 	gx_process_cmdline_options(argc, argv, optvar);
+	Gtk::Main main(argc, argv);
 
 	// ---------------- Check for working user directory  -------------
 	gx_system::gx_version_check();
@@ -125,7 +86,7 @@ int main(int argc, char *argv[])
 #endif
 
 	// ----------------------- init GTK interface----------------------
-	gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("guitarix", &argc, &argv);
+	gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("guitarix");
 	gui->setup();
 #ifdef EXPERIMENTAL
 	gx_engine::faust_setup();
@@ -149,7 +110,7 @@ int main(int argc, char *argv[])
 	gx_ui::GxUI::updateAllGuis();
 	gui->show();
 
-	if(gx_jack::client) {
+	if (gx_jack::client) {
 	    // -------- pitch tracker (needs jack thread running) -------------
 		gx_engine::pitch_tracker.init();
 	}

@@ -1215,13 +1215,27 @@ void exp_cab_conv_toggled(GtkWidget *widget, gpointer data)
 	}
 }
 */
+static gboolean set_transient(gpointer data)
+{
+	GtkWindow *exp_window = GTK_WINDOW(data);
+	if (gtk_widget_get_realized(GTK_WIDGET(gx_gui::fWindow))) {
+	    gtk_window_set_transient_for(exp_window, GTK_WINDOW(gx_gui::fWindow));
+	}
+	return FALSE;
+}
+
 void faust_setup()
 {
 	registerEnumParam("test.upsample", "Upsample", (int*)&exp_upsample, 4, 1, 8, true);
 	gx_gui::registerParam("test.highshelf", "HighShelf", (bool*)&exp_hs, true, true);
     exp_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title (GTK_WINDOW(exp_window), "Experimental");
-    gtk_window_set_transient_for(GTK_WINDOW(exp_window), GTK_WINDOW(gx_gui::fWindow));
+    if (gtk_widget_get_realized(gx_gui::fWindow)) {
+	    gtk_window_set_transient_for(GTK_WINDOW(exp_window), GTK_WINDOW(gx_gui::fWindow));
+    } else {
+	    //this is a HACK. recall_state constructs this window before the main window is realized
+	    g_idle_add(set_transient, exp_window);
+    }
     //FIXME prevents digit entry (-> preset selection)
     //gtk_window_add_accel_group(GTK_WINDOW(exp_window),
     //                           gx_gui::GxMainInterface::instance()->fAccelGroup);

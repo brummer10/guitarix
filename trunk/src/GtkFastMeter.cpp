@@ -23,12 +23,7 @@
  * -------------------------------------------------------------------------
  */
 #include <stdlib.h>
-#include <string.h>
 #include <cmath>
-#include <iostream>
-
-#include <gdk/gdk.h>
-#include <gtk/gtk.h>
 #include "GtkFastMeter.h"
 
 #ifndef max

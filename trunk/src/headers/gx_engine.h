@@ -198,7 +198,7 @@ inline void turnOffMidi() { audio.midistate = kMidiOff; }
 inline void turnOnMidi() { audio.midistate = kMidiOn; }
 
 /* function declarations  */
-void gx_engine_init( const std::string *optvar );
+void gx_engine_init( const string *optvar );
 void gx_engine_reset();
 void faust_init(int samplingFreq);
 void compute_midi(int len);

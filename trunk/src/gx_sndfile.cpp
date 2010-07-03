@@ -26,33 +26,6 @@
 // This namespace mainly wraps around sndfile's functions
 // And has some native functionality
 
-#include <cstring>
-#include <list>
-#include <map>
-#include <set>
-#include <vector>
-#include <sstream>
-#include <iostream>
-#include <cstdlib>
-#include <cstdio>
-#include <cmath>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-using namespace std;
-
-#include <libgen.h>
-#include <sndfile.h>
-#include <jack/jack.h>
-#include <gtk/gtk.h>
-
 #include "guitarix.h"
 
 using namespace gx_system;

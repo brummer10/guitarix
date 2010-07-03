@@ -21,31 +21,7 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <map>
 #include <set>
-#include <string>
-#include <vector>
-#include <list>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cmath>
-#include <cstring>
-#include <cstdlib>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-#include <gtk/gtk.h>
-#include <jack/jack.h>
-#include <sndfile.h>
-using namespace std;
 #include "guitarix.h"
 
 namespace gx_gui
@@ -163,7 +139,7 @@ void MidiStandardControllers::replace(int ctr, string name)
 void MidiStandardControllers::writeJSON(gx_system::JsonWriter& jw) const
 {
 	jw.begin_object(true);
-	for (map<int,modstring>::const_iterator i = m.cbegin(); i != m.cend(); i++) {
+	for (map<int,modstring>::const_iterator i = m.begin(); i != m.end(); i++) {
 		if (i->second.modified) {
 			ostringstream ostr;
 			ostr << i->first;
@@ -273,6 +249,7 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp)
 }
 
 MidiControllerList::MidiControllerList():
+	map(controller_array_size),
 	midi_config_mode(false),
 	last_midi_control(-1)
 {
@@ -290,7 +267,7 @@ int MidiControllerList::param2controller(Parameter& param, const MidiController*
 {
 	for (controller_array::size_type n = 0; n < map.size(); n++) {
 		const midi_controller_list& cl = map[n];
-		for (midi_controller_list::const_iterator i = cl.cbegin(); i != cl.end(); i++) {
+		for (midi_controller_list::const_iterator i = cl.begin(); i != cl.end(); i++) {
 			if (i->hasParameter(param)) {
 				if (p) {
 					*p = &(*i);
@@ -363,7 +340,7 @@ void MidiControllerList::writeJSON(gx_system::JsonWriter& w)
 			continue;
 		w.write(n);
 		w.begin_array();
-		for (midi_controller_list::const_iterator i = cl.cbegin(); i != cl.end(); i++)
+		for (midi_controller_list::const_iterator i = cl.begin(); i != cl.end(); i++)
 			i->writeJSON(w);
 		w.end_array(true);
 	}
@@ -410,7 +387,7 @@ void MidiControllerList::remove_controlled_parameters(paramlist& plist, const co
 		for (midi_controller_list::iterator j = ctr.begin(); j != ctr.end(); j++) {
 			if (new_m) {
 				const midi_controller_list& ctr_new = (*new_m)[i];
-				for (midi_controller_list::const_iterator jn = ctr_new.cbegin(); jn != ctr_new.end(); jn++) {
+				for (midi_controller_list::const_iterator jn = ctr_new.begin(); jn != ctr_new.end(); jn++) {
 					if (j->getParameter() == jn->getParameter()) {
 						pset.insert(&j->getParameter());
 						break;
@@ -753,8 +730,10 @@ void BoolParameter::setJSON_value()
 
 void SwitchParameter::set(bool val)
 {
-	value = val;
-	changed(value);
+	if (val != value){
+		value = val;
+		changed(value);
+	}
 }
 
 void *SwitchParameter::zone()
@@ -789,6 +768,99 @@ void SwitchParameter::setJSON_value()
 	set(json_value);
 }
 
+
+/* FileParameter */
+
+void FileParameter::set_path(const string& path)
+{
+	value = Gio::File::create_for_path(path);
+}
+
+void FileParameter::set(const Glib::RefPtr<Gio::File>& val)
+{
+	value = val;
+}
+
+void FileParameter::set_standard(const string& filename)
+{
+	std_value = Gio::File::create_for_path(filename);
+	if (!value) {
+		value = std_value->dup();
+	}
+}
+
+void FileParameter::set_std_value()
+{
+	set(std_value->dup());
+}
+
+void *FileParameter::zone()
+{
+	return 0;
+}
+
+void FileParameter::set(int n, int high, float llimit, float ulimit)
+{
+	assert(false);
+}
+
+void FileParameter::writeJSON(gx_system::JsonWriter& jw)
+{
+	jw.write_key(_id.c_str());
+	jw.write(get_path());
+}
+
+void FileParameter::readJSON_value(gx_system::JsonParser& jp)
+{
+	jp.next(gx_system::JsonParser::value_string);
+	json_value = Gio::File::create_for_path(jp.current_value());
+}
+
+void FileParameter::setJSON_value()
+{
+	set(json_value);
+}
+
+static string get_file_id(const Glib::RefPtr<Gio::File>& f)
+{
+	return f->query_info(G_FILE_ATTRIBUTE_ID_FILE)->get_attribute_string(G_FILE_ATTRIBUTE_ID_FILE);
+}
+
+bool FileParameter::is_standard() const
+{
+	string id;
+	try {
+		id = get_file_id(value);
+	} catch (Gio::Error ex) {
+		return false; // FIXME check type of exception
+	}
+	return id == get_file_id(std_value);
+}
+
+string FileParameter::get_path()
+{
+	return value->get_path();
+}
+
+string FileParameter::get_directory_path()
+{
+	return value->get_parent()->get_path();
+}
+
+string FileParameter::get_parse_name()
+{
+	return value->get_parse_name();
+}
+
+string FileParameter::get_display_name()
+{
+	return value->query_info(G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME)->get_display_name();
+}
+
+void FileParameter::copy(const string& destination)
+{
+	value->copy(Gio::File::create_for_path(destination));
+}
 
 /****************************************************************
  ** Parameter Map
@@ -845,9 +917,4 @@ void ParamMap::set_init_values()
 	}
 }
 
-void initParams()
-{
-	parameter_map.set_init_values();
-}
-
-}
+} // namespace gx_gui

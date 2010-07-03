@@ -22,35 +22,7 @@
  */
 
 #include <sys/wait.h>
-#include <errno.h>
-
-#include <iostream>
 #include <fstream>
-#include <sstream>
-#include <cstring>
-#include <vector>
-#include <set>
-#include <list>
-#include <map>
-#include <cstdlib>
-#include <cstdio>
-#include <cmath>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-using namespace std;
-
-#include <gtk/gtk.h>
-#include <jack/jack.h>
-#include <sndfile.h>
-
 #include "guitarix.h"
 
 using namespace gx_system;
@@ -420,7 +392,7 @@ void Meterbridge::start_stop(GtkCheckMenuItem *menuitem, gpointer)
 		if (childprocs.find(app_name)) {
 			return;
 		}
-		string s = gx_jack::client_name + "_" + app_name;
+		string s = gx_jack::client_instance + "_" + app_name;
 		const char * const args[] = {
 			app_name, "-n", s.c_str(), "-t", "sco", "guitarix:in_0", "guitarix:out_0", 0 };
 		GxChild *meterbridge = childprocs.launch(app_name, args, SIGTERM);

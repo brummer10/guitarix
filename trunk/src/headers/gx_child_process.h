@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <sigc++/sigc++.h>
+
 namespace gx_child_process
 {
 

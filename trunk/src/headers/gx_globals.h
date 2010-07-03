@@ -24,6 +24,10 @@
 
 #pragma once
 
+#include <semaphore.h>
+#include <jack/midiport.h>
+#include <gtk/gtk.h>
+
 /* ----- main engine ----- */
 namespace gx_engine
 {
@@ -106,6 +110,7 @@ extern bool                jack_is_down;
 extern bool                jack_is_exit;
 extern string              client_name;
 extern string              client_insert_name;
+extern string              client_instance;
 
 extern string              client_out_graph;
 extern string              gx_port_names[];
@@ -174,14 +179,11 @@ extern const int SYSTEM_OK;
 
 extern string rcpath;
 
-extern const char*  guitarix_dir;
-extern const char*  guitarix_preset;
 extern const char*  jcapsetup_file;
 extern const char*  jcapfile_wavbase;
 extern const string gx_pixmap_dir;
 extern const string gx_style_dir;
 extern const string gx_user_dir;
-extern string gx_preset_dir;
 extern string gx_builder_dir;
 
 /* shell variable names */

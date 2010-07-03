@@ -22,9 +22,8 @@
 #ifndef __RESAMPLER_H
 #define __RESAMPLER_H
 
-
+#include <cstdlib>  // for abort()
 #include <pthread.h>
-
 
 class Resampler_mutex
 {

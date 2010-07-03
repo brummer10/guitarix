@@ -28,8 +28,13 @@
 
 #pragma once
 
+/* system header files */
+#include <boost/format.hpp>
+
 /* waf generated defines */
 #include "config.h"
+
+using namespace std;
 
 /* guitarix declarations */
 #include "gx_globals.h"
@@ -49,7 +54,6 @@
 #include "gx_cairo_callbacks.h"
 #include "gx_gui_helpers.h"
 #include "gx_main_interface.h"
-
 
 /* special "home-made" GTK classes */
 #include "GtkRegler.h"

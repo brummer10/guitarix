@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include <iostream>
+
 #ifndef NJACKLAT
 #define NJACKLAT (9)
 #endif
@@ -99,7 +101,7 @@ class GxMainInterface : public gx_ui::GxUI
 {
 private:
 	// private constructor
-	GxMainInterface(const char* name, int* pargc, char*** pargv);
+	GxMainInterface(const char* name);
 
 	void addMainMenu();
 
@@ -151,8 +153,7 @@ public :
 	static const gboolean fill     = TRUE;
 	static const gboolean homogene = FALSE;
 
-	static GxMainInterface* instance(const char* name = "",
-	                                 int* pargc = NULL, char*** pargv = NULL);
+	static GxMainInterface* instance(const char* name = "");
 
 	// for key acclerators
 	GtkAccelGroup* fAccelGroup;
@@ -261,6 +262,30 @@ public :
 	virtual void show();
 	virtual void run();
 };
+
+gboolean button_press_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
+
+#ifndef NDEBUG
+// debug_check
+inline void check_zone(GtkWidget *w, void *zone)
+{
+	if (!parameter_map.hasZone(zone)) {
+		gchar *p;
+		gtk_widget_path(w, NULL, &p, NULL);
+		cerr << "zone not found in definition of widget: "
+		     << p << endl;
+		g_free(p);
+		assert(false);
+	}
+	parameter_map[zone].setUsed();
+}
+#endif
+
+inline void connect_midi_controller(GtkWidget *w, void *zone)
+{
+	debug_check(check_zone, w, zone);
+	g_signal_connect(w, "button_press_event", G_CALLBACK (button_press_cb), (gpointer)&parameter_map[zone]);
+}
 
 /* -------------------------------------------------------------------------- */
 } /* end of gx_gui namespace */

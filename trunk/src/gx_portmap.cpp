@@ -20,26 +20,9 @@
  *
  * ----------------------------------------------------------------------------
  */
-#include <cstring>
-#include <list>
-#include <map>
-#include <vector>
-#include <sstream>
-#include <iostream>
-#include <cmath>
-#include <gtk/gtk.h>
-#include <jack/jack.h>
-#include <sndfile.h>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-#include <array>
-#include <cassert>
-#include <cstdlib>
-#include <fftw3.h>
-#include <zita-resampler.h>
-#include <zita-convolver.h>
 
-using namespace std;
+#include <cstring>
+#include <jack/jack.h>
 #include "guitarix.h"
 
 /****************************************************************
@@ -664,7 +647,7 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item)
 	// order of first 2 entries is important (check load())
 	excluded_clients.push_back(string(gx_jack::client_insert_name) + ":");
 	excluded_clients.push_back(string(gx_jack::client_name) + ":");
-	excluded_clients.push_back(string(gx_jack::client_name) + "_meterbridge:");
+	excluded_clients.push_back(string(gx_jack::client_instance) + "_meterbridge:");
 	excluded_clients.push_back(string("jack_capture:"));
 
 	GtkBuilder * builder = gtk_builder_new();

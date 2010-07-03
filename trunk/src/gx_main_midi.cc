@@ -397,27 +397,3 @@ gboolean button_press_cb (GtkWidget *widget, GdkEventButton *event, gpointer dat
 	new MidiConnect(event, *(Parameter*)data);
 	return TRUE;
 }
-
-#ifndef NDEBUG
-// debug_check
-inline void check_zone(GtkWidget *w, void *zone)
-{
-	if (!parameter_map.hasZone(zone)) {
-		gchar *p;
-		gtk_widget_path(w, NULL, &p, NULL);
-		cerr << "zone not found in definition of widget: "
-		     << p << endl;
-		g_free(p);
-		assert(false);
-	}
-	parameter_map[zone].setUsed();
-}
-#endif
-
-inline void connect_midi_controller(GtkWidget *w, void *zone)
-{
-	debug_check(check_zone, w, zone);
-	g_signal_connect(w, "button_press_event", G_CALLBACK (button_press_cb), (gpointer)&parameter_map[zone]);
-}
-
-

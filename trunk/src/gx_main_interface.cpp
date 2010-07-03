@@ -20,38 +20,10 @@
  *
  * ----------------------------------------------------------------------------
  */
-#include <errno.h>
 
-#include <assert.h>
-#include <cstring>
-#include <list>
-#include <map>
-#include <set>
-#include <vector>
-#include <iostream>
 #include <iomanip>
-#include <sstream>
-#include <fstream>
-#include <cmath>
-#include <cstdlib>
-#include <cstdio>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-using namespace std;
-
-#include <gtk/gtk.h>
+#include <cstring>
 #include <gdk/gdkkeysyms.h>
-#include <jack/jack.h>
-#include <sndfile.h>
-
 #include "guitarix.h"
 
 using namespace gx_system;
@@ -98,10 +70,9 @@ bool GxMainInterface::fInitialized = false;
 static pthread_t ui_thread;
 #endif
 
-GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
+GxMainInterface::GxMainInterface(const char * name)
 {
 	highest_unseen_msg_level = -1;
-	gtk_init(pargc, pargv);
 
 	/*-- set rc file overwrite it with export--*/
 	gtk_rc_parse(rcpath.c_str());
@@ -148,9 +119,9 @@ GxMainInterface::GxMainInterface(const char * name, int* pargc, char*** pargv)
 }
 
 //------- create or retrieve unique instance
-GxMainInterface* GxMainInterface::instance(const char* name, int* pargc, char*** pargv)
+GxMainInterface* GxMainInterface::instance(const char* name)
 {
-	static GxMainInterface maingui(name, pargc, pargv);
+	static GxMainInterface maingui(name);
 	return &maingui;
 }
 
@@ -3285,8 +3256,8 @@ void GxMainInterface::show()
 		GtkWidget* wd = getJackLatencyItem(gx_jack::jack_bs);
 		if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 
-		string window_name = "guitarix";
-		gtk_window_set_title (GTK_WINDOW (fWindow), window_name.c_str());
+		//string window_name = "guitarix"; FIXME is set by recall settings
+		//gtk_window_set_title (GTK_WINDOW (fWindow), window_name.c_str());
 
 	} else {
 		gtk_widget_hide(gx_gui::gx_jackd_on_image);

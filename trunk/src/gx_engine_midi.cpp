@@ -22,32 +22,6 @@
  *
  * --------------------------------------------------------------------------
  */
-#include <assert.h>
-#include <cstring>
-#include <list>
-#include <map>
-#include <set>
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cstdlib>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-#include <cmath>
-#include <gtk/gtk.h>
-#include <jack/midiport.h>
-#include <sndfile.h>
-
-using namespace std;
 
 #include "guitarix.h"
 
@@ -157,6 +131,9 @@ void MidiVariables::init(int samplingFreq)
 	fConstlog2 = 6/log(2)*-1;
 	midi_gain = 1.0;
 	fConstun0  = (0.001*300*samplingFreq)*36;
+	BeatFilterk =1.0/(gx_jack::jack_sr*(1.0f/(2.0f*M_PI*1250.0f)));
+	BeatFilter1 =0.0;
+    BeatFilter2 =0.0;
 }
 
 //----- jack process callback for the midi input

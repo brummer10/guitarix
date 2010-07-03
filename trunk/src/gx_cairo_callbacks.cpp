@@ -23,37 +23,6 @@
  * --------------------------------------------------------------------------
  */
 
-#include <errno.h>
-
-#include <assert.h>
-#include <cstring>
-#include <list>
-#include <map>
-#include <set>
-#include <vector>
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <cmath>
-#include <cstdlib>
-#include <cstdio>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-using namespace std;
-
-#include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
-#include <jack/jack.h>
-#include <sndfile.h>
-
 #include "guitarix.h"
 
 /* --------------------------- gx_cairo namespace ------------------------ */

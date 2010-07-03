@@ -55,7 +55,7 @@ def set_options(opt):
 
     comp.add_option('--cxxflags',
                     type='string',
-                    default='-Wall -std=c++0x', # -fomit-frame-pointer -ffast-math -fstrength-reduce -mmmx -mfpmath=sse -DUSE_XMMINTRIN -pipe
+                    default='-Wall', # -fomit-frame-pointer -ffast-math -fstrength-reduce -mmmx -mfpmath=sse -DUSE_XMMINTRIN -pipe
                     dest='cxxflags',
                     help='C++ base compiler flags [Default: %default]')
 
@@ -286,12 +286,6 @@ def append_optimization_flags(cxxflags):
 def configure(conf):
     # compiler
     conf.check_tool('compiler_cxx')
-    cxx_version = conf.env["CC_VERSION"];
-    fc_line = os.popen ("gcc --help=c++ | grep 'c++0x' ").read()[:-1]
-    if not "c++0x" in fc_line:
-        raise ConfigurationError(
-            "!!! Compiler version %s didn't support std=c++0x flag !!!"
-            % ".".join(cxx_version))
     # needed libarys
     try:
         conf.check_cfg(package='jack', atleast_version='0.109.1', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
@@ -300,9 +294,10 @@ def configure(conf):
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gtk+-2.0', atleast_version='2.12.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.10', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
-    conf.check_cfg(package='sigc++-2.0', args='--cflags --libs', uselib_store='SIGC', mandatory=1)
+    conf.check_cfg(package='gtkmm-2.4', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
     conf.check(header_name='ladspa.h', mandatory=1)
+    conf.check(header_name='boost/format.hpp', mandatory=1)
     # convolver and resampler
     if not Options.options.includeconvolver:
         conf.check_cxx(header_name='zita-convolver.h', lib="zita-convolver", uselib_store='ZITA_CONVOLVER',
@@ -375,7 +370,7 @@ def configure(conf):
     if cpu_model:
         display_msg("CPU version" , "%s" % cpu_model, "CYAN")
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
-    #display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(cxx_version), "CYAN")
+    #display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(conf.env["CC_VERSION"]), "CYAN")
     display_feature("Use faust", conf.env['FAUST'])
     if not Options.options.faust_float:
         display_msg("Use faust precision", "double", 'CYAN')

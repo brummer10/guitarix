@@ -28,35 +28,7 @@
  *
  * --------------------------------------------------------------------------
  */
-#include <cstring>
-#include <list>
-#include <map>
-#include <set>
-#include <vector>
-#include <iostream>
-#include <sstream>
-#include <fstream>
 #include <libgen.h>
-#include <cmath>
-#include <cstdlib>
-#include <cstdio>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-using namespace std;
-
-#include <jack/jack.h>
-#include <gtk/gtk.h>
-#include <sndfile.h>
-//#include <fftw3.h>
-
 #include "guitarix.h"
 
 using namespace gx_system;

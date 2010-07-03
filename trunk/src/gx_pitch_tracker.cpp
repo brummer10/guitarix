@@ -19,34 +19,8 @@
 
 /* ------- This is the guitarix tuner, part of gx_engine_audio.cpp ------- */
 
-#include <assert.h>
 #include <cstring>
-#include <list>
-#include <map>
-#include <set>
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cstdlib>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-#include <cmath>
-#include <gtk/gtk.h>
 #include <jack/jack.h>
-#include <jack/midiport.h>
-#include <sndfile.h>
-
-using namespace std;
-
 #include "guitarix.h"
 
 /****************************************************************

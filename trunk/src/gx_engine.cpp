@@ -24,32 +24,6 @@
  */
 
 #include <cstring>
-#include <list>
-#include <map>
-#include <set>
-#include <vector>
-#include <iostream>
-#include <sstream>
-#include <cstdlib>
-#include <cstdio>
-
-#include <array>
-#include <zita-convolver.h>
-#include <fftw3.h>
-#include <zita-resampler.h>
-
-#include <cassert>
-#include <sigc++/sigc++.h>
-#include <semaphore.h>
-
-using namespace std;
-
-#include <cmath>
-#include <gtk/gtk.h>
-#include <jack/jack.h>
-#include <jack/midiport.h>
-#include <sndfile.h>
-
 #include "guitarix.h"
 
 using namespace gx_system;
@@ -62,10 +36,6 @@ void gx_engine_init( const string *optvar )
 {
 	//----- lock the buffer for the oscilloscope
 	const int frag = (const int)gx_jack::jack_bs;
-
-	midi.BeatFilterk =1.0/(gx_jack::jack_sr*(1.0f/(2.0f*M_PI*1250.0f)));
-	midi.BeatFilter1 =0.0;
-    midi.BeatFilter2 =0.0;
 
 	get_frame  = new float[frag];
 	get_frame1  = new float[frag];
