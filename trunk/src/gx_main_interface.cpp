@@ -2783,9 +2783,9 @@ void GxMainInterface::addPresetMenu()
 	gtk_widget_show (sep);
 
 	/*-- Create load presetfile menu --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("Inport Pr_eset-file");
+	menuitem = gtk_menu_item_new_with_mnemonic ("Load Preset-_file");
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
-	                           GDK_e, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+	                           GDK_f, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_load_preset_file), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);

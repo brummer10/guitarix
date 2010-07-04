@@ -733,7 +733,13 @@ void gx_load_preset_file(const char* presname, bool expand_menu)
     file_chooser.set_select_multiple(false);
     Gtk::FileFilter filter;
 	filter.add_pattern("*_rc");
-	file_chooser.set_filter(filter);
+	filter.set_name("*_rc");
+	file_chooser.add_filter(filter);
+	Gtk::FileFilter filter1;
+	filter1.add_pattern("*");
+	filter1.set_name("all");
+	file_chooser.add_filter(filter1);
+    file_chooser.set_filter(filter);
 	if (file_chooser.run() == Gtk::RESPONSE_ACCEPT) {
 	    gx_preset_file.set_path(file_chooser.get_filename());
 	    setting_is_preset = false;
