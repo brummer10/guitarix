@@ -2,7 +2,7 @@ declare name "shaper";
 
 import("music.lib");
 
-sharp = vslider("sharper[name:sharper][old:fsharp0]", 1, 1, 10, 1);
+sharp = vslider("sharper[name:sharper]", 1, 1, 10, 1);
 press = 5 * sharp;
 
 attack  = 0.005;

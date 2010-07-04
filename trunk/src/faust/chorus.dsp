@@ -7,10 +7,10 @@ declare version "1.0";
 
 import("music.lib");
 
-level	= hslider("level[old:fslider_CH3]", 0.5, 0, 1, 0.01);
-freq	= hslider("freq[old:fslider_CH0]", 3, 0, 10, 0.01);
-dtime	= hslider("delay[old:fslider_CH2]", 0.02, 0, 0.2, 0.01);
-depth	= hslider("depth[old:fslider_CH1]", 0.02, 0, 1, 0.01);
+level	= hslider("level", 0.5, 0, 1, 0.01);
+freq	= hslider("freq", 3, 0, 10, 0.01);
+dtime	= hslider("delay", 0.02, 0, 0.2, 0.01);
+depth	= hslider("depth", 0.02, 0, 1, 0.01);
 
 tblosc(n,f,freq,mod)	= (1-d)*rdtable(n,waveform,i&(n-1)) +
 			  d*rdtable(n,waveform,(i+1)&(n-1))

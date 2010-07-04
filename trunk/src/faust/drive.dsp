@@ -1,6 +1,6 @@
 import("guitarix.lib");
 
-fuzzy = vslider("value[name:drive][old:fpredrive]", 1, 1, 10, 1);
+fuzzy = vslider("value[name:drive]", 1, 1, 10, 1);
 process = fuzzy_tube(a,b,c,fuzzy)
 with {
   a = 4;

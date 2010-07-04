@@ -134,6 +134,8 @@ protected :
 	map<string, GtkWidget*> fMenuList;
 	MenuCheckItem       fMidiInPreset;
 	MenuCheckItem       fShowTooltips;
+	MenuCheckItem       fShowTuner;
+	MenuCheckItem       fShowWaveView;
 #ifdef EXPERIMENTAL
 	MenuCheckItem       fShowExpWindow;
 #endif

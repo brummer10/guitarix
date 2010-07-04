@@ -41,25 +41,25 @@ with {
 //----------distortion---------
 
 //-speaker emulation
-sbp1    		= vslider("low_freq[name:low freq][tooltip:low-freq cutoff Hz][old:fslider7]",130,20,1000,10);
-sbp2    		= vslider("high_freq[name:high freq][tooltip:high-freq cutoff Hz][old:fslider6]",5000,1000,12000,10);
-switch1 		= checkbox("on_off[name:low highcutoff][old:fcheckbox3]");
+sbp1    		= vslider("low_freq[name:low freq][tooltip:low-freq cutoff Hz]",130,20,1000,10);
+sbp2    		= vslider("high_freq[name:high freq][tooltip:high-freq cutoff Hz]",5000,1000,12000,10);
+switch1 		= checkbox("on_off[name:low highcutoff]");
 sbp 			= hgroup("low_highcutoff", bypass(switch1, +(anti_denormal_ac) : speakerbp(sbp1,sbp2)));
 
 //-low and highpass
-lowpassfreq  	= nentry("low_freq[name:low freq][old:fentry0]", 5000, 20, 12000, 10);
-highpassfreq 	= nentry("high_freq[name:high freq][old:fentry1]", 130, 20, 7040, 10);
-switch       	= checkbox("on_off[name:low highpass][old:fcheckbox2]");
+lowpassfreq  	= nentry("low_freq[name:low freq]", 5000, 20, 12000, 10);
+highpassfreq 	= nentry("high_freq[name:high freq]", 130, 20, 7040, 10);
+switch       	= checkbox("on_off[name:low highpass]");
 passo 		 	= +(anti_denormal_ac) : lowpass1(lowpassfreq) : highpass1(highpassfreq);
 pass 		 	= hgroup("low_highpass", bypass(switch, passo));
 
 //-distortion
-drivelevel      = vslider("level[old:fslider8]", 0.01, 0, 0.5, 0.01);
-drivegain1      = vslider("gain[old:fslider10]", 2, -10, 10, 0.1)-10 : db2linear : smoothi(0.999);
+drivelevel      = vslider("level", 0.01, 0, 0.5, 0.01);
+drivegain1      = vslider("gain", 2, -10, 10, 0.1)-10 : db2linear : smoothi(0.999);
 low_gain      	= vslider("low_gain", 10, -10, 20, 0.1)-10 : db2linear : smoothi(0.999);
 high_gain      	= vslider("high_gain", 10, -10, 20, 0.1)-10 : db2linear : smoothi(0.999);
 middle_gain     = vslider("middle_gain", 10, -10, 20, 0.1)-10 : db2linear : smoothi(0.999);
-drive			= vslider("drive[old:fslider9]", 0.64, 0, 1, 0.01);
+drive			= vslider("drive", 0.64, 0, 1, 0.01);
 drive1			= vslider("low_drive", 1, 0, 1, 0.01)*drive;
 drive2			= vslider("high_drive", 1, 0, 1, 0.01)*drive;
 drive3			= vslider("middle_drive", 1, 0, 1, 0.01)*drive;
@@ -72,8 +72,8 @@ distortion(x)	= distortion1(x) + distortion2(x) + distortion3(x) ;
 //-resonator
 resonator 		= (+ <: (delay(4096, d-1) + delay(4096, d)) / 2) ~ *(1.0-a)
 with {
-  d = vslider("vibrato[old:fslider5]", 1, 0, 1, 0.01);
-  a = vslider("trigger[old:fslider4]", 0.12, 0, 1, 0.01);
+  d = vslider("vibrato", 1, 0, 1, 0.01);
+  a = vslider("trigger", 0.12, 0, 1, 0.01);
 };
 
 switch2       	= checkbox("resonator.on_off[name:resonat]");

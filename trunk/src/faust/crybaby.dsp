@@ -21,7 +21,7 @@ with {
   gs(s) =  g  : smooth(s);
 };
 
-level = vslider("level[old:fslider12]", 0.1, 0, 1, 0.01);
-wah = vslider("wah[old:fslider11]", 0, 0, 1, 0.01);
-wet_dry = vslider("wet_dry[name:wet/dry][old:fslider13]", 0, -1, 1, 0.1);
+level = vslider("level", 0.1, 0, 1, 0.01);
+wah = vslider("wah", 0, 0, 1, 0.01);
+wet_dry = vslider("wet_dry[name:wet/dry]", 0, -1, 1, 0.1);
 process = wet_dry_mix(wet_dry, *(level) : _crybaby(wah));

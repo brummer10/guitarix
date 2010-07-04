@@ -37,8 +37,6 @@ extern gx_gui::FileParameter gx_preset_file;
 /* function declarations */
 string gx_get_accel_path(int lindex);
 
-void  gx_build_preset_list();
-
 void  gx_save_newpreset_dialog (GtkMenuItem*, gpointer);
 void  gx_save_newpreset (GtkEntry*);
 void  gx_save_preset (const gchar*, bool);
@@ -48,8 +46,8 @@ void  gx_save_preset_file (const gchar*, bool);
 void  gx_load_preset_file (const gchar*, bool);
 
 void  gx_load_preset (GtkMenuItem*, gpointer);
+void  gx_recall_settings_file(const string *filename = 0);
 void  gx_recall_main_setting(GtkMenuItem*, gpointer);
-void  gx_recall_settings_file( const string & filename );
 void  gx_save_main_setting(GtkMenuItem*, gpointer);
 
 void  gx_rename_preset (GtkEntry*);

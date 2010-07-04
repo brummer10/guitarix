@@ -57,9 +57,9 @@ with {
 bass_freq	= 600;
 treble_freq	= 2400;
 
-bass_gain	= vslider("bass[name:bass][old:fslider_tone2]", 0, -20, 20, 0.1);
-mid_gain	= vslider("middle[name:middle][old:fslider_tone1]", 0, -20, 20, 0.1)/2;
-treble_gain	= vslider("treble[name:treble][old:fslider_tone0]", 0, -20, 20, 0.1);
+bass_gain	= vslider("bass[name:bass]", 0, -20, 20, 0.1);
+mid_gain	= vslider("middle[name:middle]", 0, -20, 20, 0.1)/2;
+treble_gain	= vslider("treble[name:treble]", 0, -20, 20, 0.1);
 tone(b,m,t)     = low_shelf(bass_freq,b-m) :
 				  low_shelf(treble_freq,m):
                   high_shelf(bass_freq,m) :

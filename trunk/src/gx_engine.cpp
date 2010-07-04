@@ -53,10 +53,11 @@ void gx_engine_init( const string *optvar )
 	faust_init(gx_jack::jack_sr);
 	//resampTube.setup(gx_jack::jack_sr, 2);
 	//resampDist.setup(gx_jack::jack_sr, 2);
-	if( !optvar[LOAD_FILE].empty() )
-		gx_preset::gx_recall_settings_file( optvar[LOAD_FILE] );
-	else
-		gx_preset::gx_recall_main_setting(NULL, NULL);
+	if (!optvar[LOAD_FILE].empty()) {
+		gx_preset::gx_recall_settings_file(&optvar[LOAD_FILE]);
+	} else {
+		gx_preset::gx_recall_settings_file();
+	}
 
 	initialized = true;
 }

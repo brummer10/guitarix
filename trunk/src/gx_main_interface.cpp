@@ -221,6 +221,7 @@ void GxMainInterface::openTextLoggingBox(const char* label)
 	GtkTextBuffer* buffer = gtk_text_buffer_new(NULL);
 
 	GtkWidget* tbox = gtk_text_view_new_with_buffer(buffer);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(tbox), GTK_WRAP_WORD_CHAR);
 	gtk_container_set_border_width (GTK_CONTAINER (tbox), 0);
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(tbox), FALSE);
 	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(tbox), FALSE);
@@ -2749,14 +2750,7 @@ void GxMainInterface::addPresetMenu()
 	gtk_widget_show (sep);
 
 	/*-- initial preset list --*/
-	gx_preset::gx_build_preset_list();
-
-	vector<string>::iterator it;
-	for (it = gx_preset::plist.begin() ; it < gx_preset::plist.end(); it++ )
-	{
-		const string presname = *it;
-		gx_add_preset_to_menus(presname);
-	}
+	gx_preset::gx_refresh_preset_menus();
 
 	for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
 		gtk_widget_show(presMenu[i]);
@@ -3004,6 +2998,8 @@ void GxMainInterface::addOptionMenu()
 	                  G_CALLBACK (gx_show_oscilloscope), NULL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
+	fShowWaveView.init(GTK_CHECK_MENU_ITEM(menuitem),
+	                   new SwitchParameter("system.show_wave_view"));
 
 	/*-- Create tuner check menu item under Options submenu --*/
 	menuitem = gtk_check_menu_item_new_with_mnemonic ("_Tuner");
@@ -3013,6 +3009,8 @@ void GxMainInterface::addOptionMenu()
 	                  G_CALLBACK (gx_tuner), NULL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
+	fShowTuner.init(GTK_CHECK_MENU_ITEM(menuitem),
+	                new SwitchParameter("system.show_tuner"));
 
 	/*-- Create log window check menu item under Options submenu --*/
 	menuitem = gtk_check_menu_item_new_with_mnemonic ("Open/Close _Log message");

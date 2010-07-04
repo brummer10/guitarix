@@ -161,7 +161,7 @@ bool gx_modify_preset(const char* presname, const char* newname=0, bool remove=f
 }
 
 //---- parsing preset file to build up a string vector of preset names
-void gx_build_preset_list()
+static bool gx_build_preset_list()
 {
 	// initialize list
 	plist.clear();
@@ -190,20 +190,22 @@ void gx_build_preset_list()
 			if (!samevers) {
 				gx_modify_preset(0,0,false,true);
 			}
-			return;
+			return true;
 		} catch (gx_system::JsonException& e) {
 			gx_system::gx_print_warning(gx_preset_file.get_parse_name().c_str(), "parse error");
-			return;
+			return false;
 		}
 	}
 	if (gx_preset_file.is_standard()) {
 		gx_print_info("empty preset File ", gx_preset_file.get_display_name());
 		gx_empty_preset_file(gx_preset_file.get_path().c_str());
+		return true;
 	} else {
 		string msg = (boost::format(_("preset File %1% doesn't exist"))
 		              % gx_preset_file.get_parse_name()).str();
 		gx_print_error(_("Load preset file"), msg);
 		gx_gui::gx_message_popup(msg.c_str());
+		return false;
 	}
 }
 
@@ -303,19 +305,19 @@ void gx_refresh_preset_menus()
 {
     for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++) {
         vector<GtkMenuItem*>::iterator it = pm_list[i].begin();
-        for (it = pm_list[i].begin(); it != pm_list[i].end(); it++)
-            {
-            gtk_widget_destroy(GTK_WIDGET(*it));
-            }
+        for (it = pm_list[i].begin(); it != pm_list[i].end(); it++) {
+	        gtk_widget_destroy(GTK_WIDGET(*it));
         }
+    }
 
-    gx_build_preset_list();
-
+    if (!gx_build_preset_list()) {
+	    gx_print_warning(_("Load preset file"), _("selecting default preset bank"));
+	    gx_preset_file.set_std_value();
+		gx_build_preset_list();
+    }
     vector<string>::iterator its;
-    for (its = plist.begin() ; its < plist.end(); its++ )
-    {
-        const string presname = *its;
-        gx_add_preset_to_menus(presname);
+    for (its = plist.begin() ; its < plist.end(); its++) {
+	    gx_add_preset_to_menus(*its);
     }
 }
 
@@ -557,7 +559,7 @@ void gx_delete_preset (GtkMenuItem* item, gpointer arg)
 	gx_refresh_preset_menus();
 
 	// recalling main setting
-	gx_recall_main_setting(NULL, NULL);
+	gx_recall_settings_file(); // FIXME (wrong when loaded with -f ?)
 
 	gx_print_warning("Preset Deleting",
 	                 string("Deleted preset ") +
@@ -705,17 +707,24 @@ void gx_save_preset (const char* presname, bool expand_menu)
 }
 
 // load a preset file
-static void load_preset_file() //FIXME: nearly the same as gx_recall_main_setting and gx_recall_settings_file
+void gx_recall_settings_file(const string *filename)
 {
-    gx_system::recallState(gx_user_dir + gx_jack::client_instance + "_rc");
+	if (!filename) {
+		string fname = gx_user_dir + gx_jack::client_instance + "_rc";
+		gx_system::recallState(fname);
+		gx_print_info(
+			_("Main Setting recalling"),
+			(boost::format(_("Called back main setting %1%")) % (fname+fname+fname)).str());
+	} else {
+		gx_system::recallState(*filename);
+		gx_print_info(
+			_("loading Settings file"),
+			(boost::format(_("loaded settings file %1%")) % *filename).str());
+	}
 	gtk_window_set_title(GTK_WINDOW(gx_gui::fWindow), gx_jack::client_instance.c_str());
-
-	gx_print_info("Main Setting recalling","Called back main setting");
-
 	setting_is_preset = false;
 	gx_current_preset = "";
 	gx_gui::show_patch_info = 0;
-
     gx_refresh_preset_menus();
 }
 
@@ -864,30 +873,7 @@ void gx_save_newpreset (GtkEntry* entry)
 // read name for preset
 void gx_recall_main_setting(GtkMenuItem* item, gpointer)
 {
-	gx_system::recallState(gx_user_dir + gx_jack::client_instance + "_rc");
-	gtk_window_set_title(GTK_WINDOW(gx_gui::fWindow), gx_jack::client_instance.c_str());
-
-	gx_print_info("Main Setting recalling","Called back main setting");
-
-	setting_is_preset = false;
-	gx_current_preset = "";
-	gx_gui::show_patch_info = 0;
-	// reload guitarix main preset file
-	if (!gx_preset_file.is_standard()) {
-		gx_preset_file.set_std_value();
-		load_preset_file();
-	}
-}
-
-void gx_recall_settings_file(const string & filename)
-{
-	gx_system::recallState(filename);
-	gtk_window_set_title(GTK_WINDOW(gx_gui::fWindow), gx_jack::client_instance.c_str());
-
-	gx_print_info("loading Settings file","loaded settings file");
-
-	setting_is_preset = false;
-	gx_current_preset = "";
+	gx_recall_settings_file(); // FIXME (wrong when loaded with -f ?)
 }
 
 // ----- save current setting as main setting
