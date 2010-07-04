@@ -471,8 +471,7 @@ void gx_delete_preset_dialog (GtkMenuItem *menuitem, gpointer arg)
 void gx_delete_all_presets_dialog (GtkMenuItem *menuitem, gpointer arg)
 {
 	//--- if no presets, then just pop up some info
-	if (pm_list[DELETE_PRESET_LIST].empty())
-	{
+	if (pm_list[LOAD_PRESET_LIST].empty()) {
 		gx_print_warning("Delete All Presets Dialog",
 		                 string("There is no presets to delete"));
 		return;
@@ -796,31 +795,27 @@ void gx_save_oldpreset (GtkMenuItem *menuitem, gpointer arg)
 	vector<string>::iterator its = plist.begin() ;
 
 	// are saving an active preset
-	if (save_active)
-	{
-		if (gx_current_preset.empty())
-		{
+	if (save_active) {
+		if (gx_current_preset.empty()) {
 			gx_print_warning("Saving Active Preset",
 			                 "We are in main setting, load a preset first");
 			return;
 		}
 		presname = gx_current_preset;
-	}
 
-	// we are saving another preset from the menu
-	else {
+	} else {	// we are saving another preset from the menu
+
         vector<GtkMenuItem*>::iterator it;
 
-         for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
-        {
-            if( menuitem == *it)
-                break;
-            its++;
-        }
+         for (it = pm_list[SAVE_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ ) {
+	         if( menuitem == *it) {
+		         break;
+	         }
+	         its++;
+         }
 
 	}
-		presname = *its;;
-
+	presname = *its;;
 	gx_save_preset(presname.c_str(), false);
 }
 

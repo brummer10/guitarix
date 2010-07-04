@@ -21,14 +21,14 @@
 
 #pragma once
 
-// number of preset action lists, can expand to 4 if required
+// number of preset action lists
 #define GX_NUM_OF_PRESET_LISTS (3)
 
 // preset action index
 #define LOAD_PRESET_LIST   (0)
 #define SAVE_PRESET_LIST   (1)
 #define RENAME_PRESET_LIST (2)
-#define DELETE_PRESET_LIST (3)
+//#define DELETE_PRESET_LIST (3)
 
 namespace gx_preset
 {
