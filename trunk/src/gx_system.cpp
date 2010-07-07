@@ -1393,9 +1393,6 @@ void gx_destroy_event()
 	if (G_IS_OBJECT(gx_cairo::tribeimage2))
 		g_object_unref(gx_cairo::tribeimage2);
 
-	if (G_IS_OBJECT(gx_cairo::_image))
-		g_object_unref(gx_cairo::_image);
-
 	// remove threads from main GTK thread
 	for (unsigned int i = 0; i < sizeof(gx_gui::g_threads)/sizeof(gx_gui::g_threads[0]); i++) {
 		if(gx_gui::g_threads[i] > 0) {

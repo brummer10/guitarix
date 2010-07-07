@@ -448,6 +448,7 @@ gboolean tribal_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data
 {
 	if (int(float(gx_gui::gx_current_skin)!=1) && int(float(gx_gui::gx_current_skin)<7))
 	{
+		GdkPixbuf *_image;
 		cairo_t *cr;
 		/* create a cairo context */
 		cr = gdk_cairo_create(wi->window);
@@ -535,6 +536,7 @@ gboolean vbox_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
 gboolean filter_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
+	GdkPixbuf *_image;
 	cairo_t *cr;
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
@@ -588,7 +590,7 @@ gboolean filter_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data
 gboolean boxamp_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
     if(!gx_engine::audio.fampexpand) {
-
+		GdkPixbuf *_image;
         cairo_t *cr;
         /* create a cairo context */
         cr = gdk_cairo_create(wi->window);

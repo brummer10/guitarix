@@ -269,5 +269,4 @@ namespace gx_cairo
 extern GdkPixbuf *tribeimage;
 extern GdkPixbuf *tribeimage1;
 extern GdkPixbuf *tribeimage2;
-extern GdkPixbuf *_image;
 }
