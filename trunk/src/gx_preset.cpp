@@ -713,7 +713,7 @@ void gx_recall_settings_file(const string *filename)
 		gx_system::recallState(fname);
 		gx_print_info(
 			_("Main Setting recalling"),
-			(boost::format(_("Called back main setting %1%")) % (fname+fname+fname)).str());
+			(boost::format(_("Called back main setting %1%")) % fname).str());
 	} else {
 		gx_system::recallState(*filename);
 		gx_print_info(
