@@ -11,6 +11,9 @@
     <glade-widget-class title="Tuner" name="GxTuner" generic-name="GxTuner" />
     <glade-widget-class title="Wave View" name="GxWaveView" generic-name="waveview" />
     <glade-widget-class title="IR Edit" name="GxIREdit" generic-name="iredit" />
+    <glade-widget-class title="Gx Radio Button" name="GxRadioButton" generic-name="gxradiobutton" />
+    <glade-widget-class title="Gx Toggle Image" name="GxToggleImage" generic-name="gxtoggleimage" />
+    <glade-widget-class title="Gx Wheel" name="GxWheel" generic-name="gxwheel" />
 
   </glade-widget-classes>
 
@@ -22,6 +25,9 @@
     <glade-widget-class-ref name="GxWaveView"/>
     <glade-widget-class-ref name="GxTuner"/>
     <glade-widget-class-ref name="GxIREdit"/>
+    <glade-widget-class-ref name="GxRadioButton"/>
+    <glade-widget-class-ref name="GxToggleImage"/>
+    <glade-widget-class-ref name="GxWheel"/>
   </glade-widget-group>
 
 </glade-catalog>

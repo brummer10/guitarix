@@ -25,6 +25,7 @@ part of guitarix, use  knobs with Gtk
 
 
 #include <gtk/gtkrange.h>
+#include <gtk/gtklabel.h>
 
 G_BEGIN_DECLS
 
@@ -52,12 +53,9 @@ typedef struct
 	GtkRange parent;
 	int GSEAL(regler_type);
 	gchar *GSEAL(var_id);
-	gchar *GSEAL(label);
+	GtkLabel *GSEAL(label);
 	gboolean GSEAL(show_value):1;
-	gboolean GSEAL(show_label):1;
-	gboolean GSEAL(label_from_var):1;
-	GtkPositionType GSEAL(label_position):2;
-	PangoLayout *GSEAL(label_layout);
+	GtkPositionType GSEAL(value_position):2;
 	PangoLayout *GSEAL(value_layout);
 } GxRegler;
 
@@ -84,6 +82,12 @@ GType regler_type_get_type(void) G_GNUC_CONST;
 
 GType gx_regler_get_type(void);
 gchar *gx_regler_get_var(GxRegler* regler);
+
+void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition);
+gdouble _gx_regler_get_positions(GxRegler *regler, gint step, GdkRectangle *image_rect,
+                                 GdkRectangle *value_rect, GdkPoint *text_pos);
+void _gx_regler_display_value(GxRegler *regler, GdkRectangle *value_rect);
+double _gx_regler_get_value(GtkAdjustment *adj,double pos);
 
 /*
 GtkWidget *gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment);

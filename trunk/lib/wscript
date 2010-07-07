@@ -51,10 +51,11 @@ def configure(conf):
     conf.check_tool('compiler_cc')
     conf.check_tool('python')
     conf.check_python_headers()
-    conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT')
-    conf.check_cfg(package='pygtk-2.0', args='--cflags --libs', uselib_store='PYGTK')
+    conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT', mandatory=True)
+    conf.check_cfg(package='pygtk-2.0', args='--cflags --libs', uselib_store='PYGTK' ,mandatory=True)
     conf.cfg_get_variable(package='pygtk-2.0', variable='defsdir')
     conf.cfg_get_variable(package='pygtk-2.0', variable='codegendir')
+    conf.check_python_module("numpy")
 
 def h2defs(task):
     sources = " ".join(["'%s'" % v.srcpath(task.env) for v in task.inputs[:-2]])
@@ -94,8 +95,11 @@ def build_python_module(bld):
                   "GxRegler.h",
                   "GxSelector.h",
                   "GxSwitch.h",
+                  "GxToggleImage.h",
                   "GxControlParameter.h",
                   "GxIREdit.h",
+                  "GxRadioButton.h",
+                  "GxWheel.h",
                   "libgxwidgets.so",
                   "gxwidgets-manual.defs",
                   ],
@@ -129,8 +133,11 @@ def build(bld):
         'GxRegler.cpp',
         'GxSelector.cpp',
         'GxSwitch.cpp',
+        'GxToggleImage.cpp',
         'GxControlParameter.cpp',
         'GxIREdit.cpp',
+        'GxRadioButton.cpp',
+        'GxWheel.cpp',
         ]
     if not bld.env["GX_LIB_STATIC"] and not bld.env["GX_LIB_SHARED"]:
         return

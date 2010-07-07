@@ -38,8 +38,6 @@
 typedef struct
 {
 	gint last_quadrant;
-	gint decimals;
-	gint current_theme;
 	GtkRequisition value_req;
 } GxReglerPrivate;
 
@@ -47,10 +45,8 @@ enum {
 	PROP_TYPE = 1,
 	PROP_VAR_ID,
 	PROP_SHOW_VALUE,
-	PROP_SHOW_LABEL,
-	PROP_LABEL_FROM_VAR,
-	PROP_LABEL_TEXT,
-	PROP_LABEL_POSITION,
+	PROP_VALUE_POSITION,
+	PROP_LABEL,
 };
 
 static void gx_regler_class_init(GxReglerClass *klass);
@@ -60,6 +56,7 @@ static void gx_regler_base_class_finalize(GxReglerClass *klass);
 static void gx_regler_finalize(GObject*);
 static void gx_regler_init_pixmaps(GxReglerClass *klass);
 static void gx_regler_style_set (GtkWidget *widget, GtkStyle  *previous_style);
+static void gx_regler_destroy(GtkObject *object);
 static void gx_regler_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_regler_get_property(
@@ -123,21 +120,26 @@ GType regler_type_get_type(void)
 	return etype;
 }
 
-static void gx_regler_set_label(GxRegler *self, const gchar *text)
+static void gx_regler_set_label(GxRegler *self, GObject *object)
 {
-	g_free(self->label);
-	self->label = g_strdup(text);
-	if (self->label_layout) {
-		pango_layout_set_text(self->label_layout, self->label, -1);
+	if (self->label) {
+		g_object_unref(self->label);
+		self->label = 0;
 	}
-	gtk_widget_queue_resize(GTK_WIDGET(self));
-	g_object_notify(G_OBJECT(self), "label-text");
+	if (object) {
+		self->label = GTK_LABEL(object);
+		g_object_ref(object);
+	}
+	g_object_notify(G_OBJECT(self), "label");
 }
 
 static void
 gx_regler_cp_configure(GxControlParameter *self, gchar* group, gchar *name, gdouble lower, gdouble upper, gdouble step)
 {
-	gx_regler_set_label(GX_REGLER(self), name);
+	GxRegler *regler = GX_REGLER(self);
+	if (regler->label) {
+		gtk_label_set_text(regler->label, name);
+	}
 }
 
 static gdouble
@@ -163,11 +165,15 @@ gx_control_parameter_interface_init(GxControlParameterIface *iface)
 static void gx_regler_class_init(GxReglerClass *klass)
 {
 	GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
+	GtkObjectClass *object_class = (GtkObjectClass*) klass;
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
+
 	gx_regler_parent_class = g_type_class_peek_parent(klass);
 	gobject_class->finalize = gx_regler_finalize;
 	gobject_class->set_property = gx_regler_set_property;
 	gobject_class->get_property = gx_regler_get_property;
+
+	object_class->destroy = gx_regler_destroy;
 
 	widget_class->style_set = gx_regler_style_set;
 	widget_class->enter_notify_event = gx_regler_enter_in;
@@ -201,31 +207,17 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		                     TRUE,
 		                     GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_install_property(
-		gobject_class, PROP_SHOW_LABEL,
-		g_param_spec_boolean("show-label",
-		                     P_("show label"),
-		                     P_("display a label"),
+		gobject_class, PROP_LABEL,
+		g_param_spec_boolean("label",
+		                     P_("Label reference"),
+		                     P_("Label for caption display"),
 		                     TRUE,
 		                     GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_install_property(
-		gobject_class, PROP_LABEL_FROM_VAR,
-		g_param_spec_boolean("label-from-var",
-		                     P_("label from variable"),
-		                     P_("label will be set to the name of the variable"),
-		                     TRUE,
-		                     GParamFlags(GTK_PARAM_READWRITE)));
-	g_object_class_install_property(
-		gobject_class, PROP_LABEL_TEXT,
-		g_param_spec_string("label-text",
-		                    P_("Label Text"),
-		                    P_("The text of the label"),
-		                    "",
-		                    GParamFlags(GTK_PARAM_READWRITE)));
-	g_object_class_install_property(
-		gobject_class, PROP_LABEL_POSITION,
-		g_param_spec_enum("label-position",
-		                  P_("Label Position"),
-		                  P_("The position of the label"),
+		gobject_class, PROP_VALUE_POSITION,
+		g_param_spec_enum("value-position",
+		                  P_("Value Position"),
+		                  P_("The position of the value display"),
 		                  GTK_TYPE_POSITION_TYPE,
 		                  GTK_POS_TOP,
 		                  GParamFlags(GTK_PARAM_READWRITE)));
@@ -234,6 +226,16 @@ static void gx_regler_class_init(GxReglerClass *klass)
 	g_type_class_add_private(klass, sizeof (GxReglerPrivate));
 	klass->current_theme = -1;
 	gx_regler_init_pixmaps(klass);
+}
+
+static void gx_regler_destroy(GtkObject *object)
+{
+	GxRegler *regler = GX_REGLER(object);
+	if (regler->label) {
+		g_object_unref(regler->label);
+		regler->label = 0;
+	}
+	GTK_OBJECT_CLASS(gx_regler_parent_class)->destroy(object);
 }
 
 static void gx_regler_base_class_finalize(GxReglerClass *klass)
@@ -258,11 +260,7 @@ static void gx_regler_base_class_finalize(GxReglerClass *klass)
 static void gx_regler_finalize(GObject *object)
 {
 	GxRegler *regler = GX_REGLER(object);
-	g_free(regler->label);
 	g_free(regler->var_id);
-	if (regler->label_layout) {
-		g_object_unref(regler->label_layout);
-	}
 	if (regler->value_layout) {
 		g_object_unref(regler->value_layout);
 	}
@@ -293,11 +291,6 @@ static const struct {
 
 static void gx_regler_ensure_layout(GxRegler *regler)
 {
-	if (regler->show_label && !regler->label_layout) {
-		regler->label_layout = gtk_widget_create_pango_layout(GTK_WIDGET(regler), regler->label);
-		pango_layout_set_font_description(
-			regler->label_layout, pango_font_description_from_string("Sans 8"));
-	}
 	if (regler->show_value && !regler->value_layout) {
 		regler->value_layout = gtk_widget_create_pango_layout(GTK_WIDGET(regler), NULL);
 		pango_layout_set_font_description(
@@ -329,22 +322,16 @@ static int precision(GtkAdjustment *adj)
 #define max(x, y) ((x) < (y) ? (y) : (x))
 #endif
 
-static gdouble get_positions(GtkWidget *widget, GdkRectangle *image_rect,
-                             GdkRectangle *value_rect, GdkPoint *text_pos)
+gdouble _gx_regler_get_positions(
+	GxRegler *regler, gint step, GdkRectangle *image_rect,
+	GdkRectangle *value_rect, GdkPoint *text_pos)
 {
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	GxRegler *regler = GX_REGLER(widget);
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
+	GtkWidget *widget = GTK_WIDGET(regler);
 	gint text_width = 0;
 	gint text_height = 0;
 	gint x = widget->allocation.x;
 	gint y = widget->allocation.y;
-	if (regler->show_label) {
-		PangoRectangle logical_rect;
-		gx_regler_ensure_layout(regler);
-		pango_layout_get_pixel_extents(regler->label_layout, NULL, &logical_rect);
-		text_width = logical_rect.width;
-		text_height = logical_rect.height;
-	}
 	if (regler->show_value) {
 		GxReglerPrivate *priv = GX_REGLER_GET_PRIVATE(regler);
 		value_rect->width = priv->value_req.width;
@@ -352,10 +339,9 @@ static gdouble get_positions(GtkWidget *widget, GdkRectangle *image_rect,
 	} else {
 		value_rect->width = value_rect->height = 0;
 	}
-	gint width = image_rect->width = base_size[regler->regler_type].width;
-	image_rect->height = base_size[regler->regler_type].height;
+	gint width = image_rect->width;
 	gint height =  image_rect->height + value_rect->height;
-	switch (regler->label_position) {
+	switch (regler->value_position) {
 	case GTK_POS_LEFT:
 		text_pos->x = x + (widget->allocation.width - width - text_width) / 2;
 		text_pos->y = y + (widget->allocation.height - text_height) / 2;
@@ -387,20 +373,30 @@ static gdouble get_positions(GtkWidget *widget, GdkRectangle *image_rect,
 	if (df == 0.0) {
 		return 0.0;
 	} else {
-		return (adj->value - adj->lower) * base_size[regler->regler_type].step / df;
+		return (adj->value - adj->lower) * step / df;
 	}
 }
 
-static void display_value(GtkWidget *widget, GdkRectangle *rect)
+static gdouble get_positions(GtkWidget *widget, GdkRectangle *image_rect,
+                             GdkRectangle *value_rect, GdkPoint *text_pos)
 {
-	if (!GX_REGLER(widget)->show_value) {
+	GxRegler *regler = GX_REGLER(widget);
+	image_rect->width = base_size[regler->regler_type].width;
+	image_rect->height = base_size[regler->regler_type].height;
+	return _gx_regler_get_positions(regler, base_size[regler->regler_type].step,
+	                                image_rect,	value_rect, text_pos);
+}
+
+void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
+{
+	if (!regler->show_value) {
 		return;
 	}
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
 	char s[64];
 	snprintf(s, sizeof(s), "%.*f", precision(adj), gtk_adjustment_get_value(adj));
 
-	cairo_t *cr = gdk_cairo_create(widget->window);
+	cairo_t *cr = gdk_cairo_create(GTK_WIDGET(regler)->window);
 	double x0 = rect->x + 1;
 	double y0 = rect->y + 1;
 	double rect_width  =  rect->width - 2;
@@ -433,7 +429,7 @@ static void display_value(GtkWidget *widget, GdkRectangle *rect)
     cairo_stroke(cr);
 
     cairo_set_source_rgba (cr, 0.4, 1, 0.2, 0.8);
-    PangoLayout *l = GX_REGLER(widget)->value_layout;
+    PangoLayout *l = regler->value_layout;
     pango_layout_set_text(l, s, -1);
     PangoRectangle logical_rect;
     pango_layout_get_pixel_extents(l, NULL, &logical_rect);
@@ -611,12 +607,7 @@ static gboolean gx_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 	default:
 		g_assert(FALSE);
 	}
-	display_value(widget, &value_rect);
-	if (GX_REGLER(widget)->show_label) {
-		gtk_paint_layout(
-			widget->style, widget->window, gtk_widget_get_state(widget), FALSE, &event->area,
-			widget, "label", text_pos.x, text_pos.y, GX_REGLER(widget)->label_layout);
-	}
+	_gx_regler_display_value(GX_REGLER(widget), &value_rect);
 	return TRUE;
 }
 
@@ -703,17 +694,12 @@ static gboolean gx_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
  ** set size for GdkDrawable per type
  */
 
-static void gx_regler_size_request (GtkWidget *widget, GtkRequisition *requisition)
+void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
 {
-	g_assert(GX_IS_REGLER(widget));
-	GxRegler *regler = GX_REGLER(widget);
-
-	requisition->width = base_size[regler->regler_type].width;
-	requisition->height = base_size[regler->regler_type].height;
 	gx_regler_ensure_layout(regler);
 	if (regler->show_value) {
 		PangoRectangle logical_rect1, logical_rect2;
-		GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+		GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
 		int p = precision(adj);
 		char buf[20];
 		int borderx = 12, bordery = 6;
@@ -733,6 +719,7 @@ static void gx_regler_size_request (GtkWidget *widget, GtkRequisition *requisiti
 		priv->value_req.width = width;
 		priv->value_req.height = height;
 	}
+#if 0
 	if (regler->show_label) {
 		PangoRectangle logical_rect;
 		pango_layout_get_pixel_extents(regler->label_layout, NULL, &logical_rect);
@@ -753,6 +740,16 @@ static void gx_regler_size_request (GtkWidget *widget, GtkRequisition *requisiti
 			break;
 		}
 	}
+#endif
+}
+
+static void gx_regler_size_request (GtkWidget *widget, GtkRequisition *requisition)
+{
+	g_assert(GX_IS_REGLER(widget));
+	GxRegler *regler = GX_REGLER(widget);
+	requisition->width = base_size[regler->regler_type].width;
+	requisition->height = base_size[regler->regler_type].height;
+	_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
 }
 
 /****************************************************************
@@ -811,7 +808,7 @@ static gboolean gx_regler_key_press (GtkWidget *widget, GdkEventKey *event)
 }
 
 //------------ calculate value for display
-static double gx_regler_get_value(GtkAdjustment *adj,double pos)
+double _gx_regler_get_value(GtkAdjustment *adj,double pos)
 {
     if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
     else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
@@ -945,31 +942,31 @@ static gboolean gx_regler_button_press (GtkWidget *widget, GdkEventButton *event
 	case GX_REGLER_TYPE_HSLIDER: {
 		int  reglerx = (widget->allocation.width - width) / 2;
 		double pos = adj->lower + (((event->x - reglerx-10)*0.01)* (adj->upper - adj->lower));
-		gtk_range_set_value(GTK_RANGE(widget), gx_regler_get_value(adj,pos));
+		gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
 		break;
 	}
 	case GX_REGLER_TYPE_MINI_SLIDER: {
 		int  reglerx = (widget->allocation.width - width) / 2;
 		double pos = adj->lower + (((event->x - reglerx-3)*0.03575)* (adj->upper - adj->lower));
-		gtk_range_set_value(GTK_RANGE(widget), gx_regler_get_value(adj,pos));
+		gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
 		break;
 	}
 	case GX_REGLER_TYPE_WHEEL: {
 		int  wheelx = (widget->allocation.width - width) / 2;
 		double pos = adj->lower + (((event->x - wheelx)*0.03)* (adj->upper - adj->lower));
-		gtk_range_set_value(GTK_RANGE(widget), gx_regler_get_value(adj,pos));
+		gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
 		break;
 	}
 	case GX_REGLER_TYPE_VSLIDER: {
 		int  reglery = (widget->allocation.height - height) / 2;
 		double pos = adj->upper - (((event->y - reglery-10)*0.02)* (adj->upper - adj->lower));
-		gtk_range_set_value(GTK_RANGE(widget), gx_regler_get_value(adj,pos));
+		gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
 		break;
 	}
 	case GX_REGLER_TYPE_EQ_SLIDER: {
 		int  reglery = (widget->allocation.height - width) / 2;
 		double pos = adj->upper - (((event->y - reglery+18)*0.02)* (adj->upper - adj->lower));
-		gtk_range_set_value(GTK_RANGE(widget), gx_regler_get_value(adj,pos));
+		gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
 		break;
 	}
 	default:
@@ -1020,35 +1017,35 @@ static gboolean gx_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *eve
 		if (event->x > 0) {
 			int  sliderx = (widget->allocation.width - width) / 2;
 			double pos = adj->lower + (((event->x - sliderx-10)*0.01)* (adj->upper - adj->lower));
-			gtk_range_set_value(GTK_RANGE(widget), gx_regler_get_value(adj,pos));
+			gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
 		}
 		break;
 	case GX_REGLER_TYPE_MINI_SLIDER:
 		if (event->x > 0) {
 			int  sliderx = (widget->allocation.width - width) / 2;
 			double pos = adj->lower + (((event->x - sliderx-3)*0.03575)* (adj->upper - adj->lower));
-			gtk_range_set_value(GTK_RANGE(widget), gx_regler_get_value(adj,pos));
+			gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
 		}
 		break;
 	case GX_REGLER_TYPE_WHEEL:
 		if (event->x > 0) {
 			int  wheelx = (widget->allocation.width - width) / 2;
 			double pos = adj->lower + (((event->x - wheelx)*0.03)* (adj->upper - adj->lower));
-			gtk_range_set_value(GTK_RANGE(widget), gx_regler_get_value(adj,pos));
+			gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
 		}
 		break;
 	case GX_REGLER_TYPE_VSLIDER:
 		if (event->y > 0) {
 			int  slidery = (widget->allocation.height - height) / 2;
 			double pos = adj->upper - (((event->y - slidery-10)*0.02)* (adj->upper - adj->lower));
-			gtk_range_set_value(GTK_RANGE(widget), gx_regler_get_value(adj,pos));
+			gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
 		}
 		break;
 	case GX_REGLER_TYPE_EQ_SLIDER:
 		if (event->y > 0) {
 			int  slidery = (widget->allocation.height - width) / 2;
 			double pos = adj->upper - (((event->y - slidery+18)*0.02)* (adj->upper - adj->lower));
-			gtk_range_set_value(GTK_RANGE(widget), gx_regler_get_value(adj,pos));
+			gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
 		}
 		break;
 	default:
@@ -1206,22 +1203,13 @@ static void gx_regler_set_property (
 		gtk_widget_queue_resize(GTK_WIDGET(object));
 		g_object_notify(object, "show-value");
 		break;
-	case PROP_SHOW_LABEL:
-		regler->show_label = g_value_get_boolean(value);
+	case PROP_VALUE_POSITION:
+		regler->value_position = GtkPositionType(g_value_get_enum(value));
 		gtk_widget_queue_resize(GTK_WIDGET(object));
-		g_object_notify(object, "show-label");
+		g_object_notify(object, "valu-position");
 		break;
-	case PROP_LABEL_FROM_VAR:
-		regler->label_from_var = g_value_get_boolean(value);
-		g_object_notify(object, "label-from-var");
-		break;
-	case PROP_LABEL_TEXT:
-		gx_regler_set_label(regler, g_value_get_string(value));
-		break;
-	case PROP_LABEL_POSITION:
-		regler->label_position = GtkPositionType(g_value_get_enum(value));
-		gtk_widget_queue_resize(GTK_WIDGET(object));
-		g_object_notify(object, "label-position");
+	case PROP_LABEL:
+		gx_regler_set_label(regler, G_OBJECT(g_value_get_object(value)));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1245,17 +1233,11 @@ static void gx_regler_get_property(
 	case PROP_SHOW_VALUE:
 		g_value_set_boolean(value, regler->show_value);
 		break;
-	case PROP_SHOW_LABEL:
-		g_value_set_boolean(value, regler->show_label);
+	case PROP_VALUE_POSITION:
+		g_value_set_enum(value, regler->value_position);
 		break;
-	case PROP_LABEL_FROM_VAR:
-		g_value_set_boolean(value, regler->label_from_var);
-		break;
-	case PROP_LABEL_TEXT:
-		g_value_set_string(value, regler->label);
-		break;
-	case PROP_LABEL_POSITION:
-		g_value_set_enum(value, regler->label_position);
+	case PROP_LABEL:
+		g_value_set_object(value, regler->label);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

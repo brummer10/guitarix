@@ -1601,7 +1601,7 @@ void gx_ir_edit_jump_zoom_mark(GxIREdit *ir_edit)
 void gx_ir_edit_set_channel(GxIREdit *ir_edit, int chan)
 {
 	g_assert(GX_IS_IR_EDIT(ir_edit));
-	chan = min(max(chan, 0), ir_edit->odata_chan);
+	chan = min(max(chan, -1), ir_edit->odata_chan);
 	if (ir_edit->chan == chan) {
 		return;
 	}

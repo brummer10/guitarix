@@ -20,33 +20,33 @@
 part of guitarix, use  knobs with Gtk
 ******************************************************************************/
 
-#ifndef __GX_SWITCH_H__
-#define __GX_SWITCH_H__
+#ifndef __GX_RADIO_BUTTON_H__
+#define __GX_RADIO_BUTTON_H__
 
-#include <gtk/gtktogglebutton.h>
-#include <gtk/gtklabel.h>
+#include <gtk/gtkradiobutton.h>
 
 G_BEGIN_DECLS
 
-#define GX_TYPE_SWITCH          (gx_switch_get_type())
-#define GX_SWITCH(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GX_TYPE_SWITCH, GxSwitch))
-#define GX_SWITCH_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_SWITCH, GxSwitchClass))
-#define GX_IS_SWITCH(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GX_TYPE_SWITCH))
-#define GX_IS_SWITCH_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_SWITCH))
-#define GX_SWITCH_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_SWITCH, GxSwitchClass))
+//----------------------------------------------------------------
+
+#define GX_TYPE_RADIO_BUTTON          (gx_radio_button_get_type())
+#define GX_RADIO_BUTTON(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GX_TYPE_RADIO_BUTTON, GxRadioButton))
+#define GX_RADIO_BUTTON_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_RADIO_BUTTON, GxRadioButtonClass))
+#define GX_IS_RADIO_BUTTON(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GX_TYPE_RADIO_BUTTON))
+#define GX_IS_RADIO_BUTTON_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_RADIO_BUTTON))
+#define GX_RADIO_BUTTON_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_RADIO_BUTTON, GxRadioButtonClass))
+
+typedef struct
+{
+	GtkRadioButton parent;
+} GxRadioButton;
 
 typedef struct {
-	GtkToggleButton parent;
-	gchar *GSEAL(var_id);
-	GtkLabel *GSEAL(label);
-} GxSwitch;
+	GtkRadioButtonClass parent_class;
+} GxRadioButtonClass;
 
-typedef struct {
-	GtkToggleButtonClass parent_class;
-} GxSwitchClass;
-
-GType gx_switch_get_type(void);
+GType gx_radio_button_get_type(void);
 
 G_END_DECLS
 
-#endif /* __GX_SWITCH_H__ */
+#endif /* __GX_RADIO_BUTTON_H__ */

@@ -11,6 +11,24 @@
    )
   )
 
+(define-function toggle_image_new
+  (c-name "gx_toggle_image_new")
+  (is-constructor-of "GxToggleImage")
+  (return-type "GtkWidget*")
+  (properties
+   '("base-name" (optional))
+   )
+  )
+
+(define-function wheel_new
+  (c-name "gx_wheel_new")
+  (is-constructor-of "GxWheel")
+  (return-type "GtkWidget*")
+  (properties
+   '("adjustment" (optional))
+   )
+  )
+
 (define-function regler_new
   (c-name "gx_regler_new")
   (is-constructor-of "GxRegler")
@@ -21,6 +39,9 @@
   (c-name "gx_switch_new")
   (is-constructor-of "GxSwitch")
   (return-type "GtkWidget*")
+  (properties
+   '("base-name" (optional))
+   )
   )
 
 (define-function ir_edit_new

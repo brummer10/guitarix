@@ -9,17 +9,21 @@ headers
 #include "GxFastMeter.h"
 #include "GxWaveView.h"
 #include "GxRegler.h"
+#include "GxWheel.h"
 #include "GxSelector.h"
 #include "GxSwitch.h"
+#include "GxToggleImage.h"
 #include "GxControlParameter.h"
 #include "GxIREdit.h"
+#include "GxRadioButton.h"
 %%
 modulename gxwidgets
 %%
 import gtk.DrawingArea as PyGtkDrawingArea_Type
 import gtk.Range as PyGtkRange_Type
 import gtk.ToggleButton as PyGtkToggleButton_Type
-import gtk.Box as PyGtkBox_Type
+import gtk.RadioButton as PyGtkRadioButton_Type
+import gtk.Misc as PyGtkMisc_Type
 %%
 ignore set_regler_connect_func
 ignore set_selector_connect_func
