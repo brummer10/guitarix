@@ -83,7 +83,7 @@ RegisterParams::RegisterParams()
 {
 	registerVar("moog.Q","","S","",&fslider1, 1.0, 0.0, 4.0, 0.1);
 	registerVar("moog.fr","","S","",&fslider0, 3e+03, 4.4e+02, 6e+03, 1e+01);
-	registerInit(init);
+	registerInit("moog", init);
 }
 
 } // end namespace moog

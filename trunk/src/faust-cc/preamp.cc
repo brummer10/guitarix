@@ -43,7 +43,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("preamp.atan","drive","S","Input level for pre-amp (higher level gives more distortion)",&fslider0, 1.0, 1.0, 1e+01, 1.0);
-	registerInit(init);
+	registerInit("preamp", init);
 }
 
 } // end namespace preamp

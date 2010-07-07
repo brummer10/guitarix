@@ -56,7 +56,7 @@ RegisterParams::RegisterParams()
 	registerVar("crybaby.level","","S","",&fslider2, 0.1, 0.0, 1.0, 0.01);
 	registerVar("crybaby.wah","","S","",&fslider1, 0.0, 0.0, 1.0, 0.01);
 	registerVar("crybaby.wet_dry","wet/dry","S","",&fslider0, 0.0, -1.0, 1.0, 0.1);
-	registerInit(init);
+	registerInit("crybaby", init);
 }
 
 } // end namespace crybaby

@@ -219,7 +219,7 @@ RegisterParams::RegisterParams()
 	registerVar("eq.Q16k","","S","",&fslider0, 5e+01, 1.0, 1e+02, 1.0);
 	registerVar("eq.f1k","","S","gain (dB) at 1 kHz",&fslider9, 0.0, -5e+01, 1e+01, 0.1);
 	registerVar("eq.Q1k","","S","",&fslider8, 5e+01, 1.0, 1e+02, 1.0);
-	registerInit(init);
+	registerInit("eq", init);
 }
 
 } // end namespace eq

@@ -5,7 +5,7 @@ declare license 	"BSD";
 import("effect.lib");
 import("osc.lib");
 
-flangerstereogx = *(level),*(level) : flangerstereo(dmax,curdel1,curdel2,depth,fb,invert)
+flangerstereogx = *(level),*(level) : flangerstereo(dmax,curdel1,curdel2,depth,fb,invert) // change to flanger_stereo for faust >= 0.9.27
 with {
   lfol = component("osc.lib").oscrs; // sine for left channel
   lfor = component("osc.lib").oscrc; // cosine for right channel

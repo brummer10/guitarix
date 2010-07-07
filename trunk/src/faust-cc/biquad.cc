@@ -29,7 +29,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("biquad.Freq","","S","",&fslider0, 1.2e+03, 3e+02, 3e+03, 5.0);
-	registerInit(init);
+	registerInit("biquad", init);
 }
 
 } // end namespace biquad

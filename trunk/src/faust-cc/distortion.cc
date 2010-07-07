@@ -314,7 +314,7 @@ RegisterParams::RegisterParams()
 	registerVar("distortion.gain","","S","",&fslider0, 2.0, -1e+01, 1e+01, 0.1);
 	registerVar("distortion.high_gain","","S","",&fslider9, 1e+01, -1e+01, 2e+01, 0.1);
 	registerVar("distortion.drive","","S","",&fslider8, 0.64, 0.0, 1.0, 0.01);
-	registerInit(init);
+	registerInit("distortion", init);
 }
 
 } // end namespace distortion

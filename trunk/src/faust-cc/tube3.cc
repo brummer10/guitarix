@@ -41,7 +41,7 @@ RegisterParams::RegisterParams()
 	registerVar("tube3.g","","S","",&fslider2, 1.0, 0.2, 2.0, 0.1);
 	registerVar("tube3.dist","","S","",&fslider1, 0.0, 0.0, 1.7, 0.01);
 	registerVar("tube3.q","","S","",&fslider0, 0.4, 0.4, 1.0, 0.001);
-	registerInit(init);
+	registerInit("tube3", init);
 }
 
 } // end namespace tube3

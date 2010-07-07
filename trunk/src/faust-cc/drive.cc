@@ -22,7 +22,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("drive.value","drive","S","",&fslider0, 1.0, 1.0, 1e+01, 1.0);
-	registerInit(init);
+	registerInit("drive", init);
 }
 
 } // end namespace drive

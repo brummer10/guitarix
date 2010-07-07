@@ -44,7 +44,7 @@ RegisterParams::RegisterParams()
 	registerVar("IR.auto_freq","auto freq","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	registerVar("IR.freq","","S","frequency (Hz)",&fslider1, 4.4e+02, 2e+01, 1.2e+04, 1e+01);
 	registerVar("IR.bandwidth","","S","bandwidth (Hz)",&fslider0, 1e+02, 2e+01, 2e+04, 1e+01);
-	registerInit(init);
+	registerInit("IR", init);
 }
 
 } // end namespace impulseresponse

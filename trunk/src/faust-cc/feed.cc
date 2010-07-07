@@ -39,7 +39,7 @@ RegisterParams::RegisterParams()
 	registerVar("amp.feedforward","Feedforward","S","",&fslider2, 0.0, -1.0, 1.0, 0.01);
 	registerVar("amp.feedback","Feedback","S","",&fslider1, 0.0, -1.0, 1.0, 0.01);
 	registerVar("amp.fuzz","fuzz","S","",&fslider0, 1.0, 0.0, 1.0, 0.01);
-	registerInit(init);
+	registerInit("amp", init);
 }
 
 } // end namespace feed

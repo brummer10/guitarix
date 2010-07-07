@@ -26,7 +26,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("tube.vibrato","","S","",&fslider0, 0.0, 0.0, 2.0, 0.02);
-	registerInit(init);
+	registerInit("tube", init);
 }
 
 } // end namespace tubevibrato

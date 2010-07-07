@@ -53,7 +53,7 @@ RegisterParams::RegisterParams()
 	registerVar("compressor.threshold","","S","",&fentry0, -2e+01, -96.0, 1e+01, 0.1);
 	registerVar("compressor.release","","S","",&fslider1, 0.5, 0.0, 1e+01, 0.01);
 	registerVar("compressor.attack","","S","",&fslider0, 0.002, 0.0, 1.0, 0.001);
-	registerInit(init);
+	registerInit("compressor", init);
 }
 
 } // end namespace compressor

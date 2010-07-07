@@ -39,6 +39,8 @@ using namespace gx_child_process;
 namespace gx_jack
 {
 
+sem_t jack_sync_sem;
+
 //----- pop up a dialog for starting jack
 bool gx_jack_init( const string *optvar )
 {
@@ -48,6 +50,8 @@ bool gx_jack_init( const string *optvar )
 	client_instance = "guitarix";
 
 	AVOIDDENORMALS;
+
+	sem_init(&jack_sync_sem, 0, 0);
 
 	// init the pointer to the jackbuffer
 	for (int i=0; i < nOPorts; i++) output_ports[i] = 0;
@@ -788,7 +792,11 @@ int gx_jack_midi_process_ringbuffer (jack_nframes_t nframes, void *arg)
 // ----- main jack process method
 int gx_jack_process (jack_nframes_t nframes, void *arg)
 {
+    int val;
 	measure_start();
+    if (sem_getvalue(&jack_sync_sem, &val) == 0 && val == 0) {
+	    sem_post(&jack_sync_sem);
+    }
 	if (!jack_is_exit) {
 		AVOIDDENORMALS;
 

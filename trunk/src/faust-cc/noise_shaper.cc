@@ -36,7 +36,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("shaper.sharper","sharper","S","",&fslider0, 1.0, 1.0, 1e+01, 1.0);
-	registerInit(init);
+	registerInit("shaper", init);
 }
 
 } // end namespace noise_shaper

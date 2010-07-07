@@ -54,12 +54,15 @@ def dsp_file(self, node):
     o = parent.parent.find_or_declare([parent.name+"-cc",node.name])
     o = o.change_ext('.cc')
     tsk.set_outputs(o)
+    bld = tsk.generator.bld
+    bld.add_manual_dependency(node,bld.bldnode.find_resource(self.proc))
 
 def build(bld):
+    float_arg = ["-s","40000","-float"]
     if bld.env['FAUST_DOUBLE']:
-		arg = ["-double"]
+        arg = ["-double"]
     else:
-		arg = ["-float"]		
+        arg = ["-float"]
     sources = [
         # amp
         'preamp.dsp',
@@ -79,7 +82,6 @@ def build(bld):
         'bassbooster.dsp',
         'outputgain.dsp',
         'feed.dsp',
-        'jconv_post.dsp',
         'balance.dsp',
         'balance1.dsp',
         'tonestack.dsp',
@@ -91,31 +93,41 @@ def build(bld):
         'compressor.dsp',
         'crybaby.dsp',
         'autowah.dsp',
-        'echo.dsp',
-        'delay.dsp',
         'distortion.dsp',
         'distortion1.dsp',
         'freeverb.dsp',
         'flanger.dsp',
         'impulseresponse.dsp',
-        'chorus.dsp',
         'moog.dsp',
         'biquad.dsp',
-        'sloop.dsp',
         'selecteq.dsp',
         ]
 
+    float_sources = [ # big arrays and no sensitive processing
+        'jconv_post.dsp',
+        'sloop.dsp',
+        'echo.dsp',
+        'delay.dsp',
+        'chorus.dsp',
+    ]
+
     experimental_soures = [
-        "valve.dsp",
-        "valve_rect.dsp",
+        #"valve.dsp",
+        #"valve_rect.dsp",
         "Exp.dsp",
-        "ExpFilter.dsp",
+        #"ExpFilter.dsp",
         ]
 
-    bld.new_task_gen(
+    task = bld.new_task_gen(
         source = sources,
         proc = "../tools/dsp2cc",
         proc_args = arg,
+        )
+
+    bld.new_task_gen(
+        source = float_sources,
+        proc = "../tools/dsp2cc",
+        proc_args = float_arg,
         )
 
     bld.new_task_gen(

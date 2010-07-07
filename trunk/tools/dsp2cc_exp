@@ -33,7 +33,7 @@ void setup(GtkWidget *w)
 
 DspBlock::DspBlock()
 {
-%(uidefs)s	registerInit(%(modname)s::init);
+%(uidefs)s	registerInit("Experimental", %(modname)s::init);
 #ifdef DSP_HAS_SETUP
 	registerSetup(%(modname)s::setup);
 #endif

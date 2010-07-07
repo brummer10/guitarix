@@ -25,6 +25,7 @@
 
 #include <cstring>
 #include <fstream>
+#include <errno.h>
 #include "guitarix.h"
 
 using namespace gx_resample;
@@ -567,11 +568,11 @@ void process_buffers(int count, float* input, float* output0)
 	        }
 	    } else if (audio.posit3 == m && audio.fcheckbox6) {
 		    freeverb::compute(count, output0, output0);
-	    } else if (audio.posit6 == m && audio.fcheckbox7) {
+	    } else if (audio.posit6 == m && audio.fcheckbox7 && echo::is_inited()) {
 		    echo::compute(count, output0, output0);
 	    } else if (audio.posit4 == m && audio.fcheckbox8) {
 		    impulseresponse::compute(count, output0, output0);
-	    } else if (audio.posit7 == m && audio.fdelay) {
+	    } else if (audio.posit7 == m && audio.fdelay && delay::is_inited()) {
 		    delay::compute(count, output0, output0);
 	    }
     }
@@ -591,16 +592,17 @@ void process_buffers(int count, float* input, float* output0)
     } else if (audio.ftube3e) {
 	    tube3::compute(count, output0, output0);
     }
-    if (audio.fsloop) {
+    if (audio.fsloop && sloop::is_inited()) {
 	    sloop::compute(count, output0, output0);
-    }
+    } 
 }
+
 void process_insert_buffers (int count, float* input1, float* output0, float* output1)
 {
     memcpy(output0, input1, count*sizeof(float));
     feed::compute(count, output0, output0, output1);
 
-    if (audio.fchorus) {
+    if (audio.fchorus and chorus::is_inited()) {
 	    chorus::compute(count, output0, output1, output0, output1);
     }
     if (audio.fflanger) {
@@ -615,7 +617,7 @@ void process_insert_buffers (int count, float* input1, float* output0, float* ou
 		    gx_jconv::GxJConvSettings::checkbutton7 = 0;
 		    cout << "overload" << endl;
 		    //FIXME error message??
-	    } else {
+	    } else if (jconv_post::is_inited()) {
 		    jconv_post::compute(count, output0, output1, conv_out0, conv_out1, output0, output1);
 	    }
     } else {

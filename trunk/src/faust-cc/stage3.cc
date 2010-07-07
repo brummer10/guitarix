@@ -75,7 +75,7 @@ RegisterParams::RegisterParams()
 {
 	registerVar("stage3.ON","","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	registerVar("stage3.gain3","","S","",&fslider0, 6.0, -1e+01, 2e+01, 0.1);
-	registerInit(init);
+	registerInit("stage3", init);
 }
 
 } // end namespace stage3

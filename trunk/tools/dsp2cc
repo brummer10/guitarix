@@ -74,7 +74,7 @@ class Parser(object):
                 break
             cp.append(line)
         # remove indentation
-        m = re.compile("\t*").match
+        m = re.compile(r"\t*").match
         n = 10
         for l in cp:
             if l != "\n":
@@ -82,7 +82,7 @@ class Parser(object):
         return [l[n:] for l in cp]
 
     def get_section_list(self):
-        return "var-decl", "var-init", "ui", "compute"
+        return "var-decl", "var-init", "var-free", "ui", "compute"
 
     def getIO(self, s):
         e = r"\s*virtual int getNum%sputs\(\)\s*{\s*return\s*(\d+);\s*}" % s
@@ -97,7 +97,7 @@ class Parser(object):
         pre = r"\s*interface->"
         nm = '"([^"]*)"'
         vr = "([a-zA-Z_][0-9a-zA-Z_]*)"
-        sarg = ("%s,\s*&%s,\s*%s,\s*%s,\s*%s,\s*%s"
+        sarg = (r"%s,\s*&%s,\s*%s,\s*%s,\s*%s,\s*%s"
                 % (nm, vr, num_re, num_re, num_re, num_re))
         openbox = re.compile(pre+r"open(Horizontal|Vertical)Box\(%s\);" % nm).match
         closebox = re.compile(pre+r"closeBox\(\);").match
@@ -125,6 +125,8 @@ class Parser(object):
                 if not stack:
                     if self.toplevel and grp == self.modname:
                         grp = self.toplevel
+                    if not self.topname:
+                        self.topname = grp
                 stack.append(grp)
                 continue
             if closebox(line):
@@ -148,7 +150,6 @@ class Parser(object):
             if m:
                 self.ui.add(m.group(1), m.group(2), m.group(3))
                 continue
-            
             assert False, line
 
     def readMeta(self):
@@ -183,28 +184,47 @@ class Parser(object):
                     self.toplevel = value
 
     def change_var_decl(self, lines):
-        matcher = re.compile("FAUSTFLOAT\s+([a-zA-Z_0-9]+);\n$").match
+        param_matcher = re.compile(r"FAUSTFLOAT\s+([a-zA-Z_0-9]+);\n$").match
+        array_matcher = re.compile(r"(int|float|double)\s+([a-zA-Z_0-9]+)\s*\[\s*(\d+)\s*\]\s*;\n$").match
         out = []
         for l in lines:
-            m = matcher(l);
+            m = param_matcher(l);
             if m:
                 var = m.group(1)
                 alias = self.ui.has(var,"alias")
                 if alias:
                     l = ('FAUSTFLOAT&\t%s = get_alias("%s");\n'
                          % (var, self.ui.get(var, "id")))
-                #oldvar = self.ui.get(var,"old")
-                #if not oldvar:
-                #    raise ValueError, "error: no oldvar for " + self.ui.get(var,"id")
-                #l = ("FAUSTFLOAT&\t%s=*(float*)&GxEngine::instance()->%s;\n"
-                #     % (var, oldvar))
+            if self.memory_threshold:
+                m = array_matcher(l)
+                if m:
+                    sz = {"int": 4, "float": 4, "double": 8}[m.group(1)]
+                    alen = int(m.group(3))
+                    if alen * sz > self.memory_threshold:
+                        l = "%s *%s;\n" % (m.group(1), m.group(2))
+                        self.memlist.append((m.group(2), m.group(1), alen))
             out.append(l)
         return out
 
-    def __init__(self, lines, modname):
-        self.modname = modname
-        self.toplevel = None
+    def add_var_alloc(self):
+        l = []
+        for v, t, s in self.memlist:
+            l.append("if (!%s) %s = new %s[%d];\n" % (v, v, t, s))
+        return l
+
+    def add_var_free(self):
+        l = []
+        for v, t, s in self.memlist:
+            l.append("if (%s) { delete %s; %s = 0; }\n" % (v, v, v))
+        return l
+
+    def __init__(self, lines, modname, memory_threshold):
         self.lines = lines
+        self.modname = modname
+        self.memory_threshold = memory_threshold;
+        self.toplevel = None
+        self.topname = None
+        self.memlist = []
         s = {}
         self.ui = UIDefs()
         #self.readMeta()  # (needed only for faust 9.4
@@ -221,12 +241,16 @@ class Parser(object):
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
         s["var-decl"] = self.change_var_decl(var_decl)
+        s["var-init"] = self.add_var_alloc() + s["var-init"]
+        s["var-free"] = self.add_var_free()
         self.skip_until(r"\s*virtual void compute")
         iodef = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*\2put\[\3\];"
         s["compute"] = self.copy(iodef)
         line = self.skip_while(iodef)
         s["compute"] += self.copy("\s*}$", line)
         self.sections = s
+        if self.topname is None:
+            self.topname = self.modname
         # ignore any following definitions of static class members
 
     def getNumInputs(self):
@@ -246,14 +270,44 @@ class Parser(object):
             fp.write(pre)
             fp.write(l)
 
+activate = """
+void activate(bool start, int samplingFreq)
+{
+	if (start) {
+		if (!is_inited()) {
+			init(samplingFreq);
+		}
+	} else {
+		if (is_inited()) {
+			mem_free();
+		}
+	}
+}
+
+"""
+
 def output(fp, p, fname):
+    has_activate = len(p.memlist) > 0
     fp.write("namespace %s {\n" % p.modname)
     fp.write("// generated from file '%s'\n\n" % fname)
+    if has_activate:
+        fp.write("volatile bool inited = false;\n")
     p.write(fp, "var-decl")
     fp.write("int\tfSamplingFreq;\n\n")
     fp.write("void init(int samplingFreq)\n{\n")
     p.write(fp, "var-init", 1, filt=p.ui.var_filter())
+    if has_activate:
+        fp.write("\tinited = true;\n")
     fp.write("}\n\n")
+    if has_activate:
+        fp.write("void mem_free()\n{\n")
+        fp.write("\tinited = false;\n")
+        fp.write("\tjack_sync();\n")
+        p.write(fp, "var-free", 1)
+        fp.write("}\n\n")
+        fp.write("inline bool is_inited()\n")
+        fp.write("{\n    return inited;\n}\n\n")
+        fp.write(activate)
     fp.write("void compute(int count%s%s)\n{\n" % (
         "".join([", float *input%d" % i for i in range(p.getNumInputs())]),
         "".join([", float *output%d" % i for i in range(p.getNumOutputs())])))
@@ -262,7 +316,7 @@ def output(fp, p, fname):
     fp.write("static struct RegisterParams { RegisterParams(); } RegisterParams;\n")
     fp.write("RegisterParams::RegisterParams()\n{\n")
     p.ui.write(fp)
-    fp.write('\tregisterInit(init);\n')
+    fp.write('\tregisterInit("%s", init);\n' % p.topname)
     fp.write("}\n")
     fp.write("\n} // end namespace %s\n" % p.modname)
 
@@ -273,7 +327,10 @@ def main():
     op.add_option("-d", "--double", dest="faust", action="append",
                   help="additional faust options, build with double precison") 
     op.add_option("-f", "--float", dest="faustf", action="append",
-                  help="additional faust options, build with single precison")                           
+                  help="additional faust options, build with single precison")
+    op.add_option("-s", "--memory-threshold", dest="memory_threshold",
+                  default=0, type="int",
+                  help="change static memory allocations above threshold to dynamic ones")
     options, args = op.parse_args()
     if len(args) != 1:
         op.error("exactly one input filename expected\n")
@@ -287,7 +344,9 @@ def main():
 		precison = '-single'	    
     faust = Popen("faust %s %s" %( fname, precison), shell=True, stdout=PIPE)
     try:
-        parser = Parser(faust.stdout, os.path.splitext(os.path.basename(fname))[0])
+        parser = Parser(faust.stdout,
+                        os.path.splitext(os.path.basename(fname))[0],
+                        options.memory_threshold)
     except ValueError, e:
         if faust.wait() == 0:
             print e

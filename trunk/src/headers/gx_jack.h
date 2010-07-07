@@ -49,6 +49,8 @@ typedef struct
 } MidiMessage;
 #endif
 
+extern sem_t jack_sync_sem;
+
 /* -------- functions ---------- */
 bool gx_jack_init( const string *optvar );
 void gx_jack_callbacks_and_activate();

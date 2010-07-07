@@ -24,7 +24,7 @@ void compute(int count, float *input0, float *output0, float *output1)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerInit(init);
+	registerInit("balance1", init);
 }
 
 } // end namespace balance1

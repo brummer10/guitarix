@@ -26,7 +26,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("anti_aliase.feedback","Feedback","S","",&fslider0, 0.3, 0.3, 0.9, 0.01);
-	registerInit(init);
+	registerInit("anti_aliase", init);
 }
 
 } // end namespace AntiAlias

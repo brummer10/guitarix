@@ -120,7 +120,7 @@ RegisterParams::RegisterParams()
 	registerVar("amp2.stage2.gain2","","S","",&fslider2, 6.0, -1e+01, 2e+01, 0.1);
 	registerVar("amp2.stage1.gain1","","S","",&fslider1, 6.0, -1e+01, 2e+01, 0.1);
 	registerVar("amp2.preamp.Pregain","","S","",&fslider0, 3e+01, -1e+01, 8e+01, 0.1);
-	registerInit(init);
+	registerInit("amp2", init);
 }
 
 } // end namespace amp2

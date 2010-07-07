@@ -222,7 +222,7 @@ RegisterParams::RegisterParams()
 	registerVar("distortion1.vibrato","","S","",&fslider2, 1.0, 0.0, 1.0, 0.01);
 	registerVar("distortion1.trigger","","S","",&fslider1, 0.12, 0.0, 1.0, 0.01);
 	registerVar("distortion1.gain","","S","",&fslider0, 2.0, -1e+01, 1e+01, 0.1);
-	registerInit(init);
+	registerInit("distortion1", init);
 }
 
 } // end namespace distortion1

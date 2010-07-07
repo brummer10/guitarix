@@ -85,7 +85,7 @@ RegisterParams::RegisterParams()
 	registerVar("flanger.LFO freq","","S","",&fslider2, 0.2, 0.0, 5.0, 0.01);
 	registerVar("flanger.feedback gain","","S","",&fslider1, 0.0, 0.0, 1.0, 0.01);
 	registerVar("flanger.level","","S","",&fslider0, 0.0, -6e+01, 1e+01, 0.1);
-	registerInit(init);
+	registerInit("flanger", init);
 }
 
 } // end namespace flanger

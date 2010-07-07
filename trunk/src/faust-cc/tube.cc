@@ -22,7 +22,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("tube.fuzzy","count","S","",&fslider0, 1.0, -3.0, 1e+01, 1.0);
-	registerInit(init);
+	registerInit("tube", init);
 }
 
 } // end namespace tube

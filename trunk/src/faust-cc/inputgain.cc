@@ -26,7 +26,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("amp.in_level","in / level","S","",&fslider0, 0.0, -4e+01, 4e+01, 0.1);
-	registerInit(init);
+	registerInit("amp", init);
 }
 
 } // end namespace inputgain

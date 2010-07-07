@@ -30,7 +30,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("overdrive.drive","","S","",&fslider0, 1.0, 1.0, 2e+01, 0.1);
-	registerInit(init);
+	registerInit("overdrive", init);
 }
 
 } // end namespace overdrive

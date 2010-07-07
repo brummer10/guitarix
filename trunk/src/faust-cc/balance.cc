@@ -24,7 +24,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("amp.balance","Balance","S","",&fslider0, 0.0, -1.0, 1.0, 0.1);
-	registerInit(init);
+	registerInit("balance", init);
 }
 
 } // end namespace balance

@@ -221,7 +221,7 @@ RegisterParams::RegisterParams()
 	registerVar("eqs.freq16k","","S","Hz",&fslider0, 1.6e+04, 2e+01, 2e+04, 1.0);
 	registerVar("eqs.freq2k","","S","Hz",&fslider9, 2e+03, 2e+01, 2e+04, 1.0);
 	registerVar("eqs.fs4k","","S","gain (dB) at 4 kHz",&fslider8, 0.0, -5e+01, 1e+01, 0.1);
-	registerInit(init);
+	registerInit("eqs", init);
 }
 
 } // end namespace selecteq

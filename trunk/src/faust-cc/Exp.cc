@@ -1386,7 +1386,7 @@ DspBlock::DspBlock()
 	registerVar("test.tremolo.SINE","","B","",&fcheckbox0,0,0,1,1);
 	registerVar("test.tremolo.depth","","S","",&fslider1,0.5,0.0,1.0,0.01);
 	registerVar("test.tremolo.freq","","S","",&fslider0,5.0,0.1,5e+01,0.1);
-	registerInit(Exp::init);
+	registerInit("Experimental", Exp::init);
 #ifdef DSP_HAS_SETUP
 	registerSetup(Exp::setup);
 #endif

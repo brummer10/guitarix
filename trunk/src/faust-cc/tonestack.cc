@@ -372,7 +372,7 @@ RegisterParams::RegisterParams()
 	registerVar("amp.tonestack.Treble","","S","",&fslider2, 0.5, 0.0, 1.0, 0.01);
 	registerVar("amp.tonestack.Bass","","S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
 	registerVar("amp.tonestack.Middle","","S","",&fslider0, 0.5, 0.0, 1.0, 0.01);
-	registerInit(init);
+	registerInit("amp.tonestack", init);
 }
 
 } // end namespace tonestack

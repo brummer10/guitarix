@@ -95,14 +95,13 @@ namespace feed { float ngate = 1; }  // noise-gate, modifies output gain
  */
 
 typedef void (*inifunc)(int);
-list<inifunc> inilist;
 
-void faust_init(int samplingFreq)
-{
-	for (list<inifunc>::iterator i = inilist.begin(); i != inilist.end(); i++) {
-		(*i)(samplingFreq);
-	}
-}
+typedef struct {
+	inifunc func;
+	const char *name;
+} inidef;
+
+list<inidef> inilist;
 
 float& get_alias(const char *id)
 {
@@ -126,9 +125,17 @@ void registerVar(const char* id, const char* name, const char* tp,
 	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(id, name, gx_gui::Parameter::Continuous, true, *var, val, low, up, step, true, exp));
 }
 
-void registerInit(inifunc f)
+void registerInit(const char *name, inifunc f)
 {
-	inilist.push_back(f);
+	inidef i;
+	i.func = f;
+	i.name = name;
+	inilist.push_back(i);
+}
+
+void jack_sync()
+{
+	while (sem_wait(&gx_jack::jack_sync_sem) == EINTR);
 }
 
 #define max(x,y) (((x)>(y)) ? (x) : (y))
@@ -187,6 +194,36 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust-cc/flanger.cc"
 #include "faust-cc/selecteq.cc"
 #include "faust-cc/sloop.cc"
+
+static void activate_callback(float val, void *data)
+{
+	((void (*)(bool,int))data)(!(val == 0.0), gx_jack::jack_sr);
+}
+
+static void faust_add_callback(const char* id, void (*func)(bool,int))
+{
+	new gx_ui::GxUiCallbackItem(gx_gui::GxMainInterface::instance(),
+	                            (float*)gx_gui::parameter_map[id].zone(),
+	                            activate_callback, (void*)func);
+}
+
+void faust_init(int samplingFreq)
+{
+	faust_add_callback("SampleLooper.on_off", sloop::activate);
+	faust_add_callback("delay.on_off", delay::activate);
+	faust_add_callback("echo.on_off", echo::activate);
+	faust_add_callback("chorus.on_off", chorus::activate);
+	faust_add_callback("jconv.on_off", jconv_post::activate);
+	for (list<inidef>::iterator i = inilist.begin(); i != inilist.end(); i++) {
+		try {
+			i->func(samplingFreq);
+		} catch (bad_alloc) {
+			string name = gx_gui::param_group(i->name, true);
+			gx_system::gx_print_error("DSP Module", (boost::format("not enough memory to initialize module %1%") % i->name).str());
+		}
+	}
+}
+
 
 
 #ifdef EXPERIMENTAL

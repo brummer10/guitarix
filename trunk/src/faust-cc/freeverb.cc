@@ -157,7 +157,7 @@ RegisterParams::RegisterParams()
 	registerVar("freeverb.wet_dry","wet/dry","S","",&fslider2, 0.0, -0.5, 0.5, 0.1);
 	registerVar("freeverb.RoomSize","","S","",&fslider1, 0.5, 0.0, 1.0, 0.025);
 	registerVar("freeverb.damp","","S","",&fslider0, 0.5, 0.0, 1.0, 0.025);
-	registerInit(init);
+	registerInit("freeverb", init);
 }
 
 } // end namespace freeverb
