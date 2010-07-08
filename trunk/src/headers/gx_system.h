@@ -123,14 +123,14 @@ private:
 
 void writeHeader(JsonWriter& jw);
 bool readHeader(JsonParser& jp, int *major=0, int *minor=0);
-void write_preset(JsonWriter& w, bool write_midi = true);
-void read_preset(JsonParser &jp);
+void write_preset(JsonWriter& w, bool write_midi = true, bool force_midi = false);
+void read_preset(JsonParser &jp, bool *has_midi = 0);
 bool saveStateToFile( const string & filename );
 bool recallState( const string & filename );
 
 // file format versions
 const int majorversion = 1;
-const int minorversion = 0;
+const int minorversion = 1;
 
 /****************************************************************
  ** Measuring times

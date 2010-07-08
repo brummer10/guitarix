@@ -99,10 +99,16 @@ bool gx_modify_preset(const char* presname, const char* newname=0, bool remove=f
 				if (major == 0 && minor == 0) {
 					gx_print_info("loading presets","rewriting convertet presets");
 				} else {
-					stringstream s;
-					s << "major version mismatch in "+gx_preset_file.get_parse_name()+": found "
-					  << major << ", expected " << majorversion << endl;
-					gx_print_warning("recall settings", s.str());
+					const char *s;
+					if (major != majorversion) {
+						s = _("major version mismatch in %1%: found %2%.%3%, expected %4%.%5%");
+					} else {
+						assert(minor != minorversion);
+						s = _("minor version mismatch in %1%: found %2%.%3%, expected %4%.%5%");
+					}
+					gx_print_warning(
+						_("recall settings"),
+						(boost::format(s) % gx_preset_file.get_parse_name() % major % minor % majorversion % minorversion).str());
 				}
 			}
 		}
@@ -113,8 +119,9 @@ bool gx_modify_preset(const char* presname, const char* newname=0, bool remove=f
 			if (rewrite) {
 				jw.write(jp.current_value());
 				gx_gui::parameter_map.set_init_values();
-				read_preset(jp);
-				write_preset(jw);
+				bool has_midi;
+				read_preset(jp, &has_midi);
+				write_preset(jw,false,has_midi);
 			} else if (jp.current_value() == presname) {
 				found = true;
 				if (newname) {

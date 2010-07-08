@@ -476,14 +476,14 @@ static void read_parameters(JsonParser &jp, gx_gui::paramlist& plist, bool prese
 	jp.next(JsonParser::end_object);
 }
 
-void write_preset(JsonWriter &w, bool write_midi)
+void write_preset(JsonWriter &w, bool write_midi, bool force_midi)
 {
 	w.begin_object(true);
 	w.write_key("engine");
 	write_parameters(w, true);
 	w.write_key("jconv");
 	gx_jconv::GxJConvSettings::instance()->writeJSON(w);
-	if (write_midi && gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
+	if (force_midi || (write_midi && gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get())) {
 		w.write_key("midi_controller");
 		gx_gui::controller_map.writeJSON(w);
 	}
@@ -491,9 +491,12 @@ void write_preset(JsonWriter &w, bool write_midi)
 	w.end_object(true);
 }
 
-void read_preset(JsonParser &jp)
+void read_preset(JsonParser &jp, bool *has_midi)
 {
 	gx_gui::paramlist plist;
+	if (has_midi) {
+		*has_midi = false;
+	}
 	gx_gui::MidiControllerList::controller_array *m = 0;
 	jp.next(JsonParser::begin_object);
 	do {
@@ -503,9 +506,12 @@ void read_preset(JsonParser &jp)
 		} else if (jp.current_value() == "jconv") {
 			*gx_jconv::GxJConvSettings::instance() = gx_jconv::GxJConvSettings(jp);
 		} else if (jp.current_value() == "midi_controller") {
-			if (gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
+			if (has_midi || gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
 				m = new gx_gui::MidiControllerList::controller_array(gx_gui::MidiControllerList::controller_array_size);
 				gx_gui::controller_map.readJSON(jp, *m);
+				if (has_midi) {
+					*has_midi = true;
+				}
 			} else {
 				jp.skip_object();
 			}
