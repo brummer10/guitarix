@@ -17,9 +17,6 @@
  * --------------------------------------------------------------------------
  */
 
-/* ------- This is the GUI namespace ------- */
-// Note: this header file depends on gx_engine.h
-
 #pragma once
 
 #include <giomm/file.h>
@@ -46,7 +43,9 @@ string param_group(string id, bool nowarn=false);
  */
 
 class FloatParameter;
+class FloatEnumParameter;
 class IntParameter;
+class EnumParameter;
 class BoolParameter;
 class SwitchParameter;
 class FileParameter;
@@ -108,6 +107,7 @@ public:
 	virtual float getLowerAsFloat() const;
 	virtual float getUpperAsFloat() const;
 	virtual float getStepAsFloat() const;
+	virtual const char **getValueNames() const;
 	FloatParameter& getFloat();
 	IntParameter& getInt();
 	BoolParameter& getBool();
@@ -120,7 +120,7 @@ typedef list<gx_gui::Parameter*> paramlist;
 
 class FloatParameter: public Parameter
 {
-private:
+protected:
 	float json_value;
 public:
 	float &value;
@@ -144,9 +144,21 @@ public:
 		{}
 };
 
-class IntParameter: public Parameter
+class FloatEnumParameter: public FloatParameter
 {
 private:
+	const char** value_names;
+public:
+	virtual void writeJSON(gx_system::JsonWriter& jw);
+	virtual void readJSON_value(gx_system::JsonParser& jp);
+	virtual const char **getValueNames() const;
+	FloatEnumParameter(string id, string name, const char** vn, bool preset, float &v,
+	                   int sv, bool ctrl, bool exp=false);
+};
+
+class IntParameter: public Parameter
+{
+protected:
 	int json_value;
 public:
 	int &value;
@@ -167,6 +179,18 @@ public:
 		Parameter(id, name, tp_int, ctp, preset, ctrl, exp),
 		value(v), std_value(sv), lower(lv), upper(uv)
 		{}
+};
+
+class EnumParameter: public IntParameter
+{
+private:
+	const char** value_names;
+public:
+	virtual void writeJSON(gx_system::JsonWriter& jw);
+	virtual void readJSON_value(gx_system::JsonParser& jp);
+	virtual const char **getValueNames() const;
+	EnumParameter(string id, string name, const char** vn, bool preset, int &v,
+	              int sv, bool ctrl, bool exp=false);
 };
 
 class BoolParameter: public Parameter
@@ -219,7 +243,6 @@ private:
 	Glib::RefPtr<Gio::File> std_value;
 	Glib::RefPtr<Gio::File> json_value;
 public:
-	sigc::signal<void, const Glib::RefPtr<Gio::File>& > changed;
 	void set(const Glib::RefPtr<Gio::File>& val);
 	void set_path(const string& path);
 	const Glib::RefPtr<Gio::File>& get() const { return value; }

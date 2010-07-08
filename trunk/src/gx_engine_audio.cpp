@@ -44,14 +44,14 @@ inline void registerNonMidiParam(const char*a, float*c, bool d, float std=0, flo
 }
 
 // should be int
-inline void registerEnumParam(const char*a,const char*b,float*c,float std=0,float lower=0,float upper=1,float step=1,bool exp=false)
+inline void registerEnumParam(const char*a,const char*b,const char** vl,float*c,int std=0,bool exp=false)
 {
-	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,step,true,exp));
+	gx_gui::parameter_map.insert(new gx_gui::FloatEnumParameter(a,b,vl,true,*c,std,true,exp));
 }
 
-inline void registerEnumParam(const char*a,const char*b,int*c,int std=0,int lower=0,int upper=1,bool exp=false)
+inline void registerEnumParam(const char*a,const char*b,const char** vl, int*c,int std=0,bool exp=false)
 {
-	gx_gui::parameter_map.insert(new gx_gui::IntParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,true,exp));
+	gx_gui::parameter_map.insert(new gx_gui::EnumParameter(a,b,vl,true,*c,std,true,exp));
 }
 
 /****************************************************************
@@ -66,14 +66,17 @@ inline void registerEnumParam(const char*a,const char*b,int*c,int std=0,int lowe
 
 AudioVariables::AudioVariables()
 {
-	registerEnumParam("amp.threshold", "threshold", &ffuse, 0.f, 0.f, 3.f, 1.0f);
+	static const char *amp_threshold[] = {"off","clip","foldback",0};
+	registerEnumParam("amp.threshold", "threshold", amp_threshold, &ffuse, 0);
 	gx_gui::registerParam("MultiBandFilter.on_off", "on/off", &fmultifilter, 0);
-	//gx_gui::registerParam("crybaby.autowah", "autowah", &fautowah, 0);
-	registerEnumParam("crybaby.autowah", "select", &fautowah, 0.f, 0.f, 1.f, 1.0f);
+	static const char *crybaby_autowah[] = {"manual","auto",0};
+	registerEnumParam("crybaby.autowah", "select", crybaby_autowah, &fautowah, 0);
 	gx_gui::registerParam("overdrive.on_off", "on/off", &foverdrive4, 0);
 	gx_gui::registerParam("distortion.on_off", "on/off", &fcheckbox4, 0);
-	registerEnumParam("distortiont.onetwo", "select", &witchdistortion, 0.f, 0.f, 1.f, 1.0f);
-	registerEnumParam("eqt.onetwo", "select", &witcheq, 0.f, 0.f, 1.f, 1.0f);
+	static const char *distortiont_onetwo[] = {"multi","single",0};
+	registerEnumParam("distortiont.onetwo", "select", distortiont_onetwo, &witchdistortion, 0);
+	static const char *eqt_onetwo[] = {"fixed","scale",0};
+	registerEnumParam("eqt.onetwo", "select", eqt_onetwo, &witcheq, 0);
 	gx_gui::registerParam("freeverb.on_off", "on/off", &fcheckbox6, 0);
 	gx_gui::registerParam("IR.on_off", "on/off", &fcheckbox8, 0);
 	gx_gui::registerParam("crybaby.on_off", "on/off", &fcheckbox5, 0);
@@ -87,7 +90,8 @@ AudioVariables::AudioVariables()
 	gx_gui::registerParam("tube.on_off", "on/off", &ftube, 0);
 	gx_gui::registerParam("drive.on_off", "on/off", &fprdr, 0);
 	gx_gui::registerParam("preamp.on_off", "on/off", &fcheckbox1, 0);
-	registerEnumParam("convolve.select", "select", &convolvefilter, 0.f, 0.f, 7.f, 1.0f);
+	static const char *convolve_select[] = {"amp 1","amp 2", "amp 3","amp 4","amp 5", "amp 6", "amp 7",0};
+	registerEnumParam("convolve.select", "select", convolve_select, &convolvefilter, 0);
 	gx_gui::registerParam("convolve.on_off", "on/off", &fconvolve, 0);
 	gx_gui::registerParam("amp.bass_boost.on_off", "on/off", &fboost, 0);
 	gx_gui::registerParam("amp.oversample.on_off", "on/off", &fupsample, 0);
@@ -101,8 +105,10 @@ AudioVariables::AudioVariables()
 	gx_gui::registerParam("flanger.on_off", "on/off", &fflanger, 0);
 	gx_gui::registerParam("SampleLooper.on_off", "on/off", &fsloop, 0);
 	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
-	registerEnumParam("amp.select", "select", &upsample_mode, 4.f, 1.f, 8.f, 1.0f);
-	registerEnumParam("amp.model", "select", &witchamp, 0.f, 0.f, 1.f, 1.0f);
+	static const char *amp_select[] = {"1x","2x", "3x","4x","5x", "6x", "7x", "8x",0};
+	registerEnumParam("amp.select", "select", amp_select, &upsample_mode, 3);
+	static const char *amp_model[] = {"amp 1","amp 2",0};
+	registerEnumParam("amp.model", "select", amp_model, &witchamp, 0);
 	gx_gui::registerParam("cab.on_off", "Cab-ImpResp", &fcab,0);
 
 	// only save and restore, no midi control

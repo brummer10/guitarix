@@ -292,6 +292,7 @@ def configure(conf):
     except ConfigurationError:
         conf.check_cfg(package='jack', atleast_version='1.9.1', args='--cflags --libs', uselib_store='JACK', mandatory=1)
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
+    conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)
     conf.check_cfg(package='gtk+-2.0', atleast_version='2.12.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.10', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='gtkmm-2.4', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)

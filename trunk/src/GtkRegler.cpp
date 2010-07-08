@@ -22,6 +22,7 @@ part of guitarix, use  reglers with Gtk
 ******************************************************************************/
 
 #include <cmath>
+#include <cassert>
 #include <sstream>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -557,11 +558,8 @@ static gboolean gtk_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 		reglery += (widget->allocation.height -
 		            klass->selector_y) *0.5; */
 		int reglerstate = (int)((adj->value - adj->lower) *
-		                        regler->max_value / (adj->upper - adj->lower));
-		if(reglerstate > regler->max_value-1) {
-			reglerstate =  0 ;
-			gtk_range_set_value(GTK_RANGE(widget), 0);
-		}
+		                        (regler->max_value) / (adj->upper - adj->lower));
+		assert(reglerstate >= 0 && reglerstate <= regler->max_value);
 
 		cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
 		cairo_set_line_width (cr, 2.0);
@@ -1578,16 +1576,20 @@ static gboolean gtk_regler_button_press (GtkWidget *widget, GdkEventButton *even
 		}
 //---------- selector
 		else if (regler->regler_type == 11) {
-			regler->start_value = gtk_range_get_value(GTK_RANGE(widget));
-			if ( regler->start_value < regler->max_value-1) gtk_range_set_value(GTK_RANGE(widget),regler->start_value +1);
-			//else if ( regler->start_value == 1) gtk_range_set_value(GTK_RANGE(widget), 2);
-			else gtk_range_set_value(GTK_RANGE(widget), 0);
+			gint start_value = gtk_range_get_value(GTK_RANGE(widget));
+			if (start_value < regler->max_value) {
+				gtk_range_set_value(GTK_RANGE(widget), start_value+1);
+			} else {
+				gtk_range_set_value(GTK_RANGE(widget), 0);
+			}
 		}
 //----------- switches and toggle
 		else { // if ((regler->regler_type == 2) || (regler->regler_type == 5) || (regler->regler_type == 6)|| (regler->regler_type == 8))
-			regler->start_value = gtk_range_get_value(GTK_RANGE(widget));
-			if ( regler->start_value == 0) gtk_range_set_value(GTK_RANGE(widget), 1);
-			else gtk_range_set_value(GTK_RANGE(widget), 0);
+			if (gtk_range_get_value(GTK_RANGE(widget)) == 0) {
+				gtk_range_set_value(GTK_RANGE(widget), 1);
+			} else {
+				gtk_range_set_value(GTK_RANGE(widget), 0);
+			}
 		}
 
 		break;
@@ -2303,7 +2305,7 @@ GtkWidget *GtkRegler::gtk_selector_new_with_adjustment(GtkAdjustment *_adjustmen
 	GtkWidget *widget = GTK_WIDGET( g_object_new (GTK_TYPE_REGLER, NULL ));
 	GtkRegler *regler = GTK_REGLER(widget);
 	regler->regler_type = 11;
-	regler->max_value = maxv;
+	regler->max_value = maxv-1;
 	for (int i=0; i < maxv; i++)
 		regler->labels[i]=label[i];
 	if (widget) {

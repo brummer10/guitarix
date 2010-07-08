@@ -190,8 +190,7 @@ void GxMainInterface::setup()
                                 {
                                     openSpaceBox("");
                                     closeBox();
-                                    const char* labels[2]  ={"fixed","scale"};
-                                    addselector("eqt.onetwo",2,labels,"");
+                                    addselector("eqt.onetwo","");
                                     openHorizontalBox("");
                                     {
                                         openSpaceBox("");
@@ -362,9 +361,7 @@ void GxMainInterface::setup()
                                     closeBox();
                                     openHorizontalBox("");
                                     {
-                                        const char* labels[10]  ={"default","Bassman", "Twin Reverb","Princeton","JCM-800",
-                                                                 "JCM-2000", "M-Lead", "M2199", "AC-30", "Off"};
-                                        addselector("amp.tonestack.select",10,labels,"");
+                                        addselector("amp.tonestack.select","");
                                         openVerticalBox1("");
                                         closeBox();
                                     }
@@ -430,8 +427,7 @@ void GxMainInterface::setup()
 									{
                                         openVerticalBox1("");
                                         closeBox();
-                                        const char* labels[2]  ={"amp 1","amp 2"};
-                                        addselector("amp.model",2,labels,"");
+                                        addselector("amp.model","");
 									}
 									closeBox();
 
@@ -439,7 +435,7 @@ void GxMainInterface::setup()
 									{
 									    addminiswitch("amp.oversample.on_off", "oversample  ");
 									    const char* labels[8]  ={"  1x","  2x", "  3x","  4x","  5x", "  6x", "  7x", "  8x"};
-										addselector("amp.select",8,labels,"");
+									    addselector("amp.select","",8,labels); //FIXME FIX formatting issue
 									}
 									closeBox();
 
@@ -456,8 +452,7 @@ void GxMainInterface::setup()
 									openVerticalBox1("");
 									{
                                         addminiswitch("convolve.on_off", "amp tune    ");
-                                        const char* labels[7]  ={"amp 1","amp 2", "amp 3","amp 4","amp 5", "amp 6", "amp 7"};
-                                        addselector("convolve.select",7,labels,"");
+                                        addselector("convolve.select","");
 
 									}
 									closeBox();
@@ -766,8 +761,7 @@ void GxMainInterface::setup()
 											//----- distortion
 											openVerticalBox("distortion");
 											{
-											    const char* labels[2]  ={"multi","single"};
-                                                addselector("distortiont.onetwo",2,labels,"");
+                                                addselector("distortiont.onetwo","");
 											    //addswitch("distortion.onetwo", "");
 											    openVerticalSwitchBox(" ",0, 0, &gx_engine::audio.witchdistortion);
 											    {
@@ -1004,8 +998,7 @@ void GxMainInterface::setup()
 												//----- IR
 												openVerticalBox("IR");
 												{
-												    const char* labels[2]  ={"manual","auto"};
-                                                    addselector("IR.auto_freq",2,labels,"");
+                                                    addselector("IR.auto_freq","");
 													openHorizontalBox("");
 													{
 														addregler("IR.freq","   freq   ");
@@ -1059,7 +1052,7 @@ void GxMainInterface::setup()
                                                                             closeBox();
                                                                             openSpaceBox("");
                                                                             closeBox();
-                                                                            addselector("IR.auto_freq",2,labels,"");
+                                                                            addselector("IR.auto_freq","");
                                                                             openSpaceBox("");
                                                                             closeBox();
                                                                             openSpaceBox("");
@@ -1092,8 +1085,7 @@ void GxMainInterface::setup()
 												//----- crybaby
 												openVerticalBox("crybaby");
 												{
-												    const char* labels[2]  ={"manual","auto"};
-                                                    addselector("crybaby.autowah",2,labels,"");
+                                                    addselector("crybaby.autowah","");
 												    //addminiswitch("crybaby.autowah"," autowah");
 													addregler("crybaby.wah"," wah ");
 													openHorizontalBox("");
@@ -1133,7 +1125,7 @@ void GxMainInterface::setup()
                                                                             closeBox();
                                                                             openSpaceBox("");
                                                                             closeBox();
-                                                                            addselector("crybaby.autowah",2,labels,"");
+                                                                            addselector("crybaby.autowah","");
                                                                             openSpaceBox("");
                                                                             closeBox();
                                                                             openSpaceBox("");
@@ -1303,8 +1295,7 @@ void GxMainInterface::setup()
 									{
 										openVerticalBox("flanger");
 										{
-										    const char* labels[2]  ={"linear","invert"};
-                                            addselector("flanger.invert",2,labels,"");
+                                            addselector("flanger.invert","");
 											addregler("flanger.level");
 											openHorizontalBox("");
 											{
@@ -1342,7 +1333,7 @@ void GxMainInterface::setup()
                                                                     closeBox();
                                                                     openSpaceBox("");
                                                                     closeBox();
-                                                                    addselector("flanger.invert",2,labels,"");
+                                                                    addselector("flanger.invert","");
                                                                     openSpaceBox("");
                                                                     closeBox();
                                                                     openSpaceBox("");
@@ -1532,7 +1523,7 @@ void GxMainInterface::setup()
 													addregler("amp.fuzz");
 
 													const char* lab[3] = {"    off","    clip","foldback"};
-													addselector("amp.threshold",3,lab);
+													addselector("amp.threshold",(const char*)0,3,lab); //FIXME FIX formatting issue
 													openSpaceBox("");
 													closeBox();
 												}

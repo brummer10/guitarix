@@ -122,8 +122,30 @@ void registerVar(const char* id, const char* name, const char* tp,
 		assert(strrchr(id, '.'));
 		name = strrchr(id, '.')+1;
 	}
-	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(id, name, gx_gui::Parameter::Continuous, true, *var, val, low, up, step, true, exp));
+	gx_gui::parameter_map.insert(
+		new gx_gui::FloatParameter(
+			id, name, gx_gui::Parameter::Continuous, true, *var, val, low, up, step, true, exp));
 }
+
+void registerEnumVar(const char *id, const char* name, const char* tp,
+                     const char* tooltip, const char** values, float *var, float val,
+                     float low=0, float up=0, float step=1, bool exp=false)
+{
+	if (!name[0]) {
+		assert(strrchr(id, '.'));
+		name = strrchr(id, '.')+1;
+	}
+	assert(low == 0.0 && step == 1.0);
+	gx_gui::FloatEnumParameter *p = new gx_gui::FloatEnumParameter(
+		id, name, values, true, *var, val, true, exp);
+	assert(up == p->upper); // calculated by constructor
+	gx_gui::parameter_map.insert(p);
+}
+
+inline void registerIntParam(const char*a,const char*b,int*c,int std=0,int lower=0,int upper=1,bool exp=false)
+ {
+	 gx_gui::parameter_map.insert(new gx_gui::IntParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,true,exp));
+ }
 
 void registerInit(const char *name, inifunc f)
 {
@@ -338,7 +360,7 @@ static gboolean set_transient(gpointer data)
 
 void faust_setup()
 {
-	registerEnumParam("test.upsample", "Upsample", (int*)&exp_upsample, 4, 1, 8, true);
+	registerIntParam("test.upsample", "Upsample", (int*)&exp_upsample, 4, 1, 8, true);
 	gx_gui::registerParam("test.highshelf", "HighShelf", (bool*)&exp_hs, true, true);
     exp_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title (GTK_WINDOW(exp_window), "Experimental");

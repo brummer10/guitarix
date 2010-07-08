@@ -41,7 +41,8 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("IR.peak","","S","peak gain",&fslider2, 1.0, 0.0, 1e+01, 0.2);
-	registerVar("IR.auto_freq","auto freq","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	static const char *fcheckbox0_values[] = {"manual","auto",0};
+	registerEnumVar("IR.auto_freq","auto freq","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	registerVar("IR.freq","","S","frequency (Hz)",&fslider1, 4.4e+02, 2e+01, 1.2e+04, 1e+01);
 	registerVar("IR.bandwidth","","S","bandwidth (Hz)",&fslider0, 1e+02, 2e+01, 2e+04, 1e+01);
 	registerInit("IR", init);

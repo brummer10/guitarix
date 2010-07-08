@@ -243,7 +243,7 @@ public :
 	void addSpinValueBox(string id, const char* label=0);
 	void addswitch(string id, const char* label=0);
 	void addminiswitch(string id, const char* label=0);
-	void addselector(string id, int, const char**, const char* label=0);
+	void addselector(string id, const char* label=0, int nvalues=0, const char **pvalues=0);
 	void addtoggle(string id, const char* label=0);
 	void addtoggle1(string id, const char* label=0);
 	void addbtoggle(string id, const char* label=0);

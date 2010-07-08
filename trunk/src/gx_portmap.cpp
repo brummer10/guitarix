@@ -677,9 +677,6 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item)
 
 	g_signal_connect(window, "destroy", G_CALLBACK(destroy_cb), this);
 	g_signal_connect(window, "response", G_CALLBACK(response_cb), this);
-	// connect widget with rcstyle cairo callback
-	GtkWidget * box = gtk_bin_get_child(GTK_BIN(window));
-	g_signal_connect(box, "expose-event", G_CALLBACK(gx_cairo::rectangle_skin_color_expose), this);
 	gtk_window_add_accel_group(GTK_WINDOW(window),
 	                           GxMainInterface::instance()->fAccelGroup);
 	g_signal_connect_after(window, "check-resize", G_CALLBACK(on_check_resize), this);

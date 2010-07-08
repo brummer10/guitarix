@@ -230,8 +230,9 @@ bool GxConvolver::read_sndfile (
 		ostringstream buf;
 		buf << "resampling from " << audio.rate() << " to " << samplerate;
 		gx_system::gx_print_info("convolver", buf.str());
-		bool rc = resamp.setup(audio.rate(), samplerate, nchan);
-		assert(rc);
+		if (!resamp.setup(audio.rate(), samplerate, nchan)) {
+			assert(false);
+		}
 		try {
 			rbuff = new float[resamp.get_max_out_size(BSIZE)*nchan];
 		} catch (...) {

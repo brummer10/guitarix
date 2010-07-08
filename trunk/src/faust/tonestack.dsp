@@ -165,7 +165,7 @@ tonestack(tse) = 1/A0*tf3(B0,B1,B2,B3,A1/A0,A2/A0,A3/A0) with {
 
 
 aba = environment {
-	 sl = hslider("select",1,0,9,1);
+	 sl = hslider("select[enum:default|Bassman|Twin Reverb|Princeton|JCM-800|JCM-2000|M-Lead|M2199|AC-30|Off]",1,0,9,1);
 	 a = min(2, max(0,sl)); 
 	 b = min(2, max(0,sl-1)); 
 	 c = min(2, max(0,sl-2));

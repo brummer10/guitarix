@@ -23,23 +23,26 @@
 
 namespace gx_cairo
 {
-gboolean filter_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean vbox_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean tribal_box_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean AmpBox_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean level_meter_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean zac_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean convolver_icon_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean rectangle_skin_color_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean rectangle_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean upper_widget_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean conv_widget_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean amp_expose  (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean boxamp_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean plug_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean slooper_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+
+extern "C" {
+	gboolean filter_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean vbox_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean tribal_box_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean AmpBox_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean level_meter_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean zac_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean convolver_icon_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean rectangle_skin_color_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean rectangle_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean upper_widget_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean conv_widget_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean amp_expose  (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean boxamp_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean plug_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+	gboolean slooper_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+}
 
 void gx_init_pixmaps();
 

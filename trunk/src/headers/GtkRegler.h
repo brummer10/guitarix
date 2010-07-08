@@ -31,7 +31,7 @@ public:
 	int regler_type;
 	int last_quadrant;
 	const char* labels[12];
-	double start_x, start_y, start_value, max_value;
+	double start_x, start_y, max_value;
 
 	GtkRegler();
 	~GtkRegler();

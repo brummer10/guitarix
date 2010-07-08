@@ -78,7 +78,8 @@ void compute(int count, float *input0, float *input1, float *output0, float *out
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("flanger.invert","","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	static const char *fcheckbox0_values[] = {"linear","invert",0};
+	registerEnumVar("flanger.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	registerVar("flanger.depth","","S","",&fslider5, 1.0, 0.0, 1.0, 0.01);
 	registerVar("flanger.flange delay offset","","S","",&fslider4, 1.0, 0.0, 2e+01, 0.01);
 	registerVar("flanger.flange delay","","S","",&fslider3, 1e+01, 0.0, 2e+01, 0.01);

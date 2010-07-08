@@ -15,7 +15,7 @@ with {
   freq	 = hslider("LFO freq [unit:Hz]", 0.2, 0, 5, 0.01);
   depth	 = hslider("depth", 1, 0, 1, 0.01);
   fb	 = hslider("feedback gain", 0, 0, 1, 0.01);
-  invert   = checkbox("invert");
+  invert   = checkbox("invert[enum:linear|invert]");
   level	 = hslider("level [unit:dB]", 0, -60, 10, 0.1) : db2linear;
   curdel1 = odflange+dflange*(1 + lfol(freq))/2; 
   curdel2 = odflange+dflange*(1 + lfor(freq))/2; 

@@ -1751,7 +1751,7 @@ void GxMainInterface::addminiswitch(string id, const char* label)
 	}
 }
 
-void GxMainInterface::addselector(string id, int nvalues, const char** pvalues, const char* label)
+void GxMainInterface::addselector(string id, const char* label, int nvalues, const char** pvalues)
 {
 	if (!parameter_map.hasId(id)) {
 		return;
@@ -1759,6 +1759,13 @@ void GxMainInterface::addselector(string id, int nvalues, const char** pvalues, 
 	const FloatParameter &p = parameter_map[id].getFloat();
 	if (!label) {
 		label = p.name().c_str();
+	}
+	assert(p.getControlType() == Parameter::Enum);
+	if (nvalues) {
+		assert(p.upper+1 == nvalues);
+	} else {
+		nvalues = p.upper+1;
+		pvalues = p.getValueNames();
 	}
 	addselector(label, &p.value, nvalues, pvalues);
 }
@@ -2088,7 +2095,7 @@ void GxMainInterface::addtoggle1(const char* label, float* zone)
 
 void GxMainInterface::addselector(const char* label, float* zone, int maxv, const char** labels)
 {
-	GtkObject* adjs = gtk_adjustment_new(0, 0, maxv, 1, 10*1, 0);
+	GtkObject* adjs = gtk_adjustment_new(0, 0, maxv-1, 1, 10*1, 0);
 	uiAdjustment* cs = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adjs));
 	g_signal_connect (GTK_OBJECT (adjs), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) cs);
 

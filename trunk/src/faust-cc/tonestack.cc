@@ -368,7 +368,8 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("amp.tonestack.select","","S","",&fslider3, 1.0, 0.0, 9.0, 1.0);
+	static const char *fslider3_values[] = {"default","Bassman","Twin Reverb","Princeton","JCM-800","JCM-2000","M-Lead","M2199","AC-30","Off",0};
+	registerEnumVar("amp.tonestack.select","","S","",fslider3_values,&fslider3, 1.0, 0.0, 9.0, 1.0);
 	registerVar("amp.tonestack.Treble","","S","",&fslider2, 0.5, 0.0, 1.0, 0.01);
 	registerVar("amp.tonestack.Bass","","S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
 	registerVar("amp.tonestack.Middle","","S","",&fslider0, 0.5, 0.0, 1.0, 0.01);

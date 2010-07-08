@@ -15,7 +15,13 @@ class UIDefs(object):
             if self.has_key("alias"):
                 return
             self["tail"] = "".join([", "+x for x in self["value"]])
-            fp.write('\tregisterVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",&%(variable)s%(tail)s);\n' % self)
+            if self.has_key("enum"):
+                enumvals = ",".join(['"%s"' % x for x in self["enum"].split("|")]+["0"])
+                self["ename"] = ename = self["variable"] + "_values"
+                fp.write('\tstatic const char *%s[] = {%s};\n' % (ename, enumvals))
+                fp.write('\tregisterEnumVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",%(ename)s,&%(variable)s%(tail)s);\n' % self)
+            else:
+                fp.write('\tregisterVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",&%(variable)s%(tail)s);\n' % self)
 
         def __getitem__(self, n):
             try:
@@ -325,9 +331,9 @@ def main():
     op.add_option("-o", "--output", dest="oname",
                   help="write c++ code to FILE", metavar="FILE")
     op.add_option("-d", "--double", dest="faust", action="append",
-                  help="additional faust options, build with double precison") 
+                  help="additional faust options, build with double precision") 
     op.add_option("-f", "--float", dest="faustf", action="append",
-                  help="additional faust options, build with single precison")
+                  help="additional faust options, build with single precision")
     op.add_option("-s", "--memory-threshold", dest="memory_threshold",
                   default=0, type="int",
                   help="change static memory allocations above threshold to dynamic ones")
@@ -339,10 +345,12 @@ def main():
         print "error: can't open '%s'" % fname
         raise SystemExit, 1
     if options.faust:
-		precison = '-double'
+        precision = ' -double'
     elif options.faustf:
-		precison = '-single'	    
-    faust = Popen("faust %s %s" %( fname, precison), shell=True, stdout=PIPE)
+        precision = ' -single'
+    else:
+        precision = ''
+    faust = Popen("faust %s%s" % (fname, precision), shell=True, stdout=PIPE)
     try:
         parser = Parser(faust.stdout,
                         os.path.splitext(os.path.basename(fname))[0],

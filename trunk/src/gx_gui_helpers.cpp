@@ -75,6 +75,7 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
 		gx_print_fatal("gtk builder", string(windowname)+" not found in "+fname);
 		return NULL;
 	}
+	gtk_builder_connect_signals(builder, 0);
 	return w;
 }
 
