@@ -493,8 +493,10 @@ static void gx_ir_edit_destroy(GtkObject* object)
 	for (i = 0; i < sizeof(ir_edit->cursor)/sizeof(ir_edit->cursor[0]); i++) {
 		if (ir_edit->cursor[i]) {
 			gdk_cursor_unref(ir_edit->cursor[i]);
+			ir_edit->cursor[i] = NULL;
 		}
 	}
+	GTK_OBJECT_CLASS(gx_ir_edit_parent_class)->destroy(object);
 }
 
 static void ir_edit_paint_no_data(GxIREdit *ir_edit, cairo_t *c)

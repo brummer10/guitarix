@@ -39,6 +39,7 @@ G_BEGIN_DECLS
 typedef struct
 {
 	GtkRadioButton parent;
+	gchar *GSEAL(base_name);
 } GxRadioButton;
 
 typedef struct {

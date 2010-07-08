@@ -308,7 +308,9 @@ static void gx_wave_view_destroy (GtkObject *obj)
 	GxWaveView *waveview = GX_WAVE_VIEW(obj);
 	if (waveview->liveview_image) {
 		g_object_unref(waveview->liveview_image);
+		waveview->liveview_image = 0;
 	}
+	GTK_OBJECT_CLASS(gx_wave_view_parent_class)->destroy(obj);
 }
 
 GtkWidget* gx_wave_view_new()

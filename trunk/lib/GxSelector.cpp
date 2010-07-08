@@ -86,25 +86,25 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 	g_assert(GX_IS_SELECTOR(widget));
 	GxSelector *selector = GX_SELECTOR(widget);
 
-	int selectorx = widget->allocation.x, selectory = widget->allocation.y;
-	selectorx += (widget->allocation.width -
-	            class_selector_x) *0.5;
-	selectory += (widget->allocation.height -
-	            class_selector_y) *0.5;
+	int selectorx = widget->allocation.x + (widget->allocation.width - class_selector_x) / 2;
+	int selectory = widget->allocation.y + (widget->allocation.height - class_selector_y) / 2;
 	int n = gtk_tree_model_iter_n_children(selector->model, NULL);
 	int selectorstate = gtk_range_get_value(GTK_RANGE(selector));
 	if (selectorstate < 0 || selectorstate >= n) {
 		selectorstate =  0 ;
 		gtk_range_set_value(GTK_RANGE(widget), 0);
 	}
+
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
 	cairo_set_line_width (cr, 2.0);
-	cairo_rectangle (cr, selectorx+1,selectory+1,51,widget->allocation.height-2);
+
+	cairo_rectangle (cr, selectorx+1,selectory+1,class_selector_x-4,class_selector_y-2);
 	cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
 	cairo_fill_preserve (cr);
 	cairo_set_source_rgb (cr, 0, 0, 0);
 	cairo_stroke (cr);
-	cairo_rectangle (cr, selectorx+42,selectory+2,9,widget->allocation.height-4);
+
+	cairo_rectangle (cr, selectorx+42,selectory+2,9,class_selector_y-4);
 	cairo_set_source_rgb (cr, 0, 0, 0);
 	cairo_fill_preserve (cr);
 	cairo_set_line_width (cr, 1.0);
@@ -131,13 +131,10 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 static gboolean gx_selector_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-	int selectorx = widget->allocation.x, selectory = widget->allocation.y;
-	selectorx += (widget->allocation.width -
-	              class_selector_x) *0.5;
-	selectory += (widget->allocation.height -
-	              class_selector_y) *0.5;
+	int selectorx = widget->allocation.x + (widget->allocation.width - class_selector_x) / 2;
+	int selectory = widget->allocation.y + (widget->allocation.height - class_selector_y) / 2;
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-	cairo_rectangle (cr, selectorx+42,selectory+2,9,widget->allocation.height-4);
+	cairo_rectangle (cr, selectorx+42,selectory+2,9,class_selector_y-4);
 	cairo_set_source_rgb (cr, 0, 0, 0);
 	cairo_fill_preserve (cr);
 	cairo_set_line_width (cr, 1.0);
@@ -150,11 +147,10 @@ static gboolean gx_selector_leave_out (GtkWidget *widget, GdkEventCrossing *even
 static gboolean gx_selector_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-	int selectorx = widget->allocation.x, selectory = widget->allocation.y;
-	selectorx += (widget->allocation.width - class_selector_x) *0.5;
-	selectory += (widget->allocation.height - class_selector_y) *0.5;
+	int selectorx = widget->allocation.x + (widget->allocation.width - class_selector_x) / 2;
+	int selectory = widget->allocation.y + (widget->allocation.height - class_selector_y) / 2;
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-	cairo_rectangle (cr, selectorx+42,selectory+2,9,widget->allocation.height-4);
+	cairo_rectangle (cr, selectorx+42,selectory+2,9,class_selector_y-4);
 	cairo_set_source_rgb (cr, 0, 0, 0);
 	cairo_fill_preserve (cr);
 	cairo_move_to(cr,selectorx+43,selectory+10);
