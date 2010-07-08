@@ -70,6 +70,7 @@ static void gx_toggle_image_size_request (GtkWidget * widget, GtkRequisition * r
 	g_free(s);
 	requisition->width = gdk_pixbuf_get_width(img) + misc->xpad * 2;
 	requisition->height = gdk_pixbuf_get_height(img) + misc->ypad * 2;
+	g_object_unref(img);
 }
 
 static gboolean gx_toggle_image_expose(GtkWidget *widget, GdkEventExpose *event)
@@ -100,6 +101,7 @@ static gboolean gx_toggle_image_expose(GtkWidget *widget, GdkEventExpose *event)
 	gdk_draw_pixbuf(gtk_widget_get_window(widget), NULL, img,
 	                       0, 0, x, y, -1, -1,
 	                       GDK_RGB_DITHER_NORMAL, 0, 0);
+	g_object_unref(img);
 	return FALSE;
 }
 

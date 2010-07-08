@@ -14,11 +14,16 @@
     <glade-widget-class title="Gx Radio Button" name="GxRadioButton" generic-name="gxradiobutton" />
     <glade-widget-class title="Gx Toggle Image" name="GxToggleImage" generic-name="gxtoggleimage" />
     <glade-widget-class title="Gx Wheel" name="GxWheel" generic-name="gxwheel" />
+    <glade-widget-class title="Gx HSlider" name="GxHSlider" generic-name="gxhslider" />
+    <glade-widget-class title="Gx VSlider" name="GxVSlider" generic-name="gxvslider" />
+    <glade-widget-class title="Gx EQ Slider" name="GxEQSlider" generic-name="gxeqslider" />
+    <glade-widget-class title="Gx Mini Slider" name="GxMiniSlider" generic-name="gxminislider" />
+    <glade-widget-class title="Gx Big Knob" name="GxBigKnob" generic-name="gxbigknob" />
+    <glade-widget-class title="Gx Small Knob" name="GxSmallKnob" generic-name="gxsmallknob" />
 
   </glade-widget-classes>
 
   <glade-widget-group title="Gx Widgets" name="gxwidgets">
-    <glade-widget-class-ref name="GxRegler"/>
     <glade-widget-class-ref name="GxSwitch"/>
     <glade-widget-class-ref name="GxSelector"/>
     <glade-widget-class-ref name="GxFastMeter"/>
@@ -28,6 +33,12 @@
     <glade-widget-class-ref name="GxRadioButton"/>
     <glade-widget-class-ref name="GxToggleImage"/>
     <glade-widget-class-ref name="GxWheel"/>
+    <glade-widget-class-ref name="GxHSlider"/>
+    <glade-widget-class-ref name="GxVSlider"/>
+    <glade-widget-class-ref name="GxEQSlider"/>
+    <glade-widget-class-ref name="GxMiniSlider"/>
+    <glade-widget-class-ref name="GxBigKnob"/>
+    <glade-widget-class-ref name="GxSmallKnob"/>
   </glade-widget-group>
 
 </glade-catalog>

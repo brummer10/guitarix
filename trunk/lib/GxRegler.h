@@ -84,8 +84,9 @@ GType gx_regler_get_type(void);
 gchar *gx_regler_get_var(GxRegler* regler);
 
 void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition);
-gdouble _gx_regler_get_positions(GxRegler *regler, gint step, GdkRectangle *image_rect,
-                                 GdkRectangle *value_rect, GdkPoint *text_pos);
+gdouble _gx_regler_get_step_pos(GxRegler *regler, gint step);
+void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
+                              GdkRectangle *value_rect);
 void _gx_regler_display_value(GxRegler *regler, GdkRectangle *value_rect);
 double _gx_regler_get_value(GtkAdjustment *adj,double pos);
 

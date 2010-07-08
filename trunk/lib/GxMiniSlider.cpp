@@ -16,31 +16,20 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __GX_WHEEL_H__
-#define __GX_WHEEL_H__
+#include "GxMiniSlider.h"
+
+#define P_(s) (s)   // FIXME -> gettext
+
+G_DEFINE_TYPE(GxMiniSlider, gx_mini_slider, GX_TYPE_HSLIDER);
+
+static void gx_mini_slider_class_init(GxMiniSliderClass *klass)
+{
+	klass->parent_class.stock_id = "minislider";
+}
+
+static const gint sat = 70.0;
 
 
-#include "GxRegler.h"
-
-G_BEGIN_DECLS
-
-#define GX_TYPE_WHEEL          (gx_wheel_get_type())
-#define GX_WHEEL(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GX_TYPE_WHEEL, GxWheel))
-#define GX_WHEEL_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_WHEEL, GxWheelClass))
-#define GX_IS_WHEEL(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GX_TYPE_WHEEL))
-#define GX_IS_WHEEL_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_WHEEL))
-#define GX_WHEEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_WHEEL, GxWheelClass))
-
-typedef struct {
-	GxRegler parent;
-} GxWheel;
-
-typedef struct {
-	GxReglerClass parent_class;
-} GxWheelClass;
-
-GType gx_wheel_get_type(void);
-
-G_END_DECLS
-
-#endif /* __GX_WHEEL_H__ */
+static void gx_mini_slider_init(GxMiniSlider *mini_slider)
+{
+}

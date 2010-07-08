@@ -51,4 +51,5 @@ static void draw_indicator(GtkCheckButton *check_button, GdkRectangle *rect)
 	int y = rect->y + (rect->height- gdk_pixbuf_get_height(pb))/ 2;
 	gdk_draw_pixbuf(gtk_widget_get_window(widget), NULL, pb, 0, 0, x, y, -1, -1,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
+	g_object_unref(pb);
 }

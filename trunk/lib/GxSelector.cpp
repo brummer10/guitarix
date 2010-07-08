@@ -185,7 +185,6 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 	switch (event->button) {
 	case 1:  // left button
 		gtk_widget_grab_focus(widget);
-		gtk_widget_grab_default (widget);
 		gtk_grab_add(widget);
 		n = gtk_tree_model_iter_n_children(selector->model, NULL);
 		i = gtk_range_get_value(GTK_RANGE(widget)) + 1;

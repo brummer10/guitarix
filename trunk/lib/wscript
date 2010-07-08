@@ -100,6 +100,13 @@ def build_python_module(bld):
                   "GxIREdit.h",
                   "GxRadioButton.h",
                   "GxWheel.h",
+                  "GxKnob.h",
+                  "GxBigKnob.h",
+                  "GxSmallKnob.h",
+                  "GxHSlider.h",
+                  "GxMiniSlider.h",
+                  "GxVSlider.h",
+                  "GxEQSlider.h",
                   "libgxwidgets.so",
                   "gxwidgets-manual.defs",
                   ],
@@ -138,6 +145,13 @@ def build(bld):
         'GxIREdit.cpp',
         'GxRadioButton.cpp',
         'GxWheel.cpp',
+        'GxKnob.cpp',
+        'GxBigKnob.cpp',
+        'GxSmallKnob.cpp',
+        'GxHSlider.cpp',
+        'GxMiniSlider.cpp',
+        'GxVSlider.cpp',
+        'GxEQSlider.cpp',
         ]
     if not bld.env["GX_LIB_STATIC"] and not bld.env["GX_LIB_SHARED"]:
         return

@@ -16,31 +16,31 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __GX_WHEEL_H__
-#define __GX_WHEEL_H__
+#ifndef __GX_SMALL_KNOB_H__
+#define __GX_SMALL_KNOB_H__
 
 
-#include "GxRegler.h"
+#include "GxKnob.h"
 
 G_BEGIN_DECLS
 
-#define GX_TYPE_WHEEL          (gx_wheel_get_type())
-#define GX_WHEEL(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GX_TYPE_WHEEL, GxWheel))
-#define GX_WHEEL_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_WHEEL, GxWheelClass))
-#define GX_IS_WHEEL(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GX_TYPE_WHEEL))
-#define GX_IS_WHEEL_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_WHEEL))
-#define GX_WHEEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_WHEEL, GxWheelClass))
+#define GX_TYPE_SMALL_KNOB          (gx_small_knob_get_type())
+#define GX_SMALL_KNOB(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GX_TYPE_SMALL_KNOB, GxSmallKnob))
+#define GX_SMALL_KNOB_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_SMALL_KNOB, GxSmallKnobClass))
+#define GX_IS_SMALL_KNOB(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GX_TYPE_SMALL_KNOB))
+#define GX_IS_SMALL_KNOB_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_SMALL_KNOB))
+#define GX_SMALL_KNOB_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_SMALL_KNOB, GxSmallKnobClass))
 
 typedef struct {
-	GxRegler parent;
-} GxWheel;
+	GxKnob parent;
+} GxSmallKnob;
 
 typedef struct {
-	GxReglerClass parent_class;
-} GxWheelClass;
+	GxKnobClass parent_class;
+} GxSmallKnobClass;
 
-GType gx_wheel_get_type(void);
+GType gx_small_knob_get_type(void);
 
 G_END_DECLS
 
-#endif /* __GX_WHEEL_H__ */
+#endif /* __GX_SMALL_KNOB_H__ */

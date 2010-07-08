@@ -16,6 +16,13 @@ headers
 #include "GxControlParameter.h"
 #include "GxIREdit.h"
 #include "GxRadioButton.h"
+#include "GxKnob.h"
+#include "GxBigKnob.h"
+#include "GxSmallKnob.h"
+#include "GxHSlider.h"
+#include "GxMiniSlider.h"
+#include "GxVSlider.h"
+#include "GxEQSlider.h"
 %%
 modulename gxwidgets
 %%

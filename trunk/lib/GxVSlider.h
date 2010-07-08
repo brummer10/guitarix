@@ -16,31 +16,32 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __GX_WHEEL_H__
-#define __GX_WHEEL_H__
+#ifndef __GX_VSLIDER_H__
+#define __GX_VSLIDER_H__
 
 
 #include "GxRegler.h"
 
 G_BEGIN_DECLS
 
-#define GX_TYPE_WHEEL          (gx_wheel_get_type())
-#define GX_WHEEL(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GX_TYPE_WHEEL, GxWheel))
-#define GX_WHEEL_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_WHEEL, GxWheelClass))
-#define GX_IS_WHEEL(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GX_TYPE_WHEEL))
-#define GX_IS_WHEEL_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_WHEEL))
-#define GX_WHEEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_WHEEL, GxWheelClass))
+#define GX_TYPE_VSLIDER          (gx_vslider_get_type())
+#define GX_VSLIDER(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GX_TYPE_VSLIDER, GxVSlider))
+#define GX_VSLIDER_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_VSLIDER, GxVSliderClass))
+#define GX_IS_VSLIDER(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GX_TYPE_VSLIDER))
+#define GX_IS_VSLIDER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_VSLIDER))
+#define GX_VSLIDER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_VSLIDER, GxVSliderClass))
 
 typedef struct {
 	GxRegler parent;
-} GxWheel;
+} GxVSlider;
 
 typedef struct {
 	GxReglerClass parent_class;
-} GxWheelClass;
+	const gchar *stock_id;
+} GxVSliderClass;
 
-GType gx_wheel_get_type(void);
+GType gx_vslider_get_type(void);
 
 G_END_DECLS
 
-#endif /* __GX_WHEEL_H__ */
+#endif /* __GX_VSLIDER_H__ */

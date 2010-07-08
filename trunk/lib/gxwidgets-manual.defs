@@ -29,6 +29,60 @@
    )
   )
 
+(define-function big_knob_new
+  (c-name "gx_big_knob_new")
+  (is-constructor-of "GxBigKnob")
+  (return-type "GtkWidget*")
+  (properties
+   '("adjustment" (optional))
+   )
+  )
+
+(define-function small_knob_new
+  (c-name "gx_small_knob_new")
+  (is-constructor-of "GxSmallKnob")
+  (return-type "GtkWidget*")
+  (properties
+   '("adjustment" (optional))
+   )
+  )
+
+(define-function hslider_new
+  (c-name "gx_hslider_new")
+  (is-constructor-of "GxHSlider")
+  (return-type "GtkWidget*")
+  (properties
+   '("adjustment" (optional))
+   )
+  )
+
+(define-function mini_slider_new
+  (c-name "gx_mini_slider_new")
+  (is-constructor-of "GxMiniSlider")
+  (return-type "GtkWidget*")
+  (properties
+   '("adjustment" (optional))
+   )
+  )
+
+(define-function vslider_new
+  (c-name "gx_vslider_new")
+  (is-constructor-of "GxVSlider")
+  (return-type "GtkWidget*")
+  (properties
+   '("adjustment" (optional))
+   )
+  )
+
+(define-function eq_slider_new
+  (c-name "gx_eq_slider_new")
+  (is-constructor-of "GxEQSlider")
+  (return-type "GtkWidget*")
+  (properties
+   '("adjustment" (optional))
+   )
+  )
+
 (define-function regler_new
   (c-name "gx_regler_new")
   (is-constructor-of "GxRegler")

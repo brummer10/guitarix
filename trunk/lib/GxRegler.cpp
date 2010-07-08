@@ -71,6 +71,8 @@ static gboolean gx_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *eve
 static gboolean gx_regler_key_press (GtkWidget *widget, GdkEventKey *event);
 static gboolean gx_regler_scroll (GtkWidget *widget, GdkEventScroll *event);
 
+static void gx_regler_value_changed(GtkRange *range);
+
 static gpointer gx_regler_parent_class = NULL;
 
 GType gx_regler_get_type(void)
@@ -120,6 +122,12 @@ GType regler_type_get_type(void)
 	return etype;
 }
 
+static void gx_regler_value_changed(GtkRange *range)
+{
+	gtk_widget_queue_draw(GTK_WIDGET(range));
+}
+
+
 static void gx_regler_set_label(GxRegler *self, GObject *object)
 {
 	if (self->label) {
@@ -166,6 +174,7 @@ static void gx_regler_class_init(GxReglerClass *klass)
 {
 	GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
 	GtkObjectClass *object_class = (GtkObjectClass*) klass;
+	GtkRangeClass *range_class = (GtkRangeClass*)klass;
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
 
 	gx_regler_parent_class = g_type_class_peek_parent(klass);
@@ -174,6 +183,8 @@ static void gx_regler_class_init(GxReglerClass *klass)
 	gobject_class->get_property = gx_regler_get_property;
 
 	object_class->destroy = gx_regler_destroy;
+
+	range_class->value_changed = gx_regler_value_changed;
 
 	widget_class->style_set = gx_regler_style_set;
 	widget_class->enter_notify_event = gx_regler_enter_in;
@@ -219,7 +230,7 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		                  P_("Value Position"),
 		                  P_("The position of the value display"),
 		                  GTK_TYPE_POSITION_TYPE,
-		                  GTK_POS_TOP,
+		                  GTK_POS_BOTTOM,
 		                  GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_override_property(gobject_class, PROP_VAR_ID, "var-id");
 
@@ -322,53 +333,9 @@ static int precision(GtkAdjustment *adj)
 #define max(x, y) ((x) < (y) ? (y) : (x))
 #endif
 
-gdouble _gx_regler_get_positions(
-	GxRegler *regler, gint step, GdkRectangle *image_rect,
-	GdkRectangle *value_rect, GdkPoint *text_pos)
+gdouble _gx_regler_get_step_pos(GxRegler *regler, gint step)
 {
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
-	GtkWidget *widget = GTK_WIDGET(regler);
-	gint text_width = 0;
-	gint text_height = 0;
-	gint x = widget->allocation.x;
-	gint y = widget->allocation.y;
-	if (regler->show_value) {
-		GxReglerPrivate *priv = GX_REGLER_GET_PRIVATE(regler);
-		value_rect->width = priv->value_req.width;
-		value_rect->height = priv->value_req.height;
-	} else {
-		value_rect->width = value_rect->height = 0;
-	}
-	gint width = image_rect->width;
-	gint height =  image_rect->height + value_rect->height;
-	switch (regler->value_position) {
-	case GTK_POS_LEFT:
-		text_pos->x = x + (widget->allocation.width - width - text_width) / 2;
-		text_pos->y = y + (widget->allocation.height - text_height) / 2;
-		image_rect->x = x + (widget->allocation.width - width + text_width) / 2;
-		image_rect->y = y + (widget->allocation.height - height) / 2;
-		break;
-	case GTK_POS_RIGHT:
-		text_pos->x = x + (widget->allocation.width + width - text_width) / 2;
-		text_pos->y = y + (widget->allocation.height - text_height) / 2;
-		image_rect->x = x + (widget->allocation.width - width - text_width) / 2;
-		image_rect->y = y + (widget->allocation.height - height) / 2;
-		break;
-	case GTK_POS_TOP:
-		text_pos->x = x + (widget->allocation.width - text_width) / 2;
-		text_pos->y = y + (widget->allocation.height - height - text_height) / 2;
-		image_rect->x = x + (widget->allocation.width - width) / 2;
-		image_rect->y = y + (widget->allocation.height - height + text_height) / 2;
-		break;
-	case GTK_POS_BOTTOM:
-		text_pos->x = x + (widget->allocation.width - text_width) / 2;
-		text_pos->y = y + (widget->allocation.height + height - text_height) / 2;
-		image_rect->x = x + (widget->allocation.width - width) / 2;
-		image_rect->y = y + (widget->allocation.height - height - text_height) / 2;
-		break;
-	}
-	value_rect->x = image_rect->x + (image_rect->width - value_rect->width) / 2;
-	value_rect->y = image_rect->y + image_rect->height;
 	double df = adj->upper - adj->lower;
 	if (df == 0.0) {
 		return 0.0;
@@ -377,14 +344,68 @@ gdouble _gx_regler_get_positions(
 	}
 }
 
+void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
+                              GdkRectangle *value_rect)
+{
+	GtkWidget *widget = GTK_WIDGET(regler);
+	gint x = widget->allocation.x;
+	gint y = widget->allocation.y;
+	gint width = image_rect->width;
+	gint height =  image_rect->height;
+	if (regler->show_value) {
+		GxReglerPrivate *priv = GX_REGLER_GET_PRIVATE(regler);
+		gint text_width = priv->value_req.width;
+		gint text_height = priv->value_req.height;
+		gint text_x, text_y;
+		switch (regler->value_position) {
+		case GTK_POS_LEFT:
+			text_x = x + (widget->allocation.width - width - text_width) / 2;
+			text_y = y + (widget->allocation.height - text_height) / 2;
+			image_rect->x = x + (widget->allocation.width - width + text_width) / 2;
+			image_rect->y = y + (widget->allocation.height - height) / 2;
+			break;
+		case GTK_POS_RIGHT:
+			text_x = x + (widget->allocation.width + width - text_width) / 2;
+			text_y = y + (widget->allocation.height - text_height) / 2;
+			image_rect->x = x + (widget->allocation.width - width - text_width) / 2;
+			image_rect->y = y + (widget->allocation.height - height) / 2;
+			break;
+		case GTK_POS_TOP:
+			text_x = x + (widget->allocation.width - text_width) / 2;
+			text_y = y + (widget->allocation.height - height - text_height) / 2;
+			image_rect->x = x + (widget->allocation.width - width) / 2;
+			image_rect->y = y + (widget->allocation.height - height + text_height) / 2;
+			break;
+		case GTK_POS_BOTTOM:
+			text_x = x + (widget->allocation.width - text_width) / 2;
+			text_y = y + (widget->allocation.height + height - text_height) / 2;
+			image_rect->x = x + (widget->allocation.width - width) / 2;
+			image_rect->y = y + (widget->allocation.height - height - text_height) / 2;
+			break;
+		}
+		if (value_rect) {
+			value_rect->x = text_x;
+			value_rect->y = text_y;
+			value_rect->width = text_width;
+			value_rect->height = text_height;
+		}
+	} else {
+		image_rect->x = x + (widget->allocation.width - width) / 2;
+		image_rect->y = y + (widget->allocation.height - height) / 2;
+		if (value_rect) {
+			value_rect->x = value_rect->y = value_rect->width = value_rect->height = 0;
+		}
+	}
+}
+
 static gdouble get_positions(GtkWidget *widget, GdkRectangle *image_rect,
-                             GdkRectangle *value_rect, GdkPoint *text_pos)
+                             GdkRectangle *value_rect)
 {
 	GxRegler *regler = GX_REGLER(widget);
 	image_rect->width = base_size[regler->regler_type].width;
 	image_rect->height = base_size[regler->regler_type].height;
-	return _gx_regler_get_positions(regler, base_size[regler->regler_type].step,
-	                                image_rect,	value_rect, text_pos);
+	_gx_regler_get_positions(regler, image_rect, value_rect);
+	return _gx_regler_get_step_pos(regler, base_size[regler->regler_type].step);
 }
 
 void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
@@ -575,8 +596,7 @@ static gboolean gx_regler_expose (GtkWidget *widget, GdkEventExpose *event)
 	g_assert(GX_IS_REGLER(widget));
 	GxReglerClass *klass =  GX_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
 	GdkRectangle image_rect, value_rect;
-	GdkPoint text_pos;
-	gdouble reglerstate = get_positions(widget, &image_rect, &value_rect, &text_pos);
+	gdouble reglerstate = get_positions(widget, &image_rect, &value_rect);
 
 	switch (GX_REGLER(widget)->regler_type) {
 	case GX_REGLER_TYPE_SMALL_KNOB:
@@ -621,8 +641,7 @@ static gboolean gx_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 	GxReglerClass *klass =  GX_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
 	GdkRectangle image_rect;
 	GdkRectangle value_rect;
-	GdkPoint text_pos;
-	gdouble reglerstate = get_positions(widget, &image_rect, &value_rect, &text_pos);
+	gdouble reglerstate = get_positions(widget, &image_rect, &value_rect);
 
 	switch (GX_REGLER(widget)->regler_type) {
 	case GX_REGLER_TYPE_SMALL_KNOB:
@@ -662,8 +681,7 @@ static gboolean gx_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 	GxReglerClass *klass =  GX_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
 	GdkRectangle image_rect;
 	GdkRectangle value_rect;
-	GdkPoint text_pos;
-	gdouble reglerstate = get_positions(widget, &image_rect, &value_rect, &text_pos);
+	gdouble reglerstate = get_positions(widget, &image_rect, &value_rect);
 
 	switch (GX_REGLER(widget)->regler_type) {
 	case GX_REGLER_TYPE_SMALL_KNOB:
@@ -710,37 +728,27 @@ void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
 		pango_layout_set_text(regler->value_layout, buf, -1);
 		pango_layout_get_pixel_extents(regler->value_layout, NULL, &logical_rect2);
 		gint height = max(logical_rect1.height,logical_rect2.height) + bordery;
-		requisition->height += height;
-		int width = max(logical_rect1.width,logical_rect2.width) + borderx;
-		if (requisition->width < width) {
-			requisition->width = width;
-		}
+		gint width = max(logical_rect1.width,logical_rect2.width) + borderx;
 		GxReglerPrivate *priv = GX_REGLER_GET_PRIVATE(regler);
 		priv->value_req.width = width;
 		priv->value_req.height = height;
-	}
-#if 0
-	if (regler->show_label) {
-		PangoRectangle logical_rect;
-		pango_layout_get_pixel_extents(regler->label_layout, NULL, &logical_rect);
-		switch (regler->label_position) {
+		switch (regler->value_position) {
 		case GTK_POS_LEFT:
 		case GTK_POS_RIGHT:
-			requisition->width += logical_rect.width;
-			if (logical_rect.height > requisition->height) {
-				requisition->height = logical_rect.height;
+			requisition->width += width;
+			if (height > requisition->height) {
+				requisition->height = height;
 			}
 			break;
 		case GTK_POS_TOP:
 		case GTK_POS_BOTTOM:
-			requisition->height += logical_rect.height;
-			if (logical_rect.width > requisition->width) {
-				requisition->width = logical_rect.width;
+			requisition->height += height;
+			if (width > requisition->width) {
+				requisition->width = width;
 			}
 			break;
 		}
 	}
-#endif
 }
 
 static void gx_regler_size_request (GtkWidget *widget, GtkRequisition *requisition)
@@ -927,7 +935,6 @@ static gboolean gx_regler_button_press (GtkWidget *widget, GdkEventButton *event
 	}
 
 	gtk_widget_grab_focus(widget);
-	gtk_widget_grab_default (widget);
 	gtk_grab_add(widget);
 	gint width = base_size[regler->regler_type].width;
 	gint height = base_size[regler->regler_type].height;
@@ -1160,9 +1167,8 @@ static void gx_regler_style_set(GtkWidget *widget, GtkStyle  *previous_style)
 static void gx_regler_init(GxRegler *regler)
 {
 	GxReglerPrivate *priv;
+	regler->value_position = GTK_POS_BOTTOM;
 	gtk_widget_set_has_window (GTK_WIDGET (regler), FALSE);
-	GTK_WIDGET_SET_FLAGS (GTK_WIDGET(regler), GTK_CAN_FOCUS);
-	GTK_WIDGET_SET_FLAGS (GTK_WIDGET(regler), GTK_CAN_DEFAULT);
 	priv = GX_REGLER_GET_PRIVATE(regler);
 }
 
@@ -1206,7 +1212,7 @@ static void gx_regler_set_property (
 	case PROP_VALUE_POSITION:
 		regler->value_position = GtkPositionType(g_value_get_enum(value));
 		gtk_widget_queue_resize(GTK_WIDGET(object));
-		g_object_notify(object, "valu-position");
+		g_object_notify(object, "value-position");
 		break;
 	case PROP_LABEL:
 		gx_regler_set_label(regler, G_OBJECT(g_value_get_object(value)));
