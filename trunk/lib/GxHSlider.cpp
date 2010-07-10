@@ -18,6 +18,7 @@
 
 #include "GxHSlider.h"
 #include <gtk/gtkmain.h>
+#include <gtk/gtkprivate.h>
 
 #define P_(s) (s)   // FIXME -> gettext
 
@@ -43,6 +44,11 @@ static void gx_hslider_class_init(GxHSliderClass *klass)
 	widget_class->enter_notify_event = gx_hslider_enter_in;
 	widget_class->leave_notify_event = gx_hslider_leave_out;
 	klass->stock_id = "hslider";
+	gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_int("slider-width",P_("size of slider"),
+		                   P_("Width of movable part of vslider"),
+		                 0, 100, 20, GParamFlags(GTK_PARAM_READABLE)));
 }
 
 static void gx_hslider_size_request (GtkWidget *widget, GtkRequisition *requisition)
@@ -129,36 +135,46 @@ static gboolean gx_hslider_leave_out (GtkWidget *widget, GdkEventCrossing *event
 	return TRUE;
 }
 
-static void slider_set_from_pointer(GtkWidget *widget, gdouble x)
+static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, gint button)
 {
-	if (x <= 0) {
-		return;
-	}
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
 	gint slider_width;
 	gtk_widget_style_get(widget, "slider-width", &slider_width, NULL);
 	GdkRectangle image_rect;
 	image_rect.width = gdk_pixbuf_get_width(pb) - slider_width;
 	image_rect.height = gdk_pixbuf_get_height(pb);
+	x += widget->allocation.x;
+	y += widget->allocation.y;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, NULL);
-	double pos = adj->lower + ((x - image_rect.x + widget->allocation.x)/image_rect.width)* (adj->upper - adj->lower);
-	gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
+	if (!drag && !_approx_in_rectangle(x, y, &image_rect)) {
+		return FALSE;
+	}
+	if (button == 3) {
+		gboolean ret;
+		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, &ret);
+		return ret;
+	}
+	gint width = image_rect.width - slider_width;
+	gint off = image_rect.x + slider_width/2;
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+	double pos = adj->lower + ((x - off)/width)* (adj->upper - adj->lower);
+	gboolean handled;
+	g_signal_emit(widget, GX_REGLER_CLASS(G_OBJECT_GET_CLASS(widget))->change_value_id,
+	              0, GTK_SCROLL_JUMP, pos, &handled);
 	g_object_unref(pb);
+	return TRUE;
 }
 
 static gboolean gx_hslider_button_press (GtkWidget *widget, GdkEventButton *event)
 {
 	g_assert(GX_IS_HSLIDER(widget));
-	if (event->button == 3) {
-		return GTK_WIDGET_CLASS(gx_hslider_parent_class)->button_press_event(widget, event);
-	}
-	if (event->button != 1) {
+	if (event->button != 1 && event->button != 3) {
 		return FALSE;
 	}
-	gtk_widget_grab_focus(widget);
-	gtk_grab_add(widget);
-	slider_set_from_pointer(widget, event->x);
+	if (slider_set_from_pointer(widget, event->x, event->y, FALSE, event->button)) {
+		gtk_widget_grab_focus(widget);
+		gtk_grab_add(widget);
+	}
 	return FALSE;
 }
 
@@ -169,7 +185,7 @@ static gboolean gx_hslider_pointer_motion(GtkWidget *widget, GdkEventMotion *eve
 		return FALSE;
 	}
 	gdk_event_request_motions (event);
-	slider_set_from_pointer(widget, event->x);
+	slider_set_from_pointer(widget, event->x, event->y, TRUE, 0);
 	return FALSE;
 }
 

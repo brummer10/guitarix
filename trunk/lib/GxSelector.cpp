@@ -173,10 +173,10 @@ static void gx_selector_size_request (GtkWidget *widget, GtkRequisition *requisi
 static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-	GtkWidget * dialog,* spinner, *ok_button, *vbox, *toplevel;
 	GxSelector *selector = GX_SELECTOR(widget);
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	int i, n;
+	gboolean ret;
+	GdkRectangle rect;
 
 	switch (event->button) {
 	case 1:  // left button
@@ -191,32 +191,12 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 		gtk_range_set_value(GTK_RANGE(widget), i);
 		break;
 	case 3: // right button show num entry
-		dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-		spinner = gtk_spin_button_new(
-			GTK_ADJUSTMENT(adj), adj->step_increment, 0);
-		gtk_entry_set_activates_default(GTK_ENTRY(spinner), TRUE);
-		ok_button  = gtk_button_new_from_stock(GTK_STOCK_OK);
-		GTK_WIDGET_SET_FLAGS (GTK_WIDGET(ok_button), GTK_CAN_DEFAULT);
-		vbox = gtk_vbox_new (FALSE, 4);
-		gtk_container_add (GTK_CONTAINER(vbox), spinner);
-		gtk_container_add (GTK_CONTAINER(vbox), ok_button);
-		gtk_container_add (GTK_CONTAINER(dialog), vbox);
-		gtk_window_set_decorated(GTK_WINDOW(dialog), FALSE);
-		gtk_window_set_title (GTK_WINDOW (dialog), "set");
-		gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
-		gtk_window_set_gravity(GTK_WINDOW(dialog), GDK_GRAVITY_SOUTH);
-		gtk_window_set_position (GTK_WINDOW(dialog), GTK_WIN_POS_MOUSE);
-		gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
-		gtk_widget_grab_default(ok_button);
-		toplevel = gtk_widget_get_toplevel (widget);
-		if (GTK_WIDGET_TOPLEVEL (toplevel)) {
-			gtk_window_set_transient_for (GTK_WINDOW(dialog), GTK_WINDOW(toplevel));
-		}
-
-		gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
-		g_signal_connect_swapped (ok_button, "clicked",
-		                          G_CALLBACK (gtk_widget_destroy), dialog);
-		gtk_widget_show_all(dialog);
+		rect.width = class_selector_x;
+		rect.height = class_selector_y;
+		rect.x = widget->allocation.x + (widget->allocation.width - class_selector_x) / 2;
+		rect.y = widget->allocation.y + (widget->allocation.height - class_selector_y) / 2;
+		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &rect, &ret);
+		return ret;
 		break;
 	}
 	return TRUE;

@@ -136,38 +136,58 @@ void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobst
 	_gx_knob_draw_arc(widget, image_rect, knobstate, has_focus);
 }
 
-void _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const gchar *icon,
-                            gboolean drag, int state)
+gboolean _approx_in_rectangle(gdouble x, gdouble y, GdkRectangle *rect)
+{
+	const int off = 5;
+	if (x >= rect->x-off && x < rect->x + rect->width + off &&
+	    y >= rect->y-off && y < rect->y + rect->height + off) {
+		return TRUE;
+	}
+	return FALSE;
+}
+
+gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const gchar *icon,
+                                gboolean drag, int state, int button)
 {
 	GdkRectangle image_rect;
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, icon, GtkIconSize(-1), NULL);
 	image_rect.width = gdk_pixbuf_get_width(pb);
 	image_rect.height = gdk_pixbuf_get_height(pb);
 	g_object_unref(pb);
+	x += widget->allocation.x;
+	y += widget->allocation.y;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, NULL);
-	static double last_x = 2e20;
+	if (!drag && !_approx_in_rectangle(x, y, &image_rect)) {
+		return FALSE;
+	}
+	if (button == 3) {
+		gboolean ret;
+		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, &ret);
+		return ret;
+	}
+	static double last_y = 2e20;
 	GxKnob *knob = GX_KNOB(widget);
 	GxKnobPrivate *priv = GX_KNOB_GET_PRIVATE(knob);
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	double radius =  min(image_rect.width, image_rect.height) / 2;
-	double posx = radius - x + image_rect.x - widget->allocation.x; // x axis right -> left
-	double posy = radius - y + image_rect.y - widget->allocation.y; // y axis top -> bottom
+	double posx = radius - x + image_rect.x; // x axis right -> left
+	double posy = radius - y + image_rect.y; // y axis top -> bottom
 	double value;
 	if (!drag) {
-		if (state & GDK_CONTROL_MASK) {
-			last_x = posx;
-			return;
+		if (!(state & GDK_CONTROL_MASK)) {
+			last_y = posy;
+			return TRUE;
 		} else {
-			last_x = 2e20;
+			last_y = 2e20;
 		}
 	}
-	if (last_x < 1e20) { // in drag started with Control Key
+	if (last_y < 1e20) { // in drag started with Control Key
 		const double scaling = 0.005;
-		double scal = (state & GDK_CONTROL_MASK ? scaling : scaling*0.1);
-		value = (last_x - posx) * scal;
-		last_x = posx;
+		double scal = (state & GDK_CONTROL_MASK ? scaling*0.1 : scaling);
+		value = (last_y - posy) * scal;
+		last_y = posy;
 		gtk_range_set_value(GTK_RANGE(widget), adj->value + value * (adj->upper - adj->lower));
-		return;
+		return TRUE;
 	}
 
 	double angle = atan2(-posx, posy) + M_PI; // clockwise, zero at 6 o'clock, 0 .. 2*M_PI
@@ -196,6 +216,7 @@ void _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const gchar
 	}
 	angle = (angle - scale_zero) / (2 * (M_PI-scale_zero)); // normalize to 0..1
 	gtk_range_set_value(GTK_RANGE(widget), adj->lower + angle * (adj->upper - adj->lower));
+	return TRUE;
 }
 
 static gboolean gx_knob_pointer_motion(GtkWidget *widget, GdkEventMotion *event)
@@ -205,7 +226,7 @@ static gboolean gx_knob_pointer_motion(GtkWidget *widget, GdkEventMotion *event)
 		return FALSE;
 	}
 	gdk_event_request_motions (event);
-	_gx_knob_pointer_event(widget, event->x, event->y, get_stock_id(widget), TRUE, event->state);
+	_gx_knob_pointer_event(widget, event->x, event->y, get_stock_id(widget), TRUE, event->state, 0);
 	return FALSE;
 }
 
@@ -271,15 +292,13 @@ static gboolean gx_knob_expose(GtkWidget *widget, GdkEventExpose *event)
 static gboolean gx_knob_button_press (GtkWidget *widget, GdkEventButton *event)
 {
 	g_assert(GX_IS_KNOB(widget));
-	if (event->button == 3) {
-		return GTK_WIDGET_CLASS(gx_knob_parent_class)->button_press_event(widget, event);
-	}
-	if (event->button != 1) {
+	if (event->button != 1 && event->button != 3) {
 		return FALSE;
 	}
-	gtk_widget_grab_focus(widget);
-	gtk_grab_add(widget);
-	_gx_knob_pointer_event(widget, event->x, event->y, get_stock_id(widget), FALSE, event->state);
+	if (_gx_knob_pointer_event(widget, event->x, event->y, get_stock_id(widget), FALSE, event->state, event->button)) {
+		gtk_widget_grab_focus(widget);
+		gtk_grab_add(widget);
+	}
 	return FALSE;
 }
 

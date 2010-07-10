@@ -16,7 +16,7 @@ DL_EXPORT(void) initgxwidgets(void)
 	d = PyModule_GetDict (m);
 
 	gxwidgets_register_classes(d);
-	gxwidgets_add_constants(m, "");
+	/*gxwidgets_add_constants(m, ""); no constants atm */
 
 	if (PyErr_Occurred ()) {
 		Py_FatalError ("can't initialise module hello_widget");

@@ -26,8 +26,11 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 #include <gtk/gtkprivate.h>
+#include <gtk/gtkbindings.h>
+#include <gtk/gtkmarshal.h>
 
 #define P_(s) (s)   // FIXME -> gettext
+#define I_(s) (s)   // FIXME -> gettext
 
 /****************************************************************
  ** GxRegler
@@ -37,90 +40,43 @@
 
 typedef struct
 {
-	gint last_quadrant;
 	GtkRequisition value_req;
+	gdouble last_step;
 } GxReglerPrivate;
 
 enum {
-	PROP_TYPE = 1,
-	PROP_VAR_ID,
+  VALUE_ENTRY,
+  LAST_SIGNAL
+};
+
+enum {
+	PROP_VAR_ID = 1,
 	PROP_SHOW_VALUE,
 	PROP_VALUE_POSITION,
 	PROP_LABEL,
 };
 
+static guint signals[LAST_SIGNAL] = {0,};
+
 static void gx_regler_class_init(GxReglerClass *klass);
 static void gx_regler_init(GxRegler *regler);
 static void gx_control_parameter_interface_init (GxControlParameterIface *iface);
-static void gx_regler_base_class_finalize(GxReglerClass *klass);
 static void gx_regler_finalize(GObject*);
-static void gx_regler_init_pixmaps(GxReglerClass *klass);
 static void gx_regler_style_set (GtkWidget *widget, GtkStyle  *previous_style);
 static void gx_regler_destroy(GtkObject *object);
 static void gx_regler_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_regler_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static gboolean gx_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event);
-static gboolean gx_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event);
-static gboolean gx_regler_expose (GtkWidget *widget, GdkEventExpose *event);
-static void gx_regler_size_request (GtkWidget *widget, GtkRequisition *requisition);
-static gboolean gx_regler_button_press (GtkWidget *widget, GdkEventButton *event);
 static gboolean gx_regler_button_release (GtkWidget *widget, GdkEventButton *event);
-static gboolean gx_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *event);
-static gboolean gx_regler_key_press (GtkWidget *widget, GdkEventKey *event);
 static gboolean gx_regler_scroll (GtkWidget *widget, GdkEventScroll *event);
-
+static gboolean gx_regler_change_value(GtkRange *range, GtkScrollType scroll, gdouble value);
 static void gx_regler_value_changed(GtkRange *range);
+static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect);
 
-static gpointer gx_regler_parent_class = NULL;
-
-GType gx_regler_get_type(void)
-{
-	static GType regler_type = 0;
-
-	if (!regler_type) {
-		const GTypeInfo regler_info = {
-			sizeof (GxReglerClass),
-			NULL,				/* base_class_init */
-			(GBaseFinalizeFunc) gx_regler_base_class_finalize,
-			(GClassInitFunc) gx_regler_class_init,
-			NULL,				/* class_finalize */
-			NULL,				/* class_data */
-			sizeof (GxRegler),
-			0,					/* n_preallocs */
-			(GInstanceInitFunc) gx_regler_init,
-			NULL,				/* value_table */
-		};
-		regler_type = g_type_register_static(
-			GTK_TYPE_RANGE, "GxRegler", &regler_info, (GTypeFlags)0);
-		static const GInterfaceInfo g_implement_interface_info = {
-			(GInterfaceInitFunc)gx_control_parameter_interface_init
-		};
-        g_type_add_interface_static(regler_type, GX_TYPE_CONTROL_PARAMETER, &g_implement_interface_info);
-	}
-	return regler_type;
-}
-
-
-GType regler_type_get_type(void)
-{
-	static GType etype = 0;
-	if (G_UNLIKELY(etype == 0)) {
-		static const GEnumValue values[] = {
-			{ GX_REGLER_TYPE_SMALL_KNOB, "REGLER_TYPE_SMALL_KNOB", "small knob" },
-			{ GX_REGLER_TYPE_BIG_KNOB, "REGLER_TYPE_BIG_KNOB", "big knob" },
-			{ GX_REGLER_TYPE_HSLIDER, "REGLER_TYPE_HSLIDER", "horizontal slider" },
-			{ GX_REGLER_TYPE_MINI_SLIDER, "REGLER_TYPE_MINI_SLIDER", "mini slider" },
-			{ GX_REGLER_TYPE_WHEEL, "REGLER_TYPE_WHEEL", "wheel" },
-			{ GX_REGLER_TYPE_VSLIDER, "REGLER_TYPE_VSLIDER", "vslider" },
-			{ GX_REGLER_TYPE_EQ_SLIDER, "REGLER_TYPE_EQ_SLIDER", "eq slider" },
-			{ 0, NULL, NULL }
-		};
-		etype = g_enum_register_static (g_intern_static_string ("GxReglerType"), values);
-	}
-	return etype;
-}
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE(GxRegler, gx_regler, GTK_TYPE_RANGE,
+                                 G_IMPLEMENT_INTERFACE(GX_TYPE_CONTROL_PARAMETER,
+                                                       gx_control_parameter_interface_init));
 
 static void gx_regler_value_changed(GtkRange *range)
 {
@@ -170,46 +126,66 @@ gx_control_parameter_interface_init(GxControlParameterIface *iface)
   iface->cp_get_value = gx_regler_cp_get_value;
 }
 
+gboolean gx_boolean_handled_accumulator(
+	GSignalInvocationHint *ihint, GValue *return_accu,
+	const GValue *handler_return, gpointer dummy)
+{
+  gboolean continue_emission;
+  gboolean signal_handled;
+  
+  signal_handled = g_value_get_boolean (handler_return);
+  g_value_set_boolean (return_accu, signal_handled);
+  continue_emission = !signal_handled;
+  
+  return continue_emission;
+}
+
+
+#define add_slider_binding(binding_set, keyval, mask, scroll)              \
+  gtk_binding_entry_add_signal (binding_set, keyval, mask,                 \
+                                I_("move-slider"), 1, \
+                                GTK_TYPE_SCROLL_TYPE, scroll)
+
 static void gx_regler_class_init(GxReglerClass *klass)
 {
 	GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
 	GtkObjectClass *object_class = (GtkObjectClass*) klass;
 	GtkRangeClass *range_class = (GtkRangeClass*)klass;
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
+	GtkBindingSet  *binding_set;
 
-	gx_regler_parent_class = g_type_class_peek_parent(klass);
+	klass->change_value_id = g_signal_lookup("change-value", GTK_TYPE_RANGE);
+
 	gobject_class->finalize = gx_regler_finalize;
 	gobject_class->set_property = gx_regler_set_property;
 	gobject_class->get_property = gx_regler_get_property;
 
 	object_class->destroy = gx_regler_destroy;
 
-	range_class->value_changed = gx_regler_value_changed;
-
 	widget_class->style_set = gx_regler_style_set;
-	widget_class->enter_notify_event = gx_regler_enter_in;
-	widget_class->leave_notify_event = gx_regler_leave_out;
-	widget_class->expose_event = gx_regler_expose;
-	widget_class->size_request = gx_regler_size_request;
-	widget_class->button_press_event = gx_regler_button_press;
 	widget_class->button_release_event = gx_regler_button_release;
-	widget_class->motion_notify_event = gx_regler_pointer_motion;
-	widget_class->key_press_event = gx_regler_key_press;
 	widget_class->scroll_event = gx_regler_scroll;
+
+	range_class->value_changed = gx_regler_value_changed;
+	range_class->change_value = gx_regler_change_value;
+
+	klass->value_entry = gx_regler_value_entry;
+
+	signals[VALUE_ENTRY] =
+		g_signal_new (I_("value-entry"),
+		              G_OBJECT_CLASS_TYPE (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (GxReglerClass, value_entry),
+		              gx_boolean_handled_accumulator, NULL,
+		              gtk_marshal_BOOLEAN__POINTER,
+		              G_TYPE_BOOLEAN, 1, G_TYPE_POINTER);
 
 	gtk_widget_class_install_style_property(
 		widget_class,
-		g_param_spec_int("image-theme-number",P_("image theme number"),
-		                 P_("Number of image theme"),
-		                 0, 5, 0, GParamFlags(GTK_PARAM_READABLE)));
-	g_object_class_install_property(
-		gobject_class, PROP_TYPE,
-		g_param_spec_enum("regler-type",
-		                  P_("Type"),
-		                  P_("The type of the control"),
-		                  regler_type_get_type(),
-		                  GX_REGLER_TYPE_SMALL_KNOB,
-		                  GParamFlags(GTK_PARAM_READWRITE)));
+		g_param_spec_int("value-spacing",P_("Value spacing"),
+		                 P_("Distance of value display"),
+		                 0, 100, 5, GParamFlags(GTK_PARAM_READABLE)));
+
 	g_object_class_install_property(
 		gobject_class, PROP_SHOW_VALUE,
 		g_param_spec_boolean("show-value",
@@ -234,9 +210,121 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		                  GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_override_property(gobject_class, PROP_VAR_ID, "var-id");
 
+	binding_set = gtk_binding_set_by_class(klass);
+
+	add_slider_binding (binding_set, GDK_Left, (GdkModifierType)0,
+	                    GTK_SCROLL_STEP_LEFT);
+
+	add_slider_binding (binding_set, GDK_Left, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_LEFT);
+
+	add_slider_binding (binding_set, GDK_KP_Left, (GdkModifierType)0,
+	                    GTK_SCROLL_STEP_LEFT);
+
+	add_slider_binding (binding_set, GDK_KP_Left, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_LEFT);
+
+	add_slider_binding (binding_set, GDK_Right, (GdkModifierType)0,
+	                    GTK_SCROLL_STEP_RIGHT);
+
+	add_slider_binding (binding_set, GDK_Right, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_RIGHT);
+
+	add_slider_binding (binding_set, GDK_KP_Right, (GdkModifierType)0,
+	                    GTK_SCROLL_STEP_RIGHT);
+
+	add_slider_binding (binding_set, GDK_KP_Right, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_RIGHT);
+
+	add_slider_binding (binding_set, GDK_Up, (GdkModifierType)0,
+	                    GTK_SCROLL_STEP_UP);
+
+	add_slider_binding (binding_set, GDK_Up, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_UP);
+
+	add_slider_binding (binding_set, GDK_KP_Up, (GdkModifierType)0,
+	                    GTK_SCROLL_STEP_UP);
+
+	add_slider_binding (binding_set, GDK_KP_Up, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_UP);
+
+	add_slider_binding (binding_set, GDK_Down, (GdkModifierType)0,
+	                    GTK_SCROLL_STEP_DOWN);
+
+	add_slider_binding (binding_set, GDK_Down, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_DOWN);
+
+	add_slider_binding (binding_set, GDK_KP_Down, (GdkModifierType)0,
+	                    GTK_SCROLL_STEP_DOWN);
+
+	add_slider_binding (binding_set, GDK_KP_Down, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_DOWN);
+
+	add_slider_binding (binding_set, GDK_Page_Up, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_LEFT);
+
+	add_slider_binding (binding_set, GDK_KP_Page_Up, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_LEFT);
+
+	add_slider_binding (binding_set, GDK_Page_Up, (GdkModifierType)0,
+	                    GTK_SCROLL_PAGE_UP);
+
+	add_slider_binding (binding_set, GDK_KP_Page_Up, (GdkModifierType)0,
+	                    GTK_SCROLL_PAGE_UP);
+
+	add_slider_binding (binding_set, GDK_Page_Down, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_RIGHT);
+
+	add_slider_binding (binding_set, GDK_KP_Page_Down, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_RIGHT);
+
+	add_slider_binding (binding_set, GDK_Page_Down, (GdkModifierType)0,
+	                    GTK_SCROLL_PAGE_DOWN);
+
+	add_slider_binding (binding_set, GDK_KP_Page_Down, (GdkModifierType)0,
+	                    GTK_SCROLL_PAGE_DOWN);
+
+	/* Logical bindings (vs. visual bindings above) */
+
+	add_slider_binding (binding_set, GDK_plus, (GdkModifierType)0,
+	                    GTK_SCROLL_STEP_FORWARD);
+
+	add_slider_binding (binding_set, GDK_minus, (GdkModifierType)0,
+	                    GTK_SCROLL_STEP_BACKWARD);
+
+	add_slider_binding (binding_set, GDK_plus, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_FORWARD);
+
+	add_slider_binding (binding_set, GDK_minus, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_BACKWARD);
+
+
+	add_slider_binding (binding_set, GDK_KP_Add, (GdkModifierType)0,
+	                    GTK_SCROLL_STEP_FORWARD);
+
+	add_slider_binding (binding_set, GDK_KP_Subtract, (GdkModifierType)0,
+	                    GTK_SCROLL_STEP_BACKWARD);
+
+	add_slider_binding (binding_set, GDK_KP_Add, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_FORWARD);
+
+	add_slider_binding (binding_set, GDK_KP_Subtract, GDK_CONTROL_MASK,
+	                    GTK_SCROLL_PAGE_BACKWARD);
+
+
+	add_slider_binding (binding_set, GDK_Home, (GdkModifierType)0,
+	                    GTK_SCROLL_START);
+
+	add_slider_binding (binding_set, GDK_KP_Home, (GdkModifierType)0,
+	                    GTK_SCROLL_START);
+
+	add_slider_binding (binding_set, GDK_End, (GdkModifierType)0,
+	                    GTK_SCROLL_END);
+
+	add_slider_binding (binding_set, GDK_KP_End, (GdkModifierType)0,
+	                    GTK_SCROLL_END);
+
 	g_type_class_add_private(klass, sizeof (GxReglerPrivate));
-	klass->current_theme = -1;
-	gx_regler_init_pixmaps(klass);
 }
 
 static void gx_regler_destroy(GtkObject *object)
@@ -249,25 +337,6 @@ static void gx_regler_destroy(GtkObject *object)
 	GTK_OBJECT_CLASS(gx_regler_parent_class)->destroy(object);
 }
 
-static void gx_regler_base_class_finalize(GxReglerClass *klass)
-{
-#define IMAGE_UNREF(image) if (klass->image) g_object_unref(klass->image)
-	IMAGE_UNREF(bigregler_image);
-	IMAGE_UNREF(regler_image);
-	IMAGE_UNREF(slider_image);
-	IMAGE_UNREF(slider_image1);
-	IMAGE_UNREF(vslider_image);
-	IMAGE_UNREF(vslider_image1);
-	IMAGE_UNREF(minislider_image);
-	IMAGE_UNREF(minislider_image1);
-	IMAGE_UNREF(eqslider_image);
-	IMAGE_UNREF(eqslider_image1);
-	IMAGE_UNREF(wheel_image);
-	IMAGE_UNREF(wheel_image1);
-	IMAGE_UNREF(pointer_image1);
-#undef IMAGE_UNREF
-}
-
 static void gx_regler_finalize(GObject *object)
 {
 	GxRegler *regler = GX_REGLER(object);
@@ -278,23 +347,36 @@ static void gx_regler_finalize(GObject *object)
 	G_OBJECT_CLASS(gx_regler_parent_class)->finalize(object);
 }
 
-/****************************************************************
- ** Constants
- */
+static gint get_digits(GtkRange *range)
+{
+	GxReglerPrivate *priv = GX_REGLER_GET_PRIVATE(range);
+	GtkAdjustment *adj = range->adjustment;
+	if (!adj) {
+		return range->round_digits;
+	}
+	gdouble v = adj->step_increment;
+	if (v == priv->last_step) {
+		return range->round_digits;
+	}
+	if (v == 0.0) {
+		priv->last_step = 0.0;
+		return range->round_digits;
+	}
+	gint n = 0;
+	while (fabs(v - 1.0) > 1e-3) {
+		v *= 10;
+		n++;
+	}
+	range->round_digits = n;
+	return range->round_digits;
+}
 
-static const struct {
-	gint width;
-	gint height;
-	gint step;
-} base_size[] = {
-	{ 25, 25, 1 },				// GX_REGLER_TYPE_SMALL_KNOB
-	{ 51, 51, 1 },				// GX_REGLER_TYPE_BIG_KNOB
-	{ 120, 10, 100 },			// GX_REGLER_TYPE_HSLIDER
-	{ 34, 6, 28 },				// GX_REGLER_TYPE_MINI_SLIDER
-	{ 40, 8, 100 },				// GX_REGLER_TYPE_WHEEL
-	{ 10, 70, 50 },				// GX_REGLER_TYPE_VSLIDER
-	{ 13, 55, 50 },				// GX_REGLER_TYPE_EQ_SLIDER
-};
+static gboolean gx_regler_change_value(GtkRange *range, GtkScrollType scroll, gdouble value)
+{
+	g_assert(GX_IS_REGLER(range));
+	get_digits(range);
+	return GTK_RANGE_CLASS(gx_regler_parent_class)->change_value(range, scroll, value);
+}
 
 /****************************************************************
  ** calculate the knop pointer with dead zone
@@ -310,21 +392,6 @@ static void gx_regler_ensure_layout(GxRegler *regler)
 }
 
 static const double scale_zero = 20 * (M_PI/180); // defines "dead zone" for knobs
-
-//------------ calculate needed precision
-static int precision(GtkAdjustment *adj)
-{
-	gdouble n = gtk_adjustment_get_step_increment(adj);
-	if (n < 0.009999) {
-		return 3;
-	} else if (n < 0.099999) {
-		return 2;
-	} else if (n < 0.999999) {
-		return 1;
-	} else {
-		return 0;
-	}
-}
 
 #ifndef min
 #define min(x, y) ((x) < (y) ? (x) : (y))
@@ -357,30 +424,32 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
 		gint text_width = priv->value_req.width;
 		gint text_height = priv->value_req.height;
 		gint text_x, text_y;
+		gint value_spacing;
+		gtk_widget_style_get(widget, "value-spacing", &value_spacing, NULL);
 		switch (regler->value_position) {
 		case GTK_POS_LEFT:
-			text_x = x + (widget->allocation.width - width - text_width) / 2;
+			text_x = x + (widget->allocation.width - width - text_width - value_spacing) / 2;
 			text_y = y + (widget->allocation.height - text_height) / 2;
-			image_rect->x = x + (widget->allocation.width - width + text_width) / 2;
+			image_rect->x = x + (widget->allocation.width - width + text_width + value_spacing) / 2;
 			image_rect->y = y + (widget->allocation.height - height) / 2;
 			break;
 		case GTK_POS_RIGHT:
-			text_x = x + (widget->allocation.width + width - text_width) / 2;
+			text_x = x + value_spacing + (widget->allocation.width + width - text_width - value_spacing) / 2;
 			text_y = y + (widget->allocation.height - text_height) / 2;
-			image_rect->x = x + (widget->allocation.width - width - text_width) / 2;
+			image_rect->x = x + (widget->allocation.width - width - text_width - value_spacing) / 2;
 			image_rect->y = y + (widget->allocation.height - height) / 2;
 			break;
 		case GTK_POS_TOP:
 			text_x = x + (widget->allocation.width - text_width) / 2;
-			text_y = y + (widget->allocation.height - height - text_height) / 2;
+			text_y = y + (widget->allocation.height - height - text_height - value_spacing) / 2;
 			image_rect->x = x + (widget->allocation.width - width) / 2;
-			image_rect->y = y + (widget->allocation.height - height + text_height) / 2;
+			image_rect->y = y + (widget->allocation.height - height + text_height + value_spacing) / 2;
 			break;
 		case GTK_POS_BOTTOM:
 			text_x = x + (widget->allocation.width - text_width) / 2;
-			text_y = y + (widget->allocation.height + height - text_height) / 2;
+			text_y = y + value_spacing + (widget->allocation.height + height - text_height - value_spacing) / 2;
 			image_rect->x = x + (widget->allocation.width - width) / 2;
-			image_rect->y = y + (widget->allocation.height - height - text_height) / 2;
+			image_rect->y = y + (widget->allocation.height - height - text_height - value_spacing) / 2;
 			break;
 		}
 		if (value_rect) {
@@ -398,16 +467,6 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
 	}
 }
 
-static gdouble get_positions(GtkWidget *widget, GdkRectangle *image_rect,
-                             GdkRectangle *value_rect)
-{
-	GxRegler *regler = GX_REGLER(widget);
-	image_rect->width = base_size[regler->regler_type].width;
-	image_rect->height = base_size[regler->regler_type].height;
-	_gx_regler_get_positions(regler, image_rect, value_rect);
-	return _gx_regler_get_step_pos(regler, base_size[regler->regler_type].step);
-}
-
 void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 {
 	if (!regler->show_value) {
@@ -415,7 +474,7 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 	}
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
 	char s[64];
-	snprintf(s, sizeof(s), "%.*f", precision(adj), gtk_adjustment_get_value(adj));
+	snprintf(s, sizeof(s), "%.*f", get_digits(GTK_RANGE(regler)), gtk_adjustment_get_value(adj));
 
 	cairo_t *cr = gdk_cairo_create(GTK_WIDGET(regler)->window);
 	double x0 = rect->x + 1;
@@ -460,267 +519,17 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 	cairo_destroy(cr);
 }
 
-static void knob_draw_arc(GtkWidget *widget, GdkRectangle *rect, gdouble reglerstate, int arc_offset, gboolean has_focus)
-{
-	GdkGC *line = gdk_gc_new(GDK_DRAWABLE(widget->window));
-	GdkColor color;
-	if (has_focus) {
-		// linear color change in RGB space from (52480, 0, 5120) to (8448, 46004, 5120)
-		color.red = 52480 - (int)(44032 * reglerstate);
-		color.green = (int)(46004 * reglerstate);
-		color.blue = 5120;
-	} else {
-		color.red = 5120;
-		color.green = 742;
-		color.blue = 52480;
-	}
-	gdk_gc_set_rgb_fg_color(line, &color);
-	gdk_gc_set_line_attributes(line, 1,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_ROUND);
-	gdk_draw_arc(GDK_DRAWABLE(widget->window), line, FALSE,
-	             rect->x+arc_offset, rect->y+arc_offset,
-	             rect->width-1-2*arc_offset, rect->height-1-2*arc_offset,-90*64,360*64);
-	g_object_unref(line);
-}
-
-static void knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble reglerstate,
-                        GdkPixbuf *regler_image, int arc_offset)
-{
-	double angle = scale_zero + reglerstate * 2 * (M_PI - scale_zero);
-	const double pointer_off = 5;
-	double radius = min(image_rect->width-pointer_off, image_rect->height-pointer_off) / 2;
-	double lengh_x = (image_rect->x+radius+pointer_off/2) - radius * sin(angle);
-	double lengh_y = (image_rect->y+radius+pointer_off/2) + radius * cos(angle);
-	double radius1 = min(image_rect->width, image_rect->height) / 2;
-	int has_focus = GTK_WIDGET_HAS_FOCUS(widget);
-
-	if (has_focus) {
-		gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
-		                image_rect->x, image_rect->y, image_rect->width, image_rect->height);
-	}
-	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-	                regler_image, 0,0, image_rect->x, image_rect->y,
-	                image_rect->width, image_rect->height, GDK_RGB_DITHER_NORMAL, 0, 0);
-
-	/** this is to create a pointer rotating on the knob with painting funktions **/
-	cairo_t *cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-	cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
-	cairo_set_line_width(cr, 5.0);
-	cairo_move_to(cr, image_rect->x+radius1, image_rect->y+radius1);
-	cairo_line_to(cr,lengh_x,lengh_y);
-	cairo_stroke(cr);
-	cairo_set_source_rgb(cr,  0.9, 0.9, 0.9);
-	cairo_set_line_width(cr, 1.0);
-	cairo_move_to(cr, image_rect->x+radius1, image_rect->y+radius1);
-	cairo_line_to(cr,lengh_x,lengh_y);
-	cairo_stroke(cr);
-	cairo_destroy(cr);
-
-	knob_draw_arc(widget, image_rect, reglerstate, arc_offset, has_focus);
-}
-
-static void hslider_expose(
-	GtkWidget *widget, GdkRectangle *rect, gdouble reglerstate, GdkPixbuf *image,
-	GdkPixbuf *image1, gint w, gdouble sat, gboolean has_focus, gboolean paint_focus)
-{
-	gdk_pixbuf_copy_area(image, 0, 0, rect->width, rect->height, image1, 0, 0);
-	gdk_pixbuf_copy_area(image, rect->width, 0, w, rect->height, image1, reglerstate, 0);
-	if (has_focus) {
-		gdk_pixbuf_saturate_and_pixelate(image1, image1, sat, FALSE);
-		if (paint_focus) {
-			gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
-			                rect->x, rect->y, rect->width, rect->height);
-		}
-	}
-	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-	                image1, 0, 0, rect->x, rect->y,
-	                rect->width, rect->height, GDK_RGB_DITHER_NORMAL, 0, 0);
-}
-
-static void vslider_expose(GtkWidget *widget, GdkRectangle *rect, gdouble reglerstate,
-                           gboolean has_focus, gboolean paint_focus)
-{
-	GxReglerClass *klass =  GX_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
-	gdk_pixbuf_copy_area(klass->vslider_image,0,20, rect->width, rect->height,
-	                     klass->vslider_image1,0,0);
-	gdk_pixbuf_copy_area(klass->vslider_image,0,0,rect->width,20,
-	                     klass->vslider_image1,0,50-reglerstate);
-	if (has_focus) {
-		if (paint_focus) {
-			gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
-			                rect->x, rect->y, rect->width, rect->height);
-		}
-		gdk_pixbuf_saturate_and_pixelate(klass->vslider_image1,
-		                                 klass->vslider_image1,70.0,FALSE);
-	}
-	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-	                klass->vslider_image1, 0, 0, rect->x, rect->y,
-	                rect->width, rect->height, GDK_RGB_DITHER_NORMAL, 0, 0);
-}
-
-static void eq_slider_expose(GtkWidget *widget, GdkRectangle *rect, gdouble reglerstate)
-{
-	GxReglerClass *klass =  GX_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
-	gdk_pixbuf_copy_area(klass->eqslider_image,0,reglerstate+8,
-	                     rect->width, rect->height,
-	                     klass->eqslider_image1,0,0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-		                klass->eqslider_image1, 0, 0, rect->x, rect->y,
-		                rect->width, rect->height, GDK_RGB_DITHER_NORMAL, 0, 0);
-}
-
-static void wheel_expose(GtkWidget *widget, GdkRectangle *rect, gdouble reglerstate)
-{
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	GxReglerClass *klass =  GX_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
-	int smoth_pointer = 0;
-	if (reglerstate > (adj->upper - adj->lower)) {
-		smoth_pointer = -4;
-	}
-	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-	                klass->wheel_image1, 0, 0, rect->x, rect->y,
-	                rect->width, rect->height, GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-	                klass->wheel_image, reglerstate + rect->width, 0,
-	                rect->x, rect->y, rect->width, rect->height, GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-	                klass->pointer_image1,0, 0, rect->x+smoth_pointer+reglerstate*0.4,
-	                rect->y, 2, rect->height, GDK_RGB_DITHER_NORMAL, 0, 0);
-}
-
-/****************************************************************
- ** general expose events for all "regler" controllers
- */
-
-static gboolean gx_regler_expose (GtkWidget *widget, GdkEventExpose *event)
-{
-	g_assert(GX_IS_REGLER(widget));
-	GxReglerClass *klass =  GX_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
-	GdkRectangle image_rect, value_rect;
-	gdouble reglerstate = get_positions(widget, &image_rect, &value_rect);
-
-	switch (GX_REGLER(widget)->regler_type) {
-	case GX_REGLER_TYPE_SMALL_KNOB:
-		knob_expose(widget, &image_rect, reglerstate, klass->regler_image, 0);
-		break;
-	case GX_REGLER_TYPE_BIG_KNOB:
-		knob_expose(widget, &image_rect, reglerstate, klass->bigregler_image, 2);
-		break;
-	case GX_REGLER_TYPE_HSLIDER:
-		hslider_expose(
-			widget, &image_rect, reglerstate, klass->slider_image,
-			klass->slider_image1, 20, 70.0, GTK_WIDGET_HAS_FOCUS(widget), TRUE);
-		break;
-	case GX_REGLER_TYPE_MINI_SLIDER:
-		hslider_expose(
-			widget, &image_rect, reglerstate, klass->minislider_image,
-			klass->minislider_image1, 6, 99.0, GTK_WIDGET_HAS_FOCUS(widget), FALSE);
-		break;
-	case GX_REGLER_TYPE_WHEEL:
-		wheel_expose(widget, &image_rect, reglerstate);
-		break;
-	case GX_REGLER_TYPE_VSLIDER:
-		vslider_expose(widget, &image_rect, reglerstate, GTK_WIDGET_HAS_FOCUS(widget), TRUE);
-		break;
-	case GX_REGLER_TYPE_EQ_SLIDER:
-		eq_slider_expose(widget, &image_rect, reglerstate);
-		break;
-	default:
-		g_assert(FALSE);
-	}
-	_gx_regler_display_value(GX_REGLER(widget), &value_rect);
-	return TRUE;
-}
-
-/****************************************************************
- ** redraw when leave
- */
-
-static gboolean gx_regler_leave_out (GtkWidget *widget, GdkEventCrossing *event)
-{
-	g_assert(GX_IS_REGLER(widget));
-	GxReglerClass *klass =  GX_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
-	GdkRectangle image_rect;
-	GdkRectangle value_rect;
-	gdouble reglerstate = get_positions(widget, &image_rect, &value_rect);
-
-	switch (GX_REGLER(widget)->regler_type) {
-	case GX_REGLER_TYPE_SMALL_KNOB:
-		if (GTK_WIDGET_HAS_GRAB(widget) || GTK_WIDGET_HAS_FOCUS(widget)== TRUE) {
-			return TRUE;
-		}
-		knob_draw_arc(widget, &image_rect, reglerstate, 0, FALSE);
-		break;
-	case GX_REGLER_TYPE_BIG_KNOB:
-		if (GTK_WIDGET_HAS_GRAB(widget) || GTK_WIDGET_HAS_FOCUS(widget)== TRUE) {
-			return TRUE;
-		}
-		knob_draw_arc(widget, &image_rect, reglerstate, 2, FALSE);
-		break;
-	case GX_REGLER_TYPE_HSLIDER:
-		hslider_expose(widget, &image_rect, reglerstate, klass->slider_image,
-		               klass->slider_image1, 20, 70.0, FALSE, FALSE);
-		break;
-	case GX_REGLER_TYPE_MINI_SLIDER:
-		hslider_expose(widget, &image_rect, reglerstate, klass->minislider_image,
-		               klass->minislider_image1, 6, 99.0, FALSE, FALSE);
-		break;
-	case GX_REGLER_TYPE_VSLIDER:
-		vslider_expose(widget, &image_rect, reglerstate, FALSE, FALSE);
-		break;
-	}
-	return TRUE;
-}
-
-/****************************************************************
- ** redraw when enter
- */
-
-static gboolean gx_regler_enter_in (GtkWidget *widget, GdkEventCrossing *event)
-{
-	g_assert(GX_IS_REGLER(widget));
-	GxReglerClass *klass =  GX_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget));
-	GdkRectangle image_rect;
-	GdkRectangle value_rect;
-	gdouble reglerstate = get_positions(widget, &image_rect, &value_rect);
-
-	switch (GX_REGLER(widget)->regler_type) {
-	case GX_REGLER_TYPE_SMALL_KNOB:
-		knob_draw_arc(widget, &image_rect, reglerstate, 0, TRUE);
-		break;
-	case GX_REGLER_TYPE_BIG_KNOB:
-		if (GTK_WIDGET_HAS_GRAB(widget) || GTK_WIDGET_HAS_FOCUS(widget)== TRUE) {
-			return TRUE;
-		}
-		knob_draw_arc(widget, &image_rect, reglerstate, 2, TRUE);
-		break;
-	case GX_REGLER_TYPE_HSLIDER:
-		hslider_expose(widget, &image_rect, reglerstate, klass->slider_image,
-		               klass->slider_image1, 20, 70.0, TRUE, FALSE);
-		break;
-	case GX_REGLER_TYPE_MINI_SLIDER:
-		hslider_expose(widget, &image_rect, reglerstate, klass->minislider_image,
-		               klass->minislider_image1, 6, 99.0, TRUE, FALSE);
-		break;
-	case GX_REGLER_TYPE_VSLIDER:
-		vslider_expose(widget, &image_rect, reglerstate, TRUE, FALSE);
-		break;
-	}
-	return TRUE;
-}
-
-/****************************************************************
- ** set size for GdkDrawable per type
- */
-
 void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
 {
 	gx_regler_ensure_layout(regler);
 	if (regler->show_value) {
 		PangoRectangle logical_rect1, logical_rect2;
 		GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
-		int p = precision(adj);
+		gint value_spacing;
+		int p = get_digits(GTK_RANGE(regler));
 		char buf[20];
 		int borderx = 12, bordery = 6;
+		gtk_widget_style_get(GTK_WIDGET(regler), "value-spacing", &value_spacing, NULL);
 		snprintf(buf, sizeof(buf), "%.*f", p, gtk_adjustment_get_lower(adj));
 		pango_layout_set_text(regler->value_layout, buf, -1);
 		pango_layout_get_pixel_extents(regler->value_layout, NULL, &logical_rect1);
@@ -735,29 +544,20 @@ void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
 		switch (regler->value_position) {
 		case GTK_POS_LEFT:
 		case GTK_POS_RIGHT:
-			requisition->width += width;
+			requisition->width += width + value_spacing;
 			if (height > requisition->height) {
 				requisition->height = height;
 			}
 			break;
 		case GTK_POS_TOP:
 		case GTK_POS_BOTTOM:
-			requisition->height += height;
+			requisition->height += height + value_spacing;
 			if (width > requisition->width) {
 				requisition->width = width;
 			}
 			break;
 		}
 	}
-}
-
-static void gx_regler_size_request (GtkWidget *widget, GtkRequisition *requisition)
-{
-	g_assert(GX_IS_REGLER(widget));
-	GxRegler *regler = GX_REGLER(widget);
-	requisition->width = base_size[regler->regler_type].width;
-	requisition->height = base_size[regler->regler_type].height;
-	_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
 }
 
 /****************************************************************
@@ -783,202 +583,112 @@ static void gx_regler_set_value (GtkWidget *widget, int dir_down)
 }
 
 /****************************************************************
- ** keyboard bindings
- */
-
-static gboolean gx_regler_key_press (GtkWidget *widget, GdkEventKey *event)
-{
-	g_assert(GX_IS_REGLER(widget));
-
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	switch (event->keyval) {
-	case GDK_Home:
-		gtk_range_set_value(GTK_RANGE(widget), adj->lower);
-		return TRUE;
-	case GDK_End:
-		gtk_range_set_value(GTK_RANGE(widget), adj->upper);
-		return TRUE;
-	case GDK_Up:
-		gx_regler_set_value(widget, 0);
-		return TRUE;
-	case GDK_Right:
-		gx_regler_set_value(widget, 0);
-		return TRUE;
-	case GDK_Down:
-		gx_regler_set_value(widget, 1);
-		return TRUE;
-	case GDK_Left:
-		gx_regler_set_value(widget, 1);
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-//------------ calculate value for display
-double _gx_regler_get_value(GtkAdjustment *adj,double pos)
-{
-    if (adj->step_increment < 0.009999) pos = (floor (pos*1000))*0.001;
-    else if (adj->step_increment < 0.099999) pos = (floor (pos*100))*0.01;
-    else if (adj->step_increment < 0.999999) pos = (floor (pos*10))*0.1;
-    else pos = floor (pos);
-    return pos;
-
-}
-
-/****************************************************************
- ** alternative knob motion mode (ctrl + mouse pressed)
- */
-
-static void knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, int knob_x, int knob_y,
-                               gboolean drag, int state)
-{
-	static double last_x = 2e20;
-	GxRegler *regler = GX_REGLER(widget);
-	GxReglerPrivate *priv = GX_REGLER_GET_PRIVATE(regler);
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	double radius =  min(knob_x, knob_y) / 2;
-	int  reglerx = (widget->allocation.width - knob_x) / 2;
-	int  reglery = (widget->allocation.height - knob_y) / 2;
-	double posx = (reglerx + radius) - x; // x axis right -> left
-	double posy = (reglery + radius) - y; // y axis top -> bottom
-	double value;
-	if (!drag) {
-		if (state & GDK_CONTROL_MASK) {
-			last_x = posx;
-			return;
-		} else {
-			last_x = 2e20;
-		}
-	}
-	if (last_x < 1e20) { // in drag started with Control Key
-		const double scaling = 0.005;
-		double scal = (state & GDK_CONTROL_MASK ? scaling : scaling*0.1);
-		value = (last_x - posx) * scal;
-		last_x = posx;
-		gtk_range_set_value(GTK_RANGE(widget), adj->value + value * (adj->upper - adj->lower));
-		return;
-	}
-
-	double angle = atan2(-posx, posy) + M_PI; // clockwise, zero at 6 o'clock, 0 .. 2*M_PI
-	if (drag) {
-		// block "forbidden zone" and direct moves between quadrant 1 and 4
-		int quadrant = 1 + (int)(angle/M_PI_2);
-		if (priv->last_quadrant == 1 && (quadrant == 3 || quadrant == 4)) {
-			angle = scale_zero;
-		} else if (priv->last_quadrant == 4 && (quadrant == 1 || quadrant == 2)) {
-			angle = 2*M_PI - scale_zero;
-		} else {
-			if (angle < scale_zero) {
-				angle = scale_zero;
-			} else if (angle > 2*M_PI - scale_zero) {
-				angle = 2*M_PI - scale_zero;
-			}
-			priv->last_quadrant = quadrant;
-		}
-	} else {
-		if (angle < scale_zero) {
-			angle = scale_zero;
-		} else if (angle > 2*M_PI - scale_zero) {
-			angle = 2*M_PI - scale_zero;
-		}
-		priv->last_quadrant = 0;
-	}
-	angle = (angle - scale_zero) / (2 * (M_PI-scale_zero)); // normalize to 0..1
-	gtk_range_set_value(GTK_RANGE(widget), adj->lower + angle * (adj->upper - adj->lower));
-}
-
-/****************************************************************
  ** mouse button pressed set value
  */
 
-static gboolean gx_regler_button_press (GtkWidget *widget, GdkEventButton *event)
+static gboolean dialog_button_press_event(
+	GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
-	g_assert(GX_IS_REGLER(widget));
-	GxRegler *regler = GX_REGLER(widget);
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	GtkWidget * dialog,* spinner, *ok_button, *vbox, *toplevel;
+	if (event->type == GDK_BUTTON_PRESS) {
+		gtk_widget_destroy(GTK_WIDGET(data));
+	}
+	return TRUE;
+}
 
+static gboolean spinner_button_press_event(
+	GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
 	if (event->button == 3) {
-		// right button show num entry
-		dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-		spinner = gtk_spin_button_new (GTK_ADJUSTMENT(adj), adj->step_increment,
-		                               precision(adj));
-		gtk_entry_set_activates_default(GTK_ENTRY(spinner), TRUE);
-		ok_button  = gtk_button_new_from_stock(GTK_STOCK_OK);
-		GTK_WIDGET_SET_FLAGS (GTK_WIDGET(ok_button), GTK_CAN_DEFAULT);
-		vbox = gtk_vbox_new (FALSE, 4);
-		gtk_container_add (GTK_CONTAINER(vbox), spinner);
-		gtk_container_add (GTK_CONTAINER(vbox), ok_button);
-		gtk_container_add (GTK_CONTAINER(dialog), vbox);
-		gtk_window_set_decorated(GTK_WINDOW(dialog), FALSE);
-		gtk_window_set_title (GTK_WINDOW (dialog), "set");
-		gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
-		gtk_window_set_gravity(GTK_WINDOW(dialog), GDK_GRAVITY_SOUTH);
-		gtk_window_set_position (GTK_WINDOW(dialog), GTK_WIN_POS_MOUSE);
-		gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
-		gtk_widget_grab_default(ok_button);
-		toplevel = gtk_widget_get_toplevel (widget);
-        if (GTK_WIDGET_TOPLEVEL (toplevel)) {
-	        gtk_window_set_transient_for (GTK_WINDOW(dialog), GTK_WINDOW(toplevel));
-        }
-
-		gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
-		g_signal_connect_swapped (ok_button, "clicked",
-		                          G_CALLBACK (gtk_widget_destroy), dialog);
-		gtk_widget_show_all(dialog);
 		return TRUE;
 	}
+	return FALSE;
+}
 
-	if (event->button != 1) {
+static gboolean dialog_key_press_event(
+	GtkWidget *widget, GdkEventKey *event, gpointer data)
+{
+	if (event->is_modifier) {
 		return FALSE;
 	}
+	gtk_widget_destroy(GTK_WIDGET(data));
+	return FALSE;
+}
 
-	gtk_widget_grab_focus(widget);
-	gtk_grab_add(widget);
-	gint width = base_size[regler->regler_type].width;
-	gint height = base_size[regler->regler_type].height;
+static gboolean dialog_key_press_before(
+	GtkWidget *widget, GdkEventKey *event, gpointer data)
+{
+	if (event->keyval == GDK_Escape) {
+		// spinbutton to current adjustment value
+		gtk_adjustment_value_changed(GTK_SPIN_BUTTON(widget)->adjustment);
+		gtk_widget_destroy(GTK_WIDGET(data));
+		return TRUE;
+	}
+	return FALSE;
+}
 
-	switch (regler->regler_type) {
-	case GX_REGLER_TYPE_SMALL_KNOB:
-		knob_pointer_event(widget, event->x, event->y, width, height, FALSE, event->state);
-		break;
-	case GX_REGLER_TYPE_BIG_KNOB:
-		knob_pointer_event(widget, event->x, event->y, width, height, FALSE, event->state);
-		break;
-	case GX_REGLER_TYPE_HSLIDER: {
-		int  reglerx = (widget->allocation.width - width) / 2;
-		double pos = adj->lower + (((event->x - reglerx-10)*0.01)* (adj->upper - adj->lower));
-		gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
-		break;
+static gboolean dialog_grab_broken(
+	GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	gtk_widget_destroy(GTK_WIDGET(data));
+	return FALSE;
+}
+
+static void dialog_activate(GtkWidget *spinner, gpointer data)
+{
+	gtk_widget_destroy(GTK_WIDGET(data));
+}
+
+static gboolean map_check(
+	GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	GtkWidget *dialog = GTK_WIDGET(widget);
+	GdkWindow *window = gtk_widget_get_window(dialog);
+	int rc;
+	GdkCursor *c = gdk_cursor_new(GDK_RIGHT_PTR);
+	rc = gdk_pointer_grab(window, TRUE,
+	                      (GdkEventMask)(GDK_BUTTON_PRESS_MASK|
+	                                     GDK_BUTTON_MOTION_MASK),
+	                      NULL, c, GDK_CURRENT_TIME);
+	gdk_cursor_unref(c);
+	if (rc != GDK_GRAB_SUCCESS) {
+		gtk_widget_destroy(dialog);
+		return TRUE;
 	}
-	case GX_REGLER_TYPE_MINI_SLIDER: {
-		int  reglerx = (widget->allocation.width - width) / 2;
-		double pos = adj->lower + (((event->x - reglerx-3)*0.03575)* (adj->upper - adj->lower));
-		gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
-		break;
+	rc = gdk_keyboard_grab(window, TRUE, GDK_CURRENT_TIME);
+	if (rc != GDK_GRAB_SUCCESS) {
+		gdk_display_pointer_ungrab(gdk_drawable_get_display(window),
+		                           GDK_CURRENT_TIME);
+		gtk_widget_destroy(dialog);
+		return TRUE;
 	}
-	case GX_REGLER_TYPE_WHEEL: {
-		int  wheelx = (widget->allocation.width - width) / 2;
-		double pos = adj->lower + (((event->x - wheelx)*0.03)* (adj->upper - adj->lower));
-		gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
-		break;
-	}
-	case GX_REGLER_TYPE_VSLIDER: {
-		int  reglery = (widget->allocation.height - height) / 2;
-		double pos = adj->upper - (((event->y - reglery-10)*0.02)* (adj->upper - adj->lower));
-		gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
-		break;
-	}
-	case GX_REGLER_TYPE_EQ_SLIDER: {
-		int  reglery = (widget->allocation.height - width) / 2;
-		double pos = adj->upper - (((event->y - reglery+18)*0.02)* (adj->upper - adj->lower));
-		gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
-		break;
-	}
-	default:
-		g_assert(FALSE);
-	}
+	gtk_grab_add(dialog);
+	return FALSE;
+}
+
+static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect)
+{
+	g_assert(GX_IS_REGLER(regler));
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
+	GtkWidget *dialog = gtk_window_new(GTK_WINDOW_POPUP);
+	gtk_widget_add_events(dialog, GDK_BUTTON_PRESS_MASK|GDK_BUTTON_MOTION_MASK);
+	GtkWidget *spinner = gtk_spin_button_new(
+		GTK_ADJUSTMENT(adj), adj->step_increment,
+		get_digits(GTK_RANGE(regler)));
+	gtk_container_add (GTK_CONTAINER(dialog), spinner);
+	g_signal_connect(spinner, "button-press-event", G_CALLBACK(spinner_button_press_event), NULL);
+	g_signal_connect(dialog, "button-press-event", G_CALLBACK(dialog_button_press_event), dialog);
+	g_signal_connect(spinner, "key-press-event", G_CALLBACK(dialog_key_press_before), dialog);
+	g_signal_connect_after(spinner, "key-press-event", G_CALLBACK(dialog_key_press_event), dialog);
+	g_signal_connect_after(spinner, "activate", G_CALLBACK(dialog_activate), dialog);
+	g_signal_connect(dialog, "grab-broken-event", G_CALLBACK(dialog_grab_broken), dialog);
+	g_signal_connect(dialog, "map-event", G_CALLBACK(map_check), GTK_WIDGET(regler));
+	gtk_window_move(GTK_WINDOW(dialog), -100, -100); // trick so its not visible
+	gtk_widget_show_all(dialog);
+	GtkRequisition rq;
+	gtk_widget_get_requisition(dialog, &rq);
+	gint xorg, yorg;
+	gdk_window_get_origin(GTK_WIDGET(regler)->window, &xorg, &yorg);
+	gtk_window_move(GTK_WINDOW(dialog), xorg+rect->x+(rect->width-rq.width)/2, yorg+rect->y+(rect->height-rq.height)/2);
 	return TRUE;
 }
 
@@ -995,73 +705,6 @@ static gboolean gx_regler_button_release (GtkWidget *widget, GdkEventButton *eve
 }
 
 /****************************************************************
- ** set the value from mouse movement
- */
-
-static gboolean gx_regler_pointer_motion (GtkWidget *widget, GdkEventMotion *event)
-{
-	g_assert(GX_IS_REGLER(widget));
-	if (!GTK_WIDGET_HAS_GRAB(widget)) {
-		return FALSE;
-	}
-	GxRegler *regler = GX_REGLER(widget);
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-
-	gdk_event_request_motions (event);
-
-	gint width = base_size[regler->regler_type].width;
-	gint height = base_size[regler->regler_type].height;
-
-	switch (regler->regler_type) {
-
-	case GX_REGLER_TYPE_SMALL_KNOB:
-		knob_pointer_event(widget, event->x, event->y, width, height, TRUE, event->state);
-		break;
-	case GX_REGLER_TYPE_BIG_KNOB:
-		knob_pointer_event(widget, event->x, event->y, width, height, TRUE, event->state);
-		break;
-	case GX_REGLER_TYPE_HSLIDER:
-		if (event->x > 0) {
-			int  sliderx = (widget->allocation.width - width) / 2;
-			double pos = adj->lower + (((event->x - sliderx-10)*0.01)* (adj->upper - adj->lower));
-			gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
-		}
-		break;
-	case GX_REGLER_TYPE_MINI_SLIDER:
-		if (event->x > 0) {
-			int  sliderx = (widget->allocation.width - width) / 2;
-			double pos = adj->lower + (((event->x - sliderx-3)*0.03575)* (adj->upper - adj->lower));
-			gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
-		}
-		break;
-	case GX_REGLER_TYPE_WHEEL:
-		if (event->x > 0) {
-			int  wheelx = (widget->allocation.width - width) / 2;
-			double pos = adj->lower + (((event->x - wheelx)*0.03)* (adj->upper - adj->lower));
-			gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
-		}
-		break;
-	case GX_REGLER_TYPE_VSLIDER:
-		if (event->y > 0) {
-			int  slidery = (widget->allocation.height - height) / 2;
-			double pos = adj->upper - (((event->y - slidery-10)*0.02)* (adj->upper - adj->lower));
-			gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
-		}
-		break;
-	case GX_REGLER_TYPE_EQ_SLIDER:
-		if (event->y > 0) {
-			int  slidery = (widget->allocation.height - width) / 2;
-			double pos = adj->upper - (((event->y - slidery+18)*0.02)* (adj->upper - adj->lower));
-			gtk_range_set_value(GTK_RANGE(widget), _gx_regler_get_value(adj,pos));
-		}
-		break;
-	default:
-		g_assert(FALSE);
-	}
-	return FALSE;
-}
-
-/****************************************************************
  ** set value from mouseweel
  */
 
@@ -1072,92 +715,10 @@ static gboolean gx_regler_scroll (GtkWidget *widget, GdkEventScroll *event)
 	return FALSE;
 }
 
-/****************************************************************
- ** init the used background images to the used skins
- */
-
-//---------- here are the inline pixmaps for regler
-#include "GxReglerPix.cpp"
-
-static void gx_change_pixmaps(GxReglerClass *klass)
-{
-	const char **xpm;
-	GtkSettings *settings = gtk_settings_get_default();
-	int theme = 0;
-	if (settings) {
-		GtkStyle *style = gtk_rc_get_style_by_paths(
-			settings,NULL,"GxRegler",gx_regler_get_type());
-		if (style) {
-			GValue v = { 0 };
-			g_value_init(&v, G_TYPE_INT);
-			gtk_style_get_style_property(style, gx_regler_get_type(), "image-theme-number", &v);
-			theme = g_value_get_int(&v);
-		}
-	}
-	if (theme == klass->current_theme) {
-		return;
-	}
-	klass->current_theme = theme;
-	switch (theme) {
-	case 0: xpm = knob1_xpm; break;
-	case 1: xpm = knob2_xpm; break;
-	case 2: xpm = knob3_xpm; break;
-	case 3: xpm = knob4_xpm; break;
-	case 4: xpm = knob5_xpm; break;
-	case 5: xpm = knob6_xpm; break;
-	default: xpm = knob1_xpm; break;
-	}
-	if (klass->bigregler_image) {
-		g_object_unref(klass->bigregler_image);
-	}
-	klass->bigregler_image = gdk_pixbuf_new_from_xpm_data(xpm);
-	g_assert(klass->bigregler_image != NULL);
-	//----------- small knob
-	if (klass->regler_image) {
-		g_object_unref(klass->regler_image);
-	}
-	klass->regler_image = gdk_pixbuf_scale_simple(klass->bigregler_image,25,25,GDK_INTERP_HYPER);
-	g_assert(klass->regler_image != NULL);
-}
-
-void gx_regler_init_pixmaps(GxReglerClass *klass)
-{
-	klass->bigregler_image = NULL;
-	klass->regler_image = NULL;
-	gx_change_pixmaps(klass);
-	//----------- horizontal slider
-	klass->slider_image = gdk_pixbuf_new_from_xpm_data(slidersm_xpm);
-	g_assert(klass->slider_image != NULL);
-	klass->slider_image1 = gdk_pixbuf_copy(klass->slider_image );
-	g_assert(klass->slider_image1 != NULL);
-	//----------- vertical slider
-	klass->vslider_image = gdk_pixbuf_rotate_simple(
-		klass->slider_image, GDK_PIXBUF_ROTATE_COUNTERCLOCKWISE);
-	g_assert(klass->vslider_image != NULL);
-	klass->vslider_image1 = gdk_pixbuf_copy( klass->vslider_image );
-	g_assert(klass->vslider_image1 != NULL);
-	//----------- mini slider
-	klass->minislider_image = gdk_pixbuf_scale_simple(klass->slider_image,40,6,GDK_INTERP_HYPER);
-	g_assert(klass->minislider_image != NULL);
-	klass->minislider_image1 = gdk_pixbuf_copy( klass->minislider_image );
-	g_assert(klass->minislider_image1 != NULL);
-	//----------- eq slider
-	klass->eqslider_image = gdk_pixbuf_new_from_xpm_data(eqslider_xpm);
-	g_assert(klass->eqslider_image != NULL);
-	klass->eqslider_image1 = gdk_pixbuf_copy( klass->eqslider_image );
-	g_assert(klass->eqslider_image1 != NULL);
-	//----------- horizontal wheel
-	klass->wheel_image = gdk_pixbuf_new_from_xpm_data(wheel_xpm);
-	g_assert(klass->wheel_image != NULL);
-	klass->wheel_image1 = gdk_pixbuf_new_from_xpm_data(wheel_s_xpm);
-	g_assert(klass->wheel_image1 != NULL);
-	klass->pointer_image1 = gdk_pixbuf_new_from_xpm_data(pointer_xpm);
-	g_assert(klass->pointer_image1 != NULL);
-}
 
 static void gx_regler_style_set(GtkWidget *widget, GtkStyle  *previous_style)
 {
-	gx_change_pixmaps(GX_REGLER_CLASS(GTK_OBJECT_GET_CLASS(widget)));
+	//FIXME: value_req need recalc
 }
 
 /****************************************************************
@@ -1166,10 +727,10 @@ static void gx_regler_style_set(GtkWidget *widget, GtkStyle  *previous_style)
 
 static void gx_regler_init(GxRegler *regler)
 {
-	GxReglerPrivate *priv;
 	regler->value_position = GTK_POS_BOTTOM;
-	gtk_widget_set_has_window (GTK_WIDGET (regler), FALSE);
-	priv = GX_REGLER_GET_PRIVATE(regler);
+	gtk_widget_set_can_focus(GTK_WIDGET(regler), TRUE);
+	gtk_widget_set_receives_default(GTK_WIDGET(regler), TRUE);
+	gtk_widget_set_has_window(GTK_WIDGET(regler), FALSE);
 }
 
 /****************************************************************
@@ -1196,11 +757,6 @@ static void gx_regler_set_property (
 	regler = GX_REGLER (object);
 
 	switch(prop_id) {
-	case PROP_TYPE:
-		regler->regler_type = g_value_get_enum(value);
-		gtk_widget_queue_resize(GTK_WIDGET(object));
-		g_object_notify(object, "show-value");
-		break;
 	case PROP_VAR_ID:
 		gx_regler_set_var_id (regler, g_value_get_string (value));
 		break;
@@ -1231,9 +787,6 @@ static void gx_regler_get_property(
 	regler = GX_REGLER(object);
 
 	switch(prop_id) {
-	case PROP_TYPE:
-		g_value_set_enum(value, regler->regler_type);
-		break;
 	case PROP_VAR_ID:
 		g_value_set_string (value, regler->var_id);
 	case PROP_SHOW_VALUE:

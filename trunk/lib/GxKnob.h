@@ -44,8 +44,8 @@ GType gx_knob_get_type(void);
 
 void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble reglerstate,
                      GdkPixbuf *regler_image);
-void _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const gchar *icon,
-                            gboolean drag, int state);
+gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const gchar *icon,
+                                gboolean drag, int state, int button);
 void _gx_knob_draw_arc(GtkWidget *widget, GdkRectangle *rect, gdouble reglerstate,
                        gboolean has_focus);
 

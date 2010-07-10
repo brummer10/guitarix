@@ -36,22 +36,9 @@ G_BEGIN_DECLS
 #define GX_IS_REGLER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_REGLER))
 #define GX_REGLER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_REGLER, GxReglerClass))
 
-typedef enum {
-	GX_REGLER_TYPE_SMALL_KNOB,
-	GX_REGLER_TYPE_BIG_KNOB,
-	GX_REGLER_TYPE_HSLIDER,
-	GX_REGLER_TYPE_MINI_SLIDER,
-	GX_REGLER_TYPE_WHEEL,
-	GX_REGLER_TYPE_VSLIDER,
-	GX_REGLER_TYPE_EQ_SLIDER,
-} GxReglerType;
-
-#define GX_REGLER_TYPE_COUNT (7)
-
 typedef struct
 {
 	GtkRange parent;
-	int GSEAL(regler_type);
 	gchar *GSEAL(var_id);
 	GtkLabel *GSEAL(label);
 	gboolean GSEAL(show_value):1;
@@ -61,24 +48,9 @@ typedef struct
 
 typedef struct {
 	GtkRangeClass parent_class;
-	GdkPixbuf *regler_image;
-	GdkPixbuf *bigregler_image;
-	GdkPixbuf *slider_image;
-	GdkPixbuf *slider_image1;
-	GdkPixbuf *vslider_image;
-	GdkPixbuf *vslider_image1;
-	GdkPixbuf *minislider_image;
-	GdkPixbuf *minislider_image1;
-	GdkPixbuf *eqslider_image;
-	GdkPixbuf *eqslider_image1;
-	GdkPixbuf *wheel_image;
-	GdkPixbuf *wheel_image1;
-	GdkPixbuf *pointer_image1;
-	gint current_theme;
+	guint change_value_id;
+	gboolean (*value_entry)(GxRegler *regler, GdkRectangle *rect);
 } GxReglerClass;
-
-GType regler_type_get_type(void) G_GNUC_CONST;
-#define GX_TYPE_REGLER_TYPE (regler_type_get_type())
 
 GType gx_regler_get_type(void);
 gchar *gx_regler_get_var(GxRegler* regler);
@@ -88,7 +60,7 @@ gdouble _gx_regler_get_step_pos(GxRegler *regler, gint step);
 void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
                               GdkRectangle *value_rect);
 void _gx_regler_display_value(GxRegler *regler, GdkRectangle *value_rect);
-double _gx_regler_get_value(GtkAdjustment *adj,double pos);
+gboolean _approx_in_rectangle(gdouble x, gdouble y, GdkRectangle *rect);
 
 /*
 GtkWidget *gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment);

@@ -22,7 +22,7 @@ G_DEFINE_TYPE(GxBigKnob, gx_big_knob, GX_TYPE_KNOB);
 
 static void gx_big_knob_class_init(GxBigKnobClass *klass)
 {
-	klass->parent_class.stock_id = "knob";
+	klass->parent_class.stock_id = "bigknob";
 }
 
 static void gx_big_knob_init(GxBigKnob *big_knob)

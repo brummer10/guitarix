@@ -1,7 +1,7 @@
 # -*- python -*-
 # -*- coding: utf-8 -*-
 
-import Task, TaskGen, Logs, Utils, Configure, Options
+import Task, TaskGen, Logs, Utils, Configure, Options, os.path
 
 @Configure.conf
 def cfg_get_variable(self, package, variable):
@@ -128,12 +128,54 @@ def build_python_module(bld):
         )
     if bld.env["GX_LIB_STATIC"]: # prefer static
         prog.uselib_local = ['gxwidgets']
+        prog.linkflags = ["-Wl,-u,gxwidgets_init"]
     else:
         prog.libpath = [bld.path.bldpath(bld.env)]
         prog.lib = ["gxwidgets"]
 
+def img2c(task):
+    mkname = lambda v: "pb_" + os.path.splitext(os.path.basename(str(v)))[0]
+    sources = " ".join(["'%s' '%s'" % (mkname(v), v.srcpath(task.env)) for v in task.inputs])
+    dst = task.outputs[0].bldpath(task.env)
+    cmd = ("gdk-pixbuf-csource --raw --build-list %s > %s" % (sources, dst))
+    Logs.debug("runner: system command -> %s" % cmd)
+    return Utils.exec_command(cmd, shell=True)
+
+
+def build_stock_images(bld):
+    images = [
+        "button_off.png",
+        "button_on.png",
+        "eqslider.png",
+        "knob1.png",
+        "led_off.png",
+        "led_on.png",
+        "minislider.png",
+        "minitoggle_off.png",
+        "minitoggle_on.png",
+        "hslider.png",
+        "smallknob1.png",
+        "switchit_off.png",
+        "switchit_on.png",
+        "switch_off.png",
+        "switch_on.png",
+        "vslider.png",
+        "wheel_back.png",
+        "wheel_fringe.png",
+        "wheel_pointer.png",
+        ]
+
+    bld(name = "img2c",
+        target = "gximages.cc",
+        rule = img2c,
+        source = images,
+        )
+    bld.add_group()
+
+
 def build(bld):
     sources = [
+        'gxinit.cpp',
         'GxFastMeter.cpp',
         'GxWaveView.cpp',
         'GxTuner.cpp',
@@ -155,10 +197,12 @@ def build(bld):
         ]
     if not bld.env["GX_LIB_STATIC"] and not bld.env["GX_LIB_SHARED"]:
         return
+    build_stock_images(bld)
     if bld.env["GX_LIB_STATIC"]:
         # static library
         prog = bld.new_task_gen('cxx', 'cstaticlib')
         prog.ccflags= bld.env['CXXFLAGS']
+        prog.includes = ['.']
         prog.source = sources
         prog.uselib = ['GTHREAD', 'GTK2']
         prog.target = 'gxwidgets'
@@ -170,6 +214,7 @@ def build(bld):
         prog.type = 'cshlib'
         prog.vnum = "0.1"
         prog.ccflags= bld.env['CXXFLAGS']
+        prog.includes = ['.']
         prog.source = sources
         prog.uselib = ['GTHREAD', 'GTK2']
         prog.target = 'gxwidgets'

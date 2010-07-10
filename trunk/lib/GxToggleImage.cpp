@@ -89,18 +89,9 @@ static gboolean gx_toggle_image_expose(GtkWidget *widget, GdkEventExpose *event)
 {
 	GxToggleImage *toggle_image = GX_TOGGLE_IMAGE(widget);
 	const char *s = "_off";
-	GtkWidget *p = widget->parent;
-	while (TRUE) {
-		if (GTK_IS_TOGGLE_BUTTON(p)) {
-			if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(p))) {
-				s = "_on";
-			}
-			break;
-		}
-		p = p->parent;
-		if (!p) {
-			break;
-		}
+	GtkWidget *p = gtk_widget_get_ancestor(widget, GTK_TYPE_TOGGLE_BUTTON);
+	if (p && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(p))) {
+		s = "_on";
 	}
 	char *nm = g_strconcat(toggle_image->base_name, s, NULL);
 	GdkPixbuf *img = gtk_widget_render_icon(widget, nm, GtkIconSize(-1), NULL);
@@ -108,7 +99,6 @@ static gboolean gx_toggle_image_expose(GtkWidget *widget, GdkEventExpose *event)
 	if (!img) {
 		return FALSE;
 	}
-	//x, y, w, h = self.allocation;
 	int x = (widget->allocation.width - gdk_pixbuf_get_width(img))/2;
 	int y = (widget->allocation.height - gdk_pixbuf_get_height(img))/2;
 	gdk_draw_pixbuf(gtk_widget_get_window(widget), NULL, img,
