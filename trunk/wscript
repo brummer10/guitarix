@@ -14,7 +14,7 @@ from Constants import HEXVERSION
 from Configure import ConfigurationError
 
 # used by waf dist and waf build
-VERSION='0.10.0svn'
+VERSION='0.11.0svn'
 APPNAME='guitarix'
 
 good_faust_versions = ['0.9.24','0.9.27']
