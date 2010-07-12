@@ -16,10 +16,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/******************************************************************************
-part of guitarix, use  knobs with Gtk
-******************************************************************************/
-
 #ifndef __GX_SWITCH_H__
 #define __GX_SWITCH_H__
 

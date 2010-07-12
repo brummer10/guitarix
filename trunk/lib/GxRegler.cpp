@@ -633,11 +633,6 @@ static gboolean dialog_grab_broken(
 	return FALSE;
 }
 
-static void dialog_activate(GtkWidget *spinner, gpointer data)
-{
-	gtk_widget_destroy(GTK_WIDGET(data));
-}
-
 static gboolean map_check(
 	GtkWidget *widget, GdkEvent *event, gpointer data)
 {
@@ -679,7 +674,7 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect)
 	g_signal_connect(dialog, "button-press-event", G_CALLBACK(dialog_button_press_event), dialog);
 	g_signal_connect(spinner, "key-press-event", G_CALLBACK(dialog_key_press_before), dialog);
 	g_signal_connect_after(spinner, "key-press-event", G_CALLBACK(dialog_key_press_event), dialog);
-	g_signal_connect_after(spinner, "activate", G_CALLBACK(dialog_activate), dialog);
+	g_signal_connect_object(spinner, "activate", G_CALLBACK(gtk_widget_destroy), dialog, (GConnectFlags)(G_CONNECT_AFTER|G_CONNECT_SWAPPED));
 	g_signal_connect(dialog, "grab-broken-event", G_CALLBACK(dialog_grab_broken), dialog);
 	g_signal_connect(dialog, "map-event", G_CALLBACK(map_check), GTK_WIDGET(regler));
 	gtk_window_move(GTK_WINDOW(dialog), -100, -100); // trick so its not visible

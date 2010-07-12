@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <glade-catalog supports="gtkbuilder" name="gxwidgets" library="gxwidgets" domain="gxwidgets" depends="gtk+">
   <glade-widget-classes>
-    <glade-widget-class title="Regler" name="GxRegler" generic-name="GxRegler" get-type-function="gx_regler_get_type" />
     <glade-widget-class title="Switch" name="GxSwitch" generic-name="GxSwitch" get-type-function="gx_switch_get_type" />
     <glade-widget-class title="Selector" name="GxSelector" generic-name="GxSelector" get-type-function="gx_selector_get_type">
       <properties>
@@ -20,6 +19,7 @@
     <glade-widget-class title="Gx Mini Slider" name="GxMiniSlider" generic-name="gxminislider" />
     <glade-widget-class title="Gx Big Knob" name="GxBigKnob" generic-name="gxbigknob" />
     <glade-widget-class title="Gx Small Knob" name="GxSmallKnob" generic-name="gxsmallknob" />
+    <glade-widget-class title="Gx Paint Box" name="GxPaintBox" generic-name="gxpaintbox" />
 
   </glade-widget-classes>
 
@@ -39,6 +39,7 @@
     <glade-widget-class-ref name="GxMiniSlider"/>
     <glade-widget-class-ref name="GxBigKnob"/>
     <glade-widget-class-ref name="GxSmallKnob"/>
+    <glade-widget-class-ref name="GxPaintBox"/>
   </glade-widget-group>
 
 </glade-catalog>

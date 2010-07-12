@@ -107,6 +107,7 @@ def build_python_module(bld):
                   "GxMiniSlider.h",
                   "GxVSlider.h",
                   "GxEQSlider.h",
+                  "GxPaintBox.h",
                   "libgxwidgets.so",
                   "gxwidgets-manual.defs",
                   ],
@@ -163,6 +164,8 @@ def build_stock_images(bld):
         "wheel_back.png",
         "wheel_fringe.png",
         "wheel_pointer.png",
+        "tribe.png",
+        "guitar.png",
         ]
 
     bld(name = "img2c",
@@ -194,6 +197,7 @@ def build(bld):
         'GxMiniSlider.cpp',
         'GxVSlider.cpp',
         'GxEQSlider.cpp',
+        'GxPaintBox.cpp',
         ]
     if not bld.env["GX_LIB_STATIC"] and not bld.env["GX_LIB_SHARED"]:
         return

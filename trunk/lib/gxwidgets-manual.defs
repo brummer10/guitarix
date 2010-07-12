@@ -103,3 +103,22 @@
   (is-constructor-of "GxIREdit")
   (return-type "GtkWidget*")
   )
+
+(define-function paint_box_new
+  (c-name "gx_paint_box_new")
+  (is-constructor-of "GxPaintBox")
+  (return-type "GtkWidget*")
+  (properties
+   '("homogeneous" (optional))
+   '("spacing" (optional))
+   )
+  )
+
+(define-function radio_button_new
+  (c-name "gx_radion_button_new")
+  (is-constructor-of "GxRadioButton")
+  (return-type "GtkWidget*")
+  (properties
+   '("group" (optional))
+   )
+  )

@@ -45,6 +45,8 @@ static image_entry image_data[] = {
 	{ "wheel_back", pb_wheel_back },
 	{ "wheel_fringe", pb_wheel_fringe },
 	{ "wheel_pointer", pb_wheel_pointer },
+	{ "tribe", pb_tribe },
+	{ "guitar", pb_guitar },
 	{ NULL, NULL },
 };
 

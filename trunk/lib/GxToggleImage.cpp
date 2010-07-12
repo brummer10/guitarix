@@ -63,6 +63,7 @@ static void gx_toggle_image_class_init(GxToggleImageClass *klass)
 static void gx_toggle_image_init(GxToggleImage *toggle_image)
 {
 	toggle_image->base_name = g_strdup("switch");
+	gtk_widget_set_has_window(GTK_WIDGET(toggle_image), FALSE);
 }
 
 static void gx_toggle_image_destroy (GtkObject *obj)
@@ -99,9 +100,9 @@ static gboolean gx_toggle_image_expose(GtkWidget *widget, GdkEventExpose *event)
 	if (!img) {
 		return FALSE;
 	}
-	int x = (widget->allocation.width - gdk_pixbuf_get_width(img))/2;
-	int y = (widget->allocation.height - gdk_pixbuf_get_height(img))/2;
-	gdk_draw_pixbuf(gtk_widget_get_window(widget), NULL, img,
+	int x = widget->allocation.x + (widget->allocation.width - gdk_pixbuf_get_width(img))/2;
+	int y = widget->allocation.y + (widget->allocation.height - gdk_pixbuf_get_height(img))/2;
+	gdk_draw_pixbuf(gtk_widget_get_window(widget), widget->style->fg_gc[0], img,
 	                       0, 0, x, y, -1, -1,
 	                       GDK_RGB_DITHER_NORMAL, 0, 0);
 	g_object_unref(img);
