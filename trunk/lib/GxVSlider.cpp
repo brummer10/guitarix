@@ -98,7 +98,7 @@ static gboolean gx_vslider_expose(GtkWidget *widget, GdkEventExpose *event)
 	image_rect.height = gdk_pixbuf_get_height(pb) - slider_height;
 	gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.height-slider_height);
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	vslider_expose(widget, &image_rect, sliderstate, pb, sat, GTK_WIDGET_HAS_FOCUS(widget), TRUE);
+	vslider_expose(widget, &image_rect, sliderstate, pb, sat, gtk_widget_has_focus(widget), TRUE);
 	_gx_regler_display_value(GX_REGLER(widget), &value_rect);
 	g_object_unref(pb);
 	return FALSE;
@@ -153,7 +153,7 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y,
 	if (button == 3) {
 		gboolean ret;
 		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, &ret);
-		return ret;
+		return FALSE;
 	}
 	gint height = image_rect.height - slider_height;
 	gint off =  image_rect.y + slider_height/2;
@@ -172,8 +172,8 @@ static gboolean gx_vslider_button_press (GtkWidget *widget, GdkEventButton *even
 	if (event->button != 1 && event->button != 3) {
 		return FALSE;
 	}
+	gtk_widget_grab_focus(widget);
 	if (slider_set_from_pointer(widget, event->x, event->y, FALSE, event->button)) {
-		gtk_widget_grab_focus(widget);
 		gtk_grab_add(widget);
 	}
 	return FALSE;
@@ -182,7 +182,7 @@ static gboolean gx_vslider_button_press (GtkWidget *widget, GdkEventButton *even
 static gboolean gx_vslider_pointer_motion(GtkWidget *widget, GdkEventMotion *event)
 {
 	g_assert(GX_IS_VSLIDER(widget));
-	if (!GTK_WIDGET_HAS_GRAB(widget)) {
+	if (!gtk_widget_has_grab(widget)) {
 		return FALSE;
 	}
 	gdk_event_request_motions (event);

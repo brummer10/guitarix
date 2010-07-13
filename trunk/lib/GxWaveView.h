@@ -39,12 +39,12 @@ typedef struct
 	GdkPixbuf *liveview_image;
 	const float *frame;
 	int frame_size;
-	gchar *text_nw;
-	gchar *text_ne;
-	gchar *text_sw;
-	gchar *text_se;
-	double text_pos_w;
-	double text_pos_e;
+	gchar *text_top_left;
+	gchar *text_top_right;
+	gchar *text_bottom_left;
+	gchar *text_bottom_right;
+	double text_pos_left;
+	double text_pos_right;
 } GxWaveView;
 
 typedef struct
@@ -57,7 +57,7 @@ GType gx_wave_view_get_type ();
 
 GtkWidget* gx_wave_view_new();
 void gx_wave_view_set_frame(GxWaveView *waveview, const float *frame, int frame_size);
-void gx_wave_view_set_text(GxWaveView *waveview, const gchar *text, GtkAnchorType pos);
+void gx_wave_view_set_text(GxWaveView *waveview, const gchar *text, GtkCornerType pos);
 
 G_END_DECLS
 

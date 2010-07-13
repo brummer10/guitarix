@@ -18,6 +18,7 @@
 
 
 #include "GxPaintBox.h"
+#include "GxGradient.h"
 #include <gtk/gtkprivate.h>
 #include <cmath>
 #include <cstring>
@@ -36,10 +37,6 @@ static void gx_paint_box_set_property(
 static void gx_paint_box_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 static gboolean gx_paint_box_expose(GtkWidget *widget, GdkEventExpose *event);
-
-static gboolean parse_gradient(const GParamSpec *pspec,
-                               const GString *rc_string,
-                               GValue *property_value);
 
 static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 {
@@ -64,7 +61,7 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 		                    P_("Color gradient defined as part of skin"),
 		                    GX_TYPE_GRADIENT,
 		                    GParamFlags(GTK_PARAM_READABLE)),
-		parse_gradient);
+		gx_parse_gradient);
 }
 
 static void gx_paint_box_init (GxPaintBox *paint_box)
@@ -80,215 +77,6 @@ static void gx_paint_box_destroy(GtkObject *object)
 		g_free(paint_box->paint_func);
 		paint_box->paint_func = NULL;
 	}
-}
-
-typedef struct {
-	float red, green, blue, alpha;
-} GxRgba;
-
-void gx_rgba_free(GxRgba *rgba)
-{
-  g_return_if_fail (rgba != NULL);
-
-  g_slice_free(GxRgba, rgba);
-}
-
-GxRgba *gx_rgba_copy(const GxRgba *rgba)
-{
-  GxRgba *new_rgba;
-  
-  g_return_val_if_fail(rgba != NULL, NULL);
-
-  new_rgba = g_slice_new(GxRgba);
-  *new_rgba = *rgba;
-  return new_rgba;
-}
-
-GType gx_rgba_get_type(void)
-{
-	static GType our_type = 0;
-  
-	if (our_type == 0) {
-		our_type = g_boxed_type_register_static(
-			g_intern_static_string("GxRgba"),
-			(GBoxedCopyFunc)gx_rgba_copy,
-			(GBoxedFreeFunc)gx_rgba_free);
-	}
-	return our_type;
-}
-
-/*
- ** Gtk seems to have a bug with rc parsing and locales:
- ** value strings are parsed and reassembled, with floats
- ** formatted according to the current locate, which can
- ** lead to a transformation like this:
- **
- ** "{1.1, 2.4}" -> "{1,1, 2,4}"
- **
- ** so we just use int's in the rc files and scale them
- ** to 0..1 by dividing through COLOR_SCALING (2**16)
- */
-#define COLOR_SCALING (65536)
-
-static gboolean get_braced_number(
-	GScanner *scanner, gboolean  first, gboolean  last, gfloat *value)
-{
-	if (first) {
-		g_scanner_get_next_token(scanner);
-		if (scanner->token != '{') {
-			return FALSE;
-		}
-	}
-	g_scanner_get_next_token(scanner);
-	if (scanner->token != G_TOKEN_INT) {
-		return FALSE;
-	}
-	*value = (float)scanner->value.v_int/COLOR_SCALING;
-	g_scanner_get_next_token(scanner);
-	if (last) {
-		if (scanner->token != '}') {
-			return FALSE;
-		}
-	} else {
-		if (scanner->token != ',') {
-			return FALSE;
-		}
-	}
-	return TRUE;
-}
-
-gboolean parse_rgba(const GParamSpec *pspec,
-                           const GString *rc_string,
-                           GValue *property_value)
-{
-	GxRgba rgba;
-	GScanner *scanner;
-	gboolean success = FALSE;
-
-	g_return_val_if_fail(G_IS_PARAM_SPEC (pspec), FALSE);
-	g_return_val_if_fail(G_VALUE_HOLDS_BOXED(property_value), FALSE);
-
-	scanner = gtk_rc_scanner_new();
-	g_scanner_input_text(scanner, rc_string->str, rc_string->len);
-
-	if (get_braced_number(scanner, TRUE, FALSE, &rgba.red) &&
-	    get_braced_number(scanner, FALSE, FALSE, &rgba.green) &&
-	    get_braced_number(scanner, FALSE, FALSE, &rgba.blue) &&
-	    get_braced_number(scanner, FALSE, TRUE, &rgba.alpha)) {
-		g_value_set_boxed(property_value, &rgba);
-		success = TRUE;
-	}
-	g_scanner_destroy(scanner);
-	return success;
-}
-
-typedef struct {
-	float offset, red, green, blue, alpha;
-} GxGradientElement;
-
-typedef struct {
-	GSList *colors;
-} GxGradient;
-
-static void element_free(gpointer el, gpointer)
-{
-	g_slice_free(GxGradientElement, el);
-}
-
-static void gx_gradient_free(GxGradient *grad)
-{
-	g_return_if_fail (grad != NULL);
-	g_slist_foreach(grad->colors, (GFunc)element_free, NULL);
-	g_slist_free(grad->colors);
-	g_slice_free(GxGradient, grad);
-}
-
-GxGradient *gx_gradient_new()
-{
-	GxGradient *p = g_slice_new(GxGradient);
-	p->colors = NULL;
-	return p;
-}
-
-gpointer element_copy(const gpointer el)
-{
-  GxGradientElement *new_el;
-  
-  new_el = g_slice_new(GxGradientElement);
-  *new_el = *(GxGradientElement*)el;
-  return new_el;
-}
-
-static GxGradient *gx_gradient_copy(const GxGradient *grad)
-{
-	GxGradient *new_grad;
-	g_return_val_if_fail(grad != NULL, NULL);
-	new_grad = g_slice_new(GxGradient);
-	new_grad->colors = g_slist_copy(grad->colors);
-	for (GSList *p = new_grad->colors; p; p = g_slist_next(p)) {
-		p->data = element_copy(p->data);
-	}
-	return new_grad;
-}
-
-GType gx_gradient_get_type(void)
-{
-	static GType our_type = 0;
-  
-	if (our_type == 0) {
-		our_type = g_boxed_type_register_static(
-			g_intern_static_string("GxGradient"),
-			(GBoxedCopyFunc)gx_gradient_copy,
-			(GBoxedFreeFunc)gx_gradient_free);
-	}
-	return our_type;
-}
-
-static gboolean parse_gradient(const GParamSpec *pspec,
-                               const GString *rc_string,
-                               GValue *property_value)
-{
-	GxGradient* grad = gx_gradient_new();
-	GxGradientElement el;
-	GScanner *scanner;
-	gboolean success = FALSE;
-
-	g_return_val_if_fail(G_IS_PARAM_SPEC (pspec), FALSE);
-	g_return_val_if_fail(G_VALUE_HOLDS_BOXED(property_value), FALSE);
-	scanner = gtk_rc_scanner_new();
-	g_scanner_input_text(scanner, rc_string->str, rc_string->len);
-
-	g_scanner_get_next_token (scanner);
-	if (scanner->token != '{') {
-		return FALSE;
-	}
-	grad->colors = NULL;
-	success = TRUE;
-	while (TRUE) {
-		if (get_braced_number(scanner, TRUE, FALSE, &el.offset) &&
-		    get_braced_number(scanner, FALSE, FALSE, &el.red) &&
-		    get_braced_number(scanner, FALSE, FALSE, &el.green) &&
-		    get_braced_number(scanner, FALSE, FALSE, &el.blue) &&
-		    get_braced_number(scanner, FALSE, TRUE, &el.alpha)) {
-			grad->colors = g_slist_append(grad->colors, element_copy(&el));
-		} else {
-			success = FALSE;
-			break;
-		}
-		g_scanner_get_next_token (scanner);
-		if (scanner->token == '}') {
-			break;
-		} else if (scanner->token != ',') {
-			success = FALSE;
-			break;
-		}
-	}
-	if (success) {
-		g_value_set_boxed(property_value, grad);
-	}
-	gx_gradient_free(grad);
-	g_scanner_destroy(scanner);
-	return success;
 }
 
 static void set_expose_func(GxPaintBox *paint_box, gchar *paint_func);
@@ -379,8 +167,8 @@ static gboolean amp_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cr = gdk_cairo_create(wi->window);
 	double x0      = wi->allocation.x+2;
 	double y0      = wi->allocation.y+2;
-	double rect_width  = wi->allocation.width-4;
-	double rect_height = wi->allocation.height-4;
+	double rect_width  = wi->allocation.width-5;
+	double rect_height = wi->allocation.height-5;
 	double radius = 25.;
 	double x1,y1;
 	x1=x0+rect_width;

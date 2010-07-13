@@ -125,6 +125,25 @@ class "GxSwitch" style "Switch"
 class "GxPaintBox" style "PaintBox"
 """
 
+def lm(db):
+    if db < -70.0:
+        df = 0.0
+    elif db < -60.0:
+        df = (db + 70.0) * 0.25
+    elif db < -50.0:
+        df = (db + 60.0) * 0.5 + 2.5
+    elif db < -40.0:
+        df = (db + 50.0) * 0.75 + 7.5
+    elif db < -30.0:
+        df = (db + 40.0) * 1.5 + 15.0
+    elif db < -20.0:
+        df = (db + 30.0) * 2.0 + 30.0
+    elif db < 6.0:
+        df = (db + 20.0) * 2.5 + 50.0
+    else:
+        df = 115.0
+    return df/115.0
+
 def demo(w):
     v = gtk.VBox()
     #h = MyBox()
@@ -194,6 +213,24 @@ def demo(w):
         model.append((s,))
     r.props.model = model
     h.add(r)
+
+    h1 = gtk.HBox()
+    h.add(h1)
+
+    r = gxwidgets.FastMeter()
+    r.set(0.6)
+    h1.add(r)
+
+    global ms
+    r = ms = gxwidgets.MeterScale()
+    r.props.tick_pos = gxwidgets.TICK_BOTH
+    for p in -50, -40, -20, -30, -10, -3, 0, 4:
+        r.add_mark(lm(p), str(p));
+    h1.add(r)
+
+    r = gxwidgets.FastMeter()
+    r.set(0.7)
+    h1.add(r)
 
     h = gtk.HBox()
     h.set_spacing(20)

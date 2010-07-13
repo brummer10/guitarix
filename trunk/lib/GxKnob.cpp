@@ -109,7 +109,7 @@ void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobst
 	double lengh_x = (image_rect->x+radius+pointer_off/2) - radius * sin(angle);
 	double lengh_y = (image_rect->y+radius+pointer_off/2) + radius * cos(angle);
 	double radius1 = min(image_rect->width, image_rect->height) / 2;
-	int has_focus = GTK_WIDGET_HAS_FOCUS(widget);
+	int has_focus = gtk_widget_has_focus(widget);
 
 	if (has_focus) {
 		gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
@@ -163,7 +163,7 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 	if (button == 3) {
 		gboolean ret;
 		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, &ret);
-		return ret;
+		return FALSE;
 	}
 	static double last_y = 2e20;
 	GxKnob *knob = GX_KNOB(widget);
@@ -222,7 +222,7 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 static gboolean gx_knob_pointer_motion(GtkWidget *widget, GdkEventMotion *event)
 {
 	g_assert(GX_IS_KNOB(widget));
-	if (!GTK_WIDGET_HAS_GRAB(widget)) {
+	if (!gtk_widget_has_grab(widget)) {
 		return FALSE;
 	}
 	gdk_event_request_motions (event);
@@ -240,7 +240,7 @@ static gboolean gx_knob_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 	g_object_unref(pb);
 	gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, NULL);
-	if (GTK_WIDGET_HAS_GRAB(widget) || GTK_WIDGET_HAS_FOCUS(widget)== TRUE) {
+	if (gtk_widget_has_grab(widget) || gtk_widget_has_focus(widget)== TRUE) {
 		return TRUE;
 	}
 	_gx_knob_draw_arc(widget, &image_rect, knobstate, TRUE);
@@ -257,7 +257,7 @@ static gboolean gx_knob_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 	g_object_unref(pb);
 	gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, NULL);
-	if (GTK_WIDGET_HAS_GRAB(widget) || GTK_WIDGET_HAS_FOCUS(widget)== TRUE) {
+	if (gtk_widget_has_grab(widget) || gtk_widget_has_focus(widget)== TRUE) {
 		return TRUE;
 	}
 	_gx_knob_draw_arc(widget, &image_rect, knobstate, FALSE);
@@ -295,8 +295,8 @@ static gboolean gx_knob_button_press (GtkWidget *widget, GdkEventButton *event)
 	if (event->button != 1 && event->button != 3) {
 		return FALSE;
 	}
+	gtk_widget_grab_focus(widget);
 	if (_gx_knob_pointer_event(widget, event->x, event->y, get_stock_id(widget), FALSE, event->state, event->button)) {
-		gtk_widget_grab_focus(widget);
 		gtk_grab_add(widget);
 	}
 	return FALSE;

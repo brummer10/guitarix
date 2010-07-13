@@ -108,6 +108,8 @@ def build_python_module(bld):
                   "GxVSlider.h",
                   "GxEQSlider.h",
                   "GxPaintBox.h",
+                  "GxMeterScale.h",
+                  "GxGradient.h",
                   "libgxwidgets.so",
                   "gxwidgets-manual.defs",
                   ],
@@ -198,6 +200,8 @@ def build(bld):
         'GxVSlider.cpp',
         'GxEQSlider.cpp',
         'GxPaintBox.cpp',
+        'GxMeterScale.cpp',
+        'GxGradient.cpp',
         ]
     if not bld.env["GX_LIB_STATIC"] and not bld.env["GX_LIB_SHARED"]:
         return

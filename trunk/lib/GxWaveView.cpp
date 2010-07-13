@@ -28,12 +28,12 @@ part of guitarix, show a wave with Gtk
 #define P_(s) (s)   // FIXME -> gettext
 
 enum {
-	PROP_TEXT_NW = 1,
-	PROP_TEXT_NE,
-	PROP_TEXT_SW,
-	PROP_TEXT_SE,
-	PROP_TEXT_POS_W,
-	PROP_TEXT_POS_E
+	PROP_TEXT_TOP_LEFT = 1,
+	PROP_TEXT_TOP_RIGHT,
+	PROP_TEXT_BOTTOM_LEFT,
+	PROP_TEXT_BOTTOM_RIGHT,
+	PROP_TEXT_POS_LEFT,
+	PROP_TEXT_POS_RIGHT
 };
 
 static void gx_wave_view_destroy(GtkObject*);
@@ -122,7 +122,7 @@ static void wave_view_background(GxWaveView *waveview, cairo_t *cr,
 }
 
 static void draw_text(cairo_t *cr, GdkEventExpose *event, gchar *str,
-                      int xorg, int yorg, GtkAnchorType anchor)
+                      int xorg, int yorg, GtkCornerType corner)
 {
 	if (!str || !*str) {
 		return;
@@ -135,7 +135,7 @@ static void draw_text(cairo_t *cr, GdkEventExpose *event, gchar *str,
 	pango_layout_set_markup(layout, str, -1);
 	int width, height;
 	pango_layout_get_pixel_size(layout, &width, &height);
-	if (anchor == GTK_ANCHOR_SW || anchor == GTK_ANCHOR_SE) {
+	if (corner == GTK_CORNER_BOTTOM_LEFT || corner == GTK_CORNER_BOTTOM_RIGHT) {
 		yorg += background_height - height - 2;
 	}
 	cairo_move_to(cr, xorg, yorg);
@@ -162,10 +162,14 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	}
 
 	cairo_set_source_rgb(cr, 1, 1, 1);
-	draw_text(cr, event, waveview->text_nw, liveviewx + background_width * waveview->text_pos_w / 100, liveviewy, GTK_ANCHOR_NW);
-	draw_text(cr, event, waveview->text_ne, liveviewx + background_width * waveview->text_pos_e / 100, liveviewy, GTK_ANCHOR_NE);
-	draw_text(cr, event, waveview->text_sw, liveviewx + background_width * waveview->text_pos_w / 100, liveviewy, GTK_ANCHOR_SW);
-	draw_text(cr, event, waveview->text_se, liveviewx + background_width * waveview->text_pos_e / 100, liveviewy, GTK_ANCHOR_SE);
+	draw_text(cr, event, waveview->text_top_left, liveviewx + background_width * waveview->text_pos_left / 100,
+	          liveviewy, GTK_CORNER_TOP_LEFT);
+	draw_text(cr, event, waveview->text_top_right, liveviewx + background_width * waveview->text_pos_right / 100,
+	          liveviewy, GTK_CORNER_TOP_RIGHT);
+	draw_text(cr, event, waveview->text_bottom_left, liveviewx + background_width * waveview->text_pos_left / 100,
+	          liveviewy, GTK_CORNER_BOTTOM_LEFT);
+	draw_text(cr, event, waveview->text_bottom_right, liveviewx + background_width * waveview->text_pos_right / 100,
+	          liveviewy, GTK_CORNER_BOTTOM_RIGHT);
 
 	cairo_move_to (cr, liveviewx+280, liveviewy+25);
 
@@ -245,43 +249,43 @@ static void gx_wave_view_class_init (GxWaveViewClass *klass)
 	widget_class->expose_event = gx_wave_view_expose;
 	widget_class->size_request = gx_wave_view_size_request;
 	g_object_class_install_property (gobject_class,
-	                                 PROP_TEXT_NW,
-	                                 g_param_spec_string ("text-nw",
-	                                                      P_("Text NW"),
+	                                 PROP_TEXT_TOP_LEFT,
+	                                 g_param_spec_string ("text-top-left",
+	                                                      P_("Text top left"),
 	                                                      P_("Text to be displayed at the top left"),
 	                                                      "",
 	                                                      GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_install_property (gobject_class,
-	                                 PROP_TEXT_NE,
-	                                 g_param_spec_string ("text-ne",
-	                                                      P_("Text NE"),
+	                                 PROP_TEXT_TOP_RIGHT,
+	                                 g_param_spec_string ("text-top-right",
+	                                                      P_("Text top right"),
 	                                                      P_("Text to be displayed at the top right"),
 	                                                      "",
 	                                                      GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_install_property (gobject_class,
-	                                 PROP_TEXT_SW,
-	                                 g_param_spec_string ("text-sw",
-	                                                      P_("Text SW"),
+	                                 PROP_TEXT_BOTTOM_LEFT,
+	                                 g_param_spec_string ("text-bottom-left",
+	                                                      P_("Text bottom left"),
 	                                                      P_("Text to be displayed at the bottom left"),
 	                                                      "",
 	                                                      GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_install_property (gobject_class,
-	                                 PROP_TEXT_SE,
-	                                 g_param_spec_string ("text-se",
-	                                                      P_("Text SE"),
+	                                 PROP_TEXT_BOTTOM_RIGHT,
+	                                 g_param_spec_string ("text-bottom-right",
+	                                                      P_("Text bottom right"),
 	                                                      P_("Text to be displayed at the bottom right"),
 	                                                      "",
 	                                                      GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_install_property (gobject_class,
-	                                 PROP_TEXT_POS_W,
-	                                 g_param_spec_double ("text-pos-w",
+	                                 PROP_TEXT_POS_LEFT,
+	                                 g_param_spec_double ("text-pos-left",
 	                                                      P_("Left Position"),
 	                                                      P_("Text to be displayed at the bottom right"),
 	                                                      0, 100, 5,
 	                                                      GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_install_property (gobject_class,
-	                                 PROP_TEXT_POS_E,
-	                                 g_param_spec_double ("text-pos-e",
+	                                 PROP_TEXT_POS_RIGHT,
+	                                 g_param_spec_double ("text-pos-right",
 	                                                      P_("Right Position"),
 	                                                      P_("Text to be displayed at the bottom right"),
 	                                                      0, 100, 70,
@@ -293,12 +297,12 @@ static void gx_wave_view_init(GxWaveView *waveview)
 	GtkWidget *widget = GTK_WIDGET(waveview);
 	waveview->frame = NULL;
 	waveview->frame_size = 0;
-	waveview->text_nw = NULL;
-	waveview->text_ne = NULL;
-	waveview->text_sw = NULL;
-	waveview->text_se = NULL;
-	waveview->text_pos_w = 5;
-	waveview->text_pos_e = 70;
+	waveview->text_top_left = NULL;
+	waveview->text_top_right = NULL;
+	waveview->text_bottom_left = NULL;
+	waveview->text_bottom_right = NULL;
+	waveview->text_pos_left = 5;
+	waveview->text_pos_right = 70;
 	widget->requisition.width = liveview_x;
 	widget->requisition.height = liveview_y;
 }
@@ -327,30 +331,30 @@ void gx_wave_view_set_frame(GxWaveView *waveview, const float *frame, int frame_
 	gtk_widget_queue_draw(GTK_WIDGET(waveview));
 }
 
-void gx_wave_view_set_text(GxWaveView *waveview, const gchar *text, GtkAnchorType pos)
+void gx_wave_view_set_text(GxWaveView *waveview, const gchar *text, GtkCornerType pos)
 {
 	char **f;
 	const char *p;
 	g_assert(GX_IS_WAVE_VIEW(waveview));
 	switch (pos) {
-	case GTK_ANCHOR_NW:
-		f = &waveview->text_nw;
-		p = "text_nw";
+	case GTK_CORNER_TOP_LEFT:
+		f = &waveview->text_top_left;
+		p = "text-top-left";
 		break;
-	case GTK_ANCHOR_NE:
-		f = &waveview->text_ne;
-		p = "text_ne";
+	case GTK_CORNER_TOP_RIGHT:
+		f = &waveview->text_top_right;
+		p = "text-top-right";
 		break;
-	case GTK_ANCHOR_SW:
-		f = &waveview->text_sw;
-		p = "text_sw";
+	case GTK_CORNER_BOTTOM_LEFT:
+		f = &waveview->text_bottom_left;
+		p = "text-bottom-left";
 		break;
-	case GTK_ANCHOR_SE:
-		f = &waveview->text_se;
-		p = "text_se";
+	case GTK_CORNER_BOTTOM_RIGHT:
+		f = &waveview->text_bottom_right;
+		p = "text-bottom-right";
 		break;
 	default:
-		g_warning("gx_wave_view_set_text: unsupported GtkAnchor");
+		g_assert(FALSE);
 		return;
 	}
 	g_free(*f);
@@ -364,25 +368,25 @@ static void gx_wave_view_set_property(GObject *object, guint prop_id,
 {
 	GxWaveView *wv = GX_WAVE_VIEW(object);
 	switch(prop_id) {
-	case PROP_TEXT_NW:
-		gx_wave_view_set_text(wv, g_value_get_string(value), GTK_ANCHOR_NW);
+	case PROP_TEXT_TOP_LEFT:
+		gx_wave_view_set_text(wv, g_value_get_string(value), GTK_CORNER_TOP_LEFT);
 		break;
-	case PROP_TEXT_NE:
-		gx_wave_view_set_text(wv, g_value_get_string(value), GTK_ANCHOR_NE);
+	case PROP_TEXT_TOP_RIGHT:
+		gx_wave_view_set_text(wv, g_value_get_string(value), GTK_CORNER_TOP_RIGHT);
 		break;
-	case PROP_TEXT_SW:
-		gx_wave_view_set_text(wv, g_value_get_string(value), GTK_ANCHOR_SW);
+	case PROP_TEXT_BOTTOM_LEFT:
+		gx_wave_view_set_text(wv, g_value_get_string(value), GTK_CORNER_BOTTOM_LEFT);
 		break;
-	case PROP_TEXT_SE:
-		gx_wave_view_set_text(wv, g_value_get_string(value), GTK_ANCHOR_SE);
+	case PROP_TEXT_BOTTOM_RIGHT:
+		gx_wave_view_set_text(wv, g_value_get_string(value), GTK_CORNER_BOTTOM_RIGHT);
 		break;
-	case PROP_TEXT_POS_W:
-		wv->text_pos_w = g_value_get_double(value);
-		g_object_notify(object, "text-pos-w");
+	case PROP_TEXT_POS_LEFT:
+		wv->text_pos_left = g_value_get_double(value);
+		g_object_notify(object, "text-pos-left");
 		break;
-	case PROP_TEXT_POS_E:
-		wv->text_pos_e = g_value_get_double(value);
-		g_object_notify(object, "text-pos-e");
+	case PROP_TEXT_POS_RIGHT:
+		wv->text_pos_right = g_value_get_double(value);
+		g_object_notify(object, "text-pos-right");
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -391,28 +395,28 @@ static void gx_wave_view_set_property(GObject *object, guint prop_id,
 }
 
 static void gx_wave_view_get_property(GObject *object, guint prop_id,
-                                          GValue *value, GParamSpec *pspec)
+                                      GValue *value, GParamSpec *pspec)
 {
 	GxWaveView *wv = GX_WAVE_VIEW(object);
 
 	switch(prop_id) {
-	case PROP_TEXT_NW:
-		g_value_set_string (value, wv->text_nw);
+	case PROP_TEXT_TOP_LEFT:
+		g_value_set_string (value, wv->text_top_left);
 		break;
-	case PROP_TEXT_NE:
-		g_value_set_string (value, wv->text_ne);
+	case PROP_TEXT_TOP_RIGHT:
+		g_value_set_string (value, wv->text_top_right);
 		break;
-	case PROP_TEXT_SW:
-		g_value_set_string (value, wv->text_sw);
+	case PROP_TEXT_BOTTOM_LEFT:
+		g_value_set_string (value, wv->text_bottom_left);
 		break;
-	case PROP_TEXT_SE:
-		g_value_set_string (value, wv->text_se);
+	case PROP_TEXT_BOTTOM_RIGHT:
+		g_value_set_string (value, wv->text_bottom_right);
 		break;
-	case PROP_TEXT_POS_W:
-		g_value_set_double (value, wv->text_pos_w);
+	case PROP_TEXT_POS_LEFT:
+		g_value_set_double (value, wv->text_pos_left);
 		break;
-	case PROP_TEXT_POS_E:
-		g_value_set_double (value, wv->text_pos_e);
+	case PROP_TEXT_POS_RIGHT:
+		g_value_set_double (value, wv->text_pos_right);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

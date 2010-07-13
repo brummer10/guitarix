@@ -694,7 +694,7 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect)
 static gboolean gx_regler_button_release (GtkWidget *widget, GdkEventButton *event)
 {
 	g_assert(GX_IS_REGLER(widget));
-	if (GTK_WIDGET_HAS_GRAB(widget))
+	if (gtk_widget_has_grab(widget))
 		gtk_grab_remove(widget);
 	return FALSE;
 }

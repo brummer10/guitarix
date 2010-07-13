@@ -24,6 +24,8 @@ headers
 #include "GxVSlider.h"
 #include "GxEQSlider.h"
 #include "GxPaintBox.h"
+#include "GxMeterScale.h"
+#include "GxGradient.h"
 %%
 modulename gxwidgets
 %%
@@ -33,6 +35,7 @@ import gtk.ToggleButton as PyGtkToggleButton_Type
 import gtk.RadioButton as PyGtkRadioButton_Type
 import gtk.Misc as PyGtkMisc_Type
 import gtk.Box as PyGtkBox_Type
+import gtk.Widget as PyGtkWidget_Type
 %%
 ignore set_regler_connect_func
 ignore set_selector_connect_func

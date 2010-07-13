@@ -105,7 +105,7 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
 	if (button == 3) {
 		gboolean ret;
 		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, &ret);
-		return ret;
+		return FALSE;
 	}
 	double pos = adj->lower + ((x - image_rect.x)/image_rect.width)* (adj->upper - adj->lower);
 	gboolean handled;
@@ -121,8 +121,8 @@ static gboolean gx_wheel_button_press (GtkWidget *widget, GdkEventButton *event)
 	if (event->button != 1 && event->button != 3) {
 		return FALSE;
 	}
+	gtk_widget_grab_focus(widget);
 	if (wheel_set_from_pointer(widget, event->x, event->y, FALSE, event->button)) {
-		gtk_widget_grab_focus(widget);
 		gtk_grab_add(widget);
 	}
 	return FALSE;
@@ -136,7 +136,7 @@ static gboolean gx_wheel_pointer_motion (GtkWidget *widget, GdkEventMotion *even
 {
 	g_assert(GX_IS_WHEEL(widget));
 	gdk_event_request_motions (event);
-	if (!GTK_WIDGET_HAS_GRAB(widget)) {
+	if (!gtk_widget_has_grab(widget)) {
 		return FALSE;
 	}
 	wheel_set_from_pointer(widget, event->x, event->y, TRUE, 0);
