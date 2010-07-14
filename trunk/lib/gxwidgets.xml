@@ -1,25 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<glade-catalog supports="gtkbuilder" name="gxwidgets" library="gxwidgets" domain="gxwidgets" depends="gtk+">
+<glade-catalog supports="gtkbuilder" name="gxwidgets" library="gladegx" domain="gxwidgets" depends="gtk+">
+  <init-function>glade_gx_init</init-function>
   <glade-widget-classes>
-    <glade-widget-class title="Switch" name="GxSwitch" generic-name="GxSwitch" get-type-function="gx_switch_get_type" />
-    <glade-widget-class title="Selector" name="GxSelector" generic-name="GxSelector" get-type-function="gx_selector_get_type">
-      <properties>
-      </properties>
-    </glade-widget-class>
-    <glade-widget-class title="Fast Meter" name="GxFastMeter" generic-name="GxFastMeter" />
-    <glade-widget-class title="Tuner" name="GxTuner" generic-name="GxTuner" />
-    <glade-widget-class title="Wave View" name="GxWaveView" generic-name="waveview" />
-    <glade-widget-class title="IR Edit" name="GxIREdit" generic-name="iredit" />
-    <glade-widget-class title="Gx Radio Button" name="GxRadioButton" generic-name="gxradiobutton" />
-    <glade-widget-class title="Gx Toggle Image" name="GxToggleImage" generic-name="gxtoggleimage" />
-    <glade-widget-class title="Gx Wheel" name="GxWheel" generic-name="gxwheel" />
-    <glade-widget-class title="Gx HSlider" name="GxHSlider" generic-name="gxhslider" />
-    <glade-widget-class title="Gx VSlider" name="GxVSlider" generic-name="gxvslider" />
-    <glade-widget-class title="Gx EQ Slider" name="GxEQSlider" generic-name="gxeqslider" />
-    <glade-widget-class title="Gx Mini Slider" name="GxMiniSlider" generic-name="gxminislider" />
-    <glade-widget-class title="Gx Big Knob" name="GxBigKnob" generic-name="gxbigknob" />
-    <glade-widget-class title="Gx Small Knob" name="GxSmallKnob" generic-name="gxsmallknob" />
-    <glade-widget-class title="Gx Paint Box" name="GxPaintBox" generic-name="gxpaintbox" />
+    <glade-widget-class title="Switch" name="GxSwitch" generic-name="gxswitch" />
+    <glade-widget-class title="Selector" name="GxSelector" generic-name="gxselector" />
+    <glade-widget-class title="Fast Meter" name="GxFastMeter" generic-name="gxfastmeter" />
+    <glade-widget-class title="Tuner" name="GxTuner" generic-name="gxtuner" />
+    <glade-widget-class title="Wave View" name="GxWaveView" generic-name="gxwaveview" />
+    <glade-widget-class title="IR Edit" name="GxIREdit" generic-name="gxiredit" />
+    <glade-widget-class title="Radio Button" name="GxRadioButton" generic-name="gxradiobutton" />
+    <glade-widget-class title="Toggle Image" name="GxToggleImage" generic-name="gxtoggleimage" />
+    <glade-widget-class title="Wheel" name="GxWheel" generic-name="gxwheel" />
+    <glade-widget-class title="HSlider" name="GxHSlider" generic-name="gxhslider" />
+    <glade-widget-class title="VSlider" name="GxVSlider" generic-name="gxvslider" />
+    <glade-widget-class title="EQ Slider" name="GxEQSlider" generic-name="gxeqslider" />
+    <glade-widget-class title="Mini Slider" name="GxMiniSlider" generic-name="gxminislider" />
+    <glade-widget-class title="Big Knob" name="GxBigKnob" generic-name="gxbigknob" />
+    <glade-widget-class title="Small Knob" name="GxSmallKnob" generic-name="gxsmallknob" />
+    <glade-widget-class title="Paint Box" name="GxPaintBox" generic-name="gxpaintbox" />
 
   </glade-widget-classes>
 

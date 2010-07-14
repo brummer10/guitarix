@@ -177,6 +177,17 @@ def build_stock_images(bld):
         )
     bld.add_group()
 
+def build_glade_module(bld):
+    bld(
+        features = ['cc','cxx','pyext','cshlib'],
+        ccflags = bld.env['CXXFLAGS'],
+        uselib = ['GTK2'],
+        source = ['glade-gx.c'],
+        target = 'libgladegx',
+        libpath = [bld.path.bldpath(bld.env)],
+        lib = ["gxwidgets"],
+        includes = ['.'],
+        )
 
 def build(bld):
     sources = [
@@ -230,3 +241,6 @@ def build(bld):
         prog.install_path = bld.env['BINDIR']
     if bld.env["GX_PYTHON_WRAPPER"]:
         build_python_module(bld)
+        # glade module is independent of pyhon-wrapper,
+        # but also needs shared gxwidgets lib
+        build_glade_module(bld)
