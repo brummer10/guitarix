@@ -1,0 +1,50 @@
+;; -*- scheme -*-
+(define-object ControlParameter
+  (in-module "Gx")
+  (c-name "GxControlParameter")
+  (gtype-id "GX_TYPE_CONTROL_PARAMETER")
+)
+
+(define-function control_parameter_get_type
+  (c-name "gx_control_parameter_get_type")
+  (return-type "GType")
+)
+
+(define-method cp_configure
+  (of-object "GxControlParameter")
+  (c-name "gx_control_parameter_cp_configure")
+  (return-type "none")
+  (parameters
+    '("gchar*" "group")
+    '("gchar*" "name")
+    '("gdouble" "lower")
+    '("gdouble" "upper")
+    '("gdouble" "step")
+  )
+)
+
+(define-method cp_set_value
+  (of-object "GxControlParameter")
+  (c-name "gx_control_parameter_cp_set_value")
+  (return-type "none")
+  (parameters
+    '("gdouble" "value")
+  )
+)
+
+(define-method cp_get_value
+  (of-object "GxControlParameter")
+  (c-name "gx_control_parameter_cp_get_value")
+  (return-type "none")
+)
+
+(define-object Switch
+  (in-module "Gx")
+  (parent "GtkToggleButton")
+  (c-name "GxSwitch")
+  (gtype-id "GX_TYPE_SWITCH")
+)
+(define-function switch_get_type
+  (c-name "gx_switch_get_type")
+  (return-type "GType")
+)

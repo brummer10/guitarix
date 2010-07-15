@@ -1,33 +1,33 @@
 %%
 headers
 #include <Python.h>
-#define PY_ARRAY_UNIQUE_SYMBOL gxwidgets_ARRAY_API
+#define PY_ARRAY_UNIQUE_SYMBOL gxw_ARRAY_API
 #define NO_IMPORT_ARRAY
 #include <numpy/ndarrayobject.h>
-#include "pygobject.h"
-#include "GxTuner.h"
-#include "GxFastMeter.h"
-#include "GxWaveView.h"
-#include "GxRegler.h"
-#include "GxWheel.h"
-#include "GxSelector.h"
-#include "GxSwitch.h"
-#include "GxToggleImage.h"
-#include "GxControlParameter.h"
-#include "GxIREdit.h"
-#include "GxRadioButton.h"
-#include "GxKnob.h"
-#include "GxBigKnob.h"
-#include "GxSmallKnob.h"
-#include "GxHSlider.h"
-#include "GxMiniSlider.h"
-#include "GxVSlider.h"
-#include "GxEQSlider.h"
-#include "GxPaintBox.h"
-#include "GxMeterScale.h"
-#include "GxGradient.h"
+#include <pygobject.h>
+#include <gxw/GxTuner.h>
+#include <gxw/GxFastMeter.h>
+#include <gxw/GxWaveView.h>
+#include <gxw/GxRegler.h>
+#include <gxw/GxWheel.h>
+#include <gxw/GxSelector.h>
+#include <gxw/GxSwitch.h>
+#include <gxw/GxToggleImage.h>
+#include <gxw/GxControlParameter.h>
+#include <gxw/GxIREdit.h>
+#include <gxw/GxRadioButton.h>
+#include <gxw/GxKnob.h>
+#include <gxw/GxBigKnob.h>
+#include <gxw/GxSmallKnob.h>
+#include <gxw/GxHSlider.h>
+#include <gxw/GxMiniSlider.h>
+#include <gxw/GxVSlider.h>
+#include <gxw/GxEQSlider.h>
+#include <gxw/GxPaintBox.h>
+#include <gxw/GxMeterScale.h>
+#include <gxw/GxGradient.h>
 %%
-modulename gxwidgets
+modulename gxw
 %%
 import gtk.DrawingArea as PyGtkDrawingArea_Type
 import gtk.Range as PyGtkRange_Type

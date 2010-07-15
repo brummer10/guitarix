@@ -1,0 +1,118 @@
+# -*- python -*-
+# -*- coding: utf-8 -*-
+
+import Logs, Utils, Configure, Options, os.path
+
+def set_options(opt):
+    opt.tool_options('compiler_cc')
+    grp = opt.add_option_group("Compiler / Linker flags")
+    grp.add_option('--static-lib',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=('build static widget library'),
+                   )
+    grp.add_option('--shared-lib',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=('build shared widget library'),
+                   )
+
+def configure(conf):
+    if Options.options.static_lib:
+        conf.env["GX_LIB_STATIC"] = 1
+    if Options.options.shared_lib:
+        conf.env["GX_LIB_SHARED"] = 1
+    conf.check_tool("libtool")
+
+def img2c(task):
+    mkname = lambda v: "pb_" + os.path.splitext(os.path.basename(str(v)))[0]
+    sources = " ".join(["'%s' '%s'" % (mkname(v), v.srcpath(task.env)) for v in task.inputs])
+    dst = task.outputs[0].bldpath(task.env)
+    cmd = ("gdk-pixbuf-csource --raw --build-list %s > %s" % (sources, dst))
+    Logs.debug("runner: system command -> %s" % cmd)
+    return Utils.exec_command(cmd, shell=True)
+
+def build_stock_images(bld):
+    images = [
+        "button_off.png",
+        "button_on.png",
+        "eqslider.png",
+        "knob1.png",
+        "led_off.png",
+        "led_on.png",
+        "minislider.png",
+        "minitoggle_off.png",
+        "minitoggle_on.png",
+        "hslider.png",
+        "smallknob1.png",
+        "switchit_off.png",
+        "switchit_on.png",
+        "switch_off.png",
+        "switch_on.png",
+        "vslider.png",
+        "wheel_back.png",
+        "wheel_fringe.png",
+        "wheel_pointer.png",
+        "tribe.png",
+        "guitar.png",
+        ]
+
+    bld(name = "img2c",
+        target = "gximages.cc",
+        rule = img2c,
+        source = ["../icons/"+v for v in images],
+        )
+    bld.add_group()
+
+def build(bld):
+    sources = [
+        'gxinit.cpp',
+        'GxFastMeter.cpp',
+        'GxWaveView.cpp',
+        'GxTuner.cpp',
+        'GxRegler.cpp',
+        'GxSelector.cpp',
+        'GxSwitch.cpp',
+        'GxToggleImage.cpp',
+        'GxControlParameter.cpp',
+        'GxIREdit.cpp',
+        'GxRadioButton.cpp',
+        'GxWheel.cpp',
+        'GxKnob.cpp',
+        'GxBigKnob.cpp',
+        'GxSmallKnob.cpp',
+        'GxHSlider.cpp',
+        'GxMiniSlider.cpp',
+        'GxVSlider.cpp',
+        'GxEQSlider.cpp',
+        'GxPaintBox.cpp',
+        'GxMeterScale.cpp',
+        'GxGradient.cpp',
+        ]
+    if not bld.env["GX_LIB_STATIC"] and not bld.env["GX_LIB_SHARED"]:
+        return
+    build_stock_images(bld)
+    if bld.env["GX_LIB_STATIC"]:
+        # static library
+        prog = bld.new_task_gen('cxx', 'cstaticlib')
+        prog.ccflags= bld.env['CXXFLAGS']
+        prog.includes = ['.']
+        prog.source = sources
+        prog.uselib = ['GTHREAD', 'GTK2']
+        prog.target = 'gxw'
+        prog.chmod=0755
+        prog.install_path = bld.env['BINDIR']
+    if bld.env["GX_LIB_SHARED"]:
+        # shared library
+        prog = bld.new_task_gen('cxx', 'cshlib','libtool')
+        prog.type = 'cshlib'
+        prog.vnum = "0.1"
+        prog.ccflags= bld.env['CXXFLAGS']
+        prog.includes = ['.']
+        prog.source = sources
+        prog.uselib = ['GTHREAD', 'GTK2']
+        prog.target = 'gxw'
+        prog.chmod=0755
+        prog.install_path = bld.env['BINDIR']

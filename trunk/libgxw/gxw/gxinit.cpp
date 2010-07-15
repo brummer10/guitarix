@@ -50,7 +50,7 @@ static image_entry image_data[] = {
 	{ NULL, NULL },
 };
 
-extern "C" void __attribute__ ((constructor)) gxwidgets_init()
+extern "C" void __attribute__ ((constructor)) gxw_init()
 {
 	g_type_init();
 	GtkIconFactory *factory = gtk_icon_factory_new();

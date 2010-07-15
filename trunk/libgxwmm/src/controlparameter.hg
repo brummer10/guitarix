@@ -1,0 +1,38 @@
+/*
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+
+#include <glibmm/interface.h>
+_DEFS(gxmm,gxw)
+_PINCLUDE(glibmm/private/interface_p.h)
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+extern "C"
+{
+typedef struct _GxControlParameterIface GxControlParameterIface;
+}
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+namespace Gx
+{
+
+class ControlParameter: public Glib::Interface
+{
+	_CLASS_INTERFACE(ControlParameter,GxControlParameter,GX_CONTROL_PARAMETER,GxControlParameterIface)
+};
+
+} // namespace Gx

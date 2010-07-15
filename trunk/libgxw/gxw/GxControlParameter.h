@@ -29,16 +29,17 @@ G_BEGIN_DECLS
 #define GX_CONTROL_PARAMETER_GET_INTERFACE(inst)  (G_TYPE_INSTANCE_GET_INTERFACE ((inst), GX_TYPE_CONTROL_PARAMETER, GxControlParameterIface))
 
 
-typedef struct _GxControlParameter           GxControlParameter; /* dummy object */
+typedef struct _GxControlParameter GxControlParameter;
+typedef struct _GxControlParameterIface GxControlParameterIface;
 
-typedef struct
+struct _GxControlParameterIface
 {
 	GTypeInterface parent_iface;
 
 	void (*cp_configure)(GxControlParameter *self, gchar* group, gchar *name, gdouble lower, gdouble upper, gdouble step);
 	void (*cp_set_value)(GxControlParameter *self, gdouble value);
 	gdouble (*cp_get_value)(GxControlParameter *self);
-} GxControlParameterIface;
+};
 
 GType gx_control_parameter_get_type(void);
 

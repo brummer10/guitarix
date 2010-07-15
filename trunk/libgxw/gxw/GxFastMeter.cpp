@@ -77,12 +77,12 @@ void gx_fast_meter_class_init(GxFastMeterClass* klass)
 		gobject_class, PROP_HOLD, g_param_spec_int(
 			"hold", P_("Hold"),
 			P_("Count of cycles for which the peak value is held on display"),
-			0, 1000, 5, GParamFlags(GTK_PARAM_READWRITE)));
+			0, 1000, 0, GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_install_property(
 		gobject_class, PROP_DIMEN, g_param_spec_int(
 			"dimen", P_("Dimen"),
 			P_("Horizontal size of meter"),
-			0, 100, 20, GParamFlags(GTK_PARAM_READWRITE)));
+			0, 100, 0, GParamFlags(GTK_PARAM_READWRITE)));
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_boxed("clr-bottom",P_("bottom color"),

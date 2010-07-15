@@ -1,5 +1,5 @@
-import os, sys; sys.path.append("../build/default/lib")
-import gxwidgets, gtk
+import os, sys; sys.path.append("../build/default/pygxw")
+import gxw, gtk
 
 rc_style = """
 pixmap_path "%s"
@@ -88,11 +88,11 @@ rc_style = """
 pixmap_path "%s"
 
 style "BigKnob" {
-  stock["bigknob"] = {{"knob2.png"}}
+  stock["bigknob"] = {{"knob3.png"}}
 }
 
 style "SmallKnob" {
-  stock["smallknob"] = {{"smallknob2.png"}}
+  stock["smallknob"] = {{"smallknob5.png"}}
 }
 
 style "Switch" {
@@ -116,7 +116,7 @@ style "PaintBox" {
 
 
 style "BigKnob" {
-  stock["knob"] = {{"knob1.png"}}
+  stock["knob"] = {{"knob4.png"}}
   GxKnob::arc-inset = 2
 }
 
@@ -148,22 +148,22 @@ def lm(db):
 def demo(w):
     v = gtk.VBox()
     #h = MyBox()
-    h = gxwidgets.PaintBox()
+    h = gxw.PaintBox()
     h.props.paint_func = "amp_expose"
     #h = gtk.HBox()
     h.props.border_width = 10
     h.props.spacing = 10
     w.add(v)
 
-    r = gxwidgets.Wheel(gtk.Adjustment(0,-999,999,0.1,10))
+    r = gxw.Wheel(gtk.Adjustment(0,-999,999,0.1,10))
     r.props.show_value = True
     r.props.value_position = gtk.POS_LEFT
     h.pack_start(r,0,0)
 
     if True:
         for base in "led", "switch", "switchit", "minitoggle", "button":
-            b = gxwidgets.Switch(base)
-            #b = gxwidgets.ToggleImage()
+            b = gxw.Switch(base)
+            #b = gxw.ToggleImage()
             #print b.get_has_window()
             #b.props.base_name = base+"_off"
             h.pack_start(b,0,0)
@@ -176,39 +176,39 @@ def demo(w):
 
     adj = gtk.Adjustment(0,-1,1,0.01,0.1)
 
-    r = gxwidgets.BigKnob(adj)
+    r = gxw.BigKnob(adj)
     r.props.show_value = True
     #r.props.value_position = gtk.POS_LEFT
     h.add(r)
 
-    r = gxwidgets.SmallKnob(adj)
+    r = gxw.SmallKnob(adj)
     r.props.show_value = True
     r.props.value_position = gtk.POS_RIGHT
     h.add(r)
 
-    r = gxwidgets.HSlider(adj)
+    r = gxw.HSlider(adj)
     r.props.show_value = True
     r.props.value_position = gtk.POS_LEFT
     h.add(r)
 
-    r = gxwidgets.MiniSlider(adj)
+    r = gxw.MiniSlider(adj)
     h.add(r)
 
-    r = gxwidgets.EQSlider(adj)
+    r = gxw.EQSlider(adj)
     h.add(r)
 
-    r = gxwidgets.EQSlider(adj)
+    r = gxw.EQSlider(adj)
     r.props.show_value = True
     h.add(r)
 
-    r = gxwidgets.VSlider(adj)
+    r = gxw.VSlider(adj)
     h.add(r)
 
-    r = gxwidgets.VSlider(adj)
+    r = gxw.VSlider(adj)
     r.props.show_value = True
     h.add(r)
 
-    r = gxwidgets.Selector()
+    r = gxw.Selector()
     model = gtk.ListStore(str)
     for s in "Amp 1", "Amp 2", "Amp 3":
         model.append((s,))
@@ -218,18 +218,18 @@ def demo(w):
     h1 = gtk.HBox()
     h.add(h1)
 
-    r = gxwidgets.FastMeter()
+    r = gxw.FastMeter()
     r.set(0.6)
     h1.add(r)
 
     global ms
-    r = ms = gxwidgets.MeterScale()
-    r.props.tick_pos = gxwidgets.TICK_BOTH
+    r = ms = gxw.MeterScale()
+    r.props.tick_pos = gxw.TICK_BOTH
     for p in -50, -40, -20, -30, -10, -3, 0, 4:
         r.add_mark(lm(p), str(p));
     h1.add(r)
 
-    r = gxwidgets.FastMeter()
+    r = gxw.FastMeter()
     r.set(0.7)
     h1.add(r)
 
@@ -237,9 +237,9 @@ def demo(w):
     h.set_spacing(20)
     r = None
     for i in range(3):
-        r = gxwidgets.RadioButton(r)
+        r = gxw.RadioButton(r)
         #r = gtk.RadioButton(r)
-        #r.props.image = gxwidgets.ToggleImage("minitoggle")
+        #r.props.image = gxw.ToggleImage("minitoggle")
         #r.props.draw_indicator = 0
         r.props.base_name = "minitoggle"
         r.set_label("bla %d" % i)
@@ -249,9 +249,9 @@ def demo(w):
 
 
 #gtk.rc_parse("../rcstyles/guitarix_default.rc")
-gtk.rc_parse_string(rc_style % os.path.abspath("."))
+gtk.rc_parse_string(rc_style % os.path.abspath("../libgxw"))
 w = gtk.Window()
-#b = gxwidgets.ToggleImage()
+#b = gxw.ToggleImage()
 #w.add(b)
 demo(w)
 w.show_all()

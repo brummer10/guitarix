@@ -31,15 +31,18 @@ G_BEGIN_DECLS
 #define GX_IS_SWITCH_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_SWITCH))
 #define GX_SWITCH_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_SWITCH, GxSwitchClass))
 
-typedef struct {
+typedef struct _GxSwitch GxSwitch;
+typedef struct _GxSwitchClass GxSwitchClass;
+
+struct _GxSwitch {
 	GtkToggleButton parent;
 	gchar *GSEAL(var_id);
 	GtkLabel *GSEAL(label);
-} GxSwitch;
+};
 
-typedef struct {
+struct _GxSwitchClass {
 	GtkToggleButtonClass parent_class;
-} GxSwitchClass;
+};
 
 GType gx_switch_get_type(void);
 

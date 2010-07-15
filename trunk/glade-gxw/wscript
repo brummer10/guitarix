@@ -1,0 +1,18 @@
+# -*- python -*-
+# -*- coding: utf-8 -*-
+
+def configure(conf):
+    pass
+
+def build(bld):
+    if not bld.env["GX_LIB_STATIC"] and not bld.env["GX_LIB_SHARED"]:
+        return
+    bld(
+        features = ['cc','cxx','pyext','cshlib'],
+        ccflags = bld.env['CXXFLAGS'],
+        uselib = ['GTK2'],
+        source = ['glade-gx.c'],
+        target = 'libgladegx',
+        uselib_local = ["gxw"],
+        includes = ['.'],
+        )

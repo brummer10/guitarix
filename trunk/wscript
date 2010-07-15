@@ -110,7 +110,8 @@ def set_options(opt):
                     type='string',
                     help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
 
-    opt.recurse('lib')
+    opt.recurse('libgxw/gxw')
+    opt.recurse('pygxw')
 
 def check_comp(conf):
     if Options.options.includeresampler:
@@ -345,7 +346,10 @@ def configure(conf):
     conf.env['CXXFLAGS'] = cxxflags
 
     # config subdirs
-    conf.sub_config('lib');
+    conf.sub_config('libgxw/gxw');
+    conf.sub_config('libgxwmm');
+    conf.sub_config('glade-gxw');
+    conf.sub_config('pygxw');
     conf.sub_config('src');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
@@ -394,7 +398,11 @@ def configure(conf):
 def build(bld):
     # process subfolders from here
     bld.add_subdirs('ladspa')
-    bld.add_subdirs('lib')
+    bld.add_subdirs('libgxw/gxw')
+    bld.add_group()
+    bld.add_subdirs('libgxwmm')
+    bld.add_subdirs('glade-gxw')
+    bld.add_subdirs('pygxw')
     bld.add_subdirs('src')
     if bld.env['FAUST']:
         bld.add_subdirs('src/faust')
@@ -405,6 +413,6 @@ def build(bld):
 
 def etags(ctx):
     "Create an Emacs ETAGS file for the src directory"
-    cmd = "etags -o TAGS lib/*.cpp lib/*.cc lib/*.h src/*.cpp src/*.cc src/headers/*.h"
+    cmd = "etags -o TAGS libgxw/gxw/*.cpp libgxwmm/src/*.ccg libgxwmm/src/*.hg libgxw/gxw/*.h src/*.cpp src/*.cc src/headers/*.h"
     Logs.debug("runner: system command -> %s" % cmd)
     Utils.exec_command(cmd)
