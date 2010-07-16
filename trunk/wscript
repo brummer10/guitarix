@@ -347,9 +347,10 @@ def configure(conf):
 
     # config subdirs
     conf.sub_config('libgxw/gxw');
-    conf.sub_config('libgxwmm');
-    conf.sub_config('glade-gxw');
-    conf.sub_config('pygxw');
+    if conf.env["GX_LIB_STATIC"] or conf.env["GX_LIB_SHARED"]:
+        conf.sub_config('libgxwmm');
+        conf.sub_config('glade-gxw');
+        conf.sub_config('pygxw');
     conf.sub_config('src');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
@@ -398,11 +399,12 @@ def configure(conf):
 def build(bld):
     # process subfolders from here
     bld.add_subdirs('ladspa')
-    bld.add_subdirs('libgxw/gxw')
-    bld.add_group()
-    bld.add_subdirs('libgxwmm')
-    bld.add_subdirs('glade-gxw')
-    bld.add_subdirs('pygxw')
+    if bld.env["GX_LIB_STATIC"] or bld.env["GX_LIB_SHARED"]:
+        bld.add_subdirs('libgxw/gxw')
+        bld.add_group()
+        bld.add_subdirs('libgxwmm')
+        bld.add_subdirs('glade-gxw')
+        bld.add_subdirs('pygxw')
     bld.add_subdirs('src')
     if bld.env['FAUST']:
         bld.add_subdirs('src/faust')
