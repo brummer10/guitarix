@@ -11,7 +11,7 @@ def build(bld):
         features = ['cc','cxx','pyext','cshlib'],
         ccflags = bld.env['CXXFLAGS'],
         uselib = ['GTK2'],
-        source = ['glade-gx.c'],
+        source = ['glade-gxw.c'],
         target = 'libgladegx',
         uselib_local = ["gxw"],
         includes = ['.'],
