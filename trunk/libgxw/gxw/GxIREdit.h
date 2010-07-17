@@ -35,17 +35,18 @@ G_BEGIN_DECLS
 #define GX_IS_IR_EDIT_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_IR_EDIT))
 #define GX_IR_EDIT_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_IR_EDIT, GxIREditClass))
 
-typedef struct {
+typedef struct _gain_points gain_points;
+typedef struct _GxIREdit GxIREdit;
+typedef struct _GxIREditClass GxIREditClass;
+
+struct _gain_points {
 	int i;
 	double g;
-} gain_points;
+};
 
-struct _GxIREdit;
+typedef void (*cairo_paint_function)(GxIREdit*,cairo_t*,GdkEventExpose*);
 
-typedef void (*cairo_paint_function)(struct _GxIREdit*,cairo_t*,GdkEventExpose*);
-
-typedef struct _GxIREdit
-{
+struct _GxIREdit {
 	GtkDrawingArea parent;
 	// wave file
 	float *odata;
@@ -108,11 +109,11 @@ typedef struct _GxIREdit
 	gint current_offset;
 	gboolean linear;
 	gint scroll_center;
-} GxIREdit;
+};
 
-typedef struct {
+struct _GxIREditClass {
 	GtkDrawingAreaClass parent_class;
-} GxIREditClass;
+};
 
 GType gx_ir_edit_get_type(void);
 

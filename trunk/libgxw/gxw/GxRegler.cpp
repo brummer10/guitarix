@@ -140,6 +140,35 @@ gboolean gx_boolean_handled_accumulator(
   return continue_emission;
 }
 
+static void marshal_BOOLEAN__BOXED(
+	GClosure *closure, GValue *return_value G_GNUC_UNUSED,
+	guint n_param_values, const GValue *param_values,
+	gpointer invocation_hint G_GNUC_UNUSED, gpointer marshal_data)
+{
+	typedef gboolean (*GMarshalFunc_BOOLEAN__BOXED) (
+		gpointer data1, gpointer arg_1, gpointer data2);
+	register GMarshalFunc_BOOLEAN__BOXED callback;
+	register GCClosure *cc = (GCClosure*) closure;
+	register gpointer data1, data2;
+	gboolean v_return;
+
+	g_return_if_fail (return_value != NULL);
+	g_return_if_fail (n_param_values == 2);
+
+	if (G_CCLOSURE_SWAP_DATA(closure)) {
+		data1 = closure->data;
+		data2 = g_value_peek_pointer (param_values + 0);
+	} else {
+		data1 = g_value_peek_pointer (param_values + 0);
+		data2 = closure->data;
+	}
+	callback = (GMarshalFunc_BOOLEAN__BOXED)(
+		marshal_data ? marshal_data : cc->callback);
+	v_return = callback(
+		data1, g_value_get_boxed(param_values + 1), data2);
+	g_value_set_boolean(return_value, v_return);
+}
+
 
 #define add_slider_binding(binding_set, keyval, mask, scroll)              \
   gtk_binding_entry_add_signal (binding_set, keyval, mask,                 \
@@ -177,8 +206,8 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (GxReglerClass, value_entry),
 		              gx_boolean_handled_accumulator, NULL,
-		              gtk_marshal_BOOLEAN__POINTER,
-		              G_TYPE_BOOLEAN, 1, G_TYPE_POINTER);
+		              marshal_BOOLEAN__BOXED,
+		              G_TYPE_BOOLEAN, 1, GDK_TYPE_RECTANGLE);
 
 	gtk_widget_class_install_style_property(
 		widget_class,
@@ -737,11 +766,6 @@ static void gx_regler_set_var_id(GxRegler *regler, const gchar *str)
 	g_free(regler->var_id);
 	regler->var_id = g_strdup(str ? str : "");
 	g_object_notify(G_OBJECT(regler), "var-id");
-}
-
-gchar *gx_regler_get_var(GxRegler *regler)
-{
-	return regler->var_id;
 }
 
 static void gx_regler_set_property (

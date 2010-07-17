@@ -36,7 +36,10 @@ G_BEGIN_DECLS
 #define GX_IS_REGLER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_REGLER))
 #define GX_REGLER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_REGLER, GxReglerClass))
 
-typedef struct
+typedef struct _GxRegler GxRegler;
+typedef struct _GxReglerClass GxReglerClass;
+
+struct _GxRegler
 {
 	GtkRange parent;
 	gchar *GSEAL(var_id);
@@ -44,17 +47,15 @@ typedef struct
 	gboolean GSEAL(show_value):1;
 	GtkPositionType GSEAL(value_position):2;
 	PangoLayout *GSEAL(value_layout);
-} GxRegler;
+};
 
-typedef struct {
+struct _GxReglerClass {
 	GtkRangeClass parent_class;
 	guint change_value_id;
 	gboolean (*value_entry)(GxRegler *regler, GdkRectangle *rect);
-} GxReglerClass;
+};
 
 GType gx_regler_get_type(void);
-gchar *gx_regler_get_var(GxRegler* regler);
-
 void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition);
 gdouble _gx_regler_get_step_pos(GxRegler *regler, gint step);
 void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,

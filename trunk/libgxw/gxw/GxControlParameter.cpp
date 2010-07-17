@@ -63,12 +63,12 @@ gx_control_parameter_cp_configure(GxControlParameter *self, gchar* group, gchar 
 
 void gx_control_parameter_cp_set_value(GxControlParameter *self, gdouble value)
 {
-	g_return_if_fail (GX_IS_CONTROL_PARAMETER(self));
+	g_return_if_fail(GX_IS_CONTROL_PARAMETER(self));
 	GX_CONTROL_PARAMETER_GET_INTERFACE(self)->cp_set_value(self, value);
 }
 
-void gx_control_parameter_cp_get_value(GxControlParameter *self)
+gdouble gx_control_parameter_cp_get_value(GxControlParameter *self)
 {
-	g_return_if_fail (GX_IS_CONTROL_PARAMETER(self));
-	GX_CONTROL_PARAMETER_GET_INTERFACE(self)->cp_get_value(self);
+	g_return_val_if_fail(GX_IS_CONTROL_PARAMETER(self), 0);
+	return GX_CONTROL_PARAMETER_GET_INTERFACE(self)->cp_get_value(self);
 }

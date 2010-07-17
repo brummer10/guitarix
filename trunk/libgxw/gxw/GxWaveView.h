@@ -33,7 +33,10 @@ G_BEGIN_DECLS
 #define GX_WAVE_VIEW_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_WAVE_VIEW, GxWaveViewClass))
 #define GX_IS_WAVE_VIEW_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_WAVE_VIEW))
 
-typedef struct
+typedef struct _GxWaveView GxWaveView;
+typedef struct _GxWaveViewClass GxWaveViewClass;
+
+struct _GxWaveView
 {
 	GtkDrawingArea parent;
 	GdkPixbuf *liveview_image;
@@ -45,12 +48,12 @@ typedef struct
 	gchar *text_bottom_right;
 	double text_pos_left;
 	double text_pos_right;
-} GxWaveView;
+};
 
-typedef struct
+struct _GxWaveViewClass
 {
 	GtkDrawingAreaClass parent_class;
-} GxWaveViewClass;
+};
 
 
 GType gx_wave_view_get_type ();

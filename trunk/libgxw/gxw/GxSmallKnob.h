@@ -31,13 +31,16 @@ G_BEGIN_DECLS
 #define GX_IS_SMALL_KNOB_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_SMALL_KNOB))
 #define GX_SMALL_KNOB_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_SMALL_KNOB, GxSmallKnobClass))
 
-typedef struct {
-	GxKnob parent;
-} GxSmallKnob;
+typedef struct _GxSmallKnob GxSmallKnob;
+typedef struct _GxSmallKnobClass GxSmallKnobClass;
 
-typedef struct {
+struct _GxSmallKnob {
+	GxKnob parent;
+};
+
+struct _GxSmallKnobClass {
 	GxKnobClass parent_class;
-} GxSmallKnobClass;
+};
 
 GType gx_small_knob_get_type(void);
 

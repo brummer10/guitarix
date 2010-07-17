@@ -31,14 +31,17 @@ G_BEGIN_DECLS
 #define GX_IS_HSLIDER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_HSLIDER))
 #define GX_HSLIDER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_HSLIDER, GxHSliderClass))
 
-typedef struct {
-	GxRegler parent;
-} GxHSlider;
+typedef struct _GxHSlider GxHSlider;
+typedef struct _GxHSliderClass GxHSliderClass;
 
-typedef struct {
+struct _GxHSlider {
+	GxRegler parent;
+};
+
+struct _GxHSliderClass {
 	GxReglerClass parent_class;
 	const gchar *stock_id;
-} GxHSliderClass;
+};
 
 GType gx_hslider_get_type(void);
 

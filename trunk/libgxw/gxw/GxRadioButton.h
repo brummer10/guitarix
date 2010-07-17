@@ -36,15 +36,18 @@ G_BEGIN_DECLS
 #define GX_IS_RADIO_BUTTON_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_RADIO_BUTTON))
 #define GX_RADIO_BUTTON_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_RADIO_BUTTON, GxRadioButtonClass))
 
-typedef struct
+typedef struct _GxRadioButton GxRadioButton;
+typedef struct _GxRadioButtonClass GxRadioButtonClass;
+
+struct _GxRadioButton
 {
 	GtkRadioButton parent;
 	gchar *GSEAL(base_name);
-} GxRadioButton;
+};
 
-typedef struct {
+struct _GxRadioButtonClass {
 	GtkRadioButtonClass parent_class;
-} GxRadioButtonClass;
+};
 
 GType gx_radio_button_get_type(void);
 

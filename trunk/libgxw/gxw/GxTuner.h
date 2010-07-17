@@ -29,18 +29,21 @@ G_BEGIN_DECLS
 #define GX_TUNER_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  GX_TYPE_TUNER, GxTunerClass))
 #define GX_IS_TUNER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_TUNER))
 
-typedef struct
+typedef struct _GxTuner GxTuner;
+typedef struct _GxTunerClass GxTunerClass;
+
+struct _GxTuner
 {
 	GtkDrawingArea parent;
 	double GSEAL (freq);
-} GxTuner;
+};
 
-typedef struct
+struct _GxTunerClass
 {
 	GtkDrawingAreaClass parent_class;
 	/*< private >*/
 	cairo_surface_t *surface_tuner;
-} GxTunerClass;
+};
 
 
 GType gx_tuner_get_type();

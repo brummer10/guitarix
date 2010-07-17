@@ -37,15 +37,18 @@ G_BEGIN_DECLS
 #define GX_IS_SELECTOR_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_SELECTOR))
 #define GX_SELECTOR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_SELECTOR, GxSelectorClass))
 
-typedef struct
+typedef struct _GxSelector GxSelector;
+typedef struct _GxSelectorClass GxSelectorClass;
+
+struct _GxSelector
 {
 	GxRegler parent;
 	GtkTreeModel *model;
-} GxSelector;
+};
 
-typedef struct {
+struct _GxSelectorClass {
 	GxReglerClass parent_class;
-} GxSelectorClass;
+};
 
 /*
 typedef enum {
@@ -54,8 +57,6 @@ typedef enum {
 */
 
 GType gx_selector_get_type(void);
-typedef gboolean selector_connect_func(GxSelector *selector, const gchar *var);
-void set_selector_connect_func(selector_connect_func f);
 
 //GtkWidget *gx_selector_new_with_adjustment(GtkAdjustment *_adjustment,int maxv, const char* []);
 

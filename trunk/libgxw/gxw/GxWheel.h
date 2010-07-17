@@ -31,13 +31,16 @@ G_BEGIN_DECLS
 #define GX_IS_WHEEL_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_WHEEL))
 #define GX_WHEEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_WHEEL, GxWheelClass))
 
-typedef struct {
-	GxRegler parent;
-} GxWheel;
+typedef struct _GxWheel GxWheel;
+typedef struct _GxWheelClass GxWheelClass;
 
-typedef struct {
+struct _GxWheel {
+	GxRegler parent;
+};
+
+struct _GxWheelClass {
 	GxReglerClass parent_class;
-} GxWheelClass;
+};
 
 GType gx_wheel_get_type(void);
 

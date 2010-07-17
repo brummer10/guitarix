@@ -31,14 +31,17 @@ G_BEGIN_DECLS
 #define GX_IS_KNOB_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_KNOB))
 #define GX_KNOB_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_KNOB, GxKnobClass))
 
-typedef struct {
-	GxRegler parent;
-} GxKnob;
+typedef struct _GxKnob GxKnob;
+typedef struct _GxKnobClass GxKnobClass;
 
-typedef struct {
+struct _GxKnob {
+	GxRegler parent;
+};
+
+struct _GxKnobClass {
 	GxReglerClass parent_class;
 	const gchar *stock_id;
-} GxKnobClass;
+};
 
 GType gx_knob_get_type(void);
 

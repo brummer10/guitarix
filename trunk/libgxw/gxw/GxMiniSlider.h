@@ -31,13 +31,16 @@ G_BEGIN_DECLS
 #define GX_IS_MINI_SLIDER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_MINI_SLIDER))
 #define GX_MINI_SLIDER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_MINI_SLIDER, GxMiniSliderClass))
 
-typedef struct {
-	GxHSlider parent;
-} GxMiniSlider;
+typedef struct _GxMiniSlider GxMiniSlider;
+typedef struct _GxMiniSliderClass GxMiniSliderClass;
 
-typedef struct {
+struct _GxMiniSlider {
+	GxHSlider parent;
+};
+
+struct _GxMiniSliderClass {
 	GxHSliderClass parent_class;
-} GxMiniSliderClass;
+};
 
 GType gx_mini_slider_get_type(void);
 

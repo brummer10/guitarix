@@ -30,15 +30,18 @@ G_BEGIN_DECLS
 #define GX_IS_PAINT_BOX_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), GX_TYPE_PAINT_BOX))
 #define GX_PAINT_BOX_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_PAINT_BOX, GxPaintBoxClass))
 
-typedef struct {
+typedef struct _GxPaintBox GxPaintBox;
+typedef struct _GxPaintBoxClass GxPaintBoxClass;
+
+struct _GxPaintBox {
 	GtkBox box;
 	gchar *paint_func;
 	gboolean (*expose_func)(GtkWidget*, GdkEventExpose*);
-} GxPaintBox;
+};
 
-typedef struct {
+struct _GxPaintBoxClass {
 	GtkBoxClass parent_class;
-} GxPaintBoxClass;
+};
 
 GType gx_paint_box_get_type(void) G_GNUC_CONST;
 GtkWidget *gx_paint_box_new(gboolean homogeneous, gint spacing);

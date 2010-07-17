@@ -23,17 +23,21 @@
 
 G_BEGIN_DECLS
 
-typedef struct {
+typedef struct _GxGradientElement GxGradientElement;
+typedef struct _GxGradient GxGradient;
+typedef struct _GxRgba GxRgba;
+
+struct _GxGradientElement {
 	float offset, red, green, blue, alpha;
-} GxGradientElement;
+};
 
-typedef struct {
+struct _GxGradient {
 	GSList *colors;
-} GxGradient;
+};
 
-typedef struct {
+struct _GxRgba {
 	float red, green, blue, alpha;
-} GxRgba;
+};
 
 #define GX_TYPE_RGBA (gx_rgba_get_type())
 GType gx_rgba_get_type(void) G_GNUC_CONST;

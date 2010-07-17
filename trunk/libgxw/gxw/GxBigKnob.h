@@ -31,13 +31,16 @@ G_BEGIN_DECLS
 #define GX_IS_BIG_KNOB_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_BIG_KNOB))
 #define GX_BIG_KNOB_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_BIG_KNOB, GxBigKnobClass))
 
-typedef struct {
-	GxKnob parent;
-} GxBigKnob;
+typedef struct _GxBigKnob GxBigKnob;
+typedef struct _GxBigKnobClass GxBigKnobClass; 
 
-typedef struct {
+struct _GxBigKnob {
+	GxKnob parent;
+};
+
+struct _GxBigKnobClass {
 	GxKnobClass parent_class;
-} GxBigKnobClass;
+};
 
 GType gx_big_knob_get_type(void);
 

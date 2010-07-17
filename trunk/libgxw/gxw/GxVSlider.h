@@ -31,14 +31,17 @@ G_BEGIN_DECLS
 #define GX_IS_VSLIDER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_VSLIDER))
 #define GX_VSLIDER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_VSLIDER, GxVSliderClass))
 
-typedef struct {
-	GxRegler parent;
-} GxVSlider;
+typedef struct _GxVSlider GxVSlider;
+typedef struct _GxVSliderClass GxVSliderClass;
 
-typedef struct {
+struct _GxVSlider {
+	GxRegler parent;
+};
+
+struct _GxVSliderClass {
 	GxReglerClass parent_class;
 	const gchar *stock_id;
-} GxVSliderClass;
+};
 
 GType gx_vslider_get_type(void);
 

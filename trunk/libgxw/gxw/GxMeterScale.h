@@ -37,14 +37,17 @@ typedef enum {
 	GX_TICK_BELOW
 } GxTickPosition;
 
-typedef struct {
+typedef struct _GxMeterScale GxMeterScale;
+typedef struct _GxMeterScaleClass GxMeterScaleClass;
+
+struct _GxMeterScale {
 	GtkWidget parent;
 	GxTickPosition GSEAL (tick_pos);
-} GxMeterScale;
+};
 
-typedef struct {
+struct _GxMeterScaleClass {
 	GtkWidgetClass parent_class;
-} GxMeterScaleClass;
+};
 
 #define GX_TYPE_TICK_POSITION (gx_tick_position_get_type())
 

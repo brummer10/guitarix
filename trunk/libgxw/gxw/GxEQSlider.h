@@ -31,13 +31,16 @@ G_BEGIN_DECLS
 #define GX_IS_EQ_SLIDER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_EQ_SLIDER))
 #define GX_EQ_SLIDER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_EQ_SLIDER, GxEQSliderClass))
 
-typedef struct {
-	GxVSlider parent;
-} GxEQSlider;
+typedef struct _GxEQSlider GxEQSlider;
+typedef struct _GxEQSliderClass GxEQSliderClass;
 
-typedef struct {
+struct _GxEQSlider {
+	GxVSlider parent;
+};
+
+struct _GxEQSliderClass {
 	GxVSliderClass parent_class;
-} GxEQSliderClass;
+};
 
 GType gx_eq_slider_get_type(void);
 

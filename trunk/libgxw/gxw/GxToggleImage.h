@@ -30,14 +30,17 @@ G_BEGIN_DECLS
 #define GX_IS_TOGGLE_IMAGE_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_TOGGLE_IMAGE))
 #define GX_TOGGLE_IMAGE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_TOGGLE_IMAGE, GxToggleImageClass))
 
-typedef struct {
+typedef struct _GxToggleImage GxToggleImage;
+typedef struct _GxToggleImageClass GxToggleImageClass;
+
+struct _GxToggleImage {
 	GtkMisc parent;
 	gchar *GSEAL(base_name);
-} GxToggleImage;
+};
 
-typedef struct {
+struct _GxToggleImageClass {
 	GtkMiscClass parent_class;
-} GxToggleImageClass;
+};
 
 GType gx_toggle_image_get_type(void);
 

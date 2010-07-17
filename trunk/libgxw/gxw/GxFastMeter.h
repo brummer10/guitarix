@@ -37,34 +37,37 @@ G_BEGIN_DECLS
 #define GX_FAST_METER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass),  GX_TYPE_FAST_METER, GxFastMeterClass))
 #define GX_IS_FAST_METER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass),  GX_TYPE_FAST_METER))
 
-typedef struct {
+typedef struct _GxFastMeter GxFastMeter;
+typedef struct _GxFastMeterClass GxFastMeterClass;
+
+struct _GxFastMeter {
 	GtkDrawingArea parent;
 
 	GdkPixbuf*    pixbuf;
 	gint          top_of_meter;
 	GdkRectangle  last_peak_rect;
 
-	unsigned long hold_cnt;
-	unsigned long hold_state;
+	int hold_cnt;
+	int hold_state;
 
 	float         current_level;
 	float         current_peak;
 	gint dimen, clr0, clr1, clr2, clr3;
-} GxFastMeter;
+};
 
-typedef struct {
+struct _GxFastMeterClass {
 	GtkDrawingAreaClass parent_class;
-} GxFastMeterClass;
+};
 
 GType gx_fast_meter_get_type(void);
 
 /* --------- public exposed API ---------  */
 GtkWidget* gx_fast_meter_new(long hold, gulong dimen, int clr0, int clr1, int clr2, int clr3);
 
-void  gx_fast_meter_set            (GxFastMeter* fastmeter, float lvl);
+void  gx_fast_meter_set            (GxFastMeter* fastmeter, gdouble lvl);
 void  gx_fast_meter_clear          (GxFastMeter* fastmeter);
 
-void  gx_fast_meter_set_hold_count (GxFastMeter* fastmeter, long val);
+void  gx_fast_meter_set_hold_count (GxFastMeter* fastmeter, gint val);
 
 G_END_DECLS
 

@@ -45,9 +45,9 @@ GType gx_control_parameter_get_type(void);
 
 void gx_control_parameter_cp_configure(GxControlParameter *self, gchar* group, gchar *name, gdouble lower, gdouble upper, gdouble step);
 void gx_control_parameter_cp_set_value(GxControlParameter *self, gdouble value);
-void gx_control_parameter_cp_get_value(GxControlParameter *self);
+gdouble gx_control_parameter_cp_get_value(GxControlParameter *self);
 gchar *gx_control_parameter_cp_get_var(GxControlParameter *self);
-gchar *gx_control_parameter_cp_set_var(GxControlParameter *self, gchar *varname);
+void gx_control_parameter_cp_set_var(GxControlParameter *self, gchar *varname);
 
 G_END_DECLS
 
