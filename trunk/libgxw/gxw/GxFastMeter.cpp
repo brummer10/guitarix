@@ -77,12 +77,12 @@ void gx_fast_meter_class_init(GxFastMeterClass* klass)
 		gobject_class, PROP_HOLD, g_param_spec_int(
 			"hold", P_("Hold"),
 			P_("Count of cycles for which the peak value is held on display"),
-			0, 1000, 0, GParamFlags(GTK_PARAM_READWRITE)));
+			0, 1000, 5, GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_install_property(
 		gobject_class, PROP_DIMEN, g_param_spec_int(
 			"dimen", P_("Dimen"),
 			P_("Horizontal size of meter"),
-			0, 100, 0, GParamFlags(GTK_PARAM_READWRITE)));
+			0, 100, 20, GParamFlags(GTK_PARAM_READWRITE)));
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_boxed("clr-bottom",P_("bottom color"),
@@ -130,7 +130,7 @@ void gx_fast_meter_init(GxFastMeter* fm)
 }
 
 /* -------------- */
-GtkWidget* gtk_fast_meter_new (long hold)
+GtkWidget* gtk_fast_meter_new (int hold)
 {
 	GxFastMeter* fm;
 	fm = GX_FAST_METER(g_object_new(GX_TYPE_FAST_METER, NULL));
@@ -219,7 +219,7 @@ static void request_vertical_meter(GtkWidget *widget)
 }
 
 /* ------ hold count ----- */
-void gx_fast_meter_set_hold_count(GxFastMeter* fm, long val)
+void gx_fast_meter_set_hold_count(GxFastMeter* fm, int val)
 {
 	if (val < 1) val = 1;
 
@@ -370,7 +370,7 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
 }
 
 /* ------- setting meter level ----------- */
-void gx_fast_meter_set(GxFastMeter* fm, float lvl)
+void gx_fast_meter_set(GxFastMeter* fm, gdouble lvl)
 {
 	float old_level = fm->current_level;
 	float old_peak  = fm->current_peak;
