@@ -1,0 +1,62 @@
+/*
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+
+#include <gtkmm/drawingarea.h>
+#include <gxw/GxIREdit.h> //FIXME: need for gain_points
+
+_DEFS(gxwmm,gxw)
+_PINCLUDE(gtkmm/private/drawingarea_p.h)
+
+namespace Gxw {
+
+class IREdit: public Gtk::DrawingArea {
+	_CLASS_GTKOBJECT(IREdit,GxIREdit,GX_IR_EDIT,Gtk::DrawingArea,GtkDrawingArea)
+	public:
+	_CTOR_DEFAULT
+	_WRAP_METHOD(void set_ir_data(float*, int, int, int), gx_ir_edit_set_ir_data)
+	_WRAP_METHOD(void set_state(float*, int, int, int, int, int, int, gain_points*, int), gx_ir_edit_set_state)
+	_WRAP_METHOD(void home(), gx_ir_edit_home)
+	_WRAP_METHOD(void jump_zoom_mark(), gx_ir_edit_jump_zoom_mark)
+	_WRAP_METHOD(void set_channel(int), gx_ir_edit_set_channel)
+	_WRAP_METHOD(void incr_scale(double), gx_ir_edit_incr_scale)
+	_WRAP_METHOD(void decr_scale(double), gx_ir_edit_decr_scale)
+	_WRAP_METHOD(void set_log(bool), gx_ir_edit_set_log)
+	_WRAP_METHOD(int get_delay(), gx_ir_edit_get_delay)
+	_WRAP_METHOD(int get_offset(), gx_ir_edit_get_offset)
+	_WRAP_METHOD(int get_length(), gx_ir_edit_get_length)
+	_WRAP_METHOD(void get_gain(gain_points**, int*), gx_ir_edit_get_gain)
+	_WRAP_SIGNAL(void delay_changed(int,int), "delay-changed", no_default_handler)
+	_WRAP_SIGNAL(void offset_changed(int,int), "offset-changed", no_default_handler)
+	_WRAP_SIGNAL(void length_changed(int,int), "length-changed", no_default_handler)
+	_WRAP_SIGNAL(void scale_max_reached(bool), "scale-max-reached", no_default_handler)
+	_WRAP_SIGNAL(void scale_min_reached(bool), "scale-min-reached", no_default_handler)
+	_WRAP_PROPERTY(y-border-top, int)
+	_WRAP_PROPERTY(y-border-bottom, int)
+	_WRAP_PROPERTY(x-border, int)
+	_WRAP_PROPERTY(label-sep, int)
+	_WRAP_PROPERTY(dot-diameter, double)
+	_WRAP_PROPERTY(segment-distance, double)
+	_WRAP_PROPERTY(limit, double)
+	_WRAP_PROPERTY(fs, int)
+	_WRAP_PROPERTY(max-scale-fact, double)
+	_WRAP_PROPERTY(min-scale, double)
+	_WRAP_PROPERTY(scale, double)
+	_WRAP_PROPERTY(no-data-text, Glib::ustring)
+};
+
+} // namespace Gxw

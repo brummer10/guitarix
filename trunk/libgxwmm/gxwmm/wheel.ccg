@@ -16,15 +16,4 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <gtk/gtk.h>
-#include <gxw/GxControlParameter.h>
-#include <gxw/GxSwitch.h>
-#include <glibmm_generate_extra_defs/generate_extra_defs.h>
-
-int main(int argc, char** argv)
-{
-	gtk_init(&argc, &argv);
-	std::cout << get_defs(GX_TYPE_CONTROL_PARAMETER)
-	          << get_defs(GX_TYPE_SWITCH);
-	return 0;
-}
+#include <gxw/GxWheel.h>

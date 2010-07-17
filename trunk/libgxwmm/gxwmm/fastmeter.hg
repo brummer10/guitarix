@@ -16,19 +16,21 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <gtkmm/togglebutton.h>
-_DEFS(gxmm,gxw)
-_PINCLUDE(gtkmm/private/togglebutton_p.h)
+#include <gtkmm/drawingarea.h>
+_DEFS(gxwmm,gxw)
+_PINCLUDE(gtkmm/private/drawingarea_p.h)
 
-namespace Gx {
+namespace Gxw {
 
-class Switch: public Gtk::ToggleButton {
-	_CLASS_GTKOBJECT(Switch,GxSwitch,GX_SWITCH,Gtk::ToggleButton,GtkToggleButton)
+class FastMeter: public Gtk::DrawingArea {
+	_CLASS_GTKOBJECT(FastMeter,GxFastMeter,GX_FAST_METER,Gtk::DrawingArea,GtkDrawingArea)
 	public:
 	_CTOR_DEFAULT
-	_WRAP_PROPERTY("var-id", Glib::ustring)
-	_WRAP_PROPERTY("base-name", Glib::ustring)
-	_WRAP_PROPERTY("label", Gtk::Label)
+	_WRAP_METHOD(void set(double lvl), gx_fast_meter_set)
+	_WRAP_METHOD(void clear(), gx_fast_meter_clear)
+	_WRAP_METHOD(void set_hold_count(int val), gx_fast_meter_set_hold_count)
+	_WRAP_PROPERTY(hold, int)
+	_WRAP_PROPERTY(dimen, int)
 };
 
-} // namespace Gx
+} // namespace Gxw

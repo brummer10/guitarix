@@ -16,23 +16,18 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <glibmm/interface.h>
-_DEFS(gxmm,gxw)
-_PINCLUDE(glibmm/private/interface_p.h)
+#include <gtkmm/togglebutton.h>
+_DEFS(gxwmm,gxw)
+_PINCLUDE(gtkmm/private/togglebutton_p.h)
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-extern "C"
-{
-typedef struct _GxControlParameterIface GxControlParameterIface;
-}
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+namespace Gxw {
 
-namespace Gx
-{
-
-class ControlParameter: public Glib::Interface
-{
-	_CLASS_INTERFACE(ControlParameter,GxControlParameter,GX_CONTROL_PARAMETER,GxControlParameterIface)
+class Switch: public Gtk::ToggleButton {
+	_CLASS_GTKOBJECT(Switch,GxSwitch,GX_SWITCH,Gtk::ToggleButton,GtkToggleButton)
+	public:
+	_CTOR_DEFAULT
+	_WRAP_PROPERTY("base-name", Glib::ustring)
+	_WRAP_PROPERTY("label", Gtk::Label)
 };
 
-} // namespace Gx
+} // namespace Gxw

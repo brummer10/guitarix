@@ -16,4 +16,19 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "../GxSwitch.h"
+#include <gxwmm/regler.h>
+#include <gtkmm/treemodel.h>
+
+_DEFS(gxwmm,gxw)
+_PINCLUDE(gxwmm/private/regler_p.h)
+
+namespace Gxw {
+
+class Selector: public Gxw::Regler {
+	_CLASS_GTKOBJECT(Selector,GxSelector,GX_SELECTOR,Gxw::Regler,GxRegler)
+	public:
+	_CTOR_DEFAULT
+	_WRAP_PROPERTY(model, Gtk::TreeModel)
+};
+
+} // namespace Gxw

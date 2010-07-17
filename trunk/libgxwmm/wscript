@@ -2,9 +2,7 @@
 # encoding: utf-8
 
 def configure(conf):
-    conf.sub_config('src');
-    #conf.sub_config('gxwmm');
+    conf.sub_config('gxwmm');
 
 def build(bld):
-    bld.add_subdirs('src')
-    #bld.add_subdirs('gxwmm')
+    bld.add_subdirs('gxwmm')
