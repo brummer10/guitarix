@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import Task, Configure, Utils, Logs, os.path
+import Task, Configure, Options, Utils, Logs, shutil, os.path
 from TaskGen import extension
 
 @Configure.conf
@@ -13,8 +13,18 @@ def cfg_get_variable(self, package, variable):
         self.fatal('fail to get variable %s for package %s' % (variable, package))
     self.env[variable.upper()] = v
 
+def set_options(opt):
+    grp = opt.add_option_group("Compiler / Linker flags")
+    grp.add_option('--use-generated-cpp',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=('use the pre-built c++ library wrapper files'),
+                   )
+
 def configure(conf):
     conf.cfg_get_variable(package='glibmm-2.4', variable='gmmprocdir')
+    conf.env["USE_GENERATED_CPP"] = Options.options.use_generated_cpp
 
 def template2cc(task):
     basename = os.path.splitext(
@@ -28,15 +38,29 @@ def template2cc(task):
         os.mkdir(task.outputs[0].parent.bldpath(task.env) + "/private")
     except OSError:
         pass
+    spath = srcdir.srcpath(task.env)
+    dpath = srcdir.bldpath(task.env)
     cmd = ["%s/gmmproc" % task.env["GMMPROCDIR"],
            "--defs", srcdir.bldpath(task.env),
            "-I", "%s/m4" % task.env["GMMPROCDIR"],
            basename,
-           srcdir.srcpath(task.env),
-           srcdir.bldpath(task.env),
+           spath,
+           dpath,
            ]
     Logs.debug("runner: system command -> %s" % cmd)
-    return Utils.exec_command(cmd, shell=False)
+    ret = Utils.exec_command(cmd, shell=False)
+    if ret != 0:
+        return ret
+    dpath += "/"
+    spath += "/../gxwmm-generated/"
+    try:
+        shutil.copy2(dpath+basename+".cc", spath+basename+".cc")
+        shutil.copy2(dpath+basename+".h", spath+basename+".h")
+        shutil.copy2(dpath+"private/"+basename+"_p.h", spath+"private/"+basename+"_p.h")
+    except (OSError, IOError), e:
+        Logs.error("runner: cannot copy file -> %s" % e)
+        return e.errno
+    return 0
 
 Task.task_type_from_func(
     'gmmproc',
@@ -65,7 +89,7 @@ def header2defs(task):
     Logs.debug("runner: system command -> %s" % cmd)
     return Utils.exec_command(cmd, shell=True)
 
-def build(bld):
+def build_generate_wrapper(bld):
     header = ["GxTuner.h",
               "GxFastMeter.h",
               "GxWaveView.h",
@@ -89,29 +113,6 @@ def build(bld):
               "GxGradient.h",
               ]
     header = ["../../libgxw/gxw/"+v for v in header]
-    sources = [
-        "controlparameter.hg",
-        "switch.hg",
-        "regler.hg",
-        "knob.hg",
-        "bigknob.hg",
-        "smallknob.hg",
-        "tuner.hg",
-        "fastmeter.hg",
-        "waveview.hg",
-        "selector.hg",
-        "toggleimage.hg",
-        "iredit.hg",
-        "radiobutton.hg",
-        "wheel.hg",
-        "hslider.hg",
-        "minislider.hg",
-        "vslider.hg",
-        "eqslider.hg",
-        "paintbox.hg",
-        "meterscale.hg",
-        #"gradient.hg",
-        ]
     bld(features = ['cxx', 'cprogram'],
         ccflags = bld.env['CXXFLAGS'],
         source = "generate_defs_gxw.cc",
@@ -147,6 +148,55 @@ def build(bld):
         source = "docs.xml",
         target = "gxw_docs.xml",
         )
+
+def build(bld):
+    sources = [
+        "controlparameter.hg",
+        "switch.hg",
+        "regler.hg",
+        "knob.hg",
+        "bigknob.hg",
+        "smallknob.hg",
+        "tuner.hg",
+        "fastmeter.hg",
+        "waveview.hg",
+        "selector.hg",
+        "toggleimage.hg",
+        "iredit.hg",
+        "radiobutton.hg",
+        "wheel.hg",
+        "hslider.hg",
+        "minislider.hg",
+        "vslider.hg",
+        "eqslider.hg",
+        "paintbox.hg",
+        "meterscale.hg",
+        #"gradient.hg",
+        ]
+    if bld.env["USE_GENERATED_CPP"]:
+        gdir = "../gxwmm-generated/"
+        for v in sources:
+            s = v.replace(".hg", ".cc")
+            bld(name = "copy-generated-cc",
+                rule = "cp ${SRC} ${TGT}",
+                source = gdir + s,
+                target = s,
+                )
+            s = v.replace(".hg", ".h")
+            bld(name = "copy-generated-h",
+                rule = "cp ${SRC} ${TGT}",
+                source = gdir + s,
+                target = s,
+                )
+            s = v.replace(".hg", "_p.h")
+            bld(name = "copy-generated-p-h",
+                rule = "cp ${SRC} ${TGT}",
+                source = gdir + "private/" + s,
+                target = "private/" + s,
+                )
+        sources = [v.replace(".hg",".cc") for v in sources]
+    else:
+        build_generate_wrapper(bld)
     bld.add_group()
     bld(features = ['cxx', 'cshlib', 'libtool'],
         type = 'cshlib',

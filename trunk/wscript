@@ -111,6 +111,7 @@ def set_options(opt):
                     help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
 
     opt.recurse('libgxw/gxw')
+    opt.recurse('libgxwmm/gxwmm')
     opt.recurse('pygxw')
 
 def check_comp(conf):
