@@ -23,6 +23,7 @@ def set_options(opt):
                    )
 
 def configure(conf):
+    conf.check_tool('misc')
     conf.cfg_get_variable(package='glibmm-2.4', variable='gmmprocdir')
     conf.env["USE_GENERATED_CPP"] = Options.options.use_generated_cpp
 
@@ -147,6 +148,11 @@ def build_generate_wrapper(bld):
     bld(rule = "cp ${SRC} ${TGT}", 
         source = "docs.xml",
         target = "gxw_docs.xml",
+        )
+    bld(features = 'subst',
+        source   = 'convert.m4.in',
+        target   = 'convert.m4',
+        dict     = dict(GMMPROCDIR=bld.env["GMMPROCDIR"]),
         )
 
 def build(bld):

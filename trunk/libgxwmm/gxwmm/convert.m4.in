@@ -1,0 +1,3 @@
+include(@GMMPROCDIR@/m4/convert.m4)
+_CONVERSION(`Gtk::Label*',`GtkLabel*',__FP2P)
+_CONVERSION(`GtkLabel*',`Gtk::Label*',__RP2P)
