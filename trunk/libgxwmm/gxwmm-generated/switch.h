@@ -99,6 +99,7 @@ private:
 
 	public:
 	Switch();
+	explicit Switch(const Glib::ustring& base_name);
 	#ifdef GLIBMM_PROPERTIES_ENABLED
 /** Base name of the image
    *
@@ -138,6 +139,8 @@ private:
    */
   Glib::PropertyProxy_ReadOnly<Gtk::Label> property_label() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
+
+	//_WRAP_PROPERTY(
 
 
 };

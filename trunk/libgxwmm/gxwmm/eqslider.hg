@@ -17,6 +17,8 @@
  */
 
 #include <gxwmm/vslider.h>
+#include <gtkmm/adjustment.h>
+
 _DEFS(gxwmm,gxw)
 _PINCLUDE(gxwmm/private/vslider_p.h)
 
@@ -25,6 +27,7 @@ namespace Gxw {
 class EqSlider: public Gxw::VSlider {
 	_CLASS_GTKOBJECT(EqSlider,GxEqSlider,GX_EQ_SLIDER,Gxw::VSlider,GxVSlider)
 	public:
+	explicit EqSlider(Gtk::Adjustment& adjustment);
 	_CTOR_DEFAULT
 };
 

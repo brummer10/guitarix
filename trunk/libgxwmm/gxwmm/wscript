@@ -41,8 +41,9 @@ def template2cc(task):
     spath = srcdir.srcpath(task.env)
     dpath = srcdir.bldpath(task.env)
     cmd = ["%s/gmmproc" % task.env["GMMPROCDIR"],
-           "--defs", srcdir.bldpath(task.env),
-           "-I", "%s/m4" % task.env["GMMPROCDIR"],
+           "--defs", dpath,
+           "-I", spath,
+           #"-I", "%s/m4" % task.env["GMMPROCDIR"],
            basename,
            spath,
            dpath,
@@ -82,7 +83,6 @@ def process_hg(self, node):
 def header2defs(task):
     sources = " ".join(["'%s'" % v.srcpath(task.env) for v in task.inputs])
     path = task.generator.path
-    #fltr = path.find_resource(task.generator.filter).srcpath(task.env)
     dst = task.outputs[0].bldpath(task.env)
     cmd = ("python '%s'/h2def.py -m gxw %s > '%s'"
            % (task.env["CODEGENDIR"], sources, dst))
@@ -198,14 +198,10 @@ def build(bld):
     else:
         build_generate_wrapper(bld)
     bld.add_group()
-    bld(features = ['cxx', 'cshlib', 'libtool'],
-        type = 'cshlib',
-        vnum = "0.1",
+    bld(features = ['cxx', 'cstaticlib'],
         ccflags = bld.env['CXXFLAGS'],
         includes = ['..','../../libgxw'],
         source = sources,
         uselib = ['GTKMM'],
         target = 'gxwmm',
-        chmod=0755,
-        install_path = bld.env['BINDIR'],
         )

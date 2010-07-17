@@ -72,3 +72,15 @@ gdouble gx_control_parameter_cp_get_value(GxControlParameter *self)
 	g_return_val_if_fail(GX_IS_CONTROL_PARAMETER(self), 0);
 	return GX_CONTROL_PARAMETER_GET_INTERFACE(self)->cp_get_value(self);
 }
+
+gchar *gx_control_parameter_cp_get_var(GxControlParameter *self)
+{
+	gchar *v;
+	g_object_get(self, "var-id", &v, NULL);
+	return v;
+}
+
+void gx_control_parameter_cp_set_var(GxControlParameter *self, gchar *varname)
+{
+	g_object_set(self, "var-id", varname, NULL);
+}

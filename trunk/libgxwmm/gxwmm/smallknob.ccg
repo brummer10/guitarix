@@ -17,3 +17,7 @@
  */
 
 #include <gxw/GxSmallKnob.h>
+
+Gxw::SmallKnob::SmallKnob(Gtk::Adjustment& adjustment):
+	_CONSTRUCT("adjustment", adjustment.gobj())
+{}

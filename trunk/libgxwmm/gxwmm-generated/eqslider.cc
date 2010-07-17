@@ -24,6 +24,12 @@
 
 #include <gxw/GxEQSlider.h>
 
+Gxw::EqSlider::EqSlider(Gtk::Adjustment& adjustment):
+	// Mark this class as non-derived to allow C++ vfuncs to be skipped.
+  Glib::ObjectBase(0),
+  Gxw::VSlider(Glib::ConstructParams(eqslider_class_.init(), "adjustment",adjustment.gobj(), static_cast<char*>(0)))
+{}
+
 namespace
 {
 } // anonymous namespace

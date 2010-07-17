@@ -246,6 +246,36 @@ Regler::Regler()
 
 }
 
+void Regler::set_label_ref(Gtk::Label* p1)
+{
+gx_regler_set_label_ref(gobj(), (GtkLabel*)Glib::unwrap(p1)); 
+}
+
+Gtk::Label* Regler::get_label_ref()
+{
+  return Glib::wrap(gx_regler_get_label_ref(gobj()));
+}
+
+void Regler::set_show_value(bool p1)
+{
+gx_regler_set_show_value(gobj(), static_cast<int>(p1)); 
+}
+
+bool Regler::get_show_value()
+{
+  return gx_regler_get_show_value(gobj());
+}
+
+void Regler::set_value_position(Gtk::PositionType p1)
+{
+gx_regler_set_value_position(gobj(), ((GtkPositionType)(p1))); 
+}
+
+Gtk::PositionType Regler::get_value_position()
+{
+  return ((Gtk::PositionType)(gx_regler_get_value_position(gobj())));
+}
+
 
 Glib::SignalProxy1< bool,const Gdk::Rectangle& > Regler::signal_value_entry()
 {

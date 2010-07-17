@@ -24,6 +24,12 @@
 
 #include <gxw/GxSwitch.h>
 
+Gxw::Switch::Switch(const Glib::ustring& base_name):
+	// Mark this class as non-derived to allow C++ vfuncs to be skipped.
+  Glib::ObjectBase(0),
+  Gtk::ToggleButton(Glib::ConstructParams(switch_class_.init(), "base_name",base_name.c_str(), static_cast<char*>(0)))
+{}
+
 namespace
 {
 } // anonymous namespace

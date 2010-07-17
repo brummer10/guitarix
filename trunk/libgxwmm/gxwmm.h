@@ -19,7 +19,25 @@
 #ifndef __GXWMM_H__
 #define __GXWMM_H__
 
+#include <gxwmm/bigknob.h>
 #include <gxwmm/controlparameter.h>
+#include <gxwmm/eqslider.h>
+#include <gxwmm/fastmeter.h>
+#include <gxwmm/hslider.h>
+#include <gxwmm/iredit.h>
+#include <gxwmm/knob.h>
+#include <gxwmm/meterscale.h>
+#include <gxwmm/minislider.h>
+#include <gxwmm/paintbox.h>
+#include <gxwmm/radiobutton.h>
+#include <gxwmm/regler.h>
+#include <gxwmm/selector.h>
+#include <gxwmm/smallknob.h>
 #include <gxwmm/switch.h>
+#include <gxwmm/toggleimage.h>
+#include <gxwmm/tuner.h>
+#include <gxwmm/vslider.h>
+#include <gxwmm/waveview.h>
+#include <gxwmm/wheel.h>
 
 #endif /* __GXWMM_H__ */

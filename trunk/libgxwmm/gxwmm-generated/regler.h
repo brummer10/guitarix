@@ -103,6 +103,18 @@ private:
 	public:
 	Regler();
 	
+  void set_label_ref(Gtk::Label*);
+	
+  Gtk::Label* get_label_ref();
+	
+  void set_show_value(bool);
+	
+  bool get_show_value();
+	
+  void set_value_position(Gtk::PositionType);
+	
+  Gtk::PositionType get_value_position();
+	
   /**
    * @par Prototype:
    * <tt>bool on_my_%value_entry(const Gdk::Rectangle& p1)</tt>

@@ -63,15 +63,12 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
 void _gx_regler_display_value(GxRegler *regler, GdkRectangle *value_rect);
 gboolean _approx_in_rectangle(gdouble x, gdouble y, GdkRectangle *rect);
 
-/*
-GtkWidget *gtk_regler_new_with_adjustment(GtkAdjustment *_adjustment);
-GtkWidget *gtk_big_regler_new_with_adjustment(GtkAdjustment *_adjustment);
-GtkWidget *gtk_hslider_new_with_adjustment(GtkAdjustment *_adjustment);
-GtkWidget *gtk_vslider_new_with_adjustment(GtkAdjustment *_adjustment);
-GtkWidget *gtk_mini_slider_new_with_adjustment(GtkAdjustment *_adjustment);
-GtkWidget *gtk_eq_slider_new_with_adjustment(GtkAdjustment *_adjustment);
-GtkWidget *gtk_wheel_new_with_adjustment(GtkAdjustment *_adjustment);
-*/
+void gx_regler_set_show_value(GxRegler *regler, gboolean value);
+gboolean gx_regler_get_show_value(GxRegler *regler);
+void gx_regler_set_value_position(GxRegler *regler, GtkPositionType pos);
+GtkPositionType gx_regler_get_value_position(GxRegler *regler);
+void gx_regler_set_label_ref(GxRegler *regler, GtkLabel* label);
+GtkLabel *gx_regler_get_label_ref(GxRegler *regler);
 
 G_END_DECLS
 

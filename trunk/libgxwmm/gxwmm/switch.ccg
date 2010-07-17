@@ -17,3 +17,7 @@
  */
 
 #include <gxw/GxSwitch.h>
+
+Gxw::Switch::Switch(const Glib::ustring& base_name):
+	_CONSTRUCT("base_name", base_name.c_str())
+{}

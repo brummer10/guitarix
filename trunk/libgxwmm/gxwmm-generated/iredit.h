@@ -25,7 +25,7 @@
  */
 
 #include <gtkmm/drawingarea.h>
-#include <gxw/GxIREdit.h> //FIXME: need for gain_points
+#include <gxw/gainpoints.h>
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -17,3 +17,7 @@
  */
 
 #include <gxw/GxEQSlider.h>
+
+Gxw::EqSlider::EqSlider(Gtk::Adjustment& adjustment):
+	_CONSTRUCT("adjustment", adjustment.gobj())
+{}

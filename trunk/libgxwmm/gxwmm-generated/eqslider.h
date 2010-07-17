@@ -25,6 +25,7 @@
  */
 
 #include <gxwmm/vslider.h>
+#include <gtkmm/adjustment.h>
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -98,6 +99,7 @@ protected:
 private:
 
 	public:
+	explicit EqSlider(Gtk::Adjustment& adjustment);
 	EqSlider();
 
 

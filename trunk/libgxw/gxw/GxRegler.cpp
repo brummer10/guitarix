@@ -84,19 +84,6 @@ static void gx_regler_value_changed(GtkRange *range)
 }
 
 
-static void gx_regler_set_label(GxRegler *self, GObject *object)
-{
-	if (self->label) {
-		g_object_unref(self->label);
-		self->label = 0;
-	}
-	if (object) {
-		self->label = GTK_LABEL(object);
-		g_object_ref(object);
-	}
-	g_object_notify(G_OBJECT(self), "label");
-}
-
 static void
 gx_regler_cp_configure(GxControlParameter *self, gchar* group, gchar *name, gdouble lower, gdouble upper, gdouble step)
 {
@@ -780,17 +767,13 @@ static void gx_regler_set_property (
 		gx_regler_set_var_id (regler, g_value_get_string (value));
 		break;
 	case PROP_SHOW_VALUE:
-		regler->show_value = g_value_get_boolean(value);
-		gtk_widget_queue_resize(GTK_WIDGET(object));
-		g_object_notify(object, "show-value");
+		gx_regler_set_show_value(regler, g_value_get_boolean(value));
 		break;
 	case PROP_VALUE_POSITION:
-		regler->value_position = GtkPositionType(g_value_get_enum(value));
-		gtk_widget_queue_resize(GTK_WIDGET(object));
-		g_object_notify(object, "value-position");
+		gx_regler_set_value_position(regler, GtkPositionType(g_value_get_enum(value)));
 		break;
 	case PROP_LABEL:
-		gx_regler_set_label(regler, G_OBJECT(g_value_get_object(value)));
+		gx_regler_set_label_ref(regler, GTK_LABEL(g_value_get_object(value)));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -821,4 +804,58 @@ static void gx_regler_get_property(
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
 	}
+}
+
+/*
+** getter / setter
+*/
+
+void gx_regler_set_show_value(GxRegler *regler, gboolean value)
+{
+	g_return_if_fail(GX_IS_REGLER(regler));
+	regler->show_value = value;
+	gtk_widget_queue_resize(GTK_WIDGET(regler));
+	g_object_notify(G_OBJECT(regler), "show-value");
+}
+
+gboolean gx_regler_get_show_value(GxRegler *regler)
+{
+	g_return_val_if_fail(GX_IS_REGLER(regler), 0);
+	return regler->show_value;
+}
+
+void gx_regler_set_value_position(GxRegler *regler, GtkPositionType value)
+{
+	g_return_if_fail(GX_IS_REGLER(regler));
+	regler->value_position = value;
+	gtk_widget_queue_resize(GTK_WIDGET(regler));
+	g_object_notify(G_OBJECT(regler), "value-position");
+}
+
+GtkPositionType gx_regler_get_value_position(GxRegler *regler)
+{
+	g_return_val_if_fail(GX_IS_REGLER(regler), GTK_POS_BOTTOM);
+	return regler->value_position;
+}
+
+void gx_regler_set_label_ref(GxRegler *regler, GtkLabel *label)
+{
+	g_return_if_fail(GX_IS_REGLER(regler));
+	g_return_if_fail(GTK_IS_LABEL(label));
+	if (regler->label) {
+		g_object_unref(regler->label);
+		regler->label = 0;
+	}
+	if (label) {
+		regler->label = label;
+		g_object_ref(label);
+	}
+	g_object_notify(G_OBJECT(regler), "label");
+}
+
+
+GtkLabel *gx_regler_get_label_ref(GxRegler *regler)
+{
+	g_return_val_if_fail(GX_IS_REGLER(regler), 0);
+	return regler->label;
 }

@@ -16,20 +16,22 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <gtkmm/togglebutton.h>
-_DEFS(gxwmm,gxw)
-_PINCLUDE(gtkmm/private/togglebutton_p.h)
+/******************************************************************************
+part of guitarix, use  knobs with Gtk
+******************************************************************************/
 
-namespace Gxw {
+#ifndef __GAINPOINTS_H__
+#define __GAINPOINTS_H__
 
-class Switch: public Gtk::ToggleButton {
-	_CLASS_GTKOBJECT(Switch,GxSwitch,GX_SWITCH,Gtk::ToggleButton,GtkToggleButton)
-	public:
-	_CTOR_DEFAULT
-	explicit Switch(const Glib::ustring& base_name);
-	_WRAP_PROPERTY("base-name", Glib::ustring)
-	_WRAP_PROPERTY("label", Gtk::Label)
-	//_WRAP_PROPERTY(
+G_BEGIN_DECLS
+
+typedef struct _gain_points gain_points;
+
+struct _gain_points {
+	int i;
+	double g;
 };
 
-} // namespace Gxw
+G_END_DECLS
+
+#endif /* __GX_IR_EDIT_H__ */

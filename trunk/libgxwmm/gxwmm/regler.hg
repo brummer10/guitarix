@@ -29,6 +29,12 @@ class Regler: public Gtk::Range {
 	_CLASS_GTKOBJECT(Regler,GxRegler,GX_REGLER,Gtk::Range,GtkRange)
 	public:
 	_CTOR_DEFAULT
+	_WRAP_METHOD(void set_label_ref(Gtk::Label*), gx_regler_set_label_ref)
+	_WRAP_METHOD(Gtk::Label* get_label_ref(), gx_regler_get_label_ref)
+	_WRAP_METHOD(void set_show_value(bool), gx_regler_set_show_value)
+	_WRAP_METHOD(bool get_show_value(), gx_regler_get_show_value)
+	_WRAP_METHOD(void set_value_position(Gtk::PositionType), gx_regler_set_value_position)
+	_WRAP_METHOD(Gtk::PositionType get_value_position(), gx_regler_get_value_position)
 	_WRAP_SIGNAL(bool value_entry(const Gdk::Rectangle&), "value-entry")
 	_WRAP_PROPERTY("label", Gtk::Label)
 	_WRAP_PROPERTY("show-value", bool)

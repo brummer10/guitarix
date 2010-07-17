@@ -17,7 +17,7 @@
  */
 
 #include <gtkmm/drawingarea.h>
-#include <gxw/GxIREdit.h> //FIXME: need for gain_points
+#include <gxw/gainpoints.h>
 
 _DEFS(gxwmm,gxw)
 _PINCLUDE(gtkmm/private/drawingarea_p.h)

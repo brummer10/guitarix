@@ -155,17 +155,17 @@ void gx_meter_scale_add_mark(GxMeterScale *meter_scale, gdouble value, const gch
 	gtk_widget_queue_resize(GTK_WIDGET(meter_scale));
 }
 
-static void gtk_meter_scale_mark_free(GxMeterScaleMark *mark)
+static void gx_meter_scale_mark_free(GxMeterScaleMark *mark)
 {
   g_free(mark->markup);
   g_free(mark);
 }
 
-void gtk_meter_scale_clear_marks(GxMeterScale *meter_scale)
+void gx_meter_scale_clear_marks(GxMeterScale *meter_scale)
 {
 	GxMeterScalePrivate *priv = GX_METER_SCALE_GET_PRIVATE(meter_scale);
 	g_return_if_fail(GX_IS_METER_SCALE(meter_scale));
-	g_slist_foreach(priv->marks, (GFunc)gtk_meter_scale_mark_free, NULL);
+	g_slist_foreach(priv->marks, (GFunc)gx_meter_scale_mark_free, NULL);
 	g_slist_free(priv->marks);
 	priv->marks = NULL;
 	gtk_widget_queue_resize(GTK_WIDGET(meter_scale));
@@ -180,7 +180,7 @@ static void gx_meter_scale_init(GxMeterScale *meter_scale)
 static void gx_meter_scale_destroy(GtkObject *object)
 {
 	GxMeterScale *meter_scale = GX_METER_SCALE(object);
-	gtk_meter_scale_clear_marks(meter_scale);
+	gx_meter_scale_clear_marks(meter_scale);
 }
 
 static gboolean gx_meter_scale_expose(GtkWidget *widget, GdkEventExpose *event)
