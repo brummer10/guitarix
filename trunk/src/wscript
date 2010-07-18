@@ -6,6 +6,8 @@ def configure(conf):
 
 def build(bld):
     sources = [
+        'gx_main_interface.cpp',
+        'gx_interface_builder.cpp',
         'gx_globals.cpp',
         'gx_child_process.cpp',
         'gx_engine.cpp',
@@ -14,10 +16,8 @@ def build(bld):
         'gx_pitch_tracker.cpp',
         'gx_resampler.cpp',
         'gx_engine_audio.cpp',
-        'gx_main_interface.cpp',
         'gx_portmap.cpp',
         'gx_paramtable.cpp',
-        'gx_interface_builder.cpp',
         'gx_cairo_callbacks.cpp',
         'gx_gui_helpers.cpp',
         'gx_threads.cpp',
@@ -37,22 +37,27 @@ def build(bld):
         'midi.glade',
         'ports.glade',
         ]
-    prog = bld.new_task_gen('cxx', 'program')
-    prog.includes = ['.','..','headers'] # need ".." for config.h
-    prog.cxxflags= bld.env['CXXFLAGS']
-    if not bld.env['ZITA_RESAMPLER']:
-        sources.append('zita-resampler/zita-resampler.cc')
-        prog.includes.append('zita-resampler')
-    else:
-        prog.lib = 'zita-resampler';
+    incl = ['.','..','headers','../libgxwmm','../libgxw'] # need ".." for config.h
     if not bld.env['INTERN_ZITA_CONVOLVER']:
         sources.append('zita-convolver/zita-convolver.cc')
-        prog.includes.append('zita-convolver'); 
-    prog.source = [] + sources
-    prog.uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
-                   'GTK2', 'GTKMM', 'ZITA_CONVOLVER', 'FFTW3']
-    prog.target = bld.env['BIN_NAME']
-    prog.chmod=0755
-    prog.install_path = bld.env['BINDIR']
-
+        incl.append('zita-convolver'); 
+    if not bld.env['ZITA_RESAMPLER']:
+        sources.append('zita-resampler/zita-resampler.cc')
+        incl.append('zita-resampler')
+        lib = []
+    else:
+        lib = ['zita-resampler']
+    bld(features = 'cxx cprogram',
+        includes = incl,
+        cxxflags= bld.env['CXXFLAGS'],
+        source = sources,
+        lib = lib,
+        uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
+                  'GTK2', 'GTKMM', 'ZITA_CONVOLVER', 'FFTW3'],
+        uselib_local = ['gxwmm','gxw'],
+        linkflags = "-Wl,-u,gxw_init",
+        target = bld.env['BIN_NAME'],
+        chmod = 0755,
+        install_path = bld.env['BINDIR'],
+        )
     bld.install_files(bld.env['GX_BUILDER_DIR'], builder_files, chmod=0644)

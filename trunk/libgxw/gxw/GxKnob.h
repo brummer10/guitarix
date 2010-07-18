@@ -41,6 +41,7 @@ struct _GxKnob {
 struct _GxKnobClass {
 	GxReglerClass parent_class;
 	const gchar *stock_id;
+	gboolean jump_to_mouse;
 };
 
 GType gx_knob_get_type(void);

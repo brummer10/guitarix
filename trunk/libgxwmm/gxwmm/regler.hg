@@ -19,16 +19,17 @@
 #include <gtkmm/range.h>
 #include <gtkmm/label.h>
 #include <gdkmm/rectangle.h>
+#include <gxwmm/controlparameter.h>
 
 _DEFS(gxwmm,gxw)
 _PINCLUDE(gtkmm/private/range_p.h)
 
 namespace Gxw {
 
-class Regler: public Gtk::Range {
+class Regler: public Gtk::Range, public ControlParameter {
 	_CLASS_GTKOBJECT(Regler,GxRegler,GX_REGLER,Gtk::Range,GtkRange)
+	_IMPLEMENTS_INTERFACE(ControlParameter)
 	public:
-	_CTOR_DEFAULT
 	_WRAP_METHOD(void set_label_ref(Gtk::Label*), gx_regler_set_label_ref)
 	_WRAP_METHOD(Gtk::Label* get_label_ref(), gx_regler_get_label_ref)
 	_WRAP_METHOD(void set_show_value(bool), gx_regler_set_show_value)
@@ -39,6 +40,8 @@ class Regler: public Gtk::Range {
 	_WRAP_PROPERTY("label", Gtk::Label)
 	_WRAP_PROPERTY("show-value", bool)
 	_WRAP_PROPERTY("value-position", Gtk::PositionType)
+	protected:
+	_CTOR_DEFAULT
 };
 
 } // namespace Gxw

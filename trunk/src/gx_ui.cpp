@@ -33,7 +33,7 @@ namespace gx_ui
 list<GxUI*> GxUI::fGuiList;
 
 // constructor
-GxUI::GxUI() : fStopped(false)
+GxUI::GxUI()
 {
 	fGuiList.push_back(this);
 }
@@ -77,13 +77,6 @@ inline void GxUI::updateAllZones()
 	}
 }
 
-// add a callback item
-inline void GxUI::addCallback(float* zone, GxUiCallback foo, void* data)
-{
-	new GxUiCallbackItem(this, zone, foo, data);
-}
-
-
 /* ---------------- GxUiItem stuff --------------- */
 GxUiItem::GxUiItem (GxUI* ui, float* zone)
 	: fGUI(ui), fZone(zone), fCache(-123456.654321)
@@ -95,8 +88,7 @@ GxUiItem::GxUiItem (GxUI* ui, float* zone)
 void GxUiItem::modifyZone(float v)
 {
 	fCache = v;
-	if (*fZone != v)
-	{
+	if (*fZone != v) {
 		*fZone = v;
 		fGUI->updateZone(fZone);
 	}

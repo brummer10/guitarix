@@ -32,16 +32,16 @@ namespace
 namespace Glib
 {
 
-Glib::RefPtr<Gx::ControlParameter> wrap(GxControlParameter* object, bool take_copy)
+Glib::RefPtr<Gxw::ControlParameter> wrap(GxControlParameter* object, bool take_copy)
 {
-  return Glib::RefPtr<Gx::ControlParameter>( dynamic_cast<Gx::ControlParameter*> (Glib::wrap_auto_interface<Gx::ControlParameter> ((GObject*)(object), take_copy)) );
+  return Glib::RefPtr<Gxw::ControlParameter>( dynamic_cast<Gxw::ControlParameter*> (Glib::wrap_auto_interface<Gxw::ControlParameter> ((GObject*)(object), take_copy)) );
   //We use dynamic_cast<> in case of multiple inheritance.
 }
 
 } // namespace Glib
 
 
-namespace Gx
+namespace Gxw
 {
 
 
@@ -178,6 +178,6 @@ Glib::PropertyProxy_ReadOnly<Glib::ustring> ControlParameter::property_var_id() 
 #endif //GLIBMM_VFUNCS_ENABLED
 
 
-} // namespace Gx
+} // namespace Gxw
 
 

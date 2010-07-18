@@ -35,6 +35,12 @@ using namespace gx_threads;
 namespace gx_gui
 {
 
+const char *sw_led = "led";
+const char *sw_switch = "switch";
+const char *sw_switchit = "switchit";
+const char *sw_minitoggle = "minitoggle";
+const char *sw_button = "button";
+
 /****************************************************************
  ** format controller values
  */
@@ -1326,6 +1332,7 @@ void GxMainInterface::addToggleButton(const char* label, float* zone)
 	record_button = button;
 }
 
+#if 1
 void GxMainInterface::addPToggleButton(const char* label, float* zone)
 {
 	GdkColor colorRed;
@@ -1366,6 +1373,7 @@ void GxMainInterface::addPToggleButton(const char* label, float* zone)
 	g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
 	connect_midi_controller(button, zone);
 }
+#endif
 
 void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 {
@@ -1492,45 +1500,6 @@ struct uiAdjustment : public gx_ui::GxUiItem
 
 // -------------------------- Horizontal Slider -----------------------------------
 
-void GxMainInterface::addHorizontalSlider(const char* label, float* zone, float init, float min, float max, float step)
-{
-	*zone = init;
-	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_mini_slider_new_with_adjustment (GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-	addWidget(label, slider);
-}
-
-void GxMainInterface::addHorizontalWheel(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	const FloatParameter &p = parameter_map[id].getFloat();
-	if (!label) {
-		label = p.name().c_str();
-	}
-	addHorizontalWheel(label, &p.value, p.std_value, p.lower, p.upper, p.step);
-}
-
-
-void GxMainInterface::addHorizontalWheel(const char* label, float* zone, float init, float min, float max, float step)
-{
-	*zone = init;
-	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_wheel_new_with_adjustment (GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-	addWidget(label, slider);
-}
-
 struct uiValueDisplay : public gx_ui::GxUiItem
 {
 	GtkLabel* fLabel;
@@ -1569,77 +1538,6 @@ struct uiValueDisplay : public gx_ui::GxUiItem
 		}
 };
 
-// -------------------------- Vertical Slider -----------------------------------
-
-void GxMainInterface::addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step)
-{
-	*zone = init;
-	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_eq_slider_new_with_adjustment (GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-	GtkWidget* lw = gtk_label_new("");
-
-	gtk_widget_set_name (lw,"value_label");
-
-	GtkStyle *style = gtk_widget_get_style(lw);
-	pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-	gtk_widget_modify_font(lw, style->font_desc);
-
-	new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
-
-	openVerticalBox1(label);
-	addWidget(label, slider);
-	addWidget(label, lw);
-	closeBox();
-}
-
-
-void GxMainInterface::addregler(const char* label, float* zone, float init, float min, float max, float step)
-{
-	*zone = init;
-	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-
-    GtkWidget* box1 = addWidget(label, gtk_alignment_new (0.5, 0.5, 0, 0));
-	GtkWidget* box = gtk_vbox_new (FALSE, 0);
-	GtkWidget* box2 = gtk_hbox_new (FALSE, 0);
-	GtkWidget* box3 = gtk_vbox_new (FALSE, 0);
-	GtkWidget* box4 = gtk_vbox_new (FALSE, 0);
-
-	GtkRegler myGtkRegler;
-	GtkWidget* lw = myGtkRegler.gtk_value_display(GTK_ADJUSTMENT(adj));
-	gtk_widget_set_name (lw,"value_label");
-
-	if (label[0] != 0) {
-	    GtkWidget* lwl = gtk_label_new(label);
-	    gtk_widget_set_name (lwl,"effekt_label");
-	    GtkStyle *style = gtk_widget_get_style(lwl);
-        pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-        pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-        gtk_widget_modify_font(lwl, style->font_desc);
-        gtk_container_add (GTK_CONTAINER(box), lwl);
-	}
-
-	GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-
-	gtk_container_add (GTK_CONTAINER(box1), box);
-	gtk_container_add (GTK_CONTAINER(box), slider);
-	gtk_container_add (GTK_CONTAINER(box2), box3);
-	gtk_container_add (GTK_CONTAINER(box2), lw);
-	gtk_container_add (GTK_CONTAINER(box2), box4);
-	gtk_container_add (GTK_CONTAINER(box), box2);
-	gtk_widget_show_all(box1);
-
-}
-
 void GxMainInterface::addSpinValueBox(const char* label, float* zone, float init, float min, float max, float step)
 {
 	*zone = init;
@@ -1675,42 +1573,6 @@ void GxMainInterface::addSpinValueBox(const char* label, float* zone, float init
 
 }
 
-void GxMainInterface::addbigregler(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	const FloatParameter &p = parameter_map[id].getFloat();
-	if (!label) {
-		label = p.name().c_str();
-	}
-	addbigregler(label, &p.value, p.std_value, p.lower, p.upper, p.step);
-}
-
-void GxMainInterface::addslider(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	const FloatParameter &p = parameter_map[id].getFloat();
-	if (!label) {
-		label = p.name().c_str();
-	}
-	addslider(label, &p.value, p.std_value, p.lower, p.upper, p.step);
-}
-
-void GxMainInterface::addregler(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	const FloatParameter &p = parameter_map[id].getFloat();
-	if (!label) {
-		label = p.name().c_str();
-	}
-	addregler(label, &p.value, p.std_value, p.lower, p.upper, p.step);
-}
-
 void GxMainInterface::addSpinValueBox(string id, const char* label)
 {
 	if (!parameter_map.hasId(id)) {
@@ -1721,34 +1583,6 @@ void GxMainInterface::addSpinValueBox(string id, const char* label)
 		label = p.name().c_str();
 	}
 	addSpinValueBox(label, &p.value, p.std_value, p.lower, p.upper, p.step);
-}
-
-void GxMainInterface::addswitch(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	const IntParameter &p = parameter_map[id].getInt();
-	if (!label) {
-		label = p.name().c_str();
-	}
-	addswitch(label, &p.value);
-}
-
-void GxMainInterface::addminiswitch(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	Parameter& p = parameter_map[id];
-	if (!label) {
-		label = p.name().c_str();
-	}
-	if (p.isFloat()) {
-		addminiswitch(label, &p.getFloat().value);
-	} else {
-		addminiswitch(label, &p.getInt().value);
-	}
 }
 
 void GxMainInterface::addselector(string id, const char* label, int nvalues, const char** pvalues)
@@ -1768,52 +1602,6 @@ void GxMainInterface::addselector(string id, const char* label, int nvalues, con
 		pvalues = p.getValueNames();
 	}
 	addselector(label, &p.value, nvalues, pvalues);
-}
-
-void GxMainInterface::addtoggle(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	Parameter& p = parameter_map[id];
-	if (!label) {
-		label = p.name().c_str();
-	}
-	if (p.isFloat()) {
-		addtoggle(label, &p.getFloat().value);
-	} else {
-		addtoggle(label, &p.getInt().value);
-	}
-}
-
-void GxMainInterface::addtoggle1(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	Parameter& p = parameter_map[id];
-	if (!label) {
-		label = p.name().c_str();
-	}
-	if (p.isFloat()) {
-		addtoggle1(label, &p.getFloat().value);
-	}
-}
-
-void GxMainInterface::addbtoggle(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	Parameter& p = parameter_map[id];
-	if (!label) {
-		label = p.name().c_str();
-	}
-	if (p.isFloat()) {
-		addbtoggle(label, &p.getFloat().value);
-	} else {
-		addbtoggle(label, &p.getInt().value);
-	}
 }
 
 void GxMainInterface::addRecButton(string id, const char* label)
@@ -1868,18 +1656,6 @@ void GxMainInterface::addminicabswitch(string id, const char* label)
 	addminicabswitch(label, &p.value);
 }
 
-void GxMainInterface::addVerticalSlider(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	const FloatParameter &p = parameter_map[id].getFloat();
-	if (!label) {
-		label = p.name().c_str();
-	}
-	addVerticalSlider(label, &p.value, p.std_value, p.lower, p.upper, p.step);
-}
-
 void GxMainInterface::addCheckButton(string id, const char* label)
 {
 	if (!parameter_map.hasId(id)) {
@@ -1904,6 +1680,7 @@ void GxMainInterface::addNumEntry(string id, const char* label)
 	addNumEntry(label, &p.value, p.std_value, p.lower, p.upper, p.step);
 }
 
+#if 1
 void GxMainInterface::addPToggleButton(string id, const char* label)
 {
 	if (!parameter_map.hasId(id)) {
@@ -1915,116 +1692,138 @@ void GxMainInterface::addPToggleButton(string id, const char* label)
 	}
 	addPToggleButton(label, &p.value);
 }
+#endif
 
-void GxMainInterface::addbigregler(const char* label, float* zone, float init, float min, float max, float step)
+/****************************************************************
+ ** UiRegler, UiSwitch
+ */
+
+void UiRegler::on_value_changed()
 {
-	*zone = init;
-	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-
-	GtkRegler myGtkRegler;
-	GtkWidget* lw = myGtkRegler.gtk_value_display(GTK_ADJUSTMENT(adj));
-	GtkWidget* lwl = gtk_label_new(label);
-
-	gtk_widget_set_name (lw,"value_label");
-	gtk_widget_set_name (lwl,"effekt_label");
-
-	GtkStyle *style = gtk_widget_get_style(lwl);
-	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-	gtk_widget_modify_font(lwl, style->font_desc);
-
-	GtkWidget* slider = myGtkRegler.gtk_big_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-	GtkWidget* box1 = addWidget(label, gtk_alignment_new (0.5, 0.5, 0, 0));
-	GtkWidget* box = gtk_vbox_new (FALSE, 0);
-	GtkWidget* box2 = gtk_hbox_new (FALSE, 4);
-	GtkWidget* box3 = gtk_vbox_new (FALSE, 0);
-	GtkWidget* box4 = gtk_vbox_new (FALSE, 0);
-	gtk_container_add (GTK_CONTAINER(box1), box);
-	gtk_container_add (GTK_CONTAINER(box), lwl);
-	gtk_container_add (GTK_CONTAINER(box), slider);
-	gtk_container_add (GTK_CONTAINER(box2), box3);
-	gtk_container_add (GTK_CONTAINER(box2), lw);
-	gtk_container_add (GTK_CONTAINER(box2), box4);
-	gtk_container_add (GTK_CONTAINER(box), box2);
-	gtk_widget_show_all(box1);
+	modifyZone(get_value());
 }
 
-void GxMainInterface::addslider(const char* label, float* zone, float init, float min, float max, float step)
+void UiRegler::reflectZone()
 {
-	*zone = init;
-	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkWidget* lw = gtk_label_new("");
-	GtkWidget* lwl = gtk_label_new(label);
-
-	gtk_widget_set_name (lw,"value_label");
-	gtk_widget_set_name (lwl,"effekt_label");
-
-	GtkStyle *style = gtk_widget_get_style(lw);
-	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-	gtk_widget_modify_font(lw, style->font_desc);
-	gtk_widget_modify_font(lwl, style->font_desc);
-
-	new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_hslider_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-	GtkWidget* box = addWidget(label,gtk_vbox_new (FALSE, 0));
-	gtk_container_add (GTK_CONTAINER(box), lwl);
-	gtk_container_add (GTK_CONTAINER(box), slider);
-	gtk_container_add (GTK_CONTAINER(box), lw);
-	gtk_widget_show_all(box);
+	float 	v = *fZone;
+	fCache = v;
+	set_value(v);
 }
 
-void GxMainInterface::addtoggle(const char* label, int* zone)
+GtkWidget *UiRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value)
 {
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this,(float*) zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	addWidget(label, slider);
+	if (!parameter_map.hasId(id)) {
+		return 0;
+	}
+	return (new UiRegler(ui, parameter_map[id].getFloat(), regler, show_value))->get_widget();
 }
 
-void GxMainInterface::addtoggle(const char* label, float* zone)
+UiRegler::UiRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, bool show_value):
+	gx_ui::GxUiItem(&ui, &param.value),
+	Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0)
 {
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	addWidget(label, slider);
+	param.value = param.std_value;
+	m_regler = regler;
+	m_regler->set_adjustment(*this);
+	m_regler->set_show_value(show_value);
+	m_regler->cp_set_var(param.id());
+	connect_midi_controller(GTK_WIDGET(m_regler->gobj()), &param.value);
+	m_regler->show();
 }
 
-void GxMainInterface::addbtoggle(const char* label, int* zone)
+UiRegler::~UiRegler()
 {
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this,(float*) zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_button_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	addWidget(label, slider);
+	delete m_regler;
 }
 
-void GxMainInterface::addbtoggle(const char* label, float* zone)
+
+GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value)
 {
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_button_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	addWidget(label, slider);
+	if (!parameter_map.hasId(id)) {
+		return 0;
+	}
+	return create(ui, regler, id, parameter_map[id].name(), show_value);
+}
+
+GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, Glib::ustring label, bool show_value)
+{
+	if (!parameter_map.hasId(id)) {
+		return 0;
+	}
+	return (new UiReglerWithCaption(ui, parameter_map[id].getFloat(), regler, label, show_value))->get_widget();
+}
+
+UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
+                                         Glib::ustring label, bool show_value):
+	UiRegler(ui, param, regler, show_value)
+{
+	m_label.set_text(label);
+	m_box.add(m_label);
+	m_box.add(*m_regler);
+	m_box.show_all();
+}
+
+void UiSwitch::on_value_changed()
+{
+	modifyZone(m_switch.get_active());
+}
+
+void UiSwitch::reflectZone()
+{
+	float v = *fZone;
+	fCache = v;
+	m_switch.set_active(v != 0.0);
+}
+
+GtkWidget *UiSwitch::create(gx_ui::GxUI& ui, const char* sw_type, string id)
+{
+	if (!parameter_map.hasId(id)) {
+		return 0;
+	}
+	return (new UiSwitch(ui, sw_type, parameter_map[id]))->get_widget();
+}
+
+UiSwitch::UiSwitch(gx_ui::GxUI& ui, const char *sw_type, Parameter &param):
+	gx_ui::GxUiItem(&ui, get_vp(param)),
+	m_switch(sw_type)
+{
+	param.set_std_value();
+	bool v;
+	if (param.isFloat()) {
+		v = param.getFloat().value != 0.0;
+	} else {
+		assert(param.isInt()); /*FIXME*/
+		v = param.getInt().value;
+	}
+	m_switch.set_active(v);
+	m_switch.cp_set_var(param.id());
+	connect_midi_controller(GTK_WIDGET(m_switch.gobj()), fZone);
+	m_switch.show();
+}
+
+GtkWidget* UiSwitchWithCaption::create(gx_ui::GxUI& ui, const char *sw_type, string id)
+{
+	if (!parameter_map.hasId(id)) {
+		return 0;
+	}
+	return create(ui, sw_type, id, parameter_map[id].name());
+}
+
+GtkWidget* UiSwitchWithCaption::create(gx_ui::GxUI& ui, const char *sw_type, string id, Glib::ustring label)
+{
+	if (!parameter_map.hasId(id)) {
+		return 0;
+	}
+	return (new UiSwitchWithCaption(ui, sw_type, parameter_map[id], label))->get_widget();
+}
+
+UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, Parameter &param, Glib::ustring label):
+	UiSwitch(ui, sw_type, param)
+{
+	m_label.set_text(label);
+	m_box.add(m_label);
+	m_box.add(m_switch);
+	m_box.show_all();
 }
 
 void GxMainInterface::addRecButton(const char* label, float* zone)
@@ -2049,50 +1848,6 @@ void GxMainInterface::addPlayButton(const char* label, float* zone)
 	addWidget(label, slider);
 }
 
-void GxMainInterface::addswitch(const char* label, int* zone)
-{
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this,(float*) zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_switch_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	GtkWidget* lw = gtk_label_new(label);
-	gtk_widget_set_name (lw,"effekt_label");
-
-	GtkStyle *style = gtk_widget_get_style(lw);
-	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-	gtk_widget_modify_font(lw, style->font_desc);
-	openVerticalBox("");
-	string laba = label;
-	if (laba !="")addWidget(label, lw);
-	addWidget(label, slider);
-	closeBox();
-}
-
-void GxMainInterface::addtoggle1(const char* label, float* zone)
-{
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_switch_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	GtkWidget* lw = gtk_label_new(label);
-	gtk_widget_set_name (lw,"effekt_label");
-
-	GtkStyle *style = gtk_widget_get_style(lw);
-	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-	gtk_widget_modify_font(lw, style->font_desc);
-	openVerticalBox("");
-	string laba = label;
-	if (laba !="")addWidget(label, lw);
-	addWidget(label, slider);
-	closeBox();
-}
-
 void GxMainInterface::addselector(const char* label, float* zone, int maxv, const char** labels)
 {
 	GtkObject* adjs = gtk_adjustment_new(0, 0, maxv-1, 1, 10*1, 0);
@@ -2105,48 +1860,6 @@ void GxMainInterface::addselector(const char* label, float* zone, int maxv, cons
 
 	openHorizontalBox("");
 	addWidget(label, ser);
-	closeBox();
-}
-
-void GxMainInterface::addminiswitch(const char* label, int* zone)
-{
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this,(float*) zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	GtkWidget* lw = gtk_label_new(label);
-	gtk_widget_set_name (lw,"effekt_label");
-
-	GtkStyle *style = gtk_widget_get_style(lw);
-	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-	gtk_widget_modify_font(lw, style->font_desc);
-	openHorizontalBox("");
-	addWidget(label, slider);
-	addWidget(label, lw);
-	closeBox();
-}
-
-void GxMainInterface::addminiswitch(const char* label, float* zone)
-{
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	GtkWidget* lw = gtk_label_new(label);
-	gtk_widget_set_name (lw,"effekt_label");
-
-	GtkStyle *style = gtk_widget_get_style(lw);
-	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-	gtk_widget_modify_font(lw, style->font_desc);
-	openHorizontalBox("");
-	addWidget(label, slider);
-	addWidget(label, lw);
 	closeBox();
 }
 
@@ -3311,8 +3024,6 @@ void GxMainInterface::run()
 	}
 
 	gtk_main();
-
-	stop();
 }
 
 } /* end of gx_gui namespace */

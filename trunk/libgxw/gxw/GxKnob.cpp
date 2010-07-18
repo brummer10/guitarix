@@ -52,7 +52,7 @@ G_DEFINE_ABSTRACT_TYPE(GxKnob, gx_knob, GX_TYPE_REGLER);
 static void gx_knob_class_init(GxKnobClass *klass)
 {
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
-
+	klass->jump_to_mouse = TRUE;
 	widget_class->motion_notify_event = gx_knob_pointer_motion;
 	widget_class->enter_notify_event = gx_knob_enter_in;
 	widget_class->leave_notify_event = gx_knob_leave_out;
@@ -149,6 +149,7 @@ gboolean _approx_in_rectangle(gdouble x, gdouble y, GdkRectangle *rect)
 gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const gchar *icon,
                                 gboolean drag, int state, int button)
 {
+	int linearmode = ((state & GDK_CONTROL_MASK) == 0) ^ GX_KNOB_CLASS(GTK_OBJECT_GET_CLASS(widget))->jump_to_mouse;
 	GdkRectangle image_rect;
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, icon, GtkIconSize(-1), NULL);
 	image_rect.width = gdk_pixbuf_get_width(pb);
@@ -174,17 +175,17 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 	double posy = radius - y + image_rect.y; // y axis top -> bottom
 	double value;
 	if (!drag) {
-		if (!(state & GDK_CONTROL_MASK)) {
+		if (linearmode) {
 			last_y = posy;
 			return TRUE;
 		} else {
 			last_y = 2e20;
 		}
 	}
-	if (last_y < 1e20) { // in drag started with Control Key
+	if (last_y < 1e20) { // in drag started in linear mode
 		const double scaling = 0.005;
-		double scal = (state & GDK_CONTROL_MASK ? scaling*0.1 : scaling);
-		value = (last_y - posy) * scal;
+		double scal = (linearmode ? scaling : scaling*0.1);
+		value = (posy - last_y) * scal;
 		last_y = posy;
 		gtk_range_set_value(GTK_RANGE(widget), adj->value + value * (adj->upper - adj->lower));
 		return TRUE;

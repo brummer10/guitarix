@@ -38,9 +38,9 @@ typedef struct _GxControlParameterClass GxControlParameterClass;
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-namespace Gx
-{ class ControlParameter_Class; } // namespace Gx
-namespace Gx
+namespace Gxw
+{ class ControlParameter_Class; } // namespace Gxw
+namespace Gxw
 {
 
 
@@ -101,6 +101,7 @@ public:
 
 private:
 
+	public:
 	
   void cp_configure(Glib::ustring group, Glib::ustring name, double lower, double upper, double step);
 	
@@ -151,7 +152,7 @@ protected:
 
 };
 
-} // namespace Gx
+} // namespace Gxw
 
 
 namespace Glib
@@ -162,9 +163,9 @@ namespace Glib
    * @param take_copy False if the result should take ownership of the C instance. True if it should take a new copy or ref.
    * @result A C++ instance that wraps this C instance.
    *
-   * @relates Gx::ControlParameter
+   * @relates Gxw::ControlParameter
    */
-  Glib::RefPtr<Gx::ControlParameter> wrap(GxControlParameter* object, bool take_copy = false);
+  Glib::RefPtr<Gxw::ControlParameter> wrap(GxControlParameter* object, bool take_copy = false);
 
 } // namespace Glib
 

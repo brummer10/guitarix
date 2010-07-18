@@ -379,7 +379,7 @@ static gint get_digits(GtkRange *range)
 		return range->round_digits;
 	}
 	gint n = 0;
-	while (fabs(v - 1.0) > 1e-3) {
+	while (v < 1.0 - 1e-3) {
 		v *= 10;
 		n++;
 	}

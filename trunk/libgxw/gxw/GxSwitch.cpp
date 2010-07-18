@@ -23,6 +23,7 @@
 #include <gtk/gtkprivate.h>
 #include <gdk/gdkkeysyms.h>
 #include <unistd.h>
+#include <string.h>
 
 #define P_(s) (s)   // FIXME -> gettext
 
@@ -317,17 +318,53 @@ static void gx_switch_destroy(GtkObject *object)
  ** Properties
  */
 
-static void gx_switch_set_label(GxSwitch *swtch, GObject *object)
+void gx_switch_set_label_ref(GxSwitch *swtch, GtkLabel *label)
 {
+	g_return_if_fail(GX_IS_SWITCH(swtch));
+	g_return_if_fail(GTK_IS_LABEL(label));
 	if (swtch->label) {
 		g_object_unref(swtch->label);
 		swtch->label = 0;
 	}
-	if (object) {
-		swtch->label = GTK_LABEL(object);
-		g_object_ref(object);
+	if (label) {
+		swtch->label = label;
+		g_object_ref(label);
 	}
 	g_object_notify(G_OBJECT(swtch), "label");
+}
+
+GtkLabel *gx_switch_get_label_ref(GxSwitch *swtch)
+{
+	g_return_val_if_fail(GX_IS_SWITCH(swtch), 0);
+	return swtch->label;
+}
+
+void gx_switch_set_base_name(GxSwitch *swtch, const char *base_name)
+{
+	g_return_if_fail(GX_IS_SWITCH(swtch));
+	GtkWidget *img = gtk_button_get_image(GTK_BUTTON(swtch));
+	if (img && GX_IS_TOGGLE_IMAGE(img)) {
+		const gchar *old = gx_toggle_image_get_base_name(GX_TOGGLE_IMAGE(img));
+		if (old && strcmp(old, base_name) == 0) {
+			return;
+		}
+		gx_toggle_image_set_base_name(GX_TOGGLE_IMAGE(img), base_name);
+	} else {
+		gtk_button_set_image(GTK_BUTTON(swtch),
+		                     GTK_WIDGET(g_object_new(GX_TYPE_TOGGLE_IMAGE, "base-name",
+		                                             base_name, NULL)));
+	}
+	g_object_notify(G_OBJECT(swtch), "base-name");
+}
+
+const char *gx_switch_get_base_name(GxSwitch *swtch)
+{
+	GtkWidget *img = gtk_button_get_image(GTK_BUTTON(swtch));
+	if (img && GX_IS_TOGGLE_IMAGE(img)) {
+		return gx_toggle_image_get_base_name(GX_TOGGLE_IMAGE(img));
+	} else {
+		return g_strdup("");
+	}
 }
 
 static void
@@ -345,12 +382,10 @@ gx_switch_set_property (GObject *object, guint prop_id, const GValue *value,
 		break;
 	}
 	case PROP_LABEL:
-		gx_switch_set_label(swtch, G_OBJECT(g_value_get_object(value)));
+		gx_switch_set_label_ref(swtch, GTK_LABEL(g_value_get_object(value)));
 		break;
 	case PROP_BASE_NAME:
-		gtk_button_set_image(GTK_BUTTON(object),
-		                     GTK_WIDGET(g_object_new(GX_TYPE_TOGGLE_IMAGE, "base-name",
-		                                             g_value_get_string(value), NULL)));
+		gx_switch_set_base_name(swtch, g_value_get_string(value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

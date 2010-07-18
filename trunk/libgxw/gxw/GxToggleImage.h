@@ -43,6 +43,8 @@ struct _GxToggleImageClass {
 };
 
 GType gx_toggle_image_get_type(void);
+const char *gx_toggle_image_get_base_name(GxToggleImage *toggle_image);
+void gx_toggle_image_set_base_name(GxToggleImage *toggle_image, const char *base_name);
 
 G_END_DECLS
 

@@ -25,6 +25,8 @@
  */
 
 #include <gtkmm/togglebutton.h>
+#include <gtkmm/label.h>
+#include <gxwmm/controlparameter.h>
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -38,7 +40,7 @@ namespace Gxw
 namespace Gxw {
 
 
-class Switch: public Gtk::ToggleButton {
+class Switch: public Gtk::ToggleButton, public ControlParameter {
 	public:
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
   typedef Switch CppObjectType;
@@ -97,9 +99,18 @@ protected:
 
 private:
 
+	
 	public:
 	Switch();
 	explicit Switch(const Glib::ustring& base_name);
+	
+  void set_label_ref(Gtk::Label*);
+	
+  Gtk::Label* get_label_ref();
+	
+  void set_base_name(const Glib::ustring&);
+	
+  Glib::ustring get_base_name();
 	#ifdef GLIBMM_PROPERTIES_ENABLED
 /** Base name of the image
    *
@@ -139,8 +150,6 @@ private:
    */
   Glib::PropertyProxy_ReadOnly<Gtk::Label> property_label() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
-
-	//_WRAP_PROPERTY(
 
 
 };

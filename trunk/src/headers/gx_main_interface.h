@@ -23,6 +23,13 @@
 #pragma once
 
 #include <iostream>
+#include <gxwmm/bigknob.h>
+#include <gxwmm/smallknob.h>
+#include <gxwmm/wheel.h>
+#include <gxwmm/hslider.h>
+#include <gxwmm/eqslider.h>
+#include <gxwmm/switch.h>
+#include <gtkmm/box.h>
 
 #ifndef NJACKLAT
 #define NJACKLAT (9)
@@ -96,6 +103,58 @@ public:
  */
 
 void gx_start_stop_jconv(GtkWidget*, gpointer);
+
+class UiRegler: gx_ui::GxUiItem, protected Gtk::Adjustment
+{
+protected:
+	Gxw::Regler *m_regler;
+	virtual void on_value_changed();
+	virtual void reflectZone();
+public:
+	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value);
+	UiRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, bool show_value);
+	virtual ~UiRegler();
+	GtkWidget *get_widget() { return GTK_WIDGET(m_regler->gobj()); }
+};
+
+class UiReglerWithCaption: UiRegler
+{
+private:
+	Gtk::Label m_label;
+	Gtk::VBox m_box;
+public:
+	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value);
+	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, Glib::ustring label, bool show_value);
+	UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, Glib::ustring label, bool show_value);
+	GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
+};
+
+class UiSwitch: gx_ui::GxUiItem
+{
+private:
+	float *get_vp(Parameter &param) { return param.isFloat() ? &param.getFloat().value : (float*)&param.getInt().value; /*FIXME*/}
+protected:
+	float fparam;
+	Gxw::Switch m_switch;
+	virtual void on_value_changed();
+	virtual void reflectZone();
+public:
+	static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id);
+	UiSwitch(gx_ui::GxUI& ui, const char *sw_type, Parameter &param);
+	GtkWidget *get_widget() { return GTK_WIDGET(m_switch.gobj()); }
+};
+
+class UiSwitchWithCaption: UiSwitch
+{
+private:
+	Gtk::Label m_label;
+	Gtk::VBox m_box;
+public:
+	static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id);
+	static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id, Glib::ustring label);
+	UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, Parameter &param, Glib::ustring label);
+	GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
+};
 
 class GxMainInterface : public gx_ui::GxUI
 {
@@ -173,85 +232,61 @@ public :
 	GtkWidget*   const getMenu(const string name) const { return fMenuList.at(name); }
 
 	// -- layout groups
-	virtual void openHorizontalOrderBox(const char* label,  float* posit);
-	virtual void openHorizontalTableBox(const char* label);
-	virtual void openHorizontalRestetBox(const char* label,  float* posit);
-	virtual void openFrameBox(const char* label);
-	virtual void openHorizontalBox(const char* label = "");
-	virtual void openHorizontalhideBox(const char* label = "");
-	virtual void openVerticalBox(const char* label = "");
-	virtual void openVerticalBox1(const char* label = "");
-	virtual void openFlipLabelBox(const char* = "");
-	virtual void openVerticalSwitchBox(const char* label, int state, int wit, float* zone);
-	virtual void openVerticalMidiBox(const char* label = "");
-	virtual void openDialogBox(const char* label, float* zone, int * z1);
-	virtual void openPatchInfoBox(float* zone);
-	virtual void openWarningBox(const char* label, float* zone);
-	virtual void openEventBox(const char* label = "");
-	virtual void openHandleBox(const char* label = "");
-	virtual void openExpanderBox(const char* label, float* zone);
-	virtual void openTabBox(const char* label = "");
-	virtual void openSpaceBox(const char* label = "");
-	virtual void openAmpBox(const char* label = "");
-	virtual void openSlooperBox(const char* label = "");
-	virtual void openPlugBox(const char* label = "");
-	virtual void openpaintampBox(const char* label = "");
-	virtual void openPaintBox(const char* label = "");
-	virtual void openPaintBox1(const char* label = "");
-	virtual void openPaintBox2(const char* label = "");
-	virtual void openScrollBox(const char* label = "");
-	virtual void openTextLoggingBox(const char* label = "");
-	virtual void openLevelMeterBox(const char* label);
-	virtual void openToolBar(const char* label = "");
-	virtual void setSkinBox(const char* label, float* zone);
-	virtual void closeBox();
+	void openHorizontalOrderBox(const char* label,  float* posit);
+	void openHorizontalTableBox(const char* label);
+	void openHorizontalRestetBox(const char* label,  float* posit);
+	void openFrameBox(const char* label);
+	void openHorizontalBox(const char* label = "");
+	void openHorizontalhideBox(const char* label = "");
+	void openVerticalBox(const char* label = "");
+	void openVerticalBox1(const char* label = "");
+	void openFlipLabelBox(const char* = "");
+	void openVerticalSwitchBox(const char* label, int state, int wit, float* zone);
+	void openVerticalMidiBox(const char* label = "");
+	void openDialogBox(const char* label, float* zone, int * z1);
+	void openPatchInfoBox(float* zone);
+	void openWarningBox(const char* label, float* zone);
+	void openEventBox(const char* label = "");
+	void openHandleBox(const char* label = "");
+	void openExpanderBox(const char* label, float* zone);
+	void openTabBox(const char* label = "");
+	void openSpaceBox(const char* label = "");
+	void openAmpBox(const char* label = "");
+	void openSlooperBox(const char* label = "");
+	void openPlugBox(const char* label = "");
+	void openpaintampBox(const char* label = "");
+	void openPaintBox(const char* label = "");
+	void openPaintBox1(const char* label = "");
+	void openPaintBox2(const char* label = "");
+	void openScrollBox(const char* label = "");
+	void openTextLoggingBox(const char* label = "");
+	void openLevelMeterBox(const char* label);
+	void openToolBar(const char* label = "");
+	void setSkinBox(const char* label, float* zone);
+	void closeBox();
 
 	// -- active widgets
-	virtual void addJConvButton(const char* label, float* zone);
-	virtual void addToggleButton(const char* label, float* zone);
-	virtual void addPToggleButton(const char* label, float* zone);
-	virtual void addJToggleButton(const char* label, float* zone);
-	virtual void addCheckButton(const char* label, float* zone);
-	virtual void addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step);
-	virtual void addHorizontalSlider(const char* label, float* zone, float init, float min, float max, float step);
-	virtual void addHorizontalWheel(const char* label, float* zone, float init, float min, float max, float step);
-	virtual void addregler(const char* label, float* zone, float init, float min, float max, float step);
-	virtual void addbigregler(const char* label, float* zone, float init, float min, float max, float step);
-	virtual void addslider(const char* label, float* zone, float init, float min, float max, float step);
-	virtual void addSpinValueBox(const char* label, float* zone, float init, float min, float max, float step);
-	virtual void addtoggle(const char* label, int* zone);
-	virtual void addtoggle(const char* label, float* zone);
-	virtual void addtoggle1(const char* label, float* zone);
-	virtual void addbtoggle(const char* label, int* zone);
-	virtual void addbtoggle(const char* label, float* zone);
-	virtual void addRecButton(const char* label, float* zone);
-	virtual void addPlayButton(const char* label, float* zone);
-	virtual void addswitch(const char* label, int* zone);
-	virtual void addminiswitch(const char* label, int* zone);
-	virtual void addminiswitch(const char* label, float* zone);
-	virtual void addminieqswitch(const char* label, int* zone);
-	virtual void addminicabswitch(const char* label, int* zone);
-	virtual void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
-	virtual void addNumDisplay(const char* label, float* zone);
-	virtual void addLiveWaveDisplay(const char* label, float* zone , float* zone1);
-	virtual void addStatusDisplay(const char* label, float* zone );
-	virtual void addselector(const char* label, float* zone,int maxv, const char* []);
-	void addbigregler(string id, const char* label=0);
-	void addHorizontalWheel(string id, const char* label=0);
-	void addslider(string id, const char* label=0);
-	void addregler(string id, const char* label=0);
+	void addJConvButton(const char* label, float* zone);
+	void addToggleButton(const char* label, float* zone);
+	void addJToggleButton(const char* label, float* zone);
+	void addPToggleButton(const char* label, float* zone);
+	void addCheckButton(const char* label, float* zone);
+	void addSpinValueBox(const char* label, float* zone, float init, float min, float max, float step);
+	void addRecButton(const char* label, float* zone);
+	void addPlayButton(const char* label, float* zone);
+	void addminieqswitch(const char* label, int* zone);
+	void addminicabswitch(const char* label, int* zone);
+	void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
+	void addNumDisplay(const char* label, float* zone);
+	void addLiveWaveDisplay(const char* label, float* zone , float* zone1);
+	void addStatusDisplay(const char* label, float* zone );
+	void addselector(const char* label, float* zone,int maxv, const char* []);
 	void addSpinValueBox(string id, const char* label=0);
-	void addswitch(string id, const char* label=0);
-	void addminiswitch(string id, const char* label=0);
 	void addselector(string id, const char* label=0, int nvalues=0, const char **pvalues=0);
-	void addtoggle(string id, const char* label=0);
-	void addtoggle1(string id, const char* label=0);
-	void addbtoggle(string id, const char* label=0);
 	void addRecButton(string id, const char* label=0);
 	void addPlayButton(string id, const char* label=0);
 	void addminieqswitch(string id, const char* label=0);
 	void addminicabswitch(string id, const char* label=0);
-	void addVerticalSlider(string id, const char* label=0);
 	void addCheckButton(string id, const char* label=0);
 	void addNumEntry(string id, const char* label=0);
 	void addPToggleButton(string id, const char* label=0);
@@ -260,10 +295,71 @@ public :
 	void show_msg(string msgbuf, gx_system::GxMsgType msgtype);
 	void set_logging_expander_color(const char *color);
 
-	virtual void setup();
-	virtual void show();
-	virtual void run();
+	void setup();
+	void show();
+	void run();
+
+	// widget creation
+	void addwidget(GtkWidget *widget) { gtk_container_add(GTK_CONTAINER(fBox[fTop]), widget); }
+	void create_bigknob(string id)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::BigKnob(), id, true));
+		}
+	void create_bigknob(string id, Glib::ustring label)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::BigKnob(), id, label, true));
+		}
+	void create_smallknob(string id)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, true));
+		}
+	void create_smallknob(string id, Glib::ustring label)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, label, true));
+		}
+	void create_wheel(string id, bool show_value = false)
+		{
+			addwidget(UiRegler::create(*this, new Gxw::Wheel(), id, show_value));
+		}
+	void create_hslider(string id)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::HSlider(), id, true));
+		}
+	void create_hslider(string id, Glib::ustring(label))
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::HSlider(), id, label, true));
+		}
+	void create_eqslider(string id, bool show_value = true)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(), id, show_value));
+		}
+	void create_eqslider(string id, Glib::ustring label, bool show_value = true)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label, show_value));
+		}
+	void create_eqslider(string id, const char *label, bool show_value = true)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label, show_value));
+		}
+	void create_switch_no_caption(const char *sw_type, string id)
+		{
+			addwidget(UiSwitch::create(*this, sw_type, id));
+		}
+	void create_switch(const char *sw_type, string id)
+		{
+			addwidget(UiSwitchWithCaption::create(*this, sw_type, id));
+		}
+	void create_switch(const char *sw_type, string id, Glib::ustring label)
+		{
+			addwidget(UiSwitchWithCaption::create(*this, sw_type, id, label));
+		}
 };
+
+extern const char *sw_led;
+extern const char *sw_switch;
+extern const char *sw_switchit;
+extern const char *sw_minitoggle;
+extern const char *sw_button;
 
 gboolean button_press_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
 

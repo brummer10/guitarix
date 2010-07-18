@@ -27,6 +27,7 @@
 #include <gtkmm/range.h>
 #include <gtkmm/label.h>
 #include <gdkmm/rectangle.h>
+#include <gxwmm/controlparameter.h>
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -40,7 +41,7 @@ namespace Gxw
 namespace Gxw {
 
 
-class Regler: public Gtk::Range {
+class Regler: public Gtk::Range, public ControlParameter {
 	public:
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
   typedef Regler CppObjectType;
@@ -100,8 +101,8 @@ protected:
 
 private:
 
+	
 	public:
-	Regler();
 	
   void set_label_ref(Gtk::Label*);
 	
@@ -181,6 +182,9 @@ private:
    */
   Glib::PropertyProxy_ReadOnly<Gtk::PositionType> property_value_position() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
+
+	protected:
+	Regler();
 
 
 };

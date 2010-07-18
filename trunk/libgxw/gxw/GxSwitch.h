@@ -45,6 +45,10 @@ struct _GxSwitchClass {
 };
 
 GType gx_switch_get_type(void);
+void gx_switch_set_label_ref(GxSwitch *swtch, GtkLabel* label);
+GtkLabel *gx_switch_get_label_ref(GxSwitch *swtch);
+void gx_switch_set_base_name(GxSwitch *swtch, const char *base_name);
+const char *gx_switch_get_base_name(GxSwitch *swtch);
 
 G_END_DECLS
 

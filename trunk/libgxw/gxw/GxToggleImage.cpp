@@ -109,6 +109,19 @@ static gboolean gx_toggle_image_expose(GtkWidget *widget, GdkEventExpose *event)
 	return FALSE;
 }
 
+const char *gx_toggle_image_get_base_name(GxToggleImage *toggle_image)
+{
+	g_return_val_if_fail(GX_IS_TOGGLE_IMAGE(toggle_image), "");
+	return toggle_image->base_name;
+}
+
+void gx_toggle_image_set_base_name(GxToggleImage *toggle_image, const char *base_name)
+{
+	g_free(toggle_image->base_name);
+	toggle_image->base_name = g_strdup(base_name ? base_name : "");
+	g_object_notify(G_OBJECT(toggle_image), "base-name");
+}
+
 static void
 gx_toggle_image_set_property (GObject *object, guint prop_id, const GValue *value,
                               GParamSpec *pspec)
@@ -116,13 +129,9 @@ gx_toggle_image_set_property (GObject *object, guint prop_id, const GValue *valu
 	GxToggleImage *toggle_image = GX_TOGGLE_IMAGE (object);
 
 	switch(prop_id) {
-	case PROP_BASE_NAME: {
-		const char *str = g_value_get_string(value);
-		g_free(toggle_image->base_name);
-		toggle_image->base_name = g_strdup(str ? str : "");
-		g_object_notify(object, "base-name");
+	case PROP_BASE_NAME:
+		gx_toggle_image_set_base_name(toggle_image, g_value_get_string(value));
 		break;
-	}
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;

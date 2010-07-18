@@ -26,12 +26,13 @@ typedef struct _GxControlParameterIface GxControlParameterIface;
 }
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace Gx
+namespace Gxw
 {
 
 class ControlParameter: public Glib::Interface
 {
 	_CLASS_INTERFACE(ControlParameter,GxControlParameter,GX_CONTROL_PARAMETER,GxControlParameterIface)
+	public:
 	_WRAP_METHOD(void cp_configure(Glib::ustring group, Glib::ustring name, double lower, double upper, double step), gx_control_parameter_cp_configure)
 	_WRAP_METHOD(void cp_set_value(double value), gx_control_parameter_cp_set_value)
 	_WRAP_METHOD(double cp_get_value(), gx_control_parameter_cp_get_value)
@@ -40,4 +41,4 @@ class ControlParameter: public Glib::Interface
 	_WRAP_PROPERTY("var-id", Glib::ustring)
 };
 
-} // namespace Gx
+} // namespace Gxw

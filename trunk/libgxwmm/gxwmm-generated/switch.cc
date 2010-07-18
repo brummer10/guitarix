@@ -66,6 +66,7 @@ const Glib::Class& Switch_Class::init()
     register_derived_type(gx_switch_get_type());
 
     // Add derived versions of interfaces, if the C type implements any interfaces:
+  ControlParameter::add_interface(get_type());
 
   }
 
@@ -140,6 +141,26 @@ Switch::Switch()
 {
   
 
+}
+
+void Switch::set_label_ref(Gtk::Label* p1)
+{
+gx_switch_set_label_ref(gobj(), (GtkLabel*)Glib::unwrap(p1)); 
+}
+
+Gtk::Label* Switch::get_label_ref()
+{
+  return Glib::wrap(gx_switch_get_label_ref(gobj()));
+}
+
+void Switch::set_base_name(const Glib::ustring& p1)
+{
+gx_switch_set_base_name(gobj(), p1.c_str()); 
+}
+
+Glib::ustring Switch::get_base_name()
+{
+  return Glib::convert_const_gchar_ptr_to_ustring(gx_switch_get_base_name(gobj()));
 }
 
 

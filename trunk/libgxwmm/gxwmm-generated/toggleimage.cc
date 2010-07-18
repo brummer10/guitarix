@@ -136,6 +136,16 @@ ToggleImage::ToggleImage()
 
 }
 
+void ToggleImage::set_base_name(const Glib::ustring& p1)
+{
+gx_toggle_image_set_base_name(gobj(), p1.c_str()); 
+}
+
+Glib::ustring ToggleImage::get_base_name()
+{
+  return Glib::convert_const_gchar_ptr_to_ustring(gx_toggle_image_get_base_name(gobj()));
+}
+
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
 Glib::PropertyProxy<Glib::ustring> ToggleImage::property_base_name() 

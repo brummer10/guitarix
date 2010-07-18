@@ -8,7 +8,7 @@
 
 #include <glibmm/private/interface_p.h>
 
-namespace Gx
+namespace Gxw
 {
 
 class ControlParameter_Class : public Glib::Interface_Class
@@ -41,7 +41,7 @@ protected:
 };
 
 
-} // namespace Gx
+} // namespace Gxw
 
 
 #endif /* _GXWMM_CONTROLPARAMETER_P_H */

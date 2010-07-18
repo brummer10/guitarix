@@ -43,8 +43,7 @@ def template2cc(task):
     dpath = srcdir.bldpath(task.env)
     cmd = ["%s/gmmproc" % task.env["GMMPROCDIR"],
            "--defs", dpath,
-           "-I", spath,
-           #"-I", "%s/m4" % task.env["GMMPROCDIR"],
+           "-I", dpath,
            basename,
            spath,
            dpath,

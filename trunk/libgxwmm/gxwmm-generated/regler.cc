@@ -126,6 +126,7 @@ const Glib::Class& Regler_Class::init()
     register_derived_type(gx_regler_get_type());
 
     // Add derived versions of interfaces, if the C type implements any interfaces:
+  ControlParameter::add_interface(get_type());
 
   }
 
@@ -236,16 +237,6 @@ GType Regler::get_base_type()
 }
 
 
-Regler::Regler()
-:
-  // Mark this class as non-derived to allow C++ vfuncs to be skipped.
-  Glib::ObjectBase(0),
-  Gtk::Range(Glib::ConstructParams(regler_class_.init()))
-{
-  
-
-}
-
 void Regler::set_label_ref(Gtk::Label* p1)
 {
 gx_regler_set_label_ref(gobj(), (GtkLabel*)Glib::unwrap(p1)); 
@@ -274,6 +265,16 @@ gx_regler_set_value_position(gobj(), ((GtkPositionType)(p1)));
 Gtk::PositionType Regler::get_value_position()
 {
   return ((Gtk::PositionType)(gx_regler_get_value_position(gobj())));
+}
+
+Regler::Regler()
+:
+  // Mark this class as non-derived to allow C++ vfuncs to be skipped.
+  Glib::ObjectBase(0),
+  Gtk::Range(Glib::ConstructParams(regler_class_.init()))
+{
+  
+
 }
 
 

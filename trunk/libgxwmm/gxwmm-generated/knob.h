@@ -98,7 +98,6 @@ protected:
 private:
 
 	public:
-	Knob();
 	#ifdef GLIBMM_PROPERTIES_ENABLED
 /** The id of the linked variable.
    *
@@ -118,6 +117,9 @@ private:
    */
   Glib::PropertyProxy_ReadOnly<Glib::ustring> property_var_id() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
+
+	protected:
+	Knob();
 
 
 };
