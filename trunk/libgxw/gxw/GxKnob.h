@@ -41,7 +41,6 @@ struct _GxKnob {
 struct _GxKnobClass {
 	GxReglerClass parent_class;
 	const gchar *stock_id;
-	gboolean jump_to_mouse;
 };
 
 GType gx_knob_get_type(void);
@@ -52,6 +51,8 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
                                 gboolean drag, int state, int button);
 void _gx_knob_draw_arc(GtkWidget *widget, GdkRectangle *rect, gdouble reglerstate,
                        gboolean has_focus);
+void gx_set_knob_jump_to_mouse(gboolean value);
+gboolean gx_get_knob_jump_to_mouse();
 
 G_END_DECLS
 

@@ -115,6 +115,7 @@ int main(int argc, char *argv[])
 		gx_engine::pitch_tracker.init();
 	}
 
+	//Gxw::Knob::set_jump_to_mouse(false);
 	gui->run();
 
 	// ------------- shut things down

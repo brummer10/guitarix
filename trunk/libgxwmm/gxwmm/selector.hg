@@ -28,6 +28,8 @@ class Selector: public Gxw::Regler {
 	_CLASS_GTKOBJECT(Selector,GxSelector,GX_SELECTOR,Gxw::Regler,GxRegler)
 	public:
 	_CTOR_DEFAULT
+	_WRAP_METHOD(void set_model(Glib::RefPtr<Gtk::TreeModel>), gx_selector_set_model);
+	_WRAP_METHOD(Glib::RefPtr<Gtk::TreeModel> get_model(), gx_selector_get_model);
 	_WRAP_PROPERTY(model, Gtk::TreeModel)
 };
 

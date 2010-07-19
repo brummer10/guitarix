@@ -118,11 +118,14 @@ private:
   Glib::PropertyProxy_ReadOnly<Glib::ustring> property_var_id() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
+	static void set_jump_to_mouse(bool value);
+	static bool get_jump_to_mouse();
 	protected:
 	Knob();
 
 
 };
+
 
 } // namespace Gxw
 

@@ -29,6 +29,7 @@
 #include <gxwmm/hslider.h>
 #include <gxwmm/eqslider.h>
 #include <gxwmm/switch.h>
+#include <gxwmm/selector.h>
 #include <gtkmm/box.h>
 
 #ifndef NJACKLAT
@@ -117,6 +118,13 @@ public:
 	GtkWidget *get_widget() { return GTK_WIDGET(m_regler->gobj()); }
 };
 
+class UiSelector: UiRegler
+{
+public:
+	static GtkWidget* create(gx_ui::GxUI& ui, string id);
+	UiSelector(gx_ui::GxUI& ui, FloatParameter &param, Gxw::Selector* sel);
+};
+
 class UiReglerWithCaption: UiRegler
 {
 private:
@@ -148,12 +156,16 @@ class UiSwitchWithCaption: UiSwitch
 {
 private:
 	Gtk::Label m_label;
-	Gtk::VBox m_box;
+	Gtk::Box *m_box;
 public:
-	static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id);
-	static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id, Glib::ustring label);
-	UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, Parameter &param, Glib::ustring label);
-	GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
+	static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
+	                         Gtk::PositionType pos);
+	static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
+	                         Glib::ustring label, Gtk::PositionType pos);
+	UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, Parameter &param,
+	                    Glib::ustring label, Gtk::PositionType pos);
+	~UiSwitchWithCaption();
+	GtkWidget *get_widget() { return GTK_WIDGET(m_box->gobj()); }
 };
 
 class GxMainInterface : public gx_ui::GxUI
@@ -272,21 +284,13 @@ public :
 	void addPToggleButton(const char* label, float* zone);
 	void addCheckButton(const char* label, float* zone);
 	void addSpinValueBox(const char* label, float* zone, float init, float min, float max, float step);
-	void addRecButton(const char* label, float* zone);
-	void addPlayButton(const char* label, float* zone);
-	void addminieqswitch(const char* label, int* zone);
-	void addminicabswitch(const char* label, int* zone);
 	void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
 	void addNumDisplay(const char* label, float* zone);
 	void addLiveWaveDisplay(const char* label, float* zone , float* zone1);
 	void addStatusDisplay(const char* label, float* zone );
-	void addselector(const char* label, float* zone,int maxv, const char* []);
+	//void addselector(const char* label, float* zone,int maxv, const char* []);
 	void addSpinValueBox(string id, const char* label=0);
-	void addselector(string id, const char* label=0, int nvalues=0, const char **pvalues=0);
-	void addRecButton(string id, const char* label=0);
-	void addPlayButton(string id, const char* label=0);
-	void addminieqswitch(string id, const char* label=0);
-	void addminicabswitch(string id, const char* label=0);
+	//void addselector(string id, const char* label=0, int nvalues=0, const char **pvalues=0);
 	void addCheckButton(string id, const char* label=0);
 	void addNumEntry(string id, const char* label=0);
 	void addPToggleButton(string id, const char* label=0);
@@ -317,6 +321,10 @@ public :
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, label, true));
 		}
+	void create_smallknob_no_caption(string id)
+		{
+			addwidget(UiRegler::create(*this, new Gxw::SmallKnob(), id, true));
+		}
 	void create_wheel(string id, bool show_value = false)
 		{
 			addwidget(UiRegler::create(*this, new Gxw::Wheel(), id, show_value));
@@ -341,17 +349,21 @@ public :
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label, show_value));
 		}
+	void create_selector(string id)
+		{
+			addwidget(UiSelector::create(*this, id));
+		}
 	void create_switch_no_caption(const char *sw_type, string id)
 		{
 			addwidget(UiSwitch::create(*this, sw_type, id));
 		}
-	void create_switch(const char *sw_type, string id)
+	void create_switch(const char *sw_type, string id, Gtk::PositionType pos = Gtk::POS_TOP)
 		{
-			addwidget(UiSwitchWithCaption::create(*this, sw_type, id));
+			addwidget(UiSwitchWithCaption::create(*this, sw_type, id, pos));
 		}
-	void create_switch(const char *sw_type, string id, Glib::ustring label)
+	void create_switch(const char *sw_type, string id, Glib::ustring label, Gtk::PositionType pos = Gtk::POS_TOP)
 		{
-			addwidget(UiSwitchWithCaption::create(*this, sw_type, id, label));
+			addwidget(UiSwitchWithCaption::create(*this, sw_type, id, label, pos));
 		}
 };
 
@@ -360,6 +372,8 @@ extern const char *sw_switch;
 extern const char *sw_switchit;
 extern const char *sw_minitoggle;
 extern const char *sw_button;
+extern const char *sw_pbutton;
+extern const char *sw_rbutton;
 
 gboolean button_press_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
 

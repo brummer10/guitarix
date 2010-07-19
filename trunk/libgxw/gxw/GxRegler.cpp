@@ -201,6 +201,13 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		g_param_spec_int("value-spacing",P_("Value spacing"),
 		                 P_("Distance of value display"),
 		                 0, 100, 5, GParamFlags(GTK_PARAM_READABLE)));
+	gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_boxed("value-border",
+		                   P_("Value Spacing"),
+		                   P_("Extra space for value display"),
+		                   GTK_TYPE_BORDER,
+		                   GParamFlags(GTK_PARAM_READABLE)));
 
 	g_object_class_install_property(
 		gobject_class, PROP_SHOW_VALUE,
@@ -402,8 +409,6 @@ static void gx_regler_ensure_layout(GxRegler *regler)
 {
 	if (regler->show_value && !regler->value_layout) {
 		regler->value_layout = gtk_widget_create_pango_layout(GTK_WIDGET(regler), NULL);
-		pango_layout_set_font_description(
-			regler->value_layout, pango_font_description_from_string("Sans 8"));
 	}
 }
 
@@ -483,6 +488,24 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
 	}
 }
 
+void _gx_regler_simple_display_value(GxRegler *regler, GdkRectangle *rect)
+{
+	if (!regler->show_value) {
+		return;
+	}
+    GtkWidget *widget = GTK_WIDGET(regler);
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
+    PangoLayout *l = regler->value_layout;
+    PangoRectangle logical_rect;
+	char s[64];
+	snprintf(s, sizeof(s), "%.*f", get_digits(GTK_RANGE(regler)), gtk_adjustment_get_value(adj));
+    pango_layout_set_text(l, s, -1);
+    pango_layout_get_pixel_extents(l, NULL, &logical_rect);
+    gtk_paint_layout(widget->style, widget->window, gtk_widget_get_state(widget),
+                     FALSE, rect, widget, "label", rect->x+(rect->width - logical_rect.width)/2,
+                     rect->y, regler->value_layout);
+}
+
 void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 {
 	if (!regler->show_value) {
@@ -499,7 +522,7 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 	double rect_height =  rect->height - 2;
 
     cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
-    cairo_set_source_rgb (cr, 0, 0, 0);
+    cairo_set_source_rgba(cr, 0, 0, 0, 0.4);
     cairo_fill (cr);
 
     cairo_pattern_t*pat =
@@ -535,6 +558,21 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 	cairo_destroy(cr);
 }
 
+static const GtkBorder default_value_border = { 6, 6, 3, 3 };
+
+static void get_value_border(GtkWidget *widget, GtkBorder *value_border)
+{
+	GtkBorder *tmp_border;
+
+	gtk_widget_style_get(widget, "value-border", &tmp_border, NULL);
+	if (tmp_border) {
+		*value_border = *tmp_border;
+		gtk_border_free(tmp_border);
+	} else {
+		*value_border = default_value_border;
+    }
+}
+
 void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
 {
 	gx_regler_ensure_layout(regler);
@@ -544,7 +582,8 @@ void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
 		gint value_spacing;
 		int p = get_digits(GTK_RANGE(regler));
 		char buf[20];
-		int borderx = 12, bordery = 6;
+		GtkBorder border;
+		get_value_border(GTK_WIDGET(regler), &border);
 		gtk_widget_style_get(GTK_WIDGET(regler), "value-spacing", &value_spacing, NULL);
 		snprintf(buf, sizeof(buf), "%.*f", p, gtk_adjustment_get_lower(adj));
 		pango_layout_set_text(regler->value_layout, buf, -1);
@@ -552,8 +591,8 @@ void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
 		snprintf(buf, sizeof(buf), "%.*f", p, gtk_adjustment_get_upper(adj));
 		pango_layout_set_text(regler->value_layout, buf, -1);
 		pango_layout_get_pixel_extents(regler->value_layout, NULL, &logical_rect2);
-		gint height = max(logical_rect1.height,logical_rect2.height) + bordery;
-		gint width = max(logical_rect1.width,logical_rect2.width) + borderx;
+		gint height = max(logical_rect1.height,logical_rect2.height) + border.top + border.bottom;
+		gint width = max(logical_rect1.width,logical_rect2.width) + border.left + border.right;
 		GxReglerPrivate *priv = GX_REGLER_GET_PRIVATE(regler);
 		priv->value_req.width = width;
 		priv->value_req.height = height;

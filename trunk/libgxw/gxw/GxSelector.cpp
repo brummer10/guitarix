@@ -234,8 +234,7 @@ gx_selector_unset_model (GxSelector *selector)
 	}
 }
 
-static void
-gx_selector_set_model(GxSelector *selector, GtkTreeModel *model)
+void gx_selector_set_model(GxSelector *selector, GtkTreeModel *model)
 {
 	g_return_if_fail(GX_IS_SELECTOR(selector));
 	g_return_if_fail(model == NULL || GTK_IS_TREE_MODEL (model));
@@ -245,16 +244,23 @@ gx_selector_set_model(GxSelector *selector, GtkTreeModel *model)
   
 	gx_selector_unset_model(selector);
 
+	int n = 0;
 	if (model != NULL) {
 		selector->model = model;
 		g_object_ref (selector->model);
-	}
-	int n = gtk_tree_model_iter_n_children(model, NULL) - 1;
-	if (n < 0) {
-		n = 0;
+		n = gtk_tree_model_iter_n_children(model, NULL) - 1;
+		if (n < 0) {
+			n = 0;
+		}
 	}
 	gtk_adjustment_configure(gtk_range_get_adjustment(GTK_RANGE(selector)), 0.0, 0.0, n, 1.0, 1.0, 0.0);
 	g_object_notify(G_OBJECT(selector), "model");
+}
+
+GtkTreeModel *gx_selector_get_model(GxSelector *selector)
+{
+	g_return_val_if_fail(GX_IS_SELECTOR(selector), 0);
+	return selector->model;
 }
 
 static void

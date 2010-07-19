@@ -832,7 +832,7 @@ bool gx_update_skin(const gint idx, const char* calling_func)
 		return false;
 	}
 
-	string rcfile = GX_STYLE_DIR + string("/") + "guitarix_";
+	string rcfile = gx_style_dir + "guitarix_";
 	rcfile += skin_list[idx];
 	rcfile += ".rc";
 

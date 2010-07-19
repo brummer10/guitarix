@@ -130,9 +130,9 @@ const char* jcapsetup_file   = "ja_ca_ssetrc";
 const char* jcapfile_wavbase = "guitarix_session";
 
 const string gx_pixmap_dir = string(GX_PIXMAPS_DIR) + "/";
-const string gx_style_dir  = string(GX_STYLE_DIR) + "/";
 const string gx_user_dir   = string(getenv ("HOME")) + string("/") + string(guitarix_dir) + "/";
 
+string gx_style_dir  = string(GX_STYLE_DIR) + "/";
 string gx_builder_dir = string(GX_BUILDER_DIR) + "/";
 
 /* shell variable names */

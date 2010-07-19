@@ -5,6 +5,7 @@ headers
 #define NO_IMPORT_ARRAY
 #include <numpy/ndarrayobject.h>
 #include <pygobject.h>
+#include <pygtk/pygtk.h>
 #include <gxw/GxTuner.h>
 #include <gxw/GxFastMeter.h>
 #include <gxw/GxWaveView.h>

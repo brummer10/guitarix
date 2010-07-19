@@ -2,7 +2,8 @@
 # This is the GTK rc style file for guitarix
 #
 
-pixmap_path './skins:./:/usr/share/guitarix/skins:/usr/local/share/guitarix/skins'
+#pixmap_path './skins:./:/usr/share/guitarix/skins:/usr/local/share/guitarix/skins'
+pixmap_path './skins:./'
 
 
 style "guitarix_default"
@@ -131,3 +132,44 @@ widget "*.effekt_label" style:highest "guitarix-v_default"
 widget "*.value_label" style:highest "guitarix-l_default"
 widget "*.beffekt_label" style:highest "guitarix-b_default"
 
+style "guitarix_caption"
+{
+  fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
+  fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+  font_name = "sans 8"
+}
+
+style "guitarix_regler"
+{
+  xthickness = 0
+  ythickness = 0
+  GtkButton::inner-border = {0, 0, 0, 3}
+  GtkButton::default-border = {0, 0, 0, 0}
+  GtkButton::focus-line-width = 0
+  GtkButton::focus-padding = 0
+  GtkButton::interior-focus = 0
+  GxRegler::value-spacing = 0
+  font_name = "sans 7"
+}
+
+style "guitarix_slider"
+{
+  GxRegler::value-border = {0, 0, 0, 0}
+}
+
+style "guitarix_bold_label"
+{
+  font_name = "sans bold 8"
+}
+
+widget "*.caption" style:highest "guitarix_caption"
+widget "*.cab.on_off.caption" style:highest "guitarix_bold_label"
+widget "*.moog.on_off.caption" style:highest "guitarix_bold_label"
+widget "*.biquad.on_off.caption" style:highest "guitarix_bold_label"
+widget "*.MultiBandFilter.on_off.caption" style:highest "guitarix_bold_label"
+class "GxRegler" style:highest "guitarix_regler"
+class "GxSwitch" style:highest "guitarix_regler"
+class "GxHSlider" style:highest "guitarix_slider"

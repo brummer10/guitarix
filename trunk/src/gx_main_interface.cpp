@@ -25,6 +25,9 @@
 #include <cstring>
 #include <gdk/gdkkeysyms.h>
 #include "guitarix.h"
+#include <gtkmm/liststore.h>
+//#include <gtkmm/treemodel.h>
+//#include <gtkmm/treemodelcolumn.h>
 
 using namespace gx_system;
 using namespace gx_child_process;
@@ -40,6 +43,8 @@ const char *sw_switch = "switch";
 const char *sw_switchit = "switchit";
 const char *sw_minitoggle = "minitoggle";
 const char *sw_button = "button";
+const char *sw_pbutton = "pbutton";
+const char *sw_rbutton = "rbutton";
 
 /****************************************************************
  ** format controller values
@@ -779,7 +784,7 @@ void GxMainInterface::openVerticalBox(const char* label)
 		pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
 		gtk_widget_modify_font(lw, style->font_desc);
 
-		gtk_container_add (GTK_CONTAINER(box), lw);
+		gtk_box_pack_start(GTK_BOX(box), lw, 0, 0, 0);
 		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
 		gtk_widget_show(lw);
 		gtk_widget_show(box);
@@ -1585,77 +1590,6 @@ void GxMainInterface::addSpinValueBox(string id, const char* label)
 	addSpinValueBox(label, &p.value, p.std_value, p.lower, p.upper, p.step);
 }
 
-void GxMainInterface::addselector(string id, const char* label, int nvalues, const char** pvalues)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	const FloatParameter &p = parameter_map[id].getFloat();
-	if (!label) {
-		label = p.name().c_str();
-	}
-	assert(p.getControlType() == Parameter::Enum);
-	if (nvalues) {
-		assert(p.upper+1 == nvalues);
-	} else {
-		nvalues = p.upper+1;
-		pvalues = p.getValueNames();
-	}
-	addselector(label, &p.value, nvalues, pvalues);
-}
-
-void GxMainInterface::addRecButton(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	Parameter& p = parameter_map[id];
-	if (!label) {
-		label = p.name().c_str();
-	}
-
-		addRecButton(label, &p.getFloat().value);
-
-}
-
-void GxMainInterface::addPlayButton(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	Parameter& p = parameter_map[id];
-	if (!label) {
-		label = p.name().c_str();
-	}
-
-		addPlayButton(label, &p.getFloat().value);
-
-}
-
-void GxMainInterface::addminieqswitch(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	const IntParameter &p = parameter_map[id].getInt();
-	if (!label) {
-		label = p.name().c_str();
-	}
-	addminieqswitch(label, &p.value);
-}
-
-void GxMainInterface::addminicabswitch(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	const IntParameter &p = parameter_map[id].getInt();
-	if (!label) {
-		label = p.name().c_str();
-	}
-	addminicabswitch(label, &p.value);
-}
-
 void GxMainInterface::addCheckButton(string id, const char* label)
 {
 	if (!parameter_map.hasId(id)) {
@@ -1736,6 +1670,23 @@ UiRegler::~UiRegler()
 	delete m_regler;
 }
 
+GtkWidget* UiSelector::create(gx_ui::GxUI& ui, string id)
+{
+	return (new UiSelector(ui, parameter_map[id].getFloat(), new Gxw::Selector()))->get_widget();
+}
+
+UiSelector::UiSelector(gx_ui::GxUI& ui, FloatParameter &param, Gxw::Selector *sel):
+	UiRegler(ui, param.getFloat(), sel, false)
+{
+	Gtk::TreeModelColumn<Glib::ustring> label;
+	Gtk::TreeModelColumnRecord rec;
+	rec.add(label);
+	Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
+	for (const char **p = param.getValueNames(); *p; p++) {
+		ls->append()->set_value(0, Glib::ustring(*p));
+	}
+	sel->set_model(ls);
+}
 
 GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value)
 {
@@ -1758,8 +1709,10 @@ UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param,
 	UiRegler(ui, param, regler, show_value)
 {
 	m_label.set_text(label);
-	m_box.add(m_label);
-	m_box.add(*m_regler);
+	m_label.set_name("caption");
+	m_box.set_name(param.id());
+	m_box.pack_start(m_label, Gtk::PACK_SHRINK);
+	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
 	m_box.show_all();
 }
 
@@ -1801,114 +1754,48 @@ UiSwitch::UiSwitch(gx_ui::GxUI& ui, const char *sw_type, Parameter &param):
 	m_switch.show();
 }
 
-GtkWidget* UiSwitchWithCaption::create(gx_ui::GxUI& ui, const char *sw_type, string id)
+GtkWidget* UiSwitchWithCaption::create(gx_ui::GxUI& ui, const char *sw_type, string id, Gtk::PositionType pos)
 {
 	if (!parameter_map.hasId(id)) {
 		return 0;
 	}
-	return create(ui, sw_type, id, parameter_map[id].name());
+	return create(ui, sw_type, id, parameter_map[id].name(), pos);
 }
 
-GtkWidget* UiSwitchWithCaption::create(gx_ui::GxUI& ui, const char *sw_type, string id, Glib::ustring label)
+GtkWidget* UiSwitchWithCaption::create(gx_ui::GxUI& ui, const char *sw_type, string id, Glib::ustring label, Gtk::PositionType pos)
 {
 	if (!parameter_map.hasId(id)) {
 		return 0;
 	}
-	return (new UiSwitchWithCaption(ui, sw_type, parameter_map[id], label))->get_widget();
+	return (new UiSwitchWithCaption(ui, sw_type, parameter_map[id], label, pos))->get_widget();
 }
 
-UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, Parameter &param, Glib::ustring label):
+UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, Parameter &param,
+                                         Glib::ustring label, Gtk::PositionType pos):
 	UiSwitch(ui, sw_type, param)
 {
+	//FIXME use Gtk::Orientable interface when gtk >= 2.16 can be used
 	m_label.set_text(label);
-	m_box.add(m_label);
-	m_box.add(m_switch);
-	m_box.show_all();
+	m_label.set_name("caption");
+	if (pos == Gtk::POS_LEFT || pos == Gtk::POS_RIGHT) {
+		m_box = new Gtk::HBox();
+	} else {
+		m_box = new Gtk::VBox();
+	}
+	if (pos == Gtk::POS_LEFT || pos == Gtk::POS_TOP) {
+		m_box->pack_start(m_label, Gtk::PACK_SHRINK);
+		m_box->pack_start(m_switch, Gtk::PACK_SHRINK);
+	} else {
+		m_box->pack_start(m_switch, Gtk::PACK_SHRINK);
+		m_box->pack_start(m_label, Gtk::PACK_SHRINK);
+	}
+	m_box->set_name(param.id());
+	m_box->show_all();
 }
 
-void GxMainInterface::addRecButton(const char* label, float* zone)
+UiSwitchWithCaption::~UiSwitchWithCaption()
 {
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_button_rec_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	addWidget(label, slider);
-}
-
-void GxMainInterface::addPlayButton(const char* label, float* zone)
-{
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_button_play_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	addWidget(label, slider);
-}
-
-void GxMainInterface::addselector(const char* label, float* zone, int maxv, const char** labels)
-{
-	GtkObject* adjs = gtk_adjustment_new(0, 0, maxv-1, 1, 10*1, 0);
-	uiAdjustment* cs = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adjs));
-	g_signal_connect (GTK_OBJECT (adjs), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) cs);
-
-	GtkRegler myGtkRegler;
-	GtkWidget* ser = myGtkRegler.gtk_selector_new_with_adjustment(GTK_ADJUSTMENT(adjs), maxv, labels);
-	connect_midi_controller(ser, zone);
-
-	openHorizontalBox("");
-	addWidget(label, ser);
-	closeBox();
-}
-
-void GxMainInterface::addminieqswitch(const char* label, int* zone)
-{
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this,(float*) zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-
-
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	//g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_hide_eq), (gpointer) slider);
-	GtkWidget* lw = gtk_label_new(label);
-	gtk_widget_set_name (lw,"effekt_label");
-
-	GtkStyle *style = gtk_widget_get_style(lw);
-	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-	gtk_widget_modify_font(lw, style->font_desc);
-	openHorizontalBox("");
-	addWidget(label, slider);
-	addWidget(label, lw);
-	closeBox();
-}
-
-void GxMainInterface::addminicabswitch(const char* label, int* zone)
-{
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this,(float*) zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-
-
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	connect_midi_controller(slider, zone);
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_cab_res), (gpointer) slider);
-	GtkWidget* lw = gtk_label_new(label);
-	gtk_widget_set_name (lw,"effekt_label");
-
-	GtkStyle *style = gtk_widget_get_style(lw);
-	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-	gtk_widget_modify_font(lw, style->font_desc);
-	openHorizontalBox("");
-	addWidget(label, slider);
-	addWidget(label, lw);
-	closeBox();
+	delete m_box;
 }
 
 void GxMainInterface::addNumEntry(const char* label, float* zone, float init, float min, float max, float step)

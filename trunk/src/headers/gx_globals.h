@@ -182,8 +182,8 @@ extern string rcpath;
 extern const char*  jcapsetup_file;
 extern const char*  jcapfile_wavbase;
 extern const string gx_pixmap_dir;
-extern const string gx_style_dir;
 extern const string gx_user_dir;
+extern string gx_style_dir;
 extern string gx_builder_dir;
 
 /* shell variable names */

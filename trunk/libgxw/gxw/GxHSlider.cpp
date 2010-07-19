@@ -98,7 +98,22 @@ static gboolean gx_hslider_expose(GtkWidget *widget, GdkEventExpose *event)
 	gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.width-slider_width);
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
 	hslider_expose(widget, &image_rect, sliderstate, pb, sat, gtk_widget_has_focus(widget), TRUE);
-	_gx_regler_display_value(GX_REGLER(widget), &value_rect);
+	switch (GX_REGLER(widget)->value_position) {
+	case GTK_POS_LEFT:
+	case GTK_POS_RIGHT:
+		break;
+	case GTK_POS_TOP:
+	case GTK_POS_BOTTOM:
+		value_rect.x = image_rect.x + sliderstate - (value_rect.width - slider_width)/2;
+		if (value_rect.x + value_rect.width > widget->allocation.x + widget->allocation.width) {
+			value_rect.x = widget->allocation.x + widget->allocation.width - value_rect.width;
+		}
+		if (value_rect.x < widget->allocation.x) {
+			value_rect.x = widget->allocation.x;
+		}
+		break;
+	}
+	_gx_regler_simple_display_value(GX_REGLER(widget), &value_rect);
 	g_object_unref(pb);
 	return FALSE;
 }

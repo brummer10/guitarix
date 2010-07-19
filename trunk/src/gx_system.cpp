@@ -941,17 +941,24 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 
 	// DEBUG options
 	string builder_dir;
+	string style_dir;
 	bool lterminal = false;
 	Glib::OptionGroup optgroup_debug(
 		"debug",
 		"\033[1;32mDebug options\033[0m",
 		"\033[1;32mDebug options\033[0m");
-	Glib::OptionEntry opt_debug;
-	opt_debug.set_short_name('B');
-	opt_debug.set_long_name("builder-dir");
-	opt_debug.set_description("directory from which .glade files are loaded");
-	opt_debug.set_arg_description("DIR");
-	optgroup_debug.add_entry_filename(opt_debug, builder_dir);
+	Glib::OptionEntry opt_builder_dir;
+	opt_builder_dir.set_short_name('B');
+	opt_builder_dir.set_long_name("builder-dir");
+	opt_builder_dir.set_description("directory from which .glade files are loaded");
+	opt_builder_dir.set_arg_description("DIR");
+	optgroup_debug.add_entry_filename(opt_builder_dir, builder_dir);
+	Glib::OptionEntry opt_style_dir;
+	opt_style_dir.set_short_name('S');
+	opt_style_dir.set_long_name("style-dir");
+	opt_style_dir.set_description("directory with skin style definitions (.rc files)");
+	opt_style_dir.set_arg_description("DIR");
+	optgroup_debug.add_entry_filename(opt_style_dir, style_dir);
 	Glib::OptionEntry opt_log_terminal;
 	opt_log_terminal.set_short_name('t');
 	opt_log_terminal.set_long_name("log-terminal");
@@ -1042,6 +1049,14 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 		}
 	}
 
+	// *** process style_dir
+	if (!style_dir.empty()) {
+		gx_style_dir = style_dir;
+		if (gx_style_dir[gx_style_dir.size()-1] != '/') {
+			gx_style_dir += "/";
+		}
+	}
+
 	// *** process jack input
 	if (!jack_input.empty()) {
 		optvar[JACK_INP] = jack_input;
@@ -1076,7 +1091,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 
 	optvar[LOAD_FILE] = load_file;
 
-	rcpath = GX_STYLE_DIR + string("/") + string("guitarix_") + optvar[RC_STYLE] + ".rc";
+	rcpath = gx_style_dir + string("guitarix_") + optvar[RC_STYLE] + ".rc";
 }
 
 void gx_set_override_options(string* optvar)

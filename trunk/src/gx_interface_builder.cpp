@@ -190,12 +190,12 @@ void GxMainInterface::setup()
                                 {
                                     openSpaceBox("");
                                     closeBox();
-                                    addselector("eqt.onetwo","");
+                                create_selector("eqt.onetwo");
                                     openHorizontalBox("");
                                     {
                                         openSpaceBox("");
                                         closeBox();
-                                        create_switch(sw_minitoggle, "eq.on_off", "EQ");
+                                        create_switch(sw_minitoggle, "eq.on_off", "EQ", Gtk::POS_RIGHT);
                                         openVerticalSwitchBox(" ",0, 1, &gx_engine::audio.witcheq);
                                         {
 
@@ -354,14 +354,14 @@ void GxMainInterface::setup()
                                     closeBox();
                                     openHorizontalBox("");
                                     {
-                                    create_switch(sw_minitoggle, "amp.bass_boost.on_off", "bass boost  ");
+	                                    create_switch(sw_minitoggle, "amp.bass_boost.on_off", "bass boost  ", Gtk::POS_RIGHT);
                                     openSpaceBox("");
                                     closeBox();
                                     }
                                     closeBox();
                                     openHorizontalBox("");
                                     {
-                                        addselector("amp.tonestack.select","");
+                                        create_selector("amp.tonestack.select");
                                         openVerticalBox1("");
                                         closeBox();
                                     }
@@ -427,15 +427,16 @@ void GxMainInterface::setup()
 									{
                                         openVerticalBox1("");
                                         closeBox();
-                                        addselector("amp.model","");
+                                        create_selector("amp.model");
 									}
 									closeBox();
 
 									openVerticalBox1("");
 									{
-									    create_switch(sw_minitoggle, "amp.oversample.on_off", "oversample  ");
+										create_switch(sw_minitoggle, "amp.oversample.on_off", "oversample  ", Gtk::POS_RIGHT);
 									    const char* labels[8]  ={"  1x","  2x", "  3x","  4x","  5x", "  6x", "  7x", "  8x"};
-									    addselector("amp.select","",8,labels); //FIXME FIX formatting issue
+									    //create_selector("amp.select",8,labels); //FIXME FIX formatting issue
+									    create_selector("amp.select"); //FIXME FIX formatting issue
 									}
 									closeBox();
 
@@ -451,8 +452,8 @@ void GxMainInterface::setup()
 
 									openVerticalBox1("");
 									{
-                                        create_switch(sw_minitoggle, "convolve.on_off", "amp tune    ");
-                                        addselector("convolve.select","");
+                                        create_switch(sw_minitoggle, "convolve.on_off", "amp tune    ", Gtk::POS_RIGHT);
+                                        create_selector("convolve.select");
 
 									}
 									closeBox();
@@ -588,7 +589,7 @@ void GxMainInterface::setup()
                                             create_switch(sw_switch, "amp2.preamp.ON", "preamp");
                                             openSpaceBox("");
                                             closeBox();
-                                            create_smallknob("amp2.preamp.Pregain","");
+                                            create_smallknob_no_caption("amp2.preamp.Pregain");
                                         }
                                         closeBox();
 
@@ -603,7 +604,7 @@ void GxMainInterface::setup()
                                             create_switch(sw_switch, "amp2.stage1.ON", "tube");
                                             openSpaceBox("");
                                             closeBox();
-                                            create_smallknob("amp2.stage1.gain1","");
+                                            create_smallknob_no_caption("amp2.stage1.gain1");
                                         }
                                         closeBox();
 
@@ -618,7 +619,7 @@ void GxMainInterface::setup()
                                             create_switch(sw_switch, "amp2.stage2.ON", "tube2");
                                             openSpaceBox("");
                                             closeBox();
-                                            create_smallknob("amp2.stage2.gain2","");
+                                            create_smallknob_no_caption("amp2.stage2.gain2");
                                         }
                                         closeBox();
 
@@ -634,7 +635,7 @@ void GxMainInterface::setup()
                                             create_switch(sw_switch, "stage3.ON", "tube3");
                                             openSpaceBox("");
                                             closeBox();
-                                            create_smallknob("stage3.gain3","");
+                                            create_smallknob_no_caption("stage3.gain3");
                                         }
                                         closeBox();
 
@@ -694,7 +695,7 @@ void GxMainInterface::setup()
 												create_smallknob("compressor.ratio");
 												openHorizontalBox("");
 												{
-													create_switch_no_caption(sw_switch, "compressor.on_off");
+													create_switch_no_caption(sw_switchit, "compressor.on_off");
 													//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
 													openDialogBox("compressor", &gx_engine::audio.fdialogbox8, &gx_engine::audio.fcheckboxcom1);
 													{
@@ -749,7 +750,7 @@ void GxMainInterface::setup()
 											    openSpaceBox("");
                                                 closeBox();
 												create_smallknob("overdrive.drive","  drive ");
-												create_switch_no_caption(sw_switch, "overdrive.on_off");
+												create_switch_no_caption(sw_switchit, "overdrive.on_off");
 											}
 											closeBox();
 											//-----end overdrive
@@ -761,14 +762,14 @@ void GxMainInterface::setup()
 											//----- distortion
 											openVerticalBox("distortion");
 											{
-                                                addselector("distortiont.onetwo","");
+                                                create_selector("distortiont.onetwo");
 											    //create_switch(sw_switch, "distortion.onetwo", "");
 											    openVerticalSwitchBox(" ",0, 0, &gx_engine::audio.witchdistortion);
 											    {
                                                     create_smallknob("distortion.drive","  drive ");
                                                     openHorizontalBox("");
                                                     {
-                                                        create_switch_no_caption(sw_switch, "distortion.on_off");
+                                                        create_switch_no_caption(sw_switchit, "distortion.on_off");
 
 													//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
                                                         
@@ -835,21 +836,21 @@ void GxMainInterface::setup()
                                                                                 {
                                                                                     create_smallknob("distortion.low_highpass.high_freq","high-pass ");
                                                                                     create_smallknob("distortion.low_highpass.low_freq"," low-pass ");
-                                                                                    create_switch_no_caption(sw_switch, "distortion.low_highpass.on_off");
+                                                                                    create_switch_no_caption(sw_switchit, "distortion.low_highpass.on_off");
                                                                                 }
                                                                                 closeBox();
                                                                                 openVerticalBox("low/highcut");
                                                                                 {
                                                                                     create_smallknob("distortion.low_highcutoff.low_freq"," low-cut ");
                                                                                     create_smallknob("distortion.low_highcutoff.high_freq","high-cut ");
-                                                                                    create_switch_no_caption(sw_switch, "distortion.low_highcutoff.on_off");
+                                                                                    create_switch_no_caption(sw_switchit, "distortion.low_highcutoff.on_off");
                                                                                 }
                                                                                 closeBox();
                                                                                 openVerticalBox("resonator");
                                                                                 {
                                                                                     create_smallknob("distortion.trigger","trigger ");
                                                                                     create_smallknob("distortion.vibrato"," vibrato ");
-                                                                                    create_switch_no_caption(sw_switch, "distortion.resonator.on_off");
+                                                                                    create_switch_no_caption(sw_switchit, "distortion.resonator.on_off");
                                                                                 }
                                                                                 closeBox();
                                                                             }
@@ -876,7 +877,7 @@ void GxMainInterface::setup()
                                                     create_smallknob("distortion1.drive","  drive ");
                                                     openHorizontalBox("");
                                                     {
-                                                        create_switch_no_caption(sw_switch, "distortion.on_off");
+                                                        create_switch_no_caption(sw_switchit, "distortion.on_off");
                                                         openDialogBox("distortion1", &gx_engine::audio.fdis1, &gx_engine::audio.fcheckbox4);
                                                         {
                                                             openPlugBox("");
@@ -902,7 +903,7 @@ void GxMainInterface::setup()
                                                                                     create_smallknob("distortion1.low_highpass.low_freq"," low-freq ");
                                                                                 }
                                                                                 closeBox();
-                                                                                create_switch_no_caption(sw_switch, "distortion1.low_highpass.on_off");
+                                                                                create_switch_no_caption(sw_switchit, "distortion1.low_highpass.on_off");
                                                                             }
                                                                             closeBox();
                                                                             openVerticalBox("low/highcutoff");
@@ -914,7 +915,7 @@ void GxMainInterface::setup()
                                                                                 }
                                                                                 closeBox();
 
-                                                                                create_switch_no_caption(sw_switch, "distortion1.low_highcutoff.on_off");
+                                                                                create_switch_no_caption(sw_switchit, "distortion1.low_highcutoff.on_off");
                                                                             }
                                                                             closeBox();
                                                                             openVerticalBox("resonanz");
@@ -925,7 +926,7 @@ void GxMainInterface::setup()
                                                                                     create_smallknob("distortion1.vibrato"," vibrato ");
                                                                                 }
                                                                                 closeBox();
-                                                                                create_switch_no_caption(sw_switch, "distortion1.resonator.on_off");
+                                                                                create_switch_no_caption(sw_switchit, "distortion1.resonator.on_off");
                                                                             }
                                                                             closeBox();
                                                                         }
@@ -955,7 +956,7 @@ void GxMainInterface::setup()
 													create_smallknob("freeverb.RoomSize");
 													openHorizontalBox("");
 													{
-														create_switch_no_caption(sw_switch, "freeverb.on_off");
+														create_switch_no_caption(sw_switchit, "freeverb.on_off");
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
 														openDialogBox("freeverb", &gx_engine::audio.fdialogbox2, &gx_engine::audio.fcheckbox6);
 														{
@@ -998,7 +999,7 @@ void GxMainInterface::setup()
 												//----- IR
 												openVerticalBox("IR");
 												{
-                                                    addselector("IR.auto_freq","");
+                                                    create_selector("IR.auto_freq");
 													openHorizontalBox("");
 													{
 														create_smallknob("IR.freq","   freq   ");
@@ -1007,7 +1008,7 @@ void GxMainInterface::setup()
 													closeBox();
 													openHorizontalBox("");
 													{
-														create_switch_no_caption(sw_switch, "IR.on_off");
+														create_switch_no_caption(sw_switchit, "IR.on_off");
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
 														openDialogBox("IR", &gx_engine::audio.fdialogbox3, &gx_engine::audio.fcheckbox8);
 														{
@@ -1052,7 +1053,7 @@ void GxMainInterface::setup()
                                                                             closeBox();
                                                                             openSpaceBox("");
                                                                             closeBox();
-                                                                            addselector("IR.auto_freq","");
+                                                                            create_selector("IR.auto_freq");
                                                                             openSpaceBox("");
                                                                             closeBox();
                                                                             openSpaceBox("");
@@ -1085,12 +1086,12 @@ void GxMainInterface::setup()
 												//----- crybaby
 												openVerticalBox("crybaby");
 												{
-                                                    addselector("crybaby.autowah","");
+                                                    create_selector("crybaby.autowah");
 												    //create_switch(sw_minitoggle, "crybaby.autowah"," autowah");
 													create_smallknob("crybaby.wah"," wah ");
 													openHorizontalBox("");
 													{
-														create_switch_no_caption(sw_switch, "crybaby.on_off");
+														create_switch_no_caption(sw_switchit, "crybaby.on_off");
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
 														openDialogBox("crybaby", &gx_engine::audio.fdialogbox4, &gx_engine::audio.fcheckbox5);
 														{
@@ -1125,7 +1126,7 @@ void GxMainInterface::setup()
                                                                             closeBox();
                                                                             openSpaceBox("");
                                                                             closeBox();
-                                                                            addselector("crybaby.autowah","");
+                                                                            create_selector("crybaby.autowah");
                                                                             openSpaceBox("");
                                                                             closeBox();
                                                                             openSpaceBox("");
@@ -1171,7 +1172,7 @@ void GxMainInterface::setup()
 													closeBox();
 													openHorizontalBox("");
                                                     {
-                                                        create_switch_no_caption(sw_switch, "echo.on_off");
+                                                        create_switch_no_caption(sw_switchit, "echo.on_off");
                                                         openDialogBox("echo", &gx_engine::audio.fdialogbox_echo, (int*)&gx_engine::audio.fcheckbox7);
                                                         {
                                                             openPlugBox("");
@@ -1216,7 +1217,7 @@ void GxMainInterface::setup()
 												closeBox();
 												openHorizontalBox("");
 												{
-                                                    create_switch_no_caption(sw_switch, "delay.on_off");
+                                                    create_switch_no_caption(sw_switchit, "delay.on_off");
 
                                                     openDialogBox("delay", &gx_engine::audio.fdialogbox_delay, (int*)&gx_engine::audio.fdelay);
                                                     {
@@ -1258,7 +1259,7 @@ void GxMainInterface::setup()
 											create_smallknob("chorus.level");
 											openHorizontalBox("");
 											{
-												create_switch_no_caption(sw_switch, "chorus.on_off");
+												create_switch_no_caption(sw_switchit, "chorus.on_off");
 												openDialogBox("chorus", &gx_engine::audio.fchorusbox, &gx_engine::audio.fchorus);
 												{
 												    openPlugBox("");
@@ -1295,11 +1296,11 @@ void GxMainInterface::setup()
 									{
 										openVerticalBox("flanger");
 										{
-                                            addselector("flanger.invert","");
+                                            create_selector("flanger.invert");
 											create_smallknob("flanger.level");
 											openHorizontalBox("");
 											{
-												create_switch_no_caption(sw_switch, "flanger.on_off");
+												create_switch_no_caption(sw_switchit, "flanger.on_off");
 												openDialogBox("flanger", &gx_engine::audio.fflangerbox, &gx_engine::audio.fflanger);
 												{
 												    openPlugBox("");
@@ -1333,7 +1334,7 @@ void GxMainInterface::setup()
                                                                     closeBox();
                                                                     openSpaceBox("");
                                                                     closeBox();
-                                                                    addselector("flanger.invert","");
+                                                                    create_selector("flanger.invert");
                                                                     openSpaceBox("");
                                                                     closeBox();
                                                                     openSpaceBox("");
@@ -1400,22 +1401,22 @@ void GxMainInterface::setup()
                                                             closeBox();
                                                             create_switch_no_caption(sw_minitoggle, "SampleLooper.on_off");
 
-                                                            addRecButton("SampleLooper.Capture","capture ");
-                                                            addPlayButton("SampleLooper.Play"," play       ");
+                                                            create_switch_no_caption(sw_rbutton, "SampleLooper.Capture");
+                                                            create_switch_no_caption(sw_pbutton, "SampleLooper.Play");
                                                             openSpaceBox("");
                                                             closeBox();
                                                         }
                                                         closeBox();
                                                     }
                                                     closeBox();
-                                                    //create_switch_no_caption(sw_switch, "SampleLooper.on_off");
+                                                    //create_switch_no_caption(sw_switchit, "SampleLooper.on_off");
                                                 }
                                                 closeBox();
 												openPaintBox("");
 												{
 												    openHorizontalBox("");
                                                     {
-                                                        addminieqswitch("biquad.on_off","  BiQuad Filter    ");
+	                                                    create_switch(sw_minitoggle, "biquad.on_off","   BiQuad Filter   ", Gtk::POS_RIGHT);
                                                         openDialogBox("biquad", &gx_engine::audio.fbiquadbox, (int*)&gx_engine::audio.fbiquad);
                                                         {
                                                             openPlugBox("");
@@ -1442,7 +1443,7 @@ void GxMainInterface::setup()
                                                     closeBox();
 												    openHorizontalBox("");
                                                     {
-                                                        addminieqswitch("MultiBandFilter.on_off","  MultiBandFilter");
+	                                                    create_switch(sw_minitoggle, "MultiBandFilter.on_off","   MultiBandFilter", Gtk::POS_RIGHT);
                                                         openDialogBox("MultiBandFilter", &gx_engine::audio.fdialogbox_mbf, &gx_engine::audio.fmultifilter);
                                                         {
                                                             openPlugBox("");
@@ -1487,7 +1488,7 @@ void GxMainInterface::setup()
 													closeBox();
 													openHorizontalBox("");
                                                     {
-                                                        addminieqswitch("moog.on_off","  Moog Filter       ");
+	                                                    create_switch(sw_minitoggle, "moog.on_off","   Moog Filter      ", Gtk::POS_RIGHT);
                                                         openDialogBox("moog", &gx_engine::audio.fdialogbox_moo, (int*)&gx_engine::audio.fmoog);
                                                         {
                                                             openPlugBox("");
@@ -1513,17 +1514,16 @@ void GxMainInterface::setup()
                                                         closeBox();
                                                     }
                                                     closeBox();
-                                                    addminicabswitch("cab.on_off","  Cab-ImpResp                ");
+                                                    create_switch(sw_minitoggle, "cab.on_off","   Cab-ImpResp         ", Gtk::POS_RIGHT);
 												}
 												closeBox();
 												openSlooperBox("limiter");
 												{
-
-
 													create_smallknob("amp.fuzz");
 
 													const char* lab[3] = {"    off","    clip","foldback"};
-													addselector("amp.threshold",(const char*)0,3,lab); //FIXME FIX formatting issue
+													//create_selector("amp.threshold",(const char*)0,3,lab); //FIXME FIX formatting issue
+													create_selector("amp.threshold");
 													openSpaceBox("");
 													closeBox();
 												}
@@ -1662,7 +1662,7 @@ void GxMainInterface::setup()
                                             closeBox();
                                             openHorizontalBox("");
                                             {
-                                                create_switch_no_caption(sw_switch, "midi_out.channel_2.on_off");
+                                                create_switch_no_caption(sw_switchit, "midi_out.channel_2.on_off");
                                                 openHorizontalBox(" ");
                                                 {
                                                     addPToggleButton("midi_out.channel_2.auto_pitch");
@@ -1698,7 +1698,7 @@ void GxMainInterface::setup()
                                         closeBox();
                                         openHorizontalBox("");
                                         {
-                                            create_switch_no_caption(sw_switch, "midi_out.channel_3.on_off");
+                                            create_switch_no_caption(sw_switchit, "midi_out.channel_3.on_off");
                                             openHorizontalBox(" ");
                                             {
                                                 addPToggleButton("midi_out.channel_3.auto_pitch");

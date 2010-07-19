@@ -52,7 +52,6 @@ G_DEFINE_ABSTRACT_TYPE(GxKnob, gx_knob, GX_TYPE_REGLER);
 static void gx_knob_class_init(GxKnobClass *klass)
 {
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
-	klass->jump_to_mouse = TRUE;
 	widget_class->motion_notify_event = gx_knob_pointer_motion;
 	widget_class->enter_notify_event = gx_knob_enter_in;
 	widget_class->leave_notify_event = gx_knob_leave_out;
@@ -146,10 +145,22 @@ gboolean _approx_in_rectangle(gdouble x, gdouble y, GdkRectangle *rect)
 	return FALSE;
 }
 
+static gboolean jump_to_mouse = TRUE;
+
+void gx_set_knob_jump_to_mouse(gboolean value)
+{
+	jump_to_mouse = value;
+}
+
+gboolean gx_get_knob_jump_to_mouse()
+{
+	return jump_to_mouse;
+}
+
 gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const gchar *icon,
                                 gboolean drag, int state, int button)
 {
-	int linearmode = ((state & GDK_CONTROL_MASK) == 0) ^ GX_KNOB_CLASS(GTK_OBJECT_GET_CLASS(widget))->jump_to_mouse;
+	int linearmode = ((state & GDK_CONTROL_MASK) == 0) ^ jump_to_mouse;
 	GdkRectangle image_rect;
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, icon, GtkIconSize(-1), NULL);
 	image_rect.width = gdk_pixbuf_get_width(pb);

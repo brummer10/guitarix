@@ -136,6 +136,16 @@ Selector::Selector()
 
 }
 
+void Selector::set_model(Glib::RefPtr<Gtk::TreeModel> p1)
+{
+gx_selector_set_model(gobj(), (GtkTreeModel*)Glib::unwrap(p1)); 
+}
+
+Glib::RefPtr<Gtk::TreeModel> Selector::get_model()
+{
+  return Glib::wrap(gx_selector_get_model(gobj()));
+}
+
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
 Glib::PropertyProxy<Gtk::TreeModel> Selector::property_model() 

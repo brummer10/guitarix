@@ -100,6 +100,10 @@ private:
 
 	public:
 	Selector();
+	
+  void set_model(Glib::RefPtr<Gtk::TreeModel>);;
+	
+  Glib::RefPtr<Gtk::TreeModel> get_model();;
 	#ifdef GLIBMM_PROPERTIES_ENABLED
 /** The model for the selector.
    *
