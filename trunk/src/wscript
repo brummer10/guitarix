@@ -28,7 +28,7 @@ def build(bld):
         'gx_system.cpp',
         'gx_ui.cpp',
         'GtkFastMeter.cpp',
-        #'GtkRegler.cpp',
+        'GtkRegler.cpp',
         'GtkWaveView.cpp',
         'gx_main.cpp',
         ]
