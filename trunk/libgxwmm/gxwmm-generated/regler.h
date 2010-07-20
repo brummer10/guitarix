@@ -95,7 +95,7 @@ protected:
 
   //Default Signal Handlers::
 #ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
-  virtual bool on_value_entry(const Gdk::Rectangle& p1);
+  virtual bool on_value_entry(const Gdk::Rectangle& p1, GdkEventButton* p2);
 #endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 
 
@@ -118,10 +118,10 @@ private:
 	
   /**
    * @par Prototype:
-   * <tt>bool on_my_%value_entry(const Gdk::Rectangle& p1)</tt>
+   * <tt>bool on_my_%value_entry(const Gdk::Rectangle& p1, GdkEventButton* p2)</tt>
    */
 
-  Glib::SignalProxy1< bool,const Gdk::Rectangle& > signal_value_entry();
+  Glib::SignalProxy2< bool,const Gdk::Rectangle&,GdkEventButton* > signal_value_entry();
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
 /** Label for caption display.

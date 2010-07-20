@@ -37,7 +37,7 @@ protected:
   //Callbacks (default signal handlers):
   //These will call the *_impl member methods, which will then call the existing default signal callbacks, if any.
   //You could prevent the original default signal handlers being called by overriding the *_impl method.
-  static gboolean value_entry_callback(GxRegler* self, GdkRectangle* p0);
+  static gboolean value_entry_callback(GxRegler* self, GdkRectangle* p0, GdkEventButton* p1);
 #endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 
   //Callbacks (virtual functions):

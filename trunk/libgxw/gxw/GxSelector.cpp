@@ -19,12 +19,22 @@
 #include "GxSelector.h"
 #include <gtk/gtk.h>
 #include <gtk/gtkprivate.h>
+#include <string.h>
 
 #define P_(s) (s)   // FIXME -> gettext
 
 /****************************************************************
  ** GxSelector
  */
+
+#define GX_SELECTOR_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), GX_TYPE_SELECTOR, GxSelectorPrivate))
+
+typedef struct
+{
+	GtkMenu *menu;
+	gboolean req_ok;
+	gboolean inside;
+} GxSelectorPrivate;
 
 enum {
 	PROP_MODEL = 1,
@@ -35,111 +45,163 @@ static gboolean gx_selector_leave_out (GtkWidget *widget, GdkEventCrossing *even
 static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event);
 static void gx_selector_size_request (GtkWidget *widget, GtkRequisition *requisition);
 static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *event);
-static void
-gx_selector_set_property(GObject      *object,
-                            guint         prop_id,
-                            const GValue *value,
-                            GParamSpec   *pspec);
-static void
-gx_selector_get_property(GObject      *object,
-                            guint         prop_id,
-                            GValue       *value,
-                            GParamSpec   *pspec);
+static void gx_selector_destroy(GtkObject *object);
+static void gx_selector_set_property(
+	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
+static void gx_selector_get_property(
+	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
+static gboolean gx_selector_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event);
 
 G_DEFINE_TYPE(GxSelector, gx_selector, GX_TYPE_REGLER);
 
 static void gx_selector_class_init(GxSelectorClass *klass)
 {
-	GObjectClass   *gobject_class;
-	GtkObjectClass *object_class;
-	GtkWidgetClass *widget_class;
-
-	gobject_class = G_OBJECT_CLASS (klass);
-	object_class = (GtkObjectClass*) klass;
-	widget_class = (GtkWidgetClass*) klass;
+	GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
+	GtkObjectClass *object_class = (GtkObjectClass*)klass;
+	GtkWidgetClass *widget_class = (GtkWidgetClass*)klass;
+	GxReglerClass *regler_class = (GxReglerClass*)klass;
 
 	gobject_class->set_property = gx_selector_set_property;
 	gobject_class->get_property = gx_selector_get_property;
-
-//--------- connect the events with funktions
+	object_class->destroy = gx_selector_destroy;
 	widget_class->enter_notify_event = gx_selector_enter_in;
 	widget_class->leave_notify_event = gx_selector_leave_out;
 	widget_class->expose_event = gx_selector_expose;
 	widget_class->size_request = gx_selector_size_request;
 	widget_class->button_press_event = gx_selector_button_press;
-
-	g_object_class_install_property(gobject_class,
-	                                PROP_MODEL,
-	                                g_param_spec_object("model",
-	                                                    P_("Selector model"),
-	                                                    P_("The model for the selector"),
-	                                                    GTK_TYPE_TREE_MODEL,
-	                                                    GParamFlags(GTK_PARAM_READWRITE)));
+	regler_class->value_entry = gx_selector_value_entry;
+	g_object_class_install_property(
+		gobject_class, PROP_MODEL,
+		g_param_spec_object(
+			"model", P_("Selector model"),
+			P_("The model for the selector"),
+			GTK_TYPE_TREE_MODEL, GParamFlags(GTK_PARAM_READWRITE)));
+	g_type_class_add_private(klass, sizeof (GxSelectorPrivate));
 }
 
-//--------- selector size
-static const gint class_selector_x = 55 ;
-static const gint class_selector_y = 15 ;
+static int get_selector_state(GxSelector *selector)
+{
+	int n = gtk_tree_model_iter_n_children(selector->model, NULL);
+	int selectorstate = gtk_range_get_value(GTK_RANGE(selector));
+	if (selectorstate < 0 || selectorstate >= n) {
+		selectorstate =  0 ;
+		gtk_range_set_value(GTK_RANGE(selector), 0);
+	}
+	return selectorstate;
+}
+
+static const GtkBorder default_selector_border = { 10, 10, 3, 3 };
+
+static void get_selector_border(GtkWidget *widget, GtkBorder *selector_border)
+{
+	GtkBorder *tmp_border;
+
+	gtk_widget_style_get(widget, "value-border", &tmp_border, NULL);
+	if (tmp_border) {
+		*selector_border = *tmp_border;
+		gtk_border_free(tmp_border);
+	} else {
+		*selector_border = default_selector_border;
+    }
+}
+
+static void gx_selector_get_positions(
+	GtkWidget *widget, GdkRectangle *arrow, gint *yborder, GdkRectangle *text, gint *off_x, gint *off_y)
+{
+	gint arrow_width, arrow_height, arrow_sep, border;
+	GtkBorder selector_border;
+	gtk_widget_style_get(widget,
+	                     "trough-border", &border,
+	                     "stepper-size", &arrow_width,
+	                     "stepper-spacing", &arrow_sep,
+	                     NULL);
+	arrow_height = (arrow_width * 3) / 4;
+	get_selector_border(widget, &selector_border);
+	int width = widget->allocation.width; // fill allocated width
+	int height = widget->requisition.height;
+	int x = widget->allocation.x + widget->style->xthickness +(widget->allocation.width - width) / 2;
+	int y = widget->allocation.y + widget->style->ythickness + (widget->allocation.height - height) / 2;
+	arrow->x = x + width - 2 * widget->style->xthickness - selector_border.right - arrow_width;
+	arrow->y = y + selector_border.bottom - widget->style->ythickness - border +
+		(height - selector_border.bottom - selector_border.top - arrow_height) / 2;
+	arrow->width = arrow_width;
+	arrow->height = arrow_height + 2*border;
+	*yborder = border;
+	if (text) {
+		text->x = x;
+		text->y = y;
+		text->width = width - 2 * widget->style->xthickness;
+		text->height = height - 2 * widget->style->ythickness;
+		*off_x = selector_border.left;
+		*off_y = selector_border.bottom;
+	}
+}
+
+static void gx_selector_draw_arrow(const GdkRectangle *rect, gint yborder, cairo_t *cr, gboolean has_focus)
+{
+	cairo_rectangle(cr, rect->x, rect->y, rect->width, rect->height);
+	cairo_set_source_rgb(cr, 0, 0, 0);
+	cairo_fill_preserve(cr);
+	cairo_set_line_width(cr, 1.0);
+	if (has_focus) {
+		cairo_move_to(cr, rect->x, rect->y + rect->height - yborder);
+		cairo_line_to(cr, rect->x + rect->width / 2.0, rect->y + yborder);
+		cairo_line_to(cr, rect->x + rect->width, rect->y + rect->height - yborder);
+		cairo_set_source_rgb(cr, 0.3, 0.3, 0.3);
+	} else {
+		cairo_set_source_rgb(cr, 0.2, 0.2, 0.2);
+	}
+	cairo_stroke (cr);
+}
 
 static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
 	GxSelector *selector = GX_SELECTOR(widget);
-
-	int selectorx = widget->allocation.x + (widget->allocation.width - class_selector_x) / 2;
-	int selectory = widget->allocation.y + (widget->allocation.height - class_selector_y) / 2;
-	int n = gtk_tree_model_iter_n_children(selector->model, NULL);
-	int selectorstate = gtk_range_get_value(GTK_RANGE(selector));
-	if (selectorstate < 0 || selectorstate >= n) {
-		selectorstate =  0 ;
-		gtk_range_set_value(GTK_RANGE(widget), 0);
-	}
+	GxSelectorPrivate *priv = GX_SELECTOR_GET_PRIVATE(selector);
+	int selectorstate = get_selector_state(selector);
+	PangoLayout *layout = gtk_widget_create_pango_layout(widget, NULL);
+	GdkRectangle arrow, text;
+	gint yborder, off_x, off_y;
+	gx_selector_get_positions(widget, &arrow, &yborder, &text, &off_x, &off_y);
 
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-	cairo_set_line_width (cr, 2.0);
+	cairo_set_line_width(cr, 2.0);
 
-	cairo_rectangle (cr, selectorx+1,selectory+1,class_selector_x-4,class_selector_y-2);
-	cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
-	cairo_fill_preserve (cr);
-	cairo_set_source_rgb (cr, 0, 0, 0);
-	cairo_stroke (cr);
+	cairo_rectangle(cr, text.x, text.y, text.width, text.height);
+	cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
+	cairo_fill_preserve(cr);
+	cairo_set_source_rgb(cr, 0, 0, 0);
+	cairo_stroke(cr);
 
-	cairo_rectangle (cr, selectorx+42,selectory+2,9,class_selector_y-4);
-	cairo_set_source_rgb (cr, 0, 0, 0);
-	cairo_fill_preserve (cr);
-	cairo_set_line_width (cr, 1.0);
-	cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
-	cairo_stroke (cr);
-
-	cairo_set_source_rgba (cr, 0.4, 1, 0.2, 0.8);
-	cairo_set_font_size (cr, 10.0);
-	cairo_move_to (cr, selectorx+1, selectory+11);
-	const char *s;
+	gx_selector_draw_arrow(&arrow, yborder, cr, priv->inside);
+	cairo_destroy(cr);
 	if (selector->model) {
+		char *s;
 		GtkTreeIter iter;
 		gtk_tree_model_iter_nth_child(selector->model, &iter, NULL, selectorstate);
 		gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
-	} else {
-		s = "";
+		pango_layout_set_text(layout, s, -1);
+		//cairo_set_source_rgba(cr, 0.4, 1, 0.2, 0.8);
+		gtk_paint_layout(widget->style, widget->window, gtk_widget_get_state(widget),
+		                 FALSE, NULL, widget, "label",
+		                 text.x + off_x, text.y + off_y, layout);
+		g_free(s);
 	}
-	cairo_show_text(cr, s);
-	cairo_stroke (cr);
-	cairo_destroy(cr);
+	g_object_unref(layout);
 	return TRUE;
 }
 
 static gboolean gx_selector_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-	int selectorx = widget->allocation.x + (widget->allocation.width - class_selector_x) / 2;
-	int selectory = widget->allocation.y + (widget->allocation.height - class_selector_y) / 2;
+	GxSelectorPrivate *priv = GX_SELECTOR_GET_PRIVATE(GX_SELECTOR(widget));
+	priv->inside = FALSE;
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-	cairo_rectangle (cr, selectorx+42,selectory+2,9,class_selector_y-4);
-	cairo_set_source_rgb (cr, 0, 0, 0);
-	cairo_fill_preserve (cr);
-	cairo_set_line_width (cr, 1.0);
-	cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
-	cairo_stroke (cr);
+	GdkRectangle rect;
+	gint yborder;
+	gx_selector_get_positions(widget, &rect, &yborder, NULL, NULL, NULL);
+	gx_selector_draw_arrow(&rect, yborder, cr, FALSE);
 	cairo_destroy(cr);
 	return TRUE;
 }
@@ -147,27 +209,129 @@ static gboolean gx_selector_leave_out (GtkWidget *widget, GdkEventCrossing *even
 static gboolean gx_selector_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-	int selectorx = widget->allocation.x + (widget->allocation.width - class_selector_x) / 2;
-	int selectory = widget->allocation.y + (widget->allocation.height - class_selector_y) / 2;
+	GxSelectorPrivate *priv = GX_SELECTOR_GET_PRIVATE(GX_SELECTOR(widget));
+	priv->inside = TRUE;
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-	cairo_rectangle (cr, selectorx+42,selectory+2,9,class_selector_y-4);
-	cairo_set_source_rgb (cr, 0, 0, 0);
-	cairo_fill_preserve (cr);
-	cairo_move_to(cr,selectorx+43,selectory+10);
-	cairo_line_to (cr,selectorx+47 , selectory+4);
-	cairo_line_to (cr,selectorx+51 , selectory+10);
-	cairo_set_line_width (cr, 1.0);
-	cairo_set_source_rgb (cr, 0.3, 0.3, 0.3);
-	cairo_stroke (cr);
+	GdkRectangle rect;
+	gint yborder;
+	gx_selector_get_positions(widget, &rect, &yborder, NULL, NULL, NULL);
+	gx_selector_draw_arrow(&rect, yborder, cr, TRUE);
 	cairo_destroy(cr);
 	return TRUE;
 }
 
-static void gx_selector_size_request (GtkWidget *widget, GtkRequisition *requisition)
+static void gx_selector_size_request(GtkWidget *widget, GtkRequisition *requisition)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-	requisition->width = class_selector_x;
-	requisition->height = class_selector_y;
+	GxSelector *selector = GX_SELECTOR(widget);
+	GxSelectorPrivate *priv = GX_SELECTOR_GET_PRIVATE(selector);
+	if (priv->req_ok) {
+		gtk_widget_get_child_requisition(widget, requisition);
+	} else {
+		GtkTreeIter iter;
+		gint width = 0;
+		gint height = 0;
+		gint arrow_width, arrow_sep, border;
+		GtkBorder selector_border;
+		gtk_widget_style_get(widget,
+		                     "trough-border", &border,
+		                     "stepper-size", &arrow_width,
+		                     "stepper-spacing", &arrow_sep,
+		                     NULL);
+		get_selector_border(widget, &selector_border);
+		PangoLayout *l = gtk_widget_create_pango_layout(widget, NULL);
+		gboolean found = gtk_tree_model_get_iter_first(selector->model, &iter);
+		while (found) {
+			PangoRectangle logical_rect;
+			gchar *s;
+			gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
+			pango_layout_set_text(l, s, -1);
+			g_free(s);
+			pango_layout_get_pixel_extents(l, NULL, &logical_rect);
+			if (width < logical_rect.width) {
+				width = logical_rect.width;
+			}
+			if (height < logical_rect.height) {
+				height = logical_rect.height;
+			}
+			found = gtk_tree_model_iter_next(selector->model, &iter);
+		}
+		requisition->width = width + arrow_sep + arrow_width + 2*border +
+			selector_border.left + selector_border.right + 2 * widget->style->xthickness;
+		requisition->height = height + selector_border.top + selector_border.bottom +
+			2 * widget->style->ythickness;
+		priv->req_ok = TRUE;
+		g_object_unref(l);
+	}
+}
+
+static void posfunc(GtkMenu *menu, gint *x, gint *y, gboolean *push_in, gpointer user_data)
+{
+	GtkWidget *w = GTK_WIDGET(user_data);
+	GdkWindow *win = gtk_widget_get_window(w);
+	int i = get_selector_state(GX_SELECTOR(w));
+	gint n = g_list_length(gtk_container_get_children(GTK_CONTAINER(menu)));
+	GtkRequisition req;
+	gtk_widget_get_requisition(GTK_WIDGET(menu), &req);
+	gdk_window_get_origin(win, x, y);
+	*x += w->allocation.x;
+	*y += w->allocation.y - (req.height * i) / n;
+	*push_in = TRUE;
+}
+
+static void selection_done(GtkMenu *menu, gpointer data)
+{
+	GxSelector *selector = GX_SELECTOR(data);
+	GtkTreeIter iter;
+	gboolean found;
+	int n;
+	const char *label = gtk_menu_item_get_label(GTK_MENU_ITEM(gtk_menu_get_active(menu)));
+	n = 0;
+	found = gtk_tree_model_get_iter_first(selector->model, &iter);
+	while (found) {
+		gchar *s;
+		gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
+		if (strcmp(label, s) == 0) {
+			g_free(s);
+			if (n != get_selector_state(selector)) {
+				gtk_range_set_value(GTK_RANGE(selector), n);
+				gtk_widget_queue_draw(GTK_WIDGET(selector));
+			}
+			return;
+		}
+		g_free(s);
+		n += 1;
+		found = gtk_tree_model_iter_next(selector->model, &iter);
+		}
+	g_assert(FALSE);
+}
+
+static gboolean gx_selector_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event)
+{
+	GxSelector *selector = GX_SELECTOR(regler);
+	GxSelectorPrivate *priv = GX_SELECTOR_GET_PRIVATE(selector);
+	GtkMenu *m = priv->menu;
+	if (!m) {
+		GtkTreeIter iter;
+		gboolean found;
+		char *s;
+		m = GTK_MENU(gtk_menu_new());
+		gtk_widget_set_name(GTK_WIDGET(m), "selector-value-popup");
+		g_signal_connect(m, "selection-done", G_CALLBACK(selection_done), selector);
+		found = gtk_tree_model_get_iter_first(selector->model, &iter);
+		while (found) {
+			gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
+			GtkWidget *item = gtk_menu_item_new_with_label(s);
+			gtk_menu_append(m, item);
+			gtk_widget_show(item);
+			g_free(s);
+			found = gtk_tree_model_iter_next(selector->model, &iter);
+		}
+		priv->menu = m;
+	}
+	gtk_menu_set_active(m, get_selector_state(selector));
+	gtk_menu_popup(m, NULL, NULL, posfunc, regler, event->button, event->time);
+	return TRUE;
 }
 
 static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *event)
@@ -180,6 +344,9 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 
 	switch (event->button) {
 	case 1:  // left button
+		if (event->type != GDK_BUTTON_PRESS) {
+			return TRUE;
+		}
 		gtk_widget_grab_focus(widget);
 		gtk_grab_add(widget);
 		n = gtk_tree_model_iter_n_children(selector->model, NULL);
@@ -191,11 +358,11 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 		gtk_range_set_value(GTK_RANGE(widget), i);
 		break;
 	case 3: // right button show num entry
-		rect.width = class_selector_x;
-		rect.height = class_selector_y;
-		rect.x = widget->allocation.x + (widget->allocation.width - class_selector_x) / 2;
-		rect.y = widget->allocation.y + (widget->allocation.height - class_selector_y) / 2;
-		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &rect, &ret);
+		rect.width = widget->requisition.width;
+		rect.height = widget->requisition.height;
+		rect.x = widget->allocation.x + (widget->allocation.width - widget->requisition.width) / 2;
+		rect.y = widget->allocation.y + (widget->allocation.height - widget->requisition.height) / 2;
+		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &rect, event, &ret);
 		return ret;
 		break;
 	}
@@ -204,46 +371,34 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 
 static void gx_selector_init(GxSelector *selector)
 {
-	GtkWidget *widget = GTK_WIDGET(selector);
-	gtk_widget_set_has_window (GTK_WIDGET (selector), FALSE);
-	GTK_WIDGET_SET_FLAGS (GTK_WIDGET(selector), GTK_CAN_FOCUS);
-	GTK_WIDGET_SET_FLAGS (GTK_WIDGET(selector), GTK_CAN_DEFAULT);
-	widget->requisition.width = class_selector_x;
-	widget->requisition.height = class_selector_y;
+	gtk_widget_set_has_window(GTK_WIDGET(selector), FALSE);
+	gtk_widget_set_can_focus(GTK_WIDGET(selector), TRUE);
 }
 
-static void
-gx_selector_unset_model (GxSelector *selector)
+static void gx_selector_unset_model(GxSelector *selector)
 {
-	/*
-	if (selector->model) {
-		g_signal_handler_disconnect (priv->model,
-		                             priv->inserted_id);
-		g_signal_handler_disconnect (priv->model,
-		                             priv->deleted_id);
-		g_signal_handler_disconnect (priv->model,
-		                             priv->reordered_id);
-		g_signal_handler_disconnect (priv->model,
-		                             priv->changed_id);
-	}
-	*/
-
 	if (selector->model) {
 		g_object_unref (selector->model);
 		selector->model = NULL;
 	}
 }
 
+static void gx_selector_destroy(GtkObject *object)
+{
+	gx_selector_unset_model(GX_SELECTOR(object));
+	GTK_OBJECT_CLASS(gx_selector_parent_class)->destroy(object);
+}
+
+
 void gx_selector_set_model(GxSelector *selector, GtkTreeModel *model)
 {
 	g_return_if_fail(GX_IS_SELECTOR(selector));
 	g_return_if_fail(model == NULL || GTK_IS_TREE_MODEL (model));
-
+	GxSelectorPrivate *priv;
 	if (model == selector->model)
 		return;
-  
+    priv = GX_SELECTOR_GET_PRIVATE(selector);
 	gx_selector_unset_model(selector);
-
 	int n = 0;
 	if (model != NULL) {
 		selector->model = model;
@@ -254,6 +409,8 @@ void gx_selector_set_model(GxSelector *selector, GtkTreeModel *model)
 		}
 	}
 	gtk_adjustment_configure(gtk_range_get_adjustment(GTK_RANGE(selector)), 0.0, 0.0, n, 1.0, 1.0, 0.0);
+	priv->req_ok = FALSE;
+	gtk_widget_queue_resize(GTK_WIDGET(selector));
 	g_object_notify(G_OBJECT(selector), "model");
 }
 
@@ -263,11 +420,8 @@ GtkTreeModel *gx_selector_get_model(GxSelector *selector)
 	return selector->model;
 }
 
-static void
-gx_selector_set_property (GObject      *object,
-                             guint         prop_id,
-                             const GValue *value,
-                             GParamSpec   *pspec)
+static void gx_selector_set_property(
+	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {
 	GxSelector *selector = GX_SELECTOR(object);
 	switch(prop_id) {
@@ -280,11 +434,8 @@ gx_selector_set_property (GObject      *object,
 	}
 }
 
-static void
-gx_selector_get_property(GObject      *object,
-                            guint         prop_id,
-                            GValue       *value,
-                            GParamSpec   *pspec)
+static void gx_selector_get_property(
+	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec)
 {
 	GxSelector *selector = GX_SELECTOR(object);
 	switch(prop_id) {

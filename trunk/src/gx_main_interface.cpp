@@ -26,8 +26,8 @@
 #include <gdk/gdkkeysyms.h>
 #include "guitarix.h"
 #include <gtkmm/liststore.h>
-//#include <gtkmm/treemodel.h>
-//#include <gtkmm/treemodelcolumn.h>
+#include <gtkmm/window.h>
+#include <gtkmm/frame.h>
 
 using namespace gx_system;
 using namespace gx_child_process;
@@ -1716,16 +1716,16 @@ UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param,
 	m_box.show_all();
 }
 
-void UiSwitch::on_value_changed()
+void UiSwitch::on_toggled()
 {
-	modifyZone(m_switch.get_active());
+	modifyZone(get_active());
 }
 
 void UiSwitch::reflectZone()
 {
 	float v = *fZone;
 	fCache = v;
-	m_switch.set_active(v != 0.0);
+	set_active(v != 0.0);
 }
 
 GtkWidget *UiSwitch::create(gx_ui::GxUI& ui, const char* sw_type, string id)
@@ -1738,7 +1738,7 @@ GtkWidget *UiSwitch::create(gx_ui::GxUI& ui, const char* sw_type, string id)
 
 UiSwitch::UiSwitch(gx_ui::GxUI& ui, const char *sw_type, Parameter &param):
 	gx_ui::GxUiItem(&ui, get_vp(param)),
-	m_switch(sw_type)
+	Gxw::Switch(sw_type)
 {
 	param.set_std_value();
 	bool v;
@@ -1748,10 +1748,10 @@ UiSwitch::UiSwitch(gx_ui::GxUI& ui, const char *sw_type, Parameter &param):
 		assert(param.isInt()); /*FIXME*/
 		v = param.getInt().value;
 	}
-	m_switch.set_active(v);
-	m_switch.cp_set_var(param.id());
-	connect_midi_controller(GTK_WIDGET(m_switch.gobj()), fZone);
-	m_switch.show();
+	set_active(v);
+	cp_set_var(param.id());
+	connect_midi_controller(GTK_WIDGET(gobj()), fZone);
+	show();
 }
 
 GtkWidget* UiSwitchWithCaption::create(gx_ui::GxUI& ui, const char *sw_type, string id, Gtk::PositionType pos)
@@ -1784,9 +1784,9 @@ UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, P
 	}
 	if (pos == Gtk::POS_LEFT || pos == Gtk::POS_TOP) {
 		m_box->pack_start(m_label, Gtk::PACK_SHRINK);
-		m_box->pack_start(m_switch, Gtk::PACK_SHRINK);
+		m_box->pack_start(*this, Gtk::PACK_SHRINK);
 	} else {
-		m_box->pack_start(m_switch, Gtk::PACK_SHRINK);
+		m_box->pack_start(*this, Gtk::PACK_SHRINK);
 		m_box->pack_start(m_label, Gtk::PACK_SHRINK);
 	}
 	m_box->set_name(param.id());
@@ -1827,10 +1827,14 @@ void GxMainInterface::setSkinBox(const char* label, float* zone)
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_set_skin),  (gpointer) c);
 }
 
-void GxMainInterface::openDialogBox(const char* id, float* zone, int * z1)
+void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch)
 {
-	const char *label = param_group(id).c_str();
-	GtkWidget * dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	Parameter& param_dialog = parameter_map[id_dialog];
+	Parameter& param_switch = parameter_map[id_switch];
+	const char *label = param_dialog.group().c_str();
+	string id = param_dialog.id();
+	const char *group_id = id.substr(0, id.find_last_of(".")).c_str();
+	GtkWidget * dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
 	gtk_window_set_icon(GTK_WINDOW (dialog), GDK_PIXBUF(ib));
 	gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
@@ -1847,28 +1851,17 @@ void GxMainInterface::openDialogBox(const char* id, float* zone, int * z1)
 	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
 	gtk_container_set_border_width (GTK_CONTAINER (box4), 8);
 	g_signal_connect(box4, "expose-event", G_CALLBACK(rectangle_expose), NULL);
-	GdkColor colorRed;
-	GdkColor colorOwn;
-	gdk_color_parse ("#000094", &colorRed);
-	gdk_color_parse ("#7f7f7f", &colorOwn);
-	*zone = 0.0;
-
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* button = myGtkRegler.gtk_button_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-
+	UiSwitch *button = new UiSwitch(*this, sw_button, param_dialog);
+	button->show();
+	button->modify_bg(Gtk::STATE_NORMAL, Gdk::Color("#7f7f7f"));
+	button->modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#000094"));
 	GtkWidget * box3 = gtk_hbox_new (homogene, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (box3), 0);
-	gtk_container_add (GTK_CONTAINER(box3), button);
-	gtk_widget_show (button);
+	gtk_container_add (GTK_CONTAINER(box3), button->get_widget());
 	gtk_widget_show (box3);
 	gtk_container_add (GTK_CONTAINER(fBox[fTop]), box3);
-	gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
-	gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
-	g_signal_connect (GTK_OBJECT (button), "value-changed", G_CALLBACK (gx_show_extended_settings), (gpointer) dialog);
-	g_signal_connect_swapped (G_OBJECT (dialog), "delete_event", G_CALLBACK (gx_delete_event), (gpointer) button);
+	g_signal_connect (GTK_OBJECT (button->gobj()), "toggled", G_CALLBACK (gx_show_extended_settings), (gpointer) dialog);
+	g_signal_connect_swapped (G_OBJECT (dialog), "delete_event", G_CALLBACK (gx_delete_event), (gpointer) button->gobj());
 	GtkWidget * frame =  gtk_frame_new (label);
 	GtkWidget* 	lab = gtk_label_new("reset");
 	GtkWidget* 	button1 = gtk_button_new();
@@ -1879,25 +1872,19 @@ void GxMainInterface::openDialogBox(const char* id, float* zone, int * z1)
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
 	gtk_widget_modify_font(lab, style->font_desc);
 
-    GtkObject* adjl = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* cl = new uiAdjustment(this,(float*) z1, GTK_ADJUSTMENT(adjl));
-	g_signal_connect (GTK_OBJECT (adjl), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) cl);
-
-
-
-	GtkWidget* led = myGtkRegler.gtk_led_new_with_adjustment(GTK_ADJUSTMENT(adjl));
+	UiSwitch *led = new UiSwitch(*this, sw_led, param_switch);
 
 	//connect_midi_controller(slider, zone);
-    gtk_container_add (GTK_CONTAINER(box5), led);
+	gtk_container_add (GTK_CONTAINER(box5), led->get_widget());
 	gtk_container_add (GTK_CONTAINER(box5), frame);
 	gtk_container_add (GTK_CONTAINER(box5), button1);
-	g_signal_connect  (GTK_OBJECT (button1), "pressed", G_CALLBACK (gx_reset_units), (gpointer) id);
+	g_signal_connect  (GTK_OBJECT (button1), "pressed", G_CALLBACK (gx_reset_units), (gpointer) group_id);
 	gtk_container_add (GTK_CONTAINER(box4), box5);
 	gtk_container_add (GTK_CONTAINER(box4), box);
 	gtk_container_add (GTK_CONTAINER(dialog), box4);
 	// gtk_widget_show(dialog);
 	gtk_widget_show(lab);
-	gtk_widget_show(led);
+	led->show();
 	gtk_widget_show(frame);
 	gtk_widget_show(button1);
 	gtk_widget_show(box);
@@ -1905,6 +1892,91 @@ void GxMainInterface::openDialogBox(const char* id, float* zone, int * z1)
 	gtk_widget_show(box5);
 	pushBox(kBoxMode, box);
 }
+
+class GxDialogBox
+{
+private:
+	Gtk::Window m_window;
+	Gtk::HBox m_box;
+	Gtk::HBox m_box3;
+	Gtk::HBox m_box4;
+	Gtk::HBox m_box5;
+	UiSwitch m_show_dialog;
+	UiSwitch m_unit_on_off;
+	Gtk::Frame m_frame;
+	Gtk::Label m_label;
+	Gtk::Button m_button;
+	bool on_my_expose_event(GdkEventExpose* event);
+public:
+	GxDialogBox(gx_ui::GxUI& ui, Glib::ustring id_dialog, Glib::ustring id_switch);
+};
+
+bool GxDialogBox::on_my_expose_event(GdkEventExpose* event)
+{
+	return rectangle_expose(GTK_WIDGET(m_window.gobj()), event, 0);
+}
+
+GxDialogBox::GxDialogBox(gx_ui::GxUI& ui, Glib::ustring id_dialog, Glib::ustring id_switch):
+	m_window(Gtk::WINDOW_TOPLEVEL),
+	m_box(false, 8),
+	m_box3(false, 0),
+	m_box4(false, 4),
+	m_box5(false, 4),
+	m_show_dialog(ui, sw_button, parameter_map[id_dialog]),
+	m_unit_on_off(ui, sw_led, parameter_map[id_switch]),
+	m_label("reset")
+{
+	Parameter& param_dialog = parameter_map[id_dialog];
+	//Parameter& param_switch = parameter_map[id_switch];
+	string id = param_dialog.id();
+	const char *group_id = id.substr(0, id.find_last_of(".")).c_str();
+	Glib::ustring label = param_dialog.group();
+	m_window.set_decorated(true);
+	m_window.set_icon(Glib::wrap(ib));
+	m_window.set_resizable(false);
+	m_window.set_gravity(Gdk::GRAVITY_SOUTH);
+	m_window.set_transient_for(*Glib::wrap(GTK_WINDOW(fWindow)));
+	m_window.set_position(Gtk::WIN_POS_MOUSE);
+	m_window.set_keep_below(false);
+	m_window.set_title(label);
+	m_window.set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
+	m_window.property_destroy_with_parent() = true;
+	m_box.set_border_width(2);
+	m_box.set_border_width(8);
+	m_box4.signal_expose_event().connect(sigc::mem_fun(*this, &GxDialogBox::on_my_expose_event));
+	m_show_dialog.show();
+	m_show_dialog.modify_bg(Gtk::STATE_NORMAL, Gdk::Color("#7f7f7f"));
+	m_show_dialog.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#000094"));
+	m_box3.set_border_width(0);
+	m_box3.add(m_show_dialog);
+	m_box3.show();
+	//gtk_container_add (GTK_CONTAINER(fBox[fTop]), box3.gobj());
+
+	m_button.add(m_label);
+	g_signal_connect (GTK_OBJECT (m_button.gobj()), "toggled", G_CALLBACK (gx_show_extended_settings), (gpointer) m_window.gobj());
+	g_signal_connect_swapped (G_OBJECT (m_window.gobj()), "delete_event", G_CALLBACK (gx_delete_event), (gpointer) m_button.gobj());
+	m_frame.set_label(label);
+	Glib::RefPtr<Gtk::Style> style = m_label.get_style();
+	style->get_font().set_size(10*Pango::SCALE);
+	style->get_font().set_weight(Pango::WEIGHT_NORMAL);
+	m_label.modify_font(style->get_font());
+	m_box5.add(m_unit_on_off);
+	m_box5.add(m_frame);
+	m_box5.add(m_button);
+	m_button.signal_pressed().connect(G_CALLBACK(gx_reset_units), (gpointer) group_id);
+	m_box4.add(m_box5);
+	m_box4.add(m_box);
+	m_window.add(m_box4);
+	m_label.show();
+	m_unit_on_off.show();
+	m_frame.show();
+	m_button.show();
+	m_box.show();
+	m_box4.show();
+	m_box5.show();
+	//pushBox(kBoxMode, m_box.gobj());
+}
+
 //-------- collect patch info for stage display
 struct uiPatchDisplay : public gx_ui::GxUiItem
 {

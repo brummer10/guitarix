@@ -124,7 +124,7 @@ def build_generate_wrapper(bld):
         )
     bld.add_group()
     bld(name = "sigdefs",
-        rule = "${SRC} > ${TGT}",
+        rule = "${SRC} | sed 's/GdkEvent\\*/GdkEventButton*/' > ${TGT}", #FIXME
         source = 'generate_defs_gxw',
         target = 'signals.defs',
         )

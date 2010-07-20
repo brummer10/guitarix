@@ -137,19 +137,18 @@ public:
 	GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
 };
 
-class UiSwitch: gx_ui::GxUiItem
+class UiSwitch: gx_ui::GxUiItem, public Gxw::Switch
 {
 private:
 	float *get_vp(Parameter &param) { return param.isFloat() ? &param.getFloat().value : (float*)&param.getInt().value; /*FIXME*/}
 protected:
 	float fparam;
-	Gxw::Switch m_switch;
-	virtual void on_value_changed();
+	virtual void on_toggled();
 	virtual void reflectZone();
 public:
 	static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id);
 	UiSwitch(gx_ui::GxUI& ui, const char *sw_type, Parameter &param);
-	GtkWidget *get_widget() { return GTK_WIDGET(m_switch.gobj()); }
+	GtkWidget *get_widget() { return GTK_WIDGET(gobj()); }
 };
 
 class UiSwitchWithCaption: UiSwitch
@@ -255,7 +254,7 @@ public :
 	void openFlipLabelBox(const char* = "");
 	void openVerticalSwitchBox(const char* label, int state, int wit, float* zone);
 	void openVerticalMidiBox(const char* label = "");
-	void openDialogBox(const char* label, float* zone, int * z1);
+	void openDialogBox(const char *id_dialog, const char *id_switch);
 	void openPatchInfoBox(float* zone);
 	void openWarningBox(const char* label, float* zone);
 	void openEventBox(const char* label = "");

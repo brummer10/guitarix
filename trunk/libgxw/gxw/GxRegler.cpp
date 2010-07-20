@@ -72,7 +72,7 @@ static gboolean gx_regler_button_release (GtkWidget *widget, GdkEventButton *eve
 static gboolean gx_regler_scroll (GtkWidget *widget, GdkEventScroll *event);
 static gboolean gx_regler_change_value(GtkRange *range, GtkScrollType scroll, gdouble value);
 static void gx_regler_value_changed(GtkRange *range);
-static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect);
+static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE(GxRegler, gx_regler, GTK_TYPE_RANGE,
                                  G_IMPLEMENT_INTERFACE(GX_TYPE_CONTROL_PARAMETER,
@@ -127,20 +127,20 @@ gboolean gx_boolean_handled_accumulator(
   return continue_emission;
 }
 
-static void marshal_BOOLEAN__BOXED(
+static void marshal_BOOLEAN__BOXED_BOXED(
 	GClosure *closure, GValue *return_value G_GNUC_UNUSED,
 	guint n_param_values, const GValue *param_values,
 	gpointer invocation_hint G_GNUC_UNUSED, gpointer marshal_data)
 {
-	typedef gboolean (*GMarshalFunc_BOOLEAN__BOXED) (
-		gpointer data1, gpointer arg_1, gpointer data2);
-	register GMarshalFunc_BOOLEAN__BOXED callback;
+	typedef gboolean (*GMarshalFunc_BOOLEAN__BOXED_BOXED) (
+		gpointer data1, gpointer arg_1, gpointer arg_2, gpointer data2);
+	register GMarshalFunc_BOOLEAN__BOXED_BOXED callback;
 	register GCClosure *cc = (GCClosure*) closure;
 	register gpointer data1, data2;
 	gboolean v_return;
 
 	g_return_if_fail (return_value != NULL);
-	g_return_if_fail (n_param_values == 2);
+	g_return_if_fail (n_param_values == 3);
 
 	if (G_CCLOSURE_SWAP_DATA(closure)) {
 		data1 = closure->data;
@@ -149,10 +149,13 @@ static void marshal_BOOLEAN__BOXED(
 		data1 = g_value_peek_pointer (param_values + 0);
 		data2 = closure->data;
 	}
-	callback = (GMarshalFunc_BOOLEAN__BOXED)(
+	callback = (GMarshalFunc_BOOLEAN__BOXED_BOXED)(
 		marshal_data ? marshal_data : cc->callback);
 	v_return = callback(
-		data1, g_value_get_boxed(param_values + 1), data2);
+		data1,
+		g_value_get_boxed(param_values + 1),
+		g_value_get_boxed(param_values + 2),
+		data2);
 	g_value_set_boolean(return_value, v_return);
 }
 
@@ -193,8 +196,9 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (GxReglerClass, value_entry),
 		              gx_boolean_handled_accumulator, NULL,
-		              marshal_BOOLEAN__BOXED,
-		              G_TYPE_BOOLEAN, 1, GDK_TYPE_RECTANGLE);
+		              marshal_BOOLEAN__BOXED_BOXED,
+		              G_TYPE_BOOLEAN, 2, GDK_TYPE_RECTANGLE,
+		              GDK_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
 
 	gtk_widget_class_install_style_property(
 		widget_class,
@@ -715,7 +719,7 @@ static gboolean map_check(
 	return FALSE;
 }
 
-static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect)
+static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event)
 {
 	g_assert(GX_IS_REGLER(regler));
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));

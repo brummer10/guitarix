@@ -50,18 +50,9 @@ struct _GxSelectorClass {
 	GxReglerClass parent_class;
 };
 
-/*
-typedef enum {
-	GX_SELECTOR_TYPE_SELECTOR,
-} GxSelectorType;
-*/
-
 GType gx_selector_get_type(void);
 void gx_selector_set_model(GxSelector *selector, GtkTreeModel *model);
 GtkTreeModel *gx_selector_get_model(GxSelector *selector);
-
-//GtkWidget *gx_selector_new_with_adjustment(GtkAdjustment *_adjustment,int maxv, const char* []);
-
 
 G_END_DECLS
 

@@ -90,7 +90,7 @@ void GxMainInterface::setup()
 								{
 									openHorizontalBox("");
 									{
-										openDialogBox("jconv", &gx_engine::audio.fdialogboxj,(int*)&gx_jconv::GxJConvSettings::checkbutton7);
+										openDialogBox("jconv.dialog", "jconv.on_off");
 										{
 										    openPlugBox("");
                                             {
@@ -199,7 +199,7 @@ void GxMainInterface::setup()
                                         openVerticalSwitchBox(" ",0, 1, &gx_engine::audio.witcheq);
                                         {
 
-                                            openDialogBox("eq", &gx_engine::audio.fdialogbox_eq,  &gx_engine::audio.feq);
+                                            openDialogBox("eq.dialog", "eq.on_off");
                                             {
                                                 openPlugBox("");
                                                 {
@@ -244,7 +244,7 @@ void GxMainInterface::setup()
 
                                         openVerticalSwitchBox(" ",1, 1, &gx_engine::audio.witcheq);
                                         {
-                                            openDialogBox("eqs", &gx_engine::audio.fdialogbox_eqs,  &gx_engine::audio.feq);
+                                            openDialogBox("eqs.dialog",  "eq.on_off");
                                             {
                                                 openPlugBox("");
                                                 {
@@ -697,7 +697,7 @@ void GxMainInterface::setup()
 												{
 													create_switch_no_caption(sw_switchit, "compressor.on_off");
 													//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-													openDialogBox("compressor", &gx_engine::audio.fdialogbox8, &gx_engine::audio.fcheckboxcom1);
+													openDialogBox("compressor.dialog", "compressor.on_off");
 													{
 													    openPlugBox("");
                                                         {
@@ -773,7 +773,7 @@ void GxMainInterface::setup()
 
 													//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
                                                         
-                                                            openDialogBox("distortion", &gx_engine::audio.fdialogbox1, &gx_engine::audio.fcheckbox4);
+                                                            openDialogBox("distortion.dialog", "distortion.on_off");
                                                             {
                                                                 openPlugBox("");
                                                                 {
@@ -828,8 +828,8 @@ void GxMainInterface::setup()
                                                                                     closeBox();
                                                                                 }
                                                                                 closeBox();
-                                                                            }
-                                                                            closeBox();
+		                                                                }
+		                                                                closeBox();
                                                                             openHorizontalTableBox("");
                                                                             {
                                                                                 openVerticalBox("low/highpass");
@@ -878,7 +878,7 @@ void GxMainInterface::setup()
                                                     openHorizontalBox("");
                                                     {
                                                         create_switch_no_caption(sw_switchit, "distortion.on_off");
-                                                        openDialogBox("distortion1", &gx_engine::audio.fdis1, &gx_engine::audio.fcheckbox4);
+                                                        openDialogBox("distortion1.dialog", "distortion.on_off");
                                                         {
                                                             openPlugBox("");
                                                             {
@@ -958,7 +958,7 @@ void GxMainInterface::setup()
 													{
 														create_switch_no_caption(sw_switchit, "freeverb.on_off");
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-														openDialogBox("freeverb", &gx_engine::audio.fdialogbox2, &gx_engine::audio.fcheckbox6);
+														openDialogBox("freeverb.dialog", "freeverb.on_off");
 														{
 														    openPlugBox("");
 															{
@@ -1010,7 +1010,7 @@ void GxMainInterface::setup()
 													{
 														create_switch_no_caption(sw_switchit, "IR.on_off");
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-														openDialogBox("IR", &gx_engine::audio.fdialogbox3, &gx_engine::audio.fcheckbox8);
+														openDialogBox("IR.dialog", "IR.on_off");
 														{
 														    openPlugBox("");
 															{
@@ -1093,7 +1093,7 @@ void GxMainInterface::setup()
 													{
 														create_switch_no_caption(sw_switchit, "crybaby.on_off");
 														//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-														openDialogBox("crybaby", &gx_engine::audio.fdialogbox4, &gx_engine::audio.fcheckbox5);
+														openDialogBox("crybaby.dialog", "crybaby.on_off");
 														{
 														    openPlugBox("");
 															{
@@ -1173,7 +1173,7 @@ void GxMainInterface::setup()
 													openHorizontalBox("");
                                                     {
                                                         create_switch_no_caption(sw_switchit, "echo.on_off");
-                                                        openDialogBox("echo", &gx_engine::audio.fdialogbox_echo, (int*)&gx_engine::audio.fcheckbox7);
+                                                        openDialogBox("echo.dialog", "echo.on_off");
                                                         {
                                                             openPlugBox("");
 															{
@@ -1219,7 +1219,7 @@ void GxMainInterface::setup()
 												{
                                                     create_switch_no_caption(sw_switchit, "delay.on_off");
 
-                                                    openDialogBox("delay", &gx_engine::audio.fdialogbox_delay, (int*)&gx_engine::audio.fdelay);
+                                                    openDialogBox("delay.dialog", "delay.on_off");
                                                     {
                                                         openPlugBox("");
                                                         {
@@ -1260,7 +1260,7 @@ void GxMainInterface::setup()
 											openHorizontalBox("");
 											{
 												create_switch_no_caption(sw_switchit, "chorus.on_off");
-												openDialogBox("chorus", &gx_engine::audio.fchorusbox, &gx_engine::audio.fchorus);
+												openDialogBox("chorus.dialog", "chorus.on_off");
 												{
 												    openPlugBox("");
                                                     {
@@ -1301,7 +1301,7 @@ void GxMainInterface::setup()
 											openHorizontalBox("");
 											{
 												create_switch_no_caption(sw_switchit, "flanger.on_off");
-												openDialogBox("flanger", &gx_engine::audio.fflangerbox, &gx_engine::audio.fflanger);
+												openDialogBox("flanger.dialog", "flanger.on_off");
 												{
 												    openPlugBox("");
                                                     {
@@ -1417,7 +1417,7 @@ void GxMainInterface::setup()
 												    openHorizontalBox("");
                                                     {
 	                                                    create_switch(sw_minitoggle, "biquad.on_off","   BiQuad Filter   ", Gtk::POS_RIGHT);
-                                                        openDialogBox("biquad", &gx_engine::audio.fbiquadbox, (int*)&gx_engine::audio.fbiquad);
+                                                        openDialogBox("biquad.dialog", "biquad.on_off");
                                                         {
                                                             openPlugBox("");
 															{
@@ -1444,7 +1444,7 @@ void GxMainInterface::setup()
 												    openHorizontalBox("");
                                                     {
 	                                                    create_switch(sw_minitoggle, "MultiBandFilter.on_off","   MultiBandFilter", Gtk::POS_RIGHT);
-                                                        openDialogBox("MultiBandFilter", &gx_engine::audio.fdialogbox_mbf, &gx_engine::audio.fmultifilter);
+                                                        openDialogBox("MultiBandFilter.dialog", "MultiBandFilter.on_off");
                                                         {
                                                             openPlugBox("");
 															{
@@ -1489,7 +1489,7 @@ void GxMainInterface::setup()
 													openHorizontalBox("");
                                                     {
 	                                                    create_switch(sw_minitoggle, "moog.on_off","   Moog Filter      ", Gtk::POS_RIGHT);
-                                                        openDialogBox("moog", &gx_engine::audio.fdialogbox_moo, (int*)&gx_engine::audio.fmoog);
+                                                        openDialogBox("moog.dialog", "moog.on_off");
                                                         {
                                                             openPlugBox("");
 															{
@@ -1591,7 +1591,7 @@ void GxMainInterface::setup()
 						openHorizontalBox("midi_out");
 						{
 							//----- create the midi settings dialog
-							openDialogBox("midi_out", &gx_engine::audio.fdialogbox6, (int*)&gx_engine::audio.midistat);
+							openDialogBox("midi_out.dialog", "system.midistat");
 							{
                                 openPlugBox("");
                                 {

@@ -128,6 +128,7 @@ AudioVariables::AudioVariables()
 	// togglebuttons for dialogboxes and expander for effect details
 	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
 	registerNonMidiParam("distortion.dialog", &fdialogbox1, false);
+	registerNonMidiParam("distortion1.dialog", &fdis1, false);
 	registerNonMidiParam("freeverb.dialog", &fdialogbox2, false);
 	registerNonMidiParam("IR.dialog", &fdialogbox3, false);
 	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);
@@ -142,6 +143,8 @@ AudioVariables::AudioVariables()
 	registerNonMidiParam("moog.dialog", &fdialogbox_moo, false);
 	registerNonMidiParam("biquad.dialog", &fbiquadbox, false);
 	registerNonMidiParam("flanger.dialog", &fflangerbox, false);
+	registerNonMidiParam("echo.dialog", &fdialogbox_echo, false);
+	registerNonMidiParam("delay.dialog", &fdialogbox_delay, false);
 
 	// user interface options
 	registerNonMidiParam("ui.latency_nowarn", &fwarn, false, 0);

@@ -152,7 +152,20 @@ style "guitarix_regler"
   GtkButton::focus-padding = 0
   GtkButton::interior-focus = 0
   GxRegler::value-spacing = 0
-  font_name = "sans 7"
+  font_name = "sans 7.5"
+}
+
+style "guitarix_selector"
+{
+  #cairo_set_source_rgba(cr, 0.4, 1, 0.2, 0.8)
+  fg[NORMAL] = 	{ 0.32, 0.8, 0.16 }
+  GtkRange::trough-border = 2
+  GtkRange::stepper-size = 8
+  GtkRange::stepper-spacing = 2
+  GxRegler::value-border = { 2, 0, 0, 0 }
+  font_name = "sans 7.5"
+  xthickness = 10
+  ythickness = 1
 }
 
 style "guitarix_slider"
@@ -173,3 +186,4 @@ widget "*.MultiBandFilter.on_off.caption" style:highest "guitarix_bold_label"
 class "GxRegler" style:highest "guitarix_regler"
 class "GxSwitch" style:highest "guitarix_regler"
 class "GxHSlider" style:highest "guitarix_slider"
+class "GxSelector" style:highest "guitarix_selector"

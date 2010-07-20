@@ -441,17 +441,16 @@ void gx_reset_eq( GtkWidget *widget, gpointer data )
 //----- show extendend settings slider
 void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 {
-	if (gtk_range_get_value(GTK_RANGE(widget)))
-	{
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
 		gtk_widget_show(GTK_WIDGET(data));
 		gint root_x, root_y;
 		gtk_window_get_position (GTK_WINDOW(data), &root_x, &root_y);
 		if (root_y>160)root_y -= 120;
 		else root_y +=120;
 		gtk_window_move(GTK_WINDOW(data), root_x, root_y);
+	} else {
+		gtk_widget_hide(GTK_WIDGET(data));
 	}
-
-	else gtk_widget_hide(GTK_WIDGET(data));
 }
 
 //----- hide the extendend settings slider

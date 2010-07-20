@@ -81,7 +81,7 @@ public:
 
 #ifndef NDEBUG
 	bool isUsed() const { return used; }
-	void setUsed() { assert(controllable); used = true; }
+	void setUsed() { used = true; }
 #endif
 
 	bool isFloat() const { return v_type == tp_float; }
