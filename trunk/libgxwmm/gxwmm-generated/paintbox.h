@@ -25,6 +25,7 @@
  */
 
 #include <gtkmm/box.h>
+#include <gtkmm/orientable.h>
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -38,7 +39,7 @@ namespace Gxw
 namespace Gxw {
 
 
-class PaintBox: public Gtk::Box {
+class PaintBox: public Gtk::Box, public Gtk::Orientable {
 	public:
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
   typedef PaintBox CppObjectType;
@@ -97,6 +98,7 @@ protected:
 
 private:
 
+	
 	public:
 	PaintBox();
 	#ifdef GLIBMM_PROPERTIES_ENABLED

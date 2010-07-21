@@ -1,0 +1,70 @@
+style "guitarix_caption"
+{
+  fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
+  fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+  font_name = "sans 8"
+}
+
+style "guitarix_regler"
+{
+  xthickness = 0
+  ythickness = 0
+  GtkButton::inner-border = {0, 0, 0, 3}
+  GtkButton::default-border = {0, 0, 0, 0}
+  GtkButton::focus-line-width = 0
+  GtkButton::focus-padding = 0
+  GtkButton::interior-focus = 0
+  GxRegler::value-spacing = 0
+  font_name = "sans 7.5"
+}
+
+style "guitarix_selector"
+{
+  #cairo_set_source_rgba(cr, 0.4, 1, 0.2, 0.8)
+  fg[NORMAL] = 	{ 0.32, 0.8, 0.16 }
+  GtkRange::trough-border = 2
+  GtkRange::stepper-size = 8
+  GtkRange::stepper-spacing = 2
+  GxRegler::value-border = { 2, 0, 0, 0 }
+  font_name = "sans 7.5"
+  xthickness = 10
+  ythickness = 1
+}
+
+style "guitarix_slider"
+{
+  GxRegler::value-border = {0, 0, 0, 0}
+}
+
+style "guitarix_eqslider"
+{
+  font_name = "sans 6"
+}
+
+style "guitarix_bold_label"
+{
+  font_name = "sans bold 8"
+}
+
+style "guitarix_fastmeter"
+{
+  GxFastMeter::clr-bottom = "#003808"
+  GxFastMeter::clr-middle = "#00ff00"
+  GxFastMeter::clr-top    = "#ff0000"
+  GxFastMeter::over       = "#ff0000"
+}
+
+widget "*.caption" style:highest "guitarix_caption"
+widget "*.cab.on_off.caption" style:highest "guitarix_bold_label"
+widget "*.moog.on_off.caption" style:highest "guitarix_bold_label"
+widget "*.biquad.on_off.caption" style:highest "guitarix_bold_label"
+widget "*.MultiBandFilter.on_off.caption" style:highest "guitarix_bold_label"
+class "GxRegler" style:highest "guitarix_regler"
+class "GxSwitch" style:highest "guitarix_regler"
+class "GxHSlider" style:highest "guitarix_slider"
+class "GxEQSlider" style:highest "guitarix_eqslider"
+class "GxSelector" style:highest "guitarix_selector"
+class "GxFastMeter" style:highest "guitarix_fastmeter"

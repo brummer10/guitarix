@@ -19,6 +19,7 @@
     <glade-widget-class title="Small Knob" name="GxSmallKnob" generic-name="gxsmallknob" />
     <glade-widget-class title="Paint Box" name="GxPaintBox" generic-name="gxpaintbox" />
     <glade-widget-class title="Meter Scale" name="GxMeterScale" generic-name="gxmeterscale" />
+    <glade-widget-class title="Value Display" name="GxValueDisplay" generic-name="gxvaluedisplay" />
   </glade-widget-classes>
 
   <glade-widget-group title="Gx Widgets" name="gxwidgets">
@@ -39,6 +40,7 @@
     <glade-widget-class-ref name="GxSmallKnob"/>
     <glade-widget-class-ref name="GxPaintBox"/>
     <glade-widget-class-ref name="GxMeterScale"/>
+    <glade-widget-class-ref name="GxValueDisplay"/>
   </glade-widget-group>
 
 </glade-catalog>

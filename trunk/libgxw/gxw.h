@@ -40,5 +40,6 @@
 #include <gxw/GxPaintBox.h>
 #include <gxw/GxMeterScale.h>
 #include <gxw/GxGradient.h>
+#include <gxw/GxValueDisplay.h>
 
 #endif /* __GXW_H__ */

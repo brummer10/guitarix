@@ -94,6 +94,7 @@ def build(bld):
         'GxPaintBox.cpp',
         'GxMeterScale.cpp',
         'GxGradient.cpp',
+        'GxValueDisplay.cpp',
         ]
     if not bld.env["GX_LIB_STATIC"] and not bld.env["GX_LIB_SHARED"]:
         return

@@ -17,6 +17,8 @@
  */
 
 #include <gxwmm/hslider.h>
+#include <gtkmm/adjustment.h>
+
 _DEFS(gxwmm,gxw)
 _PINCLUDE(gxwmm/private/hslider_p.h)
 
@@ -26,6 +28,7 @@ class MiniSlider: public Gxw::HSlider {
 	_CLASS_GTKOBJECT(MiniSlider,GxMiniSlider,GX_MINI_SLIDER,Gxw::HSlider,GxHSlider)
 	public:
 	_CTOR_DEFAULT
+	explicit MiniSlider(Gtk::Adjustment& adjustment);
 };
 
 } // namespace Gxw

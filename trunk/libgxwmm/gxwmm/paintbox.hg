@@ -17,13 +17,16 @@
  */
 
 #include <gtkmm/box.h>
+#include <gtkmm/orientable.h>
+
 _DEFS(gxwmm,gxw)
 _PINCLUDE(gtkmm/private/box_p.h)
 
 namespace Gxw {
 
-class PaintBox: public Gtk::Box {
+class PaintBox: public Gtk::Box, public Gtk::Orientable {
 	_CLASS_GTKOBJECT(PaintBox,GxPaintBox,GX_PAINT_BOX,Gtk::Box,GtkBox)
+	_IMPLEMENTS_INTERFACE(Gtk::Orientable)
 	public:
 	_CTOR_DEFAULT
 	_WRAP_PROPERTY(paint-func, Glib::ustring)

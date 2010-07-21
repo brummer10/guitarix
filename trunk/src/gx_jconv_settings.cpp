@@ -30,6 +30,8 @@
  */
 #include <libgen.h>
 #include "guitarix.h"
+//#include <gxwmm/iredit.h>
+#include "GtkWaveView.h"
 
 using namespace gx_system;
 using namespace gx_sndfile;
@@ -282,9 +284,11 @@ GtkWidget * gx_knob(const char* label,int mode, float init, float min, float max
 	gtk_widget_modify_font(lwl, style->font_desc);
 	GtkWidget* slider;
 
-	GtkRegler myGtkRegler;
-	if(!mode) slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
-	else slider = myGtkRegler.gtk_vslider_new_with_adjustment(GTK_ADJUSTMENT(adj));
+	if(!mode) {
+		slider = GTK_WIDGET((new Gxw::SmallKnob(*Glib::wrap(GTK_ADJUSTMENT(adj))))->gobj());
+	} else {
+		slider = GTK_WIDGET((new Gxw::VSlider(*Glib::wrap(GTK_ADJUSTMENT(adj))))->gobj());
+	}
 	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
 	gx_set_value(GTK_OBJECT(adj), lw);
 	// connect label with value
@@ -455,19 +459,25 @@ void gx_setting_jconv_dialog_gui(GtkWidget *widget, gpointer data)
 	// label for display the filename
 	gx_gui::label6 = gtk_label_new(jcset->getIRFile().c_str());
 
-	// display wave view of IR file
-	GtkWidget* waveview = gx_wave_view();
-	gtk_widget_set_size_request (GTK_WIDGET(waveview), 300.0, 200.0);
-
 	// scrolled window
 	GtkWidget* scrlwd = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrlwd),
 	                               GTK_POLICY_ALWAYS,GTK_POLICY_NEVER);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrlwd),
 	                                    GTK_SHADOW_IN);
-
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrlwd), waveview);
 	gtk_widget_set_size_request (GTK_WIDGET(scrlwd), 304.0, -1);
+
+#if 0 //FIXME XXX
+	// display wave view of IR file
+	Gxw::IREdit *iredit = new Gxw::IREdit();
+	iredit->set_size_request(300.0, 200.0);
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrlwd), GTK_WIDGET(iredit->gobj()));
+#else
+	// display wave view of IR file
+	GtkWidget* iredit = gx_wave_view();
+	gtk_widget_set_size_request (GTK_WIDGET(iredit), 300.0, 200.0);
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrlwd), GTK_WIDGET(iredit));
+#endif
 
 	//----- arrange widgets
 	GtkWidget* box     = gtk_vbox_new (FALSE,  4);

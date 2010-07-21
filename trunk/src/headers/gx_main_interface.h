@@ -30,6 +30,10 @@
 #include <gxwmm/eqslider.h>
 #include <gxwmm/switch.h>
 #include <gxwmm/selector.h>
+#include <gxwmm/valuedisplay.h>
+#include <gxwmm/fastmeter.h>
+#include <gxwmm/tuner.h>
+#include <gxwmm/waveview.h>
 #include <gtkmm/box.h>
 
 #ifndef NJACKLAT
@@ -167,6 +171,12 @@ public:
 	GtkWidget *get_widget() { return GTK_WIDGET(m_box->gobj()); }
 };
 
+struct uiTuner : public gx_ui::GxUiItem, public Gxw::Tuner
+{
+	uiTuner(gx_ui::GxUI* ui, float* zone): gx_ui::GxUiItem(ui, zone) {}
+	virtual void reflectZone();
+};
+
 class GxMainInterface : public gx_ui::GxUI
 {
 private:
@@ -188,6 +198,11 @@ private:
 
 	void addAboutMenu();
 
+	bool on_meter_button_release(GdkEventButton* ev);
+	void on_tuner_activate();
+	void on_show_oscilloscope();
+	bool on_refresh_oscilloscope();
+
 protected :
 	int			fTop;
 	GtkWidget*          fBox[stackSize];
@@ -196,7 +211,9 @@ protected :
 	GtkTextView*        fLoggingWindow;
 	GtkExpander*        fLoggingBox;
 	GtkAdjustment*      fLoggingVAdjustment;
-	GtkWidget*          fLevelMeters[2];
+	Gxw::FastMeter      fLevelMeters[2];
+	uiTuner             fTuner;
+	Gxw::WaveView       fWaveView;
 
 	GtkWidget*          fSignalLevelBar;
 
@@ -236,7 +253,8 @@ public :
 
 	GtkWidget*   const getJackConnectItem()  const { return fJackConnectItem; }
 
-	GtkWidget*   const* getLevelMeters()     const { return fLevelMeters;     }
+	Gxw::FastMeter& getLevelMeter(unsigned int i)
+		{ assert(i < sizeof(fLevelMeters)/sizeof(fLevelMeters[0])); return fLevelMeters[i]; }
 
 	GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
 
@@ -282,9 +300,8 @@ public :
 	void addJToggleButton(const char* label, float* zone);
 	void addPToggleButton(const char* label, float* zone);
 	void addCheckButton(const char* label, float* zone);
-	void addSpinValueBox(const char* label, float* zone, float init, float min, float max, float step);
 	void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
-	void addNumDisplay(const char* label, float* zone);
+	void addNumDisplay();
 	void addLiveWaveDisplay(const char* label, float* zone , float* zone1);
 	void addStatusDisplay(const char* label, float* zone );
 	//void addselector(const char* label, float* zone,int maxv, const char* []);
@@ -336,6 +353,10 @@ public :
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::HSlider(), id, label, true));
 		}
+	void create_eqslider_no_caption(string id, bool show_value = true)
+		{
+			addwidget(UiRegler::create(*this, new Gxw::EqSlider(), id, show_value));
+		}
 	void create_eqslider(string id, bool show_value = true)
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(), id, show_value));
@@ -347,6 +368,10 @@ public :
 	void create_eqslider(string id, const char *label, bool show_value = true)
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label, show_value));
+		}
+	void create_spin_value(string id)
+		{
+			addwidget(UiRegler::create(*this, new Gxw::ValueDisplay(), id, true));
 		}
 	void create_selector(string id)
 		{

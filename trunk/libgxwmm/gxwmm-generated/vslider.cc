@@ -24,6 +24,12 @@
 
 #include <gxw/GxVSlider.h>
 
+Gxw::VSlider::VSlider(Gtk::Adjustment& adjustment):
+	// Mark this class as non-derived to allow C++ vfuncs to be skipped.
+  Glib::ObjectBase(0),
+  Gxw::Regler(Glib::ConstructParams(vslider_class_.init(), "adjustment",adjustment.gobj(), static_cast<char*>(0)))
+{}
+
 namespace
 {
 } // anonymous namespace

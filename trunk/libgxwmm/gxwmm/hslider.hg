@@ -17,6 +17,8 @@
  */
 
 #include <gxwmm/regler.h>
+#include <gtkmm/adjustment.h>
+
 _DEFS(gxwmm,gxw)
 _PINCLUDE(gxwmm/private/regler_p.h)
 
@@ -26,6 +28,7 @@ class HSlider: public Gxw::Regler {
 	_CLASS_GTKOBJECT(HSlider,GxHSlider,GX_HSLIDER,Gxw::Regler,GxRegler)
 	public:
 	_CTOR_DEFAULT
+	explicit HSlider(Gtk::Adjustment& adjustment);
 };
 
 } // namespace Gxw

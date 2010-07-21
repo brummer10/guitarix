@@ -28,6 +28,9 @@
 #include <gtkmm/liststore.h>
 #include <gtkmm/window.h>
 #include <gtkmm/frame.h>
+#include <gtkmm/accelgroup.h>
+#include <gxwmm/paintbox.h>
+#include <gxwmm/waveview.h>
 
 using namespace gx_system;
 using namespace gx_child_process;
@@ -35,8 +38,12 @@ using namespace gx_preset;
 using namespace gx_cairo;
 using namespace gx_threads;
 
+#define _(x) (x) //FIXME
+
 namespace gx_gui
 {
+
+// Stock Items for Gxw::Switch
 
 const char *sw_led = "led";
 const char *sw_switch = "switch";
@@ -45,6 +52,24 @@ const char *sw_minitoggle = "minitoggle";
 const char *sw_button = "button";
 const char *sw_pbutton = "pbutton";
 const char *sw_rbutton = "rbutton";
+
+// Paint Functions for Gxw::PaintBox
+
+const char *pb_amp_expose =                  "amp_expose";
+const char *pb_conv_widget_expose =          "conv_widget_expose";
+const char *pb_upper_widget_expose =         "upper_widget_expose";
+const char *pb_rectangle_expose =            "rectangle_expose";
+const char *pb_rectangle_skin_color_expose = "rectangle_skin_color_expose";
+const char *pb_convolver_icon_expose =       "convolver_icon_expose";
+const char *pb_AmpBox_expose =               "AmpBox_expose";
+const char *pb_tribal_box_expose =           "tribal_box_expose";
+const char *pb_vbox_expose =                 "vbox_expose";
+const char *pb_filter_box_expose =           "filter_box_expose";
+const char *pb_plug_box_expose =             "plug_box_expose";
+const char *pb_info_box_expose_on =          "info_box_expose_on";
+const char *pb_info_box_expose_off =         "info_box_expose_off";
+const char *pb_slooper_expose =              "slooper_expose";
+const char *pb_zac_expose =                  "zac_expose";
 
 /****************************************************************
  ** format controller values
@@ -81,7 +106,8 @@ bool GxMainInterface::fInitialized = false;
 static pthread_t ui_thread;
 #endif
 
-GxMainInterface::GxMainInterface(const char * name)
+GxMainInterface::GxMainInterface(const char * name):
+	fTuner(this, &gx_engine::audio.fConsta1t)
 {
 	highest_unseen_msg_level = -1;
 
@@ -338,17 +364,10 @@ void GxMainInterface::openLevelMeterBox(const char* label)
 	g_signal_connect(GTK_CONTAINER(box), "check-resize",
 	                 G_CALLBACK(level_meter_expose), NULL);
 
-	// meter level colors
-	int base = 0x00380800;
-	int mid  = 0x00ff0000;
-	int top  = 0xff000000;
-	int clip = 0xff000000;
-
 	// width of meter
 	int width    = 8;
 
 	// how long we hold the peak bar = hold * thread call timeout
-
 	// Note: 30 * 80 = 2.4 sec
 	int hold     = 20;
 
@@ -357,24 +376,16 @@ void GxMainInterface::openLevelMeterBox(const char* label)
 	gtk_container_set_border_width (GTK_CONTAINER (gxbox), 0);
 	gtk_box_set_spacing(GTK_BOX(gxbox), 25);
 
-	for (int i = 0; i < 2; i++)
-	{
-		fLevelMeters[i] = 0;
-
-		GtkWidget* meter =
-			gtk_fast_meter_new(hold, width, boxheight,
-			                   base, mid, top, clip);
-
-		gtk_widget_add_events(meter, GDK_BUTTON_RELEASE_MASK);
-		g_signal_connect(G_OBJECT(meter), "button-release-event",
-		                 G_CALLBACK(gx_meter_button_release), 0);
-
-		gtk_box_pack_start(GTK_BOX(gxbox), meter, FALSE, TRUE, 0);
-		gtk_widget_show(meter);
-
-		GtkTooltips* tooltips = gtk_tooltips_new ();
-		gtk_tooltips_set_tip(tooltips, meter, "guitarix output", " ");
-		fLevelMeters[i] = meter;
+	for (int i = 0; i < 2; i++) {
+		Gxw::FastMeter& fastmeter = fLevelMeters[i];
+		fastmeter.set_hold_count(hold);
+		fastmeter.property_dimen() = width;
+		fastmeter.set_size_request(width, boxheight);
+		fastmeter.signal_button_release_event().connect(
+			sigc::mem_fun(*this, &GxMainInterface::on_meter_button_release));
+		gtk_box_pack_start(GTK_BOX(gxbox), GTK_WIDGET(fastmeter.gobj()), FALSE, TRUE, 0);
+		fastmeter.show();
+		fastmeter.set_tooltip_text("guitarix output");
 	}
 
 	gtk_box_pack_start(GTK_BOX(box), gxbox, FALSE, TRUE, 0);
@@ -1543,53 +1554,6 @@ struct uiValueDisplay : public gx_ui::GxUiItem
 		}
 };
 
-void GxMainInterface::addSpinValueBox(const char* label, float* zone, float init, float min, float max, float step)
-{
-	*zone = init;
-	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-
-	GtkRegler myGtkRegler;
-	GtkWidget* lw = myGtkRegler.gtk_value_display(GTK_ADJUSTMENT(adj));
-
-	GtkWidget* lwl = gtk_label_new(label);
-	gtk_widget_set_name (lwl,"effekt_label");
-	GtkStyle *style = gtk_widget_get_style(lwl);
-	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-	gtk_widget_modify_font(lwl, style->font_desc);
-
-	connect_midi_controller(lw, zone);
-	gtk_range_set_inverted (GTK_RANGE(lw), TRUE);
-
-	GtkWidget* box1 = addWidget(label, gtk_alignment_new (0.5, 0.5, 0, 0));
-	GtkWidget* box = gtk_vbox_new (FALSE, 0);
-	GtkWidget* box2 = gtk_hbox_new (FALSE, 0);
-	GtkWidget* box3 = gtk_vbox_new (FALSE, 0);
-	GtkWidget* box4 = gtk_vbox_new (FALSE, 0);
-	gtk_container_add (GTK_CONTAINER(box1), box);
-	gtk_container_add (GTK_CONTAINER(box), lwl);
-	gtk_container_add (GTK_CONTAINER(box2), box3);
-	gtk_container_add (GTK_CONTAINER(box2), lw);
-	gtk_container_add (GTK_CONTAINER(box2), box4);
-	gtk_container_add (GTK_CONTAINER(box), box2);
-	gtk_widget_show_all(box1);
-
-}
-
-void GxMainInterface::addSpinValueBox(string id, const char* label)
-{
-	if (!parameter_map.hasId(id)) {
-		return;
-	}
-	const FloatParameter &p = parameter_map[id].getFloat();
-	if (!label) {
-		label = p.name().c_str();
-	}
-	addSpinValueBox(label, &p.value, p.std_value, p.lower, p.upper, p.step);
-}
-
 void GxMainInterface::addCheckButton(string id, const char* label)
 {
 	if (!parameter_map.hasId(id)) {
@@ -1827,155 +1791,122 @@ void GxMainInterface::setSkinBox(const char* label, float* zone)
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_set_skin),  (gpointer) c);
 }
 
+
+/****************************************************************
+ ** Effect Dialog Boxes
+ */
+class GxDialogButtonBox
+{
+public:
+	Gtk::HBox box;
+	UiSwitch show_dialog;
+	GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog);
+};
+
+GxDialogButtonBox::GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog):
+	box(false, 0),
+	show_dialog(ui, sw_button, param_dialog)
+{
+	show_dialog.modify_bg(Gtk::STATE_NORMAL, Gdk::Color("#7f7f7f"));
+	show_dialog.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#000094"));
+	box.set_border_width(0);
+	box.add(show_dialog);
+	box.show_all();
+}
+
+class GxDialogWindowBox
+{
+private:
+	void on_dialog_button_toggled();
+	void on_reset_button_pressed();
+	bool on_window_delete_event(GdkEventAny* event);
+	Glib::ustring group_id;
+public:
+	Gtk::Window window;
+	Gtk::HBox box;
+	Gxw::PaintBox box4;
+	Gtk::HBox box5;
+	UiSwitch unit_on_off;
+	Gtk::Frame frame;
+	Gtk::Label label;
+	Gtk::Button reset_button;
+	Gtk::ToggleButton& dialog_button;
+	GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog, Parameter& param_switch, Gtk::ToggleButton& button);
+};
+
+void GxDialogWindowBox::on_dialog_button_toggled()
+{
+	gx_show_extended_settings(GTK_WIDGET(dialog_button.gobj()), (gpointer)window.gobj());
+}
+
+void GxDialogWindowBox::on_reset_button_pressed()
+{
+	gx_reset_units(group_id);
+}
+
+bool GxDialogWindowBox::on_window_delete_event(GdkEventAny*)
+{
+	dialog_button.set_active(false);
+	return false;
+}
+
+GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog,
+                                     Parameter& param_switch, Gtk::ToggleButton& button):
+	window(Gtk::WINDOW_TOPLEVEL),
+	box(false, 8),
+	box5(false, 4),
+	unit_on_off(ui, sw_led, param_switch),
+	dialog_button(button)
+{
+	group_id = param_dialog.id().substr(0, param_dialog.id().find_last_of(".")).c_str();
+	Glib::ustring title = param_dialog.group();
+	window.set_decorated(true);
+	window.set_icon(Glib::wrap(ib));
+	window.set_resizable(false);
+	window.set_gravity(Gdk::GRAVITY_SOUTH);
+	window.set_transient_for(*Glib::wrap(GTK_WINDOW(fWindow)));
+	window.set_position(Gtk::WIN_POS_MOUSE);
+	window.set_keep_below(false);
+	window.set_title(title);
+	window.set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
+	window.property_destroy_with_parent() = true;
+	box.set_border_width(2);
+	box4.set_spacing(4);
+	box4.set_border_width(8);
+	box4.property_orientation() = Gtk::ORIENTATION_VERTICAL;
+	box4.property_paint_func() = pb_rectangle_expose;
+	Pango::FontDescription font = label.get_style()->get_font();
+	font.set_size(10*Pango::SCALE);
+	font.set_weight(Pango::WEIGHT_NORMAL);
+	label.modify_font(font);
+	label.set_text("reset");
+	reset_button.add(label);
+	window.signal_delete_event().connect(
+		sigc::mem_fun(*this, &GxDialogWindowBox::on_window_delete_event));
+	frame.set_label(title);
+	box5.add(unit_on_off);
+	box5.add(frame);
+	box5.add(reset_button);
+	reset_button.signal_pressed().connect(
+		sigc::mem_fun(*this, &GxDialogWindowBox::on_reset_button_pressed));
+	box4.add(box5);
+	box4.add(box);
+	window.add(box4);
+	box4.show_all();
+	dialog_button.signal_toggled().connect(
+		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
+}
+
 void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch)
 {
 	Parameter& param_dialog = parameter_map[id_dialog];
 	Parameter& param_switch = parameter_map[id_switch];
-	const char *label = param_dialog.group().c_str();
-	string id = param_dialog.id();
-	const char *group_id = id.substr(0, id.find_last_of(".")).c_str();
-	GtkWidget * dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
-	gtk_window_set_icon(GTK_WINDOW (dialog), GDK_PIXBUF(ib));
-	gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
-	gtk_window_set_gravity(GTK_WINDOW(dialog), GDK_GRAVITY_SOUTH);
-	gtk_window_set_transient_for (GTK_WINDOW(dialog), GTK_WINDOW(fWindow));
-	gtk_window_set_position (GTK_WINDOW(dialog), GTK_WIN_POS_MOUSE);
-	gtk_window_set_keep_below (GTK_WINDOW(dialog), FALSE);
-	gtk_window_set_title (GTK_WINDOW (dialog), label);
-	gtk_window_set_type_hint (GTK_WINDOW (dialog), GDK_WINDOW_TYPE_HINT_UTILITY);
-	gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
-	GtkWidget * box = gtk_hbox_new (homogene, 8);
-	GtkWidget * box4 = gtk_vbox_new (homogene, 4);
-	GtkWidget * box5 = gtk_hbox_new (homogene, 4);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
-	gtk_container_set_border_width (GTK_CONTAINER (box4), 8);
-	g_signal_connect(box4, "expose-event", G_CALLBACK(rectangle_expose), NULL);
-	UiSwitch *button = new UiSwitch(*this, sw_button, param_dialog);
-	button->show();
-	button->modify_bg(Gtk::STATE_NORMAL, Gdk::Color("#7f7f7f"));
-	button->modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#000094"));
-	GtkWidget * box3 = gtk_hbox_new (homogene, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (box3), 0);
-	gtk_container_add (GTK_CONTAINER(box3), button->get_widget());
-	gtk_widget_show (box3);
-	gtk_container_add (GTK_CONTAINER(fBox[fTop]), box3);
-	g_signal_connect (GTK_OBJECT (button->gobj()), "toggled", G_CALLBACK (gx_show_extended_settings), (gpointer) dialog);
-	g_signal_connect_swapped (G_OBJECT (dialog), "delete_event", G_CALLBACK (gx_delete_event), (gpointer) button->gobj());
-	GtkWidget * frame =  gtk_frame_new (label);
-	GtkWidget* 	lab = gtk_label_new("reset");
-	GtkWidget* 	button1 = gtk_button_new();
-	gtk_container_add (GTK_CONTAINER(button1), lab);
-
-	GtkStyle *style = gtk_widget_get_style(lab);
-	pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-	gtk_widget_modify_font(lab, style->font_desc);
-
-	UiSwitch *led = new UiSwitch(*this, sw_led, param_switch);
-
-	//connect_midi_controller(slider, zone);
-	gtk_container_add (GTK_CONTAINER(box5), led->get_widget());
-	gtk_container_add (GTK_CONTAINER(box5), frame);
-	gtk_container_add (GTK_CONTAINER(box5), button1);
-	g_signal_connect  (GTK_OBJECT (button1), "pressed", G_CALLBACK (gx_reset_units), (gpointer) group_id);
-	gtk_container_add (GTK_CONTAINER(box4), box5);
-	gtk_container_add (GTK_CONTAINER(box4), box);
-	gtk_container_add (GTK_CONTAINER(dialog), box4);
-	// gtk_widget_show(dialog);
-	gtk_widget_show(lab);
-	led->show();
-	gtk_widget_show(frame);
-	gtk_widget_show(button1);
-	gtk_widget_show(box);
-	gtk_widget_show(box4);
-	gtk_widget_show(box5);
-	pushBox(kBoxMode, box);
+	GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
+	gtk_container_add(GTK_CONTAINER(fBox[fTop]), GTK_WIDGET(bbox->box.gobj()));
+	GxDialogWindowBox *dialog = new GxDialogWindowBox(*this, param_dialog, param_switch, bbox->show_dialog);
+	pushBox(kBoxMode, GTK_WIDGET(dialog->box.gobj()));
 }
 
-class GxDialogBox
-{
-private:
-	Gtk::Window m_window;
-	Gtk::HBox m_box;
-	Gtk::HBox m_box3;
-	Gtk::HBox m_box4;
-	Gtk::HBox m_box5;
-	UiSwitch m_show_dialog;
-	UiSwitch m_unit_on_off;
-	Gtk::Frame m_frame;
-	Gtk::Label m_label;
-	Gtk::Button m_button;
-	bool on_my_expose_event(GdkEventExpose* event);
-public:
-	GxDialogBox(gx_ui::GxUI& ui, Glib::ustring id_dialog, Glib::ustring id_switch);
-};
-
-bool GxDialogBox::on_my_expose_event(GdkEventExpose* event)
-{
-	return rectangle_expose(GTK_WIDGET(m_window.gobj()), event, 0);
-}
-
-GxDialogBox::GxDialogBox(gx_ui::GxUI& ui, Glib::ustring id_dialog, Glib::ustring id_switch):
-	m_window(Gtk::WINDOW_TOPLEVEL),
-	m_box(false, 8),
-	m_box3(false, 0),
-	m_box4(false, 4),
-	m_box5(false, 4),
-	m_show_dialog(ui, sw_button, parameter_map[id_dialog]),
-	m_unit_on_off(ui, sw_led, parameter_map[id_switch]),
-	m_label("reset")
-{
-	Parameter& param_dialog = parameter_map[id_dialog];
-	//Parameter& param_switch = parameter_map[id_switch];
-	string id = param_dialog.id();
-	const char *group_id = id.substr(0, id.find_last_of(".")).c_str();
-	Glib::ustring label = param_dialog.group();
-	m_window.set_decorated(true);
-	m_window.set_icon(Glib::wrap(ib));
-	m_window.set_resizable(false);
-	m_window.set_gravity(Gdk::GRAVITY_SOUTH);
-	m_window.set_transient_for(*Glib::wrap(GTK_WINDOW(fWindow)));
-	m_window.set_position(Gtk::WIN_POS_MOUSE);
-	m_window.set_keep_below(false);
-	m_window.set_title(label);
-	m_window.set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
-	m_window.property_destroy_with_parent() = true;
-	m_box.set_border_width(2);
-	m_box.set_border_width(8);
-	m_box4.signal_expose_event().connect(sigc::mem_fun(*this, &GxDialogBox::on_my_expose_event));
-	m_show_dialog.show();
-	m_show_dialog.modify_bg(Gtk::STATE_NORMAL, Gdk::Color("#7f7f7f"));
-	m_show_dialog.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#000094"));
-	m_box3.set_border_width(0);
-	m_box3.add(m_show_dialog);
-	m_box3.show();
-	//gtk_container_add (GTK_CONTAINER(fBox[fTop]), box3.gobj());
-
-	m_button.add(m_label);
-	g_signal_connect (GTK_OBJECT (m_button.gobj()), "toggled", G_CALLBACK (gx_show_extended_settings), (gpointer) m_window.gobj());
-	g_signal_connect_swapped (G_OBJECT (m_window.gobj()), "delete_event", G_CALLBACK (gx_delete_event), (gpointer) m_button.gobj());
-	m_frame.set_label(label);
-	Glib::RefPtr<Gtk::Style> style = m_label.get_style();
-	style->get_font().set_size(10*Pango::SCALE);
-	style->get_font().set_weight(Pango::WEIGHT_NORMAL);
-	m_label.modify_font(style->get_font());
-	m_box5.add(m_unit_on_off);
-	m_box5.add(m_frame);
-	m_box5.add(m_button);
-	m_button.signal_pressed().connect(G_CALLBACK(gx_reset_units), (gpointer) group_id);
-	m_box4.add(m_box5);
-	m_box4.add(m_box);
-	m_window.add(m_box4);
-	m_label.show();
-	m_unit_on_off.show();
-	m_frame.show();
-	m_button.show();
-	m_box.show();
-	m_box4.show();
-	m_box5.show();
-	//pushBox(kBoxMode, m_box.gobj());
-}
 
 //-------- collect patch info for stage display
 struct uiPatchDisplay : public gx_ui::GxUiItem
@@ -2066,45 +1997,22 @@ void GxMainInterface::openPatchInfoBox(float* zone)
 
 // ------------------------------ Num Display -----------------------------------
 
-struct uiNumDisplay : public gx_ui::GxUiItem
+void uiTuner::reflectZone()
 {
-	GtkWidget* fLabel;
+	fCache = *fZone;
+	if (shownote == 1) {
+		set_freq(gx_engine::midi.fConsta4);
+	} else if (shownote == 0) {
+		shownote = -1;
+	}
+}
 
-	uiNumDisplay(gx_ui::GxUI* ui, float* zone, GtkWidget* label)
-		: gx_ui::GxUiItem(ui, zone), fLabel(label) {}
-
-	virtual void reflectZone()
-		{
-
-			fCache = *fZone;
-			if (shownote == 1)
-			{
-			    /*static int tx      =  pb->allocation.x + (pb->allocation.width - 100) * 0.5;
-                static int ty      =  pb->allocation.y + (pb->allocation.height - 90) * 0.5;
-			    static const GdkRectangle rect = {tx,ty,100,60};
-                gdk_window_invalidate_rect(GDK_WINDOW(pb->window),&rect,TRUE);*/
-                gx_tuner_refresh(pb,NULL);
-			}
-			else if (shownote == 0)
-			{
-				shownote = -1;
-			}
-		}
-};
-
-
-void GxMainInterface::addNumDisplay(const char* label, float* zone )
+void GxMainInterface::addNumDisplay()
 {
-	openEventBox(label);
-
-	pb = gx_tuner_view ();
-   // g_signal_connect(pb, "expose-event", G_CALLBACK(tuner_expose), NULL);
-
-	new uiNumDisplay(this, zone, GTK_WIDGET(pb));
-	gtk_widget_set_size_request(pb, 100.0, 90.0);
-
-	addWidget(label, pb);
-	gtk_widget_hide(pb);
+	openEventBox("");
+	fTuner.set_size_request(100.0, 90.0); //FIXME
+	addWidget("", GTK_WIDGET(fTuner.gobj()));
+	fTuner.hide(); //FIXME has never been show()'n ?
 	closeBox();
 }
 
@@ -2144,24 +2052,65 @@ void GxMainInterface::addStatusDisplay(const char* label, float* zone )
 	gtk_widget_hide(lw);
 }
 
+
+		
+
+bool GxMainInterface::on_refresh_oscilloscope()
+{
+	static struct  {
+		int load, frames;
+		jack_nframes_t bsize;
+		bool rt;
+	} oc;
+	int load = round(gx_jack::jcpu_load);
+	if (!oc.bsize || oc.load != load) {
+		oc.load = load;
+		fWaveView.set_text(
+			(boost::format(_("dsp load  %1% %%")) % oc.load).str().c_str(),
+			Gtk::CORNER_TOP_LEFT);
+	}
+	int frames = gx_jack::time_is/100000;
+	if (!oc.bsize || oc.frames != frames) {
+		oc.frames = frames;
+		fWaveView.set_text(
+			(boost::format(_("ht frames %1%")) % oc.frames).str().c_str(),
+			Gtk::CORNER_BOTTOM_LEFT);
+	}
+	if (!oc.bsize || oc.rt != gx_jack::is_rt) {
+		oc.rt = gx_jack::is_rt;
+		fWaveView.set_text(
+			oc.rt ? _("RT mode  yes ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
+			Gtk::CORNER_BOTTOM_RIGHT);
+	}
+	if (!oc.bsize || oc.bsize != gx_jack::jack_bs) {
+		oc.bsize = gx_jack::jack_bs;
+		fWaveView.set_text(
+			(boost::format(_(" latency    %1%")) % oc.bsize).str().c_str(),
+			Gtk::CORNER_TOP_RIGHT);
+	}
+	fWaveView.queue_draw();
+	if (showwave) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
+
 void GxMainInterface::addLiveWaveDisplay(const char* label, float* zone , float* zone1)
 {
-	GtkObject* adj = gtk_adjustment_new(0.0, -1.0, 1.0, 0.0009, 10*0.0009, 0);
-	new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-
-	livewa = gx_wave_live_view(zone,zone1,GTK_ADJUSTMENT(adj));
-	GtkWidget * box      = gtk_vbox_new (false, 4);
-	GtkWidget * e_box =  gtk_event_box_new ();
+	GtkWidget * box      = gtk_vbox_new(false, 4);
+	GtkWidget * e_box =  gtk_event_box_new();
 	g_signal_connect(box, "expose-event", G_CALLBACK(conv_widget_expose), NULL);
-	gtk_widget_set_size_request (box, 303, 82);
-	gtk_widget_set_size_request (e_box, 280, 50);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 12);
-	gtk_container_add (GTK_CONTAINER(e_box),livewa );
-	gtk_container_add (GTK_CONTAINER(box),e_box );
+	gtk_widget_set_size_request(box, 303, 82);
+	gtk_widget_set_size_request(e_box, 280, 50);
+	gtk_container_set_border_width(GTK_CONTAINER (box), 12);
+	gtk_container_add(GTK_CONTAINER(e_box), GTK_WIDGET(fWaveView.gobj()));
+	gtk_container_add(GTK_CONTAINER(box),e_box );
 	addWidget(label, box);
 	gtk_widget_show(box);
 	gtk_widget_hide(e_box);
-	gtk_widget_hide(livewa);
+	fWaveView.hide(); //FIXME was never show()'n ?
 }
 
 //----------------------------- main menu ----------------------------
@@ -2326,13 +2275,13 @@ void GxMainInterface::addEngineMenu()
 	sep = gtk_separator_menu_item_new();
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);
 	gtk_widget_show (sep);
-	menuitem = gtk_check_menu_item_new_with_mnemonic ("_Experimental");
-	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
-	                           GDK_e, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-	gtk_widget_show(menuitem);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), menuitem);
+	fShowExpWindow.set_label("_Experimental");
+	fShowExpWindow.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                               GDK_e, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fShowExpWindow.show();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), GTK_WIDGET(fShowExpWindow.gobj()));
 	SwitchParameter *p = new SwitchParameter("system.show_exp_window");
-	fShowExpWindow.init(GTK_CHECK_MENU_ITEM(menuitem), p);
+	fShowExpWindow.set_parameter(p);
 	p->changed.connect(ptr_fun(gx_engine::toggle_exp_window));
 #endif
 
@@ -2670,26 +2619,24 @@ void GxMainInterface::addOptionMenu()
 	fMenuList["Options"] = menucont;
 
 	/*-- Create oscilloscope check menu item under Options submenu --*/
-	menuitem = gtk_check_menu_item_new_with_mnemonic ("_Oscilloscope");
-	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
-	                           GDK_o, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-	g_signal_connect (GTK_OBJECT (menuitem), "activate",
-	                  G_CALLBACK (gx_show_oscilloscope), NULL);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-	gtk_widget_show (menuitem);
-	fShowWaveView.init(GTK_CHECK_MENU_ITEM(menuitem),
-	                   new SwitchParameter("system.show_wave_view"));
+	fShowWaveView.set_label("_Oscilloscope");
+	fShowWaveView.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                              GDK_o, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fShowWaveView.signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_show_oscilloscope));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowWaveView.gobj()));
+	fShowWaveView.show();
+	fShowWaveView.set_parameter(new SwitchParameter("system.show_wave_view"));
 
 	/*-- Create tuner check menu item under Options submenu --*/
-	menuitem = gtk_check_menu_item_new_with_mnemonic ("_Tuner");
-	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
-	                           GDK_t, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-	g_signal_connect (GTK_OBJECT (menuitem), "activate",
-	                  G_CALLBACK (gx_tuner), NULL);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-	gtk_widget_show (menuitem);
-	fShowTuner.init(GTK_CHECK_MENU_ITEM(menuitem),
-	                new SwitchParameter("system.show_tuner"));
+	fShowTuner.set_label("_Tuner");
+	fShowTuner.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_t, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fShowTuner.signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_tuner_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowTuner.gobj()));
+	fShowTuner.show();
+	fShowTuner.set_parameter(new SwitchParameter("system.show_tuner"));
 
 	/*-- Create log window check menu item under Options submenu --*/
 	menuitem = gtk_check_menu_item_new_with_mnemonic ("Open/Close _Log message");
@@ -2733,11 +2680,10 @@ void GxMainInterface::addOptionMenu()
 	addGuiSkinMenu();
 
 	/*-- create option for saving midi controller settings in presets --*/
-	menuitem = gtk_check_menu_item_new_with_mnemonic ("Include MIDI in _presets");
-	gtk_widget_show (menuitem);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-	fMidiInPreset.init(
-		GTK_CHECK_MENU_ITEM(menuitem), new SwitchParameter("system.midi_in_preset"));
+	fMidiInPreset.set_label("Include MIDI in _presets");
+	fMidiInPreset.show();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fMidiInPreset.gobj()));
+	fMidiInPreset.set_parameter(new SwitchParameter("system.midi_in_preset"));
 
 	/*-- create option for resetting guitarix settings --*/
 	menuitem = gtk_menu_item_new_with_mnemonic ("Reset _All Parameters");
@@ -2842,11 +2788,11 @@ void GxMainInterface::addAboutMenu()
 	gtk_widget_show (menuitem);
 
 	/*-- Create menu item to control tooltip display --*/
-	menuitem = gtk_check_menu_item_new_with_mnemonic ("Show _Tooltips");
-	gtk_widget_show (menuitem);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+	fShowTooltips.set_label("Show _Tooltips");
+	fShowTooltips.show();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowTooltips.gobj()));
 	SwitchParameter *p = new SwitchParameter("system.show_tooltips");
-	fShowTooltips.init(GTK_CHECK_MENU_ITEM(menuitem), p);
+	fShowTooltips.set_parameter(p);
 	p->changed.connect(ptr_fun(set_tooltips));
 
 	/*---------------- End About menu declarations ----------------*/
@@ -2982,6 +2928,7 @@ void GxMainInterface::run()
 		return;
 	}
 
+	fWaveView.set_frame(gx_engine::get_frame, gx_jack::jack_bs); //FIXME move to proper place
 	gtk_main();
 }
 

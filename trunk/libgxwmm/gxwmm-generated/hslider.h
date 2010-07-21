@@ -25,6 +25,7 @@
  */
 
 #include <gxwmm/regler.h>
+#include <gtkmm/adjustment.h>
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -99,6 +100,7 @@ private:
 
 	public:
 	HSlider();
+	explicit HSlider(Gtk::Adjustment& adjustment);
 
 
 };

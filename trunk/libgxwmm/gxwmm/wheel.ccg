@@ -17,3 +17,7 @@
  */
 
 #include <gxw/GxWheel.h>
+
+Gxw::Wheel::Wheel(Gtk::Adjustment& adjustment):
+	_CONSTRUCT("adjustment", adjustment.gobj())
+{}

@@ -17,3 +17,7 @@
  */
 
 #include <gxw/GxVSlider.h>
+
+Gxw::VSlider::VSlider(Gtk::Adjustment& adjustment):
+	_CONSTRUCT("adjustment", adjustment.gobj())
+{}

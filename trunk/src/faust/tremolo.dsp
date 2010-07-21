@@ -40,4 +40,4 @@ tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
     lfo = select2(checkbox("SINE"), trianglewave(freq), sine(freq));
 };
 
-process = *(tremolo(hslider("freq",5,0.1,50,0.1),hslider("depth",0.5,0,1,0.01)));
+process = *(tremolo(vslider("freq",5,0.1,50,0.1),vslider("depth",0.5,0,1,0.01)));

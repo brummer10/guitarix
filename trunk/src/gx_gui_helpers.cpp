@@ -35,25 +35,18 @@ namespace gx_gui
 
 /* ----- Menu check item signaled from parameter ------ */
 
-void MenuCheckItem::set(bool v)
+void MenuCheckItem::on_my_activate()
 {
-	assert(item); // assign an item before calling
-	gtk_check_menu_item_set_active(item, v);
+	param->set(get_active());
 }
 
-void MenuCheckItem::activateMenuSetSwitch(GtkWidget *w, gpointer data)
+void MenuCheckItem::set_parameter(SwitchParameter *p)
 {
-	SwitchParameter *p = (SwitchParameter*)data;
-	p->set(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w)));
-}
-
-void MenuCheckItem::init(GtkCheckMenuItem *it, SwitchParameter *p)
-{
-	item = it;
+	param = p;
 	parameter_map.insert(p);
-	p->changed.connect(sigc::mem_fun(*this, &MenuCheckItem::set));
-	g_signal_connect(GTK_OBJECT(item), "activate",
-	                 G_CALLBACK(activateMenuSetSwitch), p);
+	p->changed.connect(sigc::mem_fun(*this, &MenuCheckItem::set_active));
+	signal_activate().connect(
+		sigc::mem_fun(*this, &MenuCheckItem::on_my_activate));
 }
 
 
@@ -195,35 +188,30 @@ void gx_jack_report_xrun()
 }
 
 //----menu function gx_show_oscilloscope
-void gx_show_oscilloscope (GtkCheckMenuItem *menuitem, gpointer checkplay)
+void GxMainInterface::on_show_oscilloscope()
 {
-	if (gtk_check_menu_item_get_active(menuitem) == TRUE)
-	{
-		showwave = 1;
-		g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, 60,  gx_threads::gx_refresh_oscilloscope, 0, NULL);
-		GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(livewa));
-		gtk_widget_show(parent);
-		gtk_widget_show(livewa);
-	}
-	else
-	{
+	if (fShowWaveView.get_active()) {
+		showwave = 1; //FIXME just use is_visible
+		Glib::signal_timeout().connect(sigc::mem_fun(*this, &GxMainInterface::on_refresh_oscilloscope), 60); //FIXME G_PRIORITY_DEFAULT_IDLE??
+		//g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, 60,  gx_threads::gx_refresh_oscilloscope, 0, NULL);
+		fWaveView.get_parent()->show(); //FIXME why??
+		fWaveView.show();
+	} else {
 		showwave = 0;
-		GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(livewa));
-		gtk_widget_hide(parent);
-		gtk_widget_hide(livewa);
+		fWaveView.get_parent()->hide();
+		fWaveView.show();  //FIXME why??
 	}
 }
 
 //----menu function gx_tuner
-void gx_tuner (GtkCheckMenuItem *menuitem, gpointer checkplay)
+void GxMainInterface::on_tuner_activate()
 {
-	if (gtk_check_menu_item_get_active(menuitem) == TRUE) {
+	if (fShowTuner.get_active()) {
 		shownote = 1;
-		gtk_widget_show(pb);
-		//tuner_expose(pb,NULL,NULL);
+		fTuner.show();
 	} else {
 		shownote = 0;
-		gtk_widget_hide(pb);
+		fTuner.hide();
 	}
 }
 
@@ -393,9 +381,9 @@ void gx_reset_effects( GtkWidget *widget, gpointer data )
 }
 
 // reset the extended sliders to default settings
-void gx_reset_units( GtkWidget *widget, gpointer data )
+void gx_reset_units(Glib::ustring group_id)
 {
-	string group_id = string((const char*)data) + ".";
+	group_id += ".";
 	string on_off = group_id + "on_off";
 	for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
 		if (i->first.compare(0, group_id.size(), group_id) == 0) {
@@ -840,8 +828,7 @@ bool gx_update_skin(const gint idx, const char* calling_func)
 
 	gx_current_skin = idx;
 
-	// refresh wave view
-	gx_waveview_refresh (GTK_WIDGET(livewa), NULL);
+#if 0 //FIXME (delete)
 	if (int(float(gx_current_skin)==0))
 	{
 		if (set_knob !=1)
@@ -896,6 +883,7 @@ bool gx_update_skin(const gint idx, const char* calling_func)
 		GtkRegler::gtk_regler_init_pixmaps(0);
 		set_knob = 0;
 	}
+#endif
 
 	// refresh latency check menu
 	GxMainInterface* gui = GxMainInterface::instance();
@@ -956,21 +944,15 @@ int gx_message_popup(const char* msg)
 }
 
 /* meter button release   */
-void gx_meter_button_release(GdkEventButton* ev, gpointer arg)
+bool GxMainInterface::on_meter_button_release(GdkEventButton* ev)
 {
-	if (ev->button == 1)
-	{
-		cerr << " button event " << endl;
-		GxMainInterface* gui = GxMainInterface::instance();
-
-		GtkWidget* const*  meters = gui->getLevelMeters();
-
-		for (int i = 0; i < 2; i++) {
-			if (meters[i]) {
-				gtk_fast_meter_clear(GTK_FAST_METER(meters[i]));
-			}
+	if (ev->button == 1) {
+		for (unsigned int i = 0; i < sizeof(fLevelMeters)/sizeof(fLevelMeters[0]); i++) {
+			fLevelMeters[i].clear();
 		}
+		return true;
 	}
+	return false;
 }
 
 
@@ -981,37 +963,5 @@ gboolean gx_delete_event( GtkWidget *widget, gpointer   data )
 	gtk_range_set_value(GTK_RANGE(widget), 0);
 	return TRUE;
 }
-
-gboolean gx_hide_eq( GtkWidget *widget, gpointer   obj )
-{
-	show_eq = (int) GTK_ADJUSTMENT (widget)->value;
-	GtkWidget *wi = (GtkWidget *)obj;
-	GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(wi));
-	GtkWidget *box = gtk_widget_get_parent(GTK_WIDGET(box1));
-	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(box));
-	GtkWidget *parent_eq = (GtkWidget *) g_list_nth_data(child_list,1);
-	g_list_free(child_list);
-	box = gtk_widget_get_parent(GTK_WIDGET(livewa));
-	box1 = gtk_widget_get_parent(GTK_WIDGET(box1));
-
-	// gtk_widget_set_size_request (parent_eq, 280,80);
-	if (show_eq)
-	{
-		gtk_widget_show(parent_eq);
-		//gtk_widget_set_size_request (box, -1, -1);
-		if (GDK_IS_WINDOW (box1->window))
-			gdk_window_invalidate_rect(GDK_WINDOW(box1->window),NULL,TRUE);
-	}
-	else
-	{
-		gtk_widget_hide(parent_eq);
-		//gtk_widget_set_size_request (box, -1,-1);
-		if (GDK_IS_WINDOW (box1->window))
-			gdk_window_invalidate_rect(GDK_WINDOW(box1->window),NULL,TRUE);
-	}
-
-	return false;
-}
-
 
 } /* end of gx_gui namespace */

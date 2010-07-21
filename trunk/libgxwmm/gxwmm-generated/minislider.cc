@@ -24,6 +24,12 @@
 
 #include <gxw/GxMiniSlider.h>
 
+Gxw::MiniSlider::MiniSlider(Gtk::Adjustment& adjustment):
+	// Mark this class as non-derived to allow C++ vfuncs to be skipped.
+  Glib::ObjectBase(0),
+  Gxw::HSlider(Glib::ConstructParams(minislider_class_.init(), "adjustment",adjustment.gobj(), static_cast<char*>(0)))
+{}
+
 namespace
 {
 } // anonymous namespace

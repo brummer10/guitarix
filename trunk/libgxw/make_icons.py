@@ -47,7 +47,7 @@ def make_glade_icon(f, name=None, offset_x=0, offset_y=0,
         name = f
     else:
         name = name + ".png"
-    pre = "glade-icons/hicolor/%s/actions/widget-gxwidgets-"
+    pre = "../glade-gxw/glade-icons/hicolor/%s/actions/widget-gxwidgets-"
     ps = transform_pixbuf(p, 16, scale)
     ps.save(pre%"16x16"+name,"png")
     ps = transform_pixbuf(p, 22, scale)
@@ -70,6 +70,7 @@ def glade_icons():
     make_glade_icon("gxwaveview.png")
     make_glade_icon("gxtuner.png")
     make_glade_icon("gxiredit.png")
+    make_glade_icon("gxvaluedisplay.png")
 
 if __name__ == "__main__":
     #sliders_knobs()

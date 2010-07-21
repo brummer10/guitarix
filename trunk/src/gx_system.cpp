@@ -1421,10 +1421,6 @@ void gx_destroy_event()
 		}
 	}
 
-	GtkRegler::gtk_regler_destroy();
-
-	gx_waveview_destroy(GTK_WIDGET(gx_gui::livewa), NULL);
-
 	gtk_main_quit();
 }
 

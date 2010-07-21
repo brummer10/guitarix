@@ -130,11 +130,14 @@ def build(bld):
         proc_args = float_arg,
         )
 
-    bld.new_task_gen(
+    tg = bld.new_task_gen(
         source=experimental_soures,
         proc = "../tools/dsp2cc_exp",
         proc_args = ["-a","../src/faust-include.cpp","-f","-double"],
         )
+    expdsp = bld.path.find_resource("Exp.dsp")
+    bld.add_manual_dependency(expdsp, bld.path.find_resource("tremolo.dsp"))
+    bld.add_manual_dependency(expdsp, bld.path.find_resource("../faust-include.cpp"))
 
 def configure(conf):
     pass

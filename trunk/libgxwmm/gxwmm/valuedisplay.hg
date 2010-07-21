@@ -24,11 +24,11 @@ _PINCLUDE(gxwmm/private/regler_p.h)
 
 namespace Gxw {
 
-class Wheel: public Gxw::Regler {
-	_CLASS_GTKOBJECT(Wheel,GxWheel,GX_WHEEL,Gxw::Regler,GxRegler)
+class ValueDisplay: public Gxw::Regler {
+	_CLASS_GTKOBJECT(ValueDisplay,GxValueDisplay,GX_VALUE_DISPLAY,Gxw::Regler,GxRegler)
 	public:
 	_CTOR_DEFAULT
-	explicit Wheel(Gtk::Adjustment& adjustment);
+	explicit ValueDisplay(Gtk::Adjustment& adjustment);
 };
 
 } // namespace Gxw

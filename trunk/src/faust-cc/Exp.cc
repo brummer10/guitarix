@@ -944,17 +944,45 @@ struct uiCheckButton : public uiItem
 		}
 };
 
+class UiSwitch: uiItem, public Gxw::Switch
+{
+protected:
+	virtual void on_toggled();
+	virtual void reflectZone();
+public:
+	static GtkWidget *create(GTKUI& ui, const char* sw_type, float *zone)
+		{
+			return GTK_WIDGET((new UiSwitch(ui, sw_type, zone))->gobj());
+		}
+	UiSwitch(GTKUI& ui, const char *sw_type, float *zone);
+};
+
+void UiSwitch::on_toggled()
+{
+	modifyZone(get_active());
+}
+
+void UiSwitch::reflectZone()
+{
+	float v = *fZone;
+	fCache = v;
+	set_active(v != 0.0);
+}
+
+UiSwitch::UiSwitch(GTKUI& ui, const char *sw_type, float *zone):
+	uiItem(&ui, zone),
+	Gxw::Switch(sw_type)
+{
+	bool v = *zone != 0.0;
+	set_active(v);
+	show();
+}
+
 void GTKUI::addCheckButton(const char* label, float* zone)
 {
-	GtkObject* adj = gtk_adjustment_new(0, 0, 1, 1, 10*1, 0);
-	uiAdjustment* c = new uiAdjustment(this, zone, GTK_ADJUSTMENT(adj));
-	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_mini_toggle_new_with_adjustment(GTK_ADJUSTMENT(adj));
-
+	GtkWidget* slider = UiSwitch::create(*this, "minitoggle", zone);
 	GtkWidget* lw = gtk_label_new(label);
 	gtk_widget_set_name (lw,"effekt_label");
-
 	GtkStyle *style = gtk_widget_get_style(lw);
 	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
@@ -985,9 +1013,7 @@ void GTKUI::addVerticalSlider(const char* label, float* zone, float init, float 
 	gtk_widget_modify_font(lw, style->font_desc);
 	gtk_widget_modify_font(lwl, style->font_desc);
 	new uiValueDisplay(this, zone, GTK_LABEL(lw),precision(step));
-	GtkRegler myGtkRegler;
-	GtkWidget* slider = myGtkRegler.gtk_regler_new_with_adjustment(GTK_ADJUSTMENT(adj));
-
+	GtkWidget* slider = GTK_WIDGET((new Gxw::SmallKnob(*Glib::wrap(GTK_ADJUSTMENT(adj))))->gobj());
 	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
 	openVerticalBox("");
 	addWidget(label, lwl);
@@ -1320,8 +1346,8 @@ class mydsp : public dsp{
 		interface->openHorizontalBox("tremolo");
 		interface->addCheckButton("ON", &fcheckbox1);
 		interface->addCheckButton("SINE", &fcheckbox0);
-		interface->addHorizontalSlider("depth", &fslider1, 0.5, 0.0, 1.0, 0.01);
-		interface->addHorizontalSlider("freq", &fslider0, 5.0, 0.1, 5e+01, 0.1);
+		interface->addVerticalSlider("depth", &fslider1, 0.5, 0.0, 1.0, 0.01);
+		interface->addVerticalSlider("freq", &fslider0, 5.0, 0.1, 5e+01, 0.1);
 		interface->closeBox();
 		interface->closeBox();
 	}

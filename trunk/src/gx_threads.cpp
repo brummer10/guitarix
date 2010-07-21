@@ -41,15 +41,12 @@ gboolean gx_refresh_meter_level(gpointer args)
 
 		// data holders for meters
 		// Note: removed RMS calculation, we will only focus on max peaks
-		float max_level  [2];
+		float max_level[2];
 		(void)memset(max_level,   0, sizeof(max_level));
 
-		static float old_peak_db  [2] = {-INFINITY, -INFINITY};
+		static float old_peak_db[2] = {-INFINITY, -INFINITY};
 
 		jack_nframes_t nframes = gx_jack::jack_bs;
-
-		// retrieve meter widgets
-		GtkWidget* const* meters   = gui->getLevelMeters();
 
 		// fill up from engine buffers
 		for (int c = 0; c < 2; c++) {
@@ -74,18 +71,18 @@ gboolean gx_refresh_meter_level(gpointer args)
 			}
 
 			// update meters (consider falloff as well)
-			if (meters[c]) {
-				// calculate peak dB and translate into meter
-				float peak_db = -INFINITY;
-				if (max_level[c] > 0.) peak_db = power2db(max_level[c]);
-
-				// retrieve old meter value and consider falloff
-				if (peak_db < old_peak_db[c])
-					peak_db = old_peak_db[c] - falloff;
-
-				gtk_fast_meter_set(GTK_FAST_METER(meters[c]), log_meter(peak_db));
-				old_peak_db[c] = max(peak_db, -INFINITY);
+			// calculate peak dB and translate into meter
+			float peak_db = -INFINITY;
+			if (max_level[c] > 0.) {
+				peak_db = power2db(max_level[c]);
 			}
+
+			// retrieve old meter value and consider falloff
+			if (peak_db < old_peak_db[c]) {
+				peak_db = old_peak_db[c] - falloff;
+			}
+			gui->getLevelMeter(c).set(log_meter(peak_db));
+			old_peak_db[c] = max(peak_db, -INFINITY);
 		}
 	}
 	// run thread again
@@ -93,17 +90,6 @@ gboolean gx_refresh_meter_level(gpointer args)
 }
 
 /* -------------- refresh oscilloscope function -------------- */
-gboolean gx_refresh_oscilloscope(gpointer args)
-{
-	// repaint the oscilloscope without involve updateAllGui().
-	// if ((showwave == 1) && ((gx_engine::GxEngineState)gx_engine::checky) &&(!gx_jack::NO_CONNECTION ))
-	gdk_window_invalidate_rect(GDK_WINDOW(livewa->window),NULL,TRUE);
-	//gx_engine::GxEngine::instance()->viv *= -1;
-	// run thread again when needed
-	if(showwave) return TRUE;
-	else return FALSE;
-}
-
 gboolean gx_xrun_report(gpointer arg)
 {
 	usleep(40);

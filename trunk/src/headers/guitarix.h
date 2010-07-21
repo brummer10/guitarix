@@ -56,6 +56,6 @@ using namespace std;
 #include "gx_main_interface.h"
 
 /* special "home-made" GTK classes */
-#include "GtkRegler.h"
-#include "GtkWaveView.h"
-#include "GtkFastMeter.h"
+//#include "GtkRegler.h"
+//#include "GtkWaveView.h"
+//#include "GtkFastMeter.h"

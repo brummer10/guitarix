@@ -21,19 +21,18 @@
 
 #pragma once
 
+#include <gtkmm/checkmenuitem.h>
 namespace gx_gui
 {
 
 /* ---- linking menu items and parameter ---- */
-class MenuCheckItem: public sigc::trackable
+class MenuCheckItem: public Gtk::CheckMenuItem
 {
 private:
-	GtkCheckMenuItem *item;
-	static void activateMenuSetSwitch(GtkWidget *w, gpointer data);
+	SwitchParameter* param;
+	void on_my_activate();
 public:
-	MenuCheckItem(): item(0) {}
-	void init(GtkCheckMenuItem *item, SwitchParameter *p);
-	void set(bool v);
+	void set_parameter(SwitchParameter *p);
 };
 
 
@@ -96,15 +95,13 @@ gint gx_nchoice_dialog_without_entry (
 	);
 
 /* extra GUI helpers */
-void gx_show_oscilloscope      (GtkCheckMenuItem*, gpointer);
-void gx_tuner                  (GtkCheckMenuItem*, gpointer);
 void gx_midi_out               (GtkCheckMenuItem*, gpointer);
 void gx_log_window             (GtkWidget*, gpointer);
 void gx_patch                  (GtkCheckMenuItem*, gpointer );
 
 
 void gx_systray_menu            (GtkWidget*, gpointer);
-void gx_reset_units             (GtkWidget*, gpointer);
+void gx_reset_units             (Glib::ustring group_id);
 void gx_reset_effects           (GtkWidget*, gpointer);
 void gx_show_about              (GtkWidget*, gpointer);
 
@@ -116,9 +113,6 @@ gint gx_wait_latency_warn         ();
 int  gx_message_popup             (const char*);
 
 gboolean gx_delete_event       (GtkWidget*, gpointer);
-
-void gx_meter_button_release(GdkEventButton* ev, gpointer arg);
-
 
 /* -------------------------------------------------------------------------- */
 } /* end of gx_gui namespace */

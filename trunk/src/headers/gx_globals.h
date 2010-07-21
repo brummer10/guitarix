@@ -207,7 +207,6 @@ extern bool           new_wave_view;
 /* global GUI widgets */
 extern GtkWidget* fWindow;
 extern GtkWidget* menuh;
-extern GtkWidget* pb;
 extern GtkWidget* midibox;
 extern GtkWidget* fbutton;
 extern GtkWidget* record_button;
@@ -215,7 +214,6 @@ extern GtkWidget* jc_dialog;
 extern GtkWidget* patch_info;
 
 /* wave view widgets */
-extern GtkWidget* livewa;
 extern GdkPixbuf* ib;
 extern GdkPixbuf* ibm;
 extern GdkPixbuf* ibr;

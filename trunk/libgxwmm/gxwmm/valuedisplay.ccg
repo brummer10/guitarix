@@ -16,19 +16,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <gxwmm/regler.h>
-#include <gtkmm/adjustment.h>
+#include <gxw/GxValueDisplay.h>
 
-_DEFS(gxwmm,gxw)
-_PINCLUDE(gxwmm/private/regler_p.h)
-
-namespace Gxw {
-
-class Wheel: public Gxw::Regler {
-	_CLASS_GTKOBJECT(Wheel,GxWheel,GX_WHEEL,Gxw::Regler,GxRegler)
-	public:
-	_CTOR_DEFAULT
-	explicit Wheel(Gtk::Adjustment& adjustment);
-};
-
-} // namespace Gxw
+Gxw::ValueDisplay::ValueDisplay(Gtk::Adjustment& adjustment):
+	_CONSTRUCT("adjustment", adjustment.gobj())
+{}

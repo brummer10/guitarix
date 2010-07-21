@@ -217,7 +217,6 @@ bool           new_wave_view;
 /* global GUI widgets */
 GtkWidget* fWindow;
 GtkWidget* menuh;
-GtkWidget* pb;
 GtkWidget* midibox;
 GtkWidget* fbutton;
 GtkWidget* record_button;

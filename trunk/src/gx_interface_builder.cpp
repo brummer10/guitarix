@@ -68,7 +68,7 @@ void GxMainInterface::setup()
 					//----- the tuner widget
 					openVerticalBox("");
 					{
-						addNumDisplay("", &gx_engine::audio.fConsta1t);
+						addNumDisplay();
 					}
 					closeBox();
 
@@ -252,36 +252,35 @@ void GxMainInterface::setup()
                                                     {
                                                         openHorizontalTableBox("");
                                                         {
-                                                            addSpinValueBox("eqs.freq31_25" ,"");
-                                                            addSpinValueBox("eqs.freq62_5" ,"");
-                                                            addSpinValueBox("eqs.freq125" ,"");
-                                                            addSpinValueBox("eqs.freq250" ,"");
-                                                            addSpinValueBox("eqs.freq500" ,"");
-                                                            addSpinValueBox("eqs.freq1k" ,"");
-                                                            addSpinValueBox("eqs.freq2k" ,"");
-                                                            addSpinValueBox("eqs.freq4k" ,"");
-                                                            addSpinValueBox("eqs.freq8k" ,"");
-                                                            addSpinValueBox("eqs.freq16k" ,"");
-
+                                                            create_spin_value("eqs.freq31_25");
+                                                            create_spin_value("eqs.freq62_5");
+                                                            create_spin_value("eqs.freq125");
+                                                            create_spin_value("eqs.freq250");
+                                                            create_spin_value("eqs.freq500");
+                                                            create_spin_value("eqs.freq1k");
+                                                            create_spin_value("eqs.freq2k");
+                                                            create_spin_value("eqs.freq4k");
+                                                            create_spin_value("eqs.freq8k");
+                                                            create_spin_value("eqs.freq16k");
                                                          }
                                                         closeBox();
                                                         openHorizontalTableBox("");
                                                         {
-                                                            create_eqslider("eqs.fs31_25","");
-                                                            create_eqslider("eqs.fs62_5","");
-                                                            create_eqslider("eqs.fs125","");
-                                                            create_eqslider("eqs.fs250","");
-                                                            create_eqslider("eqs.fs500","");
-                                                            create_eqslider("eqs.fs1k","");
-                                                            create_eqslider("eqs.fs2k","");
-                                                            create_eqslider("eqs.fs4k","");
-                                                            create_eqslider("eqs.fs8k","");
-                                                            create_eqslider("eqs.fs16k","");
+                                                            create_eqslider_no_caption("eqs.fs31_25");
+                                                            create_eqslider_no_caption("eqs.fs62_5");
+                                                            create_eqslider_no_caption("eqs.fs125");
+                                                            create_eqslider_no_caption("eqs.fs250");
+                                                            create_eqslider_no_caption("eqs.fs500");
+                                                            create_eqslider_no_caption("eqs.fs1k");
+                                                            create_eqslider_no_caption("eqs.fs2k");
+                                                            create_eqslider_no_caption("eqs.fs4k");
+                                                            create_eqslider_no_caption("eqs.fs8k");
+                                                            create_eqslider_no_caption("eqs.fs16k");
                                                         }
                                                         closeBox();
                                                         openHorizontalTableBox("");
                                                         {
-                                                            create_smallknob("eqs.Qs31_25","    Q    ");
+                                                            create_smallknob("eqs.Qs31_25","Q");
                                                             create_smallknob("eqs.Qs62_5","Q");
                                                             create_smallknob("eqs.Qs125","Q");
                                                             create_smallknob("eqs.Qs250","Q");
@@ -434,9 +433,7 @@ void GxMainInterface::setup()
 									openVerticalBox1("");
 									{
 										create_switch(sw_minitoggle, "amp.oversample.on_off", "oversample  ", Gtk::POS_RIGHT);
-									    const char* labels[8]  ={"  1x","  2x", "  3x","  4x","  5x", "  6x", "  7x", "  8x"};
-									    //create_selector("amp.select",8,labels); //FIXME FIX formatting issue
-									    create_selector("amp.select"); //FIXME FIX formatting issue
+									    create_selector("amp.select");
 									}
 									closeBox();
 
@@ -1520,9 +1517,6 @@ void GxMainInterface::setup()
 												openSlooperBox("limiter");
 												{
 													create_smallknob("amp.fuzz");
-
-													const char* lab[3] = {"    off","    clip","foldback"};
-													//create_selector("amp.threshold",(const char*)0,3,lab); //FIXME FIX formatting issue
 													create_selector("amp.threshold");
 													openSpaceBox("");
 													closeBox();

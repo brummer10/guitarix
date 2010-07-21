@@ -164,23 +164,22 @@ static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
 	cr = gdk_cairo_create(widget->window);
 	cairo_set_source_surface(cr, GX_TUNER_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_tuner, x0, y0);
 	cairo_paint (cr);
-	if (!tuner->freq) {
-		cairo_destroy(cr);
-		return FALSE;
-	}
-	float fvis = 12 * log2f(tuner->freq/440.0);
-	int vis = round(fvis);
-	float scale = (fvis-vis) / 2;
-	vis = vis % 12;
-	if (vis < 0) {
-		vis += 12;
-	}
+	float scale = -0.5;
+	if (tuner->freq) {
+		float fvis = 12 * log2f(tuner->freq/440.0);
+		int vis = round(fvis);
+		scale = (fvis-vis) / 2;
+		vis = vis % 12;
+		if (vis < 0) {
+			vis += 12;
+		}
 
-	// display note
-	cairo_set_source_rgba(cr, scale*scale*4, 1-(scale*scale*4), 0.2,1-(scale*scale*4));
-	cairo_set_font_size(cr, 18.0);
-	cairo_move_to(cr,x0+50 -9 , y0+30 +9 );
-	cairo_show_text(cr, note[vis]);
+		// display note
+		cairo_set_source_rgba(cr, scale*scale*4, 1-(scale*scale*4), 0.2,1-(scale*scale*4));
+		cairo_set_font_size(cr, 18.0);
+		cairo_move_to(cr,x0+50 -9 , y0+30 +9 );
+		cairo_show_text(cr, note[vis]);
+	}
 
 	// display frequency
 	char s[10];
@@ -275,7 +274,8 @@ static void draw_background(cairo_surface_t *surface)
 	cairo_stroke(cr);
 
 	// indicator shaft (circle)
-	cairo_set_dash (cr, 0, 0, 0);
+	cairo_set_dash (cr, dash_ind, sizeof(dash_ind)/sizeof(dash_ind[0]), 0);
+	//cairo_set_dash (cr, 0, 0, 0); // (for full circle)
 	cairo_move_to(cr, x0+50, y0+rect_height-5);
 	cairo_arc(cr, x0+50, y0+rect_height-5, 2.0, 0, 2*M_PI);
 	cairo_set_source_rgb(cr,  0.5, 0.1, 0.1);

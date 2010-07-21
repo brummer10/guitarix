@@ -36,39 +36,39 @@ void gx_skin_color(cairo_pattern_t *pat)
 
 	switch (skin_is)
 	{
-	case 0:
+	case 0: // black
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 0.6);
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);
 		break;
-	case 1:
+	case 1: // cairo
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 0.6);
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);
 		break;
-	case 2:
+	case 2: // default
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.3, 0.2, 0.3, 0.6);
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);
 		break;
-	case 3:
+	case 3: // pix
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.5, 0.02, 0.03, 0.6);
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.1, 0.6);
 		break;
-	case 4:
+	case 4: // rainbox
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.5, 0.2, 0.6);
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.1, 0.05, 0.6);
 		break;
-	case 5:
+	case 5: // sunburst
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.8, 0.2, 0.02, 0.6);
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0.09, 0.005, 0.6);
 		break;
-	case 6:
+	case 6: // yellow
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.8, 0.3, 0.02, 0.6);
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0.06, 0.005, 0.6);
 		break;
-	case 7:
+	case 7: // zac
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.8, 0.8, 0.8, 0.6);
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.3, 0.3, 0.3, 0.6);
 		break;
-	case 8:
+	case 8: // zreadable
 		cairo_pattern_add_color_stop_rgba (pat, 0, 1, 1, 1, 0.9);
 		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0.9, 0.9, 1, 0.9);
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.8, 0.8, 0.9, 0.5);

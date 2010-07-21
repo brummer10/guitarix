@@ -60,6 +60,7 @@ const Glib::Class& PaintBox_Class::init()
     register_derived_type(gx_paint_box_get_type());
 
     // Add derived versions of interfaces, if the C type implements any interfaces:
+  Gtk::Orientable::add_interface(get_type());
 
   }
 

@@ -22,6 +22,7 @@ part of guitarix, show a wave with Gtk
 ******************************************************************************/
 
 #include "guitarix.h"
+#include "GtkWaveView.h"
 
 using namespace gx_jconv;
 

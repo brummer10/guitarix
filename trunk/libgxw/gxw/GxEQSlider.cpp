@@ -101,7 +101,7 @@ static gboolean gx_eq_slider_expose(GtkWidget *widget, GdkEventExpose *event)
 	gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.height-slider_height);
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
 	eq_slider_expose(widget, &image_rect, sliderstate, pb, sat, gtk_widget_has_focus(widget), TRUE);
-	_gx_regler_display_value(GX_REGLER(widget), &value_rect);
+	_gx_regler_simple_display_value(GX_REGLER(widget), &value_rect);
 	g_object_unref(pb);
 	return FALSE;
 }
