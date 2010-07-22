@@ -6,11 +6,19 @@ def configure(conf):
 
 def build(bld):
     bld.add_subdirs('gxwmm')
-    bld(features = 'cxx cprogram',
-        source = 'gxw_demo.cc',
-        target = 'gxw_demo',
-        uselib = 'GTKMM',
-        includes = ['.','../libgxw'],
-        uselib_local = ['gxwmm','gxw'],
-        linkflags = "-Wl,-u,gxw_init",
-        )
+    bld.add_group()
+    prog = bld(features = 'cxx cprogram',
+               source = 'gxw_demo.cc',
+               target = 'gxw_demo',
+               uselib = 'GTKMM',
+               includes = ['.','../libgxw'],
+               linkflags = "-Wl,-u,gxw_init",
+               install_path = None,
+               )
+    if bld.env["GX_LIB_SHARED"]:
+        prog.libpath = [
+            bld.path.find_dir("../libgxw/gxw").bldpath(bld.env),
+            bld.path.find_dir("../libgxwmm/gxwmm").bldpath(bld.env)]
+        prog.lib = ["gxwmm","gxw"]
+    else:
+        prog.uselib_local = ['gxwmm','gxw']

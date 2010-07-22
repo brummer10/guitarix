@@ -17,13 +17,11 @@
  */
 
 #include <gtk/gtk.h>
+#include "config.h"
 
 /* Catalog init function */
 void glade_gx_init (const char *name)
 {
-	gchar *p1 = g_get_current_dir();
-	gchar *p2 = g_build_filename(p1, "glade-icons", NULL);
-	gtk_icon_theme_append_search_path(gtk_icon_theme_get_default(), p2);
-	g_free(p1);
-	g_free(p2);
+	gtk_icon_theme_append_search_path(
+		gtk_icon_theme_get_default(), GX_ICON_DIR);
 }

@@ -1,20 +1,10 @@
 # -*- python -*-
 # -*- coding: utf-8 -*-
 
-import Logs, Utils, Configure, Options
-
-@Configure.conf
-def cfg_get_variable(self, package, variable):
-    p = Utils.pproc.Popen(["pkg-config", "--variable="+variable, package],
-                          stdout=Utils.pproc.PIPE, shell=False)
-    v = p.communicate()[0].strip()
-    if p.returncode or not v:
-        self.fatal('fail to get variable %s for package %s' % (variable, package))
-    self.env[variable.upper()] = v
+import Logs, Utils, Options
 
 def set_options(opt):
-    opt.tool_options('compiler_cc')
-    grp = opt.add_option_group("Compiler / Linker flags")
+    grp = opt.get_option_group("--shared-lib")
     grp.add_option('--python-wrapper',
                    action='store_const',
                    default=False,
@@ -23,19 +13,13 @@ def set_options(opt):
                    )
 
 def configure(conf):
-    if Options.options.python_wrapper:
-        conf.env["GX_PYTHON_WRAPPER"] = 1
-        if not Options.options.shared_lib:
-            conf.env["GX_LIB_SHARED"] = 1
     if not Options.options.python_wrapper:
         return
-    conf.check_tool('compiler_cc')
-    conf.check_tool('python')
+    conf.env["GX_PYTHON_WRAPPER"] = True
+    conf.env["GXW_SHARED"] = True
     conf.check_python_headers()
-    conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT', mandatory=True)
     conf.check_cfg(package='pygtk-2.0', args='--cflags --libs', uselib_store='PYGTK' ,mandatory=True)
     conf.cfg_get_variable(package='pygtk-2.0', variable='defsdir')
-    conf.cfg_get_variable(package='pygtk-2.0', variable='codegendir')
     conf.check_python_module("numpy")
 
 def h2defs(task):
@@ -67,6 +51,8 @@ def defs2c(task):
     return Utils.exec_command(cmd,shell=True)
 
 def build(bld):
+    if not bld.env["GX_PYTHON_WRAPPER"]:
+        return
     bld.add_group()
     sources = ["GxTuner.h",
                "GxFastMeter.h",
@@ -113,9 +99,9 @@ def build(bld):
         ccflags = ["-g"],
         includes = ['../libgxw'],
         )
-    if bld.env["GX_LIB_STATIC"]: # prefer static
+    if bld.env["GX_LIB_SHARED"]:
+        prog.libpath = [bld.path.find_dir("../libgxw/gxw").bldpath(bld.env)]
+        prog.lib = ["gxw"]
+    else:
         prog.uselib_local = ['gxw']
         prog.linkflags = ["-Wl,-u,gxw_init"]
-    else:
-        prog.libpath = [bld.path.find_dir("../libgxw").bldpath(bld.env)]
-        prog.lib = ["gxw"]

@@ -1,20 +1,17 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import Task, Configure, Options, Utils, Logs, shutil, os.path
+import Task, Options, Utils, Logs, shutil, os.path
 from TaskGen import extension
 
-@Configure.conf
-def cfg_get_variable(self, package, variable):
-    p = Utils.pproc.Popen(["pkg-config", "--variable="+variable, package],
-                          stdout=Utils.pproc.PIPE, shell=False)
-    v = p.communicate()[0].strip()
-    if p.returncode or not v:
-        self.fatal('fail to get variable %s for package %s' % (variable, package))
-    self.env[variable.upper()] = v
-
 def set_options(opt):
-    grp = opt.add_option_group("Compiler / Linker flags")
+    grp = opt.add_option_group("Guitarix Widget Library")
+    grp.add_option('--shared-lib',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=('build shared library'),
+                   )
     grp.add_option('--use-generated-cpp',
                    action='store_const',
                    default=False,
@@ -26,6 +23,10 @@ def configure(conf):
     conf.check_tool('misc')
     conf.cfg_get_variable(package='glibmm-2.4', variable='gmmprocdir')
     conf.env["USE_GENERATED_CPP"] = Options.options.use_generated_cpp
+    if Options.options.shared_lib:
+        conf.env["GX_LIB_SHARED"] = True
+    else:
+        conf.env["GX_LIB_STATIC"] = True
 
 def template2cc(task):
     basename = os.path.splitext(
@@ -122,10 +123,12 @@ def build_generate_wrapper(bld):
         lib    = 'glibmm_generate_extra_defs-2.4',
         uselib_local = "gxw",
         target = 'generate_defs_gxw',
+        install_path = None,
         )
     bld.add_group()
+    libdir = bld.path.find_dir("../../libgxw/gxw").bldpath(bld.env)
     bld(name = "sigdefs",
-        rule = "${SRC} | sed 's/GdkEvent\\*/GdkEventButton*/' > ${TGT}", #FIXME
+        rule = "LD_LIBRARY_PATH=\"%s\" ${SRC} | sed 's/GdkEvent\\*/GdkEventButton*/' > ${TGT}" % libdir, #FIXME
         source = 'generate_defs_gxw',
         target = 'signals.defs',
         )
@@ -205,10 +208,22 @@ def build(bld):
     else:
         build_generate_wrapper(bld)
     bld.add_group()
-    bld(features = ['cxx', 'cstaticlib'],
-        ccflags = bld.env['CXXFLAGS'],
-        includes = ['..','../../libgxw'],
-        source = sources,
-        uselib = ['GTKMM'],
-        target = 'gxwmm',
-        )
+    if bld.env["GX_LIB_SHARED"]:
+        bld(features = ['cxx', 'cshlib', 'libtool'],
+            type = 'cshlib',
+            vnum = "0.1",
+            ccflags = bld.env['CXXFLAGS'],
+            includes = ['..','../../libgxw'],
+            source = sources,
+            uselib = ['GTKMM'],
+            uselib_local = ['gxw'],
+            target = 'gxwmm',
+            )
+    else:
+        bld(features = ['cxx', 'cstaticlib'],
+            ccflags = bld.env['CXXFLAGS'],
+            includes = ['..','../../libgxw'],
+            source = sources,
+            uselib = ['GTKMM'],
+            target = 'gxwmm',
+            )

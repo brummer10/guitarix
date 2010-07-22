@@ -3,56 +3,55 @@
 
 import Build
 
-# start each filename with a space
-style_files  = ''
-style_files += ' controls1.jpg'
-style_files += ' controls2.jpg'
-style_files += ' controls3.jpg'
-style_files += ' controls4.jpg'
-style_files += ' controlsbl1.jpg'
-style_files += ' controlsbl2.jpg'
-style_files += ' controlsbl3.jpg'
-style_files += ' controlsbl4.jpg'
-style_files += ' controlsbl.jpg'
-style_files += ' controls.jpg'
-style_files += ' guitarix-darkblack-relief.jpg'
-style_files += ' sunburst.jpg'
-style_files += ' sunburst1.jpg'
-style_files += ' sunburst2.jpg'
-style_files += ' sunburst3.jpg'
-style_files += ' sunburst4.jpg'
-style_files += ' rainbow.jpg'
-style_files += ' rainbow1.jpg'
-style_files += ' rainbow2.jpg'
-style_files += ' rainbow3.jpg'
-style_files += ' yellow.jpg'
-style_files += ' yellow1.jpg'
-style_files += ' yellow2.jpg'
-style_files += ' yellow3.jpg'
-style_files += ' cairo.jpg'
-style_files += ' cairo1.jpg'
-style_files += ' cairo2.jpg'
-style_files += ' zreadable.jpg'
-style_files += ' zreadable1.jpg'
-style_files += ' zreadable2.jpg'
-style_files += ' zreadable3.jpg'
-style_files += ' zreadable4.jpg'
-style_files += ' zreadable5.jpg'
-style_files += ' guitarix_black.rc'
-style_files += ' guitarix_cairo.rc'
-style_files += ' guitarix_pix.rc'
-style_files += ' guitarix_sunburst.rc'
-style_files += ' guitarix_rainbow.rc'
-style_files += ' guitarix_yellow.rc'
-style_files += ' guitarix_default.rc'
-style_files += ' guitarix_zac.rc'
-style_files += ' guitarix_zreadable.rc'
-    
+style_files = [
+    'controls1.jpg',
+    'controls2.jpg',
+    'controls3.jpg',
+    'controls4.jpg',
+    'controlsbl1.jpg',
+    'controlsbl2.jpg',
+    'controlsbl3.jpg',
+    'controlsbl4.jpg',
+    'controlsbl.jpg',
+    'controls.jpg',
+    'guitarix-darkblack-relief.jpg',
+    'sunburst.jpg',
+    'sunburst1.jpg',
+    'sunburst2.jpg',
+    'sunburst3.jpg',
+    'sunburst4.jpg',
+    'rainbow.jpg',
+    'rainbow1.jpg',
+    'rainbow2.jpg',
+    'rainbow3.jpg',
+    'yellow.jpg',
+    'yellow1.jpg',
+    'yellow2.jpg',
+    'yellow3.jpg',
+    'cairo.jpg',
+    'cairo1.jpg',
+    'cairo2.jpg',
+    'zreadable.jpg',
+    'zreadable1.jpg',
+    'zreadable2.jpg',
+    'zreadable3.jpg',
+    'zreadable4.jpg',
+    'zreadable5.jpg',
+    'guitarix_black.rc',
+    'guitarix_cairo.rc',
+    'guitarix_pix.rc',
+    'guitarix_sunburst.rc',
+    'guitarix_rainbow.rc',
+    'guitarix_yellow.rc',
+    'guitarix_default.rc',
+    'guitarix_zac.rc',
+    'guitarix_zreadable.rc',
+    'guitarix_zreadable.rc',
+    'common.rc',
+    ]
+
 def configure(conf):
     pass
 
 def build(bld):
     bld.install_files(bld.env['GX_STYLE_DIR'], style_files, chmod=0644)
-
-        
-

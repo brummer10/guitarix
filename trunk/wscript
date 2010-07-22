@@ -12,6 +12,7 @@ import Logs
 import sys
 from Constants import HEXVERSION
 from Configure import ConfigurationError
+import Configure
 
 # used by waf dist and waf build
 VERSION='0.11.0svn'
@@ -32,8 +33,7 @@ def faust_vers_str():
 # options defined for waf configure
 def set_options(opt):
     opt.tool_options('compiler_cxx')
-
-    comp = opt.add_option_group("Compiler / Linker flags")
+    comp = opt.get_option_group("--check-cxx-compiler")
 
     comp.add_option('--debug',
                     action='store_const',
@@ -63,13 +63,12 @@ def set_options(opt):
                     action='store_const',
                     default=False, #'-fomit-frame-pointer -ffast-math -fstrength-reduce -pipe',
                     const=True,
-                    help='C++ optimization compiler flags [Default: %default]')
+                    help='automatically select additional C++ compiler optimization flags for the current platform')
 
-    comp.add_option('--experimental',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help='build with support for experimental modules build with faust')
+    opt.recurse('libgxw/gxw')
+    opt.recurse('libgxwmm/gxwmm')
+
+    comp = opt.add_option_group("Additional Library Options")
 
     comp.add_option('--includeresampler',
                     action='store_const',
@@ -83,7 +82,7 @@ def set_options(opt):
                     const=True,
                     help='build with included local zita-convolver libary (Default NO)')
 
-    faust = opt.add_option_group("faust-Compiler")
+    faust = opt.add_option_group("Faust-Compiler")
 
     faust.add_option('--faust',
                      action='store_const',
@@ -104,15 +103,23 @@ def set_options(opt):
                      const=True,
                      help="build with faust, single precision")
 
-    ladspa = opt.add_option_group("other options")
+    faust.add_option('--experimental',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help='build with support for experimental Guitarix modules')
+
+
+    ladspa = opt.add_option_group("LADSPA Options (installing ladspa modules)")
 
     ladspa.add_option('--ladspadir',
                     type='string',
                     help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
 
-    opt.recurse('libgxw/gxw')
-    opt.recurse('libgxwmm/gxwmm')
     opt.recurse('pygxw')
+    opt.recurse('glade-gxw')
+
+    opt.tool_options('compiler_cc') # for pygxw and glade-gxw
 
 def check_comp(conf):
     if Options.options.includeresampler:
@@ -284,11 +291,22 @@ def append_optimization_flags(cxxflags):
     cxxflags.append ("-pipe")
     return cpu_model
 
+@Configure.conf
+def cfg_get_variable(self, package, variable):
+    p = Utils.pproc.Popen(["pkg-config", "--variable="+variable, package],
+                          stdout=Utils.pproc.PIPE, shell=False)
+    v = p.communicate()[0].strip()
+    if p.returncode or not v:
+        self.fatal('fail to get variable %s for package %s' % (variable, package))
+    self.env[variable.upper()] = v
+
 # guitarix waf configuration
 def configure(conf):
     # compiler
     conf.check_tool('compiler_cxx')
-    # needed libarys
+    if Options.options.python_wrapper or Options.options.glade_support:
+        conf.check_tool('compiler_cc')
+    # needed libaries
     try:
         conf.check_cfg(package='jack', atleast_version='0.109.1', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
     except ConfigurationError:
@@ -306,8 +324,8 @@ def configure(conf):
         conf.check_cxx(header_name='zita-convolver.h', lib="zita-convolver", uselib_store='ZITA_CONVOLVER',
                        errmsg="not found, using local version", define_name="INTERN_ZITA_CONVOLVER")
     if not Options.options.includeresampler:
-        conf.check(lib='zita-resampler', msg='Checking for zita-resampler', header_name='stdlib.h zita-resampler.h',
-               errmsg="not found, using local version", define_name="ZITA_RESAMPLER")
+        conf.check(lib='zita-resampler', msg='Checking for zita-resampler', header_name='zita-resampler.h',
+               errmsg="fixed version not found, using local version", define_name="ZITA_RESAMPLER")
     # faust
     check_faust(conf)
     check_faust_cc(conf, "src/faust-cc")
@@ -319,6 +337,7 @@ def configure(conf):
     # defines for compilation
     conf.define('GX_STYLE_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','skins')))
     conf.define('GX_BUILDER_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','builder')))
+    conf.define('GX_ICON_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
     conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
     conf.define('GX_VERSION', VERSION)
     if Options.options.experimental:
@@ -346,12 +365,17 @@ def configure(conf):
         cpu_model = append_optimization_flags(cxxflags)
     conf.env['CXXFLAGS'] = cxxflags
 
+    # pygobject is used by both python and c++ wrapper
+    if Options.options.python_wrapper or not Options.options.use_generated_cpp:
+        conf.check_tool('python')
+        conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT', mandatory=True)
+        conf.cfg_get_variable(package='pygobject-2.0', variable='codegendir')
+
     # config subdirs
+    conf.sub_config('pygxw');
+    conf.sub_config('glade-gxw');
+    conf.sub_config('libgxwmm');
     conf.sub_config('libgxw/gxw');
-    if conf.env["GX_LIB_STATIC"] or conf.env["GX_LIB_SHARED"]:
-        conf.sub_config('libgxwmm');
-        conf.sub_config('glade-gxw');
-        conf.sub_config('pygxw');
     conf.sub_config('src');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
@@ -386,6 +410,9 @@ def configure(conf):
     display_feature("Use internal zita-resampler", conf.env['ZITARESAMPLER'])
     display_feature("Use internal zita-convolver", conf.env['ZITACONVOLVER'])
     display_feature("Experimental Extensions", conf.env['EXPERIMENTAL']=="")
+    display_feature("Python Library Wrapper", conf.env['GX_PYTHON_WRAPPER'])
+    display_feature("re-generate C++ Library Wrapper", not conf.env['USE_GENERATED_CPP'])
+    display_feature("Jack Session Support", conf.env['HAVE_JACK_SESSION'])
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
     display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
     display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
@@ -397,15 +424,18 @@ def configure(conf):
 
     print_msg("")
 
+def post(ctx):
+    if os.geteuid() == 0:
+        Utils.exec_command('/sbin/ldconfig')
+
 def build(bld):
     # process subfolders from here
     bld.add_subdirs('ladspa')
-    if bld.env["GX_LIB_STATIC"] or bld.env["GX_LIB_SHARED"]:
-        bld.add_subdirs('libgxw/gxw')
-        bld.add_group()
-        bld.add_subdirs('libgxwmm')
-        bld.add_subdirs('glade-gxw')
-        bld.add_subdirs('pygxw')
+    bld.add_subdirs('libgxw/gxw')
+    bld.add_group()
+    bld.add_subdirs('libgxwmm')
+    bld.add_subdirs('glade-gxw')
+    bld.add_subdirs('pygxw')
     bld.add_subdirs('src')
     if bld.env['FAUST']:
         bld.add_subdirs('src/faust')
@@ -413,6 +443,8 @@ def build(bld):
     bld.add_subdirs('pixmaps')
 
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
+    if bld.env["GX_LIB_SHARED"]:
+        bld.add_post_fun(post)
 
 def etags(ctx):
     "Create an Emacs ETAGS file for the src directory"
