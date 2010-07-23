@@ -35,6 +35,7 @@
 #include <gxwmm/tuner.h>
 #include <gxwmm/waveview.h>
 #include <gtkmm/box.h>
+#include <gtkmm/alignment.h>
 
 #ifndef NJACKLAT
 #define NJACKLAT (9)
@@ -171,9 +172,13 @@ public:
 	GtkWidget *get_widget() { return GTK_WIDGET(m_box->gobj()); }
 };
 
-struct uiTuner : public gx_ui::GxUiItem, public Gxw::Tuner
+struct uiTuner : public gx_ui::GxUiItem, public Gtk::Alignment
 {
-	uiTuner(gx_ui::GxUI* ui, float* zone): gx_ui::GxUiItem(ui, zone) {}
+private:
+	Gxw::Tuner fTuner;
+public:
+	void set_freq(double freq) { fTuner.set_freq(freq); }
+	uiTuner(gx_ui::GxUI* ui, float* zone);
 	virtual void reflectZone();
 };
 

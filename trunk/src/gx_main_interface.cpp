@@ -1997,6 +1997,14 @@ void GxMainInterface::openPatchInfoBox(float* zone)
 
 // ------------------------------ Num Display -----------------------------------
 
+uiTuner::uiTuner(gx_ui::GxUI* ui, float* zone):
+	gx_ui::GxUiItem(ui, zone),
+	Gtk::Alignment(0.5,0.5,0,0)
+{
+	add(fTuner);
+	fTuner.show();
+}
+
 void uiTuner::reflectZone()
 {
 	fCache = *fZone;
@@ -2009,11 +2017,8 @@ void uiTuner::reflectZone()
 
 void GxMainInterface::addNumDisplay()
 {
-	openEventBox("");
-	fTuner.set_size_request(100.0, 90.0); //FIXME
 	addWidget("", GTK_WIDGET(fTuner.gobj()));
-	fTuner.hide(); //FIXME has never been show()'n ?
-	closeBox();
+	fTuner.hide(); // addWidget shows the widget
 }
 
 struct uiStatusDisplay : public gx_ui::GxUiItem
@@ -2085,7 +2090,7 @@ bool GxMainInterface::on_refresh_oscilloscope()
 	if (!oc.bsize || oc.bsize != gx_jack::jack_bs) {
 		oc.bsize = gx_jack::jack_bs;
 		fWaveView.set_text(
-			(boost::format(_(" latency    %1%")) % oc.bsize).str().c_str(),
+			(boost::format(_("latency    %1%")) % oc.bsize).str().c_str(),
 			Gtk::CORNER_TOP_RIGHT);
 	}
 	fWaveView.queue_draw();
@@ -2108,9 +2113,11 @@ void GxMainInterface::addLiveWaveDisplay(const char* label, float* zone , float*
 	gtk_container_add(GTK_CONTAINER(e_box), GTK_WIDGET(fWaveView.gobj()));
 	gtk_container_add(GTK_CONTAINER(box),e_box );
 	addWidget(label, box);
+	fWaveView.hide(); // was show()'n by addWidget
+	fWaveView.property_text_pos_left() = 1.5;
+	fWaveView.property_text_pos_right() = 77;
 	gtk_widget_show(box);
 	gtk_widget_hide(e_box);
-	fWaveView.hide(); //FIXME was never show()'n ?
 }
 
 //----------------------------- main menu ----------------------------

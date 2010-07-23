@@ -54,8 +54,3 @@ using namespace std;
 #include "gx_cairo_callbacks.h"
 #include "gx_gui_helpers.h"
 #include "gx_main_interface.h"
-
-/* special "home-made" GTK classes */
-//#include "GtkRegler.h"
-//#include "GtkWaveView.h"
-//#include "GtkFastMeter.h"
