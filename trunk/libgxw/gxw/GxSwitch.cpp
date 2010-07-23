@@ -45,6 +45,7 @@ static void gx_switch_set_property(
 static void gx_switch_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 static gboolean gx_switch_expose(GtkWidget *widget, GdkEventExpose *event);
+static gboolean gx_switch_scroll_event(GtkWidget *widget, GdkEventScroll *event);
 
 static void
 gx_switch_cp_configure(GxControlParameter *self, gchar* group, gchar *name, gdouble lower, gdouble upper, gdouble step)
@@ -84,6 +85,7 @@ static void gx_switch_class_init(GxSwitchClass *klass)
 	gobject_class->set_property = gx_switch_set_property;
 	gobject_class->get_property = gx_switch_get_property;
 	widget_class->expose_event = gx_switch_expose;
+	widget_class->scroll_event = gx_switch_scroll_event;
 	object_class->destroy = gx_switch_destroy;
 
 	g_object_class_install_property(
@@ -313,6 +315,16 @@ static void gx_switch_destroy(GtkObject *object)
 	GTK_OBJECT_CLASS(gx_switch_parent_class)->destroy (object);
 }
 
+
+/****************************************************************
+ */
+gboolean gx_switch_scroll_event(GtkWidget *widget, GdkEventScroll *event)
+{
+	gtk_toggle_button_set_active(
+		GTK_TOGGLE_BUTTON(widget),
+		event->direction == GDK_SCROLL_UP || event->direction == GDK_SCROLL_RIGHT);
+	return TRUE;
+}
 
 /****************************************************************
  ** Properties

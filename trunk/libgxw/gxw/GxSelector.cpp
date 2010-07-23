@@ -32,6 +32,7 @@
 typedef struct
 {
 	GtkMenu *menu;
+	GtkRequisition textsize;
 	gboolean req_ok;
 	gboolean inside;
 } GxSelectorPrivate;
@@ -177,15 +178,18 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 	gx_selector_draw_arrow(&arrow, yborder, cr, priv->inside);
 	cairo_destroy(cr);
 	if (selector->model) {
+		gint x, y;
+		PangoRectangle ink;
 		char *s;
 		GtkTreeIter iter;
 		gtk_tree_model_iter_nth_child(selector->model, &iter, NULL, selectorstate);
 		gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
 		pango_layout_set_text(layout, s, -1);
-		//cairo_set_source_rgba(cr, 0.4, 1, 0.2, 0.8);
+		pango_layout_get_pixel_extents(layout, &ink, NULL);
+		x = text.x + off_x + (priv->textsize.width - ink.width) / 2;
+		y = text.y + off_y + (priv->textsize.height- ink.height)/ 2;
 		gtk_paint_layout(widget->style, widget->window, gtk_widget_get_state(widget),
-		                 FALSE, NULL, widget, "label",
-		                 text.x + off_x, text.y + off_y, layout);
+		                 FALSE, NULL, widget, "label", x, y, layout);
 		g_free(s);
 	}
 	g_object_unref(layout);
@@ -256,6 +260,8 @@ static void gx_selector_size_request(GtkWidget *widget, GtkRequisition *requisit
 			}
 			found = gtk_tree_model_iter_next(selector->model, &iter);
 		}
+		priv->textsize.width = width;
+		priv->textsize.height = height;
 		requisition->width = width + arrow_sep + arrow_width + 2*border +
 			selector_border.left + selector_border.right + 2 * widget->style->xthickness;
 		requisition->height = height + selector_border.top + selector_border.bottom +

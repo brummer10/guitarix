@@ -28,8 +28,6 @@ static gboolean gx_eq_slider_expose (GtkWidget *widget, GdkEventExpose *event);
 static void gx_eq_slider_size_request (GtkWidget *widget, GtkRequisition *requisition);
 static gboolean gx_eq_slider_button_press (GtkWidget *widget, GdkEventButton *event);
 static gboolean gx_eq_slider_pointer_motion (GtkWidget *widget, GdkEventMotion *event);
-static gboolean gx_eq_slider_enter_in (GtkWidget *widget, GdkEventCrossing *event);
-static gboolean gx_eq_slider_leave_out (GtkWidget *widget, GdkEventCrossing *event);
 
 G_DEFINE_TYPE(GxEQSlider, gx_eq_slider, GX_TYPE_VSLIDER);
 
@@ -41,8 +39,8 @@ static void gx_eq_slider_class_init(GxEQSliderClass *klass)
 	widget_class->size_request = gx_eq_slider_size_request;
 	widget_class->button_press_event = gx_eq_slider_button_press;
 	widget_class->motion_notify_event = gx_eq_slider_pointer_motion;
-	widget_class->enter_notify_event = gx_eq_slider_enter_in;
-	widget_class->leave_notify_event = gx_eq_slider_leave_out;
+	widget_class->enter_notify_event = NULL;
+	widget_class->leave_notify_event = NULL;
 	klass->parent_class.stock_id = "eqslider";
 	gtk_widget_class_install_style_property(
 		widget_class,
@@ -64,30 +62,12 @@ static void gx_eq_slider_size_request (GtkWidget *widget, GtkRequisition *requis
 }
 
 static void eq_slider_expose(
-	GtkWidget *widget, GdkRectangle *rect, gdouble sliderstate, GdkPixbuf *image,
-	gdouble sat, gboolean has_focus, gboolean paint_focus)
+	GtkWidget *widget, GdkRectangle *rect, gdouble sliderstate, GdkPixbuf *image)
 {
-	gint slider_height;
-	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
-	GdkPixbuf *image1 = NULL;
-	if (has_focus) {
-		image1 = gdk_pixbuf_copy(image);
-		gdk_pixbuf_saturate_and_pixelate(image1, image1, sat, FALSE);
-		image = image1;
-		if (paint_focus) {
-			gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
-			                rect->x, rect->y, rect->width, rect->height);
-		}
-	}
 	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
 	                image, 0, sliderstate, rect->x, rect->y,
 	                rect->width, rect->height, GDK_RGB_DITHER_NORMAL, 0, 0);
-	if (image1) {
-		g_object_unref(image1);
-	}
 }
-
-static const gint sat = 70.0;
 
 static gboolean gx_eq_slider_expose(GtkWidget *widget, GdkEventExpose *event)
 {
@@ -100,42 +80,10 @@ static gboolean gx_eq_slider_expose(GtkWidget *widget, GdkEventExpose *event)
 	image_rect.height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
 	gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.height-slider_height);
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	eq_slider_expose(widget, &image_rect, sliderstate, pb, sat, gtk_widget_has_focus(widget), TRUE);
+	eq_slider_expose(widget, &image_rect, sliderstate, pb);
 	_gx_regler_simple_display_value(GX_REGLER(widget), &value_rect);
 	g_object_unref(pb);
 	return FALSE;
-}
-
-static gboolean gx_eq_slider_enter_in (GtkWidget *widget, GdkEventCrossing *event)
-{
-	g_assert(GX_IS_EQ_SLIDER(widget));
-	gint slider_height;
-	GdkRectangle image_rect, value_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
-	image_rect.width = gdk_pixbuf_get_width(pb);
-	image_rect.height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
-	gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.height-slider_height);
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	eq_slider_expose(widget, &image_rect, sliderstate, pb, sat, TRUE, FALSE);
-	g_object_unref(pb);
-	return TRUE;
-}
-
-static gboolean gx_eq_slider_leave_out (GtkWidget *widget, GdkEventCrossing *event)
-{
-	g_assert(GX_IS_EQ_SLIDER(widget));
-	gint slider_height;
-	GdkRectangle image_rect, value_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
-	image_rect.width = gdk_pixbuf_get_width(pb);
-	image_rect.height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
-	gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.height-slider_height);
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	eq_slider_expose(widget, &image_rect, sliderstate, pb, sat, FALSE, FALSE);
-	g_object_unref(pb);
-	return TRUE;
 }
 
 static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, gint button)
