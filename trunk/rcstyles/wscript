@@ -46,8 +46,21 @@ style_files = [
     'guitarix_default.rc',
     'guitarix_zac.rc',
     'guitarix_zreadable.rc',
-    'guitarix_zreadable.rc',
     'common.rc',
+    'eqslider1.png',
+    'eqslider.png',
+    'knob1.png',
+    'knob2.png',
+    'knob3.png',
+    'knob4.png',
+    'knob5.png',
+    'knob6.png',
+    'smallknob1.png',
+    'smallknob2.png',
+    'smallknob3.png',
+    'smallknob4.png',
+    'smallknob5.png',
+    'smallknob6.png',
     ]
 
 def configure(conf):
