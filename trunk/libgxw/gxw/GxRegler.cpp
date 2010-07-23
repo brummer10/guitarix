@@ -42,6 +42,7 @@ typedef struct
 {
 	GtkRequisition value_req;
 	gdouble last_step;
+	GtkAdjustment *adjustment;
 } GxReglerPrivate;
 
 enum {
@@ -53,6 +54,7 @@ enum {
 	PROP_VAR_ID = 1,
 	PROP_SHOW_VALUE,
 	PROP_VALUE_POSITION,
+	PROP_VALUE_XALIGN,
 	PROP_LABEL,
 };
 
@@ -73,6 +75,8 @@ static gboolean gx_regler_scroll (GtkWidget *widget, GdkEventScroll *event);
 static gboolean gx_regler_change_value(GtkRange *range, GtkScrollType scroll, gdouble value);
 static void gx_regler_value_changed(GtkRange *range);
 static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event);
+static void gx_regler_change_adjustment(GxRegler *regler, GtkAdjustment *adjustment);
+static void gx_regler_adjustment_notified(GObject *gobject, GParamSpec *pspec);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE(GxRegler, gx_regler, GTK_TYPE_RANGE,
                                  G_IMPLEMENT_INTERFACE(GX_TYPE_CONTROL_PARAMETER,
@@ -222,11 +226,11 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		                     GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_install_property(
 		gobject_class, PROP_LABEL,
-		g_param_spec_boolean("label",
-		                     P_("Label reference"),
-		                     P_("Label for caption display"),
-		                     TRUE,
-		                     GParamFlags(GTK_PARAM_READWRITE)));
+		g_param_spec_object("label",
+		                    P_("Label ref"),
+		                    P_("GtkLabel for caption"),
+		                    GTK_TYPE_LABEL,
+		                    GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_install_property(
 		gobject_class, PROP_VALUE_POSITION,
 		g_param_spec_enum("value-position",
@@ -235,6 +239,13 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		                  GTK_TYPE_POSITION_TYPE,
 		                  GTK_POS_BOTTOM,
 		                  GParamFlags(GTK_PARAM_READWRITE)));
+	g_object_class_install_property(
+		gobject_class, PROP_VALUE_XALIGN,
+		g_param_spec_double("value-xalign",
+		                    P_("Value Alignment"),
+		                    P_("The horizontal position of the value (0..1)"),
+		                    0, 1, 0.5,
+		                    GParamFlags(GTK_PARAM_READWRITE)));
 	g_object_class_override_property(gobject_class, PROP_VAR_ID, "var-id");
 
 	binding_set = gtk_binding_set_by_class(klass);
@@ -361,6 +372,9 @@ static void gx_regler_destroy(GtkObject *object)
 		g_object_unref(regler->label);
 		regler->label = 0;
 	}
+	gx_regler_change_adjustment(regler, NULL);
+	g_signal_handlers_disconnect_by_func(
+		regler, (gpointer)gx_regler_adjustment_notified, NULL);
 	GTK_OBJECT_CLASS(gx_regler_parent_class)->destroy(object);
 }
 
@@ -524,6 +538,7 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 	double y0 = rect->y + 1;
 	double rect_width  =  rect->width - 2;
 	double rect_height =  rect->height - 2;
+	gint border_width = 8;
 
     cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
     cairo_set_source_rgba(cr, 0, 0, 0, 0.4);
@@ -556,7 +571,9 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
     pango_layout_set_text(l, s, -1);
     PangoRectangle logical_rect;
     pango_layout_get_pixel_extents(l, NULL, &logical_rect);
-    cairo_move_to (cr, x0-1+(rect->width - logical_rect.width)/2, y0+3);
+    gdouble off = border_width + (rect->width - 2*border_width
+                                  - logical_rect.width) * regler->value_xalign;
+    cairo_move_to(cr, x0-1+off, y0+3);
     pango_cairo_show_layout(cr, l);
 
 	cairo_destroy(cr);
@@ -779,12 +796,46 @@ static void gx_regler_style_set(GtkWidget *widget, GtkStyle  *previous_style)
  ** init the Regler type/size
  */
 
+static void gx_regler_adjustment_changed(GtkAdjustment *adjustment, gpointer data)
+{
+	gtk_widget_queue_resize(GTK_WIDGET(data));
+}
+
+static void gx_regler_change_adjustment(GxRegler *regler, GtkAdjustment *adjustment)
+{
+	GxReglerPrivate *priv = GX_REGLER_GET_PRIVATE(regler);
+	if (adjustment == priv->adjustment) {
+		return;
+	}
+	if (priv->adjustment) {
+      g_signal_handlers_disconnect_by_func(
+	      priv->adjustment, (gpointer)gx_regler_adjustment_changed, regler);
+      g_object_unref(priv->adjustment);
+      priv->adjustment = NULL;
+	}
+	if (!adjustment) {
+		return;
+	}
+	priv->adjustment = adjustment;
+	g_object_ref_sink(adjustment);
+	g_signal_connect(adjustment, "changed", G_CALLBACK(gx_regler_adjustment_changed), regler);
+}
+
+static void gx_regler_adjustment_notified(GObject *gobject, GParamSpec *pspec)
+{
+	GxRegler *regler = GX_REGLER(gobject);
+	gx_regler_change_adjustment(regler, regler->parent.adjustment);
+}
+
 static void gx_regler_init(GxRegler *regler)
 {
 	regler->value_position = GTK_POS_BOTTOM;
+	regler->show_value = TRUE;
+	regler->value_xalign = 0.5;
 	gtk_widget_set_can_focus(GTK_WIDGET(regler), TRUE);
 	gtk_widget_set_receives_default(GTK_WIDGET(regler), TRUE);
 	gtk_widget_set_has_window(GTK_WIDGET(regler), FALSE);
+	g_signal_connect(regler, "notify::adjustment", G_CALLBACK(gx_regler_adjustment_notified), NULL);
 }
 
 /****************************************************************
@@ -815,6 +866,11 @@ static void gx_regler_set_property (
 	case PROP_VALUE_POSITION:
 		gx_regler_set_value_position(regler, GtkPositionType(g_value_get_enum(value)));
 		break;
+	case PROP_VALUE_XALIGN:
+		regler->value_xalign = g_value_get_double(value);
+		gtk_widget_queue_draw(GTK_WIDGET(object));
+		g_object_notify(object, "value-xalign");
+		break;
 	case PROP_LABEL:
 		gx_regler_set_label_ref(regler, GTK_LABEL(g_value_get_object(value)));
 		break;
@@ -839,6 +895,9 @@ static void gx_regler_get_property(
 		break;
 	case PROP_VALUE_POSITION:
 		g_value_set_enum(value, regler->value_position);
+		break;
+	case PROP_VALUE_XALIGN:
+		g_value_set_double(value, regler->value_xalign);
 		break;
 	case PROP_LABEL:
 		g_value_set_object(value, regler->label);
@@ -884,8 +943,8 @@ GtkPositionType gx_regler_get_value_position(GxRegler *regler)
 void gx_regler_set_label_ref(GxRegler *regler, GtkLabel *label)
 {
 	g_return_if_fail(GX_IS_REGLER(regler));
-	g_return_if_fail(GTK_IS_LABEL(label));
 	if (regler->label) {
+		g_return_if_fail(GTK_IS_LABEL(label));
 		g_object_unref(regler->label);
 		regler->label = 0;
 	}

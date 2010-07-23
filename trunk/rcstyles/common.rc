@@ -10,15 +10,20 @@ style "guitarix_caption"
 
 style "guitarix_regler"
 {
+  GxRegler::value-spacing = 2
+  GxRegler::value-border = { 6, 6, 3, 3 }
+  font_name = "sans 7.5"
+}
+
+style "guitarix_switch"
+{
   xthickness = 0
   ythickness = 0
-  GtkButton::inner-border = {0, 0, 0, 3}
+  GtkButton::inner-border = {0, 0, 0, 0}
   GtkButton::default-border = {0, 0, 0, 0}
   GtkButton::focus-line-width = 0
   GtkButton::focus-padding = 0
   GtkButton::interior-focus = 0
-  GxRegler::value-spacing = 0
-  font_name = "sans 7.5"
   GtkButton::child-displacement-x = 0
   GtkButton::child-displacement-y = 0
   engine "clearlooks" {
@@ -38,6 +43,12 @@ style "guitarix_selector"
   font_name = "sans 7.5"
   xthickness = 10
   ythickness = 1
+}
+
+style "guitarix_waveview"
+{
+  fg[NORMAL] = 	{ 0.48, 0.48, 0.12 } # RGBA: 0.8, 0.8, 0.2, 0.6
+  font_name = "sans 6"
 }
 
 style "guitarix_slider"
@@ -69,7 +80,8 @@ widget "*.moog.on_off.caption" style:highest "guitarix_bold_label"
 widget "*.biquad.on_off.caption" style:highest "guitarix_bold_label"
 widget "*.MultiBandFilter.on_off.caption" style:highest "guitarix_bold_label"
 class "GxRegler" style:highest "guitarix_regler"
-class "GxSwitch" style:highest "guitarix_regler"
+class "GxSwitch" style:highest "guitarix_switch"
+class "GxWaveView" style:highest "guitarix_waveview"
 class "GxHSlider" style:highest "guitarix_slider"
 class "GxEQSlider" style:highest "guitarix_eqslider"
 class "GxSelector" style:highest "guitarix_selector"

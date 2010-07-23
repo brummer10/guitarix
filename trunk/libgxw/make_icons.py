@@ -71,7 +71,8 @@ def glade_icons():
     make_glade_icon("gxtuner.png")
     make_glade_icon("gxiredit.png")
     make_glade_icon("gxvaluedisplay.png")
+    make_glade_icon("gxmeterscale.png")
 
 if __name__ == "__main__":
-    #sliders_knobs()
+    sliders_knobs()
     glade_icons()

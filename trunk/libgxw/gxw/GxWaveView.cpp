@@ -121,25 +121,23 @@ static void wave_view_background(GxWaveView *waveview, cairo_t *cr,
 		liveviewx-1, liveviewy-1,0,0,background_width,background_height);
 }
 
-static void draw_text(cairo_t *cr, GdkEventExpose *event, gchar *str,
+static void draw_text(GtkWidget *widget, GdkEventExpose *event, gchar *str,
                       int xorg, int yorg, GtkCornerType corner)
 {
 	if (!str || !*str) {
 		return;
 	}
-	cairo_set_source_rgba (cr, 0.8, 0.8, 0.2,0.6);
-	PangoLayout *layout = pango_cairo_create_layout(cr);
-	PangoContext *ctx = pango_layout_get_context(layout);
-	PangoFontDescription *desc = pango_context_get_font_description(ctx);
-	pango_font_description_set_absolute_size(desc, 8000);
+	PangoLayout *layout = gtk_widget_create_pango_layout(widget, NULL);
 	pango_layout_set_markup(layout, str, -1);
 	int width, height;
 	pango_layout_get_pixel_size(layout, &width, &height);
 	if (corner == GTK_CORNER_BOTTOM_LEFT || corner == GTK_CORNER_BOTTOM_RIGHT) {
-		yorg += background_height - height - 2;
+		yorg += background_height - height - 3;
+	} else {
+		yorg += 1;
 	}
-	cairo_move_to(cr, xorg, yorg);
-	pango_cairo_show_layout(cr, layout);
+	gtk_paint_layout(widget->style, widget->window, gtk_widget_get_state(widget),
+		                 FALSE, NULL, widget, "label", xorg, yorg, layout);
 }
 
 static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
@@ -162,13 +160,13 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	}
 
 	cairo_set_source_rgb(cr, 1, 1, 1);
-	draw_text(cr, event, waveview->text_top_left, liveviewx + background_width * waveview->text_pos_left / 100,
+	draw_text(widget, event, waveview->text_top_left, liveviewx + background_width * waveview->text_pos_left / 100,
 	          liveviewy, GTK_CORNER_TOP_LEFT);
-	draw_text(cr, event, waveview->text_top_right, liveviewx + background_width * waveview->text_pos_right / 100,
+	draw_text(widget, event, waveview->text_top_right, liveviewx + background_width * waveview->text_pos_right / 100,
 	          liveviewy, GTK_CORNER_TOP_RIGHT);
-	draw_text(cr, event, waveview->text_bottom_left, liveviewx + background_width * waveview->text_pos_left / 100,
+	draw_text(widget, event, waveview->text_bottom_left, liveviewx + background_width * waveview->text_pos_left / 100,
 	          liveviewy, GTK_CORNER_BOTTOM_LEFT);
-	draw_text(cr, event, waveview->text_bottom_right, liveviewx + background_width * waveview->text_pos_right / 100,
+	draw_text(widget, event, waveview->text_bottom_right, liveviewx + background_width * waveview->text_pos_right / 100,
 	          liveviewy, GTK_CORNER_BOTTOM_RIGHT);
 
 	cairo_move_to (cr, liveviewx+280, liveviewy+25);

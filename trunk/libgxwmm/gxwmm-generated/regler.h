@@ -124,7 +124,7 @@ private:
   Glib::SignalProxy2< bool,const Gdk::Rectangle&,GdkEventButton* > signal_value_entry();
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
-/** Label for caption display.
+/** GtkLabel for caption.
    *
    * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
@@ -134,7 +134,7 @@ private:
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
-/** Label for caption display.
+/** GtkLabel for caption.
    *
    * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when

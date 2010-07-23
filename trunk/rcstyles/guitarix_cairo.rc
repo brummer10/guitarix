@@ -3,7 +3,6 @@
 #
 
 include "common.rc"
-pixmap_path './:/usr/share/guitarix/skins:/usr/local/share/guitarix/skins'
 
 style "guitarix_skin_icons"
 {

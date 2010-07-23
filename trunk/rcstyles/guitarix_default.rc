@@ -3,8 +3,6 @@
 #
 
 include "common.rc"
-pixmap_path './skins:./:/usr/share/guitarix/skins:/usr/local/share/guitarix/skins'
-
 style "guitarix_skin_icons"
 {
   stock["bigknob"] = {{"knob1.png"}}

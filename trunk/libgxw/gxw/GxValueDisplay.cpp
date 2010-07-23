@@ -44,6 +44,8 @@ static void gx_value_display_size_request(GtkWidget *widget, GtkRequisition *req
 	_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
 }
 
+#define FILL_ALLOCATION_WIDTH
+
 static gboolean gx_value_display_expose(GtkWidget *widget, GdkEventExpose *event)
 {
 	g_assert(GX_IS_VALUE_DISPLAY(widget));
@@ -51,6 +53,10 @@ static gboolean gx_value_display_expose(GtkWidget *widget, GdkEventExpose *event
 	image_rect.width = 0;
 	image_rect.height = 0;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+#ifdef FILL_ALLOCATION_WIDTH
+	value_rect.x = widget->allocation.x;
+	value_rect.width = widget->allocation.width;
+#endif
 	_gx_regler_display_value(GX_REGLER(widget), &value_rect);
 	return FALSE;
 }

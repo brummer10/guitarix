@@ -1413,7 +1413,7 @@ void GxMainInterface::setup()
 												{
 												    openHorizontalBox("");
                                                     {
-	                                                    create_switch(sw_minitoggle, "biquad.on_off","   BiQuad Filter   ", Gtk::POS_RIGHT);
+	                                                    create_switch(sw_minitoggle, "biquad.on_off","   BiQuad Filter     ", Gtk::POS_RIGHT);
                                                         openDialogBox("biquad.dialog", "biquad.on_off");
                                                         {
                                                             openPlugBox("");
@@ -1440,7 +1440,7 @@ void GxMainInterface::setup()
                                                     closeBox();
 												    openHorizontalBox("");
                                                     {
-	                                                    create_switch(sw_minitoggle, "MultiBandFilter.on_off","   MultiBandFilter", Gtk::POS_RIGHT);
+	                                                    create_switch(sw_minitoggle, "MultiBandFilter.on_off","   MultiBandFilter  ", Gtk::POS_RIGHT);
                                                         openDialogBox("MultiBandFilter.dialog", "MultiBandFilter.on_off");
                                                         {
                                                             openPlugBox("");
@@ -1485,7 +1485,7 @@ void GxMainInterface::setup()
 													closeBox();
 													openHorizontalBox("");
                                                     {
-	                                                    create_switch(sw_minitoggle, "moog.on_off","   Moog Filter      ", Gtk::POS_RIGHT);
+	                                                    create_switch(sw_minitoggle, "moog.on_off","   Moog Filter        ", Gtk::POS_RIGHT);
                                                         openDialogBox("moog.dialog", "moog.on_off");
                                                         {
                                                             openPlugBox("");
@@ -1511,7 +1511,7 @@ void GxMainInterface::setup()
                                                         closeBox();
                                                     }
                                                     closeBox();
-                                                    create_switch(sw_minitoggle, "cab.on_off","   Cab-ImpResp         ", Gtk::POS_RIGHT);
+                                                    create_switch(sw_minitoggle, "cab.on_off","   Cab-ImpResp              ", Gtk::POS_RIGHT);
 												}
 												closeBox();
 												openSlooperBox("limiter");
