@@ -2,8 +2,27 @@
 # This is the GTK rc style file for guitarix
 #
 
+include "common.rc"
 pixmap_path './:/usr/share/guitarix/skins:/usr/local/share/guitarix/skins'
 
+style "guitarix_skin_icons"
+{
+  stock["bigknob"] = {{"knob6.png"}}
+  stock["smallknob"] = {{"smallknob6.png"}}
+  stock["eqslider"] = {{"eqslider1.png"}}
+}
+
+class "GxKnob" style "guitarix_skin_icons"
+class "GxEQSlider" style "guitarix_skin_icons"
+
+style "guitarix-paintbox"
+{
+  GxPaintBox::skin-gradient = {
+    {     0, 13107, 32768, 13107, 39322 }, # 0, 0.2,  0.5, 0.2,  0.6
+    { 65536,  3277,  6554,  3277, 39322 }} # 1, 0.05, 0.1, 0.05, 0.6
+}
+
+class "GxPaintBox" style "guitarix-paintbox"
 
 style "guitarix_rainbow"
 {

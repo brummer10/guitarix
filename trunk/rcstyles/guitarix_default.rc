@@ -5,6 +5,17 @@
 include "common.rc"
 pixmap_path './skins:./:/usr/share/guitarix/skins:/usr/local/share/guitarix/skins'
 
+style "guitarix_skin_icons"
+{
+  stock["bigknob"] = {{"knob1.png"}}
+  stock["smallknob"] = {{"smallknob1.png"}}
+  stock["eqslider"] = {{"eqslider1.png"}}
+}
+
+class "GxKnob" style "guitarix_skin_icons"
+class "GxEQSlider" style "guitarix_skin_icons"
+
+
 style "guitarix_default"
 {
 

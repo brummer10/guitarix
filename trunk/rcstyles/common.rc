@@ -19,6 +19,12 @@ style "guitarix_regler"
   GtkButton::interior-focus = 0
   GxRegler::value-spacing = 0
   font_name = "sans 7.5"
+  GtkButton::child-displacement-x = 0
+  GtkButton::child-displacement-y = 0
+  engine "clearlooks" {
+    disable_focus = TRUE
+    style = CLASSIC
+  }
 }
 
 style "guitarix_selector"
