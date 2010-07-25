@@ -3,7 +3,7 @@ namespace Exp {
 
 //-----------------------------------------------------
 //
-// Code generated with Faust 0.9.24 (http://faust.grame.fr)
+// Code generated with Faust 0.9.27 (http://faust.grame.fr)
 //-----------------------------------------------------
 /* link with  */
 /*
@@ -1285,9 +1285,10 @@ typedef long double quad;
 
 class mydsp : public dsp{
   protected:
+	FAUSTFLOAT 	fslider0;
 	int 	iVec0[2];
 	double 	fConst0;
-	FAUSTFLOAT 	fslider0;
+	FAUSTFLOAT 	fslider1;
 	double 	fConst1;
 	int 	iRec2[2];
 	int 	iRec1[2];
@@ -1296,7 +1297,7 @@ class mydsp : public dsp{
 	double 	fRec4[2];
 	double 	fRec3[2];
 	FAUSTFLOAT 	fcheckbox0;
-	FAUSTFLOAT 	fslider1;
+	FAUSTFLOAT 	fslider2;
 	double 	fRec0[2];
 	FAUSTFLOAT 	fcheckbox1;
   public:
@@ -1304,19 +1305,19 @@ class mydsp : public dsp{
 		m->declare("filter.lib/name", "Faust Filter Library");
 		m->declare("filter.lib/author", "Julius O. Smith (jos at ccrma.stanford.edu)");
 		m->declare("filter.lib/copyright", "Julius O. Smith III");
-		m->declare("filter.lib/version", "1.5");
+		m->declare("filter.lib/version", "1.17");
 		m->declare("filter.lib/license", "STK-4.3");
-		m->declare("filter.lib/reference", "http://ccrma.stanford.edu/~jos/filters/");
-		m->declare("effect.lib/name", "Faust Effect Library");
+		m->declare("filter.lib/reference", "https://ccrma.stanford.edu/~jos/filters/");
+		m->declare("effect.lib/name", "Faust Audio Effect Library");
 		m->declare("effect.lib/author", "Julius O. Smith (jos at ccrma.stanford.edu)");
 		m->declare("effect.lib/copyright", "Julius O. Smith III");
-		m->declare("effect.lib/version", "1.1");
+		m->declare("effect.lib/version", "1.23");
 		m->declare("effect.lib/license", "STK-4.3");
-		m->declare("effect.lib/reference", "http://ccrma.stanford.edu/realsimple/faust_strings/");
+		m->declare("effect.lib/reference", "https://ccrma.stanford.edu/realsimple/faust_strings/");
 		m->declare("osc.lib/name", "Faust Oscillator Library");
 		m->declare("osc.lib/author", "Julius O. Smith (jos at ccrma.stanford.edu)");
 		m->declare("osc.lib/copyright", "Julius O. Smith III");
-		m->declare("osc.lib/version", "1.2");
+		m->declare("osc.lib/version", "1.8");
 		m->declare("osc.lib/license", "STK-4.3");
 	}
 
@@ -1346,32 +1347,37 @@ class mydsp : public dsp{
 		interface->openHorizontalBox("tremolo");
 		interface->addCheckButton("ON", &fcheckbox1);
 		interface->addCheckButton("SINE", &fcheckbox0);
-		interface->addVerticalSlider("depth", &fslider1, 0.5, 0.0, 1.0, 0.01);
-		interface->addVerticalSlider("freq", &fslider0, 5.0, 0.1, 5e+01, 0.1);
+		interface->addVerticalSlider("depth", &fslider2, 0.5, 0.0, 1.0, 0.01);
+		interface->addVerticalSlider("freq", &fslider1, 5.0, 0.1, 5e+01, 0.1);
+		interface->declare(&fslider0, "name", "wet/dry");
+		interface->addVerticalSlider("wet_dry", &fslider0, 0.0, -1.0, 1.0, 0.1);
 		interface->closeBox();
 		interface->closeBox();
 	}
 	virtual void compute (int count, FAUSTFLOAT** input, FAUSTFLOAT** output) {
 		double 	fSlow0 = fslider0;
-		int 	iSlow1 = int((fConst1 / double(fSlow0)));
-		double 	fSlow2 = (1.0 / iSlow1);
-		double 	fSlow3 = (fConst2 * fSlow0);
-		int 	iSlow4 = int(fcheckbox0);
-		double 	fSlow5 = fslider1;
-		int 	iSlow6 = int(fcheckbox1);
+		double 	fSlow1 = (1 - max(0, fSlow0));
+		double 	fSlow2 = fslider1;
+		int 	iSlow3 = int((fConst1 / double(fSlow2)));
+		double 	fSlow4 = (1.0 / iSlow3);
+		double 	fSlow5 = (fConst2 * fSlow2);
+		int 	iSlow6 = int(fcheckbox0);
+		double 	fSlow7 = fslider2;
+		int 	iSlow8 = int(fcheckbox1);
+		double 	fSlow9 = (1 - max(0, (0 - fSlow0)));
 		FAUSTFLOAT* input0 = input[0];
 		FAUSTFLOAT* output0 = output[0];
 		for (int i=0; i<count; i++) {
 			double fTemp0 = (double)input0[i];
 			iVec0[0] = 1;
 			double fTemp1 = (fRec0[1] * (1 - (fConst0 / (fConst0 + (0.06 * exp((0 - (2.4849066497880004 * fRec0[1]))))))));
-			iRec2[0] = ((int((iRec2[1] > 0)))?((2 * (iRec1[1] < iSlow1)) - 1):(1 - (2 * (iRec1[1] > 0))));
+			iRec2[0] = ((int((iRec2[1] > 0)))?((2 * (iRec1[1] < iSlow3)) - 1):(1 - (2 * (iRec1[1] > 0))));
 			iRec1[0] = (iRec2[0] + iRec1[1]);
-			fRec5[0] = ((fSlow3 * (0 - fRec3[1])) + fRec5[1]);
-			fRec4[0] = ((1 + ((fSlow3 * fRec5[0]) + fRec4[1])) - iVec0[1]);
+			fRec5[0] = ((fSlow5 * (0 - fRec3[1])) + fRec5[1]);
+			fRec4[0] = ((1 + ((fSlow5 * fRec5[0]) + fRec4[1])) - iVec0[1]);
 			fRec3[0] = fRec4[0];
-			fRec0[0] = (fTemp1 + (fConst0 * (pow((1 + (fSlow5 * (((iSlow4)?max(0, (0.5 * (1 + fRec3[0]))):(fSlow2 * iRec1[0])) - 1))),1.9) / (fConst0 + (0.06 * exp((0 - (2.4849066497880004 * fTemp1))))))));
-			output0[i] = (FAUSTFLOAT)((iSlow6)?(2700 * (fTemp0 / (2700 + exp((13.815510557964274 / log((2.718281828459045 + (8.551967507929417 * fRec0[0])))))))):fTemp0);
+			fRec0[0] = (fTemp1 + (fConst0 * (pow((1 + (fSlow7 * (((iSlow6)?max(0, (0.5 * (1 + fRec3[0]))):(fSlow4 * iRec1[0])) - 1))),1.9) / (fConst0 + (0.06 * exp((0 - (2.4849066497880004 * fTemp1))))))));
+			output0[i] = (FAUSTFLOAT)((fSlow9 * ((iSlow8)?(2700 * (fTemp0 / (2700 + exp((13.815510557964274 / log((2.718281828459045 + (8.551967507929417 * fRec0[0])))))))):fTemp0)) + (fSlow1 * fTemp0));
 			// post processing
 			fRec0[1] = fRec0[0];
 			fRec3[1] = fRec3[0];
@@ -1410,8 +1416,9 @@ DspBlock::DspBlock()
 {
 	registerVar("test.tremolo.ON","","B","",&fcheckbox1,0,0,1,1);
 	registerVar("test.tremolo.SINE","","B","",&fcheckbox0,0,0,1,1);
-	registerVar("test.tremolo.depth","","S","",&fslider1,0.5,0.0,1.0,0.01);
-	registerVar("test.tremolo.freq","","S","",&fslider0,5.0,0.1,5e+01,0.1);
+	registerVar("test.tremolo.depth","","S","",&fslider2,0.5,0.0,1.0,0.01);
+	registerVar("test.tremolo.freq","","S","",&fslider1,5.0,0.1,5e+01,0.1);
+	registerVar("test.tremolo.wet_dry","wet/dry","S","",&fslider0,0.0,-1.0,1.0,0.1);
 	registerInit("Experimental", Exp::init);
 #ifdef DSP_HAS_SETUP
 	registerSetup(Exp::setup);

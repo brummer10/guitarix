@@ -190,7 +190,7 @@ void GxMainInterface::setup()
                                 {
                                     openSpaceBox("");
                                     closeBox();
-                                create_selector("eqt.onetwo");
+                                    create_selector("eqt.onetwo");
                                     openHorizontalBox("");
                                     {
                                         openSpaceBox("");
@@ -353,9 +353,13 @@ void GxMainInterface::setup()
                                     closeBox();
                                     openHorizontalBox("");
                                     {
-	                                    create_switch(sw_minitoggle, "amp.bass_boost.on_off", "bass boost  ", Gtk::POS_RIGHT);
-                                    openSpaceBox("");
-                                    closeBox();
+	                                    openVerticalBox1("");
+                                        closeBox();
+                                        create_switch(sw_minitoggle, "amp.bass_boost.on_off", " bass boost  ", Gtk::POS_RIGHT);
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
                                     }
                                     closeBox();
                                     openHorizontalBox("");
@@ -769,7 +773,7 @@ void GxMainInterface::setup()
                                                         create_switch_no_caption(sw_switchit, "distortion.on_off");
 
 													//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-                                                        
+
                                                             openDialogBox("distortion.dialog", "distortion.on_off");
                                                             {
                                                                 openPlugBox("");
@@ -801,8 +805,14 @@ void GxMainInterface::setup()
                                                                                             closeBox();
                                                                                             openVerticalBox1("");
                                                                                             {
-                                                                                                create_smallknob("distortion.middle_drive"," middle drive ");
-                                                                                                create_smallknob("distortion.middle_gain"," middle gain ");
+                                                                                                create_smallknob("distortion.middle_l_drive"," middle low drive ");
+                                                                                                create_smallknob("distortion.middle_l_gain"," middle low gain ");
+                                                                                            }
+                                                                                            closeBox();
+                                                                                            openVerticalBox1("");
+                                                                                            {
+                                                                                                create_smallknob("distortion.middle_h_drive"," middle high drive ");
+                                                                                                create_smallknob("distortion.middle_h_gain"," middle high gain ");
                                                                                             }
                                                                                             closeBox();
                                                                                             openVerticalBox1("");
@@ -816,6 +826,7 @@ void GxMainInterface::setup()
                                                                                         openHorizontalBox("");
                                                                                         {
                                                                                             create_hslider("distortion.split_low_freq", "split low freq");
+                                                                                            create_hslider("distortion.split_middle_freq", "split middle freq");
                                                                                             create_hslider("distortion.split_high_freq", "split high freq");
                                                                                             openSpaceBox("");
                                                                                             closeBox();
@@ -1517,6 +1528,8 @@ void GxMainInterface::setup()
 												openSlooperBox("limiter");
 												{
 													create_smallknob("amp.fuzz");
+													openSpaceBox("");
+													closeBox();
 													create_selector("amp.threshold");
 													openSpaceBox("");
 													closeBox();

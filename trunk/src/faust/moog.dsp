@@ -8,4 +8,4 @@ import("guitarix.lib");
 Q 		= hslider("Q", 1, 0, 4, 0.1);
 fr 		= hslider("fr", 3000, 440, 6000, 10): smoothi(0.999);
 
-process = ( +(anti_denormal_ac): moogvcf(Q,fr)), (+(anti_denormal_ac): moogvcf(Q,fr));
+process = ( +(anti_denormal_ac): moog_vcf(Q,fr)), (+(anti_denormal_ac): moog_vcf(Q,fr));

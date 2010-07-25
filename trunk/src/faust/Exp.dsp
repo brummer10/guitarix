@@ -63,5 +63,6 @@ meter = _ <: (graph*1e-50,_) :> _ with {
     graph = env : 20*log10 :  clip(-20,20) : vbargraph("ENV",-20,20);
 };
 
+wet_dry = vslider("wet_dry[name:wet/dry]", 0, -1, 1, 0.1);
 
-process = hgroup("test", hgroup("tremolo", BP(component("tremolo.dsp"))));
+process = hgroup("test", hgroup("tremolo",wet_dry_mix(wet_dry, BP(component("tremolo.dsp")))));

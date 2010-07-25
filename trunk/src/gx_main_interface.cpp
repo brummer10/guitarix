@@ -2058,7 +2058,7 @@ void GxMainInterface::addStatusDisplay(const char* label, float* zone )
 }
 
 
-		
+
 
 bool GxMainInterface::on_refresh_oscilloscope()
 {
