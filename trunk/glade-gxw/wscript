@@ -23,7 +23,8 @@ def set_options(opt):
 def configure(conf):
     if Options.options.glade_support:
         conf.env["GX_GLADE_SUPPORT"] = True
-        conf.env["GX_LIB_SHARED"] = True
+        conf.env["GXW_SHARED"] = True
+        conf.env["GXW_SHARED_INSTALL"] = True
         conf.env["GLADE_CATALOG_DIR"] = Options.options.glade_catalog_dir
         conf.env["GLADE_MODULES_DIR"] = Options.options.glade_modules_dir
 

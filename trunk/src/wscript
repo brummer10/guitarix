@@ -36,6 +36,7 @@ def build(bld):
     builder_files = [
         'midi.glade',
         'ports.glade',
+        'iredit.glade',
         ]
     incl = ['.','..','headers','../libgxwmm','../libgxw'] # need ".." for config.h
     if not bld.env['INTERN_ZITA_CONVOLVER']:
@@ -56,7 +57,7 @@ def build(bld):
     else:
         libpath = []
         uselib_local = ['gxwmm','gxw']
-        linkflags = ["-Wl,-u,gxw_init"]
+        linkflags = ["-Wl,-u,gxw_init,-u,gxwmm_init"]
     bld(features = 'cxx cprogram',
         includes = incl,
         cxxflags= bld.env['CXXFLAGS'],

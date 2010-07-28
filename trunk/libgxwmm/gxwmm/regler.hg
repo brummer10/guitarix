@@ -37,9 +37,16 @@ class Regler: public Gtk::Range, public ControlParameter {
 	_WRAP_METHOD(void set_value_position(Gtk::PositionType), gx_regler_set_value_position)
 	_WRAP_METHOD(Gtk::PositionType get_value_position(), gx_regler_get_value_position)
 	_WRAP_SIGNAL(bool value_entry(const Gdk::Rectangle&, GdkEventButton*), "value-entry")
-	_WRAP_PROPERTY("label", Gtk::Label)
+	_WRAP_PROPERTY("label-ref", Gtk::Label)
 	_WRAP_PROPERTY("show-value", bool)
+	_WRAP_PROPERTY("value-xalign", double)
+	_WRAP_PROPERTY("digits", int)
 	_WRAP_PROPERTY("value-position", Gtk::PositionType)
+
+#m4 dnl// The ::format_value signal handler should return a newly allocated string.
+#m4 _CONVERSION(`Glib::ustring',`gchar*',`(strlen($3.c_str()) ? g_strdup($3.c_str()) : 0)')
+	_WRAP_SIGNAL(Glib::ustring format_value(double value), "format_value")
+
 	protected:
 	_CTOR_DEFAULT
 };

@@ -923,10 +923,13 @@ void GxMainInterface::openPlugBox(const char* label)
 	}
 }
 
-void GxMainInterface::openPaintBox(const char* label)
+void GxMainInterface::openPaintBox(const char* label, const char* name)
 {
-	GtkWidget * box = gtk_vbox_new (homogene, 2);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 4);
+	GtkWidget *box = gtk_vbox_new(homogene, 2);
+	if (name) {
+		gtk_widget_set_name(box, name);
+	}
+	gtk_container_set_border_width(GTK_CONTAINER (box), 4);
 	g_signal_connect(box, "expose-event", G_CALLBACK(filter_box_expose), NULL);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
@@ -1400,7 +1403,8 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 		bool rc = gx_engine::conv.configure(
 			gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
 			jcset->getGain(), jcset->getlGain(), jcset->getDelay(), jcset->getlDelay(),
-			jcset->getOffset(), jcset->getLength(), jcset->getMem(), jcset->getBufferSize());
+			jcset->getOffset(), jcset->getLength(), jcset->getMem(), jcset->getBufferSize(),
+			jcset->getGainline(), jcset->getGainCnt());
 		if (!rc || !gx_engine::conv.start()) {
 			gx_jconv::GxJConvSettings::checkbutton7 = 0;
 		}
@@ -1494,25 +1498,6 @@ void GxMainInterface::addCheckButton(const char* label, float* zone)
 }
 
 // ---------------------------	Adjustmenty based widgets ---------------------------
-
-struct uiAdjustment : public gx_ui::GxUiItem
-{
-	GtkAdjustment* fAdj;
-	uiAdjustment(gx_ui::GxUI* ui, float* zone, GtkAdjustment* adj) : gx_ui::GxUiItem(ui, zone), fAdj(adj) {}
-	static void changed (GtkWidget *widget, gpointer data)
-		{
-			float	v = GTK_ADJUSTMENT (widget)->value;
-			((gx_ui::GxUiItem*)data)->modifyZone(v);
-		}
-
-	virtual void reflectZone()
-		{
-			float 	v = *fZone;
-			fCache = v;
-			gtk_adjustment_set_value(fAdj, v);
-		}
-
-};
 
 // -------------------------- Horizontal Slider -----------------------------------
 
@@ -1673,7 +1658,7 @@ UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param,
 	UiRegler(ui, param, regler, show_value)
 {
 	m_label.set_text(label);
-	m_label.set_name("caption");
+	m_label.set_name("effekt_label");
 	m_box.set_name(param.id());
 	m_box.pack_start(m_label, Gtk::PACK_SHRINK);
 	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
@@ -1740,7 +1725,7 @@ UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, P
 {
 	//FIXME use Gtk::Orientable interface when gtk >= 2.16 can be used
 	m_label.set_text(label);
-	m_label.set_name("caption");
+	m_label.set_name("effekt_label");
 	if (pos == Gtk::POS_LEFT || pos == Gtk::POS_RIGHT) {
 		m_box = new Gtk::HBox();
 	} else {

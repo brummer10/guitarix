@@ -127,8 +127,10 @@ def build_generate_wrapper(bld):
         )
     bld.add_group()
     libdir = bld.path.find_dir("../../libgxw/gxw").bldpath(bld.env)
+    e1 = 's/GdkEvent\\*/GdkEventButton*/'
+    e2 = 's/return-type "const-gchar\\*"/return-type "gchar*"/'
     bld(name = "sigdefs",
-        rule = "LD_LIBRARY_PATH=\"%s\" ${SRC} | sed 's/GdkEvent\\*/GdkEventButton*/' > ${TGT}" % libdir, #FIXME
+        rule = ("LD_LIBRARY_PATH=\"%s\" ${SRC} | sed -e '"+e1+"' -e '"+e2+"'> ${TGT}") % libdir, #FIXME
         source = 'generate_defs_gxw',
         target = 'signals.defs',
         )
@@ -204,8 +206,18 @@ def build(bld):
                 source = gdir + "private/" + s,
                 target = "private/" + s,
                 )
+        bld(name = "copy-wrap_init",
+            rule = "cp ${SRC} ${TGT}",
+            source = gdir + "wrap_init.cc",
+            target = s,
+            )
         sources = [v.replace(".hg",".cc") for v in sources]
     else:
+        bld(name = "wrap_init",
+            rule = bld.env["GMMPROCDIR"]+"/generate_wrap_init.pl --namespace=Gxw ${SRC} >${TGT}; cp ${TGT} ../libgxwmm/gxwmm-generated", #FIXME
+            source = sources,
+            target = "wrap_init.cc",
+            )
         build_generate_wrapper(bld)
     bld.add_group()
     if bld.env["GX_LIB_SHARED"]:
@@ -214,7 +226,7 @@ def build(bld):
             vnum = "0.1",
             ccflags = bld.env['CXXFLAGS'],
             includes = ['..','../../libgxw'],
-            source = sources,
+            source = sources+["init.cc","wrap_init.cc"],
             uselib = ['GTKMM'],
             uselib_local = ['gxw'],
             target = 'gxwmm',
@@ -223,7 +235,7 @@ def build(bld):
         bld(features = ['cxx', 'cstaticlib'],
             ccflags = bld.env['CXXFLAGS'],
             includes = ['..','../../libgxw'],
-            source = sources,
+            source = sources+["init.cc","wrap_init.cc"],
             uselib = ['GTKMM'],
             target = 'gxwmm',
             )

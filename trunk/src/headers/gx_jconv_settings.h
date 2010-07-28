@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include <gxw/gainpoints.h>
+
 namespace gx_jconv
 {
 // read mode
@@ -77,6 +79,11 @@ private:
 	guint           fLength;     // length of the IR to use for convolution
 	guint           fDelay;      // delay when to apply reverb
 	guint           flDelay;      // left channel delay when to apply reverb
+	gain_points    *gainline;
+	int             gain_cnt;
+
+	void read_gainline(gx_system::JsonParser& jp);
+	void copy(const GxJConvSettings& s);
 
 	// private constructor (don't call it, call instance())
 	GxJConvSettings();
@@ -86,6 +93,9 @@ private:
 
 public:
 	GxJConvSettings(gx_system::JsonParser& jp);
+	GxJConvSettings(const GxJConvSettings& s);
+	GxJConvSettings& operator=(const GxJConvSettings& s);
+	~GxJConvSettings();
 
 	// getters and setters
 	inline string getIRFile() const { return fIRFile; }
@@ -105,6 +115,8 @@ public:
 	inline guint          getLength    () const { return fLength;     }
 	inline guint          getDelay     () const { return fDelay;      }
 	inline guint          getlDelay    () const { return flDelay;      }
+	inline gain_points*   getGainline  () const { return gainline;    }
+	inline int            getGainCnt   () const { return gain_cnt;    }
 
 	inline void setIRFile    (string         name) { fIRFile     = name; }
 	inline void setIRDir     (string         name) { fIRDir      = name; }
@@ -125,6 +137,7 @@ public:
 	inline void setLength    (guint          leng) { fLength     = leng; }
 	inline void setDelay     (guint          del)  { fDelay      = del;  }
 	inline void setlDelay    (guint          del)  { flDelay     = del;  }
+	void setGainline(gain_points *p, int n);
 
 	// internal setting manipulation
 	inline bool isValid()  { return fValidSettings;  }

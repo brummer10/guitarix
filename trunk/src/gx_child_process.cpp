@@ -394,7 +394,13 @@ void Meterbridge::start_stop(GtkCheckMenuItem *menuitem, gpointer)
 		}
 		string s = gx_jack::client_instance + "_" + app_name;
 		const char * const args[] = {
-			app_name, "-n", s.c_str(), "-t", "sco", "guitarix:in_0", "guitarix:out_0", 0 };
+			app_name, "-n", s.c_str(), "-t", "sco", "-c", "3",
+			(gx_jack::client_name+":in_0").c_str(),
+			(gx_jack::client_name+":out_0").c_str(),
+			(gx_jack::client_insert_name+":in_0").c_str(),
+			(gx_jack::client_insert_name+":out_0").c_str(),
+			(gx_jack::client_insert_name+":out_1").c_str(),
+			0 };
 		GxChild *meterbridge = childprocs.launch(app_name, args, SIGTERM);
 		if (meterbridge) {
 			new Meterbridge(meterbridge, menuitem);

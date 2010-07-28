@@ -17,6 +17,9 @@
  */
 
 #include <gtk/gtkiconfactory.h>
+#include "GxIREdit.h"
+#include "GxRadioButton.h"
+#include "GxValueDisplay.h"
 
 #include "gximages.cc"
 
@@ -57,6 +60,9 @@ static image_entry image_data[] = {
 extern "C" void __attribute__ ((constructor)) gxw_init()
 {
 	g_type_init();
+	GX_TYPE_IR_EDIT;
+	GX_TYPE_RADIO_BUTTON;
+	GX_TYPE_VALUE_DISPLAY;
 	GtkIconFactory *factory = gtk_icon_factory_new();
 	for (image_entry *p = image_data; p->icon_name; p++) {
 		gtk_icon_factory_add(

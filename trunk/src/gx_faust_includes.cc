@@ -235,7 +235,6 @@ void faust_init(int samplingFreq)
 	faust_add_callback("delay.on_off", delay::activate);
 	faust_add_callback("echo.on_off", echo::activate);
 	faust_add_callback("chorus.on_off", chorus::activate);
-	faust_add_callback("jconv.on_off", jconv_post::activate);
 	for (list<inidef>::iterator i = inilist.begin(); i != inilist.end(); i++) {
 		try {
 			i->func(samplingFreq);

@@ -91,7 +91,7 @@ struct _GxIREdit {
 	// output parameters
 	gint cutoff_low;
 	gint cutoff_high;
-	gdouble offset;
+	gint offset;
 	gain_points *gains;
 	gint gains_len;
 	// presentation parameters
@@ -119,9 +119,13 @@ void gx_ir_edit_decr_scale(GxIREdit *ir_edit, gdouble f);
 void gx_ir_edit_set_log(GxIREdit *ir_edit, gboolean m);
 
 gint gx_ir_edit_get_delay(GxIREdit *ir_edit);
+void gx_ir_edit_set_delay(GxIREdit *ir_edit, gint delay);
 gint gx_ir_edit_get_offset(GxIREdit *ir_edit);
+void gx_ir_edit_set_offset(GxIREdit *ir_edit, gint offset);
 gint gx_ir_edit_get_length(GxIREdit *ir_edit);
+void gx_ir_edit_set_length(GxIREdit *ir_edit, gint length);
 void gx_ir_edit_get_gain(GxIREdit *ir_edit, gain_points **gains, gint *len);
+void gx_ir_edit_set_gain(GxIREdit *ir_edit, gain_points *gains, gint len);
 
 G_END_DECLS
 

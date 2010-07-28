@@ -22,6 +22,7 @@
 #pragma once
 
 #include <zita-convolver.h>
+#include <gxw/gainpoints.h>
 
 namespace gx_engine
 {
@@ -64,7 +65,7 @@ public:
 
 	//int mode(void) const { return _mode; }
 	int type(void) const { return _type; }
-	//int form(void) const { return _form; }
+	int form(void) const { return _form; }
 	int rate(void) const { return _rate; }
 	int chan(void) const { return _chan; }
 	uint32_t size(void) const { return _size; }
@@ -107,12 +108,14 @@ class GxConvolver: public GxConvolverBase
 {
 private:
 	bool read_sndfile (Audiofile& audio, int nchan, int samplerate, const float *gain,
-	                   unsigned int *delay, unsigned int offset, unsigned int length);
+	                   unsigned int *delay, unsigned int offset, unsigned int length,
+	                   gain_points *points, int gain_len);
 public:
 	bool configure(
 		unsigned int count, int samplerate, string fname, float gain=1.0, float lgain=1.0,
 		unsigned int delay=0, unsigned int ldelay=0, unsigned int offset=0,
-		unsigned int length=0, unsigned int size=0, unsigned int bufsize=0);
+		unsigned int length=0, unsigned int size=0, unsigned int bufsize=0,
+		gain_points *points=0, int gain_len=0);
 	bool compute(int count, float* input1, float *input2, float *output1, float *output2);
 };
 

@@ -20,6 +20,7 @@
 #include "GxPaintBox.h"
 #include "GxGradient.h"
 #include <gtk/gtkprivate.h>
+#include <gtk/gtk.h>
 #include <cmath>
 #include <cstring>
 
@@ -38,17 +39,20 @@ static void gx_paint_box_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 static gboolean gx_paint_box_expose(GtkWidget *widget, GdkEventExpose *event);
 static void gx_paint_box_style_set (GtkWidget *widget, GtkStyle  *previous_style);
+static void gtk_paint_box_add (GtkContainer *container, GtkWidget *widget);
 
 static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 {
 	GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
 	GtkObjectClass *object_class = (GtkObjectClass*) klass;
 	GtkWidgetClass *widget_class = (GtkWidgetClass*)klass;
+	GtkContainerClass *container_class = (GtkContainerClass*)klass;
 	gobject_class->set_property = gx_paint_box_set_property;
 	gobject_class->get_property = gx_paint_box_get_property;
 	object_class->destroy = gx_paint_box_destroy;
 	widget_class->style_set = gx_paint_box_style_set;
 	widget_class->expose_event = gx_paint_box_expose;
+	container_class->add = gtk_paint_box_add;
 	g_object_class_install_property(
 		gobject_class, PROP_PAINT_FUNC,
 		g_param_spec_string("paint-func",
@@ -71,6 +75,11 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 		                    P_("Type of paint function for background"),
 		                    NULL,
 		                    GParamFlags(GTK_PARAM_READABLE)));
+}
+
+static void gtk_paint_box_add (GtkContainer *container, GtkWidget *widget)
+{
+	gtk_box_pack_start(GTK_BOX(container), widget, TRUE, TRUE, 0);
 }
 
 static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func);
@@ -183,6 +192,7 @@ static void set_skin_color(GtkWidget *wi, cairo_pattern_t *pat)
 		GxGradientElement *el = (GxGradientElement*)p->data;
 		cairo_pattern_add_color_stop_rgba(pat, el->offset, el->red, el->green, el->blue, el->alpha);
 	}
+	gx_gradient_free(grad);
 }
 
 //----- paint boxes with cairo -----

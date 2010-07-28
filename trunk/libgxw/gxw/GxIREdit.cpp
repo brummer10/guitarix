@@ -17,6 +17,7 @@
  */
 
 #include "GxIREdit.h"
+#include "GxGradient.h"
 #include <gtk/gtkmarshal.h>
 #include <gtk/gtkprivate.h>
 #include <math.h>
@@ -114,7 +115,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 	signals[DELAY_CHANGED] =
 		g_signal_new(I_("delay-changed"),
 		             G_TYPE_FROM_CLASS(gobject_class),
-		             G_SIGNAL_RUN_LAST,
+		             GSignalFlags(G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE),
 		             NULL,
 		             NULL, NULL,
 		             gtk_marshal_VOID__INT_INT,
@@ -123,7 +124,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 	signals[OFFSET_CHANGED] =
 		g_signal_new(I_("offset-changed"),
 		             G_TYPE_FROM_CLASS(gobject_class),
-		             G_SIGNAL_RUN_LAST,
+		             GSignalFlags(G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE),
 		             NULL,
 		             NULL, NULL,
 		             gtk_marshal_VOID__INT_INT,
@@ -132,7 +133,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 	signals[LENGTH_CHANGED] =
 		g_signal_new(I_("length-changed"),
 		             G_TYPE_FROM_CLASS(gobject_class),
-		             G_SIGNAL_RUN_LAST,
+		             GSignalFlags(G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE),
 		             NULL,
 		             NULL, NULL,
 		             gtk_marshal_VOID__INT_INT,
@@ -229,6 +230,44 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		                    P_("Color of zoom marker"),
 		                    GDK_TYPE_COLOR,
 		                    GParamFlags(GTK_PARAM_READABLE)));
+	gtk_widget_class_install_style_property_parser(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_boxed ("no-data-color",
+		                    P_("No data color"),
+		                    P_("Color of graph background when no data is available"),
+		                    GX_TYPE_RGBA,
+		                    GParamFlags(GTK_PARAM_READABLE)),
+		gx_parse_rgba);
+	gtk_widget_class_install_style_property_parser(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_boxed ("sample-graph-color",
+		                    P_("Sample graph color"),
+		                    P_("Color of graph with sampled values"),
+		                    GX_TYPE_RGBA,
+		                    GParamFlags(GTK_PARAM_READABLE)),
+		gx_parse_rgba);
+	gtk_widget_class_install_style_property_parser(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_boxed ("sample-graph-color-out",
+		                    P_("Sample graph color outside"),
+		                    P_("Color of graph outside of cut region"),
+		                    GX_TYPE_RGBA,
+		                    GParamFlags(GTK_PARAM_READABLE)),
+		gx_parse_rgba);
+	gtk_widget_class_install_style_property_parser(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_boxed ("gain-line-color",
+		                    P_("Gain line color"),
+		                    P_("Color of gain line"),
+		                    GX_TYPE_RGBA,
+		                    GParamFlags(GTK_PARAM_READABLE)),
+		gx_parse_rgba);
+	gtk_widget_class_install_style_property(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_double(
+			"shade-alpha", P_("Shade alpha value"),
+			P_("Alpha Value for shading outside of cut region"),
+			0, 1, 0.1, GParamFlags(GTK_PARAM_READWRITE)));
 }
 
 static gdouble ir_edit_get_default_scale(GxIREdit *ir_edit)
@@ -499,12 +538,50 @@ static void gx_ir_edit_destroy(GtkObject* object)
 	GTK_OBJECT_CLASS(gx_ir_edit_parent_class)->destroy(object);
 }
 
+static void get_color(GxIREdit *ir_edit, GxRgba *clr, const char *name, GxRgba *dflt)
+{
+	GxRgba *tmp;
+	gtk_widget_style_get(GTK_WIDGET(ir_edit), name, &tmp, NULL);
+	if (tmp) {
+		*clr = *tmp;
+		gx_rgba_free(tmp);
+	} else {
+		*clr = *dflt;
+	}
+}
+
+static GxRgba sample_graph_color = { 1.0, 0.0, 0.0, 1.0 };
+static GxRgba sample_graph_color_out = { 0.0, 0.0, 0.0, 0.3 };
+static GxRgba no_data_color = { 1.0, 1.0, 1.0, 0.6 };
+
+#define COLOR_BG 0
+#define COLOR_FG 1
+#define COLOR_TEXT 2
+
+static void set_color_from_style(cairo_t *c, GxIREdit *ir_edit, gint type, double alpha)
+{
+	GtkStyle *s = GTK_WIDGET(ir_edit)->style;
+	GdkColor *clr;
+	switch (type) {
+	case COLOR_BG: clr = s->bg; break;
+	case COLOR_FG: clr = s->fg; break;
+	case COLOR_TEXT: clr = s->text; break;
+	default:
+		assert(FALSE);
+		return;
+	}
+	cairo_set_source_rgba(
+		c, clr->red / 65535., clr->green / 65535., clr->blue / 65535., alpha);
+}
+
 static void ir_edit_paint_no_data(GxIREdit *ir_edit, cairo_t *c)
 {
+	GxRgba clr;
 	cairo_save(c);
-	cairo_set_source_rgba(c,1,1,1,0.6);
+	get_color(ir_edit, &clr, "no-data-color", &no_data_color);
+	cairo_set_source_rgba(c, clr.red, clr.green, clr.blue, clr.alpha);
 	cairo_paint(c);
-	cairo_set_source_rgb(c,0,0,0);
+	set_color_from_style(c, ir_edit, COLOR_TEXT, 1.0);
 	PangoLayout *l = pango_cairo_create_layout(c);
 	pango_layout_set_markup(l,ir_edit->no_data_text,-1);
 	pango_layout_set_width(l,(ir_edit->graph_x)*PANGO_SCALE);
@@ -519,6 +596,9 @@ static void ir_edit_paint_no_data(GxIREdit *ir_edit, cairo_t *c)
 
 static void ir_edit_draw_direct(GxIREdit *ir_edit, cairo_t *c, int start, int end)
 {
+	GxRgba clr, clr_out;
+	get_color(ir_edit, &clr, "sample-graph-color", &sample_graph_color);
+	get_color(ir_edit, &clr_out, "sample-graph-color-out", &sample_graph_color_out);
 	start = int(round(start * ir_edit->scale)) - 1;
 	end = int(round(end * ir_edit->scale)) + 2;
 	if (end > ir_edit->odata_len) {
@@ -529,9 +609,9 @@ static void ir_edit_draw_direct(GxIREdit *ir_edit, cairo_t *c, int start, int en
 	}
 	gboolean out = (start < ir_edit->cutoff_low || start >= ir_edit->cutoff_high);
 	if (out) {
-		cairo_set_source_rgba(c,0.0,0.0,0.0,0.3);
+		cairo_set_source_rgba(c, clr_out.red, clr_out.green, clr_out.blue, clr_out.alpha);
 	} else {
-		cairo_set_source_rgb(c,1.0,0.0,0.0);
+		cairo_set_source_rgba(c, clr.red, clr.green, clr.blue, clr.alpha);
 	}
 	gboolean first = TRUE;
 	for (int i = start; i <= end; i++) {
@@ -554,9 +634,9 @@ static void ir_edit_draw_direct(GxIREdit *ir_edit, cairo_t *c, int start, int en
 			cairo_move_to(c, j, v);
 			out = !out;
 			if (out) {
-				cairo_set_source_rgba(c,0.0,0.0,0.0,0.3);
+				cairo_set_source_rgba(c, clr_out.red, clr_out.green, clr_out.blue, clr_out.alpha);
 			} else {
-				cairo_set_source_rgb(c,1.0,0.0,0.0);
+				cairo_set_source_rgba(c, clr.red, clr.green, clr.blue, clr.alpha);
 			}
 		}
 	}
@@ -565,7 +645,10 @@ static void ir_edit_draw_direct(GxIREdit *ir_edit, cairo_t *c, int start, int en
 
 static void ir_edit_draw_accum(GxIREdit *ir_edit, cairo_t *c, int start, int end)
 {
-	cairo_set_source_rgb(c,1.0,0.0,0.0);
+	GxRgba clr, clr_out;
+	get_color(ir_edit, &clr, "sample-graph-color", &sample_graph_color);
+	get_color(ir_edit, &clr_out, "sample-graph-color-out", &sample_graph_color_out);
+	cairo_set_source_rgba(c, clr.red, clr.green, clr.blue, clr.alpha);
 	start -= 1;
 	end += 1;
 	if (end > ir_edit->bdata_len) {
@@ -578,9 +661,9 @@ static void ir_edit_draw_accum(GxIREdit *ir_edit, cairo_t *c, int start, int end
 	double cutoff_high = ir_edit->cutoff_high / ir_edit->scale;
 	gboolean out = (start < cutoff_low || start >= cutoff_high);
 	if (out) {
-		cairo_set_source_rgba(c,0.0,0.0,0.0,0.3);
+		cairo_set_source_rgba(c, clr_out.red, clr_out.green, clr_out.blue, clr_out.alpha);
 	} else {
-		cairo_set_source_rgb(c,1.0,0.0,0.0);
+		cairo_set_source_rgba(c, clr.red, clr.green, clr.blue, clr.alpha);
 	}
 	gboolean first = TRUE;
 	int n = 2*start;
@@ -599,9 +682,9 @@ static void ir_edit_draw_accum(GxIREdit *ir_edit, cairo_t *c, int start, int end
 			cairo_move_to(c, j, mn);
 			out = !out;
 			if (out) {
-				cairo_set_source_rgba(c,0.0,0.0,0.0,0.3);
+				cairo_set_source_rgba(c, clr_out.red, clr_out.green, clr_out.blue, clr_out.alpha);
 			} else {
-				cairo_set_source_rgb(c,1.0,0.0,0.0);
+				cairo_set_source_rgba(c, clr.red, clr.green, clr.blue, clr.alpha);
 			}
 		}
 		cairo_line_to(c, j, mx);
@@ -641,6 +724,8 @@ static double text_width(cairo_t *c, const char *t)
 static void ir_edit_vertical_ticks(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose *event)
 {
 	// vertical lines with labels
+	double shade_alpha;
+	gtk_widget_style_get(GTK_WIDGET(ir_edit), "shade-alpha", &shade_alpha, NULL);
 	cairo_save(c);
 	cairo_rectangle(c,-ir_edit->label_width/2.0, -ir_edit->y_off,
 	                ir_edit->graph_x+ir_edit->label_width/2.0+ir_edit->x_border,
@@ -677,9 +762,11 @@ static void ir_edit_vertical_ticks(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose
 		if (ttt > end) {
 			break;
 		}
-		cairo_set_source_rgba(c,0.0, 0.0, 0.0, 0.4);
+		//cairo_set_source_rgba(c,0.0, 0.0, 0.0, 0.4);
+		set_color_from_style(c, ir_edit, COLOR_TEXT, 0.4);
 		if (tt == 0) {
-			cairo_set_source_rgb(c,0.0,0.0,0.0);
+			//cairo_set_source_rgb(c,0.0,0.0,0.0);
+			set_color_from_style(c, ir_edit, COLOR_TEXT, 1.0);
 		}
 		ttt = int(ttt)+0.5;
 		cairo_move_to(c,ttt, 0.0);
@@ -689,7 +776,8 @@ static void ir_edit_vertical_ticks(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose
 		snprintf(t, sizeof(t), fmt, tt*tick*1000);
 		double tw = text_width(c, t)+1;
 		cairo_move_to(c,ttt-tw/2.0, -2.0);
-		cairo_set_source_rgb(c,0.0,0.0,0.0);
+		//cairo_set_source_rgb(c,0.0,0.0,0.0);
+		set_color_from_style(c, ir_edit, COLOR_TEXT, 1.0);
 		cairo_show_text(c,t);
 		tt += 1;
 	}
@@ -700,15 +788,18 @@ static void ir_edit_vertical_ticks(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose
 	int s = int(round(ir_edit->cutoff_low/scale));
 	cairo_move_to(c,s - ir_edit->current_offset + 0.5, 0);
 	cairo_rel_line_to(c,0, ir_edit->graph_y);
-	cairo_set_source_rgb(c,0,0,0);
+	//cairo_set_source_rgb(c,0,0,0);
+	set_color_from_style(c, ir_edit, COLOR_TEXT, 1.0);
 	cairo_stroke(c);
 	cairo_rectangle(c,0, 0, -ir_edit->offset/scale - ir_edit->current_offset, ir_edit->graph_y);
-	cairo_set_source_rgba(c,0,0,0,0.1);
+	//cairo_set_source_rgba(c,0,0,0,0.1);
+	set_color_from_style(c, ir_edit, COLOR_BG, shade_alpha);
 	cairo_fill(c);
 	s = int(round(ir_edit->cutoff_high/scale));
 	cairo_move_to(c,s-ir_edit->current_offset+0.5, 0);
 	cairo_rel_line_to(c,0, ir_edit->graph_y);
-	cairo_set_source_rgb(c,0,0,0);
+	//cairo_set_source_rgb(c,0,0,0);
+	set_color_from_style(c, ir_edit, COLOR_TEXT, 1.0);
 	cairo_stroke(c);
 	cairo_restore(c);
 }
@@ -724,11 +815,13 @@ static void ir_edit_horizontal_ticks(GxIREdit *ir_edit, cairo_t *c, GdkEventExpo
 	double x1, y1, x2, y2;
 	cairo_clip_extents(c, &x1, &y1, &x2, &y2);
 	if (x1 < 0) {
-		cairo_set_source_rgb(c,1.0,1.0,1.0);
+		//cairo_set_source_rgb(c,1.0,1.0,1.0);
+		set_color_from_style(c, ir_edit, COLOR_BG, 1.0);
 		cairo_rectangle(c,-ir_edit->x_off, 0, ir_edit->x_off, ir_edit->height - ir_edit->y_off);
 		cairo_fill(c);
 		if (!ir_edit->linear) {
-			cairo_set_source_rgb(c,0.0,0.0,0.0);
+			//cairo_set_source_rgb(c,0.0,0.0,0.0);
+			set_color_from_style(c, ir_edit, COLOR_TEXT, 1.0);
 			double tw = text_width(c, "dB");
 			cairo_move_to(c,ir_edit->x_border-ir_edit->x_off+(ir_edit->text_width-tw)/2.0, -10.0*ir_edit->scale_height);
 			cairo_show_text(c,"dB");
@@ -737,9 +830,11 @@ static void ir_edit_horizontal_ticks(GxIREdit *ir_edit, cairo_t *c, GdkEventExpo
 	for (int i = 0; i < ir_edit->y_lines; i++) {
 		double pos = double(ir_edit->graph_y)/(ir_edit->y_lines-1)*i;
 		if (ir_edit->max_y+i*(ir_edit->min_y-ir_edit->max_y)/(ir_edit->y_lines-1) == 0) {
-			cairo_set_source_rgb(c,0, 0, 0);
+			//cairo_set_source_rgb(c,0, 0, 0);
+			set_color_from_style(c, ir_edit, COLOR_TEXT, 1.0);
 		} else {
-			cairo_set_source_rgba(c,0.0, 0.0, 0.0, 0.4);
+			//cairo_set_source_rgba(c,0.0, 0.0, 0.0, 0.4);
+			set_color_from_style(c, ir_edit, COLOR_TEXT, 0.4);
 		}
 		pos = int(pos) + 0.5;
 		cairo_move_to(c,0.0, pos);
@@ -747,7 +842,8 @@ static void ir_edit_horizontal_ticks(GxIREdit *ir_edit, cairo_t *c, GdkEventExpo
 		cairo_stroke(c);
 		if (x1 >= 0) {
 			if (i == 0) {
-				cairo_set_source_rgb(c,1.0,1.0,1.0);
+				//cairo_set_source_rgb(c,1.0,1.0,1.0);
+				set_color_from_style(c, ir_edit, COLOR_BG, 1.0);
 				cairo_rectangle(c,ir_edit->x_border-ir_edit->x_off, -ir_edit->text_height/2.0, ir_edit->text_width+1, ir_edit->text_height+1);
 				cairo_fill(c);
 			} else {
@@ -758,7 +854,8 @@ static void ir_edit_horizontal_ticks(GxIREdit *ir_edit, cairo_t *c, GdkEventExpo
 		snprintf(t, sizeof(t), ir_edit->fmt_y, ir_edit->max_y+i*(ir_edit->min_y-ir_edit->max_y)/(ir_edit->y_lines-1));
 		double tw = text_width(c, t);
 		cairo_move_to(c,ir_edit->x_border-ir_edit->x_off+ir_edit->text_width-tw, pos+ir_edit->text_height/2.0);
-		cairo_set_source_rgb(c,0.0,0.0,0.0);
+		//cairo_set_source_rgb(c,0.0,0.0,0.0);
+		set_color_from_style(c, ir_edit, COLOR_TEXT, 1.0);
 		cairo_show_text(c,t);
 	}
 	cairo_restore(c);
@@ -793,8 +890,12 @@ static void ir_edit_show_scroll_center(GxIREdit *ir_edit, cairo_t *c, GdkEventEx
 	cairo_stroke(c);
 }
 
+static GxRgba gain_line_color = { 0.0, 1.0, 0.0, 0.8 };
+
 static void ir_edit_gainline(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose *event)
 {
+	GxRgba clr;
+	get_color(ir_edit, &clr, "gain-line-color", &gain_line_color);
 	double j, g;
 	int n;
 	gain_points *p;
@@ -805,7 +906,7 @@ static void ir_edit_gainline(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose *even
 	cairo_rectangle(c,0, 0, ir_edit->graph_x, ir_edit->graph_y);
 	cairo_clip(c);
 	cairo_set_line_width(c,1.0);
-	cairo_set_source_rgba(c,0.0, 1.0, 0.0, 0.8);
+	cairo_set_source_rgba(c, clr.red, clr.green, clr.blue, clr.alpha);
 	gboolean first = TRUE;
 	for (p = ir_edit->gains, n = 0; n < ir_edit->gains_len; n++, p++) {
 		j = int(p->i / ir_edit->scale) - ir_edit->current_offset;
@@ -838,7 +939,8 @@ static const cairo_paint_function draw_funcs[] = {
 
 static void ir_edit_paint_area(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose *event, cairo_paint_function excl)
 {
-	cairo_set_source_rgb(c, 1.0, 1.0, 1.0);
+	//cairo_set_source_rgb(c, 1.0, 1.0, 1.0);
+	set_color_from_style(c, ir_edit, COLOR_BG, 1.0);
 	cairo_paint(c);
 	cairo_set_line_width(c, 1.0);
 	cairo_translate(c, ir_edit->x_off, ir_edit->y_off);
@@ -1046,9 +1148,10 @@ static int ir_edit_hit_detect(GxIREdit *ir_edit, double x, double y, gboolean ct
 	double dd = ir_edit->dot_diameter * ir_edit->dot_diameter;
 	double d2 = ir_edit->segment_distance * ir_edit->segment_distance;
 	double d1 = max(ir_edit->dot_diameter, ir_edit->segment_distance);
-	int i0 = -1;
+	double i0 = -1.0;
 	double g0 = 0.0; // silence compiler
-	int n, i;
+	int n;
+	double i;
 	double g;
 	gain_points *p;
 	for (n = 0, p = ir_edit->gains; n < ir_edit->gains_len; n++, p++) {
@@ -1068,7 +1171,7 @@ static int ir_edit_hit_detect(GxIREdit *ir_edit, double x, double y, gboolean ct
 			return MODE_MARKER;
 		}
 		if (i0 >= 0) {
-			int di = i - i0;
+			double di = i - i0;
 			double dg = g - g0;
 			double num = di*ty - tx*dg;
 			double den2 = di*di + dg*dg;
@@ -1588,6 +1691,9 @@ void gx_ir_edit_set_state(GxIREdit *ir_edit, float *data, int chan, int data_len
 void gx_ir_edit_home(GxIREdit *ir_edit)
 {
 	g_assert(GX_IS_IR_EDIT(ir_edit));
+	if (!ir_edit->odata) {
+		return;
+	}
 	ir_edit_set_default_scale(ir_edit);
 	ir_edit->current_offset = min(0, int(floor(-ir_edit->offset/ir_edit->scale)));
 	gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
@@ -1596,6 +1702,9 @@ void gx_ir_edit_home(GxIREdit *ir_edit)
 void gx_ir_edit_jump_zoom_mark(GxIREdit *ir_edit)
 {
 	g_assert(GX_IS_IR_EDIT(ir_edit));
+	if (!ir_edit->odata) {
+		return;
+	}
 	ir_edit->current_offset = int(ir_edit->scroll_center/ir_edit->scale - ir_edit->graph_x/2);
 	gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
 }
@@ -1652,8 +1761,18 @@ void gx_ir_edit_set_log(GxIREdit *ir_edit, gboolean m)
 
 gint gx_ir_edit_get_delay(GxIREdit *ir_edit)
 {
-	g_assert(GX_IS_IR_EDIT(ir_edit));
+	g_return_val_if_fail(GX_IS_IR_EDIT(ir_edit), 0);
 	return max(0, ir_edit->offset + ir_edit->cutoff_low);
+}
+
+void gx_ir_edit_set_delay(GxIREdit *ir_edit, gint delay)
+{
+	g_return_if_fail(GX_IS_IR_EDIT(ir_edit));
+	if (delay == gx_ir_edit_get_delay(ir_edit)) {
+		return;
+	}
+	ir_edit_set_offset(ir_edit, max(delay, 0) - ir_edit->cutoff_low);
+	gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
 }
 
 gint gx_ir_edit_get_offset(GxIREdit *ir_edit)
@@ -1662,14 +1781,65 @@ gint gx_ir_edit_get_offset(GxIREdit *ir_edit)
 	return max(-ir_edit->offset, ir_edit->cutoff_low);
 }
 
+void gx_ir_edit_set_offset(GxIREdit *ir_edit, gint offset)
+{
+	g_return_if_fail(GX_IS_IR_EDIT(ir_edit));
+	if (offset == gx_ir_edit_get_offset(ir_edit)) {
+		return;
+	}
+	offset = min(ir_edit->odata_len-1, offset);
+	offset = max(0, offset);
+	if (offset < -ir_edit->offset) {
+		ir_edit_set_offset(ir_edit, -offset);
+	} else {
+		ir_edit_set_cutoff_low(ir_edit, offset);
+	}
+	gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
+}
+
 gint gx_ir_edit_get_length(GxIREdit *ir_edit)
 {
-	g_assert(GX_IS_IR_EDIT(ir_edit));
+	g_return_val_if_fail(GX_IS_IR_EDIT(ir_edit), 0);
 	return ir_edit->cutoff_high - gx_ir_edit_get_offset(ir_edit);
+}
+
+void gx_ir_edit_set_length(GxIREdit *ir_edit, gint length)
+{
+	g_return_if_fail(GX_IS_IR_EDIT(ir_edit));
+	if (length == gx_ir_edit_get_length(ir_edit)) {
+		return;
+	}
+	length = max(1, length);
+	gint low = max(ir_edit->cutoff_low,-ir_edit->offset);
+	length = min(ir_edit->odata_len - low, length);
+	ir_edit_set_cutoff_high(ir_edit, length + low);
+	gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
 }
 
 void gx_ir_edit_get_gain(GxIREdit *ir_edit, gain_points **gains, gint *len)
 {
 	*gains = ir_edit->gains;
 	*len = ir_edit->gains_len;
+}
+
+void gx_ir_edit_set_gain(GxIREdit *ir_edit, gain_points *gains, gint len)
+{
+	g_return_if_fail(GX_IS_IR_EDIT(ir_edit));
+	if (!ir_edit->odata) {
+		g_warning("skipped setting gain line without sample data");
+		return;
+	}
+	if (len < 2) {
+		g_warning("gain line must have at least 2 points");
+		return;
+	}
+	if (gains[0].i != 0 and gains[len-1].i != ir_edit->odata_len) {
+		g_warning("gain line must have points at start and end of interval");
+	}
+	g_free(ir_edit->gains);
+	int size = len * sizeof(gain_points);
+	ir_edit->gains = (gain_points*)g_malloc(size);
+	memcpy(ir_edit->gains, gains, size);
+	ir_edit->gains_len = len;
+	gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
 }

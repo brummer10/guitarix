@@ -351,9 +351,19 @@ int IREdit::get_delay()
   return gx_ir_edit_get_delay(gobj());
 }
 
+void IREdit::set_delay(int p1)
+{
+gx_ir_edit_set_delay(gobj(), p1); 
+}
+
 int IREdit::get_offset()
 {
   return gx_ir_edit_get_offset(gobj());
+}
+
+void IREdit::set_offset(int p1)
+{
+gx_ir_edit_set_offset(gobj(), p1); 
 }
 
 int IREdit::get_length()
@@ -361,9 +371,19 @@ int IREdit::get_length()
   return gx_ir_edit_get_length(gobj());
 }
 
+void IREdit::set_length(int p1)
+{
+gx_ir_edit_set_length(gobj(), p1); 
+}
+
 void IREdit::get_gain(gain_points** p1, int* p2)
 {
 gx_ir_edit_get_gain(gobj(), p1, p2); 
+}
+
+void IREdit::set_gain(gain_points* p1, int p2)
+{
+gx_ir_edit_set_gain(gobj(), p1, p2); 
 }
 
 

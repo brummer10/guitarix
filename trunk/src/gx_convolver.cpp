@@ -145,7 +145,10 @@ void GxConvolverBase::adjust_values(
 	}
 	if (!size) {
 		if (offset + length > audio_size) {
-			gx_system::gx_print_warning("convolver", "data truncated");
+			gx_system::gx_print_warning(
+				"convolver",
+				(boost::format("length adjusted (%1% + %2% > %3%")
+				 % offset % length % audio_size).str());
 			length = audio_size - offset;
 		}
 		if (!length) {
@@ -201,12 +204,20 @@ void GxConvolverBase::checkstate()
  ** GxConvolver
  */
 
+inline void compute_interpolation(float& fct, float& gp, int& idx, gain_points *points, int offset)
+{
+	fct = (points[idx+1].g-points[idx].g)/(20*(points[idx+1].i-points[idx].i));
+	gp = points[idx].g/20 + fct * (offset-points[idx].i);
+	idx++;
+}
+
 bool GxConvolver::read_sndfile (
 	Audiofile& audio, int nchan, int samplerate, const float *gain,
-	unsigned int *delay, unsigned int offset, unsigned int length)
+	unsigned int *delay, unsigned int offset, unsigned int length,
+	gain_points *points, int gain_len)
 {
 	unsigned int nfram;
-	float *buff, *p;
+	float *buff;
 	float *rbuff = 0;
 	float *bufp;
 	// keep BSIZE big enough so that resamp.flush() doesn't cause overflow
@@ -245,6 +256,18 @@ bool GxConvolver::read_sndfile (
 		bufp = buff;
 	}
 	bool done = false;
+	int idx = 0; // current index in gainline point array
+	float gp = 1.0, fct = 0.0; // calculated parameter of interpolation line
+	if (gain_len) {
+		while ((unsigned int)points[idx].i < offset) {
+			idx++;
+			assert(idx < gain_len);
+		}
+		if ((unsigned int)points[idx].i > offset) {
+			idx--;
+			compute_interpolation(fct, gp, idx, points, offset);
+		}
+	}
 	while (!done) {
 		unsigned int cnt;
 		nfram = (length > BSIZE) ? BSIZE : length;
@@ -257,6 +280,17 @@ bool GxConvolver::read_sndfile (
 				delete[] rbuff;
 				return false;
 			}
+			for (unsigned int ix = 0; ix < nfram; ix++) {
+				if (idx < gain_len-1 && (unsigned int)points[idx].i == offset + ix) {
+					compute_interpolation(fct, gp, idx, points, offset);
+				}
+				for (int ichan = 0; ichan < nchan; ichan++) {
+					cout << (gp + ix*fct) * 20 << endl;
+					buff[ix*nchan+ichan] *= pow(10, gp + ix*fct) * gain[ichan];
+				}
+			}
+			offset += nfram;
+			gp += nfram*fct;
 			cnt = nfram;
 			if (rbuff) {
 				cnt = resamp.process(nfram, buff, rbuff);
@@ -270,18 +304,13 @@ bool GxConvolver::read_sndfile (
 			}
 		}
 		if (cnt) {
+			
 			for (int ichan = 0; ichan < nchan; ichan++) {
 				int rc;
 				if (ichan >= audio.chan()) {
 					rc = impdata_copy(0, 0, ichan, ichan);
 				} else {
-					p = bufp + ichan;
-					if (gain[ichan] != 1.0) {
-						for (unsigned int ifram = 0; ifram < cnt; ifram++) {
-							p[ifram * nchan] *= gain[ichan];
-						}
-					}
-					rc = impdata_create(ichan, ichan, audio.chan(), p,
+					rc = impdata_create(ichan, ichan, audio.chan(), bufp + ichan,
 					                    delay[ichan], delay[ichan] + cnt);
 				}
 				if (rc) {
@@ -306,7 +335,8 @@ bool GxConvolver::read_sndfile (
 bool GxConvolver::configure(
 	unsigned int count, int samplerate, string fname, float gain, float lgain,
 	unsigned int delay, unsigned int ldelay, unsigned int offset,
-	unsigned int length, unsigned int size, unsigned int bufsize)
+	unsigned int length, unsigned int size, unsigned int bufsize,
+	gain_points *points, int gain_len)
 {
     Audiofile     audio;
     cleanup();
@@ -336,7 +366,7 @@ bool GxConvolver::configure(
 	}
 	float gain_a[2] = {gain, lgain};
 	unsigned int delay_a[2] = {delay, ldelay};
-	return read_sndfile(audio, 2, samplerate, gain_a, delay_a, offset, length);
+	return read_sndfile(audio, 2, samplerate, gain_a, delay_a, offset, length, points, gain_len);
 }
 
 bool GxConvolver::compute(int count, float* input1, float *input2, float *output1, float *output2)

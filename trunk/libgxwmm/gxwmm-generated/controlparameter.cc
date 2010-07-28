@@ -145,6 +145,11 @@ double ControlParameter::cp_get_value()
   return gx_control_parameter_cp_get_value(gobj());
 }
 
+int ControlParameter::cp_get_int_value()
+{
+  return gx_control_parameter_cp_get_int_value(gobj());
+}
+
 Glib::ustring ControlParameter::cp_get_var()
 {
   return Glib::convert_return_gchar_ptr_to_ustring(gx_control_parameter_cp_get_var(gobj()));

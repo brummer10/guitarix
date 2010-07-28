@@ -18,6 +18,7 @@
 
 #include "GxControlParameter.h"
 #include <gtk/gtkprivate.h>
+#include <math.h>
 
 #define P_(s) (s)   // FIXME -> gettext
 
@@ -71,6 +72,12 @@ gdouble gx_control_parameter_cp_get_value(GxControlParameter *self)
 {
 	g_return_val_if_fail(GX_IS_CONTROL_PARAMETER(self), 0);
 	return GX_CONTROL_PARAMETER_GET_INTERFACE(self)->cp_get_value(self);
+}
+
+gint gx_control_parameter_cp_get_int_value(GxControlParameter *self)
+{
+	g_return_val_if_fail(GX_IS_CONTROL_PARAMETER(self), 0);
+	return int(round(GX_CONTROL_PARAMETER_GET_INTERFACE(self)->cp_get_value(self)));
 }
 
 gchar *gx_control_parameter_cp_get_var(GxControlParameter *self)

@@ -15,38 +15,683 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  * --------------------------------------------------------------------------
- *
- *  This is the JConv settings handler class used by guitarix
- *  There can only be one instance at all time. To get a pointer
- *  to the unique instance, simply call
- *
- *  GxJConvSettings* jcset = GxJConvSettings::instance();
- *
- *  throughout the entire program.
- *
- *  This class belongs to the gx_jconv namespace
- *
- * --------------------------------------------------------------------------
  */
-#include <libgen.h>
 #include "guitarix.h"
-//#include <gxwmm/iredit.h>
-#include "GtkWaveView.h"
+#include <gxw/GxControlParameter.h>
+#include <gxwmm/controlparameter.h>
+#include <gxwmm/radiobutton.h>
+#include <gxwmm/iredit.h>
+#include <gtkmm/window.h>
+#include <gtkmm/builder.h>
+#include <gtkmm/main.h>
+#include <gtkmm/filechooserdialog.h>
+#include <gtkmm/stock.h>
 
-using namespace gx_system;
-using namespace gx_sndfile;
-using namespace gx_jack;
-using namespace gx_child_process;
-using namespace gx_preset;
+#define _(x) (x)
+
+/****************************************************************
+ ** fixup_controlparameters()
+ ** helper function to initialize widgets which are linked to a
+ ** variable name (via ControlParameter interface):
+ ** set range, title and initial value from parameter table,
+ ** connect uiItem and Midi learn
+ */
+
+namespace Glib { namespace Container_Helpers {
+template <>
+struct TypeTraits<GObject*>
+{
+	typedef GObject *CppType;
+	typedef GObject *CType;
+	typedef GObject *CTypeNonConst;
+
+	static CType to_c_type(CppType item) { return item; }
+	static CppType to_cpp_type(CType item) { return item; }
+	static void release_c_type(CType) {}
+};
+}} // end namespace Glib::Container_Helpers
 
 namespace gx_jconv
 {
 
+void gx_convolver_restart();
+
+class uiToggle: gx_ui::GxUiItem
+{
+protected:
+	Glib::RefPtr<Gtk::ToggleButton> button;
+	void on_button_toggled();
+	virtual void reflectZone();
+public:
+	uiToggle(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, float *zone);
+};
+
+uiToggle::uiToggle(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, float *zone):
+	gx_ui::GxUiItem(&ui, zone),
+	button(b)
+{
+	button->signal_toggled().connect(sigc::mem_fun(*this, &uiToggle::on_button_toggled));
+}
+
+void uiToggle::on_button_toggled()
+{
+	modifyZone(button->get_active());
+}
+
+void uiToggle::reflectZone()
+{
+	float v = *fZone;
+	fCache = v;
+	button->set_active(v != 0.0);
+}
+
+static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::GxUI& ui)
+{
+	Glib::SListHandle<GObject*> objs = Glib::SListHandle<GObject*>(
+		gtk_builder_get_objects(builder->gobj()), Glib::OWNERSHIP_DEEP);
+	for (Glib::SListHandle<GObject*>::iterator i = objs.begin(); i != objs.end(); i++) {
+		if (!g_type_is_a(G_OBJECT_TYPE(*i), GX_TYPE_CONTROL_PARAMETER)) {
+			continue;
+		}
+		Glib::RefPtr<Gxw::ControlParameter> w = Glib::wrap(GX_CONTROL_PARAMETER(*i), true);
+		Glib::ustring v = w->cp_get_var();
+		if (v.empty()) {
+			continue;
+		}
+		if (!gx_gui::parameter_map.hasId(v)) {
+			gx_system::gx_print_warning("load dialog", (boost::format("Parameter variable %1% not found") % v).str());
+			continue;
+		}
+		gx_gui::Parameter& p = gx_gui::parameter_map[v];
+		if (p.isFloat()) {
+			gx_gui::FloatParameter &fp = p.getFloat();
+			w->cp_configure(p.group(), p.name(), fp.lower, fp.upper, fp.step);
+			w->cp_set_value(fp.value);
+			Glib::RefPtr<Gtk::Range> r = Glib::RefPtr<Gtk::Range>::cast_dynamic(w);
+			if (r) {
+				Gtk::Adjustment *adj = r->get_adjustment();
+				gx_gui::uiAdjustment* c = new gx_gui::uiAdjustment(&ui, &fp.value, adj->gobj());
+				adj->signal_value_changed().connect(
+					sigc::bind<GtkAdjustment*>(
+						sigc::bind<gpointer>(
+							sigc::ptr_fun(gx_gui::uiAdjustment::changed),(gpointer)c),adj->gobj()));
+			} else {
+				Glib::RefPtr<Gtk::ToggleButton> t = Glib::RefPtr<Gtk::ToggleButton>::cast_dynamic(w);
+				if (t) {
+					new uiToggle(ui, t, &fp.value);
+				}
+			}
+			if (fp.isControllable()) {
+				gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.value);
+			}
+		} else {
+			gx_system::gx_print_warning("load dialog", (boost::format("Parameter variable %1%: type not handled") % v).str());
+		}
+	}
+}
+
+
+/****************************************************************
+ ** Convolver Parameter Window
+ */
+
+class IRWindow: public Gtk::Window
+{
+private:
+	Glib::RefPtr<Gtk::Builder> builder;
+	Glib::ustring filename;
+	double ms; // samples per millisecond
+	float *audio_buffer;
+	unsigned int audio_size;
+	int audio_chan;
+
+	// helper functions
+	int set_val(Gxw::ControlParameter *sample_display, Gxw::ControlParameter *ms_display, double value, int fs);
+	inline int get_ms(Gxw::ControlParameter *w) { return int(round(w->cp_get_value()*ms)); }
+	void file_changed(Glib::ustring filename, int rate, int length, int channels, Glib::ustring format);
+	void load_data(Glib::ustring filename);
+	void load_state();
+	double calc_normalized_gain(int offset, int length);
+	void destroy_self();
+
+
+	// signal functions and widget pointers
+	void on_window_hide();
+
+	Gxw::IREdit *wIredit;
+	void on_delay_changed(int delay, int fs);
+	void on_offset_changed(int offset, int fs);
+	void on_length_changed(int length, int fs);
+	void on_max_scale_reached(bool v);
+	void on_min_scale_reached(bool v);
+
+	Gxw::RadioButton *wLeft, *wRight, *wSum;
+	void on_left();
+	void on_right();
+	void on_sum();
+
+	Gxw::RadioButton *wLinear, *wLog;
+	void on_linear();
+
+	Gxw::ValueDisplay *wDelay, *wDelay_ms, *wOffset, *wOffset_ms, *wLength, *wLength_ms;
+	void on_m_delay_changed();
+    void on_ms_delay_changed();
+    void on_m_offset_changed();
+    void on_ms_offset_changed();
+    void on_m_length_changed();
+    void on_ms_length_changed();
+
+	Gxw::Regler *wDelay_delta;
+	Glib::ustring on_delay_delta_format_value(double v);
+
+	Gtk::Button *wHome, *wJump_zoom_mark, *wIncr, *wDecr;
+	void on_home();
+	void on_jump_zoom_mark();
+	void on_decr();
+	void on_incr();
+
+	Gtk::Button *wReset, *wOpen;
+	void on_reset_clicked();
+	void on_open();
+
+	Gtk::Button *wOk, *wApply,*wCancel;
+    void on_apply_button_clicked();
+    void on_cancel_button_clicked();
+    void on_ok_button_clicked();
+
+	Gtk::Label *wSamples, *wSampleRate, *wFormat, *wFilename;
+	Gtk::Widget *wChannelbox;
+
+protected:
+	IRWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder);
+	~IRWindow();
+	friend class Gtk::Builder;
+	friend void gx_show_jconv_dialog_gui(_GtkWidget*, void*);
+
+public:
+	static IRWindow *create(gx_ui::GxUI& ui);
+};
+
+/*
+ ** Constructor
+ */
+
+IRWindow *IRWindow::create(gx_ui::GxUI& ui)
+{
+	Glib::RefPtr<Gtk::Builder> bld = Gtk::Builder::create();
+	try {
+		bld->add_from_file(gx_system::gx_builder_dir+"iredit.glade");
+	} catch(const Glib::FileError& ex) {
+		gx_system::gx_print_error("FileError (IREdit window)", ex.what());
+		return 0;
+	} catch (const Gtk::BuilderError& ex) {
+		gx_system::gx_print_error("load IREdit window", ex.what());
+		return 0;
+	}
+	fixup_controlparameters(bld, ui);
+	IRWindow* w;
+	bld->get_widget_derived("DisplayIR", w);
+	return w;
+}
+
+IRWindow::IRWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& bld):
+	Gtk::Window(cobject),
+	builder(bld),
+	ms(0.0),
+	audio_buffer(0),
+	audio_size(0),
+	audio_chan(0)
+{
+	// init widget pointer and connect signals
+	//signal_hide().connect(sigc::mem_fun(*this, &IRWindow::on_window_hide));
+
+	builder->get_widget("iredit", wIredit);
+	wIredit->signal_delay_changed().connect(sigc::mem_fun(*this, &IRWindow::on_delay_changed));
+	wIredit->signal_offset_changed().connect(sigc::mem_fun(*this, &IRWindow::on_offset_changed));
+	wIredit->signal_length_changed().connect(sigc::mem_fun(*this, &IRWindow::on_length_changed));
+	wIredit->signal_scale_max_reached().connect(sigc::mem_fun(*this, &IRWindow::on_max_scale_reached));
+	wIredit->signal_scale_min_reached().connect(sigc::mem_fun(*this, &IRWindow::on_min_scale_reached));
+
+	builder->get_widget("left", wLeft);
+	wLeft->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_left));
+	builder->get_widget("right", wRight);
+	wRight->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_right));
+	builder->get_widget("sum", wSum);
+	wSum->set_active(true);
+	wSum->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_sum));
+
+	builder->get_widget("log", wLog);
+	wLog->set_active(true);
+	builder->get_widget("linear", wLinear);
+	wLinear->signal_toggled().connect(sigc::mem_fun(*this, &IRWindow::on_linear));
+
+	builder->get_widget("delay", wDelay);
+	wDelay->signal_value_changed().connect(sigc::mem_fun(*this, &IRWindow::on_m_delay_changed));
+	builder->get_widget("offset", wOffset);
+	wOffset->signal_value_changed().connect(sigc::mem_fun(*this, &IRWindow::on_m_offset_changed));
+	builder->get_widget("irlength", wLength);
+	wLength->signal_value_changed().connect(sigc::mem_fun(*this, &IRWindow::on_m_length_changed));
+	builder->get_widget("delay_ms", wDelay_ms);
+	wDelay_ms->signal_value_changed().connect(sigc::mem_fun(*this, &IRWindow::on_ms_delay_changed));
+	builder->get_widget("offset_ms", wOffset_ms);
+	wOffset_ms->signal_value_changed().connect(sigc::mem_fun(*this, &IRWindow::on_ms_offset_changed));
+	builder->get_widget("irlength_ms", wLength_ms);
+	wLength_ms->signal_value_changed().connect(sigc::mem_fun(*this, &IRWindow::on_ms_length_changed));
+
+	builder->get_widget("delay_delta", wDelay_delta);
+	wDelay_delta->signal_format_value().connect(sigc::mem_fun(*this, &IRWindow::on_delay_delta_format_value));
+
+	builder->get_widget("home", wHome);
+	wHome->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_home));
+	builder->get_widget("jump_zoom_mark", wJump_zoom_mark);
+	wJump_zoom_mark->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_jump_zoom_mark));
+	builder->get_widget("incr", wIncr);
+	wIncr->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_incr));
+	builder->get_widget("decr", wDecr);
+	wDecr->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_decr));
+
+	builder->get_widget("reset_button", wReset);
+	wReset->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_reset_clicked));
+	builder->get_widget("open_button", wOpen);
+	wOpen->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_open));
+
+	builder->get_widget("apply_button", wApply);
+	wApply->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_apply_button_clicked));
+	builder->get_widget("cancel_button", wCancel);
+	wCancel->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_cancel_button_clicked));
+	builder->get_widget("ok_button", wOk);
+	wOk->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_ok_button_clicked));
+
+	builder->get_widget("length", wSamples);
+	builder->get_widget("samplerate", wSampleRate);
+	builder->get_widget("format", wFormat);
+	builder->get_widget("filename", wFilename);
+
+	builder->get_widget("channelbox", wChannelbox);
+
+	// reset display
+	file_changed("", 0, 0, 0, "");
+	on_delay_changed(0, 0);
+	on_offset_changed(0, 0);
+	on_length_changed(0, 0);
+
+	//show();
+}
+
+IRWindow::~IRWindow()
+{
+	delete audio_buffer;
+}
+
+/*
+** helper functions
+*/
+
+int IRWindow::set_val(
+	Gxw::ControlParameter *sample_display, Gxw::ControlParameter *ms_display, double value, int fs)
+{
+	double s1, s2;
+	if (fs) {
+		s1 = value;
+		s2 = (value*1000.0)/fs;
+	} else {
+		s1 = 0;
+		s2 = 0;
+	}
+	ms_display->cp_set_value(s2);
+	sample_display->cp_set_value(s1);
+	return sample_display->cp_get_int_value();
+}
+
+void IRWindow::file_changed(Glib::ustring filename, int rate, int length, int channels, Glib::ustring format)
+{
+	Glib::ustring s_rate, s_length, s_channels;
+	if (filename.empty()) {
+		filename = "no file selected";
+		s_length = s_rate = format = s_channels = "--";
+	} else {
+		ms = rate/1000.0;
+		wDelay->set_range(0, 5*rate);
+		wDelay_ms->set_range(0, 5*1000);
+		wOffset->set_range(0, length-1);
+		wOffset_ms->set_range(0, (length-1)*1000.0/rate);
+		wLength->set_range(0, length);
+		wLength_ms->set_range(0, (length)*1000.0/rate);
+		on_delay_changed(0, rate);
+		on_offset_changed(0, rate);
+		on_length_changed(length, rate);
+		s_length = (boost::format("%1%") % length).str();
+		s_rate = (boost::format("%1%") % rate).str();
+	}
+	wSamples->set_text(s_length);
+	wSampleRate->set_text(s_rate);
+	wFormat->set_text(format);
+	wChannelbox->set_sensitive(channels >= 2);
+	wFilename->set_text(filename);
+}
+
+void IRWindow::load_state()
+{
+	GxJConvSettings& jcset = *GxJConvSettings::instance();
+	load_data(jcset.getFullIRPath());
+	wIredit->set_offset(jcset.getOffset());
+	wIredit->set_delay(min(jcset.getDelay(), jcset.getlDelay()));
+	wIredit->set_length(jcset.getLength());
+	if (jcset.getGainCnt()) {
+		wIredit->set_gain(jcset.getGainline(), jcset.getGainCnt());
+	}
+}
+
+void IRWindow::load_data(Glib::ustring f)
+{
+	filename = f;
+	gx_engine::Audiofile audio;
+	if (audio.open_read(filename)) {
+		gx_system::gx_print_error("jconvolver", "Unable to open '" + filename + "'");
+		return;
+	}
+	audio_size = audio.size();
+	audio_chan = audio.chan();
+	const unsigned int limit = 2000000; // arbitrary size limit
+	if (audio_size > limit) {
+		gx_system::gx_print_warning(
+			"jconvolver", (boost::format(_("too many samples (%1%), truncated to %2%")) % audio_size % limit).str());
+		audio_size = limit;
+	}
+	if (audio_size * audio_chan == 0) {
+		gx_system::gx_print_error("jconvolver", "No samples found");
+		return;
+	}
+	delete audio_buffer;
+	audio_buffer = new float[audio_size*audio_chan];
+	if (audio.read(audio_buffer, audio_size) != (int)audio_size) {
+		gx_system::gx_print_error("jconvolver", "Error reading file");
+		return;
+	}
+	Glib::ustring enc;
+	switch (audio.type()) {
+	case gx_engine::Audiofile::TYPE_OTHER: enc = "???"; break;
+	case gx_engine::Audiofile::TYPE_CAF: enc = "CAF"; break;
+	case gx_engine::Audiofile::TYPE_WAV: enc = "WAV"; break;
+	case gx_engine::Audiofile::TYPE_AMB: enc = "AMB"; break;
+	}
+	enc += "-";
+	switch (audio.form()) {
+	case gx_engine::Audiofile::FORM_OTHER: enc += "?"; break;
+	case gx_engine::Audiofile::FORM_16BIT: enc += "16"; break;
+	case gx_engine::Audiofile::FORM_24BIT: enc += "24"; break;
+	case gx_engine::Audiofile::FORM_32BIT: enc += "32"; break;
+	case gx_engine::Audiofile::FORM_FLOAT: enc += "float"; break;
+	}
+	file_changed(filename, audio.rate(), audio_size, audio_chan, enc);
+	wSum->set_active(true);
+	wLog->set_active(true);
+	wIredit->set_ir_data(audio_buffer, audio_chan, audio_size, audio.rate());
+}
+
+double IRWindow::calc_normalized_gain(int offset, int length)
+{
+	double gain = 0.0;
+	for (int i = offset; i < offset+length; i++) {
+		for (int j = 0; j < audio_chan; j++) {
+			float v = audio_buffer[i*audio_chan+j];
+			gain += v*v;
+		}
+	}
+	gain = sqrt(gain / audio_chan);
+	if (gain != 0.0) {
+		gain = 1 / gain;
+	}
+	return gain;
+}
+
+/*
+** signal functions
+*/
+
+void IRWindow::on_linear()
+{
+	wIredit->set_log(not wLinear->get_active());
+}
+
+void IRWindow::on_left()
+{
+	if (wLeft->get_active()) {
+		wIredit->set_channel(0);
+	}
+}
+
+void IRWindow::on_right()
+{
+	if (wRight->get_active()) {
+		wIredit->set_channel(1);
+	}
+}
+
+void IRWindow::on_sum()
+{
+	if (wSum->get_active()) {
+		wIredit->set_channel(-1);
+	}
+}
+
+void IRWindow::on_delay_changed(int delay, int fs)
+{
+	int d = round(set_val(wDelay, wDelay_ms, delay, fs));
+	if (d != delay) {
+		wIredit->set_delay(d);
+	}
+}
+
+void IRWindow::on_offset_changed(int offset, int fs)
+{
+	set_val(wOffset, wOffset_ms, offset, fs);
+}
+
+void IRWindow::on_length_changed(int length, int fs)
+{
+	set_val(wLength, wLength_ms, length, fs);
+}
+
+void IRWindow::on_reset_clicked()
+{
+	wIredit->set_offset(0);
+	wIredit->set_delay(0);
+	wIredit->set_length(audio_size);
+	gx_gui::gx_reset_units("jconv");
+}
+
+Glib::ustring IRWindow::on_delay_delta_format_value(double v)
+{
+	Glib::ustring s = "";
+	if (v < 0.0) {
+		v = -v;
+		s = " L";
+	} else if (v > 0.0) {
+		s = " R";
+	}
+	Glib::ustring fmt = (boost::format("\342\200\216%%.%df%%s") % wDelay_delta->property_digits()).str();
+	return (boost::format(fmt) % v % s).str();
+}
+
+void IRWindow::on_max_scale_reached(bool v)
+{
+	wIncr->set_sensitive(not v);
+}
+
+void IRWindow::on_min_scale_reached(bool v)
+{
+	wDecr->set_sensitive(not v);
+}
+
+void IRWindow::on_open()
+{
+	Gtk::FileChooserDialog d(*this, "Select Impulse Response");
+	d.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+	d.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
+	Gtk::FileFilter wav;
+	wav.set_name("WAV Files");
+	wav.add_pattern("*.wav");
+	wav.add_pattern("*.WAV");
+	wav.add_pattern("*.Wav");
+	d.add_filter(wav);
+	Gtk::FileFilter audio;
+	audio.set_name("Audio Files");
+	audio.add_mime_type("audio/*");
+	d.add_filter(audio);
+	Gtk::FileFilter all;
+	all.add_pattern("*");
+	all.set_name("All Files");
+	d.add_filter(all);
+	if (!filename.empty()) {
+		d.set_filename(filename);
+	} else {
+		d.set_current_folder("/home/ad/Desktop/amp");
+	}
+	if (d.run() != Gtk::RESPONSE_OK) {
+		return;
+	}
+	load_data(d.get_filename());
+}
+
+void IRWindow::on_home()
+{
+	wIredit->home();
+}
+
+void IRWindow::on_jump_zoom_mark()
+{
+	wIredit->jump_zoom_mark();
+}
+
+void IRWindow::on_decr()
+{
+	wIredit->decr_scale(0.0);
+}
+
+void IRWindow::on_incr()
+{
+	wIredit->incr_scale(0.0);
+}
+
+void IRWindow::on_m_delay_changed()
+{
+	wIredit->set_delay(wDelay->cp_get_int_value());
+}
+
+void IRWindow::on_ms_delay_changed()
+{
+	wIredit->set_delay(get_ms(wDelay_ms));
+}
+
+void IRWindow::on_m_offset_changed()
+{
+	wIredit->set_offset(wOffset->cp_get_int_value());
+}
+
+void IRWindow::on_ms_offset_changed()
+{
+	wIredit->set_offset(get_ms(wOffset_ms));
+}
+
+void IRWindow::on_m_length_changed()
+{
+	wIredit->set_length(wLength->cp_get_int_value());
+}
+
+void IRWindow::on_ms_length_changed()
+{
+	wIredit->set_length(get_ms(wLength_ms));
+}
+
+void IRWindow::on_apply_button_clicked()
+{
+	GxJConvSettings& jcset = *GxJConvSettings::instance();
+	int offset = wIredit->get_offset();
+	int length = wIredit->get_length();
+	int delay = wIredit->get_delay();
+	jcset.setOffset(offset);
+	jcset.setDelay(delay);
+	jcset.setlDelay(delay);
+	jcset.setLength(length);
+	jcset.setMem(0);
+	jcset.setBufferSize(0);
+	float gain = calc_normalized_gain(offset, length);
+	jcset.setGain(gain);
+	jcset.setlGain(gain);
+	jcset.setIRDir(Glib::path_get_dirname(filename));
+	jcset.setIRFile(Glib::path_get_basename(filename));
+	gain_points *p;
+	int n;
+	wIredit->get_gain(&p, &n);
+	jcset.setGainline(p, n);
+	gx_convolver_restart();
+}
+
+void IRWindow::destroy_self()
+{
+	delete this;
+}
+
+void IRWindow::on_window_hide()
+{
+	Glib::signal_idle().connect(
+		sigc::bind_return(sigc::mem_fun(*this, &IRWindow::destroy_self), false));
+}
+
+void IRWindow::on_cancel_button_clicked()
+{
+	hide();
+}
+
+void IRWindow::on_ok_button_clicked()
+{
+	on_apply_button_clicked();
+	hide();
+}
+
+/****************************************************************
+ ** Interface to rest of program
+ */
+
+void gx_show_jconv_dialog_gui(_GtkWidget*, void*)
+{
+	static IRWindow *w;
+	if (!w) {
+		w = IRWindow::create(*gx_gui::GxMainInterface::instance());
+		if (!w) {
+			return;
+		}
+	}
+	w->load_state();
+	w->show();
+}
+
 // --------------- static vars
 float GxJConvSettings::checkbutton7 = 0.;
 
+void gx_convolver_restart()
+{
+	if (!GxJConvSettings::checkbutton7) {
+		return;
+	}
+    gx_engine::conv.stop();
+    while (gx_engine::conv.is_runnable()) gx_engine::conv.checkstate();
+    gx_jconv::GxJConvSettings* jcset = GxJConvSettings::instance();
+    bool rc = gx_engine::conv.configure(
+	    gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
+	    jcset->getGain(), jcset->getlGain(), jcset->getDelay(), jcset->getlDelay(),
+	    jcset->getOffset(), jcset->getLength(), jcset->getMem(), jcset->getBufferSize(),
+	    jcset->getGainline(), jcset->getGainCnt());
+    if (!rc || !gx_engine::conv.start()) {
+        GxJConvSettings::checkbutton7 = 0;
+    }
+}
+
 // ---------------  constructor
-GxJConvSettings::GxJConvSettings()
+GxJConvSettings::GxJConvSettings():
+	gainline(0),
+	gain_cnt(0)
 {
 	// default parameters
 	fIRDir      = getenv("HOME");
@@ -91,6 +736,45 @@ void GxJConvSettings::resetSetting()
 	invalidate();
 }
 
+void GxJConvSettings::copy(const GxJConvSettings& s)
+{
+	fIRFile = s.fIRFile;
+	fIRDir = s.fIRDir;
+	fGain = s.fGain;
+	flGain = s.flGain;
+	fMem = s.fMem;
+	fMode = s.fMode;
+	fBufferSize = s.fBufferSize;
+	fOffset = s.fOffset;
+	fLength = s.fLength;
+	fDelay = s.fDelay;
+	flDelay = s.flDelay;
+	fValidSettings = s.fValidSettings;
+	gain_cnt = s.gain_cnt;
+	gainline = new gain_points[gain_cnt];
+	for (int i = 0; i < gain_cnt; i++) {
+		gainline[i] = s.gainline[i];
+	}
+}
+
+GxJConvSettings::GxJConvSettings(const GxJConvSettings& s)
+{
+	copy(s);
+}
+
+GxJConvSettings& GxJConvSettings::operator=(const GxJConvSettings& s)
+{
+	delete gainline;
+	copy(s);
+	return *this;
+}
+
+GxJConvSettings::~GxJConvSettings()
+{
+	delete gainline;
+}
+
+
 // --------------- attempt to validate the settings
 // Note: for now, simply check that the IR file is a wav file
 void GxJConvSettings::validate()
@@ -108,7 +792,7 @@ inline void GxJConvSettings::invalidate()
 	fValidSettings = false;
 }
 
-void GxJConvSettings::writeJSON(JsonWriter& w)
+void GxJConvSettings::writeJSON(gx_system::JsonWriter& w)
 {
 	w.begin_object(true);
 	w.write_key("jconv.IRFile"); w.write(fIRFile, true);
@@ -122,625 +806,100 @@ void GxJConvSettings::writeJSON(JsonWriter& w)
 	w.write_key("jconv.Length"); w.write(fLength, true);
 	w.write_key("jconv.Delay"); w.write(fDelay, true);
 	w.write_key("jconv.lDelay"); w.write(flDelay, true);
+	w.write_key("jconv.gainline");
+	w.begin_array();
+	for (int i = 0; i < gain_cnt; i++) {
+		w.begin_array();
+		w.write(gainline[i].i);
+		w.write(gainline[i].g);
+		w.end_array();
+	}
+	w.end_array();
 	w.end_object(true);
 }
 
-GxJConvSettings::GxJConvSettings(JsonParser& jp)
+void GxJConvSettings::setGainline(gain_points *p, int n)
 {
-	jp.next(JsonParser::begin_object);
+	gainline = new gain_points[n];
+	for (int i = 0; i < n; i++) {
+		gainline[i] = p[i];
+	}
+	gain_cnt = n;
+}
+
+void GxJConvSettings::read_gainline(gx_system::JsonParser& jp)
+{
+	list<gain_points> l;
+	jp.next(gx_system::JsonParser::begin_array);
+	while (jp.peek() == gx_system::JsonParser::begin_array) {
+		jp.next();
+		jp.next(gx_system::JsonParser::value_number);
+		gain_points p;
+		p.i = jp.current_value_int();
+		jp.next(gx_system::JsonParser::value_number);
+		p.g = jp.current_value_float();
+		jp.next(gx_system::JsonParser::end_array);
+		l.push_back(p);
+	}
+	jp.next(gx_system::JsonParser::end_array);
+	gain_cnt = l.size();
+	gain_points *q;
+	gainline = q = new gain_points[gain_cnt];
+	for (list<gain_points>::iterator i = l.begin(); i != l.end(); i++) {
+		*q++ = *i;
+	}
+}
+
+GxJConvSettings::GxJConvSettings(gx_system::JsonParser& jp):
+	gainline(0),
+	gain_cnt(0)
+{
+	jp.next(gx_system::JsonParser::begin_object);
 	do {
-		jp.next(JsonParser::value_key);
+		jp.next(gx_system::JsonParser::value_key);
 		if (jp.current_value() == "jconv.IRFile") {
-			jp.next(JsonParser::value_string);
+			jp.next(gx_system::JsonParser::value_string);
 			fIRFile = jp.current_value();
 		} else if (jp.current_value() == "jconv.IRDir") {
-			jp.next(JsonParser::value_string);
+			jp.next(gx_system::JsonParser::value_string);
 			fIRDir = jp.current_value();
 		} else if (jp.current_value() == "jconv.Gain") {
-			jp.next(JsonParser::value_number);
+			jp.next(gx_system::JsonParser::value_number);
 			fGain = jp.current_value_float();
 		} else if (jp.current_value() == "jconv.lGain") {
-			jp.next(JsonParser::value_number);
+			jp.next(gx_system::JsonParser::value_number);
 			flGain = jp.current_value_float();
 		} else if (jp.current_value() == "jconv.Mem") {
-			jp.next(JsonParser::value_number);
+			jp.next(gx_system::JsonParser::value_number);
 			fMem = jp.current_value_int();
 		} else if (jp.current_value() == "jconv.Mode") {
-			jp.next(JsonParser::value_number);
+			jp.next(gx_system::JsonParser::value_number);
 			fMode = (GxJConvMode)jp.current_value_int(); //FIXME check
 		} else if (jp.current_value() == "jconv.BufferSize") {
-			jp.next(JsonParser::value_number);
+			jp.next(gx_system::JsonParser::value_number);
 			fBufferSize = jp.current_value_int();
 		} else if (jp.current_value() == "jconv.Offset") {
-			jp.next(JsonParser::value_number);
+			jp.next(gx_system::JsonParser::value_number);
 			fOffset = jp.current_value_int();
 		} else if (jp.current_value() == "jconv.Length") {
-			jp.next(JsonParser::value_number);
+			jp.next(gx_system::JsonParser::value_number);
 			fLength = jp.current_value_int();
 		} else if (jp.current_value() == "jconv.Delay") {
-			jp.next(JsonParser::value_number);
+			jp.next(gx_system::JsonParser::value_number);
 			fDelay = jp.current_value_int();
 		} else if (jp.current_value() == "jconv.lDelay") {
-			jp.next(JsonParser::value_number);
+			jp.next(gx_system::JsonParser::value_number);
 			flDelay = jp.current_value_int();
+		} else if (jp.current_value() == "jconv.gainline") {
+			read_gainline(jp);
 		} else {
 			jp.skip_object();
-			gx_print_warning("jconv settings", "unknown key: " + jp.current_value());
+			gx_system::gx_print_warning("jconv settings", "unknown key: " + jp.current_value());
 		}
-	} while (jp.peek() == JsonParser::value_key);
-	jp.next(JsonParser::end_object);
+	} while (jp.peek() == gx_system::JsonParser::value_key);
+	jp.next(gx_system::JsonParser::end_object);
 }
 
-// --------------------- dump parameters on demand to a string
-void GxJConvSettings::dumpParameters()
-{
-	static string tab = "  ";
-	static ostringstream dump;
-	dump.str("");
-
-	dump << "--- JConv is using IR " << endl
-	     << getFullIRPath()          << endl
-	     << " in mode " << (fMode == kJConvCopy ? "'copy'" : "'read'") << endl
-
-	     << tab << "buffer size: " << fBufferSize << tab
-	     << tab << "memory: "      << fMem  << endl
-
-	     << tab << "gain: "   << fGain   << tab
-	     << tab << "left gain: "   << flGain   << tab
-	     << tab << "delay: "  << fDelay  << tab
-	     << tab << "left delay: "  << flDelay  << tab
-	     << tab << "offset: " << fOffset << tab
-	     << tab << "length: " << fLength << tab;
-
-	gx_print_info("Saving JConv parameters to file", dump.str().c_str());
+void gx_setting_jconv_dialog_gui(_GtkWidget*, void*) {}
+void gx_reload_jcgui() {}
 }
-
-//----- show the jconv settings widget
-void gx_show_jconv_dialog_gui(GtkWidget *widget, gpointer data)
-{
-	gtk_widget_show_all(gx_gui::jc_dialog);
-
-}
-
-//----- disable the right gain and delay when run in copy mode
-void gx_set_sensitive(GtkWidget *gwidget, gpointer obj)
-{
-	GtkWidget *widget = (GtkWidget *)obj;
-	GxJConvSettings* jcset = GxJConvSettings::instance();
-	switch (jcset->getMode())
-	{
-	case kJConvRead:
-		gtk_widget_set_sensitive(GTK_WIDGET(widget),TRUE);
-		break;
-
-	case kJConvCopy:
-	default:
-		gtk_widget_set_sensitive(GTK_WIDGET(widget),FALSE);
-		break;
-	}
-
-
-}
-
-//----- refresh jcconv settings GUI
-void gx_reload_jcgui()
-{
-	gtk_widget_destroy(gx_gui::jc_dialog);
-
-	gx_setting_jconv_dialog_gui(gx_gui::jc_dialog,NULL);
-
-}
-
-
-//----- hide the jconv settings widget
-gboolean gx_delete_event( GtkWidget *widget, gpointer   data )
-{
-	gtk_widget_hide(gx_gui::jc_dialog);
-	return TRUE;
-}
-
-//------- idle thread to reset the file chooser filter
-gboolean gx_set_file_filter(gpointer data)
-{
-	GxJConvSettings* jcset = GxJConvSettings::instance();
-	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(gx_gui::fbutton),
-	                                    jcset->getIRDir().c_str());
-	return false;
-
-}
-
-//----- show value to a label
-void gx_set_value(GtkObject * widget, gpointer obj)
-{
-	GtkWidget *lw = (GtkWidget *)obj;
-	float	v = GTK_ADJUSTMENT (widget)->value;
-	int fPrecision = GTK_ADJUSTMENT (widget)->step_increment;
-	char s[64];
-	if (fPrecision >= 1)
-		snprintf(s, 63, "%d", int(v));
-
-	else if (fPrecision == 0)
-	{
-		const char* format[] = {"%.1f", "%.2f", "%.3f"};
-		snprintf(s, 63, format[2-1], v);
-	}
-	gtk_label_set_text(GTK_LABEL(lw), s);
-}
-
-//----- create knobs/sliders with labels
-GtkWidget * gx_knob(const char* label,int mode, float init, float min, float max, float step)
-{
-
-	GtkObject* adj = gtk_adjustment_new(init, min, max, step, 10*step, 0);
-	GtkWidget* lw = gtk_label_new("");
-	GtkWidget* lwl = gtk_label_new(label);
-	gtk_widget_set_name (lw,"value_label");
-	gtk_widget_set_name (lwl,"effekt_label");
-
-	GtkStyle *style = gtk_widget_get_style(lw);
-	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-	gtk_widget_modify_font(lw, style->font_desc);
-	gtk_widget_modify_font(lwl, style->font_desc);
-	GtkWidget* slider;
-
-	if(!mode) {
-		slider = GTK_WIDGET((new Gxw::SmallKnob(*Glib::wrap(GTK_ADJUSTMENT(adj))))->gobj());
-	} else {
-		slider = GTK_WIDGET((new Gxw::VSlider(*Glib::wrap(GTK_ADJUSTMENT(adj))))->gobj());
-	}
-	gtk_range_set_inverted (GTK_RANGE(slider), TRUE);
-	gx_set_value(GTK_OBJECT(adj), lw);
-	// connect label with value
-	g_signal_connect(GTK_OBJECT(adj), "value-changed",
-	                 G_CALLBACK(gx_set_value),
-	                 (gpointer)lw);
-
-	GtkWidget* box     = gtk_vbox_new (FALSE,  1);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 1);
-
-	gtk_container_add (GTK_CONTAINER (box),    lwl);
-	gtk_container_add (GTK_CONTAINER (box),    slider);
-	gtk_container_add (GTK_CONTAINER (box),    lw);
-
-	gtk_widget_show(lwl);
-	gtk_widget_show(slider);
-	gtk_widget_show(lw);
-	gtk_widget_show(box);
-
-	return slider;
-
-}
-
-// ---------------------  The JConv setting dialog GUI
-void gx_setting_jconv_dialog_gui(GtkWidget *widget, gpointer data)
-{
-	GxJConvSettings* jcset = GxJConvSettings::instance();
-
-	// -- main window
-	gx_gui::jc_dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_decorated(GTK_WINDOW(gx_gui::jc_dialog), TRUE);
-	gtk_window_set_resizable(GTK_WINDOW(gx_gui::jc_dialog), FALSE);
-	gtk_window_set_gravity(GTK_WINDOW(gx_gui::jc_dialog), GDK_GRAVITY_SOUTH);
-	gtk_window_set_transient_for (GTK_WINDOW(gx_gui::jc_dialog), GTK_WINDOW(gx_gui::fWindow));
-	gtk_window_set_position (GTK_WINDOW(gx_gui::jc_dialog), GTK_WIN_POS_MOUSE);
-	gtk_window_set_keep_below (GTK_WINDOW(gx_gui::jc_dialog), FALSE);
-	gtk_window_set_title (GTK_WINDOW (gx_gui::jc_dialog), "Convolver Settings");
-	gtk_window_set_destroy_with_parent(GTK_WINDOW(gx_gui::jc_dialog), TRUE);
-
-	// -- labels
-	GtkWidget* label  = gtk_label_new ("\n         Convolver  Settings      \n"
-	                                   "\n");
-	gx_gui::label1    = gtk_label_new (" \n");
-	gtk_widget_set_name (gx_gui::label1,"effekt_label");
-
-	GtkWidget* label2 = gtk_label_new (" partition size");
-	GtkWidget* label5 = gtk_label_new (" mode ");
-
-	GdkColor colorGreen;
-	gdk_color_parse("#969292", &colorGreen);
-	gtk_widget_modify_fg (label2, GTK_STATE_NORMAL, &colorGreen);
-	gtk_widget_modify_fg (label5, GTK_STATE_NORMAL, &colorGreen);
-	GtkStyle *style = gtk_widget_get_style(label2);
-	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-	gtk_widget_modify_font(label2, style->font_desc);
-	gtk_widget_modify_font(label5, style->font_desc);
-	gtk_widget_modify_font(label, style->font_desc);
-
-	// -- OK button
-	GtkWidget* ok_button = gtk_button_new_with_label("OK");
-
-
-	// ----- setting GUI stuff with current initial values
-
-	ostringstream lab; // label text
-
-	// -- wave file info
-	int chans      = 0; // channels
-	int sr         = 0; // sample rate
-	int framecount = 0; // number of frames
-	SNDFILE* sf    = NULL;
-
-	// try to open IR file
-	jcset->validate();
-
-	if (jcset->isValid())
-	{
-		sf = openInputSoundFile(jcset->getFullIRPath().c_str(),
-		                        &chans, &sr, &framecount);
-		closeSoundFile(sf);
-
-		// display IR file info
-		lab.str("");
-		lab << "IR file info: " << endl
-		    << chans            << " channel(s) "
-		    << sr               << " Sample rate "
-		    << framecount       << " Samples ";
-
-		gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
-	}
-	if (chans == 1) jcset->setMode ( kJConvCopy);
-
-	// -- Delay
-	GtkWidget* dslider = gx_knob ("left delay ",0,jcset->getDelay(), 0, 6000, 1);
-	GtkAdjustment *dadj = gtk_range_get_adjustment(GTK_RANGE(dslider));
-
-	GtkWidget * dslider_box = gtk_widget_get_parent(GTK_WIDGET(dslider));
-	jcset->setDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(dadj)));
-	// -- Delay
-	GtkWidget* dlslider = gx_knob ("right delay ",0,jcset->getlDelay(), 0, 6000, 1);
-	GtkAdjustment *dladj = gtk_range_get_adjustment(GTK_RANGE(dlslider));
-
-	GtkWidget * dlslider_box = gtk_widget_get_parent(GTK_WIDGET(dlslider));
-	jcset->setlDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(dladj)));
-
-	// -- GAIN
-	GtkWidget* gslider = gx_knob ("left gain",0,jcset->getGain(), 0.0, 5.0, 0.01);
-	GtkAdjustment *gadj = gtk_range_get_adjustment(GTK_RANGE(gslider));
-
-	GtkWidget * gslider_box = gtk_widget_get_parent(GTK_WIDGET(gslider));
-	jcset->setGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(gadj)));
-	// -- GAIN
-	GtkWidget* glslider = gx_knob ("right gain",0,jcset->getlGain(), 0.0, 5.0, 0.01);
-	GtkAdjustment *gladj = gtk_range_get_adjustment(GTK_RANGE(glslider));
-
-	GtkWidget * glslider_box = gtk_widget_get_parent(GTK_WIDGET(glslider));
-	jcset->setlGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(gladj)));
-
-	// -- MEMORY
-	mslider = gx_knob ("max mem",1,jcset->getMem(), 32, 400000, 1000);
-	GtkAdjustment *madj = gtk_range_get_adjustment(GTK_RANGE(mslider));
-	gtk_range_set_value(GTK_RANGE(mslider), framecount );
-
-	GtkWidget * mslider_box = gtk_widget_get_parent(GTK_WIDGET(mslider));
-	jcset->setMem(gtk_adjustment_get_value(GTK_ADJUSTMENT(madj)));
-
-	// -- READ MODE
-	GtkWidget* jcmode_combo = gtk_combo_box_new_text();
-	string buffer = "/impulse/copy";
-	gtk_combo_box_append_text(GTK_COMBO_BOX(jcmode_combo), buffer.c_str());
-
-	buffer = "/impulse/read";
-	gtk_combo_box_append_text(GTK_COMBO_BOX(jcmode_combo), buffer.c_str());
-
-	// turn on default
-	gtk_combo_box_set_active(GTK_COMBO_BOX(jcmode_combo), (gint)jcset->getMode());
-
-	// -- BUFFER SIZE
-	GtkWidget* bs_combo = gtk_combo_box_new_text();
-	const int min_pow = 6;  // 2**6  = 64
-	const int max_pow = 12; // 2**12 = 4096
-
-	for (int i = min_pow; i <= max_pow; i++)
-	{
-		ostringstream s;
-		jack_nframes_t bs = (jack_nframes_t)pow(2.,i);
-		s << bs;
-		gtk_combo_box_append_text(GTK_COMBO_BOX(bs_combo), s.str().c_str());
-
-		if (bs == jcset->getBufferSize())
-			gtk_combo_box_set_active(GTK_COMBO_BOX(bs_combo), i - min_pow);
-	}
-
-	// -- IR File Chooser
-	gx_gui::fbutton =
-		gtk_file_chooser_button_new ("Select a *.wav file", GTK_FILE_CHOOSER_ACTION_OPEN);
-
-	gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER (gx_gui::fbutton), true);
-	gtk_file_chooser_set_show_hidden (GTK_FILE_CHOOSER (gx_gui::fbutton),false);
-
-	GtkFileFilter* filter = gtk_file_filter_new ();
-	gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*.wav");
-	gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*.WAV");
-	gtk_file_filter_add_pattern (GTK_FILE_FILTER(filter), "*.Wav");
-	gtk_file_chooser_set_filter (GTK_FILE_CHOOSER (gx_gui::fbutton), GTK_FILE_FILTER(filter));
-
-	// label for display the filename
-	gx_gui::label6 = gtk_label_new(jcset->getIRFile().c_str());
-
-	// scrolled window
-	GtkWidget* scrlwd = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrlwd),
-	                               GTK_POLICY_ALWAYS,GTK_POLICY_NEVER);
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrlwd),
-	                                    GTK_SHADOW_IN);
-	gtk_widget_set_size_request (GTK_WIDGET(scrlwd), 304.0, -1);
-
-#if 0 //FIXME XXX
-	// display wave view of IR file
-	Gxw::IREdit *iredit = new Gxw::IREdit();
-	iredit->set_size_request(300.0, 200.0);
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrlwd), GTK_WIDGET(iredit->gobj()));
-#else
-	// display wave view of IR file
-	GtkWidget* iredit = gx_wave_view();
-	gtk_widget_set_size_request (GTK_WIDGET(iredit), 300.0, 200.0);
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrlwd), GTK_WIDGET(iredit));
-#endif
-
-	//----- arrange widgets
-	GtkWidget* box     = gtk_vbox_new (FALSE,  4);
-	GtkWidget* box1    = gtk_vbox_new (TRUE,  4);
-	GtkWidget* box2    = gtk_hbox_new (FALSE,  0);
-	GtkWidget* box3    = gtk_vbox_new (FALSE,  4);
-	GtkWidget* box4    = gtk_vbox_new (FALSE, 4);
-	GtkWidget* box5    = gtk_hbox_new (FALSE, 4);
-	GtkWidget* box6    = gtk_hbox_new (TRUE, 4);
-	GtkWidget* box7    = gtk_hbox_new (FALSE, 8);
-	GtkWidget* box8    = gtk_vbox_new (FALSE, 0);
-	GtkWidget* box9    = gtk_hbox_new (FALSE, 8);
-	GtkWidget* box10    = gtk_vbox_new (FALSE, 0);
-	GtkWidget* box11    = gtk_vbox_new (TRUE, 0);
-	// GtkWidget* box12    = gtk_vbox_new (FALSE, 4);
-	GtkWidget* viewbox = gtk_event_box_new ();
-
-	gtk_container_set_border_width (GTK_CONTAINER (box7), 8);
-	gtk_container_set_border_width (GTK_CONTAINER (viewbox), 8);
-	gtk_container_set_border_width (GTK_CONTAINER (box9), 14);
-	gtk_container_set_border_width (GTK_CONTAINER (box6), 4);
-	gtk_container_set_border_width (GTK_CONTAINER (box2), 2);
-
-	gtk_container_add (GTK_CONTAINER (box4),   label);
-	gtk_container_add (GTK_CONTAINER (box4),    viewbox);
-	gtk_container_add (GTK_CONTAINER (viewbox), scrlwd);
-	gtk_container_add (GTK_CONTAINER (gx_gui::jc_dialog), box7);
-	gtk_container_add (GTK_CONTAINER (box7),   box9);
-	gtk_container_add (GTK_CONTAINER (box9),   box4);
-	gtk_container_add (GTK_CONTAINER (box5),   gx_gui::label6);
-	gtk_container_add (GTK_CONTAINER (box5),   gx_gui::fbutton);
-	gtk_container_add (GTK_CONTAINER (box4),   box5);
-	gtk_container_add (GTK_CONTAINER (box4),   gx_gui::label1);
-	gtk_container_add (GTK_CONTAINER (box4),   box6);
-	gtk_container_add (GTK_CONTAINER (box4),   box2);
-	gtk_container_add (GTK_CONTAINER (box2),   box8);
-	gtk_container_add (GTK_CONTAINER (box8),   gslider_box);
-	gtk_container_add (GTK_CONTAINER (box8),   glslider_box);
-	gtk_container_add (GTK_CONTAINER (box2),   box10);
-	gtk_container_add (GTK_CONTAINER (box10),   dslider_box);
-	gtk_container_add (GTK_CONTAINER (box10),   dlslider_box);
-	gtk_container_add (GTK_CONTAINER (box2),   box11);
-	gtk_container_add (GTK_CONTAINER (box11),   mslider_box);
-	//gtk_container_add (GTK_CONTAINER (box11),   box12);
-	gtk_container_add (GTK_CONTAINER (box2),   box1);
-	//gtk_container_add (GTK_CONTAINER (box1),   box3); //FIXME mode (read/copy) remove after jconvolver transition
-	gtk_container_add (GTK_CONTAINER (box3),   label5);
-	gtk_container_add (GTK_CONTAINER (box3),   jcmode_combo);
-	gtk_container_add (GTK_CONTAINER (box1),   box);
-	gtk_box_pack_start(GTK_BOX(box), label2, FALSE, FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(box), bs_combo, FALSE, FALSE, 0);
-	gtk_container_add (GTK_CONTAINER (box4),   ok_button);
-
-	//----- connect signals to callback cairo funcs
-	g_signal_connect(box9, "expose-event", G_CALLBACK(gx_cairo::conv_widget_expose), NULL);
-	g_signal_connect(box7, "expose-event", G_CALLBACK(gx_cairo::rectangle_expose), NULL);
-	g_signal_connect(box2, "expose-event", G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
-	g_signal_connect(gx_gui::label6, "expose-event", G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
-	g_signal_connect(label, "expose-event", G_CALLBACK(gx_cairo::convolver_icon_expose), NULL);
-
-	// IR file select
-	g_signal_connect (gx_gui::fbutton, "file-set",
-	                  G_CALLBACK(gx_select_and_draw_jconv_ir), (gpointer) jcmode_combo);
-
-	// confirm and save setting
-	g_signal_connect_swapped(ok_button, "clicked",
-	                         G_CALLBACK(gx_delete_event), gx_gui::jc_dialog);
-	g_signal_connect_swapped (G_OBJECT (gx_gui::jc_dialog), "delete_event",
-	                          G_CALLBACK (gx_delete_event), (gpointer) ok_button);
-
-
-	// gain setting
-	g_signal_connect(GTK_OBJECT(gadj), "value-changed",
-	                 G_CALLBACK(gx_acquire_jconv_value),
-	                 (gpointer)kJConvGain);
-	// gain setting
-	g_signal_connect(GTK_OBJECT(gladj), "value-changed",
-	                 G_CALLBACK(gx_acquire_jconv_value),
-	                 (gpointer)kJConvlGain);
-
-	// memory
-	g_signal_connect(GTK_OBJECT(madj), "value-changed",
-	                 G_CALLBACK(gx_acquire_jconv_value),
-	                 (gpointer)kJConvMem);
-
-	// buffer size
-	g_signal_connect(GTK_OBJECT (bs_combo), "changed",
-	                 G_CALLBACK(gx_acquire_jconv_value),
-	                 (gpointer)kJConvBuffersize);
-
-	// read mode
-	g_signal_connect(GTK_OBJECT (jcmode_combo), "changed",
-	                 G_CALLBACK(gx_acquire_jconv_value),
-	                 (gpointer)kJConvMode);
-	g_signal_connect(GTK_OBJECT (jcmode_combo), "changed",
-	                 G_CALLBACK(gx_set_sensitive),
-	                 (gpointer)glslider);
-	g_signal_connect(GTK_OBJECT (jcmode_combo), "changed",
-	                 G_CALLBACK(gx_set_sensitive),
-	                 (gpointer)dlslider);
-
-	// delay setting
-	g_signal_connect(GTK_OBJECT(dadj), "value-changed",
-	                 G_CALLBACK(gx_acquire_jconv_value),
-	                 (gpointer)kJConvDelay);
-	// delay setting
-	g_signal_connect(GTK_OBJECT(dladj), "value-changed",
-	                 G_CALLBACK(gx_acquire_jconv_value),
-	                 (gpointer)kJConvlDelay);
-
-	// set courent folder to file chooser
-	g_idle_add(gx_set_file_filter,NULL);
-
-	//----- load file to wave view
-	gx_waveview_set_value(GTK_WIDGET(gx_gui::fbutton),NULL);
-}
-
-
-// ---------------  retrieve a setting value
-void gx_acquire_jconv_value(GtkWidget *widget, gpointer data )
-{
-	GxJConvSettings* jcset = GxJConvSettings::instance();
-
-	GxJConvParamType ptype = (GxJConvParamType)GPOINTER_TO_INT(data);
-	string s;
-
-	switch (ptype)
-	{
-	case kJConvGain:
-		jcset->setGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(widget)));
-		break;
-
-	case kJConvlGain:
-		jcset->setlGain(gtk_adjustment_get_value(GTK_ADJUSTMENT(widget)));
-		break;
-
-	case kJConvMem:
-		jcset->setMem((guint)gtk_adjustment_get_value(GTK_ADJUSTMENT(widget)));
-		break;
-
-	case kJConvBuffersize:
-		s = gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget));
-		jcset->setBufferSize((jack_nframes_t)atoi(s.c_str()));
-		break;
-
-	case kJConvMode:
-		s = gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget));
-		jcset->setMode(((int)s.find("copy") != -1 ? kJConvCopy : kJConvRead));
-		break;
-
-	case kJConvDelay:
-		jcset->setDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(widget)));
-		break;
-
-	case kJConvlDelay:
-		jcset->setlDelay(gtk_adjustment_get_value(GTK_ADJUSTMENT(widget)));
-		break;
-
-	case kJConvOffset:
-	case kJConvLength:
-
-	default:  // do nothing
-		break;
-	}
-}
-
-
-// --------------- IR file processing
-void gx_select_and_draw_jconv_ir(GtkWidget* widget, gpointer obj)
-{
-	// get the chosen file from the file chooser
-	gchar * _file   = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(widget));
-	// return when file is empty
-	if (!_file) {
-		g_free(_file);
-		return;
-	}
-	GxJConvSettings* jcset = GxJConvSettings::instance();
-	GtkWidget *combo = (GtkWidget *)obj;
-
-	string file = _file;
-	g_free(_file);
-	string folder = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(widget));
-
-	if (!file.empty()) {
-		// let's save it into the JConv settings
-		string tmp_file = basename((char*)file.c_str());
-		jcset->setIRFile(tmp_file);
-		jcset->setIRDir(folder);
-
-		// let's validate it
-		jcset->validate();
-
-		if (jcset->isValid()) {
-			g_idle_add(gx_set_file_filter,NULL);
-
-			//----- get name from used wav file
-			gtk_label_set_text(GTK_LABEL(gx_gui::label6),
-			                   jcset->getIRFile().c_str());
-
-			//----- get snd info from IR file
-			int chans, sr, framescount;
-
-			SNDFILE* sf = openInputSoundFile(file.c_str(),
-			                                 &chans, &sr, &framescount);
-			closeSoundFile(sf);
-
-			/* We set the sndfile info here to the label, if resampling is needed/done. */
-			//----- set label text
-			ostringstream lab;
-			lab.str("");
-			lab << "IR file info: " << endl
-			    << chans            << " channel(s) "
-			    << sr << " Sample rate "
-			    << framescount      << " Samples ";
-			gtk_label_set_text(GTK_LABEL(gx_gui::label1), lab.str().c_str());
-
-			/* Note, resample the file didn't change the samples, so we could draw it here
-			   already, independend from the result of resampling. Also a no resampled file could be used
-			   if the user wish so.*/
-
-			//----- draw the wave file
-			gx_waveview_set_value(widget, NULL);
-			gtk_range_set_value(GTK_RANGE(mslider), framescount );
-
-			//----- set mode chooser to copy and disable it when a 1 channel file is loaded
-			if(chans == 1) {
-				jcset->setMode ( kJConvCopy);
-				gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0);
-				gtk_widget_set_sensitive(GTK_WIDGET(combo),FALSE);
-			} else if (chans == 2) {
-				gtk_widget_set_sensitive(GTK_WIDGET(combo),TRUE);
-			} else if (chans > 2) {
-				ostringstream msg;
-				msg << "Error opening file " << jcset->getIRFile() << "\n have more then 2 Channels";
-				(void)gx_gui::gx_message_popup(msg.str().c_str());
-
-				jcset->invalidate();
-				// force the wave view to draw a red X
-				gx_waveview_set_value(widget, NULL);
-				// set label text
-				gtk_label_set_text(GTK_LABEL(gx_gui::label1), "IR file empty\n");
-				gtk_label_set_text(GTK_LABEL(gx_gui::label6), "empty");
-				return;
-			}
-		} else { // end of if (file is wave audio)
-			jcset->invalidate();
-			gx_print_error("IR File Processing",
-			               jcset->getIRFile() +
-			               string(" is not a WAVE Audio file! Invalidating ... "));
-			// force the wave view to draw a red X
-			gx_waveview_set_value(widget, NULL);
-			// set label text
-			gtk_label_set_text(GTK_LABEL(gx_gui::label1), "IR file empty\n");
-			gtk_label_set_text(GTK_LABEL(gx_gui::label6), "empty");
-		}
-	} else { // end of if (!file.empty())
-		gx_print_error("IR File Processing",
-		               "Filename empty, you probably need to re-pick a file");
-		gx_waveview_set_value(widget, NULL);
-		gtk_label_set_text(GTK_LABEL(gx_gui::label1), "No file name\n");
-		gtk_label_set_text(GTK_LABEL(gx_gui::label6), "empty");
-	}
-}
-
-} /* end of gx_jconv namespace */

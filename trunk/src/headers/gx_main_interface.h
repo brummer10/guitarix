@@ -289,7 +289,7 @@ public :
 	void openSlooperBox(const char* label = "");
 	void openPlugBox(const char* label = "");
 	void openpaintampBox(const char* label = "");
-	void openPaintBox(const char* label = "");
+	void openPaintBox(const char* label = "", const char* name = NULL);
 	void openPaintBox1(const char* label = "");
 	void openPaintBox2(const char* label = "");
 	void openScrollBox(const char* label = "");
@@ -395,6 +395,26 @@ public :
 			addwidget(UiSwitchWithCaption::create(*this, sw_type, id, label, pos));
 		}
 };
+
+struct uiAdjustment : public gx_ui::GxUiItem
+{
+	GtkAdjustment* fAdj;
+	uiAdjustment(gx_ui::GxUI* ui, float* zone, GtkAdjustment* adj) : gx_ui::GxUiItem(ui, zone), fAdj(adj) {}
+	static void changed (GtkAdjustment *adj, gpointer data)
+		{
+			float	v = adj->value;
+			((gx_ui::GxUiItem*)data)->modifyZone(v);
+		}
+
+	virtual void reflectZone()
+		{
+			float 	v = *fZone;
+			fCache = v;
+			gtk_adjustment_set_value(fAdj, v);
+		}
+
+};
+
 
 extern const char *sw_led;
 extern const char *sw_switch;

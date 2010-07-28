@@ -90,6 +90,7 @@ void GxMainInterface::setup()
 								{
 									openHorizontalBox("");
 									{
+#if 0 //FIXME (delete)
 										openDialogBox("jconv.dialog", "jconv.on_off");
 										{
 										    openPlugBox("");
@@ -122,6 +123,7 @@ void GxMainInterface::setup()
 											closeBox();
 										}
 										closeBox();
+#endif
 										create_hslider("jconv.wet_dry");
 									}
 									closeBox();
@@ -1420,7 +1422,7 @@ void GxMainInterface::setup()
                                                     //create_switch_no_caption(sw_switchit, "SampleLooper.on_off");
                                                 }
                                                 closeBox();
-												openPaintBox("");
+                                                openPaintBox("", "filter_box");
 												{
 												    openHorizontalBox("");
                                                     {
@@ -1780,7 +1782,7 @@ void GxMainInterface::setup()
 	// add a Patch Info widget
 	openPatchInfoBox(&gx_gui::show_patch_info);
 
-	debug_check(all_midi_params_assigned);
+	//debug_check(all_midi_params_assigned);
 }
 
 }

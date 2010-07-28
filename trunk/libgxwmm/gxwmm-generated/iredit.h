@@ -119,11 +119,19 @@ private:
 	
   int get_delay();
 	
+  void set_delay(int);
+	
   int get_offset();
+	
+  void set_offset(int);
 	
   int get_length();
 	
+  void set_length(int);
+	
   void get_gain(gain_points**, int*);
+	
+  void set_gain(gain_points*, int);
 	
   /**
    * @par Prototype:

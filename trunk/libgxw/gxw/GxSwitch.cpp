@@ -29,7 +29,7 @@
 
 enum {
 	PROP_VAR_ID = 1,
-	PROP_LABEL,
+	PROP_LABEL_REF,
 	PROP_BASE_NAME,
 };
 
@@ -65,7 +65,7 @@ gx_switch_cp_get_value(GxControlParameter *self)
 static void
 gx_switch_cp_set_value(GxControlParameter *self, gdouble value)
 {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(self), value == 0.0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(self), value != 0.0);
 }
 
 static void
@@ -89,8 +89,8 @@ static void gx_switch_class_init(GxSwitchClass *klass)
 	object_class->destroy = gx_switch_destroy;
 
 	g_object_class_install_property(
-		gobject_class, PROP_LABEL,
-		g_param_spec_object("label",
+		gobject_class, PROP_LABEL_REF,
+		g_param_spec_object("label-ref",
 		                    P_("Label ref"),
 		                    P_("GtkLabel for caption"),
 		                    GTK_TYPE_LABEL,
@@ -333,16 +333,16 @@ gboolean gx_switch_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 void gx_switch_set_label_ref(GxSwitch *swtch, GtkLabel *label)
 {
 	g_return_if_fail(GX_IS_SWITCH(swtch));
-	g_return_if_fail(GTK_IS_LABEL(label));
 	if (swtch->label) {
 		g_object_unref(swtch->label);
 		swtch->label = 0;
 	}
 	if (label) {
+		g_return_if_fail(GTK_IS_LABEL(label));
 		swtch->label = label;
 		g_object_ref(label);
 	}
-	g_object_notify(G_OBJECT(swtch), "label");
+	g_object_notify(G_OBJECT(swtch), "label-ref");
 }
 
 GtkLabel *gx_switch_get_label_ref(GxSwitch *swtch)
@@ -357,11 +357,16 @@ void gx_switch_set_base_name(GxSwitch *swtch, const char *base_name)
 	GtkWidget *img = gtk_button_get_image(GTK_BUTTON(swtch));
 	if (img && GX_IS_TOGGLE_IMAGE(img)) {
 		const gchar *old = gx_toggle_image_get_base_name(GX_TOGGLE_IMAGE(img));
-		if (old && strcmp(old, base_name) == 0) {
+		if (!base_name || !*base_name) {
+			gtk_button_set_image(GTK_BUTTON(swtch), NULL);
+		} else if (old && strcmp(old, base_name) == 0) {
 			return;
 		}
 		gx_toggle_image_set_base_name(GX_TOGGLE_IMAGE(img), base_name);
 	} else {
+		if (!base_name || !*base_name) {
+			return;
+		}
 		gtk_button_set_image(GTK_BUTTON(swtch),
 		                     GTK_WIDGET(g_object_new(GX_TYPE_TOGGLE_IMAGE, "base-name",
 		                                             base_name, NULL)));
@@ -393,7 +398,7 @@ gx_switch_set_property (GObject *object, guint prop_id, const GValue *value,
 		g_object_notify(object, "var-id");
 		break;
 	}
-	case PROP_LABEL:
+	case PROP_LABEL_REF:
 		gx_switch_set_label_ref(swtch, GTK_LABEL(g_value_get_object(value)));
 		break;
 	case PROP_BASE_NAME:
@@ -415,7 +420,7 @@ gx_switch_get_property(GObject *object, guint prop_id, GValue *value,
 	case PROP_VAR_ID:
 		g_value_set_string(value, swtch->var_id);
 		break;
-	case PROP_LABEL:
+	case PROP_LABEL_REF:
 		g_value_set_object(value, swtch->label);
 		break;
 	case PROP_BASE_NAME: {

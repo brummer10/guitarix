@@ -92,6 +92,71 @@ static const Glib::SignalProxyInfo Regler_signal_value_entry_info =
 };
 
 
+static gchar* Regler_signal_format_value_callback(GxRegler* self, gdouble p0,void* data)
+{
+  using namespace Gxw;
+  typedef sigc::slot< Glib::ustring,double > SlotType;
+
+  // Do not try to call a signal on a disassociated wrapper.
+  if(Glib::ObjectBase::_get_current_wrapper((GObject*) self))
+  {
+    #ifdef GLIBMM_EXCEPTIONS_ENABLED
+    try
+    {
+    #endif //GLIBMM_EXCEPTIONS_ENABLED
+      if(sigc::slot_base *const slot = Glib::SignalProxyNormal::data_to_slot(data))
+        return (strlen((*static_cast<SlotType*>(slot))(p0
+).c_str()) ? g_strdup((*static_cast<SlotType*>(slot))(p0
+).c_str()) : 0);
+    #ifdef GLIBMM_EXCEPTIONS_ENABLED
+    }
+    catch(...)
+    {
+      Glib::exception_handlers_invoke();
+    }
+    #endif //GLIBMM_EXCEPTIONS_ENABLED
+  }
+
+  typedef gchar* RType;
+  return RType();
+}
+
+static gchar* Regler_signal_format_value_notify_callback(GxRegler* self, gdouble p0, void* data)
+{
+  using namespace Gxw;
+  typedef sigc::slot< void,double > SlotType;
+
+  // Do not try to call a signal on a disassociated wrapper.
+  if(Glib::ObjectBase::_get_current_wrapper((GObject*) self))
+  {
+    #ifdef GLIBMM_EXCEPTIONS_ENABLED
+    try
+    {
+    #endif //GLIBMM_EXCEPTIONS_ENABLED
+      if(sigc::slot_base *const slot = Glib::SignalProxyNormal::data_to_slot(data))
+        (*static_cast<SlotType*>(slot))(p0
+);
+    #ifdef GLIBMM_EXCEPTIONS_ENABLED
+    }
+    catch(...)
+    {
+      Glib::exception_handlers_invoke();
+    }
+    #endif //GLIBMM_EXCEPTIONS_ENABLED
+  }
+
+  typedef gchar* RType;
+  return RType();
+}
+
+static const Glib::SignalProxyInfo Regler_signal_format_value_info =
+{
+  "format_value",
+  (GCallback) &Regler_signal_format_value_callback,
+  (GCallback) &Regler_signal_format_value_notify_callback
+};
+
+
 } // anonymous namespace
 
 
@@ -144,6 +209,7 @@ void Regler_Class::class_init_function(void* g_class, void* class_data)
 
 #ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
   klass->value_entry = &value_entry_callback;
+  klass->format_value = &format_value_callback;
 #endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 }
 
@@ -192,6 +258,50 @@ gboolean Regler_Class::value_entry_callback(GxRegler* self, GdkRectangle* p0, Gd
     return (*base->value_entry)(self, p0, p1);
 
   typedef gboolean RType;
+  return RType();
+}
+gchar* Regler_Class::format_value_callback(GxRegler* self, gdouble p0)
+{
+  Glib::ObjectBase *const obj_base = static_cast<Glib::ObjectBase*>(
+      Glib::ObjectBase::_get_current_wrapper((GObject*)self));
+
+  // Non-gtkmmproc-generated custom classes implicitly call the default
+  // Glib::ObjectBase constructor, which sets is_derived_. But gtkmmproc-
+  // generated classes can use this optimisation, which avoids the unnecessary
+  // parameter conversions if there is no possibility of the virtual function
+  // being overridden:
+  if(obj_base && obj_base->is_derived_())
+  {
+    CppObjectType *const obj = dynamic_cast<CppObjectType* const>(obj_base);
+    if(obj) // This can be NULL during destruction.
+    {
+      #ifdef GLIBMM_EXCEPTIONS_ENABLED
+      try // Trap C++ exceptions which would normally be lost because this is a C callback.
+      {
+      #endif //GLIBMM_EXCEPTIONS_ENABLED
+        // Call the virtual member method, which derived classes might override.
+        return (strlen(obj->on_format_value(p0
+).c_str()) ? g_strdup(obj->on_format_value(p0
+).c_str()) : 0);
+      #ifdef GLIBMM_EXCEPTIONS_ENABLED
+      }
+      catch(...)
+      {
+        Glib::exception_handlers_invoke();
+      }
+      #endif //GLIBMM_EXCEPTIONS_ENABLED
+    }
+  }
+  
+  BaseClassType *const base = static_cast<BaseClassType*>(
+        g_type_class_peek_parent(G_OBJECT_GET_CLASS(self)) // Get the parent class of the object class (The original underlying C class).
+    );
+
+  // Call the original underlying C function:
+  if(base && base->format_value)
+    return (*base->format_value)(self, p0);
+
+  typedef gchar* RType;
   return RType();
 }
 #endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
@@ -284,17 +394,23 @@ Glib::SignalProxy2< bool,const Gdk::Rectangle&,GdkEventButton* > Regler::signal_
 }
 
 
-#ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy<Gtk::Label> Regler::property_label() 
+Glib::SignalProxy1< Glib::ustring,double > Regler::signal_format_value()
 {
-  return Glib::PropertyProxy<Gtk::Label>(this, "label");
+  return Glib::SignalProxy1< Glib::ustring,double >(this, &Regler_signal_format_value_info);
+}
+
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy<Gtk::Label> Regler::property_label_ref() 
+{
+  return Glib::PropertyProxy<Gtk::Label>(this, "label-ref");
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy_ReadOnly<Gtk::Label> Regler::property_label() const
+Glib::PropertyProxy_ReadOnly<Gtk::Label> Regler::property_label_ref() const
 {
-  return Glib::PropertyProxy_ReadOnly<Gtk::Label>(this, "label");
+  return Glib::PropertyProxy_ReadOnly<Gtk::Label>(this, "label-ref");
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 
@@ -309,6 +425,27 @@ Glib::PropertyProxy<bool> Regler::property_show_value()
 Glib::PropertyProxy_ReadOnly<bool> Regler::property_show_value() const
 {
   return Glib::PropertyProxy_ReadOnly<bool>(this, "show-value");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy<double> Regler::property_value_xalign() 
+{
+  return Glib::PropertyProxy<double>(this, "value-xalign");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly<double> Regler::property_value_xalign() const
+{
+  return Glib::PropertyProxy_ReadOnly<double>(this, "value-xalign");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly<int> Regler::property_digits() const
+{
+  return Glib::PropertyProxy_ReadOnly<int>(this, "digits");
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 
@@ -338,6 +475,18 @@ bool Gxw::Regler::on_value_entry(const Gdk::Rectangle& p1, GdkEventButton* p2)
     return (*base->value_entry)(gobj(),const_cast<GdkRectangle*>(p1.gobj()),p2);
 
   typedef bool RType;
+  return RType();
+}
+Glib::ustring Gxw::Regler::on_format_value(double value)
+{
+  BaseClassType *const base = static_cast<BaseClassType*>(
+      g_type_class_peek_parent(G_OBJECT_GET_CLASS(gobject_)) // Get the parent class of the object class (The original underlying C class).
+  );
+
+  if(base && base->format_value)
+    return Glib::convert_const_gchar_ptr_to_ustring((*base->format_value)(gobj(),value));
+
+  typedef Glib::ustring RType;
   return RType();
 }
 #endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED

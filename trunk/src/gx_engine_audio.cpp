@@ -626,7 +626,7 @@ void process_insert_buffers (int count, float* input1, float* output0, float* ou
 		    gx_jconv::GxJConvSettings::checkbutton7 = 0;
 		    cout << "overload" << endl;
 		    //FIXME error message??
-	    } else if (jconv_post::is_inited()) {
+	    } else {
 		    jconv_post::compute(count, output0, output1, conv_out0, conv_out1, output0, output1);
 	    }
     } else {

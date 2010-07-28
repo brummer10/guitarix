@@ -103,7 +103,7 @@ def build(bld):
             target = 'gxw',
             chmod=0755,
             )
-        if bld.env["GX_LIB_SHARED"]:
+        if bld.env["GX_LIB_SHARED"] or bld.env["GXW_SHARED_INSTALL"]:
             prog.features.append('libtool')
             prog.type = 'cshlib'
             prog.vnum = "0.1"

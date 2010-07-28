@@ -109,6 +109,8 @@ private:
 	
   double cp_get_value();
 	
+  int cp_get_int_value();
+	
   Glib::ustring cp_get_var();
 	
   void cp_set_var(Glib::ustring);
