@@ -1672,8 +1672,9 @@ void gx_ir_edit_set_ir_data(GxIREdit *ir_edit, float *data, int chan, int len, i
 	}
 }
 
-void gx_ir_edit_set_state(GxIREdit *ir_edit, float *data, int chan, int data_len, int samplerate,
-                          int cutoff_low, int cutoff_high, int offset, gain_points *gains, int gains_len)
+void gx_ir_edit_set_state(
+	GxIREdit *ir_edit, float *data, int chan, int data_len, int samplerate,
+	int cutoff_low, int cutoff_high, int offset, const gain_points *gains, int gains_len)
 {
 	g_assert(GX_IS_IR_EDIT(ir_edit));
 	ir_edit_reset(ir_edit);
@@ -1681,8 +1682,7 @@ void gx_ir_edit_set_state(GxIREdit *ir_edit, float *data, int chan, int data_len
 	ir_edit_set_cutoff_low(ir_edit, cutoff_low);
 	ir_edit->cutoff_high = cutoff_high;
 	ir_edit->offset = offset;
-	ir_edit->gains = gains;
-	ir_edit->gains_len = gains_len;
+	gx_ir_edit_set_gain(ir_edit, gains, gains_len);
 	ir_edit_prepare_data(ir_edit);
 	ir_edit_configure_axes(ir_edit);
 	gx_ir_edit_home(ir_edit);
@@ -1822,7 +1822,7 @@ void gx_ir_edit_get_gain(GxIREdit *ir_edit, gain_points **gains, gint *len)
 	*len = ir_edit->gains_len;
 }
 
-void gx_ir_edit_set_gain(GxIREdit *ir_edit, gain_points *gains, gint len)
+void gx_ir_edit_set_gain(GxIREdit *ir_edit, const gain_points *gains, gint len)
 {
 	g_return_if_fail(GX_IS_IR_EDIT(ir_edit));
 	if (!ir_edit->odata) {

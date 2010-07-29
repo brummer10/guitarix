@@ -1399,12 +1399,13 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 	if (gx_jconv::GxJConvSettings::checkbutton7 == 0) {
 		gx_engine::conv.stop();
 	} else {
+		gx_jconv::gx_save_jcgui();
 		gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
 		bool rc = gx_engine::conv.configure(
 			gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
 			jcset->getGain(), jcset->getlGain(), jcset->getDelay(), jcset->getlDelay(),
 			jcset->getOffset(), jcset->getLength(), jcset->getMem(), jcset->getBufferSize(),
-			jcset->getGainline(), jcset->getGainCnt());
+			jcset->getGainline());
 		if (!rc || !gx_engine::conv.start()) {
 			gx_jconv::GxJConvSettings::checkbutton7 = 0;
 		}
@@ -1809,7 +1810,8 @@ private:
 public:
 	Gtk::Window window;
 	Gtk::HBox box;
-	Gxw::PaintBox box4;
+	Gxw::PaintBox paintbox;
+	Gtk::VBox box4;
 	Gtk::HBox box5;
 	UiSwitch unit_on_off;
 	Gtk::Frame frame;
@@ -1858,8 +1860,7 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog,
 	box.set_border_width(2);
 	box4.set_spacing(4);
 	box4.set_border_width(8);
-	box4.property_orientation() = Gtk::ORIENTATION_VERTICAL;
-	box4.property_paint_func() = pb_rectangle_expose;
+	paintbox.property_paint_func() = pb_rectangle_expose;
 	Pango::FontDescription font = label.get_style()->get_font();
 	font.set_size(10*Pango::SCALE);
 	font.set_weight(Pango::WEIGHT_NORMAL);
@@ -1876,8 +1877,9 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog,
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_reset_button_pressed));
 	box4.add(box5);
 	box4.add(box);
-	window.add(box4);
-	box4.show_all();
+	paintbox.add(box4);
+	window.add(paintbox);
+	paintbox.show_all();
 	dialog_button.signal_toggled().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
 }
@@ -2785,6 +2787,7 @@ void GxMainInterface::addAboutMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowTooltips.gobj()));
 	SwitchParameter *p = new SwitchParameter("system.show_tooltips");
 	fShowTooltips.set_parameter(p);
+	fShowTooltips.set_active(true);
 	p->changed.connect(ptr_fun(set_tooltips));
 
 	/*---------------- End About menu declarations ----------------*/
@@ -2881,7 +2884,6 @@ void GxMainInterface::show()
 
 	gtk_widget_show  (fBox[0]);
 	gtk_widget_show  (fWindow);
-	gx_jconv::gx_setting_jconv_dialog_gui(NULL,NULL);
 }
 
 //---- show main GUI thread and more

@@ -615,7 +615,7 @@ static gboolean gx_convolver_restart(gpointer data)
 	    gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
 	    jcset->getGain(), jcset->getlGain(), jcset->getDelay(), jcset->getlDelay(),
 	    jcset->getOffset(), jcset->getLength(), jcset->getMem(), jcset->getBufferSize(),
-	    jcset->getGainline(), jcset->getGainCnt());
+	    jcset->getGainline());
     if (!rc || !gx_engine::conv.start()) {
         gx_jconv::GxJConvSettings::checkbutton7 = 0;
     }

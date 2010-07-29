@@ -6,6 +6,7 @@ def configure(conf):
 
 def build(bld):
     sources = [
+        'gx_jconv_settings.cpp',
         'gx_main_interface.cpp',
         'gx_interface_builder.cpp',
         'gx_globals.cpp',
@@ -22,14 +23,9 @@ def build(bld):
         'gx_gui_helpers.cpp',
         'gx_threads.cpp',
         'gx_jack.cpp',
-        'gx_jconv_settings.cpp',
         'gx_preset.cpp',
-        'gx_sndfile.cpp',
         'gx_system.cpp',
         'gx_ui.cpp',
-        #'GtkFastMeter.cpp',
-        #'GtkRegler.cpp',
-        'GtkWaveView.cpp',
         'gx_main.cpp',
         ]
 

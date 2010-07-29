@@ -58,7 +58,7 @@ public:
 protected:
 	enum value_type { tp_float, tp_int, tp_bool, tp_switch, tp_file };
 	string _id;
-	string _name, _group;
+	string _name, _group, _desc;
 	enum value_type v_type : 3;
 	enum ctrl_type c_type : 3;
 	bool save_in_preset : 1;
@@ -96,6 +96,8 @@ public:
 	string id() const { return _id; }
 	string group() const { return _group; }
 	string name() const { return _name; }
+	string desc() const { return _desc; }
+	void set_desc(string desc) { _desc = desc; }
 	bool operator==(const Parameter& p) const { return &p == this; }
 	virtual void *zone() = 0;
 	virtual void set_std_value() = 0;

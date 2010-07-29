@@ -60,7 +60,6 @@ const Glib::Class& PaintBox_Class::init()
     register_derived_type(gx_paint_box_get_type());
 
     // Add derived versions of interfaces, if the C type implements any interfaces:
-  Gtk::Orientable::add_interface(get_type());
 
   }
 
@@ -98,13 +97,13 @@ Glib::ObjectBase* PaintBox_Class::wrap_new(GObject* o)
 
 PaintBox::PaintBox(const Glib::ConstructParams& construct_params)
 :
-  Gtk::Box(construct_params)
+  Gtk::Alignment(construct_params)
 {
   }
 
 PaintBox::PaintBox(GxPaintBox* castitem)
 :
-  Gtk::Box((GtkBox*)(castitem))
+  Gtk::Alignment((GtkAlignment*)(castitem))
 {
   }
 
@@ -131,7 +130,7 @@ PaintBox::PaintBox()
 :
   // Mark this class as non-derived to allow C++ vfuncs to be skipped.
   Glib::ObjectBase(0),
-  Gtk::Box(Glib::ConstructParams(paintbox_class_.init()))
+  Gtk::Alignment(Glib::ConstructParams(paintbox_class_.init()))
 {
   
 

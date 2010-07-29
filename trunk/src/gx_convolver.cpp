@@ -204,7 +204,7 @@ void GxConvolverBase::checkstate()
  ** GxConvolver
  */
 
-inline void compute_interpolation(float& fct, float& gp, int& idx, gain_points *points, int offset)
+inline void compute_interpolation(float& fct, float& gp, unsigned int& idx, const Gainline& points, int offset)
 {
 	fct = (points[idx+1].g-points[idx].g)/(20*(points[idx+1].i-points[idx].i));
 	gp = points[idx].g/20 + fct * (offset-points[idx].i);
@@ -214,7 +214,7 @@ inline void compute_interpolation(float& fct, float& gp, int& idx, gain_points *
 bool GxConvolver::read_sndfile (
 	Audiofile& audio, int nchan, int samplerate, const float *gain,
 	unsigned int *delay, unsigned int offset, unsigned int length,
-	gain_points *points, int gain_len)
+	const Gainline& points)
 {
 	unsigned int nfram;
 	float *buff;
@@ -256,12 +256,12 @@ bool GxConvolver::read_sndfile (
 		bufp = buff;
 	}
 	bool done = false;
-	int idx = 0; // current index in gainline point array
+	unsigned int idx = 0; // current index in gainline point array
 	float gp = 1.0, fct = 0.0; // calculated parameter of interpolation line
-	if (gain_len) {
+	if (points.size()) {
 		while ((unsigned int)points[idx].i < offset) {
 			idx++;
-			assert(idx < gain_len);
+			assert(idx < points.size());
 		}
 		if ((unsigned int)points[idx].i > offset) {
 			idx--;
@@ -281,11 +281,10 @@ bool GxConvolver::read_sndfile (
 				return false;
 			}
 			for (unsigned int ix = 0; ix < nfram; ix++) {
-				if (idx < gain_len-1 && (unsigned int)points[idx].i == offset + ix) {
+				if (idx+1 < points.size() && (unsigned int)points[idx].i == offset + ix) {
 					compute_interpolation(fct, gp, idx, points, offset);
 				}
 				for (int ichan = 0; ichan < nchan; ichan++) {
-					cout << (gp + ix*fct) * 20 << endl;
 					buff[ix*nchan+ichan] *= pow(10, gp + ix*fct) * gain[ichan];
 				}
 			}
@@ -336,7 +335,7 @@ bool GxConvolver::configure(
 	unsigned int count, int samplerate, string fname, float gain, float lgain,
 	unsigned int delay, unsigned int ldelay, unsigned int offset,
 	unsigned int length, unsigned int size, unsigned int bufsize,
-	gain_points *points, int gain_len)
+	const Gainline& points)
 {
     Audiofile     audio;
     cleanup();
@@ -366,7 +365,7 @@ bool GxConvolver::configure(
 	}
 	float gain_a[2] = {gain, lgain};
 	unsigned int delay_a[2] = {delay, ldelay};
-	return read_sndfile(audio, 2, samplerate, gain_a, delay_a, offset, length, points, gain_len);
+	return read_sndfile(audio, 2, samplerate, gain_a, delay_a, offset, length, points);
 }
 
 bool GxConvolver::compute(int count, float* input1, float *input2, float *output1, float *output2)

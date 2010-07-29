@@ -25,7 +25,8 @@
  */
 
 #include <gtkmm/drawingarea.h>
-#include <gxw/gainpoints.h>
+#include <gxwmm/gainline.h>
+#include <vector>
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -99,11 +100,13 @@ protected:
 private:
 
 	public:
+	void set_state(float *data, int chan, int data_len, int samplerate, int cutoff_low, int cutoff_high, int offset, const Gainline& gain);
+	Gainline get_gain();
+	void set_gain(const Gainline& gain);
+
 	IREdit();
 	
   void set_ir_data(float*, int, int, int);
-	
-  void set_state(float*, int, int, int, int, int, int, gain_points*, int);
 	
   void home();
 	
@@ -128,10 +131,6 @@ private:
   int get_length();
 	
   void set_length(int);
-	
-  void get_gain(gain_points**, int*);
-	
-  void set_gain(gain_points*, int);
 	
   /**
    * @par Prototype:

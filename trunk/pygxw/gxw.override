@@ -15,7 +15,7 @@ import gtk.Range as PyGtkRange_Type
 import gtk.ToggleButton as PyGtkToggleButton_Type
 import gtk.RadioButton as PyGtkRadioButton_Type
 import gtk.Misc as PyGtkMisc_Type
-import gtk.Box as PyGtkBox_Type
+import gtk.Alignment as PyGtkAlignment_Type
 import gtk.Widget as PyGtkWidget_Type
 import gtk.Label as PyGtkLabel_Type
 import gtk.TreeModel as PyGtkTreeModel_Type

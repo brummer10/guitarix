@@ -31,36 +31,15 @@
 
 #pragma once
 
-#include <gxw/gainpoints.h>
+#include <gxwmm/gainline.h>
 
 namespace gx_jconv
 {
-// read mode
-typedef enum {
-	kJConvCopy = 0,
-	kJConvRead = 1
-} GxJConvMode;
-
-// parameter type
-typedef enum {
-	kJConvGain = 0,
-	kJConvlGain,
-	kJConvMem,
-	kJConvBuffersize,
-	kJConvMode,
-	kJConvOffset,
-	kJConvLength,
-	kJConvDelay,
-	kJConvlDelay
-} GxJConvParamType;
 
 /* GUI stuff  */
 void gx_reload_jcgui();
+void gx_save_jcgui();
 void gx_show_jconv_dialog_gui (GtkWidget *, gpointer );
-void gx_setting_jconv_dialog_gui(GtkWidget*, gpointer);
-void gx_acquire_jconv_value     (GtkWidget*, gpointer);
-void gx_resample_jconv_ir       (GtkWidget*, gpointer);
-void gx_select_and_draw_jconv_ir(GtkWidget*, gpointer);
 
 /* main class */
 class GxJConvSettings
@@ -73,14 +52,12 @@ private:
 	float           fGain;       // jconv gain
 	float           flGain;       // jconv left gain
 	guint           fMem;        // memory partition
-	GxJConvMode     fMode;       // mode (copy or read)
 	jack_nframes_t  fBufferSize; // frag
 	guint           fOffset;     // offset in IR where to start comvolution
 	guint           fLength;     // length of the IR to use for convolution
 	guint           fDelay;      // delay when to apply reverb
 	guint           flDelay;      // left channel delay when to apply reverb
-	gain_points    *gainline;
-	int             gain_cnt;
+	Gainline        gainline;
 
 	void read_gainline(gx_system::JsonParser& jp);
 	void copy(const GxJConvSettings& s);
@@ -93,9 +70,6 @@ private:
 
 public:
 	GxJConvSettings(gx_system::JsonParser& jp);
-	GxJConvSettings(const GxJConvSettings& s);
-	GxJConvSettings& operator=(const GxJConvSettings& s);
-	~GxJConvSettings();
 
 	// getters and setters
 	inline string getIRFile() const { return fIRFile; }
@@ -109,14 +83,12 @@ public:
 	inline float          getGain      () const { return fGain;       }
 	inline float          getlGain     () const { return flGain;       }
 	inline guint          getMem       () const { return fMem;        }
-	inline GxJConvMode    getMode      () const { return fMode;       }
 	inline jack_nframes_t getBufferSize() const { return fBufferSize; }
 	inline guint          getOffset    () const { return fOffset;     }
 	inline guint          getLength    () const { return fLength;     }
 	inline guint          getDelay     () const { return fDelay;      }
 	inline guint          getlDelay    () const { return flDelay;      }
-	inline gain_points*   getGainline  () const { return gainline;    }
-	inline int            getGainCnt   () const { return gain_cnt;    }
+	inline const Gainline& getGainline  () const { return gainline;    }
 
 	inline void setIRFile    (string         name) { fIRFile     = name; }
 	inline void setIRDir     (string         name) { fIRDir      = name; }
@@ -131,20 +103,20 @@ public:
 			flGain       = gain*0.01;
 		}
 	inline void setMem       (guint          mem ) { fMem        = mem;  }
-	inline void setMode      (GxJConvMode    mode) { fMode       = mode; }
 	inline void setBufferSize(jack_nframes_t bs)   { fBufferSize = bs;   }
 	inline void setOffset    (guint          offs) { fOffset     = offs; }
 	inline void setLength    (guint          leng) { fLength     = leng; }
 	inline void setDelay     (guint          del)  { fDelay      = del;  }
 	inline void setlDelay    (guint          del)  { flDelay     = del;  }
-	void setGainline(gain_points *p, int n);
+	inline void setGainline  (const Gainline& gain){ gainline    = gain; }
 
 	// internal setting manipulation
+private:
 	inline bool isValid()  { return fValidSettings;  }
 	void validate();
 	void invalidate();
 	void resetSetting();
-
+public:
 
 	// --------------- instanciation of jconv handler
 	static inline GxJConvSettings* instance()
@@ -158,9 +130,6 @@ public:
 
 	// checkbutton state
 	static float checkbutton7;
-
-	// dump parameters on demand to stderr
-	void dumpParameters();
 
 	void writeJSON(gx_system::JsonWriter& w);
 };

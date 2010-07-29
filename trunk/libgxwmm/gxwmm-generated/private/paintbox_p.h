@@ -4,7 +4,7 @@
 #define _GXWMM_PAINTBOX_P_H
 
 
-#include <gtkmm/private/box_p.h>
+#include <gtkmm/private/alignment_p.h>
 
 #include <glibmm/class.h>
 
@@ -18,8 +18,8 @@ public:
   typedef PaintBox CppObjectType;
   typedef GxPaintBox BaseObjectType;
   typedef GxPaintBoxClass BaseClassType;
-  typedef Gtk::Box_Class CppClassParent;
-  typedef GtkBoxClass BaseClassParent;
+  typedef Gtk::Alignment_Class CppClassParent;
+  typedef GtkAlignmentClass BaseClassParent;
 
   friend class PaintBox;
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

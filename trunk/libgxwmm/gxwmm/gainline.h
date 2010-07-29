@@ -16,18 +16,20 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __GAINPOINTS_H__
-#define __GAINPOINTS_H__
+#ifndef __GAINLINE_H__
+#define __GAINLINE_H__
 
-G_BEGIN_DECLS
+#include <gxw/gainpoints.h>
+#include <vector>
 
-typedef struct _gain_points gain_points;
+inline bool operator==(const gain_points& p1, const gain_points& p2) { return p1.i == p2.i && p1.g == p2.g; }
 
-struct _gain_points {
-	int i;
-	double g;
+class Gainline: public std::vector<gain_points>
+{
+public:
+	Gainline(gain_points *p, int n) { while (n-- > 0) push_back(*p++); }
+	Gainline() {}
+	const gain_points *points() const { return &at(0); }
 };
 
-G_END_DECLS
-
-#endif /* __GAINPOINTS_H__ */
+#endif /* __GAINLINE_H__ */

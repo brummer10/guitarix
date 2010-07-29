@@ -24,6 +24,33 @@
 
 #include <gxw/GxIREdit.h>
 
+namespace Gxw
+{
+
+void IREdit::set_state(
+	float *data, int chan, int data_len, int samplerate, int cutoff_low,
+	int cutoff_high, int offset, const Gainline& gain)
+{
+	gx_ir_edit_set_state(
+		gobj(), data, chan, data_len, samplerate, cutoff_low, cutoff_high,
+		offset, gain.points(), gain.size());
+}
+
+Gainline IREdit::get_gain()
+{
+	gain_points* p;
+	int n;
+	gx_ir_edit_get_gain(gobj(), &p, &n); 
+	return Gainline(p, n);
+}
+
+void IREdit::set_gain(const Gainline& g)
+{
+	gx_ir_edit_set_gain(gobj(), g.points(), g.size()); 
+}
+
+} // namespace Gxw
+
 namespace
 {
 
@@ -311,11 +338,6 @@ void IREdit::set_ir_data(float* p1, int p2, int p3, int p4)
 gx_ir_edit_set_ir_data(gobj(), p1, p2, p3, p4); 
 }
 
-void IREdit::set_state(float* p1, int p2, int p3, int p4, int p5, int p6, int p7, gain_points* p8, int p9)
-{
-gx_ir_edit_set_state(gobj(), p1, p2, p3, p4, p5, p6, p7, p8, p9); 
-}
-
 void IREdit::home()
 {
 gx_ir_edit_home(gobj()); 
@@ -374,16 +396,6 @@ int IREdit::get_length()
 void IREdit::set_length(int p1)
 {
 gx_ir_edit_set_length(gobj(), p1); 
-}
-
-void IREdit::get_gain(gain_points** p1, int* p2)
-{
-gx_ir_edit_get_gain(gobj(), p1, p2); 
-}
-
-void IREdit::set_gain(gain_points* p1, int p2)
-{
-gx_ir_edit_set_gain(gobj(), p1, p2); 
 }
 
 

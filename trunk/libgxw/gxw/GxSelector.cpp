@@ -52,6 +52,7 @@ static void gx_selector_set_property(
 static void gx_selector_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 static gboolean gx_selector_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event);
+static void gx_selector_style_set(GtkWidget *widget, GtkStyle *previous_style);
 
 G_DEFINE_TYPE(GxSelector, gx_selector, GX_TYPE_REGLER);
 
@@ -69,6 +70,7 @@ static void gx_selector_class_init(GxSelectorClass *klass)
 	widget_class->leave_notify_event = gx_selector_leave_out;
 	widget_class->expose_event = gx_selector_expose;
 	widget_class->size_request = gx_selector_size_request;
+	widget_class->style_set = gx_selector_style_set;
 	widget_class->button_press_event = gx_selector_button_press;
 	regler_class->value_entry = gx_selector_value_entry;
 	g_object_class_install_property(
@@ -123,8 +125,8 @@ static void gx_selector_get_positions(
 	int x = widget->allocation.x + widget->style->xthickness +(widget->allocation.width - width) / 2;
 	int y = widget->allocation.y + widget->style->ythickness + (widget->allocation.height - height) / 2;
 	arrow->x = x + width - 2 * widget->style->xthickness - selector_border.right - arrow_width;
-	arrow->y = y + selector_border.bottom - widget->style->ythickness - border +
-		(height - selector_border.bottom - selector_border.top - arrow_height) / 2;
+	arrow->y = y + selector_border.bottom - widget->style->ythickness +
+		(height - selector_border.bottom - selector_border.top - arrow_height - border) / 2;
 	arrow->width = arrow_width;
 	arrow->height = arrow_height + 2*border;
 	*yborder = border;
@@ -179,15 +181,15 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 	cairo_destroy(cr);
 	if (selector->model) {
 		gint x, y;
-		PangoRectangle ink;
+		PangoRectangle logical;
 		char *s;
 		GtkTreeIter iter;
 		gtk_tree_model_iter_nth_child(selector->model, &iter, NULL, selectorstate);
 		gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
 		pango_layout_set_text(layout, s, -1);
-		pango_layout_get_pixel_extents(layout, &ink, NULL);
-		x = text.x + off_x + (priv->textsize.width - ink.width) / 2;
-		y = text.y + off_y + (priv->textsize.height- ink.height)/ 2;
+		pango_layout_get_pixel_extents(layout, NULL, &logical);
+		x = text.x + off_x + (priv->textsize.width - logical.width) / 2;
+		y = text.y + off_y + (priv->textsize.height- logical.height)/ 2;
 		gtk_paint_layout(widget->style, widget->window, gtk_widget_get_state(widget),
 		                 FALSE, NULL, widget, "label", x, y, layout);
 		g_free(s);
@@ -222,6 +224,12 @@ static gboolean gx_selector_enter_in (GtkWidget *widget, GdkEventCrossing *event
 	gx_selector_draw_arrow(&rect, yborder, cr, TRUE);
 	cairo_destroy(cr);
 	return TRUE;
+}
+
+static void gx_selector_style_set(GtkWidget *widget, GtkStyle *previous_style)
+{
+	GxSelectorPrivate *priv = GX_SELECTOR_GET_PRIVATE(widget);
+	priv->req_ok = FALSE;
 }
 
 static void gx_selector_size_request(GtkWidget *widget, GtkRequisition *requisition)

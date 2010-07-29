@@ -16,17 +16,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <gtkmm/box.h>
-#include <gtkmm/orientable.h>
+#include <gtkmm/alignment.h>
 
 _DEFS(gxwmm,gxw)
-_PINCLUDE(gtkmm/private/box_p.h)
+_PINCLUDE(gtkmm/private/alignment_p.h)
 
 namespace Gxw {
 
-class PaintBox: public Gtk::Box, public Gtk::Orientable {
-	_CLASS_GTKOBJECT(PaintBox,GxPaintBox,GX_PAINT_BOX,Gtk::Box,GtkBox)
-	_IMPLEMENTS_INTERFACE(Gtk::Orientable)
+class PaintBox: public Gtk::Alignment {
+	_CLASS_GTKOBJECT(PaintBox,GxPaintBox,GX_PAINT_BOX,Gtk::Alignment,GtkAlignment)
 	public:
 	_CTOR_DEFAULT
 	_WRAP_PROPERTY(paint-func, Glib::ustring)

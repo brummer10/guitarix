@@ -19,7 +19,7 @@
 #ifndef __GX_PAINT_BOX_H__
 #define __GX_PAINT_BOX_H__
 
-#include <gtk/gtkbox.h>
+#include <gtk/gtkalignment.h>
 
 G_BEGIN_DECLS
 
@@ -34,13 +34,13 @@ typedef struct _GxPaintBox GxPaintBox;
 typedef struct _GxPaintBoxClass GxPaintBoxClass;
 
 struct _GxPaintBox {
-	GtkBox box;
+	GtkAlignment alignment;
 	gchar *paint_func;
 	gboolean (*expose_func)(GtkWidget*, GdkEventExpose*);
 };
 
 struct _GxPaintBoxClass {
-	GtkBoxClass parent_class;
+	GtkAlignmentClass parent_class;
 };
 
 GType gx_paint_box_get_type(void) G_GNUC_CONST;

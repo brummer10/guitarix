@@ -108,8 +108,9 @@ struct _GxIREditClass {
 GType gx_ir_edit_get_type(void);
 
 void gx_ir_edit_set_ir_data(GxIREdit *ir_edit, float *data, int chan, int len, int samplerate);
-void gx_ir_edit_set_state(GxIREdit *ir_edit, float *data, int chan, int data_len, int samplerate,
-                          int cutoff_low, int cutoff_high, int offset, gain_points *gains, int gains_len);
+void gx_ir_edit_set_state(
+	GxIREdit *ir_edit, float *data, int chan, int data_len, int samplerate,
+	int cutoff_low, int cutoff_high, int offset, const gain_points *gains, int gains_len);
 
 void gx_ir_edit_home(GxIREdit *ir_edit);
 void gx_ir_edit_jump_zoom_mark(GxIREdit *ir_edit);
@@ -125,7 +126,7 @@ void gx_ir_edit_set_offset(GxIREdit *ir_edit, gint offset);
 gint gx_ir_edit_get_length(GxIREdit *ir_edit);
 void gx_ir_edit_set_length(GxIREdit *ir_edit, gint length);
 void gx_ir_edit_get_gain(GxIREdit *ir_edit, gain_points **gains, gint *len);
-void gx_ir_edit_set_gain(GxIREdit *ir_edit, gain_points *gains, gint len);
+void gx_ir_edit_set_gain(GxIREdit *ir_edit, const gain_points *gains, gint len);
 
 G_END_DECLS
 

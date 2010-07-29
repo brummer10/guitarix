@@ -82,11 +82,12 @@ def process_hg(self, node):
         self.allnodes.append(cc_node)
 
 def header2defs(task):
-    sources = " ".join(["'%s'" % v.srcpath(task.env) for v in task.inputs])
+    sources = " ".join(["'%s'" % v.srcpath(task.env) for v in task.inputs[1:]])
     path = task.generator.path
     dst = task.outputs[0].bldpath(task.env)
-    cmd = ("python '%s'/h2def.py -m gxw %s > '%s'"
-           % (task.env["CODEGENDIR"], sources, dst))
+    flt = task.inputs[0].srcpath(task.env)
+    cmd = ("python '%s'/h2def.py -f '%s' -m gxw %s > '%s'"
+           % (task.env["CODEGENDIR"], flt, sources, dst))
     Logs.debug("runner: system command -> %s" % cmd)
     return Utils.exec_command(cmd, shell=True)
 
@@ -136,7 +137,7 @@ def build_generate_wrapper(bld):
         )
     bld(name = "mthdefs",
         rule = header2defs,
-        source = header,
+        source = ['filter.defs']+header,
         target = "methods.defs",
         )
     bld(name = "enumdefs",
