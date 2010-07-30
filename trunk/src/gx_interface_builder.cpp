@@ -1524,7 +1524,7 @@ void GxMainInterface::setup()
                                                         closeBox();
                                                     }
                                                     closeBox();
-                                                    create_switch(sw_minitoggle, "cab.on_off","   Cab-ImpResp              ", Gtk::POS_RIGHT);
+                                                    create_cab_switch("cab.on_off","   Cab-ImpResp              ");
 												}
 												closeBox();
 												openSlooperBox("limiter");

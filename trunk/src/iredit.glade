@@ -35,16 +35,6 @@
                         <child>
                           <object class="GxIREdit" id="iredit">
                             <property name="visible">True</property>
-                            <property name="tooltip_text" translatable="yes">drag top scale to set delay / offset
-drag graph area to move left / right
-drag triangle at bottom to move mark / zoom center
-scroll wheel to zoom in / out
-mousebutton right: switch between 2 predefined scales
-ctrl mousebutton left to cut left
-ctrl mousebutton right to cut right
-gain line (initially just a green line at the top + corner areas)
-   left mouse button: drag point, click at line to add new point
-   right mouse button: delete point</property>
                             <property name="double_buffered">False</property>
                             <property name="scale">0</property>
                             <property name="no_data_text">&lt;span font_desc="Sans bold 20" foreground="#666666"&gt;No file selected

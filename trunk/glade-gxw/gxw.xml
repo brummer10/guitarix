@@ -17,7 +17,16 @@
     <glade-widget-class title="Mini Slider" name="GxMiniSlider" generic-name="gxminislider" />
     <glade-widget-class title="Big Knob" name="GxBigKnob" generic-name="gxbigknob" />
     <glade-widget-class title="Small Knob" name="GxSmallKnob" generic-name="gxsmallknob" />
-    <glade-widget-class title="Paint Box" name="GxPaintBox" generic-name="gxpaintbox" />
+    <glade-widget-class title="Paint Box" name="GxPaintBox" generic-name="gxpaintbox">
+      <properties>
+	<property id="paint-func">
+	  <parameter-spec>
+	    <type>GParamEnum</type>
+            <value-type>GxPaintFunc</value-type>
+	  </parameter-spec>
+	</property>
+      </properties>
+    </glade-widget-class>
     <glade-widget-class title="Meter Scale" name="GxMeterScale" generic-name="gxmeterscale" />
     <glade-widget-class title="Value Display" name="GxValueDisplay" generic-name="gxvaluedisplay" />
   </glade-widget-classes>

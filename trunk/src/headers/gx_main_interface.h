@@ -114,7 +114,7 @@ class UiRegler: gx_ui::GxUiItem, protected Gtk::Adjustment
 {
 protected:
 	Gxw::Regler *m_regler;
-	virtual void on_value_changed();
+	void on_value_changed();
 	virtual void reflectZone();
 public:
 	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value);
@@ -123,14 +123,14 @@ public:
 	GtkWidget *get_widget() { return GTK_WIDGET(m_regler->gobj()); }
 };
 
-class UiSelector: UiRegler
+class UiSelector: public UiRegler
 {
 public:
 	static GtkWidget* create(gx_ui::GxUI& ui, string id);
 	UiSelector(gx_ui::GxUI& ui, FloatParameter &param, Gxw::Selector* sel);
 };
 
-class UiReglerWithCaption: UiRegler
+class UiReglerWithCaption: public UiRegler
 {
 private:
 	Gtk::Label m_label;
@@ -148,7 +148,7 @@ private:
 	float *get_vp(Parameter &param) { return param.isFloat() ? &param.getFloat().value : (float*)&param.getInt().value; /*FIXME*/}
 protected:
 	float fparam;
-	virtual void on_toggled();
+	void on_toggled();
 	virtual void reflectZone();
 public:
 	static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id);
@@ -156,7 +156,7 @@ public:
 	GtkWidget *get_widget() { return GTK_WIDGET(gobj()); }
 };
 
-class UiSwitchWithCaption: UiSwitch
+class UiSwitchWithCaption: public UiSwitch
 {
 private:
 	Gtk::Label m_label;
@@ -170,6 +170,15 @@ public:
 	                    Glib::ustring label, Gtk::PositionType pos);
 	~UiSwitchWithCaption();
 	GtkWidget *get_widget() { return GTK_WIDGET(m_box->gobj()); }
+};
+
+class UiCabSwitch: public UiSwitchWithCaption
+{
+private:
+	void on_switch_toggled();
+public:
+	static GtkWidget* create(gx_ui::GxUI& ui, string id, Glib::ustring label);
+	UiCabSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label);
 };
 
 struct uiTuner : public gx_ui::GxUiItem, public Gtk::Alignment
@@ -325,7 +334,7 @@ public :
 	void run();
 
 	// widget creation
-	void addwidget(GtkWidget *widget) { gtk_container_add(GTK_CONTAINER(fBox[fTop]), widget); }
+	void addwidget(GtkWidget *widget) { if (widget) gtk_container_add(GTK_CONTAINER(fBox[fTop]), widget); }
 	void create_bigknob(string id)
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::BigKnob(), id, true));
@@ -393,6 +402,10 @@ public :
 	void create_switch(const char *sw_type, string id, Glib::ustring label, Gtk::PositionType pos = Gtk::POS_TOP)
 		{
 			addwidget(UiSwitchWithCaption::create(*this, sw_type, id, label, pos));
+		}
+	void create_cab_switch(string id, Glib::ustring label, Gtk::PositionType pos = Gtk::POS_TOP)
+		{
+			addwidget(UiCabSwitch::create(*this, id, label));
 		}
 };
 

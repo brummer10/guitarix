@@ -561,18 +561,16 @@ float cab_ir_data[] = {
 };
 /**----------------------------- cabinet impulse response data end --------------------------------**/
 
-void gx_cab_res(GtkWidget *widget, gpointer obj)
+void UiCabSwitch::on_switch_toggled()
 {
-    GtkWidget *wid = (GtkWidget *)obj;
-	if (!gtk_range_get_value(GTK_RANGE(wid))) {
+	if (!get_active()) {
 		gx_engine::cab_conv.stop();
 	} else {
 		bool rc = gx_engine::cab_conv.configure(cab_ir_count, cab_ir_data, cab_ir_sr);
 		if (!rc || !gx_engine::cab_conv.start()) {
-			gtk_range_set_value(GTK_RANGE(wid), 0);
+			set_active(false);
 		}
 	}
-
 }
 
 //----- systray menu

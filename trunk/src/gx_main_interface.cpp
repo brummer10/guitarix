@@ -1402,10 +1402,9 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 		gx_jconv::gx_save_jcgui();
 		gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
 		bool rc = gx_engine::conv.configure(
-			gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
-			jcset->getGain(), jcset->getlGain(), jcset->getDelay(), jcset->getlDelay(),
-			jcset->getOffset(), jcset->getLength(), jcset->getMem(), jcset->getBufferSize(),
-			jcset->getGainline());
+			gx_jack::jack_bs, gx_jack::jack_sr, jcset->getFullIRPath(),
+			jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
+			jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline());
 		if (!rc || !gx_engine::conv.start()) {
 			gx_jconv::GxJConvSettings::checkbutton7 = 0;
 		}
@@ -1746,6 +1745,20 @@ UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, P
 UiSwitchWithCaption::~UiSwitchWithCaption()
 {
 	delete m_box;
+}
+
+UiCabSwitch::UiCabSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label):
+	UiSwitchWithCaption(ui, sw_minitoggle, param, label, Gtk::POS_RIGHT)
+{
+	signal_toggled().connect(sigc::mem_fun(*this, &UiCabSwitch::on_switch_toggled));
+}
+
+GtkWidget* UiCabSwitch::create(gx_ui::GxUI& ui, string id, Glib::ustring label)
+{
+	if (!parameter_map.hasId(id)) {
+		return 0;
+	}
+	return (new UiCabSwitch(ui, parameter_map[id], label))->get_widget();
 }
 
 void GxMainInterface::addNumEntry(const char* label, float* zone, float init, float min, float max, float step)

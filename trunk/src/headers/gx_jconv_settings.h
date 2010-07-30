@@ -50,17 +50,15 @@ private:
 	string          fIRDir;
 
 	float           fGain;       // jconv gain
-	float           flGain;       // jconv left gain
-	guint           fMem;        // memory partition
-	jack_nframes_t  fBufferSize; // frag
 	guint           fOffset;     // offset in IR where to start comvolution
 	guint           fLength;     // length of the IR to use for convolution
 	guint           fDelay;      // delay when to apply reverb
-	guint           flDelay;      // left channel delay when to apply reverb
 	Gainline        gainline;
 
 	void read_gainline(gx_system::JsonParser& jp);
-	void copy(const GxJConvSettings& s);
+	inline string getIRDir () const { return fIRDir;  }
+	inline void setIRFile    (string         name) { fIRFile     = name; }
+	inline void setIRDir     (string         name) { fIRDir      = name; }
 
 	// private constructor (don't call it, call instance())
 	GxJConvSettings();
@@ -73,49 +71,27 @@ public:
 
 	// getters and setters
 	inline string getIRFile() const { return fIRFile; }
-	inline string getIRDir () const { return fIRDir;  }
-
-	inline string getFullIRPath() const {
-		static string slash = "/";
-		return fIRDir + slash + fIRFile;
-	}
-
+	inline string getFullIRPath() const { return Glib::build_filename(fIRDir, fIRFile); }
 	inline float          getGain      () const { return fGain;       }
-	inline float          getlGain     () const { return flGain;       }
-	inline guint          getMem       () const { return fMem;        }
-	inline jack_nframes_t getBufferSize() const { return fBufferSize; }
 	inline guint          getOffset    () const { return fOffset;     }
 	inline guint          getLength    () const { return fLength;     }
 	inline guint          getDelay     () const { return fDelay;      }
-	inline guint          getlDelay    () const { return flDelay;      }
 	inline const Gainline& getGainline  () const { return gainline;    }
 
-	inline void setIRFile    (string         name) { fIRFile     = name; }
-	inline void setIRDir     (string         name) { fIRDir      = name; }
-	inline void setGain      (float          gain)
+	inline void setFullIRPath(string name)
 		{
-			gain = round(gain*100);
-			fGain       = gain*0.01;
+			fIRDir = Glib::path_get_dirname(name);
+			fIRFile= Glib::path_get_basename(name);
 		}
-	inline void setlGain      (float          gain)
-		{
-			gain = round(gain*100);
-			flGain       = gain*0.01;
-		}
-	inline void setMem       (guint          mem ) { fMem        = mem;  }
-	inline void setBufferSize(jack_nframes_t bs)   { fBufferSize = bs;   }
+	inline void setGain      (float          gain) { fGain       = gain; }
 	inline void setOffset    (guint          offs) { fOffset     = offs; }
 	inline void setLength    (guint          leng) { fLength     = leng; }
 	inline void setDelay     (guint          del)  { fDelay      = del;  }
-	inline void setlDelay    (guint          del)  { flDelay     = del;  }
 	inline void setGainline  (const Gainline& gain){ gainline    = gain; }
 
 	// internal setting manipulation
 private:
 	inline bool isValid()  { return fValidSettings;  }
-	void validate();
-	void invalidate();
-	void resetSetting();
 public:
 
 	// --------------- instanciation of jconv handler
@@ -134,4 +110,3 @@ public:
 	void writeJSON(gx_system::JsonWriter& w);
 };
 } /* end of gx_jconv namespace*/
-

@@ -25,3 +25,30 @@ void glade_gx_init (const char *name)
 	gtk_icon_theme_append_search_path(
 		gtk_icon_theme_get_default(), GX_ICON_DIR);
 }
+
+GType gx_paint_func_get_type(void)
+{
+	static GType etype = 0;
+	if (G_UNLIKELY(etype == 0)) {
+		static const GEnumValue values[] = {
+			{ 0, "amp_expose", "amp expose" },
+			{ 1, "conv_widget_expose", "conv widget expose" },
+			{ 2, "upper_widget_expose", "upper widget expose" },
+			{ 3, "rectangle_expose", "rectangle expose" },
+			{ 4, "rectangle_skin_color_expose", "rectangle skin color expose" },
+			{ 5, "convolver_icon_expose", "convolver icon expose" },
+			{ 6, "AmpBox_expose", "AmpBox expose" },
+			{ 7, "tribal_box_expose", "tribal box expose" },
+			{ 8, "vbox_expose", "vbox expose" },
+			{ 9, "filter_box_expose", "filter box expose" },
+			{10, "plug_box_expose", "plug box expose" },
+			{11, "info_box_expose_on", "info box expose on" },
+			{12, "info_box_expose_off", "info box expose off" },
+			{13, "slooper_expose", "slooper expose" },
+			{14, "zac_expose", "zac expose" },
+			{ 0, NULL, NULL }
+		};
+		etype = g_enum_register_static (g_intern_static_string ("GxPaintFunc"), values);
+	}
+	return etype;
+}

@@ -171,12 +171,26 @@ GtkWidget *gx_paint_box_new (gboolean homogeneous, gint spacing)
  ** Paint functions
  */
 
+inline double cairo_clr(guint16 clr)
+{
+	return clr / 65535.0;
+}
+
 // set cairo color related to the used skin
 static void set_skin_color(GtkWidget *wi, cairo_pattern_t *pat)
 {
 	GxGradient *grad;
 	gtk_widget_style_get(wi, "skin-gradient", &grad, NULL);
 	if (!grad) {
+		GdkColor *p1 = &wi->style->bg[GTK_STATE_NORMAL];
+		cairo_pattern_add_color_stop_rgba(
+			pat, 0, cairo_clr(p1->red), cairo_clr(p1->green),
+			cairo_clr(p1->blue), 0.8);
+		GdkColor *p2 = &wi->style->fg[GTK_STATE_NORMAL];
+		cairo_pattern_add_color_stop_rgba(
+			pat, 1, (cairo_clr(p1->red)+cairo_clr(p2->red))/2,
+			(cairo_clr(p1->green)+cairo_clr(p2->green))/2,
+			(cairo_clr(p1->blue)+cairo_clr(p2->blue))/2, 0.8);
 		return;
 	}
 	GSList *p;

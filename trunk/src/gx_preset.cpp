@@ -612,10 +612,9 @@ static gboolean gx_convolver_restart(gpointer data)
     while (gx_engine::conv.is_runnable()) gx_engine::conv.checkstate();
     gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
     bool rc = gx_engine::conv.configure(
-	    gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
-	    jcset->getGain(), jcset->getlGain(), jcset->getDelay(), jcset->getlDelay(),
-	    jcset->getOffset(), jcset->getLength(), jcset->getMem(), jcset->getBufferSize(),
-	    jcset->getGainline());
+	    gx_jack::jack_bs, gx_jack::jack_sr, jcset->getFullIRPath(),
+	    jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
+	    jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline());
     if (!rc || !gx_engine::conv.start()) {
         gx_jconv::GxJConvSettings::checkbutton7 = 0;
     }

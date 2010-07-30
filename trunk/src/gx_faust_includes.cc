@@ -122,9 +122,12 @@ void registerVar(const char* id, const char* name, const char* tp,
 		assert(strrchr(id, '.'));
 		name = strrchr(id, '.')+1;
 	}
-	gx_gui::parameter_map.insert(
-		new gx_gui::FloatParameter(
-			id, name, gx_gui::Parameter::Continuous, true, *var, val, low, up, step, true, exp));
+	gx_gui::Parameter *p = new gx_gui::FloatParameter(
+		id, name, gx_gui::Parameter::Continuous, true, *var, val, low, up, step, true, exp);
+	if (tooltip) {
+		p->set_desc(tooltip);
+	}
+	gx_gui::parameter_map.insert(p);
 }
 
 void registerEnumVar(const char *id, const char* name, const char* tp,

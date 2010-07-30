@@ -141,10 +141,9 @@ void gx_convolver_restart()
     while (gx_engine::conv.is_runnable()) gx_engine::conv.checkstate();
     gx_jconv::GxJConvSettings* jcset = GxJConvSettings::instance();
     bool rc = gx_engine::conv.configure(
-	    gx_jack::jack_bs, gx_jack::jack_sr, jcset->getIRDir()+"/"+jcset->getIRFile(),
-	    jcset->getGain(), jcset->getlGain(), jcset->getDelay(), jcset->getlDelay(),
-	    jcset->getOffset(), jcset->getLength(), jcset->getMem(), jcset->getBufferSize(),
-	    jcset->getGainline());
+	    gx_jack::jack_bs, gx_jack::jack_sr, jcset->getFullIRPath(),
+	    jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
+	    jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline());
     if (!rc || !gx_engine::conv.start()) {
         GxJConvSettings::checkbutton7 = 0;
     }
@@ -426,7 +425,7 @@ void IRWindow::load_state()
 	GxJConvSettings& jcset = *GxJConvSettings::instance();
 	load_data(jcset.getFullIRPath());
 	wIredit->set_offset(jcset.getOffset());
-	wIredit->set_delay(min(jcset.getDelay(), jcset.getlDelay()));
+	wIredit->set_delay(jcset.getDelay());
 	wIredit->set_length(jcset.getLength());
 	if (jcset.getGainline().size()) {
 		wIredit->set_gain(jcset.getGainline());
@@ -502,30 +501,22 @@ bool IRWindow::save_state()
 	unsigned int offset = wIredit->get_offset();
 	unsigned int length = wIredit->get_length();
 	unsigned int delay = wIredit->get_delay();
-	string dname = Glib::path_get_dirname(filename);
-	string fname = Glib::path_get_basename(filename);
 	Gainline gainline = wIredit->get_gain();
 	if (offset == jcset.getOffset() &&
-	    delay == jcset.getDelay() && delay == jcset.getlDelay() &&
+	    delay == jcset.getDelay() &&
 	    length == jcset.getLength() &&
-	    jcset.getMem() == 0 && jcset.getBufferSize() == 0 &&
-	    dname == jcset.getIRDir() && fname == jcset.getIRFile() &&
+	    filename == jcset.getFullIRPath() &&
 	    gainline ==  jcset.getGainline()) {
-		// assume gain value is correct when parameters didn't change
+		// assume gain value is already calculated correctly
 		return false;
 	}
 	jcset.setOffset(offset);
 	jcset.setDelay(delay);
-	jcset.setlDelay(delay);
 	jcset.setLength(length);
-	jcset.setMem(0);
-	jcset.setBufferSize(0);
-	jcset.setIRDir(dname);
-	jcset.setIRFile(fname);
+	jcset.setFullIRPath(filename);
 	jcset.setGainline(gainline);
 	float gain = calc_normalized_gain(offset, length);
 	jcset.setGain(gain);
-	jcset.setlGain(gain);
 	return true;
 }
 
@@ -690,6 +681,10 @@ void IRWindow::on_ms_length_changed()
 
 void IRWindow::on_apply_button_clicked()
 {
+	if (!GxJConvSettings::checkbutton7) {
+		GxJConvSettings::checkbutton7 = 1;
+		return;
+	}
 	if (save_state()) {
 		gx_convolver_restart();
 	}
@@ -752,60 +747,11 @@ GxJConvSettings::GxJConvSettings()
 {
 	// default parameters
 	fIRDir      = getenv("HOME");
-	fIRFile     = "nofile";
-
+	fIRFile     = "";
 	fGain       = 0.2;
-	flGain       = 0.2;
-	fMem        = 8000;
-	fBufferSize = gx_jack::jack_bs;
 	fOffset     = 0;
 	fLength     = 0;
 	fDelay      = 0;
-	flDelay      = 0;
-	if (gx_jack::jack_bs == 0) {
-		fBufferSize = 128;
-	}
-	// invalidate due to no IR
-	invalidate();
-}
-
-// --------------- reset internal setting
-void GxJConvSettings::resetSetting()
-{
-	// default parameters
-	fIRDir      = getenv("HOME");
-	fIRFile     = "nofile";
-
-	fGain       = 0.2;
-	flGain       = 0.2;
-	fMem        = 8000;
-	fBufferSize = gx_jack::jack_bs;
-	fOffset     = 0;
-	fLength     = 0;
-	fDelay      = 0;
-	flDelay      = 0;
-	if (gx_jack::jack_bs == 0) {
-		fBufferSize = 128;
-	}
-	// invalidate due to no IR
-	invalidate();
-}
-
-// --------------- attempt to validate the settings
-// Note: for now, simply check that the IR file is a wav file
-void GxJConvSettings::validate()
-{
-	gx_engine::Audiofile audio;
-	fValidSettings = (audio.open_read(getFullIRPath()) == 0 &&
-	                  audio.type() == gx_engine::Audiofile::TYPE_WAV);
-}
-
-
-// --------------- invalidate the settings via IR file
-inline void GxJConvSettings::invalidate()
-{
-	fIRFile = "nofile";
-	fValidSettings = false;
 }
 
 void GxJConvSettings::writeJSON(gx_system::JsonWriter& w)
@@ -814,13 +760,9 @@ void GxJConvSettings::writeJSON(gx_system::JsonWriter& w)
 	w.write_key("jconv.IRFile"); w.write(fIRFile, true);
 	w.write_key("jconv.IRDir"); w.write(fIRDir, true);
 	w.write_key("jconv.Gain"); w.write(fGain, true);
-	w.write_key("jconv.lGain"); w.write(flGain, true);
-	w.write_key("jconv.Mem"); w.write(fMem, true);
-	w.write_key("jconv.BufferSize"); w.write(fBufferSize, true);
 	w.write_key("jconv.Offset"); w.write(fOffset, true);
 	w.write_key("jconv.Length"); w.write(fLength, true);
 	w.write_key("jconv.Delay"); w.write(fDelay, true);
-	w.write_key("jconv.lDelay"); w.write(flDelay, true);
 	w.write_key("jconv.gainline");
 	w.begin_array();
 	for (unsigned int i = 0; i < gainline.size(); i++) {
@@ -864,18 +806,6 @@ GxJConvSettings::GxJConvSettings(gx_system::JsonParser& jp)
 		} else if (jp.current_value() == "jconv.Gain") {
 			jp.next(gx_system::JsonParser::value_number);
 			fGain = jp.current_value_float();
-		} else if (jp.current_value() == "jconv.lGain") {
-			jp.next(gx_system::JsonParser::value_number);
-			flGain = jp.current_value_float();
-		} else if (jp.current_value() == "jconv.Mem") {
-			jp.next(gx_system::JsonParser::value_number);
-			fMem = jp.current_value_int();
-		} else if (jp.current_value() == "jconv.Mode") {
-			jp.next(gx_system::JsonParser::value_number);
-			//fMode = (GxJConvMode)jp.current_value_int(); //FIXME
-		} else if (jp.current_value() == "jconv.BufferSize") {
-			jp.next(gx_system::JsonParser::value_number);
-			fBufferSize = jp.current_value_int();
 		} else if (jp.current_value() == "jconv.Offset") {
 			jp.next(gx_system::JsonParser::value_number);
 			fOffset = jp.current_value_int();
@@ -885,14 +815,11 @@ GxJConvSettings::GxJConvSettings(gx_system::JsonParser& jp)
 		} else if (jp.current_value() == "jconv.Delay") {
 			jp.next(gx_system::JsonParser::value_number);
 			fDelay = jp.current_value_int();
-		} else if (jp.current_value() == "jconv.lDelay") {
-			jp.next(gx_system::JsonParser::value_number);
-			flDelay = jp.current_value_int();
 		} else if (jp.current_value() == "jconv.gainline") {
 			read_gainline(jp);
 		} else {
-			jp.skip_object();
 			gx_system::gx_print_warning("jconv settings", "unknown key: " + jp.current_value());
+			jp.skip_object();
 		}
 	} while (jp.peek() == gx_system::JsonParser::value_key);
 	jp.next(gx_system::JsonParser::end_object);
