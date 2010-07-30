@@ -1257,6 +1257,15 @@ bool gx_version_check()
 		cim = string("echo 'guitarix-") + string(GX_VERSION) + "' >";
 		(void)gx_system_call(cim.c_str(), tmpstr.c_str(), false);
 
+        // create empty preset file
+        tmpstr = gx_user_dir + string("guitarixpre_rc");
+        ofstream nfile(tmpstr.c_str());
+        JsonWriter jw(nfile);
+        jw.begin_array();
+        writeHeader(jw);
+        jw.end_array(true);
+        jw.close();
+        nfile.close();
 
 	}
 

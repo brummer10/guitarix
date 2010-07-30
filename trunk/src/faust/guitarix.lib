@@ -248,8 +248,17 @@ eqfilter(Q,F,G)	= TF2(  (1 +  K/Q + K*K) 	/ D,
 
 ifilter(Q,F,G) = eqfilter(Q,F,-G);
 
-//----- frequency spliter taken from faust-0.9.27 
+
+/****************************************************************
+** backward compatible faust library definitions, may removed when
+** the good versions in wafscript where updated
+*/
+
+//----- frequency spliter (filterbank3) taken from faust-0.9.27 
 //----- include here to be backward compatible to 0.9.24 
+
+highpassN_plus_lowpassN(fc) = tf2s(1,-1,1,1,1,w1)
+with { w1 = 2*PI*fc; };
 
 filterbankN(lfreqs) = _ <: bsplit(nb) with
 {
@@ -266,13 +275,39 @@ filterbankN(lfreqs) = _ <: bsplit(nb) with
 
    lp(n) = lowpass3(fc(n));  // 3rd-order Butterworth
    hp(n) = highpass3(fc(n));
-   ap(n) = highpass3_plus_lowpass3(fc(n));
+   ap(n) = highpassN_plus_lowpassN(fc(n));
 
    bsplit(0) = _;
    bsplit(i) = (hp(i) : delayeq(i-1)), (lp(i) <: bsplit(i-1));
 
    delayeq(0) = _;
    delayeq(i) =  ap(i) : delayeq(i-1);
+};
+
+//----- Flanging effect renamed in faust-0.9.27 from
+//----- flangermono -> flanger_mono
+//----- flangerstereo -> flanger_stereo
+
+flangermonoN(dmax,curdel,depth,fb,invert)
+  = _ <: _, (-:fdelay(dmax,curdel)) ~ *(fb) : _, 
+  *(select2(invert,depth,0-depth)) 
+  : + : *(0.5);
+
+flangerstereoN(dmax,curdel1,curdel2,depth,fb,invert)
+  =  flangermonoN(dmax,curdel1,depth,fb,invert),
+     flangermonoN(dmax,curdel2,depth,fb,invert);
+
+//----- Moog "Voltage Controlled Filter" (VCF)
+//----- filter renamed in faust-0.9.27 from
+//----- moogvcf -> moog_vcf
+
+import("filter.lib");
+
+moogvcfN(res,fr) = (+ : seq(i,4,pole(p)) : *(unitygain(p))) ~ *(mk)
+with {
+     p = 1.0 - fr * 2.0 * PI / SR; // good approximation for fr << SR
+     unitygain(p) = pow(1.0-p,4.0); // one-pole unity-gain scaling
+     mk = 0-4.0*max(0,min(res,0.999999)); // need mk > -4 for stability
 };
 
 /****************************************************************

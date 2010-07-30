@@ -48,6 +48,7 @@ bool gx_jack_init( const string *optvar )
 	client_name = "guitarix_amp";
 	client_insert_name = "guitarix_fx";
 	client_instance = "guitarix";
+	int jack_is_fresh = 0;
 
 	AVOIDDENORMALS;
 
@@ -96,6 +97,7 @@ bool gx_jack_init( const string *optvar )
 				               string("I really tried to get jack up and running, sorry ... "));
 				return false;
 			}
+			jack_is_fresh = 1;
 		}
 
 		else   // we give up
@@ -148,7 +150,7 @@ bool gx_jack_init( const string *optvar )
 	 string window_name = "guitarix";
 		gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), window_name.c_str());
 	}
-
+    if(jack_is_fresh) sleep(8);
 	return true;
 }
 

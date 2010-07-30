@@ -11,6 +11,7 @@ import("filter.lib");
 import("guitarix.lib");
 import("maxmsp.lib");
 
+
 F = nentry("split_low_freq", 250, 20, 600, 10);
 F1 = nentry("split_middle_freq", 650, 600, 1250, 10);
 F2 = nentry("split_high_freq", 1250, 1250, 12000, 10);
@@ -21,19 +22,32 @@ with {
     Q = 1.;
 };
 
-low_s(x) = lowShelf(x,F,G,Q)
+low_s(x) = lowShelf(x,F2,G,Q)
 with {
     G = -24.;
     Q = 1.;
 };
 
-middle_high_s(x) = highShelf(x,F1,G,Q)
+middle_l_high_s(x) = highShelf(x,F1,G,Q)
 with {
     G = -24.;
     Q = 1.;
 };
 
-middle_low_s(x) = lowShelf(x,F,G,Q)
+middle_l_low_s(x) = lowShelf(x,F,G,Q)
+with {
+    G = -24.;
+    Q = 1.;
+};
+
+
+middle_h_high_s(x) = highShelf(x,F2,G,Q)
+with {
+    G = -24.;
+    Q = 1.;
+};
+
+middle_h_low_s(x) = lowShelf(x,F1,G,Q)
 with {
     G = -24.;
     Q = 1.;
@@ -66,12 +80,11 @@ drive1			= vslider("low_drive", 1, 0, 1, 0.01)*drive;
 drive2			= vslider("high_drive", 1, 0, 1, 0.01)*drive;
 drive3			= vslider("middle_l_drive", 1, 0, 1, 0.01)*drive;
 drive4			= vslider("middle_h_drive", 1, 0, 1, 0.01)*drive;
-distortion1 	=  _:cubicnl(drive1,drivelevel): *(low_gain); 
-distortion2 	=  _:cubicnl(drive2,drivelevel) : *(high_gain);
-distortion3 	=  _:cubicnl(drive3,drivelevel) : *(middle_gain_l);
-distortion4 	=  _:cubicnl(drive4,drivelevel) : *(middle_gain_h);
-distortion	= _ : filterbankN((F,F1,F2)) : distortion2,distortion4 ,distortion3,distortion1 :>_;
-
+distortion1 	= high_s : cubicnl(drive1,drivelevel): *(low_gain); 
+distortion2 	= low_s : cubicnl(drive2,drivelevel) : *(high_gain);
+distortion3 	= middle_h_low_s :middle_h_high_s : cubicnl(drive4,drivelevel) : *(middle_gain_h);
+distortion4 	= middle_l_low_s :middle_l_high_s : cubicnl(drive3,drivelevel) : *(middle_gain_l);
+distortion(x)	= distortion1(x) + distortion2(x) + distortion3(x)  + distortion4(x); 
 
 //-resonator
 resonator 		= (+ <: (delay(4096, d-1) + delay(4096, d)) / 2) ~ *(1.0-a)

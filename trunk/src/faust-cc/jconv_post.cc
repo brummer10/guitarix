@@ -97,10 +97,10 @@ void compute(int count, float *input0, float *input1, float *input2, float *inpu
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("jconv.balance","Balance","S","",&fslider3, 0.0f, -1.0f, 1.0f, 0.1f);
-	registerVar("jconv.gain","Gain","S","",&fslider2, 0.0f, -2e+01f, 2e+01f, 0.1f);
-	registerVar("jconv.diff_delay","Delta Delay","S","",&fslider1, 0.0f, -1e+01f, 1e+01f, 0.1f);
-	registerVar("jconv.wet_dry","wet/dry","S","",&fslider0, 1e+02f, 0.0f, 1e+02f, 1.0f);
+	registerVar("jconv.balance","Balance","S","left/right trim for processed signal",&fslider3, 0.0f, -1.0f, 1.0f, 0.1f);
+	registerVar("jconv.gain","Gain","S","gain trim for processed signal (unit: dB)",&fslider2, 0.0f, -2e+01f, 2e+01f, 0.1f);
+	registerVar("jconv.diff_delay","Delta Delay","S","delay left or right channel by the specified amount (unit: ms)",&fslider1, 0.0f, -1e+01f, 1e+01f, 0.1f);
+	registerVar("jconv.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider0, 1e+02f, 0.0f, 1e+02f, 1.0f);
 	registerInit("jconv", init);
 }
 
