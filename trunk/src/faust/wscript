@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import Task, TaskGen, Utils, Logs, os, errno, shutil
+import Task, TaskGen, Utils, Logs, os, errno, shutil, re
 
 # task function for task "dsp"
 def dsp2cc(task):
@@ -23,6 +23,41 @@ def dsp2cc(task):
         return e.errno
     return 0
 
+class FaustScanner(object):
+
+    scan_re = "|".join([
+        r'\bimport\s*\(\s*"(?P<I>[^"]+)"\s*\)\s*;',
+        r'\bcomponent\s*\(\s*"(?P<C>[^"]+)"\s*\)',
+        ])
+
+    def scan_file(self, task, node):
+        pname = node.parent.abspath(task.env)
+        for m in re.finditer(self.scan_re, node.read(task.env)):
+            for fname in m.groupdict().values():
+                if not fname:
+                    continue
+                key = (pname, fname)
+                if key in self.scanned:
+                    continue
+                self.scanned.add(key)
+                n = node.parent.find_resource(fname)
+                if n:
+                    self.deps.append(n)
+                    self.scan_file(task, n)
+                    
+
+    def scan(self, task):
+        self.deps = []
+        self.scanned = set()
+        for node in task.inputs:
+            self.scan_file(task, node)
+        return self.deps, []
+
+dsp_scanner = FaustScanner()
+
+def scan_dsp(task):
+    return dsp_scanner.scan(task)
+
 # definition of task "dsp"
 Task.task_type_from_func(
     name    = 'dsp',
@@ -30,7 +65,8 @@ Task.task_type_from_func(
     color   = 'BLUE',
     ext_in  = '.dsp',
     ext_out = '.cc',
-    before  = 'cc cxx')
+    before  = 'cc cxx',
+    ).scan = scan_dsp
 
 @TaskGen.extension('.dsp')
 def dsp_file(self, node):
