@@ -254,35 +254,6 @@ ifilter(Q,F,G) = eqfilter(Q,F,-G);
 ** the good versions in wafscript where updated
 */
 
-//----- frequency spliter (filterbank3) taken from faust-0.9.27 
-//----- include here to be backward compatible to 0.9.24 
-
-highpassN_plus_lowpassN(fc) = tf2s(1,-1,1,1,1,w1)
-with { w1 = 2*PI*fc; };
-
-filterbankN(lfreqs) = _ <: bsplit(nb) with
-{
-   nb = count(lfreqs);
-
-   count ((xs, xxs)) = 1 + count(xxs);
-   count (xx) = 1;
-
-   take(1, (freq, lfreq)) = freq;
-   take(1, freq) = freq;
-   take(n, (freq, lfreq)) = take(n-1, lfreq);
-
-   fc(n) = take(n, lfreqs);
-
-   lp(n) = lowpass3(fc(n));  // 3rd-order Butterworth
-   hp(n) = highpass3(fc(n));
-   ap(n) = highpassN_plus_lowpassN(fc(n));
-
-   bsplit(0) = _;
-   bsplit(i) = (hp(i) : delayeq(i-1)), (lp(i) <: bsplit(i-1));
-
-   delayeq(0) = _;
-   delayeq(i) =  ap(i) : delayeq(i-1);
-};
 
 //----- Flanging effect renamed in faust-0.9.27 from
 //----- flangermono -> flanger_mono
