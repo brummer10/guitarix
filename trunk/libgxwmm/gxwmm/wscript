@@ -210,7 +210,7 @@ def build(bld):
         bld(name = "copy-wrap_init",
             rule = "cp ${SRC} ${TGT}",
             source = gdir + "wrap_init.cc",
-            target = s,
+            target = 'wrap_init.cc',
             )
         sources = [v.replace(".hg",".cc") for v in sources]
     else:

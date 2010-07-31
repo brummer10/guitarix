@@ -49,11 +49,11 @@ void init(int samplingFreq)
 	fConst0 = tan((15707.963267948966 / fSamplingFreq));
 	fConst1 = (2 * (1 - (1.0 / faustpower<2>(fConst0))));
 	fConst2 = (1.0 / fConst0);
-	fConst3 = (1 + ((fConst2 - 0.76536686473018) / fConst0));
-	fConst4 = (1 + ((0.76536686473018 + fConst2) / fConst0));
+	fConst3 = (1 + ((fConst2 - 0.7653668647301795) / fConst0));
+	fConst4 = (1 + ((0.7653668647301795 + fConst2) / fConst0));
 	fConst5 = (1.0 / fConst4);
-	fConst6 = (1 + ((fConst2 - 1.847759065022573) / fConst0));
-	fConst7 = (1.0 / (1 + ((1.847759065022573 + fConst2) / fConst0)));
+	fConst6 = (1 + ((fConst2 - 1.8477590650225735) / fConst0));
+	fConst7 = (1.0 / (1 + ((fConst2 + 1.8477590650225735) / fConst0)));
 	fConst8 = (408.4070449666731 / fSamplingFreq);
 	fConst9 = (1 - fConst8);
 	for (int i=0; i<2; i++) fRec4[i] = 0;

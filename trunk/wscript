@@ -160,21 +160,6 @@ def check_faust(conf):
         conf.env['FAUST_DOUBLE'] =True
 
 
-def check_faust_cc(conf, cpy_dir):
-    if os.path.exists(cpy_dir):
-        return
-    if not conf.env['FAUST']:
-        raise ConfigurationError(
-            "directory %s doesn't exist and no faust compiler"
-            % cpy_dir)
-    try:
-        os.mkdir(cpy_dir)
-    except OSError, e:
-        raise ConfigurationError(
-            "directory %s doesn't exist and can't be created"
-            % cpy_dir)
-    Logs.info("directory %s created" % cpy_dir)
-
 def print_msg(msg, nl=True):
     if HEXVERSION > 0x10500:
         s = sys.stderr
@@ -328,7 +313,6 @@ def configure(conf):
                errmsg="fixed version not found, using local version", define_name="ZITA_RESAMPLER")
     # faust
     check_faust(conf)
-    check_faust_cc(conf, "src/faust-cc")
     # directory
     conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'
     # jack_session support
@@ -436,9 +420,8 @@ def build(bld):
     bld.add_subdirs('libgxwmm')
     bld.add_subdirs('glade-gxw')
     bld.add_subdirs('pygxw')
+    bld.add_subdirs('src/faust')
     bld.add_subdirs('src')
-    if bld.env['FAUST']:
-        bld.add_subdirs('src/faust')
     bld.add_subdirs('rcstyles')
     bld.add_subdirs('pixmaps')
 

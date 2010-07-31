@@ -26,6 +26,8 @@
 #include <gtkmm/main.h>
 #include <gtkmm/filechooserdialog.h>
 #include <gtkmm/stock.h>
+#include <gtkmm/recentmanager.h>
+#include <giomm.h>
 
 #define _(x) (x)
 
@@ -581,11 +583,12 @@ Glib::ustring IRWindow::on_delay_delta_format_value(double v)
 	Glib::ustring s = "";
 	if (v < 0.0) {
 		v = -v;
-		s = " L";
-	} else if (v > 0.0) {
 		s = " R";
+	} else if (v > 0.0) {
+		s = " L";
 	}
-	Glib::ustring fmt = (boost::format("\342\200\216%%.%df%%s") % wDelay_delta->property_digits()).str();
+	// boost::format does not support "%*f"
+	Glib::ustring fmt = (boost::format("%%.%df%%s") % wDelay_delta->property_digits()).str();
 	return (boost::format(fmt) % v % s).str();
 }
 
@@ -626,7 +629,14 @@ void IRWindow::on_open()
 	if (d.run() != Gtk::RESPONSE_OK) {
 		return;
 	}
-	load_data(d.get_filename());
+	string fname = d.get_filename();
+	Gtk::RecentManager::Data data;
+	bool result_uncertain;
+	data.mime_type = Gio::content_type_guess(fname, "", result_uncertain);
+	data.app_name = "guitarix";
+	data.groups.push_back("impulseresponse");
+	Gtk::RecentManager::get_default()->add_item(d.get_uri(), data);
+	load_data(fname);
 }
 
 void IRWindow::on_home()
@@ -709,7 +719,9 @@ void IRWindow::on_cancel_button_clicked()
 
 void IRWindow::on_ok_button_clicked()
 {
-	on_apply_button_clicked();
+	if (save_state()) {
+		gx_convolver_restart();
+	}
 	hide();
 }
 

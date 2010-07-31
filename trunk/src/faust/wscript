@@ -4,22 +4,13 @@
 import Task, TaskGen, Utils, Logs, os, errno, shutil
 
 # task function for task "dsp"
-# use the specified processor to create the output file and copy
-# the output file to a corresponding directory in the
-# source tree (the directory will be created if it doesn't
-# yet exist)
 def dsp2cc(task):
+    # use the specified processor to create the output file and copy
+    # the output file into faust-generated in the source tree
     src = task.inputs[0].srcpath(task.env)
     o = task.outputs[0]
     dst = o.bldpath(task.env)
-    cpy = o.relpath_gen(o.bld.bldnode)
-    cpydir = os.path.dirname(cpy)
-    try:
-        os.mkdir(cpydir)
-    except OSError, e:
-        if e.errno != errno.EEXIST:
-            Logs.error("runner: cannot create directory -> %s" % e)
-            return e.errno
+    cpy = os.path.join(o.parent.srcpath(task.env)+"-generated",o.file())
     lst = [task.proc,"-o",dst] + task.proc_args + [src]
     Logs.debug("runner: system command -> %s" % " ".join(lst))
     ret = Utils.exec_command(lst,shell=False)
@@ -43,26 +34,17 @@ Task.task_type_from_func(
 
 @TaskGen.extension('.dsp')
 def dsp_file(self, node):
-    # process all ".dsp" files with task "dsp", put the
-    # output file with extension ".cc" in a sibling directory
-    # of the source directory with "-cc" appended to its name
     tsk = self.create_task('dsp')
     tsk.proc = self.proc
     tsk.proc_args = getattr(self, "proc_args", [])
     tsk.set_inputs(node)
     parent = node.parent
-    o = parent.parent.find_or_declare([parent.name+"-cc",node.name])
-    o = o.change_ext('.cc')
+    o = node.change_ext('.cc')
     tsk.set_outputs(o)
     bld = tsk.generator.bld
     bld.add_manual_dependency(node,bld.bldnode.find_resource(self.proc))
 
 def build(bld):
-    float_arg = ["-s","40000","-float"]
-    if bld.env['FAUST_DOUBLE']:
-        arg = ["-double"]
-    else:
-        arg = ["-float"]
     sources = [
         # amp
         'preamp.dsp',
@@ -101,10 +83,10 @@ def build(bld):
         'moog.dsp',
         'biquad.dsp',
         'selecteq.dsp',
+        'jconv_post.dsp',
         ]
 
     float_sources = [ # big arrays and no sensitive processing
-        'jconv_post.dsp',
         'sloop.dsp',
         'echo.dsp',
         'delay.dsp',
@@ -112,32 +94,44 @@ def build(bld):
     ]
 
     experimental_soures = [
-        #"valve.dsp",
-        #"valve_rect.dsp",
         "Exp.dsp",
-        #"ExpFilter.dsp",
         ]
 
-    task = bld.new_task_gen(
-        source = sources,
-        proc = "../tools/dsp2cc",
-        proc_args = arg,
-        )
+    if bld.env['FAUST']:
+        float_arg = ["-s","40000","-float"]
+        if bld.env['FAUST_DOUBLE']:
+            arg = ["-double"]
+        else:
+            arg = ["-float"]
+        task = bld.new_task_gen(
+            source = sources,
+            proc = "../tools/dsp2cc",
+            proc_args = arg,
+            )
+        bld.new_task_gen(
+            source = float_sources,
+            proc = "../tools/dsp2cc",
+            proc_args = float_arg,
+            )
 
-    bld.new_task_gen(
-        source = float_sources,
-        proc = "../tools/dsp2cc",
-        proc_args = float_arg,
-        )
-
-    tg = bld.new_task_gen(
-        source=experimental_soures,
-        proc = "../tools/dsp2cc_exp",
-        proc_args = ["-a","../src/faust-include.cpp","-f","-double"],
-        )
-    expdsp = bld.path.find_resource("Exp.dsp")
-    bld.add_manual_dependency(expdsp, bld.path.find_resource("tremolo.dsp"))
-    bld.add_manual_dependency(expdsp, bld.path.find_resource("../faust-include.cpp"))
+        tg = bld.new_task_gen(
+            source=experimental_soures,
+            proc = "../tools/dsp2cc_exp",
+            proc_args = ["-a","../src/faust-include.cpp","-f","-double"],
+            )
+        expdsp = bld.path.find_resource("Exp.dsp")
+        bld.add_manual_dependency(expdsp, bld.path.find_resource("tremolo.dsp"))
+        bld.add_manual_dependency(expdsp, bld.path.find_resource("../faust-include.cpp"))
+    else:
+        gdir = "../faust-generated/"
+        for s in sources + float_sources + experimental_soures:
+            s = s.replace(".dsp",".cc")
+            bld(name = "copy-faust-cc",
+                rule = "cp ${SRC} ${TGT}",
+                source = gdir + s,
+                target = s,
+            )
+    bld.add_group()
 
 def configure(conf):
     pass
