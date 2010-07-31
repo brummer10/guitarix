@@ -88,14 +88,14 @@ def set_options(opt):
                      action='store_const',
                      default=False,
                      const=True,
-                     help=('build with faust even if the installed version is not %s'
+                     help=('use faust even if the installed version is not %s'
                            % faust_vers_str()))
 
     faust.add_option('--no-faust',
                      action='store_const',
                      default=False,
                      const=True,
-                     help="don't build with faust")
+                     help="don't use faust, use the pre-built files in faust-generated")
 
     faust.add_option('--faust-float',
                      action='store_const',

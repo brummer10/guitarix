@@ -135,16 +135,6 @@ void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobst
 	_gx_knob_draw_arc(widget, image_rect, knobstate, has_focus);
 }
 
-gboolean _approx_in_rectangle(gdouble x, gdouble y, GdkRectangle *rect)
-{
-	const int off = 5;
-	if (x >= rect->x-off && x < rect->x + rect->width + off &&
-	    y >= rect->y-off && y < rect->y + rect->height + off) {
-		return TRUE;
-	}
-	return FALSE;
-}
-
 static gboolean jump_to_mouse = TRUE;
 
 void gx_set_knob_jump_to_mouse(gboolean value)
