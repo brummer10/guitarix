@@ -12,7 +12,7 @@ import Logs
 import sys
 from Constants import HEXVERSION
 from Configure import ConfigurationError
-import Configure
+import Configure, Scripting
 
 # used by waf dist and waf build
 VERSION='0.11.0svn'
@@ -439,3 +439,27 @@ def etags(ctx):
     cmd = "etags -o TAGS libgxw/gxw/*.cpp libgxwmm/src/*.ccg libgxwmm/src/*.hg libgxw/gxw/*.h src/*.cpp src/*.cc src/headers/*.h"
     Logs.debug("runner: system command -> %s" % cmd)
     Utils.exec_command(cmd)
+
+def dist(ctx):
+    try:
+        import pysvn
+    except ImportError:
+        raise Utils.WafError("you need to install pysvn to use the dist command"
+                             " (debian package python-svn)")
+    Scripting.dist(ctx)
+
+def copytree(src,dst,build_dir):
+    import pysvn
+    entries = pysvn.Client().info2(".")
+    os.mkdir(dst)
+    for srcname, info in entries:
+        if srcname == ".":
+            continue
+        dstname=os.path.join(dst,srcname)
+        if os.path.isdir(srcname):
+            os.mkdir(dstname)
+        else:
+            shutil.copy2(srcname,dstname)
+
+# There doesn't seem to be a hook so just patch it in
+Scripting.copytree = copytree
