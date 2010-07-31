@@ -41,12 +41,12 @@ void init(int samplingFreq)
 void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = (0.0010000000000000009 * fslider0);
-	double 	fSlow1 = (0 - (4.0 * max(0, min(fslider1, 0.999999))));
+	double 	fSlow1 = (0 - fslider1);
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;
 		fRec1[0] = (fSlow0 + (0.999 * fRec1[1]));
 		double fTemp0 = (fConst0 * fRec1[0]);
-		double fTemp1 = pow(fTemp0,4.0);
+		double fTemp1 = faustpower<4>(fTemp0);
 		double fTemp2 = (1.0 - fTemp0);
 		fRec6[0] = ((1e-20 * (1 - iVec0[1])) - fRec6[1]);
 		fRec5[0] = ((((double)input0[i] + fRec6[0]) + (fSlow1 * fRec0[1])) + (fTemp2 * fRec5[1]));

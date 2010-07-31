@@ -274,12 +274,14 @@ flangerstereoN(dmax,curdel1,curdel2,depth,fb,invert)
 
 import("filter.lib");
 
-moogvcfN(res,fr) = (+ : seq(i,4,pole(p)) : *(unitygain(p))) ~ *(mk)
+moogvcfN(Q,fr)  = (+ : pole(p) : pole(p) 
+                   : pole(p) : pole(p) : *(scale(p))) ~ *(mk)
 with {
-     p = 1.0 - fr * 2.0 * PI / SR; // good approximation for fr << SR
-     unitygain(p) = pow(1.0-p,4.0); // one-pole unity-gain scaling
-     mk = 0-4.0*max(0,min(res,0.999999)); // need mk > -4 for stability
+     p = 1.0 - fr * 2.0 * PI / SR; // approx for fr << SR
+     scale(p) = pow(1-p,4);
+     mk = 0-Q;
 };
+
 
 /****************************************************************
 ** building blocks
