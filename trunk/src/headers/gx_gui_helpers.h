@@ -32,6 +32,7 @@ private:
 	SwitchParameter* param;
 	void on_my_activate();
 public:
+	MenuCheckItem() { set_use_underline(); }
 	void set_parameter(SwitchParameter *p);
 };
 

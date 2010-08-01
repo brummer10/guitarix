@@ -672,6 +672,8 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 
 	gx_current_preset = preset_name;
 
+	gx_jconv::gx_reload_jcgui();
+
 	/* do some GUI stuff*/
 	g_idle_add(gx_rename_main_widget,NULL);
 
