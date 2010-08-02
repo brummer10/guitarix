@@ -92,13 +92,14 @@ private:
 class GxConvolverBase: protected Convproc
 {
 protected:
-	bool ready;
+	volatile bool ready;
 	void adjust_values(unsigned int audio_size, unsigned int& count, unsigned int& offset,
 	                   unsigned int& delay, unsigned int& ldelay, unsigned int& length,
 	                   unsigned int& size, unsigned int& bufsize);
 	GxConvolverBase(): ready(false) {}
 public:
-	void checkstate();
+	bool checkstate();
+	void set_not_runnable() { ready = false; }
 	bool is_runnable() { return ready; }
 	bool start();
 	void stop() { stop_process(); }
@@ -116,11 +117,6 @@ public:
 		unsigned int delay, unsigned int ldelay, unsigned int offset,
 		unsigned int length, unsigned int size, unsigned int bufsize,
 		const Gainline& gainline);
-	/*bool configure(
-		unsigned int count, int samplerate, string fname, float gain=1.0, float lgain=1.0,
-		unsigned int delay=0, unsigned int ldelay=0, unsigned int offset=0,
-		unsigned int length=0, unsigned int size=0, unsigned int bufsize=0,
-		const Gainline& gainline);*/
 	bool compute(int count, float* input1, float *input2, float *output1, float *output2);
 };
 

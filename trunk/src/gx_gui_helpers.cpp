@@ -561,15 +561,27 @@ float cab_ir_data[] = {
 };
 /**----------------------------- cabinet impulse response data end --------------------------------**/
 
+static bool cab_conv_start()
+{
+	while (!gx_engine::cab_conv.checkstate());
+	if (!gx_engine::cab_conv.configure(cab_ir_count, cab_ir_data, cab_ir_sr)) {
+		return false;
+	}
+	return gx_engine::cab_conv.start();
+}
+
+void cab_conv_restart()
+{
+	gx_engine::cab_conv.stop();
+	cab_conv_start();
+}
+
 void UiCabSwitch::on_switch_toggled()
 {
-	if (!get_active()) {
+	if (!m_switch->get_active()) {
 		gx_engine::cab_conv.stop();
-	} else {
-		bool rc = gx_engine::cab_conv.configure(cab_ir_count, cab_ir_data, cab_ir_sr);
-		if (!rc || !gx_engine::cab_conv.start()) {
-			set_active(false);
-		}
+	} else if (!cab_conv_start()) {
+		m_switch->set_active(false);
 	}
 }
 

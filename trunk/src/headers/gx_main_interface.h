@@ -110,7 +110,7 @@ public:
 
 void gx_start_stop_jconv(GtkWidget*, gpointer);
 
-class UiRegler: gx_ui::GxUiItem, protected Gtk::Adjustment
+class UiRegler: gx_ui::GxUiItemFloat, protected Gtk::Adjustment
 {
 protected:
 	Gxw::Regler *m_regler;
@@ -123,11 +123,33 @@ public:
 	GtkWidget *get_widget() { return GTK_WIDGET(m_regler->gobj()); }
 };
 
-class UiSelector: public UiRegler
+class UiSelector
 {
+protected:
+	Gxw::Selector m_selector;
+	void init(Parameter& param);
 public:
+	UiSelector();
 	static GtkWidget* create(gx_ui::GxUI& ui, string id);
-	UiSelector(gx_ui::GxUI& ui, FloatParameter &param, Gxw::Selector* sel);
+	GtkWidget *get_widget() { return GTK_WIDGET(m_selector.gobj()); }
+};
+
+class UiSelectorFloat: public UiSelector, gx_ui::GxUiItemFloat, protected Gtk::Adjustment
+{
+protected:
+	virtual void reflectZone();
+	void on_value_changed();
+public:
+	UiSelectorFloat(gx_ui::GxUI& ui, FloatParameter &param);
+};
+
+class UiSelectorInt: public UiSelector, gx_ui::GxUiItemInt, protected Gtk::Adjustment
+{
+protected:
+	virtual void reflectZone();
+	void on_value_changed();
+public:
+	UiSelectorInt(gx_ui::GxUI& ui, IntParameter &param);
 };
 
 class UiReglerWithCaption: public UiRegler
@@ -142,25 +164,46 @@ public:
 	GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
 };
 
-class UiSwitch: gx_ui::GxUiItem, public Gxw::Switch
+class UiSwitch: public Gxw::Switch
 {
-private:
-	float *get_vp(Parameter &param) { return param.isFloat() ? &param.getFloat().value : (float*)&param.getInt().value; /*FIXME*/}
+public:
+	UiSwitch(const char *sw_type);
+	GtkWidget *get_widget() { return GTK_WIDGET(gobj()); }
+	static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, Parameter &param);
+	static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, string id)
+		{
+			if (!parameter_map.hasId(id)) return 0;
+			return new_switch(ui, sw_type, parameter_map[id]);
+		}
+	static GtkWidget *create(gx_ui::GxUI& ui, const char *sw_type, string id)
+		{ return new_switch(ui, sw_type, id)->get_widget(); }
+};
+
+class UiSwitchFloat: public UiSwitch, gx_ui::GxUiItemFloat
+{
 protected:
-	float fparam;
 	void on_toggled();
 	virtual void reflectZone();
 public:
-	static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id);
-	UiSwitch(gx_ui::GxUI& ui, const char *sw_type, Parameter &param);
-	GtkWidget *get_widget() { return GTK_WIDGET(gobj()); }
+	UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, FloatParameter &param);
 };
 
-class UiSwitchWithCaption: public UiSwitch
+class UiSwitchBool: public UiSwitch, gx_ui::GxUiItemBool
+{
+protected:
+	void on_toggled();
+	virtual void reflectZone();
+public:
+	UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, BoolParameter &param);
+};
+
+class UiSwitchWithCaption
 {
 private:
 	Gtk::Label m_label;
 	Gtk::Box *m_box;
+protected:
+	UiSwitch *m_switch;
 public:
 	static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
 	                         Gtk::PositionType pos);
@@ -181,7 +224,7 @@ public:
 	UiCabSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label);
 };
 
-struct uiTuner : public gx_ui::GxUiItem, public Gtk::Alignment
+struct uiTuner : public gx_ui::GxUiItemFloat, public Gtk::Alignment
 {
 private:
 	Gxw::Tuner fTuner;
@@ -265,6 +308,7 @@ public :
 	GtkTextView* const getLoggingWindow()    const { return fLoggingWindow;   }
 	GtkExpander* const getLoggingBox()       const { return fLoggingBox;      }
 	GtkWidget*   const getJackConnectItem()  const { return fJackConnectItem; }
+	void set_waveview_buffer();
 
     Gxw::WaveView& getWaveView()                   { return fWaveView;        }
 
@@ -410,14 +454,14 @@ public :
 		}
 };
 
-struct uiAdjustment : public gx_ui::GxUiItem
+struct uiAdjustment : public gx_ui::GxUiItemFloat
 {
 	GtkAdjustment* fAdj;
-	uiAdjustment(gx_ui::GxUI* ui, float* zone, GtkAdjustment* adj) : gx_ui::GxUiItem(ui, zone), fAdj(adj) {}
+	uiAdjustment(gx_ui::GxUI* ui, float* zone, GtkAdjustment* adj) : gx_ui::GxUiItemFloat(ui, zone), fAdj(adj) {}
 	static void changed (GtkAdjustment *adj, gpointer data)
 		{
 			float	v = adj->value;
-			((gx_ui::GxUiItem*)data)->modifyZone(v);
+			((gx_ui::GxUiItemFloat*)data)->modifyZone(v);
 		}
 
 	virtual void reflectZone()
@@ -461,6 +505,8 @@ inline void connect_midi_controller(GtkWidget *w, void *zone)
 	debug_check(check_zone, w, zone);
 	g_signal_connect(w, "button_press_event", G_CALLBACK (button_press_cb), (gpointer)&parameter_map[zone]);
 }
+
+void conv_restart();
 
 /* -------------------------------------------------------------------------- */
 } /* end of gx_gui namespace */

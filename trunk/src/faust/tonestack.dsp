@@ -2,14 +2,12 @@
 
 declare name 		"amp.tonestack";
 
-import("music.lib");
 import("filter.lib");
-import("effect.lib"); 
 
 
 /****************************************************************
  ** Guitar tone stacks
- ** values from CAPS plugin tonestack (based on work from D.T. Yeh
+ ** values from CAPS plugin tonestack (based on work from D.T. Yeh)
  */
  
 ts = environment {
@@ -107,11 +105,11 @@ ts = environment {
         };
 };
 
-   t = vslider("Treble", 0.5, 0, 1, 0.01);
-   m = vslider("Middle", 0.5, 0, 1, 0.01);
-   l = vslider("Bass", 0.5, 0, 1, 0.01) : (_-1)*3.4 : exp;
+t = vslider("Treble[alias]", 0.5, 0, 1, 0.01);
+m = vslider("Middle[alias]", 0.5, 0, 1, 0.01);
+l = vslider("Bass[alias]", 0.5, 0, 1, 0.01) : (_-1)*3.4 : exp;
 
-tonestack(tse) = 1/A0*tf3(B0,B1,B2,B3,A1/A0,A2/A0,A3/A0) with {
+tonestack = 1/A0*tf3(B0,B1,B2,B3,A1/A0,A2/A0,A3/A0) with {
     C1 = tse.C1;
     C2 = tse.C2;
     C3 = tse.C3;
@@ -163,43 +161,5 @@ tonestack(tse) = 1/A0*tf3(B0,B1,B2,B3,A1/A0,A2/A0,A3/A0) with {
     A3 = -a0 + a1*c - a2*pow(c,2) + a3*pow(c,3);
 };
 
-
-aba = environment {
-	 sl = hslider("select[enum:default|Bassman|Twin Reverb|Princeton|JCM-800|JCM-2000|M-Lead|M2199|AC-30|Off]",1,0,9,1);
-	 a = min(2, max(0,sl)); 
-	 b = min(2, max(0,sl-1)); 
-	 c = min(2, max(0,sl-2));
-	 d = min(2, max(0,sl-3));
-	 e = min(2, max(0,sl-4));
-	 f = min(2, max(0,sl-5));
-	 g = min(2, max(0,sl-6));
-	 h = min(2, max(0,sl-7));
-	 x = min(2, max(0,sl-8));
-};
-
-
-
-process  = hgroup("tonestack",_<: a <: b <: c <: d <: e<: f <: g <:h :>_) with { 
-	 a = select3(aba.a,N,A,_) ; 
-	 b = select3(aba.b,_,B:*(1.5),_); //add a bit gain
-	 c = select3(aba.c,_,C:*(1.5),_); //add a bit gain
-	 d = select3(aba.d,_,D,_); 
-	 e = select3(aba.e,_,E,_);
-	 f = select3(aba.f,_,F,_);
-	 g = select3(aba.g,_,G,_);
-	 h = select3(aba.h,_,H,_);
-	 x = select3(aba.x,_,X,_);
-}
-
- with {
-		N = component("tone.dsp").tone((l*20)-10,(m*10)-5,(t*20)-10);
-		A = tonestack(ts.bassman);
-		B = tonestack(ts.twin);
-		C = tonestack(ts.princeton);
-		D = tonestack(ts.jcm800);
-		E = tonestack(ts.jcm2000);
-		F = tonestack(ts.mlead);
-		G = tonestack(ts.m2199);
-		H = tonestack(ts.ac30);
-		X = _;
-};
+tse = ts.bassman;
+process = tonestack;

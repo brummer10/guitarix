@@ -41,29 +41,56 @@ class GxUiItem
 {
 protected :
 	GxUI*	fGUI;
+public:
+	virtual ~GxUiItem();
+	GxUiItem(GxUI *ui): fGUI(ui) {}
+	virtual void reflectZone() = 0;
+	virtual bool hasChanged() = 0;
+};
+
+class GxUiItemFloat: GxUiItem
+{
+protected :
 	float*	fZone;
 	float	fCache;
-
-	GxUiItem (GxUI* ui, float* zone);
-
+	GxUiItemFloat(GxUI* ui, float* zone);
 public :
-	virtual ~GxUiItem() {}
-
 	void  modifyZone(float v);
-	float cache();
-	virtual void reflectZone() = 0;
+	virtual bool hasChanged();
+};
+
+class GxUiItemInt: GxUiItem
+{
+protected :
+	int* fZone;
+	int fCache;
+	GxUiItemInt(GxUI* ui, int* zone);
+public :
+	void  modifyZone(int v);
+	virtual bool hasChanged();
+};
+
+class GxUiItemBool: GxUiItem
+{
+protected :
+	bool* fZone;
+	bool fCache;
+	GxUiItemBool(GxUI* ui, bool* zone);
+public :
+	void  modifyZone(bool v);
+	virtual bool hasChanged();
 };
 
 
 /* --- Callback Item --- */
 typedef void (*GxUiCallback)(float val, void* data);
 
-struct GxUiCallbackItem : public GxUiItem
+struct GxUiCallbackItemFloat : public GxUiItemFloat
 {
 	GxUiCallback fCallback;
 	void*	 fData;
 
-	GxUiCallbackItem(GxUI* ui, float* zone, GxUiCallback foo, void* data);
+	GxUiCallbackItemFloat(GxUI* ui, float* zone, GxUiCallback foo, void* data);
 	virtual void reflectZone();
 };
 
@@ -71,7 +98,7 @@ struct GxUiCallbackItem : public GxUiItem
 class GxUI
 {
 	typedef list< GxUiItem* > clist;
-	typedef map < float*, clist* > zmap;
+	typedef map < void*, clist* > zmap;
 
 private:
 	static list<GxUI*>	fGuiList;
@@ -82,9 +109,9 @@ public:
 	virtual ~GxUI() {}
 
 	// public methods
-	void registerZone(float*, GxUiItem*);
+	void registerZone(void*, GxUiItem*);
 	void updateAllZones();
-	void updateZone(float* z);
+	void updateZone(void* z);
 	static void updateAllGuis();
 };
 

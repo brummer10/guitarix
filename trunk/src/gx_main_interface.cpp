@@ -458,10 +458,10 @@ void GxMainInterface::openHorizontalTableBox(const char* label)
 
 
 
-struct uiOrderButton : public gx_ui::GxUiItem
+struct uiOrderButton : public gx_ui::GxUiItemFloat
 {
 	GtkButton* 	fButton;
-	uiOrderButton (gx_ui::GxUI* ui, float* zone, GtkButton* b) : gx_ui::GxUiItem(ui, zone), fButton(b) {}
+	uiOrderButton (gx_ui::GxUI* ui, float* zone, GtkButton* b) : gx_ui::GxUiItemFloat(ui, zone), fButton(b) {}
 
 	// box move to the right
 	static void pressed_right( GtkWidget *widget, gpointer   data )
@@ -484,7 +484,7 @@ struct uiOrderButton : public gx_ui::GxUiItem
 				GtkWidget *obibi = (GtkWidget *) g_list_nth_data(child_list,0);
 
 				gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per +1);
-				((gx_ui::GxUiItem*)data)->modifyZone(per+1);
+				((gx_ui::GxUiItemFloat*)data)->modifyZone(per+1);
 				if(GTK_IS_BUTTON (obibi))
                     gtk_button_clicked(GTK_BUTTON(obibi));
 				else {
@@ -522,7 +522,7 @@ struct uiOrderButton : public gx_ui::GxUiItem
 				GtkWidget *obibi = (GtkWidget *) g_list_nth_data(child_list,1);
 
 				gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per -1);
-				((gx_ui::GxUiItem*)data)->modifyZone(per-1);
+				((gx_ui::GxUiItemFloat*)data)->modifyZone(per-1);
 				if(GTK_IS_BUTTON (obibi))
                     gtk_button_clicked(GTK_BUTTON(obibi));
 				else {
@@ -585,7 +585,7 @@ struct uiOrderButton : public gx_ui::GxUiItem
 			guint per = g_value_get_int(&pos);
 			gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per);
 
-			((gx_ui::GxUiItem*)data)->modifyZone(per);
+			((gx_ui::GxUiItemFloat*)data)->modifyZone(per);
 		}
 	// set the init order
 	virtual void reflectZone()
@@ -735,10 +735,10 @@ void GxMainInterface::openEventBox(const char* label)
 	}
 }
 
-struct uiExpanderBox : public gx_ui::GxUiItem
+struct uiExpanderBox : public gx_ui::GxUiItemFloat
 {
 	GtkExpander* fButton;
-	uiExpanderBox(gx_ui::GxUI* ui, float* zone, GtkExpander* b) : gx_ui::GxUiItem(ui, zone), fButton(b) {}
+	uiExpanderBox(gx_ui::GxUI* ui, float* zone, GtkExpander* b) : gx_ui::GxUiItemFloat(ui, zone), fButton(b) {}
 	static void expanded (GtkWidget *widget, gpointer data)
 		{
 			float v = gtk_expander_get_expanded  (GTK_EXPANDER(widget));
@@ -747,7 +747,7 @@ struct uiExpanderBox : public gx_ui::GxUiItem
 				v = 0;
 			else v = 1;
 
-			((gx_ui::GxUiItem*)data)->modifyZone(v);
+			((gx_ui::GxUiItemFloat*)data)->modifyZone(v);
 		}
 
 	virtual void reflectZone()
@@ -1092,12 +1092,12 @@ void GxMainInterface::openScrollBox(const char* label)
 
 }
 
-struct uiSwitchDISTBox : public gx_ui::GxUiItem
+struct uiSwitchDISTBox : public gx_ui::GxUiItemFloat
 {
 	GtkWidget* fbox;
 
 	uiSwitchDISTBox(gx_ui::GxUI* ui, float* zone, GtkWidget* box)
-		: gx_ui::GxUiItem(ui, zone), fbox(box) {}
+		: gx_ui::GxUiItemFloat(ui, zone), fbox(box) {}
 
 	virtual void reflectZone()
 		{
@@ -1127,12 +1127,12 @@ struct uiSwitchDISTBox : public gx_ui::GxUiItem
 		}
 };
 
-struct uiSwitchEQBox : public gx_ui::GxUiItem
+struct uiSwitchEQBox : public gx_ui::GxUiItemFloat
 {
 	GtkWidget* fbox;
 
 	uiSwitchEQBox(gx_ui::GxUI* ui, float* zone, GtkWidget* box)
-		: gx_ui::GxUiItem(ui, zone), fbox(box) {}
+		: gx_ui::GxUiItemFloat(ui, zone), fbox(box) {}
 
 	virtual void reflectZone()
 		{
@@ -1164,12 +1164,12 @@ struct uiSwitchEQBox : public gx_ui::GxUiItem
 		}
 };
 
-struct uiSwitchAMPBox : public gx_ui::GxUiItem
+struct uiSwitchAMPBox : public gx_ui::GxUiItemFloat
 {
 	GtkWidget* fbox;
 
 	uiSwitchAMPBox(gx_ui::GxUI* ui, float* zone, GtkWidget* box)
-		: gx_ui::GxUiItem(ui, zone), fbox(box) {}
+		: gx_ui::GxUiItemFloat(ui, zone), fbox(box) {}
 
 	virtual void reflectZone()
 		{
@@ -1256,19 +1256,19 @@ GtkWidget* GxMainInterface::addWidget(const char* label, GtkWidget* w)
 
 // --------------------------- Press button ---------------------------
 
-struct uiButton : public gx_ui::GxUiItem
+struct uiButton : public gx_ui::GxUiItemFloat
 {
 	GtkButton* 	fButton;
-	uiButton (gx_ui::GxUI* ui, float* zone, GtkButton* b) : gx_ui::GxUiItem(ui, zone), fButton(b) {}
+	uiButton(gx_ui::GxUI* ui, float* zone, GtkButton* b) : gx_ui::GxUiItemFloat(ui, zone), fButton(b) {}
 	static void pressed( GtkWidget *widget, gpointer   data )
 		{
-			gx_ui::GxUiItem* c = (gx_ui::GxUiItem*) data;
+			gx_ui::GxUiItemFloat* c = (gx_ui::GxUiItemFloat*)data;
 			c->modifyZone(1.0);
 		}
 
 	static void released( GtkWidget *widget, gpointer   data )
 		{
-			gx_ui::GxUiItem* c = (gx_ui::GxUiItem*) data;
+			gx_ui::GxUiItemFloat* c = (gx_ui::GxUiItemFloat*) data;
 			c->modifyZone(0.0);
 		}
 
@@ -1306,14 +1306,14 @@ void GxMainInterface::addJConvButton(const char* label, float* zone)
 
 // ---------------------------	Toggle Buttons ---------------------------
 
-struct uiToggleButton : public gx_ui::GxUiItem
+struct uiToggleButton : public gx_ui::GxUiItemFloat
 {
 	GtkToggleButton* fButton;
-	uiToggleButton(gx_ui::GxUI* ui, float* zone, GtkToggleButton* b) : gx_ui::GxUiItem(ui, zone), fButton(b) {}
+	uiToggleButton(gx_ui::GxUI* ui, float* zone, GtkToggleButton* b) : gx_ui::GxUiItemFloat(ui, zone), fButton(b) {}
 	static void toggled (GtkWidget *widget, gpointer data)
 		{
 			float	v = (GTK_TOGGLE_BUTTON (widget)->active) ? 1.0 : 0.0;
-			((gx_ui::GxUiItem*)data)->modifyZone(v);
+			((gx_ui::GxUiItemFloat*)data)->modifyZone(v);
 		}
 
 	virtual void reflectZone()
@@ -1394,18 +1394,32 @@ void GxMainInterface::addPToggleButton(const char* label, float* zone)
 }
 #endif
 
+static bool conv_start()
+{
+	while (!gx_engine::conv.checkstate());
+	gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
+	if (!gx_engine::conv.configure(
+		    gx_jack::jack_bs, gx_jack::jack_sr, jcset->getFullIRPath(),
+		    jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
+		    jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline())) {
+		return false;
+	}
+	return gx_engine::conv.start();
+}
+
+void conv_restart()
+{
+	gx_engine::conv.stop();
+	conv_start();
+}
+
 void gx_start_stop_jconv(GtkWidget *widget, gpointer data)
 {
 	if (gx_jconv::GxJConvSettings::checkbutton7 == 0) {
 		gx_engine::conv.stop();
 	} else {
 		gx_jconv::gx_save_jcgui();
-		gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
-		bool rc = gx_engine::conv.configure(
-			gx_jack::jack_bs, gx_jack::jack_sr, jcset->getFullIRPath(),
-			jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
-			jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline());
-		if (!rc || !gx_engine::conv.start()) {
+		if (!conv_start()) {
 			gx_jconv::GxJConvSettings::checkbutton7 = 0;
 		}
 	}
@@ -1453,14 +1467,14 @@ void GxMainInterface::addJToggleButton(const char* label, float* zone)
 
 // ---------------------------	Check Button ---------------------------
 
-struct uiCheckButton : public gx_ui::GxUiItem
+struct uiCheckButton : public gx_ui::GxUiItemFloat
 {
 	GtkToggleButton* fButton;
-	uiCheckButton(gx_ui::GxUI* ui, float* zone, GtkToggleButton* b) : gx_ui::GxUiItem(ui, zone), fButton(b) {}
+	uiCheckButton(gx_ui::GxUI* ui, float* zone, GtkToggleButton* b) : gx_ui::GxUiItemFloat(ui, zone), fButton(b) {}
 	static void toggled (GtkWidget *widget, gpointer data)
 		{
 			float	v = (GTK_TOGGLE_BUTTON (widget)->active) ? 1.0 : 0.0;
-			((gx_ui::GxUiItem*)data)->modifyZone(v);
+			((gx_ui::GxUiItemFloat*)data)->modifyZone(v);
 		}
 
 	virtual void reflectZone()
@@ -1501,13 +1515,13 @@ void GxMainInterface::addCheckButton(const char* label, float* zone)
 
 // -------------------------- Horizontal Slider -----------------------------------
 
-struct uiValueDisplay : public gx_ui::GxUiItem
+struct uiValueDisplay : public gx_ui::GxUiItemFloat
 {
 	GtkLabel* fLabel;
 	int	fPrecision ;
 
 	uiValueDisplay(gx_ui::GxUI* ui, float* zone, GtkLabel* label, int precision)
-		: gx_ui::GxUiItem(ui, zone), fLabel(label), fPrecision(precision) {}
+		: gx_ui::GxUiItemFloat(ui, zone), fLabel(label), fPrecision(precision) {}
 
 	virtual void reflectZone()
 		{
@@ -1602,16 +1616,16 @@ GtkWidget *UiRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, boo
 }
 
 UiRegler::UiRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, bool show_value):
-	gx_ui::GxUiItem(&ui, &param.value),
-	Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0)
+	gx_ui::GxUiItemFloat(&ui, &param.value),
+	Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0),
+	m_regler(regler)
 {
-	param.value = param.std_value;
-	m_regler = regler;
-	m_regler->set_adjustment(*this);
 	m_regler->set_show_value(show_value);
 	m_regler->cp_set_var(param.id());
-	connect_midi_controller(GTK_WIDGET(m_regler->gobj()), &param.value);
+	m_regler->set_adjustment(*this);
 	m_regler->show();
+	param.value = param.std_value;
+	connect_midi_controller(GTK_WIDGET(m_regler->gobj()), &param.value);
 }
 
 UiRegler::~UiRegler()
@@ -1619,14 +1633,36 @@ UiRegler::~UiRegler()
 	delete m_regler;
 }
 
-GtkWidget* UiSelector::create(gx_ui::GxUI& ui, string id)
+UiSelector::UiSelector()
 {
-	return (new UiSelector(ui, parameter_map[id].getFloat(), new Gxw::Selector()))->get_widget();
+	m_selector.show();
 }
 
-UiSelector::UiSelector(gx_ui::GxUI& ui, FloatParameter &param, Gxw::Selector *sel):
-	UiRegler(ui, param.getFloat(), sel, false)
+void UiSelectorFloat::on_value_changed()
 {
+	modifyZone(get_value());
+}
+
+void UiSelectorInt::on_value_changed()
+{
+	modifyZone(get_value());
+}
+
+GtkWidget* UiSelector::create(gx_ui::GxUI& ui, string id)
+{
+	Parameter& p = parameter_map[id];
+	UiSelector *s;
+	if (p.isFloat()) {
+		s = new UiSelectorFloat(ui, p.getFloat());
+	} else {
+		s = new UiSelectorInt(ui, p.getInt());
+	}
+	return s->get_widget();
+}
+
+void UiSelector::init(Parameter& param)
+{
+	m_selector.cp_set_var(param.id());
 	Gtk::TreeModelColumn<Glib::ustring> label;
 	Gtk::TreeModelColumnRecord rec;
 	rec.add(label);
@@ -1634,7 +1670,37 @@ UiSelector::UiSelector(gx_ui::GxUI& ui, FloatParameter &param, Gxw::Selector *se
 	for (const char **p = param.getValueNames(); *p; p++) {
 		ls->append()->set_value(0, Glib::ustring(*p));
 	}
-	sel->set_model(ls);
+	m_selector.set_model(ls);
+}
+
+UiSelectorFloat::UiSelectorFloat(gx_ui::GxUI& ui, FloatParameter &param):
+	gx_ui::GxUiItemFloat(&ui, &param.value),
+	Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0)
+{
+	m_selector.set_adjustment(*this);
+	init(param);
+}
+
+void UiSelectorFloat::reflectZone()
+{
+	float v = *fZone;
+	fCache = v;
+	set_value(v);
+}
+
+void UiSelectorInt::reflectZone()
+{
+	int v = *fZone;
+	fCache = v;
+	set_value(v);
+}
+
+UiSelectorInt::UiSelectorInt(gx_ui::GxUI& ui, IntParameter &param):
+	gx_ui::GxUiItemInt(&ui, &param.value),
+	Gtk::Adjustment(param.std_value, param.lower, param.upper, 1, 5, 0)
+{
+	m_selector.set_adjustment(*this);
+	init(param);
 }
 
 GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value)
@@ -1665,45 +1731,68 @@ UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param,
 	m_box.show_all();
 }
 
-void UiSwitch::on_toggled()
+UiSwitch::UiSwitch(const char *sw_type):
+	Switch(sw_type)
+{
+}
+
+UiSwitch *UiSwitch::new_switch(gx_ui::GxUI& ui, const char* sw_type, Parameter& param)
+{
+	if (param.isFloat()) {
+		return new UiSwitchFloat(ui, sw_type, param.getFloat());
+	} else {
+		return new UiSwitchBool(ui, sw_type, param.getBool());
+	}
+}
+
+void UiSwitchFloat::on_toggled()
 {
 	modifyZone(get_active());
 }
 
-void UiSwitch::reflectZone()
+void UiSwitchFloat::reflectZone()
 {
 	float v = *fZone;
 	fCache = v;
 	set_active(v != 0.0);
 }
 
-GtkWidget *UiSwitch::create(gx_ui::GxUI& ui, const char* sw_type, string id)
-{
-	if (!parameter_map.hasId(id)) {
-		return 0;
-	}
-	return (new UiSwitch(ui, sw_type, parameter_map[id]))->get_widget();
-}
-
-UiSwitch::UiSwitch(gx_ui::GxUI& ui, const char *sw_type, Parameter &param):
-	gx_ui::GxUiItem(&ui, get_vp(param)),
-	Gxw::Switch(sw_type)
+UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, FloatParameter &param):
+	UiSwitch(sw_type),
+	gx_ui::GxUiItemFloat(&ui, &param.value)
 {
 	param.set_std_value();
-	bool v;
-	if (param.isFloat()) {
-		v = param.getFloat().value != 0.0;
-	} else {
-		assert(param.isInt()); /*FIXME*/
-		v = param.getInt().value;
-	}
-	set_active(v);
+	set_active(param.value != 0.0);
 	cp_set_var(param.id());
 	connect_midi_controller(GTK_WIDGET(gobj()), fZone);
 	show();
 }
 
-GtkWidget* UiSwitchWithCaption::create(gx_ui::GxUI& ui, const char *sw_type, string id, Gtk::PositionType pos)
+void UiSwitchBool::on_toggled()
+{
+	modifyZone(get_active());
+}
+
+void UiSwitchBool::reflectZone()
+{
+	bool v = *fZone;
+	fCache = v;
+	set_active(v != 0);
+}
+
+UiSwitchBool::UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, BoolParameter &param):
+	UiSwitch(sw_type),
+	gx_ui::GxUiItemBool(&ui, &param.value)
+{
+	param.set_std_value();
+	set_active(param.value);
+	cp_set_var(param.id());
+	connect_midi_controller(GTK_WIDGET(gobj()), fZone);
+	show();
+}
+
+GtkWidget* UiSwitchWithCaption::create(
+	gx_ui::GxUI& ui, const char *sw_type, string id, Gtk::PositionType pos)
 {
 	if (!parameter_map.hasId(id)) {
 		return 0;
@@ -1711,7 +1800,8 @@ GtkWidget* UiSwitchWithCaption::create(gx_ui::GxUI& ui, const char *sw_type, str
 	return create(ui, sw_type, id, parameter_map[id].name(), pos);
 }
 
-GtkWidget* UiSwitchWithCaption::create(gx_ui::GxUI& ui, const char *sw_type, string id, Glib::ustring label, Gtk::PositionType pos)
+GtkWidget* UiSwitchWithCaption::create(
+	gx_ui::GxUI& ui, const char *sw_type, string id, Glib::ustring label, Gtk::PositionType pos)
 {
 	if (!parameter_map.hasId(id)) {
 		return 0;
@@ -1721,9 +1811,8 @@ GtkWidget* UiSwitchWithCaption::create(gx_ui::GxUI& ui, const char *sw_type, str
 
 UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, Parameter &param,
                                          Glib::ustring label, Gtk::PositionType pos):
-	UiSwitch(ui, sw_type, param)
+	m_switch(UiSwitch::new_switch(ui, sw_type, param))
 {
-	//FIXME use Gtk::Orientable interface when gtk >= 2.16 can be used
 	m_label.set_text(label);
 	m_label.set_name("effekt_label");
 	if (pos == Gtk::POS_LEFT || pos == Gtk::POS_RIGHT) {
@@ -1733,9 +1822,9 @@ UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, P
 	}
 	if (pos == Gtk::POS_LEFT || pos == Gtk::POS_TOP) {
 		m_box->pack_start(m_label, Gtk::PACK_SHRINK);
-		m_box->pack_start(*this, Gtk::PACK_SHRINK);
+		m_box->pack_start(*m_switch, Gtk::PACK_SHRINK);
 	} else {
-		m_box->pack_start(*this, Gtk::PACK_SHRINK);
+		m_box->pack_start(*m_switch, Gtk::PACK_SHRINK);
 		m_box->pack_start(m_label, Gtk::PACK_SHRINK);
 	}
 	m_box->set_name(param.id());
@@ -1744,13 +1833,14 @@ UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, P
 
 UiSwitchWithCaption::~UiSwitchWithCaption()
 {
+	delete m_switch;
 	delete m_box;
 }
 
 UiCabSwitch::UiCabSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label):
 	UiSwitchWithCaption(ui, sw_minitoggle, param, label, Gtk::POS_RIGHT)
 {
-	signal_toggled().connect(sigc::mem_fun(*this, &UiCabSwitch::on_switch_toggled));
+	m_switch->signal_toggled().connect(sigc::mem_fun(*this, &UiCabSwitch::on_switch_toggled));
 }
 
 GtkWidget* UiCabSwitch::create(gx_ui::GxUI& ui, string id, Glib::ustring label)
@@ -1798,13 +1888,13 @@ class GxDialogButtonBox
 {
 public:
 	Gtk::HBox box;
-	UiSwitch show_dialog;
+	UiSwitchBool show_dialog;
 	GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog);
 };
 
 GxDialogButtonBox::GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog):
 	box(false, 0),
-	show_dialog(ui, sw_button, param_dialog)
+	show_dialog(ui, sw_button, param_dialog.getBool())
 {
 	show_dialog.modify_bg(Gtk::STATE_NORMAL, Gdk::Color("#7f7f7f"));
 	show_dialog.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#000094"));
@@ -1826,13 +1916,19 @@ public:
 	Gxw::PaintBox paintbox;
 	Gtk::VBox box4;
 	Gtk::HBox box5;
-	UiSwitch unit_on_off;
+	UiSwitch* unit_on_off;
 	Gtk::Frame frame;
 	Gtk::Label label;
 	Gtk::Button reset_button;
 	Gtk::ToggleButton& dialog_button;
 	GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog, Parameter& param_switch, Gtk::ToggleButton& button);
+	~GxDialogWindowBox();
 };
+
+GxDialogWindowBox::~GxDialogWindowBox()
+{
+	delete unit_on_off;
+}
 
 void GxDialogWindowBox::on_dialog_button_toggled()
 {
@@ -1855,7 +1951,7 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog,
 	window(Gtk::WINDOW_TOPLEVEL),
 	box(false, 8),
 	box5(false, 4),
-	unit_on_off(ui, sw_led, param_switch),
+	unit_on_off( UiSwitch::new_switch(ui, sw_led, param_switch)),
 	dialog_button(button)
 {
 	group_id = param_dialog.id().substr(0, param_dialog.id().find_last_of(".")).c_str();
@@ -1883,7 +1979,7 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog,
 	window.signal_delete_event().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_window_delete_event));
 	frame.set_label(title);
-	box5.add(unit_on_off);
+	box5.add(*unit_on_off);
 	box5.add(frame);
 	box5.add(reset_button);
 	reset_button.signal_pressed().connect(
@@ -1909,12 +2005,12 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 
 
 //-------- collect patch info for stage display
-struct uiPatchDisplay : public gx_ui::GxUiItem
+struct uiPatchDisplay : public gx_ui::GxUiItemFloat
 {
 	GtkWidget* fdialog;
 
 	uiPatchDisplay(gx_ui::GxUI* ui, float* zone, GtkWidget* dialog)
-		: gx_ui::GxUiItem(ui, zone), fdialog(dialog) {}
+		: gx_ui::GxUiItemFloat(ui, zone), fdialog(dialog) {}
 
 	virtual void reflectZone()
 		{
@@ -1998,7 +2094,7 @@ void GxMainInterface::openPatchInfoBox(float* zone)
 // ------------------------------ Num Display -----------------------------------
 
 uiTuner::uiTuner(gx_ui::GxUI* ui, float* zone):
-	gx_ui::GxUiItem(ui, zone),
+	gx_ui::GxUiItemFloat(ui, zone),
 	Gtk::Alignment(0.5,0.5,0,0)
 {
 	add(fTuner);
@@ -2021,13 +2117,13 @@ void GxMainInterface::addNumDisplay()
 	fTuner.hide(); // addWidget shows the widget
 }
 
-struct uiStatusDisplay : public gx_ui::GxUiItem
+struct uiStatusDisplay : public gx_ui::GxUiItemFloat
 {
 	GtkLabel* fLabel;
 	int	fPrecision;
 
 	uiStatusDisplay(gx_ui::GxUI* ui, float* zone, GtkLabel* label)
-		: gx_ui::GxUiItem(ui, zone), fLabel(label) {}
+		: gx_ui::GxUiItemFloat(ui, zone), fLabel(label) {}
 
 	virtual void reflectZone()
 		{
@@ -2870,6 +2966,12 @@ void GxMainInterface::addJackServerMenu()
 	}
 }
 
+
+void GxMainInterface::set_waveview_buffer()
+{
+	fWaveView.set_frame(gx_engine::get_frame, gx_jack::jack_bs);
+}
+
 //---- show main GUI
 void GxMainInterface::show()
 {
@@ -2935,7 +3037,7 @@ void GxMainInterface::run()
 		return;
 	}
 
-	fWaveView.set_frame(gx_engine::get_frame, gx_jack::jack_bs); //FIXME move to proper place
+	set_waveview_buffer();
 	gtk_main();
 }
 

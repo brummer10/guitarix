@@ -190,13 +190,15 @@ bool GxConvolverBase::start()
 	return true;
 }
 
-void GxConvolverBase::checkstate()
+bool GxConvolverBase::checkstate()
 {
 	if (state() == Convproc::ST_WAIT) {
 		check();
+		return false;
 	} else if (state() == ST_STOP) {
 		ready = false;
 	}
+	return true;
 }
 
 

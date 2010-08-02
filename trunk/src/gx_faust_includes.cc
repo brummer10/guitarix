@@ -190,7 +190,6 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust/reso_tube.cc"
 #include "faust/tube.cc"
 #include "faust/tubevibrato.cc"
-#include "faust/tonestack.cc"
 #include "faust/multifilter.cc"
 #include "faust/bassbooster.cc"
 #include "faust/feed.cc"
@@ -201,6 +200,23 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust/eq.cc"
 #include "faust/tube3.cc"
 
+// tone stack
+static struct ToneStackParams { ToneStackParams(); } ToneStackParams;
+ToneStackParams::ToneStackParams() {
+	static FAUSTFLOAT v1, v2, v3;
+	registerVar("amp.tonestack.Treble","","S","",&v1, 0.5, 0.0, 1.0, 0.01);
+	registerVar("amp.tonestack.Bass",  "","S","",&v2, 0.5, 0.0, 1.0, 0.01);
+	registerVar("amp.tonestack.Middle","","S","",&v3, 0.5, 0.0, 1.0, 0.01);
+}
+#include "faust/tonestack_default.cc"
+#include "faust/tonestack_bassman.cc"
+#include "faust/tonestack_twin.cc"
+#include "faust/tonestack_princeton.cc"
+#include "faust/tonestack_jcm800.cc"
+#include "faust/tonestack_jcm2000.cc"
+#include "faust/tonestack_mlead.cc"
+#include "faust/tonestack_m2199.cc"
+#include "faust/tonestack_ac30.cc"
 
 // effects
 #include "faust/overdrive.cc"
@@ -227,9 +243,9 @@ static void activate_callback(float val, void *data)
 
 static void faust_add_callback(const char* id, void (*func)(bool,int))
 {
-	new gx_ui::GxUiCallbackItem(gx_gui::GxMainInterface::instance(),
-	                            (float*)gx_gui::parameter_map[id].zone(),
-	                            activate_callback, (void*)func);
+	new gx_ui::GxUiCallbackItemFloat(gx_gui::GxMainInterface::instance(),
+	                                 (float*)gx_gui::parameter_map[id].zone(),
+	                                 activate_callback, (void*)func);
 }
 
 void faust_init(int samplingFreq)

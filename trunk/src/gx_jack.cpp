@@ -546,16 +546,16 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg)
 	// ----- if check button triggered menually
 
 	// let's avoid triggering the jack server on "inactive"
-	if (gtk_check_menu_item_get_active(menuitem) == false)
+	if (gtk_check_menu_item_get_active(menuitem) == false) {
 		return;
-
+	}
 	// requested latency
 	jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
 
 	// if the actual buffer size is the same, no need further action
-	if (buf_size == jack_get_buffer_size(client))
+	if (buf_size == jack_get_buffer_size(client)) {
 		return;
-
+	}
 
 	// first time useage warning
 	GxJackLatencyChange change_latency = kChangeLatency;
@@ -565,38 +565,17 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg)
 		change_latency = (GxJackLatencyChange)gx_gui::gx_wait_latency_warn();
 
 	// let's see
-	if (change_latency == kChangeLatency)
-	{
-		int jcio = 0;
-		if (conv.is_runnable())
-		{
-			jcio = 1;
-			gx_jconv::GxJConvSettings::checkbutton7 = 0;
-			gx_jconv::checkbox7 = 0.0;
-			gx_gui::gx_start_stop_jconv(NULL, NULL);
-		}
-
+	if (change_latency == kChangeLatency) {
 		// let's resize the buffer
 		if (jack_set_buffer_size (client, buf_size) != 0)
 			gx_print_warning("Setting Jack Buffer Size",
 			                 "Could not change latency");
-
-		if (jcio == 1)
-		{
-			jcio = 0;
-			gx_jconv::GxJConvSettings::checkbutton7 = 1;
-			gx_jconv::checkbox7 = 1.0;
-			gx_gui::gx_start_stop_jconv(NULL, NULL);
-		}
-	}
-	else // restore latency status
-	{
+	} else { // restore latency status
 		// refresh latency check menu
 		gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
 		GtkWidget* wd = gui->getJackLatencyItem(jack_bs);
 		if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 	}
-
 	gx_print_info("Jack Buffer Size",
 	              string("latency is ") +
 	              gx_i2a(jack_get_buffer_size(client)));
@@ -721,9 +700,17 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 	result = new float[jack_bs+46];
 	(void)memset(result, 0, sizeof(float)*jack_bs+46);
 
-	// set new buffersize to the oscilloscope
-    gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
-    gui->getWaveView().set_frame(gx_engine::get_frame, gx_jack::jack_bs);
+	gx_gui::GxMainInterface::instance()->set_waveview_buffer();
+	if (cab_conv.is_runnable()) {
+		cab_conv.set_not_runnable();
+		Glib::signal_idle().connect(
+			sigc::bind_return(sigc::ptr_fun(gx_gui::cab_conv_restart), false));
+	}
+	if (conv.is_runnable()) {
+		conv.set_not_runnable();
+		Glib::signal_idle().connect(
+			sigc::bind_return(sigc::ptr_fun(gx_gui::conv_restart), false));
+	}
 
     /* reset convolver buffer for buffersize change*/
 	if (gx_engine::conv.is_runnable() && gx_jconv::GxJConvSettings::checkbutton7 == 1)  {

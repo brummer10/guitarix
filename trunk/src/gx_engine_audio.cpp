@@ -43,6 +43,11 @@ inline void registerNonMidiParam(const char*a, float*c, bool d, float std=0, flo
 	gx_gui::parameter_map.insert(new gx_gui::FloatParameter(a,"",gx_gui::Parameter::None,d,*c,std,lower,upper,0,false));
 }
 
+inline void registerNonMidiParam(const char*a, bool*c, bool d, float std=false)
+{
+	gx_gui::parameter_map.insert(new gx_gui::BoolParameter(a,"",gx_gui::Parameter::None,d,*c,std,0,false));
+}
+
 // should be int
 inline void registerEnumParam(const char*a,const char*b,const char** vl,float*c,int std=0,bool exp=false)
 {
@@ -110,6 +115,8 @@ AudioVariables::AudioVariables()
 	static const char *amp_model[] = {"amp 1","amp 2",0};
 	registerEnumParam("amp.model", "select", amp_model, &witchamp, 0);
 	gx_gui::registerParam("cab.on_off", "Cab-ImpResp", &fcab,0);
+	static const char *tonestack_model[] = {"default","Bassman","Twin Reverb","Princeton","JCM-800","JCM-2000","M-Lead","M2199","AC-30","Off",0};
+	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
 
 	// only save and restore, no midi control
 
@@ -543,7 +550,37 @@ void process_buffers(int count, float* input, float* output0)
 	    convolver_filter(output0, output0, count, (unsigned int)audio.convolvefilter);
     }
     inputgain::compute(count, output0, output0);
-    tonestack::compute(count, output0, output0);
+    switch (audio.tonestack) {
+    case 0: //"default"
+	    tonestack_default::compute(count, output0, output0);
+	    break;
+    case 1: //"Bassman"
+	    tonestack_bassman::compute(count, output0, output0);
+	    break;
+    case 2: //"Twin Reverb"
+	    tonestack_twin::compute(count, output0, output0);
+	    break;
+    case 3: //"Princeton"
+	    tonestack_princeton::compute(count, output0, output0);
+	    break;
+    case 4: //"JCM-800"
+	    tonestack_jcm800::compute(count, output0, output0);
+	    break;
+    case 5: //"JCM-2000"
+	    tonestack_jcm2000::compute(count, output0, output0);
+	    break;
+    case 6: //"M-Lead"
+	    tonestack_mlead::compute(count, output0, output0);
+	    break;
+    case 7: //"M2199"
+	    tonestack_m2199::compute(count, output0, output0);
+	    break;
+    case 8: //"AC-30"
+	    tonestack_ac30::compute(count, output0, output0);
+	    break;
+    case 9: //"Off"
+	    break;
+    }
     if (audio.fresoon && !audio.famp2) {
 	    tubevibrato::compute(count, output0, output0);
     }

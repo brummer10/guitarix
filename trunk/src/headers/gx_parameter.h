@@ -211,7 +211,7 @@ public:
 	virtual void readJSON_value(gx_system::JsonParser& jp);
 	BoolParameter(string id, string name, ctrl_type ctp, bool preset,
 	              bool &v, bool sv, bool ctrl, bool exp=false):
-		Parameter(id, name, tp_float, ctp, preset, ctrl, exp),
+		Parameter(id, name, tp_bool, ctp, preset, ctrl, exp),
 		value(v), std_value(sv)
 		{}
 };
@@ -275,6 +275,7 @@ public:
 
 inline FloatParameter &Parameter::getFloat()
 {
+	if (!isFloat()) printf("%s\n", _id.c_str());
 	assert(isFloat());
 	return static_cast<FloatParameter&>(*this);
 }
@@ -287,6 +288,7 @@ inline IntParameter &Parameter::getInt()
 
 inline BoolParameter &Parameter::getBool()
 {
+	if (!isBool()) printf("%s\n", _id.c_str());
 	assert(isBool());
 	return static_cast<BoolParameter&>(*this);
 }
@@ -347,11 +349,13 @@ inline void registerParam(const char*a,const char*b,float*c,float std=0)
 	parameter_map.insert(new FloatParameter(a,b,Parameter::Switch,true,*c,std,0,1,1,true));
 }
 
+#if 0
 // should be bool
 inline void registerParam(const char*a,const char*b,int*c,int d)
 {
 	parameter_map.insert(new IntParameter(a,b,Parameter::Switch,true,*c,d,0,1065353216,true)); //FIXME (see above float/int)
 }
+#endif
 
 inline void registerParam(const char*a,const char*b,bool*c,bool d=false, bool exp=false)
 {

@@ -56,7 +56,7 @@ struct TypeTraits<GObject*>
 namespace gx_jconv
 {
 
-class uiToggle: gx_ui::GxUiItem
+class uiToggle: gx_ui::GxUiItemFloat
 {
 protected:
 	Glib::RefPtr<Gtk::ToggleButton> button;
@@ -67,7 +67,7 @@ public:
 };
 
 uiToggle::uiToggle(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, float *zone):
-	gx_ui::GxUiItem(&ui, zone),
+	gx_ui::GxUiItemFloat(&ui, zone),
 	button(b)
 {
 	button->signal_toggled().connect(sigc::mem_fun(*this, &uiToggle::on_button_toggled));
@@ -173,7 +173,7 @@ private:
 	void load_data(Glib::ustring filename);
 	void load_state();
 	bool save_state();
-	double calc_normalized_gain(int offset, int length);
+	double calc_normalized_gain(int offset, int length, const Gainline& points);
 	void destroy_self();
 
 
@@ -481,12 +481,36 @@ void IRWindow::load_data(Glib::ustring f)
 	wIredit->set_ir_data(audio_buffer, audio_chan, audio_size, audio.rate());
 }
 
-double IRWindow::calc_normalized_gain(int offset, int length)
+//FIXME: gainline code just copied from GxConvolver::read_sndfile, move to 1 location
+inline void compute_interpolation(float& fct, float& gp, unsigned int& idx, const Gainline& points, int offset)
+{
+	fct = (points[idx+1].g-points[idx].g)/(20*(points[idx+1].i-points[idx].i));
+	gp = points[idx].g/20 + fct * (offset-points[idx].i);
+	idx++;
+}
+
+double IRWindow::calc_normalized_gain(int offset, int length, const Gainline& points)
 {
 	double gain = 0.0;
+	unsigned int idx = 0; // current index in gainline point array
+	float gp = 1.0, fct = 0.0; // calculated parameter of interpolation line
+	if (points.size()) {
+		while (points[idx].i < offset) {
+			idx++;
+			assert(idx < points.size());
+		}
+		if (points[idx].i > offset) {
+			idx--;
+			compute_interpolation(fct, gp, idx, points, 0);
+		}
+	}
 	for (int i = offset; i < offset+length; i++) {
+		if (idx+1 < points.size() && points[idx].i == i) {
+			compute_interpolation(fct, gp, idx, points, 0);
+		}
+		double g = pow(10, gp + i*fct);
 		for (int j = 0; j < audio_chan; j++) {
-			float v = audio_buffer[i*audio_chan+j];
+			float v = audio_buffer[i*audio_chan+j] * g;
 			gain += v*v;
 		}
 	}
@@ -517,7 +541,7 @@ bool IRWindow::save_state()
 	jcset.setLength(length);
 	jcset.setFullIRPath(filename);
 	jcset.setGainline(gainline);
-	float gain = calc_normalized_gain(offset, length);
+	float gain = calc_normalized_gain(offset, length, gainline);
 	jcset.setGain(gain);
 	return true;
 }

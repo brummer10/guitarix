@@ -27,6 +27,7 @@
 
 using namespace std;
 #include "gx_ui.h"
+#include <limits.h>
 
 namespace gx_ui
 {
@@ -39,7 +40,7 @@ GxUI::GxUI()
 }
 
 // -- registerZone(z,c) : zone management
-void GxUI::registerZone(float* z, GxUiItem* c)
+void GxUI::registerZone(void* z, GxUiItem* c)
 {
 	if (fZoneMap.find(z) == fZoneMap.end()) fZoneMap[z] = new clist();
 	fZoneMap[z]->push_back(c);
@@ -55,12 +56,11 @@ void GxUI::updateAllGuis()
 }
 
 // Update all user items reflecting zone z
-inline void GxUI::updateZone(float* z)
+inline void GxUI::updateZone(void* z)
 {
-	float 	v = *z;
 	clist* 	l = fZoneMap[z];
 	for (clist::iterator c = l->begin(); c != l->end(); c++)
-		if ((*c)->cache() != v) (*c)->reflectZone();
+		if ((*c)->hasChanged()) (*c)->reflectZone();
 }
 
 // Update all user items not up to date
@@ -68,24 +68,36 @@ inline void GxUI::updateAllZones()
 {
 	for (zmap::iterator m = fZoneMap.begin(); m != fZoneMap.end(); m++)
 	{
-		float* 	z = m->first;
 		clist*	l = m->second;
-		float	v = *z;
 		for (clist::iterator c = l->begin(); c != l->end(); c++) {
-			if ((*c)->cache() != v) (*c)->reflectZone();
+			if ((*c)->hasChanged()) (*c)->reflectZone();
 		}
 	}
 }
 
 /* ---------------- GxUiItem stuff --------------- */
-GxUiItem::GxUiItem (GxUI* ui, float* zone)
-	: fGUI(ui), fZone(zone), fCache(-123456.654321)
+GxUiItem::~GxUiItem()
+{
+}
+
+GxUiItemFloat::GxUiItemFloat(GxUI* ui, float* zone)
+	: GxUiItem(ui), fZone(zone), fCache(-123456.654321)
 {
 	ui->registerZone(zone, this);
 }
 
-// modify zone
-void GxUiItem::modifyZone(float v)
+GxUiItemInt::GxUiItemInt(GxUI* ui, int* zone)
+	: GxUiItem(ui), fZone(zone), fCache(INT_MAX)
+{
+	ui->registerZone(zone, this);
+}
+
+bool GxUiItemInt::hasChanged()
+{
+	return *fZone != fCache;
+}
+
+void GxUiItemInt::modifyZone(int v)
 {
 	fCache = v;
 	if (*fZone != v) {
@@ -94,18 +106,47 @@ void GxUiItem::modifyZone(float v)
 	}
 }
 
-// item cache
-float	GxUiItem::cache()
+GxUiItemBool::GxUiItemBool(GxUI* ui, bool* zone)
+	: GxUiItem(ui), fZone(zone), fCache(INT_MAX)
 {
-	return fCache;
+	ui->registerZone(zone, this);
+}
+
+bool GxUiItemBool::hasChanged()
+{
+	return *fZone != fCache;
+}
+
+void GxUiItemBool::modifyZone(bool v)
+{
+	fCache = v;
+	if (*fZone != v) {
+		*fZone = v;
+		fGUI->updateZone(fZone);
+	}
+}
+
+bool GxUiItemFloat::hasChanged()
+{
+	return *fZone != fCache;
+}
+
+// modify zone
+void GxUiItemFloat::modifyZone(float v)
+{
+	fCache = v;
+	if (*fZone != v) {
+		*fZone = v;
+		fGUI->updateZone(fZone);
+	}
 }
 
 /* ----------------- GxUiCallbackItem stuff ---------------- */
-GxUiCallbackItem::GxUiCallbackItem(GxUI* ui, float* zone, GxUiCallback foo, void* data)
-	: GxUiItem(ui, zone), fCallback(foo), fData(data) {}
+GxUiCallbackItemFloat::GxUiCallbackItemFloat(GxUI* ui, float* zone, GxUiCallback foo, void* data)
+	: GxUiItemFloat(ui, zone), fCallback(foo), fData(data) {}
 
 // reflect zone
-void GxUiCallbackItem::reflectZone()
+void GxUiCallbackItemFloat::reflectZone()
 {
 	float v = *fZone;
 	fCache  = v;

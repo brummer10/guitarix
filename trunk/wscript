@@ -120,6 +120,12 @@ def set_options(opt):
     opt.recurse('glade-gxw')
 
     opt.tool_options('compiler_cc') # for pygxw and glade-gxw
+    opt.add_option('--no-pkg',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=("don't include debian directory in tarfile"
+                         " (option only for command 'dist')"))
 
 def check_comp(conf):
     if Options.options.includeresampler:
@@ -441,12 +447,16 @@ def etags(ctx):
     Utils.exec_command(cmd)
 
 def dist(ctx):
+    "makes a tarball for redistributing the sources"
     try:
         import pysvn
     except ImportError:
         raise Utils.WafError("you need to install pysvn to use the dist command"
                              " (debian package python-svn)")
-    Scripting.dist(ctx)
+    version = Utils.g_module.VERSION
+    if Options.options.no_pkg:
+        version += '-nopkg'
+    Scripting.dist(version=version)
 
 def copytree(src,dst,build_dir):
     import pysvn

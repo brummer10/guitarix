@@ -84,6 +84,9 @@ static void gx_selector_class_init(GxSelectorClass *klass)
 
 static int get_selector_state(GxSelector *selector)
 {
+	if (!selector->model) {
+		return 0;
+	}
 	int n = gtk_tree_model_iter_n_children(selector->model, NULL);
 	int selectorstate = gtk_range_get_value(GTK_RANGE(selector));
 	if (selectorstate < 0 || selectorstate >= n) {
@@ -236,6 +239,9 @@ static void gx_selector_size_request(GtkWidget *widget, GtkRequisition *requisit
 {
 	g_assert(GX_IS_SELECTOR(widget));
 	GxSelector *selector = GX_SELECTOR(widget);
+	if (!selector->model) {
+		return;
+	}
 	GxSelectorPrivate *priv = GX_SELECTOR_GET_PRIVATE(selector);
 	if (priv->req_ok) {
 		gtk_widget_get_child_requisition(widget, requisition);

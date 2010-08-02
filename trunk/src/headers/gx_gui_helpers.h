@@ -56,7 +56,7 @@ void gx_set_skin_change(float fskin);
 /* engine status and switch */
 void gx_refresh_engine_status_display();
 void gx_engine_switch (GtkWidget* widget, gpointer arg);
-
+void cab_conv_restart();
 
 /* jack client and port mapping functions */
 void gx_jack_is_down();
@@ -99,7 +99,6 @@ gint gx_nchoice_dialog_without_entry (
 void gx_midi_out               (GtkCheckMenuItem*, gpointer);
 void gx_log_window             (GtkWidget*, gpointer);
 void gx_patch                  (GtkCheckMenuItem*, gpointer );
-
 
 void gx_systray_menu            (GtkWidget*, gpointer);
 void gx_reset_units             (Glib::ustring group_id);
