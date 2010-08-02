@@ -627,7 +627,7 @@ static gboolean gx_rename_main_widget(gpointer data)
     string title = string("guitarix ") + gx_current_preset;
 	gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), title.c_str());
 	// reload convolver settings widget
-	gx_jconv::gx_reload_jcgui();
+	//gx_jconv::gx_reload_jcgui();
     return false;
 }
 

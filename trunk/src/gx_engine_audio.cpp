@@ -603,7 +603,7 @@ void process_buffers(int count, float* input, float* output0)
     }
     if (audio.fsloop && sloop::is_inited()) {
 	    sloop::compute(count, output0, output0);
-    } 
+    }
 }
 
 void process_insert_buffers (int count, float* input1, float* output0, float* output1)

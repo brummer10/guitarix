@@ -694,6 +694,10 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 	result = new float[jack_bs+46];
 	(void)memset(result, 0, sizeof(float)*jack_bs+46);
 
+	// set new buffersize to the oscilloscope
+    gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
+    gui->getWaveView().set_frame(gx_engine::get_frame, gx_jack::jack_bs);
+
 	// restore previous state
 	checky = (float)estate;
 	// return 0 to jack

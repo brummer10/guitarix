@@ -264,8 +264,9 @@ public :
 	// -- acquire a pointer to the logging window
 	GtkTextView* const getLoggingWindow()    const { return fLoggingWindow;   }
 	GtkExpander* const getLoggingBox()       const { return fLoggingBox;      }
-
 	GtkWidget*   const getJackConnectItem()  const { return fJackConnectItem; }
+
+    Gxw::WaveView& getWaveView()                   { return fWaveView;        }
 
 	Gxw::FastMeter& getLevelMeter(unsigned int i)
 		{ assert(i < sizeof(fLevelMeters)/sizeof(fLevelMeters[0])); return fLevelMeters[i]; }
