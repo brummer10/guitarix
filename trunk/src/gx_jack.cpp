@@ -262,9 +262,20 @@ void gx_jack_callbacks_and_activate()
 	}
 }
 
+static gboolean gx_engine_restart(gpointer data)
+{
+	usleep(5);
+	checky = (float)kEngineOn;
+	return false;
+}
+
 //----- connect ports if we know them
 void gx_jack_init_port_connection(const string* optvar)
 {
+    // set engine off for one GTK thread cycle to avoid Xrun at startup
+    gx_gui::g_threads[4] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,gx_engine_restart,NULL,NULL);
+    checky = (float)kEngineOff;
+
 	// set autoconnect capture to user capture port
 	if (!optvar[JACK_INP].empty())
 	{
@@ -335,6 +346,7 @@ void gx_jack_init_port_connection(const string* optvar)
 	if (!ifound || !ofound) {
 		jack_connect(client_insert, jack_port_name(output_ports[0]), (client_insert_name+":in_0").c_str());
 	}
+
 }
 
 //----- pop up a dialog for starting jack
@@ -653,6 +665,21 @@ int gx_jack_xrun_callback (void* arg)
 	return 0;
 }
 
+static gboolean gx_convolver_restart(gpointer data)
+{
+    gx_engine::conv.stop();
+    while (gx_engine::conv.is_runnable()) gx_engine::conv.checkstate();
+    gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
+    bool rc = gx_engine::conv.configure(
+	    gx_jack::jack_bs, gx_jack::jack_sr, jcset->getFullIRPath(),
+	    jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
+	    jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline());
+    if (!rc || !gx_engine::conv.start()) {
+        gx_jconv::GxJConvSettings::checkbutton7 = 0;
+    }
+    return false;
+}
+
 //---- jack buffer size change callback
 int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 {
@@ -697,6 +724,12 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 	// set new buffersize to the oscilloscope
     gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
     gui->getWaveView().set_frame(gx_engine::get_frame, gx_jack::jack_bs);
+
+    /* reset convolver buffer for buffersize change*/
+	if (gx_engine::conv.is_runnable() && gx_jconv::GxJConvSettings::checkbutton7 == 1)  {
+		gx_engine::conv.stop();
+        gx_gui::g_threads[3] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,gx_convolver_restart,NULL,NULL);
+	}
 
 	// restore previous state
 	checky = (float)estate;

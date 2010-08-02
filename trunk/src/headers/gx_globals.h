@@ -255,7 +255,7 @@ extern sem_t               program_change_sem;
 
 extern int show_eq;
 
-extern int g_threads[4];
+extern int g_threads[5];
 
 }
 
