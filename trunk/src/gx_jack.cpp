@@ -644,21 +644,6 @@ int gx_jack_xrun_callback (void* arg)
 	return 0;
 }
 
-static gboolean gx_convolver_restart(gpointer data)
-{
-    gx_engine::conv.stop();
-    while (gx_engine::conv.is_runnable()) gx_engine::conv.checkstate();
-    gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
-    bool rc = gx_engine::conv.configure(
-	    gx_jack::jack_bs, gx_jack::jack_sr, jcset->getFullIRPath(),
-	    jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
-	    jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline());
-    if (!rc || !gx_engine::conv.start()) {
-        gx_jconv::GxJConvSettings::checkbutton7 = 0;
-    }
-    return false;
-}
-
 //---- jack buffer size change callback
 int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 {
@@ -710,12 +695,6 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 		conv.set_not_runnable();
 		Glib::signal_idle().connect(
 			sigc::bind_return(sigc::ptr_fun(gx_gui::conv_restart), false));
-	}
-
-    /* reset convolver buffer for buffersize change*/
-	if (gx_engine::conv.is_runnable() && gx_jconv::GxJConvSettings::checkbutton7 == 1)  {
-		gx_engine::conv.stop();
-        gx_gui::g_threads[3] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,gx_convolver_restart,NULL,NULL);
 	}
 
 	// restore previous state
