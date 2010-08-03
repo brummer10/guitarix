@@ -78,6 +78,7 @@ public:
 		used(false),
 		experimental(exp)
 		{}
+	virtual ~Parameter();
 
 #ifndef NDEBUG
 	bool isUsed() const { return used; }
@@ -129,6 +130,7 @@ public:
 	float std_value;
 	float lower, upper, step;
 	void set(float val) const { value = min(max(val, lower), upper); }
+	void convert_from_range(float low, float up);
 	virtual void *zone();
 	virtual void set_std_value();
 	virtual void set(int n, int high, float llimit, float ulimit);
@@ -275,7 +277,6 @@ public:
 
 inline FloatParameter &Parameter::getFloat()
 {
-	if (!isFloat()) printf("%s\n", _id.c_str());
 	assert(isFloat());
 	return static_cast<FloatParameter&>(*this);
 }
@@ -288,7 +289,6 @@ inline IntParameter &Parameter::getInt()
 
 inline BoolParameter &Parameter::getBool()
 {
-	if (!isBool()) printf("%s\n", _id.c_str());
 	assert(isBool());
 	return static_cast<BoolParameter&>(*this);
 }

@@ -23,6 +23,7 @@
  */
 
 #include <gxw/GxRegler.h>
+#include <string.h> // needed by some compiler because of generated strlen()
 
 namespace
 {

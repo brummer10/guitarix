@@ -15,7 +15,7 @@ from Configure import ConfigurationError
 import Configure, Scripting
 
 # used by waf dist and waf build
-VERSION='0.11.0svn'
+VERSION='0.11.0'
 APPNAME='guitarix'
 
 good_faust_versions = ['0.9.24','0.9.27']
@@ -307,6 +307,7 @@ def configure(conf):
     conf.check_cfg(package='gtk+-2.0', atleast_version='2.12.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.10', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='gtkmm-2.4', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
+    conf.check_cfg(package='giomm-2.4', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
     conf.check(header_name='ladspa.h', mandatory=1)
     conf.check(header_name='boost/format.hpp', mandatory=1)
@@ -356,7 +357,7 @@ def configure(conf):
     conf.env['CXXFLAGS'] = cxxflags
 
     # pygobject is used by both python and c++ wrapper
-    if Options.options.python_wrapper or not Options.options.use_generated_cpp:
+    if Options.options.python_wrapper or Options.options.generate_cpp_wrapper:
         conf.check_tool('python')
         conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT', mandatory=True)
         conf.cfg_get_variable(package='pygobject-2.0', variable='codegendir')
@@ -464,6 +465,8 @@ def copytree(src,dst,build_dir):
     os.mkdir(dst)
     for srcname, info in entries:
         if srcname == ".":
+            continue
+        if Options.options.no_pkg and srcname.startswith("debian"):
             continue
         dstname=os.path.join(dst,srcname)
         if os.path.isdir(srcname):

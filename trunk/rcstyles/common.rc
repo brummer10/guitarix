@@ -22,7 +22,7 @@ style "guitarix_switch"
   GtkButton::child-displacement-x = 0
   GtkButton::child-displacement-y = 0
   engine "clearlooks" {
-    disable_focus = TRUE
+    #disable_focus = TRUE
     style = CLASSIC
   }
 }

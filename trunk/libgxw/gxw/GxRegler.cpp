@@ -789,7 +789,7 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
 		GxReglerPrivate *priv = GX_REGLER_GET_PRIVATE(regler);
 		gint text_width = priv->value_req.width;
 		gint text_height = priv->value_req.height;
-		gint text_x, text_y;
+		gint text_x = 0, text_y = 0;
 		gint value_spacing;
 		gtk_widget_style_get(widget, "value-spacing", &value_spacing, NULL);
 		switch (regler->value_position) {

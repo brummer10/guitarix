@@ -28,6 +28,7 @@
 #define __GX_FAST_METER_H__
 
 #include <gtk/gtkdrawingarea.h>
+#include "compat2-12.h"
 
 G_BEGIN_DECLS
 

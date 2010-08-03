@@ -38,7 +38,6 @@
 
 using namespace gx_system;
 
-
 void init_unix_signal_handlers()
 {
 	/* ----- block signal USR1 ---------

@@ -20,6 +20,7 @@
 #define __GX_IR_EDIT_H__
 
 #include <gtk/gtkdrawingarea.h>
+#include "compat2-12.h"
 #include "gainpoints.h"
 
 G_BEGIN_DECLS
@@ -68,7 +69,7 @@ struct _GxIREdit {
 	gint y_border_top;
 	gint y_border_bottom;
 	gint x_border;
-	gdouble label_sep;
+	gint label_sep;
 	gdouble dot_diameter;
 	gdouble segment_distance;
 	gdouble limit;

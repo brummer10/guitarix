@@ -12,7 +12,7 @@ def set_options(opt):
                    const=True,
                    help=('build shared library'),
                    )
-    grp.add_option('--use-generated-cpp',
+    grp.add_option('--generate-cpp-wrapper',
                    action='store_const',
                    default=False,
                    const=True,
@@ -22,7 +22,7 @@ def set_options(opt):
 def configure(conf):
     conf.check_tool('misc')
     conf.cfg_get_variable(package='glibmm-2.4', variable='gmmprocdir')
-    conf.env["USE_GENERATED_CPP"] = Options.options.use_generated_cpp
+    conf.env["USE_GENERATED_CPP"] = not Options.options.generate_cpp_wrapper
     if Options.options.shared_lib:
         conf.env["GX_LIB_SHARED"] = True
     else:

@@ -107,7 +107,7 @@ void GxUiItemInt::modifyZone(int v)
 }
 
 GxUiItemBool::GxUiItemBool(GxUI* ui, bool* zone)
-	: GxUiItem(ui), fZone(zone), fCache(INT_MAX)
+	: GxUiItem(ui), fZone(zone), fCache(0)
 {
 	ui->registerZone(zone, this);
 }

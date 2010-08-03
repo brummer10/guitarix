@@ -20,6 +20,7 @@
 #define __GX_TOGGLE_IMAGE_H__
 
 #include <gtk/gtkmisc.h>
+#include "compat2-12.h"
 
 G_BEGIN_DECLS
 

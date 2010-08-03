@@ -21,6 +21,7 @@
 
 #include <gtk/gtktogglebutton.h>
 #include <gtk/gtklabel.h>
+#include "compat2-12.h"
 
 G_BEGIN_DECLS
 

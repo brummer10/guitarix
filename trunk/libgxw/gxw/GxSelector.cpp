@@ -88,7 +88,7 @@ static int get_selector_state(GxSelector *selector)
 		return 0;
 	}
 	int n = gtk_tree_model_iter_n_children(selector->model, NULL);
-	int selectorstate = gtk_range_get_value(GTK_RANGE(selector));
+	int selectorstate = (int)gtk_range_get_value(GTK_RANGE(selector));
 	if (selectorstate < 0 || selectorstate >= n) {
 		selectorstate =  0 ;
 		gtk_range_set_value(GTK_RANGE(selector), 0);
@@ -370,7 +370,7 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 		gtk_widget_grab_focus(widget);
 		gtk_grab_add(widget);
 		n = gtk_tree_model_iter_n_children(selector->model, NULL);
-		i = gtk_range_get_value(GTK_RANGE(widget)) + 1;
+		i = (int)gtk_range_get_value(GTK_RANGE(widget)) + 1;
 		gtk_range_set_range(GTK_RANGE(widget), 0, n-1);
 		if (i >= n) {
 			i = 0;

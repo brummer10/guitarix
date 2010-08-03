@@ -491,7 +491,23 @@ void write_preset(JsonWriter &w, bool write_midi, bool force_midi)
 	w.end_object(true);
 }
 
-void read_preset(JsonParser &jp, bool *has_midi)
+void fixup_parameters(int major, int minor)
+{
+	assert(gx_gui::parameter_map.hasId("jconv.wet_dry"));
+	if (major == majorversion && minor == minorversion) {
+		return;
+	}
+	if (major == 1 && minor < 2) {
+		if (gx_gui::parameter_map.hasId("jconv.wet_dry")) {
+			gx_gui::Parameter& p = gx_gui::parameter_map["jconv.wet_dry"];
+			if (p.isFloat()) {
+				p.getFloat().convert_from_range(-1,1);
+			}
+		}
+	}
+}
+
+void read_preset(JsonParser &jp, bool *has_midi, int major, int minor)
 {
 	gx_gui::paramlist plist;
 	if (has_midi) {
@@ -522,6 +538,7 @@ void read_preset(JsonParser &jp, bool *has_midi)
 	} while (jp.peek() == JsonParser::value_key);
 	jp.next(JsonParser::end_object);
 	gx_gui::controller_map.remove_controlled_parameters(plist, m);
+	fixup_parameters(major,minor);
 	for (gx_gui::paramlist::iterator i = plist.begin(); i != plist.end(); i++) {
 		(*i)->setJSON_value();
 	}
@@ -677,8 +694,8 @@ bool recallState( const string &filename )
 	try {
 		jp.next(JsonParser::begin_array);
 
-		int major;
-		readHeader(jp, &major);
+		int major, minor;
+		readHeader(jp, &major, &minor);
 		if (major != majorversion) {
 			if (major == 0) {
 				gx_print_info("recall settings", "loading converted state");
@@ -696,7 +713,7 @@ bool recallState( const string &filename )
 			if (jp.current_value() == "settings") {
 				read_parameters(jp, plist, false);
 			} else if (jp.current_value() == "current_preset") {
-				read_preset(jp);
+				read_preset(jp, 0, major, minor);
 			} else if (jp.current_value() == "midi_controller") {
 				gx_gui::controller_map.readJSON(jp, m);
 			} else if (jp.current_value() == "midi_ctrl_names") {

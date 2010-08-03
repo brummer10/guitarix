@@ -71,18 +71,14 @@ public:
 
 	// getters and setters
 	inline string getIRFile() const { return fIRFile; }
-	inline string getFullIRPath() const { return Glib::build_filename(fIRDir, fIRFile); }
+	string getFullIRPath() const;
 	inline float          getGain      () const { return fGain;       }
 	inline guint          getOffset    () const { return fOffset;     }
 	inline guint          getLength    () const { return fLength;     }
 	inline guint          getDelay     () const { return fDelay;      }
 	inline const Gainline& getGainline  () const { return gainline;    }
 
-	inline void setFullIRPath(string name)
-		{
-			fIRDir = Glib::path_get_dirname(name);
-			fIRFile= Glib::path_get_basename(name);
-		}
+	void setFullIRPath(string name);
 	inline void setGain      (float          gain) { fGain       = gain; }
 	inline void setOffset    (guint          offs) { fOffset     = offs; }
 	inline void setLength    (guint          leng) { fLength     = leng; }

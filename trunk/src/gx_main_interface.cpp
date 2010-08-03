@@ -623,8 +623,8 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	GtkWidget* lw1 = gtk_label_new("<");
 	gtk_container_add (GTK_CONTAINER(button), lw);
 	gtk_container_add (GTK_CONTAINER(button1), lw1);
-	gtk_widget_set_size_request (GTK_WIDGET(button), 20.0, 15.0);
-	gtk_widget_set_size_request (GTK_WIDGET(button1), 20.0, 15.0);
+	gtk_widget_set_size_request (GTK_WIDGET(button), 20, 15);
+	gtk_widget_set_size_request (GTK_WIDGET(button1), 20, 15);
 
 	gtk_widget_set_name (lw,"effekt_label");
 	gtk_widget_set_name (lw1,"effekt_label");
@@ -677,7 +677,7 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
 	gtk_widget_modify_font(lw, style->font_desc);
 
-	gtk_widget_set_size_request (GTK_WIDGET(button), 45.0, 15.0);
+	gtk_widget_set_size_request (GTK_WIDGET(button), 45, 15);
 
 	uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(button));
 
@@ -754,7 +754,7 @@ struct uiExpanderBox : public gx_ui::GxUiItemFloat
 		{
 			float 	v = *fZone;
 			fCache = v;
-			gtk_expander_set_expanded(GTK_EXPANDER(fButton), v);
+			gtk_expander_set_expanded(GTK_EXPANDER(fButton), (int)v);
 		}
 };
 
@@ -1082,7 +1082,7 @@ void GxMainInterface::openScrollBox(const char* label)
 	g_signal_connect (GTK_OBJECT (button), "clicked",
 	                  G_CALLBACK (uiOrderButton::resize), NULL);
 
-	gtk_widget_set_size_request (GTK_WIDGET(button), 10.0, -1.0);
+	gtk_widget_set_size_request (GTK_WIDGET(button), 10, -1);
 	gtk_container_add (GTK_CONTAINER(box1), button);
 	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbox),GTK_WIDGET(box));
 	gtk_container_add (GTK_CONTAINER(box1), scrollbox);
@@ -1367,7 +1367,7 @@ void GxMainInterface::addPToggleButton(const char* label, float* zone)
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
 	gtk_widget_modify_font(lab, style->font_desc);
 	gtk_container_add (GTK_CONTAINER(button), lab);
-	gtk_widget_set_size_request (GTK_WIDGET(button), 60.0, 20.0);
+	gtk_widget_set_size_request (GTK_WIDGET(button), 60, 20);
 	GtkWidget * box = gtk_hbox_new (homogene, 4);
 	GtkWidget * box1 = gtk_vbox_new (homogene, 4);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
@@ -1375,10 +1375,10 @@ void GxMainInterface::addPToggleButton(const char* label, float* zone)
 	gtk_container_add (GTK_CONTAINER(box), box1);
 	GtkWidget * box2 = gtk_vbox_new (homogene, 4);
 	gtk_container_set_border_width (GTK_CONTAINER (box2), 0);
-	gtk_widget_set_size_request (GTK_WIDGET(box2), 6.0, 20.0);
+	gtk_widget_set_size_request (GTK_WIDGET(box2), 6, 20);
 	gtk_container_add (GTK_CONTAINER(box), button);
 	gtk_container_add (GTK_CONTAINER(box), box2);
-	gtk_widget_set_size_request (GTK_WIDGET(box1), 6.0, 20.0);
+	gtk_widget_set_size_request (GTK_WIDGET(box1), 6, 20);
 	gtk_widget_show (button);
 	gtk_widget_show (box1);
 	gtk_widget_show (box2);
@@ -1396,10 +1396,15 @@ void GxMainInterface::addPToggleButton(const char* label, float* zone)
 
 static bool conv_start()
 {
-	while (!gx_engine::conv.checkstate());
 	gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
+	string path = jcset->getFullIRPath();
+	if (path.empty()) {
+		gx_system::gx_print_warning("convolver", "no impulseresponse file");
+		return false;
+	}
+	while (!gx_engine::conv.checkstate());
 	if (!gx_engine::conv.configure(
-		    gx_jack::jack_bs, gx_jack::jack_sr, jcset->getFullIRPath(),
+		    gx_jack::jack_bs, gx_jack::jack_sr, path,
 		    jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
 		    jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline())) {
 		return false;
@@ -1645,7 +1650,7 @@ void UiSelectorFloat::on_value_changed()
 
 void UiSelectorInt::on_value_changed()
 {
-	modifyZone(get_value());
+	modifyZone((int)get_value());
 }
 
 GtkWidget* UiSelector::create(gx_ui::GxUI& ui, string id)
@@ -2163,7 +2168,7 @@ bool GxMainInterface::on_refresh_oscilloscope()
 		jack_nframes_t bsize;
 		bool rt;
 	} oc;
-	int load = round(gx_jack::jcpu_load);
+	int load = int(round(gx_jack::jcpu_load));
 	if (!oc.bsize || oc.load != load) {
 		oc.load = load;
 		fWaveView.set_text(
@@ -2319,6 +2324,11 @@ void GxMainInterface::addMainMenu()
 	gtk_widget_show(hbox);
 }
 
+static void set_label(MenuCheckItem& item , const char *label)
+{
+	dynamic_cast<Gtk::Label*>(item.get_child())->set_text_with_mnemonic(label);
+}
+
 //----------------------------- engine menu ----------------------------
 void GxMainInterface::addEngineMenu()
 {
@@ -2378,7 +2388,7 @@ void GxMainInterface::addEngineMenu()
 	sep = gtk_separator_menu_item_new();
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);
 	gtk_widget_show (sep);
-	fShowExpWindow.set_label("_Experimental");
+	set_label(fShowExpWindow, "_Experimental");
 	fShowExpWindow.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                               GDK_e, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowExpWindow.show();
@@ -2481,7 +2491,7 @@ void GxMainInterface::addPresetMenu()
 	gtk_widget_show (sep);
 
 	/*-- initial preset list --*/
-	gx_preset::gx_refresh_preset_menus();
+	//gx_preset::gx_refresh_preset_menus(); //FIXME: will be done in gx_engine_init()?
 
 	for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
 		gtk_widget_show(presMenu[i]);
@@ -2722,7 +2732,7 @@ void GxMainInterface::addOptionMenu()
 	fMenuList["Options"] = menucont;
 
 	/*-- Create oscilloscope check menu item under Options submenu --*/
-	fShowWaveView.set_label("_Oscilloscope");
+	set_label(fShowWaveView, "_Oscilloscope");
 	fShowWaveView.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                              GDK_o, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowWaveView.signal_activate().connect(
@@ -2732,7 +2742,7 @@ void GxMainInterface::addOptionMenu()
 	fShowWaveView.set_parameter(new SwitchParameter("system.show_wave_view"));
 
 	/*-- Create tuner check menu item under Options submenu --*/
-	fShowTuner.set_label("_Tuner");
+	set_label(fShowTuner, "_Tuner");
 	fShowTuner.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_t, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowTuner.signal_activate().connect(
@@ -2783,7 +2793,7 @@ void GxMainInterface::addOptionMenu()
 	addGuiSkinMenu();
 
 	/*-- create option for saving midi controller settings in presets --*/
-	fMidiInPreset.set_label("Include MIDI in _presets");
+	set_label(fMidiInPreset, "Include MIDI in _presets");
 	fMidiInPreset.show();
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fMidiInPreset.gobj()));
 	fMidiInPreset.set_parameter(new SwitchParameter("system.midi_in_preset"));
@@ -2891,7 +2901,7 @@ void GxMainInterface::addAboutMenu()
 	gtk_widget_show (menuitem);
 
 	/*-- Create menu item to control tooltip display --*/
-	fShowTooltips.set_label("Show _Tooltips");
+	set_label(fShowTooltips, "Show _Tooltips");
 	fShowTooltips.show();
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowTooltips.gobj()));
 	SwitchParameter *p = new SwitchParameter("system.show_tooltips");
@@ -3010,7 +3020,7 @@ void GxMainInterface::run()
 	//----- set the last used skin when no cmd is given
 	int skin_index = gx_current_skin;
 	if (no_opt_skin == 1)
-		skin_index = gx_engine::audio.fskin;
+		skin_index = (int)gx_engine::audio.fskin;
 
 	gx_set_skin_change(skin_index);
 	gx_update_skin_menu_item(skin_index);

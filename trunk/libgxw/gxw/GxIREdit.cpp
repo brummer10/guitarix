@@ -116,7 +116,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		g_signal_new(I_("delay-changed"),
 		             G_TYPE_FROM_CLASS(gobject_class),
 		             GSignalFlags(G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE),
-		             NULL,
+		             0,
 		             NULL, NULL,
 		             gtk_marshal_VOID__INT_INT,
 		             G_TYPE_NONE, 2,
@@ -125,7 +125,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		g_signal_new(I_("offset-changed"),
 		             G_TYPE_FROM_CLASS(gobject_class),
 		             GSignalFlags(G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE),
-		             NULL,
+		             0,
 		             NULL, NULL,
 		             gtk_marshal_VOID__INT_INT,
 		             G_TYPE_NONE, 2,
@@ -134,7 +134,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		g_signal_new(I_("length-changed"),
 		             G_TYPE_FROM_CLASS(gobject_class),
 		             GSignalFlags(G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE),
-		             NULL,
+		             0,
 		             NULL, NULL,
 		             gtk_marshal_VOID__INT_INT,
 		             G_TYPE_NONE, 2,
@@ -143,7 +143,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		g_signal_new(I_("scale-max-reached"),
 		             G_TYPE_FROM_CLASS(gobject_class),
 		             G_SIGNAL_RUN_LAST,
-		             NULL,
+		             0,
 		             NULL, NULL,
 		             gtk_marshal_VOID__BOOLEAN,
 		             G_TYPE_NONE, 1,
@@ -152,7 +152,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		g_signal_new(I_("scale-min-reached"),
 		             G_TYPE_FROM_CLASS(gobject_class),
 		             G_SIGNAL_RUN_LAST,
-		             NULL,
+		             0,
 		             NULL, NULL,
 		             gtk_marshal_VOID__BOOLEAN,
 		             G_TYPE_NONE, 1,
@@ -478,7 +478,7 @@ static void ir_edit_reset(GxIREdit *ir_edit)
 	// output parameters
 	ir_edit_set_cutoff_low(ir_edit, 0);
 	ir_edit->cutoff_high = 0;
-	ir_edit->offset = 0.0;
+	ir_edit->offset = 0;
 	ir_edit->gains = NULL;
 	ir_edit->gains_len = 0;
 }
@@ -737,8 +737,8 @@ static void ir_edit_vertical_ticks(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose
 		cairo_restore(c);
 		return;
 	}
-	int start = max(0, x1-ir_edit->label_width/2.0);
-	int end = max(ir_edit->graph_x, x2);
+	int start = max(0, (int)(x1-ir_edit->label_width/2.0));
+	int end = max(ir_edit->graph_x, (int)x2);
 	double d = ir_edit->tick * ir_edit->fs;
 	if (d == 0.0) {
 		d = 50.0;
@@ -1072,7 +1072,7 @@ static void ir_edit_set_scroll_center_mark(GxIREdit *ir_edit, int x)
 	if (x > ir_edit->width - ir_edit->x_border) {
 		x = ir_edit->width - ir_edit->x_border;
 	}
-	x = (x - ir_edit->x_off + ir_edit->current_offset) * ir_edit->scale;
+	x = (int)((x - ir_edit->x_off + ir_edit->current_offset) * ir_edit->scale);
 	if (x < 0) {
 		x = 0;
 	}
@@ -1183,7 +1183,7 @@ static int ir_edit_hit_detect(GxIREdit *ir_edit, double x, double y, gboolean ct
 					if (num < den2) {
 						// inside segment
 						ir_edit->mode_arg = n-1;
-						ir_edit->mode_arg2 = num/den2;
+						ir_edit->mode_arg2 = (int)(num/den2);
 						return MODE_LINE;
 					}
 				}
@@ -1241,7 +1241,7 @@ static gboolean ir_edit_button_press(GtkWidget *widget, GdkEventButton *event)
 	} else if (r == MODE_SHIFT) {
 		if (event->button == 1) {
 			ir_edit->mode = MODE_SHIFT;
-			ir_edit->mode_arg = event->x + ir_edit->offset/ir_edit->scale;
+			ir_edit->mode_arg = (int)(event->x + ir_edit->offset/ir_edit->scale);
 			ir_edit_lock_surface(ir_edit, ir_edit_vertical_ticks);
 		}
 	} else if (r == MODE_BODY) {
@@ -1262,7 +1262,7 @@ static gboolean ir_edit_button_press(GtkWidget *widget, GdkEventButton *event)
 				gx_ir_edit_home(ir_edit);
 			} else {
 				ir_edit->mode = MODE_BODY;
-				ir_edit->mode_arg = event->x + ir_edit->current_offset;
+				ir_edit->mode_arg = (int)(event->x + ir_edit->current_offset);
 				ir_edit->buffered = FALSE;
 			}
 		} else if (event->button == 3 && event->type == GDK_BUTTON_PRESS) {
@@ -1281,12 +1281,12 @@ static gboolean ir_edit_button_press(GtkWidget *widget, GdkEventButton *event)
 			} else {
 				ir_edit->scale_num = !ir_edit->scale_num;
 				double scale = ir_edit->scale_a[ir_edit->scale_num];
-				ir_edit_set_scale(ir_edit, scale, (event->x - ir_edit->x_off + ir_edit->current_offset)*ir_edit->scale);
+				ir_edit_set_scale(ir_edit, scale, (int)((event->x - ir_edit->x_off + ir_edit->current_offset)*ir_edit->scale));
 			}
 		}
 	} else if (r == MODE_SCROLL) {
 		ir_edit->mode = MODE_SCROLL;
-		ir_edit_set_scroll_center_mark(ir_edit, event->x);
+		ir_edit_set_scroll_center_mark(ir_edit, (int)(event->x));
 	}
 	return TRUE;
 }
@@ -1323,12 +1323,12 @@ static void ir_edit_do_motion(GxIREdit *ir_edit, GdkWindow *window, int x, int y
 		int i = ir_edit->mode_arg;
 		if (i != 0 && i != ir_edit->gains_len-1) {
 			x = min(max(0, x - ir_edit->x_off), ir_edit->graph_x);
-			x = (x + ir_edit->current_offset) * ir_edit->scale;
-			if (i > 0 && ir_edit->gains[i-1].i > x) {
-				x = ir_edit->gains[i-1].i;
+			x = (int)((x + ir_edit->current_offset) * ir_edit->scale);
+			if (i > 0 && ir_edit->gains[i-1].i >= x) {
+				x = ir_edit->gains[i-1].i + 1;
 			}
-			if (i < ir_edit->gains_len-1 && ir_edit->gains[i+1].i < x) {
-				x = ir_edit->gains[i+1].i;
+			if (i < ir_edit->gains_len-1 && ir_edit->gains[i+1].i <= x) {
+				x = ir_edit->gains[i+1].i - 1;
 			}
 		} else {
 			x = ir_edit->gains[i].i;
@@ -1400,11 +1400,11 @@ static gboolean ir_edit_scroll(GtkWidget *widget, GdkEventScroll *event)
 	if (event->y < ir_edit->y_off || event->y > ir_edit->graph_y + ir_edit->y_off) {
 		return TRUE;
 	}
-	int x = event->x - ir_edit->x_off;
+	int x = (int)(event->x) - ir_edit->x_off;
 	if (x < 0.0 || x > ir_edit->graph_x) {
 		return TRUE;
 	}
-	x = (x + ir_edit->current_offset) * ir_edit->scale;
+	x = (int)((x + ir_edit->current_offset) * ir_edit->scale);
 	double f;
 	if (event->direction == GDK_SCROLL_UP) {
 		f = 1.25;
@@ -1789,10 +1789,9 @@ void gx_ir_edit_set_offset(GxIREdit *ir_edit, gint offset)
 	}
 	offset = min(ir_edit->odata_len-1, offset);
 	offset = max(0, offset);
+	ir_edit_set_cutoff_low(ir_edit, offset);
 	if (offset < -ir_edit->offset) {
 		ir_edit_set_offset(ir_edit, -offset);
-	} else {
-		ir_edit_set_cutoff_low(ir_edit, offset);
 	}
 	gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
 }

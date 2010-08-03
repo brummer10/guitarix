@@ -145,8 +145,8 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	g_assert(GX_IS_WAVE_VIEW(widget));
 	GxWaveView *waveview = GX_WAVE_VIEW(widget);
 
-	int liveviewx = (widget->allocation.width  - liveview_x) * 0.5 + 10;
-	int liveviewy = (widget->allocation.height - liveview_y) * 0.5 + 15;
+	int liveviewx = (int)((widget->allocation.width  - liveview_x) * 0.5) + 10;
+	int liveviewy = (int)((widget->allocation.height - liveview_y) * 0.5) + 15;
 
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
 
@@ -160,13 +160,13 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	}
 
 	cairo_set_source_rgb(cr, 1, 1, 1);
-	draw_text(widget, event, waveview->text_top_left, liveviewx + background_width * waveview->text_pos_left / 100,
+	draw_text(widget, event, waveview->text_top_left, liveviewx + (int)(background_width * waveview->text_pos_left / 100),
 	          liveviewy, GTK_CORNER_TOP_LEFT);
-	draw_text(widget, event, waveview->text_top_right, liveviewx + background_width * waveview->text_pos_right / 100,
+	draw_text(widget, event, waveview->text_top_right, liveviewx + (int)(background_width * waveview->text_pos_right / 100),
 	          liveviewy, GTK_CORNER_TOP_RIGHT);
-	draw_text(widget, event, waveview->text_bottom_left, liveviewx + background_width * waveview->text_pos_left / 100,
+	draw_text(widget, event, waveview->text_bottom_left, liveviewx + (int)(background_width * waveview->text_pos_left / 100),
 	          liveviewy, GTK_CORNER_BOTTOM_LEFT);
-	draw_text(widget, event, waveview->text_bottom_right, liveviewx + background_width * waveview->text_pos_right / 100,
+	draw_text(widget, event, waveview->text_bottom_right, liveviewx + (int)(background_width * waveview->text_pos_right / 100),
 	          liveviewy, GTK_CORNER_BOTTOM_RIGHT);
 
 	cairo_move_to (cr, liveviewx+280, liveviewy+25);

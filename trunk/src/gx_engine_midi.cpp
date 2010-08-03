@@ -252,9 +252,9 @@ void process_midi(int len)
 		**/
 		//fnote = 12 * log2f(2.272727e-03f * midi.fConsta4);
 		fnote = audio.fConsta1t;
-		preNote = round(fnote)+57;
+		preNote = int(round(fnote))+57;
 		fConsta2 = fnote - (preNote - 57);
-		piwe = (fConsta2+1) * 8192; // pitch wheel value
+		piwe = ((int)fConsta2+1) * 8192; // pitch wheel value
 		// preNote = round(fConsta1t)+57;
 		// weg = 0;
 
@@ -318,7 +318,7 @@ void process_midi(int len)
 					{
 						if (int(midi.fautogain) == 1)
 						{
-							iTemps46 = midi.beat0;
+							iTemps46 = (int)midi.beat0;
 							if ( iTemps46 < 0) iTemps46 = 0;
 							else if ( iTemps46 > 127) iTemps46 = 127;
 							midi.fslider46 = iTemps46;
@@ -399,7 +399,7 @@ void process_midi(int len)
 						{
 							if (int(midi.fautogain1) == 1)
 							{
-								iTemps47 = midi.beat0;
+								iTemps47 = (int)midi.beat0;
 								if ( iTemps47 < 0) iTemps47 = 0;
 								else if ( iTemps47 > 127) iTemps47 = 127;
 
@@ -481,7 +481,7 @@ void process_midi(int len)
 						{
 							if (int(midi.fautogain2) == 1)
 							{
-								iTemps48 = midi.beat0;
+								iTemps48 = (int)midi.beat0;
 								if ( iTemps48 < 0) iTemps48 = 0;
 								else if ( iTemps48 > 127) iTemps48 = 127;
 								midi.fslider48 = iTemps48;
@@ -547,7 +547,7 @@ void process_midi(int len)
 					if ( rms >= (midi.Beat_is + fTemps38))
 					{
 						//midi.Beat_is = rms;
-						midi.Beat_is += rms*0.1;
+						midi.Beat_is += (int)(rms*0.1);
 						midi.send+=step;
 						if (midi.fcheckbox10 ) midi.send1+=step;
 						if (midi.fcheckbox11 ) midi.send2+=step;
@@ -565,7 +565,7 @@ void process_midi(int len)
 					if ((midi.weg > iTemps37) || (gx_jack::jcpu_load > 64.0))
 					{
 						midi.send = midi.send1 = midi.send2 = 0;
-						midi.Beat_is = fTemps45;
+						midi.Beat_is = (int)fTemps45;
 						if (midi.weg <  iTemps37a)   // 5.0
 						{
 							audio.midistat += 1.0f;

@@ -20,6 +20,7 @@
 #define __GX_METER_SCALE_H__
 
 #include <gtk/gtkwidget.h>
+#include "compat2-12.h"
 
 G_BEGIN_DECLS
 

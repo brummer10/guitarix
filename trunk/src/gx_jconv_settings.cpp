@@ -425,7 +425,11 @@ void IRWindow::file_changed(Glib::ustring filename, int rate, int length, int ch
 void IRWindow::load_state()
 {
 	GxJConvSettings& jcset = *GxJConvSettings::instance();
-	load_data(jcset.getFullIRPath());
+	string path = jcset.getFullIRPath();
+	if (path.empty()) {
+		return;
+	}
+	load_data(path);
 	wIredit->set_offset(jcset.getOffset());
 	wIredit->set_delay(jcset.getDelay());
 	wIredit->set_length(jcset.getLength());
@@ -454,9 +458,8 @@ void IRWindow::load_data(Glib::ustring f)
 		gx_system::gx_print_error("jconvolver", "No samples found");
 		return;
 	}
-	delete audio_buffer;
-	audio_buffer = new float[audio_size*audio_chan];
-	if (audio.read(audio_buffer, audio_size) != (int)audio_size) {
+	float *buffer = new float[audio_size*audio_chan];
+	if (audio.read(buffer, audio_size) != (int)audio_size) {
 		gx_system::gx_print_error("jconvolver", "Error reading file");
 		return;
 	}
@@ -475,14 +478,17 @@ void IRWindow::load_data(Glib::ustring f)
 	case gx_engine::Audiofile::FORM_32BIT: enc += "32 bit"; break;
 	case gx_engine::Audiofile::FORM_FLOAT: enc += "float"; break;
 	}
+	delete audio_buffer;
+	audio_buffer = buffer;
+	wIredit->set_ir_data(audio_buffer, audio_chan, audio_size, audio.rate());
 	file_changed(filename, audio.rate(), audio_size, audio_chan, enc);
 	wSum->set_active(true);
 	wLog->set_active(true);
-	wIredit->set_ir_data(audio_buffer, audio_chan, audio_size, audio.rate());
 }
 
 //FIXME: gainline code just copied from GxConvolver::read_sndfile, move to 1 location
-inline void compute_interpolation(float& fct, float& gp, unsigned int& idx, const Gainline& points, int offset)
+inline void compute_interpolation(
+	double& fct, double& gp, unsigned int& idx, const Gainline& points, int offset)
 {
 	fct = (points[idx+1].g-points[idx].g)/(20*(points[idx+1].i-points[idx].i));
 	gp = points[idx].g/20 + fct * (offset-points[idx].i);
@@ -493,7 +499,7 @@ double IRWindow::calc_normalized_gain(int offset, int length, const Gainline& po
 {
 	double gain = 0.0;
 	unsigned int idx = 0; // current index in gainline point array
-	float gp = 1.0, fct = 0.0; // calculated parameter of interpolation line
+	double gp = 0.0, fct = 0.0; // calculated parameter of interpolation line
 	if (points.size()) {
 		while (points[idx].i < offset) {
 			idx++;
@@ -510,7 +516,7 @@ double IRWindow::calc_normalized_gain(int offset, int length, const Gainline& po
 		}
 		double g = pow(10, gp + i*fct);
 		for (int j = 0; j < audio_chan; j++) {
-			float v = audio_buffer[i*audio_chan+j] * g;
+			double v = audio_buffer[i*audio_chan+j] * g;
 			gain += v*v;
 		}
 	}
@@ -541,7 +547,7 @@ bool IRWindow::save_state()
 	jcset.setLength(length);
 	jcset.setFullIRPath(filename);
 	jcset.setGainline(gainline);
-	float gain = calc_normalized_gain(offset, length, gainline);
+	double gain = calc_normalized_gain(offset, length, gainline);
 	jcset.setGain(gain);
 	return true;
 }
@@ -578,7 +584,7 @@ void IRWindow::on_sum()
 
 void IRWindow::on_delay_changed(int delay, int fs)
 {
-	int d = round(set_val(wDelay, wDelay_ms, delay, fs));
+	int d = int(round(set_val(wDelay, wDelay_ms, delay, fs)));
 	if (d != delay) {
 		wIredit->set_delay(d);
 	}
@@ -788,6 +794,21 @@ GxJConvSettings::GxJConvSettings()
 	fOffset     = 0;
 	fLength     = 0;
 	fDelay      = 0;
+}
+
+string GxJConvSettings::getFullIRPath() const
+{
+	if (fIRFile.empty()) {
+		return fIRFile;
+	} else {
+		return Glib::build_filename(fIRDir, fIRFile);
+	}
+}
+
+void GxJConvSettings::setFullIRPath(string name)
+{
+	fIRDir = Glib::path_get_dirname(name);
+	fIRFile= Glib::path_get_basename(name);
 }
 
 void GxJConvSettings::writeJSON(gx_system::JsonWriter& w)

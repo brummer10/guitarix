@@ -71,7 +71,7 @@ static void vslider_expose(
 	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
 	GdkPixbuf *image1 = gdk_pixbuf_copy(image);
 	gdk_pixbuf_copy_area(image, 0, rect->height, rect->width, slider_height,
-	                     image1, 0, rect->height-sliderstate-slider_height);
+	                     image1, 0, rect->height-(int)sliderstate-slider_height);
 	if (has_focus) {
 		gdk_pixbuf_saturate_and_pixelate(image1, image1, sat, FALSE);
 		if (paint_focus) {
@@ -85,7 +85,7 @@ static void vslider_expose(
 	g_object_unref(image1);
 }
 
-static const gint sat = 70.0;
+static const gdouble sat = 70.0;
 
 static gboolean gx_vslider_expose(GtkWidget *widget, GdkEventExpose *event)
 {

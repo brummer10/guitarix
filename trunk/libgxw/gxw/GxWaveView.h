@@ -24,6 +24,7 @@ part of guitarix, plot a wave with Gtk
 #define __GX_WAVE_VIEW_H__
 
 #include <gtk/gtkdrawingarea.h>
+#include "compat2-12.h"
 
 G_BEGIN_DECLS
 

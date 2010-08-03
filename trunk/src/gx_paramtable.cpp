@@ -532,6 +532,10 @@ string param_group(string id, bool nowarn)
  ** Parameter
  */
 
+Parameter::~Parameter()
+{
+}
+
 static int get_upper(const char **vn)
 {
 	for (int n = 0; ; n++) {
@@ -613,6 +617,11 @@ void FloatParameter::readJSON_value(gx_system::JsonParser& jp)
 void FloatParameter::setJSON_value()
 {
 	set(json_value);
+}
+
+void FloatParameter::convert_from_range(float low, float up)
+{
+	json_value = lower + (json_value - low) / (up - low) * (upper - lower);
 }
 
 bool FloatParameter::hasRange() const

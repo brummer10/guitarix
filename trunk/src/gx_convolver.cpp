@@ -206,7 +206,7 @@ bool GxConvolverBase::checkstate()
  ** GxConvolver
  */
 
-inline void compute_interpolation(float& fct, float& gp, unsigned int& idx, const Gainline& points, int offset)
+inline void compute_interpolation(double& fct, double& gp, unsigned int& idx, const Gainline& points, int offset)
 {
 	fct = (points[idx+1].g-points[idx].g)/(20*(points[idx+1].i-points[idx].i));
 	gp = points[idx].g/20 + fct * (offset-points[idx].i);
@@ -259,7 +259,7 @@ bool GxConvolver::read_sndfile (
 	}
 	bool done = false;
 	unsigned int idx = 0; // current index in gainline point array
-	float gp = 1.0, fct = 0.0; // calculated parameter of interpolation line
+	double gp = 0.0, fct = 0.0; // calculated parameter of interpolation line
 	if (points.size()) {
 		while ((unsigned int)points[idx].i < offset) {
 			idx++;

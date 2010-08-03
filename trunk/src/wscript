@@ -60,7 +60,7 @@ def build(bld):
         source = sources,
         lib = lib,
         uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
-                  'GTK2', 'GTKMM', 'ZITA_CONVOLVER', 'FFTW3'],
+                  'GTK2', 'GTKMM', 'GIOMM', 'ZITA_CONVOLVER', 'FFTW3'],
         uselib_local = uselib_local,
         libpath = libpath,
         linkflags = linkflags,

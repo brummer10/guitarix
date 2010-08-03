@@ -168,7 +168,7 @@ gtk_button_get_props (GtkButton *button,
 }
 
 static void button_paint(
-	GtkButton *button, const GdkRectangle *area, GtkStateType state_type,
+	GtkButton *button, GdkRectangle *area, GtkStateType state_type,
 	GtkShadowType shadow_type, const gchar *main_detail,
 	const gchar *default_detail)
 {

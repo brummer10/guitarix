@@ -24,6 +24,7 @@ part of guitarix, use  knobs with Gtk
 #define __GX_RADIO_BUTTON_H__
 
 #include <gtk/gtkradiobutton.h>
+#include "compat2-12.h"
 
 G_BEGIN_DECLS
 

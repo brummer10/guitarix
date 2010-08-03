@@ -34,7 +34,7 @@ static void gx_mini_slider_class_init(GxMiniSliderClass *klass)
 		                 0, 100, 6, GParamFlags(GTK_PARAM_READABLE)));
 }
 
-static const gint sat = 70.0;
+static const gdouble sat = 70.0;
 
 
 static void gx_mini_slider_init(GxMiniSlider *mini_slider)

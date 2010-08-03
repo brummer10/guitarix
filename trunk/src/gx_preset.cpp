@@ -120,7 +120,7 @@ bool gx_modify_preset(const char* presname, const char* newname=0, bool remove=f
 				jw.write(jp.current_value());
 				gx_gui::parameter_map.set_init_values();
 				bool has_midi;
-				read_preset(jp, &has_midi);
+				read_preset(jp, &has_midi, major, minor);
 				write_preset(jw,false,has_midi);
 			} else if (jp.current_value() == presname) {
 				found = true;
@@ -194,8 +194,9 @@ static bool gx_build_preset_list()
 			// ---- how many did we get ?
 			gx_print_info("Preset List Building",
 			                 gx_i2a(plist.size()) + string(" presets found"));
-			if (!samevers) {
+			if (!samevers && gx_preset_file.is_standard()) {
 				gx_modify_preset(0,0,false,true);
+				gx_system::recallState(gx_user_dir + gx_jack::client_instance + "_rc"); //FIXME
 			}
 			return true;
 		} catch (gx_system::JsonException& e) {
@@ -531,14 +532,15 @@ bool gx_load_preset_from_file(const char* presname)
 
 	try {
 		jp.next(JsonParser::begin_array);
-		readHeader(jp);
+		int major, minor;
+		readHeader(jp, &major, &minor);
 
 		bool found = false;
 		while (jp.peek() != JsonParser::end_array) {
 			jp.next(JsonParser::value_string);
 			if (jp.current_value() == presname) {
 				found = true;
-				read_preset(jp);
+				read_preset(jp, 0, major, minor);
 				return true;
 			} else {
 				jp.skip_object();
