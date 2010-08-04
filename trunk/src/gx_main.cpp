@@ -32,8 +32,9 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "giomm/init.h"
-#include "gtkmm/main.h"
+#include <giomm/init.h>
+#include <gtkmm/main.h>
+#include <gxwmm/init.h>
 #include "guitarix.h"
 
 using namespace gx_system;
@@ -66,6 +67,7 @@ int main(int argc, char *argv[])
 	// ----------------------- init basic subsystems ----------------------
 	Glib::thread_init();
 	Glib::init();
+	Gxw::init();
 
 	// ------ initialize parameter list ------
 	gx_preset::init();

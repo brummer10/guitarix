@@ -1,4 +1,5 @@
 #include <pygobject.h>
+#include <gxw/gxinit.h>
 #define PY_ARRAY_UNIQUE_SYMBOL gxw_ARRAY_API
 #include <numpy/arrayobject.h>
 
@@ -9,6 +10,7 @@ DL_EXPORT(void) initgxw(void)
 {
 	PyObject *m, *d;
 
+	gxw_init();
 	init_pygobject ();
 	import_array();
 

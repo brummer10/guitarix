@@ -39,7 +39,7 @@ def build(bld):
         target = 'gladegx',
         lib = ["gxw"],
         libpath = bld.path.find_dir("../libgxw/gxw").bldpath(bld.env),
-        includes = ['..'],
+        includes = ['..','../libgxw'],
         install_path = bld.env["GLADE_MODULES_DIR"],
         )
 

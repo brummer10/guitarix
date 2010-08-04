@@ -15,7 +15,7 @@ from Configure import ConfigurationError
 import Configure, Scripting
 
 # used by waf dist and waf build
-VERSION='0.11.0'
+VERSION='0.12.0svn'
 APPNAME='guitarix'
 
 good_faust_versions = ['0.9.24','0.9.27']

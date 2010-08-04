@@ -12,7 +12,6 @@ def build(bld):
                target = 'gxw_demo',
                uselib = 'GTKMM',
                includes = ['.','../libgxw'],
-               linkflags = "-Wl,-u,gxw_init",
                install_path = None,
                )
     if bld.env["GX_LIB_SHARED"]:

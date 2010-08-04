@@ -7,4 +7,4 @@ void wrap_init();
 
 }
 
-#endif
+#endif /* GXWMM_WRAP_INIT_H_INCLUDED */

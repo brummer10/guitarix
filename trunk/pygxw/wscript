@@ -104,4 +104,3 @@ def build(bld):
         prog.lib = ["gxw"]
     else:
         prog.uselib_local = ['gxw']
-        prog.linkflags = ["-Wl,-u,gxw_init"]

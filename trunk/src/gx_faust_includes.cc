@@ -166,6 +166,16 @@ void jack_sync()
 #define max(x,y) (((x)>(y)) ? (x) : (y))
 #define min(x,y) (((x)<(y)) ? (x) : (y))
 
+//FIXME (temporary)hack to support older compiler versions
+inline float  pow(float b, float e) { return ::powf(b, e); }
+inline double pow(double b, double e){return ::pow(b, e); }
+inline double pow(double b, int e)  { return ::pow(b, (double)e); }
+inline double pow(int b, double e)  { return ::pow((double)b, e); }
+inline double pow(double b, float e){ return ::pow(b, (double)e); }
+inline double pow(float b, double e){ return ::pow((double)b, e); }
+inline float  pow(float b, int e)   { return ::powf(b, (float) e); }
+inline float  pow(int b, float e)   { return ::powf((float)b,  e); }
+
 template <int N> inline float faustpower(float x)       { return powf(x,N); }
 template <int N> inline double faustpower(double x)     { return pow(x,N); }
 template <int N> inline int faustpower(int x)           { return faustpower<N/2>(x) * faustpower<N-N/2>(x); }

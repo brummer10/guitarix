@@ -16,19 +16,20 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <gtkmm/main.h>
-#include <gxw/gxinit.h>
-#include <gxwmm/init.h>
-#include "wrap_init.h"
+/******************************************************************************
+part of guitarix, use  knobs with Gtk
+******************************************************************************/
 
-namespace Gxw
-{
+#ifndef __GX_RADIO_BUTTON_H__
+#define __GX_RADIO_BUTTON_H__
 
-void init()
-{
-	gxw_init();
-	Gtk::Main::init_gtkmm_internals(); //Sets up the g type system and the Glib::wrap() table.
-	Gxw::wrap_init(); //Tells the Glib::wrap() table about the libsomethingmm classes.
-}
+#include <gtk/gtkradiobutton.h>
+#include "compat2-12.h"
 
-} // namespace Gxw
+G_BEGIN_DECLS
+
+void gxw_init();
+
+G_END_DECLS
+
+#endif /* __GX_RADIO_BUTTON_H__ */
