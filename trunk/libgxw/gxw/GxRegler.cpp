@@ -743,6 +743,9 @@ static gboolean gx_regler_change_value(GtkRange *range, GtkScrollType scroll, gd
 gboolean _approx_in_rectangle(gdouble x, gdouble y, GdkRectangle *rect)
 {
 	const int off = 5;
+	if (rect->width == 0 || rect->height == 0) {
+		return FALSE;
+	}
 	if (x >= rect->x-off && x < rect->x + rect->width + off &&
 	    y >= rect->y-off && y < rect->y + rect->height + off) {
 		return TRUE;
@@ -1174,6 +1177,7 @@ static void gx_regler_adjustment_notified(GObject *gobject, GParamSpec *pspec)
 
 static void gx_regler_init(GxRegler *regler)
 {
+	GTK_RANGE(regler)->round_digits = 0;
 	regler->value_position = GTK_POS_BOTTOM;
 	regler->show_value = TRUE;
 	regler->value_xalign = 0.5;

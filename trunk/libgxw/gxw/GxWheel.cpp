@@ -63,12 +63,12 @@ static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event)
 	                image_rect.x, image_rect.y, image_rect.width, image_rect.height,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
 	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
-	                ws, wheelstate + image_rect.width, 0,
+	                ws, (int)(wheelstate) + image_rect.width, 0,
 	                image_rect.x, image_rect.y, image_rect.width, image_rect.height,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
 	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
 	                wp,0, 0,
-	                image_rect.x+smoth_pointer+wheelstate*0.4, image_rect.y,
+	                image_rect.x+smoth_pointer+(int)(wheelstate*0.4), image_rect.y,
 	                gdk_pixbuf_get_width(wp), image_rect.height,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
 	_gx_regler_display_value(regler, &value_rect);
@@ -93,19 +93,32 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
 {
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
-	GdkRectangle image_rect;
+	GdkRectangle image_rect, value_rect;
 	image_rect.width = gdk_pixbuf_get_width(wb);
 	image_rect.height = gdk_pixbuf_get_height(wb);
 	x += widget->allocation.x;
 	y += widget->allocation.y;
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, NULL);
-	if (!drag && !_approx_in_rectangle(x, y, &image_rect)) {
-		return FALSE;
-	}
-	if (button == 3) {
-		gboolean ret;
-		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, &ret);
-		return FALSE;
+	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+	if (!drag) {
+		GdkRectangle *rect = NULL;
+		if (_approx_in_rectangle(x, y, &image_rect)) {
+			if (button == 3) {
+				rect = &image_rect;
+			}
+		} else if (_approx_in_rectangle(x, y, &value_rect)) {
+			if (button == 1 || button == 3) {
+				rect = &value_rect;
+			} else {
+				return FALSE;
+			}
+		} else {
+			return FALSE;
+		}
+		if (rect) {
+			gboolean ret;
+			g_signal_emit_by_name(GX_REGLER(widget), "value-entry", rect, &ret);
+			return FALSE;
+		}
 	}
 	double pos = adj->lower + ((x - image_rect.x)/image_rect.width)* (adj->upper - adj->lower);
 	gboolean handled;

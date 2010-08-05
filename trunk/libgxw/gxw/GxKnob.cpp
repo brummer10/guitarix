@@ -151,21 +151,34 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
                                 gboolean drag, int state, int button)
 {
 	int linearmode = ((state & GDK_CONTROL_MASK) == 0) ^ jump_to_mouse;
-	GdkRectangle image_rect;
+	GdkRectangle image_rect, value_rect;
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, icon, GtkIconSize(-1), NULL);
 	image_rect.width = gdk_pixbuf_get_width(pb);
 	image_rect.height = gdk_pixbuf_get_height(pb);
 	g_object_unref(pb);
 	x += widget->allocation.x;
 	y += widget->allocation.y;
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, NULL);
-	if (!drag && !_approx_in_rectangle(x, y, &image_rect)) {
-		return FALSE;
-	}
-	if (button == 3) {
-		gboolean ret;
-		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, &ret);
-		return FALSE;
+	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+	if (!drag) {
+		GdkRectangle *rect = NULL;
+		if (_approx_in_rectangle(x, y, &image_rect)) {
+			if (button == 3) {
+				rect = &image_rect;
+			}
+		} else if (_approx_in_rectangle(x, y, &value_rect)) {
+			if (button == 1 || button == 3) {
+				rect = &value_rect;
+			} else {
+				return FALSE;
+			}
+		} else {
+			return FALSE;
+		}
+		if (rect) {
+			gboolean ret;
+			g_signal_emit_by_name(GX_REGLER(widget), "value-entry", rect, &ret);
+			return FALSE;
+		}
 	}
 	static double last_y = 2e20;
 	GxKnob *knob = GX_KNOB(widget);
