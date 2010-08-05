@@ -101,22 +101,54 @@ typedef struct {
 	const char *name;
 } inidef;
 
-list<inidef> inilist;
 
-float& get_alias(const char *id)
+static list<inidef>& get_inilist()
+{
+	static list<inidef> inilist;
+	return inilist;
+}
+
+static list<gx_gui::Parameter*>& get_paramlist()
+{
+	static list<gx_gui::Parameter*> paramlist;
+	return paramlist;
+}
+
+void register_faust_parameters()
+{
+	list<gx_gui::Parameter*>& paramlist = get_paramlist();
+	for (list<gx_gui::Parameter*>::iterator i = paramlist.begin(); i != paramlist.end(); i++) {
+		gx_gui::parameter_map.insert(*i);
+	}
+	paramlist.clear();
+}
+
+static gx_gui::Parameter *find_parameter(const char *id)
+{
+	list<gx_gui::Parameter*>& paramlist = get_paramlist();
+	for (list<gx_gui::Parameter*>::iterator i = paramlist.begin(); i != paramlist.end(); i++) {
+		if ((*i)->id() == id) {
+			return *i;
+		}
+	}
+	return 0;
+}
+
+static float& get_alias(const char *id)
 {
 	static float dummy;
-	if (!gx_gui::parameter_map.hasId(id)) {
+	gx_gui::Parameter *p = find_parameter(id);
+	if (!p) {
 		gx_system::gx_print_error("engine", string("can't define alias for unknown (or not yet defined) parameter id: ") + id);
 		return dummy;
 	} else {
-		return gx_gui::parameter_map[id].getFloat().value;
+		return p->getFloat().value;
 	}
 }
 
-void registerVar(const char* id, const char* name, const char* tp,
-                 const char* tooltip, float* var, float val=0,
-                 float low=0, float up=0, float step=0, bool exp=false)
+static void registerVar(const char* id, const char* name, const char* tp,
+                        const char* tooltip, float* var, float val=0,
+                        float low=0, float up=0, float step=0, bool exp=false)
 {
 	if (!name[0]) {
 		assert(strrchr(id, '.'));
@@ -127,12 +159,12 @@ void registerVar(const char* id, const char* name, const char* tp,
 	if (tooltip) {
 		p->set_desc(tooltip);
 	}
-	gx_gui::parameter_map.insert(p);
+	get_paramlist().push_back(p);
 }
 
-void registerEnumVar(const char *id, const char* name, const char* tp,
-                     const char* tooltip, const char** values, float *var, float val,
-                     float low=0, float up=0, float step=1, bool exp=false)
+static void registerEnumVar(const char *id, const char* name, const char* tp,
+                            const char* tooltip, const char** values, float *var, float val,
+                            float low=0, float up=0, float step=1, bool exp=false)
 {
 	if (!name[0]) {
 		assert(strrchr(id, '.'));
@@ -140,25 +172,27 @@ void registerEnumVar(const char *id, const char* name, const char* tp,
 	}
 	assert(low == 0.0 && step == 1.0);
 	gx_gui::FloatEnumParameter *p = new gx_gui::FloatEnumParameter(
-		id, name, values, true, *var, val, true, exp);
+		id, name, values, true, *var, (int)round(val), true, exp);
 	assert(up == p->upper); // calculated by constructor
-	gx_gui::parameter_map.insert(p);
+	get_paramlist().push_back(p);
 }
 
-inline void registerIntParam(const char*a,const char*b,int*c,int std=0,int lower=0,int upper=1,bool exp=false)
+static inline void registerIntParam(const char*a,const char*b,int*c,int std=0,int lower=0,int upper=1,bool exp=false)
  {
-	 gx_gui::parameter_map.insert(new gx_gui::IntParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,lower,upper,true,exp));
+	 get_paramlist().push_back(
+		 new gx_gui::IntParameter(a,b,gx_gui::Parameter::Enum,true,*c,std,
+		                          lower,upper,true,exp));
  }
 
-void registerInit(const char *name, inifunc f)
+static void registerInit(const char *name, inifunc f)
 {
 	inidef i;
 	i.func = f;
 	i.name = name;
-	inilist.push_back(i);
+	get_inilist().push_back(i);
 }
 
-void jack_sync()
+static void jack_sync()
 {
 	while (sem_wait(&gx_jack::jack_sync_sem) == EINTR);
 }
@@ -264,6 +298,7 @@ void faust_init(int samplingFreq)
 	faust_add_callback("delay.on_off", delay::activate);
 	faust_add_callback("echo.on_off", echo::activate);
 	faust_add_callback("chorus.on_off", chorus::activate);
+	list<inidef>& inilist = get_inilist();
 	for (list<inidef>::iterator i = inilist.begin(); i != inilist.end(); i++) {
 		try {
 			i->func(samplingFreq);

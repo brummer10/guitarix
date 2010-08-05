@@ -70,6 +70,9 @@ int main(int argc, char *argv[])
 	Gxw::init();
 
 	// ------ initialize parameter list ------
+	gx_engine::audio.register_parameter();
+	gx_engine::midi.register_parameter();
+	gx_engine::register_faust_parameters();
 	gx_preset::init();
 	gx_gui::parameter_map.set_init_values();
 

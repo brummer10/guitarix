@@ -114,7 +114,7 @@ public:
 	bool famp2;
 	int tonestack;
 
-	AudioVariables();
+	void register_parameter();
 };
 
 extern AudioVariables audio;
@@ -179,7 +179,7 @@ public:
 	float BeatFilter2;
 	float BeatFilterk;
 
-	MidiVariables();
+	void register_parameter();
 	void init(int samplingFreq);
 };
 
@@ -199,6 +199,7 @@ inline void turnOffMidi() { audio.midistate = kMidiOff; }
 inline void turnOnMidi() { audio.midistate = kMidiOn; }
 
 /* function declarations  */
+void register_faust_parameters();
 void gx_engine_init( const string *optvar );
 void gx_engine_reset();
 void faust_init(int samplingFreq);

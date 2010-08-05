@@ -28,7 +28,7 @@
 namespace gx_engine
 {
 
-MidiVariables::MidiVariables()
+void MidiVariables::register_parameter()
 {
 	gx_gui::registerParam("midi_out.channel_1.velocity", "velocity", &fslider26, 64.f, 0.f, 127.f, 1.f);
 	gx_gui::registerParam("midi_out.channel_1.volume", "volume", &fslider46, 64.f, 0.f, 127.f, 1.f);
