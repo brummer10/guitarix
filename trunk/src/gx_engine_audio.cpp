@@ -69,7 +69,7 @@ inline void registerEnumParam(const char*a,const char*b,const char** vl, int*c,i
  ** register audio variables to paramtable
  */
 
-AudioVariables::AudioVariables()
+void AudioVariables::register_parameter()
 {
 	static const char *amp_threshold[] = {"off","clip","foldback",0};
 	registerEnumParam("amp.threshold", "threshold", amp_threshold, &ffuse, 0);
@@ -492,7 +492,7 @@ void process_buffers(int count, float* input, float* output0)
     float *ovs_buffer;
     if (audio.fupsample) {
 		// *oversample
-        t_upsample = min(8,audio.upsample_mode+1);
+	    t_upsample = min(8,(int)audio.upsample_mode+1);
         if (t_upsample != t_upsample_old) {
             t_upsample_old = t_upsample;
             fupsample_old = audio.fupsample;

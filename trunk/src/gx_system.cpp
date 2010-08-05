@@ -1326,9 +1326,8 @@ void gx_IntToString(int i, string & s)
 {
 	s = "";
 
-	int abs_i = abs(double(i));
-	do
-	{
+	int abs_i = abs(i);
+	do {
 		// note: using base 10 since 10 digits (0123456789)
 		char c = static_cast<char>(ASCII_START+abs_i%10);
 		s.insert(0, &c, 1);

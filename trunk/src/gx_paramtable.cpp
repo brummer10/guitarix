@@ -674,7 +674,7 @@ void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp)
 		return;
 	}
 	jp.check_expect(gx_system::JsonParser::value_string);
-	int up = round(upper);
+	int up = int(round(upper));
 	int n = 0;
 	for (; n <= up; n++) {
 		if (jp.current_value() == value_names[n]) {

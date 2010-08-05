@@ -517,10 +517,10 @@ static gboolean tribal_box_expose(GtkWidget *wi, GdkEventExpose *ev)
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-3;
+	gint x0      = wi->allocation.x+1;
+	gint y0      = wi->allocation.y+1;
+	gint rect_width  = wi->allocation.width-2;
+	gint rect_height = wi->allocation.height-3;
 
 	stock_image = gtk_widget_render_icon(wi,"guitar",(GtkIconSize)-1,NULL);
 	_image = gdk_pixbuf_scale_simple(
@@ -600,10 +600,10 @@ static gboolean filter_box_expose(GtkWidget *wi, GdkEventExpose *ev)
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-3;
+	gint x0      = wi->allocation.x+1;
+	gint y0      = wi->allocation.y+1;
+	gint rect_width  = wi->allocation.width-2;
+	gint rect_height = wi->allocation.height-3;
 
 	stock_image = gtk_widget_render_icon(wi,"tribe",(GtkIconSize)-1,NULL);
 	_image = gdk_pixbuf_scale_simple(

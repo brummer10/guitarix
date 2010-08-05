@@ -70,7 +70,7 @@ static void hslider_expose(
 	gint slider_width;
 	gtk_widget_style_get(widget, "slider-width", &slider_width, NULL);
 	GdkPixbuf *image1 = gdk_pixbuf_copy(image);
-	gdk_pixbuf_copy_area(image, rect->width, 0, slider_width, rect->height, image1, sliderstate, 0);
+	gdk_pixbuf_copy_area(image, rect->width, 0, slider_width, rect->height, image1, (int)(sliderstate), 0);
 	if (has_focus) {
 		gdk_pixbuf_saturate_and_pixelate(image1, image1, sat, FALSE);
 		if (paint_focus) {
@@ -84,7 +84,7 @@ static void hslider_expose(
 	g_object_unref(image1);
 }
 
-static const gint sat = 70.0;
+static const gdouble sat = 70.0;
 
 static gboolean gx_hslider_expose(GtkWidget *widget, GdkEventExpose *event)
 {
@@ -104,7 +104,7 @@ static gboolean gx_hslider_expose(GtkWidget *widget, GdkEventExpose *event)
 		break;
 	case GTK_POS_TOP:
 	case GTK_POS_BOTTOM:
-		value_rect.x = image_rect.x + sliderstate - (value_rect.width - slider_width)/2;
+		value_rect.x = image_rect.x + (int)sliderstate - (value_rect.width - slider_width)/2;
 		if (value_rect.x + value_rect.width > widget->allocation.x + widget->allocation.width) {
 			value_rect.x = widget->allocation.x + widget->allocation.width - value_rect.width;
 		}

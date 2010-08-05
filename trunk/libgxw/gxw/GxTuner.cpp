@@ -167,7 +167,7 @@ static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
 	float scale = -0.5;
 	if (tuner->freq) {
 		float fvis = 12 * log2f(tuner->freq/440.0);
-		int vis = round(fvis);
+		int vis = int(round(fvis));
 		scale = (fvis-vis) / 2;
 		vis = vis % 12;
 		if (vis < 0) {

@@ -453,10 +453,10 @@ gboolean tribal_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data
 		/* create a cairo context */
 		cr = gdk_cairo_create(wi->window);
 
-		double x0      = wi->allocation.x+1;
-		double y0      = wi->allocation.y+1;
-		double rect_width  = wi->allocation.width-2;
-		double rect_height = wi->allocation.height-3;
+		gint x0      = wi->allocation.x+1;
+		gint y0      = wi->allocation.y+1;
+		gint rect_width  = wi->allocation.width-2;
+		gint rect_height = wi->allocation.height-3;
 
 		_image = gdk_pixbuf_scale_simple(tribeimage1,rect_width,rect_height,GDK_INTERP_HYPER);
 
@@ -541,10 +541,10 @@ gboolean filter_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-3;
+	gint x0      = wi->allocation.x+1;
+	gint y0      = wi->allocation.y+1;
+	gint rect_width  = wi->allocation.width-2;
+	gint rect_height = wi->allocation.height-3;
 
 	_image = gdk_pixbuf_scale_simple(tribeimage,rect_width,rect_height,GDK_INTERP_HYPER);
 
@@ -595,10 +595,10 @@ gboolean boxamp_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
         /* create a cairo context */
         cr = gdk_cairo_create(wi->window);
 
-        double x0      = wi->allocation.x+1;
-        double y0      = wi->allocation.y;
-        double rect_width  = wi->allocation.width-2;
-        double rect_height = wi->allocation.height;
+        gint x0      = wi->allocation.x+1;
+        gint y0      = wi->allocation.y;
+        gint rect_width  = wi->allocation.width-2;
+        gint rect_height = wi->allocation.height;
 
         _image = gdk_pixbuf_scale_simple(tribeimage2,rect_width,rect_height,GDK_INTERP_HYPER);
 
