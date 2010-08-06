@@ -51,7 +51,7 @@ class StreamingResampler: Resampler
 {
 public:
 	bool setup(int srcRate, int dstRate, int nchan);
-	int get_max_out_size(int i_size) { return (i_size * ratio_b() + ratio_a() - 1) / ratio_a(); }
+	int get_max_out_size(int i_size) { return (i_size * ratio_b()) / ratio_a() + 1; }
 	int process(int count, float *input, float *output);
 	int flush(float *output); // check source for max. output size
 };
