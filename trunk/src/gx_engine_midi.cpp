@@ -158,7 +158,7 @@ void compute_midi(int len)
 {
 
 	// retrieve engine state
-	const GxEngineState estate = (GxEngineState)checky;
+	const GxEngineState estate = checky;
 
 	//------------ determine processing type
 	unsigned short process_type = ZEROIZE_BUFFERS;

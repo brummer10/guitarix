@@ -328,7 +328,7 @@ inline void down_sample(int sf, float *input, float *output)
 void compute_insert (int count, float* input1, float* output0, float* output1)
 {
 // retrieve engine state
-	const GxEngineState estate = (GxEngineState)checky;
+	const GxEngineState estate = checky;
 
 	//------------ determine processing type
 	unsigned short process_type = ZEROIZE_BUFFERS;
@@ -388,7 +388,7 @@ void compute_insert (int count, float* input1, float* output0, float* output1)
 void compute (int count, float* input, float* output0)
 {
 	// retrieve engine state
-	const GxEngineState estate = (GxEngineState)checky;
+	const GxEngineState estate = checky;
 
 	//------------ determine processing type
 	unsigned short process_type = ZEROIZE_BUFFERS;

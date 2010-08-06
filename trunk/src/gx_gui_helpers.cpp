@@ -75,8 +75,7 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
 /* --------- menu function triggering engine on/off/bypass --------- */
 void gx_engine_switch (GtkWidget* widget, gpointer arg)
 {
-	gx_engine::GxEngineState estate =
-		(gx_engine::GxEngineState)gx_engine::checky;
+	gx_engine::GxEngineState estate = gx_engine::checky;
 
 	switch (estate)
 	{
@@ -112,8 +111,7 @@ void gx_engine_switch (GtkWidget* widget, gpointer arg)
 /* -------------- refresh engine status display ---------------- */
 void gx_refresh_engine_status_display()
 {
-	gx_engine::GxEngineState estate =
-		(gx_engine::GxEngineState)gx_engine::checky;
+	gx_engine::GxEngineState estate = gx_engine::checky;
 
 	string state;
 

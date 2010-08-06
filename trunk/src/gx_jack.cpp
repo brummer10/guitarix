@@ -647,7 +647,7 @@ int gx_jack_xrun_callback (void* arg)
 //---- jack buffer size change callback
 int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 {
-	GxEngineState estate = (GxEngineState)checky;
+	GxEngineState estate = checky;
 
 	// turn off engine
 	// Note: simply changing checky is enough to "stop" processing
