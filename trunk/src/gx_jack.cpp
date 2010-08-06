@@ -265,7 +265,7 @@ void gx_jack_callbacks_and_activate()
 static gboolean gx_engine_restart(gpointer data)
 {
 	usleep(5);
-	checky = (float)kEngineOn;
+	checky = kEngineOn;
 	return false;
 }
 
@@ -274,7 +274,7 @@ void gx_jack_init_port_connection(const string* optvar)
 {
     // set engine off for one GTK thread cycle to avoid Xrun at startup
     gx_gui::g_threads[4] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,gx_engine_restart,NULL,NULL);
-    checky = (float)kEngineOff;
+    checky = kEngineOff;
 
 	// set autoconnect capture to user capture port
 	if (!optvar[JACK_INP].empty())
@@ -659,7 +659,7 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 	// immediately during the jack_processing of jack cycles.
 
 	if (estate != kEngineOff)
-		checky = (float)kEngineOff;
+		checky = kEngineOff;
 
 	jack_bs = nframes;
 
@@ -698,7 +698,7 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 	}
 
 	// restore previous state
-	checky = (float)estate;
+	checky = estate;
 	// return 0 to jack
 	return 0;
 

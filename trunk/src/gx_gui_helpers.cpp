@@ -105,7 +105,7 @@ void gx_engine_switch (GtkWidget* widget, gpointer arg)
 			);
 	}
 
-	gx_engine::checky = (float)estate;
+	gx_engine::checky = estate;
 	gx_refresh_engine_status_display();
 }
 

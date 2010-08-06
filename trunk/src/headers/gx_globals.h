@@ -44,7 +44,7 @@ typedef enum {
 } GxMidiState;
 
 /* global var  declarations */
-extern float  checky;
+extern GxEngineState checky;
 extern float* get_frame;
 extern float* get_frame1;
 extern float* checkfreq;

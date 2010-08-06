@@ -28,7 +28,7 @@
 /* ----- main engine ----- */
 namespace gx_engine
 {
-float  checky      = 1.0;
+GxEngineState checky = kEngineOn;
 float* get_frame   = NULL;
 float* get_frame1   = NULL;
 float* checkfreq   = NULL;
