@@ -85,9 +85,9 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("freeverb.on_off", "on/off", &fcheckbox6, 0);
 	gx_gui::registerParam("IR.on_off", "on/off", &fcheckbox8, 0);
 	gx_gui::registerParam("crybaby.on_off", "on/off", &fcheckbox5, 0);
-	gx_gui::registerParam("echo.on_off", "on/off", &fcheckbox7, 0);
-	gx_gui::registerParam("delay.on_off", "on/off", &fdelay, 0);
-	gx_gui::registerParam("chorus.on_off", "on/off", &fchorus, 0);
+	gx_gui::registerParam("echo.on_off", "on/off", (float*) &fcheckbox7, 0.);
+	gx_gui::registerParam("delay.on_off", "on/off", (float*) &fdelay, 0.);
+	gx_gui::registerParam("chorus.on_off", "on/off", (float*) &fchorus, 0.);
 	gx_gui::registerParam("compressor.on_off", "on/off", &fcheckboxcom1, 0);
 	gx_gui::registerParam("tube2.on_off", "on/off", &ftube3, 0);
 	gx_gui::registerParam("tube3.on_off", "on/off", &ftube3e, 0);
@@ -108,7 +108,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("moog.on_off", "on/off", &fmoog, 0);
 	gx_gui::registerParam("biquad.on_off", "on/off", &fbiquad, 0);
 	gx_gui::registerParam("flanger.on_off", "on/off", &fflanger, 0);
-	gx_gui::registerParam("SampleLooper.on_off", "on/off", &fsloop, 0);
+	gx_gui::registerParam("SampleLooper.on_off", "on/off", (float*) &fsloop, 0.);
 	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
 	static const char *amp_select[] = {"1x","2x", "3x","4x","5x", "6x", "7x", "8x",0};
 	registerEnumParam("amp.select", "select", amp_select, &upsample_mode, 3);
@@ -117,6 +117,15 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("cab.on_off", "Cab-ImpResp", &fcab,0);
 	static const char *tonestack_model[] = {"default","Bassman","Twin Reverb","Princeton","JCM-800","JCM-2000","M-Lead","M2199","AC-30","Off",0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
+	static const char *post_pre[] = {"post","pre",0};
+	registerEnumParam("crybaby.pp","select",post_pre,&crybabypp, 0);
+	registerEnumParam("overdrive.pp","select",post_pre,&overdrivepp, 0);
+	registerEnumParam("distortion.pp","select",post_pre,&distortionpp, 0);
+	registerEnumParam("freeverb.pp","select",post_pre,&freeverbpp, 0);
+	registerEnumParam("IR.pp","select",post_pre,&IRpp, 0);
+	registerEnumParam("compressor.pp","select",post_pre,&compressorpp, 0);
+	registerEnumParam("echo.pp","select",post_pre,&echopp, 0);
+	registerEnumParam("delay.pp","select",post_pre,&delaypp, 0);
 
 	// only save and restore, no midi control
 
@@ -506,14 +515,14 @@ void process_buffers(int count, float* input, float* output0)
             distortion1::init(t_upsample * gx_jack::jack_sr);
             distortion::init(t_upsample * gx_jack::jack_sr);
         }
-	    resampTube.up(count, output0, oversample);
+
 	    ovs_sr = t_upsample * gx_jack::jack_sr;
 	    ovs_count = t_upsample * count;
-	    ovs_buffer = oversample;
+
     } else {
 	    ovs_sr = gx_jack::jack_sr;
 	    ovs_count = count;
-	    ovs_buffer = output0;
+
     }
     if (audio.fupsample != fupsample_old) {
 	    fupsample_old = audio.fupsample;
@@ -524,6 +533,48 @@ void process_buffers(int count, float* input, float* output0)
 	    distortion1::init(ovs_sr);
 	    distortion::init(ovs_sr);
     }
+
+
+        for (int m = 0; m < 8; m++) {
+	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && audio.crybabypp) {
+		    crybaby::compute(count, output0, output0);
+	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah && audio.crybabypp) {
+		    autowah::compute(count, output0, output0);
+	    } else if (audio.posit5 == m && audio.fcheckboxcom1 && audio.compressorpp) {
+		    compressor::compute(count, output0, output0);
+	    } else if (audio.posit1 == m && audio.foverdrive4 && audio.overdrivepp) {
+		    overdrive::compute(count, output0, output0);
+	    } else if (audio.posit2 == m && audio.fcheckbox4 && audio.distortionpp) {
+	        if (audio.fupsample) {
+                // 2*oversample
+                //over_sample(count, output0, oversample);
+                resampDist.up(count, output0, oversample);
+                if(audio.witchdistortion) distortion1::compute(ovs_count, oversample, oversample);
+                else distortion::compute(ovs_count, oversample, oversample);
+                resampDist.down(count, oversample, output0);
+                //down_sample(count, oversample, output0);
+	        } else {
+                if(audio.witchdistortion) distortion1::compute(count, output0, output0);
+                else distortion::compute(count, output0, output0);
+	        }
+	    } else if (audio.posit3 == m && audio.fcheckbox6 && audio.freeverbpp) {
+		    freeverb::compute(count, output0, output0);
+	    } else if (audio.posit6 == m && audio.fcheckbox7 && echo::is_inited() && audio.echopp) {
+		    echo::compute(count, output0, output0);
+	    } else if (audio.posit4 == m && audio.fcheckbox8 && audio.IRpp) {
+		    impulseresponse::compute(count, output0, output0);
+	    } else if (audio.posit7 == m && audio.fdelay && delay::is_inited() && audio.delaypp) {
+		    delay::compute(count, output0, output0);
+	    }
+    }
+
+    if (audio.fupsample) {
+        resampTube.up(count, output0, oversample);
+        ovs_buffer = oversample;
+     } else {
+        ovs_buffer = output0;
+     }
+
     if (audio.antialis0) {
 	    AntiAlias::compute(ovs_count, ovs_buffer, ovs_buffer);
     }
@@ -591,15 +642,15 @@ void process_buffers(int count, float* input, float* output0)
     }
 
     for (int m = 0; m < 8; m++) {
-	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah) {
+	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && !audio.crybabypp) {
 		    crybaby::compute(count, output0, output0);
-	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah) {
+	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah && !audio.crybabypp) {
 		    autowah::compute(count, output0, output0);
-	    } else if (audio.posit5 == m && audio.fcheckboxcom1) {
+	    } else if (audio.posit5 == m && audio.fcheckboxcom1 && !audio.compressorpp) {
 		    compressor::compute(count, output0, output0);
-	    } else if (audio.posit1 == m && audio.foverdrive4) {
+	    } else if (audio.posit1 == m && audio.foverdrive4 && !audio.overdrivepp) {
 		    overdrive::compute(count, output0, output0);
-	    } else if (audio.posit2 == m && audio.fcheckbox4) {
+	    } else if (audio.posit2 == m && audio.fcheckbox4 && !audio.distortionpp) {
 	        if (audio.fupsample) {
                 // 2*oversample
                 //over_sample(count, output0, oversample);
@@ -612,13 +663,13 @@ void process_buffers(int count, float* input, float* output0)
                 if(audio.witchdistortion) distortion1::compute(count, output0, output0);
                 else distortion::compute(count, output0, output0);
 	        }
-	    } else if (audio.posit3 == m && audio.fcheckbox6) {
+	    } else if (audio.posit3 == m && audio.fcheckbox6 && !audio.freeverbpp) {
 		    freeverb::compute(count, output0, output0);
-	    } else if (audio.posit6 == m && audio.fcheckbox7 && echo::is_inited()) {
+	    } else if (audio.posit6 == m && audio.fcheckbox7 && echo::is_inited() && !audio.echopp) {
 		    echo::compute(count, output0, output0);
-	    } else if (audio.posit4 == m && audio.fcheckbox8) {
+	    } else if (audio.posit4 == m && audio.fcheckbox8 && !audio.IRpp) {
 		    impulseresponse::compute(count, output0, output0);
-	    } else if (audio.posit7 == m && audio.fdelay && delay::is_inited()) {
+	    } else if (audio.posit7 == m && audio.fdelay && delay::is_inited() && !audio.delaypp) {
 		    delay::compute(count, output0, output0);
 	    }
     }
@@ -648,7 +699,7 @@ void process_insert_buffers (int count, float* input1, float* output0, float* ou
     memcpy(output0, input1, count*sizeof(float));
     feed::compute(count, output0, output0, output1);
 
-    if (audio.fchorus and chorus::is_inited()) {
+    if (audio.fchorus && chorus::is_inited()) {
 	    chorus::compute(count, output0, output1, output0, output1);
     }
     if (audio.fflanger) {

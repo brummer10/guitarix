@@ -693,6 +693,7 @@ void GxMainInterface::setup()
 										{
 											openVerticalBox("compressor");
 											{
+											    create_selector("compressor.pp");
 											    openSpaceBox("");
 											    closeBox();
 												create_smallknob("compressor.ratio");
@@ -750,6 +751,7 @@ void GxMainInterface::setup()
 											//----- overdrive
 											openVerticalBox("overdrive");
 											{
+											    create_selector("overdrive.pp");
 											    openSpaceBox("");
                                                 closeBox();
 												create_smallknob("overdrive.drive","  drive ");
@@ -765,6 +767,7 @@ void GxMainInterface::setup()
 											//----- distortion
 											openVerticalBox("distortion");
 											{
+											    create_selector("distortion.pp");
                                                 create_selector("distortiont.onetwo");
 											    //create_switch(sw_switch, "distortion.onetwo", "");
 											    openVerticalSwitchBox(" ",0, 0, &gx_engine::audio.witchdistortion);
@@ -961,6 +964,7 @@ void GxMainInterface::setup()
 												//----- freeverb
 												openVerticalBox(" freeverb");
 												{
+												    create_selector("freeverb.pp");
 												    openSpaceBox("");
                                                     closeBox();
 													create_smallknob("freeverb.RoomSize");
@@ -1009,6 +1013,7 @@ void GxMainInterface::setup()
 												//----- IR
 												openVerticalBox("IR");
 												{
+												    create_selector("IR.pp");
                                                     create_selector("IR.auto_freq");
 													openHorizontalBox("");
 													{
@@ -1096,6 +1101,7 @@ void GxMainInterface::setup()
 												//----- crybaby
 												openVerticalBox("crybaby");
 												{
+												    create_selector("crybaby.pp");
                                                     create_selector("crybaby.autowah");
 												    //create_switch(sw_minitoggle, "crybaby.autowah"," autowah");
 													create_smallknob("crybaby.wah"," wah ");
@@ -1172,6 +1178,7 @@ void GxMainInterface::setup()
 												//----- echo
 												openVerticalBox("echo");
 												{
+												    create_selector("echo.pp");
 												    openSpaceBox("");
                                                     closeBox();
 													openHorizontalBox("");
@@ -1217,6 +1224,7 @@ void GxMainInterface::setup()
 										{
 											openVerticalBox("delay");
 											{
+											    create_selector("delay.pp");
 											    openSpaceBox("");
                                                 closeBox();
 												openHorizontalBox("");

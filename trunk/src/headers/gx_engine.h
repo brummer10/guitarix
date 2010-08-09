@@ -64,12 +64,12 @@ public:
 	bool foverdrive4;
 	bool fcheckbox4;
 	bool fcheckbox6;
-	bool fcheckbox7;
+	int fcheckbox7;
 	bool fcheckbox8;
-	bool fdelay;
+	int fdelay;
 	bool fmultifilter;
 	bool fboost;
-	bool fchorus;
+	int fchorus;
 	float ffuse;
 	bool fdialogbox1;
 	bool fdialogbox2;
@@ -103,7 +103,7 @@ public:
 	bool ftube3e;
 	float upsample_mode;
 	float fampexpand;
-	bool fsloop;
+	int fsloop;
 	float witchdistortion;
 	bool fdis1;
 	bool fcab;
@@ -113,6 +113,14 @@ public:
 	float witchamp;
 	bool famp2;
 	int tonestack;
+	int crybabypp;
+	int overdrivepp;
+	int distortionpp;
+	int freeverbpp;
+	int IRpp;
+	int compressorpp;
+	int echopp;
+	int delaypp;
 
 	void register_parameter();
 };

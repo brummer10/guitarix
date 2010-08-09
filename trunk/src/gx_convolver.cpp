@@ -305,7 +305,7 @@ bool GxConvolver::read_sndfile (
 			}
 		}
 		if (cnt) {
-			
+
 			for (int ichan = 0; ichan < nchan; ichan++) {
 				int rc;
 				if (ichan >= audio.chan()) {
