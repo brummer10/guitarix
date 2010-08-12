@@ -29,6 +29,8 @@
 #include <gtk/gtkbindings.h>
 #include <gtk/gtkmarshal.h>
 
+#define gtk_widget_get_requisition(w, r) (*r = (w)->requisition)
+
 #define P_(s) (s)   // FIXME -> gettext
 #define I_(s) (s)   // FIXME -> gettext
 
@@ -130,11 +132,11 @@ gboolean gx_boolean_handled_accumulator(
 {
   gboolean continue_emission;
   gboolean signal_handled;
-  
+
   signal_handled = g_value_get_boolean (handler_return);
   g_value_set_boolean (return_accu, signal_handled);
   continue_emission = !signal_handled;
-  
+
   return continue_emission;
 }
 
@@ -144,7 +146,7 @@ static gboolean single_string_accumulator(
 {
 	gboolean continue_emission;
 	const gchar *str;
-  
+
 	str = g_value_get_string(handler_return);
 	g_value_set_string(return_accu, str);
 	continue_emission = str == NULL;
@@ -583,7 +585,7 @@ static void scroll_end(GtkRange *range)
 }
 
 static gboolean should_invert(GtkRange *range)
-{  
+{
 	if (range->orientation == GTK_ORIENTATION_HORIZONTAL) {
 		return
 			(range->inverted && !range->flippable) ||
@@ -606,7 +608,7 @@ static gboolean gx_regler_scroll(GtkRange *range, GtkScrollType scroll)
       else
         step_back (range);
       break;
-                    
+
     case GTK_SCROLL_STEP_UP:
     case GTK_SCROLL_STEP_RIGHT:
       if (should_invert (range))
@@ -614,12 +616,12 @@ static gboolean gx_regler_scroll(GtkRange *range, GtkScrollType scroll)
       else
         step_forward (range);
       break;
-                    
-                  
+
+
     case GTK_SCROLL_STEP_BACKWARD:
       step_back (range);
       break;
-                  
+
     case GTK_SCROLL_STEP_FORWARD:
       step_forward (range);
       break;
@@ -631,7 +633,7 @@ static gboolean gx_regler_scroll(GtkRange *range, GtkScrollType scroll)
       else
         page_back (range);
       break;
-                    
+
     case GTK_SCROLL_PAGE_UP:
     case GTK_SCROLL_PAGE_RIGHT:
       if (should_invert (range))
@@ -639,11 +641,11 @@ static gboolean gx_regler_scroll(GtkRange *range, GtkScrollType scroll)
       else
         page_forward (range);
       break;
-                    
+
     case GTK_SCROLL_PAGE_BACKWARD:
       page_back (range);
       break;
-                  
+
     case GTK_SCROLL_PAGE_FORWARD:
       page_forward (range);
       break;

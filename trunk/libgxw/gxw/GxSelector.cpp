@@ -21,6 +21,8 @@
 #include <gtk/gtkprivate.h>
 #include <string.h>
 
+#define gtk_widget_get_requisition(w, r) (*r = (w)->requisition)
+
 #define P_(s) (s)   // FIXME -> gettext
 
 /****************************************************************
