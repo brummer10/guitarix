@@ -235,7 +235,7 @@ void gx_add_single_preset_menu_item(const string& presname,
 	// index for keyboard shortcut (can take any list)
     vector<GtkMenuItem*>::iterator its;
     int pos = 0;
-    for (its = pm_list[lindex].begin() ; its < pm_list[lindex].end(); its++ )
+    for (its = pm_list[lindex].begin() ; its != pm_list[lindex].end(); its++ )
     {
         pos++;
     }
@@ -283,7 +283,7 @@ int gx_get_single_preset_menu_pos(const string& presname, const gint lindex)
 {
     vector<string>::iterator its;
     int pos = 0;
-    for (its = plist.begin() ; its < plist.end(); its++ )
+    for (its = plist.begin() ; its != plist.end(); its++ )
     {
         pos++;
         if( presname == *its)
@@ -298,7 +298,7 @@ GtkMenuItem* const gx_get_preset_item_from_name(int lindex, const string& name)
     vector<string>::iterator its;
     vector<GtkMenuItem*>::iterator it = pm_list[lindex].begin();
     int pos = 0;
-    for (its = plist.begin() ; its < plist.end(); its++ )
+    for (its = plist.begin() ; its != plist.end(); its++ )
     {
         pos++;
         if( name == *its)
@@ -324,7 +324,7 @@ void gx_refresh_preset_menus()
 		gx_build_preset_list();
     }
     vector<string>::iterator its;
-    for (its = plist.begin() ; its < plist.end(); its++) {
+    for (its = plist.begin() ; its != plist.end(); its++) {
 	    gx_add_preset_to_menus(*its);
     }
 }
@@ -369,7 +369,7 @@ void gx_next_preset(GtkWidget* item, gpointer arg)
 	{
 		GtkMenuItem* const itemi =
 			gx_get_preset_item_from_name(LOAD_PRESET_LIST, gx_current_preset);
-        for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
+        for (it = pm_list[LOAD_PRESET_LIST].begin() ; it != pm_list[LOAD_PRESET_LIST].end(); it++ )
         {
             if( itemi == *it)
                 break;
@@ -401,7 +401,7 @@ void gx_previous_preset(GtkWidget* item, gpointer arg)
 	{
 		GtkMenuItem* const itemi =
 			gx_get_preset_item_from_name(LOAD_PRESET_LIST, gx_current_preset);
-        for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
+        for (it = pm_list[LOAD_PRESET_LIST].begin() ; it != pm_list[LOAD_PRESET_LIST].end(); it++ )
         {
             if( itemi == *it)
                 break;
@@ -647,7 +647,7 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 	// retrieve preset name
     vector<GtkMenuItem*>::iterator it = pm_list[LOAD_PRESET_LIST].begin();
 	vector<string>::iterator its = plist.begin() ;;
-        for (it = pm_list[LOAD_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ )
+        for (it = pm_list[LOAD_PRESET_LIST].begin() ; it != pm_list[LOAD_PRESET_LIST].end(); it++ )
         {
             if( menuitem == *it)
                 break;
@@ -817,7 +817,7 @@ void gx_save_oldpreset (GtkMenuItem *menuitem, gpointer arg)
 
         vector<GtkMenuItem*>::iterator it;
 
-         for (it = pm_list[SAVE_PRESET_LIST].begin() ; it < pm_list[LOAD_PRESET_LIST].end(); it++ ) {
+         for (it = pm_list[SAVE_PRESET_LIST].begin() ; it != pm_list[SAVE_PRESET_LIST].end(); it++ ) {
 	         if( menuitem == *it) {
 		         break;
 	         }
@@ -855,7 +855,7 @@ void gx_save_newpreset (GtkEntry* entry)
 	vector<string>::iterator its;
     vector<GtkMenuItem*>::iterator it = pm_list[SAVE_PRESET_LIST].begin();
 
-    for (its = plist.begin() ; its < plist.end(); its++ )
+    for (its = plist.begin() ; its != plist.end(); its++ )
     {
 		// found a match
 		if (presname == *its)
@@ -973,7 +973,7 @@ void gx_rename_preset_dialog (GtkMenuItem *menuitem, gpointer arg)
 {
     vector<string>::iterator its = plist.begin();
     vector<GtkMenuItem*>::iterator it = pm_list[RENAME_PRESET_LIST].begin();
-     for (it = pm_list[RENAME_PRESET_LIST].begin() ; it < pm_list[RENAME_PRESET_LIST].end(); it++ )
+     for (it = pm_list[RENAME_PRESET_LIST].begin() ; it != pm_list[RENAME_PRESET_LIST].end(); it++ )
         {
             if( menuitem == *it)
                 break;
