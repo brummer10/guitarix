@@ -1071,7 +1071,7 @@ void GxMainInterface::openScrollBox(const char* label)
 {
 	GtkWidget * scrollbox = gtk_scrolled_window_new(NULL,NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollbox),GTK_POLICY_AUTOMATIC,GTK_POLICY_NEVER);
-	gtk_widget_set_size_request (scrollbox, 338, -1);
+	gtk_widget_set_size_request (scrollbox, 358, -1);
 	GtkWidget * box = gtk_vbox_new (homogene, 0);
 	GtkWidget * box1 = gtk_hbox_new (homogene, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
