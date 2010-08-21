@@ -112,6 +112,8 @@ int main(int argc, char *argv[])
 	// ----------------------- run GTK main loop ----------------------
 	gx_set_override_options(optvar);
 	gx_ui::GxUI::updateAllGuis();
+	g_type_class_unref (g_type_class_ref (GTK_TYPE_IMAGE_MENU_ITEM));
+	g_object_set (gtk_settings_get_default (), "gtk-menu-images", TRUE, NULL);
 	gui->show();
 
 	if (gx_jack::client) {
