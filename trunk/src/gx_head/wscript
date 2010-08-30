@@ -54,6 +54,7 @@ def build(bld):
         uselib_local = ['gxwmm','gxw']
     bld(features = 'cxx cprogram',
         includes = incl,
+        obj_ext  = '_2.o',
         cxxflags= bld.env['CXXFLAGS'],
         source = sources,
         lib = lib,
