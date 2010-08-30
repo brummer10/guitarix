@@ -444,6 +444,7 @@ def build(bld):
     bld.add_subdirs('src/gx_head')
 
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
+    bld.install_files(bld.env['DESKAPPS_DIR'], 'gx_head.desktop', chmod=0644)
     if bld.env["GX_LIB_SHARED"]:
         bld.add_post_fun(post)
 
