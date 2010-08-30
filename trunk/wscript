@@ -17,6 +17,7 @@ import Configure, Scripting
 # used by waf dist and waf build
 VERSION='0.12.0svn'
 APPNAME='guitarix'
+APPNAME1='gx_head'
 
 good_faust_versions = ['0.9.24','0.9.27']
 
@@ -327,7 +328,9 @@ def configure(conf):
 
     # defines for compilation
     conf.define('GX_STYLE_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','skins')))
+    conf.define('GX_STYLE_DIR1', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head','skins')))
     conf.define('GX_BUILDER_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','builder')))
+    conf.define('GX_BUILDER_DIR1', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head','builder')))
     conf.define('GX_ICON_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
     conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
     conf.define('GX_VERSION', VERSION)
@@ -345,6 +348,7 @@ def configure(conf):
     conf.define('BINDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin')))
     conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
     conf.define('BIN_NAME', APPNAME)
+    conf.define('BIN_NAME1', APPNAME1)
     # g++ flags
     cxxflags = Options.options.cxxflags.split()
     if Options.options.debug:
@@ -368,6 +372,7 @@ def configure(conf):
     conf.sub_config('libgxwmm');
     conf.sub_config('libgxw/gxw');
     conf.sub_config('src');
+    conf.sub_config('src/gx_head');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
     conf.sub_config('ladspa');
@@ -436,6 +441,7 @@ def build(bld):
     bld.add_subdirs('src')
     bld.add_subdirs('rcstyles')
     bld.add_subdirs('pixmaps')
+    bld.add_subdirs('src/gx_head')
 
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
     if bld.env["GX_LIB_SHARED"]:

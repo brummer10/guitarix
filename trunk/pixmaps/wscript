@@ -13,6 +13,7 @@ pixmap_files += ' gx_off.png'
 pixmap_files += ' jackd_on.png'
 pixmap_files += ' jackd_off.png'  
 pixmap_files += ' gx_bypass.png'  
+pixmap_files += ' gx_head.png' 
 
 def configure(conf):
     pass

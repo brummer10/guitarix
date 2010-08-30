@@ -63,8 +63,20 @@ style_files = [
     'smallknob6.png',
     ]
 
+gxstyle_files = [
+    'gx12.png',
+    'gx14.png',
+    'gx18.png',
+    'gx_head_gx1.rc',
+    'common.rc',
+    'knob9.png',
+    'smallknob9.png',
+    ]
+
 def configure(conf):
     pass
 
 def build(bld):
     bld.install_files(bld.env['GX_STYLE_DIR'], style_files, chmod=0644)
+    bld.install_files(bld.env['GX_STYLE_DIR1'], gxstyle_files, chmod=0644)
+    

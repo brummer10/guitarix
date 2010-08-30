@@ -1,8 +1,56 @@
-guitarix (0.09.0SVN) unstable; urgency=low
-
-  * SVN HEAD
+guitarix (0.12.0svn) unstable; urgency=low
+  * SVN head
   
--- brummer <brummer-@web.de>  Fri, 14 May 2010 17:18:15 +0200
+ -- brummer <brummer-@web.de>  Sun, 24 Aug 2010 15:47:15 +0200 
+
+guitarix (0.11.1) unstable; urgency=low
+  * fix Bug Echo/Chorus/Delay/Slooper dont work
+  * add pre/post processing switch to all mono Effects
+  
+ -- brummer <brummer-@web.de>  Sun, 24 Aug 2010 15:47:15 +0200  
+
+guitarix (0.11.0) unstable; urgency=low
+  * new version of the impulse response parameter editor. You can 
+    now graphically define a gain line to be applied to the IR data,
+    e.g. emphasize a part of the early reflections or damping the
+    reverb tail to make it fit to your guitar sound.
+  * the multi-line distortion effect now has 4 frequency bands and
+    is better optimized
+  * fix regression from version 0.10.0: now the default preset file is
+    created again if it doesn't exist (e.g. in new installations).  
+  
+ -- Andreas Degert <andreas.degert@googlemail.com>  Tue, 03 Aug 2010 22:13:50 +0200   
+
+guitarix (0.10.0) unstable; urgency=low
+
+  * add tonestack models
+  * add 2. amp model
+  * add cabinet impulse response modul
+  * add Patch Info widget
+  * add Preset File Load/Export option
+  * add simple looper
+  * add Oscilloscope and tuner state to main settings
+  * selectable distortion model (multi/single line)
+  * selectable EQ model (fixed/scalable freq)
+  * free mem when not used (delay lines)
+  * reworked Gui
+  * fix varios bugs
+  
+ -- brummer <brummer-@web.de>  Sun, 11 Jul 2010 07:18:15 +0200
+
+guitarix (0.09.0) unstable; urgency=low
+
+  * make distortion a multiband distortion
+  * fix bug in resample IR-files
+  * resample IR-files now on-the-fly
+  * add insert point ports to the effect chain
+  * add --optimization flag for configure the build
+  * switch to double precision instead of single precision
+  * fix bug in reconfigure convolver when preset change
+  * add patch from Peder Hedlund, build against gtk-2.12.9 and gcc-4.3.1
+  * add faust 0.9.24 to the "good_faust_versions"
+  
+ -- brummer <brummer-@web.de>  Sun, 06 Jun 2010 17:18:15 +0200
 
 guitarix (0.08.0) unstable; urgency=low
 

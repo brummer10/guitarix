@@ -33,21 +33,22 @@ GType gx_paint_func_get_type(void)
 	static GType etype = 0;
 	if (G_UNLIKELY(etype == 0)) {
 		static const GEnumValue values[] = {
-			{ 0, "amp_expose", "amp expose" },
-			{ 1, "conv_widget_expose", "conv widget expose" },
-			{ 2, "upper_widget_expose", "upper widget expose" },
-			{ 3, "rectangle_expose", "rectangle expose" },
-			{ 4, "rectangle_skin_color_expose", "rectangle skin color expose" },
-			{ 5, "convolver_icon_expose", "convolver icon expose" },
-			{ 6, "AmpBox_expose", "AmpBox expose" },
-			{ 7, "tribal_box_expose", "tribal box expose" },
-			{ 8, "vbox_expose", "vbox expose" },
-			{ 9, "filter_box_expose", "filter box expose" },
-			{10, "plug_box_expose", "plug box expose" },
-			{11, "info_box_expose_on", "info box expose on" },
-			{12, "info_box_expose_off", "info box expose off" },
-			{13, "slooper_expose", "slooper expose" },
+			{ 0, "amp_expose", "amp_expose" },
+			{ 1, "conv_widget_expose", "conv_widget_expose" },
+			{ 2, "upper_widget_expose", "upper_widget_expose" },
+			{ 3, "rectangle_expose", "rectangle_expose" },
+			{ 4, "rectangle_skin_color_expose", "rectangle_skin_color_expose" },
+			{ 5, "convolver_icon_expose", "convolver_icon_expose" },
+			{ 6, "AmpBox_expose", "AmpBox_expose" },
+			{ 7, "tribal_box_expose", "tribal_box_expose" },
+			{ 8, "vbox_expose", "vbox_expose" },
+			{ 9, "filter_box_expose", "filter_box_expose" },
+			{10, "plug_box_expose", "plug_box_expose" },
+			{11, "info_box_expose_on", "info_box_expose on" },
+			{12, "info_box_expose_off", "info_box_expose off" },
+			{13, "slooper_expose", "slooper_expose" },
 			{14, "zac_expose", "zac expose" },
+			{15, "gxhead_expose", "gxhead_expose" },
 			{ 0, NULL, NULL }
 		};
 		etype = g_enum_register_static (g_intern_static_string ("GxPaintFunc"), values);

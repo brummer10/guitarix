@@ -837,6 +837,35 @@ static gboolean slooper_expose(GtkWidget *wi, GdkEventExpose *ev)
 	return FALSE;
 }
 
+static gboolean gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	GdkPixbuf *_image, *stock_image, *frame;
+
+	gint x0      = wi->allocation.x+1;
+	gint y0      = wi->allocation.y+1;
+	gint rect_width  = wi->allocation.width-2;
+	gint rect_height = wi->allocation.height-3;
+
+	stock_image = gtk_widget_render_icon(wi,"gxhead",(GtkIconSize)-1,NULL);
+	_image = gdk_pixbuf_scale_simple(
+		stock_image, rect_width, rect_height, GDK_INTERP_HYPER);
+	frame = gdk_pixbuf_new_subpixbuf(stock_image,12,12,576,156);
+	gdk_pixbuf_scale (frame, _image,12,12,rect_width-24,rect_height-24,0,0,1,1,GDK_INTERP_HYPER);	
+	
+	
+	
+	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	                _image, 0, 0,
+	                x0, y0, rect_width,rect_height,
+	                GDK_RGB_DITHER_NORMAL, 0, 0);
+
+	g_object_unref(_image);
+	g_object_unref(stock_image);
+	g_object_unref(frame);
+	return FALSE;
+}
+
+
 static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 {
 	if (strcmp(paint_func, "amp_expose") == 0) {
@@ -869,6 +898,8 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = slooper_expose;
 	} else if (strcmp(paint_func, "zac_expose") == 0) {
 		paint_box->expose_func = zac_expose;
+	} else if (strcmp(paint_func, "gxhead_expose") == 0) {
+		paint_box->expose_func = gxhead_expose;
 	} else {
 		paint_box->expose_func = 0;
 	}
