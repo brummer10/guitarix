@@ -1,7 +1,6 @@
 declare name 		"flanger";
 declare license 	"BSD";
 
-
 import("effect.lib");
 import("guitarix.lib");
 import("osc.lib");
