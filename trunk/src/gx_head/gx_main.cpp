@@ -92,9 +92,7 @@ int main(int argc, char *argv[])
 	// ----------------------- init GTK interface----------------------
 	gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
 	gui->setup();
-#ifdef EXPERIMENTAL
-	gx_engine::faust_setup();
-#endif
+
 
 	// ---------------------- initialize jack client ------------------
 	if (gx_jack::gx_jack_init(optvar))
