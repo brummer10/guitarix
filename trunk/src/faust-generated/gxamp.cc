@@ -1,0 +1,140 @@
+namespace gxamp {
+// generated from file '../src/faust/gxamp.dsp'
+
+FAUSTFLOAT 	fslider0;
+double 	fRec0[2];
+double 	fConst0;
+double 	fConst1;
+double 	fConst2;
+double 	fConst3;
+double 	fConst4;
+FAUSTFLOAT 	fslider1;
+double 	fRec7[2];
+double 	fVec0[2];
+double 	fConst5;
+double 	fConst6;
+double 	fConst7;
+double 	fRec10[2];
+double 	fRec9[2];
+double 	fConst8;
+double 	fRec8[2];
+double 	fVec1[2];
+double 	fConst9;
+double 	fRec6[2];
+double 	fVec2[2];
+double 	fConst10;
+double 	fConst11;
+double 	fConst12;
+double 	fRec11[2];
+double 	fRec5[2];
+double 	fRec4[2];
+double 	fVec3[2];
+double 	fRec3[2];
+double 	fVec4[2];
+double 	fConst13;
+double 	fConst14;
+double 	fConst15;
+double 	fRec12[2];
+double 	fRec2[2];
+double 	fRec1[2];
+int	fSamplingFreq;
+
+void init(int samplingFreq)
+{
+	fSamplingFreq = samplingFreq;
+	for (int i=0; i<2; i++) fRec0[i] = 0;
+	fConst0 = (1.0 / tan((0.5 * (((3.141592653589793 * fSamplingFreq) - 194.77874452256717) / fSamplingFreq))));
+	fConst1 = (1 + fConst0);
+	fConst2 = (0 - ((fConst0 - 1) / fConst1));
+	fConst3 = (1.0 / tan((20517.741620594938 / fSamplingFreq)));
+	fConst4 = (fConst3 - 1);
+	for (int i=0; i<2; i++) fRec7[i] = 0;
+	for (int i=0; i<2; i++) fVec0[i] = 0;
+	fConst5 = (1.0 / tan((270.1769682087222 / fSamplingFreq)));
+	fConst6 = (fConst5 - 1);
+	fConst7 = (1.0 / (1 + fConst5));
+	for (int i=0; i<2; i++) fRec10[i] = 0;
+	for (int i=0; i<2; i++) fRec9[i] = 0;
+	fConst8 = (1.0 / fConst1);
+	for (int i=0; i<2; i++) fRec8[i] = 0;
+	for (int i=0; i<2; i++) fVec1[i] = 0;
+	fConst9 = (1.0 / (1 + fConst3));
+	for (int i=0; i<2; i++) fRec6[i] = 0;
+	for (int i=0; i<2; i++) fVec2[i] = 0;
+	fConst10 = (1.0 / tan((414.6902302738527 / fSamplingFreq)));
+	fConst11 = (fConst10 - 1);
+	fConst12 = (1.0 / (1 + fConst10));
+	for (int i=0; i<2; i++) fRec11[i] = 0;
+	for (int i=0; i<2; i++) fRec5[i] = 0;
+	for (int i=0; i<2; i++) fRec4[i] = 0;
+	for (int i=0; i<2; i++) fVec3[i] = 0;
+	for (int i=0; i<2; i++) fRec3[i] = 0;
+	for (int i=0; i<2; i++) fVec4[i] = 0;
+	fConst13 = (1.0 / tan((609.4689747964198 / fSamplingFreq)));
+	fConst14 = (fConst13 - 1);
+	fConst15 = (1.0 / (1 + fConst13));
+	for (int i=0; i<2; i++) fRec12[i] = 0;
+	for (int i=0; i<2; i++) fRec2[i] = 0;
+	for (int i=0; i<2; i++) fRec1[i] = 0;
+}
+
+void compute(int count, float *input0, float *output0)
+{
+	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
+	double 	fSlow1 = (0.0010000000000000009 * pow(10,(0.05 * fslider1)));
+	for (int i=0; i<count; i++) {
+		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
+		fRec7[0] = (fSlow1 + (0.999 * fRec7[1]));
+		double fTemp0 = (fRec9[1] - 2.5e+02);
+		fVec0[0] = fTemp0;
+		fRec10[0] = (fConst7 * ((fConst6 * fRec10[1]) + (0.027 * (fVec0[0] + fVec0[1]))));
+		fRec9[0] = Ftube(0, ((double)input0[i] + fRec10[0]));
+		fRec8[0] = ((fConst8 * ((0.025 * fRec9[0]) - (0.025 * fRec9[1]))) + (fConst2 * fRec8[1]));
+		double fTemp1 = (fRec8[0] * fRec7[0]);
+		fVec1[0] = fTemp1;
+		fRec6[0] = (fConst9 * ((fVec1[0] + fVec1[1]) + (fConst4 * fRec6[1])));
+		double fTemp2 = (fRec5[1] - 2.5e+02);
+		fVec2[0] = fTemp2;
+		fRec11[0] = (fConst12 * ((fConst11 * fRec11[1]) + (0.015 * (fVec2[0] + fVec2[1]))));
+		fRec5[0] = Ftube(1, (fRec11[0] + fRec6[0]));
+		fRec4[0] = ((fConst8 * ((0.025 * fRec5[0]) - (0.025 * fRec5[1]))) + (fConst2 * fRec4[1]));
+		double fTemp3 = (fRec7[0] * fRec4[0]);
+		fVec3[0] = fTemp3;
+		fRec3[0] = (fConst9 * ((fVec3[0] + fVec3[1]) + (fConst4 * fRec3[1])));
+		double fTemp4 = (fRec2[1] - 2.5e+02);
+		fVec4[0] = fTemp4;
+		fRec12[0] = (fConst15 * ((fConst14 * fRec12[1]) + (0.0082 * (fVec4[0] + fVec4[1]))));
+		fRec2[0] = Ftube(1, (fRec12[0] + fRec3[0]));
+		fRec1[0] = ((fConst8 * ((0.025 * fRec2[0]) - (0.025 * fRec2[1]))) + (fConst2 * fRec1[1]));
+		output0[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
+		// post processing
+		fRec1[1] = fRec1[0];
+		fRec2[1] = fRec2[0];
+		fRec12[1] = fRec12[0];
+		fVec4[1] = fVec4[0];
+		fRec3[1] = fRec3[0];
+		fVec3[1] = fVec3[0];
+		fRec4[1] = fRec4[0];
+		fRec5[1] = fRec5[0];
+		fRec11[1] = fRec11[0];
+		fVec2[1] = fVec2[0];
+		fRec6[1] = fRec6[0];
+		fVec1[1] = fVec1[0];
+		fRec8[1] = fRec8[0];
+		fRec9[1] = fRec9[0];
+		fRec10[1] = fRec10[0];
+		fVec0[1] = fVec0[0];
+		fRec7[1] = fRec7[0];
+		fRec0[1] = fRec0[0];
+	}
+}
+
+static struct RegisterParams { RegisterParams(); } RegisterParams;
+RegisterParams::RegisterParams()
+{
+	registerVar("amp2.stage1.Pregain","","S","",&fslider1, 0.0, -2e+01, 2e+01, 0.1);
+	registerVar("amp2.stage2.gain1","","S","",&fslider0, 6.0, -2e+01, 2e+01, 0.1);
+	registerInit("amp2", init);
+}
+
+} // end namespace gxamp
