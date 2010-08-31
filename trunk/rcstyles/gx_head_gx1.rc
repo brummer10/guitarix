@@ -52,7 +52,7 @@ style "gx_head"
   text[SELECTED] = { 1.0, 1.0, 1.0 }
 
   base[ACTIVE]     = "#272a2f"
-  base[NORMAL]      =  "#1a1e20"
+  base[NORMAL]      =  { 0.70, 0.70, 0.70 }
   base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
   base[INSENSITIVE]  = "#4c5159"
   base[SELECTED]     = { 0.25, 0.25, 0.25 }
@@ -212,7 +212,8 @@ style "h_style"
 			stretch			= TRUE
 		}
 	}
-	fg[NORMAL] = { 0.80, 0.80, 0.80 }
+	fg[NORMAL] = { 0.20, 0.20, 0.20 }
+	
     bg[NORMAL] = { 0.0, 0.0, 0.0 }
 
     text[NORMAL] = { 0.80, 0.80, 0.80 }
@@ -222,7 +223,7 @@ style "h_style"
 	text[SELECTED] = { 1.0, 1.0, 1.0 }
 
   base[ACTIVE]     = "#272a2f"
-  base[NORMAL]      =  "#1a1e20"
+  base[NORMAL]      =  { 0.20, 0.20, 0.20 }
   base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
   base[INSENSITIVE]  = "#4c5159"
   base[SELECTED]     = { 0.25, 0.25, 0.25 }
