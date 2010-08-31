@@ -80,7 +80,7 @@ class "GtkEventBox" style:highest "gx_head-event"
 
 style "gx_head-dialog"
 {
- bg_pixmap[NORMAL] = "gx12.png"
+ bg_pixmap[NORMAL] = "gx12b.png"
 }
 
 #widget_class "GtkDialog*" style:highest "gx_head-dialog"
@@ -118,7 +118,7 @@ style "b_style"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "gx14.png"
+			file			= "gx14b.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -128,7 +128,7 @@ style "b_style"
 			recolorable		= TRUE
 			state			= PRELIGHT
 			shadow			= OUT
-			file			= "gx12.png"
+			file			= "gx12b.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -138,7 +138,7 @@ style "b_style"
 			recolorable		= TRUE
 			state			= ACTIVE
 			shadow			= OUT
-			file			= "gx14.png"
+			file			= "gx14b.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -155,7 +155,7 @@ style "c_style"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "gx12.png"
+			file			= "gx12b.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -207,7 +207,7 @@ style "h_style"
 			recolorable		= TRUE
 			state			= NORMAL
 			shadow			= OUT
-			file			= "gx12.png"
+			file			= "gx12b.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}
@@ -245,7 +245,7 @@ style "p_style"
 			recolorable		= TRUE
 			state			= PRELIGHT
 			shadow			= OUT
-			file			= "gx12.png"
+			file			= "gx12b.png"
 			border			= { 0, 0, 0, 0 }
 			stretch			= TRUE
 		}

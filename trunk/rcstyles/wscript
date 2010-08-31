@@ -64,8 +64,8 @@ style_files = [
     ]
 
 gxstyle_files = [
-    'gx12.png',
-    'gx14.png',
+    'gx12b.png',
+    'gx14b.png',
     'gx18.png',
     'gx_head_gx1.rc',
     'common.rc',
