@@ -2172,14 +2172,14 @@ bool GxMainInterface::on_refresh_oscilloscope()
 	if (!oc.bsize || oc.load != load) {
 		oc.load = load;
 		fWaveView.set_text(
-			(boost::format(_("dsp load  %1% %%")) % oc.load).str().c_str(),
+			(boost::format(_("dsp load  %1% %%")) % oc.load).str(),
 			Gtk::CORNER_TOP_LEFT);
 	}
 	int frames = gx_jack::time_is/100000;
 	if (!oc.bsize || oc.frames != frames) {
 		oc.frames = frames;
 		fWaveView.set_text(
-			(boost::format(_("ht frames %1%")) % oc.frames).str().c_str(),
+			(boost::format(_("ht frames %1%")) % oc.frames).str(),
 			Gtk::CORNER_BOTTOM_LEFT);
 	}
 	if (!oc.bsize || oc.rt != gx_jack::is_rt) {
@@ -2191,7 +2191,7 @@ bool GxMainInterface::on_refresh_oscilloscope()
 	if (!oc.bsize || oc.bsize != gx_jack::jack_bs) {
 		oc.bsize = gx_jack::jack_bs;
 		fWaveView.set_text(
-			(boost::format(_("latency    %1%")) % oc.bsize).str().c_str(),
+			(boost::format(_("latency    %1%")) % oc.bsize).str(),
 			Gtk::CORNER_TOP_RIGHT);
 	}
 	fWaveView.queue_draw();
