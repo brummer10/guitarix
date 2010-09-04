@@ -138,6 +138,7 @@ static void draw_text(GtkWidget *widget, GdkEventExpose *event, gchar *str,
 	}
 	gtk_paint_layout(widget->style, widget->window, gtk_widget_get_state(widget),
 		                 FALSE, NULL, widget, "label", xorg, yorg, layout);
+	g_object_unref(layout);
 }
 
 static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
