@@ -823,9 +823,8 @@ void gx_save_oldpreset (GtkMenuItem *menuitem, gpointer arg)
 	         }
 	         its++;
          }
-
+	presname = *its;
 	}
-	presname = *its;;
 	gx_save_preset(presname.c_str(), false);
 }
 
