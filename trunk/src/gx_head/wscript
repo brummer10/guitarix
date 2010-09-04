@@ -37,11 +37,9 @@ def build(bld):
     incl = ['.','../..','..','../headers','../../libgxwmm','../../libgxw'] # need ".." for config.h
     if not bld.env['INTERN_ZITA_CONVOLVER']:
         sources.append('../zita-convolver/zita-convolver.cc')
-        incl.append('zita-convolver');
         incl.append('../zita-convolver'); 
     if not bld.env['ZITA_RESAMPLER']:
         sources.append('../zita-resampler/zita-resampler.cc')
-        incl.append('zita-resampler')
         incl.append('../zita-resampler')
         lib = []
     else:
