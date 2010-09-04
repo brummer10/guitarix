@@ -817,15 +817,14 @@ void gx_save_oldpreset (GtkMenuItem *menuitem, gpointer arg)
 
         vector<GtkMenuItem*>::iterator it;
 
-         for (it = pm_list[SAVE_PRESET_LIST].begin() ; it != pm_list[SAVE_PRESET_LIST].end(); it++ ) {
+        for (it = pm_list[SAVE_PRESET_LIST].begin() ; it != pm_list[SAVE_PRESET_LIST].end(); it++ ) {
 	         if( menuitem == *it) {
 		         break;
 	         }
 	         its++;
-         }
-
+        }
+        presname = *its;;
 	}
-	presname = *its;;
 	gx_save_preset(presname.c_str(), false);
 }
 

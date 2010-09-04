@@ -268,10 +268,6 @@ void gx_show_about( GtkWidget *widget, gpointer data )
 		about += GX_VERSION;
 
 		about +=
-			" use jack_capture >= 0.9.30for record"
-			"\n  by Kjetil S. Matheussen "
-			"\n  http://old.notam02.no/arkiv/src/?M=D"
-			"\n  it will allways record to ~/gx_head_sessionX.xxx "
 			"\n  for impulse response it use zita-convolver "
 			"\n  byFons Adriaensen "
 			"\n  http://www.kokkinizita.net/linuxaudio/index.html "
@@ -394,35 +390,6 @@ void gx_reset_units(Glib::ustring group_id)
 		}
 	}
 }
-
-/*
-// FIXME add some presets for the eq
-void gx_reset_eq( GtkWidget *widget, gpointer data )
-{
-	string group_id = string((const char*)data) + ".";
-	string on_off = group_id + "on_off";
-
-	string presetfile = gx_user_dir + "eq_rc";
-
-	ifstream ofile(presetfile.c_str());
-	JsonParser jp(ofile);
-
-	try {
-		jp.next(JsonParser::begin_array);
-		readHeader(jp);
-
-		while (jp.peek() != JsonParser::end_array) {
-			jp.next(JsonParser::value_string);
-				read_preset(jp);
-		}
-		jp.next(JsonParser::end_array);
-		jp.next(JsonParser::end_token);
-	}catch (JsonException& e) {
-		gx_print_error("load preset", "invalid preset file: " + presetfile);
-	}
-
-}
-*/
 
 //----- show extendend settings slider
 void gx_show_extended_settings(GtkWidget *widget, gpointer data)
@@ -835,63 +802,6 @@ bool gx_update_skin(const gint idx, const char* calling_func)
 	gtk_rc_reset_styles(gtk_settings_get_default());
 
 	gx_current_skin = idx;
-
-#if 0 //FIXME (delete)
-	if (int(float(gx_current_skin)==0))
-	{
-		if (set_knob !=1)
-		{
-			GtkRegler::gtk_regler_init_pixmaps(1);
-			set_knob = 1;
-		}
-	}
-	else if (int(float(gx_current_skin)==1))
-	{
-		if (set_knob !=2)
-		{
-			GtkRegler::gtk_regler_init_pixmaps(2);
-			set_knob = 2;
-		}
-	}
-
-	else if (int(float(gx_current_skin)==3))
-	{
-		if (set_knob !=3)
-		{
-			GtkRegler::gtk_regler_init_pixmaps(3);
-			set_knob = 3;
-		}
-	}
-	else if (int(float(gx_current_skin)==5))
-	{
-		if (set_knob !=4)
-		{
-			GtkRegler::gtk_regler_init_pixmaps(4);
-			set_knob = 4;
-		}
-	}
-	else if (int(float(gx_current_skin)==4))
-	{
-		if (set_knob !=5)
-		{
-			GtkRegler::gtk_regler_init_pixmaps(5);
-			set_knob = 5;
-		}
-	}
-	else if (int(float(gx_current_skin)==8))
-	{
-		if (set_knob !=3)
-		{
-			GtkRegler::gtk_regler_init_pixmaps(3);
-			set_knob = 3;
-		}
-	}
-	else
-	{
-		GtkRegler::gtk_regler_init_pixmaps(0);
-		set_knob = 0;
-	}
-#endif
 
 	// refresh latency check menu
 	GxMainInterface* gui = GxMainInterface::instance();

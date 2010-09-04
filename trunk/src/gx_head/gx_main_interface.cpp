@@ -70,6 +70,7 @@ const char *pb_info_box_expose_on =          "info_box_expose_on";
 const char *pb_info_box_expose_off =         "info_box_expose_off";
 const char *pb_slooper_expose =              "slooper_expose";
 const char *pb_zac_expose =                  "zac_expose";
+const char *pb_gxhead_expose =               "gxhead_expose";
 
 /****************************************************************
  ** format controller values
@@ -1974,7 +1975,7 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog,
 	box.set_border_width(2);
 	box4.set_spacing(4);
 	box4.set_border_width(8);
-	paintbox.property_paint_func() = pb_rectangle_expose;
+	paintbox.property_paint_func() = pb_gxhead_expose;
 	Pango::FontDescription font = label.get_style()->get_font();
 	font.set_size(10*Pango::SCALE);
 	font.set_weight(Pango::WEIGHT_NORMAL);
