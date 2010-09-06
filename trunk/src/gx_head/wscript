@@ -31,7 +31,7 @@ def build(bld):
 
     builder_files = [
         '../midi.glade',
-        '../ports.glade',
+        'ports.glade',
         'iredit.glade',
         ]
     incl = ['.','../..','..','../headers','../../libgxwmm','../../libgxw'] # need ".." for config.h

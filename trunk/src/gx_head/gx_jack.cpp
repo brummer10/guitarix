@@ -116,7 +116,7 @@ bool gx_jack_init( const string *optvar )
 	if (jackstat & JackNameNotUnique) {
 		client_name = jack_get_client_name (client);
 		client_insert_name = jack_get_client_name (client_insert);
-		assert(client_name.substr(0,12) == "gx_head_amp");
+		assert(client_name.substr(0,11) == "gx_head_amp");
 		client_instance = client_name.substr(0,8) + client_name.substr(12);
 	}
 
