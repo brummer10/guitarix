@@ -1156,11 +1156,11 @@ it can be mono or stereo
     <child>
       <object class="GxPaintBox" id="gxpaintbox2">
         <property name="visible">True</property>
-        <property name="top_padding">8</property>
-        <property name="bottom_padding">12</property>
-        <property name="left_padding">8</property>
-        <property name="right_padding">8</property>
-        <property name="paint_func">rectangle_expose</property>
+        <property name="top_padding">14</property>
+        <property name="bottom_padding">14</property>
+        <property name="left_padding">20</property>
+        <property name="right_padding">14</property>
+        <property name="paint_func">gxhead_expose</property>
         <child>
           <object class="GtkVBox" id="vbox10">
             <property name="visible">True</property>
