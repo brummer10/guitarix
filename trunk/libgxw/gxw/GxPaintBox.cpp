@@ -119,6 +119,10 @@ static void gx_paint_box_destroy(GtkObject *object)
 		g_free(paint_box->paint_func);
 		paint_box->paint_func = NULL;
 	}
+	GtkWidget *wi = GTK_WIDGET( g_object_new (GX_TYPE_PAINT_BOX, NULL ));
+	if (G_IS_OBJECT(GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(wi))-> gxh_image)) {
+		g_object_unref(GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(wi))->gxh_image);
+	}
 }
 
 static gboolean gx_paint_box_expose(GtkWidget *widget, GdkEventExpose *event)
@@ -839,61 +843,66 @@ static gboolean slooper_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 static gboolean gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
-	GdkPixbuf *_image, *stock_image, *frame;
+	GxPaintBoxClass *klass =  GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(wi));
 
 	gint x0      = wi->allocation.x+1;
 	gint y0      = wi->allocation.y+1;
 	gint rect_width  = wi->allocation.width-2;
 	gint rect_height = wi->allocation.height-3;
-
-	stock_image = gtk_widget_render_icon(wi,"gxhead",(GtkIconSize)-1,NULL);
-	double scalew = rect_width/double(gdk_pixbuf_get_width(stock_image));		
-	double scaleh = rect_height/double(gdk_pixbuf_get_height(stock_image)-24);
 	
-	_image = gdk_pixbuf_scale_simple(
-		stock_image, rect_width, rect_height, GDK_INTERP_HYPER);
-	// upper border
-	frame = gdk_pixbuf_new_subpixbuf(
-		stock_image,0,0,gdk_pixbuf_get_width(stock_image),12);			
-	gdk_pixbuf_scale (
-		frame, _image,0,0,rect_width,12,0,0,scalew,1,GDK_INTERP_HYPER);
-	// under border
-	frame = gdk_pixbuf_new_subpixbuf(
-		stock_image,0,gdk_pixbuf_get_height(stock_image)-12,
-		gdk_pixbuf_get_width(stock_image),12);
-	gdk_pixbuf_scale (
-		frame, _image,0,gdk_pixbuf_get_height(_image)-12,
-		rect_width,12,0,gdk_pixbuf_get_height(_image)-12,
-		scalew,1,GDK_INTERP_HYPER);
-	// left border
-	frame = gdk_pixbuf_new_subpixbuf(
-		stock_image,0,12,12,gdk_pixbuf_get_height(stock_image)-24);	
-	gdk_pixbuf_scale(
-		frame, _image,0,12,12,rect_height-24,0,0,0.92,scaleh,GDK_INTERP_HYPER);
-	// right border	
-	frame = gdk_pixbuf_new_subpixbuf(
-		stock_image,gdk_pixbuf_get_width(stock_image)-12,
-		12,12,gdk_pixbuf_get_height(stock_image)-24);	
-	gdk_pixbuf_scale(
-		frame, _image,gdk_pixbuf_get_width(_image)-12,
-		12,12,rect_height-24,gdk_pixbuf_get_width(_image)-11,
-		0,0.92,scaleh,GDK_INTERP_HYPER);
-	// base 
-	frame = gdk_pixbuf_new_subpixbuf(
-		stock_image,24,24,gdk_pixbuf_get_width(stock_image)-68,
-		gdk_pixbuf_get_height(stock_image)-48);
-	gdk_pixbuf_scale (
-		frame, _image,12,12,rect_width-24,rect_height-24,
-		12,12,scalew,scaleh,GDK_INTERP_HYPER);	
+	static double ne_w = 0.;
+	if (ne_w != rect_width*rect_height) {
+		ne_w = rect_width*rect_height;
+		GdkPixbuf  *stock_image, *frame;	
+		stock_image = gtk_widget_render_icon(wi,"gxhead",(GtkIconSize)-1,NULL);
+		double scalew = rect_width/double(gdk_pixbuf_get_width(stock_image));		
+		double scaleh = rect_height/double(gdk_pixbuf_get_height(stock_image)-24);
+		
+		klass->gxh_image = gdk_pixbuf_scale_simple(
+			stock_image, rect_width, rect_height, GDK_INTERP_NEAREST);
+		// upper border
+		frame = gdk_pixbuf_new_subpixbuf(
+			stock_image,0,0,gdk_pixbuf_get_width(stock_image),12);			
+		gdk_pixbuf_scale (
+			frame, klass->gxh_image,0,0,rect_width,12,0,0,scalew,1,GDK_INTERP_BILINEAR);
+		// under border
+		frame = gdk_pixbuf_new_subpixbuf(
+			stock_image,0,gdk_pixbuf_get_height(stock_image)-12,
+			gdk_pixbuf_get_width(stock_image),12);
+		gdk_pixbuf_scale (
+			frame,klass->gxh_image,0,gdk_pixbuf_get_height(klass->gxh_image)-12,
+			rect_width,12,0,gdk_pixbuf_get_height(klass->gxh_image)-12,
+			scalew,1,GDK_INTERP_BILINEAR);
+		// left border
+		frame = gdk_pixbuf_new_subpixbuf(
+			stock_image,0,12,12,gdk_pixbuf_get_height(stock_image)-24);	
+		gdk_pixbuf_scale(
+			frame, klass->gxh_image,0,12,12,rect_height-24,0,0,0.92,scaleh,GDK_INTERP_BILINEAR);
+		// right border	
+		frame = gdk_pixbuf_new_subpixbuf(
+			stock_image,gdk_pixbuf_get_width(stock_image)-12,
+			12,12,gdk_pixbuf_get_height(stock_image)-24);	
+		gdk_pixbuf_scale(
+			frame,klass->gxh_image,gdk_pixbuf_get_width(klass->gxh_image)-12,
+			12,12,rect_height-24,gdk_pixbuf_get_width(klass->gxh_image)-11,
+			0,0.92,scaleh,GDK_INTERP_BILINEAR);
+		// base 
+		frame = gdk_pixbuf_new_subpixbuf(
+			stock_image,24,24,gdk_pixbuf_get_width(stock_image)-68,
+			gdk_pixbuf_get_height(stock_image)-48);
+		gdk_pixbuf_scale (
+			frame, klass->gxh_image,12,12,rect_width-24,rect_height-24,
+			12,12,scalew,scaleh,GDK_INTERP_TILES);	
+		//g_object_unref(_image);
+		g_object_unref(stock_image);
+		g_object_unref(frame);
+	}
 	// draw to display
 	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
-	                _image, 0, 0,
+	                klass->gxh_image, 0, 0,
 	                x0, y0, rect_width,rect_height,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
-
-	g_object_unref(_image);
-	g_object_unref(stock_image);
-	g_object_unref(frame);
+	                
 	return FALSE;
 }
 
