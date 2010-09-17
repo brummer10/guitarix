@@ -317,7 +317,7 @@ public :
 
 	GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
 
-	GtkWidget*   const getMenu(const string name) const { return fMenuList.at(name); }
+	GtkWidget*   const getMenu(const string name) { return fMenuList[name]; }
 
 	// -- layout groups
 	void openHorizontalOrderBox(const char* label,  float* posit);
