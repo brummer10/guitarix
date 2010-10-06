@@ -99,6 +99,20 @@ void _gx_knob_draw_arc(GtkWidget *widget, GdkRectangle *rect, gdouble knobstate,
 
 static const double scale_zero = 20 * (M_PI/180); // defines "dead zone" for knobs
 
+void _gx_knob_draw_indicator(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobstate)
+{
+	// add a value Indicator around the knob
+	cairo_t *cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+	double radius1 = min(image_rect->width, image_rect->height) / 2;
+	double angle = scale_zero + knobstate * 2 * (M_PI - scale_zero);
+	double add_angle = 90* (M_PI / 180.);
+	cairo_set_source_rgb(cr,  0.2, 0.8, 0.2);
+	cairo_set_line_width(cr, 4.0);
+	cairo_arc (cr,image_rect->x+radius1,image_rect->y+radius1, radius1*0.8,add_angle+scale_zero,add_angle+angle);
+	cairo_stroke(cr);
+	cairo_destroy(cr);
+}
+
 void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobstate,
                      GdkPixbuf *knob_image)
 {
@@ -109,7 +123,9 @@ void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobst
 	double lengh_y = (image_rect->y+radius+pointer_off/2) + radius * cos(angle);
 	double radius1 = min(image_rect->width, image_rect->height) / 2;
 	int has_focus = gtk_widget_has_focus(widget);
-
+	
+	//_gx_knob_draw_indicator(widget, image_rect, knobstate);
+	
 	if (has_focus) {
 		gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
 		                image_rect->x, image_rect->y, image_rect->width, image_rect->height);

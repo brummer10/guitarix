@@ -106,11 +106,8 @@ distortion4 	=  _:cubicnl(0.6*drive,0.0) : *(5.0);
 distortion	= _ : analyzerN((F,(F1,F2))) : distortion2,distortion4 ,distortion3,distortion1 :>_;
 
 //-resonator
-resonator 		= (+ <: (delay(4096, d-1) + delay(4096, d)) / 2) ~ *(1.0-a)
-with {
-  d = 0.12; // vslider("vibrato", 1, 0, 1, 0.01);
-  a = 0.6; //vslider("trigger", 0.12, 0, 1, 0.01);
-};
+resonator 		= (+ <: (delay(4096, 0.5) + delay(4096, 0.5)) / 2) ~ *(0.5);
 
+fx = (-0.4)*(drive*64): db2linear : smoothi(0.999);
 
-process 		=   distortion ;
+process 		=  distortion ;

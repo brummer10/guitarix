@@ -19,7 +19,7 @@ VERSION='0.12.0svn'
 APPNAME='guitarix'
 APPNAME1='gx_head'
 
-good_faust_versions = ['0.9.24','0.9.27']
+good_faust_versions = ['0.9.24','0.9.27','0.9.30']
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
@@ -83,6 +83,18 @@ def set_options(opt):
                     const=True,
                     help='build with included local zita-convolver libary (Default NO)')
 
+    comp.add_option('--build_head',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help='build gx_head (Default NO)')
+                    
+    comp.add_option('--no_ladspa',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help='dont build ladspa plugins (Default yes)')
+
     faust = opt.add_option_group("Faust-Compiler")
 
     faust.add_option('--faust',
@@ -138,6 +150,14 @@ def check_comp(conf):
         conf.env['ZITACONVOLVER'] = True
         conf.env['INTERN_ZITA_CONVOLVER'] = None
         conf.env['ZITA_CONVOLVER'] = None
+        
+    if Options.options.build_head:
+		conf.env['GX_HEAD'] = True
+		
+    if Options.options.no_ladspa:
+		conf.env['NO_LADSPA'] = True
+    else:
+		conf.env['LADSPA'] = True	
 
 def check_faust(conf):
     if Options.options.no_faust:
@@ -310,7 +330,8 @@ def configure(conf):
     conf.check_cfg(package='gtkmm-2.4', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
     conf.check_cfg(package='giomm-2.4', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
-    conf.check(header_name='ladspa.h', mandatory=1)
+    if not Options.options.no_ladspa:
+        conf.check(header_name='ladspa.h', mandatory=1)
     conf.check(header_name='boost/format.hpp', mandatory=1)
     # convolver and resampler
     if not Options.options.includeconvolver:
@@ -341,7 +362,8 @@ def configure(conf):
     conf.write_config_header('config.h')
 
     conf.define('LIBDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'lib')))
-    conf.define('LADSPADIR', os.path.normpath(os.path.join(conf.env['LIBDIR'], 'ladspa')))
+    if not Options.options.no_ladspa:
+        conf.define('LADSPADIR', os.path.normpath(os.path.join(conf.env['LIBDIR'], 'ladspa')))
     if Options.options.ladspadir:
         conf.env['LADSPADIR'] = Options.options.ladspadir
 
@@ -372,10 +394,12 @@ def configure(conf):
     conf.sub_config('libgxwmm');
     conf.sub_config('libgxw/gxw');
     conf.sub_config('src');
-    conf.sub_config('src/gx_head');
+    if conf.env["GX_HEAD"]:
+		conf.sub_config('src/gx_head');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
-    conf.sub_config('ladspa');
+    if conf.env["LADSPA"]:   
+        conf.sub_config('ladspa');
     conf.sub_config('rcstyles');
 
     # some output
@@ -397,7 +421,7 @@ def configure(conf):
     if cpu_model:
         display_msg("CPU version" , "%s" % cpu_model, "CYAN")
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
-    #display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(conf.env["CC_VERSION"]), "CYAN")
+    display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(conf.env["CC_VERSION"]), "CYAN")
     display_feature("Use faust", conf.env['FAUST'])
     if not Options.options.faust_float:
         display_msg("Use faust precision", "double", 'CYAN')
@@ -407,6 +431,8 @@ def configure(conf):
     display_feature("Use internal zita-convolver", conf.env['ZITACONVOLVER'])
     display_feature("Jack Session Support", conf.env['HAVE_JACK_SESSION'])
     display_feature("Experimental Extensions", conf.env['EXPERIMENTAL']=="")
+    display_feature("build gx_head", conf.env['GX_HEAD'])
+    display_feature("build ladspa plugins", conf.env['LADSPA'])
     display_feature("Python Library Wrapper", conf.env['GX_PYTHON_WRAPPER'])
     display_feature("re-generate C++ Library Wrapper", not conf.env['USE_GENERATED_CPP'])
     display_feature("Build with shared lib", conf.env['GX_LIB_SHARED'])
@@ -416,7 +442,8 @@ def configure(conf):
         display_msg("glade modules dir", conf.env['GLADE_MODULES_DIR'], 'CYAN')
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
     display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
-    display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
+    if not Options.options.no_ladspa:
+        display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
     display_msg("Guitarix style directory", conf.env['GX_STYLE_DIR'], 'CYAN')
     display_msg("Guitarix builder directory", conf.env['GX_BUILDER_DIR'], 'CYAN')
     display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
@@ -431,7 +458,8 @@ def post(ctx):
 
 def build(bld):
     # process subfolders from here
-    bld.add_subdirs('ladspa')
+    if bld.env["LADSPA"]:
+        bld.add_subdirs('ladspa')
     bld.add_subdirs('libgxw/gxw')
     bld.add_group()
     bld.add_subdirs('libgxwmm')
@@ -441,10 +469,12 @@ def build(bld):
     bld.add_subdirs('src')
     bld.add_subdirs('rcstyles')
     bld.add_subdirs('pixmaps')
-    bld.add_subdirs('src/gx_head')
+    if bld.env["GX_HEAD"]:
+		bld.add_subdirs('src/gx_head')
 
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
-    bld.install_files(bld.env['DESKAPPS_DIR'], 'gx_head.desktop', chmod=0644)
+    if bld.env["GX_HEAD"]:
+        bld.install_files(bld.env['DESKAPPS_DIR'], 'gx_head.desktop', chmod=0644)
     if bld.env["GX_LIB_SHARED"]:
         bld.add_post_fun(post)
 

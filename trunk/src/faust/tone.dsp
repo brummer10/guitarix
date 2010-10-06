@@ -22,7 +22,7 @@ with {
 	g(y)	= 0-(a1/a0)*y-(a2/a0)*y';
 };
 
-low_shelf(f0,g)		= filter(b0,b1,b2,a0,a1,a2)
+gxlow_shelf(f0,g)		= filter(b0,b1,b2,a0,a1,a2)
 with {
 	S  		= 1;
 	A  		= pow(10,g/40);
@@ -37,7 +37,7 @@ with {
 	a2 		=        (A+1) + (A-1)*cos(w0) - 2*sqrt(A)*alpha;
 };
 
-high_shelf(f0,g)	= filter(b0,b1,b2,a0,a1,a2)
+gxhigh_shelf(f0,g)	= filter(b0,b1,b2,a0,a1,a2)
 with {
 	S  		= 1;
 	A  		= pow(10,g/40);
@@ -60,12 +60,12 @@ treble_freq	= 2400;
 bass_gain	= vslider("bass[name:bass]", 0, -20, 20, 0.1);
 mid_gain	= vslider("middle[name:middle]", 0, -20, 20, 0.1)/2;
 treble_gain	= vslider("treble[name:treble]", 0, -20, 20, 0.1);
-tone(b,m,t)     = low_shelf(bass_freq,b-m) :
-				  low_shelf(treble_freq,m):
-                  high_shelf(bass_freq,m) :
-                  high_shelf(treble_freq,t-m);
+tone(b,m,t)     = gxlow_shelf(bass_freq,b-m) :
+				  gxlow_shelf(treble_freq,m):
+                  gxhigh_shelf(bass_freq,m) :
+                  gxhigh_shelf(treble_freq,t-m);
 process		= add_dc :
-                  low_shelf(bass_freq,bass_gain-mid_gain) :
-                  low_shelf(treble_freq,mid_gain):
-                  high_shelf(bass_freq,mid_gain) :
-                  high_shelf(treble_freq,treble_gain-mid_gain);
+                  gxlow_shelf(bass_freq,bass_gain-mid_gain) :
+                  gxlow_shelf(treble_freq,mid_gain):
+                  gxhigh_shelf(bass_freq,mid_gain) :
+                  gxhigh_shelf(treble_freq,treble_gain-mid_gain);

@@ -20,7 +20,7 @@ void compute(int count, float *input0, float *output0, float *output1)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerInit("amp", init);
+	registerInit("feed", init);
 }
 
 } // end namespace gxfeed
