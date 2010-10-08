@@ -551,7 +551,7 @@ void process_midi(int len)
 						midi.send+=step;
 						if (midi.fcheckbox10 ) midi.send1+=step;
 						if (midi.fcheckbox11 ) midi.send2+=step;
-						midi.weg -= step;
+						//midi.weg -= step; 
 					}
 					// else midi.weg +=step;
 				}

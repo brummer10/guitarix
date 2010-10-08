@@ -119,7 +119,7 @@ GxMainInterface::GxMainInterface(const char * name):
 	fWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 
 	/*---------------- set window defaults ----------------*/
-	gtk_widget_set_size_request (GTK_WIDGET (fWindow) , 600,205);
+	//gtk_widget_set_size_request (GTK_WIDGET (fWindow) , 600,205);
 	gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 	gtk_window_set_title (GTK_WINDOW (fWindow), name);
 	gtk_window_set_gravity(GTK_WINDOW(fWindow), GDK_GRAVITY_NORTH_WEST);
@@ -441,7 +441,7 @@ void GxMainInterface::openHorizontalhideBox(const char* label)
 
 void GxMainInterface::openHorizontalTableBox(const char* label)
 {
-	GtkWidget * box = gtk_hbox_new (TRUE, 0);
+	GtkWidget * box = gtk_vbox_new (TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
@@ -614,17 +614,20 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
 //----- boxes to move inside a other box
 void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 {
-	GtkWidget * box = gtk_vbox_new (homogene, 0);
+	GtkWidget * box = gtk_hbox_new (homogene, 0);
 	GtkWidget * box1 = gtk_fixed_new ();
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-	g_signal_connect(box, "expose-event", G_CALLBACK(tribal_box_expose), NULL);
+	gtk_widget_set_size_request (GTK_WIDGET (box) , 500,40);
+	g_signal_connect(box, "expose-event", G_CALLBACK(zac_expose), NULL);
 
 	GtkWidget* 	button = gtk_button_new ();
 	GtkWidget* 	button1 = gtk_button_new ();
 	GtkWidget* lw = gtk_label_new(">");
 	GtkWidget* lw1 = gtk_label_new("<");
+	GtkWidget* lw2 = gtk_label_new(label);
 	gtk_container_add (GTK_CONTAINER(button), lw);
 	gtk_container_add (GTK_CONTAINER(button1), lw1);
+	gtk_container_add (GTK_CONTAINER(box), lw2);
 	gtk_widget_set_size_request (GTK_WIDGET(button), 20, 15);
 	gtk_widget_set_size_request (GTK_WIDGET(button1), 20, 15);
 
@@ -651,12 +654,12 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 
 
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
-	gtk_fixed_put (GTK_FIXED(box1), button1, 15, 1);
-	gtk_fixed_put (GTK_FIXED(box1), button, 35, 1);
+	gtk_fixed_put (GTK_FIXED(box1), button1, 15, 25);
+	gtk_fixed_put (GTK_FIXED(box1), button, 35, 25);
 	gtk_box_pack_end (GTK_BOX(box), box1, expand, fill, 0);
 	gtk_widget_show_all(button);
 	gtk_widget_show_all(button1);
-	gtk_widget_show(box);
+	gtk_widget_show_all(box);
 	gtk_widget_show(box1);
 	pushBox(kBoxMode, box);
 
@@ -720,6 +723,7 @@ void GxMainInterface::openHandleBox(const char* label)
 void GxMainInterface::openEventBox(const char* label)
 {
 	GtkWidget * box = gtk_hbox_new (homogene, 4);
+	gtk_widget_set_size_request (GTK_WIDGET (box) , 600,182);
 
 	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
 	if (fMode[fTop] != kTabMode && label[0] != 0)
@@ -1071,20 +1075,20 @@ void GxMainInterface::openToolBar(const char* label)
 void GxMainInterface::openScrollBox(const char* label)
 {
 	GtkWidget * scrollbox = gtk_scrolled_window_new(NULL,NULL);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollbox),GTK_POLICY_AUTOMATIC,GTK_POLICY_NEVER);
-	gtk_widget_set_size_request (scrollbox, 358, -1);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollbox),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
+	gtk_widget_set_size_request (scrollbox, -1, -1);
 	GtkWidget * box = gtk_vbox_new (homogene, 0);
 	GtkWidget * box1 = gtk_hbox_new (homogene, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 	g_signal_connect(box, "expose-event", G_CALLBACK(rectangle_skin_color_expose), NULL);
 
-	GtkWidget* 	button = gtk_button_new ();
+	//GtkWidget* 	button = gtk_button_new ();
 
-	g_signal_connect (GTK_OBJECT (button), "clicked",
-	                  G_CALLBACK (uiOrderButton::resize), NULL);
+	//g_signal_connect (GTK_OBJECT (button), "clicked",
+	//                  G_CALLBACK (uiOrderButton::resize), NULL);
 
-	gtk_widget_set_size_request (GTK_WIDGET(button), 10, -1);
-	gtk_container_add (GTK_CONTAINER(box1), button);
+	//gtk_widget_set_size_request (GTK_WIDGET(button), 10, -1);
+	//gtk_container_add (GTK_CONTAINER(box1), button);
 	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbox),GTK_WIDGET(box));
 	gtk_container_add (GTK_CONTAINER(box1), scrollbox);
 	gtk_container_add (GTK_CONTAINER(fBox[fTop]), box1);
