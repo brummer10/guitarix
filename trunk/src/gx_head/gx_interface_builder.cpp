@@ -208,7 +208,7 @@ void GxMainInterface::setup()
                                         {
                                              openVerticalBox1("");
                                              closeBox();
-                                             create_cab_switch("cab.on_off"," Cabinet      ", Gtk::POS_RIGHT);
+                                             create_cab_switch("cab.on_off"," Cabinet        ", Gtk::POS_RIGHT);
                                              openSpaceBox("");
                                              closeBox();
                                              openSpaceBox("");
@@ -248,6 +248,7 @@ void GxMainInterface::setup()
                                    closeBox();
                                    openSpaceBox("");
                                    closeBox();
+                                   create_switch(sw_minitoggle, "amp.feed_on_off", " reverb  ", Gtk::POS_RIGHT);
                                    openSpaceBox("");
                                    closeBox();
                                    openVerticalBox1("Convolver");
