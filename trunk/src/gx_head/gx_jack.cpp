@@ -492,11 +492,11 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 				if (wd) {
 					gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 				}
-				//if (!gx_engine::pt_initialized) {
-				//    sleep(5);
+				if (!gx_engine::pt_initialized) {
+				    sleep(5);
                     // -------- pitch tracker (needs jack thread running) -------------
-                //    gx_engine::pitch_tracker.init();
-                //}
+                    gx_engine::pitch_tracker.init();
+                }
 			}
 		}
 

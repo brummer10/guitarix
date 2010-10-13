@@ -210,6 +210,17 @@ void compute (int count, float* input, float* output0)
 
 void process_buffers(int count, float* input, float* output0)
 {
+	int tuner_on = gx_gui::shownote + (int)isMidiOn() + 1;
+	if (tuner_on > 0) {
+		if (gx_gui::shownote == 0) {
+			gx_gui::shownote = -1;
+		} else {
+			pitch_tracker.add(count, input);
+			//moving_filter(input, checkfreq, count);
+			(void)memcpy(checkfreq, input, sizeof(float)*count);
+		}
+	}
+	
 	memcpy(output0, input, count*sizeof(float));
 
     gxdistortion::compute(count, output0, output0);

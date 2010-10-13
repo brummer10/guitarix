@@ -877,15 +877,45 @@ static gboolean gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,0,12,12,gdk_pixbuf_get_height(stock_image)-24);	
 		gdk_pixbuf_scale(
-			frame, klass->gxh_image,0,12,12,rect_height-24,0,0,0.92,scaleh,GDK_INTERP_BILINEAR);
+			frame, klass->gxh_image,0,12,12,rect_height-24,0,0,1,scaleh,GDK_INTERP_BILINEAR);
 		// right border	
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,gdk_pixbuf_get_width(stock_image)-12,
 			12,12,gdk_pixbuf_get_height(stock_image)-24);	
 		gdk_pixbuf_scale(
 			frame,klass->gxh_image,gdk_pixbuf_get_width(klass->gxh_image)-12,
-			12,12,rect_height-24,gdk_pixbuf_get_width(klass->gxh_image)-11,
-			0,0.92,scaleh,GDK_INTERP_BILINEAR);
+			12,12,rect_height-24,gdk_pixbuf_get_width(klass->gxh_image)-12,
+			0,1,scaleh,GDK_INTERP_BILINEAR);
+		//left upper corner
+		frame = gdk_pixbuf_new_subpixbuf(
+			stock_image,0,0,12,12);			
+		gdk_pixbuf_scale (
+			frame, klass->gxh_image,0,0,12,12,0,0,1,1,GDK_INTERP_BILINEAR);
+		//right upper corner
+		frame = gdk_pixbuf_new_subpixbuf(
+			stock_image,gdk_pixbuf_get_width(stock_image)-12,0,12,12);			
+		gdk_pixbuf_scale (
+			frame, klass->gxh_image,gdk_pixbuf_get_width(klass->gxh_image)-12,
+			0,12,12,gdk_pixbuf_get_width(klass->gxh_image)-12,0,1,1,
+			GDK_INTERP_BILINEAR);
+		//left under corner
+		frame = gdk_pixbuf_new_subpixbuf(
+			stock_image,0,gdk_pixbuf_get_height(stock_image)-12,12,12);			
+		gdk_pixbuf_scale (
+			frame, klass->gxh_image,0,gdk_pixbuf_get_height(klass->gxh_image)-12,
+			12,12,0,gdk_pixbuf_get_height(klass->gxh_image)-12,1,1,
+			GDK_INTERP_BILINEAR);
+		//right under corner
+		frame = gdk_pixbuf_new_subpixbuf(
+			stock_image,gdk_pixbuf_get_width(stock_image)-12,
+			gdk_pixbuf_get_height(stock_image)-12,12,12);			
+		gdk_pixbuf_scale (
+			frame, klass->gxh_image,gdk_pixbuf_get_width(klass->gxh_image)-12,
+			gdk_pixbuf_get_height(klass->gxh_image)-12,
+			12,12,gdk_pixbuf_get_width(klass->gxh_image)-12,
+			gdk_pixbuf_get_height(klass->gxh_image)-12,1,1,
+			GDK_INTERP_BILINEAR);	
+				
 		// base 
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,24,24,gdk_pixbuf_get_width(stock_image)-68,

@@ -2121,10 +2121,57 @@ void uiTuner::reflectZone()
 	}
 }
 
+class GxTunerWindowBox
+{
+private:
+	bool on_window_delete_event(GdkEventAny* event);
+	
+public:
+	Gtk::Window window;
+	Gxw::PaintBox paintbox;
+	Gxw::PaintBox paintbox1;
+	GxTunerWindowBox(gx_ui::GxUI& ui);
+	~GxTunerWindowBox();
+};
+
+bool GxTunerWindowBox::on_window_delete_event(GdkEventAny*)
+{
+	gtk_check_menu_item_set_active(
+				GTK_CHECK_MENU_ITEM(GTK_WIDGET(gx_tuner_item)), FALSE
+				);
+	return false;
+}
+
+GxTunerWindowBox::GxTunerWindowBox(gx_ui::GxUI& ui):
+	window(Gtk::WINDOW_TOPLEVEL)
+{
+	Glib::ustring title = "tuner";
+	window.set_decorated(true);
+	window.set_icon(Glib::wrap(ib));
+	window.set_resizable(false);
+	window.set_gravity(Gdk::GRAVITY_SOUTH);
+	window.set_transient_for(*Glib::wrap(GTK_WINDOW(fWindow)));
+	window.set_position(Gtk::WIN_POS_MOUSE);
+	window.set_keep_below(false);
+	window.set_title(title);
+	window.set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
+	window.property_destroy_with_parent() = true;
+	paintbox1.set_border_width(12);
+	paintbox.set_border_width(6);
+	paintbox.property_paint_func() = pb_AmpBox_expose;
+	paintbox1.property_paint_func() = pb_gxhead_expose;
+	window.signal_delete_event().connect(
+		sigc::mem_fun(*this, &GxTunerWindowBox::on_window_delete_event));
+	paintbox1.add(paintbox);
+	window.add(paintbox1);
+	paintbox.show_all();
+}
+
 void GxMainInterface::addNumDisplay()
 {
-	addWidget("", GTK_WIDGET(fTuner.gobj()));
-	fTuner.hide(); // addWidget shows the widget
+	GxTunerWindowBox *box =  new GxTunerWindowBox(*this);
+	box->paintbox.add(fTuner);
+	tuner_widget = GTK_WIDGET(box->window.gobj());
 }
 
 struct uiStatusDisplay : public gx_ui::GxUiItemFloat
@@ -2675,6 +2722,17 @@ void GxMainInterface::addOptionMenu()
 	                  G_CALLBACK (Meterbridge::start_stop), NULL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
+	
+	/*-- Create tuner check menu item under Options submenu --*/
+	set_label(fShowTuner, "_Tuner");
+	fShowTuner.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_t, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fShowTuner.signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_tuner_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowTuner.gobj()));
+	gx_tuner_item = GTK_WIDGET(fShowTuner.gobj());
+	fShowTuner.show();
+	fShowTuner.set_parameter(new SwitchParameter("system.show_tuner"));
 
 	/*-- Create skin menu under Options submenu--*/
 	addGuiSkinMenu();

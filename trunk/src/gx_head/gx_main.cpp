@@ -114,10 +114,10 @@ int main(int argc, char *argv[])
 	g_object_set (gtk_settings_get_default (), "gtk-menu-images", TRUE, NULL);
 	gui->show();
 
-	//if (gx_jack::client) {
+	if (gx_jack::client) {
 	    // -------- pitch tracker (needs jack thread running) -------------
-	//	gx_engine::pitch_tracker.init();
-	//}
+		gx_engine::pitch_tracker.init();
+	}
 
 	//Gxw::Knob::set_jump_to_mouse(false);
 	gui->run();

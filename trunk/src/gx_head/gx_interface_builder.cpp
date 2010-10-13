@@ -331,7 +331,7 @@ void GxMainInterface::setup()
      closeBox();
      // add a Patch Info widget
      openPatchInfoBox(&gx_gui::show_patch_info);
-
+     addNumDisplay();
      //debug_check(all_midi_params_assigned);
 	}
 

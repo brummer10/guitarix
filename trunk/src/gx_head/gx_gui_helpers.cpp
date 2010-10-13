@@ -205,11 +205,13 @@ void GxMainInterface::on_show_oscilloscope()
 void GxMainInterface::on_tuner_activate()
 {
 	if (fShowTuner.get_active()) {
+		gtk_widget_show_all(tuner_widget);
 		shownote = 1;
 		fTuner.show();
 	} else {
 		shownote = 0;
 		fTuner.hide();
+		gtk_widget_hide(tuner_widget);
 	}
 }
 

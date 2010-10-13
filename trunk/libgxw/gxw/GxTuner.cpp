@@ -36,8 +36,8 @@ static void gx_tuner_set_property(
 static void gx_tuner_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 
-static const int tuner_width = 102;
-static const int tuner_height = 92;
+static const int tuner_width = 100;
+static const int tuner_height = 90;
 static const double rect_width = 100;
 static const double rect_height = 60;
 

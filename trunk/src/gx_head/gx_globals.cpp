@@ -222,6 +222,8 @@ GtkWidget* fbutton;
 GtkWidget* record_button;
 GtkWidget* jc_dialog;
 GtkWidget* patch_info;
+GtkWidget* tuner_widget;
+GtkWidget* gx_tuner_item;
 
 /* wave view widgets */
 GtkWidget* livewa;
