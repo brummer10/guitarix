@@ -3,7 +3,7 @@ import("music.lib");
 import("guitarix.lib");
 
 fb_combii (maxdel,N,b0,aN) = (+ <:  delay(maxdel,N),_) ~ *(-aN) : !,*(b0); 
-rev1i(maxdel,N,g) = fb_comb (maxdel,N,1,-g); 
+rev1i(maxdel,N,g) = fb_combii (maxdel,N,1,-g); 
 	 
 	allpass_combi(maxdel,N,aN) = (+ <:  
 	   delay(maxdel,N-1),*(aN)) ~ *(-aN) 
