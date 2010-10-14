@@ -441,7 +441,7 @@ void GxMainInterface::openHorizontalhideBox(const char* label)
 
 void GxMainInterface::openHorizontalTableBox(const char* label)
 {
-	GtkWidget * box = gtk_vbox_new (TRUE, 0);
+	GtkWidget * box = gtk_hbox_new (TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
@@ -1978,7 +1978,7 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog,
 	window.property_destroy_with_parent() = true;
 	box.set_border_width(2);
 	box4.set_spacing(4);
-	box4.set_border_width(8);
+	box4.set_border_width(12);
 	paintbox.property_paint_func() = pb_gxhead_expose;
 	Pango::FontDescription font = label.get_style()->get_font();
 	font.set_size(10*Pango::SCALE);
@@ -2121,31 +2121,33 @@ void uiTuner::reflectZone()
 	}
 }
 
-class GxTunerWindowBox
+class GxWindowBox
 {
 private:
-	bool on_window_delete_event(GdkEventAny* event);
+	bool on_window_delete_event(GdkEventAny* event,gpointer d );
 	
 public:
 	Gtk::Window window;
 	Gxw::PaintBox paintbox;
 	Gxw::PaintBox paintbox1;
-	GxTunerWindowBox(gx_ui::GxUI& ui);
-	~GxTunerWindowBox();
+	GxWindowBox(gx_ui::GxUI& ui,const char *pb_1, 
+		const char *pb_2, Glib::ustring titl,GtkWidget * d);
+	~GxWindowBox();
 };
 
-bool GxTunerWindowBox::on_window_delete_event(GdkEventAny*)
+bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d)
 {
 	gtk_check_menu_item_set_active(
-				GTK_CHECK_MENU_ITEM(GTK_WIDGET(gx_tuner_item)), FALSE
+				GTK_CHECK_MENU_ITEM(GTK_WIDGET(d)), FALSE
 				);
 	return false;
 }
 
-GxTunerWindowBox::GxTunerWindowBox(gx_ui::GxUI& ui):
+GxWindowBox::GxWindowBox(gx_ui::GxUI& ui, 
+	const char *pb_1, const char *pb_2, Glib::ustring titl,GtkWidget * d):
 	window(Gtk::WINDOW_TOPLEVEL)
 {
-	Glib::ustring title = "tuner";
+	Glib::ustring title = titl;
 	window.set_decorated(true);
 	window.set_icon(Glib::wrap(ib));
 	window.set_resizable(false);
@@ -2158,10 +2160,10 @@ GxTunerWindowBox::GxTunerWindowBox(gx_ui::GxUI& ui):
 	window.property_destroy_with_parent() = true;
 	paintbox1.set_border_width(12);
 	paintbox.set_border_width(6);
-	paintbox.property_paint_func() = pb_AmpBox_expose;
-	paintbox1.property_paint_func() = pb_gxhead_expose;
+	paintbox.property_paint_func() = pb_1;
+	paintbox1.property_paint_func() = pb_2;
 	window.signal_delete_event().connect(
-		sigc::mem_fun(*this, &GxTunerWindowBox::on_window_delete_event));
+		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxWindowBox::on_window_delete_event),d));
 	paintbox1.add(paintbox);
 	window.add(paintbox1);
 	paintbox.show_all();
@@ -2169,7 +2171,8 @@ GxTunerWindowBox::GxTunerWindowBox(gx_ui::GxUI& ui):
 
 void GxMainInterface::addNumDisplay()
 {
-	GxTunerWindowBox *box =  new GxTunerWindowBox(*this);
+	GxWindowBox *box =  new GxWindowBox(*this, 
+		pb_AmpBox_expose, pb_gxhead_expose, "tuner", GTK_WIDGET(fShowTuner.gobj()));
 	box->paintbox.add(fTuner);
 	tuner_widget = GTK_WIDGET(box->window.gobj());
 }
@@ -2730,7 +2733,6 @@ void GxMainInterface::addOptionMenu()
 	fShowTuner.signal_activate().connect(
 		sigc::mem_fun(*this, &GxMainInterface::on_tuner_activate));
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowTuner.gobj()));
-	gx_tuner_item = GTK_WIDGET(fShowTuner.gobj());
 	fShowTuner.show();
 	fShowTuner.set_parameter(new SwitchParameter("system.show_tuner"));
 
