@@ -215,6 +215,32 @@ void GxMainInterface::on_tuner_activate()
 	}
 }
 
+//----menu function gx_rack
+void GxMainInterface::on_rack_activate()
+{
+	if (fShowRack.get_active()) {
+		gtk_widget_show_all(rack_widget);
+		
+		
+	} else {
+		
+		gtk_widget_hide(rack_widget);
+	}
+}
+
+//----menu function gx_rack
+void GxMainInterface::on_srack_activate()
+{
+	if (fShowSRack.get_active()) {
+		gtk_widget_show_all(srack_widget);
+		
+		
+	} else {
+		
+		gtk_widget_hide(srack_widget);
+	}
+}
+
 //----menu function gx_tuner
 void gx_patch(GtkCheckMenuItem *menuitem, gpointer checkplay)
 {

@@ -162,8 +162,8 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("distortion.drive","","S","",&fslider0, 0.64, 0.0, 1.0, 0.01);
-	registerInit("distortion", init);
+	registerVar("gxdistortion.drive","","S","",&fslider0, 0.64, 0.0, 1.0, 0.01);
+	registerInit("gxdistortion", init);
 }
 
 } // end namespace gxdistortion

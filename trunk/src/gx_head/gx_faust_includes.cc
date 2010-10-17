@@ -94,6 +94,21 @@ static void registerVar(const char* id, const char* name, const char* tp,
 	get_paramlist().push_back(p);
 }
 
+static void registerEnumVar(const char *id, const char* name, const char* tp,
+                            const char* tooltip, const char** values, float *var, float val,
+                            float low=0, float up=0, float step=1, bool exp=false)
+{
+	if (!name[0]) {
+		assert(strrchr(id, '.'));
+		name = strrchr(id, '.')+1;
+	}
+	assert(low == 0.0 && step == 1.0);
+	gx_gui::FloatEnumParameter *p = new gx_gui::FloatEnumParameter(
+		id, name, values, true, *var, (int)round(val), true, exp);
+	assert(up == p->upper); // calculated by constructor
+	get_paramlist().push_back(p);
+}
+
 static inline void registerIntParam(const char*a,const char*b,int*c,int std=0,int lower=0,int upper=1,bool exp=false)
  {
 	 get_paramlist().push_back(
@@ -109,6 +124,10 @@ static void registerInit(const char *name, inifunc f)
 	get_inilist().push_back(i);
 }
 
+static void jack_sync()
+{
+	while (sem_wait(&gx_jack::jack_sync_sem) == EINTR);
+}
 
 #define max(x,y) (((x)>(y)) ? (x) : (y))
 #define min(x,y) (((x)<(y)) ? (x) : (y))
@@ -143,6 +162,25 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust/jconv_post.cc"
 #include "faust/balance1.cc"
 
+// effects
+#include "faust/overdrive.cc"
+#include "faust/compressor.cc"
+#include "faust/crybaby.cc"
+#include "faust/autowah.cc"
+#include "faust/echo.cc"
+#include "faust/delay.cc"
+
+#include "faust/distortion.cc"
+#include "faust/freeverb.cc"
+#include "faust/impulseresponse.cc"
+#include "faust/chorus.cc"
+#include "faust/moog.cc"
+#include "faust/biquad.cc"
+#include "faust/flanger.cc"
+#include "faust/selecteq.cc"
+#include "faust/eq.cc"
+#include "faust/sloop.cc"
+#include "faust/phaser.cc"
 
 // tone stack
 static struct ToneStackParams { ToneStackParams(); } ToneStackParams;
@@ -164,9 +202,25 @@ ToneStackParams::ToneStackParams() {
 #include "faust/tonestack_ac30.cc"
 
 
+static void activate_callback(float val, void *data)
+{
+	((void (*)(bool,int))data)(!(val == 0.0), gx_jack::jack_sr);
+}
+
+static void faust_add_callback(const char* id, void (*func)(bool,int))
+{
+	new gx_ui::GxUiCallbackItemFloat(gx_gui::GxMainInterface::instance(),
+	                                 (float*)gx_gui::parameter_map[id].zone(),
+	                                 activate_callback, (void*)func);
+}
+
 void faust_init(int samplingFreq)
 {
-
+	faust_add_callback("SampleLooper.on_off", sloop::activate);
+	faust_add_callback("delay.on_off", delay::activate);
+	faust_add_callback("echo.on_off", echo::activate);
+	faust_add_callback("chorus.on_off", chorus::activate);
+	faust_add_callback("phaser.on_off", chorus::activate);
 	list<inidef>& inilist = get_inilist();
 	for (list<inidef>::iterator i = inilist.begin(); i != inilist.end(); i++) {
 		try {

@@ -118,7 +118,7 @@ void GxMainInterface::setup()
                                    closeBox();
 
 
-                                   create_bigknob("distortion.drive","  Drive ");
+                                   create_bigknob("gxdistortion.drive","  Drive ");
                                    openSpaceBox("");
                                    closeBox();
 
@@ -332,7 +332,19 @@ void GxMainInterface::setup()
      // add a Patch Info widget
      openPatchInfoBox(&gx_gui::show_patch_info);
      addNumDisplay();
-     //debug_check(all_midi_params_assigned);
+     openPlugBox("Mono Rack");
+     {
+		#include "gx_rack_builder.cc"		
+	 }
+	 closeBox();
+	 
+	 openAmpBox("Stereo Rack");
+     {
+		#include "gx_srack_builder.cc"		
+	 }
+	 closeBox();
+	 
+     debug_check(all_midi_params_assigned);
 	}
 
 }

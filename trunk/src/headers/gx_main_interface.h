@@ -257,12 +257,16 @@ private:
 
 	bool on_meter_button_release(GdkEventButton* ev);
 	void on_tuner_activate();
+	void on_rack_activate();
+	void on_srack_activate();
 	void on_show_oscilloscope();
 	bool on_refresh_oscilloscope();
 
 protected :
 	int			fTop;
 	GtkWidget*          fBox[stackSize];
+	GtkWidget*          rBox;
+	GtkWidget*          sBox;
 	int 		fMode[stackSize];
 	bool		fStopped;
 	GtkTextView*        fLoggingWindow;
@@ -279,6 +283,8 @@ protected :
 	MenuCheckItem       fMidiInPreset;
 	MenuCheckItem       fShowTooltips;
 	MenuCheckItem       fShowTuner;
+	MenuCheckItem       fShowRack;
+	MenuCheckItem       fShowSRack;
 	MenuCheckItem       fShowWaveView;
 #ifdef EXPERIMENTAL
 	MenuCheckItem       fShowExpWindow;
@@ -332,6 +338,7 @@ public :
 	void openVerticalSwitchBox(const char* label, int state, int wit, float* zone);
 	void openVerticalMidiBox(const char* label = "");
 	void openDialogBox(const char *id_dialog, const char *id_switch);
+	void opensDialogBox(const char *id_dialog, const char *id_switch);
 	void openPatchInfoBox(float* zone);
 	void openWarningBox(const char* label, float* zone);
 	void openEventBox(const char* label = "");

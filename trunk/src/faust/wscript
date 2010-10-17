@@ -140,6 +140,7 @@ def build(bld):
         'echo.dsp',
         'delay.dsp',
         'chorus.dsp',
+        'phaser.dsp',
     ]
 
     experimental_soures = [

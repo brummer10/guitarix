@@ -61,6 +61,9 @@ public:
 	float posit7;
 	float posit8;
 	float posit9;
+	float posit10;
+	float posit11;
+	float posit12;
 	bool foverdrive4;
 	bool fcheckbox4;
 	bool fcheckbox6;
@@ -70,6 +73,7 @@ public:
 	bool fmultifilter;
 	bool fboost;
 	int fchorus;
+	int fphaser;
 	float ffuse;
 	bool fdialogbox1;
 	bool fdialogbox2;
@@ -95,6 +99,7 @@ public:
 	bool fdialogbox_eqs;
 	bool fdialogbox_mbf;
 	bool fdialogbox_moo;
+	bool fdialogbox_pha;
 	bool fmoog;
 	bool fflanger;
 	bool fflangerbox;
@@ -121,6 +126,8 @@ public:
 	int compressorpp;
 	int echopp;
 	int delaypp;
+	int eqpp;
+	bool fdialogbox_ovd;
 
 	void register_parameter();
 };

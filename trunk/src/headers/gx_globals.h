@@ -213,7 +213,8 @@ extern GtkWidget* record_button;
 extern GtkWidget* jc_dialog;
 extern GtkWidget* patch_info;
 extern GtkWidget* tuner_widget;
-
+extern GtkWidget* rack_widget;
+extern GtkWidget* srack_widget;
 
 /* wave view widgets */
 extern GdkPixbuf* ib;
