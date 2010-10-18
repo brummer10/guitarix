@@ -33,10 +33,10 @@ style "gx_head"
 
 
   fg[NORMAL] = { 0.10, 0.10, 0.10 }
-  fg[ACTIVE] = { 0.80, 0.80, 0.80 }
-  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[ACTIVE] = { 1.0, 1.0, 1.0 }
+  fg[PRELIGHT] = { 0.90, 0.90, 0.90 }
   fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }
-  fg[SELECTED] = { 0.80, 0.80, 0.80 }
+  fg[SELECTED] = { 0.70, 0.70, 0.70 }
 
   bg[NORMAL] = { 0.50, 0.50, 0.50 }
   bg[PRELIGHT] = "#303084"
@@ -212,18 +212,18 @@ style "h_style"
 			stretch			= TRUE
 		}
 	}
-	fg[NORMAL] = { 0.20, 0.20, 0.20 }
+	fg[NORMAL] = { 0.30, 0.30, 0.30 }
 	
     bg[NORMAL] = { 0.0, 0.0, 0.0 }
 
     text[NORMAL] = { 0.80, 0.80, 0.80 }
-	text[ACTIVE] = { 0.80, 0.80, 0.80 }
-	text[PRELIGHT] = { 0.80, 0.80, 0.80 }
+	text[ACTIVE] = { 0.70, 0.70, 0.70 }
+	text[PRELIGHT] = { 0.90, 0.90, 0.90 }
 	text[INSENSITIVE] = { 0.80, 0.80, 0.80}
 	text[SELECTED] = { 1.0, 1.0, 1.0 }
 
   base[ACTIVE]     = "#272a2f"
-  base[NORMAL]      =  { 0.20, 0.20, 0.20 }
+  base[NORMAL]      =  { 0.10, 0.10, 0.10 }
   base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
   base[INSENSITIVE]  = "#4c5159"
   base[SELECTED]     = { 0.25, 0.25, 0.25 }
