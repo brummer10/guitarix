@@ -262,6 +262,10 @@ int last_skin = 0;
 int no_opt_skin = 0;
 int set_knob = 0;
 
+/* rack handlig */
+int mono_plugs = 1;
+int stereo_plugs = 1;
+
 int g_threads[5]={0,0,0,0,0};
 
 /* for level display */

@@ -25,6 +25,28 @@
 
 openHorizontalTableBox("");
 {
+	openPaintBox("");
+    {
+		openVerticalBox("noise shaper       ");
+		{
+			openHorizontalBox("");
+			{
+				create_switch_no_caption(sw_switchit, "shaper.on_off");
+				openSpaceBox("");
+                closeBox();
+                openSpaceBox("");
+                closeBox();
+				openpaintampBox("");
+				{
+					create_wheel("shaper.sharper");
+				}
+				closeBox();
+			}
+			closeBox();	
+		}
+		closeBox();
+	}
+	closeBox();	
 //----- the compressor
      openHorizontalOrderBox("", &gx_engine::audio.posit5);
      {

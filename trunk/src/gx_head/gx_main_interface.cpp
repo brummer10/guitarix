@@ -912,12 +912,12 @@ void GxMainInterface::openSpaceBox(const char* label)
 
 void GxMainInterface::openPaintBox(const char* label, const char* name)
 {
-	GtkWidget *box = gtk_vbox_new(homogene, 2);
+	GtkWidget *box = gtk_hbox_new(homogene, 2);
 	if (name) {
 		gtk_widget_set_name(box, name);
 	}
 	gtk_container_set_border_width(GTK_CONTAINER (box), 4);
-	g_signal_connect(box, "expose-event", G_CALLBACK(filter_box_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(zac_expose), NULL);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{
@@ -933,9 +933,9 @@ void GxMainInterface::openPaintBox(const char* label, const char* name)
 
 void GxMainInterface::openpaintampBox(const char* label)
 {
-	GtkWidget * box = gtk_vbox_new (homogene, 2);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 4);
-	g_signal_connect(box, "expose-event", G_CALLBACK(eq_expose), NULL);
+	GtkWidget * box = gtk_vbox_new (homogene, 0);
+	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+	g_signal_connect(box, "expose-event", G_CALLBACK(AmpBox_expose), NULL);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{
@@ -1907,7 +1907,6 @@ public:
 	Gtk::VBox box4;
 	Gtk::HBox box5;
 	UiSwitch* unit_on_off;
-	Gtk::Frame frame;
 	Gtk::Label label;
 	Gtk::Button reset_button;
 	Gtk::ToggleButton& dialog_button;
@@ -1968,9 +1967,7 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog,
 	reset_button.add(label);
 	window.signal_delete_event().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_window_delete_event));
-	frame.set_label(title);
 	box5.add(*unit_on_off);
-	//box5.add(frame);
 	box5.add(reset_button);
 	reset_button.signal_pressed().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_reset_button_pressed));
@@ -1988,10 +1985,10 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	Parameter& param_dialog = parameter_map[id_dialog];
 	Parameter& param_switch = parameter_map[id_switch];
 	GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
-	static int i = 1;
+
 	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(rBox));
-	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,i);
-	i++;
+	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,mono_plugs);
+	mono_plugs++;
 	gtk_container_add(GTK_CONTAINER(child), GTK_WIDGET(bbox->box.gobj()));
 	GxDialogWindowBox *dialog = new GxDialogWindowBox(*this, param_dialog, param_switch, bbox->show_dialog, rack_widget);
 	pushBox(kBoxMode, GTK_WIDGET(dialog->box.gobj()));
@@ -2002,11 +1999,10 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	Parameter& param_dialog = parameter_map[id_dialog];
 	Parameter& param_switch = parameter_map[id_switch];
 	GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
-	static int is = 1;
 	
 	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(sBox));
-	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,is);
-	is++;
+	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,stereo_plugs);
+	stereo_plugs++;
 	gtk_container_add(GTK_CONTAINER(child), GTK_WIDGET(bbox->box.gobj()));
 	GxDialogWindowBox *bdialog = new GxDialogWindowBox(*this, param_dialog, param_switch, bbox->show_dialog, srack_widget);
 	pushBox(kBoxMode, GTK_WIDGET(bdialog->box.gobj()));

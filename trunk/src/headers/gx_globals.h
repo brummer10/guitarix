@@ -248,6 +248,10 @@ extern int last_skin;
 extern int no_opt_skin;
 extern int set_knob;
 
+/* rack handlig */
+extern int mono_plugs;
+extern int stereo_plugs;
+
 /* for level display */
 extern int meter_falloff;
 extern int meter_display_timeout;

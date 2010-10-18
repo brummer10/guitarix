@@ -89,7 +89,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("flanger.on_off", "on/off", &fflanger, 0);
 	gx_gui::registerParam("SampleLooper.on_off", "on/off", (float*) &fsloop, 0.);
 	gx_gui::registerParam("phaser.on_off", "on/off", (float*) &fphaser, 0.);
-	
+	gx_gui::registerParam("shaper.on_off", "on/off", &fng, 0);
 	
 	static const char *tonestack_model[] = {"default","Bassman","Twin Reverb","Princeton","JCM-800","JCM-2000","M-Lead","M2199","AC-30","Off",0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
@@ -287,10 +287,11 @@ void process_buffers(int count, float* input, float* output0)
 	}
 	
 	memcpy(output0, input, count*sizeof(float));
-	
+	if (audio.fng) {
+	    noise_shaper::compute(count, output0, output0);
+    }
 	  
-
-        for (int m = 1; m < 10; m++) {
+	for (int m = 1; m < gx_gui::mono_plugs; m++) {
 	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && audio.crybabypp) {
 		    crybaby::compute(count, output0, output0);
 	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah && audio.crybabypp) {
@@ -320,7 +321,7 @@ void process_buffers(int count, float* input, float* output0)
 
     gxamp::compute(count, output0, output0);
     
-       for (int m = 1; m < 10; m++) {
+    for (int m = 1; m < gx_gui::mono_plugs; m++) {
 	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && !audio.crybabypp) {
 		    crybaby::compute(count, output0, output0);
 	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah && !audio.crybabypp) {
@@ -394,7 +395,7 @@ void process_insert_buffers (int count, float* input1, float* output0, float* ou
     memcpy(output0, input1, count*sizeof(float));
     gxfeed::compute(count, output0, output0, output1);
     
-    for (int m = 1; m < 5; m++) {
+    for (int m = 1; m < gx_gui::stereo_plugs; m++) {
 		if (audio.posit8 == m && audio.fchorus && chorus::is_inited()) {
 			chorus::compute(count, output0, output1, output0, output1);
 		} else if (audio.posit9 == m && audio.fflanger) {

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <sndfile.h>
+#include <sndfile.hh>
 
 namespace gx_sndfile
 {

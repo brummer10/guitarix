@@ -169,7 +169,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust/autowah.cc"
 #include "faust/echo.cc"
 #include "faust/delay.cc"
-
+#include "faust/noise_shaper.cc"
 #include "faust/distortion.cc"
 #include "faust/freeverb.cc"
 #include "faust/impulseresponse.cc"
