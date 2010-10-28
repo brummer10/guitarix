@@ -152,12 +152,12 @@ def check_comp(conf):
         conf.env['ZITA_CONVOLVER'] = None
         
     if Options.options.build_head:
-		conf.env['GX_HEAD'] = True
-		
+        conf.env['GX_HEAD'] = True
+
     if Options.options.no_ladspa:
-		conf.env['NO_LADSPA'] = True
+        conf.env['NO_LADSPA'] = True
     else:
-		conf.env['LADSPA'] = True	
+        conf.env['LADSPA'] = True	
 
 def check_faust(conf):
     if Options.options.no_faust:
@@ -395,7 +395,7 @@ def configure(conf):
     conf.sub_config('libgxw/gxw');
     conf.sub_config('src');
     if conf.env["GX_HEAD"]:
-		conf.sub_config('src/gx_head');
+        conf.sub_config('src/gx_head');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
     if conf.env["LADSPA"]:   
@@ -469,11 +469,10 @@ def build(bld):
     bld.add_subdirs('src')
     bld.add_subdirs('rcstyles')
     bld.add_subdirs('pixmaps')
-    if bld.env["GX_HEAD"]:
-		bld.add_subdirs('src/gx_head')
 
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
     if bld.env["GX_HEAD"]:
+        bld.add_subdirs('src/gx_head')
         bld.install_files(bld.env['DESKAPPS_DIR'], 'gx_head.desktop', chmod=0644)
     if bld.env["GX_LIB_SHARED"]:
         bld.add_post_fun(post)
