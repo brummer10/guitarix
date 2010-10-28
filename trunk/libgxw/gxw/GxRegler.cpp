@@ -1089,6 +1089,9 @@ static gboolean map_check(
 
 static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event)
 {
+	#ifndef NDEBUG
+	fprintf(stderr, "button 3 pressed.\n");
+	#endif
 	g_assert(GX_IS_REGLER(regler));
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
 	GtkWidget *dialog = gtk_window_new(GTK_WINDOW_POPUP);
@@ -1098,6 +1101,9 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 		GTK_ADJUSTMENT(adj), adj->step_increment,
 		GTK_RANGE(regler)->round_digits);
 	gtk_container_add (GTK_CONTAINER(dialog), spinner);
+	#ifndef NDEBUG
+	fprintf(stderr, "connect signals.\n");
+	#endif
 	g_signal_connect(spinner, "button-press-event", G_CALLBACK(spinner_button_press_event), NULL);
 	g_signal_connect(dialog, "button-press-event", G_CALLBACK(dialog_button_press_event), dialog);
 	g_signal_connect(spinner, "key-press-event", G_CALLBACK(dialog_key_press_before), dialog);
@@ -1105,12 +1111,19 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 	g_signal_connect_object(spinner, "activate", G_CALLBACK(gtk_widget_destroy), dialog, (GConnectFlags)(G_CONNECT_AFTER|G_CONNECT_SWAPPED));
 	g_signal_connect(dialog, "grab-broken-event", G_CALLBACK(dialog_grab_broken), dialog);
 	g_signal_connect(dialog, "map-event", G_CALLBACK(map_check), GTK_WIDGET(regler));
+	#ifndef NDEBUG
+	fprintf(stderr, "window moved.\n");
+	#endif
 	gtk_window_move(GTK_WINDOW(dialog), -100, -100); // trick so its not visible
 	gtk_widget_show_all(dialog);
+	fprintf(stderr, "window show.\n");
 	GtkRequisition rq;
 	gtk_widget_get_requisition(dialog, &rq);
 	gint xorg, yorg;
 	gdk_window_get_origin(GTK_WIDGET(regler)->window, &xorg, &yorg);
+	#ifndef NDEBUG
+	fprintf(stderr, "window moved.\n");
+	#endif
 	gtk_window_move(GTK_WINDOW(dialog), xorg+rect->x+(rect->width-rq.width)/2, yorg+rect->y+(rect->height-rq.height)/2);
 	return TRUE;
 }
