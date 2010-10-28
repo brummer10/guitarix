@@ -133,6 +133,8 @@ def build(bld):
         'gxamp.dsp',
         'gxfeed.dsp',
         'gxdistortion.dsp',
+        'low_high_pass.dsp',
+        'gx_distortion.dsp',
         ]
 
     float_sources = [ # big arrays and no sensitive processing
@@ -140,6 +142,7 @@ def build(bld):
         'echo.dsp',
         'delay.dsp',
         'chorus.dsp',
+        'stereodelay.dsp',
     ]
 
     experimental_soures = [

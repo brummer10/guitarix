@@ -18,7 +18,7 @@ def build(bld):
         '../gx_resampler.cpp',
         'gx_engine_audio.cpp',
         'gx_portmap.cpp',
-        '../gx_paramtable.cpp',
+        'gx_paramtable.cpp',
         '../gx_cairo_callbacks.cpp',
         'gx_gui_helpers.cpp',
         '../gx_threads.cpp',

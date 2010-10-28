@@ -8,7 +8,7 @@ style "gx_head_skin_icons"
 {
   stock["bigknob"] = {{"knob9.png"}}
   stock["smallknob"] = {{"smallknob9.png"}}
-  
+  stock["smallknobr"] = {{"mittleknob9.png"}}
 }
 
 class "GxKnob" style "gx_head_skin_icons"
@@ -165,7 +165,7 @@ style "c_style"
 
 style "gx_head-l_black"
 {
-  fg[NORMAL] = 	{ 0.2, 0.2, 0.2 }
+  fg[NORMAL] = 	{ 0., 0., 0. }
   fg[ACTIVE] = { 0.8, 0.8, 0.8 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
   fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
@@ -175,7 +175,7 @@ style "gx_head-l_black"
 
 style "gx_head-v_black"
 {
-  fg[NORMAL] = 	{ 0.1, 0.1, 0.1 }
+  fg[NORMAL] = 	{ 0., 0., 0. }
   fg[ACTIVE] = { 0.8, 0.8, 0.8 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
   fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
@@ -185,7 +185,7 @@ style "gx_head-v_black"
 
 style "gx_head-b_black"
 {
-  fg[NORMAL] = 	{ 0.0, 0.0, 0.0 }
+  fg[NORMAL] = 	{ 0.1, 0.1, 0.1 }
   fg[ACTIVE] = { 0.2, 0.2, 0.2 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
   fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }

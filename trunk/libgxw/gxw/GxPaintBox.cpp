@@ -514,6 +514,50 @@ static gboolean AmpBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	return FALSE;
 }
 
+static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	cairo_t *cr;
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
+
+	double x0      = wi->allocation.x+1;
+	double y0      = wi->allocation.y+1;
+	double rect_width  = wi->allocation.width-2;
+	double rect_height = wi->allocation.height-2;
+
+    cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
+            cairo_set_source_rgb (cr, 0, 0, 0);
+            cairo_fill (cr);
+
+	cairo_pattern_t*pat =
+		cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	cairo_pattern_add_color_stop_rgba (pat, 0, 0.8, 0.8, 0.9, 0.5);
+		cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.9, 0.9, 1, 0.9);
+		cairo_pattern_add_color_stop_rgba (pat, 1, 0.8, 0.8, 0.9, 0.5);
+	cairo_set_source (cr, pat);
+	cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
+	cairo_fill (cr);
+
+    cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+rect_width-3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
+    cairo_line_to(cr, x0+2, y0+rect_height-2);
+    cairo_stroke(cr);
+
+    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+3, y0+rect_height-1);
+    cairo_line_to(cr, x0+3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+3);
+    cairo_stroke(cr);
+
+    cairo_pattern_destroy (pat);
+	cairo_destroy(cr);
+
+	return FALSE;
+}
+
 static gboolean tribal_box_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	GdkPixbuf *_image, *stock_image;
@@ -971,6 +1015,8 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = zac_expose;
 	} else if (strcmp(paint_func, "gxhead_expose") == 0) {
 		paint_box->expose_func = gxhead_expose;
+	} else if (strcmp(paint_func, "RackBox_expose") == 0) {
+		paint_box->expose_func = RackBox_expose;	
 	} else {
 		paint_box->expose_func = 0;
 	}

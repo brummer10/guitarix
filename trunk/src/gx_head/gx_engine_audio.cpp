@@ -77,7 +77,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("crybaby.on_off", "on/off", &fcheckbox5, 0);
 	gx_gui::registerParam("cab.on_off", "Cab-ImpResp", &fcab,0);
 	gx_gui::registerParam("overdrive.on_off", "on/off", &foverdrive4, 0);
-	gx_gui::registerParam("distortion.on_off", "on/off", &fcheckbox4, 0);
+	gx_gui::registerParam("gx_distortion.on_off", "on/off", &fcheckbox4, 0);
 	gx_gui::registerParam("freeverb.on_off", "on/off", &fcheckbox6, 0);
 	gx_gui::registerParam("IR.on_off", "on/off", &fcheckbox8, 0);
 	gx_gui::registerParam("echo.on_off", "on/off", (float*) &fcheckbox7, 0.);
@@ -90,6 +90,8 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("SampleLooper.on_off", "on/off", (float*) &fsloop, 0.);
 	gx_gui::registerParam("phaser.on_off", "on/off", (float*) &fphaser, 0.);
 	gx_gui::registerParam("shaper.on_off", "on/off", &fng, 0);
+	gx_gui::registerParam("low_highpass.on_off", "on/off", &flh, 0);
+	gx_gui::registerParam("stereodelay.on_off", "on/off",(float*) &fsd, 0);
 	
 	static const char *tonestack_model[] = {"default","Bassman","Twin Reverb","Princeton","JCM-800","JCM-2000","M-Lead","M2199","AC-30","Off",0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
@@ -98,12 +100,13 @@ void AudioVariables::register_parameter()
 	registerEnumParam("compressor.pp","select",post_pre,&compressorpp, 0);
 	registerEnumParam("crybaby.pp","select",post_pre,&crybabypp, 0);
 	registerEnumParam("overdrive.pp","select",post_pre,&overdrivepp, 0);
-	registerEnumParam("distortion.pp","select",post_pre,&distortionpp, 0);
+	registerEnumParam("gx_distortion.pp","select",post_pre,&distortionpp, 0);
 	registerEnumParam("freeverb.pp","select",post_pre,&freeverbpp, 0);
 	registerEnumParam("IR.pp","select",post_pre,&IRpp, 0);
 	registerEnumParam("echo.pp","select",post_pre,&echopp, 0);
 	registerEnumParam("delay.pp","select",post_pre,&delaypp, 0);
 	registerEnumParam("eqs.pp","select",post_pre,&eqpp, 0);
+	registerEnumParam("low_high_pass.pp","select",post_pre,&lhpp, 0);
 	
 	static const char *crybaby_autowah[] = {"manual","auto",0};
 	registerEnumParam("crybaby.autowah", "select", crybaby_autowah, &fautowah, 0);
@@ -114,7 +117,7 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("compressor.position", &posit5, true, 8, 1, 9);
 	registerNonMidiParam("crybaby.position", &posit0, true, 5, 1, 9);
 	registerNonMidiParam("overdrive.position", &posit1, true, 2, 1, 9);
-	registerNonMidiParam("distortion.position", &posit2, true, 1, 1, 9);
+	registerNonMidiParam("gx_distortion.position", &posit2, true, 1, 1, 9);
 	registerNonMidiParam("freeverb.position", &posit3, true, 3, 1, 9);
 	registerNonMidiParam("IR.position", &posit4, true, 4, 1, 9);
 	registerNonMidiParam("echo.position", &posit6, true, 6, 1, 9);
@@ -124,10 +127,12 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("flanger.position", &posit9, true, 2, 0, 8);
 	registerNonMidiParam("moog.position", &posit11, true, 3, 0, 8);
 	registerNonMidiParam("phaser.position", &posit12, true, 4, 0, 8);
+	registerNonMidiParam("low_high_pass.position", &posit14, true, 4, 0, 8);
+	registerNonMidiParam("stereodelay.position", &posit15, true, 7, 1, 9);
 	
 	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
 	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);
-	registerNonMidiParam("distortion.dialog", &fdialogbox1, false);
+	registerNonMidiParam("gx_distortion.dialog", &fdialogbox1, false);
 	registerNonMidiParam("freeverb.dialog", &fdialogbox2, false);
 	registerNonMidiParam("IR.dialog", &fdialogbox3, false);
 	registerNonMidiParam("chorus.dialog", &fchorusbox, false);
@@ -141,6 +146,8 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("delay.dialog", &fdialogbox_delay, false);
 	registerNonMidiParam("overdrive.dialog", &fdialogbox_ovd, false);
 	registerNonMidiParam("phaser.dialog", &fdialogbox_pha, false);
+	registerNonMidiParam("low_high_pass.dialog", &fdialogbox_lh, false);
+	registerNonMidiParam("stereodelay.dialog", &fdialogbox_sd, false);
 	
 	registerNonMidiParam("system.waveview", &viv, false);
 
@@ -301,7 +308,7 @@ void process_buffers(int count, float* input, float* output0)
 	    } else if (audio.posit1 == m && audio.foverdrive4 && audio.overdrivepp) {
 		    overdrive::compute(count, output0, output0);
 	    } else if (audio.posit2 == m && audio.fcheckbox4 && audio.distortionpp) {
-	         distortion::compute(count, output0, output0);
+	         gx_distortion::compute(count, output0, output0);
 	        
 	    } else if (audio.posit3 == m && audio.fcheckbox6 && audio.freeverbpp) {
 		    freeverb::compute(count, output0, output0);
@@ -313,6 +320,8 @@ void process_buffers(int count, float* input, float* output0)
 		    delay::compute(count, output0, output0);
 	    } else if (audio.posit10 == m && audio.feq && audio.eqpp) {
 		    selecteq::compute(count, output0, output0);
+	    } else if (audio.posit14 == m && audio.feq && audio.lhpp) {
+		    low_high_pass::compute(count, output0, output0);
 	    }
     }
 
@@ -331,7 +340,7 @@ void process_buffers(int count, float* input, float* output0)
 	    } else if (audio.posit1 == m && audio.foverdrive4 && !audio.overdrivepp) {
 		    overdrive::compute(count, output0, output0);
 	    } else if (audio.posit2 == m && audio.fcheckbox4 && !audio.distortionpp) {
-	         distortion::compute(count, output0, output0);
+	         gx_distortion::compute(count, output0, output0);
 	        
 	    } else if (audio.posit3 == m && audio.fcheckbox6 && !audio.freeverbpp) {
 		    freeverb::compute(count, output0, output0);
@@ -343,6 +352,8 @@ void process_buffers(int count, float* input, float* output0)
 		    delay::compute(count, output0, output0);
 	    } else if (audio.posit10 == m && audio.feq && !audio.eqpp) {
 		    selecteq::compute(count, output0, output0);
+	    }else if (audio.posit14 == m && audio.feq && !audio.lhpp) {
+		    low_high_pass::compute(count, output0, output0);
 	    }
     }
 
@@ -402,9 +413,10 @@ void process_insert_buffers (int count, float* input1, float* output0, float* ou
 			flanger::compute(count, output0, output1, output0, output1);
 		} else if (audio.posit11 == m && audio.fmoog) {
 			moog::compute(count, output0, output1, output0, output1);
-		}
-		else if (audio.posit12 == m && audio.fphaser) {
+		} else if (audio.posit12 == m && audio.fphaser) {
 			phaser::compute(count, output0, output1, output0, output1);
+		} else if (audio.posit15 == m && audio.fsd && stereodelay::is_inited()) {
+			stereodelay::compute(count, output0, output1, output0, output1);
 		}
 	}
 

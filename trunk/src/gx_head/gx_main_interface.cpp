@@ -29,8 +29,12 @@
 #include <gtkmm/window.h>
 #include <gtkmm/frame.h>
 #include <gtkmm/accelgroup.h>
+#include <gtkmm/scrolledwindow.h>
+#include <gtkmm/fixed.h>
+
 #include <gxwmm/paintbox.h>
 #include <gxwmm/waveview.h>
+
 
 using namespace gx_system;
 using namespace gx_child_process;
@@ -71,6 +75,7 @@ const char *pb_info_box_expose_off =         "info_box_expose_off";
 const char *pb_slooper_expose =              "slooper_expose";
 const char *pb_zac_expose =                  "zac_expose";
 const char *pb_gxhead_expose =               "gxhead_expose";
+const char *pb_RackBox_expose =              "RackBox_expose";
 
 /****************************************************************
  ** format controller values
@@ -492,11 +497,13 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
                     gtk_button_clicked(GTK_BUTTON(obibi));
 				else {
 				    child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
-				    obib = (GtkWidget *) g_list_nth_data(child_list,3);
+				    obib = (GtkWidget *) g_list_nth_data(child_list,4);
+				    
 				    child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
 				    obibi = (GtkWidget *) g_list_nth_data(child_list,0);
 				    if(GTK_IS_BUTTON (obibi))
                         gtk_button_clicked(GTK_BUTTON(obibi));
+                       
 				}
 			}
 			g_list_free(child_list);
@@ -528,10 +535,10 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
                     gtk_button_clicked(GTK_BUTTON(obibi));
 				else {
 				    child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
-				    obib = (GtkWidget *) g_list_nth_data(child_list,3);
+				    obib = (GtkWidget *) g_list_nth_data(child_list,4);
 				    child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
 				    obibi = (GtkWidget *) g_list_nth_data(child_list,0);
-				    if(GTK_IS_BUTTON (obibi))
+				   // if(GTK_IS_BUTTON (obibi))
                         gtk_button_clicked(GTK_BUTTON(obibi));
 				}
 
@@ -585,6 +592,7 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
 			gtk_container_child_get_property(GTK_CONTAINER(parent),GTK_WIDGET(box),"position", &pos);
 			guint per = g_value_get_int(&pos);
 			gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per);
+			 gdk_window_invalidate_rect(box->window,NULL,true);
 
 			((gx_ui::GxUiItemFloat*)data)->modifyZone(per);
 		}
@@ -655,10 +663,10 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	gtk_box_pack_start (GTK_BOX(rBox), box, expand, fill, 0);
 	gtk_fixed_put (GTK_FIXED(box1), button1, 5, 5);
 	gtk_fixed_put (GTK_FIXED(box1), button, 5, 20);
-	gtk_box_pack_end (GTK_BOX(box), box1, expand, fill, 0);
+	gtk_box_pack_end (GTK_BOX(box), box1, false, fill, 0);
 	gtk_widget_show_all(button);
 	gtk_widget_show_all(button1);
-	gtk_widget_show_all(box);
+	gtk_widget_show(box);
 	gtk_widget_show(box1);
 	pushBox(kBoxMode, box);
 
@@ -708,10 +716,10 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 	gtk_box_pack_start (GTK_BOX(sBox), box, expand, fill, 0);
 	gtk_fixed_put (GTK_FIXED(box1), button1, 5, 5);
 	gtk_fixed_put (GTK_FIXED(box1), button, 5, 20);
-	gtk_box_pack_end (GTK_BOX(box), box1, expand, fill, 0);
+	gtk_box_pack_end (GTK_BOX(box), box1, false, fill, 0);
 	gtk_widget_show_all(button);
 	gtk_widget_show_all(button1);
-	gtk_widget_show_all(box);
+	gtk_widget_show(box);
 	gtk_widget_show(box1);
 	pushBox(kBoxMode, box);
 
@@ -802,7 +810,7 @@ void GxMainInterface::openVerticalBox(const char* label)
 {
 	GtkWidget * box = gtk_vbox_new (homogene, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-	g_signal_connect(box, "expose-event", G_CALLBACK(vbox_expose), NULL);
+	//g_signal_connect(box, "expose-event", G_CALLBACK(vbox_expose), NULL);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{
@@ -815,8 +823,8 @@ void GxMainInterface::openVerticalBox(const char* label)
 		pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
 		gtk_widget_modify_font(lw, style->font_desc);
 
-		gtk_box_pack_start(GTK_BOX(box), lw, 0, 0, 0);
-		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+		gtk_box_pack_start(GTK_BOX(box), lw, false, false, 0);
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, false, fill, 0);
 		gtk_widget_show(lw);
 		gtk_widget_show(box);
 		pushBox(kBoxMode, box);
@@ -951,20 +959,15 @@ void GxMainInterface::openpaintampBox(const char* label)
 
 void GxMainInterface::openPaintBox1(const char* label)
 {
-	GtkWidget * box = gtk_vbox_new (homogene, 2);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 8);
-	g_signal_connect(box, "expose-event", G_CALLBACK(amp_expose), NULL);
+	GtkWidget * box = gtk_hbox_new (homogene, 0);
+	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+	//g_signal_connect(box, "expose-event", G_CALLBACK(amp_expose), NULL);
 
-	if (fMode[fTop] != kTabMode && label[0] != 0)
-	{
-		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+	
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, false, false, 0);
 		gtk_widget_show(box);
 		pushBox(kBoxMode, box);
-	}
-	else
-	{
-		pushBox(kBoxMode, addWidget(label, box));
-	}
+	
 }
 
 void GxMainInterface::openPaintBox2(const char* label)
@@ -1901,11 +1904,11 @@ private:
 	bool on_window_delete_event(GdkEventAny* event);
 	Glib::ustring group_id;
 public:
-	Gtk::Window window;
+	
 	Gtk::HBox box;
 	Gxw::PaintBox paintbox;
-	Gtk::VBox box4;
-	Gtk::HBox box5;
+	Gtk::HBox box4;
+	Gtk::Fixed box5;
 	UiSwitch* unit_on_off;
 	Gtk::Label label;
 	Gtk::Button reset_button;
@@ -1921,7 +1924,7 @@ GxDialogWindowBox::~GxDialogWindowBox()
 
 void GxDialogWindowBox::on_dialog_button_toggled()
 {
-	gx_show_extended_settings(GTK_WIDGET(dialog_button.gobj()), (gpointer)window.gobj());
+	gx_show_extended_settings(GTK_WIDGET(dialog_button.gobj()), (gpointer)paintbox.gobj());
 }
 
 void GxDialogWindowBox::on_reset_button_pressed()
@@ -1929,53 +1932,35 @@ void GxDialogWindowBox::on_reset_button_pressed()
 	gx_reset_units(group_id);
 }
 
-bool GxDialogWindowBox::on_window_delete_event(GdkEventAny*)
-{
-	dialog_button.set_active(false);
-	return false;
-}
-
 GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog,
                                      Parameter& param_switch, Gtk::ToggleButton& button,GtkWidget * Caller):
-	window(Gtk::WINDOW_TOPLEVEL),
-	box(false, 8),
-	box5(false, 4),
+	
+	box(false, 0),
 	unit_on_off( UiSwitch::new_switch(ui, sw_led, param_switch)),
 	dialog_button(button)
 {
 	group_id = param_dialog.id().substr(0, param_dialog.id().find_last_of(".")).c_str();
 	Glib::ustring title = param_dialog.group();
-	window.set_decorated(true);
-	window.set_icon(Glib::wrap(ib));
-	window.set_resizable(false);
-	window.set_gravity(Gdk::GRAVITY_SOUTH);
-	window.set_transient_for(*Glib::wrap(GTK_WINDOW(Caller)));
-	window.set_position(Gtk::WIN_POS_MOUSE);
-	window.set_keep_below(false);
-	window.set_title(title);
-	window.set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
-	window.property_destroy_with_parent() = true;
+	
 	box.set_border_width(2);
-	box4.set_spacing(4);
-	box4.set_border_width(14);
-	paintbox.property_paint_func() = pb_gxhead_expose;
+	box4.set_spacing(2);
+	box4.set_border_width(2);
+	box5.set_border_width(4);
+	paintbox.property_paint_func() = pb_RackBox_expose;
 	Pango::FontDescription font = label.get_style()->get_font();
 	font.set_size(10*Pango::SCALE);
 	font.set_weight(Pango::WEIGHT_NORMAL);
 	label.modify_font(font);
+	label.set_angle(90);
 	label.set_text("reset");
 	reset_button.add(label);
-	window.signal_delete_event().connect(
-		sigc::mem_fun(*this, &GxDialogWindowBox::on_window_delete_event));
-	box5.add(*unit_on_off);
-	box5.add(reset_button);
+	box5.put(*unit_on_off,6,5);
+	box5.put(reset_button,2,25);
 	reset_button.signal_pressed().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_reset_button_pressed));
-	box4.add(box5);
-	box4.add(box);
+	box4.pack_start(box,true,true,0);	
+	box4.pack_end(box5,false,false,0);
 	paintbox.add(box4);
-	window.add(paintbox);
-	paintbox.show_all();
 	dialog_button.signal_toggled().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
 }
@@ -1989,8 +1974,9 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(rBox));
 	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,mono_plugs);
 	mono_plugs++;
-	gtk_container_add(GTK_CONTAINER(child), GTK_WIDGET(bbox->box.gobj()));
+	gtk_box_pack_end (GTK_BOX(child),GTK_WIDGET(bbox->box.gobj()) , false, false, 0);
 	GxDialogWindowBox *dialog = new GxDialogWindowBox(*this, param_dialog, param_switch, bbox->show_dialog, rack_widget);
+	gtk_box_pack_start (GTK_BOX(child),GTK_WIDGET(dialog->paintbox.gobj()) , true, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(dialog->box.gobj()));
 }
 
@@ -2003,8 +1989,9 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(sBox));
 	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,stereo_plugs);
 	stereo_plugs++;
-	gtk_container_add(GTK_CONTAINER(child), GTK_WIDGET(bbox->box.gobj()));
+	gtk_box_pack_end (GTK_BOX(child),GTK_WIDGET(bbox->box.gobj()) , false, false, 0);
 	GxDialogWindowBox *bdialog = new GxDialogWindowBox(*this, param_dialog, param_switch, bbox->show_dialog, srack_widget);
+	gtk_box_pack_start (GTK_BOX(child),GTK_WIDGET(bdialog->paintbox.gobj()) , true, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(bdialog->box.gobj()));
 }
 
@@ -2122,6 +2109,7 @@ private:
 	
 public:
 	Gtk::Window window;
+	Gtk::ScrolledWindow           m_scrolled_window; 
 	Gxw::PaintBox paintbox;
 	Gxw::PaintBox paintbox1;
 	Gtk::VBox rbox;
@@ -2148,12 +2136,14 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 	window.set_icon(Glib::wrap(ib));
 	window.set_resizable(false);
 	window.set_gravity(Gdk::GRAVITY_SOUTH);
-	window.set_transient_for(*Glib::wrap(GTK_WINDOW(fWindow)));
+	//window.set_transient_for(*Glib::wrap(GTK_WINDOW(fWindow)));
 	window.set_position(Gtk::WIN_POS_MOUSE);
-	window.set_keep_below(false);
+	//window.set_keep_below(false);
 	window.set_title(title);
-	window.set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
+	//window.set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
 	window.property_destroy_with_parent() = true;
+	
+	m_scrolled_window.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_AUTOMATIC); 
 	paintbox1.set_border_width(12);
 	paintbox.set_border_width(6);
 	paintbox.property_paint_func() = pb_1;
@@ -2162,8 +2152,12 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxWindowBox::on_window_delete_event),d));
 	paintbox.add(rbox);
 	paintbox1.add(paintbox);
-	window.add(paintbox1);
-	paintbox1.show_all();
+	m_scrolled_window.add(paintbox1);
+	window.add(m_scrolled_window);
+	paintbox1.show();
+	paintbox.show();
+	m_scrolled_window.show();
+	rbox.show();
 }
 
 void GxMainInterface::addNumDisplay()
@@ -2171,6 +2165,7 @@ void GxMainInterface::addNumDisplay()
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_AmpBox_expose, pb_gxhead_expose, "tuner", GTK_WIDGET(fShowTuner.gobj()));
 	box->rbox.add(fTuner);
+	box->window.set_size_request(-1,140); 
 	tuner_widget = GTK_WIDGET(box->window.gobj());
 }
 
@@ -2179,6 +2174,7 @@ void GxMainInterface::openPlugBox(const char* label)
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_AmpBox_expose, pb_gxhead_expose, label, GTK_WIDGET(fShowRack.gobj()));
 	rack_widget = GTK_WIDGET(box->window.gobj());
+	box->window.set_size_request(-1,620); 
 	rBox = GTK_WIDGET(box->rbox.gobj());
 	
 			
@@ -2191,6 +2187,7 @@ void GxMainInterface::openAmpBox(const char* label)
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_AmpBox_expose, pb_gxhead_expose, label, GTK_WIDGET(fShowSRack.gobj()));
 	srack_widget = GTK_WIDGET(box->window.gobj());
+	box->window.set_size_request(-1,310); 
 	sBox = GTK_WIDGET(box->rbox.gobj());
 	
 	pushBox(kBoxMode, GTK_WIDGET(sBox));
@@ -2366,7 +2363,7 @@ void GxMainInterface::addMainMenu()
 	GtkTooltips* comandline = gtk_tooltips_new ();
 
 	gtk_tooltips_set_tip(GTK_TOOLTIPS (comandline),
-	                     gx_jackd_on_image, "jack server is connectet", "jack server state.");
+	                     gx_jackd_on_image, "jack server is connected", "jack server state.");
 
 	gtk_widget_show(gx_jackd_on_image);
 
@@ -2378,7 +2375,7 @@ void GxMainInterface::addMainMenu()
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gx_jackd_off_image),jackstateoff);
 	gtk_menu_bar_append (GTK_MENU_BAR(menupix), gx_jackd_off_image);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS (comandline),
-	                     gx_jackd_off_image, "jack server is unconnectet", "jack server state.");
+	                     gx_jackd_off_image, "jack server is unconnected", "jack server state.");
 	gtk_widget_hide(gx_jackd_off_image);
 
 

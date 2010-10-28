@@ -30,17 +30,17 @@ openHorizontalTableBox("");
      //----- chorus
      openHorizontalRestetBox("", &gx_engine::audio.posit8);
      {
-          openVerticalBox("     chorus     ");
+          openVerticalBox("chorus");
           {
 
                openHorizontalTableBox("");
                {
-
-                    create_switch_no_caption(sw_switchit, "chorus.on_off");
-                    openSpaceBox("");
+				    openPaintBox1("");
+					{
+						create_switch_no_caption(sw_switchit, "chorus.on_off");
+                    }
                     closeBox();
-                    openSpaceBox("");
-                    closeBox();
+                    
                     opensDialogBox("chorus.dialog", "chorus.on_off");
                     {
 
@@ -48,7 +48,7 @@ openHorizontalTableBox("");
                          {
                               openHorizontalTableBox("");
                               {
-                                   create_bigknob("chorus.level","  level  ");
+                                   create_smallknobr("chorus.level","  level  ");
                                    create_smallknob("chorus.delay","  delay  ");
                                    create_smallknob("chorus.depth","  depth  ");
                                    create_smallknob("chorus.freq","  freq  ");
@@ -74,12 +74,11 @@ openHorizontalTableBox("");
 
                openHorizontalTableBox("");
                {
-
-                    create_switch_no_caption(sw_switchit, "flanger.on_off");
-                    openSpaceBox("");
-                    closeBox();
-                    openSpaceBox("");
-                    closeBox();
+					openPaintBox1("");
+					{
+						create_switch_no_caption(sw_switchit, "flanger.on_off");
+                    }
+					closeBox();
                     opensDialogBox("flanger.dialog", "flanger.on_off");
                     {
 
@@ -87,7 +86,7 @@ openHorizontalTableBox("");
                          {
                               openHorizontalTableBox("");
                               {
-                                   create_bigknob("flanger.level","  level  ");
+                                   create_smallknobr("flanger.level","  level  ");
                                    create_smallknob("flanger.feedback gain"," feedback gain ");
                                    create_smallknob("flanger.depth","  depth  ");
                                    create_smallknob("flanger.flange delay","  delay  ");
@@ -96,21 +95,21 @@ openHorizontalTableBox("");
 
                               }
                               closeBox();
+                              openSpaceBox("");
+                              closeBox();
                               openHorizontalBox("");
                               {
                                    openSpaceBox("");
                                    closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
                                    create_selector("flanger.invert");
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
                                    openSpaceBox("");
                                    closeBox();
                                    openSpaceBox("");
@@ -133,16 +132,16 @@ openHorizontalTableBox("");
 
      openHorizontalRestetBox("", &gx_engine::audio.posit11);
      {
-          openVerticalBox("moog filter");
+          openVerticalBox("moog");
           {
 
                openHorizontalTableBox("");
                {
-                    create_switch_no_caption(sw_switchit, "moog.on_off");
-                    openSpaceBox("");
-                    closeBox();
-                    openSpaceBox("");
-                    closeBox();
+					openPaintBox1("");
+					{
+						create_switch_no_caption(sw_switchit, "moog.on_off");
+                    }
+					closeBox();
                     opensDialogBox("moog.dialog", "moog.on_off");
                     {
 
@@ -166,6 +165,54 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
+     
+	openHorizontalRestetBox("", &gx_engine::audio.posit15);
+     {
+          openVerticalBox("delay");
+          {
+
+               openHorizontalTableBox("");
+               {
+					openPaintBox1("");
+					{
+						create_switch_no_caption(sw_switchit, "stereodelay.on_off");
+                    }
+					closeBox();
+                    opensDialogBox("stereodelay.dialog", "stereodelay.on_off");
+                    {
+
+                         openVerticalBox("");
+                         {
+                              openHorizontalTableBox("");
+                              {
+									create_smallknob("stereodelay.l_gain","left gain");
+									create_smallknob("stereodelay.l_delay","left delay");
+									openVerticalBox("");
+									{
+										create_smallknobr("stereodelay.LFO freq","LFO");
+										openSpaceBox("");
+										closeBox();
+										create_selector("stereodelay.invert");
+										openSpaceBox("");
+										closeBox();
+									}
+									closeBox();	
+                                   
+									create_smallknob("stereodelay.r_gain","right gain");
+									create_smallknob("stereodelay.r_delay","right delay");
+
+                              }
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox();
 
      openHorizontalRestetBox("", &gx_engine::audio.posit12);
      {
@@ -174,10 +221,10 @@ openHorizontalTableBox("");
 
                openHorizontalTableBox("");
                {
-                    create_switch_no_caption(sw_switchit, "phaser.on_off");
-                    openSpaceBox("");
-                    closeBox();
-                    openSpaceBox("");
+				    openPaintBox1("");
+					{
+						create_switch_no_caption(sw_switchit, "phaser.on_off");
+                    }
                     closeBox();
                     opensDialogBox("phaser.dialog", "phaser.on_off");
                     {
@@ -185,7 +232,7 @@ openHorizontalTableBox("");
                          {
                               openHorizontalTableBox("");
                               {
-                                   create_bigknob("phaser.level","  level ");
+                                   create_smallknobr("phaser.level","  level ");
                                    create_smallknob("phaser.feedback gain","feedback gain");
                                    create_smallknob("phaser.depth", "depth");
                                    create_smallknob("phaser.delay", "delay");
@@ -193,17 +240,21 @@ openHorizontalTableBox("");
                                    create_smallknob("phaser.LFO freq", "LFO");
                               }
                               closeBox();
+                              openSpaceBox("");
+                              closeBox();
                               openHorizontalBox("");
                               {
-								   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
                                    openSpaceBox("");
                                    closeBox();
                                    create_selector("phaser.invert");
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
                                    openSpaceBox("");
                                    closeBox();
                                    openSpaceBox("");

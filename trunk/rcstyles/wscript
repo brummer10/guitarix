@@ -71,6 +71,7 @@ gxstyle_files = [
     'common.rc',
     'knob9.png',
     'smallknob9.png',
+    'mittleknob9.png',
     ]
 
 def configure(conf):

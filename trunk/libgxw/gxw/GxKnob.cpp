@@ -299,10 +299,12 @@ static void gx_knob_size_request (GtkWidget *widget, GtkRequisition *requisition
 {
 	g_assert(GX_IS_KNOB(widget));
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	requisition->width = gdk_pixbuf_get_width(pb);
-	requisition->height = gdk_pixbuf_get_height(pb);
-	_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
-	g_object_unref(pb);
+	if (GDK_IS_PIXBUF (pb)) {
+		requisition->width = gdk_pixbuf_get_width(pb);
+		requisition->height = gdk_pixbuf_get_height(pb);
+		_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
+		g_object_unref(pb);
+	}
 }
 
 static gboolean gx_knob_expose(GtkWidget *widget, GdkEventExpose *event)
@@ -310,13 +312,15 @@ static gboolean gx_knob_expose(GtkWidget *widget, GdkEventExpose *event)
 	g_assert(GX_IS_KNOB(widget));
 	GdkRectangle image_rect, value_rect;
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	image_rect.width = gdk_pixbuf_get_width(pb);
-	image_rect.height = gdk_pixbuf_get_height(pb);
-	gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	_gx_knob_expose(widget, &image_rect, knobstate, pb);
-	_gx_regler_display_value(GX_REGLER(widget), &value_rect);
-	g_object_unref(pb);
+	if (GDK_IS_PIXBUF (pb)) {
+		image_rect.width = gdk_pixbuf_get_width(pb);
+		image_rect.height = gdk_pixbuf_get_height(pb);
+		gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
+		_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+		_gx_knob_expose(widget, &image_rect, knobstate, pb);
+		_gx_regler_display_value(GX_REGLER(widget), &value_rect);
+		g_object_unref(pb);
+	}
 	return FALSE;
 }
 

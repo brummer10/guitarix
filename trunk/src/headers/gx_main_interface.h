@@ -25,6 +25,7 @@
 #include <iostream>
 #include <gxwmm/bigknob.h>
 #include <gxwmm/smallknob.h>
+#include <gxwmm/smallknobr.h>
 #include <gxwmm/wheel.h>
 #include <gxwmm/hslider.h>
 #include <gxwmm/eqslider.h>
@@ -407,6 +408,18 @@ public :
 		{
 			addwidget(UiRegler::create(*this, new Gxw::SmallKnob(), id, true));
 		}
+	void create_smallknobr(string id)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id, true));
+		}
+	void create_smallknobr(string id, Glib::ustring label)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id, label, true));
+		}
+	void create_smallknobr_no_caption(string id)
+		{
+			addwidget(UiRegler::create(*this, new Gxw::SmallKnobR(), id, true));
+		}	
 	void create_wheel(string id, bool show_value = false)
 		{
 			addwidget(UiRegler::create(*this, new Gxw::Wheel(), id, show_value));

@@ -219,7 +219,7 @@ void GxMainInterface::on_tuner_activate()
 void GxMainInterface::on_rack_activate()
 {
 	if (fShowRack.get_active()) {
-		gtk_widget_show_all(rack_widget);
+		gtk_widget_show(rack_widget);
 		
 		
 	} else {
@@ -232,7 +232,7 @@ void GxMainInterface::on_rack_activate()
 void GxMainInterface::on_srack_activate()
 {
 	if (fShowSRack.get_active()) {
-		gtk_widget_show_all(srack_widget);
+		gtk_widget_show(srack_widget);
 		
 		
 	} else {
@@ -423,14 +423,43 @@ void gx_reset_units(Glib::ustring group_id)
 void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 {
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
-		gtk_widget_show(GTK_WIDGET(data));
-		gint root_x, root_y;
-		gtk_window_get_position (GTK_WINDOW(data), &root_x, &root_y);
-		if (root_y>160)root_y -= 120;
-		else root_y +=120;
-		gtk_window_move(GTK_WINDOW(data), root_x, root_y);
+		gtk_widget_show_all(GTK_WIDGET(data));
+		GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(data));
+		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
+		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
+		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		GtkRequisition my_size;
+		gtk_widget_size_request(GTK_WIDGET(box1),&my_size);
+		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
+		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		
+		
+		
+		gint  my_width, my_height;
+		gtk_widget_get_size_request (GTK_WIDGET(box1),&my_width, &my_height);
+		
+		gtk_widget_set_size_request (GTK_WIDGET (box2), my_size.width+24, my_height );
+		//gint root_x, root_y;
+		//gtk_window_get_position (GTK_WINDOW(data), &root_x, &root_y);
+		//if (root_y>160)root_y -= 120;
+		//else root_y +=120;
+		//gtk_window_move(GTK_WINDOW(data), root_x, root_y);
 	} else {
 		gtk_widget_hide(GTK_WIDGET(data));
+		GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(data));
+		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
+		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
+		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		GtkRequisition my_size;
+		gtk_widget_size_request(GTK_WIDGET(box1),&my_size);
+		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
+		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		
+		gint  my_width, my_height;
+		gtk_widget_get_size_request (GTK_WIDGET(box1),&my_width, &my_height);
+		gtk_widget_set_size_request (GTK_WIDGET (box2),my_size.width+24 , my_height );
 	}
 }
 

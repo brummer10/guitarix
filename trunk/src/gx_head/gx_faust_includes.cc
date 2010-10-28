@@ -169,8 +169,9 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust/autowah.cc"
 #include "faust/echo.cc"
 #include "faust/delay.cc"
+#include "faust/stereodelay.cc"
 #include "faust/noise_shaper.cc"
-#include "faust/distortion.cc"
+#include "faust/gx_distortion.cc"
 #include "faust/freeverb.cc"
 #include "faust/impulseresponse.cc"
 #include "faust/chorus.cc"
@@ -181,6 +182,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust/eq.cc"
 #include "faust/sloop.cc"
 #include "faust/phaser.cc"
+#include "faust/low_high_pass.cc"
 
 // tone stack
 static struct ToneStackParams { ToneStackParams(); } ToneStackParams;
@@ -220,6 +222,7 @@ void faust_init(int samplingFreq)
 	faust_add_callback("delay.on_off", delay::activate);
 	faust_add_callback("echo.on_off", echo::activate);
 	faust_add_callback("chorus.on_off", chorus::activate);
+	faust_add_callback("stereodelay.on_off", stereodelay::activate);
 	list<inidef>& inilist = get_inilist();
 	for (list<inidef>::iterator i = inilist.begin(); i != inilist.end(); i++) {
 		try {

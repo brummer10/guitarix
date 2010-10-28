@@ -72,6 +72,7 @@ def build(bld):
         'GxKnob.cpp',
         'GxBigKnob.cpp',
         'GxSmallKnob.cpp',
+        'GxSmallKnobR.cpp',
         'GxHSlider.cpp',
         'GxMiniSlider.cpp',
         'GxVSlider.cpp',

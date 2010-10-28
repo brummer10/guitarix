@@ -1034,7 +1034,8 @@ static gboolean dialog_key_press_event(
 	if (event->is_modifier) {
 		return FALSE;
 	}
-	gtk_widget_destroy(GTK_WIDGET(data));
+	if (GTK_IS_WIDGET(data));
+		gtk_widget_destroy(GTK_WIDGET(data));
 	return FALSE;
 }
 
@@ -1044,7 +1045,8 @@ static gboolean dialog_key_press_before(
 	if (event->keyval == GDK_Escape) {
 		// spinbutton to current adjustment value
 		gtk_adjustment_value_changed(GTK_SPIN_BUTTON(widget)->adjustment);
-		gtk_widget_destroy(GTK_WIDGET(data));
+		if (GTK_IS_WIDGET(data));
+			gtk_widget_destroy(GTK_WIDGET(data));
 		return TRUE;
 	}
 	return FALSE;
@@ -1053,7 +1055,8 @@ static gboolean dialog_key_press_before(
 static gboolean dialog_grab_broken(
 	GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-	gtk_widget_destroy(GTK_WIDGET(data));
+	if (GTK_IS_WIDGET(data));
+		gtk_widget_destroy(GTK_WIDGET(data));
 	return FALSE;
 }
 
@@ -1130,9 +1133,12 @@ static gboolean gx_regler_button_release (GtkWidget *widget, GdkEventButton *eve
 
 static gboolean gx_regler_scroll (GtkWidget *widget, GdkEventScroll *event)
 {
+	
 	usleep(5000);
+	
 	gx_regler_set_value(widget, event->direction);
-	return FALSE;
+	
+	return TRUE;
 }
 
 

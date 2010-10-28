@@ -64,6 +64,8 @@ public:
 	float posit10;
 	float posit11;
 	float posit12;
+	float posit14;
+	float posit15;
 	bool foverdrive4;
 	bool fcheckbox4;
 	bool fcheckbox6;
@@ -128,7 +130,12 @@ public:
 	int delaypp;
 	int eqpp;
 	bool fdialogbox_ovd;
-
+	bool fdialogbox_lh;
+	bool fdialogbox_sd;
+	int lhpp;
+	bool flh;
+	int fsd;
+	
 	void register_parameter();
 };
 

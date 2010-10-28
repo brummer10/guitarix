@@ -18,6 +18,7 @@
 #include "knob.h"
 #include "bigknob.h"
 #include "smallknob.h"
+#include "smallknobr.h"
 #include "tuner.h"
 #include "fastmeter.h"
 #include "waveview.h"
@@ -52,6 +53,7 @@ GType gx_radio_button_get_type(void);
 GType gx_regler_get_type(void);
 GType gx_selector_get_type(void);
 GType gx_small_knob_get_type(void);
+GType gx_small_knob_r_get_type(void);
 GType gx_switch_get_type(void);
 GType gx_toggle_image_get_type(void);
 GType gx_tuner_get_type(void);
@@ -80,6 +82,7 @@ namespace Gxw {  class RadioButton_Class { public: static Glib::ObjectBase* wrap
 namespace Gxw {  class Regler_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class Selector_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class SmallKnob_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
+namespace Gxw {  class SmallKnobR_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class Switch_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class ToggleImage_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class Tuner_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
@@ -108,6 +111,7 @@ void wrap_init()
   Glib::wrap_register(gx_regler_get_type(), &Gxw::Regler_Class::wrap_new);
   Glib::wrap_register(gx_selector_get_type(), &Gxw::Selector_Class::wrap_new);
   Glib::wrap_register(gx_small_knob_get_type(), &Gxw::SmallKnob_Class::wrap_new);
+  Glib::wrap_register(gx_small_knob_r_get_type(), &Gxw::SmallKnobR_Class::wrap_new);
   Glib::wrap_register(gx_switch_get_type(), &Gxw::Switch_Class::wrap_new);
   Glib::wrap_register(gx_toggle_image_get_type(), &Gxw::ToggleImage_Class::wrap_new);
   Glib::wrap_register(gx_tuner_get_type(), &Gxw::Tuner_Class::wrap_new);
@@ -130,6 +134,7 @@ void wrap_init()
   Gxw::Regler::get_type();
   Gxw::Selector::get_type();
   Gxw::SmallKnob::get_type();
+  Gxw::SmallKnobR::get_type();
   Gxw::Switch::get_type();
   Gxw::ToggleImage::get_type();
   Gxw::Tuner::get_type();
