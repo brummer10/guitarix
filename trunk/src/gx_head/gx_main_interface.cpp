@@ -1925,6 +1925,9 @@ GxDialogWindowBox::~GxDialogWindowBox()
 void GxDialogWindowBox::on_dialog_button_toggled()
 {
 	gx_show_extended_settings(GTK_WIDGET(dialog_button.gobj()), (gpointer)paintbox.gobj());
+	GtkWidget *box = gtk_widget_get_parent(GTK_WIDGET(paintbox.gobj()));
+	if(GDK_IS_WINDOW(box->window))
+		gdk_window_invalidate_rect(box->window,NULL,true);
 }
 
 void GxDialogWindowBox::on_reset_button_pressed()
@@ -2134,7 +2137,7 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 	Glib::ustring title = titl;
 	window.set_decorated(true);
 	window.set_icon(Glib::wrap(ib));
-	window.set_resizable(false);
+	//window.set_resizable(false);
 	window.set_gravity(Gdk::GRAVITY_SOUTH);
 	//window.set_transient_for(*Glib::wrap(GTK_WINDOW(fWindow)));
 	window.set_position(Gtk::WIN_POS_MOUSE);

@@ -422,6 +422,15 @@ void gx_reset_units(Glib::ustring group_id)
 	}
 }
 
+gboolean gx_set_resizeable(gpointer data)
+{
+	GtkWidget *box1 = GTK_WIDGET(data);
+	if(!gtk_window_get_resizable(GTK_WINDOW (box1)))
+		gtk_window_set_resizable(GTK_WINDOW (box1) , TRUE);
+	return false;
+	//gtk_window_set_resizable(GTK_WINDOW (box1) , TRUE);
+}
+
 //----- show extendend settings slider
 void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 {
@@ -431,18 +440,18 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
 		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
 		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
+		GtkWidget *box3 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		
+		box2 = gtk_widget_get_parent(GTK_WIDGET(box3));
 		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		
+		gtk_window_set_resizable(GTK_WINDOW (box1) , FALSE);
 		GtkRequisition my_size;
-		gtk_widget_size_request(GTK_WIDGET(box1),&my_size);
-		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
-		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
-		
-		
-		
+		gtk_widget_size_request(GTK_WIDGET(box3),&my_size);
 		gint  my_width, my_height;
 		gtk_widget_get_size_request (GTK_WIDGET(box1),&my_width, &my_height);
-		
 		gtk_widget_set_size_request (GTK_WIDGET (box2), my_size.width+24, my_height );
+		gtk_window_set_resizable(GTK_WINDOW (box1) , TRUE);
 		//gint root_x, root_y;
 		//gtk_window_get_position (GTK_WINDOW(data), &root_x, &root_y);
 		//if (root_y>160)root_y -= 120;
@@ -454,15 +463,20 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
 		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
 		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
-		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
-		GtkRequisition my_size;
-		gtk_widget_size_request(GTK_WIDGET(box1),&my_size);
-		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
-		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		GtkWidget * box3 = gtk_widget_get_parent(GTK_WIDGET(box2));
 		
+		box2 = gtk_widget_get_parent(GTK_WIDGET(box3)); // scroll box
+		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));  // window
+		
+		gtk_window_set_resizable(GTK_WINDOW (box1) , FALSE);
 		gint  my_width, my_height;
+		GtkRequisition my_size;
+		gtk_widget_size_request(GTK_WIDGET(box3),&my_size);
 		gtk_widget_get_size_request (GTK_WIDGET(box1),&my_width, &my_height);
 		gtk_widget_set_size_request (GTK_WIDGET (box2),my_size.width+24 , my_height );
+		g_idle_add(gx_set_resizeable,gpointer(box1));
+		
+		
 	}
 }
 
