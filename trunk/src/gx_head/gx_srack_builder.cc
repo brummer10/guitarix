@@ -213,7 +213,44 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
+     
+	openHorizontalRestetBox("", &gx_engine::audio.posit16);
+     {
+          openVerticalBox("echo");
+          {
 
+               openHorizontalTableBox("");
+               {
+					openPaintBox1("");
+					{
+						create_switch_no_caption(sw_switchit, "stereoecho.on_off");
+                    }
+					closeBox();
+                    opensDialogBox("stereoecho.dialog", "stereoecho.on_off");
+                    {
+
+                         openVerticalBox("");
+                         {
+                              openHorizontalTableBox("");
+                              {
+									create_smallknob("stereoecho.percent_l","left %");
+									create_smallknob("stereoecho.time_l","left time");
+									create_smallknob("stereoecho.percent_r","right %");
+									create_smallknob("stereoecho.time_r","right time");
+
+                              }
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox();
+     
      openHorizontalRestetBox("", &gx_engine::audio.posit12);
      {
           openVerticalBox("phaser");

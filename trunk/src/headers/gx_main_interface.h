@@ -408,6 +408,20 @@ public :
 		{
 			addwidget(UiRegler::create(*this, new Gxw::SmallKnob(), id, true));
 		}
+	
+		void create_smallknob_no_value(string id)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, false));
+		}
+	void create_smallknob_no_value(string id, Glib::ustring label)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, label, false));
+		}
+	void create_smallknob_no_caption_no_value(string id)
+		{
+			addwidget(UiRegler::create(*this, new Gxw::SmallKnob(), id, false));
+		}
+		
 	void create_smallknobr(string id)
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id, true));

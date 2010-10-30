@@ -47,349 +47,51 @@ openHorizontalTableBox("");
 		closeBox();
 	}
 	closeBox();	
-//----- the compressor
-     openHorizontalOrderBox("", &gx_engine::audio.posit5);
+	//low high pass filter
+	openHorizontalOrderBox(" ", &gx_engine::audio.posit14);
      {
-          openVerticalBox("Compressor");
+		 openVerticalBox("low high pass ");
           {
                openHorizontalBox("");
                {
 					openPaintBox1("");
 					{
-						create_switch_no_caption(sw_switchit, "compressor.on_off");
-						create_selector("compressor.pp");
+						create_switch_no_caption(sw_switchit, "low_highpass.on_off");
+						create_selector("low_high_pass.pp");
                     }
-					closeBox();
-//----- open a dialogbox(toplevel widget) and put the advanced controlls in it
-                    openDialogBox("compressor.dialog", "compressor.on_off");
+                    closeBox();
+				 
+                    openDialogBox("low_high_pass.dialog", "low_highpass.on_off");
                     {
-
-
-                         openFrameBox("");
-                         closeBox();
-                         openFrameBox("");
-                         closeBox();
-                         
-                              openHorizontalTableBox("");
-                              {
-                                   create_smallknob("compressor.knee");
-                                   create_smallknobr("compressor.ratio");
-                                   create_smallknob("compressor.threshold");
-                              
-                              
-                                   create_smallknob("compressor.attack");
-                                   create_smallknob("compressor.release");
-                              }
-                              closeBox();
-                         
-                         openFrameBox("");
-                         closeBox();
-                         openFrameBox("");
-                         closeBox();
-
-                    }
-                    closeBox();
-               }
-               closeBox();
-          }
-//----- end advanced settings widget
-          closeBox();
-     }
-     closeBox();
-
-
-     openHorizontalOrderBox("", &gx_engine::audio.posit0);
-     {
-//----- crybaby
-          openVerticalBox("crybaby");
-          {
-
-               openHorizontalBox("");
-               {
-				   openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "crybaby.on_off");
-						create_selector("crybaby.pp");
-                    }
-					closeBox();
-		
-                    openDialogBox("crybaby.dialog", "crybaby.on_off");
-                    {
-
-
-                         openVerticalBox("");
-                         {
-                              openHorizontalTableBox("");
-                              {
-                                   create_smallknobr("crybaby.wah","  wah   ");
-                                   
-                                   create_smallknob("crybaby.level","  level  ");
-                                  
-                                   create_smallknob("crybaby.wet_dry","  dry/wet  ");
-                                   
-
-                              }
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openHorizontalBox("");
-                              {
-                                   
-                                   create_selector("crybaby.autowah");
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                              }
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-
-                         }
-                         closeBox();
-
-                    }
-                    closeBox();
-
-               }
-//----- end advanced settings widget
-               closeBox();
-          }
-          closeBox();
-//----- end crybaby
-     }
-     closeBox();
-
-
-     openHorizontalOrderBox("", &gx_engine::audio.posit3);
-     {
-//----- freeverb
-          openVerticalBox(" freeverb");
-          {
-
-               openHorizontalBox("");
-               {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "freeverb.on_off");
-						create_selector("freeverb.pp");
-                    }
-                    closeBox();
-
-                    openDialogBox("freeverb.dialog", "freeverb.on_off");
-                    {
-
-                         openFrameBox("");
-                         closeBox();
-                         openFrameBox("");
-                         closeBox();
-                         openHorizontalTableBox("");
-                         {
-                              create_smallknobr("freeverb.RoomSize");
-                              create_smallknob("freeverb.damp");
-                              create_smallknob("freeverb.wet_dry", "dry/wet");
-                         }
-                         closeBox();
-                         openFrameBox("");
-                         closeBox();
-                         openFrameBox("");
-                         closeBox();
-                    }
-                    closeBox();
-
-               }
-//----- end advanced settings widget
-               closeBox();
-          }
-          closeBox();
-//----- end freeverb
-     }
-     closeBox();
-
-     openHorizontalOrderBox("", &gx_engine::audio.posit4);
-     {
-//----- IR
-          openVerticalBox("IR");
-          {
-
-               openHorizontalBox("");
-               {
-					openPaintBox1("");
-					{
-                    create_switch_no_caption(sw_switchit, "IR.on_off");
-                    create_selector("IR.pp");
-                    }
-                    closeBox();
-                    
-                    openDialogBox("IR.dialog", "IR.on_off");
-                    {
-
-                         openVerticalBox1("");
-                         {
-
-                              openHorizontalBox("");
-                              {
-                                   
-                                   openHorizontalTableBox("");
-                                   {
-                                        create_smallknob("IR.freq"," freq ");
-                                        create_smallknob("IR.peak"," peak ");
-                                        create_smallknob("IR.bandwidth"," bandwidth ");
-                                   }
-                                   closeBox();
-
-                              }
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openHorizontalBox("");
-                              {
-                                   
-                                   create_selector("IR.auto_freq");
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                              }
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              
-                         }
-                         closeBox();
-
-                    }
-                    closeBox();
-
-               }
-//----- end advanced settings widget
-               closeBox();
-          }
-          closeBox();
-//----- end IR
-     }
-     closeBox();
-     openHorizontalOrderBox("", &gx_engine::audio.posit6);
-     {
-//----- echo
-          openVerticalBox("echo");
-          {
-
-
-               openHorizontalBox("");
-               {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "echo.on_off");
-						create_selector("echo.pp");
-                    }
-                    closeBox();
-                    
-                    openDialogBox("echo.dialog", "echo.on_off");
-                    {
-
-                         openVerticalBox("");
-                         {
-                              openHorizontalTableBox("");
-                              {
-
-                                   create_smallknobr("echo.time","  time  ");
-
-                                   create_smallknob("echo.percent","    %    ");
-
-                              }
-                              closeBox();
-                         }
-                         closeBox();
-                    }
-                    closeBox();
-
-               }
-               closeBox();
-          }
-          closeBox();
-     }
-     closeBox();
-
-     openHorizontalOrderBox("", &gx_engine::audio.posit7);
-     {
-          openVerticalBox("delay");
-          {
-
-
-               openHorizontalBox("");
-               {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "delay.on_off");
-						create_selector("delay.pp");
-                    }
-					closeBox();
-
-                    openDialogBox("delay.dialog", "delay.on_off");
-                    {
-
-                         openVerticalBox("");
-                         {
-                              openHorizontalTableBox("");
-                              {
-
-                                   create_smallknobr("delay.delay"," delay ");
-
-                                   create_smallknob("delay.gain","  gain ");
-
-                              }
-                              closeBox();
-                         }
-                         closeBox();
-                    }
-                    closeBox();
-
-               }
-               closeBox();
-          }
-          closeBox();
-     }
-     closeBox();
-
-     openHorizontalOrderBox("", &gx_engine::audio.posit1);
-     {
-          openVerticalBox("overdrive");
-          {
-
-
-               openHorizontalBox("");
-               {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "overdrive.on_off");
-						create_selector("overdrive.pp");
-                    }
-                    closeBox();
-                    openDialogBox("overdrive.dialog", "overdrive.on_off");
-                    {
-//----- overdrive
-                         openHorizontalTableBox("");
-                         {
-
-                              openSpaceBox("");
-                              closeBox();
-                              create_smallknobr("overdrive.drive","  drive ");
-                              openSpaceBox("");
-                              closeBox();
-
-                         }
-                         closeBox();
-//-----end overdrive
-                    }
+						openHorizontalBox("");
+                        {
+							openVerticalBox("low/highpass");
+							{
+								openHorizontalBox("");
+								{
+									create_smallknob("low_high_pass.low_highpass.high_freq","high-pass ");
+									create_smallknob("low_high_pass.low_highpass.low_freq"," low-pass ");
+									create_switch_no_caption(sw_switchit, "low_high_pass.low_highpass.on_off");
+								}
+								closeBox();
+							}
+							closeBox();
+							openSpaceBox("");
+							closeBox();   
+							openVerticalBox("low/highcut");
+							{
+								openHorizontalBox("");
+								{
+									create_smallknob("low_high_pass.low_highcutoff.low_freq"," low-cut ");
+									create_smallknob("low_high_pass.low_highcutoff.high_freq","high-cut ");
+									create_switch_no_caption(sw_switchit, "low_high_pass.low_highcutoff.on_off");
+								}
+								closeBox();
+							}
+							closeBox();
+						}
+						closeBox();
+                     }
                     closeBox();
                }
                closeBox();
@@ -397,108 +99,8 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
-
-     openHorizontalOrderBox("", &gx_engine::audio.posit2);
-     {
-          //----- distortion
-          openVerticalBox("distortion");
-          {
-
-               openHorizontalBox("");
-               {
-				   openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "gx_distortion.on_off");
-						create_selector("gx_distortion.pp");
-                    }
-					closeBox();
-
-                    openDialogBox("gx_distortion.dialog", "gx_distortion.on_off");
-                    {
-                         openHorizontalBox("");
-                         {
-                              openVerticalBox("");
-                              {
-                                   openHorizontalBox("");
-                                   {
-                                        openVerticalBox1("");
-                                        {
-                                             create_smallknobr("gx_distortion.drive","  drive ");
-                                             create_smallknob("gx_distortion.level","  level  ");
-                                             create_smallknob("gx_distortion.gain","  gain  ");
-                                        }
-                                        closeBox();
-                                        openVerticalBox1("");
-                                        {
-                                             openHorizontalBox("");
-                                             {
-                                                  openVerticalBox1("");
-                                                  {
-                                                       create_smallknobr("gx_distortion.low_drive"," low drive ");
-                                                       create_smallknob("gx_distortion.low_gain"," low gain ");
-                                                  }
-                                                  closeBox();
-                                                  openVerticalBox1("");
-                                                  {
-                                                       create_smallknobr("gx_distortion.middle_l_drive"," middle low drive ");
-                                                       create_smallknob("gx_distortion.middle_l_gain"," middle low gain ");
-                                                  }
-                                                  closeBox();
-                                                  openVerticalBox1("");
-                                                  {
-                                                       create_smallknobr("gx_distortion.middle_h_drive"," middle high drive ");
-                                                       create_smallknob("gx_distortion.middle_h_gain"," middle high gain ");
-                                                  }
-                                                  closeBox();
-                                                  openVerticalBox1("");
-                                                  {
-                                                       create_smallknobr("gx_distortion.high_drive"," high drive ");
-                                                       create_smallknob("gx_distortion.high_gain"," high gain ");
-                                                  }
-                                                  closeBox();
-                                             }
-                                             closeBox();
-                                             openHorizontalBox("");
-                                             {
-                                                  create_hslider("gx_distortion.split_low_freq", "split low freq");
-                                                  create_hslider("gx_distortion.split_middle_freq", "split middle freq");
-                                                  create_hslider("gx_distortion.split_high_freq", "split high freq");
-                                                  openSpaceBox("");
-                                                  closeBox();
-                                             }
-                                             closeBox();
-                                        }
-                                        closeBox();
-                                   }
-                                   closeBox();
-                              }
-                              closeBox();
-               
-							   openVerticalBox("resonator");
-							   {
-									create_smallknob("gx_distortion.trigger","trigger ");
-									create_smallknob("gx_distortion.vibrato"," vibrato ");
-									create_switch_no_caption(sw_switchit, "gx_distortion.resonator.on_off");
-							   }
-							   closeBox();
-                              
-                         }
-                         closeBox();
-
-                    }
-                    closeBox();
-
-               }
-               closeBox();
-
-
-          }
-          closeBox();
-          //----- end distortion
-     }
-     closeBox();
-
-     openHorizontalOrderBox(" ", &gx_engine::audio.posit10);
+	// EQ
+	openHorizontalOrderBox(" ", &gx_engine::audio.posit10);
      {
           openVerticalBox("EQ");
           {
@@ -567,51 +169,158 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
-     
-     openHorizontalOrderBox(" ", &gx_engine::audio.posit14);
+//----- crybaby
+     openHorizontalOrderBox("", &gx_engine::audio.posit0);
      {
-		 openVerticalBox("low high pass ");
+          openVerticalBox("crybaby");
           {
+
                openHorizontalBox("");
                {
-					openPaintBox1("");
+				   openPaintBox1("");
 					{
-						create_switch_no_caption(sw_switchit, "low_highpass.on_off");
-						create_selector("low_high_pass.pp");
+						create_switch_no_caption(sw_switchit, "crybaby.on_off");
+						create_selector("crybaby.pp");
+                    }
+					closeBox();
+		
+                    openDialogBox("crybaby.dialog", "crybaby.on_off");
+                    {
+
+
+                         openVerticalBox("");
+                         {
+                              openHorizontalTableBox("");
+                              {
+                                   create_smallknobr("crybaby.wah","  wah   ");
+                                   
+                                   create_smallknob("crybaby.level","  level  ");
+                                  
+                                   create_smallknob("crybaby.wet_dry","  dry/wet  ");
+                                   
+
+                              }
+                              closeBox();
+                              openSpaceBox("");
+                              closeBox();
+                              openHorizontalBox("");
+                              {
+                                   
+                                   create_selector("crybaby.autowah");
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                              }
+                              closeBox();
+                              openSpaceBox("");
+                              closeBox();
+
+                         }
+                         closeBox();
+
                     }
                     closeBox();
-				 
-                    openDialogBox("low_high_pass.dialog", "low_highpass.on_off");
+
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox();
+ //----- distortion
+     openHorizontalOrderBox("", &gx_engine::audio.posit2);
+     {
+          openVerticalBox("distortion");
+          {
+
+               openHorizontalBox("");
+               {
+				   openPaintBox1("");
+					{
+						create_switch_no_caption(sw_switchit, "gx_distortion.on_off");
+						create_selector("gx_distortion.pp");
+                    }
+					closeBox();
+
+                    openDialogBox("gx_distortion.dialog", "gx_distortion.on_off");
                     {
-						openHorizontalBox("");
-                        {
-							openVerticalBox("low/highpass");
-							{
-								openHorizontalBox("");
-								{
-									create_smallknob("low_high_pass.low_highpass.high_freq","high-pass ");
-									create_smallknob("low_high_pass.low_highpass.low_freq"," low-pass ");
-									create_switch_no_caption(sw_switchit, "low_high_pass.low_highpass.on_off");
-								}
-								closeBox();
-							}
-							closeBox();
-							openSpaceBox("");
-							closeBox();   
-							openVerticalBox("low/highcut");
-							{
-								openHorizontalBox("");
-								{
-									create_smallknob("low_high_pass.low_highcutoff.low_freq"," low-cut ");
-									create_smallknob("low_high_pass.low_highcutoff.high_freq","high-cut ");
-									create_switch_no_caption(sw_switchit, "low_high_pass.low_highcutoff.on_off");
-								}
-								closeBox();
-							}
-							closeBox();
-						}
-						closeBox();
-                     }
+                         openHorizontalBox("");
+                         {
+                              openVerticalBox("");
+                              {
+                                   openHorizontalBox("");
+                                   {
+                                        openVerticalBox1("");
+                                        {
+                                             create_smallknobr("gx_distortion.drive","  drive ");
+                                             create_smallknob("gx_distortion.level","  level  ");
+                                             create_smallknob("gx_distortion.gain","  gain  ");
+                                        }
+                                        closeBox();
+                                        openVerticalBox1("");
+                                        {
+                                             openHorizontalBox("");
+                                             {
+                                                  openVerticalBox1("");
+                                                  {
+                                                       create_smallknobr("gx_distortion.low_drive"," low drive ");
+                                                       create_smallknob("gx_distortion.low_gain"," low gain ");
+                                                  }
+                                                  closeBox();
+                                                  openVerticalBox1("");
+                                                  {
+                                                       create_smallknobr("gx_distortion.middle_l_drive"," m. low drive ");
+                                                       create_smallknob("gx_distortion.middle_l_gain"," m. low gain ");
+                                                  }
+                                                  closeBox();
+                                                  openVerticalBox1("");
+                                                  {
+                                                       create_smallknobr("gx_distortion.middle_h_drive"," m. high drive ");
+                                                       create_smallknob("gx_distortion.middle_h_gain"," m. high gain ");
+                                                  }
+                                                  closeBox();
+                                                  openVerticalBox1("");
+                                                  {
+                                                       create_smallknobr("gx_distortion.high_drive"," high drive ");
+                                                       create_smallknob("gx_distortion.high_gain"," high gain ");
+                                                  }
+                                                  closeBox();
+                                             }
+                                             closeBox();
+                                            openVerticalBox("frequency split Hz");
+											{
+                                             openHorizontalBox("");
+                                             {
+                                                  create_wheel("gx_distortion.split_low_freq", "split low freq");
+                                                  create_wheel("gx_distortion.split_middle_freq", "split m. freq");
+                                                  create_wheel("gx_distortion.split_high_freq", "split high freq");
+                                                  
+                                             }
+                                             closeBox();
+                                            }
+                                             closeBox(); 
+                                        }
+                                        closeBox();
+                                   }
+                                   closeBox();
+                              }
+                              closeBox();
+               
+							   openVerticalBox("resonator");
+							   {
+									create_smallknob("gx_distortion.trigger","trigger ");
+									create_smallknob("gx_distortion.vibrato"," vibrato ");
+									create_switch_no_caption(sw_switchit, "gx_distortion.resonator.on_off");
+							   }
+							   closeBox(); 
+                         }
+                         closeBox();
+                    }
                     closeBox();
                }
                closeBox();
@@ -619,5 +328,255 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
+//----- IR
+     openHorizontalOrderBox("", &gx_engine::audio.posit4);
+     {
+          openVerticalBox("IR");
+          {
+               openHorizontalBox("");
+               {
+					openPaintBox1("");
+					{
+                    create_switch_no_caption(sw_switchit, "IR.on_off");
+                    create_selector("IR.pp");
+                    }
+                    closeBox();
+                    
+                    openDialogBox("IR.dialog", "IR.on_off");
+                    {
+
+                         openVerticalBox1("");
+                         {
+                              openHorizontalBox("");
+                              {
+                                   
+                                   openHorizontalTableBox("");
+                                   {
+                                        create_smallknob("IR.freq"," freq ");
+                                        create_smallknob("IR.peak"," peak ");
+                                        create_smallknob("IR.bandwidth"," bandwidth ");
+                                   }
+                                   closeBox();
+
+                              }
+                              closeBox();
+                              openSpaceBox("");
+                              closeBox();
+                              openHorizontalBox("");
+                              {
+                                   create_selector("IR.auto_freq");
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                              }
+                              closeBox();
+                              openSpaceBox("");
+                              closeBox(); 
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox();
+//----- the compressor
+     openHorizontalOrderBox("", &gx_engine::audio.posit5);
+     {
+          openVerticalBox("Compressor");
+          {
+               openHorizontalBox("");
+               {
+					openPaintBox1("");
+					{
+						create_switch_no_caption(sw_switchit, "compressor.on_off");
+						create_selector("compressor.pp");
+                    }
+					closeBox();
+                    openDialogBox("compressor.dialog", "compressor.on_off");
+                    {
+                         openFrameBox("");
+                         closeBox();
+                         openFrameBox("");
+                         closeBox();
+                         
+                              openHorizontalTableBox("");
+                              {
+                                   create_smallknob("compressor.knee");
+                                   create_smallknobr("compressor.ratio");
+                                   create_smallknob("compressor.threshold");
+                              
+                              
+                                   create_smallknob("compressor.attack");
+                                   create_smallknob("compressor.release");
+                              }
+                              closeBox();
+                         
+                         openFrameBox("");
+                         closeBox();
+                         openFrameBox("");
+                         closeBox();
+                    }
+                    closeBox();
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox();
+//-----overdrive
+     openHorizontalOrderBox("", &gx_engine::audio.posit1);
+     {
+          openVerticalBox("overdrive");
+          {
+               openHorizontalBox("");
+               {
+					openPaintBox1("");
+					{
+						create_switch_no_caption(sw_switchit, "overdrive.on_off");
+						create_selector("overdrive.pp");
+                    }
+                    closeBox();
+                    openDialogBox("overdrive.dialog", "overdrive.on_off");
+                    {
+                         openHorizontalTableBox("");
+                         {
+
+                              openSpaceBox("");
+                              closeBox();
+                              create_smallknobr("overdrive.drive","  drive ");
+                              openSpaceBox("");
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox();
+//----- echo    
+     openHorizontalOrderBox("", &gx_engine::audio.posit6);
+     {
+          openVerticalBox("echo");
+          {
+               openHorizontalBox("");
+               {
+					openPaintBox1("");
+					{
+						create_switch_no_caption(sw_switchit, "echo.on_off");
+						create_selector("echo.pp");
+                    }
+                    closeBox();
+                    
+                    openDialogBox("echo.dialog", "echo.on_off");
+                    {
+                         openVerticalBox("");
+                         {
+                              openHorizontalTableBox("");
+                              {
+
+                                   create_smallknobr("echo.time","  time  ");
+
+                                   create_smallknob("echo.percent","    %    ");
+                              }
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox();
+//-----delay
+     openHorizontalOrderBox("", &gx_engine::audio.posit7);
+     {
+          openVerticalBox("delay");
+          {
+               openHorizontalBox("");
+               {
+					openPaintBox1("");
+					{
+						create_switch_no_caption(sw_switchit, "delay.on_off");
+						create_selector("delay.pp");
+                    }
+					closeBox();
+
+                    openDialogBox("delay.dialog", "delay.on_off");
+                    {
+                         openVerticalBox("");
+                         {
+                              openHorizontalTableBox("");
+                              {
+
+                                   create_smallknobr("delay.delay"," delay ");
+
+                                   create_smallknob("delay.gain","  gain ");
+                              }
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox();
+//----- freeverb
+     openHorizontalOrderBox("", &gx_engine::audio.posit3);
+     {
+          openVerticalBox(" freeverb");
+          {
+               openHorizontalBox("");
+               {
+					openPaintBox1("");
+					{
+						create_switch_no_caption(sw_switchit, "freeverb.on_off");
+						create_selector("freeverb.pp");
+                    }
+                    closeBox();
+                    openDialogBox("freeverb.dialog", "freeverb.on_off");
+                    {
+
+                         openFrameBox("");
+                         closeBox();
+                         openFrameBox("");
+                         closeBox();
+                         openHorizontalTableBox("");
+                         {
+                              create_smallknobr("freeverb.RoomSize");
+                              create_smallknob("freeverb.damp");
+                              create_smallknob("freeverb.wet_dry", "dry/wet");
+                         }
+                         closeBox();
+                         openFrameBox("");
+                         closeBox();
+                         openFrameBox("");
+                         closeBox();
+                    }
+                    closeBox();
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox();
+     
 }
 closeBox();

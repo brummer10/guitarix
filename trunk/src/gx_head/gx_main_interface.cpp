@@ -538,7 +538,7 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
 				    obib = (GtkWidget *) g_list_nth_data(child_list,4);
 				    child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
 				    obibi = (GtkWidget *) g_list_nth_data(child_list,0);
-				   // if(GTK_IS_BUTTON (obibi))
+				    if(GTK_IS_BUTTON (obibi))
                         gtk_button_clicked(GTK_BUTTON(obibi));
 				}
 
@@ -2109,7 +2109,7 @@ class GxWindowBox
 {
 private:
 	bool on_window_delete_event(GdkEventAny* event,gpointer d );
-	
+	void on_check_resize();
 public:
 	Gtk::Window window;
 	Gtk::ScrolledWindow           m_scrolled_window; 
@@ -2129,6 +2129,15 @@ bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d)
 	return false;
 }
 
+void GxWindowBox::on_check_resize()
+{
+	int y_org = window.get_height();
+	//int x_org = window.get_width();
+	if(y_org >=11)
+		gtk_widget_set_size_request (GTK_WIDGET (window.gobj()),-1 , y_org-10 );
+	
+}
+
 GxWindowBox::GxWindowBox(gx_ui::GxUI& ui, 
 	const char *pb_1, const char *pb_2, Glib::ustring titl,GtkWidget * d):
 	window(Gtk::WINDOW_TOPLEVEL),
@@ -2140,7 +2149,7 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 	//window.set_resizable(false);
 	window.set_gravity(Gdk::GRAVITY_SOUTH);
 	//window.set_transient_for(*Glib::wrap(GTK_WINDOW(fWindow)));
-	window.set_position(Gtk::WIN_POS_MOUSE);
+	//window.set_position(Gtk::WIN_POS_MOUSE);
 	//window.set_keep_below(false);
 	window.set_title(title);
 	//window.set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
@@ -2157,6 +2166,9 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 	paintbox1.add(paintbox);
 	m_scrolled_window.add(paintbox1);
 	window.add(m_scrolled_window);
+	window.signal_check_resize().connect(
+		sigc::mem_fun(*this, &GxWindowBox::on_check_resize));
+	
 	paintbox1.show();
 	paintbox.show();
 	m_scrolled_window.show();
@@ -2177,7 +2189,7 @@ void GxMainInterface::openPlugBox(const char* label)
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_AmpBox_expose, pb_gxhead_expose, label, GTK_WIDGET(fShowRack.gobj()));
 	rack_widget = GTK_WIDGET(box->window.gobj());
-	box->window.set_size_request(-1,620); 
+	box->window.set_size_request(-1,310); 
 	rBox = GTK_WIDGET(box->rbox.gobj());
 	
 			

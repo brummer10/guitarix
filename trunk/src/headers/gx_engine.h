@@ -66,6 +66,8 @@ public:
 	float posit12;
 	float posit14;
 	float posit15;
+	float posit16;
+	float posit00;
 	bool foverdrive4;
 	bool fcheckbox4;
 	bool fcheckbox6;
@@ -102,6 +104,7 @@ public:
 	bool fdialogbox_mbf;
 	bool fdialogbox_moo;
 	bool fdialogbox_pha;
+	bool fdialogbox_se;
 	bool fmoog;
 	bool fflanger;
 	bool fflangerbox;
@@ -135,6 +138,7 @@ public:
 	int lhpp;
 	bool flh;
 	int fsd;
+	int fse;
 	
 	void register_parameter();
 };

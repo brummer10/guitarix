@@ -551,7 +551,20 @@ static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_line_to(cr, x0+3, y0+3);
     cairo_line_to(cr, x0+rect_width-3, y0+3);
     cairo_stroke(cr);
+    
+    cairo_move_to (cr, x0, y0);
+	cairo_curve_to (cr, x0+rect_width*0.66, y0, x0+rect_width*0.33, y0+rect_height, x0+rect_width, y0+rect_height);
+	cairo_line_to (cr, x0+rect_width , y0);
+	cairo_set_line_width (cr, 3.0);
+	cairo_close_path (cr);
 
+	pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+	cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0.5, 0.2);
+	cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
+	cairo_set_source (cr, pat);
+	cairo_fill_preserve (cr);
+	cairo_stroke (cr);
+	
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 

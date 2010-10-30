@@ -220,9 +220,9 @@ void GxMainInterface::on_rack_activate()
 {
 	static gint rxorg = 40, ryorg =80;
 	if (fShowRack.get_active()) {
-		gtk_widget_show(rack_widget);
-		gtk_window_move(GTK_WINDOW(rack_widget), rxorg, ryorg);
 		
+		gtk_window_move(GTK_WINDOW(rack_widget), rxorg, ryorg);
+		gtk_widget_show(rack_widget);
 	} else {
 		gtk_window_get_position (GTK_WINDOW(rack_widget), &rxorg, &ryorg);
 		
@@ -235,9 +235,9 @@ void GxMainInterface::on_srack_activate()
 {
 	static gint srxorg = 400, sryorg = 80;
 	if (fShowSRack.get_active()) {
-		gtk_widget_show(srack_widget);
-		gtk_window_move(GTK_WINDOW(srack_widget), srxorg, sryorg);
 		
+		gtk_window_move(GTK_WINDOW(srack_widget), srxorg, sryorg);
+		gtk_widget_show(srack_widget);
 	} else {
 		gtk_window_get_position (GTK_WINDOW(srack_widget), &srxorg, &sryorg);
 		gtk_widget_hide(srack_widget);

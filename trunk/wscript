@@ -24,6 +24,8 @@ good_faust_versions = ['0.9.24','0.9.27','0.9.30']
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
 blddir = 'build'
+use_2to3 = True
+
 
 def faust_vers_str():
     if len(good_faust_versions) == 1:

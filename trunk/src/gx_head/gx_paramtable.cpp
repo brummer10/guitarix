@@ -505,6 +505,7 @@ ParameterGroups::ParameterGroups()
 	insert("echo","Echo");
 	insert("delay","Delay");
 	insert("stereodelay","Stereo Delay");
+	insert("stereoecho","Stereo Echo");
 	insert("chorus","Chorus");
 	insert("MultiBandFilter","Multiband Filter");
 	insert("moog","Moog Filter");

@@ -170,6 +170,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust/echo.cc"
 #include "faust/delay.cc"
 #include "faust/stereodelay.cc"
+#include "faust/stereoecho.cc"
 #include "faust/noise_shaper.cc"
 #include "faust/gx_distortion.cc"
 #include "faust/freeverb.cc"
@@ -223,6 +224,7 @@ void faust_init(int samplingFreq)
 	faust_add_callback("echo.on_off", echo::activate);
 	faust_add_callback("chorus.on_off", chorus::activate);
 	faust_add_callback("stereodelay.on_off", stereodelay::activate);
+	faust_add_callback("stereoecho.on_off", stereoecho::activate);
 	list<inidef>& inilist = get_inilist();
 	for (list<inidef>::iterator i = inilist.begin(); i != inilist.end(); i++) {
 		try {

@@ -92,6 +92,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("shaper.on_off", "on/off", &fng, 0);
 	gx_gui::registerParam("low_highpass.on_off", "on/off", &flh, 0);
 	gx_gui::registerParam("stereodelay.on_off", "on/off",(float*) &fsd, 0);
+	gx_gui::registerParam("stereoecho.on_off", "on/off",(float*) &fse, 0);
 	
 	static const char *tonestack_model[] = {"default","Bassman","Twin Reverb","Princeton","JCM-800","JCM-2000","M-Lead","M2199","AC-30","Off",0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
@@ -129,6 +130,7 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("phaser.position", &posit12, true, 4, 0, 8);
 	registerNonMidiParam("low_high_pass.position", &posit14, true, 4, 0, 8);
 	registerNonMidiParam("stereodelay.position", &posit15, true, 7, 1, 9);
+	registerNonMidiParam("stereoecho.position", &posit16, true, 7, 1, 9);
 	
 	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
 	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);
@@ -148,6 +150,7 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("phaser.dialog", &fdialogbox_pha, false);
 	registerNonMidiParam("low_high_pass.dialog", &fdialogbox_lh, false);
 	registerNonMidiParam("stereodelay.dialog", &fdialogbox_sd, false);
+	registerNonMidiParam("stereoecho.dialog", &fdialogbox_se, false);
 	
 	registerNonMidiParam("system.waveview", &viv, false);
 
@@ -417,6 +420,8 @@ void process_insert_buffers (int count, float* input1, float* output0, float* ou
 			phaser::compute(count, output0, output1, output0, output1);
 		} else if (audio.posit15 == m && audio.fsd && stereodelay::is_inited()) {
 			stereodelay::compute(count, output0, output1, output0, output1);
+		}else if (audio.posit16 == m && audio.fse && stereoecho::is_inited()) {
+			stereoecho::compute(count, output0, output1, output0, output1);
 		}
 	}
 

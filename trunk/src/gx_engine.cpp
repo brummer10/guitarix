@@ -42,6 +42,7 @@ void gx_engine_init( const string *optvar )
 	checkfreq  = new float[frag];
 	oversample = new float[frag*MAX_UPSAMPLE];
 	result = new float[frag+46];
+	audio.posit00 = 0;
 
 	(void)memset(get_frame,  0, frag*sizeof(float));
 	(void)memset(get_frame1,  0, frag*sizeof(float));
