@@ -72,6 +72,8 @@ gxstyle_files = [
     'knob9.png',
     'smallknob9.png',
     'mittleknob9.png',
+    'cairo1.jpg',
+    'cairo2.jpg',
     ]
 
 def configure(conf):

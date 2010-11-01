@@ -65,8 +65,7 @@ openHorizontalTableBox("");
                     {
 						openHorizontalBox("");
                         {
-							openVerticalBox("low/highpass");
-							{
+							
 								openHorizontalBox("");
 								{
 									create_smallknob("low_high_pass.low_highpass.high_freq","high-pass ");
@@ -74,12 +73,10 @@ openHorizontalTableBox("");
 									create_switch_no_caption(sw_switchit, "low_high_pass.low_highpass.on_off");
 								}
 								closeBox();
-							}
-							closeBox();
+							
 							openSpaceBox("");
 							closeBox();   
-							openVerticalBox("low/highcut");
-							{
+							
 								openHorizontalBox("");
 								{
 									create_smallknob("low_high_pass.low_highcutoff.low_freq"," low-cut ");
@@ -87,8 +84,7 @@ openHorizontalTableBox("");
 									create_switch_no_caption(sw_switchit, "low_high_pass.low_highcutoff.on_off");
 								}
 								closeBox();
-							}
-							closeBox();
+							
 						}
 						closeBox();
                      }
@@ -541,7 +537,7 @@ openHorizontalTableBox("");
 //----- freeverb
      openHorizontalOrderBox("", &gx_engine::audio.posit3);
      {
-          openVerticalBox(" freeverb");
+          openVerticalBox("freeverb");
           {
                openHorizontalBox("");
                {

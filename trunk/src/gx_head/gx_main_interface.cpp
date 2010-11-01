@@ -659,8 +659,13 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	g_signal_connect (GTK_OBJECT (button1), "clicked",
 	                  G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
 
-
 	gtk_box_pack_start (GTK_BOX(rBox), box, expand, fill, 0);
+	
+	GValue  pos = {0};
+	g_value_init (&pos, G_TYPE_INT);
+	g_value_set_int(&pos,(gint)posit);
+	gtk_container_child_set_property(GTK_CONTAINER(rBox),GTK_WIDGET(box),"position", &pos);
+	
 	gtk_fixed_put (GTK_FIXED(box1), button1, 5, 5);
 	gtk_fixed_put (GTK_FIXED(box1), button, 5, 20);
 	gtk_box_pack_end (GTK_BOX(box), box1, false, fill, 0);
@@ -714,6 +719,12 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 
 
 	gtk_box_pack_start (GTK_BOX(sBox), box, expand, fill, 0);
+	
+	GValue  pos = {0};
+	g_value_init (&pos, G_TYPE_INT);
+	g_value_set_int(&pos,(gint)posit);
+	gtk_container_child_set_property(GTK_CONTAINER(sBox),GTK_WIDGET(box),"position", &pos);
+	
 	gtk_fixed_put (GTK_FIXED(box1), button1, 5, 5);
 	gtk_fixed_put (GTK_FIXED(box1), button, 5, 20);
 	gtk_box_pack_end (GTK_BOX(box), box1, false, fill, 0);
@@ -1908,10 +1919,12 @@ public:
 	Gtk::HBox box;
 	Gxw::PaintBox paintbox;
 	Gtk::HBox box4;
-	Gtk::Fixed box5;
+	Gtk::HBox box5;
+	Gtk::HBox box6;
 	UiSwitch* unit_on_off;
-	Gtk::Label label;
+	//Gtk::Label label;
 	Gtk::Button reset_button;
+	Gtk::Button reset_button1;
 	Gtk::ToggleButton& dialog_button;
 	GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog, Parameter& param_switch, Gtk::ToggleButton& button,GtkWidget * Caller);
 	~GxDialogWindowBox();
@@ -1949,18 +1962,28 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog,
 	box4.set_spacing(2);
 	box4.set_border_width(2);
 	box5.set_border_width(4);
+	box6.set_border_width(4);
 	paintbox.property_paint_func() = pb_RackBox_expose;
-	Pango::FontDescription font = label.get_style()->get_font();
-	font.set_size(10*Pango::SCALE);
-	font.set_weight(Pango::WEIGHT_NORMAL);
-	label.modify_font(font);
-	label.set_angle(90);
-	label.set_text("reset");
-	reset_button.add(label);
-	box5.put(*unit_on_off,6,5);
-	box5.put(reset_button,2,25);
+	//Pango::FontDescription font = label.get_style()->get_font();
+	//font.set_size(10*Pango::SCALE);
+	//font.set_weight(Pango::WEIGHT_NORMAL);
+	//label.modify_font(font);
+	//label.set_angle(90);
+	//label.set_text("reset");
+	//reset_button.add(label);
+	reset_button.set_name("effect_reset");
+	reset_button1.set_name("effect_reset");
+	//label.set_name("label_reset");
+	//box5.put(*unit_on_off,6,5);
+	box5.add(reset_button);
+	box6.add(reset_button1);
+	box5.set_size_request(15,-1); 
+	box6.set_size_request(15,-1); 
 	reset_button.signal_pressed().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_reset_button_pressed));
+	reset_button1.signal_pressed().connect(
+		sigc::mem_fun(*this, &GxDialogWindowBox::on_reset_button_pressed));
+	box4.pack_start(box6,false,false,0);
 	box4.pack_start(box,true,true,0);	
 	box4.pack_end(box5,false,false,0);
 	paintbox.add(box4);

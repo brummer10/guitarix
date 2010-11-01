@@ -87,11 +87,11 @@ openHorizontalTableBox("");
                               openHorizontalTableBox("");
                               {
                                    create_smallknobr("flanger.level","  level  ");
-                                   create_smallknob("flanger.feedback gain"," feedback gain ");
+                                   create_smallknob("flanger.feedback gain"," feedback ");
                                    create_smallknob("flanger.depth","  depth  ");
                                    create_smallknob("flanger.flange delay","  delay  ");
                                    create_smallknob("flanger.flange delay offset"," delay offset");
-                                   create_smallknob("flanger.LFO freq"," LFO freq  ");
+                                   create_smallknob("flanger.LFO freq"," LFO ");
 
                               }
                               closeBox();
@@ -270,7 +270,7 @@ openHorizontalTableBox("");
                               openHorizontalTableBox("");
                               {
                                    create_smallknobr("phaser.level","  level ");
-                                   create_smallknob("phaser.feedback gain","feedback gain");
+                                   create_smallknob("phaser.feedback gain"," feedback ");
                                    create_smallknob("phaser.depth", "depth");
                                    create_smallknob("phaser.delay", "delay");
                                    create_smallknob("phaser.delay offset", "delay offset");
@@ -297,6 +297,8 @@ openHorizontalTableBox("");
                                    openSpaceBox("");
                                    closeBox();
                               }
+                              closeBox();
+                              openSpaceBox("");
                               closeBox();
                          }
                          closeBox();
