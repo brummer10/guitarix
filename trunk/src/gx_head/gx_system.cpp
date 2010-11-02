@@ -1456,6 +1456,32 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 	if (isInitialized()) {
 		get_latency_warning_change();
 		gx_gui::gx_get_skin_change(&audio.fskin);
+		
+		// save rack state when needed
+		if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::rack_widget))) {
+			gint rxorg,ryorg,rhight;
+			gtk_window_get_position (GTK_WINDOW(gx_gui::rack_widget), &rxorg, &ryorg);
+			gtk_widget_get_size_request (GTK_WIDGET(gx_gui::rack_widget),NULL, &rhight);
+			gx_gui::r_xorg = (float)rxorg;
+			gx_gui::r_yorg = (float)ryorg;
+			gx_gui::r_hight = (float)rhight;
+		}
+		
+		if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::srack_widget))) {
+			gint srxorg,sryorg,srhight;
+			gtk_window_get_position (GTK_WINDOW(gx_gui::srack_widget), &srxorg,&sryorg);
+			gtk_widget_get_size_request (GTK_WIDGET(gx_gui::srack_widget),NULL, &srhight);
+			gx_gui::sr_xorg = (float)srxorg;
+			gx_gui::sr_yorg = (float)sryorg;
+			gx_gui::sr_hight = (float)srhight;
+		}
+		
+		if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::fWindow))) {
+			gint mainxorg,mainyorg;
+			gtk_window_get_position (GTK_WINDOW(gx_gui::fWindow), &mainxorg,&mainyorg);
+			gx_gui::main_xorg = (float)mainxorg;
+			gx_gui::main_yorg = (float)mainyorg;
+		}
 
 		// only save if we are not in a preset context
 		if (!setting_is_preset && gx_jack::client) {
@@ -1471,7 +1497,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 
 	// clean jack client stuff
 	gx_jack_cleanup();
-
+	
 	// clean GTK stuff
 	if (gx_gui::fWindow) {
 		gx_destroy_event();

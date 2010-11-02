@@ -50,7 +50,7 @@ openHorizontalTableBox("");
 	//low high pass filter
 	openHorizontalOrderBox(" ", &gx_engine::audio.posit14);
      {
-		 openVerticalBox("low high pass ");
+		 openVerticalBox("l/h/filter");
           {
                openHorizontalBox("");
                {
@@ -386,7 +386,7 @@ openHorizontalTableBox("");
 //----- the compressor
      openHorizontalOrderBox("", &gx_engine::audio.posit5);
      {
-          openVerticalBox("Compressor");
+          openVerticalBox("Compr.");
           {
                openHorizontalBox("");
                {

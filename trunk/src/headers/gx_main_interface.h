@@ -409,7 +409,7 @@ public :
 			addwidget(UiRegler::create(*this, new Gxw::SmallKnob(), id, true));
 		}
 	
-		void create_smallknob_no_value(string id)
+	void create_smallknob_no_value(string id)
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, false));
 		}

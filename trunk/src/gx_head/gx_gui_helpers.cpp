@@ -214,18 +214,65 @@ void GxMainInterface::on_tuner_activate()
 		gtk_widget_hide(tuner_widget);
 	}
 }
+// save and get rack position
+int gx_set_x_oriantation()
+{
+	return (gint) gx_gui::r_xorg;
+}
+
+int gx_set_y_oriantation()
+{
+	return (gint) gx_gui::r_yorg;
+}
+
+int gx_set_w_oriantation()
+{
+	return (gint) gx_gui::r_hight;
+}
+
+int gx_set_sy_oriantation()
+{
+	return (gint) gx_gui::sr_yorg;
+}
+
+int gx_set_sx_oriantation()
+{
+	return (gint) gx_gui::sr_xorg;
+}
+
+int gx_set_sw_oriantation()
+{
+	return (gint) gx_gui::sr_hight;
+}
+
+void gx_get_oriantation(gint xorg, gint yorg, gint rhight)
+{
+	gx_gui::r_xorg = (float)xorg;
+	gx_gui::r_yorg = (float)yorg;
+	gx_gui::r_hight = (float)rhight;
+}
+
+void gx_gets_oriantation(gint xorg, gint yorg, gint srhight)
+{
+	gx_gui::sr_xorg = (float)xorg;
+	gx_gui::sr_yorg = (float)yorg;
+	gx_gui::sr_hight = (float)srhight;
+}
 
 //----menu function gx_rack
 void GxMainInterface::on_rack_activate()
 {
-	static gint rxorg = 40, ryorg =80;
+	static gint rxorg = gx_set_x_oriantation(); 
+	static gint ryorg = gx_set_y_oriantation();
+	static gint rhight = gx_set_w_oriantation();
 	if (fShowRack.get_active()) {
-		
+		gtk_widget_set_size_request (GTK_WIDGET (rack_widget), -1, rhight);
 		gtk_window_move(GTK_WINDOW(rack_widget), rxorg, ryorg);
 		gtk_widget_show(rack_widget);
 	} else {
 		gtk_window_get_position (GTK_WINDOW(rack_widget), &rxorg, &ryorg);
-		
+		gtk_widget_get_size_request (GTK_WIDGET(rack_widget),NULL, &rhight);
+		gx_get_oriantation(rxorg,ryorg,rhight);
 		gtk_widget_hide(rack_widget);
 	}
 }
@@ -233,13 +280,18 @@ void GxMainInterface::on_rack_activate()
 //----menu function gx_rack
 void GxMainInterface::on_srack_activate()
 {
-	static gint srxorg = 400, sryorg = 80;
+	static gint srxorg = gx_set_sx_oriantation(); 
+	static gint sryorg = gx_set_sy_oriantation();
+	static gint srhight = gx_set_sw_oriantation();
 	if (fShowSRack.get_active()) {
-		
+		gtk_widget_set_size_request (GTK_WIDGET (srack_widget), -1,srhight);
 		gtk_window_move(GTK_WINDOW(srack_widget), srxorg, sryorg);
 		gtk_widget_show(srack_widget);
 	} else {
 		gtk_window_get_position (GTK_WINDOW(srack_widget), &srxorg, &sryorg);
+		gtk_widget_get_size_request (GTK_WIDGET(srack_widget),NULL, &srhight);
+		
+		gx_gets_oriantation(srxorg,sryorg,srhight);
 		gtk_widget_hide(srack_widget);
 	}
 }

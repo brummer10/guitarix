@@ -38,6 +38,7 @@ static image_entry image_data[] = {
 	{ "minitoggle_on", pb_minitoggle_on },
 	{ "hslider", pb_hslider },
 	{ "smallknob", pb_smallknob1 },
+	{ "smallknobr", pb_smallknob1 },
 	{ "switchit_off", pb_switchit_off },
 	{ "switchit_on", pb_switchit_on },
 	{ "switch_off", pb_switch_off },
@@ -53,6 +54,7 @@ static image_entry image_data[] = {
 	{ "tribe", pb_tribe },
 	{ "guitar", pb_guitar },
 	{ "gxhead", pb_gxhead },
+	{ "gxhead_face", pb_gxhead_face },
 	{ NULL, NULL },
 };
 

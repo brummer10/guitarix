@@ -252,6 +252,16 @@ extern int set_knob;
 extern int mono_plugs;
 extern int stereo_plugs;
 
+/* widget orientation */
+extern float r_xorg;
+extern float r_yorg;
+extern float r_hight;
+extern float sr_xorg;
+extern float sr_yorg;
+extern float sr_hight;
+extern float main_xorg;
+extern float main_yorg;
+
 /* for level display */
 extern int meter_falloff;
 extern int meter_display_timeout;

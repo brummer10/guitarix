@@ -35,10 +35,10 @@ def build_stock_images(bld):
         "switchit_on.png",
         "switch_off.png",
         "switch_on.png",
-	"pbutton_on.png",
-	"pbutton_off.png",
-	"rbutton_on.png",
-	"rbutton_off.png",
+        "pbutton_on.png",
+        "pbutton_off.png",
+        "rbutton_on.png",
+        "rbutton_off.png",
         "vslider.png",
         "wheel_back.png",
         "wheel_fringe.png",
@@ -46,6 +46,7 @@ def build_stock_images(bld):
         "tribe.png",
         "guitar.png",
         "gxhead.png",
+        "gxhead_face.png",
         ]
 
     bld(name = "img2c",

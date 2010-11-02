@@ -278,6 +278,15 @@ sem_t               program_change_sem;
 
 int show_eq;
 
+float r_xorg;
+float r_yorg;
+float r_hight;
+float sr_xorg;
+float sr_yorg;
+float sr_hight;
+float main_xorg;
+float main_yorg;
+
 }
 
 /* ------------------------------------------------------------------------- */

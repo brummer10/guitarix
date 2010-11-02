@@ -524,48 +524,39 @@ static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	double y0      = wi->allocation.y+1;
 	double rect_width  = wi->allocation.width-2;
 	double rect_height = wi->allocation.height-2;
-
+	GdkPixbuf  *stock_image, *frame;	
+	stock_image = gtk_widget_render_icon(wi,"gxhead_face",(GtkIconSize)-1,NULL);
+	
     cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
-            cairo_set_source_rgb (cr, 0, 0, 0);
+            cairo_set_source_rgb (cr, 0.1, 0.1, 0.1);
             cairo_fill (cr);
 
-	cairo_pattern_t*pat =
-		cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
-	cairo_pattern_add_color_stop_rgba (pat, 0, 0.8, 0.8, 0.9, 0.5);
-		cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.9, 0.9, 1, 0.9);
-		cairo_pattern_add_color_stop_rgba (pat, 1, 0.8, 0.8, 0.9, 0.5);
-	cairo_set_source (cr, pat);
-	cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
-	cairo_fill (cr);
 
-    cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+    cairo_set_source_rgb(cr,  0.3, 0.3, 0.3);
     cairo_set_line_width(cr, 2.0);
     cairo_move_to(cr,x0+rect_width-3, y0+3);
     cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
     cairo_line_to(cr, x0+2, y0+rect_height-2);
     cairo_stroke(cr);
 
-    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+    cairo_set_source_rgb(cr,  0.4, 0.4, 0.4);
     cairo_set_line_width(cr, 2.0);
     cairo_move_to(cr,x0+3, y0+rect_height-1);
     cairo_line_to(cr, x0+3, y0+3);
     cairo_line_to(cr, x0+rect_width-3, y0+3);
     cairo_stroke(cr);
     
-    cairo_move_to (cr, x0, y0);
-	cairo_curve_to (cr, x0+rect_width*0.66, y0, x0+rect_width*0.33, y0+rect_height, x0+rect_width, y0+rect_height);
-	cairo_line_to (cr, x0+rect_width , y0);
-	cairo_set_line_width (cr, 3.0);
-	cairo_close_path (cr);
-
-	pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
-	cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0.5, 0.2);
-	cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
-	cairo_set_source (cr, pat);
-	cairo_fill_preserve (cr);
-	cairo_stroke (cr);
+ 
 	
-    cairo_pattern_destroy (pat);
+	frame = gdk_pixbuf_scale_simple(
+			stock_image, rect_width-8, rect_height-8, GDK_INTERP_NEAREST);
+	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	                frame, 0, 0,
+	                x0+4, y0+4, rect_width-8,rect_height-8,
+	                GDK_RGB_DITHER_NORMAL, 0, 0);
+	
+    g_object_unref(stock_image);
+	g_object_unref(frame);
 	cairo_destroy(cr);
 
 	return FALSE;

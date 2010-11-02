@@ -157,7 +157,14 @@ void AudioVariables::register_parameter()
 	// user interface options
 	registerNonMidiParam("ui.latency_nowarn", &fwarn, false, 0);
 	registerNonMidiParam("ui.skin", &fskin, false, 0, 0, 100);
-
+	registerNonMidiParam("ui.r_xorg", &gx_gui::r_xorg, true, 40,0,10000);
+	registerNonMidiParam("ui.r_yorg", &gx_gui::r_yorg, true, 80,0,10000);
+	registerNonMidiParam("ui.r_hight", &gx_gui::r_hight, true, 320,0,10000);
+	registerNonMidiParam("ui.sr_xorg", &gx_gui::sr_xorg, true, 200,0,10000);
+	registerNonMidiParam("ui.sr_yorg", &gx_gui::sr_yorg, true, 80,0,10000);
+	registerNonMidiParam("ui.sr_hight", &gx_gui::sr_hight, true, 320,0,10000);
+	registerNonMidiParam("ui.main_xorg", &gx_gui::main_xorg, true, 300,0,10000);
+	registerNonMidiParam("ui.main_yorg", &gx_gui::main_yorg, true, 300,0,10000);
 }
 
 AudioVariables audio;

@@ -112,6 +112,16 @@ bool GxMainInterface::fInitialized = false;
 static pthread_t ui_thread;
 #endif
 
+int gx_set_mx_oriantation()
+{
+	return (gint) gx_gui::main_xorg;
+}
+
+int gx_set_my_oriantation()
+{
+	return (gint) gx_gui::main_yorg;
+}
+
 GxMainInterface::GxMainInterface(const char * name):
 	fTuner(this, &gx_engine::audio.fConsta1t)
 {
@@ -128,6 +138,8 @@ GxMainInterface::GxMainInterface(const char * name):
 	gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 	gtk_window_set_title (GTK_WINDOW (fWindow), name);
 	gtk_window_set_gravity(GTK_WINDOW(fWindow), GDK_GRAVITY_NORTH_WEST);
+	
+	
 
 	/*---------------- singnals ----------------*/
 	g_signal_connect (GTK_OBJECT (fWindow), "destroy",
@@ -970,7 +982,7 @@ void GxMainInterface::openpaintampBox(const char* label)
 
 void GxMainInterface::openPaintBox1(const char* label)
 {
-	GtkWidget * box = gtk_hbox_new (homogene, 0);
+	GtkWidget * box = gtk_vbox_new (homogene, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 	//g_signal_connect(box, "expose-event", G_CALLBACK(amp_expose), NULL);
 
@@ -2214,10 +2226,7 @@ void GxMainInterface::openPlugBox(const char* label)
 	rack_widget = GTK_WIDGET(box->window.gobj());
 	box->window.set_size_request(-1,310); 
 	rBox = GTK_WIDGET(box->rbox.gobj());
-	
-			
 	pushBox(kBoxMode, GTK_WIDGET(rBox));
-	
 }
 
 void GxMainInterface::openAmpBox(const char* label)
@@ -2227,7 +2236,6 @@ void GxMainInterface::openAmpBox(const char* label)
 	srack_widget = GTK_WIDGET(box->window.gobj());
 	box->window.set_size_request(-1,310); 
 	sBox = GTK_WIDGET(box->rbox.gobj());
-	
 	pushBox(kBoxMode, GTK_WIDGET(sBox));
 }
 
@@ -3030,6 +3038,9 @@ void GxMainInterface::show()
 
 	gtk_widget_show  (fBox[0]);
 	gtk_widget_show  (fWindow);
+	gint mainxorg = gx_set_mx_oriantation(); 
+	gint mainyorg = gx_set_my_oriantation();
+	gtk_window_move(GTK_WINDOW(fWindow), mainxorg, mainyorg);
 }
 
 //---- show main GUI thread and more
