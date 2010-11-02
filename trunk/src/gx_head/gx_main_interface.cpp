@@ -34,7 +34,7 @@
 
 #include <gxwmm/paintbox.h>
 #include <gxwmm/waveview.h>
-
+#include <libgxw/gxw/GxKnob.h>
 
 using namespace gx_system;
 using namespace gx_child_process;
@@ -2338,6 +2338,15 @@ void GxMainInterface::addLiveWaveDisplay(const char* label, float* zone , float*
 	gtk_widget_hide(e_box);
 }
 
+void GxMainInterface::set_mouse_mode()
+{
+	if (fSetMouse.get_active()) {
+		gx_set_knob_jump_to_mouse(false);
+	} else {
+		gx_set_knob_jump_to_mouse(true);
+	}
+}
+
 //----------------------------- main menu ----------------------------
 void GxMainInterface::addMainMenu()
 {
@@ -2820,6 +2829,15 @@ void GxMainInterface::addOptionMenu()
 	
 	/*-- Create skin menu under Options submenu--*/
 	addGuiSkinMenu();
+	
+	set_label(fSetMouse, "set _Knobs linear");
+	fSetMouse.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_k, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fSetMouse.signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::set_mouse_mode));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSetMouse.gobj()));
+	fSetMouse.show();
+	fSetMouse.set_parameter(new SwitchParameter("system.set_mouse"));
 
 	/*-- create option for saving midi controller settings in presets --*/
 	set_label(fMidiInPreset, "Include MIDI in _presets");

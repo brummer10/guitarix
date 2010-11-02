@@ -260,6 +260,7 @@ private:
 	void on_tuner_activate();
 	void on_rack_activate();
 	void on_srack_activate();
+	void set_mouse_mode();
 	void on_show_oscilloscope();
 	bool on_refresh_oscilloscope();
 
@@ -287,6 +288,7 @@ protected :
 	MenuCheckItem       fShowRack;
 	MenuCheckItem       fShowSRack;
 	MenuCheckItem       fShowWaveView;
+	MenuCheckItem       fSetMouse;
 #ifdef EXPERIMENTAL
 	MenuCheckItem       fShowExpWindow;
 #endif
