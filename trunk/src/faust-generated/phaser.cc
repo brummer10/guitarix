@@ -118,7 +118,7 @@ void compute(int count, float *input0, float *input1, float *output0, float *out
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	static const char *fcheckbox1_values[] = {"invert","linear",0};
+	static const char *fcheckbox1_values[] = {"linear","invert",0};
 	registerEnumVar("phaser.invert","","B","",fcheckbox1_values,&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
 	static const char *fcheckbox0_values[] = {"direct "," vibrato",0};
 	registerEnumVar("phaser.VibratoMode","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);

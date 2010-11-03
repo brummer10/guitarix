@@ -55,7 +55,7 @@ with {
   fratio = hslider("NotchFreq", 1.5, 1.1, 4, 0.01);
   mdepth = select2(vibr,depth,2); 
   
-  invert   = checkbox("invert[enum:invert|linear]");
+  invert   = checkbox("invert[enum:linear|invert]");
   level	 = hslider("level [unit:dB]", 0, -60, 10, 0.1) : db2linear;
   
 };
