@@ -76,6 +76,7 @@ const char *pb_slooper_expose =              "slooper_expose";
 const char *pb_zac_expose =                  "zac_expose";
 const char *pb_gxhead_expose =               "gxhead_expose";
 const char *pb_RackBox_expose =              "RackBox_expose";
+const char *pb_gxrack_expose =               "gxrack_expose";
 
 /****************************************************************
  ** format controller values
@@ -1135,6 +1136,7 @@ struct uiSwitchDISTBox : public gx_ui::GxUiItemFloat
 				gx_engine::audio.fdis1 = 0;
                 gtk_widget_show(box0);
 			}
+			g_list_free(child_list);
 		}
 };
 
@@ -1172,6 +1174,7 @@ struct uiSwitchEQBox : public gx_ui::GxUiItemFloat
                 gtk_widget_show(box0);
 			}
 			}
+			g_list_free(child_list);
 		}
 };
 
@@ -1209,6 +1212,7 @@ struct uiSwitchAMPBox : public gx_ui::GxUiItemFloat
                 gtk_widget_show(box0);
 			}
 			}
+			g_list_free(child_list);
 		}
 };
 
@@ -1938,7 +1942,7 @@ public:
 	Gtk::Button reset_button;
 	Gtk::Button reset_button1;
 	Gtk::ToggleButton& dialog_button;
-	GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog, Parameter& param_switch, Gtk::ToggleButton& button,GtkWidget * Caller);
+	GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk, Parameter& param_dialog, Parameter& param_switch, Gtk::ToggleButton& button,GtkWidget * Caller);
 	~GxDialogWindowBox();
 };
 
@@ -1960,7 +1964,7 @@ void GxDialogWindowBox::on_reset_button_pressed()
 	gx_reset_units(group_id);
 }
 
-GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog,
+GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui,const char *expose_funk, Parameter& param_dialog,
                                      Parameter& param_switch, Gtk::ToggleButton& button,GtkWidget * Caller):
 	
 	box(false, 0),
@@ -1975,7 +1979,7 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog,
 	box4.set_border_width(2);
 	box5.set_border_width(4);
 	box6.set_border_width(4);
-	paintbox.property_paint_func() = pb_RackBox_expose;
+	paintbox.property_paint_func() = expose_funk;
 	//Pango::FontDescription font = label.get_style()->get_font();
 	//font.set_size(10*Pango::SCALE);
 	//font.set_weight(Pango::WEIGHT_NORMAL);
@@ -2003,7 +2007,7 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, Parameter& param_dialog,
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
 }
 
-void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch)
+void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk )
 {
 	Parameter& param_dialog = parameter_map[id_dialog];
 	Parameter& param_switch = parameter_map[id_switch];
@@ -2012,13 +2016,14 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(rBox));
 	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,mono_plugs);
 	mono_plugs++;
+	g_list_free(child_list);
 	gtk_box_pack_end (GTK_BOX(child),GTK_WIDGET(bbox->box.gobj()) , false, false, 0);
-	GxDialogWindowBox *dialog = new GxDialogWindowBox(*this, param_dialog, param_switch, bbox->show_dialog, rack_widget);
+	GxDialogWindowBox *dialog = new GxDialogWindowBox(*this, expose_funk, param_dialog, param_switch, bbox->show_dialog, rack_widget);
 	gtk_box_pack_start (GTK_BOX(child),GTK_WIDGET(dialog->paintbox.gobj()) , true, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(dialog->box.gobj()));
 }
 
-void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switch)
+void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk )
 {
 	Parameter& param_dialog = parameter_map[id_dialog];
 	Parameter& param_switch = parameter_map[id_switch];
@@ -2027,8 +2032,9 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(sBox));
 	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,stereo_plugs);
 	stereo_plugs++;
+	g_list_free(child_list);
 	gtk_box_pack_end (GTK_BOX(child),GTK_WIDGET(bbox->box.gobj()) , false, false, 0);
-	GxDialogWindowBox *bdialog = new GxDialogWindowBox(*this, param_dialog, param_switch, bbox->show_dialog, srack_widget);
+	GxDialogWindowBox *bdialog = new GxDialogWindowBox(*this, expose_funk, param_dialog, param_switch, bbox->show_dialog, srack_widget);
 	gtk_box_pack_start (GTK_BOX(child),GTK_WIDGET(bdialog->paintbox.gobj()) , true, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(bdialog->box.gobj()));
 }
@@ -2074,6 +2080,7 @@ struct uiPatchDisplay : public gx_ui::GxUiItemFloat
                     fCache = *fZone;
                 }
             }
+            g_list_free(child_list);
 		}
 };
 
@@ -2148,10 +2155,10 @@ private:
 public:
 	Gtk::Window window;
 	Gtk::ScrolledWindow           m_scrolled_window; 
-	Gxw::PaintBox paintbox;
+	Gtk::HBox box;
 	Gxw::PaintBox paintbox1;
 	Gtk::VBox rbox;
-	GxWindowBox(gx_ui::GxUI& ui,const char *pb_1, 
+	GxWindowBox(gx_ui::GxUI& ui, 
 		const char *pb_2, Glib::ustring titl,GtkWidget * d);
 	~GxWindowBox();
 };
@@ -2174,7 +2181,7 @@ void GxWindowBox::on_check_resize()
 }
 
 GxWindowBox::GxWindowBox(gx_ui::GxUI& ui, 
-	const char *pb_1, const char *pb_2, Glib::ustring titl,GtkWidget * d):
+	const char *pb_2, Glib::ustring titl,GtkWidget * d):
 	window(Gtk::WINDOW_TOPLEVEL),
 	rbox(false, 4)
 {
@@ -2191,21 +2198,20 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 	window.property_destroy_with_parent() = true;
 	
 	m_scrolled_window.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_AUTOMATIC); 
-	paintbox1.set_border_width(12);
-	paintbox.set_border_width(6);
-	paintbox.property_paint_func() = pb_1;
+	paintbox1.set_border_width(18);
+	
 	paintbox1.property_paint_func() = pb_2;
 	window.signal_delete_event().connect(
 		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxWindowBox::on_window_delete_event),d));
-	paintbox.add(rbox);
-	paintbox1.add(paintbox);
+	box.add(rbox);
+	paintbox1.add(box);
 	m_scrolled_window.add(paintbox1);
 	window.add(m_scrolled_window);
 	window.signal_check_resize().connect(
 		sigc::mem_fun(*this, &GxWindowBox::on_check_resize));
 	
 	paintbox1.show();
-	paintbox.show();
+	box.show();
 	m_scrolled_window.show();
 	rbox.show();
 }
@@ -2213,16 +2219,16 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 void GxMainInterface::addNumDisplay()
 {
 	GxWindowBox *box =  new GxWindowBox(*this, 
-		pb_AmpBox_expose, pb_gxhead_expose, "tuner", GTK_WIDGET(fShowTuner.gobj()));
+		pb_gxrack_expose, "tuner", GTK_WIDGET(fShowTuner.gobj()));
 	box->rbox.add(fTuner);
-	box->window.set_size_request(-1,140); 
+	box->window.set_size_request(200,140); 
 	tuner_widget = GTK_WIDGET(box->window.gobj());
 }
 
 void GxMainInterface::openPlugBox(const char* label)
 {
 	GxWindowBox *box =  new GxWindowBox(*this, 
-		pb_AmpBox_expose, pb_gxhead_expose, label, GTK_WIDGET(fShowRack.gobj()));
+		pb_gxrack_expose, label, GTK_WIDGET(fShowRack.gobj()));
 	rack_widget = GTK_WIDGET(box->window.gobj());
 	box->window.set_size_request(-1,310); 
 	rBox = GTK_WIDGET(box->rbox.gobj());
@@ -2232,7 +2238,7 @@ void GxMainInterface::openPlugBox(const char* label)
 void GxMainInterface::openAmpBox(const char* label)
 {
 	GxWindowBox *box =  new GxWindowBox(*this, 
-		pb_AmpBox_expose, pb_gxhead_expose, label, GTK_WIDGET(fShowSRack.gobj()));
+		pb_gxrack_expose, label, GTK_WIDGET(fShowSRack.gobj()));
 	srack_widget = GTK_WIDGET(box->window.gobj());
 	box->window.set_size_request(-1,310); 
 	sBox = GTK_WIDGET(box->rbox.gobj());

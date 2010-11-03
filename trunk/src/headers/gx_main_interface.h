@@ -342,6 +342,8 @@ public :
 	void openVerticalMidiBox(const char* label = "");
 	void openDialogBox(const char *id_dialog, const char *id_switch);
 	void opensDialogBox(const char *id_dialog, const char *id_switch);
+	void openDialogBox(const char *id_dialog, const char *id_switch,const char *expose_funk);
+	void opensDialogBox(const char *id_dialog, const char *id_switch,const char *expose_funk);
 	void openPatchInfoBox(float* zone);
 	void openWarningBox(const char* label, float* zone);
 	void openEventBox(const char* label = "");

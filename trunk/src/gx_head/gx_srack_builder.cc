@@ -41,7 +41,7 @@ openHorizontalTableBox("");
                     }
                     closeBox();
                     
-                    opensDialogBox("chorus.dialog", "chorus.on_off");
+                    opensDialogBox("chorus.dialog", "chorus.on_off","RackBox_expose");
                     {
 
                          openVerticalBox("");
@@ -79,7 +79,7 @@ openHorizontalTableBox("");
 						create_switch_no_caption(sw_switchit, "flanger.on_off");
                     }
 					closeBox();
-                    opensDialogBox("flanger.dialog", "flanger.on_off");
+                    opensDialogBox("flanger.dialog", "flanger.on_off","RackBox_expose");
                     {
 
                          openVerticalBox("");
@@ -142,7 +142,7 @@ openHorizontalTableBox("");
 						create_switch_no_caption(sw_switchit, "moog.on_off");
                     }
 					closeBox();
-                    opensDialogBox("moog.dialog", "moog.on_off");
+                    opensDialogBox("moog.dialog", "moog.on_off","RackBox_expose");
                     {
 
                          openVerticalBox("");
@@ -178,7 +178,7 @@ openHorizontalTableBox("");
 						create_switch_no_caption(sw_switchit, "stereodelay.on_off");
                     }
 					closeBox();
-                    opensDialogBox("stereodelay.dialog", "stereodelay.on_off");
+                    opensDialogBox("stereodelay.dialog", "stereodelay.on_off","RackBox_expose");
                     {
 
                          openVerticalBox("");
@@ -226,7 +226,7 @@ openHorizontalTableBox("");
 						create_switch_no_caption(sw_switchit, "stereoecho.on_off");
                     }
 					closeBox();
-                    opensDialogBox("stereoecho.dialog", "stereoecho.on_off");
+                    opensDialogBox("stereoecho.dialog", "stereoecho.on_off","RackBox_expose");
                     {
 
                          openVerticalBox("");
@@ -263,7 +263,7 @@ openHorizontalTableBox("");
 						create_switch_no_caption(sw_switchit, "phaser.on_off");
                     }
                     closeBox();
-                    opensDialogBox("phaser.dialog", "phaser.on_off");
+                    opensDialogBox("phaser.dialog", "phaser.on_off","RackBox_expose");
                     {
                          openVerticalBox("");
                          {

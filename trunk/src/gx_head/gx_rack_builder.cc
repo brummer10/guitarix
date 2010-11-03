@@ -61,7 +61,7 @@ openHorizontalTableBox("");
                     }
                     closeBox();
 				 
-                    openDialogBox("low_high_pass.dialog", "low_highpass.on_off");
+                    openDialogBox("low_high_pass.dialog", "low_highpass.on_off","RackBox_expose");
                     {
 						openHorizontalBox("");
                         {
@@ -109,7 +109,7 @@ openHorizontalTableBox("");
                     }
 					closeBox();
 					
-					openDialogBox("eqs.dialog", "eqs.on_off");
+					openDialogBox("eqs.dialog", "eqs.on_off","RackBox_expose");
                     {
 						openVerticalBox("");
 						{
@@ -180,7 +180,7 @@ openHorizontalTableBox("");
                     }
 					closeBox();
 		
-                    openDialogBox("crybaby.dialog", "crybaby.on_off");
+                    openDialogBox("crybaby.dialog", "crybaby.on_off","RackBox_expose");
                     {
 
 
@@ -243,7 +243,7 @@ openHorizontalTableBox("");
                     }
 					closeBox();
 
-                    openDialogBox("gx_distortion.dialog", "gx_distortion.on_off");
+                    openDialogBox("gx_distortion.dialog", "gx_distortion.on_off","RackBox_expose");
                     {
                          openHorizontalBox("");
                          {
@@ -338,7 +338,7 @@ openHorizontalTableBox("");
                     }
                     closeBox();
                     
-                    openDialogBox("IR.dialog", "IR.on_off");
+                    openDialogBox("IR.dialog", "IR.on_off","RackBox_expose");
                     {
 
                          openVerticalBox1("");
@@ -396,7 +396,7 @@ openHorizontalTableBox("");
 						create_selector("compressor.pp");
                     }
 					closeBox();
-                    openDialogBox("compressor.dialog", "compressor.on_off");
+                    openDialogBox("compressor.dialog", "compressor.on_off","RackBox_expose");
                     {
                          openFrameBox("");
                          closeBox();
@@ -440,7 +440,7 @@ openHorizontalTableBox("");
 						create_selector("overdrive.pp");
                     }
                     closeBox();
-                    openDialogBox("overdrive.dialog", "overdrive.on_off");
+                    openDialogBox("overdrive.dialog", "overdrive.on_off","RackBox_expose");
                     {
                          openHorizontalTableBox("");
                          {
@@ -474,7 +474,7 @@ openHorizontalTableBox("");
                     }
                     closeBox();
                     
-                    openDialogBox("echo.dialog", "echo.on_off");
+                    openDialogBox("echo.dialog", "echo.on_off","RackBox_expose");
                     {
                          openVerticalBox("");
                          {
@@ -511,7 +511,7 @@ openHorizontalTableBox("");
                     }
 					closeBox();
 
-                    openDialogBox("delay.dialog", "delay.on_off");
+                    openDialogBox("delay.dialog", "delay.on_off","RackBox_expose");
                     {
                          openVerticalBox("");
                          {
@@ -547,7 +547,7 @@ openHorizontalTableBox("");
 						create_selector("freeverb.pp");
                     }
                     closeBox();
-                    openDialogBox("freeverb.dialog", "freeverb.on_off");
+                    openDialogBox("freeverb.dialog", "freeverb.on_off","RackBox_expose");
                     {
 
                          openFrameBox("");

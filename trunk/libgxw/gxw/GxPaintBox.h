@@ -42,6 +42,7 @@ struct _GxPaintBox {
 struct _GxPaintBoxClass {
 	GtkAlignmentClass parent_class;
 	GdkPixbuf *gxh_image;
+	GdkPixbuf *gxr_image;
 };
 
 GType gx_paint_box_get_type(void) G_GNUC_CONST;
