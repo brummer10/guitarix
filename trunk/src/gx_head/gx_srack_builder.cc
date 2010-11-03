@@ -288,6 +288,7 @@ openHorizontalTableBox("");
                                    create_selector("phaser.invert");
                                    openSpaceBox("");
                                    closeBox();
+                                   create_selector("phaser.VibratoMode");
                                    openSpaceBox("");
                                    closeBox();
                                    openSpaceBox("");

@@ -41,7 +41,7 @@ phaser_stereo(Notches,width,frqmin,fratio,frqmax,speed,depth,fb,invert)
    = phaser2_mono(Notches,0,width,frqmin,fratio,frqmax,speed,depth,fb,invert),
      phaser2_mono(Notches,1,width,frqmin,fratio,frqmax,speed,depth,fb,invert);
 
-phaser_stereogx = *(level),*(level) : phaser_stereo(Notches,width,frqmin,fratio,frqmax,freq,depth,fb,invert)
+phaser_stereogx = *(level),*(level) : phaser_stereo(Notches,width,frqmin,fratio,frqmax,freq,mdepth,fb,invert)
 with {
   Notches = 4;
   freq  = hslider("Speed [unit:Hz] ", 0.5, 0, 10, 0.01);
@@ -49,12 +49,12 @@ with {
   depth	 = hslider("depth", 1, 0, 1, 0.01);
   fb	 = hslider("feedback gain", 0, 0, 1, 0.01);
   width  = hslider("Notch width [unit:Hz]", 1000, 10, 5000, 1);
-  
+  vibr   = checkbox("VibratoMode[enum:direct | vibrato]");
   frqmin = hslider("MinNotch1Freq [unit:Hz] ", 100, 20, 5000, 1);
   frqmax = hslider("MaxNotch1Freq [unit:Hz] ", 800, 20, 10000, 1) : max(frqmin);
   fratio = hslider("NotchFreq", 1.5, 1.1, 4, 0.01);
   mdepth = select2(vibr,depth,2); 
-  vibr   = checkbox("VibratoMode[enum:vibrato|linear]");
+  
   invert   = checkbox("invert[enum:invert|linear]");
   level	 = hslider("level [unit:dB]", 0, -60, 10, 0.1) : db2linear;
   
