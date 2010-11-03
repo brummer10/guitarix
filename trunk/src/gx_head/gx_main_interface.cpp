@@ -651,8 +651,10 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	gtk_widget_set_size_request (GTK_WIDGET(button), 20, 15);
 	gtk_widget_set_size_request (GTK_WIDGET(button1), 20, 15);
 
-	gtk_widget_set_name (lw,"effekt_label");
-	gtk_widget_set_name (lw1,"effekt_label");
+	gtk_widget_set_name (lw,"rack_label");
+	gtk_widget_set_name (lw1,"rack_label");
+	gtk_widget_set_name (button,"effect_reset");
+	gtk_widget_set_name (button1,"effect_reset");
 	GtkStyle *style = gtk_widget_get_style(lw);
 	pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
@@ -709,8 +711,10 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 	gtk_widget_set_size_request (GTK_WIDGET(button), 20, 15);
 	gtk_widget_set_size_request (GTK_WIDGET(button1), 20, 15);
 
-	gtk_widget_set_name (lw,"effekt_label");
-	gtk_widget_set_name (lw1,"effekt_label");
+	gtk_widget_set_name (lw,"rack_label");
+	gtk_widget_set_name (lw1,"rack_label");
+	gtk_widget_set_name (button,"effect_reset");
+	gtk_widget_set_name (button1,"effect_reset");
 	GtkStyle *style = gtk_widget_get_style(lw);
 	pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
@@ -841,7 +845,7 @@ void GxMainInterface::openVerticalBox(const char* label)
 		GtkWidget* lw = gtk_label_new(label);
 
 
-		gtk_widget_set_name (lw,"beffekt_label");
+		gtk_widget_set_name (lw,"rack_label");
 		GtkStyle *style = gtk_widget_get_style(lw);
 		pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
 		pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
@@ -1739,6 +1743,37 @@ GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, str
 	return (new UiReglerWithCaption(ui, parameter_map[id].getFloat(), regler, label, show_value))->get_widget();
 }
 
+GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id)
+{
+	if (!parameter_map.hasId(id)) {
+		return 0;
+	}
+	return create(ui, regler, id, parameter_map[id].name());
+}
+
+GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, Glib::ustring label)
+{
+	if (!parameter_map.hasId(id)) {
+		return 0;
+	}
+	return (new UiRackReglerWithCaption(ui, parameter_map[id].getFloat(), regler, label))->get_widget();
+}
+
+GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id)
+{
+	if (!parameter_map.hasId(id)) {
+		return 0;
+	}
+	return create(ui, regler, id, parameter_map[id].name());
+}
+
+GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, Glib::ustring label)
+{
+	if (!parameter_map.hasId(id)) {
+		return 0;
+	}
+	return (new UiRackRegler(ui, parameter_map[id].getFloat(), regler, label))->get_widget();
+}
 UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
                                          Glib::ustring label, bool show_value):
 	UiRegler(ui, param, regler, show_value)
@@ -1747,6 +1782,27 @@ UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param,
 	m_label.set_name("effekt_label");
 	m_box.set_name(param.id());
 	m_box.pack_start(m_label, Gtk::PACK_SHRINK);
+	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
+	m_box.show_all();
+}
+
+UiRackReglerWithCaption::UiRackReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
+                                         Glib::ustring label):
+	UiRegler(ui, param, regler, true)
+{
+	m_label.set_text(label);
+	m_label.set_name("rack_label");
+	m_box.set_name(param.id());
+	m_box.pack_start(m_label, Gtk::PACK_SHRINK);
+	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
+	m_box.show_all();
+}
+
+UiRackRegler::UiRackRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
+                                         Glib::ustring label):
+	UiRegler(ui, param, regler, true)
+{
+	m_box.set_name(param.id());
 	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
 	m_box.show_all();
 }

@@ -161,7 +161,34 @@ private:
 public:
 	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value);
 	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, Glib::ustring label, bool show_value);
+	
 	UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, Glib::ustring label, bool show_value);
+	GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
+};
+
+class UiRackReglerWithCaption: public UiRegler
+{
+private:
+	Gtk::Label m_label;
+	Gtk::VBox m_box;
+public:
+	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id);
+	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, Glib::ustring label);
+	
+	UiRackReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, Glib::ustring label);
+	GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
+};
+
+class UiRackRegler: public UiRegler
+{
+private:
+	Gtk::Label m_label;
+	Gtk::VBox m_box;
+public:
+	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id);
+	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, Glib::ustring label);
+	
+	UiRackRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, Glib::ustring label);
 	GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
 };
 
@@ -413,6 +440,15 @@ public :
 			addwidget(UiRegler::create(*this, new Gxw::SmallKnob(), id, true));
 		}
 	
+	void create_small_rackknob(string id)
+		{
+			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::SmallKnob(), id));
+		}
+	void create_small_rackknob(string id, Glib::ustring label)
+		{
+			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, label));
+		}
+	
 	void create_smallknob_no_value(string id)
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, false));
@@ -434,6 +470,16 @@ public :
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id, label, true));
 		}
+		
+	void create_small_rackknobr(string id)
+		{
+			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id));
+		}
+	void create_small_rackknobr(string id, Glib::ustring label)
+		{
+			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id, label));
+		}
+		
 	void create_smallknobr_no_caption(string id)
 		{
 			addwidget(UiRegler::create(*this, new Gxw::SmallKnobR(), id, true));
@@ -466,6 +512,24 @@ public :
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label, show_value));
 		}
+		//rack
+	void create_eq_rackslider_no_caption(string id)
+		{
+			addwidget(UiRackRegler::create(*this, new Gxw::EqSlider(), id));
+		}
+	void create_eq_rackslider(string id)
+		{
+			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::EqSlider(), id));
+		}
+	void create_eq_rackslider(string id, Glib::ustring label)
+		{
+			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label));
+		}
+	void create_eq_rackslider(string id, const char *label)
+		{
+			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label));
+		}
+		
 	void create_spin_value(string id)
 		{
 			addwidget(UiRegler::create(*this, new Gxw::ValueDisplay(), id, true));

@@ -68,8 +68,8 @@ openHorizontalTableBox("");
 							
 								openHorizontalBox("");
 								{
-									create_smallknob("low_high_pass.low_highpass.high_freq","high-pass ");
-									create_smallknob("low_high_pass.low_highpass.low_freq"," low-pass ");
+									create_small_rackknob("low_high_pass.low_highpass.high_freq","high-pass ");
+									create_small_rackknob("low_high_pass.low_highpass.low_freq"," low-pass ");
 									create_switch_no_caption(sw_switchit, "low_high_pass.low_highpass.on_off");
 								}
 								closeBox();
@@ -79,8 +79,8 @@ openHorizontalTableBox("");
 							
 								openHorizontalBox("");
 								{
-									create_smallknob("low_high_pass.low_highcutoff.low_freq"," low-cut ");
-									create_smallknob("low_high_pass.low_highcutoff.high_freq","high-cut ");
+									create_small_rackknob("low_high_pass.low_highcutoff.low_freq"," low-cut ");
+									create_small_rackknob("low_high_pass.low_highcutoff.high_freq","high-cut ");
 									create_switch_no_caption(sw_switchit, "low_high_pass.low_highcutoff.on_off");
 								}
 								closeBox();
@@ -129,30 +129,30 @@ openHorizontalTableBox("");
 							 closeBox();
 							 openHorizontalTableBox("");
 							 {
-								  create_eqslider_no_caption("eqs.fs31_25");
-								  create_eqslider_no_caption("eqs.fs62_5");
-								  create_eqslider_no_caption("eqs.fs125");
-								  create_eqslider_no_caption("eqs.fs250");
-								  create_eqslider_no_caption("eqs.fs500");
-								  create_eqslider_no_caption("eqs.fs1k");
-								  create_eqslider_no_caption("eqs.fs2k");
-								  create_eqslider_no_caption("eqs.fs4k");
-								  create_eqslider_no_caption("eqs.fs8k");
-								  create_eqslider_no_caption("eqs.fs16k");
+								  create_eq_rackslider_no_caption("eqs.fs31_25");
+								  create_eq_rackslider_no_caption("eqs.fs62_5");
+								  create_eq_rackslider_no_caption("eqs.fs125");
+								  create_eq_rackslider_no_caption("eqs.fs250");
+								  create_eq_rackslider_no_caption("eqs.fs500");
+								  create_eq_rackslider_no_caption("eqs.fs1k");
+								  create_eq_rackslider_no_caption("eqs.fs2k");
+								  create_eq_rackslider_no_caption("eqs.fs4k");
+								  create_eq_rackslider_no_caption("eqs.fs8k");
+								  create_eq_rackslider_no_caption("eqs.fs16k");
 							 }
 							 closeBox();
 							 openHorizontalTableBox("");
 							 {
-								  create_smallknob("eqs.Qs31_25","Q");
-								  create_smallknob("eqs.Qs62_5","Q");
-								  create_smallknob("eqs.Qs125","Q");
-								  create_smallknob("eqs.Qs250","Q");
-								  create_smallknob("eqs.Qs500","Q");
-								  create_smallknob("eqs.Qs1k","Q");
-								  create_smallknob("eqs.Qs2k","Q");
-								  create_smallknob("eqs.Qs4k","Q");
-								  create_smallknob("eqs.Qs8k","Q");
-								  create_smallknob("eqs.Qs16k","Q");
+								  create_small_rackknob("eqs.Qs31_25","Q");
+								  create_small_rackknob("eqs.Qs62_5","Q");
+								  create_small_rackknob("eqs.Qs125","Q");
+								  create_small_rackknob("eqs.Qs250","Q");
+								  create_small_rackknob("eqs.Qs500","Q");
+								  create_small_rackknob("eqs.Qs1k","Q");
+								  create_small_rackknob("eqs.Qs2k","Q");
+								  create_small_rackknob("eqs.Qs4k","Q");
+								  create_small_rackknob("eqs.Qs8k","Q");
+								  create_small_rackknob("eqs.Qs16k","Q");
 							 }
 							 closeBox();
 						}
@@ -188,11 +188,11 @@ openHorizontalTableBox("");
                          {
                               openHorizontalTableBox("");
                               {
-                                   create_smallknobr("crybaby.wah","  wah   ");
+                                   create_small_rackknobr("crybaby.wah","  wah   ");
                                    
-                                   create_smallknob("crybaby.level","  level  ");
+                                   create_small_rackknob("crybaby.level","  level  ");
                                   
-                                   create_smallknob("crybaby.wet_dry","  dry/wet  ");
+                                   create_small_rackknob("crybaby.wet_dry","  dry/wet  ");
                                    
 
                               }
@@ -253,9 +253,9 @@ openHorizontalTableBox("");
                                    {
                                         openVerticalBox1("");
                                         {
-                                             create_smallknobr("gx_distortion.drive","  drive ");
-                                             create_smallknob("gx_distortion.level","  level  ");
-                                             create_smallknob("gx_distortion.gain","  gain  ");
+                                             create_small_rackknobr("gx_distortion.drive","  drive ");
+                                             create_small_rackknob("gx_distortion.level","  level  ");
+                                             create_small_rackknob("gx_distortion.gain","  gain  ");
                                         }
                                         closeBox();
                                         openVerticalBox1("");
@@ -264,26 +264,26 @@ openHorizontalTableBox("");
                                              {
                                                   openVerticalBox1("");
                                                   {
-                                                       create_smallknobr("gx_distortion.low_drive"," low drive ");
-                                                       create_smallknob("gx_distortion.low_gain"," low gain ");
+                                                       create_small_rackknobr("gx_distortion.low_drive"," low drive ");
+                                                       create_small_rackknob("gx_distortion.low_gain"," low gain ");
                                                   }
                                                   closeBox();
                                                   openVerticalBox1("");
                                                   {
-                                                       create_smallknobr("gx_distortion.middle_l_drive"," m. low drive ");
-                                                       create_smallknob("gx_distortion.middle_l_gain"," m. low gain ");
+                                                       create_small_rackknobr("gx_distortion.middle_l_drive"," m. low drive ");
+                                                       create_small_rackknob("gx_distortion.middle_l_gain"," m. low gain ");
                                                   }
                                                   closeBox();
                                                   openVerticalBox1("");
                                                   {
-                                                       create_smallknobr("gx_distortion.middle_h_drive"," m. high drive ");
-                                                       create_smallknob("gx_distortion.middle_h_gain"," m. high gain ");
+                                                       create_small_rackknobr("gx_distortion.middle_h_drive"," m. high drive ");
+                                                       create_small_rackknob("gx_distortion.middle_h_gain"," m. high gain ");
                                                   }
                                                   closeBox();
                                                   openVerticalBox1("");
                                                   {
-                                                       create_smallknobr("gx_distortion.high_drive"," high drive ");
-                                                       create_smallknob("gx_distortion.high_gain"," high gain ");
+                                                       create_small_rackknobr("gx_distortion.high_drive"," high drive ");
+                                                       create_small_rackknob("gx_distortion.high_gain"," high gain ");
                                                   }
                                                   closeBox();
                                              }
@@ -309,8 +309,8 @@ openHorizontalTableBox("");
                
 							   openVerticalBox("resonator");
 							   {
-									create_smallknob("gx_distortion.trigger","trigger ");
-									create_smallknob("gx_distortion.vibrato"," vibrato ");
+									create_small_rackknob("gx_distortion.trigger","trigger ");
+									create_small_rackknob("gx_distortion.vibrato"," vibrato ");
 									create_switch_no_caption(sw_switchit, "gx_distortion.resonator.on_off");
 							   }
 							   closeBox(); 
@@ -348,9 +348,9 @@ openHorizontalTableBox("");
                                    
                                    openHorizontalTableBox("");
                                    {
-                                        create_smallknob("IR.freq"," freq ");
-                                        create_smallknob("IR.peak"," peak ");
-                                        create_smallknob("IR.bandwidth"," bandwidth ");
+                                        create_small_rackknob("IR.freq"," freq ");
+                                        create_small_rackknob("IR.peak"," peak ");
+                                        create_small_rackknob("IR.bandwidth"," bandwidth ");
                                    }
                                    closeBox();
 
@@ -405,13 +405,13 @@ openHorizontalTableBox("");
                          
                               openHorizontalTableBox("");
                               {
-                                   create_smallknob("compressor.knee");
-                                   create_smallknobr("compressor.ratio");
-                                   create_smallknob("compressor.threshold");
+                                   create_small_rackknob("compressor.knee");
+                                   create_small_rackknobr("compressor.ratio");
+                                   create_small_rackknob("compressor.threshold");
                               
                               
-                                   create_smallknob("compressor.attack");
-                                   create_smallknob("compressor.release");
+                                   create_small_rackknob("compressor.attack");
+                                   create_small_rackknob("compressor.release");
                               }
                               closeBox();
                          
@@ -447,7 +447,7 @@ openHorizontalTableBox("");
 
                               openSpaceBox("");
                               closeBox();
-                              create_smallknobr("overdrive.drive","  drive ");
+                              create_small_rackknobr("overdrive.drive","  drive ");
                               openSpaceBox("");
                               closeBox();
                          }
@@ -481,9 +481,9 @@ openHorizontalTableBox("");
                               openHorizontalTableBox("");
                               {
 
-                                   create_smallknobr("echo.time","  time  ");
+                                   create_small_rackknobr("echo.time","  time  ");
 
-                                   create_smallknob("echo.percent","    %    ");
+                                   create_small_rackknob("echo.percent","    %    ");
                               }
                               closeBox();
                          }
@@ -518,9 +518,9 @@ openHorizontalTableBox("");
                               openHorizontalTableBox("");
                               {
 
-                                   create_smallknobr("delay.delay"," delay ");
+                                   create_small_rackknobr("delay.delay"," delay ");
 
-                                   create_smallknob("delay.gain","  gain ");
+                                   create_small_rackknob("delay.gain","  gain ");
                               }
                               closeBox();
                          }
@@ -556,9 +556,9 @@ openHorizontalTableBox("");
                          closeBox();
                          openHorizontalTableBox("");
                          {
-                              create_smallknobr("freeverb.RoomSize");
-                              create_smallknob("freeverb.damp");
-                              create_smallknob("freeverb.wet_dry", "dry/wet");
+                              create_small_rackknobr("freeverb.RoomSize");
+                              create_small_rackknob("freeverb.damp");
+                              create_small_rackknob("freeverb.wet_dry", "dry/wet");
                          }
                          closeBox();
                          openFrameBox("");

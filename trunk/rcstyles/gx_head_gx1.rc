@@ -32,7 +32,7 @@ style "gx_head"
   GtkButton::button_relief = GTK_RELIEF_NONE
 
 
-  fg[NORMAL] = { 0.10, 0.10, 0.10 }
+  fg[NORMAL] = { 0., 0., 0. }
   fg[ACTIVE] = { 1.0, 1.0, 1.0 }
   fg[PRELIGHT] = { 0.90, 0.90, 0.90 }
   fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }
@@ -192,9 +192,21 @@ style "gx_head-b_black"
   fg[SELECTED] = { 0.8, 0.8, 0.8 }
   font_name = "sans 9"
 }
+
+style "gx_head-rack"
+{
+  fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
+  fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+  font_name = "URW Chancery L Medium Italic 12"
+}
+
 widget "*.effekt_label" style:highest "gx_head-v_black"
 widget "*.value_label" style:highest "gx_head-l_black"
 widget "*.beffekt_label" style:highest "gx_head-b_black"
+widget "*.rack_label" style:highest "gx_head-rack"
 
 
 style "h_style"

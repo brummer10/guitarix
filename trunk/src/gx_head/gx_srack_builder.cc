@@ -48,10 +48,10 @@ openHorizontalTableBox("");
                          {
                               openHorizontalTableBox("");
                               {
-                                   create_smallknobr("chorus.level","  level  ");
-                                   create_smallknob("chorus.delay","  delay  ");
-                                   create_smallknob("chorus.depth","  depth  ");
-                                   create_smallknob("chorus.freq","  freq  ");
+                                   create_small_rackknobr("chorus.level","  level  ");
+                                   create_small_rackknob("chorus.delay","  delay  ");
+                                   create_small_rackknob("chorus.depth","  depth  ");
+                                   create_small_rackknob("chorus.freq","  freq  ");
                               }
                               closeBox();
                          }
@@ -86,12 +86,12 @@ openHorizontalTableBox("");
                          {
                               openHorizontalTableBox("");
                               {
-                                   create_smallknobr("flanger.level","  level  ");
-                                   create_smallknob("flanger.feedback gain"," feedback ");
-                                   create_smallknob("flanger.depth","  depth  ");
-                                   create_smallknob("flanger.flange delay","  delay  ");
-                                   create_smallknob("flanger.flange delay offset"," delay offset");
-                                   create_smallknob("flanger.LFO freq"," LFO ");
+                                   create_small_rackknobr("flanger.level","  level  ");
+                                   create_small_rackknob("flanger.feedback gain"," feedback ");
+                                   create_small_rackknob("flanger.depth","  depth  ");
+                                   create_small_rackknob("flanger.flange delay","  delay  ");
+                                   create_small_rackknob("flanger.flange delay offset"," delay offset");
+                                   create_small_rackknob("flanger.LFO freq"," LFO ");
 
                               }
                               closeBox();
@@ -149,9 +149,9 @@ openHorizontalTableBox("");
                          {
                               openHorizontalTableBox("");
                               {
-                                   create_smallknob("moog.Q","            Q            ");
+                                   create_small_rackknob("moog.Q","            Q            ");
 
-                                   create_smallknob("moog.fr","            Hz           ");
+                                   create_small_rackknob("moog.fr","            Hz           ");
 
                               }
                               closeBox();
@@ -185,11 +185,11 @@ openHorizontalTableBox("");
                          {
                               openHorizontalTableBox("");
                               {
-									create_smallknob("stereodelay.l_gain","left gain");
-									create_smallknob("stereodelay.l_delay","left delay");
+									create_small_rackknob("stereodelay.l_gain","left gain");
+									create_small_rackknob("stereodelay.l_delay","left delay");
 									openVerticalBox("");
 									{
-										create_smallknobr("stereodelay.LFO freq","LFO");
+										create_small_rackknobr("stereodelay.LFO freq","LFO");
 										openSpaceBox("");
 										closeBox();
 										create_selector("stereodelay.invert");
@@ -198,8 +198,8 @@ openHorizontalTableBox("");
 									}
 									closeBox();	
                                    
-									create_smallknob("stereodelay.r_gain","right gain");
-									create_smallknob("stereodelay.r_delay","right delay");
+									create_small_rackknob("stereodelay.r_gain","right gain");
+									create_small_rackknob("stereodelay.r_delay","right delay");
 
                               }
                               closeBox();
@@ -233,10 +233,10 @@ openHorizontalTableBox("");
                          {
                               openHorizontalTableBox("");
                               {
-									create_smallknob("stereoecho.percent_l","left %");
-									create_smallknob("stereoecho.time_l","left time");
-									create_smallknob("stereoecho.percent_r","right %");
-									create_smallknob("stereoecho.time_r","right time");
+									create_small_rackknob("stereoecho.percent_l","left %");
+									create_small_rackknob("stereoecho.time_l","left time");
+									create_small_rackknob("stereoecho.percent_r","right %");
+									create_small_rackknob("stereoecho.time_r","right time");
 
                               }
                               closeBox();
@@ -269,14 +269,14 @@ openHorizontalTableBox("");
                          {
                               openHorizontalTableBox("");
                               {
-                                   create_smallknobr("phaser.level","  level ");
-                                   create_smallknob("phaser.feedback gain"," feedback ");
-                                   create_smallknob("phaser.depth", "depth");
-                                   create_smallknob("phaser.Notch width", "width");
-                                   create_smallknob("phaser.NotchFreq", "freq");
-                                   create_smallknob("phaser.MaxNotch1Freq", "max Hz");
-                                   create_smallknob("phaser.MinNotch1Freq", "min Hz");
-                                   create_smallknob("phaser.Speed", "speed");
+                                   create_small_rackknobr("phaser.level","  level ");
+                                   create_small_rackknob("phaser.feedback gain"," feedback ");
+                                   create_small_rackknob("phaser.depth", "depth");
+                                   create_small_rackknob("phaser.Notch width", "width");
+                                   create_small_rackknob("phaser.NotchFreq", "freq");
+                                   create_small_rackknob("phaser.MaxNotch1Freq", "max Hz");
+                                   create_small_rackknob("phaser.MinNotch1Freq", "min Hz");
+                                   create_small_rackknob("phaser.Speed", "speed");
                               }
                               closeBox();
                               openSpaceBox("");

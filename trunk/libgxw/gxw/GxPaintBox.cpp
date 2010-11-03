@@ -557,7 +557,7 @@ static gboolean AmpBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	return FALSE;
 }
 
-static gboolean lhfilter_expose(GtkWidget *wi, GdkEventExpose *ev)
+static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
@@ -578,15 +578,13 @@ static gboolean lhfilter_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_set_source_rgb (cr, 0, 0, 0);
     cairo_stroke (cr);
     
+	cairo_rectangle (cr, x0+4,y0+4,rect_width-8,rect_height-8);
 	cairo_pattern_t*pat =
-		cairo_pattern_create_radial (200, 20, 5,200,  30, 200.0);
-	
-	cairo_pattern_add_color_stop_rgb (pat, 0, 0.8, 0.7, 0.6);
-	cairo_pattern_add_color_stop_rgb (pat, 1, 0.6, 0.7, 0.7);
+		cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+	cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0, 0.8);
+	cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
 	cairo_set_source (cr, pat);
-
-	cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
-	cairo_fill (cr);
+	cairo_fill(cr);
 
     cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
     cairo_set_line_width(cr, 2.0);
@@ -608,7 +606,7 @@ static gboolean lhfilter_expose(GtkWidget *wi, GdkEventExpose *ev)
 	return FALSE;
 }
 
-static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
+static gboolean lhfilter_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
