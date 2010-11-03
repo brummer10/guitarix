@@ -272,9 +272,11 @@ openHorizontalTableBox("");
                                    create_smallknobr("phaser.level","  level ");
                                    create_smallknob("phaser.feedback gain"," feedback ");
                                    create_smallknob("phaser.depth", "depth");
-                                   create_smallknob("phaser.delay", "delay");
-                                   create_smallknob("phaser.delay offset", "delay offset");
-                                   create_smallknob("phaser.LFO freq", "LFO");
+                                   create_smallknob("phaser.Notch width", "Width");
+                                   create_smallknob("phaser.NotchFreq", "Freq");
+                                   create_smallknob("phaser.MaxNotch1Freq", "Max Freq");
+                                   create_smallknob("phaser.MinNotch1Freq", "Min Freq");
+                                   create_smallknob("phaser.Speed", "speed");
                               }
                               closeBox();
                               openSpaceBox("");
