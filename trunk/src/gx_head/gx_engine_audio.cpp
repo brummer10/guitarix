@@ -117,20 +117,20 @@ void AudioVariables::register_parameter()
 	
 	registerNonMidiParam("compressor.position", &posit5, true, 6, 1, 10);
 	registerNonMidiParam("crybaby.position", &posit0, true, 3, 1, 10);
-	registerNonMidiParam("overdrive.position", &posit1, true, 7, 1, 9);
+	registerNonMidiParam("overdrive.position", &posit1, true, 7, 1, 10);
 	registerNonMidiParam("gx_distortion.position", &posit2, true, 4, 1, 10);
 	registerNonMidiParam("freeverb.position", &posit3, true, 10, 1, 10);
 	registerNonMidiParam("IR.position", &posit4, true, 5, 1, 10);
 	registerNonMidiParam("echo.position", &posit6, true, 8, 1, 10);
 	registerNonMidiParam("delay.position", &posit7, true, 9, 1, 10);
 	registerNonMidiParam("eqs.position", &posit10, true, 2, 1, 10);
-	registerNonMidiParam("chorus.position", &posit8, true, 1, 0, 8);
-	registerNonMidiParam("flanger.position", &posit9, true, 2, 0, 8);
-	registerNonMidiParam("moog.position", &posit11, true, 3, 0, 8);
-	registerNonMidiParam("phaser.position", &posit12, true, 4, 0, 8);
-	registerNonMidiParam("low_high_pass.position", &posit14, true, 1, 0, 8);
-	registerNonMidiParam("stereodelay.position", &posit15, true, 7, 1, 10);
-	registerNonMidiParam("stereoecho.position", &posit16, true, 7, 1, 10);
+	registerNonMidiParam("chorus.position", &posit8, true, 1, 1, 9);
+	registerNonMidiParam("flanger.position", &posit9, true, 2, 1, 9);
+	registerNonMidiParam("moog.position", &posit11, true, 6, 1, 9);
+	registerNonMidiParam("phaser.position", &posit12, true, 3, 1, 9);
+	registerNonMidiParam("low_high_pass.position", &posit14, true, 1, 1, 10);
+	registerNonMidiParam("stereodelay.position", &posit15, true, 4, 1, 9);
+	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 9);
 	
 	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
 	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);

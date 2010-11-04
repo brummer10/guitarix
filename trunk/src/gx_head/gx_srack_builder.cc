@@ -130,30 +130,59 @@ openHorizontalTableBox("");
      }
      closeBox();
 
-     openHorizontalRestetBox("", &gx_engine::audio.posit11);
+
+     
+     openHorizontalRestetBox("", &gx_engine::audio.posit12);
      {
-          openVerticalBox("moog");
+          openVerticalBox("phaser");
           {
 
                openHorizontalTableBox("");
                {
-					openPaintBox1("");
+				    openPaintBox1("");
 					{
-						create_switch_no_caption(sw_switchit, "moog.on_off");
+						create_switch_no_caption(sw_switchit, "phaser.on_off");
                     }
-					closeBox();
-                    opensDialogBox("moog.dialog", "moog.on_off","RackBox_expose");
+                    closeBox();
+                    opensDialogBox("phaser.dialog", "phaser.on_off","RackBox_expose");
                     {
-
                          openVerticalBox("");
                          {
                               openHorizontalTableBox("");
                               {
-                                   create_small_rackknob("moog.Q","            Q            ");
-
-                                   create_small_rackknob("moog.fr","            Hz           ");
-
+                                   create_small_rackknobr("phaser.level","  level ");
+                                   create_small_rackknob("phaser.feedback gain"," feedback ");
+                                   create_small_rackknob("phaser.depth", "depth");
+                                   create_small_rackknob("phaser.Notch width", "width");
+                                   create_small_rackknob("phaser.NotchFreq", "freq");
+                                   create_small_rackknob("phaser.MaxNotch1Freq", "max Hz");
+                                   create_small_rackknob("phaser.MinNotch1Freq", "min Hz");
+                                   create_small_rackknob("phaser.Speed", "speed");
                               }
+                              closeBox();
+                              openSpaceBox("");
+                              closeBox();
+                              openHorizontalBox("");
+                              {
+                                   openSpaceBox("");
+                                   closeBox();
+                                   create_selector("phaser.invert");
+                                   openSpaceBox("");
+                                   closeBox();
+                                   create_selector("phaser.VibratoMode");
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                              }
+                              closeBox();
+                              openSpaceBox("");
                               closeBox();
                          }
                          closeBox();
@@ -167,7 +196,7 @@ openHorizontalTableBox("");
      closeBox();
      
 	openHorizontalRestetBox("", &gx_engine::audio.posit15);
-     {
+    {
           openVerticalBox("delay");
           {
 
@@ -251,57 +280,30 @@ openHorizontalTableBox("");
      }
      closeBox();
      
-     openHorizontalRestetBox("", &gx_engine::audio.posit12);
+     openHorizontalRestetBox("", &gx_engine::audio.posit11);
      {
-          openVerticalBox("phaser");
+          openVerticalBox("moog");
           {
 
                openHorizontalTableBox("");
                {
-				    openPaintBox1("");
+					openPaintBox1("");
 					{
-						create_switch_no_caption(sw_switchit, "phaser.on_off");
+						create_switch_no_caption(sw_switchit, "moog.on_off");
                     }
-                    closeBox();
-                    opensDialogBox("phaser.dialog", "phaser.on_off","RackBox_expose");
+					closeBox();
+                    opensDialogBox("moog.dialog", "moog.on_off","RackBox_expose");
                     {
+
                          openVerticalBox("");
                          {
                               openHorizontalTableBox("");
                               {
-                                   create_small_rackknobr("phaser.level","  level ");
-                                   create_small_rackknob("phaser.feedback gain"," feedback ");
-                                   create_small_rackknob("phaser.depth", "depth");
-                                   create_small_rackknob("phaser.Notch width", "width");
-                                   create_small_rackknob("phaser.NotchFreq", "freq");
-                                   create_small_rackknob("phaser.MaxNotch1Freq", "max Hz");
-                                   create_small_rackknob("phaser.MinNotch1Freq", "min Hz");
-                                   create_small_rackknob("phaser.Speed", "speed");
+                                   create_small_rackknob("moog.Q","            Q            ");
+
+                                   create_small_rackknob("moog.fr","            Hz           ");
+
                               }
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openHorizontalBox("");
-                              {
-                                   openSpaceBox("");
-                                   closeBox();
-                                   create_selector("phaser.invert");
-                                   openSpaceBox("");
-                                   closeBox();
-                                   create_selector("phaser.VibratoMode");
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                              }
-                              closeBox();
-                              openSpaceBox("");
                               closeBox();
                          }
                          closeBox();
@@ -313,5 +315,6 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
+     
 }
 closeBox();

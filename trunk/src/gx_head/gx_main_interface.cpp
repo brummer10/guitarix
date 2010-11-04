@@ -677,8 +677,11 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	gtk_box_pack_start (GTK_BOX(rBox), box, expand, fill, 0);
 	
 	GValue  pos = {0};
+	float z = *posit;
+	gint poset = int(z);
+	//fprintf(stderr, " %i .monobox\n",poset);
 	g_value_init (&pos, G_TYPE_INT);
-	g_value_set_int(&pos,(gint)posit);
+	g_value_set_int(&pos,poset);
 	gtk_container_child_set_property(GTK_CONTAINER(rBox),GTK_WIDGET(box),"position", &pos);
 	
 	gtk_fixed_put (GTK_FIXED(box1), button1, 5, 5);
@@ -738,8 +741,12 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 	gtk_box_pack_start (GTK_BOX(sBox), box, expand, fill, 0);
 	
 	GValue  pos = {0};
+	float z = *posit;
+	gint poset = int(z);
+	//fprintf(stderr, " %i .stereo box\n",poset);
 	g_value_init (&pos, G_TYPE_INT);
-	g_value_set_int(&pos,(gint)posit);
+	g_value_set_int(&pos, poset);
+	
 	gtk_container_child_set_property(GTK_CONTAINER(sBox),GTK_WIDGET(box),"position", &pos);
 	
 	gtk_fixed_put (GTK_FIXED(box1), button1, 5, 5);
