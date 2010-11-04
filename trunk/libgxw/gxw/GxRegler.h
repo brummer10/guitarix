@@ -57,6 +57,7 @@ struct _GxReglerClass {
 	gchar* (*format_value)(GxRegler *regler, gdouble value);
 };
 
+extern bool OS_IS_64_BIT ;
 GType gx_regler_get_type(void);
 void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition);
 gdouble _gx_regler_get_step_pos(GxRegler *regler, gint step);

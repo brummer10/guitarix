@@ -134,6 +134,9 @@ static gboolean gx_wheel_button_press (GtkWidget *widget, GdkEventButton *event)
 	if (event->button != 1 && event->button != 3) {
 		return FALSE;
 	}
+	if (event->button == 3 && OS_IS_64_BIT) {
+		return FALSE;
+	}
 	gtk_widget_grab_focus(widget);
 	if (wheel_set_from_pointer(widget, event->x, event->y, FALSE, event->button)) {
 		gtk_grab_add(widget);

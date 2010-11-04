@@ -40,6 +40,8 @@
 
 #define GX_REGLER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_REGLER, GxReglerPrivate))
 
+bool OS_IS_64_BIT ;
+
 typedef struct
 {
 	GtkRequisition value_req;
@@ -207,7 +209,7 @@ static gboolean single_string_accumulator(
 #define g_marshal_value_peek_object(v)   (v)->data[0].v_pointer
 #endif /* !G_ENABLE_DEBUG */
 
-bool OS_IS_64_BIT = false;
+
 /* STRING:DOUBLE */
 void
 marshal_STRING__DOUBLE (GClosure     *closure,
@@ -508,7 +510,8 @@ static void gx_regler_class_init(GxReglerClass *klass)
 	g_type_class_add_private(klass, sizeof (GxReglerPrivate));
 	
 	// disable gx_regler_value_entry box on 64 bit
-	char os[8];
+	OS_IS_64_BIT = false;
+	char os[32];
 	sprintf(os, "%i", LONG_BIT);
 	if(strcmp(os,"32")!=0) OS_IS_64_BIT = true;
 	
@@ -1095,7 +1098,7 @@ static gboolean map_check(
 
 static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event)
 {
-	if(OS_IS_64_BIT) return FALSE;
+	if(OS_IS_64_BIT) return TRUE;
 	g_assert(GX_IS_REGLER(regler));
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
 	GtkWidget *dialog = gtk_window_new(GTK_WINDOW_POPUP);

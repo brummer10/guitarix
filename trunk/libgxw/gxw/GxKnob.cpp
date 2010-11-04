@@ -21,6 +21,7 @@
 #include <gtk/gtkmain.h>
 #include <cmath>
 
+
 #ifndef min
 #define min(x, y) ((x) < (y) ? (x) : (y))
 #endif
@@ -31,6 +32,8 @@
 #define P_(s) (s)   // FIXME -> gettext
 
 #define GX_KNOB_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), GX_TYPE_KNOB, GxKnobPrivate))
+
+
 
 typedef struct
 {
@@ -328,6 +331,9 @@ static gboolean gx_knob_button_press (GtkWidget *widget, GdkEventButton *event)
 {
 	g_assert(GX_IS_KNOB(widget));
 	if (event->button != 1 && event->button != 3) {
+		return FALSE;
+	}
+	if (event->button == 3 && OS_IS_64_BIT) {
 		return FALSE;
 	}
 	gtk_widget_grab_focus(widget);
