@@ -35,6 +35,7 @@ G_BEGIN_DECLS
 #define GX_IS_REGLER(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GX_TYPE_REGLER))
 #define GX_IS_REGLER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_REGLER))
 #define GX_REGLER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_REGLER, GxReglerClass))
+#define OS_IS_64_BIT             (gx_get_arch())
 
 typedef struct _GxRegler GxRegler;
 typedef struct _GxReglerClass GxReglerClass;
@@ -57,8 +58,9 @@ struct _GxReglerClass {
 	gchar* (*format_value)(GxRegler *regler, gdouble value);
 };
 
-extern bool OS_IS_64_BIT ;
+
 GType gx_regler_get_type(void);
+gboolean gx_get_arch();
 void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition);
 gdouble _gx_regler_get_step_pos(GxRegler *regler, gint step);
 void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,

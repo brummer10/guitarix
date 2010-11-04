@@ -143,4 +143,5 @@ static gboolean gx_eq_slider_pointer_motion(GtkWidget *widget, GdkEventMotion *e
 
 static void gx_eq_slider_init(GxEQSlider *eq_slider)
 {
+	gtk_widget_set_name (GTK_WIDGET(eq_slider),"rack_slider");
 }

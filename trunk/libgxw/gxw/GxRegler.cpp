@@ -40,7 +40,7 @@
 
 #define GX_REGLER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_REGLER, GxReglerPrivate))
 
-bool OS_IS_64_BIT ;
+
 
 typedef struct
 {
@@ -508,13 +508,14 @@ static void gx_regler_class_init(GxReglerClass *klass)
 	                    GTK_SCROLL_END);
 
 	g_type_class_add_private(klass, sizeof (GxReglerPrivate));
-	
-	// disable gx_regler_value_entry box on 64 bit
-	OS_IS_64_BIT = false;
+}
+
+gboolean gx_get_arch()
+{
 	char os[32];
 	sprintf(os, "%i", LONG_BIT);
-	if(strcmp(os,"32")!=0) OS_IS_64_BIT = true;
-	
+	if(strcmp(os,"32")!=0) return true;
+	return false;
 }
 
 static void gx_regler_destroy(GtkObject *object)

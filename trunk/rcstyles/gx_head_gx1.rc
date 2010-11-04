@@ -203,11 +203,21 @@ style "gx_head-rack"
   font_name = "URW Chancery L Medium Italic 12"
 }
 
+style "gx_rack-slider"
+{
+  fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
+  fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+  font_name = "sans 6"
+}
+
 widget "*.effekt_label" style:highest "gx_head-v_black"
 widget "*.value_label" style:highest "gx_head-l_black"
 widget "*.beffekt_label" style:highest "gx_head-b_black"
 widget "*.rack_label" style:highest "gx_head-rack"
-
+widget "*.rack_slider" style:highest "gx_rack-slider"
 
 style "h_style"
 {

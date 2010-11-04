@@ -2239,7 +2239,7 @@ void GxWindowBox::on_check_resize()
 	int y_org = window.get_height();
 	//int x_org = window.get_width();
 	if(y_org >=11)
-		gtk_widget_set_size_request (GTK_WIDGET (window.gobj()),-1 , y_org-10 );
+		window.set_size_request(-1 , y_org-5 );
 	
 }
 
