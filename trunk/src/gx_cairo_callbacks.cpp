@@ -615,30 +615,27 @@ gboolean boxamp_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
 gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
+	//float p = gx_gui::parameter_map["eq.f31_25"].getFloat().value;
     cairo_t *cr;
-    /* create a cairo context */
-    cr = gdk_cairo_create(wi->window);
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
 
-    double x0      = wi->allocation.x+5;
-    double y0      = wi->allocation.y;
-   // double rect_width  = wi->allocation.width-2;
-    double rect_height = wi->allocation.height-50;
-    float p = gx_gui::parameter_map["eq.f31_25"].getFloat().value;
-    float q = 100 - gx_gui::parameter_map["eq.Q31_25"].getFloat().value;
-    //float v = p.value;
-    cairo_move_to (cr, x0 , y0 + rect_height-(62*q*0.01)-p);
-    cairo_line_to (cr, x0 + 14, y0 + rect_height-62 - p);
-    cairo_line_to (cr, x0 + 33, y0 + rect_height-(62*q*0.01)-p);
-    p = gx_gui::parameter_map["eq.f62_5"].getFloat().value;
-    q = 100 - gx_gui::parameter_map["eq.Q62_5"].getFloat().value;
-    cairo_move_to (cr, x0 +35 , y0 + rect_height-(62*q*0.01)-p);
-    cairo_line_to (cr, x0 + 46, y0 + rect_height-62 - p);
-    cairo_line_to (cr, x0 +62 , y0 + rect_height-(62*q*0.01)-p);
-    cairo_set_source_rgb(cr,  0, 0, 0);
-    cairo_set_line_width(cr, 2.0);
-    cairo_stroke(cr);
+	double x0      = wi->allocation.x+1;
+	double y0      = wi->allocation.y+1;
+	double rect_width  = wi->allocation.width-2;
+	double rect_height = wi->allocation.height-3;
 
-    cairo_destroy(cr);
+	cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
+	cairo_pattern_t*pat =
+		cairo_pattern_create_radial (x0+200,y0+ rect_height*0.5, 5,x0+200, y0+ rect_height*0.5, 200.0);
+	cairo_pattern_add_color_stop_rgb (pat, 0, 0.8, 0.8, 0.8);
+	cairo_pattern_add_color_stop_rgb (pat, 1, 0.3, 0.3, 0.3);
+	cairo_set_source (cr, pat);
+	cairo_fill (cr);
+
+	cairo_pattern_destroy (pat);
+	cairo_destroy(cr);
+
 	return FALSE;
 }
 

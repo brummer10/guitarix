@@ -560,6 +560,8 @@ static gboolean AmpBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
+	cairo_text_extents_t extents;
+
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 	GdkRegion *region;
@@ -567,11 +569,27 @@ static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
+	const gchar * title = gtk_widget_get_name(GTK_WIDGET(wi));
 
 	double x0      = wi->allocation.x+1;
 	double y0      = wi->allocation.y+1;
 	double rect_width  = wi->allocation.width-2;
 	double rect_height = wi->allocation.height-2;
+	double x,y;
+	
+	
+	cairo_select_font_face (cr, "URW Chancery L", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_BOLD);
+	cairo_set_font_size (cr, rect_width/12);
+	cairo_text_extents (cr,title , &extents);
+	x = x0+rect_width/2-extents.width/2 ;
+	y = y0+rect_height/2+extents.height/2 ;
+	cairo_move_to(cr,x, y);
+	cairo_text_path (cr,title);
+	cairo_set_source_rgba (cr, 0., 0., 0., 0.2);
+	cairo_fill_preserve (cr);
+	cairo_set_source_rgba (cr, 0.7, 0.7, 0.7, 0.2);
+    cairo_stroke (cr);
 
     cairo_rectangle (cr, x0,y0,rect_width,rect_height);
     cairo_set_line_width(cr, 3.0);
@@ -581,7 +599,8 @@ static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_rectangle (cr, x0+4,y0+4,rect_width-8,rect_height-8);
 	cairo_pattern_t*pat =
 		cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
-	cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0, 0.8);
+	cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0.2, 0.8);
+	cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
 	cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
 	cairo_set_source (cr, pat);
 	cairo_fill(cr);

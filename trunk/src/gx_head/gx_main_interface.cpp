@@ -618,7 +618,7 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
 			GValue  pos = {0};
 
 			g_value_init (&pos, G_TYPE_INT);
-			g_value_set_int(&pos,(gint)fCache);
+			g_value_set_int(&pos,(gint)v);
 
 			GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(fButton));
 			GtkWidget * box = gtk_widget_get_parent(GTK_WIDGET(box1));
@@ -644,10 +644,10 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	GtkWidget* 	button1 = gtk_button_new ();
 	GtkWidget* lw = gtk_label_new("▼");
 	GtkWidget* lw1 = gtk_label_new("▲");
-	GtkWidget* lw2 = gtk_label_new(label);
+	//GtkWidget* lw2 = gtk_label_new(label);
 	gtk_container_add (GTK_CONTAINER(button), lw);
 	gtk_container_add (GTK_CONTAINER(button1), lw1);
-	gtk_container_add (GTK_CONTAINER(box), lw2);
+	//gtk_container_add (GTK_CONTAINER(box), lw2);
 	gtk_widget_set_size_request (GTK_WIDGET(button), 20, 15);
 	gtk_widget_set_size_request (GTK_WIDGET(button1), 20, 15);
 
@@ -707,10 +707,10 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 	GtkWidget* 	button1 = gtk_button_new ();
 	GtkWidget* lw = gtk_label_new("▼");
 	GtkWidget* lw1 = gtk_label_new("▲");
-	GtkWidget* lw2 = gtk_label_new(label);
+	//GtkWidget* lw2 = gtk_label_new(label);
 	gtk_container_add (GTK_CONTAINER(button), lw);
 	gtk_container_add (GTK_CONTAINER(button1), lw1);
-	gtk_container_add (GTK_CONTAINER(box), lw2);
+	//gtk_container_add (GTK_CONTAINER(box), lw2);
 	gtk_widget_set_size_request (GTK_WIDGET(button), 20, 15);
 	gtk_widget_set_size_request (GTK_WIDGET(button1), 20, 15);
 
@@ -2043,6 +2043,7 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui,const char *expose_funk, Pa
 	box5.set_border_width(4);
 	box6.set_border_width(4);
 	paintbox.property_paint_func() = expose_funk;
+	paintbox.set_name(title);
 	//Pango::FontDescription font = label.get_style()->get_font();
 	//font.set_size(10*Pango::SCALE);
 	//font.set_weight(Pango::WEIGHT_NORMAL);
@@ -2236,11 +2237,11 @@ bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d)
 
 void GxWindowBox::on_check_resize()
 {
-	int y_org = window.get_height();
-	//int x_org = window.get_width();
-	if(y_org >=11)
-		window.set_size_request(-1 , y_org-5 );
-	
+	if(window.get_events() == Gdk::BUTTON_MOTION_MASK){
+		int y_org = window.get_height();
+		if(y_org >=11)
+			window.set_size_request (-1 , y_org-5 );
+	}
 }
 
 GxWindowBox::GxWindowBox(gx_ui::GxUI& ui, 
@@ -2250,14 +2251,10 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 {
 	Glib::ustring title = titl;
 	window.set_decorated(true);
+	window.add_events(Gdk::BUTTON_MOTION_MASK);
 	window.set_icon(Glib::wrap(ib));
-	//window.set_resizable(false);
 	window.set_gravity(Gdk::GRAVITY_SOUTH);
-	//window.set_transient_for(*Glib::wrap(GTK_WINDOW(fWindow)));
-	//window.set_position(Gtk::WIN_POS_MOUSE);
-	//window.set_keep_below(false);
 	window.set_title(title);
-	//window.set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
 	window.property_destroy_with_parent() = true;
 	
 	m_scrolled_window.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_AUTOMATIC); 
