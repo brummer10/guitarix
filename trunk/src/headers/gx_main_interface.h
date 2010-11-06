@@ -276,7 +276,7 @@ private:
 	void addPresetMenu();
 	void addExtraPresetMenu();
 
-	//void addPluginMenu();
+	void addPluginMenu();
 
 	void addOptionMenu();
 	void addGuiSkinMenu();
@@ -285,6 +285,7 @@ private:
 
 	bool on_meter_button_release(GdkEventButton* ev);
 	void on_tuner_activate();
+	void gx_show_menu_settings(GtkWidget *widget, gpointer data);
 	void on_rack_activate();
 	void on_srack_activate();
 	void set_mouse_mode();
@@ -312,8 +313,7 @@ protected :
 	MenuCheckItem       fMidiInPreset;
 	MenuCheckItem       fShowTooltips;
 	MenuCheckItem       fShowTuner;
-	MenuCheckItem       fShowRack;
-	MenuCheckItem       fShowSRack;
+	
 	MenuCheckItem       fShowWaveView;
 	MenuCheckItem       fSetMouse;
 #ifdef EXPERIMENTAL
@@ -328,6 +328,9 @@ protected :
 	virtual void pushBox(int mode, GtkWidget* w);
 
 public :
+	MenuCheckItem       fShowRack;
+	MenuCheckItem       fShowSRack;
+	
 	static bool	 fInitialized;
 	int          highest_unseen_msg_level;
 

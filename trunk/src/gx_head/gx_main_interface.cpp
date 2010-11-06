@@ -491,7 +491,7 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
 			GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
 			GValue  pos = {0};
 			g_value_init (&pos, G_TYPE_INT);
-
+			static int move = 0;
 			gtk_container_child_get_property(GTK_CONTAINER(parent),GTK_WIDGET(box),"position", &pos);
 			GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
 			guint max_client = g_list_length (child_list)-1;
@@ -499,6 +499,7 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
 			if (per<max_client) 
 			{
 				GtkWidget *obi = (GtkWidget *) g_list_nth_data(child_list,per+1);
+
 				child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
 				GtkWidget *obib = (GtkWidget *) g_list_nth_data(child_list,1);
 				child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
@@ -506,17 +507,32 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
 
 				gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per +1);
 				((gx_ui::GxUiItemFloat*)data)->modifyZone(per+1);
-				if(GTK_IS_BUTTON (obibi))
+				/*child_list =  gtk_container_get_children(GTK_CONTAINER(box));
+				GtkWidget *plug = (GtkWidget *) g_list_nth_data(child_list,1);
+				string name = gtk_widget_get_name(plug);
+				fprintf(stderr, " %i %s .pressed right\n",per,name.c_str()); */
+				if(GTK_IS_BUTTON (obibi)) {
                     gtk_button_clicked(GTK_BUTTON(obibi));
-				else {
+				} else {
 				    child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
-				    obib = (GtkWidget *) g_list_nth_data(child_list,4);
-				    
-				    child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
-				    obibi = (GtkWidget *) g_list_nth_data(child_list,0);
-				    if(GTK_IS_BUTTON (obibi))
-                        gtk_button_clicked(GTK_BUTTON(obibi));
-                       
+				    obib = (GtkWidget *) g_list_nth_data(child_list,1);
+				   // name = gtk_widget_get_name(obib);
+					//fprintf(stderr, " %i %s .next child right\n",per,name.c_str()); 
+					if(!GDK_IS_WINDOW (obib->window)) {
+						//fprintf(stderr, " %i %s.hidden\n",per,name.c_str()); 
+						move =1;
+					} else move= 0;
+					obib = (GtkWidget *) g_list_nth_data(child_list,3);
+					  
+					if(GTK_IS_CONTAINER(obib)){
+					child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
+					obibi = (GtkWidget *) g_list_nth_data(child_list,0);
+						if(GTK_IS_BUTTON (obibi)) {
+							gtk_button_clicked(GTK_BUTTON(obibi));
+							if(move) gtk_button_pressed(GTK_BUTTON(widget));
+							
+						}
+					} 
 				}
 			}
 			g_list_free(child_list);
@@ -530,13 +546,14 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
 			GtkWidget * parent = gtk_widget_get_parent(GTK_WIDGET(box));
 			GValue  pos = {0};
 			g_value_init (&pos, G_TYPE_INT);
-
+			static int move = 0;
 			gtk_container_child_get_property(GTK_CONTAINER(parent),GTK_WIDGET(box),"position", &pos);
 			guint per = g_value_get_int(&pos);
 			if (per>1)
 			{
 				GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
 				GtkWidget *obi = (GtkWidget *) g_list_nth_data(child_list,per-1);
+				
 				child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
 				GtkWidget *obib = (GtkWidget *) g_list_nth_data(child_list,1);
 				child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
@@ -544,21 +561,36 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
 
 				gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per -1);
 				((gx_ui::GxUiItemFloat*)data)->modifyZone(per-1);
-				if(GTK_IS_BUTTON (obibi))
+				/*child_list =  gtk_container_get_children(GTK_CONTAINER(box));
+				GtkWidget *plug = (GtkWidget *) g_list_nth_data(child_list,1);
+				string name = gtk_widget_get_name(plug);
+				fprintf(stderr, " %i %s .pressed left\n",per,name.c_str()); */
+				if(GTK_IS_BUTTON (obibi)){
                     gtk_button_clicked(GTK_BUTTON(obibi));
-				else {
-				    child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
-				    obib = (GtkWidget *) g_list_nth_data(child_list,4);
-				    child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
-				    obibi = (GtkWidget *) g_list_nth_data(child_list,0);
-				    if(GTK_IS_BUTTON (obibi))
-                        gtk_button_clicked(GTK_BUTTON(obibi));
+				} else {
+					child_list =  gtk_container_get_children(GTK_CONTAINER(obi));
+					obib = (GtkWidget *) g_list_nth_data(child_list,1);
+					//name = gtk_widget_get_name(obib);
+					//fprintf(stderr, " %i %s .next child left\n",per,name.c_str()); 
+					if(!GDK_IS_WINDOW (obib->window)) {
+						//fprintf(stderr, " %i %s.hidden\n",per,name.c_str()); 
+						move =1;
+					} else move= 0;
+					obib = (GtkWidget *) g_list_nth_data(child_list,3);
+					
+				    if(GTK_IS_CONTAINER(obib)){
+						child_list =  gtk_container_get_children(GTK_CONTAINER(obib));
+						obibi = (GtkWidget *) g_list_nth_data(child_list,1);
+						if(GTK_IS_BUTTON (obibi)) {
+							gtk_button_clicked(GTK_BUTTON(obibi));
+							if(move)
+							gtk_button_pressed(GTK_BUTTON(widget));
+							
+						}
+					}
 				}
-
 				g_list_free(child_list);
 			}
-
-
 		}
 	// resize the effect box
 	static void resize( GtkWidget *widget, gpointer   data )
@@ -605,9 +637,16 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
 			gtk_container_child_get_property(GTK_CONTAINER(parent),GTK_WIDGET(box),"position", &pos);
 			guint per = g_value_get_int(&pos);
 			gtk_box_reorder_child (GTK_BOX(parent),GTK_WIDGET(box),per);
+			if(GDK_IS_WINDOW (box->window))
 			 gdk_window_invalidate_rect(box->window,NULL,true);
 
 			((gx_ui::GxUiItemFloat*)data)->modifyZone(per);
+			/*GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(box));
+			GtkWidget *plug = (GtkWidget *) g_list_nth_data(child_list,1);
+			const gchar *name = gtk_widget_get_name(plug);
+			fprintf(stderr, " %i %s .clicked\n",per,name); 
+			
+			 g_list_free(child_list);*/
 		}
 	// set the init order
 	virtual void reflectZone()
@@ -689,7 +728,7 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	gtk_box_pack_end (GTK_BOX(box), box1, false, fill, 0);
 	gtk_widget_show_all(button);
 	gtk_widget_show_all(button1);
-	gtk_widget_show(box);
+	//gtk_widget_show(box);
 	gtk_widget_show(box1);
 	pushBox(kBoxMode, box);
 
@@ -754,7 +793,7 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 	gtk_box_pack_end (GTK_BOX(box), box1, false, fill, 0);
 	gtk_widget_show_all(button);
 	gtk_widget_show_all(button1);
-	gtk_widget_show(box);
+	//gtk_widget_show(box);
 	gtk_widget_show(box1);
 	pushBox(kBoxMode, box);
 
@@ -1963,6 +2002,10 @@ void GxMainInterface::setSkinBox(const char* label, float* zone)
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_set_skin),  (gpointer) c);
 }
 
+static void set_label(MenuCheckItem& item , const char *label)
+{
+	dynamic_cast<Gtk::Label*>(item.get_child())->set_text_with_mnemonic(label);
+}
 
 /****************************************************************
  ** Effect Dialog Boxes
@@ -1972,6 +2015,7 @@ class GxDialogButtonBox
 public:
 	Gtk::HBox box;
 	UiSwitchBool show_dialog;
+	
 	GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog);
 };
 
@@ -1979,10 +2023,10 @@ GxDialogButtonBox::GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog):
 	box(false, 0),
 	show_dialog(ui, sw_button, param_dialog.getBool())
 {
-	show_dialog.modify_bg(Gtk::STATE_NORMAL, Gdk::Color("#7f7f7f"));
-	show_dialog.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#000094"));
+	//show_dialog.modify_bg(Gtk::STATE_NORMAL, Gdk::Color("#7f7f7f"));
+	//show_dialog.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#000094"));
 	box.set_border_width(0);
-	box.add(show_dialog);
+	//box.add(show_dialog);
 	box.show_all();
 }
 
@@ -1991,6 +2035,7 @@ class GxDialogWindowBox
 private:
 	void on_dialog_button_toggled();
 	void on_reset_button_pressed();
+	void on_dialog_menu_activate();
 	bool on_window_delete_event(GdkEventAny* event);
 	Glib::ustring group_id;
 public:
@@ -2001,6 +2046,7 @@ public:
 	Gtk::HBox box5;
 	Gtk::HBox box6;
 	UiSwitch* unit_on_off;
+	MenuCheckItem menuitem;
 	//Gtk::Label label;
 	Gtk::Button reset_button;
 	Gtk::Button reset_button1;
@@ -2020,6 +2066,20 @@ void GxDialogWindowBox::on_dialog_button_toggled()
 	GtkWidget *box = gtk_widget_get_parent(GTK_WIDGET(paintbox.gobj()));
 	if(GDK_IS_WINDOW(box->window))
 		gdk_window_invalidate_rect(box->window,NULL,true);
+}
+
+void GxDialogWindowBox::on_dialog_menu_activate()
+{
+	gx_show_menu_settings(GTK_WIDGET(menuitem.gobj()), (gpointer)paintbox.gobj());
+	GtkWidget *box = gtk_widget_get_parent(GTK_WIDGET(paintbox.gobj()));
+	if(GDK_IS_WINDOW(box->window)){
+		gdk_window_invalidate_rect(box->window,NULL,true);
+	} 
+	if (!menuitem.get_active()){
+		string group = group_id;
+		group += ".on_off";
+		parameter_map[group].set_std_value();
+	}
 }
 
 void GxDialogWindowBox::on_reset_button_pressed()
@@ -2069,12 +2129,16 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui,const char *expose_funk, Pa
 	paintbox.add(box4);
 	dialog_button.signal_toggled().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
+	menuitem.signal_activate().connect(
+		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_menu_activate));
 }
 
 void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk )
 {
 	Parameter& param_dialog = parameter_map[id_dialog];
 	Parameter& param_switch = parameter_map[id_switch];
+	
+	
 	GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
 
 	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(rBox));
@@ -2085,6 +2149,20 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	GxDialogWindowBox *dialog = new GxDialogWindowBox(*this, expose_funk, param_dialog, param_switch, bbox->show_dialog, rack_widget);
 	gtk_box_pack_start (GTK_BOX(child),GTK_WIDGET(dialog->paintbox.gobj()) , true, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(dialog->box.gobj()));
+	
+	const gchar * title = gtk_widget_get_name(GTK_WIDGET(dialog->paintbox.gobj()));
+	string p = "ui.";
+	p +=title;
+	set_label(dialog->menuitem,title );
+	//dialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	//                           GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsMono"]), GTK_WIDGET(dialog->menuitem.gobj()));
+	dialog->menuitem.show();
+	dialog->menuitem.set_parameter(new SwitchParameter(p));
+	
+	
+	
+	
 }
 
 void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk )
@@ -2101,6 +2179,16 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	GxDialogWindowBox *bdialog = new GxDialogWindowBox(*this, expose_funk, param_dialog, param_switch, bbox->show_dialog, srack_widget);
 	gtk_box_pack_start (GTK_BOX(child),GTK_WIDGET(bdialog->paintbox.gobj()) , true, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(bdialog->box.gobj()));
+	
+	const gchar * title = gtk_widget_get_name(GTK_WIDGET(bdialog->paintbox.gobj()));
+	set_label(bdialog->menuitem,title );
+	string p = "ui.";
+	p +=title;
+	//bdialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	//                           GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsStereo"]), GTK_WIDGET(bdialog->menuitem.gobj()));
+	bdialog->menuitem.show();
+	bdialog->menuitem.set_parameter(new SwitchParameter(p));
 }
 
 //-------- collect patch info for stage display
@@ -2237,7 +2325,7 @@ bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d)
 
 void GxWindowBox::on_check_resize()
 {
-	if(window.get_events() == Gdk::BUTTON_MOTION_MASK){
+	if(window.get_events() == Gdk::BUTTON_PRESS_MASK){
 		int y_org = window.get_height();
 		if(y_org >=11)
 			window.set_size_request (-1 , y_org-5 );
@@ -2251,7 +2339,7 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 {
 	Glib::ustring title = titl;
 	window.set_decorated(true);
-	window.add_events(Gdk::BUTTON_MOTION_MASK);
+	window.add_events(Gdk::BUTTON_PRESS_MASK);
 	window.set_icon(Glib::wrap(ib));
 	window.set_gravity(Gdk::GRAVITY_SOUTH);
 	window.set_title(title);
@@ -2291,6 +2379,7 @@ void GxMainInterface::openPlugBox(const char* label)
 		pb_gxrack_expose, label, GTK_WIDGET(fShowRack.gobj()));
 	rack_widget = GTK_WIDGET(box->window.gobj());
 	box->window.set_size_request(-1,310); 
+	box->window.set_name("MonoRack");
 	rBox = GTK_WIDGET(box->rbox.gobj());
 	pushBox(kBoxMode, GTK_WIDGET(rBox));
 }
@@ -2301,6 +2390,7 @@ void GxMainInterface::openAmpBox(const char* label)
 		pb_gxrack_expose, label, GTK_WIDGET(fShowSRack.gobj()));
 	srack_widget = GTK_WIDGET(box->window.gobj());
 	box->window.set_size_request(-1,310); 
+	box->window.set_name("StereoRack");
 	sBox = GTK_WIDGET(box->rbox.gobj());
 	pushBox(kBoxMode, GTK_WIDGET(sBox));
 }
@@ -2505,7 +2595,7 @@ void GxMainInterface::addMainMenu()
 
 	addEngineMenu();
 	addPresetMenu();
-	//addPluginMenu();
+	addPluginMenu();
 	addOptionMenu();
 	addAboutMenu();
 
@@ -2516,10 +2606,7 @@ void GxMainInterface::addMainMenu()
 	gtk_widget_show(hbox);
 }
 
-static void set_label(MenuCheckItem& item , const char *label)
-{
-	dynamic_cast<Gtk::Label*>(item.get_child())->set_text_with_mnemonic(label);
-}
+
 
 //----------------------------- engine menu ----------------------------
 void GxMainInterface::addEngineMenu()
@@ -2745,7 +2832,6 @@ void GxMainInterface::addPresetMenu()
 	addExtraPresetMenu();
 }
 
-
 //------------------------ extra preset menu ----------------------------
 void GxMainInterface::addExtraPresetMenu()
 {
@@ -2826,6 +2912,73 @@ void GxMainInterface::addExtraPresetMenu()
 
 }
 
+//----------------------------- preset menu ----------------------------
+void GxMainInterface::addPluginMenu()
+{
+	GtkWidget* menulabel; // menu label
+	GtkWidget* menucont;  // menu container
+	GtkWidget* menucontin;  // menu container
+
+	menucont = fMenuList["Top"];
+
+	/*---------------- Create Options menu items ------------------*/
+	menulabel = gtk_menu_item_new_with_mnemonic ("_Plugins");
+	gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
+	gtk_widget_show(menulabel);
+
+	/*-- Create Options submenu  --*/
+	menucont = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+	gtk_widget_show(menucont);
+	
+	/*-- Create mono rack check menu item under Options submenu --*/
+	set_label(fShowRack, "show Mono_Rack");
+	fShowRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fShowRack.signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_rack_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowRack.gobj()));
+	fShowRack.show();
+	fShowRack.set_parameter(new SwitchParameter("system.show_rack"));
+	
+	/*-- Create mono plugin menu soket item under Options submenu --*/
+	menulabel = gtk_menu_item_new_with_mnemonic ("_Mono Plugins");
+	gtk_menu_append (GTK_MENU(menucont), menulabel);
+	gtk_widget_show(menulabel);
+	
+	menucontin = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucontin);
+	gtk_widget_show(menucontin);
+	
+	fMenuList["PluginsMono"] = menucontin;
+	
+	/*-- add a separator line --*/
+	GtkWidget* sep = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);
+	gtk_widget_show (sep);
+	
+	/*-- Create stereo rack check menu item under Options submenu --*/
+	set_label(fShowSRack, "show _StereoRack");
+	fShowSRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_s, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fShowSRack.signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_srack_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowSRack.gobj()));
+	fShowSRack.show();
+	fShowSRack.set_parameter(new SwitchParameter("system.show_Srack"));
+	
+	/*-- Create stereo plugin menu soket item under Options submenu --*/
+	menulabel = gtk_menu_item_new_with_mnemonic ("_Stereo Plugins");
+	gtk_menu_append (GTK_MENU(menucont), menulabel);
+	gtk_widget_show(menulabel);
+	
+	menucontin = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucontin);
+	gtk_widget_show(menucontin);
+	
+	fMenuList["PluginsStereo"] = menucontin;
+}
+
 //----------------------------- option menu ----------------------------
 
 void reset_all_parameters(GtkWidget*, gpointer)
@@ -2873,26 +3026,7 @@ void GxMainInterface::addOptionMenu()
 	fShowTuner.show();
 	fShowTuner.set_parameter(new SwitchParameter("system.show_tuner"));
 	
-/*-- Create mono rack check menu item under Options submenu --*/
-	set_label(fShowRack, "Mono_Rack");
-	fShowRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	                           GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
-	fShowRack.signal_activate().connect(
-		sigc::mem_fun(*this, &GxMainInterface::on_rack_activate));
-	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowRack.gobj()));
-	fShowRack.show();
-	fShowRack.set_parameter(new SwitchParameter("system.show_rack"));
-	
-/*-- Create stereo rack check menu item under Options submenu --*/
-	set_label(fShowSRack, "_StereoRack");
-	fShowSRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	                           GDK_s, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
-	fShowSRack.signal_activate().connect(
-		sigc::mem_fun(*this, &GxMainInterface::on_srack_activate));
-	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowSRack.gobj()));
-	fShowSRack.show();
-	fShowSRack.set_parameter(new SwitchParameter("system.show_Srack"));
-	
+
 	/*-- Create skin menu under Options submenu--*/
 	addGuiSkinMenu();
 	
@@ -3120,11 +3254,11 @@ void GxMainInterface::show()
 		gtk_widget_show(gx_gui::gx_jackd_off_image);
 	}
 
-	gtk_widget_show  (fBox[0]);
-	gtk_widget_show  (fWindow);
 	gint mainxorg = gx_set_mx_oriantation(); 
 	gint mainyorg = gx_set_my_oriantation();
 	gtk_window_move(GTK_WINDOW(fWindow), mainxorg, mainyorg);
+	gtk_widget_show  (fBox[0]);
+	gtk_widget_show  (fWindow);
 }
 
 //---- show main GUI thread and more
