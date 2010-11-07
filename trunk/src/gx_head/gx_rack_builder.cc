@@ -184,36 +184,26 @@ openHorizontalTableBox("");
                     {
 
 
-                         openVerticalBox("");
+                         openHorizontalBox("");
                          {
+                                  
+                                   openSpaceBox("");
+                                   closeBox();
+                                   create_selector("crybaby.autowah");
+                                   openSpaceBox("");
+                                   closeBox();
+								   
+     
                               openHorizontalTableBox("");
-                              {
-                                   create_small_rackknobr("crybaby.wah","  wah   ");
-                                   
+                              {     
+								   create_small_rackknobr("crybaby.wah","  wah   ");
+								   
                                    create_small_rackknob("crybaby.level","  level  ");
                                   
                                    create_small_rackknob("crybaby.wet_dry","  dry/wet  ");
                                    
 
                               }
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openHorizontalBox("");
-                              {
-                                   
-                                   create_selector("crybaby.autowah");
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                              }
-                              closeBox();
-                              openSpaceBox("");
                               closeBox();
 
                          }
@@ -340,11 +330,15 @@ openHorizontalTableBox("");
                     
                     openDialogBox("IR.dialog", "IR.on_off","RackBox_expose");
                     {
-
                          openVerticalBox1("");
                          {
                               openHorizontalBox("");
                               {
+                                   openSpaceBox("");
+                                   closeBox();
+                                   create_selector("IR.auto_freq");
+                                   openSpaceBox("");
+                                   closeBox();
                                    
                                    openHorizontalTableBox("");
                                    {
@@ -353,26 +347,8 @@ openHorizontalTableBox("");
                                         create_small_rackknob("IR.bandwidth"," bandwidth ");
                                    }
                                    closeBox();
-
                               }
                               closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openHorizontalBox("");
-                              {
-                                   create_selector("IR.auto_freq");
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                              }
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox(); 
                          }
                          closeBox();
                     }
@@ -398,11 +374,7 @@ openHorizontalTableBox("");
 					closeBox();
                     openDialogBox("compressor.dialog", "compressor.on_off","RackBox_expose");
                     {
-                         openFrameBox("");
-                         closeBox();
-                         openFrameBox("");
-                         closeBox();
-                         
+                 
                               openHorizontalTableBox("");
                               {
                                    create_small_rackknob("compressor.knee");
@@ -415,10 +387,7 @@ openHorizontalTableBox("");
                               }
                               closeBox();
                          
-                         openFrameBox("");
-                         closeBox();
-                         openFrameBox("");
-                         closeBox();
+                       
                     }
                     closeBox();
                }

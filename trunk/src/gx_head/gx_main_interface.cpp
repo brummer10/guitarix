@@ -2330,12 +2330,17 @@ bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d)
 
 void GxWindowBox::on_check_resize()
 {
-	if(window.get_events() == Gdk::BUTTON_PRESS_MASK){
-		int y_org = window.get_height();
-		if(y_org >=81)
-			window.set_size_request (-1 , y_org-5 );
-		usleep(100);
-	}
+	static bool doit = true;
+		if (doit){
+		if(window.get_events() != Gdk::BUTTON_RELEASE_MASK){
+			int y_org = window.get_height();
+			if(y_org >=81)
+				window.set_size_request (-1 , y_org-5 );
+			usleep(100);
+			doit = false;
+		}
+	}else doit = true;
+
 }
 
 bool GxWindowBox::on_button_pressed(GdkEventButton* event)
@@ -2365,6 +2370,7 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 	Glib::ustring title = titl;
 	window.set_decorated(true);
 	window.add_events(Gdk::BUTTON_PRESS_MASK);
+	window.add_events(Gdk::BUTTON_RELEASE_MASK);
 	window.set_icon(Glib::wrap(ib));
 	window.set_gravity(Gdk::GRAVITY_SOUTH);
 	window.set_title(title);
