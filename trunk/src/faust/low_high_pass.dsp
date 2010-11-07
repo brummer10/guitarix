@@ -1,4 +1,4 @@
-declare name 		"low_highpass";
+
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";
@@ -12,7 +12,7 @@ import("math.lib");
 sbp1    		= vslider("low_freq[name:low freq][tooltip:low-freq cutoff Hz]",130,20,1000,10);
 sbp2    		= vslider("high_freq[name:high freq][tooltip:high-freq cutoff Hz]",5000,1000,12000,10);
 switch1 		= checkbox("on_off[name:low highcutoff]");
-sbp 			= hgroup("low_highcutoff", bypass(switch1, +(anti_denormal_ac) : speakerbp(sbp1,sbp2)));
+sbp 			= hgroup("lhc", bypass(switch1, +(anti_denormal_ac) : speakerbp(sbp1,sbp2)));
 
 
 //------------------------------ low/high-passfilters --------------------------------------
@@ -67,6 +67,6 @@ lowpassfreq  	= nentry("low_freq[name:low freq]", 5000, 20, 12000, 10);
 highpassfreq 	= nentry("high_freq[name:high freq]", 130, 20, 7040, 10);
 switch       	= checkbox("on_off[name:low highpass]");
 passo 		 	= +(anti_denormal_ac) : lowpassN(1,lowpassfreq) : highpassN(1,highpassfreq);
-pass 		 	= hgroup("low_highpass", bypass(switch, passo));
+pass 		 	= hgroup("lhp", bypass(switch, passo));
 
 process 		=  pass  : sbp ;

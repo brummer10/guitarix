@@ -68,9 +68,9 @@ openHorizontalTableBox("");
 							
 								openHorizontalBox("");
 								{
-									create_small_rackknob("low_highpass.low_highpass.high_freq","high-pass ");
-									create_small_rackknob("low_highpass.low_highpass.low_freq"," low-pass ");
-									create_switch_no_caption(sw_switchit, "low_highpass.low_highpass.on_off");
+									create_small_rackknob("low_high_pass.lhp.high_freq","high-pass ");
+									create_small_rackknob("low_high_pass.lhp.low_freq"," low-pass ");
+									create_switch_no_caption(sw_switchit, "low_high_pass.lhp.on_off");
 								}
 								closeBox();
 							
@@ -79,9 +79,9 @@ openHorizontalTableBox("");
 							
 								openHorizontalBox("");
 								{
-									create_small_rackknob("low_highpass.low_highcutoff.low_freq"," low-cut ");
-									create_small_rackknob("low_highpass.low_highcutoff.high_freq","high-cut ");
-									create_switch_no_caption(sw_switchit, "low_highpass.low_highcutoff.on_off");
+									create_small_rackknob("low_high_pass.lhc.low_freq"," low-cut ");
+									create_small_rackknob("low_high_pass.lhc.high_freq","high-cut ");
+									create_switch_no_caption(sw_switchit, "low_high_pass.lhc.on_off");
 								}
 								closeBox();
 							

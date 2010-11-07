@@ -225,6 +225,8 @@ GtkWidget* patch_info;
 GtkWidget* tuner_widget;
 GtkWidget* rack_widget;
 GtkWidget* srack_widget;
+GtkWidget* menu_mono_rack;
+GtkWidget* menu_stereo_rack;
 
 /* wave view widgets */
 GtkWidget* livewa;

@@ -90,7 +90,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("SampleLooper.on_off", "on/off", (float*) &fsloop, 0.);
 	gx_gui::registerParam("phaser.on_off", "on/off", (float*) &fphaser, 0.);
 	gx_gui::registerParam("shaper.on_off", "on/off", &fng, 0);
-	gx_gui::registerParam("low_highpass.on_off", "on/off",(float*) &flh, 0);
+	gx_gui::registerParam("low_highpass.on_off", "on/off", &flh, 0);
 	gx_gui::registerParam("stereodelay.on_off", "on/off",(float*) &fsd, 0);
 	gx_gui::registerParam("stereoecho.on_off", "on/off",(float*) &fse, 0);
 	
@@ -132,25 +132,25 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("stereodelay.position", &posit15, true, 4, 1, 9);
 	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 9);
 	
-	registerNonMidiParam("compressor.dialog", &fdialogbox8, true);
-	registerNonMidiParam("crybaby.dialog", &fdialogbox4, true);
-	registerNonMidiParam("gx_distortion.dialog", &fdialogbox1, true);
-	registerNonMidiParam("freeverb.dialog", &fdialogbox2, true);
-	registerNonMidiParam("IR.dialog", &fdialogbox3, true);
-	registerNonMidiParam("chorus.dialog", &fchorusbox, true);
-	registerNonMidiParam("eq.dialog", &fdialogbox_eq, true);
-	registerNonMidiParam("eqs.dialog", &fdialogbox_eqs, true);
-	registerNonMidiParam("MultiBandFilter.dialog", &fdialogbox_mbf, true);
-	registerNonMidiParam("moog.dialog", &fdialogbox_moo, true);
-	registerNonMidiParam("biquad.dialog", &fbiquadbox, true);
-	registerNonMidiParam("flanger.dialog", &fflangerbox, true);
-	registerNonMidiParam("echo.dialog", &fdialogbox_echo, true);
-	registerNonMidiParam("delay.dialog", &fdialogbox_delay, true);
-	registerNonMidiParam("overdrive.dialog", &fdialogbox_ovd, true);
-	registerNonMidiParam("phaser.dialog", &fdialogbox_pha, true);
-	registerNonMidiParam("low_highpass.dialog", &fdialogbox_lh, true);
-	registerNonMidiParam("stereodelay.dialog", &fdialogbox_sd, true);
-	registerNonMidiParam("stereoecho.dialog", &fdialogbox_se, true);
+	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
+	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);
+	registerNonMidiParam("gx_distortion.dialog", &fdialogbox1, false);
+	registerNonMidiParam("freeverb.dialog", &fdialogbox2, false);
+	registerNonMidiParam("IR.dialog", &fdialogbox3, false);
+	registerNonMidiParam("chorus.dialog", &fchorusbox, false);
+	registerNonMidiParam("eq.dialog", &fdialogbox_eq, false);
+	registerNonMidiParam("eqs.dialog", &fdialogbox_eqs, false);
+	registerNonMidiParam("MultiBandFilter.dialog", &fdialogbox_mbf, false);
+	registerNonMidiParam("moog.dialog", &fdialogbox_moo, false);
+	registerNonMidiParam("biquad.dialog", &fbiquadbox, false);
+	registerNonMidiParam("flanger.dialog", &fflangerbox, false);
+	registerNonMidiParam("echo.dialog", &fdialogbox_echo, false);
+	registerNonMidiParam("delay.dialog", &fdialogbox_delay, false);
+	registerNonMidiParam("overdrive.dialog", &fdialogbox_ovd, false);
+	registerNonMidiParam("phaser.dialog", &fdialogbox_pha, false);
+	registerNonMidiParam("low_highpass.dialog", &fdialogbox_lh, false);
+	registerNonMidiParam("stereodelay.dialog", &fdialogbox_sd, false);
+	registerNonMidiParam("stereoecho.dialog", &fdialogbox_se, false);
 	
 	registerNonMidiParam("system.waveview", &viv, false);
 
@@ -330,7 +330,7 @@ void process_buffers(int count, float* input, float* output0)
 		    delay::compute(count, output0, output0);
 	    } else if (audio.posit10 == m && audio.feq && audio.eqpp) {
 		    selecteq::compute(count, output0, output0);
-	    } else if (audio.posit14 == m && audio.feq && audio.lhpp) {
+	    } else if (audio.posit14 == m && audio.flh && audio.lhpp) {
 		    low_high_pass::compute(count, output0, output0);
 	    }
     }
@@ -362,7 +362,7 @@ void process_buffers(int count, float* input, float* output0)
 		    delay::compute(count, output0, output0);
 	    } else if (audio.posit10 == m && audio.feq && !audio.eqpp) {
 		    selecteq::compute(count, output0, output0);
-	    }else if (audio.posit14 == m && audio.feq && !audio.lhpp) {
+	    }else if (audio.posit14 == m && audio.flh && !audio.lhpp) {
 		    low_high_pass::compute(count, output0, output0);
 	    }
     }

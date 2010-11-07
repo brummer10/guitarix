@@ -214,7 +214,9 @@ extern GtkWidget* jc_dialog;
 extern GtkWidget* patch_info;
 extern GtkWidget* tuner_widget;
 extern GtkWidget* rack_widget;
+extern GtkWidget* menu_mono_rack;
 extern GtkWidget* srack_widget;
+extern GtkWidget* menu_stereo_rack;
 
 /* wave view widgets */
 extern GdkPixbuf* ib;

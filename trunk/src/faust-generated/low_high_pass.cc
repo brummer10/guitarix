@@ -96,13 +96,13 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("low_highpass.low_highcutoff.on_off","low highcutoff","B","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
-	registerVar("low_highpass.low_highpass.on_off","low highpass","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	registerVar("low_highpass.low_highpass.low_freq","low freq","S","",&fentry1, 5e+03, 2e+01, 1.2e+04, 1e+01);
-	registerVar("low_highpass.low_highpass.high_freq","high freq","S","",&fentry0, 1.3e+02, 2e+01, 7.04e+03, 1e+01);
-	registerVar("low_highpass.low_highcutoff.low_freq","low freq","S","low-freq cutoff Hz",&fslider1, 1.3e+02, 2e+01, 1e+03, 1e+01);
-	registerVar("low_highpass.low_highcutoff.high_freq","high freq","S","high-freq cutoff Hz",&fslider0, 5e+03, 1e+03, 1.2e+04, 1e+01);
-	registerInit("low_highpass", init);
+	registerVar("low_high_pass.lhc.on_off","low highcutoff","B","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
+	registerVar("low_high_pass.lhp.on_off","low highpass","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	registerVar("low_high_pass.lhp.low_freq","low freq","S","",&fentry1, 5e+03, 2e+01, 1.2e+04, 1e+01);
+	registerVar("low_high_pass.lhp.high_freq","high freq","S","",&fentry0, 1.3e+02, 2e+01, 7.04e+03, 1e+01);
+	registerVar("low_high_pass.lhc.low_freq","low freq","S","low-freq cutoff Hz",&fslider1, 1.3e+02, 2e+01, 1e+03, 1e+01);
+	registerVar("low_high_pass.lhc.high_freq","high freq","S","high-freq cutoff Hz",&fslider0, 5e+03, 1e+03, 1.2e+04, 1e+01);
+	registerInit("low_high_pass", init);
 }
 
 } // end namespace low_high_pass

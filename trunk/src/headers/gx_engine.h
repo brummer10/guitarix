@@ -136,7 +136,7 @@ public:
 	bool fdialogbox_lh;
 	bool fdialogbox_sd;
 	int lhpp;
-	int flh;
+	bool flh;
 	int fsd;
 	int fse;
 

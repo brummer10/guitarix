@@ -2308,6 +2308,7 @@ class GxWindowBox
 private:
 	bool on_window_delete_event(GdkEventAny* event,gpointer d );
 	void on_check_resize();
+	bool on_button_pressed(GdkEventButton* event);
 public:
 	Gtk::Window window;
 	Gtk::ScrolledWindow           m_scrolled_window; 
@@ -2333,10 +2334,29 @@ void GxWindowBox::on_check_resize()
 		int y_org = window.get_height();
 		if(y_org >=81)
 			window.set_size_request (-1 , y_org-5 );
-		usleep(50);
+		usleep(100);
 	}
 }
 
+bool GxWindowBox::on_button_pressed(GdkEventButton* event)
+{
+	if( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ){
+
+		const gchar * title = gtk_widget_get_name(GTK_WIDGET(window.gobj()));
+		if(strcmp(title,"MonoRack")==0) {
+			guint32 tim = gtk_get_current_event_time ();
+			gtk_menu_popup (GTK_MENU(menu_mono_rack),NULL,NULL,NULL,(gpointer) menu_mono_rack,2,tim);
+		return true;
+		}
+		else if (strcmp(title,"StereoRack")==0){
+			guint32 tim = gtk_get_current_event_time ();
+			gtk_menu_popup (GTK_MENU(menu_stereo_rack),NULL,NULL,NULL,(gpointer) menu_stereo_rack,2,tim);
+		return true;
+		}
+	}
+
+	return false;
+}
 GxWindowBox::GxWindowBox(gx_ui::GxUI& ui, 
 	const char *pb_2, Glib::ustring titl,GtkWidget * d):
 	window(Gtk::WINDOW_TOPLEVEL),
@@ -2362,7 +2382,8 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 	window.add(m_scrolled_window);
 	window.signal_check_resize().connect(
 		sigc::mem_fun(*this, &GxWindowBox::on_check_resize));
-	
+	window.signal_button_press_event().connect(
+		sigc::mem_fun(*this, &GxWindowBox::on_button_pressed));
 	paintbox1.show();
 	box.show();
 	m_scrolled_window.show();
@@ -2956,6 +2977,7 @@ void GxMainInterface::addPluginMenu()
 	gtk_widget_show(menucontin);
 	
 	fMenuList["PluginsMono"] = menucontin;
+	menu_mono_rack = fMenuList["PluginsMono"];
 	
 	/*-- add a separator line --*/
 	GtkWidget* sep = gtk_separator_menu_item_new();
@@ -2982,6 +3004,7 @@ void GxMainInterface::addPluginMenu()
 	gtk_widget_show(menucontin);
 	
 	fMenuList["PluginsStereo"] = menucontin;
+	menu_stereo_rack = fMenuList["PluginsStereo"];
 }
 
 //----------------------------- option menu ----------------------------
