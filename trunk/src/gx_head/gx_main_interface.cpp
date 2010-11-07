@@ -2071,10 +2071,10 @@ void GxDialogWindowBox::on_dialog_button_toggled()
 void GxDialogWindowBox::on_dialog_menu_activate()
 {
 	gx_show_menu_settings(GTK_WIDGET(menuitem.gobj()), (gpointer)paintbox.gobj());
-	GtkWidget *box = gtk_widget_get_parent(GTK_WIDGET(paintbox.gobj()));
+	/*GtkWidget *box = gtk_widget_get_parent(GTK_WIDGET(paintbox.gobj()));
 	if(GDK_IS_WINDOW(box->window)){
 		gdk_window_invalidate_rect(box->window,NULL,true);
-	} 
+	} */
 	if (!menuitem.get_active()){
 		string group = group_id;
 		group += ".on_off";

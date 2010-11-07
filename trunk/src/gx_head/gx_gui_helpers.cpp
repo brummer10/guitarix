@@ -266,7 +266,7 @@ void GxMainInterface::on_rack_activate()
 	static gint ryorg = gx_set_y_oriantation();
 	static gint rhight = gx_set_w_oriantation();
 	if (fShowRack.get_active()) {
-		gtk_widget_set_size_request (GTK_WIDGET (rack_widget), -1, rhight);
+		gtk_widget_set_size_request (GTK_WIDGET (rack_widget), 0, rhight);
 		gtk_window_move(GTK_WINDOW(rack_widget), rxorg, ryorg);
 		gtk_widget_show(rack_widget);
 	} else {
@@ -284,7 +284,7 @@ void GxMainInterface::on_srack_activate()
 	static gint sryorg = gx_set_sy_oriantation();
 	static gint srhight = gx_set_sw_oriantation();
 	if (fShowSRack.get_active()) {
-		gtk_widget_set_size_request (GTK_WIDGET (srack_widget), -1,srhight);
+		gtk_widget_set_size_request (GTK_WIDGET (srack_widget), 0,srhight);
 		gtk_window_move(GTK_WINDOW(srack_widget), srxorg, sryorg);
 		gtk_widget_show(srack_widget);
 	} else {
@@ -486,7 +486,7 @@ gboolean gx_set_resizeable(gpointer data)
 //----- show extendend settings slider
 void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 {
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
+	/*if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
 		gtk_widget_show_all(GTK_WIDGET(data));
 		GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(data));
 		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
@@ -529,18 +529,18 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 		g_idle_add(gx_set_resizeable,gpointer(box1));
 		
 		
-	}
+	}*/
 }
 
 //----- show extendend settings slider
 void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 {
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)) == TRUE) {
-		//gtk_widget_show_all(GTK_WIDGET(data));
-		GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(data));
-		gtk_widget_show_all(GTK_WIDGET(box1));
-		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
-		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		gtk_widget_show_all(GTK_WIDGET(data));
+		GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
+		gtk_widget_show_all(GTK_WIDGET(plug));
+		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(plug));
+		GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
 		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
 		GtkWidget *box3 = gtk_widget_get_parent(GTK_WIDGET(box2));
 		
@@ -552,19 +552,15 @@ void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 			if(strcmp(title,"MonoRack")==0) gui->fShowRack.set_active();
 			else if (strcmp(title,"StereoRack")==0) gui->fShowSRack.set_active();
 		} */
-			//gtk_widget_show(GTK_WIDGET(box1)); //FIXME
+			 //FIXME show rack when enable plugins
 		gtk_window_set_resizable(GTK_WINDOW (box1) , FALSE);
+		
 		GtkRequisition my_size;
 		gtk_widget_size_request(GTK_WIDGET(box3),&my_size);
 		gint  my_width, my_height;
 		gtk_widget_get_size_request (GTK_WIDGET(box1),&my_width, &my_height);
-		gtk_widget_set_size_request (GTK_WIDGET (box2), my_size.width+24, my_height );
+		gtk_widget_set_size_request (GTK_WIDGET (box2), -1, my_height );
 		gtk_window_set_resizable(GTK_WINDOW (box1) , TRUE);
-		//gint root_x, root_y;
-		//gtk_window_get_position (GTK_WINDOW(data), &root_x, &root_y);
-		//if (root_y>160)root_y -= 120;
-		//else root_y +=120;
-		//gtk_window_move(GTK_WINDOW(data), root_x, root_y);
 	} else {
 		//gtk_widget_hide(GTK_WIDGET(data));
 		GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(data));
@@ -583,7 +579,9 @@ void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 		gtk_widget_size_request(GTK_WIDGET(box3),&my_size);
 		gtk_widget_get_size_request (GTK_WIDGET(box1),&my_width, &my_height);
 		gtk_widget_set_size_request (GTK_WIDGET (box2),my_size.width+24 , my_height );
-		g_idle_add(gx_set_resizeable,gpointer(box1));
+		static guint source_id = 0;
+		if (source_id == 0 || g_main_context_find_source_by_id(NULL, source_id) == NULL)
+		source_id = g_idle_add(gx_set_resizeable,gpointer(box1));
 		
 		
 	}
