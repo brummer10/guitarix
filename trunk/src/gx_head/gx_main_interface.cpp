@@ -2154,11 +2154,12 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	string p = "ui.";
 	p +=title;
 	set_label(dialog->menuitem,title );
+	//guint accel_key = GDK_1  + mono_plugs - 3;
 	//dialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	//                           GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	//                           accel_key, Gdk::ModifierType(GDK_CONTROL_MASK|GDK_SHIFT_MASK), Gtk::ACCEL_VISIBLE);  //FIXME MOD1_MASK 
 	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsMono"]), GTK_WIDGET(dialog->menuitem.gobj()));
 	dialog->menuitem.show();
-	dialog->menuitem.set_parameter(new SwitchParameter(p));
+	dialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
 	
 	
 	
@@ -2184,11 +2185,14 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	set_label(bdialog->menuitem,title );
 	string p = "ui.";
 	p +=title;
+	string s;
+	
+	//guint accel_key = GDK_1  + stereo_plugs - 3;
 	//bdialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	//                           GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	//                           accel_key, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);  //FIXME 
 	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsStereo"]), GTK_WIDGET(bdialog->menuitem.gobj()));
 	bdialog->menuitem.show();
-	bdialog->menuitem.set_parameter(new SwitchParameter(p));
+	bdialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
 }
 
 //-------- collect patch info for stage display
@@ -2327,8 +2331,9 @@ void GxWindowBox::on_check_resize()
 {
 	if(window.get_events() == Gdk::BUTTON_PRESS_MASK){
 		int y_org = window.get_height();
-		if(y_org >=11)
+		if(y_org >=81)
 			window.set_size_request (-1 , y_org-5 );
+		usleep(50);
 	}
 }
 

@@ -1,4 +1,4 @@
-declare name 		"low_high_pass";
+declare name 		"low_highpass";
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";

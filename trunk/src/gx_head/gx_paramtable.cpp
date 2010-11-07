@@ -489,10 +489,9 @@ ParameterGroups::ParameterGroups()
 	insert("overdrive","Overdrive");
 	insert("gxdistortion","Multi Band Distortion");
 	insert("gx_distortion","Multi Band Distortion");
-	insert("low_high_pass","low/highpass");
-	insert("low_high_pass.low_highpass","low/highpass");
-	insert("low_high_pass.low_highcutoff","low/highcutoff");
-	insert("low_highpass","low/high pass");
+	insert("low_highpass.low_highpass","low_highpass");
+	insert("low_highpass.low_highcutoff","low_highcutoff");
+	insert("low_highpass","low high pass");
 	insert("gx_distortion.resonator","Distortion resonator");
 	insert("distortion1","Single Band Distortion");
 	insert("distortion1.low_highpass","Distortion low/highpass");

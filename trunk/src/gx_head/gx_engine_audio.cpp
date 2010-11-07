@@ -90,7 +90,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("SampleLooper.on_off", "on/off", (float*) &fsloop, 0.);
 	gx_gui::registerParam("phaser.on_off", "on/off", (float*) &fphaser, 0.);
 	gx_gui::registerParam("shaper.on_off", "on/off", &fng, 0);
-	gx_gui::registerParam("low_highpass.on_off", "on/off", &flh, 0);
+	gx_gui::registerParam("low_highpass.on_off", "on/off",(float*) &flh, 0);
 	gx_gui::registerParam("stereodelay.on_off", "on/off",(float*) &fsd, 0);
 	gx_gui::registerParam("stereoecho.on_off", "on/off",(float*) &fse, 0);
 	
@@ -107,7 +107,7 @@ void AudioVariables::register_parameter()
 	registerEnumParam("echo.pp","select",post_pre,&echopp, 0);
 	registerEnumParam("delay.pp","select",post_pre,&delaypp, 0);
 	registerEnumParam("eqs.pp","select",post_pre,&eqpp, 0);
-	registerEnumParam("low_high_pass.pp","select",post_pre,&lhpp, 0);
+	registerEnumParam("low_highpass.pp","select",post_pre,&lhpp, 0);
 	
 	static const char *crybaby_autowah[] = {"manual","auto",0};
 	registerEnumParam("crybaby.autowah", "select", crybaby_autowah, &fautowah, 0);
@@ -128,29 +128,29 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("flanger.position", &posit9, true, 2, 1, 9);
 	registerNonMidiParam("moog.position", &posit11, true, 6, 1, 9);
 	registerNonMidiParam("phaser.position", &posit12, true, 3, 1, 9);
-	registerNonMidiParam("low_high_pass.position", &posit14, true, 1, 1, 10);
+	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 10);
 	registerNonMidiParam("stereodelay.position", &posit15, true, 4, 1, 9);
 	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 9);
 	
-	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
-	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);
-	registerNonMidiParam("gx_distortion.dialog", &fdialogbox1, false);
-	registerNonMidiParam("freeverb.dialog", &fdialogbox2, false);
-	registerNonMidiParam("IR.dialog", &fdialogbox3, false);
-	registerNonMidiParam("chorus.dialog", &fchorusbox, false);
-	registerNonMidiParam("eq.dialog", &fdialogbox_eq, false);
-	registerNonMidiParam("eqs.dialog", &fdialogbox_eqs, false);
-	registerNonMidiParam("MultiBandFilter.dialog", &fdialogbox_mbf, false);
-	registerNonMidiParam("moog.dialog", &fdialogbox_moo, false);
-	registerNonMidiParam("biquad.dialog", &fbiquadbox, false);
-	registerNonMidiParam("flanger.dialog", &fflangerbox, false);
-	registerNonMidiParam("echo.dialog", &fdialogbox_echo, false);
-	registerNonMidiParam("delay.dialog", &fdialogbox_delay, false);
-	registerNonMidiParam("overdrive.dialog", &fdialogbox_ovd, false);
-	registerNonMidiParam("phaser.dialog", &fdialogbox_pha, false);
-	registerNonMidiParam("low_high_pass.dialog", &fdialogbox_lh, false);
-	registerNonMidiParam("stereodelay.dialog", &fdialogbox_sd, false);
-	registerNonMidiParam("stereoecho.dialog", &fdialogbox_se, false);
+	registerNonMidiParam("compressor.dialog", &fdialogbox8, true);
+	registerNonMidiParam("crybaby.dialog", &fdialogbox4, true);
+	registerNonMidiParam("gx_distortion.dialog", &fdialogbox1, true);
+	registerNonMidiParam("freeverb.dialog", &fdialogbox2, true);
+	registerNonMidiParam("IR.dialog", &fdialogbox3, true);
+	registerNonMidiParam("chorus.dialog", &fchorusbox, true);
+	registerNonMidiParam("eq.dialog", &fdialogbox_eq, true);
+	registerNonMidiParam("eqs.dialog", &fdialogbox_eqs, true);
+	registerNonMidiParam("MultiBandFilter.dialog", &fdialogbox_mbf, true);
+	registerNonMidiParam("moog.dialog", &fdialogbox_moo, true);
+	registerNonMidiParam("biquad.dialog", &fbiquadbox, true);
+	registerNonMidiParam("flanger.dialog", &fflangerbox, true);
+	registerNonMidiParam("echo.dialog", &fdialogbox_echo, true);
+	registerNonMidiParam("delay.dialog", &fdialogbox_delay, true);
+	registerNonMidiParam("overdrive.dialog", &fdialogbox_ovd, true);
+	registerNonMidiParam("phaser.dialog", &fdialogbox_pha, true);
+	registerNonMidiParam("low_highpass.dialog", &fdialogbox_lh, true);
+	registerNonMidiParam("stereodelay.dialog", &fdialogbox_sd, true);
+	registerNonMidiParam("stereoecho.dialog", &fdialogbox_se, true);
 	
 	registerNonMidiParam("system.waveview", &viv, false);
 
