@@ -2309,6 +2309,7 @@ private:
 	bool on_window_delete_event(GdkEventAny* event,gpointer d );
 	void on_check_resize();
 	bool on_button_pressed(GdkEventButton* event);
+	bool doit;
 public:
 	Gtk::Window window;
 	Gtk::ScrolledWindow           m_scrolled_window; 
@@ -2330,16 +2331,13 @@ bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d)
 
 void GxWindowBox::on_check_resize()
 {
-	static bool doit = true;
-		if (doit){
-		if(window.get_events() != Gdk::BUTTON_RELEASE_MASK){
-			int y_org = window.get_height();
-			if(y_org >=81)
-				window.set_size_request (-1 , y_org-5 );
-			usleep(100);
-			doit = false;
-		}
-	}else doit = true;
+	if (doit){
+		int y_org = window.get_height();
+		if(y_org >=81)
+			window.set_size_request (-1 , y_org-5 );
+		doit = false;
+		usleep(100);
+	}else GxWindowBox::doit = true;
 
 }
 
@@ -2378,7 +2376,7 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 	
 	m_scrolled_window.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_AUTOMATIC); 
 	paintbox1.set_border_width(18);
-	
+	doit = true;
 	paintbox1.property_paint_func() = pb_2;
 	window.signal_delete_event().connect(
 		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxWindowBox::on_window_delete_event),d));
