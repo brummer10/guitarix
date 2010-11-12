@@ -2331,14 +2331,10 @@ bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d)
 
 void GxWindowBox::on_check_resize()
 {
-	if (doit){
-		int y_org = window.get_height();
-		if(y_org >=81)
-			window.set_size_request (-1 , y_org-5 );
-		doit = false;
-		usleep(100);
-	}else GxWindowBox::doit = true;
-
+	//fprintf(stderr, " resize "); 
+	int y_org = window.get_height();
+	if(y_org >=81)
+		window.set_size_request (-1 , y_org -5 );
 }
 
 bool GxWindowBox::on_button_pressed(GdkEventButton* event)
@@ -2368,7 +2364,6 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 	Glib::ustring title = titl;
 	window.set_decorated(true);
 	window.add_events(Gdk::BUTTON_PRESS_MASK);
-	window.add_events(Gdk::BUTTON_RELEASE_MASK);
 	window.set_icon(Glib::wrap(ib));
 	window.set_gravity(Gdk::GRAVITY_SOUTH);
 	window.set_title(title);
@@ -2384,10 +2379,10 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 	paintbox1.add(box);
 	m_scrolled_window.add(paintbox1);
 	window.add(m_scrolled_window);
-	window.signal_check_resize().connect(
-		sigc::mem_fun(*this, &GxWindowBox::on_check_resize));
 	window.signal_button_press_event().connect(
 		sigc::mem_fun(*this, &GxWindowBox::on_button_pressed));
+	window.signal_check_resize().connect(
+		sigc::mem_fun(*this, &GxWindowBox::on_check_resize));
 	paintbox1.show();
 	box.show();
 	m_scrolled_window.show();
@@ -2898,7 +2893,7 @@ void GxMainInterface::addExtraPresetMenu()
 	gtk_widget_show (sep);
 
 	/*-- Create  menu item Delete Active preset --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("_Save _Active Preset");
+	menuitem = gtk_menu_item_new_with_mnemonic ("_Save Active Preset");
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_save_oldpreset), (gpointer)1);
 	gtk_widget_add_accelerator(menuitem, "activate",
@@ -2907,7 +2902,7 @@ void GxMainInterface::addExtraPresetMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
 
-	menuitem = gtk_menu_item_new_with_mnemonic ("_Rename _Active Preset");
+	menuitem = gtk_menu_item_new_with_mnemonic ("_Rename Active Preset");
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_rename_active_preset_dialog), NULL);
 	gtk_widget_add_accelerator(menuitem, "activate",
@@ -2952,7 +2947,7 @@ void GxMainInterface::addPluginMenu()
 	menucont = fMenuList["Top"];
 
 	/*---------------- Create Options menu items ------------------*/
-	menulabel = gtk_menu_item_new_with_mnemonic ("_Plugins");
+	menulabel = gtk_menu_item_new_with_mnemonic ("P_lugins");
 	gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
 	gtk_widget_show(menulabel);
 
@@ -2973,6 +2968,7 @@ void GxMainInterface::addPluginMenu()
 	
 	/*-- Create mono plugin menu soket item under Options submenu --*/
 	menulabel = gtk_menu_item_new_with_mnemonic ("_Mono Plugins");
+	
 	gtk_menu_append (GTK_MENU(menucont), menulabel);
 	gtk_widget_show(menulabel);
 	
@@ -3000,6 +2996,7 @@ void GxMainInterface::addPluginMenu()
 	
 	/*-- Create stereo plugin menu soket item under Options submenu --*/
 	menulabel = gtk_menu_item_new_with_mnemonic ("_Stereo Plugins");
+	
 	gtk_menu_append (GTK_MENU(menucont), menulabel);
 	gtk_widget_show(menulabel);
 	

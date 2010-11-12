@@ -266,7 +266,7 @@ int set_knob = 0;
 int mono_plugs = 1;
 int stereo_plugs = 1;
 
-int g_threads[5]={0,0,0,0,0};
+int g_threads[10]={0,0,0,0,0,0,0,0,0,0};
 
 /* for level display */
 int meter_falloff = 27; // in dB/sec.

@@ -2,7 +2,7 @@ Source: guitarix
 Section: sound
 Priority: extra
 Maintainer: brummer <brummer-@web.de>
-Build-Depends: debhelper (>= 6), python-minimal, python2.5, libjack-dev, libsndfile1-dev, libgtk2.0-dev, ladspa-sdk, libzita-convolver-dev
+Build-Depends: debhelper (>= 6), python-minimal, python2.5, libjack-jackd2-dev|libjack-dev, libsndfile1-dev, libgtk2.0-dev, ladspa-sdk, libzita-convolver-dev
 Standards-Version: 3.7.3
 Homepage: <http://guitarix.sourceforge.net/>
 
