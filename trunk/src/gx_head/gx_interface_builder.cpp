@@ -326,23 +326,25 @@ void GxMainInterface::setup()
                closeBox();
           }
           closeBox();
+          
+         openPlugBox("Mono Rack");
+		 {
+			#include "gx_rack_builder.cc"		
+		 }
+		 closeBox();
+		 
+		 openAmpBox("Stereo Rack");
+		 {
+			#include "gx_srack_builder.cc"		
+		 }
+		 closeBox();
 
-     }
-     closeBox();
+		 }
+		 closeBox();
      // add a Patch Info widget
      openPatchInfoBox(&gx_gui::show_patch_info);
      addNumDisplay();
-     openPlugBox("Mono Rack");
-     {
-		#include "gx_rack_builder.cc"		
-	 }
-	 closeBox();
-	 
-	 openAmpBox("Stereo Rack");
-     {
-		#include "gx_srack_builder.cc"		
-	 }
-	 closeBox();
+     
 	 
      debug_check(all_midi_params_assigned);
 	}

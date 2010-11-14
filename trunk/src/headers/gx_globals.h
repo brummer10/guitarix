@@ -253,6 +253,7 @@ extern int set_knob;
 /* rack handlig */
 extern int mono_plugs;
 extern int stereo_plugs;
+extern int refresh_size;
 
 /* widget orientation */
 extern float r_xorg;

@@ -501,6 +501,7 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 {
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)) == TRUE) {
+		if(refresh_size)refresh_size = 6;
 		gtk_widget_show_all(GTK_WIDGET(data));
 		GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
 		gtk_widget_show_all(GTK_WIDGET(plug));
@@ -528,7 +529,7 @@ void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 		gtk_window_set_resizable(GTK_WINDOW (box1) , TRUE);
 		gtk_widget_set_size_request (GTK_WIDGET (box2),-1 , my_height );
 	} else {
-		
+		refresh_size = 8;
 
 		GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
 		

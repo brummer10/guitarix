@@ -267,6 +267,7 @@ int set_knob = 0;
 /* rack handlig */
 int mono_plugs = 1;
 int stereo_plugs = 1;
+int refresh_size = 0;
 
 int g_threads[10]={0,0,0,0,0,0,0,0,0,0};
 

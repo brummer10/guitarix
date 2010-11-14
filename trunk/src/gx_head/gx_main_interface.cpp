@@ -825,10 +825,14 @@ void GxMainInterface::openEventBox(const char* label)
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{
 		GtkWidget * e_box =  gtk_event_box_new ();
-		GtkWidget * frame = addWidget(label, e_box);
+		GtkWidget * f_box =  gtk_fixed_new ();
+		//GtkWidget * frame = addWidget(label, e_box);
 		gtk_widget_set_name (e_box,"osc_box");
-		gtk_container_add (GTK_CONTAINER(frame), box);
-		gtk_widget_show(box);
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), f_box, false, fill, 0);
+		
+		gtk_container_add (GTK_CONTAINER(e_box), box);
+		gtk_fixed_put(GTK_FIXED(f_box),e_box,0,0);
+		gtk_widget_show_all(f_box);
 		pushBox(kBoxMode, box);
 	}
 	else
@@ -2331,10 +2335,16 @@ bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d)
 
 void GxWindowBox::on_check_resize()
 {
-	//fprintf(stderr, " resize "); 
+	
+	if(!refresh_size){
+		//fprintf(stderr, " resize "); 
 	int y_org = window.get_height();
 	if(y_org >=81)
 		window.set_size_request (-1 , y_org -5 );
+	}else {
+		 refresh_size -=1;
+		 //fprintf(stderr, "count  "); 
+	 }
 }
 
 bool GxWindowBox::on_button_pressed(GdkEventButton* event)
