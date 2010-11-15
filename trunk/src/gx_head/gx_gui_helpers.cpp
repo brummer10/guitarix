@@ -501,7 +501,7 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 {
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)) == TRUE) {
-		if(refresh_size)refresh_size = 6;
+		if(refresh_size)refresh_size = 8;
 		gtk_widget_show_all(GTK_WIDGET(data));
 		GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
 		gtk_widget_show_all(GTK_WIDGET(plug));
@@ -528,6 +528,11 @@ void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 		gtk_widget_set_size_request (GTK_WIDGET (box2),my_size.width , my_height );
 		gtk_window_set_resizable(GTK_WINDOW (box1) , TRUE);
 		gtk_widget_set_size_request (GTK_WIDGET (box2),-1 , my_height );
+		if(my_height > 1) {
+			refresh_size = 8;
+			if(my_size.height < 620)my_height = my_size.height;
+			gtk_widget_set_size_request (GTK_WIDGET (box1),my_size.width+24 , my_height );
+		}
 	} else {
 		refresh_size = 8;
 
@@ -550,7 +555,17 @@ void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 		if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
 		g_threads[7] = g_idle_add(gx_set_resizeable,gpointer(data));
 		gtk_widget_set_size_request (GTK_WIDGET (box2),my_size.width+24 , -1 );
-
+		
+		gint  my_width, my_height;
+		gtk_widget_get_size_request (GTK_WIDGET(box1),&my_width, &my_height);
+		//fprintf(stderr, "%i ,%i before\n", my_height,my_size.height); 
+		if(my_height > my_size.height) {
+			my_height = my_size.height;
+			refresh_size = 8;
+			//fprintf(stderr, "%i ,%i \n", my_height,my_size.height); 
+		}
+		gtk_widget_set_size_request (GTK_WIDGET (box1),my_size.width+24 , my_height );
+		
 	}
 }
 //----- hide the extendend settings slider

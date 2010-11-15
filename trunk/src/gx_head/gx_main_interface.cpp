@@ -677,7 +677,7 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	GtkWidget * box1 = gtk_fixed_new ();
 	gtk_container_set_border_width (GTK_CONTAINER (box), 4);
 	//gtk_widget_set_size_request (GTK_WIDGET (box) , 500,40);
-	g_signal_connect(box, "expose-event", G_CALLBACK(zac_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(eq_expose), NULL);
 
 	GtkWidget* 	button = gtk_button_new ();
 	GtkWidget* 	button1 = gtk_button_new ();
@@ -740,7 +740,7 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 	GtkWidget * box1 = gtk_fixed_new ();
 	gtk_container_set_border_width (GTK_CONTAINER (box), 4);
 	//gtk_widget_set_size_request (GTK_WIDGET (box) , 500,40);
-	g_signal_connect(box, "expose-event", G_CALLBACK(zac_expose), NULL);
+	g_signal_connect(box, "expose-event", G_CALLBACK(eq_expose), NULL);
 
 	GtkWidget* 	button = gtk_button_new ();
 	GtkWidget* 	button1 = gtk_button_new ();
@@ -1109,8 +1109,9 @@ void GxMainInterface::openVerticalMidiBox(const char* label)
 
 void GxMainInterface::openToolBar(const char* label)
 {
-	GtkWidget * box = gtk_toolbar_new  ();
-
+	GtkWidget * box = gtk_vpaned_new  ();
+	GtkWidget * box1 = gtk_vbox_new (homogene, 0);
+	GtkWidget * box2 = gtk_vbox_new (homogene, 0);
 
 	if (fMode[fTop] != kTabMode && label[0] != 0)
 	{
@@ -1121,11 +1122,15 @@ void GxMainInterface::openToolBar(const char* label)
 		pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
 		pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
 		gtk_widget_modify_font(lw, style->font_desc);
-		gtk_container_add (GTK_CONTAINER(box), lw);
+		//gtk_container_add (GTK_CONTAINER(box), lw);
 		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
+		gtk_paned_add1(GTK_PANED(box),box1);
+		gtk_paned_add2(GTK_PANED(box),box2);
+		
 		gtk_widget_show(lw);
-		gtk_widget_show(box);
-		pushBox(kBoxMode, box);
+		gtk_widget_show_all(box);
+		pushBox(kBoxMode, box2);
+		pushBox(kBoxMode, box1);
 	}
 	else
 	{
@@ -2413,9 +2418,10 @@ void GxMainInterface::openPlugBox(const char* label)
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_gxrack_expose, label, GTK_WIDGET(fShowRack.gobj()));
 	rack_widget = GTK_WIDGET(box->window.gobj());
-	box->window.set_size_request(-1,310); 
+	box->window.set_size_request(-1,-1); 
 	box->window.set_name("MonoRack");
 	rBox = GTK_WIDGET(box->rbox.gobj());
+	//gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(rBox));
 }
 
@@ -2424,9 +2430,10 @@ void GxMainInterface::openAmpBox(const char* label)
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_gxrack_expose, label, GTK_WIDGET(fShowSRack.gobj()));
 	srack_widget = GTK_WIDGET(box->window.gobj());
-	box->window.set_size_request(-1,310); 
+	box->window.set_size_request(-1,-1); 
 	box->window.set_name("StereoRack");
 	sBox = GTK_WIDGET(box->rbox.gobj());
+	//gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(sBox));
 }
 
