@@ -266,7 +266,7 @@ void GxMainInterface::on_rack_activate()
 	static gint ryorg = gx_set_y_oriantation();
 	static gint rhight = gx_set_w_oriantation();
 	if (fShowRack.get_active()) {
-		gtk_widget_set_size_request (GTK_WIDGET (rack_widget), 0, rhight);
+		gtk_widget_set_size_request (GTK_WIDGET (rack_widget), 0, rhight+5);
 		gtk_window_move(GTK_WINDOW(rack_widget), rxorg, ryorg);
 		gtk_widget_show(rack_widget);
 	} else {
@@ -284,7 +284,7 @@ void GxMainInterface::on_srack_activate()
 	static gint sryorg = gx_set_sy_oriantation();
 	static gint srhight = gx_set_sw_oriantation();
 	if (fShowSRack.get_active()) {
-		gtk_widget_set_size_request (GTK_WIDGET (srack_widget), 0,srhight);
+		gtk_widget_set_size_request (GTK_WIDGET (srack_widget), 0,srhight+5);
 		gtk_window_move(GTK_WINDOW(srack_widget), srxorg, sryorg);
 		gtk_widget_show(srack_widget);
 	} else {
@@ -501,7 +501,7 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 {
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)) == TRUE) {
-		if(refresh_size)refresh_size = 8;
+		if(refresh_size)refresh_size = 6;
 		gtk_widget_show_all(GTK_WIDGET(data));
 		GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
 		gtk_widget_show_all(GTK_WIDGET(plug));
@@ -553,16 +553,16 @@ void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 		GtkRequisition my_size;
 		gtk_widget_size_request(GTK_WIDGET(box3),&my_size);
 		if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
-		g_threads[7] = g_idle_add(gx_set_resizeable,gpointer(data));
+		g_threads[7] = g_timeout_add(40, gx_set_resizeable,gpointer(data));
 		gtk_widget_set_size_request (GTK_WIDGET (box2),my_size.width+24 , -1 );
 		
 		gint  my_width, my_height;
 		gtk_widget_get_size_request (GTK_WIDGET(box1),&my_width, &my_height);
 		//fprintf(stderr, "%i ,%i before\n", my_height,my_size.height); 
-		if(my_height > my_size.height) {
+		if(my_height > my_size.height ) {
 			my_height = my_size.height;
 			refresh_size = 8;
-			//fprintf(stderr, "%i ,%i \n", my_height,my_size.height); 
+		//fprintf(stderr, "%i ,%i \n", my_height,my_size.height); 
 		}
 		gtk_widget_set_size_request (GTK_WIDGET (box1),my_size.width+24 , my_height );
 		
