@@ -633,6 +633,20 @@ gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	cairo_pattern_add_color_stop_rgb (pat, 1, 0.1, 0.1, 0.2);
 	cairo_set_source (cr, pat);
 	cairo_fill (cr);
+	
+	cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+rect_width-3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
+    cairo_line_to(cr, x0+2, y0+rect_height-2);
+    cairo_stroke(cr);
+
+    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+3, y0+rect_height-1);
+    cairo_line_to(cr, x0+3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+3);
+    cairo_stroke(cr);
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);

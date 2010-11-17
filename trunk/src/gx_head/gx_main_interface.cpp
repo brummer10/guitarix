@@ -689,6 +689,7 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	//gtk_container_add (GTK_CONTAINER(box), lw2);
 	gtk_widget_set_size_request (GTK_WIDGET(button), 20, 15);
 	gtk_widget_set_size_request (GTK_WIDGET(button1), 20, 15);
+	gtk_widget_set_size_request (GTK_WIDGET(box1), 25, -1);
 
 	gtk_widget_set_name (lw,"rack_label");
 	gtk_widget_set_name (lw1,"rack_label");
@@ -723,8 +724,8 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	g_value_set_int(&pos,poset);
 	gtk_container_child_set_property(GTK_CONTAINER(rBox),GTK_WIDGET(box),"position", &pos);
 	
-	gtk_fixed_put (GTK_FIXED(box1), button1, 5, 5);
-	gtk_fixed_put (GTK_FIXED(box1), button, 5, 20);
+	gtk_fixed_put (GTK_FIXED(box1), button1, 2, 5);
+	gtk_fixed_put (GTK_FIXED(box1), button, 2, 20);
 	gtk_box_pack_end (GTK_BOX(box), box1, false, fill, 0);
 	gtk_widget_show_all(button);
 	gtk_widget_show_all(button1);
@@ -752,6 +753,7 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 	//gtk_container_add (GTK_CONTAINER(box), lw2);
 	gtk_widget_set_size_request (GTK_WIDGET(button), 20, 15);
 	gtk_widget_set_size_request (GTK_WIDGET(button1), 20, 15);
+	gtk_widget_set_size_request (GTK_WIDGET(box1), 25, -1);
 
 	gtk_widget_set_name (lw,"rack_label");
 	gtk_widget_set_name (lw1,"rack_label");
@@ -788,8 +790,8 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 	
 	gtk_container_child_set_property(GTK_CONTAINER(sBox),GTK_WIDGET(box),"position", &pos);
 	
-	gtk_fixed_put (GTK_FIXED(box1), button1, 5, 5);
-	gtk_fixed_put (GTK_FIXED(box1), button, 5, 20);
+	gtk_fixed_put (GTK_FIXED(box1), button1, 2, 5);
+	gtk_fixed_put (GTK_FIXED(box1), button, 2, 20);
 	gtk_box_pack_end (GTK_BOX(box), box1, false, fill, 0);
 	gtk_widget_show_all(button);
 	gtk_widget_show_all(button1);

@@ -561,100 +561,100 @@ static void set_rack_color(const gchar * title, cairo_pattern_t *pat)
 {
 	if(strcmp(title,"low high pass")==0) {
 		
-		cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0., 0.2, 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0., 0.4, 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0., 0., 0.2);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0., 0.4, 0.2);
 	}else if(strcmp(title,"Scaleable EQ")==0) {
-		
-		cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0.2, 0.2, 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0., 0.2, 0.2, 0.2);
-	}else if(strcmp(title,"Crybaby")==0) {
-		
-		cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0.2, 0., 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0., 0.2, 0., 0.2);
-	}else if(strcmp(title,"Multi Band Distortion")==0) {
-		
-		cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0.2, 0., 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0., 0.2);
-	}else if(strcmp(title,"ImpulseResponse")==0) {
-		
-		cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0., 0.2, 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0., 0.2, 0.2);
-	}else if(strcmp(title,"Compressor")==0) {
-		
-		cairo_pattern_add_color_stop_rgba (pat, 1, 0.2, 0., 0., 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0., 0., 0.2);
-	}else if(strcmp(title,"Overdrive")==0) {
-		
-		cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0.4, 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0., 0., 0.4, 0.2);
-	}else if(strcmp(title,"Echo")==0) {
 		
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0.4, 0.4, 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0., 0.4, 0.4, 0.2);
-	}else if(strcmp(title,"Delay")==0) {
+	}else if(strcmp(title,"Crybaby")==0) {
 		
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0.4, 0., 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0., 0.4, 0., 0.2);
-	}else if(strcmp(title,"Freeverb")==0) {
+	}else if(strcmp(title,"Multi Band Distortion")==0) {
 		
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.4, 0.4, 0., 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.4, 0.4, 0., 0.2);
-	}else if(strcmp(title,"Chorus")==0) {
+	}else if(strcmp(title,"ImpulseResponse")==0) {
 		
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.4, 0., 0., 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.4, 0., 0., 0.2);
-	}else if(strcmp(title,"Flanger")==0) {
+	}else if(strcmp(title,"Compressor")==0) {
+		
+		cairo_pattern_add_color_stop_rgba (pat, 1, 0.4, 0., 0.4, 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0.4, 0., 0.4, 0.2);
+	}else if(strcmp(title,"Overdrive")==0) {
 		
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0.6, 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0., 0., 0.6, 0.2);
-	}else if(strcmp(title,"Phaser")==0) {
-		
-		cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0.6, 0., 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
-		cairo_pattern_add_color_stop_rgba (pat, 0, 0., 0.6, 0., 0.2);
-	}else if(strcmp(title,"Stereo Delay")==0) {
+	}else if(strcmp(title,"Echo")==0) {
 		
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0.6, 0.6, 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0., 0.6, 0.6, 0.2);
-	}else if(strcmp(title,"Stereo Echo")==0) {
+	}else if(strcmp(title,"Delay")==0) {
+		
+		cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0.6, 0., 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0., 0.6, 0., 0.2);
+	}else if(strcmp(title,"Freeverb")==0) {
 		
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.6, 0.6, 0., 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.6, 0.6, 0., 0.2);
-	}else if(strcmp(title,"Moog Filter")==0) {
+	}else if(strcmp(title,"Chorus")==0) {
 		
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.6, 0., 0., 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.6, 0., 0., 0.2);
+	}else if(strcmp(title,"Flanger")==0) {
+		
+		cairo_pattern_add_color_stop_rgba (pat, 1, 0.6, 0., 0.6, 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0.6, 0., 0.6, 0.2);
+	}else if(strcmp(title,"Phaser")==0) {
+		
+		cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0.8, 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0., 0., 0.8, 0.2);
+	}else if(strcmp(title,"Stereo Delay")==0) {
+		
+		cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0.8, 0.8, 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0., 0.8, 0.8, 0.2);
+	}else if(strcmp(title,"Stereo Echo")==0) {
+		
+		cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0.8, 0., 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0., 0.8, 0., 0.2);
+	}else if(strcmp(title,"Moog Filter")==0) {
+		
+		cairo_pattern_add_color_stop_rgba (pat, 1, 0.8, 0.8, 0., 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
+		cairo_pattern_add_color_stop_rgba (pat, 0, 0.8, 0.8, 0., 0.2);
 	}else{
 		
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0.2, 0.8);
@@ -706,10 +706,11 @@ static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
     
 	cairo_rectangle (cr, x0+4,y0+4,rect_width-8,rect_height-8);
 	cairo_pattern_t*pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
-	cairo_pattern_add_color_stop_rgba (pat, 1, 0., 0., 0.2, 0.8);
+	//set_rack_color(title, pat);
+	cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0.2, 0.8);
 	cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
 	cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
-	cairo_pattern_add_color_stop_rgba (pat, 0, 0., 0., 0.2, 0.2);
+	cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0.2, 0.2);
 	cairo_set_source (cr, pat);
 	cairo_fill(cr);
 
