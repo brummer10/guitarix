@@ -256,6 +256,7 @@ static gboolean amp_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_stroke (cr);
 
 	cairo_destroy(cr);
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -317,7 +318,7 @@ static gboolean conv_widget_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -357,7 +358,7 @@ static gboolean upper_widget_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+	gdk_region_destroy (region);
 	return FALSE;
 
 }
@@ -393,7 +394,7 @@ static gboolean rectangle_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -426,7 +427,7 @@ static gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -476,7 +477,7 @@ static gboolean convolver_icon_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -506,7 +507,7 @@ static gboolean zac_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -553,7 +554,7 @@ static gboolean AmpBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+	gdk_region_destroy (region);
 	return FALSE;
 }
 /*
@@ -730,7 +731,7 @@ static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -783,7 +784,7 @@ static gboolean lhfilter_expose(GtkWidget *wi, GdkEventExpose *ev)
     g_object_unref(stock_image);
 	g_object_unref(frame);
 	cairo_destroy(cr);
-
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -843,6 +844,7 @@ static gboolean tribal_box_expose(GtkWidget *wi, GdkEventExpose *ev)
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
 
 	g_object_unref(_image);
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -877,6 +879,7 @@ static gboolean vbox_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -936,7 +939,7 @@ static gboolean filter_box_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
 	g_object_unref(_image);
-
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -996,7 +999,7 @@ static gboolean plug_box_expose(GtkWidget *wi, GdkEventExpose *ev)
 
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -1070,7 +1073,7 @@ static gboolean info_box_expose_base(
 
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -1140,7 +1143,7 @@ static gboolean slooper_expose(GtkWidget *wi, GdkEventExpose *ev)
 
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+	gdk_region_destroy (region);
 	return FALSE;
 }
 
@@ -1370,7 +1373,7 @@ static gboolean gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-	                
+	gdk_region_destroy (region);                
 	return FALSE;
 }
 

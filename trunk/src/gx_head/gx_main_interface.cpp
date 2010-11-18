@@ -703,8 +703,7 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 
 	uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(button));
 
-	g_signal_connect (box, "expose-event",
-	                  G_CALLBACK(vbox_expose), NULL);
+	
 	g_signal_connect (GTK_OBJECT (button), "pressed",
 	                  G_CALLBACK (uiOrderButton::pressed_right), (gpointer) c);
 	g_signal_connect (GTK_OBJECT (button1), "pressed",
@@ -767,8 +766,7 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 
 	uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(button));
 
-	g_signal_connect (box, "expose-event",
-	                  G_CALLBACK(vbox_expose), NULL);
+	
 	g_signal_connect (GTK_OBJECT (button), "pressed",
 	                  G_CALLBACK (uiOrderButton::pressed_right), (gpointer) c);
 	g_signal_connect (GTK_OBJECT (button1), "pressed",
