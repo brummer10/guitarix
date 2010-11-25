@@ -76,7 +76,7 @@ void compute(int count, float *input0, float *input1, float *output0, float *out
 		fRec1[0] = ((fSlow6 * fRec1[1]) + (fSlow5 * fRec2[1]));
 		fRec2[0] = ((1 + ((fSlow7 * fRec1[1]) + (fSlow6 * fRec2[1]))) - iVec0[1]);
 		double fTemp1 = (fSlow9 + (fSlow10 * (1 - fRec1[0])));
-		double fTemp2 = (fRec6[1] * cos((fSlow14 * fTemp1)));
+		double fTemp2 = (cos((fSlow14 * fTemp1)) * fRec6[1]);
 		fRec6[0] = (0 - (((fSlow17 * fRec6[2]) + (fSlow16 * fTemp2)) - ((fSlow2 * fTemp0) + (fSlow13 * fRec0[1]))));
 		double fTemp3 = (fRec5[1] * cos((fSlow18 * fTemp1)));
 		fRec5[0] = ((fSlow16 * (fTemp2 - fTemp3)) + (fRec6[2] + (fSlow17 * (fRec6[0] - fRec5[2]))));

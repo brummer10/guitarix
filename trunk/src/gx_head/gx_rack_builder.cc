@@ -115,16 +115,16 @@ openHorizontalTableBox("");
 						{
 							 openHorizontalTableBox("");
 							 {
-								  create_spin_value("eqs.freq31_25");
-								  create_spin_value("eqs.freq62_5");
-								  create_spin_value("eqs.freq125");
-								  create_spin_value("eqs.freq250");
-								  create_spin_value("eqs.freq500");
-								  create_spin_value("eqs.freq1k");
-								  create_spin_value("eqs.freq2k");
-								  create_spin_value("eqs.freq4k");
-								  create_spin_value("eqs.freq8k");
-								  create_spin_value("eqs.freq16k");
+								  create_simple_spin_value("eqs.freq31_25");
+								  create_simple_spin_value("eqs.freq62_5");
+								  create_simple_spin_value("eqs.freq125");
+								  create_simple_spin_value("eqs.freq250");
+								  create_simple_spin_value("eqs.freq500");
+								  create_simple_spin_value("eqs.freq1k");
+								  create_simple_spin_value("eqs.freq2k");
+								  create_simple_spin_value("eqs.freq4k");
+								  create_simple_spin_value("eqs.freq8k");
+								  create_simple_spin_value("eqs.freq16k");
 							 }
 							 closeBox();
 							 openHorizontalTableBox("");
@@ -260,14 +260,14 @@ openHorizontalTableBox("");
                                                   closeBox();
                                                   openVerticalBox1("");
                                                   {
-                                                       create_small_rackknobr("gx_distortion.middle_l_drive"," m. low drive ");
-                                                       create_small_rackknob("gx_distortion.middle_l_gain"," m. low gain ");
+                                                       create_small_rackknobr("gx_distortion.middle_l_drive"," m. l. drive ");
+                                                       create_small_rackknob("gx_distortion.middle_l_gain"," m. l. gain ");
                                                   }
                                                   closeBox();
                                                   openVerticalBox1("");
                                                   {
-                                                       create_small_rackknobr("gx_distortion.middle_h_drive"," m. high drive ");
-                                                       create_small_rackknob("gx_distortion.middle_h_gain"," m. high gain ");
+                                                       create_small_rackknobr("gx_distortion.middle_h_drive"," m. h. drive ");
+                                                       create_small_rackknob("gx_distortion.middle_h_gain"," m. h. gain ");
                                                   }
                                                   closeBox();
                                                   openVerticalBox1("");

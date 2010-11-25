@@ -115,6 +115,7 @@ def build_generate_wrapper(bld):
               "GxMeterScale.h",
               "GxGradient.h",
               "GxValueDisplay.h",
+              "GxSimpleValueDisplay.h",
               ]
     header = ["../../libgxw/gxw/"+v for v in header]
     bld(features = ['cxx', 'cprogram'],
@@ -187,6 +188,7 @@ def build(bld):
         "meterscale.hg",
         #"gradient.hg",
         "valuedisplay.hg",
+        "simplevaluedisplay.hg",
         ]
     if bld.env["USE_GENERATED_CPP"]:
         gdir = "../gxwmm-generated/"

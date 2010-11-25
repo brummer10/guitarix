@@ -46,7 +46,7 @@ openHorizontalTableBox("");
 
                          openVerticalBox("");
                          {
-                              openHorizontalTableBox("");
+                              openHorizontalBox("");
                               {
                                    create_small_rackknobr("chorus.level","  level  ");
                                    create_small_rackknob("chorus.delay","  delay  ");
@@ -84,7 +84,7 @@ openHorizontalTableBox("");
 
                          openVerticalBox("");
                          {
-                              openHorizontalTableBox("");
+                              openHorizontalBox("");
                               {
                                    create_small_rackknobr("flanger.level","  level  ");
                                    create_small_rackknob("flanger.feedback gain"," feedback ");
@@ -148,7 +148,7 @@ openHorizontalTableBox("");
                     {
                          openVerticalBox("");
                          {
-                              openHorizontalTableBox("");
+                              openHorizontalBox("");
                               {
                                    create_small_rackknobr("phaser.level","  level ");
                                    create_small_rackknob("phaser.feedback gain"," feedback ");
@@ -212,7 +212,7 @@ openHorizontalTableBox("");
 
                          openVerticalBox("");
                          {
-                              openHorizontalTableBox("");
+                              openHorizontalBox("");
                               {
 									create_small_rackknob("stereodelay.l_gain","left gain");
 									create_small_rackknob("stereodelay.l_delay","left delay");
@@ -260,7 +260,7 @@ openHorizontalTableBox("");
 
                          openVerticalBox("");
                          {
-                              openHorizontalTableBox("");
+                              openHorizontalBox("");
                               {
 									create_small_rackknob("stereoecho.percent_l","left %");
 									create_small_rackknob("stereoecho.time_l","left time");

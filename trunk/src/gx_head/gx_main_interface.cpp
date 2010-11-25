@@ -33,8 +33,7 @@
 #include <gtkmm/fixed.h>
 
 #include <gxwmm/paintbox.h>
-#include <gxwmm/waveview.h>
-#include <libgxw/gxw/GxKnob.h>
+
 
 using namespace gx_system;
 using namespace gx_child_process;
@@ -2539,9 +2538,11 @@ void GxMainInterface::addLiveWaveDisplay(const char* label, float* zone , float*
 void GxMainInterface::set_mouse_mode()
 {
 	if (fSetMouse.get_active()) {
-		gx_set_knob_jump_to_mouse(false);
+		Gxw::Knob::set_jump_to_mouse(false);
+		//gx_set_knob_jump_to_mouse(false);
 	} else {
-		gx_set_knob_jump_to_mouse(true);
+		Gxw::Knob::set_jump_to_mouse(true);
+		//gx_set_knob_jump_to_mouse(true);
 	}
 }
 

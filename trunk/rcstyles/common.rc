@@ -10,6 +10,18 @@ style "guitarix_regler"
   font_name = "sans 7.5"
 }
 
+style "guitarix_value_display"
+{
+  GxRegler::value-spacing = 1
+  GxRegler::value-border = { 1, 1, 2, 2 }
+  fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
+  fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+  font_name = "sans 7.5"
+}
+
 style "guitarix_switch"
 {
   xthickness = 0
@@ -86,3 +98,4 @@ class "GxEQSlider" style:highest "guitarix_eqslider"
 class "GxSelector" style:highest "guitarix_selector"
 class "GxFastMeter" style:highest "guitarix_fastmeter"
 class "GxIREdit" style:highest "guitarix_iredit"
+class "GxSimpleValueDisplay" style:highest "guitarix_value_display"

@@ -32,6 +32,7 @@
 #include <gxwmm/switch.h>
 #include <gxwmm/selector.h>
 #include <gxwmm/valuedisplay.h>
+#include <gxwmm/simplevaluedisplay.h>
 #include <gxwmm/fastmeter.h>
 #include <gxwmm/tuner.h>
 #include <gxwmm/waveview.h>
@@ -537,6 +538,11 @@ public :
 		{
 			addwidget(UiRegler::create(*this, new Gxw::ValueDisplay(), id, true));
 		}
+	void create_simple_spin_value(string id)
+		{
+			addwidget(UiRegler::create(*this, new Gxw::SimpleValueDisplay(), id, true));
+		}
+		
 	void create_selector(string id)
 		{
 			addwidget(UiSelector::create(*this, id));

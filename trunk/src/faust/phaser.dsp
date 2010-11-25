@@ -38,8 +38,8 @@ with {               // depth=0 => direct-signal only
 };
   
 phaser_stereo(Notches,width,frqmin,fratio,frqmax,speed,depth,fb,invert)
-   = phaser2_mono(Notches,0,width,frqmin,fratio,frqmax,speed,depth,fb,invert),
-     phaser2_mono(Notches,1,width,frqmin,fratio,frqmax,speed,depth,fb,invert);
+   = phaser_mono(Notches,0,width,frqmin,fratio,frqmax,speed,depth,fb,invert),
+     phaser_mono(Notches,1,width,frqmin,fratio,frqmax,speed,depth,fb,invert);
 
 phaser_stereogx = *(level),*(level) : phaser_stereo(Notches,width,frqmin,fratio,frqmax,freq,mdepth,fb,invert)
 with {
