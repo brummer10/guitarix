@@ -617,6 +617,7 @@ gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	//float p = gx_gui::parameter_map["eq.f31_25"].getFloat().value;
     cairo_t *cr;
+    cairo_text_extents_t extents;
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 
@@ -647,6 +648,19 @@ gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
     cairo_line_to(cr, x0+3, y0+3);
     cairo_line_to(cr, x0+rect_width-3, y0+3);
     cairo_stroke(cr);
+    
+    const gchar * title = "faust";
+    cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_BOLD);
+	cairo_set_font_size (cr, 10);
+	cairo_text_extents (cr,title , &extents);
+	double x = x0+rect_width-extents.height ;
+	double y = y0+rect_height*0.9+extents.height/2 ;
+	cairo_move_to(cr,x, y);
+	cairo_rotate (cr,270* M_PI/180);
+	cairo_text_path (cr,title);
+	cairo_set_source_rgb (cr, 0.3, 0.3, 0.3);
+    cairo_fill (cr);
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);

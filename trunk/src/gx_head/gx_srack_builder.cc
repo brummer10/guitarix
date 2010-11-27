@@ -82,42 +82,51 @@ openHorizontalTableBox("");
                     opensDialogBox("flanger.dialog", "flanger.on_off","RackBox_expose");
                     {
 
-                         openVerticalBox("");
+                         openHorizontalBox("");
                          {
                               openHorizontalBox("");
                               {
                                    create_small_rackknobr("flanger.level","  level  ");
-                                   create_small_rackknob("flanger.feedback gain"," feedback ");
-                                   create_small_rackknob("flanger.depth","  depth  ");
-                                   create_small_rackknob("flanger.flange delay","  delay  ");
-                                   create_small_rackknob("flanger.flange delay offset"," delay offset");
-                                   create_small_rackknob("flanger.LFO freq"," LFO ");
+                              }
+                              closeBox();
+                              openVerticalBox("");
+							  {
+								  openHorizontalBox("");
+								  {     
+									   create_small_rackknob("flanger.feedback gain"," feedback ");
+									   create_small_rackknob("flanger.depth","  depth  ");
+									   create_small_rackknob("flanger.flange delay","  delay  ");
+									   create_small_rackknob("flanger.flange delay offset"," delay offset");
+									   create_small_rackknob("flanger.LFO freq"," LFO ");
 
+								  }
+								  closeBox();
+								  openSpaceBox("");
+								  closeBox();
+								  openHorizontalBox("");
+								  {
+									   openSpaceBox("");
+									   closeBox();
+									   create_selector("flanger.invert");
+									   openSpaceBox("");
+									   closeBox();
+									   openSpaceBox("");
+									   closeBox();
+									   openSpaceBox("");
+									   closeBox();
+									   openSpaceBox("");
+									   closeBox();
+									   openSpaceBox("");
+									   closeBox();
+									   openSpaceBox("");
+									   closeBox();
+								  }
+								  closeBox();
+								  openSpaceBox("");
+								  closeBox();
                               }
                               closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openHorizontalBox("");
-                              {
-                                   openSpaceBox("");
-                                   closeBox();
-                                   create_selector("flanger.invert");
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                              }
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
+                              
                          }
                          closeBox();
                     }
@@ -146,11 +155,17 @@ openHorizontalTableBox("");
                     closeBox();
                     opensDialogBox("phaser.dialog", "phaser.on_off","RackBox_expose");
                     {
-                         openVerticalBox("");
+                         openHorizontalBox("");
                          {
                               openHorizontalBox("");
                               {
                                    create_small_rackknobr("phaser.level","  level ");
+                              }
+                              closeBox();
+                              openVerticalBox("");
+                              {
+                              openHorizontalBox("");
+                              {
                                    create_small_rackknob("phaser.feedback gain"," feedback ");
                                    create_small_rackknob("phaser.depth", "depth");
                                    create_small_rackknob("phaser.Notch width", "width");
@@ -184,6 +199,8 @@ openHorizontalTableBox("");
                               closeBox();
                               openSpaceBox("");
                               closeBox();
+                         }
+                         closeBox();
                          }
                          closeBox();
                     }
