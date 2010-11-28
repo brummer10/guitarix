@@ -214,6 +214,20 @@ void GxMainInterface::on_tuner_activate()
 		gtk_widget_hide(tuner_widget);
 	}
 }
+
+// show loggingbox
+void GxMainInterface::on_log_activate() {
+	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(fShowLogger.gobj())) == TRUE) {
+		gint rxorg,ryorg ; 
+		gtk_window_get_position (GTK_WINDOW(fWindow), &rxorg, &ryorg);
+		gtk_window_move(GTK_WINDOW(logger), rxorg+5, ryorg+272);
+		gtk_widget_show_all(GTK_WIDGET(logger));
+	} else {
+		gtk_widget_hide(GTK_WIDGET(logger));
+	}
+
+}
+
 // save and get rack position
 int gx_set_x_oriantation()
 {
@@ -476,21 +490,17 @@ void gx_reset_units(Glib::ustring group_id)
 
 gboolean gx_set_resizeable(gpointer data)
 {
-	GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(data));
-		gtk_widget_hide(GTK_WIDGET(box1));
-		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
-		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
-		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
-		GtkWidget * box3 = gtk_widget_get_parent(GTK_WIDGET(box2));
-		
-		box2 = gtk_widget_get_parent(GTK_WIDGET(box3)); // scroll box
-		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));  // window
-		
-	if(!gtk_window_get_resizable(GTK_WINDOW (box1)))
-		gtk_window_set_resizable(GTK_WINDOW (box1) , TRUE);
+	if(!gtk_window_get_resizable(GTK_WINDOW (data)))
+		gtk_window_set_resizable(GTK_WINDOW (data) , TRUE);
 	return false;
 }
 
+gboolean gx_set_sresizeable(gpointer data)
+{
+	if(!gtk_window_get_resizable(GTK_WINDOW (data)))
+		gtk_window_set_resizable(GTK_WINDOW (data) , TRUE);
+	return false;
+}
 //----- show extendend settings slider
 void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 {
@@ -552,8 +562,14 @@ void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 
 		GtkRequisition my_size;
 		gtk_widget_size_request(GTK_WIDGET(box3),&my_size);
-		if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
-		g_threads[7] = g_timeout_add(40, gx_set_resizeable,gpointer(data));
+		const gchar * title = gtk_widget_get_name(GTK_WIDGET(box1));
+		if(strcmp(title,"MonoRack")==0) {
+			if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
+			g_threads[7] = g_timeout_add(40, gx_set_resizeable,gpointer(box1));
+		} else {
+			if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
+			g_threads[6] = g_timeout_add(40, gx_set_sresizeable,gpointer(box1));
+		}
 		gtk_widget_set_size_request (GTK_WIDGET (box2),my_size.width+24 , -1 );
 		
 		gint  my_width, my_height;

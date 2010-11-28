@@ -35,12 +35,12 @@ openHorizontalTableBox("");
 
                openHorizontalTableBox("");
                {
-				    openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "chorus.on_off");
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "chorus.on_off");
                     }
                     closeBox();
-                    
+
                     opensDialogBox("chorus.dialog", "chorus.on_off","RackBox_expose");
                     {
 
@@ -74,11 +74,11 @@ openHorizontalTableBox("");
 
                openHorizontalTableBox("");
                {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "flanger.on_off");
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "flanger.on_off");
                     }
-					closeBox();
+                    closeBox();
                     opensDialogBox("flanger.dialog", "flanger.on_off","RackBox_expose");
                     {
 
@@ -90,43 +90,43 @@ openHorizontalTableBox("");
                               }
                               closeBox();
                               openVerticalBox("");
-							  {
-								  openHorizontalBox("");
-								  {     
-									   create_small_rackknob("flanger.feedback gain"," feedback ");
-									   create_small_rackknob("flanger.depth","  depth  ");
-									   create_small_rackknob("flanger.flange delay","  delay  ");
-									   create_small_rackknob("flanger.flange delay offset"," delay offset");
-									   create_small_rackknob("flanger.LFO freq"," LFO ");
+                              {
+                                   openHorizontalBox("");
+                                   {
+                                        create_small_rackknob("flanger.feedback gain"," feedback ");
+                                        create_small_rackknob("flanger.depth","  depth  ");
+                                        create_small_rackknob("flanger.flange delay","  delay  ");
+                                        create_small_rackknob("flanger.flange delay offset"," delay offset");
+                                        create_small_rackknob("flanger.LFO freq"," LFO ");
 
-								  }
-								  closeBox();
-								  openSpaceBox("");
-								  closeBox();
-								  openHorizontalBox("");
-								  {
-									   openSpaceBox("");
-									   closeBox();
-									   create_selector("flanger.invert");
-									   openSpaceBox("");
-									   closeBox();
-									   openSpaceBox("");
-									   closeBox();
-									   openSpaceBox("");
-									   closeBox();
-									   openSpaceBox("");
-									   closeBox();
-									   openSpaceBox("");
-									   closeBox();
-									   openSpaceBox("");
-									   closeBox();
-								  }
-								  closeBox();
-								  openSpaceBox("");
-								  closeBox();
+                                   }
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openHorizontalBox("");
+                                   {
+                                        openSpaceBox("");
+                                        closeBox();
+                                        create_selector("flanger.invert");
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                   }
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
                               }
                               closeBox();
-                              
+
                          }
                          closeBox();
                     }
@@ -140,7 +140,7 @@ openHorizontalTableBox("");
      closeBox();
 
 
-     
+
      openHorizontalRestetBox("", &gx_engine::audio.posit12);
      {
           openVerticalBox("phaser");
@@ -148,9 +148,9 @@ openHorizontalTableBox("");
 
                openHorizontalTableBox("");
                {
-				    openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "phaser.on_off");
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "phaser.on_off");
                     }
                     closeBox();
                     opensDialogBox("phaser.dialog", "phaser.on_off","RackBox_expose");
@@ -164,43 +164,43 @@ openHorizontalTableBox("");
                               closeBox();
                               openVerticalBox("");
                               {
-                              openHorizontalBox("");
-                              {
-                                   create_small_rackknob("phaser.feedback gain"," feedback ");
-                                   create_small_rackknob("phaser.depth", "depth");
-                                   create_small_rackknob("phaser.Notch width", "width");
-                                   create_small_rackknob("phaser.NotchFreq", "freq");
-                                   create_small_rackknob("phaser.MaxNotch1Freq", "max Hz");
-                                   create_small_rackknob("phaser.MinNotch1Freq", "min Hz");
-                                   create_small_rackknob("phaser.Speed", "speed");
+                                   openHorizontalBox("");
+                                   {
+                                        create_small_rackknob("phaser.feedback gain"," feedback ");
+                                        create_small_rackknob("phaser.depth", "depth");
+                                        create_small_rackknob("phaser.Notch width", "width");
+                                        create_small_rackknob("phaser.NotchFreq", "freq");
+                                        create_small_rackknob("phaser.MaxNotch1Freq", "max Hz");
+                                        create_small_rackknob("phaser.MinNotch1Freq", "min Hz");
+                                        create_small_rackknob("phaser.Speed", "speed");
+                                   }
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
+                                   openHorizontalBox("");
+                                   {
+                                        openSpaceBox("");
+                                        closeBox();
+                                        create_selector("phaser.invert");
+                                        openSpaceBox("");
+                                        closeBox();
+                                        create_selector("phaser.VibratoMode");
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                   }
+                                   closeBox();
+                                   openSpaceBox("");
+                                   closeBox();
                               }
                               closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openHorizontalBox("");
-                              {
-                                   openSpaceBox("");
-                                   closeBox();
-                                   create_selector("phaser.invert");
-                                   openSpaceBox("");
-                                   closeBox();
-                                   create_selector("phaser.VibratoMode");
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                              }
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                         }
-                         closeBox();
                          }
                          closeBox();
                     }
@@ -211,19 +211,19 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
-     
-	openHorizontalRestetBox("", &gx_engine::audio.posit15);
-    {
+
+     openHorizontalRestetBox("", &gx_engine::audio.posit15);
+     {
           openVerticalBox("delay");
           {
 
                openHorizontalTableBox("");
                {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "stereodelay.on_off");
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "stereodelay.on_off");
                     }
-					closeBox();
+                    closeBox();
                     opensDialogBox("stereodelay.dialog", "stereodelay.on_off","RackBox_expose");
                     {
 
@@ -231,21 +231,21 @@ openHorizontalTableBox("");
                          {
                               openHorizontalBox("");
                               {
-									create_small_rackknob("stereodelay.l_gain","left gain");
-									create_small_rackknob("stereodelay.l_delay","left delay");
-									openVerticalBox("");
-									{
-										create_small_rackknobr("stereodelay.LFO freq","LFO");
-										openSpaceBox("");
-										closeBox();
-										create_selector("stereodelay.invert");
-										openSpaceBox("");
-										closeBox();
-									}
-									closeBox();	
-                                   
-									create_small_rackknob("stereodelay.r_gain","right gain");
-									create_small_rackknob("stereodelay.r_delay","right delay");
+                                   create_small_rackknob("stereodelay.l_gain","left gain");
+                                   create_small_rackknob("stereodelay.l_delay","left delay");
+                                   openVerticalBox("");
+                                   {
+                                        create_small_rackknobr("stereodelay.LFO freq","LFO");
+                                        openSpaceBox("");
+                                        closeBox();
+                                        create_selector("stereodelay.invert");
+                                        openSpaceBox("");
+                                        closeBox();
+                                   }
+                                   closeBox();
+
+                                   create_small_rackknob("stereodelay.r_gain","right gain");
+                                   create_small_rackknob("stereodelay.r_delay","right delay");
 
                               }
                               closeBox();
@@ -259,19 +259,19 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
-     
-	openHorizontalRestetBox("", &gx_engine::audio.posit16);
+
+     openHorizontalRestetBox("", &gx_engine::audio.posit16);
      {
           openVerticalBox("echo");
           {
 
                openHorizontalTableBox("");
                {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "stereoecho.on_off");
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "stereoecho.on_off");
                     }
-					closeBox();
+                    closeBox();
                     opensDialogBox("stereoecho.dialog", "stereoecho.on_off","RackBox_expose");
                     {
 
@@ -279,10 +279,10 @@ openHorizontalTableBox("");
                          {
                               openHorizontalBox("");
                               {
-									create_small_rackknob("stereoecho.percent_l","left %");
-									create_small_rackknob("stereoecho.time_l","left time");
-									create_small_rackknob("stereoecho.percent_r","right %");
-									create_small_rackknob("stereoecho.time_r","right time");
+                                   create_small_rackknob("stereoecho.percent_l","left %");
+                                   create_small_rackknob("stereoecho.time_l","left time");
+                                   create_small_rackknob("stereoecho.percent_r","right %");
+                                   create_small_rackknob("stereoecho.time_r","right time");
 
                               }
                               closeBox();
@@ -296,7 +296,7 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
-     
+
      openHorizontalRestetBox("", &gx_engine::audio.posit11);
      {
           openVerticalBox("moog");
@@ -304,11 +304,11 @@ openHorizontalTableBox("");
 
                openHorizontalTableBox("");
                {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "moog.on_off");
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "moog.on_off");
                     }
-					closeBox();
+                    closeBox();
                     opensDialogBox("moog.dialog", "moog.on_off","RackBox_expose");
                     {
 
@@ -332,6 +332,6 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
-     
+
 }
 closeBox();

@@ -25,69 +25,21 @@
 
 openHorizontalTableBox("");
 {
-	openPaintBox("");
-    {
-		openVerticalBox("noise shaper       ");
-		{
-			openHorizontalBox("");
-			{
-				create_switch_no_caption(sw_switchit, "shaper.on_off");
-				openSpaceBox("");
-                closeBox();
-                openSpaceBox("");
-                closeBox();
-				openpaintampBox("");
-				{
-					create_wheel("shaper.sharper");
-				}
-				closeBox();
-			}
-			closeBox();	
-		}
-		closeBox();
-	}
-	closeBox();	
-	//low high pass filter
-	openHorizontalOrderBox(" ", &gx_engine::audio.posit14);
+     openPaintBox("");
      {
-		 openVerticalBox("l/h/filter");
+          openVerticalBox("noise shaper       ");
           {
                openHorizontalBox("");
                {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "low_highpass.on_off");
-						create_selector("low_highpass.pp");
-                    }
+                    create_switch_no_caption(sw_switchit, "shaper.on_off");
+                    openSpaceBox("");
                     closeBox();
-				 
-                    openDialogBox("low_highpass.dialog", "low_highpass.on_off","RackBox_expose");
+                    openSpaceBox("");
+                    closeBox();
+                    openpaintampBox("");
                     {
-						openHorizontalBox("");
-                        {
-							
-								openHorizontalBox("");
-								{
-									create_small_rackknob("low_high_pass.lhp.high_freq","high-pass ");
-									create_small_rackknob("low_high_pass.lhp.low_freq"," low-pass ");
-									create_switch_no_caption(sw_switchit, "low_high_pass.lhp.on_off");
-								}
-								closeBox();
-							
-							openSpaceBox("");
-							closeBox();   
-							
-								openHorizontalBox("");
-								{
-									create_small_rackknob("low_high_pass.lhc.low_freq"," low-cut ");
-									create_small_rackknob("low_high_pass.lhc.high_freq","high-cut ");
-									create_switch_no_caption(sw_switchit, "low_high_pass.lhc.on_off");
-								}
-								closeBox();
-							
-						}
-						closeBox();
-                     }
+                         create_wheel("shaper.sharper");
+                    }
                     closeBox();
                }
                closeBox();
@@ -95,68 +47,116 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
-	// EQ
-	openHorizontalOrderBox(" ", &gx_engine::audio.posit10);
+     //low high pass filter
+     openHorizontalOrderBox(" ", &gx_engine::audio.posit14);
+     {
+          openVerticalBox("l/h/filter");
+          {
+               openHorizontalBox("");
+               {
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "low_highpass.on_off");
+                         create_selector("low_highpass.pp");
+                    }
+                    closeBox();
+
+                    openDialogBox("low_highpass.dialog", "low_highpass.on_off","RackBox_expose");
+                    {
+                         openHorizontalBox("");
+                         {
+
+                              openHorizontalBox("");
+                              {
+                                   create_small_rackknob("low_high_pass.lhp.high_freq","high-pass ");
+                                   create_small_rackknob("low_high_pass.lhp.low_freq"," low-pass ");
+                                   create_switch_no_caption(sw_switchit, "low_high_pass.lhp.on_off");
+                              }
+                              closeBox();
+
+                              openSpaceBox("");
+                              closeBox();
+
+                              openHorizontalBox("");
+                              {
+                                   create_small_rackknob("low_high_pass.lhc.low_freq"," low-cut ");
+                                   create_small_rackknob("low_high_pass.lhc.high_freq","high-cut ");
+                                   create_switch_no_caption(sw_switchit, "low_high_pass.lhc.on_off");
+                              }
+                              closeBox();
+
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox();
+     // EQ
+     openHorizontalOrderBox(" ", &gx_engine::audio.posit10);
      {
           openVerticalBox("EQ");
           {
                openHorizontalBox("");
                {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "eqs.on_off");
-						create_selector("eqs.pp");
-                    }
-					closeBox();
-					
-					openDialogBox("eqs.dialog", "eqs.on_off","RackBox_expose");
+                    openPaintBox1("");
                     {
-						openVerticalBox("");
-						{
-							 openHorizontalTableBox("");
-							 {
-								  create_simple_spin_value("eqs.freq31_25");
-								  create_simple_spin_value("eqs.freq62_5");
-								  create_simple_spin_value("eqs.freq125");
-								  create_simple_spin_value("eqs.freq250");
-								  create_simple_spin_value("eqs.freq500");
-								  create_simple_spin_value("eqs.freq1k");
-								  create_simple_spin_value("eqs.freq2k");
-								  create_simple_spin_value("eqs.freq4k");
-								  create_simple_spin_value("eqs.freq8k");
-								  create_simple_spin_value("eqs.freq16k");
-							 }
-							 closeBox();
-							 openHorizontalTableBox("");
-							 {
-								  create_eq_rackslider_no_caption("eqs.fs31_25");
-								  create_eq_rackslider_no_caption("eqs.fs62_5");
-								  create_eq_rackslider_no_caption("eqs.fs125");
-								  create_eq_rackslider_no_caption("eqs.fs250");
-								  create_eq_rackslider_no_caption("eqs.fs500");
-								  create_eq_rackslider_no_caption("eqs.fs1k");
-								  create_eq_rackslider_no_caption("eqs.fs2k");
-								  create_eq_rackslider_no_caption("eqs.fs4k");
-								  create_eq_rackslider_no_caption("eqs.fs8k");
-								  create_eq_rackslider_no_caption("eqs.fs16k");
-							 }
-							 closeBox();
-							 openHorizontalTableBox("");
-							 {
-								  create_small_rackknob("eqs.Qs31_25","Q");
-								  create_small_rackknob("eqs.Qs62_5","Q");
-								  create_small_rackknob("eqs.Qs125","Q");
-								  create_small_rackknob("eqs.Qs250","Q");
-								  create_small_rackknob("eqs.Qs500","Q");
-								  create_small_rackknob("eqs.Qs1k","Q");
-								  create_small_rackknob("eqs.Qs2k","Q");
-								  create_small_rackknob("eqs.Qs4k","Q");
-								  create_small_rackknob("eqs.Qs8k","Q");
-								  create_small_rackknob("eqs.Qs16k","Q");
-							 }
-							 closeBox();
-						}
-						closeBox();
+                         create_switch_no_caption(sw_switchit, "eqs.on_off");
+                         create_selector("eqs.pp");
+                    }
+                    closeBox();
+
+                    openDialogBox("eqs.dialog", "eqs.on_off","RackBox_expose");
+                    {
+                         openVerticalBox("");
+                         {
+                              openHorizontalTableBox("");
+                              {
+                                   create_simple_spin_value("eqs.freq31_25");
+                                   create_simple_spin_value("eqs.freq62_5");
+                                   create_simple_spin_value("eqs.freq125");
+                                   create_simple_spin_value("eqs.freq250");
+                                   create_simple_spin_value("eqs.freq500");
+                                   create_simple_spin_value("eqs.freq1k");
+                                   create_simple_spin_value("eqs.freq2k");
+                                   create_simple_spin_value("eqs.freq4k");
+                                   create_simple_spin_value("eqs.freq8k");
+                                   create_simple_spin_value("eqs.freq16k");
+                              }
+                              closeBox();
+                              openHorizontalTableBox("");
+                              {
+                                   create_eq_rackslider_no_caption("eqs.fs31_25");
+                                   create_eq_rackslider_no_caption("eqs.fs62_5");
+                                   create_eq_rackslider_no_caption("eqs.fs125");
+                                   create_eq_rackslider_no_caption("eqs.fs250");
+                                   create_eq_rackslider_no_caption("eqs.fs500");
+                                   create_eq_rackslider_no_caption("eqs.fs1k");
+                                   create_eq_rackslider_no_caption("eqs.fs2k");
+                                   create_eq_rackslider_no_caption("eqs.fs4k");
+                                   create_eq_rackslider_no_caption("eqs.fs8k");
+                                   create_eq_rackslider_no_caption("eqs.fs16k");
+                              }
+                              closeBox();
+                              openHorizontalTableBox("");
+                              {
+                                   create_small_rackknob("eqs.Qs31_25","Q");
+                                   create_small_rackknob("eqs.Qs62_5","Q");
+                                   create_small_rackknob("eqs.Qs125","Q");
+                                   create_small_rackknob("eqs.Qs250","Q");
+                                   create_small_rackknob("eqs.Qs500","Q");
+                                   create_small_rackknob("eqs.Qs1k","Q");
+                                   create_small_rackknob("eqs.Qs2k","Q");
+                                   create_small_rackknob("eqs.Qs4k","Q");
+                                   create_small_rackknob("eqs.Qs8k","Q");
+                                   create_small_rackknob("eqs.Qs16k","Q");
+                              }
+                              closeBox();
+                         }
+                         closeBox();
                     }
                     closeBox();
                }
@@ -173,52 +173,41 @@ openHorizontalTableBox("");
 
                openHorizontalBox("");
                {
-				   openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "crybaby.on_off");
-						create_selector("crybaby.pp");
-                    }
-					closeBox();
-		
-                    openDialogBox("crybaby.dialog", "crybaby.on_off","RackBox_expose");
+                    openPaintBox1("");
                     {
-
-
-                         openHorizontalBox("");
-                         {
-                                  
-                                   openSpaceBox("");
-                                   closeBox();
-                                   create_selector("crybaby.autowah");
-                                   openSpaceBox("");
-                                   closeBox();
-								   
-     
-                              openHorizontalTableBox("");
-                              {     
-								   create_small_rackknobr("crybaby.wah","  wah   ");
-								   
-                                   create_small_rackknob("crybaby.level","  level  ");
-                                  
-                                   create_small_rackknob("crybaby.wet_dry","  dry/wet  ");
-                                   
-
-                              }
-                              closeBox();
-
-                         }
-                         closeBox();
-
+                         create_switch_no_caption(sw_switchit, "crybaby.on_off");
+                         create_selector("crybaby.pp");
                     }
                     closeBox();
 
+                    openDialogBox("crybaby.dialog", "crybaby.on_off","RackBox_expose");
+                    {
+                         openHorizontalBox("");
+                         {
+
+                              openSpaceBox("");
+                              closeBox();
+                              create_selector("crybaby.autowah");
+                              openSpaceBox("");
+                              closeBox();
+                              openHorizontalTableBox("");
+                              {
+                                   create_small_rackknobr("crybaby.wah","  wah   ");
+                                   create_small_rackknob("crybaby.level","  level  ");
+                                   create_small_rackknob("crybaby.wet_dry","  dry/wet  ");
+                              }
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
                }
                closeBox();
           }
           closeBox();
      }
      closeBox();
- //----- distortion
+//----- distortion
      openHorizontalOrderBox("", &gx_engine::audio.posit2);
      {
           openVerticalBox("distortion");
@@ -226,12 +215,12 @@ openHorizontalTableBox("");
 
                openHorizontalBox("");
                {
-				   openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "gx_distortion.on_off");
-						create_selector("gx_distortion.pp");
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "gx_distortion.on_off");
+                         create_selector("gx_distortion.pp");
                     }
-					closeBox();
+                    closeBox();
 
                     openDialogBox("gx_distortion.dialog", "gx_distortion.on_off","RackBox_expose");
                     {
@@ -278,32 +267,32 @@ openHorizontalTableBox("");
                                                   closeBox();
                                              }
                                              closeBox();
-                                            openVerticalBox("frequency split Hz");
-											{
-                                             openHorizontalBox("");
+                                             openVerticalBox("frequency split Hz");
                                              {
-                                                  create_wheel("gx_distortion.split_low_freq", "split low freq");
-                                                  create_wheel("gx_distortion.split_middle_freq", "split m. freq");
-                                                  create_wheel("gx_distortion.split_high_freq", "split high freq");
-                                                  
+                                                  openHorizontalBox("");
+                                                  {
+                                                       create_wheel("gx_distortion.split_low_freq", "split low freq");
+                                                       create_wheel("gx_distortion.split_middle_freq", "split m. freq");
+                                                       create_wheel("gx_distortion.split_high_freq", "split high freq");
+
+                                                  }
+                                                  closeBox();
                                              }
                                              closeBox();
-                                            }
-                                             closeBox(); 
                                         }
                                         closeBox();
                                    }
                                    closeBox();
                               }
                               closeBox();
-               
-							   openVerticalBox("resonator");
-							   {
-									create_small_rackknob("gx_distortion.trigger","trigger ");
-									create_small_rackknob("gx_distortion.vibrato"," vibrato ");
-									create_switch_no_caption(sw_switchit, "gx_distortion.resonator.on_off");
-							   }
-							   closeBox(); 
+
+                              openVerticalBox("resonator");
+                              {
+                                   create_small_rackknob("gx_distortion.trigger","trigger ");
+                                   create_small_rackknob("gx_distortion.vibrato"," vibrato ");
+                                   create_switch_no_caption(sw_switchit, "gx_distortion.resonator.on_off");
+                              }
+                              closeBox();
                          }
                          closeBox();
                     }
@@ -321,13 +310,13 @@ openHorizontalTableBox("");
           {
                openHorizontalBox("");
                {
-					openPaintBox1("");
-					{
-                    create_switch_no_caption(sw_switchit, "IR.on_off");
-                    create_selector("IR.pp");
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "IR.on_off");
+                         create_selector("IR.pp");
                     }
                     closeBox();
-                    
+
                     openDialogBox("IR.dialog", "IR.on_off","RackBox_expose");
                     {
                          openVerticalBox1("");
@@ -339,7 +328,7 @@ openHorizontalTableBox("");
                                    create_selector("IR.auto_freq");
                                    openSpaceBox("");
                                    closeBox();
-                                   
+
                                    openHorizontalTableBox("");
                                    {
                                         create_small_rackknob("IR.freq"," freq ");
@@ -366,28 +355,28 @@ openHorizontalTableBox("");
           {
                openHorizontalBox("");
                {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "compressor.on_off");
-						create_selector("compressor.pp");
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "compressor.on_off");
+                         create_selector("compressor.pp");
                     }
-					closeBox();
+                    closeBox();
                     openDialogBox("compressor.dialog", "compressor.on_off","RackBox_expose");
                     {
-                 
-                              openHorizontalTableBox("");
-                              {
-                                   create_small_rackknob("compressor.knee");
-                                   create_small_rackknobr("compressor.ratio");
-                                   create_small_rackknob("compressor.threshold");
-                              
-                              
-                                   create_small_rackknob("compressor.attack");
-                                   create_small_rackknob("compressor.release");
-                              }
-                              closeBox();
-                         
-                       
+
+                         openHorizontalTableBox("");
+                         {
+                              create_small_rackknob("compressor.knee");
+                              create_small_rackknobr("compressor.ratio");
+                              create_small_rackknob("compressor.threshold");
+
+
+                              create_small_rackknob("compressor.attack");
+                              create_small_rackknob("compressor.release");
+                         }
+                         closeBox();
+
+
                     }
                     closeBox();
                }
@@ -403,10 +392,10 @@ openHorizontalTableBox("");
           {
                openHorizontalBox("");
                {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "overdrive.on_off");
-						create_selector("overdrive.pp");
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "overdrive.on_off");
+                         create_selector("overdrive.pp");
                     }
                     closeBox();
                     openDialogBox("overdrive.dialog", "overdrive.on_off","RackBox_expose");
@@ -429,20 +418,20 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
-//----- echo    
+//----- echo
      openHorizontalOrderBox("", &gx_engine::audio.posit6);
      {
           openVerticalBox("echo");
           {
                openHorizontalBox("");
                {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "echo.on_off");
-						create_selector("echo.pp");
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "echo.on_off");
+                         create_selector("echo.pp");
                     }
                     closeBox();
-                    
+
                     openDialogBox("echo.dialog", "echo.on_off","RackBox_expose");
                     {
                          openVerticalBox("");
@@ -473,12 +462,12 @@ openHorizontalTableBox("");
           {
                openHorizontalBox("");
                {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "delay.on_off");
-						create_selector("delay.pp");
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "delay.on_off");
+                         create_selector("delay.pp");
                     }
-					closeBox();
+                    closeBox();
 
                     openDialogBox("delay.dialog", "delay.on_off","RackBox_expose");
                     {
@@ -510,10 +499,10 @@ openHorizontalTableBox("");
           {
                openHorizontalBox("");
                {
-					openPaintBox1("");
-					{
-						create_switch_no_caption(sw_switchit, "freeverb.on_off");
-						create_selector("freeverb.pp");
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "freeverb.on_off");
+                         create_selector("freeverb.pp");
                     }
                     closeBox();
                     openDialogBox("freeverb.dialog", "freeverb.on_off","RackBox_expose");
@@ -542,6 +531,6 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
-     
+
 }
 closeBox();

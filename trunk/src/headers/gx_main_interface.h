@@ -287,6 +287,7 @@ private:
 	bool on_meter_button_release(GdkEventButton* ev);
 	void on_tuner_activate();
 	void gx_show_menu_settings(GtkWidget *widget, gpointer data);
+	void on_log_activate();
 	void on_rack_activate();
 	void on_srack_activate();
 	void set_mouse_mode();
@@ -298,6 +299,7 @@ protected :
 	GtkWidget*          fBox[stackSize];
 	GtkWidget*          rBox;
 	GtkWidget*          sBox;
+	
 	int 		fMode[stackSize];
 	bool		fStopped;
 	GtkTextView*        fLoggingWindow;
@@ -331,6 +333,8 @@ protected :
 public :
 	MenuCheckItem       fShowRack;
 	MenuCheckItem       fShowSRack;
+	MenuCheckItem       fShowLogger;
+	GtkWidget* 			logger;
 	
 	static bool	 fInitialized;
 	int          highest_unseen_msg_level;
