@@ -1699,6 +1699,7 @@ GxDialogButtonBox::GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog):
 	//show_dialog.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#000094"));
 	box.set_border_width(0);
 	//box.add(show_dialog);
+	//show_dialog.show_all();
 	box.show_all();
 }
 
@@ -1733,10 +1734,16 @@ GxDialogWindowBox::~GxDialogWindowBox()
 
 void GxDialogWindowBox::on_dialog_button_toggled()
 {
-	gx_show_extended_settings(GTK_WIDGET(dialog_button.gobj()), (gpointer)paintbox.gobj());
-	GtkWidget *box = gtk_widget_get_parent(GTK_WIDGET(paintbox.gobj()));
-	if(GDK_IS_WINDOW(box->window))
-		gdk_window_invalidate_rect(box->window,NULL,true);
+	if (dialog_button.get_active()){
+		const gchar * title = gtk_widget_get_name(GTK_WIDGET(paintbox.gobj()));
+		string p = "ui.";
+		p +=title;
+		string group = group_id;
+		group += ".on_off";
+		parameter_map[p].set_std_value();
+		parameter_map[group].set_std_value();
+		dialog_button.set_active(false);
+	}
 }
 
 void GxDialogWindowBox::on_dialog_menu_activate()
@@ -1797,7 +1804,6 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	Parameter& param_dialog = parameter_map[id_dialog];
 	Parameter& param_switch = parameter_map[id_switch];
 	GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
-
 	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(rBox));
 	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,mono_plugs);
 	mono_plugs++;

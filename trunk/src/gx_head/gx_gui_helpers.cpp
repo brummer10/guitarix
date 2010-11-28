@@ -565,10 +565,10 @@ void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 		const gchar * title = gtk_widget_get_name(GTK_WIDGET(box1));
 		if(strcmp(title,"MonoRack")==0) {
 			if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
-			g_threads[7] = g_timeout_add(40, gx_set_resizeable,gpointer(box1));
+			g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,gpointer(box1),NULL);
 		} else {
 			if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
-			g_threads[6] = g_timeout_add(40, gx_set_sresizeable,gpointer(box1));
+			g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_sresizeable,gpointer(box1),NULL);
 		}
 		gtk_widget_set_size_request (GTK_WIDGET (box2),my_size.width+24 , -1 );
 		
