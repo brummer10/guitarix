@@ -122,7 +122,7 @@ openHorizontalTableBox("");
                                         closeBox();
                                    }
                                    closeBox();
-                                   openSpaceBox("");
+                                   openFrameBox("");
                                    closeBox();
                               }
                               closeBox();
@@ -197,7 +197,7 @@ openHorizontalTableBox("");
                                         closeBox();
                                    }
                                    closeBox();
-                                   openSpaceBox("");
+                                   openFrameBox("");
                                    closeBox();
                               }
                               closeBox();
@@ -239,7 +239,7 @@ openHorizontalTableBox("");
                                         openSpaceBox("");
                                         closeBox();
                                         create_selector("stereodelay.invert");
-                                        openSpaceBox("");
+                                        openFrameBox("");
                                         closeBox();
                                    }
                                    closeBox();

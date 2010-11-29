@@ -654,8 +654,8 @@ gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
                                CAIRO_FONT_WEIGHT_BOLD);
 	cairo_set_font_size (cr, 10);
 	cairo_text_extents (cr,title , &extents);
-	double x = x0+rect_width-extents.height ;
-	double y = y0+rect_height*0.9+extents.height/2 ;
+	double x = x0+rect_width-extents.height - 3 ;
+	double y = y0+rect_height*0.9+extents.height/2 - 3;
 	cairo_move_to(cr,x, y);
 	cairo_rotate (cr,270* M_PI/180);
 	cairo_text_path (cr,title);

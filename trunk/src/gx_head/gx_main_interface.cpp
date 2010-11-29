@@ -31,6 +31,7 @@
 #include <gtkmm/accelgroup.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/fixed.h>
+#include <gtkmm/eventbox.h>
 
 #include <gxwmm/paintbox.h>
 
@@ -103,6 +104,91 @@ string fformat(float value, float step)
 #include "gx_main_midi.cc"
 
 /****************************************************************
+ ** Gxmm widgets and method definitions
+ */
+
+class GxVBox
+{
+public:
+	Gtk::VBox m_box;
+	Gtk::Label m_label;
+	GxVBox(gx_ui::GxUI& ui);
+	virtual ~GxVBox();
+};
+
+GxVBox::~GxVBox()
+{
+}
+
+GxVBox::GxVBox(gx_ui::GxUI& ui)
+{
+}
+
+class GxHBox
+{
+public:
+	Gtk::HBox m_box;
+	Gtk::Label m_label;
+	Gtk::Frame m_frame;
+	GxHBox(gx_ui::GxUI& ui);
+	virtual ~GxHBox();
+};
+
+GxHBox::~GxHBox()
+{
+}
+
+GxHBox::GxHBox(gx_ui::GxUI& ui)
+{
+}
+
+class GxPaintBox
+{
+
+public:
+	
+	Gtk::HBox m_box;
+	Gxw::PaintBox m_paintbox;
+	GxPaintBox(gx_ui::GxUI& ui, const char *expose_funk);
+	~GxPaintBox();
+};
+
+GxPaintBox::~GxPaintBox()
+{
+}
+
+GxPaintBox::GxPaintBox(gx_ui::GxUI& ui,const char *expose_funk):
+	m_box(false, 0)
+{
+	m_paintbox.property_paint_func() = expose_funk;
+	m_paintbox.add(m_box);
+}
+
+class GxEventBox
+{
+public:
+	Gtk::HBox m_box;
+	Gtk::EventBox m_eventbox;
+	Gtk::Fixed m_fixedbox;
+	Gtk::Label m_label;
+	GxEventBox(gx_ui::GxUI& ui);
+	virtual ~GxEventBox();
+};
+
+GxEventBox::~GxEventBox()
+{
+}
+
+GxEventBox::GxEventBox(gx_ui::GxUI& ui)
+{
+	m_box.set_size_request (600,182); // main window size
+	m_box.set_border_width (2);
+	m_eventbox.set_name ("osc_box");
+	m_eventbox.add(m_box);
+	m_fixedbox.put(m_eventbox,0,0);
+}
+
+/****************************************************************
  ** GxMainInterface widget and method definitions
  */
 
@@ -137,7 +223,7 @@ GxMainInterface::GxMainInterface(const char * name):
 	//gtk_widget_set_size_request (GTK_WIDGET (fWindow) , 600,205);
 	gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 	gtk_window_set_title (GTK_WINDOW (fWindow), name);
-	gtk_window_set_gravity(GTK_WINDOW(fWindow), GDK_GRAVITY_NORTH_WEST);
+	gtk_window_set_gravity(GTK_WINDOW(fWindow), GDK_GRAVITY_STATIC);
 	
 	
 
@@ -217,26 +303,6 @@ void GxMainInterface::closeBox()
 {
 	--fTop;
 	assert(fTop >= 0);
-}
-
-//-------- different box styles
-void GxMainInterface::openFrameBox(const char* label)
-{
-	GtkWidget * box = gtk_hbox_new (homogene, 2);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
-	if (fMode[fTop] != kTabMode && label[0] != 0)
-	{
-		GtkWidget * frame = addWidget(label, gtk_frame_new (label));
-		gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
-		gtk_container_add (GTK_CONTAINER(frame), box);
-		gtk_widget_show(box);
-		pushBox(kBoxMode, box);
-	}
-	else
-	{
-		pushBox(kBoxMode, addWidget(label, box));
-	}
-
 }
 
 static void logging_set_color(GtkWidget *w, gpointer data)
@@ -384,7 +450,6 @@ void GxMainInterface::show_msg(string msgbuf, gx_system::GxMsgType msgtype)
 	}
 }
 
-
 void GxMainInterface::openLevelMeterBox(const char* label)
 {
 	GtkWidget* box1 = addWidget(label, gtk_alignment_new (0.5, 0.5, 0, 0));
@@ -432,44 +497,6 @@ void GxMainInterface::openLevelMeterBox(const char* label)
 	// show main box
 	gtk_widget_show(box);
 	gtk_widget_show(box1);
-}
-
-void GxMainInterface::openHorizontalBox(const char* label)
-{
-	GtkWidget * box = gtk_hbox_new (homogene, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-
-	if (fMode[fTop] != kTabMode && label[0] != 0)
-	{
-		GtkWidget * frame = addWidget(label, gtk_frame_new (label));
-		gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
-		gtk_container_add (GTK_CONTAINER(frame), box);
-		gtk_widget_show(box);
-		pushBox(kBoxMode, box);
-	}
-	else
-	{
-		pushBox(kBoxMode, addWidget(label, box));
-	}
-}
-
-void GxMainInterface::openHorizontalTableBox(const char* label)
-{
-	GtkWidget * box = gtk_hbox_new (TRUE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-
-	if (fMode[fTop] != kTabMode && label[0] != 0)
-	{
-		GtkWidget * frame = addWidget(label, gtk_frame_new (label));
-		gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
-		gtk_container_add (GTK_CONTAINER(frame), box);
-		gtk_widget_show(box);
-		pushBox(kBoxMode, box);
-	}
-	else
-	{
-		pushBox(kBoxMode, addWidget(label, box));
-	}
 }
 
 struct uiOrderButton : public gx_ui::GxUiItemFloat
@@ -783,169 +810,203 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 
 }
 
+//-------- different gtkmm container styles
 void GxMainInterface::openEventBox(const char* label)
 {
-	GtkWidget * box = gtk_hbox_new (homogene, 4);
-	// main window size
-	gtk_widget_set_size_request (GTK_WIDGET (box) , 600,182);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
-	if (fMode[fTop] != kTabMode && label[0] != 0)
-	{
-		GtkWidget * e_box =  gtk_event_box_new ();
-		GtkWidget * f_box =  gtk_fixed_new ();
-		gtk_widget_set_name (e_box,"osc_box");
-		gtk_box_pack_start (GTK_BOX(fBox[fTop]), f_box, false, fill, 0);
-		
-		gtk_container_add (GTK_CONTAINER(e_box), box);
-		gtk_fixed_put(GTK_FIXED(f_box),e_box,0,0);
-		gtk_widget_show_all(f_box);
-		pushBox(kBoxMode, box);
+	GxEventBox * box =  new GxEventBox(*this);
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_fixedbox.gobj()), false, fill, 0);
+	box->m_fixedbox.show_all();
+	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+}
+
+
+void GxMainInterface::openFrameBox(const char* label)
+{
+	GxHBox * box =  new GxHBox(*this);
+	box->m_box.set_homogeneous(false);
+	box->m_box.set_spacing(2);
+	box->m_box.set_border_width(2);
+
+	if (fMode[fTop] != kTabMode && label[0] != 0) {
+		box->m_frame.set_label(label);
+		box->m_frame.set_shadow_type(Gtk::SHADOW_NONE);
+		box->m_frame.add(box->m_box);
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_frame.gobj()), false, fill, 0);
+		box->m_box.show();
+		box->m_frame.show();
+		pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+	} else {
+		pushBox(kBoxMode, addWidget(label,GTK_WIDGET(box->m_box.gobj())));
 	}
-	else
-	{
-		pushBox(kBoxMode, addWidget(label, box));
+
+}
+
+void GxMainInterface::openHorizontalBox(const char* label)
+{
+	GxHBox * box =  new GxHBox(*this);
+	box->m_box.set_homogeneous(false);
+	box->m_box.set_spacing(0);
+	box->m_box.set_border_width(0);
+
+	if (fMode[fTop] != kTabMode && label[0] != 0) {
+		box->m_frame.set_label(label);
+		box->m_frame.set_shadow_type(Gtk::SHADOW_NONE);
+		box->m_frame.add(box->m_box);
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_frame.gobj()), false, fill, 0);
+		box->m_box.show();
+		box->m_frame.show();
+		pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+	} else {
+		pushBox(kBoxMode, addWidget(label,GTK_WIDGET(box->m_box.gobj())));
+	}
+}
+
+void GxMainInterface::openHorizontalTableBox(const char* label)
+{
+	GxHBox * box =  new GxHBox(*this);
+	box->m_box.set_homogeneous(true);
+	box->m_box.set_spacing(0);
+	box->m_box.set_border_width(0);
+
+	if (fMode[fTop] != kTabMode && label[0] != 0) {
+		box->m_frame.set_label(label);
+		box->m_frame.set_shadow_type(Gtk::SHADOW_NONE);
+		box->m_frame.add(box->m_box);
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_frame.gobj()), false, fill, 0);
+		box->m_box.show();
+		box->m_frame.show();
+		pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+	} else {
+		pushBox(kBoxMode, addWidget(label,GTK_WIDGET(box->m_box.gobj())));
 	}
 }
 
 void GxMainInterface::openVerticalBox(const char* label)
 {
-	GtkWidget * box = gtk_vbox_new (homogene, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
+	GxVBox * box =  new GxVBox(*this);
+	box->m_box.set_homogeneous(false);
+	box->m_box.set_spacing(0);
+	box->m_box.set_border_width(0);
 
-	if (fMode[fTop] != kTabMode && label[0] != 0)
-	{
-		GtkWidget* lw = gtk_label_new(label);
-		gtk_widget_set_name (lw,"rack_label");
-		GtkStyle *style = gtk_widget_get_style(lw);
+	if (fMode[fTop] != kTabMode && label[0] != 0) {
+		box->m_label.set_text(label);
+		box->m_label.set_name ("rack_label");
+		GtkStyle *style = gtk_widget_get_style(GTK_WIDGET(box->m_label.gobj()));
 		pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
 		pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-		gtk_widget_modify_font(lw, style->font_desc);
-		gtk_box_pack_start(GTK_BOX(box), lw, false, false, 0);
-		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, false, fill, 0);
-		gtk_widget_show(lw);
-		gtk_widget_show(box);
-		pushBox(kBoxMode, box);
-	}
-	else
-	{
-		pushBox(kBoxMode, addWidget(label, box));
+		gtk_widget_modify_font(GTK_WIDGET(box->m_label.gobj()), style->font_desc);
+		box->m_box.pack_start(box->m_label,false, false, 0 );
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), false, fill, 0);
+		box->m_box.show();
+		box->m_label.show();
+		pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+	} else {
+		pushBox(kBoxMode, addWidget(label,GTK_WIDGET(box->m_box.gobj())));
 	}
 }
 
 void GxMainInterface::openFlipLabelBox(const char* label)
 {
-	GtkWidget * box = gtk_vbox_new (homogene, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-	g_signal_connect(box, "expose-event", G_CALLBACK(vbox_expose), NULL);
-	if (fMode[fTop] != kTabMode && label[0] != 0)
-	{
-	    GtkWidget * hbox = gtk_hbox_new (homogene, 0);
-	    GtkWidget * vbox = gtk_vbox_new (homogene, 0);
-		GtkWidget* lw = gtk_label_new(label);
-        gtk_label_set_angle (GTK_LABEL(lw),90);
-		gtk_widget_set_name (lw,"beffekt_label");
+	GxVBox * box =  new GxVBox(*this);
+	box->m_box.set_homogeneous(false);
+	box->m_box.set_spacing(0);
+	box->m_box.set_border_width(0);
+
+	if (fMode[fTop] != kTabMode && label[0] != 0) {
+		GxVBox * vbox =  new GxVBox(*this);
+		vbox->m_box.set_homogeneous(false);
+		vbox->m_box.set_spacing(0);
+		vbox->m_box.set_border_width(0);
 		
-		GtkStyle *style = gtk_widget_get_style(lw);
+		GxHBox * hbox =  new GxHBox(*this);
+		hbox->m_box.set_homogeneous(false);
+		hbox->m_box.set_spacing(0);
+		hbox->m_box.set_border_width(0);
+		
+		hbox->m_label.set_text(label);
+		hbox->m_label.set_name ("beffekt_label");
+		hbox->m_label.set_angle(90);
+		hbox->m_label.set_size_request (15,-1);
+		GtkStyle *style = gtk_widget_get_style(GTK_WIDGET(hbox->m_label.gobj()));
 		pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
 		pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-		gtk_widget_modify_font(lw, style->font_desc);
+		gtk_widget_modify_font(GTK_WIDGET(hbox->m_label.gobj()), style->font_desc);
+		hbox->m_box.add(hbox->m_label);
+		hbox->m_box.add(vbox->m_box);
+		box->m_box.add(hbox->m_box);
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), false, fill, 0);
+		box->m_box.show_all();
 		
-		gtk_widget_set_size_request (GTK_WIDGET (lw) , 15,-1);
-		gtk_container_add (GTK_CONTAINER(hbox), lw);
-		gtk_container_add (GTK_CONTAINER(hbox), vbox);
-		gtk_container_add (GTK_CONTAINER(box), hbox);
-		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
-		gtk_widget_show_all(box);
-		pushBox(kBoxMode, vbox);
-	}
-	else
-	{
-		pushBox(kBoxMode, addWidget(label, box));
+		pushBox(kBoxMode, GTK_WIDGET(vbox->m_box.gobj()));
+	} else {
+		pushBox(kBoxMode, addWidget(label,GTK_WIDGET(box->m_box.gobj())));
 	}
 }
 
 void GxMainInterface::openSpaceBox(const char* label)
 {
-	GtkWidget * box = gtk_vbox_new (homogene, 2);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 4);
-	if (fMode[fTop] != kTabMode && label[0] != 0)
-	{
-		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
-		gtk_widget_show(box);
-		pushBox(kBoxMode, box);
-	}
-	else
-	{
-		pushBox(kBoxMode, addWidget(label, box));
+	GxVBox * box =  new GxVBox(*this);
+	box->m_box.set_homogeneous(true);
+	box->m_box.set_spacing(2);
+	box->m_box.set_border_width(4);
+	box->m_box.show_all();
+	if (fMode[fTop] != kTabMode && label[0] != 0) {
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), expand, fill, 0);
+		pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+	} else {
+		pushBox(kBoxMode, addWidget(label, GTK_WIDGET (box->m_box.gobj())));
 	}
 }
 
 void GxMainInterface::openPaintBox(const char* label, const char* name)
 {
-	GtkWidget *box = gtk_hbox_new(homogene, 2);
+	GxPaintBox * box =  new GxPaintBox(*this,pb_zac_expose);
+	box->m_box.set_border_width(4);
 	if (name) {
-		gtk_widget_set_name(box, name);
+		box->m_paintbox.set_name(name);
 	}
-	gtk_container_set_border_width(GTK_CONTAINER (box), 4);
-	g_signal_connect(box, "expose-event", G_CALLBACK(zac_expose), NULL);
-
-	if (fMode[fTop] != kTabMode && label[0] != 0)
-	{
-		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
-		gtk_widget_show(box);
-		pushBox(kBoxMode, box);
-	}
-	else
-	{
-		pushBox(kBoxMode, addWidget(label, box));
-	}
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_paintbox.gobj()), expand, fill, 0);
+	box->m_paintbox.show_all();
+	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
 }
 
 void GxMainInterface::openpaintampBox(const char* label)
 {
-	GtkWidget * box = gtk_vbox_new (homogene, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
-	g_signal_connect(box, "expose-event", G_CALLBACK(AmpBox_expose), NULL);
-
-	if (fMode[fTop] != kTabMode && label[0] != 0)
-	{
-		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
-		gtk_widget_show(box);
-		pushBox(kBoxMode, box);
-	}
-	else
-	{
-		pushBox(kBoxMode, addWidget(label, box));
-	}
+	GxPaintBox * box =  new GxPaintBox(*this,pb_AmpBox_expose);
+	box->m_box.set_border_width(4);
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_paintbox.gobj()), expand, fill, 0);
+	box->m_paintbox.show_all();
+	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
 }
 
 void GxMainInterface::openPaintBox1(const char* label)
 {
-	GtkWidget * box = gtk_vbox_new (homogene, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-	gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, false, false, 0);
-	gtk_widget_show(box);
-	pushBox(kBoxMode, box);
-	
+	GxVBox * box =  new GxVBox(*this);
+	box->m_box.set_homogeneous(false);
+	box->m_box.set_spacing(0);
+	box->m_box.set_border_width(0);
+	box->m_box.show_all();
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), expand, fill, 0);
+	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
 }
 
 void GxMainInterface::openVerticalBox1(const char* label)
 {
-	GtkWidget * box = gtk_vbox_new (homogene, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-	if (fMode[fTop] != kTabMode && label[0] != 0)
-	{
-		GtkWidget* lw = gtk_label_new(label);
-		gtk_widget_set_name (lw,"effekt_label");
-		gtk_container_add (GTK_CONTAINER(box), lw);
-		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
-		gtk_widget_show(lw);
-		gtk_widget_show(box);
-		pushBox(kBoxMode, box);
-	}
-	else
-	{
-		pushBox(kBoxMode, addWidget(label, box));
+	GxVBox * box =  new GxVBox(*this);
+	box->m_box.set_homogeneous(false);
+	box->m_box.set_spacing(0);
+	box->m_box.set_border_width(0);
+
+	if (fMode[fTop] != kTabMode && label[0] != 0) {
+		box->m_label.set_text(label);
+		box->m_label.set_name ("effekt_label");
+		box->m_box.pack_start(box->m_label,false, false, 0 );
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), expand, fill, 0);
+		box->m_box.show();
+		box->m_label.show();
+		pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+	} else {
+		pushBox(kBoxMode, addWidget(label,GTK_WIDGET(box->m_box.gobj())));
 	}
 }
 
@@ -1363,6 +1424,8 @@ UiRegler::UiRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, 
 	m_regler(regler)
 {
 	m_regler->set_show_value(show_value);
+	m_regler->set_has_tooltip();
+	m_regler->set_tooltip_text(param.id().substr( param.id().find_last_of(".")+1).c_str());
 	m_regler->cp_set_var(param.id());
 	m_regler->set_adjustment(*this);
 	m_regler->show();
@@ -1723,6 +1786,7 @@ public:
 	Gtk::Button reset_button;
 	Gtk::Button reset_button1;
 	Gtk::ToggleButton& dialog_button;
+	Gtk::Window m_regler_tooltip_window;
 	GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk, Parameter& param_dialog, Parameter& param_switch, Gtk::ToggleButton& button,GtkWidget * Caller);
 	~GxDialogWindowBox();
 };
@@ -1767,7 +1831,8 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui,const char *expose_funk, Pa
 	
 	box(false, 0),
 	unit_on_off( UiSwitch::new_switch(ui, sw_led, param_switch)),
-	dialog_button(button)
+	dialog_button(button),
+	m_regler_tooltip_window(Gtk::WINDOW_POPUP)
 {
 	group_id = param_dialog.id().substr(0, param_dialog.id().find_last_of(".")).c_str();
 	Glib::ustring title = param_dialog.group();
@@ -1789,10 +1854,13 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui,const char *expose_funk, Pa
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_reset_button_pressed));
 	reset_button1.signal_pressed().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_reset_button_pressed));
+	reset_button.set_tooltip_text("Reset Button, press to reset settings");
+	reset_button1.set_tooltip_text("Reset Button, press to reset settings");
 	box4.pack_start(box6,false,false,0);
 	box4.pack_start(box,true,true,0);	
 	box4.pack_end(box5,false,false,0);
 	paintbox.add(box4);
+	paintbox.set_tooltip_text(title);
 	dialog_button.signal_toggled().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
 	menuitem.signal_activate().connect(
@@ -1968,13 +2036,13 @@ private:
 	bool on_window_delete_event(GdkEventAny* event,gpointer d );
 	void on_check_resize();
 	bool on_button_pressed(GdkEventButton* event);
-	bool doit;
 public:
 	Gtk::Window window;
 	Gtk::ScrolledWindow           m_scrolled_window; 
 	Gtk::HBox box;
 	Gxw::PaintBox paintbox1;
 	Gtk::VBox rbox;
+	Gtk::Window m_regler_tooltip_window;
 	GxWindowBox(gx_ui::GxUI& ui, 
 		const char *pb_2, Glib::ustring titl,GtkWidget * d);
 	~GxWindowBox();
@@ -2023,18 +2091,18 @@ bool GxWindowBox::on_button_pressed(GdkEventButton* event)
 GxWindowBox::GxWindowBox(gx_ui::GxUI& ui, 
 	const char *pb_2, Glib::ustring titl,GtkWidget * d):
 	window(Gtk::WINDOW_TOPLEVEL),
-	rbox(false, 4)
+	rbox(false, 4),
+	m_regler_tooltip_window(Gtk::WINDOW_POPUP)
 {
 	Glib::ustring title = titl;
 	window.set_decorated(true);
 	window.add_events(Gdk::BUTTON_PRESS_MASK);
 	window.set_icon(Glib::wrap(ib));
-	window.set_gravity(Gdk::GRAVITY_SOUTH);
+	window.set_gravity(Gdk::GRAVITY_STATIC);
 	window.set_title(title);
 	window.property_destroy_with_parent() = true;
 	m_scrolled_window.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_AUTOMATIC); 
 	paintbox1.set_border_width(18);
-	doit = true;
 	paintbox1.property_paint_func() = pb_2;
 	window.signal_delete_event().connect(
 		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxWindowBox::on_window_delete_event),d));
@@ -2068,6 +2136,7 @@ void GxMainInterface::openPlugBox(const char* label)
 	rack_widget = GTK_WIDGET(box->window.gobj());
 	box->window.set_size_request(-1,-1); 
 	box->window.set_name("MonoRack");
+	box->window.set_tooltip_text("Mono Rack, right click pop up the plugin menu");
 	rBox = GTK_WIDGET(box->rbox.gobj());
 	//gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(rBox));
@@ -2080,6 +2149,7 @@ void GxMainInterface::openAmpBox(const char* label)
 	srack_widget = GTK_WIDGET(box->window.gobj());
 	box->window.set_size_request(-1,-1); 
 	box->window.set_name("StereoRack");
+	box->window.set_tooltip_text("Stereo Rack, right click pop up the plugin menu");
 	sBox = GTK_WIDGET(box->rbox.gobj());
 	//gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(sBox));
