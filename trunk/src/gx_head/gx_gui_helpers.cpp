@@ -317,21 +317,6 @@ void gx_patch(GtkCheckMenuItem *menuitem, gpointer checkplay)
 }
 
 //---- menu function gx_midi_out
-void gx_midi_out (GtkCheckMenuItem *menuitem, gpointer checkplay)
-{
-	if (gtk_check_menu_item_get_active(menuitem) == TRUE)
-	{
-		gx_engine::turnOnMidi();
-		gtk_widget_show(midibox);
-	}
-	else
-	{
-		gx_engine::turnOffMidi();
-		gtk_widget_hide(midibox);
-	}
-}
-
-//---- menu function gx_midi_out
 void gx_log_window (GtkWidget* menuitem, gpointer arg)
 {
 	GtkExpander* const exbox = GxMainInterface::instance()->getLoggingBox();
@@ -584,6 +569,27 @@ void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 		
 	}
 }
+
+//---- menu function gx_midi_out
+void gx_midi_out (GtkCheckMenuItem *menuitem, gpointer checkplay)
+{
+	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(midibox));
+	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,0);
+	g_list_free(child_list);
+	gx_show_menu_settings(GTK_WIDGET(menuitem), (gpointer) child);
+	static bool first = true;
+	if (gtk_check_menu_item_get_active(menuitem) == TRUE) {
+		if(first)refresh_size = 0;
+		
+		gx_engine::turnOnMidi();
+	} else {
+		gx_engine::turnOffMidi();
+		string group = "midi_out.on_off";
+		parameter_map[group].set_std_value();
+	}
+	first =false;
+}
+
 //----- hide the extendend settings slider
 void gx_hide_extended_settings( GtkWidget *widget, gpointer data )
 {

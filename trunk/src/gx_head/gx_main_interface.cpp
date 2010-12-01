@@ -32,6 +32,7 @@
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/fixed.h>
 #include <gtkmm/eventbox.h>
+#include <gtkmm/notebook.h>
 
 #include <gxwmm/paintbox.h>
 
@@ -77,6 +78,7 @@ const char *pb_zac_expose =                  "zac_expose";
 const char *pb_gxhead_expose =               "gxhead_expose";
 const char *pb_RackBox_expose =              "RackBox_expose";
 const char *pb_gxrack_expose =               "gxrack_expose";
+const char *pb_eq_expose =                   "eq_expose";
 
 /****************************************************************
  ** format controller values
@@ -188,6 +190,47 @@ GxEventBox::GxEventBox(gx_ui::GxUI& ui)
 	m_fixedbox.put(m_eventbox,0,0);
 }
 
+class GxMidiBox
+{
+public:
+	Gtk::HBox m_box;
+	Gxw::PaintBox m_paintbox;
+	Gtk::Fixed m_fixedbox;
+	GxMidiBox(gx_ui::GxUI& ui,const char *expose_funk);
+	virtual ~GxMidiBox();
+};
+
+GxMidiBox::~GxMidiBox()
+{
+}
+
+GxMidiBox::GxMidiBox(gx_ui::GxUI& ui,const char *expose_funk)
+{
+	m_paintbox.property_paint_func() = expose_funk;
+	m_paintbox.add(m_box);
+	m_box.set_homogeneous(false);
+	m_box.set_spacing(0);
+	m_box.set_border_width(4);
+	m_box.pack_end(m_fixedbox,false, false, 0 );
+	m_fixedbox.set_size_request ( 25, -1);
+}
+
+class GxNotebookBox
+{
+public:
+	Gtk::Notebook m_box;
+	GxNotebookBox(gx_ui::GxUI& ui);
+	virtual ~GxNotebookBox();
+};
+
+GxNotebookBox::~GxNotebookBox()
+{
+}
+
+GxNotebookBox::GxNotebookBox(gx_ui::GxUI& ui)
+{
+	m_box.set_name("tab_rack");
+}
 /****************************************************************
  ** GxMainInterface widget and method definitions
  */
@@ -517,7 +560,7 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
 			GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
 			guint max_client = g_list_length (child_list)-1;
 			guint per = g_value_get_int(&pos);
-			if (per<max_client) 
+			if (per<max_client-1) 
 			{
 				GtkWidget *obi = (GtkWidget *) g_list_nth_data(child_list,per+1);
 
@@ -713,6 +756,8 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	gtk_widget_set_name (lw1,"rack_label");
 	gtk_widget_set_name (button,"effect_reset");
 	gtk_widget_set_name (button1,"effect_reset");
+	gtk_widget_set_tooltip_text(button1,"move effect up");
+	gtk_widget_set_tooltip_text(button,"move effect down");
 	GtkStyle *style = gtk_widget_get_style(lw);
 	pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
@@ -772,6 +817,8 @@ void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
 	gtk_widget_set_name (lw1,"rack_label");
 	gtk_widget_set_name (button,"effect_reset");
 	gtk_widget_set_name (button1,"effect_reset");
+	gtk_widget_set_tooltip_text(button1,"move effect up");
+	gtk_widget_set_tooltip_text(button,"move effect down");
 	GtkStyle *style = gtk_widget_get_style(lw);
 	pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
@@ -972,8 +1019,9 @@ void GxMainInterface::openPaintBox(const char* label, const char* name)
 
 void GxMainInterface::openpaintampBox(const char* label)
 {
-	GxPaintBox * box =  new GxPaintBox(*this,pb_AmpBox_expose);
+	GxPaintBox * box =  new GxPaintBox(*this,pb_RackBox_expose);
 	box->m_box.set_border_width(4);
+	box->m_paintbox.set_name("MIDI out");
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_paintbox.gobj()), expand, fill, 0);
 	box->m_paintbox.show_all();
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
@@ -1008,6 +1056,33 @@ void GxMainInterface::openVerticalBox1(const char* label)
 	} else {
 		pushBox(kBoxMode, addWidget(label,GTK_WIDGET(box->m_box.gobj())));
 	}
+}
+
+void GxMainInterface::openTabBox(const char* label)
+{
+	GxNotebookBox * box =  new GxNotebookBox(*this);
+	pushBox(kTabMode, addWidget(label, GTK_WIDGET(box->m_box.gobj())));
+}
+
+void GxMainInterface::openVerticalMidiBox(const char* label)
+{
+	GxMidiBox * box =  new GxMidiBox(*this,pb_eq_expose);
+	midibox = GTK_WIDGET(box->m_paintbox.gobj());
+	gtk_container_add (GTK_CONTAINER(rBox), midibox);
+	gtk_widget_show(midibox);
+	pushBox(kBoxMode,GTK_WIDGET( box->m_box.gobj()));
+	gtk_widget_hide(midibox);
+}
+
+void GxMainInterface::openHorizontalhideBox(const char* label)
+{
+	GxHBox * box =  new GxHBox(*this);
+	box->m_box.set_homogeneous(false);
+	box->m_box.set_spacing(0);
+	box->m_box.set_border_width(0);
+	gtk_container_add (GTK_CONTAINER(sBox), GTK_WIDGET(box->m_box.gobj()));
+	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+	box->m_box.hide();
 }
 
 void GxMainInterface::openToolBar(const char* label)
@@ -1169,7 +1244,7 @@ void GxMainInterface::addPToggleButton(const char* label, float* zone)
 	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
 	gtk_widget_modify_font(lab, style->font_desc);
 	gtk_container_add (GTK_CONTAINER(button), lab);
-	gtk_widget_set_size_request (GTK_WIDGET(button), 60, 20);
+	gtk_widget_set_size_request (GTK_WIDGET(button), 70, 20);
 	GtkWidget * box = gtk_hbox_new (homogene, 4);
 	GtkWidget * box1 = gtk_vbox_new (homogene, 4);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 0);
@@ -1190,7 +1265,7 @@ void GxMainInterface::addPToggleButton(const char* label, float* zone)
 	uiToggleButton* c = new uiToggleButton(this, zone, GTK_TOGGLE_BUTTON(button));
 	gtk_widget_modify_bg (button, GTK_STATE_NORMAL, &colorOwn);
 	gtk_widget_modify_bg (button, GTK_STATE_ACTIVE, &colorRed);
-	gtk_widget_set_name (lab,"beffekt_label");
+	gtk_widget_set_name (lab,"rack_label");
 	g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
 	connect_midi_controller(button, zone);
 }
@@ -1716,9 +1791,12 @@ void GxMainInterface::addNumEntry(const char* label, float* zone, float init, fl
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (uiAdjustment::changed), (gpointer) c);
 	GtkWidget* spinner = gtk_spin_button_new (GTK_ADJUSTMENT(adj), step, precision(step));
 	connect_midi_controller(spinner, zone);
-	openFrameBox(label);
+	GtkWidget * box = gtk_hbox_new (homogene, 0);
+	GtkWidget* 	lab = gtk_label_new(label);
+	gtk_container_add (GTK_CONTAINER(box), lab);
+	gtk_widget_set_name (lab,"rack_label");
+	addWidget(label, box);
 	addWidget(label, spinner);
-	closeBox();
 }
 
 void GxMainInterface::openWarningBox(const char* label, float* zone)
@@ -1885,9 +1963,9 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	string p = "ui.";
 	p +=title;
 	set_label(dialog->menuitem,title );
-	//guint accel_key = GDK_1  + mono_plugs - 3;
-	//dialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	//                           accel_key, Gdk::ModifierType(GDK_CONTROL_MASK|GDK_SHIFT_MASK), Gtk::ACCEL_VISIBLE);  //FIXME MOD1_MASK 
+	guint accel_key = GDK_a  + mono_plugs ;
+	dialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME MOD1_MASK 
 	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsMono"]), GTK_WIDGET(dialog->menuitem.gobj()));
 	dialog->menuitem.show();
 	dialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
@@ -1914,9 +1992,9 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	p +=title;
 	string s;
 	
-	//guint accel_key = GDK_1  + stereo_plugs - 3;
-	//bdialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	//                           accel_key, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);  //FIXME 
+	guint accel_key = GDK_k  + stereo_plugs ;
+	bdialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME 
 	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsStereo"]), GTK_WIDGET(bdialog->menuitem.gobj()));
 	bdialog->menuitem.show();
 	bdialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
@@ -2678,7 +2756,7 @@ void GxMainInterface::addPluginMenu()
 	GtkWidget* menulabel; // menu label
 	GtkWidget* menucont;  // menu container
 	GtkWidget* menucontin;  // menu container
-
+	
 	menucont = fMenuList["Top"];
 
 	/*---------------- Create Options menu items ------------------*/
@@ -2713,6 +2791,18 @@ void GxMainInterface::addPluginMenu()
 	
 	fMenuList["PluginsMono"] = menucontin;
 	menu_mono_rack = fMenuList["PluginsMono"];
+	
+	/*-- create midi out menu  --*/
+	set_label(fShowMidiOut, "_MIDI out");
+	fShowMidiOut.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_a, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);
+	g_signal_connect (GTK_OBJECT (fShowMidiOut.gobj()), "activate",
+	                  G_CALLBACK (gx_midi_out), NULL);
+	
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucontin), GTK_WIDGET(fShowMidiOut.gobj()));
+	fShowMidiOut.show();
+	fShowMidiOut.set_parameter(new SwitchParameter("ui.midi_out"));
+	
 	
 	/*-- add a separator line --*/
 	GtkWidget* sep = gtk_separator_menu_item_new();

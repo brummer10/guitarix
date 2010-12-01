@@ -258,6 +258,18 @@ widget_class "*GtkToggleButton*" style:highest "b_style"
 class "GtkButton" style:highest "b_style"
 class "GtkSpinButton" style:highest "c_style"
 
+style "tab_style"
+{
+
+  bg[NORMAL] = { 0.20, 0.20, 0.20 }
+  bg[ACTIVE] = { 0.40, 0.40, 0.40 }
+  bg[PRELIGHT] = { 0.60, 0.60, 0.60 }
+  bg[SELECTED] = { 0.60, 0.60, 0.60 }
+  
+}
+
+
+widget "*.tab_rack" style:highest "tab_style"
 
 style "gx_head_p_style"
 {

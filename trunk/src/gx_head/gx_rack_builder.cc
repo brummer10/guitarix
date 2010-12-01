@@ -531,6 +531,199 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
+     
+	openVerticalMidiBox("  MIDI out  ");
+	{
+		openHorizontalBox("");
+		{
+			openVerticalBox("  MIDI out  ");
+			{
+				 create_switch_no_caption(sw_switchit, "midi_out.on_off");
+				 create_switch_no_caption(sw_led,"system.midistat");
+				 
+			}
+			closeBox();
+//----- create the midi settings dialog
+			openVerticalBox("");
+			{
+				openTabBox("");
+				{
+					
+					openVerticalBox("channel1");
+					{
+						openpaintampBox(" ");
+						{
+							openVerticalBox("");
+							{
+								openHorizontalBox("");
+								{
+									create_small_rackknob("midi_out.channel_1.velocity");
+									openVerticalBox("");
+									{
+										create_small_rackknob("midi_out.channel_1.volume");
+										addCheckButton("midi_out.channel_1.autogain");
+									}
+									closeBox();
+									openVerticalBox("");
+									{
+										addNumEntry("midi_out.channel_1.channel");
+										addNumEntry("midi_out.channel_1.program");
+									}
+									closeBox();
+									create_small_rackknob("midi_out.channel_1.oktave");
+									create_small_rackknob("midi_out.channel_1.sensity");
+								}
+								closeBox();
+								openHorizontalBox("");
+								{
+									openHorizontalBox(" ");
+									closeBox();
+									create_switch_no_caption(sw_led,"system.midistat1");
+									openHorizontalBox(" ");
+									{
+										addPToggleButton("midi_out.channel_1.auto_pitch");
+									}
+									closeBox();
+								}
+								closeBox();
+							}
+							closeBox();
+						}
+						closeBox();
+					}
+					closeBox();
+					
+					openVerticalBox("channel2");
+					{
+						openpaintampBox(" ");
+						{
+							openVerticalBox("");
+							{
+								openHorizontalBox("");
+								{
+									create_small_rackknob("midi_out.channel_2.velocity");
+									openVerticalBox("");
+									{
+										create_small_rackknob("midi_out.channel_2.volume");
+										addCheckButton("midi_out.channel_2.autogain");
+									}
+									closeBox();
+									openVerticalBox("");
+									{
+										addNumEntry("midi_out.channel_2.channel");
+										addNumEntry("midi_out.channel_2.program");
+									}
+									closeBox();
+									create_small_rackknob("midi_out.channel_2.oktave");
+									create_small_rackknob("midi_out.channel_2.sensity");
+								}
+								closeBox();
+								openHorizontalBox("");
+								{
+									create_switch_no_caption(sw_switchit, "midi_out.channel_2.on_off");
+									create_switch_no_caption(sw_led,"system.midistat2");
+									openHorizontalBox(" ");
+									{
+										addPToggleButton("midi_out.channel_2.auto_pitch");
+									}
+									closeBox();
+								}
+								closeBox();
+							}
+							closeBox();
+						}
+						closeBox();
+					}
+					closeBox();
+					
+					openVerticalBox("channel3");
+					{
+						openpaintampBox(" ");
+						{
+							openVerticalBox("");
+							{
+								openHorizontalBox("");
+								{
+									create_small_rackknob("midi_out.channel_3.velocity");
+									openVerticalBox("");
+									{
+										create_small_rackknob("midi_out.channel_3.volume");
+										addCheckButton("midi_out.channel_3.autogain");
+									}
+									closeBox();
+									openVerticalBox("");
+									{
+										addNumEntry("midi_out.channel_3.channel");
+										addNumEntry("midi_out.channel_3.program");
+									}
+									closeBox();
+									create_small_rackknob("midi_out.channel_3.oktave");
+									create_small_rackknob("midi_out.channel_3.sensity");
+								}
+								closeBox();
+								openHorizontalBox("");
+								{
+									create_switch_no_caption(sw_switchit, "midi_out.channel_3.on_off");
+									create_switch_no_caption(sw_led,"system.midistat3");
+									openHorizontalBox(" ");
+									{
+										addPToggleButton("midi_out.channel_3.auto_pitch");
+									}
+									closeBox();
+								}
+								closeBox();
+							}
+							closeBox();
+						}
+						closeBox();
+					}
+					closeBox();
+
+					openVerticalBox("beat_detector");
+					{
+						openpaintampBox(" ");
+						{
+							openVerticalBox("");
+							{
+						
+								openHorizontalBox("");
+								{
+									create_small_rackknob("beat_detector.stepper");
+									create_small_rackknob("beat_detector.note_off");
+									create_small_rackknob("beat_detector.atack_gain");
+									create_small_rackknob("beat_detector.beat_gain");
+								}
+								closeBox();
+								addStatusDisplay("", &gx_engine::audio.midistat);
+								openHorizontalBox("");
+								{
+									create_switch_no_caption(sw_led,"system.midistat1");
+									create_switch_no_caption(sw_led,"system.midistat2");
+									create_switch_no_caption(sw_led,"system.midistat3");
+								}
+								closeBox();
+								
+								openVerticalBox("Midi gain");
+								{
+									create_wheel("beat_detector.midi_gain");
+								}
+								closeBox();
+							}
+							closeBox();
+						}
+						closeBox();
+					}
+					closeBox();
+				}
+				closeBox();
+				
+			}
+			closeBox();
+		}
+		closeBox();
+	}
+	closeBox();
+    
 
 }
 closeBox();

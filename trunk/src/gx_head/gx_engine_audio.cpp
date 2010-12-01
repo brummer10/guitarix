@@ -93,6 +93,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("low_highpass.on_off", "on/off", &flh, 0);
 	gx_gui::registerParam("stereodelay.on_off", "on/off",(float*) &fsd, 0);
 	gx_gui::registerParam("stereoecho.on_off", "on/off",(float*) &fse, 0);
+	gx_gui::registerParam("midi_out.on_off", "on/off", &fmi, 0);
 	
 	static const char *tonestack_model[] = {"default","Bassman","Twin Reverb","Princeton","JCM-800","JCM-2000","M-Lead","M2199","AC-30","Off",0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
@@ -115,22 +116,23 @@ void AudioVariables::register_parameter()
 	static const char *eqt_onetwo[] = {"fixed","scale",0};
 	registerEnumParam("eqt.onetwo", "select", eqt_onetwo, &witcheq, 0);
 	
-	registerNonMidiParam("compressor.position", &posit5, true, 6, 1, 10);
-	registerNonMidiParam("crybaby.position", &posit0, true, 3, 1, 10);
-	registerNonMidiParam("overdrive.position", &posit1, true, 7, 1, 10);
-	registerNonMidiParam("gx_distortion.position", &posit2, true, 4, 1, 10);
-	registerNonMidiParam("freeverb.position", &posit3, true, 10, 1, 10);
-	registerNonMidiParam("IR.position", &posit4, true, 5, 1, 10);
-	registerNonMidiParam("echo.position", &posit6, true, 8, 1, 10);
-	registerNonMidiParam("delay.position", &posit7, true, 9, 1, 10);
-	registerNonMidiParam("eqs.position", &posit10, true, 2, 1, 10);
+	registerNonMidiParam("compressor.position", &posit5, true, 6, 1, 11);
+	registerNonMidiParam("crybaby.position", &posit0, true, 3, 1, 11);
+	registerNonMidiParam("overdrive.position", &posit1, true, 7, 1, 11);
+	registerNonMidiParam("gx_distortion.position", &posit2, true, 4, 1, 11);
+	registerNonMidiParam("freeverb.position", &posit3, true, 10, 1, 11);
+	registerNonMidiParam("IR.position", &posit4, true, 5, 1, 11);
+	registerNonMidiParam("echo.position", &posit6, true, 8, 1, 11);
+	registerNonMidiParam("delay.position", &posit7, true, 9, 1, 11);
+	registerNonMidiParam("eqs.position", &posit10, true, 2, 1, 11);
 	registerNonMidiParam("chorus.position", &posit8, true, 1, 1, 9);
 	registerNonMidiParam("flanger.position", &posit9, true, 2, 1, 9);
 	registerNonMidiParam("moog.position", &posit11, true, 6, 1, 9);
 	registerNonMidiParam("phaser.position", &posit12, true, 3, 1, 9);
-	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 10);
+	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 11);
 	registerNonMidiParam("stereodelay.position", &posit15, true, 4, 1, 9);
 	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 9);
+	registerNonMidiParam("midi_out.position", &posit00, true, 11, 1, 11);
 	
 	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
 	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);
@@ -151,8 +153,13 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("low_highpass.dialog", &fdialogbox_lh, false);
 	registerNonMidiParam("stereodelay.dialog", &fdialogbox_sd, false);
 	registerNonMidiParam("stereoecho.dialog", &fdialogbox_se, false);
+	registerNonMidiParam("midi_out.dialog", &fdialogbox6, false);
 	
 	registerNonMidiParam("system.waveview", &viv, false);
+	registerNonMidiParam("system.midistat", &midistat, false);
+	registerNonMidiParam("system.midistat1", &midistat1, false);
+	registerNonMidiParam("system.midistat2", &midistat2, false);
+	registerNonMidiParam("system.midistat3", &midistat3, false);
 
 	// user interface options
 	registerNonMidiParam("ui.latency_nowarn", &fwarn, false, 0);
@@ -252,6 +259,8 @@ void compute (int count, float* input, float* output0)
 			break;
 		}
 	}
+	if(audio.fmi && !isMidiOn()) turnOnMidi();
+	else if(!audio.fmi && isMidiOn()) turnOffMidi();
 
 	//------------ main processing routine
 	switch (process_type) {
@@ -292,6 +301,8 @@ void compute (int count, float* input, float* output0)
 
 void process_buffers(int count, float* input, float* output0)
 {
+	int mono_plug_counter =  gx_gui::mono_plugs;
+	
 	int tuner_on = gx_gui::shownote + (int)isMidiOn() + 1;
 	if (tuner_on > 0) {
 		if (gx_gui::shownote == 0) {
@@ -308,7 +319,7 @@ void process_buffers(int count, float* input, float* output0)
 	    noise_shaper::compute(count, output0, output0);
     }
 	  
-	for (int m = 1; m < gx_gui::mono_plugs; m++) {
+	for (int m = 1; m < mono_plug_counter; m++) {
 	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && audio.crybabypp) {
 		    crybaby::compute(count, output0, output0);
 	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah && audio.crybabypp) {
@@ -332,7 +343,7 @@ void process_buffers(int count, float* input, float* output0)
 		    selecteq::compute(count, output0, output0);
 	    } else if (audio.posit14 == m && audio.flh && audio.lhpp) {
 		    low_high_pass::compute(count, output0, output0);
-	    }
+	    } 
     }
 
 
@@ -340,7 +351,7 @@ void process_buffers(int count, float* input, float* output0)
 
     gxamp::compute(count, output0, output0);
     
-    for (int m = 1; m < gx_gui::mono_plugs; m++) {
+    for (int m = 1; m < mono_plug_counter; m++) {
 	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && !audio.crybabypp) {
 		    crybaby::compute(count, output0, output0);
 	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah && !audio.crybabypp) {
@@ -362,9 +373,9 @@ void process_buffers(int count, float* input, float* output0)
 		    delay::compute(count, output0, output0);
 	    } else if (audio.posit10 == m && audio.feq && !audio.eqpp) {
 		    selecteq::compute(count, output0, output0);
-	    }else if (audio.posit14 == m && audio.flh && !audio.lhpp) {
+	    } else if (audio.posit14 == m && audio.flh && !audio.lhpp) {
 		    low_high_pass::compute(count, output0, output0);
-	    }
+	    } 
     }
 
     switch (audio.tonestack) {
@@ -413,10 +424,11 @@ void process_buffers(int count, float* input, float* output0)
 
 void process_insert_buffers (int count, float* input1, float* output0, float* output1)
 {
+	int stereo_plug_counter =  gx_gui::stereo_plugs;
     memcpy(output0, input1, count*sizeof(float));
     gxfeed::compute(count, output0, output0, output1);
     
-    for (int m = 1; m < gx_gui::stereo_plugs; m++) {
+    for (int m = 1; m < stereo_plug_counter; m++) {
 		if (audio.posit8 == m && audio.fchorus && chorus::is_inited()) {
 			chorus::compute(count, output0, output1, output0, output1);
 		} else if (audio.posit9 == m && audio.fflanger) {

@@ -98,6 +98,9 @@ public:
 	float filebutton;
 	float fConsta1t;
 	float midistat;
+	float midistat1;
+	float midistat2;
+	float midistat3;
 	bool feq;
 	bool fdialogbox_eq;
 	bool fdialogbox_eqs;
@@ -137,6 +140,7 @@ public:
 	bool fdialogbox_sd;
 	int lhpp;
 	bool flh;
+	bool fmi;
 	int fsd;
 	int fse;
 

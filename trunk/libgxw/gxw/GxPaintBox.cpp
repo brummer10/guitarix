@@ -481,6 +481,66 @@ static gboolean convolver_icon_expose(GtkWidget *wi, GdkEventExpose *ev)
 	return FALSE;
 }
 
+static gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	//float p = gx_gui::parameter_map["eq.f31_25"].getFloat().value;
+    cairo_t *cr;
+    cairo_text_extents_t extents;
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+
+	double x0      = wi->allocation.x+1;
+	double y0      = wi->allocation.y+1;
+	double rect_width  = wi->allocation.width-2;
+	double rect_height = wi->allocation.height-3;
+
+	cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
+	cairo_pattern_t*pat =
+		cairo_pattern_create_radial (x0+200,y0+ rect_height*0.5, 5,x0+800, y0+ rect_height*0.5, 200.0);
+	cairo_pattern_add_color_stop_rgb (pat, 0, 0.3, 0.3, 0.3);
+	cairo_pattern_add_color_stop_rgb (pat, 0.5, 0.15, 0.15, 0.15);
+	cairo_pattern_add_color_stop_rgb (pat, 1, 0.1, 0.1, 0.1);
+	cairo_set_source (cr, pat);
+	cairo_fill (cr);
+	
+	cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+rect_width-3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
+    cairo_line_to(cr, x0+2, y0+rect_height-2);
+    cairo_stroke(cr);
+
+    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+3, y0+rect_height-1);
+    cairo_line_to(cr, x0+3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+3);
+    cairo_stroke(cr);
+    
+    const gchar * title = "faust";
+    cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_BOLD);
+	cairo_set_font_size (cr, 10);
+	cairo_text_extents (cr,title , &extents);
+	double x = x0+rect_width-extents.height - 3 ;
+	double y = y0+rect_height*0.9+extents.height/2 - 3;
+	cairo_move_to(cr,x, y);
+	cairo_rotate (cr,270* M_PI/180);
+	cairo_text_path (cr,title);
+	cairo_set_source_rgb (cr, 0.3, 0.3, 0.3);
+    cairo_fill (cr);
+
+	cairo_pattern_destroy (pat);
+	cairo_destroy(cr);
+	gdk_region_destroy (region);
+	return FALSE;
+}
+
 static gboolean zac_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
@@ -1622,7 +1682,9 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 	} else if (strcmp(paint_func, "crybaby_expose") == 0) {
 		paint_box->expose_func = crybaby_expose;
 	} else if (strcmp(paint_func, "compressor_expose") == 0) {
-		paint_box->expose_func = compressor_expose;	
+		paint_box->expose_func = compressor_expose;
+	} else if (strcmp(paint_func, "eq_expose") == 0) {
+		paint_box->expose_func = eq_expose;
 	} else {
 		paint_box->expose_func = 0;
 	}

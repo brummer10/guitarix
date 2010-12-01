@@ -332,6 +332,10 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
+     openHorizontalhideBox("");
+     { 
+	 }
+     closeBox();
 
 }
 closeBox();

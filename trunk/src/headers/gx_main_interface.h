@@ -334,6 +334,7 @@ public :
 	MenuCheckItem       fShowRack;
 	MenuCheckItem       fShowSRack;
 	MenuCheckItem       fShowLogger;
+	MenuCheckItem       fShowMidiOut;
 	GtkWidget* 			logger;
 	
 	static bool	 fInitialized;

@@ -340,6 +340,7 @@ void process_midi(int len)
 						midi.noten = preNote + iTemps29;
 						midi.send = 0;
 						audio.midistat += 1.0f;
+						audio.midistat1 += 1.0f;
 
 						if (( midi.noten>=0)&&(midi.noten<=127))
 						{
@@ -422,6 +423,7 @@ void process_midi(int len)
 							midi.noten1 = preNote + iTemps34;
 							midi.send1 = 0;
 							audio.midistat += 1.0f;
+							audio.midistat2 += 1.0f;
 							if ((midi.noten1>=0)&&(midi.noten1<=127))
 							{
 								// pitch wheel clear
@@ -461,7 +463,7 @@ void process_midi(int len)
 							}
 						}
 					}
-
+					// channel2
 					if (midi.fcheckbox11)
 					{
 						if (midi.program2 != iTemps43)
@@ -515,6 +517,7 @@ void process_midi(int len)
 							midi.noten2 = preNote + iTemps42;
 							midi.send2 = 0;
 							audio.midistat += 1.0f;
+							audio.midistat3 += 1.0f;
 
 							if ((midi.noten2>=0)&&(midi.noten2<=127))
 							{
@@ -604,7 +607,7 @@ void process_midi(int len)
 									midi.midi_send2[0] = 0xB0 |  (int)iTemps44;	// controller
 								}
 							}
-							audio.midistat = 0.0f;
+							audio.midistat = audio.midistat1 = audio.midistat2 = audio.midistat3 = 0.0f;
 						}
 					}
 					midi.weg+=step;
