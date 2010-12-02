@@ -85,9 +85,9 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("chorus.on_off", "on/off", (float*) &fchorus, 0.);
 	gx_gui::registerParam("eqs.on_off", "on/off", &feq, 0);
 	gx_gui::registerParam("moog.on_off", "on/off", &fmoog, 0);
-	gx_gui::registerParam("biquad.on_off", "on/off", &fbiquad, 0);
+	//gx_gui::registerParam("biquad.on_off", "on/off", &fbiquad, 0);
 	gx_gui::registerParam("flanger.on_off", "on/off", &fflanger, 0);
-	gx_gui::registerParam("SampleLooper.on_off", "on/off", (float*) &fsloop, 0.);
+	//gx_gui::registerParam("SampleLooper.on_off", "on/off", (float*) &fsloop, 0.);
 	gx_gui::registerParam("phaser.on_off", "on/off", (float*) &fphaser, 0.);
 	gx_gui::registerParam("shaper.on_off", "on/off", &fng, 0);
 	gx_gui::registerParam("low_highpass.on_off", "on/off", &flh, 0);
@@ -113,8 +113,8 @@ void AudioVariables::register_parameter()
 	static const char *crybaby_autowah[] = {"manual","auto",0};
 	registerEnumParam("crybaby.autowah", "select", crybaby_autowah, &fautowah, 0);
 	
-	static const char *eqt_onetwo[] = {"fixed","scale",0};
-	registerEnumParam("eqt.onetwo", "select", eqt_onetwo, &witcheq, 0);
+	//static const char *eqt_onetwo[] = {"fixed","scale",0};
+	//registerEnumParam("eqt.onetwo", "select", eqt_onetwo, &witcheq, 0);
 	
 	registerNonMidiParam("compressor.position", &posit5, true, 6, 1, 11);
 	registerNonMidiParam("crybaby.position", &posit0, true, 3, 1, 11);

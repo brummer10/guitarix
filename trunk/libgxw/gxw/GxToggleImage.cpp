@@ -81,8 +81,10 @@ static void gx_toggle_image_size_request (GtkWidget * widget, GtkRequisition * r
 	char *s = g_strconcat(toggle_image->base_name, "_on", NULL);
 	GdkPixbuf *img = gtk_widget_render_icon(widget, s, GtkIconSize(-1), NULL);
 	g_free(s);
-	requisition->width = gdk_pixbuf_get_width(img) + misc->xpad * 2;
-	requisition->height = gdk_pixbuf_get_height(img) + misc->ypad * 2;
+	if (GDK_IS_PIXBUF (img)) {
+		requisition->width = gdk_pixbuf_get_width(img) + misc->xpad * 2;
+		requisition->height = gdk_pixbuf_get_height(img) + misc->ypad * 2;
+	}
 	g_object_unref(img);
 }
 

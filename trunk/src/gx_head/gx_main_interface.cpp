@@ -2793,7 +2793,7 @@ void GxMainInterface::addPluginMenu()
 	menu_mono_rack = fMenuList["PluginsMono"];
 	
 	/*-- create midi out menu  --*/
-	set_label(fShowMidiOut, "_MIDI out");
+	set_label(fShowMidiOut, "MIDI out");
 	fShowMidiOut.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_a, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (fShowMidiOut.gobj()), "activate",

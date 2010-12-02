@@ -63,7 +63,7 @@ void MidiVariables::register_parameter()
 	gx_gui::registerParam("beat_detector.note_off", "note off", &fslider37, 2.f, 1.f, 127.f, 1.f);
 	gx_gui::registerParam("beat_detector.atack_gain", "atack gain", &fslider45, 5.f, 1.f, 127.f, 1.f);
 	gx_gui::registerParam("beat_detector.beat_gain", "beat gain", &fslider38, 1.f, 0.0f, 127.f, 1.f);
-	gx_gui::registerParam("beat_detector.midi_gain", "midi gain", &midi_gain, 0.f, -20.f, 60.f, 1.f);
+	gx_gui::registerParam("beat_detector.midi_gain", "midi gain", &midi_gain, 0.f, -40.f, 60.f, 1.f);
 }
 
 MidiVariables midi;
