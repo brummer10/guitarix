@@ -51,12 +51,12 @@ inline void registerNonMidiParam(const char*a, bool*c, bool d, float std=false)
 // should be int
 inline void registerEnumParam(const char*a,const char*b,const char** vl,float*c,int std=0,bool exp=false)
 {
-	gx_gui::parameter_map.insert(new gx_gui::FloatEnumParameter(a,b,vl,true,*c,std,true,exp));
+	gx_gui::parameter_map.insert(new gx_gui::FloatEnumParameter(a,b,vl,true,*c,std,true,exp)); //false == no_midi_var
 }
 
 inline void registerEnumParam(const char*a,const char*b,const char** vl, int*c,int std=0,bool exp=false)
 {
-	gx_gui::parameter_map.insert(new gx_gui::EnumParameter(a,b,vl,true,*c,std,true,exp));
+	gx_gui::parameter_map.insert(new gx_gui::EnumParameter(a,b,vl,true,*c,std,true,exp)); //false == no_midi_var
 }
 
 /****************************************************************

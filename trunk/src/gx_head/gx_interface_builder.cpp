@@ -346,7 +346,7 @@ void GxMainInterface::setup()
      addNumDisplay();
      openTextLoggingBox("Logging Window");
 	 
-     //debug_check(all_midi_params_assigned);
+     debug_check(all_midi_params_assigned);
 	}
 
 }

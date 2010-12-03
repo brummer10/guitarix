@@ -1038,6 +1038,16 @@ void GxMainInterface::openPaintBox1(const char* label)
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
 }
 
+void GxMainInterface::openPaintBox2(const char* label)
+{
+	GxPaintBox * box =  new GxPaintBox(*this,pb_eq_expose);
+	box->m_box.set_border_width(4);
+	box->m_paintbox.set_name("amp.balance");
+	gtk_container_add (GTK_CONTAINER(sBox), GTK_WIDGET(box->m_paintbox.gobj()));
+	box->m_paintbox.show_all();
+	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+}
+
 void GxMainInterface::openVerticalBox1(const char* label)
 {
 	GxVBox * box =  new GxVBox(*this);
@@ -1083,6 +1093,7 @@ void GxMainInterface::openHorizontalhideBox(const char* label)
 	gtk_container_add (GTK_CONTAINER(sBox), GTK_WIDGET(box->m_box.gobj()));
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
 	box->m_box.hide();
+	if (label[0] != 0) box->m_box.show();
 }
 
 void GxMainInterface::openToolBar(const char* label)
@@ -1559,6 +1570,7 @@ UiSelectorFloat::UiSelectorFloat(gx_ui::GxUI& ui, FloatParameter &param):
 {
 	m_selector.set_adjustment(*this);
 	init(param);
+	connect_midi_controller(GTK_WIDGET(m_selector.gobj()), fZone);
 }
 
 void UiSelectorFloat::reflectZone()
@@ -1581,6 +1593,7 @@ UiSelectorInt::UiSelectorInt(gx_ui::GxUI& ui, IntParameter &param):
 {
 	m_selector.set_adjustment(*this);
 	init(param);
+	connect_midi_controller(GTK_WIDGET(m_selector.gobj()), fZone);
 }
 
 GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value)

@@ -104,7 +104,7 @@ static void registerEnumVar(const char *id, const char* name, const char* tp,
 	}
 	assert(low == 0.0 && step == 1.0);
 	gx_gui::FloatEnumParameter *p = new gx_gui::FloatEnumParameter(
-		id, name, values, true, *var, (int)round(val), true, exp);
+		id, name, values, true, *var, (int)round(val), true, exp); //false == no_midi_var
 	assert(up == p->upper); // calculated by constructor
 	get_paramlist().push_back(p);
 }
