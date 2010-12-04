@@ -24,6 +24,7 @@
 #include <cstring>
 #include <dirent.h>
 #include "guitarix.h"
+#include <unistd.h>
 
 using namespace gx_system;
 using namespace gx_preset;

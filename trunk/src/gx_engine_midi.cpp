@@ -201,46 +201,47 @@ void compute_midi(int len)
 //----- jack process callback for the midi output
 void process_midi(int len)
 {
-
-	float 	fConsta2 = 0;
-	float fTemps45 = midi.fslider45;
-	float fTemps38 = midi.fslider38;
-	float rms = 0;
-	float midi_db = 0;
-	float sum = 0;
-	float fnote = 0;
-	float *audiodata = checkfreq;
-
-	int preNote = 0;
-	int iTemps31 = int(midi.fslider31);
-	int iTemps30 = int(midi.fslider30);
-	int iTemps27 = int(midi.fslider27);
-	int iTemps29 = int(midi.fslider29)*12;
-	int iTemps26 = int(midi.fslider26);
-	int iTemps36 = int(midi.fslider36);
-	int iTemps35 = int(midi.fslider35);
-	int iTemps33 = int(midi.fslider33);
-	int iTemps34 = int(midi.fslider34)*12;
-	int iTemps32 = int(midi.fslider32);
-	int iTemps43 = int(midi.fslider43);
-	int iTemps44 = int(midi.fslider44);
-	int iTemps41 = int(midi.fslider41);
-	int iTemps42 = int(midi.fslider42)*12;
-	int iTemps40 = int(midi.fslider40);
-	int step = int(midi.fslider39);
-	int iTemps37  = int(48000/midi.fslider37);
-	int iTemps37a  = iTemps37+5;
-	int iTemps46 = int(midi.fslider46);
-	int iTemps47 = int(midi.fslider47);
-	int iTemps48 = int(midi.fslider48);
-	int piwe = 0;
-	int cs = 0;
-
-	double stepper = 1./step;
-
 	//----- only run it when midi out or tuner is enabled
-	if (gx_gui::shownote == 1 || isMidiOn() == true)
+	if (isMidiOn())
 	{
+
+		float 	fConsta2 = 0;
+		float fTemps45 = midi.fslider45;
+		float fTemps38 = midi.fslider38;
+		float rms = 0;
+		float midi_db = 0;
+		float sum = 0;
+		float fnote = 0;
+		float *audiodata = checkfreq;
+
+		int preNote = 0;
+		int iTemps31 = int(midi.fslider31);
+		int iTemps30 = int(midi.fslider30);
+		int iTemps27 = int(midi.fslider27);
+		int iTemps29 = int(midi.fslider29)*12;
+		int iTemps26 = int(midi.fslider26);
+		int iTemps36 = int(midi.fslider36);
+		int iTemps35 = int(midi.fslider35);
+		int iTemps33 = int(midi.fslider33);
+		int iTemps34 = int(midi.fslider34)*12;
+		int iTemps32 = int(midi.fslider32);
+		int iTemps43 = int(midi.fslider43);
+		int iTemps44 = int(midi.fslider44);
+		int iTemps41 = int(midi.fslider41);
+		int iTemps42 = int(midi.fslider42)*12;
+		int iTemps40 = int(midi.fslider40);
+		int step = int(midi.fslider39);
+		int iTemps37  = int(48000/midi.fslider37);
+		int iTemps37a  = iTemps37+5;
+		int iTemps46 = int(midi.fslider46);
+		int iTemps47 = int(midi.fslider47);
+		int iTemps48 = int(midi.fslider48);
+		int piwe = 0;
+		int cs = 0;
+
+		double stepper = 1./step;
+
+	
 		/**fConsta4 is the frequence value from the actuell frame, here we
 		   calculate the Note from the freq by log2(freq/440)*12
 		   the result is the Note (as float) related to the note "A"
@@ -293,13 +294,20 @@ void process_midi(int len)
 				//audio.fConsta1 = fnote;
 				//set timeout for tuner fallback
 				midi.weg = 0;
-
-
-
+				
+				if ( rms >= (midi.Beat_is + fTemps38))
+				{
+					//midi.Beat_is = rms;
+					midi.Beat_is += (int)(rms*0.1);
+					midi.send+=step;
+					if (midi.fcheckbox10 ) midi.send1+=step;
+					if (midi.fcheckbox11 ) midi.send2+=step;
+					//midi.weg -= step; 
+				}
+				// else midi.weg +=step;
 
 				//----- start the midi output
-				if (isMidiOn() == true)
-				{
+				
 					// channel0
 					if (midi.program != iTemps31)
 					{
@@ -340,7 +348,7 @@ void process_midi(int len)
 						midi.noten = preNote + iTemps29;
 						midi.send = 0;
 						audio.midistat += 1.0f;
-						audio.midistat1 += 1.0f;
+						audio.midistat1 = true;
 
 						if (( midi.noten>=0)&&(midi.noten<=127))
 						{
@@ -423,7 +431,7 @@ void process_midi(int len)
 							midi.noten1 = preNote + iTemps34;
 							midi.send1 = 0;
 							audio.midistat += 1.0f;
-							audio.midistat2 += 1.0f;
+							audio.midistat2 = true;
 							if ((midi.noten1>=0)&&(midi.noten1<=127))
 							{
 								// pitch wheel clear
@@ -517,7 +525,7 @@ void process_midi(int len)
 							midi.noten2 = preNote + iTemps42;
 							midi.send2 = 0;
 							audio.midistat += 1.0f;
-							audio.midistat3 += 1.0f;
+							audio.midistat3 = true;
 
 							if ((midi.noten2>=0)&&(midi.noten2<=127))
 							{
@@ -547,24 +555,14 @@ void process_midi(int len)
 						}
 					}
 
-					if ( rms >= (midi.Beat_is + fTemps38))
-					{
-						//midi.Beat_is = rms;
-						midi.Beat_is += (int)(rms*0.1);
-						midi.send+=step;
-						if (midi.fcheckbox10 ) midi.send1+=step;
-						if (midi.fcheckbox11 ) midi.send2+=step;
-						//midi.weg -= step; 
-					}
-					// else midi.weg +=step;
-				}
+					
+				
 
 				// end if playmidi = 1
 			}
 			else
 			{
-				if  (isMidiOn() == true)
-				{
+				
 					if ((midi.weg > iTemps37) || (gx_jack::jcpu_load > 64.0))
 					{
 						midi.send = midi.send1 = midi.send2 = 0;
@@ -607,20 +605,12 @@ void process_midi(int len)
 									midi.midi_send2[0] = 0xB0 |  (int)iTemps44;	// controller
 								}
 							}
-							audio.midistat = audio.midistat1 = audio.midistat2 = audio.midistat3 = 0.0f;
+							audio.midistat = 0.0f;
+							audio.midistat1 = audio.midistat2 = audio.midistat3 = false;
 						}
 					}
 					midi.weg+=step;
-				}
-
-				/*if (gx_gui::shownote == 1)
-				{
-					if (midi.weg > (int)gx_jack::jack_sr / 2)
-					{
-						audio.fConsta1 = 2000.0f;
-					}
-					midi.weg+=step;
-				}*/
+				
 			}
 
 		}

@@ -144,6 +144,24 @@ GxHBox::GxHBox(gx_ui::GxUI& ui)
 {
 }
 
+class GxFixedBox
+{
+public:
+	Gtk::Fixed m_fixed;
+	Gtk::VBox m_box;
+	GxFixedBox(gx_ui::GxUI& ui);
+	virtual ~GxFixedBox();
+};
+
+GxFixedBox::~GxFixedBox()
+{
+}
+
+GxFixedBox::GxFixedBox(gx_ui::GxUI& ui)
+{
+	m_fixed.put(m_box,0,0);
+}
+
 class GxPaintBox
 {
 
@@ -194,6 +212,7 @@ class GxMidiBox
 {
 public:
 	Gtk::HBox m_box;
+	Gtk::EventBox m_eventbox;
 	Gxw::PaintBox m_paintbox;
 	Gtk::Fixed m_fixedbox;
 	GxMidiBox(gx_ui::GxUI& ui,const char *expose_funk);
@@ -207,7 +226,10 @@ GxMidiBox::~GxMidiBox()
 GxMidiBox::GxMidiBox(gx_ui::GxUI& ui,const char *expose_funk)
 {
 	m_paintbox.property_paint_func() = expose_funk;
+	m_eventbox.add(m_paintbox);
 	m_paintbox.add(m_box);
+	m_eventbox.set_border_width(0);
+	m_eventbox.set_name("black_box");
 	m_box.set_homogeneous(false);
 	m_box.set_spacing(0);
 	m_box.set_border_width(4);
@@ -863,6 +885,7 @@ void GxMainInterface::openEventBox(const char* label)
 	GxEventBox * box =  new GxEventBox(*this);
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_fixedbox.gobj()), false, fill, 0);
 	box->m_fixedbox.show_all();
+	box->m_eventbox.set_name("main_window");
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
 }
 
@@ -1007,7 +1030,7 @@ void GxMainInterface::openSpaceBox(const char* label)
 
 void GxMainInterface::openPaintBox(const char* label, const char* name)
 {
-	GxPaintBox * box =  new GxPaintBox(*this,pb_zac_expose);
+	GxPaintBox * box =  new GxPaintBox(*this,pb_eq_expose);
 	box->m_box.set_border_width(4);
 	if (name) {
 		box->m_paintbox.set_name(name);
@@ -1040,11 +1063,13 @@ void GxMainInterface::openPaintBox1(const char* label)
 
 void GxMainInterface::openPaintBox2(const char* label)
 {
-	GxPaintBox * box =  new GxPaintBox(*this,pb_eq_expose);
-	box->m_box.set_border_width(4);
-	box->m_paintbox.set_name("amp.balance");
-	gtk_container_add (GTK_CONTAINER(sBox), GTK_WIDGET(box->m_paintbox.gobj()));
-	box->m_paintbox.show_all();
+	GxFixedBox * box =  new GxFixedBox(*this);
+	box->m_box.set_homogeneous(false);
+	box->m_box.set_spacing(0);
+	box->m_box.set_border_width(0);
+	box->m_box.set_size_request(20,20);
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_fixed.gobj()), false, false, 0);
+	box->m_fixed.show_all();
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
 }
 
@@ -1077,7 +1102,7 @@ void GxMainInterface::openTabBox(const char* label)
 void GxMainInterface::openVerticalMidiBox(const char* label)
 {
 	GxMidiBox * box =  new GxMidiBox(*this,pb_eq_expose);
-	midibox = GTK_WIDGET(box->m_paintbox.gobj());
+	midibox = GTK_WIDGET(box->m_eventbox.gobj());
 	gtk_container_add (GTK_CONTAINER(rBox), midibox);
 	gtk_widget_show(midibox);
 	pushBox(kBoxMode,GTK_WIDGET( box->m_box.gobj()));

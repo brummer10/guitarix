@@ -98,9 +98,9 @@ public:
 	float filebutton;
 	float fConsta1t;
 	float midistat;
-	float midistat1;
-	float midistat2;
-	float midistat3;
+	bool midistat1;
+	bool midistat2;
+	bool midistat3;
 	bool feq;
 	bool fdialogbox_eq;
 	bool fdialogbox_eqs;

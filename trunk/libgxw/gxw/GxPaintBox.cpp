@@ -398,6 +398,38 @@ static gboolean rectangle_expose(GtkWidget *wi, GdkEventExpose *ev)
 	return FALSE;
 }
 
+static gboolean led_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	cairo_t *cr;
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+
+	double x0      = wi->allocation.x+1;
+	double y0      = wi->allocation.y+1;
+	double rect_width  = wi->allocation.width-2;
+	double rect_height = wi->allocation.height-11;
+	double x1 = x0+rect_width*0.5;
+	double y1 = y0+rect_height*0.5;
+	
+	
+	cairo_arc(cr,x1,y1, 5, 0, 2 * M_PI );
+
+	//cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
+	cairo_set_source_rgb (cr, 0.3, 0.8, 0.3);
+	cairo_fill_preserve (cr);
+	cairo_set_source_rgb (cr, 0., 0., 0.);
+	cairo_stroke (cr);
+
+	cairo_destroy(cr);
+	gdk_region_destroy (region);
+	return FALSE;
+}
+
 static gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
@@ -1685,6 +1717,8 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = compressor_expose;
 	} else if (strcmp(paint_func, "eq_expose") == 0) {
 		paint_box->expose_func = eq_expose;
+	} else if (strcmp(paint_func, "led_expose") == 0) {
+		paint_box->expose_func = led_expose;
 	} else {
 		paint_box->expose_func = 0;
 	}

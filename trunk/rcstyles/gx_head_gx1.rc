@@ -76,13 +76,18 @@ style "gx_head-event"
  bg_pixmap[NORMAL] = "gx18.png"
 }
 widget "*.osc_box" style:highest "gx_head-event"
-class "GtkEventBox" style:highest "gx_head-event"
+widget "*.main_window" style:highest "gx_head-event"
 
 style "gx_head-dialog"
 {
  bg_pixmap[NORMAL] = "gx12b.png"
 }
 
+style "gx_black_box"
+{
+ bg[NORMAL] = { 0, 0, 0}
+}
+widget "*.black_box" style:highest "gx_black_box"
 #widget_class "GtkDialog*" style:highest "gx_head-dialog"
 
 style "gx_head-menu"
