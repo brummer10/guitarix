@@ -201,9 +201,6 @@ GxEventBox::~GxEventBox()
 
 GxEventBox::GxEventBox(gx_ui::GxUI& ui)
 {
-	m_box.set_size_request (600,182); // main window size
-	m_box.set_border_width (2);
-	m_eventbox.set_name ("osc_box");
 	m_eventbox.add(m_box);
 	m_fixedbox.put(m_eventbox,0,0);
 }
@@ -884,9 +881,11 @@ void GxMainInterface::openEventBox(const char* label)
 {
 	GxEventBox * box =  new GxEventBox(*this);
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_fixedbox.gobj()), false, fill, 0);
-	box->m_fixedbox.show_all();
+	box->m_box.set_size_request (600,182); // main window size
+	box->m_box.set_border_width (2);
 	box->m_eventbox.set_name("main_window");
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+	box->m_fixedbox.show_all();
 }
 
 
@@ -1063,13 +1062,13 @@ void GxMainInterface::openPaintBox1(const char* label)
 
 void GxMainInterface::openPaintBox2(const char* label)
 {
-	GxFixedBox * box =  new GxFixedBox(*this);
+	GxEventBox * box =  new GxEventBox(*this);
+	box->m_eventbox.set_name(label);
 	box->m_box.set_homogeneous(false);
 	box->m_box.set_spacing(0);
 	box->m_box.set_border_width(0);
-	box->m_box.set_size_request(20,20);
-	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_fixed.gobj()), false, false, 0);
-	box->m_fixed.show_all();
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_fixedbox.gobj()), false, false, 0);
+	box->m_fixedbox.show_all();
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
 }
 

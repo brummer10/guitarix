@@ -88,6 +88,25 @@ style "gx_black_box"
  bg[NORMAL] = { 0, 0, 0}
 }
 widget "*.black_box" style:highest "gx_black_box"
+
+style "gx_gree_box"
+{
+ bg[NORMAL] = { 0.3, 0.3, 0.3}
+}
+widget "*.gree_box" style:highest "gx_gree_box"
+
+style "gx_dark_box"
+{
+ bg[NORMAL] = { 0.1, 0.1, 0.2}
+}
+widget "*.dark_box" style:highest "gx_dark_box"
+
+style "gx_darker_box"
+{
+ bg[NORMAL] = { 0, 0, 0.1}
+}
+widget "*.darker_box" style:highest "gx_darker_box"
+
 #widget_class "GtkDialog*" style:highest "gx_head-dialog"
 
 style "gx_head-menu"

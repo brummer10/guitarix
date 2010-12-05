@@ -545,7 +545,7 @@ openHorizontalTableBox("");
                     {
                          openFrameBox("");
                          closeBox();
-                         openPaintBox2("");
+                         openPaintBox2("gree_box");
                          {
                               create_switch_no_caption(sw_led,"system.midistat");
                          }
@@ -576,7 +576,11 @@ openHorizontalTableBox("");
                                              create_small_rackknob("midi_out.channel_1.velocity");
                                              openVerticalBox("");
                                              {
-                                                  create_small_rackknob("midi_out.channel_1.volume");
+												  openPaintBox2("dark_box");
+                                                  {
+													create_small_rackknob("midi_out.channel_1.volume");
+                                                  }
+                                                  closeBox();
                                                   addCheckButton("midi_out.channel_1.autogain");
                                              }
                                              closeBox();
@@ -600,7 +604,7 @@ openHorizontalTableBox("");
                                              {
                                                   openFrameBox("");
                                                   closeBox();
-                                                  openPaintBox2("");
+                                                  openPaintBox2("darker_box");
                                                   {
                                                        create_switch_no_caption(sw_led,"system.midistat1");
                                                   }
@@ -636,7 +640,11 @@ openHorizontalTableBox("");
                                              create_small_rackknob("midi_out.channel_2.velocity");
                                              openVerticalBox("");
                                              {
-                                                  create_small_rackknob("midi_out.channel_2.volume");
+												  openPaintBox2("dark_box");
+                                                  {
+													create_small_rackknob("midi_out.channel_2.volume");
+                                                  }
+                                                  closeBox();
                                                   addCheckButton("midi_out.channel_2.autogain");
                                              }
                                              closeBox();
@@ -659,7 +667,7 @@ openHorizontalTableBox("");
                                              {
                                                   openFrameBox("");
                                                   closeBox();
-                                                  openPaintBox2("");
+                                                  openPaintBox2("darker_box");
                                                   {
                                                        create_switch_no_caption(sw_led,"system.midistat2");
                                                   }
@@ -697,7 +705,11 @@ openHorizontalTableBox("");
                                              create_small_rackknob("midi_out.channel_3.velocity");
                                              openVerticalBox("");
                                              {
+                                                  openPaintBox2("dark_box");
+                                                  {
                                                   create_small_rackknob("midi_out.channel_3.volume");
+                                                  }
+                                                  closeBox();
                                                   addCheckButton("midi_out.channel_3.autogain");
                                              }
                                              closeBox();
@@ -720,7 +732,7 @@ openHorizontalTableBox("");
                                              {
                                                   openFrameBox("");
                                                   closeBox();
-                                                  openPaintBox2("");
+                                                  openPaintBox2("darker_box");
                                                   {
                                                        create_switch_no_caption(sw_led,"system.midistat3");
                                                   }
@@ -766,21 +778,21 @@ openHorizontalTableBox("");
                                         {
                                              openFrameBox("");
                                              closeBox();
-                                             openPaintBox2("");
+                                             openPaintBox2("darker_box");
                                              {
                                                   create_switch_no_caption(sw_led,"system.midistat1");
                                              }
                                              closeBox();
                                              openFrameBox("");
                                              closeBox();
-                                             openPaintBox2("");
+                                             openPaintBox2("darker_box");
                                              {
                                                   create_switch_no_caption(sw_led,"system.midistat2");
                                              }
                                              closeBox();
                                              openFrameBox("");
                                              closeBox();
-                                             openPaintBox2("");
+                                             openPaintBox2("darker_box");
                                              {
                                                   create_switch_no_caption(sw_led,"system.midistat3");
                                              }
