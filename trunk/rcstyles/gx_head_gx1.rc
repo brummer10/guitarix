@@ -103,7 +103,7 @@ widget "*.dark_box" style:highest "gx_dark_box"
 
 style "gx_darker_box"
 {
- bg[NORMAL] = { 0, 0, 0.1}
+ bg[NORMAL] = { 0.05, 0.05, 0.1}
 }
 widget "*.darker_box" style:highest "gx_darker_box"
 
