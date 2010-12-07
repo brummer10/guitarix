@@ -211,7 +211,7 @@ void process_midi(int len)
 		float rms = 0;
 		float midi_db = 0;
 		float sum = 0;
-		float fnote = 0;
+		static float fnote = 0;
 		float *audiodata = checkfreq;
 
 		int preNote = 0;
