@@ -653,6 +653,8 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item)
 	GtkBuilder * builder = gtk_builder_new();
 	window = load_toplevel(builder, "ports.glade", "PortMapWindow");
 	gtk_window_set_icon(GTK_WINDOW (window), GDK_PIXBUF(ib));
+	GObject *b = gtk_builder_get_object(builder, "button1");
+	if (b) gtk_widget_set_name(GTK_WIDGET(b),"rack_button");
 	memset(portsection, 0, sizeof(portsection));
 	for (int i = 0; i < number_of_ports; i++) {
 		portsection[i].port_attr = &gx_head_ports[i];

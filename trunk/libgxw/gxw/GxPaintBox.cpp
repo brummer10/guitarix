@@ -151,7 +151,7 @@ static void gx_paint_box_set_property(
 		set_paint_func(paint_box, g_value_get_string(value));
 		break;
 	case PROP_BORDER_WIDTH:
-		gx_box_set_border_width (paint_box, g_value_get_uint (value));
+		gtk_container_set_border_width (GTK_CONTAINER(paint_box), g_value_get_uint (value));
 		break;
 	case PROP_SPACING:
 		gtk_box_set_spacing (GTK_BOX(paint_box), g_value_get_int (value));
@@ -202,7 +202,6 @@ void gx_box_pack_end (GxPaintBox *box, GtkWidget *child,
 void gx_box_add (GxPaintBox *container, GtkWidget *widget)
 {
 	gtk_container_add (GTK_CONTAINER(container), widget);
-
 }
 
 void gx_box_remove (GxPaintBox *container,GtkWidget *widget)
