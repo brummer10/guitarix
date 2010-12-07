@@ -252,7 +252,7 @@ void process_midi(int len)
 		   the real Note by frequency.
 		**/
 		//fnote = 12 * log2f(2.272727e-03f * midi.fConsta4);
-		fnote = audio.fConsta1t;
+		if(audio.fConsta1t < 999.) fnote = audio.fConsta1t;
 		preNote = int(round(fnote))+57;
 		fConsta2 = fnote - (preNote - 57);
 		piwe = ((int)fConsta2+1) * 8192; // pitch wheel value
