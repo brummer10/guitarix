@@ -16,18 +16,35 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <gtkmm/alignment.h>
+#include <gtkmm/box.h>
 
 _DEFS(gxwmm,gxw)
-_PINCLUDE(gtkmm/private/alignment_p.h)
+_PINCLUDE(gtkmm/private/box_p.h)
 
 namespace Gxw {
 
-class PaintBox: public Gtk::Alignment {
-	_CLASS_GTKOBJECT(PaintBox,GxPaintBox,GX_PAINT_BOX,Gtk::Alignment,GtkAlignment)
+class PaintBox: public Gtk::Box {
+	_CLASS_GTKOBJECT(PaintBox,GxPaintBox,GX_PAINT_BOX,Gtk::Box,GtkBox)
 	public:
 	_CTOR_DEFAULT
+	_WRAP_METHOD(void pack_start( Gtk::Widget& child, gboolean expand,
+                                  gboolean fill, guint padding),gx_box_pack_start)
+                                         
+    _WRAP_METHOD(void pack_end( Gtk::Widget& child, gboolean expand,
+                                gboolean fill, guint padding),gx_box_pack_end)
+                                         
+    _WRAP_METHOD(void set_border_width(guint border_width),gx_box_set_border_width)
+    
+    _WRAP_METHOD(void add (Gtk::Widget& child),gx_box_add)
+    
+    _WRAP_METHOD(void remove (Gtk::Widget& child),gx_box_remove)
+    
+    _WRAP_METHOD(GList* get_children(),gx_box_get_children)
+    
 	_WRAP_PROPERTY(paint-func, Glib::ustring)
+	_WRAP_PROPERTY(border-width, guint)
+	_WRAP_PROPERTY(spacing, guint)
+	_WRAP_PROPERTY(homogeneous, guint)
 };
 
 } // namespace Gxw

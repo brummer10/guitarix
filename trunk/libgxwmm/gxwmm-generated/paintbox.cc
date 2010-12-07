@@ -97,13 +97,13 @@ Glib::ObjectBase* PaintBox_Class::wrap_new(GObject* o)
 
 PaintBox::PaintBox(const Glib::ConstructParams& construct_params)
 :
-  Gtk::Alignment(construct_params)
+  Gtk::Box(construct_params)
 {
   }
 
 PaintBox::PaintBox(GxPaintBox* castitem)
 :
-  Gtk::Alignment((GtkAlignment*)(castitem))
+  Gtk::Box((GtkBox*)(castitem))
 {
   }
 
@@ -130,10 +130,40 @@ PaintBox::PaintBox()
 :
   // Mark this class as non-derived to allow C++ vfuncs to be skipped.
   Glib::ObjectBase(0),
-  Gtk::Alignment(Glib::ConstructParams(paintbox_class_.init()))
+  Gtk::Box(Glib::ConstructParams(paintbox_class_.init()))
 {
   
 
+}
+
+void PaintBox::pack_start(Gtk::Widget& child, gboolean expand, gboolean fill, guint padding)
+{
+gx_box_pack_start(gobj(), (child).gobj(), expand, fill, padding); 
+}
+
+void PaintBox::pack_end(Gtk::Widget& child, gboolean expand, gboolean fill, guint padding)
+{
+gx_box_pack_end(gobj(), (child).gobj(), expand, fill, padding); 
+}
+
+void PaintBox::set_border_width(guint border_width)
+{
+gx_box_set_border_width(gobj(), border_width); 
+}
+
+void PaintBox::add(Gtk::Widget& child)
+{
+gx_box_add(gobj(), (child).gobj()); 
+}
+
+void PaintBox::remove(Gtk::Widget& child)
+{
+gx_box_remove(gobj(), (child).gobj()); 
+}
+
+GList* PaintBox::get_children()
+{
+  return gx_box_get_children(gobj());
 }
 
 
@@ -148,6 +178,48 @@ Glib::PropertyProxy<Glib::ustring> PaintBox::property_paint_func()
 Glib::PropertyProxy_ReadOnly<Glib::ustring> PaintBox::property_paint_func() const
 {
   return Glib::PropertyProxy_ReadOnly<Glib::ustring>(this, "paint-func");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy<guint> PaintBox::property_border_width() 
+{
+  return Glib::PropertyProxy<guint>(this, "border-width");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_border_width() const
+{
+  return Glib::PropertyProxy_ReadOnly<guint>(this, "border-width");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy<guint> PaintBox::property_spacing() 
+{
+  return Glib::PropertyProxy<guint>(this, "spacing");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_spacing() const
+{
+  return Glib::PropertyProxy_ReadOnly<guint>(this, "spacing");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy<guint> PaintBox::property_homogeneous() 
+{
+  return Glib::PropertyProxy<guint>(this, "homogeneous");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_homogeneous() const
+{
+  return Glib::PropertyProxy_ReadOnly<guint>(this, "homogeneous");
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 

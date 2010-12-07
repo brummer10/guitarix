@@ -9,10 +9,7 @@
     <child>
       <object class="GxPaintBox" id="gxpaintbox1">
         <property name="visible">True</property>
-        <property name="top_padding">4</property>
-        <property name="bottom_padding">16</property>
-        <property name="left_padding">4</property>
-        <property name="right_padding">4</property>
+        <property name="border_width">12</property>
         <property name="paint_func">rectangle_expose</property>
         <child>
           <object class="GtkVBox" id="vbox1">
@@ -1094,6 +1091,9 @@ it can be mono or stereo
               </packing>
             </child>
           </object>
+          <packing>
+            <property name="position">0</property>
+          </packing>
         </child>
       </object>
     </child>
@@ -1156,10 +1156,7 @@ it can be mono or stereo
     <child>
       <object class="GxPaintBox" id="gxpaintbox2">
         <property name="visible">True</property>
-        <property name="top_padding">8</property>
-        <property name="bottom_padding">12</property>
-        <property name="left_padding">8</property>
-        <property name="right_padding">8</property>
+        <property name="border_width">12</property>
         <property name="paint_func">rectangle_expose</property>
         <child>
           <object class="GtkVBox" id="vbox10">
@@ -1217,6 +1214,9 @@ to change values with the keyboard&lt;/big&gt;</property>
               </packing>
             </child>
           </object>
+          <packing>
+            <property name="position">0</property>
+          </packing>
         </child>
       </object>
     </child>

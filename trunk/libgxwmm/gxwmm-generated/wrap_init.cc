@@ -34,6 +34,7 @@
 #include "paintbox.h"
 #include "meterscale.h"
 #include "valuedisplay.h"
+#include "simplevaluedisplay.h"
 
 extern "C"
 {
@@ -52,6 +53,7 @@ GType gx_paint_box_get_type(void);
 GType gx_radio_button_get_type(void);
 GType gx_regler_get_type(void);
 GType gx_selector_get_type(void);
+GType gx_simple_value_display_get_type(void);
 GType gx_small_knob_get_type(void);
 GType gx_small_knob_r_get_type(void);
 GType gx_switch_get_type(void);
@@ -81,6 +83,7 @@ namespace Gxw {  class PaintBox_Class { public: static Glib::ObjectBase* wrap_ne
 namespace Gxw {  class RadioButton_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class Regler_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class Selector_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
+namespace Gxw {  class SimpleValueDisplay_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class SmallKnob_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class SmallKnobR_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class Switch_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
@@ -110,6 +113,7 @@ void wrap_init()
   Glib::wrap_register(gx_radio_button_get_type(), &Gxw::RadioButton_Class::wrap_new);
   Glib::wrap_register(gx_regler_get_type(), &Gxw::Regler_Class::wrap_new);
   Glib::wrap_register(gx_selector_get_type(), &Gxw::Selector_Class::wrap_new);
+  Glib::wrap_register(gx_simple_value_display_get_type(), &Gxw::SimpleValueDisplay_Class::wrap_new);
   Glib::wrap_register(gx_small_knob_get_type(), &Gxw::SmallKnob_Class::wrap_new);
   Glib::wrap_register(gx_small_knob_r_get_type(), &Gxw::SmallKnobR_Class::wrap_new);
   Glib::wrap_register(gx_switch_get_type(), &Gxw::Switch_Class::wrap_new);
@@ -133,6 +137,7 @@ void wrap_init()
   Gxw::RadioButton::get_type();
   Gxw::Regler::get_type();
   Gxw::Selector::get_type();
+  Gxw::SimpleValueDisplay::get_type();
   Gxw::SmallKnob::get_type();
   Gxw::SmallKnobR::get_type();
   Gxw::Switch::get_type();

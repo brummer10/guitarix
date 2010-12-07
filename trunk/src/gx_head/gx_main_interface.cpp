@@ -125,6 +125,7 @@ GxVBox::~GxVBox()
 GxVBox::GxVBox(gx_ui::GxUI& ui)
 {
 }
+/****************************************************************/
 
 class GxHBox
 {
@@ -143,6 +144,7 @@ GxHBox::~GxHBox()
 GxHBox::GxHBox(gx_ui::GxUI& ui)
 {
 }
+/****************************************************************/
 
 class GxFixedBox
 {
@@ -161,6 +163,7 @@ GxFixedBox::GxFixedBox(gx_ui::GxUI& ui)
 {
 	m_fixed.put(m_box,0,0);
 }
+/****************************************************************/
 
 class GxPaintBox
 {
@@ -183,6 +186,7 @@ GxPaintBox::GxPaintBox(gx_ui::GxUI& ui,const char *expose_funk):
 	m_paintbox.property_paint_func() = expose_funk;
 	m_paintbox.add(m_box);
 }
+/****************************************************************/
 
 class GxEventBox
 {
@@ -204,6 +208,7 @@ GxEventBox::GxEventBox(gx_ui::GxUI& ui)
 	m_eventbox.add(m_box);
 	m_fixedbox.put(m_eventbox,0,0);
 }
+/****************************************************************/
 
 class GxMidiBox
 {
@@ -233,6 +238,7 @@ GxMidiBox::GxMidiBox(gx_ui::GxUI& ui,const char *expose_funk)
 	m_box.pack_end(m_fixedbox,false, false, 0 );
 	m_fixedbox.set_size_request ( 25, -1);
 }
+/****************************************************************/
 
 class GxNotebookBox
 {
@@ -250,6 +256,53 @@ GxNotebookBox::GxNotebookBox(gx_ui::GxUI& ui)
 {
 	m_box.set_name("tab_rack");
 }
+/****************************************************************/
+
+class GxMoveBox
+{
+public:
+	Gtk::Label m_label;
+	Gtk::Label m_label1;
+	Gtk::Fixed m_fixed;
+	Gxw::PaintBox m_paintbox;
+	Gtk::Button m_button;
+	Gtk::Button m_button1;
+	GxMoveBox(gx_ui::GxUI& ui);
+	virtual ~GxMoveBox();
+};
+
+GxMoveBox::~GxMoveBox()
+{
+}
+
+GxMoveBox::GxMoveBox(gx_ui::GxUI& ui)
+{
+	m_paintbox.property_paint_func() = "eq_expose";
+	m_label.set_text("▼");
+	m_label.set_name ("rack_label");
+	m_label1.set_text("▲");
+	m_label1.set_name ("rack_label");
+	m_button.add(m_label);
+	m_button.set_size_request (20, 15);
+	m_button.set_name ("effect_reset");
+	m_button1.add(m_label1);
+	m_button1.set_size_request (20, 15);
+	m_button1.set_name ("effect_reset");
+	GtkStyle *style = gtk_widget_get_style(GTK_WIDGET(m_label.gobj()));
+	pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
+	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+	gtk_widget_modify_font(GTK_WIDGET(m_label.gobj()), style->font_desc);
+	gtk_widget_modify_font(GTK_WIDGET(m_label1.gobj()), style->font_desc);
+	m_fixed.set_size_request (25, -1);
+	m_fixed.put(m_button1, 2, 5);
+	m_fixed.put(m_button, 2, 20);
+	m_paintbox.pack_end(m_fixed,false, false, 0 );
+	m_fixed.show_all();
+	m_paintbox.set_border_width (4);
+	m_paintbox.property_spacing() = 0;
+	m_paintbox.property_homogeneous() = false;
+}
+
 /****************************************************************
  ** GxMainInterface widget and method definitions
  */
@@ -756,124 +809,50 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
 //----- boxes to move inside a other box
 void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 {
-	GtkWidget * box = gtk_hbox_new (homogene, 0);
-	GtkWidget * box1 = gtk_fixed_new ();
-	gtk_container_set_border_width (GTK_CONTAINER (box), 4);
-	g_signal_connect(box, "expose-event", G_CALLBACK(eq_expose), NULL);
+	GxMoveBox * box =  new GxMoveBox(*this);
+	uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(box->m_button.gobj()));
 
-	GtkWidget* 	button = gtk_button_new ();
-	GtkWidget* 	button1 = gtk_button_new ();
-	GtkWidget* lw = gtk_label_new("▼");
-	GtkWidget* lw1 = gtk_label_new("▲");
-	gtk_container_add (GTK_CONTAINER(button), lw);
-	gtk_container_add (GTK_CONTAINER(button1), lw1);
-	gtk_widget_set_size_request (GTK_WIDGET(button), 20, 15);
-	gtk_widget_set_size_request (GTK_WIDGET(button1), 20, 15);
-	gtk_widget_set_size_request (GTK_WIDGET(box1), 25, -1);
-
-	gtk_widget_set_name (lw,"rack_label");
-	gtk_widget_set_name (lw1,"rack_label");
-	gtk_widget_set_name (button,"effect_reset");
-	gtk_widget_set_name (button1,"effect_reset");
-	gtk_widget_set_tooltip_text(button1,"move effect up");
-	gtk_widget_set_tooltip_text(button,"move effect down");
-	GtkStyle *style = gtk_widget_get_style(lw);
-	pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-	gtk_widget_modify_font(lw, style->font_desc);
-	gtk_widget_modify_font(lw1, style->font_desc);
-
-	uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(button));
-
-	g_signal_connect (GTK_OBJECT (button), "pressed",
+	g_signal_connect (GTK_OBJECT (box->m_button.gobj()), "pressed",
 	                  G_CALLBACK (uiOrderButton::pressed_right), (gpointer) c);
-	g_signal_connect (GTK_OBJECT (button1), "pressed",
+	g_signal_connect (GTK_OBJECT (box->m_button1.gobj()), "pressed",
 	                  G_CALLBACK (uiOrderButton::pressed_left), (gpointer) c);
-	g_signal_connect (GTK_OBJECT (button), "clicked",
+	g_signal_connect (GTK_OBJECT (box->m_button.gobj()), "clicked",
 	                  G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
-	g_signal_connect (GTK_OBJECT (button1), "clicked",
+	g_signal_connect (GTK_OBJECT (box->m_button1.gobj()), "clicked",
 	                  G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
-
-	gtk_box_pack_start (GTK_BOX(rBox), box, expand, fill, 0);
-	
+	gtk_box_pack_start (GTK_BOX(rBox),GTK_WIDGET(box->m_paintbox.gobj()) , expand, fill, 0);                  
 	GValue  pos = {0};
 	float z = *posit;
 	gint poset = int(z);
 	//fprintf(stderr, " %i .monobox\n",poset);
 	g_value_init (&pos, G_TYPE_INT);
 	g_value_set_int(&pos,poset);
-	gtk_container_child_set_property(GTK_CONTAINER(rBox),GTK_WIDGET(box),"position", &pos);
-	
-	gtk_fixed_put (GTK_FIXED(box1), button1, 2, 5);
-	gtk_fixed_put (GTK_FIXED(box1), button, 2, 20);
-	gtk_box_pack_end (GTK_BOX(box), box1, false, fill, 0);
-	gtk_widget_show_all(button);
-	gtk_widget_show_all(button1);
-	//gtk_widget_show(box);
-	gtk_widget_show(box1);
-	pushBox(kBoxMode, box);
-
+	gtk_container_child_set_property(GTK_CONTAINER(rBox),GTK_WIDGET(box->m_paintbox.gobj()),"position", &pos);
+	pushBox(kBoxMode, GTK_WIDGET(box->m_paintbox.gobj()));
 }
 
-void GxMainInterface::openHorizontalRestetBox(const char* label,float* posit)
+void GxMainInterface::openHorizontalRestetBox(const char* label, float* posit)
 {
-	GtkWidget * box = gtk_hbox_new (homogene, 0);
-	GtkWidget * box1 = gtk_fixed_new ();
-	gtk_container_set_border_width (GTK_CONTAINER (box), 4);
-	g_signal_connect(box, "expose-event", G_CALLBACK(eq_expose), NULL);
+	GxMoveBox * box =  new GxMoveBox(*this);
+	uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(box->m_button.gobj()));
 
-	GtkWidget* 	button = gtk_button_new ();
-	GtkWidget* 	button1 = gtk_button_new ();
-	GtkWidget* lw = gtk_label_new("▼");
-	GtkWidget* lw1 = gtk_label_new("▲");
-	gtk_container_add (GTK_CONTAINER(button), lw);
-	gtk_container_add (GTK_CONTAINER(button1), lw1);
-	gtk_widget_set_size_request (GTK_WIDGET(button), 20, 15);
-	gtk_widget_set_size_request (GTK_WIDGET(button1), 20, 15);
-	gtk_widget_set_size_request (GTK_WIDGET(box1), 25, -1);
-
-	gtk_widget_set_name (lw,"rack_label");
-	gtk_widget_set_name (lw1,"rack_label");
-	gtk_widget_set_name (button,"effect_reset");
-	gtk_widget_set_name (button1,"effect_reset");
-	gtk_widget_set_tooltip_text(button1,"move effect up");
-	gtk_widget_set_tooltip_text(button,"move effect down");
-	GtkStyle *style = gtk_widget_get_style(lw);
-	pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-	gtk_widget_modify_font(lw, style->font_desc);
-	gtk_widget_modify_font(lw1, style->font_desc);
-
-	uiOrderButton* c = new uiOrderButton(this, posit, GTK_BUTTON(button));
-
-	g_signal_connect (GTK_OBJECT (button), "pressed",
+	g_signal_connect (GTK_OBJECT (box->m_button.gobj()), "pressed",
 	                  G_CALLBACK (uiOrderButton::pressed_right), (gpointer) c);
-	g_signal_connect (GTK_OBJECT (button1), "pressed",
+	g_signal_connect (GTK_OBJECT (box->m_button1.gobj()), "pressed",
 	                  G_CALLBACK (uiOrderButton::pressed_left), (gpointer) c);
-	g_signal_connect (GTK_OBJECT (button), "clicked",
+	g_signal_connect (GTK_OBJECT (box->m_button.gobj()), "clicked",
 	                  G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
-	g_signal_connect (GTK_OBJECT (button1), "clicked",
+	g_signal_connect (GTK_OBJECT (box->m_button1.gobj()), "clicked",
 	                  G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
-
-	gtk_box_pack_start (GTK_BOX(sBox), box, expand, fill, 0);
-	
+	gtk_box_pack_start (GTK_BOX(sBox),GTK_WIDGET(box->m_paintbox.gobj()) , expand, fill, 0);                  
 	GValue  pos = {0};
 	float z = *posit;
 	gint poset = int(z);
-	//fprintf(stderr, " %i .stereo box\n",poset);
+	//fprintf(stderr, " %i .monobox\n",poset);
 	g_value_init (&pos, G_TYPE_INT);
-	g_value_set_int(&pos, poset);
-	gtk_container_child_set_property(GTK_CONTAINER(sBox),GTK_WIDGET(box),"position", &pos);
-	
-	gtk_fixed_put (GTK_FIXED(box1), button1, 2, 5);
-	gtk_fixed_put (GTK_FIXED(box1), button, 2, 20);
-	gtk_box_pack_end (GTK_BOX(box), box1, false, fill, 0);
-	gtk_widget_show_all(button);
-	gtk_widget_show_all(button1);
-	//gtk_widget_show(box);
-	gtk_widget_show(box1);
-	pushBox(kBoxMode, box);
-
+	g_value_set_int(&pos,poset);
+	gtk_container_child_set_property(GTK_CONTAINER(sBox),GTK_WIDGET(box->m_paintbox.gobj()),"position", &pos);
+	pushBox(kBoxMode, GTK_WIDGET(box->m_paintbox.gobj()));
 }
 
 //-------- different gtkmm container styles
@@ -887,7 +866,6 @@ void GxMainInterface::openEventBox(const char* label)
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
 	box->m_fixedbox.show_all();
 }
-
 
 void GxMainInterface::openFrameBox(const char* label)
 {
@@ -907,7 +885,6 @@ void GxMainInterface::openFrameBox(const char* label)
 	} else {
 		pushBox(kBoxMode, addWidget(label,GTK_WIDGET(box->m_box.gobj())));
 	}
-
 }
 
 void GxMainInterface::openHorizontalBox(const char* label)
@@ -1044,6 +1021,7 @@ void GxMainInterface::openpaintampBox(const char* label)
 	GxPaintBox * box =  new GxPaintBox(*this,pb_RackBox_expose);
 	box->m_box.set_border_width(4);
 	box->m_paintbox.set_name("MIDI out");
+	box->m_paintbox.set_tooltip_text("MIDI out");
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_paintbox.gobj()), expand, fill, 0);
 	box->m_paintbox.show_all();
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));

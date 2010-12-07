@@ -74,7 +74,6 @@
     </columns>
   </object>
   <object class="GtkDialog" id="PortMapWindow">
-    <property name="border_width">5</property>
     <property name="title" translatable="yes">guitarix port connections</property>
     <property name="default_width">320</property>
     <property name="type_hint">dialog</property>
@@ -82,14 +81,12 @@
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="spacing">2</property>
+        <signal name="expose_event" handler="rectangle_skin_color_expose"/>
         <child>
           <object class="GxPaintBox" id="gxpaintbox1">
             <property name="visible">True</property>
-            <property name="top_padding">12</property>
-            <property name="bottom_padding">12</property>
-            <property name="left_padding">12</property>
-            <property name="right_padding">12</property>
-            <property name="paint_func">gxhead_expose</property>
+            <property name="border_width">12</property>
+            <property name="paint_func">gxrack_expose</property>
             <child>
               <object class="GtkVBox" id="dialog-vbox2">
                 <property name="visible">True</property>
@@ -621,6 +618,9 @@
                   </packing>
                 </child>
               </object>
+              <packing>
+                <property name="position">0</property>
+              </packing>
             </child>
           </object>
           <packing>

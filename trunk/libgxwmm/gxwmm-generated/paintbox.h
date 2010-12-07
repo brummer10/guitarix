@@ -24,7 +24,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <gtkmm/alignment.h>
+#include <gtkmm/box.h>
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -38,7 +38,7 @@ namespace Gxw
 namespace Gxw {
 
 
-class PaintBox: public Gtk::Alignment {
+class PaintBox: public Gtk::Box {
 	public:
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
   typedef PaintBox CppObjectType;
@@ -99,6 +99,26 @@ private:
 
 	public:
 	PaintBox();
+	
+  void pack_start( Gtk::Widget& child, gboolean expand,
+                                  gboolean fill, guint padding);
+                                         
+    
+  void pack_end( Gtk::Widget& child, gboolean expand,
+                                gboolean fill, guint padding);
+                                         
+    
+  void set_border_width(guint border_width);
+    
+    
+  void add (Gtk::Widget& child);
+    
+    
+  void remove (Gtk::Widget& child);
+    
+    
+  GList* get_children();
+    
 	#ifdef GLIBMM_PROPERTIES_ENABLED
 /** Type of paint function for background.
    *
@@ -117,6 +137,66 @@ private:
    * the value of the property changes.
    */
   Glib::PropertyProxy_ReadOnly<Glib::ustring> property_paint_func() const;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
+	#ifdef GLIBMM_PROPERTIES_ENABLED
+/** Die Breite des leeren Rands um die Kinder des Containers.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy<guint> property_border_width() ;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+/** Die Breite des leeren Rands um die Kinder des Containers.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy_ReadOnly<guint> property_border_width() const;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
+	#ifdef GLIBMM_PROPERTIES_ENABLED
+/** Der Abstand zwischen den Kindern.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy<guint> property_spacing() ;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+/** Der Abstand zwischen den Kindern.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy_ReadOnly<guint> property_spacing() const;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
+	#ifdef GLIBMM_PROPERTIES_ENABLED
+/** Sollen die Kinder alle gleich groß sein?.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy<guint> property_homogeneous() ;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+/** Sollen die Kinder alle gleich groß sein?.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy_ReadOnly<guint> property_homogeneous() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 

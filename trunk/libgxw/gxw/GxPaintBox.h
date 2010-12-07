@@ -19,7 +19,7 @@
 #ifndef __GX_PAINT_BOX_H__
 #define __GX_PAINT_BOX_H__
 
-#include <gtk/gtkalignment.h>
+#include <gtk/gtkbox.h>
 
 G_BEGIN_DECLS
 
@@ -33,20 +33,47 @@ G_BEGIN_DECLS
 typedef struct _GxPaintBox GxPaintBox;
 typedef struct _GxPaintBoxClass GxPaintBoxClass;
 
+
+
 struct _GxPaintBox {
-	GtkAlignment alignment;
+	GtkBox box;
+
 	gchar *paint_func;
 	gboolean (*expose_func)(GtkWidget*, GdkEventExpose*);
+
+	guint GSEAL (border_width) : 16;
+	GList *GSEAL (children);
+	gint16 GSEAL (spacing);
+	guint GSEAL (homogeneous) : 1;
+
 };
 
 struct _GxPaintBoxClass {
-	GtkAlignmentClass parent_class;
+	GtkBoxClass parent_class;
+
 	GdkPixbuf *gxh_image;
 	GdkPixbuf *gxr_image;
 };
 
+
 GType gx_paint_box_get_type(void) G_GNUC_CONST;
 GtkWidget *gx_paint_box_new(gboolean homogeneous, gint spacing);
+
+void gx_box_pack_start (GxPaintBox *box, GtkWidget *child,
+	gboolean expand, gboolean fill, guint padding);
+                                         
+void gx_box_pack_end (GxPaintBox *box, GtkWidget *child,
+	gboolean expand, gboolean fill, guint padding);
+
+void gx_box_set_border_width (GxPaintBox *container, guint border_width);
+
+void gx_box_add (GxPaintBox *container, GtkWidget *widget);
+
+void gx_box_remove (GxPaintBox *container, GtkWidget *widget);
+
+GList*   gx_box_get_children(GxPaintBox *container);
+
+
 
 G_END_DECLS
 
