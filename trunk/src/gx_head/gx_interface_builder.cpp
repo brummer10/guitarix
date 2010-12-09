@@ -326,7 +326,10 @@ void GxMainInterface::setup()
                closeBox();
           }
           closeBox();
-          
+         openToolBar("Plugins");
+         {
+		 }
+		 closeBox();	 
          openPlugBox("Mono Rack");
 		 {
 			#include "gx_rack_builder.cc"		

@@ -217,6 +217,7 @@ extern GtkWidget* rack_widget;
 extern GtkWidget* menu_mono_rack;
 extern GtkWidget* srack_widget;
 extern GtkWidget* menu_stereo_rack;
+extern GtkWidget* rack_tool_bar;
 
 /* wave view widgets */
 extern GdkPixbuf* ib;

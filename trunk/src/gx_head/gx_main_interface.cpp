@@ -1098,34 +1098,6 @@ void GxMainInterface::openHorizontalhideBox(const char* label)
 	if (label[0] != 0) box->m_box.show();
 }
 
-void GxMainInterface::openToolBar(const char* label)
-{
-	GtkWidget * box = gtk_vpaned_new  ();
-	GtkWidget * box1 = gtk_vbox_new (homogene, 0);
-	GtkWidget * box2 = gtk_vbox_new (homogene, 0);
-	if (fMode[fTop] != kTabMode && label[0] != 0)
-	{
-		GtkWidget* lw = gtk_label_new(label);
-
-		gtk_widget_set_name (lw,"effekt_label");
-		GtkStyle *style = gtk_widget_get_style(lw);
-		pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-		pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-		gtk_widget_modify_font(lw, style->font_desc);
-		gtk_box_pack_start (GTK_BOX(fBox[fTop]), box, expand, fill, 0);
-		gtk_paned_add1(GTK_PANED(box),box1);
-		gtk_paned_add2(GTK_PANED(box),box2);
-		gtk_widget_show(lw);
-		gtk_widget_show_all(box);
-		pushBox(kBoxMode, box2);
-		pushBox(kBoxMode, box1);
-	}
-	else
-	{
-		pushBox(kBoxMode, addWidget(label, box));
-	}
-}
-
 GtkWidget* GxMainInterface::addWidget(const char* label, GtkWidget* w)
 {
 	switch (fMode[fTop])
@@ -1838,6 +1810,38 @@ static void set_label(MenuCheckItem& item , const char *label)
 /****************************************************************
  ** Effect Dialog Boxes
  */
+ 
+class ToggleCheckButton: public Gtk::ToggleButton
+{
+private:
+	SwitchParameter* param;
+	void on_my_toggled();
+public:
+	ToggleCheckButton(): Gtk::ToggleButton("", true) {}
+	void set_parameter(SwitchParameter *p);
+	SwitchParameter * get_parameter();
+};
+
+void ToggleCheckButton::on_my_toggled()
+{
+	param->set(get_active());
+}
+SwitchParameter* ToggleCheckButton::get_parameter()
+{
+	return param;
+}
+
+void ToggleCheckButton::set_parameter(SwitchParameter *p)
+{
+	param = p;
+	//parameter_map.insert(p);
+	p->changed.connect(sigc::mem_fun(*this, &ToggleCheckButton::set_active));
+	signal_toggled().connect(
+		sigc::mem_fun(*this, &ToggleCheckButton::on_my_toggled));
+}
+
+
+ 
 class GxDialogButtonBox
 {
 public:
@@ -1878,6 +1882,7 @@ public:
 	MenuCheckItem menuitem;
 	Gtk::Button reset_button;
 	Gtk::Button reset_button1;
+	ToggleCheckButton m_tcb;
 	Gtk::ToggleButton& dialog_button;
 	Gtk::Window m_regler_tooltip_window;
 	GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk, Parameter& param_dialog, Parameter& param_switch, Gtk::ToggleButton& button,GtkWidget * Caller);
@@ -1954,6 +1959,7 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui,const char *expose_funk, Pa
 	box4.pack_end(box5,false,false,0);
 	paintbox.add(box4);
 	paintbox.set_tooltip_text(title);
+	m_tcb.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#1ab212"));
 	dialog_button.signal_toggled().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
 	menuitem.signal_activate().connect(
@@ -1984,6 +1990,11 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsMono"]), GTK_WIDGET(dialog->menuitem.gobj()));
 	dialog->menuitem.show();
 	dialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
+	dialog->m_tcb.set_parameter(dialog->menuitem.get_parameter());
+	dialog->m_tcb.set_label(title);
+	
+	
+	gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(dialog->m_tcb.gobj()) , false, false, 0);
 }
 
 void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk )
@@ -2013,6 +2024,11 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsStereo"]), GTK_WIDGET(bdialog->menuitem.gobj()));
 	bdialog->menuitem.show();
 	bdialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
+	bdialog->m_tcb.set_parameter(bdialog->menuitem.get_parameter());
+	bdialog->m_tcb.set_label(title);
+	
+	
+	gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(bdialog->m_tcb.gobj()) , false, false, 0);
 }
 
 //-------- collect patch info for stage display
@@ -2220,6 +2236,17 @@ void GxMainInterface::addNumDisplay()
 	box->rbox.add(fTuner);
 	box->window.set_size_request(200,140); 
 	tuner_widget = GTK_WIDGET(box->window.gobj());
+}
+
+void GxMainInterface::openToolBar(const char* label)
+{
+	GxWindowBox *box =  new GxWindowBox(*this, 
+		pb_gxrack_expose, "Plugin Bar", GTK_WIDGET(fShowToolBar.gobj()));
+	
+	box->window.set_size_request(-1,530); 
+	rack_tool_bar = GTK_WIDGET(box->window.gobj());
+	tBox = GTK_WIDGET(box->rbox.gobj());
+	pushBox(kBoxMode, GTK_WIDGET(tBox));
 }
 
 void GxMainInterface::openPlugBox(const char* label)
@@ -2783,6 +2810,16 @@ void GxMainInterface::addPluginMenu()
 	menucont = gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
 	gtk_widget_show(menucont);
+	
+	/*-- Create toolbar check menu item under Options submenu --*/
+	set_label(fShowToolBar, "show Plugin Bar");
+	fShowToolBar.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_t, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fShowToolBar.signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_toolbar_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowToolBar.gobj()));
+	fShowToolBar.show();
+	fShowToolBar.set_parameter(new SwitchParameter("system.show_toolbar"));
 	
 	/*-- Create mono rack check menu item under Options submenu --*/
 	set_label(fShowRack, "show Mono_Rack");

@@ -35,6 +35,7 @@ public:
 	//FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
 	MenuCheckItem(): Gtk::CheckMenuItem("", true) {}
 	void set_parameter(SwitchParameter *p);
+	SwitchParameter * get_parameter();
 };
 
 

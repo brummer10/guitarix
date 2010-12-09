@@ -41,6 +41,11 @@ void MenuCheckItem::on_my_activate()
 	param->set(get_active());
 }
 
+SwitchParameter* MenuCheckItem::get_parameter()
+{
+	return param;
+}
+
 void MenuCheckItem::set_parameter(SwitchParameter *p)
 {
 	param = p;
@@ -213,6 +218,20 @@ void GxMainInterface::on_tuner_activate()
 		shownote = 0;
 		fTuner.hide();
 		gtk_widget_hide(tuner_widget);
+	}
+}
+
+//----menu function gx_tuner
+void GxMainInterface::on_toolbar_activate()
+{
+	if (fShowToolBar.get_active()) {
+		gtk_widget_show_all(rack_tool_bar);
+		
+		
+	} else {
+		
+		
+		gtk_widget_hide(rack_tool_bar);
 	}
 }
 
@@ -763,7 +782,7 @@ gint gx_nchoice_dialog_without_entry (
 	GdkColor colorBlack;
 	gdk_color_parse("#000000", &colorBlack);
 	gtk_widget_modify_bg (dialog, GTK_STATE_NORMAL, &colorBlack);
-
+	g_signal_connect(GTK_DIALOG(dialog)->vbox, "expose-event", G_CALLBACK(rectangle_skin_color_expose), NULL);
 	GtkStyle* text_style = gtk_widget_get_style(text_label);
 	pango_font_description_set_size(text_style->font_desc, 10*PANGO_SCALE);
 	pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);

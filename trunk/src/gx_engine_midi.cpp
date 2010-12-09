@@ -204,14 +204,13 @@ void process_midi(int len)
 	//----- only run it when midi out or tuner is enabled
 	if (isMidiOn())
 	{
-
-		float 	fConsta2 = 0;
+		static float fnote = 1000.;
+		float 	fConsta2 = 0.;
 		float fTemps45 = midi.fslider45;
 		float fTemps38 = midi.fslider38;
-		float rms = 0;
-		float midi_db = 0;
-		float sum = 0;
-		static float fnote = 0;
+		float rms = 0.;
+		float midi_db = 0.;
+		float sum = 0.;
 		float *audiodata = checkfreq;
 
 		int preNote = 0;

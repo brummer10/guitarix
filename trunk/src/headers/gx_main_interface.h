@@ -290,6 +290,7 @@ private:
 	void on_log_activate();
 	void on_rack_activate();
 	void on_srack_activate();
+	void on_toolbar_activate();
 	void set_mouse_mode();
 	void on_show_oscilloscope();
 	bool on_refresh_oscilloscope();
@@ -299,6 +300,7 @@ protected :
 	GtkWidget*          fBox[stackSize];
 	GtkWidget*          rBox;
 	GtkWidget*          sBox;
+	GtkWidget*          tBox;
 	
 	int 		fMode[stackSize];
 	bool		fStopped;
@@ -335,6 +337,7 @@ public :
 	MenuCheckItem       fShowSRack;
 	MenuCheckItem       fShowLogger;
 	MenuCheckItem       fShowMidiOut;
+	MenuCheckItem       fShowToolBar;
 	GtkWidget* 			logger;
 	
 	static bool	 fInitialized;

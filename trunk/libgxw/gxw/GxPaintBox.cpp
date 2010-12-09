@@ -856,7 +856,7 @@ static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	//set_rack_color(title, pat);
 	cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0.2, 0.8);
 	cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
-	cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
+	//cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
 	cairo_pattern_add_color_stop_rgba (pat, 0.2, 0, 0, 0.2, 0.2);
 	cairo_set_source (cr, pat);
 	cairo_fill(cr);

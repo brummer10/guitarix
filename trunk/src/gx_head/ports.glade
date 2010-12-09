@@ -85,7 +85,7 @@
         <child>
           <object class="GxPaintBox" id="gxpaintbox1">
             <property name="visible">True</property>
-            <property name="border_width">12</property>
+            <property name="border_width">15</property>
             <property name="paint_func">gxrack_expose</property>
             <child>
               <object class="GtkVBox" id="dialog-vbox2">
