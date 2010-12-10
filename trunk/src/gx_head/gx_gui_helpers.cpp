@@ -221,19 +221,7 @@ void GxMainInterface::on_tuner_activate()
 	}
 }
 
-//----menu function gx_tuner
-void GxMainInterface::on_toolbar_activate()
-{
-	if (fShowToolBar.get_active()) {
-		gtk_widget_show_all(rack_tool_bar);
-		
-		
-	} else {
-		
-		
-		gtk_widget_hide(rack_tool_bar);
-	}
-}
+
 
 // show loggingbox
 void GxMainInterface::on_log_activate() {
@@ -279,6 +267,21 @@ int gx_set_sw_oriantation()
 	return (gint) gx_gui::sr_hight;
 }
 
+int gx_set_py_oriantation()
+{
+	return (gint) gx_gui::pr_yorg;
+}
+
+int gx_set_px_oriantation()
+{
+	return (gint) gx_gui::pr_xorg;
+}
+
+int gx_set_pw_oriantation()
+{
+	return (gint) gx_gui::pr_hight;
+}
+
 void gx_get_oriantation(gint xorg, gint yorg, gint rhight)
 {
 	gx_gui::r_xorg = (float)xorg;
@@ -291,6 +294,14 @@ void gx_gets_oriantation(gint xorg, gint yorg, gint srhight)
 	gx_gui::sr_xorg = (float)xorg;
 	gx_gui::sr_yorg = (float)yorg;
 	gx_gui::sr_hight = (float)srhight;
+}
+
+
+void gx_getp_oriantation(gint xorg, gint yorg, gint srhight)
+{
+	gx_gui::pr_xorg = (float)xorg;
+	gx_gui::pr_yorg = (float)yorg;
+	gx_gui::pr_hight = (float)srhight;
 }
 
 //----menu function gx_rack
@@ -327,6 +338,25 @@ void GxMainInterface::on_srack_activate()
 		
 		gx_gets_oriantation(srxorg,sryorg,srhight);
 		gtk_widget_hide(srack_widget);
+	}
+}
+
+//----menu function gx_toolbar
+void GxMainInterface::on_toolbar_activate()
+{
+	static gint prxorg = gx_set_px_oriantation(); 
+	static gint pryorg = gx_set_py_oriantation();
+	static gint prhight = gx_set_pw_oriantation();
+	if (fShowToolBar.get_active()) {
+		gtk_widget_set_size_request (GTK_WIDGET (rack_tool_bar), 0,prhight+5);
+		gtk_window_move(GTK_WINDOW(rack_tool_bar), prxorg, pryorg);
+		gtk_widget_show(rack_tool_bar);
+		gtk_widget_show_all(rack_tool_bar);
+	} else {
+		gtk_window_get_position (GTK_WINDOW(rack_tool_bar), &prxorg, &pryorg);
+		gtk_widget_get_size_request (GTK_WIDGET(rack_tool_bar),NULL, &prhight);
+		gx_getp_oriantation(prxorg,pryorg,prhight);
+		gtk_widget_hide(rack_tool_bar);
 	}
 }
 

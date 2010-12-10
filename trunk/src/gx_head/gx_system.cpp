@@ -1476,6 +1476,15 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 			gx_gui::sr_hight = (float)srhight;
 		}
 		
+		if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::rack_tool_bar))) {
+			gint prxorg,pryorg,prhight;
+			gtk_window_get_position (GTK_WINDOW(gx_gui::rack_tool_bar), &prxorg,&pryorg);
+			gtk_widget_get_size_request (GTK_WIDGET(gx_gui::rack_tool_bar),NULL, &prhight);
+			gx_gui::pr_xorg = (float)prxorg;
+			gx_gui::pr_yorg = (float)pryorg;
+			gx_gui::pr_hight = (float)prhight;
+		}
+		
 		if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::fWindow))) {
 			gint mainxorg,mainyorg;
 			gtk_window_get_position (GTK_WINDOW(gx_gui::fWindow), &mainxorg,&mainyorg);

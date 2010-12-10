@@ -172,6 +172,9 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("ui.sr_hight", &gx_gui::sr_hight, true, 320,0,10000);
 	registerNonMidiParam("ui.main_xorg", &gx_gui::main_xorg, true, 300,0,10000);
 	registerNonMidiParam("ui.main_yorg", &gx_gui::main_yorg, true, 300,0,10000);
+	registerNonMidiParam("ui.pr_xorg", &gx_gui::pr_xorg, true, 40,0,10000);
+	registerNonMidiParam("ui.pr_yorg", &gx_gui::pr_yorg, true, 80,0,10000);
+	registerNonMidiParam("ui.pr_hight", &gx_gui::pr_hight, true, 570,0,10000);
 }
 
 AudioVariables audio;

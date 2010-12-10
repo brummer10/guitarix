@@ -290,6 +290,9 @@ float sr_yorg;
 float sr_hight;
 float main_xorg;
 float main_yorg;
+float pr_xorg;
+float pr_yorg;
+float pr_hight;
 
 }
 

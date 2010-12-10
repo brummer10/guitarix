@@ -265,6 +265,9 @@ extern float sr_yorg;
 extern float sr_hight;
 extern float main_xorg;
 extern float main_yorg;
+extern float pr_xorg;
+extern float pr_yorg;
+extern float pr_hight;
 
 /* for level display */
 extern int meter_falloff;
