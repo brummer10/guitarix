@@ -1961,12 +1961,13 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui,const char *expose_funk, Pa
 	box4.pack_end(box5,false,false,0);
 	paintbox.add(box4);
 	paintbox.set_tooltip_text(title);
-	m_tcb.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#1ab212"));
+	m_tcb.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#58b45e"));
 	Pango::FontDescription font = m_label.get_style()->get_font();
 	font.set_size(8*Pango::SCALE);
 	font.set_weight(Pango::WEIGHT_BOLD);
 	m_label.modify_font(font);
 	m_label.modify_fg(Gtk::STATE_NORMAL, Gdk::Color("#f1eded"));
+	m_label.modify_fg(Gtk::STATE_ACTIVE, Gdk::Color("#111111"));
 	dialog_button.signal_toggled().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
 	menuitem.signal_activate().connect(
@@ -2270,8 +2271,9 @@ void GxMainInterface::openToolBar(const char* label)
 	box->m_tmono_rack.set_parameter(fShowRack.get_parameter());
 	box->m_tstereo_rack.set_parameter(fShowSRack.get_parameter());
 	
-	box->m_tmono_rack.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#1ab212"));
-	box->m_tstereo_rack.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#1ab212"));
+	box->m_tmono_rack.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#58b45e"));
+	box->m_tstereo_rack.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#58b45e"));
+	
 	Pango::FontDescription font = box->m_label.get_style()->get_font();
 	font.set_size(8*Pango::SCALE);
 	font.set_weight(Pango::WEIGHT_BOLD);
@@ -2279,6 +2281,8 @@ void GxMainInterface::openToolBar(const char* label)
 	box->m_label1.modify_font(font);
 	box->m_label.modify_fg(Gtk::STATE_NORMAL, Gdk::Color("#f1eded"));
 	box->m_label1.modify_fg(Gtk::STATE_NORMAL, Gdk::Color("#f1eded"));
+	box->m_label.modify_fg(Gtk::STATE_ACTIVE, Gdk::Color("#111111"));
+	box->m_label1.modify_fg(Gtk::STATE_ACTIVE, Gdk::Color("#111111"));
 	box->m_label.set_text("mono rack");
 	box->m_tmono_rack.add(box->m_label);
 	box->m_label1.set_text("stereo rack");
