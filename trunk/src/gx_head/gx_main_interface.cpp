@@ -1817,7 +1817,7 @@ private:
 	SwitchParameter* param;
 	void on_my_toggled();
 public:
-	ToggleCheckButton(): Gtk::ToggleButton("", true) {}
+	ToggleCheckButton(): Gtk::ToggleButton() {}
 	void set_parameter(SwitchParameter *p);
 	SwitchParameter * get_parameter();
 };
@@ -1884,6 +1884,7 @@ public:
 	Gtk::Button reset_button;
 	Gtk::Button reset_button1;
 	ToggleCheckButton m_tcb;
+	Gtk::Label m_label;
 	Gtk::ToggleButton& dialog_button;
 	Gtk::Window m_regler_tooltip_window;
 	GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk, Parameter& param_dialog, Parameter& param_switch, Gtk::ToggleButton& button,GtkWidget * Caller);
@@ -1961,6 +1962,11 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui,const char *expose_funk, Pa
 	paintbox.add(box4);
 	paintbox.set_tooltip_text(title);
 	m_tcb.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#1ab212"));
+	Pango::FontDescription font = m_label.get_style()->get_font();
+	font.set_size(8*Pango::SCALE);
+	font.set_weight(Pango::WEIGHT_BOLD);
+	m_label.modify_font(font);
+	m_label.modify_fg(Gtk::STATE_NORMAL, Gdk::Color("#f1eded"));
 	dialog_button.signal_toggled().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
 	menuitem.signal_activate().connect(
@@ -1992,7 +1998,9 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	dialog->menuitem.show();
 	dialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
 	dialog->m_tcb.set_parameter(dialog->menuitem.get_parameter());
-	dialog->m_tcb.set_label(title);
+	dialog->m_label.set_text(title);
+	dialog->m_tcb.add(dialog->m_label);
+	//dialog->m_tcb.set_label(title);
 	
 	gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(dialog->box1.gobj()) , false, false, 0);
 	dialog->box1.pack_start(dialog->m_tcb,true,true);
@@ -2028,7 +2036,9 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	bdialog->menuitem.show();
 	bdialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
 	bdialog->m_tcb.set_parameter(bdialog->menuitem.get_parameter());
-	bdialog->m_tcb.set_label(title);
+	bdialog->m_label.set_text(title);
+	bdialog->m_tcb.add(bdialog->m_label);
+	//bdialog->m_tcb.set_label(title);
 	
 	gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(bdialog->box1.gobj()) , false, false, 0);
 	bdialog->box1.pack_start(bdialog->m_tcb,true,true);
@@ -2159,7 +2169,9 @@ public:
 	Gtk::VBox rbox;
 	Gtk::Window m_regler_tooltip_window;
 	ToggleCheckButton m_tmono_rack;
+	Gtk::Label m_label;
 	ToggleCheckButton m_tstereo_rack;
+	Gtk::Label m_label1;
 	GxWindowBox(gx_ui::GxUI& ui, 
 		const char *pb_2, Glib::ustring titl,GtkWidget * d);
 	~GxWindowBox();
@@ -2251,14 +2263,27 @@ void GxMainInterface::openToolBar(const char* label)
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_gxrack_expose, "Plugin Bar", GTK_WIDGET(fShowToolBar.gobj()));
 	
-	box->window.set_size_request(-1,570); 
+	box->window.set_size_request(-1,524); 
 	rack_tool_bar = GTK_WIDGET(box->window.gobj());
 	tBox = GTK_WIDGET(box->rbox.gobj());
 	box->rbox.add(box->box1);
 	box->m_tmono_rack.set_parameter(fShowRack.get_parameter());
-	box->m_tmono_rack.set_label("mono rack");
 	box->m_tstereo_rack.set_parameter(fShowSRack.get_parameter());
-	box->m_tstereo_rack.set_label("stereo rack");
+	
+	box->m_tmono_rack.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#1ab212"));
+	box->m_tstereo_rack.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#1ab212"));
+	Pango::FontDescription font = box->m_label.get_style()->get_font();
+	font.set_size(8*Pango::SCALE);
+	font.set_weight(Pango::WEIGHT_BOLD);
+	box->m_label.modify_font(font);
+	box->m_label1.modify_font(font);
+	box->m_label.modify_fg(Gtk::STATE_NORMAL, Gdk::Color("#f1eded"));
+	box->m_label1.modify_fg(Gtk::STATE_NORMAL, Gdk::Color("#f1eded"));
+	box->m_label.set_text("mono rack");
+	box->m_tmono_rack.add(box->m_label);
+	box->m_label1.set_text("stereo rack");
+	box->m_tstereo_rack.add(box->m_label1);
+	
 	box->box1.pack_start(box->m_tmono_rack,true,true);
 	box->box1.pack_end(box->m_tstereo_rack,true,true);
 	box->box1.show_all();
