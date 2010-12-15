@@ -27,6 +27,7 @@
 #include <fstream>
 #include <errno.h>
 #include "guitarix.h"
+#include <glibmm/i18n.h>
 
 using namespace gx_resample;
 
@@ -71,34 +72,35 @@ inline void registerEnumParam(const char*a,const char*b,const char** vl, int*c,i
 
 void AudioVariables::register_parameter()
 {
-	gx_gui::registerParam("amp.bass_boost.on_off", "on/off", &fboost, 0);
-	gx_gui::registerParam("compressor.on_off", "on/off", &fcheckboxcom1, 0);
+	static const char *on_off = N_("on/off");
+	gx_gui::registerParam("amp.bass_boost.on_off", on_off, &fboost, 0);
+	gx_gui::registerParam("compressor.on_off", on_off, &fcheckboxcom1, 0);
 	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
-	gx_gui::registerParam("crybaby.on_off", "on/off", &fcheckbox5, 0);
+	gx_gui::registerParam("crybaby.on_off", on_off, &fcheckbox5, 0);
 	gx_gui::registerParam("cab.on_off", "Cab-ImpResp", &fcab,0);
-	gx_gui::registerParam("overdrive.on_off", "on/off", &foverdrive4, 0);
-	gx_gui::registerParam("gx_distortion.on_off", "on/off", &fcheckbox4, 0);
-	gx_gui::registerParam("freeverb.on_off", "on/off", &fcheckbox6, 0);
-	gx_gui::registerParam("IR.on_off", "on/off", &fcheckbox8, 0);
-	gx_gui::registerParam("echo.on_off", "on/off", (float*) &fcheckbox7, 0.);
-	gx_gui::registerParam("delay.on_off", "on/off", (float*) &fdelay, 0.);
-	gx_gui::registerParam("chorus.on_off", "on/off", (float*) &fchorus, 0.);
-	gx_gui::registerParam("eqs.on_off", "on/off", &feq, 0);
-	gx_gui::registerParam("moog.on_off", "on/off", &fmoog, 0);
-	//gx_gui::registerParam("biquad.on_off", "on/off", &fbiquad, 0);
-	gx_gui::registerParam("flanger.on_off", "on/off", &fflanger, 0);
-	//gx_gui::registerParam("SampleLooper.on_off", "on/off", (float*) &fsloop, 0.);
-	gx_gui::registerParam("phaser.on_off", "on/off", (float*) &fphaser, 0.);
-	gx_gui::registerParam("shaper.on_off", "on/off", &fng, 0);
-	gx_gui::registerParam("low_highpass.on_off", "on/off", &flh, 0);
-	gx_gui::registerParam("stereodelay.on_off", "on/off",(float*) &fsd, 0);
-	gx_gui::registerParam("stereoecho.on_off", "on/off",(float*) &fse, 0);
-	gx_gui::registerParam("midi_out.on_off", "on/off", &fmi, 0);
+	gx_gui::registerParam("overdrive.on_off", on_off, &foverdrive4, 0);
+	gx_gui::registerParam("gx_distortion.on_off", on_off, &fcheckbox4, 0);
+	gx_gui::registerParam("freeverb.on_off", on_off, &fcheckbox6, 0);
+	gx_gui::registerParam("IR.on_off", on_off, &fcheckbox8, 0);
+	gx_gui::registerParam("echo.on_off", on_off, (float*) &fcheckbox7, 0.);
+	gx_gui::registerParam("delay.on_off", on_off, (float*) &fdelay, 0.);
+	gx_gui::registerParam("chorus.on_off", on_off, (float*) &fchorus, 0.);
+	gx_gui::registerParam("eqs.on_off", on_off, &feq, 0);
+	gx_gui::registerParam("moog.on_off", on_off, &fmoog, 0);
+	//gx_gui::registerParam("biquad.on_off", "on_off", &fbiquad, 0);
+	gx_gui::registerParam("flanger.on_off", on_off, &fflanger, 0);
+	//gx_gui::registerParam("SampleLooper.on_off", "on_off", (float*) &fsloop, 0.);
+	gx_gui::registerParam("phaser.on_off", on_off, (float*) &fphaser, 0.);
+	gx_gui::registerParam("shaper.on_off", on_off, &fng, 0);
+	gx_gui::registerParam("low_highpass.on_off", on_off, &flh, 0);
+	gx_gui::registerParam("stereodelay.on_off", on_off,(float*) &fsd, 0);
+	gx_gui::registerParam("stereoecho.on_off", on_off,(float*) &fse, 0);
+	gx_gui::registerParam("midi_out.on_off", on_off, &fmi, 0);
 	
-	static const char *tonestack_model[] = {"default","Bassman","Twin Reverb","Princeton","JCM-800","JCM-2000","M-Lead","M2199","AC-30","Off",0};
+	static const char *tonestack_model[] = {N_("default"),N_("Bassman"),N_("Twin Reverb"),N_("Princeton"),N_("JCM-800"),N_("JCM-2000"),N_("M-Lead"),N_("M2199"),N_("AC-30"),N_("Off"),0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
 	
-	static const char *post_pre[] = {"post","pre",0};
+	static const char *post_pre[] = {N_("post"),N_("pre"),0};
 	registerEnumParam("compressor.pp","select",post_pre,&compressorpp, 0);
 	registerEnumParam("crybaby.pp","select",post_pre,&crybabypp, 0);
 	registerEnumParam("overdrive.pp","select",post_pre,&overdrivepp, 0);
@@ -110,7 +112,7 @@ void AudioVariables::register_parameter()
 	registerEnumParam("eqs.pp","select",post_pre,&eqpp, 0);
 	registerEnumParam("low_highpass.pp","select",post_pre,&lhpp, 0);
 	
-	static const char *crybaby_autowah[] = {"manual","auto",0};
+	static const char *crybaby_autowah[] = {N_("manual"),N_("auto"),0};
 	registerEnumParam("crybaby.autowah", "select", crybaby_autowah, &fautowah, 0);
 	
 	//static const char *eqt_onetwo[] = {"fixed","scale",0};
@@ -164,17 +166,7 @@ void AudioVariables::register_parameter()
 	// user interface options
 	registerNonMidiParam("ui.latency_nowarn", &fwarn, false, 0);
 	registerNonMidiParam("ui.skin", &fskin, false, 0, 0, 100);
-	registerNonMidiParam("ui.r_xorg", &gx_gui::r_xorg, true, 40,0,10000);
-	registerNonMidiParam("ui.r_yorg", &gx_gui::r_yorg, true, 80,0,10000);
-	registerNonMidiParam("ui.r_hight", &gx_gui::r_hight, true, 320,0,10000);
-	registerNonMidiParam("ui.sr_xorg", &gx_gui::sr_xorg, true, 200,0,10000);
-	registerNonMidiParam("ui.sr_yorg", &gx_gui::sr_yorg, true, 80,0,10000);
-	registerNonMidiParam("ui.sr_hight", &gx_gui::sr_hight, true, 320,0,10000);
-	registerNonMidiParam("ui.main_xorg", &gx_gui::main_xorg, true, 300,0,10000);
-	registerNonMidiParam("ui.main_yorg", &gx_gui::main_yorg, true, 300,0,10000);
-	registerNonMidiParam("ui.pr_xorg", &gx_gui::pr_xorg, true, 40,0,10000);
-	registerNonMidiParam("ui.pr_yorg", &gx_gui::pr_yorg, true, 80,0,10000);
-	registerNonMidiParam("ui.pr_hight", &gx_gui::pr_hight, true, 524,0,10000);
+
 }
 
 AudioVariables audio;
@@ -304,7 +296,7 @@ void compute (int count, float* input, float* output0)
 
 void process_buffers(int count, float* input, float* output0)
 {
-	int mono_plug_counter =  gx_gui::mono_plugs;
+	static int mono_plug_counter =  gx_gui::mono_plugs;
 	
 	int tuner_on = gx_gui::shownote + (int)isMidiOn() + 1;
 	if (tuner_on > 0) {

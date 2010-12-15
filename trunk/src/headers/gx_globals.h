@@ -269,6 +269,8 @@ extern float pr_xorg;
 extern float pr_yorg;
 extern float pr_hight;
 
+extern void register_gui_parameter();
+
 /* for level display */
 extern int meter_falloff;
 extern int meter_display_timeout;

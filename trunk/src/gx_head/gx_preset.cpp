@@ -27,11 +27,11 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtkmm/filechooserdialog.h>
 #include "guitarix.h"
-
+#include <glibmm/i18n.h>
 
 using namespace gx_system;
 
-#define _(x) (x)
+//#define _(x) (x)
 
 namespace gx_preset
 {
@@ -47,16 +47,16 @@ string gx_get_accel_path(int lindex)
 	switch (lindex)
 	{
 	case 0:
-		label = "Load";
+		label = _("Load");
 		break;
 	case 1:
-		label = "Save";
+		label = _("Save");
 		break;
 	case 2:
-		label = "Rename";
+		label = _("Rename");
 		break;
 	case 3:
-		label = "Delete";
+		label = _("Delete");
 		break;
 
 	}
@@ -97,7 +97,7 @@ bool gx_modify_preset(const char* presname, const char* newname=0, bool remove=f
 		if (!readHeader(jp, &major, &minor)) {
 			if (rewrite) {
 				if (major == 0 && minor == 0) {
-					gx_print_info("loading presets","rewriting convertet presets");
+					gx_print_info(_("loading presets"),_("rewriting convertet presets"));
 				} else {
 					const char *s;
 					if (major != majorversion) {
@@ -151,18 +151,18 @@ bool gx_modify_preset(const char* presname, const char* newname=0, bool remove=f
 		nfile.close();
 		ofile.close();
 		if (!nfile.good()) {
-			gx_print_error("save preset","couldn't write " + tmpfile);
+			gx_print_error(_("save preset"),_("couldn't write ") + tmpfile);
 			return false;
 		}
 
 		int rc = rename(tmpfile.c_str(), gx_preset_file.get_path().c_str());
 		if (rc != 0) {
-			gx_print_error("save preset","couldn't rename "
+			gx_print_error(_("save preset"),_("couldn't rename ")
 			               + tmpfile + " to " + gx_preset_file.get_parse_name());
 			return false;
 		}
 	} catch (gx_system::JsonException& e) {
-		gx_print_error("save/modify preset", "invalid preset file: " + gx_preset_file.get_parse_name());
+		gx_print_error(_("save/modify preset"), _("invalid preset file: ") + gx_preset_file.get_parse_name());
 	}
 	return found;
 }
@@ -192,20 +192,20 @@ static bool gx_build_preset_list()
 			jp.next(JsonParser::end_token);
 			f.close();
 			// ---- how many did we get ?
-			gx_print_info("Preset List Building",
-			                 gx_i2a(plist.size()) + string(" presets found"));
+			gx_print_info(_("Preset List Building"),
+			                 gx_i2a(plist.size()) + string(_(" presets found")));
 			if (!samevers && gx_preset_file.is_standard()) {
 				gx_modify_preset(0,0,false,true);
 				gx_system::recallState(gx_user_dir + gx_jack::client_instance + "_rc"); //FIXME
 			}
 			return true;
 		} catch (gx_system::JsonException& e) {
-			gx_system::gx_print_warning(gx_preset_file.get_parse_name().c_str(), "parse error");
+			gx_system::gx_print_warning(gx_preset_file.get_parse_name().c_str(), _("parse error"));
 			return false;
 		}
 	}
 	if (gx_preset_file.is_standard()) {
-		gx_print_info("empty preset File ", gx_preset_file.get_display_name());
+		gx_print_info(_("empty preset File "), gx_preset_file.get_display_name());
 		gx_empty_preset_file(gx_preset_file.get_path().c_str());
 		return true;
 	} else {
@@ -335,8 +335,8 @@ bool gx_nth_preset(unsigned char n)
 	// check that we do have presets
 	if (!pm_list[LOAD_PRESET_LIST].size())
 	{
-		gx_print_warning("Preset Switching",
-		                 "Preset list is empty, make some :)");
+		gx_print_warning(_("Preset Switching"),
+		                 _("Preset list is empty, make some :)"));
 		return false;
 	}
     vector<GtkMenuItem*>::iterator it = pm_list[LOAD_PRESET_LIST].begin();
@@ -358,8 +358,8 @@ void gx_next_preset(GtkWidget* item, gpointer arg)
 	// check that we do have presets
 	if (!pm_list[LOAD_PRESET_LIST].size())
 	{
-		gx_print_warning("Preset Switching",
-		                 "Preset list is empty, make some :)");
+		gx_print_warning(_("Preset Switching"),
+		                 _("Preset list is empty, make some :)"));
 		return;
 	}
 
@@ -390,8 +390,8 @@ void gx_previous_preset(GtkWidget* item, gpointer arg)
     // check that we do have presets
 	if (!pm_list[LOAD_PRESET_LIST].size())
 	{
-		gx_print_warning("Preset Switching",
-		                 "Preset list is empty, make some :)");
+		gx_print_warning(_("Preset Switching"),
+		                 _("Preset list is empty, make some :)"));
 		return;
 	}
 
@@ -424,8 +424,8 @@ void gx_delete_active_preset_dialog(GtkWidget* item, gpointer arg)
 {
 	if (!setting_is_preset || gx_current_preset.empty())
 	{
-		gx_print_warning("Deleting Active Preset",
-		                 "No active preset, this is the main setting");
+		gx_print_warning(_("Deleting Active Preset"),
+		                 _("No active preset, this is the main setting"));
 		return;
 	}
 
@@ -436,9 +436,9 @@ void gx_delete_active_preset_dialog(GtkWidget* item, gpointer arg)
 	gx_delete_preset_dialog (NULL, NULL);
 
 	if (gx_current_preset.empty() && !setting_is_preset)
-		gx_print_info("Deleting Active Preset",
-		              string("Deleted preset ") + presname +
-		              string(", recalled main setting"));
+		gx_print_info(_("Deleting Active Preset"),
+		              string(_("Deleted preset ")) + presname +
+		              string(_(", recalled main setting")));
 }
 
 
@@ -447,27 +447,27 @@ void gx_delete_preset_dialog (GtkMenuItem *menuitem, gpointer arg)
 {
 	string presname = gx_current_preset;
 
-	string msg = "   Are you sure you want to delete preset ";
+	string msg =_( "   Are you sure you want to delete preset ");
 	msg += presname;
 	msg += " ?? ";
 
-	string title = "Deleting preset ";
+	string title =_( "Deleting preset ");
 	title += presname;
 
 	//--- run dialog and check response
 	gint response =
 		gx_gui::gx_choice_dialog_without_entry (
 			title.c_str(), msg.c_str(),
-			"Delete Preset", "Keep Preset",
+			_("Delete Preset"), _("Keep Preset"),
 			GTK_RESPONSE_YES, GTK_RESPONSE_CANCEL, GTK_RESPONSE_YES
 			);
 
 	// we are cancelling
 	if (response == GTK_RESPONSE_CANCEL)
 	{
-		gx_print_warning("Preset Deleting",
-		                 string(" Deletion of preset ") + presname +
-		                 string(" has been cancelled"));
+		gx_print_warning(_("Preset Deleting"),
+		                 string(_(" Deletion of preset ")) + presname +
+		                 string(_(" has been cancelled")));
 		return;
 	}
 
@@ -480,25 +480,25 @@ void gx_delete_all_presets_dialog (GtkMenuItem *menuitem, gpointer arg)
 {
 	//--- if no presets, then just pop up some info
 	if (pm_list[LOAD_PRESET_LIST].empty()) {
-		gx_print_warning("Delete All Presets Dialog",
-		                 string("There is no presets to delete"));
+		gx_print_warning(_("Delete All Presets Dialog"),
+		                 string(_("There is no presets to delete")));
 		return;
 	}
 
 	//--- run dialog and check response
 	gint response =
 		gx_gui::gx_choice_dialog_without_entry (
-			"Deleting ALL Presets! ",
-			"   Are you sure you want to delete ALL your cool presets ? ",
-			"Yes, DO IT NOW!", "Maybe Later ...",
+			_("Deleting ALL Presets! "),
+			_("   Are you sure you want to delete ALL your cool presets ? "),
+			_("Yes, DO IT NOW!"), _("Maybe Later ..."),
 			GTK_RESPONSE_YES, GTK_RESPONSE_CANCEL, GTK_RESPONSE_YES
 			);
 
 	// we are cancelling
 	if (response == GTK_RESPONSE_CANCEL)
 	{
-		gx_print_warning("Delete All Presets Dialog",
-		                 "All Presets deletion has been cancelled");
+		gx_print_warning(_("Delete All Presets Dialog"),
+		                 _("All Presets deletion has been cancelled"));
 		return;
 	}
 	// we want to delete all the buggers!
@@ -522,7 +522,7 @@ void  gx_delete_all_presets()
 
 	// clear list
 	gx_refresh_preset_menus();
-	gx_print_info("All Presets Deleting", string("deleted ALL presets!"));
+	gx_print_info(_("All Presets Deleting"), string(_("deleted ALL presets!")));
 }
 
 bool gx_load_preset_from_file(const char* presname)
@@ -549,7 +549,7 @@ bool gx_load_preset_from_file(const char* presname)
 		jp.next(JsonParser::end_array);
 		jp.next(JsonParser::end_token);
 	} catch (JsonException& e) {
-		gx_print_error("load preset", "invalid preset file: " + gx_preset_file.get_parse_name());
+		gx_print_error(_("load preset"), _("invalid preset file: ") + gx_preset_file.get_parse_name());
 	}
 	return false;
 }
@@ -569,9 +569,9 @@ void gx_delete_preset (GtkMenuItem* item, gpointer arg)
 	// recalling main setting
 	gx_recall_settings_file(); // FIXME (wrong when loaded with -f ?)
 
-	gx_print_warning("Preset Deleting",
-	                 string("Deleted preset ") +
-	                 presname + string(", recalled main setting"));
+	gx_print_warning(_("Preset Deleting"),
+	                 string(_("Deleted preset ")) +
+	                 presname + string(_(", recalled main setting")));
 }
 
 // ----------
@@ -579,9 +579,9 @@ void gx_rename_active_preset_dialog(GtkWidget* item, gpointer arg)
 {
 	if (!setting_is_preset || gx_current_preset.empty())
 	{
-		gx_print_warning("Renaming Active Preset",
-		                 "This is the main setting, "
-		                 "load a preset first");
+		gx_print_warning(_("Renaming Active Preset"),
+		                 _("This is the main setting, "
+		                 "load a preset first"));
 		return;
 	}
 
@@ -597,15 +597,15 @@ void gx_rename_active_preset_dialog(GtkWidget* item, gpointer arg)
 
 	if (presname == gx_current_preset)
 	{
-		gx_print_warning("Renaming Active Preset",
-		                 "The preset name is unchanged");
+		gx_print_warning(_("Renaming Active Preset"),
+		                 _("The preset name is unchanged"));
 		return;
 	}
 
 	if (!gx_current_preset.empty() && setting_is_preset)
-		gx_print_info("Renaming Active Preset",
-		              string("Renamed preset ") + presname +
-		              string(" to ") + gx_current_preset);
+		gx_print_info(_("Renaming Active Preset"),
+		              string(_("Renamed preset ")) + presname +
+		              string(_(" to ")) + gx_current_preset);
 }
 
 static gboolean gx_convolver_restart(gpointer data)
@@ -639,8 +639,8 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 	// check that we do have presets
 	if (!pm_list[LOAD_PRESET_LIST].size())
 	{
-		gx_print_warning("Preset Loading",
-		                 "Preset list is empty, make some :)");
+		gx_print_warning(_("Preset Loading"),
+		                 _("Preset list is empty, make some :)"));
 		return;
 	}
 
@@ -664,12 +664,12 @@ void gx_load_preset (GtkMenuItem *menuitem, gpointer load_preset)
 	// check result
 	if (!preset_ok)
 	{
-		gx_print_error("Preset Loading", string("Could not load preset ") + preset_name);
+		gx_print_error(_("Preset Loading"), string(_("Could not load preset ")) + preset_name);
 		return;
 	}
 
 	// print out info
-	gx_print_info("Preset Loading", string("loaded preset ") + preset_name);
+	gx_print_info(_("Preset Loading"), string(_("loaded preset ")) + preset_name);
 	setting_is_preset = true;
 
 	gx_current_preset = preset_name;
@@ -711,7 +711,7 @@ void gx_save_preset (const char* presname, bool expand_menu)
 	setting_is_preset = true;
 	gx_current_preset = presname;
 
-	gx_print_info("Preset Saving", string("saved preset ") + string(presname));
+	gx_print_info(_("Preset Saving"), string(_("saved preset ")) + string(presname));
 	gx_jconv::gx_reload_jcgui(); //FIXME why reload after saving?
 }
 
@@ -742,7 +742,7 @@ void gx_load_preset_file(const char* presname, bool expand_menu)
 {
 	Gtk::FileChooserDialog file_chooser(
 		*Glib::wrap(GTK_WINDOW(gx_gui::fWindow)),
-		"Select a preset *_rc file",
+		_("Select a preset *_rc file"),
 		Gtk::FILE_CHOOSER_ACTION_OPEN);
 	file_chooser.add_button(GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
 	file_chooser.add_button(GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT);
@@ -772,7 +772,7 @@ void gx_save_preset_file(const char* presname, bool expand_menu)
 {
 	Gtk::FileChooserDialog file_chooser(
 		*Glib::wrap(GTK_WINDOW(gx_gui::fWindow)),
-		"Save a preset *_rc File",
+		_("Save a preset *_rc File"),
 		Gtk::FILE_CHOOSER_ACTION_SAVE);
 	file_chooser.add_button(GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
 	file_chooser.add_button(GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT);
@@ -792,7 +792,7 @@ void gx_save_preset_file(const char* presname, bool expand_menu)
         try {
 	        gx_preset_file.copy(save_file);
         } catch(const Glib::Exception& ex) {
-	        gx_print_error("Export preset", ex.what());
+	        gx_print_error(_("Export preset"), ex.what());
         }
     }
 }
@@ -807,8 +807,8 @@ void gx_save_oldpreset (GtkMenuItem *menuitem, gpointer arg)
 	// are saving an active preset
 	if (save_active) {
 		if (gx_current_preset.empty()) {
-			gx_print_warning("Saving Active Preset",
-			                 "We are in main setting, load a preset first");
+			gx_print_warning(_("Saving Active Preset"),
+			                 _("We are in main setting, load a preset first"));
 			return;
 		}
 		presname = gx_current_preset;
@@ -843,7 +843,7 @@ void gx_save_newpreset (GtkEntry* entry)
 	// no text ?
 	if (presname.empty())
 	{
-		gx_print_error("Saving new preset", "no preset name given");
+		gx_print_error(_("Saving new preset"), _("no preset name given"));
 		return;
 	}
 
@@ -859,10 +859,10 @@ void gx_save_newpreset (GtkEntry* entry)
 		// found a match
 		if (presname == *its)
 		{
-			gx_print_error("New Preset Saving",
-			               string("preset name ") +
+			gx_print_error(_("New Preset Saving"),
+			               string(_("preset name ")) +
 			               presname +
-			               string(" already in use, choose another one"));
+			               string(_(" already in use, choose another one")));
 			gx_save_newpreset_dialog(*it, NULL);
 			return;
 		}
@@ -884,12 +884,12 @@ void gx_recall_main_setting(GtkMenuItem* item, gpointer)
 void gx_save_main_setting(GtkMenuItem* item, gpointer arg)
 {
 	if (! saveStateToFile(gx_user_dir + gx_jack::client_instance + "_rc")) {
-		gx_print_error("Main Setting","can't save main setting");
+		gx_print_error(_("Main Setting"),_("can't save main setting"));
 	} else if (setting_is_preset) {
-		gx_print_info("Main Setting",
-		              "Saved current preset into main setting");
+		gx_print_info(_("Main Setting"),
+		              _("Saved current preset into main setting"));
 	} else {
-		gx_print_info("Main Setting", "Saved main setting");
+		gx_print_info(_("Main Setting"), _("Saved main setting"));
 	}
 	gtk_window_set_title(GTK_WINDOW(gx_gui::fWindow), gx_jack::client_instance.c_str());
 	setting_is_preset = false;
@@ -905,9 +905,9 @@ void gx_save_newpreset_dialog (GtkMenuItem *menuitem, gpointer save_preset)
 	// running dialog and get response
 	gint response =
 		gx_gui::gx_choice_dialog_with_text_entry (
-			"Save new preset ... ",
-			"\n   Please enter a valid preset name:   \n",
-			"Save Preset", "Cancel",
+			_("Save new preset ... "),
+			_("\n   Please enter a valid preset name:   \n"),
+			_("Save Preset"), _("Cancel"),
 			GTK_RESPONSE_YES, GTK_RESPONSE_CANCEL, GTK_RESPONSE_YES,
 			G_CALLBACK(gx_save_newpreset)
 			);
@@ -915,8 +915,8 @@ void gx_save_newpreset_dialog (GtkMenuItem *menuitem, gpointer save_preset)
 	// check response
 	if (response == GTK_RESPONSE_CANCEL)
 	{
-		gx_print_warning("Saving New Preset Dialog",
-		                 " Preset saving has been cancelled");
+		gx_print_warning(_("Saving New Preset Dialog"),
+		                 _(" Preset saving has been cancelled"));
 		return;
 	}
 }
@@ -931,7 +931,7 @@ void gx_rename_preset (GtkEntry* entry)
 
 	if (newname.empty())
 	{
-		gx_print_error("Preset Renaming", "no preset name given");
+		gx_print_error(_("Preset Renaming"), _("no preset name given"));
 		old_preset_name = "";
 		return;
 	}
@@ -941,8 +941,8 @@ void gx_rename_preset (GtkEntry* entry)
 
 	// get the UI to manipulate the preset file
 	if (!gx_modify_preset(old_preset_name.c_str(), newname.c_str()))	{
-		gx_print_error("Preset Renaming",
-		               string("Could not rename preset ") + old_preset_name);
+		gx_print_error(_("Preset Renaming"),
+		               string(_("Could not rename preset ")) + old_preset_name);
 		old_preset_name = "";
 		return;
 	}
@@ -982,7 +982,7 @@ void gx_rename_preset_dialog (GtkMenuItem *menuitem, gpointer arg)
 	static string title;
 	if (menuitem)
 	{
-		title = "Renaming preset ";
+		title = _("Renaming preset ");
 		title += *its;
 	}
 
@@ -990,16 +990,16 @@ void gx_rename_preset_dialog (GtkMenuItem *menuitem, gpointer arg)
 	// running dialog and get response
 	gint response = gx_gui::gx_choice_dialog_with_text_entry (
 		title.c_str(),
-		" Please enter a valid preset name:                          ",
-		"Validate", "Cancel",
+		_(" Please enter a valid preset name:                          "),
+		_("Validate"), _("Cancel"),
 		GTK_RESPONSE_YES, GTK_RESPONSE_CANCEL, GTK_RESPONSE_YES,
 		G_CALLBACK(gx_rename_preset)
 		);
 
 	if (response == GTK_RESPONSE_CANCEL)
 	{
-		gx_print_warning("Rename Preset Dialog",
-		                 " Preset renaming has been cancelled");
+		gx_print_warning(_("Rename Preset Dialog"),
+		                 _(" Preset renaming has been cancelled"));
 		old_preset_name = "";
 		return;
 	}

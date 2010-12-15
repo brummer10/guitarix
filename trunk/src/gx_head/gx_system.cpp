@@ -28,6 +28,7 @@
 #include <jack/jack.h>
 #include <glibmm/optioncontext.h>
 #include "guitarix.h"
+#include <glibmm/i18n.h>
 
 using namespace gx_engine;
 using namespace gx_jack;
@@ -456,17 +457,17 @@ static void read_parameters(JsonParser &jp, gx_gui::paramlist& plist, bool prese
 	do {
 		jp.next(JsonParser::value_key);
 		if (!gx_gui::parameter_map.hasId(jp.current_value())) {
-			gx_print_warning("recall settings", "unknown parameter: "+jp.current_value());
+			gx_print_warning(_("recall settings"), _("unknown parameter: ")+jp.current_value());
 			jp.skip_object();
 			continue;
 		}
 		gx_gui::Parameter& param = gx_gui::parameter_map[jp.current_value()];
 		if (!preset and param.isInPreset()) {
-			gx_print_warning("recall settings", "preset-parameter "+param.id()+" in settings");
+			gx_print_warning(_("recall settings"), _("preset-parameter ")+param.id()+_(" in settings"));
 			jp.skip_object();
 			continue;
 		} else if (preset and !param.isInPreset()) {
-			gx_print_warning("recall settings", "non preset-parameter "+param.id()+" in preset");
+			gx_print_warning(_("recall settings"), _("non preset-parameter ")+param.id()+_(" in preset"));
 			jp.skip_object();
 			continue;
 		}
@@ -532,8 +533,8 @@ void read_preset(JsonParser &jp, bool *has_midi, int major, int minor)
 				jp.skip_object();
 			}
 		} else {
-			gx_print_warning("recall settings",
-			                 "unknown preset section: " + jp.current_value());
+			gx_print_warning(_("recall settings"),
+			                 _("unknown preset section: ") + jp.current_value());
 		}
 	} while (jp.peek() == JsonParser::value_key);
 	jp.next(JsonParser::end_object);
@@ -610,7 +611,7 @@ void write_jack_connections(JsonWriter& w)
 // -- save state including current preset data
 bool saveStateToFile( const string &filename )
 {
-    gx_print_info( "wrinting to ", filename.c_str() );
+    gx_print_info( _("wrinting to "), filename.c_str() );
 	string tmpfile = filename + "_tmp";
 	ofstream f(tmpfile.c_str());
 	JsonWriter w(f);
@@ -667,7 +668,7 @@ static void read_jack_connections(JsonParser& jp)
 		} else if (jp.current_value() == "insert_in") {
 			i = kAudioInsertIn;
 		} else {
-			gx_print_warning("recall state","unknown jack ports sections" + jp.current_value());
+			gx_print_warning(_("recall state"),_("unknown jack ports sections") + jp.current_value());
 			jp.skip_object();
 			continue;
 		}
@@ -698,12 +699,12 @@ bool recallState( const string &filename )
 		readHeader(jp, &major, &minor);
 		if (major != majorversion) {
 			if (major == 0) {
-				gx_print_info("recall settings", "loading converted state");
+				gx_print_info(_("recall settings"), _("loading converted state"));
 			} else {
 				stringstream s;
-				s << "major version mismatch in "+filename+": found "
-				  << major << ", expected " << majorversion << endl;
-				gx_print_warning("recall settings", s.str());
+				s << _("major version mismatch in ")+filename+_(": found ")
+				  << major << _(", expected ") << majorversion << endl;
+				gx_print_warning(_("recall settings"), s.str());
 			}
 		}
 
@@ -721,15 +722,15 @@ bool recallState( const string &filename )
 			} else if (jp.current_value() == "jack_connections") {
 				read_jack_connections(jp);
 			} else {
-				gx_print_warning("recall settings",
-				                 "unknown section: " + jp.current_value());
+				gx_print_warning(_("recall settings"),
+				                 _("unknown section: ") + jp.current_value());
 				jp.skip_object();
 			}
 		} while (jp.peek() == JsonParser::value_string);
 		jp.next(JsonParser::end_array);
 		jp.next(JsonParser::end_token);
 	} catch (JsonException& e) {
-		gx_print_error("recall settings", "invalid settings file: " + filename);
+		gx_print_error(_("recall settings"), _("invalid settings file: ") + filename);
 		return false;
 	}
 	for (gx_gui::paramlist::iterator i = plist.begin(); i != plist.end(); i++) {
@@ -835,8 +836,8 @@ void gx_assign_shell_var(const char* name, string& value)
 void gx_signal_handler(int sig)
 {
 	// print out a warning
-	string msg = string("signal ") + gx_i2a(sig) + " received, exiting ...";
-	gx_print_warning("signal_handler", msg);
+	string msg = string(_("signal ")) + gx_i2a(sig) + _(" received, exiting ...");
+	gx_print_warning(_("signal_handler"), msg);
 
 	gx_clean_exit(NULL, NULL);
 }
@@ -844,7 +845,7 @@ void gx_signal_handler(int sig)
 // ---- ladi signal handler -----
 gboolean  gx_ladi_handler(gpointer)
 {
-	gx_print_warning("signal_handler", "signal USR1 received, save settings");
+	gx_print_warning(_("signal_handler"), _("signal USR1 received, save settings"));
 
 	saveStateToFile(gx_user_dir + client_instance + "_rc");
 	return false;
@@ -862,7 +863,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 	// initialize number of skins. We just count the number of rc files
 	unsigned int n = gx_gui::gx_fetch_available_skins();
 	if (n < 1) {
-		gx_print_error("main", string("number of skins is 0, aborting ..."));
+		gx_print_error(_("main"), string(_("number of skins is 0, aborting ...")));
 		exit(1);
 	}
 
@@ -952,7 +953,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 	Glib::OptionEntry opt_load_file;
 	opt_load_file.set_short_name('f');
 	opt_load_file.set_long_name("load-file");
-	opt_load_file.set_description("load state file on startup");
+	opt_load_file.set_description(_("load state file on startup"));
 	opt_load_file.set_arg_description("FILE");
 	optgroup_file.add_entry_filename(opt_load_file, load_file);
 
@@ -967,19 +968,19 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 	Glib::OptionEntry opt_builder_dir;
 	opt_builder_dir.set_short_name('B');
 	opt_builder_dir.set_long_name("builder-dir");
-	opt_builder_dir.set_description("directory from which .glade files are loaded");
+	opt_builder_dir.set_description(_("directory from which .glade files are loaded"));
 	opt_builder_dir.set_arg_description("DIR");
 	optgroup_debug.add_entry_filename(opt_builder_dir, builder_dir);
 	Glib::OptionEntry opt_style_dir;
 	opt_style_dir.set_short_name('S');
 	opt_style_dir.set_long_name("style-dir");
-	opt_style_dir.set_description("directory with skin style definitions (.rc files)");
+	opt_style_dir.set_description(_("directory with skin style definitions (.rc files)"));
 	opt_style_dir.set_arg_description("DIR");
 	optgroup_debug.add_entry_filename(opt_style_dir, style_dir);
 	Glib::OptionEntry opt_log_terminal;
 	opt_log_terminal.set_short_name('t');
 	opt_log_terminal.set_long_name("log-terminal");
-	opt_log_terminal.set_description("print log on terminal");
+	opt_log_terminal.set_description(_("print log on terminal"));
 	optgroup_debug.add_entry(opt_log_terminal, lterminal);
 
 	// collecting all option groups
@@ -992,7 +993,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 	try {
 		opt_context.parse(argc, argv);
 	} catch (Glib::OptionError ex) {
-		gx_print_error("main", "Error in user options! " + ex.what());
+		gx_print_error(_("main"), _("Error in user options! ") + ex.what());
 		exit(1);
 	}
 
@@ -1019,8 +1020,8 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 
 		// check contradiction (clear and rcset cannot be used in the same call)
 		if (clear) {
-			gx_print_error("main",
-						   string("-c and -r cannot be used together, defaulting to 'default' style"));
+			gx_print_error(_("main"),
+						   string(_("-c and -r cannot be used together, defaulting to 'default' style")));
 			tmp = "default";
 			previous_conflict = true;
 		}
@@ -1034,8 +1035,8 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 		}
 
 		if (s == gx_gui::skin_list.size()) {
-			gx_print_error("main",
-						   string("rcset value is garbage, defaulting to 'default' style"));
+			gx_print_error(_("main"),
+						   string(_("rcset value is garbage, defaulting to 'default' style")));
 			tmp = "default";
 		}
 		optvar[RC_STYLE] = tmp;
@@ -1052,8 +1053,8 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 	if (clear) {
 		// check contradiction (clear and rcset cannot be used in the same call)
 		if (rcset != NULL && !previous_conflict)
-			gx_print_error("main",
-						   string("-c and -r cannot be used together, defaulting to 'default' style"));
+			gx_print_error(_("main"),
+						   string(_("-c and -r cannot be used together, defaulting to 'default' style")));
 
 		optvar[RC_STYLE] = "default";
 	}
@@ -1091,8 +1092,8 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 		int idx = JACK_OUT1;
 		for (unsigned int i = 0; i < jack_outputs.size(); i++, idx++) {
 			if (i >= 2) {
-				gx_print_warning("main",
-				                 "Warning --> provided more than 2 output ports, ignoring extra ports");
+				gx_print_warning(_("main"),
+				                 _("Warning --> provided more than 2 output ports, ignoring extra ports"));
 				break;
 			}
 			optvar[idx] = jack_outputs[i];
@@ -1182,7 +1183,7 @@ void gx_print_error(const char* func, const string& msg)
 // fatal error
 void gx_print_fatal(const char* func, const string& msg)
 {
-	string msgbuf = string("fatal system error: ") + func + "  ***  " + msg + "\n";
+	string msgbuf = string(_("fatal system error: ")) + func + "  ***  " + msg + "\n";
 	cerr << msgbuf;
 	GtkWidget* widget = gtk_message_dialog_new(NULL,
 	                                           GtkDialogFlags(GTK_DIALOG_MODAL|
@@ -1303,7 +1304,7 @@ int gx_pixmap_check()
 	    (stat(warn_pix.c_str(), &my_stat) != 0))
 
 	{
-		gx_print_error("Pixmap Check", " cannot find installed pixmaps! giving up ...");
+		gx_print_error(_("Pixmap Check"), _(" cannot find installed pixmaps! giving up ..."));
 
 		// giving up
 		return 1;
@@ -1358,7 +1359,7 @@ void gx_nospace_in_name(string& name, const char* subs)
 //----abort gx_head
 void gx_abort(void* arg)
 {
-	gx_print_warning("gx_abort", "Aborting gx_head, ciao!");
+	gx_print_warning(_("gx_abort"), _("Aborting gx_head, ciao!"));
 	exit(1);
 }
 
@@ -1533,7 +1534,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 		result = NULL;
 	}
 
-	printf("  gx_head exit  ***  ciao . . \n");
+	printf(_("  gx_head exit  ***  ciao . . \n"));
 	exit(GPOINTER_TO_INT(data));
 }
 

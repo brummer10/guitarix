@@ -23,6 +23,7 @@
 
 #include <set>
 #include "guitarix.h"
+#include <glibmm/i18n.h>
 
 namespace gx_gui
 {
@@ -159,7 +160,7 @@ void MidiStandardControllers::readJSON(gx_system::JsonParser& jp)
 		int ctl;
 		istr >> ctl;
 		if (istr.fail()) {
-			throw gx_system::JsonException("midi standard controllers: number expected");
+			throw gx_system::JsonException(_("midi standard controllers: number expected"));
 		}
 		jp.next();
 		replace(ctl, jp.current_value());
@@ -187,8 +188,8 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp)
 	jp.next(gx_system::JsonParser::value_string);
 	string id = jp.current_value();
 	if (!parameter_map.hasId(id)) {
-		gx_system::gx_print_warning("Midi controller settings",
-		                            "unknown parameter: " + id);
+		gx_system::gx_print_warning(_("Midi controller settings"),
+		                            _("unknown parameter: ") + id);
 		while (jp.next() != gx_system::JsonParser::end_array);
 		return 0;
 	}
@@ -236,14 +237,14 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp)
 	while (jp.next() != gx_system::JsonParser::end_array); // be tolerant
 	if (bad) {
 		gx_system::gx_print_warning(
-			"recall MIDI state",
-			"invalid format, Parameter skipped: " + id);
+			_("recall MIDI state"),
+			_("invalid format, Parameter skipped: ") + id);
 		return 0;
 	}
 	if (chg) {
 		gx_system::gx_print_warning(
-			"recall MIDI state",
-			"Parameter range outside bounds, changed: " + id);
+			_("recall MIDI state"),
+			_("Parameter range outside bounds, changed: ") + id);
 	}
 	return new MidiController(param, lower, upper);
 }
@@ -461,65 +462,65 @@ public:
 
 ParameterGroups::ParameterGroups()
 {
-	insert("jconv","Convolver");
-	insert("eq", "EQ");
-	insert("eqs", "Scaleable EQ");
-	insert("eqt", "Scwitch EQ");
-	insert("amp","Amplifier");
-	insert("amp2","Amplifier2");
-	insert("amp2.preamp","Preamp");
-	insert("amp2.stage1","Tube1");
-	insert("amp2.stage2","Tube2");
-	insert("stage3","Amplifier2");
-	insert("stage3.gain3","Tube3");
-	insert("shaper","Shaper");
-	insert("noise_gate","Noise Gate");
-	insert("anti_aliase","Anti Alias");
-	insert("amp.oversample","Oversampling");
-	insert("amp.bass_boost","Bass Boost");
-	insert("convolve","Amp Model");
-	insert("preamp","Pre-Amp");
-	insert("drive","Drive");
-	insert("tube","Tube 1");
-	insert("tube.vibrato","Tube 1 Vibrato");
-	insert("tube2","Tube 2");
-	insert("tube3","Tube 3");
-	insert("amp.tonestack","Tonestack");
-	insert("compressor","Compressor");
-	insert("overdrive","Overdrive");
-	insert("gxdistortion","Multi Band Distortion");
-	insert("gx_distortion","Multi Band Distortion");
-	insert("low_high_pass.lhp","low_highpass");
-	insert("low_high_pass.lhc","low_highcutoff");
-	insert("low_highpass","low high pass");
-	insert("gx_distortion.resonator","Distortion resonator");
-	insert("distortion1","Single Band Distortion");
-	insert("distortion1.low_highpass","Distortion low/highpass");
-	insert("distortion1.low_highcutoff","Distortion low/highcutoff");
-	insert("distortion1.resonator","Distortion resonator");
-	insert("distortiont","Switch Distortion");
-	insert("freeverb","Freeverb");
-	insert("IR","ImpulseResponse");
-	insert("crybaby","Crybaby");
-	insert("echo","Echo");
-	insert("delay","Delay");
-	insert("stereodelay","Stereo Delay");
-	insert("stereoecho","Stereo Echo");
-	insert("chorus","Chorus");
-	insert("MultiBandFilter","Multiband Filter");
-	insert("moog","Moog Filter");
-	insert("biquad","BiQuad Filter");
-	insert("flanger","Flanger");
-	insert("SampleLooper","Sample Looper");
-	insert("cab","Cab-ImpResp");
-	insert("phaser","Phaser");
-	insert("midi_out","Midi Out");
-	insert("midi_out.channel_1","Midi Out 1");
-	insert("midi_out.channel_2","Midi Out 2");
-	insert("midi_out.channel_3","Midi Out 3");
-	insert("beat_detector","Beat Detector");
-	insert("ui","User Interface");
-	insert("system", "System");
+	insert("jconv",_("Convolver"));
+	insert("eq", _("EQ"));
+	insert("eqs", _("Scaleable EQ"));
+	insert("eqt", _("Scwitch EQ"));
+	insert("amp",_("Amplifier"));
+	insert("amp2",_("Amplifier2"));
+	insert("amp2.preamp",_("Preamp"));
+	insert("amp2.stage1",_("Tube1"));
+	insert("amp2.stage2",_("Tube2"));
+	insert("stage3",_("Amplifier2"));
+	insert("stage3.gain3",_("Tube3"));
+	insert("shaper",_("Shaper"));
+	insert("noise_gate",_("Noise Gate"));
+	insert("anti_aliase",_("Anti Alias"));
+	insert("amp.oversample",_("Oversampling"));
+	insert("amp.bass_boost",_("Bass Boost"));
+	insert("convolve",_("Amp Model"));
+	insert("preamp",_("Pre-Amp"));
+	insert("drive",_("Drive"));
+	insert("tube",_("Tube 1"));
+	insert("tube.vibrato",_("Tube 1 Vibrato"));
+	insert("tube2",_("Tube 2"));
+	insert("tube3",_("Tube 3"));
+	insert("amp.tonestack",_("Tonestack"));
+	insert("compressor",_("Compressor"));
+	insert("overdrive",_("Overdrive"));
+	insert("gxdistortion",_("Multi Band Distortion"));
+	insert("gx_distortion",_("Multi Band Distortion"));
+	insert("low_high_pass.lhp",_("low_highpass"));
+	insert("low_high_pass.lhc",_("low_highcutoff"));
+	insert("low_highpass",_("low high pass"));
+	insert("gx_distortion.resonator",_("Distortion resonator"));
+	insert("distortion1",_("Single Band Distortion"));
+	insert("distortion1.low_highpass",_("Distortion low/highpass"));
+	insert("distortion1.low_highcutoff",_("Distortion low/highcutoff"));
+	insert("distortion1.resonator",_("Distortion resonator"));
+	insert("distortiont",_("Switch Distortion"));
+	insert("freeverb",_("Freeverb"));
+	insert("IR",_("ImpulseResponse"));
+	insert("crybaby",_("Crybaby"));
+	insert("echo",_("Echo"));
+	insert("delay",_("Delay"));
+	insert("stereodelay",_("Stereo Delay"));
+	insert("stereoecho",_("Stereo Echo"));
+	insert("chorus",_("Chorus"));
+	insert("MultiBandFilter",_("Multiband Filter"));
+	insert("moog",_("Moog Filter"));
+	insert("biquad",_("BiQuad Filter"));
+	insert("flanger",_("Flanger"));
+	insert("SampleLooper",_("Sample Looper"));
+	insert("cab",_("Cab-ImpResp"));
+	insert("phaser",_("Phaser"));
+	insert("midi_out",_("Midi Out"));
+	insert("midi_out.channel_1",_("Midi Out 1"));
+	insert("midi_out.channel_2",_("Midi Out 2"));
+	insert("midi_out.channel_3",_("Midi Out 3"));
+	insert("beat_detector",_("Beat Detector"));
+	insert("ui",_("User Interface"));
+	insert("system", _("System"));
 }
 
 string param_group(string id, bool nowarn)
@@ -688,7 +689,7 @@ void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp)
 	}
 	if (n > up) {
 		gx_system::gx_print_warning(
-			"read parameter", (boost::format("parameter %1%: unknown enum value: %2%")
+			_("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
 			                   % _id % jp.current_value()).str());
 		n = 0;
 	}
@@ -795,7 +796,7 @@ void EnumParameter::readJSON_value(gx_system::JsonParser& jp)
 	}
 	if (n > upper) {
 		gx_system::gx_print_warning(
-			"read parameter", (boost::format("parameter %1%: unknown enum value: %2%")
+			_("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
 			                   % _id % jp.current_value()).str());
 		n = 0;
 	}

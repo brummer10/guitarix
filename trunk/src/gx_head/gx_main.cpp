@@ -62,6 +62,10 @@ void init_unix_signal_handlers()
 /* --------- Guitarix main ---------- */
 int main(int argc, char *argv[])
 {
+	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+	textdomain(GETTEXT_PACKAGE);
+	
 	init_unix_signal_handlers();
 
 	// ----------------------- init basic subsystems ----------------------
@@ -73,6 +77,7 @@ int main(int argc, char *argv[])
 	gx_engine::audio.register_parameter();
 	gx_engine::midi.register_parameter();
 	gx_engine::register_faust_parameters();
+	gx_gui::register_gui_parameter();
 	gx_preset::init();
 	gx_gui::parameter_map.set_init_values();
 

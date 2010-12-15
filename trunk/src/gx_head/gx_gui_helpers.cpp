@@ -25,6 +25,7 @@
 #include <dirent.h>
 #include "guitarix.h"
 #include <unistd.h>
+#include <glibmm/i18n.h>
 
 using namespace gx_system;
 using namespace gx_preset;
@@ -64,14 +65,14 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
 	GError *err = NULL;
 	if (!gtk_builder_add_from_file(builder,fname.c_str(), &err)) {
 		g_object_unref(G_OBJECT(builder));
-		gx_print_fatal("gtk builder", err->message);
+		gx_print_fatal(_("gtk builder"), err->message);
 		g_error_free(err);
 		return NULL;
 	}
 	GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(builder, windowname));
 	if (!w) {
 		g_object_unref(G_OBJECT(builder));
-		gx_print_fatal("gtk builder", string(windowname)+" not found in "+fname);
+		gx_print_fatal(_("gtk builder"), string(windowname)+_(" not found in ")+fname);
 		return NULL;
 	}
 	gtk_builder_connect_signals(builder, 0);
@@ -158,7 +159,7 @@ void gx_refresh_engine_status_display()
 		state = "ON";
 	}
 
-	gx_print_info("Engine State: ", state);
+	gx_print_info(_("Engine State: "), state);
 }
 
 
@@ -180,7 +181,7 @@ void gx_jack_is_down()
 	gx_print_warning("Jack Shutdown",
 	                 "jack has bumped us out!!");
 	*/
-	cout << "jack has bumped us out!!" << endl;
+	cout << _("jack has bumped us out!!") << endl;
 	g_timeout_add_full(G_PRIORITY_LOW,200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
 }
 
@@ -389,24 +390,24 @@ void gx_show_about( GtkWidget *widget, gpointer data )
 	if (about.empty())
 	{
 		about +=
-			"\n  This Aplication is to a large extent provided"
+			_("\n  This Aplication is to a large extent provided"
 			"\n  with the marvelous faust compiler.Yann Orlary"
 			"\n  <http://faust.grame.fr/>"
 			"\n  A large part is based on the work of Julius Orion Smith"
 			"\n <http://ccrma.stanford.edu/realsimple/faust/>"
 			"\n  and Albert Graef\n  <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html>  "
-			"\n\n\n  gx_head ";
+			"\n\n\n  gx_head ");
 
 		about += GX_VERSION;
 
 		about +=
-			"\n  for impulse response it use zita-convolver "
+			_("\n  for impulse response it use zita-convolver "
 			"\n  byFons Adriaensen "
 			"\n  http://www.kokkinizita.net/linuxaudio/index.html "
 			"\n\n  authors: Hermann Meyer <brummer-@web.de>"
 			"\n  authors: James Warden <warjamy@yahoo.com>"
 			"\n  authors: Andreas Degert <andreas.degert@googlemail.com>    "
-			"\n  home: http://gx_head.sourceforge.net/\n";
+			"\n  home: http://gx_head.sourceforge.net/\n");
 	}
 
 	gx_message_popup(about.c_str());
@@ -420,11 +421,11 @@ gint gx_wait_latency_warn()
 	gtk_window_set_destroy_with_parent(GTK_WINDOW(warn_dialog), TRUE);
 
 	GtkWidget* box     = gtk_vbox_new (0, 4);
-	GtkWidget* labelt  = gtk_label_new("\nWARNING\n");
-	GtkWidget* labelt1 = gtk_label_new("CHANGING THE JACK_BUFFER_SIZE ON THE FLY \n"
+	GtkWidget* labelt  = gtk_label_new(_("\nWARNING\n"));
+	GtkWidget* labelt1 = gtk_label_new(_("CHANGING THE JACK_BUFFER_SIZE ON THE FLY \n"
 	                                   "MAY CAUSE UNPREDICTABLE EFFECTS \n"
 	                                   "TO OTHER RUNNING JACK APPLICATIONS. \n"
-	                                   "DO YOU WANT TO PROCEED ?");
+	                                   "DO YOU WANT TO PROCEED ?"));
 	GdkColor colorGreen;
 	gdk_color_parse("#969292", &colorGreen);
 	gtk_widget_modify_fg (labelt1, GTK_STATE_NORMAL, &colorGreen);
@@ -443,11 +444,11 @@ gint gx_wait_latency_warn()
 
 	GtkWidget* button1 =
 		gtk_dialog_add_button(GTK_DIALOG (warn_dialog),
-		                      "Yes", gx_jack::kChangeLatency);
+		                      _("Yes"), gx_jack::kChangeLatency);
 
 	GtkWidget* button2 =
 		gtk_dialog_add_button(GTK_DIALOG (warn_dialog),
-		                      "No",  gx_jack::kKeepLatency);
+		                      _("No"),  gx_jack::kKeepLatency);
 
 
 	GtkWidget* box1    = gtk_hbox_new (0, 4);
@@ -459,8 +460,8 @@ gint gx_wait_latency_warn()
 	                 G_CALLBACK(gx_user_disable_latency_warn), NULL);
 
 	GtkWidget * labelt2 =
-		gtk_label_new ("Don't bother me again with such a question, "
-		               "I know what I am doing");
+		gtk_label_new (_("Don't bother me again with such a question, "
+		               "I know what I am doing"));
 
 	gtk_container_add (GTK_CONTAINER(box),  labelt);
 	gtk_container_add (GTK_CONTAINER(box),  labelt1);
@@ -1024,7 +1025,7 @@ bool gx_update_skin(const gint idx, const char* calling_func)
 	// check skin validity
 	if (idx < 0 || idx >= (gint)skin_list.size())
 	{
-		gx_print_warning(calling_func, "skin index out of range, keeping actual skin");
+		gx_print_warning(calling_func, _("skin index out of range, keeping actual skin"));
 		return false;
 	}
 
@@ -1058,7 +1059,7 @@ int gx_message_popup(const char* msg)
 	if (!msg)
 	{
 		gx_print_warning("Message Popup",
-		                 string("warning message does not exist"));
+		                 string(_("warning message does not exist")));
 		return -1;
 	}
 

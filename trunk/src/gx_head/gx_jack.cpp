@@ -26,6 +26,7 @@
 #include <jack/statistics.h>
 #include <jack/jack.h>
 #include "guitarix.h"
+#include <glibmm/i18n.h>
 
 #ifdef HAVE_JACK_SESSION
 #include <jack/session.h>
@@ -79,7 +80,7 @@ bool gx_jack_init( const string *optvar )
 
 		// if jackd is running, let's call ourselves again
 		if (gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
-			gx_print_warning("Jack Init", "jackd OK, trying to be a client");
+			gx_print_warning(_("Jack Init"), _("jackd OK, trying to be a client"));
 			usleep(500000);
 			return gx_jack_init( optvar );
 		}
@@ -93,8 +94,8 @@ bool gx_jack_init( const string *optvar )
 
 			if (!client)
 			{
-				gx_print_error("main",
-				               string("I really tried to get jack up and running, sorry ... "));
+				gx_print_error(_("main"),
+				               string(_("I really tried to get jack up and running, sorry ... ")));
 				return false;
 			}
 			jack_is_fresh = 1;
@@ -102,8 +103,8 @@ bool gx_jack_init( const string *optvar )
 
 		else   // we give up
 		{
-			gx_print_error("main",
-			               string("Ignoring jackd ..."));
+			gx_print_error(_("main"),
+			               string(_("Ignoring jackd ...")));
 			return false;
 		}
 	}
@@ -125,7 +126,7 @@ bool gx_jack_init( const string *optvar )
 
 	if (jack_ringbuffer == NULL)
 	{
-		g_critical("Cannot create JACK ringbuffer.");
+		g_critical(_("Cannot create JACK ringbuffer."));
 		gx_clean_exit(NULL, NULL);
 	}
 
@@ -136,14 +137,14 @@ bool gx_jack_init( const string *optvar )
 
 	jack_sr = jack_get_sample_rate (client); // jack sample rate
 	ostringstream s;
-	s << "The jack sample rate is " << jack_sr << "/sec";
-	gx_print_info("Jack init", s.str().c_str());
+	s << _("The jack sample rate is ") << jack_sr << _("/sec");
+	gx_print_info(_("Jack init"), s.str().c_str());
 
 	jack_bs = jack_get_buffer_size (client); // jack buffer size
 	s.str("");
-	s << "The jack buffer size is " << jack_bs << "/frames ... ";
+	s << _("The jack buffer size is ") << jack_bs << _("/frames ... ");
 
-	gx_print_info("Jack init", s.str());
+	gx_print_info(_("Jack init"), s.str());
 
 
 	if (gx_gui::fWindow) {
@@ -250,14 +251,14 @@ void gx_jack_callbacks_and_activate()
 	//----- ready to go
 	if (jack_activate(client))
 	{
-		gx_print_error("Jack Activation",
-		               string("Can't activate JACK client"));
+		gx_print_error(_("Jack Activation"),
+		               string(_("Can't activate JACK client")));
 		gx_clean_exit(NULL, NULL);
 	}
 	if (jack_activate(client_insert))
 	{
-		gx_print_error("Jack Activation",
-		               string("Can't activate JACK client"));
+		gx_print_error(_("Jack Activation"),
+		               string(_("Can't activate JACK client")));
 		gx_clean_exit(NULL, NULL);
 	}
 }
@@ -357,7 +358,7 @@ bool gx_start_jack_dialog()
 
 	const char* labels[]    =
 		{
-			"Start Jack", "Ignore Jack", "Exit"
+			_("Start Jack"), _("Ignore Jack"), _("Exit")
 		};
 
 	const gint  responses[] =
@@ -367,13 +368,13 @@ bool gx_start_jack_dialog()
 
 	gint response =
 		gx_gui::gx_nchoice_dialog_without_entry (
-			" Jack Starter ",
-			"\n                        WARNING                        \n\n"
+			_(" Jack Starter "),
+			_("\n                        WARNING                        \n\n"
 			"   The jack server is not currently running\n"
 			"   You can choose to activate it or terminate gx_head   \n\n"
 			"       1) activate jack   \n"
 			"       2) ignore jack, start gx_head anyway   \n"
-			"       3) exit gx_head   \n",
+			"       3) exit gx_head   \n"),
 			nchoices,
 			labels,
 			responses,
@@ -507,7 +508,7 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 			}
 			jack_is_exit = false;
 
-			gx_print_info("Jack Server", "Connected to Jack Server");
+			gx_print_info(_("Jack Server"), _("Connected to Jack Server"));
 		}
 	} else {
 		gx_jack_cleanup();
@@ -524,7 +525,7 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 		// engine buffers no longer ready
 		gx_engine::buffers_ready = false;
 
-		gx_print_warning("Jack Server", "Disconnected from Jack Server");
+		gx_print_warning(_("Jack Server"), _("Disconnected from Jack Server"));
 	}
     g_idle_add(gx_ports_refresh,NULL);
 }
@@ -536,8 +537,8 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg)
 	if (!client)
 	{
 		gx_print_error(
-			"Jack Buffer Size setting",
-			"we are not a jack client, server may be down"
+			_("Jack Buffer Size setting"),
+			_("we are not a jack client, server may be down")
 			);
 
 		return;
@@ -568,16 +569,16 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg)
 	if (change_latency == kChangeLatency) {
 		// let's resize the buffer
 		if (jack_set_buffer_size (client, buf_size) != 0)
-			gx_print_warning("Setting Jack Buffer Size",
-			                 "Could not change latency");
+			gx_print_warning(_("Setting Jack Buffer Size"),
+			                 _("Could not change latency"));
 	} else { // restore latency status
 		// refresh latency check menu
 		gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
 		GtkWidget* wd = gui->getJackLatencyItem(jack_bs);
 		if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 	}
-	gx_print_info("Jack Buffer Size",
-	              string("latency is ") +
+	gx_print_info(_("Jack Buffer Size"),
+	              string(_("latency is ")) +
 	              gx_i2a(jack_get_buffer_size(client)));
 }
 

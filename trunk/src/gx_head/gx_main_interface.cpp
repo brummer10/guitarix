@@ -33,9 +33,9 @@
 #include <gtkmm/fixed.h>
 #include <gtkmm/eventbox.h>
 #include <gtkmm/notebook.h>
-
 #include <gxwmm/paintbox.h>
 
+#include <glibmm/i18n.h>
 
 using namespace gx_system;
 using namespace gx_child_process;
@@ -43,7 +43,7 @@ using namespace gx_preset;
 using namespace gx_cairo;
 using namespace gx_threads;
 
-#define _(x) (x) //FIXME
+
 
 namespace gx_gui
 {
@@ -80,6 +80,33 @@ const char *pb_RackBox_expose =              "RackBox_expose";
 const char *pb_gxrack_expose =               "gxrack_expose";
 const char *pb_eq_expose =                   "eq_expose";
 
+inline void registerNonMidiParam(const char*a, float*c, bool d, float std=0, float lower=0, float upper=1)
+{
+	parameter_map.insert(new FloatParameter(a,"",Parameter::None,d,*c,std,lower,upper,0,false));
+}
+
+inline void registerNonMidiParam(const char*a, bool*c, bool d, float std=false)
+{
+	parameter_map.insert(new BoolParameter(a,"",Parameter::None,d,*c,std,0,false));
+}
+
+void register_gui_parameter()
+{
+	registerNonMidiParam("ui.r_xorg", &r_xorg, true, 40,0,10000);
+	registerNonMidiParam("ui.r_yorg", &r_yorg, true, 80,0,10000);
+	registerNonMidiParam("ui.r_hight", &r_hight, true, 320,0,10000);
+	registerNonMidiParam("ui.sr_xorg", &sr_xorg, true, 200,0,10000);
+	registerNonMidiParam("ui.sr_yorg", &sr_yorg, true, 80,0,10000);
+	registerNonMidiParam("ui.sr_hight", &sr_hight, true, 320,0,10000);
+	registerNonMidiParam("ui.main_xorg", &main_xorg, true, 300,0,10000);
+	registerNonMidiParam("ui.main_yorg", &main_yorg, true, 300,0,10000);
+	registerNonMidiParam("ui.pr_xorg", &pr_xorg, true, 40,0,10000);
+	registerNonMidiParam("ui.pr_yorg", &pr_yorg, true, 80,0,10000);
+	registerNonMidiParam("ui.pr_hight", &pr_hight, true, 524,0,10000);
+}
+
+
+
 /****************************************************************
  ** format controller values
  */
@@ -108,6 +135,56 @@ string fformat(float value, float step)
 /****************************************************************
  ** Gxmm widgets and method definitions
  */
+
+ 
+class ToggleCheckButton: public Gtk::ToggleButton
+{
+private:
+	SwitchParameter* param;
+	void on_my_toggled();
+public:
+	Gtk::Label m_label;
+	void set_parameter(SwitchParameter *p);
+	SwitchParameter * get_parameter();
+	ToggleCheckButton();
+	~ToggleCheckButton();
+};
+
+void ToggleCheckButton::on_my_toggled()
+{
+	param->set(get_active());
+}
+
+SwitchParameter* ToggleCheckButton::get_parameter()
+{
+	return param;
+}
+
+void ToggleCheckButton::set_parameter(SwitchParameter *p)
+{
+	param = p;
+	p->changed.connect(sigc::mem_fun(*this, &ToggleCheckButton::set_active));
+	signal_toggled().connect(
+		sigc::mem_fun(*this, &ToggleCheckButton::on_my_toggled));
+}
+
+ToggleCheckButton::~ToggleCheckButton()
+{
+}
+
+ToggleCheckButton::ToggleCheckButton() 
+{
+	modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#58b45e"));
+	Pango::FontDescription font = m_label.get_style()->get_font();
+	font.set_size(8*Pango::SCALE);
+	font.set_weight(Pango::WEIGHT_BOLD);
+	m_label.modify_font(font);
+	m_label.modify_fg(Gtk::STATE_NORMAL, Gdk::Color("#f1eded"));
+	m_label.modify_fg(Gtk::STATE_ACTIVE, Gdk::Color("#111111"));
+	add(m_label);
+}
+
+/****************************************************************/
 
 class GxVBox
 {
@@ -216,6 +293,9 @@ public:
 	Gtk::HBox m_box;
 	Gtk::EventBox m_eventbox;
 	Gxw::PaintBox m_paintbox;
+	ToggleCheckButton m_tcb;
+	UiSwitch* unit_on_off;
+	Gtk::HBox m_bbox;
 	Gtk::Fixed m_fixedbox;
 	GxMidiBox(gx_ui::GxUI& ui,const char *expose_funk);
 	virtual ~GxMidiBox();
@@ -223,10 +303,14 @@ public:
 
 GxMidiBox::~GxMidiBox()
 {
+	delete unit_on_off;
 }
 
-GxMidiBox::GxMidiBox(gx_ui::GxUI& ui,const char *expose_funk)
+GxMidiBox::GxMidiBox(gx_ui::GxUI& ui,const char *expose_funk):
+unit_on_off( UiSwitch::new_switch(ui, sw_led, "midi_out.on_off"))
 {
+	m_bbox.pack_start(m_tcb,true,true);
+	m_bbox.pack_end(*unit_on_off,false,false);
 	m_paintbox.property_paint_func() = expose_funk;
 	m_eventbox.add(m_paintbox);
 	m_paintbox.add(m_box);
@@ -355,8 +439,8 @@ GxMainInterface::GxMainInterface(const char * name):
 	}
 	else
 	{
-		gx_print_error("Main Interface Constructor",
-		               "pixmap check failed, giving up");
+		gx_print_error(_("Main Interface Constructor"),
+		               _("pixmap check failed, giving up"));
 		gx_clean_exit(NULL, (gpointer)1);
 	}
 
@@ -453,7 +537,7 @@ void GxMainInterface::openTextLoggingBox(const char* label)
 	gtk_window_set_gravity(GTK_WINDOW(logger), GDK_GRAVITY_SOUTH);
 	gtk_window_set_transient_for (GTK_WINDOW(logger), GTK_WINDOW(fWindow));
 	gtk_window_set_keep_below (GTK_WINDOW(logger), FALSE);
-	gtk_window_set_title (GTK_WINDOW (logger), "Logging Window");
+	gtk_window_set_title (GTK_WINDOW (logger), _("Logging Window"));
 	gtk_window_set_type_hint (GTK_WINDOW (logger), GDK_WINDOW_TYPE_HINT_UTILITY);
 	gtk_window_set_destroy_with_parent(GTK_WINDOW(logger), TRUE);
 	
@@ -603,7 +687,7 @@ void GxMainInterface::openLevelMeterBox(const char* label)
 			sigc::mem_fun(*this, &GxMainInterface::on_meter_button_release));
 		gtk_box_pack_start(GTK_BOX(gxbox), GTK_WIDGET(fastmeter.gobj()), FALSE, TRUE, 0);
 		fastmeter.show();
-		fastmeter.set_tooltip_text("gx_head output");
+		fastmeter.set_tooltip_text(_("gx_head output"));
 	}
 
 	gtk_box_pack_start(GTK_BOX(box), gxbox, FALSE, TRUE, 0);
@@ -1021,7 +1105,7 @@ void GxMainInterface::openpaintampBox(const char* label)
 	GxPaintBox * box =  new GxPaintBox(*this,pb_RackBox_expose);
 	box->m_box.set_border_width(4);
 	box->m_paintbox.set_name("MIDI out");
-	box->m_paintbox.set_tooltip_text("MIDI out");
+	box->m_paintbox.set_tooltip_text(_("MIDI out"));
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_paintbox.gobj()), expand, fill, 0);
 	box->m_paintbox.show_all();
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
@@ -1084,6 +1168,23 @@ void GxMainInterface::openVerticalMidiBox(const char* label)
 	gtk_widget_show(midibox);
 	pushBox(kBoxMode,GTK_WIDGET( box->m_box.gobj()));
 	gtk_widget_hide(midibox);
+	
+	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(rack_tool_bar));
+	GtkWidget *box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+	child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+	box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+	child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+	box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+	child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+	box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+	child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+	box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+	g_list_free(child_list);
+	box->m_tcb.set_parameter(fShowMidiOut.get_parameter());
+	box->m_tcb.m_label.set_text(_("MIDI out"));
+	gtk_container_add (GTK_CONTAINER(box1), GTK_WIDGET(box->m_bbox.gobj()));
+	
+	
 }
 
 void GxMainInterface::openHorizontalhideBox(const char* label)
@@ -1261,7 +1362,7 @@ static bool conv_start()
 	gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
 	string path = jcset->getFullIRPath();
 	if (path.empty()) {
-		gx_system::gx_print_warning("convolver", "no impulseresponse file");
+		gx_system::gx_print_warning(_("convolver"), _("no impulseresponse file"));
 		return false;
 	}
 	while (!gx_engine::conv.checkstate());
@@ -1810,44 +1911,12 @@ static void set_label(MenuCheckItem& item , const char *label)
 /****************************************************************
  ** Effect Dialog Boxes
  */
- 
-class ToggleCheckButton: public Gtk::ToggleButton
-{
-private:
-	SwitchParameter* param;
-	void on_my_toggled();
-public:
-	ToggleCheckButton(): Gtk::ToggleButton() {}
-	void set_parameter(SwitchParameter *p);
-	SwitchParameter * get_parameter();
-};
 
-void ToggleCheckButton::on_my_toggled()
-{
-	param->set(get_active());
-}
-SwitchParameter* ToggleCheckButton::get_parameter()
-{
-	return param;
-}
-
-void ToggleCheckButton::set_parameter(SwitchParameter *p)
-{
-	param = p;
-	//parameter_map.insert(p);
-	p->changed.connect(sigc::mem_fun(*this, &ToggleCheckButton::set_active));
-	signal_toggled().connect(
-		sigc::mem_fun(*this, &ToggleCheckButton::on_my_toggled));
-}
-
-
- 
 class GxDialogButtonBox
 {
 public:
 	Gtk::HBox box;
 	UiSwitchBool show_dialog;
-	
 	GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog);
 };
 
@@ -1855,13 +1924,11 @@ GxDialogButtonBox::GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog):
 	box(false, 0),
 	show_dialog(ui, sw_button, param_dialog.getBool())
 {
-	//show_dialog.modify_bg(Gtk::STATE_NORMAL, Gdk::Color("#7f7f7f"));
-	//show_dialog.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#000094"));
 	box.set_border_width(0);
-	//box.add(show_dialog);
-	//show_dialog.show_all();
 	box.show_all();
 }
+
+/***************************/
 
 class GxDialogWindowBox
 {
@@ -1872,7 +1939,6 @@ private:
 	bool on_window_delete_event(GdkEventAny* event);
 	Glib::ustring group_id;
 public:
-	
 	Gtk::HBox box;
 	Gtk::HBox box1;
 	Gxw::PaintBox paintbox;
@@ -1884,7 +1950,6 @@ public:
 	Gtk::Button reset_button;
 	Gtk::Button reset_button1;
 	ToggleCheckButton m_tcb;
-	Gtk::Label m_label;
 	Gtk::ToggleButton& dialog_button;
 	Gtk::Window m_regler_tooltip_window;
 	GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk, Parameter& param_dialog, Parameter& param_switch, Gtk::ToggleButton& button,GtkWidget * Caller);
@@ -1928,7 +1993,6 @@ void GxDialogWindowBox::on_reset_button_pressed()
 
 GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui,const char *expose_funk, Parameter& param_dialog,
                                      Parameter& param_switch, Gtk::ToggleButton& button,GtkWidget * Caller):
-	
 	box(false, 0),
 	unit_on_off( UiSwitch::new_switch(ui, sw_led, param_switch)),
 	dialog_button(button),
@@ -1954,25 +2018,21 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui,const char *expose_funk, Pa
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_reset_button_pressed));
 	reset_button1.signal_pressed().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_reset_button_pressed));
-	reset_button.set_tooltip_text("Reset Button, press to reset settings");
-	reset_button1.set_tooltip_text("Reset Button, press to reset settings");
+	reset_button.set_tooltip_text(_("Reset Button, press to reset settings"));
+	reset_button1.set_tooltip_text(_("Reset Button, press to reset settings"));
 	box4.pack_start(box6,false,false,0);
 	box4.pack_start(box,true,true,0);	
 	box4.pack_end(box5,false,false,0);
 	paintbox.add(box4);
 	paintbox.set_tooltip_text(title);
-	m_tcb.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#58b45e"));
-	Pango::FontDescription font = m_label.get_style()->get_font();
-	font.set_size(8*Pango::SCALE);
-	font.set_weight(Pango::WEIGHT_BOLD);
-	m_label.modify_font(font);
-	m_label.modify_fg(Gtk::STATE_NORMAL, Gdk::Color("#f1eded"));
-	m_label.modify_fg(Gtk::STATE_ACTIVE, Gdk::Color("#111111"));
+	m_tcb.m_label.set_text(title);
 	dialog_button.signal_toggled().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
 	menuitem.signal_activate().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_menu_activate));
 }
+
+/***************************/
 
 void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk )
 {
@@ -1998,11 +2058,8 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsMono"]), GTK_WIDGET(dialog->menuitem.gobj()));
 	dialog->menuitem.show();
 	dialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
-	dialog->m_tcb.set_parameter(dialog->menuitem.get_parameter());
-	dialog->m_label.set_text(title);
-	dialog->m_tcb.add(dialog->m_label);
-	//dialog->m_tcb.set_label(title);
 	
+	dialog->m_tcb.set_parameter(dialog->menuitem.get_parameter());
 	gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(dialog->box1.gobj()) , false, false, 0);
 	dialog->box1.pack_start(dialog->m_tcb,true,true);
 	dialog->box1.show_all();
@@ -2036,11 +2093,8 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsStereo"]), GTK_WIDGET(bdialog->menuitem.gobj()));
 	bdialog->menuitem.show();
 	bdialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
-	bdialog->m_tcb.set_parameter(bdialog->menuitem.get_parameter());
-	bdialog->m_label.set_text(title);
-	bdialog->m_tcb.add(bdialog->m_label);
-	//bdialog->m_tcb.set_label(title);
 	
+	bdialog->m_tcb.set_parameter(bdialog->menuitem.get_parameter());
 	gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(bdialog->box1.gobj()) , false, false, 0);
 	bdialog->box1.pack_start(bdialog->m_tcb,true,true);
 	bdialog->box1.show_all();
@@ -2069,10 +2123,10 @@ struct uiPatchDisplay : public gx_ui::GxUiItemFloat
                     gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
 
                     if(gx_jconv::GxJConvSettings::checkbutton7 == 1) {
-                        snprintf(s, 63, "convolve %s",jcset->getIRFile().c_str());
+                        snprintf(s, 63, _("convolve %s"),jcset->getIRFile().c_str());
                         gtk_label_set_text(GTK_LABEL(pchild),s);
                     }else {
-                        snprintf(s, 63, "convolver off");
+                        snprintf(s, 63, _("convolver off"));
                         gtk_label_set_text(GTK_LABEL(pchild),s);
                     }
 
@@ -2082,7 +2136,7 @@ struct uiPatchDisplay : public gx_ui::GxUiItemFloat
                     }
                     else {
                         show_patch_info = 0;
-                        snprintf(s, 63, " %i%sMain Setting ", int(show_patch_info),". ");
+                        snprintf(s, 63, _(" %i%sMain Setting "), int(show_patch_info),". ");
                         gtk_label_set_text(GTK_LABEL(parent), s);
                     }
                     fCache = *fZone;
@@ -2170,9 +2224,7 @@ public:
 	Gtk::VBox rbox;
 	Gtk::Window m_regler_tooltip_window;
 	ToggleCheckButton m_tmono_rack;
-	Gtk::Label m_label;
 	ToggleCheckButton m_tstereo_rack;
-	Gtk::Label m_label1;
 	GxWindowBox(gx_ui::GxUI& ui, 
 		const char *pb_2, Glib::ustring titl,GtkWidget * d);
 	~GxWindowBox();
@@ -2218,6 +2270,7 @@ bool GxWindowBox::on_button_pressed(GdkEventButton* event)
 
 	return false;
 }
+
 GxWindowBox::GxWindowBox(gx_ui::GxUI& ui, 
 	const char *pb_2, Glib::ustring titl,GtkWidget * d):
 	window(Gtk::WINDOW_TOPLEVEL),
@@ -2253,7 +2306,7 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 void GxMainInterface::addNumDisplay()
 {
 	GxWindowBox *box =  new GxWindowBox(*this, 
-		pb_gxrack_expose, "tuner", GTK_WIDGET(fShowTuner.gobj()));
+		pb_gxrack_expose, _("tuner"), GTK_WIDGET(fShowTuner.gobj()));
 	box->rbox.add(fTuner);
 	box->window.set_size_request(200,140); 
 	tuner_widget = GTK_WIDGET(box->window.gobj());
@@ -2262,7 +2315,7 @@ void GxMainInterface::addNumDisplay()
 void GxMainInterface::openToolBar(const char* label)
 {
 	GxWindowBox *box =  new GxWindowBox(*this, 
-		pb_gxrack_expose, "Plugin Bar", GTK_WIDGET(fShowToolBar.gobj()));
+		pb_gxrack_expose, _("Plugin Bar"), GTK_WIDGET(fShowToolBar.gobj()));
 	
 	box->window.set_size_request(-1,524); 
 	rack_tool_bar = GTK_WIDGET(box->window.gobj());
@@ -2270,24 +2323,9 @@ void GxMainInterface::openToolBar(const char* label)
 	box->rbox.add(box->box1);
 	box->m_tmono_rack.set_parameter(fShowRack.get_parameter());
 	box->m_tstereo_rack.set_parameter(fShowSRack.get_parameter());
-	
-	box->m_tmono_rack.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#58b45e"));
-	box->m_tstereo_rack.modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#58b45e"));
-	
-	Pango::FontDescription font = box->m_label.get_style()->get_font();
-	font.set_size(8*Pango::SCALE);
-	font.set_weight(Pango::WEIGHT_BOLD);
-	box->m_label.modify_font(font);
-	box->m_label1.modify_font(font);
-	box->m_label.modify_fg(Gtk::STATE_NORMAL, Gdk::Color("#f1eded"));
-	box->m_label1.modify_fg(Gtk::STATE_NORMAL, Gdk::Color("#f1eded"));
-	box->m_label.modify_fg(Gtk::STATE_ACTIVE, Gdk::Color("#111111"));
-	box->m_label1.modify_fg(Gtk::STATE_ACTIVE, Gdk::Color("#111111"));
-	box->m_label.set_text("mono rack");
-	box->m_tmono_rack.add(box->m_label);
-	box->m_label1.set_text("stereo rack");
-	box->m_tstereo_rack.add(box->m_label1);
-	
+	box->m_tmono_rack.m_label.set_text(_("mono rack"));
+	box->m_tstereo_rack.m_label.set_text(_("stereo rack"));
+
 	box->box1.pack_start(box->m_tmono_rack,true,true);
 	box->box1.pack_end(box->m_tstereo_rack,true,true);
 	box->box1.show_all();
@@ -2301,7 +2339,7 @@ void GxMainInterface::openPlugBox(const char* label)
 	rack_widget = GTK_WIDGET(box->window.gobj());
 	box->window.set_size_request(-1,-1); 
 	box->window.set_name("MonoRack");
-	box->window.set_tooltip_text("Mono Rack, right click pop up the plugin menu");
+	box->window.set_tooltip_text(_("Mono Rack, right click pop up the plugin menu"));
 	rBox = GTK_WIDGET(box->rbox.gobj());
 	//gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(rBox));
@@ -2314,7 +2352,7 @@ void GxMainInterface::openAmpBox(const char* label)
 	srack_widget = GTK_WIDGET(box->window.gobj());
 	box->window.set_size_request(-1,-1); 
 	box->window.set_name("StereoRack");
-	box->window.set_tooltip_text("Stereo Rack, right click pop up the plugin menu");
+	box->window.set_tooltip_text(_("Stereo Rack, right click pop up the plugin menu"));
 	sBox = GTK_WIDGET(box->rbox.gobj());
 	//gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(sBox));
@@ -2461,7 +2499,7 @@ void GxMainInterface::addMainMenu()
 	GtkTooltips* comandlin = gtk_tooltips_new ();
 
 	gtk_tooltips_set_tip(GTK_TOOLTIPS (comandlin),
-	                     gx_engine_on_image, "engine is on", "engine state.");
+	                     gx_engine_on_image, _("engine is on"), "engine state.");
 	gtk_widget_show(gx_engine_on_image);
 
 	// set up OFF image: hidden by default
@@ -2472,7 +2510,7 @@ void GxMainInterface::addMainMenu()
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gx_engine_off_image),engineoff);
 	gtk_menu_bar_append (GTK_MENU_BAR(menupix), gx_engine_off_image);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS (comandlin),
-	                     gx_engine_off_image, "engine is off", "engine state.");
+	                     gx_engine_off_image, _("engine is off"), "engine state.");
 	gtk_widget_hide(gx_engine_off_image);
 
 	// set up BYPASS image: hidden by default
@@ -2483,7 +2521,7 @@ void GxMainInterface::addMainMenu()
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gx_engine_bypass_image),engineby);
 	gtk_menu_bar_append (GTK_MENU_BAR(menupix), gx_engine_bypass_image);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS (comandlin),
-	                     gx_engine_bypass_image, "engine is in bypass mode", "engine state.");
+	                     gx_engine_bypass_image, _("engine is in bypass mode"), "engine state.");
 	gtk_widget_hide(gx_engine_bypass_image);
 
 
@@ -2499,7 +2537,7 @@ void GxMainInterface::addMainMenu()
 	GtkTooltips* comandline = gtk_tooltips_new ();
 
 	gtk_tooltips_set_tip(GTK_TOOLTIPS (comandline),
-	                     gx_jackd_on_image, "jack server is connected", "jack server state.");
+	                     gx_jackd_on_image, _("jack server is connected"), "jack server state.");
 
 	gtk_widget_show(gx_jackd_on_image);
 
@@ -2511,7 +2549,7 @@ void GxMainInterface::addMainMenu()
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gx_jackd_off_image),jackstateoff);
 	gtk_menu_bar_append (GTK_MENU_BAR(menupix), gx_jackd_off_image);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS (comandline),
-	                     gx_jackd_off_image, "jack server is unconnected", "jack server state.");
+	                     gx_jackd_off_image, _("jack server is unconnected"), "jack server state.");
 	gtk_widget_hide(gx_jackd_off_image);
 
 
@@ -2544,7 +2582,7 @@ void GxMainInterface::addEngineMenu()
 	/*---------------- Create Engine menu items ------------------*/
 	menuh = fMenuList["Top"];
 
-	menulabel = gtk_menu_item_new_with_mnemonic ("_Engine");
+	menulabel = gtk_menu_item_new_with_mnemonic (_("_Engine"));
 	gtk_menu_bar_append (GTK_MENU_BAR(menuh), menulabel);
 	gtk_widget_show(menulabel);
 
@@ -2557,7 +2595,7 @@ void GxMainInterface::addEngineMenu()
 	/*-- Create Engine start / stop item  --*/
 	group = NULL;
 
-	menuitem = gtk_check_menu_item_new_with_mnemonic ("Engine _Start / _Stop");
+	menuitem = gtk_check_menu_item_new_with_mnemonic (_("Engine _Start / _Stop"));
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_space, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
 
@@ -2569,7 +2607,7 @@ void GxMainInterface::addEngineMenu()
 	gtk_widget_show (menuitem);
 
 	/*-- Create Engine bypass item  --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("Engine _Bypass");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("Engine _Bypass"));
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_b, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
 
@@ -2594,7 +2632,7 @@ void GxMainInterface::addEngineMenu()
 	gtk_widget_show (sep);
 
 	/*-- create Midi Controller Table menu item --*/
-	menuitem = gtk_check_menu_item_new_with_mnemonic ("M_idi Controller");
+	menuitem = gtk_check_menu_item_new_with_mnemonic (_("M_idi Controller"));
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_i, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (
@@ -2609,7 +2647,7 @@ void GxMainInterface::addEngineMenu()
 	gtk_widget_show (sep);
 
 	/*-- Create Exit menu item under Engine submenu --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("_Quit");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("_Quit"));
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_q, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect(G_OBJECT (menuitem), "activate",
@@ -2630,7 +2668,7 @@ void GxMainInterface::addPresetMenu()
 	menucont = fMenuList["Top"];
 
 	/*---------------- Create Presets menu items --------------------*/
-	menulabel = gtk_menu_item_new_with_mnemonic ("_Presets");
+	menulabel = gtk_menu_item_new_with_mnemonic (_("_Presets"));
 	gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
 	gtk_widget_show(menulabel);
 
@@ -2658,7 +2696,7 @@ void GxMainInterface::addPresetMenu()
 
 
 	/*-- add New Preset saving under Save Presets menu */
-	menuitem = gtk_menu_item_new_with_mnemonic ("New _Preset");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("New _Preset"));
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_save_newpreset_dialog), NULL);
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
@@ -2685,7 +2723,7 @@ void GxMainInterface::addPresetMenu()
 	gtk_widget_show (sep);
 
 	/*-- Create patch info menu item under Options submenu --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("P_atch Info");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("P_atch Info"));
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_a, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
@@ -2699,7 +2737,7 @@ void GxMainInterface::addPresetMenu()
 	gtk_widget_show (sep);
 
 	/*-- Create load presetfile menu --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("Load Preset-_file");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("Load Preset-_file"));
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_f, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
@@ -2708,7 +2746,7 @@ void GxMainInterface::addPresetMenu()
     gtk_widget_show (menuitem);
 
 	/*-- Create save as presetfile menu--*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("E_xport Preset-file");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("E_xport Preset-file"));
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_x, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
@@ -2722,7 +2760,7 @@ void GxMainInterface::addPresetMenu()
 	gtk_widget_show (sep);
 
 	/*-- Create  Main setting submenu --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("Recall Main _Setting");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("Recall Main _Setting"));
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_recall_main_setting), NULL);
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
@@ -2730,7 +2768,7 @@ void GxMainInterface::addPresetMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
 
-	menuitem = gtk_menu_item_new_with_mnemonic ("_Save As Main _Setting");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("_Save As Main _Setting"));
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_save_main_setting), NULL);
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
@@ -2744,7 +2782,7 @@ void GxMainInterface::addPresetMenu()
 	gtk_widget_show (sep);
 
 	/*-- Create sub menu More Preset Action --*/
-	menulabel = gtk_menu_item_new_with_mnemonic("More Preset Options...");
+	menulabel = gtk_menu_item_new_with_mnemonic(_("More Preset Options..."));
 	gtk_menu_shell_append (GTK_MENU_SHELL(menucont), menulabel);
 	gtk_widget_show(menulabel);
 
@@ -2768,7 +2806,7 @@ void GxMainInterface::addExtraPresetMenu()
 	/*---------------- Create Presets menu items --------------------*/
 
 	/* forward preset */
-	menuitem = gtk_menu_item_new_with_mnemonic("Next _Preset");
+	menuitem = gtk_menu_item_new_with_mnemonic(_("Next _Preset"));
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_next_preset), NULL);
 	gtk_widget_add_accelerator(menuitem, "activate",
@@ -2778,7 +2816,7 @@ void GxMainInterface::addExtraPresetMenu()
 	gtk_widget_show(menuitem);
 
 	/* rewind preset */
-	menuitem = gtk_menu_item_new_with_mnemonic("Previous _Preset");
+	menuitem = gtk_menu_item_new_with_mnemonic(_("Previous _Preset"));
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_previous_preset), NULL);
 	gtk_widget_add_accelerator(menuitem, "activate",
@@ -2793,7 +2831,7 @@ void GxMainInterface::addExtraPresetMenu()
 	gtk_widget_show (sep);
 
 	/*-- Create  menu item Delete Active preset --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("_Save Active Preset");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("_Save Active Preset"));
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_save_oldpreset), (gpointer)1);
 	gtk_widget_add_accelerator(menuitem, "activate",
@@ -2802,7 +2840,7 @@ void GxMainInterface::addExtraPresetMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
 
-	menuitem = gtk_menu_item_new_with_mnemonic ("_Rename Active Preset");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("_Rename Active Preset"));
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_rename_active_preset_dialog), NULL);
 	gtk_widget_add_accelerator(menuitem, "activate",
@@ -2811,7 +2849,7 @@ void GxMainInterface::addExtraPresetMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
 
-	menuitem = gtk_menu_item_new_with_mnemonic ("_Delete Active Preset");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("_Delete Active Preset"));
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_delete_active_preset_dialog), NULL);
 	gtk_widget_add_accelerator(menuitem, "activate",
@@ -2826,7 +2864,7 @@ void GxMainInterface::addExtraPresetMenu()
 	gtk_widget_show (sep);
 
 	/*-- Create  menu item Delete All presets --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("_Delete All Presets");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("_Delete All Presets"));
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
 	                  G_CALLBACK (gx_delete_all_presets_dialog), NULL);
 	gtk_widget_add_accelerator(menuitem, "activate",
@@ -2847,7 +2885,7 @@ void GxMainInterface::addPluginMenu()
 	menucont = fMenuList["Top"];
 
 	/*---------------- Create Options menu items ------------------*/
-	menulabel = gtk_menu_item_new_with_mnemonic ("P_lugins");
+	menulabel = gtk_menu_item_new_with_mnemonic (_("P_lugins"));
 	gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
 	gtk_widget_show(menulabel);
 
@@ -2857,7 +2895,7 @@ void GxMainInterface::addPluginMenu()
 	gtk_widget_show(menucont);
 	
 	/*-- Create toolbar check menu item under Options submenu --*/
-	set_label(fShowToolBar, "show Plugin Bar");
+	set_label(fShowToolBar, _("show Plugin Bar"));
 	fShowToolBar.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_t, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowToolBar.signal_activate().connect(
@@ -2867,7 +2905,7 @@ void GxMainInterface::addPluginMenu()
 	fShowToolBar.set_parameter(new SwitchParameter("system.show_toolbar"));
 	
 	/*-- Create mono rack check menu item under Options submenu --*/
-	set_label(fShowRack, "show Mono_Rack");
+	set_label(fShowRack, _("show Mono_Rack"));
 	fShowRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowRack.signal_activate().connect(
@@ -2877,7 +2915,7 @@ void GxMainInterface::addPluginMenu()
 	fShowRack.set_parameter(new SwitchParameter("system.show_rack"));
 	
 	/*-- Create mono plugin menu soket item under Options submenu --*/
-	menulabel = gtk_menu_item_new_with_mnemonic ("_Mono Plugins");
+	menulabel = gtk_menu_item_new_with_mnemonic (_("_Mono Plugins"));
 	
 	gtk_menu_append (GTK_MENU(menucont), menulabel);
 	gtk_widget_show(menulabel);
@@ -2890,7 +2928,7 @@ void GxMainInterface::addPluginMenu()
 	menu_mono_rack = fMenuList["PluginsMono"];
 	
 	/*-- create midi out menu  --*/
-	set_label(fShowMidiOut, "MIDI out");
+	set_label(fShowMidiOut, _("MIDI out"));
 	fShowMidiOut.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_a, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (fShowMidiOut.gobj()), "activate",
@@ -2907,7 +2945,7 @@ void GxMainInterface::addPluginMenu()
 	gtk_widget_show (sep);
 	
 	/*-- Create stereo rack check menu item under Options submenu --*/
-	set_label(fShowSRack, "show _StereoRack");
+	set_label(fShowSRack, _("show _StereoRack"));
 	fShowSRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_s, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowSRack.signal_activate().connect(
@@ -2917,7 +2955,7 @@ void GxMainInterface::addPluginMenu()
 	fShowSRack.set_parameter(new SwitchParameter("system.show_Srack"));
 	
 	/*-- Create stereo plugin menu soket item under Options submenu --*/
-	menulabel = gtk_menu_item_new_with_mnemonic ("_Stereo Plugins");
+	menulabel = gtk_menu_item_new_with_mnemonic (_("_Stereo Plugins"));
 	
 	gtk_menu_append (GTK_MENU(menucont), menulabel);
 	gtk_widget_show(menulabel);
@@ -2948,7 +2986,7 @@ void GxMainInterface::addOptionMenu()
 	menucont = fMenuList["Top"];
 
 	/*---------------- Create Options menu items ------------------*/
-	menulabel = gtk_menu_item_new_with_mnemonic ("_Options");
+	menulabel = gtk_menu_item_new_with_mnemonic (_("_Options"));
 	gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
 	gtk_widget_show(menulabel);
 
@@ -2959,7 +2997,7 @@ void GxMainInterface::addOptionMenu()
 	fMenuList["Options"] = menucont;
 
 	/*-- Create Open check menu item under Options submenu --*/
-	menuitem = gtk_check_menu_item_new_with_mnemonic ("_Meterbridge");
+	menuitem = gtk_check_menu_item_new_with_mnemonic (_("_Meterbridge"));
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_m, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
@@ -2968,7 +3006,7 @@ void GxMainInterface::addOptionMenu()
 	gtk_widget_show (menuitem);
 	
 	/*-- Create tuner check menu item under Options submenu --*/
-	set_label(fShowTuner, "_Tuner");
+	set_label(fShowTuner, _("_Tuner"));
 	fShowTuner.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_t, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowTuner.signal_activate().connect(
@@ -2981,7 +3019,7 @@ void GxMainInterface::addOptionMenu()
 	/*-- Create skin menu under Options submenu--*/
 	addGuiSkinMenu();
 	
-	set_label(fSetMouse, "set _Knobs linear");
+	set_label(fSetMouse, _("set _Knobs linear"));
 	fSetMouse.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_k, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fSetMouse.signal_activate().connect(
@@ -2991,7 +3029,7 @@ void GxMainInterface::addOptionMenu()
 	fSetMouse.set_parameter(new SwitchParameter("system.set_mouse"));
 	
 	/*-- Create logbox check menu item under Options submenu --*/
-	set_label(fShowLogger, "show Logging _Box");
+	set_label(fShowLogger, _("show Logging _Box"));
 	fShowLogger.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_b, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowLogger.signal_activate().connect(
@@ -3001,13 +3039,13 @@ void GxMainInterface::addOptionMenu()
 	fShowLogger.set_parameter(new SwitchParameter("system.show_logger"));
 
 	/*-- create option for saving midi controller settings in presets --*/
-	set_label(fMidiInPreset, "Include MIDI in _presets");
+	set_label(fMidiInPreset, _("Include MIDI in _presets"));
 	fMidiInPreset.show();
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fMidiInPreset.gobj()));
 	fMidiInPreset.set_parameter(new SwitchParameter("system.midi_in_preset"));
 
 	/*-- create option for resetting gx_head settings --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("Reset _All Parameters");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("Reset _All Parameters"));
 	gtk_widget_show (menuitem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	g_signal_connect(GTK_OBJECT(menuitem), "activate",
@@ -3026,7 +3064,7 @@ void GxMainInterface::addGuiSkinMenu()
 	menucont = fMenuList["Options"];
 
 	/*---------------- Create skin menu items ------------------*/
-	menulabel = gtk_menu_item_new_with_mnemonic ("_Skin...");
+	menulabel = gtk_menu_item_new_with_mnemonic (_("_Skin..."));
 	gtk_menu_append (GTK_MENU(menucont), menulabel);
 	gtk_widget_show(menulabel);
 
@@ -3083,7 +3121,7 @@ void GxMainInterface::addAboutMenu()
 	menucont = fMenuList["Top"];
 
 	/*---------------- Start About menu declarations ----------------*/
-	menulabel = gtk_menu_item_new_with_mnemonic ("_About");
+	menulabel = gtk_menu_item_new_with_mnemonic (_("_About"));
 	gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
 	gtk_widget_show(menulabel);
 
@@ -3092,7 +3130,7 @@ void GxMainInterface::addAboutMenu()
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
 
 	/*-- Create About menu item under About submenu --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("_About");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("_About"));
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_a, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
@@ -3101,7 +3139,7 @@ void GxMainInterface::addAboutMenu()
 	gtk_widget_show (menuitem);
 
 	/*-- Create Help menu item under About submenu --*/
-	menuitem = gtk_menu_item_new_with_mnemonic ("_Help");
+	menuitem = gtk_menu_item_new_with_mnemonic (_("_Help"));
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_h, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
@@ -3109,7 +3147,7 @@ void GxMainInterface::addAboutMenu()
 	gtk_widget_show (menuitem);
 
 	/*-- Create menu item to control tooltip display --*/
-	set_label(fShowTooltips, "Show _Tooltips");
+	set_label(fShowTooltips, _("Show _Tooltips"));
 	fShowTooltips.show();
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowTooltips.gobj()));
 	SwitchParameter *p = new SwitchParameter("system.show_tooltips");
@@ -3131,7 +3169,7 @@ void GxMainInterface::addJackServerMenu()
 	menucont = fMenuList["Engine"];
 
 	/*-- Create Jack Connection toggle button --*/
-	menuitem = gtk_check_menu_item_new_with_mnemonic ("Jack Server _Connection ");
+	menuitem = gtk_check_menu_item_new_with_mnemonic (_("Jack Server _Connection "));
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_c, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
@@ -3142,7 +3180,7 @@ void GxMainInterface::addJackServerMenu()
 	fJackConnectItem = menuitem;
 
 	/*-- create Jack Ports menu item --*/
-	menuitem = gtk_check_menu_item_new_with_mnemonic ("Jack _Ports ");
+	menuitem = gtk_check_menu_item_new_with_mnemonic (_("Jack _Ports "));
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_p, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
@@ -3151,7 +3189,7 @@ void GxMainInterface::addJackServerMenu()
 	gtk_widget_show (menuitem);
 
 	/*-- Create  Latency submenu under Jack Server submenu --*/
-	menulabel = gtk_menu_item_new_with_mnemonic ("_Latency");
+	menulabel = gtk_menu_item_new_with_mnemonic (_("_Latency"));
 	gtk_menu_append (GTK_MENU(menucont), menulabel);
 	gtk_widget_show(menulabel);
 
@@ -3244,7 +3282,7 @@ void GxMainInterface::run()
 	GError* err = NULL;
 	// -------------- start helper thread for ladi signal USR1 ------------
 	if (g_thread_create(gx_signal_helper_thread, NULL, FALSE, &err)  == NULL) {
-		gx_print_fatal("system startup", string("Thread create failed (signal): ") + err->message);
+		gx_print_fatal(_("system startup"), string(_("Thread create failed (signal): ")) + err->message);
 		g_error_free(err);
 		return;
 	}
@@ -3253,7 +3291,7 @@ void GxMainInterface::run()
 	sem_init (&program_change_sem, 0, 0);
 
 	if (g_thread_create(gx_program_change_helper_thread, NULL, FALSE, &err)  == NULL) {
-		gx_print_fatal("system startup", string("Thread create failed (midi): ") + err->message);
+		gx_print_fatal(_("system startup"), string(_("Thread create failed (midi): ")) + err->message);
 		g_error_free(err);
 		return;
 	}

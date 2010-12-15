@@ -294,6 +294,8 @@ float pr_xorg;
 float pr_yorg;
 float pr_hight;
 
+void register_gui_parameter();
+
 }
 
 /* ------------------------------------------------------------------------- */

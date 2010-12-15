@@ -1,0 +1,16 @@
+# List of source files containing translatable strings.
+# Please keep this file sorted alphabetically.
+[encoding: UTF-8]
+src/gx_head/gx_interface_builder.cpp
+src/gx_head/gx_rack_builder.cc
+src/gx_head/gx_srack_builder.cc
+src/gx_head/gx_main_interface.cpp
+src/gx_head/gx_gui_helpers.cpp
+src/gx_head/gx_jack.cpp
+src/gx_head/gx_engine_audio.cpp
+src/gx_head/gx_paramtable.cpp
+src/gx_head/gx_system.cpp
+src/gx_head/gx_preset.cpp
+src/gx_head/iredit.glade
+src/gx_head/ports.glade
+src/midi.glade

@@ -27,7 +27,7 @@ openHorizontalTableBox("");
 {
      openPaintBox("");
      {
-          openVerticalBox("noise shaper       ");
+          openVerticalBox(_("noise shaper       "));
           {
                openHorizontalBox("");
                {
@@ -50,7 +50,7 @@ openHorizontalTableBox("");
      //low high pass filter
      openHorizontalOrderBox(" ", &gx_engine::audio.posit14);
      {
-          openVerticalBox("l/h/filter");
+          openVerticalBox(_("l/h/filter"));
           {
                openHorizontalBox("");
                {
@@ -68,8 +68,8 @@ openHorizontalTableBox("");
 
                               openHorizontalBox("");
                               {
-                                   create_small_rackknob("low_high_pass.lhp.high_freq","high-pass ");
-                                   create_small_rackknob("low_high_pass.lhp.low_freq"," low-pass ");
+                                   create_small_rackknob("low_high_pass.lhp.high_freq",_("high-pass "));
+                                   create_small_rackknob("low_high_pass.lhp.low_freq",_(" low-pass "));
                                    create_switch_no_caption(sw_switchit, "low_high_pass.lhp.on_off");
                               }
                               closeBox();
@@ -79,8 +79,8 @@ openHorizontalTableBox("");
 
                               openHorizontalBox("");
                               {
-                                   create_small_rackknob("low_high_pass.lhc.low_freq"," low-cut ");
-                                   create_small_rackknob("low_high_pass.lhc.high_freq","high-cut ");
+                                   create_small_rackknob("low_high_pass.lhc.low_freq",_("low-cut "));
+                                   create_small_rackknob("low_high_pass.lhc.high_freq",_("high-cut "));
                                    create_switch_no_caption(sw_switchit, "low_high_pass.lhc.on_off");
                               }
                               closeBox();
@@ -168,7 +168,7 @@ openHorizontalTableBox("");
 //----- crybaby
      openHorizontalOrderBox("", &gx_engine::audio.posit0);
      {
-          openVerticalBox("crybaby");
+          openVerticalBox(_("crybaby"));
           {
 
                openHorizontalBox("");
@@ -192,9 +192,9 @@ openHorizontalTableBox("");
                               closeBox();
                               openHorizontalTableBox("");
                               {
-                                   create_small_rackknobr("crybaby.wah","  wah   ");
-                                   create_small_rackknob("crybaby.level","  level  ");
-                                   create_small_rackknob("crybaby.wet_dry","  dry/wet  ");
+                                   create_small_rackknobr("crybaby.wah",_("  wah   "));
+                                   create_small_rackknob("crybaby.level",_("  level  "));
+                                   create_small_rackknob("crybaby.wet_dry",_("  dry/wet  "));
                               }
                               closeBox();
                          }
@@ -210,7 +210,7 @@ openHorizontalTableBox("");
 //----- distortion
      openHorizontalOrderBox("", &gx_engine::audio.posit2);
      {
-          openVerticalBox("distortion");
+          openVerticalBox(_("distortion"));
           {
 
                openHorizontalBox("");
@@ -228,52 +228,58 @@ openHorizontalTableBox("");
                          {
                               openVerticalBox("");
                               {
-                                   openHorizontalBox("");
-                                   {
-                                        openVerticalBox1("");
+                                   
+									   openVerticalBox("");
+                                       {
+                                        openFlipLabelBox(_("  drive "));
                                         {
-                                             create_small_rackknobr("gx_distortion.drive","  drive ");
-                                             create_small_rackknob("gx_distortion.level","  level  ");
-                                             create_small_rackknob("gx_distortion.gain","  gain  ");
+											 openHorizontalBox("");
+											 {
+                                             create_small_rackknobr("gx_distortion.drive",_("  drive "));
+                                             create_small_rackknobr("gx_distortion.low_drive",_(" low "));
+                                             create_small_rackknobr("gx_distortion.middle_l_drive",_(" middle l. "));
+                                             create_small_rackknobr("gx_distortion.middle_h_drive",_(" middle h. "));
+                                             create_small_rackknobr("gx_distortion.high_drive",_(" high "));
+                                             }
+											 closeBox();
                                         }
                                         closeBox();
-                                        openVerticalBox1("");
+                                        openFlipLabelBox(_("  gain  "));
                                         {
-                                             openHorizontalBox("");
-                                             {
-                                                  openVerticalBox1("");
-                                                  {
-                                                       create_small_rackknobr("gx_distortion.low_drive"," low drive ");
-                                                       create_small_rackknob("gx_distortion.low_gain"," low gain ");
-                                                  }
-                                                  closeBox();
-                                                  openVerticalBox1("");
-                                                  {
-                                                       create_small_rackknobr("gx_distortion.middle_l_drive"," m. l. drive ");
-                                                       create_small_rackknob("gx_distortion.middle_l_gain"," m. l. gain ");
-                                                  }
-                                                  closeBox();
-                                                  openVerticalBox1("");
-                                                  {
-                                                       create_small_rackknobr("gx_distortion.middle_h_drive"," m. h. drive ");
-                                                       create_small_rackknob("gx_distortion.middle_h_gain"," m. h. gain ");
-                                                  }
-                                                  closeBox();
-                                                  openVerticalBox1("");
-                                                  {
-                                                       create_small_rackknobr("gx_distortion.high_drive"," high drive ");
-                                                       create_small_rackknob("gx_distortion.high_gain"," high gain ");
-                                                  }
-                                                  closeBox();
+											 openHorizontalBox("");
+											 {
+                                             create_small_rackknob("gx_distortion.gain",_("  gain  "));
+                                             create_small_rackknob("gx_distortion.low_gain",_(" low "));
+                                             create_small_rackknob("gx_distortion.middle_l_gain",_(" middle l. "));
+                                             create_small_rackknob("gx_distortion.middle_h_gain",_(" middle h. "));
+                                             create_small_rackknob("gx_distortion.high_gain",_(" high "));
                                              }
-                                             closeBox();
-                                             openVerticalBox("frequency split Hz");
+											 closeBox();
+                                            
+                                        }
+                                        closeBox();
+                                       }
+                                        closeBox(); 
+                                        
+                                        openHorizontalBox("");
+                                        {
+                                             create_small_rackknob("gx_distortion.level",_("  level  "));
+                                             openVerticalBox(_("frequency split Hz"));
                                              {
                                                   openHorizontalBox("");
                                                   {
-                                                       create_wheel("gx_distortion.split_low_freq", "split low freq");
-                                                       create_wheel("gx_distortion.split_middle_freq", "split m. freq");
-                                                       create_wheel("gx_distortion.split_high_freq", "split high freq");
+													   
+                                                       create_wheel("gx_distortion.split_low_freq", _("split low freq"));
+                                                       openSpaceBox("");
+													   closeBox();
+                                                       create_wheel("gx_distortion.split_middle_freq",_( "split m. freq"));
+                                                       openSpaceBox("");
+													   closeBox();
+                                                       create_wheel("gx_distortion.split_high_freq", _("split high freq"));
+                                                       openSpaceBox("");
+													   closeBox();
+													   openSpaceBox("");
+													   closeBox();
 
                                                   }
                                                   closeBox();
@@ -281,15 +287,14 @@ openHorizontalTableBox("");
                                              closeBox();
                                         }
                                         closeBox();
-                                   }
-                                   closeBox();
+                                   
                               }
                               closeBox();
 
-                              openVerticalBox("resonator");
+                              openVerticalBox(_("resonator"));
                               {
-                                   create_small_rackknob("gx_distortion.trigger","trigger ");
-                                   create_small_rackknob("gx_distortion.vibrato"," vibrato ");
+                                   create_small_rackknob("gx_distortion.trigger",_("trigger "));
+                                   create_small_rackknob("gx_distortion.vibrato",_(" vibrato "));
                                    create_switch_no_caption(sw_switchit, "gx_distortion.resonator.on_off");
                               }
                               closeBox();
@@ -306,7 +311,7 @@ openHorizontalTableBox("");
 //----- IR
      openHorizontalOrderBox("", &gx_engine::audio.posit4);
      {
-          openVerticalBox("IR");
+          openVerticalBox(_("IR"));
           {
                openHorizontalBox("");
                {
@@ -331,9 +336,9 @@ openHorizontalTableBox("");
 
                                    openHorizontalTableBox("");
                                    {
-                                        create_small_rackknob("IR.freq"," freq ");
-                                        create_small_rackknob("IR.peak"," peak ");
-                                        create_small_rackknob("IR.bandwidth"," bandwidth ");
+                                        create_small_rackknob("IR.freq",_(" freq "));
+                                        create_small_rackknob("IR.peak",_(" peak "));
+                                        create_small_rackknob("IR.bandwidth",_(" bandwidth "));
                                    }
                                    closeBox();
                               }
@@ -351,7 +356,7 @@ openHorizontalTableBox("");
 //----- the compressor
      openHorizontalOrderBox("", &gx_engine::audio.posit5);
      {
-          openVerticalBox("Compr.");
+          openVerticalBox(_("Compr."));
           {
                openHorizontalBox("");
                {
@@ -366,13 +371,13 @@ openHorizontalTableBox("");
 
                          openHorizontalTableBox("");
                          {
-                              create_small_rackknob("compressor.knee");
-                              create_small_rackknobr("compressor.ratio");
-                              create_small_rackknob("compressor.threshold");
+                              create_small_rackknob("compressor.knee",_("knee"));
+                              create_small_rackknobr("compressor.ratio", _("ratio"));
+                              create_small_rackknob("compressor.threshold", _("threshold"));
 
 
-                              create_small_rackknob("compressor.attack");
-                              create_small_rackknob("compressor.release");
+                              create_small_rackknob("compressor.attack", _( "attack"));
+                              create_small_rackknob("compressor.release",  _("release"));
                          }
                          closeBox();
 
@@ -388,7 +393,7 @@ openHorizontalTableBox("");
 //-----overdrive
      openHorizontalOrderBox("", &gx_engine::audio.posit1);
      {
-          openVerticalBox("overdrive");
+          openVerticalBox( _("overdrive"));
           {
                openHorizontalBox("");
                {
@@ -405,7 +410,7 @@ openHorizontalTableBox("");
 
                               openSpaceBox("");
                               closeBox();
-                              create_small_rackknobr("overdrive.drive","  drive ");
+                              create_small_rackknobr("overdrive.drive", _("  drive "));
                               openSpaceBox("");
                               closeBox();
                          }
@@ -421,7 +426,7 @@ openHorizontalTableBox("");
 //----- echo
      openHorizontalOrderBox("", &gx_engine::audio.posit6);
      {
-          openVerticalBox("echo");
+          openVerticalBox( _("echo"));
           {
                openHorizontalBox("");
                {
@@ -439,9 +444,9 @@ openHorizontalTableBox("");
                               openHorizontalTableBox("");
                               {
 
-                                   create_small_rackknobr("echo.time","  time  ");
+                                   create_small_rackknobr("echo.time", _("  time  "));
 
-                                   create_small_rackknob("echo.percent","    %    ");
+                                   create_small_rackknob("echo.percent", _("    %    "));
                               }
                               closeBox();
                          }
@@ -458,7 +463,7 @@ openHorizontalTableBox("");
 //-----delay
      openHorizontalOrderBox("", &gx_engine::audio.posit7);
      {
-          openVerticalBox("delay");
+          openVerticalBox( _("delay"));
           {
                openHorizontalBox("");
                {
@@ -476,9 +481,9 @@ openHorizontalTableBox("");
                               openHorizontalTableBox("");
                               {
 
-                                   create_small_rackknobr("delay.delay"," delay ");
+                                   create_small_rackknobr("delay.delay", _(" delay "));
 
-                                   create_small_rackknob("delay.gain","  gain ");
+                                   create_small_rackknob("delay.gain", _("  gain "));
                               }
                               closeBox();
                          }
@@ -495,7 +500,7 @@ openHorizontalTableBox("");
 //----- freeverb
      openHorizontalOrderBox("", &gx_engine::audio.posit3);
      {
-          openVerticalBox("freeverb");
+          openVerticalBox( _("freeverb"));
           {
                openHorizontalBox("");
                {
@@ -514,9 +519,9 @@ openHorizontalTableBox("");
                          closeBox();
                          openHorizontalTableBox("");
                          {
-                              create_small_rackknobr("freeverb.RoomSize");
-                              create_small_rackknob("freeverb.damp");
-                              create_small_rackknob("freeverb.wet_dry", "dry/wet");
+                              create_small_rackknobr("freeverb.RoomSize",  _("RoomSize"));
+                              create_small_rackknob("freeverb.damp",  _("damp"));
+                              create_small_rackknob("freeverb.wet_dry",  _("dry/wet"));
                          }
                          closeBox();
                          openFrameBox("");
@@ -532,11 +537,11 @@ openHorizontalTableBox("");
      }
      closeBox();
 
-     openVerticalMidiBox("  MIDI out  ");
+     openVerticalMidiBox(_("  MIDI out  "));
      {
           openHorizontalBox("");
           {
-               openVerticalBox("  MIDI out  ");
+               openVerticalBox(_("  MIDI out  "));
                {
                     create_switch_no_caption(sw_switchit, "midi_out.on_off");
                     openFrameBox("");
@@ -565,7 +570,7 @@ openHorizontalTableBox("");
                     openTabBox("");
                     {
 
-                         openVerticalBox("channel1");
+                         openVerticalBox(_("channel1"));
                          {
                               openpaintampBox(" ");
                               {
@@ -573,25 +578,25 @@ openHorizontalTableBox("");
                                    {
                                         openHorizontalBox("");
                                         {
-                                             create_small_rackknob("midi_out.channel_1.velocity");
+                                             create_small_rackknob("midi_out.channel_1.velocity",_("velocity"));
                                              openVerticalBox("");
                                              {
 												  openPaintBox2("dark_box");
                                                   {
-													create_small_rackknob("midi_out.channel_1.volume");
+													create_small_rackknob("midi_out.channel_1.volume",_("volume"));
                                                   }
                                                   closeBox();
-                                                  addCheckButton("midi_out.channel_1.autogain");
+                                                  addCheckButton("midi_out.channel_1.autogain",_("autogain"));
                                              }
                                              closeBox();
                                              openVerticalBox("");
                                              {
-                                                  addNumEntry("midi_out.channel_1.channel");
-                                                  addNumEntry("midi_out.channel_1.program");
+                                                  addNumEntry("midi_out.channel_1.channel",_("channel"));
+                                                  addNumEntry("midi_out.channel_1.program",_("program"));
                                              }
                                              closeBox();
-                                             create_small_rackknob("midi_out.channel_1.oktave");
-                                             create_small_rackknob("midi_out.channel_1.sensity");
+                                             create_small_rackknob("midi_out.channel_1.oktave",_("oktave"));
+                                             create_small_rackknob("midi_out.channel_1.sensity",_("sensity"));
                                         }
                                         closeBox();
                                         openHorizontalBox("");
@@ -617,7 +622,7 @@ openHorizontalTableBox("");
                                              closeBox();
                                              openHorizontalBox(" ");
                                              {
-                                                  addPToggleButton("midi_out.channel_1.auto_pitch");
+                                                  addPToggleButton("midi_out.channel_1.auto_pitch",_("auto_pitch"));
                                              }
                                              closeBox();
                                         }
@@ -629,7 +634,7 @@ openHorizontalTableBox("");
                          }
                          closeBox();
 
-                         openVerticalBox("channel2");
+                         openVerticalBox(_("channel2"));
                          {
                               openpaintampBox(" ");
                               {
@@ -637,25 +642,25 @@ openHorizontalTableBox("");
                                    {
                                         openHorizontalBox("");
                                         {
-                                             create_small_rackknob("midi_out.channel_2.velocity");
+                                             create_small_rackknob("midi_out.channel_2.velocity",_("velocity"));
                                              openVerticalBox("");
                                              {
 												  openPaintBox2("dark_box");
                                                   {
-													create_small_rackknob("midi_out.channel_2.volume");
+													create_small_rackknob("midi_out.channel_2.volume",_("volume"));
                                                   }
                                                   closeBox();
-                                                  addCheckButton("midi_out.channel_2.autogain");
+                                                  addCheckButton("midi_out.channel_2.autogain",_("autogain"));
                                              }
                                              closeBox();
                                              openVerticalBox("");
                                              {
-                                                  addNumEntry("midi_out.channel_2.channel");
-                                                  addNumEntry("midi_out.channel_2.program");
+                                                  addNumEntry("midi_out.channel_2.channel",_("channel"));
+                                                  addNumEntry("midi_out.channel_2.program",_("program"));
                                              }
                                              closeBox();
-                                             create_small_rackknob("midi_out.channel_2.oktave");
-                                             create_small_rackknob("midi_out.channel_2.sensity");
+                                             create_small_rackknob("midi_out.channel_2.oktave",_("oktave"));
+                                             create_small_rackknob("midi_out.channel_2.sensity",_("sensity"));
                                         }
                                         closeBox();
                                         openHorizontalBox("");
@@ -681,7 +686,7 @@ openHorizontalTableBox("");
 
                                              openHorizontalBox(" ");
                                              {
-                                                  addPToggleButton("midi_out.channel_2.auto_pitch");
+                                                  addPToggleButton("midi_out.channel_2.auto_pitch",_("auto_pitch"));
                                              }
                                              closeBox();
 
@@ -694,7 +699,7 @@ openHorizontalTableBox("");
                          }
                          closeBox();
 
-                         openVerticalBox("channel3");
+                         openVerticalBox(_("channel3"));
                          {
                               openpaintampBox(" ");
                               {
@@ -702,25 +707,25 @@ openHorizontalTableBox("");
                                    {
                                         openHorizontalBox("");
                                         {
-                                             create_small_rackknob("midi_out.channel_3.velocity");
+                                             create_small_rackknob("midi_out.channel_3.velocity",_("velocity"));
                                              openVerticalBox("");
                                              {
                                                   openPaintBox2("dark_box");
                                                   {
-                                                  create_small_rackknob("midi_out.channel_3.volume");
+                                                  create_small_rackknob("midi_out.channel_3.volume",_("volume"));
                                                   }
                                                   closeBox();
-                                                  addCheckButton("midi_out.channel_3.autogain");
+                                                  addCheckButton("midi_out.channel_3.autogain",_("autogain"));
                                              }
                                              closeBox();
                                              openVerticalBox("");
                                              {
-                                                  addNumEntry("midi_out.channel_3.channel");
-                                                  addNumEntry("midi_out.channel_3.program");
+                                                  addNumEntry("midi_out.channel_3.channel",_("channel"));
+                                                  addNumEntry("midi_out.channel_3.program",_("program"));
                                              }
                                              closeBox();
-                                             create_small_rackknob("midi_out.channel_3.oktave");
-                                             create_small_rackknob("midi_out.channel_3.sensity");
+                                             create_small_rackknob("midi_out.channel_3.oktave",_("oktave"));
+                                             create_small_rackknob("midi_out.channel_3.sensity",_("sensity"));
                                         }
                                         closeBox();
                                         openHorizontalBox("");
@@ -746,7 +751,7 @@ openHorizontalTableBox("");
                                              closeBox();
                                              openHorizontalBox(" ");
                                              {
-                                                  addPToggleButton("midi_out.channel_3.auto_pitch");
+                                                  addPToggleButton("midi_out.channel_3.auto_pitch",_("auto_pitch"));
                                              }
                                              closeBox();
                                         }
@@ -758,7 +763,7 @@ openHorizontalTableBox("");
                          }
                          closeBox();
 
-                         openVerticalBox("beat_detector");
+                         openVerticalBox(_("beat_detector"));
                          {
                               openpaintampBox(" ");
                               {
@@ -767,10 +772,10 @@ openHorizontalTableBox("");
 
                                         openHorizontalBox("");
                                         {
-                                             create_small_rackknob("beat_detector.stepper");
-                                             create_small_rackknob("beat_detector.note_off");
-                                             create_small_rackknob("beat_detector.atack_gain");
-                                             create_small_rackknob("beat_detector.beat_gain");
+                                             create_small_rackknob("beat_detector.stepper",_("stepper"));
+                                             create_small_rackknob("beat_detector.note_off",_("note_off"));
+                                             create_small_rackknob("beat_detector.atack_gain",_("atack_gain"));
+                                             create_small_rackknob("beat_detector.beat_gain",_("beat_gain"));
                                         }
                                         closeBox();
                                         addStatusDisplay("", &gx_engine::audio.midistat);
@@ -802,7 +807,7 @@ openHorizontalTableBox("");
                                         }
                                         closeBox();
 
-                                        openVerticalBox("Midi gain");
+                                        openVerticalBox(_("Midi gain"));
                                         {
                                              create_wheel("beat_detector.midi_gain");
                                         }

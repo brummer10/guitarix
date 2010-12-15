@@ -23,6 +23,7 @@
  */
 
 #include "guitarix.h"
+#include <glibmm/i18n.h>
 
 //-------- the gx_head user interface build instruktions
 
@@ -43,6 +44,7 @@ inline void all_midi_params_assigned()
 /* -------- user interface builder ---------- */
 void GxMainInterface::setup()
 {
+	
      //----- the main box, all visible widgets are a child of this box
      openVerticalBox("");
 
@@ -91,7 +93,7 @@ void GxMainInterface::setup()
                                    closeBox();
                                    openSpaceBox("");
                                    closeBox();
-                                   create_bigknob("amp2.stage1.Pregain", "Pre gain");
+                                   create_bigknob("amp2.stage1.Pregain", _("Pre gain"));
                                    openSpaceBox("");
                                    closeBox();
 
@@ -118,7 +120,7 @@ void GxMainInterface::setup()
                                    closeBox();
 
 
-                                   create_bigknob("gxdistortion.drive","  Drive ");
+                                   create_bigknob("gxdistortion.drive",_("  Drive "));
                                    openSpaceBox("");
                                    closeBox();
 
@@ -149,7 +151,7 @@ void GxMainInterface::setup()
                                         closeBox();
 
 
-                                        create_bigknob("amp2.stage2.gain1", "Master gain");
+                                        create_bigknob("amp2.stage2.gain1", _("Master gain"));
                                         openSpaceBox("");
                                         closeBox();
 
@@ -164,7 +166,7 @@ void GxMainInterface::setup()
 
 
 
-                              openFlipLabelBox("tone");
+                              openFlipLabelBox(_("tone"));
                               {
                                    openVerticalBox("");
                                    {
@@ -182,24 +184,13 @@ void GxMainInterface::setup()
                                         {
                                              openSpaceBox("");
                                              closeBox();
-                                             create_smallknob("amp.tonestack.Bass");
+                                             create_smallknob("amp.tonestack.Bass",_("Bass"));
                                              openSpaceBox("");
                                              closeBox();
-                                             create_smallknob("amp.tonestack.Middle");
+                                             create_smallknob("amp.tonestack.Middle",_("Middle"));
                                              openSpaceBox("");
                                              closeBox();
-                                             create_smallknob("amp.tonestack.Treble");
-                                             openSpaceBox("");
-                                             closeBox();
-                                        }
-                                        closeBox();
-                                        openHorizontalBox("");
-                                        {
-                                             openVerticalBox1("");
-                                             closeBox();
-                                             create_switch(sw_minitoggle, "amp.bass_boost.on_off", " Bass boost  ", Gtk::POS_RIGHT);
-                                             openSpaceBox("");
-                                             closeBox();
+                                             create_smallknob("amp.tonestack.Treble",_("Treble"));
                                              openSpaceBox("");
                                              closeBox();
                                         }
@@ -208,7 +199,18 @@ void GxMainInterface::setup()
                                         {
                                              openVerticalBox1("");
                                              closeBox();
-                                             create_cab_switch("cab.on_off"," Cabinet        ", Gtk::POS_RIGHT);
+                                             create_switch(sw_minitoggle, "amp.bass_boost.on_off", _(" Bass boost  "), Gtk::POS_RIGHT);
+                                             openSpaceBox("");
+                                             closeBox();
+                                             openSpaceBox("");
+                                             closeBox();
+                                        }
+                                        closeBox();
+                                        openHorizontalBox("");
+                                        {
+                                             openVerticalBox1("");
+                                             closeBox();
+                                             create_cab_switch("cab.on_off",_(" Cabinet        "), Gtk::POS_RIGHT);
                                              openSpaceBox("");
                                              closeBox();
                                              openSpaceBox("");
@@ -248,15 +250,15 @@ void GxMainInterface::setup()
                                    closeBox();
                                    openSpaceBox("");
                                    closeBox();
-                                   create_switch(sw_minitoggle, "amp.feed_on_off", " reverb  ", Gtk::POS_RIGHT);
+                                   create_switch(sw_minitoggle, "amp.feed_on_off", _(" reverb  "), Gtk::POS_RIGHT);
                                    openSpaceBox("");
                                    closeBox();
                                    openVerticalBox1("Convolver");
                                    {
                                    }
                                    closeBox();
-                                   addJConvButton("set", &gx_engine::audio.filebutton);
-                                   addJToggleButton("run", &gx_jconv::GxJConvSettings::checkbutton7);
+                                   addJConvButton(_("set"), &gx_engine::audio.filebutton);
+                                   addJToggleButton(_("run"), &gx_jconv::GxJConvSettings::checkbutton7);
 
                                    openSpaceBox("");
                                    closeBox();
@@ -326,17 +328,17 @@ void GxMainInterface::setup()
                closeBox();
           }
           closeBox();
-         openToolBar("Plugins");
+         openToolBar(_("Plugins"));
          {
 		 }
 		 closeBox();	 
-         openPlugBox("Mono Rack");
+         openPlugBox(_("Mono Rack"));
 		 {
 			#include "gx_rack_builder.cc"		
 		 }
 		 closeBox();
 		 
-		 openAmpBox("Stereo Rack");
+		 openAmpBox(_("Stereo Rack"));
 		 {
 			#include "gx_srack_builder.cc"		
 		 }
@@ -347,7 +349,7 @@ void GxMainInterface::setup()
      // add a Patch Info widget
      openPatchInfoBox(&gx_gui::show_patch_info);
      addNumDisplay();
-     openTextLoggingBox("Logging Window");
+     openTextLoggingBox(_("Logging Window"));
 	 
      debug_check(all_midi_params_assigned);
 	}

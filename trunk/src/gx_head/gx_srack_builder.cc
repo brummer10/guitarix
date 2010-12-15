@@ -31,7 +31,7 @@ openHorizontalTableBox("");
      //----- chorus
      openHorizontalRestetBox("", &gx_engine::audio.posit8);
      {
-          openVerticalBox("chorus");
+          openVerticalBox(_("chorus"));
           {
 
                openHorizontalTableBox("");
@@ -49,10 +49,10 @@ openHorizontalTableBox("");
                          {
                               openHorizontalBox("");
                               {
-                                   create_small_rackknobr("chorus.level","  level  ");
-                                   create_small_rackknob("chorus.delay","  delay  ");
-                                   create_small_rackknob("chorus.depth","  depth  ");
-                                   create_small_rackknob("chorus.freq","  freq  ");
+                                   create_small_rackknobr("chorus.level",_("  level  "));
+                                   create_small_rackknob("chorus.delay",_("  delay  "));
+                                   create_small_rackknob("chorus.depth",_("  depth  "));
+                                   create_small_rackknob("chorus.freq",_("  freq  "));
                               }
                               closeBox();
                          }
@@ -87,18 +87,18 @@ openHorizontalTableBox("");
                          {
                               openHorizontalBox("");
                               {
-                                   create_small_rackknobr("flanger.level","  level  ");
+                                   create_small_rackknobr("flanger.level",_("  level  "));
                               }
                               closeBox();
                               openVerticalBox("");
                               {
                                    openHorizontalBox("");
                                    {
-                                        create_small_rackknob("flanger.feedback gain"," feedback ");
-                                        create_small_rackknob("flanger.depth","  depth  ");
-                                        create_small_rackknob("flanger.flange delay","  delay  ");
-                                        create_small_rackknob("flanger.flange delay offset"," delay offset");
-                                        create_small_rackknob("flanger.LFO freq"," LFO ");
+                                        create_small_rackknob("flanger.feedback gain",_(" feedback "));
+                                        create_small_rackknob("flanger.depth",_("  depth  "));
+                                        create_small_rackknob("flanger.flange delay",_("  delay  "));
+                                        create_small_rackknob("flanger.flange delay offset",_(" delay offset"));
+                                        create_small_rackknob("flanger.LFO freq",_(" LFO "));
 
                                    }
                                    closeBox();
@@ -144,7 +144,7 @@ openHorizontalTableBox("");
 
      openHorizontalRestetBox("", &gx_engine::audio.posit12);
      {
-          openVerticalBox("phaser");
+          openVerticalBox(_("phaser"));
           {
 
                openHorizontalTableBox("");
@@ -160,20 +160,20 @@ openHorizontalTableBox("");
                          {
                               openHorizontalBox("");
                               {
-                                   create_small_rackknobr("phaser.level","  level ");
+                                   create_small_rackknobr("phaser.level",_("  level "));
                               }
                               closeBox();
                               openVerticalBox("");
                               {
                                    openHorizontalBox("");
                                    {
-                                        create_small_rackknob("phaser.feedback gain"," feedback ");
-                                        create_small_rackknob("phaser.depth", "depth");
-                                        create_small_rackknob("phaser.Notch width", "width");
-                                        create_small_rackknob("phaser.NotchFreq", "freq");
-                                        create_small_rackknob("phaser.MaxNotch1Freq", "max Hz");
-                                        create_small_rackknob("phaser.MinNotch1Freq", "min Hz");
-                                        create_small_rackknob("phaser.Speed", "speed");
+                                        create_small_rackknob("phaser.feedback gain",_(" feedback "));
+                                        create_small_rackknob("phaser.depth", _("depth"));
+                                        create_small_rackknob("phaser.Notch width", _("width"));
+                                        create_small_rackknob("phaser.NotchFreq", _("freq"));
+                                        create_small_rackknob("phaser.MaxNotch1Freq", _("max Hz"));
+                                        create_small_rackknob("phaser.MinNotch1Freq", _("min Hz"));
+                                        create_small_rackknob("phaser.Speed", _("speed"));
                                    }
                                    closeBox();
                                    openSpaceBox("");
@@ -215,7 +215,7 @@ openHorizontalTableBox("");
 
      openHorizontalRestetBox("", &gx_engine::audio.posit15);
      {
-          openVerticalBox("delay");
+          openVerticalBox(_("delay"));
           {
 
                openHorizontalTableBox("");
@@ -232,11 +232,11 @@ openHorizontalTableBox("");
                          {
                               openHorizontalBox("");
                               {
-                                   create_small_rackknob("stereodelay.l_gain","left gain");
-                                   create_small_rackknob("stereodelay.l_delay","left delay");
+                                   create_small_rackknob("stereodelay.l_gain",_("left gain"));
+                                   create_small_rackknob("stereodelay.l_delay",_("left delay"));
                                    openVerticalBox("");
                                    {
-                                        create_small_rackknobr("stereodelay.LFO freq","LFO");
+                                        create_small_rackknobr("stereodelay.LFO freq",_("LFO"));
                                         openSpaceBox("");
                                         closeBox();
                                         create_selector("stereodelay.invert");
@@ -245,8 +245,8 @@ openHorizontalTableBox("");
                                    }
                                    closeBox();
 
-                                   create_small_rackknob("stereodelay.r_gain","right gain");
-                                   create_small_rackknob("stereodelay.r_delay","right delay");
+                                   create_small_rackknob("stereodelay.r_gain",_("right gain"));
+                                   create_small_rackknob("stereodelay.r_delay",_("right delay"));
 
                               }
                               closeBox();
@@ -263,7 +263,7 @@ openHorizontalTableBox("");
 
      openHorizontalRestetBox("", &gx_engine::audio.posit16);
      {
-          openVerticalBox("echo");
+          openVerticalBox(_("echo"));
           {
 
                openHorizontalTableBox("");
@@ -280,10 +280,10 @@ openHorizontalTableBox("");
                          {
                               openHorizontalBox("");
                               {
-                                   create_small_rackknob("stereoecho.percent_l","left %");
-                                   create_small_rackknob("stereoecho.time_l","left time");
-                                   create_small_rackknob("stereoecho.percent_r","right %");
-                                   create_small_rackknob("stereoecho.time_r","right time");
+                                   create_small_rackknob("stereoecho.percent_l",_("left %"));
+                                   create_small_rackknob("stereoecho.time_l",_("left time"));
+                                   create_small_rackknob("stereoecho.percent_r",_("right %"));
+                                   create_small_rackknob("stereoecho.time_r",_("right time"));
 
                               }
                               closeBox();
@@ -300,7 +300,7 @@ openHorizontalTableBox("");
 
      openHorizontalRestetBox("", &gx_engine::audio.posit11);
      {
-          openVerticalBox("moog");
+          openVerticalBox(_("moog"));
           {
 
                openHorizontalTableBox("");
@@ -317,9 +317,9 @@ openHorizontalTableBox("");
                          {
                               openHorizontalTableBox("");
                               {
-                                   create_small_rackknob("moog.Q","            Q            ");
+                                   create_small_rackknob("moog.Q",_("            Q            "));
 
-                                   create_small_rackknob("moog.fr","            Hz           ");
+                                   create_small_rackknob("moog.fr",_("            Hz           "));
 
                               }
                               closeBox();
