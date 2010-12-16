@@ -611,6 +611,9 @@ void gx_hide_extended_settings( GtkWidget *widget, gpointer data )
 
 	if (gdk_window_get_state(fWindow->window)
 	    & (GDK_WINDOW_STATE_ICONIFIED|GDK_WINDOW_STATE_WITHDRAWN)) {
+		gint mainxorg = gx_set_mx_oriantation(); 
+		gint mainyorg = gx_set_my_oriantation();
+		gtk_window_move(GTK_WINDOW(fWindow), mainxorg, mainyorg);	
 		gtk_window_present(GTK_WINDOW(fWindow));
 	} else {
 		gtk_widget_hide(fWindow);

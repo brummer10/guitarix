@@ -603,6 +603,9 @@ extern const char *sw_rbutton;
 
 gboolean button_press_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
 
+int gx_set_mx_oriantation();
+int gx_set_my_oriantation();
+
 #ifndef NDEBUG
 // debug_check
 inline void check_zone(GtkWidget *w, void *zone)
