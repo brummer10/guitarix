@@ -1459,7 +1459,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 		gx_gui::gx_get_skin_change(&audio.fskin);
 		
 		// save rack state when needed
-		if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::rack_widget))) {
+		/*if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::rack_widget))) {
 			gint rxorg,ryorg,rhight;
 			gtk_window_get_position (GTK_WINDOW(gx_gui::rack_widget), &rxorg, &ryorg);
 			gtk_widget_get_size_request (GTK_WIDGET(gx_gui::rack_widget),NULL, &rhight);
@@ -1484,7 +1484,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 			gx_gui::pr_xorg = (float)prxorg;
 			gx_gui::pr_yorg = (float)pryorg;
 			gx_gui::pr_hight = (float)prhight;
-		}
+		}*/
 		
 		if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::fWindow))) {
 			gint mainxorg,mainyorg;

@@ -237,88 +237,12 @@ void GxMainInterface::on_log_activate() {
 
 }
 
-// save and get rack position
-int gx_set_x_oriantation()
-{
-	return (gint) gx_gui::r_xorg;
-}
-
-int gx_set_y_oriantation()
-{
-	return (gint) gx_gui::r_yorg;
-}
-
-int gx_set_w_oriantation()
-{
-	return (gint) gx_gui::r_hight;
-}
-
-int gx_set_sy_oriantation()
-{
-	return (gint) gx_gui::sr_yorg;
-}
-
-int gx_set_sx_oriantation()
-{
-	return (gint) gx_gui::sr_xorg;
-}
-
-int gx_set_sw_oriantation()
-{
-	return (gint) gx_gui::sr_hight;
-}
-
-int gx_set_py_oriantation()
-{
-	return (gint) gx_gui::pr_yorg;
-}
-
-int gx_set_px_oriantation()
-{
-	return (gint) gx_gui::pr_xorg;
-}
-
-int gx_set_pw_oriantation()
-{
-	return (gint) gx_gui::pr_hight;
-}
-
-void gx_get_oriantation(gint xorg, gint yorg, gint rhight)
-{
-	gx_gui::r_xorg = (float)xorg;
-	gx_gui::r_yorg = (float)yorg;
-	gx_gui::r_hight = (float)rhight;
-}
-
-void gx_gets_oriantation(gint xorg, gint yorg, gint srhight)
-{
-	gx_gui::sr_xorg = (float)xorg;
-	gx_gui::sr_yorg = (float)yorg;
-	gx_gui::sr_hight = (float)srhight;
-}
-
-
-void gx_getp_oriantation(gint xorg, gint yorg, gint srhight)
-{
-	gx_gui::pr_xorg = (float)xorg;
-	gx_gui::pr_yorg = (float)yorg;
-	gx_gui::pr_hight = (float)srhight;
-}
-
 //----menu function gx_rack
 void GxMainInterface::on_rack_activate()
 {
-	static gint rxorg = gx_set_x_oriantation(); 
-	static gint ryorg = gx_set_y_oriantation();
-	static gint rhight = gx_set_w_oriantation();
 	if (fShowRack.get_active()) {
-		gtk_widget_set_size_request (GTK_WIDGET (rack_widget), 0, rhight+5);
-		gtk_window_move(GTK_WINDOW(rack_widget), rxorg, ryorg);
 		gtk_widget_show(rack_widget);
 	} else {
-		gtk_window_get_position (GTK_WINDOW(rack_widget), &rxorg, &ryorg);
-		gtk_widget_get_size_request (GTK_WIDGET(rack_widget),NULL, &rhight);
-		gx_get_oriantation(rxorg,ryorg,rhight);
 		gtk_widget_hide(rack_widget);
 	}
 }
@@ -326,18 +250,9 @@ void GxMainInterface::on_rack_activate()
 //----menu function gx_rack
 void GxMainInterface::on_srack_activate()
 {
-	static gint srxorg = gx_set_sx_oriantation(); 
-	static gint sryorg = gx_set_sy_oriantation();
-	static gint srhight = gx_set_sw_oriantation();
 	if (fShowSRack.get_active()) {
-		gtk_widget_set_size_request (GTK_WIDGET (srack_widget), 0,srhight+5);
-		gtk_window_move(GTK_WINDOW(srack_widget), srxorg, sryorg);
 		gtk_widget_show(srack_widget);
 	} else {
-		gtk_window_get_position (GTK_WINDOW(srack_widget), &srxorg, &sryorg);
-		gtk_widget_get_size_request (GTK_WIDGET(srack_widget),NULL, &srhight);
-		
-		gx_gets_oriantation(srxorg,sryorg,srhight);
 		gtk_widget_hide(srack_widget);
 	}
 }
@@ -345,18 +260,9 @@ void GxMainInterface::on_srack_activate()
 //----menu function gx_toolbar
 void GxMainInterface::on_toolbar_activate()
 {
-	static gint prxorg = gx_set_px_oriantation(); 
-	static gint pryorg = gx_set_py_oriantation();
-	static gint prhight = gx_set_pw_oriantation();
 	if (fShowToolBar.get_active()) {
-		gtk_widget_set_size_request (GTK_WIDGET (rack_tool_bar), 0,prhight+5);
-		gtk_window_move(GTK_WINDOW(rack_tool_bar), prxorg, pryorg);
-		gtk_widget_show(rack_tool_bar);
 		gtk_widget_show_all(rack_tool_bar);
 	} else {
-		gtk_window_get_position (GTK_WINDOW(rack_tool_bar), &prxorg, &pryorg);
-		gtk_widget_get_size_request (GTK_WIDGET(rack_tool_bar),NULL, &prhight);
-		gx_getp_oriantation(prxorg,pryorg,prhight);
 		gtk_widget_hide(rack_tool_bar);
 	}
 }
@@ -537,10 +443,68 @@ gboolean gx_set_sresizeable(gpointer data)
 		gtk_window_set_resizable(GTK_WINDOW (data) , TRUE);
 	return false;
 }
+
+gboolean gx_set_default(gpointer data)
+{
+	gtk_widget_set_size_request (GTK_WIDGET (data),-1, 440 );
+	return false;
+}
+
+gboolean gx_set_default_size(gpointer data)
+{
+	gtk_widget_set_size_request (GTK_WIDGET (data),-1, 440 );
+	return false;
+}
+
 //----- show extendend settings slider
 void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 {
-	//unused
+	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)) == TRUE) {
+		
+		GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
+		gtk_widget_show_all(GTK_WIDGET(plug));
+		GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(plug));
+		GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
+		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
+		GtkWidget *box3 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		box2 = gtk_widget_get_parent(GTK_WIDGET(box3));
+		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
+		GtkRequisition my_size;
+		gtk_widget_size_request(GTK_WIDGET(box1),&my_size);
+		gtk_widget_set_size_request (GTK_WIDGET (box3),my_size.width , 440 );
+		const gchar * title = gtk_widget_get_name(GTK_WIDGET(box1));
+		if(strcmp(title,"MonoRack")==0) {
+		if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
+			g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 5, gx_set_default,gpointer(box3),NULL);
+		}else{
+		if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
+			g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 5, gx_set_default_size,gpointer(box3),NULL);
+		}
+
+		
+	} else {
+		GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
+		gtk_widget_hide(GTK_WIDGET(plug));
+		GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(plug));
+		GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
+		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
+		GtkWidget *box3 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		box2 = gtk_widget_get_parent(GTK_WIDGET(box3));
+		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
+		GtkRequisition my_size;
+		gtk_widget_size_request(GTK_WIDGET(box1),&my_size);
+		gtk_widget_set_size_request (GTK_WIDGET (box3),my_size.width , 440 );
+		const gchar * title = gtk_widget_get_name(GTK_WIDGET(box1));
+		if(strcmp(title,"MonoRack")==0) {
+		if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
+			g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 5, gx_set_default,gpointer(box3),NULL);
+		}else{
+		if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
+			g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 5, gx_set_default_size,gpointer(box3),NULL);
+		}
+	}
 }
 
 //----- show extendend settings slider
@@ -627,7 +591,7 @@ void gx_midi_out (GtkCheckMenuItem *menuitem, gpointer checkplay)
 	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(midibox));
 	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,0);
 	g_list_free(child_list);
-	gx_show_menu_settings(GTK_WIDGET(menuitem), (gpointer) child);
+	gx_show_extended_settings(GTK_WIDGET(menuitem), (gpointer) child);
 	static bool first = true;
 	if (gtk_check_menu_item_get_active(menuitem) == TRUE) {
 		if(first)refresh_size = 0;

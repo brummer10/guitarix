@@ -257,17 +257,8 @@ extern int stereo_plugs;
 extern int refresh_size;
 
 /* widget orientation */
-extern float r_xorg;
-extern float r_yorg;
-extern float r_hight;
-extern float sr_xorg;
-extern float sr_yorg;
-extern float sr_hight;
 extern float main_xorg;
 extern float main_yorg;
-extern float pr_xorg;
-extern float pr_yorg;
-extern float pr_hight;
 
 extern void register_gui_parameter();
 

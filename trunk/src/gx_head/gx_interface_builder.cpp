@@ -51,6 +51,12 @@ void GxMainInterface::setup()
      //----- add the menubar on top
      {
           addMainMenu();
+       openHorizontalBox("");
+       {
+		  openToolBar(_("Plugins"));
+          {
+		  }
+		  closeBox();	 
           openEventBox(" ");
           {
                //----- this is a dummy widget, only for save settings for the latency warning dialog
@@ -328,11 +334,14 @@ void GxMainInterface::setup()
                closeBox();
           }
           closeBox();
-         openToolBar(_("Plugins"));
-         {
+         
+         
+			addNumDisplay();
 		 }
-		 closeBox();	 
-         openPlugBox(_("Mono Rack"));
+		 closeBox();
+		 openHorizontalBox("");
+               {
+		 openPlugBox(_("Mono Rack"));
 		 {
 			#include "gx_rack_builder.cc"		
 		 }
@@ -343,12 +352,13 @@ void GxMainInterface::setup()
 			#include "gx_srack_builder.cc"		
 		 }
 		 closeBox();
-
 		 }
 		 closeBox();
+	  }
+      closeBox(); 
      // add a Patch Info widget
      openPatchInfoBox(&gx_gui::show_patch_info);
-     addNumDisplay();
+     
      openTextLoggingBox(_("Logging Window"));
 	 
      debug_check(all_midi_params_assigned);

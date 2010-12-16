@@ -92,17 +92,8 @@ inline void registerNonMidiParam(const char*a, bool*c, bool d, float std=false)
 
 void register_gui_parameter()
 {
-	registerNonMidiParam("ui.r_xorg", &r_xorg, true, 40,0,10000);
-	registerNonMidiParam("ui.r_yorg", &r_yorg, true, 80,0,10000);
-	registerNonMidiParam("ui.r_hight", &r_hight, true, 320,0,10000);
-	registerNonMidiParam("ui.sr_xorg", &sr_xorg, true, 200,0,10000);
-	registerNonMidiParam("ui.sr_yorg", &sr_yorg, true, 80,0,10000);
-	registerNonMidiParam("ui.sr_hight", &sr_hight, true, 320,0,10000);
 	registerNonMidiParam("ui.main_xorg", &main_xorg, true, 300,0,10000);
 	registerNonMidiParam("ui.main_yorg", &main_yorg, true, 300,0,10000);
-	registerNonMidiParam("ui.pr_xorg", &pr_xorg, true, 40,0,10000);
-	registerNonMidiParam("ui.pr_yorg", &pr_yorg, true, 80,0,10000);
-	registerNonMidiParam("ui.pr_hight", &pr_hight, true, 524,0,10000);
 }
 
 
@@ -904,7 +895,7 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	                  G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
 	g_signal_connect (GTK_OBJECT (box->m_button1.gobj()), "clicked",
 	                  G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
-	gtk_box_pack_start (GTK_BOX(rBox),GTK_WIDGET(box->m_paintbox.gobj()) , expand, fill, 0);                  
+	gtk_box_pack_start (GTK_BOX(rBox),GTK_WIDGET(box->m_paintbox.gobj()) , expand, false, 0);                  
 	GValue  pos = {0};
 	float z = *posit;
 	gint poset = int(z);
@@ -928,7 +919,7 @@ void GxMainInterface::openHorizontalRestetBox(const char* label, float* posit)
 	                  G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
 	g_signal_connect (GTK_OBJECT (box->m_button1.gobj()), "clicked",
 	                  G_CALLBACK (uiOrderButton::clicked), (gpointer) c);
-	gtk_box_pack_start (GTK_BOX(sBox),GTK_WIDGET(box->m_paintbox.gobj()) , expand, fill, 0);                  
+	gtk_box_pack_start (GTK_BOX(sBox),GTK_WIDGET(box->m_paintbox.gobj()) , expand, false, 0);                  
 	GValue  pos = {0};
 	float z = *posit;
 	gint poset = int(z);
@@ -1171,6 +1162,8 @@ void GxMainInterface::openVerticalMidiBox(const char* label)
 	
 	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(rack_tool_bar));
 	GtkWidget *box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+	child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+	box1 = (GtkWidget *) g_list_nth_data(child_list,0);
 	child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
 	box1 = (GtkWidget *) g_list_nth_data(child_list,0);
 	child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
@@ -1977,7 +1970,7 @@ void GxDialogWindowBox::on_dialog_button_toggled()
 
 void GxDialogWindowBox::on_dialog_menu_activate()
 {
-	gx_show_menu_settings(GTK_WIDGET(menuitem.gobj()), (gpointer)paintbox.gobj());
+	gx_show_extended_settings(GTK_WIDGET(menuitem.gobj()), (gpointer)paintbox.gobj());
 
 	if (!menuitem.get_active()){
 		string group = group_id;
@@ -2216,7 +2209,7 @@ private:
 	void on_check_resize();
 	bool on_button_pressed(GdkEventButton* event);
 public:
-	Gtk::Window window;
+	Gtk::HBox window;
 	Gtk::ScrolledWindow           m_scrolled_window; 
 	Gtk::HBox box;
 	Gtk::HBox box1;
@@ -2278,25 +2271,100 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 	m_regler_tooltip_window(Gtk::WINDOW_POPUP)
 {
 	Glib::ustring title = titl;
-	window.set_decorated(true);
+	//window.set_decorated(true);
 	window.add_events(Gdk::BUTTON_PRESS_MASK);
-	window.set_icon(Glib::wrap(ib));
-	window.set_gravity(Gdk::GRAVITY_STATIC);
-	window.set_title(title);
-	window.property_destroy_with_parent() = true;
+	//window.set_icon(Glib::wrap(ib));
+	//window.set_gravity(Gdk::GRAVITY_STATIC);
+	//window.set_title(title);
+	//window.property_destroy_with_parent() = true;
 	m_scrolled_window.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_AUTOMATIC); 
 	paintbox1.set_border_width(18);
 	paintbox1.property_paint_func() = pb_2;
 	window.signal_delete_event().connect(
 		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxWindowBox::on_window_delete_event),d));
 	box.add(rbox);
-	paintbox1.add(box);
-	m_scrolled_window.add(paintbox1);
-	window.add(m_scrolled_window);
+	paintbox1.add(m_scrolled_window);
+	m_scrolled_window.add(box);
+	window.add(paintbox1);
 	window.signal_button_press_event().connect(
 		sigc::mem_fun(*this, &GxWindowBox::on_button_pressed));
-	window.signal_check_resize().connect(
-		sigc::mem_fun(*this, &GxWindowBox::on_check_resize));
+	//window.signal_check_resize().connect(
+	//	sigc::mem_fun(*this, &GxWindowBox::on_check_resize));
+	paintbox1.show();
+	box.show();
+	m_scrolled_window.show();
+	rbox.show();
+}
+
+class GxToolBox
+{
+private:
+	bool on_window_delete_event(GdkEventAny* event,gpointer d );
+	bool on_button_pressed(GdkEventButton* event);
+public:
+	Gtk::VBox window;
+	Gtk::ScrolledWindow           m_scrolled_window; 
+	Gtk::HBox box;
+	Gtk::HBox box1;
+	Gxw::PaintBox paintbox;
+	Gxw::PaintBox paintbox1;
+	Gtk::VBox rbox;
+	Gtk::Window m_regler_tooltip_window;
+	ToggleCheckButton m_tmono_rack;
+	ToggleCheckButton m_tstereo_rack;
+	GxToolBox(gx_ui::GxUI& ui, 
+		const char *pb_2, Glib::ustring titl,GtkWidget * d);
+	~GxToolBox();
+};
+
+bool GxToolBox::on_window_delete_event(GdkEventAny*, gpointer d)
+{
+	gtk_check_menu_item_set_active(
+				GTK_CHECK_MENU_ITEM(GTK_WIDGET(d)), FALSE
+				);
+	return false;
+}
+
+
+bool GxToolBox::on_button_pressed(GdkEventButton* event)
+{
+	if( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ){
+		const gchar * title = gtk_widget_get_name(GTK_WIDGET(window.gobj()));
+		if(strcmp(title,"MonoRack")==0) {
+			guint32 tim = gtk_get_current_event_time ();
+			gtk_menu_popup (GTK_MENU(menu_mono_rack),NULL,NULL,NULL,(gpointer) menu_mono_rack,2,tim);
+		return true;
+		}
+		else if (strcmp(title,"StereoRack")==0){
+			guint32 tim = gtk_get_current_event_time ();
+			gtk_menu_popup (GTK_MENU(menu_stereo_rack),NULL,NULL,NULL,(gpointer) menu_stereo_rack,2,tim);
+		return true;
+		}
+	}
+	return false;
+}
+
+GxToolBox::GxToolBox(gx_ui::GxUI& ui, 
+	const char *pb_2, Glib::ustring titl,GtkWidget * d):
+	rbox(false, 4),
+	m_regler_tooltip_window(Gtk::WINDOW_POPUP)
+{
+	Glib::ustring title = titl;
+	window.add_events(Gdk::BUTTON_PRESS_MASK);
+	m_scrolled_window.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_AUTOMATIC); 
+	paintbox1.set_border_width(18);
+	paintbox.set_border_width(4);
+	paintbox1.property_paint_func() = pb_2;
+	paintbox.property_paint_func() = pb_rectangle_skin_color_expose;
+	window.signal_delete_event().connect(
+		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxToolBox::on_window_delete_event),d));
+	box.add(rbox);
+	paintbox1.add(m_scrolled_window);
+	m_scrolled_window.add(paintbox);
+	paintbox.add(box);
+	window.add(paintbox1);
+	window.signal_button_press_event().connect(
+		sigc::mem_fun(*this, &GxToolBox::on_button_pressed));
 	paintbox1.show();
 	box.show();
 	m_scrolled_window.show();
@@ -2305,19 +2373,21 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 
 void GxMainInterface::addNumDisplay()
 {
-	GxWindowBox *box =  new GxWindowBox(*this, 
+	GxToolBox *box =  new GxToolBox(*this, 
 		pb_gxrack_expose, _("tuner"), GTK_WIDGET(fShowTuner.gobj()));
 	box->rbox.add(fTuner);
-	box->window.set_size_request(200,140); 
+	//box->window.set_size_request(200,140); 
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
+	
 	tuner_widget = GTK_WIDGET(box->window.gobj());
 }
 
 void GxMainInterface::openToolBar(const char* label)
 {
-	GxWindowBox *box =  new GxWindowBox(*this, 
+	GxToolBox *box =  new GxToolBox(*this, 
 		pb_gxrack_expose, _("Plugin Bar"), GTK_WIDGET(fShowToolBar.gobj()));
 	
-	box->window.set_size_request(-1,524); 
+	//box->window.set_size_request(-1,524); 
 	rack_tool_bar = GTK_WIDGET(box->window.gobj());
 	tBox = GTK_WIDGET(box->rbox.gobj());
 	box->rbox.add(box->box1);
@@ -2329,6 +2399,7 @@ void GxMainInterface::openToolBar(const char* label)
 	box->box1.pack_start(box->m_tmono_rack,true,true);
 	box->box1.pack_end(box->m_tstereo_rack,true,true);
 	box->box1.show_all();
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(tBox));
 }
 
@@ -2337,11 +2408,11 @@ void GxMainInterface::openPlugBox(const char* label)
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_gxrack_expose, label, GTK_WIDGET(fShowRack.gobj()));
 	rack_widget = GTK_WIDGET(box->window.gobj());
-	box->window.set_size_request(-1,-1); 
+	box->window.set_size_request(-1,440); 
 	box->window.set_name("MonoRack");
 	box->window.set_tooltip_text(_("Mono Rack, right click pop up the plugin menu"));
 	rBox = GTK_WIDGET(box->rbox.gobj());
-	//gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(rBox));
 }
 
@@ -2350,11 +2421,11 @@ void GxMainInterface::openAmpBox(const char* label)
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_gxrack_expose, label, GTK_WIDGET(fShowSRack.gobj()));
 	srack_widget = GTK_WIDGET(box->window.gobj());
-	box->window.set_size_request(-1,-1); 
+	box->window.set_size_request(-1,440); 
 	box->window.set_name("StereoRack");
 	box->window.set_tooltip_text(_("Stereo Rack, right click pop up the plugin menu"));
 	sBox = GTK_WIDGET(box->rbox.gobj());
-	//gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(sBox));
 }
 

@@ -62,10 +62,11 @@ void init_unix_signal_handlers()
 /* --------- Guitarix main ---------- */
 int main(int argc, char *argv[])
 {
+#ifdef ENABLE_NLS
 	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
-	
+#endif
 	init_unix_signal_handlers();
 
 	// ----------------------- init basic subsystems ----------------------
