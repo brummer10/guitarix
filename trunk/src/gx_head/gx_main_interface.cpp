@@ -175,6 +175,23 @@ ToggleCheckButton::ToggleCheckButton()
 	add(m_label);
 }
 
+class GxTBox
+{
+public:
+	Gtk::VBox m_box;
+	ToggleCheckButton m_tcb;
+	GxTBox(gx_ui::GxUI& ui);
+	virtual ~GxTBox();
+};
+
+GxTBox::~GxTBox()
+{
+}
+
+GxTBox::GxTBox(gx_ui::GxUI& ui)
+{
+}
+
 /****************************************************************/
 
 class GxVBox
@@ -2380,6 +2397,26 @@ void GxMainInterface::addNumDisplay()
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	
 	tuner_widget = GTK_WIDGET(box->window.gobj());
+	
+	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(rack_tool_bar));
+	GtkWidget *box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+	child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+	box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+	child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+	box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+	child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+	box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+	child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+	box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+	child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
+	box1 = (GtkWidget *) g_list_nth_data(child_list,0);
+	g_list_free(child_list);
+	
+	GxTBox * tbox1 =  new GxTBox(*this);
+	tbox1->m_tcb.set_parameter(fShowTuner.get_parameter());
+	tbox1->m_tcb.m_label.set_text(_("tuner"));
+	gtk_container_add (GTK_CONTAINER(box1), GTK_WIDGET(tbox1->m_tcb.gobj()));
+	
 }
 
 void GxMainInterface::openToolBar(const char* label)
@@ -3086,7 +3123,6 @@ void GxMainInterface::addOptionMenu()
 	fShowTuner.show();
 	fShowTuner.set_parameter(new SwitchParameter("system.show_tuner"));
 	
-
 	/*-- Create skin menu under Options submenu--*/
 	addGuiSkinMenu();
 	
