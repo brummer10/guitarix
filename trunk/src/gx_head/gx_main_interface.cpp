@@ -1065,10 +1065,12 @@ void GxMainInterface::openFlipLabelBox(const char* label)
 		hbox->m_label.set_name ("beffekt_label");
 		hbox->m_label.set_angle(90);
 		hbox->m_label.set_size_request (15,-1);
-		GtkStyle *style = gtk_widget_get_style(GTK_WIDGET(hbox->m_label.gobj()));
-		pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-		pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-		gtk_widget_modify_font(GTK_WIDGET(hbox->m_label.gobj()), style->font_desc);
+		
+		Pango::FontDescription font = hbox->m_label.get_style()->get_font();
+		font.set_size(8*Pango::SCALE);
+		font.set_weight(Pango::WEIGHT_BOLD);
+		hbox->m_label.modify_font(font);
+		
 		hbox->m_box.add(hbox->m_label);
 		hbox->m_box.add(vbox->m_box);
 		box->m_box.add(hbox->m_box);
