@@ -1796,6 +1796,7 @@ UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, FloatParamete
 	param.set_std_value();
 	set_active(param.value != 0.0);
 	cp_set_var(param.id());
+	this->set_tooltip_text(param.id().substr( param.id().find_last_of(".")+1).c_str());
 	connect_midi_controller(GTK_WIDGET(gobj()), fZone);
 	show();
 }
@@ -1819,6 +1820,9 @@ UiSwitchBool::UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, BoolParameter &
 	param.set_std_value();
 	set_active(param.value);
 	cp_set_var(param.id());
+	char s[64];
+	snprintf(s, 63, _("%s on/off"),param.group().c_str());
+	this->set_tooltip_text(s);
 	connect_midi_controller(GTK_WIDGET(gobj()), fZone);
 	show();
 }
@@ -2036,8 +2040,8 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui,const char *expose_funk, Pa
 	box4.pack_start(box,true,true,0);	
 	box4.pack_end(box5,false,false,0);
 	paintbox.add(box4);
-	paintbox.set_tooltip_text(title);
-	m_tcb.m_label.set_text(title);
+	paintbox.set_tooltip_text(_(title.c_str()));
+	m_tcb.m_label.set_text(_(title.c_str()));
 	dialog_button.signal_toggled().connect(
 		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
 	menuitem.signal_activate().connect(
@@ -2063,7 +2067,7 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	const gchar * title = gtk_widget_get_name(GTK_WIDGET(dialog->paintbox.gobj()));
 	string p = "ui.";
 	p +=title;
-	set_label(dialog->menuitem,title );
+	set_label(dialog->menuitem, _(title));
 	guint accel_key = GDK_a  + mono_plugs ;
 	dialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME MOD1_MASK 
@@ -2074,6 +2078,9 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	dialog->m_tcb.set_parameter(dialog->menuitem.get_parameter());
 	gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(dialog->box1.gobj()) , false, false, 0);
 	dialog->box1.pack_start(dialog->m_tcb,true,true);
+	string tooltip = "show ";
+	tooltip +=title;
+	dialog->m_tcb.set_tooltip_text(_(tooltip.c_str()));
 	dialog->box1.show_all();
 	//gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(dialog->m_tcb.gobj()) , false, false, 0);
 }
@@ -2094,7 +2101,7 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	pushBox(kBoxMode, GTK_WIDGET(bdialog->box.gobj()));
 	
 	const gchar * title = gtk_widget_get_name(GTK_WIDGET(bdialog->paintbox.gobj()));
-	set_label(bdialog->menuitem,title );
+	set_label(bdialog->menuitem, _(title));
 	string p = "ui.";
 	p +=title;
 	string s;
@@ -2109,6 +2116,9 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	bdialog->m_tcb.set_parameter(bdialog->menuitem.get_parameter());
 	gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(bdialog->box1.gobj()) , false, false, 0);
 	bdialog->box1.pack_start(bdialog->m_tcb,true,true);
+	string tooltip = "show ";
+	tooltip +=title;
+	bdialog->m_tcb.set_tooltip_text(_(tooltip.c_str()));
 	bdialog->box1.show_all();
 	//gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(bdialog->m_tcb.gobj()) , false, false, 0);
 }
@@ -2417,6 +2427,7 @@ void GxMainInterface::addNumDisplay()
 	GxTBox * tbox1 =  new GxTBox(*this);
 	tbox1->m_tcb.set_parameter(fShowTuner.get_parameter());
 	tbox1->m_tcb.m_label.set_text(_("tuner"));
+	tbox1->m_tcb.set_tooltip_text(_("show tuner"));
 	gtk_container_add (GTK_CONTAINER(box1), GTK_WIDGET(tbox1->m_tcb.gobj()));
 	
 }
@@ -2437,6 +2448,8 @@ void GxMainInterface::openToolBar(const char* label)
 
 	box->box1.pack_start(box->m_tmono_rack,true,true);
 	box->box1.pack_end(box->m_tstereo_rack,true,true);
+	box->m_tmono_rack.set_tooltip_text(_("show mono rack"));
+	box->m_tstereo_rack.set_tooltip_text(_("show stereo rack"));
 	box->box1.show_all();
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(tBox));
