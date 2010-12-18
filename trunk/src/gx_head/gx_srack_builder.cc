@@ -29,7 +29,7 @@ openHorizontalTableBox("");
 	
 
      //----- chorus
-     openHorizontalRestetBox("", &gx_engine::audio.posit8);
+     openHorizontalRestetBox(_("chorus"), &gx_engine::audio.posit8);
      {
           openVerticalBox(_("chorus"));
           {
@@ -68,9 +68,9 @@ openHorizontalTableBox("");
      closeBox();
      //end chorus
 
-     openHorizontalRestetBox("", &gx_engine::audio.posit9);
+     openHorizontalRestetBox(_("flanger"), &gx_engine::audio.posit9);
      {
-          openVerticalBox("flanger");
+          openVerticalBox(_("flanger"));
           {
 
                openHorizontalTableBox("");
@@ -142,7 +142,7 @@ openHorizontalTableBox("");
 
 
 
-     openHorizontalRestetBox("", &gx_engine::audio.posit12);
+     openHorizontalRestetBox(_("phaser"), &gx_engine::audio.posit12);
      {
           openVerticalBox(_("phaser"));
           {
@@ -213,7 +213,7 @@ openHorizontalTableBox("");
      }
      closeBox();
 
-     openHorizontalRestetBox("", &gx_engine::audio.posit15);
+     openHorizontalRestetBox(_("delay"), &gx_engine::audio.posit15);
      {
           openVerticalBox(_("delay"));
           {
@@ -261,7 +261,7 @@ openHorizontalTableBox("");
      }
      closeBox();
 
-     openHorizontalRestetBox("", &gx_engine::audio.posit16);
+     openHorizontalRestetBox(_("echo"), &gx_engine::audio.posit16);
      {
           openVerticalBox(_("echo"));
           {
@@ -298,7 +298,7 @@ openHorizontalTableBox("");
      }
      closeBox();
 
-     openHorizontalRestetBox("", &gx_engine::audio.posit11);
+     openHorizontalRestetBox(_("moog"), &gx_engine::audio.posit11);
      {
           openVerticalBox(_("moog"));
           {

@@ -158,10 +158,10 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("midi_out.dialog", &fdialogbox6, false);
 	
 	registerNonMidiParam("system.waveview", &viv, false);
-	registerNonMidiParam("system.midistat", &midistat, false);
-	registerNonMidiParam("system.midistat1", &midistat1, false);
-	registerNonMidiParam("system.midistat2", &midistat2, false);
-	registerNonMidiParam("system.midistat3", &midistat3, false);
+	registerNonMidiParam("midi_out.midistat", &midistat, false);
+	registerNonMidiParam("midi_out.midistat1", &midistat1, false);
+	registerNonMidiParam("midi_out.midistat2", &midistat2, false);
+	registerNonMidiParam("midi_out.midistat3", &midistat3, false);
 
 	// user interface options
 	registerNonMidiParam("ui.latency_nowarn", &fwarn, false, 0);

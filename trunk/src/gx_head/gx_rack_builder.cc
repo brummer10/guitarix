@@ -36,7 +36,7 @@ openHorizontalTableBox("");
                     closeBox();
                     openSpaceBox("");
                     closeBox();
-                    openpaintampBox("");
+                    openpaintampBox("shaper");
                     {
                          create_wheel("shaper.sharper");
                     }
@@ -48,7 +48,7 @@ openHorizontalTableBox("");
      }
      closeBox();
      //low high pass filter
-     openHorizontalOrderBox(" ", &gx_engine::audio.posit14);
+     openHorizontalOrderBox(_("l/h/filter"), &gx_engine::audio.posit14);
      {
           openVerticalBox(_("l/h/filter"));
           {
@@ -96,9 +96,9 @@ openHorizontalTableBox("");
      }
      closeBox();
      // EQ
-     openHorizontalOrderBox(" ", &gx_engine::audio.posit10);
+     openHorizontalOrderBox(_("EQ"), &gx_engine::audio.posit10);
      {
-          openVerticalBox("EQ");
+          openVerticalBox(_("EQ"));
           {
                openHorizontalBox("");
                {
@@ -166,7 +166,7 @@ openHorizontalTableBox("");
      }
      closeBox();
 //----- crybaby
-     openHorizontalOrderBox("", &gx_engine::audio.posit0);
+     openHorizontalOrderBox(_("crybaby"), &gx_engine::audio.posit0);
      {
           openVerticalBox(_("crybaby"));
           {
@@ -208,7 +208,7 @@ openHorizontalTableBox("");
      }
      closeBox();
 //----- distortion
-     openHorizontalOrderBox("", &gx_engine::audio.posit2);
+     openHorizontalOrderBox(_("distortion"), &gx_engine::audio.posit2);
      {
           openVerticalBox(_("distortion"));
           {
@@ -309,7 +309,7 @@ openHorizontalTableBox("");
      }
      closeBox();
 //----- IR
-     openHorizontalOrderBox("", &gx_engine::audio.posit4);
+     openHorizontalOrderBox(_("IR"), &gx_engine::audio.posit4);
      {
           openVerticalBox(_("IR"));
           {
@@ -354,7 +354,7 @@ openHorizontalTableBox("");
      }
      closeBox();
 //----- the compressor
-     openHorizontalOrderBox("", &gx_engine::audio.posit5);
+     openHorizontalOrderBox(_("Compr."), &gx_engine::audio.posit5);
      {
           openVerticalBox(_("Compr."));
           {
@@ -391,9 +391,9 @@ openHorizontalTableBox("");
      }
      closeBox();
 //-----overdrive
-     openHorizontalOrderBox("", &gx_engine::audio.posit1);
+     openHorizontalOrderBox(_("overdrive"), &gx_engine::audio.posit1);
      {
-          openVerticalBox( _("overdrive"));
+          openVerticalBox(_("overdrive"));
           {
                openHorizontalBox("");
                {
@@ -424,9 +424,9 @@ openHorizontalTableBox("");
      }
      closeBox();
 //----- echo
-     openHorizontalOrderBox("", &gx_engine::audio.posit6);
+     openHorizontalOrderBox(_("echo"), &gx_engine::audio.posit6);
      {
-          openVerticalBox( _("echo"));
+          openVerticalBox(_("echo"));
           {
                openHorizontalBox("");
                {
@@ -461,9 +461,9 @@ openHorizontalTableBox("");
      }
      closeBox();
 //-----delay
-     openHorizontalOrderBox("", &gx_engine::audio.posit7);
+     openHorizontalOrderBox(_("delay"), &gx_engine::audio.posit7);
      {
-          openVerticalBox( _("delay"));
+          openVerticalBox(_("delay"));
           {
                openHorizontalBox("");
                {
@@ -498,7 +498,7 @@ openHorizontalTableBox("");
      }
      closeBox();
 //----- freeverb
-     openHorizontalOrderBox("", &gx_engine::audio.posit3);
+     openHorizontalOrderBox(_("freeverb"), &gx_engine::audio.posit3);
      {
           openVerticalBox( _("freeverb"));
           {
@@ -552,7 +552,7 @@ openHorizontalTableBox("");
                          closeBox();
                          openPaintBox2("gree_box");
                          {
-                              create_switch_no_caption(sw_led,"system.midistat");
+                              create_switch_no_caption(sw_led,"midi_out.midistat");
                          }
                          closeBox();
                          openFrameBox("");
@@ -572,7 +572,7 @@ openHorizontalTableBox("");
 
                          openVerticalBox(_("channel1"));
                          {
-                              openpaintampBox(" ");
+                              openpaintampBox("MIDI OUT");
                               {
                                    openVerticalBox("");
                                    {
@@ -611,7 +611,7 @@ openHorizontalTableBox("");
                                                   closeBox();
                                                   openPaintBox2("darker_box");
                                                   {
-                                                       create_switch_no_caption(sw_led,"system.midistat1");
+                                                       create_switch_no_caption(sw_led,"midi_out.midistat1");
                                                   }
                                                   closeBox();
                                                   openFrameBox("");
@@ -636,7 +636,7 @@ openHorizontalTableBox("");
 
                          openVerticalBox(_("channel2"));
                          {
-                              openpaintampBox(" ");
+                              openpaintampBox("MIDI OUT");
                               {
                                    openVerticalBox("");
                                    {
@@ -674,7 +674,7 @@ openHorizontalTableBox("");
                                                   closeBox();
                                                   openPaintBox2("darker_box");
                                                   {
-                                                       create_switch_no_caption(sw_led,"system.midistat2");
+                                                       create_switch_no_caption(sw_led,"midi_out.midistat2");
                                                   }
                                                   closeBox();
                                                   openFrameBox("");
@@ -701,7 +701,7 @@ openHorizontalTableBox("");
 
                          openVerticalBox(_("channel3"));
                          {
-                              openpaintampBox(" ");
+                              openpaintampBox("MIDI OUT");
                               {
                                    openVerticalBox("");
                                    {
@@ -739,7 +739,7 @@ openHorizontalTableBox("");
                                                   closeBox();
                                                   openPaintBox2("darker_box");
                                                   {
-                                                       create_switch_no_caption(sw_led,"system.midistat3");
+                                                       create_switch_no_caption(sw_led,"midi_out.midistat3");
                                                   }
                                                   closeBox();
                                                   openFrameBox("");
@@ -765,7 +765,7 @@ openHorizontalTableBox("");
 
                          openVerticalBox(_("beat_detector"));
                          {
-                              openpaintampBox(" ");
+                              openpaintampBox("MIDI OUT");
                               {
                                    openVerticalBox("");
                                    {
@@ -785,21 +785,21 @@ openHorizontalTableBox("");
                                              closeBox();
                                              openPaintBox2("darker_box");
                                              {
-                                                  create_switch_no_caption(sw_led,"system.midistat1");
+                                                  create_switch_no_caption(sw_led,"midi_out.midistat1");
                                              }
                                              closeBox();
                                              openFrameBox("");
                                              closeBox();
                                              openPaintBox2("darker_box");
                                              {
-                                                  create_switch_no_caption(sw_led,"system.midistat2");
+                                                  create_switch_no_caption(sw_led,"midi_out.midistat2");
                                              }
                                              closeBox();
                                              openFrameBox("");
                                              closeBox();
                                              openPaintBox2("darker_box");
                                              {
-                                                  create_switch_no_caption(sw_led,"system.midistat3");
+                                                  create_switch_no_caption(sw_led,"midi_out.midistat3");
                                              }
                                              closeBox();
                                              openFrameBox("");

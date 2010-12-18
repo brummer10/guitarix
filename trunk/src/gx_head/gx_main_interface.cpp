@@ -919,6 +919,14 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	//fprintf(stderr, " %i .monobox\n",poset);
 	g_value_init (&pos, G_TYPE_INT);
 	g_value_set_int(&pos,poset);
+	string tooltip = _("Move ");
+	tooltip += label;
+	tooltip += _(" up");
+	box->m_button1.set_tooltip_text(tooltip);
+	tooltip = _("Move ");
+	tooltip += label;
+	tooltip += _(" down");
+	box->m_button.set_tooltip_text(tooltip);
 	gtk_container_child_set_property(GTK_CONTAINER(rBox),GTK_WIDGET(box->m_paintbox.gobj()),"position", &pos);
 	pushBox(kBoxMode, GTK_WIDGET(box->m_paintbox.gobj()));
 }
@@ -943,6 +951,14 @@ void GxMainInterface::openHorizontalRestetBox(const char* label, float* posit)
 	//fprintf(stderr, " %i .monobox\n",poset);
 	g_value_init (&pos, G_TYPE_INT);
 	g_value_set_int(&pos,poset);
+	string tooltip = _("Move ");
+	tooltip += label;
+	tooltip += _(" up");
+	box->m_button1.set_tooltip_text(tooltip);
+	tooltip = _("Move ");
+	tooltip += label;
+	tooltip += _(" down");
+	box->m_button.set_tooltip_text(tooltip);
 	gtk_container_child_set_property(GTK_CONTAINER(sBox),GTK_WIDGET(box->m_paintbox.gobj()),"position", &pos);
 	pushBox(kBoxMode, GTK_WIDGET(box->m_paintbox.gobj()));
 }
@@ -1114,8 +1130,8 @@ void GxMainInterface::openpaintampBox(const char* label)
 {
 	GxPaintBox * box =  new GxPaintBox(*this,pb_RackBox_expose);
 	box->m_box.set_border_width(4);
-	box->m_paintbox.set_name("MIDI out");
-	box->m_paintbox.set_tooltip_text(_("MIDI out"));
+	box->m_paintbox.set_name(label);
+	box->m_paintbox.set_tooltip_text(_(label));
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_paintbox.gobj()), expand, fill, 0);
 	box->m_paintbox.show_all();
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
