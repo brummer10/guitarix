@@ -47,17 +47,29 @@ from scipy.optimize import newton
 #                             o      o
 #
 
+#		TUBE 	MU 	EX 	KG1 	KG2 	KP 	KVB 	CCG 	CPG 	CCP 	RGI
+#		6DJ8 	28 	1.3 	330 	  	320 	300 	2.3P 	2.1P 	0.7P 	2k
+#		6L6CG 	8.7 	1.35 	1460 	4500 	48 	12 	14P 	0.85P 	12P 	1k
+#		12AX7 	100 	1.4 	1060 	  	600 	300 	2.3P 	2.4P 	0.9P 	2k
+#		12AU7 	21.5 	1.3 	1180 	  	84 	300 	2.3P 	2.2P 	1.0P 	2k
+#		6550 	7.9 	1.35 	890 	4800 	60 	24 	14P 	0.85P 	12P 	1k
+#		KT88 	8.8 	1.35 	730 	4200 	 32 	16 	14P 	0.85P 	12P 	1k
+
+
+
 def Igk_Vgk(Vgk):
     """gate current as function of gate-kathode voltage"""
     return exp(7.75*Vgk-10.3)
 
 def Ipk(Vgk, Vpk):
     """plate current as function of gate-kathode voltage and plate-kathode voltage"""
-    mu = 100.0
-    kx = 1.4
-    kg1 = 1060.0
-    kp = 600.0
+    mu = 21.5
+    kx = 1.3
+    kg1 = 1180.0
+    kp = 84.0
     kvb = 300.0
+    #E1 = Vpk /kp*log(1+exp(kp*(1/mu+ Vgk/Vpk)))
+    #return 2*E1**kx/kg1*(E1>0.0)*arctan(Vpk /kvb)
     E1 = Vpk/kp*log(1+exp(kp*(1/mu+Vgk/sqrt(kvb+Vpk*Vpk))))
     return 2*E1**kx/kg1*(E1>0.0)
 

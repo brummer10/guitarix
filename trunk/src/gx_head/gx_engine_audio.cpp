@@ -343,9 +343,18 @@ void process_buffers(int count, float* input, float* output0)
 
 
     gxdistortion::compute(count, output0, output0);
-
-    gxamp::compute(count, output0, output0);
-    
+	switch (audio.gxtube) {
+	case 0: //"never"
+		gxamp::compute(count, output0, output0);
+		break;
+	case 1: //"default"
+		gxamp::compute(count, output0, output0);
+		break;
+	case 2: 
+		gxamp3::compute(count, output0, output0);
+		break;
+	}
+	
     for (int m = 1; m < mono_plug_counter; m++) {
 	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && !audio.crybabypp) {
 		    crybaby::compute(count, output0, output0);

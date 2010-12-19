@@ -56,6 +56,24 @@ void MenuCheckItem::set_parameter(SwitchParameter *p)
 		sigc::mem_fun(*this, &MenuCheckItem::on_my_activate));
 }
 
+void RadioCheckItem::on_my_toggled()
+{
+	param->set(get_active());
+}
+
+SwitchParameter* RadioCheckItem::get_parameter()
+{
+	return param;
+}
+
+void RadioCheckItem::set_parameter(SwitchParameter *p)
+{
+	param = p;
+	parameter_map.insert(p);
+	p->changed.connect(sigc::mem_fun(*this, &RadioCheckItem::set_active));
+	signal_activate().connect(
+		sigc::mem_fun(*this, &RadioCheckItem::on_my_toggled));
+}
 
 /* ----- load a top level window from gtk builder file ------ */
 

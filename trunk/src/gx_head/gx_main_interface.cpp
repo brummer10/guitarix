@@ -34,6 +34,7 @@
 #include <gtkmm/eventbox.h>
 #include <gtkmm/notebook.h>
 #include <gxwmm/paintbox.h>
+#include <gtkmm/radiomenuitem.h>
 
 #include <glibmm/i18n.h>
 
@@ -80,6 +81,10 @@ const char *pb_RackBox_expose =              "RackBox_expose";
 const char *pb_gxrack_expose =               "gxrack_expose";
 const char *pb_eq_expose =                   "eq_expose";
 
+/****************************************************************
+ ** register GUI parameter to save/load them within the settigs file
+ */
+
 inline void registerNonMidiParam(const char*a, float*c, bool d, float std=0, float lower=0, float upper=1)
 {
 	parameter_map.insert(new FloatParameter(a,"",Parameter::None,d,*c,std,lower,upper,0,false));
@@ -124,7 +129,7 @@ string fformat(float value, float step)
 #include "gx_main_midi.cc"
 
 /****************************************************************
- ** Gxmm widgets and method definitions
+ ** predefined gtkmm widget classes used in main GUI
  */
 
  
@@ -174,7 +179,7 @@ ToggleCheckButton::ToggleCheckButton()
 	m_label.modify_fg(Gtk::STATE_ACTIVE, Gdk::Color("#111111"));
 	add(m_label);
 }
-
+/****************************************************************/
 class GxTBox
 {
 public:
@@ -191,9 +196,7 @@ GxTBox::~GxTBox()
 GxTBox::GxTBox(gx_ui::GxUI& ui)
 {
 }
-
 /****************************************************************/
-
 class GxVBox
 {
 public:
@@ -211,7 +214,6 @@ GxVBox::GxVBox(gx_ui::GxUI& ui)
 {
 }
 /****************************************************************/
-
 class GxHBox
 {
 public:
@@ -230,7 +232,6 @@ GxHBox::GxHBox(gx_ui::GxUI& ui)
 {
 }
 /****************************************************************/
-
 class GxFixedBox
 {
 public:
@@ -249,7 +250,6 @@ GxFixedBox::GxFixedBox(gx_ui::GxUI& ui)
 	m_fixed.put(m_box,0,0);
 }
 /****************************************************************/
-
 class GxPaintBox
 {
 
@@ -272,7 +272,6 @@ GxPaintBox::GxPaintBox(gx_ui::GxUI& ui,const char *expose_funk):
 	m_paintbox.add(m_box);
 }
 /****************************************************************/
-
 class GxEventBox
 {
 public:
@@ -294,7 +293,6 @@ GxEventBox::GxEventBox(gx_ui::GxUI& ui)
 	m_fixedbox.put(m_eventbox,0,0);
 }
 /****************************************************************/
-
 class GxMidiBox
 {
 public:
@@ -331,7 +329,6 @@ unit_on_off( UiSwitch::new_switch(ui, sw_led, "midi_out.on_off"))
 	m_fixedbox.set_size_request ( 25, -1);
 }
 /****************************************************************/
-
 class GxNotebookBox
 {
 public:
@@ -349,7 +346,6 @@ GxNotebookBox::GxNotebookBox(gx_ui::GxUI& ui)
 	m_box.set_name("tab_rack");
 }
 /****************************************************************/
-
 class GxMoveBox
 {
 public:
@@ -706,6 +702,7 @@ void GxMainInterface::openLevelMeterBox(const char* label)
 	gtk_widget_show(box1);
 }
 
+// --------------------------- reorder effect chain button ---------------------------
 struct uiOrderButton : public gx_ui::GxUiItemFloat
 {
 	GtkButton* 	fButton;
@@ -963,7 +960,7 @@ void GxMainInterface::openHorizontalRestetBox(const char* label, float* posit)
 	pushBox(kBoxMode, GTK_WIDGET(box->m_paintbox.gobj()));
 }
 
-//-------- different gtkmm container styles
+//-------- different gxmm container 
 void GxMainInterface::openEventBox(const char* label)
 {
 	GxEventBox * box =  new GxEventBox(*this);
@@ -1505,8 +1502,6 @@ void GxMainInterface::addCheckButton(const char* label, float* zone)
 
 // ---------------------------	Adjustmenty based widgets ---------------------------
 
-// -------------------------- Horizontal Slider -----------------------------------
-
 struct uiValueDisplay : public gx_ui::GxUiItemFloat
 {
 	GtkLabel* fLabel;
@@ -1582,6 +1577,8 @@ void GxMainInterface::addPToggleButton(string id, const char* label)
 	addPToggleButton(label, &p.value);
 }
 #endif
+
+// -------------------------- gxwmm library controlers -----------------------------------
 
 /****************************************************************
  ** UiRegler, UiSwitch
@@ -1903,6 +1900,8 @@ GtkWidget* UiCabSwitch::create(gx_ui::GxUI& ui, string id, Glib::ustring label)
 	return (new UiCabSwitch(ui, parameter_map[id], label))->get_widget();
 }
 
+// -------------------------- gtk widgets -----------------------------------
+
 void GxMainInterface::addNumEntry(const char* label, float* zone, float init, float min, float max, float step)
 {
 	*zone = init;
@@ -1940,6 +1939,10 @@ static void set_label(MenuCheckItem& item , const char *label)
 	dynamic_cast<Gtk::Label*>(item.get_child())->set_text_with_mnemonic(label);
 }
 
+static void set_label(RadioCheckItem& item , const char *label)
+{
+	dynamic_cast<Gtk::Label*>(item.get_child())->set_text_with_mnemonic(label);
+}
 /****************************************************************
  ** Effect Dialog Boxes
  */
@@ -2698,6 +2701,7 @@ void GxMainInterface::addMainMenu()
 	addEngineMenu();
 	addPresetMenu();
 	addPluginMenu();
+	addAmpMenu();
 	addOptionMenu();
 	addAboutMenu();
 
@@ -3014,6 +3018,63 @@ void GxMainInterface::addExtraPresetMenu()
 
 }
 
+void GxMainInterface::on_tube_activate()
+{
+	if (fSelectTubeModel.get_active()) {
+		fSelectTubeModel2.set_active(false);
+		gx_engine::set_tube_model(1);
+	}
+
+	else if (fSelectTubeModel2.get_active()) {
+		fSelectTubeModel.set_active(false);
+		gx_engine::set_tube_model(2);
+	} 
+
+}
+//----------------------------- preset menu ----------------------------
+void GxMainInterface::addAmpMenu()
+{
+	GtkWidget* menulabel; // menu label
+	GtkWidget* menucont;  // menu container
+	
+	menucont = fMenuList["Top"];
+
+	/*---------------- Create Options menu items ------------------*/
+	menulabel = gtk_menu_item_new_with_mnemonic (_("_Tube "));
+	gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
+	gtk_widget_show(menulabel);
+
+	/*-- Create Options submenu  --*/
+	menucont = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+	gtk_widget_show(menucont);
+	
+	/*-- Create toolbar check menu item under Options submenu --*/
+	set_label(fSelectTubeModel, _("emulate 12ax7"));
+	fSelectTubeModel.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_v, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fSelectTubeModel.signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel.gobj()));
+	fSelectTubeModel.show();
+	
+	fSelectTubeModel.set_parameter(new SwitchParameter("system.select_tube"));
+	Gtk::RadioMenuItem::Group group = fSelectTubeModel.get_group();
+	//fSelectTubeModel.set_active(true);
+	
+	set_label(fSelectTubeModel2, _("emulate 12AU7"));
+	fSelectTubeModel2.set_group(group);
+	
+	fSelectTubeModel2.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_u, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fSelectTubeModel2.signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel2.gobj()));
+	fSelectTubeModel2.show();
+	fSelectTubeModel2.set_parameter(new SwitchParameter("system.select_tube2"));
+	fSelectTubeModel2.set_active(false);
+}
+
 //----------------------------- preset menu ----------------------------
 void GxMainInterface::addPluginMenu()
 {
@@ -3109,6 +3170,13 @@ void GxMainInterface::addPluginMenu()
 
 //----------------------------- option menu ----------------------------
 
+static void set_tooltips(bool v)
+{
+	gtk_settings_set_long_property(
+		gtk_settings_get_default(),"gtk-enable-tooltips",v,
+		"gx_head menu-option");
+}
+
 void reset_all_parameters(GtkWidget*, gpointer)
 {
 	for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
@@ -3175,6 +3243,15 @@ void GxMainInterface::addOptionMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["Options"]), GTK_WIDGET(fShowLogger.gobj()));
 	fShowLogger.show();
 	fShowLogger.set_parameter(new SwitchParameter("system.show_logger"));
+
+	/*-- Create menu item to control tooltip display --*/
+	set_label(fShowTooltips, _("Show _Tooltips"));
+	fShowTooltips.show();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowTooltips.gobj()));
+	SwitchParameter *p = new SwitchParameter("system.show_tooltips");
+	fShowTooltips.set_parameter(p);
+	fShowTooltips.set_active(true);
+	p->changed.connect(ptr_fun(set_tooltips));
 
 	/*-- create option for saving midi controller settings in presets --*/
 	set_label(fMidiInPreset, _("Include MIDI in _presets"));
@@ -3243,12 +3320,7 @@ void GxMainInterface::addGuiSkinMenu()
 }
 
 //----------------------------- about menu ----------------------------
-static void set_tooltips(bool v)
-{
-	gtk_settings_set_long_property(
-		gtk_settings_get_default(),"gtk-enable-tooltips",v,
-		"gx_head menu-option");
-}
+
 
 void GxMainInterface::addAboutMenu()
 {
@@ -3283,16 +3355,6 @@ void GxMainInterface::addAboutMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	//    g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_about), NULL);
 	gtk_widget_show (menuitem);
-
-	/*-- Create menu item to control tooltip display --*/
-	set_label(fShowTooltips, _("Show _Tooltips"));
-	fShowTooltips.show();
-	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowTooltips.gobj()));
-	SwitchParameter *p = new SwitchParameter("system.show_tooltips");
-	fShowTooltips.set_parameter(p);
-	fShowTooltips.set_active(true);
-	p->changed.connect(ptr_fun(set_tooltips));
-
 	/*---------------- End About menu declarations ----------------*/
 }
 

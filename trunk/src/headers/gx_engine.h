@@ -143,6 +143,7 @@ public:
 	bool fmi;
 	int fsd;
 	int fse;
+	int gxtube;
 
 	
 	void register_parameter();
@@ -228,6 +229,8 @@ inline void get_latency_warning_change() { audio.fwarn = audio.fwarn_swap; }
 inline bool isMidiOn() { return (audio.midistate == kMidiOn ? true : false); }
 inline void turnOffMidi() { audio.midistate = kMidiOff; }
 inline void turnOnMidi() { audio.midistate = kMidiOn; }
+
+inline void set_tube_model(int x) {audio.gxtube = x;}
 
 /* function declarations  */
 void register_faust_parameters();

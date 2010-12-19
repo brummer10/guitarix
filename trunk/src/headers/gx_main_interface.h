@@ -278,6 +278,7 @@ private:
 	void addExtraPresetMenu();
 
 	void addPluginMenu();
+	void addAmpMenu();
 
 	void addOptionMenu();
 	void addGuiSkinMenu();
@@ -291,6 +292,7 @@ private:
 	void on_rack_activate();
 	void on_srack_activate();
 	void on_toolbar_activate();
+	void on_tube_activate();
 	void set_mouse_mode();
 	void on_show_oscilloscope();
 	bool on_refresh_oscilloscope();
@@ -338,6 +340,8 @@ public :
 	MenuCheckItem       fShowLogger;
 	MenuCheckItem       fShowMidiOut;
 	MenuCheckItem       fShowToolBar;
+	RadioCheckItem       fSelectTubeModel;
+	RadioCheckItem       fSelectTubeModel2;
 	GtkWidget* 			logger;
 	
 	static bool	 fInitialized;

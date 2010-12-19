@@ -22,6 +22,7 @@
 #pragma once
 
 #include <gtkmm/checkmenuitem.h>
+#include <gtkmm/radiomenuitem.h>
 namespace gx_gui
 {
 
@@ -38,7 +39,20 @@ public:
 	SwitchParameter * get_parameter();
 };
 
-
+/* ---- linking menu items and parameter ---- */
+class RadioCheckItem: public Gtk::RadioMenuItem
+{
+private:
+	
+	SwitchParameter* param;
+	void on_my_toggled();
+public:
+	Gtk::RadioMenuItem::Group Group;
+	//FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
+	RadioCheckItem(): Gtk::RadioMenuItem(Group,"", true) {}
+	void set_parameter(SwitchParameter *p);
+	SwitchParameter * get_parameter();
+};
 /* --------------  function declarations ---------------- */
 GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname);
 gboolean gx_hide_eq( GtkWidget *widget, gpointer   data );
