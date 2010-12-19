@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gx_head\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-15 07:43+0100\n"
-"PO-Revision-Date: 2010-12-17 19:41+0100\n"
+"PO-Revision-Date: 2010-12-19 20:09+0100\n"
 "Last-Translator: Pablo Fernández <pablo.fbus@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
@@ -71,11 +71,11 @@ msgstr "Plugins"
 
 #: ../src/gx_head/gx_interface_builder.cpp:335
 msgid "Mono Rack"
-msgstr "Mono Rack"
+msgstr "Rack Mono"
 
 #: ../src/gx_head/gx_interface_builder.cpp:341
 msgid "Stereo Rack"
-msgstr "Stereo Rack"
+msgstr "Rack Estéreo"
 
 #: ../src/gx_head/gx_interface_builder.cpp:352
 #: ../src/gx_head/gx_main_interface.cpp:540
@@ -504,7 +504,7 @@ msgstr "no impulseresponse file"
 #: ../src/gx_head/gx_main_interface.cpp:2021
 #: ../src/gx_head/gx_main_interface.cpp:2022
 msgid "Reset Button, press to reset settings"
-msgstr "Reset Button, press to reset settings"
+msgstr "Botón de reset. Pulsa para resetear las configuraciones"
 
 #: ../src/gx_head/gx_main_interface.cpp:2126
 #, c-format
@@ -539,11 +539,11 @@ msgstr "stereo rack"
 
 #: ../src/gx_head/gx_main_interface.cpp:2342
 msgid "Mono Rack, right click pop up the plugin menu"
-msgstr "Mono Rack, right click pop up the plugin menu"
+msgstr "Rack Mono, pulsa botón derecho para ver menú de plugins"
 
 #: ../src/gx_head/gx_main_interface.cpp:2355
 msgid "Stereo Rack, right click pop up the plugin menu"
-msgstr "Stereo Rack, right click pop up the plugin menu"
+msgstr "Rack Estéreo, pulsa botón derecho para ver menú de plugins"
 
 #: ../src/gx_head/gx_main_interface.cpp:2411
 msgid "dsp load  %1% %%"
@@ -563,31 +563,31 @@ msgstr "RT mode  <span color=\"#cc1a1a\">NO</span>"
 
 #: ../src/gx_head/gx_main_interface.cpp:2430
 msgid "latency    %1%"
-msgstr "latency    %1%"
+msgstr "latencia    %1%"
 
 #: ../src/gx_head/gx_main_interface.cpp:2502
 msgid "engine is on"
-msgstr "engine is on"
+msgstr "motor activo"
 
 #: ../src/gx_head/gx_main_interface.cpp:2513
 msgid "engine is off"
-msgstr "engine is off"
+msgstr "motor apagado"
 
 #: ../src/gx_head/gx_main_interface.cpp:2524
 msgid "engine is in bypass mode"
-msgstr "engine is in bypass mode"
+msgstr "el motor está en bypass"
 
 #: ../src/gx_head/gx_main_interface.cpp:2540
 msgid "jack server is connected"
-msgstr "jack server is connected"
+msgstr "servidor jack conectado"
 
 #: ../src/gx_head/gx_main_interface.cpp:2552
 msgid "jack server is unconnected"
-msgstr "jack server is unconnected"
+msgstr "servidor jack desconectado"
 
 #: ../src/gx_head/gx_main_interface.cpp:2585
 msgid "_Engine"
-msgstr "_Engine"
+msgstr "_Motor"
 
 #: ../src/gx_head/gx_main_interface.cpp:2598
 msgid "Engine _Start / _Stop"
@@ -596,17 +596,17 @@ msgstr "Engine _Start / _Stop"
 #. -- Create Engine bypass item  --
 #: ../src/gx_head/gx_main_interface.cpp:2610
 msgid "Engine _Bypass"
-msgstr "Engine _Bypass"
+msgstr "_Puentear Motor"
 
 #. -- create Midi Controller Table menu item --
 #: ../src/gx_head/gx_main_interface.cpp:2635
 msgid "M_idi Controller"
-msgstr "M_idi Controller"
+msgstr "Controlador M_idi"
 
 #. -- Create Exit menu item under Engine submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2650
 msgid "_Quit"
-msgstr "_Quit"
+msgstr "_Salir"
 
 #. ---------------- Create Presets menu items --------------------
 #: ../src/gx_head/gx_main_interface.cpp:2671
@@ -616,7 +616,7 @@ msgstr "_Presets"
 #. -- add New Preset saving under Save Presets menu
 #: ../src/gx_head/gx_main_interface.cpp:2699
 msgid "New _Preset"
-msgstr "New _Preset"
+msgstr "Nuevo _Preset"
 
 #. -- Create patch info menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2726
@@ -626,17 +626,17 @@ msgstr "P_atch Info"
 #. -- Create load presetfile menu --
 #: ../src/gx_head/gx_main_interface.cpp:2740
 msgid "Load Preset-_file"
-msgstr "Load Preset-_file"
+msgstr "Cargar archivo Preset"
 
 #. -- Create save as presetfile menu--
 #: ../src/gx_head/gx_main_interface.cpp:2749
 msgid "E_xport Preset-file"
-msgstr "E_xport Preset-file"
+msgstr "E_xportar archivo Preset"
 
 #. -- Create  Main setting submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2763
 msgid "Recall Main _Setting"
-msgstr "Recall Main _Setting"
+msgstr "Recordar configuración principal"
 
 #: ../src/gx_head/gx_main_interface.cpp:2771
 msgid "_Save As Main _Setting"
@@ -645,36 +645,36 @@ msgstr "_Save As Main _Setting"
 #. -- Create sub menu More Preset Action --
 #: ../src/gx_head/gx_main_interface.cpp:2785
 msgid "More Preset Options..."
-msgstr "More Preset Options..."
+msgstr "Más opciones de Presets..."
 
 #. ---------------- Create Presets menu items --------------------
 #. forward preset
 #: ../src/gx_head/gx_main_interface.cpp:2809
 msgid "Next _Preset"
-msgstr "Next _Preset"
+msgstr "Siguiente _Preset"
 
 #. rewind preset
 #: ../src/gx_head/gx_main_interface.cpp:2819
 msgid "Previous _Preset"
-msgstr "Previous _Preset"
+msgstr "_Preset anterior"
 
 #. -- Create  menu item Delete Active preset --
 #: ../src/gx_head/gx_main_interface.cpp:2834
 msgid "_Save Active Preset"
-msgstr "_Save Active Preset"
+msgstr "_Guardar Preset activo"
 
 #: ../src/gx_head/gx_main_interface.cpp:2843
 msgid "_Rename Active Preset"
-msgstr "_Rename Active Preset"
+msgstr "_Renombrar Preset activo"
 
 #: ../src/gx_head/gx_main_interface.cpp:2852
 msgid "_Delete Active Preset"
-msgstr "_Delete Active Preset"
+msgstr "_Borrar Preset activo"
 
 #. -- Create  menu item Delete All presets --
 #: ../src/gx_head/gx_main_interface.cpp:2867
 msgid "_Delete All Presets"
-msgstr "_Delete All Presets"
+msgstr "_Borrar todos los Presets"
 
 #. ---------------- Create Options menu items ------------------
 #: ../src/gx_head/gx_main_interface.cpp:2888
@@ -684,32 +684,32 @@ msgstr "P_lugins"
 #. -- Create toolbar check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2898
 msgid "show Plugin Bar"
-msgstr "show Plugin Bar"
+msgstr "Mostrar barra de plugins"
 
 #. -- Create mono rack check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2908
 msgid "show Mono_Rack"
-msgstr "show Mono_Rack"
+msgstr "Mostrar Rack Mono"
 
 #. -- Create mono plugin menu soket item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2918
 msgid "_Mono Plugins"
-msgstr "_Mono Plugins"
+msgstr "Plugins Mono"
 
 #. -- Create stereo rack check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2948
 msgid "show _StereoRack"
-msgstr "show _StereoRack"
+msgstr "Mostrar Rack Estéreo"
 
 #. -- Create stereo plugin menu soket item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2958
 msgid "_Stereo Plugins"
-msgstr "_Stereo Plugins"
+msgstr "Plugins Estéreo"
 
 #. ---------------- Create Options menu items ------------------
 #: ../src/gx_head/gx_main_interface.cpp:2989
 msgid "_Options"
-msgstr "_Options"
+msgstr "_Opciones"
 
 #. -- Create Open check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:3000
@@ -719,7 +719,7 @@ msgstr "_Meterbridge"
 #. -- Create tuner check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:3009
 msgid "_Tuner"
-msgstr "_Tuner"
+msgstr "Afinador"
 
 #: ../src/gx_head/gx_main_interface.cpp:3022
 msgid "set _Knobs linear"
@@ -728,17 +728,17 @@ msgstr "set _Knobs linear"
 #. -- Create logbox check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:3032
 msgid "show Logging _Box"
-msgstr "show Logging _Box"
+msgstr "Mostrar mensajes"
 
 #. -- create option for saving midi controller settings in presets --
 #: ../src/gx_head/gx_main_interface.cpp:3042
 msgid "Include MIDI in _presets"
-msgstr "Include MIDI in _presets"
+msgstr "Incluir MIDI en _presets"
 
 #. -- create option for resetting gx_head settings --
 #: ../src/gx_head/gx_main_interface.cpp:3048
 msgid "Reset _All Parameters"
-msgstr "Reset _All Parameters"
+msgstr "Resetear todos los parámetros"
 
 #. ---------------- Create skin menu items ------------------
 #: ../src/gx_head/gx_main_interface.cpp:3067
@@ -750,17 +750,17 @@ msgstr "_Skin..."
 #: ../src/gx_head/gx_main_interface.cpp:3124
 #: ../src/gx_head/gx_main_interface.cpp:3133
 msgid "_About"
-msgstr "_About"
+msgstr "_Acerca de"
 
 #. -- Create Help menu item under About submenu --
 #: ../src/gx_head/gx_main_interface.cpp:3142
 msgid "_Help"
-msgstr "_Help"
+msgstr "_Ayuda"
 
 #. -- Create menu item to control tooltip display --
 #: ../src/gx_head/gx_main_interface.cpp:3150
 msgid "Show _Tooltips"
-msgstr "Show _Tooltips"
+msgstr "Mostrar tooltips"
 
 #. -- Create Jack Connection toggle button --
 #: ../src/gx_head/gx_main_interface.cpp:3172
@@ -770,12 +770,12 @@ msgstr "Jack Server _Connection "
 #. -- create Jack Ports menu item --
 #: ../src/gx_head/gx_main_interface.cpp:3183
 msgid "Jack _Ports "
-msgstr "Jack _Ports "
+msgstr "_Puertos de Jack"
 
 #. -- Create  Latency submenu under Jack Server submenu --
 #: ../src/gx_head/gx_main_interface.cpp:3192
 msgid "_Latency"
-msgstr "_Latency"
+msgstr "_Latencia"
 
 #: ../src/gx_head/gx_main_interface.cpp:3285
 #: ../src/gx_head/gx_main_interface.cpp:3294
@@ -826,7 +826,7 @@ msgid ""
 "  gx_head "
 msgstr ""
 "\n"
-"  This Aplication is to a large extent provided\n"
+"  Aplication is to a large extent provided\n"
 "  with the marvelous faust compiler.Yann Orlary\n"
 "  <http://faust.grame.fr/>\n"
 "  A large part is based on the work of Julius Orion Smith\n"
@@ -850,14 +850,14 @@ msgid ""
 "  home: http://gx_head.sourceforge.net/\n"
 msgstr ""
 "\n"
-"  for impulse response it use zita-convolver \n"
-"  byFons Adriaensen \n"
+"  Para la respuesta a impulsos utiliza zita-convolver \n"
+"  de Fons Adriansen \n"
 "  http://www.kokkinizita.net/linuxaudio/index.html \n"
 "\n"
-"  authors: Hermann Meyer <brummer-@web.de>\n"
-"  authors: James Warden <warjamy@yahoo.com>\n"
-"  authors: Andreas Degert <andreas.degert@googlemail.com>    \n"
-"  home: http://gx_head.sourceforge.net/\n"
+"  autors: Hermann Meyer <brummer-@web.de>\n"
+"                 James Warden <warjamy@yahoo.com>\n"
+"                  Andreas Degert <andreas.degert@googlemail.com>    \n"
+"            http://gx_head.sourceforge.net/\n"
 
 #: ../src/gx_head/gx_gui_helpers.cpp:424
 msgid ""
@@ -865,7 +865,7 @@ msgid ""
 "WARNING\n"
 msgstr ""
 "\n"
-"WARNING\n"
+"AVISO\n"
 
 #: ../src/gx_head/gx_gui_helpers.cpp:425
 msgid ""
@@ -874,10 +874,10 @@ msgid ""
 "TO OTHER RUNNING JACK APPLICATIONS. \n"
 "DO YOU WANT TO PROCEED ?"
 msgstr ""
-"CHANGING THE JACK_BUFFER_SIZE ON THE FLY \n"
-"MAY CAUSE UNPREDICTABLE EFFECTS \n"
-"TO OTHER RUNNING JACK APPLICATIONS. \n"
-"DO YOU WANT TO PROCEED ?"
+"Cambiar el tamaño del buffer de jack on the fly \n"
+"puede causar efectos impredecibles\n"
+"a otros clientes de jack. \n"
+"Quieres proceder ?"
 
 #: ../src/gx_head/gx_gui_helpers.cpp:447
 msgid "Yes"
@@ -889,11 +889,11 @@ msgstr "No"
 
 #: ../src/gx_head/gx_gui_helpers.cpp:463
 msgid "Don't bother me again with such a question, I know what I am doing"
-msgstr "No me vuelvas a molestar con esta pregunta, sé lo que estoy haciendo"
+msgstr "No me vuelvas a molestar con esta pregunta, ya sé lo que estoy haciendo"
 
 #: ../src/gx_head/gx_gui_helpers.cpp:1028
 msgid "skin index out of range, keeping actual skin"
-msgstr "skin index out of range, keeping actual skin"
+msgstr "Índice de skins fuera de rango, manteniendo skin actual"
 
 #: ../src/gx_head/gx_gui_helpers.cpp:1062
 msgid "warning message does not exist"
@@ -920,7 +920,7 @@ msgstr "main"
 
 #: ../src/gx_head/gx_jack.cpp:98
 msgid "I really tried to get jack up and running, sorry ... "
-msgstr "De veras intenté que jack funcionase, lo siento ..."
+msgstr "I really tried to get jack up and running, sorry ... "
 
 #: ../src/gx_head/gx_jack.cpp:107
 msgid "Ignoring jackd ..."
@@ -963,15 +963,15 @@ msgstr "Can't activate JACK client"
 
 #: ../src/gx_head/gx_jack.cpp:361
 msgid "Start Jack"
-msgstr "Start Jack"
+msgstr "Iniciar Jack"
 
 #: ../src/gx_head/gx_jack.cpp:361
 msgid "Ignore Jack"
-msgstr "Ignore Jack"
+msgstr "Ignorar Jack"
 
 #: ../src/gx_head/gx_jack.cpp:361
 msgid "Exit"
-msgstr "Exit"
+msgstr "Salir"
 
 #: ../src/gx_head/gx_jack.cpp:371
 msgid " Jack Starter "
@@ -993,16 +993,16 @@ msgstr ""
 "                        ATENCIÓN                       \n"
 "\n"
 "   El servidor jack no se está ejecutando\n"
-"   Puedes activarlo o salir de gx_head   \n"
+"   Elige una opción: \n"
 "\n"
-"       1) Activar jack   \n"
-"       2) Ignorar jack, iniciar gx_head de todas formas  \n"
-"       3) Salir de gx_head   \n"
+"       1) Activar jack \n"
+"       2) Ignorar jack e iniciar gx_head \n"
+"       3) Salir de gx_head  \n"
 
 #: ../src/gx_head/gx_jack.cpp:511
 #: ../src/gx_head/gx_jack.cpp:528
 msgid "Jack Server"
-msgstr "Jack Server"
+msgstr "Servidor Jack"
 
 #: ../src/gx_head/gx_jack.cpp:511
 msgid "Connected to Jack Server"
@@ -1014,7 +1014,7 @@ msgstr "Disconnected from Jack Server"
 
 #: ../src/gx_head/gx_jack.cpp:540
 msgid "Jack Buffer Size setting"
-msgstr "Jack Buffer Size setting"
+msgstr "Configuración del tamaño del buffer de Jack"
 
 #: ../src/gx_head/gx_jack.cpp:541
 msgid "we are not a jack client, server may be down"
@@ -1022,19 +1022,19 @@ msgstr "we are not a jack client, server may be down"
 
 #: ../src/gx_head/gx_jack.cpp:572
 msgid "Setting Jack Buffer Size"
-msgstr "Setting Jack Buffer Size"
+msgstr "Configurando el tamaño del buffer de Jack"
 
 #: ../src/gx_head/gx_jack.cpp:573
 msgid "Could not change latency"
-msgstr "Could not change latency"
+msgstr "No se pudo cambiar la latencia"
 
 #: ../src/gx_head/gx_jack.cpp:580
 msgid "Jack Buffer Size"
-msgstr "Jack Buffer Size"
+msgstr "Tamaño del buffer de Jack"
 
 #: ../src/gx_head/gx_jack.cpp:581
 msgid "latency is "
-msgstr "latency is "
+msgstr "La latencia es"
 
 #: ../src/gx_head/gx_engine_audio.cpp:75
 msgid "on/off"
@@ -1098,11 +1098,11 @@ msgstr "auto"
 
 #: ../src/gx_head/gx_paramtable.cpp:163
 msgid "midi standard controllers: number expected"
-msgstr "midi standard controllers: number expected"
+msgstr "controladores midi standard: número esperado"
 
 #: ../src/gx_head/gx_paramtable.cpp:191
 msgid "Midi controller settings"
-msgstr "Midi controller settings"
+msgstr "Configuraciones de controlador Midi"
 
 #: ../src/gx_head/gx_paramtable.cpp:192
 #: ../src/gx_head/gx_system.cpp:460
@@ -1374,7 +1374,7 @@ msgstr "recall settings"
 
 #: ../src/gx_head/gx_system.cpp:466
 msgid "preset-parameter "
-msgstr "preset-parameter "
+msgstr "parámetro de preset"
 
 #: ../src/gx_head/gx_system.cpp:466
 msgid " in settings"
@@ -1382,7 +1382,7 @@ msgstr " in settings"
 
 #: ../src/gx_head/gx_system.cpp:470
 msgid "non preset-parameter "
-msgstr "non preset-parameter "
+msgstr "no parámetro de preset"
 
 #: ../src/gx_head/gx_system.cpp:470
 msgid " in preset"
@@ -1390,7 +1390,7 @@ msgstr " in preset"
 
 #: ../src/gx_head/gx_system.cpp:537
 msgid "unknown preset section: "
-msgstr "unknown preset section: "
+msgstr "sección de preset desconocida: "
 
 #: ../src/gx_head/gx_system.cpp:614
 msgid "wrinting to "
@@ -1402,11 +1402,11 @@ msgstr "recall state"
 
 #: ../src/gx_head/gx_system.cpp:671
 msgid "unknown jack ports sections"
-msgstr "unknown jack ports sections"
+msgstr "secciones de puertos de jack desconocidas"
 
 #: ../src/gx_head/gx_system.cpp:702
 msgid "loading converted state"
-msgstr "loading converted state"
+msgstr "cargando estado convertido"
 
 #: ../src/gx_head/gx_system.cpp:705
 msgid "major version mismatch in "
@@ -1468,7 +1468,7 @@ msgstr "print log on terminal"
 
 #: ../src/gx_head/gx_system.cpp:996
 msgid "Error in user options! "
-msgstr "Error in user options! "
+msgstr "¡Error en opciones de usuario! "
 
 #: ../src/gx_head/gx_system.cpp:1024
 #: ../src/gx_head/gx_system.cpp:1057
@@ -1481,7 +1481,7 @@ msgstr "rcset value is garbage, defaulting to 'default' style"
 
 #: ../src/gx_head/gx_system.cpp:1096
 msgid "Warning --> provided more than 2 output ports, ignoring extra ports"
-msgstr "Warning --> provided more than 2 output ports, ignoring extra ports"
+msgstr "Aviso --> se han provisto más de 2 puertos de salida. Se ignoran los puertos extra."
 
 #: ../src/gx_head/gx_system.cpp:1186
 msgid "fatal system error: "
@@ -1526,11 +1526,11 @@ msgstr "Delete"
 
 #: ../src/gx_head/gx_preset.cpp:100
 msgid "loading presets"
-msgstr "loading presets"
+msgstr "cargando presets"
 
 #: ../src/gx_head/gx_preset.cpp:100
 msgid "rewriting convertet presets"
-msgstr "rewriting convertet presets"
+msgstr "reescribiendo presets convertidos"
 
 #: ../src/gx_head/gx_preset.cpp:104
 msgid "major version mismatch in %1%: found %2%.%3%, expected %4%.%5%"
@@ -2100,7 +2100,7 @@ msgstr "mostrar sólo canal derecho"
 
 #: ../src/gx_head/iredit.glade.h:68
 msgid "show sum of left and right channel"
-msgstr "show sum of left and right channel"
+msgstr "mostrar suma de canales derecho e izquierdo"
 
 #: ../src/gx_head/iredit.glade.h:69
 msgid "sum"
@@ -2152,7 +2152,7 @@ msgstr "guitarix port connections"
 
 #: ../src/midi.glade.h:1
 msgid "<big><b>MIDI Controller</b></big>"
-msgstr "<big><b>MIDI Controller</b></big>"
+msgstr "<big><b>Controlador MIDI</b></big>"
 
 #: ../src/midi.glade.h:2
 msgid "Edit a MIDI name to choose you own"
@@ -2160,7 +2160,7 @@ msgstr "Edit a MIDI name to choose you own"
 
 #: ../src/midi.glade.h:3
 msgid "MIDI Controller Number"
-msgstr "MIDI Controller Number"
+msgstr "Número de Controlador MIDI"
 
 #: ../src/midi.glade.h:4
 msgid "Parameter Range"
@@ -2188,11 +2188,11 @@ msgstr "_Delete Selected"
 
 #: ../src/midi.glade.h:12
 msgid "guitarix: MIDI Controller"
-msgstr "guitarix: MIDI Controller"
+msgstr "guitarix: Controlador MIDI"
 
 #: ../src/midi.glade.h:13
 msgid "guitarix: Set MIDI Controller"
-msgstr "guitarix: Set MIDI Controller"
+msgstr "guitarix: Establecer Controlador MIDI"
 
 #: ../src/midi.glade.h:14
 msgid "include MIDI controllers in _presets"
