@@ -63,10 +63,10 @@ def Igk_Vgk(Vgk):
 
 def Ipk(Vgk, Vpk):
     """plate current as function of gate-kathode voltage and plate-kathode voltage"""
-    mu = 21.5
-    kx = 1.3
-    kg1 = 1180.0
-    kp = 84.0
+    mu = 100.0
+    kx = 1.4
+    kg1 = 1060.0
+    kp = 600.0
     kvb = 300.0
     #E1 = Vpk /kp*log(1+exp(kp*(1/mu+ Vgk/Vpk)))
     #return 2*E1**kx/kg1*(E1>0.0)*arctan(Vpk /kvb)

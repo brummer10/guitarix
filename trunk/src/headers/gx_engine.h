@@ -36,9 +36,13 @@ class AudioVariables
 {
 public:
 	GxMidiState midistate;
+
 	bool fnoise_g;
 	bool fng;
-	float fnglevel;
+	bool foverdrive4;
+	bool fcheckbox4;
+	bool fcheckbox6;
+	bool fcheckbox8;
 	bool fcheckbox1;
 	bool fupsample;
 	bool antialis0;
@@ -46,58 +50,19 @@ public:
 	bool ftube3;
 	bool fprdr;
 	bool fconvolve;
-	float convolvefilter;
-	bool fresoon;
-	float posit0;
-	bool fcheckbox5;
-	float fautowah;
-	bool fcheckboxcom1;
-	float posit1;
-	float posit2;
-	float posit3;
-	float posit4;
-	float posit5;
-	float posit6;
-	float posit7;
-	float posit8;
-	float posit9;
-	float posit10;
-	float posit11;
-	float posit12;
-	float posit14;
-	float posit15;
-	float posit16;
-	float posit00;
-	bool foverdrive4;
-	bool fcheckbox4;
-	bool fcheckbox6;
-	int fcheckbox7;
-	bool fcheckbox8;
-	int fdelay;
 	bool fmultifilter;
 	bool fboost;
-	int fchorus;
-	int fphaser;
-	float ffuse;
+	bool fresoon;
 	bool fdialogbox1;
 	bool fdialogbox2;
 	bool fdialogbox3;
 	bool fdialogbox4;
-//float fdialogbox5;
+	bool fcheckbox5;
 	bool fdialogbox6;
 	bool fdialogbox8;
 	bool fdialogboxj;
-	float fexpand;
-	float fexpand2;
-	float fwarn;
-	float fwarn_swap;
-	float fskin;
-	float viv;
-	float vivi;
+	bool fcheckboxcom1;
 	bool fchorusbox;
-	float filebutton;
-	float fConsta1t;
-	float midistat;
 	bool midistat1;
 	bool midistat2;
 	bool midistat3;
@@ -114,17 +79,22 @@ public:
 	bool fbiquad;
 	bool fbiquadbox;
 	bool ftube3e;
-	float upsample_mode;
-	float fampexpand;
-	int fsloop;
-	float witchdistortion;
 	bool fdis1;
 	bool fcab;
 	bool fdialogbox_echo;
 	bool fdialogbox_delay;
-	float witcheq;
-	float witchamp;
 	bool famp2;
+	bool fdialogbox_ovd;
+	bool fdialogbox_lh;
+	bool fdialogbox_sd;
+	bool flh;
+	bool fmi;
+
+	int fcheckbox7;
+	int fdelay;
+	int fchorus;
+	int fphaser;
+	int fsloop;
 	int tonestack;
 	int crybabypp;
 	int overdrivepp;
@@ -135,17 +105,50 @@ public:
 	int echopp;
 	int delaypp;
 	int eqpp;
-	bool fdialogbox_ovd;
-	bool fdialogbox_lh;
-	bool fdialogbox_sd;
 	int lhpp;
-	bool flh;
-	bool fmi;
 	int fsd;
 	int fse;
 	int gxtube;
+	int mono_plug_counter;
+	int stereo_plug_counter;
 
-	
+	float posit1;
+	float posit2;
+	float posit3;
+	float posit4;
+	float posit5;
+	float posit6;
+	float posit7;
+	float posit8;
+	float posit9;
+	float posit10;
+	float posit11;
+	float posit12;
+	float posit14;
+	float posit15;
+	float posit16;
+	float posit00;
+	float fnglevel;
+	float convolvefilter;
+	float posit0;
+	float fautowah;
+	float ffuse;
+	float fexpand;
+	float fexpand2;
+	float fwarn;
+	float fwarn_swap;
+	float fskin;
+	float viv;
+	float vivi;
+	float filebutton;
+	float fConsta1t;
+	float midistat;
+	float upsample_mode;
+	float fampexpand;
+	float witchdistortion;
+	float witcheq;
+	float witchamp;
+
 	void register_parameter();
 };
 
@@ -181,35 +184,38 @@ public:
 	float beat0;
 	float midi_gain;
 	float fConstun0;
-	int   weg;
-	int   program;
-	unsigned char* midi_send;
-	int   send;
 	float fautogain;
-	int   volume;
 	float fpitch;
-	int   noten;
 	float fslider32;
-	bool fcheckbox10;
-	int   program1;
-	int   send1;
-	int   noten1;
 	float fautogain1;
-	int   volume1;
-	unsigned char* midi_send1;
-	int   send2;
-	int   noten2;
 	float fpitch1;
 	float fpitch2;
-	bool fcheckbox11;
-	int   program2;
-	int   volume2;
-	int Beat_is;
-	unsigned char* midi_send2;
 	float fautogain2;
 	float BeatFilter1;
 	float BeatFilter2;
 	float BeatFilterk;
+
+	int   weg;
+	int   program;
+	int   program2;
+	int   volume2;
+	int   Beat_is;
+	int   send;
+	int   volume;
+	int   noten;
+	int   program1;
+	int   send1;
+	int   noten1;
+	int   volume1;
+	int   send2;
+	int   noten2;
+
+	bool fcheckbox10;
+	bool fcheckbox11;
+
+	unsigned char* midi_send;
+	unsigned char* midi_send1;
+	unsigned char* midi_send2;
 
 	void register_parameter();
 	void init(int samplingFreq);
@@ -231,6 +237,9 @@ inline void turnOffMidi() { audio.midistate = kMidiOff; }
 inline void turnOnMidi() { audio.midistate = kMidiOn; }
 
 inline void set_tube_model(int x) {audio.gxtube = x;}
+inline void set_mono_plug_counter(int x) {audio.mono_plug_counter = x;}
+inline void set_stereo_plug_counter(int x) {audio.stereo_plug_counter = x;}
+
 
 /* function declarations  */
 void register_faust_parameters();

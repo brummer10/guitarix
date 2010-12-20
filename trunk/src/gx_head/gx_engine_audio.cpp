@@ -296,8 +296,6 @@ void compute (int count, float* input, float* output0)
 
 void process_buffers(int count, float* input, float* output0)
 {
-	static int mono_plug_counter =  gx_gui::mono_plugs;
-	
 	int tuner_on = gx_gui::shownote + (int)isMidiOn() + 1;
 	if (tuner_on > 0) {
 		if (gx_gui::shownote == 0) {
@@ -314,7 +312,7 @@ void process_buffers(int count, float* input, float* output0)
 	    noise_shaper::compute(count, output0, output0);
     }
 	  
-	for (int m = 1; m < mono_plug_counter; m++) {
+	for (int m = 1; m < audio.mono_plug_counter; m++) {
 	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && audio.crybabypp) {
 		    crybaby::compute(count, output0, output0);
 	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah && audio.crybabypp) {
@@ -355,7 +353,7 @@ void process_buffers(int count, float* input, float* output0)
 		break;
 	}
 	
-    for (int m = 1; m < mono_plug_counter; m++) {
+    for (int m = 1; m < audio.mono_plug_counter; m++) {
 	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && !audio.crybabypp) {
 		    crybaby::compute(count, output0, output0);
 	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah && !audio.crybabypp) {
@@ -428,11 +426,11 @@ void process_buffers(int count, float* input, float* output0)
 
 void process_insert_buffers (int count, float* input1, float* output0, float* output1)
 {
-	int stereo_plug_counter =  gx_gui::stereo_plugs;
+	
     memcpy(output0, input1, count*sizeof(float));
     gxfeed::compute(count, output0, output0, output1);
     
-    for (int m = 1; m < stereo_plug_counter; m++) {
+    for (int m = 1; m < audio.stereo_plug_counter; m++) {
 		if (audio.posit8 == m && audio.fchorus && chorus::is_inited()) {
 			chorus::compute(count, output0, output1, output0, output1);
 		} else if (audio.posit9 == m && audio.fflanger) {

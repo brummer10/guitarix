@@ -2078,6 +2078,7 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,mono_plugs);
 	mono_plugs++;
 	g_list_free(child_list);
+	gx_engine::set_mono_plug_counter(mono_plugs);
 	gtk_box_pack_end (GTK_BOX(child),GTK_WIDGET(bbox->box.gobj()) , false, false, 0);
 	GxDialogWindowBox *dialog = new GxDialogWindowBox(*this, expose_funk, param_dialog, param_switch, bbox->show_dialog, rack_widget);
 	gtk_box_pack_start (GTK_BOX(child),GTK_WIDGET(dialog->paintbox.gobj()) , true, fill, 0);
@@ -2114,6 +2115,7 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,stereo_plugs);
 	stereo_plugs++;
 	g_list_free(child_list);
+	gx_engine::set_stereo_plug_counter(stereo_plugs);
 	gtk_box_pack_end (GTK_BOX(child),GTK_WIDGET(bbox->box.gobj()) , false, false, 0);
 	GxDialogWindowBox *bdialog = new GxDialogWindowBox(*this, expose_funk, param_dialog, param_switch, bbox->show_dialog, srack_widget);
 	gtk_box_pack_start (GTK_BOX(child),GTK_WIDGET(bdialog->paintbox.gobj()) , true, fill, 0);
@@ -3095,9 +3097,9 @@ void GxMainInterface::addPluginMenu()
 	gtk_widget_show(menucont);
 	
 	/*-- Create toolbar check menu item under Options submenu --*/
-	set_label(fShowToolBar, _("show Plugin Bar"));
+	set_label(fShowToolBar, _("show Plugin _Bar"));
 	fShowToolBar.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	                           GDK_t, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	                           GDK_b, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowToolBar.signal_activate().connect(
 		sigc::mem_fun(*this, &GxMainInterface::on_toolbar_activate));
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowToolBar.gobj()));
@@ -3235,9 +3237,9 @@ void GxMainInterface::addOptionMenu()
 	fSetMouse.set_parameter(new SwitchParameter("system.set_mouse"));
 	
 	/*-- Create logbox check menu item under Options submenu --*/
-	set_label(fShowLogger, _("show Logging _Box"));
+	set_label(fShowLogger, _("show _Logging Box"));
 	fShowLogger.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	                           GDK_b, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	                           GDK_l, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowLogger.signal_activate().connect(
 		sigc::mem_fun(*this, &GxMainInterface::on_log_activate));
 	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["Options"]), GTK_WIDGET(fShowLogger.gobj()));
