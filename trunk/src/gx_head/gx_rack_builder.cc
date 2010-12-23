@@ -190,12 +190,16 @@ openHorizontalTableBox("");
                               create_selector("crybaby.autowah");
                               openSpaceBox("");
                               closeBox();
+                              openSpaceBox("");
+                              closeBox();
                               openHorizontalTableBox("");
                               {
                                    create_small_rackknobr("crybaby.wah",_("  wah   "));
                                    create_small_rackknob("crybaby.level",_("  level  "));
                                    create_small_rackknob("crybaby.wet_dry",_("  dry/wet  "));
                               }
+                              closeBox();
+                               openSpaceBox("");
                               closeBox();
                          }
                          closeBox();

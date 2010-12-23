@@ -980,6 +980,105 @@ static gboolean crybaby_expose(GtkWidget *wi, GdkEventExpose *ev)
 	return FALSE;
 }
 
+static gboolean ir_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	cairo_t *cr;
+	cairo_text_extents_t extents;
+
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+	const gchar * title = gtk_widget_get_name(GTK_WIDGET(wi));
+
+	double x0      = wi->allocation.x;
+	double y0      = wi->allocation.y;
+	double rect_width  = wi->allocation.width;
+	double rect_height = wi->allocation.height;
+	double x,y;
+	
+	
+	
+
+    cairo_rectangle (cr, x0,y0,rect_width,rect_height);
+    cairo_set_line_width(cr, 3.0);
+    cairo_set_source_rgb (cr, 0, 0, 0);
+    cairo_stroke (cr);
+    
+	cairo_rectangle (cr, x0+4,y0+4,rect_width-8,rect_height-8);
+	cairo_pattern_t*pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+	//set_rack_color(title, pat);
+	cairo_pattern_add_color_stop_rgb (pat, 1, 0, 0, 0.2);
+	cairo_pattern_add_color_stop_rgb (pat, 0.8, 0, 0.2, 0);
+	cairo_pattern_add_color_stop_rgb (pat, 0.2, 0.2, 0.2, 0.2);
+	cairo_pattern_add_color_stop_rgb (pat, 0, 0., 0., 0.);
+	cairo_set_source (cr, pat);
+	cairo_fill(cr);
+	
+
+    cairo_set_line_width(cr, 2.0);
+	cairo_move_to  (cr, x0+rect_width*0.43, y0+4 );
+	cairo_curve_to (cr, x0+rect_width*0.4 , y0+rect_height*0.5, x0+rect_width*0.4  , y0+rect_height*0.5, x0+rect_width*0.43  , y0+rect_height-6);
+	cairo_line_to(cr, x0+rect_width*0.93, y0+rect_height-6);
+	cairo_line_to(cr, x0+rect_width*0.93, y0+rect_height-6);
+	cairo_curve_to (cr, x0+rect_width*0.95 , y0+rect_height*0.5, x0+rect_width*0.95  , y0+rect_height*0.5, x0+rect_width*0.93  , y0+4);
+	
+	//cairo_line_to(cr, x0+rect_width-3, y0+4);
+	cairo_line_to(cr, x0+rect_width*0.92, y0+4);
+	pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+	//set_rack_color(title, pat);
+	cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0.2, 0.8);
+	cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
+	cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
+	cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0.2, 0.2);
+	cairo_set_source (cr, pat);
+	cairo_fill_preserve(cr);
+	cairo_set_source_rgb (cr, 0., 0., 0.);
+    cairo_stroke (cr);
+    
+    cairo_set_line_width(cr, 1.0);
+	cairo_move_to  (cr, x0+2+rect_width*0.43, y0+4 );
+	cairo_curve_to (cr, x0+2+rect_width*0.4 , y0+rect_height*0.5, x0+2+rect_width*0.4  , y0+rect_height*0.5, x0+2+rect_width*0.43  , y0+rect_height-6);
+	cairo_line_to(cr, x0-2+rect_width*0.93, y0+rect_height-6);
+	cairo_curve_to (cr, x0-2+rect_width*0.95 , y0+rect_height*0.5, x0-2+rect_width*0.95  , y0+rect_height*0.5, x0-2+rect_width*0.93  , y0+4);
+	cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
+    cairo_stroke (cr);
+    
+    cairo_select_font_face (cr, "URW Chancery L", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_BOLD);
+	cairo_set_font_size (cr, 16);
+	cairo_text_extents (cr,title , &extents);
+	x = x0+25 ;
+	y = y0+rect_height*0.78+extents.height/2 ;
+	cairo_move_to(cr,x, y);
+	cairo_text_path (cr,title);
+    cairo_set_line_width(cr, 1.0);
+	cairo_set_source_rgb (cr, 0.7, 0.7, 0.7);
+    cairo_fill (cr);
+    
+    cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+rect_width-3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
+    cairo_line_to(cr, x0+2, y0+rect_height-2);
+    cairo_stroke(cr);
+
+    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+3, y0+rect_height-1);
+    cairo_line_to(cr, x0+3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+3);
+    cairo_stroke(cr);
+
+    cairo_pattern_destroy (pat);
+	cairo_destroy(cr);
+	gdk_region_destroy (region);
+	return FALSE;
+}
+
 static gboolean compressor_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
@@ -1012,9 +1111,9 @@ static gboolean compressor_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_pattern_t*pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
 	//set_rack_color(title, pat);
 	cairo_pattern_add_color_stop_rgb (pat, 1, 0, 0, 0.2);
-	cairo_pattern_add_color_stop_rgb (pat, 0.8, 0, 0, 0);
-	cairo_pattern_add_color_stop_rgb (pat, 0, 0.5, 0.5, 0.5);
-	cairo_pattern_add_color_stop_rgb (pat, 0, 0.6, 0.6, 0.8);
+	cairo_pattern_add_color_stop_rgb (pat, 0.8, 0., 0, 0);
+	cairo_pattern_add_color_stop_rgb (pat, 0.2, 0.5, 0.5, 0.5);
+	cairo_pattern_add_color_stop_rgb (pat, 0, 0., 0., 0.);
 	cairo_set_source (cr, pat);
 	cairo_fill(cr);
 	
@@ -1052,6 +1151,107 @@ static gboolean compressor_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_text_extents (cr,title , &extents);
 	x = x0+21 ;
 	y = y0+rect_height*0.8+extents.height/2 ;
+	
+	
+
+	cairo_move_to(cr,x, y);
+	cairo_rotate (cr,270* M_PI/180);
+	cairo_text_path (cr,title);
+	
+	cairo_set_line_width(cr, 1.0);
+	cairo_set_source_rgb (cr, 0.9, 0.9, 1);
+    cairo_fill (cr);
+    
+    cairo_set_source_rgb(cr,  0.2, 0.2, 0.2);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+rect_width-3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+rect_height-2);
+    cairo_line_to(cr, x0+2, y0+rect_height-2);
+    cairo_stroke(cr);
+
+    cairo_set_source_rgb(cr,  0.1, 0.1, 0.1);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,x0+3, y0+rect_height-1);
+    cairo_line_to(cr, x0+3, y0+3);
+    cairo_line_to(cr, x0+rect_width-3, y0+3);
+    cairo_stroke(cr);
+
+    cairo_pattern_destroy (pat);
+	cairo_destroy(cr);
+	gdk_region_destroy (region);
+	return FALSE;
+}
+
+static gboolean seq_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+	cairo_t *cr;
+	cairo_text_extents_t extents;
+
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+	const gchar * title = gtk_widget_get_name(GTK_WIDGET(wi));
+
+	double x0      = wi->allocation.x;
+	double y0      = wi->allocation.y;
+	double rect_width  = wi->allocation.width;
+	double rect_height = wi->allocation.height;
+	double x,y;
+	
+    cairo_rectangle (cr, x0,y0,rect_width,rect_height);
+    cairo_set_line_width(cr, 3.0);
+    cairo_set_source_rgb (cr, 0, 0, 0);
+    cairo_stroke (cr);
+    
+	cairo_rectangle (cr, x0+4,y0+4,rect_width-8,rect_height-8);
+	cairo_pattern_t*pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+	//set_rack_color(title, pat);
+	cairo_pattern_add_color_stop_rgb (pat, 1, 0, 0, 0.);
+	cairo_pattern_add_color_stop_rgb (pat, 0.8, 0, 0, 0.1);
+	cairo_pattern_add_color_stop_rgb (pat, 0.2, 0.2, 0.2, 0.2);
+	cairo_pattern_add_color_stop_rgb (pat, 0, 0., 0, 0.1);
+	cairo_set_source (cr, pat);
+	cairo_fill(cr);
+	
+
+    cairo_set_line_width(cr, 2.0);
+	cairo_move_to  (cr, x0+rect_width*0.05, y0+rect_height-6 );
+	cairo_curve_to (cr, x0+rect_width*0.03 , y0+rect_height*0.8, x0+rect_width*0.03  , y0+rect_height*0.8, x0+rect_width*0.05 , y0+rect_height*0.6);
+	cairo_line_to(cr, x0+rect_width*0.95, y0+rect_height*0.6);
+	cairo_curve_to (cr, x0+rect_width*0.97 , y0+rect_height*0.8, x0+rect_width*0.97  , y0+rect_height*0.8, x0+rect_width*0.95  , y0+rect_height-6);
+	
+	//cairo_line_to(cr, x0+rect_width-3, y0+4);
+	cairo_line_to(cr, x0+rect_width*0.92, y0+rect_height-6);
+	pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+	//set_rack_color(title, pat);
+	cairo_pattern_add_color_stop_rgb (pat, 1, 0, 0, 0.2);
+	cairo_pattern_add_color_stop_rgb (pat, 0.8, 0, 0, 0);
+	cairo_pattern_add_color_stop_rgb (pat, 0, 0, 0, 0);
+	cairo_pattern_add_color_stop_rgb (pat, 0, 0, 0, 0.2);
+	cairo_set_source (cr, pat);
+	cairo_fill_preserve(cr);
+	cairo_set_source_rgb (cr, 0., 0., 0.);
+    cairo_stroke (cr);
+    
+    cairo_set_line_width(cr, 1.0);
+	cairo_move_to  (cr, x0+2+rect_width*0.05, y0+rect_height-6 );
+	cairo_curve_to (cr, x0+2+rect_width*0.03 , y0+rect_height*0.8, x0+2+rect_width*0.03  , y0+rect_height*0.8, x0+2+rect_width*0.05 , y0+rect_height*0.6);
+	cairo_line_to(cr, x0-2+rect_width*0.95, y0+rect_height*0.6);
+	cairo_curve_to (cr, x0-2+rect_width*0.97 , y0+rect_height*0.8, x0-2+rect_width*0.97  , y0+rect_height*0.8, x0-2+rect_width*0.95  , y0+rect_height-6);
+	
+	cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
+    cairo_stroke (cr);
+    
+    cairo_select_font_face (cr, "URW Chancery L", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_BOLD);
+	cairo_set_font_size (cr, 12);
+	cairo_text_extents (cr,title , &extents);
+	x = x0+21 ;
+	y = y0+rect_height*0.5+extents.height/2 ;
 	
 	
 
@@ -1773,6 +1973,10 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = eq_expose;
 	} else if (strcmp(paint_func, "led_expose") == 0) {
 		paint_box->expose_func = led_expose;
+	} else if (strcmp(paint_func, "seq_expose") == 0) {
+		paint_box->expose_func = seq_expose;
+	} else if (strcmp(paint_func, "ir_expose") == 0) {
+		paint_box->expose_func = ir_expose;
 	} else {
 		paint_box->expose_func = 0;
 	}

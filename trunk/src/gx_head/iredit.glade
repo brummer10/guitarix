@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <interface>
   <!-- interface-requires gxwidgets 0.0 -->
-  <!-- interface-requires gtk+ 2.12 -->
+  <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="DisplayIR">
     <property name="title" translatable="yes">Guitarix JConvolver Parameters</property>
@@ -9,7 +9,7 @@
     <child>
       <object class="GxPaintBox" id="gxpaintbox1">
         <property name="visible">True</property>
-        <property name="border-width">20</property>
+        <property name="border_width">20</property>
         <property name="paint_func">gxhead_expose</property>
         <child>
           <object class="GtkVBox" id="vbox1">
@@ -1091,6 +1091,9 @@ it can be mono or stereo
               </packing>
             </child>
           </object>
+          <packing>
+            <property name="position">0</property>
+          </packing>
         </child>
       </object>
     </child>
@@ -1153,7 +1156,7 @@ it can be mono or stereo
     <child>
       <object class="GxPaintBox" id="gxpaintbox2">
         <property name="visible">True</property>
-        <property name="border-width">20</property>
+        <property name="border_width">20</property>
         <property name="paint_func">gxhead_expose</property>
         <child>
           <object class="GtkVBox" id="vbox10">
@@ -1211,6 +1214,9 @@ to change values with the keyboard&lt;/big&gt;</property>
               </packing>
             </child>
           </object>
+          <packing>
+            <property name="position">0</property>
+          </packing>
         </child>
       </object>
     </child>
