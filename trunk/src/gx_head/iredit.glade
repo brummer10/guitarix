@@ -989,7 +989,7 @@ it can be mono or stereo
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkLabel" id="label23">
+                                  <object class="GtkLabel" id="dir">
                                     <property name="visible">True</property>
                                     <property name="label" translatable="yes">&lt;b&gt;Dir:&lt;/b&gt;</property>
                                     <property name="use_markup">True</property>
@@ -1019,14 +1019,16 @@ it can be mono or stereo
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkVBox" id="vbox11">
+                              <object class="GtkHBox" id="vbox11">
+                                <property name="width_request">470</property>
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <child>
                                   <placeholder/>
                                 </child>
                               </object>
                               <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>

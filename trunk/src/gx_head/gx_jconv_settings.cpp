@@ -31,7 +31,7 @@
 #include <gtkmm/treestore.h>
 #include <glibmm/ustring.h>
 #include <giomm/file.h>
-#include <iostream>
+//#include <iostream>
 
 #include <gtkmm/stock.h>
 #include <gtkmm/recentmanager.h>
@@ -250,15 +250,12 @@ protected:
 		Gtk::TreeModelColumn<Glib::ustring> name;
 	};
 	Gtk::ComboBox *wcombo;
-	Gtk::VBox *wboxcombo;
+	Gtk::HBox *wboxcombo;
 	Gtk::TreeView *treeview;
 	Glib::RefPtr<Gtk::TreeStore> model;
 	ModelColumns columns;
-
-	
 	void on_remove_tree();
 	void on_combo_changed();
-	
 
 public:
 	void on_enumerate();
@@ -318,8 +315,8 @@ void IRWindow::init_connect()
 	wboxcombo->add(*wcombo);
 	wboxcombo->show_all();
 	
-	wcombo->signal_changed().connect(sigc::mem_fun(*this,
-              &IRWindow::on_combo_changed) );
+	//wcombo->signal_changed().connect(sigc::mem_fun(*this,
+    //          &IRWindow::on_combo_changed) );
               
 	//signal_hide().connect(sigc::mem_fun(*this, &IRWindow::on_window_hide));
 
@@ -679,9 +676,9 @@ void IRWindow::on_enumerate()
 				row = *(model->append());
 			}
 		}
-		wcombo->pack_start(columns.name);
+		wcombo->pack_start(columns.name,false);
 	} else
-	std::cout << "invalid path" << std::endl;
+	gx_system::gx_print_error("jconvolver", "Error reading file path");
 }
 
 void IRWindow::on_linear()
