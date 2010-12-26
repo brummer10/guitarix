@@ -721,6 +721,7 @@ void gx_recall_settings_file(const string *filename)
 	if (!filename) {
 		string fname = gx_user_dir + gx_jack::client_instance + "_rc";
 		gx_system::recallState(fname);
+		gx_jconv::gx_reload_jcgui();
 		gx_print_info(
 			_("Main Setting recalling"),
 			(boost::format(_("Called back main setting %1%")) % fname).str());
