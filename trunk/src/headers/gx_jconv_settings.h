@@ -78,7 +78,8 @@ public:
 	inline guint          getDelay     () const { return fDelay;      }
 	inline const Gainline& getGainline  () const { return gainline;    }
 	inline string getIRDir () const { return fIRDir;  }
-	void setFullIRPath(string name);
+	inline void setFullIRPath(string name);
+	
 	inline void setGain      (float          gain) { fGain       = gain; }
 	inline void setOffset    (guint          offs) { fOffset     = offs; }
 	inline void setLength    (guint          leng) { fLength     = leng; }

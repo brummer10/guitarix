@@ -301,16 +301,6 @@ void IRWindow::create(gx_ui::GxUI& ui)
 
 void IRWindow::init_connect()
 {
-	treeview = new Gtk::TreeView;
-	//setup the TreeView
-	model = Gtk::TreeStore::create(columns);
-	treeview->set_headers_visible(false);
-	treeview->set_model(model);
-	treeview->append_column("", columns.name);
-	
-	//builder->get_widget("combo1", wcombo);
-	wcombo = new Gtk::ComboBox();
-	wcombo->set_name("rack_button");
 	builder->get_widget("vbox11", wboxcombo);
 	wboxcombo->add(*wcombo);
 	wboxcombo->show_all();
@@ -400,6 +390,15 @@ IRWindow::IRWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& bl
 	audio_size(0),
 	audio_chan(0)
 {
+	//setup the TreeView
+	treeview = new Gtk::TreeView;
+	model = Gtk::TreeStore::create(columns);
+	treeview->set_headers_visible(false);
+	treeview->set_model(model);
+	treeview->append_column("", columns.name);
+	wcombo = new Gtk::ComboBox();
+	wcombo->set_name("rack_button");
+	
 	init_connect();
 	set_icon(Glib::wrap(gx_gui::ib));
 
@@ -464,9 +463,9 @@ void IRWindow::file_changed(Glib::ustring filename, int rate, int length, int ch
 	wFormat->set_text(format);
 	wChannelbox->set_sensitive(channels >= 2);
 	wFilename->set_text(Glib::path_get_dirname(filename));
-	
 }
 
+// wrapper function to reload the cmbobox tree in a idle loop
 gboolean enumerate (gpointer arg)
 {
 	IRWindow::get_window()->on_enumerate();
@@ -536,7 +535,6 @@ void IRWindow::load_data(Glib::ustring f)
 	file_changed(filename, audio.rate(), audio_size, audio_chan, enc);
 	wSum->set_active(true);
 	wLog->set_active(true);
-	
 }
 
 //FIXME: gainline code just copied from GxConvolver::read_sndfile, move to 1 location
@@ -611,7 +609,7 @@ bool IRWindow::save_state()
 
 void IRWindow::on_combo_changed()
 {
- GxJConvSettings& jcset = *GxJConvSettings::instance();
+ 
  Gtk::TreeModel::iterator iter = wcombo->get_active();
   if(iter)
   {
@@ -619,13 +617,20 @@ void IRWindow::on_combo_changed()
     if(row)
     {
 		Glib::ustring name = row[columns.name];
+		static Glib::ustring old_name = name;
+		GxJConvSettings& jcset = *GxJConvSettings::instance();
 		Glib::ustring path = jcset.getIRDir(); 
 		path += "/";
 		path += name;
-		if ( name != jcset.getIRFile()){
+		if ( name != old_name){
+			old_name = name;
 			load_data(path);
+		//}else {
+			//gx_system::gx_print_error("jconvolver", " '" + name + "' same as '" + jcset.getIRFile() + "'");
 		}
     }
+  } else {
+	   gx_system::gx_print_error("jconvolver", "Error iter");
   }
 }
 
@@ -640,6 +645,7 @@ void IRWindow::on_remove_tree()
               &IRWindow::on_combo_changed) );
 }
 
+// reload the treelist for the combobox
 void IRWindow::on_enumerate()
 {
 	on_remove_tree();
@@ -654,7 +660,7 @@ void IRWindow::on_enumerate()
 
 		while ((file_info = child_enumeration->next_file()) != NULL)
 		{
-			if(file_info->get_name().size() >3) {
+			if(file_info->get_name().size() >3) { // filefilter
 			 if(file_info->get_name().compare(file_info->get_name().size()-3,3,"wav") == 0 ||
 				file_info->get_name().compare(file_info->get_name().size()-3,3,"Wav") == 0 ||
 				file_info->get_name().compare(file_info->get_name().size()-3,3,"WAV") == 0)
@@ -677,8 +683,9 @@ void IRWindow::on_enumerate()
 			}
 		}
 		wcombo->pack_start(columns.name,false);
-	} else
-	gx_system::gx_print_error("jconvolver", "Error reading file path");
+	} else {
+		gx_system::gx_print_error("jconvolver", "Error reading file path");
+	}
 }
 
 void IRWindow::on_linear()
