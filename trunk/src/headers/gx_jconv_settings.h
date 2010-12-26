@@ -56,7 +56,7 @@ private:
 	Gainline        gainline;
 
 	void read_gainline(gx_system::JsonParser& jp);
-	inline string getIRDir () const { return fIRDir;  }
+	//inline string getIRDir () const { return fIRDir;  }
 	inline void setIRFile    (string         name) { fIRFile     = name; }
 	inline void setIRDir     (string         name) { fIRDir      = name; }
 
@@ -77,7 +77,7 @@ public:
 	inline guint          getLength    () const { return fLength;     }
 	inline guint          getDelay     () const { return fDelay;      }
 	inline const Gainline& getGainline  () const { return gainline;    }
-
+	inline string getIRDir () const { return fIRDir;  }
 	void setFullIRPath(string name);
 	inline void setGain      (float          gain) { fGain       = gain; }
 	inline void setOffset    (guint          offs) { fOffset     = offs; }

@@ -6,7 +6,7 @@ def configure(conf):
 
 def build(bld):
     sources = [
-        '../gx_jconv_settings.cpp',
+        'gx_jconv_settings.cpp',
         'gx_main_interface.cpp',
         'gx_interface_builder.cpp',
         'gx_globals.cpp',

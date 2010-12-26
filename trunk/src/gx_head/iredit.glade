@@ -989,6 +989,17 @@ it can be mono or stereo
                                   </packing>
                                 </child>
                                 <child>
+                                  <object class="GtkLabel" id="label23">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Dir:&lt;/b&gt;</property>
+                                    <property name="use_markup">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
                                   <object class="GtkLabel" id="filename">
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
@@ -998,13 +1009,25 @@ it can be mono or stereo
                                     <property name="ellipsize">start</property>
                                   </object>
                                   <packing>
-                                    <property name="position">1</property>
+                                    <property name="position">2</property>
                                   </packing>
                                 </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkVBox" id="vbox11">
+                                <property name="visible">True</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
@@ -1221,4 +1244,20 @@ to change values with the keyboard&lt;/big&gt;</property>
       </object>
     </child>
   </object>
+  <object class="GtkListStore" id="liststore2"/>
+  <object class="GtkListStore" id="liststore1">
+    <columns>
+      <!-- column-name gchar1 -->
+      <column type="gchar"/>
+      <!-- column-name gint1 -->
+      <column type="gint"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">0</col>
+        <col id="1">0</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="liststore3"/>
 </interface>
