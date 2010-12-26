@@ -629,8 +629,8 @@ void IRWindow::on_combo_changed()
 			//gx_system::gx_print_error("jconvolver", " '" + name + "' same as '" + jcset.getIRFile() + "'");
 		}
     }
-  } else {
-	   gx_system::gx_print_error("jconvolver", "Error iter");
+  //} else {
+	//   gx_system::gx_print_error("jconvolver", "Error iter");
   }
 }
 
