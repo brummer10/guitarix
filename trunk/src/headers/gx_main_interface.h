@@ -342,6 +342,7 @@ public :
 	MenuCheckItem       fShowToolBar;
 	RadioCheckItem       fSelectTubeModel;
 	RadioCheckItem       fSelectTubeModel2;
+	RadioCheckItem       fSelectTubeModel3;
 	GtkWidget* 			logger;
 	
 	static bool	 fInitialized;

@@ -3024,14 +3024,21 @@ void GxMainInterface::on_tube_activate()
 {
 	if (fSelectTubeModel.get_active()) {
 		fSelectTubeModel2.set_active(false);
+		fSelectTubeModel3.set_active(false);
 		gx_engine::set_tube_model(1);
 	}
 
 	else if (fSelectTubeModel2.get_active()) {
 		fSelectTubeModel.set_active(false);
+		fSelectTubeModel3.set_active(false);
 		gx_engine::set_tube_model(2);
-	} 
-
+	}
+	
+	else if (fSelectTubeModel3.get_active()) {
+		fSelectTubeModel.set_active(false);
+		fSelectTubeModel2.set_active(false);
+		gx_engine::set_tube_model(3);
+	}
 }
 //----------------------------- preset menu ----------------------------
 void GxMainInterface::addAmpMenu()
@@ -3075,6 +3082,18 @@ void GxMainInterface::addAmpMenu()
 	fSelectTubeModel2.show();
 	fSelectTubeModel2.set_parameter(new SwitchParameter("system.select_tube2"));
 	fSelectTubeModel2.set_active(false);
+	
+	set_label(fSelectTubeModel3, _("emulate 6V6"));
+	fSelectTubeModel3.set_group(group);
+	
+	fSelectTubeModel3.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_6, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fSelectTubeModel3.signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel3.gobj()));
+	fSelectTubeModel3.show();
+	fSelectTubeModel3.set_parameter(new SwitchParameter("system.select_tube3"));
+	fSelectTubeModel3.set_active(false);
 }
 
 //----------------------------- preset menu ----------------------------

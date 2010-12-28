@@ -131,6 +131,7 @@ def build(bld):
          'phaser.dsp',
         #gx-2
         'gxamp.dsp',
+        'gxamp2.dsp',
         'gxamp3.dsp',
         'gxfeed.dsp',
         'gxdistortion.dsp',

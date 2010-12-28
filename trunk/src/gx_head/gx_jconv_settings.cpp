@@ -609,29 +609,24 @@ bool IRWindow::save_state()
 
 void IRWindow::on_combo_changed()
 {
- 
- Gtk::TreeModel::iterator iter = wcombo->get_active();
-  if(iter)
-  {
-    Gtk::TreeModel::Row row = *iter;
-    if(row)
-    {
-		Glib::ustring name = row[columns.name];
-		static Glib::ustring old_name = name;
-		GxJConvSettings& jcset = *GxJConvSettings::instance();
-		Glib::ustring path = jcset.getIRDir(); 
-		path += "/";
-		path += name;
-		if ( name != old_name){
-			old_name = name;
-			load_data(path);
-		//}else {
-			//gx_system::gx_print_error("jconvolver", " '" + name + "' same as '" + jcset.getIRFile() + "'");
+	Gtk::TreeModel::iterator iter = wcombo->get_active();
+	if(iter)
+	{
+		Gtk::TreeModel::Row row = *iter;
+		if(row)
+		{
+			Glib::ustring name = row[columns.name];
+			static Glib::ustring old_name = name;
+			GxJConvSettings& jcset = *GxJConvSettings::instance();
+			Glib::ustring path = jcset.getIRDir(); 
+			path += "/";
+			path += name;
+			if ( name != old_name){
+				old_name = name;
+				load_data(path);
+			}
 		}
-    }
-  //} else {
-	//   gx_system::gx_print_error("jconvolver", "Error iter");
-  }
+	}
 }
 
 void IRWindow::on_remove_tree()

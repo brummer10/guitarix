@@ -351,6 +351,9 @@ void process_buffers(int count, float* input, float* output0)
 	case 2: 
 		gxamp3::compute(count, output0, output0);
 		break;
+	case 3: 
+		gxamp2::compute(count, output0, output0);
+		break;
 	}
 	
     for (int m = 1; m < audio.mono_plug_counter; m++) {

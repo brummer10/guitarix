@@ -848,10 +848,24 @@ struct table1d tubetable[] = {
 };
 
 #include "12AU7.cc"
+#include "6V6.cc"
 
 inline float Ftube(int table, float Vgk)
 {
 	struct table1d& tab = tubetable[table];
+	float f = (Vgk - tab.low) * tab.istep;
+	int i = int(f);
+	if (i < 0)
+		return tab.data[0];
+	if (i >= TAB_SIZE-1)
+		return tab.data[TAB_SIZE-1];
+	f -= i;
+	return tab.data[i]*(1-f) + tab.data[i+1]*f;
+}
+
+inline float Ftube2(int table, float Vgk)
+{
+	struct table2d& tab = tubetable2[table];
 	float f = (Vgk - tab.low) * tab.istep;
 	int i = int(f);
 	if (i < 0)
