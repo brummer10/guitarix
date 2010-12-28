@@ -34,25 +34,25 @@ double 	fRec12[2];
 double 	fRec6[2];
 double 	fRec5[2];
 double 	fRec4[2];
+double 	fRec2[3];
 double 	fConst19;
 double 	fConst20;
 double 	fConst21;
 double 	fVec2[2];
 double 	fConst22;
 double 	fRec13[2];
-double 	fRec2[2];
 double 	fRec1[2];
-double 	fRec0[3];
+double 	fRec0[2];
 int	fSamplingFreq;
 
 void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = log((7539.822368615503 / fSamplingFreq));
-	fConst1 = (0 - (1.8442 * cos(exp((0.07238887 + (fConst0 * (1.31282248 + (fConst0 * (0.43359433 + (fConst0 * (0.27547621 + (fConst0 * (0.06446806 + (0.00506158 * fConst0))))))))))))));
-	fConst2 = (1.0 / tan((97.38937226128358 / fSamplingFreq)));
-	fConst3 = (1 + fConst2);
-	fConst4 = (0 - ((1 - fConst2) / fConst3));
+	fConst0 = (1.0 / tan((97.38937226128358 / fSamplingFreq)));
+	fConst1 = (1 + fConst0);
+	fConst2 = (0 - ((1 - fConst0) / fConst1));
+	fConst3 = log((7539.822368615503 / fSamplingFreq));
+	fConst4 = (0 - (1.8442 * cos(exp((0.07238887 + (fConst3 * (1.31282248 + (fConst3 * (0.43359433 + (fConst3 * (0.27547621 + (fConst3 * (0.06446806 + (0.00506158 * fConst3))))))))))))));
 	for (int i=0; i<2; i++) fRec3[i] = 0;
 	fConst5 = (1.0 / tan((20517.741620594938 / fSamplingFreq)));
 	fConst6 = (1 + fConst5);
@@ -65,8 +65,8 @@ void init(int samplingFreq)
 	fConst11 = (0.027 / fConst9);
 	for (int i=0; i<2; i++) fRec11[i] = 0;
 	for (int i=0; i<2; i++) fRec9[i] = 0;
-	fConst12 = (0 - fConst2);
-	fConst13 = (0.025 / fConst3);
+	fConst12 = (0 - fConst0);
+	fConst13 = (0.025 / fConst1);
 	for (int i=0; i<2; i++) fRec8[i] = 0;
 	fConst14 = (0.77 / fConst6);
 	for (int i=0; i<2; i++) fRec7[i] = 0;
@@ -79,15 +79,15 @@ void init(int samplingFreq)
 	for (int i=0; i<2; i++) fRec6[i] = 0;
 	for (int i=0; i<2; i++) fRec5[i] = 0;
 	for (int i=0; i<2; i++) fRec4[i] = 0;
+	for (int i=0; i<3; i++) fRec2[i] = 0;
 	fConst19 = (1.0 / tan((609.4689747964198 / fSamplingFreq)));
 	fConst20 = (1 + fConst19);
 	fConst21 = (0 - ((1 - fConst19) / fConst20));
 	for (int i=0; i<2; i++) fVec2[i] = 0;
 	fConst22 = (0.0082 / fConst20);
 	for (int i=0; i<2; i++) fRec13[i] = 0;
-	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
-	for (int i=0; i<3; i++) fRec0[i] = 0;
+	for (int i=0; i<2; i++) fRec0[i] = 0;
 }
 
 void compute(int count, float *input0, float *output0)
@@ -101,27 +101,27 @@ void compute(int count, float *input0, float *output0)
 		fVec0[0] = fTemp0;
 		fRec11[0] = ((fConst11 * (fVec0[0] + fVec0[1])) + (fConst10 * fRec11[1]));
 		fRec9[0] = Ftube2(0, (fRec11[0] + ((double)input0[i] * fRec10[0])));
-		fRec8[0] = ((fConst13 * ((fConst12 * fRec9[1]) + (fConst2 * fRec9[0]))) + (fConst4 * fRec8[1]));
+		fRec8[0] = ((fConst13 * ((fConst12 * fRec9[1]) + (fConst0 * fRec9[0]))) + (fConst2 * fRec8[1]));
 		fRec7[0] = ((fConst14 * (fRec8[0] + fRec8[1])) + (fConst7 * fRec7[1]));
 		double fTemp1 = (fRec6[1] - 2.5e+02);
 		fVec1[0] = fTemp1;
 		fRec12[0] = ((fConst18 * (fVec1[0] + fVec1[1])) + (fConst17 * fRec12[1]));
 		fRec6[0] = Ftube2(1, (fRec12[0] + (fRec10[0] * fRec7[0])));
-		fRec5[0] = ((fConst13 * ((fConst12 * fRec6[1]) + (fConst2 * fRec6[0]))) + (fConst4 * fRec5[1]));
+		fRec5[0] = ((fConst13 * ((fConst12 * fRec6[1]) + (fConst0 * fRec6[0]))) + (fConst2 * fRec5[1]));
 		fRec4[0] = ((fConst14 * (fRec5[0] + fRec5[1])) + (fConst7 * fRec4[1]));
-		double fTemp2 = (fRec2[1] - 2.5e+02);
+		fRec2[0] = ((fRec4[0] * fRec3[0]) - ((0.8502684100000001 * fRec2[2]) + (fConst4 * fRec2[1])));
+		double fTemp2 = (fRec1[1] - 2.5e+02);
 		fVec2[0] = fTemp2;
 		fRec13[0] = ((fConst22 * (fVec2[0] + fVec2[1])) + (fConst21 * fRec13[1]));
-		fRec2[0] = Ftube2(1, (fRec13[0] + (fRec4[0] * fRec3[0])));
-		fRec1[0] = ((fConst13 * ((fConst12 * fRec2[1]) + (fConst2 * fRec2[0]))) + (fConst4 * fRec1[1]));
-		fRec0[0] = (fRec1[0] - ((0.8502684100000001 * fRec0[2]) + (fConst1 * fRec0[1])));
-		output0[i] = (FAUSTFLOAT)(0.77 * (fRec0[0] - (1.059 * fRec0[1])));
+		fRec1[0] = Ftube2(1, ((fRec13[0] + fRec2[0]) - (1.059 * fRec2[1])));
+		fRec0[0] = ((fConst13 * ((fConst12 * fRec1[1]) + (fConst0 * fRec1[0]))) + (fConst2 * fRec0[1]));
+		output0[i] = (FAUSTFLOAT)(0.77 * fRec0[0]);
 		// post processing
-		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
+		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];
-		fRec2[1] = fRec2[0];
 		fRec13[1] = fRec13[0];
 		fVec2[1] = fVec2[0];
+		fRec2[2] = fRec2[1]; fRec2[1] = fRec2[0];
 		fRec4[1] = fRec4[0];
 		fRec5[1] = fRec5[0];
 		fRec6[1] = fRec6[0];
