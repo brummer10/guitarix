@@ -3067,7 +3067,7 @@ void GxMainInterface::addAmpMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel.gobj()));
 	fSelectTubeModel.show();
 	
-	fSelectTubeModel.set_parameter(new SwitchParameter("system.select_tube"));
+	fSelectTubeModel.set_parameter(new SwitchParameter("system.select_tube",true,false));
 	Gtk::RadioMenuItem::Group group = fSelectTubeModel.get_group();
 	//fSelectTubeModel.set_active(true);
 	
@@ -3080,7 +3080,7 @@ void GxMainInterface::addAmpMenu()
 		sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel2.gobj()));
 	fSelectTubeModel2.show();
-	fSelectTubeModel2.set_parameter(new SwitchParameter("system.select_tube2"));
+	fSelectTubeModel2.set_parameter(new SwitchParameter("system.select_tube2",true,false));
 	fSelectTubeModel2.set_active(false);
 	
 	set_label(fSelectTubeModel3, _("emulate 6V6"));
@@ -3092,7 +3092,7 @@ void GxMainInterface::addAmpMenu()
 		sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel3.gobj()));
 	fSelectTubeModel3.show();
-	fSelectTubeModel3.set_parameter(new SwitchParameter("system.select_tube3"));
+	fSelectTubeModel3.set_parameter(new SwitchParameter("system.select_tube3",true,false));
 	fSelectTubeModel3.set_active(false);
 }
 
