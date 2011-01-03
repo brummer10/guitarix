@@ -1494,7 +1494,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 		}
 
 		// only save if we are not in a preset context
-		if (!setting_is_preset && gx_jack::client) {
+		if (!setting_is_preset && !setting_is_factory && gx_jack::client) {
 			saveStateToFile(gx_user_dir + client_instance + "_rc");
 		}
 	}
