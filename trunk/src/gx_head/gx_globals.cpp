@@ -157,7 +157,7 @@ namespace gx_preset
 /* global var declarations */
 
 gx_gui::FileParameter gx_preset_file("system.current_preset_file");
-
+gx_gui::FileParameter gx_factory_preset_file("system.factory_preset_file");
 
 GdkModifierType list_mod[] =
 {
@@ -186,6 +186,7 @@ const char* preset_menu_name[] =
 //map<GtkMenuItem*, string> preset_list[GX_NUM_OF_PRESET_LISTS];
 
 string gx_current_preset;
+string gx_factory_preset;
 string old_preset_name;
 
 GtkWidget* presmenu[GX_NUM_OF_PRESET_LISTS];
@@ -194,7 +195,14 @@ GtkWidget* presMenu[GX_NUM_OF_PRESET_LISTS];
 vector<string> plist;
 vector<GtkMenuItem*> pm_list[GX_NUM_OF_PRESET_LISTS];
 
+GtkWidget* fpresmenu;
+GtkWidget* fpresMenu;
+
+vector<string> fplist;
+vector<GtkMenuItem*> fpm_list;
+
 bool setting_is_preset = false;
+bool setting_is_factory = false;
 
 GCallback preset_action_func[] =
 {

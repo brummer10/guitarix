@@ -570,6 +570,7 @@ def build(bld):
     if bld.env["GX_HEAD"]:
         bld.add_subdirs('src/gx_head')
         bld.install_files(bld.env['DESKAPPS_DIR'], 'gx_head.desktop', chmod=0644)
+        bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/funkmuscle_rc', chmod=0664)
     if bld.env["GX_LIB_SHARED"]:
         bld.add_post_fun(post)
 

@@ -2838,7 +2838,17 @@ void GxMainInterface::addPresetMenu()
 		presmenu[i] = menu;
 		presMenu[i] = menuItem;
 	}
+	
+	GtkWidget* menuItem =
+			gtk_menu_item_new_with_mnemonic ("Factory Settings");
+		gtk_menu_shell_append (GTK_MENU_SHELL(menucont), menuItem);
 
+		GtkWidget* menu = gtk_menu_new();
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuItem), menu);
+
+		fpresmenu = menu;
+		fpresMenu = menuItem;
+	gtk_widget_show(fpresMenu);
 
 	/*-- add New Preset saving under Save Presets menu */
 	menuitem = gtk_menu_item_new_with_mnemonic (_("New _Preset"));
