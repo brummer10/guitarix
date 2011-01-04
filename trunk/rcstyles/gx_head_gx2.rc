@@ -1,0 +1,423 @@
+#
+# This is the GTK rc style file for gx_head
+#
+
+include "common.rc"
+
+style "gx_head_skin_icons"
+{
+stock["bigknob"] = {{"knob9.png"}}
+stock["smallknob"] = {{"smallknob9.png"}}
+stock["smallknobr"] = {{"mittleknob9.png"}}
+}
+
+class "GxKnob" style "gx_head_skin_icons"
+
+
+style "gx_head-paintbox"
+{
+GxPaintBox::skin-gradient = {
+{ 0, 13107, 13107, 19661, 39322 }, # 0, 0.2, 0.2, 0.3, 0.6
+{ 65536, 3277, 3277, 3277, 0 }} # 1, 0.05, 0.05, 0.05, 0.6
+}
+
+class "GxPaintBox" style "gx_head-paintbox"
+
+style "gx_head"
+{
+
+
+GtkButton::default_border = { 0, 0, 0, 0 }
+GtkButton::default_outside_border = { 0, 0, 0, 0 }
+GtkButton::button_relief = GTK_RELIEF_NONE
+
+#strings in modules
+fg[NORMAL] = { 0., 0.1, 0. }
+fg[ACTIVE] = { 1.0, 1.0, 1.0 }
+fg[PRELIGHT] = { 0.90, 0.90, 0.90 }
+fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }
+fg[SELECTED] = { 0.70, 0.70, 0.70 }
+#background in modules
+bg[NORMAL] = { 0.40, 0.50, 0.40 }
+bg[PRELIGHT] = "#303084"
+bg[ACTIVE] = { 0.0, 0.0, 0.0 }
+bg[INSENSITIVE] = "#c4c0c0"
+bg[SELECTED] = "#000094"
+
+#gridlines in modules
+text[NORMAL] = { 0.00, 0.10, 0.10 }
+text[ACTIVE] = { 0.00, 0.80, 0.80 }
+text[PRELIGHT] = { 0.80, 0.80, 0.80 }
+text[INSENSITIVE] = { 0.80, 0.80, 0.80}
+text[SELECTED] = { 1.0, 1.0, 1.0 }
+
+base[ACTIVE] = "#272a2f"
+base[NORMAL] = { 0.00, 0.70, 0.70 }
+base[PRELIGHT] = { 0.20, 0.20, 0.20 }
+base[INSENSITIVE] = "#4c5159"
+base[SELECTED] = { 0.25, 0.25, 0.25 }
+font_name = "sans 10"
+
+}
+
+
+class "GtkWidget" style:highest "gx_head"
+class "GtkLabel" style:highest "gx_head"
+class "GtkHScale" style:highest "gx_head"
+class "GtkVScale" style:highest "gx_head"
+class "GtkCheckButton" style:highest "gx_head"
+class "GtkButton" style:highest "gx_head"
+class "GtkFrame" style:highest "gx_head"
+class "GtkExpander" style:highest "gx_head"
+#class "GtkEventBox" style:highest "gx_head"
+
+style "gx_head-event"
+{
+bg_pixmap[NORMAL] = "gx18.png"
+}
+widget "*.osc_box" style:highest "gx_head-event"
+widget "*.main_window" style:highest "gx_head-event"
+
+style "gx_head-dialog"
+{
+bg_pixmap[NORMAL] = "gx12b.png"
+}
+
+style "gx_black_box"
+{
+bg[NORMAL] = { 0, 0, 0}
+}
+widget "*.black_box" style:highest "gx_black_box"
+
+style "gx_gree_box"
+{
+bg[NORMAL] = { 0.3, 0.3, 0.3}
+}
+widget "*.gree_box" style:highest "gx_gree_box"
+
+style "gx_dark_box"
+{
+bg[NORMAL] = { 0.1, 0.1, 0.2}
+}
+widget "*.dark_box" style:highest "gx_dark_box"
+
+style "gx_darker_box"
+{
+bg[NORMAL] = { 0.05, 0.05, 0.1}
+}
+widget "*.darker_box" style:highest "gx_darker_box"
+
+#widget_class "GtkDialog*" style:highest "gx_head-dialog"
+
+style "gx_head-menu"
+{
+#text in menues
+fg[NORMAL] = { 0.10, 0.40, 0.10 }
+fg[PRELIGHT] = { 0.20, 0.20, 0.20 }
+#buttons-borders in menues
+bg[NORMAL] = { 0.30, 0.60, 0.30 }
+bg[PRELIGHT] = { 0.60, 0.60, 0.60 }
+bg[SELECTED] = { 0.60, 0.60, 0.60 }
+#arrows in menues
+text[NORMAL] = { 0.20, 0.50, 0.50 }
+text[ACTIVE] = { 0.80, 0.80, 0.80 }
+
+base[ACTIVE] = { 0.0, 0.20, 0.20 }
+#buttons-background in menues
+base[NORMAL] = { 0.60, 0.80, 0.80 }
+base[PRELIGHT] = { 0.20, 0.20, 0.20 }
+base[INSENSITIVE] = "#4c5159"
+base[SELECTED] = { 0.25, 0.25, 0.25 }
+font_name = "sans 9"
+}
+
+widget_class "*GtkMenu*" style:highest "gx_head-menu"
+widget_class "*GtkMenuBar*" style:highest "gx_head-menu"
+
+style "b_style"
+{
+engine "pixmap"
+{
+image
+{
+function = BOX
+recolorable = TRUE
+state = NORMAL
+shadow = OUT
+file = "gx14b.png"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = PRELIGHT
+shadow = OUT
+file = "gx12b.png"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = ACTIVE
+shadow = OUT
+file = "gx14b.png"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+}
+}
+
+style "c_style"
+{
+engine "pixmap"
+{
+image
+{
+function = BOX
+recolorable = TRUE
+state = NORMAL
+shadow = OUT
+file = "gx12b.png"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+
+}
+}
+
+style "gx_head-l_black"
+{
+fg[NORMAL] = { 0.9, 0., 0. }
+fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "URW Chancery L Medium Italic 12"
+}
+
+style "gx_head-v_black"
+{
+fg[NORMAL] = { 0., 0., 0. }
+fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "URW Chancery L Medium Italic 12"
+}
+
+style "gx_head-b_black"
+{
+fg[NORMAL] = { 0.1, 0.1, 0.1 }
+fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.1, 0.0, 0.0 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "sans 9"
+}
+
+style "gx_head-rack"
+{
+#text for fx-parameter-captions
+fg[NORMAL] = { 0.6, 0.8, 0.7 }
+fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "URW Chancery L Medium Italic 12"
+}
+
+style "gx_rack-slider"
+{
+fg[NORMAL] = { 0.7, 0.7, 0.7 }
+fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "sans 6"
+}
+
+widget "*.effekt_label" style:highest "gx_head-v_black"
+widget "*.value_label" style:highest "gx_head-l_black"
+widget "*.beffekt_label" style:highest "gx_head-b_black"
+widget "*.rack_label" style:highest "gx_head-rack"
+widget "*.rack_slider" style:highest "gx_rack-slider"
+
+style "h_style"
+{
+engine "pixmap"
+{
+image
+{
+function = BOX
+recolorable = TRUE
+state = NORMAL
+shadow = OUT
+file = "gx12b.png"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+}
+#text midi-controller-module
+fg[NORMAL] = { 0.60, 0.70, 0.60 }
+#border midi-controller-module
+bg[NORMAL] = { 0.9, 0.9, 0.7 }
+#text midi-controller-module list
+text[NORMAL] = { 0.6, 0.7, 0.4 }
+text[ACTIVE] = { 0.70, 0.70, 0.70 }
+text[PRELIGHT] = { 0.90, 0.90, 0.90 }
+text[INSENSITIVE] = { 0.80, 0.80, 0.80}
+text[SELECTED] = { 1.0, 1.0, 1.0 }
+#background midi-controller-module
+base[ACTIVE] = { 0.90, 0.10, 0.10 }
+base[NORMAL] = { 0.20, 0.30, 0.20 }
+#background midi-controller-module checkbox
+base[PRELIGHT] = { 0.70, 0.20, 0.20 }
+base[INSENSITIVE] = "#4c5159"
+base[SELECTED] = { 0.25, 0.25, 0.25 }
+}
+
+class "GtkHandleBox" style:highest "h_style"
+#class "GtkScrolledWindow" style:highest "h_style"
+widget_class "GtkDialog*" style:highest "h_style"
+widget_class "*GtkToggleButton*" style:highest "b_style"
+class "GtkButton" style:highest "b_style"
+class "GtkSpinButton" style:highest "c_style"
+
+style "tab_style"
+{
+#file-chooser background
+bg[NORMAL] = { 0.40, 0.20, 0.20 }
+bg[ACTIVE] = { 0.30, 0.40, 0.40 }
+bg[PRELIGHT] = { 0.50, 0.60, 0.60 }
+bg[SELECTED] = { 0.60, 0.60, 0.00 }
+
+}
+
+
+widget "*.tab_rack" style:highest "tab_style"
+
+style "gx_head_p_style"
+{
+engine "pixmap"
+{
+image
+{
+function = BOX
+recolorable = TRUE
+state = NORMAL
+shadow = OUT
+file = "cairo2.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = PRELIGHT
+shadow = OUT
+file = "cairo1.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+}
+fg[NORMAL] = { 0.9, 0.9, 0.9 }
+fg[ACTIVE] = { 0.7, 0.7, 0.7 }
+fg[PRELIGHT] = { 0.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.3, 0.3, 0.3 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "sans 7"
+}
+
+style "gx_head_pa_style"
+{
+engine "pixmap"
+{
+image
+{
+function = BOX
+recolorable = TRUE
+state = NORMAL
+shadow = OUT
+file = "cairo2.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = PRELIGHT
+shadow = OUT
+file = "cairo1.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = INSENSITIVE
+shadow = OUT
+file = "cairo2.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+}
+bg[NORMAL] = { 0.0, 0.0, 0.0 }
+
+}
+
+style "gx_head_pair_style"
+{
+engine "pixmap"
+{
+image
+{
+function = BOX
+recolorable = TRUE
+state = NORMAL
+shadow = OUT
+file = "cairo2.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = PRELIGHT
+shadow = OUT
+file = "cairo1.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = INSENSITIVE
+shadow = OUT
+file = "cairo2.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+}
+bg[NORMAL] = { 0.9, 0.0, 0.0 }
+
+text[NORMAL] = { 0.90, 0.90, 0.90 }
+text[ACTIVE] = { 0.80, 0.80, 0.80 }
+text[PRELIGHT] = { 0.80, 0.80, 0.80 }
+text[INSENSITIVE] = { 0.30, 0.30, 0.30}
+text[SELECTED] = { 1.0, 1.0, 1.0 }
+}
+
+widget "*.effect_reset" style:highest "gx_head_p_style"
+widget "*.label_reset" style:highest "gx_head_p_style"
+widget_class "*GtkScrolledWindow*" style:highest "gx_head_pa_style"
+widget "*.rack_button" style:highest "gx_head_pa_style"
+widget_class "*GtkComboBox*" style:highest "gx_head_pair_style"
