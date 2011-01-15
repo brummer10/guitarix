@@ -540,6 +540,49 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
+     
+      //-----delay
+     openHorizontalOrderBox(_("oscilloscope"), &gx_engine::audio.posit17);
+     {
+          openVerticalBox(_("osc"));
+          {
+               openHorizontalBox("");
+               {
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "oscilloscope.on_off");
+                         create_selector("oscilloscope.pp");
+                    }
+                    closeBox();
+
+                    openDialogBox("oscilloscope.dialog", "oscilloscope.on_off","RackBox_expose");
+                    {
+                         openVerticalBox("");
+                         {
+							 openFrameBox("");
+                             closeBox();
+                              openHorizontalBox("");
+                              {
+								  openFrameBox("");
+                                  closeBox();
+                                  addLiveWaveDisplay(" ", &gx_engine::audio.viv , &gx_engine::audio.vivi);
+                                  openFrameBox("");
+                                  closeBox();
+                              }
+                              closeBox();
+                              openFrameBox("");
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox(); 
 
      openVerticalMidiBox(_("  MIDI out  "));
      {

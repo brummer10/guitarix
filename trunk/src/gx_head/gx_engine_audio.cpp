@@ -96,6 +96,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("stereodelay.on_off", on_off,(float*) &fsd, 0);
 	gx_gui::registerParam("stereoecho.on_off", on_off,(float*) &fse, 0);
 	gx_gui::registerParam("midi_out.on_off", on_off, &fmi, 0);
+	gx_gui::registerParam("oscilloscope.on_off", on_off, &fwv, 0);
 	
 	static const char *tonestack_model[] = {N_("default"),N_("Bassman"),N_("Twin Reverb"),N_("Princeton"),N_("JCM-800"),N_("JCM-2000"),N_("M-Lead"),N_("M2199"),N_("AC-30"),N_("Off"),0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
@@ -111,6 +112,7 @@ void AudioVariables::register_parameter()
 	registerEnumParam("delay.pp","select",post_pre,&delaypp, 0);
 	registerEnumParam("eqs.pp","select",post_pre,&eqpp, 0);
 	registerEnumParam("low_highpass.pp","select",post_pre,&lhpp, 0);
+	registerEnumParam("oscilloscope.pp","select",post_pre,&wvpp, 0);
 	
 	static const char *crybaby_autowah[] = {N_("manual"),N_("auto"),0};
 	registerEnumParam("crybaby.autowah", "select", crybaby_autowah, &fautowah, 0);
@@ -118,23 +120,24 @@ void AudioVariables::register_parameter()
 	//static const char *eqt_onetwo[] = {"fixed","scale",0};
 	//registerEnumParam("eqt.onetwo", "select", eqt_onetwo, &witcheq, 0);
 	
-	registerNonMidiParam("compressor.position", &posit5, true, 6, 1, 11);
-	registerNonMidiParam("crybaby.position", &posit0, true, 3, 1, 11);
-	registerNonMidiParam("overdrive.position", &posit1, true, 7, 1, 11);
-	registerNonMidiParam("gx_distortion.position", &posit2, true, 4, 1, 11);
-	registerNonMidiParam("freeverb.position", &posit3, true, 10, 1, 11);
-	registerNonMidiParam("IR.position", &posit4, true, 5, 1, 11);
-	registerNonMidiParam("echo.position", &posit6, true, 8, 1, 11);
-	registerNonMidiParam("delay.position", &posit7, true, 9, 1, 11);
-	registerNonMidiParam("eqs.position", &posit10, true, 2, 1, 11);
+	registerNonMidiParam("compressor.position", &posit5, true, 6, 1, 12);
+	registerNonMidiParam("crybaby.position", &posit0, true, 3, 1, 12);
+	registerNonMidiParam("overdrive.position", &posit1, true, 7, 1, 12);
+	registerNonMidiParam("gx_distortion.position", &posit2, true, 4, 1, 12);
+	registerNonMidiParam("freeverb.position", &posit3, true, 10, 1, 12);
+	registerNonMidiParam("IR.position", &posit4, true, 5, 1, 12);
+	registerNonMidiParam("echo.position", &posit6, true, 8, 1, 12);
+	registerNonMidiParam("delay.position", &posit7, true, 9, 1, 12);
+	registerNonMidiParam("eqs.position", &posit10, true, 2, 1, 12);
 	registerNonMidiParam("chorus.position", &posit8, true, 1, 1, 9);
 	registerNonMidiParam("flanger.position", &posit9, true, 2, 1, 9);
 	registerNonMidiParam("moog.position", &posit11, true, 6, 1, 9);
 	registerNonMidiParam("phaser.position", &posit12, true, 3, 1, 9);
-	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 11);
+	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 12);
 	registerNonMidiParam("stereodelay.position", &posit15, true, 4, 1, 9);
 	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 9);
-	registerNonMidiParam("midi_out.position", &posit00, true, 11, 1, 11);
+	registerNonMidiParam("oscilloscope.position", &posit17, true, 12, 1, 12);
+	registerNonMidiParam("midi_out.position", &posit00, true, 11, 1, 12);
 	
 	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
 	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);
@@ -156,6 +159,7 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("stereodelay.dialog", &fdialogbox_sd, false);
 	registerNonMidiParam("stereoecho.dialog", &fdialogbox_se, false);
 	registerNonMidiParam("midi_out.dialog", &fdialogbox6, false);
+	registerNonMidiParam("oscilloscope.dialog", &fdialogbox_wv, false);
 	
 	registerNonMidiParam("system.waveview", &viv, false);
 	registerNonMidiParam("midi_out.midistat", &midistat, false);
@@ -256,11 +260,17 @@ void compute (int count, float* input, float* output0)
 	}
 	if(audio.fmi && !isMidiOn()) turnOnMidi();
 	else if(!audio.fmi && isMidiOn()) turnOffMidi();
+	
+	if(audio.fwv != audio.fwv_on) {
+		(void)memset(result, 0, count*sizeof(float));
+		audio.fwv_on = audio.fwv;
+	}
 
 	//------------ main processing routine
 	switch (process_type) {
 
 	case PROCESS_BUFFERS:
+		
 		process_buffers(count, input, output0);
 		break;
 
@@ -281,9 +291,9 @@ void compute (int count, float* input, float* output0)
 		if (conv.is_runnable()) {
 			conv.checkstate();
 		}
-
+		if(audio.fwv)(void)memset(result, 0, count*sizeof(float));
 		// no need of loop.
-
+		
 		(void)memset(output0, 0, count*sizeof(float));
   		break;
 	}
@@ -323,7 +333,6 @@ void process_buffers(int count, float* input, float* output0)
 		    overdrive::compute(count, output0, output0);
 	    } else if (audio.posit2 == m && audio.fcheckbox4 && audio.distortionpp) {
 	         gx_distortion::compute(count, output0, output0);
-	        
 	    } else if (audio.posit3 == m && audio.fcheckbox6 && audio.freeverbpp) {
 		    freeverb::compute(count, output0, output0);
 	    } else if (audio.posit6 == m && audio.fcheckbox7 && echo::is_inited() && audio.echopp) {
@@ -336,7 +345,10 @@ void process_buffers(int count, float* input, float* output0)
 		    selecteq::compute(count, output0, output0);
 	    } else if (audio.posit14 == m && audio.flh && audio.lhpp) {
 		    low_high_pass::compute(count, output0, output0);
+	    } else if (audio.posit17 == m && audio.fwv && audio.wvpp) {
+		    (void)memcpy(result, output0, sizeof(float)*count);
 	    } 
+
     }
 
 
@@ -367,7 +379,6 @@ void process_buffers(int count, float* input, float* output0)
 		    overdrive::compute(count, output0, output0);
 	    } else if (audio.posit2 == m && audio.fcheckbox4 && !audio.distortionpp) {
 	         gx_distortion::compute(count, output0, output0);
-	        
 	    } else if (audio.posit3 == m && audio.fcheckbox6 && !audio.freeverbpp) {
 		    freeverb::compute(count, output0, output0);
 	    } else if (audio.posit6 == m && audio.fcheckbox7 && echo::is_inited() && !audio.echopp) {
@@ -380,6 +391,8 @@ void process_buffers(int count, float* input, float* output0)
 		    selecteq::compute(count, output0, output0);
 	    } else if (audio.posit14 == m && audio.flh && !audio.lhpp) {
 		    low_high_pass::compute(count, output0, output0);
+	    } else if (audio.posit17 == m && audio.fwv && !audio.wvpp) {
+		    (void)memcpy(result, output0, sizeof(float)*count);
 	    } 
     }
 

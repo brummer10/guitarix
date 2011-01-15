@@ -528,7 +528,8 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 //----- show extendend settings slider
 void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 {
-	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)) == TRUE) {
+	// done by the button allready
+	/*if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)) == TRUE) {
 		if(refresh_size)refresh_size = 6;
 		gtk_widget_show_all(GTK_WIDGET(data));
 		GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
@@ -539,7 +540,7 @@ void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 		GtkWidget *box3 = gtk_widget_get_parent(GTK_WIDGET(box2));
 		
 		box2 = gtk_widget_get_parent(GTK_WIDGET(box3));
-		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
+		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));*/
 		/*GxMainInterface* gui = GxMainInterface::instance();
 		if(!gtk_widget_get_visible(GTK_WIDGET(box1))) {
 			const gchar * title = gtk_widget_get_name(GTK_WIDGET(box1));
@@ -547,7 +548,7 @@ void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 			else if (strcmp(title,"StereoRack")==0) gui->fShowSRack.set_active();
 		} */
 			 //FIXME show rack when enable plugins
-		gtk_window_set_resizable(GTK_WINDOW (box1) , FALSE);
+		/*gtk_window_set_resizable(GTK_WINDOW (box1) , FALSE);
 		
 		GtkRequisition my_size;
 		gtk_widget_size_request(GTK_WIDGET(box3),&my_size);
@@ -600,7 +601,7 @@ void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 		}
 		gtk_widget_set_size_request (GTK_WIDGET (box1),my_size.width+24 , my_height );
 		
-	}
+	}*/
 }
 
 //---- menu function gx_midi_out

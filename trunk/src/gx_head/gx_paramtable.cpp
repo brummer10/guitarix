@@ -521,6 +521,7 @@ ParameterGroups::ParameterGroups()
 	insert("beat_detector",N_("Beat Detector"));
 	insert("ui",N_("User Interface"));
 	insert("system", N_("System"));
+	insert("oscilloscope", N_("Oscilloscope"));
 }
 
 string param_group(string id, bool nowarn)

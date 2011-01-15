@@ -73,6 +73,7 @@ public:
 	bool fdialogbox_moo;
 	bool fdialogbox_pha;
 	bool fdialogbox_se;
+	bool fdialogbox_wv;
 	bool fmoog;
 	bool fflanger;
 	bool fflangerbox;
@@ -89,6 +90,8 @@ public:
 	bool fdialogbox_sd;
 	bool flh;
 	bool fmi;
+	bool fwv;
+	bool fwv_on;
 
 	int fcheckbox7;
 	int fdelay;
@@ -106,6 +109,7 @@ public:
 	int delaypp;
 	int eqpp;
 	int lhpp;
+	int wvpp;
 	int fsd;
 	int fse;
 	int gxtube;
@@ -127,6 +131,7 @@ public:
 	float posit14;
 	float posit15;
 	float posit16;
+	float posit17;
 	float posit00;
 	float fnglevel;
 	float convolvefilter;

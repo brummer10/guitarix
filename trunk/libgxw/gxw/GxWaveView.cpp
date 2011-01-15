@@ -51,21 +51,27 @@ static const int liveview_y = 80;
 static const int background_width = 282;
 static const int background_height = 52;
 
-static void wave_view_background(GxWaveView *waveview, cairo_t *cr,
+static void wave_view_background(GxWaveView *waveview,GtkWidget *widget ,
                                  int liveviewx, int liveviewy)
 {
+	
+    cairo_t *crp; 
+    GdkPixmap*  pix = gdk_pixmap_new(widget->window,background_width,background_height,-1);
 	waveview->liveview_image = gdk_pixbuf_new(
 		GDK_COLORSPACE_RGB,FALSE,8,background_width,background_height);
 	g_assert(waveview->liveview_image != NULL);
+	
+    crp = gdk_cairo_create (pix);     
+	
 	cairo_pattern_t*pat =
 		cairo_pattern_create_radial (-130.4, -270.4, 1.6, -1.4,  -4.4, 300.0);
 
 	cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 1);
 	cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 1);
-	cairo_set_source_rgb(cr, 0.05, 0.05, 0.05);
-	cairo_rectangle (cr, liveviewx, liveviewy, 280, 50);
-	cairo_set_source (cr, pat);
-	cairo_fill (cr);
+	cairo_set_source_rgb(crp, 0.05, 0.05, 0.05);
+	cairo_rectangle (crp, 0, 0, 282, 52);
+	cairo_set_source (crp, pat);
+	cairo_fill (crp);
 	cairo_pattern_destroy (pat);
 
 	/*
@@ -86,39 +92,43 @@ static void wave_view_background(GxWaveView *waveview, cairo_t *cr,
 	cairo_stroke (cr);
 	*/
 
-	cairo_set_line_width (cr, 1.5);
-	cairo_set_source_rgba (cr,0.2, 1.0, 0.2, 0.4);
-	cairo_move_to (cr, liveviewx, liveviewy+25);
-	cairo_line_to (cr, liveviewx+280, liveviewy+25);
-	cairo_stroke (cr);
+	cairo_set_line_width (crp, 1.5);
+	cairo_set_source_rgba (crp,0.2, 1.0, 0.2, 0.4);
+	cairo_move_to (crp, 0, 25);
+	cairo_line_to (crp, 280, 25);
+	cairo_stroke (crp);
 
-	cairo_set_source_rgba (cr,0.2, 1.0, 0.2, 0.4);
-	cairo_rectangle (cr, liveviewx, liveviewy, 280.0, 50.0);
-	cairo_stroke (cr);
+	cairo_set_source_rgba (crp,0.2, 1.0, 0.2, 0.4);
+	cairo_rectangle (crp, 0, 0, 280.0, 50.0);
+	cairo_stroke (crp);
 
 	int gitter = 0;
 	for (int i=0; i<28; i++)
 	{
 		gitter += 10;
-		cairo_move_to (cr, liveviewx+gitter-5, liveviewy);
-		cairo_line_to (cr, liveviewx+gitter-5, liveviewy+50);
+		cairo_move_to (crp, gitter-5, 0);
+		cairo_line_to (crp, gitter-5, 50);
 	}
 
 	gitter = 0;
 	for (int i=0; i<5; i++)
 	{
 		gitter += 10;
-		cairo_move_to (cr, liveviewx, liveviewy+gitter-5);
-		cairo_line_to (cr, liveviewx+280, liveviewy+gitter-5);
+		cairo_move_to (crp, 0, gitter-5);
+		cairo_line_to (crp, 280, gitter-5);
 	}
 
-	cairo_set_source_rgba (cr,0.2,  1.0, 0.2, 0.05);
-	cairo_stroke (cr);
+	cairo_set_source_rgba (crp,0.2,  1.0, 0.2, 0.05);
+	cairo_stroke (crp);
+	
+	
+    cairo_destroy (crp); 
 
 	gdk_pixbuf_get_from_drawable(
 		waveview->liveview_image,
-		GDK_DRAWABLE(GTK_WIDGET(waveview)->window), gdk_colormap_get_system(),
-		liveviewx-1, liveviewy-1,0,0,background_width,background_height);
+		GDK_DRAWABLE(pix), gdk_colormap_get_system(),
+		0, 0,0,0,background_width,background_height);
+	g_object_unref(pix);
 }
 
 static void draw_text(GtkWidget *widget, GdkEventExpose *event, gchar *str,
@@ -152,7 +162,7 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
 
 	if (!waveview->liveview_image) {
-		wave_view_background(waveview, cr, liveviewx, liveviewy);
+		wave_view_background(waveview, widget, liveviewx, liveviewy);
 	} else {
 		gdk_draw_pixbuf(
 			GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
