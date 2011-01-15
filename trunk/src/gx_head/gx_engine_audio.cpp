@@ -136,8 +136,8 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 12);
 	registerNonMidiParam("stereodelay.position", &posit15, true, 4, 1, 9);
 	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 9);
-	registerNonMidiParam("oscilloscope.position", &posit17, true, 12, 1, 12);
-	registerNonMidiParam("midi_out.position", &posit00, true, 11, 1, 12);
+	registerNonMidiParam("oscilloscope.position", &posit17, true, 11, 1, 12);
+	registerNonMidiParam("midi_out.position", &posit00, true, 12, 1, 12);
 	
 	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
 	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);

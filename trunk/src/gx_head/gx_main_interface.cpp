@@ -1197,7 +1197,8 @@ void GxMainInterface::openVerticalMidiBox(const char* label)
 {
 	GxMidiBox * box =  new GxMidiBox(*this,pb_eq_expose);
 	midibox = GTK_WIDGET(box->m_eventbox.gobj());
-	gtk_container_add (GTK_CONTAINER(rBox), midibox);
+	//gtk_container_add (GTK_CONTAINER(rBox), midibox);
+	gtk_box_pack_end (GTK_BOX(rBox),GTK_WIDGET(midibox) , false, false, 0);
 	gtk_widget_show(midibox);
 	pushBox(kBoxMode,GTK_WIDGET( box->m_box.gobj()));
 	gtk_widget_hide(midibox);
