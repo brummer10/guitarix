@@ -157,6 +157,8 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust/gxamp.cc"
 #include "faust/gxamp2.cc"
 #include "faust/gxamp3.cc"
+#include "faust/gxamp4.cc"
+#include "faust/gxamp5.cc"
 #include "faust/bassbooster.cc"
 #include "faust/gxfeed.cc"
 #include "faust/gxdistortion.cc"

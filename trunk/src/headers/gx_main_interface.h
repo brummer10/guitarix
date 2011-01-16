@@ -343,6 +343,8 @@ public :
 	RadioCheckItem       fSelectTubeModel;
 	RadioCheckItem       fSelectTubeModel2;
 	RadioCheckItem       fSelectTubeModel3;
+	RadioCheckItem       fSelectTubeModel4;
+	RadioCheckItem       fSelectTubeModel5;
 	GtkWidget* 			logger;
 	
 	static bool	 fInitialized;
