@@ -20,6 +20,7 @@ class "GxKnob" style "gx_dezert_skin_icons"
 style "gx_dezert-paintbox"
 {
 # background effect modul in convert to cairo format values, eg. gdk value * 65536
+#cairo format is: pattern position, r,g,b,alpha
 GxPaintBox::skin-gradient = {
 { 0, 19661, 19661, 19661, 65536 }, # 0, 0.3, 0.3, 0.3, 1 
 { 32768, 9830, 9830, 9830, 65536 }, # 0.5, 0.15, 0.15, 1   
