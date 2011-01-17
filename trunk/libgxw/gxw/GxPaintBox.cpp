@@ -588,9 +588,10 @@ static gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
 	cairo_pattern_t*pat =
 		cairo_pattern_create_radial (x0+200,y0+ rect_height*0.5, 5,x0+800, y0+ rect_height*0.5, 200.0);
-	cairo_pattern_add_color_stop_rgb (pat, 0, 0.3, 0.3, 0.3);
-	cairo_pattern_add_color_stop_rgb (pat, 0.5, 0.15, 0.15, 0.15);
-	cairo_pattern_add_color_stop_rgb (pat, 1, 0.1, 0.1, 0.1);
+	set_skin_color(wi, pat);
+	//cairo_pattern_add_color_stop_rgb (pat, 0, 0.3, 0.3, 0.3);
+	//cairo_pattern_add_color_stop_rgb (pat, 0.5, 0.15, 0.15, 0.15);
+	//cairo_pattern_add_color_stop_rgb (pat, 1, 0.1, 0.1, 0.1);
 	cairo_set_source (cr, pat);
 	cairo_fill (cr);
 	

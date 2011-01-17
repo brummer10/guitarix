@@ -8,6 +8,7 @@ include "common.rc"
 
 style "gx_dezert_skin_icons"
 {
+# used knob icons
 stock["bigknob"] = {{"knob9.png"}}
 stock["smallknob"] = {{"smallknob9.png"}}
 stock["smallknobr"] = {{"mittleknob9.png"}}
@@ -18,9 +19,11 @@ class "GxKnob" style "gx_dezert_skin_icons"
 
 style "gx_dezert-paintbox"
 {
+# background effect modul in convert to cairo format values, eg. gdk value * 65536
 GxPaintBox::skin-gradient = {
-{ 0, 13107, 13107, 19661, 39322 }, # 0, 0.2, 0.2, 0.3, 0.6
-{ 65536, 3277, 3277, 3277, 0 }} # 1, 0.05, 0.05, 0.05, 0.6
+{ 0, 19661, 19661, 19661, 65536 }, # 0, 0.3, 0.3, 0.3, 1 
+{ 32768, 9830, 9830, 9830, 65536 }, # 0.5, 0.15, 0.15, 1   
+{ 65536, 6554, 6554, 6554, 65536 }} # 1, 0.1, 0.1, 0.1, 1
 }
 
 class "GxPaintBox" style "gx_dezert-paintbox"
@@ -79,6 +82,7 @@ class "GtkExpander" style:highest "gx_dezert"
 
 style "gx_dezert-event"
 {
+# main window background pixmap
 bg_pixmap[NORMAL] = "gx-dezert_18.png"
 }
 widget "*.osc_box" style:highest "gx_dezert-event"
@@ -86,30 +90,35 @@ widget "*.main_window" style:highest "gx_dezert-event"
 
 style "gx_dezert-dialog"
 {
+# back and forground colours for all dialog widows
  bg[NORMAL] = { 0.2, 0.2, 0.1}
  text[NORMAL] = { 0.40, 0.40, 0.50 }
 }
 
 style "gx_dezert_black_box"
 {
+# background colour for effectbox used to grep X-events in the rack
  bg[NORMAL] = { 0, 0, 0}
 }
 widget "*.black_box" style:highest "gx_dezert_black_box"
 
 style "gx_dezert_gree_box"
 {
+# background colour for the effectbox around the midi led
  bg[NORMAL] = { 0.3, 0.3, 0.3}
 }
 widget "*.gree_box" style:highest "gx_dezert_gree_box"
 
 style "gx_dezert_dark_box"
 {
+# background colour for the effectbox around the volume knob in the midi out modul 
  bg[NORMAL] = { 0.1, 0.1, 0.2}
 }
 widget "*.dark_box" style:highest "gx_dezert_dark_box"
 
 style "gx_dezert_darker_box"
 {
+# background colour for the effectbox around the tree midi led's
  bg[NORMAL] = { 0.05, 0.05, 0.04}
 }
 
@@ -129,7 +138,7 @@ bg[PRELIGHT] = { 0.80, 0.70, 0.90 }
 bg[SELECTED] = { 0.60, 0.60, 0.60 }
 #arrows in menues
 text[NORMAL] = { 0.60, 0.50, 0.50 }
-#affects what?
+#indicator in the radio meu
 text[ACTIVE] = { 0.20, 0.00, 0.20 }
 
 #Action-buttons in dialogs
@@ -147,6 +156,7 @@ widget_class "*GtkMenuBar*" style:highest "gx_dezert-menu"
 
 style "gx_dezert_b_style"
 {
+# pixmap for toggle button and ordinary buttons
  	engine "pixmap"
 	{
 		image
@@ -184,6 +194,7 @@ style "gx_dezert_b_style"
 
 style "dezert_c_style"
 {
+# pixmap for spinbuttons
  	engine "pixmap"
 	{
 		image
@@ -202,6 +213,7 @@ style "dezert_c_style"
 
 style "gx_dezert-l_black"
 {
+# label color for all value labes
   fg[NORMAL] = 	{ 0., 0., 0. }
   fg[ACTIVE] = { 0.8, 0.8, 0.8 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
@@ -259,16 +271,9 @@ widget "*.beffekt_label" style:highest "gx_dezert-b_black"
 widget "*.rack_label" style:highest "gx_dezert-rack"
 widget "*.rack_slider" style:highest "gx_dezert_rack-slider"
 
-style "dezert_tab_style"
-{
-#MIDI-output-module background for active tab
-bg[NORMAL] = { 0.60, 0.60, 0.70 }
-}
-
-widget "*.tab_rack" style:highest "dezert_tab_style"
-
 style "dezert_h_style"
 {
+# background pixmap for buttons in dialog widgets
 engine "pixmap"
 	{
 		image
@@ -283,12 +288,14 @@ engine "pixmap"
 		}
 	}
 
-
+# background colour racks
 bg[NORMAL] = { 0.5, 0.5, 0.4 }
 bg[ACTIVE] = { 0.40, 0.50, 0.60 }
 bg[PRELIGHT] = { 0.50, 0.60, 0.60 }
+# slider base
 base[SELECTED] = { 0.4, 0.35, 0.25 }
 base[NORMAL] = { 0.5, 0.5, 0.25 }
+# slider caption
 fg[NORMAL] = { 0.6, 0.6, 0.5 }
 text[NORMAL] = { 0.30, 0.30, 0.30 }
 text[SELECTED] = { 0.10, 0.10, 0.20 }
@@ -303,7 +310,7 @@ class "GtkSpinButton" style:highest "dezert_c_style"
 
 style "dezert_tab_style"
 {
-
+# backgrounds for midi tab box
   bg[NORMAL] = { 0.20, 0.20, 0.20 }
   bg[ACTIVE] = { 0.40, 0.40, 0.40 }
   bg[PRELIGHT] = { 0.60, 0.60, 0.60 }
@@ -311,9 +318,11 @@ style "dezert_tab_style"
   
 }
 
+widget "*.tab_rack" style:highest "dezert_tab_style"
 
 style "gx_dezert_p_style"
 {
+# background pixmap for reset and order buttons
 	engine "pixmap"
 	{
 		image
@@ -347,7 +356,7 @@ style "gx_dezert_p_style"
 			stretch			= TRUE
 		}
 	}
-#background rack-ears and up/down-buttons
+#back- and for-ground color for reset and order buttons
 	bg[NORMAL] = { 0.8, 0.8, 0.7 }
 	text[NORMAL] = { 0.20, 0.20, 0.30 }
 	fg[NORMAL] = { 0.9, 0.9, 0.9 }
@@ -360,6 +369,7 @@ style "gx_dezert_p_style"
 
 style "gx_dezert_pa_style"
 {
+# background pixmap for scrollbar and buttons in the racks
 engine "pixmap"
 	{
 		image
@@ -400,6 +410,7 @@ engine "pixmap"
 
 style "gx_dezert_pair_style"
 {
+# background pixmap for the combobox in the convolver widget
 	engine "pixmap"
 	{
 		image
