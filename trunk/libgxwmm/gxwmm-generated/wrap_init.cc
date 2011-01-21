@@ -31,6 +31,7 @@
 #include "minislider.h"
 #include "vslider.h"
 #include "eqslider.h"
+#include "levelslider.h"
 #include "paintbox.h"
 #include "meterscale.h"
 #include "valuedisplay.h"
@@ -47,6 +48,7 @@ GType gx_fast_meter_get_type(void);
 GType gx_hslider_get_type(void);
 GType gx_ir_edit_get_type(void);
 GType gx_knob_get_type(void);
+GType gx_level_slider_get_type(void);
 GType gx_meter_scale_get_type(void);
 GType gx_mini_slider_get_type(void);
 GType gx_paint_box_get_type(void);
@@ -77,6 +79,7 @@ namespace Gxw {  class FastMeter_Class { public: static Glib::ObjectBase* wrap_n
 namespace Gxw {  class HSlider_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class IREdit_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class Knob_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
+namespace Gxw {  class LevelSlider_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class MeterScale_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class MiniSlider_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class PaintBox_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
@@ -107,6 +110,7 @@ void wrap_init()
   Glib::wrap_register(gx_hslider_get_type(), &Gxw::HSlider_Class::wrap_new);
   Glib::wrap_register(gx_ir_edit_get_type(), &Gxw::IREdit_Class::wrap_new);
   Glib::wrap_register(gx_knob_get_type(), &Gxw::Knob_Class::wrap_new);
+  Glib::wrap_register(gx_level_slider_get_type(), &Gxw::LevelSlider_Class::wrap_new);
   Glib::wrap_register(gx_meter_scale_get_type(), &Gxw::MeterScale_Class::wrap_new);
   Glib::wrap_register(gx_mini_slider_get_type(), &Gxw::MiniSlider_Class::wrap_new);
   Glib::wrap_register(gx_paint_box_get_type(), &Gxw::PaintBox_Class::wrap_new);
@@ -131,6 +135,7 @@ void wrap_init()
   Gxw::HSlider::get_type();
   Gxw::IREdit::get_type();
   Gxw::Knob::get_type();
+  Gxw::LevelSlider::get_type();
   Gxw::MeterScale::get_type();
   Gxw::MiniSlider::get_type();
   Gxw::PaintBox::get_type();

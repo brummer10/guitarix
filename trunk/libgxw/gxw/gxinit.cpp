@@ -30,6 +30,7 @@ static image_entry image_data[] = {
 	{ "button_off", pb_button_off },
 	{ "button_on", pb_button_on },
 	{ "eqslider", pb_eqslider },
+	{ "levelslider", pb_levelslider },
 	{ "bigknob", pb_knob1 },
 	{ "led_off", pb_led_off },
 	{ "led_on", pb_led_on },

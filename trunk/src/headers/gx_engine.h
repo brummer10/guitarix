@@ -110,6 +110,7 @@ public:
 	int eqpp;
 	int lhpp;
 	int wvpp;
+	int bipp;
 	int fsd;
 	int fse;
 	int gxtube;
@@ -132,6 +133,7 @@ public:
 	float posit15;
 	float posit16;
 	float posit17;
+	float posit18;
 	float posit00;
 	float fnglevel;
 	float convolvefilter;

@@ -357,7 +357,7 @@ gboolean level_meter_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_dat
 	double rect_width  = wi->allocation.width-2;
 	double rect_height = wi->allocation.height-4;
 
-	int  db_points[] = { -50, -40, -20, -30, -10, -3, 0, 4 };
+	int  db_points[] = { -50, -40, -30, -20, -10, -3, 0, 4 };
 	char  buf[32];
 
 	cairo_rectangle (cr, x0,y0,rect_width,rect_height+2);

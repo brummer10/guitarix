@@ -56,6 +56,14 @@ void MenuCheckItem::set_parameter(SwitchParameter *p)
 		sigc::mem_fun(*this, &MenuCheckItem::on_my_activate));
 }
 
+void MenuCheckItem::add_parameter(SwitchParameter *p)
+{
+	param = p;
+	p->changed.connect(sigc::mem_fun(*this, &MenuCheckItem::set_active));
+	signal_activate().connect(
+		sigc::mem_fun(*this, &MenuCheckItem::on_my_activate));
+}
+
 void RadioCheckItem::on_my_toggled()
 {
 	param->set(get_active());

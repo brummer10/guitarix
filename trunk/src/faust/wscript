@@ -139,6 +139,7 @@ def build(bld):
         'gxdistortion.dsp',
         'low_high_pass.dsp',
         'gx_distortion.dsp',
+        'gx_outputlevel.dsp',
         ]
 
     float_sources = [ # big arrays and no sensitive processing

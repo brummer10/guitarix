@@ -35,16 +35,16 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	double 	fSlow0 = (10 * fslider0);
-	double 	fSlow1 = (5 + fSlow0);
-	double 	fSlow2 = pow(10,(0.025 * ((20 * fslider1) - fSlow1)));
+	double 	fSlow0 = (fslider0 - 0.5);
+	double 	fSlow1 = (10 * fSlow0);
+	double 	fSlow2 = pow(10,(0.025 * ((20 * (fslider1 - 0.5)) - fSlow1)));
 	double 	fSlow3 = (1 + fSlow2);
 	double 	fSlow4 = (fConst1 * fSlow3);
 	double 	fSlow5 = (2 * (0 - ((1 + fSlow4) - fSlow2)));
 	double 	fSlow6 = (fConst1 * (fSlow2 - 1));
 	double 	fSlow7 = (fConst2 * sqrt(fSlow2));
 	double 	fSlow8 = (fSlow3 - (fSlow7 + fSlow6));
-	double 	fSlow9 = pow(10,(0.025 * (fSlow0 - 5)));
+	double 	fSlow9 = pow(10,(0.25 * fSlow0));
 	double 	fSlow10 = (1 + fSlow9);
 	double 	fSlow11 = (fConst4 * fSlow10);
 	double 	fSlow12 = (2 * (0 - ((1 + fSlow11) - fSlow9)));
@@ -58,7 +58,7 @@ void compute(int count, float *input0, float *output0)
 	double 	fSlow20 = (fConst2 * fSlow15);
 	double 	fSlow21 = (fConst1 * fSlow13);
 	double 	fSlow22 = ((1 + (fSlow9 + fSlow21)) - fSlow20);
-	double 	fSlow23 = pow(10,(0.025 * ((20 * exp((3.4 * (fslider2 - 1)))) - fSlow1)));
+	double 	fSlow23 = pow(10,(0.025 * ((20 * (exp((3.4 * (fslider2 - 1))) - 0.5)) - fSlow1)));
 	double 	fSlow24 = (1 + fSlow23);
 	double 	fSlow25 = (fConst4 * fSlow24);
 	double 	fSlow26 = (0 - (2 * ((fSlow23 + fSlow25) - 1)));

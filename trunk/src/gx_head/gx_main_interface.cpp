@@ -680,7 +680,7 @@ void GxMainInterface::openLevelMeterBox(const char* label)
 	// gx_head output levels
 	GtkWidget* gxbox = gtk_hbox_new (FALSE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (gxbox), 0);
-	gtk_box_set_spacing(GTK_BOX(gxbox), 25);
+	//gtk_box_set_spacing(GTK_BOX(gxbox), 6);
 
 	for (int i = 0; i < 2; i++) {
 		Gxw::FastMeter& fastmeter = fLevelMeters[i];
@@ -689,7 +689,12 @@ void GxMainInterface::openLevelMeterBox(const char* label)
 		fastmeter.set_size_request(width, boxheight);
 		fastmeter.signal_button_release_event().connect(
 			sigc::mem_fun(*this, &GxMainInterface::on_meter_button_release));
-		gtk_box_pack_start(GTK_BOX(gxbox), GTK_WIDGET(fastmeter.gobj()), FALSE, TRUE, 0);
+		gtk_box_pack_start(GTK_BOX(gxbox), GTK_WIDGET(fastmeter.gobj()), FALSE, FALSE, 0);
+		if(i==0)
+			{
+				gtk_box_pack_start(GTK_BOX(gxbox),(UiRegler::create(*this, 
+					new Gxw::LevelSlider(),"amp.out_master" , FALSE)), FALSE, FALSE, 0);
+			}
 		fastmeter.show();
 		fastmeter.set_tooltip_text(_("gx_head output"));
 	}
@@ -1621,6 +1626,7 @@ UiRegler::UiRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, 
 	m_regler(regler)
 {
 	m_regler->set_show_value(show_value);
+	m_regler->set_name("regler");
 	m_regler->set_has_tooltip();
 	m_regler->set_tooltip_text(param.id().substr( param.id().find_last_of(".")+1).c_str());
 	m_regler->cp_set_var(param.id());
@@ -1784,6 +1790,7 @@ UiRackRegler::UiRackRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *
 {
 	m_box.set_name(param.id());
 	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
+	m_regler->set_name("rack_regler");
 	m_box.show_all();
 }
 
@@ -2114,7 +2121,7 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
 	dialog->m_tcb.set_tooltip_text(_(tooltip.c_str()));
 	dialog->box1.show_all();
 	if(strcmp(title,"Oscilloscope")==0) {
-	fShowWaveView.set_parameter(dialog->menuitem.get_parameter());
+	fShowWaveView.add_parameter(dialog->menuitem.get_parameter());
 	fShowWaveView.signal_activate().connect(
 		sigc::mem_fun(*this, &GxMainInterface::on_show_oscilloscope));
 	}

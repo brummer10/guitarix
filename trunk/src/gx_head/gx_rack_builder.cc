@@ -541,7 +541,7 @@ openHorizontalTableBox("");
      }
      closeBox();
      
-      //-----delay
+      //-----osc
      openHorizontalOrderBox(_("oscilloscope"), &gx_engine::audio.posit17);
      {
           openVerticalBox(_("osc"));
@@ -583,7 +583,41 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox(); 
+     
+    openHorizontalOrderBox(_("biquad"), &gx_engine::audio.posit18);
+     {
+          openVerticalBox(_("biquad"));
+          {
+               openHorizontalBox("");
+               {
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "biquad.on_off");
+                         create_selector("biquad.pp");
+                    }
+                    closeBox();
 
+                    openDialogBox("biquad.dialog", "biquad.on_off","RackBox_expose");
+                    {
+                         openVerticalBox("");
+                         {
+                              openHorizontalBox("");
+                              {
+                                  create_small_rackknobr("biquad.Freq",  _("Freq"));
+                              }
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox(); 
+     
      openVerticalMidiBox(_("  MIDI out  "));
      {
           openHorizontalBox("");

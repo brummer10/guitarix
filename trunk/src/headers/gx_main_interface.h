@@ -29,6 +29,7 @@
 #include <gxwmm/wheel.h>
 #include <gxwmm/hslider.h>
 #include <gxwmm/eqslider.h>
+#include <gxwmm/levelslider.h>
 #include <gxwmm/switch.h>
 #include <gxwmm/selector.h>
 #include <gxwmm/valuedisplay.h>
@@ -515,6 +516,7 @@ public :
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::HSlider(), id, label, true));
 		}
+		
 	void create_eqslider_no_caption(string id, bool show_value = true)
 		{
 			addwidget(UiRegler::create(*this, new Gxw::EqSlider(), id, show_value));
@@ -530,6 +532,23 @@ public :
 	void create_eqslider(string id, const char *label, bool show_value = true)
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label, show_value));
+		}
+		// levelslider
+		void create_levelslider_no_caption(string id, bool show_value = true)
+		{
+			addwidget(UiRegler::create(*this, new Gxw::LevelSlider(), id, show_value));
+		}
+	void create_levelslider(string id, bool show_value = true)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::LevelSlider(), id, show_value));
+		}
+	void create_levelslider(string id, Glib::ustring label, bool show_value = true)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::LevelSlider(), id, label, show_value));
+		}
+	void create_levelslider(string id, const char *label, bool show_value = true)
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::LevelSlider(), id, label, show_value));
 		}
 		//rack
 	void create_eq_rackslider_no_caption(string id)

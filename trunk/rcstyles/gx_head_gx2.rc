@@ -246,6 +246,7 @@ widget "*.value_label" style:highest "gx_head-l_black"
 widget "*.beffekt_label" style:highest "gx_head-b_black"
 widget "*.rack_label" style:highest "gx_head-rack"
 widget "*.rack_slider" style:highest "gx_rack-slider"
+widget "*.rack_regler" style:highest "gx_rack-slider"
 
 style "h_style"
 {

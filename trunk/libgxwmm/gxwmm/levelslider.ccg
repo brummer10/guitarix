@@ -16,32 +16,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __GXX_H__
-#define __GXW_H__
-
-#include <gxw/GxTuner.h>
-#include <gxw/GxFastMeter.h>
-#include <gxw/GxWaveView.h>
-#include <gxw/GxRegler.h>
-#include <gxw/GxSelector.h>
-#include <gxw/GxSwitch.h>
-#include <gxw/GxToggleImage.h>
-#include <gxw/GxControlParameter.h>
-#include <gxw/GxIREdit.h>
-#include <gxw/GxRadioButton.h>
-#include <gxw/GxWheel.h>
-#include <gxw/GxKnob.h>
-#include <gxw/GxBigKnob.h>
-#include <gxw/GxSmallKnob.h>
-#include <gxw/GxHSlider.h>
-#include <gxw/GxMiniSlider.h>
-#include <gxw/GxVSlider.h>
-#include <gxw/GxEQSlider.h>
 #include <gxw/GxLevelSlider.h>
-#include <gxw/GxPaintBox.h>
-#include <gxw/GxMeterScale.h>
-#include <gxw/GxGradient.h>
-#include <gxw/GxValueDisplay.h>
-#include <gxw/gxinit.h>
 
-#endif /* __GXW_H__ */
+Gxw::LevelSlider::LevelSlider(Gtk::Adjustment& adjustment):
+	_CONSTRUCT("adjustment", adjustment.gobj())
+{}
