@@ -61,43 +61,27 @@ static void gx_level_slider_size_request (GtkWidget *widget, GtkRequisition *req
 	g_object_unref(pb);
 }
 
-inline double
-log_meter (GtkWidget *widget)
+inline double log_meter (GtkWidget *widget)
 {
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	double db = adj->value;
 	gfloat def = 0.0f; /* Meter deflection %age */
 
-	if (db < -70.0f)
-	{
+	if (db < -70.0f) {
 		def = 0.0f;
-	}
-	else if (db < -60.0f)
-	{
+	} else if (db < -60.0f) {
 		def = (db + 70.0f) * 0.25f;
-	}
-	else if (db < -50.0f)
-	{
+	} else if (db < -50.0f) {
 		def = (db + 60.0f) * 0.5f + 2.5f;
-	}
-	else if (db < -40.0f)
-	{
+	} else if (db < -40.0f) {
 		def = (db + 50.0f) * 0.75f + 7.5f;
-	}
-	else if (db < -30.0f)
-	{
+	} else if (db < -30.0f) {
 		def = (db + 40.0f) * 1.5f + 15.0f;
-	}
-	else if (db < -20.0f)
-	{
+	} else if (db < -20.0f) {
 		def = (db + 30.0f) * 2.0f + 30.0f;
-	}
-	else if (db < 6.0f)
-	{
+	} else if (db < 6.0f) {
 		def = (db + 20.0f) * 2.5f + 50.0f;
-	}
-	else
-	{
+	} else {
 		def = 115.0f;
 	}
 
