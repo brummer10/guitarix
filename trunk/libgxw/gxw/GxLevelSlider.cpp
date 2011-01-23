@@ -61,9 +61,59 @@ static void gx_level_slider_size_request (GtkWidget *widget, GtkRequisition *req
 	g_object_unref(pb);
 }
 
+inline double
+log_meter (GtkWidget *widget)
+{
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+	double db = adj->value;
+	gfloat def = 0.0f; /* Meter deflection %age */
+
+	if (db < -70.0f)
+	{
+		def = 0.0f;
+	}
+	else if (db < -60.0f)
+	{
+		def = (db + 70.0f) * 0.25f;
+	}
+	else if (db < -50.0f)
+	{
+		def = (db + 60.0f) * 0.5f + 2.5f;
+	}
+	else if (db < -40.0f)
+	{
+		def = (db + 50.0f) * 0.75f + 7.5f;
+	}
+	else if (db < -30.0f)
+	{
+		def = (db + 40.0f) * 1.5f + 15.0f;
+	}
+	else if (db < -20.0f)
+	{
+		def = (db + 30.0f) * 2.0f + 30.0f;
+	}
+	else if (db < 6.0f)
+	{
+		def = (db + 20.0f) * 2.5f + 50.0f;
+	}
+	else
+	{
+		def = 115.0f;
+	}
+
+	/* 115 is the deflection %age that would be
+	   when db=6.0. this is an arbitrary
+	   endpoint for our scaling.
+	*/
+
+	return def/115.0f;
+}
+
+
 static void level_slider_expose(
 	GtkWidget *widget, GdkRectangle *rect, gdouble sliderstate, GdkPixbuf *image)
 {
+	sliderstate =rect->height* log_meter (widget);
 	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
 	                image, 0, (gint)sliderstate, rect->x, rect->y,
 	                rect->width, rect->height, GDK_RGB_DITHER_NORMAL, 0, 0);
@@ -88,13 +138,13 @@ static gboolean gx_level_slider_expose(GtkWidget *widget, GdkEventExpose *event)
 
 static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, gint button)
 {
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	gint slider_height;
 	GdkRectangle image_rect, value_rect;
+	gint slider_height;
 	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
+	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
 	image_rect.width = gdk_pixbuf_get_width(pb);
 	image_rect.height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
+	g_object_unref(pb);
 	x += widget->allocation.x;
 	y += widget->allocation.y;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
@@ -106,13 +156,19 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y,
 		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, &ret);
 		return FALSE;
 	}
-	gint height = image_rect.height - slider_height;
-	int  slidery = image_rect.y + slider_height;
-	double pos = adj->upper - ((y - slidery)/height)* (adj->upper - adj->lower);
-	gboolean handled;
-	g_signal_emit(widget, GX_REGLER_CLASS(G_OBJECT_GET_CLASS(widget))->change_value_id,
-	              0, GTK_SCROLL_JUMP, pos, &handled);
-	g_object_unref(pb);
+	static double last_y = 2e20;
+	
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+	double slidery = image_rect.height;
+	double posy = slidery - y + image_rect.y; 
+	double value;
+	if (!drag) {
+		last_y = posy;
+		return TRUE;
+	}
+	value = (posy - last_y) * 0.005;
+	last_y = posy;
+	gtk_range_set_value(GTK_RANGE(widget), adj->value + value * (adj->upper - adj->lower));
 	return TRUE;
 }
 
