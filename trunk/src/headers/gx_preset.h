@@ -30,6 +30,9 @@
 #define RENAME_PRESET_LIST (2)
 //#define DELETE_PRESET_LIST (3)
 
+// number of factory preset lists
+#define GX_NUM_OF_FACTORY_PRESET (2)
+
 namespace gx_preset
 {
 extern gx_gui::FileParameter gx_preset_file;

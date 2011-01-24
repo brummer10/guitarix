@@ -2891,23 +2891,23 @@ void GxMainInterface::addPresetMenu()
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuItem), menu);
 
 		fpresmenu = menu;
-		fpresMenu = menuItem;
-	gtk_widget_show(fpresMenu);
+		
+	gtk_widget_show(menuItem);
 	
 	menuitem = gtk_menu_item_new_with_mnemonic ("funkmuscle");
 	menu = gtk_menu_new();
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
 	gtk_menu_shell_insert(GTK_MENU_SHELL(fpresmenu), menuitem, 0);
-	ffpresmenu = menu;
-	ffpresMenu = menuItem;
+	ffpresmenu[0] = menu;
+	
 	gtk_widget_show (menuitem);
 	
 	menuitem = gtk_menu_item_new_with_mnemonic ("zettberlin");
 	menu = gtk_menu_new();
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
 	gtk_menu_shell_insert(GTK_MENU_SHELL(fpresmenu), menuitem, 0);
-	fzpresmenu = menu;
-	fzpresMenu = menuItem;
+	ffpresmenu[1] = menu;
+	
 	gtk_widget_show (menuitem);
 	
 	/*-- add New Preset saving under Save Presets menu */

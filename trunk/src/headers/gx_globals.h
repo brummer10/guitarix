@@ -161,17 +161,10 @@ extern bool setting_is_preset;
 extern bool setting_is_factory;
 
 extern GtkWidget* fpresmenu;
-extern GtkWidget* fpresMenu;
-extern GtkWidget* ffpresmenu;
-extern GtkWidget* ffpresMenu;
-extern GtkWidget* fzpresmenu;
-extern GtkWidget* fzpresMenu;
+extern GtkWidget* ffpresmenu[];
 
-extern vector<string> fplist;
-extern vector<GtkMenuItem*> fpm_list;
-
-extern vector<string> fzplist;
-extern vector<GtkMenuItem*> fzpm_list;
+extern vector<string> fplist[];
+extern vector<GtkMenuItem*> fpm_list[];
 
 extern GCallback preset_action_func[];
 }

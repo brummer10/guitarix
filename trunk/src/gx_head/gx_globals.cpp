@@ -197,17 +197,11 @@ vector<string> plist;
 vector<GtkMenuItem*> pm_list[GX_NUM_OF_PRESET_LISTS];
 
 GtkWidget* fpresmenu;
-GtkWidget* fpresMenu;
-GtkWidget* ffpresmenu;
-GtkWidget* ffpresMenu;
-GtkWidget* fzpresmenu;
-GtkWidget* fzpresMenu;
 
-vector<string> fplist;
-vector<GtkMenuItem*> fpm_list;
+GtkWidget* ffpresmenu[GX_NUM_OF_FACTORY_PRESET];
+vector<string> fplist[GX_NUM_OF_FACTORY_PRESET];
+vector<GtkMenuItem*> fpm_list[GX_NUM_OF_FACTORY_PRESET];
 
-vector<string> fzplist;
-vector<GtkMenuItem*> fzpm_list;
 
 bool setting_is_preset = false;
 bool setting_is_factory = false;

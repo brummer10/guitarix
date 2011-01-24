@@ -757,9 +757,9 @@ bool gx_load_preset_from_factory(const char* presname)
 void gx_load_factory_preset (GtkMenuItem *menuitem, gpointer load_preset)
 {
 	// retrieve preset name
-    vector<GtkMenuItem*>::iterator it = fpm_list.begin();
-	vector<string>::iterator its = fplist.begin() ;;
-        for (it = fpm_list.begin() ; it != fpm_list.end(); it++ )
+    vector<GtkMenuItem*>::iterator it = fpm_list[0].begin();
+	vector<string>::iterator its = fplist[0].begin() ;;
+        for (it = fpm_list[0].begin() ; it != fpm_list[0].end(); it++ )
         {
             if( menuitem == *it)
                 break;
@@ -806,9 +806,9 @@ void gx_load_factory_preset (GtkMenuItem *menuitem, gpointer load_preset)
 void  gx_load_factory_file()
 {
 	// initialize list
-	fplist.clear();
+	fplist[0].clear();
 	// initialize menu pointer list
-        fpm_list.clear();
+        fpm_list[0].clear();
 	// parse it if any
 	ifstream f(gx_factory_preset_file.get_path().c_str());
 	if (f.good()) {
@@ -817,7 +817,7 @@ void  gx_load_factory_file()
 			readHeader(jp);
 			while (jp.peek() == JsonParser::value_string) {
 				jp.next();
-				fplist.push_back(jp.current_value());
+				fplist[0].push_back(jp.current_value());
 				jp.skip_object();
 			}
 			jp.next(JsonParser::end_array);
@@ -826,15 +826,15 @@ void  gx_load_factory_file()
 		}
 	
     vector<string>::iterator it;
-    for (it = fplist.begin() ; it != fplist.end(); it++) {
+    for (it = fplist[0].begin() ; it != fplist[0].end(); it++) {
 	
     // menu
-	GtkWidget* menu = ffpresmenu;
+	GtkWidget* menu = ffpresmenu[0];
 
 	// index for keyboard shortcut (can take any list)
     vector<GtkMenuItem*>::iterator its;
     int pos = 0;
-    for (its = fpm_list.begin() ; its != fpm_list.end(); its++ )
+    for (its = fpm_list[0].begin() ; its != fpm_list[0].end(); its++ )
     {
         pos++;
     }
@@ -849,9 +849,9 @@ void  gx_load_factory_file()
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
-	its = fpm_list.end();
+	its = fpm_list[0].end();
 	// add a pointer to the menuitem to the preset menu list
-    fpm_list.insert(its,GTK_MENU_ITEM(menuitem));
+    fpm_list[0].insert(its,GTK_MENU_ITEM(menuitem));
 	gtk_widget_show (menuitem);
 	}
 }
@@ -891,9 +891,9 @@ bool gx_load_preset_from_factory_z(const char* presname)
 void gx_load_factory_z_preset (GtkMenuItem *menuitem, gpointer load_preset)
 {
 	// retrieve preset name
-    vector<GtkMenuItem*>::iterator it = fzpm_list.begin();
-	vector<string>::iterator its = fzplist.begin() ;;
-        for (it = fzpm_list.begin() ; it != fzpm_list.end(); it++ )
+    vector<GtkMenuItem*>::iterator it = fpm_list[1].begin();
+	vector<string>::iterator its = fplist[1].begin() ;;
+        for (it = fpm_list[1].begin() ; it != fpm_list[1].end(); it++ )
         {
             if( menuitem == *it)
                 break;
@@ -940,9 +940,9 @@ void gx_load_factory_z_preset (GtkMenuItem *menuitem, gpointer load_preset)
 void  gx_load_factory_z_file()
 {
 	// initialize list
-	fzplist.clear();
+	fplist[1].clear();
 	// initialize menu pointer list
-        fzpm_list.clear();
+        fpm_list[1].clear();
 	// parse it if any
 	ifstream f(gx_factory_preset_file_z.get_path().c_str());
 	if (f.good()) {
@@ -951,7 +951,7 @@ void  gx_load_factory_z_file()
 			readHeader(jp);
 			while (jp.peek() == JsonParser::value_string) {
 				jp.next();
-				fzplist.push_back(jp.current_value());
+				fplist[1].push_back(jp.current_value());
 				jp.skip_object();
 			}
 			jp.next(JsonParser::end_array);
@@ -960,15 +960,15 @@ void  gx_load_factory_z_file()
 		}
 	
     vector<string>::iterator it;
-    for (it = fzplist.begin() ; it != fzplist.end(); it++) {
+    for (it = fplist[1].begin() ; it != fplist[1].end(); it++) {
 	
     // menu
-	GtkWidget* menu = fzpresmenu;
+	GtkWidget* menu = ffpresmenu[1];
 
 	// index for keyboard shortcut (can take any list)
     vector<GtkMenuItem*>::iterator its;
     int pos = 0;
-    for (its = fzpm_list.begin() ; its != fzpm_list.end(); its++ )
+    for (its = fpm_list[1].begin() ; its != fpm_list[1].end(); its++ )
     {
         pos++;
     }
@@ -983,9 +983,9 @@ void  gx_load_factory_z_file()
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
-	its = fzpm_list.end();
+	its = fpm_list[1].end();
 	// add a pointer to the menuitem to the preset menu list
-    fzpm_list.insert(its,GTK_MENU_ITEM(menuitem));
+    fpm_list[1].insert(its,GTK_MENU_ITEM(menuitem));
 	gtk_widget_show (menuitem);
 	}
 }
