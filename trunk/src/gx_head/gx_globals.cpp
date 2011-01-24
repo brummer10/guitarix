@@ -158,6 +158,7 @@ namespace gx_preset
 
 gx_gui::FileParameter gx_preset_file("system.current_preset_file");
 gx_gui::FileParameter gx_factory_preset_file("system.factory_preset_file");
+gx_gui::FileParameter gx_factory_preset_file_z("system.factory_preset_file_z");
 
 GdkModifierType list_mod[] =
 {
@@ -197,6 +198,10 @@ vector<GtkMenuItem*> pm_list[GX_NUM_OF_PRESET_LISTS];
 
 GtkWidget* fpresmenu;
 GtkWidget* fpresMenu;
+GtkWidget* ffpresmenu;
+GtkWidget* ffpresMenu;
+GtkWidget* fzpresmenu;
+GtkWidget* fzpresMenu;
 
 vector<string> fplist;
 vector<GtkMenuItem*> fpm_list;

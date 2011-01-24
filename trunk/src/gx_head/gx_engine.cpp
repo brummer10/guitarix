@@ -61,7 +61,7 @@ void gx_engine_init( const string *optvar )
 		gx_preset::gx_recall_settings_file();
 	}
 	gx_preset::gx_load_factory_file();
-
+	gx_preset::gx_load_factory_z_file();
 	initialized = true;
 }
 

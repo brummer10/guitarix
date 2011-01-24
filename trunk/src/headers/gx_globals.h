@@ -162,6 +162,10 @@ extern bool setting_is_factory;
 
 extern GtkWidget* fpresmenu;
 extern GtkWidget* fpresMenu;
+extern GtkWidget* ffpresmenu;
+extern GtkWidget* ffpresMenu;
+extern GtkWidget* fzpresmenu;
+extern GtkWidget* fzpresMenu;
 
 extern vector<string> fplist;
 extern vector<GtkMenuItem*> fpm_list;
