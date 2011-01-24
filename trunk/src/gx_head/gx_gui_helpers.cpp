@@ -226,6 +226,8 @@ void GxMainInterface::on_show_oscilloscope()
 		Glib::signal_timeout().connect(sigc::mem_fun(*this, &GxMainInterface::on_refresh_oscilloscope), 60); //FIXME G_PRIORITY_DEFAULT_IDLE??
 		//g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, 60,  gx_threads::gx_refresh_oscilloscope, 0, NULL);
 		fWaveView.get_parent()->show(); //FIXME why??
+		if (gx_engine::audio.wvpp) fWaveView.set_multiplicator(150.,250);
+		else fWaveView.set_multiplicator(20.,60);
 		fWaveView.show();
 	} else {
 		showwave = 0;

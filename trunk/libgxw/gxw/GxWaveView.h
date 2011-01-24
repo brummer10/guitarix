@@ -49,6 +49,8 @@ struct _GxWaveView
 	gchar *text_bottom_right;
 	double text_pos_left;
 	double text_pos_right;
+	double m_wave;
+	double m_loud;
 };
 
 struct _GxWaveViewClass
@@ -60,6 +62,8 @@ struct _GxWaveViewClass
 GType gx_wave_view_get_type ();
 
 GtkWidget* gx_wave_view_new();
+
+void gx_wave_view_set_multiplicator(GxWaveView *waveview, double m_wave, double m_loud);
 void gx_wave_view_set_frame(GxWaveView *waveview, const float *frame, int frame_size);
 void gx_wave_view_set_text(GxWaveView *waveview, const gchar *text, GtkCornerType pos);
 

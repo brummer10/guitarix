@@ -27,6 +27,7 @@ class WaveView: public Gtk::DrawingArea {
 	_CLASS_GTKOBJECT(WaveView,GxWaveView,GX_WAVE_VIEW,Gtk::DrawingArea,GtkDrawingArea)
 	public:
 	_CTOR_DEFAULT
+	_WRAP_METHOD(void set_multiplicator(double, double), gx_wave_view_set_multiplicator)
 	_WRAP_METHOD(void set_frame(const float*, int), gx_wave_view_set_frame)
 	_WRAP_METHOD(void set_text(const Glib::ustring&, Gtk::CornerType), gx_wave_view_set_text)
 	_WRAP_PROPERTY(text-top-left, Glib::ustring)

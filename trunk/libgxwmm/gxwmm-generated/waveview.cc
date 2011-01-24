@@ -136,6 +136,11 @@ WaveView::WaveView()
 
 }
 
+void WaveView::set_multiplicator(double p1, double p2)
+{
+gx_wave_view_set_multiplicator(gobj(), p1, p2); 
+}
+
 void WaveView::set_frame(const float* p1, int p2)
 {
 gx_wave_view_set_frame(gobj(), p1, p2); 

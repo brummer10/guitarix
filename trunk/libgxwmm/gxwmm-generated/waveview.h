@@ -100,6 +100,8 @@ private:
 	public:
 	WaveView();
 	
+  void set_multiplicator(double, double);
+	
   void set_frame(const float*, int);
 	
   void set_text(const Glib::ustring&, Gtk::CornerType);

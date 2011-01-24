@@ -1596,6 +1596,16 @@ void GxMainInterface::addPToggleButton(string id, const char* label)
 
 // -------------------------- gxwmm library controlers -----------------------------------
 
+void set_osilloscope_mode(GtkWidget *widget, gpointer data)
+{
+	gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
+	if (gx_engine::audio.wvpp) {
+		gui->getWaveView().set_multiplicator(150.,250.);
+	} else {
+		gui->getWaveView().set_multiplicator(20.,60.);
+	}
+}
+
 /****************************************************************
  ** UiRegler, UiSwitch
  */
@@ -1679,6 +1689,9 @@ void UiSelector::init(Parameter& param)
 		ls->append()->set_value(0, Glib::ustring(*p));
 	}
 	m_selector.set_model(ls);
+	if (strcmp(param.group().c_str(),"Oscilloscope")==0) {
+		g_signal_connect (GTK_OBJECT (m_selector.gobj()), "value_changed", G_CALLBACK(set_osilloscope_mode), NULL);
+	}
 }
 
 UiSelectorFloat::UiSelectorFloat(gx_ui::GxUI& ui, FloatParameter &param):
@@ -2627,6 +2640,7 @@ void GxMainInterface::addLiveWaveDisplay(const char* label, float* zone , float*
 	fWaveView.hide(); // was show()'n by addWidget
 	fWaveView.property_text_pos_left() = 1.5;
 	fWaveView.property_text_pos_right() = 77;
+	fWaveView.set_multiplicator(150.,250.);
 	gtk_widget_show(box);
 	gtk_widget_hide(e_box);
 }

@@ -160,6 +160,11 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	int liveviewy = (int)((widget->allocation.height - liveview_y) * 0.5) + 15;
 
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+	GdkRegion *region;
+	region = gdk_region_rectangle (&widget->allocation);
+	gdk_region_intersect (region, event->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
 
 	if (!waveview->liveview_image) {
 		wave_view_background(waveview, widget, liveviewx, liveviewy);
@@ -190,14 +195,14 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	for (int i = 0; i < waveview->frame_size; i++)
 	{
 		float x_in = waveview->frame[i];
-		cairo_line_to (cr, sc1 - sc*(i+1), sc2 + x_in*75.0);
+		cairo_line_to (cr, sc1 - sc*(i+1), sc2 + x_in*waveview->m_wave);
 		wave_go = fmax(wave_go, fabs(x_in));
 	}
 
 	//----- get the sample, for display the gain value
 
 	float wave_db = log(fabs( wave_go))*6/log(2);
-	double xl     = floor(exp(log(1.055)*2.1*wave_db)*150);
+	double xl     = floor(exp(log(1.055)*2.1*wave_db)*waveview->m_loud);
 
 	if (xl > 125.0) xl = 125.0;
 	else if (xl < -125.0) xl = -125.0;
@@ -235,6 +240,7 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	cairo_set_line_width (cr, 3.0);
 	cairo_stroke (cr);
 	cairo_destroy(cr);
+	gdk_region_destroy (region);
 
 	return FALSE;
 }
@@ -312,6 +318,8 @@ static void gx_wave_view_init(GxWaveView *waveview)
 	waveview->text_bottom_right = NULL;
 	waveview->text_pos_left = 5;
 	waveview->text_pos_right = 70;
+	waveview->m_wave = 75;
+	waveview->m_loud = 150;
 	widget->requisition.width = liveview_x;
 	widget->requisition.height = liveview_y;
 }
@@ -338,6 +346,13 @@ void gx_wave_view_set_frame(GxWaveView *waveview, const float *frame, int frame_
 	waveview->frame = frame;
 	waveview->frame_size = frame_size;
 	gtk_widget_queue_draw(GTK_WIDGET(waveview));
+}
+
+void gx_wave_view_set_multiplicator(GxWaveView *waveview, double m_wave, double m_loud)
+{
+	g_assert(GX_IS_WAVE_VIEW(waveview));
+	waveview->m_wave = m_wave;
+	waveview->m_loud = m_loud;
 }
 
 void gx_wave_view_set_text(GxWaveView *waveview, const gchar *text, GtkCornerType pos)
