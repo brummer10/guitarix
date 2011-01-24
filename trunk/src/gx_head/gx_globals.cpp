@@ -206,6 +206,9 @@ GtkWidget* fzpresMenu;
 vector<string> fplist;
 vector<GtkMenuItem*> fpm_list;
 
+vector<string> fzplist;
+vector<GtkMenuItem*> fzpm_list;
+
 bool setting_is_preset = false;
 bool setting_is_factory = false;
 

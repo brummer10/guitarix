@@ -170,6 +170,9 @@ extern GtkWidget* fzpresMenu;
 extern vector<string> fplist;
 extern vector<GtkMenuItem*> fpm_list;
 
+extern vector<string> fzplist;
+extern vector<GtkMenuItem*> fzpm_list;
+
 extern GCallback preset_action_func[];
 }
 
