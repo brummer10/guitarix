@@ -2164,7 +2164,7 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	p +=title;
 	string s;
 	
-	guint accel_key = GDK_l  + stereo_plugs ;
+	guint accel_key = GDK_m  + stereo_plugs ;
 	bdialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME 
 	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsStereo"]), GTK_WIDGET(bdialog->menuitem.gobj()));
