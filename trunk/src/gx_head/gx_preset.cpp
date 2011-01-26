@@ -722,11 +722,19 @@ void gx_save_preset (const char* presname, bool expand_menu)
 	gx_jconv::gx_reload_jcgui(); //FIXME why reload after saving?
 }
 
-///------funkmuskle factory presets--------///
-
-bool gx_load_preset_from_factory(const char* presname)
+///------factory presets--------///
+// set factory preset file and path
+void  gx_set_factory_file(int i)
 {
+	if(i) gx_factory_preset_file.set_path(gx_system::gx_style_dir +"zettberlin_rc");
+	else gx_factory_preset_file.set_path(gx_system::gx_style_dir +"funkmuscle_rc");
+}
+
+bool gx_load_preset_from_factory(const char* presname, int i)
+{
+	gx_set_factory_file(i);
 	ifstream ofile(gx_factory_preset_file.get_path().c_str());
+	
 	JsonParser jp(ofile);
 
 	try {
@@ -750,6 +758,7 @@ bool gx_load_preset_from_factory(const char* presname)
 	} catch (JsonException& e) {
 		//gx_print_error(_("load preset"), _("invalid factory file: ") + factory_file.get_parse_name());
 	}
+	
 	return false;
 }
 
@@ -757,9 +766,10 @@ bool gx_load_preset_from_factory(const char* presname)
 void gx_load_factory_preset (GtkMenuItem *menuitem, gpointer load_preset)
 {
 	// retrieve preset name
-    vector<GtkMenuItem*>::iterator it = fpm_list[0].begin();
-	vector<string>::iterator its = fplist[0].begin() ;;
-        for (it = fpm_list[0].begin() ; it != fpm_list[0].end(); it++ )
+	int i = GPOINTER_TO_INT(load_preset);
+    vector<GtkMenuItem*>::iterator it = fpm_list[i].begin();
+	vector<string>::iterator its = fplist[i].begin() ;;
+        for (it = fpm_list[i].begin() ; it != fpm_list[i].end(); it++ )
         {
             if( menuitem == *it)
                 break;
@@ -767,11 +777,10 @@ void gx_load_factory_preset (GtkMenuItem *menuitem, gpointer load_preset)
         }
 
 	string preset_name = *its;
-
 	// recall preset by name
 	// Note: the UI does not know anything about gx_head's directory stuff
 	// Need to pass it on
-	bool preset_ok = gx_load_preset_from_factory(preset_name.c_str());
+	bool preset_ok = gx_load_preset_from_factory(preset_name.c_str(),i);
 
 	// check result
 	if (!preset_ok)
@@ -782,11 +791,9 @@ void gx_load_factory_preset (GtkMenuItem *menuitem, gpointer load_preset)
 
 	// print out info
 	gx_print_info(_("Preset Loading"), string(_("loaded preset ")) + preset_name);
-	//setting_is_preset = true;
 
 	gx_factory_preset = preset_name;
 	setting_is_factory = true;
-
 	gx_jconv::gx_reload_jcgui();
 
 	/* do some GUI stuff*/
@@ -798,26 +805,26 @@ void gx_load_factory_preset (GtkMenuItem *menuitem, gpointer load_preset)
         gx_gui::g_threads[3] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,gx_convolver_restart,NULL,NULL);
 	}
 
-	/* collect info for stage info display*/
-	//gx_gui::show_patch_info = gx_get_single_preset_menu_pos(gx_current_preset, 0);
 }
 
 // load the factory preset file
-void  gx_load_factory_file()
+void  gx_load_factory_file(int i)
 {
 	// initialize list
-	fplist[0].clear();
+	fplist[i].clear();
 	// initialize menu pointer list
-        fpm_list[0].clear();
-	// parse it if any
+    fpm_list[i].clear();
+
+	gx_set_factory_file(i);
 	ifstream f(gx_factory_preset_file.get_path().c_str());
+	
 	if (f.good()) {
 			JsonParser jp(f);
 			jp.next(JsonParser::begin_array);
 			readHeader(jp);
 			while (jp.peek() == JsonParser::value_string) {
 				jp.next();
-				fplist[0].push_back(jp.current_value());
+				fplist[i].push_back(jp.current_value());
 				jp.skip_object();
 			}
 			jp.next(JsonParser::end_array);
@@ -826,167 +833,22 @@ void  gx_load_factory_file()
 		}
 	
     vector<string>::iterator it;
-    for (it = fplist[0].begin() ; it != fplist[0].end(); it++) {
-	
-    // menu
-	GtkWidget* menu = ffpresmenu[0];
+    for (it = fplist[i].begin() ; it != fplist[i].end(); it++) {
+		// menu
+		GtkWidget* menu = ffpresmenu[i];
+		vector<GtkMenuItem*>::iterator its;
+		// create item
+		string presna = *it;
+		GtkWidget* menuitem = gtk_menu_item_new_with_mnemonic (presna.c_str());
+		g_signal_connect (GTK_OBJECT (menuitem), "activate",
+						  G_CALLBACK (gx_load_factory_preset), // FIXME LOAD FACTORY SETTINGS
+						  GINT_TO_POINTER(i));
 
-	// index for keyboard shortcut (can take any list)
-    vector<GtkMenuItem*>::iterator its;
-    int pos = 0;
-    for (its = fpm_list[0].begin() ; its != fpm_list[0].end(); its++ )
-    {
-        pos++;
-    }
-    pos += 1;
-
-	// create item
-	string presna = *it;
-	GtkWidget* menuitem = gtk_menu_item_new_with_mnemonic (presna.c_str());
-	g_signal_connect (GTK_OBJECT (menuitem), "activate",
-	                  G_CALLBACK (gx_load_factory_preset), // FIXME LOAD FACTORY SETTINGS
-	                  NULL);
-
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-
-	its = fpm_list[0].end();
-	// add a pointer to the menuitem to the preset menu list
-    fpm_list[0].insert(its,GTK_MENU_ITEM(menuitem));
-	gtk_widget_show (menuitem);
-	}
-}
-
-///--------zettberlin factory presets-------///
-
-bool gx_load_preset_from_factory_z(const char* presname)
-{
-	ifstream ofile(gx_factory_preset_file_z.get_path().c_str());
-	JsonParser jp(ofile);
-
-	try {
-		jp.next(JsonParser::begin_array);
-		int major, minor;
-		readHeader(jp, &major, &minor);
-
-		bool found = false;
-		while (jp.peek() != JsonParser::end_array) {
-			jp.next(JsonParser::value_string);
-			if (jp.current_value() == presname) {
-				found = true;
-				read_preset(jp, 0, major, minor);
-				return true;
-			} else {
-				jp.skip_object();
-			}
-		}
-		jp.next(JsonParser::end_array);
-		jp.next(JsonParser::end_token);
-	} catch (JsonException& e) {
-		//gx_print_error(_("load preset"), _("invalid factory file: ") + factory_file.get_parse_name());
-	}
-	return false;
-}
-
-//----menu funktion load preset from factory
-void gx_load_factory_z_preset (GtkMenuItem *menuitem, gpointer load_preset)
-{
-	// retrieve preset name
-    vector<GtkMenuItem*>::iterator it = fpm_list[1].begin();
-	vector<string>::iterator its = fplist[1].begin() ;;
-        for (it = fpm_list[1].begin() ; it != fpm_list[1].end(); it++ )
-        {
-            if( menuitem == *it)
-                break;
-            its++;
-        }
-
-	string preset_name = *its;
-
-	// recall preset by name
-	// Note: the UI does not know anything about gx_head's directory stuff
-	// Need to pass it on
-	bool preset_ok = gx_load_preset_from_factory_z(preset_name.c_str());
-
-	// check result
-	if (!preset_ok)
-	{
-		gx_print_error(_("Preset Loading"), string(_("Could not load preset ")) + preset_name);
-		return;
-	}
-
-	// print out info
-	gx_print_info(_("Preset Loading"), string(_("loaded preset ")) + preset_name);
-	//setting_is_preset = true;
-
-	gx_factory_preset = preset_name;
-	setting_is_factory = true;
-
-	gx_jconv::gx_reload_jcgui();
-
-	/* do some GUI stuff*/
-	g_idle_add(gx_rename_main_widget,NULL);
-
-	/* reset convolver buffer for preset change*/
-	if (gx_engine::conv.is_runnable() && gx_jconv::GxJConvSettings::checkbutton7 == 1)  {
-		gx_engine::conv.stop();
-        gx_gui::g_threads[3] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,gx_convolver_restart,NULL,NULL);
-	}
-
-	/* collect info for stage info display*/
-	//gx_gui::show_patch_info = gx_get_single_preset_menu_pos(gx_current_preset, 0);
-}
-
-// load the factory preset file
-void  gx_load_factory_z_file()
-{
-	// initialize list
-	fplist[1].clear();
-	// initialize menu pointer list
-        fpm_list[1].clear();
-	// parse it if any
-	ifstream f(gx_factory_preset_file_z.get_path().c_str());
-	if (f.good()) {
-			JsonParser jp(f);
-			jp.next(JsonParser::begin_array);
-			readHeader(jp);
-			while (jp.peek() == JsonParser::value_string) {
-				jp.next();
-				fplist[1].push_back(jp.current_value());
-				jp.skip_object();
-			}
-			jp.next(JsonParser::end_array);
-			jp.next(JsonParser::end_token);
-			f.close();
-		}
-	
-    vector<string>::iterator it;
-    for (it = fplist[1].begin() ; it != fplist[1].end(); it++) {
-	
-    // menu
-	GtkWidget* menu = ffpresmenu[1];
-
-	// index for keyboard shortcut (can take any list)
-    vector<GtkMenuItem*>::iterator its;
-    int pos = 0;
-    for (its = fpm_list[1].begin() ; its != fpm_list[1].end(); its++ )
-    {
-        pos++;
-    }
-    pos += 1;
-
-	// create item
-	string presna = *it;
-	GtkWidget* menuitem = gtk_menu_item_new_with_mnemonic (presna.c_str());
-	g_signal_connect (GTK_OBJECT (menuitem), "activate",
-	                  G_CALLBACK (gx_load_factory_z_preset), // FIXME LOAD FACTORY SETTINGS
-	                  NULL);
-
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-
-	its = fpm_list[1].end();
-	// add a pointer to the menuitem to the preset menu list
-    fpm_list[1].insert(its,GTK_MENU_ITEM(menuitem));
-	gtk_widget_show (menuitem);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+		its = fpm_list[i].end();
+		// add a pointer to the menuitem to the preset menu list
+		fpm_list[i].insert(its,GTK_MENU_ITEM(menuitem));
+		gtk_widget_show (menuitem);
 	}
 }
 
@@ -1288,8 +1150,8 @@ void gx_rename_preset_dialog (GtkMenuItem *menuitem, gpointer arg)
 void init()
 {
 	gx_preset_file.set_standard(gx_system::gx_user_dir + "gx_headpre_rc");
-	gx_factory_preset_file.set_standard(gx_system::gx_style_dir +"funkmuscle_rc");
-	gx_factory_preset_file_z.set_standard(gx_system::gx_style_dir +"zettberlin_rc"); 
+	//gx_factory_preset_file.set_standard(gx_system::gx_style_dir +"funkmuscle_rc");
+	
 	gx_gui::parameter_map.insert(&gx_preset_file);
 	//gx_gui::parameter_map.insert(&gx_factory_preset_file);
 }

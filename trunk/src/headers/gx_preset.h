@@ -37,7 +37,6 @@ namespace gx_preset
 {
 extern gx_gui::FileParameter gx_preset_file;
 extern gx_gui::FileParameter gx_factory_preset_file;
-extern gx_gui::FileParameter gx_factory_preset_file_z;
 
 /* function declarations */
 string gx_get_accel_path(int lindex);
@@ -55,8 +54,7 @@ void  gx_recall_settings_file(const string *filename = 0);
 void  gx_recall_main_setting(GtkMenuItem*, gpointer);
 void  gx_save_main_setting(GtkMenuItem*, gpointer);
 
-void  gx_load_factory_file();
-void  gx_load_factory_z_file();
+void  gx_load_factory_file(int i);
 
 void  gx_rename_preset (GtkEntry*);
 void  gx_rename_preset_dialog (GtkMenuItem*, gpointer);
