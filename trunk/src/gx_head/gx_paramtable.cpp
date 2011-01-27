@@ -522,6 +522,9 @@ ParameterGroups::ParameterGroups()
 	insert("ui",N_("User Interface"));
 	insert("system", N_("System"));
 	insert("oscilloscope", N_("Oscilloscope"));
+	insert("ampmodul", N_("Postamp"));
+	insert("ampmodul.amp2.stage1", N_("Postamp Tube1"));
+	insert("ampmodul.amp2.stage2", N_("Postamp Tube2"));
 }
 
 string param_group(string id, bool nowarn)

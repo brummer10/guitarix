@@ -43,15 +43,27 @@ tubestage(tb,fck,Rk) = tube : hpf with {
     hpf = highpass1(31.0);
 };
 
-process = hgroup("amp2", hgroup("stage1", stage1) :
+tubec(preamp,gain1) = hgroup("amp2", hgroup("stage1", stage1) :
           hgroup("stage2", stage2) 
           ) with {
-       
-    preamp =  (vslider(".amp2.stage1.Pregain[alias]",0,-20,20,0.1):db2linear : smoothi(0.999));     
+          
+    stage1 = *(preamp): tubestage(0,86.0,2700.0):
+    lowpass1(6531.0) : *(preamp) : tubestage(1,132.0,1500.0); 
+    stage2 = lowpass1(6531.0) : *(gain1) : tubestage(1,194.0,820.0);
+    
+} ;
+
+tubeax(preamp,gain1) = hgroup("amp2", hgroup("stage1", stage1) :
+          hgroup("stage2", stage2) 
+          ) with {
+          
     stage1 = *(preamp): tubestage(0,86.0,2700.0): *(0.77) :
     lowpass1(6531.0) : *(preamp) : tubestage(1,132.0,1500.0): *(0.77); 
-    stage2 = lowpass1(6531.0) : *(gain1) : bifilter : tubestage(1,194.0,820.0) : *(0.77)
-    with {
+    stage2 = lowpass1(6531.0) : *(gain1) : bifilter : tubestage(1,194.0,820.0) : *(0.77);
+    
+} ;
+
+process = tubeax(preamp,gain1) with {
+    preamp =  (vslider(".amp2.stage1.Pregain[alias]",0,-20,20,0.1):db2linear : smoothi(0.999));     
     gain1 = vslider(".amp2.stage2.gain1[alias]", 6, -20.0, 20.0, 0.1) : db2linear : smoothi(0.999);
-    } ;
 };

@@ -135,6 +135,7 @@ def build(bld):
         'gxamp3.dsp',
         'gxamp4.dsp',
         'gxamp5.dsp',
+        'gx_ampmodul.dsp',
         'gxfeed.dsp',
         'gxdistortion.dsp',
         'low_high_pass.dsp',

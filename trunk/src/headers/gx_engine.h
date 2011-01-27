@@ -92,6 +92,8 @@ public:
 	bool fmi;
 	bool fwv;
 	bool fwv_on;
+	bool famp;
+	bool fampmodul;
 
 	int fcheckbox7;
 	int fdelay;
@@ -134,6 +136,7 @@ public:
 	float posit16;
 	float posit17;
 	float posit18;
+	float posit19;
 	float posit00;
 	float fnglevel;
 	float convolvefilter;

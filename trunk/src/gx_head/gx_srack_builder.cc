@@ -333,6 +333,48 @@ openHorizontalTableBox("");
           closeBox();
      }
      closeBox();
+     
+     openHorizontalRestetBox(_("amp"), &gx_engine::audio.posit19);
+     {
+          openVerticalBox(_("amp"));
+          {
+
+               openHorizontalTableBox("");
+               {
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "ampmodul.on_off");
+                    }
+                    closeBox();
+                    opensDialogBox("ampmodul.dialog", "ampmodul.on_off","RackBox_expose");
+                    {
+
+                         openVerticalBox("");
+                         {
+                              openHorizontalBox("");
+                              {
+								   openSpaceBox("");
+                                   closeBox();
+								   create_small_rackknob("ampmodul.level",_("level"));
+                                   create_small_rackknob("ampmodul.amp2.stage1.tube1",_("tube1"));
+                                   create_small_rackknob("ampmodul.amp2.stage2.tube2",_("tube2"));
+                                   create_small_rackknob("ampmodul.feedback",_("feedback"));
+                                   openSpaceBox("");
+                                   closeBox();
+
+                              }
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox();
+     
      // add controllers without show them
      openHorizontalhideBox("");
      {

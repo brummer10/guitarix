@@ -97,6 +97,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("stereoecho.on_off", on_off,(float*) &fse, 0);
 	gx_gui::registerParam("midi_out.on_off", on_off, &fmi, 0);
 	gx_gui::registerParam("oscilloscope.on_off", on_off, &fwv, 0);
+	gx_gui::registerParam("ampmodul.on_off", on_off, &famp, 0);
 	
 	static const char *tonestack_model[] = {N_("default"),N_("Bassman"),N_("Twin Reverb"),N_("Princeton"),N_("JCM-800"),N_("JCM-2000"),N_("M-Lead"),N_("M2199"),N_("AC-30"),N_("Off"),0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
@@ -130,16 +131,17 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("echo.position", &posit6, true, 8, 1, 14);
 	registerNonMidiParam("delay.position", &posit7, true, 9, 1, 14);
 	registerNonMidiParam("eqs.position", &posit10, true, 2, 1, 14);
-	registerNonMidiParam("chorus.position", &posit8, true, 1, 1, 9);
-	registerNonMidiParam("flanger.position", &posit9, true, 2, 1, 9);
-	registerNonMidiParam("moog.position", &posit11, true, 6, 1, 9);
-	registerNonMidiParam("phaser.position", &posit12, true, 3, 1, 9);
+	registerNonMidiParam("chorus.position", &posit8, true, 1, 1, 10);
+	registerNonMidiParam("flanger.position", &posit9, true, 2, 1, 10);
+	registerNonMidiParam("moog.position", &posit11, true, 6, 1, 10);
+	registerNonMidiParam("phaser.position", &posit12, true, 3, 1, 10);
 	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 14);
-	registerNonMidiParam("stereodelay.position", &posit15, true, 4, 1, 9);
-	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 9);
+	registerNonMidiParam("stereodelay.position", &posit15, true, 4, 1, 10);
+	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 10);
 	registerNonMidiParam("oscilloscope.position", &posit17, true, 11, 1, 14);
 	registerNonMidiParam("biquad.position", &posit18, true, 12, 1, 14);
 	registerNonMidiParam("midi_out.position", &posit00, true, 13, 1, 14);
+	registerNonMidiParam("ampmodul.position", &posit19, true, 10, 1, 10);
 	
 	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
 	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);
@@ -162,6 +164,7 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("stereoecho.dialog", &fdialogbox_se, false);
 	registerNonMidiParam("midi_out.dialog", &fdialogbox6, false);
 	registerNonMidiParam("oscilloscope.dialog", &fdialogbox_wv, false);
+	registerNonMidiParam("ampmodul.dialog", &fampmodul, false);
 	
 	registerNonMidiParam("system.waveview", &viv, false);
 	registerNonMidiParam("midi_out.midistat", &midistat, false);
@@ -471,6 +474,8 @@ void process_insert_buffers (int count, float* input1, float* output0, float* ou
 			stereodelay::compute(count, output0, output1, output0, output1);
 		}else if (audio.posit16 == m && audio.fse && stereoecho::is_inited()) {
 			stereoecho::compute(count, output0, output1, output0, output1);
+		}else if (audio.posit19 == m && audio.famp ) {
+			gx_ampmodul::compute(count, output0, output1, output0, output1);
 		}
 	}
 
