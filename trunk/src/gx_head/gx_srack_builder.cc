@@ -336,7 +336,7 @@ openHorizontalTableBox("");
      
      openHorizontalRestetBox(_("amp"), &gx_engine::audio.posit19);
      {
-          openVerticalBox(_("amp"));
+          openVerticalBox(_("reamp"));
           {
 
                openHorizontalTableBox("");
@@ -355,10 +355,12 @@ openHorizontalTableBox("");
                               {
 								   openSpaceBox("");
                                    closeBox();
+                                   create_small_rackknobr("ampmodul.feedbac",_("dry/feedback  "));
+                                   create_small_rackknob("ampmodul.wet_dry",_("dry/wet"));
 								   create_small_rackknob("ampmodul.level",_("level"));
                                    create_small_rackknob("ampmodul.amp2.stage1.tube1",_("tube1"));
                                    create_small_rackknob("ampmodul.amp2.stage2.tube2",_("tube2"));
-                                   create_small_rackknob("ampmodul.feedback",_("feedback"));
+                                   create_small_rackknobr("ampmodul.feedback",_("  wet/feedback"));
                                    openSpaceBox("");
                                    closeBox();
 
