@@ -98,6 +98,9 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("midi_out.on_off", on_off, &fmi, 0);
 	gx_gui::registerParam("oscilloscope.on_off", on_off, &fwv, 0);
 	gx_gui::registerParam("ampmodul.on_off", on_off, &famp, 0);
+	gx_gui::registerParam("noise_gate.on_off", "on/off", &fnoise_g, 0);
+	
+	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.31f, 0.001f);
 	
 	static const char *tonestack_model[] = {N_("default"),N_("Bassman"),N_("Twin Reverb"),N_("Princeton"),N_("JCM-800"),N_("JCM-2000"),N_("M-Lead"),N_("M2199"),N_("AC-30"),N_("Off"),0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
@@ -180,6 +183,21 @@ void AudioVariables::register_parameter()
 
 AudioVariables audio;
 
+inline float noise_gate(int sf, float* input, float ngate)
+{
+	float sumnoise = 0;
+	for (int i = 0; i < sf; i++) {
+		sumnoise += sqrf(fabs(input[i]));
+	}
+	float noisepulse = sqrtf(sumnoise/sf);
+	if (noisepulse > audio.fnglevel * 0.01) {
+		return 1; // -75db 0.001 = 65db
+	} else if (ngate > 0.01) {
+		return ngate * 0.996;
+	} else {
+		return ngate;
+	}
+}
 
 /****************************************************************
  **  this is the process callback called from jack
@@ -323,6 +341,13 @@ void process_buffers(int count, float* input, float* output0)
 	}
 	
 	memcpy(output0, input, count*sizeof(float));
+	
+	if (audio.fnoise_g) {
+		noisegate::ngate = noise_gate(count,output0, noisegate::ngate);
+    } else {
+		noisegate::ngate = 1;
+    }
+	
 	if (audio.fng) {
 	    noise_shaper::compute(count, output0, output0);
     }
@@ -451,6 +476,10 @@ void process_buffers(int count, float* input, float* output0)
 
     if (audio.fboost) {
 	    bassbooster::compute(count, output0, output0);
+    }
+    
+    if (audio.fnoise_g) {
+		noisegate::compute(count,output0, output0);
     }
 
 }

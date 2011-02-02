@@ -20,7 +20,7 @@
 
 // foreign variable added to faust module feed
 // it's set in process_buffers()
-namespace feed { float ngate = 1; }  // noise-gate, modifies output gain
+namespace noisegate { float ngate = 1; }  // noise-gate, modifies output gain
 
 /****************************************************************
  **  definitions for code generated with faust / dsp2cc
@@ -190,6 +190,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 //#include "faust/sloop.cc"
 #include "faust/phaser.cc"
 #include "faust/low_high_pass.cc"
+#include "faust/noisegate.cc"
 
 // tone stack
 static struct ToneStackParams { ToneStackParams(); } ToneStackParams;

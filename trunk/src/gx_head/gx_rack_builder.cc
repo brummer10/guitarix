@@ -27,6 +27,28 @@ openHorizontalTableBox("");
 {
      openPaintBox("");
      {
+		           
+          openVerticalBox(" noise gate      ");
+		  {
+			   openHorizontalBox("");
+               {
+				   openSpaceBox("");
+                   closeBox();
+				   create_switch_no_caption(sw_switchit, "noise_gate.on_off");
+				   openpaintampBox("noise gate");
+				   {
+					   create_wheel("noise_gate.threshold");
+				   }
+				   closeBox();
+				   openSpaceBox("");
+                   closeBox();
+                   openSpaceBox("");
+                   closeBox();
+			   }
+			   closeBox(); 
+		  }
+		  closeBox();
+          
           openVerticalBox(_("noise shaper       "));
           {
                openHorizontalBox("");
