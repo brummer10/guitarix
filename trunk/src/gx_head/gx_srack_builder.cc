@@ -370,6 +370,7 @@ openHorizontalTableBox("");
 								   create_small_rackknob("ampmodul.level",_("level"));
                                    create_small_rackknob("ampmodul.amp2.stage1.tube1",_("tube1"));
                                    create_small_rackknob("ampmodul.amp2.stage2.tube2",_("tube2"));
+                                   create_small_rackknob("ampmodul.diff_delay",_("deltadelay"));
                                    create_small_rackknobr("ampmodul.feedback",_("  wet/feedback"));
                                    openSpaceBox("");
                                    closeBox();

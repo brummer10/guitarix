@@ -68,7 +68,7 @@ RegisterParams::RegisterParams()
 {
 	registerVar("jconv.gain","Gain","S","gain trim for processed signal (unit: dB)",&fslider3, 0.0, -2e+01, 2e+01, 0.1);
 	registerVar("jconv.balance","Balance","S","left/right trim for processed signal",&fslider2, 0.0, -1.0, 1.0, 0.1);
-	registerVar("jconv.diff_delay","Delta Delay","S","delay left or right channel by the specified amount (unit: ms)",&fslider1, 0.0, -1e+01, 1e+01, 0.01);
+	registerVar("jconv.diff_delay","Delta Delay","S","delay left or right channel by the specified amount (unit: ms)",&fslider1, 0.0, -1e+02, 1e+02, 0.01);
 	registerVar("jconv.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
 	registerInit("jconv", init);
 }
