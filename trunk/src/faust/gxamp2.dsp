@@ -47,7 +47,7 @@ tubec(preamp,gain1) = hgroup("amp2", hgroup("stage1", stage1) :
           hgroup("stage2", stage2) 
           ) with {
           
-    stage1 = *(preamp): tubestage(0,86.0,2700.0):
+    stage1 =  tubestage(0,86.0,2700.0):
     lowpass1(6531.0) : *(preamp) : tubestage(1,132.0,1500.0); 
     stage2 = lowpass1(6531.0) : *(gain1) : tubestage(1,194.0,820.0);
     
