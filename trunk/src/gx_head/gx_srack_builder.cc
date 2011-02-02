@@ -26,7 +26,17 @@
 
 openHorizontalTableBox("");
 {
-	
+	// add controllers without show them
+     openHorizontalhideBox("");
+     {
+		 create_small_rackknob("jconv.balance");
+		 create_small_rackknob("jconv.diff_delay");
+		 create_small_rackknob("jconv.gain");
+		 create_small_rackknob("jconv.wet_dry");
+		 create_hslider("amp.balance", "balance");
+
+     }
+     closeBox();
 
      //----- chorus
      openHorizontalRestetBox(_("chorus"), &gx_engine::audio.posit8);
@@ -377,15 +387,11 @@ openHorizontalTableBox("");
      }
      closeBox();
      
-     // add controllers without show them
-     openHorizontalhideBox("");
+     
+     
+     openHorizontalhideBox1("");
      {
-		 create_small_rackknob("jconv.balance");
-		 create_small_rackknob("jconv.diff_delay");
-		 create_small_rackknob("jconv.gain");
-		 create_small_rackknob("jconv.wet_dry");
-		 create_hslider("amp.balance", "balance");
-
+create_hslider("amp.balance", "balance");
      }
      closeBox();
 

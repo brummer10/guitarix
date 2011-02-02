@@ -142,8 +142,8 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("amp2.stage1.Pregain","","S","",&fslider1, 0.0, -2e+01, 2e+01, 0.1);
-	registerVar("amp2.stage2.gain1","","S","",&fslider0, 6.0, -2e+01, 2e+01, 0.1);
+	registerVar("amp2.stage1.Pregain","","S","",&fslider1, -6.0, -2e+01, 2e+01, 0.1);
+	registerVar("amp2.stage2.gain1","","S","",&fslider0, -6.0, -2e+01, 2e+01, 0.1);
 	registerInit("amp2", init);
 }
 

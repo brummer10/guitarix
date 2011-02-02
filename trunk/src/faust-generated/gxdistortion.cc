@@ -162,7 +162,7 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("gxdistortion.drive","","S","",&fslider0, 0.64, 0.0, 1.0, 0.01);
+	registerVar("gxdistortion.drive","","S","",&fslider0, 0.35, 0.0, 1.0, 0.01);
 	registerInit("gxdistortion", init);
 }
 

@@ -1234,7 +1234,19 @@ void GxMainInterface::openHorizontalhideBox(const char* label)
 	box->m_box.set_homogeneous(false);
 	box->m_box.set_spacing(0);
 	box->m_box.set_border_width(0);
-	gtk_container_add (GTK_CONTAINER(sBox), GTK_WIDGET(box->m_box.gobj()));
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]),GTK_WIDGET(box->m_box.gobj()) , false, false, 0);
+	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+	box->m_box.hide();
+	if (label[0] != 0) box->m_box.show();
+}
+
+void GxMainInterface::openHorizontalhideBox1(const char* label)
+{
+	GxHBox * box =  new GxHBox(*this);
+	box->m_box.set_homogeneous(false);
+	box->m_box.set_spacing(0);
+	box->m_box.set_border_width(0);
+	gtk_box_pack_end (GTK_BOX(sBox),GTK_WIDGET(box->m_box.gobj()) , false, false, 0);
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
 	box->m_box.hide();
 	if (label[0] != 0) box->m_box.show();

@@ -141,7 +141,7 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("oscilloscope.position", &posit17, true, 11, 1, 14);
 	registerNonMidiParam("biquad.position", &posit18, true, 12, 1, 14);
 	registerNonMidiParam("midi_out.position", &posit00, true, 13, 1, 14);
-	registerNonMidiParam("ampmodul.position", &posit19, true, 10, 1, 10);
+	registerNonMidiParam("ampmodul.position", &posit19, true, 7, 1, 10);
 	
 	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
 	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);

@@ -382,6 +382,7 @@ public :
 	void openFrameBox(const char* label);
 	void openHorizontalBox(const char* label = "");
 	void openHorizontalhideBox(const char* label = "");
+	void openHorizontalhideBox1(const char* label = "");
 	void openVerticalBox(const char* label = "");
 	void openVerticalBox1(const char* label = "");
 	void openFlipLabelBox(const char* = "");

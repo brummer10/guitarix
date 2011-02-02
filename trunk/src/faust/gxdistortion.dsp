@@ -97,7 +97,7 @@ analyzerN(lfreqs) = analyzern(3,lfreqs);
 //----------distortion---------
 
 //-distortion
-drive			= vslider("drive", 0.64, 0, 1, 0.01);
+drive			= vslider("drive", 0.35, 0, 1, 0.01);
 
 distortion1 	=  _:cubicnl(0.45*drive,0.0): *(8.0); 
 distortion2 	=  _:cubicnl(0.4*drive,0.0) : *(4.0);
