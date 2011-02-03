@@ -88,6 +88,18 @@ analyzern(O,lfreqs) = _ <: bsplit(nb) with
 
 analyzerN(lfreqs) = analyzern(3,lfreqs);
 
+filterbankn(O,lfreqs) = analyzern(O,lfreqs) : delayeq with
+{
+   nb = count(lfreqs);
+   fc(n) = take(n, lfreqs);
+   ap(n) = highpass_plus_lowpass(O,fc(n));
+   delayeq = par(i,nb-1,apchain(nb-1-i)),_,_;
+   apchain(0) = _;
+   apchain(i) =  ap(i) : apchain(i-1);
+};
+
+filterbankN(lfreqs) = filterbankn(3,lfreqs);
+
 /**********************************************************************
 *** end for backward compatibility from 0.9.27 to
 *** 0.9.24 , it could removed when switch completly to > 0.9.27
@@ -111,7 +123,7 @@ distortion1 	=  _:cubicnl(drive1,drivelevel): *(low_gain);
 distortion2 	=  _:cubicnl(drive2,drivelevel) : *(high_gain);
 distortion3 	=  _:cubicnl(drive3,drivelevel) : *(middle_gain_l);
 distortion4 	=  _:cubicnl(drive4,drivelevel) : *(middle_gain_h);
-distortion	= _ : analyzerN((F,(F1,F2))) : distortion2,distortion4 ,distortion3,distortion1 :>_;
+distortion	= _ : filterbankN((F,(F1,F2))) : distortion2,distortion4 ,distortion3,distortion1 :>_;
 
 //-resonator
 resonator 		= (+ <: (delay(4096, d-1) + delay(4096, d)) / 2) ~ *(1.0-a)
