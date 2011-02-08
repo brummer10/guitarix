@@ -1850,7 +1850,7 @@ msgstr "Richiamo Impostazioni Principali"
 
 #: ../src/gx_head/gx_preset.cpp:866
 msgid "Called back main setting %1%"
-msgstr "Richiamata impostazione principale % 1 %"
+msgstr "Richiamata impostazione principale %1%"
 
 #: ../src/gx_head/gx_preset.cpp:870
 msgid "loading Settings file"
