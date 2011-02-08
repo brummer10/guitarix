@@ -26,6 +26,8 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
+#define get_stock_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->stock_id)
+
 G_DEFINE_TYPE(GxPaintBox, gx_paint_box, GTK_TYPE_HBOX)
 
 enum {
@@ -54,6 +56,7 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 	object_class->destroy = gx_paint_box_destroy;
 	widget_class->style_set = gx_paint_box_style_set;
 	widget_class->expose_event = gx_paint_box_expose;
+	klass->stock_id = "gxhead";
 	g_object_class_install_property(
 		gobject_class, PROP_PAINT_FUNC,
 		g_param_spec_string("paint-func",
@@ -1712,7 +1715,7 @@ static gboolean gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 			g_object_unref(klass->gxh_image);
 		}
 		GdkPixbuf  *stock_image, *frame;
-		stock_image = gtk_widget_render_icon(wi,"gxhead",(GtkIconSize)-1,NULL);
+		stock_image = gtk_widget_render_icon(wi,get_stock_id(wi),(GtkIconSize)-1,NULL);
 		double scalew = rect_width/double(gdk_pixbuf_get_width(stock_image)-48);
 		double scaleh = rect_height/double(gdk_pixbuf_get_height(stock_image)-48);
 		
@@ -1818,7 +1821,7 @@ static gboolean gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
 			g_object_unref(klass->gxr_image);
 		}
 		GdkPixbuf  *stock_image, *frame;
-		stock_image = gtk_widget_render_icon(wi,"gxhead",(GtkIconSize)-1,NULL);
+		stock_image = gtk_widget_render_icon(wi,get_stock_id(wi),(GtkIconSize)-1,NULL);
 		double scalew = rect_width/double(gdk_pixbuf_get_width(stock_image)-48);
 		double scaleh = rect_height/double(gdk_pixbuf_get_height(stock_image)-48);
 		

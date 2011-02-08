@@ -53,6 +53,7 @@ struct _GxPaintBoxClass {
 
 	GdkPixbuf *gxh_image;
 	GdkPixbuf *gxr_image;
+	const gchar *stock_id;
 };
 
 

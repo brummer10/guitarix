@@ -38,7 +38,7 @@ def option_enabled (option):
     return True
 
 # used by waf dist and waf build
-VERSION='0.12.0svn'
+VERSION='0.14.0svn'
 APPNAME='guitarix'
 APPNAME1='gx_head'
 
