@@ -141,6 +141,7 @@ def build(bld):
         'low_high_pass.dsp',
         'gx_distortion.dsp',
         'gx_outputlevel.dsp',
+        'gx_ampout.dsp',
         'noisegate.dsp',
         ]
 

@@ -99,6 +99,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("oscilloscope.on_off", on_off, &fwv, 0);
 	gx_gui::registerParam("ampmodul.on_off", on_off, &famp, 0);
 	gx_gui::registerParam("noise_gate.on_off", "on/off", &fnoise_g, 0);
+	gx_gui::registerParam("amp.on_off", on_off, &fampout, 0);
 	
 	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.31f, 0.001f);
 	
@@ -476,6 +477,10 @@ void process_buffers(int count, float* input, float* output0)
 
     if (audio.fboost) {
 	    bassbooster::compute(count, output0, output0);
+    }
+    
+    if (audio.fampout) {
+        gx_ampout::compute(count, output0, output0);
     }
     
     if (audio.fnoise_g) {

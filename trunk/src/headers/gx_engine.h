@@ -94,6 +94,7 @@ public:
 	bool fwv_on;
 	bool famp;
 	bool fampmodul;
+	bool fampout;
 
 	int fcheckbox7;
 	int fdelay;

@@ -63,6 +63,29 @@ openHorizontalTableBox("");
                          create_wheel("shaper.sharper");
                     }
                     closeBox();
+                    openSpaceBox("");
+                    closeBox();
+                    openSpaceBox("");
+                    closeBox();
+               }
+               closeBox();
+          }
+          closeBox();
+          
+          openVerticalBox(_("mono level out       "));
+          {
+               openHorizontalBox("");
+               {
+                    create_switch_no_caption(sw_switchit, "amp.on_off");
+                    openSpaceBox("");
+                    closeBox();
+                    openSpaceBox("");
+                    closeBox();
+                    openpaintampBox("level");
+                    {
+                         create_wheel("amp.out_amp");
+                    }
+                    closeBox();
                }
                closeBox();
           }

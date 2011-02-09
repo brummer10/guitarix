@@ -167,6 +167,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust/jconv_post.cc"
 #include "faust/balance1.cc"
 #include "faust/gx_outputlevel.cc"
+#include "faust/gx_ampout.cc"
 
 // effects
 #include "faust/overdrive.cc"
