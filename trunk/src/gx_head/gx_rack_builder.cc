@@ -83,7 +83,7 @@ openHorizontalTableBox("");
                     closeBox();
                     openpaintampBox("level");
                     {
-                         create_wheel("amp.out_amp");
+                         create_wheel_with_value("amp.out_amp");
                     }
                     closeBox();
                }

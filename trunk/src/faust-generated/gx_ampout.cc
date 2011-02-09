@@ -25,7 +25,7 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("amp.out_amp","Level","S","",&fslider0, 0.0, -5e+01, 4.0, 0.1);
+	registerVar("amp.out_amp","Level","S","",&fslider0, 0.0, -2e+01, 4.0, 0.1);
 	registerInit("amp", init);
 }
 

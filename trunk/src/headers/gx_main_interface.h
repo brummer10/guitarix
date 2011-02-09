@@ -509,6 +509,10 @@ public :
 		{
 			addwidget(UiRegler::create(*this, new Gxw::Wheel(), id, show_value));
 		}
+	void create_wheel_with_value(string id, bool show_value = true)
+		{
+			addwidget(UiRegler::create(*this, new Gxw::Wheel(), id, show_value));
+		}
 	void create_hslider(string id)
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::HSlider(), id, true));
