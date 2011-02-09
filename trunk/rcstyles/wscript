@@ -84,6 +84,8 @@ gxstyle_files = [
     'mittleknob9.png',
     'cairo1.jpg',
     'cairo2.jpg',
+    'black1.png',
+    'black2.png',
     ]
 
 def configure(conf):

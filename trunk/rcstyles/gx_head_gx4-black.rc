@@ -19,7 +19,7 @@ class "GxKnob" style "gx4_head_skin_icons"
 style "gx4_head-paintbox"
 {
 GxPaintBox::skin-gradient = {
-{ 0, 983, 1966, 983, 65536 }, # 0, 0.3, 0.3, 0.3 ,1 
+{ 0, 983, 0, 983, 65536 }, # 0, 0.3, 0.3, 0.3 ,1 
 { 32768, 6554, 983, 6554, 65536 }, # 0.5, 0.15, 0.15, 0.15, 1
 { 65536, 6554, 6554, 6554, 65536 }} # 1, 0.1, 0.1, 0.1, 1  
 
@@ -85,7 +85,7 @@ widget "*.main_window" style:highest "gx4_head-event"
 
 style "gx4_head-dialog"
 {
-bg_pixmap[NORMAL] = "cairo1.jpg"
+bg_pixmap[NORMAL] = "black1.png"
 }
 
 style "gx4_black_box"
@@ -150,7 +150,7 @@ function = BOX
 recolorable = TRUE
 state = NORMAL
 shadow = OUT
-file = "cairo2.jpg"
+file = "black2.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
@@ -160,7 +160,7 @@ function = BOX
 recolorable = TRUE
 state = PRELIGHT
 shadow = OUT
-file = "cairo1.jpg"
+file = "black1.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
@@ -170,7 +170,7 @@ function = BOX
 recolorable = TRUE
 state = ACTIVE
 shadow = OUT
-file = "cairo2.jpg"
+file = "black2.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
@@ -187,7 +187,7 @@ function = BOX
 recolorable = TRUE
 state = NORMAL
 shadow = OUT
-file = "cairo1.jpg"
+file = "black1.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
@@ -263,7 +263,7 @@ function = BOX
 recolorable = TRUE
 state = NORMAL
 shadow = OUT
-file = "cairo1.jpg"
+file = "black1.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
@@ -317,7 +317,7 @@ function = BOX
 recolorable = TRUE
 state = NORMAL
 shadow = OUT
-file = "cairo2.jpg"
+file = "black2.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
@@ -327,7 +327,7 @@ function = BOX
 recolorable = TRUE
 state = PRELIGHT
 shadow = OUT
-file = "cairo1.jpg"
+file = "black1.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
@@ -350,7 +350,7 @@ function = BOX
 recolorable = TRUE
 state = NORMAL
 shadow = OUT
-file = "cairo2.jpg"
+file = "black2.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
@@ -360,7 +360,7 @@ function = BOX
 recolorable = TRUE
 state = PRELIGHT
 shadow = OUT
-file = "cairo1.jpg"
+file = "black1.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
@@ -370,7 +370,7 @@ function = BOX
 recolorable = TRUE
 state = INSENSITIVE
 shadow = OUT
-file = "cairo2.jpg"
+file = "black2.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
@@ -389,7 +389,7 @@ function = BOX
 recolorable = TRUE
 state = NORMAL
 shadow = OUT
-file = "cairo2.jpg"
+file = "black2.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
@@ -399,7 +399,7 @@ function = BOX
 recolorable = TRUE
 state = PRELIGHT
 shadow = OUT
-file = "cairo1.jpg"
+file = "black1.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
@@ -409,7 +409,7 @@ function = BOX
 recolorable = TRUE
 state = INSENSITIVE
 shadow = OUT
-file = "cairo2.jpg"
+file = "black2.png"
 border = { 0, 0, 0, 0 }
 stretch = TRUE
 }

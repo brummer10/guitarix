@@ -845,9 +845,9 @@ static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	y = y0+rect_height/2+extents.height/2 ;
 	cairo_move_to(cr,x, y);
 	cairo_text_path (cr,title);
-	cairo_set_source_rgba (cr, 0., 0., 0., 0.2);
+	cairo_set_source_rgba (cr, 0., 0., 0., 0.1);
 	cairo_fill_preserve (cr);
-	cairo_set_source_rgba (cr, 0.7, 0.7, 0.7, 0.2);
+	cairo_set_source_rgba (cr, 0.7, 0.7, 0.7, 0.05);
     cairo_stroke (cr);
 
     cairo_rectangle (cr, x0,y0,rect_width,rect_height);
