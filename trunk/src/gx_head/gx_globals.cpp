@@ -22,6 +22,7 @@
  */
 
 #include "guitarix.h"
+#include <glibmm/i18n.h>
 
 /* ------------------------------------------------------------------------- */
 
@@ -177,10 +178,10 @@ const char* preset_accel_path[] =
 
 const char* preset_menu_name[] =
 {
-	"_Load Preset...",
-	"_Save Preset...",
-	"_Rename Preset...",
-	"_Delete Preset..."
+	N_("_Load Preset..."),
+	N_("_Save Preset..."),
+	N_("_Rename Preset..."),
+	N_("_Delete Preset...")
 };
 
 //map<GtkMenuItem*, string> preset_list[GX_NUM_OF_PRESET_LISTS];

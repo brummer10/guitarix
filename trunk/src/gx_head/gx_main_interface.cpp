@@ -2883,7 +2883,7 @@ void GxMainInterface::addPresetMenu()
 	for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
 	{
 		GtkWidget* menuItem =
-			gtk_menu_item_new_with_mnemonic (preset_menu_name[i]);
+			gtk_menu_item_new_with_mnemonic (gettext (preset_menu_name[i]));
 		gtk_menu_shell_append (GTK_MENU_SHELL(menucont), menuItem);
 
 		GtkWidget* menu = gtk_menu_new();
@@ -2896,7 +2896,7 @@ void GxMainInterface::addPresetMenu()
 	}
 	
 	GtkWidget* menuItem =
-			gtk_menu_item_new_with_mnemonic ("Factory Settings");
+			gtk_menu_item_new_with_mnemonic (_("Factory Settings"));
 		gtk_menu_shell_append (GTK_MENU_SHELL(menucont), menuItem);
 
 		GtkWidget* menu = gtk_menu_new();

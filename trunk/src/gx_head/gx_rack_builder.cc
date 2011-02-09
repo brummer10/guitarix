@@ -79,11 +79,11 @@ openHorizontalTableBox("");
                     create_switch_no_caption(sw_switchit, "amp.on_off");
                     openSpaceBox("");
                     closeBox();
-                    openSpaceBox("");
-                    closeBox();
+                    
                     openpaintampBox("level");
                     {
-                         create_wheel_with_value("amp.out_amp");
+						 create_spin_value("amp.out_amp");
+                         create_wheel("amp.out_amp");
                     }
                     closeBox();
                }
@@ -315,21 +315,28 @@ openHorizontalTableBox("");
                                              create_small_rackknob("gx_distortion.level",_("  level  "));
                                              openVerticalBox(_("frequency split Hz"));
                                              {
-                                                  openHorizontalBox("");
-                                                  {
-													   
-                                                       create_wheel("gx_distortion.split_low_freq", _("split low freq"));
-                                                       openSpaceBox("");
-													   closeBox();
-                                                       create_wheel("gx_distortion.split_middle_freq",_( "split m. freq"));
-                                                       openSpaceBox("");
-													   closeBox();
-                                                       create_wheel("gx_distortion.split_high_freq", _("split high freq"));
-                                                       openSpaceBox("");
-													   closeBox();
-													   openSpaceBox("");
-													   closeBox();
+												 openpaintampBox("");
+												 {
+													  openHorizontalBox("");
+													  {
+														   openSpaceBox("");
+														   closeBox();
+														   openSpaceBox("");
+														   closeBox();
+														   create_wheel("gx_distortion.split_low_freq", _("split low freq"));
+														   openSpaceBox("");
+														   closeBox();
+														   create_wheel("gx_distortion.split_middle_freq",_( "split m. freq"));
+														   openSpaceBox("");
+														   closeBox();
+														   create_wheel("gx_distortion.split_high_freq", _("split high freq"));
+														   openSpaceBox("");
+														   closeBox();
+														   openSpaceBox("");
+														   closeBox();
 
+													  }
+													  closeBox();
                                                   }
                                                   closeBox();
                                              }

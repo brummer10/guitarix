@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gx_head\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-16 10:00+0100\n"
-"PO-Revision-Date: 2011-02-02 14:57+0100\n"
+"PO-Revision-Date: 2011-02-09 16:48+0100\n"
 "Last-Translator: Ivan Tarozzi <itarozzi@gmail.com>\n"
 "Language-Team: Italian\n"
 "MIME-Version: 1.0\n"
@@ -705,12 +705,12 @@ msgstr "P_atch Info"
 #. -- Create load presetfile menu --
 #: ../src/gx_head/gx_main_interface.cpp:2900
 msgid "Load Preset-_file"
-msgstr "Carica il Preset-_file"
+msgstr "Carica il file di Preset"
 
 #. -- Create save as presetfile menu--
 #: ../src/gx_head/gx_main_interface.cpp:2909
 msgid "E_xport Preset-file"
-msgstr "E_sporta il Preset-_file"
+msgstr "Esporta il file di Preset"
 
 #. -- Create  Main setting submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2923
@@ -836,7 +836,7 @@ msgstr "mostra i Suggerimenti"
 #. -- create option for saving midi controller settings in presets --
 #: ../src/gx_head/gx_main_interface.cpp:3293
 msgid "Include MIDI in _presets"
-msgstr "Inclusi MIDI nei _presets"
+msgstr "Includi MIDI nei presets"
 
 #. -- create option for resetting gx_head settings --
 #: ../src/gx_head/gx_main_interface.cpp:3299
@@ -868,7 +868,7 @@ msgstr "_Connessioni Server Jack "
 #. -- create Jack Ports menu item --
 #: ../src/gx_head/gx_main_interface.cpp:3419
 msgid "Jack _Ports "
-msgstr "Porte Jac k"
+msgstr "_Porte Jack"
 
 #. -- Create  Latency submenu under Jack Server submenu --
 #: ../src/gx_head/gx_main_interface.cpp:3428
@@ -924,10 +924,10 @@ msgid ""
 "  gx_head "
 msgstr ""
 "\n"
-"  Questa applicazione è in larga misura prodotta\n"
+"  Questa applicazione è in larga parte prodotta\n"
 "  con il meraviglioso compilatore faust.Yann Orlary\n"
 "  <http://faust.grame.fr/>\n"
-"  La maggior parte è basata sul lavoro di Julius Orion Smith\n"
+"  Per una buona parte è basata sul lavoro di Julius Orion Smith\n"
 " <http://ccrma.stanford.edu/realsimple/faust/>\n"
 " e Albert Graef\n"
 "  <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html>  \n"
@@ -1000,7 +1000,7 @@ msgstr "il messaggio di warning non esiste"
 
 #: ../src/gx_head/gx_jack.cpp:83
 msgid "Jack Init"
-msgstr "Inizializzaione Jack"
+msgstr "Inizializzazione Jack"
 
 #: ../src/gx_head/gx_jack.cpp:83
 msgid "jackd OK, trying to be a client"
@@ -1094,7 +1094,7 @@ msgstr ""
 "   Il server Jack server non è avviato\n"
 "   Puoi scegliere di avviarlo o di chiudere gx_head   \n"
 "\n"
-"       1) attiva Jack   \n"
+"       1) avvia Jack   \n"
 "       2) ignora Jack, avvia gx_head ugualmente   \n"
 "       3) chiudi gx_head   \n"
 
@@ -2003,7 +2003,7 @@ msgid ""
 msgstr ""
 "<b><big>Usando il mouse nella finestra del grafico</big></b>\n"
 "\n"
-"<b>imposta delay / offset:</b> drag top scale\n"
+"<b>imposta delay / offset:</b> tracina il righello superiore\n"
 "<b>taglia a sinistra:</b>   ctrl + bottone sinistro del mouse\n"
 "<b>taglia a destra:</b> ctrl + bottone destro del mouse\n"
 "\n"
@@ -2291,7 +2291,7 @@ msgstr ""
 
 #: ../src/midi.glade.h:11
 msgid "_Delete Selected"
-msgstr "_Cancella Selezione"
+msgstr "Cancella la Selezione"
 
 #: ../src/midi.glade.h:12
 msgid "guitarix: MIDI Controller"
@@ -2308,4 +2308,23 @@ msgstr "includi i controller MIDI nel _preset"
 #: ../src/midi.glade.h:15
 msgid "operate a MIDI controller to set the controller number"
 msgstr "aziona il controller MIDI per assegnare il numero del controller"
+
+
+## added by Ivan Tarozzi
+msgid "_Load Preset..."
+msgstr "Carica Preset..."
+
+msgid "_Save Preset..."
+msgstr "Salva Preset..."
+
+msgid "_Rename Preset..."
+msgstr "Rinomina Preset..."
+
+msgid "_Delete Preset..."
+msgstr "Elimina Preset..."
+
+
+msgid "Factory Settings"
+msgstr "Settings di fabbrica..."
+
 
