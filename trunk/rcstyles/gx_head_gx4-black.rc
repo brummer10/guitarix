@@ -175,6 +175,20 @@ border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
 }
+bg[ACTIVE] = "#58b45e"
+}
+
+style "gx4_barbutton_style"
+{
+
+bg[ACTIVE] = { 0.2, 0.1, 0.2 }
+
+bg[PRELIGHT] = { 0.1, 0.2, 0.1 }
+
+fg[NORMAL] = { 0.5, 0.5, 0.5 }
+fg[ACTIVE] = { 0.6, 0.8, 0.6 }
+fg[PRELIGHT] = { 0.8, 0.6, 0.8 }
+
 }
 
 style "gx4_c_style"
@@ -252,6 +266,9 @@ widget "*.beffekt_label" style:highest "gx4_head-b_black"
 widget "*.rack_label" style:highest "gx4_head-rack"
 widget "*.rack_slider" style:highest "gx4_rack-slider"
 widget "*.rack_regler" style:highest "gx4_rack-slider"
+widget "*.barbutton" style:highest "gx4_barbutton_style"
+widget "*.barbuttonlabel" style:highest "gx4_barbutton_style"
+
 
 style "gx4_h_style"
 {

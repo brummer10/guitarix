@@ -170,13 +170,15 @@ ToggleCheckButton::~ToggleCheckButton()
 
 ToggleCheckButton::ToggleCheckButton() 
 {
-	modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#58b45e"));
+	//modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#58b45e"));
+	set_name("barbutton");
 	Pango::FontDescription font = m_label.get_style()->get_font();
 	font.set_size(8*Pango::SCALE);
 	font.set_weight(Pango::WEIGHT_BOLD);
 	m_label.modify_font(font);
-	m_label.modify_fg(Gtk::STATE_NORMAL, Gdk::Color("#f1eded"));
-	m_label.modify_fg(Gtk::STATE_ACTIVE, Gdk::Color("#111111"));
+	m_label.set_name("barbuttonlabel");
+	//m_label.modify_fg(Gtk::STATE_NORMAL, Gdk::Color("#f1eded"));
+	//m_label.modify_fg(Gtk::STATE_ACTIVE, Gdk::Color("#111111"));
 	add(m_label);
 }
 /****************************************************************/

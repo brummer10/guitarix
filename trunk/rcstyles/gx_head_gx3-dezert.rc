@@ -266,6 +266,20 @@ fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
 font_name = "sans 6"
 }
 
+style "gx3_barbutton_style"
+{
+
+  bg[ACTIVE] = { 0.5, 0.5, 0.4 }
+  bg[PRELIGHT] = { 0.40, 0.50, 0.60 }
+
+  fg[NORMAL] = "#f1eded"
+  fg[ACTIVE] = "#111111"
+  fg[PRELIGHT] =  { 0.90, 0.90, 0.90 }
+}
+
+widget "*.barbutton" style:highest "gx3_barbutton_style"
+widget "*.barbuttonlabel" style:highest "gx3_barbutton_style"
+
 widget "*.effekt_label" style:highest "gx_dezert-v_black"
 widget "*.value_label" style:highest "gx_dezert-l_black"
 widget "*.beffekt_label" style:highest "gx_dezert-b_black"

@@ -223,7 +223,7 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	cairo_pattern_destroy (linpat);
 
 	//----- draw the gain value
-	double dashes[] = {5.0, 1.0 };
+	static const double dashes[] = {5.0, 1.0 };
 	cairo_set_dash (cr, dashes, 2, -0.25);
 	cairo_move_to (cr, liveviewx+140-xl, liveviewy);
 	cairo_line_to (cr, liveviewx+140+xl, liveviewy);
