@@ -192,6 +192,8 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust/phaser.cc"
 #include "faust/low_high_pass.cc"
 #include "faust/noisegate.cc"
+#include "faust/softclip.cc"
+
 
 // tone stack
 static struct ToneStackParams { ToneStackParams(); } ToneStackParams;

@@ -100,6 +100,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("ampmodul.on_off", on_off, &famp, 0);
 	gx_gui::registerParam("noise_gate.on_off", "on/off", &fnoise_g, 0);
 	gx_gui::registerParam("amp.on_off", on_off, &fampout, 0);
+	gx_gui::registerParam("amp.clip.on_off", on_off, &ftube, 0);
 	
 	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.31f, 0.001f);
 	
@@ -407,6 +408,10 @@ void process_buffers(int count, float* input, float* output0)
 		break;
 	}
 	
+	if (audio.ftube) {
+        softclip::compute(count, output0, output0);
+    }
+    
     for (int m = 1; m < audio.mono_plug_counter; m++) {
 	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && !audio.crybabypp) {
 		    crybaby::compute(count, output0, output0);

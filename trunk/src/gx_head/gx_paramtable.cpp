@@ -525,6 +525,7 @@ ParameterGroups::ParameterGroups()
 	insert("ampmodul", N_("Postamp"));
 	insert("ampmodul.amp2.stage1", N_("Postamp Tube1"));
 	insert("ampmodul.amp2.stage2", N_("Postamp Tube2"));
+	insert("amp.clip", N_("clipper"));
 }
 
 string param_group(string id, bool nowarn)

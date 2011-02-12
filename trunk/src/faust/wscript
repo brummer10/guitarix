@@ -143,6 +143,7 @@ def build(bld):
         'gx_outputlevel.dsp',
         'gx_ampout.dsp',
         'noisegate.dsp',
+        'softclip.dsp',
         ]
 
     float_sources = [ # big arrays and no sensitive processing

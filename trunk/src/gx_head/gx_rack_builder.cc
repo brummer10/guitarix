@@ -40,10 +40,7 @@ openHorizontalTableBox("");
 					   create_wheel("noise_gate.threshold");
 				   }
 				   closeBox();
-				   openSpaceBox("");
-                   closeBox();
-                   openSpaceBox("");
-                   closeBox();
+				  
 			   }
 			   closeBox(); 
 		  }
@@ -53,20 +50,16 @@ openHorizontalTableBox("");
           {
                openHorizontalBox("");
                {
+				    openSpaceBox("");
+                    closeBox();
                     create_switch_no_caption(sw_switchit, "shaper.on_off");
-                    openSpaceBox("");
-                    closeBox();
-                    openSpaceBox("");
-                    closeBox();
+                    
                     openpaintampBox("shaper");
                     {
                          create_wheel("shaper.sharper");
                     }
                     closeBox();
-                    openSpaceBox("");
-                    closeBox();
-                    openSpaceBox("");
-                    closeBox();
+                    
                }
                closeBox();
           }
@@ -76,14 +69,32 @@ openHorizontalTableBox("");
           {
                openHorizontalBox("");
                {
-                    create_switch_no_caption(sw_switchit, "amp.on_off");
-                    openSpaceBox("");
+				    openSpaceBox("");
                     closeBox();
+                    create_switch_no_caption(sw_switchit, "amp.on_off");
                     
                     openpaintampBox("level");
                     {
 						 create_spin_value("amp.out_amp");
                          create_wheel("amp.out_amp");
+                    }
+                    closeBox();
+               }
+               closeBox();
+          }
+          closeBox();
+          
+          openVerticalBox(_("clip       "));
+          {
+               openHorizontalBox("");
+               {
+				    openSpaceBox("");
+                    closeBox();
+                    create_switch_no_caption(sw_switchit, "amp.clip.on_off");
+                    
+                    openpaintampBox("level");
+                    {
+                         create_wheel("amp.fuzz");
                     }
                     closeBox();
                }
