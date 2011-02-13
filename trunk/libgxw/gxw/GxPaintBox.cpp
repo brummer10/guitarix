@@ -26,9 +26,8 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
-#define get_stock_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->stock_id)
 
-G_DEFINE_TYPE(GxPaintBox, gx_paint_box, GTK_TYPE_HBOX)
+
 
 enum {
 	PROP_PAINT_FUNC = 1,
@@ -45,6 +44,9 @@ static void gx_paint_box_get_property(
 static gboolean gx_paint_box_expose(GtkWidget *widget, GdkEventExpose *event);
 static void gx_paint_box_style_set (GtkWidget *widget, GtkStyle  *previous_style);
 
+G_DEFINE_TYPE(GxPaintBox, gx_paint_box, GTK_TYPE_HBOX)
+
+#define get_stock_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->stock_id)
 
 static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 {
