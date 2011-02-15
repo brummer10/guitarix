@@ -145,6 +145,7 @@ def build(bld):
         'noisegate.dsp',
         'softclip.dsp',
         'tonecontroll.dsp',
+        'tremolo.dsp',
         ]
 
     float_sources = [ # big arrays and no sensitive processing

@@ -194,6 +194,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust/noisegate.cc"
 #include "faust/softclip.cc"
 #include "faust/tonecontroll.cc"
+#include "faust/tremolo.cc"
 
 
 // tone stack

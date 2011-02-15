@@ -681,6 +681,57 @@ openHorizontalTableBox("");
      }
      closeBox(); 
      
+     openHorizontalOrderBox(_("tremolo"), &gx_engine::audio.posit21);
+     {
+          openVerticalBox(_("tremolo"));
+          {
+               openHorizontalBox("");
+               {
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "tremolo.on_off");
+                         create_selector("tremolo.pp");
+                    }
+                    closeBox();
+
+                    openDialogBox("tremolo.dialog", "tremolo.on_off","RackBox_expose");
+                    {
+                         openVerticalBox("");
+                         {
+                              openHorizontalBox("");
+                              {
+								  openSpaceBox("");
+                                  closeBox();
+								  create_selector("tremolo.SINE");
+								  openSpaceBox("");
+								  closeBox();
+								  openSpaceBox("");
+								  closeBox();
+								  openHorizontalTableBox("");
+								  {
+									  
+									  create_small_rackknobr("tremolo.freq",  _("Freq"));
+									  openSpaceBox("");
+									  closeBox();
+									  create_small_rackknobr("tremolo.depth",  _("Depth"));
+									  openSpaceBox("");
+									  closeBox();
+								  }
+								  closeBox();
+                              }
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox(); 
+     
      openVerticalMidiBox(_("  MIDI out  "));
      {
           openHorizontalBox("");

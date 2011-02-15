@@ -97,6 +97,8 @@ public:
 	bool fampout;
 	bool ftone;
 	bool ftonemodule;
+	bool ftremolo;
+	bool ftremolo_dialog;
 
 	int fcheckbox7;
 	int fdelay;
@@ -116,6 +118,7 @@ public:
 	int lhpp;
 	int wvpp;
 	int bipp;
+	int trpp;
 	int fsd;
 	int fse;
 	int gxtube;
@@ -141,6 +144,7 @@ public:
 	float posit18;
 	float posit19;
 	float posit20;
+	float posit21;
 	float posit00;
 	float fnglevel;
 	float convolvefilter;

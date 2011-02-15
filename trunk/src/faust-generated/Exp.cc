@@ -1346,6 +1346,7 @@ class mydsp : public dsp{
 		interface->openHorizontalBox("test");
 		interface->openHorizontalBox("tremolo");
 		interface->addCheckButton("ON", &fcheckbox1);
+		interface->declare(&fcheckbox0, "enum", "triangle|sine");
 		interface->addCheckButton("SINE", &fcheckbox0);
 		interface->addVerticalSlider("depth", &fslider2, 0.5, 0.0, 1.0, 0.01);
 		interface->addVerticalSlider("freq", &fslider1, 5.0, 0.1, 5e+01, 0.1);

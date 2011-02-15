@@ -37,7 +37,8 @@ trianglewave(freq) = _ ~ (_ <: _ + hyst) : /(periodsamps) with {
 
 tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
     sine(freq) = (oscs(freq) + 1) / 2 : max(0); // max(0) because of numerical inaccuracy
-    lfo = select2(checkbox("SINE"), trianglewave(freq), sine(freq));
+    SINE=checkbox("SINE[enum:triangle|sine]");
+    lfo = select2(SINE, trianglewave(freq), sine(freq));
 };
 
 process = *(tremolo(vslider("freq",5,0.1,50,0.1),vslider("depth",0.5,0,1,0.01)));

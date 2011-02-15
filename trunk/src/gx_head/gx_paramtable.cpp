@@ -527,6 +527,7 @@ ParameterGroups::ParameterGroups()
 	insert("ampmodul.amp2.stage2", N_("Postamp Tube2"));
 	insert("amp.clip", N_("clipper"));
 	insert("tonemodul", N_("3 Band EQ"));
+	insert("tremolo", N_("Tremolo"));
 }
 
 string param_group(string id, bool nowarn)
