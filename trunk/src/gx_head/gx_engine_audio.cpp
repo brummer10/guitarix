@@ -101,6 +101,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("noise_gate.on_off", "on/off", &fnoise_g, 0);
 	gx_gui::registerParam("amp.on_off", on_off, &fampout, 0);
 	gx_gui::registerParam("amp.clip.on_off", on_off, &ftube, 0);
+	gx_gui::registerParam("tonemodul.on_off", on_off, &ftone, 0);
 	
 	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.31f, 0.001f);
 	
@@ -147,6 +148,7 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("biquad.position", &posit18, true, 12, 1, 14);
 	registerNonMidiParam("midi_out.position", &posit00, true, 13, 1, 14);
 	registerNonMidiParam("ampmodul.position", &posit19, true, 7, 1, 10);
+	registerNonMidiParam("tonemodul.position", &posit20, true, 8, 1, 10);
 	
 	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
 	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);
@@ -170,6 +172,7 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("midi_out.dialog", &fdialogbox6, false);
 	registerNonMidiParam("oscilloscope.dialog", &fdialogbox_wv, false);
 	registerNonMidiParam("ampmodul.dialog", &fampmodul, false);
+	registerNonMidiParam("tonemodul.dialog", &ftonemodule, false);
 	
 	registerNonMidiParam("system.waveview", &viv, false);
 	registerNonMidiParam("midi_out.midistat", &midistat, false);
@@ -515,6 +518,8 @@ void process_insert_buffers (int count, float* input1, float* output0, float* ou
 			stereoecho::compute(count, output0, output1, output0, output1);
 		}else if (audio.posit19 == m && audio.famp ) {
 			gx_ampmodul::compute(count, output0, output1, output0, output1);
+		}else if (audio.posit20 == m && audio.ftone ) {
+			tonecontroll::compute(count, output0, output1, output0, output1);
 		}
 	}
 

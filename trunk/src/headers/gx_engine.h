@@ -95,6 +95,8 @@ public:
 	bool famp;
 	bool fampmodul;
 	bool fampout;
+	bool ftone;
+	bool ftonemodule;
 
 	int fcheckbox7;
 	int fdelay;
@@ -138,6 +140,7 @@ public:
 	float posit17;
 	float posit18;
 	float posit19;
+	float posit20;
 	float posit00;
 	float fnglevel;
 	float convolvefilter;

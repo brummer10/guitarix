@@ -387,11 +387,45 @@ openHorizontalTableBox("");
      }
      closeBox();
      
-     
+     openHorizontalRestetBox(_("tone"), &gx_engine::audio.posit20);
+     {
+          openVerticalBox(_("tone"));
+          {
+
+               openHorizontalTableBox("");
+               {
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "tonemodul.on_off");
+                    }
+                    closeBox();
+                    opensDialogBox("tonemodul.dialog", "tonemodul.on_off","RackBox_expose");
+                    {
+
+                         openVerticalBox("");
+                         {
+                              openHorizontalBox("");
+                              {
+                                   create_small_rackknob("tonemodul.Bass",_("bass"));
+                                   create_small_rackknob("tonemodul.Middle",_("middle"));
+                                   create_small_rackknob("tonemodul.Treble",_("treble"));
+                                  
+                              }
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox();
      
      openHorizontalhideBox1("");
      {
-create_hslider("amp.balance", "balance");
+         create_hslider("amp.balance", "balance");
      }
      closeBox();
 

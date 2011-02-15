@@ -193,6 +193,7 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 #include "faust/low_high_pass.cc"
 #include "faust/noisegate.cc"
 #include "faust/softclip.cc"
+#include "faust/tonecontroll.cc"
 
 
 // tone stack
