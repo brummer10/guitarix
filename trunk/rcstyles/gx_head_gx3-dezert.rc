@@ -12,6 +12,7 @@ style "gx_dezert_skin_icons"
 stock["bigknob"] = {{"knob9.png"}}
 stock["smallknob"] = {{"smallknob9.png"}}
 stock["smallknobr"] = {{"mittleknob9.png"}}
+GxPaintBox::icon-set =1
 }
 
 class "GxKnob" style "gx_dezert_skin_icons"

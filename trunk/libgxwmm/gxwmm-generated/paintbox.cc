@@ -223,6 +223,20 @@ Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_homogeneous() const
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy<guint> PaintBox::property_icon_set() 
+{
+  return Glib::PropertyProxy<guint>(this, "icon-set");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_icon_set() const
+{
+  return Glib::PropertyProxy_ReadOnly<guint>(this, "icon-set");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
 
 #ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 #endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED

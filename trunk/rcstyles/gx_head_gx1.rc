@@ -21,6 +21,7 @@ style "gx_head-paintbox"
 	{ 32768, 9830, 9830, 9830, 65536 }, # 0.5, 0.15, 0.15, 0.15, 1
 	{ 65536, 6554, 6554, 6554, 65536 }} # 1, 0.1, 0.1, 0.1, 1 
 	stock["gxhead"] = {{"gxhead.png"}}
+  GxPaintBox::icon-set =1
 }
 
 class "GxPaintBox" style "gx_head-paintbox"

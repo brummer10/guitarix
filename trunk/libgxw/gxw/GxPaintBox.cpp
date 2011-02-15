@@ -34,6 +34,7 @@ enum {
 	PROP_BORDER_WIDTH = 2,
 	PROP_SPACING = 3,
 	PROP_HOMOGENEOUS = 4,
+	PROP_ICON_SET = 5,
 };
 
 static void gx_paint_box_destroy(GtkObject *object);
@@ -81,6 +82,25 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 		                    P_("Type of paint function for background"),
 		                    NULL,
 		                    GParamFlags(GTK_PARAM_READABLE)));
+	g_object_class_install_property(
+		gobject_class,PROP_ICON_SET,
+	    g_param_spec_int ("icon-set",
+						 P_("Icon Set"),
+						 P_("Type of Icon function for background"),
+						 0,
+						 G_MAXINT,
+						 0,
+						 GParamFlags(GTK_PARAM_READWRITE)));
+	gtk_widget_class_install_style_property(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_int("icon-set",
+		                 P_("Icon Set"),
+		                 P_("Type of Icon function for background"),
+		                 0,
+						 G_MAXINT,
+						 0,
+		                 GParamFlags(GTK_PARAM_READABLE)));
+
 }
 
 static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func);
@@ -146,7 +166,12 @@ static gboolean gx_paint_box_expose(GtkWidget *widget, GdkEventExpose *event)
 	GTK_WIDGET_CLASS(GTK_OBJECT_CLASS(gx_paint_box_parent_class))->expose_event(widget, event);
 	return FALSE;
 }
-
+static void set_icon(GxPaintBox *paint_box, int value)
+{
+	int spf;
+	gtk_widget_style_get(GTK_WIDGET(paint_box), "icon-set", &spf, NULL);
+	 paint_box->icon_set = spf;
+}
 static void gx_paint_box_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {
@@ -163,6 +188,9 @@ static void gx_paint_box_set_property(
 		break;
 	case PROP_HOMOGENEOUS:
 		gtk_box_set_homogeneous (GTK_BOX(paint_box), g_value_get_boolean (value));
+		break;
+	case PROP_ICON_SET:
+		set_icon(paint_box, g_value_get_int(value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -185,6 +213,9 @@ static void gx_paint_box_get_property(
 		break;
 	case PROP_HOMOGENEOUS:
 		g_value_set_boolean (value, GX_PAINT_BOX(object)->homogeneous);
+		break;
+	case PROP_ICON_SET:
+		g_value_set_int (value, GX_PAINT_BOX(object)->icon_set);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -1710,9 +1741,15 @@ static gboolean gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gint rect_width  = wi->allocation.width-2;
 	gint rect_height = wi->allocation.height-3;
 	
+	static int nf = 0;
 	static double ne_w1 = 0.;
-	if (ne_w1 != rect_width*rect_height || !(GDK_IS_PIXBUF (klass-> gxh_image))) {
+	static int spf;
+	
+	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+	
+	if (nf != spf || ne_w1 != rect_width*rect_height || !(GDK_IS_PIXBUF (klass-> gxh_image))) {
 		ne_w1 = rect_width*rect_height;
+		nf = spf;
 		if (G_IS_OBJECT(klass-> gxh_image)) {
 			g_object_unref(klass->gxh_image);
 		}

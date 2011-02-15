@@ -199,6 +199,26 @@ private:
   Glib::PropertyProxy_ReadOnly<guint> property_homogeneous() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
+	#ifdef GLIBMM_PROPERTIES_ENABLED
+/** Type of Icon function for background.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy<guint> property_icon_set() ;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+/** Type of Icon function for background.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy_ReadOnly<guint> property_icon_set() const;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
 
 };
 

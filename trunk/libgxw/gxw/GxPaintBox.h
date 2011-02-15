@@ -45,6 +45,7 @@ struct _GxPaintBox {
 	GList *GSEAL (children);
 	gint16 GSEAL (spacing);
 	guint GSEAL (homogeneous) : 1;
+	guint GSEAL (icon_set) : 16;
 
 };
 

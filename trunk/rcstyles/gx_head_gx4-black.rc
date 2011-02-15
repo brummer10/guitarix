@@ -23,6 +23,7 @@ GxPaintBox::skin-gradient = {
 { 32768, 6554, 983, 6554, 65536 }, # 0.5, 0.15, 0.15, 0.15, 1
 { 65536, 6554, 6554, 6554, 65536 }} # 1, 0.1, 0.1, 0.1, 1  
 stock["gxhead"] = {{"gx_black18.png"}}
+GxPaintBox::icon-set =4
 }
 
 class "GxPaintBox" style "gx4_head-paintbox"
