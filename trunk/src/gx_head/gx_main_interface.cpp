@@ -937,10 +937,14 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	tooltip += label;
 	tooltip += _(" up");
 	box->m_button1.set_tooltip_text(tooltip);
+	box->m_button1.get_accessible()->set_description (tooltip);
+	box->m_button1.get_accessible()->set_name (label);
 	tooltip = _("Move ");
 	tooltip += label;
 	tooltip += _(" down");
 	box->m_button.set_tooltip_text(tooltip);
+	box->m_button.get_accessible()->set_description (tooltip);
+	box->m_button.get_accessible()->set_name (label);
 	gtk_container_child_set_property(GTK_CONTAINER(rBox),GTK_WIDGET(box->m_paintbox.gobj()),"position", &pos);
 	pushBox(kBoxMode, GTK_WIDGET(box->m_paintbox.gobj()));
 }
@@ -969,10 +973,14 @@ void GxMainInterface::openHorizontalRestetBox(const char* label, float* posit)
 	tooltip += label;
 	tooltip += _(" up");
 	box->m_button1.set_tooltip_text(tooltip);
+	box->m_button1.get_accessible()->set_description (tooltip);
+	box->m_button1.get_accessible()->set_name (label);
 	tooltip = _("Move ");
 	tooltip += label;
 	tooltip += _(" down");
 	box->m_button.set_tooltip_text(tooltip);
+	box->m_button.get_accessible()->set_description (tooltip);
+	box->m_button.get_accessible()->set_name (label);
 	gtk_container_child_set_property(GTK_CONTAINER(sBox),GTK_WIDGET(box->m_paintbox.gobj()),"position", &pos);
 	pushBox(kBoxMode, GTK_WIDGET(box->m_paintbox.gobj()));
 }
