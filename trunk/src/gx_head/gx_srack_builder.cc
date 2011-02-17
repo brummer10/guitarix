@@ -409,7 +409,10 @@ openHorizontalTableBox("");
                                    create_small_rackknob("tonemodul.Bass",_("bass"));
                                    create_small_rackknob("tonemodul.Middle",_("middle"));
                                    create_small_rackknob("tonemodul.Treble",_("treble"));
-                                  
+                                   openSpaceBox("");
+                                   closeBox();
+                                   create_switch_no_caption(sw_switchit, "tonemodul.ON");
+                                   create_small_rackknob("tonemodul.sharper",_("sharp"));
                               }
                               closeBox();
                          }

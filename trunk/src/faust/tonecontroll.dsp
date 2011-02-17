@@ -114,7 +114,13 @@ m = vslider("Middle", 0., -5., 5, 0.01): db2linear : smoothi(0.999);
 l = vslider("Bass", 0., -5., 5, 0.01): db2linear : smoothi(0.999) ;
 
 
-tstack = component("tonestack.dsp");
+//tstack = component("tonestack.dsp");
+
+
+comp = BP( component("noise_shaper.dsp"));
+
+
+
 tone_controll =  _ : filterbankN((F,F2)): *(t),*(m),*(l):>_;
 
-process 		=  tone_controll,tone_controll ;
+process 		=  (tone_controll : comp) ,(tone_controll : comp);
