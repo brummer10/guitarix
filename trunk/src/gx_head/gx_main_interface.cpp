@@ -1656,6 +1656,9 @@ UiRegler::UiRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, 
 	m_regler->cp_set_var(param.id());
 	m_regler->set_adjustment(*this);
 	m_regler->show();
+	m_regler->get_accessible()->set_description (param.id().c_str());
+	m_regler->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
+	
 	param.value = param.std_value;
 	connect_midi_controller(GTK_WIDGET(m_regler->gobj()), &param.value);
 }
@@ -1714,6 +1717,8 @@ UiSelectorFloat::UiSelectorFloat(gx_ui::GxUI& ui, FloatParameter &param):
 {
 	m_selector.set_adjustment(*this);
 	init(param);
+	m_selector.get_accessible()->set_description (param.id().c_str());
+	m_selector.get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
 	connect_midi_controller(GTK_WIDGET(m_selector.gobj()), fZone);
 }
 
@@ -1737,6 +1742,8 @@ UiSelectorInt::UiSelectorInt(gx_ui::GxUI& ui, IntParameter &param):
 {
 	m_selector.set_adjustment(*this);
 	init(param);
+	m_selector.get_accessible()->set_description (param.id().c_str());
+	m_selector.get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
 	connect_midi_controller(GTK_WIDGET(m_selector.gobj()), fZone);
 }
 
@@ -1796,6 +1803,8 @@ UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param,
 	m_box.set_name(param.id());
 	m_box.pack_start(m_label, Gtk::PACK_SHRINK);
 	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
+	m_regler->get_accessible()->set_description (param.id().c_str());
+	m_regler->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
 	m_box.show_all();
 }
 
@@ -1818,6 +1827,8 @@ UiRackRegler::UiRackRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *
 	m_box.set_name(param.id());
 	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
 	m_regler->set_name("rack_regler");
+	m_regler->get_accessible()->set_description (param.id().c_str());
+	m_regler->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
 	m_box.show_all();
 }
 
@@ -1855,6 +1866,8 @@ UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, FloatParamete
 	set_active(param.value != 0.0);
 	cp_set_var(param.id());
 	this->set_tooltip_text(param.id().substr( param.id().find_last_of(".")+1).c_str());
+	this->get_accessible()->set_description (param.id().c_str());
+	this->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
 	connect_midi_controller(GTK_WIDGET(gobj()), fZone);
 	show();
 }
@@ -1881,6 +1894,8 @@ UiSwitchBool::UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, BoolParameter &
 	char s[64];
 	snprintf(s, 63, _("%s on/off"),param.group().c_str());
 	this->set_tooltip_text(s);
+	this->get_accessible()->set_description (param.id().c_str());
+	this->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
 	connect_midi_controller(GTK_WIDGET(gobj()), fZone);
 	show();
 }
@@ -1922,6 +1937,8 @@ UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, P
 		m_box->pack_start(m_label, Gtk::PACK_SHRINK);
 	}
 	m_box->set_name(param.id());
+	m_switch->get_accessible()->set_description (param.id().c_str());
+	m_switch->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
 	m_box->show_all();
 }
 
