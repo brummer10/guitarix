@@ -84,6 +84,7 @@ gxstyle_files = [
     'knob9.png',
     'tactile_knob_large_151f.png',
     'tactile_knob_small_99f.png',
+    'tactile_knob_medium_151f.png',
     'tactile_switchit_off.png',
     'tactile_switchit_on.png',
     'smallknob9.png',
