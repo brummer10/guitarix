@@ -67,6 +67,14 @@ static void gx_knob_class_init(GxKnobClass *klass)
 		g_param_spec_int("arc-inset",P_("inset of arch"),
 		                   P_("Inset of the arc around the knob"),
 		                 0, 100, 2, GParamFlags(GTK_PARAM_READABLE)));
+		                    
+    gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_int("knob-framecount",
+		                    P_("Knob Framecount"),
+		                    P_("Number of frames in the animation specified by the knob-animation property"),
+		                    -1, 250, -1,
+		                    GParamFlags(GTK_PARAM_READABLE)));
 
 	g_type_class_add_private(klass, sizeof (GxKnobPrivate));
 }
@@ -117,8 +125,9 @@ void _gx_knob_draw_indicator(GtkWidget *widget, GdkRectangle *image_rect, gdoubl
 }
 
 void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobstate,
-                     GdkPixbuf *knob_image)
+                     GdkPixbuf *knob_image, gint framecount)
 {
+	int findex;
 	double angle = scale_zero + knobstate * 2 * (M_PI - scale_zero);
 	const double pointer_off = 5;
 	double radius = min(image_rect->width-pointer_off, image_rect->height-pointer_off) / 2;
@@ -127,11 +136,21 @@ void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobst
 	double radius1 = min(image_rect->width, image_rect->height) / 2;
 	int has_focus = gtk_widget_has_focus(widget);
 	
-	//_gx_knob_draw_indicator(widget, image_rect, knobstate);
+	if (framecount > 1) {
+		framecount--; // zero based index
+		findex = (int)(framecount * knobstate);
+
+		gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
+	                knob_image, (image_rect->width * findex),0, image_rect->x, image_rect->y,
+	                image_rect->width, image_rect->height, GDK_RGB_DITHER_NORMAL, 0, 0);	
+	}
+	else {
+	
+		//_gx_knob_draw_indicator(widget, image_rect, knobstate);
 	
 	if (has_focus) {
 		gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
-		                image_rect->x, image_rect->y, image_rect->width, image_rect->height);
+						image_rect->x, image_rect->y, image_rect->width, image_rect->height);
 	}
 	gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
 	                knob_image, 0,0, image_rect->x, image_rect->y,
@@ -150,8 +169,12 @@ void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobst
 	cairo_line_to(cr,lengh_x,lengh_y);
 	cairo_stroke(cr);
 	cairo_destroy(cr);
-
+	
 	_gx_knob_draw_arc(widget, image_rect, knobstate, has_focus);
+	
+	}
+
+	
 }
 
 static gboolean jump_to_mouse = TRUE;
@@ -169,11 +192,19 @@ gboolean gx_get_knob_jump_to_mouse()
 gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const gchar *icon,
                                 gboolean drag, int state, int button)
 {
+	int fcount;
 	int linearmode = ((state & GDK_CONTROL_MASK) == 0) ^ jump_to_mouse;
 	GdkRectangle image_rect, value_rect;
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, icon, GtkIconSize(-1), NULL);
+	gtk_widget_style_get (widget, "knob-framecount",
+							&fcount, NULL);
 	image_rect.width = gdk_pixbuf_get_width(pb);
 	image_rect.height = gdk_pixbuf_get_height(pb);
+	if (fcount >1)
+		image_rect.width = (image_rect.width / fcount);
+	if (fcount == 0) // rc directs to assume square frames
+		image_rect.width = image_rect.height;
+	
 	g_object_unref(pb);
 	x += widget->allocation.x;
 	y += widget->allocation.y;
@@ -266,18 +297,26 @@ static gboolean gx_knob_pointer_motion(GtkWidget *widget, GdkEventMotion *event)
 
 static gboolean gx_knob_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
+	gint fcount;
 	g_assert(GX_IS_KNOB(widget));
 	GdkRectangle image_rect;
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	gtk_widget_style_get (widget, "knob-framecount",
+	                      &fcount, NULL);
 	image_rect.width = gdk_pixbuf_get_width(pb);
 	image_rect.height = gdk_pixbuf_get_height(pb);
+	if (fcount >1)
+	    image_rect.width = (image_rect.width / fcount);
+	if (fcount == 0) // rc directs to assume square frames
+		image_rect.width = image_rect.height;
+
 	g_object_unref(pb);
 	gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, NULL);
 	if (gtk_widget_has_grab(widget) || gtk_widget_has_focus(widget)== TRUE) {
 		return TRUE;
 	}
-	_gx_knob_draw_arc(widget, &image_rect, knobstate, TRUE);
+	if (fcount == -1) _gx_knob_draw_arc(widget, &image_rect, knobstate, TRUE);
 	return TRUE;
 }
 
@@ -286,15 +325,22 @@ static gboolean gx_knob_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 	g_assert(GX_IS_KNOB(widget));
 	GdkRectangle image_rect;
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+    gint fcount;
+	gtk_widget_style_get (widget, "knob-framecount",
+	                      &fcount, NULL);
 	image_rect.width = gdk_pixbuf_get_width(pb);
 	image_rect.height = gdk_pixbuf_get_height(pb);
+	if (fcount >1)
+	    image_rect.width = (image_rect.width / fcount);
+	if (fcount == 0) // rc directs to assume square frames
+		image_rect.width = image_rect.height;
 	g_object_unref(pb);
 	gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, NULL);
 	if (gtk_widget_has_grab(widget) || gtk_widget_has_focus(widget)== TRUE) {
 		return TRUE;
 	}
-	_gx_knob_draw_arc(widget, &image_rect, knobstate, FALSE);
+	if (fcount == -1) _gx_knob_draw_arc(widget, &image_rect, knobstate, FALSE);
 	return TRUE;
 }
 
@@ -303,8 +349,15 @@ static void gx_knob_size_request (GtkWidget *widget, GtkRequisition *requisition
 	g_assert(GX_IS_KNOB(widget));
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
 	if (GDK_IS_PIXBUF (pb)) {
+		gint fcount;
+	    gtk_widget_style_get (widget, "knob-framecount",
+	                          &fcount, NULL);
 		requisition->width = gdk_pixbuf_get_width(pb);
 		requisition->height = gdk_pixbuf_get_height(pb);
+		if (fcount >1)
+			requisition->width = (requisition->width / fcount);
+		if (fcount == 0) //rc directs to assume square frames
+			requisition->width = requisition->height;
 		_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
 		g_object_unref(pb);
 	}
@@ -316,11 +369,20 @@ static gboolean gx_knob_expose(GtkWidget *widget, GdkEventExpose *event)
 	GdkRectangle image_rect, value_rect;
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
 	if (GDK_IS_PIXBUF (pb)) {
+		gint fcount;
+		gtk_widget_style_get (widget, "knob-framecount",
+	                      &fcount, NULL);
 		image_rect.width = gdk_pixbuf_get_width(pb);
 		image_rect.height = gdk_pixbuf_get_height(pb);
+		if (fcount >1)
+			image_rect.width = (image_rect.width / fcount);
+		if (fcount == 0) { // rc directs to assume square frames
+			fcount = (image_rect.width / image_rect.height);
+			image_rect.width = image_rect.height;
+		}
 		gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
 		_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-		_gx_knob_expose(widget, &image_rect, knobstate, pb);
+		_gx_knob_expose(widget, &image_rect, knobstate, pb, fcount);
 		_gx_regler_display_value(GX_REGLER(widget), &value_rect);
 		g_object_unref(pb);
 	}
