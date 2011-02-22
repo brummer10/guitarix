@@ -1,630 +1,69 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import os
-import Build
-import Utils
-import Options
-import commands
-g_maxlen = 40
-import shutil
-import re
-import Logs
-import sys
-from Constants import HEXVERSION
-from Configure import ConfigurationError
-import Configure, Scripting
-
-import Task
-from TaskGen import extension, feature, taskgen
-import misc
-# Waf version check, for global waf installs
-
-try:
-    from Constants import WAFVERSION
-except:
-    WAFVERSION='1.0.0'
-if WAFVERSION[:3] != '1.5':
-    print 'Incompatible Waf, use 1.5'
-    sys.exit (1)
-
-	
-
-def option_enabled (option):
-    if getattr (Options.options, 'enable_' + option):
-        return True
-    if getattr (Options.options, 'disable_' + option):
-        return False
-    return True
-
-# used by waf dist and waf build
-VERSION='0.14.0svn'
-APPNAME='guitarix'
-APPNAME1='gx_head'
-
-good_faust_versions = ['0.9.24','0.9.27','0.9.30']
-
-# these variables are mandatory ('/' are converted automatically)
-srcdir = '.'
-blddir = 'build'
-use_2to3 = True
-
-
-def faust_vers_str():
-    if len(good_faust_versions) == 1:
-        return good_faust_versions[0]
-    else:
-        return "in [%s]" % ", ".join(good_faust_versions)
-
-# options defined for waf configure
-def set_options(opt):
-    
-    def add_enable_option (option, desc, group=None, disable=False):
-        if group == None:
-            group = opt
-        option_ = option.replace ('-', '_')
-        group.add_option ('--enable-' + option, action='store_true',
-            default=False, help='Enable ' + desc, dest='enable_' + option_)
-        group.add_option ('--disable-' + option, action='store_true',
-            default=disable, help='Disable ' + desc, dest='disable_' + option_)
-            
-    opt.tool_options ('intltool')
-    group = opt.add_option_group ('Localization and documentation', '')
-    add_enable_option ('nls', 'native language support', group)
-
-    if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
-    
-    opt.tool_options('compiler_cxx')
-    comp = opt.get_option_group("--check-cxx-compiler")
-
-    comp.add_option('--debug',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help='set compiler flags for a debug build')
-
-    comp.add_option('--cxxflags-release',
-                    type='string',
-                    default='-O3 -DNDEBUG',
-                    dest='cxxflags_release',
-                    help='additional C++ compiler flags for release version (not used if --debug) [Default: %default]')
-
-    comp.add_option('--cxxflags-debug',
-                    type='string',
-                    default='-O2 -g -fstack-protector-all',
-                    dest='cxxflags_debug',
-                    help='additional C++ compiler flags for debug version (only used if --debug) [Default: %default]')
-
-    comp.add_option('--cxxflags',
-                    type='string',
-                    default='-Wall', # -fomit-frame-pointer -ffast-math -fstrength-reduce -mmmx -mfpmath=sse -DUSE_XMMINTRIN -pipe
-                    dest='cxxflags',
-                    help='C++ base compiler flags [Default: %default]')
-
-    comp.add_option('--optimization',
-                    action='store_const',
-                    default=False, #'-fomit-frame-pointer -ffast-math -fstrength-reduce -pipe',
-                    const=True,
-                    help='automatically select additional C++ compiler optimization flags for the current platform')
-
-    opt.recurse('libgxw/gxw')
-    opt.recurse('libgxwmm/gxwmm')
-
-    comp = opt.add_option_group("Additional Library Options")
-
-    comp.add_option('--includeresampler',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help='build with included local zita-resample libary (Default NO)')
-
-    comp.add_option('--includeconvolver',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help='build with included local zita-convolver libary (Default NO)')
-
-
-    comp.add_option('--no_ladspa',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help='dont build ladspa plugins (Default yes)')
-                    
-    comp = opt.add_option_group("New gx_head interface")
-    
-    comp.add_option('--build_head',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help='build gx_head (Default NO)')
-                    
-
-    faust = opt.add_option_group("Faust-Compiler")
-
-    faust.add_option('--faust',
-                     action='store_const',
-                     default=False,
-                     const=True,
-                     help=('use faust even if the installed version is not %s'
-                           % faust_vers_str()))
-
-    faust.add_option('--no-faust',
-                     action='store_const',
-                     default=False,
-                     const=True,
-                     help="don't use faust, use the pre-built files in faust-generated")
-
-    faust.add_option('--faust-float',
-                     action='store_const',
-                     default=False,
-                     const=True,
-                     help="build with faust, single precision")
-
-    faust.add_option('--experimental',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help='build with support for experimental Guitarix modules')
-
-
-    ladspa = opt.add_option_group("LADSPA Options (installing ladspa modules)")
-
-    ladspa.add_option('--ladspadir',
-                    type='string',
-                    help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
-
-    opt.recurse('pygxw')
-    opt.recurse('glade-gxw')
-
-    opt.tool_options('compiler_cc') # for pygxw and glade-gxw
-    opt.add_option('--no-pkg',
-                   action='store_const',
-                   default=False,
-                   const=True,
-                   help=("don't include debian directory in tarfile"
-                         " (option only for command 'dist')"))
-
-def sub_file(src_fname, dst_fname, lst):
-
-    f = open(src_fname, 'rU')
-    txt = f.read()
-    f.close()
-
-    for (key, val) in lst:
-        re_pat = re.compile(key, re.M)
-        txt = re_pat.sub(val, txt)
-
-    f = open(dst_fname, 'w')
-    f.write(txt)
-    f.close()
-
-# Taken from Geany's wscript, modified to support LINGUAS variable
-def write_linguas_file (self):
-    linguas = ''
-    # Depending on Waf version, getcwd() is different
-    if os.path.exists ('./po'):
-        podir = './po'
-    else:
-        podir = '../po'
-    if 'LINGUAS' in Build.bld.env:
-        files = Build.bld.env['LINGUAS']
-        for f in files.split (' '):
-            if os.path.exists (podir + '/' + f + '.po'):
-                linguas += f + ' '
-    else:
-        files = os.listdir (podir)
-        for f in files:
-            if f.endswith ('.po'):
-                linguas += '%s \n' % f[:-3]
-    f = open (podir + '/LINGUAS', 'w')
-    f.write ('# This file is autogenerated. Do not edit.\n%s' % linguas)
-    f.close ()
-write_linguas_file = feature ('intltool_po')(write_linguas_file)
-
-def check_comp(conf):
-    if Options.options.includeresampler:
-        define_name="ZITA_RESAMPLER"
-        conf.env['ZITARESAMPLER'] = True
-        conf.env['ZITA_RESAMPLER'] = None
-
-    if Options.options.includeconvolver:
-        conf.env['ZITACONVOLVER'] = True
-        conf.env['INTERN_ZITA_CONVOLVER'] = None
-        conf.env['ZITA_CONVOLVER'] = None
-        
-    if Options.options.build_head:
-        conf.env['GX_HEAD'] = True
-
-    if Options.options.no_ladspa:
-        conf.env['NO_LADSPA'] = True
-    else:
-        conf.env['LADSPA'] = True	
-
-def check_faust(conf):
-    if Options.options.no_faust:
-        conf.env['FAUST'] = None
-        return
-    conf.find_program("faust", var='FAUST')
-    if not conf.env['FAUST']:
-        return
-    try:
-        s = Utils.cmd_output('%s --version' % conf.env['FAUST'])
-    except ValueError:
-        Logs.warn('count not execute faust')
-        return
-    m = re.match(r".*Version\s*(.*)", s)
-    if not m:
-        Logs.warn('could not determine faust version')
-    vers = m.group(1)
-    conf.env["FAUST_VERSION"] = vers
-    if vers not in good_faust_versions and not Options.options.faust:
-        conf.env['FAUST'] = None
-        conf.check_message_custom('faust','version',"can't use %s (check ./waf --help)" % vers,color='YELLOW')
-    else:
-        conf.check_message('faust','version',1,vers)
-    if Options.options.faust_float:
-        conf.env['FAUST_DOUBLE'] =None
-    else:
-        conf.env['FAUST_DOUBLE'] =True
-
-
-def print_msg(msg, nl=True):
-    if HEXVERSION > 0x10500:
-        s = sys.stderr
-    else:
-        s = sys.stdout
-    if nl:
-        t = "\n"
-    else:
-        t = " "
-    s.write(msg+t)
-
-# a bit of waf display formatting
-def display_msg(msg, status = None, color = None):
-    sr = msg
-    global g_maxlen
-    g_maxlen = max(g_maxlen, len(msg))
-    if status:
-        print_msg("%s :" % msg.ljust(g_maxlen),False)
-        Utils.pprint(color, status)
-    else:
-        print_msg("%s" % msg.ljust(g_maxlen))
-
-def error_msg(msg):
-    Utils.pprint('RED', msg)
-
-def display_feature(msg, build):
-    if build:
-        display_msg(msg, "yes", 'CYAN')
-    else:
-        display_msg(msg, "no", 'YELLOW')
-
-def append_optimization_flags(cxxflags):
-    cpu_model = None
-    x86_flags = None
-    try:
-        for line in file("/proc/cpuinfo"):
-            if cpu_model is None:
-                if line.startswith("model name"):
-                    cpu_model = line.split(":",1)[1].strip()
-            elif x86_flags is None:
-                if line.startswith("flags"):
-                    x86_flags = line.split(":",1)[1].strip()
-            else:
-                break
-    except IOError:
-        pass
-    if cpu_model is None or x86_flags is None:
-        display_msg("Checking CPU Architecture",
-                    "cpu model not found in /proc/cpuinfo",
-                    "YELLOW")
-        return None
-    model = cpu_model.split()
-    arch = os.uname()[4]
-    if "AMD" in model and "x86_64" in arch:
-        cxxflags.append ("-march=k8")
-    elif "AMD" in model and "Sempron(tm)" in model:
-        cxxflags.append ("-march=native")
-    elif "Geode" in model :
-        cxxflags.append ("-march=geode")
-    elif "Core" in model and "x86_64" in arch:
-        cxxflags.append ("-march=core2")
-    elif "i386" in arch:
-        cxxflags.append ("-march=i386")
-    elif "i486" in arch:
-        cxxflags.append ("-march=i486")
-    elif "i586" in arch:
-        cxxflags.append ("-march=i586")
-    elif "i686" in arch:
-        cxxflags.append ("-march=i686")
-    else:
-        cxxflags.append ("-march=native")
-
-    if "mmx" in x86_flags:
-        cxxflags.append ("-mmmx")
-    if "3dnow" in x86_flags:
-        cxxflags.append ("-m3dnow")
-
-    if "sse5" in x86_flags:
-        cxxflags.append ("-msse5")
-        cxxflags.append ("-mfpmath=sse")
-    elif "sse4_2" in x86_flags:
-        cxxflags.append ("-msse4.2")
-        cxxflags.append ("-mfpmath=sse")
-    elif "sse4_1" in x86_flags:
-        cxxflags.append ("-msse4.1")
-        cxxflags.append ("-mfpmath=sse")
-    elif "ssse3" in x86_flags:
-        cxxflags.append ("-mssse3")
-        cxxflags.append ("-mfpmath=sse")
-    elif "sse4" in x86_flags:
-        cxxflags.append ("-msse4")
-        cxxflags.append ("-mfpmath=sse")
-    elif "sse3" in x86_flags:
-        cxxflags.append ("-msse3")
-        cxxflags.append ("-mfpmath=sse")
-    elif "sse2" in x86_flags:
-        cxxflags.append ("-msse2")
-        cxxflags.append ("-mfpmath=sse")
-        #cxxflags.append ("-DUSE_XMMINTRIN")
-    elif "sse" in x86_flags:
-        cxxflags.append ("-msse")
-        cxxflags.append ("-mfpmath=sse")
-        # cxxflags.append ("-DUSE_XMMINTRIN")
-
-    if not Options.options.debug:
-        cxxflags.append ("-fomit-frame-pointer")
-    cxxflags.append ("-ftree-loop-linear")
-    cxxflags.append ("-ffinite-math-only")
-    cxxflags.append ("-fno-math-errno")
-    cxxflags.append ("-fno-signed-zeros")
-    #cxxflags.append ("-ffast-math") # quicker but doesn't seem to work (difference in sound output)
-    #cxxflags.append ("-malign-double")
-    cxxflags.append ("-fstrength-reduce")
-    cxxflags.append ("-pipe")
-    return cpu_model
-
-@Configure.conf
-def cfg_get_variable(self, package, variable):
-    p = Utils.pproc.Popen(["pkg-config", "--variable="+variable, package],
-                          stdout=Utils.pproc.PIPE, shell=False)
-    v = p.communicate()[0].strip()
-    if p.returncode or not v:
-        self.fatal('fail to get variable %s for package %s' % (variable, package))
-    self.env[variable.upper()] = v
-
-# guitarix waf configuration
 def configure(conf):
-
-    def option_checkfatal (option, desc):
-        if hasattr (Options.options, 'enable_' + option):
-            if getattr (Options.options, 'enable_' + option):
-                Utils.pprint ('RED', desc + ' N/A')
-                sys.exit (1)
-                
-    if option_enabled ('nls'):
-        conf.check_tool ('intltool')
-        if conf.env['INTLTOOL'] and conf.env['POCOM']:
-            nls = 'yes'
-        else:
-            option_checkfatal ('nls', 'localization')
-            nls = 'N/A'
-    else:
-        nls = 'no '
-
-    conf.define ('GETTEXT_PACKAGE', APPNAME1)
-
-    conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
-    # compiler
-    conf.check_tool('compiler_cxx')
-    if Options.options.python_wrapper or Options.options.glade_support:
-        conf.check_tool('compiler_cc')
-    # needed libaries
-    try:
-        conf.check_cfg(package='jack', atleast_version='0.109.1', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
-    except ConfigurationError:
-        conf.check_cfg(package='jack', atleast_version='1.9.1', args='--cflags --libs', uselib_store='JACK', mandatory=1)
-    conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
-    conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)
-    conf.check_cfg(package='gtk+-2.0', atleast_version='2.12.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
-    conf.check_cfg(package='gthread-2.0', atleast_version='2.10', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
-    conf.check_cfg(package='gtkmm-2.4', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
-    conf.check_cfg(package='giomm-2.4', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
-    conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
-    if not Options.options.no_ladspa:
-        conf.check(header_name='ladspa.h', mandatory=1)
-    conf.check(header_name='boost/format.hpp', mandatory=1)
-    # convolver and resampler
-    if not Options.options.includeconvolver:
-        conf.check_cxx(header_name='zita-convolver.h', lib="zita-convolver", uselib_store='ZITA_CONVOLVER',
-                       errmsg="not found, using local version", define_name="INTERN_ZITA_CONVOLVER")
-    if not Options.options.includeresampler:
-        conf.check(lib='zita-resampler', msg='Checking for zita-resampler', header_name='zita-resampler.h',
-               errmsg="fixed version not found, using local version", define_name="ZITA_RESAMPLER")
-    # faust
-    check_faust(conf)
-    # directory
-    conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'
-    # jack_session support
-    conf.check(header_name='jack/session.h', define_name='HAVE_JACK_SESSION')
-
-    # defines for compilation
-    conf.define('GX_STYLE_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','skins')))
-    conf.define('GX_STYLE_DIR1', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head','skins')))
-    conf.define('GX_SOUND_DIR1', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head','sounds')))
-    conf.define('GX_BUILDER_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','builder')))
-    conf.define('GX_BUILDER_DIR1', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head','builder')))
-    conf.define('GX_ICON_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
-    conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
-    conf.define('GX_VERSION', VERSION)
-    if Options.options.experimental:
-        conf.define('EXPERIMENTAL', '')
-
-    # writing config.h
-    conf.write_config_header('config.h')
-
-    conf.define('LIBDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'lib')))
-    if not Options.options.no_ladspa:
-        conf.define('LADSPADIR', os.path.normpath(os.path.join(conf.env['LIBDIR'], 'ladspa')))
-    if Options.options.ladspadir:
-        conf.env['LADSPADIR'] = Options.options.ladspadir
-
-    conf.define('BINDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin')))
-    conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
-    conf.define('BIN_NAME', APPNAME)
-    conf.define('BIN_NAME1', APPNAME1)
-    # g++ flags
-    cxxflags = Options.options.cxxflags.split()
-    if Options.options.debug:
-        cxxflags += Options.options.cxxflags_debug.split()
-    else:
-        cxxflags += Options.options.cxxflags_release.split()
-    cpu_model = None
-    if Options.options.optimization:
-        cpu_model = append_optimization_flags(cxxflags)
-    conf.env['CXXFLAGS'] = cxxflags
-
-    # pygobject is used by both python and c++ wrapper
-    if Options.options.python_wrapper or Options.options.generate_cpp_wrapper:
-        conf.check_tool('python')
-        conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT', mandatory=True)
-        conf.cfg_get_variable(package='pygobject-2.0', variable='codegendir')
-
-    # config subdirs
-    conf.sub_config('pygxw');
-    conf.sub_config('glade-gxw');
-    conf.sub_config('libgxwmm');
-    conf.sub_config('libgxw/gxw');
-    conf.sub_config('src');
-    if conf.env["GX_HEAD"]:
-        conf.sub_config('src/gx_head');
-    if conf.env['FAUST']:
-        conf.sub_config('src/faust');
-    if conf.env["LADSPA"]:   
-        conf.sub_config('ladspa');
-    conf.sub_config('rcstyles');
-
-    # some output
-    print
-    display_msg("==================")
-    version_msg = "GUITARIX " + VERSION
-    print_msg(version_msg)
-
-    print_msg("")
-
-    if not conf.env['ZITA_RESAMPLER']:
-        conf.env['ZITARESAMPLER'] = True
-        check_comp(conf)
-
-    if not conf.env['INTERN_ZITA_CONVOLVER']:
-        conf.env['ZITACONVOLVER'] = True
-        check_comp(conf)
-
-    if cpu_model:
-        display_msg("CPU version" , "%s" % cpu_model, "CYAN")
-    display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
-    display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(conf.env["CC_VERSION"]), "CYAN")
-    display_feature("Use faust", conf.env['FAUST'])
-    if not Options.options.faust_float:
-        display_msg("Use faust precision", "double", 'CYAN')
-    else:
-        display_msg("Use faust precision", "single", 'CYAN')
-    display_feature("Use internal zita-resampler", conf.env['ZITARESAMPLER'])
-    display_feature("Use internal zita-convolver", conf.env['ZITACONVOLVER'])
-    display_feature("Jack Session Support", conf.env['HAVE_JACK_SESSION'])
-    display_feature("Experimental Extensions", conf.env['EXPERIMENTAL']=="")
-    display_feature("build gx_head", conf.env['GX_HEAD'])
-    display_feature("build ladspa plugins", conf.env['LADSPA'])
-    display_feature("Python Library Wrapper", conf.env['GX_PYTHON_WRAPPER'])
-    display_feature("re-generate C++ Library Wrapper", not conf.env['USE_GENERATED_CPP'])
-    display_feature("Build with shared lib", conf.env['GX_LIB_SHARED'])
-    display_feature("Localization  (intltool)", conf.env['ENABLE_NLS'])
-    display_feature("Build support for glade", conf.env['GX_GLADE_SUPPORT'])
-    if conf.env['GX_GLADE_SUPPORT']:
-        display_msg("glade catalog dir", conf.env['GLADE_CATALOG_DIR'], 'CYAN')
-        display_msg("glade modules dir", conf.env['GLADE_MODULES_DIR'], 'CYAN')
-    display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
-    display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
-    
-    if not Options.options.no_ladspa:
-        display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
-    display_msg("Guitarix style directory", conf.env['GX_STYLE_DIR'], 'CYAN')
-    display_msg("Guitarix builder directory", conf.env['GX_BUILDER_DIR'], 'CYAN')
-    display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
-    if conf.env['g++']:
-       error_msg("ERROR       !!! Compiler version is to old !!!")
-
-    print_msg("")
-
-def post(ctx):
-    if os.geteuid() == 0:
-        Utils.exec_command('/sbin/ldconfig')
+    pass
 
 def build(bld):
-    
-    if bld.env['INTLTOOL']:
-        obj = bld.new_task_gen ('intltool_po')
-        obj.podir = 'po'
-        obj.appname = APPNAME1
-    
-    # process subfolders from here
-    if bld.env["LADSPA"]:
-        bld.add_subdirs('ladspa')
-    bld.add_subdirs('libgxw/gxw')
-    bld.add_group()
-    bld.add_subdirs('libgxwmm')
-    bld.add_subdirs('glade-gxw')
-    bld.add_subdirs('pygxw')
-    bld.add_subdirs('src/faust')
-    bld.add_subdirs('src')
-    bld.add_subdirs('rcstyles')
-    bld.add_subdirs('pixmaps')
+    sources = [
+        'gx_jconv_settings.cpp',
+        'gx_main_interface.cpp',
+        'gx_interface_builder.cpp',
+        'gx_globals.cpp',
+        '../gx_child_process.cpp',
+        'gx_engine.cpp',
+        '../gx_engine_midi.cpp',
+        '../gx_convolver.cpp',
+        '../gx_pitch_tracker.cpp',
+        '../gx_resampler.cpp',
+        'gx_engine_audio.cpp',
+        'gx_portmap.cpp',
+        'gx_paramtable.cpp',
+        '../gx_cairo_callbacks.cpp',
+        'gx_gui_helpers.cpp',
+        '../gx_threads.cpp',
+        'gx_jack.cpp',
+        'gx_preset.cpp',
+        'gx_system.cpp',
+        '../gx_ui.cpp',
+        'gx_main.cpp',
+        ]
 
-    bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
-    if bld.env["GX_HEAD"]:
-        pa = bld.env['GX_SOUND_DIR1']
-        bld.add_subdirs('src/gx_head')
-        bld.install_files(bld.env['DESKAPPS_DIR'], 'gx_head.desktop', chmod=0644)
-        bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/funkmuscle_rc', chmod=0664)
-        bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/zettberlin_rc', chmod=0664)
-        sub_file('./src/gx_head/zettberlin_rc.in', './src/gx_head/zettberlin_rc', (('"jconv.IRDir": "(.*)"', '"jconv.IRDir": "%s"' % pa), ))
-        bld.install_files(bld.env['GX_SOUND_DIR1'], './IR/greathall.wav', chmod=0664)
+    builder_files = [
+        '../midi.glade',
+        'ports.glade',
+        'iredit.glade',
+        ]
+    incl = ['.','../..','..','../headers','../../libgxwmm','../../libgxw'] # need ".." for config.h
+    if not bld.env['INTERN_ZITA_CONVOLVER']:
+        sources.append('../zita-convolver/zita-convolver.cc')
+        incl.append('../zita-convolver'); 
+    if not bld.env['ZITA_RESAMPLER']:
+        sources.append('../zita-resampler/zita-resampler.cc')
+        incl.append('../zita-resampler')
+        lib = []
+    else:
+        lib = ['zita-resampler']
     if bld.env["GX_LIB_SHARED"]:
-        bld.add_post_fun(post)
-
-def etags(ctx):
-    "Create an Emacs ETAGS file for the src directory"
-    cmd = "etags -o TAGS libgxw/gxw/*.cpp libgxwmm/src/*.ccg libgxwmm/src/*.hg libgxw/gxw/*.h src/*.cpp src/*.cc src/headers/*.h"
-    Logs.debug("runner: system command -> %s" % cmd)
-    Utils.exec_command(cmd)
-
-def dist(ctx):
-    "makes a tarball for redistributing the sources"
-    try:
-        import pysvn
-    except ImportError:
-        raise Utils.WafError("you need to install pysvn to use the dist command"
-                             " (debian package python-svn)")
-    version = Utils.g_module.VERSION
-    if Options.options.no_pkg:
-        version += '-nopkg'
-    Scripting.dist(version=version)
-
-def copytree(src,dst,build_dir):
-    import pysvn
-    entries = pysvn.Client().info2(".")
-    os.mkdir(dst)
-    for srcname, info in entries:
-        if srcname == ".":
-            continue
-        if Options.options.no_pkg and srcname.startswith("debian"):
-            continue
-        dstname=os.path.join(dst,srcname)
-        if os.path.isdir(srcname):
-            os.mkdir(dstname)
-        else:
-            shutil.copy2(srcname,dstname)
-
-# There doesn't seem to be a hook so just patch it in
-Scripting.copytree = copytree
+        lib.extend(['gxwmm','gxw'])
+        libpath = [bld.path.find_dir("../../libgxw/gxw").bldpath(bld.env),
+                   bld.path.find_dir("../../libgxwmm/gxwmm").bldpath(bld.env)]
+        uselib_local = []
+    else:
+        libpath = []
+        uselib_local = ['gxwmm','gxw']
+    bld(features = 'cxx cprogram',
+        includes = incl,
+        obj_ext  = '_2.o',
+        cxxflags= bld.env['CXXFLAGS'],
+        source = sources,
+        lib = lib,
+        uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
+                  'GTK2', 'GTKMM', 'GIOMM', 'ZITA_CONVOLVER', 'FFTW3'],
+        uselib_local = uselib_local,
+        libpath = libpath,
+        target = bld.env['BIN_NAME1'],
+        chmod = 0755,
+        install_path = bld.env['BINDIR'],
+        )
+    bld.install_files(bld.env['GX_BUILDER_DIR1'], builder_files, chmod=0644)
