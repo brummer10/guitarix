@@ -229,7 +229,7 @@
     },
     "jconv": {
       "jconv.IRFile": "greathall.wav",
-      "jconv.IRDir": "/usr/share/gx_head/sounds"
+      "jconv.IRDir": "/usr/local/share/gx_head/sounds"
       "jconv.Gain": 0.598717,
       "jconv.Offset": 0,
       "jconv.Length": 39839,
@@ -466,7 +466,7 @@
     },
     "jconv": {
       "jconv.IRFile": "greathall.wav",
-      "jconv.IRDir": "/usr/share/gx_head/sounds"
+      "jconv.IRDir": "/usr/local/share/gx_head/sounds"
       "jconv.Gain": 0.598717,
       "jconv.Offset": 0,
       "jconv.Length": 39839,

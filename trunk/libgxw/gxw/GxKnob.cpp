@@ -395,9 +395,6 @@ static gboolean gx_knob_button_press (GtkWidget *widget, GdkEventButton *event)
 	if (event->button != 1 && event->button != 3) {
 		return FALSE;
 	}
-	if (event->button == 3 && OS_IS_64_BIT) {
-		return FALSE;
-	}
 	gtk_widget_grab_focus(widget);
 	if (_gx_knob_pointer_event(widget, event->x, event->y, get_stock_id(widget), FALSE, event->state, event->button)) {
 		gtk_grab_add(widget);
