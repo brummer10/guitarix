@@ -1,0 +1,2146 @@
+#
+# Jean-Yves Poilleux <jy.poilleux@gmail.com>, 2010, 2011.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Guitarix 0.0\n"
+"Report-Msgid-Bugs-To: someone\n"
+"POT-Creation-Date: 2010-12-15 07:43+0100\n"
+"PO-Revision-Date: 2011-02-24 13:33+0100\n"
+"Last-Translator: Jean-Yves Poilleux <jy.poilleux@gmail.com>\n"
+"Language-Team: Français <jy.poilleux@gmail.com>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../src/gx_head/gx_interface_builder.cpp:96
+msgid "Pre gain"
+msgstr "Pre-gain"
+
+#: ../src/gx_head/gx_interface_builder.cpp:123
+msgid "  Drive "
+msgstr "  Drive "
+
+#: ../src/gx_head/gx_interface_builder.cpp:154
+msgid "Master gain"
+msgstr "Gain master"
+
+#: ../src/gx_head/gx_interface_builder.cpp:169
+msgid "tone"
+msgstr "Timbre"
+
+#: ../src/gx_head/gx_interface_builder.cpp:187
+msgid "Bass"
+msgstr "Grave"
+
+#: ../src/gx_head/gx_interface_builder.cpp:190
+msgid "Middle"
+msgstr "Médium"
+
+#: ../src/gx_head/gx_interface_builder.cpp:193
+msgid "Treble"
+msgstr "Aigu"
+
+#: ../src/gx_head/gx_interface_builder.cpp:202
+msgid " Bass boost  "
+msgstr " Bass boost  "
+
+#: ../src/gx_head/gx_interface_builder.cpp:213
+msgid " Cabinet        "
+msgstr " Enceinte       "
+
+#: ../src/gx_head/gx_interface_builder.cpp:253
+msgid " reverb  "
+msgstr " reverb "
+
+#: ../src/gx_head/gx_interface_builder.cpp:260
+msgid "set"
+msgstr "appliquer"
+
+#: ../src/gx_head/gx_interface_builder.cpp:261
+#: ../src/gx_head/iredit.glade.h:65
+msgid "run"
+msgstr "exécuter"
+
+#: ../src/gx_head/gx_interface_builder.cpp:331
+msgid "Plugins"
+msgstr "Greffons"
+
+#: ../src/gx_head/gx_interface_builder.cpp:335
+msgid "Mono Rack"
+msgstr "Rack mono"
+
+#: ../src/gx_head/gx_interface_builder.cpp:341
+msgid "Stereo Rack"
+msgstr "Rack stereo"
+
+#: ../src/gx_head/gx_interface_builder.cpp:352
+#: ../src/gx_head/gx_main_interface.cpp:540
+msgid "Logging Window"
+msgstr "Fenêtre de connexion"
+
+#: ../src/gx_head/gx_rack_builder.cc:30
+msgid "noise shaper       "
+msgstr "noise shaper       "
+
+#: ../src/gx_head/gx_rack_builder.cc:53
+msgid "l/h/filter"
+msgstr "filtre"
+
+#: ../src/gx_head/gx_rack_builder.cc:71
+msgid "high-pass "
+msgstr "passe-haut"
+
+#: ../src/gx_head/gx_rack_builder.cc:72
+msgid " low-pass "
+msgstr "passe-bas"
+
+#: ../src/gx_head/gx_rack_builder.cc:82
+msgid "low-cut "
+msgstr "coupe-bas"
+
+#: ../src/gx_head/gx_rack_builder.cc:83
+msgid "high-cut "
+msgstr "coupe-haut"
+
+#: ../src/gx_head/gx_rack_builder.cc:171
+msgid "crybaby"
+msgstr "crybaby"
+
+#: ../src/gx_head/gx_rack_builder.cc:195
+msgid "  wah   "
+msgstr "  wah   "
+
+#: ../src/gx_head/gx_rack_builder.cc:196 ../src/gx_head/gx_rack_builder.cc:266
+#: ../src/gx_head/gx_srack_builder.cc:52 ../src/gx_head/gx_srack_builder.cc:90
+msgid "  level  "
+msgstr "niveau"
+
+#: ../src/gx_head/gx_rack_builder.cc:197
+msgid "  dry/wet  "
+msgstr "  dry/wet  "
+
+#: ../src/gx_head/gx_rack_builder.cc:213
+msgid "distortion"
+msgstr "distorsion"
+
+#: ../src/gx_head/gx_rack_builder.cc:234 ../src/gx_head/gx_rack_builder.cc:238
+#: ../src/gx_head/gx_rack_builder.cc:413
+msgid "  drive "
+msgstr "  drive "
+
+#: ../src/gx_head/gx_rack_builder.cc:239 ../src/gx_head/gx_rack_builder.cc:252
+msgid " low "
+msgstr "grave"
+
+#: ../src/gx_head/gx_rack_builder.cc:240 ../src/gx_head/gx_rack_builder.cc:253
+msgid " middle l. "
+msgstr "bas medium"
+
+#: ../src/gx_head/gx_rack_builder.cc:241 ../src/gx_head/gx_rack_builder.cc:254
+msgid " middle h. "
+msgstr "haut medium"
+
+#: ../src/gx_head/gx_rack_builder.cc:242 ../src/gx_head/gx_rack_builder.cc:255
+msgid " high "
+msgstr " aigu"
+
+#: ../src/gx_head/gx_rack_builder.cc:247 ../src/gx_head/gx_rack_builder.cc:251
+msgid "  gain  "
+msgstr "  gain  "
+
+#: ../src/gx_head/gx_rack_builder.cc:267
+msgid "frequency split Hz"
+msgstr "division freq Hz"
+
+#: ../src/gx_head/gx_rack_builder.cc:272
+msgid "split low freq"
+msgstr "divise freq grave"
+
+#: ../src/gx_head/gx_rack_builder.cc:275
+msgid "split m. freq"
+msgstr "divise freq médium"
+
+#: ../src/gx_head/gx_rack_builder.cc:278
+msgid "split high freq"
+msgstr "divise freq aigue"
+
+#: ../src/gx_head/gx_rack_builder.cc:294
+msgid "resonator"
+msgstr "résonateur"
+
+#: ../src/gx_head/gx_rack_builder.cc:296
+msgid "trigger "
+msgstr "déclancher"
+
+#: ../src/gx_head/gx_rack_builder.cc:297
+msgid " vibrato "
+msgstr " vibrato "
+
+#: ../src/gx_head/gx_rack_builder.cc:314
+msgid "IR"
+msgstr "IR"
+
+#: ../src/gx_head/gx_rack_builder.cc:339
+msgid " freq "
+msgstr " freq "
+
+#: ../src/gx_head/gx_rack_builder.cc:340
+msgid " peak "
+msgstr " pic "
+
+#: ../src/gx_head/gx_rack_builder.cc:341
+msgid " bandwidth "
+msgstr "largeur de bande"
+
+#: ../src/gx_head/gx_rack_builder.cc:359
+msgid "Compr."
+msgstr "Compr."
+
+#: ../src/gx_head/gx_rack_builder.cc:374
+msgid "knee"
+msgstr "knee"
+
+#: ../src/gx_head/gx_rack_builder.cc:375
+msgid "ratio"
+msgstr "rapport"
+
+#: ../src/gx_head/gx_rack_builder.cc:376
+msgid "threshold"
+msgstr "seuil"
+
+#: ../src/gx_head/gx_rack_builder.cc:379
+msgid "attack"
+msgstr "attaque"
+
+#: ../src/gx_head/gx_rack_builder.cc:380
+msgid "release"
+msgstr "chute"
+
+#: ../src/gx_head/gx_rack_builder.cc:396
+msgid "overdrive"
+msgstr "overdrive"
+
+#: ../src/gx_head/gx_rack_builder.cc:429
+#: ../src/gx_head/gx_srack_builder.cc:266
+msgid "echo"
+msgstr "écho"
+
+#: ../src/gx_head/gx_rack_builder.cc:447
+msgid "  time  "
+msgstr "  temps  "
+
+#: ../src/gx_head/gx_rack_builder.cc:449
+msgid "    %    "
+msgstr "    %    "
+
+#: ../src/gx_head/gx_rack_builder.cc:466
+#: ../src/gx_head/gx_srack_builder.cc:218
+msgid "delay"
+msgstr "delay"
+
+#: ../src/gx_head/gx_rack_builder.cc:484
+msgid " delay "
+msgstr " delay "
+
+#: ../src/gx_head/gx_rack_builder.cc:486
+msgid "  gain "
+msgstr "  gain "
+
+#: ../src/gx_head/gx_rack_builder.cc:503
+msgid "freeverb"
+msgstr "freeverb"
+
+#: ../src/gx_head/gx_rack_builder.cc:522
+msgid "RoomSize"
+msgstr "taille de pièce"
+
+#: ../src/gx_head/gx_rack_builder.cc:523
+msgid "damp"
+msgstr "damp"
+
+#: ../src/gx_head/gx_rack_builder.cc:524
+msgid "dry/wet"
+msgstr "dry/wet"
+
+#: ../src/gx_head/gx_rack_builder.cc:540 ../src/gx_head/gx_rack_builder.cc:544
+msgid "  MIDI out  "
+msgstr "sortie MIDI"
+
+#: ../src/gx_head/gx_rack_builder.cc:573
+msgid "channel1"
+msgstr "canal 1"
+
+#: ../src/gx_head/gx_rack_builder.cc:581 ../src/gx_head/gx_rack_builder.cc:645
+#: ../src/gx_head/gx_rack_builder.cc:710
+msgid "velocity"
+msgstr "vélocité"
+
+#: ../src/gx_head/gx_rack_builder.cc:586 ../src/gx_head/gx_rack_builder.cc:650
+#: ../src/gx_head/gx_rack_builder.cc:715
+msgid "volume"
+msgstr "volume"
+
+#: ../src/gx_head/gx_rack_builder.cc:589 ../src/gx_head/gx_rack_builder.cc:653
+#: ../src/gx_head/gx_rack_builder.cc:718
+msgid "autogain"
+msgstr "gain auto"
+
+#: ../src/gx_head/gx_rack_builder.cc:594 ../src/gx_head/gx_rack_builder.cc:658
+#: ../src/gx_head/gx_rack_builder.cc:723
+msgid "channel"
+msgstr "canal"
+
+#: ../src/gx_head/gx_rack_builder.cc:595 ../src/gx_head/gx_rack_builder.cc:659
+#: ../src/gx_head/gx_rack_builder.cc:724
+msgid "program"
+msgstr "programme"
+
+#: ../src/gx_head/gx_rack_builder.cc:598 ../src/gx_head/gx_rack_builder.cc:662
+#: ../src/gx_head/gx_rack_builder.cc:727
+msgid "oktave"
+msgstr "oktave"
+
+#: ../src/gx_head/gx_rack_builder.cc:599 ../src/gx_head/gx_rack_builder.cc:663
+#: ../src/gx_head/gx_rack_builder.cc:728
+msgid "sensity"
+msgstr "sensibilité"
+
+#: ../src/gx_head/gx_rack_builder.cc:625 ../src/gx_head/gx_rack_builder.cc:689
+#: ../src/gx_head/gx_rack_builder.cc:754
+msgid "auto_pitch"
+msgstr "pitch auto"
+
+#: ../src/gx_head/gx_rack_builder.cc:637
+msgid "channel2"
+msgstr "canal 2"
+
+#: ../src/gx_head/gx_rack_builder.cc:702
+msgid "channel3"
+msgstr "canal 2"
+
+#: ../src/gx_head/gx_rack_builder.cc:766
+msgid "beat_detector"
+msgstr "détecteur de rythme"
+
+#: ../src/gx_head/gx_rack_builder.cc:775
+msgid "stepper"
+msgstr "stepper"
+
+#: ../src/gx_head/gx_rack_builder.cc:776
+msgid "note_off"
+msgstr "note_off"
+
+#: ../src/gx_head/gx_rack_builder.cc:777
+msgid "atack_gain"
+msgstr "gain d'attaque"
+
+#: ../src/gx_head/gx_rack_builder.cc:778
+msgid "beat_gain"
+msgstr "gain_de_rythme"
+
+#: ../src/gx_head/gx_rack_builder.cc:810
+msgid "Midi gain"
+msgstr "Gain MIDI"
+
+#: ../src/gx_head/gx_srack_builder.cc:34
+msgid "chorus"
+msgstr "chorus"
+
+#: ../src/gx_head/gx_srack_builder.cc:53 ../src/gx_head/gx_srack_builder.cc:99
+msgid "  delay  "
+msgstr "  delay  "
+
+#: ../src/gx_head/gx_srack_builder.cc:54 ../src/gx_head/gx_srack_builder.cc:98
+msgid "  depth  "
+msgstr "profond."
+
+#: ../src/gx_head/gx_srack_builder.cc:55
+msgid "  freq  "
+msgstr "  freq  "
+
+#: ../src/gx_head/gx_srack_builder.cc:97
+#: ../src/gx_head/gx_srack_builder.cc:170
+msgid " feedback "
+msgstr "retour"
+
+#: ../src/gx_head/gx_srack_builder.cc:100
+msgid " delay offset"
+msgstr " offset delay"
+
+#: ../src/gx_head/gx_srack_builder.cc:101
+msgid " LFO "
+msgstr " LFO "
+
+#: ../src/gx_head/gx_srack_builder.cc:147
+msgid "phaser"
+msgstr "phaser"
+
+#: ../src/gx_head/gx_srack_builder.cc:163
+msgid "  level "
+msgstr "niveau"
+
+#: ../src/gx_head/gx_srack_builder.cc:171
+msgid "depth"
+msgstr "profond."
+
+#: ../src/gx_head/gx_srack_builder.cc:172
+msgid "width"
+msgstr "largeur"
+
+#: ../src/gx_head/gx_srack_builder.cc:173
+msgid "freq"
+msgstr "freq"
+
+#: ../src/gx_head/gx_srack_builder.cc:174
+msgid "max Hz"
+msgstr "max Hz"
+
+#: ../src/gx_head/gx_srack_builder.cc:175
+msgid "min Hz"
+msgstr "min Hz"
+
+#: ../src/gx_head/gx_srack_builder.cc:176
+msgid "speed"
+msgstr "vitesse"
+
+#: ../src/gx_head/gx_srack_builder.cc:235
+msgid "left gain"
+msgstr "gain gauche"
+
+#: ../src/gx_head/gx_srack_builder.cc:236
+msgid "left delay"
+msgstr "delay gauche"
+
+#: ../src/gx_head/gx_srack_builder.cc:239
+msgid "LFO"
+msgstr "LFO"
+
+#: ../src/gx_head/gx_srack_builder.cc:248
+msgid "right gain"
+msgstr "gain droite"
+
+#: ../src/gx_head/gx_srack_builder.cc:249
+msgid "right delay"
+msgstr "delay droite"
+
+#: ../src/gx_head/gx_srack_builder.cc:283
+msgid "left %"
+msgstr "gauche %"
+
+#: ../src/gx_head/gx_srack_builder.cc:284
+msgid "left time"
+msgstr "temps gauche"
+
+#: ../src/gx_head/gx_srack_builder.cc:285
+msgid "right %"
+msgstr "droite %"
+
+#: ../src/gx_head/gx_srack_builder.cc:286
+msgid "right time"
+msgstr "temps droite"
+
+#: ../src/gx_head/gx_srack_builder.cc:303
+msgid "moog"
+msgstr "moog"
+
+#: ../src/gx_head/gx_srack_builder.cc:320
+msgid "            Q            "
+msgstr "            Q            "
+
+#: ../src/gx_head/gx_srack_builder.cc:322
+msgid "            Hz           "
+msgstr "            Hz           "
+
+#: ../src/gx_head/gx_main_interface.cpp:442
+msgid "Main Interface Constructor"
+msgstr "Constructeur de l'interface principale"
+
+#: ../src/gx_head/gx_main_interface.cpp:443
+msgid "pixmap check failed, giving up"
+msgstr "vérification pixmap échouée, abandon"
+
+#: ../src/gx_head/gx_main_interface.cpp:690
+msgid "gx_head output"
+msgstr "sortie gx_head"
+
+#. -- create midi out menu  --
+#: ../src/gx_head/gx_main_interface.cpp:1108
+#: ../src/gx_head/gx_main_interface.cpp:1184
+#: ../src/gx_head/gx_main_interface.cpp:2931
+msgid "MIDI out"
+msgstr "sortie MIDI"
+
+#: ../src/gx_head/gx_main_interface.cpp:1365
+msgid "convolver"
+msgstr "convolueur"
+
+#: ../src/gx_head/gx_main_interface.cpp:1365
+msgid "no impulseresponse file"
+msgstr "pas de fichier de réponse impulsionnelle"
+
+#: ../src/gx_head/gx_main_interface.cpp:2021
+#: ../src/gx_head/gx_main_interface.cpp:2022
+msgid "Reset Button, press to reset settings"
+msgstr "Bouton Reste, appuyer pour remettre les paramètres par défaut"
+
+#: ../src/gx_head/gx_main_interface.cpp:2126
+#, c-format
+msgid "convolve %s"
+msgstr "convolue %s"
+
+#: ../src/gx_head/gx_main_interface.cpp:2129
+#, c-format
+msgid "convolver off"
+msgstr "convolueur éteint"
+
+#: ../src/gx_head/gx_main_interface.cpp:2139
+#, c-format
+msgid " %i%sMain Setting "
+msgstr " %i%sréglage principal"
+
+#: ../src/gx_head/gx_main_interface.cpp:2309
+msgid "tuner"
+msgstr "tuner"
+
+#: ../src/gx_head/gx_main_interface.cpp:2318
+msgid "Plugin Bar"
+msgstr "Barre de greffons"
+
+#: ../src/gx_head/gx_main_interface.cpp:2326
+msgid "mono rack"
+msgstr "rack mono"
+
+#: ../src/gx_head/gx_main_interface.cpp:2327
+msgid "stereo rack"
+msgstr "rack stéréo"
+
+#: ../src/gx_head/gx_main_interface.cpp:2342
+msgid "Mono Rack, right click pop up the plugin menu"
+msgstr "Rack mono, ouverture du menu des greffons par un clic droit"
+
+#: ../src/gx_head/gx_main_interface.cpp:2355
+msgid "Stereo Rack, right click pop up the plugin menu"
+msgstr "Rack stéréo, ouverture du menu des greffons par un click droit"
+
+#: ../src/gx_head/gx_main_interface.cpp:2411
+msgid "dsp load  %1% %%"
+msgstr "Charge DSP  %1% %%"
+
+#: ../src/gx_head/gx_main_interface.cpp:2418
+msgid "ht frames %1%"
+msgstr "ht périodes %1%"
+
+#: ../src/gx_head/gx_main_interface.cpp:2424
+msgid "RT mode  yes "
+msgstr "Mode TR  oui"
+
+#: ../src/gx_head/gx_main_interface.cpp:2424
+msgid "RT mode  <span color=\"#cc1a1a\">NO</span>"
+msgstr "mode RT  <span color=\"#cc1a1a\">NO</span>"
+
+#: ../src/gx_head/gx_main_interface.cpp:2430
+msgid "latency    %1%"
+msgstr "latence    %1%"
+
+#: ../src/gx_head/gx_main_interface.cpp:2502
+msgid "engine is on"
+msgstr "moteur démarré"
+
+#: ../src/gx_head/gx_main_interface.cpp:2513
+msgid "engine is off"
+msgstr "moteur arrêté"
+
+#: ../src/gx_head/gx_main_interface.cpp:2524
+msgid "engine is in bypass mode"
+msgstr "moteur en mode contourné"
+
+#: ../src/gx_head/gx_main_interface.cpp:2540
+msgid "jack server is connected"
+msgstr "Le serveur Jack est connecté"
+
+#: ../src/gx_head/gx_main_interface.cpp:2552
+msgid "jack server is unconnected"
+msgstr "Le serveur Jack est déconnecté"
+
+#: ../src/gx_head/gx_main_interface.cpp:2585
+msgid "_Engine"
+msgstr "_Moteur"
+
+#: ../src/gx_head/gx_main_interface.cpp:2598
+msgid "Engine _Start / _Stop"
+msgstr "_Démarrer / _Arrêter le moteur"
+
+#. -- Create Engine bypass item  --
+#: ../src/gx_head/gx_main_interface.cpp:2610
+msgid "Engine _Bypass"
+msgstr "_Contourner le moteur"
+
+#. -- create Midi Controller Table menu item --
+#: ../src/gx_head/gx_main_interface.cpp:2635
+msgid "M_idi Controller"
+msgstr "Contrôleur MIDI"
+
+#. -- Create Exit menu item under Engine submenu --
+#: ../src/gx_head/gx_main_interface.cpp:2650
+msgid "_Quit"
+msgstr "_Quitter"
+
+#. ---------------- Create Presets menu items --------------------
+#: ../src/gx_head/gx_main_interface.cpp:2671
+msgid "_Presets"
+msgstr "_Préréglages"
+
+#. -- add New Preset saving under Save Presets menu
+#: ../src/gx_head/gx_main_interface.cpp:2699
+msgid "New _Preset"
+msgstr "Nouveau _Preset"
+
+#. -- Create patch info menu item under Options submenu --
+#: ../src/gx_head/gx_main_interface.cpp:2726
+msgid "P_atch Info"
+msgstr "Info P_atch"
+
+#. -- Create load presetfile menu --
+#: ../src/gx_head/gx_main_interface.cpp:2740
+msgid "Load Preset-_file"
+msgstr "Charger _fichier de préréglage "
+
+#. -- Create save as presetfile menu--
+#: ../src/gx_head/gx_main_interface.cpp:2749
+msgid "E_xport Preset-file"
+msgstr "E_xporter le fichier de préréglage"
+
+#. -- Create  Main setting submenu --
+#: ../src/gx_head/gx_main_interface.cpp:2763
+msgid "Recall Main _Setting"
+msgstr "Rappeler _réglage principal"
+
+#: ../src/gx_head/gx_main_interface.cpp:2771
+msgid "_Save As Main _Setting"
+msgstr "_Sauvegarder comme _réglage principal"
+
+#. -- Create sub menu More Preset Action --
+#: ../src/gx_head/gx_main_interface.cpp:2785
+msgid "More Preset Options..."
+msgstr "Plus d'options de préréglages   "
+
+#. ---------------- Create Presets menu items --------------------
+#. forward preset
+#: ../src/gx_head/gx_main_interface.cpp:2809
+msgid "Next _Preset"
+msgstr "Préréglage suivant"
+
+#. rewind preset
+#: ../src/gx_head/gx_main_interface.cpp:2819
+msgid "Previous _Preset"
+msgstr "Préréglage précédent"
+
+#. -- Create  menu item Delete Active preset --
+#: ../src/gx_head/gx_main_interface.cpp:2834
+msgid "_Save Active Preset"
+msgstr "_Sauvegarder Préréglage actuel"
+
+#: ../src/gx_head/gx_main_interface.cpp:2843
+msgid "_Rename Active Preset"
+msgstr "_Renommer le préréglage actuel"
+
+#: ../src/gx_head/gx_main_interface.cpp:2852
+msgid "_Delete Active Preset"
+msgstr "_Effacer le Préréglage actuel"
+
+#. -- Create  menu item Delete All presets --
+#: ../src/gx_head/gx_main_interface.cpp:2867
+msgid "_Delete All Presets"
+msgstr "_Supprimer tous les préréglages"
+
+#. ---------------- Create Options menu items ------------------
+#: ../src/gx_head/gx_main_interface.cpp:2888
+msgid "P_lugins"
+msgstr "G_reffons"
+
+#. -- Create toolbar check menu item under Options submenu --
+#: ../src/gx_head/gx_main_interface.cpp:2898
+msgid "show Plugin Bar"
+msgstr "Affiche barre de greffons"
+
+#. -- Create mono rack check menu item under Options submenu --
+#: ../src/gx_head/gx_main_interface.cpp:2908
+msgid "show Mono_Rack"
+msgstr "Afficher le rack mono"
+
+#. -- Create mono plugin menu soket item under Options submenu --
+#: ../src/gx_head/gx_main_interface.cpp:2918
+msgid "_Mono Plugins"
+msgstr "_Greffons mono"
+
+#. -- Create stereo rack check menu item under Options submenu --
+#: ../src/gx_head/gx_main_interface.cpp:2948
+msgid "show _StereoRack"
+msgstr "Afficher le rack stéréo"
+
+#. -- Create stereo plugin menu soket item under Options submenu --
+#: ../src/gx_head/gx_main_interface.cpp:2958
+msgid "_Stereo Plugins"
+msgstr "_Greffons stéréo"
+
+#. ---------------- Create Options menu items ------------------
+#: ../src/gx_head/gx_main_interface.cpp:2989
+msgid "_Options"
+msgstr "_Options"
+
+#. -- Create Open check menu item under Options submenu --
+#: ../src/gx_head/gx_main_interface.cpp:3000
+msgid "_Meterbridge"
+msgstr "_Meterbridge"
+
+#. -- Create tuner check menu item under Options submenu --
+#: ../src/gx_head/gx_main_interface.cpp:3009
+msgid "_Tuner"
+msgstr "_Tuner"
+
+#: ../src/gx_head/gx_main_interface.cpp:3022
+msgid "set _Knobs linear"
+msgstr "contrôle linéaire des boutons"
+
+#. -- Create logbox check menu item under Options submenu --
+#: ../src/gx_head/gx_main_interface.cpp:3032
+msgid "show Logging _Box"
+msgstr "Affiche _les messages"
+
+#. -- create option for saving midi controller settings in presets --
+#: ../src/gx_head/gx_main_interface.cpp:3042
+msgid "Include MIDI in _presets"
+msgstr "Inclure le MIDI dans les _préréglages"
+
+#. -- create option for resetting gx_head settings --
+#: ../src/gx_head/gx_main_interface.cpp:3048
+msgid "Reset _All Parameters"
+msgstr "Réinitialiser _tous les paramètres"
+
+#. ---------------- Create skin menu items ------------------
+#: ../src/gx_head/gx_main_interface.cpp:3067
+msgid "_Skin..."
+msgstr "_Skin..."
+
+#. ---------------- Start About menu declarations ----------------
+#. -- Create About menu item under About submenu --
+#: ../src/gx_head/gx_main_interface.cpp:3124
+#: ../src/gx_head/gx_main_interface.cpp:3133
+msgid "_About"
+msgstr "_À propos"
+
+#. -- Create Help menu item under About submenu --
+#: ../src/gx_head/gx_main_interface.cpp:3142
+msgid "_Help"
+msgstr "_Aide"
+
+#. -- Create menu item to control tooltip display --
+#: ../src/gx_head/gx_main_interface.cpp:3150
+msgid "Show _Tooltips"
+msgstr "Afficher _Astuces"
+
+#. -- Create Jack Connection toggle button --
+#: ../src/gx_head/gx_main_interface.cpp:3172
+msgid "Jack Server _Connection "
+msgstr "_Connexion au serveur Jack"
+
+#. -- create Jack Ports menu item --
+#: ../src/gx_head/gx_main_interface.cpp:3183
+msgid "Jack _Ports "
+msgstr "_Ports Jack"
+
+#. -- Create  Latency submenu under Jack Server submenu --
+#: ../src/gx_head/gx_main_interface.cpp:3192
+msgid "_Latency"
+msgstr "_Latence"
+
+#: ../src/gx_head/gx_main_interface.cpp:3285
+#: ../src/gx_head/gx_main_interface.cpp:3294
+msgid "system startup"
+msgstr "Démarrage du système"
+
+#: ../src/gx_head/gx_main_interface.cpp:3285
+msgid "Thread create failed (signal): "
+msgstr "Échec de la création du thread (signal): "
+
+#: ../src/gx_head/gx_main_interface.cpp:3294
+msgid "Thread create failed (midi): "
+msgstr "Echec de la création du thread (midi): "
+
+#: ../src/gx_head/gx_gui_helpers.cpp:68 ../src/gx_head/gx_gui_helpers.cpp:75
+msgid "gtk builder"
+msgstr "compileur gtk"
+
+#: ../src/gx_head/gx_gui_helpers.cpp:75
+msgid " not found in "
+msgstr " non trouvé dans "
+
+#: ../src/gx_head/gx_gui_helpers.cpp:162
+msgid "Engine State: "
+msgstr "État moteur: "
+
+#. FIXME send to ui thread
+#. gx_print_warning("Jack Shutdown",
+#. "jack has bumped us out!!");
+#.
+#: ../src/gx_head/gx_gui_helpers.cpp:184
+msgid "jack has bumped us out!!"
+msgstr "Jack nous a expulsé!!"
+
+#: ../src/gx_head/gx_gui_helpers.cpp:393
+msgid ""
+"\n"
+"  This Aplication is to a large extent provided\n"
+"  with the marvelous faust compiler.Yann Orlary\n"
+"  <http://faust.grame.fr/>\n"
+"  A large part is based on the work of Julius Orion Smith\n"
+" <http://ccrma.stanford.edu/realsimple/faust/>\n"
+"  and Albert Graef\n"
+"  <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html>  \n"
+"\n"
+"\n"
+"  gx_head "
+msgstr ""
+"\n"
+"   Cette application est en large partie produite grâce au\n"
+"     merveilleux compilateur Faust. Yann Orlary\n"
+"     <http://faust.grame.fr/>\n"
+"   Elle est également basée sur le travail de Julius Orion Smith\n"
+"      <http://ccrma.stanford.edu/realsimple/faust/> et Albert Graef\n"
+"      <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html>\n"
+"\n"
+"   gx_head "
+
+#: ../src/gx_head/gx_gui_helpers.cpp:404
+msgid ""
+"\n"
+"  for impulse response it use zita-convolver \n"
+"  byFons Adriaensen \n"
+"  http://www.kokkinizita.net/linuxaudio/index.html \n"
+"\n"
+"  authors: Hermann Meyer <brummer-@web.de>\n"
+"  authors: James Warden <warjamy@yahoo.com>\n"
+"  authors: Andreas Degert <andreas.degert@googlemail.com>    \n"
+"  home: http://gx_head.sourceforge.net/\n"
+msgstr ""
+"\n"
+"   Les réponses impulsionnelles sont issues de zita-convolver \n"
+"     par Fons Adriaensen \n"
+"     <http://www.kokkinizita.net/linuxaudio/index.html> \n"
+"\n"
+"    auteur : Hermann Meyer <brummer-@web.de>\n"
+"    auteur : James Warden    <warjamy@yahoo.com>\n"
+"    auteur : Andreas Degert  <andreas.degert@googlemail.com>\n"
+"    site web : http://gx_head.sourceforge.net/\n"
+
+#: ../src/gx_head/gx_gui_helpers.cpp:424
+msgid ""
+"\n"
+"WARNING\n"
+msgstr ""
+"\n"
+"ATTENTION\n"
+
+#: ../src/gx_head/gx_gui_helpers.cpp:425
+msgid ""
+"CHANGING THE JACK_BUFFER_SIZE ON THE FLY \n"
+"MAY CAUSE UNPREDICTABLE EFFECTS \n"
+"TO OTHER RUNNING JACK APPLICATIONS. \n"
+"DO YOU WANT TO PROCEED ?"
+msgstr ""
+"CHANGER LA TAILLE DE BUFFER JACK A LA VOLEE\n"
+"PEUT PRODUIRE DES EFFETS INDESIRABLES AUX\n"
+"AUTRES APPLICATIONS JACK.\n"
+"VOULEZ-VOUS CONTINUER ?"
+
+#: ../src/gx_head/gx_gui_helpers.cpp:447
+msgid "Yes"
+msgstr "Oui"
+
+#: ../src/gx_head/gx_gui_helpers.cpp:451
+msgid "No"
+msgstr "Non"
+
+#: ../src/gx_head/gx_gui_helpers.cpp:463
+msgid "Don't bother me again with such a question, I know what I am doing"
+msgstr "Arrêtez de m'embêter avec une telle question, je sais ce que je fais"
+
+#: ../src/gx_head/gx_gui_helpers.cpp:1028
+msgid "skin index out of range, keeping actual skin"
+msgstr "index de skin non valide, skin actuelle conservée"
+
+#: ../src/gx_head/gx_gui_helpers.cpp:1062
+msgid "warning message does not exist"
+msgstr "Le message d'alerte n'existe pas"
+
+#: ../src/gx_head/gx_jack.cpp:83
+msgid "Jack Init"
+msgstr "Init Jack"
+
+#: ../src/gx_head/gx_jack.cpp:83
+msgid "jackd OK, trying to be a client"
+msgstr "Jackd OK, connexion comme client"
+
+#: ../src/gx_head/gx_jack.cpp:97 ../src/gx_head/gx_jack.cpp:106
+#: ../src/gx_head/gx_system.cpp:866 ../src/gx_head/gx_system.cpp:996
+#: ../src/gx_head/gx_system.cpp:1023 ../src/gx_head/gx_system.cpp:1038
+#: ../src/gx_head/gx_system.cpp:1056 ../src/gx_head/gx_system.cpp:1095
+msgid "main"
+msgstr "principal"
+
+#: ../src/gx_head/gx_jack.cpp:98
+msgid "I really tried to get jack up and running, sorry ... "
+msgstr "J'ai vraiment essayé de démarrer jack, désolé..."
+
+#: ../src/gx_head/gx_jack.cpp:107
+msgid "Ignoring jackd ..."
+msgstr "Jackd ignoré..."
+
+#: ../src/gx_head/gx_jack.cpp:129
+msgid "Cannot create JACK ringbuffer."
+msgstr "Ne peut pas créer de ringbuffer Jack"
+
+#: ../src/gx_head/gx_jack.cpp:140
+msgid "The jack sample rate is "
+msgstr "La fréquence d'échantillonnage de jack est "
+
+#: ../src/gx_head/gx_jack.cpp:140
+msgid "/sec"
+msgstr "/sec"
+
+#: ../src/gx_head/gx_jack.cpp:141 ../src/gx_head/gx_jack.cpp:147
+msgid "Jack init"
+msgstr "Init Jack"
+
+#: ../src/gx_head/gx_jack.cpp:145
+msgid "The jack buffer size is "
+msgstr "La taille de buffer Jack est "
+
+#: ../src/gx_head/gx_jack.cpp:145
+msgid "/frames ... "
+msgstr "/périodes ... "
+
+#: ../src/gx_head/gx_jack.cpp:254 ../src/gx_head/gx_jack.cpp:260
+msgid "Jack Activation"
+msgstr "Activation de Jack"
+
+#: ../src/gx_head/gx_jack.cpp:255 ../src/gx_head/gx_jack.cpp:261
+msgid "Can't activate JACK client"
+msgstr "Ne peut pas activer le client Jack"
+
+#: ../src/gx_head/gx_jack.cpp:361
+msgid "Start Jack"
+msgstr "Démarre Jack"
+
+#: ../src/gx_head/gx_jack.cpp:361
+msgid "Ignore Jack"
+msgstr "Ignore Jack"
+
+#: ../src/gx_head/gx_jack.cpp:361
+msgid "Exit"
+msgstr "Quitter"
+
+#: ../src/gx_head/gx_jack.cpp:371
+msgid " Jack Starter "
+msgstr "Démarreur Jack"
+
+#: ../src/gx_head/gx_jack.cpp:372
+msgid ""
+"\n"
+"                        WARNING                        \n"
+"\n"
+"   The jack server is not currently running\n"
+"   You can choose to activate it or terminate gx_head   \n"
+"\n"
+"       1) activate jack   \n"
+"       2) ignore jack, start gx_head anyway   \n"
+"       3) exit gx_head   \n"
+msgstr ""
+"\n"
+"                        AVERTISSEMENT                     \n"
+"\n"
+"   Le serveur Jack n'est pas démarré.\n"
+"   Vous pouvez l'activer ou quitter gx_head  \n"
+"\n"
+"       1) activer jack   \n"
+"       2) ignorer jack et démarrer gx_head   \n"
+"       3) quitter gx_head   \n"
+
+#: ../src/gx_head/gx_jack.cpp:511 ../src/gx_head/gx_jack.cpp:528
+msgid "Jack Server"
+msgstr "Serveur Jack"
+
+#: ../src/gx_head/gx_jack.cpp:511
+msgid "Connected to Jack Server"
+msgstr "Connecté au serveur Jack"
+
+#: ../src/gx_head/gx_jack.cpp:528
+msgid "Disconnected from Jack Server"
+msgstr "Déconnecté du serveur Jack"
+
+#: ../src/gx_head/gx_jack.cpp:540
+msgid "Jack Buffer Size setting"
+msgstr "Réglage de la taille de buffer Jack"
+
+#: ../src/gx_head/gx_jack.cpp:541
+msgid "we are not a jack client, server may be down"
+msgstr "Nous ne sommes pas client de Jack, le serveur est peut-être tombé"
+
+#: ../src/gx_head/gx_jack.cpp:572
+msgid "Setting Jack Buffer Size"
+msgstr "Régler la taille de buffer Jack"
+
+#: ../src/gx_head/gx_jack.cpp:573
+msgid "Could not change latency"
+msgstr "N'a pas pu changer la latence"
+
+#: ../src/gx_head/gx_jack.cpp:580
+msgid "Jack Buffer Size"
+msgstr "Taille de buffer Jack"
+
+#: ../src/gx_head/gx_jack.cpp:581
+msgid "latency is "
+msgstr "La latence est "
+
+#: ../src/gx_head/gx_engine_audio.cpp:75
+msgid "on/off"
+msgstr "on/off"
+
+#: ../src/gx_head/gx_engine_audio.cpp:100
+msgid "default"
+msgstr "défaut"
+
+#: ../src/gx_head/gx_engine_audio.cpp:100
+msgid "Bassman"
+msgstr "Bassman"
+
+#: ../src/gx_head/gx_engine_audio.cpp:100
+msgid "Twin Reverb"
+msgstr "Twin Reverb"
+
+#: ../src/gx_head/gx_engine_audio.cpp:100
+msgid "Princeton"
+msgstr "Princeton"
+
+#: ../src/gx_head/gx_engine_audio.cpp:100
+msgid "JCM-800"
+msgstr "JCM-800"
+
+#: ../src/gx_head/gx_engine_audio.cpp:100
+msgid "JCM-2000"
+msgstr "JCM-2000"
+
+#: ../src/gx_head/gx_engine_audio.cpp:100
+msgid "M-Lead"
+msgstr "M-Lead"
+
+#: ../src/gx_head/gx_engine_audio.cpp:100
+msgid "M2199"
+msgstr "M2199"
+
+#: ../src/gx_head/gx_engine_audio.cpp:100
+msgid "AC-30"
+msgstr "AC-30"
+
+#: ../src/gx_head/gx_engine_audio.cpp:100
+msgid "Off"
+msgstr "Off"
+
+#: ../src/gx_head/gx_engine_audio.cpp:103
+msgid "post"
+msgstr "post"
+
+#: ../src/gx_head/gx_engine_audio.cpp:103
+msgid "pre"
+msgstr "pré"
+
+#: ../src/gx_head/gx_engine_audio.cpp:115
+msgid "manual"
+msgstr "manuel"
+
+#: ../src/gx_head/gx_engine_audio.cpp:115
+msgid "auto"
+msgstr "auto"
+
+#: ../src/gx_head/gx_paramtable.cpp:163
+msgid "midi standard controllers: number expected"
+msgstr "contrôleurs standards midi: nombre attendu"
+
+#: ../src/gx_head/gx_paramtable.cpp:191
+msgid "Midi controller settings"
+msgstr "Réglages du contrôleur Midi"
+
+#: ../src/gx_head/gx_paramtable.cpp:192 ../src/gx_head/gx_system.cpp:460
+msgid "unknown parameter: "
+msgstr "paramètre inconnu: "
+
+#: ../src/gx_head/gx_paramtable.cpp:240 ../src/gx_head/gx_paramtable.cpp:246
+msgid "recall MIDI state"
+msgstr "Rappeler la configuration Midi"
+
+#: ../src/gx_head/gx_paramtable.cpp:241
+msgid "invalid format, Parameter skipped: "
+msgstr "Format invalide, paramètre ignoré: "
+
+#: ../src/gx_head/gx_paramtable.cpp:247
+msgid "Parameter range outside bounds, changed: "
+msgstr "Paramètre hors de la plage, modifié: "
+
+#: ../src/gx_head/gx_paramtable.cpp:465
+msgid "Convolver"
+msgstr "Convolueur"
+
+#: ../src/gx_head/gx_paramtable.cpp:466
+msgid "EQ"
+msgstr "EQ"
+
+#: ../src/gx_head/gx_paramtable.cpp:467
+msgid "Scaleable EQ"
+msgstr "EQ graphique"
+
+#: ../src/gx_head/gx_paramtable.cpp:468
+msgid "Scwitch EQ"
+msgstr "Changer EQ"
+
+#: ../src/gx_head/gx_paramtable.cpp:469
+msgid "Amplifier"
+msgstr "Amplificateur"
+
+#: ../src/gx_head/gx_paramtable.cpp:470 ../src/gx_head/gx_paramtable.cpp:474
+msgid "Amplifier2"
+msgstr "Amplificateur2"
+
+#: ../src/gx_head/gx_paramtable.cpp:471
+msgid "Preamp"
+msgstr "Préamp"
+
+#: ../src/gx_head/gx_paramtable.cpp:472
+msgid "Tube1"
+msgstr "Lampe1"
+
+#: ../src/gx_head/gx_paramtable.cpp:473
+msgid "Tube2"
+msgstr "Lampe2"
+
+#: ../src/gx_head/gx_paramtable.cpp:475
+msgid "Tube3"
+msgstr "Lampe3"
+
+#: ../src/gx_head/gx_paramtable.cpp:476
+msgid "Shaper"
+msgstr "Shaper"
+
+#: ../src/gx_head/gx_paramtable.cpp:477
+msgid "Noise Gate"
+msgstr "Noise Gate"
+
+#: ../src/gx_head/gx_paramtable.cpp:478
+msgid "Anti Alias"
+msgstr "Anti Alias"
+
+#: ../src/gx_head/gx_paramtable.cpp:479
+msgid "Oversampling"
+msgstr "Suréchantillonnage"
+
+#: ../src/gx_head/gx_paramtable.cpp:480
+msgid "Bass Boost"
+msgstr "Bass Boost"
+
+#: ../src/gx_head/gx_paramtable.cpp:481
+msgid "Amp Model"
+msgstr "Modèle d'ampli"
+
+#: ../src/gx_head/gx_paramtable.cpp:482
+msgid "Pre-Amp"
+msgstr "Pré-amp"
+
+#: ../src/gx_head/gx_paramtable.cpp:483
+msgid "Drive"
+msgstr "Saturation"
+
+#: ../src/gx_head/gx_paramtable.cpp:484
+msgid "Tube 1"
+msgstr "Lampe 1"
+
+#: ../src/gx_head/gx_paramtable.cpp:485
+msgid "Tube 1 Vibrato"
+msgstr "Vibrato lampe 1"
+
+#: ../src/gx_head/gx_paramtable.cpp:486
+msgid "Tube 2"
+msgstr "Lampe 2"
+
+#: ../src/gx_head/gx_paramtable.cpp:487
+msgid "Tube 3"
+msgstr "Lampe 3"
+
+#: ../src/gx_head/gx_paramtable.cpp:488
+msgid "Tonestack"
+msgstr "Tonestack"
+
+#: ../src/gx_head/gx_paramtable.cpp:489
+msgid "Compressor"
+msgstr "Compresseur"
+
+#: ../src/gx_head/gx_paramtable.cpp:490
+msgid "Overdrive"
+msgstr "Overdrive"
+
+#: ../src/gx_head/gx_paramtable.cpp:491 ../src/gx_head/gx_paramtable.cpp:492
+msgid "Multi Band Distortion"
+msgstr "Distorsion multibande"
+
+#: ../src/gx_head/gx_paramtable.cpp:493
+msgid "low_highpass"
+msgstr "passe bas_haut"
+
+#: ../src/gx_head/gx_paramtable.cpp:494
+msgid "low_highcutoff"
+msgstr "coupe bas_haut"
+
+#: ../src/gx_head/gx_paramtable.cpp:495
+msgid "low high pass"
+msgstr "passe bas haut"
+
+#: ../src/gx_head/gx_paramtable.cpp:496 ../src/gx_head/gx_paramtable.cpp:500
+msgid "Distortion resonator"
+msgstr "Résonateur de distorsion"
+
+#: ../src/gx_head/gx_paramtable.cpp:497
+msgid "Single Band Distortion"
+msgstr "Distorsion mono bande"
+
+#: ../src/gx_head/gx_paramtable.cpp:498
+msgid "Distortion low/highpass"
+msgstr "Distorsion passe-bas/haut"
+
+#: ../src/gx_head/gx_paramtable.cpp:499
+msgid "Distortion low/highcutoff"
+msgstr "Distorsion coupure basse/haute"
+
+#: ../src/gx_head/gx_paramtable.cpp:501
+msgid "Switch Distortion"
+msgstr "Changer distorsion"
+
+#: ../src/gx_head/gx_paramtable.cpp:502
+msgid "Freeverb"
+msgstr "Freeverb"
+
+#: ../src/gx_head/gx_paramtable.cpp:503
+msgid "ImpulseResponse"
+msgstr "RéponseImpulsionnelle"
+
+#: ../src/gx_head/gx_paramtable.cpp:504
+msgid "Crybaby"
+msgstr "Crybaby"
+
+#: ../src/gx_head/gx_paramtable.cpp:505
+msgid "Echo"
+msgstr "Echo"
+
+#: ../src/gx_head/gx_paramtable.cpp:506 ../src/gx_head/iredit.glade.h:34
+msgid "Delay"
+msgstr "Delay"
+
+#: ../src/gx_head/gx_paramtable.cpp:507
+msgid "Stereo Delay"
+msgstr "Delay stéréo"
+
+#: ../src/gx_head/gx_paramtable.cpp:508
+msgid "Stereo Echo"
+msgstr "Echo stéréo"
+
+#: ../src/gx_head/gx_paramtable.cpp:509
+msgid "Chorus"
+msgstr "Chorus"
+
+#: ../src/gx_head/gx_paramtable.cpp:510
+msgid "Multiband Filter"
+msgstr "Filtre multibande"
+
+#: ../src/gx_head/gx_paramtable.cpp:511
+msgid "Moog Filter"
+msgstr "Filtre Moog"
+
+#: ../src/gx_head/gx_paramtable.cpp:512
+msgid "BiQuad Filter"
+msgstr "Filtre BiQuad"
+
+#: ../src/gx_head/gx_paramtable.cpp:513
+msgid "Flanger"
+msgstr "Flanger"
+
+#: ../src/gx_head/gx_paramtable.cpp:514
+msgid "Sample Looper"
+msgstr "Looper de sample"
+
+#: ../src/gx_head/gx_paramtable.cpp:515
+msgid "Cab-ImpResp"
+msgstr "Enceinte-RepImp"
+
+#: ../src/gx_head/gx_paramtable.cpp:516
+msgid "Phaser"
+msgstr "Phaser"
+
+#: ../src/gx_head/gx_paramtable.cpp:517
+msgid "Midi Out"
+msgstr "Sortie MIDI"
+
+#: ../src/gx_head/gx_paramtable.cpp:518
+msgid "Midi Out 1"
+msgstr "Sortie Midi 1"
+
+#: ../src/gx_head/gx_paramtable.cpp:519
+msgid "Midi Out 2"
+msgstr "Sortie Midi 2"
+
+#: ../src/gx_head/gx_paramtable.cpp:520
+msgid "Midi Out 3"
+msgstr "Sortie Midi 3"
+
+#: ../src/gx_head/gx_paramtable.cpp:521
+msgid "Beat Detector"
+msgstr "Détection de rythme"
+
+#: ../src/gx_head/gx_paramtable.cpp:522
+msgid "User Interface"
+msgstr "Interface utilisateur"
+
+#: ../src/gx_head/gx_paramtable.cpp:523
+msgid "System"
+msgstr "Système"
+
+#: ../src/gx_head/gx_paramtable.cpp:692 ../src/gx_head/gx_paramtable.cpp:799
+msgid "read parameter"
+msgstr "Lire paramètre"
+
+#: ../src/gx_head/gx_paramtable.cpp:692 ../src/gx_head/gx_paramtable.cpp:799
+msgid "parameter %1%: unknown enum value: %2%"
+msgstr "paramètre %1%: valeur d'énum inconnue : %2%"
+
+#: ../src/gx_head/gx_system.cpp:460 ../src/gx_head/gx_system.cpp:466
+#: ../src/gx_head/gx_system.cpp:470 ../src/gx_head/gx_system.cpp:536
+#: ../src/gx_head/gx_system.cpp:702 ../src/gx_head/gx_system.cpp:707
+#: ../src/gx_head/gx_system.cpp:725 ../src/gx_head/gx_system.cpp:733
+#: ../src/gx_head/gx_preset.cpp:110
+msgid "recall settings"
+msgstr "Rappeler réglages"
+
+#: ../src/gx_head/gx_system.cpp:466
+msgid "preset-parameter "
+msgstr "paramètre-préréglage"
+
+#: ../src/gx_head/gx_system.cpp:466
+msgid " in settings"
+msgstr " dans les réglages"
+
+#: ../src/gx_head/gx_system.cpp:470
+msgid "non preset-parameter "
+msgstr "paramètre hors préréglage"
+
+#: ../src/gx_head/gx_system.cpp:470
+msgid " in preset"
+msgstr " dans le préréglage"
+
+#: ../src/gx_head/gx_system.cpp:537
+msgid "unknown preset section: "
+msgstr "section de préréglage inconnue: "
+
+#: ../src/gx_head/gx_system.cpp:614
+msgid "wrinting to "
+msgstr "écrire à "
+
+#: ../src/gx_head/gx_system.cpp:671
+msgid "recall state"
+msgstr "rappeler l'état"
+
+#: ../src/gx_head/gx_system.cpp:671
+msgid "unknown jack ports sections"
+msgstr "sections de ports jack inconnu"
+
+#: ../src/gx_head/gx_system.cpp:702
+msgid "loading converted state"
+msgstr "Chargement de l'état converti"
+
+#: ../src/gx_head/gx_system.cpp:705
+msgid "major version mismatch in "
+msgstr "incompatibilité majeure de version dans "
+
+#: ../src/gx_head/gx_system.cpp:705
+msgid ": found "
+msgstr ": trouvé"
+
+#: ../src/gx_head/gx_system.cpp:706
+msgid ", expected "
+msgstr ", attendu"
+
+#: ../src/gx_head/gx_system.cpp:726
+msgid "unknown section: "
+msgstr "section inconnue"
+
+#: ../src/gx_head/gx_system.cpp:733
+msgid "invalid settings file: "
+msgstr "Fichier de réglages invalide"
+
+#. print out a warning
+#: ../src/gx_head/gx_system.cpp:839
+msgid "signal "
+msgstr "signal "
+
+#: ../src/gx_head/gx_system.cpp:839
+msgid " received, exiting ..."
+msgstr " reçu, quitte..."
+
+#: ../src/gx_head/gx_system.cpp:840 ../src/gx_head/gx_system.cpp:848
+msgid "signal_handler"
+msgstr "gestionnaire_de_signal"
+
+#: ../src/gx_head/gx_system.cpp:848
+msgid "signal USR1 received, save settings"
+msgstr "signal USR1 reçu, sauvegarde des réglages"
+
+#: ../src/gx_head/gx_system.cpp:866
+msgid "number of skins is 0, aborting ..."
+msgstr "le nombre de skins est 0, annulation..."
+
+#: ../src/gx_head/gx_system.cpp:956
+msgid "load state file on startup"
+msgstr "charger le fichier d'état au démarrage"
+
+#: ../src/gx_head/gx_system.cpp:971
+msgid "directory from which .glade files are loaded"
+msgstr "répertoire d'où sont chargés les fichiers .glade"
+
+#: ../src/gx_head/gx_system.cpp:977
+msgid "directory with skin style definitions (.rc files)"
+msgstr "répertoire des définitions de style de skin (.rc files)"
+
+#: ../src/gx_head/gx_system.cpp:983
+msgid "print log on terminal"
+msgstr "imprimer les messages dans le terminal"
+
+#: ../src/gx_head/gx_system.cpp:996
+msgid "Error in user options! "
+msgstr "Erreur dans les options utilisateur! "
+
+#: ../src/gx_head/gx_system.cpp:1024 ../src/gx_head/gx_system.cpp:1057
+msgid "-c and -r cannot be used together, defaulting to 'default' style"
+msgstr "-c et -r ne peuvent être utilisé ensemble, retour au style par défaut"
+
+#: ../src/gx_head/gx_system.cpp:1039
+msgid "rcset value is garbage, defaulting to 'default' style"
+msgstr "valeur rcset invalide, retour au style par défaut"
+
+#: ../src/gx_head/gx_system.cpp:1096
+msgid "Warning --> provided more than 2 output ports, ignoring extra ports"
+msgstr ""
+"Avertissement --> il y a plus de 2 ports de sortie, ports supplémentaires "
+"ignorés"
+
+#: ../src/gx_head/gx_system.cpp:1186
+msgid "fatal system error: "
+msgstr "erreur fatale système:"
+
+#: ../src/gx_head/gx_system.cpp:1307
+msgid "Pixmap Check"
+msgstr "Vérification Pixmap"
+
+#: ../src/gx_head/gx_system.cpp:1307
+msgid " cannot find installed pixmaps! giving up ..."
+msgstr "Ne peut trouver les pixmaps installés! Abandon ..."
+
+#: ../src/gx_head/gx_system.cpp:1362
+msgid "gx_abort"
+msgstr "gx_annulation"
+
+#: ../src/gx_head/gx_system.cpp:1362
+msgid "Aborting gx_head, ciao!"
+msgstr "Abandon gx_head, ciao!"
+
+#: ../src/gx_head/gx_system.cpp:1537
+#, c-format
+msgid "  gx_head exit  ***  ciao . . \n"
+msgstr "  quitte gx_head  ***  ciao . . \n"
+
+#: ../src/gx_head/gx_preset.cpp:50
+msgid "Load"
+msgstr "Charger"
+
+#: ../src/gx_head/gx_preset.cpp:53
+msgid "Save"
+msgstr "Sauver"
+
+#: ../src/gx_head/gx_preset.cpp:56
+msgid "Rename"
+msgstr "Renommer"
+
+#: ../src/gx_head/gx_preset.cpp:59
+msgid "Delete"
+msgstr "Supprimer"
+
+#: ../src/gx_head/gx_preset.cpp:100
+msgid "loading presets"
+msgstr "Chargement des préréglages"
+
+#: ../src/gx_head/gx_preset.cpp:100
+msgid "rewriting convertet presets"
+msgstr "Réécriture des préréglages convertis"
+
+#: ../src/gx_head/gx_preset.cpp:104
+msgid "major version mismatch in %1%: found %2%.%3%, expected %4%.%5%"
+msgstr ""
+"incompatibilité de versions majeure dans %1%: %2%.%3% trouvé, %4%.%5% attendu"
+
+#: ../src/gx_head/gx_preset.cpp:107
+msgid "minor version mismatch in %1%: found %2%.%3%, expected %4%.%5%"
+msgstr ""
+"incompatibilité de versions mineure dans %1% : %2%.%3% trouvé, %4%.%5% "
+"attendu"
+
+#: ../src/gx_head/gx_preset.cpp:154 ../src/gx_head/gx_preset.cpp:160
+msgid "save preset"
+msgstr "Sauvegarder le préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:154
+msgid "couldn't write "
+msgstr "n'a pas pu écrire"
+
+#: ../src/gx_head/gx_preset.cpp:160
+msgid "couldn't rename "
+msgstr "n'a pas pu renommer"
+
+#: ../src/gx_head/gx_preset.cpp:165
+msgid "save/modify preset"
+msgstr "sauvegarder/modifier préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:165 ../src/gx_head/gx_preset.cpp:552
+msgid "invalid preset file: "
+msgstr "fichier de préréglage invalude"
+
+#. ---- how many did we get ?
+#: ../src/gx_head/gx_preset.cpp:195
+msgid "Preset List Building"
+msgstr "Construction de la liste des préréglages"
+
+#: ../src/gx_head/gx_preset.cpp:196
+msgid " presets found"
+msgstr " préréglages trouvés"
+
+#: ../src/gx_head/gx_preset.cpp:203
+msgid "parse error"
+msgstr "Erreur d'analyse"
+
+#: ../src/gx_head/gx_preset.cpp:208
+msgid "empty preset File "
+msgstr "fichier de préréglage vide"
+
+#: ../src/gx_head/gx_preset.cpp:212
+msgid "preset File %1% doesn't exist"
+msgstr "Le fichier de préréglage %1% n'existe pas"
+
+#: ../src/gx_head/gx_preset.cpp:214 ../src/gx_head/gx_preset.cpp:322
+msgid "Load preset file"
+msgstr "Charger fichier de préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:322
+msgid "selecting default preset bank"
+msgstr "Selection de la banque de préréglages par défaut"
+
+#: ../src/gx_head/gx_preset.cpp:338 ../src/gx_head/gx_preset.cpp:361
+#: ../src/gx_head/gx_preset.cpp:393
+msgid "Preset Switching"
+msgstr "Changement de préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:339 ../src/gx_head/gx_preset.cpp:362
+#: ../src/gx_head/gx_preset.cpp:394 ../src/gx_head/gx_preset.cpp:643
+msgid "Preset list is empty, make some :)"
+msgstr "La liste des préréglages est vide, faites-en :)"
+
+#: ../src/gx_head/gx_preset.cpp:427 ../src/gx_head/gx_preset.cpp:439
+msgid "Deleting Active Preset"
+msgstr "Effacer le préréglage actuel"
+
+#: ../src/gx_head/gx_preset.cpp:428
+msgid "No active preset, this is the main setting"
+msgstr "Pas de préréglage, ceci est le réglage principal"
+
+#: ../src/gx_head/gx_preset.cpp:440 ../src/gx_head/gx_preset.cpp:573
+msgid "Deleted preset "
+msgstr "Effacer préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:441 ../src/gx_head/gx_preset.cpp:574
+msgid ", recalled main setting"
+msgstr ", réglage principal rappelé"
+
+#: ../src/gx_head/gx_preset.cpp:450
+msgid "   Are you sure you want to delete preset "
+msgstr "    Etes-vous sûr de supprimer ce préréglage "
+
+#: ../src/gx_head/gx_preset.cpp:454
+msgid "Deleting preset "
+msgstr "Préréglage en cours de suppression"
+
+#: ../src/gx_head/gx_preset.cpp:461
+msgid "Delete Preset"
+msgstr "Supprimer préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:461
+msgid "Keep Preset"
+msgstr "Conserver préréglage"
+
+#. recalling main setting
+#. FIXME (wrong when loaded with -f ?)
+#: ../src/gx_head/gx_preset.cpp:468 ../src/gx_head/gx_preset.cpp:572
+msgid "Preset Deleting"
+msgstr "Préréglage en cours de suppression"
+
+#: ../src/gx_head/gx_preset.cpp:469
+msgid " Deletion of preset "
+msgstr " Suppression de préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:470
+msgid " has been cancelled"
+msgstr " a été annulé"
+
+#: ../src/gx_head/gx_preset.cpp:483 ../src/gx_head/gx_preset.cpp:500
+msgid "Delete All Presets Dialog"
+msgstr "Boite de dialogue : supprimer tous les préréglages"
+
+#: ../src/gx_head/gx_preset.cpp:484
+msgid "There is no presets to delete"
+msgstr "Il n'y a pas de préréglages à supprimer"
+
+#: ../src/gx_head/gx_preset.cpp:491
+msgid "Deleting ALL Presets! "
+msgstr "Supprimer TOUS les préréglages! "
+
+#: ../src/gx_head/gx_preset.cpp:492
+msgid "   Are you sure you want to delete ALL your cool presets ? "
+msgstr "   Etes-vous sûr de vouloir supprimer TOUS vos préréglages géniaux ? "
+
+#: ../src/gx_head/gx_preset.cpp:493
+msgid "Yes, DO IT NOW!"
+msgstr "Oui, FAIS LE MAINTENANT!"
+
+#: ../src/gx_head/gx_preset.cpp:493
+msgid "Maybe Later ..."
+msgstr "Peut-être plus tard ..."
+
+#: ../src/gx_head/gx_preset.cpp:501
+msgid "All Presets deletion has been cancelled"
+msgstr "Toutes les suppressions de préréglages ont été annulées"
+
+#: ../src/gx_head/gx_preset.cpp:525
+msgid "All Presets Deleting"
+msgstr "Suppression de tous les préréglages en cours"
+
+#: ../src/gx_head/gx_preset.cpp:525
+msgid "deleted ALL presets!"
+msgstr "TOUS les préréglages sont supprimés."
+
+#: ../src/gx_head/gx_preset.cpp:552
+msgid "load preset"
+msgstr "Charger préréglages"
+
+#: ../src/gx_head/gx_preset.cpp:582 ../src/gx_head/gx_preset.cpp:600
+#: ../src/gx_head/gx_preset.cpp:606
+msgid "Renaming Active Preset"
+msgstr "Renommage du préréglage actuel en cours"
+
+#: ../src/gx_head/gx_preset.cpp:583
+msgid "This is the main setting, load a preset first"
+msgstr "Ceci est le réglage principal, charger un préréglage d'abord"
+
+#: ../src/gx_head/gx_preset.cpp:601
+msgid "The preset name is unchanged"
+msgstr "Le nom du préréglage est inchangé"
+
+#: ../src/gx_head/gx_preset.cpp:607
+msgid "Renamed preset "
+msgstr "Préréglage renommé"
+
+#: ../src/gx_head/gx_preset.cpp:608
+msgid " to "
+msgstr " vers "
+
+#. print out info
+#: ../src/gx_head/gx_preset.cpp:642 ../src/gx_head/gx_preset.cpp:667
+#: ../src/gx_head/gx_preset.cpp:672
+msgid "Preset Loading"
+msgstr "Chargement du préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:667
+msgid "Could not load preset "
+msgstr "Impossible de charger le préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:672
+msgid "loaded preset "
+msgstr "préréglage chargé"
+
+#: ../src/gx_head/gx_preset.cpp:714
+msgid "Preset Saving"
+msgstr "Sauvegarde du préréglage en cours"
+
+#: ../src/gx_head/gx_preset.cpp:714
+msgid "saved preset "
+msgstr "préréglage sauvegardé"
+
+#: ../src/gx_head/gx_preset.cpp:725
+msgid "Main Setting recalling"
+msgstr "Rappel du réglage principal"
+
+#: ../src/gx_head/gx_preset.cpp:726
+msgid "Called back main setting %1%"
+msgstr "Réglage principal rappelé %1%"
+
+#: ../src/gx_head/gx_preset.cpp:730
+msgid "loading Settings file"
+msgstr "Chargement du fichier de réglages"
+
+#: ../src/gx_head/gx_preset.cpp:731
+msgid "loaded settings file %1%"
+msgstr "Fichier de réglages chargé %1%"
+
+#: ../src/gx_head/gx_preset.cpp:745
+msgid "Select a preset *_rc file"
+msgstr "Sélectionner un fichier *_rc de préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:775
+msgid "Save a preset *_rc File"
+msgstr "Sauvegarder un fichier *_rc de préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:795
+msgid "Export preset"
+msgstr "Exporter le préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:810
+msgid "Saving Active Preset"
+msgstr "Sauvegarde du préréglage actuel en cours"
+
+#: ../src/gx_head/gx_preset.cpp:811
+msgid "We are in main setting, load a preset first"
+msgstr "Ceci est le réglage principal, charger un préréglage d'abord"
+
+#: ../src/gx_head/gx_preset.cpp:846
+msgid "Saving new preset"
+msgstr "Sauvegarde du nouveau préréglage en cours"
+
+#: ../src/gx_head/gx_preset.cpp:846 ../src/gx_head/gx_preset.cpp:934
+msgid "no preset name given"
+msgstr "pas de nom pour le préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:862
+msgid "New Preset Saving"
+msgstr "Sauvegarde du nouveau préréglage en cours"
+
+#: ../src/gx_head/gx_preset.cpp:863
+msgid "preset name "
+msgstr "nom du préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:865
+msgid " already in use, choose another one"
+msgstr " déjà chargé, choisissez en un autre"
+
+#: ../src/gx_head/gx_preset.cpp:887 ../src/gx_head/gx_preset.cpp:889
+#: ../src/gx_head/gx_preset.cpp:892
+msgid "Main Setting"
+msgstr "Réglage principal"
+
+#: ../src/gx_head/gx_preset.cpp:887
+msgid "can't save main setting"
+msgstr "Impossible de sauvegarde le réglage principal"
+
+#: ../src/gx_head/gx_preset.cpp:890
+msgid "Saved current preset into main setting"
+msgstr "Préréglage actuel sauvegardé comme réglage principal"
+
+#: ../src/gx_head/gx_preset.cpp:892
+msgid "Saved main setting"
+msgstr "Réglage principal sauvegardé"
+
+#: ../src/gx_head/gx_preset.cpp:908
+msgid "Save new preset ... "
+msgstr "Sauvegarder nouveau préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:909
+msgid ""
+"\n"
+"   Please enter a valid preset name:   \n"
+msgstr ""
+"\n"
+"   Entrer un nom de préréglage valide :   \n"
+
+#: ../src/gx_head/gx_preset.cpp:910
+msgid "Save Preset"
+msgstr "Sauvegarder préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:910 ../src/gx_head/gx_preset.cpp:994
+msgid "Cancel"
+msgstr "Annuler"
+
+#: ../src/gx_head/gx_preset.cpp:918
+msgid "Saving New Preset Dialog"
+msgstr "Boite de dialogue : Sauvegarde nouveau préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:919
+msgid " Preset saving has been cancelled"
+msgstr " Sauvegarde du préréglage annulée"
+
+#: ../src/gx_head/gx_preset.cpp:934 ../src/gx_head/gx_preset.cpp:944
+msgid "Preset Renaming"
+msgstr "Renommage du préréglage en cours"
+
+#: ../src/gx_head/gx_preset.cpp:945
+msgid "Could not rename preset "
+msgstr "N'a pas pu renommer le préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:985
+msgid "Renaming preset "
+msgstr "Renommage du préréglage en cours"
+
+#: ../src/gx_head/gx_preset.cpp:993
+msgid " Please enter a valid preset name:                          "
+msgstr " Merci d'entrer un nom de préréglage valide:                          "
+
+#: ../src/gx_head/gx_preset.cpp:994
+msgid "Validate"
+msgstr "Valider"
+
+#: ../src/gx_head/gx_preset.cpp:1001
+msgid "Rename Preset Dialog"
+msgstr "Boite de dialogue : renommer préréglage"
+
+#: ../src/gx_head/gx_preset.cpp:1002
+msgid " Preset renaming has been cancelled"
+msgstr "Le renommage du préréglage a été annulé"
+
+#. ----------------------------------------------------------------
+#. end of gx_preset namespace
+#: ../src/gx_head/iredit.glade.h:1
+msgid ""
+"<b><big>Using the mouse in the graph window</big></b>\n"
+"\n"
+"<b>set delay / offset:</b> drag top scale\n"
+"<b>cut left:</b>   ctrl + left mouse button\n"
+"<b>cut right:</b> ctrl + right mouse button\n"
+"\n"
+"gain line (initially just a green line at the top + corner areas):\n"
+"<b>move point:</b> drag with mouse\n"
+"<b>add point:</b> click on green line\n"
+"<b>delete point:</b> click with right mouse button\n"
+"\n"
+"<b>zoom in / out:</b> use scroll wheel\n"
+"<b>move left / right:</b> drag graph area\n"
+"\n"
+"<b>move mark / zoom center:</b> drag triangle in the bottom area\n"
+"<b>switch between 2 predefined scales:</b> click right mouse button\n"
+"\n"
+"<big>click on the displays in the settings frame\n"
+"to change values with the keyboard</big>"
+msgstr ""
+"<b><big>Utiliser la souris dans la fenêtre graphique</big></b>\n"
+"\n"
+"<b>régler le delay / offset:</b> glisser  le curseur du haut\n"
+"<b>couper à gauche:</b>   ctrl + clic gauche\n"
+"<b>couper à droite:</b> ctrl + clic droit\n"
+"\n"
+"ligne de gain (initialement une ligne verte en haut et aux coins):\n"
+"<b>déplacer un point:</b> déplacer avec la souris\n"
+"<b>ajouter un point:</b> clic sur la ligne verte\n"
+"<b>effacer un point:</b> clic droit sur le point\n"
+"\n"
+"<b>zoom +/- :</b> utiliser la molette\n"
+"<b>voir à gauche/droite:</b> glisser le graphe\n"
+"\n"
+"<b>déplacer une marque/centrer le zoom:</b> déplacer le triangle de la "
+"partie basse\n"
+"<b>changer entre deux échelles prédéfinies:</b> clic droit\n"
+"\n"
+"<big>cliquer sur l'affichage dans la fenêtre de réglage\n"
+"pour changer les valeurs avec le clavier</big>"
+
+#: ../src/gx_head/iredit.glade.h:20
+msgid "<b>Channel</b>"
+msgstr "<b>Canal</b>"
+
+#: ../src/gx_head/iredit.glade.h:21
+msgid "<b>Display</b>"
+msgstr "<b>Affichage</b>"
+
+#: ../src/gx_head/iredit.glade.h:22
+msgid "<b>File:</b>"
+msgstr "<b>Fichier:</b>"
+
+#: ../src/gx_head/iredit.glade.h:23
+msgid "<b>Format:</b>"
+msgstr "<b>Format:</b>"
+
+#: ../src/gx_head/iredit.glade.h:24
+msgid "<b>IR File Details</b>"
+msgstr "<b>Détails du fichier IR</b>"
+
+#: ../src/gx_head/iredit.glade.h:25
+msgid "<b>Length:</b>"
+msgstr "<b>Longueur:</b>"
+
+#: ../src/gx_head/iredit.glade.h:26
+msgid "<b>Mix</b>"
+msgstr "<b>Mix</b>"
+
+#: ../src/gx_head/iredit.glade.h:27
+msgid "<b>Parameter (live update)</b>"
+msgstr "<b>Paramètre (mise à jour live)</b>"
+
+#: ../src/gx_head/iredit.glade.h:28
+msgid "<b>Samplerate:</b>"
+msgstr "<b>Féquence d'échantillonnage:</b>"
+
+#: ../src/gx_head/iredit.glade.h:29
+msgid "<b>Settings</b>"
+msgstr "<b>Réglages</b>"
+
+#: ../src/gx_head/iredit.glade.h:30
+msgid "<small><small>dry</small></small>"
+msgstr "<small><small>dry</small></small>"
+
+#: ../src/gx_head/iredit.glade.h:31
+msgid "<small><small>wet</small></small>"
+msgstr "<small><small>wet</small></small>"
+
+#: ../src/gx_head/iredit.glade.h:32
+msgid "<small>MSec</small>"
+msgstr "<small>MSec</small>"
+
+#: ../src/gx_head/iredit.glade.h:33
+msgid "<small>Samples</small>"
+msgstr "<small>Echantillons</small>"
+
+#: ../src/gx_head/iredit.glade.h:35
+msgid "Guitarix JConvolver Parameters"
+msgstr "Paramètres Guitarix JConvolver"
+
+#: ../src/gx_head/iredit.glade.h:36
+msgid "Length"
+msgstr "Longueur"
+
+#: ../src/gx_head/iredit.glade.h:37
+msgid "Offset"
+msgstr "Offset"
+
+#: ../src/gx_head/iredit.glade.h:38
+msgid "Reset"
+msgstr "Réinitialiser"
+
+#: ../src/gx_head/iredit.glade.h:39
+msgid "bal"
+msgstr "bal"
+
+#: ../src/gx_head/iredit.glade.h:40
+msgid "delay in milliseconds"
+msgstr "delay en millisecondes"
+
+#: ../src/gx_head/iredit.glade.h:41
+msgid "delay of the processed signal"
+msgstr "délai du signal traité"
+
+#: ../src/gx_head/iredit.glade.h:42
+msgid "diff delay"
+msgstr "diff delay"
+
+#: ../src/gx_head/iredit.glade.h:43
+msgid "display entire range"
+msgstr "afficher la plage complète"
+
+#: ../src/gx_head/iredit.glade.h:44
+msgid "gain"
+msgstr "gain"
+
+#: ../src/gx_head/iredit.glade.h:45
+msgid ""
+"impulse response file to use for convolution\n"
+"it can be mono or stereo\n"
+msgstr ""
+"réponse impulsionnelle à utiliser pour la convolution\n"
+"peut être mono ou stéréo\n"
+
+#: ../src/gx_head/iredit.glade.h:48
+msgid "label"
+msgstr "label"
+
+#: ../src/gx_head/iredit.glade.h:49
+msgid "left"
+msgstr "gauche"
+
+#: ../src/gx_head/iredit.glade.h:50
+msgid "length in milliseconds"
+msgstr "longueur en millisecondes"
+
+#: ../src/gx_head/iredit.glade.h:51
+msgid "linear"
+msgstr "linéaire"
+
+#: ../src/gx_head/iredit.glade.h:52
+msgid "linear scale for viewing the wave form"
+msgstr "Vue de la forme d'onde en échelle linéaire"
+
+#: ../src/gx_head/iredit.glade.h:53
+msgid "log."
+msgstr "log."
+
+#: ../src/gx_head/iredit.glade.h:54
+msgid "logarithmic scale"
+msgstr "échelle logarithmique"
+
+#: ../src/gx_head/iredit.glade.h:55
+msgid ""
+"move to zoom center\n"
+"(triangle mark at bottom of graph)"
+msgstr ""
+"centrer\n"
+"(triangle en bas du graphe)"
+
+#: ../src/gx_head/iredit.glade.h:57
+msgid "no file selected"
+msgstr "aucun fichier sélectionné"
+
+#: ../src/gx_head/iredit.glade.h:58
+msgid ""
+"number of samples to skip at the\n"
+"beginning of the IR file"
+msgstr ""
+"nombre d'échantillons à passer au\n"
+"début du fichier IR"
+
+#: ../src/gx_head/iredit.glade.h:60
+msgid "number of samples used for convolution"
+msgstr "nombre d'échantillons utilisés pour la convolution"
+
+#: ../src/gx_head/iredit.glade.h:61
+msgid "offset in milliseconds"
+msgstr "offset en milliseconds"
+
+#: ../src/gx_head/iredit.glade.h:62
+msgid "reset to standard values"
+msgstr "réinitialiser aux valeurs standards"
+
+#: ../src/gx_head/iredit.glade.h:63
+msgid "restart convolver with current settings"
+msgstr "redémarrer le convolueur avec les réglages courant"
+
+#: ../src/gx_head/iredit.glade.h:64
+msgid "right"
+msgstr "droite"
+
+#: ../src/gx_head/iredit.glade.h:66
+msgid "show only left channel"
+msgstr "n'afficher que le canal gauche"
+
+#: ../src/gx_head/iredit.glade.h:67
+msgid "show only right channel"
+msgstr "n'afficher que le canal droit"
+
+#: ../src/gx_head/iredit.glade.h:68
+msgid "show sum of left and right channel"
+msgstr "afficher la somme des canaux droit et gauche"
+
+#: ../src/gx_head/iredit.glade.h:69
+msgid "sum"
+msgstr "somme"
+
+#: ../src/gx_head/iredit.glade.h:70
+msgid "zoom in (center: triangle at bottom of graph)"
+msgstr "zoomer (centre: triangle en bas du graphe)"
+
+#: ../src/gx_head/iredit.glade.h:71
+msgid "zoom out (center: triangle at bottom of graph)"
+msgstr "dézoomer (centre: triangle en bas du graphe)"
+
+#: ../src/gx_head/ports.glade.h:1
+msgid "<b>I_nsert</b>"
+msgstr "<b>I_nsert</b>"
+
+#: ../src/gx_head/ports.glade.h:2
+msgid "<b>Output _1</b>"
+msgstr "<b>Sortie _1</b>"
+
+#: ../src/gx_head/ports.glade.h:3
+msgid "<b>Output _2</b>"
+msgstr "<b>Sortie _2</b>"
+
+#: ../src/gx_head/ports.glade.h:4
+msgid "<b>_Audio</b>"
+msgstr "<b>_Audio</b>"
+
+#: ../src/gx_head/ports.glade.h:5
+msgid "<b>_Input (Control)</b>"
+msgstr "<b>_Input (Contrôle)</b>"
+
+#: ../src/gx_head/ports.glade.h:6
+msgid "<b>_Input</b>"
+msgstr "<b>_Entrée</b>"
+
+#: ../src/gx_head/ports.glade.h:7
+msgid "<b>_Midi</b>"
+msgstr "<b>_Midi</b>"
+
+#: ../src/gx_head/ports.glade.h:8
+msgid "<b>_Output</b>"
+msgstr "<b>_Sortie</b>"
+
+#: ../src/gx_head/ports.glade.h:9
+msgid "guitarix port connections"
+msgstr "connections de ports guitarix"
+
+#: ../src/midi.glade.h:1
+msgid "<big><b>MIDI Controller</b></big>"
+msgstr "<big><b>Contrôleur MIDI</b></big>"
+
+#: ../src/midi.glade.h:2
+msgid "Edit a MIDI name to choose you own"
+msgstr "Choisissez un nom MIDI"
+
+#: ../src/midi.glade.h:3
+msgid "MIDI Controller Number"
+msgstr "Nombre de contrôleur MIDI"
+
+#: ../src/midi.glade.h:4
+msgid "Parameter Range"
+msgstr "Plage du paramètre"
+
+#: ../src/midi.glade.h:5
+msgid ""
+"When checked, MIDI controller settings are saved into a preset.\n"
+"When a preset is loaded, controller settings are changed if\n"
+"this button is checked and the preset actually contains\n"
+"controller settings.\n"
+"MIDI controller settings are always saved and loaded with the\n"
+"main session."
+msgstr ""
+"Si coché, les réglages du contrôleur MIDI sont sauvegardés dans un "
+"préréglage.\n"
+"Si un préréglage est chargé, les paramètres du contrôleur sont changés si\n"
+"cette boite est cochée et ce préréglage est un réglage du contrôleur\n"
+"Les réglages du contrôleur MIDI sont toujours sauvegardés et chargés avec la "
+"session principale."
+
+#: ../src/midi.glade.h:11
+msgid "_Delete Selected"
+msgstr "_Supprimer la sélection"
+
+#: ../src/midi.glade.h:12
+msgid "guitarix: MIDI Controller"
+msgstr "guitarix: Contrôleur MIDI"
+
+#: ../src/midi.glade.h:13
+msgid "guitarix: Set MIDI Controller"
+msgstr "guitarix: Choisir le contrôleur MIDI"
+
+#: ../src/midi.glade.h:14
+msgid "include MIDI controllers in _presets"
+msgstr "inclure les contrôleurs MIDI dans le _préréglage"
+
+#: ../src/midi.glade.h:15
+msgid "operate a MIDI controller to set the controller number"
+msgstr "Opérer un contrôleur MIDI pour régler le nombre de contrôleurs"
