@@ -287,7 +287,7 @@ widget "*.value_label" style:highest "gx_dezert-l_black"
 widget "*.beffekt_label" style:highest "gx_dezert-b_black"
 widget "*.rack_label" style:highest "gx_dezert-rack"
 widget "*.rack_slider" style:highest "gx_dezert_rack-slider"
-widget "*.rack_regler" style:highest "gx_rack-slider"
+widget "*.rack_regler" style:highest "gx_dezert_rack-slider"
 
 style "dezert_h_style"
 {

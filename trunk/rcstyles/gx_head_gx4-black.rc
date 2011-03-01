@@ -6,13 +6,37 @@ include "common.rc"
 
 style "gx4_head_skin_icons"
 {
-stock["bigknob"] = {{"knob9.png"}}
-stock["smallknob"] = {{"smallknob9.png"}}
+stock["bigknob"] = {{"tactile_knob_large_151f.png"}}
+stock["smallknob"] = {{"tactile_knob_small_99f.png"}}
 stock["smallknobr"] = {{"mittleknob9.png"}}
-
 }
 
 class "GxKnob" style "gx4_head_skin_icons"
+
+style "gx4_head_skin_switch_icons"
+{
+stock["switchit_on"] = {{"tactile_switchit_on.png"}}
+stock["switchit_off"] = {{"tactile_switchit_off.png"}}
+}
+
+class "GxToggleImage" style "gx4_head_skin_switch_icons"
+
+style "gx4_head_skin_bigknob_animation"
+{
+
+GxKnob::knob-framecount = 0 # use 0 for auto (assumes square frames)
+                            #  and >1 for non squareframe animations
+}
+class "GxBigKnob" style "gx4_head_skin_bigknob_animation"
+
+style "gx4_head_skin_smallknob_animation"
+{
+
+GxKnob::knob-framecount = 0 # use 0 for auto (assumes square frames),
+                            # 1 for static bg and >1 for non squareframe
+                            #  animations
+}
+class "GxSmallKnob" style "gx4_head_skin_smallknob_animation"
 
 
 
