@@ -253,88 +253,90 @@ marshal_STRING__DOUBLE (GClosure     *closure,
   g_value_take_string (return_value, v_return);
 }
 
-#ifdef OS_64_BIT
-	/* BOOLEAN:BOXED */
-	void
-	marshal_BOOLEAN__BOXED (GClosure     *closure,
-							GValue       *return_value G_GNUC_UNUSED,
-							guint         n_param_values,
-							const GValue *param_values,
-							gpointer      invocation_hint G_GNUC_UNUSED,
-							gpointer      marshal_data)
-	{
-	  typedef gboolean (*GMarshalFunc_BOOLEAN__BOXED) (gpointer     data1,
-													   gpointer     arg_1,
-													   gpointer     data2);
-	  register GMarshalFunc_BOOLEAN__BOXED callback;
-	  register GCClosure *cc = (GCClosure*) closure;
-	  register gpointer data1, data2;
-	  gboolean v_return;
+#ifdef OS_32_BIT
+/* BOOLEAN:BOXED_BOXED */
+void
+marshal_BOOLEAN__BOXED_BOXED (GClosure     *closure,
+                        GValue       *return_value G_GNUC_UNUSED,
+                        guint         n_param_values,
+                        const GValue *param_values,
+                        gpointer      invocation_hint G_GNUC_UNUSED,
+                        gpointer      marshal_data)
+{
+  typedef gboolean (*GMarshalFunc_BOOLEAN__BOXED_BOXED) (gpointer     data1,
+                                                   gpointer     arg_1,
+                                                   gpointer     arg_2,
+                                                   gpointer     data2);
+  register GMarshalFunc_BOOLEAN__BOXED_BOXED callback;
+  register GCClosure *cc = (GCClosure*) closure;
+  register gpointer data1, data2;
+  gboolean v_return;
 
-	  g_return_if_fail (return_value != NULL);
-	  g_return_if_fail (n_param_values == 2);
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 3);
 
-	  if (G_CCLOSURE_SWAP_DATA (closure))
-		{
-		  data1 = closure->data;
-		  data2 = g_value_peek_pointer (param_values + 0);
-		}
-	  else
-		{
-		  data1 = g_value_peek_pointer (param_values + 0);
-		  data2 = closure->data;
-		}
-	  callback = (GMarshalFunc_BOOLEAN__BOXED) (marshal_data ? marshal_data : cc->callback);
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+  callback = (GMarshalFunc_BOOLEAN__BOXED_BOXED) (marshal_data ? marshal_data : cc->callback);
 
-	  v_return = callback (data1,
-						   g_marshal_value_peek_boxed (param_values + 1),
-						   data2);
+  v_return = callback (data1,
+                       g_marshal_value_peek_boxed (param_values + 1),
+                       g_marshal_value_peek_boxed (param_values + 2),
+                       data2);
 
-	  g_value_set_boolean (return_value, v_return);
-	}
-// end generated marshalers
+  g_value_set_boolean (return_value, v_return);
+}
+
 #else
-	void 
-	marshal_BOOLEAN__BOXED_BOXED (GClosure     *closure, 
-	 	                              GValue       *return_value G_GNUC_UNUSED, 
-	 	                              guint         n_param_values, 
-	 	                              const GValue *param_values, 
-	 	                              gpointer      invocation_hint G_GNUC_UNUSED, 
-	 	                              gpointer      marshal_data) 
-	 	{ 
-	 	  typedef gboolean (*GMarshalFunc_BOOLEAN__BOXED_BOXED) (gpointer     data1, 
-	 	                                                         gpointer     arg_1, 
-	 	                                                         gpointer     arg_2, 
-	 	                                                         gpointer     data2); 
-	 	  register GMarshalFunc_BOOLEAN__BOXED_BOXED callback; 
-	 	  register GCClosure *cc = (GCClosure*) closure;
-		  register gpointer data1, data2;
-		  gboolean v_return;
+/* BOOLEAN:BOXED */
+void
+marshal_BOOLEAN__BOXED (GClosure     *closure,
+                        GValue       *return_value G_GNUC_UNUSED,
+                        guint         n_param_values,
+                        const GValue *param_values,
+                        gpointer      invocation_hint G_GNUC_UNUSED,
+                        gpointer      marshal_data)
+{
+  typedef gboolean (*GMarshalFunc_BOOLEAN__BOXED) (gpointer     data1,
+                                                   gpointer     arg_1,
+                                                   gpointer     data2);
+  register GMarshalFunc_BOOLEAN__BOXED callback;
+  register GCClosure *cc = (GCClosure*) closure;
+  register gpointer data1, data2;
+  gboolean v_return;
 
-		  g_return_if_fail (return_value != NULL);
-		  
-		  g_return_if_fail (n_param_values == 3);
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 2);
 
-		  if (G_CCLOSURE_SWAP_DATA (closure))
-			{
-			  data1 = closure->data;
-			  data2 = g_value_peek_pointer (param_values + 0);
-			}
-		  else
-			{
-			  data1 = g_value_peek_pointer (param_values + 0);
-			  data2 = closure->data;
-			}
-		  callback = (GMarshalFunc_BOOLEAN__BOXED_BOXED) (marshal_data ? marshal_data : cc->callback);
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+  callback = (GMarshalFunc_BOOLEAN__BOXED) (marshal_data ? marshal_data : cc->callback);
 
-		  v_return = callback (data1,
-							   g_marshal_value_peek_boxed (param_values + 1),
-							   g_marshal_value_peek_boxed (param_values + 2),
-							   data2);
+  v_return = callback (data1,
+                       g_marshal_value_peek_boxed (param_values + 1),
+                       data2);
 
-		  g_value_set_boolean (return_value, v_return);
-		}  
+  g_value_set_boolean (return_value, v_return);
+}
 #endif
+// end generated marshalers
+
 
 #define add_slider_binding(binding_set, keyval, mask, scroll)              \
   gtk_binding_entry_add_signal (binding_set, keyval, mask,                 \
@@ -366,36 +368,36 @@ static void gx_regler_class_init(GxReglerClass *klass)
 	range_class->move_slider = gx_regler_move_slider;
 
 	klass->value_entry = gx_regler_value_entry;
-#ifdef OS_64_BIT 
-		signals[VALUE_ENTRY] =
-			g_signal_new (I_("value-entry"),
-						  G_OBJECT_CLASS_TYPE (klass),
-						  G_SIGNAL_RUN_LAST,
-						  G_STRUCT_OFFSET (GxReglerClass, value_entry),
-						  gx_boolean_handled_accumulator, NULL,
-						  marshal_BOOLEAN__BOXED,
-						  G_TYPE_BOOLEAN, 1, GDK_TYPE_RECTANGLE,
-						  GDK_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
-#else 
-		signals[VALUE_ENTRY] =
-			g_signal_new (I_("value-entry"),
-						  G_OBJECT_CLASS_TYPE (klass),
-						  G_SIGNAL_RUN_LAST,
-						  G_STRUCT_OFFSET (GxReglerClass, value_entry),
-						  gx_boolean_handled_accumulator, NULL,
-						  marshal_BOOLEAN__BOXED_BOXED,
-						  G_TYPE_BOOLEAN, 2, GDK_TYPE_RECTANGLE,
-						  GDK_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+#ifdef OS_32_BIT
+	signals[VALUE_ENTRY] =
+		g_signal_new (I_("value-entry"),
+		              G_OBJECT_CLASS_TYPE (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (GxReglerClass, value_entry),
+		              gx_boolean_handled_accumulator, NULL,
+		              marshal_BOOLEAN__BOXED_BOXED,
+		              G_TYPE_BOOLEAN, 2, GDK_TYPE_RECTANGLE,
+		              GDK_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+#else
+	signals[VALUE_ENTRY] =
+		g_signal_new (I_("value-entry"),
+		              G_OBJECT_CLASS_TYPE (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (GxReglerClass, value_entry),
+		              gx_boolean_handled_accumulator, NULL,
+		              marshal_BOOLEAN__BOXED,
+		              G_TYPE_BOOLEAN, 1, GDK_TYPE_RECTANGLE,
+		              GDK_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
 #endif
-  signals[FORMAT_VALUE] =
-    g_signal_new (I_("format-value"),
-                  G_TYPE_FROM_CLASS (gobject_class),
-                  G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (GxReglerClass, format_value),
-                  single_string_accumulator, NULL,
-                  marshal_STRING__DOUBLE,
-                  G_TYPE_STRING, 1,
-                  G_TYPE_DOUBLE);
+	signals[FORMAT_VALUE] =
+		g_signal_new (I_("format-value"),
+					  G_TYPE_FROM_CLASS (gobject_class),
+					  G_SIGNAL_RUN_LAST,
+					  G_STRUCT_OFFSET (GxReglerClass, format_value),
+					  single_string_accumulator, NULL,
+					  marshal_STRING__DOUBLE,
+					  G_TYPE_STRING, 1,
+					  G_TYPE_DOUBLE);
 
 	gtk_widget_class_install_style_property(
 		widget_class,
@@ -569,10 +571,7 @@ gboolean gx_get_arch()
 {
 	char os[32];
 	sprintf(os, "%i", LONG_BIT);
-	if(strcmp(os,"32")!=0) {
-		#define OS_64_BIT
-		return true;
-	}
+	if(strcmp(os,"32")!=0) return true;
 	return false;
 }
 

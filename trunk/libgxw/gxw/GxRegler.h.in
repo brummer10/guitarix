@@ -37,6 +37,8 @@ G_BEGIN_DECLS
 #define GX_REGLER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_REGLER, GxReglerClass))
 #define OS_IS_64_BIT             (gx_get_arch())
 
+//.osis
+
 typedef struct _GxRegler GxRegler;
 typedef struct _GxReglerClass GxReglerClass;
 
