@@ -513,7 +513,7 @@ def configure(conf):
     display_msg("==================")
     version_msg = "GUITARIX " + VERSION
     print_msg(version_msg)
-    print_msg(conf.env.DEST_CPU)
+    
     print_msg("")
 
     if not conf.env['ZITA_RESAMPLER']:
@@ -585,8 +585,6 @@ def build(bld):
     bld.add_subdirs('pixmaps')
 
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
-    osis = bld.env['OS_IS_BIT']
-    sub_file('./libgxw/gxw/GxRegler.h.in', './libgxw/gxw/GxRegler.h', (('//(.*)', '%s' % osis), ))
     if bld.env["GX_HEAD"]:
         pa = bld.env['GX_SOUND_DIR1']
         bld.add_subdirs('src/gx_head')

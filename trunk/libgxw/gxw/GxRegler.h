@@ -37,8 +37,6 @@ G_BEGIN_DECLS
 #define GX_REGLER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_REGLER, GxReglerClass))
 #define OS_IS_64_BIT             (gx_get_arch())
 
-//.osis
-
 typedef struct _GxRegler GxRegler;
 typedef struct _GxReglerClass GxReglerClass;
 
@@ -56,6 +54,7 @@ struct _GxRegler
 struct _GxReglerClass {
 	GtkRangeClass parent_class;
 	guint change_value_id;
+	gboolean (*values_entry)(GxRegler *regler, GdkRectangle *rect);
 	gboolean (*value_entry)(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event);
 	gchar* (*format_value)(GxRegler *regler, gdouble value);
 };

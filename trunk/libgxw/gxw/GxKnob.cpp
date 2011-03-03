@@ -226,7 +226,7 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 		}
 		if (rect) {
 			gboolean ret;
-			g_signal_emit_by_name(GX_REGLER(widget), "value-entry", rect, &ret);
+			g_signal_emit_by_name(GX_REGLER(widget), "values-entry", rect, &ret);
 			return FALSE;
 		}
 	}

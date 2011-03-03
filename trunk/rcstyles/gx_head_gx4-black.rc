@@ -8,7 +8,7 @@ style "gx4_head_skin_icons"
 {
 stock["bigknob"] = {{"tactile_knob_large_151f.png"}}
 stock["smallknob"] = {{"tactile_knob_small_99f.png"}}
-stock["smallknobr"] = {{"mittleknob9.png"}}
+stock["smallknobr"] =  {{"tactile_knob_medium_151f.png"}}
 }
 
 class "GxKnob" style "gx4_head_skin_icons"
@@ -21,23 +21,16 @@ stock["switchit_off"] = {{"tactile_switchit_off.png"}}
 
 class "GxToggleImage" style "gx4_head_skin_switch_icons"
 
-style "gx4_head_skin_bigknob_animation"
-{
 
-GxKnob::knob-framecount = 0 # use 0 for auto (assumes square frames)
-                            #  and >1 for non squareframe animations
-}
-class "GxBigKnob" style "gx4_head_skin_bigknob_animation"
-
-style "gx4_head_skin_smallknob_animation"
+style "gx4_head_skin_knob_animation"
 {
 
 GxKnob::knob-framecount = 0 # use 0 for auto (assumes square frames),
                             # 1 for static bg and >1 for non squareframe
                             #  animations
 }
-class "GxSmallKnob" style "gx4_head_skin_smallknob_animation"
 
+class "GxKnob" style "gx2_head_skin_knob_animation"
 
 
 style "gx4_head-paintbox"

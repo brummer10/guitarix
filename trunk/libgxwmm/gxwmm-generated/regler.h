@@ -95,6 +95,7 @@ protected:
 
   //Default Signal Handlers::
 #ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
+  virtual bool on_values_entry(const Gdk::Rectangle& p1);
   virtual bool on_value_entry(const Gdk::Rectangle& p1, GdkEventButton* p2);
   virtual Glib::ustring on_format_value(double value);
 #endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
@@ -116,6 +117,14 @@ private:
   void set_value_position(Gtk::PositionType);
 	
   Gtk::PositionType get_value_position();
+	
+  /**
+   * @par Prototype:
+   * <tt>bool on_my_%values_entry(const Gdk::Rectangle& p1)</tt>
+   */
+
+  Glib::SignalProxy1< bool,const Gdk::Rectangle& > signal_values_entry();
+
 	
   /**
    * @par Prototype:

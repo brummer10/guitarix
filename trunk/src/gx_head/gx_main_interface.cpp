@@ -1825,6 +1825,8 @@ UiRackReglerWithCaption::UiRackReglerWithCaption(gx_ui::GxUI &ui, FloatParameter
 	m_box.set_name(param.id());
 	m_box.pack_start(m_label, Gtk::PACK_SHRINK);
 	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
+	m_regler->get_accessible()->set_description (param.id().c_str());
+	m_regler->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
 	m_box.show_all();
 }
 

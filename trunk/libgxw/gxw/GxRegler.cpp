@@ -51,6 +51,7 @@ typedef struct
 
 enum {
   VALUE_ENTRY,
+  VALUES_ENTRY,
   FORMAT_VALUE,
   LAST_SIGNAL
 };
@@ -80,7 +81,8 @@ static gboolean gx_regler_button_release (GtkWidget *widget, GdkEventButton *eve
 static gboolean gx_regler_scroll (GtkWidget *widget, GdkEventScroll *event);
 static gboolean gx_regler_change_value(GtkRange *range, GtkScrollType scroll, gdouble value);
 static void gx_regler_value_changed(GtkRange *range);
-static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event);
+static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect);
+static gboolean gx_regler_selector_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event);
 static void gx_regler_change_adjustment(GxRegler *regler, GtkAdjustment *adjustment);
 static void gx_regler_adjustment_notified(GObject *gobject, GParamSpec *pspec);
 static void gx_regler_move_slider(GtkRange *range, GtkScrollType scroll);
@@ -253,8 +255,8 @@ marshal_STRING__DOUBLE (GClosure     *closure,
   g_value_take_string (return_value, v_return);
 }
 
-#ifdef OS_32_BIT
-/* BOOLEAN:BOXED_BOXED */
+
+/* BOOLEAN:BOXED,BOXED */
 void
 marshal_BOOLEAN__BOXED_BOXED (GClosure     *closure,
                         GValue       *return_value G_GNUC_UNUSED,
@@ -295,7 +297,7 @@ marshal_BOOLEAN__BOXED_BOXED (GClosure     *closure,
   g_value_set_boolean (return_value, v_return);
 }
 
-#else
+
 /* BOOLEAN:BOXED */
 void
 marshal_BOOLEAN__BOXED (GClosure     *closure,
@@ -334,7 +336,7 @@ marshal_BOOLEAN__BOXED (GClosure     *closure,
 
   g_value_set_boolean (return_value, v_return);
 }
-#endif
+
 // end generated marshalers
 
 
@@ -367,8 +369,10 @@ static void gx_regler_class_init(GxReglerClass *klass)
 	range_class->change_value = gx_regler_change_value;
 	range_class->move_slider = gx_regler_move_slider;
 
-	klass->value_entry = gx_regler_value_entry;
-#ifdef OS_32_BIT
+	klass->values_entry = gx_regler_value_entry;
+	klass->value_entry = gx_regler_selector_entry;
+	
+
 	signals[VALUE_ENTRY] =
 		g_signal_new (I_("value-entry"),
 		              G_OBJECT_CLASS_TYPE (klass),
@@ -378,9 +382,9 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		              marshal_BOOLEAN__BOXED_BOXED,
 		              G_TYPE_BOOLEAN, 2, GDK_TYPE_RECTANGLE,
 		              GDK_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
-#else
+
 	signals[VALUE_ENTRY] =
-		g_signal_new (I_("value-entry"),
+		g_signal_new (I_("values-entry"),
 		              G_OBJECT_CLASS_TYPE (klass),
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (GxReglerClass, value_entry),
@@ -388,7 +392,7 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		              marshal_BOOLEAN__BOXED,
 		              G_TYPE_BOOLEAN, 1, GDK_TYPE_RECTANGLE,
 		              GDK_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
-#endif
+
 	signals[FORMAT_VALUE] =
 		g_signal_new (I_("format-value"),
 					  G_TYPE_FROM_CLASS (gobject_class),
@@ -1154,7 +1158,7 @@ static gboolean map_check(
 	return FALSE;
 }
 
-static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event)
+static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect)
 {
 	g_assert(GX_IS_REGLER(regler));
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
@@ -1185,6 +1189,36 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 	return FALSE;
 }
 
+static gboolean gx_regler_selector_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event)
+{
+	g_assert(GX_IS_REGLER(regler));
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
+	GtkWidget *dialog = gtk_window_new(GTK_WINDOW_POPUP);
+	gtk_widget_add_events(dialog, GDK_BUTTON_PRESS_MASK|GDK_BUTTON_MOTION_MASK);
+	ensure_digits(regler);
+	GtkWidget *spinner = gtk_spin_button_new(
+		GTK_ADJUSTMENT(adj), adj->step_increment,
+		GTK_RANGE(regler)->round_digits);
+	gtk_container_add (GTK_CONTAINER(dialog), spinner);
+	
+	g_signal_connect(spinner, "button-press-event", G_CALLBACK(spinner_button_press_event), NULL);
+	g_signal_connect(dialog, "button-press-event", G_CALLBACK(dialog_button_press_event), dialog);
+	g_signal_connect(spinner, "key-press-event", G_CALLBACK(dialog_key_press_before), dialog);
+	g_signal_connect_after(spinner, "key-press-event", G_CALLBACK(dialog_key_press_event), dialog);
+	g_signal_connect_object(spinner, "activate", G_CALLBACK(gtk_widget_destroy), dialog, (GConnectFlags)(G_CONNECT_AFTER|G_CONNECT_SWAPPED));
+	g_signal_connect(dialog, "grab-broken-event", G_CALLBACK(dialog_grab_broken), dialog);
+	g_signal_connect(dialog, "map-event", G_CALLBACK(map_check), GTK_WIDGET(regler));
+	
+	gtk_window_move(GTK_WINDOW(dialog), -100, -100); // trick so its not visible
+	gtk_widget_show_all(dialog);
+	GtkRequisition rq;
+	gtk_widget_get_requisition(dialog, &rq);
+	gint xorg, yorg;
+	gdk_window_get_origin(GTK_WIDGET(regler)->window, &xorg, &yorg);
+	
+	gtk_window_move(GTK_WINDOW(dialog), xorg+rect->x+(rect->width-rq.width)/2, yorg+rect->y+(rect->height-rq.height)/2);
+	return FALSE;
+}
 /****************************************************************
  ** mouse button release
  */

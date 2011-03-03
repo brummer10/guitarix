@@ -166,7 +166,7 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y,
 	}
 	if (button == 3) {
 		gboolean ret;
-		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, &ret);
+		g_signal_emit_by_name(GX_REGLER(widget), "values-entry", &image_rect, &ret);
 		return FALSE;
 	}
 	gint width = image_rect.width - slider_width;
