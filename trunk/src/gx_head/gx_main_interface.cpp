@@ -1628,6 +1628,32 @@ void set_osilloscope_mode(GtkWidget *widget, gpointer data)
 	}
 }
 
+void set_accessible(GtkWidget *widget,GtkLabel *label)
+{
+	AtkObject *atk_widget, *atk_label;
+	AtkRelationSet *relation_set;
+	AtkRelation *relation;
+	AtkObject *targets[1];
+
+	atk_widget = gtk_widget_get_accessible (widget);
+	atk_label = gtk_widget_get_accessible (GTK_WIDGET(label));
+
+	relation_set = atk_object_ref_relation_set (atk_label);
+	targets[0] = atk_widget;
+
+	relation = atk_relation_new(targets,1, ATK_RELATION_LABEL_FOR);
+	atk_relation_set_add(relation_set,relation);
+	g_object_unref(G_OBJECT(relation));
+
+	relation_set = atk_object_ref_relation_set (atk_widget);
+	targets[0] = atk_label;
+
+	relation = atk_relation_new (targets, 1, ATK_RELATION_LABELLED_BY);
+	atk_relation_set_add (relation_set, relation);
+	g_object_unref (G_OBJECT (relation));
+}
+
+
 /****************************************************************
  ** UiRegler, UiSwitch
  */
@@ -1811,8 +1837,7 @@ UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param,
 	m_box.set_name(param.id());
 	m_box.pack_start(m_label, Gtk::PACK_SHRINK);
 	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
-	m_regler->get_accessible()->set_description (param.id().c_str());
-	m_regler->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
+	set_accessible(GTK_WIDGET(m_regler->gobj()),m_label.gobj());
 	m_box.show_all();
 }
 
@@ -1825,8 +1850,7 @@ UiRackReglerWithCaption::UiRackReglerWithCaption(gx_ui::GxUI &ui, FloatParameter
 	m_box.set_name(param.id());
 	m_box.pack_start(m_label, Gtk::PACK_SHRINK);
 	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
-	m_regler->get_accessible()->set_description (param.id().c_str());
-	m_regler->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
+	set_accessible(GTK_WIDGET(m_regler->gobj()),m_label.gobj());
 	m_box.show_all();
 }
 
@@ -1947,8 +1971,7 @@ UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, P
 		m_box->pack_start(m_label, Gtk::PACK_SHRINK);
 	}
 	m_box->set_name(param.id());
-	m_switch->get_accessible()->set_description (param.id().c_str());
-	m_switch->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
+	set_accessible(GTK_WIDGET(m_switch->gobj()),m_label.gobj());
 	m_box->show_all();
 }
 
