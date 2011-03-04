@@ -50,8 +50,7 @@ openHorizontalTableBox("");
           {
                openHorizontalBox("");
                {
-				    openSpaceBox("");
-                    closeBox();
+				    
                     create_switch_no_caption(sw_switchit, "shaper.on_off");
                     
                     openpaintampBox("shaper");
@@ -69,8 +68,7 @@ openHorizontalTableBox("");
           {
                openHorizontalBox("");
                {
-				    openSpaceBox("");
-                    closeBox();
+				    
                     create_switch_no_caption(sw_switchit, "amp.on_off");
                     
                     openpaintampBox("level");
@@ -88,8 +86,7 @@ openHorizontalTableBox("");
           {
                openHorizontalBox("");
                {
-				    openSpaceBox("");
-                    closeBox();
+				    
                     create_switch_no_caption(sw_switchit, "amp.clip.on_off");
                     
                     openpaintampBox("level");

@@ -390,8 +390,8 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		              G_STRUCT_OFFSET (GxReglerClass, value_entry),
 		              gx_boolean_handled_accumulator, NULL,
 		              marshal_BOOLEAN__BOXED,
-		              G_TYPE_BOOLEAN, 1, GDK_TYPE_RECTANGLE,
-		              GDK_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+		              G_TYPE_BOOLEAN, 1, GDK_TYPE_RECTANGLE
+		              | G_SIGNAL_TYPE_STATIC_SCOPE);
 
 	signals[FORMAT_VALUE] =
 		g_signal_new (I_("format-value"),
@@ -571,13 +571,6 @@ static void gx_regler_class_init(GxReglerClass *klass)
 	g_type_class_add_private(klass, sizeof (GxReglerPrivate));
 }
 
-gboolean gx_get_arch()
-{
-	char os[32];
-	sprintf(os, "%i", LONG_BIT);
-	if(strcmp(os,"32")!=0) return true;
-	return false;
-}
 
 static void gx_regler_destroy(GtkObject *object)
 {
@@ -1297,6 +1290,18 @@ static void gx_regler_init(GxRegler *regler)
 	gtk_widget_set_receives_default(GTK_WIDGET(regler), TRUE);
 	gtk_widget_set_has_window(GTK_WIDGET(regler), FALSE);
 	g_signal_connect(regler, "notify::adjustment", G_CALLBACK(gx_regler_adjustment_notified), NULL);
+	
+	// set Atk label relation for regler 
+	AtkRelationSet    *relations;
+	AtkRelation       *relation;
+	AtkObject         *object;
+	
+	object = gtk_widget_get_accessible (GTK_WIDGET(regler));
+	relations = atk_object_ref_relation_set (gtk_widget_get_accessible (GTK_WIDGET(regler->label)));
+	relation = atk_relation_new (&object, 1, ATK_RELATION_LABEL_FOR);
+	atk_relation_set_add (relations, relation);
+	g_object_unref (G_OBJECT (relation));
+
 }
 
 /****************************************************************
