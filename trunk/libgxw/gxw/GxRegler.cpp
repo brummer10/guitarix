@@ -593,6 +593,18 @@ static void gx_regler_finalize(GObject *object)
 		g_object_unref(regler->value_layout);
 	}
 	G_OBJECT_CLASS(gx_regler_parent_class)->finalize(object);
+	
+	// set Atk label relation for regler 
+	AtkRelationSet    *relations;
+	AtkRelation       *relation;
+	AtkObject         *aobject;
+	
+	aobject = gtk_widget_get_accessible (GTK_WIDGET(regler));
+	relations = atk_object_ref_relation_set (gtk_widget_get_accessible (GTK_WIDGET(regler->label)));
+	relation = atk_relation_new (&aobject, 1, ATK_RELATION_LABEL_FOR);
+	atk_relation_set_add (relations, relation);
+	atk_object_set_role(aobject,ATK_ROLE_LABEL);
+	g_object_unref (G_OBJECT (relation));
 }
 
 static void step_back(GtkRange *range)
@@ -1290,19 +1302,6 @@ static void gx_regler_init(GxRegler *regler)
 	gtk_widget_set_receives_default(GTK_WIDGET(regler), TRUE);
 	gtk_widget_set_has_window(GTK_WIDGET(regler), FALSE);
 	g_signal_connect(regler, "notify::adjustment", G_CALLBACK(gx_regler_adjustment_notified), NULL);
-	
-	// set Atk label relation for regler 
-	AtkRelationSet    *relations;
-	AtkRelation       *relation;
-	AtkObject         *object;
-	
-	object = gtk_widget_get_accessible (GTK_WIDGET(regler));
-	relations = atk_object_ref_relation_set (gtk_widget_get_accessible (GTK_WIDGET(regler->label)));
-	relation = atk_relation_new (&object, 1, ATK_RELATION_LABEL_FOR);
-	atk_relation_set_add (relations, relation);
-	atk_object_set_role(object,ATK_ROLE_LABEL);
-	g_object_unref (G_OBJECT (relation));
-
 }
 
 /****************************************************************
