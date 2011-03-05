@@ -89,7 +89,7 @@ static void gx_wheel_size_request (GtkWidget *widget, GtkRequisition *requisitio
 	g_object_unref(wb);
 }
 
-static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, int button)
+static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, int button, GdkEventButton *event)
 {
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
@@ -116,7 +116,7 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
 		}
 		if (rect) {
 			gboolean ret;
-			g_signal_emit_by_name(GX_REGLER(widget), "value-entry", rect, NULL, &ret);
+			g_signal_emit_by_name(GX_REGLER(widget), "value-entry", rect, event, &ret);
 			return FALSE;
 		}
 	}
@@ -135,7 +135,7 @@ static gboolean gx_wheel_button_press (GtkWidget *widget, GdkEventButton *event)
 		return FALSE;
 	}
 	gtk_widget_grab_focus(widget);
-	if (wheel_set_from_pointer(widget, event->x, event->y, FALSE, event->button)) {
+	if (wheel_set_from_pointer(widget, event->x, event->y, FALSE, event->button, event)) {
 		gtk_grab_add(widget);
 	}
 	return FALSE;
@@ -152,7 +152,7 @@ static gboolean gx_wheel_pointer_motion (GtkWidget *widget, GdkEventMotion *even
 	if (!gtk_widget_has_grab(widget)) {
 		return FALSE;
 	}
-	wheel_set_from_pointer(widget, event->x, event->y, TRUE, 0);
+	wheel_set_from_pointer(widget, event->x, event->y, TRUE, 0, NULL);
 	return FALSE;
 }
 

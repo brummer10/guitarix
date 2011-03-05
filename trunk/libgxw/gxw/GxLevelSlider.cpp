@@ -120,7 +120,7 @@ static gboolean gx_level_slider_expose(GtkWidget *widget, GdkEventExpose *event)
 	return FALSE;
 }
 
-static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, gint button)
+static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)
 {
 	GdkRectangle image_rect, value_rect;
 	gint slider_height;
@@ -137,7 +137,7 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y,
 	}
 	if (button == 3) {
 		gboolean ret;
-		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, NULL, &ret);
+		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, event, &ret);
 		return FALSE;
 	}
 	static double last_y = 2e20;
@@ -163,7 +163,7 @@ static gboolean gx_level_slider_button_press (GtkWidget *widget, GdkEventButton 
 		return FALSE;
 	}
 	gtk_widget_grab_focus(widget);
-	if (slider_set_from_pointer(widget, event->x, event->y, FALSE, event->button)) {
+	if (slider_set_from_pointer(widget, event->x, event->y, FALSE, event->button, event)) {
 		gtk_grab_add(widget);
 	}
 	return FALSE;
@@ -176,7 +176,7 @@ static gboolean gx_level_slider_pointer_motion(GtkWidget *widget, GdkEventMotion
 		return FALSE;
 	}
 	gdk_event_request_motions (event);
-	slider_set_from_pointer(widget, event->x, event->y, TRUE, 0);
+	slider_set_from_pointer(widget, event->x, event->y, TRUE, 0, NULL);
 	return FALSE;
 }
 

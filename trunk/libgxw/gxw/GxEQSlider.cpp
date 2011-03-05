@@ -86,7 +86,7 @@ static gboolean gx_eq_slider_expose(GtkWidget *widget, GdkEventExpose *event)
 	return FALSE;
 }
 
-static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, gint button)
+static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)
 {
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
@@ -103,7 +103,7 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y,
 	}
 	if (button == 3) {
 		gboolean ret;
-		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, NULL, &ret);
+		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &image_rect, event, &ret);
 		return FALSE;
 	}
 	gint height = image_rect.height - slider_height;
@@ -123,7 +123,7 @@ static gboolean gx_eq_slider_button_press (GtkWidget *widget, GdkEventButton *ev
 		return FALSE;
 	}
 	gtk_widget_grab_focus(widget);
-	if (slider_set_from_pointer(widget, event->x, event->y, FALSE, event->button)) {
+	if (slider_set_from_pointer(widget, event->x, event->y, FALSE, event->button, event)) {
 		gtk_grab_add(widget);
 	}
 	return FALSE;
@@ -136,7 +136,7 @@ static gboolean gx_eq_slider_pointer_motion(GtkWidget *widget, GdkEventMotion *e
 		return FALSE;
 	}
 	gdk_event_request_motions (event);
-	slider_set_from_pointer(widget, event->x, event->y, TRUE, 0);
+	slider_set_from_pointer(widget, event->x, event->y, TRUE, 0, NULL);
 	return FALSE;
 }
 

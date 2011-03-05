@@ -190,7 +190,7 @@ gboolean gx_get_knob_jump_to_mouse()
 }
 
 gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const gchar *icon,
-                                gboolean drag, int state, int button)
+                                gboolean drag, int state, int button, GdkEventButton *event)
 {
 	int fcount;
 	int linearmode = ((state & GDK_CONTROL_MASK) == 0) ^ jump_to_mouse;
@@ -226,7 +226,7 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 		}
 		if (rect) {
 			gboolean ret;
-			g_signal_emit_by_name(GX_REGLER(widget), "value-entry", rect, NULL, &ret);
+			g_signal_emit_by_name(GX_REGLER(widget), "value-entry", rect, event, &ret);
 			return FALSE;
 		}
 	}
@@ -291,7 +291,7 @@ static gboolean gx_knob_pointer_motion(GtkWidget *widget, GdkEventMotion *event)
 		return FALSE;
 	}
 	gdk_event_request_motions (event);
-	_gx_knob_pointer_event(widget, event->x, event->y, get_stock_id(widget), TRUE, event->state, 0);
+	_gx_knob_pointer_event(widget, event->x, event->y, get_stock_id(widget), TRUE, event->state, 0, NULL);
 	return FALSE;
 }
 
@@ -396,7 +396,7 @@ static gboolean gx_knob_button_press (GtkWidget *widget, GdkEventButton *event)
 		return FALSE;
 	}
 	gtk_widget_grab_focus(widget);
-	if (_gx_knob_pointer_event(widget, event->x, event->y, get_stock_id(widget), FALSE, event->state, event->button)) {
+	if (_gx_knob_pointer_event(widget, event->x, event->y, get_stock_id(widget), FALSE, event->state, event->button, event)) {
 		gtk_grab_add(widget);
 	}
 	return FALSE;
