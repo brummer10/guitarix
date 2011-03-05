@@ -72,8 +72,18 @@ void ToggleImage_Class::class_init_function(void* g_class, void* class_data)
   BaseClassType *const klass = static_cast<BaseClassType*>(g_class);
   CppClassParent::class_init_function(klass, class_data);
 
+#ifdef GLIBMM_VFUNCS_ENABLED
+#endif //GLIBMM_VFUNCS_ENABLED
 
+#ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
+#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 }
+
+#ifdef GLIBMM_VFUNCS_ENABLED
+#endif //GLIBMM_VFUNCS_ENABLED
+
+#ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
+#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 
 
 Glib::ObjectBase* ToggleImage_Class::wrap_new(GObject* o)
@@ -150,6 +160,13 @@ Glib::PropertyProxy_ReadOnly<Glib::ustring> ToggleImage::property_base_name() co
   return Glib::PropertyProxy_ReadOnly<Glib::ustring>(this, "base-name");
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
+
+
+#ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
+#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
+
+#ifdef GLIBMM_VFUNCS_ENABLED
+#endif //GLIBMM_VFUNCS_ENABLED
 
 
 } // namespace Gxw

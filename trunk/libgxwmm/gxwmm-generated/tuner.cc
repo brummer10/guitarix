@@ -72,8 +72,18 @@ void Tuner_Class::class_init_function(void* g_class, void* class_data)
   BaseClassType *const klass = static_cast<BaseClassType*>(g_class);
   CppClassParent::class_init_function(klass, class_data);
 
+#ifdef GLIBMM_VFUNCS_ENABLED
+#endif //GLIBMM_VFUNCS_ENABLED
 
+#ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
+#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 }
+
+#ifdef GLIBMM_VFUNCS_ENABLED
+#endif //GLIBMM_VFUNCS_ENABLED
+
+#ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
+#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 
 
 Glib::ObjectBase* Tuner_Class::wrap_new(GObject* o)
@@ -145,6 +155,13 @@ Glib::PropertyProxy_ReadOnly<double> Tuner::property_freq() const
   return Glib::PropertyProxy_ReadOnly<double>(this, "freq");
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
+
+
+#ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
+#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
+
+#ifdef GLIBMM_VFUNCS_ENABLED
+#endif //GLIBMM_VFUNCS_ENABLED
 
 
 } // namespace Gxw

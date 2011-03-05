@@ -82,11 +82,17 @@ public:
 
 public:
   //C++ methods used to invoke GTK+ virtual functions:
+#ifdef GLIBMM_VFUNCS_ENABLED
+#endif //GLIBMM_VFUNCS_ENABLED
 
 protected:
   //GTK+ Virtual Functions (override these to change behaviour):
+#ifdef GLIBMM_VFUNCS_ENABLED
+#endif //GLIBMM_VFUNCS_ENABLED
 
   //Default Signal Handlers::
+#ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
+#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 
 
 private:
@@ -134,7 +140,7 @@ private:
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
-/** The width of the empty border outside the containers children.
+/** Die Breite des leeren Rands um die Kinder des Containers.
    *
    * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
@@ -144,7 +150,7 @@ private:
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
-/** The width of the empty border outside the containers children.
+/** Die Breite des leeren Rands um die Kinder des Containers.
    *
    * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
@@ -154,7 +160,7 @@ private:
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
-/** The amount of space between children.
+/** Der Abstand zwischen den Kindern.
    *
    * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
@@ -164,7 +170,7 @@ private:
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
-/** The amount of space between children.
+/** Der Abstand zwischen den Kindern.
    *
    * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
@@ -174,7 +180,7 @@ private:
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
-/** Whether the children should all be the same size.
+/** Sollen die Kinder alle gleich groß sein?.
    *
    * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
@@ -184,7 +190,7 @@ private:
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
-/** Whether the children should all be the same size.
+/** Sollen die Kinder alle gleich groß sein?.
    *
    * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
