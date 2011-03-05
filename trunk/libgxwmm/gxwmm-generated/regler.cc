@@ -29,70 +29,6 @@ namespace
 {
 
 
-static gboolean Regler_signal_values_entry_callback(GxRegler* self, GdkRectangle* p0,void* data)
-{
-  using namespace Gxw;
-  typedef sigc::slot< bool,const Gdk::Rectangle& > SlotType;
-
-  // Do not try to call a signal on a disassociated wrapper.
-  if(Glib::ObjectBase::_get_current_wrapper((GObject*) self))
-  {
-    #ifdef GLIBMM_EXCEPTIONS_ENABLED
-    try
-    {
-    #endif //GLIBMM_EXCEPTIONS_ENABLED
-      if(sigc::slot_base *const slot = Glib::SignalProxyNormal::data_to_slot(data))
-        return static_cast<int>((*static_cast<SlotType*>(slot))(Glib::wrap(p0)
-));
-    #ifdef GLIBMM_EXCEPTIONS_ENABLED
-    }
-    catch(...)
-    {
-      Glib::exception_handlers_invoke();
-    }
-    #endif //GLIBMM_EXCEPTIONS_ENABLED
-  }
-
-  typedef gboolean RType;
-  return RType();
-}
-
-static gboolean Regler_signal_values_entry_notify_callback(GxRegler* self, GdkRectangle* p0, void* data)
-{
-  using namespace Gxw;
-  typedef sigc::slot< void,const Gdk::Rectangle& > SlotType;
-
-  // Do not try to call a signal on a disassociated wrapper.
-  if(Glib::ObjectBase::_get_current_wrapper((GObject*) self))
-  {
-    #ifdef GLIBMM_EXCEPTIONS_ENABLED
-    try
-    {
-    #endif //GLIBMM_EXCEPTIONS_ENABLED
-      if(sigc::slot_base *const slot = Glib::SignalProxyNormal::data_to_slot(data))
-        (*static_cast<SlotType*>(slot))(Glib::wrap(p0)
-);
-    #ifdef GLIBMM_EXCEPTIONS_ENABLED
-    }
-    catch(...)
-    {
-      Glib::exception_handlers_invoke();
-    }
-    #endif //GLIBMM_EXCEPTIONS_ENABLED
-  }
-
-  typedef gboolean RType;
-  return RType();
-}
-
-static const Glib::SignalProxyInfo Regler_signal_values_entry_info =
-{
-  "values-entry",
-  (GCallback) &Regler_signal_values_entry_callback,
-  (GCallback) &Regler_signal_values_entry_notify_callback
-};
-
-
 static gboolean Regler_signal_value_entry_callback(GxRegler* self, GdkRectangle* p0,GdkEventButton* p1,void* data)
 {
   using namespace Gxw;
@@ -273,7 +209,6 @@ void Regler_Class::class_init_function(void* g_class, void* class_data)
 #endif //GLIBMM_VFUNCS_ENABLED
 
 #ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
-  klass->values_entry = &values_entry_callback;
   klass->value_entry = &value_entry_callback;
   klass->format_value = &format_value_callback;
 #endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
@@ -283,49 +218,6 @@ void Regler_Class::class_init_function(void* g_class, void* class_data)
 #endif //GLIBMM_VFUNCS_ENABLED
 
 #ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
-gboolean Regler_Class::values_entry_callback(GxRegler* self, GdkRectangle* p0)
-{
-  Glib::ObjectBase *const obj_base = static_cast<Glib::ObjectBase*>(
-      Glib::ObjectBase::_get_current_wrapper((GObject*)self));
-
-  // Non-gtkmmproc-generated custom classes implicitly call the default
-  // Glib::ObjectBase constructor, which sets is_derived_. But gtkmmproc-
-  // generated classes can use this optimisation, which avoids the unnecessary
-  // parameter conversions if there is no possibility of the virtual function
-  // being overridden:
-  if(obj_base && obj_base->is_derived_())
-  {
-    CppObjectType *const obj = dynamic_cast<CppObjectType* const>(obj_base);
-    if(obj) // This can be NULL during destruction.
-    {
-      #ifdef GLIBMM_EXCEPTIONS_ENABLED
-      try // Trap C++ exceptions which would normally be lost because this is a C callback.
-      {
-      #endif //GLIBMM_EXCEPTIONS_ENABLED
-        // Call the virtual member method, which derived classes might override.
-        return static_cast<int>(obj->on_values_entry(Glib::wrap(p0)
-));
-      #ifdef GLIBMM_EXCEPTIONS_ENABLED
-      }
-      catch(...)
-      {
-        Glib::exception_handlers_invoke();
-      }
-      #endif //GLIBMM_EXCEPTIONS_ENABLED
-    }
-  }
-  
-  BaseClassType *const base = static_cast<BaseClassType*>(
-        g_type_class_peek_parent(G_OBJECT_GET_CLASS(self)) // Get the parent class of the object class (The original underlying C class).
-    );
-
-  // Call the original underlying C function:
-  if(base && base->values_entry)
-    return (*base->values_entry)(self, p0);
-
-  typedef gboolean RType;
-  return RType();
-}
 gboolean Regler_Class::value_entry_callback(GxRegler* self, GdkRectangle* p0, GdkEventButton* p1)
 {
   Glib::ObjectBase *const obj_base = static_cast<Glib::ObjectBase*>(
@@ -497,12 +389,6 @@ Regler::Regler()
 }
 
 
-Glib::SignalProxy1< bool,const Gdk::Rectangle& > Regler::signal_values_entry()
-{
-  return Glib::SignalProxy1< bool,const Gdk::Rectangle& >(this, &Regler_signal_values_entry_info);
-}
-
-
 Glib::SignalProxy2< bool,const Gdk::Rectangle&,GdkEventButton* > Regler::signal_value_entry()
 {
   return Glib::SignalProxy2< bool,const Gdk::Rectangle&,GdkEventButton* >(this, &Regler_signal_value_entry_info);
@@ -580,18 +466,6 @@ Glib::PropertyProxy_ReadOnly<Gtk::PositionType> Regler::property_value_position(
 
 
 #ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
-bool Gxw::Regler::on_values_entry(const Gdk::Rectangle& p1)
-{
-  BaseClassType *const base = static_cast<BaseClassType*>(
-      g_type_class_peek_parent(G_OBJECT_GET_CLASS(gobject_)) // Get the parent class of the object class (The original underlying C class).
-  );
-
-  if(base && base->values_entry)
-    return (*base->values_entry)(gobj(),const_cast<GdkRectangle*>(p1.gobj()));
-
-  typedef bool RType;
-  return RType();
-}
 bool Gxw::Regler::on_value_entry(const Gdk::Rectangle& p1, GdkEventButton* p2)
 {
   BaseClassType *const base = static_cast<BaseClassType*>(
