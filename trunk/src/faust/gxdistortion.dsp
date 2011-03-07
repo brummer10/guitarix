@@ -122,4 +122,4 @@ resonator 		= (+ <: (delay(4096, 0.5) + delay(4096, 0.5)) / 2) ~ *(0.5);
 
 fx = (-0.4)*(drive*64): db2linear : smoothi(0.999);
 
-process 		=  distortion ;
+process 		= bypass(min(1,(drive * 100)), distortion) ;

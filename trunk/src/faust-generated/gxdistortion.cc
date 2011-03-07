@@ -1,6 +1,7 @@
 namespace gxdistortion {
 // generated from file '../src/faust/gxdistortion.dsp'
 
+double 	fVec0[2];
 double 	fConst0;
 double 	fConst1;
 double 	fConst2;
@@ -22,7 +23,6 @@ double 	fConst17;
 double 	fConst18;
 double 	fConst19;
 double 	fConst20;
-double 	fVec0[2];
 double 	fConst21;
 double 	fConst22;
 double 	fRec3[2];
@@ -64,6 +64,7 @@ int	fSamplingFreq;
 void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
+	for (int i=0; i<2; i++) fVec0[i] = 0;
 	fConst0 = tan((942.4777960769379 / fSamplingFreq));
 	fConst1 = (1.0 / faustpower<2>(fConst0));
 	fConst2 = (2 * (1 - fConst1));
@@ -85,7 +86,6 @@ void init(int samplingFreq)
 	fConst18 = (1.0 / fConst17);
 	fConst19 = (1 + fConst15);
 	fConst20 = (0 - ((1 - fConst15) / fConst19));
-	for (int i=0; i<2; i++) fVec0[i] = 0;
 	fConst21 = (0 - fConst15);
 	fConst22 = (1.0 / fConst19);
 	for (int i=0; i<2; i++) fRec3[i] = 0;
@@ -130,16 +130,17 @@ void compute(int count, float *input0, float *output0)
 	double 	fSlow2 = pow(1e+01,(1.2 * fSlow0));
 	double 	fSlow3 = (fConst33 * pow(1e+01,(2 * fSlow0)));
 	double 	fSlow4 = (fConst33 * pow(1e+01,(0.9 * fSlow0)));
+	int 	iSlow5 = int(min(1, (100 * fSlow0)));
 	for (int i=0; i<count; i++) {
-		double fTemp0 = (fConst2 * fRec0[1]);
-		double fTemp1 = (fConst8 * fRec1[1]);
-		double fTemp2 = (double)input0[i];
-		fVec0[0] = fTemp2;
+		double fTemp0 = (double)input0[i];
+		fVec0[0] = fTemp0;
+		double fTemp1 = (fConst2 * fRec0[1]);
+		double fTemp2 = (fConst8 * fRec1[1]);
 		fRec3[0] = ((fConst22 * ((fConst21 * fVec0[1]) + (fConst15 * fVec0[0]))) + (fConst20 * fRec3[1]));
 		fRec2[0] = (fRec3[0] - (fConst18 * ((fConst16 * fRec2[2]) + (fConst14 * fRec2[1]))));
-		fRec1[0] = ((fConst18 * (((fConst13 * fRec2[0]) + (fConst23 * fRec2[1])) + (fConst13 * fRec2[2]))) - (fConst11 * ((fConst10 * fRec1[2]) + fTemp1)));
-		fRec0[0] = ((fRec1[2] + (fConst11 * (fTemp1 + (fConst10 * fRec1[0])))) - (fConst5 * ((fConst4 * fRec0[2]) + fTemp0)));
-		double fTemp3 = max(-1, min(1, (fSlow1 * (fRec0[2] + (fConst5 * (fTemp0 + (fConst4 * fRec0[0])))))));
+		fRec1[0] = ((fConst18 * (((fConst13 * fRec2[0]) + (fConst23 * fRec2[1])) + (fConst13 * fRec2[2]))) - (fConst11 * ((fConst10 * fRec1[2]) + fTemp2)));
+		fRec0[0] = ((fRec1[2] + (fConst11 * (fTemp2 + (fConst10 * fRec1[0])))) - (fConst5 * ((fConst4 * fRec0[2]) + fTemp1)));
+		double fTemp3 = max(-1, min(1, (fSlow1 * (fRec0[2] + (fConst5 * (fTemp1 + (fConst4 * fRec0[0])))))));
 		double fTemp4 = (fConst2 * fRec4[1]);
 		fRec8[0] = ((fConst22 * (fVec0[0] + fVec0[1])) + (fConst20 * fRec8[1]));
 		fRec7[0] = (fRec8[0] - (fConst18 * ((fConst16 * fRec7[2]) + (fConst14 * fRec7[1]))));
@@ -159,7 +160,7 @@ void compute(int count, float *input0, float *output0)
 		fRec14[0] = ((fConst37 * (fVec2[0] + fVec2[1])) + (fConst35 * fRec14[1]));
 		fRec13[0] = (fRec14[0] - (fConst33 * ((fConst32 * fRec13[2]) + (fConst2 * fRec13[1]))));
 		double fTemp9 = max(-1, min(1, (fSlow4 * (fRec13[2] + (fRec13[0] + (2 * fRec13[1]))))));
-		output0[i] = (FAUSTFLOAT)(8.0 * ((((fTemp9 * (1 - (0.3333333333333333 * faustpower<2>(fTemp9)))) + (fTemp8 * (1 - (0.3333333333333333 * faustpower<2>(fTemp8))))) + (0.625 * (fTemp6 * (1 - (0.3333333333333333 * faustpower<2>(fTemp6)))))) + (0.5 * (fTemp3 * (1 - (0.3333333333333333 * faustpower<2>(fTemp3)))))));
+		output0[i] = (FAUSTFLOAT)((iSlow5)?(8.0 * ((((fTemp9 * (1 - (0.3333333333333333 * faustpower<2>(fTemp9)))) + (fTemp8 * (1 - (0.3333333333333333 * faustpower<2>(fTemp8))))) + (0.625 * (fTemp6 * (1 - (0.3333333333333333 * faustpower<2>(fTemp6)))))) + (0.5 * (fTemp3 * (1 - (0.3333333333333333 * faustpower<2>(fTemp3))))))):fVec0[0]);
 		// post processing
 		fRec13[2] = fRec13[1]; fRec13[1] = fRec13[0];
 		fRec14[1] = fRec14[0];
