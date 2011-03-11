@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2009-2010 Hermann Meyer, James Warden, Andreas Degert
+ * 
+ * Copyright (C) 2011, Pete Shorthose
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +31,7 @@
 #include "12ax7.cc"
 #include "12AU7.cc"
 #include "6V6.cc"
+#include "6DJ8.cc"
 
 inline float Ftube(int table, float Vgk)
 {
@@ -69,5 +72,16 @@ inline float Ftube3(int table, float Vgk)
 	return tab.data[i]*(1-f) + tab.data[i+1]*f;
 }
 
-
+inline float Ftube4(int table, float Vgk)
+{
+	struct table4d& tab = tubetable4[table];
+	float f = (Vgk - tab.low) * tab.istep;
+	int i = int(f);
+	if (i < 0)
+		return tab.data[0];
+	if (i >= TAB_SIZE-1)
+		return tab.data[TAB_SIZE-1];
+	f -= i;
+	return tab.data[i]*(1-f) + tab.data[i+1]*f;
+}
 

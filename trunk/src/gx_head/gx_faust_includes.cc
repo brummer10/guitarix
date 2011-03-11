@@ -170,6 +170,8 @@ GxDistortionParams::GxDistortionParams() {
 #include "faust/gxamp7.cc"
 #include "faust/gxamp8.cc"
 #include "faust/gxamp9.cc"
+#include "faust/gxamp10.cc"
+#include "faust/gxamp11.cc"
 #include "faust/gx_ampmodul.cc"
 #include "faust/bassbooster.cc"
 #include "faust/gxfeed.cc"
