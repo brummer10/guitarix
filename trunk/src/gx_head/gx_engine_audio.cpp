@@ -395,7 +395,7 @@ void process_buffers(int count, float* input, float* output0)
     }
 
 
-    gxdistortion::compute(count, output0, output0);
+    //gxdistortion::compute(count, output0, output0);
 	switch (audio.gxtube) {
 	case 0: //"never"
 		gxamp::compute(count, output0, output0);
@@ -414,6 +414,15 @@ void process_buffers(int count, float* input, float* output0)
 		break;
 	case 5: 
 		gxamp5::compute(count, output0, output0);
+		break;
+	case 6: 
+		gxamp6::compute(count, output0, output0);
+		break;
+	case 7: 
+		gxamp7::compute(count, output0, output0);
+		break;
+	case 8: 
+		gxamp8::compute(count, output0, output0);
 		break;
 	}
 	

@@ -109,7 +109,10 @@ filterbankN(lfreqs) = filterbankn(3,lfreqs);
 //----------distortion---------
 
 //-distortion
-drive			= vslider("drive", 0.35, 0, 1, 0.01);
+
+dist(drive) = wet_dry_mix(wet_dry, _: distortion) with {
+
+//drive			= vslider("drive", 0.35, 0, 1, 0.01);
 
 distortion1 	=  _:cubicnl(0.45*drive,0.0): *(8.0); 
 distortion2 	=  _:cubicnl(0.4*drive,0.0) : *(4.0);
@@ -117,9 +120,7 @@ distortion3 	=  _:cubicnl(1.0*drive,0.0) : *(8.0);
 distortion4 	=  _:cubicnl(0.6*drive,0.0) : *(5.0);
 distortion	= _ : filterbankN((F,(F1,F2))) : distortion2,distortion4 ,distortion3,distortion1 :>_;
 
-//-resonator
-resonator 		= (+ <: (delay(4096, 0.5) + delay(4096, 0.5)) / 2) ~ *(0.5);
+wet_dry = (drive - 0.5) * 2;
+};
 
-fx = (-0.4)*(drive*64): db2linear : smoothi(0.999);
-
-process 		= bypass(min(1,(drive * 100)), distortion) ;
+process 		= dist(vslider("drive", 0.35, 0, 1, 0.01));

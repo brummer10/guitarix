@@ -53,7 +53,7 @@ tubestage2(tb,fck,Rk) = tube : hpf with {
     hpf = highpass1(31.0);
 };
 
-process = hgroup("amp2", hgroup("stage1", stage1) :
+process = component("gxdistortion.dsp").dist(vslider(".gxdistortion.drive[alias]",0.35, 0, 1, 0.01)) : hgroup("amp2", hgroup("stage1", stage1) :
           hgroup("stage2", stage2) 
           ) with {
        

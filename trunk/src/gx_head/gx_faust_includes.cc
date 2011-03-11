@@ -153,16 +153,26 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 /****************************************************************
  **  include faust/dsp2cc generated files
  */
+ 
+// gxdistortion
+static struct GxDistortionParams { GxDistortionParams(); } GxDistortionParams;
+GxDistortionParams::GxDistortionParams() {
+	static FAUSTFLOAT v1;
+	registerVar("gxdistortion.drive","","S","",&v1, 0.35, 0.0, 1.0, 0.01);
+}
 
 #include "faust/gxamp.cc"
 #include "faust/gxamp2.cc"
 #include "faust/gxamp3.cc"
 #include "faust/gxamp4.cc"
 #include "faust/gxamp5.cc"
+#include "faust/gxamp6.cc"
+#include "faust/gxamp7.cc"
+#include "faust/gxamp8.cc"
 #include "faust/gx_ampmodul.cc"
 #include "faust/bassbooster.cc"
 #include "faust/gxfeed.cc"
-#include "faust/gxdistortion.cc"
+//#include "faust/gxdistortion.cc"
 #include "faust/balance.cc"
 #include "faust/jconv_post.cc"
 #include "faust/balance1.cc"

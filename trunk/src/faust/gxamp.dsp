@@ -20,9 +20,9 @@ tubestage(tb,fck,Rk) = tube : hpf with {
     hpf = highpass1(31.0);
 };
 
-tubeax(preamp,gain1) = hgroup("amp2", hgroup("stage1", stage1) :
+tubeax(preamp,gain1) =  hgroup("stage1", stage1) :
           hgroup("stage2", stage2) 
-          ) with {
+          with {
           
     stage1 = tubestage(0,86.0,2700.0) : *(preamp):
     lowpass1(6531.0) : tubestage(1,132.0,1500.0) : *(preamp) ; 
@@ -30,7 +30,8 @@ tubeax(preamp,gain1) = hgroup("amp2", hgroup("stage1", stage1) :
     
 } ;
 
-process = tubeax(preamp,gain1) with {
+
+process = component("gxdistortion.dsp").dist(vslider(".gxdistortion.drive[alias]",0.35, 0, 1, 0.01)) : tubeax(preamp,gain1) with {
     preamp =  (vslider("Pregain",-6,-20,20,0.1):db2linear : smoothi(0.999)); 
     gain1 = vslider("gain1", -6, -20.0, 20.0, 0.1) : db2linear : smoothi(0.999);
 } ;

@@ -63,7 +63,7 @@ tubeax(preamp,gain1) = hgroup("amp2", hgroup("stage1", stage1) :
     
 } ;
 
-process = tubeax(preamp,gain1) with {
+process = component("gxdistortion.dsp").dist(vslider(".gxdistortion.drive[alias]",0.35, 0, 1, 0.01)) : tubeax(preamp,gain1) with {
     preamp =  (vslider(".amp2.stage1.Pregain[alias]",0,-20,20,0.1):db2linear : smoothi(0.999));     
     gain1 = vslider(".amp2.stage2.gain1[alias]", 6, -20.0, 20.0, 0.1) : db2linear : smoothi(0.999);
 };

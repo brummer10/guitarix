@@ -341,7 +341,7 @@ public :
 	MenuCheckItem       fShowLogger;
 	MenuCheckItem       fShowMidiOut;
 	MenuCheckItem       fShowToolBar;
-	RadioCheckItem       fSelectTubeModel;
+	RadioCheckItem       fSelectTubeModel[9];
 	RadioCheckItem       fSelectTubeModel2;
 	RadioCheckItem       fSelectTubeModel3;
 	RadioCheckItem       fSelectTubeModel4;
