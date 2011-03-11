@@ -93,7 +93,7 @@ void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
 	double 	fSlow1 = (0.0010000000000000009 * pow(10,(0.05 * fslider1)));
-	double 	fSlow2 = (0.625 * fslider2);
+	double 	fSlow2 = (1.25 * fslider2);
 	for (int i=0; i<count; i++) {
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
 		fRec7[0] = (fSlow1 + (0.999 * fRec7[1]));
@@ -101,7 +101,7 @@ void compute(int count, float *input0, float *output0)
 		double fTemp1 = (fRec9[1] - 2.5e+02);
 		fVec0[0] = fTemp1;
 		fRec10[0] = ((fConst9 * (fVec0[0] + fVec0[1])) + (fConst8 * fRec10[1]));
-		fRec9[0] = Ftube3(0, (fRec10[0] + (fTemp0 * (1 + (fSlow2 * ((4.0 - (4.0 * fabs(fTemp0))) - 1))))));
+		fRec9[0] = Ftube3(0, (fRec10[0] + (fTemp0 * (1 + (fSlow2 * ((4 - (4 * fabs(fTemp0))) - 1))))));
 		fRec8[0] = ((fConst11 * ((fConst10 * fRec9[1]) + (fConst0 * fRec9[0]))) + (fConst2 * fRec8[1]));
 		double fTemp2 = (fRec8[0] * fRec7[0]);
 		fVec1[0] = fTemp2;

@@ -94,7 +94,7 @@ void init(int samplingFreq)
 void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
-	double 	fSlow1 = (0.625 * fslider1);
+	double 	fSlow1 = (1.25 * fslider1);
 	double 	fSlow2 = (0.0010000000000000009 * pow(10,(0.05 * fslider2)));
 	for (int i=0; i<count; i++) {
 		fRec3[0] = (fSlow0 + (0.999 * fRec3[1]));
@@ -103,7 +103,7 @@ void compute(int count, float *input0, float *output0)
 		double fTemp1 = (fRec9[1] - 2.5e+02);
 		fVec0[0] = fTemp1;
 		fRec11[0] = ((fConst11 * (fVec0[0] + fVec0[1])) + (fConst10 * fRec11[1]));
-		fRec9[0] = Ftube2(0, (fRec11[0] + ((fTemp0 * fRec10[0]) * (1 + (fSlow1 * ((4.0 - (4.0 * fabs(fTemp0))) - 1))))));
+		fRec9[0] = Ftube2(0, (fRec11[0] + ((fTemp0 * fRec10[0]) * (1 + (fSlow1 * ((4 - (4 * fabs(fTemp0))) - 1))))));
 		fRec8[0] = ((fConst13 * ((fConst12 * fRec9[1]) + (fConst0 * fRec9[0]))) + (fConst2 * fRec8[1]));
 		fRec7[0] = ((fConst14 * (fRec8[0] + fRec8[1])) + (fConst7 * fRec7[1]));
 		double fTemp2 = (fRec6[1] - 2.5e+02);

@@ -424,6 +424,9 @@ void process_buffers(int count, float* input, float* output0)
 	case 8: 
 		gxamp8::compute(count, output0, output0);
 		break;
+	case 9: 
+		gxamp9::compute(count, output0, output0);
+		break;
 	}
 	
 	if (audio.ftube) {
