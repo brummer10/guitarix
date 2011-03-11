@@ -42,7 +42,7 @@ VERSION='0.14.0svn'
 APPNAME='guitarix'
 APPNAME1='gx_head'
 
-good_faust_versions = ['0.9.24','0.9.27','0.9.30']
+good_faust_versions = ['0.9.30','0.9.33','0.9.36']
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
