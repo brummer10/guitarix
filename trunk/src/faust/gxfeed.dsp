@@ -31,10 +31,13 @@ rev1i(maxdel,N,g) = fb_combii (maxdel,N,1,-g);
 	    rev2N( 16, 12,0.7); 
 	}; 
 
+wet_dry =  vslider("wet_dry", 0, -1, 1, 0.01);
+
 switch   = checkbox("feed_on_off[name:reverb_on_of]");
-s_reverb  = _ <: select2(switch, _, (sat_rev));
-	    
-process =  _ : s_reverb <: _,_;
+s_reverb  = _ <: select2(switch, _, (wet_dry_mix(wet_dry,sat_rev)));
+
+
+process =  _ : (s_reverb) <: _,_;
 
 //process = _ <: _,_;
 

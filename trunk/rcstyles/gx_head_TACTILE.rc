@@ -36,6 +36,8 @@ GxPaintBox::skin-gradient = {
 { 0, 9830, 19661, 9830, 65536 }, # 0, 0.3, 0.3, 0.3 ,1 
 { 32768, 6554, 9830, 6554, 65536 }, # 0.5, 0.15, 0.15, 0.15, 1
 { 65536, 6554, 6554, 6554, 65536 }} # 1, 0.1, 0.1, 0.1, 1  
+GxPaintBox::icon-set =5
+stock["gxhead"] = {{"gx_green18.png"}}
 }
 
 class "GxPaintBox" style "gx2_head-paintbox"
@@ -188,6 +190,17 @@ stretch = TRUE
 }
 }
 
+style "gxt_barbutton_style"
+{
+
+bg[ACTIVE] = "#000000"
+bg[PRELIGHT] = { 0.01, 0.01, 0.01 }
+
+fg[NORMAL] = "#f1eded"
+fg[ACTIVE] = "#d6d6d6"
+fg[PRELIGHT] =  { 0.90, 0.90, 0.90 }
+}
+
 style "gx2_c_style"
 {
 engine "pixmap"
@@ -304,6 +317,8 @@ widget_class "GtkDialog*" style:highest "gx2_h_style"
 widget_class "*GtkToggleButton*" style:highest "gx2_b_style"
 class "GtkButton" style:highest "gx2_b_style"
 class "GtkSpinButton" style:highest "gx2_c_style"
+widget "*.barbutton" style:highest "gxt_barbutton_style"
+widget "*.barbuttonlabel" style:highest "gxt_barbutton_style"
 
 style "tagx2_b_style"
 {

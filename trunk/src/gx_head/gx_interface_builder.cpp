@@ -254,9 +254,10 @@ void GxMainInterface::setup()
                                    closeBox();
                                    openSpaceBox("");
                                    closeBox();
+                                   create_switch(sw_minitoggle, "amp.feed_on_off", _(" reverb  "), Gtk::POS_RIGHT);
+                                   create_minislider("amp.wet_dry");
                                    openSpaceBox("");
                                    closeBox();
-                                   create_switch(sw_minitoggle, "amp.feed_on_off", _(" reverb  "), Gtk::POS_RIGHT);
                                    openSpaceBox("");
                                    closeBox();
                                    openVerticalBox1("Convolver");

@@ -215,7 +215,7 @@ void compute(int count, float *input0, float *output0)
 	double 	fSlow5 = pow(1e+01,(1.2 * fSlow1));
 	double 	fSlow6 = (fConst41 * pow(1e+01,(2 * fSlow1)));
 	double 	fSlow7 = (fConst41 * pow(1e+01,(0.9 * fSlow1)));
-	double 	fSlow8 = (8.0 * (1 - max(0, (0 - fSlow2))));
+	double 	fSlow8 = (4.0 * (1 - max(0, (0 - fSlow2))));
 	double 	fSlow9 = (0.0010000000000000009 * pow(10,(0.05 * fslider2)));
 	for (int i=0; i<count; i++) {
 		fRec3[0] = (fSlow0 + (0.999 * fRec3[1]));

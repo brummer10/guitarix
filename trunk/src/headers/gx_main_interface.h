@@ -30,6 +30,7 @@
 #include <gxwmm/hslider.h>
 #include <gxwmm/eqslider.h>
 #include <gxwmm/levelslider.h>
+#include <gxwmm/minislider.h>
 #include <gxwmm/switch.h>
 #include <gxwmm/selector.h>
 #include <gxwmm/valuedisplay.h>
@@ -518,6 +519,14 @@ public :
 		{
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::HSlider(), id, label, true));
 		}
+	void create_minislider(string id)
+		{
+			addwidget(UiRegler::create(*this, new Gxw::MiniSlider(), id, false));
+		}
+	void create_minislider(string id, Glib::ustring(label))
+		{
+			addwidget(UiReglerWithCaption::create(*this, new Gxw::MiniSlider(), id, label, true));
+		}
 		
 	void create_eqslider_no_caption(string id, bool show_value = true)
 		{
@@ -536,7 +545,7 @@ public :
 			addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label, show_value));
 		}
 		// levelslider
-		void create_levelslider_no_caption(string id, bool show_value = true)
+	void create_levelslider_no_caption(string id, bool show_value = true)
 		{
 			addwidget(UiRegler::create(*this, new Gxw::LevelSlider(), id, show_value));
 		}

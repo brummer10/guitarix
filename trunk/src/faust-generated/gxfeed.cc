@@ -1,6 +1,7 @@
 namespace gxfeed {
 // generated from file '../src/faust/gxfeed.dsp'
 
+FAUSTFLOAT 	fslider0;
 int 	IOTA;
 double 	fVec0[1024];
 double 	fRec6[2];
@@ -41,7 +42,10 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0, float *output1)
 {
-	int 	iSlow0 = int(fcheckbox0);
+	double 	fSlow0 = fslider0;
+	double 	fSlow1 = (1 - max(0, fSlow0));
+	double 	fSlow2 = (1 - max(0, (0 - fSlow0)));
+	int 	iSlow3 = int(fcheckbox0);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		double fTemp1 = (0.2 * fTemp0);
@@ -73,7 +77,7 @@ void compute(int count, float *input0, float *output0, float *output1)
 		fVec6[0] = fTemp8;
 		fRec0[0] = fVec6[11];
 		double 	fRec1 = (0 - (0.7 * fVec6[0]));
-		double fTemp9 = ((iSlow0)?(fRec1 + fRec0[1]):fTemp0);
+		double fTemp9 = ((iSlow3)?((fSlow2 * (fRec1 + fRec0[1])) + (fSlow1 * fTemp0)):fTemp0);
 		output0[i] = (FAUSTFLOAT)fTemp9;
 		output1[i] = (FAUSTFLOAT)fTemp9;
 		// post processing
@@ -93,6 +97,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("amp.feed_on_off","reverb_on_of","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	registerVar("amp.wet_dry","","S","",&fslider0, 0.0, -1.0, 1.0, 0.01);
 	registerInit("amp", init);
 }
 

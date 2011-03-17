@@ -26,7 +26,7 @@ tubeax(preamp,gain1) =  hgroup("stage1", stage1) :
           
     stage1 = tubestage(0,86.0,2700.0) : *(preamp):
     lowpass1(6531.0) : tubestage(1,132.0,1500.0) : *(preamp) ; 
-    stage2 = lowpass1(6531.0) : tubestage(1,194.0,820.0) : *(gain1); 
+    stage2 = lowpass1(6531.0) <: ( tubestage(0,194.0,820.0), tubestage(1,194.0,820.0)) :> *(gain1); 
     
 } ;
 

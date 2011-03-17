@@ -13,6 +13,7 @@ stock["bigknob"] = {{"knob9.png"}}
 stock["smallknob"] = {{"smallknob9.png"}}
 stock["smallknobr"] = {{"mittleknob9.png"}}
 GxPaintBox::icon-set =1
+stock["gxhead"] = {{"gxhead.png"}}
 }
 
 class "GxKnob" style "gx_dezert_skin_icons"

@@ -213,7 +213,7 @@ void compute(int count, float *input0, float *output0)
 	double 	fSlow5 = (fConst39 * pow(1e+01,(2 * fSlow2)));
 	double 	fSlow6 = (fConst39 * pow(1e+01,(0.9 * fSlow2)));
 	double 	fSlow7 = (2 * (fSlow2 - 0.5));
-	double 	fSlow8 = (8.0 * (1 - max(0, (0 - fSlow7))));
+	double 	fSlow8 = (4.0 * (1 - max(0, (0 - fSlow7))));
 	double 	fSlow9 = (1 - max(0, fSlow7));
 	for (int i=0; i<count; i++) {
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));

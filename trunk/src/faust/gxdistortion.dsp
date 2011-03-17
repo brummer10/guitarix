@@ -114,10 +114,10 @@ dist(drive) = wet_dry_mix(wet_dry, _: distortion) with {
 
 //drive			= vslider("drive", 0.35, 0, 1, 0.01);
 
-distortion1 	=  _:cubicnl(0.45*drive,0.0): *(8.0); 
-distortion2 	=  _:cubicnl(0.4*drive,0.0) : *(4.0);
-distortion3 	=  _:cubicnl(1.0*drive,0.0) : *(8.0);
-distortion4 	=  _:cubicnl(0.6*drive,0.0) : *(5.0);
+distortion1 	=  _:cubicnl(0.45*drive,0.0): *(4.0); 
+distortion2 	=  _:cubicnl(0.4*drive,0.0) : *(2.0);
+distortion3 	=  _:cubicnl(1.0*drive,0.0) : *(4.0);
+distortion4 	=  _:cubicnl(0.6*drive,0.0) : *(2.5);
 distortion	= _ : filterbankN((F,(F1,F2))) : distortion2,distortion4 ,distortion3,distortion1 :>_;
 
 wet_dry = (drive - 0.5) * 2;
