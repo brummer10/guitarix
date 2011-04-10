@@ -726,8 +726,18 @@ void gx_save_preset (const char* presname, bool expand_menu)
 // set factory preset file and path
 void  gx_set_factory_file(int i)
 {
-	if(i) gx_factory_preset_file.set_path(gx_system::gx_style_dir +"zettberlin_rc");
-	else gx_factory_preset_file.set_path(gx_system::gx_style_dir +"funkmuscle_rc");
+	switch (i)
+	{
+	case 0:
+		gx_factory_preset_file.set_path(gx_system::gx_style_dir +"funkmuscle_rc");
+		break;
+	case 1:
+		gx_factory_preset_file.set_path(gx_system::gx_style_dir +"zettberlin_rc");
+		break;
+	case 2:
+		gx_factory_preset_file.set_path(gx_system::gx_style_dir +"dlp_ae_rc");
+		break;
+	}
 }
 
 bool gx_load_preset_from_factory(const char* presname, int i)

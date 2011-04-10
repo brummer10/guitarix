@@ -341,7 +341,8 @@ void gx_show_about( GtkWidget *widget, gpointer data )
 			"\n\n  authors: Hermann Meyer <brummer-@web.de>"
 			"\n  authors: James Warden <warjamy@yahoo.com>"
 			"\n  authors: Andreas Degert <andreas.degert@googlemail.com>    "
-			"\n  home: http://gx_head.sourceforge.net/\n");
+			"\n  authors: Pete Shorthose <pshorthose@gmail.com>    "
+			"\n  home: http://guitarix.sourceforge.net/\n");
 	}
 
 	gx_message_popup(about.c_str());

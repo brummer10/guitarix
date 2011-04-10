@@ -2974,6 +2974,14 @@ void GxMainInterface::addPresetMenu()
 	
 	gtk_widget_show (menuitem);
 	
+	menuitem = gtk_menu_item_new_with_mnemonic ("StudioDave");
+	menu = gtk_menu_new();
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
+	gtk_menu_shell_insert(GTK_MENU_SHELL(fpresmenu), menuitem, 0);
+	ffpresmenu[2] = menu;
+	
+	gtk_widget_show (menuitem);
+	
 	/*-- add New Preset saving under Save Presets menu */
 	menuitem = gtk_menu_item_new_with_mnemonic (_("New _Preset"));
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
