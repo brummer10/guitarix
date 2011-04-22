@@ -2590,6 +2590,17 @@ void GxMainInterface::openPlugBox(const char* label)
 	pushBox(kBoxMode, GTK_WIDGET(rBox));
 }
 
+void GxMainInterface::openScrollBox(const char* label)
+{
+	GxWindowBox *box =  new GxWindowBox(*this, 
+		pb_gxrack_expose, label, GTK_WIDGET(fShowRack.gobj()));
+	rack_widget = GTK_WIDGET(box->window.gobj());
+	box->window.set_size_request(-1,440); 
+	box->window.show_all();
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
+	pushBox(kBoxMode, GTK_WIDGET(box->rbox.gobj()));
+}
+
 void GxMainInterface::openAmpBox(const char* label)
 {
 	GxWindowBox *box =  new GxWindowBox(*this, 

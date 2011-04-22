@@ -653,7 +653,7 @@ void IRWindow::on_enumerate()
 		std::vector<Glib::ustring> file_names;
 		Glib::RefPtr<Gio::FileInfo> file_info;
 
-		while ((file_info = child_enumeration->next_file()) != NULL)
+		while ((file_info = child_enumeration->next_file()) != 0) //NULL
 		{
 			if(file_info->get_name().size() >3) { // filefilter
 			 if(file_info->get_name().compare(file_info->get_name().size()-3,3,"wav") == 0 ||

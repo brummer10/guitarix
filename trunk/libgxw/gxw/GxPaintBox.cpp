@@ -541,7 +541,8 @@ static gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_fill (cr);
 
 	cairo_pattern_t*pat =
-		cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+		//cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
 	set_skin_color(wi, pat);
 	cairo_set_source (cr, pat);
 	cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
@@ -623,7 +624,8 @@ static gboolean eq_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 	cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
 	cairo_pattern_t*pat =
-		cairo_pattern_create_radial (x0+200,y0+ rect_height*0.5, 5,x0+800, y0+ rect_height*0.5, 200.0);
+	cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+		//cairo_pattern_create_radial (x0+200,y0+ rect_height*0.5, 5,x0+800, y0+ rect_height*0.5, 200.0);
 	set_skin_color(wi, pat);
 	//cairo_pattern_add_color_stop_rgb (pat, 0, 0.3, 0.3, 0.3);
 	//cairo_pattern_add_color_stop_rgb (pat, 0.5, 0.15, 0.15, 0.15);
@@ -1942,7 +1944,8 @@ static gboolean gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_fill (cr);
 
 	cairo_pattern_t*pat =
-	cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+	//cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
 	set_skin_color(wi, pat);
 	cairo_set_source (cr, pat);
 	cairo_rectangle (cr, x0+2,y0+2,rect_width-4,rect_height-4);
