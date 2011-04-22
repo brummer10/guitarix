@@ -492,7 +492,7 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 		
 		GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
 		gtk_widget_show_all(GTK_WIDGET(plug));
-		GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(plug));
+		/*GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(plug));
 		GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
 		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
 		GtkWidget *box3 = gtk_widget_get_parent(GTK_WIDGET(box2));
@@ -509,13 +509,13 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 		}else{
 		if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
 			g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 5, gx_set_default_size,gpointer(box3),NULL);
-		}
+		}*/
 
 		
 	} else {
 		GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
 		gtk_widget_hide(GTK_WIDGET(plug));
-		GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(plug));
+		/*GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(plug));
 		GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
 		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
 		GtkWidget *box3 = gtk_widget_get_parent(GTK_WIDGET(box2));
@@ -532,7 +532,7 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 		}else{
 		if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
 			g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 5, gx_set_default_size,gpointer(box3),NULL);
-		}
+		}*/
 	}
 }
 

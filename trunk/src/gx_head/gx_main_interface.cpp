@@ -2580,7 +2580,7 @@ void GxMainInterface::openToolBar(const char* label)
 void GxMainInterface::openPlugBox(const char* label)
 {
 	GxWindowBox *box =  new GxWindowBox(*this, 
-		pb_gxrack_expose, label, GTK_WIDGET(fShowRack.gobj()));
+		pb_rectangle_skin_color_expose, label, GTK_WIDGET(fShowRack.gobj()));
 	rack_widget = GTK_WIDGET(box->window.gobj());
 	box->window.set_size_request(-1,440); 
 	box->window.set_name("MonoRack");
@@ -2604,7 +2604,7 @@ void GxMainInterface::openScrollBox(const char* label)
 void GxMainInterface::openAmpBox(const char* label)
 {
 	GxWindowBox *box =  new GxWindowBox(*this, 
-		pb_gxrack_expose, label, GTK_WIDGET(fShowSRack.gobj()));
+		pb_rectangle_skin_color_expose, label, GTK_WIDGET(fShowSRack.gobj()));
 	srack_widget = GTK_WIDGET(box->window.gobj());
 	box->window.set_size_request(-1,440); 
 	box->window.set_name("StereoRack");

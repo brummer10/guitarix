@@ -51,12 +51,21 @@ void GxMainInterface::setup()
      //----- add the menubar on top
      {
           addMainMenu();
-       openHorizontalBox("");
-       {
-		  openToolBar(_("Plugins"));
+      openHorizontalBox("");
+      {    
+		  openVerticalBox("");
           {
+			  openToolBar(_("Plugins"));
+			  {
+			  }
+			  closeBox();	
+			  addNumDisplay();
 		  }
 		  closeBox();	 
+		  
+       openVerticalBox("");
+       {
+		   
           openEventBox(" ");
           {
                //----- this is a dummy widget, only for save settings for the latency warning dialog
@@ -337,10 +346,9 @@ void GxMainInterface::setup()
           closeBox();
          
          
-			addNumDisplay();
-		 }
-		 closeBox();
-		 openHorizontalBox("");
+		
+		
+		 openScrollBox("");
                {
 		 openPlugBox(_("Mono Rack"));
 		 {
@@ -355,7 +363,11 @@ void GxMainInterface::setup()
 		 closeBox();
 		 }
 		 closeBox();
+		  }
+		 closeBox();
 	  }
+      closeBox(); 
+      }
       closeBox(); 
      // add a Patch Info widget
      openPatchInfoBox(&gx_gui::show_patch_info);
