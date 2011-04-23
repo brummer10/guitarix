@@ -236,22 +236,6 @@ void GxMainInterface::on_show_oscilloscope()
 	}
 }
 
-//----menu function gx_tuner
-void GxMainInterface::on_tuner_activate()
-{
-	if (fShowTuner.get_active()) {
-		gtk_widget_show_all(tuner_widget);
-		shownote = 1;
-		fTuner.show();
-	} else {
-		shownote = 0;
-		fTuner.hide();
-		gtk_widget_hide(tuner_widget);
-	}
-}
-
-
-
 // show loggingbox
 void GxMainInterface::on_log_activate() {
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(fShowLogger.gobj())) == TRUE) {
@@ -263,50 +247,6 @@ void GxMainInterface::on_log_activate() {
 		gtk_widget_hide(GTK_WIDGET(logger));
 	}
 
-}
-
-//----menu function gx_mono_rack
-void GxMainInterface::on_rack_activate()
-{
-	if (fShowRack.get_active()) {
-		gtk_widget_show(rack_widget);
-	} else {
-		gtk_widget_hide(rack_widget);
-	}
-}
-
-//----menu function gx_rack
-void GxMainInterface::on_rrack_activate()
-{
-	if (fShowRRack.get_active()) {
-		gtk_widget_show(RBox);
-		fShowRack.set_active(true);
-		fShowSRack.set_active(true);
-	} else {
-		gtk_widget_hide(RBox);
-		fShowRack.set_active(false);
-		fShowSRack.set_active(false);
-	}
-}
-
-//----menu function gx_rack
-void GxMainInterface::on_srack_activate()
-{
-	if (fShowSRack.get_active()) {
-		gtk_widget_show(srack_widget);
-	} else {
-		gtk_widget_hide(srack_widget);
-	}
-}
-
-//----menu function gx_toolbar
-void GxMainInterface::on_toolbar_activate()
-{
-	if (fShowToolBar.get_active()) {
-		gtk_widget_show_all(rack_tool_bar);
-	} else {
-		gtk_widget_hide(rack_tool_bar);
-	}
 }
 
 //----menu function gx_tuner
@@ -489,7 +429,8 @@ gboolean gx_set_sresizeable(gpointer data)
 
 gboolean gx_set_default(gpointer data)
 {
-	gtk_widget_set_size_request (GTK_WIDGET (data),-1, 440 );
+	gtk_widget_set_size_request (GTK_WIDGET (data),-1,-1 );
+	
 	return false;
 }
 
@@ -627,6 +568,94 @@ void gx_show_menu_settings(GtkWidget *widget, gpointer data)
 		gtk_widget_set_size_request (GTK_WIDGET (box1),my_size.width+24 , my_height );
 		
 	}*/
+}
+
+
+//----menu function gx_mono_rack
+void GxMainInterface::on_rack_activate()
+{
+	if (fShowRack.get_active()) {
+		gtk_widget_show(rack_widget);
+	} else {
+		gtk_widget_hide(rack_widget);
+	}
+}
+
+//----menu function gx_rack
+void GxMainInterface::on_rrack_activate()
+{
+	
+	if (fShowRRack.get_active()) {
+		gtk_widget_set_size_request (GTK_WIDGET (RBox),-1, 460);
+		gtk_widget_show(RBox);
+		fShowRack.set_active(true);
+		fShowSRack.set_active(true);
+	} else {
+		gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+		gtk_widget_hide(RBox);
+		fShowRack.set_active(false);
+		fShowSRack.set_active(false);
+	}
+	if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
+			g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,gpointer(fWindow),NULL);
+	if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
+			g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50, gx_set_default,gpointer(RBox),NULL);
+		
+}
+
+//----menu function gx_rack
+void GxMainInterface::on_srack_activate()
+{
+	if (fShowSRack.get_active()) {
+		gtk_widget_show(srack_widget);
+	} else {
+		gtk_widget_hide(srack_widget);
+	}
+}
+
+//----menu function gx_toolbar
+void GxMainInterface::on_toolbar_activate()
+{
+	
+	if (fShowToolBar.get_active()) {
+		gtk_widget_show_all(rack_tool_bar);
+	} else {
+		GtkAllocation my_size;
+		gtk_widget_get_allocation(GTK_WIDGET(RBox),&my_size);
+		gtk_widget_set_size_request (GTK_WIDGET (RBox),-1, my_size.height);
+		gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+		gtk_widget_hide(rack_tool_bar);
+	}
+	if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
+			g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,gpointer(fWindow),NULL);
+	if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
+			g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50, gx_set_default,gpointer(RBox),NULL);
+		
+}
+
+//----menu function gx_tuner
+void GxMainInterface::on_tuner_activate()
+{
+	
+		
+	if (fShowTuner.get_active()) {
+		gtk_widget_show_all(tuner_widget);
+		shownote = 1;
+		fTuner.show();
+	} else {
+		GtkAllocation my_size;
+		gtk_widget_get_allocation(GTK_WIDGET(RBox),&my_size);
+		gtk_widget_set_size_request (GTK_WIDGET (RBox),-1, my_size.height);
+		gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+		shownote = 0;
+		fTuner.hide();
+		gtk_widget_hide(tuner_widget);
+	}
+	if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
+			g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,gpointer(fWindow),NULL);
+	if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
+			g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50, gx_set_default,gpointer(RBox),NULL);
+		
 }
 
 //---- menu function gx_midi_out
