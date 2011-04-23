@@ -292,6 +292,7 @@ private:
 	void gx_show_menu_settings(GtkWidget *widget, gpointer data);
 	void on_log_activate();
 	void on_rack_activate();
+	void on_rrack_activate();
 	void on_srack_activate();
 	void on_toolbar_activate();
 	void on_tube_activate();
@@ -305,6 +306,7 @@ protected :
 	GtkWidget*          rBox;
 	GtkWidget*          sBox;
 	GtkWidget*          tBox;
+	GtkWidget*          RBox;
 	
 	int 		fMode[stackSize];
 	bool		fStopped;
@@ -338,6 +340,7 @@ protected :
 
 public :
 	MenuCheckItem       fShowRack;
+	MenuCheckItem       fShowRRack;
 	MenuCheckItem       fShowSRack;
 	MenuCheckItem       fShowLogger;
 	MenuCheckItem       fShowMidiOut;

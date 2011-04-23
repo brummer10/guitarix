@@ -1282,6 +1282,52 @@ GtkWidget* GxMainInterface::addWidget(const char* label, GtkWidget* w)
 
 // --------------------------- Press button ---------------------------
 
+struct uipButton : public gx_ui::GxUiItemFloat
+{
+	GtkButton* 	fButton;
+	uipButton(gx_ui::GxUI* ui, float* zone, GtkButton* b) : gx_ui::GxUiItemFloat(ui, zone), fButton(b) {}
+	static void pressed( GtkWidget *widget, gpointer   data )
+		{
+			gx_ui::GxUiItemFloat* c = (gx_ui::GxUiItemFloat*)data;
+			c->modifyZone(1.0);
+			guint32 tim = gtk_get_current_event_time ();
+			gtk_menu_popup (GTK_MENU(presmenu[0]),NULL,NULL,NULL,(gpointer)presmenu[0] ,2,tim);
+		}
+
+	static void released( GtkWidget *widget, gpointer   data )
+		{
+			gx_ui::GxUiItemFloat* c = (gx_ui::GxUiItemFloat*) data;
+			c->modifyZone(0.0);
+		}
+
+	virtual void reflectZone()
+		{
+			float 	v = *fZone;
+			fCache = v;
+			if (v > 0.0) gtk_button_pressed(fButton);
+			else gtk_button_released(fButton);
+		}
+};
+
+void GxMainInterface::addPToggleButton(const char* label, float* zone)
+{
+	*zone = 0.0;
+	GtkWidget* 	button = gtk_button_new ();
+	GtkWidget* 	lab = gtk_label_new(label);
+	GtkStyle *style = gtk_widget_get_style(lab);
+	pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+	gtk_widget_modify_font(lab, style->font_desc);
+	gtk_container_add (GTK_CONTAINER(button), lab);
+
+	gtk_widget_set_name (lab,"beffekt_label");
+	
+	addWidget(label,GTK_WIDGET(button));
+	gtk_widget_show (lab);
+	uipButton* c = new uipButton(this, zone, GTK_BUTTON(button));
+	g_signal_connect (GTK_OBJECT (button), "clicked", G_CALLBACK (uipButton::pressed), (gpointer) c);
+}
+
 struct uiButton : public gx_ui::GxUiItemFloat
 {
 	GtkButton* 	fButton;
@@ -1378,6 +1424,7 @@ void GxMainInterface::addToggleButton(const char* label, float* zone)
 }
 
 #if 1
+/*
 void GxMainInterface::addPToggleButton(const char* label, float* zone)
 {
 	GdkColor colorRed;
@@ -1417,7 +1464,7 @@ void GxMainInterface::addPToggleButton(const char* label, float* zone)
 	gtk_widget_set_name (lab,"rack_label");
 	g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
 	connect_midi_controller(button, zone);
-}
+}*/
 #endif
 
 static bool conv_start()
@@ -2594,9 +2641,10 @@ void GxMainInterface::openScrollBox(const char* label)
 {
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_gxrack_expose, label, GTK_WIDGET(fShowRack.gobj()));
-	rack_widget = GTK_WIDGET(box->window.gobj());
-	box->window.set_size_request(-1,440); 
-	box->window.show_all();
+	RBox = GTK_WIDGET(box->window.gobj());
+	box->window.set_size_request(-1,460); 
+	//box->window.show_all();
+	
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(box->rbox.gobj()));
 }
@@ -3513,15 +3561,23 @@ void GxMainInterface::addPluginMenu()
 	fShowToolBar.set_parameter(new SwitchParameter("system.show_toolbar"));
 	
 	/*-- Create mono rack check menu item under Options submenu --*/
+	set_label(fShowRRack, _("show _Rack"));
+	fShowRRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fShowRRack.signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_rrack_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowRRack.gobj()));
+	fShowRRack.show();
+	fShowRRack.set_parameter(new SwitchParameter("system.show_rrack"));
+	
+	/*-- Create mono rack check menu item under Options submenu --*/
 	set_label(fShowRack, _("show Mono_Rack"));
 	fShowRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowRack.signal_activate().connect(
 		sigc::mem_fun(*this, &GxMainInterface::on_rack_activate));
-	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowRack.gobj()));
-	fShowRack.show();
-	fShowRack.set_parameter(new SwitchParameter("system.show_rack"));
 	
+	fShowRack.set_parameter(new SwitchParameter("system.show_rack"));
 	/*-- Create mono plugin menu soket item under Options submenu --*/
 	menulabel = gtk_menu_item_new_with_mnemonic (_("_Mono Plugins"));
 	
@@ -3558,8 +3614,7 @@ void GxMainInterface::addPluginMenu()
 	                           GDK_s, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowSRack.signal_activate().connect(
 		sigc::mem_fun(*this, &GxMainInterface::on_srack_activate));
-	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowSRack.gobj()));
-	fShowSRack.show();
+	
 	fShowSRack.set_parameter(new SwitchParameter("system.show_Srack"));
 	
 	/*-- Create stereo plugin menu soket item under Options submenu --*/

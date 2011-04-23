@@ -55,8 +55,10 @@ void GxMainInterface::setup()
       {    
 		  openVerticalBox("");
           {
+			  
 			  openToolBar(_("Plugins"));
 			  {
+				  addPToggleButton("presets",&gx_engine::audio.viv);
 			  }
 			  closeBox();	
 			  addNumDisplay();

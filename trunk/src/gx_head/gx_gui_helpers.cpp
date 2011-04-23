@@ -265,13 +265,27 @@ void GxMainInterface::on_log_activate() {
 
 }
 
-//----menu function gx_rack
+//----menu function gx_mono_rack
 void GxMainInterface::on_rack_activate()
 {
 	if (fShowRack.get_active()) {
 		gtk_widget_show(rack_widget);
 	} else {
 		gtk_widget_hide(rack_widget);
+	}
+}
+
+//----menu function gx_rack
+void GxMainInterface::on_rrack_activate()
+{
+	if (fShowRRack.get_active()) {
+		gtk_widget_show(RBox);
+		fShowRack.set_active(true);
+		fShowSRack.set_active(true);
+	} else {
+		gtk_widget_hide(RBox);
+		fShowRack.set_active(false);
+		fShowSRack.set_active(false);
 	}
 }
 
