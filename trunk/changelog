@@ -1,3 +1,41 @@
+guitarix2 (0.15.0svn) unstable; urgency=low
+  * SVN head
+  
+ -- brummer <brummer-@web.de>  Sun, 25 Apr 2010 05:47:15 +0200 
+
+gx-head (0.14.0) unstable; urgency=low
+  * add tube 6DJ8
+  * add clean tube modes
+  * reworked drive controller (bypass <-> wet)
+  * add clipper
+  * add mono level controller
+  * add French translation by jy
+  * add TACTILE skin by Pete Shorthose
+  * add knob animation support by Pete Shorthose
+  * add new knob images by Pete Shorthose
+  * add new switch images by Pete Shorthose
+  * fix 64bit bug in libgxw by Pete Shorthose
+  * add factory settings by Dave Phillips
+  * add 3bad EQ + sharper
+  * add tremolo by transmogrifox (Rakarrack)
+  
+ -- brummer <brummer-@web.de>  Sun, 10 Apr 2011 08:47:15 +0200 
+
+gx-head (0.13.0) unstable; urgency=low
+  * add post amp
+  * add noise gate
+  * add italian translation by 	Ivan Tarozzi
+  * add desert skin by zettberlin
+  * add factory settigs by zettberlin
+  
+ -- brummer <brummer-@web.de>  Mon, 07 Feb 2011 18:47:15 +0200 
+
+gx-head (0.12.0) unstable; urgency=low
+  * initial release of gx_head
+  
+ -- brummer <brummer-@web.de>  Fri, 14 Aug 2011 18:47:15 +0200 
+
+
 guitarix (0.12.0svn) unstable; urgency=low
   * SVN head
   

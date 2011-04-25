@@ -1,4 +1,4 @@
-Source: guitarix
+Source: guitarix2
 Section: sound
 Priority: extra
 Maintainer: brummer <brummer-@web.de>
@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 6), python-minimal, python2.5, libjack-jackd2-dev|l
 Standards-Version: 3.7.3
 Homepage: <http://guitarix.sourceforge.net/>
 
-Package: guitarix
+Package: guitarix2
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: jack-capture, vorbistools, lame

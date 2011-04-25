@@ -5,9 +5,6 @@ import Build
 
 # start each filename with a space
 pixmap_files  = ''
-pixmap_files += ' guitarix-midi.png'
-pixmap_files += ' guitarix.png'
-pixmap_files += ' guitarix-warn.png'
 pixmap_files += ' gx_on.png'
 pixmap_files += ' gx_off.png'  
 pixmap_files += ' jackd_on.png'

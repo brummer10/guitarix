@@ -163,9 +163,7 @@ def build(bld):
         'stereoecho.dsp',
     ]
 
-    experimental_soures = [
-        "Exp.dsp",
-        ]
+    
 
     if bld.env['FAUST']:
         float_arg = ["-s","40000","-float"]
@@ -184,14 +182,7 @@ def build(bld):
             proc_args = float_arg,
             )
 
-        tg = bld.new_task_gen(
-            source=experimental_soures,
-            proc = "../tools/dsp2cc_exp",
-            proc_args = ["-a","../src/faust-include.cpp","-f","-double"],
-            )
-        expdsp = bld.path.find_resource("Exp.dsp")
-        bld.add_manual_dependency(expdsp, bld.path.find_resource("tremolo.dsp"))
-        bld.add_manual_dependency(expdsp, bld.path.find_resource("../faust-include.cpp"))
+        
     else:
         gdir = "../faust-generated/"
         for s in sources + float_sources + experimental_soures:

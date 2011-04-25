@@ -38,7 +38,7 @@ def option_enabled (option):
     return True
 
 # used by waf dist and waf build
-VERSION='0.14.0svn'
+VERSION='0.15.0svn'
 APPNAME='guitarix'
 APPNAME1='gx_head'
 
@@ -131,15 +131,8 @@ def set_options(opt):
                     const=True,
                     help='dont build ladspa plugins (Default yes)')
                     
-    comp = opt.add_option_group("New gx_head interface")
-    
-    comp.add_option('--build_head',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help='build gx_head (Default NO)')
-                    
 
+    
     faust = opt.add_option_group("Faust-Compiler")
 
     faust.add_option('--faust',
@@ -160,12 +153,6 @@ def set_options(opt):
                      default=False,
                      const=True,
                      help="build with faust, single precision")
-
-    faust.add_option('--experimental',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help='build with support for experimental Guitarix modules')
 
 
     ladspa = opt.add_option_group("LADSPA Options (installing ladspa modules)")
@@ -233,8 +220,7 @@ def check_comp(conf):
         conf.env['INTERN_ZITA_CONVOLVER'] = None
         conf.env['ZITA_CONVOLVER'] = None
         
-    if Options.options.build_head:
-        conf.env['GX_HEAD'] = True
+
 
     if Options.options.no_ladspa:
         conf.env['NO_LADSPA'] = True
@@ -458,8 +444,7 @@ def configure(conf):
     conf.define('GX_ICON_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
     conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
     conf.define('GX_VERSION', VERSION)
-    if Options.options.experimental:
-        conf.define('EXPERIMENTAL', '')
+   
     if conf.env.DEST_CPU=='x86_64': 
         conf.define('OS_IS_BIT', '#define OS_64_BIT')
     else:
@@ -499,9 +484,8 @@ def configure(conf):
     conf.sub_config('glade-gxw');
     conf.sub_config('libgxwmm');
     conf.sub_config('libgxw/gxw');
-    conf.sub_config('src');
-    if conf.env["GX_HEAD"]:
-        conf.sub_config('src/gx_head');
+    
+    conf.sub_config('src/gx_head');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
     if conf.env["LADSPA"]:   
@@ -511,7 +495,7 @@ def configure(conf):
     # some output
     print
     display_msg("==================")
-    version_msg = "GUITARIX " + VERSION
+    version_msg = "GUITARIX II " + VERSION
     print_msg(version_msg)
     
     print_msg("")
@@ -536,8 +520,8 @@ def configure(conf):
     display_feature("Use internal zita-resampler", conf.env['ZITARESAMPLER'])
     display_feature("Use internal zita-convolver", conf.env['ZITACONVOLVER'])
     display_feature("Jack Session Support", conf.env['HAVE_JACK_SESSION'])
-    display_feature("Experimental Extensions", conf.env['EXPERIMENTAL']=="")
-    display_feature("build gx_head", conf.env['GX_HEAD'])
+
+
     display_feature("build ladspa plugins", conf.env['LADSPA'])
     display_feature("Python Library Wrapper", conf.env['GX_PYTHON_WRAPPER'])
     display_feature("re-generate C++ Library Wrapper", not conf.env['USE_GENERATED_CPP'])
@@ -580,20 +564,18 @@ def build(bld):
     bld.add_subdirs('glade-gxw')
     bld.add_subdirs('pygxw')
     bld.add_subdirs('src/faust')
-    bld.add_subdirs('src')
+    
     bld.add_subdirs('rcstyles')
     bld.add_subdirs('pixmaps')
 
-    bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
-    if bld.env["GX_HEAD"]:
-        pa = bld.env['GX_SOUND_DIR1']
-        bld.add_subdirs('src/gx_head')
-        bld.install_files(bld.env['DESKAPPS_DIR'], 'gx_head.desktop', chmod=0644)
-        bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/funkmuscle_rc', chmod=0664)
-        bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/dlp_ae_rc', chmod=0664)
-        bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/zettberlin_rc', chmod=0664)
-        sub_file('./src/gx_head/zettberlin_rc.in', './src/gx_head/zettberlin_rc', (('"jconv.IRDir": "(.*)"', '"jconv.IRDir": "%s"' % pa), ))
-        bld.install_files(bld.env['GX_SOUND_DIR1'], './IR/greathall.wav', chmod=0664)
+    pa = bld.env['GX_SOUND_DIR1']
+    bld.add_subdirs('src/gx_head')
+    bld.install_files(bld.env['DESKAPPS_DIR'], 'gx_head.desktop', chmod=0644)
+    bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/funkmuscle_rc', chmod=0664)
+    bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/dlp_ae_rc', chmod=0664)
+    bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/zettberlin_rc', chmod=0664)
+    sub_file('./src/gx_head/zettberlin_rc.in', './src/gx_head/zettberlin_rc', (('"jconv.IRDir": "(.*)"', '"jconv.IRDir": "%s"' % pa), ))
+    bld.install_files(bld.env['GX_SOUND_DIR1'], './IR/greathall.wav', chmod=0664)
     if bld.env["GX_LIB_SHARED"]:
         bld.add_post_fun(post)
 
