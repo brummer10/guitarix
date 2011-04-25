@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import Build
+
+style_files = [
+    'controls1.jpg',
+    'controls2.jpg',
+    'controls3.jpg',
+    'controls4.jpg',
+    'controlsbl1.jpg',
+    'controlsbl2.jpg',
+    'controlsbl3.jpg',
+    'controlsbl4.jpg',
+    'controlsbl.jpg',
+    'controls.jpg',
+    'guitarix-darkblack-relief.jpg',
+    'sunburst.jpg',
+    'sunburst1.jpg',
+    'sunburst2.jpg',
+    'sunburst3.jpg',
+    'sunburst4.jpg',
+    'rainbow.jpg',
+    'rainbow1.jpg',
+    'rainbow2.jpg',
+    'rainbow3.jpg',
+    'yellow.jpg',
+    'yellow1.jpg',
+    'yellow2.jpg',
+    'yellow3.jpg',
+    'cairo.jpg',
+    'cairo1.jpg',
+    'cairo2.jpg',
+    'zreadable.jpg',
+    'zreadable1.jpg',
+    'zreadable2.jpg',
+    'zreadable3.jpg',
+    'zreadable4.jpg',
+    'zreadable5.jpg',
+    'guitarix_black.rc',
+    'guitarix_cairo.rc',
+    'guitarix_pix.rc',
+    'guitarix_sunburst.rc',
+    'guitarix_rainbow.rc',
+    'guitarix_yellow.rc',
+    'guitarix_default.rc',
+    'guitarix_zac.rc',
+    'guitarix_zreadable.rc',
+    'common.rc',
+    'eqslider1.png',
+    'eqslider.png',
+    'knob1.png',
+    'knob2.png',
+    'knob3.png',
+    'knob4.png',
+    'knob5.png',
+    'knob6.png',
+    'smallknob1.png',
+    'smallknob2.png',
+    'smallknob3.png',
+    'smallknob4.png',
+    'smallknob5.png',
+    'smallknob6.png',
+    ]
+
+def configure(conf):
+    pass
+
+def build(bld):
+    bld.install_files(bld.env['GX_STYLE_DIR'], style_files, chmod=0644)

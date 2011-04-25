@@ -1,0 +1,326 @@
+Hello, 
+
+Guitarix is a simple mono amplifier to be used in a 'JACKified'
+environment, i.e. a system using the JACK Audio Connection Kit, a
+professionally-capable audio/MIDI server and master transport control,
+available here:
+
+	http://jackaudio.org/
+
+Guitarix provides one JACK input port and two JACK output ports. It is 
+designed to produce nice trash/metal/rock/blues guitar sounds. Controls 
+for bass, treble, gain, compressor, preamp, balance, distortion, freeverb, 
+crybaby (wah) and echo are available. A fixed resonator is used when 
+distortion is disabled. To modify the sound 'pressure', you can use the 
+feedback and feedforward sliders.
+
+Guitarix includes an experimental tuner and a JACK MIDI output port
+with 3 channels. They are fed by a mix from a pitch tracker and a
+beat detector. You can pitch the octave (2 octaves up or down), choose the
+MIDI channel, the MIDI program, the velocity and the sensitiviy, which
+translates into how fast the note will read after the beat detector
+emits a signal. Values for the beat detector can be set for all
+channels.
+
+
+======================= Building guitarix from source code
+
+---- Build environment
+
+As of version 0.04.5-1, guitarix uses 'waf' for the build environment.
+The simplest and fastest way to build guitarix is given below:
+
+  cd guitarix_source_directory
+  ./waf configure
+  ./waf build
+  sudo ./waf install
+
+By default, this will install guitarix and related files in
+the /usr/local filesystem, e.g. /usr/local/bin.
+
+The installation prefix can be provided at configure time, e.g.:
+
+  ./waf configure --prefix=/usr
+  ./waf build
+  sudo ./waf install
+
+Thus, guitarix will be installed in /usr/bin.
+
+---- Dependencies 
+
+To compile and run properly guitarix needs the following extra
+packages (runtime binaries/libraries and development packages):
+
+  GTK+-2.0 >= 2.12.0 
+  libsndfile  >= 1.0.17
+  JACK (jackd, libjack, and their development packages) >= 0.109.1
+
+By the way, most package managers usually list development packages as 
+'packagename-dev', e.g. libsndfile-dev.
+
+---- Debian
+
+To build a Debian package, run "dpkg-buildpackage -rfakeroot -b"
+
+
+==================== Startup options
+
+---- From the command line
+
+Guitarix provides a few user options at startup. They can be set in
+two ways.  From the command line, guitarix can be invoked with the
+usual -h or --help option. The following help message is displayed:
+
+  $ guitarix --help
+
+   Guitarix usage
+   All parameters are optional. Examples:
+          guitarix
+          guitarix -r black -i system:capture_3
+          guitarix -c -o system:playback_1 system:playback_2
+  
+    -h [ --help ]         Print this help
+    -v [ --version ]      Print version string and exit
+  
+   GTK configuration options:
+    -c [ --clear ]        Use 'default' GTK style
+    -r [ --rcset ] arg    Style to use: 'black', 'pix', 'sunburst' or 'default'
+  
+   JACK configuration options:
+    -i [ --jack-input ] arg     guitarix JACK input
+    -o [ --jack-output ] arg    guitarix JACK outputs
+ 
+
+The options should be self explanatory but for the sake of clarity, a
+few extra points are worth mentioning here.
+
+JACK options: 
+------------- 
+
+By default, guitarix will not auto-connect to any JACK system ports
+unless the latter are explicitly provided by the user from the
+command line. If guitarix is started as follows:
+
+$ guitarix
+
+The user will have to manually connect the guitarix JACK ports to e.g.
+system ports from Patchage (drobilla.net/software/patchage/) or the 
+QJackCtl (qjackctl.sourceforge.net/) connection window.
+
+In the following example system port names are given:
+
+  $ guitarix -i system:capture_1 -o system:playback_1 system:playback_2
+
+At startup guitarix will autoconnect to these system ports
+
+
+GTK options:
+------------
+
+Guitarix comes with 2 GTK styles: 'black' and 'pix' The user can
+choose one at startup by invoking the -r (or --rc-style) option:
+
+  $ guitarix -r black
+
+The user can also decide not to use the shipped GTK styles and instead
+use the default GTK style used by your desktop and/or window manager :
+
+  $ guitarix -c
+
+It is of course possible to use combinations of different options (i.e. GTK
+and JACK options).
+
+
+---- From SHELL variables 
+
+Guitarix offers the possibility to make some of these options more
+"permanent" thanks to SHELL variables. These variables are:
+
+  GUITARIX2JACK_INPUTS
+  GUITARIX2JACK_OUTPUTS1
+  GUITARIX2JACK_OUTPUTS2
+  GUITARIX_RC_STYLE
+
+Those can be defined in your $HOME/.bashrc file. Here's a typical setup:
+
+  export GUITARIX2JACK_INPUTS=system:capture_1  
+  export GUITARIX2JACK_OUTPUTS1=system:playback_1
+  export GUITARIX2JACK_OUTPUTS2=system:playback_2
+  export GUITARIX_RC_STYLE=black
+
+For (t)csh shells, the following can be placed in $HOME/.cshrc
+
+  setenv GUITARIX2JACK_INPUTS  system:capture_1  
+  setenv GUITARIX2JACK_OUTPUTS1  system:playback_1
+  setenv GUITARIX2JACK_OUTPUTS2  system:playback_2
+  setenv GUITARIX_RC_STYLE  black
+
+
+==================== Keyboard shortcuts
+
+Guitarix benefits from keyboard shortcuts for most of its operations.
+At the moment (svn@200), the following keyboard shortcuts are available:
+
+* Engine menu:
+--------------
+  - Audio engine play	: Space
+  - Audio engine stop	: Space
+  - Effects bypass        : B  (see note (i))
+  - Effects back          : B or Space
+  - MIDI out ON/OFF	: Shift+M
+  - Quit guitarix		: Ctrl+Q
+
+(i) Note that if jconv is running (launched from guitarix) it will still 
+    be active and the wet/dry slider can still be used. 
+    This implies that guitarix can be regarded as a GUI for jconv.
+
+
+* Presets menu (as of version 0.04.7):
+---------------
+
+When guitarix is launched, it will browse the $HOME/.guitarix/guitarixprerc 
+file and store the found presets in its menu. The preset handling is quite
+versatile and let you do some useful things:
+
+  - Load a preset         : 1, 2, 3, ... (note (ii))  
+  - Save a preset         : Ctrl+1, Ctrl+2, etc (note (ii))
+  - Create a new preset   : Ctrl+P (insert a valid name, 
+                                    spaces will be replaced by '-')
+  - Recall main setting   : S      (see note (iii))
+  - Save as main setting	: Ctrl+S (see note (iv))
+  
+  Submenu "More Preset Action" :
+  - Cycle to next preset  : Page Down  (very useful)
+  - Cycle to prev preset  : Page Up    (very useful)
+  - Save active preset    : Alt+S
+  - Rename active preset  : Alt+R
+  - Delete active preset  : Delete
+  - Delete ALL presets    : Ctrl+Shift+D (gives a warning)
+
+Notes:
+
+(ii)  If you have more than 9 presets, shortcuts will be disabled
+
+(iii) The main setting is a different context than a preset. If you quit
+      guitarix while you are in a preset context, the main setting will not
+      be saved automatically as guitarix knows only one setting at a time
+      (the current active setting). You can always recall the main setting and
+      save whatever changes you bring to it with Ctrl+S. 
+
+(iv)  Saving the main setting can be done from any context. Ctrl+S will save 
+      the current state into the main setting and bring you back to the main
+      setting context. Therefore, when you were in a preset context and save
+      it as the main setting, you leave the preset context.  
+      If you want instead to save the active preset, use Alt+S so you stay
+      in this context.
+
+
+* Options menu:
+--------------
+
+  - Oscilloscope ON/OFF	: Shift+O
+  - Tuner ON/OFF 		: Shift+T	
+  - Meterbridge ON/OFF	: Alt+M
+  - Jack capture settings	: Alt+J
+
+  - Skin change cycle-through : Shift+S
+
+* About menu:
+-------------
+
+  - About display		: Ctrl+A
+
+  - Record / Stop record	: R
+
+
+==================== JACK startup when JACK isn't running
+
+Guitarix will pop up a JACK start dialog window if it finds that jackd
+is not running.
+
+The user can choose to activate JACK or exit guitarix.  Note that the
+supported methods for starting JACK are (by preference order):
+
+1- QJackCtl --start
+2- Use of $HOME/.jackdrc
+
+Guitarix does not support jackdbus or any JACK start method other than
+the two listed above.
+
+
+=========== Extra information
+
+---- LADSPA
+
+Guitarix also comes as a suite of LADSPA plugins. If the user wishes
+to use guitarix or some of its effects in a LADSPA host (e.g. Ardour),
+the guitarix plugins are available. They are installed by default in
+
+  $PREFIX/lib/ladspa
+
+where PREFIX is either /usr or /usr/local.
+
+
+
+---- RECOMMENDED EXTENSION:
+
+=> jack_capture
+
+For capture (ALSA-speak for recording), guitarix uses the jack_capture 
+iprogram from Kjetil S. Matheussen. If you don't have it installed, look here:
+
+	http://old.notam02.no/arkiv/src/?M=D
+
+You don't need jack_capture to run guitarix. However, the capture
+(record) button won't work without this external
+application. Pushing the record button will in this case create a
+pop-up warning. Guitarix only looks in $PATH to locate jack_capture,
+so be sure to install it somewhere in your declared PATH.
+
+Recordings will always go to $HOME/guitarix_sessionX.<type>. A small
+preference interface is provided by guitarix as to the jack_capture
+parameters (file type, bit depth, JACK ports to capture from, et cetera).
+
+If jack_capture is to record into the OGG format, you also need the 
+vorbis-tools package for encoding to OGG:
+
+	http://vorbistools.sourceforge.net/
+
+=> jconv
+
+Guitarix can also use the excellent jconv convolution engine developed by 
+Fons Adriaensen, available here: 
+
+	http://www.kokkinizita.net/linuxaudio/index.html 
+
+Jconv can be configured from guitarix. However, due to design
+restrictions jconv can only be configured when not running. Despite
+this restriction, it is possible to save guitarix presets with
+particular jconv settings. The user can recall these presets from the
+main Load Preset menu item.
+
+Note: When trying to load an impulse response WAV file (aka an IR file), 
+guitarix will check for spaces in the filename and remove them if present.
+You can also resample the file to the sample rate used by JACK. Finally, 
+as for jack_capture, guitarix will run even if jconv is not installed.
+
+
+===========================================
+
+THANKS:
+
+I (Hermann Meyer) use FAUST to build the prototype and will say thanks
+to the following contributors:
+
+Contributors 	: Julius Smith <http://ccrma.stanford.edu/realsimple/faust/>
+		: Albert Graef <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html>
+		: Yann Orlary <http://faust.grame.fr/>
+
+The waf build environment and various code cleanups are provided by James Warden.
+
+Enjoy! :)
+
+If you encounter problems building or running guitarix, please inform us.
+
+     brummer-@web.de
+     warjamy@yahoo.com

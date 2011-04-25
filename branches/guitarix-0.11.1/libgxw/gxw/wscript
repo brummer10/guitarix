@@ -1,0 +1,111 @@
+# -*- python -*-
+# -*- coding: utf-8 -*-
+
+import Logs, Utils, Configure, Options, os.path
+
+def set_options(opt):
+    pass
+
+def configure(conf):
+    if conf.env["GX_LIB_SHARED"] or conf.env["GXW_SHARED"]:
+        conf.check_tool("libtool")
+
+def img2c(task):
+    mkname = lambda v: "pb_" + os.path.splitext(os.path.basename(str(v)))[0]
+    sources = " ".join(["'%s' '%s'" % (mkname(v), v.srcpath(task.env)) for v in task.inputs])
+    dst = task.outputs[0].bldpath(task.env)
+    cmd = ("gdk-pixbuf-csource --raw --build-list %s > %s" % (sources, dst))
+    Logs.debug("runner: system command -> %s" % cmd)
+    return Utils.exec_command(cmd, shell=True)
+
+def build_stock_images(bld):
+    images = [
+        "button_off.png",
+        "button_on.png",
+        "eqslider.png",
+        "knob1.png",
+        "led_off.png",
+        "led_on.png",
+        "minislider.png",
+        "minitoggle_off.png",
+        "minitoggle_on.png",
+        "hslider.png",
+        "smallknob1.png",
+        "switchit_off.png",
+        "switchit_on.png",
+        "switch_off.png",
+        "switch_on.png",
+	"pbutton_on.png",
+	"pbutton_off.png",
+	"rbutton_on.png",
+	"rbutton_off.png",
+        "vslider.png",
+        "wheel_back.png",
+        "wheel_fringe.png",
+        "wheel_pointer.png",
+        "tribe.png",
+        "guitar.png",
+        ]
+
+    bld(name = "img2c",
+        target = "gximages.cc",
+        rule = img2c,
+        source = ["../icons/"+v for v in images],
+        )
+    bld.add_group()
+
+def build(bld):
+    sources = [
+        'gxinit.cpp',
+        'GxFastMeter.cpp',
+        'GxWaveView.cpp',
+        'GxTuner.cpp',
+        'GxRegler.cpp',
+        'GxSelector.cpp',
+        'GxSwitch.cpp',
+        'GxToggleImage.cpp',
+        'GxControlParameter.cpp',
+        'GxIREdit.cpp',
+        'GxRadioButton.cpp',
+        'GxWheel.cpp',
+        'GxKnob.cpp',
+        'GxBigKnob.cpp',
+        'GxSmallKnob.cpp',
+        'GxHSlider.cpp',
+        'GxMiniSlider.cpp',
+        'GxVSlider.cpp',
+        'GxEQSlider.cpp',
+        'GxPaintBox.cpp',
+        'GxMeterScale.cpp',
+        'GxGradient.cpp',
+        'GxValueDisplay.cpp',
+        ]
+    build_stock_images(bld)
+    if bld.env["GX_LIB_STATIC"]:
+        # static library
+        prog = bld(
+            features = ['cxx', 'cstaticlib'],
+            ccflags= bld.env['CXXFLAGS'],
+            includes = ['.'],
+            source = sources,
+            uselib = ['GTHREAD', 'GTK2'],
+            target = 'gxw',
+            chmod=0755,
+            )
+    if bld.env["GX_LIB_SHARED"] or bld.env["GXW_SHARED"]:
+        # shared library
+        prog = bld(
+            features = ['cxx', 'cshlib'],
+            ccflags= bld.env['CXXFLAGS'],
+            includes = ['.'],
+            source = sources,
+            uselib = ['GTHREAD', 'GTK2'],
+            target = 'gxw',
+            chmod=0755,
+            )
+        if bld.env["GX_LIB_SHARED"] or bld.env["GXW_SHARED_INSTALL"]:
+            prog.features.append('libtool')
+            prog.type = 'cshlib'
+            prog.vnum = "0.1"
+        else:
+            prog.install_path = None

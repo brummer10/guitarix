@@ -1,0 +1,225 @@
+#
+# This is the GTK rc style file for guitarix
+#
+
+include "common.rc"
+
+style "guitarix_skin_icons"
+{
+  stock["bigknob"] = {{"knob4.png"}}
+  stock["smallknob"] = {{"smallknob4.png"}}
+  stock["eqslider"] = {{"eqslider.png"}}
+}
+
+class "GxKnob" style "guitarix_skin_icons"
+class "GxEQSlider" style "guitarix_skin_icons"
+
+style "guitarix-paintbox"
+{
+  GxPaintBox::skin-gradient = {
+    {     0, 32768, 1311, 1966, 39322 }, # 0, 0.5, 0.02, 0.03, 0.6
+    { 65536,  3277, 3277, 6554, 39322 }} # 1, 0.05, 0.05, 0.1, 0.6
+}
+
+class "GxPaintBox" style "guitarix-paintbox"
+
+style "guitarixp"
+{
+
+
+  GtkButton::default_border = { 0, 0, 0, 0 }
+  GtkButton::default_outside_border = { 0, 0, 0, 0 }
+  GtkButton::button_relief = GTK_RELIEF_NONE
+
+
+  fg[NORMAL] = { 0.80, 0.80, 0.80 }
+  fg[ACTIVE] = { 0.80, 0.80, 0.80 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }
+  fg[SELECTED] = { 0.80, 0.80, 0.80 }
+
+  bg[NORMAL] = { 0.30, 0.30, 0.30 }
+  bg[PRELIGHT] = "#760608"
+  bg[ACTIVE] = { 0.0, 0.0, 0.0 }
+  bg[INSENSITIVE] = "#c4c0c0"
+  bg[SELECTED] = "#760608"
+  bg_pixmap[NORMAL] = ""
+
+  text[NORMAL] = { 0.80, 0.80, 0.80 }
+  text[ACTIVE] = { 0.80, 0.80, 0.80 }
+  text[PRELIGHT] = { 0.80, 0.80, 0.80 }
+  text[INSENSITIVE] = { 0.80, 0.80, 0.80}
+  text[SELECTED] = { 1.0, 1.0, 1.0 }
+
+  base[ACTIVE]     = "#272a2f"
+  base[NORMAL]      =  "#1a1e20"
+  base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
+  base[INSENSITIVE]  = "#4c5159"
+  base[SELECTED]     = { 0.25, 0.25, 0.25 }
+  font_name = "sans 10"
+
+}
+
+
+class "GtkWidget" style:highest "guitarixp"
+class "GtkLabel" style:highest "guitarixp"
+class "GtkHScale" style:highest "guitarixp"
+class "GtkVScale" style:highest "guitarixp"
+class "GtkCheckButton" style:highest "guitarixp"
+class "GtkButton" style:highest "guitarixp"
+class "GtkFrame" style:highest "guitarixp"
+class "GtkExpander" style:highest "guitarixp"
+
+
+style "guitarix-event-xp"
+{
+ bg_pixmap[NORMAL] = "controls3.jpg"
+}
+widget "*.osc_box" style:highest "guitarix-event-xp"
+class "GtkEventBox" style:highest "guitarix-event-xp"
+
+style "guitarix-pdialog"
+{
+ bg_pixmap[NORMAL] = "controls1.jpg"
+}
+
+#widget_class "GtkDialog*" style:highest "guitarix-pdialog"
+
+style "guitarix-pmenu"
+{
+  fg[NORMAL] = { 0.80, 0.80, 0.80 }
+  bg[NORMAL] =  "#600405"
+  bg[SELECTED] =  "#120202"
+  font_name = "sans 9"
+}
+
+class "GtkMenu" style:highest "guitarix-pmenu"
+class "GtkMenuBar" style:highest "guitarix-pmenu"
+
+
+style "guitarix-l_pix"
+{
+  fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
+  fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+
+style "guitarix-v_pix"
+{
+  fg[NORMAL] = 	{ 0.6, 0.6, 0.6 }
+  fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+
+style "guitarix-b_pix"
+{
+  fg[NORMAL] = 	{ 0.5, 0.5, 0.5 }
+  fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+widget "*.effekt_label" style:highest "guitarix-v_pix"
+widget "*.value_label" style:highest "guitarix-l_pix"
+widget "*.beffekt_label" style:highest "guitarix-b_pix"
+
+
+style "bix_style"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL
+			shadow			= OUT
+			file			= "controls.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= PRELIGHT
+			shadow			= OUT
+			file			= "controls2.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= ACTIVE
+			shadow			= OUT
+			file			= "controls.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+}
+
+style "hix_style"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL
+			shadow			= OUT
+			file			= "controls.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+	fg[NORMAL] = { 0.80, 0.80, 0.80 }
+    bg[NORMAL] = { 0.0, 0.0, 0.0 }
+    
+    text[NORMAL] = { 0.80, 0.80, 0.80 }
+	text[ACTIVE] = { 0.80, 0.80, 0.80 }
+	text[PRELIGHT] = { 0.80, 0.80, 0.80 }
+	text[INSENSITIVE] = { 0.80, 0.80, 0.80}
+	text[SELECTED] = { 1.0, 1.0, 1.0 }
+
+	base[ACTIVE]     = "#272a2f"
+	base[NORMAL]      =  "#1a1e20"
+	base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
+	base[INSENSITIVE]  = "#4c5159"
+	base[SELECTED]     = { 0.25, 0.25, 0.25 }
+}
+
+class "GtkHandleBox" style:highest "hix_style"
+widget_class "*GtkToggleButton*" style:highest "bix_style"
+widget_class "GtkDialog*" style:highest "hix_style"
+class "GtkButton" style:highest "bix_style"
+class "GtkSpinButton" style:highest "bix_style"
+
+style "pix_style"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= PRELIGHT
+			shadow			= OUT
+			file			= "controls4.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+}
+widget_class "*GtkProgressBar*" style:highest "pix_style"
+

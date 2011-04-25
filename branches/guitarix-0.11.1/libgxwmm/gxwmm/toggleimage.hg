@@ -1,0 +1,34 @@
+/*
+ * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+
+#include <gtkmm/misc.h>
+_DEFS(gxwmm,gxw)
+_PINCLUDE(gtkmm/private/misc_p.h)
+
+namespace Gxw {
+
+class ToggleImage: public Gtk::Misc {
+	_CLASS_GTKOBJECT(ToggleImage,GxToggleImage,GX_TOGGLE_IMAGE,Gtk::Misc,GtkMisc)
+	public:
+	_CTOR_DEFAULT
+	_WRAP_METHOD(void set_base_name(const Glib::ustring&), gx_toggle_image_set_base_name)
+	_WRAP_METHOD(Glib::ustring get_base_name(), gx_toggle_image_get_base_name)
+	_WRAP_PROPERTY(base-name, Glib::ustring)
+};
+
+} // namespace Gxw

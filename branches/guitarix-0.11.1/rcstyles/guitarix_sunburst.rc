@@ -1,0 +1,242 @@
+#
+# This is the GTK rc style file for guitarix
+#
+
+include "common.rc"
+
+style "guitarix_skin_icons"
+{
+  stock["bigknob"] = {{"knob5.png"}}
+  stock["smallknob"] = {{"smallknob5.png"}}
+  stock["eqslider"] = {{"eqslider.png"}}
+}
+
+class "GxKnob" style "guitarix_skin_icons"
+class "GxEQSlider" style "guitarix_skin_icons"
+
+style "guitarix-paintbox"
+{
+  GxPaintBox::skin-gradient = {
+    {     0, 52429, 13107, 1311, 39322 }, # 0, 0.8, 0.2,  0.02,  0.6
+    { 65536, 13107,  5898,  328, 39322 }} # 1, 0.2, 0.09, 0.005, 0.6
+}
+
+class "GxPaintBox" style "guitarix-paintbox"
+
+style "guitarix_sunburst"
+{
+
+
+  GtkButton::default_border = { 0, 0, 0, 0 }
+  GtkButton::default_outside_border = { 0, 0, 0, 0 }
+  GtkButton::button_relief = GTK_RELIEF_NONE
+
+
+  fg[NORMAL] = { 0.80, 0.80, 0.80 }
+  fg[ACTIVE] = { 0.80, 0.80, 0.80 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }
+  fg[SELECTED] = { 0.80, 0.80, 0.80 }
+
+  bg[NORMAL] = { 0.0, 0.0, 0.0 }
+  bg[PRELIGHT] = "#1e0000"
+  bg[ACTIVE] = { 0.0, 0.0, 0.0 }
+  bg[INSENSITIVE] = "#c4c0c0"
+  bg[SELECTED] = "#973419"
+  bg_pixmap[NORMAL] = ""
+
+  text[NORMAL] = { 0.80, 0.80, 0.80 }
+  text[ACTIVE] = { 0.80, 0.80, 0.80 }
+  text[PRELIGHT] = { 0.80, 0.80, 0.80 }
+  text[INSENSITIVE] = { 0.80, 0.80, 0.80}
+  text[SELECTED] = { 1.0, 1.0, 1.0 }
+
+  base[ACTIVE]     = "#272a2f"
+  base[NORMAL]      =  "#1a1e20"
+  base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
+  base[INSENSITIVE]  = "#4c5159"
+  base[SELECTED]     = { 0.25, 0.25, 0.25 }
+  font_name = "sans 10"
+
+}
+
+
+class "GtkWidget" style:highest "guitarix_sunburst"
+class "GtkLabel" style:highest "guitarix_sunburst"
+class "GtkHScale" style:highest "guitarix_sunburst"
+class "GtkVScale" style:highest "guitarix_sunburst"
+class "GtkCheckButton" style:highest "guitarix_sunburst"
+class "GtkButton" style:highest "guitarix_sunburst"
+class "GtkFrame" style:highest "guitarix_sunburst"
+class "GtkExpander" style:highest "guitarix_sunburst"
+
+
+style "guitarix-event_sunburst"
+{
+ bg_pixmap[NORMAL] = "sunburst2.jpg"
+}
+widget "*.osc_box" style:highest "guitarix-event_sunburst"
+class "GtkEventBox" style:highest "guitarix-event_sunburst"
+
+style "guitarix-dialog_sunburst"
+{
+ bg_pixmap[NORMAL] = "sunburst2.jpg"
+}
+
+#widget_class "GtkDialog*" style:highest "guitarix-dialog_sunburst"
+
+style "guitarix-m_sunburst"
+{
+  fg[NORMAL] = "#8c5214"
+  bg[NORMAL] =  "#450000"
+  font_name = "sans 9"
+}
+
+class "GtkMenu" style:highest "guitarix-m_sunburst"
+class "GtkMenuBar" style:highest "guitarix-m_sunburst"
+
+
+style "guitarix-l_sun"
+{
+  fg[NORMAL] = 	{ 0.7, 0.7, 0.7 }
+  fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+
+style "guitarix-v_sun"
+{
+  fg[NORMAL] = 	{ 0.6, 0.6, 0.6 }
+  fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+
+style "guitarix-b_sun"
+{
+  fg[NORMAL] = 	{ 0.5, 0.5, 0.5 }
+  fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+  fg[SELECTED] = { 0.8, 0.8, 0.8 }
+
+}
+widget "*.effekt_label" style:highest "guitarix-v_sun"
+widget "*.value_label" style:highest "guitarix-l_sun"
+widget "*.beffekt_label" style:highest "guitarix-b_sun"
+
+
+style "b_style_sunburst"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL
+			shadow			= OUT
+			file			= "sunburst3.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= PRELIGHT
+			shadow			= OUT
+			file			= "sunburst4.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= ACTIVE
+			shadow			= OUT
+			file			= "sunburst3.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+}
+
+style "c_style_sunburst"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL
+			shadow			= OUT
+			file			= "sunburst.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+
+	}
+}
+
+style "h_style_sunburst"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= NORMAL
+			shadow			= OUT
+			file			= "sunburst.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+	fg[NORMAL] = { 0.80, 0.80, 0.80 }
+    bg[NORMAL] = { 0.0, 0.0, 0.0 }
+    
+    text[NORMAL] = { 0.80, 0.80, 0.80 }
+	text[ACTIVE] = { 0.80, 0.80, 0.80 }
+	text[PRELIGHT] = { 0.80, 0.80, 0.80 }
+	text[INSENSITIVE] = { 0.80, 0.80, 0.80}
+	text[SELECTED] = { 1.0, 1.0, 1.0 }
+
+	base[ACTIVE]     = "#272a2f"
+	base[NORMAL]      =  "#1a1e20"
+	base[PRELIGHT]     = { 0.20, 0.20, 0.20 }
+	base[INSENSITIVE]  = "#4c5159"
+	base[SELECTED]     = { 0.25, 0.25, 0.25 }
+}
+
+class "GtkHandleBox" style:highest "h_style_sunburst"
+widget_class "*GtkToggleButton*" style:highest "b_style_sunburst"
+widget_class "GtkDialog*" style:highest "h_style_sunburst"
+class "GtkButton" style:highest "b_style_sunburst"
+class "GtkSpinButton" style:highest "c_style_sunburst"
+
+style "p_style_sunburst"
+{
+ 	engine "pixmap"
+	{
+		image
+		{
+			function		= BOX
+			recolorable		= TRUE
+			state			= PRELIGHT
+			shadow			= OUT
+			file			= "sunburst2.jpg"
+			border			= { 0, 0, 0, 0 }
+			stretch			= TRUE
+		}
+	}
+}
+widget_class "*GtkProgressBar*" style:highest "p_style_sunburst"
+
