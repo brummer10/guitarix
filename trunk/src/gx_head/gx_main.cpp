@@ -78,7 +78,8 @@ int main(int argc, char *argv[])
 	gx_engine::audio.register_parameter();
 	gx_engine::midi.register_parameter();
 	gx_engine::register_faust_parameters();
-	gx_gui::register_gui_parameter();
+	gx_gui::GuiVariables guivar;
+	guivar.register_gui_parameter();
 	gx_preset::init();
 	gx_gui::parameter_map.set_init_values();
 

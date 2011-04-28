@@ -95,7 +95,7 @@ inline void registerNonMidiParam(const char*a, bool*c, bool d, float std=false)
 	parameter_map.insert(new BoolParameter(a,"",Parameter::None,d,*c,std,0,false));
 }
 
-void register_gui_parameter()
+void GuiVariables::register_gui_parameter()
 {
 	registerNonMidiParam("ui.main_xorg", &main_xorg, true, 300,0,10000);
 	registerNonMidiParam("ui.main_yorg", &main_yorg, true, 300,0,10000);

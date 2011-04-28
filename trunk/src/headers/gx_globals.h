@@ -269,33 +269,41 @@ extern float main_xorg;
 extern float main_yorg;
 
 /* Effect moduls box*/
-extern bool fdialogbox1;
-extern bool fdialogbox2;
-extern bool fdialogbox3;
-extern bool fdialogbox4;
-extern bool fdialogbox6;
-extern bool fdialogbox8;
-extern bool fdialogbox_eq;
-extern bool fdialogbox_eqs;
-extern bool fdialogbox_mbf;
-extern bool fdialogbox_moo;
-extern bool fdialogbox_pha;
-extern bool fdialogbox_se;
-extern bool fdialogbox_wv;
-extern bool fdialogbox_echo;
-extern bool fdialogbox_delay;
-extern bool fdialogbox_ovd;
-extern bool fdialogbox_lh;
-extern bool fdialogbox_sd;
-extern bool fchorusbox;
-extern bool fflangerbox;
-extern bool fampmodul;
-extern bool ftonemodule;
-extern bool ftremolo_dialog;
-extern bool fbiquadbox;
-extern bool fphaser_mono_dialog;
 
-extern void register_gui_parameter();
+class GuiVariables
+{
+public:
+
+	bool fdialogbox1;
+	bool fdialogbox2;
+	bool fdialogbox3;
+	bool fdialogbox4;
+	bool fdialogbox6;
+	bool fdialogbox8;
+	bool fdialogbox_eq;
+	bool fdialogbox_eqs;
+	bool fdialogbox_mbf;
+	bool fdialogbox_moo;
+	bool fdialogbox_pha;
+	bool fdialogbox_se;
+	bool fdialogbox_wv;
+	bool fdialogbox_echo;
+	bool fdialogbox_delay;
+	bool fdialogbox_ovd;
+	bool fdialogbox_lh;
+	bool fdialogbox_sd;
+	bool fchorusbox;
+	bool fflangerbox;
+	bool fampmodul;
+	bool ftonemodule;
+	bool ftremolo_dialog;
+	bool fbiquadbox;
+	bool fphaser_mono_dialog;
+
+void register_gui_parameter();
+};
+
+extern GuiVariables guivar;
 
 /* for level display */
 extern int meter_falloff;
@@ -304,8 +312,6 @@ extern int meter_display_timeout;
 /*midi_in preset switch */
 extern volatile gint       program_change;
 extern sem_t               program_change_sem;
-
-extern int show_eq;
 
 extern int g_threads[10];
 
