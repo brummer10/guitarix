@@ -123,7 +123,7 @@ distortion1 	=  _:cubicnl(drive1,drivelevel): *(low_gain);
 distortion2 	=  _:cubicnl(drive2,drivelevel) : *(high_gain);
 distortion3 	=  _:cubicnl(drive3,drivelevel) : *(middle_gain_l);
 distortion4 	=  _:cubicnl(drive4,drivelevel) : *(middle_gain_h);
-distortion	= _ : filterbankN((F,(F1,F2))) : distortion2,distortion4 ,distortion3,distortion1 :>_;
+distortion	= lowpassN(2,15000): highpassN(2,20)  : filterbankN((F,(F1,F2))) : distortion2,distortion4 ,distortion3,distortion1 :>_;
 
 //-resonator
 resonator 		= (+ <: (delay(4096, d-1) + delay(4096, d)) / 2) ~ *(1.0-a)
@@ -134,6 +134,6 @@ with {
 
 switch2       	= checkbox("resonator.on_off[name:resonat]");
 //reso 			= hgroup("resonator", bypass(switch2, resonator));
-
+moving_filter(x) = (x+x'+x'')/3;
 hs 				= component("HighShelf.dsp").hs;
 process 		= bypass(switch2, resonator) : +(anti_denormal_ac) : hs : distortion : *(drivegain1) : hs;

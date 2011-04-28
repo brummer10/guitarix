@@ -292,6 +292,34 @@ sem_t               program_change_sem;
 
 int show_eq;
 
+/* Effect moduls box*/
+bool fdialogbox1;
+bool fdialogbox2;
+bool fdialogbox3;
+bool fdialogbox4;
+bool fdialogbox6;
+bool fdialogbox8;
+bool fdialogbox_eq;
+bool fdialogbox_eqs;
+bool fdialogbox_mbf;
+bool fdialogbox_moo;
+bool fdialogbox_pha;
+bool fdialogbox_se;
+bool fdialogbox_wv;
+bool fdialogbox_echo;
+bool fdialogbox_delay;
+bool fdialogbox_ovd;
+bool fdialogbox_lh;
+bool fdialogbox_sd;
+bool fchorusbox;
+bool fflangerbox;
+bool fampmodul;
+bool ftonemodule;
+bool ftremolo_dialog;
+bool fbiquadbox;
+bool fphaser_mono_dialog;
+
+/* widget orientation */
 float main_xorg;
 float main_yorg;
 

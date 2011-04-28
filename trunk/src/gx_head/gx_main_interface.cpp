@@ -99,6 +99,32 @@ void register_gui_parameter()
 {
 	registerNonMidiParam("ui.main_xorg", &main_xorg, true, 300,0,10000);
 	registerNonMidiParam("ui.main_yorg", &main_yorg, true, 300,0,10000);
+	
+	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
+	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);
+	registerNonMidiParam("gx_distortion.dialog", &fdialogbox1, false);
+	registerNonMidiParam("freeverb.dialog", &fdialogbox2, false);
+	registerNonMidiParam("IR.dialog", &fdialogbox3, false);
+	registerNonMidiParam("chorus.dialog", &fchorusbox, false);
+	registerNonMidiParam("eq.dialog", &fdialogbox_eq, false);
+	registerNonMidiParam("eqs.dialog", &fdialogbox_eqs, false);
+	registerNonMidiParam("MultiBandFilter.dialog", &fdialogbox_mbf, false);
+	registerNonMidiParam("moog.dialog", &fdialogbox_moo, false);
+	registerNonMidiParam("biquad.dialog", &fbiquadbox, false);
+	registerNonMidiParam("flanger.dialog", &fflangerbox, false);
+	registerNonMidiParam("echo.dialog", &fdialogbox_echo, false);
+	registerNonMidiParam("delay.dialog", &fdialogbox_delay, false);
+	registerNonMidiParam("overdrive.dialog", &fdialogbox_ovd, false);
+	registerNonMidiParam("phaser.dialog", &fdialogbox_pha, false);
+	registerNonMidiParam("low_highpass.dialog", &fdialogbox_lh, false);
+	registerNonMidiParam("stereodelay.dialog", &fdialogbox_sd, false);
+	registerNonMidiParam("stereoecho.dialog", &fdialogbox_se, false);
+	registerNonMidiParam("midi_out.dialog", &fdialogbox6, false);
+	registerNonMidiParam("oscilloscope.dialog", &fdialogbox_wv, false);
+	registerNonMidiParam("ampmodul.dialog", &fampmodul, false);
+	registerNonMidiParam("tonemodul.dialog", &ftonemodule, false);
+	registerNonMidiParam("tremolo.dialog", &ftremolo_dialog, false);
+	registerNonMidiParam("phaser_mono.dialog", &fphaser_mono_dialog, false);
 }
 
 
@@ -1423,9 +1449,9 @@ void GxMainInterface::addToggleButton(const char* label, float* zone)
 	record_button = button;
 }
 
-#if 1
-/*
-void GxMainInterface::addPToggleButton(const char* label, float* zone)
+
+
+void GxMainInterface::addMToggleButton(const char* label, float* zone)
 {
 	GdkColor colorRed;
 	GdkColor colorOwn;
@@ -1464,8 +1490,8 @@ void GxMainInterface::addPToggleButton(const char* label, float* zone)
 	gtk_widget_set_name (lab,"rack_label");
 	g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
 	connect_midi_controller(button, zone);
-}*/
-#endif
+}
+
 
 static bool conv_start()
 {
@@ -1649,7 +1675,7 @@ void GxMainInterface::addNumEntry(string id, const char* label)
 	addNumEntry(label, &p.value, p.std_value, p.lower, p.upper, p.step);
 }
 
-#if 1
+
 void GxMainInterface::addPToggleButton(string id, const char* label)
 {
 	if (!parameter_map.hasId(id)) {
@@ -1661,7 +1687,19 @@ void GxMainInterface::addPToggleButton(string id, const char* label)
 	}
 	addPToggleButton(label, &p.value);
 }
-#endif
+
+
+void GxMainInterface::addMToggleButton(string id, const char* label)
+{
+	if (!parameter_map.hasId(id)) {
+		return;
+	}
+	const FloatParameter &p = parameter_map[id].getFloat();
+	if (!label) {
+		label = p.name().c_str();
+	}
+	addMToggleButton(label, &p.value);
+}
 
 // -------------------------- gxwmm library controlers -----------------------------------
 

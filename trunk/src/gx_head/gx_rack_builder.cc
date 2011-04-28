@@ -475,6 +475,7 @@ openHorizontalTableBox("");
                               openSpaceBox("");
                               closeBox();
                               create_small_rackknobr("overdrive.drive", _("  drive "));
+                              
                               openSpaceBox("");
                               closeBox();
                          }
@@ -727,6 +728,41 @@ openHorizontalTableBox("");
           }
           closeBox();
      }
+     closeBox();
+     
+     openHorizontalOrderBox(_("phaser"), &gx_engine::audio.posit22);
+     {
+          openVerticalBox(_("phaser"));
+          {
+               openHorizontalBox("");
+               {
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "phaser_mono.on_off");
+                         create_selector("phaser_mono.pp");
+                    }
+                    closeBox();
+
+                    openDialogBox("phaser_mono.dialog", "phaser_mono.on_off","RackBox_expose");
+                    {
+                         openVerticalBox("");
+                         {
+                              openHorizontalBox("");
+                              {
+                                  create_small_rackknobr("phaser_mono.level",  _("level"));
+                                  create_small_rackknobr("phaser_mono.Speed",  _("speed"));
+                              }
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+
+               }
+               closeBox();
+          }
+          closeBox();
+     }
      closeBox(); 
      
      openVerticalMidiBox(_("  MIDI out  "));
@@ -814,7 +850,7 @@ openHorizontalTableBox("");
                                              closeBox();
                                              openHorizontalBox(" ");
                                              {
-                                                  addPToggleButton("midi_out.channel_1.auto_pitch",_("auto_pitch"));
+                                                  addMToggleButton("midi_out.channel_1.auto_pitch",_("auto_pitch"));
                                              }
                                              closeBox();
                                         }
@@ -878,7 +914,7 @@ openHorizontalTableBox("");
 
                                              openHorizontalBox(" ");
                                              {
-                                                  addPToggleButton("midi_out.channel_2.auto_pitch",_("auto_pitch"));
+                                                  addMToggleButton("midi_out.channel_2.auto_pitch",_("auto_pitch"));
                                              }
                                              closeBox();
 
@@ -943,7 +979,7 @@ openHorizontalTableBox("");
                                              closeBox();
                                              openHorizontalBox(" ");
                                              {
-                                                  addPToggleButton("midi_out.channel_3.auto_pitch",_("auto_pitch"));
+                                                  addMToggleButton("midi_out.channel_3.auto_pitch",_("auto_pitch"));
                                              }
                                              closeBox();
                                         }

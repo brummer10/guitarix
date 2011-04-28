@@ -103,6 +103,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("amp.clip.on_off", on_off, &ftube, 0);
 	gx_gui::registerParam("tonemodul.on_off", on_off, &ftone, 0);
 	gx_gui::registerParam("tremolo.on_off", on_off, &ftremolo, 0);
+	gx_gui::registerParam("phaser_mono.on_off", on_off, &fpm, 0);
 	
 	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.31f, 0.001f);
 	
@@ -123,6 +124,7 @@ void AudioVariables::register_parameter()
 	registerEnumParam("oscilloscope.pp","select",post_pre,&wvpp, 0);
 	registerEnumParam("biquad.pp","select",post_pre,&bipp, 0);
 	registerEnumParam("tremolo.pp","select",post_pre,&trpp, 0);
+	registerEnumParam("phaser_mono.pp","select",post_pre,&pmpp, 0);
 	
 	static const char *crybaby_autowah[] = {N_("manual"),N_("auto"),0};
 	registerEnumParam("crybaby.autowah", "select", crybaby_autowah, &fautowah, 0);
@@ -130,53 +132,31 @@ void AudioVariables::register_parameter()
 	//static const char *eqt_onetwo[] = {"fixed","scale",0};
 	//registerEnumParam("eqt.onetwo", "select", eqt_onetwo, &witcheq, 0);
 	
-	registerNonMidiParam("compressor.position", &posit5, true, 6, 1, 14);
-	registerNonMidiParam("crybaby.position", &posit0, true, 3, 1, 14);
-	registerNonMidiParam("overdrive.position", &posit1, true, 7, 1, 14);
-	registerNonMidiParam("gx_distortion.position", &posit2, true, 4, 1, 14);
-	registerNonMidiParam("freeverb.position", &posit3, true, 10, 1, 14);
-	registerNonMidiParam("IR.position", &posit4, true, 5, 1, 14);
-	registerNonMidiParam("echo.position", &posit6, true, 8, 1, 14);
-	registerNonMidiParam("delay.position", &posit7, true, 9, 1, 14);
-	registerNonMidiParam("eqs.position", &posit10, true, 2, 1, 14);
+	registerNonMidiParam("compressor.position", &posit5, true, 6, 1, 16);
+	registerNonMidiParam("crybaby.position", &posit0, true, 3, 1, 16);
+	registerNonMidiParam("overdrive.position", &posit1, true, 7, 1, 16);
+	registerNonMidiParam("gx_distortion.position", &posit2, true, 4, 1, 16);
+	registerNonMidiParam("freeverb.position", &posit3, true, 10, 1, 16);
+	registerNonMidiParam("IR.position", &posit4, true, 5, 1, 16);
+	registerNonMidiParam("echo.position", &posit6, true, 8, 1, 16);
+	registerNonMidiParam("delay.position", &posit7, true, 9, 1, 16);
+	registerNonMidiParam("eqs.position", &posit10, true, 2, 1, 16);
 	registerNonMidiParam("chorus.position", &posit8, true, 1, 1, 10);
 	registerNonMidiParam("flanger.position", &posit9, true, 2, 1, 10);
 	registerNonMidiParam("moog.position", &posit11, true, 6, 1, 10);
 	registerNonMidiParam("phaser.position", &posit12, true, 3, 1, 10);
-	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 14);
+	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 16);
 	registerNonMidiParam("stereodelay.position", &posit15, true, 4, 1, 10);
 	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 10);
-	registerNonMidiParam("oscilloscope.position", &posit17, true, 11, 1, 14);
-	registerNonMidiParam("biquad.position", &posit18, true, 12, 1, 14);
-	registerNonMidiParam("midi_out.position", &posit00, true, 14, 1, 14);
+	registerNonMidiParam("oscilloscope.position", &posit17, true, 11, 1, 16);
+	registerNonMidiParam("biquad.position", &posit18, true, 12, 1, 16);
+	registerNonMidiParam("midi_out.position", &posit00, true, 15, 1, 16);
 	registerNonMidiParam("ampmodul.position", &posit19, true, 7, 1, 10);
 	registerNonMidiParam("tonemodul.position", &posit20, true, 8, 1, 10);
-	registerNonMidiParam("tremolo.position", &posit21, true, 13, 1, 14);
+	registerNonMidiParam("tremolo.position", &posit21, true, 13, 1, 16);
+	registerNonMidiParam("phaser_mono.position", &posit22, true, 14, 1, 16);
 	
-	registerNonMidiParam("compressor.dialog", &fdialogbox8, false);
-	registerNonMidiParam("crybaby.dialog", &fdialogbox4, false);
-	registerNonMidiParam("gx_distortion.dialog", &fdialogbox1, false);
-	registerNonMidiParam("freeverb.dialog", &fdialogbox2, false);
-	registerNonMidiParam("IR.dialog", &fdialogbox3, false);
-	registerNonMidiParam("chorus.dialog", &fchorusbox, false);
-	registerNonMidiParam("eq.dialog", &fdialogbox_eq, false);
-	registerNonMidiParam("eqs.dialog", &fdialogbox_eqs, false);
-	registerNonMidiParam("MultiBandFilter.dialog", &fdialogbox_mbf, false);
-	registerNonMidiParam("moog.dialog", &fdialogbox_moo, false);
-	registerNonMidiParam("biquad.dialog", &fbiquadbox, false);
-	registerNonMidiParam("flanger.dialog", &fflangerbox, false);
-	registerNonMidiParam("echo.dialog", &fdialogbox_echo, false);
-	registerNonMidiParam("delay.dialog", &fdialogbox_delay, false);
-	registerNonMidiParam("overdrive.dialog", &fdialogbox_ovd, false);
-	registerNonMidiParam("phaser.dialog", &fdialogbox_pha, false);
-	registerNonMidiParam("low_highpass.dialog", &fdialogbox_lh, false);
-	registerNonMidiParam("stereodelay.dialog", &fdialogbox_sd, false);
-	registerNonMidiParam("stereoecho.dialog", &fdialogbox_se, false);
-	registerNonMidiParam("midi_out.dialog", &fdialogbox6, false);
-	registerNonMidiParam("oscilloscope.dialog", &fdialogbox_wv, false);
-	registerNonMidiParam("ampmodul.dialog", &fampmodul, false);
-	registerNonMidiParam("tonemodul.dialog", &ftonemodule, false);
-	registerNonMidiParam("tremolo.dialog", &ftremolo_dialog, false);
+	
 	
 	registerNonMidiParam("system.waveview", &viv, false);
 	registerNonMidiParam("midi_out.midistat", &midistat, false);
@@ -390,8 +370,9 @@ void process_buffers(int count, float* input, float* output0)
 		    biquad::compute(count, output0, output0);
 	    } else if (audio.posit21 == m && audio.ftremolo && audio.trpp) {
 		    tremolo::compute(count, output0, output0);
+	    } else if (audio.posit22 == m && audio.fpm && audio.pmpp) {
+		    phaser_mono::compute(count, output0, output0);
 	    } 
-
     }
 
 
@@ -468,6 +449,8 @@ void process_buffers(int count, float* input, float* output0)
 		    biquad::compute(count, output0, output0);
 	    } else if (audio.posit21 == m && audio.ftremolo && !audio.trpp) {
 		    tremolo::compute(count, output0, output0);
+	    } else if (audio.posit22 == m && audio.fpm && !audio.pmpp) {
+		    phaser_mono::compute(count, output0, output0);
 	    } 
     }
 

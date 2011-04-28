@@ -528,6 +528,7 @@ ParameterGroups::ParameterGroups()
 	insert("amp.clip", N_("clipper"));
 	insert("tonemodul", N_("3 Band EQ"));
 	insert("tremolo", N_("Tremolo"));
+	insert("phaser_mono", N_("Phaser Mono"));
 }
 
 string param_group(string id, bool nowarn)

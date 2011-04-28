@@ -419,6 +419,7 @@ public :
 	void addToggleButton(const char* label, float* zone);
 	void addJToggleButton(const char* label, float* zone);
 	void addPToggleButton(const char* label, float* zone);
+	void addMToggleButton(const char* label, float* zone);
 	void addCheckButton(const char* label, float* zone);
 	void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
 	void addNumDisplay();
@@ -430,6 +431,7 @@ public :
 	void addCheckButton(string id, const char* label=0);
 	void addNumEntry(string id, const char* label=0);
 	void addPToggleButton(string id, const char* label=0);
+	void addMToggleButton(string id, const char* label=0);
 
 	// -- other
 	void show_msg(string msgbuf, gx_system::GxMsgType msgtype);

@@ -268,6 +268,33 @@ extern int refresh_size;
 extern float main_xorg;
 extern float main_yorg;
 
+/* Effect moduls box*/
+extern bool fdialogbox1;
+extern bool fdialogbox2;
+extern bool fdialogbox3;
+extern bool fdialogbox4;
+extern bool fdialogbox6;
+extern bool fdialogbox8;
+extern bool fdialogbox_eq;
+extern bool fdialogbox_eqs;
+extern bool fdialogbox_mbf;
+extern bool fdialogbox_moo;
+extern bool fdialogbox_pha;
+extern bool fdialogbox_se;
+extern bool fdialogbox_wv;
+extern bool fdialogbox_echo;
+extern bool fdialogbox_delay;
+extern bool fdialogbox_ovd;
+extern bool fdialogbox_lh;
+extern bool fdialogbox_sd;
+extern bool fchorusbox;
+extern bool fflangerbox;
+extern bool fampmodul;
+extern bool ftonemodule;
+extern bool ftremolo_dialog;
+extern bool fbiquadbox;
+extern bool fphaser_mono_dialog;
+
 extern void register_gui_parameter();
 
 /* for level display */

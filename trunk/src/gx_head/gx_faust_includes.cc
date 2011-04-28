@@ -208,6 +208,7 @@ GxDistortionParams::GxDistortionParams() {
 #include "faust/softclip.cc"
 #include "faust/tonecontroll.cc"
 #include "faust/tremolo.cc"
+#include "faust/phaser_mono.cc"
 
 
 // tone stack

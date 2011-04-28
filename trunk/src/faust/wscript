@@ -152,6 +152,7 @@ def build(bld):
         'softclip.dsp',
         'tonecontroll.dsp',
         'tremolo.dsp',
+        'phaser_mono.dsp',
         ]
 
     float_sources = [ # big arrays and no sensitive processing
