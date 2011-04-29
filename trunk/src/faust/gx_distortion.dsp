@@ -135,5 +135,5 @@ with {
 switch2       	= checkbox("resonator.on_off[name:resonat]");
 //reso 			= hgroup("resonator", bypass(switch2, resonator));
 moving_filter(x) = (x+x'+x'')/3;
-hs 				= component("HighShelf.dsp").hs;
-process 		= bypass(switch2, resonator) : +(anti_denormal_ac) : hs : distortion : *(drivegain1) : hs;
+
+process 		= bypass(switch2, resonator) : +(anti_denormal_ac) : distortion : *(drivegain1) ;

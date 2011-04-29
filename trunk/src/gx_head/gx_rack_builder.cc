@@ -800,6 +800,41 @@ openHorizontalTableBox("");
      }
      closeBox(); 
      
+     openHorizontalOrderBox(_("flanger"), &gx_engine::audio.posit24);
+     {
+          openVerticalBox(_("flanger"));
+          {
+               openHorizontalBox("");
+               {
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "flanger_mono.on_off");
+                         create_selector("flanger_mono.pp");
+                    }
+                    closeBox();
+
+                    openDialogBox("flanger_mono.dialog", "flanger_mono.on_off","RackBox_expose");
+                    {
+                         openVerticalBox("");
+                         {
+                              openHorizontalBox("");
+                              {
+                                  create_small_rackknobr("flanger_mono.level",  _("level"));
+                                  create_small_rackknob("flanger_mono.freq",  _("speed"));
+                              }
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox(); 
+     
      openVerticalMidiBox(_("  MIDI out  "));
      {
           openHorizontalBox("");

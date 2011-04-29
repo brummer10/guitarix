@@ -105,6 +105,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("tremolo.on_off", on_off, &ftremolo, 0);
 	gx_gui::registerParam("phaser_mono.on_off", on_off, &fpm, 0);
 	gx_gui::registerParam("chorus_mono.on_off", on_off, (float*) &fchorus_mono, 0.);
+	gx_gui::registerParam("flanger_mono.on_off", on_off, &fflanger_mono, 0.);
 	
 	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.31f, 0.001f);
 	
@@ -127,6 +128,7 @@ void AudioVariables::register_parameter()
 	registerEnumParam("tremolo.pp","select",post_pre,&trpp, 0);
 	registerEnumParam("phaser_mono.pp","select",post_pre,&pmpp, 0);
 	registerEnumParam("chorus_mono.pp","select",post_pre,&chpp, 0);
+	registerEnumParam("flanger_mono.pp","select",post_pre,&flpp, 0);
 	
 	static const char *crybaby_autowah[] = {N_("manual"),N_("auto"),0};
 	registerEnumParam("crybaby.autowah", "select", crybaby_autowah, &fautowah, 0);
@@ -134,30 +136,31 @@ void AudioVariables::register_parameter()
 	//static const char *eqt_onetwo[] = {"fixed","scale",0};
 	//registerEnumParam("eqt.onetwo", "select", eqt_onetwo, &witcheq, 0);
 	
-	registerNonMidiParam("compressor.position", &posit5, true, 6, 1, 16);
-	registerNonMidiParam("crybaby.position", &posit0, true, 3, 1, 16);
-	registerNonMidiParam("overdrive.position", &posit1, true, 7, 1, 16);
-	registerNonMidiParam("gx_distortion.position", &posit2, true, 4, 1, 16);
-	registerNonMidiParam("freeverb.position", &posit3, true, 10, 1, 16);
-	registerNonMidiParam("IR.position", &posit4, true, 5, 1, 16);
-	registerNonMidiParam("echo.position", &posit6, true, 8, 1, 16);
-	registerNonMidiParam("delay.position", &posit7, true, 9, 1, 16);
-	registerNonMidiParam("eqs.position", &posit10, true, 2, 1, 16);
+	registerNonMidiParam("compressor.position", &posit5, true, 6, 1, 20);
+	registerNonMidiParam("crybaby.position", &posit0, true, 3, 1, 20);
+	registerNonMidiParam("overdrive.position", &posit1, true, 7, 1, 20);
+	registerNonMidiParam("gx_distortion.position", &posit2, true, 4, 1, 20);
+	registerNonMidiParam("freeverb.position", &posit3, true, 10, 1, 20);
+	registerNonMidiParam("IR.position", &posit4, true, 5, 1, 20);
+	registerNonMidiParam("echo.position", &posit6, true, 8, 1, 20);
+	registerNonMidiParam("delay.position", &posit7, true, 9, 1, 20);
+	registerNonMidiParam("eqs.position", &posit10, true, 2, 1, 20);
 	registerNonMidiParam("chorus.position", &posit8, true, 1, 1, 10);
 	registerNonMidiParam("flanger.position", &posit9, true, 2, 1, 10);
 	registerNonMidiParam("moog.position", &posit11, true, 6, 1, 10);
 	registerNonMidiParam("phaser.position", &posit12, true, 3, 1, 10);
-	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 16);
+	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 20);
 	registerNonMidiParam("stereodelay.position", &posit15, true, 4, 1, 10);
 	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 10);
-	registerNonMidiParam("oscilloscope.position", &posit17, true, 11, 1, 16);
-	registerNonMidiParam("biquad.position", &posit18, true, 12, 1, 16);
-	registerNonMidiParam("midi_out.position", &posit00, true, 16, 1, 16);
+	registerNonMidiParam("oscilloscope.position", &posit17, true, 11, 1, 20);
+	registerNonMidiParam("biquad.position", &posit18, true, 12, 1, 20);
+	registerNonMidiParam("midi_out.position", &posit00, true, 17, 1, 20);
 	registerNonMidiParam("ampmodul.position", &posit19, true, 7, 1, 10);
 	registerNonMidiParam("tonemodul.position", &posit20, true, 8, 1, 10);
-	registerNonMidiParam("tremolo.position", &posit21, true, 13, 1, 16);
-	registerNonMidiParam("phaser_mono.position", &posit22, true, 14, 1, 16);
-	registerNonMidiParam("chorus_mono.position", &posit23, true, 15, 1, 16);
+	registerNonMidiParam("tremolo.position", &posit21, true, 13, 1, 20);
+	registerNonMidiParam("phaser_mono.position", &posit22, true, 14, 1, 20);
+	registerNonMidiParam("chorus_mono.position", &posit23, true, 15, 1, 20);
+	registerNonMidiParam("flanger_mono.position", &posit24, true, 16, 1, 20);
 	
 	
 	registerNonMidiParam("system.waveview", &viv, false);
@@ -376,6 +379,8 @@ void process_buffers(int count, float* input, float* output0)
 		    phaser_mono::compute(count, output0, output0);
 	    } else if (audio.posit23 == m && audio.fchorus_mono && audio.chpp && chorus_mono::is_inited()) {
 			chorus_mono::compute(count, output0, output0);
+		} else if (audio.posit24 == m && audio.fflanger_mono && audio.flpp) {
+			flanger_mono::compute(count, output0, output0);
 		}
     }
 
@@ -457,6 +462,8 @@ void process_buffers(int count, float* input, float* output0)
 		    phaser_mono::compute(count, output0, output0);
 	    } else if (audio.posit23 == m && audio.fchorus_mono && !audio.chpp && chorus_mono::is_inited()) {
 			chorus_mono::compute(count, output0, output0);
+		}else if (audio.posit24 == m && audio.fflanger_mono && !audio.flpp ) {
+			flanger_mono::compute(count, output0, output0);
 		}
     }
 

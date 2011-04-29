@@ -210,6 +210,7 @@ GxDistortionParams::GxDistortionParams() {
 #include "faust/tremolo.cc"
 #include "faust/phaser_mono.cc"
 #include "faust/chorus_mono.cc"
+#include "faust/flanger_mono.cc"
 
 
 // tone stack

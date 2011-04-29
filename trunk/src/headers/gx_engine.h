@@ -64,6 +64,7 @@ public:
 	bool ftone;
 	bool ftremolo;
 	bool fpm;
+	bool fflanger_mono;
 	
 
 	int fcheckbox7;
@@ -87,6 +88,7 @@ public:
 	int trpp;
 	int pmpp;
 	int chpp;
+	int flpp;
 	int fsd;
 	int fse;
 	int gxtube;
@@ -115,6 +117,7 @@ public:
 	float posit21;
 	float posit22;
 	float posit23;
+	float posit24;
 	float posit00;
 	float fnglevel;
 	float posit0;

@@ -530,6 +530,7 @@ ParameterGroups::ParameterGroups()
 	insert("tremolo", N_("Tremolo"));
 	insert("phaser_mono", N_("Phaser Mono"));
 	insert("chorus_mono", N_("Chorus Mono"));
+	insert("flanger_mono", N_("Flanger Mono"));
 }
 
 string param_group(string id, bool nowarn)
