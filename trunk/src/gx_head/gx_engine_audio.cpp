@@ -104,6 +104,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("tonemodul.on_off", on_off, &ftone, 0);
 	gx_gui::registerParam("tremolo.on_off", on_off, &ftremolo, 0);
 	gx_gui::registerParam("phaser_mono.on_off", on_off, &fpm, 0);
+	gx_gui::registerParam("chorus_mono.on_off", on_off, (float*) &fchorus_mono, 0.);
 	
 	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.31f, 0.001f);
 	
@@ -125,6 +126,7 @@ void AudioVariables::register_parameter()
 	registerEnumParam("biquad.pp","select",post_pre,&bipp, 0);
 	registerEnumParam("tremolo.pp","select",post_pre,&trpp, 0);
 	registerEnumParam("phaser_mono.pp","select",post_pre,&pmpp, 0);
+	registerEnumParam("chorus_mono.pp","select",post_pre,&chpp, 0);
 	
 	static const char *crybaby_autowah[] = {N_("manual"),N_("auto"),0};
 	registerEnumParam("crybaby.autowah", "select", crybaby_autowah, &fautowah, 0);
@@ -150,12 +152,12 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 10);
 	registerNonMidiParam("oscilloscope.position", &posit17, true, 11, 1, 16);
 	registerNonMidiParam("biquad.position", &posit18, true, 12, 1, 16);
-	registerNonMidiParam("midi_out.position", &posit00, true, 15, 1, 16);
+	registerNonMidiParam("midi_out.position", &posit00, true, 16, 1, 16);
 	registerNonMidiParam("ampmodul.position", &posit19, true, 7, 1, 10);
 	registerNonMidiParam("tonemodul.position", &posit20, true, 8, 1, 10);
 	registerNonMidiParam("tremolo.position", &posit21, true, 13, 1, 16);
 	registerNonMidiParam("phaser_mono.position", &posit22, true, 14, 1, 16);
-	
+	registerNonMidiParam("chorus_mono.position", &posit23, true, 15, 1, 16);
 	
 	
 	registerNonMidiParam("system.waveview", &viv, false);
@@ -372,7 +374,9 @@ void process_buffers(int count, float* input, float* output0)
 		    tremolo::compute(count, output0, output0);
 	    } else if (audio.posit22 == m && audio.fpm && audio.pmpp) {
 		    phaser_mono::compute(count, output0, output0);
-	    } 
+	    } else if (audio.posit23 == m && audio.fchorus_mono && audio.chpp && chorus_mono::is_inited()) {
+			chorus_mono::compute(count, output0, output0);
+		}
     }
 
 
@@ -451,7 +455,9 @@ void process_buffers(int count, float* input, float* output0)
 		    tremolo::compute(count, output0, output0);
 	    } else if (audio.posit22 == m && audio.fpm && !audio.pmpp) {
 		    phaser_mono::compute(count, output0, output0);
-	    } 
+	    } else if (audio.posit23 == m && audio.fchorus_mono && !audio.chpp && chorus_mono::is_inited()) {
+			chorus_mono::compute(count, output0, output0);
+		}
     }
 
     switch (audio.tonestack) {

@@ -125,6 +125,7 @@ void GuiVariables::register_gui_parameter()
 	registerNonMidiParam("tonemodul.dialog", &ftonemodule, false);
 	registerNonMidiParam("tremolo.dialog", &ftremolo_dialog, false);
 	registerNonMidiParam("phaser_mono.dialog", &fphaser_mono_dialog, false);
+	registerNonMidiParam("chorus_mono.dialog", &fchorus_mono_dialog, false);
 }
 
 

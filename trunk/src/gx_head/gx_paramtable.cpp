@@ -529,6 +529,7 @@ ParameterGroups::ParameterGroups()
 	insert("tonemodul", N_("3 Band EQ"));
 	insert("tremolo", N_("Tremolo"));
 	insert("phaser_mono", N_("Phaser Mono"));
+	insert("chorus_mono", N_("Chorus Mono"));
 }
 
 string param_group(string id, bool nowarn)

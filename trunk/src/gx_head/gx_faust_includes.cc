@@ -209,6 +209,7 @@ GxDistortionParams::GxDistortionParams() {
 #include "faust/tonecontroll.cc"
 #include "faust/tremolo.cc"
 #include "faust/phaser_mono.cc"
+#include "faust/chorus_mono.cc"
 
 
 // tone stack
@@ -249,6 +250,7 @@ void faust_init(int samplingFreq)
 	faust_add_callback("delay.on_off", delay::activate);
 	faust_add_callback("echo.on_off", echo::activate);
 	faust_add_callback("chorus.on_off", chorus::activate);
+	faust_add_callback("chorus_mono.on_off", chorus::activate);
 	faust_add_callback("stereodelay.on_off", stereodelay::activate);
 	faust_add_callback("stereoecho.on_off", stereoecho::activate);
 	list<inidef>& inilist = get_inilist();

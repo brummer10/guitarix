@@ -160,6 +160,7 @@ def build(bld):
         'echo.dsp',
         'delay.dsp',
         'chorus.dsp',
+        'chorus_mono.dsp',
         'stereodelay.dsp',
         'stereoecho.dsp',
     ]

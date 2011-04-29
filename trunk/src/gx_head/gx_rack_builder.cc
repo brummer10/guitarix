@@ -750,7 +750,42 @@ openHorizontalTableBox("");
                               openHorizontalBox("");
                               {
                                   create_small_rackknobr("phaser_mono.level",  _("level"));
-                                  create_small_rackknobr("phaser_mono.Speed",  _("speed"));
+                                  create_small_rackknob("phaser_mono.Speed",  _("speed"));
+                              }
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox(); 
+     
+     openHorizontalOrderBox(_("chorus"), &gx_engine::audio.posit23);
+     {
+          openVerticalBox(_("chorus"));
+          {
+               openHorizontalBox("");
+               {
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "chorus_mono.on_off");
+                         create_selector("chorus_mono.pp");
+                    }
+                    closeBox();
+
+                    openDialogBox("chorus_mono.dialog", "chorus_mono.on_off","RackBox_expose");
+                    {
+                         openVerticalBox("");
+                         {
+                              openHorizontalBox("");
+                              {
+                                  create_small_rackknobr("chorus_mono.level",  _("level"));
+                                  create_small_rackknob("chorus_mono.freq",  _("speed"));
                               }
                               closeBox();
                          }

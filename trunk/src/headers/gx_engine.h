@@ -69,6 +69,7 @@ public:
 	int fcheckbox7;
 	int fdelay;
 	int fchorus;
+	int fchorus_mono;
 	int fphaser;
 	int tonestack;
 	int crybabypp;
@@ -85,6 +86,7 @@ public:
 	int bipp;
 	int trpp;
 	int pmpp;
+	int chpp;
 	int fsd;
 	int fse;
 	int gxtube;
@@ -112,6 +114,7 @@ public:
 	float posit20;
 	float posit21;
 	float posit22;
+	float posit23;
 	float posit00;
 	float fnglevel;
 	float posit0;

@@ -299,6 +299,7 @@ public:
 	bool ftremolo_dialog;
 	bool fbiquadbox;
 	bool fphaser_mono_dialog;
+	bool fchorus_mono_dialog;
 
 void register_gui_parameter();
 };
