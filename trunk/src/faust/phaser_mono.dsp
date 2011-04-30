@@ -22,4 +22,7 @@ with {
   
 };
 
-process = phaser_monogx;
+wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
+dry = 1 - wet;
+
+process =  _<:*(dry),(*(wet): phaser_monogx ):>_;

@@ -1,14 +1,15 @@
 namespace phaser_mono {
 // generated from file '../src/faust/phaser_mono.dsp'
 
+FAUSTFLOAT 	fslider0;
 int 	iVec0[2];
 int 	iConst0;
-FAUSTFLOAT 	fslider0;
+FAUSTFLOAT 	fslider1;
 double 	fConst1;
 double 	fRec1[2];
 double 	fRec2[2];
 double 	fConst2;
-FAUSTFLOAT 	fslider1;
+FAUSTFLOAT 	fslider2;
 double 	fConst3;
 double 	fConst4;
 double 	fConst5;
@@ -46,26 +47,29 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	double 	fSlow0 = (fConst1 * fslider0);
-	double 	fSlow1 = sin(fSlow0);
-	double 	fSlow2 = cos(fSlow0);
-	double 	fSlow3 = (0 - fSlow1);
-	double 	fSlow4 = pow(10,(0.05 * fslider1));
+	double 	fSlow0 = fslider0;
+	double 	fSlow1 = (1 - (0.01 * fSlow0));
+	double 	fSlow2 = (fConst1 * fslider1);
+	double 	fSlow3 = sin(fSlow2);
+	double 	fSlow4 = cos(fSlow2);
+	double 	fSlow5 = (0 - fSlow3);
+	double 	fSlow6 = (0.01 * (fSlow0 * pow(10,(0.05 * fslider2))));
 	for (int i=0; i<count; i++) {
+		double fTemp0 = (double)input0[i];
 		iVec0[0] = 1;
-		fRec1[0] = ((fSlow2 * fRec1[1]) + (fSlow1 * fRec2[1]));
-		fRec2[0] = ((1 + ((fSlow3 * fRec1[1]) + (fSlow2 * fRec2[1]))) - iVec0[1]);
-		double fTemp0 = (628.3185307179587 + (2199.1148575128555 * (1 - fRec1[0])));
-		double fTemp1 = (fRec6[1] * cos((fConst3 * fTemp0)));
-		fRec6[0] = (0 - (((fConst6 * fRec6[2]) + (fConst5 * fTemp1)) - ((fSlow4 * (double)input0[i]) + (0.5 * fRec0[1]))));
-		double fTemp2 = (fRec5[1] * cos((fConst7 * fTemp0)));
-		fRec5[0] = ((fConst5 * (fTemp1 - fTemp2)) + (fRec6[2] + (fConst6 * (fRec6[0] - fRec5[2]))));
-		double fTemp3 = (fRec4[1] * cos((fConst8 * fTemp0)));
-		fRec4[0] = ((fConst5 * (fTemp2 - fTemp3)) + (fRec5[2] + (fConst6 * (fRec5[0] - fRec4[2]))));
-		double fTemp4 = (fRec3[1] * cos((fConst2 * fTemp0)));
-		fRec3[0] = ((fConst5 * (fTemp3 - fTemp4)) + (fRec4[2] + (fConst6 * (fRec4[0] - fRec3[2]))));
-		fRec0[0] = ((fConst6 * fRec3[0]) + (fRec3[2] + (fConst5 * fTemp4)));
-		output0[i] = (FAUSTFLOAT)(fRec0[0] * iConst0);
+		fRec1[0] = ((fSlow4 * fRec1[1]) + (fSlow3 * fRec2[1]));
+		fRec2[0] = ((1 + ((fSlow5 * fRec1[1]) + (fSlow4 * fRec2[1]))) - iVec0[1]);
+		double fTemp1 = (628.3185307179587 + (2199.1148575128555 * (1 - fRec1[0])));
+		double fTemp2 = (fRec6[1] * cos((fConst3 * fTemp1)));
+		fRec6[0] = (0 - (((fConst6 * fRec6[2]) + (fConst5 * fTemp2)) - ((fSlow6 * fTemp0) + (0.5 * fRec0[1]))));
+		double fTemp3 = (fRec5[1] * cos((fConst7 * fTemp1)));
+		fRec5[0] = ((fConst5 * (fTemp2 - fTemp3)) + (fRec6[2] + (fConst6 * (fRec6[0] - fRec5[2]))));
+		double fTemp4 = (fRec4[1] * cos((fConst8 * fTemp1)));
+		fRec4[0] = ((fConst5 * (fTemp3 - fTemp4)) + (fRec5[2] + (fConst6 * (fRec5[0] - fRec4[2]))));
+		double fTemp5 = (fRec3[1] * cos((fConst2 * fTemp1)));
+		fRec3[0] = ((fConst5 * (fTemp4 - fTemp5)) + (fRec4[2] + (fConst6 * (fRec4[0] - fRec3[2]))));
+		fRec0[0] = ((fConst6 * fRec3[0]) + (fRec3[2] + (fConst5 * fTemp5)));
+		output0[i] = (FAUSTFLOAT)((fRec0[0] * iConst0) + (fSlow1 * fTemp0));
 		// post processing
 		fRec0[1] = fRec0[0];
 		fRec3[2] = fRec3[1]; fRec3[1] = fRec3[0];
@@ -81,8 +85,9 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("phaser_mono.level","","S","",&fslider1, 0.0, -6e+01, 1e+01, 0.1);
-	registerVar("phaser_mono.Speed","","S","",&fslider0, 0.5, 0.0, 1e+01, 0.01);
+	registerVar("phaser_mono.level","","S","",&fslider2, 0.0, -6e+01, 1e+01, 0.1);
+	registerVar("phaser_mono.Speed","","S","",&fslider1, 0.5, 0.0, 1e+01, 0.01);
+	registerVar("phaser_mono.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
 	registerInit("phaser_mono", init);
 }
 

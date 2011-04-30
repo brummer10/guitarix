@@ -751,6 +751,7 @@ openHorizontalTableBox("");
                               {
                                   create_small_rackknobr("phaser_mono.level",  _("level"));
                                   create_small_rackknob("phaser_mono.Speed",  _("speed"));
+                                  create_small_rackknob("phaser_mono.wet_dry",  _("dry/wet"));
                               }
                               closeBox();
                          }
@@ -786,6 +787,7 @@ openHorizontalTableBox("");
                               {
                                   create_small_rackknobr("chorus_mono.level",  _("level"));
                                   create_small_rackknob("chorus_mono.freq",  _("speed"));
+                                  create_small_rackknob("chorus_mono.wet_dry",  _("dry/wet"));
                               }
                               closeBox();
                          }
@@ -821,6 +823,7 @@ openHorizontalTableBox("");
                               {
                                   create_small_rackknobr("flanger_mono.level",  _("level"));
                                   create_small_rackknob("flanger_mono.freq",  _("speed"));
+                                  create_small_rackknob("flanger_mono.wet_dry",  _("dry/wet"));
                               }
                               closeBox();
                          }

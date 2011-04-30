@@ -43,12 +43,12 @@ void init(int samplingFreq)
 void compute(int count, float *input0, float *output0, float *output1)
 {
 	double 	fSlow0 = fslider0;
-	double 	fSlow1 = (1 - max(0, fSlow0));
-	double 	fSlow2 = (1 - max(0, (0 - fSlow0)));
+	double 	fSlow1 = (1 - (0.01 * fSlow0));
+	double 	fSlow2 = (0.002 * fSlow0);
 	int 	iSlow3 = int(fcheckbox0);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
-		double fTemp1 = (0.2 * fTemp0);
+		double fTemp1 = (fSlow2 * fTemp0);
 		double fTemp2 = (fTemp1 + (0.805 * fRec6[1]));
 		fVec0[IOTA&1023] = fTemp2;
 		fRec6[0] = fVec0[(IOTA-901)&1023];
@@ -77,7 +77,7 @@ void compute(int count, float *input0, float *output0, float *output1)
 		fVec6[0] = fTemp8;
 		fRec0[0] = fVec6[11];
 		double 	fRec1 = (0 - (0.7 * fVec6[0]));
-		double fTemp9 = ((iSlow3)?((fSlow2 * (fRec1 + fRec0[1])) + (fSlow1 * fTemp0)):fTemp0);
+		double fTemp9 = ((iSlow3)?((fRec1 + fRec0[1]) + (fSlow1 * fTemp0)):fTemp0);
 		output0[i] = (FAUSTFLOAT)fTemp9;
 		output1[i] = (FAUSTFLOAT)fTemp9;
 		// post processing
@@ -97,7 +97,7 @@ static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
 	registerVar("amp.feed_on_off","reverb_on_of","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	registerVar("amp.wet_dry","","S","",&fslider0, 0.0, -1.0, 1.0, 0.01);
+	registerVar("amp.wet_dry","wet/dry","S","",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
 	registerInit("amp", init);
 }
 

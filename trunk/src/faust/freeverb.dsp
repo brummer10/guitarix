@@ -32,7 +32,9 @@ allpasstuningL4	= 225;
 roomsizeSlider 	= vslider("RoomSize", 0.5, 0, 1, 0.025)*0.28 + 0.7;
 dampslider 	= vslider("damp",0.5, 0, 1, 0.025);
 combfeed 	= roomsizeSlider;
-wetslider 	= 0.5 + vslider("wet_dry[name:wet/dry]", 0, -0.5, 0.5, 0.1);
+//wetslider 	= 0.5 + vslider("wet_dry[name:wet/dry]", 0, -0.5, 0.5, 0.1);
+wet_dry = vslider("wet_dry[name:wet/dry]",  100, 0, 100, 1) : /(100);
+dry = 1 - wet_dry;
 
 // Comb and Allpass filters
 
@@ -59,5 +61,5 @@ monoReverb(fb1, fb2, damp, spread)
 
 //----------------------------------------------------------------
 
-fxctrl(g,w,Fx) =  _ <: (*(g) <: _ + Fx : *(w)), *(2*(1-w)) +> _;
-process = fxctrl(0.015, wetslider, monoReverb(combfeed, 0.5, dampslider, 23));
+fxctrl(g,w,Fx) =  _ <: (*(g) <: _ + Fx ), *(1-w) +> _;
+process = _<:*(dry),(*(wet_dry):fxctrl(0.015,wet_dry, monoReverb(combfeed, 0.5, dampslider, 23))):>_;

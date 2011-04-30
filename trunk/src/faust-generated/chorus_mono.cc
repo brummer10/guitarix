@@ -22,14 +22,15 @@ class SIG0 {
 		}
 	}
 };
+FAUSTFLOAT 	fslider0;
 int 	IOTA;
 float *fVec0;
-FAUSTFLOAT 	fslider0;
+FAUSTFLOAT 	fslider1;
 float 	fConst0;
 float 	fRec0[2];
 static float 	ftbl0[65536];
 float 	fConst1;
-FAUSTFLOAT 	fslider1;
+FAUSTFLOAT 	fslider2;
 int	fSamplingFreq;
 
 void init(int samplingFreq)
@@ -75,20 +76,23 @@ void activate(bool start, int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	float 	fSlow0 = (fConst0 * fslider0);
-	float 	fSlow1 = fslider1;
+	float 	fSlow0 = (0.01f * fslider0);
+	float 	fSlow1 = (fSlow0 + (1 - fSlow0));
+	float 	fSlow2 = (fConst0 * fslider1);
+	float 	fSlow3 = fslider2;
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
-		fVec0[IOTA&65535] = fTemp0;
-		float fTemp1 = (fSlow0 + fRec0[1]);
-		fRec0[0] = (fTemp1 - floorf(fTemp1));
-		float fTemp2 = (65536 * (fRec0[0] - floorf(fRec0[0])));
-		float fTemp3 = floorf(fTemp2);
-		int iTemp4 = int(fTemp3);
-		float fTemp5 = (fConst1 * (1 + (0.02f * ((ftbl0[((1 + iTemp4) & 65535)] * (fTemp2 - fTemp3)) + (ftbl0[(iTemp4 & 65535)] * ((1 + fTemp3) - fTemp2))))));
-		int iTemp6 = int(fTemp5);
-		int iTemp7 = (1 + iTemp6);
-		output0[i] = (FAUSTFLOAT)(fVec0[IOTA&65535] + (fSlow1 * (((fTemp5 - iTemp6) * fVec0[(IOTA-int((int(iTemp7) & 65535)))&65535]) + ((iTemp7 - fTemp5) * fVec0[(IOTA-int((iTemp6 & 65535)))&65535]))));
+		float fTemp1 = (fSlow0 * fTemp0);
+		fVec0[IOTA&65535] = fTemp1;
+		float fTemp2 = (fSlow2 + fRec0[1]);
+		fRec0[0] = (fTemp2 - floorf(fTemp2));
+		float fTemp3 = (65536 * (fRec0[0] - floorf(fRec0[0])));
+		float fTemp4 = floorf(fTemp3);
+		int iTemp5 = int(fTemp4);
+		float fTemp6 = (fConst1 * (1 + (0.02f * ((ftbl0[((1 + iTemp5) & 65535)] * (fTemp3 - fTemp4)) + (ftbl0[(iTemp5 & 65535)] * ((1 + fTemp4) - fTemp3))))));
+		int iTemp7 = int(fTemp6);
+		int iTemp8 = (1 + iTemp7);
+		output0[i] = (FAUSTFLOAT)((fSlow3 * (((fTemp6 - iTemp7) * fVec0[(IOTA-int((int(iTemp8) & 65535)))&65535]) + ((iTemp8 - fTemp6) * fVec0[(IOTA-int((iTemp7 & 65535)))&65535]))) + (fSlow1 * fTemp0));
 		// post processing
 		fRec0[1] = fRec0[0];
 		IOTA = IOTA+1;
@@ -98,8 +102,9 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerVar("chorus_mono.level","","S","",&fslider1, 0.5f, 0.0f, 1.0f, 0.01f);
-	registerVar("chorus_mono.freq","","S","",&fslider0, 2.0f, 0.0f, 1e+01f, 0.01f);
+	registerVar("chorus_mono.level","","S","",&fslider2, 0.5f, 0.0f, 1.0f, 0.01f);
+	registerVar("chorus_mono.freq","","S","",&fslider1, 2.0f, 0.0f, 1e+01f, 0.01f);
+	registerVar("chorus_mono.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider0, 1e+02f, 0.0f, 1e+02f, 1.0f);
 	registerInit("chorus_mono", init);
 }
 
