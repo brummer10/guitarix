@@ -588,13 +588,13 @@ void GxMainInterface::on_rrack_activate()
 	if (fShowRRack.get_active()) {
 		gtk_widget_set_size_request (GTK_WIDGET (RBox),-1, 460);
 		gtk_widget_show(RBox);
-		fShowRack.set_active(true);
-		fShowSRack.set_active(true);
+		//fShowRack.set_active(true);
+		//fShowSRack.set_active(true);
 	} else {
 		gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 		gtk_widget_hide(RBox);
-		fShowRack.set_active(false);
-		fShowSRack.set_active(false);
+		//fShowRack.set_active(false);
+		//fShowSRack.set_active(false);
 	}
 	if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
 			g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,gpointer(fWindow),NULL);

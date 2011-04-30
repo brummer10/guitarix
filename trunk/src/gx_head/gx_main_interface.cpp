@@ -2669,7 +2669,7 @@ void GxMainInterface::openPlugBox(const char* label)
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_rectangle_skin_color_expose, label, GTK_WIDGET(fShowRack.gobj()));
 	rack_widget = GTK_WIDGET(box->window.gobj());
-	box->window.set_size_request(-1,440); 
+	box->window.set_size_request(-1,420); 
 	box->window.set_name("MonoRack");
 	box->window.set_tooltip_text(_("Mono Rack, right click pop up the plugin menu"));
 	rBox = GTK_WIDGET(box->rbox.gobj());
@@ -2694,7 +2694,7 @@ void GxMainInterface::openAmpBox(const char* label)
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_rectangle_skin_color_expose, label, GTK_WIDGET(fShowSRack.gobj()));
 	srack_widget = GTK_WIDGET(box->window.gobj());
-	box->window.set_size_request(-1,440); 
+	box->window.set_size_request(-1,420); 
 	box->window.set_name("StereoRack");
 	box->window.set_tooltip_text(_("Stereo Rack, right click pop up the plugin menu"));
 	sBox = GTK_WIDGET(box->rbox.gobj());
