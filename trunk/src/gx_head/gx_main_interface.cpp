@@ -35,6 +35,7 @@
 #include <gtkmm/notebook.h>
 #include <gxwmm/paintbox.h>
 #include <gtkmm/radiomenuitem.h>
+#include <gtkmm/paned.h>
 
 #include <glibmm/i18n.h>
 
@@ -1448,7 +1449,7 @@ void GxMainInterface::addToggleButton(const char* label, float* zone)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
 	gtk_widget_add_accelerator(button, "activate", fAccelGroup, GDK_r, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
 	gtk_widget_show (lab);
-	record_button = button;
+	
 }
 
 
@@ -2315,7 +2316,7 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 	p +=title;
 	string s;
 	
-	guint accel_key = GDK_n  + stereo_plugs ;
+	guint accel_key = GDK_r  + stereo_plugs ;
 	bdialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME 
 	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsStereo"]), GTK_WIDGET(bdialog->menuitem.gobj()));
@@ -2449,6 +2450,7 @@ private:
 public:
 	Gtk::HBox window;
 	Gtk::ScrolledWindow           m_scrolled_window; 
+	Gtk::VPaned pan;
 	Gtk::HBox box;
 	Gtk::HBox box1;
 	Gxw::PaintBox paintbox1;
@@ -2520,7 +2522,7 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 	paintbox1.property_paint_func() = pb_2;
 	window.signal_delete_event().connect(
 		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxWindowBox::on_window_delete_event),d));
-	box.add(rbox);
+	//box.add(rbox);
 	paintbox1.add(m_scrolled_window);
 	m_scrolled_window.add(box);
 	window.add(paintbox1);
@@ -2613,6 +2615,7 @@ void GxMainInterface::addNumDisplay()
 {
 	GxToolBox *box =  new GxToolBox(*this, 
 		pb_gxrack_expose, _("tuner"), GTK_WIDGET(fShowTuner.gobj()));
+	
 	box->rbox.add(fTuner);
 	//box->window.set_size_request(200,140); 
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
@@ -2669,11 +2672,12 @@ void GxMainInterface::openPlugBox(const char* label)
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_rectangle_skin_color_expose, label, GTK_WIDGET(fShowRack.gobj()));
 	rack_widget = GTK_WIDGET(box->window.gobj());
+	box->box.add(box->rbox);
 	box->window.set_size_request(-1,420); 
 	box->window.set_name("MonoRack");
 	box->window.set_tooltip_text(_("Mono Rack, right click pop up the plugin menu"));
 	rBox = GTK_WIDGET(box->rbox.gobj());
-	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
+	gtk_paned_add1 (GTK_PANED(fBox[fTop]), GTK_WIDGET(box->window.gobj()));
 	pushBox(kBoxMode, GTK_WIDGET(rBox));
 }
 
@@ -2681,24 +2685,28 @@ void GxMainInterface::openScrollBox(const char* label)
 {
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_gxrack_expose, label, GTK_WIDGET(fShowRack.gobj()));
+	box->box.add(box->pan);
+	
 	RBox = GTK_WIDGET(box->window.gobj());
+	box->window.set_name("Rack");
 	box->window.set_size_request(-1,460); 
 	//box->window.show_all();
-	
+	box->pan.show();
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
-	pushBox(kBoxMode, GTK_WIDGET(box->rbox.gobj()));
+	pushBox(kBoxMode, GTK_WIDGET(box->pan.gobj()));
 }
 
 void GxMainInterface::openAmpBox(const char* label)
 {
 	GxWindowBox *box =  new GxWindowBox(*this, 
 		pb_rectangle_skin_color_expose, label, GTK_WIDGET(fShowSRack.gobj()));
+	box->box.add(box->rbox);
 	srack_widget = GTK_WIDGET(box->window.gobj());
 	box->window.set_size_request(-1,420); 
 	box->window.set_name("StereoRack");
 	box->window.set_tooltip_text(_("Stereo Rack, right click pop up the plugin menu"));
 	sBox = GTK_WIDGET(box->rbox.gobj());
-	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
+	gtk_paned_add2 (GTK_PANED(fBox[fTop]), GTK_WIDGET(box->window.gobj()));
 	pushBox(kBoxMode, GTK_WIDGET(sBox));
 }
 
@@ -3577,6 +3585,7 @@ void GxMainInterface::addPluginMenu()
 	GtkWidget* menulabel; // menu label
 	GtkWidget* menucont;  // menu container
 	GtkWidget* menucontin;  // menu container
+	GtkWidget* sep;  // menu separator
 	
 	menucont = fMenuList["Top"];
 
@@ -3610,13 +3619,18 @@ void GxMainInterface::addPluginMenu()
 	fShowRRack.show();
 	fShowRRack.set_parameter(new SwitchParameter("system.show_rrack"));
 	
+	sep = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+	gtk_widget_show (sep);
+	
 	/*-- Create mono rack check menu item under Options submenu --*/
 	set_label(fShowRack, _("show Mono_Rack"));
 	fShowRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	                           GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	                           GDK_m, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowRack.signal_activate().connect(
 		sigc::mem_fun(*this, &GxMainInterface::on_rack_activate));
-	
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowRack.gobj()));
+	fShowRack.show();
 	fShowRack.set_parameter(new SwitchParameter("system.show_rack"));
 	/*-- Create mono plugin menu soket item under Options submenu --*/
 	menulabel = gtk_menu_item_new_with_mnemonic (_("_Mono Plugins"));
@@ -3630,7 +3644,9 @@ void GxMainInterface::addPluginMenu()
 	
 	fMenuList["PluginsMono"] = menucontin;
 	menu_mono_rack = fMenuList["PluginsMono"];
-	
+	sep = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+	gtk_widget_show (sep);
 	/*-- create midi out menu  --*/
 	set_label(fShowMidiOut, _("MIDI out"));
 	fShowMidiOut.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
@@ -3644,7 +3660,7 @@ void GxMainInterface::addPluginMenu()
 	
 	
 	/*-- add a separator line --*/
-	GtkWidget* sep = gtk_separator_menu_item_new();
+	sep = gtk_separator_menu_item_new();
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuh), sep);
 	gtk_widget_show (sep);
 	
@@ -3654,7 +3670,8 @@ void GxMainInterface::addPluginMenu()
 	                           GDK_s, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowSRack.signal_activate().connect(
 		sigc::mem_fun(*this, &GxMainInterface::on_srack_activate));
-	
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowSRack.gobj()));
+	fShowSRack.show();
 	fShowSRack.set_parameter(new SwitchParameter("system.show_Srack"));
 	
 	/*-- Create stereo plugin menu soket item under Options submenu --*/

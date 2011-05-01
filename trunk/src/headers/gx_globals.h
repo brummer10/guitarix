@@ -129,16 +129,6 @@ enum {
 
 /* -------------------------------------------------------------------------- */
 
-/* ----- JConv namespace ----- */
-namespace gx_jconv
-{
-/* some global vars */
-extern float checkbox7;
-extern GtkWidget* mslider;
-}
-
-/* -------------------------------------------------------------------------- */
-
 /* ----- preset namespace ----- */
 namespace gx_preset
 {
@@ -203,22 +193,11 @@ extern const char* shell_var_name[];
 /* ----- GUI namespace ----- */
 namespace gx_gui
 {
-typedef enum {
-	kWvMode1 = 1,
-	kWvMode2,
-	kWvMode3
-} GxWaveviewMode;
-
-/* wave view global */
-extern bool           new_wave_view;
 
 /* global GUI widgets */
 extern GtkWidget* fWindow;
 extern GtkWidget* menuh;
 extern GtkWidget* midibox;
-extern GtkWidget* fbutton;
-extern GtkWidget* record_button;
-extern GtkWidget* jc_dialog;
 extern GtkWidget* patch_info;
 extern GtkWidget* tuner_widget;
 extern GtkWidget* rack_widget;
@@ -227,7 +206,7 @@ extern GtkWidget* srack_widget;
 extern GtkWidget* menu_stereo_rack;
 extern GtkWidget* rack_tool_bar;
 
-/* wave view widgets */
+/* icon widgets */
 extern GdkPixbuf* ib;
 extern GdkPixbuf* ibm;
 extern GdkPixbuf* ibr;
@@ -243,8 +222,7 @@ extern GtkWidget* gx_engine_bypass_image;
 extern GtkWidget* gx_engine_item;
 
 /* some more widgets */
-extern GtkWidget* label6;
-extern GtkWidget* label1;
+
 extern GtkStatusIcon* status_icon;
 
 /* tuner and osilloscope*/

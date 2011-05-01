@@ -576,6 +576,9 @@ void GxMainInterface::on_rack_activate()
 {
 	if (fShowRack.get_active()) {
 		gtk_widget_show(rack_widget);
+		if (!fShowRRack.get_active()) {
+			fShowRRack.set_active(true);
+		}
 	} else {
 		gtk_widget_hide(rack_widget);
 	}
@@ -608,6 +611,9 @@ void GxMainInterface::on_srack_activate()
 {
 	if (fShowSRack.get_active()) {
 		gtk_widget_show(srack_widget);
+		if (!fShowRRack.get_active()) {
+			fShowRRack.set_active(true);
+		}
 	} else {
 		gtk_widget_hide(srack_widget);
 	}

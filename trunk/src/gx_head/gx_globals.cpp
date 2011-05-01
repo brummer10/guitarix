@@ -108,16 +108,6 @@ string gx_port_names[] =
 
 /* ------------------------------------------------------------------------- */
 
-/* ----- JConv namespace ----- */
-namespace gx_jconv
-{
-/* some global vars */
-float checkbox7;
-GtkWidget* mslider;
-}
-
-/* ------------------------------------------------------------------------- */
-
 /* ----- system namespace ----- */
 namespace gx_system
 {
@@ -221,16 +211,10 @@ GCallback preset_action_func[] =
 namespace gx_gui
 {
 
-/* wave view global */
-bool           new_wave_view;
-
 /* global GUI widgets */
 GtkWidget* fWindow;
 GtkWidget* menuh;
 GtkWidget* midibox;
-GtkWidget* fbutton;
-GtkWidget* record_button;
-GtkWidget* jc_dialog;
 GtkWidget* patch_info;
 GtkWidget* tuner_widget;
 GtkWidget* rack_widget;
@@ -239,13 +223,10 @@ GtkWidget* menu_mono_rack;
 GtkWidget* menu_stereo_rack;
 GtkWidget* rack_tool_bar;
 
-/* wave view widgets */
-GtkWidget* livewa;
+/* icon widgets */
 GdkPixbuf* ib;
 GdkPixbuf* ibm;
 GdkPixbuf* ibr;
-GdkPixbuf* bbr;
-
 
 /* jack server status icons */
 GtkWidget* gx_jackd_on_image;
@@ -257,15 +238,10 @@ GtkWidget* gx_engine_off_image;
 GtkWidget* gx_engine_bypass_image;
 GtkWidget* gx_engine_item;
 
-/* some more widgets. Note: change names please! */
-GtkWidget* label1;
-GtkWidget* label6;
-
 GtkStatusIcon* status_icon;
 
 int showwave = 0;
 int shownote = -1;
-int smoth_tuner = 0;
 float show_patch_info = 0;
 
 /* skin handling */
