@@ -87,7 +87,8 @@ static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event)
 		findex = (int)(fcount * wheelstate);
 		gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
 	                wb, (image_rect.width * findex),0, image_rect.x, image_rect.y,
-	                image_rect.width, image_rect.height, GDK_RGB_DITHER_NORMAL, 0, 0);			
+	                image_rect.width, image_rect.height, GDK_RGB_DITHER_NORMAL, 0, 0);		
+	    _gx_regler_display_value(regler, &value_rect);
 	} else {
 		
 	GdkPixbuf *ws = gtk_widget_render_icon(widget, "wheel_fringe", GtkIconSize(-1), NULL);
@@ -118,10 +119,11 @@ static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event)
 	                gdk_pixbuf_get_width(wp), image_rect.height,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
 	_gx_regler_display_value(regler, &value_rect);
-	g_object_unref(wb);
+	
 	g_object_unref(ws);
 	g_object_unref(wp);
     }
+    g_object_unref(wb);
 	return TRUE;
 }
 

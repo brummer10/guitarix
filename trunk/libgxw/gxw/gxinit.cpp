@@ -56,6 +56,7 @@ static image_entry image_data[] = {
 	{ "guitar", pb_guitar },
 	{ "gxhead", pb_gxhead },
 	{ "gxhead_face", pb_gxhead_face },
+	{ "main_image", pb_gxhead },
 	{ NULL, NULL },
 };
 

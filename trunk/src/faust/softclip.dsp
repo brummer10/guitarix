@@ -5,5 +5,5 @@ import("guitarix.lib");
 b = hslider("fuzz", 0.0, 0.0, 1.99, 0.01);
 a = 2-b;
 //cut(x) = (fabs (x-a) -fabs (x+a))*0.5;
-
-process = sym_clip(a);
+r(x) = x-sym_clip(a*0.88);
+process(x) = x:sym_clip(a*0.88) <:+(r(x)*0.33);

@@ -29,6 +29,7 @@
 #include "guitarix.h"
 #include <glibmm/i18n.h>
 
+
 using namespace gx_resample;
 
 namespace gx_engine {
@@ -111,6 +112,8 @@ void AudioVariables::register_parameter()
 	
 	static const char *tonestack_model[] = {N_("default"),N_("Bassman"),N_("Twin Reverb"),N_("Princeton"),N_("JCM-800"),N_("JCM-2000"),N_("M-Lead"),N_("M2199"),N_("AC-30"),N_("Off"),0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
+	static const char *cabinet_model[] = {N_("4x12"),N_("HighGain"),N_("BlackPannel"),N_("Twin"),N_("Bassman"),N_("Marshall"),N_("AC-30"),N_("Princeton"),N_("Blues-Pod"),N_("Brit.ClassA2"),0};
+	registerEnumParam("cab.select","select",cabinet_model,&cabinet, 0);
 	
 	static const char *post_pre[] = {N_("post"),N_("pre"),0};
 	registerEnumParam("compressor.pp","select",post_pre,&compressorpp, 0);
@@ -191,6 +194,12 @@ inline float noise_gate(int sf, float* input, float ngate)
 	} else {
 		return ngate;
 	}
+}
+
+void cab_conv_restart()
+{
+	cab_conv.stop();
+	gx_gui::cab_conv_restart();
 }
 
 /****************************************************************
@@ -500,9 +509,11 @@ void process_buffers(int count, float* input, float* output0)
     }
 
     if(audio.fcab) {
+		
         if (!cab_conv.compute(count, output0))
             cout << "overload" << endl;
             //FIXME error message??
+        if(audio.cab_switched != audio.cabinet)cab_conv_restart();
     }
 
     if (audio.fboost) {

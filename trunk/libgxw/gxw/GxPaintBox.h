@@ -46,6 +46,8 @@ struct _GxPaintBox {
 	gint16 GSEAL (spacing);
 	guint GSEAL (homogeneous) : 1;
 	guint GSEAL (icon_set) : 16;
+	guint GSEAL (width) : 16;
+	guint GSEAL (height) : 16;
 
 };
 
@@ -55,6 +57,7 @@ struct _GxPaintBoxClass {
 	GdkPixbuf *gxh_image;
 	GdkPixbuf *gxr_image;
 	const gchar *stock_id;
+	const gchar *main_image_id;
 };
 
 

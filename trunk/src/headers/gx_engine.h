@@ -73,6 +73,8 @@ public:
 	int fchorus_mono;
 	int fphaser;
 	int tonestack;
+	int cabinet;
+	int cab_switched;
 	int crybabypp;
 	int overdrivepp;
 	int distortionpp;

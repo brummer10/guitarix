@@ -237,6 +237,34 @@ Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_icon_set() const
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy<guint> PaintBox::property_width() 
+{
+  return Glib::PropertyProxy<guint>(this, "width");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_width() const
+{
+  return Glib::PropertyProxy_ReadOnly<guint>(this, "width");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy<guint> PaintBox::property_height() 
+{
+  return Glib::PropertyProxy<guint>(this, "height");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_height() const
+{
+  return Glib::PropertyProxy_ReadOnly<guint>(this, "height");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
 
 #ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 #endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED

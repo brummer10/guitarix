@@ -189,10 +189,7 @@ void GxMainInterface::setup()
                                    {
                                         openSpaceBox("");
                                         closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
+                                        
 
 
                                         openSpaceBox("");
@@ -225,14 +222,29 @@ void GxMainInterface::setup()
                                         closeBox();
                                         openHorizontalBox("");
                                         {
+											 
                                              openVerticalBox1("");
-                                             closeBox();
-                                             create_cab_switch("cab.on_off",_(" Cabinet        "), Gtk::POS_RIGHT);
-                                             openSpaceBox("");
+                                             openHorizontalBox("");
+											 {
+												openSpaceBox("");
+                                                closeBox();
+												create_cab_switch("cab.on_off",_(" Cabinet        "), Gtk::POS_TOP);
+												openSpaceBox("");
+                                                closeBox();
+                                                openSpaceBox("");
+                                                closeBox();
+												
+											 }
+											 closeBox();
+                                            // closeBox();
+                                             create_selector("cab.select");
+                                             //openSpaceBox("");
                                              closeBox();
                                              openSpaceBox("");
                                              closeBox();
                                         }
+                                        closeBox();
+                                        openSpaceBox("");
                                         closeBox();
                                         openHorizontalBox("");
                                         {

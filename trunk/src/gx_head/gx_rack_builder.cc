@@ -32,8 +32,6 @@ openHorizontalTableBox("");
 		  {
 			   openHorizontalBox("");
                {
-				   openSpaceBox("");
-                   closeBox();
 				   create_switch_no_caption(sw_switchit, "noise_gate.on_off");
 				   openpaintampBox("noise gate");
 				   {
@@ -329,8 +327,6 @@ openHorizontalTableBox("");
 													  {
 														   openSpaceBox("");
 														   closeBox();
-														   openSpaceBox("");
-														   closeBox();
 														   create_wheel("gx_distortion.split_low_freq", _("split low freq"));
 														   openSpaceBox("");
 														   closeBox();
@@ -338,8 +334,6 @@ openHorizontalTableBox("");
 														   openSpaceBox("");
 														   closeBox();
 														   create_wheel("gx_distortion.split_high_freq", _("split high freq"));
-														   openSpaceBox("");
-														   closeBox();
 														   openSpaceBox("");
 														   closeBox();
 

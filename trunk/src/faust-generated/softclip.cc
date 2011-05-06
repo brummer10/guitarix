@@ -11,11 +11,12 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	double 	fSlow0 = fslider0;
-	double 	fSlow1 = (fSlow0 - 2);
-	double 	fSlow2 = (2 - fSlow0);
+	double 	fSlow0 = (0.88 * (2 - fslider0));
+	double 	fSlow1 = (0 - fSlow0);
 	for (int i=0; i<count; i++) {
-		output0[i] = (FAUSTFLOAT)max(fSlow1, min(fSlow2, (double)input0[i]));
+		double fTemp0 = (double)input0[i];
+		double fTemp1 = max(fSlow1, min(fSlow0, fTemp0));
+		output0[i] = (FAUSTFLOAT)(fTemp1 + (0.33 * (fTemp0 - max(fSlow1, min(fSlow0, fTemp1)))));
 	}
 }
 

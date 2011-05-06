@@ -81,6 +81,7 @@ const char *pb_gxhead_expose =               "gxhead_expose";
 const char *pb_RackBox_expose =              "RackBox_expose";
 const char *pb_gxrack_expose =               "gxrack_expose";
 const char *pb_eq_expose =                   "eq_expose";
+const char *pb_main_expose =                 "main_expose";
 
 /****************************************************************
  ** register GUI parameter to save/load them within the settigs file
@@ -321,6 +322,30 @@ GxEventBox::~GxEventBox()
 GxEventBox::GxEventBox(gx_ui::GxUI& ui)
 {
 	m_eventbox.add(m_box);
+	m_fixedbox.put(m_eventbox,0,0);
+}
+/****************************************************************/
+class GxMainBox
+{
+public:
+	Gtk::HBox m_box;
+	Gtk::EventBox m_eventbox;
+	Gtk::Fixed m_fixedbox;
+	Gtk::Label m_label;
+	Gxw::PaintBox m_paintbox;
+	GxMainBox(gx_ui::GxUI& ui,const char *expose_funk);
+	virtual ~GxMainBox();
+};
+
+GxMainBox::~GxMainBox()
+{
+}
+
+GxMainBox::GxMainBox(gx_ui::GxUI& ui,const char *expose_funk)
+{
+	m_paintbox.add(m_box);
+	m_eventbox.add(m_paintbox);
+	m_paintbox.property_paint_func() = expose_funk;
 	m_fixedbox.put(m_eventbox,0,0);
 }
 /****************************************************************/

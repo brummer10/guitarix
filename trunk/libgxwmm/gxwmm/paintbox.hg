@@ -46,6 +46,8 @@ class PaintBox: public Gtk::Box {
 	_WRAP_PROPERTY(spacing, guint)
 	_WRAP_PROPERTY(homogeneous, guint)
 	_WRAP_PROPERTY(icon-set, guint)
+	_WRAP_PROPERTY(width, guint)
+	_WRAP_PROPERTY(height, guint)
 };
 
 } // namespace Gxw
