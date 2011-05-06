@@ -17,6 +17,7 @@
  */
 
 #include "GxWheel.h"
+#include <gtk/gtkprivate.h>
 #include <gtk/gtkmain.h>
 
 #define P_(s) (s)   // FIXME -> gettext
@@ -38,21 +39,66 @@ static void gx_wheel_class_init(GxWheelClass *klass)
 	widget_class->motion_notify_event = gx_wheel_pointer_motion;
 	widget_class->enter_notify_event = NULL;
 	widget_class->leave_notify_event = NULL;
+	
+	gtk_widget_class_install_style_property(
+		widget_class,
+		g_param_spec_int("framecount",
+		                P_("framecount"),
+		                P_("Number of frames in the animation specified by the gtkrc"),
+		                -1, 250, -1,
+		                GParamFlags(GTK_PARAM_READABLE)));
+}
+
+static void get_image_dimensions (GtkWidget *widget, GdkPixbuf *pb, 
+										GdkRectangle *rect, gint *frame_count) 
+{
+	gtk_widget_style_get (widget, "framecount",
+							frame_count, NULL);
+	
+	rect->width  = gdk_pixbuf_get_width(pb);
+	rect->height = gdk_pixbuf_get_height(pb);
+	
+	if (*frame_count >1)
+		rect->width = (rect->width / *frame_count);
+	if (*frame_count == 0) {// rc directs to assume square frames
+		*frame_count = rect->width / rect->height;
+		rect->width = rect->height;
+		
+	}
 }
 
 static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event)
 {
 	g_assert(GX_IS_WHEEL(widget));
 	GxRegler *regler = GX_REGLER(widget);
+	GdkRectangle image_rect, value_rect;
+    gint fcount, findex;
+    gdouble wheelstate;
+	gtk_widget_style_get (widget, "framecount", &fcount, NULL);
+	
 	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
+	if (fcount > -1) {
+		
+		wheelstate = _gx_regler_get_step_pos(regler, 1);
+		get_image_dimensions (widget, wb, &image_rect, &fcount);
+		_gx_regler_get_positions(regler, &image_rect, &value_rect);
+		
+		fcount--; // zero based index
+		findex = (int)(fcount * wheelstate);
+		gdk_draw_pixbuf(GDK_DRAWABLE(widget->window), widget->style->fg_gc[0],
+	                wb, (image_rect.width * findex),0, image_rect.x, image_rect.y,
+	                image_rect.width, image_rect.height, GDK_RGB_DITHER_NORMAL, 0, 0);			
+	} else {
+		
 	GdkPixbuf *ws = gtk_widget_render_icon(widget, "wheel_fringe", GtkIconSize(-1), NULL);
 	GdkPixbuf *wp = gtk_widget_render_icon(widget, "wheel_pointer", GtkIconSize(-1), NULL);
-	GdkRectangle image_rect, value_rect;
-	image_rect.width = gdk_pixbuf_get_width(wb);
-	image_rect.height = gdk_pixbuf_get_height(wb);
+
+    image_rect.width = gdk_pixbuf_get_width(wb);
+    image_rect.height = gdk_pixbuf_get_height(wb);
+
 	gint step = gdk_pixbuf_get_width(ws) / 2;
-	gdouble wheelstate = _gx_regler_get_step_pos(regler, step);
-	_gx_regler_get_positions(regler, &image_rect, &value_rect);
+	wheelstate = _gx_regler_get_step_pos(regler, step);
+	
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	int smoth_pointer = 0;
 	if (wheelstate > (adj->upper - adj->lower)) {
@@ -75,16 +121,21 @@ static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event)
 	g_object_unref(wb);
 	g_object_unref(ws);
 	g_object_unref(wp);
+    }
 	return TRUE;
 }
-
 
 static void gx_wheel_size_request (GtkWidget *widget, GtkRequisition *requisition)
 {
 	g_assert(GX_IS_WHEEL(widget));
-	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
-	requisition->width = gdk_pixbuf_get_width(wb);
-	requisition->height = gdk_pixbuf_get_height(wb);
+	gint fcount;
+	GdkRectangle rect;
+	
+    GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
+		
+    get_image_dimensions (widget, wb, &rect, &fcount); 
+    requisition->width = rect.width;
+    requisition->height = rect.height;
 	_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
 	g_object_unref(wb);
 }
@@ -94,8 +145,8 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
 	GdkRectangle image_rect, value_rect;
-	image_rect.width = gdk_pixbuf_get_width(wb);
-	image_rect.height = gdk_pixbuf_get_height(wb);
+	gint fcount;
+    get_image_dimensions (widget, wb, &image_rect, &fcount); 
 	x += widget->allocation.x;
 	y += widget->allocation.y;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);

@@ -6,18 +6,36 @@
 
 include "common.rc"
 
+
 style "gx_dezert_skin_icons"
 {
-# used knob icons
-stock["bigknob"] = {{"knob9.png"}}
-stock["smallknob"] = {{"smallknob9.png"}}
-stock["smallknobr"] = {{"mittleknob9.png"}}
-GxPaintBox::icon-set =1
-stock["gxhead"] = {{"gxhead.png"}}
+  stock["bigknob"] = {{"tactile_knob_large_151f.png"}}
+  stock["smallknob"] = {{"tactile_knob_small_99f.png"}}
+  stock["smallknobr"] = {{"tactile_knob_medium_151f.png"}}
+  
+  GxPaintBox::icon-set =1
+  stock["gxhead"] = {{"gxhead.png"}}
 }
 
 class "GxKnob" style "gx_dezert_skin_icons"
 
+style "gx2_head_skin_knob_animation"
+{
+
+GxKnob::framecount = 0 # use 0 for auto (assumes square frames)
+                            #  and >1 for non squareframe animations
+}
+class "GxKnob" style "gx2_head_skin_knob_animation"
+
+style "gx2_head_wheel_icons"
+{
+stock["wheel_back"] = {{"tactile_wheel_101f.png"}}
+
+GxWheel::framecount = 101 # use 0 for auto (assumes square frames)
+                            #  and >1 for non squareframe animations
+}
+
+class "GxWheel" style "gx2_head_wheel_icons"
 
 style "gx_dezert-paintbox"
 {
@@ -29,7 +47,6 @@ GxPaintBox::skin-gradient = {
 { 65536, 6554, 6554, 6554, 65536 }} # 1, 0.1, 0.1, 0.1, 1
 stock["gxhead"] = {{"gxhead.png"}}
 }
-
 class "GxPaintBox" style "gx_dezert-paintbox"
 
 style "gx_dezert"

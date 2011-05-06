@@ -25,7 +25,7 @@ class "GxToggleImage" style "gx4_head_skin_switch_icons"
 style "gx4_head_skin_knob_animation"
 {
 
-GxKnob::knob-framecount = 0 # use 0 for auto (assumes square frames),
+GxKnob::framecount = 0 # use 0 for auto (assumes square frames),
                             # 1 for static bg and >1 for non squareframe
                             #  animations
 }

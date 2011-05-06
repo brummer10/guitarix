@@ -27,6 +27,7 @@ gxstyle_files = [
     'tactile_knob_medium_151f.png',
     'tactile_switchit_off.png',
     'tactile_switchit_on.png',
+    'tactile_wheel_101f.png',
     'smallknob9.png',
     'mittleknob9.png',
     'cairo1.jpg',

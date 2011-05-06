@@ -13,6 +13,23 @@ style "gx_head_skin_icons"
 
 class "GxKnob" style "gx_head_skin_icons"
 
+style "gx2_head_skin_knob_animation"
+{
+
+GxKnob::framecount = 0 # use 0 for auto (assumes square frames)
+                            #  and >1 for non squareframe animations
+}
+class "GxKnob" style "gx2_head_skin_knob_animation"
+
+style "gx2_head_wheel_icons"
+{
+stock["wheel_back"] = {{"tactile_wheel_101f.png"}}
+
+GxWheel::framecount = 101 # use 0 for auto (assumes square frames)
+                            #  and >1 for non squareframe animations
+}
+
+class "GxWheel" style "gx2_head_wheel_icons"
 
 style "gx_head-paintbox"
 {
