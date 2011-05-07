@@ -99,7 +99,7 @@ static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event)
 
 	gint step = gdk_pixbuf_get_width(ws) / 2;
 	wheelstate = _gx_regler_get_step_pos(regler, step);
-	
+	_gx_regler_get_positions(regler, &image_rect, &value_rect);
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	int smoth_pointer = 0;
 	if (wheelstate > (adj->upper - adj->lower)) {
