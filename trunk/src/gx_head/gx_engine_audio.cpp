@@ -112,7 +112,7 @@ void AudioVariables::register_parameter()
 	
 	static const char *tonestack_model[] = {N_("default"),N_("Bassman"),N_("Twin Reverb"),N_("Princeton"),N_("JCM-800"),N_("JCM-2000"),N_("M-Lead"),N_("M2199"),N_("AC-30"),N_("Off"),0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
-	static const char *cabinet_model[] = {N_("4x12"),N_("HighGain"),N_("BlackPannel"),N_("Twin"),N_("Bassman"),N_("Marshall"),N_("AC-30"),N_("Princeton"),N_("Blues-Pod"),N_("Brit.ClassA2"),0};
+	static const char *cabinet_model[] = {N_("4x12"),N_("2x12"),N_("1x12"),N_("4x10"),N_("2x10"),N_("HighGain"),N_("Twin"),N_("Bassman"),N_("Marshall"),N_("AC-30"),N_("Princeton"),N_("Brit.ClassA2"),0};
 	registerEnumParam("cab.select","select",cabinet_model,&cabinet, 0);
 	
 	static const char *post_pre[] = {N_("post"),N_("pre"),0};
@@ -431,6 +431,9 @@ void process_buffers(int count, float* input, float* output0)
 		break;
 	case 11: 
 		gxamp11::compute(count, output0, output0);
+		break;
+	case 12: 
+		gxamp12::compute(count, output0, output0);
 		break;
 	}
 	
