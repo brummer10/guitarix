@@ -132,6 +132,6 @@ public:
 };
 
 extern GxSimpleConvolver cab_conv;
-
+extern GxSimpleConvolver contrast_conv;
 } /* end of gx_engine namespace */
 

@@ -79,6 +79,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
 	gx_gui::registerParam("crybaby.on_off", on_off, &fcheckbox5, 0);
 	gx_gui::registerParam("cab.on_off", "Cab-ImpResp", &fcab,0);
+	gx_gui::registerParam("con.on_off", "Contrast-ImpResp", &fcon,0);
 	gx_gui::registerParam("overdrive.on_off", on_off, &foverdrive4, 0);
 	gx_gui::registerParam("gx_distortion.on_off", on_off, &fcheckbox4, 0);
 	gx_gui::registerParam("freeverb.on_off", on_off, &fcheckbox6, 0);
@@ -112,7 +113,7 @@ void AudioVariables::register_parameter()
 	
 	static const char *tonestack_model[] = {N_("default"),N_("Bassman"),N_("Twin Reverb"),N_("Princeton"),N_("JCM-800"),N_("JCM-2000"),N_("M-Lead"),N_("M2199"),N_("AC-30"),N_("Off"),0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
-	static const char *cabinet_model[] = {N_("4x12"),N_("2x12"),N_("1x12"),N_("4x10"),N_("2x10"),N_("HighGain"),N_("Twin"),N_("Bassman"),N_("Marshall"),N_("AC-30"),N_("Princeton"),N_("Brit.ClassA2"),0};
+	static const char *cabinet_model[] = {N_("4x12"),N_("2x12"),N_("1x12"),N_("4x10"),N_("2x10"),N_("HighGain"),N_("Twin"),N_("Bassman"),N_("Marshall"),N_("AC-30"),N_("Princeton"),N_("A2"),0};
 	registerEnumParam("cab.select","select",cabinet_model,&cabinet, 0);
 	
 	static const char *post_pre[] = {N_("post"),N_("pre"),0};
@@ -175,7 +176,7 @@ void AudioVariables::register_parameter()
 	// user interface options
 	registerNonMidiParam("ui.latency_nowarn", &fwarn, false, 0);
 	registerNonMidiParam("ui.skin", &fskin, false, 0, 0, 100);
-
+	
 }
 
 AudioVariables audio;
@@ -530,7 +531,12 @@ void process_buffers(int count, float* input, float* output0)
     if (audio.fnoise_g) {
 		noisegate::compute(count,output0, output0);
     }
-
+    
+    if(audio.fcon) {
+		if (!contrast_conv.compute(count, output0))
+		cout << "overload contrast" << endl;
+        //FIXME error message??
+    }
 }
 
 void process_insert_buffers (int count, float* input1, float* output0, float* output1)

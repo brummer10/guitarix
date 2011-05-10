@@ -255,6 +255,15 @@ public:
 	UiCabSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label);
 };
 
+class UiContrastSwitch: public UiSwitchWithCaption
+{
+private:
+	void on_switch_toggled();
+public:
+	static GtkWidget* create(gx_ui::GxUI& ui, string id, Glib::ustring label);
+	UiContrastSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label);
+};
+
 struct uiTuner : public gx_ui::GxUiItemFloat, public Gtk::Alignment
 {
 private:
@@ -612,6 +621,10 @@ public :
 	void create_cab_switch(string id, Glib::ustring label, Gtk::PositionType pos = Gtk::POS_TOP)
 		{
 			addwidget(UiCabSwitch::create(*this, id, label));
+		}
+	void create_contrast_switch(string id, Glib::ustring label, Gtk::PositionType pos = Gtk::POS_TOP)
+		{
+			addwidget(UiContrastSwitch::create(*this, id, label));
 		}
 };
 

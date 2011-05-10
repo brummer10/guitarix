@@ -364,10 +364,11 @@ gboolean level_meter_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_dat
 	cairo_set_source_rgb (cr, 0, 0, 0);
 	cairo_fill (cr);
 
-	cairo_pattern_t*pat =
-		cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
-	cairo_pattern_add_color_stop_rgb (pat, 0, 0.2, 0.2, 0.3);
-	cairo_pattern_add_color_stop_rgb (pat, 1, 0.05, 0.05, 0.05);
+	cairo_pattern_t*pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+		//cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	cairo_pattern_add_color_stop_rgb (pat, 0, 0.1, 0.1, 0.2);
+	cairo_pattern_add_color_stop_rgb (pat, 0.3, 0.06, 0.06, 0.07);
+	cairo_pattern_add_color_stop_rgb (pat, 1, 0.03, 0.03, 0.03);
 	cairo_set_source (cr, pat);
 	cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-2);
 	cairo_fill (cr);

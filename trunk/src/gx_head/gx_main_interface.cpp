@@ -2108,6 +2108,20 @@ GtkWidget* UiCabSwitch::create(gx_ui::GxUI& ui, string id, Glib::ustring label)
 	return (new UiCabSwitch(ui, parameter_map[id], label))->get_widget();
 }
 
+UiContrastSwitch::UiContrastSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label):
+	UiSwitchWithCaption(ui, sw_minitoggle, param, label, Gtk::POS_RIGHT)
+{
+	m_switch->signal_toggled().connect(sigc::mem_fun(*this, &UiContrastSwitch::on_switch_toggled));
+}
+
+GtkWidget* UiContrastSwitch::create(gx_ui::GxUI& ui, string id, Glib::ustring label)
+{
+	if (!parameter_map.hasId(id)) {
+		return 0;
+	}
+	return (new UiContrastSwitch(ui, parameter_map[id], label))->get_widget();
+}
+
 // -------------------------- gtk widgets -----------------------------------
 
 void GxMainInterface::addNumEntry(const char* label, float* zone, float init, float min, float max, float step)

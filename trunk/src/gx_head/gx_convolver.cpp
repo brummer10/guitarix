@@ -458,5 +458,6 @@ bool GxSimpleConvolver::compute(int count, float* input, float *output)
 }
 
 GxSimpleConvolver cab_conv;
+GxSimpleConvolver contrast_conv;
 
 }

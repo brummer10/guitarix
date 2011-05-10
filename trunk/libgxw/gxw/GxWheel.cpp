@@ -142,7 +142,7 @@ static void gx_wheel_size_request (GtkWidget *widget, GtkRequisition *requisitio
 	g_object_unref(wb);
 }
 
-static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, int button, GdkEventButton *event)
+static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, int state, int button, GdkEventButton *event)
 {
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
@@ -151,6 +151,7 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
     get_image_dimensions (widget, wb, &image_rect, &fcount); 
 	x += widget->allocation.x;
 	y += widget->allocation.y;
+	
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
 	if (!drag) {
 		GdkRectangle *rect = NULL;
@@ -173,10 +174,18 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
 			return FALSE;
 		}
 	}
-	double pos = adj->lower + ((x - image_rect.x)/image_rect.width)* (adj->upper - adj->lower);
-	gboolean handled;
-	g_signal_emit(widget, GX_REGLER_CLASS(G_OBJECT_GET_CLASS(widget))->change_value_id,
-	              0, GTK_SCROLL_JUMP, pos, &handled);
+	static double last_x = 0;
+	double value;
+	if (!drag) {
+		last_x = x;
+		return TRUE;
+	}
+	int mode = ((state & GDK_CONTROL_MASK) == 0);
+	const double scaling = 0.01;
+	double scal = (mode ? scaling : scaling*0.1);
+	value = (x - last_x) * scal;
+	last_x = x;
+	gtk_range_set_value(GTK_RANGE(widget), adj->value + value * (adj->upper - adj->lower));
 	g_object_unref(wb);
 	return TRUE;
 }
@@ -188,7 +197,7 @@ static gboolean gx_wheel_button_press (GtkWidget *widget, GdkEventButton *event)
 		return FALSE;
 	}
 	gtk_widget_grab_focus(widget);
-	if (wheel_set_from_pointer(widget, event->x, event->y, FALSE, event->button, event)) {
+	if (wheel_set_from_pointer(widget, event->x, event->y, FALSE, event->state, event->button, event)) {
 		gtk_grab_add(widget);
 	}
 	return FALSE;
@@ -205,7 +214,7 @@ static gboolean gx_wheel_pointer_motion (GtkWidget *widget, GdkEventMotion *even
 	if (!gtk_widget_has_grab(widget)) {
 		return FALSE;
 	}
-	wheel_set_from_pointer(widget, event->x, event->y, TRUE, 0, NULL);
+	wheel_set_from_pointer(widget, event->x, event->y, TRUE, event->state, 0, NULL);
 	return FALSE;
 }
 

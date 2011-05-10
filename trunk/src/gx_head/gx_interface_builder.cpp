@@ -220,6 +220,7 @@ void GxMainInterface::setup()
                                              closeBox();
                                         }
                                         closeBox();
+                                        
                                         openHorizontalBox("");
                                         {
 											 
@@ -275,14 +276,12 @@ void GxMainInterface::setup()
                                    closeBox();
                                    openSpaceBox("");
                                    closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
+                                   create_contrast_switch("con.on_off",_(" sharp"), Gtk::POS_TOP);
                                    create_switch(sw_minitoggle, "amp.feed_on_off", _(" reverb  "), Gtk::POS_RIGHT);
                                    create_minislider("amp.wet_dry");
                                    openSpaceBox("");
                                    closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
+                                   
                                    openVerticalBox1("Convolver");
                                    {
                                    }

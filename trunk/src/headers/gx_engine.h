@@ -55,6 +55,7 @@ public:
 	bool fflanger;
 	bool fbiquad;
 	bool fcab;
+	bool fcon;
 	bool flh;
 	bool fmi;
 	bool fwv;
