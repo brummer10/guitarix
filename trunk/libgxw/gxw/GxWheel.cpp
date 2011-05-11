@@ -22,6 +22,13 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
+#define GX_WHEEL_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), GX_TYPE_WHEEL, GxWheelPrivate))
+
+typedef struct
+{
+	int last_x;
+} GxWheelPrivate;
+
 static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event);
 static void gx_wheel_size_request (GtkWidget *widget, GtkRequisition *requisition);
 static gboolean gx_wheel_button_press (GtkWidget *widget, GdkEventButton *event);
@@ -47,6 +54,7 @@ static void gx_wheel_class_init(GxWheelClass *klass)
 		                P_("Number of frames in the animation specified by the gtkrc"),
 		                -1, 250, -1,
 		                GParamFlags(GTK_PARAM_READABLE)));
+	g_type_class_add_private(klass, sizeof (GxWheelPrivate));	                
 }
 
 static void get_image_dimensions (GtkWidget *widget, GdkPixbuf *pb, 
@@ -147,6 +155,7 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
 	GdkRectangle image_rect, value_rect;
+	GxWheelPrivate *priv = GX_WHEEL_GET_PRIVATE(GX_WHEEL(widget));
 	gint fcount;
     get_image_dimensions (widget, wb, &image_rect, &fcount); 
 	x += widget->allocation.x;
@@ -174,18 +183,19 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
 			return FALSE;
 		}
 	}
-	static double last_x = 0;
+
 	double value;
 	if (!drag) {
-		last_x = x;
+		priv->last_x = x;
 		return TRUE;
 	}
 	int mode = ((state & GDK_CONTROL_MASK) == 0);
 	const double scaling = 0.01;
 	double scal = (mode ? scaling : scaling*0.1);
-	value = (x - last_x) * scal;
-	last_x = x;
-	gtk_range_set_value(GTK_RANGE(widget), adj->value + value * (adj->upper - adj->lower));
+	value = adj->value + (((x - priv->last_x) * scal) * (adj->upper - adj->lower));
+	priv->last_x = x;
+	if (adj->value != value) 
+		gtk_range_set_value(GTK_RANGE(widget), value);
 	g_object_unref(wb);
 	return TRUE;
 }
