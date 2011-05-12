@@ -40,9 +40,11 @@ typedef enum {
 
 typedef struct _GxMeterScale GxMeterScale;
 typedef struct _GxMeterScaleClass GxMeterScaleClass;
+typedef struct _GxMeterScalePrivate GxMeterScalePrivate;
 
 struct _GxMeterScale {
 	GtkWidget parent;
+	GxMeterScalePrivate *priv;
 	GxTickPosition GSEAL (tick_pos);
 };
 

@@ -38,10 +38,12 @@ G_BEGIN_DECLS
 
 typedef struct _GxRegler GxRegler;
 typedef struct _GxReglerClass GxReglerClass;
+typedef struct _GxReglerPrivate GxReglerPrivate;
 
 struct _GxRegler
 {
 	GtkRange parent;
+	GxReglerPrivate *priv;
 	gchar *GSEAL(var_id);
 	GtkLabel *GSEAL(label);
 	gboolean GSEAL(show_value):1;

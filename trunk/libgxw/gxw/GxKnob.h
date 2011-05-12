@@ -33,9 +33,11 @@ G_BEGIN_DECLS
 
 typedef struct _GxKnob GxKnob;
 typedef struct _GxKnobClass GxKnobClass;
+typedef struct _GxKnobPrivate GxKnobPrivate;
 
 struct _GxKnob {
 	GxRegler parent;
+	GxKnobPrivate *priv;
 };
 
 struct _GxKnobClass {

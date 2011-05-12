@@ -31,14 +31,14 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
-#define GX_KNOB_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), GX_TYPE_KNOB, GxKnobPrivate))
+//#define GX_KNOB_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), GX_TYPE_KNOB, GxKnobPrivate))
 
 
 
-typedef struct
+struct _GxKnobPrivate
 {
 	gint last_quadrant;
-} GxKnobPrivate;
+};
 
 static gboolean gx_knob_pointer_motion(GtkWidget *widget, GdkEventMotion *event);
 static gboolean gx_knob_enter_in(GtkWidget *widget, GdkEventCrossing *event);
@@ -81,6 +81,7 @@ static void gx_knob_class_init(GxKnobClass *klass)
 
 static void gx_knob_init(GxKnob *knob)
 {
+	knob->priv = G_TYPE_INSTANCE_GET_PRIVATE(knob, GX_TYPE_KNOB, GxKnobPrivate);
 }
 
 void _gx_knob_draw_arc(GtkWidget *widget, GdkRectangle *rect, gdouble knobstate, gboolean has_focus)
@@ -214,7 +215,10 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 	int fcount;
 	int linearmode = ((state & GDK_CONTROL_MASK) == 0) ^ jump_to_mouse;
 	GdkRectangle image_rect, value_rect;
+	
+	GxKnob *knob = GX_KNOB(widget);
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, icon, GtkIconSize(-1), NULL);
+	GxKnobPrivate *priv = knob->priv;
 	
     get_image_dimensions (widget, pb, &image_rect, &fcount); 
 	
@@ -244,9 +248,7 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 		}
 	}
 	static double last_y = 2e20;
-	GxKnob *knob = GX_KNOB(widget);
-	GxKnobPrivate *priv = GX_KNOB_GET_PRIVATE(knob);
-	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+		GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	double radius =  min(image_rect.width, image_rect.height) / 2;
 	double posx = radius - x + image_rect.x; // x axis right -> left
 	double posy = radius - y + image_rect.y; // y axis top -> bottom

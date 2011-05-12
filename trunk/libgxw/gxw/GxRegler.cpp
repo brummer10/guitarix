@@ -38,16 +38,12 @@
  ** GxRegler
  */
 
-#define GX_REGLER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_REGLER, GxReglerPrivate))
-
-
-
-typedef struct
+struct _GxReglerPrivate
 {
 	GtkRequisition value_req;
 	gdouble last_step;
 	GtkAdjustment *adjustment;
-} GxReglerPrivate;
+};
 
 enum {
   VALUE_ENTRY,
@@ -712,7 +708,7 @@ static void gx_regler_move_slider(GtkRange *range, GtkScrollType scroll)
 
 static void ensure_digits(GxRegler *regler)
 {
-	GxReglerPrivate *priv = GX_REGLER_GET_PRIVATE(regler);
+	GxReglerPrivate *priv = regler->priv;
 	GtkAdjustment *adj = GTK_RANGE(regler)->adjustment;
 	if (!adj) {
 		return;
@@ -802,7 +798,7 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
 	gint width = image_rect->width;
 	gint height =  image_rect->height;
 	if (regler->show_value) {
-		GxReglerPrivate *priv = GX_REGLER_GET_PRIVATE(regler);
+		GxReglerPrivate *priv = regler->priv;
 		gint text_width = priv->value_req.width;
 		gint text_height = priv->value_req.height;
 		gint text_x = 0, text_y = 0;
@@ -973,7 +969,7 @@ void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
 		pango_layout_get_pixel_extents(regler->value_layout, NULL, &logical_rect2);
 		gint height = max(logical_rect1.height,logical_rect2.height) + border.top + border.bottom;
 		gint width = max(logical_rect1.width,logical_rect2.width) + border.left + border.right;
-		GxReglerPrivate *priv = GX_REGLER_GET_PRIVATE(regler);
+		GxReglerPrivate *priv = regler->priv;
 		priv->value_req.width = width;
 		priv->value_req.height = height;
 		switch (regler->value_position) {
@@ -1172,7 +1168,7 @@ static void gx_regler_adjustment_changed(GtkAdjustment *adjustment, gpointer dat
 
 static void gx_regler_change_adjustment(GxRegler *regler, GtkAdjustment *adjustment)
 {
-	GxReglerPrivate *priv = GX_REGLER_GET_PRIVATE(regler);
+	GxReglerPrivate *priv = regler->priv;
 	if (adjustment == priv->adjustment) {
 		return;
 	}
@@ -1199,6 +1195,7 @@ static void gx_regler_adjustment_notified(GObject *gobject, GParamSpec *pspec)
 
 static void gx_regler_init(GxRegler *regler)
 {
+	regler->priv = G_TYPE_INSTANCE_GET_PRIVATE (regler, GX_TYPE_REGLER, GxReglerPrivate);
 	GTK_RANGE(regler)->round_digits = 0;
 	regler->value_position = GTK_POS_BOTTOM;
 	regler->show_value = TRUE;

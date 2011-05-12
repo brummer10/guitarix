@@ -22,12 +22,10 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
-#define GX_WHEEL_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), GX_TYPE_WHEEL, GxWheelPrivate))
-
-typedef struct
+struct _GxWheelPrivate
 {
 	int last_x;
-} GxWheelPrivate;
+};
 
 static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event);
 static void gx_wheel_size_request (GtkWidget *widget, GtkRequisition *requisition);
@@ -155,7 +153,8 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
 	GdkRectangle image_rect, value_rect;
-	GxWheelPrivate *priv = GX_WHEEL_GET_PRIVATE(GX_WHEEL(widget));
+	GxWheel *wheel = GX_WHEEL(widget);
+	GxWheelPrivate *priv = wheel->priv;
 	gint fcount;
     get_image_dimensions (widget, wb, &image_rect, &fcount); 
 	x += widget->allocation.x;
@@ -230,4 +229,5 @@ static gboolean gx_wheel_pointer_motion (GtkWidget *widget, GdkEventMotion *even
 
 static void gx_wheel_init(GxWheel *wheel)
 {
+	wheel->priv = G_TYPE_INSTANCE_GET_PRIVATE(wheel, GX_TYPE_WHEEL, GxWheelPrivate);
 }

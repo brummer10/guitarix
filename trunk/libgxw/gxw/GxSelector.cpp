@@ -32,15 +32,13 @@
  ** GxSelector
  */
 
-#define GX_SELECTOR_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), GX_TYPE_SELECTOR, GxSelectorPrivate))
-
-typedef struct
+struct _GxSelectorPrivate
 {
 	GtkMenu *menu;
 	GtkRequisition textsize;
 	gboolean req_ok;
 	gboolean inside;
-} GxSelectorPrivate;
+};
 
 enum {
 	PROP_MODEL = 1,
@@ -169,7 +167,7 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
 	GxSelector *selector = GX_SELECTOR(widget);
-	GxSelectorPrivate *priv = GX_SELECTOR_GET_PRIVATE(selector);
+	GxSelectorPrivate *priv = selector->priv;
 	int selectorstate = get_selector_state(selector);
 	PangoLayout *layout = gtk_widget_create_pango_layout(widget, NULL);
 	GdkRectangle arrow, text;
@@ -209,7 +207,7 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 static gboolean gx_selector_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-	GxSelectorPrivate *priv = GX_SELECTOR_GET_PRIVATE(GX_SELECTOR(widget));
+	GxSelectorPrivate *priv = GX_SELECTOR(widget)->priv;
 	priv->inside = FALSE;
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
 	GdkRectangle rect;
@@ -223,7 +221,7 @@ static gboolean gx_selector_leave_out (GtkWidget *widget, GdkEventCrossing *even
 static gboolean gx_selector_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-	GxSelectorPrivate *priv = GX_SELECTOR_GET_PRIVATE(GX_SELECTOR(widget));
+	GxSelectorPrivate *priv = GX_SELECTOR(widget)->priv;
 	priv->inside = TRUE;
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
 	GdkRectangle rect;
@@ -236,7 +234,7 @@ static gboolean gx_selector_enter_in (GtkWidget *widget, GdkEventCrossing *event
 
 static void gx_selector_style_set(GtkWidget *widget, GtkStyle *previous_style)
 {
-	GxSelectorPrivate *priv = GX_SELECTOR_GET_PRIVATE(widget);
+	GxSelectorPrivate *priv = GX_SELECTOR(widget)->priv;
 	priv->req_ok = FALSE;
 }
 
@@ -247,7 +245,7 @@ static void gx_selector_size_request(GtkWidget *widget, GtkRequisition *requisit
 	if (!selector->model) {
 		return;
 	}
-	GxSelectorPrivate *priv = GX_SELECTOR_GET_PRIVATE(selector);
+	GxSelectorPrivate *priv = selector->priv;
 	if (priv->req_ok) {
 		gtk_widget_get_child_requisition(widget, requisition);
 	} else {
@@ -334,7 +332,7 @@ static void selection_done(GtkMenu *menu, gpointer data)
 static gboolean gx_selector_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event)
 {
 	GxSelector *selector = GX_SELECTOR(regler);
-	GxSelectorPrivate *priv = GX_SELECTOR_GET_PRIVATE(selector);
+	GxSelectorPrivate *priv = selector->priv;
 	GtkMenu *m = priv->menu;
 	if (!m) {
 		GtkTreeIter iter;
@@ -396,6 +394,7 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 
 static void gx_selector_init(GxSelector *selector)
 {
+	selector->priv = G_TYPE_INSTANCE_GET_PRIVATE(selector, GX_TYPE_SELECTOR, GxSelectorPrivate);
 	gtk_widget_set_has_window(GTK_WIDGET(selector), FALSE);
 	gtk_widget_set_can_focus(GTK_WIDGET(selector), TRUE);
 }
@@ -419,10 +418,9 @@ void gx_selector_set_model(GxSelector *selector, GtkTreeModel *model)
 {
 	g_return_if_fail(GX_IS_SELECTOR(selector));
 	g_return_if_fail(model == NULL || GTK_IS_TREE_MODEL (model));
-	GxSelectorPrivate *priv;
+	GxSelectorPrivate *priv = selector->priv;
 	if (model == selector->model)
 		return;
-    priv = GX_SELECTOR_GET_PRIVATE(selector);
 	gx_selector_unset_model(selector);
 	int n = 0;
 	if (model != NULL) {

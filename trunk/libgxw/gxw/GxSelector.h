@@ -39,10 +39,12 @@ G_BEGIN_DECLS
 
 typedef struct _GxSelector GxSelector;
 typedef struct _GxSelectorClass GxSelectorClass;
+typedef struct _GxSelectorPrivate GxSelectorPrivate;
 
 struct _GxSelector
 {
 	GxRegler parent;
+	GxSelectorPrivate *priv;
 	GtkTreeModel *model;
 };
 

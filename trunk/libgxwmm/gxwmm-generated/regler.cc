@@ -205,19 +205,12 @@ void Regler_Class::class_init_function(void* g_class, void* class_data)
   BaseClassType *const klass = static_cast<BaseClassType*>(g_class);
   CppClassParent::class_init_function(klass, class_data);
 
-#ifdef GLIBMM_VFUNCS_ENABLED
-#endif //GLIBMM_VFUNCS_ENABLED
 
-#ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
   klass->value_entry = &value_entry_callback;
   klass->format_value = &format_value_callback;
-#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 }
 
-#ifdef GLIBMM_VFUNCS_ENABLED
-#endif //GLIBMM_VFUNCS_ENABLED
 
-#ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 gboolean Regler_Class::value_entry_callback(GxRegler* self, GdkRectangle* p0, GdkEventButton* p1)
 {
   Glib::ObjectBase *const obj_base = static_cast<Glib::ObjectBase*>(
@@ -305,7 +298,6 @@ gchar* Regler_Class::format_value_callback(GxRegler* self, gdouble p0)
   typedef gchar* RType;
   return RType();
 }
-#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 
 
 Glib::ObjectBase* Regler_Class::wrap_new(GObject* o)
@@ -465,7 +457,6 @@ Glib::PropertyProxy_ReadOnly<Gtk::PositionType> Regler::property_value_position(
 #endif //GLIBMM_PROPERTIES_ENABLED
 
 
-#ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 bool Gxw::Regler::on_value_entry(const Gdk::Rectangle& p1, GdkEventButton* p2)
 {
   BaseClassType *const base = static_cast<BaseClassType*>(
@@ -490,10 +481,6 @@ Glib::ustring Gxw::Regler::on_format_value(double value)
   typedef Glib::ustring RType;
   return RType();
 }
-#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
-
-#ifdef GLIBMM_VFUNCS_ENABLED
-#endif //GLIBMM_VFUNCS_ENABLED
 
 
 } // namespace Gxw

@@ -23,8 +23,6 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
-#define GX_METER_SCALE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_METER_SCALE, GxMeterScalePrivate))
-
 enum {
 	PROP_TICK_POS = 1,
 };
@@ -34,9 +32,9 @@ typedef struct {
 	gchar           *markup;
 } GxMeterScaleMark;
 
-typedef struct {
+struct _GxMeterScalePrivate {
 	GSList      *marks;
-} GxMeterScalePrivate;
+};
 
 G_DEFINE_TYPE(GxMeterScale, gx_meter_scale, GTK_TYPE_WIDGET)
 
@@ -102,7 +100,7 @@ static void gx_meter_scale_class_init (GxMeterScaleClass *klass)
 static void gx_meter_scale_size_request(GtkWidget* wd, GtkRequisition* req)
 {
 	GxMeterScale *meter_scale = GX_METER_SCALE(wd);
-	GxMeterScalePrivate *priv = GX_METER_SCALE_GET_PRIVATE(meter_scale);
+	GxMeterScalePrivate *priv = meter_scale->priv;
 	PangoContext *ctx = gtk_widget_get_pango_context(wd);
 	pango_font_description_set_absolute_size(pango_context_get_font_description(ctx), 8000);
 	PangoLayout *layout = pango_layout_new (ctx);
@@ -143,7 +141,7 @@ static gint compare_marks(gpointer a, gpointer b)
 
 void gx_meter_scale_add_mark(GxMeterScale *meter_scale, gdouble value, const gchar *markup)
 {
-	GxMeterScalePrivate *priv = GX_METER_SCALE_GET_PRIVATE(meter_scale);
+	GxMeterScalePrivate *priv = meter_scale->priv;
 	GxMeterScaleMark *mark;
 
 	mark = g_new(GxMeterScaleMark, 1);
@@ -163,7 +161,7 @@ static void gx_meter_scale_mark_free(GxMeterScaleMark *mark)
 
 void gx_meter_scale_clear_marks(GxMeterScale *meter_scale)
 {
-	GxMeterScalePrivate *priv = GX_METER_SCALE_GET_PRIVATE(meter_scale);
+	GxMeterScalePrivate *priv = meter_scale->priv;
 	g_return_if_fail(GX_IS_METER_SCALE(meter_scale));
 	g_slist_foreach(priv->marks, (GFunc)gx_meter_scale_mark_free, NULL);
 	g_slist_free(priv->marks);
@@ -173,6 +171,7 @@ void gx_meter_scale_clear_marks(GxMeterScale *meter_scale)
 
 static void gx_meter_scale_init(GxMeterScale *meter_scale)
 {
+	meter_scale->priv = G_TYPE_INSTANCE_GET_PRIVATE (meter_scale, GX_TYPE_METER_SCALE, GxMeterScalePrivate);
 	gtk_widget_set_has_window(GTK_WIDGET(meter_scale), FALSE);
 	meter_scale->tick_pos = GX_TICK_RIGHT;
 }
@@ -186,7 +185,7 @@ static void gx_meter_scale_destroy(GtkObject *object)
 static gboolean gx_meter_scale_expose(GtkWidget *widget, GdkEventExpose *event)
 {
 	GxMeterScale *meter_scale = GX_METER_SCALE(widget);
-	GxMeterScalePrivate *priv = GX_METER_SCALE_GET_PRIVATE(meter_scale);
+	GxMeterScalePrivate *priv = meter_scale->priv;
 	GSList *m;
 	cairo_t *cr;
 	gint tick_size, tick_space;

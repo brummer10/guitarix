@@ -33,9 +33,10 @@ G_BEGIN_DECLS
 
 typedef struct _GxWheel GxWheel;
 typedef struct _GxWheelClass GxWheelClass;
-
+typedef struct _GxWheelPrivate GxWheelPrivate;
 struct _GxWheel {
 	GxRegler parent;
+	GxWheelPrivate *priv;
 };
 
 struct _GxWheelClass {

@@ -70,18 +70,8 @@ void ControlParameter_Class::iface_init_function(void* g_iface, void*)
   //This is a temporary fix until I find out why I can not seem to derive a GtkFileChooser interface. murrayc
   g_assert(klass != 0); 
 
-#ifdef GLIBMM_VFUNCS_ENABLED
-#endif //GLIBMM_VFUNCS_ENABLED
 
-#ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
-#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 }
-
-#ifdef GLIBMM_VFUNCS_ENABLED
-#endif //GLIBMM_VFUNCS_ENABLED
-
-#ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
-#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
 
 
 Glib::ObjectBase* ControlParameter_Class::wrap_new(GObject* object)
@@ -174,13 +164,6 @@ Glib::PropertyProxy_ReadOnly<Glib::ustring> ControlParameter::property_var_id() 
   return Glib::PropertyProxy_ReadOnly<Glib::ustring>(this, "var-id");
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
-
-
-#ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
-#endif //GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
-
-#ifdef GLIBMM_VFUNCS_ENABLED
-#endif //GLIBMM_VFUNCS_ENABLED
 
 
 } // namespace Gxw
