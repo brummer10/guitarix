@@ -308,6 +308,7 @@ class GxEventBox
 {
 public:
 	Gtk::HBox m_box;
+	Gtk::HBox m_hbox;
 	Gtk::EventBox m_eventbox;
 	Gtk::Fixed m_fixedbox;
 	Gtk::Label m_label;
@@ -321,6 +322,7 @@ GxEventBox::~GxEventBox()
 
 GxEventBox::GxEventBox(gx_ui::GxUI& ui)
 {
+	m_hbox.add(m_fixedbox);
 	m_eventbox.add(m_box);
 	m_fixedbox.put(m_eventbox,0,0);
 }
@@ -1043,12 +1045,12 @@ void GxMainInterface::openHorizontalRestetBox(const char* label, float* posit)
 void GxMainInterface::openEventBox(const char* label)
 {
 	GxEventBox * box =  new GxEventBox(*this);
-	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_fixedbox.gobj()), false, fill, 0);
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_hbox.gobj()), false, fill, 0);
 	box->m_box.set_size_request (600,182); // main window size
 	box->m_box.set_border_width (2);
 	box->m_eventbox.set_name("main_window");
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
-	box->m_fixedbox.show_all();
+	box->m_hbox.show_all();
 }
 
 void GxMainInterface::openFrameBox(const char* label)
@@ -1231,8 +1233,8 @@ void GxMainInterface::openPaintBox2(const char* label)
 	box->m_box.set_homogeneous(false);
 	box->m_box.set_spacing(0);
 	box->m_box.set_border_width(0);
-	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_fixedbox.gobj()), false, false, 0);
-	box->m_fixedbox.show_all();
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_hbox.gobj()), false, false, 0);
+	box->m_hbox.show_all();
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
 }
 
@@ -2486,6 +2488,8 @@ private:
 	bool on_window_delete_event(GdkEventAny* event,gpointer d );
 	void on_check_resize();
 	bool on_button_pressed(GdkEventButton* event);
+	void on_rack_reorder();
+	
 public:
 	Gtk::HBox window;
 	Gtk::ScrolledWindow           m_scrolled_window; 
@@ -2493,6 +2497,7 @@ public:
 	Gtk::HBox box;
 	Gtk::HBox box1;
 	Gxw::PaintBox paintbox1;
+	RadioCheckItem      fOrderRack[4];
 	Gtk::VBox rbox;
 	Gtk::Window m_regler_tooltip_window;
 	ToggleCheckButton m_tmono_rack;
@@ -2508,6 +2513,80 @@ bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d)
 				GTK_CHECK_MENU_ITEM(GTK_WIDGET(d)), FALSE
 				);
 	return false;
+}
+
+void GxWindowBox::on_rack_reorder()
+{
+	if (fOrderRack[1].get_active()) { //horizontal
+		if(gx_gui::srack_widget) {
+			gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
+			gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+			gtk_widget_ref(gx_gui::srack_widget);
+			GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::srack_widget));
+			gtk_container_remove(GTK_CONTAINER(parent), gx_gui::srack_widget);
+			gtk_container_add(GTK_CONTAINER(box.gobj()), gx_gui::srack_widget);
+			gtk_widget_unref(gx_gui::srack_widget);
+			
+			parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::rack_tool_bar));
+			string name = gtk_widget_get_name(parent);
+			if (name == "gtkmm__GtkVBox") {
+				gtk_widget_ref(gx_gui::rack_tool_bar);
+				gtk_widget_ref(gx_gui::tuner_widget);
+				gtk_container_remove(GTK_CONTAINER(parent), gx_gui::rack_tool_bar);
+				gtk_container_remove(GTK_CONTAINER(parent), gx_gui::tuner_widget);
+				parent = gtk_widget_get_parent(GTK_WIDGET(parent));
+				GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
+				parent = (GtkWidget *) g_list_nth_data(child_list,1);
+				child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
+				parent = (GtkWidget *) g_list_nth_data(child_list,0);
+				gtk_container_add(GTK_CONTAINER(parent), gx_gui::tuner_widget);
+				gtk_container_add(GTK_CONTAINER(parent), gx_gui::rack_tool_bar);
+				gtk_widget_unref(gx_gui::rack_tool_bar);
+				gtk_widget_unref(gx_gui::tuner_widget);
+				g_list_free(child_list);
+			}
+			
+			gtk_widget_set_size_request (GTK_WIDGET (gui->RBox),-1, 460 );
+			if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
+				g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,gpointer(fWindow),NULL);
+			if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
+				g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50, gx_gui::gx_set_default,gpointer(gui->RBox),NULL);
+		}
+	} else if (fOrderRack[0].get_active()) { //vertical
+		if(gx_gui::srack_widget) {
+			gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
+			gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+			gtk_widget_ref(gx_gui::srack_widget);
+			GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::srack_widget));
+			gtk_container_remove(GTK_CONTAINER(parent), gx_gui::srack_widget);
+			gtk_paned_add2 (GTK_PANED(pan.gobj()), gx_gui::srack_widget);
+			gtk_widget_unref(gx_gui::srack_widget);
+			
+			parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::rack_tool_bar));
+			string name = gtk_widget_get_name(parent);
+			if (name == "gtkmm__GtkHBox") {
+				gtk_widget_ref(gx_gui::rack_tool_bar);
+				gtk_widget_ref(gx_gui::tuner_widget);
+				gtk_container_remove(GTK_CONTAINER(parent), gx_gui::rack_tool_bar);
+				gtk_container_remove(GTK_CONTAINER(parent), gx_gui::tuner_widget);
+				parent = gtk_widget_get_parent(GTK_WIDGET(parent));
+				parent = gtk_widget_get_parent(GTK_WIDGET(parent));
+				GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
+				parent = (GtkWidget *) g_list_nth_data(child_list,0);
+				gtk_container_add(GTK_CONTAINER(parent), gx_gui::rack_tool_bar);
+				gtk_container_add(GTK_CONTAINER(parent), gx_gui::tuner_widget);
+				gtk_widget_unref(gx_gui::rack_tool_bar);
+				gtk_widget_unref(gx_gui::tuner_widget);
+				g_list_free(child_list);
+			}
+			
+			gtk_widget_set_size_request (GTK_WIDGET (gui->RBox),-1, 460 );
+			if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
+				g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,gpointer(fWindow),NULL);
+			if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
+				g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50, gx_gui::gx_set_default,gpointer(gui->RBox),NULL);
+		}
+	} 
 }
 
 void GxWindowBox::on_check_resize()
@@ -2569,6 +2648,10 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 		sigc::mem_fun(*this, &GxWindowBox::on_button_pressed));
 	//window.signal_check_resize().connect(
 	//	sigc::mem_fun(*this, &GxWindowBox::on_check_resize));
+	fOrderRack[0].signal_activate().connect(
+		sigc::mem_fun(*this, &GxWindowBox::on_rack_reorder));
+	fOrderRack[1].signal_activate().connect(
+		sigc::mem_fun(*this, &GxWindowBox::on_rack_reorder));
 	paintbox1.show();
 	box.show();
 	m_scrolled_window.show();
@@ -2733,6 +2816,28 @@ void GxMainInterface::openScrollBox(const char* label)
 	box->pan.show();
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(box->pan.gobj()));
+	const gchar * title = "order Rack vertical";
+	set_label(box->fOrderRack[0], _(title));
+	Gtk::RadioMenuItem::Group group = box->fOrderRack[0].get_group();
+	
+	//guint accel_key = GDK_a   ;
+	//box->fOrderRack[0].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	//                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME MOD1_MASK 
+	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginMenu"]), GTK_WIDGET(box->fOrderRack[0].gobj()));
+	box->fOrderRack[0].set_parameter(new SwitchParameter("system.order_rack_v",true,false));
+	box->fOrderRack[0].show();
+	
+	
+	title = "order Rack horizotal";
+	set_label(box->fOrderRack[1], _(title));
+	box->fOrderRack[1].set_group(group);
+	// accel_key = GDK_a   ;
+	//box->fOrderRack[1].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	//                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME MOD1_MASK 
+	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginMenu"]), GTK_WIDGET(box->fOrderRack[1].gobj()));
+	box->fOrderRack[1].set_active(false);
+	box->fOrderRack[1].set_parameter(new SwitchParameter("system.order_rack_h",true,false));
+	box->fOrderRack[1].show();
 }
 
 void GxMainInterface::openAmpBox(const char* label)
@@ -3673,6 +3778,7 @@ void GxMainInterface::addPluginMenu()
 	menucont = gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
 	gtk_widget_show(menucont);
+	fMenuList["PluginMenu"] = menucont;
 	
 	/*-- Create toolbar check menu item under Options submenu --*/
 	set_label(fShowToolBar, _("show Plugin _Bar"));
@@ -3761,8 +3867,11 @@ void GxMainInterface::addPluginMenu()
 	
 	fMenuList["PluginsStereo"] = menucontin;
 	menu_stereo_rack = fMenuList["PluginsStereo"];
+	
+	sep = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+	gtk_widget_show (sep);
 }
-
 //----------------------------- option menu ----------------------------
 
 static void set_tooltips(bool v)

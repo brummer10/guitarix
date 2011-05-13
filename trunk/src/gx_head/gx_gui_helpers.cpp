@@ -425,7 +425,7 @@ gboolean gx_set_resizeable(gpointer data)
 gboolean gx_set_sresizeable(gpointer data)
 {
 	if(!gtk_window_get_resizable(GTK_WINDOW (data)))
-		gtk_window_set_resizable(GTK_WINDOW (data) , TRUE);
+		gtk_window_set_resizable(GTK_WINDOW (data) , FALSE);
 	return false;
 }
 
@@ -439,6 +439,12 @@ gboolean gx_set_default(gpointer data)
 gboolean gx_set_default_size(gpointer data)
 {
 	gtk_widget_set_size_request (GTK_WIDGET (data),-1, 440 );
+	return false;
+}
+
+gboolean gx_set_default_ssize(gpointer data)
+{
+	gtk_widget_set_size_request (GTK_WIDGET (data),-1, 460 );
 	return false;
 }
 
@@ -611,14 +617,32 @@ void GxMainInterface::on_rrack_activate()
 //----menu function gx_rack
 void GxMainInterface::on_srack_activate()
 {
+	gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 	if (fShowSRack.get_active()) {
 		gtk_widget_show(srack_widget);
+		gtk_widget_ref(srack_widget);
+		GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(srack_widget));
+		gtk_container_remove(GTK_CONTAINER(parent), srack_widget);
+		gtk_container_add(GTK_CONTAINER(parent), srack_widget);
+		gtk_widget_unref(srack_widget);
+		
 		if (!fShowRRack.get_active()) {
 			fShowRRack.set_active(true);
 		}
 	} else {
+		gtk_widget_ref(srack_widget);
+		GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(srack_widget));
+		gtk_container_remove(GTK_CONTAINER(parent), srack_widget);
+		gtk_container_add(GTK_CONTAINER(parent), srack_widget);
+		gtk_widget_unref(srack_widget);
 		gtk_widget_hide(srack_widget);
 	}
+	gtk_widget_set_size_request (GTK_WIDGET (RBox),-1, 460 );
+	if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
+			g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,gpointer(fWindow),NULL);
+	if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
+			g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50, gx_set_default,gpointer(RBox),NULL);
+
 }
 
 //----menu function gx_toolbar

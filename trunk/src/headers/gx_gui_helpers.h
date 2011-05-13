@@ -132,6 +132,11 @@ gint gx_wait_latency_warn         ();
 int  gx_message_popup             (const char*);
 
 gboolean gx_delete_event       (GtkWidget*, gpointer);
+gboolean gx_set_default_size   (gpointer data);
+gboolean gx_set_default_ssize  (gpointer data);
+gboolean gx_set_sresizeable    (gpointer data);
+gboolean gx_set_default        (gpointer data);
+gboolean gx_set_resizeable     (gpointer data);
 
 /* -------------------------------------------------------------------------- */
 } /* end of gx_gui namespace */

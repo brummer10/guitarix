@@ -315,7 +315,7 @@ protected :
 	GtkWidget*          rBox;
 	GtkWidget*          sBox;
 	GtkWidget*          tBox;
-	GtkWidget*          RBox;
+	
 	
 	int 		fMode[stackSize];
 	bool		fStopped;
@@ -357,6 +357,7 @@ public :
 	RadioCheckItem      fSelectTubeModel[12];
 
 	GtkWidget* 			logger;
+	GtkWidget*          RBox;
 	
 	static bool	 fInitialized;
 	int          highest_unseen_msg_level;
