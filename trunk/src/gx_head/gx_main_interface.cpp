@@ -129,6 +129,7 @@ void GuiVariables::register_gui_parameter()
 	registerNonMidiParam("phaser_mono.dialog", &fphaser_mono_dialog, false);
 	registerNonMidiParam("chorus_mono.dialog", &fchorus_mono_dialog, false);
 	registerNonMidiParam("flanger_mono.dialog", &fflanger_mono_dialog, false);
+	registerNonMidiParam("feedback.dialog", &ffeedback_dialog, false);
 }
 
 
@@ -329,7 +330,7 @@ GxEventBox::GxEventBox(gx_ui::GxUI& ui)
 	m_eventbox.add(m_box);
 	m_fixedbox.add(m_eventbox);
 	m_hbox.add(m_pbox);
-	m_hbox.add(m_fbox);
+	m_hbox.pack_start(m_fbox,false,false);
 	m_fbox.pack_start(m_fixedbox,false,false);
 	m_hbox.add(m_tbox);
 }

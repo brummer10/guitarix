@@ -108,6 +108,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("phaser_mono.on_off", on_off, &fpm, 0);
 	gx_gui::registerParam("chorus_mono.on_off", on_off, (float*) &fchorus_mono, 0.);
 	gx_gui::registerParam("flanger_mono.on_off", on_off, &fflanger_mono, 0.);
+	gx_gui::registerParam("feedback.on_off", on_off, &ffeedback, 0.);
 	
 	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.31f, 0.001f);
 	
@@ -133,6 +134,7 @@ void AudioVariables::register_parameter()
 	registerEnumParam("phaser_mono.pp","select",post_pre,&pmpp, 0);
 	registerEnumParam("chorus_mono.pp","select",post_pre,&chpp, 0);
 	registerEnumParam("flanger_mono.pp","select",post_pre,&flpp, 0);
+	registerEnumParam("feedback.pp","select",post_pre,&ffb, 0);
 	
 	static const char *crybaby_autowah[] = {N_("manual"),N_("auto"),0};
 	registerEnumParam("crybaby.autowah", "select", crybaby_autowah, &fautowah, 0);
@@ -158,13 +160,14 @@ void AudioVariables::register_parameter()
 	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 10);
 	registerNonMidiParam("oscilloscope.position", &posit17, true, 11, 1, 20);
 	registerNonMidiParam("biquad.position", &posit18, true, 12, 1, 20);
-	registerNonMidiParam("midi_out.position", &posit00, true, 17, 1, 20);
+	registerNonMidiParam("midi_out.position", &posit00, true, 18, 1, 20);
 	registerNonMidiParam("ampmodul.position", &posit19, true, 7, 1, 10);
 	registerNonMidiParam("tonemodul.position", &posit20, true, 8, 1, 10);
 	registerNonMidiParam("tremolo.position", &posit21, true, 13, 1, 20);
 	registerNonMidiParam("phaser_mono.position", &posit22, true, 14, 1, 20);
 	registerNonMidiParam("chorus_mono.position", &posit23, true, 15, 1, 20);
 	registerNonMidiParam("flanger_mono.position", &posit24, true, 16, 1, 20);
+	registerNonMidiParam("feedback.position", &posit25, true, 17, 1, 20);
 	
 	
 	registerNonMidiParam("system.waveview", &viv, false);
@@ -391,6 +394,8 @@ void process_buffers(int count, float* input, float* output0)
 			chorus_mono::compute(count, output0, output0);
 		} else if (audio.posit24 == m && audio.fflanger_mono && audio.flpp) {
 			flanger_mono::compute(count, output0, output0);
+		} else if (audio.posit25 == m && audio.ffeedback && audio.ffb) {
+			gx_feedback::compute(count, output0, output0);
 		}
     }
 
@@ -475,8 +480,10 @@ void process_buffers(int count, float* input, float* output0)
 		    phaser_mono::compute(count, output0, output0);
 	    } else if (audio.posit23 == m && audio.fchorus_mono && !audio.chpp && chorus_mono::is_inited()) {
 			chorus_mono::compute(count, output0, output0);
-		}else if (audio.posit24 == m && audio.fflanger_mono && !audio.flpp ) {
+		} else if (audio.posit24 == m && audio.fflanger_mono && !audio.flpp ) {
 			flanger_mono::compute(count, output0, output0);
+		} else if (audio.posit25 == m && audio.ffeedback && !audio.ffb ) {
+			gx_feedback::compute(count, output0, output0);
 		}
     }
 

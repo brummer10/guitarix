@@ -279,6 +279,7 @@ public:
 	bool fphaser_mono_dialog;
 	bool fchorus_mono_dialog;
 	bool fflanger_mono_dialog;
+	bool ffeedback_dialog;
 
 void register_gui_parameter();
 };

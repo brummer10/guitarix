@@ -832,6 +832,41 @@ openHorizontalTableBox("");
      }
      closeBox(); 
      
+     openHorizontalOrderBox(_("feedback"), &gx_engine::audio.posit25);
+     {
+          openVerticalBox(_("feedback"));
+          {
+               openHorizontalBox("");
+               {
+                    openPaintBox1("");
+                    {
+                         create_switch_no_caption(sw_switchit, "feedback.on_off");
+                         create_selector("feedback.pp");
+                    }
+                    closeBox();
+
+                    openDialogBox("feedback.dialog", "feedback.on_off","RackBox_expose");
+                    {
+                         openVerticalBox("");
+                         {
+                              openHorizontalBox("");
+                              {
+                                  create_small_rackknobr("feedback.feedback",  _("feedback"));
+                                  create_small_rackknob("feedback.wet_dry",  _("dry/wet"));
+                              }
+                              closeBox();
+                         }
+                         closeBox();
+                    }
+                    closeBox();
+
+               }
+               closeBox();
+          }
+          closeBox();
+     }
+     closeBox(); 
+     
      openVerticalMidiBox(_("  MIDI out  "));
      {
           openHorizontalBox("");

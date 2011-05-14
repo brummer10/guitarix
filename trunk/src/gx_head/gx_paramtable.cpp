@@ -532,6 +532,8 @@ ParameterGroups::ParameterGroups()
 	insert("chorus_mono", N_("Chorus Mono"));
 	insert("flanger_mono", N_("Flanger Mono"));
 	insert("con", N_("Contrast convolver"));
+	insert("feedback", N_("Feedback"));
+	
 }
 
 string param_group(string id, bool nowarn)
