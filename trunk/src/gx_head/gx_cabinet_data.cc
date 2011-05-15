@@ -22,7 +22,8 @@
  * ----------------------------------------------------------------------------
  */
 
-
+namespace CabConvolveData
+{
 
 /**----------------------------- cabinet impulse response data --------------------------------**/
 //4x12
@@ -649,21 +650,7 @@ gboolean conv_restart(gpointer data)
 	return false;
 }
 
-void cab_conv_restart()
-{
-	g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0, conv_restart,NULL,NULL);
-}
 
-void UiCabSwitch::on_switch_toggled()
-{
-	if (!m_switch->get_active()) {
-		gx_engine::cab_conv.stop();
-	} else if (!cab_conv_start()) {
-		m_switch->set_active(false);
-	}
-}
-
-// contrast
 static bool contrast_start()
 {
 	while (!gx_engine::contrast_conv.checkstate());
@@ -679,9 +666,28 @@ gboolean contrast_restart(gpointer data)
 	return false;
 }
 
+} //end namespace CabConvolveData
+
+void cab_conv_restart()
+{
+	g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0, CabConvolveData::conv_restart,NULL,NULL);
+}
+
+void UiCabSwitch::on_switch_toggled()
+{
+	if (!m_switch->get_active()) {
+		gx_engine::cab_conv.stop();
+	} else if (!CabConvolveData::cab_conv_start()) {
+		m_switch->set_active(false);
+	}
+}
+
+// contrast
+
+
 void contrast_conv_restart()
 {
-	g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0, contrast_restart,NULL,NULL);
+	g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0, CabConvolveData::contrast_restart,NULL,NULL);
 	
 }
 
@@ -689,7 +695,7 @@ void UiContrastSwitch::on_switch_toggled()
 {
 	if (!m_switch->get_active()) {
 		gx_engine::contrast_conv.stop();
-	} else if (!contrast_start()) {
+	} else if (!CabConvolveData::contrast_start()) {
 		m_switch->set_active(false);
 	}
 }
