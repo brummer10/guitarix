@@ -2506,7 +2506,8 @@ public:
 	Gtk::HBox box;
 	Gtk::HBox box1;
 	Gxw::PaintBox paintbox1;
-	RadioCheckItem      fOrderRack[4];
+	RadioCheckItem      fOrderhRack;
+	RadioCheckItem      fOrdervRack;
 	Gtk::VBox rbox;
 	Gtk::Window m_regler_tooltip_window;
 	ToggleCheckButton m_tmono_rack;
@@ -2526,7 +2527,7 @@ bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d)
 
 void GxWindowBox::on_rack_reorder_horizontal()
 {
-	if (fOrderRack[1].get_active()) { //horizontal
+	if (fOrderhRack.get_active()) { //horizontal
 		
 		if(gx_gui::srack_widget) {
 			gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
@@ -2538,8 +2539,8 @@ void GxWindowBox::on_rack_reorder_horizontal()
 			gtk_widget_unref(gx_gui::srack_widget);
 			
 			parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::rack_tool_bar));
-			string name = gtk_widget_get_name(parent);
-			if (name == "gtkmm__GtkVBox") {
+			const gchar * title = gtk_widget_get_name(parent);
+			if (strcmp(title,"gtkmm__GtkVBox")==0) {
 				gtk_widget_ref(gx_gui::rack_tool_bar);
 				gtk_widget_ref(gx_gui::tuner_widget);
 				gtk_container_remove(GTK_CONTAINER(parent), gx_gui::rack_tool_bar);
@@ -2569,7 +2570,7 @@ void GxWindowBox::on_rack_reorder_horizontal()
 }
 void GxWindowBox::on_rack_reorder_vertical()
 {
-	if (fOrderRack[0].get_active()) { //vertical
+	if (fOrdervRack.get_active()) { //vertical
 		
 		if(gx_gui::srack_widget) {
 			gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
@@ -2581,8 +2582,8 @@ void GxWindowBox::on_rack_reorder_vertical()
 			gtk_widget_unref(gx_gui::srack_widget);
 			
 			parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::rack_tool_bar));
-			string name = gtk_widget_get_name(parent);
-			if (name == "gtkmm__GtkHBox") {
+			const gchar * title = gtk_widget_get_name(parent);
+			if (strcmp(title,"gtkmm__GtkHBox")==0) {
 				gtk_widget_ref(gx_gui::rack_tool_bar);
 				gtk_widget_ref(gx_gui::tuner_widget);
 				gtk_container_remove(GTK_CONTAINER(parent), gx_gui::rack_tool_bar);
@@ -2668,9 +2669,9 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 		sigc::mem_fun(*this, &GxWindowBox::on_button_pressed));
 	//window.signal_check_resize().connect(
 	//	sigc::mem_fun(*this, &GxWindowBox::on_check_resize));
-	fOrderRack[0].signal_activate().connect(
+	fOrderhRack.signal_activate().connect(
 		sigc::mem_fun(*this, &GxWindowBox::on_rack_reorder_horizontal));
-	fOrderRack[1].signal_activate().connect(
+	fOrdervRack.signal_activate().connect(
 		sigc::mem_fun(*this, &GxWindowBox::on_rack_reorder_vertical));
 	paintbox1.show();
 	box.show();
@@ -2838,27 +2839,27 @@ void GxMainInterface::openScrollBox(const char* label)
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(box->pan.gobj()));
 	const gchar * title = "order Rack vertical";
-	set_label(box->fOrderRack[0], _(title));
-	Gtk::RadioMenuItem::Group group = box->fOrderRack[0].get_group();
+	set_label(box->fOrdervRack, _(title));
+	Gtk::RadioMenuItem::Group group = box->fOrdervRack.get_group();
 	
 	//guint accel_key = GDK_a   ;
-	//box->fOrderRack[0].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	//box->fOrdervRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	//                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME MOD1_MASK 
-	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginMenu"]), GTK_WIDGET(box->fOrderRack[0].gobj()));
-	box->fOrderRack[0].set_parameter(new SwitchParameter("system.order_rack_v",true,false));
-	box->fOrderRack[0].show();
+	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginMenu"]), GTK_WIDGET(box->fOrdervRack.gobj()));
+	box->fOrdervRack.set_parameter(new SwitchParameter("system.order_rack_v",true,false));
+	box->fOrdervRack.show();
 	
 	
 	title = "order Rack horizotal";
-	set_label(box->fOrderRack[1], _(title));
-	box->fOrderRack[1].set_group(group);
+	set_label(box->fOrderhRack, _(title));
+	box->fOrderhRack.set_group(group);
 	// accel_key = GDK_a   ;
-	//box->fOrderRack[1].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	//box->fOrderhRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	//                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME MOD1_MASK 
-	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginMenu"]), GTK_WIDGET(box->fOrderRack[1].gobj()));
-	box->fOrderRack[1].set_active(false);
-	box->fOrderRack[1].set_parameter(new SwitchParameter("system.order_rack_h",true,false));
-	box->fOrderRack[1].show();
+	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginMenu"]), GTK_WIDGET(box->fOrderhRack.gobj()));
+	box->fOrderhRack.set_active(false);
+	box->fOrderhRack.set_parameter(new SwitchParameter("system.order_rack_h",true,false));
+	box->fOrderhRack.show();
 }
 
 void GxMainInterface::openAmpBox(const char* label)

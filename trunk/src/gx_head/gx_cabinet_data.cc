@@ -571,62 +571,62 @@ static bool cab_conv_start()
 	int cab_ircount = cab_ir_count;
 	float *cab_irdata = cab_ir_data;
 	switch(gx_engine::audio.cabinet){
-		case 0: //"default"
+		case 0: //"4x12"
 			cab_ircount = cab_ir_count;
 			cab_irsr = cab_ir_sr;
 			cab_irdata = cab_ir_data;
 			break;
-		case 1: //"default"
+		case 1: //"2x12"
 			cab_ircount = cab_ir1_count;
 			cab_irsr = cab_ir1_sr;
 			cab_irdata = cab_ir1_data;
 			break;
-		case 2: //"default"
+		case 2: //"1x12"
 			cab_ircount = cab_ir2_count;
 			cab_irsr = cab_ir2_sr;
 			cab_irdata = cab_ir2_data;
 			break;
-		case 3: //"default"
+		case 3: //"4x10"
 			cab_ircount = cab_ir3_count;
 			cab_irsr = cab_ir3_sr;
 			cab_irdata = cab_ir3_data;
 			break;
-		case 4: //"default"
+		case 4: //"2x10"
 			cab_ircount = cab_ir4_count;
 			cab_irsr = cab_ir4_sr;
 			cab_irdata = cab_ir4_data;
 			break;
-		case 5: //"default"
+		case 5: //"High Gain"
 			cab_ircount = cab_ir5_count;
 			cab_irsr = cab_ir5_sr;
 			cab_irdata = cab_ir5_data;
 			break;
-		case 6: //"default"
+		case 6: //"Twin"
 			cab_ircount = cab_ir6_count;
 			cab_irsr = cab_ir6_sr;
 			cab_irdata = cab_ir6_data;
 			break;
-		case 7: //"default"
+		case 7: //"Bassman"
 			cab_ircount = cab_ir7_count;
 			cab_irsr = cab_ir7_sr;
 			cab_irdata = cab_ir7_data;
 			break;
-		case 8: //"default"
+		case 8: //"Marshall"
 			cab_ircount = cab_ir8_count;
 			cab_irsr = cab_ir8_sr;
 			cab_irdata = cab_ir8_data;
 			break;
-		case 9: //"default"
+		case 9: //"AC-30"
 			cab_ircount = cab_ir9_count;
 			cab_irsr = cab_ir9_sr;
 			cab_irdata = cab_ir9_data;
 			break;
-		case 10: //"default"
+		case 10: //"Princeton"
 			cab_ircount = cab_ir10_count;
 			cab_irsr = cab_ir10_sr;
 			cab_irdata = cab_ir10_data;
 			break;
-		case 11: //"default"
+		case 11: //"A2"
 			cab_ircount = cab_ir11_count;
 			cab_irsr = cab_ir11_sr;
 			cab_irdata = cab_ir11_data;

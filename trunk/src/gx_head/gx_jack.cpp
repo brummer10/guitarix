@@ -88,6 +88,7 @@ bool gx_jack_init( const string *optvar )
 		// start a dialog
 		if (gx_start_jack_dialog())
 		{
+			usleep(500000);
 			// so let's try to be a jack client again
 			client = jack_client_open (client_name.c_str(), JackNoStartServer, &jackstat);
             client_insert = jack_client_open (client_insert_name.c_str(), JackNoStartServer, &jackstat);

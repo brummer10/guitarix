@@ -9,6 +9,8 @@ def build(bld):
         'gx_jconv_settings.cpp',
         'gx_main_interface.cpp',
         'gx_interface_builder.cpp',
+        'gx_mono_rack_builder.cpp',
+        'gx_stereo_rack_builder.cpp',
         'gx_globals.cpp',
         'gx_child_process.cpp',
         'gx_engine.cpp',

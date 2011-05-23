@@ -365,13 +365,13 @@ void GxMainInterface::setup()
                     {
                          openPlugBox(_("Mono Rack"));
                          {
-#include "gx_rack_builder.cc"
+							 gx_build_mono_rack();
                          }
                          closeBox();
 
                          openAmpBox(_("Stereo Rack"));
                          {
-#include "gx_srack_builder.cc"
+							 gx_build_stereo_rack();
                          }
                          closeBox();
                     }

@@ -465,7 +465,7 @@ ParameterGroups::ParameterGroups()
 	insert("jconv",N_("Convolver"));
 	insert("eq", N_("EQ"));
 	insert("eqs", N_("Scaleable EQ"));
-	insert("eqt", N_("Scwitch EQ"));
+
 	insert("amp",N_("Amplifier"));
 	insert("amp2",N_("Amplifier2"));
 	insert("amp2.preamp",N_("Preamp"));
@@ -475,16 +475,10 @@ ParameterGroups::ParameterGroups()
 	insert("stage3.gain3",N_("Tube3"));
 	insert("shaper",N_("Shaper"));
 	insert("noise_gate",N_("Noise Gate"));
-	insert("anti_aliase",N_("Anti Alias"));
-	insert("amp.oversample",N_("Oversampling"));
 	insert("amp.bass_boost",N_("Bass Boost"));
 	insert("convolve",N_("Amp Model"));
-	insert("preamp",N_("Pre-Amp"));
 	insert("drive",N_("Drive"));
 	insert("tube",N_("Tube 1"));
-	insert("tube.vibrato",N_("Tube 1 Vibrato"));
-	insert("tube2",N_("Tube 2"));
-	insert("tube3",N_("Tube 3"));
 	insert("amp.tonestack",N_("Tonestack"));
 	insert("compressor",N_("Compressor"));
 	insert("overdrive",N_("Overdrive"));
@@ -494,11 +488,6 @@ ParameterGroups::ParameterGroups()
 	insert("low_high_pass.lhc",N_("low_highcutoff"));
 	insert("low_highpass",N_("low high pass"));
 	insert("gx_distortion.resonator",N_("Distortion resonator"));
-	insert("distortion1",N_("Single Band Distortion"));
-	insert("distortion1.low_highpass",N_("Distortion low/highpass"));
-	insert("distortion1.low_highcutoff",N_("Distortion low/highcutoff"));
-	insert("distortion1.resonator",N_("Distortion resonator"));
-	insert("distortiont",N_("Switch Distortion"));
 	insert("freeverb",N_("Freeverb"));
 	insert("IR",N_("ImpulseResponse"));
 	insert("crybaby",N_("Crybaby"));
@@ -511,7 +500,6 @@ ParameterGroups::ParameterGroups()
 	insert("moog",N_("Moog Filter"));
 	insert("biquad",N_("BiQuad Filter"));
 	insert("flanger",N_("Flanger"));
-	insert("SampleLooper",N_("Sample Looper"));
 	insert("cab",N_("Cab-ImpResp"));
 	insert("phaser",N_("Phaser"));
 	insert("midi_out",N_("Midi Out"));
