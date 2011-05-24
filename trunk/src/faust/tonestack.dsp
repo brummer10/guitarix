@@ -4,7 +4,29 @@ declare name 		"amp.tonestack";
 
 import("filter.lib");
 
-
+/****************************************************************
+ **           Equalisation 3 bandes
+ **                    C1
+ **       IN >---------||---------
+ **            |                 |
+ **            |                 |
+ **           | | R4            | | R1 Treble
+ **           | |               | |<------<  Out
+ **           | |               | | 
+ **            |       C2        |
+ **            |-------||--------|------
+ **            |                 |     |
+ **            |                | |    |
+ **            |                | |<---- R2 Bass
+ **            |                | |
+ **            |                 |
+ **            |       C3       | |
+ **            --------||------>| |  R3 Middle
+ **                             | |
+ **                              |
+ **                             _|_
+ **                              -
+ */
 /****************************************************************
  ** Guitar tone stacks
  ** values from CAPS plugin tonestack (based on work from D.T. Yeh)
@@ -27,7 +49,18 @@ ts = environment {
         C2 = 20:nF;
         C3 = 20:nF;
         };
-
+        
+    
+    mesa = environment { /* Mesa Boogie Mark */
+	R1 = 250:k;
+        R2 = 250:k;
+        R3 = 25:k;
+        R4 = 100:k;
+        C1 = 250:pF;
+        C2 = 100:nF;
+        C3 = 47:nF;
+        };
+        
     twin = environment { /* 69 Twin Reverb AA270 */
 	R1 = 250:k;
         R2 = 250:k;
@@ -70,6 +103,16 @@ ts = environment {
         C2 = 22:nF;
         C3 = 22:nF;
         };
+        
+    jtm45 = environment { /* JTM 45 */
+	R1 = 250:k;
+        R2 = 1:M;
+        R3 = 25:k;
+        R4 = 33:k; 
+        C1 = 270:pF;
+        C2 = 22:nF;
+        C3 = 22:nF;
+        };
 
 	/* parameter order is R1 - R4, C1 - C3 */
     mlead = environment { /* 67 Major Lead 200 */
@@ -102,6 +145,106 @@ ts = environment {
         C1 = 50:pF;
         C2 = 22:nF;
         C3 = 22:nF;
+        };
+        
+    ac15 = environment { /* VOX AC-15 */
+    R1 = 220:k;
+        R2 = 220:k;
+        R3 = 220:k;
+        R4 = 100:k;
+        C1 = 470:pF;
+        C2 = 100:nF;
+        C3 = 47:nF;
+        };
+        
+    soldano = environment { /* Soldano SLO 100 */
+	R1 = 250:k;
+        R2 = 1:M;
+        R3 = 25:k;
+        R4 = 47:k;
+        C1 = 470:pF;
+        C2 = 20:nF;
+        C3 = 20:nF;
+        };
+        
+    sovtek = environment { /* MIG 100 H*/
+	R1 = 500:k;
+        R2 = 1:M;
+        R3 = 10:k;
+        R4 = 47:k;
+        C1 = 470:pF;
+        C2 = 22:nF;
+        C3 = 22:nF;
+        };
+
+    peavey = environment { /* c20*/
+	R1 = 250:k;
+        R2 = 250:k;
+        R3 = 20:k;
+        R4 = 68:k;
+        C1 = 270:pF;
+        C2 = 22:nF;
+        C3 = 22:nF;
+        };
+        
+    ibanez = environment { /* gx20 */
+	R1 = 250:k;
+        R2 = 250:k;
+        R3 = 10:k;
+        R4 = 100:k;
+        C1 = 270:pF;
+        C2 = 100:nF;
+        C3 = 40:nF;
+        };
+        
+    roland = environment { /* Cube 60 */
+	R1 = 250:k;
+        R2 = 250:k;
+        R3 = 10:k;
+        R4 = 41:k;
+        C1 = 240:pF;
+        C2 = 33:nF;
+        C3 = 82:nF;
+        };
+        
+    ampeg = environment { /* VL 501 */
+	R1 = 250:k;
+        R2 = 1:M;
+        R3 = 25:k;
+        R4 = 32:k;
+        C1 = 470:pF;
+        C2 = 22:nF;
+        C3 = 22:nF;
+        };
+        
+    bogner = environment { /* Triple Giant Preamp  */
+	R1 = 250:k;
+        R2 = 1:M;
+        R3 = 33:k;
+        R4 = 51:k;
+        C1 = 220:pF;
+        C2 = 15:nF;
+        C3 = 47:nF;
+        };
+        
+    groove = environment { /* Trio Preamp  */
+	R1 = 220:k;
+        R2 = 1:M;
+        R3 = 22:k;
+        R4 = 68:k;
+        C1 = 470:pF;
+        C2 = 22:nF;
+        C3 = 22:nF;
+        };
+        
+    crunch = environment { /* Hughes&Kettner  */
+	R1 = 220:k;
+        R2 = 220:k;
+        R3 = 10:k;
+        R4 = 100:k;
+        C1 = 220:pF;
+        C2 = 47:nF;
+        C3 = 47:nF;
         };
 };
 

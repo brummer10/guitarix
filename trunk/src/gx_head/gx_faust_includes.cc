@@ -51,6 +51,7 @@ void register_faust_parameters()
 	list<gx_gui::Parameter*>& paramlist = get_paramlist();
 	for (list<gx_gui::Parameter*>::iterator i = paramlist.begin(); i != paramlist.end(); i++) {
 		gx_gui::parameter_map.insert(*i);
+		//fprintf(stderr, "%s \n",(*i)->id().c_str() );
 	}
 	paramlist.clear();
 }
@@ -121,6 +122,7 @@ static void registerInit(const char *name, inifunc f)
 	inidef i;
 	i.func = f;
 	i.name = name;
+	//fprintf(stderr, "%s \n", i.name);
 	get_inilist().push_back(i);
 }
 
@@ -233,6 +235,15 @@ ToneStackParams::ToneStackParams() {
 #include "faust/tonestack_mlead.cc"
 #include "faust/tonestack_m2199.cc"
 #include "faust/tonestack_ac30.cc"
+#include "faust/tonestack_mesa.cc"
+#include "faust/tonestack_soldano.cc"
+#include "faust/tonestack_jtm45.cc"
+#include "faust/tonestack_ac15.cc"
+#include "faust/tonestack_peavey.cc"
+#include "faust/tonestack_ibanez.cc"
+#include "faust/tonestack_roland.cc"
+#include "faust/tonestack_ampeg.cc"
+
 
 
 static void activate_callback(float val, void *data)

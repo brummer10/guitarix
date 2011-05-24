@@ -102,6 +102,8 @@ def build(bld):
         'feed.dsp',
         'balance.dsp',
         'balance1.dsp',
+        'amp2.dsp',
+        'stage3.dsp',
         'tonestack_default.dsp',
         'tonestack_bassman.dsp',
         'tonestack_twin.dsp',
@@ -111,8 +113,15 @@ def build(bld):
         'tonestack_mlead.dsp',
         'tonestack_m2199.dsp',
         'tonestack_ac30.dsp',
-        'amp2.dsp',
-        'stage3.dsp',
+        'tonestack_soldano.dsp',
+        'tonestack_mesa.dsp',
+        'tonestack_jtm45.dsp',
+        'tonestack_ac15.dsp',
+        'tonestack_peavey.dsp',
+        'tonestack_ibanez.dsp',
+        'tonestack_roland.dsp',
+        'tonestack_ampeg.dsp',
+
 
         # effects
         'overdrive.dsp',

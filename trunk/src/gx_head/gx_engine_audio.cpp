@@ -112,9 +112,14 @@ void AudioVariables::register_parameter()
 	
 	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.31f, 0.001f);
 	
-	static const char *tonestack_model[] = {N_("default"),N_("Bassman"),N_("Twin Reverb"),N_("Princeton"),N_("JCM-800"),N_("JCM-2000"),N_("M-Lead"),N_("M2199"),N_("AC-30"),N_("Off"),0};
+	static const char *tonestack_model[] = {N_("default"),N_("Bassman"),N_("Twin Reverb"),
+		N_("Princeton"),N_("JCM-800"),N_("JCM-2000"),N_("M-Lead"),N_("M2199"),N_("AC-30"),
+		N_("Mesa Boogie"),N_("SOL 100"),N_("JTM-45"),N_("AC-15"),N_("Peavey"),N_("Ibanez"),
+		N_("Roland"),N_("Ampeg"),N_("Off"),0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
-	static const char *cabinet_model[] = {N_("4x12"),N_("2x12"),N_("1x12"),N_("4x10"),N_("2x10"),N_("HighGain"),N_("Twin"),N_("Bassman"),N_("Marshall"),N_("AC-30"),N_("Princeton"),N_("A2"),0};
+	static const char *cabinet_model[] = {N_("4x12"),N_("2x12"),N_("1x12"),N_("4x10"),
+	N_("2x10"),N_("HighGain"),N_("Twin"),N_("Bassman"),N_("Marshall"),N_("AC-30"),
+	N_("Princeton"),N_("A2"),0};
 	registerEnumParam("cab.select","select",cabinet_model,&cabinet, 0);
 	
 	static const char *post_pre[] = {N_("post"),N_("pre"),0};
@@ -515,7 +520,31 @@ void process_buffers(int count, float* input, float* output0)
     case 8: //"AC-30"
 	    tonestack_ac30::compute(count, output0, output0);
 	    break;
-    case 9: //"Off"
+	case 9: //"Mesa"
+	    tonestack_mesa::compute(count, output0, output0);
+	    break;
+	case 10: //"Soldano"
+	    tonestack_soldano::compute(count, output0, output0);
+	    break;
+	case 11: //"jtm45"
+	    tonestack_jtm45::compute(count, output0, output0);
+	    break;
+	case 12: //"ac15"
+	    tonestack_ac15::compute(count, output0, output0);
+	    break;
+	case 13: //"peavey"
+	    tonestack_peavey::compute(count, output0, output0);
+	    break;
+	case 14: //"ibanez"
+	    tonestack_ibanez::compute(count, output0, output0);
+	    break;
+	case 15: //"roland"
+	    tonestack_roland::compute(count, output0, output0);
+	    break;
+	case 16: //"ampeg"
+	    tonestack_ampeg::compute(count, output0, output0);
+	    break;
+    case 17: //"Off"
 	    break;
     }
 

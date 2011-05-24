@@ -1,4 +1,4 @@
-declare name "amp-t8";
+declare name "amp";
 
 import("guitarix.lib");
 

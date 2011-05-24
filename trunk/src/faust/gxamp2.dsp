@@ -1,4 +1,4 @@
-declare name "amp-t2";
+declare name "amp";
 
 import("music.lib");
 import("filter.lib");

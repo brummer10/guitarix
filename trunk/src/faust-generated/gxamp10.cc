@@ -362,7 +362,7 @@ void compute(int count, float *input0, float *output0)
 static struct RegisterParams { RegisterParams(); } RegisterParams;
 RegisterParams::RegisterParams()
 {
-	registerInit("amp-t10", init);
+	registerInit("amp", init);
 }
 
 } // end namespace gxamp10
