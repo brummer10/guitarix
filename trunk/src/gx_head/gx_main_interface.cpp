@@ -1207,7 +1207,7 @@ void GxMainInterface::openPaintBox(const char* label, const char* name)
 	if (name) {
 		box->m_paintbox.set_name(name);
 	}
-	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_paintbox.gobj()), expand, fill, 0);
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_paintbox.gobj()), false, fill, 0);
 	box->m_paintbox.show_all();
 	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
 }

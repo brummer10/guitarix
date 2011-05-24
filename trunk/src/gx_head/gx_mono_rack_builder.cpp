@@ -35,77 +35,81 @@ void GxMainInterface::gx_build_mono_rack()
 
 	openHorizontalTableBox("");
 	{
-		 openPaintBox("");
-		 {
-					   
-			  openVerticalBox(" noise gate      ");
-			  {
-				   openHorizontalBox("");
-				   {
-					   create_switch_no_caption(sw_switchit, "noise_gate.on_off");
-					   openpaintampBox("noise gate");
+		openVerticalBox("");
+		{
+			 openPaintBox("");
+			 {
+						   
+				  openVerticalBox(" noise gate      ");
+				  {
+					   openHorizontalBox("");
 					   {
-						   create_wheel("noise_gate.threshold");
+						   create_switch_no_caption(sw_switchit, "noise_gate.on_off");
+						   openpaintampBox("noise gate");
+						   {
+							   create_wheel("noise_gate.threshold");
+						   }
+						   closeBox();
+						  
+					   }
+					   closeBox(); 
+				  }
+				  closeBox();
+				  
+				  openVerticalBox(_("noise shaper       "));
+				  {
+					   openHorizontalBox("");
+					   {
+							
+							create_switch_no_caption(sw_switchit, "shaper.on_off");
+							
+							openpaintampBox("shaper");
+							{
+								 create_wheel("shaper.sharper");
+							}
+							closeBox();
+							
 					   }
 					   closeBox();
-					  
-				   }
-				   closeBox(); 
-			  }
-			  closeBox();
-			  
-			  openVerticalBox(_("noise shaper       "));
-			  {
-				   openHorizontalBox("");
-				   {
-						
-						create_switch_no_caption(sw_switchit, "shaper.on_off");
-						
-						openpaintampBox("shaper");
-						{
-							 create_wheel("shaper.sharper");
-						}
-						closeBox();
-						
-				   }
-				   closeBox();
-			  }
-			  closeBox();
-			  
-			  openVerticalBox(_("mono level out       "));
-			  {
-				   openHorizontalBox("");
-				   {
-						
-						create_switch_no_caption(sw_switchit, "amp.on_off");
-						
-						openpaintampBox("level");
-						{
-							 create_spin_value("amp.out_amp");
-							 create_wheel("amp.out_amp");
-						}
-						closeBox();
-				   }
-				   closeBox();
-			  }
-			  closeBox();
-			  
-			  openVerticalBox(_("clip       "));
-			  {
-				   openHorizontalBox("");
-				   {
-						
-						create_switch_no_caption(sw_switchit, "amp.clip.on_off");
-						
-						openpaintampBox("level");
-						{
-							 create_wheel("amp.fuzz");
-						}
-						closeBox();
-				   }
-				   closeBox();
-			  }
-			  closeBox();
+				  }
+				  closeBox();
+				  
+				  openVerticalBox(_("mono level out       "));
+				  {
+					   openHorizontalBox("");
+					   {
+							
+							create_switch_no_caption(sw_switchit, "amp.on_off");
+							
+							openpaintampBox("level");
+							{
+								 create_spin_value("amp.out_amp");
+								 create_wheel("amp.out_amp");
+							}
+							closeBox();
+					   }
+					   closeBox();
+				  }
+				  closeBox();
+				  
+				  openVerticalBox(_("clip       "));
+				  {
+					   openHorizontalBox("");
+					   {
+							
+							create_switch_no_caption(sw_switchit, "amp.clip.on_off");
+							
+							openpaintampBox("level");
+							{
+								 create_wheel("amp.fuzz");
+							}
+							closeBox();
+					   }
+					   closeBox();
+				  }
+				  closeBox();
+			 }
+			 closeBox();
 		 }
 		 closeBox();
 		 //low high pass filter
