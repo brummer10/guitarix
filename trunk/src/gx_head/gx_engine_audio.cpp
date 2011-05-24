@@ -403,7 +403,64 @@ void process_buffers(int count, float* input, float* output0)
 			gx_feedback::compute(count, output0, output0);
 		}
     }
-
+	
+	if(!audio.gxtonestack) {
+		switch (audio.tonestack) {
+		case 0: //"default"
+			tonestack_default::compute(count, output0, output0);
+			break;
+		case 1: //"Bassman"
+			tonestack_bassman::compute(count, output0, output0);
+			break;
+		case 2: //"Twin Reverb"
+			tonestack_twin::compute(count, output0, output0);
+			break;
+		case 3: //"Princeton"
+			tonestack_princeton::compute(count, output0, output0);
+			break;
+		case 4: //"JCM-800"
+			tonestack_jcm800::compute(count, output0, output0);
+			break;
+		case 5: //"JCM-2000"
+			tonestack_jcm2000::compute(count, output0, output0);
+			break;
+		case 6: //"M-Lead"
+			tonestack_mlead::compute(count, output0, output0);
+			break;
+		case 7: //"M2199"
+			tonestack_m2199::compute(count, output0, output0);
+			break;
+		case 8: //"AC-30"
+			tonestack_ac30::compute(count, output0, output0);
+			break;
+		case 9: //"Mesa"
+			tonestack_mesa::compute(count, output0, output0);
+			break;
+		case 10: //"Soldano"
+			tonestack_soldano::compute(count, output0, output0);
+			break;
+		case 11: //"jtm45"
+			tonestack_jtm45::compute(count, output0, output0);
+			break;
+		case 12: //"ac15"
+			tonestack_ac15::compute(count, output0, output0);
+			break;
+		case 13: //"peavey"
+			tonestack_peavey::compute(count, output0, output0);
+			break;
+		case 14: //"ibanez"
+			tonestack_ibanez::compute(count, output0, output0);
+			break;
+		case 15: //"roland"
+			tonestack_roland::compute(count, output0, output0);
+			break;
+		case 16: //"ampeg"
+			tonestack_ampeg::compute(count, output0, output0);
+			break;
+		case 17: //"Off"
+			break;
+		}
+	}
 
     //gxdistortion::compute(count, output0, output0);
 	switch (audio.gxtube) {
@@ -491,63 +548,65 @@ void process_buffers(int count, float* input, float* output0)
 			gx_feedback::compute(count, output0, output0);
 		}
     }
-
-    switch (audio.tonestack) {
-    case 0: //"default"
-	    tonestack_default::compute(count, output0, output0);
-	    break;
-    case 1: //"Bassman"
-	    tonestack_bassman::compute(count, output0, output0);
-	    break;
-    case 2: //"Twin Reverb"
-	    tonestack_twin::compute(count, output0, output0);
-	    break;
-    case 3: //"Princeton"
-	    tonestack_princeton::compute(count, output0, output0);
-	    break;
-    case 4: //"JCM-800"
-	    tonestack_jcm800::compute(count, output0, output0);
-	    break;
-    case 5: //"JCM-2000"
-	    tonestack_jcm2000::compute(count, output0, output0);
-	    break;
-    case 6: //"M-Lead"
-	    tonestack_mlead::compute(count, output0, output0);
-	    break;
-    case 7: //"M2199"
-	    tonestack_m2199::compute(count, output0, output0);
-	    break;
-    case 8: //"AC-30"
-	    tonestack_ac30::compute(count, output0, output0);
-	    break;
-	case 9: //"Mesa"
-	    tonestack_mesa::compute(count, output0, output0);
-	    break;
-	case 10: //"Soldano"
-	    tonestack_soldano::compute(count, output0, output0);
-	    break;
-	case 11: //"jtm45"
-	    tonestack_jtm45::compute(count, output0, output0);
-	    break;
-	case 12: //"ac15"
-	    tonestack_ac15::compute(count, output0, output0);
-	    break;
-	case 13: //"peavey"
-	    tonestack_peavey::compute(count, output0, output0);
-	    break;
-	case 14: //"ibanez"
-	    tonestack_ibanez::compute(count, output0, output0);
-	    break;
-	case 15: //"roland"
-	    tonestack_roland::compute(count, output0, output0);
-	    break;
-	case 16: //"ampeg"
-	    tonestack_ampeg::compute(count, output0, output0);
-	    break;
-    case 17: //"Off"
-	    break;
-    }
-
+    
+	if(audio.gxtonestack) {
+		switch (audio.tonestack) {
+		case 0: //"default"
+			tonestack_default::compute(count, output0, output0);
+			break;
+		case 1: //"Bassman"
+			tonestack_bassman::compute(count, output0, output0);
+			break;
+		case 2: //"Twin Reverb"
+			tonestack_twin::compute(count, output0, output0);
+			break;
+		case 3: //"Princeton"
+			tonestack_princeton::compute(count, output0, output0);
+			break;
+		case 4: //"JCM-800"
+			tonestack_jcm800::compute(count, output0, output0);
+			break;
+		case 5: //"JCM-2000"
+			tonestack_jcm2000::compute(count, output0, output0);
+			break;
+		case 6: //"M-Lead"
+			tonestack_mlead::compute(count, output0, output0);
+			break;
+		case 7: //"M2199"
+			tonestack_m2199::compute(count, output0, output0);
+			break;
+		case 8: //"AC-30"
+			tonestack_ac30::compute(count, output0, output0);
+			break;
+		case 9: //"Mesa"
+			tonestack_mesa::compute(count, output0, output0);
+			break;
+		case 10: //"Soldano"
+			tonestack_soldano::compute(count, output0, output0);
+			break;
+		case 11: //"jtm45"
+			tonestack_jtm45::compute(count, output0, output0);
+			break;
+		case 12: //"ac15"
+			tonestack_ac15::compute(count, output0, output0);
+			break;
+		case 13: //"peavey"
+			tonestack_peavey::compute(count, output0, output0);
+			break;
+		case 14: //"ibanez"
+			tonestack_ibanez::compute(count, output0, output0);
+			break;
+		case 15: //"roland"
+			tonestack_roland::compute(count, output0, output0);
+			break;
+		case 16: //"ampeg"
+			tonestack_ampeg::compute(count, output0, output0);
+			break;
+		case 17: //"Off"
+			break;
+		}
+	}
+	
     if(audio.fcab) {
 		
         if (!cab_conv.compute(count, output0))

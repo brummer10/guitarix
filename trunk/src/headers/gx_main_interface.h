@@ -328,6 +328,7 @@ private:
 
 	void addPluginMenu();
 	void addAmpMenu();
+	void addTonestackMenu();
 
 	void addOptionMenu();
 	void addGuiSkinMenu();
@@ -343,6 +344,7 @@ private:
 	void on_srack_activate();
 	void on_toolbar_activate();
 	void on_tube_activate();
+	void on_tonestack_activate();
 	void set_mouse_mode();
 	void on_show_oscilloscope();
 	bool on_refresh_oscilloscope();
@@ -393,6 +395,7 @@ public :
 	MenuCheckItem       fShowMidiOut;
 	MenuCheckItem       fShowToolBar;
 	RadioCheckItem      fSelectTubeModel[12];
+	RadioCheckItem      fSelectTonestackMode[2];
 
 	GtkWidget* 			logger;
 	GtkWidget*          RBox;

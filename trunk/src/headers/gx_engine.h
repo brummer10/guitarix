@@ -97,6 +97,7 @@ public:
 	int fsd;
 	int fse;
 	int gxtube;
+	int gxtonestack;
 	int mono_plug_counter;
 	int stereo_plug_counter;
 
@@ -227,6 +228,7 @@ inline void turnOffMidi() { audio.midistate = kMidiOff; }
 inline void turnOnMidi() { audio.midistate = kMidiOn; }
 
 inline void set_tube_model(int x) {audio.gxtube = x;}
+inline void set_tonestack_mode(int x) {audio.gxtonestack = x;}
 inline void set_mono_plug_counter(int x) {audio.mono_plug_counter = x;}
 inline void set_stereo_plug_counter(int x) {audio.stereo_plug_counter = x;}
 

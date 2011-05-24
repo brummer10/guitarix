@@ -3086,6 +3086,7 @@ void GxMainInterface::addMainMenu()
 	addPresetMenu();
 	addPluginMenu();
 	addAmpMenu();
+	addTonestackMenu();
 	addOptionMenu();
 	addAboutMenu();
 
@@ -3434,6 +3435,60 @@ void GxMainInterface::addExtraPresetMenu()
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 	gtk_widget_show (menuitem);
 
+}
+
+void GxMainInterface::on_tonestack_activate()
+{
+	if (fSelectTonestackMode[0].get_active()) {
+		fSelectTonestackMode[1].set_active(false);
+		gx_engine::set_tonestack_mode(0);
+	} else if (fSelectTonestackMode[1].get_active()) {
+		fSelectTonestackMode[0].set_active(false);
+		gx_engine::set_tonestack_mode(1);
+	}
+}
+
+void GxMainInterface::addTonestackMenu()
+{
+	GtkWidget* menulabel; // menu label
+	GtkWidget* menucont;  // menu container
+	
+	menucont = fMenuList["Top"];
+
+	/*---------------- Create Options menu items ------------------*/
+	menulabel = gtk_menu_item_new_with_mnemonic (_("_Tonestack "));
+	gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
+	gtk_widget_show(menulabel);
+
+	/*-- Create Options submenu  --*/
+	menucont = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
+	gtk_widget_show(menucont);
+	
+	/*-- Create toolbar check menu item under Options submenu --*/
+	set_label(fSelectTonestackMode[0], _("tonestack pre"));
+	//fSelectTonestackMode[0].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	//                           GDK_v, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fSelectTonestackMode[0].signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_tonestack_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTonestackMode[0].gobj()));
+	fSelectTonestackMode[0].show();
+	
+	fSelectTonestackMode[0].set_parameter(new SwitchParameter("system.pre_tonestack",true,false));
+	Gtk::RadioMenuItem::Group group = fSelectTonestackMode[0].get_group();
+	//fSelectTonestackMode[0].set_active(true);
+	
+	set_label(fSelectTonestackMode[1], _("tonestack post"));
+	fSelectTonestackMode[1].set_group(group);
+	
+	//fSelectTonestackMode[1].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	 //                          GDK_g, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fSelectTonestackMode[1].signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_tonestack_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTonestackMode[1].gobj()));
+	fSelectTonestackMode[1].show();
+	fSelectTonestackMode[1].set_parameter(new SwitchParameter("system.post_tonestack",true,false));
+	fSelectTonestackMode[1].set_active(false);
 }
 
 void GxMainInterface::on_tube_activate()
