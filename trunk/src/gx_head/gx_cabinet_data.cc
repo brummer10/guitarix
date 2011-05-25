@@ -571,82 +571,88 @@ static bool cab_conv_start()
 	int cab_ircount = cab_ir_count;
 	float *cab_irdata = cab_ir_data;
 	switch(gx_engine::audio.cabinet){
-		case 0: //"4x12"
+		case 0: //"off"
+			gx_engine::cab_conv.stop();
+			break;
+		case 1: //"4x12"
 			cab_ircount = cab_ir_count;
 			cab_irsr = cab_ir_sr;
 			cab_irdata = cab_ir_data;
 			break;
-		case 1: //"2x12"
+		case 2: //"2x12"
 			cab_ircount = cab_ir1_count;
 			cab_irsr = cab_ir1_sr;
 			cab_irdata = cab_ir1_data;
 			break;
-		case 2: //"1x12"
+		case 3: //"1x12"
 			cab_ircount = cab_ir2_count;
 			cab_irsr = cab_ir2_sr;
 			cab_irdata = cab_ir2_data;
 			break;
-		case 3: //"4x10"
+		case 4: //"4x10"
 			cab_ircount = cab_ir3_count;
 			cab_irsr = cab_ir3_sr;
 			cab_irdata = cab_ir3_data;
 			break;
-		case 4: //"2x10"
+		case 5: //"2x10"
 			cab_ircount = cab_ir4_count;
 			cab_irsr = cab_ir4_sr;
 			cab_irdata = cab_ir4_data;
 			break;
-		case 5: //"High Gain"
+		case 6: //"High Gain"
 			cab_ircount = cab_ir5_count;
 			cab_irsr = cab_ir5_sr;
 			cab_irdata = cab_ir5_data;
 			break;
-		case 6: //"Twin"
+		case 7: //"Twin"
 			cab_ircount = cab_ir6_count;
 			cab_irsr = cab_ir6_sr;
 			cab_irdata = cab_ir6_data;
 			break;
-		case 7: //"Bassman"
+		case 8: //"Bassman"
 			cab_ircount = cab_ir7_count;
 			cab_irsr = cab_ir7_sr;
 			cab_irdata = cab_ir7_data;
 			break;
-		case 8: //"Marshall"
+		case 9: //"Marshall"
 			cab_ircount = cab_ir8_count;
 			cab_irsr = cab_ir8_sr;
 			cab_irdata = cab_ir8_data;
 			break;
-		case 9: //"AC-30"
+		case 10: //"AC-30"
 			cab_ircount = cab_ir9_count;
 			cab_irsr = cab_ir9_sr;
 			cab_irdata = cab_ir9_data;
 			break;
-		case 10: //"Princeton"
+		case 11: //"Princeton"
 			cab_ircount = cab_ir10_count;
 			cab_irsr = cab_ir10_sr;
 			cab_irdata = cab_ir10_data;
 			break;
-		case 11: //"A2"
+		case 12: //"A2"
 			cab_ircount = cab_ir11_count;
 			cab_irsr = cab_ir11_sr;
 			cab_irdata = cab_ir11_data;
 			break;
 	}
-	
-	while (!gx_engine::cab_conv.checkstate());
-	if (!gx_engine::cab_conv.configure(cab_ircount, cab_irdata, cab_irsr)) {
+	if(gx_engine::audio.cabinet){
+		while (!gx_engine::cab_conv.checkstate());
+			if (!gx_engine::cab_conv.configure(cab_ircount, cab_irdata, cab_irsr)) {
+				return false;
+			}
+		return gx_engine::cab_conv.start();
+	} else {
 		return false;
 	}
-	return gx_engine::cab_conv.start();
 }
 
 gboolean conv_restart(gpointer data)
 {
-	gx_engine::audio.fcab = false;
-	gx_engine::audio.cab_switched = gx_engine::audio.cabinet;
+	//gx_engine::audio.fcab = false;
+	gx_engine::set_cab_model(gx_engine::audio.cabinet);
 	gx_engine::cab_conv.stop();
 	cab_conv_start();
-	gx_engine::audio.fcab = true;
+	//gx_engine::audio.fcab = true;
 	return false;
 }
 

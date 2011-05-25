@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009-2010 Hermann Meyer, James Warden, Andreas Degert
+ * Copyright (C) 2011, Pete Shorthose
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +79,6 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("compressor.on_off", on_off, &fcheckboxcom1, 0);
 	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
 	gx_gui::registerParam("crybaby.on_off", on_off, &fcheckbox5, 0);
-	gx_gui::registerParam("cab.on_off", "Cab-ImpResp", &fcab,0);
 	gx_gui::registerParam("con.on_off", "Contrast-ImpResp", &fcon,0);
 	gx_gui::registerParam("overdrive.on_off", on_off, &foverdrive4, 0);
 	gx_gui::registerParam("gx_distortion.on_off", on_off, &fcheckbox4, 0);
@@ -113,11 +113,11 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.31f, 0.001f);
 	
 	static const char *tonestack_model[] = {N_("default"),N_("Bassman"),N_("Twin Reverb"),
-		N_("Princeton"),N_("JCM-800"),N_("JCM-2000"),N_("M-Lead"),N_("M2199"),N_("AC-30"),
-		N_("Mesa Boogie"),N_("SOL 100"),N_("JTM-45"),N_("AC-15"),N_("Peavey"),N_("Ibanez"),
-		N_("Roland"),N_("Ampeg"),N_("Off"),0};
+		N_("Princeton"),N_("Marshall JCM-800"),N_("Marshall JCM-2000"),N_("Marshall Major-Lead"),N_("Marshall JMP-2199"),N_("Vox AC-30"),
+		N_("Mesa Boogie Mark"),N_("Soldano SOL 100"),N_("Marshall JTM-45"),N_("Vox AC-15"),N_("Peavey C-20"),N_("Ibanez GX-20"),
+		N_("Roland Cube 60"),N_("Ampeg VL-501"),N_("Off"),0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
-	static const char *cabinet_model[] = {N_("4x12"),N_("2x12"),N_("1x12"),N_("4x10"),
+	static const char *cabinet_model[] = {N_("Off"),N_("4x12"),N_("2x12"),N_("1x12"),N_("4x10"),
 	N_("2x10"),N_("HighGain"),N_("Twin"),N_("Bassman"),N_("Marshall"),N_("AC-30"),
 	N_("Princeton"),N_("A2"),0};
 	registerEnumParam("cab.select","select",cabinet_model,&cabinet, 0);
@@ -607,13 +607,13 @@ void process_buffers(int count, float* input, float* output0)
 		}
 	}
 	
-    if(audio.fcab) {
+    if(audio.cabinet) {
 		
         if (!cab_conv.compute(count, output0))
             cout << "overload" << endl;
             //FIXME error message??
-        if(audio.cab_switched != audio.cabinet)cab_conv_restart();
     }
+    if(audio.cab_switched != audio.cabinet)cab_conv_restart();
 
     if (audio.fboost) {
 	    bassbooster::compute(count, output0, output0);

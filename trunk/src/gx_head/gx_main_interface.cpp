@@ -3456,7 +3456,7 @@ void GxMainInterface::addTonestackMenu()
 	menucont = fMenuList["Top"];
 
 	/*---------------- Create Options menu items ------------------*/
-	menulabel = gtk_menu_item_new_with_mnemonic (_("_Tonestack "));
+	menulabel = gtk_menu_item_new_with_mnemonic (_("To_nestack "));
 	gtk_menu_bar_append (GTK_MENU_BAR(menucont), menulabel);
 	gtk_widget_show(menulabel);
 
@@ -3466,9 +3466,9 @@ void GxMainInterface::addTonestackMenu()
 	gtk_widget_show(menucont);
 	
 	/*-- Create toolbar check menu item under Options submenu --*/
-	set_label(fSelectTonestackMode[0], _("tonestack pre"));
-	//fSelectTonestackMode[0].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	//                           GDK_v, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	set_label(fSelectTonestackMode[0], _("Tonestack pre"));
+	fSelectTonestackMode[0].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_b, Gdk::MOD1_MASK, Gtk::ACCEL_VISIBLE);
 	fSelectTonestackMode[0].signal_activate().connect(
 		sigc::mem_fun(*this, &GxMainInterface::on_tonestack_activate));
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTonestackMode[0].gobj()));
@@ -3478,11 +3478,11 @@ void GxMainInterface::addTonestackMenu()
 	Gtk::RadioMenuItem::Group group = fSelectTonestackMode[0].get_group();
 	//fSelectTonestackMode[0].set_active(true);
 	
-	set_label(fSelectTonestackMode[1], _("tonestack post"));
+	set_label(fSelectTonestackMode[1], _("Tonestack post"));
 	fSelectTonestackMode[1].set_group(group);
 	
-	//fSelectTonestackMode[1].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	 //                          GDK_g, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fSelectTonestackMode[1].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_c, Gdk::MOD1_MASK, Gtk::ACCEL_VISIBLE);
 	fSelectTonestackMode[1].signal_activate().connect(
 		sigc::mem_fun(*this, &GxMainInterface::on_tonestack_activate));
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTonestackMode[1].gobj()));
