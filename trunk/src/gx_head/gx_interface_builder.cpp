@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
- * Copyright (C) 2011, Pete Shorthose
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -181,14 +180,18 @@ void GxMainInterface::setup()
                                         openSpaceBox("");
                                         closeBox();
 
+
+
+
                                         openFlipLabelBox(_("tone"));
                                         {
                                              openVerticalBox("");
                                              {
                                                   openSpaceBox("");
                                                   closeBox();
-                                                  openSpaceBox("");
-                                                  closeBox();
+
+
+
                                                   openSpaceBox("");
                                                   closeBox();
                                                   openHorizontalBox("");
@@ -206,17 +209,49 @@ void GxMainInterface::setup()
                                                        closeBox();
                                                   }
                                                   closeBox();
-                                                  
-												  openVerticalBox1(_("Cabinet"));
-												  {
-													  create_selector("cab.select");
-												  }
-												  closeBox();
-												  
-                                                  openVerticalBox1(_("Tonestack"));
+                                                  openHorizontalBox("");
+                                                  {
+                                                       openVerticalBox1("");
+                                                       closeBox();
+                                                       create_switch(sw_minitoggle, "amp.bass_boost.on_off", _(" Bass boost  "), Gtk::POS_RIGHT);
+                                                       openSpaceBox("");
+                                                       closeBox();
+                                                       openSpaceBox("");
+                                                       closeBox();
+                                                  }
+                                                  closeBox();
+
+                                                  openHorizontalBox("");
+                                                  {
+
+                                                       openVerticalBox1("");
+                                                       openHorizontalBox("");
+                                                       {
+                                                            openSpaceBox("");
+                                                            closeBox();
+                                                            create_cab_switch("cab.on_off",_(" Cabinet        "), Gtk::POS_TOP);
+                                                            openSpaceBox("");
+                                                            closeBox();
+                                                            openSpaceBox("");
+                                                            closeBox();
+
+                                                       }
+                                                       closeBox();
+                                                       // closeBox();
+                                                       create_selector("cab.select");
+                                                       //openSpaceBox("");
+                                                       closeBox();
+                                                       openSpaceBox("");
+                                                       closeBox();
+                                                  }
+                                                  closeBox();
+                                                  openSpaceBox("");
+                                                  closeBox();
+                                                  openHorizontalBox("");
                                                   {
                                                        create_selector("amp.tonestack.select");
-                                                       
+                                                       openVerticalBox1("");
+                                                       closeBox();
                                                   }
                                                   closeBox();
                                                   openSpaceBox("");
@@ -228,26 +263,32 @@ void GxMainInterface::setup()
                                         closeBox();
                                         openSpaceBox("");
                                         closeBox();
-                                        
+                                        openSpaceBox("");
+                                        closeBox();
+
                                         openVerticalBox("");
                                         {
                                              openSpaceBox("");
                                              closeBox();
                                              openSpaceBox("");
                                              closeBox();
-                                             create_contrast_switch("con.on_off",_(" Presence "), Gtk::POS_TOP);                                             
-                                             create_switch(sw_minitoggle, "amp.bass_boost.on_off", _(" Bass boost"), Gtk::POS_RIGHT);                                                    
+                                             openSpaceBox("");
+                                             closeBox();
+                                             openSpaceBox("");
+                                             closeBox();
+                                             create_contrast_switch("con.on_off",_(" Presence "), Gtk::POS_TOP);
                                              create_switch(sw_minitoggle, "amp.feed_on_off", _(" Reverb  "), Gtk::POS_RIGHT);
                                              create_minislider("amp.wet_dry");
                                              openSpaceBox("");
                                              closeBox();
+
                                              openVerticalBox1("Convolver");
                                              {
-                                             
-                                             addJConvButton(_("set"), &gx_engine::audio.filebutton);
-                                             addJToggleButton(_("run"), &gx_jconv::GxJConvSettings::checkbutton7);
                                              }
                                              closeBox();
+                                             addJConvButton(_("set"), &gx_engine::audio.filebutton);
+                                             addJToggleButton(_("run"), &gx_jconv::GxJConvSettings::checkbutton7);
+
                                              openSpaceBox("");
                                              closeBox();
                                         }
@@ -265,10 +306,6 @@ void GxMainInterface::setup()
                                              openFrameBox("");
                                              closeBox();
                                              openFrameBox("");
-                                             closeBox();
-                                             openFrameBox("");
-                                             closeBox();
-                                             openSpaceBox("");
                                              closeBox();
                                              openHorizontalBox("");
                                              {

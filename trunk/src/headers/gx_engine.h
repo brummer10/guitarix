@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
- * Copyright (C) 2011, Pete Shorthose
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,6 +54,7 @@ public:
 	bool fmoog;
 	bool fflanger;
 	bool fbiquad;
+	bool fcab;
 	bool fcon;
 	bool flh;
 	bool fmi;
@@ -97,7 +97,6 @@ public:
 	int fsd;
 	int fse;
 	int gxtube;
-	int gxtonestack;
 	int mono_plug_counter;
 	int stereo_plug_counter;
 
@@ -228,8 +227,6 @@ inline void turnOffMidi() { audio.midistate = kMidiOff; }
 inline void turnOnMidi() { audio.midistate = kMidiOn; }
 
 inline void set_tube_model(int x) {audio.gxtube = x;}
-inline void set_tonestack_mode(int x) {audio.gxtonestack = x;}
-inline void set_cab_model(int x) {audio.cab_switched = x;}
 inline void set_mono_plug_counter(int x) {audio.mono_plug_counter = x;}
 inline void set_stereo_plug_counter(int x) {audio.stereo_plug_counter = x;}
 
