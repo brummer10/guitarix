@@ -21,15 +21,8 @@
  *
  * ----------------------------------------------------------------------------
  */
- 
-struct table2d {
-	float low;
-	float high;
-	float istep;
-	float data[TAB_SIZE];
-};
 
-struct table2d tubetable2[] = {
+struct tabled tubetable2[] = {
 	{ // Ri = 68k
 	-5,5,200, {
 	239.919843376,239.854937108,239.789738489,239.724247218,239.658462996,

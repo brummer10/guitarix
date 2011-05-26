@@ -18,9 +18,7 @@
  * --------------------------------------------------------------------------
  */
 
-// foreign variable added to faust module feed
-// it's set in process_buffers()
-namespace noisegate { float ngate = 1; }  // noise-gate, modifies output gain
+
 
 /****************************************************************
  **  definitions for code generated with faust / dsp2cc
@@ -163,6 +161,7 @@ GxDistortionParams::GxDistortionParams() {
 	registerVar("gxdistortion.drive","","S","",&v1, 0.35, 0.0, 1.0, 0.01);
 }
 
+namespace gx_amps {
 #include "faust/gxamp.cc"
 #include "faust/gxamp2.cc"
 #include "faust/gxamp3.cc"
@@ -176,17 +175,22 @@ GxDistortionParams::GxDistortionParams() {
 #include "faust/gxamp11.cc"
 #include "faust/gxamp12.cc"
 #include "faust/gx_ampmodul.cc"
+}
+
+// effects
+namespace gx_effects {
+// foreign variable added to faust module feed
+// it's set in process_buffers()
+namespace noisegate { float ngate = 1; }  // noise-gate, modifies output gain
+
 #include "faust/bassbooster.cc"
 #include "faust/gxfeed.cc"
 #include "faust/gx_feedback.cc"
-//#include "faust/gxdistortion.cc"
 #include "faust/balance.cc"
 #include "faust/jconv_post.cc"
 #include "faust/balance1.cc"
 #include "faust/gx_outputlevel.cc"
 #include "faust/gx_ampout.cc"
-
-// effects
 #include "faust/overdrive.cc"
 #include "faust/compressor.cc"
 #include "faust/crybaby.cc"
@@ -204,8 +208,6 @@ GxDistortionParams::GxDistortionParams() {
 #include "faust/biquad.cc"
 #include "faust/flanger.cc"
 #include "faust/selecteq.cc"
-//#include "faust/eq.cc"
-//#include "faust/sloop.cc"
 #include "faust/phaser.cc"
 #include "faust/low_high_pass.cc"
 #include "faust/noisegate.cc"
@@ -215,7 +217,7 @@ GxDistortionParams::GxDistortionParams() {
 #include "faust/phaser_mono.cc"
 #include "faust/chorus_mono.cc"
 #include "faust/flanger_mono.cc"
-
+}
 
 // tone stack
 static struct ToneStackParams { ToneStackParams(); } ToneStackParams;
@@ -226,6 +228,7 @@ ToneStackParams::ToneStackParams() {
 	registerVar("amp.tonestack.Middle","","S","",&v3, 0.5, 0.0, 1.0, 0.01);
 }
 
+namespace gx_tonestacks {
 #include "faust/tonestack_default.cc"
 #include "faust/tonestack_bassman.cc"
 #include "faust/tonestack_twin.cc"
@@ -243,8 +246,7 @@ ToneStackParams::ToneStackParams() {
 #include "faust/tonestack_ibanez.cc"
 #include "faust/tonestack_roland.cc"
 #include "faust/tonestack_ampeg.cc"
-
-
+}
 
 static void activate_callback(float val, void *data)
 {
@@ -261,12 +263,12 @@ static void faust_add_callback(const char* id, void (*func)(bool,int))
 void faust_init(int samplingFreq)
 {
 	//faust_add_callback("SampleLooper.on_off", sloop::activate);
-	faust_add_callback("delay.on_off", delay::activate);
-	faust_add_callback("echo.on_off", echo::activate);
-	faust_add_callback("chorus.on_off", chorus::activate);
-	faust_add_callback("chorus_mono.on_off", chorus::activate);
-	faust_add_callback("stereodelay.on_off", stereodelay::activate);
-	faust_add_callback("stereoecho.on_off", stereoecho::activate);
+	faust_add_callback("delay.on_off", gx_effects::delay::activate);
+	faust_add_callback("echo.on_off", gx_effects::echo::activate);
+	faust_add_callback("chorus.on_off", gx_effects::chorus::activate);
+	faust_add_callback("chorus_mono.on_off", gx_effects::chorus::activate);
+	faust_add_callback("stereodelay.on_off", gx_effects::stereodelay::activate);
+	faust_add_callback("stereoecho.on_off", gx_effects::stereoecho::activate);
 	list<inidef>& inilist = get_inilist();
 	for (list<inidef>::iterator i = inilist.begin(); i != inilist.end(); i++) {
 		try {

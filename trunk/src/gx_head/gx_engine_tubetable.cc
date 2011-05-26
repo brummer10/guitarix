@@ -24,18 +24,29 @@
  *
  * --------------------------------------------------------------------------
  */
+ 
+
+namespace gx_tubes {
 
 #define TAB_SIZE (2001)
 
+struct tabled {
+	float low;
+	float high;
+	float istep;
+	float data[TAB_SIZE];
+};
 
 #include "12ax7.cc"
 #include "12AU7.cc"
 #include "6V6.cc"
 #include "6DJ8.cc"
 
+}
+
 inline float Ftube(int table, float Vgk)
 {
-	struct table1d& tab = tubetable[table];
+	struct gx_tubes::tabled& tab = gx_tubes::tubetable[table];
 	float f = (Vgk - tab.low) * tab.istep;
 	int i = int(f);
 	if (i < 0)
@@ -48,7 +59,7 @@ inline float Ftube(int table, float Vgk)
 
 inline float Ftube2(int table, float Vgk)
 {
-	struct table2d& tab = tubetable2[table];
+	struct gx_tubes::tabled& tab = gx_tubes::tubetable2[table];
 	float f = (Vgk - tab.low) * tab.istep;
 	int i = int(f);
 	if (i < 0)
@@ -61,7 +72,7 @@ inline float Ftube2(int table, float Vgk)
 
 inline float Ftube3(int table, float Vgk)
 {
-	struct table3d& tab = tubetable3[table];
+	struct gx_tubes::tabled& tab = gx_tubes::tubetable3[table];
 	float f = (Vgk - tab.low) * tab.istep;
 	int i = int(f);
 	if (i < 0)
@@ -74,7 +85,7 @@ inline float Ftube3(int table, float Vgk)
 
 inline float Ftube4(int table, float Vgk)
 {
-	struct table4d& tab = tubetable4[table];
+	struct gx_tubes::tabled& tab = gx_tubes::tubetable4[table];
 	float f = (Vgk - tab.low) * tab.istep;
 	int i = int(f);
 	if (i < 0)
@@ -84,4 +95,6 @@ inline float Ftube4(int table, float Vgk)
 	f -= i;
 	return tab.data[i]*(1-f) + tab.data[i+1]*f;
 }
+
+
 

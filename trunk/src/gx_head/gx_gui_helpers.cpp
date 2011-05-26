@@ -35,7 +35,7 @@ using namespace gx_cairo;
 namespace gx_gui
 {
 
-#include "gx_cabinet_data.cc"
+//#include "gx_cabinet_data.cc"
 
 /* ----- Menu check item signaled from parameter ------ */
 

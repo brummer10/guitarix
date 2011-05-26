@@ -22,6 +22,12 @@
  * ----------------------------------------------------------------------------
  */
 
+
+#include "guitarix.h"
+
+namespace gx_gui
+{
+
 namespace CabConvolveData
 {
 
@@ -699,3 +705,5 @@ void UiContrastSwitch::on_switch_toggled()
 		m_switch->set_active(false);
 	}
 }
+
+}//end namespace gx_gui

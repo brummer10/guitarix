@@ -23,6 +23,7 @@ def build(bld):
         'gx_paramtable.cpp',
         'gx_cairo_callbacks.cpp',
         'gx_gui_helpers.cpp',
+        'gx_cabinet_data.cpp',
         'gx_threads.cpp',
         'gx_jack.cpp',
         'gx_preset.cpp',

@@ -250,7 +250,7 @@ void compute_insert (int count, float* input1, float* output0, float* output1)
 		if (conv.is_runnable()) {
 			conv.checkstate();
 		}
-	    balance1::compute(count, input1, output0,output1);
+	    gx_effects::balance1::compute(count, input1, output0,output1);
         (void)memcpy(get_frame, output0, sizeof(float)*count);
         (void)memcpy(get_frame1, output1, sizeof(float)*count);
 		break;
@@ -355,52 +355,52 @@ void process_buffers(int count, float* input, float* output0)
 	memcpy(output0, input, count*sizeof(float));
 	
 	if (audio.fnoise_g) {
-		noisegate::ngate = noise_gate(count,output0, noisegate::ngate);
+		gx_effects::noisegate::ngate = noise_gate(count,output0, gx_effects::noisegate::ngate);
     } else {
-		noisegate::ngate = 1;
+		gx_effects::noisegate::ngate = 1;
     }
 	
 	if (audio.fng) {
-	    noise_shaper::compute(count, output0, output0);
+	    gx_effects::noise_shaper::compute(count, output0, output0);
     }
 	  
 	for (int m = 1; m < audio.mono_plug_counter; m++) {
 	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && audio.crybabypp) {
-		    crybaby::compute(count, output0, output0);
+		    gx_effects::crybaby::compute(count, output0, output0);
 	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah && audio.crybabypp) {
-		    autowah::compute(count, output0, output0);
+		    gx_effects::autowah::compute(count, output0, output0);
 	    } else if (audio.posit5 == m && audio.fcheckboxcom1 && audio.compressorpp) {
-		    compressor::compute(count, output0, output0);
+		    gx_effects::compressor::compute(count, output0, output0);
 	    } else if (audio.posit1 == m && audio.foverdrive4 && audio.overdrivepp) {
-		    overdrive::compute(count, output0, output0);
+		    gx_effects::overdrive::compute(count, output0, output0);
 	    } else if (audio.posit2 == m && audio.fcheckbox4 && audio.distortionpp) {
-	         gx_distortion::compute(count, output0, output0);
+	         gx_effects::gx_distortion::compute(count, output0, output0);
 	    } else if (audio.posit3 == m && audio.fcheckbox6 && audio.freeverbpp) {
-		    freeverb::compute(count, output0, output0);
-	    } else if (audio.posit6 == m && audio.fcheckbox7 && echo::is_inited() && audio.echopp) {
-		    echo::compute(count, output0, output0);
+		    gx_effects::freeverb::compute(count, output0, output0);
+	    } else if (audio.posit6 == m && audio.fcheckbox7 && gx_effects::echo::is_inited() && audio.echopp) {
+		    gx_effects::echo::compute(count, output0, output0);
 	    } else if (audio.posit4 == m && audio.fcheckbox8 && audio.IRpp) {
-		    impulseresponse::compute(count, output0, output0);
-	    } else if (audio.posit7 == m && audio.fdelay && delay::is_inited() && audio.delaypp) {
-		    delay::compute(count, output0, output0);
+		    gx_effects::impulseresponse::compute(count, output0, output0);
+	    } else if (audio.posit7 == m && audio.fdelay && gx_effects::delay::is_inited() && audio.delaypp) {
+		    gx_effects::delay::compute(count, output0, output0);
 	    } else if (audio.posit10 == m && audio.feq && audio.eqpp) {
-		    selecteq::compute(count, output0, output0);
+		    gx_effects::selecteq::compute(count, output0, output0);
 	    } else if (audio.posit14 == m && audio.flh && audio.lhpp) {
-		    low_high_pass::compute(count, output0, output0);
+		    gx_effects::low_high_pass::compute(count, output0, output0);
 	    } else if (audio.posit17 == m && audio.fwv && audio.wvpp) {
 		    (void)memcpy(result, output0, sizeof(float)*count);
 	    } else if (audio.posit18 == m && audio.fbiquad && audio.bipp) {
-		    biquad::compute(count, output0, output0);
+		    gx_effects::biquad::compute(count, output0, output0);
 	    } else if (audio.posit21 == m && audio.ftremolo && audio.trpp) {
-		    tremolo::compute(count, output0, output0);
+		    gx_effects::tremolo::compute(count, output0, output0);
 	    } else if (audio.posit22 == m && audio.fpm && audio.pmpp) {
-		    phaser_mono::compute(count, output0, output0);
-	    } else if (audio.posit23 == m && audio.fchorus_mono && audio.chpp && chorus_mono::is_inited()) {
-			chorus_mono::compute(count, output0, output0);
+		    gx_effects::phaser_mono::compute(count, output0, output0);
+	    } else if (audio.posit23 == m && audio.fchorus_mono && audio.chpp && gx_effects::chorus_mono::is_inited()) {
+			gx_effects::chorus_mono::compute(count, output0, output0);
 		} else if (audio.posit24 == m && audio.fflanger_mono && audio.flpp) {
-			flanger_mono::compute(count, output0, output0);
+			gx_effects::flanger_mono::compute(count, output0, output0);
 		} else if (audio.posit25 == m && audio.ffeedback && audio.ffb) {
-			gx_feedback::compute(count, output0, output0);
+			gx_effects::gx_feedback::compute(count, output0, output0);
 		}
     }
 
@@ -408,141 +408,141 @@ void process_buffers(int count, float* input, float* output0)
     //gxdistortion::compute(count, output0, output0);
 	switch (audio.gxtube) {
 	case 0: //"never"
-		gxamp::compute(count, output0, output0);
+		gx_amps::gxamp::compute(count, output0, output0);
 		break;
 	case 1: //"default"
-		gxamp::compute(count, output0, output0);
+		gx_amps::gxamp::compute(count, output0, output0);
 		break;
 	case 2: 
-		gxamp3::compute(count, output0, output0);
+		gx_amps::gxamp3::compute(count, output0, output0);
 		break;
 	case 3: 
-		gxamp2::compute(count, output0, output0);
+		gx_amps::gxamp2::compute(count, output0, output0);
 		break;
 	case 4: 
-		gxamp4::compute(count, output0, output0);
+		gx_amps::gxamp4::compute(count, output0, output0);
 		break;
 	case 5: 
-		gxamp5::compute(count, output0, output0);
+		gx_amps::gxamp5::compute(count, output0, output0);
 		break;
 	case 6: 
-		gxamp6::compute(count, output0, output0);
+		gx_amps::gxamp6::compute(count, output0, output0);
 		break;
 	case 7: 
-		gxamp7::compute(count, output0, output0);
+		gx_amps::gxamp7::compute(count, output0, output0);
 		break;
 	case 8: 
-		gxamp8::compute(count, output0, output0);
+		gx_amps::gxamp8::compute(count, output0, output0);
 		break;
 	case 9: 
-		gxamp9::compute(count, output0, output0);
+		gx_amps::gxamp9::compute(count, output0, output0);
 		break;
 	case 10: 
-		gxamp10::compute(count, output0, output0);
+		gx_amps::gxamp10::compute(count, output0, output0);
 		break;
 	case 11: 
-		gxamp11::compute(count, output0, output0);
+		gx_amps::gxamp11::compute(count, output0, output0);
 		break;
 	case 12: 
-		gxamp12::compute(count, output0, output0);
+		gx_amps::gxamp12::compute(count, output0, output0);
 		break;
 	}
 	
 	if (audio.ftube) {
-        softclip::compute(count, output0, output0);
+        gx_effects::softclip::compute(count, output0, output0);
     }
     
     for (int m = 1; m < audio.mono_plug_counter; m++) {
 	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && !audio.crybabypp) {
-		    crybaby::compute(count, output0, output0);
+		    gx_effects::crybaby::compute(count, output0, output0);
 	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah && !audio.crybabypp) {
-		    autowah::compute(count, output0, output0);
+		    gx_effects::autowah::compute(count, output0, output0);
 	    } else if (audio.posit5 == m && audio.fcheckboxcom1 && !audio.compressorpp) {
-		    compressor::compute(count, output0, output0);
+		    gx_effects::compressor::compute(count, output0, output0);
 	    } else if (audio.posit1 == m && audio.foverdrive4 && !audio.overdrivepp) {
-		    overdrive::compute(count, output0, output0);
+		    gx_effects::overdrive::compute(count, output0, output0);
 	    } else if (audio.posit2 == m && audio.fcheckbox4 && !audio.distortionpp) {
-	         gx_distortion::compute(count, output0, output0);
+	         gx_effects::gx_distortion::compute(count, output0, output0);
 	    } else if (audio.posit3 == m && audio.fcheckbox6 && !audio.freeverbpp) {
-		    freeverb::compute(count, output0, output0);
-	    } else if (audio.posit6 == m && audio.fcheckbox7 && echo::is_inited() && !audio.echopp) {
-		    echo::compute(count, output0, output0);
+		    gx_effects::freeverb::compute(count, output0, output0);
+	    } else if (audio.posit6 == m && audio.fcheckbox7 && gx_effects::echo::is_inited() && !audio.echopp) {
+		    gx_effects::echo::compute(count, output0, output0);
 	    } else if (audio.posit4 == m && audio.fcheckbox8 && !audio.IRpp) {
-		    impulseresponse::compute(count, output0, output0);
-	    } else if (audio.posit7 == m && audio.fdelay && delay::is_inited() && !audio.delaypp) {
-		    delay::compute(count, output0, output0);
+		    gx_effects::impulseresponse::compute(count, output0, output0);
+	    } else if (audio.posit7 == m && audio.fdelay && gx_effects::delay::is_inited() && !audio.delaypp) {
+		    gx_effects::delay::compute(count, output0, output0);
 	    } else if (audio.posit10 == m && audio.feq && !audio.eqpp) {
-		    selecteq::compute(count, output0, output0);
+		    gx_effects::selecteq::compute(count, output0, output0);
 	    } else if (audio.posit14 == m && audio.flh && !audio.lhpp) {
-		    low_high_pass::compute(count, output0, output0);
+		    gx_effects::low_high_pass::compute(count, output0, output0);
 	    } else if (audio.posit17 == m && audio.fwv && !audio.wvpp) {
 		    (void)memcpy(result, output0, sizeof(float)*count);
 	    } else if (audio.posit18 == m && audio.fbiquad && !audio.bipp) {
-		    biquad::compute(count, output0, output0);
+		    gx_effects::biquad::compute(count, output0, output0);
 	    } else if (audio.posit21 == m && audio.ftremolo && !audio.trpp) {
-		    tremolo::compute(count, output0, output0);
+		    gx_effects::tremolo::compute(count, output0, output0);
 	    } else if (audio.posit22 == m && audio.fpm && !audio.pmpp) {
-		    phaser_mono::compute(count, output0, output0);
-	    } else if (audio.posit23 == m && audio.fchorus_mono && !audio.chpp && chorus_mono::is_inited()) {
-			chorus_mono::compute(count, output0, output0);
+		    gx_effects::phaser_mono::compute(count, output0, output0);
+	    } else if (audio.posit23 == m && audio.fchorus_mono && !audio.chpp && gx_effects::chorus_mono::is_inited()) {
+			gx_effects::chorus_mono::compute(count, output0, output0);
 		} else if (audio.posit24 == m && audio.fflanger_mono && !audio.flpp ) {
-			flanger_mono::compute(count, output0, output0);
+			gx_effects::flanger_mono::compute(count, output0, output0);
 		} else if (audio.posit25 == m && audio.ffeedback && !audio.ffb ) {
-			gx_feedback::compute(count, output0, output0);
+			gx_effects::gx_feedback::compute(count, output0, output0);
 		}
     }
 
     switch (audio.tonestack) {
     case 0: //"default"
-	    tonestack_default::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_default::compute(count, output0, output0);
 	    break;
     case 1: //"Bassman"
-	    tonestack_bassman::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_bassman::compute(count, output0, output0);
 	    break;
     case 2: //"Twin Reverb"
-	    tonestack_twin::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_twin::compute(count, output0, output0);
 	    break;
     case 3: //"Princeton"
-	    tonestack_princeton::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_princeton::compute(count, output0, output0);
 	    break;
     case 4: //"JCM-800"
-	    tonestack_jcm800::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_jcm800::compute(count, output0, output0);
 	    break;
     case 5: //"JCM-2000"
-	    tonestack_jcm2000::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_jcm2000::compute(count, output0, output0);
 	    break;
     case 6: //"M-Lead"
-	    tonestack_mlead::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_mlead::compute(count, output0, output0);
 	    break;
     case 7: //"M2199"
-	    tonestack_m2199::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_m2199::compute(count, output0, output0);
 	    break;
     case 8: //"AC-30"
-	    tonestack_ac30::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_ac30::compute(count, output0, output0);
 	    break;
 	case 9: //"Mesa"
-	    tonestack_mesa::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_mesa::compute(count, output0, output0);
 	    break;
 	case 10: //"Soldano"
-	    tonestack_soldano::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_soldano::compute(count, output0, output0);
 	    break;
 	case 11: //"jtm45"
-	    tonestack_jtm45::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_jtm45::compute(count, output0, output0);
 	    break;
 	case 12: //"ac15"
-	    tonestack_ac15::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_ac15::compute(count, output0, output0);
 	    break;
 	case 13: //"peavey"
-	    tonestack_peavey::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_peavey::compute(count, output0, output0);
 	    break;
 	case 14: //"ibanez"
-	    tonestack_ibanez::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_ibanez::compute(count, output0, output0);
 	    break;
 	case 15: //"roland"
-	    tonestack_roland::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_roland::compute(count, output0, output0);
 	    break;
 	case 16: //"ampeg"
-	    tonestack_ampeg::compute(count, output0, output0);
+	    gx_tonestacks::tonestack_ampeg::compute(count, output0, output0);
 	    break;
     case 17: //"Off"
 	    break;
@@ -557,15 +557,15 @@ void process_buffers(int count, float* input, float* output0)
     }
 
     if (audio.fboost) {
-	    bassbooster::compute(count, output0, output0);
+	    gx_effects::bassbooster::compute(count, output0, output0);
     }
     
     if (audio.fampout) {
-        gx_ampout::compute(count, output0, output0);
+        gx_effects::gx_ampout::compute(count, output0, output0);
     }
     
     if (audio.fnoise_g) {
-		noisegate::compute(count,output0, output0);
+		gx_effects::noisegate::compute(count,output0, output0);
     }
     
     if(audio.fcon) {
@@ -579,25 +579,25 @@ void process_insert_buffers (int count, float* input1, float* output0, float* ou
 {
 	
     memcpy(output0, input1, count*sizeof(float));
-    gxfeed::compute(count, output0, output0, output1);
+    gx_effects::gxfeed::compute(count, output0, output0, output1);
     
     for (int m = 1; m < audio.stereo_plug_counter; m++) {
-		if (audio.posit8 == m && audio.fchorus && chorus::is_inited()) {
-			chorus::compute(count, output0, output1, output0, output1);
+		if (audio.posit8 == m && audio.fchorus && gx_effects::chorus::is_inited()) {
+			gx_effects::chorus::compute(count, output0, output1, output0, output1);
 		} else if (audio.posit9 == m && audio.fflanger) {
-			flanger::compute(count, output0, output1, output0, output1);
+			gx_effects::flanger::compute(count, output0, output1, output0, output1);
 		} else if (audio.posit11 == m && audio.fmoog) {
-			moog::compute(count, output0, output1, output0, output1);
+			gx_effects::moog::compute(count, output0, output1, output0, output1);
 		} else if (audio.posit12 == m && audio.fphaser) {
-			phaser::compute(count, output0, output1, output0, output1);
-		} else if (audio.posit15 == m && audio.fsd && stereodelay::is_inited()) {
-			stereodelay::compute(count, output0, output1, output0, output1);
-		}else if (audio.posit16 == m && audio.fse && stereoecho::is_inited()) {
-			stereoecho::compute(count, output0, output1, output0, output1);
+			gx_effects::phaser::compute(count, output0, output1, output0, output1);
+		} else if (audio.posit15 == m && audio.fsd && gx_effects::stereodelay::is_inited()) {
+			gx_effects::stereodelay::compute(count, output0, output1, output0, output1);
+		}else if (audio.posit16 == m && audio.fse && gx_effects::stereoecho::is_inited()) {
+			gx_effects::stereoecho::compute(count, output0, output1, output0, output1);
 		}else if (audio.posit19 == m && audio.famp ) {
-			gx_ampmodul::compute(count, output0, output1, output0, output1);
+			gx_amps::gx_ampmodul::compute(count, output0, output1, output0, output1);
 		}else if (audio.posit20 == m && audio.ftone ) {
-			tonecontroll::compute(count, output0, output1, output0, output1);
+			gx_effects::tonecontroll::compute(count, output0, output1, output0, output1);
 		}
 	}
 
@@ -610,10 +610,10 @@ void process_insert_buffers (int count, float* input1, float* output0, float* ou
 		    cout << "overload" << endl;
 		    //FIXME error message??
 	    } else {
-		    jconv_post::compute(count, output0, output1, conv_out0, conv_out1, output0, output1);
+		    gx_effects::jconv_post::compute(count, output0, output1, conv_out0, conv_out1, output0, output1);
 	    }
     }
-    gx_outputlevel::compute(count, output0, output1, output0, output1);
+    gx_effects::gx_outputlevel::compute(count, output0, output1, output0, output1);
 	(void)memcpy(get_frame, output0, sizeof(float)*count);
 	(void)memcpy(get_frame1, output1, sizeof(float)*count);
 }

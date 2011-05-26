@@ -22,14 +22,7 @@
  * ----------------------------------------------------------------------------
  */
 
-struct table1d {
-	float low;
-	float high;
-	float istep;
-	float data[TAB_SIZE];
-};
-
-struct table1d tubetable[] = {
+struct tabled tubetable[] = {
 	{ // Ri = 68k
 	-5,5,200, {
 	249.98706929,249.986851225,249.986629489,249.986404021,249.986174757,
