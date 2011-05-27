@@ -431,7 +431,7 @@ GxMoveBox::~GxMoveBox()
 
 GxMoveBox::GxMoveBox(gx_ui::GxUI& ui)
 {
-	m_paintbox.property_paint_func() = "eq_expose";
+	m_paintbox.property_paint_func() = "rectangle_skin_color_expose";
 	m_label.set_text("▼");
 	m_label.set_name ("rack_label");
 	m_label1.set_text("▲");
@@ -1202,7 +1202,7 @@ void GxMainInterface::openSpaceBox(const char* label)
 
 void GxMainInterface::openPaintBox(const char* label, const char* name)
 {
-	GxPaintBox * box =  new GxPaintBox(*this,pb_eq_expose);
+	GxPaintBox * box =  new GxPaintBox(*this,pb_rectangle_skin_color_expose);
 	box->m_box.set_border_width(4);
 	if (name) {
 		box->m_paintbox.set_name(name);
