@@ -371,6 +371,14 @@ gboolean level_meter_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_dat
 	cairo_pattern_add_color_stop_rgb (pat, 1, 0.03, 0.03, 0.03);
 	cairo_set_source (cr, pat);
 	cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-2);
+	cairo_fill_preserve (cr);
+	
+	pat = cairo_pattern_create_linear (x0, 0, x0+rect_width, 0);
+	cairo_pattern_add_color_stop_rgba (pat, 0.3, 0.01, 0.01, 0.02, 0.3);
+	cairo_pattern_add_color_stop_rgba (pat, 0.5, 0.6, 0.6, 0.7, 0.5);
+	cairo_pattern_add_color_stop_rgba (pat, 0.7, 0.01, 0.01, 0.01, 0.3);
+	cairo_set_source (cr, pat);
+	cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-2);
 	cairo_fill (cr);
 
 	for (uint32_t i = 0; i < sizeof (db_points)/sizeof (db_points[0]); ++i)

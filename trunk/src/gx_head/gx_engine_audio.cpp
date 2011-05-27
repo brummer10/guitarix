@@ -363,7 +363,7 @@ void process_buffers(int count, float* input, float* output0)
 	if (audio.fng) {
 	    gx_effects::noise_shaper::compute(count, output0, output0);
     }
-	  
+	
 	for (int m = 1; m < audio.mono_plug_counter; m++) {
 	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && audio.crybabypp) {
 		    gx_effects::crybaby::compute(count, output0, output0);

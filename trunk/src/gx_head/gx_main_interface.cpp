@@ -2494,11 +2494,8 @@ class GxWindowBox
 {
 private:
 	bool on_window_delete_event(GdkEventAny* event,gpointer d );
-	void on_check_resize();
 	bool on_button_pressed(GdkEventButton* event);
-	void on_rack_reorder_vertical();
-	void on_rack_reorder_horizontal();
-	
+
 public:
 	Gtk::HBox window;
 	Gtk::ScrolledWindow           m_scrolled_window; 
@@ -2506,8 +2503,6 @@ public:
 	Gtk::HBox box;
 	Gtk::HBox box1;
 	Gxw::PaintBox paintbox1;
-	RadioCheckItem      fOrderhRack;
-	RadioCheckItem      fOrdervRack;
 	Gtk::VBox rbox;
 	Gtk::Window m_regler_tooltip_window;
 	ToggleCheckButton m_tmono_rack;
@@ -2525,7 +2520,86 @@ bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d)
 	return false;
 }
 
-void GxWindowBox::on_rack_reorder_horizontal()
+bool GxWindowBox::on_button_pressed(GdkEventButton* event)
+{
+	if( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ){
+		const gchar * title = gtk_widget_get_name(GTK_WIDGET(window.gobj()));
+		if(strcmp(title,"MonoRack")==0) {
+			guint32 tim = gtk_get_current_event_time ();
+			gtk_menu_popup (GTK_MENU(menu_mono_rack),NULL,NULL,NULL,(gpointer) menu_mono_rack,2,tim);
+		return true;
+		}
+		else if (strcmp(title,"StereoRack")==0){
+			guint32 tim = gtk_get_current_event_time ();
+			gtk_menu_popup (GTK_MENU(menu_stereo_rack),NULL,NULL,NULL,(gpointer) menu_stereo_rack,2,tim);
+		return true;
+		}
+	}
+
+	return false;
+}
+
+GxWindowBox::GxWindowBox(gx_ui::GxUI& ui, 
+	const char *pb_2, Glib::ustring titl,GtkWidget * d):
+	window(Gtk::WINDOW_TOPLEVEL),
+	rbox(false, 4),
+	m_regler_tooltip_window(Gtk::WINDOW_POPUP)
+{
+	Glib::ustring title = titl;
+	window.add_events(Gdk::BUTTON_PRESS_MASK);
+	m_scrolled_window.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_AUTOMATIC); 
+	paintbox1.set_border_width(18);
+	paintbox1.property_paint_func() = pb_2;
+	window.signal_delete_event().connect(
+		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxWindowBox::on_window_delete_event),d));
+	//box.add(rbox);
+	paintbox1.add(m_scrolled_window);
+	m_scrolled_window.add(box);
+	window.add(paintbox1);
+	window.signal_button_press_event().connect(
+		sigc::mem_fun(*this, &GxWindowBox::on_button_pressed));
+	paintbox1.show();
+	box.show();
+	m_scrolled_window.show();
+	rbox.show();
+}
+
+class GxScrollBox
+{
+private:
+	RadioCheckItem      fOrderhRack;
+	RadioCheckItem      fOrdervRack;
+	Gtk::RadioMenuItem::Group group;
+	bool on_window_delete_event(GdkEventAny* event,gpointer d );
+	bool on_button_pressed(GdkEventButton* event);
+	void on_rack_reorder_vertical();
+	void on_rack_reorder_horizontal();
+	
+public:
+	Gtk::HBox window;
+	Gtk::ScrolledWindow           m_scrolled_window; 
+	Gtk::VPaned pan;
+	Gtk::HBox box;
+	Gtk::HBox box1;
+	Gxw::PaintBox paintbox1;
+	Gtk::VBox rbox;
+	Gtk::Window m_regler_tooltip_window;
+	ToggleCheckButton m_tmono_rack;
+	ToggleCheckButton m_tstereo_rack;
+	GxScrollBox(gx_ui::GxUI& ui, 
+		const char *pb_2, Glib::ustring titl,GtkWidget * d);
+	~GxScrollBox();
+};
+
+bool GxScrollBox::on_window_delete_event(GdkEventAny*, gpointer d)
+{
+	gtk_check_menu_item_set_active(
+				GTK_CHECK_MENU_ITEM(GTK_WIDGET(d)), FALSE
+				);
+	return false;
+}
+
+void GxScrollBox::on_rack_reorder_horizontal()
 {
 	if (fOrderhRack.get_active()) { //horizontal
 		
@@ -2568,7 +2642,8 @@ void GxWindowBox::on_rack_reorder_horizontal()
 		}
 	}
 }
-void GxWindowBox::on_rack_reorder_vertical()
+
+void GxScrollBox::on_rack_reorder_vertical()
 {
 	if (fOrdervRack.get_active()) { //vertical
 		
@@ -2610,21 +2685,7 @@ void GxWindowBox::on_rack_reorder_vertical()
 	} 
 }
 
-void GxWindowBox::on_check_resize()
-{
-	
-	if(!refresh_size){
-		//fprintf(stderr, " resize "); 
-		int y_org = window.get_height();
-		if(y_org >=81)
-		window.set_size_request (-1 , y_org -5 );
-	}else {
-		refresh_size -=1;
-		//fprintf(stderr, "count  "); 
-	 }
-}
-
-bool GxWindowBox::on_button_pressed(GdkEventButton* event)
+bool GxScrollBox::on_button_pressed(GdkEventButton* event)
 {
 	if( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ){
 		const gchar * title = gtk_widget_get_name(GTK_WIDGET(window.gobj()));
@@ -2643,36 +2704,45 @@ bool GxWindowBox::on_button_pressed(GdkEventButton* event)
 	return false;
 }
 
-GxWindowBox::GxWindowBox(gx_ui::GxUI& ui, 
+GxScrollBox::GxScrollBox(gx_ui::GxUI& ui, 
 	const char *pb_2, Glib::ustring titl,GtkWidget * d):
 	window(Gtk::WINDOW_TOPLEVEL),
 	rbox(false, 4),
 	m_regler_tooltip_window(Gtk::WINDOW_POPUP)
 {
 	Glib::ustring title = titl;
-	//window.set_decorated(true);
 	window.add_events(Gdk::BUTTON_PRESS_MASK);
-	//window.set_icon(Glib::wrap(ib));
-	//window.set_gravity(Gdk::GRAVITY_STATIC);
-	//window.set_title(title);
-	//window.property_destroy_with_parent() = true;
 	m_scrolled_window.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_AUTOMATIC); 
 	paintbox1.set_border_width(18);
 	paintbox1.property_paint_func() = pb_2;
 	window.signal_delete_event().connect(
-		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxWindowBox::on_window_delete_event),d));
-	//box.add(rbox);
+		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxScrollBox::on_window_delete_event),d));
 	paintbox1.add(m_scrolled_window);
 	m_scrolled_window.add(box);
 	window.add(paintbox1);
 	window.signal_button_press_event().connect(
-		sigc::mem_fun(*this, &GxWindowBox::on_button_pressed));
-	//window.signal_check_resize().connect(
-	//	sigc::mem_fun(*this, &GxWindowBox::on_check_resize));
+		sigc::mem_fun(*this, &GxScrollBox::on_button_pressed));
 	fOrderhRack.signal_activate().connect(
-		sigc::mem_fun(*this, &GxWindowBox::on_rack_reorder_horizontal));
+		sigc::mem_fun(*this, &GxScrollBox::on_rack_reorder_horizontal));
 	fOrdervRack.signal_activate().connect(
-		sigc::mem_fun(*this, &GxWindowBox::on_rack_reorder_vertical));
+		sigc::mem_fun(*this, &GxScrollBox::on_rack_reorder_vertical));
+		
+	const gchar * mtitle = "order Rack vertical";
+	set_label(fOrdervRack, _(mtitle));
+	group = fOrdervRack.get_group();
+	gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
+	gtk_menu_shell_append(GTK_MENU_SHELL(gui->getMenu("PluginMenu")), GTK_WIDGET(fOrdervRack.gobj()));
+	fOrdervRack.set_parameter(new SwitchParameter("system.order_rack_v",true,false));
+	fOrdervRack.show();
+	
+	mtitle = "order Rack horizotal";
+	set_label(fOrderhRack, _(mtitle));
+	fOrderhRack.set_group(group);
+	gtk_menu_shell_append(GTK_MENU_SHELL(gui->getMenu("PluginMenu")), GTK_WIDGET(fOrderhRack.gobj()));
+	fOrderhRack.set_active(false);
+	fOrderhRack.set_parameter(new SwitchParameter("system.order_rack_h",true,false));
+	fOrderhRack.show();
+	
 	paintbox1.show();
 	box.show();
 	m_scrolled_window.show();
@@ -2827,7 +2897,7 @@ void GxMainInterface::openPlugBox(const char* label)
 
 void GxMainInterface::openScrollBox(const char* label)
 {
-	GxWindowBox *box =  new GxWindowBox(*this, 
+	GxScrollBox *box =  new GxScrollBox(*this, 
 		pb_gxrack_expose, label, GTK_WIDGET(fShowRack.gobj()));
 	box->box.add(box->pan);
 	
@@ -2838,7 +2908,7 @@ void GxMainInterface::openScrollBox(const char* label)
 	box->pan.show();
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(box->pan.gobj()));
-	const gchar * title = "order Rack vertical";
+	/*const gchar * title = "order Rack vertical";
 	set_label(box->fOrdervRack, _(title));
 	Gtk::RadioMenuItem::Group group = box->fOrdervRack.get_group();
 	
@@ -2859,7 +2929,7 @@ void GxMainInterface::openScrollBox(const char* label)
 	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginMenu"]), GTK_WIDGET(box->fOrderhRack.gobj()));
 	box->fOrderhRack.set_active(false);
 	box->fOrderhRack.set_parameter(new SwitchParameter("system.order_rack_h",true,false));
-	box->fOrderhRack.show();
+	box->fOrderhRack.show();*/
 }
 
 void GxMainInterface::openAmpBox(const char* label)
