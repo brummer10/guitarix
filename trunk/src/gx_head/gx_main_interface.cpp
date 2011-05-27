@@ -2908,28 +2908,6 @@ void GxMainInterface::openScrollBox(const char* label)
 	box->pan.show();
 	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
 	pushBox(kBoxMode, GTK_WIDGET(box->pan.gobj()));
-	/*const gchar * title = "order Rack vertical";
-	set_label(box->fOrdervRack, _(title));
-	Gtk::RadioMenuItem::Group group = box->fOrdervRack.get_group();
-	
-	//guint accel_key = GDK_a   ;
-	//box->fOrdervRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	//                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME MOD1_MASK 
-	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginMenu"]), GTK_WIDGET(box->fOrdervRack.gobj()));
-	box->fOrdervRack.set_parameter(new SwitchParameter("system.order_rack_v",true,false));
-	box->fOrdervRack.show();
-	
-	
-	title = "order Rack horizotal";
-	set_label(box->fOrderhRack, _(title));
-	box->fOrderhRack.set_group(group);
-	// accel_key = GDK_a   ;
-	//box->fOrderhRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	//                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME MOD1_MASK 
-	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginMenu"]), GTK_WIDGET(box->fOrderhRack.gobj()));
-	box->fOrderhRack.set_active(false);
-	box->fOrderhRack.set_parameter(new SwitchParameter("system.order_rack_h",true,false));
-	box->fOrderhRack.show();*/
 }
 
 void GxMainInterface::openAmpBox(const char* label)
