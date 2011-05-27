@@ -31,9 +31,10 @@ GxWheel::framecount = 101 # use 0 for auto (assumes square frames)
 
 style "gx2_head_skin_switch_icons"
 {
-stock["switchit_on"] = {{"tactile_switchit_on.png"}}
-stock["switchit_off"] = {{"tactile_switchit_off.png"}}
+stock["switchit_on"] = {{"tactile_backlit_switchit_on.png"}}
+stock["switchit_off"] = {{"tactile_backlit_switchit_off.png"}}
 }
+
 
 class "GxToggleImage" style "gx2_head_skin_switch_icons"
 

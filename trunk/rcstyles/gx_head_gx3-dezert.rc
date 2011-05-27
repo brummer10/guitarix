@@ -35,6 +35,15 @@ GxWheel::framecount = 101 # use 0 for auto (assumes square frames)
                             #  and >1 for non squareframe animations
 }
 
+style "gx4_head_skin_switch_icons"
+{
+stock["switchit_on"] = {{"tactile_switchit_on.png"}}
+stock["switchit_off"] = {{"tactile_switchit_off.png"}}
+}
+
+class "GxToggleImage" style "gx4_head_skin_switch_icons"
+
+
 class "GxWheel" style "gx2_head_wheel_icons"
 
 style "gx_dezert-paintbox"
