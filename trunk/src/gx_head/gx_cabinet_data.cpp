@@ -575,8 +575,6 @@ static bool cab_conv_start()
 {
 	int cab_irsr = cab_ir_sr;
 	int cab_ircount = cab_ir_count;
-	float cab_irdata_c[cab_ircount];
-	(void)memset(cab_irdata_c, 0, cab_ircount*sizeof(float));
 	float *cab_irdata = cab_ir_data;
 	switch(gx_engine::audio.cabinet){
 		case 0: //"4x12"
@@ -640,6 +638,8 @@ static bool cab_conv_start()
 			cab_irdata = cab_ir11_data;
 			break;
 	}
+	float cab_irdata_c[cab_ircount];
+	(void)memset(cab_irdata_c, 0, cab_ircount*sizeof(float));
 	if(gx_engine::audio.cab_sum !=(gx_engine::audio.cab_level+gx_engine::audio.cab_bass+gx_engine::audio.cab_treble))
 		return false;
 	gx_engine::non_rt_processing(cab_ircount,cab_irdata,cab_irdata_c);
