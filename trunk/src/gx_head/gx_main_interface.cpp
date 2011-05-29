@@ -2542,7 +2542,7 @@ bool GxWindowBox::on_button_pressed(GdkEventButton* event)
 GxWindowBox::GxWindowBox(gx_ui::GxUI& ui, 
 	const char *pb_2, Glib::ustring titl,GtkWidget * d):
 	window(Gtk::WINDOW_TOPLEVEL),
-	rbox(false, 4),
+	rbox(false, 0),
 	m_regler_tooltip_window(Gtk::WINDOW_POPUP)
 {
 	Glib::ustring title = titl;
