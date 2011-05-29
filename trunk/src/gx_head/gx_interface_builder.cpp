@@ -221,7 +221,7 @@ void GxMainInterface::setup()
                                                   }
                                                   closeBox();
 
-                                                  openHorizontalBox("");
+                                                 /* openHorizontalBox("");
                                                   {
 
                                                        openVerticalBox1("");
@@ -244,14 +244,17 @@ void GxMainInterface::setup()
                                                        openSpaceBox("");
                                                        closeBox();
                                                   }
-                                                  closeBox();
-                                                  openSpaceBox("");
-                                                  closeBox();
-                                                  openHorizontalBox("");
-                                                  {
-                                                       create_selector("amp.tonestack.select");
-                                                       openVerticalBox1("");
-                                                       closeBox();
+                                                  closeBox();*/
+                                                  
+                                                  openVerticalBox1("Tonestack      ");
+												  {
+													  openHorizontalBox("");
+													  {
+														   create_selector("amp.tonestack.select");
+														   openVerticalBox1("");
+														   closeBox();
+													  }
+													  closeBox();
                                                   }
                                                   closeBox();
                                                   openSpaceBox("");

@@ -2571,7 +2571,6 @@ private:
 	RadioCheckItem      fOrdervRack;
 	Gtk::RadioMenuItem::Group group;
 	bool on_window_delete_event(GdkEventAny* event,gpointer d );
-	bool on_button_pressed(GdkEventButton* event);
 	void on_rack_reorder_vertical();
 	void on_rack_reorder_horizontal();
 	
@@ -2583,9 +2582,6 @@ public:
 	Gtk::HBox box1;
 	Gxw::PaintBox paintbox1;
 	Gtk::VBox rbox;
-	Gtk::Window m_regler_tooltip_window;
-	ToggleCheckButton m_tmono_rack;
-	ToggleCheckButton m_tstereo_rack;
 	GxScrollBox(gx_ui::GxUI& ui, 
 		const char *pb_2, Glib::ustring titl,GtkWidget * d);
 	~GxScrollBox();
@@ -2685,30 +2681,10 @@ void GxScrollBox::on_rack_reorder_vertical()
 	} 
 }
 
-bool GxScrollBox::on_button_pressed(GdkEventButton* event)
-{
-	if( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ){
-		const gchar * title = gtk_widget_get_name(GTK_WIDGET(window.gobj()));
-		if(strcmp(title,"MonoRack")==0) {
-			guint32 tim = gtk_get_current_event_time ();
-			gtk_menu_popup (GTK_MENU(menu_mono_rack),NULL,NULL,NULL,(gpointer) menu_mono_rack,2,tim);
-		return true;
-		}
-		else if (strcmp(title,"StereoRack")==0){
-			guint32 tim = gtk_get_current_event_time ();
-			gtk_menu_popup (GTK_MENU(menu_stereo_rack),NULL,NULL,NULL,(gpointer) menu_stereo_rack,2,tim);
-		return true;
-		}
-	}
-
-	return false;
-}
-
 GxScrollBox::GxScrollBox(gx_ui::GxUI& ui, 
 	const char *pb_2, Glib::ustring titl,GtkWidget * d):
 	window(Gtk::WINDOW_TOPLEVEL),
-	rbox(false, 4),
-	m_regler_tooltip_window(Gtk::WINDOW_POPUP)
+	rbox(false, 4)
 {
 	Glib::ustring title = titl;
 	window.add_events(Gdk::BUTTON_PRESS_MASK);
@@ -2720,8 +2696,6 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
 	paintbox1.add(m_scrolled_window);
 	m_scrolled_window.add(box);
 	window.add(paintbox1);
-	window.signal_button_press_event().connect(
-		sigc::mem_fun(*this, &GxScrollBox::on_button_pressed));
 	fOrderhRack.signal_activate().connect(
 		sigc::mem_fun(*this, &GxScrollBox::on_rack_reorder_horizontal));
 	fOrdervRack.signal_activate().connect(

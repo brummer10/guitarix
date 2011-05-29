@@ -108,8 +108,36 @@ void GxMainInterface::gx_build_mono_rack()
 					   closeBox();
 				  }
 				  closeBox();
+				 
 			 }
 			 closeBox();
+			 
+			 
+			 openPaintBox("");
+			 {
+				 openHorizontalBox("");
+				 {
+					 openVerticalBox(_("  Cabinet   "));
+					 { 
+						create_switch_no_caption(sw_switchit, "cab.on_off");
+					 }
+					 closeBox();
+					 openpaintampBox("");
+					 {
+						 create_selector("cab.select");
+						 create_small_rackknob("cab.bass","bass");
+						 create_small_rackknob("cab.treble","treble");
+						 create_small_rackknob("cab.Level","level");
+					 }
+					 closeBox();
+					 
+					
+				 }
+				 closeBox();
+			 }
+			 closeBox();
+			  
+			 
 		 }
 		 closeBox();
 		 //low high pass filter
@@ -722,6 +750,7 @@ void GxMainInterface::gx_build_mono_rack()
 										  create_small_rackknobr("tremolo.depth",  _("Depth"));
 										  openSpaceBox("");
 										  closeBox();
+										  create_small_rackknob("tremolo.wet_dry",  _("dry/wet"));
 									  }
 									  closeBox();
 								  }

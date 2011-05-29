@@ -144,6 +144,8 @@ void AudioVariables::register_parameter()
 	static const char *crybaby_autowah[] = {N_("manual"),N_("auto"),0};
 	registerEnumParam("crybaby.autowah", "select", crybaby_autowah, &fautowah, 0);
 	
+	
+	
 	//static const char *eqt_onetwo[] = {"fixed","scale",0};
 	//registerEnumParam("eqt.onetwo", "select", eqt_onetwo, &witcheq, 0);
 	
@@ -202,6 +204,18 @@ inline float noise_gate(int sf, float* input, float ngate)
 		return ngate * 0.996;
 	} else {
 		return ngate;
+	}
+}
+
+void compensate_cab(int count, float *input0, float *output0)
+{
+	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * (-audio.cab_level*2.0))));
+	static double 	fRec0[2] = {0,0};
+	for (int i=0; i<count; i++) {
+		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
+		output0[i] = (FAUSTFLOAT)((double)input0[i] * fRec0[0]);
+		// post processing
+		fRec0[1] = fRec0[0];
 	}
 }
 
@@ -549,11 +563,11 @@ void process_buffers(int count, float* input, float* output0)
     }
 
     if(audio.fcab) {
-		
+		compensate_cab(count,output0 , output0);
         if (!cab_conv.compute(count, output0))
             cout << "overload" << endl;
             //FIXME error message??
-        if(audio.cab_switched != audio.cabinet)cab_conv_restart();
+        if(audio.cab_switched != audio.cabinet || audio.cab_sum !=(audio.cab_level+audio.cab_bass+audio.cab_treble))cab_conv_restart();
     }
 
     if (audio.fboost) {

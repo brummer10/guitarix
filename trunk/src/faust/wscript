@@ -137,7 +137,8 @@ def build(bld):
         'biquad.dsp',
         'selecteq.dsp',
         'jconv_post.dsp',
-         'phaser.dsp',
+        'phaser.dsp',
+        'cabinet_impulse_former.dsp',
         #gx-2
         'gxamp.dsp',
         'gxamp2.dsp',

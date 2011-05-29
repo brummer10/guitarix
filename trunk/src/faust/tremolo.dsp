@@ -41,4 +41,7 @@ tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
     lfo = select2(SINE, trianglewave(freq), sine(freq));
 };
 
-process = *(tremolo(vslider("freq",5,0.1,50,0.1),vslider("depth",0.5,0,1,0.01)));
+wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
+dry = 1 - wet;
+
+process =  _<:*(dry),(*(wet): *(tremolo(vslider("freq",5,0.1,50,0.1),vslider("depth",0.5,0,1,0.01)))):>_;
