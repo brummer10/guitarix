@@ -221,7 +221,7 @@ void compensate_cab(int count, float *input0, float *output0)
 
 void cab_conv_restart()
 {
-	cab_conv.stop();
+	//cab_conv.stop();
 	gx_gui::cab_conv_restart();
 }
 

@@ -185,8 +185,8 @@ namespace noisegate { float ngate = 1; }  // noise-gate, modifies output gain
 static struct CabParams { CabParams(); } CabParams;
 CabParams::CabParams() {
 	registerVar("cab.Level","","S","",&audio.cab_level, 1.0, 0.5, 5.0, 0.5);
-	registerVar("cab.bass","","S","",&audio.cab_bass, 0.0, -20.0, 20.0, 1.0);
-	registerVar("cab.treble","","S","",&audio.cab_treble, 0.0, -20.0, 20.0, 1.0);
+	registerVar("cab.bass","","S","",&audio.cab_bass, 0.0, -10.0, 10.0, 0.5);
+	registerVar("cab.treble","","S","",&audio.cab_treble, 0.0, -10.0, 10.0, 0.5);
 }
 
 #include "faust/bassbooster.cc"
@@ -223,11 +223,14 @@ CabParams::CabParams() {
 #include "faust/phaser_mono.cc"
 #include "faust/chorus_mono.cc"
 #include "faust/flanger_mono.cc"
-#include "faust/cabinet_impulse_former.cc"
+#include "cabinet_impulse_former.cc"
 }
 
-void non_rt_processing(int count, float* input, float* output0) {
+void init_non_rt_processing() {
 	gx_effects::cabinet_impulse_former::init(48000);
+}
+
+void non_rt_processing(int count, const float* input, float* output0) {
 	gx_effects::cabinet_impulse_former::compute(count,input,output0);
 }
 

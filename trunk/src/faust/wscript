@@ -138,7 +138,7 @@ def build(bld):
         'selecteq.dsp',
         'jconv_post.dsp',
         'phaser.dsp',
-        'cabinet_impulse_former.dsp',
+        #'cabinet_impulse_former.dsp',
         #gx-2
         'gxamp.dsp',
         'gxamp2.dsp',
