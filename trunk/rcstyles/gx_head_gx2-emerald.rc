@@ -56,6 +56,8 @@ stock["main_image"] = {{"gx_green18.png"}}
 
 class "GxPaintBox" style "gx2_head-paintbox"
 
+
+
 style "gx2_head"
 {
 
@@ -468,3 +470,9 @@ widget "*.label_reset" style:highest "gx2_head_p_style"
 widget_class "*GtkScrolledWindow*" style:highest "gx2_head_pa_style"
 widget "*.rack_button" style:highest "gx2_head_pa_style"
 widget_class "*GtkComboBox*" style:highest "gx2_head_pair_style"
+style "gx2_head_tooltip"
+{
+bg[NORMAL] = { 0.0, 0.9, 0.2 }
+}
+
+widget "gtk-tooltip" style:highest "gx2_head_tooltip"
