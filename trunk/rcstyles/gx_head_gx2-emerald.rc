@@ -71,7 +71,7 @@ fg[PRELIGHT] = { 0.90, 0.90, 0.90 }
 fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }
 fg[SELECTED] = { 0.70, 0.70, 0.70 }
 #background in modules
-bg[NORMAL] = { 0.40, 0.50, 0.40 }
+bg[NORMAL] = { 0, 0, 0 }
 bg[PRELIGHT] = "#303084"
 bg[ACTIVE] = { 0.0, 0.0, 0.0 }
 bg[INSENSITIVE] = "#c4c0c0"
