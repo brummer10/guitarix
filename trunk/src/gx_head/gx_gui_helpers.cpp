@@ -623,7 +623,7 @@ void GxMainInterface::on_srack_activate()
 		gtk_widget_ref(srack_widget);
 		GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(srack_widget));
 		gtk_container_remove(GTK_CONTAINER(parent), srack_widget);
-		gtk_container_add(GTK_CONTAINER(parent), srack_widget);
+		gtk_box_pack_start(GTK_BOX(parent), srack_widget, false, true, 0);
 		gtk_widget_unref(srack_widget);
 		
 		if (!fShowRRack.get_active()) {
@@ -633,7 +633,7 @@ void GxMainInterface::on_srack_activate()
 		gtk_widget_ref(srack_widget);
 		GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(srack_widget));
 		gtk_container_remove(GTK_CONTAINER(parent), srack_widget);
-		gtk_container_add(GTK_CONTAINER(parent), srack_widget);
+		gtk_box_pack_start(GTK_BOX(parent), srack_widget, false, true, 0);
 		gtk_widget_unref(srack_widget);
 		gtk_widget_hide(srack_widget);
 	}
