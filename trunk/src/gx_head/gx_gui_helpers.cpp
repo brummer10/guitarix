@@ -451,51 +451,52 @@ gboolean gx_set_default_ssize(gpointer data)
 //----- show extendend settings slider
 void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 {
+	gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)) == TRUE) {
 		
 		GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
 		gtk_widget_show_all(GTK_WIDGET(plug));
-		/*GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(plug));
+		GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(plug));
 		GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
-		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
-		GtkWidget *box3 = gtk_widget_get_parent(GTK_WIDGET(box2));
-		box2 = gtk_widget_get_parent(GTK_WIDGET(box3));
-		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
-		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
-		GtkRequisition my_size;
-		gtk_widget_size_request(GTK_WIDGET(box1),&my_size);
-		gtk_widget_set_size_request (GTK_WIDGET (box3),my_size.width , 440 );
-		const gchar * title = gtk_widget_get_name(GTK_WIDGET(box1));
-		if(strcmp(title,"MonoRack")==0) {
-		if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
-			g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 5, gx_set_default,gpointer(box3),NULL);
-		}else{
-		if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
-			g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 5, gx_set_default_size,gpointer(box3),NULL);
-		}*/
-
-		
+		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
+		box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
+		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
+		box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
+		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
+		const gchar * name = gtk_widget_get_name(GTK_WIDGET(vbox));
+		if(strcmp(name,"GtkViewport")==0) {
+			gtk_widget_hide(GTK_WIDGET(vbox));
+			gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+			gtk_widget_show(GTK_WIDGET(vbox));
+			
+			gtk_widget_set_size_request (GTK_WIDGET (gui->RBox),-1, 460 );
+				if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
+					g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,gpointer(fWindow),NULL);
+				if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
+					g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50, gx_gui::gx_set_default,gpointer(gui->RBox),NULL);
+		}
 	} else {
 		GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
 		gtk_widget_hide(GTK_WIDGET(plug));
-		/*GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(plug));
+		GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(plug));
 		GtkWidget *box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
-		GtkWidget *box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
-		GtkWidget *box3 = gtk_widget_get_parent(GTK_WIDGET(box2));
-		box2 = gtk_widget_get_parent(GTK_WIDGET(box3));
-		box1 = gtk_widget_get_parent(GTK_WIDGET(box2));
-		box2 = gtk_widget_get_parent(GTK_WIDGET(box1));
-		GtkRequisition my_size;
-		gtk_widget_size_request(GTK_WIDGET(box1),&my_size);
-		gtk_widget_set_size_request (GTK_WIDGET (box3),my_size.width , 440 );
-		const gchar * title = gtk_widget_get_name(GTK_WIDGET(box1));
-		if(strcmp(title,"MonoRack")==0) {
-		if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
-			g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 5, gx_set_default,gpointer(box3),NULL);
-		}else{
-		if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
-			g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 5, gx_set_default_size,gpointer(box3),NULL);
-		}*/
+		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
+		box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
+		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
+		box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
+		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
+		const gchar * name = gtk_widget_get_name(GTK_WIDGET(vbox));
+		if(strcmp(name,"GtkViewport")==0) {
+			gtk_widget_hide(GTK_WIDGET(vbox));
+			gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+			gtk_widget_show(GTK_WIDGET(vbox));
+			
+			gtk_widget_set_size_request (GTK_WIDGET (gui->RBox),-1, 460 );
+				if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
+					g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,gpointer(fWindow),NULL);
+				if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
+					g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50, gx_gui::gx_set_default,gpointer(gui->RBox),NULL);
+		}
 	}
 }
 
