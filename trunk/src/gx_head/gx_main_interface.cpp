@@ -2710,7 +2710,7 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
 	fOrderhRack.set_active(false);
 	fOrderhRack.set_parameter(new SwitchParameter("system.order_rack_h",true,false));
 	fOrderhRack.show();
-	box.set_name("thisis");
+	
 	paintbox1.show();
 	box.show();
 	m_scrolled_window.show();
