@@ -87,8 +87,8 @@ void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (fslider0 + 0.09999999999999998);
 	double 	fSlow1 = fslider1;
-	int 	iSlow2 = int((int((0 - fSlow1)) & 4095));
-	int 	iSlow3 = int((int((1 - fSlow1)) & 4095));
+	int 	iSlow2 = int((int((1 - fSlow1)) & 4095));
+	int 	iSlow3 = int((int((0 - fSlow1)) & 4095));
 	double 	fSlow4 = (fConst23 * fslider2);
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;

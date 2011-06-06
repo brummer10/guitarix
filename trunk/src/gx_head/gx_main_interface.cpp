@@ -2592,8 +2592,9 @@ void GxScrollBox::on_rack_reorder_horizontal()
 		
 		if(gx_gui::srack_widget) {
 			box.hide();
-			gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
-			gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+			gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
+			if(gtk_window_get_resizable(GTK_WINDOW (fWindow)))
+				gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 			gtk_widget_ref(gx_gui::srack_widget);
 			GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::srack_widget));
 			gtk_container_remove(GTK_CONTAINER(parent), gx_gui::srack_widget);
@@ -2601,8 +2602,8 @@ void GxScrollBox::on_rack_reorder_horizontal()
 			gtk_widget_unref(gx_gui::srack_widget);
 			box.show();
 			parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::rack_tool_bar));
-			const gchar * title = gtk_widget_get_name(parent);
-			if (strcmp(title,"gtkmm__GtkVBox")==0) {
+			
+			if (strcmp(gtk_widget_get_name(parent),"gtkmm__GtkVBox")==0) {
 				gtk_widget_ref(gx_gui::rack_tool_bar);
 				gtk_widget_ref(gx_gui::tuner_widget);
 				gtk_container_remove(GTK_CONTAINER(parent), gx_gui::rack_tool_bar);
@@ -2637,8 +2638,9 @@ void GxScrollBox::on_rack_reorder_vertical()
 		
 		if(gx_gui::srack_widget) {
 			box.hide();
-			gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
-			gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+			gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
+			if(gtk_window_get_resizable(GTK_WINDOW (fWindow)))
+				gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 			gtk_widget_ref(gx_gui::srack_widget);
 			GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::srack_widget));
 			gtk_container_remove(GTK_CONTAINER(parent), gx_gui::srack_widget);
@@ -2646,8 +2648,8 @@ void GxScrollBox::on_rack_reorder_vertical()
 			gtk_widget_unref(gx_gui::srack_widget);
 			box.show();
 			parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::rack_tool_bar));
-			const gchar * title = gtk_widget_get_name(parent);
-			if (strcmp(title,"gtkmm__GtkHBox")==0) {
+			
+			if (strcmp(gtk_widget_get_name(parent),"gtkmm__GtkHBox")==0) {
 				gtk_widget_ref(gx_gui::rack_tool_bar);
 				gtk_widget_ref(gx_gui::tuner_widget);
 				gtk_container_remove(GTK_CONTAINER(parent), gx_gui::rack_tool_bar);

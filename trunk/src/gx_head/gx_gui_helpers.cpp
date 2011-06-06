@@ -463,10 +463,12 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
 		box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
 		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
-		const gchar * name = gtk_widget_get_name(GTK_WIDGET(vbox));
-		if(strcmp(name,"GtkViewport")==0) {
+		
+		//if order is horizontal, force resize the rack widget width
+		if(strcmp(gtk_widget_get_name(GTK_WIDGET(vbox)),"GtkViewport")==0) {
 			gtk_widget_hide(GTK_WIDGET(vbox));
-			gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+			if(gtk_window_get_resizable(GTK_WINDOW (fWindow)))
+				gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 			gtk_widget_show(GTK_WIDGET(vbox));
 			
 			gtk_widget_set_size_request (GTK_WIDGET (gui->RBox),-1, 460 );
@@ -485,10 +487,12 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
 		box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
 		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
-		const gchar * name = gtk_widget_get_name(GTK_WIDGET(vbox));
-		if(strcmp(name,"GtkViewport")==0) {
+		
+		//if order is horizontal, force resize the rack widget width
+		if(strcmp(gtk_widget_get_name(GTK_WIDGET(vbox)),"GtkViewport")==0) {
 			gtk_widget_hide(GTK_WIDGET(vbox));
-			gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+			if(gtk_window_get_resizable(GTK_WINDOW (fWindow)))
+				gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 			gtk_widget_show(GTK_WIDGET(vbox));
 			
 			gtk_widget_set_size_request (GTK_WIDGET (gui->RBox),-1, 460 );
@@ -618,26 +622,39 @@ void GxMainInterface::on_rrack_activate()
 //----menu function gx_rack
 void GxMainInterface::on_srack_activate()
 {
-	gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+	if(gtk_window_get_resizable(GTK_WINDOW (fWindow)))
+		gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 	if (fShowSRack.get_active()) {
 		gtk_widget_show(srack_widget);
-		gtk_widget_ref(srack_widget);
-		GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(srack_widget));
-		gtk_container_remove(GTK_CONTAINER(parent), srack_widget);
-		gtk_box_pack_start(GTK_BOX(parent), srack_widget, false, true, 0);
-		gtk_widget_unref(srack_widget);
 		
+		GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(srack_widget));
+		GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(parent));
+		vbox = gtk_widget_get_parent(GTK_WIDGET(vbox));
+		vbox = gtk_widget_get_parent(GTK_WIDGET(vbox));
+		//if order is horizontal, force resize the rack widget width
+		if(strcmp(gtk_widget_get_name(GTK_WIDGET(vbox)),"GtkViewport")==0) {
+			gtk_widget_hide(GTK_WIDGET(vbox));
+			
+			gtk_widget_show(GTK_WIDGET(vbox));
+		}
 		if (!fShowRRack.get_active()) {
 			fShowRRack.set_active(true);
 		}
 	} else {
-		gtk_widget_ref(srack_widget);
-		GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(srack_widget));
-		gtk_container_remove(GTK_CONTAINER(parent), srack_widget);
-		gtk_box_pack_start(GTK_BOX(parent), srack_widget, false, true, 0);
-		gtk_widget_unref(srack_widget);
 		gtk_widget_hide(srack_widget);
+		
+		GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(srack_widget));
+		GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(parent));
+		vbox = gtk_widget_get_parent(GTK_WIDGET(vbox));
+		vbox = gtk_widget_get_parent(GTK_WIDGET(vbox));
+		//if order is horizontal, force resize the rack widget size
+		if(strcmp(gtk_widget_get_name(GTK_WIDGET(vbox)),"GtkViewport")==0) {
+			gtk_widget_hide(GTK_WIDGET(vbox));
+			
+			gtk_widget_show(GTK_WIDGET(vbox));
+		}
 	}
+	
 	gtk_widget_set_size_request (GTK_WIDGET (RBox),-1, 460 );
 	if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
 			g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,gpointer(fWindow),NULL);
