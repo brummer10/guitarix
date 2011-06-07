@@ -2558,9 +2558,7 @@ GxWindowBox::GxWindowBox(gx_ui::GxUI& ui,
 class GxScrollBox
 {
 private:
-	RadioCheckItem      fOrderhRack;
-	RadioCheckItem      fOrdervRack;
-	Gtk::RadioMenuItem::Group group;
+	
 	bool on_window_delete_event(GdkEventAny* event,gpointer d );
 	void on_rack_reorder_vertical();
 	void on_rack_reorder_horizontal();
@@ -2573,6 +2571,9 @@ public:
 	Gxw::PaintBox paintbox1;
 	Gtk::VBox rbox;
 	Gtk::VBox vbox;
+	RadioCheckItem      fOrderhRack;
+	RadioCheckItem      fOrdervRack;
+	Gtk::RadioMenuItem::Group group;
 	GxScrollBox(gx_ui::GxUI& ui, 
 		const char *pb_2, Glib::ustring titl,GtkWidget * d);
 	~GxScrollBox();
