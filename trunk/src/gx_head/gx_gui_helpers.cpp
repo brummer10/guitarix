@@ -462,10 +462,9 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 		box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
 		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
 		box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
-		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
 		
 		//if order is horizontal, force resize the rack widget width
-		if(strcmp(gtk_widget_get_name(GTK_WIDGET(vbox)),"GtkViewport")==0) {
+		if(strcmp(gtk_widget_get_name(GTK_WIDGET(box1)),"GtkViewport")==0) {
 			gtk_widget_hide(GTK_WIDGET(vbox));
 			if(gtk_window_get_resizable(GTK_WINDOW (fWindow)))
 				gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
@@ -486,10 +485,9 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data)
 		box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
 		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
 		box1 = gtk_widget_get_parent(GTK_WIDGET(vbox));
-		vbox = gtk_widget_get_parent(GTK_WIDGET(box1));
 		
 		//if order is horizontal, force resize the rack widget width
-		if(strcmp(gtk_widget_get_name(GTK_WIDGET(vbox)),"GtkViewport")==0) {
+		if(strcmp(gtk_widget_get_name(GTK_WIDGET(box1)),"GtkViewport")==0) {
 			gtk_widget_hide(GTK_WIDGET(vbox));
 			if(gtk_window_get_resizable(GTK_WINDOW (fWindow)))
 				gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
@@ -607,7 +605,8 @@ void GxMainInterface::on_rrack_activate()
 		//fShowRack.set_active(true);
 		//fShowSRack.set_active(true);
 	} else {
-		gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+		if(gtk_window_get_resizable(GTK_WINDOW (fWindow)))
+			gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 		gtk_widget_hide(RBox);
 		//fShowRack.set_active(false);
 		//fShowSRack.set_active(false);
@@ -673,7 +672,8 @@ void GxMainInterface::on_toolbar_activate()
 		GtkAllocation my_size;
 		gtk_widget_get_allocation(GTK_WIDGET(RBox),&my_size);
 		gtk_widget_set_size_request (GTK_WIDGET (RBox),-1, my_size.height);
-		gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+		if(gtk_window_get_resizable(GTK_WINDOW (fWindow)))
+			gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 		gtk_widget_hide(rack_tool_bar);
 	}
 	if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
@@ -696,7 +696,8 @@ void GxMainInterface::on_tuner_activate()
 		GtkAllocation my_size;
 		gtk_widget_get_allocation(GTK_WIDGET(RBox),&my_size);
 		gtk_widget_set_size_request (GTK_WIDGET (RBox),-1, my_size.height);
-		gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
+		if(gtk_window_get_resizable(GTK_WINDOW (fWindow)))
+			gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
 		shownote = 0;
 		fTuner.hide();
 		gtk_widget_hide(tuner_widget);

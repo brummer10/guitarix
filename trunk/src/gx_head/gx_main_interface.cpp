@@ -2565,7 +2565,8 @@ private:
 	
 public:
 	Gtk::HBox window;
-	Gtk::ScrolledWindow           m_scrolled_window; 
+	Gtk::ScrolledWindow m_scrolled_window; 
+	Gtk::ScrolledWindow m_scrolled_window2; 
 	Gtk::HBox box;
 	Gtk::HBox box1;
 	Gxw::PaintBox paintbox1;
@@ -2592,7 +2593,7 @@ void GxScrollBox::on_rack_reorder_horizontal()
 	if (fOrderhRack.get_active()) { //horizontal
 		
 		if(gx_gui::srack_widget) {
-			box.hide();
+			paintbox1.hide();
 			gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
 			if(gtk_window_get_resizable(GTK_WINDOW (fWindow)))
 				gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
@@ -2601,7 +2602,8 @@ void GxScrollBox::on_rack_reorder_horizontal()
 			gtk_container_remove(GTK_CONTAINER(parent), gx_gui::srack_widget);
 			gtk_box_pack_start(GTK_BOX(box1.gobj()), gx_gui::srack_widget, false, true, 0);
 			gtk_widget_unref(gx_gui::srack_widget);
-			box.show();
+			m_scrolled_window2.show();
+			paintbox1.show();
 			parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::rack_tool_bar));
 			
 			if (strcmp(gtk_widget_get_name(parent),"gtkmm__GtkVBox")==0) {
@@ -2638,7 +2640,7 @@ void GxScrollBox::on_rack_reorder_vertical()
 	if (fOrdervRack.get_active()) { //vertical
 		
 		if(gx_gui::srack_widget) {
-			box.hide();
+			paintbox1.hide();
 			gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
 			if(gtk_window_get_resizable(GTK_WINDOW (fWindow)))
 				gtk_window_set_resizable(GTK_WINDOW (fWindow) , FALSE);
@@ -2647,7 +2649,8 @@ void GxScrollBox::on_rack_reorder_vertical()
 			gtk_container_remove(GTK_CONTAINER(parent), gx_gui::srack_widget);
 			gtk_box_pack_start(GTK_BOX(rbox.gobj()), gx_gui::srack_widget, false, true, 0);
 			gtk_widget_unref(gx_gui::srack_widget);
-			box.show();
+			m_scrolled_window2.hide();
+			paintbox1.show();
 			parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::rack_tool_bar));
 			
 			if (strcmp(gtk_widget_get_name(parent),"gtkmm__GtkHBox")==0) {
@@ -2686,12 +2689,16 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
 	window.add_events(Gdk::BUTTON_PRESS_MASK);
 	m_scrolled_window.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_ALWAYS); 
 	m_scrolled_window.set_shadow_type(Gtk::SHADOW_NONE);
+	m_scrolled_window2.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_ALWAYS); 
+	m_scrolled_window2.set_shadow_type(Gtk::SHADOW_NONE);
 	paintbox1.set_border_width(18);
 	paintbox1.property_paint_func() = pb_2;
 	window.signal_delete_event().connect(
 		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxScrollBox::on_window_delete_event),d));
 	paintbox1.add(m_scrolled_window);
+	paintbox1.add(m_scrolled_window2);
 	m_scrolled_window.add(box);
+	m_scrolled_window2.add(vbox);
 	window.add(paintbox1);
 	fOrderhRack.signal_activate().connect(
 		sigc::mem_fun(*this, &GxScrollBox::on_rack_reorder_horizontal));
@@ -2717,6 +2724,7 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
 	paintbox1.show();
 	box.show();
 	m_scrolled_window.show();
+	//m_scrolled_window2.show();
 	rbox.show();
 }
 
@@ -2869,7 +2877,7 @@ void GxMainInterface::openScrollBox(const char* label)
 	GxScrollBox *scrollbox =  new GxScrollBox(*this, 
 		pb_gxrack_expose, label, GTK_WIDGET(fShowRack.gobj()));
 	scrollbox->box.pack_start(scrollbox->rbox, true, true, 0);
-	scrollbox->box.pack_start(scrollbox->vbox, false, false, 0);
+	//scrollbox->box.pack_start(scrollbox->vbox, false, false, 0);
 	scrollbox->vbox.pack_start(scrollbox->box1, false, false, 0);
 	
 	RBox = GTK_WIDGET(scrollbox->window.gobj());
