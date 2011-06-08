@@ -67,6 +67,7 @@ public:
 	bool fpm;
 	bool fflanger_mono;
 	bool ffeedback;
+	bool ftonestack;
 	
 
 	int fcheckbox7;
@@ -96,6 +97,8 @@ public:
 	int ffb;
 	int fsd;
 	int fse;
+	int fts;
+	int fcb;
 	int gxtube;
 	int mono_plug_counter;
 	int stereo_plug_counter;
@@ -124,6 +127,8 @@ public:
 	float posit23;
 	float posit24;
 	float posit25;
+	float posit26;
+	float posit27;
 	float posit00;
 	float fnglevel;
 	float posit0;

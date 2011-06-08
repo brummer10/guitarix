@@ -157,8 +157,9 @@ template <>      inline int faustpower<1>(int x)        { return x; }
 // gxdistortion
 static struct GxDistortionParams { GxDistortionParams(); } GxDistortionParams;
 GxDistortionParams::GxDistortionParams() {
-	static FAUSTFLOAT v1;
+	static FAUSTFLOAT v1,v2;
 	registerVar("gxdistortion.drive","","S","",&v1, 0.35, 0.0, 1.0, 0.01);
+	registerVar("gxdistortion.wet_dry","","S","",&v2, 100.0, 0.0, 100.0, 1.0);
 }
 
 namespace gx_amps {
@@ -167,12 +168,7 @@ namespace gx_amps {
 #include "faust/gxamp3.cc"
 #include "faust/gxamp4.cc"
 #include "faust/gxamp5.cc"
-#include "faust/gxamp6.cc"
-#include "faust/gxamp7.cc"
-#include "faust/gxamp8.cc"
-#include "faust/gxamp9.cc"
 #include "faust/gxamp10.cc"
-#include "faust/gxamp11.cc"
 #include "faust/gxamp12.cc"
 #include "faust/gx_ampmodul.cc"
 }

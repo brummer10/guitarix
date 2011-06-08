@@ -110,7 +110,7 @@ filterbankN(lfreqs) = filterbankn(3,lfreqs);
 
 //-distortion
 
-dist(drive) = wet_dry_mix(wet_dry, _: distortion) with {
+distdrive(drive) = wet_dry_mix(wet_dry, _: distortion) with {
 
 //drive			= vslider("drive", 0.35, 0, 1, 0.01);
 
@@ -128,4 +128,17 @@ distortion	= lowpassN(2,15000.0): highpass1(31.0)  : filterbankN((F,(F1,F2))) : 
 wet_dry = (drive - 0.5) * 2;
 };
 
-process 		= dist(vslider("drive", 0.35, 0, 1, 0.01));
+gx_drive(drive) = _ <: _ + nonlin(4,4,0.125) * drive * 10 ;
+
+wetdry = vslider("wet_dry[name:wet/dry]",  100, 0, 100, 1) : /(100);
+drive = vslider("drive", 0.35, 0, 1, 0.01);
+
+dist(drive,wetdry) 		=_<:(*(dry): gx_drive(drive)),(*(wetdry):distdrive(drive)):>_
+	with{
+	
+	dry = 1 - wetdry;
+	
+	};
+
+
+process = distdrive;

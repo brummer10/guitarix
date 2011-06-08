@@ -144,6 +144,8 @@ public:
 	bool fchorus_mono_dialog;
 	bool fflanger_mono_dialog;
 	bool ffeedback_dialog;
+	bool ftonestack_dialog;
+	bool fcabinet_dialog;
 
 void register_gui_parameter();
 };

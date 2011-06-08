@@ -67,7 +67,6 @@ void GxMainInterface::setup()
 
                openVerticalBox("");
                {
-
                     openEventBox(" "); //main widget start
                     {
                          //----- this is a dummy widget, only for save settings for the latency warning dialog
@@ -94,10 +93,10 @@ void GxMainInterface::setup()
                                         closeBox();
                                         openSpaceBox("");
                                         closeBox();
-
-
                                         openVerticalBox("");
                                         {
+                                             openSpaceBox("");
+                                             closeBox();
                                              openSpaceBox("");
                                              closeBox();
                                              openSpaceBox("");
@@ -113,13 +112,11 @@ void GxMainInterface::setup()
                                              create_bigknob("amp2.stage1.Pregain", _("Pre gain"));
                                              openSpaceBox("");
                                              closeBox();
-
                                         }
                                         closeBox();
+                                        
                                         openSpaceBox("");
                                         closeBox();
-
-
 
                                         openVerticalBox("");
                                         {
@@ -135,140 +132,16 @@ void GxMainInterface::setup()
                                              closeBox();
                                              openSpaceBox("");
                                              closeBox();
-
-
+                                             openSpaceBox("");
+                                             closeBox();
                                              create_bigknob("gxdistortion.drive",_("  Drive "));
                                              openSpaceBox("");
                                              closeBox();
-
-                                        }
-                                        closeBox();
-
-                                        openSpaceBox("");
-                                        closeBox();
-
-
-
-
-                                        openHorizontalBox("");
-                                        {
-                                             openVerticalBox("");
-                                             {
-                                                  openSpaceBox("");
-                                                  closeBox();
-                                                  openSpaceBox("");
-                                                  closeBox();
-                                                  openSpaceBox("");
-                                                  closeBox();
-                                                  openSpaceBox("");
-                                                  closeBox();
-                                                  openSpaceBox("");
-                                                  closeBox();
-                                                  openSpaceBox("");
-                                                  closeBox();
-
-
-                                                  create_bigknob("amp2.stage2.gain1", _("Master gain"));
-                                                  openSpaceBox("");
-                                                  closeBox();
-
-                                             }
-                                             closeBox();
-
-                                        }
-                                        closeBox();//end switchbox
-                                        openSpaceBox("");
-                                        closeBox();
-
-
-
-
-                                        openFlipLabelBox(_("tone"));
-                                        {
-                                             openVerticalBox("");
-                                             {
-                                                  openSpaceBox("");
-                                                  closeBox();
-
-
-
-                                                  openSpaceBox("");
-                                                  closeBox();
-                                                  openHorizontalBox("");
-                                                  {
-                                                       openSpaceBox("");
-                                                       closeBox();
-                                                       create_smallknob("amp.tonestack.Bass",_("Bass"));
-                                                       openSpaceBox("");
-                                                       closeBox();
-                                                       create_smallknob("amp.tonestack.Middle",_("Middle"));
-                                                       openSpaceBox("");
-                                                       closeBox();
-                                                       create_smallknob("amp.tonestack.Treble",_("Treble"));
-                                                       openSpaceBox("");
-                                                       closeBox();
-                                                  }
-                                                  closeBox();
-                                                  openHorizontalBox("");
-                                                  {
-                                                       openVerticalBox1("");
-                                                       closeBox();
-                                                       create_switch(sw_minitoggle, "amp.bass_boost.on_off", _(" Bass boost  "), Gtk::POS_RIGHT);
-                                                       openSpaceBox("");
-                                                       closeBox();
-                                                       openSpaceBox("");
-                                                       closeBox();
-                                                  }
-                                                  closeBox();
-
-                                                 /* openHorizontalBox("");
-                                                  {
-
-                                                       openVerticalBox1("");
-                                                       openHorizontalBox("");
-                                                       {
-                                                            openSpaceBox("");
-                                                            closeBox();
-                                                            create_cab_switch("cab.on_off",_(" Cabinet        "), Gtk::POS_TOP);
-                                                            openSpaceBox("");
-                                                            closeBox();
-                                                            openSpaceBox("");
-                                                            closeBox();
-
-                                                       }
-                                                       closeBox();
-                                                       // closeBox();
-                                                       create_selector("cab.select");
-                                                       //openSpaceBox("");
-                                                       closeBox();
-                                                       openSpaceBox("");
-                                                       closeBox();
-                                                  }
-                                                  closeBox();*/
-                                                  
-                                                  openVerticalBox1("Tonestack      ");
-												  {
-													  openHorizontalBox("");
-													  {
-														   create_selector("amp.tonestack.select");
-														   openVerticalBox1("");
-														   closeBox();
-													  }
-													  closeBox();
-                                                  }
-                                                  closeBox();
-                                                  openSpaceBox("");
-                                                  closeBox();
-                                             }
-                                             closeBox();
-
                                         }
                                         closeBox();
                                         openSpaceBox("");
                                         closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-
+                                        
                                         openVerticalBox("");
                                         {
                                              openSpaceBox("");
@@ -279,22 +152,102 @@ void GxMainInterface::setup()
                                              closeBox();
                                              openSpaceBox("");
                                              closeBox();
+                                             openSpaceBox("");
+                                             closeBox();
+                                             openSpaceBox("");
+                                             closeBox();
+                                             openSpaceBox("");
+                                             closeBox();
+                                             create_bigknob("gxdistortion.wet_dry",_(" Clean/Dist "));
+                                             openSpaceBox("");
+                                             closeBox();
+                                        }
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+
+										openVerticalBox("");
+										{
+											 openSpaceBox("");
+											 closeBox();
+											 openSpaceBox("");
+											 closeBox();
+											 openSpaceBox("");
+											 closeBox();
+											 openSpaceBox("");
+											 closeBox();
+											 openSpaceBox("");
+											 closeBox();
+											 openSpaceBox("");
+											 closeBox();
+											 openSpaceBox("");
+											 closeBox();
+											 create_bigknob("amp2.stage2.gain1", _("Master gain"));
+											 openSpaceBox("");
+											 closeBox();
+                                        }
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        
+                                        openVerticalBox("");
+                                        {
+											 openSpaceBox("");
+                                             closeBox();
+                                             openSpaceBox("");
+                                             closeBox();
+                                             openSpaceBox("");
+                                             closeBox();
+                                             openSpaceBox("");
+                                             closeBox();
+                                             create_switch(sw_minitoggle, "amp.bass_boost.on_off", _(" Bass boost  "), Gtk::POS_RIGHT);
                                              create_contrast_switch("con.on_off",_(" Presence "), Gtk::POS_TOP);
                                              create_switch(sw_minitoggle, "amp.feed_on_off", _(" Reverb  "), Gtk::POS_RIGHT);
                                              create_minislider("amp.wet_dry");
                                              openSpaceBox("");
                                              closeBox();
+										}
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
 
-                                             openVerticalBox1("Convolver");
-                                             {
-                                             }
-                                             closeBox();
-                                             addJConvButton(_("set"), &gx_engine::audio.filebutton);
-                                             addJToggleButton(_("run"), &gx_jconv::GxJConvSettings::checkbutton7);
-
-                                             openSpaceBox("");
-                                             closeBox();
+                                        openVerticalBox("");
+                                        {
+                                            openSpaceBox("");
+											closeBox();
+											openSpaceBox("");
+											closeBox();
+											openSpaceBox("");
+											closeBox();
+											openSpaceBox("");
+											closeBox();
+											openSpaceBox("");
+											closeBox();
+											openSpaceBox("");
+											closeBox();
+											openSpaceBox("");
+											closeBox();
+											openSpaceBox("");
+											closeBox();
+                                            openVerticalBox1("Convolver");
+                                            {
+                                            }
+                                            closeBox();
+                                            addJConvButton(_("set"), &gx_engine::audio.filebutton);
+                                            addJToggleButton(_("run"), &gx_jconv::GxJConvSettings::checkbutton7);
+                                            openSpaceBox("");
+                                            closeBox();
                                         }
+                                        closeBox();
+                                        openSpaceBox("");
                                         closeBox();
                                         openSpaceBox("");
                                         closeBox();
@@ -324,7 +277,6 @@ void GxMainInterface::setup()
                                              closeBox();
                                         }
                                         closeBox();
-
                                         openSpaceBox("");
                                         closeBox();
                                         openSpaceBox("");
@@ -338,32 +290,26 @@ void GxMainInterface::setup()
                                    closeBox();
                                    openSpaceBox("");
                                    closeBox();
+
                               }
                               closeBox();
                               openSpaceBox("");
                               closeBox();
-
-                              openSpaceBox("");
-                              closeBox();
-
                               openSpaceBox("");
                               closeBox();
                               openSpaceBox("");
                               closeBox();
-
                               openSpaceBox("");
                               closeBox();
-
+                              openSpaceBox("");
+                              closeBox();
                               openSpaceBox("");
                               closeBox();
                          }
                          closeBox();
                     }
                     closeBox(); // main widget end
-
-
-
-
+                    // add racks
                     openScrollBox("");
                     {
                          openPlugBox(_("Mono Rack"));

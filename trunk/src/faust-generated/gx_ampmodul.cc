@@ -144,7 +144,7 @@ void compute(int count, float *input0, float *input1, float *output0, float *out
 		fRec12[0] = (fSlow6 + (0.999 * fRec12[1]));
 		double fTemp1 = (fRec11[1] - 2.5e+02);
 		fVec0[0] = fTemp1;
-		fRec13[0] = ((fConst9 * (fVec0[1] + fVec0[0])) + (fConst8 * fRec13[1]));
+		fRec13[0] = ((fConst9 * (fVec0[0] + fVec0[1])) + (fConst8 * fRec13[1]));
 		fRec11[0] = Ftube2(0, (fRec13[0] + (fTemp0 * fRec12[0])));
 		fRec10[0] = ((fConst11 * ((fConst10 * fRec11[1]) + (fConst0 * fRec11[0]))) + (fConst2 * fRec10[1]));
 		fRec9[0] = ((fConst12 * (fRec10[0] + fRec10[1])) + (fConst5 * fRec9[1]));

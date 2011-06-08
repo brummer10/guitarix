@@ -500,7 +500,7 @@ ParameterGroups::ParameterGroups()
 	insert("moog",N_("Moog Filter"));
 	insert("biquad",N_("BiQuad Filter"));
 	insert("flanger",N_("Flanger"));
-	insert("cab",N_("Cab-ImpResp"));
+	insert("cab",N_("Cabinet"));
 	insert("phaser",N_("Phaser"));
 	insert("midi_out",N_("Midi Out"));
 	insert("midi_out.channel_1",N_("Midi Out 1"));

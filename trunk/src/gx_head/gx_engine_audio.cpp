@@ -78,7 +78,7 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("compressor.on_off", on_off, &fcheckboxcom1, 0);
 	gx_gui::registerParam("jconv.on_off", "Run", &gx_jconv::GxJConvSettings::checkbutton7);
 	gx_gui::registerParam("crybaby.on_off", on_off, &fcheckbox5, 0);
-	gx_gui::registerParam("cab.on_off", "Cab-ImpResp", &fcab,0);
+	gx_gui::registerParam("cab.on_off", "Cabinet", &fcab,0);
 	gx_gui::registerParam("con.on_off", "Contrast-ImpResp", &fcon,0);
 	gx_gui::registerParam("overdrive.on_off", on_off, &foverdrive4, 0);
 	gx_gui::registerParam("gx_distortion.on_off", on_off, &fcheckbox4, 0);
@@ -109,13 +109,14 @@ void AudioVariables::register_parameter()
 	gx_gui::registerParam("chorus_mono.on_off", on_off, (float*) &fchorus_mono, 0.);
 	gx_gui::registerParam("flanger_mono.on_off", on_off, &fflanger_mono, 0.);
 	gx_gui::registerParam("feedback.on_off", on_off, &ffeedback, 0.);
+	gx_gui::registerParam("amp.tonestack.on_off", on_off, &ftonestack, 0.);
 	
 	gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel, 0.017f, 0.01f, 0.31f, 0.001f);
 	
 	static const char *tonestack_model[] = {N_("default"),N_("Bassman"),N_("Twin Reverb"),
 		N_("Princeton"),N_("JCM-800"),N_("JCM-2000"),N_("M-Lead"),N_("M2199"),N_("AC-30"),
 		N_("Mesa Boogie"),N_("SOL 100"),N_("JTM-45"),N_("AC-15"),N_("Peavey"),N_("Ibanez"),
-		N_("Roland"),N_("Ampeg"),N_("Off"),0};
+		N_("Roland"),N_("Ampeg"),0};
 	registerEnumParam("amp.tonestack.select","select",tonestack_model,&tonestack, 0);
 	static const char *cabinet_model[] = {N_("4x12"),N_("2x12"),N_("1x12"),N_("4x10"),
 	N_("2x10"),N_("HighGain"),N_("Twin"),N_("Bassman"),N_("Marshall"),N_("AC-30"),
@@ -140,6 +141,8 @@ void AudioVariables::register_parameter()
 	registerEnumParam("chorus_mono.pp","select",post_pre,&chpp, 0);
 	registerEnumParam("flanger_mono.pp","select",post_pre,&flpp, 0);
 	registerEnumParam("feedback.pp","select",post_pre,&ffb, 0);
+	registerEnumParam("amp.tonestack.pp","select",post_pre,&fts, 0);
+	registerEnumParam("cab.pp","select",post_pre,&fcb, 0);
 	
 	static const char *crybaby_autowah[] = {N_("manual"),N_("auto"),0};
 	registerEnumParam("crybaby.autowah", "select", crybaby_autowah, &fautowah, 0);
@@ -149,32 +152,34 @@ void AudioVariables::register_parameter()
 	//static const char *eqt_onetwo[] = {"fixed","scale",0};
 	//registerEnumParam("eqt.onetwo", "select", eqt_onetwo, &witcheq, 0);
 	
-	registerNonMidiParam("compressor.position", &posit5, true, 6, 1, 20);
-	registerNonMidiParam("crybaby.position", &posit0, true, 3, 1, 20);
-	registerNonMidiParam("overdrive.position", &posit1, true, 7, 1, 20);
-	registerNonMidiParam("gx_distortion.position", &posit2, true, 4, 1, 20);
-	registerNonMidiParam("freeverb.position", &posit3, true, 10, 1, 20);
-	registerNonMidiParam("IR.position", &posit4, true, 5, 1, 20);
-	registerNonMidiParam("echo.position", &posit6, true, 8, 1, 20);
-	registerNonMidiParam("delay.position", &posit7, true, 9, 1, 20);
-	registerNonMidiParam("eqs.position", &posit10, true, 2, 1, 20);
+	registerNonMidiParam("compressor.position", &posit5, true, 6, 1, 22);
+	registerNonMidiParam("crybaby.position", &posit0, true, 3, 1, 22);
+	registerNonMidiParam("overdrive.position", &posit1, true, 7, 1, 22);
+	registerNonMidiParam("gx_distortion.position", &posit2, true, 4, 1, 22);
+	registerNonMidiParam("freeverb.position", &posit3, true, 10, 1, 22);
+	registerNonMidiParam("IR.position", &posit4, true, 5, 1, 22);
+	registerNonMidiParam("echo.position", &posit6, true, 8, 1, 22);
+	registerNonMidiParam("delay.position", &posit7, true, 9, 1, 22);
+	registerNonMidiParam("eqs.position", &posit10, true, 2, 1, 22);
 	registerNonMidiParam("chorus.position", &posit8, true, 1, 1, 10);
 	registerNonMidiParam("flanger.position", &posit9, true, 2, 1, 10);
 	registerNonMidiParam("moog.position", &posit11, true, 6, 1, 10);
 	registerNonMidiParam("phaser.position", &posit12, true, 3, 1, 10);
-	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 20);
+	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 22);
 	registerNonMidiParam("stereodelay.position", &posit15, true, 4, 1, 10);
 	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 10);
-	registerNonMidiParam("oscilloscope.position", &posit17, true, 11, 1, 20);
-	registerNonMidiParam("biquad.position", &posit18, true, 12, 1, 20);
-	registerNonMidiParam("midi_out.position", &posit00, true, 18, 1, 20);
+	registerNonMidiParam("oscilloscope.position", &posit17, true, 11, 1, 22);
+	registerNonMidiParam("biquad.position", &posit18, true, 12, 1, 22);
+	registerNonMidiParam("midi_out.position", &posit00, true, 20, 1, 22);
 	registerNonMidiParam("ampmodul.position", &posit19, true, 7, 1, 10);
 	registerNonMidiParam("tonemodul.position", &posit20, true, 8, 1, 10);
-	registerNonMidiParam("tremolo.position", &posit21, true, 13, 1, 20);
-	registerNonMidiParam("phaser_mono.position", &posit22, true, 14, 1, 20);
-	registerNonMidiParam("chorus_mono.position", &posit23, true, 15, 1, 20);
-	registerNonMidiParam("flanger_mono.position", &posit24, true, 16, 1, 20);
-	registerNonMidiParam("feedback.position", &posit25, true, 17, 1, 20);
+	registerNonMidiParam("tremolo.position", &posit21, true, 13, 1, 22);
+	registerNonMidiParam("phaser_mono.position", &posit22, true, 14, 1, 22);
+	registerNonMidiParam("chorus_mono.position", &posit23, true, 15, 1, 22);
+	registerNonMidiParam("flanger_mono.position", &posit24, true, 16, 1, 22);
+	registerNonMidiParam("feedback.position", &posit25, true, 17, 1, 22);
+	registerNonMidiParam("amp.tonestack.position", &posit26, true, 18, 1, 22);
+	registerNonMidiParam("cab.position", &posit27, true, 19, 1, 22);
 	
 	
 	registerNonMidiParam("system.waveview", &viv, false);
@@ -207,7 +212,65 @@ inline float noise_gate(int sf, float* input, float ngate)
 	}
 }
 
-void compensate_cab(int count, float *input0, float *output0)
+inline void run_tonestack(int count, float *output0) {
+	switch (audio.tonestack) {
+    case 0: //"default"
+	    gx_tonestacks::tonestack_default::compute(count, output0, output0);
+	    break;
+    case 1: //"Bassman"
+	    gx_tonestacks::tonestack_bassman::compute(count, output0, output0);
+	    break;
+    case 2: //"Twin Reverb"
+	    gx_tonestacks::tonestack_twin::compute(count, output0, output0);
+	    break;
+    case 3: //"Princeton"
+	    gx_tonestacks::tonestack_princeton::compute(count, output0, output0);
+	    break;
+    case 4: //"JCM-800"
+	    gx_tonestacks::tonestack_jcm800::compute(count, output0, output0);
+	    break;
+    case 5: //"JCM-2000"
+	    gx_tonestacks::tonestack_jcm2000::compute(count, output0, output0);
+	    break;
+    case 6: //"M-Lead"
+	    gx_tonestacks::tonestack_mlead::compute(count, output0, output0);
+	    break;
+    case 7: //"M2199"
+	    gx_tonestacks::tonestack_m2199::compute(count, output0, output0);
+	    break;
+    case 8: //"AC-30"
+	    gx_tonestacks::tonestack_ac30::compute(count, output0, output0);
+	    break;
+	case 9: //"Mesa"
+	    gx_tonestacks::tonestack_mesa::compute(count, output0, output0);
+	    break;
+	case 10: //"Soldano"
+	    gx_tonestacks::tonestack_soldano::compute(count, output0, output0);
+	    break;
+	case 11: //"jtm45"
+	    gx_tonestacks::tonestack_jtm45::compute(count, output0, output0);
+	    break;
+	case 12: //"ac15"
+	    gx_tonestacks::tonestack_ac15::compute(count, output0, output0);
+	    break;
+	case 13: //"peavey"
+	    gx_tonestacks::tonestack_peavey::compute(count, output0, output0);
+	    break;
+	case 14: //"ibanez"
+	    gx_tonestacks::tonestack_ibanez::compute(count, output0, output0);
+	    break;
+	case 15: //"roland"
+	    gx_tonestacks::tonestack_roland::compute(count, output0, output0);
+	    break;
+	case 16: //"ampeg"
+	    gx_tonestacks::tonestack_ampeg::compute(count, output0, output0);
+	    break;
+    case 17: //"Off"
+	    break;
+    }
+}
+
+inline void compensate_cab(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * (-audio.cab_level*2.0))));
 	static double 	fRec0[2] = {0,0};
@@ -415,11 +478,17 @@ void process_buffers(int count, float* input, float* output0)
 			gx_effects::flanger_mono::compute(count, output0, output0);
 		} else if (audio.posit25 == m && audio.ffeedback && audio.ffb) {
 			gx_effects::gx_feedback::compute(count, output0, output0);
+		} else if (audio.posit26 == m && audio.ftonestack && audio.fts ) {
+			run_tonestack(count, output0);
+		} else if (audio.posit27 == m && audio.fcab && audio.fcb) {
+			compensate_cab(count,output0 , output0);
+			if (!cab_conv.compute(count, output0))
+				cout << "overload" << endl;
+				//FIXME error message??
+			if(audio.cab_switched != audio.cabinet || audio.cab_sum !=(audio.cab_level+audio.cab_bass+audio.cab_treble))cab_conv_restart();
 		}
     }
 
-
-    //gxdistortion::compute(count, output0, output0);
 	switch (audio.gxtube) {
 	case 0: //"never"
 		gx_amps::gxamp::compute(count, output0, output0);
@@ -440,24 +509,9 @@ void process_buffers(int count, float* input, float* output0)
 		gx_amps::gxamp5::compute(count, output0, output0);
 		break;
 	case 6: 
-		gx_amps::gxamp6::compute(count, output0, output0);
-		break;
-	case 7: 
-		gx_amps::gxamp7::compute(count, output0, output0);
-		break;
-	case 8: 
-		gx_amps::gxamp8::compute(count, output0, output0);
-		break;
-	case 9: 
-		gx_amps::gxamp9::compute(count, output0, output0);
-		break;
-	case 10: 
 		gx_amps::gxamp10::compute(count, output0, output0);
 		break;
-	case 11: 
-		gx_amps::gxamp11::compute(count, output0, output0);
-		break;
-	case 12: 
+	case 7: 
 		gx_amps::gxamp12::compute(count, output0, output0);
 		break;
 	}
@@ -503,77 +557,21 @@ void process_buffers(int count, float* input, float* output0)
 			gx_effects::flanger_mono::compute(count, output0, output0);
 		} else if (audio.posit25 == m && audio.ffeedback && !audio.ffb ) {
 			gx_effects::gx_feedback::compute(count, output0, output0);
+		} else if (audio.posit26 == m && audio.ftonestack && !audio.fts ) {
+			run_tonestack(count, output0);
+		} else if (audio.posit27 == m && audio.fcab && !audio.fcb) {
+			compensate_cab(count,output0 , output0);
+			if (!cab_conv.compute(count, output0))
+				cout << "overload" << endl;
+				//FIXME error message??
+			if(audio.cab_switched != audio.cabinet || audio.cab_sum !=(audio.cab_level+audio.cab_bass+audio.cab_treble))cab_conv_restart();
 		}
     }
-
-    switch (audio.tonestack) {
-    case 0: //"default"
-	    gx_tonestacks::tonestack_default::compute(count, output0, output0);
-	    break;
-    case 1: //"Bassman"
-	    gx_tonestacks::tonestack_bassman::compute(count, output0, output0);
-	    break;
-    case 2: //"Twin Reverb"
-	    gx_tonestacks::tonestack_twin::compute(count, output0, output0);
-	    break;
-    case 3: //"Princeton"
-	    gx_tonestacks::tonestack_princeton::compute(count, output0, output0);
-	    break;
-    case 4: //"JCM-800"
-	    gx_tonestacks::tonestack_jcm800::compute(count, output0, output0);
-	    break;
-    case 5: //"JCM-2000"
-	    gx_tonestacks::tonestack_jcm2000::compute(count, output0, output0);
-	    break;
-    case 6: //"M-Lead"
-	    gx_tonestacks::tonestack_mlead::compute(count, output0, output0);
-	    break;
-    case 7: //"M2199"
-	    gx_tonestacks::tonestack_m2199::compute(count, output0, output0);
-	    break;
-    case 8: //"AC-30"
-	    gx_tonestacks::tonestack_ac30::compute(count, output0, output0);
-	    break;
-	case 9: //"Mesa"
-	    gx_tonestacks::tonestack_mesa::compute(count, output0, output0);
-	    break;
-	case 10: //"Soldano"
-	    gx_tonestacks::tonestack_soldano::compute(count, output0, output0);
-	    break;
-	case 11: //"jtm45"
-	    gx_tonestacks::tonestack_jtm45::compute(count, output0, output0);
-	    break;
-	case 12: //"ac15"
-	    gx_tonestacks::tonestack_ac15::compute(count, output0, output0);
-	    break;
-	case 13: //"peavey"
-	    gx_tonestacks::tonestack_peavey::compute(count, output0, output0);
-	    break;
-	case 14: //"ibanez"
-	    gx_tonestacks::tonestack_ibanez::compute(count, output0, output0);
-	    break;
-	case 15: //"roland"
-	    gx_tonestacks::tonestack_roland::compute(count, output0, output0);
-	    break;
-	case 16: //"ampeg"
-	    gx_tonestacks::tonestack_ampeg::compute(count, output0, output0);
-	    break;
-    case 17: //"Off"
-	    break;
-    }
-
-    if(audio.fcab) {
-		compensate_cab(count,output0 , output0);
-        if (!cab_conv.compute(count, output0))
-            cout << "overload" << endl;
-            //FIXME error message??
-        if(audio.cab_switched != audio.cabinet || audio.cab_sum !=(audio.cab_level+audio.cab_bass+audio.cab_treble))cab_conv_restart();
-    }
-
-    if (audio.fboost) {
-	    gx_effects::bassbooster::compute(count, output0, output0);
-    }
     
+    if (audio.fboost) {
+		gx_effects::bassbooster::compute(count, output0, output0);
+	}
+
     if (audio.fampout) {
         gx_effects::gx_ampout::compute(count, output0, output0);
     }

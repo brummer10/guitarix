@@ -111,33 +111,6 @@ void GxMainInterface::gx_build_mono_rack()
 				 
 			 }
 			 closeBox();
-			 
-			 
-			 openPaintBox("");
-			 {
-				 openHorizontalBox("");
-				 {
-					 openVerticalBox(_("  Cabinet   "));
-					 { 
-						create_switch_no_caption(sw_switchit, "cab.on_off");
-					 }
-					 closeBox();
-					 openpaintampBox("");
-					 {
-						 create_selector("cab.select");
-						 create_small_rackknob("cab.bass","bass");
-						 create_small_rackknob("cab.treble","treble");
-						 create_small_rackknob("cab.Level","level");
-					 }
-					 closeBox();
-					 
-					
-				 }
-				 closeBox();
-			 }
-			 closeBox();
-			  
-			 
 		 }
 		 closeBox();
 		 //low high pass filter
@@ -896,6 +869,86 @@ void GxMainInterface::gx_build_mono_rack()
 								  {
 									  create_small_rackknobr("feedback.feedback",  _("feedback"));
 									  create_small_rackknob("feedback.wet_dry",  _("dry/wet"));
+								  }
+								  closeBox();
+							 }
+							 closeBox();
+						}
+						closeBox();
+
+				   }
+				   closeBox();
+			  }
+			  closeBox();
+		 }
+		 closeBox(); 
+		 
+		 openHorizontalOrderBox(_("tonestack"), &gx_engine::audio.posit26);
+		 {
+			  openVerticalBox(_("tonestack"));
+			  {
+				   openHorizontalBox("");
+				   {
+						openPaintBox1("");
+						{
+							 create_switch_no_caption(sw_switchit, "amp.tonestack.on_off");
+							 create_selector("amp.tonestack.pp");
+						}
+						closeBox();
+
+						openDialogBox("amp.tonestack.dialog", "amp.tonestack.on_off","RackBox_expose");
+						{
+							 openVerticalBox("");
+							 {
+								  
+								  openHorizontalBox("");
+								  {
+									
+									   create_selector("amp.tonestack.select");
+									   
+									   create_small_rackknob("amp.tonestack.Bass",_("Bass"));
+									  
+									   create_small_rackknob("amp.tonestack.Middle",_("Middle"));
+									  
+									   create_small_rackknob("amp.tonestack.Treble",_("Treble"));
+									  
+								  }
+								  closeBox();
+							 }
+							 closeBox();
+						}
+						closeBox();
+
+				   }
+				   closeBox();
+			  }
+			  closeBox();
+		 }
+		 closeBox();
+		 
+		 openHorizontalOrderBox(_("cabinet"), &gx_engine::audio.posit27);
+		 {
+			  openVerticalBox(_("cabinet"));
+			  {
+				   openHorizontalBox("");
+				   {
+						openPaintBox1("");
+						{
+							 create_switch_no_caption(sw_switchit, "cab.on_off");
+							 create_selector("cab.pp");
+						}
+						closeBox();
+
+						openDialogBox("cab.dialog", "cab.on_off","RackBox_expose");
+						{
+							 openVerticalBox("");
+							 {
+								  openHorizontalBox("");
+								  {
+									  create_selector("cab.select");
+									  create_small_rackknob("cab.bass","bass");
+									  create_small_rackknob("cab.treble","treble");
+									  create_small_rackknobr("cab.Level","level");
 								  }
 								  closeBox();
 							 }
