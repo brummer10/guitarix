@@ -147,6 +147,7 @@ public:
 	float cab_bass;
 	float cab_treble;
 	float cab_sum;
+	
 
 	void register_parameter();
 };
@@ -236,6 +237,7 @@ inline void turnOffMidi() { audio.midistate = kMidiOff; }
 inline void turnOnMidi() { audio.midistate = kMidiOn; }
 
 inline void set_tube_model(int x) {audio.gxtube = x;}
+inline void set_cab_mode(float x) {audio.cab_sum = x;}
 inline void set_mono_plug_counter(int x) {audio.mono_plug_counter = x;}
 inline void set_stereo_plug_counter(int x) {audio.stereo_plug_counter = x;}
 

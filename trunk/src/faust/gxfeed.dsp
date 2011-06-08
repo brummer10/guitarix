@@ -37,7 +37,7 @@ dry = 1 - wet_dry;
 
 switch   = checkbox("feed_on_off[name:reverb_on_of]");
 s_reverb  = _ <: select2(switch, _, ( _<:*(dry),(*(wet_dry):sat_rev):>_));
-
+//s_reverb = _ <: select2(switch, _, (wet_dry_mix(wet_dry,sat_rev)));
 
 process =  _ : (s_reverb) <: _,_;
 

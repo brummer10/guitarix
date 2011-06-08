@@ -657,7 +657,7 @@ static bool cab_conv_start()
 gboolean conv_restart(gpointer data)
 {
 	gx_engine::audio.fcab = false;
-	gx_engine::audio.cab_sum =(gx_engine::audio.cab_level+gx_engine::audio.cab_bass+gx_engine::audio.cab_treble);
+	gx_engine::set_cab_mode(gx_engine::audio.cab_level+gx_engine::audio.cab_bass+gx_engine::audio.cab_treble);
 	
 	cab_conv_start();
 	gx_engine::audio.fcab = true;
