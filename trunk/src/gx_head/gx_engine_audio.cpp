@@ -485,9 +485,9 @@ void process_buffers(int count, float* input, float* output0)
 			if (!cab_conv.compute(count, output0))
 				cout << "overload" << endl;
 				//FIXME error message??
-			if(audio.cab_switched != audio.cabinet || fabs( audio.cab_sum -(audio.cab_level+audio.cab_bass+audio.cab_treble))<0.01
-			|| fabs( audio.cab_sum -(audio.cab_level+audio.cab_bass+audio.cab_treble))>0.01)
-			cab_conv_restart();
+			if(audio.cab_switched != audio.cabinet || fabs( audio.cab_sum -(audio.cab_level+audio.cab_bass+audio.cab_treble))<-0.01
+				|| fabs( audio.cab_sum -(audio.cab_level+audio.cab_bass+audio.cab_treble))>0.01)
+				cab_conv_restart();
 		}
     }
 
@@ -566,7 +566,9 @@ void process_buffers(int count, float* input, float* output0)
 			if (!cab_conv.compute(count, output0))
 				cout << "overload" << endl;
 				//FIXME error message??
-			if(audio.cab_switched != audio.cabinet || audio.cab_sum !=(audio.cab_level+audio.cab_bass+audio.cab_treble))cab_conv_restart();
+			if(audio.cab_switched != audio.cabinet || fabs( audio.cab_sum -(audio.cab_level+audio.cab_bass+audio.cab_treble))<-0.01
+				|| fabs( audio.cab_sum -(audio.cab_level+audio.cab_bass+audio.cab_treble))>0.01)
+				cab_conv_restart();
 		}
     }
     
