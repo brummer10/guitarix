@@ -168,7 +168,7 @@ gboolean gx_check_cab_state(gpointer)
 		if(gx_engine::audio.cab_switched != gx_engine::audio.cabinet 
 					||fabs( gx_engine::audio.cab_sum -(gx_engine::audio.cab_level+gx_engine::audio.cab_bass+gx_engine::audio.cab_treble))<-0.01
 					|| fabs( gx_engine::audio.cab_sum -(gx_engine::audio.cab_level+gx_engine::audio.cab_bass+gx_engine::audio.cab_treble))>0.01) {
-			gx_engine::set_cab_mode(gx_engine::audio.cab_level+gx_engine::audio.cab_bass+gx_engine::audio.cab_treble);
+			
 			gx_engine::cab_conv.stop();
 			gx_gui::cab_conv_restart();
 		}

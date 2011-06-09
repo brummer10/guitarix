@@ -683,9 +683,10 @@ gboolean contrast_restart(gpointer data)
 
 void cab_conv_restart()
 {
-	if (g_threads[5] == 0 || g_main_context_find_source_by_id(NULL, g_threads[5]) == NULL)
-			g_threads[5] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0, CabConvolveData::conv_restart,NULL,NULL);
-	else cout << "cab thread is bussy" << endl; 
+	if (g_threads[5] == 0 || g_main_context_find_source_by_id(NULL, g_threads[5]) == NULL) {
+		g_threads[5] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0, CabConvolveData::conv_restart,NULL,NULL);
+		gx_engine::set_cab_mode(gx_engine::audio.cab_level+gx_engine::audio.cab_bass+gx_engine::audio.cab_treble);
+	} else cout << "cab thread is bussy" << endl; 
 }
 
 void UiCabSwitch::on_switch_toggled()
