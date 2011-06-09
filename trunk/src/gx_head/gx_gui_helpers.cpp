@@ -629,11 +629,15 @@ void GxMainInterface::on_srack_activate()
 		GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(srack_widget));
 		GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(parent));
 		vbox = gtk_widget_get_parent(GTK_WIDGET(vbox));
-		vbox = gtk_widget_get_parent(GTK_WIDGET(vbox));
+		//vbox = gtk_widget_get_parent(GTK_WIDGET(vbox));
 		//if order is horizontal, force resize the rack widget width
 		if(strcmp(gtk_widget_get_name(GTK_WIDGET(vbox)),"GtkViewport")==0) {
 			gtk_widget_hide(GTK_WIDGET(vbox));
-			
+			parent = gtk_widget_get_parent(GTK_WIDGET(vbox));
+			if(strcmp(gtk_widget_get_name(GTK_WIDGET(parent)),"HorizontalStereoBox")==0) {
+				if(!gtk_widget_is_drawable(GTK_WIDGET(parent)))
+					gtk_widget_show(GTK_WIDGET(parent));
+			}
 			gtk_widget_show(GTK_WIDGET(vbox));
 		}
 		if (!fShowRRack.get_active()) {
@@ -645,11 +649,15 @@ void GxMainInterface::on_srack_activate()
 		GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(srack_widget));
 		GtkWidget *vbox = gtk_widget_get_parent(GTK_WIDGET(parent));
 		vbox = gtk_widget_get_parent(GTK_WIDGET(vbox));
-		vbox = gtk_widget_get_parent(GTK_WIDGET(vbox));
+		//vbox = gtk_widget_get_parent(GTK_WIDGET(vbox));
 		//if order is horizontal, force resize the rack widget size
 		if(strcmp(gtk_widget_get_name(GTK_WIDGET(vbox)),"GtkViewport")==0) {
 			gtk_widget_hide(GTK_WIDGET(vbox));
-			
+			parent = gtk_widget_get_parent(GTK_WIDGET(vbox));
+			if(strcmp(gtk_widget_get_name(GTK_WIDGET(parent)),"HorizontalStereoBox")==0) {
+				if(gtk_widget_is_drawable(GTK_WIDGET(parent)))
+					gtk_widget_hide(GTK_WIDGET(parent));
+			}
 			gtk_widget_show(GTK_WIDGET(vbox));
 		}
 	}

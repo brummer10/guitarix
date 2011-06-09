@@ -2604,7 +2604,7 @@ void GxScrollBox::on_rack_reorder_horizontal()
 			gtk_container_remove(GTK_CONTAINER(parent), gx_gui::srack_widget);
 			gtk_box_pack_start(GTK_BOX(box1.gobj()), gx_gui::srack_widget, false, true, 0);
 			gtk_widget_unref(gx_gui::srack_widget);
-			m_scrolled_window2.show();
+			if (gui->fShowSRack.get_active()) m_scrolled_window2.show();
 			paintbox1.show();
 			parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::rack_tool_bar));
 			
@@ -2693,6 +2693,7 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
 	m_scrolled_window.set_shadow_type(Gtk::SHADOW_NONE);
 	m_scrolled_window2.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_ALWAYS); 
 	m_scrolled_window2.set_shadow_type(Gtk::SHADOW_NONE);
+	m_scrolled_window2.set_name("HorizontalStereoBox");
 	paintbox1.set_border_width(18);
 	paintbox1.property_paint_func() = pb_2;
 	window.signal_delete_event().connect(
