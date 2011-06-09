@@ -226,7 +226,7 @@ void init_non_rt_processing() {
 	gx_effects::cabinet_impulse_former::init(48000);
 }
 
-void non_rt_processing(int count, const float* input, float* output0) {
+void non_rt_processing(int count, float* input, float* output0) {
 	gx_effects::cabinet_impulse_former::compute(count,input,output0);
 }
 

@@ -259,7 +259,7 @@ void process_buffers(int count, float* input, float* output0);
 void process_insert_buffers (int count, float* input1, float* output0, float* output1);
 
 void init_non_rt_processing();
-void non_rt_processing(int count, const float* input, float* output0);
+void non_rt_processing(int count, float* input, float* output0);
 
 #ifdef EXPERIMENTAL
 void faust_setup();

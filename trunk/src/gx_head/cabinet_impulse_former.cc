@@ -29,7 +29,7 @@ void init(int samplingFreq)
 	for (int i=0; i<3; i++) fRec0[i] = 0;
 }
 
-void compute(int count, const float *input0, float *output0)
+void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = pow(10,(0.025 * fslider0));
 	double 	fSlow1 = (1 + fSlow0);

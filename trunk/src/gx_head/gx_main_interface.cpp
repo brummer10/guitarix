@@ -4062,6 +4062,8 @@ void GxMainInterface::run()
 	g_threads[0] = g_timeout_add(40, gx_update_all_gui, 0);
 	// Note: meter display timeout is a global var in gx_gui namespace
 	g_threads[1] = g_timeout_add(meter_display_timeout, gx_refresh_meter_level,   0);
+	// watch tread for cabinet switch
+	g_threads[3] = g_timeout_add(200, gx_check_cab_state, 0);
 
 	GError* err = NULL;
 	// -------------- start helper thread for ladi signal USR1 ------------

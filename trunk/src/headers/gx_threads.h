@@ -32,6 +32,7 @@ gboolean gx_survive_jack_shutdown         (gpointer arg);
 gboolean gx_monitor_jack_clients          (gpointer args);
 gboolean gx_do_program_change             (gpointer arg);
 gboolean gx_xrun_report                   (gpointer xdel);
+gboolean gx_check_cab_state               (gpointer args);
 /* this are the glib threads*/
 
 gpointer gx_signal_helper_thread          (gpointer data);
