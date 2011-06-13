@@ -114,7 +114,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox();
 		 //low high pass filter
-		 openHorizontalOrderBox(_("l/h/filter"), &gx_engine::audio.posit14);
+		 openHorizontalOrderBox(_("l/h/filter"), &gx_engine::audio.posit[14]);
 		 {
 			  openVerticalBox(_("l/h/filter"));
 			  {
@@ -162,7 +162,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox();
 		 // EQ
-		 openHorizontalOrderBox(_("EQ"), &gx_engine::audio.posit10);
+		 openHorizontalOrderBox(_("EQ"), &gx_engine::audio.posit[10]);
 		 {
 			  openVerticalBox(_("EQ"));
 			  {
@@ -232,7 +232,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox();
 	//----- crybaby
-		 openHorizontalOrderBox(_("crybaby"), &gx_engine::audio.posit0);
+		 openHorizontalOrderBox(_("crybaby"), &gx_engine::audio.posit[0]);
 		 {
 			  openVerticalBox(_("crybaby"));
 			  {
@@ -278,7 +278,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox();
 	//----- distortion
-		 openHorizontalOrderBox(_("distortion"), &gx_engine::audio.posit2);
+		 openHorizontalOrderBox(_("distortion"), &gx_engine::audio.posit[2]);
 		 {
 			  openVerticalBox(_("distortion"));
 			  {
@@ -382,7 +382,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox();
 	//----- IR
-		 openHorizontalOrderBox(_("IR"), &gx_engine::audio.posit4);
+		 openHorizontalOrderBox(_("IR"), &gx_engine::audio.posit[4]);
 		 {
 			  openVerticalBox(_("IR"));
 			  {
@@ -427,7 +427,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox();
 	//----- the compressor
-		 openHorizontalOrderBox(_("Compr."), &gx_engine::audio.posit5);
+		 openHorizontalOrderBox(_("Compr."), &gx_engine::audio.posit[5]);
 		 {
 			  openVerticalBox(_("Compr."));
 			  {
@@ -464,7 +464,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox();
 	//-----overdrive
-		 openHorizontalOrderBox(_("overdrive"), &gx_engine::audio.posit1);
+		 openHorizontalOrderBox(_("overdrive"), &gx_engine::audio.posit[1]);
 		 {
 			  openVerticalBox(_("overdrive"));
 			  {
@@ -498,7 +498,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox();
 	//----- echo
-		 openHorizontalOrderBox(_("echo"), &gx_engine::audio.posit6);
+		 openHorizontalOrderBox(_("echo"), &gx_engine::audio.posit[6]);
 		 {
 			  openVerticalBox(_("echo"));
 			  {
@@ -535,7 +535,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox();
 	//-----delay
-		 openHorizontalOrderBox(_("delay"), &gx_engine::audio.posit7);
+		 openHorizontalOrderBox(_("delay"), &gx_engine::audio.posit[7]);
 		 {
 			  openVerticalBox(_("delay"));
 			  {
@@ -572,7 +572,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox();
 	//----- freeverb
-		 openHorizontalOrderBox(_("freeverb"), &gx_engine::audio.posit3);
+		 openHorizontalOrderBox(_("freeverb"), &gx_engine::audio.posit[3]);
 		 {
 			  openVerticalBox( _("freeverb"));
 			  {
@@ -612,7 +612,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 closeBox();
 		 
 		  //-----osc
-		 openHorizontalOrderBox(_("oscilloscope"), &gx_engine::audio.posit17);
+		 openHorizontalOrderBox(_("oscilloscope"), &gx_engine::audio.posit[17]);
 		 {
 			  openVerticalBox(_("osc"));
 			  {
@@ -654,7 +654,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox(); 
 		 
-		openHorizontalOrderBox(_("biquad"), &gx_engine::audio.posit18);
+		openHorizontalOrderBox(_("biquad"), &gx_engine::audio.posit[18]);
 		 {
 			  openVerticalBox(_("biquad"));
 			  {
@@ -688,7 +688,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox(); 
 		 
-		 openHorizontalOrderBox(_("tremolo"), &gx_engine::audio.posit21);
+		 openHorizontalOrderBox(_("tremolo"), &gx_engine::audio.posit[21]);
 		 {
 			  openVerticalBox(_("tremolo"));
 			  {
@@ -740,7 +740,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox();
 		 
-		 openHorizontalOrderBox(_("phaser"), &gx_engine::audio.posit22);
+		 openHorizontalOrderBox(_("phaser"), &gx_engine::audio.posit[22]);
 		 {
 			  openVerticalBox(_("phaser"));
 			  {
@@ -776,7 +776,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox(); 
 		 
-		 openHorizontalOrderBox(_("chorus"), &gx_engine::audio.posit23);
+		 openHorizontalOrderBox(_("chorus"), &gx_engine::audio.posit[23]);
 		 {
 			  openVerticalBox(_("chorus"));
 			  {
@@ -812,7 +812,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox(); 
 		 
-		 openHorizontalOrderBox(_("flanger"), &gx_engine::audio.posit24);
+		 openHorizontalOrderBox(_("flanger"), &gx_engine::audio.posit[24]);
 		 {
 			  openVerticalBox(_("flanger"));
 			  {
@@ -848,7 +848,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox(); 
 		 
-		 openHorizontalOrderBox(_("feedback"), &gx_engine::audio.posit25);
+		 openHorizontalOrderBox(_("feedback"), &gx_engine::audio.posit[25]);
 		 {
 			  openVerticalBox(_("feedback"));
 			  {
@@ -883,7 +883,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox(); 
 		 
-		 openHorizontalOrderBox(_("tonestack"), &gx_engine::audio.posit26);
+		 openHorizontalOrderBox(_("tonestack"), &gx_engine::audio.posit[26]);
 		 {
 			  openVerticalBox(_("tonestack"));
 			  {
@@ -926,7 +926,7 @@ void GxMainInterface::gx_build_mono_rack()
 		 }
 		 closeBox();
 		 
-		 openHorizontalOrderBox(_("cabinet"), &gx_engine::audio.posit27);
+		 openHorizontalOrderBox(_("cabinet"), &gx_engine::audio.posit[27]);
 		 {
 			  openVerticalBox(_("cabinet"));
 			  {

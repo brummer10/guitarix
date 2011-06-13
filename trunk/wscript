@@ -454,6 +454,7 @@ def configure(conf):
 
     conf.define('LIBDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'lib')))
     if not Options.options.no_ladspa:
+        conf.env['LADSPA'] = True
         conf.define('LADSPADIR', os.path.normpath(os.path.join(conf.env['LIBDIR'], 'ladspa')))
     if Options.options.ladspadir:
         conf.env['LADSPADIR'] = Options.options.ladspadir

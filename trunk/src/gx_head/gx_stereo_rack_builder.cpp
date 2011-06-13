@@ -49,7 +49,7 @@ void GxMainInterface::gx_build_stereo_rack()
 		 closeBox();
 
 		 //----- chorus
-		 openHorizontalRestetBox(_("chorus"), &gx_engine::audio.posit8);
+		 openHorizontalRestetBox(_("chorus"), &gx_engine::audio.posit[8]);
 		 {
 			  openVerticalBox(_("chorus"));
 			  {
@@ -88,7 +88,7 @@ void GxMainInterface::gx_build_stereo_rack()
 		 closeBox();
 		 //end chorus
 
-		 openHorizontalRestetBox(_("flanger"), &gx_engine::audio.posit9);
+		 openHorizontalRestetBox(_("flanger"), &gx_engine::audio.posit[9]);
 		 {
 			  openVerticalBox(_("flanger"));
 			  {
@@ -162,7 +162,7 @@ void GxMainInterface::gx_build_stereo_rack()
 
 
 
-		 openHorizontalRestetBox(_("phaser"), &gx_engine::audio.posit12);
+		 openHorizontalRestetBox(_("phaser"), &gx_engine::audio.posit[12]);
 		 {
 			  openVerticalBox(_("phaser"));
 			  {
@@ -233,7 +233,7 @@ void GxMainInterface::gx_build_stereo_rack()
 		 }
 		 closeBox();
 
-		 openHorizontalRestetBox(_("delay"), &gx_engine::audio.posit15);
+		 openHorizontalRestetBox(_("delay"), &gx_engine::audio.posit[15]);
 		 {
 			  openVerticalBox(_("delay"));
 			  {
@@ -281,7 +281,7 @@ void GxMainInterface::gx_build_stereo_rack()
 		 }
 		 closeBox();
 
-		 openHorizontalRestetBox(_("echo"), &gx_engine::audio.posit16);
+		 openHorizontalRestetBox(_("echo"), &gx_engine::audio.posit[16]);
 		 {
 			  openVerticalBox(_("echo"));
 			  {
@@ -318,7 +318,7 @@ void GxMainInterface::gx_build_stereo_rack()
 		 }
 		 closeBox();
 
-		 openHorizontalRestetBox(_("moog"), &gx_engine::audio.posit11);
+		 openHorizontalRestetBox(_("moog"), &gx_engine::audio.posit[11]);
 		 {
 			  openVerticalBox(_("moog"));
 			  {
@@ -354,7 +354,7 @@ void GxMainInterface::gx_build_stereo_rack()
 		 }
 		 closeBox();
 		 
-		 openHorizontalRestetBox(_("amp"), &gx_engine::audio.posit19);
+		 openHorizontalRestetBox(_("amp"), &gx_engine::audio.posit[19]);
 		 {
 			  openVerticalBox(_("reamp"));
 			  {
@@ -397,7 +397,7 @@ void GxMainInterface::gx_build_stereo_rack()
 		 }
 		 closeBox();
 		 
-		 openHorizontalRestetBox(_("tone"), &gx_engine::audio.posit20);
+		 openHorizontalRestetBox(_("tone"), &gx_engine::audio.posit[20]);
 		 {
 			  openVerticalBox(_("tone"));
 			  {

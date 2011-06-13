@@ -152,34 +152,34 @@ void AudioVariables::register_parameter()
 	//static const char *eqt_onetwo[] = {"fixed","scale",0};
 	//registerEnumParam("eqt.onetwo", "select", eqt_onetwo, &witcheq, 0);
 	
-	registerNonMidiParam("compressor.position", &posit5, true, 6, 1, 22);
-	registerNonMidiParam("crybaby.position", &posit0, true, 3, 1, 22);
-	registerNonMidiParam("overdrive.position", &posit1, true, 7, 1, 22);
-	registerNonMidiParam("gx_distortion.position", &posit2, true, 4, 1, 22);
-	registerNonMidiParam("freeverb.position", &posit3, true, 10, 1, 22);
-	registerNonMidiParam("IR.position", &posit4, true, 5, 1, 22);
-	registerNonMidiParam("echo.position", &posit6, true, 8, 1, 22);
-	registerNonMidiParam("delay.position", &posit7, true, 9, 1, 22);
-	registerNonMidiParam("eqs.position", &posit10, true, 2, 1, 22);
-	registerNonMidiParam("chorus.position", &posit8, true, 1, 1, 10);
-	registerNonMidiParam("flanger.position", &posit9, true, 2, 1, 10);
-	registerNonMidiParam("moog.position", &posit11, true, 6, 1, 10);
-	registerNonMidiParam("phaser.position", &posit12, true, 3, 1, 10);
-	registerNonMidiParam("low_highpass.position", &posit14, true, 1, 1, 22);
-	registerNonMidiParam("stereodelay.position", &posit15, true, 4, 1, 10);
-	registerNonMidiParam("stereoecho.position", &posit16, true, 5, 1, 10);
-	registerNonMidiParam("oscilloscope.position", &posit17, true, 11, 1, 22);
-	registerNonMidiParam("biquad.position", &posit18, true, 12, 1, 22);
-	registerNonMidiParam("midi_out.position", &posit00, true, 20, 1, 22);
-	registerNonMidiParam("ampmodul.position", &posit19, true, 7, 1, 10);
-	registerNonMidiParam("tonemodul.position", &posit20, true, 8, 1, 10);
-	registerNonMidiParam("tremolo.position", &posit21, true, 13, 1, 22);
-	registerNonMidiParam("phaser_mono.position", &posit22, true, 14, 1, 22);
-	registerNonMidiParam("chorus_mono.position", &posit23, true, 15, 1, 22);
-	registerNonMidiParam("flanger_mono.position", &posit24, true, 16, 1, 22);
-	registerNonMidiParam("feedback.position", &posit25, true, 17, 1, 22);
-	registerNonMidiParam("amp.tonestack.position", &posit26, true, 18, 1, 22);
-	registerNonMidiParam("cab.position", &posit27, true, 19, 1, 22);
+	registerNonMidiParam("compressor.position", &posit[5], true, 6, 1, 22);
+	registerNonMidiParam("crybaby.position", &posit[0], true, 3, 1, 22);
+	registerNonMidiParam("overdrive.position", &posit[1], true, 7, 1, 22);
+	registerNonMidiParam("gx_distortion.position", &posit[2], true, 4, 1, 22);
+	registerNonMidiParam("freeverb.position", &posit[3], true, 10, 1, 22);
+	registerNonMidiParam("IR.position", &posit[4], true, 5, 1, 22);
+	registerNonMidiParam("echo.position", &posit[6], true, 8, 1, 22);
+	registerNonMidiParam("delay.position", &posit[7], true, 9, 1, 22);
+	registerNonMidiParam("eqs.position", &posit[10], true, 2, 1, 22);
+	registerNonMidiParam("chorus.position", &posit[8], true, 1, 1, 10);
+	registerNonMidiParam("flanger.position", &posit[9], true, 2, 1, 10);
+	registerNonMidiParam("moog.position", &posit[11], true, 6, 1, 10);
+	registerNonMidiParam("phaser.position", &posit[12], true, 3, 1, 10);
+	registerNonMidiParam("low_highpass.position", &posit[14], true, 1, 1, 22);
+	registerNonMidiParam("stereodelay.position", &posit[15], true, 4, 1, 10);
+	registerNonMidiParam("stereoecho.position", &posit[16], true, 5, 1, 10);
+	registerNonMidiParam("oscilloscope.position", &posit[17], true, 11, 1, 22);
+	registerNonMidiParam("biquad.position", &posit[18], true, 12, 1, 22);
+	//registerNonMidiParam("midi_out.position", &posit[28], true, 20, 1, 22);
+	registerNonMidiParam("ampmodul.position", &posit[19], true, 7, 1, 10);
+	registerNonMidiParam("tonemodul.position", &posit[20], true, 8, 1, 10);
+	registerNonMidiParam("tremolo.position", &posit[21], true, 13, 1, 22);
+	registerNonMidiParam("phaser_mono.position", &posit[22], true, 14, 1, 22);
+	registerNonMidiParam("chorus_mono.position", &posit[23], true, 15, 1, 22);
+	registerNonMidiParam("flanger_mono.position", &posit[24], true, 16, 1, 22);
+	registerNonMidiParam("feedback.position", &posit[25], true, 17, 1, 22);
+	registerNonMidiParam("amp.tonestack.position", &posit[26], true, 18, 1, 22);
+	registerNonMidiParam("cab.position", &posit[27], true, 19, 1, 22);
 	
 	
 	registerNonMidiParam("system.waveview", &viv, false);
@@ -443,45 +443,45 @@ void process_buffers(int count, float* input, float* output0)
     }
 	
 	for (int m = 1; m < audio.mono_plug_counter; m++) {
-	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && audio.crybabypp) {
+	    if (audio.posit[0] == m && audio.fcheckbox5 && !audio.fautowah && audio.crybabypp) {
 		    gx_effects::crybaby::compute(count, output0, output0);
-	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah && audio.crybabypp) {
+	    } else if (audio.posit[0] == m && audio.fcheckbox5 && audio.fautowah && audio.crybabypp) {
 		    gx_effects::autowah::compute(count, output0, output0);
-	    } else if (audio.posit5 == m && audio.fcheckboxcom1 && audio.compressorpp) {
+	    } else if (audio.posit[5] == m && audio.fcheckboxcom1 && audio.compressorpp) {
 		    gx_effects::compressor::compute(count, output0, output0);
-	    } else if (audio.posit1 == m && audio.foverdrive4 && audio.overdrivepp) {
+	    } else if (audio.posit[1] == m && audio.foverdrive4 && audio.overdrivepp) {
 		    gx_effects::overdrive::compute(count, output0, output0);
-	    } else if (audio.posit2 == m && audio.fcheckbox4 && audio.distortionpp) {
+	    } else if (audio.posit[2] == m && audio.fcheckbox4 && audio.distortionpp) {
 	         gx_effects::gx_distortion::compute(count, output0, output0);
-	    } else if (audio.posit3 == m && audio.fcheckbox6 && audio.freeverbpp) {
+	    } else if (audio.posit[3] == m && audio.fcheckbox6 && audio.freeverbpp) {
 		    gx_effects::freeverb::compute(count, output0, output0);
-	    } else if (audio.posit6 == m && audio.fcheckbox7 && gx_effects::echo::is_inited() && audio.echopp) {
+	    } else if (audio.posit[6] == m && audio.fcheckbox7 && gx_effects::echo::is_inited() && audio.echopp) {
 		    gx_effects::echo::compute(count, output0, output0);
-	    } else if (audio.posit4 == m && audio.fcheckbox8 && audio.IRpp) {
+	    } else if (audio.posit[4] == m && audio.fcheckbox8 && audio.IRpp) {
 		    gx_effects::impulseresponse::compute(count, output0, output0);
-	    } else if (audio.posit7 == m && audio.fdelay && gx_effects::delay::is_inited() && audio.delaypp) {
+	    } else if (audio.posit[7] == m && audio.fdelay && gx_effects::delay::is_inited() && audio.delaypp) {
 		    gx_effects::delay::compute(count, output0, output0);
-	    } else if (audio.posit10 == m && audio.feq && audio.eqpp) {
+	    } else if (audio.posit[10] == m && audio.feq && audio.eqpp) {
 		    gx_effects::selecteq::compute(count, output0, output0);
-	    } else if (audio.posit14 == m && audio.flh && audio.lhpp) {
+	    } else if (audio.posit[14] == m && audio.flh && audio.lhpp) {
 		    gx_effects::low_high_pass::compute(count, output0, output0);
-	    } else if (audio.posit17 == m && audio.fwv && audio.wvpp) {
+	    } else if (audio.posit[17] == m && audio.fwv && audio.wvpp) {
 		    (void)memcpy(result, output0, sizeof(float)*count);
-	    } else if (audio.posit18 == m && audio.fbiquad && audio.bipp) {
+	    } else if (audio.posit[18] == m && audio.fbiquad && audio.bipp) {
 		    gx_effects::biquad::compute(count, output0, output0);
-	    } else if (audio.posit21 == m && audio.ftremolo && audio.trpp) {
+	    } else if (audio.posit[21] == m && audio.ftremolo && audio.trpp) {
 		    gx_effects::tremolo::compute(count, output0, output0);
-	    } else if (audio.posit22 == m && audio.fpm && audio.pmpp) {
+	    } else if (audio.posit[22] == m && audio.fpm && audio.pmpp) {
 		    gx_effects::phaser_mono::compute(count, output0, output0);
-	    } else if (audio.posit23 == m && audio.fchorus_mono && audio.chpp && gx_effects::chorus_mono::is_inited()) {
+	    } else if (audio.posit[23] == m && audio.fchorus_mono && audio.chpp && gx_effects::chorus_mono::is_inited()) {
 			gx_effects::chorus_mono::compute(count, output0, output0);
-		} else if (audio.posit24 == m && audio.fflanger_mono && audio.flpp) {
+		} else if (audio.posit[24] == m && audio.fflanger_mono && audio.flpp) {
 			gx_effects::flanger_mono::compute(count, output0, output0);
-		} else if (audio.posit25 == m && audio.ffeedback && audio.ffb) {
+		} else if (audio.posit[25] == m && audio.ffeedback && audio.ffb) {
 			gx_effects::gx_feedback::compute(count, output0, output0);
-		} else if (audio.posit26 == m && audio.ftonestack && audio.fts ) {
+		} else if (audio.posit[26] == m && audio.ftonestack && audio.fts ) {
 			run_tonestack(count, output0);
-		} else if (audio.posit27 == m && audio.fcab && audio.fcb) {
+		} else if (audio.posit[27] == m && audio.fcab && audio.fcb) {
 			compensate_cab(count,output0 , output0);
 			if (!cab_conv.compute(count, output0))
 				cout << "overload" << endl;
@@ -521,45 +521,45 @@ void process_buffers(int count, float* input, float* output0)
     }
     
     for (int m = 1; m < audio.mono_plug_counter; m++) {
-	    if (audio.posit0 == m && audio.fcheckbox5 && !audio.fautowah && !audio.crybabypp) {
+	    if (audio.posit[0] == m && audio.fcheckbox5 && !audio.fautowah && !audio.crybabypp) {
 		    gx_effects::crybaby::compute(count, output0, output0);
-	    } else if (audio.posit0 == m && audio.fcheckbox5 && audio.fautowah && !audio.crybabypp) {
+	    } else if (audio.posit[0] == m && audio.fcheckbox5 && audio.fautowah && !audio.crybabypp) {
 		    gx_effects::autowah::compute(count, output0, output0);
-	    } else if (audio.posit5 == m && audio.fcheckboxcom1 && !audio.compressorpp) {
+	    } else if (audio.posit[5] == m && audio.fcheckboxcom1 && !audio.compressorpp) {
 		    gx_effects::compressor::compute(count, output0, output0);
-	    } else if (audio.posit1 == m && audio.foverdrive4 && !audio.overdrivepp) {
+	    } else if (audio.posit[1] == m && audio.foverdrive4 && !audio.overdrivepp) {
 		    gx_effects::overdrive::compute(count, output0, output0);
-	    } else if (audio.posit2 == m && audio.fcheckbox4 && !audio.distortionpp) {
+	    } else if (audio.posit[2] == m && audio.fcheckbox4 && !audio.distortionpp) {
 	         gx_effects::gx_distortion::compute(count, output0, output0);
-	    } else if (audio.posit3 == m && audio.fcheckbox6 && !audio.freeverbpp) {
+	    } else if (audio.posit[3] == m && audio.fcheckbox6 && !audio.freeverbpp) {
 		    gx_effects::freeverb::compute(count, output0, output0);
-	    } else if (audio.posit6 == m && audio.fcheckbox7 && gx_effects::echo::is_inited() && !audio.echopp) {
+	    } else if (audio.posit[6] == m && audio.fcheckbox7 && gx_effects::echo::is_inited() && !audio.echopp) {
 		    gx_effects::echo::compute(count, output0, output0);
-	    } else if (audio.posit4 == m && audio.fcheckbox8 && !audio.IRpp) {
+	    } else if (audio.posit[4] == m && audio.fcheckbox8 && !audio.IRpp) {
 		    gx_effects::impulseresponse::compute(count, output0, output0);
-	    } else if (audio.posit7 == m && audio.fdelay && gx_effects::delay::is_inited() && !audio.delaypp) {
+	    } else if (audio.posit[7] == m && audio.fdelay && gx_effects::delay::is_inited() && !audio.delaypp) {
 		    gx_effects::delay::compute(count, output0, output0);
-	    } else if (audio.posit10 == m && audio.feq && !audio.eqpp) {
+	    } else if (audio.posit[10] == m && audio.feq && !audio.eqpp) {
 		    gx_effects::selecteq::compute(count, output0, output0);
-	    } else if (audio.posit14 == m && audio.flh && !audio.lhpp) {
+	    } else if (audio.posit[14] == m && audio.flh && !audio.lhpp) {
 		    gx_effects::low_high_pass::compute(count, output0, output0);
-	    } else if (audio.posit17 == m && audio.fwv && !audio.wvpp) {
+	    } else if (audio.posit[17] == m && audio.fwv && !audio.wvpp) {
 		    (void)memcpy(result, output0, sizeof(float)*count);
-	    } else if (audio.posit18 == m && audio.fbiquad && !audio.bipp) {
+	    } else if (audio.posit[18] == m && audio.fbiquad && !audio.bipp) {
 		    gx_effects::biquad::compute(count, output0, output0);
-	    } else if (audio.posit21 == m && audio.ftremolo && !audio.trpp) {
+	    } else if (audio.posit[21] == m && audio.ftremolo && !audio.trpp) {
 		    gx_effects::tremolo::compute(count, output0, output0);
-	    } else if (audio.posit22 == m && audio.fpm && !audio.pmpp) {
+	    } else if (audio.posit[22] == m && audio.fpm && !audio.pmpp) {
 		    gx_effects::phaser_mono::compute(count, output0, output0);
-	    } else if (audio.posit23 == m && audio.fchorus_mono && !audio.chpp && gx_effects::chorus_mono::is_inited()) {
+	    } else if (audio.posit[23] == m && audio.fchorus_mono && !audio.chpp && gx_effects::chorus_mono::is_inited()) {
 			gx_effects::chorus_mono::compute(count, output0, output0);
-		} else if (audio.posit24 == m && audio.fflanger_mono && !audio.flpp ) {
+		} else if (audio.posit[24] == m && audio.fflanger_mono && !audio.flpp ) {
 			gx_effects::flanger_mono::compute(count, output0, output0);
-		} else if (audio.posit25 == m && audio.ffeedback && !audio.ffb ) {
+		} else if (audio.posit[25] == m && audio.ffeedback && !audio.ffb ) {
 			gx_effects::gx_feedback::compute(count, output0, output0);
-		} else if (audio.posit26 == m && audio.ftonestack && !audio.fts ) {
+		} else if (audio.posit[26] == m && audio.ftonestack && !audio.fts ) {
 			run_tonestack(count, output0);
-		} else if (audio.posit27 == m && audio.fcab && !audio.fcb) {
+		} else if (audio.posit[27] == m && audio.fcab && !audio.fcb) {
 			compensate_cab(count,output0 , output0);
 			if (!cab_conv.compute(count, output0))
 				cout << "overload" << endl;
@@ -593,21 +593,21 @@ void process_insert_buffers (int count, float* input1, float* output0, float* ou
     gx_effects::gxfeed::compute(count, output0, output0, output1);
     
     for (int m = 1; m < audio.stereo_plug_counter; m++) {
-		if (audio.posit8 == m && audio.fchorus && gx_effects::chorus::is_inited()) {
+		if (audio.posit[8] == m && audio.fchorus && gx_effects::chorus::is_inited()) {
 			gx_effects::chorus::compute(count, output0, output1, output0, output1);
-		} else if (audio.posit9 == m && audio.fflanger) {
+		} else if (audio.posit[9] == m && audio.fflanger) {
 			gx_effects::flanger::compute(count, output0, output1, output0, output1);
-		} else if (audio.posit11 == m && audio.fmoog) {
+		} else if (audio.posit[11] == m && audio.fmoog) {
 			gx_effects::moog::compute(count, output0, output1, output0, output1);
-		} else if (audio.posit12 == m && audio.fphaser) {
+		} else if (audio.posit[12] == m && audio.fphaser) {
 			gx_effects::phaser::compute(count, output0, output1, output0, output1);
-		} else if (audio.posit15 == m && audio.fsd && gx_effects::stereodelay::is_inited()) {
+		} else if (audio.posit[15] == m && audio.fsd && gx_effects::stereodelay::is_inited()) {
 			gx_effects::stereodelay::compute(count, output0, output1, output0, output1);
-		}else if (audio.posit16 == m && audio.fse && gx_effects::stereoecho::is_inited()) {
+		}else if (audio.posit[16] == m && audio.fse && gx_effects::stereoecho::is_inited()) {
 			gx_effects::stereoecho::compute(count, output0, output1, output0, output1);
-		}else if (audio.posit19 == m && audio.famp ) {
+		}else if (audio.posit[19] == m && audio.famp ) {
 			gx_amps::gx_ampmodul::compute(count, output0, output1, output0, output1);
-		}else if (audio.posit20 == m && audio.ftone ) {
+		}else if (audio.posit[20] == m && audio.ftone ) {
 			gx_effects::tonecontroll::compute(count, output0, output1, output0, output1);
 		}
 	}

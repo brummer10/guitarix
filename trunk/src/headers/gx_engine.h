@@ -78,6 +78,7 @@ public:
 	int tonestack;
 	int cabinet;
 	int cab_switched;
+	
 	int crybabypp;
 	int overdrivepp;
 	int distortionpp;
@@ -95,43 +96,17 @@ public:
 	int chpp;
 	int flpp;
 	int ffb;
-	int fsd;
-	int fse;
 	int fts;
 	int fcb;
+	
+	int fsd;
+	int fse;
 	int gxtube;
 	int mono_plug_counter;
 	int stereo_plug_counter;
 
-	float posit1;
-	float posit2;
-	float posit3;
-	float posit4;
-	float posit5;
-	float posit6;
-	float posit7;
-	float posit8;
-	float posit9;
-	float posit10;
-	float posit11;
-	float posit12;
-	float posit14;
-	float posit15;
-	float posit16;
-	float posit17;
-	float posit18;
-	float posit19;
-	float posit20;
-	float posit21;
-	float posit22;
-	float posit23;
-	float posit24;
-	float posit25;
-	float posit26;
-	float posit27;
-	float posit00;
+	float posit[30];
 	float fnglevel;
-	float posit0;
 	float fautowah;
 	float ffuse;
 	float fwarn;
