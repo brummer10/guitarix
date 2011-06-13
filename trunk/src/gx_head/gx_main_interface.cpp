@@ -2902,7 +2902,7 @@ void GxMainInterface::openAmpBox(const char* label)
 	box->window.set_name("StereoRack");
 	box->window.set_tooltip_text(_("Stereo Rack, right click pop up the plugin menu"));
 	sBox = GTK_WIDGET(box->rbox.gobj());
-	gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), true, true, 0);
+	gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), false, true, 0);
 	pushBox(kBoxMode, GTK_WIDGET(sBox));
 }
 
