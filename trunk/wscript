@@ -38,9 +38,9 @@ def option_enabled (option):
     return True
 
 # used by waf dist and waf build
-VERSION='0.15.0svn'
+VERSION='0.17.0svn'
 APPNAME='guitarix'
-APPNAME1='gx_head'
+APPNAME1='guitarix'
 
 good_faust_versions = ['0.9.30','0.9.33','0.9.36']
 
@@ -571,7 +571,7 @@ def build(bld):
 
     pa = bld.env['GX_SOUND_DIR1']
     bld.add_subdirs('src/gx_head')
-    bld.install_files(bld.env['DESKAPPS_DIR'], 'gx_head.desktop', chmod=0644)
+    bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
     bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/funkmuscle_rc', chmod=0664)
     bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/dlp_ae_rc', chmod=0664)
     bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/zettberlin_rc', chmod=0664)

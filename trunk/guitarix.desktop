@@ -1,9 +1,9 @@
 
 [Desktop Entry]
-Name=gx_head
+Name=guitarix
 GenericName=Mono Amplifier
 Comment=Simple mono amplifier simulation
-Exec=gx_head
+Exec=guitarix
 Icon=gx_head
 Categories=AudioVideo;X-Jack;Midi;X-MIDI;
 Terminal=false

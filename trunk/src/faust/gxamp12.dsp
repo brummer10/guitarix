@@ -43,7 +43,7 @@ process = hgroup("amp2", hgroup("stage1", stage1) : component("gxdistortion.dsp"
     preamp =  (vslider(".amp2.stage1.Pregain[alias]",0,-20,20,0.1):db2linear : smoothi(0.999));     
     stage1 = *(preamp): tubestage(0,86.0,2700.0) :
     lowpass1(6531.0) : tubestage(1,132.0,1500.0) :tubestage(1,194.0,820.0) ; 
-    stage2 = lowpass1(6531.0) : *(gain1)  <: (tubestage2(1,6531.0,820.0),tubestage2(0,6531.0,820.0)) :> _ 
+    stage2 = lowpass1(6531.0) : *(gain1)  <: (min(0,tubestage2(1,6531.0,820.0)),max(0,tubestage2(0,6531.0,820.0))) :> _ 
     with {
     gain1 = vslider(".amp2.stage2.gain1[alias]", 6, -20.0, 20.0, 0.1) : db2linear : smoothi(0.999);
     } ;
