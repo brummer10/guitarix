@@ -632,7 +632,7 @@ static gboolean gx_rename_main_widget(gpointer data)
     } else {
 		title += gx_current_preset;
 	}
-	gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), title.c_str());
+	gtk_window_set_title (GTK_WINDOW (gx_gui::gw.fWindow), title.c_str());
 	// reload convolver settings widget
 	//gx_jconv::gx_reload_jcgui();
     return false;
@@ -711,7 +711,7 @@ void gx_save_preset (const char* presname, bool expand_menu)
 
 	// refresh display
 	string ttle = string("gx_head ") + presname;
-	gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), (gchar*)ttle.c_str());
+	gtk_window_set_title (GTK_WINDOW (gx_gui::gw.fWindow), (gchar*)ttle.c_str());
 
 	// we are now in a preset setting
 	setting_is_preset = true;
@@ -879,7 +879,7 @@ void gx_recall_settings_file(const string *filename)
 			_("loading Settings file"),
 			(boost::format(_("loaded settings file %1%")) % *filename).str());
 	}
-	gtk_window_set_title(GTK_WINDOW(gx_gui::fWindow), gx_jack::client_instance.c_str());
+	gtk_window_set_title(GTK_WINDOW(gx_gui::gw.fWindow), gx_jack::client_instance.c_str());
 	setting_is_preset = false;
 	setting_is_factory = false;
 	gx_current_preset = "";
@@ -891,7 +891,7 @@ void gx_recall_settings_file(const string *filename)
 void gx_load_preset_file(const char* presname, bool expand_menu)
 {
 	Gtk::FileChooserDialog file_chooser(
-		*Glib::wrap(GTK_WINDOW(gx_gui::fWindow)),
+		*Glib::wrap(GTK_WINDOW(gx_gui::gw.fWindow)),
 		_("Select a preset *_rc file"),
 		Gtk::FILE_CHOOSER_ACTION_OPEN);
 	file_chooser.add_button(GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
@@ -922,7 +922,7 @@ void gx_load_preset_file(const char* presname, bool expand_menu)
 void gx_save_preset_file(const char* presname, bool expand_menu)
 {
 	Gtk::FileChooserDialog file_chooser(
-		*Glib::wrap(GTK_WINDOW(gx_gui::fWindow)),
+		*Glib::wrap(GTK_WINDOW(gx_gui::gw.fWindow)),
 		_("Save a preset *_rc File"),
 		Gtk::FILE_CHOOSER_ACTION_SAVE);
 	file_chooser.add_button(GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
@@ -1042,7 +1042,7 @@ void gx_save_main_setting(GtkMenuItem* item, gpointer arg)
 	} else {
 		gx_print_info(_("Main Setting"), _("Saved main setting"));
 	}
-	gtk_window_set_title(GTK_WINDOW(gx_gui::fWindow), gx_jack::client_instance.c_str());
+	gtk_window_set_title(GTK_WINDOW(gx_gui::gw.fWindow), gx_jack::client_instance.c_str());
 	setting_is_preset = false;
 	setting_is_factory = false;
 	gx_jconv::gx_reload_jcgui();
@@ -1112,7 +1112,7 @@ void gx_rename_preset (GtkEntry* entry)
     {
         string jname = "gx_head ";
         string title = jname + newname;
-        gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), title.c_str());
+        gtk_window_set_title (GTK_WINDOW (gx_gui::gw.fWindow), title.c_str());
 
         gx_current_preset = newname;
     }

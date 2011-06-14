@@ -32,7 +32,7 @@ namespace gx_cairo
 // set cairo color related to the used skin
 void gx_skin_color(cairo_pattern_t *pat)
 {
-	int skin_is = int(float(gx_gui::gx_current_skin));
+	int skin_is = int(float(gx_gui::skin.gx_current_skin));
 
 	switch (skin_is)
 	{
@@ -455,7 +455,7 @@ gboolean AmpBox_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
 gboolean tribal_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
-	if (int(float(gx_gui::gx_current_skin)!=1) && int(float(gx_gui::gx_current_skin)<7))
+	if (int(float(gx_gui::skin.gx_current_skin)!=1) && int(float(gx_gui::skin.gx_current_skin)<7))
 	{
 		GdkPixbuf *_image;
 		cairo_t *cr;
@@ -510,7 +510,7 @@ gboolean tribal_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data
 
 gboolean vbox_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
-	if (int(float(gx_gui::gx_current_skin)==1))
+	if (int(float(gx_gui::skin.gx_current_skin)==1))
 	{
 		cairo_t *cr;
 		/* create a cairo context */
@@ -537,7 +537,7 @@ gboolean vbox_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 		cairo_pattern_destroy (pat);
 		cairo_destroy(cr);
 	}
-	else if (int(float(gx_gui::gx_current_skin)>=7))
+	else if (int(float(gx_gui::skin.gx_current_skin)>=7))
 		zac_expose(wi,ev,user_data);
 
 	return FALSE;

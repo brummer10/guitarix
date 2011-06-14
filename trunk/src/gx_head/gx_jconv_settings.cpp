@@ -400,7 +400,7 @@ IRWindow::IRWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& bl
 	wcombo->set_name("rack_button");
 	
 	init_connect();
-	set_icon(Glib::wrap(gx_gui::ib));
+	set_icon(Glib::wrap(gx_gui::gw.ib));
 
 	// reset display
 	file_changed("", 0, 0, 0, "");

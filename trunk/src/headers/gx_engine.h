@@ -69,7 +69,8 @@ public:
 	bool ffeedback;
 	bool ftonestack;
 	
-
+	int effect_pre_post[20];
+	
 	int fcheckbox7;
 	int fdelay;
 	int fchorus;
@@ -78,27 +79,6 @@ public:
 	int tonestack;
 	int cabinet;
 	int cab_switched;
-	
-	int crybabypp;
-	int overdrivepp;
-	int distortionpp;
-	int freeverbpp;
-	int IRpp;
-	int compressorpp;
-	int echopp;
-	int delaypp;
-	int eqpp;
-	int lhpp;
-	int wvpp;
-	int bipp;
-	int trpp;
-	int pmpp;
-	int chpp;
-	int flpp;
-	int ffb;
-	int fts;
-	int fcb;
-	
 	int fsd;
 	int fse;
 	int gxtube;
@@ -106,6 +86,7 @@ public:
 	int stereo_plug_counter;
 
 	float posit[30];
+	
 	float fnglevel;
 	float fautowah;
 	float ffuse;
@@ -123,7 +104,6 @@ public:
 	float cab_treble;
 	float cab_sum;
 	
-
 	void register_parameter();
 };
 

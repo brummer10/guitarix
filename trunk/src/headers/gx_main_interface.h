@@ -123,6 +123,56 @@ void register_gui_parameter();
 
 extern GuiVariables guivar;
 
+/* global GUI widgets */
+class GlobalWidgets
+{
+public:
+	/* global GUI widgets */
+	GtkWidget* fWindow;
+	GtkWidget* menuh;
+	GtkWidget* midibox;
+	GtkWidget* patch_info;
+	GtkWidget* tuner_widget;
+	GtkWidget* rack_widget;
+	GtkWidget* srack_widget;
+	GtkWidget* menu_mono_rack;
+	GtkWidget* menu_stereo_rack;
+	GtkWidget* rack_tool_bar;
+
+	/* icon widgets */
+	GdkPixbuf* ib;
+	GdkPixbuf* ibm;
+	GdkPixbuf* ibr;
+
+	/* jack server status icons */
+	GtkWidget* gx_jackd_on_image;
+	GtkWidget* gx_jackd_off_image;
+
+	/* engine status images */
+	GtkWidget* gx_engine_on_image;
+	GtkWidget* gx_engine_off_image;
+	GtkWidget* gx_engine_bypass_image;
+	GtkWidget* gx_engine_item;
+
+	GtkStatusIcon* status_icon;
+};
+
+extern GlobalWidgets gw;
+
+class SkinHandling
+{
+public:
+/* skin handling */
+	vector<string> skin_list;
+	gint gx_current_skin;
+	int last_skin;
+	int no_opt_skin;
+	int set_knob;
+	SkinHandling();
+};
+
+extern SkinHandling skin;
+
 void gx_start_stop_jconv(GtkWidget*, gpointer);
 
 class UiRegler: gx_ui::GxUiItemFloat, protected Gtk::Adjustment

@@ -194,48 +194,14 @@ extern const char* shell_var_name[];
 namespace gx_gui
 {
 
-/* global GUI widgets */
-extern GtkWidget* fWindow;
-extern GtkWidget* menuh;
-extern GtkWidget* midibox;
-extern GtkWidget* patch_info;
-extern GtkWidget* tuner_widget;
-extern GtkWidget* rack_widget;
-extern GtkWidget* menu_mono_rack;
-extern GtkWidget* srack_widget;
-extern GtkWidget* menu_stereo_rack;
-extern GtkWidget* rack_tool_bar;
 
-/* icon widgets */
-extern GdkPixbuf* ib;
-extern GdkPixbuf* ibm;
-extern GdkPixbuf* ibr;
-
-/* jack server status */
-extern GtkWidget* gx_jackd_on_image;
-extern GtkWidget* gx_jackd_off_image;
-
-/* engine status images */
-extern GtkWidget* gx_engine_on_image;
-extern GtkWidget* gx_engine_off_image;
-extern GtkWidget* gx_engine_bypass_image;
-extern GtkWidget* gx_engine_item;
-
-/* some more widgets */
-
-extern GtkStatusIcon* status_icon;
 
 /* tuner and osilloscope*/
 extern int showwave;
 extern int shownote;
 extern float show_patch_info;
 
-/* skin handling */
-extern vector<string> skin_list;
-extern gint gx_current_skin;
-extern int last_skin;
-extern int no_opt_skin;
-extern int set_knob;
+
 
 /* rack handlig */
 extern int mono_plugs;

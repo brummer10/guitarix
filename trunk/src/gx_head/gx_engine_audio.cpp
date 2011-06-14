@@ -124,25 +124,25 @@ void AudioVariables::register_parameter()
 	registerEnumParam("cab.select","select",cabinet_model,&cabinet, 0);
 	
 	static const char *post_pre[] = {N_("post"),N_("pre"),0};
-	registerEnumParam("compressor.pp","select",post_pre,&compressorpp, 0);
-	registerEnumParam("crybaby.pp","select",post_pre,&crybabypp, 0);
-	registerEnumParam("overdrive.pp","select",post_pre,&overdrivepp, 0);
-	registerEnumParam("gx_distortion.pp","select",post_pre,&distortionpp, 0);
-	registerEnumParam("freeverb.pp","select",post_pre,&freeverbpp, 0);
-	registerEnumParam("IR.pp","select",post_pre,&IRpp, 0);
-	registerEnumParam("echo.pp","select",post_pre,&echopp, 0);
-	registerEnumParam("delay.pp","select",post_pre,&delaypp, 0);
-	registerEnumParam("eqs.pp","select",post_pre,&eqpp, 0);
-	registerEnumParam("low_highpass.pp","select",post_pre,&lhpp, 0);
-	registerEnumParam("oscilloscope.pp","select",post_pre,&wvpp, 0);
-	registerEnumParam("biquad.pp","select",post_pre,&bipp, 0);
-	registerEnumParam("tremolo.pp","select",post_pre,&trpp, 0);
-	registerEnumParam("phaser_mono.pp","select",post_pre,&pmpp, 0);
-	registerEnumParam("chorus_mono.pp","select",post_pre,&chpp, 0);
-	registerEnumParam("flanger_mono.pp","select",post_pre,&flpp, 0);
-	registerEnumParam("feedback.pp","select",post_pre,&ffb, 0);
-	registerEnumParam("amp.tonestack.pp","select",post_pre,&fts, 0);
-	registerEnumParam("cab.pp","select",post_pre,&fcb, 0);
+	registerEnumParam("compressor.pp","select",post_pre,&effect_pre_post[0], 0);
+	registerEnumParam("crybaby.pp","select",post_pre,&effect_pre_post[1], 0);
+	registerEnumParam("overdrive.pp","select",post_pre,&effect_pre_post[2], 0);
+	registerEnumParam("gx_distortion.pp","select",post_pre,&effect_pre_post[3], 0);
+	registerEnumParam("freeverb.pp","select",post_pre,&effect_pre_post[4], 0);
+	registerEnumParam("IR.pp","select",post_pre,&effect_pre_post[5], 0);
+	registerEnumParam("echo.pp","select",post_pre,&effect_pre_post[6], 0);
+	registerEnumParam("delay.pp","select",post_pre,&effect_pre_post[7], 0);
+	registerEnumParam("eqs.pp","select",post_pre,&effect_pre_post[8], 0);
+	registerEnumParam("low_highpass.pp","select",post_pre,&effect_pre_post[9], 0);
+	registerEnumParam("oscilloscope.pp","select",post_pre,&effect_pre_post[10], 0);
+	registerEnumParam("biquad.pp","select",post_pre,&effect_pre_post[11], 0);
+	registerEnumParam("tremolo.pp","select",post_pre,&effect_pre_post[12], 0);
+	registerEnumParam("phaser_mono.pp","select",post_pre,&effect_pre_post[13], 0);
+	registerEnumParam("chorus_mono.pp","select",post_pre,&effect_pre_post[14], 0);
+	registerEnumParam("flanger_mono.pp","select",post_pre,&effect_pre_post[15], 0);
+	registerEnumParam("feedback.pp","select",post_pre,&effect_pre_post[16], 0);
+	registerEnumParam("amp.tonestack.pp","select",post_pre,&effect_pre_post[17], 0);
+	registerEnumParam("cab.pp","select",post_pre,&effect_pre_post[18], 0);
 	
 	static const char *crybaby_autowah[] = {N_("manual"),N_("auto"),0};
 	registerEnumParam("crybaby.autowah", "select", crybaby_autowah, &fautowah, 0);
@@ -443,45 +443,45 @@ void process_buffers(int count, float* input, float* output0)
     }
 	
 	for (int m = 1; m < audio.mono_plug_counter; m++) {
-	    if (audio.posit[0] == m && audio.fcheckbox5 && !audio.fautowah && audio.crybabypp) {
+	    if (audio.posit[0] == m && audio.fcheckbox5 && !audio.fautowah && audio.effect_pre_post[1]) {
 		    gx_effects::crybaby::compute(count, output0, output0);
-	    } else if (audio.posit[0] == m && audio.fcheckbox5 && audio.fautowah && audio.crybabypp) {
+	    } else if (audio.posit[0] == m && audio.fcheckbox5 && audio.fautowah && audio.effect_pre_post[1]) {
 		    gx_effects::autowah::compute(count, output0, output0);
-	    } else if (audio.posit[5] == m && audio.fcheckboxcom1 && audio.compressorpp) {
+	    } else if (audio.posit[5] == m && audio.fcheckboxcom1 && audio.effect_pre_post[0]) {
 		    gx_effects::compressor::compute(count, output0, output0);
-	    } else if (audio.posit[1] == m && audio.foverdrive4 && audio.overdrivepp) {
+	    } else if (audio.posit[1] == m && audio.foverdrive4 && audio.effect_pre_post[2]) {
 		    gx_effects::overdrive::compute(count, output0, output0);
-	    } else if (audio.posit[2] == m && audio.fcheckbox4 && audio.distortionpp) {
+	    } else if (audio.posit[2] == m && audio.fcheckbox4 && audio.effect_pre_post[3]) {
 	         gx_effects::gx_distortion::compute(count, output0, output0);
-	    } else if (audio.posit[3] == m && audio.fcheckbox6 && audio.freeverbpp) {
+	    } else if (audio.posit[3] == m && audio.fcheckbox6 && audio.effect_pre_post[4]) {
 		    gx_effects::freeverb::compute(count, output0, output0);
-	    } else if (audio.posit[6] == m && audio.fcheckbox7 && gx_effects::echo::is_inited() && audio.echopp) {
+	    } else if (audio.posit[6] == m && audio.fcheckbox7 && gx_effects::echo::is_inited() && audio.effect_pre_post[6]) {
 		    gx_effects::echo::compute(count, output0, output0);
-	    } else if (audio.posit[4] == m && audio.fcheckbox8 && audio.IRpp) {
+	    } else if (audio.posit[4] == m && audio.fcheckbox8 && audio.effect_pre_post[5]) {
 		    gx_effects::impulseresponse::compute(count, output0, output0);
-	    } else if (audio.posit[7] == m && audio.fdelay && gx_effects::delay::is_inited() && audio.delaypp) {
+	    } else if (audio.posit[7] == m && audio.fdelay && gx_effects::delay::is_inited() && audio.effect_pre_post[7]) {
 		    gx_effects::delay::compute(count, output0, output0);
-	    } else if (audio.posit[10] == m && audio.feq && audio.eqpp) {
+	    } else if (audio.posit[10] == m && audio.feq && audio.effect_pre_post[8]) {
 		    gx_effects::selecteq::compute(count, output0, output0);
-	    } else if (audio.posit[14] == m && audio.flh && audio.lhpp) {
+	    } else if (audio.posit[14] == m && audio.flh && audio.effect_pre_post[9]) {
 		    gx_effects::low_high_pass::compute(count, output0, output0);
-	    } else if (audio.posit[17] == m && audio.fwv && audio.wvpp) {
+	    } else if (audio.posit[17] == m && audio.fwv && audio.effect_pre_post[10]) {
 		    (void)memcpy(result, output0, sizeof(float)*count);
-	    } else if (audio.posit[18] == m && audio.fbiquad && audio.bipp) {
+	    } else if (audio.posit[18] == m && audio.fbiquad && audio.effect_pre_post[11]) {
 		    gx_effects::biquad::compute(count, output0, output0);
-	    } else if (audio.posit[21] == m && audio.ftremolo && audio.trpp) {
+	    } else if (audio.posit[21] == m && audio.ftremolo && audio.effect_pre_post[12]) {
 		    gx_effects::tremolo::compute(count, output0, output0);
-	    } else if (audio.posit[22] == m && audio.fpm && audio.pmpp) {
+	    } else if (audio.posit[22] == m && audio.fpm && audio.effect_pre_post[13]) {
 		    gx_effects::phaser_mono::compute(count, output0, output0);
-	    } else if (audio.posit[23] == m && audio.fchorus_mono && audio.chpp && gx_effects::chorus_mono::is_inited()) {
+	    } else if (audio.posit[23] == m && audio.fchorus_mono && audio.effect_pre_post[14] && gx_effects::chorus_mono::is_inited()) {
 			gx_effects::chorus_mono::compute(count, output0, output0);
-		} else if (audio.posit[24] == m && audio.fflanger_mono && audio.flpp) {
+		} else if (audio.posit[24] == m && audio.fflanger_mono && audio.effect_pre_post[15]) {
 			gx_effects::flanger_mono::compute(count, output0, output0);
-		} else if (audio.posit[25] == m && audio.ffeedback && audio.ffb) {
+		} else if (audio.posit[25] == m && audio.ffeedback && audio.effect_pre_post[16]) {
 			gx_effects::gx_feedback::compute(count, output0, output0);
-		} else if (audio.posit[26] == m && audio.ftonestack && audio.fts ) {
+		} else if (audio.posit[26] == m && audio.ftonestack && audio.effect_pre_post[17] ) {
 			run_tonestack(count, output0);
-		} else if (audio.posit[27] == m && audio.fcab && audio.fcb) {
+		} else if (audio.posit[27] == m && audio.fcab && audio.effect_pre_post[18]) {
 			compensate_cab(count,output0 , output0);
 			if (!cab_conv.compute(count, output0))
 				cout << "overload" << endl;
@@ -521,45 +521,45 @@ void process_buffers(int count, float* input, float* output0)
     }
     
     for (int m = 1; m < audio.mono_plug_counter; m++) {
-	    if (audio.posit[0] == m && audio.fcheckbox5 && !audio.fautowah && !audio.crybabypp) {
+	    if (audio.posit[0] == m && audio.fcheckbox5 && !audio.fautowah && !audio.effect_pre_post[1]) {
 		    gx_effects::crybaby::compute(count, output0, output0);
-	    } else if (audio.posit[0] == m && audio.fcheckbox5 && audio.fautowah && !audio.crybabypp) {
+	    } else if (audio.posit[0] == m && audio.fcheckbox5 && audio.fautowah && !audio.effect_pre_post[1]) {
 		    gx_effects::autowah::compute(count, output0, output0);
-	    } else if (audio.posit[5] == m && audio.fcheckboxcom1 && !audio.compressorpp) {
+	    } else if (audio.posit[5] == m && audio.fcheckboxcom1 && !audio.effect_pre_post[0]) {
 		    gx_effects::compressor::compute(count, output0, output0);
-	    } else if (audio.posit[1] == m && audio.foverdrive4 && !audio.overdrivepp) {
+	    } else if (audio.posit[1] == m && audio.foverdrive4 && !audio.effect_pre_post[2]) {
 		    gx_effects::overdrive::compute(count, output0, output0);
-	    } else if (audio.posit[2] == m && audio.fcheckbox4 && !audio.distortionpp) {
+	    } else if (audio.posit[2] == m && audio.fcheckbox4 && !audio.effect_pre_post[3]) {
 	         gx_effects::gx_distortion::compute(count, output0, output0);
-	    } else if (audio.posit[3] == m && audio.fcheckbox6 && !audio.freeverbpp) {
+	    } else if (audio.posit[3] == m && audio.fcheckbox6 && !audio.effect_pre_post[4]) {
 		    gx_effects::freeverb::compute(count, output0, output0);
-	    } else if (audio.posit[6] == m && audio.fcheckbox7 && gx_effects::echo::is_inited() && !audio.echopp) {
+	    } else if (audio.posit[6] == m && audio.fcheckbox7 && gx_effects::echo::is_inited() && !audio.effect_pre_post[6]) {
 		    gx_effects::echo::compute(count, output0, output0);
-	    } else if (audio.posit[4] == m && audio.fcheckbox8 && !audio.IRpp) {
+	    } else if (audio.posit[4] == m && audio.fcheckbox8 && !audio.effect_pre_post[5]) {
 		    gx_effects::impulseresponse::compute(count, output0, output0);
-	    } else if (audio.posit[7] == m && audio.fdelay && gx_effects::delay::is_inited() && !audio.delaypp) {
+	    } else if (audio.posit[7] == m && audio.fdelay && gx_effects::delay::is_inited() && !audio.effect_pre_post[7]) {
 		    gx_effects::delay::compute(count, output0, output0);
-	    } else if (audio.posit[10] == m && audio.feq && !audio.eqpp) {
+	    } else if (audio.posit[10] == m && audio.feq && !audio.effect_pre_post[8]) {
 		    gx_effects::selecteq::compute(count, output0, output0);
-	    } else if (audio.posit[14] == m && audio.flh && !audio.lhpp) {
+	    } else if (audio.posit[14] == m && audio.flh && !audio.effect_pre_post[9]) {
 		    gx_effects::low_high_pass::compute(count, output0, output0);
-	    } else if (audio.posit[17] == m && audio.fwv && !audio.wvpp) {
+	    } else if (audio.posit[17] == m && audio.fwv && !audio.effect_pre_post[10]) {
 		    (void)memcpy(result, output0, sizeof(float)*count);
-	    } else if (audio.posit[18] == m && audio.fbiquad && !audio.bipp) {
+	    } else if (audio.posit[18] == m && audio.fbiquad && !audio.effect_pre_post[11]) {
 		    gx_effects::biquad::compute(count, output0, output0);
-	    } else if (audio.posit[21] == m && audio.ftremolo && !audio.trpp) {
+	    } else if (audio.posit[21] == m && audio.ftremolo && !audio.effect_pre_post[12]) {
 		    gx_effects::tremolo::compute(count, output0, output0);
-	    } else if (audio.posit[22] == m && audio.fpm && !audio.pmpp) {
+	    } else if (audio.posit[22] == m && audio.fpm && !audio.effect_pre_post[13]) {
 		    gx_effects::phaser_mono::compute(count, output0, output0);
-	    } else if (audio.posit[23] == m && audio.fchorus_mono && !audio.chpp && gx_effects::chorus_mono::is_inited()) {
+	    } else if (audio.posit[23] == m && audio.fchorus_mono && !audio.effect_pre_post[14] && gx_effects::chorus_mono::is_inited()) {
 			gx_effects::chorus_mono::compute(count, output0, output0);
-		} else if (audio.posit[24] == m && audio.fflanger_mono && !audio.flpp ) {
+		} else if (audio.posit[24] == m && audio.fflanger_mono && !audio.effect_pre_post[15] ) {
 			gx_effects::flanger_mono::compute(count, output0, output0);
-		} else if (audio.posit[25] == m && audio.ffeedback && !audio.ffb ) {
+		} else if (audio.posit[25] == m && audio.ffeedback && !audio.effect_pre_post[16] ) {
 			gx_effects::gx_feedback::compute(count, output0, output0);
-		} else if (audio.posit[26] == m && audio.ftonestack && !audio.fts ) {
+		} else if (audio.posit[26] == m && audio.ftonestack && !audio.effect_pre_post[17] ) {
 			run_tonestack(count, output0);
-		} else if (audio.posit[27] == m && audio.fcab && !audio.fcb) {
+		} else if (audio.posit[27] == m && audio.fcab && !audio.effect_pre_post[18]) {
 			compensate_cab(count,output0 , output0);
 			if (!cab_conv.compute(count, output0))
 				cout << "overload" << endl;

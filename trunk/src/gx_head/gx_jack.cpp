@@ -148,9 +148,9 @@ bool gx_jack_init( const string *optvar )
 	gx_print_info(_("Jack init"), s.str());
 
 
-	if (gx_gui::fWindow) {
+	if (gx_gui::gw.fWindow) {
 	 string window_name = "gx_head";
-		gtk_window_set_title (GTK_WINDOW (gx_gui::fWindow), window_name.c_str());
+		gtk_window_set_title (GTK_WINDOW (gx_gui::gw.fWindow), window_name.c_str());
 	}
     if(jack_is_fresh) sleep(8);
 	return true;
@@ -503,9 +503,9 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 		}
 
 		if (client) {
-			if (gx_gui::gx_jackd_on_image) {
-				gtk_widget_show(gx_gui::gx_jackd_on_image);
-				gtk_widget_hide(gx_gui::gx_jackd_off_image);
+			if (gx_gui::gw.gx_jackd_on_image) {
+				gtk_widget_show(gx_gui::gw.gx_jackd_on_image);
+				gtk_widget_hide(gx_gui::gw.gx_jackd_off_image);
 			}
 			jack_is_exit = false;
 
@@ -518,9 +518,9 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg)
 		Meterbridge::stop();
 		JackCapture::stop();
 
-		if (gx_gui::gx_jackd_on_image) {
-			gtk_widget_hide(gx_gui::gx_jackd_on_image);
-			gtk_widget_show(gx_gui::gx_jackd_off_image);
+		if (gx_gui::gw.gx_jackd_on_image) {
+			gtk_widget_hide(gx_gui::gw.gx_jackd_on_image);
+			gtk_widget_show(gx_gui::gw.gx_jackd_off_image);
 		}
 
 		// engine buffers no longer ready

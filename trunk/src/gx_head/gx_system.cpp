@@ -888,7 +888,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 
 	vector<string>::iterator it;
 
-	for (it = gx_gui::skin_list.begin(); it != gx_gui::skin_list.end(); it++) {
+	for (it = gx_gui::skin.skin_list.begin(); it != gx_gui::skin.skin_list.end(); it++) {
 		opskin += ", '" + *it + "'";
 	}
 
@@ -1028,13 +1028,13 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 
 		// if garbage, let's initialize to gx_head_default.rc
 		guint s = 0;
-		while (s < gx_gui::skin_list.size()) {
-			if (tmp == gx_gui::skin_list[s])
+		while (s < gx_gui::skin.skin_list.size()) {
+			if (tmp == gx_gui::skin.skin_list[s])
 				break;
 			s++;
 		}
 
-		if (s == gx_gui::skin_list.size()) {
+		if (s == gx_gui::skin.skin_list.size()) {
 			gx_print_error(_("main"),
 						   string(_("rcset value is garbage, defaulting to 'default' style")));
 			tmp = "default";
@@ -1046,7 +1046,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 	else if (optvar[RC_STYLE].empty()) {
 		optvar[RC_STYLE] = "default";
 		// enable set last used skin
-		gx_gui::no_opt_skin = 1;
+		gx_gui::skin.no_opt_skin = 1;
 	}
 
 	// *** process GTK clear
@@ -1114,9 +1114,9 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar)
 
 void gx_set_override_options(string* optvar)
 {
-	if (!gx_gui::no_opt_skin) {
+	if (!gx_gui::skin.no_opt_skin) {
 		gx_gui::gx_actualize_skin_index(optvar[RC_STYLE]);
-		audio.fskin = gx_gui::last_skin = gx_gui::gx_current_skin;
+		audio.fskin = gx_gui::skin.last_skin = gx_gui::skin.gx_current_skin;
 	}
 }
 
@@ -1311,13 +1311,13 @@ int gx_pixmap_check()
 	}
 
 	GtkWidget *ibf =  gtk_image_new_from_file (gx_pix.c_str());
-	gx_gui::ib = gtk_image_get_pixbuf (GTK_IMAGE(ibf));
+	gx_gui::gw.ib = gtk_image_get_pixbuf (GTK_IMAGE(ibf));
 
 	GtkWidget *stim = gtk_image_new_from_file (midi_pix.c_str());
-	gx_gui::ibm = gtk_image_get_pixbuf (GTK_IMAGE(stim));
+	gx_gui::gw.ibm = gtk_image_get_pixbuf (GTK_IMAGE(stim));
 
 	GtkWidget *stir = gtk_image_new_from_file (warn_pix.c_str());
-	gx_gui::ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
+	gx_gui::gw.ibr = gtk_image_get_pixbuf (GTK_IMAGE(stir));
 
 	return 0;
 }
@@ -1422,14 +1422,14 @@ int gx_system_call(const string& name1,
 void gx_destroy_event()
 {
 	// remove image buffers
-	if (G_IS_OBJECT(gx_gui::ib))
-		g_object_unref(gx_gui::ib);
+	if (G_IS_OBJECT(gx_gui::gw.ib))
+		g_object_unref(gx_gui::gw.ib);
 
-	if (G_IS_OBJECT(gx_gui::ibm))
-		g_object_unref(gx_gui::ibm);
+	if (G_IS_OBJECT(gx_gui::gw.ibm))
+		g_object_unref(gx_gui::gw.ibm);
 
-	if (G_IS_OBJECT(gx_gui::ibr))
-		g_object_unref(gx_gui::ibr);
+	if (G_IS_OBJECT(gx_gui::gw.ibr))
+		g_object_unref(gx_gui::gw.ibr);
 
 	if (G_IS_OBJECT(gx_cairo::tribeimage))
 		g_object_unref(gx_cairo::tribeimage);
@@ -1459,36 +1459,36 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 		gx_gui::gx_get_skin_change(&audio.fskin);
 		
 		// save rack state when needed
-		/*if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::rack_widget))) {
+		/*if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::gw.rack_widget))) {
 			gint rxorg,ryorg,rhight;
-			gtk_window_get_position (GTK_WINDOW(gx_gui::rack_widget), &rxorg, &ryorg);
-			gtk_widget_get_size_request (GTK_WIDGET(gx_gui::rack_widget),NULL, &rhight);
+			gtk_window_get_position (GTK_WINDOW(gx_gui::gw.rack_widget), &rxorg, &ryorg);
+			gtk_widget_get_size_request (GTK_WIDGET(gx_gui::gw.rack_widget),NULL, &rhight);
 			gx_gui::r_xorg = (float)rxorg;
 			gx_gui::r_yorg = (float)ryorg;
 			gx_gui::r_hight = (float)rhight;
 		}
 		
-		if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::srack_widget))) {
+		if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::gw.srack_widget))) {
 			gint srxorg,sryorg,srhight;
-			gtk_window_get_position (GTK_WINDOW(gx_gui::srack_widget), &srxorg,&sryorg);
-			gtk_widget_get_size_request (GTK_WIDGET(gx_gui::srack_widget),NULL, &srhight);
+			gtk_window_get_position (GTK_WINDOW(gx_gui::gw.srack_widget), &srxorg,&sryorg);
+			gtk_widget_get_size_request (GTK_WIDGET(gx_gui::gw.srack_widget),NULL, &srhight);
 			gx_gui::sr_xorg = (float)srxorg;
 			gx_gui::sr_yorg = (float)sryorg;
 			gx_gui::sr_hight = (float)srhight;
 		}
 		
-		if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::rack_tool_bar))) {
+		if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::gw.rack_tool_bar))) {
 			gint prxorg,pryorg,prhight;
-			gtk_window_get_position (GTK_WINDOW(gx_gui::rack_tool_bar), &prxorg,&pryorg);
-			gtk_widget_get_size_request (GTK_WIDGET(gx_gui::rack_tool_bar),NULL, &prhight);
+			gtk_window_get_position (GTK_WINDOW(gx_gui::gw.rack_tool_bar), &prxorg,&pryorg);
+			gtk_widget_get_size_request (GTK_WIDGET(gx_gui::gw.rack_tool_bar),NULL, &prhight);
 			gx_gui::pr_xorg = (float)prxorg;
 			gx_gui::pr_yorg = (float)pryorg;
 			gx_gui::pr_hight = (float)prhight;
 		}*/
 		
-		if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::fWindow))) {
+		if( gtk_widget_get_visible(GTK_WIDGET (gx_gui::gw.fWindow))) {
 			gint mainxorg,mainyorg;
-			gtk_window_get_position (GTK_WINDOW(gx_gui::fWindow), &mainxorg,&mainyorg);
+			gtk_window_get_position (GTK_WINDOW(gx_gui::gw.fWindow), &mainxorg,&mainyorg);
 			gx_gui::main_xorg = (float)mainxorg;
 			gx_gui::main_yorg = (float)mainyorg;
 		}
@@ -1509,7 +1509,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 	gx_jack_cleanup();
 	
 	// clean GTK stuff
-	if (gx_gui::fWindow) {
+	if (gx_gui::gw.fWindow) {
 		gx_destroy_event();
 	}
 	// delete the locked mem buffers
