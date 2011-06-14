@@ -57,28 +57,11 @@ bool buffers_ready = false;
 /* ----- jack namespace ----- */
 namespace gx_jack
 {
-const int nIPorts = 3; // mono input + jconv
-const int nOPorts = 4; // stereo output + jconv
+
 int NO_CONNECTION = 1;
 
-/* variables */
-jack_nframes_t      jack_sr;   // jack sample rate
-jack_nframes_t      jack_bs;   // jack buffer size
-float               jcpu_load; // jack cpu_load
-float               xdel;      // last xrun delay
-int                 is_rt;
-
-jack_client_t*      client ;
-jack_client_t*      client_insert ;
-jack_port_t*        output_ports[nOPorts];
-jack_port_t*        input_ports [nIPorts];
 void*               midi_input_port_buf;
 void*               midi_port_buf;
-
-jack_port_t*        midi_input_port;
-
-jack_port_t*        midi_output_ports;
-jack_nframes_t      time_is;
 
 bool                jack_is_down = false;
 bool                jack_is_exit = false;

@@ -43,7 +43,7 @@ PortAttr gx_head_ports[] = {
 	{ 0, true,  "out_0", false, JACK_DEFAULT_AUDIO_TYPE },
 };
 
-#define ALSA_PCM "alsa_pcm"  // special alsa sequencer client
+#define ALSA_PCM "alsa_pcm"  // special alsa sequencer gxjack.client
 
 
 /****************************************************************
@@ -252,7 +252,7 @@ void PortMapWindow::walk_insert(GtkTreeStore *ts, string name)
 				return;
 			}
 			if (!is_port && compare_client(client_from_port(name), p)) {
-				GtkTreeIter c_iter; // ports of a client, 2nd level
+				GtkTreeIter c_iter; // ports of a gxjack.client, 2nd level
 				if (gtk_tree_model_iter_children(GTK_TREE_MODEL(ts), &c_iter, &p_iter)) {
 					while (true) {
 						// if we already have the port get out
@@ -488,10 +488,10 @@ void PortMapWindow::on_cell_toggle(GtkCellRendererToggle *widget, gchar *path, g
 	string gcln;
 	jack_client_t *gcl;
 	if (p->port_attr->client_num == 0) {
-		gcl = gx_jack::client;
+		gcl = gx_jack::gxjack.client;
 		gcln = gx_jack::client_name;
 	} else {
-		gcl = gx_jack::client_insert;
+		gcl = gx_jack::gxjack.client_insert;
 		gcln = gx_jack::client_insert_name;
 	}
 	string s = gcln + ":" + p->port_attr->port_name;
@@ -556,7 +556,7 @@ static gint sort_func(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpoin
 
 void PortMapWindow::load(int sect, jack_port_t *jack_port)
 {
-    if (gx_jack::client) {
+    if (gx_jack::gxjack.client) {
         const unsigned int max_items_unfolded = 1;
         PortSection& ps = portsection[sect];
         GtkTreeStore *tree = ps.treestore;
@@ -566,7 +566,7 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port)
         gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(tree), 0, GTK_SORT_ASCENDING);
         gtk_tree_store_clear(tree);
         const char **ports;
-        jack_client_t *gcl = (ps.port_attr->client_num == 0 ? gx_jack::client : gx_jack::client_insert);
+        jack_client_t *gcl = (ps.port_attr->client_num == 0 ? gx_jack::gxjack.client : gx_jack::gxjack.client_insert);
         ports = jack_get_ports(gcl, NULL, ps.port_attr->port_type,
                                (ps.port_attr->is_input ? JackPortIsOutput : JackPortIsInput));
         if (!ports) {
@@ -622,19 +622,19 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port)
 void PortMapWindow::load_all()
 {
 #define uslp() usleep(10); // prevents xruns?? (bug in jackd?)
-	load(0, gx_jack::input_ports[0]);
+	load(0, gx_jack::gxjack.input_ports[0]);
 	uslp();
-	load(1, gx_jack::output_ports[2]);
+	load(1, gx_jack::gxjack.output_ports[2]);
 	uslp();
-	load(2, gx_jack::output_ports[3]);
+	load(2, gx_jack::gxjack.output_ports[3]);
 	uslp();
-	load(3, gx_jack::midi_input_port);
+	load(3, gx_jack::gxjack.midi_input_port);
 	uslp();
-	load(4, gx_jack::midi_output_ports);
+	load(4, gx_jack::gxjack.midi_output_ports);
 	uslp();
-	load(5, gx_jack::input_ports[1]);
+	load(5, gx_jack::gxjack.input_ports[1]);
 	uslp();
-	load(6, gx_jack::output_ports[0]);
+	load(6, gx_jack::gxjack.output_ports[0]);
 #undef uslp
 }
 
@@ -691,7 +691,7 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item)
 void PortMapWindow::refresh()
 {
     if(window) {
-        if(!gx_jack::client) {
+        if(!gx_jack::gxjack.client) {
             for(int i = 0; i< number_of_ports;i++){
                 PortSection& ps = portsection[i];
                 GtkTreeStore *tree = ps.treestore;

@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 	gui->setup();
 
 
-	// ---------------------- initialize jack client ------------------
+	// ---------------------- initialize jack gxjack.client ------------------
 	if (gx_jack::gx_jack_init(optvar))
 	{
 		// -------- initialize gx_head engine --------------------------
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
 	g_object_set (gtk_settings_get_default (), "gtk-menu-images", TRUE, NULL);
 	gui->show();
 
-	if (gx_jack::client) {
+	if (gx_jack::gxjack.client) {
 	    // -------- pitch tracker (needs jack thread running) -------------
 		gx_engine::pitch_tracker.init();
 	}

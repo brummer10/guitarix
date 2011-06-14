@@ -131,7 +131,7 @@ void MidiVariables::init(int samplingFreq)
 	fConstlog2 = 6/log(2)*-1;
 	midi_gain = 1.0;
 	fConstun0  = (0.001*300*samplingFreq)*36;
-	BeatFilterk =1.0/(gx_jack::jack_sr*(1.0f/(2.0f*M_PI*1250.0f)));
+	BeatFilterk =1.0/(gx_jack::gxjack.jack_sr*(1.0f/(2.0f*M_PI*1250.0f)));
 	BeatFilter1 =0.0;
     BeatFilter2 =0.0;
 }
@@ -273,7 +273,7 @@ void process_midi(int len)
 				rms = midi.beat0;
 			}
 			//----- check gain value and run only when gain is higher then the selected value
-			if (( midi.beat0 >= fTemps45) && (gx_jack::jcpu_load < 65.0))
+			if (( midi.beat0 >= fTemps45) && (gx_jack::gxjack.jcpu_load < 65.0))
 			{
 
 				//----- rms the gain for a smother output
@@ -562,7 +562,7 @@ void process_midi(int len)
 			else
 			{
 				
-					if ((midi.weg > iTemps37) || (gx_jack::jcpu_load > 64.0))
+					if ((midi.weg > iTemps37) || (gx_jack::gxjack.jcpu_load > 64.0))
 					{
 						midi.send = midi.send1 = midi.send2 = 0;
 						midi.Beat_is = (int)fTemps45;

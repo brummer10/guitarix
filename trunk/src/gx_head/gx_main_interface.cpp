@@ -1556,7 +1556,7 @@ static bool conv_start()
 	}
 	while (!gx_engine::conv.checkstate());
 	if (!gx_engine::conv.configure(
-		    gx_jack::jack_bs, gx_jack::jack_sr, path,
+		    gx_jack::gxjack.jack_bs, gx_jack::gxjack.jack_sr, path,
 		    jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
 		    jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline())) {
 		return false;
@@ -2932,7 +2932,7 @@ struct uiStatusDisplay : public gx_ui::GxUiItemFloat
 			float 	v = *fZone;
 			fCache = v;
 			if ((gx_engine::isMidiOn() == true) &&
-			    (gx_jack::jcpu_load < 65.0))
+			    (gx_jack::gxjack.jcpu_load < 65.0))
 			{
 				if (v > 0.0f) gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(gw.status_icon), GDK_PIXBUF(gw.ibm));
 				else  gtk_status_icon_set_from_pixbuf ( GTK_STATUS_ICON(gw.status_icon), GDK_PIXBUF(gw.ib));
@@ -2965,28 +2965,28 @@ bool GxMainInterface::on_refresh_oscilloscope()
 		jack_nframes_t bsize;
 		bool rt;
 	} oc;
-	int load = int(round(gx_jack::jcpu_load));
+	int load = int(round(gx_jack::gxjack.jcpu_load));
 	if (!oc.bsize || oc.load != load) {
 		oc.load = load;
 		fWaveView.set_text(
 			(boost::format(_("dsp load  %1% %%")) % oc.load).str().c_str(),
 			Gtk::CORNER_TOP_LEFT);
 	}
-	int frames = gx_jack::time_is/100000;
+	int frames = gx_jack::gxjack.time_is/100000;
 	if (!oc.bsize || oc.frames != frames) {
 		oc.frames = frames;
 		fWaveView.set_text(
 			(boost::format(_("ht frames %1%")) % oc.frames).str().c_str(),
 			Gtk::CORNER_BOTTOM_LEFT);
 	}
-	if (!oc.bsize || oc.rt != gx_jack::is_rt) {
-		oc.rt = gx_jack::is_rt;
+	if (!oc.bsize || oc.rt != gx_jack::gxjack.is_rt) {
+		oc.rt = gx_jack::gxjack.is_rt;
 		fWaveView.set_text(
 			oc.rt ? _("RT mode  yes ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
 			Gtk::CORNER_BOTTOM_RIGHT);
 	}
-	if (!oc.bsize || oc.bsize != gx_jack::jack_bs) {
-		oc.bsize = gx_jack::jack_bs;
+	if (!oc.bsize || oc.bsize != gx_jack::gxjack.jack_bs) {
+		oc.bsize = gx_jack::gxjack.jack_bs;
 		fWaveView.set_text(
 			(boost::format(_("latency    %1%")) % oc.bsize).str().c_str(),
 			Gtk::CORNER_TOP_RIGHT);
@@ -4023,7 +4023,7 @@ void GxMainInterface::addJackServerMenu()
 
 void GxMainInterface::set_waveview_buffer()
 {
-	fWaveView.set_frame(gx_engine::result, gx_jack::jack_bs);
+	fWaveView.set_frame(gx_engine::result, gx_jack::gxjack.jack_bs);
 }
 
 //---- show main GUI
@@ -4036,11 +4036,11 @@ void GxMainInterface::show()
 	gx_init_pixmaps();
 	fInitialized = true;
 
-	if (gx_jack::client) {
+	if (gx_jack::gxjack.client) {
 		// refresh some GUI stuff
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(fJackConnectItem), TRUE);
 
-		GtkWidget* wd = getJackLatencyItem(gx_jack::jack_bs);
+		GtkWidget* wd = getJackLatencyItem(gx_jack::gxjack.jack_bs);
 		if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 
 		//string window_name = "gx_head"; FIXME is set by recall settings

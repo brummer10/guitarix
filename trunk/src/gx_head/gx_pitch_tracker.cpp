@@ -119,7 +119,7 @@ void PitchTracker::start_thread()
     pthread_attr_t     attr;
     struct sched_param  spar;
     int priority, policy;
-    pthread_getschedparam(jack_client_thread_id(gx_jack::client), &policy, &spar);
+    pthread_getschedparam(jack_client_thread_id(gx_jack::gxjack.client), &policy, &spar);
     priority = spar.sched_priority;
     min = sched_get_priority_min(policy);
     max = sched_get_priority_max(policy);

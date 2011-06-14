@@ -261,7 +261,7 @@ namespace gx_tonestacks {
 
 static void activate_callback(float val, void *data)
 {
-	((void (*)(bool,int))data)(!(val == 0.0), gx_jack::jack_sr);
+	((void (*)(bool,int))data)(!(val == 0.0), gx_jack::gxjack.jack_sr);
 }
 
 static void faust_add_callback(const char* id, void (*func)(bool,int))

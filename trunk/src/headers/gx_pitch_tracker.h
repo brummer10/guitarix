@@ -35,7 +35,7 @@ public:
 	PitchTracker();
 	~PitchTracker();
 	bool setParameters( int sampleRate, int fftSize );
-	void init() { setParameters((int)gx_jack::jack_sr, MAX_FFT_SIZE); }
+	void init() { setParameters((int)gx_jack::gxjack.jack_sr, MAX_FFT_SIZE); }
 	void add(int count, float *input);
 	float tuner_estimate();
 

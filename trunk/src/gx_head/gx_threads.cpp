@@ -36,7 +36,7 @@ static const float falloff = meter_falloff * meter_display_timeout * 0.001;
 /* ----------------- refresh GX level display function ---------------- */
 gboolean gx_refresh_meter_level(gpointer args)
 {
-	if (gx_jack::client && gx_engine::buffers_ready) {
+	if (gx_jack::gxjack.client && gx_engine::buffers_ready) {
 		gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
 
 		// data holders for meters
@@ -46,7 +46,7 @@ gboolean gx_refresh_meter_level(gpointer args)
 
 		static float old_peak_db[2] = {-INFINITY, -INFINITY};
 
-		jack_nframes_t nframes = gx_jack::jack_bs;
+		jack_nframes_t nframes = gx_jack::gxjack.jack_bs;
 
 		// fill up from engine buffers
 		for (int c = 0; c < 2; c++) {
@@ -94,7 +94,7 @@ gboolean gx_xrun_report(gpointer arg)
 {
 	usleep(40);
 	ostringstream s;
-	s << " delay of at least " << gx_jack::xdel << " microsecs";
+	s << " delay of at least " << gx_jack::gxjack.xdel << " microsecs";
 	gx_print_warning("Jack XRun", s.str());
 
 	return FALSE;
@@ -141,8 +141,8 @@ gboolean gx_survive_jack_shutdown(gpointer arg)
 	}
 	else
 	{
-		// set jack client to NULL
-		gx_jack::client = 0;
+		// set jack gxjack.client to NULL
+		gx_jack::gxjack.client = 0;
 
 		// refresh some stuff. Note that it can be executed
 		// more than once, no harm here

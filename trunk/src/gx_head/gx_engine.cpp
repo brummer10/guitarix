@@ -35,7 +35,7 @@ namespace gx_engine
 void gx_engine_init( const string *optvar )
 {
 	//----- lock the buffer for the oscilloscope
-	const int frag = (const int)gx_jack::jack_bs;
+	const int frag = (const int)gx_jack::gxjack.jack_bs;
 
 	get_frame  = new float[frag];
 	get_frame1  = new float[frag];
@@ -50,8 +50,8 @@ void gx_engine_init( const string *optvar )
 	(void)memset(oversample, 0, frag*MAX_UPSAMPLE*sizeof(float));
 	(void)memset(result, 0, (frag+46)*sizeof(float));
 
-	midi.init(gx_jack::jack_sr);
-	faust_init(gx_jack::jack_sr);
+	midi.init(gx_jack::gxjack.jack_sr);
+	faust_init(gx_jack::gxjack.jack_sr);
 	//resampTube.setup(gx_jack::jack_sr, 2);
 	//resampDist.setup(gx_jack::jack_sr, 2);
 	if (!optvar[LOAD_FILE].empty()) {

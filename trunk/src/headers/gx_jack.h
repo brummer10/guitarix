@@ -49,6 +49,29 @@ typedef struct
 } MidiMessage;
 #endif
 
+class GxJack
+{
+public:
+	static const int nIPorts = 3; // mono input + jconv
+	static const int nOPorts = 4; // stereo output + jconv
+	/* variables */
+	jack_nframes_t      jack_sr;   // jack sample rate
+	jack_nframes_t      jack_bs;   // jack buffer size
+	float               jcpu_load; // jack cpu_load
+	float               xdel;      // last xrun delay
+	int                 is_rt;
+
+	jack_client_t*      client ;
+	jack_client_t*      client_insert ;
+	jack_port_t*        output_ports[nOPorts];
+	jack_port_t*        input_ports [nIPorts];
+	jack_port_t*        midi_input_port;
+	jack_port_t*        midi_output_ports;
+
+	jack_nframes_t      time_is;
+};
+extern GxJack gxjack;
+
 extern sem_t jack_sync_sem;
 
 /* -------- functions ---------- */

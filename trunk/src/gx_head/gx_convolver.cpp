@@ -179,7 +179,7 @@ bool GxConvolverBase::start()
 {
 	int abspri, policy;
     struct sched_param  spar;
-    pthread_getschedparam(jack_client_thread_id(gx_jack::client), &policy, &spar);
+    pthread_getschedparam(jack_client_thread_id(gx_jack::gxjack.client), &policy, &spar);
     abspri = spar.sched_priority;
 	int rc = start_process(abspri, policy);
 	if (rc != 0) {
@@ -408,9 +408,9 @@ GxConvolver conv;
 bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int samplerate)
 {
 	bool dyn = false;
-	if (samplerate != gx_jack::jack_sr) {
+	if (samplerate != gx_jack::gxjack.jack_sr) {
 		gx_resample::BufferResampler r;
-		impresp = r.process(samplerate, count, impresp, gx_jack::jack_sr, count);
+		impresp = r.process(samplerate, count, impresp, gx_jack::gxjack.jack_sr, count);
 		if (!impresp) {
 			gx_system::gx_print_error("convolver", "failed to resample");
 			return false;
@@ -419,7 +419,7 @@ bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int sample
 	}
 	cleanup();
 	bool ret;
-    if (Convproc::configure(1, 1, count, gx_jack::jack_bs, gx_jack::jack_bs, Convproc::MAXPART)) {
+    if (Convproc::configure(1, 1, count, gx_jack::gxjack.jack_bs, gx_jack::gxjack.jack_bs, Convproc::MAXPART)) {
 		gx_system::gx_print_error("convolver", "error in Convproc::configure");
 		ret = false;
     } else if (impdata_create(0, 0, 1, impresp, 0, count)) {

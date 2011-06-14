@@ -598,13 +598,13 @@ static void write_jack_port_connections(JsonWriter& w, const char *key, jack_por
 void write_jack_connections(JsonWriter& w)
 {
 	w.begin_object(true);
-	write_jack_port_connections(w, "input", input_ports[0]);
-	write_jack_port_connections(w, "output1", output_ports[2]);
-	write_jack_port_connections(w, "output2", output_ports[3]);
-	write_jack_port_connections(w, "midi_input", midi_input_port);
-	write_jack_port_connections(w, "midi_output", midi_output_ports);
-	write_jack_port_connections(w, "insert_out", output_ports[0]);
-	write_jack_port_connections(w, "insert_in", input_ports[1]);
+	write_jack_port_connections(w, "input", gxjack.input_ports[0]);
+	write_jack_port_connections(w, "output1", gxjack.output_ports[2]);
+	write_jack_port_connections(w, "output2", gxjack.output_ports[3]);
+	write_jack_port_connections(w, "midi_input", gxjack.midi_input_port);
+	write_jack_port_connections(w, "midi_output", gxjack.midi_output_ports);
+	write_jack_port_connections(w, "insert_out", gxjack.output_ports[0]);
+	write_jack_port_connections(w, "insert_in", gxjack.input_ports[1]);
 	w.end_object(true);
 }
 
@@ -1494,7 +1494,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 		}
 
 		// only save if we are not in a preset context
-		if (!setting_is_preset && !setting_is_factory && gx_jack::client) {
+		if (!setting_is_preset && !setting_is_factory && gx_jack::gxjack.client) {
 			saveStateToFile(gx_user_dir + client_instance + "_rc");
 		}
 	}
@@ -1505,7 +1505,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data)
 
 	turnOffMidi();
 
-	// clean jack client stuff
+	// clean jack gxjack.client stuff
 	gx_jack_cleanup();
 	
 	// clean GTK stuff

@@ -28,7 +28,7 @@ if WAFVERSION[:3] != '1.5':
     print 'Incompatible Waf, use 1.5'
     sys.exit (1)
 
-	
+
 
 def option_enabled (option):
     if getattr (Options.options, 'enable_' + option):

@@ -320,7 +320,7 @@ void JackCapture::start_stop(GtkWidget *widget, gpointer data)
 		return;
 	}
 
-	if (gx_jack::client == NULL) {
+	if (gx_jack::gxjack.client == NULL) {
 		gtk_toggle_button_set_active(cap_button, FALSE);
 		(void)gx_gui::gx_message_popup(
 			"  WARNING [Record]\n\n  "
@@ -379,7 +379,7 @@ void Meterbridge::stop()
 void Meterbridge::start_stop(GtkCheckMenuItem *menuitem, gpointer)
 {
 	// no need to do all this if jack is not running
-	if (!gx_jack::client) {
+	if (!gx_jack::gxjack.client) {
 		(void)gx_gui::gx_message_popup(
 			"  WARNING [Meterbridge]\n\n  "
 			"  Reconnect to Jack server first (Shift+C)"

@@ -77,24 +77,8 @@ typedef enum {
 	kKeepLatency   = 2
 } GxJackLatencyChange;
 
-extern const int nIPorts; // mono input
-extern const int nOPorts; // stereo output + jconv
+
 extern int NO_CONNECTION;
-
-/* variables */
-extern jack_nframes_t      jack_sr;   // jack sample rate
-extern jack_nframes_t      jack_bs;   // jack buffer size
-extern float               jcpu_load; // jack cpu_load
-extern float               xdel;      // last xrun delay
-extern int                 is_rt;     // jack is realtime ?
-
-extern jack_client_t*      client ;
-extern jack_client_t*      client_insert ;
-extern jack_port_t*        output_ports[];
-extern jack_port_t*        input_ports [];
-
-extern void*               midi_input_port_buf;
-extern void*               midi_port_buf;
 
 extern GxJackLatencyChange change_latency;
 
@@ -102,10 +86,8 @@ extern GxJackLatencyChange change_latency;
 extern struct MidiMessage  ev;
 extern jack_ringbuffer_t*  jack_ringbuffer;
 #endif
-
-extern jack_port_t*        midi_input_port;
-extern jack_port_t*        midi_output_ports;
-extern jack_nframes_t      time_is;
+extern void*               midi_input_port_buf;
+extern void*               midi_port_buf;
 extern bool                jack_is_down;
 extern bool                jack_is_exit;
 extern string              client_name;

@@ -1008,7 +1008,7 @@ bool gx_update_skin(const gint idx, const char* calling_func)
 
 	// refresh latency check menu
 	GxMainInterface* gui = GxMainInterface::instance();
-	GtkWidget* wd = gui->getJackLatencyItem(gx_jack::jack_bs);
+	GtkWidget* wd = gui->getJackLatencyItem(gx_jack::gxjack.jack_bs);
 	if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 
 	return true;
