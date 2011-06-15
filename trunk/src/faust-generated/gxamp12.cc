@@ -328,7 +328,7 @@ void compute(int count, float *input0, float *output0)
 		fRec36[0] = ((fConst6 * (fVec9[0] + fVec9[1])) + (fConst5 * fRec36[1]));
 		fRec35[0] = Ftube2(1, (fRec36[0] + fTemp16));
 		fRec34[0] = ((fConst69 * ((fConst11 * fRec35[1]) + (fConst0 * fRec35[0]))) + (fConst2 * fRec34[1]));
-		output0[i] = (FAUSTFLOAT)(min(0, fRec34[0]) + max(0, fRec0[0]));
+		output0[i] = (FAUSTFLOAT)(fRec34[0] + fRec0[0]);
 		// post processing
 		fRec34[1] = fRec34[0];
 		fRec35[1] = fRec35[0];
