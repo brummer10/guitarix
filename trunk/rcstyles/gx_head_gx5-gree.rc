@@ -1,0 +1,464 @@
+#
+# This is the GTK rc style file for gx5_head
+#
+
+include "common.rc"
+
+style "gx5_head_skin_icons"
+{
+stock["bigknob"] = {{"tactile_knob_large_151f.png"}}
+stock["smallknob"] = {{"tactile_knob_small_99f.png"}}
+stock["smallknobr"] =  {{"tactile_knob_medium_151f.png"}}
+}
+
+class "GxKnob" style "gx5_head_skin_icons"
+
+style "gx5_head_skin_switch_icons"
+{
+stock["switchit_on"] = {{"tactile_backlit_switchit_on.png"}}
+stock["switchit_off"] = {{"tactile_backlit_switchit_off.png"}}
+}
+
+class "GxToggleImage" style "gx5_head_skin_switch_icons"
+
+
+style "gx5_head_skin_knob_animation"
+{
+
+GxKnob::framecount = 0 # use 0 for auto (assumes square frames),
+                            # 1 for static bg and >1 for non squareframe
+                            #  animations
+}
+
+class "GxKnob" style "gx2_head_skin_knob_animation"
+
+
+style "gx5_head-paintbox"
+{
+GxPaintBox::skin-gradient = {
+{ 65536, 983, 983, 983, 65536 }, # 0, 0.3, 0.3, 0.3 ,1 
+{ 32768, 36554, 36554, 36554, 65536 }, # 0.5, 0.15, 0.15, 0.15, 1
+{ 0, 32768, 32768, 32768, 65536 }} # 1, 0.1, 0.1, 0.1, 1  
+stock["gxhead"] = {{"gx_gree.png"}}
+GxPaintBox::icon-set =5
+}
+
+class "GxPaintBox" style "gx5_head-paintbox"
+
+style "gx5_head"
+{
+
+
+GtkButton::default_border = { 0, 0, 0, 0 }
+GtkButton::default_outside_border = { 0, 0, 0, 0 }
+GtkButton::button_relief = GTK_RELIEF_NONE
+
+#strings in modules
+fg[NORMAL] = { 0.8, 0.8, 0.8 }
+fg[ACTIVE] = { 1.0, 1.0, 1.0 }
+fg[PRELIGHT] = { 0.90, 0.90, 0.90 }
+fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }
+fg[SELECTED] = { 0.70, 0.70, 0.70 }
+#background in modules
+bg[NORMAL] = { 0.020, 0.020, 0.010 }
+bg[PRELIGHT] = "#303084"
+bg[ACTIVE] = { 0.0, 0.0, 0.0 }
+bg[INSENSITIVE] = "#c4c0c0"
+bg[SELECTED] = "#000094"
+
+#gridlines in modules
+text[NORMAL] = { 0.00, 0.10, 0.10 }
+text[ACTIVE] = { 0.00, 0.80, 0.80 }
+text[PRELIGHT] = { 0.80, 0.80, 0.80 }
+text[INSENSITIVE] = { 0.80, 0.80, 0.80}
+text[SELECTED] = { 1.0, 1.0, 1.0 }
+
+base[ACTIVE] = "#272a2f"
+base[NORMAL] = { 0.00, 0.70, 0.70 }
+base[PRELIGHT] = { 0.20, 0.20, 0.20 }
+base[INSENSITIVE] = "#4c5159"
+base[SELECTED] = { 0.25, 0.25, 0.25 }
+font_name = "sans 10"
+
+}
+
+
+class "GtkWidget" style:highest "gx5_head"
+class "GtkLabel" style:highest "gx5_head"
+class "GtkHScale" style:highest "gx5_head"
+class "GtkVScale" style:highest "gx5_head"
+class "GtkCheckButton" style:highest "gx5_head"
+class "GtkButton" style:highest "gx5_head"
+class "GtkFrame" style:highest "gx5_head"
+class "GtkExpander" style:highest "gx5_head"
+#class "GtkEventBox" style:highest "gx5_head"
+
+style "gx5_head-event"
+{
+bg_pixmap[NORMAL] = "gx_gree.png"
+}
+widget "*.osc_box" style:highest "gx5_head-event"
+widget "*.main_window" style:highest "gx5_head-event"
+
+style "gx5_head-dialog"
+{
+bg_pixmap[NORMAL] = "cairo1.jpg"
+}
+
+style "gx5_gree_box"
+{
+bg[NORMAL] = { 0, 0, 0}
+}
+widget "*.gree_box" style:highest "gx5_gree_box"
+
+style "gx5_gree_box"
+{
+bg[NORMAL] = { 0.02, 0.015, 0.02}
+}
+widget "*.gree_box" style:highest "gx5_gree_box"
+
+style "gx5_dark_box"
+{
+bg[NORMAL] = { 0.25, 0.15, 0.15}
+}
+widget "*.dark_box" style:highest "gx5_dark_box"
+
+style "gx5_darker_box"
+{
+bg[NORMAL] = { 0.1, 0.05, 0.05}
+}
+widget "*.darker_box" style:highest "gx5_darker_box"
+
+#widget_class "GtkDialog*" style:highest "gx5_head-dialog"
+
+style "gx5_head-menu"
+{
+#text in menues
+fg[NORMAL] = { 0.80, 0.80, 0.80 }
+fg[PRELIGHT] = { 0.6, 0.6, 0.6 }
+#buttons-borders in menues
+bg[NORMAL] = { 0.30, 0.30, 0.30 }
+bg[PRELIGHT] = { 0.0, 0.0, 0.0 }
+bg[SELECTED] = { 0.10, 0.10, 0.10 }
+#arrows in menues
+text[NORMAL] = { 0.20, 0.0, 0.50 }
+text[ACTIVE] = { 0.80, 0.80, 0.80 }
+text[PRELIGHT] = { 0.0, 0.0, 0.0 }
+
+base[ACTIVE] = { 0.020, 0.020, 0.020 }
+#buttons-background in menues
+base[NORMAL] = { 0.60, 0.80, 0.80 }
+base[PRELIGHT] = { 0.20, 0.20, 0.20 }
+base[INSENSITIVE] = "#4c5159"
+base[SELECTED] = { 0.25, 0.25, 0.25 }
+font_name = "sans 9"
+}
+
+widget_class "*GtkMenu*" style:highest "gx5_head-menu"
+widget_class "*GtkMenuBar*" style:highest "gx5_head-menu"
+
+style "gx5_b_style"
+{
+engine "pixmap"
+{
+image
+{
+function = BOX
+recolorable = TRUE
+state = NORMAL
+shadow = OUT
+file = "cairo2.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = PRELIGHT
+shadow = OUT
+file = "cairo1.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = ACTIVE
+shadow = OUT
+file = "cairo2.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+}
+bg[ACTIVE] = "#58b45e"
+}
+
+style "gx5_barbutton_style"
+{
+
+bg[ACTIVE] =  "#888888"
+
+bg[PRELIGHT] = "#63636f"
+
+fg[NORMAL] = { 0.6, 0.6, 0.6 }
+fg[ACTIVE] = "#090915"
+fg[PRELIGHT] = { 0.9, 0.9, 0.9 }
+
+}
+
+style "gx5_c_style"
+{
+engine "pixmap"
+{
+image
+{
+function = BOX
+recolorable = TRUE
+state = NORMAL
+shadow = OUT
+file = "cairo1.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+
+}
+}
+
+style "gx5_head-l_gree"
+{
+fg[NORMAL] = { 0.9, 0.9, 0.9 }
+fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "URW Chancery L Medium Italic 12"
+}
+
+style "gx5_head-v_gree"
+{
+fg[NORMAL] = { 0., 0., 0. }
+fg[ACTIVE] = { 0.8, 0.8, 0.8 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "URW Chancery L Medium Italic 12"
+}
+
+style "gx5_head-b_gree"
+{
+fg[NORMAL] = { 0.8, 0.8, 0.8 }
+fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.1, 0.0, 0.0 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "sans 9"
+}
+
+style "gx5_head-rack"
+{
+#text for fx-parameter-captions
+fg[NORMAL] = { 0.9, 0.9, 0.9 }
+fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "URW Chancery L Medium Italic 12"
+}
+
+style "gx5_rack-slider"
+{
+fg[NORMAL] = { 0.7, 0.7, 0.7 }
+fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "sans 6"
+}
+
+widget "*.effekt_label" style:highest "gx5_head-v_gree"
+widget "*.value_label" style:highest "gx5_head-l_gree"
+widget "*.beffekt_label" style:highest "gx5_head-b_gree"
+widget "*.rack_label" style:highest "gx5_head-rack"
+widget "*.rack_slider" style:highest "gx5_rack-slider"
+widget "*.rack_regler" style:highest "gx5_rack-slider"
+widget "*.barbutton" style:highest "gx5_barbutton_style"
+widget "*.barbuttonlabel" style:highest "gx5_barbutton_style"
+
+
+style "gx5_h_style"
+{
+engine "pixmap"
+{
+image
+{
+function = BOX
+recolorable = TRUE
+state = NORMAL
+shadow = OUT
+file = "cairo1.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+}
+#text midi-controller-module
+fg[NORMAL] = { 0.60, 0.70, 0.60 }
+#border midi-controller-module
+bg[NORMAL] = { 0.09, 0.09, 0.07 }
+#text midi-controller-module list
+text[NORMAL] = { 0.6, 0.7, 0.4 }
+text[ACTIVE] = { 0.70, 0.70, 0.70 }
+text[PRELIGHT] = { 0.90, 0.90, 0.90 }
+text[INSENSITIVE] = { 0.80, 0.80, 0.80}
+text[SELECTED] = { 1.0, 1.0, 1.0 }
+#background midi-controller-module
+base[ACTIVE] = { 0.090, 0.010, 0.010 }
+base[NORMAL] = { 0.20, 0.30, 0.20 }
+#background midi-controller-module checkbox
+base[PRELIGHT] = { 0.70, 0.20, 0.20 }
+base[INSENSITIVE] = "#4c5159"
+base[SELECTED] = { 0.25, 0.25, 0.25 }
+}
+
+class "GtkHandleBox" style:highest "gx5_h_style"
+#class "GtkScrolledWindow" style:highest "gx5_h_style"
+widget_class "GtkDialog*" style:highest "gx5_h_style"
+widget_class "*GtkToggleButton*" style:highest "gx5_b_style"
+class "GtkButton" style:highest "gx5_b_style"
+class "GtkSpinButton" style:highest "gx5_c_style"
+
+style "tagx5_b_style"
+{
+#file-chooser background
+bg[NORMAL] = { 0.40, 0.20, 0.20 }
+bg[ACTIVE] = { 0.30, 0.40, 0.40 }
+bg[PRELIGHT] = { 0.50, 0.60, 0.60 }
+bg[SELECTED] = { 0.60, 0.60, 0.00 }
+
+}
+
+
+widget "*.tab_rack" style:highest "tagx5_b_style"
+
+style "gx5_head_p_style"
+{
+engine "pixmap"
+{
+image
+{
+function = BOX
+recolorable = TRUE
+state = NORMAL
+shadow = OUT
+file = "cairo2.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = PRELIGHT
+shadow = OUT
+file = "cairo1.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+}
+fg[NORMAL] = { 0.9, 0.9, 0.9 }
+fg[ACTIVE] = { 0.7, 0.7, 0.7 }
+fg[PRELIGHT] = { 0.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.3, 0.3, 0.3 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "sans 7"
+}
+
+style "gx5_head_pa_style"
+{
+engine "pixmap"
+{
+image
+{
+function = BOX
+recolorable = TRUE
+state = NORMAL
+shadow = OUT
+file = "cairo2.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = PRELIGHT
+shadow = OUT
+file = "cairo1.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = INSENSITIVE
+shadow = OUT
+file = "cairo2.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+}
+bg[NORMAL] = { 0.05, 0.05, 0.05 }
+
+}
+
+style "gx5_head_pair_style"
+{
+engine "pixmap"
+{
+image
+{
+function = BOX
+recolorable = TRUE
+state = NORMAL
+shadow = OUT
+file = "cairo2.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = PRELIGHT
+shadow = OUT
+file = "cairo1.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+image
+{
+function = BOX
+recolorable = TRUE
+state = INSENSITIVE
+shadow = OUT
+file = "cairo2.jpg"
+border = { 0, 0, 0, 0 }
+stretch = TRUE
+}
+}
+bg[NORMAL] = { 0.9, 0.0, 0.0 }
+
+text[NORMAL] = { 0.90, 0.90, 0.90 }
+text[ACTIVE] = { 0.80, 0.80, 0.80 }
+text[PRELIGHT] = { 0.80, 0.80, 0.80 }
+text[INSENSITIVE] = { 0.30, 0.30, 0.30}
+text[SELECTED] = { 1.0, 1.0, 1.0 }
+}
+
+widget "*.effect_reset" style:highest "gx5_head_p_style"
+widget "*.label_reset" style:highest "gx5_head_p_style"
+widget_class "*GtkScrolledWindow*" style:highest "gx5_head_pa_style"
+widget "*.rack_button" style:highest "gx5_head_pa_style"
+widget_class "*GtkComboBox*" style:highest "gx5_head_pair_style"
