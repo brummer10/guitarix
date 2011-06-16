@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
+ * Copyright (C) 2011 Pete Shorthose
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,18 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * ---------------------------------------------------------------------------
- *
- *    name         : "gx_head"
- *    version      : "0.04.7"
- *    authors      : "hermann meyer" & "james warden"
- *    contributors : "Julius O. Smith (jos at ccrma.stanford.edu)"
- *    license      : "GPL"
- *    copyright    : "(c)brummer 2008"
- *    reference    : "http://ccrma.stanford.edu/realsimple/faust_strings/"
- *
- *    Code prototype generated with Faust 0.9.9.4f (http://faust.grame.fr)
  * ----------------------------------------------------------------------------
  *
  *    This is gx_head main.

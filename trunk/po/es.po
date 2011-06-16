@@ -37,15 +37,15 @@ msgid "tone"
 msgstr "tone"
 
 #: ../src/gx_head/gx_interface_builder.cpp:193
-msgid "Bass"
+msgid "bass"
 msgstr "Bass"
 
 #: ../src/gx_head/gx_interface_builder.cpp:196
-msgid "Middle"
-msgstr "Middle"
+msgid "middle"
+msgstr "middle"
 
 #: ../src/gx_head/gx_interface_builder.cpp:199
-msgid "Treble"
+msgid "treble"
 msgstr "Treble"
 
 #: ../src/gx_head/gx_interface_builder.cpp:208
@@ -585,7 +585,7 @@ msgid "tuner"
 msgstr "tuner"
 
 #: ../src/gx_head/gx_main_interface.cpp:2451
-msgid "show tuner"
+msgid "Show tuner"
 msgstr "mostrar afinador"
 
 #: ../src/gx_head/gx_main_interface.cpp:2459
@@ -601,11 +601,11 @@ msgid "stereo rack"
 msgstr "stereo rack"
 
 #: ../src/gx_head/gx_main_interface.cpp:2472
-msgid "show mono rack"
+msgid "Show mono rack"
 msgstr "mostrar rack mono"
 
 #: ../src/gx_head/gx_main_interface.cpp:2473
-msgid "show stereo rack"
+msgid "Show stereo rack"
 msgstr "mostrar rack stereo"
 
 #: ../src/gx_head/gx_main_interface.cpp:2486
@@ -778,7 +778,7 @@ msgstr "Mostrar barra de plugins"
 
 #. -- Create mono rack check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:3139
-msgid "show Mono_Rack"
+msgid "Show Mono _Rack"
 msgstr "Mostrar Rack Mono"
 
 #. -- Create mono plugin menu soket item under Options submenu --
@@ -788,7 +788,7 @@ msgstr "Plugins Mono"
 
 #. -- Create stereo rack check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:3179
-msgid "show _StereoRack"
+msgid "Show _Stereo Rack"
 msgstr "Mostrar Rack Estéreo"
 
 #. -- Create stereo plugin menu soket item under Options submenu --
@@ -812,12 +812,12 @@ msgid "_Tuner"
 msgstr "Afinador"
 
 #: ../src/gx_head/gx_main_interface.cpp:3259
-msgid "set _Knobs linear"
-msgstr "set _Knobs linear"
+msgid "Set _Knobs Linear"
+msgstr "Set _Knobs Linear"
 
 #. -- Create logbox check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:3269
-msgid "show _Logging Box"
+msgid "Show _Logging Box"
 msgstr "Mostrar mensajes"
 
 #. -- Create menu item to control tooltip display --

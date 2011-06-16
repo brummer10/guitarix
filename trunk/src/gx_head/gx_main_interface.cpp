@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
+ * Copyright (C) 2011 Pete Shorthose
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * ---------------------------------------------------------------------------
  *
  *    This is the gx_head GUI main class
@@ -25,17 +26,6 @@
 #include <cstring>
 #include <gdk/gdkkeysyms.h>
 #include "guitarix.h"
-#include <gtkmm/liststore.h>
-#include <gtkmm/window.h>
-#include <gtkmm/frame.h>
-#include <gtkmm/accelgroup.h>
-#include <gtkmm/scrolledwindow.h>
-#include <gtkmm/fixed.h>
-#include <gtkmm/eventbox.h>
-#include <gtkmm/notebook.h>
-#include <gxwmm/paintbox.h>
-#include <gtkmm/radiomenuitem.h>
-#include <gtkmm/paned.h>
 
 #include <glibmm/i18n.h>
 
@@ -44,8 +34,6 @@ using namespace gx_child_process;
 using namespace gx_preset;
 using namespace gx_cairo;
 using namespace gx_threads;
-
-
 
 namespace gx_gui
 {
@@ -134,8 +122,6 @@ void GuiVariables::register_gui_parameter()
 	registerNonMidiParam("cab.dialog", &dialogbox[29], false);
 }
 
-
-
 /****************************************************************
  ** format controller values
  */
@@ -162,310 +148,13 @@ string fformat(float value, float step)
 #include "gx_main_midi.cc"
 
 /****************************************************************
- ** predefined gtkmm widget classes used in main GUI
- */
-
- 
-class ToggleCheckButton: public Gtk::ToggleButton
-{
-private:
-	SwitchParameter* param;
-	void on_my_toggled();
-public:
-	Gtk::Label m_label;
-	void set_parameter(SwitchParameter *p);
-	SwitchParameter * get_parameter();
-	ToggleCheckButton();
-	~ToggleCheckButton();
-};
-
-void ToggleCheckButton::on_my_toggled()
-{
-	param->set(get_active());
-}
-
-SwitchParameter* ToggleCheckButton::get_parameter()
-{
-	return param;
-}
-
-void ToggleCheckButton::set_parameter(SwitchParameter *p)
-{
-	param = p;
-	p->changed.connect(sigc::mem_fun(*this, &ToggleCheckButton::set_active));
-	signal_toggled().connect(
-		sigc::mem_fun(*this, &ToggleCheckButton::on_my_toggled));
-}
-
-ToggleCheckButton::~ToggleCheckButton()
-{
-}
-
-ToggleCheckButton::ToggleCheckButton() 
-{
-	//modify_bg(Gtk::STATE_ACTIVE, Gdk::Color("#58b45e"));
-	set_name("barbutton");
-	Pango::FontDescription font = m_label.get_style()->get_font();
-	font.set_size(8*Pango::SCALE);
-	font.set_weight(Pango::WEIGHT_BOLD);
-	m_label.modify_font(font);
-	m_label.set_name("barbuttonlabel");
-	//m_label.modify_fg(Gtk::STATE_NORMAL, Gdk::Color("#f1eded"));
-	//m_label.modify_fg(Gtk::STATE_ACTIVE, Gdk::Color("#111111"));
-	add(m_label);
-}
-/****************************************************************/
-class GxTBox
-{
-public:
-	Gtk::VBox m_box;
-	ToggleCheckButton m_tcb;
-	GxTBox(gx_ui::GxUI& ui);
-	virtual ~GxTBox();
-};
-
-GxTBox::~GxTBox()
-{
-}
-
-GxTBox::GxTBox(gx_ui::GxUI& ui)
-{
-}
-/****************************************************************/
-class GxVBox
-{
-public:
-	Gtk::VBox m_box;
-	Gtk::Label m_label;
-	GxVBox(gx_ui::GxUI& ui);
-	virtual ~GxVBox();
-};
-
-GxVBox::~GxVBox()
-{
-}
-
-GxVBox::GxVBox(gx_ui::GxUI& ui)
-{
-}
-/****************************************************************/
-class GxHBox
-{
-public:
-	Gtk::HBox m_box;
-	Gtk::Label m_label;
-	Gtk::Frame m_frame;
-	GxHBox(gx_ui::GxUI& ui);
-	virtual ~GxHBox();
-};
-
-GxHBox::~GxHBox()
-{
-}
-
-GxHBox::GxHBox(gx_ui::GxUI& ui)
-{
-}
-/****************************************************************/
-class GxFixedBox
-{
-public:
-	Gtk::Fixed m_fixed;
-	Gtk::VBox m_box;
-	GxFixedBox(gx_ui::GxUI& ui);
-	virtual ~GxFixedBox();
-};
-
-GxFixedBox::~GxFixedBox()
-{
-}
-
-GxFixedBox::GxFixedBox(gx_ui::GxUI& ui)
-{
-	m_fixed.put(m_box,0,0);
-}
-/****************************************************************/
-class GxPaintBox
-{
-
-public:
-	
-	Gtk::HBox m_box;
-	Gxw::PaintBox m_paintbox;
-	GxPaintBox(gx_ui::GxUI& ui, const char *expose_funk);
-	~GxPaintBox();
-};
-
-GxPaintBox::~GxPaintBox()
-{
-}
-
-GxPaintBox::GxPaintBox(gx_ui::GxUI& ui,const char *expose_funk):
-	m_box(false, 0)
-{
-	m_paintbox.property_paint_func() = expose_funk;
-	m_paintbox.add(m_box);
-}
-/****************************************************************/
-class GxEventBox
-{
-public:
-	Gtk::HBox m_box;
-	Gtk::HBox m_hbox;
-	Gtk::HBox m_pbox;
-	Gtk::HBox m_tbox;
-	Gtk::EventBox m_eventbox;
-	Gtk::HBox m_fbox;
-	Gtk::HBox m_fixedbox;
-	Gtk::Label m_label;
-	GxEventBox(gx_ui::GxUI& ui);
-	virtual ~GxEventBox();
-};
-
-GxEventBox::~GxEventBox()
-{
-}
-
-GxEventBox::GxEventBox(gx_ui::GxUI& ui)
-{
-	
-	m_eventbox.add(m_box);
-	m_fixedbox.add(m_eventbox);
-	m_hbox.add(m_pbox);
-	m_hbox.pack_start(m_fbox,false,false);
-	m_fbox.pack_start(m_fixedbox,false,false);
-	m_hbox.add(m_tbox);
-}
-/****************************************************************/
-class GxMainBox
-{
-public:
-	Gtk::HBox m_box;
-	Gtk::EventBox m_eventbox;
-	Gtk::Fixed m_fixedbox;
-	Gtk::Label m_label;
-	Gxw::PaintBox m_paintbox;
-	GxMainBox(gx_ui::GxUI& ui,const char *expose_funk);
-	virtual ~GxMainBox();
-};
-
-GxMainBox::~GxMainBox()
-{
-}
-
-GxMainBox::GxMainBox(gx_ui::GxUI& ui,const char *expose_funk)
-{
-	m_paintbox.add(m_box);
-	m_eventbox.add(m_paintbox);
-	m_paintbox.property_paint_func() = expose_funk;
-	m_fixedbox.put(m_eventbox,0,0);
-}
-/****************************************************************/
-class GxMidiBox
-{
-public:
-	Gtk::HBox m_box;
-	Gtk::EventBox m_eventbox;
-	Gxw::PaintBox m_paintbox;
-	ToggleCheckButton m_tcb;
-	UiSwitch* unit_on_off;
-	Gtk::HBox m_bbox;
-	Gtk::Fixed m_fixedbox;
-	GxMidiBox(gx_ui::GxUI& ui,const char *expose_funk);
-	virtual ~GxMidiBox();
-};
-
-GxMidiBox::~GxMidiBox()
-{
-	delete unit_on_off;
-}
-
-GxMidiBox::GxMidiBox(gx_ui::GxUI& ui,const char *expose_funk):
-unit_on_off( UiSwitch::new_switch(ui, sw_led, "midi_out.on_off"))
-{
-	m_bbox.pack_start(m_tcb,true,true);
-	m_bbox.pack_end(*unit_on_off,false,false);
-	m_paintbox.property_paint_func() = expose_funk;
-	m_eventbox.add(m_paintbox);
-	m_paintbox.add(m_box);
-	m_eventbox.set_border_width(0);
-	m_eventbox.set_name("black_box");
-	m_box.set_homogeneous(false);
-	m_box.set_spacing(0);
-	m_box.set_border_width(4);
-	m_box.pack_end(m_fixedbox,false, false, 0 );
-	m_fixedbox.set_size_request ( 25, -1);
-}
-/****************************************************************/
-class GxNotebookBox
-{
-public:
-	Gtk::Notebook m_box;
-	GxNotebookBox(gx_ui::GxUI& ui);
-	virtual ~GxNotebookBox();
-};
-
-GxNotebookBox::~GxNotebookBox()
-{
-}
-
-GxNotebookBox::GxNotebookBox(gx_ui::GxUI& ui)
-{
-	m_box.set_name("tab_rack");
-}
-/****************************************************************/
-class GxMoveBox
-{
-public:
-	Gtk::Label m_label;
-	Gtk::Label m_label1;
-	Gtk::Fixed m_fixed;
-	Gxw::PaintBox m_paintbox;
-	Gtk::Button m_button;
-	Gtk::Button m_button1;
-	GxMoveBox(gx_ui::GxUI& ui);
-	virtual ~GxMoveBox();
-};
-
-GxMoveBox::~GxMoveBox()
-{
-}
-
-GxMoveBox::GxMoveBox(gx_ui::GxUI& ui)
-{
-	m_paintbox.property_paint_func() = "rectangle_skin_color_expose";
-	m_label.set_text("▼");
-	m_label.set_name ("rack_label");
-	m_label1.set_text("▲");
-	m_label1.set_name ("rack_label");
-	m_button.add(m_label);
-	m_button.set_size_request (20, 15);
-	m_button.set_name ("effect_reset");
-	m_button1.add(m_label1);
-	m_button1.set_size_request (20, 15);
-	m_button1.set_name ("effect_reset");
-	GtkStyle *style = gtk_widget_get_style(GTK_WIDGET(m_label.gobj()));
-	pango_font_description_set_size(style->font_desc, 6*PANGO_SCALE);
-	pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-	gtk_widget_modify_font(GTK_WIDGET(m_label.gobj()), style->font_desc);
-	gtk_widget_modify_font(GTK_WIDGET(m_label1.gobj()), style->font_desc);
-	m_fixed.set_size_request (25, -1);
-	m_fixed.put(m_button1, 2, 5);
-	m_fixed.put(m_button, 2, 20);
-	m_paintbox.pack_end(m_fixed,false, false, 0 );
-	m_fixed.show_all();
-	m_paintbox.set_border_width (4);
-	m_paintbox.property_spacing() = 0;
-	m_paintbox.property_homogeneous() = false;
-}
-
-/****************************************************************
  ** GxMainInterface widget and method definitions
  */
  
-/* global GUI widgets class */
+/*set global GUI widgets class */
 GlobalWidgets gw;
 
+/*init values for skin hadling */
 SkinHandling::SkinHandling()
 {
 	gx_current_skin = 0;
@@ -482,6 +171,7 @@ bool GxMainInterface::fInitialized = false;
 static pthread_t ui_thread;
 #endif
 
+/* set initial window position*/
 int gx_set_mx_oriantation()
 {
 	return (gint) gx_gui::main_xorg;
@@ -492,6 +182,7 @@ int gx_set_my_oriantation()
 	return (gint) gx_gui::main_yorg;
 }
 
+/* create main window*/
 GxMainInterface::GxMainInterface(const char * name):
 	fTuner(this, &gx_engine::audio.fConsta1t)
 {
@@ -589,6 +280,25 @@ void GxMainInterface::closeBox()
 	assert(fTop >= 0);
 }
 
+GtkWidget* GxMainInterface::addWidget(const char* label, GtkWidget* w)
+{
+	switch (fMode[fTop])
+	{
+	case kSingleMode	:
+		gtk_container_add (GTK_CONTAINER(fBox[fTop]), w);
+		break;
+	case kBoxMode 		:
+		gtk_box_pack_start (GTK_BOX(fBox[fTop]), w, expand, fill, 0);
+		break;
+	case kTabMode 		:
+		gtk_notebook_append_page (GTK_NOTEBOOK(fBox[fTop]), w, gtk_label_new(label));
+		break;
+	}
+	gtk_widget_show (w);
+	return w;
+}
+
+/* loging box handling*/
 static void logging_set_color(GtkWidget *w, gpointer data)
 {
 	GxMainInterface *p = (GxMainInterface*)data;
@@ -734,6 +444,7 @@ void GxMainInterface::show_msg(string msgbuf, gx_system::GxMsgType msgtype)
 	}
 }
 
+/* create level meter*/
 void GxMainInterface::openLevelMeterBox(const char* label)
 {
 	GtkWidget* box1 = addWidget(label, gtk_alignment_new (0.5, 0.5, 0, 0));
@@ -991,7 +702,7 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat
 };
 
 
-//----- boxes to move inside a other box
+//----- boxes to move inside a other box (mono effects)
 void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 {
 	GxMoveBox * box =  new GxMoveBox(*this);
@@ -1028,6 +739,7 @@ void GxMainInterface::openHorizontalOrderBox(const char* label, float* posit)
 	pushBox(kBoxMode, GTK_WIDGET(box->m_paintbox.gobj()));
 }
 
+//----- boxes to move inside a other box (stereo effects)
 void GxMainInterface::openHorizontalRestetBox(const char* label, float* posit)
 {
 	GxMoveBox * box =  new GxMoveBox(*this);
@@ -1045,7 +757,7 @@ void GxMainInterface::openHorizontalRestetBox(const char* label, float* posit)
 	GValue  pos = {0};
 	float z = *posit;
 	gint poset = int(z);
-	//fprintf(stderr, " %i .monobox\n",poset);
+	//fprintf(stderr, " %i .stereobox\n",poset);
 	g_value_init (&pos, G_TYPE_INT);
 	g_value_set_int(&pos,poset);
 	string tooltip = _("Move ");
@@ -1064,7 +776,7 @@ void GxMainInterface::openHorizontalRestetBox(const char* label, float* posit)
 	pushBox(kBoxMode, GTK_WIDGET(box->m_paintbox.gobj()));
 }
 
-//-------- different gxmm container 
+//-------- different gtk(x)mm container (virtuell discription)
 void GxMainInterface::openEventBox(const char* label)
 {
 	GxEventBox * box =  new GxEventBox(*this);
@@ -1341,22 +1053,158 @@ void GxMainInterface::openHorizontalhideBox1(const char* label)
 	if (label[0] != 0) box->m_box.show();
 }
 
-GtkWidget* GxMainInterface::addWidget(const char* label, GtkWidget* w)
+/* add mono effect to the mono rack, increase mono effect counter*/
+void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk )
 {
-	switch (fMode[fTop])
-	{
-	case kSingleMode	:
-		gtk_container_add (GTK_CONTAINER(fBox[fTop]), w);
-		break;
-	case kBoxMode 		:
-		gtk_box_pack_start (GTK_BOX(fBox[fTop]), w, expand, fill, 0);
-		break;
-	case kTabMode 		:
-		gtk_notebook_append_page (GTK_NOTEBOOK(fBox[fTop]), w, gtk_label_new(label));
-		break;
+	Parameter& param_dialog = parameter_map[id_dialog];
+	Parameter& param_switch = parameter_map[id_switch];
+	GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
+	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(rBox));
+	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,mono_plugs);
+	mono_plugs++;
+	g_list_free(child_list);
+	gx_engine::set_mono_plug_counter(mono_plugs);
+	gtk_box_pack_end (GTK_BOX(child),GTK_WIDGET(bbox->box.gobj()) , false, false, 0);
+	GxDialogWindowBox *dialog = new GxDialogWindowBox(*this, expose_funk, param_dialog, param_switch, bbox->show_dialog, gw.rack_widget);
+	gtk_box_pack_start (GTK_BOX(child),GTK_WIDGET(dialog->paintbox.gobj()) , true, fill, 0);
+	pushBox(kBoxMode, GTK_WIDGET(dialog->box.gobj()));
+	
+	const gchar * title = gtk_widget_get_name(GTK_WIDGET(dialog->paintbox.gobj()));
+	string p = "ui.";
+	p +=title;
+	set_label(dialog->menuitem, _(title));
+	guint accel_key = GDK_a  + mono_plugs ;
+	dialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME MOD1_MASK 
+	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsMono"]), GTK_WIDGET(dialog->menuitem.gobj()));
+	dialog->menuitem.show();
+	dialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
+	
+	dialog->m_tcb.set_parameter(dialog->menuitem.get_parameter());
+	gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(dialog->box1.gobj()) , false, false, 0);
+	dialog->box1.pack_start(dialog->m_tcb,true,true);
+	string tooltip = "Show ";
+	tooltip +=title;
+	dialog->m_tcb.set_tooltip_text(_(tooltip.c_str()));
+	dialog->box1.show_all();
+	if(strcmp(title,"Oscilloscope")==0) {
+	fShowWaveView.add_parameter(dialog->menuitem.get_parameter());
+	fShowWaveView.signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_show_oscilloscope));
 	}
-	gtk_widget_show (w);
-	return w;
+	
+	//gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(dialog->m_tcb.gobj()) , false, false, 0);
+}
+
+/* add stereo effect to the stereo rack, increase stereo effect counter*/
+void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk )
+{
+	Parameter& param_dialog = parameter_map[id_dialog];
+	Parameter& param_switch = parameter_map[id_switch];
+	GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
+	
+	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(sBox));
+	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,stereo_plugs);
+	stereo_plugs++;
+	g_list_free(child_list);
+	gx_engine::set_stereo_plug_counter(stereo_plugs);
+	gtk_box_pack_end (GTK_BOX(child),GTK_WIDGET(bbox->box.gobj()) , false, false, 0);
+	GxDialogWindowBox *bdialog = new GxDialogWindowBox(*this, expose_funk, param_dialog, param_switch, bbox->show_dialog, gw.srack_widget);
+	gtk_box_pack_start (GTK_BOX(child),GTK_WIDGET(bdialog->paintbox.gobj()) , true, fill, 0);
+	pushBox(kBoxMode, GTK_WIDGET(bdialog->box.gobj()));
+	
+	const gchar * title = gtk_widget_get_name(GTK_WIDGET(bdialog->paintbox.gobj()));
+	set_label(bdialog->menuitem, _(title));
+	string p = "ui.";
+	p +=title;
+	string s;
+	
+	guint accel_key = GDK_r  + stereo_plugs ;
+	bdialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME 
+	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsStereo"]), GTK_WIDGET(bdialog->menuitem.gobj()));
+	bdialog->menuitem.show();
+	bdialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
+	
+	bdialog->m_tcb.set_parameter(bdialog->menuitem.get_parameter());
+	gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(bdialog->box1.gobj()) , false, false, 0);
+	bdialog->box1.pack_start(bdialog->m_tcb,true,true);
+	string tooltip = "Show ";
+	tooltip +=title;
+	bdialog->m_tcb.set_tooltip_text(_(tooltip.c_str()));
+	bdialog->box1.show_all();
+	//gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(bdialog->m_tcb.gobj()) , false, false, 0);
+}
+
+/* button box for the (show)effect buttons*/
+void GxMainInterface::openToolBar(const char* label)
+{
+	GxToolBox *box =  new GxToolBox(*this, 
+		pb_gxrack_expose, _("Plugin Bar"), GTK_WIDGET(fShowToolBar.gobj()));
+	
+	//box->window.set_size_request(-1,524); 
+	gw.rack_tool_bar = GTK_WIDGET(box->window.gobj());
+	tBox = GTK_WIDGET(box->rbox.gobj());
+	box->rbox.add(box->box1);
+	box->m_tmono_rack.set_parameter(fShowRack.get_parameter());
+	box->m_tstereo_rack.set_parameter(fShowSRack.get_parameter());
+	box->m_tmono_rack.m_label.set_text(_("mono rack"));
+	box->m_tstereo_rack.m_label.set_text(_("stereo rack"));
+
+	box->box1.pack_start(box->m_tmono_rack,true,true);
+	box->box1.pack_end(box->m_tstereo_rack,true,true);
+	box->m_tmono_rack.set_tooltip_text(_("Show mono rack"));
+	box->m_tstereo_rack.set_tooltip_text(_("Show stereo rack"));
+	box->box1.show_all();
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
+	pushBox(kBoxMode, GTK_WIDGET(tBox));
+}
+
+/* the mono rack*/
+void GxMainInterface::openPlugBox(const char* label)
+{
+	GxWindowBox *plugbox =  new GxWindowBox(*this, 
+		label, GTK_WIDGET(fShowRack.gobj()));
+	gw.rack_widget = GTK_WIDGET(plugbox->window.gobj());
+	plugbox->box.pack_start(plugbox->rbox, true, true, 0);
+	plugbox->window.set_name("MonoRack");
+	plugbox->window.set_tooltip_text(_("Mono Rack, right click pop up the plugin menu"));
+	rBox = GTK_WIDGET(plugbox->rbox.gobj());
+	gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(plugbox->window.gobj()), false, true, 0);
+	pushBox(kBoxMode, GTK_WIDGET(rBox));
+}
+
+/* the main rack widget for all racks*/
+void GxMainInterface::openScrollBox(const char* label)
+{
+	GxScrollBox *scrollbox =  new GxScrollBox(*this, 
+		pb_gxrack_expose, label, GTK_WIDGET(fShowRack.gobj()));
+	scrollbox->box.pack_start(scrollbox->rbox, true, true, 0);
+	//scrollbox->box.pack_start(scrollbox->vbox, false, false, 0);
+	scrollbox->vbox.pack_start(scrollbox->box1, false, false, 0);
+	
+	RBox = GTK_WIDGET(scrollbox->window.gobj());
+	scrollbox->window.set_name("Rack");
+	scrollbox->window.set_size_request(-1,460); 
+	scrollbox->rbox.show();
+	scrollbox->box1.show();
+	scrollbox->vbox.show();
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(scrollbox->window.gobj()), expand, true, 0);
+	pushBox(kBoxMode, GTK_WIDGET(scrollbox->rbox.gobj()));
+}
+
+/* the stereo rack*/
+void GxMainInterface::openAmpBox(const char* label)
+{
+	GxWindowBox *box =  new GxWindowBox(*this, 
+		label, GTK_WIDGET(fShowSRack.gobj()));
+	box->box.pack_start(box->rbox, true, true, 0);
+	gw.srack_widget = GTK_WIDGET(box->window.gobj());
+	box->window.set_name("StereoRack");
+	box->window.set_tooltip_text(_("Stereo Rack, right click pop up the plugin menu"));
+	sBox = GTK_WIDGET(box->rbox.gobj());
+	gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), false, true, 0);
+	pushBox(kBoxMode, GTK_WIDGET(sBox));
 }
 
 // --------------------------- Press button ---------------------------
@@ -1502,8 +1350,6 @@ void GxMainInterface::addToggleButton(const char* label, float* zone)
 	
 }
 
-
-
 void GxMainInterface::addMToggleButton(const char* label, float* zone)
 {
 	GdkColor colorRed;
@@ -1544,7 +1390,6 @@ void GxMainInterface::addMToggleButton(const char* label, float* zone)
 	g_signal_connect (GTK_OBJECT (button), "toggled", G_CALLBACK (uiToggleButton::toggled), (gpointer) c);
 	connect_midi_controller(button, zone);
 }
-
 
 static bool conv_start()
 {
@@ -1754,399 +1599,6 @@ void GxMainInterface::addMToggleButton(string id, const char* label)
 	addMToggleButton(label, &p.value);
 }
 
-// -------------------------- gxwmm library controlers -----------------------------------
-
-void set_osilloscope_mode(GtkWidget *widget, gpointer data)
-{
-	gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
-	if (gx_engine::audio.effect_pre_post[10]) {
-		gui->getWaveView().set_multiplicator(150.,250.);
-	} else {
-		gui->getWaveView().set_multiplicator(20.,60.);
-	}
-}
-
-void set_accessible(GtkWidget *widget,GtkLabel *label)
-{
-	AtkObject *atk_widget, *atk_label;
-	AtkRelationSet *relation_set;
-	AtkRelation *relation;
-	AtkObject *targets[1];
-
-	atk_widget = gtk_widget_get_accessible (widget);
-	atk_label = gtk_widget_get_accessible (GTK_WIDGET(label));
-
-	relation_set = atk_object_ref_relation_set (atk_label);
-	targets[0] = atk_widget;
-
-	relation = atk_relation_new(targets,1, ATK_RELATION_LABEL_FOR);
-	atk_relation_set_add(relation_set,relation);
-	g_object_unref(G_OBJECT(relation));
-
-	relation_set = atk_object_ref_relation_set (atk_widget);
-	targets[0] = atk_label;
-
-	relation = atk_relation_new (targets, 1, ATK_RELATION_LABELLED_BY);
-	atk_relation_set_add (relation_set, relation);
-	g_object_unref (G_OBJECT (relation));
-}
-
-
-/****************************************************************
- ** UiRegler, UiSwitch
- */
-
-void UiRegler::on_value_changed()
-{
-	modifyZone(get_value());
-}
-
-void UiRegler::reflectZone()
-{
-	float 	v = *fZone;
-	fCache = v;
-	set_value(v);
-}
-
-GtkWidget *UiRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value)
-{
-	if (!parameter_map.hasId(id)) {
-		return 0;
-	}
-	return (new UiRegler(ui, parameter_map[id].getFloat(), regler, show_value))->get_widget();
-}
-
-UiRegler::UiRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, bool show_value):
-	gx_ui::GxUiItemFloat(&ui, &param.value),
-	Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0),
-	m_regler(regler)
-{
-	m_regler->set_show_value(show_value);
-	m_regler->set_name("regler");
-	m_regler->set_has_tooltip();
-	m_regler->set_tooltip_text(param.id().substr( param.id().find_last_of(".")+1).c_str());
-	m_regler->cp_set_var(param.id());
-	m_regler->set_adjustment(*this);
-	m_regler->show();
-	m_regler->get_accessible()->set_description (param.id().c_str());
-	m_regler->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
-	
-	param.value = param.std_value;
-	connect_midi_controller(GTK_WIDGET(m_regler->gobj()), &param.value);
-}
-
-UiRegler::~UiRegler()
-{
-	delete m_regler;
-}
-
-UiSelector::UiSelector()
-{
-	m_selector.show();
-}
-
-void UiSelectorFloat::on_value_changed()
-{
-	modifyZone(get_value());
-}
-
-void UiSelectorInt::on_value_changed()
-{
-	modifyZone((int)get_value());
-}
-
-GtkWidget* UiSelector::create(gx_ui::GxUI& ui, string id)
-{
-	Parameter& p = parameter_map[id];
-	UiSelector *s;
-	if (p.isFloat()) {
-		s = new UiSelectorFloat(ui, p.getFloat());
-	} else {
-		s = new UiSelectorInt(ui, p.getInt());
-	}
-	return s->get_widget();
-}
-
-void UiSelector::init(Parameter& param)
-{
-	m_selector.cp_set_var(param.id());
-	Gtk::TreeModelColumn<Glib::ustring> label;
-	Gtk::TreeModelColumnRecord rec;
-	rec.add(label);
-	Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
-	for (const char **p = param.getValueNames(); *p; p++) {
-		ls->append()->set_value(0, Glib::ustring(*p));
-	}
-	m_selector.set_model(ls);
-	if (strcmp(param.group().c_str(),"Oscilloscope")==0) {
-		g_signal_connect (GTK_OBJECT (m_selector.gobj()), "value_changed", G_CALLBACK(set_osilloscope_mode), NULL);
-	}
-}
-
-UiSelectorFloat::UiSelectorFloat(gx_ui::GxUI& ui, FloatParameter &param):
-	gx_ui::GxUiItemFloat(&ui, &param.value),
-	Gtk::Adjustment(param.std_value, param.lower, param.upper, param.step, 10*param.step, 0)
-{
-	m_selector.set_adjustment(*this);
-	init(param);
-	m_selector.get_accessible()->set_description (param.id().c_str());
-	m_selector.get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
-	connect_midi_controller(GTK_WIDGET(m_selector.gobj()), fZone);
-}
-
-void UiSelectorFloat::reflectZone()
-{
-	float v = *fZone;
-	fCache = v;
-	set_value(v);
-}
-
-void UiSelectorInt::reflectZone()
-{
-	int v = *fZone;
-	fCache = v;
-	set_value(v);
-}
-
-UiSelectorInt::UiSelectorInt(gx_ui::GxUI& ui, IntParameter &param):
-	gx_ui::GxUiItemInt(&ui, &param.value),
-	Gtk::Adjustment(param.std_value, param.lower, param.upper, 1, 5, 0)
-{
-	m_selector.set_adjustment(*this);
-	init(param);
-	m_selector.get_accessible()->set_description (param.id().c_str());
-	m_selector.get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
-	connect_midi_controller(GTK_WIDGET(m_selector.gobj()), fZone);
-}
-
-GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value)
-{
-	if (!parameter_map.hasId(id)) {
-		return 0;
-	}
-	return create(ui, regler, id, parameter_map[id].name(), show_value);
-}
-
-GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, Glib::ustring label, bool show_value)
-{
-	if (!parameter_map.hasId(id)) {
-		return 0;
-	}
-	return (new UiReglerWithCaption(ui, parameter_map[id].getFloat(), regler, label, show_value))->get_widget();
-}
-
-GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id)
-{
-	if (!parameter_map.hasId(id)) {
-		return 0;
-	}
-	return create(ui, regler, id, parameter_map[id].name());
-}
-
-GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, Glib::ustring label)
-{
-	if (!parameter_map.hasId(id)) {
-		return 0;
-	}
-	return (new UiRackReglerWithCaption(ui, parameter_map[id].getFloat(), regler, label))->get_widget();
-}
-
-GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id)
-{
-	if (!parameter_map.hasId(id)) {
-		return 0;
-	}
-	return create(ui, regler, id, parameter_map[id].name());
-}
-
-GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, Glib::ustring label)
-{
-	if (!parameter_map.hasId(id)) {
-		return 0;
-	}
-	return (new UiRackRegler(ui, parameter_map[id].getFloat(), regler, label))->get_widget();
-}
-UiReglerWithCaption::UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
-                                         Glib::ustring label, bool show_value):
-	UiRegler(ui, param, regler, show_value)
-{
-	m_label.set_text(label);
-	m_label.set_name("effekt_label");
-	m_box.set_name(param.id());
-	m_box.pack_start(m_label, Gtk::PACK_SHRINK);
-	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
-	set_accessible(GTK_WIDGET(m_regler->gobj()),m_label.gobj());
-	m_box.show_all();
-}
-
-UiRackReglerWithCaption::UiRackReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
-                                         Glib::ustring label):
-	UiRegler(ui, param, regler, true)
-{
-	m_label.set_text(label);
-	m_label.set_name("rack_label");
-	m_box.set_name(param.id());
-	m_box.pack_start(m_label, Gtk::PACK_SHRINK);
-	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
-	set_accessible(GTK_WIDGET(m_regler->gobj()),m_label.gobj());
-	m_box.show_all();
-}
-
-UiRackRegler::UiRackRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
-                                         Glib::ustring label):
-	UiRegler(ui, param, regler, true)
-{
-	m_box.set_name(param.id());
-	m_box.pack_start(*m_regler, Gtk::PACK_SHRINK);
-	m_regler->set_name("rack_regler");
-	m_regler->get_accessible()->set_description (param.id().c_str());
-	m_regler->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
-	m_box.show_all();
-}
-
-UiSwitch::UiSwitch(const char *sw_type):
-	Switch(sw_type)
-{
-}
-
-UiSwitch *UiSwitch::new_switch(gx_ui::GxUI& ui, const char* sw_type, Parameter& param)
-{
-	if (param.isFloat()) {
-		return new UiSwitchFloat(ui, sw_type, param.getFloat());
-	} else {
-		return new UiSwitchBool(ui, sw_type, param.getBool());
-	}
-}
-
-void UiSwitchFloat::on_toggled()
-{
-	modifyZone(get_active());
-}
-
-void UiSwitchFloat::reflectZone()
-{
-	float v = *fZone;
-	fCache = v;
-	set_active(v != 0.0);
-}
-
-UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, FloatParameter &param):
-	UiSwitch(sw_type),
-	gx_ui::GxUiItemFloat(&ui, &param.value)
-{
-	param.set_std_value();
-	set_active(param.value != 0.0);
-	cp_set_var(param.id());
-	this->set_tooltip_text(param.id().substr( param.id().find_last_of(".")+1).c_str());
-	this->get_accessible()->set_description (param.id().c_str());
-	this->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
-	connect_midi_controller(GTK_WIDGET(gobj()), fZone);
-	show();
-}
-
-void UiSwitchBool::on_toggled()
-{
-	modifyZone(get_active());
-}
-
-void UiSwitchBool::reflectZone()
-{
-	bool v = *fZone;
-	fCache = v;
-	set_active(v != 0);
-}
-
-UiSwitchBool::UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, BoolParameter &param):
-	UiSwitch(sw_type),
-	gx_ui::GxUiItemBool(&ui, &param.value)
-{
-	param.set_std_value();
-	set_active(param.value);
-	cp_set_var(param.id());
-	char s[64];
-	snprintf(s, 63, _("%s on/off"),param.group().c_str());
-	this->set_tooltip_text(s);
-	this->get_accessible()->set_description (param.id().c_str());
-	this->get_accessible()->set_name (param.id().substr( param.id().find_last_of(".")+1).c_str());
-	connect_midi_controller(GTK_WIDGET(gobj()), fZone);
-	show();
-}
-
-GtkWidget* UiSwitchWithCaption::create(
-	gx_ui::GxUI& ui, const char *sw_type, string id, Gtk::PositionType pos)
-{
-	if (!parameter_map.hasId(id)) {
-		return 0;
-	}
-	return create(ui, sw_type, id, parameter_map[id].name(), pos);
-}
-
-GtkWidget* UiSwitchWithCaption::create(
-	gx_ui::GxUI& ui, const char *sw_type, string id, Glib::ustring label, Gtk::PositionType pos)
-{
-	if (!parameter_map.hasId(id)) {
-		return 0;
-	}
-	return (new UiSwitchWithCaption(ui, sw_type, parameter_map[id], label, pos))->get_widget();
-}
-
-UiSwitchWithCaption::UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, Parameter &param,
-                                         Glib::ustring label, Gtk::PositionType pos):
-	m_switch(UiSwitch::new_switch(ui, sw_type, param))
-{
-	m_label.set_text(label);
-	m_label.set_name("effekt_label");
-	if (pos == Gtk::POS_LEFT || pos == Gtk::POS_RIGHT) {
-		m_box = new Gtk::HBox();
-	} else {
-		m_box = new Gtk::VBox();
-	}
-	if (pos == Gtk::POS_LEFT || pos == Gtk::POS_TOP) {
-		m_box->pack_start(m_label, Gtk::PACK_SHRINK);
-		m_box->pack_start(*m_switch, Gtk::PACK_SHRINK);
-	} else {
-		m_box->pack_start(*m_switch, Gtk::PACK_SHRINK);
-		m_box->pack_start(m_label, Gtk::PACK_SHRINK);
-	}
-	m_box->set_name(param.id());
-	set_accessible(GTK_WIDGET(m_switch->gobj()),m_label.gobj());
-	m_box->show_all();
-}
-
-UiSwitchWithCaption::~UiSwitchWithCaption()
-{
-	delete m_switch;
-	delete m_box;
-}
-
-UiCabSwitch::UiCabSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label):
-	UiSwitchWithCaption(ui, sw_minitoggle, param, label, Gtk::POS_RIGHT)
-{
-	m_switch->signal_toggled().connect(sigc::mem_fun(*this, &UiCabSwitch::on_switch_toggled));
-}
-
-GtkWidget* UiCabSwitch::create(gx_ui::GxUI& ui, string id, Glib::ustring label)
-{
-	if (!parameter_map.hasId(id)) {
-		return 0;
-	}
-	return (new UiCabSwitch(ui, parameter_map[id], label))->get_widget();
-}
-
-UiContrastSwitch::UiContrastSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label):
-	UiSwitchWithCaption(ui, sw_minitoggle, param, label, Gtk::POS_RIGHT)
-{
-	m_switch->signal_toggled().connect(sigc::mem_fun(*this, &UiContrastSwitch::on_switch_toggled));
-}
-
-GtkWidget* UiContrastSwitch::create(gx_ui::GxUI& ui, string id, Glib::ustring label)
-{
-	if (!parameter_map.hasId(id)) {
-		return 0;
-	}
-	return (new UiContrastSwitch(ui, parameter_map[id], label))->get_widget();
-}
-
 // -------------------------- gtk widgets -----------------------------------
 
 void GxMainInterface::addNumEntry(const char* label, float* zone, float init, float min, float max, float step)
@@ -2181,220 +1633,14 @@ void GxMainInterface::setSkinBox(const char* label, float* zone)
 	g_signal_connect (GTK_OBJECT (adj), "value-changed", G_CALLBACK (gx_set_skin),  (gpointer) c);
 }
 
-static void set_label(MenuCheckItem& item , const char *label)
+void set_label(MenuCheckItem& item , const char *label)
 {
 	dynamic_cast<Gtk::Label*>(item.get_child())->set_text_with_mnemonic(label);
 }
 
-static void set_label(RadioCheckItem& item , const char *label)
+void set_label(RadioCheckItem& item , const char *label)
 {
 	dynamic_cast<Gtk::Label*>(item.get_child())->set_text_with_mnemonic(label);
-}
-/****************************************************************
- ** Effect Dialog Boxes
- */
-
-class GxDialogButtonBox
-{
-public:
-	Gtk::HBox box;
-	UiSwitchBool show_dialog;
-	GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog);
-};
-
-GxDialogButtonBox::GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog):
-	box(false, 0),
-	show_dialog(ui, sw_button, param_dialog.getBool())
-{
-	box.set_border_width(0);
-	box.show_all();
-}
-
-/***************************/
-
-class GxDialogWindowBox
-{
-private:
-	void on_dialog_button_toggled();
-	void on_reset_button_pressed();
-	void on_dialog_menu_activate();
-	bool on_window_delete_event(GdkEventAny* event);
-	Glib::ustring group_id;
-public:
-	Gtk::HBox box;
-	Gtk::HBox box1;
-	Gxw::PaintBox paintbox;
-	Gtk::HBox box4;
-	Gtk::HBox box5;
-	Gtk::HBox box6;
-	UiSwitch* unit_on_off;
-	MenuCheckItem menuitem;
-	Gtk::Button reset_button;
-	Gtk::Button reset_button1;
-	ToggleCheckButton m_tcb;
-	Gtk::ToggleButton& dialog_button;
-	Gtk::Window m_regler_tooltip_window;
-	GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk, Parameter& param_dialog, Parameter& param_switch, Gtk::ToggleButton& button,GtkWidget * Caller);
-	~GxDialogWindowBox();
-};
-
-GxDialogWindowBox::~GxDialogWindowBox()
-{
-	delete unit_on_off;
-}
-
-void GxDialogWindowBox::on_dialog_button_toggled()
-{
-	if (dialog_button.get_active()){
-		const gchar * title = gtk_widget_get_name(GTK_WIDGET(paintbox.gobj()));
-		string p = "ui.";
-		p +=title;
-		string group = group_id;
-		group += ".on_off";
-		parameter_map[p].set_std_value();
-		parameter_map[group].set_std_value();
-		dialog_button.set_active(false);
-	}
-}
-
-void GxDialogWindowBox::on_dialog_menu_activate()
-{
-	gx_show_extended_settings(GTK_WIDGET(menuitem.gobj()), (gpointer)paintbox.gobj());
-
-	if (!menuitem.get_active()){
-		string group = group_id;
-		group += ".on_off";
-		parameter_map[group].set_std_value();
-	}
-}
-
-void GxDialogWindowBox::on_reset_button_pressed()
-{
-	gx_reset_units(group_id);
-}
-
-GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui,const char *expose_funk, Parameter& param_dialog,
-                                     Parameter& param_switch, Gtk::ToggleButton& button,GtkWidget * Caller):
-	box(false, 0),
-	unit_on_off( UiSwitch::new_switch(ui, sw_led, param_switch)),
-	dialog_button(button),
-	m_regler_tooltip_window(Gtk::WINDOW_POPUP)
-{
-	group_id = param_dialog.id().substr(0, param_dialog.id().find_last_of(".")).c_str();
-	Glib::ustring title = param_dialog.group();
-	box1.pack_end(*unit_on_off,false,false);
-	box.set_border_width(2);
-	box4.set_spacing(2);
-	box4.set_border_width(2);
-	box5.set_border_width(4);
-	box6.set_border_width(4);
-	paintbox.property_paint_func() = expose_funk;
-	paintbox.set_name(title);
-	reset_button.set_name("effect_reset");
-	reset_button1.set_name("effect_reset");
-	box5.add(reset_button);
-	box6.add(reset_button1);
-	box5.set_size_request(15,-1); 
-	box6.set_size_request(15,-1); 
-	reset_button.signal_pressed().connect(
-		sigc::mem_fun(*this, &GxDialogWindowBox::on_reset_button_pressed));
-	reset_button1.signal_pressed().connect(
-		sigc::mem_fun(*this, &GxDialogWindowBox::on_reset_button_pressed));
-	reset_button.set_tooltip_text(_("Reset Button, press to reset settings"));
-	reset_button1.set_tooltip_text(_("Reset Button, press to reset settings"));
-	box4.pack_start(box6,false,false,0);
-	box4.pack_start(box,true,true,0);	
-	box4.pack_end(box5,false,false,0);
-	paintbox.add(box4);
-	paintbox.set_tooltip_text(_(title.c_str()));
-	m_tcb.m_label.set_text(_(title.c_str()));
-	dialog_button.signal_toggled().connect(
-		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
-	menuitem.signal_activate().connect(
-		sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_menu_activate));
-}
-
-/***************************/
-
-void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk )
-{
-	Parameter& param_dialog = parameter_map[id_dialog];
-	Parameter& param_switch = parameter_map[id_switch];
-	GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
-	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(rBox));
-	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,mono_plugs);
-	mono_plugs++;
-	g_list_free(child_list);
-	gx_engine::set_mono_plug_counter(mono_plugs);
-	gtk_box_pack_end (GTK_BOX(child),GTK_WIDGET(bbox->box.gobj()) , false, false, 0);
-	GxDialogWindowBox *dialog = new GxDialogWindowBox(*this, expose_funk, param_dialog, param_switch, bbox->show_dialog, gw.rack_widget);
-	gtk_box_pack_start (GTK_BOX(child),GTK_WIDGET(dialog->paintbox.gobj()) , true, fill, 0);
-	pushBox(kBoxMode, GTK_WIDGET(dialog->box.gobj()));
-	
-	const gchar * title = gtk_widget_get_name(GTK_WIDGET(dialog->paintbox.gobj()));
-	string p = "ui.";
-	p +=title;
-	set_label(dialog->menuitem, _(title));
-	guint accel_key = GDK_a  + mono_plugs ;
-	dialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME MOD1_MASK 
-	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsMono"]), GTK_WIDGET(dialog->menuitem.gobj()));
-	dialog->menuitem.show();
-	dialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
-	
-	dialog->m_tcb.set_parameter(dialog->menuitem.get_parameter());
-	gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(dialog->box1.gobj()) , false, false, 0);
-	dialog->box1.pack_start(dialog->m_tcb,true,true);
-	string tooltip = "show ";
-	tooltip +=title;
-	dialog->m_tcb.set_tooltip_text(_(tooltip.c_str()));
-	dialog->box1.show_all();
-	if(strcmp(title,"Oscilloscope")==0) {
-	fShowWaveView.add_parameter(dialog->menuitem.get_parameter());
-	fShowWaveView.signal_activate().connect(
-		sigc::mem_fun(*this, &GxMainInterface::on_show_oscilloscope));
-	}
-	
-	//gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(dialog->m_tcb.gobj()) , false, false, 0);
-}
-
-void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk )
-{
-	Parameter& param_dialog = parameter_map[id_dialog];
-	Parameter& param_switch = parameter_map[id_switch];
-	GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
-	
-	GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(sBox));
-	GtkWidget *child = (GtkWidget *) g_list_nth_data(child_list,stereo_plugs);
-	stereo_plugs++;
-	g_list_free(child_list);
-	gx_engine::set_stereo_plug_counter(stereo_plugs);
-	gtk_box_pack_end (GTK_BOX(child),GTK_WIDGET(bbox->box.gobj()) , false, false, 0);
-	GxDialogWindowBox *bdialog = new GxDialogWindowBox(*this, expose_funk, param_dialog, param_switch, bbox->show_dialog, gw.srack_widget);
-	gtk_box_pack_start (GTK_BOX(child),GTK_WIDGET(bdialog->paintbox.gobj()) , true, fill, 0);
-	pushBox(kBoxMode, GTK_WIDGET(bdialog->box.gobj()));
-	
-	const gchar * title = gtk_widget_get_name(GTK_WIDGET(bdialog->paintbox.gobj()));
-	set_label(bdialog->menuitem, _(title));
-	string p = "ui.";
-	p +=title;
-	string s;
-	
-	guint accel_key = GDK_r  + stereo_plugs ;
-	bdialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-	                           accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  //FIXME 
-	gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsStereo"]), GTK_WIDGET(bdialog->menuitem.gobj()));
-	bdialog->menuitem.show();
-	bdialog->menuitem.set_parameter(new SwitchParameter(p,true,false));
-	
-	bdialog->m_tcb.set_parameter(bdialog->menuitem.get_parameter());
-	gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(bdialog->box1.gobj()) , false, false, 0);
-	bdialog->box1.pack_start(bdialog->m_tcb,true,true);
-	string tooltip = "show ";
-	tooltip +=title;
-	bdialog->m_tcb.set_tooltip_text(_(tooltip.c_str()));
-	bdialog->box1.show_all();
-	//gtk_box_pack_start (GTK_BOX(tBox),GTK_WIDGET(bdialog->m_tcb.gobj()) , false, false, 0);
 }
 
 //-------- collect patch info for stage display
@@ -2442,7 +1688,7 @@ struct uiPatchDisplay : public gx_ui::GxUiItemFloat
 		}
 };
 
-//----- hide the jconv settings widget
+//----- hide the PatchInfo widget
 gboolean gx_delete_pi( GtkWidget *widget, gpointer   data )
 {
 	gtk_widget_hide(gw.patch_info);
@@ -2505,320 +1751,6 @@ void uiTuner::reflectZone()
 	}
 }
 
-class GxWindowBox
-{
-private:
-	bool on_window_delete_event(GdkEventAny* event,gpointer d );
-	bool on_button_pressed(GdkEventButton* event);
-
-public:
-	Gtk::HBox window;
-
-	Gtk::HBox box;
-	Gtk::HBox box1;
-
-	Gtk::VBox rbox;
-	Gtk::Window m_regler_tooltip_window;
-	ToggleCheckButton m_tmono_rack;
-	ToggleCheckButton m_tstereo_rack;
-	GxWindowBox(gx_ui::GxUI& ui, 
-		Glib::ustring titl,GtkWidget * d);
-	~GxWindowBox();
-};
-
-bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d)
-{
-	gtk_check_menu_item_set_active(
-				GTK_CHECK_MENU_ITEM(GTK_WIDGET(d)), FALSE
-				);
-	return false;
-}
-
-bool GxWindowBox::on_button_pressed(GdkEventButton* event)
-{
-	if( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ){
-		const gchar * title = gtk_widget_get_name(GTK_WIDGET(window.gobj()));
-		if(strcmp(title,"MonoRack")==0) {
-			guint32 tim = gtk_get_current_event_time ();
-			gtk_menu_popup (GTK_MENU(gw.menu_mono_rack),NULL,NULL,NULL,(gpointer) gw.menu_mono_rack,2,tim);
-		return true;
-		}
-		else if (strcmp(title,"StereoRack")==0){
-			guint32 tim = gtk_get_current_event_time ();
-			gtk_menu_popup (GTK_MENU(gw.menu_stereo_rack),NULL,NULL,NULL,(gpointer) gw.menu_stereo_rack,2,tim);
-		return true;
-		}
-	}
-
-	return false;
-}
-
-GxWindowBox::GxWindowBox(gx_ui::GxUI& ui, 
-	Glib::ustring titl,GtkWidget * d):
-	window(Gtk::WINDOW_TOPLEVEL),
-	rbox(false, 0),
-	m_regler_tooltip_window(Gtk::WINDOW_POPUP)
-{
-	Glib::ustring title = titl;
-	window.add_events(Gdk::BUTTON_PRESS_MASK);
-	window.signal_delete_event().connect(
-		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxWindowBox::on_window_delete_event),d));
-	window.add(box);
-	window.signal_button_press_event().connect(
-		sigc::mem_fun(*this, &GxWindowBox::on_button_pressed));
-	box.show();
-	rbox.show();
-}
-
-class GxScrollBox
-{
-private:
-	
-	bool on_window_delete_event(GdkEventAny* event,gpointer d );
-	void on_rack_reorder_vertical();
-	void on_rack_reorder_horizontal();
-	
-public:
-	Gtk::HBox window;
-	Gtk::ScrolledWindow m_scrolled_window; 
-	Gtk::ScrolledWindow m_scrolled_window2; 
-	Gtk::HBox box;
-	Gtk::HBox box1;
-	Gxw::PaintBox paintbox1;
-	Gtk::VBox rbox;
-	Gtk::VBox vbox;
-	RadioCheckItem      fOrderhRack;
-	RadioCheckItem      fOrdervRack;
-	Gtk::RadioMenuItem::Group group;
-	GxScrollBox(gx_ui::GxUI& ui, 
-		const char *pb_2, Glib::ustring titl,GtkWidget * d);
-	~GxScrollBox();
-};
-
-bool GxScrollBox::on_window_delete_event(GdkEventAny*, gpointer d)
-{
-	gtk_check_menu_item_set_active(
-				GTK_CHECK_MENU_ITEM(GTK_WIDGET(d)), FALSE
-				);
-	return false;
-}
-
-void GxScrollBox::on_rack_reorder_horizontal()
-{
-	if (fOrderhRack.get_active()) { //horizontal
-		
-		if(gx_gui::gw.srack_widget) {
-			paintbox1.hide();
-			gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
-			if(gtk_window_get_resizable(GTK_WINDOW (gw.fWindow)))
-				gtk_window_set_resizable(GTK_WINDOW (gw.fWindow) , FALSE);
-			gtk_widget_ref(gx_gui::gw.srack_widget);
-			GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::gw.srack_widget));
-			gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.srack_widget);
-			gtk_box_pack_start(GTK_BOX(box1.gobj()), gx_gui::gw.srack_widget, false, true, 0);
-			gtk_widget_unref(gx_gui::gw.srack_widget);
-			if (gui->fShowSRack.get_active()) m_scrolled_window2.show();
-			paintbox1.show();
-			parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::gw.rack_tool_bar));
-			
-			if (strcmp(gtk_widget_get_name(parent),"gtkmm__GtkVBox")==0) {
-				gtk_widget_ref(gx_gui::gw.rack_tool_bar);
-				gtk_widget_ref(gx_gui::gw.tuner_widget);
-				gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.rack_tool_bar);
-				gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.tuner_widget);
-				parent = gtk_widget_get_parent(GTK_WIDGET(parent));
-				GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
-				parent = (GtkWidget *) g_list_nth_data(child_list,1);
-				child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
-				parent = (GtkWidget *) g_list_nth_data(child_list,0);
-				child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
-				parent = (GtkWidget *) g_list_nth_data(child_list,2);
-				gtk_container_add(GTK_CONTAINER(parent), gx_gui::gw.tuner_widget);
-				parent = (GtkWidget *) g_list_nth_data(child_list,0);
-				gtk_container_add(GTK_CONTAINER(parent), gx_gui::gw.rack_tool_bar);
-				gtk_widget_unref(gx_gui::gw.rack_tool_bar);
-				gtk_widget_unref(gx_gui::gw.tuner_widget);
-				g_list_free(child_list);
-			}
-			
-			gtk_widget_set_size_request (GTK_WIDGET (gui->RBox),-1, 460 );
-			if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
-				g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,gpointer(gw.fWindow),NULL);
-			if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
-				g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50, gx_gui::gx_set_default,gpointer(gui->RBox),NULL);
-		}
-	}
-}
-
-void GxScrollBox::on_rack_reorder_vertical()
-{
-	if (fOrdervRack.get_active()) { //vertical
-		
-		if(gx_gui::gw.srack_widget) {
-			paintbox1.hide();
-			gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
-			if(gtk_window_get_resizable(GTK_WINDOW (gw.fWindow)))
-				gtk_window_set_resizable(GTK_WINDOW (gw.fWindow) , FALSE);
-			gtk_widget_ref(gx_gui::gw.srack_widget);
-			GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::gw.srack_widget));
-			gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.srack_widget);
-			gtk_box_pack_start(GTK_BOX(rbox.gobj()), gx_gui::gw.srack_widget, false, true, 0);
-			gtk_widget_unref(gx_gui::gw.srack_widget);
-			m_scrolled_window2.hide();
-			paintbox1.show();
-			parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::gw.rack_tool_bar));
-			
-			if (strcmp(gtk_widget_get_name(parent),"gtkmm__GtkHBox")==0) {
-				gtk_widget_ref(gx_gui::gw.rack_tool_bar);
-				gtk_widget_ref(gx_gui::gw.tuner_widget);
-				gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.rack_tool_bar);
-				parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::gw.tuner_widget));
-				gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.tuner_widget);
-				parent = gtk_widget_get_parent(GTK_WIDGET(parent));
-				parent = gtk_widget_get_parent(GTK_WIDGET(parent));
-				parent = gtk_widget_get_parent(GTK_WIDGET(parent));
-				GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(parent));
-				parent = (GtkWidget *) g_list_nth_data(child_list,0);
-				gtk_container_add(GTK_CONTAINER(parent), gx_gui::gw.rack_tool_bar);
-				gtk_container_add(GTK_CONTAINER(parent), gx_gui::gw.tuner_widget);
-				gtk_widget_unref(gx_gui::gw.rack_tool_bar);
-				gtk_widget_unref(gx_gui::gw.tuner_widget);
-				g_list_free(child_list);
-			}
-			
-			gtk_widget_set_size_request (GTK_WIDGET (gui->RBox),-1, 460 );
-			if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
-				g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,gpointer(gw.fWindow),NULL);
-			if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
-				g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50, gx_gui::gx_set_default,gpointer(gui->RBox),NULL);
-		}
-	} 
-}
-
-GxScrollBox::GxScrollBox(gx_ui::GxUI& ui, 
-	const char *pb_2, Glib::ustring titl,GtkWidget * d):
-	window(Gtk::WINDOW_TOPLEVEL),
-	rbox(false, 4)
-{
-	Glib::ustring title = titl;
-	window.add_events(Gdk::BUTTON_PRESS_MASK);
-	m_scrolled_window.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_ALWAYS); 
-	m_scrolled_window.set_shadow_type(Gtk::SHADOW_NONE);
-	m_scrolled_window2.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_ALWAYS); 
-	m_scrolled_window2.set_shadow_type(Gtk::SHADOW_NONE);
-	m_scrolled_window2.set_name("HorizontalStereoBox");
-	paintbox1.set_border_width(18);
-	paintbox1.property_paint_func() = pb_2;
-	window.signal_delete_event().connect(
-		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxScrollBox::on_window_delete_event),d));
-	paintbox1.add(m_scrolled_window);
-	paintbox1.add(m_scrolled_window2);
-	m_scrolled_window.add(box);
-	m_scrolled_window2.add(vbox);
-	window.add(paintbox1);
-	fOrderhRack.signal_activate().connect(
-		sigc::mem_fun(*this, &GxScrollBox::on_rack_reorder_horizontal));
-	fOrdervRack.signal_activate().connect(
-		sigc::mem_fun(*this, &GxScrollBox::on_rack_reorder_vertical));
-		
-	const gchar * mtitle = "order Rack vertical";
-	set_label(fOrdervRack, _(mtitle));
-	group = fOrdervRack.get_group();
-	gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
-	gtk_menu_shell_append(GTK_MENU_SHELL(gui->getMenu("PluginMenu")), GTK_WIDGET(fOrdervRack.gobj()));
-	fOrdervRack.set_parameter(new SwitchParameter("system.order_rack_v",true,false));
-	fOrdervRack.show();
-	
-	mtitle = "order Rack horizotal";
-	set_label(fOrderhRack, _(mtitle));
-	fOrderhRack.set_group(group);
-	gtk_menu_shell_append(GTK_MENU_SHELL(gui->getMenu("PluginMenu")), GTK_WIDGET(fOrderhRack.gobj()));
-	fOrderhRack.set_active(false);
-	fOrderhRack.set_parameter(new SwitchParameter("system.order_rack_h",true,false));
-	fOrderhRack.show();
-	
-	paintbox1.show();
-	box.show();
-	m_scrolled_window.show();
-	//m_scrolled_window2.show();
-	rbox.show();
-}
-
-class GxToolBox
-{
-private:
-	bool on_window_delete_event(GdkEventAny* event,gpointer d );
-	bool on_button_pressed(GdkEventButton* event);
-public:
-	Gtk::VBox window;
-	Gtk::ScrolledWindow           m_scrolled_window; 
-	Gtk::HBox box;
-	Gtk::HBox box1;
-	Gxw::PaintBox paintbox;
-	Gxw::PaintBox paintbox1;
-	Gtk::VBox rbox;
-	Gtk::Window m_regler_tooltip_window;
-	ToggleCheckButton m_tmono_rack;
-	ToggleCheckButton m_tstereo_rack;
-	GxToolBox(gx_ui::GxUI& ui, 
-		const char *pb_2, Glib::ustring titl,GtkWidget * d);
-	~GxToolBox();
-};
-
-bool GxToolBox::on_window_delete_event(GdkEventAny*, gpointer d)
-{
-	gtk_check_menu_item_set_active(
-				GTK_CHECK_MENU_ITEM(GTK_WIDGET(d)), FALSE
-				);
-	return false;
-}
-
-
-bool GxToolBox::on_button_pressed(GdkEventButton* event)
-{
-	if( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ){
-		const gchar * title = gtk_widget_get_name(GTK_WIDGET(window.gobj()));
-		if(strcmp(title,"MonoRack")==0) {
-			guint32 tim = gtk_get_current_event_time ();
-			gtk_menu_popup (GTK_MENU(gw.menu_mono_rack),NULL,NULL,NULL,(gpointer) gw.menu_mono_rack,2,tim);
-		return true;
-		}
-		else if (strcmp(title,"StereoRack")==0){
-			guint32 tim = gtk_get_current_event_time ();
-			gtk_menu_popup (GTK_MENU(gw.menu_stereo_rack),NULL,NULL,NULL,(gpointer) gw.menu_stereo_rack,2,tim);
-		return true;
-		}
-	}
-	return false;
-}
-
-GxToolBox::GxToolBox(gx_ui::GxUI& ui, 
-	const char *pb_2, Glib::ustring titl,GtkWidget * d):
-	rbox(false, 4),
-	m_regler_tooltip_window(Gtk::WINDOW_POPUP)
-{
-	Glib::ustring title = titl;
-	window.add_events(Gdk::BUTTON_PRESS_MASK);
-	m_scrolled_window.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_AUTOMATIC); 
-	paintbox1.set_border_width(18);
-	paintbox.set_border_width(4);
-	paintbox1.property_paint_func() = pb_2;
-	paintbox.property_paint_func() = pb_rectangle_skin_color_expose;
-	window.signal_delete_event().connect(
-		 sigc::bind<gpointer>(sigc::mem_fun(*this, &GxToolBox::on_window_delete_event),d));
-	box.add(rbox);
-	paintbox1.add(m_scrolled_window);
-	m_scrolled_window.add(paintbox);
-	paintbox.add(box);
-	window.add(paintbox1);
-	window.signal_button_press_event().connect(
-		sigc::mem_fun(*this, &GxToolBox::on_button_pressed));
-	paintbox1.show();
-	box.show();
-	m_scrolled_window.show();
-	rbox.show();
-}
-
 void GxMainInterface::addNumDisplay()
 {
 	GxToolBox *box =  new GxToolBox(*this, 
@@ -2847,78 +1779,12 @@ void GxMainInterface::addNumDisplay()
 	GxTBox * tbox1 =  new GxTBox(*this);
 	tbox1->m_tcb.set_parameter(fShowTuner.get_parameter());
 	tbox1->m_tcb.m_label.set_text(_("tuner"));
-	tbox1->m_tcb.set_tooltip_text(_("show tuner"));
+	tbox1->m_tcb.set_tooltip_text(_("Show tuner"));
 	gtk_container_add (GTK_CONTAINER(box1), GTK_WIDGET(tbox1->m_tcb.gobj()));
 	
 }
 
-void GxMainInterface::openToolBar(const char* label)
-{
-	GxToolBox *box =  new GxToolBox(*this, 
-		pb_gxrack_expose, _("Plugin Bar"), GTK_WIDGET(fShowToolBar.gobj()));
-	
-	//box->window.set_size_request(-1,524); 
-	gw.rack_tool_bar = GTK_WIDGET(box->window.gobj());
-	tBox = GTK_WIDGET(box->rbox.gobj());
-	box->rbox.add(box->box1);
-	box->m_tmono_rack.set_parameter(fShowRack.get_parameter());
-	box->m_tstereo_rack.set_parameter(fShowSRack.get_parameter());
-	box->m_tmono_rack.m_label.set_text(_("mono rack"));
-	box->m_tstereo_rack.m_label.set_text(_("stereo rack"));
-
-	box->box1.pack_start(box->m_tmono_rack,true,true);
-	box->box1.pack_end(box->m_tstereo_rack,true,true);
-	box->m_tmono_rack.set_tooltip_text(_("show mono rack"));
-	box->m_tstereo_rack.set_tooltip_text(_("show stereo rack"));
-	box->box1.show_all();
-	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);
-	pushBox(kBoxMode, GTK_WIDGET(tBox));
-}
-
-void GxMainInterface::openPlugBox(const char* label)
-{
-	GxWindowBox *plugbox =  new GxWindowBox(*this, 
-		label, GTK_WIDGET(fShowRack.gobj()));
-	gw.rack_widget = GTK_WIDGET(plugbox->window.gobj());
-	plugbox->box.pack_start(plugbox->rbox, true, true, 0);
-	plugbox->window.set_name("MonoRack");
-	plugbox->window.set_tooltip_text(_("Mono Rack, right click pop up the plugin menu"));
-	rBox = GTK_WIDGET(plugbox->rbox.gobj());
-	gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(plugbox->window.gobj()), false, true, 0);
-	pushBox(kBoxMode, GTK_WIDGET(rBox));
-}
-
-void GxMainInterface::openScrollBox(const char* label)
-{
-	GxScrollBox *scrollbox =  new GxScrollBox(*this, 
-		pb_gxrack_expose, label, GTK_WIDGET(fShowRack.gobj()));
-	scrollbox->box.pack_start(scrollbox->rbox, true, true, 0);
-	//scrollbox->box.pack_start(scrollbox->vbox, false, false, 0);
-	scrollbox->vbox.pack_start(scrollbox->box1, false, false, 0);
-	
-	RBox = GTK_WIDGET(scrollbox->window.gobj());
-	scrollbox->window.set_name("Rack");
-	scrollbox->window.set_size_request(-1,460); 
-	scrollbox->rbox.show();
-	scrollbox->box1.show();
-	scrollbox->vbox.show();
-	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET(scrollbox->window.gobj()), expand, true, 0);
-	pushBox(kBoxMode, GTK_WIDGET(scrollbox->rbox.gobj()));
-}
-
-void GxMainInterface::openAmpBox(const char* label)
-{
-	GxWindowBox *box =  new GxWindowBox(*this, 
-		label, GTK_WIDGET(fShowSRack.gobj()));
-	box->box.pack_start(box->rbox, true, true, 0);
-	gw.srack_widget = GTK_WIDGET(box->window.gobj());
-	box->window.set_name("StereoRack");
-	box->window.set_tooltip_text(_("Stereo Rack, right click pop up the plugin menu"));
-	sBox = GTK_WIDGET(box->rbox.gobj());
-	gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), false, true, 0);
-	pushBox(kBoxMode, GTK_WIDGET(sBox));
-}
-
+/* status icons in the main menu bar*/
 struct uiStatusDisplay : public gx_ui::GxUiItemFloat
 {
 	GtkLabel* fLabel;
@@ -2955,9 +1821,7 @@ void GxMainInterface::addStatusDisplay(const char* label, float* zone )
 	gtk_widget_hide(lw);
 }
 
-
-
-
+/* oscilloscope handling*/
 bool GxMainInterface::on_refresh_oscilloscope()
 {
 	static struct  {
@@ -2999,7 +1863,6 @@ bool GxMainInterface::on_refresh_oscilloscope()
 	}
 }
 
-
 void GxMainInterface::addLiveWaveDisplay(const char* label, float* zone , float* zone1)
 {
 	GtkWidget * box      = gtk_hbox_new(false, 4);
@@ -3025,6 +1888,7 @@ void GxMainInterface::addLiveWaveDisplay(const char* label, float* zone , float*
 	gtk_widget_hide(e_box);
 }
 
+/* set knobs in linear or radial mode*/
 void GxMainInterface::set_mouse_mode()
 {
 	if (fSetMouse.get_active()) {
@@ -3705,7 +2569,7 @@ void GxMainInterface::addPluginMenu()
 	fMenuList["PluginMenu"] = menucont;
 	
 	/*-- Create toolbar check menu item under Options submenu --*/
-	set_label(fShowToolBar, _("show Plugin _Bar"));
+	set_label(fShowToolBar, _("Show Plugin _Bar"));
 	fShowToolBar.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_b, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowToolBar.signal_activate().connect(
@@ -3715,7 +2579,7 @@ void GxMainInterface::addPluginMenu()
 	fShowToolBar.set_parameter(new SwitchParameter("system.show_toolbar"));
 	
 	/*-- Create mono rack check menu item under Options submenu --*/
-	set_label(fShowRRack, _("show _Rack"));
+	set_label(fShowRRack, _("Show _Rack"));
 	fShowRRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowRRack.signal_activate().connect(
@@ -3729,7 +2593,7 @@ void GxMainInterface::addPluginMenu()
 	gtk_widget_show (sep);
 	
 	/*-- Create mono rack check menu item under Options submenu --*/
-	set_label(fShowRack, _("show Mono_Rack"));
+	set_label(fShowRack, _("Show Mono _Rack"));
 	fShowRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_m, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowRack.signal_activate().connect(
@@ -3770,7 +2634,7 @@ void GxMainInterface::addPluginMenu()
 	gtk_widget_show (sep);
 	
 	/*-- Create stereo rack check menu item under Options submenu --*/
-	set_label(fShowSRack, _("show _StereoRack"));
+	set_label(fShowSRack, _("Show _Stereo Rack"));
 	fShowSRack.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_s, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowSRack.signal_activate().connect(
@@ -3853,7 +2717,7 @@ void GxMainInterface::addOptionMenu()
 	/*-- Create skin menu under Options submenu--*/
 	addGuiSkinMenu();
 	
-	set_label(fSetMouse, _("set _Knobs linear"));
+	set_label(fSetMouse, _("Set _Knobs Linear"));
 	fSetMouse.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_k, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fSetMouse.signal_activate().connect(
@@ -3863,7 +2727,7 @@ void GxMainInterface::addOptionMenu()
 	fSetMouse.set_parameter(new SwitchParameter("system.set_mouse"));
 	
 	/*-- Create logbox check menu item under Options submenu --*/
-	set_label(fShowLogger, _("show _Logging Box"));
+	set_label(fShowLogger, _("Show _Logging Box"));
 	fShowLogger.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
 	                           GDK_l, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
 	fShowLogger.signal_activate().connect(

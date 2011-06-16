@@ -8,6 +8,8 @@ def build(bld):
     sources = [
         'gx_jconv_settings.cpp',
         'gx_main_interface.cpp',
+        'gx_main_boxes.cpp',
+        'gxw_mm_controllers.cpp',
         'gx_interface_builder.cpp',
         'gx_mono_rack_builder.cpp',
         'gx_stereo_rack_builder.cpp',

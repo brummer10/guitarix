@@ -36,15 +36,15 @@ msgid "tone"
 msgstr "Tone"
 
 #: ../src/gx_head/gx_interface_builder.cpp:187
-msgid "Bass"
+msgid "bass"
 msgstr "Bass"
 
 #: ../src/gx_head/gx_interface_builder.cpp:190
-msgid "Middle"
+msgid "middle"
 msgstr "Mitten"
 
 #: ../src/gx_head/gx_interface_builder.cpp:193
-msgid "Treble"
+msgid "treble"
 msgstr "Höhen"
 
 #: ../src/gx_head/gx_interface_builder.cpp:202
@@ -667,12 +667,12 @@ msgstr "P_lugins"
 
 #. -- Create toolbar check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2898
-msgid "show Plugin Bar"
+msgid "Show Plugin Bar"
 msgstr "Zeige Plugin Bar"
 
 #. -- Create mono rack check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2908
-msgid "show Mono_Rack"
+msgid "Show Mono _Rack"
 msgstr "Zeige Mono_Rack"
 
 #. -- Create mono plugin menu soket item under Options submenu --
@@ -682,7 +682,7 @@ msgstr "_Mono Plugins"
 
 #. -- Create stereo rack check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2948
-msgid "show _StereoRack"
+msgid "Show _Stereo Rack"
 msgstr "Zeige _StereoRack"
 
 #. -- Create stereo plugin menu soket item under Options submenu --
@@ -706,7 +706,7 @@ msgid "_Tuner"
 msgstr "_Tuner"
 
 #: ../src/gx_head/gx_main_interface.cpp:3022
-msgid "set _Knobs linear"
+msgid "Set _Knobs Linear"
 msgstr "Drehregler linear"
 
 #. -- Create logbox check menu item under Options submenu --

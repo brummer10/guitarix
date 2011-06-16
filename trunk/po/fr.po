@@ -31,15 +31,15 @@ msgid "tone"
 msgstr "Timbre"
 
 #: ../src/gx_head/gx_interface_builder.cpp:187
-msgid "Bass"
+msgid "bass"
 msgstr "Grave"
 
 #: ../src/gx_head/gx_interface_builder.cpp:190
-msgid "Middle"
+msgid "middle"
 msgstr "Médium"
 
 #: ../src/gx_head/gx_interface_builder.cpp:193
-msgid "Treble"
+msgid "treble"
 msgstr "Aigu"
 
 #: ../src/gx_head/gx_interface_builder.cpp:202
@@ -662,12 +662,12 @@ msgstr "G_reffons"
 
 #. -- Create toolbar check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2898
-msgid "show Plugin Bar"
+msgid "Show Plugin Bar"
 msgstr "Affiche barre de greffons"
 
 #. -- Create mono rack check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2908
-msgid "show Mono_Rack"
+msgid "Show Mono _Rack"
 msgstr "Afficher le rack mono"
 
 #. -- Create mono plugin menu soket item under Options submenu --
@@ -677,7 +677,7 @@ msgstr "_Greffons mono"
 
 #. -- Create stereo rack check menu item under Options submenu --
 #: ../src/gx_head/gx_main_interface.cpp:2948
-msgid "show _StereoRack"
+msgid "Show _Stereo Rack"
 msgstr "Afficher le rack stéréo"
 
 #. -- Create stereo plugin menu soket item under Options submenu --
@@ -701,7 +701,7 @@ msgid "_Tuner"
 msgstr "_Tuner"
 
 #: ../src/gx_head/gx_main_interface.cpp:3022
-msgid "set _Knobs linear"
+msgid "Set _Knobs Linear"
 msgstr "contrôle linéaire des boutons"
 
 #. -- Create logbox check menu item under Options submenu --
