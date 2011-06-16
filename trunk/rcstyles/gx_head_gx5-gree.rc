@@ -39,7 +39,7 @@ GxPaintBox::skin-gradient = {
 { 65536, 983, 983, 983, 65536 }, # 0, 0.3, 0.3, 0.3 ,1 
 { 32768, 36554, 36554, 36554, 65536 }, # 0.5, 0.15, 0.15, 0.15, 1
 { 0, 32768, 32768, 32768, 65536 }} # 1, 0.1, 0.1, 0.1, 1  
-stock["gxhead"] = {{"gx_gree.png"}}
+stock["gxhead"] = {{"gx_gree18.png"}}
 GxPaintBox::icon-set =5
 }
 
@@ -95,7 +95,7 @@ class "GtkExpander" style:highest "gx5_head"
 
 style "gx5_head-event"
 {
-bg_pixmap[NORMAL] = "gx_gree.png"
+bg_pixmap[NORMAL] = "gx_gree18.png"
 }
 widget "*.osc_box" style:highest "gx5_head-event"
 widget "*.main_window" style:highest "gx5_head-event"
@@ -192,13 +192,13 @@ border = { 0, 0, 0, 0 }
 stretch = TRUE
 }
 }
-bg[ACTIVE] = "#58b45e"
+bg[ACTIVE] = "#43434f"
 }
 
 style "gx5_barbutton_style"
 {
 
-bg[ACTIVE] =  "#888888"
+bg[ACTIVE] =  "#43434f"
 
 bg[PRELIGHT] = "#63636f"
 

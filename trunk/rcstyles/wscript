@@ -10,7 +10,7 @@ gxstyle_files = [
     'gxhead.png',
     'gx_green18.png',
     'gx_black18.png',
-    'gx_gree.png',
+    'gx_gree18.png',
     'gx_green1.jpg',
     'gx_green2.jpg',
     'gx_head_gx1-alloy.rc',
