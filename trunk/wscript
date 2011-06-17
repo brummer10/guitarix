@@ -382,6 +382,21 @@ def cfg_get_variable(self, package, variable):
 
 # guitarix waf configuration
 def configure(conf):
+    platform = Utils.detect_platform()
+    conf.env['IS_MACOSX'] = platform == 'darwin'
+    conf.env['IS_LINUX'] = platform == 'linux' or platform == 'posix'
+    conf.env['IS_SUN'] = platform == 'sunos'
+
+    if conf.env['IS_LINUX']:
+        conf.define ('IS_LINUX', platform )
+
+    if conf.env['IS_MACOSX']:
+        conf.define ('IS_MACOSX', platform )
+
+    if conf.env['IS_SUN']:
+        conf.define ('IS_SUN', platform )
+
+    conf.env['OS'] = platform
 
     def option_checkfatal (option, desc):
         if hasattr (Options.options, 'enable_' + option):
@@ -396,9 +411,10 @@ def configure(conf):
         else:
             option_checkfatal ('nls', 'localization')
             nls = 'N/A'
+            conf.define ('DISABLE_NLS', 1)
     else:
         nls = 'no '
-
+        conf.define ('DISABLE_NLS', 1)
     conf.define ('GETTEXT_PACKAGE', APPNAME1)
 
     conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
@@ -500,6 +516,7 @@ def configure(conf):
     print_msg(version_msg)
     
     print_msg("")
+    display_msg("OS ", conf.env['OS'], 'CYAN')
 
     if not conf.env['ZITA_RESAMPLER']:
         conf.env['ZITARESAMPLER'] = True
