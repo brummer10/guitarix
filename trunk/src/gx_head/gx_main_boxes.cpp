@@ -189,9 +189,9 @@ GxMoveBox::GxMoveBox(gx_ui::GxUI& ui)
 {
 	m_paintbox.property_paint_func() = "rectangle_skin_color_expose";
 	m_label.set_text("▼");
-	m_label.set_name ("rack_label");
+	m_label.set_name ("rack_slider");
 	m_label1.set_text("▲");
-	m_label1.set_name ("rack_label");
+	m_label1.set_name ("rack_slider");
 	m_button.add(m_label);
 	m_button.set_size_request (20, 15);
 	m_button.set_name ("effect_reset");

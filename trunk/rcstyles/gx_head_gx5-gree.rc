@@ -38,7 +38,7 @@ style "gx5_head-paintbox"
 GxPaintBox::skin-gradient = {
 { 65536, 983, 983, 983, 65536 }, # 0, 0.3, 0.3, 0.3 ,1 
 { 32768, 36554, 36554, 36554, 65536 }, # 0.5, 0.15, 0.15, 0.15, 1
-{ 0, 32768, 32768, 32768, 65536 }} # 1, 0.1, 0.1, 0.1, 1  
+{ 0, 52768, 52768, 52768, 65536 }} # 1, 0.1, 0.1, 0.1, 1  
 stock["gxhead"] = {{"gx_gree18.png"}}
 GxPaintBox::icon-set =5
 }
@@ -228,12 +228,13 @@ stretch = TRUE
 
 style "gx5_head-l_gree"
 {
-fg[NORMAL] = { 0.9, 0.9, 0.9 }
+fg[NORMAL] = { 0.1, 0.1, 0.1 }
 fg[ACTIVE] = { 0.8, 0.8, 0.8 }
 fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
 fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
 fg[SELECTED] = { 0.8, 0.8, 0.8 }
-font_name = "URW Chancery L Medium Italic 12"
+font_name = "Zapf Chancery Medium Italic 12"
+font_name = "URW Chancery L Medium Italic 12" 
 }
 
 style "gx5_head-v_gree"
@@ -243,12 +244,13 @@ fg[ACTIVE] = { 0.8, 0.8, 0.8 }
 fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
 fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
 fg[SELECTED] = { 0.8, 0.8, 0.8 }
-font_name = "URW Chancery L Medium Italic 12"
+font_name = "Zapf Chancery Medium Italic 12"
+font_name = "URW Chancery L Medium Italic 12" 
 }
 
 style "gx5_head-b_gree"
 {
-fg[NORMAL] = { 0.8, 0.8, 0.8 }
+fg[NORMAL] = { 0.6, 0.6, 0.6 }
 fg[ACTIVE] = { 0.2, 0.2, 0.2 }
 fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
 fg[INSENSITIVE] = { 0.1, 0.0, 0.0 }
@@ -259,11 +261,12 @@ font_name = "sans 9"
 style "gx5_head-rack"
 {
 #text for fx-parameter-captions
-fg[NORMAL] = { 0.9, 0.9, 0.9 }
+fg[NORMAL] = { 0.05, 0.05, 0.05 }
 fg[ACTIVE] = { 0.2, 0.2, 0.2 }
 fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
 fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
 fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "Zapf Chancery Medium Italic 12"
 font_name = "URW Chancery L Medium Italic 12"
 }
 
