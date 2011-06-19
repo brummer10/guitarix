@@ -54,6 +54,12 @@ GxPaintBox::skin-gradient = {
 { 0, 19661, 19661, 19661, 65536 }, # 0, 0.3, 0.3, 0.3, 1 
 { 32768, 9830, 9830, 9830, 65536 }, # 0.5, 0.15, 0.15, 1   
 { 65536, 6554, 6554, 6554, 65536 }} # 1, 0.1, 0.1, 0.1, 1
+	
+  GxPaintBox::box-gradient = {
+   { 0, 19661, 19661, 19661, 65536 }, # 0, 0.3, 0.3, 0.3, 1 
+   { 32768, 9830, 9830, 9830, 65536 }, # 0.5, 0.15, 0.15, 1   
+   { 65536, 6554, 6554, 6554, 65536 }} # 1, 0.1, 0.1, 0.1, 1
+	
 stock["gxhead"] = {{"gxhead.png"}}
 }
 class "GxPaintBox" style "gx_dezert-paintbox"
@@ -313,6 +319,7 @@ widget "*.effekt_label" style:highest "gx_dezert-v_black"
 widget "*.value_label" style:highest "gx_dezert-l_black"
 widget "*.beffekt_label" style:highest "gx_dezert-b_black"
 widget "*.rack_label" style:highest "gx_dezert-rack"
+widget "*.rack_effect_label" style:highest "gx_dezert-rack"
 widget "*.rack_slider" style:highest "gx_dezert_rack-slider"
 widget "*.rack_regler" style:highest "gx_dezert_rack-slider"
 

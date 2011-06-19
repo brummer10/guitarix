@@ -39,6 +39,12 @@ GxPaintBox::skin-gradient = {
 { 0, 983, 983, 983, 65536 }, # 0, 0.3, 0.3, 0.3 ,1 
 { 32768, 6554, 6554, 6554, 65536 }, # 0.5, 0.15, 0.15, 0.15, 1
 { 65536, 6554, 6554, 6554, 65536 }} # 1, 0.1, 0.1, 0.1, 1  
+	
+  GxPaintBox::box-gradient = {
+    { 65536, 0, 0, 0, 52428 }, # 1, 0, 0, 0., 0.8
+	{ 52428, 0, 0, 0, 52428 }, # 0.8, 0, 0, 0, 0.8
+	{ 13107, 0, 0, 0, 13107 }} # 0.2, 0, 0, 0., 0.2 
+	
 stock["gxhead"] = {{"gx_black18.png"}}
 GxPaintBox::icon-set =4
 }
@@ -281,6 +287,7 @@ widget "*.effekt_label" style:highest "gx4_head-v_black"
 widget "*.value_label" style:highest "gx4_head-l_black"
 widget "*.beffekt_label" style:highest "gx4_head-b_black"
 widget "*.rack_label" style:highest "gx4_head-rack"
+widget "*.rack_effect_label" style:highest "gx4_head-rack"
 widget "*.rack_slider" style:highest "gx4_rack-slider"
 widget "*.rack_regler" style:highest "gx4_rack-slider"
 widget "*.barbutton" style:highest "gx4_barbutton_style"

@@ -46,7 +46,13 @@ style "gx_head-paintbox"
     { 0, 19661, 19661, 19661, 65536 }, # 0, 0.3, 0.3, 0.3 ,1
 	{ 32768, 9830, 9830, 9830, 65536 }, # 0.5, 0.15, 0.15, 0.15, 1
 	{ 65536, 6554, 6554, 6554, 65536 }} # 1, 0.1, 0.1, 0.1, 1 
-	stock["gxhead"] = {{"gxhead.png"}}
+	
+  GxPaintBox::box-gradient = {
+    { 65536, 0, 0, 13107, 52428 }, # 1, 0, 0, 0.2, 0.8
+	{ 52428, 0, 0, 0, 52428 }, # 0.8, 0, 0, 0, 0.8
+	{ 13107, 0, 0, 13107, 13107 }} # 0.2, 0, 0, 0.2, 0.2 
+	
+  stock["gxhead"] = {{"gxhead.png"}}
   GxPaintBox::icon-set =1
 }
 
@@ -284,6 +290,7 @@ widget "*.effekt_label" style:highest "gx_head-v_black"
 widget "*.value_label" style:highest "gx_head-l_black"
 widget "*.beffekt_label" style:highest "gx_head-b_black"
 widget "*.rack_label" style:highest "gx_head-rack"
+widget "*.rack_effect_label" style:highest "gx_head-rack"
 widget "*.rack_slider" style:highest "gx_rack-slider"
 widget "*.rack_regler" style:highest "gx_rack-slider"
 

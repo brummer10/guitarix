@@ -851,7 +851,7 @@ void GxMainInterface::openVerticalBox(const char* label)
 
 	if (fMode[fTop] != kTabMode && label[0] != 0) {
 		box->m_label.set_text(label);
-		box->m_label.set_name ("rack_label");
+		box->m_label.set_name ("rack_effect_label");
 		GtkStyle *style = gtk_widget_get_style(GTK_WIDGET(box->m_label.gobj()));
 		pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
 		pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);

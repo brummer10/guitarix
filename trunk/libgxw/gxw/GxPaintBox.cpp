@@ -79,6 +79,14 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 		                   GX_TYPE_GRADIENT,
 		                   GParamFlags(GTK_PARAM_READABLE)),
 		gx_parse_gradient);
+	gtk_widget_class_install_style_property_parser(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_boxed("box-gradient",
+		                   P_("Skin color"),
+		                   P_("Color gradient defined as part of skin"),
+		                   GX_TYPE_GRADIENT,
+		                   GParamFlags(GTK_PARAM_READABLE)),
+		gx_parse_gradient);
 	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_string("paint-func",
@@ -342,6 +350,31 @@ static void set_skin_color(GtkWidget *wi, cairo_pattern_t *pat)
 {
 	GxGradient *grad;
 	gtk_widget_style_get(wi, "skin-gradient", &grad, NULL);
+	if (!grad) {
+		GdkColor *p1 = &wi->style->bg[GTK_STATE_NORMAL];
+		cairo_pattern_add_color_stop_rgba(
+			pat, 0, cairo_clr(p1->red), cairo_clr(p1->green),
+			cairo_clr(p1->blue), 0.8);
+		GdkColor *p2 = &wi->style->fg[GTK_STATE_NORMAL];
+		cairo_pattern_add_color_stop_rgba(
+			pat, 1, (cairo_clr(p1->red)+cairo_clr(p2->red))/2,
+			(cairo_clr(p1->green)+cairo_clr(p2->green))/2,
+			(cairo_clr(p1->blue)+cairo_clr(p2->blue))/2, 0.8);
+		return;
+	}
+	GSList *p;
+	for (p = grad->colors; p; p = g_slist_next(p)) {
+		GxGradientElement *el = (GxGradientElement*)p->data;
+		cairo_pattern_add_color_stop_rgba(pat, el->offset, el->red, el->green, el->blue, el->alpha);
+	}
+	gx_gradient_free(grad);
+}
+
+// set cairo color related to the used skin
+static void set_box_color(GtkWidget *wi, cairo_pattern_t *pat)
+{
+	GxGradient *grad;
+	gtk_widget_style_get(wi, "box-gradient", &grad, NULL);
 	if (!grad) {
 		GdkColor *p1 = &wi->style->bg[GTK_STATE_NORMAL];
 		cairo_pattern_add_color_stop_rgba(
@@ -957,10 +990,11 @@ static gboolean RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_rectangle (cr, x0+4,y0+4,rect_width-8,rect_height-8);
 	cairo_pattern_t*pat = cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
 	//set_rack_color(title, pat);
-	cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0.2, 0.8);
-	cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
-	//cairo_pattern_add_color_stop_rgba (pat, 0, 0, 0, 0, 0);
-	cairo_pattern_add_color_stop_rgba (pat, 0.2, 0, 0, 0.2, 0.2);
+	set_box_color(wi, pat);
+	//cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0.2, 0.8);
+	//cairo_pattern_add_color_stop_rgba (pat, 0.8, 0, 0, 0, 0.8);
+	
+	//cairo_pattern_add_color_stop_rgba (pat, 0.2, 0, 0, 0.2, 0.2);
 	cairo_set_source (cr, pat);
 	cairo_fill(cr);
 

@@ -37,8 +37,14 @@ style "gx5_head-paintbox"
 {
 GxPaintBox::skin-gradient = {
 { 65536, 983, 983, 983, 65536 }, # 0, 0.3, 0.3, 0.3 ,1 
-{ 32768, 36554, 36554, 36554, 65536 }, # 0.5, 0.15, 0.15, 0.15, 1
+{ 32768, 46554, 46554, 46554, 65536 }, # 0.5, 0.15, 0.15, 0.15, 1
 { 0, 52768, 52768, 52768, 65536 }} # 1, 0.1, 0.1, 0.1, 1  
+	
+  GxPaintBox::box-gradient = {
+    { 65536, 0, 0, 0, 65536 }, # 1, 0, 0, 0.2, 1.0
+	{ 0, 0, 0, 0, 52428 }, # 0.8, 0, 0, 0, 0.8
+	{ 13107, 13107, 13107, 13107, 39321 }} # 0.2, 0.2, 0.2, 0.2, 0.6 
+	
 stock["gxhead"] = {{"gx_gree18.png"}}
 GxPaintBox::icon-set =5
 }
@@ -261,7 +267,19 @@ font_name = "sans 9"
 style "gx5_head-rack"
 {
 #text for fx-parameter-captions
-fg[NORMAL] = { 0.05, 0.05, 0.05 }
+fg[NORMAL] = { 0.8, 0.8, 0.8 }
+fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "Zapf Chancery Medium Italic 12"
+font_name = "URW Chancery L Medium Italic 12"
+}
+
+style "gx5_effect-rack"
+{
+#text for fx-parameter-captions
+fg[NORMAL] = { 0.4, 0.4, 0.4 }
 fg[ACTIVE] = { 0.2, 0.2, 0.2 }
 fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
 fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
@@ -284,6 +302,7 @@ widget "*.effekt_label" style:highest "gx5_head-v_gree"
 widget "*.value_label" style:highest "gx5_head-l_gree"
 widget "*.beffekt_label" style:highest "gx5_head-b_gree"
 widget "*.rack_label" style:highest "gx5_head-rack"
+widget "*.rack_effect_label" style:highest "gx5_effect-rack"
 widget "*.rack_slider" style:highest "gx5_rack-slider"
 widget "*.rack_regler" style:highest "gx5_rack-slider"
 widget "*.barbutton" style:highest "gx5_barbutton_style"
