@@ -17,7 +17,7 @@ notch3(x) = notch(x,5046.,-12.,19.1);
 
 tubestage(tb,fck,Rk) = tube : hpf with {
     lpfk = lowpass1(fck);
-    Ftube = ffunction(float Ftube4(int,float), "valve.h", "");
+    Ftube = ffunction(float Ftube(int,float), "valve.h", "");
     vplus = 130.0;
     divider = 20;
     Rp = 100.0e3;

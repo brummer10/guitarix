@@ -146,6 +146,8 @@ def build(bld):
         'gxamp4.dsp',
         'gxamp5.dsp',
         'gxamp6.dsp',
+        'gxamp7.dsp',
+        'gxamp8.dsp',
         'gxamp10.dsp',
         'gxamp12.dsp',
         'gx_ampmodul.dsp',
@@ -172,6 +174,7 @@ def build(bld):
         'chorus_mono.dsp',
         'stereodelay.dsp',
         'stereoecho.dsp',
+        
     ]
 
     

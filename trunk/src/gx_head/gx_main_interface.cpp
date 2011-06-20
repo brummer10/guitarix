@@ -2346,6 +2346,8 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[5].set_active(false);
 		fSelectTubeModel[6].set_active(false);
 		fSelectTubeModel[7].set_active(false);
+		fSelectTubeModel[8].set_active(false);
+		fSelectTubeModel[9].set_active(false);
 		gx_engine::set_tube_model(1);
 	}
 
@@ -2357,6 +2359,8 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[5].set_active(false);
 		fSelectTubeModel[6].set_active(false);
 		fSelectTubeModel[7].set_active(false);
+		fSelectTubeModel[8].set_active(false);
+		fSelectTubeModel[9].set_active(false);
 		gx_engine::set_tube_model(2);
 	}
 	
@@ -2368,6 +2372,8 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[5].set_active(false);
 		fSelectTubeModel[6].set_active(false);
 		fSelectTubeModel[7].set_active(false);
+		fSelectTubeModel[8].set_active(false);
+		fSelectTubeModel[9].set_active(false);
 		gx_engine::set_tube_model(3);
 	}
 	
@@ -2379,6 +2385,8 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[5].set_active(false);
 		fSelectTubeModel[6].set_active(false);
 		fSelectTubeModel[7].set_active(false);
+		fSelectTubeModel[8].set_active(false);
+		fSelectTubeModel[9].set_active(false);
 		gx_engine::set_tube_model(4);
 	}
 	
@@ -2390,6 +2398,8 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[5].set_active(false);
 		fSelectTubeModel[6].set_active(false);
 		fSelectTubeModel[7].set_active(false);
+		fSelectTubeModel[8].set_active(false);
+		fSelectTubeModel[9].set_active(false);
 		gx_engine::set_tube_model(5);
 	}
 
@@ -2401,6 +2411,8 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[4].set_active(false);
 		fSelectTubeModel[6].set_active(false);
 		fSelectTubeModel[7].set_active(false);
+		fSelectTubeModel[8].set_active(false);
+		fSelectTubeModel[9].set_active(false);
 		gx_engine::set_tube_model(6);
 	}
 
@@ -2412,6 +2424,8 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[4].set_active(false);
 		fSelectTubeModel[5].set_active(false);
 		fSelectTubeModel[7].set_active(false);
+		fSelectTubeModel[8].set_active(false);
+		fSelectTubeModel[9].set_active(false);
 		gx_engine::set_tube_model(7);
 	}
 
@@ -2423,7 +2437,35 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[4].set_active(false);
 		fSelectTubeModel[5].set_active(false);
 		fSelectTubeModel[6].set_active(false);
+		fSelectTubeModel[8].set_active(false);
+		fSelectTubeModel[9].set_active(false);
 		gx_engine::set_tube_model(8);
+	}
+	
+	else if (fSelectTubeModel[8].get_active()) {
+		fSelectTubeModel[0].set_active(false);
+		fSelectTubeModel[1].set_active(false);
+		fSelectTubeModel[2].set_active(false);
+		fSelectTubeModel[3].set_active(false);
+		fSelectTubeModel[4].set_active(false);
+		fSelectTubeModel[5].set_active(false);
+		fSelectTubeModel[6].set_active(false);
+		fSelectTubeModel[7].set_active(false);
+		fSelectTubeModel[9].set_active(false);
+		gx_engine::set_tube_model(9);
+	}
+	
+	else if (fSelectTubeModel[9].get_active()) {
+		fSelectTubeModel[0].set_active(false);
+		fSelectTubeModel[1].set_active(false);
+		fSelectTubeModel[2].set_active(false);
+		fSelectTubeModel[3].set_active(false);
+		fSelectTubeModel[4].set_active(false);
+		fSelectTubeModel[5].set_active(false);
+		fSelectTubeModel[6].set_active(false);
+		fSelectTubeModel[7].set_active(false);
+		fSelectTubeModel[8].set_active(false);
+		gx_engine::set_tube_model(10);
 	}
 }
 //----------------------------- preset menu ----------------------------
@@ -2527,6 +2569,30 @@ void GxMainInterface::addAmpMenu()
 	fSelectTubeModel[6].show();
 	fSelectTubeModel[6].set_parameter(new SwitchParameter("system.select_tube12",true,false));
 	fSelectTubeModel[6].set_active(false);
+	
+	set_label(fSelectTubeModel[8], _("pre 12ax7/ push-pull 6V6"));
+	fSelectTubeModel[8].set_group(group);
+	
+	fSelectTubeModel[8].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_h, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fSelectTubeModel[8].signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[8].gobj()));
+	fSelectTubeModel[8].show();
+	fSelectTubeModel[8].set_parameter(new SwitchParameter("system.select_tube7",true,false));
+	fSelectTubeModel[8].set_active(false);
+	
+	set_label(fSelectTubeModel[9], _("pre 12AU7/ push-pull 6V6"));
+	fSelectTubeModel[9].set_group(group);
+	
+	fSelectTubeModel[9].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_j, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fSelectTubeModel[9].signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[9].gobj()));
+	fSelectTubeModel[9].show();
+	fSelectTubeModel[9].set_parameter(new SwitchParameter("system.select_tube8",true,false));
+	fSelectTubeModel[9].set_active(false);
 	
 	set_label(fSelectTubeModel[7], _("pre 6DJ8/ push-pull 6V6"));
 	fSelectTubeModel[7].set_group(group);

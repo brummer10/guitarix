@@ -37,8 +37,8 @@ style "gx5_head-paintbox"
 {
 GxPaintBox::skin-gradient = {
 { 65536, 983, 983, 983, 65536 }, # 0, 0.3, 0.3, 0.3 ,1 
-{ 32768, 46554, 46554, 46554, 65536 }, # 0.5, 0.15, 0.15, 0.15, 1
-{ 0, 52768, 52768, 52768, 65536 }} # 1, 0.1, 0.1, 0.1, 1  
+{ 32768, 62768, 62768, 62768, 65536 }, # 0.5, 0.15, 0.15, 0.15, 1
+{ 0, 22760, 22760, 22760, 65536 }} # 1, 0.1, 0.1, 0.1, 1  
 	
   GxPaintBox::box-gradient = {
     { 65536, 0, 0, 0, 65536 }, # 1, 0, 0, 0., 1.0
@@ -60,7 +60,7 @@ GtkButton::default_outside_border = { 0, 0, 0, 0 }
 GtkButton::button_relief = GTK_RELIEF_NONE
 
 #strings in modules
-fg[NORMAL] = { 0.8, 0.8, 0.8 }
+fg[NORMAL] = { 0.3, 0.35, 0.35 }
 fg[ACTIVE] = { 1.0, 1.0, 1.0 }
 fg[PRELIGHT] = { 0.90, 0.90, 0.90 }
 fg[INSENSITIVE] = { 0.80, 0.80, 0.80 }
@@ -239,8 +239,8 @@ fg[ACTIVE] = { 0.8, 0.8, 0.8 }
 fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
 fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
 fg[SELECTED] = { 0.8, 0.8, 0.8 }
-font_name = "Zapf Chancery Medium Italic 12"
-font_name = "URW Chancery L Medium Italic 12" 
+font_name = "Zapf Chancery Medium Italic 12, URW Chancery L Medium Italic 12"
+
 }
 
 style "gx5_head-v_gree"
@@ -250,8 +250,8 @@ fg[ACTIVE] = { 0.8, 0.8, 0.8 }
 fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
 fg[INSENSITIVE] = { 0.8, 0.8, 0.8 }
 fg[SELECTED] = { 0.8, 0.8, 0.8 }
-font_name = "Zapf Chancery Medium Italic 12"
-font_name = "URW Chancery L Medium Italic 12" 
+font_name = "Zapf Chancery Medium Italic 12, URW Chancery L Medium Italic 12"
+
 }
 
 style "gx5_head-b_gree"
@@ -272,20 +272,19 @@ fg[ACTIVE] = { 0.2, 0.2, 0.2 }
 fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
 fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
 fg[SELECTED] = { 0.8, 0.8, 0.8 }
-font_name = "Zapf Chancery Medium Italic 12"
-font_name = "URW Chancery L Medium Italic 12"
+font_name = "Zapf Chancery Medium Italic 12, URW Chancery L Medium Italic 12"
 }
 
 style "gx5_effect-rack"
 {
 #text for fx-parameter-captions
-fg[NORMAL] = { 0.4, 0.4, 0.4 }
+fg[NORMAL] = { 0.05, 0.05, 0.15 }
 fg[ACTIVE] = { 0.2, 0.2, 0.2 }
 fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
 fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
 fg[SELECTED] = { 0.8, 0.8, 0.8 }
-font_name = "Zapf Chancery Medium Italic 12"
-font_name = "URW Chancery L Medium Italic 12"
+font_name = "Zapf Chancery Medium Italic 12, URW Chancery L Medium Italic 12"
+
 }
 
 style "gx5_rack-slider"

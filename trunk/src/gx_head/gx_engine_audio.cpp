@@ -518,6 +518,15 @@ void process_buffers(int count, float* input, float* output0)
 	case 8: 
 		gx_amps::gxamp6::compute(count, output0, output0);
 		break;
+	case 9: 
+		gx_amps::gxamp7::compute(count, output0, output0);
+		break;
+	case 10: 
+		gx_amps::gxamp8::compute(count, output0, output0);
+		break;
+	default: 
+		gx_amps::gxamp::compute(count, output0, output0);
+		break;
 	}
 	
 	if (audio.ftube) {
