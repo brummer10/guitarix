@@ -315,6 +315,7 @@ bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d)
 
 bool GxWindowBox::on_button_pressed(GdkEventButton* event)
 {
+	//fprintf(stderr, "butto pressed\n" );
 	if( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ){
 		const gchar * title = gtk_widget_get_name(GTK_WIDGET(window.gobj()));
 		if(strcmp(title,"MonoRack")==0) {
@@ -356,6 +357,26 @@ bool GxScrollBox::on_window_delete_event(GdkEventAny*, gpointer d)
 	gtk_check_menu_item_set_active(
 				GTK_CHECK_MENU_ITEM(GTK_WIDGET(d)), FALSE
 				);
+	return false;
+}
+
+bool GxScrollBox::on_button_pressed(GdkEventButton* event)
+{
+	//fprintf(stderr, "butto pressed\n" );
+	if( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ){
+		const gchar * title = gtk_widget_get_name(GTK_WIDGET(window.gobj()));
+		if(strcmp(title,"MonoRack")==0) {
+			guint32 tim = gtk_get_current_event_time ();
+			gtk_menu_popup (GTK_MENU(gw.menu_mono_rack),NULL,NULL,NULL,(gpointer) gw.menu_mono_rack,2,tim);
+		return true;
+		}
+		else if (strcmp(title,"StereoRack")==0){
+			guint32 tim = gtk_get_current_event_time ();
+			gtk_menu_popup (GTK_MENU(gw.menu_stereo_rack),NULL,NULL,NULL,(gpointer) gw.menu_stereo_rack,2,tim);
+		return true;
+		}
+	}
+
 	return false;
 }
 
@@ -463,6 +484,8 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
 	m_scrolled_window2.set_policy(Gtk::POLICY_NEVER,Gtk::POLICY_ALWAYS); 
 	m_scrolled_window2.set_shadow_type(Gtk::SHADOW_NONE);
 	m_scrolled_window2.set_name("HorizontalStereoBox");
+	rbox.set_name("MonoBox");
+	box1.set_name("SereoBox");
 	paintbox1.set_border_width(18);
 	paintbox1.property_paint_func() = pb_2;
 	window.signal_delete_event().connect(
@@ -472,6 +495,8 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
 	m_scrolled_window.add(box);
 	m_scrolled_window2.add(vbox);
 	window.add(paintbox1);
+	window.signal_button_press_event().connect(
+		sigc::mem_fun(*this, &GxScrollBox::on_button_pressed));
 	fOrderhRack.signal_activate().connect(
 		sigc::mem_fun(*this, &GxScrollBox::on_rack_reorder_horizontal));
 	fOrdervRack.signal_activate().connect(

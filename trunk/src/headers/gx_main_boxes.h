@@ -250,6 +250,7 @@ class GxScrollBox
 private:
 	
 	bool on_window_delete_event(GdkEventAny* event,gpointer d );
+	bool on_button_pressed(GdkEventButton* event);
 	void on_rack_reorder_vertical();
 	void on_rack_reorder_horizontal();
 	
