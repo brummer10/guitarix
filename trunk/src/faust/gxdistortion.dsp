@@ -152,7 +152,7 @@ dist(drive,wetdry) 		=_<:(*(dry): gx_drive(drive)),(*(wetdry):distdrive(drive)):
 	
 	};
 
-dist2(drive,wetdry) 		=_<:(*(dry): gx_drive(drive)),(*(wetdry):val :distdrive(drive)):>_
+dist2(drive,wetdry) 		=_<:(*(dry: smoothi(0.999)): gx_drive(drive)),(*(wetdry: smoothi(0.999)):val :distdrive(drive)):>_
 	with{
 	
 	dry = 1 - wetdry;

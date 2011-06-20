@@ -275,7 +275,7 @@ void compute(int count, float *input0, float *output0)
 		double fTemp8 = max(-1, min(1, (fSlow7 * (fRec23[2] + (fRec23[0] + (2 * fRec23[1]))))));
 		double fTemp9 = (fConst8 * fRec25[1]);
 		fRec27[0] = ((fConst47 * ((fConst51 * fVec1[1]) + (fConst15 * fVec1[0]))) + (fConst46 * fRec27[1]));
-		fRec26[0] = (fRec27[0] - (fConst44 * ((fConst42 * fRec26[2]) + (fConst14 * fRec26[1]))));
+		fRec26[0] = (fRec27[0] - (fConst44 * ((fConst14 * fRec26[1]) + (fConst42 * fRec26[2]))));
 		fRec25[0] = ((fConst44 * (((fConst13 * fRec26[0]) + (fConst52 * fRec26[1])) + (fConst13 * fRec26[2]))) - (fConst11 * ((fConst10 * fRec25[2]) + fTemp9)));
 		double fTemp10 = max(-1, min(1, (fSlow8 * (fRec25[2] + (fConst11 * (fTemp9 + (fConst10 * fRec25[0])))))));
 		double fTemp11 = (((fTemp10 * (1 - (0.3333333333333333 * faustpower<2>(fTemp10)))) + ((fTemp8 * (1 - (0.3333333333333333 * faustpower<2>(fTemp8)))) + (0.841395141645195 * (fTemp7 * (1 - (0.3333333333333333 * faustpower<2>(fTemp7))))))) + (0.7943282347242815 * (fTemp4 * (1 - (0.3333333333333333 * faustpower<2>(fTemp4))))));
