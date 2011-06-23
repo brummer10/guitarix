@@ -416,7 +416,7 @@ public :
 	MenuCheckItem       fShowLogger;
 	MenuCheckItem       fShowMidiOut;
 	MenuCheckItem       fShowToolBar;
-	RadioCheckItem      fSelectTubeModel[12];
+	RadioCheckItem      fSelectTubeModel[14];
 
 	GtkWidget* 			logger;
 	GtkWidget*          RBox;

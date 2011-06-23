@@ -172,8 +172,11 @@ namespace gx_amps {
 #include "faust/gxamp6.cc"
 #include "faust/gxamp7.cc"
 #include "faust/gxamp8.cc"
+#include "faust/gxamp9.cc"
 #include "faust/gxamp10.cc"
+#include "faust/gxamp11.cc"
 #include "faust/gxamp12.cc"
+#include "faust/gxamp13.cc"
 #include "faust/gx_ampmodul.cc"
 }
 

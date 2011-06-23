@@ -2348,6 +2348,9 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[7].set_active(false);
 		fSelectTubeModel[8].set_active(false);
 		fSelectTubeModel[9].set_active(false);
+		fSelectTubeModel[10].set_active(false);
+		fSelectTubeModel[11].set_active(false);
+		fSelectTubeModel[12].set_active(false);
 		gx_engine::set_tube_model(1);
 	}
 
@@ -2361,6 +2364,9 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[7].set_active(false);
 		fSelectTubeModel[8].set_active(false);
 		fSelectTubeModel[9].set_active(false);
+		fSelectTubeModel[10].set_active(false);
+		fSelectTubeModel[11].set_active(false);
+		fSelectTubeModel[12].set_active(false);
 		gx_engine::set_tube_model(2);
 	}
 	
@@ -2374,6 +2380,9 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[7].set_active(false);
 		fSelectTubeModel[8].set_active(false);
 		fSelectTubeModel[9].set_active(false);
+		fSelectTubeModel[10].set_active(false);
+		fSelectTubeModel[11].set_active(false);
+		fSelectTubeModel[12].set_active(false);
 		gx_engine::set_tube_model(3);
 	}
 	
@@ -2387,6 +2396,9 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[7].set_active(false);
 		fSelectTubeModel[8].set_active(false);
 		fSelectTubeModel[9].set_active(false);
+		fSelectTubeModel[10].set_active(false);
+		fSelectTubeModel[11].set_active(false);
+		fSelectTubeModel[12].set_active(false);
 		gx_engine::set_tube_model(4);
 	}
 	
@@ -2400,6 +2412,9 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[7].set_active(false);
 		fSelectTubeModel[8].set_active(false);
 		fSelectTubeModel[9].set_active(false);
+		fSelectTubeModel[10].set_active(false);
+		fSelectTubeModel[11].set_active(false);
+		fSelectTubeModel[12].set_active(false);
 		gx_engine::set_tube_model(5);
 	}
 
@@ -2413,6 +2428,9 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[7].set_active(false);
 		fSelectTubeModel[8].set_active(false);
 		fSelectTubeModel[9].set_active(false);
+		fSelectTubeModel[10].set_active(false);
+		fSelectTubeModel[11].set_active(false);
+		fSelectTubeModel[12].set_active(false);
 		gx_engine::set_tube_model(6);
 	}
 
@@ -2426,6 +2444,9 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[7].set_active(false);
 		fSelectTubeModel[8].set_active(false);
 		fSelectTubeModel[9].set_active(false);
+		fSelectTubeModel[10].set_active(false);
+		fSelectTubeModel[11].set_active(false);
+		fSelectTubeModel[12].set_active(false);
 		gx_engine::set_tube_model(7);
 	}
 
@@ -2439,6 +2460,9 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[6].set_active(false);
 		fSelectTubeModel[8].set_active(false);
 		fSelectTubeModel[9].set_active(false);
+		fSelectTubeModel[10].set_active(false);
+		fSelectTubeModel[11].set_active(false);
+		fSelectTubeModel[12].set_active(false);
 		gx_engine::set_tube_model(8);
 	}
 	
@@ -2452,6 +2476,9 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[6].set_active(false);
 		fSelectTubeModel[7].set_active(false);
 		fSelectTubeModel[9].set_active(false);
+		fSelectTubeModel[10].set_active(false);
+		fSelectTubeModel[11].set_active(false);
+		fSelectTubeModel[12].set_active(false);
 		gx_engine::set_tube_model(9);
 	}
 	
@@ -2465,7 +2492,58 @@ void GxMainInterface::on_tube_activate()
 		fSelectTubeModel[6].set_active(false);
 		fSelectTubeModel[7].set_active(false);
 		fSelectTubeModel[8].set_active(false);
+		fSelectTubeModel[10].set_active(false);
+		fSelectTubeModel[11].set_active(false);
+		fSelectTubeModel[12].set_active(false);
 		gx_engine::set_tube_model(10);
+	}
+	
+	else if (fSelectTubeModel[10].get_active()) {
+		fSelectTubeModel[0].set_active(false);
+		fSelectTubeModel[1].set_active(false);
+		fSelectTubeModel[2].set_active(false);
+		fSelectTubeModel[3].set_active(false);
+		fSelectTubeModel[4].set_active(false);
+		fSelectTubeModel[5].set_active(false);
+		fSelectTubeModel[6].set_active(false);
+		fSelectTubeModel[7].set_active(false);
+		fSelectTubeModel[8].set_active(false);
+		fSelectTubeModel[9].set_active(false);
+		fSelectTubeModel[11].set_active(false);
+		fSelectTubeModel[12].set_active(false);
+		gx_engine::set_tube_model(11);
+	}
+	
+	else if (fSelectTubeModel[11].get_active()) {
+		fSelectTubeModel[0].set_active(false);
+		fSelectTubeModel[1].set_active(false);
+		fSelectTubeModel[2].set_active(false);
+		fSelectTubeModel[3].set_active(false);
+		fSelectTubeModel[4].set_active(false);
+		fSelectTubeModel[5].set_active(false);
+		fSelectTubeModel[6].set_active(false);
+		fSelectTubeModel[7].set_active(false);
+		fSelectTubeModel[8].set_active(false);
+		fSelectTubeModel[9].set_active(false);
+		fSelectTubeModel[10].set_active(false);
+		fSelectTubeModel[12].set_active(false);
+		gx_engine::set_tube_model(12);
+	}
+	
+	else if (fSelectTubeModel[12].get_active()) {
+		fSelectTubeModel[0].set_active(false);
+		fSelectTubeModel[1].set_active(false);
+		fSelectTubeModel[2].set_active(false);
+		fSelectTubeModel[3].set_active(false);
+		fSelectTubeModel[4].set_active(false);
+		fSelectTubeModel[5].set_active(false);
+		fSelectTubeModel[6].set_active(false);
+		fSelectTubeModel[7].set_active(false);
+		fSelectTubeModel[8].set_active(false);
+		fSelectTubeModel[9].set_active(false);
+		fSelectTubeModel[10].set_active(false);
+		fSelectTubeModel[11].set_active(false);
+		gx_engine::set_tube_model(13);
 	}
 }
 //----------------------------- preset menu ----------------------------
@@ -2473,7 +2551,7 @@ void GxMainInterface::addAmpMenu()
 {
 	GtkWidget* menulabel; // menu label
 	GtkWidget* menucont;  // menu container
-	
+	GtkWidget* sep;       // seperator
 	menucont = fMenuList["Top"];
 
 	/*---------------- Create Options menu items ------------------*/
@@ -2534,6 +2612,52 @@ void GxMainInterface::addAmpMenu()
 	fSelectTubeModel[2].set_parameter(new SwitchParameter("system.select_tube3",true,false));
 	fSelectTubeModel[2].set_active(false);
 	
+	/*-- add a separator line --*/
+	sep = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+	gtk_widget_show (sep);
+	
+	set_label(fSelectTubeModel[10], _("12ax7 feedback"));
+	fSelectTubeModel[10].set_group(group);
+	
+	fSelectTubeModel[10].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_n, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fSelectTubeModel[10].signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[10].gobj()));
+	fSelectTubeModel[10].show();
+	fSelectTubeModel[10].set_parameter(new SwitchParameter("system.select_tube9",true,false));
+	fSelectTubeModel[10].set_active(false);
+	
+	set_label(fSelectTubeModel[11], _("12AU7 feedback"));
+	fSelectTubeModel[11].set_group(group);
+	
+	fSelectTubeModel[11].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fSelectTubeModel[11].signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[11].gobj()));
+	fSelectTubeModel[11].show();
+	fSelectTubeModel[11].set_parameter(new SwitchParameter("system.select_tube11",true,false));
+	fSelectTubeModel[11].set_active(false);
+	
+	set_label(fSelectTubeModel[12], _("6DJ8 feedback"));
+	fSelectTubeModel[12].set_group(group);
+	
+	fSelectTubeModel[12].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+	                           GDK_q, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+	fSelectTubeModel[12].signal_activate().connect(
+		sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[12].gobj()));
+	fSelectTubeModel[12].show();
+	fSelectTubeModel[12].set_parameter(new SwitchParameter("system.select_tube13",true,false));
+	fSelectTubeModel[12].set_active(false);
+	
+	/*-- add a separator line --*/
+	sep = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+	gtk_widget_show (sep);
+	
 	set_label(fSelectTubeModel[4], _("pre 12ax7/ master 6V6"));
 	fSelectTubeModel[4].set_group(group);
 	
@@ -2569,6 +2693,11 @@ void GxMainInterface::addAmpMenu()
 	fSelectTubeModel[6].show();
 	fSelectTubeModel[6].set_parameter(new SwitchParameter("system.select_tube12",true,false));
 	fSelectTubeModel[6].set_active(false);
+	
+	/*-- add a separator line --*/
+	sep = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+	gtk_widget_show (sep);
 	
 	set_label(fSelectTubeModel[8], _("pre 12ax7/ push-pull 6V6"));
 	fSelectTubeModel[8].set_group(group);
@@ -2672,7 +2801,7 @@ void GxMainInterface::addPluginMenu()
 	gtk_widget_show(menucontin);
 	
 	fMenuList["PluginsMono"] = menucontin;
-	gw.menu_mono_rack = fMenuList["PluginsMono"];
+	gw.menu_mono_rack = fMenuList["PluginMenu"];
 	sep = gtk_separator_menu_item_new();
 	gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
 	gtk_widget_show (sep);

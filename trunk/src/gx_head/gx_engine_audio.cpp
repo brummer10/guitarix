@@ -524,6 +524,15 @@ void process_buffers(int count, float* input, float* output0)
 	case 10: 
 		gx_amps::gxamp8::compute(count, output0, output0);
 		break;
+	case 11: 
+		gx_amps::gxamp9::compute(count, output0, output0);
+		break;
+	case 12: 
+		gx_amps::gxamp11::compute(count, output0, output0);
+		break;
+	case 13: 
+		gx_amps::gxamp13::compute(count, output0, output0);
+		break;
 	default: 
 		gx_amps::gxamp::compute(count, output0, output0);
 		break;

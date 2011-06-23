@@ -362,21 +362,11 @@ bool GxScrollBox::on_window_delete_event(GdkEventAny*, gpointer d)
 
 bool GxScrollBox::on_button_pressed(GdkEventButton* event)
 {
-	//fprintf(stderr, "butto pressed\n" );
 	if( (event->type == GDK_BUTTON_PRESS) && (event->button == 3) ){
-		const gchar * title = gtk_widget_get_name(GTK_WIDGET(window.gobj()));
-		if(strcmp(title,"MonoRack")==0) {
-			guint32 tim = gtk_get_current_event_time ();
-			gtk_menu_popup (GTK_MENU(gw.menu_mono_rack),NULL,NULL,NULL,(gpointer) gw.menu_mono_rack,2,tim);
+		guint32 tim = gtk_get_current_event_time ();
+		gtk_menu_popup (GTK_MENU(gw.menu_mono_rack),NULL,NULL,NULL,(gpointer) gw.menu_mono_rack,2,tim);
 		return true;
-		}
-		else if (strcmp(title,"StereoRack")==0){
-			guint32 tim = gtk_get_current_event_time ();
-			gtk_menu_popup (GTK_MENU(gw.menu_stereo_rack),NULL,NULL,NULL,(gpointer) gw.menu_stereo_rack,2,tim);
-		return true;
-		}
 	}
-
 	return false;
 }
 
