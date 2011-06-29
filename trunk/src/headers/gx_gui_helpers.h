@@ -22,39 +22,11 @@
 
 #pragma once
 
-#include <gtkmm/checkmenuitem.h>
-#include <gtkmm/radiomenuitem.h>
+
 namespace gx_gui
 {
 
-/* ---- linking menu items and parameter ---- */
-class MenuCheckItem: public Gtk::CheckMenuItem
-{
-private:
-	SwitchParameter* param;
-	void on_my_activate();
-public:
-	//FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
-	MenuCheckItem(): Gtk::CheckMenuItem("", true) {}
-	void set_parameter(SwitchParameter *p);
-	void add_parameter(SwitchParameter *p);
-	SwitchParameter * get_parameter();
-};
 
-/* ---- linking menu items and parameter ---- */
-class RadioCheckItem: public Gtk::RadioMenuItem
-{
-private:
-	
-	SwitchParameter* param;
-	void on_my_toggled();
-public:
-	Gtk::RadioMenuItem::Group Group;
-	//FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
-	RadioCheckItem(): Gtk::RadioMenuItem(Group,"", true) {}
-	void set_parameter(SwitchParameter *p);
-	SwitchParameter * get_parameter();
-};
 /* --------------  function declarations ---------------- */
 GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname);
 gboolean gx_hide_eq( GtkWidget *widget, gpointer   data );

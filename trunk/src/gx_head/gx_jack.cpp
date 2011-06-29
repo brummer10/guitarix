@@ -169,8 +169,8 @@ struct PortConnData
 static gboolean gx_jack_portconn_helper(gpointer data)
 {
 	PortConnData *pc = (PortConnData*)data;
-	if (gx_gui::PortMapWindow::instance) {
-		gx_gui::PortMapWindow::instance->connection_changed(pc->name_a, pc->name_b, pc->connect);
+	if (gx_portmap::PortMapWindow::instance) {
+		gx_portmap::PortMapWindow::instance->connection_changed(pc->name_a, pc->name_b, pc->connect);
 	}
 	delete pc;
 	return FALSE;
@@ -464,8 +464,8 @@ bool gx_start_jack(void* arg)
 static gboolean gx_ports_refresh(gpointer data)
 {
     	// reload ports for portmap widget when needed
-    if (gx_gui::PortMapWindow::instance) {
-        gx_gui::PortMapWindow::instance->refresh();
+    if (gx_portmap::PortMapWindow::instance) {
+        gx_portmap::PortMapWindow::instance->refresh();
     }
     return false;
 }
@@ -871,9 +871,9 @@ struct PortRegData
 static gboolean gx_jack_portreg_helper(gpointer data)
 {
 	//PortRegData *pm = (PortRegData*)data;
-	if (gx_gui::PortMapWindow::instance) {
-	    gx_gui::PortMapWindow::instance->refresh();
-		//gx_gui::PortMapWindow::instance->port_changed(pm->name, pm->tp, pm->jackflags, pm->reg);
+	if (gx_portmap::PortMapWindow::instance) {
+	    gx_portmap::PortMapWindow::instance->refresh();
+		//gx_portmap::PortMapWindow::instance->port_changed(pm->name, pm->tp, pm->jackflags, pm->reg);
 	}
 	//delete pm;
 	return FALSE;

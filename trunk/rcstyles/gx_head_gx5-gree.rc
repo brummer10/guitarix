@@ -44,7 +44,10 @@ GxPaintBox::skin-gradient = {
     { 65536, 0, 0, 0, 65536 }, # 1, 0, 0, 0., 1.0
 	{ 0, 0, 0, 0, 52428 }, # 0.8, 0, 0, 0, 0.8
 	{ 13107, 13107, 13107, 13107, 39321 }} # 0.2, 0.2, 0.2, 0.2, 0.6 
-	
+
+  GxPaintBox::width =600
+  GxPaintBox::height =180
+  stock["main_image"] =  {{"gx_gree18.png"}}
 stock["gxhead"] = {{"gx_gree18.png"}}
 GxPaintBox::icon-set =5
 }
@@ -352,10 +355,10 @@ class "GtkSpinButton" style:highest "gx5_c_style"
 style "tagx5_b_style"
 {
 #file-chooser background
-bg[NORMAL] = { 0.40, 0.20, 0.20 }
-bg[ACTIVE] = { 0.30, 0.40, 0.40 }
-bg[PRELIGHT] = { 0.50, 0.60, 0.60 }
-bg[SELECTED] = { 0.60, 0.60, 0.00 }
+bg[NORMAL] = { 0.20, 0.20, 0.20 }
+bg[ACTIVE] = { 0.03, 0.04, 0.04 }
+bg[PRELIGHT] = { 0.05, 0.06, 0.06 }
+bg[SELECTED] = { 0.0, 0.0, 0.0 }
 
 }
 

@@ -140,12 +140,21 @@ distortion	= lowpassN(2,15000.0): highpass1(31.0)  : filterbankN((F,(F1,F2))) : 
 wet_dry = (drive - 0.5) * 2;
 };
 
+clipit = min(0.7) : max(-0.7) ;
+
 gx_drive(drive) = _ <: _ + nonlin(4,4,0.125) * drive * 10 ;
 
 wetdry = vslider("wet_dry[name:wet/dry]",  100, 0, 100, 1) : /(100);
 drive = vslider("drive", 0.35, 0, 1, 0.01);
 
 dist(drive,wetdry) 		=_<:(*(dry): gx_drive(drive)),(*(wetdry):distdrive(drive)):>_
+	with{
+	
+	dry = 1 - wetdry;
+	
+	};
+
+dist1(drive,wetdry) 		=_<:(*(dry): gx_drive(drive)),(*(wetdry) <: (clipit: cubicnl(drive,0.0) : * (0.5)),distdrive(drive) :>_):>_
 	with{
 	
 	dry = 1 - wetdry;

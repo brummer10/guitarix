@@ -52,6 +52,9 @@ style "gx_head-paintbox"
 	{ 52428, 0, 0, 0, 52428 }, # 0.8, 0, 0, 0, 0.8
 	{ 13107, 0, 0, 13107, 13107 }} # 0.2, 0, 0, 0.2, 0.2 
 	
+  GxPaintBox::width =600
+  GxPaintBox::height =180
+  stock["main_image"] = {{"gx18.png"}}
   stock["gxhead"] = {{"gxhead.png"}}
   GxPaintBox::icon-set =1
 }

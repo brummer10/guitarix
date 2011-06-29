@@ -33,7 +33,11 @@ namespace gx_gui {
 
 void GxMainInterface::gx_build_mono_rack()
 {
-
+/** This is the fixed box on top of the mono rack, it include fixed effect modules 
+ * witch can't move (make no sense to move them arround). Right now it is the noisegate,
+ * and the noisesharper, witch are fixed at the beginning of the process callback, and the 
+ * mono level out and the clipper, witch are fixed at the end of the mono callback.
+ **/
 	openHorizontalTableBox("");
 	{
 		openVerticalBox("");
@@ -114,6 +118,11 @@ void GxMainInterface::gx_build_mono_rack()
 			 closeBox();
 		 }
 		 closeBox();
+		 
+/** The moveable mono effects. Main box of a mono effect modul is the HorizontalOrderBox 
+ * witch present the move buttons. Inside the HorizontalOrderBox we need a DialogBox witch 
+ * register the effect to a counter and insert a menu entry as well a button to the toolbar
+ **/
 		 //low high pass filter
 		 openHorizontalOrderBox(_("l/h/filter"), &gx_engine::audio.posit[14]);
 		 {

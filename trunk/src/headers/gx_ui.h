@@ -19,8 +19,12 @@
  */
 
 /* ----- This is the guitarix UI, it belongs to the guitarix namespace ------ */
+// Note: gx_main_interface.h and gx_main_boxes.h depend on this headerfile
 
 #pragma once
+
+#ifndef GX_UI
+#define GX_UI
 
 #include <map>
 #include <list>
@@ -117,3 +121,6 @@ public:
 };
 
 } /* end of gx_ui namespace */
+
+#endif
+

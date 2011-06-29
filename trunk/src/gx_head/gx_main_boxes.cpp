@@ -145,6 +145,10 @@ GxMainBox::GxMainBox(gx_ui::GxUI& ui,const char *expose_funk)
 	m_eventbox.add(m_paintbox);
 	m_paintbox.property_paint_func() = expose_funk;
 	m_fixedbox.put(m_eventbox,0,0);
+	m_hbox.add(m_pbox);
+	m_hbox.pack_start(m_fbox,false,false);
+	m_fbox.pack_start(m_fixedbox,false,false);
+	m_hbox.add(m_tbox);
 }
 /****************************************************************/
 

@@ -23,14 +23,14 @@
  */
 
 #include <cstring>
-#include <jack/jack.h>
+//#include <jack/jack.h>
 #include "guitarix.h"
 
 /****************************************************************
  ** PortMapWindow
  */
 
-namespace gx_gui
+namespace gx_portmap
 {
 
 PortAttr gx_head_ports[] = {
@@ -652,8 +652,8 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item)
 	excluded_clients.push_back(string("jack_capture:"));
 
 	GtkBuilder * builder = gtk_builder_new();
-	window = load_toplevel(builder, "ports.glade", "PortMapWindow");
-	gtk_window_set_icon(GTK_WINDOW (window), GDK_PIXBUF(gw.ib));
+	window = gx_gui::load_toplevel(builder, "ports.glade", "PortMapWindow");
+	gtk_window_set_icon(GTK_WINDOW (window), GDK_PIXBUF(gx_gui::gw.ib));
 	GObject *b = gtk_builder_get_object(builder, "button1");
 	if (b) gtk_widget_set_name(GTK_WIDGET(b),"rack_button");
 	memset(portsection, 0, sizeof(portsection));
@@ -681,7 +681,7 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item)
 	g_signal_connect(window, "destroy", G_CALLBACK(destroy_cb), this);
 	g_signal_connect(window, "response", G_CALLBACK(response_cb), this);
 	gtk_window_add_accel_group(GTK_WINDOW(window),
-	                           GxMainInterface::instance()->fAccelGroup);
+	                           gx_gui::GxMainInterface::instance()->fAccelGroup);
 	g_signal_connect_after(window, "check-resize", G_CALLBACK(on_check_resize), this);
 	gtk_widget_show(window);
 	g_object_unref(G_OBJECT(builder));

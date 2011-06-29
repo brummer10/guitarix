@@ -782,6 +782,16 @@ void GxMainInterface::openEventBox(const char* label)
 	box->m_hbox.show_all();
 }
 
+void GxMainInterface::openMainBox(const char* label, const char* expose_funk)
+{
+	GxMainBox * box =  new GxMainBox(*this, expose_funk);
+	gtk_box_pack_start (GTK_BOX(fBox[fTop]), GTK_WIDGET (box->m_hbox.gobj()), false, fill, 0);
+	box->m_box.set_border_width (2);
+	//box->m_eventbox.set_name("main_window");
+	pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+	box->m_hbox.show_all();
+}
+
 void GxMainInterface::openFrameBox(const char* label)
 {
 	GxHBox * box =  new GxHBox(*this);
@@ -3065,7 +3075,7 @@ void GxMainInterface::addJackServerMenu()
 	gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
 	                           GDK_p, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (GTK_OBJECT (menuitem), "activate",
-	                  G_CALLBACK (PortMapWindow::toggle), menuitem);
+	                  G_CALLBACK (gx_portmap::PortMapWindow::toggle), menuitem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(gw.menuh), menuitem);
 	gtk_widget_show (menuitem);
 

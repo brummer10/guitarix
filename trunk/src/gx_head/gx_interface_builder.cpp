@@ -68,7 +68,7 @@ void GxMainInterface::setup()
 
                openVerticalBox("");
                {
-                    openEventBox(" "); //main widget start
+                    openEventBox(" "); //main widget start openMainBox(" ", "main_expose"); 
                     {
                          //----- this is a dummy widget, only for save settings for the latency warning dialog
                          openWarningBox("WARNING", &gx_engine::audio.fwarn);
