@@ -7,7 +7,7 @@ def configure(conf):
 def build(bld):
     sources = [
         'gx_jconv_settings.cpp',
-        'gx_main_midi.cc',
+        'gx_main_midi.cpp',
         'gx_main_interface.cpp',
         'gx_main_boxes.cpp',
         'gxw_mm_controllers.cpp',
