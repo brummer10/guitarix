@@ -16,10 +16,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * --------------------------------------------------------------------------
+ *
+ *    This is the guitarix UI, it is part of the guitarix GUI main class
+ *    Note: this header file is the base for gx_main_interface.h and
+ *    gx_main_boxes.h
+ * 
+ * ----------------------------------------------------------------------------
  */
 
-/* ----- This is the guitarix UI, it belongs to the guitarix namespace ------ */
-// Note: gx_main_interface.h and gx_main_boxes.h depend on this headerfile
 
 #pragma once
 

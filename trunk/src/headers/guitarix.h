@@ -54,10 +54,9 @@ using namespace std;
 #include "gx_jconv_settings.h"
 #include "gx_engine.h"
 #include "gx_gui_helpers.h"
-
+#include "gx_main_midi.h"
 
 #include "gx_ui.h"
 #include "gx_main_interface.h"
 #include "gx_main_boxes.h"
-
 

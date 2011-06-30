@@ -16,10 +16,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * --------------------------------------------------------------------------
+ *
+ *    This file is part of the guitarix GUI main class
+ *    Note: this header file depends on gx_ui.h 
+ *    and is the base for gx_main_boxes.h
+ * 
+ * ----------------------------------------------------------------------------
  */
 
 /* ------- This is the GUI namespace ------- */
-// Note: this header file depends on gx_ui.h
 
 #pragma once
 
@@ -27,8 +32,8 @@
 #include "gx_ui.h"
 #endif
 
-#ifndef GX_GX_MAIN_INTERFACE
-#define GX_GX_MAIN_INTERFACE
+#ifndef GX_MAIN_INTERFACE
+#define GX_MAIN_INTERFACE
 
 #include <iostream>
 #include <gxwmm/bigknob.h>
@@ -736,6 +741,9 @@ extern void set_label(RadioCheckItem& item , const char *label);
 
 int gx_set_mx_oriantation();
 int gx_set_my_oriantation();
+
+int precision(double n);
+string fformat(float value, float step);
 
 #ifndef NDEBUG
 // debug_check

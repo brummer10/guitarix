@@ -16,9 +16,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * --------------------------------------------------------------------------
+ *
+ *    This file is part of the guitarix GUI main class
+ *    Note: this header file depends on gx_system.h 
+ * 
+ * ----------------------------------------------------------------------------
  */
 
 #pragma once
+
+#ifndef GX_PARAM
+#define GX_PARAM
+
+#ifndef GX_SYSTEM
+#include "gx_system.h"
+#endif
 
 #include <giomm/file.h>
 
@@ -464,3 +476,6 @@ extern MidiControllerList controller_map; // map ctrl num -> controlled paramete
 
 
 } // namespace gx_gui
+
+#endif
+

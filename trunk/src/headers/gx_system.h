@@ -22,9 +22,13 @@
 
 #pragma once
 
+#ifndef GX_SYSTEM
+#define GX_SYSTEM
+
 #include <cmath>
 #include <sstream>
 #include <list>
+#include <gtk/gtk.h>
 
 /* constant defines */
 #define ASCII_START (48)
@@ -43,6 +47,15 @@ enum {
 
 namespace gx_system
 {
+
+/* message handling */
+typedef enum {
+	kInfo,
+	kWarning,
+	kError,
+	kMessageTypeCount // just count, must be last
+} GxMsgType;
+
 /* classes for reading and writing JSON files */
 class JsonException: public exception
 {
@@ -279,3 +292,6 @@ const string& gx_i2a(int);
 
 /* ---------------------------------------------------------------- */
 } /* end of gx_system namespace */
+
+#endif
+

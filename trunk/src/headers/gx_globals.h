@@ -147,13 +147,7 @@ extern GCallback preset_action_func[];
 /* ----- system namespace ----- */
 namespace gx_system
 {
-/* message handling */
-typedef enum {
-	kInfo,
-	kWarning,
-	kError,
-	kMessageTypeCount // just count, must be last
-} GxMsgType;
+
 
 /* variables and constants */
 extern const int SYSTEM_OK;

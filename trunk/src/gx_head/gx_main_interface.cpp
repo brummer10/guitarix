@@ -138,8 +138,19 @@ string fformat(float value, float step)
 /****************************************************************
  ** GxMidiController definitions and connecting method
  */
+ 
+gboolean button_press_cb (GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
+	if (event->button != 2)
+		return FALSE;
+	if (controller_map.get_config_mode())
+		return TRUE;
+	new gx_main_midi::MidiConnect(event, *(Parameter*)data);
+	return TRUE;
+}
 
-#include "gx_main_midi.cc"
+
+//#include "gx_main_midi.cc"
 
 /****************************************************************
  ** GxMainInterface widget and method definitions
@@ -2074,7 +2085,7 @@ void GxMainInterface::addEngineMenu()
 	                           GDK_i, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
 	g_signal_connect (
 		GTK_OBJECT (menuitem), "activate",
-		G_CALLBACK (MidiControllerTable::toggle), menuitem);
+		G_CALLBACK (gx_main_midi::MidiControllerTable::toggle), menuitem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(gw.menuh), menuitem);
 	gtk_widget_show (menuitem);
 
