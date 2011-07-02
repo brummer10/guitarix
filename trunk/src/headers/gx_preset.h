@@ -22,6 +22,11 @@
 
 #pragma once
 
+#ifndef SRC_HEADERS_GX_PRESET_H_
+#define SRC_HEADERS_GX_PRESET_H_
+
+#include <string>
+
 // number of preset action lists
 #define GX_NUM_OF_PRESET_LISTS (3)
 
@@ -29,40 +34,39 @@
 #define LOAD_PRESET_LIST   (0)
 #define SAVE_PRESET_LIST   (1)
 #define RENAME_PRESET_LIST (2)
-//#define DELETE_PRESET_LIST (3)
+// #define DELETE_PRESET_LIST (3)
 
 // number of factory preset lists
 #define GX_NUM_OF_FACTORY_PRESET (3)
 
-namespace gx_preset
-{
+namespace gx_preset {
 extern gx_gui::FileParameter gx_preset_file;
 extern gx_gui::FileParameter gx_factory_preset_file;
 
 /* function declarations */
 string gx_get_accel_path(int lindex);
 
-void  gx_save_newpreset_dialog (GtkMenuItem*, gpointer);
-void  gx_save_newpreset (GtkEntry*);
-void  gx_save_preset (const gchar*, bool);
-void  gx_save_oldpreset (GtkMenuItem*, gpointer);
+void  gx_save_newpreset_dialog(GtkMenuItem*, gpointer);
+void  gx_save_newpreset(GtkEntry* entry);
+void  gx_save_preset(const gchar*, bool);
+void  gx_save_oldpreset(GtkMenuItem*, gpointer);
 
-void  gx_save_preset_file (const gchar*, bool);
-void  gx_load_preset_file (const gchar*, bool);
+void  gx_save_preset_file(const gchar*, bool);
+void  gx_load_preset_file(const gchar*, bool);
 
-void  gx_load_preset (GtkMenuItem*, gpointer);
+void  gx_load_preset(GtkMenuItem*, gpointer);
 void  gx_recall_settings_file(const string *filename = 0);
 void  gx_recall_main_setting(GtkMenuItem*, gpointer);
 void  gx_save_main_setting(GtkMenuItem*, gpointer);
 
 void  gx_load_factory_file(int i);
 
-void  gx_rename_preset (GtkEntry*);
-void  gx_rename_preset_dialog (GtkMenuItem*, gpointer);
+void  gx_rename_preset(GtkEntry* entry);
+void  gx_rename_preset_dialog(GtkMenuItem*, gpointer);
 void  gx_rename_active_preset_dialog(GtkWidget*, gpointer);
 
 void  gx_delete_preset(GtkMenuItem*, gpointer);
-void  gx_delete_preset_dialog (GtkMenuItem*, gpointer);
+void  gx_delete_preset_dialog(GtkMenuItem*, gpointer);
 void  gx_delete_active_preset_dialog(GtkWidget*, gpointer);
 
 void  gx_delete_all_presets_dialog(GtkMenuItem*, gpointer);
@@ -86,3 +90,4 @@ void init();
 
 /* --------------------------------------------------------------------- */
 } /* end of gx_preset namespace */
+#endif  // SRC_HEADERS_GX_PRESET_H_

@@ -22,40 +22,44 @@
 
 #pragma once
 
+#ifndef SRC_HEADERS_GX_CHILD_PROCESS_H_
+#define SRC_HEADERS_GX_CHILD_PROCESS_H_
+
 #include <sigc++/sigc++.h>
 
-namespace gx_child_process
-{
+#include <string>
+#include <list>
 
-class GxChild
-{
-public:
-	sigc::signal<void, bool> terminated;
-	bool kill();
-	bool hasPid(pid_t pid) { return pid == m_pid; }
-	bool hasName(string name) { return name == m_name; }
+namespace gx_child_process {
 
-private:
-	string m_name;
-	int m_killsignal;
-	int m_pid;
-	GxChild(string name, int killsignal, int pid): m_name(name), m_killsignal(killsignal), m_pid(pid) {}
-	friend class GxChildProcs;
+class GxChild {
+ public:
+    sigc::signal<void, bool> terminated;
+    bool kill();
+    bool hasPid(pid_t pid) { return pid == m_pid; }
+    bool hasName(string name) { return name == m_name; }
+
+ private:
+    string m_name;
+    int m_killsignal;
+    int m_pid;
+    GxChild(string name, int killsignal, int pid):
+            m_name(name), m_killsignal(killsignal), m_pid(pid) {}
+    friend class GxChildProcs;
 };
 
-class GxChildProcs
-{
-private:
-	list<GxChild*> children;
+class GxChildProcs {
+ private:
+    list<GxChild*> children;
 
-public:
-	~GxChildProcs();
-	bool killall();
-	bool kill(string name);
-	GxChild *find(string name);
-	GxChild *launch(string name, const char* const args[], int killsignal);
-	GxChild *launch(string name, list<string> args, int killsignal);
-	friend gboolean gx_sigchld_handler(gpointer);
+ public:
+    ~GxChildProcs();
+    bool killall();
+    bool kill(string name);
+    GxChild *find(string name);
+    GxChild *launch(string name, const char* const args[], int killsignal);
+    GxChild *launch(string name, list<string> args, int killsignal);
+    friend gboolean gx_sigchld_handler(gpointer);
 };
 
 extern GxChildProcs childprocs;
@@ -66,39 +70,37 @@ gboolean gx_sigchld_handler(gpointer);
  ** classes for UI callbacks
  */
 
-class JackCaptureGui: public sigc::trackable
-{
-private:
-	GtkCheckMenuItem *item;
-	void terminated(bool pgm_found);
-	JackCaptureGui(GxChild *p, GtkCheckMenuItem *i);
-public:
-	static void start_stop(GtkCheckMenuItem *menuitem, gpointer);
+class JackCaptureGui: public sigc::trackable {
+ private:
+    GtkCheckMenuItem *item;
+    void terminated(bool pgm_found);
+    JackCaptureGui(GxChild *p, GtkCheckMenuItem *i);
+ public:
+    static void start_stop(GtkCheckMenuItem *menuitem, gpointer);
 };
 
-class JackCapture: public sigc::trackable
-{
-private:
-	GtkToggleButton *button;
-	void terminated(bool pgm_found);
-	static string make_fname(string buf, size_t j, size_t i, int n);
-	static list<string> capture_command(int& seq);
-	JackCapture(GxChild *p, GtkToggleButton *b);
-public:
-	static void start_stop(GtkWidget *widget, gpointer data);
-	static void stop();
+class JackCapture: public sigc::trackable {
+ private:
+    GtkToggleButton *button;
+    void terminated(bool pgm_found);
+    static string make_fname(string buf, size_t j, size_t i, int n);
+    static list<string> capture_command(int& seq);
+    JackCapture(GxChild *p, GtkToggleButton *b);
+ public:
+    static void start_stop(GtkWidget *widget, gpointer data);
+    static void stop();
 };
 
-class Meterbridge: public sigc::trackable
-{
-private:
-	GtkCheckMenuItem *item;
-	void terminated(bool pgm_found);
-	Meterbridge(GxChild *p, GtkCheckMenuItem *i);
-public:
-	static void start_stop(GtkCheckMenuItem *menuitem, gpointer);
-	static void stop();
+class Meterbridge: public sigc::trackable {
+ private:
+    GtkCheckMenuItem *item;
+    void terminated(bool pgm_found);
+    Meterbridge(GxChild *p, GtkCheckMenuItem *i);
+ public:
+    static void start_stop(GtkCheckMenuItem *menuitem, gpointer);
+    static void stop();
 };
 
 /* -------------------------------------------------------------------------- */
 } /* end of gx_child_process namespace */
+#endif  // SRC_HEADERS_GX_CHILD_PROCESS_H_

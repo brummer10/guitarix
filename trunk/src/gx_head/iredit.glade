@@ -39,11 +39,11 @@
 &lt;span font_desc="Sans 12" foreground="#991A1A"&gt;Please open an impulse
 response file with the
 &lt;b&gt;File:&lt;/b&gt; button&lt;/span&gt;</property>
-                            <signal name="delay_changed" handler="on_delay_changed"/>
-                            <signal name="scale_max_reached" handler="on_max_scale_reached"/>
-                            <signal name="length_changed" handler="on_length_changed"/>
                             <signal name="scale_min_reached" handler="on_min_scale_reached"/>
                             <signal name="offset_changed" handler="on_offset_changed"/>
+                            <signal name="length_changed" handler="on_length_changed"/>
+                            <signal name="delay_changed" handler="on_delay_changed"/>
+                            <signal name="scale_max_reached" handler="on_max_scale_reached"/>
                           </object>
                         </child>
                       </object>
@@ -316,199 +316,220 @@ response file with the
                             <property name="left_padding">12</property>
                             <property name="right_padding">4</property>
                             <child>
-                              <object class="GtkTable" id="table1">
+                              <object class="GtkVBox" id="vbox12">
                                 <property name="visible">True</property>
-                                <property name="n_rows">5</property>
-                                <property name="n_columns">3</property>
-                                <property name="column_spacing">5</property>
+                                <property name="orientation">vertical</property>
                                 <child>
-                                  <object class="GtkLabel" id="label9">
+                                  <object class="GtkTable" id="table1">
                                     <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">Delay</property>
+                                    <property name="n_rows">5</property>
+                                    <property name="n_columns">3</property>
+                                    <property name="column_spacing">5</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label9">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">0</property>
+                                        <property name="label" translatable="yes">Delay</property>
+                                      </object>
+                                      <packing>
+                                        <property name="top_attach">1</property>
+                                        <property name="bottom_attach">2</property>
+                                        <property name="x_options">GTK_FILL</property>
+                                        <property name="y_options">GTK_FILL</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="label10">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">0</property>
+                                        <property name="label" translatable="yes">Offset</property>
+                                      </object>
+                                      <packing>
+                                        <property name="top_attach">2</property>
+                                        <property name="bottom_attach">3</property>
+                                        <property name="x_options">GTK_FILL</property>
+                                        <property name="y_options">GTK_FILL</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="label11">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">0</property>
+                                        <property name="label" translatable="yes">Length</property>
+                                      </object>
+                                      <packing>
+                                        <property name="top_attach">3</property>
+                                        <property name="bottom_attach">4</property>
+                                        <property name="x_options">GTK_FILL</property>
+                                        <property name="y_options">GTK_FILL</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GxValueDisplay" id="delay">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <property name="adjustment">adjustment1</property>
+                                        <property name="round_digits">0</property>
+                                        <property name="value_xalign">1</property>
+                                        <signal name="value_changed" handler="on_m_delay_changed"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">1</property>
+                                        <property name="right_attach">2</property>
+                                        <property name="top_attach">1</property>
+                                        <property name="bottom_attach">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GxValueDisplay" id="offset">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <property name="adjustment">adjustment2</property>
+                                        <property name="round_digits">0</property>
+                                        <property name="value_xalign">1</property>
+                                        <signal name="value_changed" handler="on_m_offset_changed"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">1</property>
+                                        <property name="right_attach">2</property>
+                                        <property name="top_attach">2</property>
+                                        <property name="bottom_attach">3</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GxValueDisplay" id="irlength">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <property name="adjustment">adjustment3</property>
+                                        <property name="round_digits">0</property>
+                                        <property name="value_xalign">1</property>
+                                        <signal name="value_changed" handler="on_m_length_changed"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">1</property>
+                                        <property name="right_attach">2</property>
+                                        <property name="top_attach">3</property>
+                                        <property name="bottom_attach">4</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkButton" id="apply_button">
+                                        <property name="label">App_ly</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <property name="use_underline">True</property>
+                                        <signal name="clicked" handler="on_apply_button_clicked"/>
+                                      </object>
+                                      <packing>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">4</property>
+                                        <property name="bottom_attach">5</property>
+                                        <property name="x_options"></property>
+                                        <property name="y_options"></property>
+                                        <property name="y_padding">8</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GxValueDisplay" id="delay_ms">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <property name="adjustment">adjustment5</property>
+                                        <property name="round_digits">0</property>
+                                        <property name="value_xalign">1</property>
+                                        <signal name="value_changed" handler="on_ms_delay_changed"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">1</property>
+                                        <property name="bottom_attach">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GxValueDisplay" id="offset_ms">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <property name="adjustment">adjustment6</property>
+                                        <property name="round_digits">0</property>
+                                        <property name="value_xalign">1</property>
+                                        <signal name="value_changed" handler="on_ms_offset_changed"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">2</property>
+                                        <property name="bottom_attach">3</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GxValueDisplay" id="irlength_ms">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <property name="adjustment">adjustment7</property>
+                                        <property name="round_digits">0</property>
+                                        <property name="value_xalign">1</property>
+                                        <signal name="value_changed" handler="on_ms_length_changed"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">3</property>
+                                        <property name="bottom_attach">4</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="label15">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                        <property name="label" translatable="yes">&lt;small&gt;Samples&lt;/small&gt;</property>
+                                        <property name="use_markup">True</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">1</property>
+                                        <property name="right_attach">2</property>
+                                        <property name="x_options">GTK_FILL</property>
+                                        <property name="y_options">GTK_FILL</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="label16">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">&lt;small&gt;MSec&lt;/small&gt;</property>
+                                        <property name="use_markup">True</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
                                   </object>
                                   <packing>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options">GTK_FILL</property>
+                                    <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkLabel" id="label10">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">Offset</property>
-                                  </object>
-                                  <packing>
-                                    <property name="top_attach">2</property>
-                                    <property name="bottom_attach">3</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options">GTK_FILL</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label11">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">Length</property>
-                                  </object>
-                                  <packing>
-                                    <property name="top_attach">3</property>
-                                    <property name="bottom_attach">4</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options">GTK_FILL</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GxValueDisplay" id="delay">
+                                  <object class="GtkToggleButton" id="gain_button">
+                                    <property name="label" translatable="yes">Auto _Gain correction</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="tooltip_text" translatable="yes">delay of the processed signal</property>
-                                    <property name="adjustment">adjustment1</property>
-                                    <property name="value_xalign">1</property>
-                                    <signal name="value_changed" handler="on_m_delay_changed"/>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GxValueDisplay" id="offset">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">True</property>
-                                    <property name="tooltip_text" translatable="yes">number of samples to skip at the
-beginning of the IR file</property>
-                                    <property name="adjustment">adjustment2</property>
-                                    <property name="value_xalign">1</property>
-                                    <signal name="value_changed" handler="on_m_offset_changed"/>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="top_attach">2</property>
-                                    <property name="bottom_attach">3</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GxValueDisplay" id="irlength">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">True</property>
-                                    <property name="tooltip_text" translatable="yes">number of samples used for convolution</property>
-                                    <property name="adjustment">adjustment3</property>
-                                    <property name="value_xalign">1</property>
-                                    <signal name="value_changed" handler="on_m_length_changed"/>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="top_attach">3</property>
-                                    <property name="bottom_attach">4</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkButton" id="apply_button">
-                                    <property name="label">_Apply</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="tooltip_text" translatable="yes">restart convolver with current settings</property>
                                     <property name="use_underline">True</property>
-                                    <signal name="clicked" handler="on_apply_button_clicked"/>
                                   </object>
                                   <packing>
-                                    <property name="right_attach">3</property>
-                                    <property name="top_attach">4</property>
-                                    <property name="bottom_attach">5</property>
-                                    <property name="x_options"></property>
-                                    <property name="y_options"></property>
-                                    <property name="y_padding">8</property>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">1</property>
                                   </packing>
-                                </child>
-                                <child>
-                                  <object class="GxValueDisplay" id="delay_ms">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">True</property>
-                                    <property name="tooltip_text" translatable="yes">delay in milliseconds</property>
-                                    <property name="adjustment">adjustment5</property>
-                                    <property name="value_xalign">1</property>
-                                    <signal name="value_changed" handler="on_ms_delay_changed"/>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">2</property>
-                                    <property name="right_attach">3</property>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GxValueDisplay" id="offset_ms">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">True</property>
-                                    <property name="tooltip_text" translatable="yes">offset in milliseconds</property>
-                                    <property name="adjustment">adjustment6</property>
-                                    <property name="value_xalign">1</property>
-                                    <signal name="value_changed" handler="on_ms_offset_changed"/>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">2</property>
-                                    <property name="right_attach">3</property>
-                                    <property name="top_attach">2</property>
-                                    <property name="bottom_attach">3</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GxValueDisplay" id="irlength_ms">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">True</property>
-                                    <property name="tooltip_text" translatable="yes">length in milliseconds</property>
-                                    <property name="adjustment">adjustment7</property>
-                                    <property name="value_xalign">1</property>
-                                    <signal name="value_changed" handler="on_ms_length_changed"/>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">2</property>
-                                    <property name="right_attach">3</property>
-                                    <property name="top_attach">3</property>
-                                    <property name="bottom_attach">4</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label15">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">1</property>
-                                    <property name="label" translatable="yes">&lt;small&gt;Samples&lt;/small&gt;</property>
-                                    <property name="use_markup">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options">GTK_FILL</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label16">
-                                    <property name="visible">True</property>
-                                    <property name="label" translatable="yes">&lt;small&gt;MSec&lt;/small&gt;</property>
-                                    <property name="use_markup">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">2</property>
-                                    <property name="right_attach">3</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <placeholder/>
                                 </child>
                               </object>
                             </child>
@@ -798,7 +819,6 @@ beginning of the IR file</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="tooltip_text" translatable="yes">reset to standard values</property>
                             <signal name="clicked" handler="on_reset_clicked"/>
                           </object>
                         </child>
@@ -1262,4 +1282,12 @@ to change values with the keyboard&lt;/big&gt;</property>
     </data>
   </object>
   <object class="GtkListStore" id="liststore3"/>
+  <object class="GtkRadioButton" id="radiobutton1">
+    <property name="label" translatable="yes">radiobutton</property>
+    <property name="visible">True</property>
+    <property name="can_focus">True</property>
+    <property name="receives_default">False</property>
+    <property name="active">True</property>
+    <property name="draw_indicator">True</property>
+  </object>
 </interface>

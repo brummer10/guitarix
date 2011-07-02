@@ -27,8 +27,8 @@
 
 #pragma once
 
-#ifndef GX_UI
-#define GX_UI
+#ifndef SRC_HEADERS_GX_UI_H_
+#define SRC_HEADERS_GX_UI_H_
 
 #include <map>
 #include <list>
@@ -39,92 +39,83 @@
 #define kBoxMode 1
 #define kTabMode 2
 
-namespace gx_ui
-{
+namespace gx_ui {
 /* ------------- UI Classes ------------- */
 /* base interface classes interfacing with the GUI  */
 class GxUI;
 
 /* --- GxUiItem (virtual class) --- */
-class GxUiItem
-{
-protected :
-	GxUI*	fGUI;
-public:
-	virtual ~GxUiItem();
-	GxUiItem(GxUI *ui): fGUI(ui) {}
-	virtual void reflectZone() = 0;
-	virtual bool hasChanged() = 0;
+class GxUiItem {
+ protected :
+    GxUI*    fGUI;
+ public:
+    virtual ~GxUiItem();
+    explicit GxUiItem(GxUI *ui): fGUI(ui) {}
+    virtual void reflectZone() = 0;
+    virtual bool hasChanged() = 0;
 };
 
-class GxUiItemFloat: GxUiItem
-{
-protected :
-	float*	fZone;
-	float	fCache;
-	GxUiItemFloat(GxUI* ui, float* zone);
-public :
-	void  modifyZone(float v);
-	virtual bool hasChanged();
+class GxUiItemFloat: GxUiItem {
+ protected :
+    float*    fZone;
+    float    fCache;
+    GxUiItemFloat(GxUI* ui, float* zone);
+ public :
+    void  modifyZone(float v);
+    virtual bool hasChanged();
 };
 
-class GxUiItemInt: GxUiItem
-{
-protected :
-	int* fZone;
-	int fCache;
-	GxUiItemInt(GxUI* ui, int* zone);
-public :
-	void  modifyZone(int v);
-	virtual bool hasChanged();
+class GxUiItemInt: GxUiItem {
+ protected :
+    int* fZone;
+    int fCache;
+    GxUiItemInt(GxUI* ui, int* zone);
+ public :
+    void  modifyZone(int v);
+    virtual bool hasChanged();
 };
 
-class GxUiItemBool: GxUiItem
-{
-protected :
-	bool* fZone;
-	bool fCache;
-	GxUiItemBool(GxUI* ui, bool* zone);
-public :
-	void  modifyZone(bool v);
-	virtual bool hasChanged();
+class GxUiItemBool: GxUiItem {
+ protected :
+    bool* fZone;
+    bool fCache;
+    GxUiItemBool(GxUI* ui, bool* zone);
+ public :
+    void  modifyZone(bool v);
+    virtual bool hasChanged();
 };
 
 
 /* --- Callback Item --- */
 typedef void (*GxUiCallback)(float val, void* data);
 
-struct GxUiCallbackItemFloat : public GxUiItemFloat
-{
-	GxUiCallback fCallback;
-	void*	 fData;
+struct GxUiCallbackItemFloat : public GxUiItemFloat {
+    GxUiCallback fCallback;
+    void*     fData;
 
-	GxUiCallbackItemFloat(GxUI* ui, float* zone, GxUiCallback foo, void* data);
-	virtual void reflectZone();
+    GxUiCallbackItemFloat(GxUI* ui, float* zone, GxUiCallback foo, void* data);
+    virtual void reflectZone();
 };
 
 /* --- Main UI base class --- */
-class GxUI
-{
-	typedef list< GxUiItem* > clist;
-	typedef map < void*, clist* > zmap;
+class GxUI {
+    typedef list< GxUiItem* > clist;
+    typedef map < void*, clist* > zmap;
 
-private:
-	static list<GxUI*>	fGuiList;
-	zmap		fZoneMap;
+ private:
+    static list<GxUI*>    fGuiList;
+    zmap        fZoneMap;
+ public:
+    GxUI();
+    virtual ~GxUI() {}
 
-public:
-	GxUI();
-	virtual ~GxUI() {}
-
-	// public methods
-	void registerZone(void*, GxUiItem*);
-	void updateAllZones();
-	void updateZone(void* z);
-	static void updateAllGuis();
+    // public methods
+    void registerZone(void*, GxUiItem*);
+    void updateAllZones();
+    void updateZone(void* z);
+    static void updateAllGuis();
 };
-
 } /* end of gx_ui namespace */
 
-#endif
+#endif  // SRC_HEADERS_GX_UI_H_
 

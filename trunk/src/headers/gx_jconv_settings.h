@@ -32,79 +32,85 @@
 
 #pragma once
 
+#ifndef SRC_HEADERS_GX_JCONV_SETTINGS_H_
+#define SRC_HEADERS_GX_JCONV_SETTINGS_H_
+
 #include <gxwmm/gainline.h>
 
-namespace gx_jconv
-{
+#include <string>
+
+namespace gx_jconv {
 
 /* GUI stuff  */
 void gx_reload_jcgui();
 void gx_save_jcgui();
-void gx_show_jconv_dialog_gui (GtkWidget *, gpointer );
+void gx_show_jconv_dialog_gui(GtkWidget *, gpointer);
 
 /* main class */
-class GxJConvSettings
-{
-private:
-	// main jconv setting
-	string          fIRFile;
-	string          fIRDir;
+class GxJConvSettings {
+ private:
+    // main jconv setting
+    string          fIRFile;
+    string          fIRDir;
 
-	float           fGain;       // jconv gain
-	guint           fOffset;     // offset in IR where to start comvolution
-	guint           fLength;     // length of the IR to use for convolution
-	guint           fDelay;      // delay when to apply reverb
-	Gainline        gainline;
+    float           fGain;       // jconv gain
+    guint           fOffset;     // offset in IR where to start comvolution
+    guint           fLength;     // length of the IR to use for convolution
+    guint           fDelay;      // delay when to apply reverb
+    Gainline        gainline;
+    guint            fGainCor;
 
-	void read_gainline(gx_system::JsonParser& jp);
-	//inline string getIRDir () const { return fIRDir;  }
-	inline void setIRFile    (string         name) { fIRFile     = name; }
-	inline void setIRDir     (string         name) { fIRDir      = name; }
+    void read_gainline(gx_system::JsonParser& jp);
+    // inline string getIRDir () const { return fIRDir;  }
+    inline void setIRFile(string name) { fIRFile = name; }
+    inline void setIRDir(string name) { fIRDir = name; }
 
-	// private constructor (don't call it, call instance())
-	GxJConvSettings();
+    // private constructor (don't call it, call instance())
+    GxJConvSettings();
 
-	// invalid IR
-	bool fValidSettings;
+    // invalid IR
+    bool fValidSettings;
 
-public:
-	GxJConvSettings(gx_system::JsonParser& jp);
+ public:
+    explicit GxJConvSettings(gx_system::JsonParser& jp);
 
-	// getters and setters
-	inline string getIRFile() const { return fIRFile; }
-	string getFullIRPath() const;
-	inline float          getGain      () const { return fGain;       }
-	inline guint          getOffset    () const { return fOffset;     }
-	inline guint          getLength    () const { return fLength;     }
-	inline guint          getDelay     () const { return fDelay;      }
-	inline const Gainline& getGainline  () const { return gainline;    }
-	inline string getIRDir () const { return fIRDir;  }
-	inline void setFullIRPath(string name);
-	
-	inline void setGain      (float          gain) { fGain       = gain; }
-	inline void setOffset    (guint          offs) { fOffset     = offs; }
-	inline void setLength    (guint          leng) { fLength     = leng; }
-	inline void setDelay     (guint          del)  { fDelay      = del;  }
-	inline void setGainline  (const Gainline& gain){ gainline    = gain; }
+    // getters and setters
+    inline string getIRFile() const { return fIRFile; }
+    string getFullIRPath() const;
+    inline float          getGain() const { return fGain; }
+    inline guint          getOffset() const { return fOffset; }
+    inline guint          getLength() const { return fLength; }
+    inline guint          getDelay() const { return fDelay; }
+    inline guint           getGainCor() const { return fGainCor; }
+    inline const Gainline& getGainline() const { return gainline; }
+    inline string getIRDir() const { return fIRDir; }
+    inline void setFullIRPath(string name);
 
-	// internal setting manipulation
-private:
-	inline bool isValid()  { return fValidSettings;  }
-public:
+    inline void setGain(float gain) { fGain       = gain; }
+    inline void setGainCor(guint gain) { fGainCor       = gain; }
+    inline void setOffset(guint offs) { fOffset     = offs; }
+    inline void setLength(guint leng) { fLength     = leng; }
+    inline void setDelay(guint del) { fDelay      = del;  }
+    inline void setGainline(const Gainline& gain) { gainline    = gain; }
 
-	// --------------- instanciation of jconv handler
-	static inline GxJConvSettings* instance()
-		{
-			static GxJConvSettings jcset;
+    // internal setting manipulation
+ private:
+    inline bool isValid()  { return fValidSettings; }
+ public:
 
-			// return static instance
-			return &jcset;
-		}
+    // --------------- instanciation of jconv handler
+    static inline GxJConvSettings* instance() {
+            static GxJConvSettings jcset;
+
+            // return static instance
+            return &jcset;
+        }
 
 
-	// checkbutton state
-	static float checkbutton7;
+    // checkbutton state
+    static float checkbutton7;
 
-	void writeJSON(gx_system::JsonWriter& w);
+    void writeJSON(gx_system::JsonWriter& w);
 };
 } /* end of gx_jconv namespace*/
+#endif  // SRC_HEADERS_GX_JCONV_SETTINGS_H_

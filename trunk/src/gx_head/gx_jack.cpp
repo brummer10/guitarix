@@ -125,20 +125,6 @@ bool gx_jack_init( const string *optvar )
 		client_instance = client_name.substr(0,8) + client_name.substr(12);
 	}
 
-#ifdef USE_RINGBUFFER
-	jack_ringbuffer = jack_ringbuffer_create(2048*sizeof(struct MidiMessage));
-
-	if (jack_ringbuffer == NULL)
-	{
-		g_critical(_("Cannot create JACK ringbuffer."));
-		gx_clean_exit(NULL, NULL);
-	}
-
-	jack_ringbuffer_reset(jack_ringbuffer);
-	jack_ringbuffer_mlock(jack_ringbuffer);
-
-#endif
-
 	gxjack.jack_sr = jack_get_sample_rate (gxjack.client); // jack sample rate
 	ostringstream s;
 	s << _("The jack sample rate is ") << gxjack.jack_sr << _("/sec");
@@ -606,9 +592,6 @@ void gx_jack_cleanup()
 		if (gxjack.midi_output_ports != NULL) {
 			jack_port_unregister(gxjack.client, gxjack.midi_output_ports);
 		}
-#ifdef USE_RINGBUFFER
-		jack_ringbuffer_free(jack_ringbuffer);
-#endif
 
 		jack_deactivate(gxjack.client);
 		jack_client_close(gxjack.client);
@@ -721,7 +704,7 @@ int gx_jack_midi_input_process(jack_nframes_t nframes, void *arg)
 }
 
 //---- jack midi processing
-#ifndef USE_RINGBUFFER
+
 int gx_jack_midi_process (jack_nframes_t nframes, void *arg)
 {
 	if (gxjack.midi_output_ports != NULL)
@@ -738,66 +721,6 @@ int gx_jack_midi_process (jack_nframes_t nframes, void *arg)
 	}
 	return 0;
 }
-
-#else
-int gx_jack_midi_process_ringbuffer (jack_nframes_t nframes, void *arg)
-{
-
-	/*************************************************************************
-      The code for the jack_ringbuffer is take from
-      jack-keyboard 2.4, a virtual keyboard for JACK MIDI.
-      from Edward Tomasz Napierala <trasz@FreeBSD.org>.
-	**************************************************************************/
-	int read, t;
-	unsigned char* buffer ;
-
-	jack_nframes_t last_frame_time = jack_last_frame_time(gxjack.client);
-
-	midi_port_buf = jack_port_get_buffer(gxjack.midi_output_ports, nframes);
-	jack_midi_clear_buffer( midi_port_buf);
-
-	if (dsp::playmidi == 1) gxjack.jcpu_load = jack_cpu_load(gxjack.client);
-	GxEngine::instance()->compute_midi(nframes);
-
-	while (jack_ringbuffer_read_space(jack_ringbuffer))
-	{
-		read = jack_ringbuffer_peek(jack_ringbuffer, (char *)&ev, sizeof(ev));
-
-		if (read != sizeof(ev))
-		{
-			// fprintf(stderr, " Short read from the ringbuffer, possible note loss.\n");
-			continue;
-		}
-
-		t = ev.time + nframes - last_frame_time;
-		if ((t >= (int)nframes) || (cpu_load > 75.0))
-			break;
-
-		if (t < 0)
-			t = 0;
-
-		jack_ringbuffer_read_advance(jack_ringbuffer, sizeof(ev));
-
-		if (jack_midi_max_event_size(midi_port_buf) > sizeof(ev))
-			buffer = jack_midi_event_reserve(midi_port_buf, t, ev.len);
-		else
-			break;
-
-		if (ev.len > 2)
-			buffer[2] = ev.data[2];
-		if (ev.len > 1)
-			buffer[1] = ev.data[1];
-
-		buffer[0] = ev.data[0];
-	}
-
-	/********************************************************************
-      Thanks Edward for your friendly permision
-      Edward Tomasz Napierala <trasz@FreeBSD.org>.
-	*********************************************************************/
-	return 0;
-}
-#endif
 
 // ----- main jack process method
 int gx_jack_process (jack_nframes_t nframes, void *arg)
@@ -825,11 +748,9 @@ int gx_jack_process (jack_nframes_t nframes, void *arg)
 		gx_jack_midi_input_process(nframes, 0);
 
 		// midi processing
-#ifdef USE_RINGBUFFER
-		gx_jack_midi_process_ringbuffer(nframes, 0);
-#else
+
 		gx_jack_midi_process(nframes, 0);
-#endif
+
 
 		// some info display
 		if (gx_gui::showwave == 1) {

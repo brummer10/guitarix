@@ -22,50 +22,59 @@
 
 #pragma once
 
+#ifndef SRC_HEADERS_GX_PITCH_TRACKER_H_
+#define SRC_HEADERS_GX_PITCH_TRACKER_H_
+
 #include <zita-resampler.h>
 
-namespace gx_engine
-{
+namespace gx_engine {
 /* ------------- Pitch Tracker ------------- */
 
 const int MAX_FFT_SIZE = 512; // The size of the read buffer (max FFT window size).
 
-class PitchTracker
-{
-public:
-	PitchTracker();
-	~PitchTracker();
-	bool setParameters( int sampleRate, int fftSize );
-	void init() { setParameters((int)gx_jack::gxjack.jack_sr, MAX_FFT_SIZE); }
-	void add(int count, float *input);
-	float tuner_estimate();
+class PitchTracker {
+ public:
+    PitchTracker();
+    ~PitchTracker();
+    bool setParameters(int sampleRate, int fftSize );
+    void init() { setParameters(static_cast<int>(gx_jack::gxjack.jack_sr), MAX_FFT_SIZE); }
+    void add(int count, float *input);
+    float tuner_estimate();
 
-private:
-	void run();
-	static void *static_run(void*);
-	void setEstimatedFrequency(float freq);
-	int find_minimum();
-	int find_maximum(int l);
-	void start_thread();
-	void copy();
-	bool error;
-	volatile bool busy;
-	int tick;
+ private:
+    void run();
+    static void *static_run(void* p);
+    void setEstimatedFrequency(float freq);
+    int find_minimum();
+    int find_maximum(int l);
+    void start_thread();
+    void copy();
+    bool error;
+    volatile bool busy;
+    int tick;
     sem_t m_trig;
     pthread_t m_pthr;
-	Resampler resamp;
-	int m_sampleRate;
-	int	m_fftSize; // Size of the FFT window.
-	float *m_buffer; // The audio buffer that stores the input signal.
-	int m_bufferIndex; // Index of the first empty position in the buffer.
-	bool m_audioLevel; // Whether or not the input level is high enough.
-	float *m_fftwBufferTime; // Support buffer used to store signals in the time domain.
-	fftwf_complex *m_fftwBufferFreq; // Support buffer used to store signals in the frequency domain.
-	fftwf_plan m_fftwPlanFFT; // Plan to compute the FFT of a given signal.
-	fftwf_plan m_fftwPlanIFFT; // Plan to compute the IFFT of a given signal (with additional zero-padding).
+    Resampler resamp;
+    int m_sampleRate;
+    // Size of the FFT window.
+    int    m_fftSize;
+    // The audio buffer that stores the input signal.
+    float *m_buffer;
+    // Index of the first empty position in the buffer.
+    int m_bufferIndex;
+    // Whether or not the input level is high enough.
+    bool m_audioLevel;
+    // Support buffer used to store signals in the time domain.
+    float *m_fftwBufferTime;
+    // Support buffer used to store signals in the frequency domain.
+    fftwf_complex *m_fftwBufferFreq;
+    // Plan to compute the FFT of a given signal.
+    fftwf_plan m_fftwPlanFFT;
+    // Plan to compute the IFFT of a given signal (with additional zero-padding).
+    fftwf_plan m_fftwPlanIFFT;
 };
 
 extern PitchTracker pitch_tracker;
-
 }
+#endif  // SRC_HEADERS_GX_PITCH_TRACKER_H_
 

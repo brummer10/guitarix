@@ -22,39 +22,38 @@
 
 #pragma once
 
+#ifndef SRC_HEADERS_GX_RESAMPLER_H_
+#define SRC_HEADERS_GX_RESAMPLER_H_
+
 #include <zita-resampler.h>
 
-namespace gx_resample
-{
+namespace gx_resample {
 
 #define MAX_UPSAMPLE 8
 
-class SimpleResampler
-{
-private:
-	Resampler r_up, r_down;
-	int m_fact;
-public:
-	void setup(int sampleRate, unsigned int fact);
-	void up(int count, float *input, float *output);
-	void down(int count, float *input, float *output);
+class SimpleResampler {
+ private:
+    Resampler r_up, r_down;
+    int m_fact;
+ public:
+    void setup(int sampleRate, unsigned int fact);
+    void up(int count, float *input, float *output);
+    void down(int count, float *input, float *output);
 };
 
 extern SimpleResampler resampTube, resampDist;
 
-class BufferResampler: Resampler
-{
-public:
-	float *process(int fs_inp, int ilen, float *input, int fs_outp, int& olen);
+class BufferResampler: Resampler {
+ public:
+    float *process(int fs_inp, int ilen, float *input, int fs_outp, int& olen);
 };
 
-class StreamingResampler: Resampler
-{
-public:
-	bool setup(int srcRate, int dstRate, int nchan);
-	int get_max_out_size(int i_size) { return (i_size * ratio_b()) / ratio_a() + 1; }
-	int process(int count, float *input, float *output);
-	int flush(float *output); // check source for max. output size
+class StreamingResampler: Resampler {
+ public:
+    bool setup(int srcRate, int dstRate, int nchan);
+    int get_max_out_size(int i_size) { return (i_size * ratio_b()) / ratio_a() + 1; }
+    int process(int count, float *input, float *output);
+    int flush(float *output); // check source for max. output size
 };
-
 }
+#endif  // SRC_HEADERS_GX_RESAMPLER_H_

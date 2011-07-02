@@ -23,69 +23,73 @@
  * 
  * ----------------------------------------------------------------------------
  */
- 
+
 #pragma once
 
-#ifndef GX_PARAM
-#include "gx_parameter.h"
+#ifndef SRC_HEADERS_GX_MAIN_MIDI_H_
+#define SRC_HEADERS_GX_MAIN_MIDI_H_
+
+#ifndef SRC_HEADERS_GX_PARAMETER_H_
+#include "./gx_parameter.h"
 #endif
 
-#include <iomanip>
-#include <cstring>
 #include <glibmm.h>
 #include <gtk/gtk.h>
 
-namespace gx_main_midi
-{
+#include <iomanip>
+#include <cstring>
+#include <string>
+
+namespace gx_main_midi {
 /****************************************************************
  ** MidiControllerTable
  */
- 
-class MidiControllerTable: public sigc::trackable
-{
-private:
-	enum {RESPONSE_DELETE_SELECTED};
-	static GtkWidget *window; // there can only be 1 window
-	GtkToggleButton *togglebutton;
-	GtkTreeSelection *selection;
-	GtkListStore *store;
-	GtkCheckMenuItem *menuitem;
-	static void response_cb(GtkWidget *widget, gint response_id, gpointer data);
-	static void edited_cb(GtkCellRendererText *renderer, gchar *path, gchar *new_text, gpointer data);
-	static void destroy_cb(GtkWidget*, gpointer data);
-	static void toggleButtonSetSwitch(GtkWidget *w, gpointer data);
-	void set(bool);
-	void load();
-	MidiControllerTable(GtkCheckMenuItem *item);
-	~MidiControllerTable();
-public:
-	static void toggle(GtkWidget* widget, gpointer data);
+
+class MidiControllerTable: public sigc::trackable {
+ private:
+    enum {RESPONSE_DELETE_SELECTED};
+    static GtkWidget *window; // there can only be 1 window
+    GtkToggleButton *togglebutton;
+    GtkTreeSelection *selection;
+    GtkListStore *store;
+    GtkCheckMenuItem *menuitem;
+    static void response_cb(GtkWidget *widget, gint response_id, gpointer data);
+    static void edited_cb(GtkCellRendererText *renderer, gchar *path,
+                          gchar *new_text, gpointer data);
+    static void destroy_cb(GtkWidget*, gpointer data);
+    static void toggleButtonSetSwitch(GtkWidget *w, gpointer data);
+    void set(bool v);
+    void load();
+    explicit MidiControllerTable(GtkCheckMenuItem *item);
+    ~MidiControllerTable();
+ public:
+    static void toggle(GtkWidget* widget, gpointer data);
 };
 
 /*****************************************************************
  ** Midi Control
  */
 
-class MidiConnect
-{
-private:
-	enum { RESPONSE_DELETE = 1 };
-	gx_gui::Parameter &param;
-	GtkAdjustment* adj_lower;
-	GtkAdjustment* adj_upper;
-	GtkWidget* dialog;
-	GtkWidget* entry_new;
-	GtkWidget* label_desc;
-	int current_control;
-	static string ctr_desc(int ctr);
-	static const char *ctl_to_str(int n);
-public:
-	MidiConnect(GdkEventButton *event, gx_gui::Parameter& param);
-	static void midi_response_cb(GtkWidget *widget, gint response_id, gpointer data);
-	static void midi_destroy_cb(GtkWidget *widget, gpointer data);
-	static gboolean check_midi_cb(gpointer);
-	static void changed_text_handler (GtkEditable *entry, gpointer data);
+class MidiConnect {
+ private:
+    enum { RESPONSE_DELETE = 1 };
+    gx_gui::Parameter &param;
+    GtkAdjustment* adj_lower;
+    GtkAdjustment* adj_upper;
+    GtkWidget* dialog;
+    GtkWidget* entry_new;
+    GtkWidget* label_desc;
+    int current_control;
+    static string ctr_desc(int ctr);
+    static const char *ctl_to_str(int n);
+ public:
+    MidiConnect(GdkEventButton *event, gx_gui::Parameter& param);
+    static void midi_response_cb(GtkWidget *widget, gint response_id, gpointer data);
+    static void midi_destroy_cb(GtkWidget *widget, gpointer data);
+    static gboolean check_midi_cb(gpointer);
+    static void changed_text_handler(GtkEditable *entry, gpointer data);
 };
 
-
 } // end namespace
+#endif  // SRC_HEADERS_GX_MAIN_MIDI_H_
+

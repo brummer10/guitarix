@@ -130,6 +130,65 @@ static void jack_sync()
 	while (sem_wait(&gx_jack::jack_sync_sem) == EINTR);
 }
 
+/****************************************************************
+**  definitions for ffunction(float Ftube(int,float), "valve.h", "");
+**  in gx_amp.dsp - gx_ampmodul.dsp
+**/
+
+inline float Ftube(int table, float Vgk)
+{
+	struct gx_tubes::tabled& tab = gx_tubes::tubetable[table];
+	float f = (Vgk - tab.low) * tab.istep;
+	int i = int(f);
+	if (i < 0)
+		return tab.data[0];
+	if (i >= TAB_SIZE-1)
+		return tab.data[TAB_SIZE-1];
+	f -= i;
+	return tab.data[i]*(1-f) + tab.data[i+1]*f;
+}
+
+inline float Ftube2(int table, float Vgk)
+{
+	struct gx_tubes::tabled& tab = gx_tubes::tubetable2[table];
+	float f = (Vgk - tab.low) * tab.istep;
+	int i = int(f);
+	if (i < 0)
+		return tab.data[0];
+	if (i >= TAB_SIZE-1)
+		return tab.data[TAB_SIZE-1];
+	f -= i;
+	return tab.data[i]*(1-f) + tab.data[i+1]*f;
+}
+
+inline float Ftube3(int table, float Vgk)
+{
+	struct gx_tubes::tabled& tab = gx_tubes::tubetable3[table];
+	float f = (Vgk - tab.low) * tab.istep;
+	int i = int(f);
+	if (i < 0)
+		return tab.data[0];
+	if (i >= TAB_SIZE-1)
+		return tab.data[TAB_SIZE-1];
+	f -= i;
+	return tab.data[i]*(1-f) + tab.data[i+1]*f;
+}
+
+inline float Ftube4(int table, float Vgk)
+{
+	struct gx_tubes::tabled& tab = gx_tubes::tubetable4[table];
+	float f = (Vgk - tab.low) * tab.istep;
+	int i = int(f);
+	if (i < 0)
+		return tab.data[0];
+	if (i >= TAB_SIZE-1)
+		return tab.data[TAB_SIZE-1];
+	f -= i;
+	return tab.data[i]*(1-f) + tab.data[i+1]*f;
+}
+
+/****************************************************************/
+
 #define max(x,y) (((x)>(y)) ? (x) : (y))
 #define min(x,y) (((x)<(y)) ? (x) : (y))
 
@@ -185,6 +244,7 @@ namespace gx_effects {
 // foreign variable added to faust module feed
 // it's set in process_buffers()
 namespace noisegate { float ngate = 1; }  // noise-gate, modifies output gain
+
 static struct CabParams { CabParams(); } CabParams;
 CabParams::CabParams() {
 	registerVar("cab.Level","","S","",&audio.cab_level, 1.0, 0.5, 5.0, 0.5);
@@ -229,6 +289,8 @@ CabParams::CabParams() {
 #include "cabinet_impulse_former.cc"
 }
 
+// init cabinet impulse former to 48000 Hz, the buffer will resampled 
+// afterwards whe needed.
 void init_non_rt_processing() {
 	gx_effects::cabinet_impulse_former::init(48000);
 }
@@ -238,6 +300,10 @@ void non_rt_processing(int count, float* input, float* output0) {
 }
 
 // tone stack
+
+
+namespace gx_tonestacks {
+
 static struct ToneStackParams { ToneStackParams(); } ToneStackParams;
 ToneStackParams::ToneStackParams() {
 	static FAUSTFLOAT v1, v2, v3;
@@ -246,7 +312,6 @@ ToneStackParams::ToneStackParams() {
 	registerVar("amp.tonestack.Middle","","S","",&v3, 0.5, 0.0, 1.0, 0.01);
 }
 
-namespace gx_tonestacks {
 #include "faust/tonestack_default.cc"
 #include "faust/tonestack_bassman.cc"
 #include "faust/tonestack_twin.cc"
@@ -266,6 +331,10 @@ namespace gx_tonestacks {
 #include "faust/tonestack_ampeg.cc"
 }
 
+/****************************************************************
+ **  free memory when effects are unused, load with jack_sync
+ */
+ 
 static void activate_callback(float val, void *data)
 {
 	((void (*)(bool,int))data)(!(val == 0.0), gx_jack::gxjack.jack_sr);

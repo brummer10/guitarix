@@ -16,6 +16,7 @@ def build(bld):
         'gx_stereo_rack_builder.cpp',
         'gx_globals.cpp',
         'gx_child_process.cpp',
+        'gx_engine_tubetable.cpp',
         'gx_engine.cpp',
         'gx_engine_midi.cpp',
         'gx_convolver.cpp',

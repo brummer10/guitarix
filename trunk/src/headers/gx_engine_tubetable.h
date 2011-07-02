@@ -16,30 +16,33 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * --------------------------------------------------------------------------
+ *
+ *
+ *    This file is part of the Guitarix Audio Engine
+ *
+ *
+ * --------------------------------------------------------------------------
  */
-
-/* ------- This is the SNDFILE namespace ------- */
-
 #pragma once
 
-#include <sndfile.hh>
+#ifndef SRC_HEADERS_GX_ENGINE_TUBETABLE_H_
+#define SRC_HEADERS_GX_ENGINE_TUBETABLE_H_
 
-namespace gx_sndfile
-{
-// --------------- a simple resampling status
-typedef enum {
-	kNoError     = 0,
-	kErrorInput  = 1,
-	kErrorOutput = 2
-} GxResampleStatus;
+#define TAB_SIZE (2001)
 
-SNDFILE* openOutputSoundFile(const char*, int,  int);
-SNDFILE* openInputSoundFile (const char*, int*, int*, int*);
-void     closeSoundFile     (SNDFILE*);
+namespace gx_tubes {
 
-sf_count_t writeSoundOutput(SNDFILE*, float*, int);
-sf_count_t readSoundInput  (SNDFILE*, float*, int);
+struct tabled {
+    float low;
+    float high;
+    float istep;
+    float data[TAB_SIZE];
+};
 
-GxResampleStatus resampleSoundFile(const char*, const char*, int);
+extern struct tabled tubetable[];
+extern struct tabled tubetable2[];
+extern struct tabled tubetable3[];
+extern struct tabled tubetable4[];
+} // end namespace
+#endif  // SRC_HEADERS_GX_ENGINE_TUBETABLE_H_
 
-} /* end of gx_sndfile namespace */

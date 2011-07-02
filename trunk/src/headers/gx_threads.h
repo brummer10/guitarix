@@ -22,78 +22,61 @@
 
 #pragma once
 
-namespace gx_threads
-{
+#ifndef SRC_HEADERS_GX_THREADS_H_
+#define SRC_HEADERS_GX_THREADS_H_
+
+namespace gx_threads {
 
 /* --------------  function declarations ---------------- */
 /* slow GTK threads, see GxMainInterface::run() */
-gboolean gx_update_all_gui                (gpointer args);
-gboolean gx_refresh_meter_level           (gpointer arg);
-gboolean gx_survive_jack_shutdown         (gpointer arg);
-gboolean gx_monitor_jack_clients          (gpointer args);
-gboolean gx_do_program_change             (gpointer arg);
-gboolean gx_xrun_report                   (gpointer xdel);
-gboolean gx_check_cab_state               (gpointer args);
+gboolean gx_update_all_gui(gpointer args);
+gboolean gx_refresh_meter_level(gpointer arg);
+gboolean gx_survive_jack_shutdown(gpointer arg);
+gboolean gx_monitor_jack_clients(gpointer args);
+gboolean gx_do_program_change(gpointer arg);
+gboolean gx_xrun_report(gpointer xdel);
+gboolean gx_check_cab_state(gpointer args);
 /* this are the glib threads*/
 
-gpointer gx_signal_helper_thread          (gpointer data);
-gpointer gx_program_change_helper_thread  (gpointer args);
+gpointer gx_signal_helper_thread(gpointer data);
+gpointer gx_program_change_helper_thread(gpointer args);
 
 
 
 /* -------- helper for level meter display -------- */
-inline float
-log_meter (float db)
-{
-	gfloat def = 0.0f; /* Meter deflection %age */
+inline float log_meter(float db) {
+    gfloat def = 0.0f; /* Meter deflection %age */
 
-	if (db < -70.0f)
-	{
-		def = 0.0f;
-	}
-	else if (db < -60.0f)
-	{
-		def = (db + 70.0f) * 0.25f;
-	}
-	else if (db < -50.0f)
-	{
-		def = (db + 60.0f) * 0.5f + 2.5f;
-	}
-	else if (db < -40.0f)
-	{
-		def = (db + 50.0f) * 0.75f + 7.5f;
-	}
-	else if (db < -30.0f)
-	{
-		def = (db + 40.0f) * 1.5f + 15.0f;
-	}
-	else if (db < -20.0f)
-	{
-		def = (db + 30.0f) * 2.0f + 30.0f;
-	}
-	else if (db < 6.0f)
-	{
-		def = (db + 20.0f) * 2.5f + 50.0f;
-	}
-	else
-	{
-		def = 115.0f;
-	}
+    if (db < -70.0f) {
+        def = 0.0f;
+    } else if (db < -60.0f) {
+        def = (db + 70.0f) * 0.25f;
+    } else if (db < -50.0f) {
+        def = (db + 60.0f) * 0.5f + 2.5f;
+    } else if (db < -40.0f) {
+        def = (db + 50.0f) * 0.75f + 7.5f;
+    } else if (db < -30.0f) {
+        def = (db + 40.0f) * 1.5f + 15.0f;
+    } else if (db < -20.0f) {
+        def = (db + 30.0f) * 2.0f + 30.0f;
+    } else if (db < 6.0f) {
+        def = (db + 20.0f) * 2.5f + 50.0f;
+    } else {
+        def = 115.0f;
+    }
 
-	/* 115 is the deflection %age that would be
-	   when db=6.0. this is an arbitrary
-	   endpoint for our scaling.
-	*/
+    /* 115 is the deflection %age that would be
+       when db=6.0. this is an arbitrary
+       endpoint for our scaling.
+    */
 
-	return def/115.0f;
+    return def/115.0f;
 }
 
 /* --------- calculate power (percent) to decibel -------- */
 // Note: could use fast_log10 (see ardour code) to make it faster
-inline float power2db(float power)
-{
-	return  20.*log10(power);
+inline float power2db(float power) {
+    return  20.*log10(power);
 }
-
-
 }
+#endif  // SRC_HEADERS_GX_THREADS_H_

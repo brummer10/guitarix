@@ -28,14 +28,17 @@
 
 #pragma once
 
-#ifndef GX_UI
-#include "gx_ui.h"
+#ifndef SRC_HEADERS_GX_MAIN_INTERFACE_H_
+#define SRC_HEADERS_GX_MAIN_INTERFACE_H_
+
+#ifndef SRC_HEADERS_GX_UI_H_
+#include "./gx_ui.h"
 #endif
 
 #ifndef GX_MAIN_INTERFACE
 #define GX_MAIN_INTERFACE
 
-#include <iostream>
+
 #include <gxwmm/bigknob.h>
 #include <gxwmm/smallknob.h>
 #include <gxwmm/smallknobr.h>
@@ -56,24 +59,23 @@
 #include <gtkmm/checkmenuitem.h>
 #include <gtkmm/radiomenuitem.h>
 
+// #include <iostream>
+#include <map>
+#include <string>
+#include <vector>
 
-
-namespace gx_gui
-{
+namespace gx_gui {
 
 /****************************************************************
  **
  ** ---------------- the main GUI class ----------------
  **
  */
- 
-class GuiVariables
-{
-public:
 
-	bool dialogbox[30];
-
-void register_gui_parameter();
+class GuiVariables {
+ public:
+    bool dialogbox[30];
+    void register_gui_parameter();
 };
 
 extern GuiVariables guivar;
@@ -81,53 +83,50 @@ extern GuiVariables guivar;
 /****************************************************************/
 
 /* global GUI widgets */
-class GlobalWidgets
-{
-public:
-	/* global GUI widgets */
-	GtkWidget* fWindow;
-	GtkWidget* menuh;
-	GtkWidget* midibox;
-	GtkWidget* patch_info;
-	GtkWidget* tuner_widget;
-	GtkWidget* rack_widget;
-	GtkWidget* srack_widget;
-	GtkWidget* menu_mono_rack;
-	GtkWidget* menu_stereo_rack;
-	GtkWidget* rack_tool_bar;
+class GlobalWidgets {
+ public:
+    /* global GUI widgets */
+    GtkWidget* fWindow;
+    GtkWidget* menuh;
+    GtkWidget* midibox;
+    GtkWidget* patch_info;
+    GtkWidget* tuner_widget;
+    GtkWidget* rack_widget;
+    GtkWidget* srack_widget;
+    GtkWidget* menu_mono_rack;
+    GtkWidget* menu_stereo_rack;
+    GtkWidget* rack_tool_bar;
 
-	/* icon widgets */
-	GdkPixbuf* ib;
-	GdkPixbuf* ibm;
-	GdkPixbuf* ibr;
+    /* icon widgets */
+    GdkPixbuf* ib;
+    GdkPixbuf* ibm;
+    GdkPixbuf* ibr;
 
-	/* jack server status icons */
-	GtkWidget* gx_jackd_on_image;
-	GtkWidget* gx_jackd_off_image;
+    /* jack server status icons */
+    GtkWidget* gx_jackd_on_image;
+    GtkWidget* gx_jackd_off_image;
 
-	/* engine status images */
-	GtkWidget* gx_engine_on_image;
-	GtkWidget* gx_engine_off_image;
-	GtkWidget* gx_engine_bypass_image;
-	GtkWidget* gx_engine_item;
-
-	GtkStatusIcon* status_icon;
+    /* engine status images */
+    GtkWidget* gx_engine_on_image;
+    GtkWidget* gx_engine_off_image;
+    GtkWidget* gx_engine_bypass_image;
+    GtkWidget* gx_engine_item;
+    GtkStatusIcon* status_icon;
 };
 
 extern GlobalWidgets gw;
 
 /****************************************************************/
 
-class SkinHandling
-{
-public:
-/* skin handling */
-	vector<string> skin_list;
-	gint gx_current_skin;
-	int last_skin;
-	int no_opt_skin;
-	int set_knob;
-	SkinHandling();
+class SkinHandling {
+ public:
+    /* skin handling */
+    vector<string> skin_list;
+    gint gx_current_skin;
+    int last_skin;
+    int no_opt_skin;
+    int set_knob;
+    SkinHandling();
 };
 
 extern SkinHandling skin;
@@ -139,588 +138,561 @@ void gx_start_stop_jconv(GtkWidget*, gpointer);
 /****************************************************************/
 
 /* ---- linking menu items and parameter ---- */
-class MenuCheckItem: public Gtk::CheckMenuItem
-{
-private:
-	SwitchParameter* param;
-	void on_my_activate();
-public:
-	//FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
-	MenuCheckItem(): Gtk::CheckMenuItem("", true) {}
-	void set_parameter(SwitchParameter *p);
-	void add_parameter(SwitchParameter *p);
-	SwitchParameter * get_parameter();
+class MenuCheckItem: public Gtk::CheckMenuItem {
+ private:
+    SwitchParameter* param;
+    void on_my_activate();
+ public:
+    // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
+    MenuCheckItem(): Gtk::CheckMenuItem("", true) {}
+    void set_parameter(SwitchParameter *p);
+    void add_parameter(SwitchParameter *p);
+    SwitchParameter * get_parameter();
 };
 
 /****************************************************************/
 
 /* ---- linking menu items and parameter ---- */
-class RadioCheckItem: public Gtk::RadioMenuItem
-{
-private:
-	
-	SwitchParameter* param;
-	void on_my_toggled();
-public:
-	Gtk::RadioMenuItem::Group Group;
-	//FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
-	RadioCheckItem(): Gtk::RadioMenuItem(Group,"", true) {}
-	void set_parameter(SwitchParameter *p);
-	SwitchParameter * get_parameter();
+class RadioCheckItem: public Gtk::RadioMenuItem {
+ private:
+    SwitchParameter* param;
+    void on_my_toggled();
+ public:
+    Gtk::RadioMenuItem::Group Group;
+    // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
+    RadioCheckItem(): Gtk::RadioMenuItem(Group, "", true) {}
+    void set_parameter(SwitchParameter *p);
+    SwitchParameter * get_parameter();
 };
 
 /****************************************************************/
 
-class ToggleCheckButton: public Gtk::ToggleButton
-{
-private:
-	SwitchParameter* param;
-	void on_my_toggled();
-public:
-	Gtk::Label m_label;
-	void set_parameter(SwitchParameter *p);
-	SwitchParameter * get_parameter();
-	ToggleCheckButton();
-	~ToggleCheckButton();
+class ToggleCheckButton: public Gtk::ToggleButton {
+ private:
+    SwitchParameter* param;
+    void on_my_toggled();
+ public:
+    Gtk::Label m_label;
+    void set_parameter(SwitchParameter *p);
+    SwitchParameter * get_parameter();
+    ToggleCheckButton();
+    ~ToggleCheckButton();
 };
 
-class UiRegler: gx_ui::GxUiItemFloat, protected Gtk::Adjustment
-{
-protected:
-	Gxw::Regler *m_regler;
-	void on_value_changed();
-	virtual void reflectZone();
-public:
-	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value);
-	UiRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, bool show_value);
-	virtual ~UiRegler();
-	GtkWidget *get_widget() { return GTK_WIDGET(m_regler->gobj()); }
+/****************************************************************/
+
+class UiRegler: gx_ui::GxUiItemFloat, protected Gtk::Adjustment {
+ protected:
+    Gxw::Regler *m_regler;
+    void on_value_changed();
+    virtual void reflectZone();
+ public:
+    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value);
+    UiRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, bool show_value);
+    virtual ~UiRegler();
+    GtkWidget *get_widget() { return GTK_WIDGET(m_regler->gobj()); }
 };
 
-class UiSelector
-{
-protected:
-	Gxw::Selector m_selector;
-	void init(Parameter& param);
-public:
-	UiSelector();
-	static GtkWidget* create(gx_ui::GxUI& ui, string id);
-	GtkWidget *get_widget() { return GTK_WIDGET(m_selector.gobj()); }
+/****************************************************************/
+
+class UiSelector {
+ protected:
+    Gxw::Selector m_selector;
+    void init(Parameter& param);
+ public:
+    UiSelector();
+    static GtkWidget* create(gx_ui::GxUI& ui, string id);
+    GtkWidget *get_widget() { return GTK_WIDGET(m_selector.gobj()); }
 };
 
-class UiSelectorFloat: public UiSelector, gx_ui::GxUiItemFloat, protected Gtk::Adjustment
-{
-protected:
-	virtual void reflectZone();
-	void on_value_changed();
-public:
-	UiSelectorFloat(gx_ui::GxUI& ui, FloatParameter &param);
+/****************************************************************/
+
+class UiSelectorFloat: public UiSelector, gx_ui::GxUiItemFloat, protected Gtk::Adjustment {
+ protected:
+    virtual void reflectZone();
+    void on_value_changed();
+ public:
+    UiSelectorFloat(gx_ui::GxUI& ui, FloatParameter &param);
 };
 
-class UiSelectorInt: public UiSelector, gx_ui::GxUiItemInt, protected Gtk::Adjustment
-{
-protected:
-	virtual void reflectZone();
-	void on_value_changed();
-public:
-	UiSelectorInt(gx_ui::GxUI& ui, IntParameter &param);
+/****************************************************************/
+
+class UiSelectorInt: public UiSelector, gx_ui::GxUiItemInt, protected Gtk::Adjustment {
+ protected:
+    virtual void reflectZone();
+    void on_value_changed();
+ public:
+    UiSelectorInt(gx_ui::GxUI& ui, IntParameter &param);
 };
 
-class UiReglerWithCaption: public UiRegler
-{
-private:
-	Gtk::Label m_label;
-	Gtk::VBox m_box;
-public:
-	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value);
-	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, Glib::ustring label, bool show_value);
-	
-	UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, Glib::ustring label, bool show_value);
-	GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
+/****************************************************************/
+
+class UiReglerWithCaption: public UiRegler {
+ private:
+    Gtk::Label m_label;
+    Gtk::VBox m_box;
+ public:
+    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value);
+    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id,
+                             Glib::ustring label, bool show_value);
+    UiReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
+                        Glib::ustring label, bool show_value);
+    GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
 };
 
-class UiRackReglerWithCaption: public UiRegler
-{
-private:
-	Gtk::Label m_label;
-	Gtk::VBox m_box;
-public:
-	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id);
-	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, Glib::ustring label);
-	
-	UiRackReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, Glib::ustring label);
-	GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
+/****************************************************************/
+
+class UiRackReglerWithCaption: public UiRegler {
+ private:
+    Gtk::Label m_label;
+    Gtk::VBox m_box;
+ public:
+    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id);
+    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id,
+                             Glib::ustring label);
+    UiRackReglerWithCaption(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
+                            Glib::ustring label);
+    GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
 };
 
-class UiRackRegler: public UiRegler
-{
-private:
-	Gtk::Label m_label;
-	Gtk::VBox m_box;
-public:
-	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id);
-	static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, Glib::ustring label);
-	
-	UiRackRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, Glib::ustring label);
-	GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj()); }
+/****************************************************************/
+
+class UiRackRegler: public UiRegler {
+ private:
+    Gtk::Label m_label;
+    Gtk::VBox m_box;
+ public:
+    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id);
+    static GtkWidget* create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id,
+                             Glib::ustring label);
+    UiRackRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler,
+                 Glib::ustring label);
+    GtkWidget *get_widget() { return GTK_WIDGET(m_box.gobj());}
 };
 
-class UiSwitch: public Gxw::Switch
-{
-public:
-	UiSwitch(const char *sw_type);
-	GtkWidget *get_widget() { return GTK_WIDGET(gobj()); }
-	static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, Parameter &param);
-	static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, string id)
-		{
-			if (!parameter_map.hasId(id)) return 0;
-			return new_switch(ui, sw_type, parameter_map[id]);
-		}
-	static GtkWidget *create(gx_ui::GxUI& ui, const char *sw_type, string id)
-		{ return new_switch(ui, sw_type, id)->get_widget(); }
+/****************************************************************/
+
+class UiSwitch: public Gxw::Switch {
+ public:
+    explicit UiSwitch(const char *sw_type);
+    GtkWidget *get_widget() { return GTK_WIDGET(gobj());}
+    static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, Parameter &param);
+    static UiSwitch *new_switch(gx_ui::GxUI& ui, const char *sw_type, string id) {
+        if (!parameter_map.hasId(id)) return 0;
+        return new_switch(ui, sw_type, parameter_map[id]);
+    }
+    static GtkWidget *create(gx_ui::GxUI& ui, const char *sw_type, string id) {
+        return new_switch(ui, sw_type, id)->get_widget();}
 };
 
-class UiSwitchFloat: public UiSwitch, gx_ui::GxUiItemFloat
-{
-protected:
-	void on_toggled();
-	virtual void reflectZone();
-public:
-	UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, FloatParameter &param);
+/****************************************************************/
+
+class UiSwitchFloat: public UiSwitch, gx_ui::GxUiItemFloat {
+ protected:
+    void on_toggled();
+    virtual void reflectZone();
+ public:
+    UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, FloatParameter &param);
 };
 
-class UiSwitchBool: public UiSwitch, gx_ui::GxUiItemBool
-{
-protected:
-	void on_toggled();
-	virtual void reflectZone();
-public:
-	UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, BoolParameter &param);
+/****************************************************************/
+
+class UiSwitchBool: public UiSwitch, gx_ui::GxUiItemBool {
+ protected:
+    void on_toggled();
+    virtual void reflectZone();
+ public:
+    UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, BoolParameter &param);
 };
 
-class UiSwitchWithCaption
-{
-private:
-	Gtk::Label m_label;
-	Gtk::Box *m_box;
-protected:
-	UiSwitch *m_switch;
-public:
-	static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
-	                         Gtk::PositionType pos);
-	static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
-	                         Glib::ustring label, Gtk::PositionType pos);
-	UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, Parameter &param,
-	                    Glib::ustring label, Gtk::PositionType pos);
-	~UiSwitchWithCaption();
-	GtkWidget *get_widget() { return GTK_WIDGET(m_box->gobj()); }
+/****************************************************************/
+
+class UiSwitchWithCaption {
+ private:
+    Gtk::Label m_label;
+    Gtk::Box *m_box;
+ protected:
+    UiSwitch *m_switch;
+ public:
+    static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
+                             Gtk::PositionType pos);
+    static GtkWidget* create(gx_ui::GxUI& ui, const char *sw_type, string id,
+                             Glib::ustring label, Gtk::PositionType pos);
+    UiSwitchWithCaption(gx_ui::GxUI &ui, const char *sw_type, Parameter &param,
+                        Glib::ustring label, Gtk::PositionType pos);
+    ~UiSwitchWithCaption();
+    GtkWidget *get_widget() { return GTK_WIDGET(m_box->gobj()); }
 };
 
-class UiCabSwitch: public UiSwitchWithCaption
-{
-private:
-	void on_switch_toggled();
-public:
-	static GtkWidget* create(gx_ui::GxUI& ui, string id, Glib::ustring label);
-	UiCabSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label);
+/****************************************************************/
+
+class UiCabSwitch: public UiSwitchWithCaption {
+ private:
+    void on_switch_toggled();
+ public:
+    static GtkWidget* create(gx_ui::GxUI& ui, string id, Glib::ustring label);
+    UiCabSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label);
 };
 
-class UiContrastSwitch: public UiSwitchWithCaption
-{
-private:
-	void on_switch_toggled();
-public:
-	static GtkWidget* create(gx_ui::GxUI& ui, string id, Glib::ustring label);
-	UiContrastSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label);
+/****************************************************************/
+
+class UiContrastSwitch: public UiSwitchWithCaption {
+ private:
+    void on_switch_toggled();
+ public:
+    static GtkWidget* create(gx_ui::GxUI& ui, string id, Glib::ustring label);
+    UiContrastSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label);
 };
 
-struct uiTuner : public gx_ui::GxUiItemFloat, public Gtk::Alignment
-{
-private:
-	Gxw::Tuner fTuner;
-public:
-	void set_freq(double freq) { fTuner.set_freq(freq); }
-	uiTuner(gx_ui::GxUI* ui, float* zone);
-	virtual void reflectZone();
+/****************************************************************/
+
+struct uiTuner : public gx_ui::GxUiItemFloat, public Gtk::Alignment {
+ private:
+    Gxw::Tuner fTuner;
+ public:
+    void set_freq(double freq) { fTuner.set_freq(freq); }
+    uiTuner(gx_ui::GxUI* ui, float* zone);
+    virtual void reflectZone();
 };
 
-class GxMainInterface : public gx_ui::GxUI
-{
-private:
-	// private constructor
-	GxMainInterface(const char* name);
+/****************************************************************/
 
-	void addMainMenu();
+class GxMainInterface : public gx_ui::GxUI {
+ private:
+    // private constructor
+    explicit GxMainInterface(const char* name);
 
-	void addEngineMenu();
-	void addJackServerMenu();
+    void addMainMenu();
+    void addEngineMenu();
+    void addJackServerMenu();
+    void addPresetMenu();
+    void addExtraPresetMenu();
+    void addPluginMenu();
+    void addAmpMenu();
+    void addOptionMenu();
+    void addGuiSkinMenu();
+    void addAboutMenu();
 
-	void addPresetMenu();
-	void addExtraPresetMenu();
+    bool on_meter_button_release(GdkEventButton* ev);
+    void on_tuner_activate();
+    void gx_show_menu_settings(GtkWidget *widget, gpointer data);
+    void on_log_activate();
+    void on_rack_activate();
+    void on_rrack_activate();
+    void on_srack_activate();
+    void on_toolbar_activate();
+    void on_tube_activate();
+    void set_mouse_mode();
+    void on_show_oscilloscope();
+    bool on_refresh_oscilloscope();
 
-	void addPluginMenu();
-	void addAmpMenu();
+ protected :
+    int                 fTop;
+    GtkWidget*          fBox[stackSize];
+    GtkWidget*          rBox;
+    GtkWidget*          sBox;
+    GtkWidget*          tBox;
 
-	void addOptionMenu();
-	void addGuiSkinMenu();
+    int                 fMode[stackSize];
+    bool                fStopped;
+    GtkTextView*        fLoggingWindow;
+    GtkExpander*        fLoggingBox;
+    GtkAdjustment*      fLoggingVAdjustment;
+    Gxw::FastMeter      fLevelMeters[2];
+    uiTuner             fTuner;
+    Gxw::WaveView       fWaveView;
+    GtkWidget*          fSignalLevelBar;
 
-	void addAboutMenu();
+    // menu items
+    map<string, GtkWidget*> fMenuList;
+    MenuCheckItem       fMidiInPreset;
+    MenuCheckItem       fShowTooltips;
+    MenuCheckItem       fShowTuner;
+    MenuCheckItem       fShowWaveView;
+    MenuCheckItem       fSetMouse;
 
-	bool on_meter_button_release(GdkEventButton* ev);
-	void on_tuner_activate();
-	void gx_show_menu_settings(GtkWidget *widget, gpointer data);
-	void on_log_activate();
-	void on_rack_activate();
-	void on_rrack_activate();
-	void on_srack_activate();
-	void on_toolbar_activate();
-	void on_tube_activate();
-	void set_mouse_mode();
-	void on_show_oscilloscope();
-	bool on_refresh_oscilloscope();
+    // jack menu widgets
+    GtkWidget*          fJackConnectItem;
+    GtkWidget*          fJackLatencyItem[NJACKLAT];
 
-protected :
-	int			fTop;
-	GtkWidget*          fBox[stackSize];
-	GtkWidget*          rBox;
-	GtkWidget*          sBox;
-	GtkWidget*          tBox;
-	
-	
-	int 		fMode[stackSize];
-	bool		fStopped;
-	GtkTextView*        fLoggingWindow;
-	GtkExpander*        fLoggingBox;
-	GtkAdjustment*      fLoggingVAdjustment;
-	Gxw::FastMeter      fLevelMeters[2];
-	uiTuner             fTuner;
-	Gxw::WaveView       fWaveView;
+    GtkWidget* addWidget(const char* label, GtkWidget* w);
+    virtual void pushBox(int mode, GtkWidget* w);
 
-	GtkWidget*          fSignalLevelBar;
+ public :
+    MenuCheckItem       fShowRack;
+    MenuCheckItem       fShowRRack;
+    MenuCheckItem       fShowSRack;
+    MenuCheckItem       fShowLogger;
+    MenuCheckItem       fShowMidiOut;
+    MenuCheckItem       fShowToolBar;
+    RadioCheckItem      fSelectTubeModel[14];
 
-	// menu items
-	map<string, GtkWidget*> fMenuList;
-	MenuCheckItem       fMidiInPreset;
-	MenuCheckItem       fShowTooltips;
-	MenuCheckItem       fShowTuner;
-	
-	MenuCheckItem       fShowWaveView;
-	MenuCheckItem       fSetMouse;
-#ifdef EXPERIMENTAL
-	MenuCheckItem       fShowExpWindow;
-#endif
+    GtkWidget*          logger;
+    GtkWidget*          RBox;
 
-	// jack menu widgets
-	GtkWidget*          fJackConnectItem;
-	GtkWidget*          fJackLatencyItem[NJACKLAT];
+    static bool         fInitialized;
+    int                 highest_unseen_msg_level;
 
-	GtkWidget* addWidget(const char* label, GtkWidget* w);
-	virtual void pushBox(int mode, GtkWidget* w);
+    static const gboolean expand   = TRUE;
+    static const gboolean fill     = TRUE;
+    static const gboolean homogene = FALSE;
 
-public :
-	MenuCheckItem       fShowRack;
-	MenuCheckItem       fShowRRack;
-	MenuCheckItem       fShowSRack;
-	MenuCheckItem       fShowLogger;
-	MenuCheckItem       fShowMidiOut;
-	MenuCheckItem       fShowToolBar;
-	RadioCheckItem      fSelectTubeModel[14];
+    static GxMainInterface* instance(const char* name = "");
 
-	GtkWidget* 			logger;
-	GtkWidget*          RBox;
-	
-	static bool	 fInitialized;
-	int          highest_unseen_msg_level;
+    // for key acclerators
+    GtkAccelGroup* fAccelGroup;
 
-	static const gboolean expand   = TRUE;
-	static const gboolean fill     = TRUE;
-	static const gboolean homogene = FALSE;
-
-	static GxMainInterface* instance(const char* name = "");
-
-	// for key acclerators
-	GtkAccelGroup* fAccelGroup;
-
-	// -- acquire a pointer to the logging window
-	GtkTextView* const getLoggingWindow()    const { return fLoggingWindow;   }
-	GtkExpander* const getLoggingBox()       const { return fLoggingBox;      }
-	GtkWidget*   const getJackConnectItem()  const { return fJackConnectItem; }
-	void set_waveview_buffer();
+    // -- acquire a pointer to the logging window
+    GtkTextView* const getLoggingWindow()    const { return fLoggingWindow;   }
+    GtkExpander* const getLoggingBox()       const { return fLoggingBox;      }
+    GtkWidget*   const getJackConnectItem()  const { return fJackConnectItem; }
+    void set_waveview_buffer();
 
     Gxw::WaveView& getWaveView()                   { return fWaveView;        }
 
-	Gxw::FastMeter& getLevelMeter(unsigned int i)
-		{ assert(i < sizeof(fLevelMeters)/sizeof(fLevelMeters[0])); return fLevelMeters[i]; }
+    Gxw::FastMeter& getLevelMeter(unsigned int i) {
+            assert(i < sizeof(fLevelMeters)/sizeof(fLevelMeters[0]));
+            return fLevelMeters[i];
+        }
 
-	GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
+    GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
 
-	GtkWidget*   const getMenu(const string name) { return fMenuList[name]; }
+    GtkWidget*   const getMenu(const string name) { return fMenuList[name]; }
 
-	// -- layout groups
-	void gx_build_mono_rack();
-	void gx_build_stereo_rack();
-	void openHorizontalOrderBox(const char* label,  float* posit);
-	void openHorizontalTableBox(const char* label);
-	void openHorizontalRestetBox(const char* label,  float* posit);
-	void openFrameBox(const char* label);
-	void openHorizontalBox(const char* label = "");
-	void openHorizontalhideBox(const char* label = "");
-	void openHorizontalhideBox1(const char* label = "");
-	void openVerticalBox(const char* label = "");
-	void openVerticalBox1(const char* label = "");
-	void openFlipLabelBox(const char* = "");
-	void openVerticalSwitchBox(const char* label, int state, int wit, float* zone);
-	void openVerticalMidiBox(const char* label = "");
-	void openDialogBox(const char *id_dialog, const char *id_switch);
-	void opensDialogBox(const char *id_dialog, const char *id_switch);
-	void openDialogBox(const char *id_dialog, const char *id_switch,const char *expose_funk);
-	void opensDialogBox(const char *id_dialog, const char *id_switch,const char *expose_funk);
-	void openPatchInfoBox(float* zone);
-	void openWarningBox(const char* label, float* zone);
-	void openEventBox(const char* label = "");
-	void openMainBox(const char* label = "",const char *expose_funk= NULL);
-	void openHandleBox(const char* label = "");
-	void openExpanderBox(const char* label, float* zone);
-	void openTabBox(const char* label = "");
-	void openSpaceBox(const char* label = "");
-	void openAmpBox(const char* label = "");
-	void openSlooperBox(const char* label = "");
-	void openPlugBox(const char* label = "");
-	void openpaintampBox(const char* label = "");
-	void openPaintBox(const char* label = "", const char* name = NULL);
-	void openPaintBox1(const char* label = "");
-	void openPaintBox2(const char* label = "");
-	void openScrollBox(const char* label = "");
-	void openTextLoggingBox(const char* label = "");
-	void openLevelMeterBox(const char* label);
-	void openToolBar(const char* label = "");
-	void setSkinBox(const char* label, float* zone);
-	void closeBox();
+    // -- layout groups
+    void gx_build_mono_rack();
+    void gx_build_stereo_rack();
+    void openHorizontalOrderBox(const char* label, float* posit);
+    void openHorizontalTableBox(const char* label);
+    void openHorizontalRestetBox(const char* label, float* posit);
+    void openFrameBox(const char* label);
+    void openHorizontalBox(const char* label = "");
+    void openHorizontalhideBox(const char* label = "");
+    void openHorizontalhideBox1(const char* label = "");
+    void openVerticalBox(const char* label = "");
+    void openVerticalBox1(const char* label = "");
+    void openFlipLabelBox(const char* = "");
+    void openVerticalSwitchBox(const char* label, int state, int wit, float* zone);
+    void openVerticalMidiBox(const char* label = "");
+    void openDialogBox(const char *id_dialog, const char *id_switch);
+    void opensDialogBox(const char *id_dialog, const char *id_switch);
+    void openDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk);
+    void opensDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk);
+    void openPatchInfoBox(float* zone);
+    void openWarningBox(const char* label, float* zone);
+    void openEventBox(const char* label = "");
+    void openMainBox(const char* label = "", const char *expose_funk= NULL);
+    void openHandleBox(const char* label = "");
+    void openExpanderBox(const char* label, float* zone);
+    void openTabBox(const char* label = "");
+    void openSpaceBox(const char* label = "");
+    void openAmpBox(const char* label = "");
+    void openSlooperBox(const char* label = "");
+    void openPlugBox(const char* label = "");
+    void openpaintampBox(const char* label = "");
+    void openPaintBox(const char* label = "", const char* name = NULL);
+    void openPaintBox1(const char* label = "");
+    void openPaintBox2(const char* label = "");
+    void openScrollBox(const char* label = "");
+    void openTextLoggingBox(const char* label = "");
+    void openLevelMeterBox(const char* label);
+    void openToolBar(const char* label = "");
+    void setSkinBox(const char* label, float* zone);
+    void closeBox();
 
-	// -- active widgets
-	void addJConvButton(const char* label, float* zone);
-	void addToggleButton(const char* label, float* zone);
-	void addJToggleButton(const char* label, float* zone);
-	void addPToggleButton(const char* label, float* zone);
-	void addMToggleButton(const char* label, float* zone);
-	void addCheckButton(const char* label, float* zone);
-	void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
-	void addNumDisplay();
-	void addLiveWaveDisplay(const char* label, float* zone , float* zone1);
-	void addStatusDisplay(const char* label, float* zone );
-	//void addselector(const char* label, float* zone,int maxv, const char* []);
-	void addSpinValueBox(string id, const char* label=0);
-	//void addselector(string id, const char* label=0, int nvalues=0, const char **pvalues=0);
-	void addCheckButton(string id, const char* label=0);
-	void addNumEntry(string id, const char* label=0);
-	void addPToggleButton(string id, const char* label=0);
-	void addMToggleButton(string id, const char* label=0);
+    // -- active widgets
+    void addJConvButton(const char* label, float* zone);
+    void addToggleButton(const char* label, float* zone);
+    void addJToggleButton(const char* label, float* zone);
+    void addPToggleButton(const char* label, float* zone);
+    void addMToggleButton(const char* label, float* zone);
+    void addCheckButton(const char* label, float* zone);
+    void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
+    void addNumDisplay();
+    void addLiveWaveDisplay(const char* label, float* zone , float* zone1);
+    void addStatusDisplay(const char* label, float* zone );
+    // void addselector(const char* label, float* zone,int maxv, const char* []);
+    void addSpinValueBox(string id, const char* label = 0);
+    // void addselector(string id, const char* label=0, int nvalues=0, const char **pvalues=0);
+    void addCheckButton(string id, const char* label = 0);
+    void addNumEntry(string id, const char* label = 0);
+    void addPToggleButton(string id, const char* label = 0);
+    void addMToggleButton(string id, const char* label = 0);
 
-	// -- other
-	void show_msg(string msgbuf, gx_system::GxMsgType msgtype);
-	void set_logging_expander_color(const char *color);
+    // -- other
+    void show_msg(string msgbuf, gx_system::GxMsgType msgtype);
+    void set_logging_expander_color(const char *color);
 
-	void setup();
-	void show();
-	void run();
+    void setup();
+    void show();
+    void run();
 
-	// widget creation
-	void addwidget(GtkWidget *widget) { if (widget) gtk_container_add(GTK_CONTAINER(fBox[fTop]), widget); }
-	void create_bigknob(string id)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::BigKnob(), id, true));
-		}
-	void create_bigknob(string id, Glib::ustring label)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::BigKnob(), id, label, true));
-		}
-	void create_smallknob(string id)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, true));
-		}
-	void create_smallknob(string id, Glib::ustring label)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, label, true));
-		}
-	void create_smallknob_no_caption(string id)
-		{
-			addwidget(UiRegler::create(*this, new Gxw::SmallKnob(), id, true));
-		}
-	
-	void create_small_rackknob(string id)
-		{
-			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::SmallKnob(), id));
-		}
-	void create_small_rackknob(string id, Glib::ustring label)
-		{
-			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, label));
-		}
-	
-	void create_smallknob_no_value(string id)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, false));
-		}
-	void create_smallknob_no_value(string id, Glib::ustring label)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, label, false));
-		}
-	void create_smallknob_no_caption_no_value(string id)
-		{
-			addwidget(UiRegler::create(*this, new Gxw::SmallKnob(), id, false));
-		}
-		
-	void create_smallknobr(string id)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id, true));
-		}
-	void create_smallknobr(string id, Glib::ustring label)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id, label, true));
-		}
-		
-	void create_small_rackknobr(string id)
-		{
-			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id));
-		}
-	void create_small_rackknobr(string id, Glib::ustring label)
-		{
-			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id, label));
-		}
-		
-	void create_smallknobr_no_caption(string id)
-		{
-			addwidget(UiRegler::create(*this, new Gxw::SmallKnobR(), id, true));
-		}	
-	void create_wheel(string id, bool show_value = false)
-		{
-			addwidget(UiRegler::create(*this, new Gxw::Wheel(), id, show_value));
-		}
-	void create_wheel_with_value(string id, bool show_value = true)
-		{
-			addwidget(UiRegler::create(*this, new Gxw::Wheel(), id, show_value));
-		}
-	void create_hslider(string id)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::HSlider(), id, true));
-		}
-	void create_hslider(string id, Glib::ustring(label))
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::HSlider(), id, label, true));
-		}
-	void create_minislider(string id)
-		{
-			addwidget(UiRegler::create(*this, new Gxw::MiniSlider(), id, false));
-		}
-	void create_minislider(string id, Glib::ustring(label))
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::MiniSlider(), id, label, true));
-		}
-		
-	void create_eqslider_no_caption(string id, bool show_value = true)
-		{
-			addwidget(UiRegler::create(*this, new Gxw::EqSlider(), id, show_value));
-		}
-	void create_eqslider(string id, bool show_value = true)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(), id, show_value));
-		}
-	void create_eqslider(string id, Glib::ustring label, bool show_value = true)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label, show_value));
-		}
-	void create_eqslider(string id, const char *label, bool show_value = true)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label, show_value));
-		}
-		// levelslider
-	void create_levelslider_no_caption(string id, bool show_value = true)
-		{
-			addwidget(UiRegler::create(*this, new Gxw::LevelSlider(), id, show_value));
-		}
-	void create_levelslider(string id, bool show_value = true)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::LevelSlider(), id, show_value));
-		}
-	void create_levelslider(string id, Glib::ustring label, bool show_value = true)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::LevelSlider(), id, label, show_value));
-		}
-	void create_levelslider(string id, const char *label, bool show_value = true)
-		{
-			addwidget(UiReglerWithCaption::create(*this, new Gxw::LevelSlider(), id, label, show_value));
-		}
-		//rack
-	void create_eq_rackslider_no_caption(string id)
-		{
-			addwidget(UiRackRegler::create(*this, new Gxw::EqSlider(), id));
-		}
-	void create_eq_rackslider(string id)
-		{
-			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::EqSlider(), id));
-		}
-	void create_eq_rackslider(string id, Glib::ustring label)
-		{
-			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label));
-		}
-	void create_eq_rackslider(string id, const char *label)
-		{
-			addwidget(UiRackReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label));
-		}
-		
-	void create_spin_value(string id)
-		{
-			addwidget(UiRegler::create(*this, new Gxw::ValueDisplay(), id, true));
-		}
-	void create_simple_spin_value(string id)
-		{
-			addwidget(UiRegler::create(*this, new Gxw::SimpleValueDisplay(), id, true));
-		}
-		
-	void create_selector(string id)
-		{
-			addwidget(UiSelector::create(*this, id));
-		}
-	void create_switch_no_caption(const char *sw_type, string id)
-		{
-			addwidget(UiSwitch::create(*this, sw_type, id));
-		}
-	void create_switch(const char *sw_type, string id, Gtk::PositionType pos = Gtk::POS_TOP)
-		{
-			addwidget(UiSwitchWithCaption::create(*this, sw_type, id, pos));
-		}
-	void create_switch(const char *sw_type, string id, Glib::ustring label, Gtk::PositionType pos = Gtk::POS_TOP)
-		{
-			addwidget(UiSwitchWithCaption::create(*this, sw_type, id, label, pos));
-		}
-	void create_cab_switch(string id, Glib::ustring label, Gtk::PositionType pos = Gtk::POS_TOP)
-		{
-			addwidget(UiCabSwitch::create(*this, id, label));
-		}
-	void create_contrast_switch(string id, Glib::ustring label, Gtk::PositionType pos = Gtk::POS_TOP)
-		{
-			addwidget(UiContrastSwitch::create(*this, id, label));
-		}
+    // widget creation
+    void addwidget(GtkWidget *widget) {
+            if (widget) gtk_container_add(GTK_CONTAINER(fBox[fTop]), widget);
+        }
+    void create_bigknob(string id) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::BigKnob(), id, true));
+        }
+    void create_bigknob(string id, Glib::ustring label) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::BigKnob(), id, label, true));
+        }
+    void create_smallknob(string id) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, true));
+        }
+    void create_smallknob(string id, Glib::ustring label) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, label, true));
+        }
+    void create_smallknob_no_caption(string id) {
+            addwidget(UiRegler::create(*this, new Gxw::SmallKnob(), id, true));
+        }
+
+    void create_small_rackknob(string id) {
+            addwidget(UiRackReglerWithCaption::create(*this, new Gxw::SmallKnob(), id));
+        }
+    void create_small_rackknob(string id, Glib::ustring label) {
+            addwidget(UiRackReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, label));
+        }
+
+    void create_smallknob_no_value(string id) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, false));
+        }
+    void create_smallknob_no_value(string id, Glib::ustring label) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnob(), id, label, false));
+        }
+    void create_smallknob_no_caption_no_value(string id) {
+            addwidget(UiRegler::create(*this, new Gxw::SmallKnob(), id, false));
+        }
+
+    void create_smallknobr(string id) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id, true));
+        }
+    void create_smallknobr(string id, Glib::ustring label) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id, label, true));
+        }
+
+    void create_small_rackknobr(string id) {
+            addwidget(UiRackReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id));
+        }
+    void create_small_rackknobr(string id, Glib::ustring label) {
+            addwidget(UiRackReglerWithCaption::create(*this, new Gxw::SmallKnobR(), id, label));
+        }
+
+    void create_smallknobr_no_caption(string id) {
+            addwidget(UiRegler::create(*this, new Gxw::SmallKnobR(), id, true));
+        }
+    void create_wheel(string id, bool show_value = false) {
+            addwidget(UiRegler::create(*this, new Gxw::Wheel(), id, show_value));
+        }
+    void create_wheel_with_value(string id, bool show_value = true) {
+            addwidget(UiRegler::create(*this, new Gxw::Wheel(), id, show_value));
+        }
+    void create_hslider(string id) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::HSlider(), id, true));
+        }
+    void create_hslider(string id, Glib::ustring(label)) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::HSlider(), id, label, true));
+        }
+    void create_minislider(string id) {
+            addwidget(UiRegler::create(*this, new Gxw::MiniSlider(), id, false));
+        }
+    void create_minislider(string id, Glib::ustring(label)) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::MiniSlider(), id, label, true));
+        }
+
+    void create_eqslider_no_caption(string id, bool show_value = true) {
+            addwidget(UiRegler::create(*this, new Gxw::EqSlider(), id, show_value));
+        }
+    void create_eqslider(string id, bool show_value = true) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(), id, show_value));
+        }
+    void create_eqslider(string id, Glib::ustring label, bool show_value = true) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(),
+                      id, label, show_value));
+        }
+    void create_eqslider(string id, const char *label, bool show_value = true) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::EqSlider(),
+                      id, label, show_value));
+        }
+        // levelslider
+    void create_levelslider_no_caption(string id, bool show_value = true) {
+            addwidget(UiRegler::create(*this, new Gxw::LevelSlider(), id, show_value));
+        }
+    void create_levelslider(string id, bool show_value = true) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::LevelSlider(),
+                      id, show_value));
+        }
+    void create_levelslider(string id, Glib::ustring label, bool show_value = true) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::LevelSlider(),
+                      id, label, show_value));
+        }
+    void create_levelslider(string id, const char *label, bool show_value = true) {
+            addwidget(UiReglerWithCaption::create(*this, new Gxw::LevelSlider(),
+                      id, label, show_value));
+        }
+        // rack
+    void create_eq_rackslider_no_caption(string id) {
+            addwidget(UiRackRegler::create(*this, new Gxw::EqSlider(), id));
+        }
+    void create_eq_rackslider(string id) {
+            addwidget(UiRackReglerWithCaption::create(*this, new Gxw::EqSlider(), id));
+        }
+    void create_eq_rackslider(string id, Glib::ustring label) {
+            addwidget(UiRackReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label));
+        }
+    void create_eq_rackslider(string id, const char *label) {
+            addwidget(UiRackReglerWithCaption::create(*this, new Gxw::EqSlider(), id, label));
+        }
+
+    void create_spin_value(string id) {
+            addwidget(UiRegler::create(*this, new Gxw::ValueDisplay(), id, true));
+        }
+    void create_simple_spin_value(string id) {
+            addwidget(UiRegler::create(*this, new Gxw::SimpleValueDisplay(), id, true));
+        }
+
+    void create_selector(string id) {
+            addwidget(UiSelector::create(*this, id));
+        }
+    void create_switch_no_caption(const char *sw_type, string id) {
+            addwidget(UiSwitch::create(*this, sw_type, id));
+        }
+    void create_switch(const char *sw_type, string id, Gtk::PositionType pos = Gtk::POS_TOP) {
+            addwidget(UiSwitchWithCaption::create(*this, sw_type, id, pos));
+        }
+    void create_switch(const char *sw_type, string id, Glib::ustring label,
+                       Gtk::PositionType pos = Gtk::POS_TOP) {
+            addwidget(UiSwitchWithCaption::create(*this, sw_type, id, label, pos));
+        }
+    void create_cab_switch(string id, Glib::ustring label,
+                           Gtk::PositionType pos = Gtk::POS_TOP) {
+            addwidget(UiCabSwitch::create(*this, id, label));
+        }
+    void create_contrast_switch(string id, Glib::ustring label,
+                                Gtk::PositionType pos = Gtk::POS_TOP) {
+            addwidget(UiContrastSwitch::create(*this, id, label));
+        }
 };
 
-struct uiAdjustment : public gx_ui::GxUiItemFloat
-{
-	GtkAdjustment* fAdj;
-	uiAdjustment(gx_ui::GxUI* ui, float* zone, GtkAdjustment* adj) : gx_ui::GxUiItemFloat(ui, zone), fAdj(adj) {}
-	static void changed (GtkAdjustment *adj, gpointer data)
-		{
-			float	v = adj->value;
-			((gx_ui::GxUiItemFloat*)data)->modifyZone(v);
-		}
+/****************************************************************/
 
-	virtual void reflectZone()
-		{
-			float 	v = *fZone;
-			fCache = v;
-			gtk_adjustment_set_value(fAdj, v);
-		}
+struct uiAdjustment : public gx_ui::GxUiItemFloat {
+    GtkAdjustment* fAdj;
+    uiAdjustment(gx_ui::GxUI* ui, float* zone, GtkAdjustment* adj) :
+                 gx_ui::GxUiItemFloat(ui, zone), fAdj(adj) {}
+    static void changed(GtkAdjustment *adj, gpointer data) {
+            float    v = adj->value;
+            ((gx_ui::GxUiItemFloat*)data)->modifyZone(v);
+        }
 
+    virtual void reflectZone() {
+            float     v = *fZone;
+            fCache = v;
+            gtk_adjustment_set_value(fAdj, v);
+        }
 };
 
+/****************************************************************/
 
 extern const char *sw_led;
 extern const char *sw_switch;
@@ -731,9 +703,9 @@ extern const char *sw_pbutton;
 extern const char *sw_rbutton;
 
 
-extern const char *pb_rectangle_skin_color_expose ;
+extern const char *pb_rectangle_skin_color_expose;
 
-gboolean button_press_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
+gboolean button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);
 
 extern void set_label(MenuCheckItem& item , const char *label);
 
@@ -745,32 +717,39 @@ int gx_set_my_oriantation();
 int precision(double n);
 string fformat(float value, float step);
 
+/****************************************************************/
+
 #ifndef NDEBUG
 // debug_check
-inline void check_zone(GtkWidget *w, void *zone)
-{
-	if (!parameter_map.hasZone(zone)) {
-		gchar *p;
-		gtk_widget_path(w, NULL, &p, NULL);
-		cerr << "zone not found in definition of widget: "
-		     << p << endl;
-		g_free(p);
-		assert(false);
-	}
-	parameter_map[zone].setUsed();
+inline void check_zone(GtkWidget *w, void *zone) {
+    if (!parameter_map.hasZone(zone)) {
+        gchar *p;
+        gtk_widget_path(w, NULL, &p, NULL);
+        cerr << "zone not found in definition of widget: "
+             << p << endl;
+        g_free(p);
+        assert(false);
+    }
+    parameter_map[zone].setUsed();
 }
 #endif
 
-inline void connect_midi_controller(GtkWidget *w, void *zone)
-{
-	debug_check(check_zone, w, zone);
-	g_signal_connect(w, "button_press_event", G_CALLBACK (button_press_cb), (gpointer)&parameter_map[zone]);
+/****************************************************************/
+
+inline void connect_midi_controller(GtkWidget *w, void *zone) {
+    debug_check(check_zone, w, zone);
+    g_signal_connect(w, "button_press_event", G_CALLBACK(button_press_cb),
+                    (gpointer)&parameter_map[zone]);
 }
 
+/****************************************************************/
+
 void conv_restart();
+
 
 /* -------------------------------------------------------------------------- */
 } /* end of gx_gui namespace */
 
 #endif
 
+#endif  // SRC_HEADERS_GX_MAIN_INTERFACE_H_

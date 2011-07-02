@@ -36,7 +36,6 @@ using namespace gx_cairo;
 namespace gx_gui
 {
 
-//#include "gx_cabinet_data.cc"
 
 /* ----- Menu check item signaled from parameter ------ */
 
@@ -252,13 +251,13 @@ void GxMainInterface::on_log_activate() {
 
 }
 
-//----menu function gx_tuner
+//----menu function oatch info widget
 void gx_patch(GtkCheckMenuItem *menuitem, gpointer checkplay)
 {
     gtk_widget_show_all(gw.patch_info);
 }
 
-//---- menu function gx_midi_out
+//---- menu function logging widget
 void gx_log_window (GtkWidget* menuitem, gpointer arg)
 {
 	GtkExpander* const exbox = GxMainInterface::instance()->getLoggingBox();

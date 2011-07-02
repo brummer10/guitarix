@@ -25,23 +25,28 @@
 
 #pragma once
 
+#ifndef SRC_HEADERS_GX_GLOBALS_H_
+#define SRC_HEADERS_GX_GLOBALS_H_
+
 #include <semaphore.h>
 #include <jack/midiport.h>
 #include <gtk/gtk.h>
 
+#include <string>
+#include <vector>
+
 /* ----- main engine ----- */
-namespace gx_engine
-{
+namespace gx_engine {
 /* engine state : can be on or off or bypassed */
 typedef enum {
-	kEngineOff    = 0,
-	kEngineOn     = 1,
-	kEngineBypass = 2
+    kEngineOff    = 0,
+    kEngineOn     = 1,
+    kEngineBypass = 2
 } GxEngineState;
 
 typedef enum {
-	kMidiOff    = 0,
-	kMidiOn     = 1
+    kMidiOff    = 0,
+    kMidiOn     = 1
 } GxMidiState;
 
 /* global var  declarations */
@@ -64,18 +69,16 @@ extern bool pt_initialized;
 
 /* buffer ready state */
 extern bool buffers_ready;
-
 }
 
 /* -------------------------------------------------------------------------- */
 
 /* ----- jack namespace ----- */
-namespace gx_jack
-{
+namespace gx_jack {
 /* latency change confirmation */
 typedef enum {
-	kChangeLatency = 1,
-	kKeepLatency   = 2
+    kChangeLatency = 1,
+    kKeepLatency   = 2
 } GxJackLatencyChange;
 
 
@@ -100,26 +103,25 @@ extern string              gx_port_names[];
 
 /* lists of jack port types for menu items */
 enum {
-	kAudioInput    = 0,
-	kAudioOutput1  = 1,
-	kAudioOutput2  = 2,
-	kMidiInput     = 3,
-	kMidiOutput    = 4,
-	kAudioInsertIn = 5,
-	kAudioInsertOut= 6
+    kAudioInput    = 0,
+    kAudioOutput1  = 1,
+    kAudioOutput2  = 2,
+    kMidiInput     = 3,
+    kMidiOutput    = 4,
+    kAudioInsertIn = 5,
+    kAudioInsertOut= 6
 };
 }
 
 /* -------------------------------------------------------------------------- */
 
 /* ----- preset namespace ----- */
-namespace gx_preset
-{
+namespace gx_preset {
 /* global var declarations */
 extern GdkModifierType list_mod[];
 extern const char* preset_accel_path[];
 extern const char* preset_menu_name[];
-//extern map<GtkMenuItem*, string> preset_list[];
+// extern map<GtkMenuItem*, string> preset_list[];
 
 extern string gx_current_preset;
 extern string gx_factory_preset;
@@ -145,9 +147,7 @@ extern GCallback preset_action_func[];
 /* -------------------------------------------------------------------------- */
 
 /* ----- system namespace ----- */
-namespace gx_system
-{
-
+namespace gx_system {
 
 /* variables and constants */
 extern const int SYSTEM_OK;
@@ -168,17 +168,12 @@ extern const char* shell_var_name[];
 /* -------------------------------------------------------------------------- */
 
 /* ----- GUI namespace ----- */
-namespace gx_gui
-{
-
-
+namespace gx_gui {
 
 /* tuner and osilloscope*/
 extern int showwave;
 extern int shownote;
 extern float show_patch_info;
-
-
 
 /* rack handlig */
 extern int mono_plugs;
@@ -189,10 +184,6 @@ extern int refresh_size;
 extern float main_xorg;
 extern float main_yorg;
 
-/* Effect moduls box*/
-
-
-
 /* for level display */
 extern int meter_falloff;
 extern int meter_display_timeout;
@@ -202,15 +193,15 @@ extern volatile gint       program_change;
 extern sem_t               program_change_sem;
 
 extern int g_threads[10];
-
 }
 
 /* -------------------------------------------------------------------------- */
 
 /* ----- cairo namespace ----- */
-namespace gx_cairo
-{
+namespace gx_cairo {
 extern GdkPixbuf *tribeimage;
 extern GdkPixbuf *tribeimage1;
 extern GdkPixbuf *tribeimage2;
 }
+#endif  // SRC_HEADERS_GX_GLOBALS_H_
+
