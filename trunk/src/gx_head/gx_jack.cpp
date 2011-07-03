@@ -679,6 +679,11 @@ int gx_jack_buffersize_callback (jack_nframes_t nframes,void* arg)
 		Glib::signal_idle().connect(
 			sigc::bind_return(sigc::ptr_fun(gx_gui::cab_conv_restart), false));
 	}
+    if (contrast_conv.is_runnable()) {
+		contrast_conv.set_not_runnable();
+		Glib::signal_idle().connect(
+			sigc::bind_return(sigc::ptr_fun(gx_gui::contrast_conv_restart), false));
+	}
 	if (conv.is_runnable()) {
 		conv.set_not_runnable();
 		Glib::signal_idle().connect(
