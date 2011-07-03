@@ -217,7 +217,7 @@ bool GxConvolver::read_sndfile(
     float *bufp;
     // keep BSIZE big enough so that resamp.flush() doesn't cause overflow
     // (> 100 should be enough, and should be kept bigger anyhow)
-    const unsigned int BSIZE = 0x4000;
+    const unsigned int BSIZE = 0x8000; //  0x4000;
     gx_resample::StreamingResampler resamp;
 
     if (offset && audio.seek(offset)) {
