@@ -18,62 +18,59 @@
  * --------------------------------------------------------------------------
  *
  *
- *	This is the guitarix engine definitions
+ *    This is the guitarix engine definitions
  *
  *
  * --------------------------------------------------------------------------
  */
 
-#include <cstring>
-#include "guitarix.h"
+#include "guitarix.h"    // NOLINT
 
-using namespace gx_system;
-using namespace gx_resample;
+#include <cstring>       // NOLINT
+#include <string>        // NOLINT
 
-namespace gx_engine
-{
 
-void gx_engine_init( const string *optvar )
-{
-	//----- lock the buffer for the oscilloscope
-	const int frag = (const int)gx_jack::gxjack.jack_bs;
+namespace gx_engine {
 
-	get_frame  = new float[frag];
-	get_frame1  = new float[frag];
-	checkfreq  = new float[frag];
-	oversample = new float[frag*MAX_UPSAMPLE];
-	result = new float[frag+46];
-	audio.gxtube = 1;
+void gx_engine_init(const string *optvar ) {
+    // ----- lock the buffer for the oscilloscope
+    const int frag = (const int)gx_jack::gxjack.jack_bs;
 
-	(void)memset(get_frame,  0, frag*sizeof(float));
-	(void)memset(get_frame1,  0, frag*sizeof(float));
-	(void)memset(checkfreq,  0, frag*sizeof(float));
-	(void)memset(oversample, 0, frag*MAX_UPSAMPLE*sizeof(float));
-	(void)memset(result, 0, (frag+46)*sizeof(float));
+    get_frame  = new float[frag];
+    get_frame1  = new float[frag];
+    checkfreq  = new float[frag];
+    oversample = new float[frag*MAX_UPSAMPLE];
+    result = new float[frag+46];
+    audio.gxtube = 1;
 
-	midi.init(gx_jack::gxjack.jack_sr);
-	faust_init(gx_jack::gxjack.jack_sr);
-	//resampTube.setup(gx_jack::jack_sr, 2);
-	//resampDist.setup(gx_jack::jack_sr, 2);
-	if (!optvar[LOAD_FILE].empty()) {
-		gx_preset::gx_recall_settings_file(&optvar[LOAD_FILE]);
-	} else {
-		gx_preset::gx_recall_settings_file();
-	}
-	for (int i = 0; i < GX_NUM_OF_FACTORY_PRESET; i++)
-		gx_preset::gx_load_factory_file(i);
-	initialized = true;
+    (void)memset(get_frame,  0, frag*sizeof(float));
+    (void)memset(get_frame1,  0, frag*sizeof(float));
+    (void)memset(checkfreq,  0, frag*sizeof(float));
+    (void)memset(oversample, 0, frag*MAX_UPSAMPLE*sizeof(float));
+    (void)memset(result, 0, (frag+46)*sizeof(float));
+
+    midi.init(gx_jack::gxjack.jack_sr);
+    faust_init(gx_jack::gxjack.jack_sr);
+    // resampTube.setup(gx_jack::jack_sr, 2);
+    // resampDist.setup(gx_jack::jack_sr, 2);
+    if (!optvar[LOAD_FILE].empty()) {
+        gx_preset::gx_recall_settings_file(&optvar[LOAD_FILE]);
+    } else {
+        gx_preset::gx_recall_settings_file();
+    }
+    for (int i = 0; i < GX_NUM_OF_FACTORY_PRESET; i++)
+        gx_preset::gx_load_factory_file(i);
+    initialized = true;
 }
 
-void gx_engine_reset()
-{
-	if (checkfreq)  delete[] checkfreq;
-	if (get_frame)  delete[] get_frame;
-	if (get_frame1)  delete[] get_frame1;
-	if (oversample) delete[] oversample;
-	if (result) delete[] result;
+void gx_engine_reset() {
 
-	initialized = false;
+    if (checkfreq)  delete[] checkfreq;
+    if (get_frame)  delete[] get_frame;
+    if (get_frame1)  delete[] get_frame1;
+    if (oversample) delete[] oversample;
+    if (result) delete[] result;
+    initialized = false;
 }
 
 } /* end of gx_engine namespace */

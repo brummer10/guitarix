@@ -74,7 +74,7 @@ class AudioVariables {
     bool ffeedback;
     bool ftonestack;
 
-    int effect_pre_post[20];
+    unsigned int effect_pre_post[20];
 
     int fcheckbox7;
     int fdelay;

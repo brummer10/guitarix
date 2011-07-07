@@ -20,14 +20,13 @@
 
 /* ------- This is the guitarix convolver, part of gx_engine_audio ------- */
 
+#include "guitarix.h"
 
 #include <jack/jack.h>
 
 #include <algorithm>
 #include <cstring>
 #include <string>
-
-#include "guitarix.h"
 
 /****************************************************************
  ** some pieces in this file are copied from jconvolver

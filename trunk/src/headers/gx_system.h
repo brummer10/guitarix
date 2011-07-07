@@ -115,6 +115,7 @@ class JsonParser {
     void check_expect(token expect) { if (cur_tok != expect) throw_unexpected(expect); }
     inline string current_value() const { return str; }
     int current_value_int() { return atoi(str.c_str()); }
+    unsigned int current_value_uint() { return atoi(str.c_str()); }
     float current_value_float() {
         istringstream b(str);
         float f;

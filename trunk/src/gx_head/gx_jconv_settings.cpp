@@ -18,6 +18,8 @@
  * --------------------------------------------------------------------------
  */
 
+#include "guitarix.h"
+
 #include <gxw/GxControlParameter.h>
 #include <gxwmm/controlparameter.h>
 #include <gxwmm/radiobutton.h>
@@ -39,8 +41,6 @@
 
 #include <string>
 #include <vector>
-
-#include "guitarix.h"
 
 #define _(x) (x)
 

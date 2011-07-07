@@ -152,6 +152,8 @@ namespace gx_system {
 /* variables and constants */
 extern const int SYSTEM_OK;
 
+extern bool is_session;
+
 extern string rcpath;
 
 extern const char*  jcapsetup_file;

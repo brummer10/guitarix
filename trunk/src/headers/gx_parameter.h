@@ -63,6 +63,7 @@ string param_group(string id, bool nowarn = false);
 class FloatParameter;
 class FloatEnumParameter;
 class IntParameter;
+class UIntParameter;
 class EnumParameter;
 class BoolParameter;
 class SwitchParameter;
@@ -75,7 +76,7 @@ class Parameter {
     enum ctrl_type { None, Continuous, Switch, Enum };
 
  protected:
-    enum value_type { tp_float, tp_int, tp_bool, tp_switch, tp_file };
+    enum value_type { tp_float, tp_int, tp_uint, tp_bool, tp_switch, tp_file };
     string _id;
     string _name, _group, _desc;
     enum value_type v_type : 3;
@@ -107,6 +108,7 @@ class Parameter {
 
     bool isFloat() const { return v_type == tp_float; }
     bool isInt() const { return v_type == tp_int; }
+    bool isUInt() const { return v_type == tp_uint; }
     bool isBool() const { return v_type == tp_bool; }
     bool isSwitch() const { return v_type == tp_switch; }
     bool isFile() const { return v_type == tp_file; }
@@ -133,6 +135,7 @@ class Parameter {
     virtual const char **getValueNames() const;
     FloatParameter& getFloat();
     IntParameter& getInt();
+    UIntParameter& getUInt();
     BoolParameter& getBool();
     SwitchParameter& getSwitch();
     FileParameter &getFile();
@@ -219,6 +222,46 @@ class EnumParameter: public IntParameter {
     virtual const char **getValueNames() const;
     EnumParameter(string id, string name, const char** vn, bool preset, int &v,
                   int sv, bool ctrl, bool exp = false);
+};
+
+/****************************************************************/
+
+class UIntParameter: public Parameter {
+ protected:
+    unsigned int json_value;
+ public:
+    unsigned int &value;
+    unsigned int std_value;
+    unsigned int lower, upper;
+    void set(unsigned int val) const { value = min(max(val, lower), upper); }
+    virtual void *zone();
+    virtual void set_std_value();
+    virtual void set(int n, int high, float llimit, float ulimit);
+    virtual void writeJSON(gx_system::JsonWriter& jw);
+    virtual void readJSON_value(gx_system::JsonParser& jp);
+    virtual void setJSON_value();
+    virtual bool hasRange() const;
+    virtual float getLowerAsFloat() const;
+    virtual float getUpperAsFloat() const;
+    UIntParameter(string id, string name, ctrl_type ctp, bool preset,
+                 unsigned int &v, unsigned int sv, unsigned int lv,
+                 unsigned int uv, bool ctrl, bool exp = false):
+        Parameter(id, name, tp_int, ctp, preset, ctrl, exp),
+        value(v), std_value(sv), lower(lv), upper(uv)
+        {}
+};
+
+/****************************************************************/
+
+class UEnumParameter: public UIntParameter {
+ private:
+    const char** value_names;
+ public:
+    virtual void writeJSON(gx_system::JsonWriter& jw);
+    virtual void readJSON_value(gx_system::JsonParser& jp);
+    virtual const char **getValueNames() const;
+    UEnumParameter(string id, string name, const char** vn, bool preset, unsigned int &v,
+                  unsigned int sv, bool ctrl, bool exp = false);
 };
 
 /****************************************************************/

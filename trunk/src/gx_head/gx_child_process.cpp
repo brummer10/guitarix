@@ -22,15 +22,13 @@
  * --------------------------------------------------------------------------
  */
 
+#include "guitarix.h"
+
 #include <sys/wait.h>
 
 #include <fstream>
 #include <string>
 #include <list>
-
-#include "guitarix.h"
-
-
 
 namespace gx_child_process {
 
