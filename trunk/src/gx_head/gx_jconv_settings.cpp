@@ -18,29 +18,29 @@
  * --------------------------------------------------------------------------
  */
 
-#include "guitarix.h"
+#include "guitarix.h"                    // NOLINT
 
-#include <gxw/GxControlParameter.h>
-#include <gxwmm/controlparameter.h>
-#include <gxwmm/radiobutton.h>
-#include <gxwmm/iredit.h>
-#include <gtkmm/window.h>
-#include <gtkmm/builder.h>
-#include <gtkmm/main.h>
-#include <gtkmm/filechooserdialog.h>
+#include <gxw/GxControlParameter.h>      // NOLINT
+#include <gxwmm/controlparameter.h>      // NOLINT
+#include <gxwmm/radiobutton.h>           // NOLINT
+#include <gxwmm/iredit.h>                // NOLINT
+#include <gtkmm/window.h>                // NOLINT
+#include <gtkmm/builder.h>               // NOLINT
+#include <gtkmm/main.h>                  // NOLINT
+#include <gtkmm/filechooserdialog.h>     // NOLINT
 
-#include <gtkmm/combobox.h>
-#include <gtkmm/treeview.h>
-#include <gtkmm/treestore.h>
-#include <glibmm/ustring.h>
-#include <giomm/file.h>
+#include <gtkmm/combobox.h>              // NOLINT
+#include <gtkmm/treeview.h>              // NOLINT
+#include <gtkmm/treestore.h>             // NOLINT
+#include <glibmm/ustring.h>              // NOLINT
+#include <giomm/file.h>                  // NOLINT
 
-#include <gtkmm/stock.h>
-#include <gtkmm/recentmanager.h>
-#include <giomm.h>
+#include <gtkmm/stock.h>                 // NOLINT
+#include <gtkmm/recentmanager.h>         // NOLINT
+#include <giomm.h>                       // NOLINT
 
-#include <string>
-#include <vector>
+#include <string>                        // NOLINT
+#include <vector>                        // NOLINT
 
 #define _(x) (x)
 

@@ -24,7 +24,6 @@
 
 #include "guitarix.h"           // NOLINT
 
-
 #include <errno.h>              // NOLINT
 #include <jack/statistics.h>    // NOLINT
 #include <jack/jack.h>          // NOLINT
@@ -39,10 +38,6 @@
 #include <fstream>             // NOLINT
 #include <list>                // NOLINT
 
-// using namespace gx_system;
-// using namespace gx_engine;
-// using namespace gx_jconv;
-// using namespace gx_child_process;
 
 namespace gx_jack {
 

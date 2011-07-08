@@ -23,113 +23,113 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <giomm/init.h>
-#include <gtkmm/main.h>
-#include <gxwmm/init.h>
-#include "guitarix.h"
+#include "guitarix.h"       // NOLINT
 
-using namespace gx_system;
+#include <giomm/init.h>     // NOLINT
+#include <gtkmm/main.h>     // NOLINT
+#include <gxwmm/init.h>     // NOLINT
+#include <string>           // NOLINT
 
-void init_unix_signal_handlers()
-{
-	/* ----- block signal USR1 ---------
-	** inherited by all threads which are created later
-	** USR1 is processed synchronously by gx_signal_helper_thread
-	*/
-	sigset_t waitset;
-	sigemptyset(&waitset);
-	sigaddset(&waitset, SIGUSR1);
-	sigaddset(&waitset, SIGCHLD);
-	sigprocmask(SIG_BLOCK, &waitset, NULL);
 
-	//----- set unix signal handlers for proper shutdown
-	signal(SIGQUIT, gx_signal_handler);
-	signal(SIGTERM, gx_signal_handler);
-	signal(SIGHUP,  gx_signal_handler);
-	signal(SIGINT,  gx_signal_handler);
-	//signal(SIGSEGV, gx_signal_handler); // no good, quits application silently
+// using namespace gx_system;
+
+void init_unix_signal_handlers() {
+    /* ----- block signal USR1 ---------
+    ** inherited by all threads which are created later
+    ** USR1 is processed synchronously by gx_signal_helper_thread
+    */
+    sigset_t waitset;
+    sigemptyset(&waitset);
+    sigaddset(&waitset, SIGUSR1);
+    sigaddset(&waitset, SIGCHLD);
+    sigprocmask(SIG_BLOCK, &waitset, NULL);
+
+    // ----- set unix signal handlers for proper shutdown
+    signal(SIGQUIT, gx_system::gx_signal_handler);
+    signal(SIGTERM, gx_system::gx_signal_handler);
+    signal(SIGHUP,  gx_system::gx_signal_handler);
+    signal(SIGINT,  gx_system::gx_signal_handler);
+    // signal(SIGSEGV, gx_signal_handler); // no good, quits application silently
 }
 
 /* --------- Guitarix main ---------- */
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 #ifdef DISABLE_NLS
- // break
+// break
 #elseif IS_MACOSX
- // break
+// break
 #elseif ENABLE_NLS
-	
-	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
-	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-	textdomain(GETTEXT_PACKAGE);
+
+    bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+    textdomain(GETTEXT_PACKAGE);
 #endif
 
-	init_unix_signal_handlers();
+    init_unix_signal_handlers();
 
-	// ----------------------- init basic subsystems ----------------------
-	Glib::thread_init();
-	Glib::init();
-	Gxw::init();
+    // ----------------------- init basic subsystems ----------------------
+    Glib::thread_init();
+    Glib::init();
+    Gxw::init();
 
-	// ------ initialize parameter list ------
-	gx_engine::audio.register_parameter();
-	gx_engine::midi.register_parameter();
-	gx_engine::register_faust_parameters();
-	gx_gui::GuiVariables guivar;
-	guivar.register_gui_parameter();
-	gx_preset::init();
-	gx_gui::parameter_map.set_init_values();
+    // ------ initialize parameter list ------
+    gx_engine::audio.register_parameter();
+    gx_engine::midi.register_parameter();
+    gx_engine::register_faust_parameters();
+    gx_gui::GuiVariables guivar;
+    guivar.register_gui_parameter();
+    gx_preset::init();
+    gx_gui::parameter_map.set_init_values();
 
-	// ---------------------- user options handling ------------------
-	string optvar[NUM_SHELL_VAR];
-	gx_process_cmdline_options(argc, argv, optvar);
-	Gtk::Main main(argc, argv);
+    // ---------------------- user options handling ------------------
+    string optvar[NUM_SHELL_VAR];
+    gx_system::gx_process_cmdline_options(argc, argv, optvar);
+    Gtk::Main main(argc, argv);
 
-	// ---------------- Check for working user directory  -------------
-	gx_system::gx_version_check();
+    // ---------------- Check for working user directory  -------------
+    gx_system::gx_version_check();
 
-	// ------ time measurement (debug) ------
+    // ------ time measurement (debug) ------
 #ifndef NDEBUG
-	add_time_measurement();
+    gx_system::add_time_measurement();
 #endif
 
-	// ----------------------- init GTK interface----------------------
-	g_type_class_unref (g_type_class_ref (GTK_TYPE_IMAGE_MENU_ITEM));
-	g_object_set (gtk_settings_get_default (), "gtk-menu-images", FALSE, NULL);
-	gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
-	gui->setup();
+    // ----------------------- init GTK interface----------------------
+    g_type_class_unref(g_type_class_ref(GTK_TYPE_IMAGE_MENU_ITEM));
+    g_object_set(gtk_settings_get_default(), "gtk-menu-images", FALSE, NULL);
+    gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
+    gui->setup();
 
 
-	// ---------------------- initialize jack gxjack.client ------------------
-	if (gx_jack::gx_jack_init(optvar))
-	{
-		// -------- initialize gx_head engine --------------------------
-		gx_engine::gx_engine_init(optvar);
+    // ---------------------- initialize jack gxjack.client ------------------
+    if (gx_jack::gx_jack_init(optvar)) {
+        // -------- initialize gx_head engine --------------------------
+        gx_engine::gx_engine_init(optvar);
 
-		// -------- set jack callbacks and activation -------------------
-		gx_jack::gx_jack_callbacks_and_activate();
+        // -------- set jack callbacks and activation -------------------
+        gx_jack::gx_jack_callbacks_and_activate();
 
-		// -------- init port connections
-		gx_jack::gx_jack_init_port_connection(optvar);
-	}
+        // -------- init port connections
+        gx_jack::gx_jack_init_port_connection(optvar);
+    }
 
-	// ----------------------- run GTK main loop ----------------------
-	gx_set_override_options(optvar);
-	gx_ui::GxUI::updateAllGuis();
-	g_type_class_unref (g_type_class_ref (GTK_TYPE_IMAGE_MENU_ITEM));
-	g_object_set (gtk_settings_get_default (), "gtk-menu-images", TRUE, NULL);
-	gui->show();
+    // ----------------------- run GTK main loop ----------------------
+    gx_system::gx_set_override_options(optvar);
+    gx_ui::GxUI::updateAllGuis();
+    g_type_class_unref(g_type_class_ref(GTK_TYPE_IMAGE_MENU_ITEM));
+    g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
+    gui->show();
 
-	if (gx_jack::gxjack.client) {
-	    // -------- pitch tracker (needs jack thread running) -------------
-		gx_engine::pitch_tracker.init();
-	}
+    if (gx_jack::gxjack.client) {
+        // -------- pitch tracker (needs jack thread running) -------------
+        gx_engine::pitch_tracker.init();
+    }
 
-	//Gxw::Knob::set_jump_to_mouse(false);
-	gui->run();
+    // Gxw::Knob::set_jump_to_mouse(false);
+    gui->run();
 
-	// ------------- shut things down
-	gx_system::gx_clean_exit(NULL, NULL);
+    // ------------- shut things down
+    gx_system::gx_clean_exit(NULL, NULL);
 
-	return 0;
+    return 0;
 }

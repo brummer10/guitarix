@@ -23,321 +23,324 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "guitarix.h"
-#include <glibmm/i18n.h>
+#include "guitarix.h"      // NOLINT
 
-//-------- the gx_head user interface build instruktions
+#include <glibmm/i18n.h>   // NOLINT
+
+// -------- the gx_head user interface build instruktions
 
 namespace gx_gui {
 
 #ifndef NDEBUG
 // debug_check
-inline void all_midi_params_assigned()
-{
-     for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
-          if (i->second->isControllable() && ! i->second->isUsed() && ! i->second->isExperimental())
-               gx_system::gx_print_error("Debug Check",
-                                         "midi-parameter not assigned in ui: " + i->first);
-     }
+inline void all_midi_params_assigned() {
+    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
+        if (i->second->isControllable() && !i->second->isUsed() && !i->second->isExperimental())
+            gx_system::gx_print_error("Debug Check",
+                                      "midi-parameter not assigned in ui: " + i->first);
+    }
 }
 #endif
 
 /* -------- user interface builder ---------- */
-void GxMainInterface::setup()
-{
+void GxMainInterface::setup() {
 
-     //----- the main box, all visible widgets are a child of this box
-     openVerticalBox("");
+    // ----- the main box, all visible widgets are a child of this box
+    openVerticalBox("");
 
-     //----- add the menubar on top
-     {
-          addMainMenu();
-          openHorizontalBox("");
-          {
-               openVerticalBox("");
-               {
+    // ----- add the menubar on top
+    {
+        addMainMenu();
+        openHorizontalBox("");
+        {
+            openVerticalBox("");
+            {
 
-                    openToolBar(_("Plugins"));
+                openToolBar(_("Plugins"));
+                {
+                    addPToggleButton("presets", &gx_engine::audio.viv);
+                }
+                closeBox();
+                addNumDisplay();
+            }
+            closeBox();
+
+            openVerticalBox("");
+            {
+                openEventBox(" "); // main widget start openMainBox(" ", "main_expose");
+                {
+                    // ----- this is a dummy widget, only for save settings
+                    // for the latency warning dialog
+                    openWarningBox("WARNING", &gx_engine::audio.fwarn);
+                    setSkinBox("SKIN", &gx_engine::audio.fskin);
+                    openHorizontalBox("");
                     {
-                         addPToggleButton("presets",&gx_engine::audio.viv);
+                        openSpaceBox("");
+                        closeBox();
+                        openSpaceBox("");
+                        closeBox();
+                        openSpaceBox("");
+                        closeBox();
+                        openSpaceBox("");
+                        closeBox();
+                        openSpaceBox("");
+                        closeBox();
+
+                        openFlipLabelBox("gx-2    ");
+                        {
+                            openHorizontalBox("");
+                            {
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openVerticalBox("");
+                                {
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    create_bigknob("amp2.stage1.Pregain", _("Pre gain"));
+                                    openSpaceBox("");
+                                    closeBox();
+                                }
+                                closeBox();
+
+                                openSpaceBox("");
+                                closeBox();
+
+                                openVerticalBox("");
+                                {
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    create_bigknob("gxdistortion.drive", _("  Drive "));
+                                    openSpaceBox("");
+                                    closeBox();
+                                }
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+
+                                openVerticalBox("");
+                                {
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    create_bigknob("gxdistortion.wet_dry", _(" Clean/Dist "));
+                                    openSpaceBox("");
+                                    closeBox();
+                                }
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+
+                                openVerticalBox("");
+                                {
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    create_bigknob("amp2.stage2.gain1", _("Master gain"));
+                                    openSpaceBox("");
+                                    closeBox();
+                                }
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+
+                                openVerticalBox("");
+                                {
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    create_switch(sw_minitoggle, "amp.bass_boost.on_off",
+                                                  _(" Bass boost  "), Gtk::POS_RIGHT);
+                                    create_contrast_switch("con.on_off", _(" Presence "),
+                                                           Gtk::POS_TOP);
+                                    create_switch(sw_minitoggle, "amp.feed_on_off", _(" Reverb  "),
+                                                  Gtk::POS_RIGHT);
+                                    create_minislider("amp.wet_dry");
+                                    openSpaceBox("");
+                                    closeBox();
+                                }
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+
+                                openVerticalBox("");
+                                {
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openVerticalBox1("Convolver");
+                                    {
+                                    }
+                                    closeBox();
+                                    addJConvButton(_("set"), &gx_engine::audio.filebutton);
+                                    addJToggleButton(_("run"),
+                                                     &gx_jconv::GxJConvSettings::checkbutton7);
+                                    openSpaceBox("");
+                                    closeBox();
+                                }
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openVerticalBox("");
+                                {
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openFrameBox("");
+                                    closeBox();
+                                    openFrameBox("");
+                                    closeBox();
+                                    openFrameBox("");
+                                    closeBox();
+                                    openHorizontalBox("");
+                                    {
+                                        openFrameBox("");
+                                        closeBox();
+                                        // add a meter level box: out of box stack,
+                                        // no need to closeBox
+                                        openLevelMeterBox("Signal Level");
+                                        openFrameBox("");
+                                        closeBox();
+                                    }
+                                    closeBox();
+                                    openFrameBox("");
+                                    closeBox();
+                                }
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                            }
+                            closeBox();
+                            openSpaceBox("");
+                            closeBox();
+                            openSpaceBox("");
+                            closeBox();
+                            openSpaceBox("");
+                            closeBox();
+                        }
+                        closeBox();
+                        openSpaceBox("");
+                        closeBox();
+                        openSpaceBox("");
+                        closeBox();
+                        openSpaceBox("");
+                        closeBox();
+                        openSpaceBox("");
+                        closeBox();
+                        openSpaceBox("");
+                        closeBox();
+                        openSpaceBox("");
+                        closeBox();
                     }
                     closeBox();
-                    addNumDisplay();
-               }
-               closeBox();
-
-               openVerticalBox("");
-               {
-                    openEventBox(" "); //main widget start openMainBox(" ", "main_expose"); 
+                }
+                closeBox(); // main widget end
+                // add racks
+                openScrollBox("");
+                {
+                    openPlugBox(_("Mono Rack"));
                     {
-                         //----- this is a dummy widget, only for save settings for the latency warning dialog
-                         openWarningBox("WARNING", &gx_engine::audio.fwarn);
-                         setSkinBox("SKIN", &gx_engine::audio.fskin);
-                         openHorizontalBox("");
-                         {
-                              openSpaceBox("");
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-
-                              openFlipLabelBox("gx-2    ");
-                              {
-                                   openHorizontalBox("");
-                                   {
-                                        openSpaceBox("");
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-                                        openVerticalBox("");
-                                        {
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             create_bigknob("amp2.stage1.Pregain", _("Pre gain"));
-                                             openSpaceBox("");
-                                             closeBox();
-                                        }
-                                        closeBox();
-                                        
-                                        openSpaceBox("");
-                                        closeBox();
-
-                                        openVerticalBox("");
-                                        {
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             create_bigknob("gxdistortion.drive",_("  Drive "));
-                                             openSpaceBox("");
-                                             closeBox();
-                                        }
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-                                        
-                                        openVerticalBox("");
-                                        {
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             create_bigknob("gxdistortion.wet_dry",_(" Clean/Dist "));
-                                             openSpaceBox("");
-                                             closeBox();
-                                        }
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-
-										openVerticalBox("");
-										{
-											 openSpaceBox("");
-											 closeBox();
-											 openSpaceBox("");
-											 closeBox();
-											 openSpaceBox("");
-											 closeBox();
-											 openSpaceBox("");
-											 closeBox();
-											 openSpaceBox("");
-											 closeBox();
-											 openSpaceBox("");
-											 closeBox();
-											 openSpaceBox("");
-											 closeBox();
-											 create_bigknob("amp2.stage2.gain1", _("Master gain"));
-											 openSpaceBox("");
-											 closeBox();
-                                        }
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-                                        
-                                        openVerticalBox("");
-                                        {
-											 openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openSpaceBox("");
-                                             closeBox();
-                                             create_switch(sw_minitoggle, "amp.bass_boost.on_off", _(" Bass boost  "), Gtk::POS_RIGHT);
-                                             create_contrast_switch("con.on_off",_(" Presence "), Gtk::POS_TOP);
-                                             create_switch(sw_minitoggle, "amp.feed_on_off", _(" Reverb  "), Gtk::POS_RIGHT);
-                                             create_minislider("amp.wet_dry");
-                                             openSpaceBox("");
-                                             closeBox();
-										}
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-
-                                        openVerticalBox("");
-                                        {
-                                            openSpaceBox("");
-											closeBox();
-											openSpaceBox("");
-											closeBox();
-											openSpaceBox("");
-											closeBox();
-											openSpaceBox("");
-											closeBox();
-											openSpaceBox("");
-											closeBox();
-											openSpaceBox("");
-											closeBox();
-											openSpaceBox("");
-											closeBox();
-											openSpaceBox("");
-											closeBox();
-                                            openVerticalBox1("Convolver");
-                                            {
-                                            }
-                                            closeBox();
-                                            addJConvButton(_("set"), &gx_engine::audio.filebutton);
-                                            addJToggleButton(_("run"), &gx_jconv::GxJConvSettings::checkbutton7);
-                                            openSpaceBox("");
-                                            closeBox();
-                                        }
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-                                        openVerticalBox("");
-                                        {
-                                             openSpaceBox("");
-                                             closeBox();
-                                             openFrameBox("");
-                                             closeBox();
-                                             openFrameBox("");
-                                             closeBox();
-                                             openFrameBox("");
-                                             closeBox();
-                                             openHorizontalBox("");
-                                             {
-                                                  openFrameBox("");
-                                                  closeBox();
-                                                  // add a meter level box: out of box stack, no need to closeBox
-                                                  openLevelMeterBox("Signal Level");
-                                                  openFrameBox("");
-                                                  closeBox();
-                                             }
-                                             closeBox();
-                                             openFrameBox("");
-                                             closeBox();
-                                        }
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-                                        openSpaceBox("");
-                                        closeBox();
-
-                                   }
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-                                   openSpaceBox("");
-                                   closeBox();
-
-                              }
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                              openSpaceBox("");
-                              closeBox();
-                         }
-                         closeBox();
-                    }
-                    closeBox(); // main widget end
-                    // add racks
-                    openScrollBox("");
-                    {
-                         openPlugBox(_("Mono Rack"));
-                         {
-							 gx_build_mono_rack();
-                         }
-                         closeBox();
-
-                         openAmpBox(_("Stereo Rack"));
-                         {
-							 gx_build_stereo_rack();
-                         }
-                         closeBox();
+                        gx_build_mono_rack();
                     }
                     closeBox();
-               }
-               closeBox();
-          }
-          closeBox();
-     }
-     closeBox();
-     // add a Patch Info widget
-     openPatchInfoBox(&gx_gui::show_patch_info);
 
-     openTextLoggingBox(_("Logging Window"));
+                    openAmpBox(_("Stereo Rack"));
+                    {
+                        gx_build_stereo_rack();
+                    }
+                    closeBox();
+                }
+                closeBox();
+            }
+            closeBox();
+        }
+        closeBox();
+    }
+    closeBox();
+    // add a Patch Info widget
+    openPatchInfoBox(&gx_gui::show_patch_info);
 
-     debug_check(all_midi_params_assigned);
+    openTextLoggingBox(_("Logging Window"));
+
+    debug_check(all_midi_params_assigned);
+}
 }
 
-}

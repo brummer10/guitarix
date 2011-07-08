@@ -36,10 +36,6 @@
 #include <list>                     // NOLINT
 #include <vector>                   // NOLINT
 
-// using namespace gx_engine;
-// using namespace gx_jack;
-// using namespace gx_preset;
-
 namespace gx_system {
 
 /****************************************************************
