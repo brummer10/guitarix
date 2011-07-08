@@ -707,9 +707,9 @@ int gx_jack_process(jack_nframes_t nframes, void *arg) {
         AVOIDDENORMALS;
 
         // retrieve buffers at jack ports
-        float *input = reinterpret_cast<float *>
+        float *input = static_cast<float *>
                        (jack_port_get_buffer(gxjack.input_ports[0], nframes));
-        float *output0 = reinterpret_cast<float *>
+        float *output0 = static_cast<float *>
                         (jack_port_get_buffer(gxjack.output_ports[0], nframes));
 
         // gx_head DSP computing
@@ -743,11 +743,11 @@ int gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
     if (!jack_is_exit) {
         AVOIDDENORMALS;
 
-        float *input1 = reinterpret_cast<float *>
+        float *input1 = static_cast<float *>
                         (jack_port_get_buffer(gxjack.input_ports[1], nframes));
-        float *output2 = reinterpret_cast<float *>
+        float *output2 = static_cast<float *>
                          (jack_port_get_buffer(gxjack.output_ports[2], nframes));
-        float *output3 = reinterpret_cast<float *>
+        float *output3 = static_cast<float *>
                          (jack_port_get_buffer(gxjack.output_ports[3], nframes));
         // gx_head DSP computing
         gx_engine::compute_insert(nframes, input1, output2, output3);
