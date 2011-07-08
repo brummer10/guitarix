@@ -32,6 +32,7 @@
 #include <cstring>                  // NOLINT
 #include <string>                   // NOLINT
 #include <fstream>                  // NOLINT
+#include <iostream>                 // NOLINT
 #include <iomanip>                  // NOLINT
 #include <list>                     // NOLINT
 #include <vector>                   // NOLINT
@@ -960,7 +961,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
 
     // *** display version if requested
     if (version) {
-        cout << "Guitarix version \033[1;32m"
+        std::cout << "Guitarix version \033[1;32m"
              << GX_VERSION << endl
              << "\033[0m   Copyright " << static_cast<char>(0x40) << " 2010 "
              << "Hermman Meyer - James Warden - Andreas Degert"
@@ -1116,7 +1117,7 @@ void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype) {
         msglist.push_back(logmsg(msgbuf.str(), msgtype));
     }
     if (terminal) {
-        cerr << msgbuf.str() << endl;
+        std::cerr << msgbuf.str() << endl;
     }
 }
 
@@ -1134,7 +1135,7 @@ void gx_print_error(const char* func, const string& msg) {
 // fatal error
 void gx_print_fatal(const char* func, const string& msg) {
     string msgbuf = string(_("fatal system error: ")) + func + "  ***  " + msg + "\n";
-    cerr << msgbuf;
+    std::cerr << msgbuf;
     GtkWidget* widget = gtk_message_dialog_new(NULL,
                                                GtkDialogFlags(GTK_DIALOG_MODAL|
                                                               GTK_DIALOG_DESTROY_WITH_PARENT),

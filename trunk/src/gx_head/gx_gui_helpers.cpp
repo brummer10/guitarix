@@ -31,6 +31,7 @@
 #include <cstring>         //  NOLINT
 #include <algorithm>       //  NOLINT
 #include <string>          //  NOLINT
+#include <iostream>        // NOLINT
 
 
 /* --------------------------- gx_gui namespace ------------------------ */
@@ -192,7 +193,7 @@ void gx_jack_is_down() {
     gx_print_warning("Jack Shutdown",
                      "jack has bumped us out!!");
     */
-    cout << _("jack has bumped us out!!") << endl;
+    std::cout << _("jack has bumped us out!!") << endl;
     g_timeout_add_full(G_PRIORITY_LOW, 200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
 }
 

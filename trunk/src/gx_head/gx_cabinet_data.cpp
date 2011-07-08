@@ -23,7 +23,9 @@
  */
 
 
-#include "guitarix.h"
+#include "guitarix.h"     // NOLINT
+
+#include <iostream>       // NOLINT
 
 namespace gx_gui
 {
@@ -680,7 +682,7 @@ void cab_conv_restart() {
         gx_engine::set_cab_mode(gx_engine::audio.cab_level + gx_engine::audio.cab_bass +
                                 gx_engine::audio.cab_treble);
     } else {
-        cout << "cab thread is bussy" << endl;
+        std::cout << "cab thread is bussy" << endl;
     }
 }
 

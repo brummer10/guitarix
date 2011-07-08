@@ -32,6 +32,7 @@
 #include <cstring>        // NOLINT
 #include <string>         // NOLINT
 #include <fstream>        // NOLINT
+#include <iostream>       // NOLINT
 
 
 namespace gx_engine {
@@ -489,7 +490,7 @@ void process_buffers(int count, float* input, float* output0) {
         } else if (audio.posit[27] == m && audio.fcab && audio.effect_pre_post[18]) {
             compensate_cab(count, output0, output0);
             if (!cab_conv.compute(count, output0))
-                cout << "overload" << endl;
+               std::cout << "overload" << endl;
                 // FIXME error message??
         }
     }
@@ -593,7 +594,7 @@ void process_buffers(int count, float* input, float* output0) {
         } else if (audio.posit[27] == m && audio.fcab && !audio.effect_pre_post[18]) {
             compensate_cab(count, output0 , output0);
             if (!cab_conv.compute(count, output0))
-                cout << "overload" << endl;
+                std::cout << "overload" << endl;
                 // FIXME error message??
         }
     }
@@ -612,7 +613,7 @@ void process_buffers(int count, float* input, float* output0) {
 
     if (audio.fcon) {
         if (!contrast_conv.compute(count, output0))
-        cout << "overload contrast" << endl;
+        std::cout << "overload contrast" << endl;
         // FIXME error message??
     }
 }
@@ -648,7 +649,7 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
         float *conv_out1 = oversample+count;
         if (!conv.compute(count, output0, output1, conv_out0, conv_out1)) {
             gx_jconv::GxJConvSettings::checkbutton7 = 0;
-            cout << "overload" << endl;
+            std::cout << "overload" << endl;
             // FIXME error message??
         } else {
             gx_effects::jconv_post::compute(count, output0, output1, conv_out0, conv_out1,
