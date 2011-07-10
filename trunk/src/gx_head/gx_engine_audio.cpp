@@ -223,7 +223,7 @@ void cab_conv_restart() {
     gx_gui::cab_conv_restart();
 }
 
-void check_effect_buffer() {
+inline void check_effect_buffer() {
     if (!gx_effects::echo::is_inited()) {
         pre_rack_order_ptr[audio.effect_buffer[0]] = just_return;
         post_rack_order_ptr[audio.effect_buffer[0]] = just_return;
@@ -238,7 +238,7 @@ void check_effect_buffer() {
     }
 }
 
-void check_stereo_effect_buffer() {
+inline void check_stereo_effect_buffer() {
     if (!gx_effects::chorus::is_inited()) {
         stereo_rack_order_ptr[audio.effect_buffer[3]] = just2_return;
     }
@@ -402,7 +402,9 @@ void process_buffers(int count, float* input, float* output0) {
         gx_effects::noise_shaper::compute(count, output0, output0);
     }
     // check if effect buffer is inited
-    check_effect_buffer();
+    if (audio.rack_change) {
+        check_effect_buffer();
+    }
     // run pre rack
     for (int m = 1; m < audio.mono_plug_counter; m++) {
         pre_rack_order_ptr[m](count, output0, output0);
@@ -443,7 +445,9 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
 
     gx_effects::gxfeed::compute(count, output0, output0, output1);
     // check if effect buffer is inited
-    check_stereo_effect_buffer();
+    if (audio.rack_change) {
+        check_stereo_effect_buffer();
+    }
     // run stereo rack
     for (int m = 1; m < audio.stereo_plug_counter; m++) {
         stereo_rack_order_ptr[m](count, output0, output1, output0, output1);
