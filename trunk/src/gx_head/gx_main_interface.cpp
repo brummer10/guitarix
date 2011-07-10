@@ -550,6 +550,7 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat {
                     }
                 }
                 g_list_free(child_list);
+                gx_engine::audio.rack_change = true;
             }
         }
     // box move to the left
@@ -611,6 +612,7 @@ struct uiOrderButton : public gx_ui::GxUiItemFloat {
                         }
                     }
                     g_list_free(child_list);
+                    gx_engine::audio.rack_change = true;
                 }
             }
         }

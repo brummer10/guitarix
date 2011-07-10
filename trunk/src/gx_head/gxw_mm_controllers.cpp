@@ -121,6 +121,7 @@ void UiSelectorFloat::on_value_changed() {
 
 void UiSelectorInt::on_value_changed() {
     modifyZone((int)get_value());
+    gx_engine::audio.rack_change = true;
 }
 
 GtkWidget* UiSelector::create(gx_ui::GxUI& ui, string id) {
@@ -279,6 +280,7 @@ UiSwitch *UiSwitch::new_switch(gx_ui::GxUI& ui, const char* sw_type, Parameter& 
 
 void UiSwitchFloat::on_toggled() {
     modifyZone(get_active());
+    gx_engine::audio.rack_change = true;
 }
 
 void UiSwitchFloat::reflectZone() {
@@ -303,6 +305,7 @@ UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, FloatParamete
 
 void UiSwitchBool::on_toggled() {
     modifyZone(get_active());
+    gx_engine::audio.rack_change = true;
 }
 
 void UiSwitchBool::reflectZone() {

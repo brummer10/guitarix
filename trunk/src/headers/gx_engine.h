@@ -73,6 +73,7 @@ class AudioVariables {
     bool fflanger_mono;
     bool ffeedback;
     bool ftonestack;
+    bool rack_change;
 
     unsigned int effect_pre_post[20];
     unsigned int effect_buffer[6];
