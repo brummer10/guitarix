@@ -42,6 +42,8 @@ void gx_engine_init(const string *optvar ) {
     oversample = new float[frag*MAX_UPSAMPLE];
     result = new float[frag+46];
     audio.gxtube = 1;
+    audio.cur_tonestack = 0;
+    for (int i=0; i<6; i++) audio.effect_buffer[i] = 0;
 
     (void)memset(get_frame,  0, frag*sizeof(float));
     (void)memset(get_frame1,  0, frag*sizeof(float));

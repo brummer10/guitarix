@@ -75,6 +75,7 @@ class AudioVariables {
     bool ftonestack;
 
     unsigned int effect_pre_post[20];
+    unsigned int effect_buffer[6];
 
     int fcheckbox7;
     int fdelay;
@@ -82,11 +83,13 @@ class AudioVariables {
     int fchorus_mono;
     int fphaser;
     int tonestack;
+    int cur_tonestack;
     int cabinet;
     int cab_switched;
     int fsd;
     int fse;
     int gxtube;
+    int cur_gxtube;
     int mono_plug_counter;
     int stereo_plug_counter;
 
@@ -224,6 +227,21 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
 void init_non_rt_processing();
 void non_rt_processing(int count, float* input, float* output0);
 
+extern void (*amp_ptr)(int count, float *output, float *output1);
+extern void (*tonestack_ptr)(int count, float *output, float *output1);
+gboolean gx_check_engine_state(gpointer args);
+
+typedef void (*chainorder) (int count, float *output, float *output1);
+typedef void (*stereochainorder) 
+             (int count, float* input, float* input1, float *output, float *output1);
+
+extern chainorder pre_rack_order_ptr[];
+extern chainorder post_rack_order_ptr[];
+extern stereochainorder stereo_rack_order_ptr[];
+gboolean gx_reorder_rack(gpointer args);
+
+
 /* ------------------------------------------------------------------- */
 } /* end of gx_engine namespace */
 #endif  // SRC_HEADERS_GX_ENGINE_H_
+

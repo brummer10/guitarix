@@ -770,7 +770,7 @@ response file with the
                                                 <child>
                                                   <object class="GxToggleImage" id="gxtoggleimage1">
                                                     <property name="visible">True</property>
-                                                    <property name="base_name">led</property>
+                                                    <property name="base_name">switchit</property>
                                                   </object>
                                                   <packing>
                                                     <property name="position">1</property>

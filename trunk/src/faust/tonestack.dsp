@@ -216,6 +216,16 @@ ts = environment {
         C2 = 22:nF;
         C3 = 22:nF;
         };
+    
+    ampeg_rev = environment { /* reverbrocket*/
+	R1 = 250:k;
+        R2 = 250:k;
+        R3 = 10:k;
+        R4 = 100:k;
+        C1 = 100:pF;
+        C2 = 100:nF;
+        C3 = 47:nF;
+        };
         
     bogner = environment { /* Triple Giant Preamp  */
 	R1 = 250:k;
@@ -246,6 +256,48 @@ ts = environment {
         C2 = 47:nF;
         C3 = 47:nF;
         };
+        
+    fender_blues = environment { /* Fender blues junior  */
+    R1 = 250:k;
+        R2 = 250:k;
+        R3 = 25:k;
+        R4 = 100:k;
+        C1 = 250:pF;
+        C2 = 22:nF;
+        C3 = 22:nF;
+        };
+        
+    fender_default = environment { /* Fender   */
+    R1 = 250:k;
+        R2 = 250:k;
+        R3 = 10:k;
+        R4 = 100:k;
+        C1 = 250:pF;
+        C2 = 100:nF;
+        C3 = 47:nF;
+        };
+        
+    fender_deville = environment { /* Fender Hot Rod  */
+    R1 = 250:k;
+        R2 = 250:k;
+        R3 = 25:k;
+        R4 = 130:k;
+        C1 = 250:pF;
+        C2 = 100:nF;
+        C3 = 22:nF;
+        };
+        
+    gibsen = environment { /* gs12 reverbrocket   */
+    R1 = 1:M;
+        R2 = 1:M;
+        R3 = 94:k;  // 47k fixed
+        R4 = 270:k;
+        C1 = 25:pF;
+        C2 = 60:nF;
+        C3 = 20:nF;
+        };
+        
+    
 };
 
 t = vslider("Treble[alias]", 0.5, 0, 1, 0.01);

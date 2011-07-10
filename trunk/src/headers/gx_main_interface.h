@@ -35,9 +35,6 @@
 #include "./gx_ui.h"
 #endif
 
-#ifndef GX_MAIN_INTERFACE
-#define GX_MAIN_INTERFACE
-
 
 #include <gxwmm/bigknob.h>
 #include <gxwmm/smallknob.h>
@@ -746,10 +743,8 @@ inline void connect_midi_controller(GtkWidget *w, void *zone) {
 
 void conv_restart();
 
-
 /* -------------------------------------------------------------------------- */
 } /* end of gx_gui namespace */
 
-#endif
-
 #endif  // SRC_HEADERS_GX_MAIN_INTERFACE_H_
+

@@ -256,13 +256,9 @@ void GxMainInterface::setup() {
                                 closeBox();
                                 openSpaceBox("");
                                 closeBox();
-                                openSpaceBox("");
-                                closeBox();
                                 openVerticalBox("");
                                 {
                                     openSpaceBox("");
-                                    closeBox();
-                                    openFrameBox("");
                                     closeBox();
                                     openFrameBox("");
                                     closeBox();
