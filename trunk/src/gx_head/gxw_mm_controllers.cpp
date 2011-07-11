@@ -117,6 +117,7 @@ UiSelector::UiSelector() {
 
 void UiSelectorFloat::on_value_changed() {
     modifyZone(get_value());
+    gx_engine::audio.rack_change = true;
 }
 
 void UiSelectorInt::on_value_changed() {
