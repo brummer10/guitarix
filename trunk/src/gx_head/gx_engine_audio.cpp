@@ -404,7 +404,7 @@ void process_buffers(int count, float* input, float* output0) {
     }
 
     // run pre rack
-    for (int m = 1; m < audio.pre_active_counter; m++) {
+    for (int m = 1; m < audio.pre_active_counter+1; m++) {
         pre_rack_order_ptr[m](count, output0, output0);
     }
 
@@ -412,7 +412,7 @@ void process_buffers(int count, float* input, float* output0) {
     amp_ptr(count, output0, output0);
 
     // run post rack
-    for (int m = 1; m < audio.post_active_counter; m++) {
+    for (int m = 1; m < audio.post_active_counter+1; m++) {
         post_rack_order_ptr[m](count, output0, output0);
     }
 
@@ -427,14 +427,14 @@ void process_buffers(int count, float* input, float* output0) {
 void process_insert_buffers(int count, float* input1, float* output0, float* output1) {
     // move working buffer to the output buffer
     memcpy(output0, input1, count*sizeof(float));
-
+    // split mono input to stereo source
     gx_effects::gxfeed::compute(count, output0, output0, output1);
     // check if effect buffer is inited
     if (audio.rack_change) {
         check_stereo_effect_buffer();
     }
     // run stereo rack
-    for (int m = 1; m < audio.stereo_plug_counter; m++) {
+    for (int m = 1; m < audio.stereo_active_counter+1; m++) {
         stereo_rack_order_ptr[m](count, output0, output1, output0, output1);
     }
 
