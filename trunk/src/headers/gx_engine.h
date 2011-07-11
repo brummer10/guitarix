@@ -76,7 +76,7 @@ class AudioVariables {
     bool rack_change;
 
     unsigned int effect_pre_post[20];
-    unsigned int effect_buffer[6];
+    unsigned int effect_buffer[9];
 
     int fcheckbox7;
     int fdelay;
@@ -92,7 +92,10 @@ class AudioVariables {
     int gxtube;
     int cur_gxtube;
     int mono_plug_counter;
+    int pre_active_counter;
+    int post_active_counter;
     int stereo_plug_counter;
+    int stereo_active_counter;
 
     float posit[30];
 

@@ -226,27 +226,27 @@ void cab_conv_restart() {
 inline void check_effect_buffer() {
     if (!gx_effects::echo::is_inited()) {
         pre_rack_order_ptr[audio.effect_buffer[0]] = just_return;
-        post_rack_order_ptr[audio.effect_buffer[0]] = just_return;
+        post_rack_order_ptr[audio.effect_buffer[3]] = just_return;
     }
     if (!gx_effects::delay::is_inited()) {
         pre_rack_order_ptr[audio.effect_buffer[1]] = just_return;
-        post_rack_order_ptr[audio.effect_buffer[1]] = just_return;
+        post_rack_order_ptr[audio.effect_buffer[4]] = just_return;
     }
     if (!gx_effects::chorus_mono::is_inited()) {
         pre_rack_order_ptr[audio.effect_buffer[2]] = just_return;
-        post_rack_order_ptr[audio.effect_buffer[2]] = just_return;
+        post_rack_order_ptr[audio.effect_buffer[5]] = just_return;
     }
 }
 
 inline void check_stereo_effect_buffer() {
     if (!gx_effects::chorus::is_inited()) {
-        stereo_rack_order_ptr[audio.effect_buffer[3]] = just2_return;
+        stereo_rack_order_ptr[audio.effect_buffer[6]] = just2_return;
     }
     if (!gx_effects::stereodelay::is_inited()) {
-        stereo_rack_order_ptr[audio.effect_buffer[4]] = just2_return;
+        stereo_rack_order_ptr[audio.effect_buffer[7]] = just2_return;
     }
     if (!gx_effects::stereoecho::is_inited()) {
-        stereo_rack_order_ptr[audio.effect_buffer[5]] = just2_return;
+        stereo_rack_order_ptr[audio.effect_buffer[8]] = just2_return;
     }
 }
 
@@ -397,40 +397,25 @@ void process_buffers(int count, float* input, float* output0) {
     } else {
         gx_effects::noisegate::ngate = 1;
     }
-    // run noisesharper
-    if (audio.fng) {
-        gx_effects::noise_shaper::compute(count, output0, output0);
-    }
+
     // check if effect buffer is inited
     if (audio.rack_change) {
         check_effect_buffer();
     }
+
     // run pre rack
-    for (int m = 1; m < audio.mono_plug_counter; m++) {
+    for (int m = 1; m < audio.pre_active_counter; m++) {
         pre_rack_order_ptr[m](count, output0, output0);
     }
+
     // run selected tube/amp model
     amp_ptr(count, output0, output0);
-    // clipper
-    if (audio.ftube) {
-        gx_effects::softclip::compute(count, output0, output0);
-    }
+
     // run post rack
-    for (int m = 1; m < audio.mono_plug_counter; m++) {
+    for (int m = 1; m < audio.post_active_counter; m++) {
         post_rack_order_ptr[m](count, output0, output0);
     }
-    // bass boster
-    if (audio.fboost) {
-        gx_effects::bassbooster::compute(count, output0, output0);
-    }
-    // mono output level
-    if (audio.fampout) {
-        gx_effects::gx_ampout::compute(count, output0, output0);
-    }
-    // run noisegate
-    if (audio.fnoise_g) {
-        gx_effects::noisegate::compute(count, output0, output0);
-    }
+
     // presence
     if (audio.fcon) {
         if (!contrast_conv.compute(count, output0))
