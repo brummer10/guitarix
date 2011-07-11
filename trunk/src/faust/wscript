@@ -121,6 +121,16 @@ def build(bld):
         'tonestack_ibanez.dsp',
         'tonestack_roland.dsp',
         'tonestack_ampeg.dsp',
+        'tonestack_ampeg_rev.dsp',
+
+        'tonestack_sovtek.dsp',
+        'tonestack_bogner.dsp',
+        'tonestack_groove.dsp',
+        'tonestack_crunch.dsp',
+        'tonestack_fender_blues.dsp',
+        'tonestack_fender_default.dsp',
+        'tonestack_fender_deville.dsp',
+        'tonestack_gibsen.dsp',
 
 
         # effects

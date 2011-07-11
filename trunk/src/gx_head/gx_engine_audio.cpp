@@ -126,7 +126,9 @@ void AudioVariables::register_parameter() {
     static const char *tonestack_model[] = {N_("default"), N_("Bassman"), N_("Twin Reverb"),
         N_("Princeton"), N_("JCM-800"), N_("JCM-2000"), N_("M-Lead"), N_("M2199"), N_("AC-30"),
         N_("Mesa Boogie"), N_("SOL 100"), N_("JTM-45"), N_("AC-15"), N_("Peavey"), N_("Ibanez"),
-        N_("Roland"), N_("Ampeg"), 0};
+        N_("Roland"), N_("Ampeg"), N_("Rev.Rocket"), N_("MIG 100 H"), N_("Triple Giant"),
+        N_("Trio Preamp"), N_("Hughes&Kettner"), N_("Junior"), N_("Fender"),
+        N_("Deville"), N_("Gibsen"), 0};
     registerEnumParam("amp.tonestack.select", "select", tonestack_model, &tonestack, 0);
     static const char *cabinet_model[] = {N_("4x12"), N_("2x12"), N_("1x12"), N_("4x10"),
     N_("2x10"), N_("HighGain"), N_("Twin"), N_("Bassman"), N_("Marshall"), N_("AC-30"),
@@ -202,26 +204,6 @@ void AudioVariables::register_parameter() {
 }
 
 AudioVariables audio;
-
-inline float noise_gate(int sf, float* input, float ngate) {
-    float sumnoise = 0;
-    for (int i = 0; i < sf; i++) {
-        sumnoise += sqrf(fabs(input[i]));
-    }
-    float noisepulse = sqrtf(sumnoise/sf);
-    if (noisepulse > audio.fnglevel * 0.01) {
-        return 1; // -75db 0.001 = 65db
-    } else if (ngate > 0.01) {
-        return ngate * 0.996;
-    } else {
-        return ngate;
-    }
-}
-
-void cab_conv_restart() {
-    cab_conv.stop();
-    gx_gui::cab_conv_restart();
-}
 
 inline void check_effect_buffer() {
     if (!gx_effects::echo::is_inited()) {
@@ -391,12 +373,6 @@ void process_buffers(int count, float* input, float* output0) {
     }
     // move working buffer to the output buffer
     memcpy(output0, input, count*sizeof(float));
-    // set noisgate var
-    if (audio.fnoise_g) {
-        gx_effects::noisegate::ngate = noise_gate(count, output0, gx_effects::noisegate::ngate);
-    } else {
-        gx_effects::noisegate::ngate = 1;
-    }
 
     // check if effect buffer is inited
     if (audio.rack_change) {
@@ -415,20 +391,12 @@ void process_buffers(int count, float* input, float* output0) {
     for (int m = 1; m < audio.post_active_counter+1; m++) {
         post_rack_order_ptr[m](count, output0, output0);
     }
-
-    // presence
-    if (audio.fcon) {
-        if (!contrast_conv.compute(count, output0))
-        std::cout << "overload contrast" << endl;
-        // FIXME error message??
-    }
 }
 
 void process_insert_buffers(int count, float* input1, float* output0, float* output1) {
     // move working buffer to the output buffer
     memcpy(output0, input1, count*sizeof(float));
-    // split mono input to stereo source
-    gx_effects::gxfeed::compute(count, output0, output0, output1);
+    
     // check if effect buffer is inited
     if (audio.rack_change) {
         check_stereo_effect_buffer();

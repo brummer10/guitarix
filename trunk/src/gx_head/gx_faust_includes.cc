@@ -321,6 +321,15 @@ ToneStackParams::ToneStackParams() {
 #include "faust/tonestack_ibanez.cc"
 #include "faust/tonestack_roland.cc"
 #include "faust/tonestack_ampeg.cc"
+#include "faust/tonestack_ampeg_rev.cc"
+#include "faust/tonestack_sovtek.cc"
+#include "faust/tonestack_bogner.cc"
+#include "faust/tonestack_groove.cc"
+#include "faust/tonestack_crunch.cc"
+#include "faust/tonestack_fender_blues.cc"
+#include "faust/tonestack_fender_default.cc"
+#include "faust/tonestack_fender_deville.cc"
+#include "faust/tonestack_gibsen.cc"
 }
 
 /****************************************************************
@@ -394,7 +403,34 @@ gboolean gx_check_engine_state(gpointer) {
         case 16: // "ampeg"
             tonestack_ptr = &gx_tonestacks::tonestack_ampeg::compute;
             break;
-        case 17: // "Off"
+        case 17: // "ampeg rev"
+            tonestack_ptr = &gx_tonestacks::tonestack_ampeg_rev::compute;
+            break;
+        case 18: // "sovtek"
+            tonestack_ptr = &gx_tonestacks::tonestack_sovtek::compute;
+            break;
+        case 19: // "bogner"
+            tonestack_ptr = &gx_tonestacks::tonestack_bogner::compute;
+            break;
+        case 20: // "groove"
+            tonestack_ptr = &gx_tonestacks::tonestack_groove::compute;
+            break;
+        case 21: // "crunch"
+            tonestack_ptr = &gx_tonestacks::tonestack_crunch::compute;
+            break;
+        case 22: // "fender_blues"
+            tonestack_ptr = &gx_tonestacks::tonestack_fender_blues::compute;
+            break;
+        case 23: // "fender_default"
+            tonestack_ptr = &gx_tonestacks::tonestack_fender_default::compute;
+            break;
+        case 24: // "fender_deville"
+            tonestack_ptr = &gx_tonestacks::tonestack_fender_deville::compute;
+            break;
+        case 25: // "gibsen"
+            tonestack_ptr = &gx_tonestacks::tonestack_gibsen::compute;
+            break;
+        case 26: // "Off"
             break;
         }
         audio.cur_tonestack = audio.tonestack;
@@ -467,16 +503,49 @@ inline void compensate_cab(int count, float *input0, float *output0) {
     }
 }
 
+// calculate noisgate level
+inline float noise_gate(int sf, float* input, float ngate) {
+    float sumnoise = 0;
+    for (int i = 0; i < sf; i++) {
+        sumnoise += sqrf(fabs(input[i]));
+    }
+    float noisepulse = sqrtf(sumnoise/sf);
+    if (noisepulse > audio.fnglevel * 0.01) {
+        return 1; // -75db 0.001 = 65db
+    } else if (ngate > 0.01) {
+        return ngate * 0.996;
+    } else {
+        return ngate;
+    }
+}
+
 // wraper for the rack order function pointers
-void set_osc_buffer(int count, float *input0, float *output0) {
+inline void set_osc_buffer(int count, float *input0, float *output0) {
     (void)memcpy(result, output0, sizeof(float)*count);
 }
 
 // wraper for the rack order function pointers
-void run_cab_conf(int count, float *input0, float *output0) {
+inline void run_cab_conf(int count, float *input0, float *output0) {
     compensate_cab(count, output0, output0);
     if (!cab_conv.compute(count, output0))
         std::cout << "overload" << endl;
+}
+
+// wraper for the presence function
+inline void run_contrast(int count, float *input0, float *output0) {
+    if (!contrast_conv.compute(count, output0))
+    std::cout << "overload contrast" << endl;
+    // FIXME error message??
+}
+
+// wraper for the noisgate function
+inline void set_noisegate_level(int count, float *input0, float *output0) {
+    gx_effects::noisegate::ngate = noise_gate(count, output0, gx_effects::noisegate::ngate);
+}
+
+// wraper for the mono2stereo function
+inline void run_gxfeed(int count, float *input0, float *input1, float *output0, float *output1) {
+    gx_effects::gxfeed::compute(count, output0, output0, output1);
 }
 
 // empty mono pointer
@@ -494,7 +563,7 @@ chainorder pre_rack_order_ptr[30];
 chainorder post_rack_order_ptr[30];
 
 // stereo rack order pointer
-stereochainorder stereo_rack_order_ptr[10];
+stereochainorder stereo_rack_order_ptr[12];
 
 // working thread to set the order in the all racks
 gboolean gx_reorder_rack(gpointer args) {
@@ -504,15 +573,15 @@ gboolean gx_reorder_rack(gpointer args) {
         jack_sync();
 
         // set all pointers to just return
-        for (int m = 0; m < audio.mono_plug_counter+1; m++) {
+        for (int m = 0; m < audio.mono_plug_counter + 4; m++) {
             pre_rack_order_ptr[m] = just_return;
         }
 
-        for (int m = 0; m < audio.mono_plug_counter+4; m++) {
+        for (int m = 0; m < audio.mono_plug_counter + 6; m++) {
             post_rack_order_ptr[m] = just_return;
         }
 
-        for (int m = 0; m < audio.stereo_plug_counter; m++) {
+        for (int m = 0; m < audio.stereo_plug_counter + 4; m++) {
             stereo_rack_order_ptr[m] = just2_return;
         }
 
@@ -522,6 +591,14 @@ gboolean gx_reorder_rack(gpointer args) {
         audio.pre_active_counter = 0;
         audio.post_active_counter = 0;
         audio.stereo_active_counter = 0;
+
+        // set noisgate var
+        if (audio.fnoise_g) {
+            audio.pre_active_counter += 1;
+            pre_rack_order_ptr[audio.pre_active_counter] = set_noisegate_level;
+        } else {
+            gx_effects::noisegate::ngate = 1;
+        } 
 
         // run noisesharper
         if (audio.fng) {
@@ -733,6 +810,15 @@ gboolean gx_reorder_rack(gpointer args) {
             post_rack_order_ptr[audio.post_active_counter] =
                                &gx_effects::noisegate::compute;
         }
+        // presence
+        if (audio.fcon) {
+            audio.post_active_counter += 1;
+            post_rack_order_ptr[audio.post_active_counter] = &run_contrast;
+        }
+        // split mono input to stereo source
+        audio.stereo_active_counter += 1;
+        stereo_rack_order_ptr[audio.stereo_active_counter] =
+                             &run_gxfeed;
 
         // set order and activate pointer for the stereo rack
         for (int m = 1; m < audio.stereo_plug_counter; m++) {
