@@ -234,19 +234,19 @@ inline float noise_gate(int sf, float* input, float ngate) {
 }
 
 // wraper for the rack order function pointers
-inline void set_osc_buffer(int count, float *input0, float *output0) {
+static void set_osc_buffer(int count, float *input0, float *output0) {
     (void)memcpy(result, output0, sizeof(float)*count);
 }
 
 // wraper for the rack order function pointers
-inline void run_cab_conf(int count, float *input0, float *output0) {
+static void run_cab_conf(int count, float *input0, float *output0) {
     compensate_cab(count, output0, output0);
     if (!cab_conv.compute(count, output0))
         std::cout << "overload" << endl;
 }
 
 // wraper for the presence function
-inline void run_contrast(int count, float *input0, float *output0) {
+static void run_contrast(int count, float *input0, float *output0) {
     if (!contrast_conv.compute(count, output0))
     std::cout << "overload contrast" << endl;
     // FIXME error message??
@@ -258,17 +258,17 @@ inline void set_noisegate_level(int count, float *input0, float *output0) {
 }
 
 // wraper for the mono2stereo function
-inline void run_gxfeed(int count, float *input0, float *input1, float *output0, float *output1) {
+static void run_gxfeed(int count, float *input0, float *input1, float *output0, float *output1) {
     gx_effects::gxfeed::compute(count, output0, output0, output1);
 }
 
 // empty mono pointer
-void just_return(int count, float *input0, float *output0) {
+static void just_return(int count, float *input0, float *output0) {
     return;
 }
 
 // empty stereo pointer
-void just2_return(int count, float *input0, float *input1, float *output0, float *output1) {
+static void just2_return(int count, float *input0, float *input1, float *output0, float *output1) {
     return;
 }
 
@@ -537,8 +537,7 @@ gboolean gx_reorder_rack(gpointer args) {
 
         // split mono input to stereo source
         audio.stereo_active_counter += 1;
-        stereo_rack_order_ptr[audio.stereo_active_counter] =
-                             &run_gxfeed;
+        stereo_rack_order_ptr[audio.stereo_active_counter] = &run_gxfeed;
 
         // set order and activate pointer for the stereo rack
         for (int m = 1; m < audio.stereo_plug_counter; m++) {
@@ -584,7 +583,7 @@ gboolean gx_reorder_rack(gpointer args) {
     return TRUE;
 }
 
-inline void check_effect_buffer() {
+static void check_effect_buffer() {
     if (!gx_effects::echo::is_inited()) {
         pre_rack_order_ptr[audio.effect_buffer[0]] = just_return;
         post_rack_order_ptr[audio.effect_buffer[3]] = just_return;
@@ -599,7 +598,7 @@ inline void check_effect_buffer() {
     }
 }
 
-inline void check_stereo_effect_buffer() {
+static void check_stereo_effect_buffer() {
     if (!gx_effects::chorus::is_inited()) {
         stereo_rack_order_ptr[audio.effect_buffer[6]] = just2_return;
     }

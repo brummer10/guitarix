@@ -42,60 +42,57 @@ class AudioVariables {
  public:
     GxMidiState midistate;
 
-    bool fnoise_g;
-    bool fng;
-    bool foverdrive4;
-    bool fcheckbox4;
-    bool fcheckbox5;
-    bool fcheckbox6;
-    bool fcheckbox8;
-    bool ftube;
-    bool fboost;
-    bool fcheckboxcom1;
-    bool midistat1;
-    bool midistat2;
-    bool midistat3;
-    bool feq;
-    bool fmoog;
-    bool fflanger;
-    bool fbiquad;
-    bool fcab;
-    bool fcon;
-    bool flh;
-    bool fmi;
-    bool fwv;
-    bool fwv_on;
-    bool famp;
-    bool fampout;
-    bool ftone;
-    bool ftremolo;
-    bool fpm;
-    bool fflanger_mono;
-    bool ffeedback;
-    bool ftonestack;
-    bool rack_change;
+    bool  fnoise_g;
+    bool  fng;
+    bool  foverdrive4;
+    bool  fcheckbox4;
+    bool  fcheckbox5;
+    bool  fcheckbox6;
+    bool  fcheckbox8;
+    bool  ftube;
+    bool  fboost;
+    bool  fcheckboxcom1;
+    bool  midistat1;
+    bool  midistat2;
+    bool  midistat3;
+    bool  feq;
+    bool  fmoog;
+    bool  fflanger;
+    bool  fbiquad;
+    bool  fcab;
+    bool  fcon;
+    bool  flh;
+    bool  fmi;
+    bool  fwv;
+    bool  fwv_on;
+    bool  famp;
+    bool  fampout;
+    bool  ftone;
+    bool  ftremolo;
+    bool  fpm;
+    bool  fflanger_mono;
+    bool  ffeedback;
+    bool  ftonestack;
+    bool  rack_change;
 
-    unsigned int effect_pre_post[20];
-    unsigned int effect_buffer[9];
-
-    int fcheckbox7;
-    int fdelay;
-    int fchorus;
-    int fchorus_mono;
-    int fphaser;
-    int tonestack;
-    int cur_tonestack;
-    int cabinet;
-    int cab_switched;
-    int fsd;
-    int fse;
-    int gxtube;
-    int cur_gxtube;
-    int mono_plug_counter;
-    int pre_active_counter;
-    int post_active_counter;
-    int stereo_plug_counter;
-    int stereo_active_counter;
+    int   fcheckbox7;
+    int   fdelay;
+    int   fchorus;
+    int   fchorus_mono;
+    int   fphaser;
+    int   tonestack;
+    int   cur_tonestack;
+    int   cabinet;
+    int   cab_switched;
+    int   fsd;
+    int   fse;
+    int   gxtube;
+    int   cur_gxtube;
+    int   mono_plug_counter;
+    int   pre_active_counter;
+    int   post_active_counter;
+    int   stereo_plug_counter;
+    int   stereo_active_counter;
 
     float posit[30];
 
@@ -115,6 +112,9 @@ class AudioVariables {
     float cab_bass;
     float cab_treble;
     float cab_sum;
+
+    unsigned int effect_pre_post[20];
+    unsigned int effect_buffer[9];
 
     void register_parameter();
 };
@@ -178,8 +178,8 @@ class MidiVariables {
     int   send2;
     int   noten2;
 
-    bool fcheckbox10;
-    bool fcheckbox11;
+    bool  fcheckbox10;
+    bool  fcheckbox11;
 
     unsigned char* midi_send;
     unsigned char* midi_send1;
@@ -194,20 +194,20 @@ extern MidiVariables midi;
 /****************************************************************/
 
 /* square function */
-inline double sqrf(float x) { return x * x; }
+inline double sqrf(float x)                { return x * x; }
 
 // wrap the state of the latency change warning (dis/enable) to
 // the interface settings to load and save it
-inline void set_latency_warning_change() { audio.fwarn_swap = audio.fwarn; }
-inline void get_latency_warning_change() { audio.fwarn = audio.fwarn_swap; }
+inline void set_latency_warning_change()   {audio.fwarn_swap = audio.fwarn;}
+inline void get_latency_warning_change()   {audio.fwarn = audio.fwarn_swap;}
 
-inline bool isMidiOn() { return (audio.midistate == kMidiOn ? true : false); }
-inline void turnOffMidi() { audio.midistate = kMidiOff; }
-inline void turnOnMidi() { audio.midistate = kMidiOn; }
+inline bool isMidiOn()                     {return (audio.midistate == kMidiOn ? true : false);}
+inline void turnOffMidi()                  {audio.midistate = kMidiOff;}
+inline void turnOnMidi()                   {audio.midistate = kMidiOn;}
 
-inline void set_tube_model(int x) {audio.gxtube = x;}
-inline void set_cab_mode(float x) {audio.cab_sum = x;}
-inline void set_mono_plug_counter(int x) {audio.mono_plug_counter = x;}
+inline void set_tube_model(int x)          {audio.gxtube = x;}
+inline void set_cab_mode(float x)          {audio.cab_sum = x;}
+inline void set_mono_plug_counter(int x)   {audio.mono_plug_counter = x;}
 inline void set_stereo_plug_counter(int x) {audio.stereo_plug_counter = x;}
 
 /****************************************************************/
@@ -231,19 +231,22 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
 void init_non_rt_processing();
 void non_rt_processing(int count, float* input, float* output0);
 
-extern void (*amp_ptr)(int count, float *output, float *output1);
-extern void (*tonestack_ptr)(int count, float *output, float *output1);
-gboolean gx_check_engine_state(gpointer args);
+extern void (*amp_ptr)
+            (int count, float *output, float *output1);
+extern void (*tonestack_ptr)
+            (int count, float *output, float *output1);
 
-typedef void (*chainorder) (int count, float *output, float *output1);
+typedef void (*chainorder)
+             (int count, float *output, float *output1);
 typedef void (*stereochainorder) 
              (int count, float* input, float* input1, float *output, float *output1);
 
 extern chainorder pre_rack_order_ptr[];
 extern chainorder post_rack_order_ptr[];
 extern stereochainorder stereo_rack_order_ptr[];
-gboolean gx_reorder_rack(gpointer args);
 
+gboolean gx_reorder_rack(gpointer args);
+gboolean gx_check_engine_state(gpointer args);
 
 /* ------------------------------------------------------------------- */
 } /* end of gx_engine namespace */

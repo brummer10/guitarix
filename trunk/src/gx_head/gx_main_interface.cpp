@@ -36,13 +36,13 @@ namespace gx_gui {
 
 // Stock Items for Gxw::Switch
 
-const char *sw_led = "led";
-const char *sw_switch = "switch";
-const char *sw_switchit = "switchit";
-const char *sw_minitoggle = "minitoggle";
-const char *sw_button = "button";
-const char *sw_pbutton = "pbutton";
-const char *sw_rbutton = "rbutton";
+const char *sw_led =             "led";
+const char *sw_switch =          "switch";
+const char *sw_switchit =        "switchit";
+const char *sw_minitoggle =      "minitoggle";
+const char *sw_button =          "button";
+const char *sw_pbutton =         "pbutton";
+const char *sw_rbutton =         "rbutton";
 
 // Paint Functions for Gxw::PaintBox
 
@@ -82,39 +82,39 @@ inline void registerNonMidiParam(const char*a, bool*c, bool d, float std = false
 }
 
 void GuiVariables::register_gui_parameter() {
-    registerNonMidiParam("ui.main_xorg", &main_xorg, true, 300, 0, 10000);
-    registerNonMidiParam("ui.main_yorg", &main_yorg, true, 300, 0, 10000);
+    registerNonMidiParam("ui.main_xorg",           &main_xorg, true, 300, 0, 10000);
+    registerNonMidiParam("ui.main_yorg",           &main_yorg, true, 300, 0, 10000);
 
-    registerNonMidiParam("compressor.dialog", &dialogbox[0], false);
-    registerNonMidiParam("crybaby.dialog", &dialogbox[1], false);
-    registerNonMidiParam("gx_distortion.dialog", &dialogbox[2], false);
-    registerNonMidiParam("freeverb.dialog", &dialogbox[3], false);
-    registerNonMidiParam("IR.dialog", &dialogbox[4], false);
-    registerNonMidiParam("chorus.dialog", &dialogbox[5], false);
-    registerNonMidiParam("eq.dialog", &dialogbox[6], false);
-    registerNonMidiParam("eqs.dialog", &dialogbox[7], false);
-    registerNonMidiParam("MultiBandFilter.dialog", &dialogbox[8], false);
-    registerNonMidiParam("moog.dialog", &dialogbox[9], false);
-    registerNonMidiParam("biquad.dialog", &dialogbox[10], false);
-    registerNonMidiParam("flanger.dialog", &dialogbox[11], false);
-    registerNonMidiParam("echo.dialog", &dialogbox[12], false);
-    registerNonMidiParam("delay.dialog", &dialogbox[13], false);
-    registerNonMidiParam("overdrive.dialog", &dialogbox[14], false);
-    registerNonMidiParam("phaser.dialog", &dialogbox[15], false);
-    registerNonMidiParam("low_highpass.dialog", &dialogbox[16], false);
-    registerNonMidiParam("stereodelay.dialog", &dialogbox[17], false);
-    registerNonMidiParam("stereoecho.dialog", &dialogbox[18], false);
-    registerNonMidiParam("midi_out.dialog", &dialogbox[19], false);
-    registerNonMidiParam("oscilloscope.dialog", &dialogbox[20], false);
-    registerNonMidiParam("ampmodul.dialog", &dialogbox[21], false);
-    registerNonMidiParam("tonemodul.dialog", &dialogbox[22], false);
-    registerNonMidiParam("tremolo.dialog", &dialogbox[23], false);
-    registerNonMidiParam("phaser_mono.dialog", &dialogbox[24], false);
-    registerNonMidiParam("chorus_mono.dialog", &dialogbox[25], false);
-    registerNonMidiParam("flanger_mono.dialog", &dialogbox[26], false);
-    registerNonMidiParam("feedback.dialog", &dialogbox[27], false);
-    registerNonMidiParam("amp.tonestack.dialog", &dialogbox[28], false);
-    registerNonMidiParam("cab.dialog", &dialogbox[29], false);
+    registerNonMidiParam("compressor.dialog",      &dialogbox[0],  false);
+    registerNonMidiParam("crybaby.dialog",         &dialogbox[1],  false);
+    registerNonMidiParam("gx_distortion.dialog",   &dialogbox[2],  false);
+    registerNonMidiParam("freeverb.dialog",        &dialogbox[3],  false);
+    registerNonMidiParam("IR.dialog",              &dialogbox[4],  false);
+    registerNonMidiParam("chorus.dialog",          &dialogbox[5],  false);
+    registerNonMidiParam("eq.dialog",              &dialogbox[6],  false);
+    registerNonMidiParam("eqs.dialog",             &dialogbox[7],  false);
+    registerNonMidiParam("MultiBandFilter.dialog", &dialogbox[8],  false);
+    registerNonMidiParam("moog.dialog",            &dialogbox[9],  false);
+    registerNonMidiParam("biquad.dialog",          &dialogbox[10], false);
+    registerNonMidiParam("flanger.dialog",         &dialogbox[11], false);
+    registerNonMidiParam("echo.dialog",            &dialogbox[12], false);
+    registerNonMidiParam("delay.dialog",           &dialogbox[13], false);
+    registerNonMidiParam("overdrive.dialog",       &dialogbox[14], false);
+    registerNonMidiParam("phaser.dialog",          &dialogbox[15], false);
+    registerNonMidiParam("low_highpass.dialog",    &dialogbox[16], false);
+    registerNonMidiParam("stereodelay.dialog",     &dialogbox[17], false);
+    registerNonMidiParam("stereoecho.dialog",      &dialogbox[18], false);
+    registerNonMidiParam("midi_out.dialog",        &dialogbox[19], false);
+    registerNonMidiParam("oscilloscope.dialog",    &dialogbox[20], false);
+    registerNonMidiParam("ampmodul.dialog",        &dialogbox[21], false);
+    registerNonMidiParam("tonemodul.dialog",       &dialogbox[22], false);
+    registerNonMidiParam("tremolo.dialog",         &dialogbox[23], false);
+    registerNonMidiParam("phaser_mono.dialog",     &dialogbox[24], false);
+    registerNonMidiParam("chorus_mono.dialog",     &dialogbox[25], false);
+    registerNonMidiParam("flanger_mono.dialog",    &dialogbox[26], false);
+    registerNonMidiParam("feedback.dialog",        &dialogbox[27], false);
+    registerNonMidiParam("amp.tonestack.dialog",   &dialogbox[28], false);
+    registerNonMidiParam("cab.dialog",             &dialogbox[29], false);
 }
 
 /****************************************************************
@@ -3078,7 +3078,7 @@ void GxMainInterface::run() {
     // watch tread for cabinet switch
     g_threads[3] = g_timeout_add(200, gx_threads::gx_check_cab_state, 0);
     // watch tread for tonestack and amp switch
-    g_threads[4] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 120,
+    g_threads[9] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 120,
                                       gx_engine::gx_check_engine_state, 0, NULL);
     // watch tread for rack order
     g_threads[8] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 120,
