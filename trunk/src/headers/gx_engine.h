@@ -231,20 +231,6 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
 void init_non_rt_processing();
 void non_rt_processing(int count, float* input, float* output0);
 
-extern void (*amp_ptr)
-            (int count, float *output, float *output1);
-extern void (*tonestack_ptr)
-            (int count, float *output, float *output1);
-
-typedef void (*chainorder)
-             (int count, float *output, float *output1);
-typedef void (*stereochainorder) 
-             (int count, float* input, float* input1, float *output, float *output1);
-
-extern chainorder pre_rack_order_ptr[];
-extern chainorder post_rack_order_ptr[];
-extern stereochainorder stereo_rack_order_ptr[];
-
 gboolean gx_reorder_rack(gpointer args);
 gboolean gx_check_engine_state(gpointer args);
 

@@ -40,29 +40,43 @@ namespace gx_engine {
 AudioVariables audio;
 
 /****************************************************************
- **
+ ** include faust generated files and definitions for there use
  */
 
 #include "./gx_faust_includes.cc"
 
 
 /****************************************************************
- **  engine helpers and working threads
+ **  engine function pointers
  */
 
-// pointer to the default tonestack
-void (*tonestack_ptr)(int count, float *output, float *output1) =
-                   &gx_tonestacks::tonestack_default::compute;
+typedef void (*chainorder)
+             (int count, float *output, float *output1);
 
-// pointer to the default tube/amp
-void (*amp_ptr)(int count, float *output, float *output1) =
-                   &gx_amps::gxamp::compute;
+typedef void (*stereochainorder) 
+             (int count, float* input, float* input1, float *output, float *output1);
+
+// pointer to the choosen tonestack default setting
+static chainorder tonestack_ptr = &gx_tonestacks::tonestack_default::compute;
+
+// pointer to the choosen amp default setting
+static chainorder amp_ptr = &gx_amps::gxamp::compute;
+
+// mono rack (pre/post) order pointer
+static chainorder pre_rack_order_ptr[30];
+static chainorder post_rack_order_ptr[30];
+
+// stereo rack order pointer
+static stereochainorder stereo_rack_order_ptr[12];
 
 
-// working thread to set the pointer to the selected tonestack and tube/amp
+/****************************************************************
+ **  working thread to set the pointer to the selected tonestack and tube/amp
+ */
+
 gboolean gx_check_engine_state(gpointer) {
 
-    // only run when tonestack selection have changed
+    // seletc tonestack, only run when tonestack selection have changed
     if (audio.cur_tonestack != audio.tonestack) {
         jack_sync();
         switch (audio.tonestack) {
@@ -150,7 +164,7 @@ gboolean gx_check_engine_state(gpointer) {
         audio.cur_tonestack = audio.tonestack;
     }
 
-    // only run when tube/amp selection have changed
+    // select amp, only run when tube/amp selection have changed
     if (audio.cur_gxtube != audio.gxtube) {
         jack_sync();
          switch (audio.gxtube) {
@@ -205,6 +219,10 @@ gboolean gx_check_engine_state(gpointer) {
     return TRUE;
 }
 
+/****************************************************************
+ **  engine functions and wrapers
+ */
+
 // reduce gain to compensate the increased gain by the cabinet
 inline void compensate_cab(int count, float *input0, float *output0) {
     double fSlow0 = (0.0010000000000000009 * pow(10, (0.05 * (-audio.cab_level*2.0))));
@@ -239,21 +257,21 @@ static void set_osc_buffer(int count, float *input0, float *output0) {
 }
 
 // wraper for the rack order function pointers
-static void run_cab_conf(int count, float *input0, float *output0) {
+inline void run_cab_conf(int count, float *input0, float *output0) {
     compensate_cab(count, output0, output0);
     if (!cab_conv.compute(count, output0))
         std::cout << "overload" << endl;
 }
 
 // wraper for the presence function
-static void run_contrast(int count, float *input0, float *output0) {
+inline void run_contrast(int count, float *input0, float *output0) {
     if (!contrast_conv.compute(count, output0))
     std::cout << "overload contrast" << endl;
     // FIXME error message??
 }
 
 // wraper for the noisgate function
-inline void set_noisegate_level(int count, float *input0, float *output0) {
+static void set_noisegate_level(int count, float *input0, float *output0) {
     gx_effects::noisegate::ngate = noise_gate(count, output0, gx_effects::noisegate::ngate);
 }
 
@@ -263,45 +281,42 @@ static void run_gxfeed(int count, float *input0, float *input1, float *output0, 
 }
 
 // empty mono pointer
-static void just_return(int count, float *input0, float *output0) {
+inline void just_return(int count, float *input0, float *output0) {
     return;
 }
 
 // empty stereo pointer
-static void just2_return(int count, float *input0, float *input1, float *output0, float *output1) {
+inline void just2_return(int count, float *input0, float *input1, float *output0, float *output1) {
     return;
 }
 
-// mono rack order pointer
-chainorder pre_rack_order_ptr[30];
-chainorder post_rack_order_ptr[30];
+/****************************************************************
+ **  working thread to set the order in the all racks
+ */
 
-// stereo rack order pointer
-stereochainorder stereo_rack_order_ptr[12];
-
-// working thread to set the order in the all racks
 gboolean gx_reorder_rack(gpointer args) {
 
+    // only run when something have changed in the rack
     if (gx_engine::audio.rack_change) {
         // sync to jack_buffer_callback
         jack_sync();
 
-        // set all pointers to just return
+        // set all rack pointers to just return
         for (int m = 0; m < audio.mono_plug_counter + 4; m++) {
-            pre_rack_order_ptr[m] = just_return;
+            pre_rack_order_ptr[m] = &just_return;
         }
 
         for (int m = 0; m < audio.mono_plug_counter + 6; m++) {
-            post_rack_order_ptr[m] = just_return;
+            post_rack_order_ptr[m] = &just_return;
         }
 
         for (int m = 0; m < audio.stereo_plug_counter + 4; m++) {
-            stereo_rack_order_ptr[m] = just2_return;
+            stereo_rack_order_ptr[m] = &just2_return;
         }
 
         for (int i = 0; i < 9; i++) audio.effect_buffer[i] = 0;
 
-        // count active plugs in etch rack
+        // set active plugins counters to sero
         audio.pre_active_counter = 0;
         audio.post_active_counter = 0;
         audio.stereo_active_counter = 0;
@@ -309,7 +324,7 @@ gboolean gx_reorder_rack(gpointer args) {
         // set noisgate var
         if (audio.fnoise_g) {
             audio.pre_active_counter += 1;
-            pre_rack_order_ptr[audio.pre_active_counter] = set_noisegate_level;
+            pre_rack_order_ptr[audio.pre_active_counter] = &set_noisegate_level;
         } else {
             gx_effects::noisegate::ngate = 1;
         } 
@@ -583,30 +598,31 @@ gboolean gx_reorder_rack(gpointer args) {
     return TRUE;
 }
 
+// check if mono effect buffer is valid, run every callback cycle
 static void check_effect_buffer() {
     if (!gx_effects::echo::is_inited()) {
-        pre_rack_order_ptr[audio.effect_buffer[0]] = just_return;
-        post_rack_order_ptr[audio.effect_buffer[3]] = just_return;
+        pre_rack_order_ptr[audio.effect_buffer[0]] = &just_return;
+        post_rack_order_ptr[audio.effect_buffer[3]] = &just_return;
     }
     if (!gx_effects::delay::is_inited()) {
-        pre_rack_order_ptr[audio.effect_buffer[1]] = just_return;
-        post_rack_order_ptr[audio.effect_buffer[4]] = just_return;
+        pre_rack_order_ptr[audio.effect_buffer[1]] = &just_return;
+        post_rack_order_ptr[audio.effect_buffer[4]] = &just_return;
     }
     if (!gx_effects::chorus_mono::is_inited()) {
-        pre_rack_order_ptr[audio.effect_buffer[2]] = just_return;
-        post_rack_order_ptr[audio.effect_buffer[5]] = just_return;
+        pre_rack_order_ptr[audio.effect_buffer[2]] = &just_return;
+        post_rack_order_ptr[audio.effect_buffer[5]] = &just_return;
     }
 }
-
+// check if stereo effect buffer is valid, run every callback cycle
 static void check_stereo_effect_buffer() {
     if (!gx_effects::chorus::is_inited()) {
-        stereo_rack_order_ptr[audio.effect_buffer[6]] = just2_return;
+        stereo_rack_order_ptr[audio.effect_buffer[6]] = &just2_return;
     }
     if (!gx_effects::stereodelay::is_inited()) {
-        stereo_rack_order_ptr[audio.effect_buffer[7]] = just2_return;
+        stereo_rack_order_ptr[audio.effect_buffer[7]] = &just2_return;
     }
     if (!gx_effects::stereoecho::is_inited()) {
-        stereo_rack_order_ptr[audio.effect_buffer[8]] = just2_return;
+        stereo_rack_order_ptr[audio.effect_buffer[8]] = &just2_return;
     }
 }
 
@@ -614,6 +630,8 @@ static void check_stereo_effect_buffer() {
  **  this is the process callback called from jack
  **
  ***************************************************************/
+
+// the 2. client callback
 void compute_insert(int count, float* input1, float* output0, float* output1) {
 // retrieve engine state
     const GxEngineState estate = checky;
@@ -672,6 +690,7 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
     }
 }
 
+// the first client callback
 void compute(int count, float* input, float* output0) {
     // retrieve engine state
     const GxEngineState estate = checky;
@@ -756,7 +775,7 @@ void process_buffers(int count, float* input, float* output0) {
     // move working buffer to the output buffer
     memcpy(output0, input, count*sizeof(float));
 
-    // check if effect buffer is inited
+    // check if mono effect buffer is inited
     if (audio.rack_change) {
         check_effect_buffer();
     }
@@ -776,9 +795,10 @@ void process_buffers(int count, float* input, float* output0) {
 }
 
 void process_insert_buffers(int count, float* input1, float* output0, float* output1) {
+
     // move working buffer to the output buffer
     memcpy(output0, input1, count*sizeof(float));
-    
+
     // check if effect buffer is inited
     if (audio.rack_change) {
         check_stereo_effect_buffer();

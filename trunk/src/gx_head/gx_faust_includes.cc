@@ -130,14 +130,14 @@ static void jack_sync() {
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
 // FIXME (temporary)hack to support older compiler versions
-inline float  pow(float b, float e) {return ::powf(b, e);}
+inline float  pow(float b, float e)   {return ::powf(b, e);}
 inline double pow(double b, double e) {return ::pow(b, e);}
-inline double pow(double b, int e)  {return ::pow(b, static_cast<double>(e));}
-inline double pow(int b, double e)  {return ::pow(static_cast<double>(b), e);}
-inline double pow(double b, float e) {return ::pow(b, static_cast<double>(e));}
-inline double pow(float b, double e) {return ::pow(static_cast<double>(b), e);}
-inline float  pow(float b, int e)   {return ::powf(b, static_cast<float>(e));}
-inline float  pow(int b, float e)   {return ::powf(static_cast<float>(b),  e);}
+inline double pow(double b, int e)    {return ::pow(b, static_cast<double>(e));}
+inline double pow(int b, double e)    {return ::pow(static_cast<double>(b), e);}
+inline double pow(double b, float e)  {return ::pow(b, static_cast<double>(e));}
+inline double pow(float b, double e)  {return ::pow(static_cast<double>(b), e);}
+inline float  pow(float b, int e)     {return ::powf(b, static_cast<float>(e));}
+inline float  pow(int b, float e)     {return ::powf(static_cast<float>(b),  e);}
 
 template <int N> inline float faustpower(float x)       {return powf(x, N);}
 template <int N> inline double faustpower(double x)     {return pow(x, N);}
@@ -156,7 +156,7 @@ static struct GxDistortionParams { GxDistortionParams();}
 GxDistortionParams;
 GxDistortionParams::GxDistortionParams() {
     static FAUSTFLOAT v1, v2;
-    registerVar("gxdistortion.drive", "", "S", "", &v1, 0.35, 0.0, 1.0, 0.01);
+    registerVar("gxdistortion.drive",   "", "S", "", &v1, 0.35,  0.0,   1.0, 0.01);
     registerVar("gxdistortion.wet_dry", "", "S", "", &v2, 100.0, 0.0, 100.0, 1.0);
 }
 
@@ -239,8 +239,8 @@ namespace noisegate { float ngate = 1;}  // noise-gate, modifies output gain
 static struct CabParams { CabParams();}
 CabParams;
 CabParams::CabParams() {
-    registerVar("cab.Level", "", "S", "", &audio.cab_level, 1.0, 0.5, 5.0, 0.5);
-    registerVar("cab.bass", "", "S", "", &audio.cab_bass, 0.0, -10.0, 10.0, 0.5);
+    registerVar("cab.Level", "",  "S", "", &audio.cab_level,  1.0, 0.5, 5.0, 0.5);
+    registerVar("cab.bass", "",   "S", "", &audio.cab_bass,   0.0, -10.0, 10.0, 0.5);
     registerVar("cab.treble", "", "S", "", &audio.cab_treble, 0.0, -10.0, 10.0, 0.5);
 }
 
@@ -301,7 +301,7 @@ ToneStackParams;
 ToneStackParams::ToneStackParams() {
     static FAUSTFLOAT v1, v2, v3;
     registerVar("amp.tonestack.Treble", "", "S", "", &v1, 0.5, 0.0, 1.0, 0.01);
-    registerVar("amp.tonestack.Bass", "", "S", "", &v2, 0.5, 0.0, 1.0, 0.01);
+    registerVar("amp.tonestack.Bass",   "", "S", "", &v2, 0.5, 0.0, 1.0, 0.01);
     registerVar("amp.tonestack.Middle", "", "S", "", &v3, 0.5, 0.0, 1.0, 0.01);
 }
 
@@ -349,12 +349,12 @@ static void faust_add_callback(const char* id, void (*func)(bool, int)) {
 
 void faust_init(int samplingFreq) {
     // faust_add_callback("SampleLooper.on_off", sloop::activate);
-    faust_add_callback("delay.on_off", gx_effects::delay::activate);
-    faust_add_callback("echo.on_off", gx_effects::echo::activate);
-    faust_add_callback("chorus.on_off", gx_effects::chorus::activate);
-    faust_add_callback("chorus_mono.on_off", gx_effects::chorus::activate);
-    faust_add_callback("stereodelay.on_off", gx_effects::stereodelay::activate);
-    faust_add_callback("stereoecho.on_off", gx_effects::stereoecho::activate);
+    faust_add_callback("delay.on_off",         gx_effects::delay::activate);
+    faust_add_callback("echo.on_off",          gx_effects::echo::activate);
+    faust_add_callback("chorus.on_off",        gx_effects::chorus::activate);
+    faust_add_callback("chorus_mono.on_off",   gx_effects::chorus::activate);
+    faust_add_callback("stereodelay.on_off",   gx_effects::stereodelay::activate);
+    faust_add_callback("stereoecho.on_off",    gx_effects::stereoecho::activate);
     list<inidef>& inilist = get_inilist();
     for (list<inidef>::iterator i = inilist.begin(); i != inilist.end(); i++) {
         try {
