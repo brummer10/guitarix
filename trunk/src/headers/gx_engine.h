@@ -213,26 +213,19 @@ inline void set_stereo_plug_counter(int x) {audio.stereo_plug_counter = x;}
 /****************************************************************/
 
 /* function declarations  */
-void register_faust_parameters();
+
 void gx_engine_init(const string *optvar);
 void gx_engine_reset();
-void faust_init(int samplingFreq);
+
 void compute_midi(int len);
 void compute_midi_in(void* midi_input_port_buf);
 void process_midi(int count);
+
 void compute(int count, float* input, float* output0);
 void compute_insert(int count, float* input1, float* output2, float* output3);
 
-void convolver_filter(float* input, float* output, int sf, int iconvolvefilter);
-void moving_filter(float* input, float* output, int sf);
 void process_buffers(int count, float* input, float* output0);
 void process_insert_buffers(int count, float* input1, float* output0, float* output1);
-
-void init_non_rt_processing();
-void non_rt_processing(int count, float* input, float* output0);
-
-gboolean gx_reorder_rack(gpointer args);
-gboolean gx_check_engine_state(gpointer args);
 
 /* ------------------------------------------------------------------- */
 } /* end of gx_engine namespace */

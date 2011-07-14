@@ -19,11 +19,17 @@
  * --------------------------------------------------------------------------
  */
 
+#include "guitarix.h"     // NOLINT
 
+#include <errno.h>        // NOLINT
+
+#include <string>         // NOLINT
+#include <list>           // NOLINT
 
 /****************************************************************
  **  definitions for code generated with faust / dsp2cc
  */
+namespace gx_engine {
 
 typedef void (*inifunc)(int);  //  NOLINT
 
@@ -151,21 +157,10 @@ template <>      inline int faustpower<1>(int x)        {return x;}
  **  include faust/dsp2cc generated files
  */
 
-// gxdistortion
-static struct GxDistortionParams { GxDistortionParams();}
-GxDistortionParams;
-GxDistortionParams::GxDistortionParams() {
-    static FAUSTFLOAT v1, v2;
-    registerVar("gxdistortion.drive",   "", "S", "", &v1, 0.35,  0.0,   1.0, 0.01);
-    registerVar("gxdistortion.wet_dry", "", "S", "", &v2, 100.0, 0.0, 100.0, 1.0);
-}
-
 namespace gx_amps {
-/****************************************************************
-**  definitions for ffunction(float Ftube(int,float), "valve.h", "");
-**  in gx_amp.dsp - gx_ampmodul.dsp
-**/
 
+//  definitions for ffunction(float Ftube(int,float), "valve.h", "");
+//  in gx_amp.dsp - gx_ampmodul.dsp
 static float Ftube(int table, float Vgk) {
     struct gx_tubes::tabled& tab = gx_tubes::tubetable[table];
     float f = (Vgk - tab.low) * tab.istep;
@@ -214,6 +209,15 @@ static float Ftube4(int table, float Vgk) {
     return tab.data[i]*(1-f) + tab.data[i+1]*f;
 }
 
+// gxdistortion
+static struct GxDistortionParams { GxDistortionParams();}
+GxDistortionParams;
+GxDistortionParams::GxDistortionParams() {
+    static FAUSTFLOAT v1, v2;
+    registerVar("gxdistortion.drive",   "", "S", "", &v1, 0.35,  0.0,   1.0, 0.01);
+    registerVar("gxdistortion.wet_dry", "", "S", "", &v2, 100.0, 0.0, 100.0, 1.0);
+}
+
 #include "faust/gxamp.cc"
 #include "faust/gxamp2.cc"
 #include "faust/gxamp3.cc"
@@ -232,8 +236,8 @@ static float Ftube4(int table, float Vgk) {
 
 // effects
 namespace gx_effects {
+
 // foreign variable added to faust module feed
-// it's set in process_buffers()
 namespace noisegate { float ngate = 1;}  // noise-gate, modifies output gain
 
 static struct CabParams { CabParams();}
@@ -282,7 +286,7 @@ CabParams::CabParams() {
 }
 
 // init cabinet impulse former to 48000 Hz, the buffer will resampled
-// afterwards whe needed.
+// afterwards when needed.
 void init_non_rt_processing() {
     gx_effects::cabinet_impulse_former::init(48000);
 }
@@ -292,8 +296,6 @@ void non_rt_processing(int count, float* input, float* output0) {
 }
 
 // tone stack
-
-
 namespace gx_tonestacks {
 
 static struct ToneStackParams { ToneStackParams(); }
@@ -365,5 +367,7 @@ void faust_init(int samplingFreq) {
                       ("not enough memory to initialize module %1%") % i->name).str());
         }
     }
+}
+#include "gx_engine_helpers.cc"
 }
 
