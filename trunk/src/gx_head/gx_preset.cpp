@@ -702,6 +702,9 @@ void  gx_set_factory_file(int i) {
     case 2:
         gx_factory_preset_file.set_path(gx_system::gx_style_dir +"dlp_ae_rc");
         break;
+    case 3:
+        gx_factory_preset_file.set_path(gx_system::gx_style_dir +"autoandimat_rc");
+        break;
     }
 }
 

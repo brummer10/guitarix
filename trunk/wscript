@@ -592,6 +592,7 @@ def build(bld):
     bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/funkmuscle_rc', chmod=0664)
     bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/dlp_ae_rc', chmod=0664)
     bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/zettberlin_rc', chmod=0664)
+    bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/autoandimat_rc', chmod=0664)
     sub_file('./src/gx_head/zettberlin_rc.in', './src/gx_head/zettberlin_rc', (('"jconv.IRDir": "(.*)"', '"jconv.IRDir": "%s"' % pa), ))
     bld.install_files(bld.env['GX_SOUND_DIR1'], './IR/greathall.wav', chmod=0664)
     if bld.env["GX_LIB_SHARED"]:

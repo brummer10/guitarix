@@ -2105,6 +2105,14 @@ void GxMainInterface::addPresetMenu() {
 
     gtk_widget_show(menuitem);
 
+    menuitem = gtk_menu_item_new_with_mnemonic("autoandimat");
+    menu = gtk_menu_new();
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
+    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::fpresmenu), menuitem, 0);
+    gx_preset::ffpresmenu[3] = menu;
+
+    gtk_widget_show(menuitem);
+    
     menuitem = gtk_menu_item_new_with_mnemonic("StudioDave");
     menu = gtk_menu_new();
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
