@@ -19,7 +19,7 @@
  *
  *
  *    This is part of the Guitarix Audio Engine
- *    the engine helper threads running in the gui tread.
+ *    the engine helper threads running in the gui thread.
  *
  *
  * --------------------------------------------------------------------------

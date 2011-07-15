@@ -26,14 +26,7 @@
 
 #include "guitarix.h"     // NOLINT
 
-#include <errno.h>        // NOLINT
-#include <glibmm/i18n.h>  // NOLINT
-
-#include <cstring>        // NOLINT
-#include <string>         // NOLINT
-#include <fstream>        // NOLINT
 #include <iostream>       // NOLINT
-
 
 namespace gx_engine {
 

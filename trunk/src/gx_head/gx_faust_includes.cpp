@@ -23,8 +23,10 @@
 
 #include <errno.h>        // NOLINT
 
+#include <cstring>        // NOLINT
 #include <string>         // NOLINT
 #include <list>           // NOLINT
+#include <iostream>       // NOLINT
 
 /****************************************************************
  **  definitions for code generated with faust / dsp2cc
@@ -368,6 +370,11 @@ void faust_init(int samplingFreq) {
         }
     }
 }
+/****************************************************************
+ **  engine helper work threads to watch for user changes in the
+ *   rack amp tonestack selection, create a pointer aray to the
+ *   selected functions.
+ */
 #include "gx_engine_helpers.cc"
 }
 

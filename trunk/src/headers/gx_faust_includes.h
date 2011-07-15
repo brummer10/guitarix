@@ -27,14 +27,14 @@
 namespace gx_engine {
 namespace gx_effects {
 namespace jconv_post {
-extern void compute(int count, float* output0, float* output1, float* conv_out0, float* conv_out1,
+void compute(int count, float* output0, float* output1, float* conv_out0, float* conv_out1,
                float* output2, float* output3);
 } /* end of jconv_post namespace */
 namespace gx_outputlevel {
-extern void compute(int count, float* output0, float* output1, float* output2, float* output3);
+void compute(int count, float* output0, float* output1, float* output2, float* output3);
 } /* end of gx_outputlevel namespace */
 namespace balance1 {
-extern void compute(int count, float*input1, float*output0, float*output1);
+void compute(int count, float*input1, float*output0, float*output1);
 } /* end of balance1 namespace */
 } /* end of gx_effects namespace */
 

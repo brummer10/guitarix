@@ -3077,13 +3077,7 @@ void GxMainInterface::run() {
     g_threads[1] = g_timeout_add(meter_display_timeout, gx_threads::gx_refresh_meter_level, 0);
     // watch tread for cabinet switch
     g_threads[3] = g_timeout_add(200, gx_threads::gx_check_cab_state, 0);
-    // watch tread for tonestack and amp switch
-    g_threads[9] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 120,
-                                      gx_engine::gx_check_engine_state, 0, NULL);
-    // watch tread for rack order
-    g_threads[8] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 120,
-                                      gx_engine::gx_reorder_rack, 0, NULL);
-    
+
     GError* err = NULL;
     // -------------- start helper thread for ladi signal USR1 ------------
     if (g_thread_create(gx_threads::gx_signal_helper_thread, NULL, FALSE, &err)  == NULL) {
