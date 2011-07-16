@@ -47,6 +47,10 @@
 namespace gx_jack {
 
 class GxJack {
+ private:
+    bool gx_start_jack_dialog();
+    bool gx_start_jack(void* arg);
+
  public:
     static const int nIPorts = 3; // mono input + jconv
     static const int nOPorts = 4; // stereo output + jconv
@@ -65,19 +69,24 @@ class GxJack {
     jack_port_t*        midi_output_ports;
 
     jack_nframes_t      time_is;
+
+    bool gx_jack_init(const string *optvar );
+    void gx_jack_callbacks_and_activate();
+    
+    /* processing */
+    int gx_jack_midi_process(jack_nframes_t, void* arg);
+    int gx_jack_midi_input_process(jack_nframes_t, void* arg);
+
+    void gx_jack_cleanup();
 };
 extern GxJack gxjack;
 
 extern sem_t jack_sync_sem;
 
 /* -------- functions ---------- */
-bool gx_jack_init(const string *optvar );
-void gx_jack_callbacks_and_activate();
-bool gx_start_jack_dialog();
-bool gx_start_jack(void* arg);
+
 void gx_set_jack_buffer_size(GtkCheckMenuItem*, gpointer);
 void gx_jack_connection(GtkCheckMenuItem*, gpointer);
-void gx_jack_cleanup();
 
 /* client callbacks */
 int  gx_jack_srate_callback(jack_nframes_t, void* arg);
@@ -93,7 +102,6 @@ void gx_jack_session_callback(jack_session_event_t *event, void *arg);
 /* processing */
 int gx_jack_process(jack_nframes_t, void* arg);
 int gx_jack_insert_process(jack_nframes_t, void* arg);
-int gx_jack_midi_process(jack_nframes_t, void* arg);
-int gx_jack_midi_input_process(jack_nframes_t, void* arg);
+
 } /* end of jack namespace */
 #endif  // SRC_HEADERS_GX_JACK_H_

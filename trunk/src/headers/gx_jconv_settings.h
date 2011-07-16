@@ -58,12 +58,11 @@ class GxJConvSettings {
     guint           fLength;     // length of the IR to use for convolution
     guint           fDelay;      // delay when to apply reverb
     Gainline        gainline;
-    guint            fGainCor;
+    guint           fGainCor;
 
     void read_gainline(gx_system::JsonParser& jp);
-    // inline string getIRDir () const { return fIRDir;  }
-    inline void setIRFile(string name) { fIRFile = name; }
-    inline void setIRDir(string name) { fIRDir = name; }
+    inline void setIRFile(string name)          { fIRFile = name; }
+    inline void setIRDir(string name)           { fIRDir = name; }
 
     // private constructor (don't call it, call instance())
     GxJConvSettings();
@@ -75,27 +74,27 @@ class GxJConvSettings {
     explicit GxJConvSettings(gx_system::JsonParser& jp);
 
     // getters and setters
-    inline string getIRFile() const { return fIRFile; }
+    inline string getIRFile() const               { return fIRFile; }
     string getFullIRPath() const;
-    inline float          getGain() const { return fGain; }
-    inline guint          getOffset() const { return fOffset; }
-    inline guint          getLength() const { return fLength; }
-    inline guint          getDelay() const { return fDelay; }
-    inline guint           getGainCor() const { return fGainCor; }
-    inline const Gainline& getGainline() const { return gainline; }
-    inline string getIRDir() const { return fIRDir; }
+    inline float           getGain() const        { return fGain; }
+    inline guint           getOffset() const      { return fOffset; }
+    inline guint           getLength() const      { return fLength; }
+    inline guint           getDelay() const       { return fDelay; }
+    inline guint           getGainCor() const     { return fGainCor; }
+    inline const Gainline& getGainline() const    { return gainline; }
+    inline string getIRDir() const                { return fIRDir; }
     inline void setFullIRPath(string name);
 
-    inline void setGain(float gain) { fGain       = gain; }
-    inline void setGainCor(guint gain) { fGainCor       = gain; }
-    inline void setOffset(guint offs) { fOffset     = offs; }
-    inline void setLength(guint leng) { fLength     = leng; }
-    inline void setDelay(guint del) { fDelay      = del;  }
+    inline void setGain(float gain)               { fGain       = gain; }
+    inline void setGainCor(guint gain)            { fGainCor       = gain; }
+    inline void setOffset(guint offs)             { fOffset     = offs; }
+    inline void setLength(guint leng)             { fLength     = leng; }
+    inline void setDelay(guint del)               { fDelay      = del;  }
     inline void setGainline(const Gainline& gain) { gainline    = gain; }
 
     // internal setting manipulation
  private:
-    inline bool isValid()  { return fValidSettings; }
+    inline bool isValid()                         { return fValidSettings; }
  public:
 
     // --------------- instanciation of jconv handler
@@ -105,7 +104,6 @@ class GxJConvSettings {
             // return static instance
             return &jcset;
         }
-
 
     // checkbutton state
     static float checkbutton7;

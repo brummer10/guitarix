@@ -460,7 +460,7 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
     gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
     gtk_menu_shell_append(GTK_MENU_SHELL(gui->getMenu("PluginMenu")),
                           GTK_WIDGET(fOrdervRack.gobj()));
-    fOrdervRack.set_parameter(new SwitchParameter("system.order_rack_v", true, false));
+    fOrdervRack.set_parameter(new SwitchParameter("system.order_rack_v", false, false));
     fOrdervRack.show();
 
     mtitle = "Order Rack Horizontally";
@@ -469,7 +469,7 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
     gtk_menu_shell_append(GTK_MENU_SHELL(gui->getMenu("PluginMenu")),
                           GTK_WIDGET(fOrderhRack.gobj()));
     fOrderhRack.set_active(false);
-    fOrderhRack.set_parameter(new SwitchParameter("system.order_rack_h", true, false));
+    fOrderhRack.set_parameter(new SwitchParameter("system.order_rack_h", false, false));
     fOrderhRack.show();
 
     paintbox1.show();

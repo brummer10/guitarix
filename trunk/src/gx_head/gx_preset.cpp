@@ -617,6 +617,10 @@ void gx_load_preset(GtkMenuItem *menuitem, gpointer load_preset) {
                          _("Preset list is empty, make some :)"));
         return;
     }
+    
+    gx_engine::GxEngineState estate = gx_engine::checky;
+    if (estate != gx_engine::kEngineOff)
+        gx_engine::checky = gx_engine::kEngineOff;
 
     // retrieve preset name
     vector<GtkMenuItem*>::iterator it = pm_list[LOAD_PRESET_LIST].begin();
@@ -661,6 +665,7 @@ void gx_load_preset(GtkMenuItem *menuitem, gpointer load_preset) {
 
     /* collect info for stage info display*/
     gx_gui::show_patch_info = gx_get_single_preset_menu_pos(gx_current_preset, 0);
+    gx_engine::checky = estate;
 }
 
 // ---- funktion save
@@ -743,6 +748,9 @@ bool gx_load_preset_from_factory(const char* presname, int i) {
 // ----menu funktion load preset from factory
 void gx_load_factory_preset(GtkMenuItem *menuitem, gpointer load_preset) {
     // retrieve preset name
+    gx_engine::GxEngineState estate = gx_engine::checky;
+    if (estate != gx_engine::kEngineOff)
+        gx_engine::checky = gx_engine::kEngineOff;
     int i = GPOINTER_TO_INT(load_preset);
     vector<GtkMenuItem*>::iterator it = fpm_list[i].begin();
     vector<string>::iterator its = fplist[i].begin();
@@ -780,6 +788,7 @@ void gx_load_factory_preset(GtkMenuItem *menuitem, gpointer load_preset) {
         gx_gui::g_threads[3] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,
                                                gx_convolver_restart, NULL, NULL);
     }
+    gx_engine::checky = estate;
 }
 
 // load the factory preset file
@@ -829,6 +838,9 @@ void  gx_load_factory_file(int i) {
 ///------ user preset handling------///
 // load a preset file
 void gx_recall_settings_file(const string *filename) {
+    gx_engine::GxEngineState estate = gx_engine::checky;
+    if (estate != gx_engine::kEngineOff)
+        gx_engine::checky = gx_engine::kEngineOff;
     if (!filename) {
         string fname = gx_user_dir + gx_jack::client_instance + "_rc";
         gx_system::recallState(fname);
@@ -848,6 +860,7 @@ void gx_recall_settings_file(const string *filename) {
     gx_current_preset = "";
     gx_gui::show_patch_info = 0;
     gx_refresh_preset_menus();
+    gx_engine::checky = estate;
 }
 
 // ----- select a external preset file

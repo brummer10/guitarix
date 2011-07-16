@@ -1411,7 +1411,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
     gx_engine::turnOffMidi();
 
     // clean jack gxjack.client stuff
-    gx_jack::gx_jack_cleanup();
+    gx_jack::gxjack.gx_jack_cleanup();
 
     // clean GTK stuff
     if (gx_gui::gw.fWindow) {
