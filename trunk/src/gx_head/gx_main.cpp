@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
         gx_jack::gxjack.gx_jack_callbacks_and_activate();
 
         // -------- init port connections
-        gx_jack::gx_jack_init_port_connection(optvar);
+        gx_jack::gxjack.gx_jack_init_port_connection(optvar);
     }
 
     // ----------------------- run GTK main loop ----------------------

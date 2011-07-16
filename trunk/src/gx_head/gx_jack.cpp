@@ -258,31 +258,31 @@ static gboolean gx_engine_restart(gpointer data) {
 }
 
 // ----- connect ports if we know them
-void gx_jack_init_port_connection(const string* optvar) {
+void GxJack::gx_jack_init_port_connection(const string* optvar) {
     // set engine off for one GTK thread cycle to avoid Xrun at startup
+    gx_engine::checky = gx_engine::kEngineOff;
     gx_gui::g_threads[4] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20, gx_engine_restart,
                                            NULL, NULL);
-    gx_engine::checky = gx_engine::kEngineOff;
 
     // set autoconnect capture to user capture port
     if (!optvar[JACK_INP].empty()) {
-        jack_connect(gxjack.client, optvar[JACK_INP].c_str(),
-                     jack_port_name(gxjack.input_ports[0]));
+        jack_connect(client, optvar[JACK_INP].c_str(),
+                     jack_port_name(input_ports[0]));
     } else {
         list<string>& l = gx_system::jack_connection_lists[kAudioInput];
         for (list<string>::iterator i = l.begin(); i != l.end(); i++) {
-            jack_connect(gxjack.client, i->c_str(), jack_port_name(gxjack.input_ports[0]));
+            jack_connect(client, i->c_str(), jack_port_name(input_ports[0]));
         }
     }
 
     // set autoconnect midi to user midi port
     if (gxjack.midi_input_port && !optvar[JACK_MIDI].empty()) {
-        jack_connect(gxjack.client, optvar[JACK_MIDI].c_str(),
-                     jack_port_name(gxjack.midi_input_port));
+        jack_connect(client, optvar[JACK_MIDI].c_str(),
+                     jack_port_name(midi_input_port));
     } else {
         list<string>& l = gx_system::jack_connection_lists[kMidiInput];
         for (list<string>::iterator i = l.begin(); i != l.end(); i++) {
-            jack_connect(gxjack.client, i->c_str(), jack_port_name(gxjack.midi_input_port));
+            jack_connect(client, i->c_str(), jack_port_name(midi_input_port));
         }
     }
 
@@ -290,18 +290,18 @@ void gx_jack_init_port_connection(const string* optvar) {
     if (optvar[JACK_OUT1].empty() && optvar[JACK_OUT2].empty()) {
         list<string>& l1 = gx_system::jack_connection_lists[kAudioOutput1];
         for (list<string>::iterator i = l1.begin(); i != l1.end(); i++) {
-            jack_connect(gxjack.client_insert, jack_port_name(gxjack.output_ports[2]), i->c_str());
+            jack_connect(client_insert, jack_port_name(output_ports[2]), i->c_str());
         }
         list<string>& l2 = gx_system::jack_connection_lists[kAudioOutput2];
         for (list<string>::iterator i = l2.begin(); i != l2.end(); i++) {
-            jack_connect(gxjack.client_insert, jack_port_name(gxjack.output_ports[3]), i->c_str());
+            jack_connect(client_insert, jack_port_name(output_ports[3]), i->c_str());
         }
     } else {
         int idx = JACK_OUT1;
         for (int i = 2; i < 4; i++) {
             if (!optvar[idx].empty()) {
-                jack_connect(gxjack.client_insert,
-                             jack_port_name(gxjack.output_ports[i]), optvar[idx].c_str());
+                jack_connect(client_insert,
+                             jack_port_name(output_ports[i]), optvar[idx].c_str());
             }
             idx++;
         }
@@ -310,7 +310,7 @@ void gx_jack_init_port_connection(const string* optvar) {
     // autoconnect midi output port
     list<string>& lmo = gx_system::jack_connection_lists[kMidiOutput];
     for (list<string>::iterator i = lmo.begin(); i != lmo.end(); i++) {
-        jack_connect(gxjack.client, jack_port_name(gxjack.midi_output_ports), i->c_str());
+        jack_connect(client, jack_port_name(midi_output_ports), i->c_str());
     }
 
     // autoconnect to insert ports
@@ -318,20 +318,20 @@ void gx_jack_init_port_connection(const string* optvar) {
     list<string>& lins_out = gx_system::jack_connection_lists[kAudioInsertOut];
     bool ifound = false, ofound = false;
     for (list<string>::iterator i = lins_in.begin(); i != lins_in.end(); i++) {
-        int rc = jack_connect(gxjack.client_insert, i->c_str(),
-                              jack_port_name(gxjack.input_ports[1]));
+        int rc = jack_connect(client_insert, i->c_str(),
+                              jack_port_name(input_ports[1]));
         if (rc == 0 || rc == EEXIST) {
             ifound = true;
         }
     }
     for (list<string>::iterator i = lins_out.begin(); i != lins_out.end(); i++) {
-        int rc = jack_connect(gxjack.client, jack_port_name(gxjack.output_ports[0]), i->c_str());
+        int rc = jack_connect(client, jack_port_name(output_ports[0]), i->c_str());
         if (rc == 0 || rc == EEXIST) {
             ofound = true;
         }
     }
     if (!ifound || !ofound) {
-        jack_connect(gxjack.client_insert, jack_port_name(gxjack.output_ports[0]),
+        jack_connect(client_insert, jack_port_name(output_ports[0]),
                     (client_insert_name+":in_0").c_str());
     }
 }
@@ -457,7 +457,7 @@ void gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg) {
                     gx_engine::gx_engine_init(optvar);
                 }
                 gxjack.gx_jack_callbacks_and_activate();
-                gx_jack_init_port_connection(optvar);
+                gxjack.gx_jack_init_port_connection(optvar);
 
                 // refresh latency check menu
                 gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();

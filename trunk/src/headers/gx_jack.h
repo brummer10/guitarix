@@ -72,10 +72,10 @@ class GxJack {
 
     bool gx_jack_init(const string *optvar );
     void gx_jack_callbacks_and_activate();
-    
-    /* processing */
+
     int gx_jack_midi_process(jack_nframes_t, void* arg);
     int gx_jack_midi_input_process(jack_nframes_t, void* arg);
+    void gx_jack_init_port_connection(const string*);
 
     void gx_jack_cleanup();
 };
@@ -94,7 +94,7 @@ void gx_jack_shutdown_callback(void* arg);
 int  gx_jack_xrun_callback(void* arg);
 int  gx_jack_buffersize_callback(jack_nframes_t, void* arg);
 void gx_jack_portreg_callback(jack_port_id_t, int, void* arg);
-void gx_jack_init_port_connection(const string*);
+
 #ifdef HAVE_JACK_SESSION
 void gx_jack_session_callback(jack_session_event_t *event, void *arg);
 #endif
