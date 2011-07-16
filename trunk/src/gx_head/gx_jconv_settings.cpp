@@ -662,6 +662,7 @@ void IRWindow::on_remove_tree() {
               &IRWindow::on_combo_changed) );
 }
 
+
 // reload the treelist for the combobox
 void IRWindow::on_enumerate() {
     on_remove_tree();
@@ -683,6 +684,8 @@ void IRWindow::on_enumerate() {
                     file_names.push_back(file_info->get_name());
             }
         }
+        // sort the vector
+        std::sort(file_names.begin(), file_names.end());
         // clear the TreeView
         model->clear();
         // now populate the TreeView
