@@ -359,76 +359,76 @@ class GxMainInterface : public gx_ui::GxUI {
     // private constructor
     explicit GxMainInterface(const char* name);
 
-    void addMainMenu();
-    void addEngineMenu();
-    void addJackServerMenu();
-    void addPresetMenu();
-    void addExtraPresetMenu();
-    void addPluginMenu();
-    void addAmpMenu();
-    void addOptionMenu();
-    void addGuiSkinMenu();
-    void addAboutMenu();
+    void                  addMainMenu();
+    void                  addEngineMenu();
+    void                  addJackServerMenu();
+    void                  addPresetMenu();
+    void                  addExtraPresetMenu();
+    void                  addPluginMenu();
+    void                  addAmpMenu();
+    void                  addOptionMenu();
+    void                  addGuiSkinMenu();
+    void                  addAboutMenu();
 
-    bool on_meter_button_release(GdkEventButton* ev);
-    void on_tuner_activate();
-    void gx_show_menu_settings(GtkWidget *widget, gpointer data);
-    void on_log_activate();
-    void on_rack_activate();
-    void on_rrack_activate();
-    void on_srack_activate();
-    void on_toolbar_activate();
-    void on_tube_activate();
-    void set_mouse_mode();
-    void on_show_oscilloscope();
-    bool on_refresh_oscilloscope();
+    bool                  on_meter_button_release(GdkEventButton* ev);
+    void                  on_tuner_activate();
+    void                  gx_show_menu_settings(GtkWidget *widget, gpointer data);
+    void                  on_log_activate();
+    void                  on_rack_activate();
+    void                  on_rrack_activate();
+    void                  on_srack_activate();
+    void                  on_toolbar_activate();
+    void                  on_tube_activate();
+    void                  set_mouse_mode();
+    void                  on_show_oscilloscope();
+    bool                  on_refresh_oscilloscope();
 
  protected :
-    int                 fTop;
-    GtkWidget*          fBox[stackSize];
-    GtkWidget*          rBox;
-    GtkWidget*          sBox;
-    GtkWidget*          tBox;
+    int                   fTop;
+    GtkWidget*            fBox[stackSize];
+    GtkWidget*            rBox;
+    GtkWidget*            sBox;
+    GtkWidget*            tBox;
 
-    int                 fMode[stackSize];
-    bool                fStopped;
-    GtkTextView*        fLoggingWindow;
-    GtkExpander*        fLoggingBox;
-    GtkAdjustment*      fLoggingVAdjustment;
-    Gxw::FastMeter      fLevelMeters[2];
-    uiTuner             fTuner;
-    Gxw::WaveView       fWaveView;
-    GtkWidget*          fSignalLevelBar;
+    int                   fMode[stackSize];
+    bool                  fStopped;
+    GtkTextView*          fLoggingWindow;
+    GtkExpander*          fLoggingBox;
+    GtkAdjustment*        fLoggingVAdjustment;
+    Gxw::FastMeter        fLevelMeters[2];
+    uiTuner               fTuner;
+    Gxw::WaveView         fWaveView;
+    GtkWidget*            fSignalLevelBar;
 
     // menu items
     map<string, GtkWidget*> fMenuList;
-    MenuCheckItem       fMidiInPreset;
-    MenuCheckItem       fShowTooltips;
-    MenuCheckItem       fShowTuner;
-    MenuCheckItem       fShowWaveView;
-    MenuCheckItem       fSetMouse;
+    MenuCheckItem         fMidiInPreset;
+    MenuCheckItem         fShowTooltips;
+    MenuCheckItem         fShowTuner;
+    MenuCheckItem         fShowWaveView;
+    MenuCheckItem         fSetMouse;
 
     // jack menu widgets
-    GtkWidget*          fJackConnectItem;
-    GtkWidget*          fJackLatencyItem[NJACKLAT];
+    GtkWidget*            fJackConnectItem;
+    GtkWidget*            fJackLatencyItem[NJACKLAT];
 
-    GtkWidget* addWidget(const char* label, GtkWidget* w);
-    virtual void pushBox(int mode, GtkWidget* w);
+    GtkWidget*            addWidget(const char* label, GtkWidget* w);
+    virtual void          pushBox(int mode, GtkWidget* w);
 
  public :
-    MenuCheckItem       fShowRack;
-    MenuCheckItem       fShowRRack;
-    MenuCheckItem       fShowSRack;
-    MenuCheckItem       fShowLogger;
-    MenuCheckItem       fShowMidiOut;
-    MenuCheckItem       fShowToolBar;
-    RadioCheckItem      fSelectTubeModel[14];
+    MenuCheckItem         fShowRack;
+    MenuCheckItem         fShowRRack;
+    MenuCheckItem         fShowSRack;
+    MenuCheckItem         fShowLogger;
+    MenuCheckItem         fShowMidiOut;
+    MenuCheckItem         fShowToolBar;
+    RadioCheckItem        fSelectTubeModel[14];
 
-    GtkWidget*          logger;
-    GtkWidget*          RBox;
+    GtkWidget*            logger;
+    GtkWidget*            RBox;
 
-    static bool         fInitialized;
-    int                 highest_unseen_msg_level;
+    static bool           fInitialized;
+    int                   highest_unseen_msg_level;
 
     static const gboolean expand   = TRUE;
     static const gboolean fill     = TRUE;
@@ -440,21 +440,19 @@ class GxMainInterface : public gx_ui::GxUI {
     GtkAccelGroup* fAccelGroup;
 
     // -- acquire a pointer to the logging window
-    GtkTextView* const getLoggingWindow()    const { return fLoggingWindow;   }
-    GtkExpander* const getLoggingBox()       const { return fLoggingBox;      }
-    GtkWidget*   const getJackConnectItem()  const { return fJackConnectItem; }
-    void set_waveview_buffer();
+    GtkTextView* const    getLoggingWindow()    const { return fLoggingWindow;   }
+    GtkExpander* const    getLoggingBox()       const { return fLoggingBox;      }
+    GtkWidget*   const    getJackConnectItem()  const { return fJackConnectItem; }
+    GtkWidget*   const    getJackLatencyItem(const jack_nframes_t bufsize) const;
+    GtkWidget*   const    getMenu(const string name) { return fMenuList[name]; }
+    
+    void                  set_waveview_buffer();
+    Gxw::WaveView&        getWaveView()               { return fWaveView;        }
 
-    Gxw::WaveView& getWaveView()                   { return fWaveView;        }
-
-    Gxw::FastMeter& getLevelMeter(unsigned int i) {
+    Gxw::FastMeter&       getLevelMeter(unsigned int i) {
             assert(i < sizeof(fLevelMeters)/sizeof(fLevelMeters[0]));
             return fLevelMeters[i];
         }
-
-    GtkWidget*   const getJackLatencyItem(const jack_nframes_t bufsize) const;
-
-    GtkWidget*   const getMenu(const string name) { return fMenuList[name]; }
 
     // -- layout groups
     void gx_build_mono_rack();

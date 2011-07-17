@@ -38,6 +38,8 @@
 #define AVOIDDENORMALS
 #endif
 
+#include <jack/jack.h>          // NOLINT
+
 #ifdef HAVE_JACK_SESSION
 #include <jack/session.h>
 #endif
@@ -52,14 +54,12 @@ class GxJack {
     bool gx_start_jack(void* arg);
 
  public:
-    static const int nIPorts = 3; // mono input + jconv
-    static const int nOPorts = 4; // stereo output + jconv
-    /* variables */
+    static const int    nIPorts = 3; // mono input + jconv
+    static const int    nOPorts = 4; // stereo output + jconv
+
     jack_nframes_t      jack_sr;   // jack sample rate
     jack_nframes_t      jack_bs;   // jack buffer size
-    float               jcpu_load; // jack cpu_load
-    float               xdel;      // last xrun delay
-    int                 is_rt;
+    jack_nframes_t      time_is;
 
     jack_client_t*      client;
     jack_client_t*      client_insert;
@@ -68,16 +68,18 @@ class GxJack {
     jack_port_t*        midi_input_port;
     jack_port_t*        midi_output_ports;
 
-    jack_nframes_t      time_is;
-
-    bool gx_jack_init(const string *optvar );
-    void gx_jack_callbacks_and_activate();
-
-    int gx_jack_midi_process(jack_nframes_t, void* arg);
-    int gx_jack_midi_input_process(jack_nframes_t, void* arg);
-    void gx_jack_init_port_connection(const string*);
-
-    void gx_jack_cleanup();
+    bool                gx_jack_init(const string *optvar );
+    
+    float               jcpu_load; // jack cpu_load
+    float               xdel;      // last xrun delay
+    
+    int                 is_rt;
+    int                 gx_jack_midi_process(jack_nframes_t, void* arg);
+    int                 gx_jack_midi_input_process(jack_nframes_t, void* arg);
+    
+    void                gx_jack_init_port_connection(const string*);
+    void                gx_jack_callbacks_and_activate();
+    void                gx_jack_cleanup();
 };
 extern GxJack gxjack;
 

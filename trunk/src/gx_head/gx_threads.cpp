@@ -101,7 +101,7 @@ gboolean gx_xrun_report(gpointer arg) {
 gboolean gx_do_program_change(gpointer arg) {
     int pgm = GPOINTER_TO_INT(arg);
     gx_engine::GxEngineState estate = gx_engine::checky;
-    if (gx_preset::gx_nth_preset(pgm)) {
+    if (gx_preset::gxpreset.gx_nth_preset(pgm)) {
         if (estate == gx_engine::kEngineBypass)
             // engine bypass but preset found -> engine on
             gx_gui::gx_engine_switch(reinterpret_cast<GtkWidget*>(0), (gpointer)1);

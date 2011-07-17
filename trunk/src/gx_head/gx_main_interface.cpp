@@ -1200,8 +1200,8 @@ struct uipButton : public gx_ui::GxUiItemFloat {
             gx_ui::GxUiItemFloat* c = (gx_ui::GxUiItemFloat*)data;
             c->modifyZone(1.0);
             guint32 tim = gtk_get_current_event_time();
-            gtk_menu_popup(GTK_MENU(gx_preset::presmenu[0]), NULL, NULL, NULL,
-                          (gpointer) gx_preset::presmenu[0] , 2, tim);
+            gtk_menu_popup(GTK_MENU(gx_preset::gxpreset.presmenu[0]), NULL, NULL, NULL,
+                          (gpointer) gx_preset::gxpreset.presmenu[0] , 2, tim);
         }
 
     static void released(GtkWidget *widget, gpointer   data) {
@@ -1633,9 +1633,9 @@ struct uiPatchDisplay : public gx_ui::GxUiItemFloat {
                         gtk_label_set_text(GTK_LABEL(pchild), s);
                     }
 
-                    if (gx_preset::setting_is_preset) {
+                    if (gx_preset::gxpreset.setting_is_preset) {
                         snprintf(s, sizeof(s), " %i%s%s ", static_cast<int>(show_patch_info),
-                                 ". ", gx_preset::gx_current_preset.c_str());
+                                 ". ", gx_preset::gxpreset.gx_current_preset.c_str());
                         gtk_label_set_text(GTK_LABEL(parent), s);
                     } else {
                         show_patch_info = 0;
@@ -2062,20 +2062,34 @@ void GxMainInterface::addPresetMenu() {
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
     gtk_widget_show(menucont);
     fMenuList["Presets"] = menucont;
+    
+    const char* preset_accel_path[] = {
+        "<gx_head>/Load",
+        "<gx_head>/Save",
+        "<gx_head>/Rename",
+        "<gx_head>/Delete"
+    };
+
+    const char* preset_menu_name[] = {
+        N_("_Load Preset..."),
+        N_("_Save Preset..."),
+        N_("_Rename Preset..."),
+        N_("_Delete Preset...")
+    };
 
     /* special treatment of preset lists, from gx_preset namespace */
     for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++) {
         GtkWidget* menuItem =
-            gtk_menu_item_new_with_mnemonic(gettext(gx_preset::preset_menu_name[i]));
+            gtk_menu_item_new_with_mnemonic(gettext(preset_menu_name[i]));
         gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuItem);
 
         GtkWidget* menu = gtk_menu_new();
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuItem), menu);
 
-        gtk_menu_set_accel_path(GTK_MENU(menu), gx_preset::preset_accel_path[i]);
+        gtk_menu_set_accel_path(GTK_MENU(menu), preset_accel_path[i]);
 
-        gx_preset::presmenu[i] = menu;
-        gx_preset::presMenu[i] = menuItem;
+        gx_preset::gxpreset.presmenu[i] = menu;
+        gx_preset::gxpreset.presMenu[i] = menuItem;
     }
 
     GtkWidget* menuItem =
@@ -2085,61 +2099,61 @@ void GxMainInterface::addPresetMenu() {
         GtkWidget* menu = gtk_menu_new();
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuItem), menu);
 
-        gx_preset::fpresmenu = menu;
+        gx_preset::gxpreset.fpresmenu = menu;
 
     gtk_widget_show(menuItem);
 
     menuitem = gtk_menu_item_new_with_mnemonic("funkmuscle");
     menu = gtk_menu_new();
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
-    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::fpresmenu), menuitem, 0);
-    gx_preset::ffpresmenu[0] = menu;
+    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.fpresmenu), menuitem, 0);
+    gx_preset::gxpreset.ffpresmenu[0] = menu;
 
     gtk_widget_show(menuitem);
 
     menuitem = gtk_menu_item_new_with_mnemonic("zettberlin");
     menu = gtk_menu_new();
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
-    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::fpresmenu), menuitem, 0);
-    gx_preset::ffpresmenu[1] = menu;
+    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.fpresmenu), menuitem, 0);
+    gx_preset::gxpreset.ffpresmenu[1] = menu;
 
     gtk_widget_show(menuitem);
 
     menuitem = gtk_menu_item_new_with_mnemonic("autoandimat");
     menu = gtk_menu_new();
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
-    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::fpresmenu), menuitem, 0);
-    gx_preset::ffpresmenu[3] = menu;
+    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.fpresmenu), menuitem, 0);
+    gx_preset::gxpreset.ffpresmenu[3] = menu;
 
     gtk_widget_show(menuitem);
     
     menuitem = gtk_menu_item_new_with_mnemonic("StudioDave");
     menu = gtk_menu_new();
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
-    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::fpresmenu), menuitem, 0);
-    gx_preset::ffpresmenu[2] = menu;
+    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.fpresmenu), menuitem, 0);
+    gx_preset::gxpreset.ffpresmenu[2] = menu;
 
     gtk_widget_show(menuitem);
 
     /*-- add New Preset saving under Save Presets menu */
     menuitem = gtk_menu_item_new_with_mnemonic(_("New _Preset"));
     g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gx_save_newpreset_dialog), NULL);
+                      G_CALLBACK(gx_preset::gxpreset.gx_save_newpreset_dialog), NULL);
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
                                GDK_p, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::presmenu[SAVE_PRESET_LIST]), menuitem, 0);
+    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.presmenu[SAVE_PRESET_LIST]), menuitem, 0);
     gtk_widget_show(menuitem);
 
     /*-- add a separator line --*/
     GtkWidget* sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::presmenu[SAVE_PRESET_LIST]), sep, 1);
+    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.presmenu[SAVE_PRESET_LIST]), sep, 1);
     gtk_widget_show(sep);
 
     /*-- initial preset list --*/
     // gx_preset::gx_refresh_preset_menus(); //FIXME: will be done in gx_engine_init()?
 
     for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
-        gtk_widget_show(gx_preset::presMenu[i]);
+        gtk_widget_show(gx_preset::gxpreset.presMenu[i]);
 
     /* ------------------- */
 
@@ -2167,7 +2181,7 @@ void GxMainInterface::addPresetMenu() {
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
                                GDK_f, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gx_load_preset_file), NULL);
+                      G_CALLBACK(gx_preset::gxpreset.gx_load_preset_file), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
     gtk_widget_show(menuitem);
 
@@ -2176,7 +2190,7 @@ void GxMainInterface::addPresetMenu() {
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
                                GDK_x, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gx_save_preset_file), NULL);
+                      G_CALLBACK(gx_preset::gxpreset.gx_save_preset_file), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
     gtk_widget_show(menuitem);
 
@@ -2188,7 +2202,7 @@ void GxMainInterface::addPresetMenu() {
     /*-- Create  Main setting submenu --*/
     menuitem = gtk_menu_item_new_with_mnemonic(_("Recall Main _Setting"));
     g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gx_recall_main_setting), NULL);
+                      G_CALLBACK(gx_preset::gxpreset.gx_recall_main_setting), NULL);
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
                                GDK_s, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
@@ -2196,7 +2210,7 @@ void GxMainInterface::addPresetMenu() {
 
     menuitem = gtk_menu_item_new_with_mnemonic(_("_Save As Main _Setting"));
     g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gx_save_main_setting), NULL);
+                      G_CALLBACK(gx_preset::gxpreset.gx_save_main_setting), NULL);
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
                                GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
@@ -2233,7 +2247,7 @@ void GxMainInterface::addExtraPresetMenu() {
     /* forward preset */
     menuitem = gtk_menu_item_new_with_mnemonic(_("Next _Preset"));
     g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gx_next_preset), NULL);
+                      G_CALLBACK(gx_preset::gxpreset.gx_next_preset), NULL);
     gtk_widget_add_accelerator(menuitem, "activate",
                                fAccelGroup, GDK_Page_Down,
                                GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
@@ -2243,7 +2257,7 @@ void GxMainInterface::addExtraPresetMenu() {
     /* rewind preset */
     menuitem = gtk_menu_item_new_with_mnemonic(_("Previous _Preset"));
     g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gx_previous_preset), NULL);
+                      G_CALLBACK(gx_preset::gxpreset.gx_previous_preset), NULL);
     gtk_widget_add_accelerator(menuitem, "activate",
                                fAccelGroup, GDK_Page_Up,
                                GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
@@ -2258,7 +2272,7 @@ void GxMainInterface::addExtraPresetMenu() {
     /*-- Create  menu item Delete Active preset --*/
     menuitem = gtk_menu_item_new_with_mnemonic(_("_Save Active Preset"));
     g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gx_save_oldpreset), (gpointer)1);
+                      G_CALLBACK(gx_preset::gxpreset.gx_save_oldpreset), (gpointer)1);
     gtk_widget_add_accelerator(menuitem, "activate",
                                fAccelGroup, GDK_s,
                                GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
@@ -2267,7 +2281,7 @@ void GxMainInterface::addExtraPresetMenu() {
 
     menuitem = gtk_menu_item_new_with_mnemonic(_("_Rename Active Preset"));
     g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gx_rename_active_preset_dialog), NULL);
+                      G_CALLBACK(gx_preset::gxpreset.gx_rename_active_preset_dialog), NULL);
     gtk_widget_add_accelerator(menuitem, "activate",
                                fAccelGroup, GDK_r,
                                GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
@@ -2276,7 +2290,7 @@ void GxMainInterface::addExtraPresetMenu() {
 
     menuitem = gtk_menu_item_new_with_mnemonic(_("_Delete Active Preset"));
     g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gx_delete_active_preset_dialog), NULL);
+                      G_CALLBACK(gx_preset::gxpreset.gx_delete_active_preset_dialog), NULL);
     gtk_widget_add_accelerator(menuitem, "activate",
                                fAccelGroup, GDK_Delete,
                                GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
@@ -2291,7 +2305,7 @@ void GxMainInterface::addExtraPresetMenu() {
     /*-- Create  menu item Delete All presets --*/
     menuitem = gtk_menu_item_new_with_mnemonic(_("_Delete All Presets"));
     g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gx_delete_all_presets_dialog), NULL);
+                      G_CALLBACK(gx_preset::gxpreset.gx_delete_all_presets_dialog), NULL);
     gtk_widget_add_accelerator(menuitem, "activate",
                                fAccelGroup, GDK_d,
                                GdkModifierType(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);

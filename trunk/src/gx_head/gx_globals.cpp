@@ -116,65 +116,6 @@ const char* shell_var_name[] = {
 };
 }
 
-
-/* ------------------------------------------------------------------------- */
-
-/* ----- preset namespace ----- */
-namespace gx_preset {
-/* global var declarations */
-
-gx_gui::FileParameter gx_preset_file("system.current_preset_file");
-gx_gui::FileParameter gx_factory_preset_file("system.factory_preset_file");
-
-GdkModifierType list_mod[] = {
-	GDK_NO_MOD_MASK,
-	GDK_CONTROL_MASK,
-	GDK_MOD1_MASK,
-	GdkModifierType(GDK_CONTROL_MASK|GDK_MOD1_MASK)
-};
-
-const char* preset_accel_path[] = {
-	"<gx_head>/Load",
-	"<gx_head>/Save",
-	"<gx_head>/Rename",
-	"<gx_head>/Delete"
-};
-
-const char* preset_menu_name[] = {
-	N_("_Load Preset..."),
-	N_("_Save Preset..."),
-	N_("_Rename Preset..."),
-	N_("_Delete Preset...")
-};
-
-string gx_current_preset;
-string gx_factory_preset;
-string old_preset_name;
-
-GtkWidget* presmenu[GX_NUM_OF_PRESET_LISTS];
-GtkWidget* presMenu[GX_NUM_OF_PRESET_LISTS];
-
-vector<string> plist;
-vector<GtkMenuItem*> pm_list[GX_NUM_OF_PRESET_LISTS];
-
-GtkWidget* fpresmenu;
-
-GtkWidget* ffpresmenu[GX_NUM_OF_FACTORY_PRESET];
-vector<string> fplist[GX_NUM_OF_FACTORY_PRESET];
-vector<GtkMenuItem*> fpm_list[GX_NUM_OF_FACTORY_PRESET];
-
-
-bool setting_is_preset = false;
-bool setting_is_factory = false;
-
-GCallback preset_action_func[] = {
-	G_CALLBACK(gx_load_preset),
-	G_CALLBACK(gx_save_oldpreset),
-	G_CALLBACK(gx_rename_preset_dialog),
-	G_CALLBACK(gx_delete_preset_dialog)
-};
-}
-
 /* ------------------------------------------------------------------------- */
 
 /* ----- GUI namespace ----- */

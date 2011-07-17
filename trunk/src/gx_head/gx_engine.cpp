@@ -59,12 +59,12 @@ void gx_engine_init(const string *optvar ) {
     // resampTube.setup(gx_jack::jack_sr, 2);
     // resampDist.setup(gx_jack::jack_sr, 2);
     if (!optvar[LOAD_FILE].empty()) {
-        gx_preset::gx_recall_settings_file(&optvar[LOAD_FILE]);
+        gx_preset::gxpreset.gx_recall_settings_file(&optvar[LOAD_FILE]);
     } else {
-        gx_preset::gx_recall_settings_file();
+        gx_preset::gxpreset.gx_recall_settings_file();
     }
     for (int i = 0; i < GX_NUM_OF_FACTORY_PRESET; i++)
-        gx_preset::gx_load_factory_file(i);
+        gx_preset::gxpreset.gx_load_factory_file(i);
     initialized = true;
 }
 

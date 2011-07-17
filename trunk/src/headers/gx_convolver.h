@@ -69,11 +69,11 @@ class Audiofile {
     Audiofile(void);
     ~Audiofile(void);
 
-    // int mode(void) const { return _mode; }
-    int type(void) const { return _type; }
-    int form(void) const { return _form; }
-    int rate(void) const { return _rate; }
-    int chan(void) const { return _chan; }
+    // int mode(void) const   { return _mode; }
+    int type(void) const      { return _type; }
+    int form(void) const      { return _form; }
+    int rate(void) const      { return _rate; }
+    int chan(void) const      { return _chan; }
     uint32_t size(void) const { return _size; }
 
     int open_read(string name);
@@ -104,10 +104,10 @@ class GxConvolverBase: protected Convproc {
     GxConvolverBase(): ready(false) {}
  public:
     bool checkstate();
-    void set_not_runnable() { ready = false; }
-    bool is_runnable() { return ready; }
+    void set_not_runnable()   { ready = false; }
+    bool is_runnable()        { return ready; }
     bool start();
-    void stop() { stop_process(); }
+    void stop()               { stop_process(); }
 };
 
 class GxConvolver: public GxConvolverBase {

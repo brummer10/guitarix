@@ -68,22 +68,22 @@ ToggleCheckButton::ToggleCheckButton() {
 
 GxTBox::~GxTBox() {}
 
-GxTBox::GxTBox(gx_ui::GxUI& ui) {}
+GxTBox::GxTBox(const gx_ui::GxUI& ui) {}
 /****************************************************************/
 
 GxVBox::~GxVBox() {}
 
-GxVBox::GxVBox(gx_ui::GxUI& ui) {}
+GxVBox::GxVBox(const gx_ui::GxUI& ui) {}
 /****************************************************************/
 
 GxHBox::~GxHBox() {}
 
-GxHBox::GxHBox(gx_ui::GxUI& ui) {}
+GxHBox::GxHBox(const gx_ui::GxUI& ui) {}
 /****************************************************************/
 
 GxFixedBox::~GxFixedBox() {}
 
-GxFixedBox::GxFixedBox(gx_ui::GxUI& ui) {
+GxFixedBox::GxFixedBox(const gx_ui::GxUI& ui) {
     m_fixed.put(m_box, 0, 0);
 }
 /****************************************************************/
@@ -99,7 +99,7 @@ GxPaintBox::GxPaintBox(gx_ui::GxUI& ui, const char *expose_funk)
 
 GxEventBox::~GxEventBox() {}
 
-GxEventBox::GxEventBox(gx_ui::GxUI& ui) {
+GxEventBox::GxEventBox(const gx_ui::GxUI& ui) {
     m_eventbox.add(m_box);
     m_fixedbox.add(m_eventbox);
     m_hbox.add(m_pbox);
@@ -146,7 +146,7 @@ GxMidiBox::GxMidiBox(gx_ui::GxUI& ui, const char *expose_funk)
 
 GxNotebookBox::~GxNotebookBox() {}
 
-GxNotebookBox::GxNotebookBox(gx_ui::GxUI& ui) {
+GxNotebookBox::GxNotebookBox(const gx_ui::GxUI& ui) {
     m_box.set_name("tab_rack");
 }
 /****************************************************************/
@@ -154,7 +154,7 @@ GxNotebookBox::GxNotebookBox(gx_ui::GxUI& ui) {
 GxMoveBox::~GxMoveBox() {
 }
 
-GxMoveBox::GxMoveBox(gx_ui::GxUI& ui) {
+GxMoveBox::GxMoveBox(const gx_ui::GxUI& ui) {
     m_paintbox.property_paint_func() = "rectangle_skin_color_expose";
     m_label.set_text("▼");
     m_label.set_name("rack_slider");

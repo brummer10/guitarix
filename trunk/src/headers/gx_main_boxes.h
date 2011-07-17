@@ -59,7 +59,7 @@ class GxTBox {
  public:
     Gtk::VBox m_box;
     ToggleCheckButton m_tcb;
-    explicit GxTBox(gx_ui::GxUI& ui);
+    explicit GxTBox(const gx_ui::GxUI& ui);
     virtual ~GxTBox();
 };
 
@@ -69,7 +69,7 @@ class GxVBox {
  public:
     Gtk::VBox m_box;
     Gtk::Label m_label;
-    explicit GxVBox(gx_ui::GxUI& ui);
+    explicit GxVBox(const gx_ui::GxUI& ui);
     virtual ~GxVBox();
 };
 
@@ -80,7 +80,7 @@ class GxHBox {
     Gtk::HBox m_box;
     Gtk::Label m_label;
     Gtk::Frame m_frame;
-    explicit GxHBox(gx_ui::GxUI& ui);
+    explicit GxHBox(const gx_ui::GxUI& ui);
     virtual ~GxHBox();
 };
 
@@ -90,7 +90,7 @@ class GxFixedBox {
  public:
     Gtk::Fixed m_fixed;
     Gtk::VBox m_box;
-    explicit GxFixedBox(gx_ui::GxUI& ui);
+    explicit GxFixedBox(const gx_ui::GxUI& ui);
     virtual ~GxFixedBox();
 };
 
@@ -116,7 +116,7 @@ class GxEventBox {
     Gtk::HBox m_fbox;
     Gtk::HBox m_fixedbox;
     Gtk::Label m_label;
-    explicit GxEventBox(gx_ui::GxUI& ui);
+    explicit GxEventBox(const gx_ui::GxUI& ui);
     virtual ~GxEventBox();
 };
 
@@ -157,7 +157,7 @@ class GxMidiBox {
 class GxNotebookBox {
  public:
     Gtk::Notebook m_box;
-    explicit GxNotebookBox(gx_ui::GxUI& ui);
+    explicit GxNotebookBox(const gx_ui::GxUI& ui);
     virtual ~GxNotebookBox();
 };
 
@@ -171,7 +171,7 @@ class GxMoveBox {
     Gxw::PaintBox m_paintbox;
     Gtk::Button m_button;
     Gtk::Button m_button1;
-    explicit GxMoveBox(gx_ui::GxUI& ui);
+    explicit GxMoveBox(const gx_ui::GxUI& ui);
     virtual ~GxMoveBox();
 };
 

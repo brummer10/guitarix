@@ -115,37 +115,6 @@ enum {
 
 /* -------------------------------------------------------------------------- */
 
-/* ----- preset namespace ----- */
-namespace gx_preset {
-/* global var declarations */
-extern GdkModifierType list_mod[];
-extern const char* preset_accel_path[];
-extern const char* preset_menu_name[];
-// extern map<GtkMenuItem*, string> preset_list[];
-
-extern string gx_current_preset;
-extern string gx_factory_preset;
-extern string old_preset_name;
-
-extern GtkWidget* presmenu[];
-extern GtkWidget* presMenu[];
-
-extern vector<string> plist;
-extern vector<GtkMenuItem*> pm_list[];
-extern bool setting_is_preset;
-extern bool setting_is_factory;
-
-extern GtkWidget* fpresmenu;
-extern GtkWidget* ffpresmenu[];
-
-extern vector<string> fplist[];
-extern vector<GtkMenuItem*> fpm_list[];
-
-extern GCallback preset_action_func[];
-}
-
-/* -------------------------------------------------------------------------- */
-
 /* ----- system namespace ----- */
 namespace gx_system {
 

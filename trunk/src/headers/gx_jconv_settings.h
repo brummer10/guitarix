@@ -61,8 +61,8 @@ class GxJConvSettings {
     guint           fGainCor;
 
     void read_gainline(gx_system::JsonParser& jp);
-    inline void setIRFile(string name)          { fIRFile = name; }
-    inline void setIRDir(string name)           { fIRDir = name; }
+    inline void setIRFile(string name)            { fIRFile = name; }
+    inline void setIRDir(string name)             { fIRDir = name; }
 
     // private constructor (don't call it, call instance())
     GxJConvSettings();
