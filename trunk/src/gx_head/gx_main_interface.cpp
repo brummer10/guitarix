@@ -2996,7 +2996,7 @@ void GxMainInterface::addJackServerMenu() {
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
                                GDK_c, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_jack::gx_jack_connection), NULL);
+                      G_CALLBACK(gx_jack::gxjack.gx_jack_connection), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 
     gtk_widget_show(menuitem);
@@ -3033,7 +3033,7 @@ void GxMainInterface::addJackServerMenu() {
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), FALSE);
 
         g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                          G_CALLBACK(gx_jack::gx_set_jack_buffer_size),
+                          G_CALLBACK(gx_jack::gxjack.gx_set_jack_buffer_size),
                           GINT_TO_POINTER(jack_buffer_size));
 
         // display actual buffer size as default

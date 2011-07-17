@@ -120,7 +120,7 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
 
     // return if jack is not down
     if (gx_system::gx_system_call("pgrep", "jackd", true) == gx_system::SYSTEM_OK) {
-        if (gx_jack::jack_is_down) {
+        if (gx_jack::gxjack.jack_is_down) {
             // let's make sure we get out of here
             if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(wd)))
                 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
@@ -136,7 +136,7 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
         // more than once, no harm here
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), FALSE);
         gx_jconv::GxJConvSettings::checkbutton7 = 0;
-        gx_jack::jack_is_down = true;
+        gx_jack::gxjack.jack_is_down = true;
     }
     // run as long jackd is down
     return true;

@@ -312,11 +312,11 @@ gint gx_wait_latency_warn() {
 
     GtkWidget* button1 =
         gtk_dialog_add_button(GTK_DIALOG(warn_dialog),
-                              _("Yes"), gx_jack::kChangeLatency);
+                              _("Yes"), gx_jack::gxjack.kChangeLatency);
 
     GtkWidget* button2 =
         gtk_dialog_add_button(GTK_DIALOG(warn_dialog),
-                              _("No"),  gx_jack::kKeepLatency);
+                              _("No"),  gx_jack::gxjack.kKeepLatency);
 
 
     GtkWidget* box1    = gtk_hbox_new(0, 4);

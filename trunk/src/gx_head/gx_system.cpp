@@ -620,19 +620,19 @@ static void read_jack_connections(JsonParser& jp) {
         int i;
         jp.next(JsonParser::value_key);
         if (jp.current_value() == "input") {
-            i = gx_jack::kAudioInput;
+            i = gx_jack::gxjack.kAudioInput;
         } else if (jp.current_value() == "output1") {
-            i = gx_jack::kAudioOutput1;
+            i = gx_jack::gxjack.kAudioOutput1;
         } else if (jp.current_value() == "output2") {
-            i = gx_jack::kAudioOutput2;
+            i = gx_jack::gxjack.kAudioOutput2;
         } else if (jp.current_value() == "midi_input") {
-            i = gx_jack::kMidiInput;
+            i = gx_jack::gxjack.kMidiInput;
         } else if (jp.current_value() == "midi_output") {
-            i = gx_jack::kMidiOutput;
+            i = gx_jack::gxjack.kMidiOutput;
         } else if (jp.current_value() == "insert_out") {
-            i = gx_jack::kAudioInsertOut;
+            i = gx_jack::gxjack.kAudioInsertOut;
         } else if (jp.current_value() == "insert_in") {
-            i = gx_jack::kAudioInsertIn;
+            i = gx_jack::gxjack.kAudioInsertIn;
         } else {
             gx_print_warning(_("recall state"),
                              _("unknown jack ports sections") + jp.current_value());
@@ -805,7 +805,7 @@ void gx_signal_handler(int sig) {
 gboolean  gx_ladi_handler(gpointer) {
     gx_print_warning(_("signal_handler"), _("signal USR1 received, save settings"));
 
-    saveStateToFile(gx_user_dir + gx_jack::client_instance + "_rc");
+    saveStateToFile(gx_user_dir + gx_jack::gxjack.client_instance + "_rc");
     return false;
 }
 
@@ -1400,13 +1400,13 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
         if (!gx_preset::gxpreset.setting_is_preset && !gx_preset::gxpreset.setting_is_factory
                                           && !is_session
                                           && gx_jack::gxjack.client) {
-            saveStateToFile(gx_user_dir + gx_jack::client_instance + "_rc");
+            saveStateToFile(gx_user_dir + gx_jack::gxjack.client_instance + "_rc");
         }
     }
 
     gx_gui::shownote = -1;
     gx_gui::showwave = 0;
-    gx_jack::NO_CONNECTION = 1;
+    gx_jack::gxjack.NO_CONNECTION = 1;
 
     gx_engine::turnOffMidi();
 

@@ -73,47 +73,6 @@ extern bool buffers_ready;
 
 /* -------------------------------------------------------------------------- */
 
-/* ----- jack namespace ----- */
-namespace gx_jack {
-/* latency change confirmation */
-typedef enum {
-    kChangeLatency = 1,
-    kKeepLatency   = 2
-} GxJackLatencyChange;
-
-
-extern int NO_CONNECTION;
-
-extern GxJackLatencyChange change_latency;
-
-#ifdef USE_RINGBUFFER
-extern struct MidiMessage  ev;
-extern jack_ringbuffer_t*  jack_ringbuffer;
-#endif
-extern void*               midi_input_port_buf;
-extern void*               midi_port_buf;
-extern bool                jack_is_down;
-extern bool                jack_is_exit;
-extern string              client_name;
-extern string              client_insert_name;
-extern string              client_instance;
-
-extern string              client_out_graph;
-extern string              gx_port_names[];
-
-/* lists of jack port types for menu items */
-enum {
-    kAudioInput    = 0,
-    kAudioOutput1  = 1,
-    kAudioOutput2  = 2,
-    kMidiInput     = 3,
-    kMidiOutput    = 4,
-    kAudioInsertIn = 5,
-    kAudioInsertOut= 6
-};
-}
-
-/* -------------------------------------------------------------------------- */
 
 /* ----- system namespace ----- */
 namespace gx_system {

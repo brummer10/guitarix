@@ -45,7 +45,7 @@ void compute(int count, float* input, float* output0) {
     // ------------ determine processing type
     uint16_t process_type = ZEROIZE_BUFFERS;
 
-    if (gx_jack::NO_CONNECTION == 0) { // ports connected
+    if (gx_jack::gxjack.NO_CONNECTION == 0) { // ports connected
         switch (estate) {
         case kEngineOn:
             process_type = PROCESS_BUFFERS;
@@ -106,7 +106,7 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
     // ------------ determine processing type
     uint16_t process_type = ZEROIZE_BUFFERS;
 
-    if (gx_jack::NO_CONNECTION == 0) { // ports connected
+    if (gx_jack::gxjack.NO_CONNECTION == 0) { // ports connected
         switch (estate) {
         case kEngineOn:
             process_type = PROCESS_BUFFERS;

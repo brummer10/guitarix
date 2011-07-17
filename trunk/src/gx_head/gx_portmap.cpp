@@ -374,7 +374,7 @@ void PortMapWindow::connection_changed(string port1, string port2, bool conn) {
         PortSection *p = &portsection[i];
 
         string s = (p->port_attr->client_num == 0 ?
-                    gx_jack::client_name : gx_jack::client_insert_name)
+                    gx_jack::gxjack.client_name : gx_jack::gxjack.client_insert_name)
             + ":" + p->port_attr->port_name;
         if (s.compare(port1) == 0) {
             update_summary(p, &port2, conn);
@@ -474,10 +474,10 @@ void PortMapWindow::on_cell_toggle(GtkCellRendererToggle *widget,
     jack_client_t *gcl;
     if (p->port_attr->client_num == 0) {
         gcl = gx_jack::gxjack.client;
-        gcln = gx_jack::client_name;
+        gcln = gx_jack::gxjack.client_name;
     } else {
         gcl = gx_jack::gxjack.client_insert;
-        gcln = gx_jack::client_insert_name;
+        gcln = gx_jack::gxjack.client_insert_name;
     }
     string s = gcln + ":" + p->port_attr->port_name;
     q2 = s.c_str();
@@ -559,7 +559,7 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port) {
         const char** conn_ports = jack_port_get_connections(jack_port);
         ClientList cl(ports);
         // the following loop depends on the first 2 entries being
-        // client_name and client_insert_name
+        // gxjack.client_name and gxjack.client_insert_name
         int idx = 0;
         for (list<string>::iterator j = excluded_clients.begin(); j !=
                                         excluded_clients.end(); j++, idx++) {
@@ -629,9 +629,9 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item) {
     gtk_widget_ref(GTK_WIDGET(item));
 
     // order of first 2 entries is important (check load())
-    excluded_clients.push_back(string(gx_jack::client_insert_name) + ":");
-    excluded_clients.push_back(string(gx_jack::client_name) + ":");
-    excluded_clients.push_back(string(gx_jack::client_instance) + "_meterbridge:");
+    excluded_clients.push_back(string(gx_jack::gxjack.client_insert_name) + ":");
+    excluded_clients.push_back(string(gx_jack::gxjack.client_name) + ":");
+    excluded_clients.push_back(string(gx_jack::gxjack.client_instance) + "_meterbridge:");
     excluded_clients.push_back(string("jack_capture:"));
 
     GtkBuilder * builder = gtk_builder_new();

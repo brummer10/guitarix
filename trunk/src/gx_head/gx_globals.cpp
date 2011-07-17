@@ -53,36 +53,6 @@ bool pt_initialized = false;
 bool buffers_ready = false;
 }
 
-
-/* ------------------------------------------------------------------------- */
-
-/* ----- jack namespace ----- */
-namespace gx_jack {
-
-int NO_CONNECTION = 1;
-
-void*               midi_input_port_buf;
-void*               midi_port_buf;
-
-bool                jack_is_down = false;
-bool                jack_is_exit = false;
-GxJackLatencyChange change_latency;
-
-string client_name  = "gx_head_amp";
-string client_insert_name  = "gx_head_fx";
-string client_instance  = "gx_head";
-
-string client_out_graph = "";
-
-string gx_port_names[] = {
-	"in_0",
-	"out_0",
-	"out_1",
-	"midi_in_1",
-	"out_3"
-};
-}
-
 /* ------------------------------------------------------------------------- */
 
 /* ----- system namespace ----- */

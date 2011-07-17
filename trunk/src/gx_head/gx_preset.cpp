@@ -203,7 +203,7 @@ static bool gx_build_preset_list() {
                           gx_i2a(gxpreset.plist.size()) + string(_(" presets found")));
             if (!samevers && gx_preset_file.is_standard()) {
                 gx_modify_preset(0 , 0, false, true);
-                gx_system::recallState(gx_user_dir + gx_jack::client_instance + "_rc"); // FIXME
+                gx_system::recallState(gx_user_dir + gx_jack::gxjack.client_instance + "_rc"); // FIXME
             }
             return true;
         } catch(gx_system::JsonException& e) {
@@ -861,7 +861,7 @@ void GxPreset::gx_recall_settings_file(const string *filename) {
     if (estate != gx_engine::kEngineOff)
         gx_engine::checky = gx_engine::kEngineOff;
     if (!filename) {
-        string fname = gx_user_dir + gx_jack::client_instance + "_rc";
+        string fname = gx_user_dir + gx_jack::gxjack.client_instance + "_rc";
         gx_system::recallState(fname);
         gx_jconv::gx_reload_jcgui();
         gx_print_info(
@@ -873,7 +873,7 @@ void GxPreset::gx_recall_settings_file(const string *filename) {
             _("loading Settings file"),
             (boost::format(_("loaded settings file %1%")) % *filename).str());
     }
-    gtk_window_set_title(GTK_WINDOW(gx_gui::gw.fWindow), gx_jack::client_instance.c_str());
+    gtk_window_set_title(GTK_WINDOW(gx_gui::gw.fWindow), gx_jack::gxjack.client_instance.c_str());
     setting_is_preset = false;
     setting_is_factory = false;
     gx_current_preset = "";
@@ -1020,7 +1020,7 @@ void GxPreset::gx_recall_main_setting(GtkMenuItem* item, gpointer) {
 
 // ----- save current setting as main setting
 void GxPreset::gx_save_main_setting(GtkMenuItem* item, gpointer arg) {
-    if (!saveStateToFile(gx_user_dir + gx_jack::client_instance + "_rc")) {
+    if (!saveStateToFile(gx_user_dir + gx_jack::gxjack.client_instance + "_rc")) {
         gx_print_error(_("Main Setting"), _("can't save main setting"));
     } else if (gxpreset.setting_is_preset) {
         gx_print_info(_("Main Setting"),
@@ -1028,7 +1028,7 @@ void GxPreset::gx_save_main_setting(GtkMenuItem* item, gpointer arg) {
     } else {
         gx_print_info(_("Main Setting"), _("Saved main setting"));
     }
-    gtk_window_set_title(GTK_WINDOW(gx_gui::gw.fWindow), gx_jack::client_instance.c_str());
+    gtk_window_set_title(GTK_WINDOW(gx_gui::gw.fWindow), gx_jack::gxjack.client_instance.c_str());
     gxpreset.setting_is_preset = false;
     gxpreset.setting_is_factory = false;
     gx_jconv::gx_reload_jcgui();
