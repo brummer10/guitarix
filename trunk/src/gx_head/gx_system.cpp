@@ -39,674 +39,7 @@
 
 namespace gx_system {
 
-/****************************************************************
- ** JsonWriter
- */
-
-JsonWriter::JsonWriter(ostream &o)
-    : os(o),
-    first(true),
-    deferred_nl(false),
-    indent("") {}
-
-inline void JsonWriter::komma() {
-    if (first)
-        first = false;
-    else if (!deferred_nl)
-        os << ", ";
-    else
-        os << ",";
-    flush();
-}
-
-inline void JsonWriter::space() {
-    if (first)
-        first = false;
-    else if (!deferred_nl)
-        os << " ";
-    flush();
-}
-
-inline void JsonWriter::iplus() {
-    indent += "  ";
-}
-
-inline void JsonWriter::iminus() {
-    if (!indent.empty()) {
-        indent = indent.substr(0, indent.size() - 2);
-    }
-}
-
-void JsonWriter::write(float v, bool nl) {
-    komma();
-    os << v;
-    snl(nl);
-}
-
-void JsonWriter::write(double v, bool nl) {
-    komma();
-    os << v;
-    snl(nl);
-}
-
-void JsonWriter::write(int i, bool nl) {
-    komma();
-    os << i;
-    snl(nl);
-}
-
-void JsonWriter::write(unsigned int i, bool nl) {
-    komma();
-    os << i;
-    snl(nl);
-}
-
-void JsonWriter::write_lit(string s, bool nl) {
-    komma();
-    os << s;
-    snl(nl);
-}
-
-void JsonWriter::write(const char* p, bool nl) {
-    komma();
-    os << '"';
-    while (*p) {
-        switch (*p) {
-        case '\\': case '"': os << '\\'; break;
-        case '\b': os << '\\'; os << 'b'; continue;       // NOLINT
-        case '\f': os << '\\'; os << 'f'; continue;       // NOLINT
-        case '\n': os << '\\'; os << 'n'; continue;       // NOLINT
-        case '\r': os << '\\'; os << 'r'; continue;       // NOLINT
-        case '\t': os << '\\'; os << 't'; continue;       // NOLINT
-        }
-        os << *p++;
-    }
-    os << '"';
-    snl(nl);
-}
-
-void JsonWriter::begin_object(bool nl) {
-    komma();
-    os << '{';
-    snl(nl);
-    first = true;
-    iplus();
-}
-
-void JsonWriter::end_object(bool nl) {
-    iminus();
-    flush();
-    os << '}';
-    snl(nl);
-}
-
-void JsonWriter::begin_array(bool nl) {
-    komma();
-    os << '[';
-    snl(nl);
-    first = true;
-    iplus();
-}
-
-void JsonWriter::end_array(bool nl) {
-    iminus();
-    flush();
-    first = false;
-    os << ']';
-    snl(nl);
-}
-
-void JsonWriter::write_key(const char* p, bool nl) {
-    write(p, nl);
-    os << ": ";
-    first = true;
-}
-
-void JsonWriter::write_key(string p, bool nl) {
-    write(p, nl);
-    os << ": ";
-    first = true;
-}
-
-// called before output of next element
-void JsonWriter::flush() {
-    if (deferred_nl) {
-        os << endl;
-        deferred_nl = false;
-        os << indent;
-    }
-}
-
-
-/****************************************************************
- ** JsonParser
- */
-
-const char* JsonParser::token_names[] = {
-    "no_token", "end_token", "begin_object", "end_object",
-    "begin_array", "end_array", "value_string", "value_number",
-    "value_key" };
-
-JsonException::JsonException(const char* desc) {
-    what_str = string("Json parse error: ") + desc;
-}
-
-JsonParser::JsonParser(istream& i)
-    : is(i),
-    depth(0),
-    cur_tok(no_token),
-    nl(false),
-    next_depth(0),
-    next_tok(no_token) {}
-
-void JsonParser::throw_unexpected(token expect) {
-    ostringstream b;
-    b << "unexpected token: " << token_names[cur_tok]
-      << " (expected: " << token_names[expect] << ")"
-      << endl;
-    throw JsonException(b.str().c_str());
-}
-
-const char* unicode2utf8(unsigned int input) {
-    const int maskbits   = 0x3F;
-    const int maskbyte   = 0x80;
-    const int mask2bytes = 0xC0;
-    const int mask3bytes = 0xE0;
-    static char result[4];
-    int n = 0;
-    // 0xxxxxxx
-    if (input < 0x80) {
-        result[n++] = static_cast<char>(input);
-
-    // 110xxxxx 10xxxxxx
-    } else if (input < 0x800) {
-        result[n++] = (static_cast<char>(mask2bytes | (input >> 6)));
-        result[n++] = (static_cast<char>(maskbyte | (input & maskbits)));
-
-    // 1110xxxx 10xxxxxx 10xxxxxx
-    } else {
-        result[n++] = (static_cast<char>(mask3bytes | (input >> 12)));
-        result[n++] = (static_cast<char>(maskbyte | ((input >> 6) & maskbits)));
-        result[n++] = (static_cast<char>(maskbyte | (input & maskbits)));
-    }
-    result[n++] = '\0';
-    return result;
-}
-
-const char* JsonParser::readcode() {
-    int code = 0;
-    for (int i = 0; i < 4; i++) {
-        int n = is.get();
-        if (!is.good())
-            throw JsonException("eof");
-        if ('0' <= n && n <= '9')
-            n = n - '0';
-        else
-            n = 10 + (toupper(n) - 'A');
-        code = code * 16 + n;
-    }
-    return unicode2utf8(code);
-}
-
-string JsonParser::readstring() {
-    ostringstream os("");
-    char c;
-    do {
-        is.get(c);
-        if (!is.good())
-            return "";
-        if (c == '\\') {
-            is.get(c);
-            if (!is.good())
-                return "";
-            switch (c) {
-            case 'b': os << '\b'; break;
-            case 'f': os << '\f'; break;
-            case 'n': os << '\n'; break;
-            case 'r': os << '\r'; break;
-            case 't': os << '\t'; break;
-            case 'u': os << readcode(); break;
-            default: is.get(c); os << c; break;
-            }
-        } else if (c == '"') {
-            return os.str();
-        } else {
-            os << c;
-        }
-    } while (true);
-}
-
-string JsonParser::readnumber(char c) {
-    ostringstream os("");
-    do {
-        os << c;
-        c = is.peek();
-        switch (c) {
-        case '+': case '-': case '0': case '1': case '2': case '3': case '4':
-        case '5': case '6': case '7': case '8': case '9': case 'e': case 'E':
-        case '.':
-            break;
-        default:
-            return os.str();
-        }
-        is.get(c);
-    } while (is.good());
-    return "";
-}
-
-void JsonParser::read_next() {
-    if (next_tok == end_token)
-        return;
-    if (next_tok != no_token and next_depth == 0) {
-        next_tok = end_token;
-        return;
-    }
-    char c;
-    nl = false;
-    while (true) {
-        do {
-            is.get(c);
-            if (!is.good())
-                throw JsonException("eof");
-            if (c == '\n')
-                nl = true;
-        } while (c == ' ' || c == '\t' || c == '\r' || c == '\n');
-        switch (c) {
-        case '[': next_tok = begin_array; next_depth++; break;
-
-        case ']': next_tok = end_array; next_depth--; break;
-
-        case '{': next_tok = begin_object; next_depth++; break;
-
-        case '}': next_tok = end_object; next_depth--; break;
-
-        case ',': continue;
-
-        case '"':
-            next_str = readstring();
-            is >> c;
-            if (!is.good())
-                throw JsonException("eof");
-            if (c == ':') {
-                next_tok = value_key;
-            } else {
-                is.unget();
-                next_tok = value_string;
-            }
-            break;
-
-        case '-': case '0': case '1': case '2': case '3': case '4':
-        case '5': case '6': case '7': case '8': case '9':
-            next_str = readnumber(c);
-            next_tok = value_number;
-            break;
-
-        default:
-            throw JsonException("bad token");
-        }
-        break;
-    }
-}
-
-JsonParser::token JsonParser::next(token expect) {
-    if (cur_tok != end_token) {
-        if (next_tok == no_token)
-            read_next();
-        depth = next_depth;
-        cur_tok = next_tok;
-        str = next_str;
-        if (next_tok != end_token)
-            read_next();
-    }
-    if (expect != no_token)
-        check_expect(expect);
-    return cur_tok;
-}
-
-
-void JsonParser::copy_object(JsonWriter& jw) {
-    int curdepth = depth;
-    do {
-        switch (next()) {
-        case begin_object:
-            jw.begin_object(nl);
-            break;
-        case end_object:
-            jw.end_object(nl);
-            break;
-        case begin_array:
-            jw.begin_array(nl);
-            break;
-        case end_array:
-            jw.end_array(nl);
-            break;
-        case value_string:
-            jw.write(current_value(), nl);
-            break;
-        case value_number:
-            jw.write_lit(current_value(), nl);
-            break;
-        case value_key:
-            jw.write_key(current_value().c_str(), nl);
-            break;
-        default:
-            throw JsonException("unexpected token");
-        }
-    } while (curdepth != depth);
-}
-
-void JsonParser::skip_object() {
-    int curdepth = depth;
-    do {
-        if (next() == end_token) {
-            throw JsonException("unexpected eof");
-        }
-    } while (curdepth != depth);
-}
-
-
-/****************************************************************
- ** loading of saving application data
- */
-
-static void write_parameters(JsonWriter &w, bool preset) {
-    w.begin_object(true);
-    for (gx_gui::ParamMap::iterator i = gx_gui::parameter_map.begin();
-                                   i != gx_gui::parameter_map.end(); i++) {
-        gx_gui::Parameter *param = i->second;
-        if ((preset and param->isInPreset()) or(!preset and !param->isInPreset())) {
-            param->writeJSON(w);
-            w.newline();
-        }
-    }
-    w.end_object(true);
-}
-
-static void read_parameters(JsonParser &jp, gx_gui::paramlist& plist, bool preset) {
-    jp.next(JsonParser::begin_object);
-    do {
-        jp.next(JsonParser::value_key);
-        if (!gx_gui::parameter_map.hasId(jp.current_value())) {
-            gx_print_warning(_("recall settings"),
-                             _("unknown parameter: ")+jp.current_value());
-            jp.skip_object();
-            continue;
-        }
-        gx_gui::Parameter& param = gx_gui::parameter_map[jp.current_value()];
-        if (!preset and param.isInPreset()) {
-            gx_print_warning(_("recall settings"),
-                             _("preset-parameter ")+param.id()+_(" in settings"));
-            jp.skip_object();
-            continue;
-        } else if (preset and !param.isInPreset()) {
-            gx_print_warning(_("recall settings"),
-                             _("non preset-parameter ")+param.id()+_(" in preset"));
-            jp.skip_object();
-            continue;
-        }
-        param.readJSON_value(jp);
-        plist.push_back(&param);
-    } while (jp.peek() == JsonParser::value_key);
-    jp.next(JsonParser::end_object);
-}
-
-void write_preset(JsonWriter &w, bool write_midi, bool force_midi) {
-    w.begin_object(true);
-    w.write_key("engine");
-    write_parameters(w, true);
-    w.write_key("jconv");
-    gx_jconv::GxJConvSettings::instance()->writeJSON(w);
-    if (force_midi || (write_midi &&
-                       gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get())) {
-        w.write_key("midi_controller");
-        gx_gui::controller_map.writeJSON(w);
-    }
-    w.newline();
-    w.end_object(true);
-}
-
-void fixup_parameters(int major, int minor) {
-    assert(gx_gui::parameter_map.hasId("jconv.wet_dry"));
-    if (major == majorversion && minor == minorversion) {
-        return;
-    }
-    if (major == 1 && minor < 2) {
-        if (gx_gui::parameter_map.hasId("jconv.wet_dry")) {
-            gx_gui::Parameter& p = gx_gui::parameter_map["jconv.wet_dry"];
-            if (p.isFloat()) {
-                p.getFloat().convert_from_range(-1, 1);
-            }
-        }
-    }
-}
-
-void read_preset(JsonParser &jp, bool *has_midi, int major, int minor) {
-    gx_gui::paramlist plist;
-    if (has_midi) {
-        *has_midi = false;
-    }
-    gx_gui::MidiControllerList::controller_array *m = 0;
-    jp.next(JsonParser::begin_object);
-    do {
-        jp.next(JsonParser::value_key);
-        if (jp.current_value() == "engine") {
-            read_parameters(jp, plist, true);
-        } else if (jp.current_value() == "jconv") {
-            *gx_jconv::GxJConvSettings::instance() = gx_jconv::GxJConvSettings(jp);
-        } else if (jp.current_value() == "midi_controller") {
-            if (has_midi || gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
-                m = new gx_gui::MidiControllerList::controller_array
-                               (gx_gui::MidiControllerList::controller_array_size);
-                gx_gui::controller_map.readJSON(jp, *m);
-                if (has_midi) {
-                    *has_midi = true;
-                }
-            } else {
-                jp.skip_object();
-            }
-        } else {
-            gx_print_warning(_("recall settings"),
-                             _("unknown preset section: ") + jp.current_value());
-        }
-    } while (jp.peek() == JsonParser::value_key);
-    jp.next(JsonParser::end_object);
-    gx_gui::controller_map.remove_controlled_parameters(plist, m);
-    fixup_parameters(major, minor);
-    for (gx_gui::paramlist::iterator i = plist.begin(); i != plist.end(); i++) {
-        (*i)->setJSON_value();
-    }
-    if (m) {
-        gx_gui::controller_map.set_controller_array(*m);
-        delete m;
-    }
-}
-
-void writeHeader(JsonWriter& jw) {
-    jw.write("gx_head_file_version");
-    jw.begin_array();
-    jw.write(majorversion); // major format version
-    jw.write(minorversion); // minor format version
-    jw.write(GX_VERSION);
-    jw.end_array(true);
-}
-
-bool readHeader(JsonParser& jp, int *major, int *minor) {
-    jp.next(JsonParser::value_string);
-    if (jp.current_value() != "gx_head_file_version") {
-        throw JsonException("invalid gx_head file header");
-    }
-    jp.next(JsonParser::begin_array);
-    jp.next(JsonParser::value_number);
-    int m = jp.current_value_int();
-    if (major) {
-        *major = m;
-    }
-    jp.next(JsonParser::value_number); // minorversion
-    int n = jp.current_value_int();
-    if (minor) {
-        *minor = n;
-    }
-    jp.next(JsonParser::value_string); // gx_head version
-    jp.next(JsonParser::end_array);
-    return m == majorversion && n == minorversion;
-}
-
-static void write_jack_port_connections(JsonWriter& w, const char *key, jack_port_t *port) {
-    w.write_key(key);
-    w.begin_array();
-    const char** pl = jack_port_get_connections(port);
-    if (pl) {
-        for (const char **p = pl; *p; p++) {
-            w.write(*p);
-        }
-        free(pl);
-    }
-    w.end_array(true);
-}
-
-void write_jack_connections(JsonWriter& w) {
-    w.begin_object(true);
-    write_jack_port_connections(w, "input", gx_jack::gxjack.input_ports[0]);
-    write_jack_port_connections(w, "output1", gx_jack::gxjack.output_ports[2]);
-    write_jack_port_connections(w, "output2", gx_jack::gxjack.output_ports[3]);
-    write_jack_port_connections(w, "midi_input", gx_jack::gxjack.midi_input_port);
-    write_jack_port_connections(w, "midi_output", gx_jack::gxjack.midi_output_ports);
-    write_jack_port_connections(w, "insert_out", gx_jack::gxjack.output_ports[0]);
-    write_jack_port_connections(w, "insert_in", gx_jack::gxjack.input_ports[1]);
-    w.end_object(true);
-}
-
-// -- save state including current preset data
-bool saveStateToFile(const string &filename) {
-    gx_print_info(_("wrinting to "), filename.c_str());
-    string tmpfile = filename + "_tmp";
-    ofstream f(tmpfile.c_str());
-    JsonWriter w(f);
-
-    w.begin_array();
-    writeHeader(w);
-
-    w.write("settings");
-    write_parameters(w, false);
-
-    w.write("midi_controller");
-    gx_gui::controller_map.writeJSON(w);
-
-    w.write("midi_ctrl_names");
-    gx_gui::midi_std_ctr.writeJSON(w);
-
-    w.write("current_preset");
-    write_preset(w, false);
-
-    w.write("jack_connections");
-    write_jack_connections(w);
-
-    w.newline();
-    w.end_array(true);
-    w.close();
-    f.close();
-    if (!f.good()) {
-        return false;
-    }
-    int rc = rename(tmpfile.c_str(), filename.c_str());
-    return rc == 0;
-}
-
-list<string> jack_connection_lists[7];
-
-static void read_jack_connections(JsonParser& jp) {
-    jp.next(JsonParser::begin_object);
-    while (jp.peek() == JsonParser::value_key) {
-        int i;
-        jp.next(JsonParser::value_key);
-        if (jp.current_value() == "input") {
-            i = gx_jack::gxjack.kAudioInput;
-        } else if (jp.current_value() == "output1") {
-            i = gx_jack::gxjack.kAudioOutput1;
-        } else if (jp.current_value() == "output2") {
-            i = gx_jack::gxjack.kAudioOutput2;
-        } else if (jp.current_value() == "midi_input") {
-            i = gx_jack::gxjack.kMidiInput;
-        } else if (jp.current_value() == "midi_output") {
-            i = gx_jack::gxjack.kMidiOutput;
-        } else if (jp.current_value() == "insert_out") {
-            i = gx_jack::gxjack.kAudioInsertOut;
-        } else if (jp.current_value() == "insert_in") {
-            i = gx_jack::gxjack.kAudioInsertIn;
-        } else {
-            gx_print_warning(_("recall state"),
-                             _("unknown jack ports sections") + jp.current_value());
-            jp.skip_object();
-            continue;
-        }
-        jp.next(JsonParser::begin_array);
-        while (jp.peek() == JsonParser::value_string) {
-            jp.next();
-            jack_connection_lists[i].push_back(jp.current_value());
-        }
-        jp.next(JsonParser::end_array);
-    }
-    jp.next(JsonParser::end_object);
-}
-
-// -- recallState(filename) : load state from file
-bool recallState(const string &filename) {
-    ifstream f(filename.c_str());
-    if (!f.good()) {
-        return false;
-    }
-    gx_gui::paramlist plist;
-    gx_gui::MidiControllerList::controller_array m
-            (gx_gui::MidiControllerList::controller_array_size);
-    gx_system::JsonParser jp(f);
-    try {
-        jp.next(JsonParser::begin_array);
-
-        int major, minor;
-        readHeader(jp, &major, &minor);
-        if (major != majorversion) {
-            if (major == 0) {
-                gx_print_info(_("recall settings"), _("loading converted state"));
-            } else {
-                stringstream s;
-                s << _("major version mismatch in ")+filename+_(": found ")
-                  << major << _(", expected ") << majorversion << endl;
-                gx_print_warning(_("recall settings"), s.str());
-            }
-        }
-
-        // other sections (settings, current_preset)
-        do {
-            jp.next(JsonParser::value_string);
-            if (jp.current_value() == "settings") {
-                read_parameters(jp, plist, false);
-            } else if (jp.current_value() == "current_preset") {
-                read_preset(jp, 0, major, minor);
-            } else if (jp.current_value() == "midi_controller") {
-                gx_gui::controller_map.readJSON(jp, m);
-            } else if (jp.current_value() == "midi_ctrl_names") {
-                gx_gui::midi_std_ctr.readJSON(jp);
-            } else if (jp.current_value() == "jack_connections") {
-                read_jack_connections(jp);
-            } else {
-                gx_print_warning(_("recall settings"),
-                                 _("unknown section: ") + jp.current_value());
-                jp.skip_object();
-            }
-        } while (jp.peek() == JsonParser::value_string);
-        jp.next(JsonParser::end_array);
-        jp.next(JsonParser::end_token);
-    } catch(JsonException& e) {
-        gx_print_error(_("recall settings"), _("invalid settings file: ") + filename);
-        return false;
-    }
-    for (gx_gui::paramlist::iterator i = plist.begin(); i != plist.end(); i++) {
-        (*i)->setJSON_value();
-    }
-    gx_gui::controller_map.set_controller_array(m);
-    return true;
-}
-
+SystemVars sysvar;
 /****************************************************************
  ** Measuring times (only when debugging)
  */
@@ -786,6 +119,31 @@ void add_time_measurement() {
  ** OS functions and helper
  */
 
+
+const int SystemVars::SYSTEM_OK           = 0;
+const char* SystemVars::gx_head_dir       = ".gx_head";
+const char* SystemVars::jcapsetup_file    = "ja_ca_ssetrc";
+const char* SystemVars::jcapfile_wavbase  = "gx_head_session";
+const string SystemVars::gx_pixmap_dir    = string(GX_PIXMAPS_DIR) + "/";
+const string SystemVars::gx_user_dir      = string(getenv("HOME")) + string("/")
+                                             + string(gx_head_dir) + "/";
+const char* SystemVars::shell_var_name[] = {
+    "GUITARIX2JACK_INPUTS",
+    "GUITARIX2JACK_OUTPUTS1",
+    "GUITARIX2JACK_OUTPUTS2",
+    "GUITARIX2JACK_MIDI",
+    "GUITARIX_RC_STYLE",
+    "GUITARIX2JACK_UUID",
+    "GUITARIX_LOAD_FILE"
+};
+
+void SystemVars::sysvar_init() {
+    is_session = false;
+    gx_style_dir  = string(GX_STYLE_DIR1) + "/";
+    gx_builder_dir = string(GX_BUILDER_DIR1) + "/";
+}
+
+
 // ---- retrieve and store the shell variable if not NULL
 void gx_assign_shell_var(const char* name, string& value) {
     const char* val = getenv(name);
@@ -805,7 +163,7 @@ void gx_signal_handler(int sig) {
 gboolean  gx_ladi_handler(gpointer) {
     gx_print_warning(_("signal_handler"), _("signal USR1 received, save settings"));
 
-    saveStateToFile(gx_user_dir + gx_jack::gxjack.client_instance + "_rc");
+    saveStateToFile(sysvar.gx_user_dir + gx_jack::gxjack.client_instance + "_rc");
     return false;
 }
 
@@ -815,7 +173,7 @@ bool terminal  = true; // make messages before main() appear on terminal
 void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
     // store shell variable content
     for (int i = 0; i < NUM_SHELL_VAR; i++) {
-        gx_assign_shell_var(shell_var_name[i], optvar[i]);
+        gx_assign_shell_var(sysvar.shell_var_name[i], optvar[i]);
     }
     // initialize number of skins. We just count the number of rc files
     unsigned int n = gx_gui::gx_fetch_available_skins();
@@ -1017,17 +375,17 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
 
     // *** process builder_dir
     if (!builder_dir.empty()) {
-        gx_builder_dir = builder_dir;
-        if (gx_builder_dir[gx_builder_dir.size()-1] != '/') {
-            gx_builder_dir += "/";
+        sysvar.gx_builder_dir = builder_dir;
+        if (sysvar.gx_builder_dir[sysvar.gx_builder_dir.size()-1] != '/') {
+            sysvar.gx_builder_dir += "/";
         }
     }
 
     // *** process style_dir
     if (!style_dir.empty()) {
-        gx_style_dir = style_dir;
-        if (gx_style_dir[gx_style_dir.size()-1] != '/') {
-            gx_style_dir += "/";
+        sysvar.gx_style_dir = style_dir;
+        if (sysvar.gx_style_dir[sysvar.gx_style_dir.size()-1] != '/') {
+            sysvar.gx_style_dir += "/";
         }
     }
 
@@ -1065,7 +423,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
 
     optvar[LOAD_FILE] = load_file;
 
-    rcpath = gx_style_dir + string("gx_head_") + optvar[RC_STYLE] + ".rc";
+    sysvar.rcpath = sysvar.gx_style_dir + string("gx_head_") + optvar[RC_STYLE] + ".rc";
 }
 
 void gx_set_override_options(string* optvar) {
@@ -1160,19 +518,19 @@ bool gx_version_check() {
     // ----- if the presethandling is working with the courent version, we only count this
     // ----- string when we must remove the old preset files.
     string rcfilename =
-        gx_user_dir + string("version-") + string("0.03.3");
+        sysvar.gx_user_dir + string("version-") + string("0.03.3");
 
-    if  (stat(gx_user_dir.c_str(), &my_stat) == 0) { // directory exists
+    if  (stat(sysvar.gx_user_dir.c_str(), &my_stat) == 0) { // directory exists
         // check which version we're dealing with
         if  (stat(rcfilename.c_str(), &my_stat) != 0) {
             // current version not there, let's create it and refresh the whole shebang
-            string oldfiles = gx_user_dir + string("gx_head*rc");
+            string oldfiles = sysvar.gx_user_dir + string("gx_head*rc");
             (void)gx_system_call("rm -f", oldfiles.c_str(), false);
 
-            oldfiles = gx_user_dir + string("version*");
+            oldfiles = sysvar.gx_user_dir + string("version*");
             (void)gx_system_call("rm -f", oldfiles.c_str(), false);
 
-            oldfiles = gx_user_dir + string("*.conf");
+            oldfiles = sysvar.gx_user_dir + string("*.conf");
             (void)gx_system_call("rm -f", oldfiles.c_str(), false);
 
             // setting file for current version
@@ -1182,7 +540,7 @@ bool gx_version_check() {
             f.close();
 
             // --- create jack_capture setting file
-            /*string tmpstr = gx_user_dir + jcapsetup_file;
+            /*string tmpstr = sysvar.gx_user_dir + sysvar.jcapsetup_file;
 
             (void)gx_system_call("touch", tmpstr.c_str(), false);
             (void)gx_system_call(
@@ -1193,7 +551,7 @@ bool gx_version_check() {
         }
     } else { // directory does not exist
         // create .gx_head directory
-        (void)gx_system_call("mkdir -p", gx_user_dir.c_str(), false);
+        (void)gx_system_call("mkdir -p", sysvar.gx_user_dir.c_str(), false);
 
         // setting file for current version
         ofstream f(rcfilename.c_str());
@@ -1202,7 +560,7 @@ bool gx_version_check() {
         f.close();
 
         // --- create jack_capture setting file
-        string tmpstr = gx_user_dir + jcapsetup_file;
+        string tmpstr = sysvar.gx_user_dir + sysvar.jcapsetup_file;
 
     /*    (void)gx_system_call("touch", tmpstr.c_str(), false);
         (void)gx_system_call(
@@ -1214,14 +572,14 @@ bool gx_version_check() {
         // --- version file
         // same here, we only change this file, when the presethandling is broken,
         // otherwise we can let it untouched
-        tmpstr = gx_user_dir + string("version-") + string("0.03.3");
+        tmpstr = sysvar.gx_user_dir + string("version-") + string("0.03.3");
         (void)gx_system_call("touch", tmpstr.c_str(), false);
 
         cim = string("echo 'gx_head-") + string(GX_VERSION) + "' >";
         (void)gx_system_call(cim.c_str(), tmpstr.c_str(), false);
 
         // create empty preset file
-        tmpstr = gx_user_dir + string("gx_headpre_rc");
+        tmpstr = sysvar.gx_user_dir + string("gx_headpre_rc");
         ofstream nfile(tmpstr.c_str());
         JsonWriter jw(nfile);
         jw.begin_array();
@@ -1238,9 +596,9 @@ bool gx_version_check() {
 int gx_pixmap_check() {
     struct stat my_stat;
 
-    string gx_pix   = gx_pixmap_dir + "gx_head.png";
-    string midi_pix = gx_pixmap_dir + "gx_head-midi.png";
-    string warn_pix = gx_pixmap_dir + "gx_head-warn.png";
+    string gx_pix   = sysvar.gx_pixmap_dir + "gx_head.png";
+    string midi_pix = sysvar.gx_pixmap_dir + "gx_head-midi.png";
+    string warn_pix = sysvar.gx_pixmap_dir + "gx_head-warn.png";
 
     if ((stat(gx_pix.c_str(), &my_stat) != 0)   ||
         (stat(midi_pix.c_str(), &my_stat) != 0) ||
@@ -1363,19 +721,10 @@ void gx_destroy_event() {
     if (G_IS_OBJECT(gx_gui::gw.ibr))
         g_object_unref(gx_gui::gw.ibr);
 
-    if (G_IS_OBJECT(gx_cairo::tribeimage))
-        g_object_unref(gx_cairo::tribeimage);
-
-    if (G_IS_OBJECT(gx_cairo::tribeimage1))
-        g_object_unref(gx_cairo::tribeimage1);
-
-    if (G_IS_OBJECT(gx_cairo::tribeimage2))
-        g_object_unref(gx_cairo::tribeimage2);
-
     // remove threads from main GTK thread
-    for (unsigned int i = 0; i < sizeof(gx_gui::g_threads)/sizeof(gx_gui::g_threads[0]); i++) {
-        if (gx_gui::g_threads[i] > 0) {
-            g_source_remove(gx_gui::g_threads[i]);
+    for (unsigned int i = 0; i < sizeof(gx_gui::guivar.g_threads)/sizeof(gx_gui::guivar.g_threads[0]); i++) {
+        if (gx_gui::guivar.g_threads[i] > 0) {
+            g_source_remove(gx_gui::guivar.g_threads[i]);
         }
     }
 
@@ -1392,20 +741,20 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
         if (gtk_widget_get_visible(GTK_WIDGET(gx_gui::gw.fWindow))) {
             gint mainxorg, mainyorg;
             gtk_window_get_position(GTK_WINDOW(gx_gui::gw.fWindow), &mainxorg, &mainyorg);
-            gx_gui::main_xorg = static_cast<float>(mainxorg);
-            gx_gui::main_yorg = static_cast<float>(mainyorg);
+            gx_gui::guivar.main_xorg = static_cast<float>(mainxorg);
+            gx_gui::guivar.main_yorg = static_cast<float>(mainyorg);
         }
 
         // only save if we are not in a preset or session context
         if (!gx_preset::gxpreset.setting_is_preset && !gx_preset::gxpreset.setting_is_factory
-                                          && !is_session
+                                          && !sysvar.is_session
                                           && gx_jack::gxjack.client) {
-            saveStateToFile(gx_user_dir + gx_jack::gxjack.client_instance + "_rc");
+            saveStateToFile(sysvar.gx_user_dir + gx_jack::gxjack.client_instance + "_rc");
         }
     }
 
-    gx_gui::shownote = -1;
-    gx_gui::showwave = 0;
+    gx_gui::guivar.shownote = -1;
+    gx_gui::guivar.showwave = 0;
     gx_jack::gxjack.NO_CONNECTION = 1;
 
     gx_engine::turnOffMidi();
@@ -1418,27 +767,27 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
         gx_destroy_event();
     }
     // delete the locked mem buffers
-    if (gx_engine::checkfreq) {
-        delete[] gx_engine::checkfreq;
-        gx_engine::checkfreq = NULL;
+    if (gx_engine::audio.checkfreq) {
+        delete[] gx_engine::audio.checkfreq;
+        gx_engine::audio.checkfreq = NULL;
     }
-    if (gx_engine::get_frame) {
-        delete[] gx_engine::get_frame;
-        gx_engine::get_frame = NULL;
+    if (gx_engine::audio.get_frame) {
+        delete[] gx_engine::audio.get_frame;
+        gx_engine::audio.get_frame = NULL;
     }
-    if (gx_engine::get_frame1) {
-        delete[] gx_engine::get_frame1;
-        gx_engine::get_frame1 = NULL;
+    if (gx_engine::audio.get_frame1) {
+        delete[] gx_engine::audio.get_frame1;
+        gx_engine::audio.get_frame1 = NULL;
     }
-    if (gx_engine::oversample) {
-        delete[] gx_engine::oversample;
-        gx_engine::oversample = NULL;
+    if (gx_engine::audio.oversample) {
+        delete[] gx_engine::audio.oversample;
+        gx_engine::audio.oversample = NULL;
     }
-    if (gx_engine::result) {
-        delete[] gx_engine::result;
-        gx_engine::result = NULL;
+    if (gx_engine::audio.result) {
+        delete[] gx_engine::audio.result;
+        gx_engine::audio.result = NULL;
     }
-    if (is_session) {
+    if (sysvar.is_session) {
         printf(_("  gx_head session exit  ***  ciao . . \n"));
         return;
     } else {    

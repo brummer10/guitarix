@@ -639,6 +639,10 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item) {
     gtk_window_set_icon(GTK_WINDOW(window), GDK_PIXBUF(gx_gui::gw.ib));
     GObject *b = gtk_builder_get_object(builder, "button1");
     if (b) gtk_widget_set_name(GTK_WIDGET(b), "rack_button");
+    g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox1"),"expose-event",
+                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
+    g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox2"),"expose-event",
+                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
     memset(portsection, 0, sizeof(portsection));
     for (int i = 0; i < number_of_ports; i++) {
         portsection[i].port_attr = &gx_head_ports[i];

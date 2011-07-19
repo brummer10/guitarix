@@ -30,12 +30,13 @@
 
 
 namespace gx_threads {
-static const float falloff = gx_gui::meter_falloff * gx_gui::meter_display_timeout * 0.001;
 
 /* ----------------- refresh GX level display function ---------------- */
 gboolean gx_refresh_meter_level(gpointer args) {
-    if (gx_jack::gxjack.client && gx_engine::buffers_ready) {
+    if (gx_jack::gxjack.client && gx_engine::audio.buffers_ready) {
         gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
+        static const float falloff = gx_gui::guivar.meter_falloff *
+                                     gx_gui::guivar.meter_display_timeout * 0.001;
 
         // data holders for meters
         // Note: removed RMS calculation, we will only focus on max peaks
@@ -55,11 +56,11 @@ gboolean gx_refresh_meter_level(gpointer args) {
             switch (c) {
             default:
             case 0:
-                (void)memcpy(data, gx_engine::get_frame,  sizeof(data));
+                (void)memcpy(data, gx_engine::audio.get_frame,  sizeof(data));
                 break;
 
             case 1:
-                (void)memcpy(data, gx_engine::get_frame1, sizeof(data));
+                (void)memcpy(data, gx_engine::audio.get_frame1, sizeof(data));
                 break;
             }
 
@@ -100,7 +101,7 @@ gboolean gx_xrun_report(gpointer arg) {
 /* --------- load preset triggered by midi program change --------- */
 gboolean gx_do_program_change(gpointer arg) {
     int pgm = GPOINTER_TO_INT(arg);
-    gx_engine::GxEngineState estate = gx_engine::checky;
+    gx_engine::GxEngineState estate = gx_engine::audio.checky;
     if (gx_preset::gxpreset.gx_nth_preset(pgm)) {
         if (estate == gx_engine::kEngineBypass)
             // engine bypass but preset found -> engine on
@@ -119,7 +120,7 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
     GtkWidget* wd = gx_gui::GxMainInterface::instance()->getJackConnectItem();
 
     // return if jack is not down
-    if (gx_system::gx_system_call("pgrep", "jackd", true) == gx_system::SYSTEM_OK) {
+    if (gx_system::gx_system_call("pgrep", "jackd", true) == gx_system::sysvar.SYSTEM_OK) {
         if (gx_jack::gxjack.jack_is_down) {
             // let's make sure we get out of here
             if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(wd)))
@@ -206,11 +207,11 @@ gpointer gx_program_change_helper_thread(gpointer data) {
     gint pgm;
     while (TRUE) {
         // wait for a semaphore post from jack realtime thread
-        sem_wait(&gx_gui::program_change_sem);
+        sem_wait(&gx_gui::guivar.program_change_sem);
         // atomic read and reset the variable
         do {
-            pgm = g_atomic_int_get(&gx_gui::program_change);
-        } while (!g_atomic_int_compare_and_exchange(&gx_gui::program_change, pgm, -1));
+            pgm = g_atomic_int_get(&gx_gui::guivar.program_change);
+        } while (!g_atomic_int_compare_and_exchange(&gx_gui::guivar.program_change, pgm, -1));
         assert(pgm != -1);
         // get the work done by ui thread
         g_idle_add(gx_do_program_change, (gpointer)pgm);

@@ -6,7 +6,6 @@ def configure(conf):
 
 def build(bld):
     sources = [
-        'gx_jack.cpp',
         'gx_jconv_settings.cpp',
         'gx_main_midi.cpp',
         'gx_main_interface.cpp',
@@ -15,7 +14,6 @@ def build(bld):
         'gx_interface_builder.cpp',
         'gx_mono_rack_builder.cpp',
         'gx_stereo_rack_builder.cpp',
-        'gx_globals.cpp',
         'gx_child_process.cpp',
         'gx_engine_tubetable.cpp',
         'gx_engine.cpp',
@@ -31,9 +29,10 @@ def build(bld):
         'gx_gui_helpers.cpp',
         'gx_cabinet_data.cpp',
         'gx_threads.cpp',
-        
+        'gx_jack.cpp',
         'gx_preset.cpp',
         'gx_system.cpp',
+        'gx_json.cpp',
         'gx_ui.cpp',
         'gx_main.cpp',
         ]

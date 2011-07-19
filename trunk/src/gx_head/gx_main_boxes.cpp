@@ -369,11 +369,11 @@ void GxScrollBox::on_rack_reorder_horizontal() {
             }
 
             gtk_widget_set_size_request(GTK_WIDGET(gui->RBox), -1,  460 );
-            if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
-                g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
+            if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
+                guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
                                gx_gui::gx_set_resizeable, gpointer(gw.fWindow), NULL);
-            if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
-                g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
+            if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
+                guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                                gx_gui::gx_set_default, gpointer(gui->RBox), NULL);
         }
     }
@@ -415,11 +415,11 @@ void GxScrollBox::on_rack_reorder_vertical() {
             }
 
             gtk_widget_set_size_request(GTK_WIDGET(gui->RBox), -1, 460 );
-            if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
-                g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
+            if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
+                guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
                                gx_gui::gx_set_resizeable, gpointer(gw.fWindow), NULL);
-            if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
-                g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
+            if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
+                guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                                gx_gui::gx_set_default, gpointer(gui->RBox), NULL);
         }
     }

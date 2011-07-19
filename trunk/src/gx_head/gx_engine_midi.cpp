@@ -109,8 +109,8 @@ void compute_midi_in(void* midi_input_port_buf) {
     for (i = 0; i < event_count; i++) {
         jack_midi_event_get(&in_event, midi_input_port_buf, i);
         if ((in_event.buffer[0] & 0xf0) == 0xc0) {  // program change on any midi channel
-            g_atomic_int_set(&gx_gui::program_change, in_event.buffer[1]);
-            sem_post(&gx_gui::program_change_sem);
+            g_atomic_int_set(&gx_gui::guivar.program_change, in_event.buffer[1]);
+            sem_post(&gx_gui::guivar.program_change_sem);
         } else if ((in_event.buffer[0] & 0xf0) == 0xb0) {   // controller
             gx_gui::controller_map.set(in_event.buffer[1], in_event.buffer[2]);
         }
@@ -120,7 +120,7 @@ void compute_midi_in(void* midi_input_port_buf) {
 void compute_midi(int len) {
 
     // retrieve engine state
-    const GxEngineState estate = checky;
+    const GxEngineState estate = audio.checky;
 
     // ------------ determine processing type
     uint16_t process_type = ZEROIZE_BUFFERS;
@@ -170,7 +170,7 @@ void process_midi(int len) {
         float rms = 0.;
         float midi_db = 0.;
         float sum = 0.;
-        float *audiodata = checkfreq;
+        float *audiodata = audio.checkfreq;
 
         int preNote = 0;
         int iTemps31 = static_cast<int>(midi.fslider31);
@@ -202,7 +202,7 @@ void process_midi(int len) {
 
         /**fConsta4 is the frequence value from the actuell frame, here we
            calculate the Note from the freq by log2(freq/440)*12
-           the result is the Note (as float) related to the note "A"
+           the audio.result is the Note (as float) related to the note "A"
 
            preNote contains the next posible Note, related by round float to int.
            piwe contain the pitchweel value witch show the diff

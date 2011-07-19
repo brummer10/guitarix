@@ -35,13 +35,28 @@
 namespace gx_engine {
 
 /* -- guitarix main engine -- */
+/* engine state : can be on or off or bypassed */
+typedef enum {
+    kEngineOff    = 0,
+    kEngineOn     = 1,
+    kEngineBypass = 2
+} GxEngineState;
+
+typedef enum {
+    kMidiOff    = 0,
+    kMidiOn     = 1
+} GxMidiState;
+
 
 /****************************************************************/
 
 class AudioVariables {
  public:
     GxMidiState midistate;
+    GxEngineState checky;
 
+    bool  initialized;  /* engine init state  */
+    bool  buffers_ready;  /* buffer ready state */
     bool  fnoise_g;
     bool  fng;
     bool  foverdrive4;
@@ -115,6 +130,13 @@ class AudioVariables {
 
     unsigned int effect_pre_post[20];
     unsigned int effect_buffer[9];
+
+
+    float* get_frame;
+    float* get_frame1;
+    float* checkfreq;
+    float* oversample;
+    float* result;
 
     void register_parameter();
 };
@@ -202,6 +224,7 @@ inline void set_latency_warning_change()   {audio.fwarn_swap = audio.fwarn;}
 inline void get_latency_warning_change()   {audio.fwarn = audio.fwarn_swap;}
 
 inline bool isMidiOn()                     {return (audio.midistate == kMidiOn ? true : false);}
+inline bool isInitialized()                {return audio.initialized;}
 inline void turnOffMidi()                  {audio.midistate = kMidiOff;}
 inline void turnOnMidi()                   {audio.midistate = kMidiOn;}
 

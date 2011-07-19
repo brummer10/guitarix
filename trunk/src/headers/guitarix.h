@@ -41,8 +41,8 @@
 using namespace std;
 
 /* guitarix declarations */
-#include "./gx_globals.h"
 #include "./gx_system.h"
+#include "./gx_json.h"
 #include "./gx_jack.h"
 #include "./gx_portmap.h"
 #include "./gx_child_process.h"

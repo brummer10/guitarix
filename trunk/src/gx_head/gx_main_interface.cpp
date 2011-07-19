@@ -34,6 +34,7 @@
 
 namespace gx_gui {
 
+GuiVariables guivar;
 // Stock Items for Gxw::Switch
 
 const char *sw_led =             "led";
@@ -115,6 +116,23 @@ void GuiVariables::register_gui_parameter() {
     registerNonMidiParam("feedback.dialog",        &dialogbox[27], false);
     registerNonMidiParam("amp.tonestack.dialog",   &dialogbox[28], false);
     registerNonMidiParam("cab.dialog",             &dialogbox[29], false);
+    
+    showwave = 0;
+    shownote = -1;
+    show_patch_info = 0;
+
+    /* rack handlig */
+    mono_plugs = 1;
+    stereo_plugs = 1;
+    refresh_size = 0;
+
+    for (unsigned int i = 0; i < sizeof(g_threads)/sizeof(g_threads[0]); i++) g_threads[i] = 0;
+
+    /* for level display */
+    meter_falloff = 27; // in dB/sec.
+    meter_display_timeout = 60; // in millisec
+    /* midi_in preset switch */
+    program_change = -1;
 }
 
 /****************************************************************
@@ -179,11 +197,11 @@ static pthread_t ui_thread;
 
 /* set initial window position*/
 int gx_set_mx_oriantation() {
-    return (gint) gx_gui::main_xorg;
+    return (gint) gx_gui::guivar.main_xorg;
 }
 
 int gx_set_my_oriantation() {
-    return (gint) gx_gui::main_yorg;
+    return (gint) gx_gui::guivar.main_yorg;
 }
 
 /* create main window*/
@@ -192,7 +210,7 @@ GxMainInterface::GxMainInterface(const char * name)
     highest_unseen_msg_level = -1;
 
     /*-- set rc file overwrite it with export--*/
-    gtk_rc_parse(gx_system::rcpath.c_str());
+    gtk_rc_parse(gx_system::sysvar.rcpath.c_str());
 
     /*-- Declare the GTK Widgets --*/
     gw.fWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -1044,10 +1062,10 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
     Parameter& param_switch = parameter_map[id_switch];
     GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
     GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(rBox));
-    GtkWidget *child = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, mono_plugs));
-    mono_plugs++;
+    GtkWidget *child = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, guivar.mono_plugs));
+    guivar.mono_plugs++;
     g_list_free(child_list);
-    gx_engine::set_mono_plug_counter(mono_plugs);
+    gx_engine::set_mono_plug_counter(guivar.mono_plugs);
     gtk_box_pack_end(GTK_BOX(child), GTK_WIDGET(bbox->box.gobj()), false, false, 0);
     GxDialogWindowBox *dialog = new GxDialogWindowBox(*this, expose_funk, param_dialog,
                                 param_switch, bbox->show_dialog, gw.rack_widget);
@@ -1058,7 +1076,7 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
     string p = "ui.";
     p +=title;
     set_label(dialog->menuitem, _(title));
-    guint accel_key = GDK_a + mono_plugs;
+    guint accel_key = GDK_a + guivar.mono_plugs;
     dialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
                                accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  // FIXME MOD1_MASK
     gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsMono"]),
@@ -1089,10 +1107,10 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
     GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
 
     GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(sBox));
-    GtkWidget *child = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, stereo_plugs));
-    stereo_plugs++;
+    GtkWidget *child = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, guivar.stereo_plugs));
+    guivar.stereo_plugs++;
     g_list_free(child_list);
-    gx_engine::set_stereo_plug_counter(stereo_plugs);
+    gx_engine::set_stereo_plug_counter(guivar.stereo_plugs);
     gtk_box_pack_end(GTK_BOX(child), GTK_WIDGET(bbox->box.gobj()), false, false, 0);
     GxDialogWindowBox *bdialog = new GxDialogWindowBox(*this, expose_funk, param_dialog,
                                  param_switch, bbox->show_dialog, gw.srack_widget);
@@ -1105,7 +1123,7 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
     p +=title;
     string s;
 
-    guint accel_key = GDK_r  + stereo_plugs;
+    guint accel_key = GDK_r  + guivar.stereo_plugs;
     bdialog->menuitem.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
                                accel_key, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  // FIXME
     gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsStereo"]),
@@ -1634,13 +1652,13 @@ struct uiPatchDisplay : public gx_ui::GxUiItemFloat {
                     }
 
                     if (gx_preset::gxpreset.setting_is_preset) {
-                        snprintf(s, sizeof(s), " %i%s%s ", static_cast<int>(show_patch_info),
+                        snprintf(s, sizeof(s), " %i%s%s ", static_cast<int>(guivar.show_patch_info),
                                  ". ", gx_preset::gxpreset.gx_current_preset.c_str());
                         gtk_label_set_text(GTK_LABEL(parent), s);
                     } else {
-                        show_patch_info = 0;
+                        guivar.show_patch_info = 0;
                         snprintf(s, sizeof(s), _(" %i%sMain Setting "),
-                                 static_cast<int>(show_patch_info), ". ");
+                                 static_cast<int>(guivar.show_patch_info), ". ");
                         gtk_label_set_text(GTK_LABEL(parent), s);
                     }
                     fCache = *fZone;
@@ -1703,10 +1721,10 @@ uiTuner::uiTuner(gx_ui::GxUI* ui, float* zone)
 
 void uiTuner::reflectZone() {
     fCache = *fZone;
-    if (shownote == 1) {
+    if (guivar.shownote == 1) {
         set_freq(gx_engine::midi.fConsta4);
-    } else if (shownote == 0) {
-        shownote = -1;
+    } else if (guivar.shownote == 0) {
+        guivar.shownote = -1;
     }
 }
 
@@ -1812,7 +1830,7 @@ bool GxMainInterface::on_refresh_oscilloscope() {
             Gtk::CORNER_TOP_RIGHT);
     }
     fWaveView.queue_draw();
-    if (showwave) {
+    if (guivar.showwave) {
         return TRUE;
     } else {
         return FALSE;
@@ -1875,7 +1893,7 @@ void GxMainInterface::addMainMenu() {
 
     /*-- Engine on/off and status --*/
     // set up ON image: shown by default
-    string img_path = gx_system::gx_pixmap_dir + "gx_on.png";
+    string img_path = gx_system::sysvar.gx_pixmap_dir + "gx_on.png";
 
     gw.gx_engine_on_image =  gtk_image_menu_item_new_with_label("");
     GtkWidget* engineon = gtk_image_new_from_file(img_path.c_str());
@@ -1888,7 +1906,7 @@ void GxMainInterface::addMainMenu() {
     gtk_widget_show(gw.gx_engine_on_image);
 
     // set up OFF image: hidden by default
-    img_path = gx_system::gx_pixmap_dir + "gx_off.png";
+    img_path = gx_system::sysvar.gx_pixmap_dir + "gx_off.png";
 
     gw.gx_engine_off_image =  gtk_image_menu_item_new_with_label("");
     GtkWidget* engineoff = gtk_image_new_from_file(img_path.c_str());
@@ -1899,7 +1917,7 @@ void GxMainInterface::addMainMenu() {
     gtk_widget_hide(gw.gx_engine_off_image);
 
     // set up BYPASS image: hidden by default
-    img_path = gx_system::gx_pixmap_dir + "gx_bypass.png";
+    img_path = gx_system::sysvar.gx_pixmap_dir + "gx_bypass.png";
 
     gw.gx_engine_bypass_image  =  gtk_image_menu_item_new_with_label("");
     GtkWidget* engineby = gtk_image_new_from_file(img_path.c_str());
@@ -1912,7 +1930,7 @@ void GxMainInterface::addMainMenu() {
 
     /*-- Jack server status image --*/
     // jackd ON image
-    img_path = gx_system::gx_pixmap_dir + "jackd_on.png";
+    img_path = gx_system::sysvar.gx_pixmap_dir + "jackd_on.png";
 
     gw.gx_jackd_on_image =  gtk_image_menu_item_new_with_label("");
     GtkWidget*   jackstateon = gtk_image_new_from_file(img_path.c_str());
@@ -1927,7 +1945,7 @@ void GxMainInterface::addMainMenu() {
     gtk_widget_show(gw.gx_jackd_on_image);
 
     // jackd OFF image: hidden by default
-    img_path = gx_system::gx_pixmap_dir + "jackd_off.png";
+    img_path = gx_system::sysvar.gx_pixmap_dir + "jackd_off.png";
 
     gw.gx_jackd_off_image =  gtk_image_menu_item_new_with_label("");
     GtkWidget*   jackstateoff = gtk_image_new_from_file(img_path.c_str());
@@ -3046,7 +3064,7 @@ void GxMainInterface::addJackServerMenu() {
 
 
 void GxMainInterface::set_waveview_buffer() {
-    fWaveView.set_frame(gx_engine::result, gx_jack::gxjack.jack_bs);
+    fWaveView.set_frame(gx_engine::audio.result, gx_jack::gxjack.jack_bs);
 }
 
 // ---- show main GUI
@@ -3055,7 +3073,6 @@ void GxMainInterface::show() {
     ui_thread = pthread_self();
 #endif
     assert(fTop == 0);
-    gx_cairo::gx_init_pixmaps();
     fInitialized = true;
 
     if (gx_jack::gxjack.client) {
@@ -3094,11 +3111,11 @@ void GxMainInterface::run() {
     gx_update_skin_menu_item(skin_index);
 
     /* timeout in milliseconds */
-    g_threads[0] = g_timeout_add(40, gx_threads::gx_update_all_gui, 0);
+    guivar.g_threads[0] = g_timeout_add(40, gx_threads::gx_update_all_gui, 0);
     // Note: meter display timeout is a global var in gx_gui namespace
-    g_threads[1] = g_timeout_add(meter_display_timeout, gx_threads::gx_refresh_meter_level, 0);
+    guivar.g_threads[1] = g_timeout_add(guivar.meter_display_timeout, gx_threads::gx_refresh_meter_level, 0);
     // watch tread for cabinet switch
-    g_threads[3] = g_timeout_add(200, gx_threads::gx_check_cab_state, 0);
+    guivar.g_threads[3] = g_timeout_add(200, gx_threads::gx_check_cab_state, 0);
 
     GError* err = NULL;
     // -------------- start helper thread for ladi signal USR1 ------------
@@ -3110,7 +3127,7 @@ void GxMainInterface::run() {
     }
 #ifndef IS_MACOSX
     // -------------- start helper thread for midi control ------------
-    int semaphor = sem_init(&program_change_sem, 0, 0);
+    int semaphor = sem_init(&guivar.program_change_sem, 0, 0);
     if (semaphor != 0) {
         gx_system::gx_print_error(_("system startup"),
                    string(_("create semaphor failed (midi): preset switch disabled")));

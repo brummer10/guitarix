@@ -36,42 +36,44 @@ class PitchTracker {
  public:
     PitchTracker();
     ~PitchTracker();
-    bool setParameters(int sampleRate, int fftSize );
-    void init() { setParameters(static_cast<int>(gx_jack::gxjack.jack_sr), MAX_FFT_SIZE); }
-    void add(int count, float *input);
-    float tuner_estimate();
+    bool            pt_initialized;
+    bool            setParameters(int sampleRate, int fftSize );
+    void            init()
+                    {setParameters(static_cast<int>(gx_jack::gxjack.jack_sr), MAX_FFT_SIZE);}
+    void            add(int count, float *input);
+    float           tuner_estimate();
 
  private:
-    void run();
-    static void *static_run(void* p);
-    void setEstimatedFrequency(float freq);
-    int find_minimum();
-    int find_maximum(int l);
-    void start_thread();
-    void copy();
-    bool error;
-    volatile bool busy;
-    int tick;
-    sem_t m_trig;
-    pthread_t m_pthr;
-    Resampler resamp;
-    int m_sampleRate;
+    void            run();
+    static void     *static_run(void* p);
+    void            setEstimatedFrequency(float freq);
+    int             find_minimum();
+    int             find_maximum(int l);
+    void            start_thread();
+    void            copy();
+    bool            error;
+    volatile bool   busy;
+    int             tick;
+    sem_t           m_trig;
+    pthread_t       m_pthr;
+    Resampler       resamp;
+    int             m_sampleRate;
     // Size of the FFT window.
-    int    m_fftSize;
+    int             m_fftSize;
     // The audio buffer that stores the input signal.
-    float *m_buffer;
+    float           *m_buffer;
     // Index of the first empty position in the buffer.
-    int m_bufferIndex;
+    int             m_bufferIndex;
     // Whether or not the input level is high enough.
-    bool m_audioLevel;
+    bool            m_audioLevel;
     // Support buffer used to store signals in the time domain.
-    float *m_fftwBufferTime;
+    float          *m_fftwBufferTime;
     // Support buffer used to store signals in the frequency domain.
-    fftwf_complex *m_fftwBufferFreq;
+    fftwf_complex  *m_fftwBufferFreq;
     // Plan to compute the FFT of a given signal.
-    fftwf_plan m_fftwPlanFFT;
+    fftwf_plan      m_fftwPlanFFT;
     // Plan to compute the IFFT of a given signal (with additional zero-padding).
-    fftwf_plan m_fftwPlanIFFT;
+    fftwf_plan      m_fftwPlanIFFT;
 };
 
 extern PitchTracker pitch_tracker;

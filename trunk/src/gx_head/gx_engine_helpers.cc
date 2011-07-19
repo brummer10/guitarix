@@ -227,7 +227,7 @@ inline float noise_gate(int sf, float* input, float ngate) {
 
 // wraper for the rack order function pointers
 static void set_osc_buffer(int count, float *input0, float *output0) {
-    (void)memcpy(result, output0, sizeof(float)*count);
+    (void)memcpy(audio.result, output0, sizeof(float)*count);
 }
 
 // wraper for the rack order function pointers

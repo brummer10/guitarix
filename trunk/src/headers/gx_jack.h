@@ -39,6 +39,8 @@
 #endif
 
 #include <jack/jack.h>          // NOLINT
+#include <jack/midiport.h>
+#include <semaphore.h>
 
 #ifdef HAVE_JACK_SESSION
 #include <jack/session.h>

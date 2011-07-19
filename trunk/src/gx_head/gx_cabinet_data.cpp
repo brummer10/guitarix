@@ -676,8 +676,8 @@ gboolean contrast_restart(gpointer data) {
 } // end namespace CabConvolveData
 
 void cab_conv_restart() {
-    if (g_threads[5] == 0 || g_main_context_find_source_by_id(NULL, g_threads[5]) == NULL) {
-        g_threads[5] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0,
+    if (guivar.g_threads[5] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[5]) == NULL) {
+        guivar.g_threads[5] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0,
                                           CabConvolveData::conv_restart,NULL,NULL);
         gx_engine::set_cab_mode(gx_engine::audio.cab_level + gx_engine::audio.cab_bass +
                                 gx_engine::audio.cab_treble);

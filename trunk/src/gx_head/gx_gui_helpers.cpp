@@ -81,7 +81,7 @@ void RadioCheckItem::set_parameter(SwitchParameter *p) {
 /* ----- load a top level window from gtk builder file ------ */
 
 GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname) {
-    string fname = gx_system::gx_builder_dir+filename;
+    string fname = gx_system::sysvar.gx_builder_dir+filename;
     GError *err = NULL;
     if (!gtk_builder_add_from_file(builder, fname.c_str(), &err)) {
         g_object_unref(G_OBJECT(builder));
@@ -101,7 +101,7 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
 
 /* --------- menu function triggering engine on/off/bypass --------- */
 void gx_engine_switch(GtkWidget* widget, gpointer arg) {
-    gx_engine::GxEngineState estate = gx_engine::checky;
+    gx_engine::GxEngineState estate = gx_engine::audio.checky;
 
     switch (estate) {
     case gx_engine::kEngineOn:
@@ -128,13 +128,13 @@ void gx_engine_switch(GtkWidget* widget, gpointer arg) {
             );
     }
 
-    gx_engine::checky = estate;
+    gx_engine::audio.checky = estate;
     gx_refresh_engine_status_display();
 }
 
 /* -------------- refresh engine status display ---------------- */
 void gx_refresh_engine_status_display() {
-    gx_engine::GxEngineState estate = gx_engine::checky;
+    gx_engine::GxEngineState estate = gx_engine::audio.checky;
 
     string state;
 
@@ -198,15 +198,15 @@ void gx_jack_is_down() {
 }
 
 void gx_jack_report_xrun() {
-    g_threads[2] = 0;
-    if (g_threads[2] == 0 ||g_main_context_find_source_by_id(NULL, g_threads[2]) == NULL)
-        g_threads[2] =g_idle_add(gx_threads::gx_xrun_report, gpointer(NULL));
+    guivar.g_threads[2] = 0;
+    if (guivar.g_threads[2] == 0 ||g_main_context_find_source_by_id(NULL, guivar.g_threads[2]) == NULL)
+        guivar.g_threads[2] =g_idle_add(gx_threads::gx_xrun_report, gpointer(NULL));
 }
 
 // ----menu function gx_show_oscilloscope
 void GxMainInterface::on_show_oscilloscope() {
     if (fShowWaveView.get_active()) {
-        showwave = 1; // FIXME just use is_visible
+        guivar.showwave = 1; // FIXME just use is_visible
         Glib::signal_timeout().connect(sigc::mem_fun(*this,
              &GxMainInterface::on_refresh_oscilloscope), 60); // FIXME G_PRIORITY_DEFAULT_IDLE??
         fWaveView.get_parent()->show(); // FIXME why??
@@ -215,7 +215,7 @@ void GxMainInterface::on_show_oscilloscope() {
             fWaveView.set_multiplicator(20., 60);
         fWaveView.show();
     } else {
-        showwave = 0;
+        guivar.showwave = 0;
         fWaveView.get_parent()->hide();
         fWaveView.show();  // FIXME why??
     }
@@ -359,7 +359,7 @@ gint gx_wait_latency_warn() {
 // check user's decision to turn off latency change warning
 void gx_user_disable_latency_warn(GtkWidget* wd, gpointer arg) {
     GtkToggleButton* button = GTK_TOGGLE_BUTTON(wd);
-    gx_engine::fwarn = static_cast<int>(gtk_toggle_button_get_active(button));
+    gx_engine::audio.fwarn = static_cast<int>(gtk_toggle_button_get_active(button));
 }
 
 void gx_reset_effects(GtkWidget *widget, gpointer data ) {
@@ -438,13 +438,13 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
             gtk_widget_show(GTK_WIDGET(vbox));
 
             gtk_widget_set_size_request(GTK_WIDGET(gui->RBox), -1, 460);
-                if (g_threads[7] == 0 || g_main_context_find_source_by_id
-                                        (NULL, g_threads[7]) == NULL)
-                    g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
+                if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id
+                                        (NULL, guivar.g_threads[7]) == NULL)
+                    guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
                                    gx_gui::gx_set_resizeable, gpointer(gw.fWindow), NULL);
-                if (g_threads[6] == 0 || g_main_context_find_source_by_id
-                                        (NULL, g_threads[6]) == NULL)
-                    g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
+                if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id
+                                        (NULL, guivar.g_threads[6]) == NULL)
+                    guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                                    gx_gui::gx_set_default, gpointer(gui->RBox), NULL);
         }
     } else {
@@ -465,13 +465,13 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
             gtk_widget_show(GTK_WIDGET(vbox));
 
             gtk_widget_set_size_request(GTK_WIDGET(gui->RBox), -1, 460);
-                if (g_threads[7] == 0 || g_main_context_find_source_by_id
-                                        (NULL, g_threads[7]) == NULL)
-                    g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
+                if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id
+                                        (NULL, guivar.g_threads[7]) == NULL)
+                    guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
                                    gx_gui::gx_set_resizeable, gpointer(gw.fWindow), NULL);
-                if (g_threads[6] == 0 || g_main_context_find_source_by_id
-                                        (NULL, g_threads[6]) == NULL)
-                    g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
+                if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id
+                                        (NULL, guivar.g_threads[6]) == NULL)
+                    guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                                    gx_gui::gx_set_default, gpointer(gui->RBox), NULL);
         }
     }
@@ -510,11 +510,11 @@ void GxMainInterface::on_rrack_activate() {
         // fShowRack.set_active(false);
         // fShowSRack.set_active(false);
     }
-    if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
-            g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
+    if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
+            guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
                            gx_set_resizeable, gpointer(gw.fWindow), NULL);
-    if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
-            g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
+    if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
+            guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                            gx_set_default, gpointer(RBox), NULL);
 }
 
@@ -562,11 +562,11 @@ void GxMainInterface::on_srack_activate() {
     }
 
     gtk_widget_set_size_request(GTK_WIDGET(RBox), -1, 460 );
-    if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
-            g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
+    if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
+            guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
                            gx_set_resizeable, gpointer(gw.fWindow), NULL);
-    if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
-            g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
+    if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
+            guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                            gx_set_default, gpointer(RBox), NULL);
 }
 
@@ -583,11 +583,11 @@ void GxMainInterface::on_toolbar_activate() {
             gtk_window_set_resizable(GTK_WINDOW(gw.fWindow) , FALSE);
         gtk_widget_hide(gw.rack_tool_bar);
     }
-    if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
-            g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
+    if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
+            guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
                            gx_set_resizeable, gpointer(gw.fWindow), NULL);
-    if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
-            g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
+    if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
+            guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                            gx_set_default, gpointer(RBox), NULL);
 }
 
@@ -596,7 +596,7 @@ void GxMainInterface::on_tuner_activate() {
 
     if (fShowTuner.get_active()) {
         gtk_widget_show_all(gw.tuner_widget);
-        shownote = 1;
+        guivar.shownote = 1;
         fTuner.show();
     } else {
         GtkAllocation my_size;
@@ -604,15 +604,15 @@ void GxMainInterface::on_tuner_activate() {
         gtk_widget_set_size_request(GTK_WIDGET(RBox), -1, my_size.height);
         if (gtk_window_get_resizable(GTK_WINDOW(gw.fWindow)))
             gtk_window_set_resizable(GTK_WINDOW(gw.fWindow) , FALSE);
-        shownote = 0;
+        guivar.shownote = 0;
         fTuner.hide();
         gtk_widget_hide(gw.tuner_widget);
     }
-    if (g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, g_threads[7]) == NULL)
-            g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
+    if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
+            guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
                            gx_set_resizeable, gpointer(gw.fWindow), NULL);
-    if (g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, g_threads[6]) == NULL)
-            g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
+    if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
+            guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                            gx_set_default, gpointer(RBox), NULL);
 }
 
@@ -624,7 +624,7 @@ void gx_midi_out(GtkCheckMenuItem *menuitem, gpointer checkplay) {
     gx_show_extended_settings(GTK_WIDGET(menuitem), (gpointer) child);
     static bool first = true;
     if (gtk_check_menu_item_get_active(menuitem) == TRUE) {
-        if (first)refresh_size = 0;
+        if (first)guivar.refresh_size = 0;
 
         gx_engine::turnOnMidi();
     } else {
@@ -813,7 +813,7 @@ void gx_actualize_skin_index(const string& skin_name) {
 // ------- count the number of available skins
 unsigned int gx_fetch_available_skins() {
     DIR *d;
-    d = opendir(gx_system::gx_style_dir.c_str());
+    d = opendir(gx_system::sysvar.gx_style_dir.c_str());
     if (!d) {
         return 0;
     }
@@ -883,7 +883,7 @@ bool gx_update_skin(const gint idx, const char* calling_func) {
         return false;
     }
 
-    string rcfile = gx_system::gx_style_dir + "gx_head_";
+    string rcfile = gx_system::sysvar.gx_style_dir + "gx_head_";
     rcfile += skin.skin_list[idx];
     rcfile += ".rc";
 

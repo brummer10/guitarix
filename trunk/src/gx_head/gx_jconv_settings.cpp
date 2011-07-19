@@ -284,7 +284,7 @@ IRWindow *IRWindow::instance = 0;
 Glib::RefPtr<Gtk::Builder> load_builder(Glib::ustring name) {
     Glib::RefPtr<Gtk::Builder> bld = Gtk::Builder::create();
     try {
-        bld->add_from_file(gx_system::gx_builder_dir+name);
+        bld->add_from_file(gx_system::sysvar.gx_builder_dir+name);
     } catch(const Glib::FileError& ex) {
         gx_system::gx_print_error("FileError", ex.what());
     } catch(const Gtk::BuilderError& ex) {

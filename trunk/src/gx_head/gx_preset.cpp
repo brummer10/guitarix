@@ -203,7 +203,7 @@ static bool gx_build_preset_list() {
                           gx_i2a(gxpreset.plist.size()) + string(_(" presets found")));
             if (!samevers && gx_preset_file.is_standard()) {
                 gx_modify_preset(0 , 0, false, true);
-                gx_system::recallState(gx_user_dir + gx_jack::gxjack.client_instance + "_rc"); // FIXME
+                gx_system::recallState(sysvar.gx_user_dir + gx_jack::gxjack.client_instance + "_rc"); // FIXME
             }
             return true;
         } catch(gx_system::JsonException& e) {
@@ -637,9 +637,9 @@ void GxPreset::gx_load_preset(GtkMenuItem *menuitem, gpointer load_preset) {
         return;
     }
     
-    gx_engine::GxEngineState estate = gx_engine::checky;
+    gx_engine::GxEngineState estate = gx_engine::audio.checky;
     if (estate != gx_engine::kEngineOff)
-        gx_engine::checky = gx_engine::kEngineOff;
+        gx_engine::audio.checky = gx_engine::kEngineOff;
 
     // retrieve preset name
     vector<GtkMenuItem*>::iterator it = gxpreset.pm_list[LOAD_PRESET_LIST].begin();
@@ -657,7 +657,7 @@ void GxPreset::gx_load_preset(GtkMenuItem *menuitem, gpointer load_preset) {
     // Need to pass it on
     bool preset_ok = gx_load_preset_from_file(preset_name.c_str());
 
-    // check result
+    // check audio.result
     if (!preset_ok) {
         gx_print_error(_("Preset Loading"), string(_("Could not load preset ")) + preset_name);
         return;
@@ -678,13 +678,13 @@ void GxPreset::gx_load_preset(GtkMenuItem *menuitem, gpointer load_preset) {
     /* reset convolver buffer for preset change*/
     if (gx_engine::conv.is_runnable() && gx_jconv::GxJConvSettings::checkbutton7 == 1)  {
         gx_engine::conv.stop();
-        gx_gui::g_threads[8] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,
+        gx_gui::guivar.g_threads[8] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,
                                                gx_convolver_restart, NULL, NULL);
     }
 
     /* collect info for stage info display*/
-    gx_gui::show_patch_info = gx_get_single_preset_menu_pos(gxpreset.gx_current_preset, 0);
-    gx_engine::checky = estate;
+    gx_gui::guivar.show_patch_info = gx_get_single_preset_menu_pos(gxpreset.gx_current_preset, 0);
+    gx_engine::audio.checky = estate;
 }
 
 // ---- funktion save
@@ -718,16 +718,16 @@ void GxPreset::gx_save_preset(const char* presname, bool expand_menu) {
 static void  gx_set_factory_file(int i) {
     switch (i) {
     case 0:
-        gx_factory_preset_file.set_path(gx_system::gx_style_dir +"funkmuscle_rc");
+        gx_factory_preset_file.set_path(gx_system::sysvar.gx_style_dir +"funkmuscle_rc");
         break;
     case 1:
-        gx_factory_preset_file.set_path(gx_system::gx_style_dir +"zettberlin_rc");
+        gx_factory_preset_file.set_path(gx_system::sysvar.gx_style_dir +"zettberlin_rc");
         break;
     case 2:
-        gx_factory_preset_file.set_path(gx_system::gx_style_dir +"dlp_ae_rc");
+        gx_factory_preset_file.set_path(gx_system::sysvar.gx_style_dir +"dlp_ae_rc");
         break;
     case 3:
-        gx_factory_preset_file.set_path(gx_system::gx_style_dir +"autoandimat_rc");
+        gx_factory_preset_file.set_path(gx_system::sysvar.gx_style_dir +"autoandimat_rc");
         break;
     }
 }
@@ -767,9 +767,9 @@ static bool gx_load_preset_from_factory(const char* presname, int i) {
 // ----menu funktion load preset from factory
 static void gx_load_factory_preset(GtkMenuItem *menuitem, gpointer load_preset) {
     // retrieve preset name
-    gx_engine::GxEngineState estate = gx_engine::checky;
+    gx_engine::GxEngineState estate = gx_engine::audio.checky;
     if (estate != gx_engine::kEngineOff)
-        gx_engine::checky = gx_engine::kEngineOff;
+        gx_engine::audio.checky = gx_engine::kEngineOff;
     int i = GPOINTER_TO_INT(load_preset);
     vector<GtkMenuItem*>::iterator it = gxpreset.fpm_list[i].begin();
     vector<string>::iterator its = gxpreset.fplist[i].begin();
@@ -785,7 +785,7 @@ static void gx_load_factory_preset(GtkMenuItem *menuitem, gpointer load_preset) 
     // Need to pass it on
     bool preset_ok = gx_load_preset_from_factory(preset_name.c_str(), i);
 
-    // check result
+    // check audio.result
     if (!preset_ok) {
         gx_print_error(_("Preset Loading"), string(_("Could not load preset ")) + preset_name);
         return;
@@ -804,10 +804,10 @@ static void gx_load_factory_preset(GtkMenuItem *menuitem, gpointer load_preset) 
     /* reset convolver buffer for preset change*/
     if (gx_engine::conv.is_runnable() && gx_jconv::GxJConvSettings::checkbutton7 == 1) {
         gx_engine::conv.stop();
-        gx_gui::g_threads[8] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,
+        gx_gui::guivar.g_threads[8] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,
                                                gx_convolver_restart, NULL, NULL);
     }
-    gx_engine::checky = estate;
+    gx_engine::audio.checky = estate;
 }
 
 // load the factory preset file
@@ -857,11 +857,11 @@ void GxPreset::gx_load_factory_file(int i) {
 ///------ user preset handling------///
 // load a preset file
 void GxPreset::gx_recall_settings_file(const string *filename) {
-    gx_engine::GxEngineState estate = gx_engine::checky;
+    gx_engine::GxEngineState estate = gx_engine::audio.checky;
     if (estate != gx_engine::kEngineOff)
-        gx_engine::checky = gx_engine::kEngineOff;
+        gx_engine::audio.checky = gx_engine::kEngineOff;
     if (!filename) {
-        string fname = gx_user_dir + gx_jack::gxjack.client_instance + "_rc";
+        string fname = sysvar.gx_user_dir + gx_jack::gxjack.client_instance + "_rc";
         gx_system::recallState(fname);
         gx_jconv::gx_reload_jcgui();
         gx_print_info(
@@ -877,9 +877,9 @@ void GxPreset::gx_recall_settings_file(const string *filename) {
     setting_is_preset = false;
     setting_is_factory = false;
     gx_current_preset = "";
-    gx_gui::show_patch_info = 0;
+    gx_gui::guivar.show_patch_info = 0;
     gx_refresh_preset_menus();
-    gx_engine::checky = estate;
+    gx_engine::audio.checky = estate;
 }
 
 // ----- select a external preset file
@@ -907,7 +907,7 @@ void GxPreset::gx_load_preset_file(const char* presname, bool expand_menu) {
         gxpreset.setting_is_preset = false;
         gxpreset.setting_is_factory = false;
         gxpreset.gx_current_preset = "";
-        gx_gui::show_patch_info = 0;
+        gx_gui::guivar.show_patch_info = 0;
         gxpreset.gx_refresh_preset_menus();
     }
 }
@@ -1020,7 +1020,7 @@ void GxPreset::gx_recall_main_setting(GtkMenuItem* item, gpointer) {
 
 // ----- save current setting as main setting
 void GxPreset::gx_save_main_setting(GtkMenuItem* item, gpointer arg) {
-    if (!saveStateToFile(gx_user_dir + gx_jack::gxjack.client_instance + "_rc")) {
+    if (!saveStateToFile(sysvar.gx_user_dir + gx_jack::gxjack.client_instance + "_rc")) {
         gx_print_error(_("Main Setting"), _("can't save main setting"));
     } else if (gxpreset.setting_is_preset) {
         gx_print_info(_("Main Setting"),
@@ -1082,8 +1082,8 @@ void GxPreset::gx_rename_preset(GtkEntry* entry) {
     }
 
     // if jconv file
-    string jc_preset   = gx_user_dir + string("jconv_") + gxpreset.old_preset_name + ".conf ";
-    string jc_file     = gx_user_dir + string("jconv_") + newname + ".conf ";
+    string jc_preset   = sysvar.gx_user_dir + string("jconv_") + gxpreset.old_preset_name + ".conf ";
+    string jc_file     = sysvar.gx_user_dir + string("jconv_") + newname + ".conf ";
     string file_move   = jc_preset + jc_file;
     (void)gx_system_call("mv", file_move.c_str(), true);
 
@@ -1135,8 +1135,8 @@ void GxPreset::gx_rename_preset_dialog(GtkMenuItem *menuitem, gpointer arg) {
 }
 
 void GxPreset::init() {
-    gx_preset_file.set_standard(gx_system::gx_user_dir + "gx_headpre_rc");
-    // gx_factory_preset_file.set_standard(gx_system::gx_style_dir +"funkmuscle_rc");
+    gx_preset_file.set_standard(gx_system::sysvar.gx_user_dir + "gx_headpre_rc");
+    // gx_factory_preset_file.set_standard(gx_system::sysvar.gx_style_dir +"funkmuscle_rc");
 
     gx_gui::parameter_map.insert(&gx_preset_file);
     // gx_gui::parameter_map.insert(&gx_factory_preset_file);

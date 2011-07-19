@@ -40,7 +40,7 @@ AudioVariables audio;
 // the gx_head_amp client callback
 void compute(int count, float* input, float* output0) {
     // retrieve engine state
-    const GxEngineState estate = checky;
+    const GxEngineState estate = audio.checky;
 
     // ------------ determine processing type
     uint16_t process_type = ZEROIZE_BUFFERS;
@@ -63,7 +63,7 @@ void compute(int count, float* input, float* output0) {
     else if (!audio.fmi && isMidiOn()) turnOffMidi();
 
     if (audio.fwv != audio.fwv_on) {
-        (void)memset(result, 0, count*sizeof(float));
+        (void)memset(audio.result, 0, count*sizeof(float));
         audio.fwv_on = audio.fwv;
     }
 
@@ -90,7 +90,7 @@ void compute(int count, float* input, float* output0) {
         if (conv.is_runnable()) {
             conv.checkstate();
         }
-        if (audio.fwv) (void)memset(result, 0, count*sizeof(float));
+        if (audio.fwv) (void)memset(audio.result, 0, count*sizeof(float));
 
         // no need of loop.
         (void)memset(output0, 0, count*sizeof(float));
@@ -101,7 +101,7 @@ void compute(int count, float* input, float* output0) {
 // the gx_head_fx client callback
 void compute_insert(int count, float* input1, float* output0, float* output1) {
 // retrieve engine state
-    const GxEngineState estate = checky;
+    const GxEngineState estate = audio.checky;
 
     // ------------ determine processing type
     uint16_t process_type = ZEROIZE_BUFFERS;
@@ -138,8 +138,8 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
         gx_effects::balance1::compute(count, input1, output0, output1);
 
         // copy buffer for the levelmeters
-        (void)memcpy(get_frame, output0, sizeof(float)*count);
-        (void)memcpy(get_frame1, output1, sizeof(float)*count);
+        (void)memcpy(audio.get_frame, output0, sizeof(float)*count);
+        (void)memcpy(audio.get_frame1, output1, sizeof(float)*count);
         break;
 
         // ------- zeroize buffers
@@ -165,15 +165,15 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
 void process_buffers(int count, float* input, float* output0) {
 
     // check if tuner is visible or midi is on
-    int tuner_on = gx_gui::shownote + static_cast<int>(isMidiOn()) + 1;
+    int tuner_on = gx_gui::guivar.shownote + static_cast<int>(isMidiOn()) + 1;
     if (tuner_on > 0) {
-        if (gx_gui::shownote == 0) {
-            gx_gui::shownote = -1;
+        if (gx_gui::guivar.shownote == 0) {
+            gx_gui::guivar.shownote = -1;
         } else {
             // run tuner
             pitch_tracker.add(count, input);
             // copy buffer to midi thread
-            (void)memcpy(checkfreq, input, sizeof(float)*count);
+            (void)memcpy(audio.checkfreq, input, sizeof(float)*count);
         }
     }
 
@@ -218,8 +218,8 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
     // run convolver
     if (conv.is_runnable()) {
         // reuse oversampling buffer
-        float *conv_out0 = oversample;
-        float *conv_out1 = oversample+count;
+        float *conv_out0 = audio.oversample;
+        float *conv_out1 = audio.oversample+count;
         if (!conv.compute(count, output0, output1, conv_out0, conv_out1)) {
             gx_jconv::GxJConvSettings::checkbutton7 = 0;
             std::cout << "overload" << endl;
@@ -234,8 +234,8 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
     gx_effects::gx_outputlevel::compute(count, output0, output1, output0, output1);
 
     // copy output buffer to the level meter
-    (void)memcpy(get_frame, output0, sizeof(float)*count);
-    (void)memcpy(get_frame1, output1, sizeof(float)*count);
+    (void)memcpy(audio.get_frame, output0, sizeof(float)*count);
+    (void)memcpy(audio.get_frame1, output1, sizeof(float)*count);
 }
 } // namespace gx_engine
 

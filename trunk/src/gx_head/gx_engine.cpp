@@ -38,21 +38,21 @@ void gx_engine_init(const string *optvar ) {
     // ----- lock the buffer for the oscilloscope
     const int frag = (const int)gx_jack::gxjack.jack_bs;
 
-    get_frame  = new float[frag];
-    get_frame1  = new float[frag];
-    checkfreq  = new float[frag];
-    oversample = new float[frag*MAX_UPSAMPLE];
-    result = new float[frag+46];
+    audio.get_frame  = new float[frag];
+    audio.get_frame1  = new float[frag];
+    audio.checkfreq  = new float[frag];
+    audio.oversample = new float[frag*MAX_UPSAMPLE];
+    audio.result = new float[frag+46];
     audio.gxtube = 1;
     audio.cur_tonestack = 0;
     for (int i = 0; i < 9; i++) audio.effect_buffer[i] = 0;
     audio.rack_change = true;
 
-    (void)memset(get_frame,  0, frag*sizeof(float));
-    (void)memset(get_frame1,  0, frag*sizeof(float));
-    (void)memset(checkfreq,  0, frag*sizeof(float));
-    (void)memset(oversample, 0, frag*MAX_UPSAMPLE*sizeof(float));
-    (void)memset(result, 0, (frag+46)*sizeof(float));
+    (void)memset(audio.get_frame,  0, frag*sizeof(float));
+    (void)memset(audio.get_frame1,  0, frag*sizeof(float));
+    (void)memset(audio.checkfreq,  0, frag*sizeof(float));
+    (void)memset(audio.oversample, 0, frag*MAX_UPSAMPLE*sizeof(float));
+    (void)memset(audio.result, 0, (frag+46)*sizeof(float));
 
     midi.init(gx_jack::gxjack.jack_sr);
     faust_init(gx_jack::gxjack.jack_sr);
@@ -65,17 +65,17 @@ void gx_engine_init(const string *optvar ) {
     }
     for (int i = 0; i < GX_NUM_OF_FACTORY_PRESET; i++)
         gx_preset::gxpreset.gx_load_factory_file(i);
-    initialized = true;
+    audio.initialized = true;
 }
 
 void gx_engine_reset() {
 
-    if (checkfreq)  delete[] checkfreq;
-    if (get_frame)  delete[] get_frame;
-    if (get_frame1)  delete[] get_frame1;
-    if (oversample) delete[] oversample;
-    if (result) delete[] result;
-    initialized = false;
+    if (audio.checkfreq)  delete[] audio.checkfreq;
+    if (audio.get_frame)  delete[] audio.get_frame;
+    if (audio.get_frame1)  delete[] audio.get_frame1;
+    if (audio.oversample) delete[] audio.oversample;
+    if (audio.result) delete[] audio.result;
+    audio.initialized = false;
 }
 
 /****************************************************************
@@ -234,5 +234,21 @@ void AudioVariables::register_parameter() {
     // user interface options
     registerNonMidiParam("ui.latency_nowarn",        &fwarn, false, 0);
     registerNonMidiParam("ui.skin",                  &fskin, false, 0, 0, 100);
+
+    get_frame   = NULL;
+    get_frame1  = NULL;
+    checkfreq   = NULL;
+    oversample  = NULL;
+    result      = NULL;
+    checky      = kEngineOn;
+    
+    /* engine init state  */
+    audio.initialized = false;
+
+    /* pitchtracker init state  */
+    pitch_tracker.pt_initialized = false;
+
+    /* buffer ready state */
+    audio.buffers_ready = false;
 }
 } /* end of gx_engine namespace */

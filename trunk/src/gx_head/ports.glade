@@ -81,7 +81,6 @@
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="spacing">2</property>
-        <signal name="expose_event" handler="rectangle_skin_color_expose"/>
         <child>
           <object class="GxPaintBox" id="gxpaintbox1">
             <property name="visible">True</property>
@@ -91,7 +90,6 @@
               <object class="GtkVBox" id="dialog-vbox2">
                 <property name="visible">True</property>
                 <property name="spacing">2</property>
-                <signal name="expose_event" handler="rectangle_skin_color_expose"/>
                 <child>
                   <object class="GtkNotebook" id="notebook1">
                     <property name="visible">True</property>

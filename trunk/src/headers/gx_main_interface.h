@@ -71,7 +71,28 @@ namespace gx_gui {
 
 class GuiVariables {
  public:
-    bool dialogbox[30];
+    bool                dialogbox[30];
+    
+    int                 showwave;
+    int                 shownote;
+    float               show_patch_info;
+
+    /* rack handlig */
+    int                 mono_plugs;
+    int                 stereo_plugs;
+    int                 refresh_size;
+
+    int                 g_threads[10];
+    /* for level display */
+    int                 meter_display_timeout; // in millisec
+    int                 meter_falloff ; // in dB/sec.
+    /* midi_in preset switch */
+    volatile gint       program_change;
+    sem_t               program_change_sem;
+    
+    float               main_xorg;
+    float               main_yorg;
+
     void register_gui_parameter();
 };
 
@@ -83,32 +104,32 @@ extern GuiVariables guivar;
 class GlobalWidgets {
  public:
     /* global GUI widgets */
-    GtkWidget* fWindow;
-    GtkWidget* menuh;
-    GtkWidget* midibox;
-    GtkWidget* patch_info;
-    GtkWidget* tuner_widget;
-    GtkWidget* rack_widget;
-    GtkWidget* srack_widget;
-    GtkWidget* menu_mono_rack;
-    GtkWidget* menu_stereo_rack;
-    GtkWidget* rack_tool_bar;
+    GtkWidget*          fWindow;
+    GtkWidget*          menuh;
+    GtkWidget*          midibox;
+    GtkWidget*          patch_info;
+    GtkWidget*          tuner_widget;
+    GtkWidget*          rack_widget;
+    GtkWidget*          srack_widget;
+    GtkWidget*          menu_mono_rack;
+    GtkWidget*          menu_stereo_rack;
+    GtkWidget*          rack_tool_bar;
 
     /* icon widgets */
-    GdkPixbuf* ib;
-    GdkPixbuf* ibm;
-    GdkPixbuf* ibr;
+    GdkPixbuf*          ib;
+    GdkPixbuf*          ibm;
+    GdkPixbuf*          ibr;
 
     /* jack server status icons */
-    GtkWidget* gx_jackd_on_image;
-    GtkWidget* gx_jackd_off_image;
+    GtkWidget*          gx_jackd_on_image;
+    GtkWidget*          gx_jackd_off_image;
 
     /* engine status images */
-    GtkWidget* gx_engine_on_image;
-    GtkWidget* gx_engine_off_image;
-    GtkWidget* gx_engine_bypass_image;
-    GtkWidget* gx_engine_item;
-    GtkStatusIcon* status_icon;
+    GtkWidget*          gx_engine_on_image;
+    GtkWidget*          gx_engine_off_image;
+    GtkWidget*          gx_engine_bypass_image;
+    GtkWidget*          gx_engine_item;
+    GtkStatusIcon*      status_icon;
 };
 
 extern GlobalWidgets gw;
@@ -118,11 +139,11 @@ extern GlobalWidgets gw;
 class SkinHandling {
  public:
     /* skin handling */
-    vector<string> skin_list;
-    gint gx_current_skin;
-    int last_skin;
-    int no_opt_skin;
-    int set_knob;
+    vector<string>      skin_list;
+    gint                gx_current_skin;
+    int                 last_skin;
+    int                 no_opt_skin;
+    int                 set_knob;
     SkinHandling();
 };
 

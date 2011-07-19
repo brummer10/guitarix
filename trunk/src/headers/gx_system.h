@@ -59,103 +59,6 @@ typedef enum {
     kMessageTypeCount // just count, must be last
 } GxMsgType;
 
-/* classes for reading and writing JSON files */
-class JsonException: public exception {
- private:
-    string what_str;
- public:
-    explicit JsonException(const char* desc);
-    ~JsonException() throw() { }
-    virtual const char* what() const throw() { return what_str.c_str(); }
-};
-
-class JsonWriter {
- private:
-    ostream &os;
-    bool first;
-    bool deferred_nl;
-    string indent;
-    void snl(bool v) { deferred_nl = v; }
-    void komma();
-    void space();
-    void iplus();
-    void iminus();
- public:
-    explicit JsonWriter(ostream& o);
-    ~JsonWriter() { close(); }
-    bool good() { return os.good(); }
-    void flush();
-    void close() { if (deferred_nl) os << endl; }
-    void write(float v, bool nl = false);
-    void write(double v, bool nl = false);
-    void write(int i, bool nl = false);
-    void write(unsigned int i, bool nl = false);
-    void write(const char* p, bool nl = false);
-    void write(string s, bool nl = false) { write(s.c_str(), nl); }
-    void write_lit(string s, bool nl = false);
-    void begin_object(bool nl = false);
-    void end_object(bool nl = false);
-    void begin_array(bool nl = false);
-    void end_array(bool nl = false);
-    void write_key(const char* p, bool nl = false);
-    void write_key(string p, bool nl = false);
-    void newline() { snl(true); }
-};
-
-class JsonParser {
- public:
-    explicit JsonParser(istream& i);
-    enum token {
-        no_token, end_token, begin_object, end_object, begin_array, end_array,
-        value_string, value_number, value_key };
-    static const char* token_names[];
-    bool good() { return is.good(); }
-    token next(token expect = no_token);
-    token peek() { return next_tok; }
-    void check_expect(token expect) { if (cur_tok != expect) throw_unexpected(expect); }
-    inline string current_value() const { return str; }
-    int current_value_int() { return atoi(str.c_str()); }
-    unsigned int current_value_uint() { return atoi(str.c_str()); }
-    float current_value_float() {
-        istringstream b(str);
-        float f;
-        b >> f;
-        return f;
-    }
-    double current_value_double() {
-        istringstream b(str);
-        double d;
-        b >> d;
-        return d;
-    }
-    void copy_object(JsonWriter& jw);
-    void skip_object();
- private:
-    istream& is;
-    int depth;
-    token cur_tok;
-    string str;
-    bool nl;
-    int next_depth;
-    token next_tok;
-    string next_str;
-    const char* readcode();
-    string readstring();
-    string readnumber(char c);
-    void read_next();
-    void throw_unexpected(token expect);
-};
-
-void writeHeader(JsonWriter& jw);
-bool readHeader(JsonParser& jp, int *major = 0, int *minor = 0);
-void write_preset(JsonWriter& w, bool write_midi = true, bool force_midi = false);
-void read_preset(JsonParser &jp, bool *has_midi, int major, int minor);
-bool saveStateToFile(const string & filename );
-bool recallState(const string & filename );
-
-// file format versions
-const int majorversion = 1;
-const int minorversion = 2;
 
 /****************************************************************
  ** Measuring times
@@ -258,6 +161,29 @@ inline void measure_stop()  {}
 
 #endif
 
+class SystemVars {
+ public:
+    static const int                      SYSTEM_OK;
+
+    static const char*                    gx_head_dir;
+    static const char*                    jcapsetup_file;
+    static const char*                    jcapfile_wavbase;
+
+    static const string                   gx_pixmap_dir;
+    static const string                   gx_user_dir;
+
+    /* shell variable names */
+    static const char*                    shell_var_name[7];
+    
+    bool                                  is_session;
+    string                                rcpath;
+    string                                gx_style_dir;
+    string                                gx_builder_dir;
+
+    void                                  sysvar_init();
+};
+
+extern SystemVars sysvar;
 
 /****************************************************************
  ** misc function declarations

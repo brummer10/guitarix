@@ -332,7 +332,7 @@ void GxMainInterface::setup() {
     }
     closeBox();
     // add a Patch Info widget
-    openPatchInfoBox(&gx_gui::show_patch_info);
+    openPatchInfoBox(&gx_gui::guivar.show_patch_info);
 
     openTextLoggingBox(_("Logging Window"));
 
