@@ -184,6 +184,15 @@ gboolean gx_check_engine_state(gpointer) {
         case 13:
             amp_ptr = &gx_amps::gxamp13::compute;
             break;
+        case 14:
+            amp_ptr = &gx_amps::gxamp14::compute;
+            break;
+        case 15:
+            amp_ptr = &gx_amps::gxamp15::compute;
+            break;
+        case 16:
+            amp_ptr = &gx_amps::gxamp16::compute;
+            break;
         default:
             amp_ptr = &gx_amps::gxamp::compute;
             break;

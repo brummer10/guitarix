@@ -2345,6 +2345,9 @@ void GxMainInterface::on_tube_activate() {
         fSelectTubeModel[10].set_active(false);
         fSelectTubeModel[11].set_active(false);
         fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
         gx_engine::set_tube_model(1);
     } else if (fSelectTubeModel[1].get_active()) {
         fSelectTubeModel[0].set_active(false);
@@ -2359,6 +2362,9 @@ void GxMainInterface::on_tube_activate() {
         fSelectTubeModel[10].set_active(false);
         fSelectTubeModel[11].set_active(false);
         fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
         gx_engine::set_tube_model(2);
     } else if (fSelectTubeModel[2].get_active()) {
         fSelectTubeModel[0].set_active(false);
@@ -2373,6 +2379,9 @@ void GxMainInterface::on_tube_activate() {
         fSelectTubeModel[10].set_active(false);
         fSelectTubeModel[11].set_active(false);
         fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
         gx_engine::set_tube_model(3);
     } else if (fSelectTubeModel[3].get_active()) {
         fSelectTubeModel[0].set_active(false);
@@ -2387,6 +2396,9 @@ void GxMainInterface::on_tube_activate() {
         fSelectTubeModel[10].set_active(false);
         fSelectTubeModel[11].set_active(false);
         fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
         gx_engine::set_tube_model(4);
     } else if (fSelectTubeModel[4].get_active()) {
         fSelectTubeModel[0].set_active(false);
@@ -2401,6 +2413,9 @@ void GxMainInterface::on_tube_activate() {
         fSelectTubeModel[10].set_active(false);
         fSelectTubeModel[11].set_active(false);
         fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
         gx_engine::set_tube_model(5);
     } else if (fSelectTubeModel[5].get_active()) {
         fSelectTubeModel[0].set_active(false);
@@ -2415,6 +2430,9 @@ void GxMainInterface::on_tube_activate() {
         fSelectTubeModel[10].set_active(false);
         fSelectTubeModel[11].set_active(false);
         fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
         gx_engine::set_tube_model(6);
     } else if (fSelectTubeModel[6].get_active()) {
         fSelectTubeModel[0].set_active(false);
@@ -2429,6 +2447,9 @@ void GxMainInterface::on_tube_activate() {
         fSelectTubeModel[10].set_active(false);
         fSelectTubeModel[11].set_active(false);
         fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
         gx_engine::set_tube_model(7);
     } else if (fSelectTubeModel[7].get_active()) {
         fSelectTubeModel[0].set_active(false);
@@ -2443,6 +2464,9 @@ void GxMainInterface::on_tube_activate() {
         fSelectTubeModel[10].set_active(false);
         fSelectTubeModel[11].set_active(false);
         fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
         gx_engine::set_tube_model(8);
     } else if (fSelectTubeModel[8].get_active()) {
         fSelectTubeModel[0].set_active(false);
@@ -2457,6 +2481,9 @@ void GxMainInterface::on_tube_activate() {
         fSelectTubeModel[10].set_active(false);
         fSelectTubeModel[11].set_active(false);
         fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
         gx_engine::set_tube_model(9);
     } else if (fSelectTubeModel[9].get_active()) {
         fSelectTubeModel[0].set_active(false);
@@ -2471,6 +2498,9 @@ void GxMainInterface::on_tube_activate() {
         fSelectTubeModel[10].set_active(false);
         fSelectTubeModel[11].set_active(false);
         fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
         gx_engine::set_tube_model(10);
     } else if (fSelectTubeModel[10].get_active()) {
         fSelectTubeModel[0].set_active(false);
@@ -2485,6 +2515,9 @@ void GxMainInterface::on_tube_activate() {
         fSelectTubeModel[9].set_active(false);
         fSelectTubeModel[11].set_active(false);
         fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
         gx_engine::set_tube_model(11);
     } else if (fSelectTubeModel[11].get_active()) {
         fSelectTubeModel[0].set_active(false);
@@ -2499,6 +2532,9 @@ void GxMainInterface::on_tube_activate() {
         fSelectTubeModel[9].set_active(false);
         fSelectTubeModel[10].set_active(false);
         fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
         gx_engine::set_tube_model(12);
     } else if (fSelectTubeModel[12].get_active()) {
         fSelectTubeModel[0].set_active(false);
@@ -2513,7 +2549,61 @@ void GxMainInterface::on_tube_activate() {
         fSelectTubeModel[9].set_active(false);
         fSelectTubeModel[10].set_active(false);
         fSelectTubeModel[11].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
         gx_engine::set_tube_model(13);
+    } else if (fSelectTubeModel[13].get_active()) {
+        fSelectTubeModel[0].set_active(false);
+        fSelectTubeModel[1].set_active(false);
+        fSelectTubeModel[2].set_active(false);
+        fSelectTubeModel[3].set_active(false);
+        fSelectTubeModel[4].set_active(false);
+        fSelectTubeModel[5].set_active(false);
+        fSelectTubeModel[6].set_active(false);
+        fSelectTubeModel[7].set_active(false);
+        fSelectTubeModel[8].set_active(false);
+        fSelectTubeModel[9].set_active(false);
+        fSelectTubeModel[10].set_active(false);
+        fSelectTubeModel[11].set_active(false);
+        fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        fSelectTubeModel[15].set_active(false);
+        gx_engine::set_tube_model(14);
+    } else if (fSelectTubeModel[14].get_active()) {
+        fSelectTubeModel[0].set_active(false);
+        fSelectTubeModel[1].set_active(false);
+        fSelectTubeModel[2].set_active(false);
+        fSelectTubeModel[3].set_active(false);
+        fSelectTubeModel[4].set_active(false);
+        fSelectTubeModel[5].set_active(false);
+        fSelectTubeModel[6].set_active(false);
+        fSelectTubeModel[7].set_active(false);
+        fSelectTubeModel[8].set_active(false);
+        fSelectTubeModel[9].set_active(false);
+        fSelectTubeModel[10].set_active(false);
+        fSelectTubeModel[11].set_active(false);
+        fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[15].set_active(false);
+        gx_engine::set_tube_model(16);
+    } else if (fSelectTubeModel[15].get_active()) {
+        fSelectTubeModel[0].set_active(false);
+        fSelectTubeModel[1].set_active(false);
+        fSelectTubeModel[2].set_active(false);
+        fSelectTubeModel[3].set_active(false);
+        fSelectTubeModel[4].set_active(false);
+        fSelectTubeModel[5].set_active(false);
+        fSelectTubeModel[6].set_active(false);
+        fSelectTubeModel[7].set_active(false);
+        fSelectTubeModel[8].set_active(false);
+        fSelectTubeModel[9].set_active(false);
+        fSelectTubeModel[10].set_active(false);
+        fSelectTubeModel[11].set_active(false);
+        fSelectTubeModel[12].set_active(false);
+        fSelectTubeModel[13].set_active(false);
+        fSelectTubeModel[14].set_active(false);
+        gx_engine::set_tube_model(15);
     }
 }
 //----------------------------- preset menu ----------------------------
@@ -2703,6 +2793,47 @@ void GxMainInterface::addAmpMenu() {
     fSelectTubeModel[7].show();
     fSelectTubeModel[7].set_parameter(new SwitchParameter("system.select_tube6", true, false));
     fSelectTubeModel[7].set_active(false);
+    
+     /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+    gtk_widget_show(sep);
+    
+    set_label(fSelectTubeModel[14], _("pre 12ax7/ push-pull EL34"));
+    fSelectTubeModel[14].set_group(group);
+
+    fSelectTubeModel[14].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+                               GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    fSelectTubeModel[14].signal_activate().connect(
+        sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[14].gobj()));
+    fSelectTubeModel[14].show();
+    fSelectTubeModel[14].set_parameter(new SwitchParameter("system.select_tube15", true, false));
+    fSelectTubeModel[14].set_active(false);
+    
+    set_label(fSelectTubeModel[15], _("pre 12AU7/ push-pull EL34"));
+    fSelectTubeModel[15].set_group(group);
+
+    fSelectTubeModel[15].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+                               GDK_s, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    fSelectTubeModel[15].signal_activate().connect(
+        sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[15].gobj()));
+    fSelectTubeModel[15].show();
+    fSelectTubeModel[15].set_parameter(new SwitchParameter("system.select_tube16", true, false));
+    fSelectTubeModel[15].set_active(false);
+    
+    set_label(fSelectTubeModel[13], _("pre 6DJ8/ push-pull EL34"));
+    fSelectTubeModel[13].set_group(group);
+
+    fSelectTubeModel[13].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+                               GDK_q, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    fSelectTubeModel[13].signal_activate().connect(
+        sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[13].gobj()));
+    fSelectTubeModel[13].show();
+    fSelectTubeModel[13].set_parameter(new SwitchParameter("system.select_tube14", true, false));
+    fSelectTubeModel[13].set_active(false);
 }
 
 //----------------------------- preset menu ----------------------------

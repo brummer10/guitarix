@@ -443,7 +443,7 @@ class GxMainInterface : public gx_ui::GxUI {
     MenuCheckItem         fShowLogger;
     MenuCheckItem         fShowMidiOut;
     MenuCheckItem         fShowToolBar;
-    RadioCheckItem        fSelectTubeModel[14];
+    RadioCheckItem        fSelectTubeModel[16];
 
     GtkWidget*            logger;
     GtkWidget*            RBox;

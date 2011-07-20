@@ -211,6 +211,17 @@ static float Ftube4(int table, float Vgk) {
     return tab.data[i]*(1-f) + tab.data[i+1]*f;
 }
 
+static float Ftube5(int table, float Vgk) {
+    struct gx_tubes::tabled& tab = gx_tubes::tubetable5[table];
+    float f = (Vgk - tab.low) * tab.istep;
+    int i = static_cast<int>(f);
+    if (i < 0)
+        return tab.data[0];
+    if (i >= TAB_SIZE-1)
+        return tab.data[TAB_SIZE-1];
+    f -= i;
+    return tab.data[i]*(1-f) + tab.data[i+1]*f;
+}
 // gxdistortion
 static struct GxDistortionParams { GxDistortionParams();}
 GxDistortionParams;
@@ -233,6 +244,9 @@ GxDistortionParams::GxDistortionParams() {
 #include "faust/gxamp11.cc"
 #include "faust/gxamp12.cc"
 #include "faust/gxamp13.cc"
+#include "faust/gxamp14.cc"
+#include "faust/gxamp15.cc"
+#include "faust/gxamp16.cc"
 #include "faust/gx_ampmodul.cc"
 }
 

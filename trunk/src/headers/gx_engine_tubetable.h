@@ -43,6 +43,7 @@ extern struct tabled tubetable[];
 extern struct tabled tubetable2[];
 extern struct tabled tubetable3[];
 extern struct tabled tubetable4[];
+extern struct tabled tubetable5[];
 } // end namespace
 #endif  // SRC_HEADERS_GX_ENGINE_TUBETABLE_H_
 
