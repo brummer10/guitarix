@@ -405,6 +405,7 @@ class GxMainInterface : public gx_ui::GxUI {
     bool                  on_refresh_oscilloscope();
 
  protected :
+    static const int      MAX_TUBES = 16;
     int                   fTop;
     GtkWidget*            fBox[stackSize];
     GtkWidget*            rBox;
@@ -443,7 +444,7 @@ class GxMainInterface : public gx_ui::GxUI {
     MenuCheckItem         fShowLogger;
     MenuCheckItem         fShowMidiOut;
     MenuCheckItem         fShowToolBar;
-    RadioCheckItem        fSelectTubeModel[16];
+    RadioCheckItem        fSelectTubeModel[MAX_TUBES];
 
     GtkWidget*            logger;
     GtkWidget*            RBox;
