@@ -424,7 +424,7 @@ void compute(int count, float *input0, float *output0)
 		fVec7[IOTA&65535] = fTemp10;
 		fRec33[0] = ((fVec7[IOTA&65535] + fRec33[1]) - fVec7[(IOTA-iConst44)&65535]);
 		fRec32[0] = ((fConst45 * fRec33[0]) + (0.999 * fRec32[1]));
-		double fTemp11 = max(-1, min(-0.01, (fVec7[IOTA&65535] - (1.0 + (1.02 * fRec32[0])))));
+		double fTemp11 = max(-1.0, min(-0.01, (fVec7[IOTA&65535] - (1.0 + (1.02 * fRec32[0])))));
 		double fTemp12 = (0 - fTemp11);
 		double fTemp13 = (40.1 * fTemp12);
 		double fTemp14 = max(-600, fTemp13);
