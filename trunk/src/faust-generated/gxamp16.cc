@@ -397,7 +397,7 @@ void compute(int count, float *input0, float *output0)
 		double fTemp3 = (fRec25[1] - 2.5e+02);
 		fVec3[0] = fTemp3;
 		fRec26[0] = ((fConst40 * (fVec3[0] + fVec3[1])) + (fConst39 * fRec26[1]));
-		fRec25[0] = Ftube5(1, (fRec26[0] + fRec15[1]));
+		fRec25[0] = Ftube(1, (fRec26[0] + fRec15[1]));
 		fRec24[0] = ((fConst36 * ((fConst35 * fRec25[1]) + (fConst12 * fRec25[0]))) + (fConst14 * fRec24[1]));
 		fRec15[0] = (fRec24[0] + fRec16[0]);
 		fRec14[0] = ((fConst41 * (fRec15[0] + fRec15[1])) + (fConst17 * fRec14[1]));
@@ -409,7 +409,7 @@ void compute(int count, float *input0, float *output0)
 		double fTemp5 = (fRec29[1] - 2.5e+02);
 		fVec5[0] = fTemp5;
 		fRec30[0] = ((fConst45 * (fVec5[0] + fVec5[1])) + (fConst44 * fRec30[1]));
-		fRec29[0] = Ftube5(1, (fRec30[0] + fRec11[1]));
+		fRec29[0] = Ftube(1, (fRec30[0] + fRec11[1]));
 		fRec28[0] = ((fConst36 * ((fConst35 * fRec29[1]) + (fConst12 * fRec29[0]))) + (fConst14 * fRec28[1]));
 		fRec11[0] = (fRec28[0] + fRec12[0]);
 		double fTemp6 = (fRec10[1] - 2.5e+02);
