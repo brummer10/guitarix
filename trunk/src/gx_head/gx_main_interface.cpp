@@ -2381,6 +2381,18 @@ void GxMainInterface::addAmpMenu() {
     fSelectTubeModel[1].show();
     fSelectTubeModel[1].set_parameter(new SwitchParameter("system.select_tube2", true, false));
     fSelectTubeModel[1].set_active(false);
+    
+    set_label(fSelectTubeModel[13], _("12AT7"));
+    fSelectTubeModel[13].set_group(group);
+
+    fSelectTubeModel[13].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+                               GDK_q, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    fSelectTubeModel[13].signal_activate().connect(
+        sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[13].gobj()));
+    fSelectTubeModel[13].show();
+    fSelectTubeModel[13].set_parameter(new SwitchParameter("system.select_tube14", true, false));
+    fSelectTubeModel[13].set_active(false);
 
     set_label(fSelectTubeModel[5], _("6DJ8"));
     fSelectTubeModel[5].set_group(group);
@@ -2393,6 +2405,11 @@ void GxMainInterface::addAmpMenu() {
     fSelectTubeModel[5].show();
     fSelectTubeModel[5].set_parameter(new SwitchParameter("system.select_tube10", true, false));
     fSelectTubeModel[5].set_active(false);
+    
+    /*-- add a separator line --*/
+    sep = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
+    gtk_widget_show(sep);
 
     set_label(fSelectTubeModel[2], _("6V6"));
     fSelectTubeModel[2].set_group(group);
@@ -2427,19 +2444,31 @@ void GxMainInterface::addAmpMenu() {
     fSelectTubeModel[11].set_group(group);
 
     fSelectTubeModel[11].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-                               GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+                               GDK_d, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
     fSelectTubeModel[11].signal_activate().connect(
         sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
     gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[11].gobj()));
     fSelectTubeModel[11].show();
     fSelectTubeModel[11].set_parameter(new SwitchParameter("system.select_tube11", true, false));
     fSelectTubeModel[11].set_active(false);
+    
+    set_label(fSelectTubeModel[16], _("12AT7 feedback"));
+    fSelectTubeModel[16].set_group(group);
+
+    fSelectTubeModel[16].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+                               GDK_q, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    fSelectTubeModel[16].signal_activate().connect(
+        sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[16].gobj()));
+    fSelectTubeModel[16].show();
+    fSelectTubeModel[16].set_parameter(new SwitchParameter("system.select_tube17", true, false));
+    fSelectTubeModel[16].set_active(false);
 
     set_label(fSelectTubeModel[12], _("6DJ8 feedback"));
     fSelectTubeModel[12].set_group(group);
 
     fSelectTubeModel[12].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-                               GDK_q, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+                               GDK_t, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
     fSelectTubeModel[12].signal_activate().connect(
         sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
     gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[12].gobj()));
@@ -2475,6 +2504,18 @@ void GxMainInterface::addAmpMenu() {
     fSelectTubeModel[3].show();
     fSelectTubeModel[3].set_parameter(new SwitchParameter("system.select_tube4", true, false));
     fSelectTubeModel[3].set_active(false);
+    
+    set_label(fSelectTubeModel[14], _("pre 12AT7/ master 6V6"));
+    fSelectTubeModel[14].set_group(group);
+
+    fSelectTubeModel[14].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+                               GDK_k, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    fSelectTubeModel[14].signal_activate().connect(
+        sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[14].gobj()));
+    fSelectTubeModel[14].show();
+    fSelectTubeModel[14].set_parameter(new SwitchParameter("system.select_tube15", true, false));
+    fSelectTubeModel[14].set_active(false);
 
     set_label(fSelectTubeModel[6], _("pre 6DJ8/ master 6V6"));
     fSelectTubeModel[6].set_group(group);
@@ -2516,7 +2557,19 @@ void GxMainInterface::addAmpMenu() {
     fSelectTubeModel[9].show();
     fSelectTubeModel[9].set_parameter(new SwitchParameter("system.select_tube8", true, false));
     fSelectTubeModel[9].set_active(false);
+    
+    set_label(fSelectTubeModel[15], _("pre 12AT7/ push pull 6V6"));
+    fSelectTubeModel[15].set_group(group);
 
+    fSelectTubeModel[15].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
+                               GDK_l, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    fSelectTubeModel[15].signal_activate().connect(
+        sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
+    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[15].gobj()));
+    fSelectTubeModel[15].show();
+    fSelectTubeModel[15].set_parameter(new SwitchParameter("system.select_tube16", true, false));
+    fSelectTubeModel[15].set_active(false);
+    
     set_label(fSelectTubeModel[7], _("pre 6DJ8/ push-pull 6V6"));
     fSelectTubeModel[7].set_group(group);
 
@@ -2528,47 +2581,6 @@ void GxMainInterface::addAmpMenu() {
     fSelectTubeModel[7].show();
     fSelectTubeModel[7].set_parameter(new SwitchParameter("system.select_tube6", true, false));
     fSelectTubeModel[7].set_active(false);
-    
-     /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
-    gtk_widget_show(sep);
-    
-    set_label(fSelectTubeModel[15], _("pre 12ax7/ push-pull EL34"));
-    fSelectTubeModel[15].set_group(group);
-
-    fSelectTubeModel[15].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-                               GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
-    fSelectTubeModel[15].signal_activate().connect(
-        sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[15].gobj()));
-    fSelectTubeModel[15].show();
-    fSelectTubeModel[15].set_parameter(new SwitchParameter("system.select_tube16", true, false));
-    fSelectTubeModel[15].set_active(false);
-    
-    set_label(fSelectTubeModel[14], _("pre 12AU7/ push-pull EL34"));
-    fSelectTubeModel[14].set_group(group);
-
-    fSelectTubeModel[14].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-                               GDK_s, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
-    fSelectTubeModel[14].signal_activate().connect(
-        sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[14].gobj()));
-    fSelectTubeModel[14].show();
-    fSelectTubeModel[14].set_parameter(new SwitchParameter("system.select_tube15", true, false));
-    fSelectTubeModel[14].set_active(false);
-    
-    set_label(fSelectTubeModel[13], _("pre 6DJ8/ push-pull EL34"));
-    fSelectTubeModel[13].set_group(group);
-
-    fSelectTubeModel[13].add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-                               GDK_q, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
-    fSelectTubeModel[13].signal_activate().connect(
-        sigc::mem_fun(*this, &GxMainInterface::on_tube_activate));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSelectTubeModel[13].gobj()));
-    fSelectTubeModel[13].show();
-    fSelectTubeModel[13].set_parameter(new SwitchParameter("system.select_tube14", true, false));
-    fSelectTubeModel[13].set_active(false);
 }
 
 //----------------------------- preset menu ----------------------------
@@ -2726,7 +2738,7 @@ void GxMainInterface::addOptionMenu() {
     /*-- Create tuner check menu item under Options submenu --*/
     set_label(fShowTuner, _("_Tuner"));
     fShowTuner.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-                               GDK_t, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+                               GDK_t, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fShowTuner.signal_activate().connect(
         sigc::mem_fun(*this, &GxMainInterface::on_tuner_activate));
     gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowTuner.gobj()));
@@ -2738,7 +2750,7 @@ void GxMainInterface::addOptionMenu() {
 
     set_label(fSetMouse, _("Set _Knobs Linear"));
     fSetMouse.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-                               GDK_k, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+                               GDK_k, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fSetMouse.signal_activate().connect(
         sigc::mem_fun(*this, &GxMainInterface::set_mouse_mode));
     gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSetMouse.gobj()));
@@ -2748,7 +2760,7 @@ void GxMainInterface::addOptionMenu() {
     /*-- Create logbox check menu item under Options submenu --*/
     set_label(fShowLogger, _("Show _Logging Box"));
     fShowLogger.add_accelerator("activate", Glib::wrap(fAccelGroup, true),
-                               GDK_l, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+                               GDK_l, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
     fShowLogger.signal_activate().connect(
         sigc::mem_fun(*this, &GxMainInterface::on_log_activate));
     gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["Options"]), GTK_WIDGET(fShowLogger.gobj()));

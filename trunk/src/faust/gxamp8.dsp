@@ -8,6 +8,7 @@ import("maxmsp.lib");
 
 /****************************************************************
  ** Tube Preamp Emulation stage 1 - 2 
+ *   12AU7 -> pusch pull 6V6
  */
 
 
@@ -18,8 +19,8 @@ notch3(x) = notch(x,5046.,-12.,19.1);
 tubestage(tb,fck,Rk) = tube : hpf with {
     lpfk = lowpass1(fck);
     Ftube = ffunction(float Ftube3(int,float), "valve.h", "");
-    vplus = 250.0;
-    divider = 40;
+    vplus = 130.0;
+    divider = 10;
     Rp = 100.0e3;
     tube = (+ : Ftube(tb)) ~ (-(vplus) : *(Rk/Rp) : lpfk) : /(divider);
     hpf = highpass1(31.0);

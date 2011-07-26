@@ -7,6 +7,7 @@ import("guitarix.lib");
 
 /****************************************************************
  ** Tube Preamp Emulation stage 1 - 2 
+ *   12AU7 feedback
  */
  
 val(x) = valve.vt(dist, q(x), x)

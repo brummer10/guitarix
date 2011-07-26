@@ -47,14 +47,19 @@ from scipy.optimize import newton
 #                             o      o
 #
 
-#		TUBE 	MU 	EX 	KG1 	KG2 	KP 	KVB 	CCG 	CPG 	CCP 	RGI
-#		6DJ8 	28 	1.3 	330 	  	320 	300 	2.3P 	2.1P 	0.7P 	2k
-#		6L6CG 	8.7 	1.35 	1460 	4500 	48 	12 	14P 	0.85P 	12P 	1k
-#		12AX7 	100 	1.4 	1060 	  	600 	300 	2.3P 	2.4P 	0.9P 	2k
-#		12AU7 	21.5 	1.3 	1180 	  	84 	300 	2.3P 	2.2P 	1.0P 	2k
-#		6550 	7.9 	1.35 	890 	4800 	60 	24 	14P 	0.85P 	12P 	1k
-#		KT88 	8.8 	1.35 	730 	4200 	 32 	16 	14P 	0.85P 	12P 	1k
-
+#		TUBE 	MU 	    EX  	KG1 	KG2 	KP  	KVB 	CCG 	CPG 	CCP 	RGI
+#		6DJ8 	28 	    1.3 	330 	    	320 	300 	2.3P 	2.1P 	0.7P 	2k
+#		6L6CG 	8.7 	1.35 	1460 	4500 	48  	12  	14P 	0.85P 	12P 	1k
+#		12AX7 	100 	1.4 	1060 	    	600 	300 	2.3P 	2.4P 	0.9P 	2k
+#       12AT7	60  	1.35	460 	    	300 	300 	2.7P	2.2P	1P  	2k
+#		12AU7 	21.5 	1.3 	1180 	    	84  	300 	2.3P 	2.2P 	1.0P 	2k
+#		6550 	7.9 	1.35 	890 	4800 	60  	24  	14P 	0.85P 	12P 	1k
+#		KT88 	8.8 	1.35 	730 	4200 	32   	16  	14P 	0.85P 	12P 	1k
+#       EL34    60.0    4.8     2000            800     50
+#       EL34	11  	1.35	650 	4200	60  	24  	15P 	1P  	8P  	1K
+#       2A3 	4.2 	1.4 	1500	    	60  	300 	8P  	17P 	6P  	1K
+#       300B	3.95	1.4 	1550	    	65   	300 	10P 	16P 	5P  	1K
+#       6C33C	3.1 	1.4 	163 	    	15  	300 	31P 	31P 	11P 	500
 
 
 def Igk_Vgk(Vgk):
@@ -63,11 +68,11 @@ def Igk_Vgk(Vgk):
 
 def Ipk(Vgk, Vpk):
     """plate current as function of gate-kathode voltage and plate-kathode voltage"""
-    mu = 100.0
-    kx = 1.4
-    kg1 = 1060.0
-    kp = 600.0
-    kvb = 300.0
+    mu = 100.0      # Amplification factor.
+    kx = 1.4        # Exponent:
+    kg1 = 1060.0    # Inversely proportional to overall plate current
+    kp = 600.0      # Affects opration in region of large plate voltage and large negative grid voltage.
+    kvb = 300.0     # Knee volts. 
     #E1 = Vpk /kp*log(1+exp(kp*(1/mu+ Vgk/Vpk)))
     #return 2*E1**kx/kg1*(E1>0.0)*arctan(Vpk /kvb)
     E1 = Vpk/kp*log(1+exp(kp*(1/mu+Vgk/sqrt(kvb+Vpk*Vpk))))

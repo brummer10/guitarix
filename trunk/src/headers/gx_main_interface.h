@@ -405,7 +405,7 @@ class GxMainInterface : public gx_ui::GxUI {
     bool                  on_refresh_oscilloscope();
 
  protected :
-    static const int      MAX_TUBES = 16;
+    static const int      MAX_TUBES = 17;
     int                   fTop;
     GtkWidget*            fBox[stackSize];
     GtkWidget*            rBox;

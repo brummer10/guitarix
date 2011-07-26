@@ -166,6 +166,13 @@ gboolean gx_check_cab_state(gpointer) {
             gx_gui::cab_conv_restart();
         }
     }
+    if (gx_engine::audio.fcon) {
+        if ((gx_engine::audio.con_level - gx_engine::audio.con_sum) < -0.01
+            ||(gx_engine::audio.con_level - gx_engine::audio.con_sum) > 0.01) {
+            gx_engine::contrast_conv.stop();
+            gx_gui::contrast_conv_restart();
+        }
+    }
     return TRUE;
 }
 

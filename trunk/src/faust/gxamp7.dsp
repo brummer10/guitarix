@@ -8,6 +8,7 @@ import("maxmsp.lib");
 
 /****************************************************************
  ** Tube Preamp Emulation stage 1 - 2 
+ *        12ax7 -> pusch pull 6V6
  */
 
 

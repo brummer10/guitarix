@@ -30,9 +30,8 @@ namespace gx_tubes {
 
 #include "12ax7.cc"
 #include "12AU7.cc"
+#include "12AT7.cc"
 #include "6V6.cc"
 #include "6DJ8.cc"
-#include "EL34.cc"
-
 }
 

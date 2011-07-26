@@ -211,7 +211,7 @@ static float Ftube4(int table, float Vgk) {
     return tab.data[i]*(1-f) + tab.data[i+1]*f;
 }
 
-static float Ftube5(int table, float Vgk) {
+/* static float Ftube5(int table, float Vgk) {
     struct gx_tubes::tabled& tab = gx_tubes::tubetable5[table];
     float f = (Vgk - tab.low) * tab.istep;
     int i = static_cast<int>(f);
@@ -221,7 +221,20 @@ static float Ftube5(int table, float Vgk) {
         return tab.data[TAB_SIZE-1];
     f -= i;
     return tab.data[i]*(1-f) + tab.data[i+1]*f;
+} */
+
+static float Ftube6(int table, float Vgk) {
+    struct gx_tubes::tabled& tab = gx_tubes::tubetable6[table];
+    float f = (Vgk - tab.low) * tab.istep;
+    int i = static_cast<int>(f);
+    if (i < 0)
+        return tab.data[0];
+    if (i >= TAB_SIZE-1)
+        return tab.data[TAB_SIZE-1];
+    f -= i;
+    return tab.data[i]*(1-f) + tab.data[i+1]*f;
 }
+
 // gxdistortion
 static struct GxDistortionParams { GxDistortionParams();}
 GxDistortionParams;
@@ -247,6 +260,7 @@ GxDistortionParams::GxDistortionParams() {
 #include "faust/gxamp14.cc"
 #include "faust/gxamp15.cc"
 #include "faust/gxamp16.cc"
+#include "faust/gxamp17.cc"
 #include "faust/gx_ampmodul.cc"
 }
 
@@ -262,7 +276,10 @@ CabParams::CabParams() {
     registerVar("cab.Level", "",  "S", "", &audio.cab_level,  1.0, 0.5, 5.0, 0.5);
     registerVar("cab.bass", "",   "S", "", &audio.cab_bass,   0.0, -10.0, 10.0, 0.5);
     registerVar("cab.treble", "", "S", "", &audio.cab_treble, 0.0, -10.0, 10.0, 0.5);
+
+    registerVar("con.Level", "",  "S", "", &audio.con_level,  1.0, 0.5, 5.0, 0.5);
 }
+
 
 #include "faust/bassbooster.cc"
 #include "faust/gxfeed.cc"
@@ -299,6 +316,7 @@ CabParams::CabParams() {
 #include "faust/chorus_mono.cc"
 #include "faust/flanger_mono.cc"
 #include "cabinet_impulse_former.cc"
+#include "faust/presence_level.cc"
 }
 
 // init cabinet impulse former to 48000 Hz, the buffer will resampled
@@ -311,6 +329,15 @@ void non_rt_processing(int count, float* input, float* output0) {
     gx_effects::cabinet_impulse_former::compute(count, input, output0);
 }
 
+// init presence impulse former to 48000 Hz, the buffer will resampled
+// afterwards when needed.
+void init_presence_processing() {
+    gx_effects::presence_level::init(48000);
+}
+
+void presence_processing(int count, float* input, float* output0) {
+    gx_effects::presence_level::compute(count, input, output0);
+}
 // tone stack
 namespace gx_tonestacks {
 

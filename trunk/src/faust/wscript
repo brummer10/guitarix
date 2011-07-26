@@ -166,6 +166,7 @@ def build(bld):
         'gxamp14.dsp',
         'gxamp15.dsp',
         'gxamp16.dsp',
+        'gxamp17.dsp',
         'gx_ampmodul.dsp',
         'gxfeed.dsp',
         'gx_feedback.dsp',
@@ -180,6 +181,7 @@ def build(bld):
         'tremolo.dsp',
         'phaser_mono.dsp',
         'flanger_mono.dsp',
+        'presence_level.dsp',
         ]
 
     float_sources = [ # big arrays and no sensitive processing

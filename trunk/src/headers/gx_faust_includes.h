@@ -70,6 +70,10 @@ gboolean gx_check_engine_state(gpointer args);
 void init_non_rt_processing();
 void non_rt_processing(int count, float* input, float* output0);
 
+// contrast pre processing
+void init_presence_processing();
+void presence_processing(int count, float* input, float* output0);
+
 // register vars to param and init
 void register_faust_parameters();
 void faust_init(int samplingFreq);

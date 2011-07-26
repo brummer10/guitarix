@@ -127,6 +127,8 @@ class AudioVariables {
     float cab_bass;
     float cab_treble;
     float cab_sum;
+    float con_level;
+    float con_sum;
 
     unsigned int effect_pre_post[20];
     unsigned int effect_buffer[9];

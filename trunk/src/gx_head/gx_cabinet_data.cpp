@@ -553,7 +553,7 @@ static float cab_ir11_data[] = { -0.0529144, -0.0479034, -0.0443909, -0.0402527,
 //contrast
 int contrast_ircount = 192;
 int contrast_irsr = 48000;
-static float contrast_irdata[] = { 0.147081, 0.208808, 0.208996, 0.163228, 0.0858905, -0.0119104, -0.0932825, -0.121011, -0.0999426, -0.071073, -0.0403973, -0.00214844, 0.0287018, 
+static float contrast_ir_data[] = { 0.147081, 0.208808, 0.208996, 0.163228, 0.0858905, -0.0119104, -0.0932825, -0.121011, -0.0999426, -0.071073, -0.0403973, -0.00214844, 0.0287018, 
 0.0381079, 0.0372284, 0.0330389, 0.0252979, 0.0141394, 0.00118835, -0.00764709, -0.00751953, 0.00262512, 0.0143475, 0.0174762, 0.0168384, 0.0179126, 
 0.00738525, -0.0114069, -0.0192352, -0.0145825, -0.0179932, -0.0244049, -0.0173956, -0.00357178, 0.00643188, 0.0108966, 0.0132935, 0.0123737, 0.00680786, 
 -0.000214844, -0.0040686, -0.00533752, -0.00738525, -0.00539124, -0.00171875, 0.00156433, 0.00481384, 0.0038739, -0.00666016, -0.018866, -0.0216522, -0.0171606, 
@@ -661,8 +661,13 @@ gboolean conv_restart(gpointer data) {
 
 
 static bool contrast_start() {
+    float *contrast_irdata = contrast_ir_data;
+    float contrast_irdata_c[contrast_ircount];
+    (void)memset(contrast_irdata_c, 0, contrast_ircount*sizeof(float));
+    gx_engine::contrast_conv.stop();
+    gx_engine::presence_processing(contrast_ircount,contrast_irdata,contrast_irdata_c);
     while (!gx_engine::contrast_conv.checkstate());
-    if (!gx_engine::contrast_conv.configure(contrast_ircount, contrast_irdata, contrast_irsr)) {
+    if (!gx_engine::contrast_conv.configure(contrast_ircount, contrast_irdata_c, contrast_irsr)) {
         return false;
     }
     return gx_engine::contrast_conv.start();
@@ -698,7 +703,13 @@ void UiCabSwitch::on_switch_toggled() {
 
 
 void contrast_conv_restart() {
-    g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0, CabConvolveData::contrast_restart,NULL,NULL);
+    
+    if (guivar.g_threads[9] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[9]) == NULL) {
+        guivar.g_threads[9] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0, CabConvolveData::contrast_restart,NULL,NULL);
+        gx_engine::audio.con_sum = gx_engine::audio.con_level;
+    } else {
+        std::cout << "presence thread is bussy" << endl;
+    }
 }
 
 void UiContrastSwitch::on_switch_toggled() {

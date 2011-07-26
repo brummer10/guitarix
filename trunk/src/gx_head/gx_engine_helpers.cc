@@ -193,6 +193,9 @@ gboolean gx_check_engine_state(gpointer) {
         case 16:
             amp_ptr = &gx_amps::gxamp16::compute;
             break;
+        case 17:
+            amp_ptr = &gx_amps::gxamp17::compute;
+            break;
         default:
             amp_ptr = &gx_amps::gxamp::compute;
             break;
@@ -209,6 +212,18 @@ gboolean gx_check_engine_state(gpointer) {
 // reduce gain to compensate the increased gain by the cabinet
 inline void compensate_cab(int count, float *input0, float *output0) {
     double fSlow0 = (0.0010000000000000009 * pow(10, (0.05 * (-audio.cab_level*2.0))));
+    static double fRec0[2] = {0, 0};
+    for (int i = 0; i < count; i++) {
+        fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
+        output0[i] = (FAUSTFLOAT)(static_cast<double>(input0[i]) * fRec0[0]);
+        // post processing
+        fRec0[1] = fRec0[0];
+    }
+}
+
+// reduce gain to compensate the increased gain by the cabinet
+inline void compensate_con(int count, float *input0, float *output0) {
+    double fSlow0 = (0.0010000000000000009 * pow(10, (0.05 * (-audio.con_level*2.0))));
     static double fRec0[2] = {0, 0};
     for (int i = 0; i < count; i++) {
         fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
@@ -248,6 +263,7 @@ inline void run_cab_conf(int count, float *input0, float *output0) {
 
 // wraper for the presence function
 inline void run_contrast(int count, float *input0, float *output0) {
+    compensate_con(count, output0, output0);
     if (!contrast_conv.compute(count, output0))
     std::cout << "overload contrast" << endl;
     // FIXME error message??
