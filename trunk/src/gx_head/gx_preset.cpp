@@ -636,10 +636,6 @@ void GxPreset::gx_load_preset(GtkMenuItem *menuitem, gpointer load_preset) {
                          _("Preset list is empty, make some :)"));
         return;
     }
-    
-    gx_engine::GxEngineState estate = gx_engine::audio.checky;
-    if (estate != gx_engine::kEngineOff)
-        gx_engine::audio.checky = gx_engine::kEngineOff;
 
     // retrieve preset name
     vector<GtkMenuItem*>::iterator it = gxpreset.pm_list[LOAD_PRESET_LIST].begin();
@@ -684,7 +680,6 @@ void GxPreset::gx_load_preset(GtkMenuItem *menuitem, gpointer load_preset) {
 
     /* collect info for stage info display*/
     gx_gui::guivar.show_patch_info = gx_get_single_preset_menu_pos(gxpreset.gx_current_preset, 0);
-    gx_engine::audio.checky = estate;
 }
 
 // ---- funktion save
@@ -767,9 +762,6 @@ static bool gx_load_preset_from_factory(const char* presname, int i) {
 // ----menu funktion load preset from factory
 static void gx_load_factory_preset(GtkMenuItem *menuitem, gpointer load_preset) {
     // retrieve preset name
-    gx_engine::GxEngineState estate = gx_engine::audio.checky;
-    if (estate != gx_engine::kEngineOff)
-        gx_engine::audio.checky = gx_engine::kEngineOff;
     int i = GPOINTER_TO_INT(load_preset);
     vector<GtkMenuItem*>::iterator it = gxpreset.fpm_list[i].begin();
     vector<string>::iterator its = gxpreset.fplist[i].begin();
@@ -807,7 +799,6 @@ static void gx_load_factory_preset(GtkMenuItem *menuitem, gpointer load_preset) 
         gx_gui::guivar.g_threads[8] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,
                                                gx_convolver_restart, NULL, NULL);
     }
-    gx_engine::audio.checky = estate;
 }
 
 // load the factory preset file
@@ -857,9 +848,6 @@ void GxPreset::gx_load_factory_file(int i) {
 ///------ user preset handling------///
 // load a preset file
 void GxPreset::gx_recall_settings_file(const string *filename) {
-    gx_engine::GxEngineState estate = gx_engine::audio.checky;
-    if (estate != gx_engine::kEngineOff)
-        gx_engine::audio.checky = gx_engine::kEngineOff;
     if (!filename) {
         string fname = sysvar.gx_user_dir + gx_jack::gxjack.client_instance + "_rc";
         gx_system::recallState(fname);
@@ -879,7 +867,6 @@ void GxPreset::gx_recall_settings_file(const string *filename) {
     gx_current_preset = "";
     gx_gui::guivar.show_patch_info = 0;
     gx_refresh_preset_menus();
-    gx_engine::audio.checky = estate;
 }
 
 // ----- select a external preset file
