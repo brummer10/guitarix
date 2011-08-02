@@ -25,6 +25,8 @@
 
 #include "guitarix.h"     // NOLINT
 
+#include <glibmm/i18n.h>  // NOLINT
+
 #include <iostream>       // NOLINT
 
 namespace gx_gui
@@ -687,7 +689,7 @@ void cab_conv_restart() {
         gx_engine::set_cab_mode(gx_engine::audio.cab_level + gx_engine::audio.cab_bass +
                                 gx_engine::audio.cab_treble);
     } else {
-        std::cout << "cab thread is bussy" << endl;
+        gx_system::gx_print_warning(_("Cabinet Loading"), string(_(" cab thread is bussy")));
     }
 }
 
@@ -708,8 +710,8 @@ void contrast_conv_restart() {
         guivar.g_threads[9] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0, CabConvolveData::contrast_restart,NULL,NULL);
         gx_engine::audio.con_sum = gx_engine::audio.con_level;
     } else {
-        std::cout << "presence thread is bussy" << endl;
-    }
+        gx_system::gx_print_warning(_("Presence Loading"), string(_(" presence thread is bussy")));
+     }
 }
 
 void UiContrastSwitch::on_switch_toggled() {

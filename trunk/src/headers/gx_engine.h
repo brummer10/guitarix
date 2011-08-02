@@ -89,6 +89,7 @@ class AudioVariables {
     bool  ffeedback;
     bool  ftonestack;
     bool  rack_change;
+    bool  tube_changed;
 
     int   fcheckbox7;
     int   fdelay;
@@ -102,7 +103,6 @@ class AudioVariables {
     int   fsd;
     int   fse;
     int   gxtube;
-    int   cur_gxtube;
     int   mono_plug_counter;
     int   pre_active_counter;
     int   post_active_counter;

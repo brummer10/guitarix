@@ -45,164 +45,161 @@ stereochainorder stereo_rack_order_ptr[12];
 
 
 /****************************************************************
- **  working thread to set the pointer to the selected tonestack and tube/amp
+ **  set the function pointer to the selected tonestack and tube/amp
  */
+ 
+// seletc tonestack, only run when tonestack selection have changed
+gboolean gx_check_tonestack_state(gpointer) {
 
+    switch (audio.tonestack) {
+    case 0: // "default"
+        tonestack_ptr = &gx_tonestacks::tonestack_default::compute;
+        break;
+    case 1: // "Bassman"
+        tonestack_ptr = &gx_tonestacks::tonestack_bassman::compute;
+        break;
+    case 2: // "Twin Reverb"
+        tonestack_ptr = &gx_tonestacks::tonestack_twin::compute;
+        break;
+    case 3: // "Princeton"
+        tonestack_ptr = &gx_tonestacks::tonestack_princeton::compute;
+        break;
+    case 4: // "JCM-800"
+        tonestack_ptr = &gx_tonestacks::tonestack_jcm800::compute;
+        break;
+    case 5: // "JCM-2000"
+        tonestack_ptr = &gx_tonestacks::tonestack_jcm2000::compute;
+        break;
+    case 6: // "M-Lead"
+        tonestack_ptr = &gx_tonestacks::tonestack_mlead::compute;
+        break;
+    case 7: // "M2199"
+        tonestack_ptr = &gx_tonestacks::tonestack_m2199::compute;
+        break;
+    case 8: // "AC-30"
+        tonestack_ptr = &gx_tonestacks::tonestack_ac30::compute;
+        break;
+    case 9: // "Mesa"
+        tonestack_ptr = &gx_tonestacks::tonestack_mesa::compute;
+        break;
+    case 10: // "Soldano"
+        tonestack_ptr = &gx_tonestacks::tonestack_soldano::compute;
+        break;
+    case 11: // "jtm45"
+        tonestack_ptr = &gx_tonestacks::tonestack_jtm45::compute;
+        break;
+    case 12: // "ac15"
+        tonestack_ptr = &gx_tonestacks::tonestack_ac15::compute;
+        break;
+    case 13: // "peavey"
+        tonestack_ptr = &gx_tonestacks::tonestack_peavey::compute;
+        break;
+    case 14: // "ibanez"
+        tonestack_ptr = gx_tonestacks::tonestack_ibanez::compute;
+        break;
+    case 15: // "roland"
+        tonestack_ptr = &gx_tonestacks::tonestack_roland::compute;
+        break;
+    case 16: // "ampeg"
+        tonestack_ptr = &gx_tonestacks::tonestack_ampeg::compute;
+        break;
+    case 17: // "ampeg rev"
+        tonestack_ptr = &gx_tonestacks::tonestack_ampeg_rev::compute;
+        break;
+    case 18: // "sovtek"
+        tonestack_ptr = &gx_tonestacks::tonestack_sovtek::compute;
+        break;
+    case 19: // "bogner"
+        tonestack_ptr = &gx_tonestacks::tonestack_bogner::compute;
+        break;
+    case 20: // "groove"
+        tonestack_ptr = &gx_tonestacks::tonestack_groove::compute;
+        break;
+    case 21: // "crunch"
+        tonestack_ptr = &gx_tonestacks::tonestack_crunch::compute;
+        break;
+    case 22: // "fender_blues"
+        tonestack_ptr = &gx_tonestacks::tonestack_fender_blues::compute;
+        break;
+    case 23: // "fender_default"
+        tonestack_ptr = &gx_tonestacks::tonestack_fender_default::compute;
+        break;
+    case 24: // "fender_deville"
+        tonestack_ptr = &gx_tonestacks::tonestack_fender_deville::compute;
+        break;
+    case 25: // "gibsen"
+        tonestack_ptr = &gx_tonestacks::tonestack_gibsen::compute;
+        break;
+    case 26: // "Off"
+        break;
+    }
+    audio.cur_tonestack = audio.tonestack;
+    return false;
+}
+
+// select amp, only run when tube/amp selection have changed
 gboolean gx_check_engine_state(gpointer) {
 
-    // seletc tonestack, only run when tonestack selection have changed
-    if (audio.cur_tonestack != audio.tonestack) {
-        jack_sync();
-        switch (audio.tonestack) {
-        case 0: // "default"
-            tonestack_ptr = &gx_tonestacks::tonestack_default::compute;
-            break;
-        case 1: // "Bassman"
-            tonestack_ptr = &gx_tonestacks::tonestack_bassman::compute;
-            break;
-        case 2: // "Twin Reverb"
-            tonestack_ptr = &gx_tonestacks::tonestack_twin::compute;
-            break;
-        case 3: // "Princeton"
-            tonestack_ptr = &gx_tonestacks::tonestack_princeton::compute;
-            break;
-        case 4: // "JCM-800"
-            tonestack_ptr = &gx_tonestacks::tonestack_jcm800::compute;
-            break;
-        case 5: // "JCM-2000"
-            tonestack_ptr = &gx_tonestacks::tonestack_jcm2000::compute;
-            break;
-        case 6: // "M-Lead"
-            tonestack_ptr = &gx_tonestacks::tonestack_mlead::compute;
-            break;
-        case 7: // "M2199"
-            tonestack_ptr = &gx_tonestacks::tonestack_m2199::compute;
-            break;
-        case 8: // "AC-30"
-            tonestack_ptr = &gx_tonestacks::tonestack_ac30::compute;
-            break;
-        case 9: // "Mesa"
-            tonestack_ptr = &gx_tonestacks::tonestack_mesa::compute;
-            break;
-        case 10: // "Soldano"
-            tonestack_ptr = &gx_tonestacks::tonestack_soldano::compute;
-            break;
-        case 11: // "jtm45"
-            tonestack_ptr = &gx_tonestacks::tonestack_jtm45::compute;
-            break;
-        case 12: // "ac15"
-            tonestack_ptr = &gx_tonestacks::tonestack_ac15::compute;
-            break;
-        case 13: // "peavey"
-            tonestack_ptr = &gx_tonestacks::tonestack_peavey::compute;
-            break;
-        case 14: // "ibanez"
-            tonestack_ptr = gx_tonestacks::tonestack_ibanez::compute;
-            break;
-        case 15: // "roland"
-            tonestack_ptr = &gx_tonestacks::tonestack_roland::compute;
-            break;
-        case 16: // "ampeg"
-            tonestack_ptr = &gx_tonestacks::tonestack_ampeg::compute;
-            break;
-        case 17: // "ampeg rev"
-            tonestack_ptr = &gx_tonestacks::tonestack_ampeg_rev::compute;
-            break;
-        case 18: // "sovtek"
-            tonestack_ptr = &gx_tonestacks::tonestack_sovtek::compute;
-            break;
-        case 19: // "bogner"
-            tonestack_ptr = &gx_tonestacks::tonestack_bogner::compute;
-            break;
-        case 20: // "groove"
-            tonestack_ptr = &gx_tonestacks::tonestack_groove::compute;
-            break;
-        case 21: // "crunch"
-            tonestack_ptr = &gx_tonestacks::tonestack_crunch::compute;
-            break;
-        case 22: // "fender_blues"
-            tonestack_ptr = &gx_tonestacks::tonestack_fender_blues::compute;
-            break;
-        case 23: // "fender_default"
-            tonestack_ptr = &gx_tonestacks::tonestack_fender_default::compute;
-            break;
-        case 24: // "fender_deville"
-            tonestack_ptr = &gx_tonestacks::tonestack_fender_deville::compute;
-            break;
-        case 25: // "gibsen"
-            tonestack_ptr = &gx_tonestacks::tonestack_gibsen::compute;
-            break;
-        case 26: // "Off"
-            break;
-        }
-        audio.cur_tonestack = audio.tonestack;
+    switch (audio.gxtube) {
+    case 0: // "never"
+        amp_ptr = &gx_amps::gxamp::compute;
+        break;
+    case 1: // "default"
+        amp_ptr = &gx_amps::gxamp::compute;
+        break;
+    case 2:
+        amp_ptr = &gx_amps::gxamp3::compute;
+        break;
+    case 3:
+        amp_ptr = &gx_amps::gxamp2::compute;
+        break;
+    case 4:
+        amp_ptr = &gx_amps::gxamp4::compute;
+        break;
+    case 5:
+        amp_ptr = &gx_amps::gxamp5::compute;
+        break;
+    case 6:
+        amp_ptr = &gx_amps::gxamp10::compute;
+        break;
+    case 7:
+        amp_ptr = &gx_amps::gxamp12::compute;
+        break;
+    case 8:
+        amp_ptr = &gx_amps::gxamp6::compute;
+        break;
+    case 9:
+        amp_ptr = &gx_amps::gxamp7::compute;
+        break;
+    case 10:
+        amp_ptr = &gx_amps::gxamp8::compute;
+        break;
+    case 11:
+        amp_ptr = &gx_amps::gxamp9::compute;
+        break;
+    case 12:
+        amp_ptr = &gx_amps::gxamp11::compute;
+        break;
+    case 13:
+        amp_ptr = &gx_amps::gxamp13::compute;
+        break;
+    case 14:
+        amp_ptr = &gx_amps::gxamp14::compute;
+        break;
+    case 15:
+        amp_ptr = &gx_amps::gxamp15::compute;
+        break;
+    case 16:
+        amp_ptr = &gx_amps::gxamp16::compute;
+        break;
+    case 17:
+        amp_ptr = &gx_amps::gxamp17::compute;
+        break;
+    default:
+        amp_ptr = &gx_amps::gxamp::compute;
+        break;
     }
-
-    // select amp, only run when tube/amp selection have changed
-    if (audio.cur_gxtube != audio.gxtube) {
-        jack_sync();
-         switch (audio.gxtube) {
-        case 0: // "never"
-            amp_ptr = &gx_amps::gxamp::compute;
-            break;
-        case 1: // "default"
-            amp_ptr = &gx_amps::gxamp::compute;
-            break;
-        case 2:
-            amp_ptr = &gx_amps::gxamp3::compute;
-            break;
-        case 3:
-            amp_ptr = &gx_amps::gxamp2::compute;
-            break;
-        case 4:
-            amp_ptr = &gx_amps::gxamp4::compute;
-            break;
-        case 5:
-            amp_ptr = &gx_amps::gxamp5::compute;
-            break;
-        case 6:
-            amp_ptr = &gx_amps::gxamp10::compute;
-            break;
-        case 7:
-            amp_ptr = &gx_amps::gxamp12::compute;
-            break;
-        case 8:
-            amp_ptr = &gx_amps::gxamp6::compute;
-            break;
-        case 9:
-            amp_ptr = &gx_amps::gxamp7::compute;
-            break;
-        case 10:
-            amp_ptr = &gx_amps::gxamp8::compute;
-            break;
-        case 11:
-            amp_ptr = &gx_amps::gxamp9::compute;
-            break;
-        case 12:
-            amp_ptr = &gx_amps::gxamp11::compute;
-            break;
-        case 13:
-            amp_ptr = &gx_amps::gxamp13::compute;
-            break;
-        case 14:
-            amp_ptr = &gx_amps::gxamp14::compute;
-            break;
-        case 15:
-            amp_ptr = &gx_amps::gxamp15::compute;
-            break;
-        case 16:
-            amp_ptr = &gx_amps::gxamp16::compute;
-            break;
-        case 17:
-            amp_ptr = &gx_amps::gxamp17::compute;
-            break;
-        default:
-            amp_ptr = &gx_amps::gxamp::compute;
-            break;
-        }
-        audio.cur_gxtube = audio.gxtube;
-    }
-    return TRUE;
+    return false;
 }
 
 /****************************************************************
@@ -296,9 +293,12 @@ inline void just2_return(int count, float *input0, float *input1, float *output0
 gboolean gx_reorder_rack(gpointer args) {
 
     // only run when something have changed in the rack
-    if (gx_engine::audio.rack_change) {
+    //if (audio.rack_change) {
+      /*  GxEngineState estate = audio.checky;
+        if (estate != kEngineOff)
+            audio.checky = kEngineOff;
         // sync to jack_buffer_callback
-        jack_sync();
+        jack_sync(); */
 
         // set all rack pointers to just return
         for (int m = 0; m < audio.mono_plug_counter + 4; m++) {
@@ -592,9 +592,11 @@ gboolean gx_reorder_rack(gpointer args) {
                                      &gx_effects::tonecontroll::compute;
             }
         }
-        gx_engine::audio.rack_change = false;
-    }
-    return TRUE;
+        audio.rack_change = false;
+        // restore previous state
+       // audio.checky = estate;
+    //}
+    return false;
 }
 
 // check if mono effect buffer is valid, run every callback cycle

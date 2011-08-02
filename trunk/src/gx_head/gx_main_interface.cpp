@@ -2335,6 +2335,7 @@ void GxMainInterface::on_tube_activate() {
     for (int i = 0; i < MAX_TUBES; i++) {
         if (fSelectTubeModel[i].get_active()) {
             gx_engine::set_tube_model(i + 1);
+            gx_engine::audio.tube_changed = true;
         } else {
             fSelectTubeModel[i].set_active(false);
         }

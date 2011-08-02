@@ -65,6 +65,7 @@ void check_stereo_effect_buffer();
 // engine helper threads
 gboolean gx_reorder_rack(gpointer args);
 gboolean gx_check_engine_state(gpointer args);
+gboolean gx_check_tonestack_state(gpointer args);
 
 // cabinet pre processing
 void init_non_rt_processing();

@@ -82,7 +82,7 @@ class GuiVariables {
     int                 stereo_plugs;
     int                 refresh_size;
 
-    int                 g_threads[10];
+    int                 g_threads[14];
     /* for level display */
     int                 meter_display_timeout; // in millisec
     int                 meter_falloff ; // in dB/sec.

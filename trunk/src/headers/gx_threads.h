@@ -32,7 +32,6 @@ namespace gx_threads {
 gboolean gx_update_all_gui(gpointer args);
 gboolean gx_refresh_meter_level(gpointer arg);
 gboolean gx_survive_jack_shutdown(gpointer arg);
-gboolean gx_monitor_jack_clients(gpointer args);
 gboolean gx_do_program_change(gpointer arg);
 gboolean gx_xrun_report(gpointer xdel);
 gboolean gx_check_cab_state(gpointer args);

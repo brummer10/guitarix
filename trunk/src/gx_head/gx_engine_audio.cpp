@@ -164,6 +164,17 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
 // gx_head_amp engine
 void process_buffers(int count, float* input, float* output0) {
 
+    // check for changes in the audio engine
+    if (audio.tube_changed) {
+        gx_check_engine_state(NULL);
+    }
+    if (audio.cur_tonestack != audio.tonestack) {
+        gx_check_tonestack_state(NULL);
+    }
+    if (audio.rack_change) {
+        gx_reorder_rack(NULL);
+    }
+
     // check if tuner is visible or midi is on
     int tuner_on = gx_gui::guivar.shownote + static_cast<int>(isMidiOn()) + 1;
     if (tuner_on > 0) {
@@ -179,11 +190,6 @@ void process_buffers(int count, float* input, float* output0) {
 
     // move working buffer to the output buffer
     memcpy(output0, input, count*sizeof(float));
-
-    // check if mono effect buffer is inited
-    if (audio.rack_change) {
-        check_effect_buffer();
-    }
 
     // run pre rack
     for (int m = 1; m < audio.pre_active_counter+1; m++) {

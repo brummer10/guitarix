@@ -45,6 +45,7 @@ void gx_engine_init(const string *optvar ) {
     audio.result = new float[frag+46];
     audio.gxtube = 1;
     audio.cur_tonestack = 0;
+    audio.tube_changed = true;
     for (int i = 0; i < 9; i++) audio.effect_buffer[i] = 0;
     audio.rack_change = true;
 

@@ -24,6 +24,7 @@
 
 #include "guitarix.h"       // NOLINT
 
+#include <glibmm/i18n.h>    // NOLINT
 #include <errno.h>          // NOLINT
 #include <cstring>          // NOLINT
 #include <algorithm>        // NOLINT
@@ -147,10 +148,6 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
 gboolean gx_update_all_gui(gpointer) {
     // the general Gui update handler
     gx_ui::GxUI::updateAllGuis();
-    // watch for tonestack and amp switch
-    gx_engine::gx_check_engine_state(NULL);
-    // watch for rack order
-    gx_engine::gx_reorder_rack(NULL);
     return TRUE;
 }
 
