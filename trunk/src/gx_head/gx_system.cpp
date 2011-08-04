@@ -153,6 +153,14 @@ void gx_assign_shell_var(const char* name, string& value) {
 // ---- OS signal handler -----
 void gx_signal_handler(int sig) {
     // print out a warning
+    if (sig == SIGABRT) {
+        if(!gx_jack::gxjack.client) {
+            exit(1);
+        }
+        else {
+            gx_clean_exit(NULL, NULL);
+        }
+    }
     string msg = string(_("signal ")) + gx_i2a(sig) + _(" received, exiting ...");
     gx_print_warning(_("signal_handler"), msg);
 

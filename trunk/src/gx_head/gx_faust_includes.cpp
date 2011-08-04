@@ -19,19 +19,12 @@
  * --------------------------------------------------------------------------
  */
 
-#include "guitarix.h"     // NOLINT
 
-#include <errno.h>        // NOLINT
-
-#include <cstring>        // NOLINT
-#include <string>         // NOLINT
-#include <list>           // NOLINT
-#include <iostream>       // NOLINT
 
 /****************************************************************
  **  definitions for code generated with faust / dsp2cc
  */
-namespace gx_engine {
+
 
 typedef void (*inifunc)(int);  //  NOLINT
 
@@ -417,5 +410,5 @@ void faust_init(int samplingFreq) {
  *   selected functions.
  */
 #include "gx_engine_helpers.cc"
-}
+
 

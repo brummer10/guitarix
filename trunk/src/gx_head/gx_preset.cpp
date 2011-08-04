@@ -530,11 +530,11 @@ static bool gx_load_preset_from_file(const char* presname) {
         int major, minor;
         readHeader(jp, &major, &minor);
 
-        bool found = false;
+       // bool found = false;
         while (jp.peek() != JsonParser::end_array) {
             jp.next(JsonParser::value_string);
             if (jp.current_value() == presname) {
-                found = true;
+               // found = true;
                 read_preset(jp, 0, major, minor);
                 return true;
             } else {
@@ -738,11 +738,11 @@ static bool gx_load_preset_from_factory(const char* presname, int i) {
         int major, minor;
         readHeader(jp, &major, &minor);
 
-        bool found = false;
+       // bool found = false;
         while (jp.peek() != JsonParser::end_array) {
             jp.next(JsonParser::value_string);
             if (jp.current_value() == presname) {
-                found = true;
+               // found = true;
                 read_preset(jp, 0, major, minor);
                 return true;
             } else {

@@ -49,6 +49,7 @@ void init_unix_signal_handlers() {
     signal(SIGTERM, gx_system::gx_signal_handler);
     signal(SIGHUP,  gx_system::gx_signal_handler);
     signal(SIGINT,  gx_system::gx_signal_handler);
+    signal(SIGABRT,  gx_system::gx_signal_handler);
     // signal(SIGSEGV, gx_signal_handler); // no good, quits application silently
 }
 

@@ -47,6 +47,12 @@ typedef enum {
     kMidiOn     = 1
 } GxMidiState;
 
+// define engine pointer typs
+typedef void (*chainorder)
+             (int count, float *output, float *output1);
+
+typedef void (*stereochainorder)
+             (int count, float* input, float* input1, float *output, float *output1);
 
 /****************************************************************/
 
@@ -251,6 +257,18 @@ void compute_insert(int count, float* input1, float* output2, float* output3);
 
 void process_buffers(int count, float* input, float* output0);
 void process_insert_buffers(int count, float* input1, float* output0, float* output1);
+
+// cabinet pre processing
+void init_non_rt_processing();
+void non_rt_processing(int count, float* input, float* output0);
+
+// contrast pre processing
+void init_presence_processing();
+void presence_processing(int count, float* input, float* output0);
+
+// register vars to param and init
+void register_faust_parameters();
+void faust_init(int samplingFreq);
 
 /* ------------------------------------------------------------------- */
 } /* end of gx_engine namespace */

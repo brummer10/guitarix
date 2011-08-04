@@ -19,7 +19,7 @@
  *
  *
  *    This is part of the Guitarix Audio Engine
- *    the engine helper threads running in the gui thread.
+ *
  *
  *
  * --------------------------------------------------------------------------
@@ -29,6 +29,16 @@
 /****************************************************************
  **  engine function pointers
  */
+
+// empty mono pointer
+inline void just_return(int count, float *input0, float *output0) {
+    return;
+}
+
+// empty stereo pointer
+inline void just2_return(int count, float *input0, float *input1, float *output0, float *output1) {
+    return;
+}
 
 // pointer to the choosen tonestack default setting
 chainorder tonestack_ptr = &gx_tonestacks::tonestack_default::compute;
@@ -49,7 +59,7 @@ stereochainorder stereo_rack_order_ptr[12];
  */
  
 // seletc tonestack, only run when tonestack selection have changed
-gboolean gx_check_tonestack_state(gpointer) {
+static gboolean gx_check_tonestack_state(gpointer) {
 
     switch (audio.tonestack) {
     case 0: // "default"
@@ -131,6 +141,7 @@ gboolean gx_check_tonestack_state(gpointer) {
         tonestack_ptr = &gx_tonestacks::tonestack_gibsen::compute;
         break;
     case 26: // "Off"
+        tonestack_ptr = &just_return;
         break;
     }
     audio.cur_tonestack = audio.tonestack;
@@ -138,7 +149,7 @@ gboolean gx_check_tonestack_state(gpointer) {
 }
 
 // select amp, only run when tube/amp selection have changed
-gboolean gx_check_engine_state(gpointer) {
+static gboolean gx_check_engine_state(gpointer) {
 
     switch (audio.gxtube) {
     case 0: // "never"
@@ -276,21 +287,11 @@ static void run_gxfeed(int count, float *input0, float *input1, float *output0, 
     gx_effects::gxfeed::compute(count, output0, output0, output1);
 }
 
-// empty mono pointer
-inline void just_return(int count, float *input0, float *output0) {
-    return;
-}
-
-// empty stereo pointer
-inline void just2_return(int count, float *input0, float *input1, float *output0, float *output1) {
-    return;
-}
-
 /****************************************************************
  **  working thread to set the order in the all racks
  */
 
-gboolean gx_reorder_rack(gpointer args) {
+static gboolean gx_reorder_rack(gpointer args) {
 
     for (int m = 0; m < audio.mono_plug_counter + 4; m++) {
         pre_rack_order_ptr[m] = &just_return;
@@ -583,12 +584,13 @@ gboolean gx_reorder_rack(gpointer args) {
                                  &gx_effects::tonecontroll::compute;
         }
     }
+
     audio.rack_change = false;
     return false;
 }
 
 // check if mono effect buffer is valid, run every callback cycle
-void check_effect_buffer() {
+static void check_effect_buffer() {
     if (!gx_effects::echo::is_inited()) {
         pre_rack_order_ptr[audio.effect_buffer[0]] = &just_return;
         post_rack_order_ptr[audio.effect_buffer[3]] = &just_return;
@@ -603,7 +605,7 @@ void check_effect_buffer() {
     }
 }
 // check if stereo effect buffer is valid, run every callback cycle
-void check_stereo_effect_buffer() {
+static void check_stereo_effect_buffer() {
     if (!gx_effects::chorus::is_inited()) {
         stereo_rack_order_ptr[audio.effect_buffer[6]] = &just2_return;
     }

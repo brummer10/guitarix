@@ -26,12 +26,18 @@
 
 #include "guitarix.h"     // NOLINT
 
+#include <errno.h>        // NOLINT
+
+#include <cstring>        // NOLINT
+#include <string>         // NOLINT
+#include <list>           // NOLINT
 #include <iostream>       // NOLINT
 
 namespace gx_engine {
 
 AudioVariables audio;
 
+#include "gx_faust_includes.cpp"
 /****************************************************************
  **  this is the process callback called from jack
  **
@@ -211,32 +217,24 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
     // move working buffer to the output buffer
     memcpy(output0, input1, count*sizeof(float));
 
-    // check if effect buffer is inited
-    if (audio.rack_change) {
-        check_stereo_effect_buffer();
-    }
-
     // run stereo rack
     for (int m = 1; m < audio.stereo_active_counter+1; m++) {
         stereo_rack_order_ptr[m](count, output0, output1, output0, output1);
     }
 
-    // run convolver
     if (conv.is_runnable()) {
         // reuse oversampling buffer
         float *conv_out0 = audio.oversample;
         float *conv_out1 = audio.oversample+count;
         if (!conv.compute(count, output0, output1, conv_out0, conv_out1)) {
             gx_jconv::GxJConvSettings::checkbutton7 = 0;
-            std::cout << "overload" << endl;
-            // FIXME error message??
+            cout << "overload" << endl;
+            //FIXME error message??
         } else {
-            gx_effects::jconv_post::compute(count, output0, output1, conv_out0, conv_out1,
-                        output0, output1);
+            gx_effects::jconv_post::compute(count, output0, output1, conv_out0, conv_out1, output0, output1);
         }
     }
-
-    // run outputlevel controler
+    
     gx_effects::gx_outputlevel::compute(count, output0, output1, output0, output1);
 
     // copy output buffer to the level meter

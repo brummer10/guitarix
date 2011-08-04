@@ -1420,6 +1420,7 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data) {
             gx_jconv::GxJConvSettings::checkbutton7 = 0;
         }
     }
+    //gx_engine::audio.rack_change = true;
 }
 
 void GxMainInterface::addJToggleButton(const char* label, float* zone) {
@@ -1981,7 +1982,7 @@ void GxMainInterface::addEngineMenu() {
     GtkWidget* menulabel;   // menu label
     // GtkWidget* menucont;    // menu container use gw.menuh for systray menu here
     GtkWidget* menuitem;    // menu item
-    GSList   * group = NULL;
+    //GSList   * group = NULL;
 
     /*---------------- Create Engine menu items ------------------*/
     gw.menuh = fMenuList["Top"];
@@ -1997,7 +1998,7 @@ void GxMainInterface::addEngineMenu() {
     fMenuList["Engine"] = gw.menuh;
 
     /*-- Create Engine start / stop item  --*/
-    group = NULL;
+    //group = NULL;
 
     menuitem = gtk_check_menu_item_new_with_mnemonic(_("Engine _Start / _Stop"));
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,

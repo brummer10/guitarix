@@ -55,7 +55,6 @@ using namespace std;
 #include "./gx_preset.h"
 #include "./gx_jconv_settings.h"
 #include "./gx_engine_tubetable.h"
-#include "./gx_faust_includes.h"
 #include "./gx_engine.h"
 #include "./gx_gui_helpers.h"
 #include "./gx_main_midi.h"
