@@ -155,7 +155,7 @@ void gx_signal_handler(int sig) {
     // print out a warning
     if (sig == SIGABRT) {
         if(!gx_jack::gxjack.client) {
-            //printf(_(" SIGABRT . . \n"));
+            printf(_(" SIGABRT . .received, try to clean up and exit. . .  \n"));
             exit(1);
         }
         else {
