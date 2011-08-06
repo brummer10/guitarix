@@ -41,17 +41,17 @@ inline void just2_return(int count, float *input0, float *input1, float *output0
 }
 
 // pointer to the choosen tonestack default setting
-chainorder tonestack_ptr = &gx_tonestacks::tonestack_default::compute;
+static chainorder tonestack_ptr = &gx_tonestacks::tonestack_default::compute;
 
 // pointer to the choosen amp default setting
-chainorder amp_ptr = &gx_amps::gxamp::compute;
+static chainorder amp_ptr = &gx_amps::gxamp::compute;
 
 // mono rack (pre/post) order pointer
-chainorder pre_rack_order_ptr[30];
-chainorder post_rack_order_ptr[30];
+static chainorder pre_rack_order_ptr[30];
+static chainorder post_rack_order_ptr[30];
 
 // stereo rack order pointer
-stereochainorder stereo_rack_order_ptr[12];
+static stereochainorder stereo_rack_order_ptr[12];
 
 
 /****************************************************************
@@ -588,7 +588,7 @@ static gboolean gx_reorder_rack(gpointer args) {
     audio.rack_change = false;
     return false;
 }
-
+/*
 // check if mono effect buffer is valid, run every callback cycle
 static void check_effect_buffer() {
     if (!gx_effects::echo::is_inited()) {
@@ -616,4 +616,4 @@ static void check_stereo_effect_buffer() {
         stereo_rack_order_ptr[audio.effect_buffer[8]] = &just2_return;
     }
 }
-
+*/

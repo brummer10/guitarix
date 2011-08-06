@@ -93,7 +93,6 @@ Resampler_table *Resampler_table::create (unsigned int ra,
                                           unsigned int fr)
 {
     Resampler_table *P;
-
     _mutex.lock ();
     P = _list;
     while (P)
@@ -118,7 +117,6 @@ Resampler_table *Resampler_table::create (unsigned int ra,
 void Resampler_table::destroy (Resampler_table *T)
 {
     Resampler_table *P, *Q;
-
     _mutex.lock ();
     if (T)
     {
@@ -139,6 +137,7 @@ void Resampler_table::destroy (Resampler_table *T)
 		P = P->_next;
 	    }
 	    delete T;
+        T = 0;
 	}
     }
     _mutex.unlock ();
@@ -171,7 +170,7 @@ Resampler::Resampler (void) :
 
 Resampler::~Resampler (void)
 {
-    clear ();
+        clear ();
 }
 
 

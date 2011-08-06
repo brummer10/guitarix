@@ -135,6 +135,9 @@ void GxConvolverBase::adjust_values(
     if (bufsize < count) {
         bufsize = count;
     }
+    if (bufsize < 64) {
+        bufsize = 64;
+    }
     if (offset > audio_size) {
         offset = audio_size;
     }
@@ -367,10 +370,12 @@ bool GxConvolver::configure(
          << ", ldelay=" << ldelay << ", length=" << length << ", gain" << gain
          << ", lgain" << lgain << endl;
     */
+    
     if (Convproc::configure(2, 2, size, count, bufsize, Convproc::MAXPART)) {
-        gx_system::gx_print_error("convolver", "error in Convproc::configure");
+        gx_system::gx_print_error("convolver", "error in Convproc::configure ");
         return false;
     }
+        
     float gain_a[2] = {gain, lgain};
     unsigned int delay_a[2] = {delay, ldelay};
     return read_sndfile(audio, 2, samplerate, gain_a, delay_a, offset, length, points);
@@ -424,8 +429,13 @@ bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int sample
     }
     cleanup();
     bool ret;
+    
+    unsigned int bufsize = gx_jack::gxjack.jack_bs;
+    if (bufsize < 64) {
+        bufsize = 64;
+    }
     if (Convproc::configure(1, 1, count, gx_jack::gxjack.jack_bs,
-                            gx_jack::gxjack.jack_bs, Convproc::MAXPART)) {
+                            bufsize, Convproc::MAXPART)) {
         gx_system::gx_print_error("convolver", "error in Convproc::configure");
         ret = false;
     } else if (impdata_create(0, 0, 1, impresp, 0, count)) {
