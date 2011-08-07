@@ -158,17 +158,17 @@ int StreamingResampler::flush(float *output)
 	return olen - out_count;
 }
 
-BufferResampler *r;
-StreamingResampler *resamp;
+BufferResampler *_buffer_resampler = 0;
+StreamingResampler *_stream_resampler = 0;
 
 void init_resampler_ref() {
-    r = new BufferResampler;
-    resamp = new StreamingResampler;
+    _buffer_resampler = new BufferResampler;
+    _stream_resampler = new StreamingResampler;
 }
 
 void delete_resampler_ref() {
-    if (r) delete r;
-    if (resamp) delete resamp;
+     delete _buffer_resampler;
+     delete _stream_resampler;
 }
 
 } // namespace gx_engine

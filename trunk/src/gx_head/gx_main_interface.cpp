@@ -2922,6 +2922,19 @@ void GxMainInterface::addJackServerMenu() {
     const int min_pow = 5;  // 2**5  = 32
     const int max_pow = 13; // 2**13 = 8192
     group = NULL;
+        int jack_buffer_size = static_cast<int>(16);
+        (void)snprintf(buf_size, sizeof(buf_size), "%d", jack_buffer_size);
+        menuitem = gtk_radio_menu_item_new_with_label(group, buf_size);
+        group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), FALSE);
+
+        g_signal_connect(GTK_OBJECT(menuitem), "activate",
+                          G_CALLBACK(gx_jack::gxjack.gx_set_jack_buffer_size),
+                          GINT_TO_POINTER(jack_buffer_size));
+
+        // display actual buffer size as default
+        gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+        gtk_widget_show(menuitem);
 
     for (int i = min_pow; i <= max_pow; i++) {
         int jack_buffer_size = static_cast<int>(pow(2., i));
