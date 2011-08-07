@@ -28,6 +28,12 @@ def build(bld):
         'gx_preset.cpp',
         'gx_json.cpp',
         'gx_ui.cpp',
+        'gx_pitch_tracker.cpp',
+        'gx_convolver.cpp',
+        'gx_cabinet_data.cpp',
+        'gx_resampler.cpp',
+        'gx_system.cpp',
+        'gx_main.cpp',
         ]
 
     builder_files = [
@@ -45,12 +51,6 @@ def build(bld):
         lib = []
     else:
         lib = ['zita-resampler']
-    sources.append('gx_pitch_tracker.cpp')
-    sources.append('gx_convolver.cpp')
-    sources.append('gx_cabinet_data.cpp')
-    sources.append('gx_resampler.cpp')
-    sources.append('gx_system.cpp')
-    sources.append('gx_main.cpp')
     if bld.env["GX_LIB_SHARED"]:
         lib.extend(['gxwmm','gxw'])
         libpath = [bld.path.find_dir("../../libgxw/gxw").bldpath(bld.env),

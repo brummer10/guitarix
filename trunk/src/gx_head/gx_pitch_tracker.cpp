@@ -56,6 +56,7 @@ PitchTracker::PitchTracker()
     busy(false),
     tick(0),
     m_pthr(0),
+    resamp(new Resampler),
     m_buffer(new float[MAX_FFT_SIZE]),
     m_bufferIndex(0),
     m_audioLevel(false),
@@ -85,6 +86,7 @@ PitchTracker::~PitchTracker() {
     fftwf_free(m_fftwBufferTime);
     fftwf_free(m_fftwBufferFreq);
     delete[] m_buffer;
+    
 }
 
 
@@ -95,7 +97,7 @@ bool PitchTracker::setParameters(int sampleRate, int fftSize) {
         return false;
     }
     m_sampleRate = sampleRate / DOWNSAMPLE;
-    resamp.setup(sampleRate, m_sampleRate, 1, 16); // 16 == least quality
+    resamp->setup(sampleRate, m_sampleRate, 1, 16); // 16 == least quality
 
     if (m_fftSize != fftSize) {
         m_fftSize = fftSize;
@@ -120,6 +122,13 @@ bool PitchTracker::setParameters(int sampleRate, int fftSize) {
     return !error;
 }
 
+void PitchTracker::stop_thread() {
+    pthread_cancel (m_pthr);
+    pthread_join (m_pthr, NULL);
+    sem_post(&m_trig);
+    delete resamp;
+}
+
 void PitchTracker::start_thread() {
     int                min, max;
     pthread_attr_t     attr;
@@ -134,7 +143,8 @@ void PitchTracker::start_thread() {
     if (priority < min) priority = min;
     spar.sched_priority = priority;
     pthread_attr_init(&attr);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_JOINABLE );
+    pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
     pthread_attr_setschedpolicy(&attr, policy);
     pthread_attr_setschedparam(&attr, &spar);
     pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
@@ -191,19 +201,19 @@ void PitchTracker::add(int count, float* input) {
     if (error) {
         return;
     }
-    resamp.inp_count = count;
-    resamp.inp_data = input;
+    resamp->inp_count = count;
+    resamp->inp_data = input;
     for (;;) {
-        resamp.out_data = &m_buffer[m_bufferIndex];
+        resamp->out_data = &m_buffer[m_bufferIndex];
         int n = MAX_FFT_SIZE - m_bufferIndex;
-        resamp.out_count = n;
-        resamp.process();
-        n -= resamp.out_count; // n := number of output samples
+        resamp->out_count = n;
+        resamp->process();
+        n -= resamp->out_count; // n := number of output samples
         if (!n) { // all soaked up by filter
             return;
         }
         m_bufferIndex = (m_bufferIndex + n) % MAX_FFT_SIZE;
-        if (resamp.inp_count == 0) {
+        if (resamp->inp_count == 0) {
             break;
         }
     }
@@ -233,6 +243,7 @@ void PitchTracker::run() {
     for (;;) {
         busy = false;
         sem_wait(&m_trig);
+        pthread_testcancel();
         busy = true;
         if (error) {
             continue;

@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
     gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
     gui->setup();
 
-
+    gx_resample::init_resampler_ref(); 
     // ---------------------- initialize jack gxjack.client ------------------
     if (gx_jack::gxjack.gx_jack_init(optvar)) {
         // -------- initialize gx_head engine --------------------------

@@ -796,6 +796,9 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
         delete[] gx_engine::audio.result;
         gx_engine::audio.result = NULL;
     }
+    gx_resample::delete_resampler_ref();
+    gx_engine::pitch_tracker.stop_thread();
+    
     if (sysvar.is_session) {
         printf(_("  gx_head session exit  ***  ciao . . \n"));
         return;

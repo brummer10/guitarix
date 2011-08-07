@@ -135,8 +135,8 @@ void GxConvolverBase::adjust_values(
     if (bufsize < count) {
         bufsize = count;
     }
-    if (bufsize < 64) {
-        bufsize = 64;
+    if (bufsize < Convproc::MINPART) {
+        bufsize = Convproc::MINPART;
     }
     if (offset > audio_size) {
         offset = audio_size;
@@ -220,7 +220,7 @@ bool GxConvolver::read_sndfile(
     // keep BSIZE big enough so that resamp.flush() doesn't cause overflow
     // (> 100 should be enough, and should be kept bigger anyhow)
     const unsigned int BSIZE = 0x8000; //  0x4000;
-    gx_resample::StreamingResampler resamp;
+    
 
     if (offset && audio.seek(offset)) {
         gx_system::gx_print_error("convolver", "Can't seek to offset");
@@ -238,11 +238,11 @@ bool GxConvolver::read_sndfile(
         ostringstream buf;
         buf << "resampling from " << audio.rate() << " to " << samplerate;
         gx_system::gx_print_info("convolver", buf.str());
-        if (!resamp.setup(audio.rate(), samplerate, nchan)) {
+        if (!gx_resample::resamp->setup(audio.rate(), samplerate, nchan)) {
             assert(false);
         }
         try {
-            rbuff = new float[resamp.get_max_out_size(BSIZE)*nchan];
+            rbuff = new float[gx_resample::resamp->get_max_out_size(BSIZE)*nchan];
         } catch(...) {
             audio.close();
             gx_system::gx_print_error("convolver", "out of memory");
@@ -304,11 +304,11 @@ bool GxConvolver::read_sndfile(
             gp += nfram*fct;
             cnt = nfram;
             if (rbuff) {
-                cnt = resamp.process(nfram, buff, rbuff);
+                cnt = gx_resample::resamp->process(nfram, buff, rbuff);
             }
         } else {
             if (rbuff) {
-                cnt = resamp.flush(rbuff);
+                cnt = gx_resample::resamp->flush(rbuff);
                 done = true;
             } else {
                 break;
@@ -340,6 +340,7 @@ bool GxConvolver::read_sndfile(
     audio.close();
     delete[] buff;
     delete[] rbuff;
+    
     return true;
 }
 
@@ -419,20 +420,21 @@ GxConvolver conv;
 bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int samplerate) {
     bool dyn = false;
     if (samplerate != gx_jack::gxjack.jack_sr) {
-        gx_resample::BufferResampler r;
-        impresp = r.process(samplerate, count, impresp, gx_jack::gxjack.jack_sr, count);
+        
+        impresp = gx_resample::r->process(samplerate, count, impresp, gx_jack::gxjack.jack_sr, count);
         if (!impresp) {
             gx_system::gx_print_error("convolver", "failed to resample");
             return false;
         }
         dyn = true;
+        
     }
     cleanup();
     bool ret;
     
     unsigned int bufsize = gx_jack::gxjack.jack_bs;
-    if (bufsize < 64) {
-        bufsize = 64;
+    if (bufsize < Convproc::MINPART) {
+        bufsize = Convproc::MINPART;
     }
     if (Convproc::configure(1, 1, count, gx_jack::gxjack.jack_bs,
                             bufsize, Convproc::MAXPART)) {

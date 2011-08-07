@@ -42,6 +42,7 @@ class PitchTracker {
                     {setParameters(static_cast<int>(gx_jack::gxjack.jack_sr), MAX_FFT_SIZE);}
     void            add(int count, float *input);
     float           tuner_estimate();
+    void            stop_thread();
 
  private:
     void            run();
@@ -56,7 +57,7 @@ class PitchTracker {
     int             tick;
     sem_t           m_trig;
     pthread_t       m_pthr;
-    Resampler       resamp;
+    Resampler       *resamp;
     int             m_sampleRate;
     // Size of the FFT window.
     int             m_fftSize;
