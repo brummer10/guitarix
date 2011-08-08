@@ -127,6 +127,7 @@ void PitchTracker::stop_thread() {
     pthread_join (m_pthr, NULL);
     sem_post(&m_trig);
     delete resamp;
+    resamp = 0;
 }
 
 void PitchTracker::start_thread() {

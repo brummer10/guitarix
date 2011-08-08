@@ -1420,7 +1420,7 @@ void gx_start_stop_jconv(GtkWidget *widget, gpointer data) {
             gx_jconv::GxJConvSettings::checkbutton7 = 0;
         }
     }
-    //gx_engine::audio.rack_change = true;
+    gx_engine::audio.rack_change = true;
 }
 
 void GxMainInterface::addJToggleButton(const char* label, float* zone) {
@@ -2337,6 +2337,7 @@ void GxMainInterface::on_tube_activate() {
         if (fSelectTubeModel[i].get_active()) {
             gx_engine::set_tube_model(i + 1);
             gx_engine::audio.tube_changed = true;
+            gx_engine::audio.rack_change = true;
         } else {
             fSelectTubeModel[i].set_active(false);
         }

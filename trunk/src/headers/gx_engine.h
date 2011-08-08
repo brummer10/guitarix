@@ -110,7 +110,7 @@ class AudioVariables {
     int   fse;
     int   gxtube;
     int   mono_plug_counter;
-    int   pre_active_counter;
+    int   mono_active_counter;
     int   post_active_counter;
     int   stereo_plug_counter;
     int   stereo_active_counter;

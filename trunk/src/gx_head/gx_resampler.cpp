@@ -163,6 +163,7 @@ void GlobalResampler::init_resampler_ref() {
 
 void GlobalResampler::delete_resampler_ref() {
     delete _glob_resamp;
+    _glob_resamp = 0;
 }
 
 } // namespace gx_resample

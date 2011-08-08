@@ -180,7 +180,7 @@ void process_buffers(int count, float* input, float* output0) {
     if (audio.rack_change) {
         gx_reorder_rack(NULL);
     }
-
+    
     // check if tuner is visible or midi is on
     int tuner_on = gx_gui::guivar.shownote + static_cast<int>(isMidiOn()) + 1;
     if (tuner_on > 0) {
@@ -197,18 +197,11 @@ void process_buffers(int count, float* input, float* output0) {
     // move working buffer to the output buffer
     memcpy(output0, input, count*sizeof(float));
 
-    // run pre rack
-    for (int m = 1; m < audio.pre_active_counter+1; m++) {
-        pre_rack_order_ptr[m](count, output0, output0);
+    // run mono rack
+    for (int m = 1; m < audio.mono_active_counter+1; m++) {
+        mono_rack_order_ptr[m](count, output0, output0);
     }
 
-    // run selected tube/amp model
-    amp_ptr(count, output0, output0);
-
-    // run post rack
-    for (int m = 1; m < audio.post_active_counter+1; m++) {
-        post_rack_order_ptr[m](count, output0, output0);
-    }
 }
 
 // gx_head_fx engine
@@ -221,21 +214,6 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
     for (int m = 1; m < audio.stereo_active_counter+1; m++) {
         stereo_rack_order_ptr[m](count, output0, output1, output0, output1);
     }
-
-    if (conv.is_runnable()) {
-        // reuse oversampling buffer
-        float *conv_out0 = audio.oversample;
-        float *conv_out1 = audio.oversample+count;
-        if (!conv.compute(count, output0, output1, conv_out0, conv_out1)) {
-            gx_jconv::GxJConvSettings::checkbutton7 = 0;
-            cout << "overload" << endl;
-            //FIXME error message??
-        } else {
-            gx_effects::jconv_post::compute(count, output0, output1, conv_out0, conv_out1, output0, output1);
-        }
-    }
-    
-    gx_effects::gx_outputlevel::compute(count, output0, output1, output0, output1);
 
     // copy output buffer to the level meter
     (void)memcpy(audio.get_frame, output0, sizeof(float)*count);
