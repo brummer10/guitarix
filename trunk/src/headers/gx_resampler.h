@@ -41,13 +41,10 @@ class SimpleResampler {
     void down(int count, float *input, float *output);
 };
 
-//extern SimpleResampler resampTube, resampDist;
-
 class BufferResampler: Resampler {
  public:
     float *process(int fs_inp, int ilen, float *input, int fs_outp, int& olen);
 };
-extern BufferResampler *_buffer_resampler;
 
 class StreamingResampler: Resampler {
  public:
@@ -56,9 +53,18 @@ class StreamingResampler: Resampler {
     int process(int count, float *input, float *output);
     int flush(float *output); // check source for max. output size
 };
-extern StreamingResampler *_stream_resampler;
 
-void init_resampler_ref();
-void delete_resampler_ref();
+class GlobalResampler {
+ public:
+    StreamingResampler  _stream_resampler;
+    BufferResampler     _buffer_resampler;
+    SimpleResampler     _resampDist;
+    SimpleResampler     _resampTube;
+
+    void init_resampler_ref();
+    void delete_resampler_ref();
+};
+
+extern GlobalResampler *_glob_resamp;
 }
 #endif  // SRC_HEADERS_GX_RESAMPLER_H_

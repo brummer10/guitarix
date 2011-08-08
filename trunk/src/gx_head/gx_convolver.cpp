@@ -238,11 +238,11 @@ bool GxConvolver::read_sndfile(
         ostringstream buf;
         buf << "resampling from " << audio.rate() << " to " << samplerate;
         gx_system::gx_print_info("convolver", buf.str());
-        if (!gx_resample::_stream_resampler->setup(audio.rate(), samplerate, nchan)) {
+        if (!gx_resample::_glob_resamp->_stream_resampler.setup(audio.rate(), samplerate, nchan)) {
             assert(false);
         }
         try {
-            rbuff = new float[gx_resample::_stream_resampler->get_max_out_size(BSIZE)*nchan];
+            rbuff = new float[gx_resample::_glob_resamp->_stream_resampler.get_max_out_size(BSIZE)*nchan];
         } catch(...) {
             audio.close();
             gx_system::gx_print_error("convolver", "out of memory");
@@ -304,11 +304,11 @@ bool GxConvolver::read_sndfile(
             gp += nfram*fct;
             cnt = nfram;
             if (rbuff) {
-                cnt = gx_resample::_stream_resampler->process(nfram, buff, rbuff);
+                cnt = gx_resample::_glob_resamp->_stream_resampler.process(nfram, buff, rbuff);
             }
         } else {
             if (rbuff) {
-                cnt = gx_resample::_stream_resampler->flush(rbuff);
+                cnt = gx_resample::_glob_resamp->_stream_resampler.flush(rbuff);
                 done = true;
             } else {
                 break;
@@ -421,7 +421,7 @@ bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int sample
     bool dyn = false;
     if (samplerate != gx_jack::gxjack.jack_sr) {
         
-        impresp = gx_resample::_buffer_resampler->process(samplerate, count, impresp, gx_jack::gxjack.jack_sr, count);
+        impresp = gx_resample::_glob_resamp->_buffer_resampler.process(samplerate, count, impresp, gx_jack::gxjack.jack_sr, count);
         if (!impresp) {
             gx_system::gx_print_error("convolver", "failed to resample");
             return false;
