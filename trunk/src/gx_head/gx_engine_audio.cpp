@@ -171,27 +171,8 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
 void process_buffers(int count, float* input, float* output0) {
 
     // check for changes in the audio engine
-    if (audio.tube_changed) {
-        gx_check_engine_state(NULL);
-    }
-    if (audio.cur_tonestack != audio.tonestack) {
-        gx_check_tonestack_state(NULL);
-    }
     if (audio.rack_change) {
         gx_reorder_rack(NULL);
-    }
-    
-    // check if tuner is visible or midi is on
-    int tuner_on = gx_gui::guivar.shownote + static_cast<int>(isMidiOn()) + 1;
-    if (tuner_on > 0) {
-        if (gx_gui::guivar.shownote == 0) {
-            gx_gui::guivar.shownote = -1;
-        } else {
-            // run tuner
-            pitch_tracker.add(count, input);
-            // copy buffer to midi thread
-            (void)memcpy(audio.checkfreq, input, sizeof(float)*count);
-        }
     }
 
     // move working buffer to the output buffer
@@ -199,7 +180,7 @@ void process_buffers(int count, float* input, float* output0) {
 
     // run mono rack
     for (int m = 1; m < audio.mono_active_counter+1; m++) {
-        mono_rack_order_ptr[m](count, output0, output0);
+        _modulpointer->mono_rack_order_ptr[m](count, output0, output0);
     }
 
 }
@@ -212,7 +193,7 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
 
     // run stereo rack
     for (int m = 1; m < audio.stereo_active_counter+1; m++) {
-        stereo_rack_order_ptr[m](count, output0, output1, output0, output1);
+        _modulpointer->stereo_rack_order_ptr[m](count, output0, output1, output0, output1);
     }
 
     // copy output buffer to the level meter

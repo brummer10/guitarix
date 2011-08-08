@@ -37,6 +37,7 @@ namespace gx_engine {
 void gx_engine_init(const string *optvar ) {
     // ----- lock the buffer for the oscilloscope
     const int frag = (const int)gx_jack::gxjack.jack_bs;
+    _modulpointer = new ModulPointer;
 
     audio.get_frame  = new float[frag];
     audio.get_frame1  = new float[frag];
@@ -76,6 +77,7 @@ void gx_engine_reset() {
     if (audio.get_frame1)  delete[] audio.get_frame1;
     if (audio.oversample) delete[] audio.oversample;
     if (audio.result) delete[] audio.result;
+    delete _modulpointer;
     audio.initialized = false;
 }
 

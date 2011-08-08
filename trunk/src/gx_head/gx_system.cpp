@@ -796,6 +796,7 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
         delete[] gx_engine::audio.result;
         gx_engine::audio.result = NULL;
     }
+    delete gx_engine::_modulpointer;
     gx_resample::_glob_resamp->delete_resampler_ref();
     gx_engine::pitch_tracker.stop_thread();
     

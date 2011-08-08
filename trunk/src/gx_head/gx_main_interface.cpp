@@ -1727,6 +1727,7 @@ void uiTuner::reflectZone() {
     } else if (guivar.shownote == 0) {
         guivar.shownote = -1;
     }
+    gx_engine::audio.rack_change = true;
 }
 
 void GxMainInterface::addNumDisplay() {
