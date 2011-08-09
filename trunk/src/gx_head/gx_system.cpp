@@ -799,8 +799,11 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
     delete gx_engine::_modulpointer;
     gx_resample::_glob_resamp->delete_resampler_ref();
     gx_engine::pitch_tracker.stop_thread();
-    
+    delete gx_jack::_jackbuffer_ptr;
+
     if (sysvar.is_session) {
+        jack_session_event_t *event = reinterpret_cast<jack_session_event_t *>(data);
+        jack_session_event_free(event);
         printf(_("  gx_head session exit  ***  ciao . . \n"));
         return;
     } else {    

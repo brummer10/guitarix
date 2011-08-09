@@ -65,22 +65,31 @@ void compute(int count, float* input, float* output0) {
             break;
         }
     }
+
+    // check midi state
     if (audio.fmi && !isMidiOn()) turnOnMidi();
     else if (!audio.fmi && isMidiOn()) turnOffMidi();
 
+    // clear oscilloscope buffer if osc is off
     if (audio.fwv != audio.fwv_on) {
         (void)memset(audio.result, 0, count*sizeof(float));
         audio.fwv_on = audio.fwv;
     }
 
+    // check for changes in the audio engine
+    if (audio.rack_change) {
+        audio.rack_change = gx_reorder_rack(NULL);
+    }
+
     // ------------ main processing routine
     switch (process_type) {
 
+    //---------- run process
     case PROCESS_BUFFERS:
         process_buffers(count, input, output0);
         break;
 
-        // --------- just copy input to outputs
+    // --------- just copy input to outputs
     case JUSTCOPY_BUFFERS:
         if (conv.is_runnable()) {
             conv.checkstate();
@@ -89,7 +98,7 @@ void compute(int count, float* input, float* output0) {
        (void)memcpy(output0, input, sizeof(float)*count);
         break;
 
-        // ------- zeroize buffers
+    // ------- zeroize buffers
     case ZEROIZE_BUFFERS:
     default:
 
@@ -106,7 +115,7 @@ void compute(int count, float* input, float* output0) {
 
 // the gx_head_fx client callback
 void compute_insert(int count, float* input1, float* output0, float* output1) {
-// retrieve engine state
+    // retrieve engine state
     const GxEngineState estate = audio.checky;
 
     // ------------ determine processing type
@@ -130,11 +139,12 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
     // ------------ main processing routine
     switch (process_type) {
 
+    // --------- run process
     case PROCESS_BUFFERS:
         process_insert_buffers(count, input1, output0, output1);
         break;
 
-        // --------- just copy input to outputs
+    // --------- just copy input to outputs
     case JUSTCOPY_BUFFERS:
         if (conv.is_runnable()) {
             conv.checkstate();
@@ -148,7 +158,7 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
         (void)memcpy(audio.get_frame1, output1, sizeof(float)*count);
         break;
 
-        // ------- zeroize buffers
+    // ------- zeroize buffers
     case ZEROIZE_BUFFERS:
     default:
 
@@ -170,11 +180,6 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
 // gx_head_amp engine
 void process_buffers(int count, float* input, float* output0) {
 
-    // check for changes in the audio engine
-    if (audio.rack_change) {
-        gx_reorder_rack(NULL);
-    }
-
     // move working buffer to the output buffer
     memcpy(output0, input, count*sizeof(float));
 
@@ -182,7 +187,6 @@ void process_buffers(int count, float* input, float* output0) {
     for (int m = 1; m < audio.mono_active_counter+1; m++) {
         _modulpointer->mono_rack_order_ptr[m](count, output0, output0);
     }
-
 }
 
 // gx_head_fx engine

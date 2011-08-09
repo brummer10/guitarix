@@ -102,6 +102,7 @@ int main(int argc, char *argv[]) {
     gui->setup();
 
     gx_resample::_glob_resamp->init_resampler_ref(); 
+    gx_jack::_jackbuffer_ptr = 0;
     // ---------------------- initialize jack gxjack.client ------------------
     if (gx_jack::gxjack.gx_jack_init(optvar)) {
         // -------- initialize gx_head engine --------------------------

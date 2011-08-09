@@ -126,6 +126,17 @@ class GxJack {
 
     GxJackLatencyChange change_latency;
 };
+
+class JackBuffer {
+ public:
+    float               *input;
+    float               *input1;
+    float               *output0;
+    float               *output2;
+    float               *output3;
+};
+extern JackBuffer *_jackbuffer_ptr;
+
 extern GxJack gxjack;
 
 extern sem_t jack_sync_sem;

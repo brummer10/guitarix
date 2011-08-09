@@ -48,7 +48,7 @@ ModulPointer *_modulpointer = 0;
  */
  
 // seletc tonestack, only run when tonestack selection have changed
-static gboolean gx_check_tonestack_state(gpointer) {
+static int gx_check_tonestack_state(gpointer) {
 
     switch (audio.tonestack) {
     case 0: // "default"
@@ -199,7 +199,7 @@ static gboolean gx_check_engine_state(gpointer) {
         _modulpointer->amp_ptr = &gx_amps::gxamp::compute;
         break;
     }
-    return false;
+    return audio.gxtube;
 }
 
 /****************************************************************
@@ -324,12 +324,12 @@ static gboolean gx_reorder_rack(gpointer args) {
     
     // check if amp is changed
     if (audio.tube_changed) {
-        gx_check_engine_state(NULL);
+        audio.tube_changed = gx_check_engine_state(NULL);
     }
     
     // check if tonestack is changed
     if (audio.cur_tonestack != audio.tonestack) {
-        gx_check_tonestack_state(NULL);
+        audio.cur_tonestack = gx_check_tonestack_state(NULL);
     }
     
     // check if tuner is visible or midi is on
@@ -623,7 +623,7 @@ static gboolean gx_reorder_rack(gpointer args) {
     audio.stereo_active_counter += 1;
     _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &gx_effects::gx_outputlevel::compute;
 
-    audio.rack_change = false;
+    //audio.rack_change = false;
     return false;
 }
 

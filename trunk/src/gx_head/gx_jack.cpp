@@ -44,6 +44,7 @@ namespace gx_jack {
 sem_t jack_sync_sem;
 
 GxJack gxjack;
+JackBuffer *_jackbuffer_ptr;
 
 // ----- pop up a dialog for starting jack
 bool GxJack::gx_jack_init(const string *optvar) {
@@ -83,6 +84,7 @@ bool GxJack::gx_jack_init(const string *optvar) {
         client_insert = jack_client_open(client_insert_name.c_str(),
                                JackNoStartServer, &jackstat);
     }
+
     if (client == 0) {
         // skip useless message
         // gx_print_warning("Jack Init", "not yet a jack gxjack.client");
@@ -145,6 +147,7 @@ bool GxJack::gx_jack_init(const string *optvar) {
      string window_name = "gx_head";
         gtk_window_set_title(GTK_WINDOW(gx_gui::gw.fWindow), window_name.c_str());
     }
+    gx_jack::_jackbuffer_ptr = new JackBuffer;
     if (jack_is_fresh) sleep(8);
     return true;
 }
@@ -560,6 +563,8 @@ void GxJack::gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg) {
 void GxJack::gx_jack_cleanup() {
     if (client && !jack_is_down) {
         jack_is_exit = true;
+        jack_deactivate(client);
+        jack_deactivate(client_insert);
         // disable input ports
         jack_port_unregister(client, input_ports[0]);
         jack_port_unregister(client_insert, input_ports[1]);
@@ -576,12 +581,11 @@ void GxJack::gx_jack_cleanup() {
             jack_port_unregister(client, midi_output_ports);
         }
 
-        jack_deactivate(client);
         jack_client_close(client);
-        gxjack.client = NULL;
-        jack_deactivate(client_insert);
+        gxjack.client = 0;
+        
         jack_client_close(client_insert);
-        client_insert = NULL;
+        client_insert = 0;
     }
 }
 
@@ -711,13 +715,13 @@ int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
         AVOIDDENORMALS;
 
         // retrieve buffers at jack ports
-        float *input = static_cast<float *>
+        _jackbuffer_ptr->input = static_cast<float *>
                        (jack_port_get_buffer(gxjack.input_ports[0], nframes));
-        float *output0 = static_cast<float *>
+        _jackbuffer_ptr->output0 = static_cast<float *>
                         (jack_port_get_buffer(gxjack.output_ports[0], nframes));
 
         // gx_head DSP computing
-        gx_engine::compute(nframes, input, output0);
+        gx_engine::compute(nframes, _jackbuffer_ptr->input, _jackbuffer_ptr->output0);
 
         // ready to go for e.g. level display
         gx_engine::audio.buffers_ready = true;
@@ -747,14 +751,14 @@ int GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
     if (!gxjack.jack_is_exit) {
         AVOIDDENORMALS;
 
-        float *input1 = static_cast<float *>
+        _jackbuffer_ptr->input1 = static_cast<float *>
                         (jack_port_get_buffer(gxjack.input_ports[1], nframes));
-        float *output2 = static_cast<float *>
+        _jackbuffer_ptr->output2 = static_cast<float *>
                          (jack_port_get_buffer(gxjack.output_ports[2], nframes));
-        float *output3 = static_cast<float *>
+        _jackbuffer_ptr->output3 = static_cast<float *>
                          (jack_port_get_buffer(gxjack.output_ports[3], nframes));
         // gx_head DSP computing
-        gx_engine::compute_insert(nframes, input1, output2, output3);
+        gx_engine::compute_insert(nframes, _jackbuffer_ptr->input1, _jackbuffer_ptr->output2, _jackbuffer_ptr->output3);
     }
     gx_system::measure_stop();
     return 0;
@@ -808,8 +812,7 @@ static int gx_jack_session_callback_helper(gpointer data) {
 
     if (event->type == JackSessionSaveAndQuit) {
         gx_system::sysvar.is_session = true;
-        gx_system::gx_clean_exit(NULL, NULL);
-        jack_session_event_free(event);
+        gx_system::gx_clean_exit(NULL, event);
         exit(0);
     }
     jack_session_event_free(event);
