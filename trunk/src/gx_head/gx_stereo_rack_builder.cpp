@@ -472,6 +472,63 @@ void GxMainInterface::gx_build_stereo_rack() {
             closeBox();
         }
         closeBox();
+        
+        openHorizontalRestetBox(_("convolver"), &gx_engine::audio.posit[28]);
+        {
+            openVerticalBox(_("convolver"));
+            {
+                openHorizontalTableBox("");
+                {
+                    openPaintBox1("");
+                    {
+                        openHorizontalBox("");
+                        {
+                            openSpaceBox("");
+                            closeBox();
+                                create_switch_no_caption(sw_switchit, "jconv.on_off");
+                            openSpaceBox("");
+                            closeBox();
+                        }
+                        closeBox();
+                    }
+                    closeBox();
+                    opensDialogBox("jconv.dialog", "jconv.on_off", "RackBox_expose");
+                    {
+                        openVerticalBox("");
+                        {
+                            openHorizontalBox("");
+                            {
+                                create_small_rackknobr("jconv.gain", _("gain"));
+                                create_small_rackknob("jconv.diff_delay", _("delta delay"));
+                                create_small_rackknob("jconv.balance", _("balance"));
+                                create_small_rackknobr("jconv.wet_dry", _("dry/wet"));
+                                openSpaceBox("");
+                                closeBox();
+                                openVerticalBox("");
+                                {
+                                    openSpaceBox("");
+                                    closeBox();
+                                    addJConvButton(_("set"), &gx_engine::audio.filebutton);
+                                    
+                                    addJToggleButton(_("run"),
+                                                         &gx_jconv::GxJConvSettings::checkbutton7);
+                                    openSpaceBox("");
+                                    closeBox();
+                                }
+                                closeBox();
+                            }
+                            closeBox();
+                        }
+                        closeBox();
+                    }
+                    closeBox(); 
+                }
+                closeBox();
+            }
+            closeBox();
+        }
+        closeBox();
+        
         openHorizontalhideBox1("");
         {
             create_hslider("amp.balance", "balance");

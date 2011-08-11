@@ -54,14 +54,16 @@ typedef void (*chainorder)
 typedef void (*stereochainorder)
              (int count, float* input, float* input1, float *output, float *output1);
 
+
 class ModulPointer {
  public:
     chainorder              mono_rack_order_ptr[60];
     chainorder              tonestack_ptr;
     chainorder              amp_ptr;
-    stereochainorder        stereo_rack_order_ptr[12];
+    stereochainorder        stereo_rack_order_ptr[20];
 };
 extern ModulPointer *_modulpointer;
+
 /****************************************************************/
 
 class AudioVariables {

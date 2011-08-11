@@ -40,7 +40,6 @@ inline void just2_return(int count, float *input0, float *input1, float *output0
     return;
 }
 
-
 ModulPointer *_modulpointer = 0;
 
 /****************************************************************
@@ -613,12 +612,12 @@ static gboolean gx_reorder_rack(gpointer args) {
             audio.stereo_active_counter += 1;
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] =
                                  &gx_effects::tonecontroll::compute;
+        }else if (audio.posit[28] == m && conv.is_runnable()) {
+            audio.stereo_active_counter += 1;
+            _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &convolver;
         }
     }
-    if (conv.is_runnable()) {
-        audio.stereo_active_counter += 1;
-        _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &convolver;
-    }
+    
 
     audio.stereo_active_counter += 1;
     _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &gx_effects::gx_outputlevel::compute;

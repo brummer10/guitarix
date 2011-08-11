@@ -72,8 +72,6 @@ def set_options(opt):
     group = opt.add_option_group ('Localization and documentation', '')
     add_enable_option ('nls', 'native language support', group)
 
-    if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
-    
     opt.tool_options('compiler_cxx')
     comp = opt.get_option_group("--check-cxx-compiler")
 
@@ -382,6 +380,8 @@ def cfg_get_variable(self, package, variable):
 
 # guitarix waf configuration
 def configure(conf):
+    if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
+
     platform = Utils.detect_platform()
     conf.env['IS_MACOSX'] = platform == 'darwin'
     conf.env['IS_LINUX'] = platform == 'linux' or platform == 'posix'

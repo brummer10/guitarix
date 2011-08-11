@@ -152,7 +152,6 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
 
         // mono to stereo splitter
         gx_effects::balance1::compute(count, input1, output0, output1);
-
         // copy buffer for the levelmeters
         (void)memcpy(audio.get_frame, output0, sizeof(float)*count);
         (void)memcpy(audio.get_frame1, output1, sizeof(float)*count);

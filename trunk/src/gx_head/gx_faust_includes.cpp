@@ -20,7 +20,6 @@
  */
 
 
-
 /****************************************************************
  **  definitions for code generated with faust / dsp2cc
  */
@@ -123,7 +122,6 @@ static void registerInit(const char *name, inifunc f) {
 static void jack_sync() {
     while (sem_wait(&gx_jack::jack_sync_sem) == EINTR);
 }
-
 
 /****************************************************************/
 
@@ -410,5 +408,4 @@ void faust_init(int samplingFreq) {
  *   selected functions.
  */
 #include "gx_engine_helpers.cc"
-
 

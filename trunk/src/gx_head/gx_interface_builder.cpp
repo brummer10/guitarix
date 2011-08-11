@@ -192,7 +192,14 @@ void GxMainInterface::setup() {
                                 closeBox();
                                 openSpaceBox("");
                                 closeBox();
-                                
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
 
                                 openVerticalBox("");
                                 {
@@ -221,9 +228,14 @@ void GxMainInterface::setup() {
                                 closeBox();
                                 openSpaceBox("");
                                 closeBox();
-                                
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
 
-                                openVerticalBox("");
+                              /*  openVerticalBox("");
                                 {
                                     openSpaceBox("");
                                     closeBox();
@@ -254,8 +266,8 @@ void GxMainInterface::setup() {
                                                      &gx_jconv::GxJConvSettings::checkbutton7);
                                     openSpaceBox("");
                                     closeBox();
-                                }
-                                closeBox();
+                                } 
+                                closeBox(); */
                                 openSpaceBox("");
                                 closeBox();
                                 openSpaceBox("");
