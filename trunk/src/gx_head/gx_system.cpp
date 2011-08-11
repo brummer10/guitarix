@@ -797,9 +797,11 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
         gx_engine::audio.result = NULL;
     }
     delete gx_engine::_modulpointer;
+    gx_engine::_modulpointer = 0;
     gx_resample::_glob_resamp->delete_resampler_ref();
     gx_engine::pitch_tracker.stop_thread();
     delete gx_jack::_jackbuffer_ptr;
+    gx_jack::_jackbuffer_ptr = 0;
 
     if (sysvar.is_session) {
         jack_session_event_t *event = reinterpret_cast<jack_session_event_t *>(data);

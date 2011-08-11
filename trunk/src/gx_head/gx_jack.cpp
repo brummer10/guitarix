@@ -562,6 +562,7 @@ void GxJack::gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg) {
 // -----Function that cleans the jack stuff on shutdown
 void GxJack::gx_jack_cleanup() {
     if (client && !jack_is_down) {
+        gx_engine::audio.checky = gx_engine::kEngineOff;
         jack_is_exit = true;
         jack_deactivate(client);
         jack_deactivate(client_insert);
