@@ -114,6 +114,7 @@ class GlobalWidgets {
     GtkWidget*          menu_mono_rack;
     GtkWidget*          menu_stereo_rack;
     GtkWidget*          rack_tool_bar;
+    GtkWidget*          set_label;
 
     /* icon widgets */
     GdkPixbuf*          ib;
@@ -489,6 +490,7 @@ class GxMainInterface : public gx_ui::GxUI {
     void openVerticalBox(const char* label = "");
     void openVerticalBox1(const char* label = "");
     void openFlipLabelBox(const char* = "");
+    void openSetLabelBox(const char* = "");
     void openVerticalSwitchBox(const char* label, int state, int wit, float* zone);
     void openVerticalMidiBox(const char* label = "");
     void openDialogBox(const char *id_dialog, const char *id_switch);

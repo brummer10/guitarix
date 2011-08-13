@@ -889,6 +889,26 @@ void GxMainInterface::openVerticalBox(const char* label) {
     }
 }
 
+void GxMainInterface::openSetLabelBox(const char* label) {
+    GxVBox * box =  new GxVBox(*this);
+    box->m_box.set_homogeneous(false);
+    box->m_box.set_spacing(0);
+    box->m_box.set_border_width(0);
+
+    box->m_label.set_text(label);
+    box->m_label.set_name("beffect_label");
+    gw.set_label = GTK_WIDGET(box->m_label.gobj());
+    GtkStyle *style = gtk_widget_get_style(GTK_WIDGET(box->m_label.gobj()));
+    pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
+    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
+    gtk_widget_modify_font(GTK_WIDGET(box->m_label.gobj()), style->font_desc);
+    box->m_box.pack_start(box->m_label, false, false, 0 );
+    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), false, fill, 0);
+    box->m_box.show();
+    box->m_label.show();
+    pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+}
+
 void GxMainInterface::openFlipLabelBox(const char* label) {
     GxVBox * box =  new GxVBox(*this);
     box->m_box.set_homogeneous(false);
@@ -2341,6 +2361,9 @@ void GxMainInterface::on_tube_activate() {
             gx_engine::set_tube_model(i + 1);
             gx_engine::audio.tube_changed = true;
             gx_engine::audio.rack_change = true;
+            string amp = fSelectTubeModel[i].get_label();
+            if (GTK_IS_LABEL(gw.set_label))
+            gtk_label_set_text(GTK_LABEL(gw.set_label),amp.c_str());
         } else {
             fSelectTubeModel[i].set_active(false);
         }

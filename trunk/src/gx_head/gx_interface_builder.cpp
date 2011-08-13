@@ -110,81 +110,53 @@ void GxMainInterface::setup() {
                                     closeBox();
                                     openSpaceBox("");
                                     closeBox();
-                                    create_bigknob("amp2.stage1.Pregain", _("Pre gain"));
-                                    openSpaceBox("");
+                                    openSetLabelBox(" ");
                                     closeBox();
-                                }
-                                closeBox();
-
-                                openSpaceBox("");
-                                closeBox();
-
-                                openVerticalBox("");
-                                {
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    create_bigknob("gxdistortion.drive", _("  Drive "));
-                                    openSpaceBox("");
-                                    closeBox();
-                                }
-                                closeBox();
-                                openSpaceBox("");
-                                closeBox();
-
-                                openVerticalBox("");
-                                {
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    create_bigknob("gxdistortion.wet_dry", _(" Clean/Dist "));
-                                    openSpaceBox("");
-                                    closeBox();
-                                }
-                                closeBox();
-                                openSpaceBox("");
-                                closeBox();
-
-                                openVerticalBox("");
-                                {
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    create_bigknob("amp2.stage2.gain1", _("Master gain"));
-                                    openSpaceBox("");
+                                    openHorizontalBox("");
+                                    {
+                                        openVerticalBox("");
+                                        {
+                                            create_bigknob("amp2.stage1.Pregain", _("Pre gain"));
+                                            openSpaceBox("");
+                                            closeBox();
+                                            openSpaceBox("");
+                                            closeBox();
+                                        }
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openVerticalBox("");
+                                        {
+                                            create_bigknob("gxdistortion.drive", _("  Drive "));
+                                            openSpaceBox("");
+                                            closeBox();
+                                            openSpaceBox("");
+                                            closeBox();
+                                        }
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openVerticalBox("");
+                                        {
+                                            create_bigknob("gxdistortion.wet_dry", _(" Clean/Dist "));
+                                            openSpaceBox("");
+                                            closeBox();
+                                            openSpaceBox("");
+                                            closeBox();
+                                        }
+                                        closeBox();
+                                        openSpaceBox("");
+                                        closeBox();
+                                        openVerticalBox("");
+                                        {
+                                            create_bigknob("amp2.stage2.gain1", _("Master gain"));
+                                            openSpaceBox("");
+                                            closeBox();
+                                            openSpaceBox("");
+                                            closeBox();
+                                        }
+                                        closeBox();
+                                    }
                                     closeBox();
                                 }
                                 closeBox();
@@ -220,6 +192,8 @@ void GxMainInterface::setup() {
                                     create_switch(sw_minitoggle, "amp.feed_on_off", _(" Reverb  "),
                                                   Gtk::POS_RIGHT);
                                     create_wheel("amp.wet_dry");
+                                    openSpaceBox("");
+                                    closeBox();
                                     openSpaceBox("");
                                     closeBox();
                                 }
@@ -291,9 +265,12 @@ void GxMainInterface::setup() {
                                         openLevelMeterBox("Signal Level");
                                         openFrameBox("");
                                         closeBox();
+                                        
                                     }
                                     closeBox();
                                     openFrameBox("");
+                                    closeBox();
+                                    openSpaceBox("");
                                     closeBox();
                                 }
                                 closeBox();
