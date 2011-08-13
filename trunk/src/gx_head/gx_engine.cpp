@@ -172,7 +172,7 @@ void AudioVariables::register_parameter() {
 
     static const char *cabinet_model[] = {N_("4x12"), N_("2x12"), N_("1x12"), N_("4x10"),
     N_("2x10"), N_("HighGain"), N_("Twin"), N_("Bassman"), N_("Marshall"), N_("AC-30"),
-    N_("Princeton"), N_("A2"), N_("1x15"), 0};
+    N_("Princeton"), N_("A2"), N_("1x15"), N_("Mesa Boogie"), N_("Briliant"), 0};
     registerEnumParam("cab.select", "select", cabinet_model, &cabinet, 0);
 
     static const char *tube_model[] = {N_(" "), N_("12ax7"), N_("12AU7"), N_("6V6"), N_("pre 12AU7/ master 6V6"), N_("pre 12ax7/ master 6V6"),
