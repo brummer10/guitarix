@@ -175,11 +175,18 @@ void AudioVariables::register_parameter() {
     N_("Princeton"), N_("A2"), N_("1x15"), N_("Mesa Boogie"), N_("Briliant"), 0};
     registerEnumParam("cab.select", "select", cabinet_model, &cabinet, 0);
 
-    static const char *tube_model[] = {N_(" "), N_("12ax7"), N_("12AU7"), N_("6V6"), N_("pre 12AU7/ master 6V6"), N_("pre 12ax7/ master 6V6"),
+
+    static const char *tube_model[] = {N_("12ax7"), N_("12AU7"), N_("12AT7"), N_("6DJ8"),
+    N_("6V6"), N_("12ax7 feedback"), N_("12AU7 feedback"), N_("12AT7 feedback"), N_("6DJ8 feedback"), N_("pre 12ax7/ master 6V6"),
+    N_("pre 12AU7/ master 6V6"), N_("pre 12AT7/ master 6V6"), N_("pre 6DJ8/ master 6V6"),
+    N_("pre 12ax7/ push-pull 6V6"), N_("pre 12AU7/ push-pull 6V6"), N_("pre 12AT7/ push pull 6V6"), N_("pre 6DJ8/ push-pull 6V6"), 0};
+    registerEnumParam("tube.select", "select", tube_model, &gxtube_select, 0);
+
+    /*static const char *tube_model[] = {N_(" "), N_("12ax7"), N_("12AU7"), N_("6V6"), N_("pre 12AU7/ master 6V6"), N_("pre 12ax7/ master 6V6"),
     N_("6DJ8"), N_("pre 6DJ8/ master 6V6"), N_("pre 6DJ8/ push-pull 6V6"), N_("pre 12ax7/ push-pull 6V6"), N_("pre 12AU7/ push-pull 6V6"),
     N_("12ax7 feedback"), N_("12AU7 feedback"), N_("6DJ8 feedback"), N_("12AT7"),
     N_("pre 12AT7/ master 6V6"), N_("pre 12AT7/ push pull 6V6"), N_("12AT7 feedback"), 0};
-    registerEnumParam("amp.select", "select", tube_model, &gxtube, 0);
+    registerEnumParam("amp.select", "select", tube_model, &gxtube, 0); */
 
     static const char *post_pre[] = {N_("post"), N_("pre"), 0};
     registerUEnumParam("compressor.pp", "select",     post_pre, &effect_pre_post[0], 0);

@@ -43,6 +43,63 @@ void set_osilloscope_mode(GtkWidget *widget, gpointer data) {
     }
 }
 
+void set_tube_mode(GtkWidget *widget, gpointer data) {
+    GxMainInterface* gui = GxMainInterface::instance();
+    switch(gx_engine::audio.gxtube_select) {
+        case 0: // "default"
+            gui->fSelectTubeModel[0].set_active(true);
+            break;
+        case 1: // 
+            gui->fSelectTubeModel[1].set_active(true);
+            break;
+        case 2: // 
+            gui->fSelectTubeModel[13].set_active(true);
+            break;
+        case 3: // 
+            gui->fSelectTubeModel[5].set_active(true);
+            break;
+        case 4: // 
+            gui->fSelectTubeModel[2].set_active(true);
+            break;
+        case 5: // 
+            gui->fSelectTubeModel[10].set_active(true);
+            break;
+        case 6: // 
+            gui->fSelectTubeModel[11].set_active(true);
+            break;
+        case 7: // 
+            gui->fSelectTubeModel[16].set_active(true);
+            break;
+        case 8: // 
+            gui->fSelectTubeModel[12].set_active(true);
+            break;
+        case 9: // 
+            gui->fSelectTubeModel[4].set_active(true);
+            break;
+        case 10: // 
+            gui->fSelectTubeModel[3].set_active(true);
+            break;
+        case 11: // 
+            gui->fSelectTubeModel[14].set_active(true);
+            break;
+        case 12: // 
+            gui->fSelectTubeModel[6].set_active(true);
+            break;
+        case 13: // 
+            gui->fSelectTubeModel[8].set_active(true);
+            break;
+        case 14: // 
+            gui->fSelectTubeModel[9].set_active(true);
+            break;
+        case 15: // 
+            gui->fSelectTubeModel[15].set_active(true);
+            break;
+        case 16: // 
+            gui->fSelectTubeModel[7].set_active(true);
+            break;
+    }
+}
+
 void set_accessible(GtkWidget *widget,GtkLabel *label) {
     AtkObject *atk_widget, *atk_label;
     AtkRelationSet *relation_set;
@@ -148,7 +205,9 @@ void UiSelector::init(Parameter& param) {
     m_selector.set_model(ls);
     if (strcmp(param.group().c_str(),"Oscilloscope")==0) {
         g_signal_connect (GTK_OBJECT (m_selector.gobj()), "value_changed", G_CALLBACK(set_osilloscope_mode), NULL);
-    }
+    } else if (strcmp(param.group().c_str(),"Tube 1")==0) {
+       g_signal_connect (GTK_OBJECT (m_selector.gobj()), "value_changed", G_CALLBACK(set_tube_mode), NULL);
+    } 
 }
 
 UiSelectorFloat::UiSelectorFloat(gx_ui::GxUI& ui, FloatParameter &param)

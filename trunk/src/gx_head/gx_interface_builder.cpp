@@ -110,7 +110,15 @@ void GxMainInterface::setup() {
                                     closeBox();
                                     openSpaceBox("");
                                     closeBox();
-                                    openSetLabelBox(" ");
+                                    
+                                    openHorizontalBox("");
+                                    {
+                                        openFrameBox("");
+                                        closeBox();
+                                        create_selector("tube.select");
+                                        openFrameBox("");
+                                        closeBox();
+                                    }
                                     closeBox();
                                     openHorizontalBox("");
                                     {
@@ -181,7 +189,7 @@ void GxMainInterface::setup() {
                                     closeBox();
                                     openSpaceBox("");
                                     closeBox();
-                                    openSpaceBox("");
+                                    openFrameBox("");
                                     closeBox();
                                     create_switch(sw_minitoggle, "amp.bass_boost.on_off",
                                                   _(" Bass boost  "), Gtk::POS_RIGHT);
@@ -192,6 +200,10 @@ void GxMainInterface::setup() {
                                     create_switch(sw_minitoggle, "amp.feed_on_off", _(" Reverb  "),
                                                   Gtk::POS_RIGHT);
                                     create_wheel("amp.wet_dry");
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
                                     openSpaceBox("");
                                     closeBox();
                                     openSpaceBox("");
@@ -272,6 +284,8 @@ void GxMainInterface::setup() {
                                     closeBox();
                                     openSpaceBox("");
                                     closeBox();
+                                    openFrameBox("");
+                                    closeBox();
                                 }
                                 closeBox();
                                 openSpaceBox("");
@@ -285,6 +299,8 @@ void GxMainInterface::setup() {
                             openSpaceBox("");
                             closeBox();
                             openSpaceBox("");
+                            closeBox();
+                            openFrameBox("");
                             closeBox();
                         }
                         closeBox();

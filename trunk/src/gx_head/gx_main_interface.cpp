@@ -2355,15 +2355,72 @@ void GxMainInterface::addExtraPresetMenu() {
     gtk_widget_show(menuitem);
 }
 
+static void get_selected_tube () {
+    switch(gx_engine::audio.gxtube) {
+        case 1: 
+            gx_engine::audio.gxtube_select = 0;
+            break;
+        case 2: 
+            gx_engine::audio.gxtube_select = 1;
+            break;
+        case 3: 
+            gx_engine::audio.gxtube_select = 4;
+            break;
+        case 4: 
+            gx_engine::audio.gxtube_select = 10;
+            break;
+        case 5: 
+            gx_engine::audio.gxtube_select = 9;
+            break;
+        case 6: 
+            gx_engine::audio.gxtube_select = 3;
+            break;
+        case 7: 
+            gx_engine::audio.gxtube_select = 12;
+            break;
+        case 8: 
+            gx_engine::audio.gxtube_select = 16;
+            break;
+        case 9: 
+            gx_engine::audio.gxtube_select = 13;
+            break;
+        case 10: 
+            gx_engine::audio.gxtube_select = 14;
+            break;
+        case 11: 
+            gx_engine::audio.gxtube_select = 5;
+            break;
+        case 12: 
+            gx_engine::audio.gxtube_select = 6;
+            break;
+        case 13: 
+            gx_engine::audio.gxtube_select = 8;
+            break;
+        case 14: 
+            gx_engine::audio.gxtube_select = 2;
+            break;
+        case 15: 
+            gx_engine::audio.gxtube_select = 11;
+            break;
+        case 16: 
+            gx_engine::audio.gxtube_select = 15;
+            break;
+        case 17: 
+            gx_engine::audio.gxtube_select = 7;
+            break;
+    }
+}
+
 void GxMainInterface::on_tube_activate() {
     for (int i = 0; i < MAX_TUBES; i++) {
         if (fSelectTubeModel[i].get_active()) {
             gx_engine::set_tube_model(i + 1);
+            get_selected_tube ();
             gx_engine::audio.tube_changed = true;
             gx_engine::audio.rack_change = true;
-            string amp = fSelectTubeModel[i].get_label();
-            if (GTK_IS_LABEL(gw.set_label))
-            gtk_label_set_text(GTK_LABEL(gw.set_label),amp.c_str());
+           // string amp = fSelectTubeModel[i].get_label();
+           // if (GTK_IS_LABEL(gw.set_label))
+           // gtk_label_set_text(GTK_LABEL(gw.set_label),amp.c_str());
         } else {
             fSelectTubeModel[i].set_active(false);
         }
