@@ -239,6 +239,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
     Glib::ustring jack_midi;
     vector<Glib::ustring> jack_outputs;
     Glib::ustring jack_uuid;
+    Glib::ustring jack_uuid2;
     Glib::OptionGroup optgroup_jack(
         "jack",
         "\033[1;32mJACK configuration options\033[0m",
@@ -262,10 +263,15 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
     opt_jack_uuid.set_short_name('U');
     opt_jack_uuid.set_long_name("jack-uuid");
     opt_jack_uuid.set_description("JackSession ID");
+    Glib::OptionEntry opt_jack_uuid2;
+    opt_jack_uuid2.set_short_name('A');
+    opt_jack_uuid2.set_long_name("jack-uuid2");
+    opt_jack_uuid2.set_description("JackSession ID");
     optgroup_jack.add_entry(opt_jack_input, jack_input);
     optgroup_jack.add_entry(opt_jack_output, jack_outputs);
     optgroup_jack.add_entry(opt_jack_midi, jack_midi);
     optgroup_jack.add_entry(opt_jack_uuid, jack_uuid);
+    optgroup_jack.add_entry(opt_jack_uuid2, jack_uuid2);
 
     // FILE options
     string load_file;
@@ -409,6 +415,7 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
     }
 
     optvar[JACK_UUID] = jack_uuid;
+    optvar[JACK_UUID2] = jack_uuid2;
 
     // *** process jack outputs
     if (!jack_outputs.empty()) {

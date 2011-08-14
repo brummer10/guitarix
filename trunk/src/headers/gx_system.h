@@ -45,6 +45,7 @@ enum {
     JACK_MIDI,
     RC_STYLE,
     JACK_UUID,
+    JACK_UUID2,
     LOAD_FILE,
     NUM_SHELL_VAR,
 };

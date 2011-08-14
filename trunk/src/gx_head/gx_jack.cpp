@@ -76,14 +76,27 @@ bool GxJack::gx_jack_init(const string *optvar) {
     } else {
         client = jack_client_open(client_name.c_str(), JackNoStartServer, &jackstat);
     }
+    // ----- only start the insert gxjack.client when the amp gxjack.client is true
+    if (client) {
+        if (!optvar[JACK_UUID2].empty()) {
+            client_insert = jack_client_open(client_insert_name.c_str(),
+                            jack_options_t(JackNoStartServer | JackSessionID),
+                            &jackstat, optvar[JACK_UUID2].c_str());
+        } else {
+            client_insert = jack_client_open(client_insert_name.c_str(),
+                                   JackNoStartServer, &jackstat);
+        }
+    }
 #else
     client = jack_client_open(client_name.c_str(), JackNoStartServer, &jackstat);
-#endif
-    // ----- only start the insert gxjack.client when the amp gxjack.client is true
+     // ----- only start the insert gxjack.client when the amp gxjack.client is true
     if (client) {
         client_insert = jack_client_open(client_insert_name.c_str(),
                                JackNoStartServer, &jackstat);
     }
+#endif
+   
+    
 
     if (client == 0) {
         // skip useless message
@@ -799,10 +812,13 @@ void GxJack::gx_jack_portreg_callback(jack_port_id_t pid, int reg, void* arg) {
 #ifdef HAVE_JACK_SESSION
 static int gx_jack_session_callback_helper(gpointer data) {
     jack_session_event_t *event = reinterpret_cast<jack_session_event_t *>(data);
+    const char* uuid2 = jack_get_uuid_for_client_name(gxjack.client_insert, gxjack.client_insert_name.c_str());
     string fname(event->session_dir);
     fname += "gx_head.state";
     string cmd("guitarix -U ");
     cmd += event->client_uuid;
+    cmd += " -A ";
+    cmd += uuid2;
     cmd += " -f ${SESSION_DIR}gx_head.state";
 
     gx_system::saveStateToFile(fname);
