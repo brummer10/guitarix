@@ -136,4 +136,9 @@ switch2       	= checkbox("resonator.on_off[name:resonat]");
 //reso 			= hgroup("resonator", bypass(switch2, resonator));
 moving_filter(x) = (x+x'+x'')/3;
 
-process 		= bypass(switch2, resonator) : +(anti_denormal_ac) : distortion : *(drivegain1) ;
+wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
+dry = 1 - wet;
+
+process_dist 		= bypass(switch2, resonator) : +(anti_denormal_ac) : distortion : *(drivegain1) ;
+
+process = _<:*(dry),(*(wet): process_dist):>_;

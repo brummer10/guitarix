@@ -328,6 +328,7 @@ void GxMainInterface::gx_build_mono_rack() {
 
                                 openHorizontalBox("");
                                 {
+                                    create_small_rackknob("gx_distortion.wet_dry", _("dry/wet"));
                                     create_small_rackknob("gx_distortion.level", _("  level  "));
                                     openVerticalBox(_("frequency split Hz"));
                                     {
@@ -475,6 +476,7 @@ void GxMainInterface::gx_build_mono_rack() {
                             openSpaceBox("");
                             closeBox();
                             create_small_rackknobr("overdrive.drive", _("  drive "));
+                            create_small_rackknob("overdrive.wet_dry", _("dry/wet"));
                             openSpaceBox("");
                             closeBox();
                         }
