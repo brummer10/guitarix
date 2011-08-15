@@ -148,19 +148,19 @@ static void gx_selector_get_positions(
 
 static void gx_selector_draw_arrow(const GdkRectangle *rect, gint yborder, cairo_t *cr, gboolean has_focus)
 {
-	cairo_rectangle(cr, rect->x, rect->y, rect->width, rect->height);
+	cairo_rectangle(cr, rect->x-1, rect->y, rect->width+2, rect->height-2);
 	cairo_set_source_rgb(cr, 0, 0, 0);
-	cairo_fill_preserve(cr);
+	cairo_fill(cr);
 	cairo_set_line_width(cr, 1.0);
 	if (has_focus) {
-		cairo_move_to(cr, rect->x, rect->y + rect->height - yborder);
-		cairo_line_to(cr, rect->x + rect->width / 2.0, rect->y + yborder);
-		cairo_line_to(cr, rect->x + rect->width, rect->y + rect->height - yborder);
-		cairo_set_source_rgb(cr, 0.3, 0.3, 0.3);
-	} else {
-		cairo_set_source_rgb(cr, 0.2, 0.2, 0.2);
-	}
-	cairo_stroke (cr);
+		cairo_move_to(cr, rect->x, rect->y + rect->height - 1 - yborder);
+		cairo_line_to(cr, rect->x + rect->width / 2.0, rect->y - 1 + yborder);
+		cairo_line_to(cr, rect->x + rect->width, rect->y + rect->height - 1 - yborder);
+        cairo_line_to(cr,rect->x, rect->y + rect->height - 1 - yborder);
+		cairo_set_source_rgb(cr, 0.3, 0.6, 0.3);
+        cairo_fill(cr);
+	} 
+	
 }
 
 static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)

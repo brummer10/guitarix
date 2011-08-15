@@ -2415,9 +2415,9 @@ void GxMainInterface::on_tube_activate() {
     for (int i = 0; i < MAX_TUBES; i++) {
         if (fSelectTubeModel[i].get_active()) {
             gx_engine::set_tube_model(i + 1);
-            get_selected_tube ();
             gx_engine::audio.tube_changed = true;
             gx_engine::audio.rack_change = true;
+            get_selected_tube ();
            // string amp = fSelectTubeModel[i].get_label();
            // if (GTK_IS_LABEL(gw.set_label))
            // gtk_label_set_text(GTK_LABEL(gw.set_label),amp.c_str());

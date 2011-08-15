@@ -108,14 +108,14 @@ void GxMainInterface::setup() {
                                     closeBox();
                                     openSpaceBox("");
                                     closeBox();
-                                    openSpaceBox("");
+                                    openFrameBox("");
                                     closeBox();
                                     
                                     openHorizontalBox("");
                                     {
+                                        create_selector("tube.select");
                                         openFrameBox("");
                                         closeBox();
-                                        create_selector("tube.select");
                                         openFrameBox("");
                                         closeBox();
                                     }
@@ -172,14 +172,7 @@ void GxMainInterface::setup() {
                                 closeBox();
                                 openSpaceBox("");
                                 closeBox();
-                                openSpaceBox("");
-                                closeBox();
-                                openSpaceBox("");
-                                closeBox();
-                                openSpaceBox("");
-                                closeBox();
-                                openSpaceBox("");
-                                closeBox();
+                                
 
                                 openVerticalBox("");
                                 {
@@ -209,6 +202,14 @@ void GxMainInterface::setup() {
                                     openSpaceBox("");
                                     closeBox();
                                 }
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
+                                closeBox();
+                                openSpaceBox("");
                                 closeBox();
                                 openSpaceBox("");
                                 closeBox();

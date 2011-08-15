@@ -61,8 +61,12 @@ void GxMainInterface::gx_build_stereo_rack() {
                         {
                             openSpaceBox("");
                             closeBox();
+                            openFrameBox("");
+                            closeBox();
                             create_switch_no_caption(sw_switchit, "chorus.on_off");
                             openSpaceBox("");
+                            closeBox();
+                            openFrameBox("");
                             closeBox();
                         }
                         closeBox();
@@ -104,8 +108,12 @@ void GxMainInterface::gx_build_stereo_rack() {
                         {
                             openSpaceBox("");
                             closeBox();
+                            openFrameBox("");
+                            closeBox();
                             create_switch_no_caption(sw_switchit, "flanger.on_off");
                             openSpaceBox("");
+                            closeBox();
+                            openFrameBox("");
                             closeBox();
                         }
                         closeBox();
@@ -179,8 +187,12 @@ void GxMainInterface::gx_build_stereo_rack() {
                         {
                             openSpaceBox("");
                             closeBox();
+                            openFrameBox("");
+                            closeBox();
                             create_switch_no_caption(sw_switchit, "phaser.on_off");
                             openSpaceBox("");
+                            closeBox();
+                            openFrameBox("");
                             closeBox();
                         }
                         closeBox();
@@ -257,8 +269,12 @@ void GxMainInterface::gx_build_stereo_rack() {
                         {
                             openSpaceBox("");
                             closeBox();
+                            openFrameBox("");
+                            closeBox();
                             create_switch_no_caption(sw_switchit, "stereodelay.on_off");
                             openSpaceBox("");
+                            closeBox();
+                            openFrameBox("");
                             closeBox();
                         }
                         closeBox();
@@ -310,8 +326,12 @@ void GxMainInterface::gx_build_stereo_rack() {
                         {
                             openSpaceBox("");
                             closeBox();
+                            openFrameBox("");
+                            closeBox();
                             create_switch_no_caption(sw_switchit, "stereoecho.on_off");
                             openSpaceBox("");
+                            closeBox();
+                            openFrameBox("");
                             closeBox();
                         }
                         closeBox();
@@ -352,8 +372,12 @@ void GxMainInterface::gx_build_stereo_rack() {
                         {
                             openSpaceBox("");
                             closeBox();
+                            openFrameBox("");
+                            closeBox();
                             create_switch_no_caption(sw_switchit, "moog.on_off");
                             openSpaceBox("");
+                            closeBox();
+                            openFrameBox("");
                             closeBox();
                         }
                         closeBox();
@@ -392,8 +416,12 @@ void GxMainInterface::gx_build_stereo_rack() {
                         {
                             openSpaceBox("");
                             closeBox();
+                            openFrameBox("");
+                            closeBox();
                             create_switch_no_caption(sw_switchit, "ampmodul.on_off");
                             openSpaceBox("");
+                            closeBox();
+                            openFrameBox("");
                             closeBox();
                         }
                         closeBox();
@@ -440,8 +468,12 @@ void GxMainInterface::gx_build_stereo_rack() {
                         {
                             openSpaceBox("");
                             closeBox();
+                            openFrameBox("");
+                            closeBox();
                             create_switch_no_caption(sw_switchit, "tonemodul.on_off");
                             openSpaceBox("");
+                            closeBox();
+                            openFrameBox("");
                             closeBox();
                         }
                         closeBox();
@@ -485,8 +517,12 @@ void GxMainInterface::gx_build_stereo_rack() {
                         {
                             openSpaceBox("");
                             closeBox();
-                                create_switch_no_caption(sw_switchit, "jconv.on_off");
+                            openFrameBox("");
+                            closeBox();
+                            create_switch_no_caption(sw_switchit, "jconv.on_off");
                             openSpaceBox("");
+                            closeBox();
+                            openFrameBox("");
                             closeBox();
                         }
                         closeBox();
