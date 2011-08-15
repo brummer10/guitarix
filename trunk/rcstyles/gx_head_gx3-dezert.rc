@@ -163,6 +163,12 @@ style "gx_dezert_darker_box"
 
 widget "*.darker_box" style:highest "gx_dezert_darker_box"
 
+style "gx3_amp_selector"
+{
+ fg[NORMAL] = { 0.6, 0.6, 0.6}
+ font_name = "sans 7.5 bold"
+}
+widget "*.amp_selector" style:highest "gx3_amp_selector"
 
 widget_class "GtkDialog*" style:highest "gx_dezert-dialog"
 

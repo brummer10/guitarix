@@ -145,6 +145,12 @@ style "gx_darker_box"
 }
 widget "*.darker_box" style:highest "gx_darker_box"
 
+style "gx1_amp_selector"
+{
+ fg[NORMAL] = { 0.7, 0.7, 0.7}
+ font_name = "sans 7.5 bold"
+}
+widget "*.amp_selector" style:highest "gx1_amp_selector"
 #widget_class "GtkDialog*" style:highest "gx_head-dialog"
 
 style "gx_head-menu"

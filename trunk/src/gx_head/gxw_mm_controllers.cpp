@@ -206,7 +206,8 @@ void UiSelector::init(Parameter& param) {
     if (strcmp(param.group().c_str(),"Oscilloscope")==0) {
         g_signal_connect (GTK_OBJECT (m_selector.gobj()), "value_changed", G_CALLBACK(set_osilloscope_mode), NULL);
     } else if (strcmp(param.group().c_str(),"Tube 1")==0) {
-       g_signal_connect (GTK_OBJECT (m_selector.gobj()), "value_changed", G_CALLBACK(set_tube_mode), NULL);
+        m_selector.set_name("amp_selector");
+        g_signal_connect (GTK_OBJECT (m_selector.gobj()), "value_changed", G_CALLBACK(set_tube_mode), NULL);
     } 
 }
 

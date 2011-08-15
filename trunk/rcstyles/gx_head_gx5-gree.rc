@@ -138,6 +138,13 @@ bg[NORMAL] = { 0.1, 0.05, 0.05}
 }
 widget "*.darker_box" style:highest "gx5_darker_box"
 
+style "gx5_amp_selector"
+{
+ fg[NORMAL] = { 0., 0., 0.}
+ font_name = "sans 7.5 bold"
+}
+widget "*.amp_selector" style:highest "gx5_amp_selector"
+
 #widget_class "GtkDialog*" style:highest "gx5_head-dialog"
 
 style "gx5_head-menu"
