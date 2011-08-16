@@ -927,7 +927,7 @@ void GxMainInterface::openFlipLabelBox(const char* label) {
         hbox->m_box.set_border_width(0);
 
         hbox->m_label.set_text(label);
-        hbox->m_label.set_name("beffekt_label");
+        hbox->m_label.set_name("effekt_label");
         hbox->m_label.set_angle(90);
         hbox->m_label.set_size_request(15, -1);
 
