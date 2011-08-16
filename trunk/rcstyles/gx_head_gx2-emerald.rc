@@ -23,6 +23,16 @@ GxWheel::framecount = 101 # use 0 for auto (assumes square frames)
 
 class "GxWheel" style "gx2_head_wheel_icons"
 
+style "gx2_head_wheel_vertical_icons"
+{
+stock["wheel_vertical_back"] = {{"tactile_h_wheel_101f.png"}}
+
+GxWheelVertical::framecount = 101 # use 0 for auto (assumes square frames)
+                            #  and >1 for non squareframe animations
+}
+
+class "GxWheelVertical" style "gx2_head_wheel_vertical_icons"
+
 style "gx2_head_skin_switch_icons"
 {
 stock["switchit_on"] = {{"tactile_backlit_switchit_on.png"}}
@@ -150,7 +160,7 @@ widget "*.darker_box" style:highest "gx2_darker_box"
 
 style "gx2_amp_selector"
 {
- fg[NORMAL] = { 0.6, 0.6, 0.6}
+ fg[NORMAL] = { 0.5, 0.5, 0.5}
  font_name = "sans 7.5 bold"
 }
 widget "*.amp_selector" style:highest "gx2_amp_selector"

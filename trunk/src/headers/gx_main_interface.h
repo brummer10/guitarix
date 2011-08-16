@@ -40,6 +40,7 @@
 #include <gxwmm/smallknob.h>
 #include <gxwmm/smallknobr.h>
 #include <gxwmm/wheel.h>
+#include <gxwmm/wheelvertical.h>
 #include <gxwmm/hslider.h>
 #include <gxwmm/eqslider.h>
 #include <gxwmm/levelslider.h>
@@ -521,6 +522,7 @@ class GxMainInterface : public gx_ui::GxUI {
 
     // -- active widgets
     void addJConvButton(const char* label, float* zone);
+    void addJConvFavButton(const char* label);
     void addToggleButton(const char* label, float* zone);
     void addJToggleButton(const char* label, float* zone);
     void addPToggleButton(const char* label, float* zone);
@@ -606,6 +608,12 @@ class GxMainInterface : public gx_ui::GxUI {
     void create_wheel_with_value(string id, bool show_value = true) {
             addwidget(UiRegler::create(*this, new Gxw::Wheel(), id, show_value));
         }
+    void create_wheel_vertical(string id, bool show_value = false) {
+            addwidget(UiRegler::create(*this, new Gxw::WheelVertical(), id, show_value));
+        }
+    void create_wheel_vertical_with_value(string id, bool show_value = true) {
+            addwidget(UiRegler::create(*this, new Gxw::WheelVertical(), id, show_value));
+        }    
     void create_hslider(string id) {
             addwidget(UiReglerWithCaption::create(*this, new Gxw::HSlider(), id, true));
         }

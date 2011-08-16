@@ -42,9 +42,12 @@
 namespace gx_jconv {
 
 /* GUI stuff  */
+void gx_load_jcgui();
 void gx_reload_jcgui();
 void gx_save_jcgui();
 void gx_show_jconv_dialog_gui(GtkWidget *, gpointer);
+void gx_show_fav();
+void gx_load_fav(GtkMenuItem *menuitem, gpointer data);
 
 /* main class */
 class GxJConvSettings {
@@ -61,6 +64,7 @@ class GxJConvSettings {
     guint           fGainCor;
 
     void read_gainline(gx_system::JsonParser& jp);
+    void read_favorites(gx_system::JsonParser& jp);
     inline void setIRFile(string name)            { fIRFile = name; }
     inline void setIRDir(string name)             { fIRDir = name; }
 
@@ -107,7 +111,7 @@ class GxJConvSettings {
 
     // checkbutton state
     static float checkbutton7;
-
+    vector<Glib::ustring>        faflist;
     void writeJSON(gx_system::JsonWriter& w);
 };
 } /* end of gx_jconv namespace*/

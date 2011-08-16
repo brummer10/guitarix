@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
 #ifndef NDEBUG
     gx_system::add_time_measurement();
 #endif
-
+    gx_jconv::gx_load_jcgui();
     // ----------------------- init GTK interface----------------------
     g_type_class_unref(g_type_class_ref(GTK_TYPE_IMAGE_MENU_ITEM));
     g_object_set(gtk_settings_get_default(), "gtk-menu-images", FALSE, NULL);

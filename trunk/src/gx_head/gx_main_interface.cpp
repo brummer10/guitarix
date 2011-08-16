@@ -1325,6 +1325,26 @@ void GxMainInterface::addJConvButton(const char* label, float* zone) {
                       (gpointer) c);
 }
 
+void GxMainInterface::addJConvFavButton(const char* label) {
+    
+    GtkWidget*     button = gtk_button_new();
+
+    GtkWidget*     lab = gtk_label_new(label);
+    GtkStyle *style = gtk_widget_get_style(lab);
+    pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
+    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
+    gtk_widget_modify_font(lab, style->font_desc);
+    gtk_container_add(GTK_CONTAINER(button), lab);
+
+    gtk_widget_set_name(lab, "beffekt_label");
+    addWidget(label, button);
+    gtk_widget_show(lab);
+
+    
+    g_signal_connect(GTK_OBJECT(button), "clicked",
+                      G_CALLBACK(gx_jconv::gx_show_fav),
+                      (gpointer) NULL);
+}
 // ---------------------------    Toggle Buttons ---------------------------
 
 struct uiToggleButton : public gx_ui::GxUiItemFloat {
@@ -3066,7 +3086,7 @@ void GxMainInterface::show() {
         gtk_widget_hide(gx_gui::gw.gx_jackd_on_image);
         gtk_widget_show(gx_gui::gw.gx_jackd_off_image);
     }
-
+    
     gint mainxorg = gx_set_mx_oriantation();
     gint mainyorg = gx_set_my_oriantation();
     gtk_window_move(GTK_WINDOW(gw.fWindow), mainxorg, mainyorg);

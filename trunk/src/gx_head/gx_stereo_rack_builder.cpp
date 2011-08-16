@@ -534,16 +534,43 @@ void GxMainInterface::gx_build_stereo_rack() {
                         {
                             openHorizontalBox("");
                             {
-                                create_small_rackknobr("jconv.gain", _("gain"));
-                                create_small_rackknob("jconv.diff_delay", _("delta delay"));
-                                create_small_rackknob("jconv.balance", _("balance"));
-                                create_small_rackknobr("jconv.wet_dry", _("dry/wet"));
+                                openVerticalBox("");
+                                {
+                                openSetLabelBox("");
+                                {
+                                }
+                                closeBox();
+                                openHorizontalBox("");
+                                {
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                    create_small_rackknobr("jconv.gain", _("gain"));
+                                    openSpaceBox("");
+                                    closeBox();
+                                    create_small_rackknob("jconv.diff_delay", _("delta delay"));
+                                    openSpaceBox("");
+                                    closeBox();
+                                    create_small_rackknob("jconv.balance", _("balance"));
+                                    openSpaceBox("");
+                                    closeBox();
+                                    create_small_rackknobr("jconv.wet_dry", _("dry/wet"));
+                                    openSpaceBox("");
+                                    closeBox();
+                                    openSpaceBox("");
+                                    closeBox();
+                                }
+                                closeBox();
+                                }
+                                closeBox();
                                 openSpaceBox("");
                                 closeBox();
                                 openVerticalBox("");
                                 {
                                     openSpaceBox("");
                                     closeBox();
+                                    addJConvFavButton("favourites");
                                     addJConvButton(_("set"), &gx_engine::audio.filebutton);
                                     
                                     addJToggleButton(_("run"),

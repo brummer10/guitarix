@@ -232,6 +232,14 @@ class IRWindow: public Gtk::Window {
     void on_apply_button_clicked();
     void on_cancel_button_clicked();
     void on_ok_button_clicked();
+    
+    Gtk::Button *wadd, *wshow, *wremove, *wremoveall;
+    Gtk::Label *wladd, *wlshow, *wlremove, *wlremoveall;
+    void on_add_button_clicked();
+    void on_show_button_clicked();
+    void on_show_button_clicked_in();
+    void on_remove_button_clicked();
+    void on_remove_all_button_clicked();
 
     Gtk::ToggleButton *wGain_correction;
     void on_gain_button_toggled();
@@ -266,6 +274,7 @@ class IRWindow: public Gtk::Window {
     void on_enumerate();
     static void create(gx_ui::GxUI& ui);
     static void reload() { if (instance) instance->load_state(); }
+    static void show_fav() { if (instance) instance->on_show_button_clicked(); }
     static bool save() {
         if (instance) return instance->save_state();
         else
@@ -368,6 +377,30 @@ void IRWindow::init_connect() {
     wIncr->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_incr));
     builder->get_widget("decr", wDecr);
     wDecr->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_decr));
+
+    builder->get_widget("add_button", wadd);
+    builder->get_widget("ablabel", wladd);
+    wladd->set_name("beffekt_label");
+    wadd->set_name("rack_button");
+    wadd->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_add_button_clicked));
+
+    builder->get_widget("list_button", wshow);
+    builder->get_widget("sflabel", wlshow);
+    wlshow->set_name("beffekt_label");
+    wshow->set_name("rack_button");
+    wshow->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_show_button_clicked_in));
+    
+    builder->get_widget("remove_button", wremove);
+    builder->get_widget("relabel", wlremove);
+    wlremove->set_name("beffekt_label");
+    wremove->set_name("rack_button");
+    wremove->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_remove_button_clicked));
+
+    builder->get_widget("remove_list_button", wremoveall);
+    builder->get_widget("rllabel", wlremoveall);
+    wlremoveall->set_name("beffekt_label");
+    wremoveall->set_name("rack_button");
+    wremoveall->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_remove_all_button_clicked));
 
     builder->get_widget("reset_button", wReset);
     wReset->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_reset_clicked));
@@ -513,6 +546,9 @@ void IRWindow::load_state() {
         wIredit->set_gain(jcset.getGainline());
     }
     g_idle_add(enumerate, NULL);
+    string amp = jcset.getIRFile();
+    if (GTK_IS_LABEL(gx_gui::gw.set_label))
+        gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
 }
 
 void IRWindow::load_data(Glib::ustring f) {
@@ -632,6 +668,152 @@ bool IRWindow::save_state() {
 /**
 ** signal functions
 */
+static void remove_double_entry() {
+    vector<Glib::ustring>::iterator its;
+    vector<Glib::ustring>::iterator it;
+    GxJConvSettings& jcset = *GxJConvSettings::instance();
+    it = jcset.faflist.begin();
+    for (its = jcset.faflist.begin(); its != jcset.faflist.end(); its++) {
+        string entry = *its;
+        if (its != jcset.faflist.end()-1) {
+            it = its+1;
+            string next_entry = *it;
+            if (entry.compare(next_entry) == 0) {
+                jcset.faflist.erase(it);
+                fprintf(stderr, "double entry detected\n");
+            }
+        }
+    }
+}
+
+void IRWindow::on_add_button_clicked() {
+    Gtk::TreeModel::iterator iter = wcombo->get_active();
+    if (iter) {
+        GxJConvSettings& jcset = *GxJConvSettings::instance();
+        Gtk::TreeModel::Row row = *iter;
+        if (row) {
+            Glib::ustring name = row[columns.name];
+            
+            Glib::ustring path = jcset.getIRDir();
+            path += "/";
+            path += name;
+            jcset.faflist.push_back(path);
+        }
+        std::sort(jcset.faflist.begin(), jcset.faflist.end());
+        remove_double_entry();
+    }
+}
+
+static void remove_favorite_from_menu(GtkMenuItem *menuitem, gpointer data) {
+    string  fname = gtk_menu_item_get_label(GTK_MENU_ITEM(menuitem));
+    vector<Glib::ustring>::iterator its;
+    GxJConvSettings& jcset = *GxJConvSettings::instance();
+    for (its = jcset.faflist.begin(); its != jcset.faflist.end(); its++) {
+        string entry = *its;
+        if (entry.compare(fname) == 0) {
+            jcset.faflist.erase(its);
+        }
+    }
+}
+void IRWindow::on_remove_all_button_clicked() {
+    GxJConvSettings& jcset = *GxJConvSettings::instance();
+    jcset.faflist.clear();
+}
+
+void IRWindow::on_remove_button_clicked() {
+    vector<Glib::ustring>::iterator its;
+    GxJConvSettings& jcset = *GxJConvSettings::instance();
+    GtkWidget* menucont;  // menu container
+    GtkWidget* menuitem;  // menu item
+    menucont = gtk_menu_new();
+    for (its = jcset.faflist.begin(); its != jcset.faflist.end(); its++) {
+        string entry = *its;
+        menuitem = gtk_menu_item_new_with_mnemonic(entry.c_str());
+        gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+        g_signal_connect(GTK_OBJECT(menuitem), "activate",
+                      G_CALLBACK(remove_favorite_from_menu), NULL);
+        gtk_widget_show(menuitem);
+    }
+    guint32 tim = gtk_get_current_event_time();
+    gtk_menu_popup(GTK_MENU(menucont), NULL, NULL, NULL,
+                          (gpointer) menucont, 2, tim);
+}
+
+static void set_favorite_from_menu(GtkMenuItem *menuitem, gpointer data) {
+    const gchar * fname = gtk_menu_item_get_label(GTK_MENU_ITEM(menuitem));
+    GxJConvSettings& jcset = *GxJConvSettings::instance();
+    jcset.setFullIRPath(fname);
+    unsigned int gain_cor      = jcset.getGainCor();
+    jcset.setGainCor(gain_cor);
+    //save_state();
+   // IRWindow::get_window()->save();
+    //g_idle_add(enumerate, NULL);
+     if (!GxJConvSettings::checkbutton7) {
+        GxJConvSettings::checkbutton7 = 1;
+        IRWindow::get_window()->reload();
+        return;
+    }
+    string amp = jcset.getIRFile();
+        if (GTK_IS_LABEL(gx_gui::gw.set_label))
+            gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
+        gx_convolver_restart();
+}
+
+static void set_favorite_from_menu_in(GtkMenuItem *menuitem, gpointer data) {
+    const gchar * fname = gtk_menu_item_get_label(GTK_MENU_ITEM(menuitem));
+    GxJConvSettings& jcset = *GxJConvSettings::instance();
+    jcset.setFullIRPath(fname);
+    //save_state();
+   // IRWindow::get_window()->save();
+    g_idle_add(enumerate, NULL);
+     if (!GxJConvSettings::checkbutton7) {
+        GxJConvSettings::checkbutton7 = 1;
+        IRWindow::get_window()->reload();
+        return;
+    }
+    string amp = jcset.getIRFile();
+        if (GTK_IS_LABEL(gx_gui::gw.set_label))
+            gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
+        gx_convolver_restart();
+}
+
+void IRWindow::on_show_button_clicked_in() {
+    vector<Glib::ustring>::iterator its;
+    GxJConvSettings& jcset = *GxJConvSettings::instance();
+    GtkWidget* menucont;  // menu container
+    GtkWidget* menuitem;  // menu item
+    menucont = gtk_menu_new();
+    for (its = jcset.faflist.begin(); its != jcset.faflist.end(); its++) {
+        string entry = *its;
+        menuitem = gtk_menu_item_new_with_mnemonic(entry.c_str());
+        gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+        g_signal_connect(GTK_OBJECT(menuitem), "activate",
+                      G_CALLBACK(set_favorite_from_menu_in), NULL);
+        gtk_widget_show(menuitem);
+    }
+    guint32 tim = gtk_get_current_event_time();
+    gtk_menu_popup(GTK_MENU(menucont), NULL, NULL, NULL,
+                          (gpointer) menucont, 2, tim);
+}
+
+void IRWindow::on_show_button_clicked() {
+    vector<Glib::ustring>::iterator its;
+    GxJConvSettings& jcset = *GxJConvSettings::instance();
+    GtkWidget* menucont;  // menu container
+    GtkWidget* menuitem;  // menu item
+    menucont = gtk_menu_new();
+    for (its = jcset.faflist.begin(); its != jcset.faflist.end(); its++) {
+        string entry = *its;
+        menuitem = gtk_menu_item_new_with_mnemonic(entry.c_str());
+        gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
+        g_signal_connect(GTK_OBJECT(menuitem), "activate",
+                      G_CALLBACK(set_favorite_from_menu), NULL);
+        gtk_widget_show(menuitem);
+    }
+    guint32 tim = gtk_get_current_event_time();
+    gtk_menu_popup(GTK_MENU(menucont), NULL, NULL, NULL,
+                          (gpointer) menucont, 2, tim);
+}
 
 void IRWindow::on_combo_changed() {
     Gtk::TreeModel::iterator iter = wcombo->get_active();
@@ -648,6 +830,9 @@ void IRWindow::on_combo_changed() {
                 old_name = name;
                 load_data(path);
             }
+             //string amp = jcset->getIRFile();
+        if (GTK_IS_LABEL(gx_gui::gw.set_label))
+            gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),name.c_str());
         }
     }
 }
@@ -898,6 +1083,10 @@ void IRWindow::on_gain_button_toggled() {
 /****************************************************************
  ** Interface to rest of program
  */
+void gx_load_jcgui() {
+    IRWindow::create(*gx_gui::GxMainInterface::instance());
+    IRWindow::reload();
+}
 
 void gx_show_jconv_dialog_gui(_GtkWidget*, void*) {
     IRWindow::create(*gx_gui::GxMainInterface::instance());
@@ -911,6 +1100,14 @@ void gx_reload_jcgui() {
 
 void gx_save_jcgui() {
     IRWindow::save();
+}
+
+void gx_show_fav() {
+    IRWindow::show_fav();
+}
+
+void gx_load_fav(GtkMenuItem *menuitem, gpointer data) {
+    set_favorite_from_menu(menuitem, data);
 }
 
 // --------------- static vars
@@ -965,7 +1162,20 @@ void GxJConvSettings::writeJSON(gx_system::JsonWriter& w) {
         w.write(gainline[i].g);
         w.end_array();
     }
-    w.end_array();
+    w.end_array(true);
+    
+   // w.end_object(true);
+    w.write_key("jconv.favorits");
+    w.begin_array();
+    vector<Glib::ustring>::iterator its;
+    bool end = true;
+    for (its = faflist.begin(); its != faflist.end(); its++) {
+        w.begin_array();
+        w.write(*its);
+        if (its == faflist.end()-1) end = false;
+        w.end_array(end);
+    }
+    w.end_array(true);
     w.end_object(true);
 }
 
@@ -981,6 +1191,18 @@ void GxJConvSettings::read_gainline(gx_system::JsonParser& jp) {
         p.g = jp.current_value_float();
         jp.next(gx_system::JsonParser::end_array);
         gainline.push_back(p);
+    }
+    jp.next(gx_system::JsonParser::end_array);
+}
+
+void GxJConvSettings::read_favorites(gx_system::JsonParser& jp) {
+    gainline.clear();
+    jp.next(gx_system::JsonParser::begin_array);
+    while (jp.peek() == gx_system::JsonParser::begin_array) {
+        jp.next();
+        jp.next(gx_system::JsonParser::value_string);
+        jp.next(gx_system::JsonParser::end_array);
+        faflist.push_back(jp.current_value());
     }
     jp.next(gx_system::JsonParser::end_array);
 }
@@ -1012,6 +1234,8 @@ GxJConvSettings::GxJConvSettings(gx_system::JsonParser& jp) {
             fDelay = jp.current_value_int();
         } else if (jp.current_value() == "jconv.gainline") {
             read_gainline(jp);
+        } else if (jp.current_value() == "jconv.favorits") {
+            read_favorites(jp);
         } else {
             gx_system::gx_print_warning("jconv settings", "unknown key: " + jp.current_value());
             jp.skip_object();

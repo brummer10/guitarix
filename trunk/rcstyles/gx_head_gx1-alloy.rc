@@ -21,13 +21,25 @@ GxKnob::framecount = 0 # use 0 for auto (assumes square frames)
 }
 class "GxKnob" style "gx2_head_skin_knob_animation"
 
-style "gx2_head_wheel_icons"
+style "gx1_head_wheel_icons"
 {
 stock["wheel_back"] = {{"tactile_wheel_101f.png"}}
 
 GxWheel::framecount = 101 # use 0 for auto (assumes square frames)
                             #  and >1 for non squareframe animations
 }
+
+class "GxWheel" style "gx1_head_wheel_icons"
+
+style "gx1_head_wheel_vertical_icons"
+{
+stock["wheel_vertical_back"] = {{"tactile_h_wheel_101f.png"}}
+
+GxWheelVertical::framecount = 101 # use 0 for auto (assumes square frames)
+                            #  and >1 for non squareframe animations
+}
+
+class "GxWheelVertical" style "gx1_head_wheel_vertical_icons"
 
 style "gx2_head_skin_switch_icons"
 {
@@ -38,7 +50,8 @@ stock["switchit_off"] = {{"tactile_backlit_switchit_off.png"}}
 
 class "GxToggleImage" style "gx2_head_skin_switch_icons"
 
-class "GxWheel" style "gx2_head_wheel_icons"
+
+
 
 style "gx_head-paintbox"
 {
@@ -253,7 +266,7 @@ style "gx_head-v_black"
 
 style "gx_head-b_black"
 {
-  fg[NORMAL] = 	{ 0.1, 0.1, 0.1 }
+  fg[NORMAL] = 	{ 0.8, 0.8, 0.8 }
   fg[ACTIVE] = { 0.2, 0.2, 0.2 }
   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
   fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }

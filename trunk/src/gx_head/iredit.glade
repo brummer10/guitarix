@@ -1093,6 +1093,74 @@ it can be mono or stereo
                               </packing>
                             </child>
                             <child>
+                              <object class="GtkBox" id="box1">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="orientation">horizontal</property>
+                                <child>
+                                    <object class="GtkButton" id="add_button">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <signal name="clicked" handler="on_add_clicked"/>
+                                        <child>
+                                          <object class="GtkLabel" id="ablabel">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">add to favourit list</property>
+                                          </object>
+                                        </child>
+
+                                    </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="remove_button">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <signal name="clicked" handler="on_remove_clicked"/>
+                                        <child>
+                                          <object class="GtkLabel" id="relabel">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">remove from favourit list</property>
+                                          </object>
+                                        </child>
+                                    </object>
+                                </child>
+                                 <child>
+                                  <object class="GtkButton" id="list_button">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <signal name="clicked" handler="on_show_clicked"/>
+                                        <child>
+                                          <object class="GtkLabel" id="sflabel">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">show favourites</property>
+                                          </object>
+                                        </child>
+                                    </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="remove_list_button">
+                                         <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <signal name="clicked" handler="on_remove_all_clicked"/>
+                                        <child>
+                                          <object class="GtkLabel" id="rllabel">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">remove all favourites</property>
+                                          </object>
+                                        </child>
+                                    </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
                               <object class="GtkHBox" id="vbox11">
                                 <property name="width_request">470</property>
                                 <property name="visible">True</property>
