@@ -745,17 +745,14 @@ static void set_favorite_from_menu(GtkMenuItem *menuitem, gpointer data) {
     const gchar * fname = gtk_menu_item_get_label(GTK_MENU_ITEM(menuitem));
     GxJConvSettings& jcset = *GxJConvSettings::instance();
     jcset.setFullIRPath(fname);
+    IRWindow::get_window()->new_file(fname);
     unsigned int gain_cor      = jcset.getGainCor();
     jcset.setGainCor(gain_cor);
     if (!GxJConvSettings::checkbutton7) {
         GxJConvSettings::checkbutton7 = 1;
-        IRWindow::get_window()->new_file(fname);
-        //IRWindow::get_window()->reload();
         return;
     }
-    string amp = jcset.getIRFile();
-    if (GTK_IS_LABEL(gx_gui::gw.set_label))
-        gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
+
     gx_convolver_restart();
 }
 
@@ -763,16 +760,14 @@ static void set_favorite_from_menu_in(GtkMenuItem *menuitem, gpointer data) {
     const gchar * fname = gtk_menu_item_get_label(GTK_MENU_ITEM(menuitem));
     GxJConvSettings& jcset = *GxJConvSettings::instance();
     jcset.setFullIRPath(fname);
+    IRWindow::get_window()->new_file(fname);
     g_idle_add(enumerate, NULL);
     if (!GxJConvSettings::checkbutton7) {
         GxJConvSettings::checkbutton7 = 1;
-        IRWindow::get_window()->new_file(fname);
-        //IRWindow::get_window()->reload();
         return;
     }
     string amp = jcset.getIRFile();
-    if (GTK_IS_LABEL(gx_gui::gw.set_label))
-        gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
+
     gx_convolver_restart();
 }
 
