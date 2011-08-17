@@ -275,6 +275,7 @@ class IRWindow: public Gtk::Window {
     static void create(gx_ui::GxUI& ui);
     static void reload() { if (instance) instance->load_state(); }
     static void show_fav() { if (instance) instance->on_show_button_clicked(); }
+    static void new_file(Glib::ustring filename) {if (instance) instance->load_data(filename);}
     static bool save() {
         if (instance) return instance->save_state();
         else
@@ -524,6 +525,10 @@ void IRWindow::file_changed(Glib::ustring filename, int rate, int length,
     wFormat->set_text(format);
     wChannelbox->set_sensitive(channels >= 2);
     wFilename->set_text(Glib::path_get_dirname(filename));
+    GxJConvSettings& jcset = *GxJConvSettings::instance();
+    string amp = jcset.getIRFile();
+    if (GTK_IS_LABEL(gx_gui::gw.set_label))
+        gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
 }
 
 // wrapper function to reload the cmbobox tree in a idle loop
@@ -546,9 +551,6 @@ void IRWindow::load_state() {
         wIredit->set_gain(jcset.getGainline());
     }
     g_idle_add(enumerate, NULL);
-    string amp = jcset.getIRFile();
-    if (GTK_IS_LABEL(gx_gui::gw.set_label))
-        gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
 }
 
 void IRWindow::load_data(Glib::ustring f) {
@@ -747,7 +749,8 @@ static void set_favorite_from_menu(GtkMenuItem *menuitem, gpointer data) {
     jcset.setGainCor(gain_cor);
     if (!GxJConvSettings::checkbutton7) {
         GxJConvSettings::checkbutton7 = 1;
-        IRWindow::get_window()->reload();
+        IRWindow::get_window()->new_file(fname);
+        //IRWindow::get_window()->reload();
         return;
     }
     string amp = jcset.getIRFile();
@@ -763,7 +766,8 @@ static void set_favorite_from_menu_in(GtkMenuItem *menuitem, gpointer data) {
     g_idle_add(enumerate, NULL);
     if (!GxJConvSettings::checkbutton7) {
         GxJConvSettings::checkbutton7 = 1;
-        IRWindow::get_window()->reload();
+        IRWindow::get_window()->new_file(fname);
+        //IRWindow::get_window()->reload();
         return;
     }
     string amp = jcset.getIRFile();
