@@ -766,7 +766,6 @@ static void set_favorite_from_menu_in(GtkMenuItem *menuitem, gpointer data) {
         GxJConvSettings::checkbutton7 = 1;
         return;
     }
-    string amp = jcset.getIRFile();
 
     gx_convolver_restart();
 }
