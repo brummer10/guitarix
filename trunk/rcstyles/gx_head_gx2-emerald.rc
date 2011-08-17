@@ -160,7 +160,7 @@ widget "*.darker_box" style:highest "gx2_darker_box"
 
 style "gx2_amp_selector"
 {
- fg[NORMAL] = { 0.5, 0.5, 0.5}
+ fg[NORMAL] = "#438f1e"
  font_name = "sans 7.5 bold"
 }
 widget "*.amp_selector" style:highest "gx2_amp_selector"

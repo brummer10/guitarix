@@ -72,7 +72,7 @@ namespace gx_gui {
 
 class GuiVariables {
  public:
-    bool                dialogbox[30];
+    bool                dialogbox[35];
     
     int                 showwave;
     int                 shownote;

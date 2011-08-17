@@ -570,8 +570,8 @@ void GxMainInterface::gx_build_stereo_rack() {
                                 {
                                     openSpaceBox("");
                                     closeBox();
-                                    addJConvFavButton("favourites");
-                                    addJConvButton(_("set"), &gx_engine::audio.filebutton);
+                                    addJConvFavButton(_("favourites"));
+                                    addJConvButton(_("setup"), &gx_engine::audio.filebutton);
                                     
                                     addJToggleButton(_("run"),
                                                          &gx_jconv::GxJConvSettings::checkbutton7);
