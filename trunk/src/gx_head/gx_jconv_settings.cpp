@@ -670,6 +670,8 @@ bool IRWindow::save_state() {
 /**
 ** signal functions
 */
+
+// remove double entrys from the favourite menu list 
 static void remove_double_entry() {
     vector<Glib::ustring>::iterator its;
     vector<Glib::ustring>::iterator it;
@@ -682,12 +684,14 @@ static void remove_double_entry() {
             string next_entry = *it;
             if (entry.compare(next_entry) == 0) {
                 jcset.faflist.erase(it);
-                fprintf(stderr, "double entry detected\n");
+                gx_system::gx_print_warning(
+                    "jconvolver", " remove double entry '" + entry + "'");
             }
         }
     }
 }
 
+// add the active file to the favourite menu list
 void IRWindow::on_add_button_clicked() {
     Gtk::TreeModel::iterator iter = wcombo->get_active();
     if (iter) {
@@ -706,6 +710,7 @@ void IRWindow::on_add_button_clicked() {
     }
 }
 
+// remove selected file from from favorite menu list
 static void remove_favorite_from_menu(GtkMenuItem *menuitem, gpointer data) {
     string  fname = gtk_menu_item_get_label(GTK_MENU_ITEM(menuitem));
     vector<Glib::ustring>::iterator its;
@@ -717,11 +722,14 @@ static void remove_favorite_from_menu(GtkMenuItem *menuitem, gpointer data) {
         }
     }
 }
+
+// clear the favourite menu list
 void IRWindow::on_remove_all_button_clicked() {
     GxJConvSettings& jcset = *GxJConvSettings::instance();
     jcset.faflist.clear();
 }
 
+// pop up the favorite menu liste to let select a file for remove
 void IRWindow::on_remove_button_clicked() {
     vector<Glib::ustring>::iterator its;
     GxJConvSettings& jcset = *GxJConvSettings::instance();
@@ -741,6 +749,9 @@ void IRWindow::on_remove_button_clicked() {
                           (gpointer) menucont, 2, tim);
 }
 
+// load the selcted file into the convolver
+// this is the callback for the button in the effect modul
+// reloading the combobox isn't needed when only use the effect module
 static void set_favorite_from_menu(GtkMenuItem *menuitem, gpointer data) {
     const gchar * fname = gtk_menu_item_get_label(GTK_MENU_ITEM(menuitem));
     GxJConvSettings& jcset = *GxJConvSettings::instance();
@@ -752,10 +763,13 @@ static void set_favorite_from_menu(GtkMenuItem *menuitem, gpointer data) {
         GxJConvSettings::checkbutton7 = 1;
         return;
     }
-
-    gx_convolver_restart();
+    if(IRWindow::get_window()->save()) {
+        gx_convolver_restart();
+    }
 }
 
+// this is the callback used by the jconv settings widget, 
+// combobox will reload also when change a file
 static void set_favorite_from_menu_in(GtkMenuItem *menuitem, gpointer data) {
     const gchar * fname = gtk_menu_item_get_label(GTK_MENU_ITEM(menuitem));
     GxJConvSettings& jcset = *GxJConvSettings::instance();
@@ -766,10 +780,13 @@ static void set_favorite_from_menu_in(GtkMenuItem *menuitem, gpointer data) {
         GxJConvSettings::checkbutton7 = 1;
         return;
     }
-
-    gx_convolver_restart();
+    if(IRWindow::get_window()->save()) {
+        gx_convolver_restart();
+    }
 }
 
+// create and present the favourite menu list 
+// callback inside the jconv settings widget
 void IRWindow::on_show_button_clicked_in() {
     vector<Glib::ustring>::iterator its;
     GxJConvSettings& jcset = *GxJConvSettings::instance();
@@ -789,6 +806,8 @@ void IRWindow::on_show_button_clicked_in() {
                           (gpointer) menucont, 2, tim);
 }
 
+// create and present the favourite menu
+// callback from the effect module
 void IRWindow::on_show_button_clicked() {
     vector<Glib::ustring>::iterator its;
     GxJConvSettings& jcset = *GxJConvSettings::instance();
