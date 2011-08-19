@@ -329,6 +329,7 @@ void init_presence_processing() {
 void presence_processing(int count, float* input, float* output0) {
     gx_effects::presence_level::compute(count, input, output0);
 }
+
 // tone stack
 namespace gx_tonestacks {
 

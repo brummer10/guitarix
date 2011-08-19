@@ -134,6 +134,7 @@ const char* SystemVars::shell_var_name[] = {
     "GUITARIX2JACK_MIDI",
     "GUITARIX_RC_STYLE",
     "GUITARIX2JACK_UUID",
+    "GUITARIX2JACK_UUID2",
     "GUITARIX_LOAD_FILE"
 };
 
@@ -180,6 +181,7 @@ bool terminal  = true; // make messages before main() appear on terminal
 
 // ---- command line options
 void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
+
     // store shell variable content
     for (int i = 0; i < NUM_SHELL_VAR; i++) {
         gx_assign_shell_var(sysvar.shell_var_name[i], optvar[i]);

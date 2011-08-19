@@ -168,6 +168,8 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
         // no need of loop.
         (void)memset(output0, 0, count*sizeof(float));
         (void)memset(output1, 0, count*sizeof(float));
+        (void)memset(audio.get_frame, 0, count*sizeof(float));
+        (void)memset(audio.get_frame1, 0, count*sizeof(float));
         break;
     }
 }
@@ -198,10 +200,6 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
     for (int m = 1; m < audio.stereo_active_counter+1; m++) {
         _modulpointer->stereo_rack_order_ptr[m](count, output0, output1, output0, output1);
     }
-
-    // copy output buffer to the level meter
-    (void)memcpy(audio.get_frame, output0, sizeof(float)*count);
-    (void)memcpy(audio.get_frame1, output1, sizeof(float)*count);
 }
-} // namespace gx_engine
+} // end namespace gx_engine
 

@@ -174,7 +174,7 @@ class SystemVars {
     static const string                   gx_user_dir;
 
     /* shell variable names */
-    static const char*                    shell_var_name[7];
+    static const char*                    shell_var_name[8];
     
     bool                                  is_session;
     string                                rcpath;

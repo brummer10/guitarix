@@ -36,7 +36,8 @@ inline void just_return(int count, float *input0, float *output0) {
 }
 
 // empty stereo pointer
-inline void just2_return(int count, float *input0, float *input1, float *output0, float *output1) {
+inline void just2_return(int count, float *input0, float *input1,
+                         float *output0, float *output1) {
     return;
 }
 
@@ -132,8 +133,7 @@ static int gx_check_tonestack_state(gpointer) {
         _modulpointer->tonestack_ptr = &just_return;
         break;
     }
-    audio.cur_tonestack = audio.tonestack;
-    return false;
+    return audio.tonestack;
 }
 
 // select amp, only run when tube/amp selection have changed
@@ -198,7 +198,7 @@ static gboolean gx_check_engine_state(gpointer) {
         _modulpointer->amp_ptr = &gx_amps::gxamp::compute;
         break;
     }
-    return audio.gxtube;
+    return false;
 }
 
 /****************************************************************
@@ -256,7 +256,8 @@ inline float noise_gate(int sf, float* input, float ngate) {
     }
 }
 
-static void convolver(int count, float *input0, float *input1, float *output0, float *output1) {
+static void convolver(int count, float *input0, float *input1,
+                      float *output0, float *output1) {
  if (conv.is_runnable()) {
         // reuse oversampling buffer
         float *conv_out0 = audio.oversample;
@@ -266,7 +267,8 @@ static void convolver(int count, float *input0, float *input1, float *output0, f
             cout << "overload" << endl;
             //FIXME error message??
         } else {
-            gx_effects::jconv_post::compute(count, output0, output1, conv_out0, conv_out1, output0, output1);
+            gx_effects::jconv_post::compute(count, output0, output1,
+                                            conv_out0, conv_out1, output0, output1);
         }
     }
 }
@@ -297,8 +299,16 @@ static void set_noisegate_level(int count, float *input0, float *output0) {
 }
 
 // wraper for the mono2stereo function
-static void run_gxfeed(int count, float *input0, float *input1, float *output0, float *output1) {
+static void run_gxfeed(int count, float *input0, float *input1,
+                       float *output0, float *output1) {
     gx_effects::gxfeed::compute(count, output0, output0, output1);
+}
+
+// wraper to set bufer for the level meter
+static void set_level_meter_bufer(int count, float *input0, float *input1,
+                                  float *output0, float *output1) {
+    (void)memcpy(audio.get_frame, output0, sizeof(float)*count);
+    (void)memcpy(audio.get_frame1, output1, sizeof(float)*count);
 }
 
 /****************************************************************
@@ -617,12 +627,13 @@ static gboolean gx_reorder_rack(gpointer args) {
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &convolver;
         }
     }
-    
 
     audio.stereo_active_counter += 1;
     _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &gx_effects::gx_outputlevel::compute;
 
-    //audio.rack_change = false;
+    audio.stereo_active_counter += 1;
+    _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &set_level_meter_bufer;
+
     return false;
 }
 
