@@ -95,8 +95,6 @@ bool GxJack::gx_jack_init(const string *optvar) {
                                JackNoStartServer, &jackstat);
     }
 #endif
-   
-    
 
     if (client == 0) {
         // skip useless message
@@ -160,7 +158,7 @@ bool GxJack::gx_jack_init(const string *optvar) {
      string window_name = "gx_head";
         gtk_window_set_title(GTK_WINDOW(gx_gui::gw.fWindow), window_name.c_str());
     }
-    gx_jack::_jackbuffer_ptr = new JackBuffer;
+
     if (jack_is_fresh) sleep(8);
     return true;
 }
@@ -207,7 +205,7 @@ static void gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int co
 
 // ----- set gxjack.client callbacks and activate gxjack.client
 // Note: to be called after gx_engine::gx_engine_init()
-void GxJack::gx_jack_callbacks_and_activate() {
+void GxJack::gx_jack_callbacks() {
     // ----- set the jack callbacks
     jack_set_xrun_callback(client, gxjack.gx_jack_xrun_callback, NULL);
     jack_set_sample_rate_callback(client, gxjack.gx_jack_srate_callback, 0);
@@ -257,7 +255,9 @@ void GxJack::gx_jack_callbacks_and_activate() {
             jack_port_register(client_insert, buf.str().c_str(),
                                JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
     }
+}
 
+void GxJack::gx_jack_activate() {
     // ----- ready to go
     if (jack_activate(client)) {
         gx_system::gx_print_error(_("Jack Activation"),
@@ -469,6 +469,8 @@ void GxJack::gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg) {
             gx_system::gx_assign_shell_var(gx_system::sysvar.shell_var_name[JACK_OUT1], optvar[JACK_OUT1]);
             gx_system::gx_assign_shell_var(gx_system::sysvar.shell_var_name[JACK_OUT2], optvar[JACK_OUT2]);
             gx_system::gx_assign_shell_var(gx_system::sysvar.shell_var_name[JACK_UUID], optvar[JACK_UUID]);
+            gx_system::gx_assign_shell_var(gx_system::sysvar.shell_var_name[JACK_UUID2], optvar[JACK_UUID2]);
+
 
             if (gxjack.gx_jack_init(optvar)) {
 
@@ -476,7 +478,8 @@ void GxJack::gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg) {
                 if (!gx_engine::audio.initialized) {
                     gx_engine::gx_engine_init(optvar);
                 }
-                gxjack.gx_jack_callbacks_and_activate();
+                gxjack.gx_jack_callbacks();
+                gxjack.gx_jack_activate();
                 gxjack.gx_jack_init_port_connection(optvar);
 
                 // refresh latency check menu

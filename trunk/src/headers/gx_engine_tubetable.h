@@ -39,12 +39,16 @@ struct tabled {
     float data[TAB_SIZE];
 };
 
-extern struct tabled tubetable[];
-extern struct tabled tubetable2[];
-extern struct tabled tubetable3[];
-extern struct tabled tubetable4[];
-// extern struct tabled tubetable5[];
-extern struct tabled tubetable6[];
+class TubeTables {
+ public:
+    static struct tabled tubetable[];
+    static struct tabled tubetable2[];
+    static struct tabled tubetable3[];
+    static struct tabled tubetable4[];
+    static struct tabled tubetable6[];
+};
+
+extern TubeTables tubetab;
 } // end namespace
 #endif  // SRC_HEADERS_GX_ENGINE_TUBETABLE_H_
 

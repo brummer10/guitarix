@@ -120,6 +120,7 @@ class AudioVariables {
     int   fse;
     int   gxtube;
     int   gxtube_select;
+    int   amp_pos;
     int   mono_plug_counter;
     int   mono_active_counter;
     int   stereo_plug_counter;
@@ -247,6 +248,7 @@ inline void turnOffMidi()                  {audio.midistate = kMidiOff;}
 inline void turnOnMidi()                   {audio.midistate = kMidiOn;}
 
 inline void set_tube_model(int x)          {audio.gxtube = x;}
+inline void set_tube_model_sel(int x)      {audio.gxtube_select = x;}
 inline void set_cab_mode(float x)          {audio.cab_sum = x;}
 inline void set_mono_plug_counter(int x)   {audio.mono_plug_counter = x;}
 inline void set_stereo_plug_counter(int x) {audio.stereo_plug_counter = x;}
@@ -257,6 +259,8 @@ inline void set_stereo_plug_counter(int x) {audio.stereo_plug_counter = x;}
 
 void gx_engine_init(const string *optvar);
 void gx_engine_reset();
+gboolean order_rack(gpointer args);
+gboolean gx_check_engine_state(gpointer arg);
 
 void compute_midi(int len);
 void compute_midi_in(void* midi_input_port_buf);

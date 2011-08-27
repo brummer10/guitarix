@@ -34,7 +34,7 @@ namespace gx_gui
 {
 // -------------------------- gxwmm library controlers -----------------------------------
 
-void set_osilloscope_mode(GtkWidget *widget, gpointer data) {
+static void set_osilloscope_mode(GtkWidget *widget, gpointer data) {
     gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
     if (gx_engine::audio.effect_pre_post[10]) {
         gui->getWaveView().set_multiplicator(150.,250.);
@@ -43,61 +43,79 @@ void set_osilloscope_mode(GtkWidget *widget, gpointer data) {
     }
 }
 
-void set_tube_mode(GtkWidget *widget, gpointer data) {
-    GxMainInterface* gui = GxMainInterface::instance();
+static void set_tube_mode(GtkWidget *widget, gpointer data) {
+    //GxMainInterface* gui = GxMainInterface::instance();
     switch(gx_engine::audio.gxtube_select) {
         case 0: // "default"
-            gui->fSelectTubeModel[0].set_active(true);
+            //gui->fSelectTubeModel[0].set_active(true);
+            parameter_map["system.select_tube"].set_std_value();
             break;
         case 1: // 
-            gui->fSelectTubeModel[1].set_active(true);
+            //gui->fSelectTubeModel[1].set_active(true);
+            parameter_map["system.select_tube2"].set_std_value();
             break;
         case 2: // 
-            gui->fSelectTubeModel[13].set_active(true);
+            //gui->fSelectTubeModel[13].set_active(true);
+            parameter_map["system.select_tube14"].set_std_value();
             break;
         case 3: // 
-            gui->fSelectTubeModel[5].set_active(true);
+            //gui->fSelectTubeModel[5].set_active(true);
+            parameter_map["system.select_tube10"].set_std_value();
             break;
         case 4: // 
-            gui->fSelectTubeModel[2].set_active(true);
+            //gui->fSelectTubeModel[2].set_active(true);
+            parameter_map["system.select_tube3"].set_std_value();
             break;
         case 5: // 
-            gui->fSelectTubeModel[10].set_active(true);
+            //gui->fSelectTubeModel[10].set_active(true);
+            parameter_map["system.select_tube9"].set_std_value();
             break;
         case 6: // 
-            gui->fSelectTubeModel[11].set_active(true);
+            //gui->fSelectTubeModel[11].set_active(true);
+            parameter_map["system.select_tube11"].set_std_value();
             break;
         case 7: // 
-            gui->fSelectTubeModel[16].set_active(true);
+            //gui->fSelectTubeModel[16].set_active(true);
+            parameter_map["system.select_tube17"].set_std_value();
             break;
         case 8: // 
-            gui->fSelectTubeModel[12].set_active(true);
+            //gui->fSelectTubeModel[12].set_active(true);
+            parameter_map["system.select_tube13"].set_std_value();
             break;
         case 9: // 
-            gui->fSelectTubeModel[4].set_active(true);
+            //gui->fSelectTubeModel[4].set_active(true);
+            parameter_map["system.select_tube5"].set_std_value();
             break;
         case 10: // 
-            gui->fSelectTubeModel[3].set_active(true);
+            //gui->fSelectTubeModel[3].set_active(true);
+            parameter_map["system.select_tube4"].set_std_value();
             break;
         case 11: // 
-            gui->fSelectTubeModel[14].set_active(true);
+            //gui->fSelectTubeModel[14].set_active(true);
+            parameter_map["system.select_tube15"].set_std_value();
             break;
         case 12: // 
-            gui->fSelectTubeModel[6].set_active(true);
+            //gui->fSelectTubeModel[6].set_active(true);
+            parameter_map["system.select_tube12"].set_std_value();
             break;
         case 13: // 
-            gui->fSelectTubeModel[8].set_active(true);
+            //gui->fSelectTubeModel[8].set_active(true);
+            parameter_map["system.select_tube7"].set_std_value();
             break;
         case 14: // 
-            gui->fSelectTubeModel[9].set_active(true);
+            //gui->fSelectTubeModel[9].set_active(true);
+            parameter_map["system.select_tube8"].set_std_value();
             break;
         case 15: // 
-            gui->fSelectTubeModel[15].set_active(true);
+            //gui->fSelectTubeModel[15].set_active(true);
+            parameter_map["system.select_tube16"].set_std_value();
             break;
         case 16: // 
-            gui->fSelectTubeModel[7].set_active(true);
+            //gui->fSelectTubeModel[7].set_active(true);
+            parameter_map["system.select_tube6"].set_std_value();
             break;
     }
+    //fprintf(stderr, " %i run\n", gx_engine::audio.gxtube_select);
 }
 
 void set_accessible(GtkWidget *widget,GtkLabel *label) {

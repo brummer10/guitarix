@@ -94,10 +94,11 @@ int main(int argc, char *argv[]) {
 #ifndef NDEBUG
     gx_system::add_time_measurement();
 #endif
-    gx_jconv::gx_load_jcgui();
+
     // ----------------------- init GTK interface----------------------
     g_type_class_unref(g_type_class_ref(GTK_TYPE_IMAGE_MENU_ITEM));
-    g_object_set(gtk_settings_get_default(), "gtk-menu-images", FALSE, NULL);
+    g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
+    gx_jconv::gx_load_jcgui();
     gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
     gui->setup();
 
@@ -105,12 +106,13 @@ int main(int argc, char *argv[]) {
     gx_jack::_jackbuffer_ptr = 0;
     // ---------------------- initialize jack gxjack.client ------------------
     if (gx_jack::gxjack.gx_jack_init(optvar)) {
+        gx_jack::_jackbuffer_ptr = new gx_jack::JackBuffer;
         // -------- initialize gx_head engine --------------------------
         gx_engine::gx_engine_init(optvar);
 
         // -------- set jack callbacks and activation -------------------
-        gx_jack::gxjack.gx_jack_callbacks_and_activate();
-
+        gx_jack::gxjack.gx_jack_callbacks();
+        gx_jack::gxjack.gx_jack_activate();
         // -------- init port connections
         gx_jack::gxjack.gx_jack_init_port_connection(optvar);
     }
@@ -118,8 +120,6 @@ int main(int argc, char *argv[]) {
     // ----------------------- run GTK main loop ----------------------
     gx_system::gx_set_override_options(optvar);
     gx_ui::GxUI::updateAllGuis();
-    g_type_class_unref(g_type_class_ref(GTK_TYPE_IMAGE_MENU_ITEM));
-    g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
     gui->show();
 
     if (gx_jack::gxjack.client) {

@@ -101,7 +101,8 @@ class GxJack {
     int                 gx_jack_midi_input_process(jack_nframes_t, void* arg);
 
     void                gx_jack_init_port_connection(const string*);
-    void                gx_jack_callbacks_and_activate();
+    void                gx_jack_callbacks();
+    void                gx_jack_activate();
     void                gx_jack_cleanup();
 
     string              client_instance;

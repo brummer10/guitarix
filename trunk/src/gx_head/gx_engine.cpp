@@ -38,16 +38,19 @@ void gx_engine_init(const string *optvar ) {
     // ----- lock the buffer for the oscilloscope
     const int frag = (const int)gx_jack::gxjack.jack_bs;
     _modulpointer = new ModulPointer;
-
+    
     audio.get_frame  = new float[frag];
     audio.get_frame1  = new float[frag];
     audio.checkfreq  = new float[frag];
     audio.oversample = new float[frag*MAX_UPSAMPLE];
     audio.result = new float[frag+46];
     audio.gxtube = 1;
+    audio.gxtube_select = 1;
+    audio.amp_pos = 0;
     audio.cur_tonestack = 0;
     audio.tube_changed = true;
     for (int i = 0; i < 9; i++) audio.effect_buffer[i] = 0;
+    for (int i = 0; i < 30; i++) audio.posit[i] = 0;
     audio.rack_change = true;
 
     (void)memset(audio.get_frame,  0, frag*sizeof(float));
@@ -60,6 +63,7 @@ void gx_engine_init(const string *optvar ) {
     faust_init(gx_jack::gxjack.jack_sr);
     // resampTube.setup(gx_jack::jack_sr, 2);
     // resampDist.setup(gx_jack::jack_sr, 2);
+
     if (!optvar[LOAD_FILE].empty()) {
         gx_preset::gxpreset.gx_recall_settings_file(&optvar[LOAD_FILE]);
     } else {
@@ -67,6 +71,7 @@ void gx_engine_init(const string *optvar ) {
     }
     for (int i = 0; i < GX_NUM_OF_FACTORY_PRESET; i++)
         gx_preset::gxpreset.gx_load_factory_file(i);
+    audio.rack_change = order_rack(NULL);
     audio.initialized = true;
 }
 
@@ -78,6 +83,7 @@ void gx_engine_reset() {
     if (audio.oversample) delete[] audio.oversample;
     if (audio.result) delete[] audio.result;
     delete _modulpointer;
+    //delete gx_tubes::tubetab;
     audio.initialized = false;
 }
 

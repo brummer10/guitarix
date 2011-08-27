@@ -76,16 +76,20 @@ void compute(int count, float* input, float* output0) {
         audio.fwv_on = audio.fwv;
     }
 
-    // check for changes in the audio engine
-    if (audio.rack_change) {
-        audio.rack_change = gx_reorder_rack(NULL);
-    }
-
     // ------------ main processing routine
     switch (process_type) {
 
     //---------- run process
     case PROCESS_BUFFERS:
+        // check if amp is changed
+        if (audio.tube_changed) {
+            audio.tube_changed = gx_check_engine_state(NULL);
+        }
+        // check for changes in the audio engine
+        if (audio.rack_change) {
+            audio.rack_change = gx_reorder_rack(NULL);
+        }
+
         process_buffers(count, input, output0);
         break;
 
@@ -200,6 +204,9 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
     for (int m = 1; m < audio.stereo_active_counter+1; m++) {
         _modulpointer->stereo_rack_order_ptr[m](count, output0, output1, output0, output1);
     }
+    
+    (void)memcpy(audio.get_frame, output0, sizeof(float)*count);
+    (void)memcpy(audio.get_frame1, output1, sizeof(float)*count);
 }
 } // end namespace gx_engine
 

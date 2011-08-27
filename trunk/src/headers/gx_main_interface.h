@@ -57,7 +57,7 @@
 #include <gtkmm/checkmenuitem.h>
 #include <gtkmm/radiomenuitem.h>
 
-// #include <iostream>
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>

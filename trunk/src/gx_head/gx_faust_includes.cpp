@@ -155,7 +155,7 @@ namespace gx_amps {
 //  definitions for ffunction(float Ftube(int,float), "valve.h", "");
 //  in gx_amp.dsp - gx_ampmodul.dsp
 static float Ftube(int table, float Vgk) {
-    struct gx_tubes::tabled& tab = gx_tubes::tubetable[table];
+    struct gx_tubes::tabled& tab = gx_tubes::tubetab.tubetable[table];
     float f = (Vgk - tab.low) * tab.istep;
     int i = static_cast<int>(f);
     if (i < 0)
@@ -167,7 +167,7 @@ static float Ftube(int table, float Vgk) {
 }
 
 static float Ftube2(int table, float Vgk) {
-    struct gx_tubes::tabled& tab = gx_tubes::tubetable2[table];
+    struct gx_tubes::tabled& tab = gx_tubes::tubetab.tubetable2[table];
     float f = (Vgk - tab.low) * tab.istep;
     int i = static_cast<int>(f);
     if (i < 0)
@@ -179,7 +179,7 @@ static float Ftube2(int table, float Vgk) {
 }
 
 static float Ftube3(int table, float Vgk) {
-    struct gx_tubes::tabled& tab = gx_tubes::tubetable3[table];
+    struct gx_tubes::tabled& tab = gx_tubes::tubetab.tubetable3[table];
     float f = (Vgk - tab.low) * tab.istep;
     int i = static_cast<int>(f);
     if (i < 0)
@@ -191,7 +191,7 @@ static float Ftube3(int table, float Vgk) {
 }
 
 static float Ftube4(int table, float Vgk) {
-    struct gx_tubes::tabled& tab = gx_tubes::tubetable4[table];
+    struct gx_tubes::tabled& tab = gx_tubes::tubetab.tubetable4[table];
     float f = (Vgk - tab.low) * tab.istep;
     int i = static_cast<int>(f);
     if (i < 0)
@@ -215,7 +215,7 @@ static float Ftube4(int table, float Vgk) {
 } */
 
 static float Ftube6(int table, float Vgk) {
-    struct gx_tubes::tabled& tab = gx_tubes::tubetable6[table];
+    struct gx_tubes::tabled& tab = gx_tubes::tubetab.tubetable6[table];
     float f = (Vgk - tab.low) * tab.istep;
     int i = static_cast<int>(f);
     if (i < 0)

@@ -33,5 +33,7 @@ namespace gx_tubes {
 #include "12AT7.cc"
 #include "6V6.cc"
 #include "6DJ8.cc"
+
+TubeTables tubetab;
 }
 

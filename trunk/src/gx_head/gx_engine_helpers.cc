@@ -46,9 +46,9 @@ ModulPointer *_modulpointer = 0;
 /****************************************************************
  **  set the function pointer to the selected tonestack and tube/amp
  */
- 
+
 // seletc tonestack, only run when tonestack selection have changed
-static int gx_check_tonestack_state(gpointer) {
+static int gx_check_tonestack_state(gpointer arg) {
 
     switch (audio.tonestack) {
     case 0: // "default"
@@ -137,7 +137,7 @@ static int gx_check_tonestack_state(gpointer) {
 }
 
 // select amp, only run when tube/amp selection have changed
-static gboolean gx_check_engine_state(gpointer) {
+gboolean gx_check_engine_state(gpointer arg) {
 
     switch (audio.gxtube) {
     case 0: // "never"
@@ -198,6 +198,9 @@ static gboolean gx_check_engine_state(gpointer) {
         _modulpointer->amp_ptr = &gx_amps::gxamp::compute;
         break;
     }
+    audio.tube_changed = false;
+    _modulpointer->mono_rack_order_ptr[audio.amp_pos] = _modulpointer->amp_ptr;
+
     return false;
 }
 
@@ -256,6 +259,20 @@ inline float noise_gate(int sf, float* input, float ngate) {
     }
 }
 
+gboolean conv_error_message(gpointer data) {
+    gx_system::gx_print_error("Convolver", "overload");
+    return false;
+}
+
+gboolean cab_error_message(gpointer data) {
+    gx_system::gx_print_error("Convolver", "cabinet overload");
+    return false;
+}
+
+gboolean contrast_error_message(gpointer data) {
+    gx_system::gx_print_error("Convolver", "presence overload");
+    return false;
+}
 static void convolver(int count, float *input0, float *input1,
                       float *output0, float *output1) {
  if (conv.is_runnable()) {
@@ -264,8 +281,7 @@ static void convolver(int count, float *input0, float *input1,
         float *conv_out1 = audio.oversample+count;
         if (!conv.compute(count, output0, output1, conv_out0, conv_out1)) {
             gx_jconv::GxJConvSettings::checkbutton7 = 0;
-            cout << "overload" << endl;
-            //FIXME error message??
+            g_idle_add(conv_error_message, gpointer(NULL));
         } else {
             gx_effects::jconv_post::compute(count, output0, output1,
                                             conv_out0, conv_out1, output0, output1);
@@ -279,18 +295,21 @@ static void set_osc_buffer(int count, float *input0, float *output0) {
 }
 
 // wraper for the rack order function pointers
-inline void run_cab_conf(int count, float *input0, float *output0) {
+static void run_cab_conf(int count, float *input0, float *output0) {
     compensate_cab(count, output0, output0);
-    if (!cab_conv.compute(count, output0))
-        std::cout << "overload" << endl;
+    if (!cab_conv.compute(count, output0)) {
+        g_idle_add(cab_error_message, gpointer(NULL));
+        gx_engine::audio.cab_switched = -1;
+    }
 }
 
 // wraper for the presence function
-inline void run_contrast(int count, float *input0, float *output0) {
+static void run_contrast(int count, float *input0, float *output0) {
     compensate_con(count, output0, output0);
-    if (!contrast_conv.compute(count, output0))
-    std::cout << "overload contrast" << endl;
-    // FIXME error message??
+    if (!contrast_conv.compute(count, output0)) {
+        g_idle_add(contrast_error_message, gpointer(NULL));
+        gx_engine::audio.con_sum = -1;
+    }
 }
 
 // wraper for the noisgate function
@@ -305,11 +324,11 @@ static void run_gxfeed(int count, float *input0, float *input1,
 }
 
 // wraper to set bufer for the level meter
-static void set_level_meter_bufer(int count, float *input0, float *input1,
+/*static void set_level_meter_bufer(int count, float *input0, float *input1,
                                   float *output0, float *output1) {
     (void)memcpy(audio.get_frame, output0, sizeof(float)*count);
     (void)memcpy(audio.get_frame1, output1, sizeof(float)*count);
-}
+}*/
 
 /****************************************************************
  **  working thread to set the order in the all racks
@@ -455,6 +474,7 @@ static gboolean gx_reorder_rack(gpointer args) {
     }
 
     audio.mono_active_counter += 1;
+    audio.amp_pos = audio.mono_active_counter;
     _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] = _modulpointer->amp_ptr;
 
     // clipper
@@ -631,9 +651,14 @@ static gboolean gx_reorder_rack(gpointer args) {
     audio.stereo_active_counter += 1;
     _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &gx_effects::gx_outputlevel::compute;
 
-    audio.stereo_active_counter += 1;
-    _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &set_level_meter_bufer;
+    //audio.stereo_active_counter += 1;
+    //_modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &set_level_meter_bufer;
 
     return false;
 }
 
+gboolean order_rack(gpointer args) {
+    gx_check_engine_state(NULL);
+    gx_reorder_rack(NULL);
+    return false;
+}

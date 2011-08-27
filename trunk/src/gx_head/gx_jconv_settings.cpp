@@ -1096,7 +1096,7 @@ void IRWindow::on_gain_button_toggled() {
  */
 void gx_load_jcgui() {
     IRWindow::create(*gx_gui::GxMainInterface::instance());
-    IRWindow::reload();
+    //IRWindow::reload();
 }
 
 void gx_show_jconv_dialog_gui(_GtkWidget*, void*) {
