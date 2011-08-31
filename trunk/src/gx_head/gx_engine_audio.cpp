@@ -36,6 +36,7 @@
 namespace gx_engine {
 
 AudioVariables audio;
+ModulPointer *_modulpointer = 0;
 
 #include "gx_faust_includes.cpp"
 /****************************************************************
@@ -82,9 +83,9 @@ void compute(int count, float* input, float* output0) {
     //---------- run process
     case PROCESS_BUFFERS:
         // check if amp is changed
-        if (audio.tube_changed) {
-            audio.tube_changed = gx_check_engine_state(NULL);
-        }
+        //if (audio.tube_changed) {
+        //    audio.tube_changed = gx_check_engine_state(NULL);
+        //}
         // check for changes in the audio engine
         if (audio.rack_change) {
             audio.rack_change = gx_reorder_rack(NULL);
@@ -189,7 +190,7 @@ void process_buffers(int count, float* input, float* output0) {
     memcpy(output0, input, count*sizeof(float));
 
     // run mono rack
-    for (int m = 1; m < audio.mono_active_counter+1; m++) {
+    for (unsigned int m = 1; m < audio.mono_active_counter+1; m++) {
         _modulpointer->mono_rack_order_ptr[m](count, output0, output0);
     }
 }
@@ -201,7 +202,7 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
     memcpy(output0, input1, count*sizeof(float));
 
     // run stereo rack
-    for (int m = 1; m < audio.stereo_active_counter+1; m++) {
+    for (unsigned int m = 1; m < audio.stereo_active_counter+1; m++) {
         _modulpointer->stereo_rack_order_ptr[m](count, output0, output1, output0, output1);
     }
     

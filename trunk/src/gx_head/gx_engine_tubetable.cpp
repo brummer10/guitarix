@@ -23,10 +23,26 @@
  *
  * --------------------------------------------------------------------------
  */
- 
-#include "guitarix.h"
 
-namespace gx_tubes {
+#define TAB_SIZE (2001)
+
+class TubeTables {
+ private:
+    struct tabled {
+        float low;
+        float high;
+        float istep;
+        float data[TAB_SIZE];
+    };
+ public:
+    static struct tabled tubetable[];
+    static struct tabled tubetable2[];
+    static struct tabled tubetable3[];
+    static struct tabled tubetable4[];
+    static struct tabled tubetable6[];
+    TubeTables();
+    virtual ~TubeTables();
+};
 
 #include "12ax7.cc"
 #include "12AU7.cc"
@@ -34,6 +50,7 @@ namespace gx_tubes {
 #include "6V6.cc"
 #include "6DJ8.cc"
 
+TubeTables::~TubeTables() {}
+TubeTables::TubeTables() {}
 TubeTables tubetab;
-}
 

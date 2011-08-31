@@ -47,15 +47,14 @@ typedef enum {
     kMidiOn     = 1
 } GxMidiState;
 
-// define engine pointer typs
-typedef void (*chainorder)
-             (int count, float *output, float *output1);
-
-typedef void (*stereochainorder)
-             (int count, float* input, float* input1, float *output, float *output1);
-
-
 class ModulPointer {
+ private:
+    // define engine pointer typs
+    typedef void (*chainorder)
+                 (int count, float *output, float *output1);
+
+    typedef void (*stereochainorder)
+                 (int count, float* input, float* input1, float *output, float *output1);
  public:
     chainorder              mono_rack_order_ptr[60];
     chainorder              tonestack_ptr;
@@ -118,13 +117,16 @@ class AudioVariables {
     int   cab_switched;
     int   fsd;
     int   fse;
-    int   gxtube;
     int   gxtube_select;
-    int   amp_pos;
-    int   mono_plug_counter;
-    int   mono_active_counter;
-    int   stereo_plug_counter;
-    int   stereo_active_counter;
+
+    unsigned int   gxtube;
+    unsigned int   mono_plug_counter;
+    unsigned int   mono_active_counter;
+    unsigned int   stereo_plug_counter;
+    unsigned int   stereo_active_counter;
+    
+    unsigned int effect_pre_post[20];
+    unsigned int effect_buffer[9];
 
     float posit[30];
 
@@ -139,17 +141,12 @@ class AudioVariables {
     float filebutton;
     float fConsta1t;
     float midistat;
-    float fampexpand;
     float cab_level;
     float cab_bass;
     float cab_treble;
     float cab_sum;
     float con_level;
     float con_sum;
-
-    unsigned int effect_pre_post[20];
-    unsigned int effect_buffer[9];
-
 
     float* get_frame;
     float* get_frame1;
@@ -247,7 +244,7 @@ inline bool isInitialized()                {return audio.initialized;}
 inline void turnOffMidi()                  {audio.midistate = kMidiOff;}
 inline void turnOnMidi()                   {audio.midistate = kMidiOn;}
 
-inline void set_tube_model(int x)          {audio.gxtube = x;}
+inline void set_tube_model(unsigned int x)          {audio.gxtube = x;}
 inline void set_tube_model_sel(int x)      {audio.gxtube_select = x;}
 inline void set_cab_mode(float x)          {audio.cab_sum = x;}
 inline void set_mono_plug_counter(int x)   {audio.mono_plug_counter = x;}
@@ -260,7 +257,7 @@ inline void set_stereo_plug_counter(int x) {audio.stereo_plug_counter = x;}
 void gx_engine_init(const string *optvar);
 void gx_engine_reset();
 gboolean order_rack(gpointer args);
-gboolean gx_check_engine_state(gpointer arg);
+//gboolean gx_check_engine_state(gpointer arg);
 
 void compute_midi(int len);
 void compute_midi_in(void* midi_input_port_buf);

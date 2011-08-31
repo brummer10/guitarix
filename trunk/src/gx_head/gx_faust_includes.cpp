@@ -151,79 +151,64 @@ template <>      inline int faustpower<1>(int x)        {return x;}
  */
 
 namespace gx_amps {
+    
+#include "gx_engine_tubetable.cpp"
 
 //  definitions for ffunction(float Ftube(int,float), "valve.h", "");
 //  in gx_amp.dsp - gx_ampmodul.dsp
 static float Ftube(int table, float Vgk) {
-    struct gx_tubes::tabled& tab = gx_tubes::tubetab.tubetable[table];
-    float f = (Vgk - tab.low) * tab.istep;
+    float f = (Vgk - tubetab.tubetable[table].low) * tubetab.tubetable[table].istep;
     int i = static_cast<int>(f);
     if (i < 0)
-        return tab.data[0];
+        return tubetab.tubetable[table].data[0];
     if (i >= TAB_SIZE-1)
-        return tab.data[TAB_SIZE-1];
+        return tubetab.tubetable[table].data[TAB_SIZE-1];
     f -= i;
-    return tab.data[i]*(1-f) + tab.data[i+1]*f;
+    return tubetab.tubetable[table].data[i]*(1-f) + tubetab.tubetable[table].data[i+1]*f;
 }
 
 static float Ftube2(int table, float Vgk) {
-    struct gx_tubes::tabled& tab = gx_tubes::tubetab.tubetable2[table];
-    float f = (Vgk - tab.low) * tab.istep;
+    float f = (Vgk - tubetab.tubetable2[table].low) * tubetab.tubetable2[table].istep;
     int i = static_cast<int>(f);
     if (i < 0)
-        return tab.data[0];
+        return tubetab.tubetable2[table].data[0];
     if (i >= TAB_SIZE-1)
-        return tab.data[TAB_SIZE-1];
+        return tubetab.tubetable2[table].data[TAB_SIZE-1];
     f -= i;
-    return tab.data[i]*(1-f) + tab.data[i+1]*f;
+    return tubetab.tubetable2[table].data[i]*(1-f) + tubetab.tubetable2[table].data[i+1]*f;
 }
 
 static float Ftube3(int table, float Vgk) {
-    struct gx_tubes::tabled& tab = gx_tubes::tubetab.tubetable3[table];
-    float f = (Vgk - tab.low) * tab.istep;
+    float f = (Vgk - tubetab.tubetable3[table].low) * tubetab.tubetable3[table].istep;
     int i = static_cast<int>(f);
     if (i < 0)
-        return tab.data[0];
+        return tubetab.tubetable3[table].data[0];
     if (i >= TAB_SIZE-1)
-        return tab.data[TAB_SIZE-1];
+        return tubetab.tubetable3[table].data[TAB_SIZE-1];
     f -= i;
-    return tab.data[i]*(1-f) + tab.data[i+1]*f;
+    return tubetab.tubetable3[table].data[i]*(1-f) + tubetab.tubetable3[table].data[i+1]*f;
 }
 
 static float Ftube4(int table, float Vgk) {
-    struct gx_tubes::tabled& tab = gx_tubes::tubetab.tubetable4[table];
-    float f = (Vgk - tab.low) * tab.istep;
+    float f = (Vgk - tubetab.tubetable4[table].low) * tubetab.tubetable4[table].istep;
     int i = static_cast<int>(f);
     if (i < 0)
-        return tab.data[0];
+        return tubetab.tubetable4[table].data[0];
     if (i >= TAB_SIZE-1)
-        return tab.data[TAB_SIZE-1];
+        return tubetab.tubetable4[table].data[TAB_SIZE-1];
     f -= i;
-    return tab.data[i]*(1-f) + tab.data[i+1]*f;
+    return tubetab.tubetable4[table].data[i]*(1-f) + tubetab.tubetable4[table].data[i+1]*f;
 }
 
-/* static float Ftube5(int table, float Vgk) {
-    struct gx_tubes::tabled& tab = gx_tubes::tubetable5[table];
-    float f = (Vgk - tab.low) * tab.istep;
-    int i = static_cast<int>(f);
-    if (i < 0)
-        return tab.data[0];
-    if (i >= TAB_SIZE-1)
-        return tab.data[TAB_SIZE-1];
-    f -= i;
-    return tab.data[i]*(1-f) + tab.data[i+1]*f;
-} */
-
 static float Ftube6(int table, float Vgk) {
-    struct gx_tubes::tabled& tab = gx_tubes::tubetab.tubetable6[table];
-    float f = (Vgk - tab.low) * tab.istep;
+    float f = (Vgk - tubetab.tubetable6[table].low) * tubetab.tubetable6[table].istep;
     int i = static_cast<int>(f);
     if (i < 0)
-        return tab.data[0];
+        return tubetab.tubetable6[table].data[0];
     if (i >= TAB_SIZE-1)
-        return tab.data[TAB_SIZE-1];
+        return tubetab.tubetable6[table].data[TAB_SIZE-1];
     f -= i;
-    return tab.data[i]*(1-f) + tab.data[i+1]*f;
+    return tubetab.tubetable6[table].data[i]*(1-f) + tubetab.tubetable6[table].data[i+1]*f;
 }
 
 // gxdistortion

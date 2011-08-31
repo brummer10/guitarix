@@ -41,8 +41,6 @@ inline void just2_return(int count, float *input0, float *input1,
     return;
 }
 
-ModulPointer *_modulpointer = 0;
-
 /****************************************************************
  **  set the function pointer to the selected tonestack and tube/amp
  */
@@ -137,7 +135,7 @@ static int gx_check_tonestack_state(gpointer arg) {
 }
 
 // select amp, only run when tube/amp selection have changed
-gboolean gx_check_engine_state(gpointer arg) {
+static void gx_check_engine_state(gpointer arg) {
 
     switch (audio.gxtube) {
     case 0: // "never"
@@ -199,9 +197,9 @@ gboolean gx_check_engine_state(gpointer arg) {
         break;
     }
     audio.tube_changed = false;
-    _modulpointer->mono_rack_order_ptr[audio.amp_pos] = _modulpointer->amp_ptr;
+   // _modulpointer->mono_rack_order_ptr[audio.amp_pos] = _modulpointer->amp_ptr;
 
-    return false;
+    return;
 }
 
 /****************************************************************
@@ -336,11 +334,11 @@ static void run_gxfeed(int count, float *input0, float *input1,
 
 static gboolean gx_reorder_rack(gpointer args) {
 
-    for (int m = 0; m < (audio.mono_plug_counter*2) + 10; m++) {
+    for (unsigned int m = 0; m < (audio.mono_plug_counter*2) + 10; m++) {
         _modulpointer->mono_rack_order_ptr[m] = &just_return;
     }
 
-    for (int m = 0; m < audio.stereo_plug_counter + 4; m++) {
+    for (unsigned int m = 0; m < audio.stereo_plug_counter + 4; m++) {
         _modulpointer->stereo_rack_order_ptr[m] = &just2_return;
     }
 
@@ -352,7 +350,7 @@ static gboolean gx_reorder_rack(gpointer args) {
     
     // check if amp is changed
     if (audio.tube_changed) {
-        audio.tube_changed = gx_check_engine_state(NULL);
+        gx_check_engine_state(NULL);
     }
     
     // check if tonestack is changed
@@ -364,13 +362,13 @@ static gboolean gx_reorder_rack(gpointer args) {
     int tuner_on = gx_gui::guivar.shownote + static_cast<int>(isMidiOn()) + 1;
 
     if (tuner_on > 0) {
-        audio.mono_active_counter += 1;
+        audio.mono_active_counter++;
         _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] = &run_tuner;
     }
 
     // set noisgate var
     if (audio.fnoise_g) {
-        audio.mono_active_counter += 1;
+        audio.mono_active_counter++;
         _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] = &set_noisegate_level;
     } else {
         gx_effects::noisegate::ngate = 1;
@@ -378,280 +376,280 @@ static gboolean gx_reorder_rack(gpointer args) {
 
     // run noisesharper
     if (audio.fng) {
-        audio.mono_active_counter += 1;
+        audio.mono_active_counter++;
         _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                           &gx_effects::noise_shaper::compute;
     }
 
     // set order and activate pointer for the pre mono rack
-    for (int m = 1; m < audio.mono_plug_counter; m++) {
+    for (unsigned int m = 1; m < audio.mono_plug_counter; m++) {
         if (audio.posit[0] == m && audio.fcheckbox5 && !audio.fautowah
                               && audio.effect_pre_post[1]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::crybaby::compute;
         } else if (audio.posit[0] == m && audio.fcheckbox5 && audio.fautowah
                                      && audio.effect_pre_post[1]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::autowah::compute;
         } else if (audio.posit[5] == m && audio.fcheckboxcom1 && audio.effect_pre_post[0]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::compressor::compute;
         } else if (audio.posit[1] == m && audio.foverdrive4 && audio.effect_pre_post[2]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::overdrive::compute;
         } else if (audio.posit[2] == m && audio.fcheckbox4 && audio.effect_pre_post[3]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::gx_distortion::compute;
         } else if (audio.posit[3] == m && audio.fcheckbox6 && audio.effect_pre_post[4]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::freeverb::compute;
         } else if (audio.posit[6] == m && audio.fcheckbox7 && gx_effects::echo::is_inited()
                                      && audio.effect_pre_post[6]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             audio.effect_buffer[0] = audio.mono_active_counter;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::echo::compute;
         } else if (audio.posit[4] == m && audio.fcheckbox8 && audio.effect_pre_post[5]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::impulseresponse::compute;
         } else if (audio.posit[7] == m && audio.fdelay && gx_effects::delay::is_inited()
                                      && audio.effect_pre_post[7]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             audio.effect_buffer[1] = audio.mono_active_counter;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::delay::compute;
         } else if (audio.posit[10] == m && audio.feq && audio.effect_pre_post[8]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::selecteq::compute;
         } else if (audio.posit[14] == m && audio.flh && audio.effect_pre_post[9]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::low_high_pass::compute;
         } else if (audio.posit[17] == m && audio.fwv && audio.effect_pre_post[10]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] = &set_osc_buffer;
         } else if (audio.posit[18] == m && audio.fbiquad && audio.effect_pre_post[11]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::biquad::compute;
         } else if (audio.posit[21] == m && audio.ftremolo && audio.effect_pre_post[12]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::tremolo::compute;
         } else if (audio.posit[22] == m && audio.fpm && audio.effect_pre_post[13]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::phaser_mono::compute;
         } else if (audio.posit[23] == m && audio.fchorus_mono && audio.effect_pre_post[14]
                                       && gx_effects::chorus_mono::is_inited()) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             audio.effect_buffer[2] = audio.mono_active_counter;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::chorus_mono::compute;
         } else if (audio.posit[24] == m && audio.fflanger_mono && audio.effect_pre_post[15]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::flanger_mono::compute;
         } else if (audio.posit[25] == m && audio.ffeedback && audio.effect_pre_post[16]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                               &gx_effects::gx_feedback::compute;
         } else if (audio.posit[26] == m && audio.ftonestack && audio.effect_pre_post[17]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] = _modulpointer->tonestack_ptr;
         } else if (audio.posit[27] == m && audio.fcab && audio.effect_pre_post[18]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] = &run_cab_conf;
         }
     }
 
-    audio.mono_active_counter += 1;
-    audio.amp_pos = audio.mono_active_counter;
+    audio.mono_active_counter++;
+    //audio.amp_pos = audio.mono_active_counter;
     _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] = _modulpointer->amp_ptr;
 
     // clipper
     if (audio.ftube) {
-        audio.mono_active_counter += 1;
+        audio.mono_active_counter++;
         _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                            &gx_effects::softclip::compute;
     }
 
     // set order and activate pointer for the post mono rack
-    for (int m = 1; m < audio.mono_plug_counter; m++) {
+    for (unsigned int m = 1; m < audio.mono_plug_counter; m++) {
         if (audio.posit[0] == m && audio.fcheckbox5 && !audio.fautowah
                               && !audio.effect_pre_post[1]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::crybaby::compute;
         } else if (audio.posit[0] == m && audio.fcheckbox5 && audio.fautowah
                                      && !audio.effect_pre_post[1]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::autowah::compute;
         } else if (audio.posit[5] == m && audio.fcheckboxcom1 && !audio.effect_pre_post[0]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::compressor::compute;
         } else if (audio.posit[1] == m && audio.foverdrive4 && !audio.effect_pre_post[2]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::overdrive::compute;
         } else if (audio.posit[2] == m && audio.fcheckbox4 && !audio.effect_pre_post[3]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::gx_distortion::compute;
         } else if (audio.posit[3] == m && audio.fcheckbox6 && !audio.effect_pre_post[4]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::freeverb::compute;
         } else if (audio.posit[6] == m && audio.fcheckbox7 && gx_effects::echo::is_inited()
                                      && !audio.effect_pre_post[6]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             audio.effect_buffer[3] = audio.mono_active_counter;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::echo::compute;
         } else if (audio.posit[4] == m && audio.fcheckbox8 && !audio.effect_pre_post[5]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::impulseresponse::compute;
         } else if (audio.posit[7] == m && audio.fdelay && gx_effects::delay::is_inited()
                                      && !audio.effect_pre_post[7]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             audio.effect_buffer[4] = audio.mono_active_counter;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::delay::compute;
         } else if (audio.posit[10] == m && audio.feq && !audio.effect_pre_post[8]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::selecteq::compute;
         } else if (audio.posit[14] == m && audio.flh && !audio.effect_pre_post[9]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::low_high_pass::compute;
         } else if (audio.posit[17] == m && audio.fwv && !audio.effect_pre_post[10]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] = &set_osc_buffer;
         } else if (audio.posit[18] == m && audio.fbiquad && !audio.effect_pre_post[11]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::biquad::compute;
         } else if (audio.posit[21] == m && audio.ftremolo && !audio.effect_pre_post[12]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::tremolo::compute;
         } else if (audio.posit[22] == m && audio.fpm && !audio.effect_pre_post[13]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::phaser_mono::compute;
         } else if (audio.posit[23] == m && audio.fchorus_mono && !audio.effect_pre_post[14]
                                       && gx_effects::chorus_mono::is_inited()) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             audio.effect_buffer[5] = audio.mono_active_counter;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::chorus_mono::compute;
         } else if (audio.posit[24] == m && audio.fflanger_mono && !audio.effect_pre_post[15]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::flanger_mono::compute;
         } else if (audio.posit[25] == m && audio.ffeedback && !audio.effect_pre_post[16]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                                &gx_effects::gx_feedback::compute;
         } else if (audio.posit[26] == m && audio.ftonestack && !audio.effect_pre_post[17]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] = _modulpointer->tonestack_ptr;
         } else if (audio.posit[27] == m && audio.fcab && !audio.effect_pre_post[18]) {
-            audio.mono_active_counter += 1;
+            audio.mono_active_counter++;
             _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] = &run_cab_conf;
         }
     }
 
     // bass boster
     if (audio.fboost) {
-        audio.mono_active_counter += 1;
+        audio.mono_active_counter++;
         _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                            &gx_effects::bassbooster::compute;
     }
 
     // mono output level
     if (audio.fampout) {
-        audio.mono_active_counter += 1;
+        audio.mono_active_counter++;
         _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                            &gx_effects::gx_ampout::compute;
     }
 
     // run noisegate
     if (audio.fnoise_g) {
-        audio.mono_active_counter += 1;
+        audio.mono_active_counter++;
         _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] =
                            &gx_effects::noisegate::compute;
     }
 
     // presence
     if (audio.fcon) {
-        audio.mono_active_counter += 1;
+        audio.mono_active_counter++;
         _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] = &run_contrast;
     }
 
     // split mono input to stereo source
-    audio.stereo_active_counter += 1;
+    audio.stereo_active_counter++;
     _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &run_gxfeed;
 
     // set order and activate pointer for the stereo rack
-    for (int m = 1; m < audio.stereo_plug_counter; m++) {
+    for (unsigned int m = 1; m < audio.stereo_plug_counter; m++) {
         if (audio.posit[8] == m && audio.fchorus && gx_effects::chorus::is_inited()) {
-            audio.stereo_active_counter += 1;
+            audio.stereo_active_counter++;
             audio.effect_buffer[6] = audio.stereo_active_counter;
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] =
                                  &gx_effects::chorus::compute;
         } else if (audio.posit[9] == m && audio.fflanger) {
-            audio.stereo_active_counter += 1;
+            audio.stereo_active_counter++;
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] =
                                  &gx_effects::flanger::compute;
         } else if (audio.posit[11] == m && audio.fmoog) {
-            audio.stereo_active_counter += 1;
+            audio.stereo_active_counter++;
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] =
                                  &gx_effects::moog::compute;
         } else if (audio.posit[12] == m && audio.fphaser) {
-            audio.stereo_active_counter += 1;
+            audio.stereo_active_counter++;
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] =
                                  &gx_effects::phaser::compute;
         } else if (audio.posit[15] == m && audio.fsd && gx_effects::stereodelay::is_inited()) {
-            audio.stereo_active_counter += 1;
+            audio.stereo_active_counter++;
             audio.effect_buffer[7] = audio.stereo_active_counter;
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] =
                                  &gx_effects::stereodelay::compute;
         } else if (audio.posit[16] == m && audio.fse && gx_effects::stereoecho::is_inited()) {
-            audio.stereo_active_counter += 1;
+            audio.stereo_active_counter++;
             audio.effect_buffer[8] = audio.stereo_active_counter;
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] =
                                  &gx_effects::stereoecho::compute;
         } else if (audio.posit[19] == m && audio.famp) {
-            audio.stereo_active_counter += 1;
+            audio.stereo_active_counter++;
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] =
                                  &gx_amps::gx_ampmodul::compute;
         } else if (audio.posit[20] == m && audio.ftone) {
-            audio.stereo_active_counter += 1;
+            audio.stereo_active_counter++;
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] =
                                  &gx_effects::tonecontroll::compute;
         }else if (audio.posit[28] == m && conv.is_runnable()) {
-            audio.stereo_active_counter += 1;
+            audio.stereo_active_counter++;
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &convolver;
         }
     }
 
-    audio.stereo_active_counter += 1;
+    audio.stereo_active_counter++;
     _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &gx_effects::gx_outputlevel::compute;
 
-    //audio.stereo_active_counter += 1;
+    //audio.stereo_active_counter++;
     //_modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &set_level_meter_bufer;
 
     return false;
