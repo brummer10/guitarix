@@ -1068,6 +1068,10 @@ void IRWindow::on_window_hide() {
 }
 
 void IRWindow::on_cancel_button_clicked() {
+    GxJConvSettings& jcset = *GxJConvSettings::instance();
+    string amp = jcset.getIRFile();
+    if (GTK_IS_LABEL(gx_gui::gw.set_label))
+        gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
     hide();
 }
 
@@ -1075,6 +1079,10 @@ void IRWindow::on_ok_button_clicked() {
     if (save_state()) {
         gx_convolver_restart();
     }
+    GxJConvSettings& jcset = *GxJConvSettings::instance();
+    string amp = jcset.getIRFile();
+    if (GTK_IS_LABEL(gx_gui::gw.set_label))
+        gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
     hide();
 }
 
