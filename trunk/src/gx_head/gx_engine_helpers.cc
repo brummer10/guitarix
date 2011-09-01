@@ -262,6 +262,12 @@ gboolean conv_error_message(gpointer data) {
     return false;
 }
 
+gboolean conv_run_message(gpointer data) {
+    gx_system::gx_print_warning("Convolver", "not_ready, try to restart");
+    gx_gui::conv_restart();
+    return false;
+}
+
 gboolean cab_error_message(gpointer data) {
     gx_system::gx_print_error("Convolver", "cabinet overload");
     return false;
@@ -271,6 +277,7 @@ gboolean contrast_error_message(gpointer data) {
     gx_system::gx_print_error("Convolver", "presence overload");
     return false;
 }
+
 static void convolver(int count, float *input0, float *input1,
                       float *output0, float *output1) {
  if (conv.is_runnable()) {
@@ -283,7 +290,9 @@ static void convolver(int count, float *input0, float *input1,
         } else {
             gx_effects::jconv_post::compute(count, output0, output1,
                                             conv_out0, conv_out1, output0, output1);
-        }
+        } 
+    } else {
+        g_idle_add(conv_run_message, gpointer(NULL));
     }
 }
 
