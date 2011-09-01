@@ -271,6 +271,13 @@ gboolean contrast_error_message(gpointer data) {
     gx_system::gx_print_error("Convolver", "presence overload");
     return false;
 }
+
+gboolean conv_try_restart(gpointer data) {
+    //gx_system::gx_print_warning("Convolver", "restart");
+    gx_gui::conv_restart();
+    return false;
+}
+
 static void convolver(int count, float *input0, float *input1,
                       float *output0, float *output1) {
  if (conv.is_runnable()) {
@@ -283,6 +290,11 @@ static void convolver(int count, float *input0, float *input1,
         } else {
             gx_effects::jconv_post::compute(count, output0, output1,
                                             conv_out0, conv_out1, output0, output1);
+        }
+    } else if (gx_jconv::GxJConvSettings::checkbutton7) {
+         if (gx_gui::guivar.g_threads[10] == 0 || g_main_context_find_source_by_id(NULL,
+             gx_gui::guivar.g_threads[10]) == NULL) {
+            gx_gui::guivar.g_threads[10] = g_idle_add(conv_try_restart, gpointer(NULL));
         }
     }
 }
@@ -640,7 +652,7 @@ static gboolean gx_reorder_rack(gpointer args) {
             audio.stereo_active_counter++;
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] =
                                  &gx_effects::tonecontroll::compute;
-        }else if (audio.posit[28] == m && gx_jconv::GxJConvSettings::checkbutton7) {
+        } else if (audio.posit[28] == m && gx_jconv::GxJConvSettings::checkbutton7) {
             audio.stereo_active_counter++;
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &convolver;
         }

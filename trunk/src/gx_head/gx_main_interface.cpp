@@ -1450,6 +1450,7 @@ static bool conv_start() {
 
 void conv_restart() {
     gx_engine::conv.stop();
+    while (gx_engine::conv.is_runnable()) gx_engine::conv.checkstate();
     conv_start();
 }
 

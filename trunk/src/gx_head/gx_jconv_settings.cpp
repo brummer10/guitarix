@@ -763,9 +763,9 @@ static void set_favorite_from_menu(GtkMenuItem *menuitem, gpointer data) {
         GxJConvSettings::checkbutton7 = 1;
         return;
     }
-    if(IRWindow::get_window()->save()) {
+    //if(IRWindow::get_window()->save()) {
         gx_convolver_restart();
-    }
+    //}
 }
 
 // this is the callback used by the jconv settings widget, 
@@ -780,9 +780,9 @@ static void set_favorite_from_menu_in(GtkMenuItem *menuitem, gpointer data) {
         GxJConvSettings::checkbutton7 = 1;
         return;
     }
-    if(IRWindow::get_window()->save()) {
+    //if(IRWindow::get_window()->save()) {
         gx_convolver_restart();
-    }
+    //}
 }
 
 // create and present the favourite menu list 
