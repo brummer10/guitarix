@@ -272,15 +272,9 @@ gboolean contrast_error_message(gpointer data) {
     return false;
 }
 
-gboolean conv_try_restart(gpointer data) {
-    //gx_system::gx_print_warning("Convolver", "restart");
-    gx_gui::conv_restart();
-    return false;
-}
-
 static void convolver(int count, float *input0, float *input1,
                       float *output0, float *output1) {
- if (conv.is_runnable()) {
+    if (conv.is_runnable()) {
         // reuse oversampling buffer
         float *conv_out0 = audio.oversample;
         float *conv_out1 = audio.oversample+count;
@@ -290,11 +284,6 @@ static void convolver(int count, float *input0, float *input1,
         } else {
             gx_effects::jconv_post::compute(count, output0, output1,
                                             conv_out0, conv_out1, output0, output1);
-        }
-    } else if (gx_jconv::GxJConvSettings::checkbutton7) {
-         if (gx_gui::guivar.g_threads[10] == 0 || g_main_context_find_source_by_id(NULL,
-             gx_gui::guivar.g_threads[10]) == NULL) {
-            gx_gui::guivar.g_threads[10] = g_idle_add(conv_try_restart, gpointer(NULL));
         }
     }
 }

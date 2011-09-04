@@ -986,7 +986,7 @@ void IRWindow::on_open() {
     if (!filename.empty()) {
         d.set_filename(filename);
     } else {
-        d.set_current_folder("/home/ad/Desktop/amp");
+        d.set_current_folder(string(getenv("HOME")) + string("/"));
     }
     if (d.run() != Gtk::RESPONSE_OK) {
         return;
