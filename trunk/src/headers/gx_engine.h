@@ -106,6 +106,7 @@ class AudioVariables {
     bool  rack_change;
     bool  tube_changed;
 
+    int   preset_load;
     int   fcheckbox7;
     int   fdelay;
     int   fchorus;

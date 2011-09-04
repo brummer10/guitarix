@@ -48,8 +48,8 @@ void gx_engine_init(const string *optvar ) {
     //audio.amp_pos = 0;
     audio.cur_tonestack = 0;
     audio.tube_changed = true;
+    audio.preset_load = true;
     for (int i = 0; i < 9; i++) audio.effect_buffer[i] = 0;
-    //for (int i = 0; i < 30; i++) audio.posit[i] = 0;
     audio.rack_change = true;
 
     (void)memset(audio.get_frame,  0, frag*sizeof(float));

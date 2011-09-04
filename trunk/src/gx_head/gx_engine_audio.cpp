@@ -193,6 +193,10 @@ void process_buffers(int count, float* input, float* output0) {
     for (unsigned int m = 1; m < audio.mono_active_counter+1; m++) {
         _modulpointer->mono_rack_order_ptr[m](count, output0, output0);
     }
+    if (audio.preset_load) {
+        audio.preset_load--;
+        (void)memset(output0, 0, count*sizeof(float));
+    }
 }
 
 // gx_head_fx engine
@@ -208,6 +212,11 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
     
     (void)memcpy(audio.get_frame, output0, sizeof(float)*count);
     (void)memcpy(audio.get_frame1, output1, sizeof(float)*count);
+    if (audio.preset_load) {
+        audio.preset_load--;
+        (void)memset(output0, 0, count*sizeof(float));
+        (void)memset(output1, 0, count*sizeof(float));
+    }
 }
 } // end namespace gx_engine
 
