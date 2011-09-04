@@ -43,14 +43,14 @@ process = hgroup("amp2", hgroup("stage1", stage1) :
           hgroup("stage2", stage2)  
           ) with {
        
-    preamp =  (vslider(".amp2.stage1.Pregain[alias]",0,-20,20,0.1):db2linear : smoothi(0.999));     
+    preamp =  vslider(".amp2.stage1.Pregain[alias]",0,-20,20,0.1) : smoothi(0.999) : db2linear;     
     stage1 = speakerbp(310.0, 12000.0) :
      *(preamp):*(2.0): (tubestage(0,86.0,2700.0) : + ~ tubestage(1,132.0,1500.0)):
     lowpass1(6531.0) : (tubestage(1,132.0,1500.0) : + ~ tubestage(1,194.0,820.0)) : tubestage(1,194.0,820.0) ; 
     stage2 = lowpass1(6531.0) : *(gain1)  <: ((min(0.7,tubestage2(1,6531.0,410.0))),(max(-0.75,tubestage2(0,6531.0,410.0)))) :> 
     notch1 : notch2 : notch3
     with {
-    gain1 = vslider(".amp2.stage2.gain1[alias]", 6, -20.0, 20.0, 0.1) : db2linear : smoothi(0.999);
+    gain1 = vslider(".amp2.stage2.gain1[alias]", 6, -20.0, 20.0, 0.1) : smoothi(0.999) : db2linear;
     } ;
 };
 

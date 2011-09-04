@@ -266,8 +266,8 @@ void init(int samplingFreq)
 
 void compute(int count, float *input0, float *output0)
 {
-	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
-	double 	fSlow1 = (0.0010000000000000009 * pow(10,(0.05 * fslider1)));
+	double 	fSlow0 = (0.0010000000000000009 * fslider0);
+	double 	fSlow1 = (0.0010000000000000009 * fslider1);
 	double 	fSlow2 = fslider2;
 	double 	fSlow3 = (1.000000000000001e-05 * fSlow2);
 	double 	fSlow4 = fslider3;
@@ -349,7 +349,7 @@ void compute(int count, float *input0, float *output0)
 		fRec37[0] = Ftube(1, (fRec38[0] + fRec9[1]));
 		fRec36[0] = ((fConst60 * ((fConst35 * fRec37[1]) + (fConst0 * fRec37[0]))) + (fConst2 * fRec36[1]));
 		fRec9[0] = (fRec36[0] - fRec10[0]);
-		double fTemp28 = (fRec9[0] * fRec8[0]);
+		double fTemp28 = (fRec9[0] * pow(10,(0.05 * fRec8[0])));
 		fVec7[0] = fTemp28;
 		fRec7[0] = ((fConst65 * (fVec7[0] + fVec7[1])) + (fConst5 * fRec7[1]));
 		double fTemp29 = (fRec6[1] - 2.5e+02);
@@ -369,7 +369,7 @@ void compute(int count, float *input0, float *output0)
 		fRec43[0] = ((fConst69 * (fVec10[0] + fVec10[1])) + (fConst68 * fRec43[1]));
 		fRec2[0] = Ftube(1, (fRec43[0] + fRec3[0]));
 		fRec1[0] = ((fConst60 * ((fConst35 * fRec2[1]) + (fConst0 * fRec2[0]))) + (fConst2 * fRec1[1]));
-		output0[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
+		output0[i] = (FAUSTFLOAT)(fRec1[0] * pow(10,(0.05 * fRec0[0])));
 		// post processing
 		fRec1[1] = fRec1[0];
 		fRec2[1] = fRec2[0];
