@@ -48,8 +48,7 @@ void gx_engine_init(const string *optvar ) {
     //audio.amp_pos = 0;
     audio.cur_tonestack = 0;
     audio.tube_changed = true;
-    audio.preset_load = true;
-    for (int i = 0; i < 9; i++) audio.effect_buffer[i] = 0;
+    //for (int i = 0; i < 9; i++) audio.effect_buffer[i] = 0;
     audio.rack_change = true;
 
     (void)memset(audio.get_frame,  0, frag*sizeof(float));
@@ -163,6 +162,7 @@ void AudioVariables::register_parameter() {
     gx_gui::registerParam("flanger_mono.on_off",   on_off, &fflanger_mono, 0);
     gx_gui::registerParam("feedback.on_off",       on_off, &ffeedback, 0);
     gx_gui::registerParam("amp.tonestack.on_off",  on_off, &ftonestack, 0);
+    gx_gui::registerParam("stereoverb.on_off",on_off, &ffreevst, 0);
 
     gx_gui::registerParam("noise_gate.threshold", "Threshold", &fnglevel,
                           0.017f, 0.01f, 0.31f, 0.001f);
@@ -246,6 +246,7 @@ void AudioVariables::register_parameter() {
     registerNonMidiParam("amp.tonestack.position",   &posit[26], true, 18, 1, 29);
     registerNonMidiParam("cab.position",             &posit[27], true, 19, 1, 29);
     registerNonMidiParam("jconv.position",           &posit[28], true, 9, 1, 19);
+    registerNonMidiParam("stereoverb.position",      &posit[29], true, 10, 1, 19);
 
     registerNonMidiParam("system.waveview",          &viv, false);
     registerNonMidiParam("midi_out.midistat",        &midistat, false);

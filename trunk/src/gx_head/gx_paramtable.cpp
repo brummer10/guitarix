@@ -505,6 +505,7 @@ ParameterGroups::ParameterGroups() {
     insert("con", N_("Contrast convolver"));
     insert("feedback", N_("Feedback"));
     insert("bassbooster", N_("Bassbooster"));
+    insert("stereoverb", N_("Stereo Verb"));
 }
 
 string param_group(string id, bool nowarn) {

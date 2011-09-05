@@ -105,8 +105,8 @@ class AudioVariables {
     bool  ftonestack;
     bool  rack_change;
     bool  tube_changed;
+    bool  ffreevst;
 
-    int   preset_load;
     int   fcheckbox7;
     int   fdelay;
     int   fchorus;

@@ -188,10 +188,7 @@ void process_buffers(int count, float* input, float* output0) {
 
     // move working buffer to the output buffer
     memcpy(output0, input, count*sizeof(float));
-    if (audio.preset_load) {
-        audio.preset_load--;
-        (void)memset(output0, 0, count*sizeof(float));
-    }
+
     // run mono rack
     for (unsigned int m = 1; m < audio.mono_active_counter+1; m++) {
         _modulpointer->mono_rack_order_ptr[m](count, output0, output0);

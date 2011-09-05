@@ -662,7 +662,6 @@ void GxPreset::gx_load_preset(GtkMenuItem *menuitem, gpointer load_preset) {
     // print out info
     gx_print_info(_("Preset Loading"), string(_("loaded preset ")) + preset_name);
     gxpreset.setting_is_preset = true;
-    gx_engine::audio.preset_load = 12000/gx_jack::gxjack.jack_bs;
     gxpreset.setting_is_factory = false;
 
     gxpreset.gx_current_preset = preset_name;
@@ -788,7 +787,6 @@ static void gx_load_factory_preset(GtkMenuItem *menuitem, gpointer load_preset) 
     gx_print_info(_("Preset Loading"), string(_("loaded preset ")) + preset_name);
 
     gxpreset.gx_factory_preset = preset_name;
-    gx_engine::audio.preset_load = 12000/gx_jack::gxjack.jack_bs;
     gxpreset.setting_is_factory = true;
     gx_jconv::gx_reload_jcgui();
 

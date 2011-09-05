@@ -117,6 +117,7 @@ void GuiVariables::register_gui_parameter() {
     registerNonMidiParam("amp.tonestack.dialog",   &dialogbox[28], false);
     registerNonMidiParam("cab.dialog",             &dialogbox[29], false);
     registerNonMidiParam("jconv.dialog",           &dialogbox[30], false);
+    registerNonMidiParam("stereoverb.dialog",      &dialogbox[31], false);
     
     
     showwave = 0;

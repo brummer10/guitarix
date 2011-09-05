@@ -293,6 +293,7 @@ CabParams::CabParams() {
 #include "faust/flanger_mono.cc"
 #include "cabinet_impulse_former.cc"
 #include "faust/presence_level.cc"
+#include "faust/stereoverb.cc"
 }
 
 // init cabinet impulse former to 48000 Hz, the buffer will resampled

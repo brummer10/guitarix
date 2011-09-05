@@ -591,6 +591,51 @@ void GxMainInterface::gx_build_stereo_rack() {
             closeBox();
         }
         closeBox();
+        //stereoverb
+        openHorizontalRestetBox(_("stereoverb"), &gx_engine::audio.posit[29]);
+        {
+            openVerticalBox(_("freeverb"));
+            {
+                openHorizontalTableBox("");
+                {
+                    openPaintBox1("");
+                    {
+                        openHorizontalBox("");
+                        {
+                            openSpaceBox("");
+                            closeBox();
+                            openFrameBox("");
+                            closeBox();
+                            create_switch_no_caption(sw_switchit, "stereoverb.on_off");
+                            openSpaceBox("");
+                            closeBox();
+                            openFrameBox("");
+                            closeBox();
+                        }
+                        closeBox();
+                    }
+                    closeBox();
+                    opensDialogBox("stereoverb.dialog", "stereoverb.on_off", "RackBox_expose");
+                    {
+                        openVerticalBox("");
+                        {
+                            openHorizontalBox("");
+                            {
+                                create_small_rackknobr("stereoverb.RoomSize", _("RoomSize"));
+                                create_small_rackknob("stereoverb.damp", _("damp"));
+                                create_small_rackknob("stereoverb.wet_dry", _("wet/dry"));
+                            }
+                            closeBox();
+                        }
+                        closeBox();
+                    }
+                    closeBox();
+                }
+                closeBox();
+            }
+            closeBox();
+        }
+        closeBox();
         
         openHorizontalhideBox1("");
         {

@@ -644,6 +644,10 @@ static gboolean gx_reorder_rack(gpointer args) {
         } else if (audio.posit[28] == m && gx_jconv::GxJConvSettings::checkbutton7) {
             audio.stereo_active_counter++;
             _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] = &convolver;
+        } else if (audio.posit[29] == m && audio.ffreevst) {
+            audio.stereo_active_counter++;
+            _modulpointer->stereo_rack_order_ptr[audio.stereo_active_counter] =
+                                 &gx_effects::stereoverb::compute;
         }
     }
 
