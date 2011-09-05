@@ -623,7 +623,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                             {
                                 create_small_rackknobr("stereoverb.RoomSize", _("RoomSize"));
                                 create_small_rackknob("stereoverb.damp", _("damp"));
-                                create_small_rackknob("stereoverb.wet_dry", _("wet/dry"));
+                                create_small_rackknob("stereoverb.wet_dry", _("dry/wet"));
                             }
                             closeBox();
                         }
