@@ -149,8 +149,7 @@ class AudioVariables {
     float con_level;
     float con_sum;
 
-    float* get_frame;
-    float* get_frame1;
+    float maxlevel[2];
     float* checkfreq;
     float* oversample;
     float* result;
