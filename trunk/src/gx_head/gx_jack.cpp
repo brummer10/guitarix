@@ -652,16 +652,8 @@ int GxJack::gx_jack_buffersize_callback(jack_nframes_t nframes, void* arg) {
 
 
     if (gx_engine::audio.checkfreq)   delete[] gx_engine::audio.checkfreq;
-    if (gx_engine::audio.get_frame)   delete[] gx_engine::audio.get_frame;
-    if (gx_engine::audio.get_frame1)  delete[] gx_engine::audio.get_frame1;
     if (gx_engine::audio.oversample)  delete[] gx_engine::audio.oversample;
     if (gx_engine::audio.result)      delete[] gx_engine::audio.result;
-
-    gx_engine::audio.get_frame = new float[gxjack.jack_bs];
-    (void)memset(gx_engine::audio.get_frame, 0, sizeof(float)*gxjack.jack_bs);
-
-    gx_engine::audio.get_frame1 = new float[gxjack.jack_bs];
-    (void)memset(gx_engine::audio.get_frame1, 0, sizeof(float)*gxjack.jack_bs);
 
     gx_engine::audio.checkfreq = new float[gxjack.jack_bs];
     (void)memset(gx_engine::audio.checkfreq, 0, sizeof(float)*gxjack.jack_bs);

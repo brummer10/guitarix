@@ -55,6 +55,24 @@ inline bool feed_tuner(int count, float* input) {
     return false;
 }
 
+inline void zero_maxlevel() {
+    (void)memset(audio.maxlevel, 0, sizeof(audio.maxlevel));
+}
+
+inline void set_maxlevel(int count, float *input1, float *input2) {
+    const float *data[2] = {input1, input2};
+    for (int c = 0; c < 2; c++) {
+        float level = 0;
+        for (int i = 0; i < count; i++) {
+            float t = abs(data[c][i]);
+            if (level < t) {
+                level = t;
+            }
+        }
+        audio.maxlevel[c] = max(audio.maxlevel[c], level);
+    }
+}
+
 /****************************************************************
  **  this is the process callback called from jack
  **
@@ -175,9 +193,7 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
 
         // mono to stereo splitter
         gx_effects::balance1::compute(count, input1, output0, output1);
-        // copy buffer for the levelmeters
-        (void)memcpy(audio.get_frame, output0, sizeof(float)*count);
-        (void)memcpy(audio.get_frame1, output1, sizeof(float)*count);
+	set_maxlevel(count, output0, output1);
         break;
 
     // ------- zeroize buffers
@@ -191,8 +207,7 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
         // no need of loop.
         (void)memset(output0, 0, count*sizeof(float));
         (void)memset(output1, 0, count*sizeof(float));
-        (void)memset(audio.get_frame, 0, count*sizeof(float));
-        (void)memset(audio.get_frame1, 0, count*sizeof(float));
+	zero_maxlevel();
         break;
     }
 }
@@ -229,8 +244,6 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
         _modulpointer->stereo_rack_order_ptr[m](count, output0, output1, output0, output1);
     }
     
-    (void)memcpy(audio.get_frame, output0, sizeof(float)*count);
-    (void)memcpy(audio.get_frame1, output1, sizeof(float)*count);
+    set_maxlevel(count, output0, output1);
 }
 } // end namespace gx_engine
-

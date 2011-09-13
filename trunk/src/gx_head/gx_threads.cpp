@@ -34,55 +34,29 @@ namespace gx_threads {
 
 /* ----------------- refresh GX level display function ---------------- */
 gboolean gx_refresh_meter_level(gpointer args) {
-    if (gx_jack::gxjack.client && gx_engine::audio.buffers_ready) {
+    if (gx_jack::gxjack.client) {
         gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
         static const float falloff = gx_gui::guivar.meter_falloff *
                                      gx_gui::guivar.meter_display_timeout * 0.001;
 
-        // data holders for meters
         // Note: removed RMS calculation, we will only focus on max peaks
-        float max_level[2];
-        (void)memset(max_level,   0, sizeof(max_level));
-
         static float old_peak_db[2] = {-INFINITY, -INFINITY};
-
-        jack_nframes_t nframes = gx_jack::gxjack.jack_bs;
 
         // fill up from engine buffers
         for (int c = 0; c < 2; c++) {
-            // guitarix output levels
-            float data[nframes];
-
-            // need to differentiate between channels due to stereo
-            switch (c) {
-            default:
-            case 0:
-                (void)memcpy(data, gx_engine::audio.get_frame,  sizeof(data));
-                break;
-
-            case 1:
-                (void)memcpy(data, gx_engine::audio.get_frame1, sizeof(data));
-                break;
-            }
-
-            // calculate  max peak
-            for (guint f = 0; f < nframes; f++) {
-                max_level[c] = max(max_level[c], abs(data[f]));
-            }
-
             // update meters (consider falloff as well)
             // calculate peak dB and translate into meter
             float peak_db = -INFINITY;
-            if (max_level[c] > 0.) {
-                peak_db = power2db(max_level[c]);
+            if (gx_engine::audio.maxlevel[c] > 0.) {
+                peak_db = power2db(gx_engine::audio.maxlevel[c]);
+		gx_engine::audio.maxlevel[c] = 0;
             }
-
             // retrieve old meter value and consider falloff
             if (peak_db < old_peak_db[c]) {
-                peak_db = old_peak_db[c] - falloff;
+	        peak_db = max(peak_db, old_peak_db[c] - falloff);
             }
             gui->getLevelMeter(c).set(log_meter(peak_db));
-            old_peak_db[c] = max(peak_db, -INFINITY);
+            old_peak_db[c] = peak_db;
         }
     }
     // run thread again

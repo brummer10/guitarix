@@ -38,8 +38,6 @@ void gx_engine_init(const string *optvar ) {
     // ----- lock the buffer for the oscilloscope
     const int frag = (const int)gx_jack::gxjack.jack_bs;
 
-    audio.get_frame  = new float[frag];
-    audio.get_frame1  = new float[frag];
     audio.checkfreq  = new float[frag];
     audio.oversample = new float[frag*MAX_UPSAMPLE];
     audio.result = new float[frag+46];
@@ -51,8 +49,6 @@ void gx_engine_init(const string *optvar ) {
     //for (int i = 0; i < 9; i++) audio.effect_buffer[i] = 0;
     audio.rack_change = true;
 
-    (void)memset(audio.get_frame,  0, frag*sizeof(float));
-    (void)memset(audio.get_frame1,  0, frag*sizeof(float));
     (void)memset(audio.checkfreq,  0, frag*sizeof(float));
     (void)memset(audio.oversample, 0, frag*MAX_UPSAMPLE*sizeof(float));
     (void)memset(audio.result, 0, (frag+46)*sizeof(float));
@@ -76,8 +72,6 @@ void gx_engine_init(const string *optvar ) {
 void gx_engine_reset() {
 
     if (audio.checkfreq)  delete[] audio.checkfreq;
-    if (audio.get_frame)  delete[] audio.get_frame;
-    if (audio.get_frame1)  delete[] audio.get_frame1;
     if (audio.oversample) delete[] audio.oversample;
     if (audio.result) delete[] audio.result;
     delete _modulpointer;
@@ -258,8 +252,6 @@ void AudioVariables::register_parameter() {
     registerNonMidiParam("ui.latency_nowarn",        &fwarn, false, 0);
     registerNonMidiParam("ui.skin",                  &fskin, false, 0, 0, 100);
 
-    get_frame   = NULL;
-    get_frame1  = NULL;
     checkfreq   = NULL;
     oversample  = NULL;
     result      = NULL;

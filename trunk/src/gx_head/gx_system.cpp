@@ -789,14 +789,6 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
         delete[] gx_engine::audio.checkfreq;
         gx_engine::audio.checkfreq = NULL;
     }
-    if (gx_engine::audio.get_frame) {
-        delete[] gx_engine::audio.get_frame;
-        gx_engine::audio.get_frame = NULL;
-    }
-    if (gx_engine::audio.get_frame1) {
-        delete[] gx_engine::audio.get_frame1;
-        gx_engine::audio.get_frame1 = NULL;
-    }
     if (gx_engine::audio.oversample) {
         delete[] gx_engine::audio.oversample;
         gx_engine::audio.oversample = NULL;
