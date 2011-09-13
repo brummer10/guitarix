@@ -30,16 +30,13 @@
 namespace gx_engine {
 /* ------------- Pitch Tracker ------------- */
 
-const int MAX_FFT_SIZE = 512; // The size of the read buffer (max FFT window size).
-
 class PitchTracker {
  public:
     PitchTracker();
     ~PitchTracker();
     bool            pt_initialized;
     bool            setParameters(int sampleRate, int fftSize );
-    void            init()
-                    {setParameters(static_cast<int>(gx_jack::gxjack.jack_sr), MAX_FFT_SIZE);}
+    void            init();
     void            add(int count, float *input);
     float           tuner_estimate();
     void            stop_thread();
@@ -48,8 +45,6 @@ class PitchTracker {
     void            run();
     static void     *static_run(void* p);
     void            setEstimatedFrequency(float freq);
-    int             find_minimum();
-    int             find_maximum(int l);
     void            start_thread();
     void            copy();
     bool            error;
@@ -59,18 +54,22 @@ class PitchTracker {
     pthread_t       m_pthr;
     Resampler       *resamp;
     int             m_sampleRate;
+    // number of samples in input buffer
+    int             m_buffersize;
     // Size of the FFT window.
     int             m_fftSize;
     // The audio buffer that stores the input signal.
     float           *m_buffer;
     // Index of the first empty position in the buffer.
     int             m_bufferIndex;
+    // buffer for input signal
+    float           *m_input;
     // Whether or not the input level is high enough.
     bool            m_audioLevel;
     // Support buffer used to store signals in the time domain.
     float          *m_fftwBufferTime;
     // Support buffer used to store signals in the frequency domain.
-    fftwf_complex  *m_fftwBufferFreq;
+    float          *m_fftwBufferFreq;
     // Plan to compute the FFT of a given signal.
     fftwf_plan      m_fftwPlanFFT;
     // Plan to compute the IFFT of a given signal (with additional zero-padding).
@@ -80,4 +79,3 @@ class PitchTracker {
 extern PitchTracker pitch_tracker;
 }
 #endif  // SRC_HEADERS_GX_PITCH_TRACKER_H_
-

@@ -31,20 +31,25 @@
  ** Pitch Tracker
  **
  ** some code and ideas taken from K4Guitune (William Spinelli)
+ ** changed to NSDF method (some code from tartini / Philip McLeod)
  **
  */
 
 namespace gx_engine {
+
 // downsampling factor
-const int DOWNSAMPLE = 16;
-// Number of times that the FFT is zero-padded to increase frequency resolution.
-const int ZERO_PADDING_FACTOR = 64;
-// Value of the threshold above which the processing is activated.
-const float    SIGNAL_THRESHOLD_ON = 0.001;
-// Value of the threshold below which the input audio signal is deactivated.
+const int DOWNSAMPLE = 2;
+// Value of the threshold above which
+// the processing is activated.
+const float SIGNAL_THRESHOLD_ON = 0.001;
+// Value of the threshold below which
+// the input audio signal is deactivated.
 const float SIGNAL_THRESHOLD_OFF = 0.0009;
 // Time between frequency estimates (in seconds)
 const float TRACKER_PERIOD = 0.1;
+// The size of the read buffer
+const int FFT_SIZE = 2048;
+
 
 void *PitchTracker::static_run(void *p) {
     (reinterpret_cast<PitchTracker *>(p))->run();
@@ -57,24 +62,26 @@ PitchTracker::PitchTracker()
     tick(0),
     m_pthr(0),
     resamp(new Resampler),
-    m_buffer(new float[MAX_FFT_SIZE]),
+    m_buffer(new float[FFT_SIZE]),
     m_bufferIndex(0),
+    m_input(new float[FFT_SIZE]),
     m_audioLevel(false),
     m_fftwPlanFFT(0),
     m_fftwPlanIFFT(0) {
-    const int fftw_buffer_size = MAX_FFT_SIZE * ZERO_PADDING_FACTOR;
+    const int size = FFT_SIZE + (FFT_SIZE+1) / 2;
     m_fftwBufferTime = reinterpret_cast<float*>
-                       (fftwf_malloc(fftw_buffer_size * sizeof(float)));
-    m_fftwBufferFreq = reinterpret_cast<fftwf_complex*>
-                       (fftwf_malloc(fftw_buffer_size * sizeof(fftwf_complex)));
+                       (fftwf_malloc(size * sizeof(*m_fftwBufferTime)));
+    m_fftwBufferFreq = reinterpret_cast<float*>
+                       (fftwf_malloc(size * sizeof(*m_fftwBufferFreq)));
 
-    memset(m_buffer, 0, MAX_FFT_SIZE * sizeof(float));
-    memset(m_fftwBufferTime, 0, fftw_buffer_size * sizeof(float));
-    memset(m_fftwBufferFreq, 0, fftw_buffer_size * sizeof(fftwf_complex));
+    memset(m_buffer, 0, FFT_SIZE * sizeof(*m_buffer));
+    memset(m_input, 0, FFT_SIZE * sizeof(*m_input));
+    memset(m_fftwBufferTime, 0, size * sizeof(*m_fftwBufferTime));
+    memset(m_fftwBufferFreq, 0, size * sizeof(*m_fftwBufferFreq));
 
     sem_init(&m_trig, 0, 0);
 
-    if (!m_buffer || !m_fftwBufferTime || !m_fftwBufferFreq) {
+    if (!m_buffer || !m_input || !m_fftwBufferTime || !m_fftwBufferFreq) {
         error = true;
     }
 }
@@ -85,13 +92,14 @@ PitchTracker::~PitchTracker() {
     fftwf_destroy_plan(m_fftwPlanIFFT);
     fftwf_free(m_fftwBufferTime);
     fftwf_free(m_fftwBufferFreq);
+    delete[] m_input;
     delete[] m_buffer;
     
 }
 
 
-bool PitchTracker::setParameters(int sampleRate, int fftSize) {
-    assert(fftSize <= MAX_FFT_SIZE);
+bool PitchTracker::setParameters(int sampleRate, int buffersize) {
+    assert(buffersize <= FFT_SIZE);
 
     if (error) {
         return false;
@@ -99,15 +107,17 @@ bool PitchTracker::setParameters(int sampleRate, int fftSize) {
     m_sampleRate = sampleRate / DOWNSAMPLE;
     resamp->setup(sampleRate, m_sampleRate, 1, 16); // 16 == least quality
 
-    if (m_fftSize != fftSize) {
-        m_fftSize = fftSize;
+    if (m_buffersize != buffersize) {
+        m_buffersize = buffersize;
+        m_fftSize = m_buffersize + (m_buffersize+1) / 2;
         fftwf_destroy_plan(m_fftwPlanFFT);
         fftwf_destroy_plan(m_fftwPlanIFFT);
-        m_fftwPlanFFT = fftwf_plan_dft_r2c_1d(
-            m_fftSize, m_fftwBufferTime, m_fftwBufferFreq, FFTW_ESTIMATE); // FFT
-        m_fftwPlanIFFT = fftwf_plan_dft_c2r_1d(
-            ZERO_PADDING_FACTOR * m_fftSize, m_fftwBufferFreq,
-            m_fftwBufferTime, FFTW_ESTIMATE); // IFFT zero-padded
+        m_fftwPlanFFT = fftwf_plan_r2r_1d(
+                            m_fftSize, m_fftwBufferTime, m_fftwBufferFreq,
+                            FFTW_R2HC, FFTW_ESTIMATE);
+        m_fftwPlanIFFT = fftwf_plan_r2r_1d(
+                             m_fftSize, m_fftwBufferFreq, m_fftwBufferTime,
+                             FFTW_HC2R, FFTW_ESTIMATE);
     }
 
     if (!m_fftwPlanFFT || !m_fftwPlanIFFT) {
@@ -125,7 +135,6 @@ bool PitchTracker::setParameters(int sampleRate, int fftSize) {
 void PitchTracker::stop_thread() {
     pthread_cancel (m_pthr);
     pthread_join (m_pthr, NULL);
-    sem_post(&m_trig);
     delete resamp;
     resamp = 0;
 }
@@ -135,11 +144,12 @@ void PitchTracker::start_thread() {
     pthread_attr_t     attr;
     struct sched_param  spar;
     int priority, policy;
-    pthread_getschedparam(jack_client_thread_id(gx_jack::gxjack.client), &policy, &spar);
+    pthread_getschedparam(
+        jack_client_thread_id(gx_jack::gxjack.client), &policy, &spar);
     priority = spar.sched_priority;
     min = sched_get_priority_min(policy);
     max = sched_get_priority_max(policy);
-    priority -= 6; // zita-convoler uses 5 levels
+    priority -= 6;  // zita-convoler uses 5 levels
     if (priority > max) priority = max;
     if (priority < min) priority = min;
     spar.sched_priority = priority;
@@ -151,51 +161,15 @@ void PitchTracker::start_thread() {
     pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
     pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
     // pthread_attr_setstacksize(&attr, 0x10000);
-    if (pthread_create(&m_pthr, &attr, static_run, reinterpret_cast<void*>(this))) {
+    if (pthread_create(&m_pthr, &attr, static_run,
+                       reinterpret_cast<void*>(this))) {
         error = true;
     }
     pthread_attr_destroy(&attr);
 }
 
-int PitchTracker::find_minimum() {
-    const int peakwidth = 3;
-    float *p = &m_fftwBufferTime[peakwidth];
-    for ( ; p < &m_fftwBufferTime[ZERO_PADDING_FACTOR * m_fftSize / 2 + 1 - peakwidth]; p++) {
-        int i;
-        for (i = -peakwidth; i <= peakwidth; i++) {
-            if (*p > p[i]) {
-                break;
-            }
-        }
-        if (i > peakwidth) {
-            break;
-        }
-    }
-    return static_cast<int>((p - m_fftwBufferTime));
-}
-
-int PitchTracker::find_maximum(int l) {
-    float    maxAutocorr            = 0.0;
-    int        maxAutocorrIndex    = 0;
-    while (l < ZERO_PADDING_FACTOR * m_fftSize / 2 + 1) {
-        if (m_fftwBufferTime[l] > maxAutocorr) {
-            maxAutocorr = m_fftwBufferTime[l];
-            maxAutocorrIndex = l;
-        }
-        ++l;
-    }
-    if (maxAutocorr == 0.0) {
-        return -1;
-    }
-    return maxAutocorrIndex;
-}
-
-float show_level(int n, float *buf) {
-    float sum = 0.0;
-    for (int k = 0; k < n; ++k) {
-        sum += fabs(buf[k]);
-    }
-    return sum;
+void PitchTracker::init() {
+    setParameters(static_cast<int>(gx_jack::gxjack.jack_sr), FFT_SIZE);
 }
 
 void PitchTracker::add(int count, float* input) {
@@ -206,14 +180,14 @@ void PitchTracker::add(int count, float* input) {
     resamp->inp_data = input;
     for (;;) {
         resamp->out_data = &m_buffer[m_bufferIndex];
-        int n = MAX_FFT_SIZE - m_bufferIndex;
+        int n = FFT_SIZE - m_bufferIndex;
         resamp->out_count = n;
         resamp->process();
         n -= resamp->out_count; // n := number of output samples
         if (!n) { // all soaked up by filter
             return;
         }
-        m_bufferIndex = (m_bufferIndex + n) % MAX_FFT_SIZE;
+        m_bufferIndex = (m_bufferIndex + n) % FFT_SIZE;
         if (resamp->inp_count == 0) {
             break;
         }
@@ -222,6 +196,7 @@ void PitchTracker::add(int count, float* input) {
         if (busy) {
             return;
         }
+        busy = true;
         tick = 0;
         copy();
         sem_post(&m_trig);
@@ -229,70 +204,164 @@ void PitchTracker::add(int count, float* input) {
 }
 
 void PitchTracker::copy() {
-    int start = (MAX_FFT_SIZE + m_bufferIndex - m_fftSize) % MAX_FFT_SIZE;
-    int end = (MAX_FFT_SIZE + m_bufferIndex) % MAX_FFT_SIZE;
+    int start = (FFT_SIZE + m_bufferIndex - m_buffersize) % FFT_SIZE;
+    int end = (FFT_SIZE + m_bufferIndex) % FFT_SIZE;
     int cnt = 0;
     if (start >= end) {
-        cnt = MAX_FFT_SIZE - start;
-        memcpy(m_fftwBufferTime, &m_buffer[start], cnt * sizeof(float));
+        cnt = FFT_SIZE - start;
+        memcpy(m_input, &m_buffer[start], cnt * sizeof(*m_input));
         start = 0;
     }
-    memcpy(&m_fftwBufferTime[cnt], &m_buffer[start], (end - start) * sizeof(float));
+    memcpy(&m_input[cnt], &m_buffer[start], (end - start) * sizeof(*m_input));
+}
+
+inline float sq(float x) {
+    return x * x;
+}
+
+inline void parabolaTurningPoint(float y_1, float y0, float y1, float xOffset, float *x) {
+    float yTop = y_1 - y1;
+    float yBottom = y1 + y_1 - 2 * y0;
+    if (yBottom != 0.0) {
+        *x = xOffset + yTop / (2 * yBottom);
+    } else {
+        *x = xOffset;
+    }
+}
+
+static int findMaxima(float *input, int len, int *maxPositions, int *length, int maxLen) {
+    int pos = 0;
+    int curMaxPos = 0;
+    int overallMaxIndex = 0;
+
+    while (pos < (len-1)/3 && input[pos] > 0.0) {
+        pos += 1;  // find the first negitive zero crossing
+    }
+    while (pos < len-1 && input[pos] <= 0.0) {
+        pos += 1;  // loop over all the values below zero
+    }
+    if (pos == 0) {
+        pos = 1;  // can happen if output[0] is NAN
+    }
+    while (pos < len-1) {
+        if (input[pos] > input[pos-1] && input[pos] >= input[pos+1]) {  // a local maxima
+            if (curMaxPos == 0) {
+                curMaxPos = pos;  // the first maxima (between zero crossings)
+            } else if (input[pos] > input[curMaxPos]) {
+                curMaxPos = pos;  // a higher maxima (between the zero crossings)
+            }
+        }
+        pos += 1;
+        if (pos < len-1 && input[pos] <= 0.0) {  // a negative zero crossing
+            if (curMaxPos > 0) {  // if there was a maximum
+                maxPositions[*length] = curMaxPos;  // add it to the vector of maxima
+                *length += 1;
+                if (overallMaxIndex == 0) {
+                    overallMaxIndex = curMaxPos;
+                } else if (input[curMaxPos] > input[overallMaxIndex]) {
+                    overallMaxIndex = curMaxPos;
+                }
+                if (*length >= maxLen) {
+                    return overallMaxIndex;
+                }
+                curMaxPos = 0;  // clear the maximum position, so we start looking for a new ones
+            }
+            while (pos < len-1 && input[pos] <= 0.0) {
+                pos += 1;  // loop over all the values below zero
+            }
+        }
+    }
+    if (curMaxPos > 0) {  // if there was a maximum in the last part
+        maxPositions[*length] = curMaxPos;  // add it to the vector of maxima
+        *length += 1;
+        if (overallMaxIndex == 0) {
+            overallMaxIndex = curMaxPos;
+        } else if (input[curMaxPos] > input[overallMaxIndex]) {
+            overallMaxIndex = curMaxPos;
+        }
+        curMaxPos = 0;  // clear the maximum position, so we start looking for a new ones
+    }
+    return overallMaxIndex;
+}
+
+static int findsubMaximum(float *input, int len, float threshold) {
+    int indices[10];
+    int length = 0;
+    int overallMaxIndex = findMaxima(input, len, indices, &length, 10);
+    if (length == 0) {
+        return -1;
+    }
+    threshold += (1.0 - threshold) * (1.0 - input[overallMaxIndex]);
+    float cutoff = input[overallMaxIndex] * threshold;
+    for (int j = 0; j < length; j++) {
+        if (input[indices[j]] >= cutoff) {
+            return indices[j];
+        }
+    }
+    // should never get here
+    return -1;
 }
 
 void PitchTracker::run() {
     for (;;) {
         busy = false;
         sem_wait(&m_trig);
-        pthread_testcancel();
-        busy = true;
         if (error) {
             continue;
         }
         float sum = 0.0;
-        for (int k = 0; k < m_fftSize; ++k) {
-            sum += fabs(m_fftwBufferTime[k]);
+        for (int k = 0; k < m_buffersize; ++k) {
+            sum += fabs(m_input[k]);
         }
         float threshold = (m_audioLevel ? SIGNAL_THRESHOLD_OFF : SIGNAL_THRESHOLD_ON);
-        m_audioLevel = (sum / m_fftSize >= threshold);
+        m_audioLevel = (sum / m_buffersize >= threshold);
         if ( m_audioLevel == false ) {
             setEstimatedFrequency(0.0);
             continue;
         }
 
-        /* Compute the transform of the autocorrelation given in time domain by
-         *           k=-N
-         *    r[t] = sum( x[k] * x[t-k] )
-         *            N
-         * or in the frequency domain (for a real signal) by
-         *    R[f] = X[f] * X[f]' = |X[f]|^2 = Re(X[f])^2 + Im(X[f])^2
-         * When computing the FFT with fftwf_plan_dft_r2c_1d there are only N/2+1
-         * significant samples, so |.|^2 is computed for m_fftSize/2+1 samples only
-         */
-        int fftRSize = m_fftSize/2 + 1;
+        memcpy(m_fftwBufferTime, m_input, m_buffersize * sizeof(*m_fftwBufferTime));
+        memset(m_fftwBufferTime+m_buffersize, 0, (m_fftSize - m_buffersize) * sizeof(*m_fftwBufferTime));
         fftwf_execute(m_fftwPlanFFT);
-        for (int k = 0; k < fftRSize; ++k) {
-            fftwf_complex& v = m_fftwBufferFreq[k];
-            v[0] = v[0]*v[0] + v[1]*v[1];
-            v[1] = 0.0;
+        for (int k = 1; k < m_fftSize/2; k++) {
+            m_fftwBufferFreq[k] = sq(m_fftwBufferFreq[k]) + sq(m_fftwBufferFreq[m_fftSize-k]);
+            m_fftwBufferFreq[m_fftSize-k] = 0.0;
         }
+        m_fftwBufferFreq[0] = sq(m_fftwBufferFreq[0]);
+        m_fftwBufferFreq[m_fftSize/2] = sq(m_fftwBufferFreq[m_fftSize/2]);
 
-        // pad the FFT with zeros to increase resolution in time domain after IFFT
-        int size_with_padding = ZERO_PADDING_FACTOR * m_fftSize - fftRSize;
-        memset(&m_fftwBufferFreq[fftRSize][0], 0, size_with_padding * sizeof(fftwf_complex));
         fftwf_execute(m_fftwPlanIFFT);
 
-        // search for a minimum and then for the next maximum to get the estimated frequency
-        int maxAutocorrIndex = find_maximum(find_minimum());
-
-        // compute the frequency of the maximum considering the padding factor
-        if (maxAutocorrIndex >= 0) {
-            setEstimatedFrequency(ZERO_PADDING_FACTOR * m_sampleRate
-                                  / static_cast<float>(maxAutocorrIndex));
-        } else {
-            setEstimatedFrequency(0.0);
+        double sumSq = 2.0 * static_cast<double>(m_fftwBufferTime[0]) / static_cast<double>(m_fftSize);
+        for (int k = 0; k < m_fftSize - m_buffersize; k++) {
+            m_fftwBufferTime[k] = m_fftwBufferTime[k+1] / static_cast<float>(m_fftSize);
         }
-        busy = false;
+
+        int count = (m_buffersize + 1) / 2;
+        for (int k = 0; k < count; k++) {
+            sumSq  -= sq(m_input[m_buffersize-1-k]) + sq(m_input[k]);
+            // dividing by zero is very slow, so deal with it seperately
+            if (sumSq > 0.0) {
+                m_fftwBufferTime[k] *= 2.0 / sumSq;
+            } else {
+                m_fftwBufferTime[k] = 0.0;
+            }
+        }
+
+        int maxAutocorrIndex = findsubMaximum(m_fftwBufferTime, count, 0.6);
+
+        float x = 0.0;
+        if (maxAutocorrIndex >= 0) {
+            parabolaTurningPoint(m_fftwBufferTime[maxAutocorrIndex-1],
+                                 m_fftwBufferTime[maxAutocorrIndex],
+                                 m_fftwBufferTime[maxAutocorrIndex+1],
+                                 maxAutocorrIndex+1, &x);
+            x = m_sampleRate / x;
+            if (x > 999.0) {  // precision drops above 1000 Hz
+                x = 0.0;
+            }
+        }
+        setEstimatedFrequency(x);
     }
 }
 
@@ -303,5 +372,3 @@ void PitchTracker::setEstimatedFrequency(float freq) {
 
 PitchTracker pitch_tracker;
 }
-
-
