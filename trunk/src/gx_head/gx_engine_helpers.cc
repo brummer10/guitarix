@@ -230,17 +230,6 @@ inline void compensate_con(int count, float *input0, float *output0) {
     }
 }
 
-inline void run_tuner(int count, float *input0, float *output0) {
-    if (gx_gui::guivar.shownote == 0) {
-        gx_gui::guivar.shownote = -1;
-    } else {
-        // run tuner
-        pitch_tracker.add(count, input0);
-        // copy buffer to midi thread
-        (void)memcpy(audio.checkfreq, input0, sizeof(float)*count);
-    }
-}
-
 // calculate noisgate level
 inline float noise_gate(int sf, float* input, float ngate) {
     float sumnoise = 0;
@@ -359,14 +348,6 @@ static gboolean gx_reorder_rack(gpointer args) {
         audio.cur_tonestack = gx_check_tonestack_state(NULL);
     }
     
-    // check if tuner is visible or midi is on
-    int tuner_on = gx_gui::guivar.shownote + static_cast<int>(isMidiOn()) + 1;
-
-    if (tuner_on > 0) {
-        audio.mono_active_counter++;
-        _modulpointer->mono_rack_order_ptr[audio.mono_active_counter] = &run_tuner;
-    }
-
     // set noisgate var
     if (audio.fnoise_g) {
         audio.mono_active_counter++;

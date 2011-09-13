@@ -39,6 +39,22 @@ AudioVariables audio;
 ModulPointer *_modulpointer = 0;
 
 #include "gx_faust_includes.cpp"
+
+inline bool feed_tuner(int count, float* input) {
+    // check if tuner is visible or midi is on
+    int tuner_on = gx_gui::guivar.shownote + static_cast<int>(isMidiOn()) + 1;
+    if (tuner_on > 0) {
+        if (gx_gui::guivar.shownote == 0) {
+            gx_gui::guivar.shownote = -1;
+        } else {
+            // run tuner
+            pitch_tracker.add(count, input);
+            return true;
+        }
+    }
+    return false;
+}
+
 /****************************************************************
  **  this is the process callback called from jack
  **
@@ -99,6 +115,7 @@ void compute(int count, float* input, float* output0) {
         if (conv.is_runnable()) {
             conv.checkstate();
         }
+        feed_tuner(count, input);
        // balance1::compute(count, input, output0);
        (void)memcpy(output0, input, sizeof(float)*count);
         break;
@@ -110,6 +127,7 @@ void compute(int count, float* input, float* output0) {
         if (conv.is_runnable()) {
             conv.checkstate();
         }
+        feed_tuner(count, input);
         if (audio.fwv) (void)memset(audio.result, 0, count*sizeof(float));
 
         // no need of loop.
@@ -185,6 +203,11 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
 
 // gx_head_amp engine
 void process_buffers(int count, float* input, float* output0) {
+
+    if (feed_tuner(count, input)) {
+        // copy buffer to midi thread
+        (void)memcpy(audio.checkfreq, input, sizeof(float)*count);
+    }
 
     // move working buffer to the output buffer
     memcpy(output0, input, count*sizeof(float));

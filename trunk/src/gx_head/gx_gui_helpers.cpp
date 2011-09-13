@@ -614,7 +614,6 @@ void GxMainInterface::on_tuner_activate() {
     if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
             guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                            gx_set_default, gpointer(RBox), NULL);
-    gx_engine::audio.rack_change = true;
 }
 
 // ---- menu function gx_midi_out
