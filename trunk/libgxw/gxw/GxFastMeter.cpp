@@ -378,18 +378,18 @@ void gx_fast_meter_set(GxFastMeter* fm, gdouble lvl)
 	lvl = max(0.0, min(1.0, lvl));
 	fm->current_level = lvl;
 
-	if (lvl > fm->current_peak) {
-		fm->current_peak = lvl;
-		fm->hold_state   = fm->hold_cnt;
+	if (lvl >= fm->current_peak) {
+	    fm->current_peak = lvl;
+	    fm->hold_state   = fm->hold_cnt;
 	}
 	if (fm->hold_state > 0) {
-		if (--fm->hold_state == 0) {
-			fm->current_peak = lvl;
-		}
+	    --fm->hold_state;
+	}
+	if (fm->hold_state == 0) {
+	    fm->current_peak = lvl;
 	}
 	if (fm->current_level == old_level &&
-	    fm->current_peak  == old_peak  &&
-	    fm->hold_state == 0) {
+	    (fm->hold_state == 0 || fm->current_peak  == old_peak)) {
 		return;
 	}
 	GdkWindow* window = gtk_widget_get_window(GTK_WIDGET(fm));
