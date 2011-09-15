@@ -39,6 +39,7 @@ void GxMainInterface::gx_build_mono_rack() {
      * mono level out and the clipper, witch are fixed at the end of the mono callback.
      **/
     openHorizontalTableBox("");
+    fMonoRackContainer = fBox[fTop];
     {
         openVerticalBox("");
         {

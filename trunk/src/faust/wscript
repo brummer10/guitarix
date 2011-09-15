@@ -185,6 +185,9 @@ def build(bld):
         'presence_level.dsp',
         ]
 
+    sources_no_init = [ # for plugins (init by explicit function calls)
+        ]
+
     float_sources = [ # big arrays and no sensitive processing
         'sloop.dsp',
         'echo.dsp',
@@ -204,7 +207,7 @@ def build(bld):
             arg = ["-double"]
         else:
             arg = ["-float"]
-        task = bld.new_task_gen(
+        bld.new_task_gen(
             source = sources,
             proc = "../tools/dsp2cc",
             proc_args = arg,
@@ -214,8 +217,11 @@ def build(bld):
             proc = "../tools/dsp2cc",
             proc_args = float_arg,
             )
-
-        
+        bld.new_task_gen(
+            source = sources_no_init,
+            proc = "../tools/dsp2cc",
+            proc_args = ["-i"]
+            )
     else:
         gdir = "../faust-generated/"
         for s in sources + float_sources:

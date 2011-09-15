@@ -218,7 +218,6 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
 
 // gx_head_amp engine
 void process_buffers(int count, float* input, float* output0) {
-
     if (feed_tuner(count, input)) {
         // copy buffer to midi thread
         (void)memcpy(audio.checkfreq, input, sizeof(float)*count);
@@ -228,7 +227,7 @@ void process_buffers(int count, float* input, float* output0) {
     memcpy(output0, input, count*sizeof(float));
 
     // run mono rack
-    for (unsigned int m = 1; m < audio.mono_active_counter+1; m++) {
+    for (unsigned int m = 1; m < _modulpointer->mono_active_counter+1; m++) {
         _modulpointer->mono_rack_order_ptr[m](count, output0, output0);
     }
 }
@@ -240,7 +239,7 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
     memcpy(output0, input1, count*sizeof(float));
 
     // run stereo rack
-    for (unsigned int m = 1; m < audio.stereo_active_counter+1; m++) {
+    for (unsigned int m = 1; m < _modulpointer->stereo_active_counter+1; m++) {
         _modulpointer->stereo_rack_order_ptr[m](count, output0, output1, output0, output1);
     }
     

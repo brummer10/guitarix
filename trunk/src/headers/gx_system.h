@@ -26,6 +26,7 @@
 #define SRC_HEADERS_GX_SYSTEM_H_
 
 #include <gtk/gtk.h>
+#include <glibmm/optioncontext.h>   // NOLINT
 
 #include <cmath>
 #include <sstream>
@@ -185,6 +186,37 @@ class SystemVars {
 };
 
 extern SystemVars sysvar;
+
+/****************************************************************
+ ** CmdlineParser
+ */
+
+class CmdlineParser {
+private:
+    int& argc;
+    char**& argv;
+    bool version;
+    bool clear;
+    Glib::ustring rcset;
+    Glib::ustring jack_input;
+    Glib::ustring jack_midi;
+    vector<Glib::ustring> jack_outputs;
+    Glib::ustring jack_uuid;
+    Glib::ustring jack_uuid2;
+    string load_file;
+    string builder_dir;
+    string style_dir;
+    bool lterminal;
+    string get_opskin();
+public:
+    string plugin_dir;
+    string optvar[NUM_SHELL_VAR];
+public:
+    CmdlineParser(int& argc_, char**& argv_);
+    void process_early();
+    void process();
+    void set_override();
+};
 
 /****************************************************************
  ** misc function declarations

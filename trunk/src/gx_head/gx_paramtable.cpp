@@ -400,50 +400,6 @@ void MidiControllerList::remove_controlled_parameters(paramlist& plist,
  ** Parameter Groups
  */
 
-class ParameterGroups {
- private:
-    map<string, string> groups;
-
-#ifndef NDEBUG
-    map<string, bool> used;
-
-    void group_exists(string id) {
-            if (groups.find(id) == groups.end()) {
-                gx_system::gx_print_error("Debug Check", "Group does not exist: " + id);
-            } else {
-                used[id] = true;
-            }
-        }
-    void group_is_new(string id) {
-            if (groups.find(id) != groups.end()) {
-                gx_system::gx_print_error("Debug Check", "Group already exists: " + id);
-            }
-        }
-
-    ~ParameterGroups() {
-            for (map<string, bool>::iterator i = used.begin(); i != used.end(); i++) {
-                if (!i->second) {
-                    gx_system::gx_print_error("Debug Check", "Group not used: " + i->first);
-                }
-            }
-        }
-    friend string param_group(string id, bool nowarn);
-#endif
-
- public:
-    ParameterGroups();
-
-    inline string get(string id) { return groups[id]; }
-    inline string operator[](string id) {
-            debug_check(group_exists, id);
-            return groups[id];
-        }
-    inline void insert(string id, string group) {
-            debug_check(group_is_new, id);
-            groups.insert(pair<string, string>(id, group));
-        }
-};
-
 ParameterGroups::ParameterGroups() {
     insert("jconv", N_("Convolver"));
     insert("eq", N_("EQ"));
@@ -508,8 +464,23 @@ ParameterGroups::ParameterGroups() {
     insert("stereoverb", N_("Stereo Verb"));
 }
 
+ParameterGroups::~ParameterGroups() {
+#ifndef NDEBUG
+    for (map<string, bool>::iterator i = used.begin(); i != used.end(); i++) {
+	if (!i->second) {
+	    gx_system::gx_print_error("Debug Check", "Group not used: " + i->first);
+	}
+    }
+#endif
+}
+
+ParameterGroups& get_group_table() {
+    static ParameterGroups groups;
+    return groups;
+}
+
 string param_group(string id, bool nowarn) {
-    static ParameterGroups groups = ParameterGroups();
+    static ParameterGroups& groups = get_group_table();
     const string& group_id = id.substr(0, id.find_last_of("."));
     if (nowarn) {
         return groups.get(group_id);

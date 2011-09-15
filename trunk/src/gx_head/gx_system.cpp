@@ -26,7 +26,6 @@
 
 #include <sys/stat.h>               // NOLINT
 #include <jack/jack.h>              // NOLINT
-#include <glibmm/optioncontext.h>   // NOLINT
 #include <glibmm/i18n.h>            // NOLINT
 
 #include <cstring>                  // NOLINT
@@ -179,22 +178,21 @@ gboolean  gx_ladi_handler(gpointer) {
 
 bool terminal  = true; // make messages before main() appear on terminal
 
-// ---- command line options
-void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
+/****************************************************************
+ ** CmdlineParser
+ ** command line options
+ */
+
+CmdlineParser::CmdlineParser(int& argc_, char**& argv_):
+    argc(argc_), argv(argv_),
+    version(false), clear(false), lterminal(false) {
 
     // store shell variable content
     for (int i = 0; i < NUM_SHELL_VAR; i++) {
         gx_assign_shell_var(sysvar.shell_var_name[i], optvar[i]);
     }
-    // initialize number of skins. We just count the number of rc files
-    unsigned int n = gx_gui::gx_fetch_available_skins();
-    if (n < 1) {
-        gx_print_error(_("main"), string(_("number of skins is 0, aborting ...")));
-        exit(1);
-    }
 
     // ---- parse command line arguments
-    bool version = false;
     Glib::OptionContext opt_context;
     opt_context.set_summary(
         "All parameters are optional. Examples:\n"
@@ -209,17 +207,6 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
     main_group.add_entry(opt_version, version);
     opt_context.set_main_group(main_group);
 
-    // GTK options: rc style (aka skin)
-    string opskin("Style to use");
-
-    vector<string>::iterator it;
-
-    for (it = gx_gui::skin.skin_list.begin(); it != gx_gui::skin.skin_list.end(); it++) {
-        opskin += ", '" + *it + "'";
-    }
-
-    bool clear = false;
-    Glib::ustring rcset;
     Glib::OptionGroup optgroup_gtk(
         "gtk",
         "\033[1;32mGTK configuration options\033[0m",
@@ -231,17 +218,12 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
     Glib::OptionEntry opt_rcset;
     opt_rcset.set_short_name('r');
     opt_rcset.set_long_name("rcset");
-    opt_rcset.set_description(opskin);
+    opt_rcset.set_description(get_opskin());
     opt_rcset.set_arg_description("STYLE");
     optgroup_gtk.add_entry(opt_clear, clear);
     optgroup_gtk.add_entry(opt_rcset, rcset);
 
     // JACK options: input and output ports
-    Glib::ustring jack_input;
-    Glib::ustring jack_midi;
-    vector<Glib::ustring> jack_outputs;
-    Glib::ustring jack_uuid;
-    Glib::ustring jack_uuid2;
     Glib::OptionGroup optgroup_jack(
         "jack",
         "\033[1;32mJACK configuration options\033[0m",
@@ -276,7 +258,6 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
     optgroup_jack.add_entry(opt_jack_uuid2, jack_uuid2);
 
     // FILE options
-    string load_file;
 
     Glib::OptionGroup optgroup_file(
         "file",
@@ -288,11 +269,14 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
     opt_load_file.set_description(_("load state file on startup"));
     opt_load_file.set_arg_description("FILE");
     optgroup_file.add_entry_filename(opt_load_file, load_file);
+    Glib::OptionEntry opt_plugin_dir;
+    opt_plugin_dir.set_short_name('P');
+    opt_plugin_dir.set_long_name("plugin-dir");
+    opt_plugin_dir.set_description(_("directory with guitarix plugins (.so files)"));
+    opt_plugin_dir.set_arg_description("DIR");
+    optgroup_file.add_entry_filename(opt_plugin_dir, plugin_dir);
 
     // DEBUG options
-    string builder_dir;
-    string style_dir;
-    bool lterminal = false;
     Glib::OptionGroup optgroup_debug(
         "debug",
         "\033[1;32mDebug options\033[0m",
@@ -329,11 +313,6 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
         exit(1);
     }
 
-
-    // ----------- processing user options -----------
-
-    terminal = lterminal;
-
     // *** display version if requested
     if (version) {
         std::cout << "Guitarix version \033[1;32m"
@@ -343,6 +322,37 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
              << endl;
         exit(0);
     }
+}
+
+string CmdlineParser::get_opskin() {
+    // initialize number of skins. We just count the number of rc files
+    unsigned int n = gx_gui::gx_fetch_available_skins();
+    if (n < 1) {
+        gx_print_error(_("main"), string(_("number of skins is 0, aborting ...")));
+        exit(1);
+    }
+
+    // GTK options: rc style (aka skin)
+    string opskin("Style to use");
+
+    vector<string>::iterator it;
+
+    for (it = gx_gui::skin.skin_list.begin(); it != gx_gui::skin.skin_list.end(); it++) {
+        opskin += ", '" + *it + "'";
+    }
+    return opskin;
+}
+
+void CmdlineParser::process_early() {
+    if (plugin_dir.empty()) {
+	plugin_dir = sysvar.gx_user_dir;
+    }
+}
+
+void CmdlineParser::process() {
+    // ----------- processing user options -----------
+
+    terminal = lterminal;
 
     // *** process GTK rc style
     bool previous_conflict = false;
@@ -444,12 +454,17 @@ void gx_process_cmdline_options(int& argc, char**& argv, string* optvar) {
     sysvar.rcpath = sysvar.gx_style_dir + string("gx_head_") + optvar[RC_STYLE] + ".rc";
 }
 
-void gx_set_override_options(string* optvar) {
+void CmdlineParser::set_override() {
     if (!gx_gui::skin.no_opt_skin) {
         gx_gui::gx_actualize_skin_index(optvar[RC_STYLE]);
         gx_engine::audio.fskin = gx_gui::skin.last_skin = gx_gui::skin.gx_current_skin;
     }
 }
+
+
+/****************************************************************
+ ** Logging
+ */
 
 struct logmsg {
     string msg;

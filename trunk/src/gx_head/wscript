@@ -6,6 +6,7 @@ def configure(conf):
 
 def build(bld):
     sources = [
+        'gx_pluginloader.cpp',
         'gx_jconv_settings.cpp',
         'gx_main_midi.cpp',
         'gx_main_interface.cpp',

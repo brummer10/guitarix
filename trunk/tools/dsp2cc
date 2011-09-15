@@ -11,7 +11,7 @@ num_re = r"(-?\d*\.?\d*e?[+-]?\d*f?)"
 class UIDefs(object):
 
     class UID(dict):
-        def write(self, fp, v):
+        def write(self, fp, v, prefix):
             if self.has_key("alias"):
                 return
             self["tail"] = "".join([", "+x for x in self["value"]])
@@ -19,9 +19,9 @@ class UIDefs(object):
                 enumvals = ",".join(['"%s"' % x for x in self["enum"].split("|")]+["0"])
                 self["ename"] = ename = self["variable"] + "_values"
                 fp.write('\tstatic const char *%s[] = {%s};\n' % (ename, enumvals))
-                fp.write('\tregisterEnumVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",%(ename)s,&%(variable)s%(tail)s);\n' % self)
+                fp.write('\t'+prefix+'registerEnumVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",%(ename)s,&%(variable)s%(tail)s);\n' % self)
             else:
-                fp.write('\tregisterVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",&%(variable)s%(tail)s);\n' % self)
+                fp.write('\t'+prefix+'registerVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",&%(variable)s%(tail)s);\n' % self)
 
         def __getitem__(self, n):
             try:
@@ -49,9 +49,9 @@ class UIDefs(object):
         s = "|".join([r"%s\s*=\s*%s" % (v, num_re) for v in self.ui.keys()])
         return re.compile(r"\s*("+s+");").match
 
-    def write(self, fp):
+    def write(self, fp, prefix=""):
         for v, r in self.ui.items():
-            r.write(fp, v)
+            r.write(fp, v, prefix)
 
 class Parser(object):
 
@@ -234,6 +234,7 @@ class Parser(object):
         s = {}
         self.ui = UIDefs()
         #self.readMeta()  # (needed only for faust 9.4
+        self.headvers = self.skip_until(r"\s*//\s*(Code generated with Faust.*)").group(1)
         self.skip_until(r"  private:")
         var_decl = self.copy(r"  public:")
         self.skip_until(r"^\s*static\s+void\s+metadata\s*\(\s*Meta\s*\*\s*m\s*\)\s*{")
@@ -292,10 +293,12 @@ void activate(bool start, int samplingFreq)
 
 """
 
-def output(fp, p, fname):
+def output(fp, p, fname, no_init):
     has_activate = len(p.memlist) > 0
     fp.write("namespace %s {\n" % p.modname)
     fp.write("// generated from file '%s'\n\n" % fname)
+    #fp.write("// generated from file '%s' by dsp2cc:\n" % fname)
+    #fp.write("// %s\n\n" % p.headvers) # good idea or not??
     if has_activate:
         fp.write("volatile bool inited = false;\n")
     p.write(fp, "var-decl")
@@ -319,11 +322,16 @@ def output(fp, p, fname):
         "".join([", float *output%d" % i for i in range(p.getNumOutputs())])))
     p.write(fp, "compute", 1)
     fp.write("\t}\n}\n\n")
-    fp.write("static struct RegisterParams { RegisterParams(); } RegisterParams;\n")
-    fp.write("RegisterParams::RegisterParams()\n{\n")
-    p.ui.write(fp)
-    fp.write('\tregisterInit("%s", init);\n' % p.topname)
-    fp.write("}\n")
+    if not no_init:
+        fp.write("static struct RegisterParams { RegisterParams(); } RegisterParams;\n")
+        fp.write("RegisterParams::RegisterParams()\n{\n")
+        p.ui.write(fp)
+        fp.write('\tregisterInit("%s", init);\n' % p.topname)
+        fp.write("}\n")
+    else:
+        fp.write("int register_params(const paramreg& reg)\n{\n")
+        p.ui.write(fp, prefix="reg.")
+        fp.write("\treturn 0;\n}\n")
     fp.write("\n} // end namespace %s\n" % p.modname)
 
 def main():
@@ -337,6 +345,8 @@ def main():
     op.add_option("-s", "--memory-threshold", dest="memory_threshold",
                   default=0, type="int",
                   help="change static memory allocations above threshold to dynamic ones")
+    op.add_option("-i", "--no-init", dest="no_init", action="store_true",
+                  default=False, help="don't generate global initializers")
     options, args = op.parse_args()
     if len(args) != 1:
         op.error("exactly one input filename expected\n")
@@ -363,7 +373,7 @@ def main():
         outp = file(options.oname,"w")
     else:
         outp = sys.stdout
-    output(outp, parser, fname)
+    output(outp, parser, fname, options.no_init)
 
 if __name__ == "__main__":
     main()

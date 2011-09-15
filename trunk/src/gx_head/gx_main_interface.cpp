@@ -1231,6 +1231,28 @@ void GxMainInterface::openAmpBox(const char* label) {
     pushBox(kBoxMode, GTK_WIDGET(sBox));
 }
 
+void GxMainInterface::openMonoRackBox(const char* label, float* posit, const char *id_on_off,
+				      const char *id_pre_post, const char *id_dialog) {
+    fBox[++fTop] = fMonoRackContainer;
+    fMode[fTop] = kBoxMode;
+    openHorizontalOrderBox(label, posit);
+    openVerticalBox(label);
+    openHorizontalBox("");
+    openPaintBox1("");
+    create_switch_no_caption(sw_switchit, id_on_off);
+    create_selector(id_pre_post);
+    closeBox();
+    openDialogBox(id_dialog, id_on_off, "RackBox_expose");
+}
+
+void GxMainInterface::closeMonoRackBox() {
+    closeBox();
+    closeBox();
+    closeBox();
+    closeBox();
+    --fTop;
+}
+
 // --------------------------- Press button ---------------------------
 
 struct uipButton : public gx_ui::GxUiItemFloat {

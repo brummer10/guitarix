@@ -73,7 +73,14 @@ int main(int argc, char *argv[]) {
     Glib::init();
     Gxw::init();
 
+    gx_system::sysvar.sysvar_init();
+    gx_system::CmdlineParser options(argc, argv);
+
+    options.process_early();
+    get_pluginlist().load_from_path(options.plugin_dir);
+
     // ------ initialize parameter list ------
+    get_pluginlist().registerParameter(gx_gui::get_group_table(), 20); // FIXME
     gx_engine::audio.register_parameter();
     gx_engine::midi.register_parameter();
     gx_engine::register_faust_parameters();
@@ -82,9 +89,7 @@ int main(int argc, char *argv[]) {
     gx_gui::parameter_map.set_init_values();
 
     // ---------------------- user options handling ------------------
-    gx_system::sysvar.sysvar_init();
-    string optvar[NUM_SHELL_VAR];
-    gx_system::gx_process_cmdline_options(argc, argv, optvar);
+    options.process();
     Gtk::Main main(argc, argv);
 
     // ---------------- Check for working user directory  -------------
@@ -105,20 +110,20 @@ int main(int argc, char *argv[]) {
     gx_resample::_glob_resamp->init_resampler_ref(); 
     gx_jack::_jackbuffer_ptr = 0;
     // ---------------------- initialize jack gxjack.client ------------------
-    if (gx_jack::gxjack.gx_jack_init(optvar)) {
+    if (gx_jack::gxjack.gx_jack_init(options.optvar)) {
         gx_jack::_jackbuffer_ptr = new gx_jack::JackBuffer;
         // -------- initialize gx_head engine --------------------------
-        gx_engine::gx_engine_init(optvar);
+        gx_engine::gx_engine_init(options.optvar);
 
         // -------- set jack callbacks and activation -------------------
         gx_jack::gxjack.gx_jack_callbacks();
         gx_jack::gxjack.gx_jack_activate();
         // -------- init port connections
-        gx_jack::gxjack.gx_jack_init_port_connection(optvar);
+        gx_jack::gxjack.gx_jack_init_port_connection(options.optvar);
     }
 
     // ----------------------- run GTK main loop ----------------------
-    gx_system::gx_set_override_options(optvar);
+    options.set_override();
     gx_ui::GxUI::updateAllGuis();
     gui->show();
 

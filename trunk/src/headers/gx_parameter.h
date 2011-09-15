@@ -54,6 +54,45 @@ namespace gx_gui {
  **
  */
 
+class ParameterGroups {
+ private:
+    map<string, string> groups;
+
+#ifndef NDEBUG
+    map<string, bool> used;
+
+    void group_exists(string id) {
+            if (groups.find(id) == groups.end()) {
+                gx_system::gx_print_error("Debug Check", "Group does not exist: " + id);
+            } else {
+                used[id] = true;
+            }
+        }
+    void group_is_new(string id) {
+            if (groups.find(id) != groups.end()) {
+                gx_system::gx_print_error("Debug Check", "Group already exists: " + id);
+            }
+        }
+
+    friend string param_group(string id, bool nowarn);
+#endif
+
+ public:
+    ParameterGroups();
+    ~ParameterGroups();
+
+    inline string get(string id) { return groups[id]; }
+    inline string operator[](string id) {
+            debug_check(group_exists, id);
+            return groups[id];
+        }
+    inline void insert(string id, string group) {
+            debug_check(group_is_new, id);
+            groups.insert(pair<string, string>(id, group));
+        }
+};
+
+ParameterGroups& get_group_table();
 string param_group(string id, bool nowarn = false);
 
 /****************************************************************

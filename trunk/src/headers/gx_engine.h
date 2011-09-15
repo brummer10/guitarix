@@ -57,9 +57,13 @@ class ModulPointer {
                  (int count, float* input, float* input1, float *output, float *output1);
  public:
     chainorder              mono_rack_order_ptr[60];
+    unsigned int            mono_active_counter;
     chainorder              tonestack_ptr;
     chainorder              amp_ptr;
     stereochainorder        stereo_rack_order_ptr[20];
+    unsigned int            stereo_active_counter;
+    void append_mono(chainorder f) { mono_rack_order_ptr[++mono_active_counter] = f; }
+    void append_stereo(stereochainorder f) { stereo_rack_order_ptr[++stereo_active_counter] = f; }
 };
 extern ModulPointer *_modulpointer;
 
@@ -122,9 +126,7 @@ class AudioVariables {
 
     unsigned int   gxtube;
     unsigned int   mono_plug_counter;
-    unsigned int   mono_active_counter;
     unsigned int   stereo_plug_counter;
-    unsigned int   stereo_active_counter;
     
     unsigned int effect_pre_post[20];
     unsigned int effect_buffer[9];
@@ -280,6 +282,15 @@ void presence_processing(int count, float* input, float* output0);
 // register vars to param and init
 void register_faust_parameters();
 void faust_init(int samplingFreq);
+
+typedef void (*inifunc)(int);  //  NOLINT
+void registerInit(const char *name, inifunc f);
+void registerVar(const char* id, const char* name, const char* tp,
+		 const char* tooltip, float* var, float val = 0,
+		 float low = 0, float up = 0, float step = 0, bool exp = false);
+void registerEnumVar(const char *id, const char* name, const char* tp,
+		     const char* tooltip, const char** values, float *var, float val,
+		     float low = 0, float up = 0, float step = 1, bool exp = false);
 
 /* ------------------------------------------------------------------- */
 } /* end of gx_engine namespace */

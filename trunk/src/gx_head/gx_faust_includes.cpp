@@ -25,8 +25,6 @@
  */
 
 
-typedef void (*inifunc)(int);  //  NOLINT
-
 typedef struct {
     inifunc func;
     const char *name;
@@ -74,24 +72,25 @@ static float& get_alias(const char *id) {
     }
 }
 
-static void registerVar(const char* id, const char* name, const char* tp,
-                        const char* tooltip, float* var, float val = 0,
-                        float low = 0, float up = 0, float step = 0, bool exp = false) {
+void registerVar(const char* id, const char* name, const char* tp,
+		 const char* tooltip, float* var, float val,
+		 float low, float up, float step, bool exp) {
     if (!name[0]) {
-        assert(strrchr(id, '.'));
-        name = strrchr(id, '.')+1;
+	assert(strrchr(id, '.'));
+	name = strrchr(id, '.')+1;
     }
     gx_gui::Parameter *p = new gx_gui::FloatParameter(
-        id, name, gx_gui::Parameter::Continuous, true, *var, val, low, up, step, true, exp);
+        id, name, gx_gui::Parameter::Continuous, true, *var, val,
+	low, up, step, true, exp);
     if (tooltip) {
         p->set_desc(tooltip);
     }
     get_paramlist().push_back(p);
 }
 
-static void registerEnumVar(const char *id, const char* name, const char* tp,
-                            const char* tooltip, const char** values, float *var, float val,
-                            float low = 0, float up = 0, float step = 1, bool exp = false) {
+void registerEnumVar(const char *id, const char* name, const char* tp,
+		     const char* tooltip, const char** values, float *var,
+		     float val, float low, float up, float step, bool exp) {
     if (!name[0]) {
         assert(strrchr(id, '.'));
         name = strrchr(id, '.')+1;
@@ -111,7 +110,7 @@ static inline void registerIntParam(const char*a, const char*b, int*c, int std =
                                   lower, upper, true, exp));
 }
 
-static void registerInit(const char *name, inifunc f) {
+void registerInit(const char *name, inifunc f) {
     inidef i;
     i.func = f;
     i.name = name;
@@ -123,28 +122,7 @@ static void jack_sync() {
     while (sem_wait(&gx_jack::jack_sync_sem) == EINTR);
 }
 
-/****************************************************************/
-
-#define max(x, y) (((x) > (y)) ? (x) : (y))
-#define min(x, y) (((x) < (y)) ? (x) : (y))
-
-// FIXME (temporary)hack to support older compiler versions
-inline float  pow(float b, float e)   {return ::powf(b, e);}
-inline double pow(double b, double e) {return ::pow(b, e);}
-inline double pow(double b, int e)    {return ::pow(b, static_cast<double>(e));}
-inline double pow(int b, double e)    {return ::pow(static_cast<double>(b), e);}
-inline double pow(double b, float e)  {return ::pow(b, static_cast<double>(e));}
-inline double pow(float b, double e)  {return ::pow(static_cast<double>(b), e);}
-inline float  pow(float b, int e)     {return ::powf(b, static_cast<float>(e));}
-inline float  pow(int b, float e)     {return ::powf(static_cast<float>(b),  e);}
-
-template <int N> inline float faustpower(float x)       {return powf(x, N);}
-template <int N> inline double faustpower(double x)     {return pow(x, N);}
-template <int N> inline int faustpower(int x) {return faustpower<N/2>(x) * faustpower<N-N/2>(x);}
-template <>      inline int faustpower<0>(int x)        {return 1;}
-template <>      inline int faustpower<1>(int x)        {return x;}
-
-#define FAUSTFLOAT float
+#include <gx_faust_support.h>
 
 /****************************************************************
  **  include faust/dsp2cc generated files
@@ -395,4 +373,3 @@ void faust_init(int samplingFreq) {
  *   selected functions.
  */
 #include "gx_engine_helpers.cc"
-
