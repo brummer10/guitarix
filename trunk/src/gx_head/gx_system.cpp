@@ -825,7 +825,10 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
         jack_session_event_free(event);
         printf(_("  gx_head session exit  ***  ciao . . \n"));
         return;
+    } else {
+        printf(_("  gx_head exit  ***  ciao . . \n"));
     }
+    
 #else
     printf(_("  gx_head exit  ***  ciao . . \n"));
 #endif
