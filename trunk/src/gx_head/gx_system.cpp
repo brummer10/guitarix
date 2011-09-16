@@ -819,14 +819,16 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
     delete gx_jack::_jackbuffer_ptr;
     gx_jack::_jackbuffer_ptr = 0;
 
+#ifdef HAVE_JACK_SESSION
     if (sysvar.is_session) {
         jack_session_event_t *event = reinterpret_cast<jack_session_event_t *>(data);
         jack_session_event_free(event);
         printf(_("  gx_head session exit  ***  ciao . . \n"));
         return;
-    } else {    
-        printf(_("  gx_head exit  ***  ciao . . \n"));
     }
+#else
+    printf(_("  gx_head exit  ***  ciao . . \n"));
+#endif
     exit(GPOINTER_TO_INT(data));
 }
 } /* end of gx_system namespace */
