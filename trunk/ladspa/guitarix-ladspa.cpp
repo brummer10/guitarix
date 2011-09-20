@@ -667,9 +667,9 @@ class mydsp : public dsp {
 		
 	
 
-//-----------------------------------portCollector--------------------------------------
+//-----------------------------------portCollectorg--------------------------------------
 //
-// portCollector is passed to the buildUserInterface method of a dsp object
+// portCollectorg is passed to the buildUserInterface method of a dsp object
 // in order to build a description of its inputs, outputs and control ports.
 // This description is used to fill a LADSPA_Descriptor
 //
@@ -680,9 +680,9 @@ class mydsp : public dsp {
 //--------------------------------useful constants--------------------------------------
 
 #define MAXPORT 1024
-static const int ICONTROL 	= LADSPA_PORT_INPUT|LADSPA_PORT_CONTROL;
-static const int OCONTROL 	= LADSPA_PORT_OUTPUT|LADSPA_PORT_CONTROL;
-static const int RANGE 		= LADSPA_PORT_INPUT|LADSPA_PORT_CONTROL;
+static const int ICONTROLG 	= LADSPA_PORT_INPUT|LADSPA_PORT_CONTROL;
+static const int OCONTROLG 	= LADSPA_PORT_OUTPUT|LADSPA_PORT_CONTROL;
+static const int RANGEG 		= LADSPA_PORT_INPUT|LADSPA_PORT_CONTROL;
 
 static const char* inames[] = {
 					"input00", "input01", "input02", "input03", "input04",
@@ -708,7 +708,7 @@ static const char* onames[] = {
 
 
 
-class portCollector : public UI
+class portCollectorg : public UI
 {		
  private:
 
@@ -831,7 +831,7 @@ class portCollector : public UI
 	
 	//--------------------------------Collect the audio ports-------------------------------
 
-	portCollector(int ins, int outs) : UI(), fInsCount(ins), fOutsCount(outs), fCtrlCount(0) 
+	portCollectorg(int ins, int outs) : UI(), fInsCount(ins), fOutsCount(outs), fCtrlCount(0) 
 	{
 		for (int i = 0; i < ins; i++) { 
 			fPortDescs[i] = LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO; 
@@ -845,49 +845,49 @@ class portCollector : public UI
 		}
 	};
 
-	virtual ~portCollector() {}
+	virtual ~portCollectorg() {}
 	
 	
 	
 	//------------------------------Collect the control ports-------------------------------
 
 	virtual void addButton(const char* label, float* zone) { 
-		addPortDescr(ICONTROL, label, LADSPA_HINT_TOGGLED); 
+		addPortDescr(ICONTROLG, label, LADSPA_HINT_TOGGLED); 
 	}
 	
 	virtual void addToggleButton(const char* label, float* zone) { 
-		addPortDescr(ICONTROL, label, LADSPA_HINT_TOGGLED); 
+		addPortDescr(ICONTROLG, label, LADSPA_HINT_TOGGLED); 
 	}
 	
 	virtual void addCheckButton(const char* label, float* zone) { 
-		addPortDescr(ICONTROL, label, LADSPA_HINT_TOGGLED); 
+		addPortDescr(ICONTROLG, label, LADSPA_HINT_TOGGLED); 
 	}
 		
 	virtual void addVerticalSlider(const char* label, float* zone, float init, float min, float max, float step) { 
-		addPortDescr(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
+		addPortDescr(ICONTROLG, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
 	}		
 		
 	virtual void addHorizontalSlider(const char* label, float* zone, float init, float min, float max, float step) { 
-		addPortDescr(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
+		addPortDescr(ICONTROLG, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
 	}
 
 	virtual void addNumEntry(const char* label, float* zone, float init, float min, float max, float step) { 
-		addPortDescr(ICONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
+		addPortDescr(ICONTROLG, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
 	}
 		
 	// -- passive widgets
 	
 	virtual void addNumDisplay(const char* label, float* zone, int precision) {
-		addPortDescr(OCONTROL, label, 0, -10000, +10000); 
+		addPortDescr(OCONTROLG, label, 0, -10000, +10000); 
 	}
 	virtual void addTextDisplay(const char* label, float* zone, char* names[], float min, float max) {
-		addPortDescr(OCONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
+		addPortDescr(OCONTROLG, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
 	}
 	virtual void addHorizontalBargraph(const char* label, float* zone, float min, float max) {
-		addPortDescr(OCONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
+		addPortDescr(OCONTROLG, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
 	}
 	virtual void addVerticalBargraph(const char* label, float* zone, float min, float max){
-		addPortDescr(OCONTROL, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
+		addPortDescr(OCONTROLG, label, LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE, min, max); 
 	}
 
 	virtual void openFrameBox(const char* label)		{ openAnyBox(label); }
@@ -1119,10 +1119,10 @@ const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index)
     if (Index == 0) {
 		if (gDescriptor == 0) 
 		{
-			// allocate temporaries dsp and portCollector to build the plugin description
+			// allocate temporaries dsp and portCollectorg to build the plugin description
 			mydsp* p = new mydsp();
 			if (p) {
-				portCollector*	c=new portCollector(p->getNumInputs(), p->getNumOutputs());
+				portCollectorg*	c=new portCollectorg(p->getNumInputs(), p->getNumOutputs());
 				p->buildUserInterface(c);
 				gDescriptor = new LADSPA_Descriptor;
 				init_descriptor(gDescriptor);

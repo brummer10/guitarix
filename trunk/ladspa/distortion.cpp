@@ -378,9 +378,9 @@ class distdsp : public dsp {
 		
 	
 
-//-----------------------------------portCollector--------------------------------------
+//-----------------------------------portCollectord--------------------------------------
 //
-// portCollector is passed to the buildUserInterface methoddis of a dsp object
+// portCollectord is passed to the buildUserInterface methoddis of a dsp object
 // in order to build a description of its inputs, outputs and control ports.
 // This description is used to fill a LADSPA_Descriptor
 //
@@ -419,7 +419,7 @@ static const char* onames[] = {
 
 
 
-class portCollector : public UI
+class portCollectord : public UI
 {		
  private:
 
@@ -542,7 +542,7 @@ class portCollector : public UI
 	
 	//--------------------------------Collect the audio ports-------------------------------
 
-	portCollector(int ins, int outs) : UI(), fInsCount(ins), fOutsCount(outs), fCtrlCount(0) 
+	portCollectord(int ins, int outs) : UI(), fInsCount(ins), fOutsCount(outs), fCtrlCount(0) 
 	{
 		for (int i = 0; i < ins; i++) { 
 			fPortDescs[i] = LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO | LADSPA_HINT_DEFAULT_NONE; 
@@ -556,7 +556,7 @@ class portCollector : public UI
 		}
 	};
 
-	virtual ~portCollector() {}
+	virtual ~portCollectord() {}
 	
 	
 	
@@ -841,10 +841,10 @@ const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index)
     if (Index == 0) {
 		if (gDescriptord == 0) 
 		{
-			// allocate temporaries dsp and portCollector to build the plugin description
+			// allocate temporaries dsp and portCollectord to build the plugin description
 			distdsp* p = new distdsp();
 			if (p) {
-				portCollector*	c=new portCollector(p->getNumInputs(), p->getNumOutputs());
+				portCollectord*	c=new portCollectord(p->getNumInputs(), p->getNumOutputs());
 				p->buildUserInterface(c);
 				gDescriptord = new LADSPA_Descriptor;
 				initdis_descriptor(gDescriptord);
