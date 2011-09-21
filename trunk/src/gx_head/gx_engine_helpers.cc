@@ -141,55 +141,55 @@ static void gx_check_engine_state(gpointer arg) {
     case 0: // "never"
         _modulpointer->amp_ptr = &gx_amps::gxamp::compute;
         break;
-    case 1: // "default"
+    case 1: // "default" 12ax7
         _modulpointer->amp_ptr = &gx_amps::gxamp::compute;
         break;
-    case 2:
+    case 2: // 12AU7
         _modulpointer->amp_ptr = &gx_amps::gxamp3::compute;
         break;
-    case 3:
+    case 3: // 6V6
         _modulpointer->amp_ptr = &gx_amps::gxamp2::compute;
         break;
-    case 4:
+    case 4: // pre 12AU7/ master 6V6
         _modulpointer->amp_ptr = &gx_amps::gxamp4::compute;
         break;
-    case 5:
+    case 5: // pre 12ax7/ master 6V6
         _modulpointer->amp_ptr = &gx_amps::gxamp5::compute;
         break;
-    case 6:
+    case 6: // 6DJ8
         _modulpointer->amp_ptr = &gx_amps::gxamp10::compute;
         break;
-    case 7:
+    case 7: // pre 6DJ8/ master 6V6
         _modulpointer->amp_ptr = &gx_amps::gxamp12::compute;
         break;
-    case 8:
+    case 8: // pre 6DJ8/ push-pull 6V6
         _modulpointer->amp_ptr = &gx_amps::gxamp6::compute;
         break;
-    case 9:
+    case 9: // pre 12ax7/ push-pull 6V6
         _modulpointer->amp_ptr = &gx_amps::gxamp7::compute;
         break;
-    case 10:
+    case 10: // pre 12AU7/ push-pull 6V6
         _modulpointer->amp_ptr = &gx_amps::gxamp8::compute;
         break;
-    case 11:
+    case 11: // 12ax7 feedback
         _modulpointer->amp_ptr = &gx_amps::gxamp9::compute;
         break;
-    case 12:
+    case 12: // 12AU7 feedback
         _modulpointer->amp_ptr = &gx_amps::gxamp11::compute;
         break;
-    case 13:
+    case 13: // 6DJ8 feedback
         _modulpointer->amp_ptr = &gx_amps::gxamp13::compute;
         break;
-    case 14:
+    case 14: // 12AT7
         _modulpointer->amp_ptr = &gx_amps::gxamp14::compute;
         break;
-    case 15:
+    case 15: // pre 12AT7/ master 6V6
         _modulpointer->amp_ptr = &gx_amps::gxamp15::compute;
         break;
-    case 16:
+    case 16: // pre 12AT7/ push pull 6V6
         _modulpointer->amp_ptr = &gx_amps::gxamp16::compute;
         break;
-    case 17:
+    case 17: // 12AT7 feedback
         _modulpointer->amp_ptr = &gx_amps::gxamp17::compute;
         break;
     default:

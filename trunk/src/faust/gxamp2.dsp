@@ -33,37 +33,29 @@ bifilter = tf2(b0,b1,b2,a1,a2) with
     a2 = R*R;
 };
 
-tubestage(tb,fck,Rk) = tube : hpf with {
-    lpfk = lowpass1(fck);
-    Ftube = ffunction(float Ftube2(int,float), "valve.h", "");
-    vplus = 250.0;
-    divider = 40;
-    Rp = 100.0e3;
-    tube = (+ : Ftube(tb)) ~ (-(vplus) : *(Rk/Rp) : lpfk) : /(divider);
-    hpf = highpass1(31.0);
-};
-
 tubec(preamp,gain1) = hgroup("amp2", hgroup("stage1", stage1) :
           hgroup("stage2", stage2) 
           ) with {
           
-    stage1 =  tubestage(0,86.0,2700.0):
-    lowpass1(6531.0) : *(preamp) : tubestage(1,132.0,1500.0); 
-    stage2 = lowpass1(6531.0) : *(gain1) : tubestage(1,194.0,820.0);
+    stage1 =  tubestage(TB_6V6_68k,86.0,2700.0,2.296150):
+    lowpass1(6531.0) : *(preamp) : tubestage(TB_6V6_250k,132.0,1500.0,1.675587); 
+    stage2 = lowpass1(6531.0) : *(gain1) : tubestage(TB_6V6_250k,194.0,820.0,1.130462);
     
-} ;
+};
 
 tubeax(preamp,gain1) = hgroup("amp2", hgroup("stage1", stage1) :
           hgroup("stage2", stage2) 
           ) with {
           
-    stage1 = *(preamp): tubestage(0,86.0,2700.0): *(0.77) :
-    lowpass1(6531.0) : *(preamp) : tubestage(1,132.0,1500.0): *(0.77); 
-    stage2 = lowpass1(6531.0) : *(gain1) : bifilter : tubestage(1,194.0,820.0) : *(0.77);
+    stage1 = *(preamp): tubestage(TB_6V6_68k,86.0,2700.0,2.296150): *(0.77) :
+    lowpass1(6531.0) : *(preamp) : tubestage(TB_6V6_250k,132.0,1500.0,1.675587): *(0.77); 
+    stage2 = lowpass1(6531.0) : *(gain1) : bifilter : tubestage(TB_6V6_250k,194.0,820.0,1.130462) : *(0.77);
     
 } ;
 
-process = component("gxdistortion.dsp").dist(vslider(".gxdistortion.drive[alias]",0.35, 0, 1, 0.01),vslider(".gxdistortion.wet_dry[alias]",  100, 0, 100, 1) : /(100)) : tubeax(preamp,gain1) with {
-    preamp =  vslider(".amp2.stage1.Pregain[alias]",0,-20,20,0.1) : smoothi(0.999) : db2linear;      
-    gain1 = vslider(".amp2.stage2.gain1[alias]", 6, -20.0, 20.0, 0.1) : smoothi(0.999) : db2linear; 
+process = component("gxdistortion.dsp").dist(drive,wet_dry) : tubeax(preamp,gain1) with {
+    drive = vslider(".gxdistortion.drive[alias]",0.35, 0, 1, 0.01);
+    wet_dry = vslider(".gxdistortion.wet_dry[alias]",  100, 0, 100, 1) : /(100) : smoothi(0.999);
+    preamp =  vslider(".amp2.stage1.Pregain[alias]",0,-20,20,0.1) : db2linear : smoothi(0.999);
+    gain1 = vslider(".amp2.stage2.gain1[alias]", 6, -20.0, 20.0, 0.1) : db2linear : smoothi(0.999);
 };

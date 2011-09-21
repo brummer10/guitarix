@@ -65,6 +65,34 @@ with {
 nonlin(a,b,c,x) = ((a * x - b * abs(x) * x) - x) * c;
 nonlin1 = nonlin(2,1,0.5);
 
+
+// simple triode circuit emulation
+
+Ftube = ffunction(float Ftube(int,float), "valve.h", "");
+
+TB_12AX7_68k  = fconstant(int TUBE_TABLE_12AX7_68k,  "valve.h");
+TB_12AX7_250k = fconstant(int TUBE_TABLE_12AX7_250k, "valve.h");
+TB_6V6_68k    = fconstant(int TUBE_TABLE_6V6_68k,    "valve.h");
+TB_6V6_250k   = fconstant(int TUBE_TABLE_6V6_250k,   "valve.h");
+TB_12AU7_68k  = fconstant(int TUBE_TABLE_12AU7_68k,  "valve.h");
+TB_12AU7_250k = fconstant(int TUBE_TABLE_12AU7_250k, "valve.h");
+TB_6DJ8_68k   = fconstant(int TUBE_TABLE_6DJ8_68k,   "valve.h");
+TB_6DJ8_250k  = fconstant(int TUBE_TABLE_6DJ8_250k,  "valve.h");
+TB_12AT7_68k  = fconstant(int TUBE_TABLE_12AT7_68k,  "valve.h");
+TB_12AT7_250k = fconstant(int TUBE_TABLE_12AT7_250k, "valve.h");
+
+tubestageF(tb,vplus,divider,fck,Rk,Vk0) = tube : hpf with {
+    lpfk = lowpass1(fck);
+    Rp = 100.0e3;
+    VkC = Vk0 * (Rp/Rk);
+    tube = (+ : -(Vk0) : Ftube(tb) : +(VkC-vplus)) ~ (*(Rk/Rp) : lpfk) : /(divider);
+    hpf = highpass1(31.0);
+};
+
+tubestage(tb,fck,Rk,Vk0)  = tubestageF(tb,250.0,40.0,fck,Rk,Vk0);
+tubestage130_10(tb,fck,Rk,Vk0) = tubestageF(tb,130.0,10.0,fck,Rk,Vk0);
+tubestage130_20(tb,fck,Rk,Vk0) = tubestageF(tb,130.0,20.0,fck,Rk,Vk0);
+
 /****************************************************************
  ** Guitar tone stacks
  ** values from CAPS plugin tonestack (based on work from D.T. Yeh

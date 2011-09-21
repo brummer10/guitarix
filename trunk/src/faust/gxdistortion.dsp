@@ -155,29 +155,29 @@ gx_drive(drive) = _ <: _ + nonlin(4,4,0.125) * drive * 10 ;
 wetdry = vslider("wet_dry[name:wet/dry]",  100, 0, 100, 1) : /(100);
 drive = vslider("drive", 0.35, 0, 1, 0.01);
 
-dist(drive,wetdry) =_<:(*(dry: smoothi(0.999)): gx_drive(drive)),(*(wetdry: smoothi(0.999)):distdrive(drive)):>_
+dist(drive,wetdry) =_<:(*(dry): gx_drive(drive)),(*(wetdry):distdrive(drive)):>_
 	with{
 	
 	dry = 1 - wetdry;
 	
 	};
 
-dist1(drive,wetdry) =_<:(*(dry: smoothi(0.999)): gx_drive(drive)),(*(wetdry: smoothi(0.999)) <: (clipit: cubicnl(drive,0.0) : * (0.5)),distdrive(drive) :>_):>_
+dist1(drive,wetdry) =_<:(*(dry): gx_drive(drive)),(*(wetdry) <: (clipit: cubicnl(drive,0.0) : * (0.5)),distdrive(drive) :>_):>_
 	with{
 	
 	dry = 1 - wetdry;
 	
 	};
 
-dist2(drive,wetdry) =_<:(*(dry: smoothi(0.999)): gx_drive(drive)),(*(wetdry: smoothi(0.999)):val :distdrive(drive)):>_
+dist2(drive,wetdry) =_<:(*(dry): gx_drive(drive)),(*(wetdry):val :distdrive(drive)):>_
 	with{
 	
 	dry = 1 - wetdry;
 	
 	};
     
-dist4(drive,wetdry) =_<:(*(dry: smoothi(0.999)): gx_drive(drive)),
-                     (*(wetdry: smoothi(0.999)) : val <:
+dist4(drive,wetdry) =_<:(*(dry): gx_drive(drive)),
+                     (*(wetdry) : val <:
                      (cubicnl(drive,0.0) : * (0.5)),distdrive(drive) :>_):>_
 	with{
 	
