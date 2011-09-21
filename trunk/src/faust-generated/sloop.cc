@@ -1,19 +1,18 @@
+// generated from file '../src/faust/sloop.dsp' by dsp2cc:
 namespace sloop {
-// generated from file '../src/faust/sloop.dsp'
-
 volatile bool inited = false;
-FAUSTFLOAT 	fslider0;
-float 	fRec0[2];
-FAUSTFLOAT 	fcheckbox0;
-int 	IOTA;
-float *fVec0;
-int 	iVec1[2];
-int 	iRec2[2];
-float 	fRec1[2];
-FAUSTFLOAT 	fcheckbox1;
-int	fSamplingFreq;
+static FAUSTFLOAT 	fslider0;
+static float 	fRec0[2];
+static FAUSTFLOAT 	fcheckbox0;
+static int 	IOTA;
+static float *fVec0;
+static int 	iVec1[2];
+static int 	iRec2[2];
+static float 	fRec1[2];
+static FAUSTFLOAT 	fcheckbox1;
+static int	fSamplingFreq;
 
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	if (!fVec0) fVec0 = new float[2097152];
 	fSamplingFreq = samplingFreq;
@@ -26,7 +25,7 @@ void init(int samplingFreq)
 	inited = true;
 }
 
-void mem_free()
+static void mem_free()
 {
 	inited = false;
 	jack_sync();
@@ -39,7 +38,7 @@ inline bool is_inited()
 }
 
 
-void activate(bool start, int samplingFreq)
+static void activate(bool start, int samplingFreq)
 {
 	if (start) {
 		if (!is_inited()) {

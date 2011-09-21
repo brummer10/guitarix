@@ -1,10 +1,9 @@
+// generated from file '../src/faust/balance1.dsp' by dsp2cc:
 namespace balance1 {
-// generated from file '../src/faust/balance1.dsp'
+static FAUSTFLOAT&	fslider0 = get_alias("amp.balance");
+static int	fSamplingFreq;
 
-FAUSTFLOAT&	fslider0 = get_alias("amp.balance");
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 }

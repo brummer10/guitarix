@@ -1,12 +1,11 @@
+// generated from file '../src/faust/tube3.dsp' by dsp2cc:
 namespace tube3 {
-// generated from file '../src/faust/tube3.dsp'
+static FAUSTFLOAT 	fslider0;
+static FAUSTFLOAT 	fslider1;
+static FAUSTFLOAT 	fslider2;
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-FAUSTFLOAT 	fslider1;
-FAUSTFLOAT 	fslider2;
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 }

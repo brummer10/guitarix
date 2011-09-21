@@ -1,25 +1,24 @@
+// generated from file '../src/faust/flanger.dsp' by dsp2cc:
 namespace flanger {
-// generated from file '../src/faust/flanger.dsp'
+static FAUSTFLOAT 	fslider0;
+static int 	iVec0[2];
+static FAUSTFLOAT 	fslider1;
+static int 	IOTA;
+static double 	fVec1[2048];
+static FAUSTFLOAT 	fslider2;
+static double 	fConst0;
+static double 	fRec1[2];
+static double 	fRec2[2];
+static FAUSTFLOAT 	fslider3;
+static FAUSTFLOAT 	fslider4;
+static double 	fRec0[2];
+static FAUSTFLOAT 	fslider5;
+static FAUSTFLOAT 	fcheckbox0;
+static double 	fVec2[2048];
+static double 	fRec3[2];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-int 	iVec0[2];
-FAUSTFLOAT 	fslider1;
-int 	IOTA;
-double 	fVec1[2048];
-FAUSTFLOAT 	fslider2;
-double 	fConst0;
-double 	fRec1[2];
-double 	fRec2[2];
-FAUSTFLOAT 	fslider3;
-FAUSTFLOAT 	fslider4;
-double 	fRec0[2];
-FAUSTFLOAT 	fslider5;
-FAUSTFLOAT 	fcheckbox0;
-double 	fVec2[2048];
-double 	fRec3[2];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;

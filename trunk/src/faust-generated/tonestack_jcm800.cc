@@ -1,16 +1,15 @@
+// generated from file '../src/faust/tonestack_jcm800.dsp' by dsp2cc:
 namespace tonestack_jcm800 {
-// generated from file '../src/faust/tonestack_jcm800.dsp'
+static FAUSTFLOAT&	fslider0 = get_alias("amp.tonestack.Middle");
+static FAUSTFLOAT&	fslider1 = get_alias("amp.tonestack.Bass");
+static double 	fConst0;
+static double 	fConst1;
+static double 	fConst2;
+static double 	fRec0[4];
+static FAUSTFLOAT&	fslider2 = get_alias("amp.tonestack.Treble");
+static int	fSamplingFreq;
 
-FAUSTFLOAT&	fslider0 = get_alias("amp.tonestack.Middle");
-FAUSTFLOAT&	fslider1 = get_alias("amp.tonestack.Bass");
-double 	fConst0;
-double 	fConst1;
-double 	fConst2;
-double 	fRec0[4];
-FAUSTFLOAT&	fslider2 = get_alias("amp.tonestack.Treble");
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = (2 * double(fSamplingFreq));

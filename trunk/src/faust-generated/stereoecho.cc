@@ -1,18 +1,17 @@
+// generated from file '../src/faust/stereoecho.dsp' by dsp2cc:
 namespace stereoecho {
-// generated from file '../src/faust/stereoecho.dsp'
-
 volatile bool inited = false;
-FAUSTFLOAT 	fslider0;
-float 	fConst0;
-FAUSTFLOAT 	fslider1;
-int 	IOTA;
-float *fRec0;
-FAUSTFLOAT 	fslider2;
-FAUSTFLOAT 	fslider3;
-float *fRec1;
-int	fSamplingFreq;
+static FAUSTFLOAT 	fslider0;
+static float 	fConst0;
+static FAUSTFLOAT 	fslider1;
+static int 	IOTA;
+static float *fRec0;
+static FAUSTFLOAT 	fslider2;
+static FAUSTFLOAT 	fslider3;
+static float *fRec1;
+static int	fSamplingFreq;
 
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	if (!fRec0) fRec0 = new float[262144];
 	if (!fRec1) fRec1 = new float[262144];
@@ -24,7 +23,7 @@ void init(int samplingFreq)
 	inited = true;
 }
 
-void mem_free()
+static void mem_free()
 {
 	inited = false;
 	jack_sync();
@@ -38,7 +37,7 @@ inline bool is_inited()
 }
 
 
-void activate(bool start, int samplingFreq)
+static void activate(bool start, int samplingFreq)
 {
 	if (start) {
 		if (!is_inited()) {

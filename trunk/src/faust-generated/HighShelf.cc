@@ -1,25 +1,24 @@
+// generated from file '../src/faust/HighShelf.dsp' by dsp2cc:
 namespace HighShelf {
-// generated from file '../src/faust/HighShelf.dsp'
+static int 	iVec0[2];
+static double 	fConst0;
+static double 	fConst1;
+static double 	fConst2;
+static double 	fConst3;
+static double 	fConst4;
+static double 	fConst5;
+static double 	fConst6;
+static double 	fRec1[2];
+static double 	fVec1[3];
+static double 	fConst7;
+static double 	fConst8;
+static double 	fConst9;
+static double 	fConst10;
+static double 	fConst11;
+static double 	fRec0[3];
+static int	fSamplingFreq;
 
-int 	iVec0[2];
-double 	fConst0;
-double 	fConst1;
-double 	fConst2;
-double 	fConst3;
-double 	fConst4;
-double 	fConst5;
-double 	fConst6;
-double 	fRec1[2];
-double 	fVec1[3];
-double 	fConst7;
-double 	fConst8;
-double 	fConst9;
-double 	fConst10;
-double 	fConst11;
-double 	fRec0[3];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;

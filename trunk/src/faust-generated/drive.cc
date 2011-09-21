@@ -1,10 +1,9 @@
+// generated from file '../src/faust/drive.dsp' by dsp2cc:
 namespace drive {
-// generated from file '../src/faust/drive.dsp'
+static FAUSTFLOAT 	fslider0;
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 }

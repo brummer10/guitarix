@@ -1,50 +1,49 @@
+// generated from file '../src/faust/selecteq.dsp' by dsp2cc:
 namespace selecteq {
-// generated from file '../src/faust/selecteq.dsp'
+static FAUSTFLOAT 	fslider0;
+static double 	fConst0;
+static FAUSTFLOAT 	fslider1;
+static FAUSTFLOAT 	fslider2;
+static FAUSTFLOAT 	fslider3;
+static FAUSTFLOAT 	fslider4;
+static FAUSTFLOAT 	fslider5;
+static FAUSTFLOAT 	fslider6;
+static FAUSTFLOAT 	fslider7;
+static FAUSTFLOAT 	fslider8;
+static FAUSTFLOAT 	fslider9;
+static FAUSTFLOAT 	fslider10;
+static FAUSTFLOAT 	fslider11;
+static FAUSTFLOAT 	fslider12;
+static FAUSTFLOAT 	fslider13;
+static FAUSTFLOAT 	fslider14;
+static FAUSTFLOAT 	fslider15;
+static FAUSTFLOAT 	fslider16;
+static FAUSTFLOAT 	fslider17;
+static FAUSTFLOAT 	fslider18;
+static FAUSTFLOAT 	fslider19;
+static FAUSTFLOAT 	fslider20;
+static FAUSTFLOAT 	fslider21;
+static FAUSTFLOAT 	fslider22;
+static FAUSTFLOAT 	fslider23;
+static FAUSTFLOAT 	fslider24;
+static FAUSTFLOAT 	fslider25;
+static FAUSTFLOAT 	fslider26;
+static FAUSTFLOAT 	fslider27;
+static FAUSTFLOAT 	fslider28;
+static FAUSTFLOAT 	fslider29;
+static double 	fRec9[3];
+static double 	fRec8[3];
+static double 	fRec7[3];
+static double 	fRec6[3];
+static double 	fRec5[3];
+static double 	fRec4[3];
+static double 	fRec3[3];
+static double 	fRec2[3];
+static double 	fRec1[3];
+static double 	fRec0[3];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-double 	fConst0;
-FAUSTFLOAT 	fslider1;
-FAUSTFLOAT 	fslider2;
-FAUSTFLOAT 	fslider3;
-FAUSTFLOAT 	fslider4;
-FAUSTFLOAT 	fslider5;
-FAUSTFLOAT 	fslider6;
-FAUSTFLOAT 	fslider7;
-FAUSTFLOAT 	fslider8;
-FAUSTFLOAT 	fslider9;
-FAUSTFLOAT 	fslider10;
-FAUSTFLOAT 	fslider11;
-FAUSTFLOAT 	fslider12;
-FAUSTFLOAT 	fslider13;
-FAUSTFLOAT 	fslider14;
-FAUSTFLOAT 	fslider15;
-FAUSTFLOAT 	fslider16;
-FAUSTFLOAT 	fslider17;
-FAUSTFLOAT 	fslider18;
-FAUSTFLOAT 	fslider19;
-FAUSTFLOAT 	fslider20;
-FAUSTFLOAT 	fslider21;
-FAUSTFLOAT 	fslider22;
-FAUSTFLOAT 	fslider23;
-FAUSTFLOAT 	fslider24;
-FAUSTFLOAT 	fslider25;
-FAUSTFLOAT 	fslider26;
-FAUSTFLOAT 	fslider27;
-FAUSTFLOAT 	fslider28;
-FAUSTFLOAT 	fslider29;
-double 	fRec9[3];
-double 	fRec8[3];
-double 	fRec7[3];
-double 	fRec6[3];
-double 	fRec5[3];
-double 	fRec4[3];
-double 	fRec3[3];
-double 	fRec2[3];
-double 	fRec1[3];
-double 	fRec0[3];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = (3.141592653589793 / fSamplingFreq);

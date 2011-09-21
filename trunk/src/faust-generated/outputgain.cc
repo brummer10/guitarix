@@ -1,11 +1,10 @@
+// generated from file '../src/faust/outputgain.dsp' by dsp2cc:
 namespace outputgain {
-// generated from file '../src/faust/outputgain.dsp'
+static FAUSTFLOAT 	fslider0;
+static double 	fRec0[2];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-double 	fRec0[2];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) fRec0[i] = 0;

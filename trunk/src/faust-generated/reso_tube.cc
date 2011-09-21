@@ -1,15 +1,14 @@
+// generated from file '../src/faust/reso_tube.dsp' by dsp2cc:
 namespace reso_tube {
-// generated from file '../src/faust/reso_tube.dsp'
+static FAUSTFLOAT&	fslider0 = get_alias("tube2.resonanz");
+static int 	IOTA;
+static double 	fVec0[4096];
+static FAUSTFLOAT&	fslider1 = get_alias("tube2.vibrato");
+static double 	fRec0[2];
+static FAUSTFLOAT&	fslider2 = get_alias("tube2.fuzzy");
+static int	fSamplingFreq;
 
-FAUSTFLOAT&	fslider0 = get_alias("tube2.resonanz");
-int 	IOTA;
-double 	fVec0[4096];
-FAUSTFLOAT&	fslider1 = get_alias("tube2.vibrato");
-double 	fRec0[2];
-FAUSTFLOAT&	fslider2 = get_alias("tube2.fuzzy");
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;

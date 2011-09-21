@@ -1,17 +1,16 @@
+// generated from file '../src/faust/impulseresponse.dsp' by dsp2cc:
 namespace impulseresponse {
-// generated from file '../src/faust/impulseresponse.dsp'
+static FAUSTFLOAT 	fslider0;
+static double 	fConst0;
+static FAUSTFLOAT 	fslider1;
+static double 	fConst1;
+static double 	fVec0[3];
+static FAUSTFLOAT 	fcheckbox0;
+static FAUSTFLOAT 	fslider2;
+static double 	fRec0[3];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-double 	fConst0;
-FAUSTFLOAT 	fslider1;
-double 	fConst1;
-double 	fVec0[3];
-FAUSTFLOAT 	fcheckbox0;
-FAUSTFLOAT 	fslider2;
-double 	fRec0[3];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = (3.141592653589793 / fSamplingFreq);

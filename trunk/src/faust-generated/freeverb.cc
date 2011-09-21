@@ -1,45 +1,44 @@
+// generated from file '../src/faust/freeverb.dsp' by dsp2cc:
 namespace freeverb {
-// generated from file '../src/faust/freeverb.dsp'
+static FAUSTFLOAT 	fslider0;
+static FAUSTFLOAT 	fslider1;
+static double 	fRec9[2];
+static FAUSTFLOAT 	fslider2;
+static int 	IOTA;
+static double 	fVec0[2048];
+static double 	fRec8[2];
+static double 	fRec11[2];
+static double 	fVec1[2048];
+static double 	fRec10[2];
+static double 	fRec13[2];
+static double 	fVec2[2048];
+static double 	fRec12[2];
+static double 	fRec15[2];
+static double 	fVec3[2048];
+static double 	fRec14[2];
+static double 	fRec17[2];
+static double 	fVec4[2048];
+static double 	fRec16[2];
+static double 	fRec19[2];
+static double 	fVec5[2048];
+static double 	fRec18[2];
+static double 	fRec21[2];
+static double 	fVec6[2048];
+static double 	fRec20[2];
+static double 	fRec23[2];
+static double 	fVec7[2048];
+static double 	fRec22[2];
+static double 	fVec8[1024];
+static double 	fRec6[2];
+static double 	fVec9[512];
+static double 	fRec4[2];
+static double 	fVec10[512];
+static double 	fRec2[2];
+static double 	fVec11[256];
+static double 	fRec0[2];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-FAUSTFLOAT 	fslider1;
-double 	fRec9[2];
-FAUSTFLOAT 	fslider2;
-int 	IOTA;
-double 	fVec0[2048];
-double 	fRec8[2];
-double 	fRec11[2];
-double 	fVec1[2048];
-double 	fRec10[2];
-double 	fRec13[2];
-double 	fVec2[2048];
-double 	fRec12[2];
-double 	fRec15[2];
-double 	fVec3[2048];
-double 	fRec14[2];
-double 	fRec17[2];
-double 	fVec4[2048];
-double 	fRec16[2];
-double 	fRec19[2];
-double 	fVec5[2048];
-double 	fRec18[2];
-double 	fRec21[2];
-double 	fVec6[2048];
-double 	fRec20[2];
-double 	fRec23[2];
-double 	fVec7[2048];
-double 	fRec22[2];
-double 	fVec8[1024];
-double 	fRec6[2];
-double 	fVec9[512];
-double 	fRec4[2];
-double 	fVec10[512];
-double 	fRec2[2];
-double 	fVec11[256];
-double 	fRec0[2];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) fRec9[i] = 0;

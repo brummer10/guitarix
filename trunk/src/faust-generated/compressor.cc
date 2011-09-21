@@ -1,19 +1,18 @@
+// generated from file '../src/faust/compressor.dsp' by dsp2cc:
 namespace compressor {
-// generated from file '../src/faust/compressor.dsp'
+static FAUSTFLOAT 	fentry0;
+static FAUSTFLOAT 	fentry1;
+static double 	fConst0;
+static double 	fConst1;
+static double 	fRec1[2];
+static double 	fConst2;
+static FAUSTFLOAT 	fslider0;
+static FAUSTFLOAT 	fslider1;
+static double 	fRec0[2];
+static FAUSTFLOAT 	fentry2;
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fentry0;
-FAUSTFLOAT 	fentry1;
-double 	fConst0;
-double 	fConst1;
-double 	fRec1[2];
-double 	fConst2;
-FAUSTFLOAT 	fslider0;
-FAUSTFLOAT 	fslider1;
-double 	fRec0[2];
-FAUSTFLOAT 	fentry2;
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = exp((0 - (1e+01 / fSamplingFreq)));

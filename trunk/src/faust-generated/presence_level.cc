@@ -1,10 +1,9 @@
+// generated from file '../src/faust/presence_level.dsp' by dsp2cc:
 namespace presence_level {
-// generated from file '../src/faust/presence_level.dsp'
+static FAUSTFLOAT&	fslider0 = get_alias("con.Level");
+static int	fSamplingFreq;
 
-FAUSTFLOAT&	fslider0 = get_alias("con.Level");
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 }

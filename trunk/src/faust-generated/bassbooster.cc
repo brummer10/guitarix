@@ -1,16 +1,15 @@
+// generated from file '../src/faust/bassbooster.dsp' by dsp2cc:
 namespace bassbooster {
-// generated from file '../src/faust/bassbooster.dsp'
+static double 	fConst0;
+static double 	fConst1;
+static double 	fConst2;
+static double 	fConst3;
+static double 	fConst4;
+static double 	fRec0[3];
+static FAUSTFLOAT 	fslider0;
+static int	fSamplingFreq;
 
-double 	fConst0;
-double 	fConst1;
-double 	fConst2;
-double 	fConst3;
-double 	fConst4;
-double 	fRec0[3];
-FAUSTFLOAT 	fslider0;
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = tan((376.99111843077515 / fSamplingFreq));

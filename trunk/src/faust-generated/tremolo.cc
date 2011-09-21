@@ -1,23 +1,22 @@
+// generated from file '../src/faust/tremolo.dsp' by dsp2cc:
 namespace tremolo {
-// generated from file '../src/faust/tremolo.dsp'
+static int 	iVec0[2];
+static double 	fConst0;
+static FAUSTFLOAT 	fslider0;
+static double 	fConst1;
+static int 	iRec2[2];
+static int 	iRec1[2];
+static double 	fConst2;
+static double 	fRec5[2];
+static double 	fRec4[2];
+static double 	fRec3[2];
+static FAUSTFLOAT 	fcheckbox0;
+static FAUSTFLOAT 	fslider1;
+static double 	fRec0[2];
+static FAUSTFLOAT 	fslider2;
+static int	fSamplingFreq;
 
-int 	iVec0[2];
-double 	fConst0;
-FAUSTFLOAT 	fslider0;
-double 	fConst1;
-int 	iRec2[2];
-int 	iRec1[2];
-double 	fConst2;
-double 	fRec5[2];
-double 	fRec4[2];
-double 	fRec3[2];
-FAUSTFLOAT 	fcheckbox0;
-FAUSTFLOAT 	fslider1;
-double 	fRec0[2];
-FAUSTFLOAT 	fslider2;
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;

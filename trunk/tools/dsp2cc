@@ -45,9 +45,17 @@ class UIDefs(object):
     def has(self, element, key):
         return self.ui[element].has_key(key)
 
-    def var_filter(self):
+    def var_filter(self, const=2):
         s = "|".join([r"%s\s*=\s*%s" % (v, num_re) for v in self.ui.keys()])
-        return re.compile(r"\s*("+s+");").match
+        def filt(t):
+            if re.compile(r"\s*("+s+");").match(t):
+                return True
+            if const == 1 and t.startswith("for "):
+                return True
+            if const == 0 and not t.startswith("for "):
+                return True
+            return False
+        return filt
 
     def write(self, fp, prefix=""):
         for v, r in self.ui.items():
@@ -88,7 +96,7 @@ class Parser(object):
         return [l[n:] for l in cp]
 
     def get_section_list(self):
-        return "var-decl", "var-init", "var-free", "ui", "compute"
+        return "includes", "var-decl", "var-init", "var-free", "ui", "compute"
 
     def getIO(self, s):
         e = r"\s*virtual int getNum%sputs\(\)\s*{\s*return\s*(\d+);\s*}" % s
@@ -189,6 +197,16 @@ class Parser(object):
                 if key == "name":
                     self.toplevel = value
 
+    def readIncludes(self, stop_expr):
+        stop = re.compile(stop_expr).match
+        cp = []
+        for line in self.lines:
+            if stop(line):
+                return cp
+            if line.startswith('#include "'):
+                cp.append(line)
+        raise RuntimeError("EOF while looking for #include")
+
     def change_var_decl(self, lines):
         param_matcher = re.compile(r"FAUSTFLOAT\s+([a-zA-Z_0-9]+);\n$").match
         array_matcher = re.compile(r"(int|float|double)\s+([a-zA-Z_0-9]+)\s*\[\s*(\d+)\s*\]\s*;\n$").match
@@ -209,6 +227,8 @@ class Parser(object):
                     if alen * sz > self.memory_threshold:
                         l = "%s *%s;\n" % (m.group(1), m.group(2))
                         self.memlist.append((m.group(2), m.group(1), alen))
+            if l.startswith(("int","float","double","FAUSTFLOAT")):
+                l = "static " + l
             out.append(l)
         return out
 
@@ -235,7 +255,8 @@ class Parser(object):
         self.ui = UIDefs()
         #self.readMeta()  # (needed only for faust 9.4
         self.headvers = self.skip_until(r"\s*//\s*(Code generated with Faust.*)").group(1)
-        self.skip_until(r"  private:")
+        s["includes"] = self.readIncludes(r"  private:")
+        #self.skip_until(r"  private:")
         var_decl = self.copy(r"  public:")
         self.skip_until(r"^\s*static\s+void\s+metadata\s*\(\s*Meta\s*\*\s*m\s*\)\s*{")
         self.readMeta2(r"\s*}\s*\n$")
@@ -259,6 +280,19 @@ class Parser(object):
         if self.topname is None:
             self.topname = self.modname
         # ignore any following definitions of static class members
+        #self.checkfor(r".*\bexp\b", "compute")
+
+    def checkfor(self, re_exp, sect):
+        loop = re.compile(r"\s*for\s*\(int\s+i=0;\s*i<count;\s*i\+\+\)\s*{").match
+        re_m = re.compile(re_exp).match
+        in_loop = False
+        for l in self.sections[sect]:
+            if not in_loop:
+                if loop(l):
+                    in_loop = True
+                continue
+            if re_m(l):
+                print self.modname, l
 
     def getNumInputs(self):
         return self.numInputs
@@ -278,7 +312,7 @@ class Parser(object):
             fp.write(l)
 
 activate = """
-void activate(bool start, int samplingFreq)
+static void activate(bool start, int samplingFreq)
 {
 	if (start) {
 		if (!is_inited()) {
@@ -293,23 +327,54 @@ void activate(bool start, int samplingFreq)
 
 """
 
+preload = r"""
+void preload()
+{
+    const float eps = 1e-9;
+    const int count = 2;
+    float ibuf[count];
+    float obuf[count];
+    init(44100);
+    memset(ibuf, 0, sizeof(ibuf));
+    int n = 0;
+    do {
+        compute(count, ibuf, obuf);
+	//printf("%%g %%g\n", obuf[0], obuf[1]);
+        n++;
+    } while (abs(obuf[count-1] - obuf[count-2]) > eps);
+    printf("preload %s: %%d\n", n*count);
+}
+
+"""
+
 def output(fp, p, fname, no_init):
     has_activate = len(p.memlist) > 0
-    fp.write("namespace %s {\n" % p.modname)
-    fp.write("// generated from file '%s'\n\n" % fname)
-    #fp.write("// generated from file '%s' by dsp2cc:\n" % fname)
+    has_preload = p.meta.has_key("preload")
+    if has_activate and has_preload:
+        raise SystemExit, "activate not implemented with declare preload"
+    fp.write("// generated from file '%s' by dsp2cc:\n" % fname)
     #fp.write("// %s\n\n" % p.headvers) # good idea or not??
+    p.write(fp, "includes")
+    fp.write("namespace %s {\n" % p.modname)
     if has_activate:
         fp.write("volatile bool inited = false;\n")
     p.write(fp, "var-decl")
-    fp.write("int\tfSamplingFreq;\n\n")
-    fp.write("void init(int samplingFreq)\n{\n")
-    p.write(fp, "var-init", 1, filt=p.ui.var_filter())
+    fp.write("static int\tfSamplingFreq;\n\n")
+    fp.write("static void init(int samplingFreq)\n{\n")
+    if has_preload:
+        mode = 1
+    else:
+        mode = 2
+    p.write(fp, "var-init", 1, filt=p.ui.var_filter(mode))
     if has_activate:
         fp.write("\tinited = true;\n")
     fp.write("}\n\n")
+    if has_preload:
+        fp.write("static void clear()\n{\n")
+        p.write(fp, "var-init", 1, filt=p.ui.var_filter(0))
+        fp.write("}\n\n")
     if has_activate:
-        fp.write("void mem_free()\n{\n")
+        fp.write("static void mem_free()\n{\n")
         fp.write("\tinited = false;\n")
         fp.write("\tjack_sync();\n")
         p.write(fp, "var-free", 1)
@@ -322,11 +387,17 @@ def output(fp, p, fname, no_init):
         "".join([", float *output%d" % i for i in range(p.getNumOutputs())])))
     p.write(fp, "compute", 1)
     fp.write("\t}\n}\n\n")
+    if has_preload:
+        fp.write(preload % fname)
     if not no_init:
         fp.write("static struct RegisterParams { RegisterParams(); } RegisterParams;\n")
         fp.write("RegisterParams::RegisterParams()\n{\n")
         p.ui.write(fp)
         fp.write('\tregisterInit("%s", init);\n' % p.topname)
+        if has_preload:
+            fp.write('\tclear();\n')
+        #if has_preload:
+        #    fp.write("\tpreload();\n");
         fp.write("}\n")
     else:
         fp.write("int register_params(const paramreg& reg)\n{\n")

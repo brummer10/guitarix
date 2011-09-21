@@ -1,12 +1,11 @@
+// generated from file '../src/faust/gx_feedback.dsp' by dsp2cc:
 namespace gx_feedback {
-// generated from file '../src/faust/gx_feedback.dsp'
+static FAUSTFLOAT 	fslider0;
+static FAUSTFLOAT 	fslider1;
+static double 	fRec0[6];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-FAUSTFLOAT 	fslider1;
-double 	fRec0[6];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<6; i++) fRec0[i] = 0;

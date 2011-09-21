@@ -1,25 +1,24 @@
+// generated from file '../src/faust/moog.dsp' by dsp2cc:
 namespace moog {
-// generated from file '../src/faust/moog.dsp'
+static int 	iVec0[2];
+static FAUSTFLOAT 	fslider0;
+static double 	fRec1[2];
+static double 	fConst0;
+static FAUSTFLOAT 	fslider1;
+static double 	fRec6[2];
+static double 	fRec5[2];
+static double 	fRec4[2];
+static double 	fRec3[2];
+static double 	fRec2[2];
+static double 	fRec0[2];
+static double 	fRec11[2];
+static double 	fRec10[2];
+static double 	fRec9[2];
+static double 	fRec8[2];
+static double 	fRec7[2];
+static int	fSamplingFreq;
 
-int 	iVec0[2];
-FAUSTFLOAT 	fslider0;
-double 	fRec1[2];
-double 	fConst0;
-FAUSTFLOAT 	fslider1;
-double 	fRec6[2];
-double 	fRec5[2];
-double 	fRec4[2];
-double 	fRec3[2];
-double 	fRec2[2];
-double 	fRec0[2];
-double 	fRec11[2];
-double 	fRec10[2];
-double 	fRec9[2];
-double 	fRec8[2];
-double 	fRec7[2];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;

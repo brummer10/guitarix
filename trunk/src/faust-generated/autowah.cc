@@ -1,21 +1,20 @@
+// generated from file '../src/faust/autowah.dsp' by dsp2cc:
 namespace autowah {
-// generated from file '../src/faust/autowah.dsp'
+static int 	IOTA;
+static int 	iVec0[1024];
+static int 	iRec2[2];
+static FAUSTFLOAT&	fslider0 = get_alias("crybaby.wah");
+static double 	fRec1[2];
+static FAUSTFLOAT&	fslider1 = get_alias("crybaby.level");
+static FAUSTFLOAT&	fslider2 = get_alias("crybaby.wet_dry");
+static double 	fConst0;
+static double 	fConst1;
+static double 	fRec3[2];
+static double 	fRec4[2];
+static double 	fRec0[3];
+static int	fSamplingFreq;
 
-int 	IOTA;
-int 	iVec0[1024];
-int 	iRec2[2];
-FAUSTFLOAT&	fslider0 = get_alias("crybaby.wah");
-double 	fRec1[2];
-FAUSTFLOAT&	fslider1 = get_alias("crybaby.level");
-FAUSTFLOAT&	fslider2 = get_alias("crybaby.wet_dry");
-double 	fConst0;
-double 	fConst1;
-double 	fRec3[2];
-double 	fRec4[2];
-double 	fRec0[3];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;

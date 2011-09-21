@@ -1,26 +1,25 @@
+// generated from file '../src/faust/stereodelay.dsp' by dsp2cc:
 namespace stereodelay {
-// generated from file '../src/faust/stereodelay.dsp'
-
 volatile bool inited = false;
-int 	IOTA;
-float *fVec0;
-FAUSTFLOAT 	fslider0;
-float 	fConst0;
-int 	iVec1[2];
-FAUSTFLOAT 	fslider1;
-float 	fConst1;
-float 	fRec0[2];
-float 	fRec1[2];
-FAUSTFLOAT 	fcheckbox0;
-FAUSTFLOAT 	fslider2;
-float 	fRec2[2];
-float *fVec2;
-FAUSTFLOAT 	fslider3;
-FAUSTFLOAT 	fslider4;
-float 	fRec3[2];
-int	fSamplingFreq;
+static int 	IOTA;
+static float *fVec0;
+static FAUSTFLOAT 	fslider0;
+static float 	fConst0;
+static int 	iVec1[2];
+static FAUSTFLOAT 	fslider1;
+static float 	fConst1;
+static float 	fRec0[2];
+static float 	fRec1[2];
+static FAUSTFLOAT 	fcheckbox0;
+static FAUSTFLOAT 	fslider2;
+static float 	fRec2[2];
+static float *fVec2;
+static FAUSTFLOAT 	fslider3;
+static FAUSTFLOAT 	fslider4;
+static float 	fRec3[2];
+static int	fSamplingFreq;
 
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	if (!fVec0) fVec0 = new float[262144];
 	if (!fVec2) fVec2 = new float[262144];
@@ -38,7 +37,7 @@ void init(int samplingFreq)
 	inited = true;
 }
 
-void mem_free()
+static void mem_free()
 {
 	inited = false;
 	jack_sync();
@@ -52,7 +51,7 @@ inline bool is_inited()
 }
 
 
-void activate(bool start, int samplingFreq)
+static void activate(bool start, int samplingFreq)
 {
 	if (start) {
 		if (!is_inited()) {

@@ -1,12 +1,11 @@
+// generated from file '../src/faust/overdrive.dsp' by dsp2cc:
 namespace overdrive {
-// generated from file '../src/faust/overdrive.dsp'
+static FAUSTFLOAT 	fslider0;
+static FAUSTFLOAT 	fslider1;
+static double 	fRec0[2];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-FAUSTFLOAT 	fslider1;
-double 	fRec0[2];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) fRec0[i] = 0;

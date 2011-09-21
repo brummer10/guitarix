@@ -1,19 +1,18 @@
+// generated from file '../src/faust/flanger_mono.dsp' by dsp2cc:
 namespace flanger_mono {
-// generated from file '../src/faust/flanger_mono.dsp'
+static FAUSTFLOAT 	fslider0;
+static int 	iVec0[2];
+static FAUSTFLOAT 	fslider1;
+static int 	IOTA;
+static double 	fVec1[2048];
+static FAUSTFLOAT 	fslider2;
+static double 	fConst0;
+static double 	fRec1[2];
+static double 	fRec2[2];
+static double 	fRec0[2];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-int 	iVec0[2];
-FAUSTFLOAT 	fslider1;
-int 	IOTA;
-double 	fVec1[2048];
-FAUSTFLOAT 	fslider2;
-double 	fConst0;
-double 	fRec1[2];
-double 	fRec2[2];
-double 	fRec0[2];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;

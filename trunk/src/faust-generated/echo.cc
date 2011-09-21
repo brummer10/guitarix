@@ -1,15 +1,14 @@
+// generated from file '../src/faust/echo.dsp' by dsp2cc:
 namespace echo {
-// generated from file '../src/faust/echo.dsp'
-
 volatile bool inited = false;
-FAUSTFLOAT 	fslider0;
-float 	fConst0;
-FAUSTFLOAT 	fslider1;
-int 	IOTA;
-float *fRec0;
-int	fSamplingFreq;
+static FAUSTFLOAT 	fslider0;
+static float 	fConst0;
+static FAUSTFLOAT 	fslider1;
+static int 	IOTA;
+static float *fRec0;
+static int	fSamplingFreq;
 
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	if (!fRec0) fRec0 = new float[262144];
 	fSamplingFreq = samplingFreq;
@@ -19,7 +18,7 @@ void init(int samplingFreq)
 	inited = true;
 }
 
-void mem_free()
+static void mem_free()
 {
 	inited = false;
 	jack_sync();
@@ -32,7 +31,7 @@ inline bool is_inited()
 }
 
 
-void activate(bool start, int samplingFreq)
+static void activate(bool start, int samplingFreq)
 {
 	if (start) {
 		if (!is_inited()) {

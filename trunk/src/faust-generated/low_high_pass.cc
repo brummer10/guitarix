@@ -1,27 +1,26 @@
+// generated from file '../src/faust/low_high_pass.dsp' by dsp2cc:
 namespace low_high_pass {
-// generated from file '../src/faust/low_high_pass.dsp'
+static int 	iVec0[2];
+static FAUSTFLOAT 	fentry0;
+static double 	fConst0;
+static FAUSTFLOAT 	fentry1;
+static double 	fRec2[2];
+static double 	fVec1[2];
+static double 	fRec1[2];
+static double 	fRec0[2];
+static FAUSTFLOAT 	fcheckbox0;
+static FAUSTFLOAT 	fslider0;
+static FAUSTFLOAT 	fslider1;
+static double 	fVec2[2];
+static double 	fRec6[2];
+static double 	fVec3[2];
+static double 	fRec5[2];
+static double 	fRec4[3];
+static double 	fRec3[3];
+static FAUSTFLOAT 	fcheckbox1;
+static int	fSamplingFreq;
 
-int 	iVec0[2];
-FAUSTFLOAT 	fentry0;
-double 	fConst0;
-FAUSTFLOAT 	fentry1;
-double 	fRec2[2];
-double 	fVec1[2];
-double 	fRec1[2];
-double 	fRec0[2];
-FAUSTFLOAT 	fcheckbox0;
-FAUSTFLOAT 	fslider0;
-FAUSTFLOAT 	fslider1;
-double 	fVec2[2];
-double 	fRec6[2];
-double 	fVec3[2];
-double 	fRec5[2];
-double 	fRec4[3];
-double 	fRec3[3];
-FAUSTFLOAT 	fcheckbox1;
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;

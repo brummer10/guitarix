@@ -1,16 +1,15 @@
+// generated from file '../src/faust/delay.dsp' by dsp2cc:
 namespace delay {
-// generated from file '../src/faust/delay.dsp'
-
 volatile bool inited = false;
-int 	IOTA;
-float *fVec0;
-FAUSTFLOAT 	fslider0;
-float 	fConst0;
-FAUSTFLOAT 	fslider1;
-float 	fRec0[2];
-int	fSamplingFreq;
+static int 	IOTA;
+static float *fVec0;
+static FAUSTFLOAT 	fslider0;
+static float 	fConst0;
+static FAUSTFLOAT 	fslider1;
+static float 	fRec0[2];
+static int	fSamplingFreq;
 
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	if (!fVec0) fVec0 = new float[262144];
 	fSamplingFreq = samplingFreq;
@@ -21,7 +20,7 @@ void init(int samplingFreq)
 	inited = true;
 }
 
-void mem_free()
+static void mem_free()
 {
 	inited = false;
 	jack_sync();
@@ -34,7 +33,7 @@ inline bool is_inited()
 }
 
 
-void activate(bool start, int samplingFreq)
+static void activate(bool start, int samplingFreq)
 {
 	if (start) {
 		if (!is_inited()) {

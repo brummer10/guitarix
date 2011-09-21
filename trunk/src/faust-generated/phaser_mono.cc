@@ -1,29 +1,28 @@
+// generated from file '../src/faust/phaser_mono.dsp' by dsp2cc:
 namespace phaser_mono {
-// generated from file '../src/faust/phaser_mono.dsp'
+static FAUSTFLOAT 	fslider0;
+static int 	iVec0[2];
+static int 	iConst0;
+static FAUSTFLOAT 	fslider1;
+static double 	fConst1;
+static double 	fRec1[2];
+static double 	fRec2[2];
+static double 	fConst2;
+static FAUSTFLOAT 	fslider2;
+static double 	fConst3;
+static double 	fConst4;
+static double 	fConst5;
+static double 	fConst6;
+static double 	fRec6[3];
+static double 	fConst7;
+static double 	fRec5[3];
+static double 	fConst8;
+static double 	fRec4[3];
+static double 	fRec3[3];
+static double 	fRec0[2];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-int 	iVec0[2];
-int 	iConst0;
-FAUSTFLOAT 	fslider1;
-double 	fConst1;
-double 	fRec1[2];
-double 	fRec2[2];
-double 	fConst2;
-FAUSTFLOAT 	fslider2;
-double 	fConst3;
-double 	fConst4;
-double 	fConst5;
-double 	fConst6;
-double 	fRec6[3];
-double 	fConst7;
-double 	fRec5[3];
-double 	fConst8;
-double 	fRec4[3];
-double 	fRec3[3];
-double 	fRec0[2];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;

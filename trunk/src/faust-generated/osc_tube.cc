@@ -1,48 +1,47 @@
+// generated from file '../src/faust/osc_tube.dsp' by dsp2cc:
 namespace osc_tube {
-// generated from file '../src/faust/osc_tube.dsp'
+static int 	iVec0[2];
+static double 	fConst0;
+static double 	fConst1;
+static double 	fConst2;
+static double 	fConst3;
+static double 	fConst4;
+static double 	fConst5;
+static double 	fConst6;
+static double 	fConst7;
+static double 	fConst8;
+static double 	fConst9;
+static double 	fRec4[2];
+static FAUSTFLOAT 	fslider0;
+static double 	fConst10;
+static double 	fConst11;
+static double 	fConst12;
+static double 	fConst13;
+static double 	fConst14;
+static double 	fConst15;
+static double 	fConst16;
+static double 	fVec1[3];
+static double 	fConst17;
+static double 	fConst18;
+static double 	fConst19;
+static double 	fConst20;
+static double 	fConst21;
+static double 	fRec6[3];
+static int 	IOTA;
+static double 	fVec2[4096];
+static FAUSTFLOAT 	fslider1;
+static double 	fRec5[2];
+static double 	fVec3[2];
+static double 	fConst22;
+static double 	fRec3[2];
+static double 	fRec2[2];
+static double 	fRec1[3];
+static double 	fRec0[3];
+static FAUSTFLOAT 	fslider2;
+static double 	fConst23;
+static int	fSamplingFreq;
 
-int 	iVec0[2];
-double 	fConst0;
-double 	fConst1;
-double 	fConst2;
-double 	fConst3;
-double 	fConst4;
-double 	fConst5;
-double 	fConst6;
-double 	fConst7;
-double 	fConst8;
-double 	fConst9;
-double 	fRec4[2];
-FAUSTFLOAT 	fslider0;
-double 	fConst10;
-double 	fConst11;
-double 	fConst12;
-double 	fConst13;
-double 	fConst14;
-double 	fConst15;
-double 	fConst16;
-double 	fVec1[3];
-double 	fConst17;
-double 	fConst18;
-double 	fConst19;
-double 	fConst20;
-double 	fConst21;
-double 	fRec6[3];
-int 	IOTA;
-double 	fVec2[4096];
-FAUSTFLOAT 	fslider1;
-double 	fRec5[2];
-double 	fVec3[2];
-double 	fConst22;
-double 	fRec3[2];
-double 	fRec2[2];
-double 	fRec1[3];
-double 	fRec0[3];
-FAUSTFLOAT 	fslider2;
-double 	fConst23;
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
@@ -87,8 +86,8 @@ void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (fslider0 + 0.09999999999999998);
 	double 	fSlow1 = fslider1;
-	int 	iSlow2 = int((int((1 - fSlow1)) & 4095));
-	int 	iSlow3 = int((int((0 - fSlow1)) & 4095));
+	int 	iSlow2 = int((int((0 - fSlow1)) & 4095));
+	int 	iSlow3 = int((int((1 - fSlow1)) & 4095));
 	double 	fSlow4 = (fConst23 * fslider2);
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;

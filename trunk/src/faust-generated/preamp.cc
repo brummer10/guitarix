@@ -1,14 +1,13 @@
+// generated from file '../src/faust/preamp.dsp' by dsp2cc:
 namespace preamp {
-// generated from file '../src/faust/preamp.dsp'
+static double 	fVec0[3];
+static int 	iVec1[2];
+static double 	fRec0[2];
+static FAUSTFLOAT 	fslider0;
+static double 	fVec2[3];
+static int	fSamplingFreq;
 
-double 	fVec0[3];
-int 	iVec1[2];
-double 	fRec0[2];
-FAUSTFLOAT 	fslider0;
-double 	fVec2[3];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<3; i++) fVec0[i] = 0;

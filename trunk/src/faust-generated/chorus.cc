@@ -1,6 +1,5 @@
+// generated from file '../src/faust/chorus.dsp' by dsp2cc:
 namespace chorus {
-// generated from file '../src/faust/chorus.dsp'
-
 volatile bool inited = false;
 class SIG0 {
   private:
@@ -22,20 +21,20 @@ class SIG0 {
 		}
 	}
 };
-int 	IOTA;
-float *fVec0;
-FAUSTFLOAT 	fslider0;
-float 	fConst0;
-float 	fRec0[2];
+static int 	IOTA;
+static float *fVec0;
+static FAUSTFLOAT 	fslider0;
+static float 	fConst0;
+static float 	fRec0[2];
 static float 	ftbl0[65536];
-FAUSTFLOAT 	fslider1;
-FAUSTFLOAT 	fslider2;
-float 	fConst1;
-FAUSTFLOAT 	fslider3;
-float *fVec1;
-int	fSamplingFreq;
+static FAUSTFLOAT 	fslider1;
+static FAUSTFLOAT 	fslider2;
+static float 	fConst1;
+static FAUSTFLOAT 	fslider3;
+static float *fVec1;
+static int	fSamplingFreq;
 
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	if (!fVec0) fVec0 = new float[65536];
 	if (!fVec1) fVec1 = new float[65536];
@@ -52,7 +51,7 @@ void init(int samplingFreq)
 	inited = true;
 }
 
-void mem_free()
+static void mem_free()
 {
 	inited = false;
 	jack_sync();
@@ -66,7 +65,7 @@ inline bool is_inited()
 }
 
 
-void activate(bool start, int samplingFreq)
+static void activate(bool start, int samplingFreq)
 {
 	if (start) {
 		if (!is_inited()) {

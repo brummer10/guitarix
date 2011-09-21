@@ -1,6 +1,5 @@
+// generated from file '../src/faust/chorus_mono.dsp' by dsp2cc:
 namespace chorus_mono {
-// generated from file '../src/faust/chorus_mono.dsp'
-
 volatile bool inited = false;
 class SIG0 {
   private:
@@ -22,18 +21,18 @@ class SIG0 {
 		}
 	}
 };
-FAUSTFLOAT 	fslider0;
-int 	IOTA;
-float *fVec0;
-FAUSTFLOAT 	fslider1;
-float 	fConst0;
-float 	fRec0[2];
+static FAUSTFLOAT 	fslider0;
+static int 	IOTA;
+static float *fVec0;
+static FAUSTFLOAT 	fslider1;
+static float 	fConst0;
+static float 	fRec0[2];
 static float 	ftbl0[65536];
-float 	fConst1;
-FAUSTFLOAT 	fslider2;
-int	fSamplingFreq;
+static float 	fConst1;
+static FAUSTFLOAT 	fslider2;
+static int	fSamplingFreq;
 
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	if (!fVec0) fVec0 = new float[65536];
 	SIG0 sig0;
@@ -48,7 +47,7 @@ void init(int samplingFreq)
 	inited = true;
 }
 
-void mem_free()
+static void mem_free()
 {
 	inited = false;
 	jack_sync();
@@ -61,7 +60,7 @@ inline bool is_inited()
 }
 
 
-void activate(bool start, int samplingFreq)
+static void activate(bool start, int samplingFreq)
 {
 	if (start) {
 		if (!is_inited()) {

@@ -1,26 +1,25 @@
+// generated from file '../src/faust/gxfeed.dsp' by dsp2cc:
 namespace gxfeed {
-// generated from file '../src/faust/gxfeed.dsp'
+static FAUSTFLOAT 	fslider0;
+static int 	IOTA;
+static double 	fVec0[1024];
+static double 	fRec6[2];
+static double 	fVec1[1024];
+static double 	fRec8[2];
+static double 	fVec2[1024];
+static double 	fRec10[2];
+static double 	fVec3[2048];
+static double 	fRec12[2];
+static double 	fVec4[128];
+static double 	fRec4[2];
+static double 	fVec5[64];
+static double 	fRec2[2];
+static double 	fVec6[12];
+static double 	fRec0[2];
+static FAUSTFLOAT 	fcheckbox0;
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-int 	IOTA;
-double 	fVec0[1024];
-double 	fRec6[2];
-double 	fVec1[1024];
-double 	fRec8[2];
-double 	fVec2[1024];
-double 	fRec10[2];
-double 	fVec3[2048];
-double 	fRec12[2];
-double 	fVec4[128];
-double 	fRec4[2];
-double 	fVec5[64];
-double 	fRec2[2];
-double 	fVec6[12];
-double 	fRec0[2];
-FAUSTFLOAT 	fcheckbox0;
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;

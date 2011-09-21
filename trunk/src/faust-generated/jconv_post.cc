@@ -1,22 +1,21 @@
+// generated from file '../src/faust/jconv_post.dsp' by dsp2cc:
 namespace jconv_post {
-// generated from file '../src/faust/jconv_post.dsp'
+static FAUSTFLOAT 	fslider0;
+static int 	IOTA;
+static double 	fVec0[65536];
+static FAUSTFLOAT 	fslider1;
+static double 	fConst0;
+static double 	fRec0[2];
+static FAUSTFLOAT 	fslider2;
+static double 	fRec1[2];
+static FAUSTFLOAT 	fslider3;
+static double 	fRec2[2];
+static FAUSTFLOAT&	fslider4 = get_alias("amp.balance");
+static double 	fRec3[2];
+static double 	fVec1[65536];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-int 	IOTA;
-double 	fVec0[65536];
-FAUSTFLOAT 	fslider1;
-double 	fConst0;
-double 	fRec0[2];
-FAUSTFLOAT 	fslider2;
-double 	fRec1[2];
-FAUSTFLOAT 	fslider3;
-double 	fRec2[2];
-FAUSTFLOAT&	fslider4 = get_alias("amp.balance");
-double 	fRec3[2];
-double 	fVec1[65536];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;

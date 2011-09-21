@@ -1,34 +1,33 @@
+// generated from file '../src/faust/phaser.dsp' by dsp2cc:
 namespace phaser {
-// generated from file '../src/faust/phaser.dsp'
+static FAUSTFLOAT 	fslider0;
+static FAUSTFLOAT 	fcheckbox0;
+static int 	iVec0[2];
+static FAUSTFLOAT 	fslider1;
+static FAUSTFLOAT 	fcheckbox1;
+static FAUSTFLOAT 	fslider2;
+static double 	fConst0;
+static double 	fRec1[2];
+static double 	fRec2[2];
+static FAUSTFLOAT 	fslider3;
+static FAUSTFLOAT 	fslider4;
+static FAUSTFLOAT 	fslider5;
+static double 	fConst1;
+static FAUSTFLOAT 	fslider6;
+static FAUSTFLOAT 	fslider7;
+static double 	fRec6[3];
+static double 	fRec5[3];
+static double 	fRec4[3];
+static double 	fRec3[3];
+static double 	fRec0[2];
+static double 	fRec11[3];
+static double 	fRec10[3];
+static double 	fRec9[3];
+static double 	fRec8[3];
+static double 	fRec7[2];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-FAUSTFLOAT 	fcheckbox0;
-int 	iVec0[2];
-FAUSTFLOAT 	fslider1;
-FAUSTFLOAT 	fcheckbox1;
-FAUSTFLOAT 	fslider2;
-double 	fConst0;
-double 	fRec1[2];
-double 	fRec2[2];
-FAUSTFLOAT 	fslider3;
-FAUSTFLOAT 	fslider4;
-FAUSTFLOAT 	fslider5;
-double 	fConst1;
-FAUSTFLOAT 	fslider6;
-FAUSTFLOAT 	fslider7;
-double 	fRec6[3];
-double 	fRec5[3];
-double 	fRec4[3];
-double 	fRec3[3];
-double 	fRec0[2];
-double 	fRec11[3];
-double 	fRec10[3];
-double 	fRec9[3];
-double 	fRec8[3];
-double 	fRec7[2];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;

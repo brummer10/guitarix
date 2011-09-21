@@ -1,9 +1,8 @@
+// generated from file '../src/faust/noisegate.dsp' by dsp2cc:
 namespace noisegate {
-// generated from file '../src/faust/noisegate.dsp'
+static int	fSamplingFreq;
 
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 }

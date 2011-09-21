@@ -1,14 +1,13 @@
+// generated from file '../src/faust/feed.dsp' by dsp2cc:
 namespace feed {
-// generated from file '../src/faust/feed.dsp'
+static FAUSTFLOAT 	fslider0;
+static FAUSTFLOAT 	fslider1;
+static double 	fVec0[4];
+static FAUSTFLOAT 	fslider2;
+static double 	fRec0[6];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-FAUSTFLOAT 	fslider1;
-double 	fVec0[4];
-FAUSTFLOAT 	fslider2;
-double 	fRec0[6];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<4; i++) fVec0[i] = 0;

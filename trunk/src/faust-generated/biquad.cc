@@ -1,12 +1,11 @@
+// generated from file '../src/faust/biquad.dsp' by dsp2cc:
 namespace biquad {
-// generated from file '../src/faust/biquad.dsp'
+static FAUSTFLOAT 	fslider0;
+static double 	fConst0;
+static double 	fRec0[3];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-double 	fConst0;
-double 	fRec0[3];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = (6.283185307179586 / fSamplingFreq);

@@ -1,11 +1,10 @@
+// generated from file '../src/faust/AntiAlias.dsp' by dsp2cc:
 namespace AntiAlias {
-// generated from file '../src/faust/AntiAlias.dsp'
+static FAUSTFLOAT 	fslider0;
+static double 	fRec0[4];
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-double 	fRec0[4];
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<4; i++) fRec0[i] = 0;

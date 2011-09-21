@@ -1,31 +1,30 @@
+// generated from file '../src/faust/stage3.dsp' by dsp2cc:
+#include "valve.h"
 namespace stage3 {
-// generated from file '../src/faust/stage3.dsp'
+static double 	fVec0[2];
+static FAUSTFLOAT 	fslider0;
+static double 	fRec0[2];
+static double 	fConst0;
+static double 	fConst1;
+static double 	fConst2;
+static double 	fConst3;
+static double 	fConst4;
+static double 	fConst5;
+static double 	fConst6;
+static double 	fRec3[2];
+static double 	fConst7;
+static double 	fConst8;
+static double 	fConst9;
+static double 	fConst10;
+static double 	fRec4[2];
+static double 	fRec2[3];
+static double 	fConst11;
+static double 	fConst12;
+static double 	fRec1[2];
+static FAUSTFLOAT 	fcheckbox0;
+static int	fSamplingFreq;
 
-double 	fVec0[2];
-FAUSTFLOAT 	fslider0;
-double 	fRec0[2];
-double 	fConst0;
-double 	fConst1;
-double 	fConst2;
-double 	fConst3;
-double 	fConst4;
-double 	fConst5;
-double 	fConst6;
-double 	fRec3[2];
-double 	fConst7;
-double 	fConst8;
-double 	fConst9;
-double 	fVec1[2];
-double 	fConst10;
-double 	fRec4[2];
-double 	fRec2[2];
-double 	fConst11;
-double 	fConst12;
-double 	fRec1[2];
-FAUSTFLOAT 	fcheckbox0;
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) fVec0[i] = 0;
@@ -41,10 +40,9 @@ void init(int samplingFreq)
 	fConst7 = (1.0 / tan((609.4689747964198 / fSamplingFreq)));
 	fConst8 = (1 + fConst7);
 	fConst9 = (0 - ((1 - fConst7) / fConst8));
-	for (int i=0; i<2; i++) fVec1[i] = 0;
 	fConst10 = (0.0082 / fConst8);
 	for (int i=0; i<2; i++) fRec4[i] = 0;
-	for (int i=0; i<2; i++) fRec2[i] = 0;
+	for (int i=0; i<3; i++) fRec2[i] = 0;
 	fConst11 = (0 - fConst0);
 	fConst12 = (0.025 / fConst1);
 	for (int i=0; i<2; i++) fRec1[i] = 0;
@@ -59,17 +57,14 @@ void compute(int count, float *input0, float *output0)
 		fVec0[0] = fTemp0;
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
 		fRec3[0] = ((fConst6 * (fVec0[0] + fVec0[1])) + (fConst5 * fRec3[1]));
-		double fTemp1 = (fRec2[1] - 2.5e+02);
-		fVec1[0] = fTemp1;
-		fRec4[0] = ((fConst10 * (fVec1[0] + fVec1[1])) + (fConst9 * fRec4[1]));
-		fRec2[0] = Ftube(1, (fRec4[0] + fRec3[0]));
+		fRec4[0] = ((fConst10 * (fRec2[1] + fRec2[2])) + (fConst9 * fRec4[1]));
+		fRec2[0] = (Ftube(TUBE_TABLE_12AX7_250k, ((fRec4[0] + fRec3[0]) - 0.840703)) - 147.47524390243905);
 		fRec1[0] = ((fConst12 * ((fConst11 * fRec2[1]) + (fConst0 * fRec2[0]))) + (fConst2 * fRec1[1]));
 		output0[i] = (FAUSTFLOAT)((iSlow1)?(fRec1[0] * fRec0[0]):fVec0[0]);
 		// post processing
 		fRec1[1] = fRec1[0];
-		fRec2[1] = fRec2[0];
+		fRec2[2] = fRec2[1]; fRec2[1] = fRec2[0];
 		fRec4[1] = fRec4[0];
-		fVec1[1] = fVec1[0];
 		fRec3[1] = fRec3[0];
 		fRec0[1] = fRec0[0];
 		fVec0[1] = fVec0[0];

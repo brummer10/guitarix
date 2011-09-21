@@ -1,20 +1,19 @@
+// generated from file '../src/faust/tonestack_ac15.dsp' by dsp2cc:
 namespace tonestack_ac15 {
-// generated from file '../src/faust/tonestack_ac15.dsp'
+static FAUSTFLOAT&	fslider0 = get_alias("amp.tonestack.Middle");
+static FAUSTFLOAT&	fslider1 = get_alias("amp.tonestack.Bass");
+static double 	fConst0;
+static double 	fConst1;
+static double 	fConst2;
+static double 	fConst3;
+static double 	fConst4;
+static double 	fRec0[4];
+static FAUSTFLOAT&	fslider2 = get_alias("amp.tonestack.Treble");
+static double 	fConst5;
+static double 	fConst6;
+static int	fSamplingFreq;
 
-FAUSTFLOAT&	fslider0 = get_alias("amp.tonestack.Middle");
-FAUSTFLOAT&	fslider1 = get_alias("amp.tonestack.Bass");
-double 	fConst0;
-double 	fConst1;
-double 	fConst2;
-double 	fConst3;
-double 	fConst4;
-double 	fRec0[4];
-FAUSTFLOAT&	fslider2 = get_alias("amp.tonestack.Treble");
-double 	fConst5;
-double 	fConst6;
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = double(fSamplingFreq);

@@ -1,10 +1,9 @@
+// generated from file '../src/faust/softclip.dsp' by dsp2cc:
 namespace softclip {
-// generated from file '../src/faust/softclip.dsp'
+static FAUSTFLOAT 	fslider0;
+static int	fSamplingFreq;
 
-FAUSTFLOAT 	fslider0;
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 }

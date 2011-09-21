@@ -1,13 +1,12 @@
+// generated from file '../src/faust/noise_shaper.dsp' by dsp2cc:
 namespace noise_shaper {
-// generated from file '../src/faust/noise_shaper.dsp'
+static double 	fConst0;
+static double 	fConst1;
+static double 	fRec0[2];
+static FAUSTFLOAT 	fslider0;
+static int	fSamplingFreq;
 
-double 	fConst0;
-double 	fConst1;
-double 	fRec0[2];
-FAUSTFLOAT 	fslider0;
-int	fSamplingFreq;
-
-void init(int samplingFreq)
+static void init(int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = exp((0 - (2e+02 / fSamplingFreq)));
