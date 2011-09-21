@@ -1,0 +1,19 @@
+#! /bin/bash
+function compile() {
+  rm -f "$2".so
+  faust -a pythonmodule.cpp -o faustwrap.cpp "$1"
+  cython --cplus "$2".pyx
+  inc="-I../src/gx_head -I../src/headers"
+  g++ -shared -fno-strict-aliasing -fwrapv -O2 -Wall -fPIC $inc -I/usr/include/python2.7 -lrt "$2".cpp -o "$2".so
+  rm -f faustwrap.cpp $2.cpp
+}
+
+[ "$1" = "" ] && { echo "usage: $0 <dsp-file>"; exit 1; }
+if [ "$2" = "" ]; then
+  bname=faustmod
+else
+  bname="$(basename "$1" .dsp)"
+  trap 'rm -f "$bname".pyx' EXIT
+  ln -s faustmod.pyx "$bname".pyx
+fi
+compile "$1" "$bname"
