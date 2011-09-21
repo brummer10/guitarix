@@ -194,6 +194,7 @@ void gx_jack_is_down() {
                      "jack has bumped us out!!");
     */
     std::cout << _("jack has bumped us out!!") << endl;
+    gx_jack::gxjack.jack_is_exit = true;
     g_timeout_add_full(G_PRIORITY_LOW, 200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
 }
 
