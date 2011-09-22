@@ -207,7 +207,7 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
         // no need of loop.
         (void)memset(output0, 0, count*sizeof(float));
         (void)memset(output1, 0, count*sizeof(float));
-	zero_maxlevel();
+        zero_maxlevel();
         break;
     }
 }
@@ -230,6 +230,7 @@ void process_buffers(int count, float* input, float* output0) {
     for (unsigned int m = 1; m < _modulpointer->mono_active_counter+1; m++) {
         _modulpointer->mono_rack_order_ptr[m](count, output0, output0);
     }
+
 }
 
 // gx_head_fx engine

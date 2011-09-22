@@ -134,15 +134,15 @@ distdrive(drive) = wet_dry_mix(wet_dry, _: distortion) with {
 
 //drive			= vslider("drive", 0.35, 0, 1, 0.01);
 
-h = (2.0): db2linear;
-l = (4.0): db2linear; 
-mh = (4.0): db2linear;
-ml = (2.5): db2linear;
+//h = (2.0): db2linear; //1,2589412
+//l = (4.0): db2linear;  //1,584893192
+//mh = (4.0): db2linear;  //1,584893192
+//ml = (2.5): db2linear; //1,333521432
 
-distortion1 	=  _:cubicnl(0.45*drive,0.0): *(l); 
-distortion2 	=  _:cubicnl(0.4*drive,0.0) : *(h);
-distortion3 	=  _:cubicnl(1.0*drive,0.0) : *(ml);
-distortion4 	=  _:cubicnl(0.6*drive,0.0) : *(mh);
+distortion1 	=  _:cubicnl(0.45*drive,0.0): *(1.2589412); // l
+distortion2 	=  _:cubicnl(0.4*drive,0.0) : *(1.584893192); // h
+distortion3 	=  _:cubicnl(1.0*drive,0.0) : *(1.584893192); //ml
+distortion4 	=  _:cubicnl(0.6*drive,0.0) : *(1.333521432); //mh
 distortion	= lowpassN(2,15000.0): highpass1(31.0)  : filterbankN((F,(F1,F2))) : distortion2,distortion4 ,distortion3,distortion1 :>lowpass1(6531.0);
 
 wet_dry = (drive - 0.5) * 2;
@@ -153,7 +153,7 @@ clipit = min(0.7) : max(-0.7) ;
 gx_drive(drive) = _ <: _ + nonlin(4,4,0.125) * drive * 10 ;
 
 wetdry = vslider("wet_dry[name:wet/dry]",  100, 0, 100, 1) : /(100);
-drive = vslider("drive", 0.35, 0, 1, 0.01);
+drive = vslider("drive", 0.35, 0, 1, 0.01) : smoothi(0.999);
 
 dist(drive,wetdry) =_<:(*(dry): gx_drive(drive)),(*(wetdry):distdrive(drive)):>_
 	with{

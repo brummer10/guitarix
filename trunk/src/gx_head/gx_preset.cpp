@@ -724,6 +724,9 @@ static void  gx_set_factory_file(int i) {
     case 3:
         gx_factory_preset_file.set_path(gx_system::sysvar.gx_style_dir +"autoandimat_rc");
         break;
+    case 4:
+        gx_factory_preset_file.set_path(gx_system::sysvar.gx_style_dir +"jp_n_o_s_rc");
+        break;
     }
 }
 

@@ -311,13 +311,6 @@ static void run_gxfeed(int count, float *input0, float *input1,
     gx_effects::gxfeed::compute(count, output0, output0, output1);
 }
 
-// wraper to set bufer for the level meter
-/*static void set_level_meter_bufer(int count, float *input0, float *input1,
-                                  float *output0, float *output1) {
-    (void)memcpy(audio.get_frame, output0, sizeof(float)*count);
-    (void)memcpy(audio.get_frame1, output1, sizeof(float)*count);
-}*/
-
 /****************************************************************
  **  working thread to set the order in the all racks
  */
@@ -342,7 +335,7 @@ static gboolean gx_reorder_rack(gpointer args) {
     if (audio.tube_changed) {
         gx_check_engine_state(NULL);
     }
-    
+
     // check if tonestack is changed
     if (audio.cur_tonestack != audio.tonestack) {
         audio.cur_tonestack = gx_check_tonestack_state(NULL);

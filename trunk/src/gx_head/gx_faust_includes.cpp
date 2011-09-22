@@ -294,7 +294,7 @@ void faust_init(int samplingFreq) {
     faust_add_callback("delay.on_off",         gx_effects::delay::activate);
     faust_add_callback("echo.on_off",          gx_effects::echo::activate);
     faust_add_callback("chorus.on_off",        gx_effects::chorus::activate);
-    faust_add_callback("chorus_mono.on_off",   gx_effects::chorus::activate);
+    faust_add_callback("chorus_mono.on_off",   gx_effects::chorus_mono::activate);
     faust_add_callback("stereodelay.on_off",   gx_effects::stereodelay::activate);
     faust_add_callback("stereoecho.on_off",    gx_effects::stereoecho::activate);
     list<inidef>& inilist = get_inilist();

@@ -48,7 +48,7 @@ void gx_engine_init(const string *optvar ) {
     audio.tube_changed = true;
     //for (int i = 0; i < 9; i++) audio.effect_buffer[i] = 0;
     audio.rack_change = true;
-
+    
     (void)memset(audio.checkfreq,  0, frag*sizeof(float));
     (void)memset(audio.oversample, 0, frag*MAX_UPSAMPLE*sizeof(float));
     (void)memset(audio.result, 0, (frag+46)*sizeof(float));
