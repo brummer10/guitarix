@@ -57,34 +57,34 @@ void gx_jack_report_xrun();
 void gx_get_text_entry(GtkEntry*, string&);
 
 gint gx_choice_dialog_with_text_entry(
-	const char* window_title,
-	const char* msg,
-	const char* label1,
-	const char* label2,
-	const gint  resp1,
-	const gint  resp2,
-	const gint  default_response,
-	GCallback   func
-	);
+    const char* window_title,
+    const char* msg,
+    const char* label1,
+    const char* label2,
+    const gint  resp1,
+    const gint  resp2,
+    const gint  default_response,
+    GCallback   func
+    );
 
 gint gx_choice_dialog_without_entry(
-	const char* window_title,
-	const char* msg,
-	const char* label1,
-	const char* label2,
-	const gint  resp1,
-	const gint  resp2,
-	const gint  default_response
-	);
+    const char* window_title,
+    const char* msg,
+    const char* label1,
+    const char* label2,
+    const gint  resp1,
+    const gint  resp2,
+    const gint  default_response
+    );
 
 gint gx_nchoice_dialog_without_entry(
-	const char* window_title,
-	const char* msg,
-	const guint nchoice,
-	const char* label[],
-	const gint  resp[],
-	const gint  default_response
-	);
+    const char* window_title,
+    const char* msg,
+    const guint nchoice,
+    const char* label[],
+    const gint  resp[],
+    const gint  default_response
+    );
 
 /* extra GUI helpers */
 void gx_midi_out(GtkCheckMenuItem*, gpointer);
@@ -97,8 +97,9 @@ void gx_reset_effects(GtkWidget*, gpointer);
 void gx_show_about(GtkWidget*, gpointer);
 
 void cab_conv_restart();
+bool cab_conv_update();
 void contrast_conv_restart();
- void check_cab_immediate();
+void check_cab_immediate();
 
 void gx_show_extended_settings(GtkWidget*, gpointer);
 void gx_hide_extended_settings(GtkWidget*, gpointer);
