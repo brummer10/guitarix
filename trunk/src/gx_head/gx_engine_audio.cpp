@@ -36,7 +36,8 @@
 namespace gx_engine {
 
 AudioVariables audio;
-ModulPointer *_modulpointer = 0;
+MonoModuleChain mono_chain;
+StereoModuleChain stereo_chain;
 
 #include "gx_faust_includes.cpp"
 
@@ -116,15 +117,6 @@ void compute(int count, float* input, float* output0) {
 
     //---------- run process
     case PROCESS_BUFFERS:
-        // check if amp is changed
-        //if (audio.tube_changed) {
-        //    audio.tube_changed = gx_check_engine_state(NULL);
-        //}
-        // check for changes in the audio engine
-        if (audio.rack_change) {
-            audio.rack_change = gx_reorder_rack(NULL);
-        }
-
         process_buffers(count, input, output0);
         break;
 
@@ -216,34 +208,121 @@ void compute_insert(int count, float* input1, float* output0, float* output1) {
  ** this is the gx_head audio engine
  */
 
+void MonoModuleChain::process(int count, float *input, float *output) {
+    if (ramp_mode == ramp_down_dead) {
+	memset(output, 0, count*sizeof(float));
+	return;
+    }
+    // move working buffer to the output buffer
+    memcpy(output, input, count*sizeof(float));
+    for (monochainorder *p = get_rt_chain(); *p; p++) {
+	(*p)(count, output, output);
+    }
+    if (ramp_mode == ramp_off) {
+	return;
+    }
+    int i = 0;
+    if (ramp_mode == ramp_up_dead) {
+	for ( ; i < count; i++) {
+	    if (++ramp_value > steps_up_dead) {
+		ramp_mode = ramp_up;
+		ramp_value = 0;
+		break;
+	    }
+	    output[i] = 0.0;
+	}
+    }
+    if (ramp_mode == ramp_up) {
+	for ( ; i < count; i++) {
+	    if (++ramp_value >= steps_up) {
+		ramp_mode = ramp_off;
+		break;
+	    }
+	    output[i] = (output[i] * ramp_value) / steps_up;
+	}
+    }
+    else if (ramp_mode == ramp_down) {
+	for (i = 0; i < count; i++) {
+	    if (--ramp_value == 0) {
+		ramp_mode = ramp_down_dead;
+		break;
+	    }
+	    output[i] = (output[i] * ramp_value) / steps_down;
+	}
+	for ( ; i < count; i++) {
+	    output[i] = 0.0;
+	}
+    }
+}
+
+void StereoModuleChain::process(int count, float *input, float *output1, float *output2) {
+    // run stereo rack
+    if (ramp_mode == ramp_down_dead) {
+	memset(output1, 0, count*sizeof(float));
+	memset(output2, 0, count*sizeof(float));
+	return;
+    }
+    // move working buffer to the output buffer
+    memcpy(output1, input, count*sizeof(float));
+    memcpy(output2, input, count*sizeof(float));
+    for (stereochainorder *p = get_rt_chain(); *p; p++) {
+	(*p)(count, output1, output2, output1, output2);
+    }
+    if (ramp_mode == ramp_off) {
+	return;
+    }
+    int i = 0;
+    if (ramp_mode == ramp_up_dead) {
+	for ( ; i < count; i++) {
+	    if (++ramp_value > steps_up_dead) {
+		ramp_mode = ramp_up;
+		ramp_value = 0;
+		break;
+	    }
+	    output1[i] = 0.0;
+	    output2[i] = 0.0;
+	}
+    }
+    if (ramp_mode == ramp_up) {
+	for ( ; i < count; i++) {
+	    if (++ramp_value >= steps_up) {
+		ramp_mode = ramp_off;
+		break;
+	    }
+	    output1[i] = (output1[i] * ramp_value) / steps_up;
+	    output2[i] = (output2[i] * ramp_value) / steps_up;
+	}
+    }
+    else if (ramp_mode == ramp_down) {
+	for (i = 0; i < count; i++) {
+	    if (--ramp_value == 0) {
+		ramp_mode = ramp_down_dead;
+		break;
+	    }
+	    output1[i] = (output1[i] * ramp_value) / steps_down;
+	    output2[i] = (output2[i] * ramp_value) / steps_down;
+	}
+	for ( ; i < count; i++) {
+	    output1[i] = 0.0;
+	    output2[i] = 0.0;
+	}
+    }
+}
+
 // gx_head_amp engine
 void process_buffers(int count, float* input, float* output0) {
     if (feed_tuner(count, input)) {
         // copy buffer to midi thread
         (void)memcpy(audio.checkfreq, input, sizeof(float)*count);
     }
-
-    // move working buffer to the output buffer
-    memcpy(output0, input, count*sizeof(float));
-
-    // run mono rack
-    for (unsigned int m = 1; m < _modulpointer->mono_active_counter+1; m++) {
-        _modulpointer->mono_rack_order_ptr[m](count, output0, output0);
-    }
+    mono_chain.process(count, input, output0);
 
 }
 
 // gx_head_fx engine
 void process_insert_buffers(int count, float* input1, float* output0, float* output1) {
-
-    // move working buffer to the output buffer
-    memcpy(output0, input1, count*sizeof(float));
-
-    // run stereo rack
-    for (unsigned int m = 1; m < _modulpointer->stereo_active_counter+1; m++) {
-        _modulpointer->stereo_rack_order_ptr[m](count, output0, output1, output0, output1);
-    }
-    
+    stereo_chain.process(count, input1, output0, output1);
     set_maxlevel(count, output0, output1);
 }
+
 } // end namespace gx_engine

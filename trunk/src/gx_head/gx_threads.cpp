@@ -122,6 +122,10 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
 gboolean gx_update_all_gui(gpointer) {
     // the general Gui update handler
     gx_ui::GxUI::updateAllGuis();
+    // check for changes in the audio engine
+    if (gx_engine::audio.rack_change) {
+	gx_engine::gx_reorder_rack(true);
+    }
     return TRUE;
 }
 
@@ -132,7 +136,6 @@ gboolean gx_check_cab_state(gpointer) {
                 + gx_engine::audio.cab_bass + gx_engine::audio.cab_treble)) < -0.01
                 || fabs(gx_engine::audio.cab_sum - (gx_engine::audio.cab_level
                 + gx_engine::audio.cab_bass + gx_engine::audio.cab_treble)) > 0.01) {
-
             gx_engine::cab_conv.stop();
             gx_gui::cab_conv_restart();
         }

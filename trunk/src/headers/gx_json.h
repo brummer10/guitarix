@@ -123,10 +123,24 @@ class JsonParser {
     void throw_unexpected(token expect);
 };
 
+class PresetReader {
+private:
+    gx_gui::paramlist plist;
+    gx_gui::MidiControllerList::controller_array *m;
+    void clear();
+public:
+    PresetReader(): m(0) {}
+    PresetReader(JsonParser &jp, bool *has_midi, int major, int minor): m(0) {
+	read(jp, has_midi, major, minor);
+	commit();
+    }
+    void read(JsonParser &jp, bool *has_midi, int major, int minor);
+    void commit();
+};
+
 void writeHeader(JsonWriter& jw);
 bool readHeader(JsonParser& jp, int *major = 0, int *minor = 0);
 void write_preset(JsonWriter& w, bool write_midi = true, bool force_midi = false);
-void read_preset(JsonParser &jp, bool *has_midi, int major, int minor);
 bool saveStateToFile(const string & filename );
 bool recallState(const string & filename );
 

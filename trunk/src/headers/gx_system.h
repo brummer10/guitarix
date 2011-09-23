@@ -104,37 +104,57 @@ class Measure {
  private:
     Accum period;
     Accum duration;
-    timespec t;
+    Accum duration1;
+    Accum duration2;
+    timespec t1;
+    timespec t2;
     static int ts_diff(struct timespec ts1, struct timespec ts2);
-    inline float ns2ms(int n) { return n * 1e-6; }
+    inline float ns2ms(int n) const { return n * 1e-6; }
 
  public:
     inline void reset() {
         period.reset();
         duration.reset();
-        t.tv_sec = 0;
-        t.tv_nsec = 0;
+        duration1.reset();
+        duration2.reset();
+        t1.tv_sec = 0;
+        t1.tv_nsec = 0;
+        t2.tv_sec = 0;
+        t2.tv_nsec = 0;
     }
     Measure() { reset(); }
     void start_process();
+    void pause_process();
+    void cont_process();
     void stop_process();
-    void print_accum(Accum& accum, const char* prefix, bool verbose, int total = 0);
-    void print(bool verbose);
+    void print_accum(const Accum& accum, const char* prefix, bool verbose, int total = 0) const;
+    void print(bool verbose) const;
 };
 
 inline void Measure::start_process() {
     timespec n;
     clock_gettime(CLOCK_MONOTONIC, &n);
-    if (!(t.tv_sec == 0 and t.tv_nsec == 0)) {
-        period.add(ts_diff(n, t));
+    if (!(t1.tv_sec == 0 and t1.tv_nsec == 0)) {
+        period.add(ts_diff(n, t1));
     }
-    t = n;
+    t1 = n;
+}
+
+inline void Measure::pause_process() {
+    timespec n;
+    clock_gettime(CLOCK_MONOTONIC, &n);
+    duration1.add(ts_diff(n, t1));
+}
+
+inline void Measure::cont_process() {
+    clock_gettime(CLOCK_MONOTONIC, &t2);
 }
 
 inline void Measure::stop_process() {
     timespec n;
     clock_gettime(CLOCK_MONOTONIC, &n);
-    duration.add(ts_diff(n, t));
+    duration2.add(ts_diff(n, t2));
+    duration.add(ts_diff(n, t1));
 }
 
 class MeasureThreadsafe {
@@ -145,6 +165,8 @@ class MeasureThreadsafe {
  public:
     MeasureThreadsafe(): pmeasure(m) {}
     inline void start() { access()->start_process(); }
+    inline void pause() { access()->pause_process(); }
+    inline void cont() { access()->cont_process(); }
     inline void stop() { access()->stop_process(); }
     void print(bool verbose = false);
 };
@@ -154,11 +176,15 @@ extern MeasureThreadsafe measure;
 void add_time_measurement();
 
 inline void measure_start() { measure.start(); }
+inline void measure_pause() { measure.pause(); }
+inline void measure_cont() { measure.cont(); }
 inline void measure_stop()  { measure.stop(); }
 
 #else
 
 inline void measure_start() {}
+inline void measure_pause() {}
+inline void measure_cont() {}
 inline void measure_stop()  {}
 
 #endif

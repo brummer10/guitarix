@@ -40,6 +40,8 @@
 #include <vector>
 #include <map>
 
+namespace gx_system { class JsonWriter; class JsonParser; }
+
 namespace gx_gui {
 
 #ifndef NDEBUG

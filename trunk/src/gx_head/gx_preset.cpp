@@ -127,7 +127,7 @@ static bool gx_modify_preset(const char* presname, const char* newname = 0,
                 jw.write(jp.current_value());
                 gx_gui::parameter_map.set_init_values();
                 bool has_midi;
-                read_preset(jp, &has_midi, major, minor);
+                PresetReader p(jp, &has_midi, major, minor);
                 write_preset(jw, false, has_midi);
             } else if (jp.current_value() == presname) {
                 found = true;
@@ -530,12 +530,22 @@ static bool gx_load_preset_from_file(const char* presname) {
         int major, minor;
         readHeader(jp, &major, &minor);
 
-       // bool found = false;
         while (jp.peek() != JsonParser::end_array) {
             jp.next(JsonParser::value_string);
             if (jp.current_value() == presname) {
-               // found = true;
-                read_preset(jp, 0, major, minor);
+		PresetReader p;
+		p.read(jp, 0, major, minor);
+		gx_engine::mono_chain.start_ramp_down();
+		gx_engine::stereo_chain.start_ramp_down();
+		gx_engine::mono_chain.wait_ramp_down_finished();
+		gx_engine::stereo_chain.wait_ramp_down_finished();
+		gx_engine::faust_init(gx_jack::gxjack.jack_sr); //FIXME: big hammer.. change to selective re-init when plugin convert is finished
+		p.commit();
+		gx_ui::GxUI::updateAllGuis();
+		gx_gui::check_cab_immediate();
+		gx_engine::order_rack(true);
+		gx_engine::mono_chain.start_ramp_up();
+		gx_engine::stereo_chain.start_ramp_up();
                 return true;
             } else {
                 jp.skip_object();
@@ -741,12 +751,10 @@ static bool gx_load_preset_from_factory(const char* presname, int i) {
         int major, minor;
         readHeader(jp, &major, &minor);
 
-       // bool found = false;
         while (jp.peek() != JsonParser::end_array) {
             jp.next(JsonParser::value_string);
             if (jp.current_value() == presname) {
-               // found = true;
-                read_preset(jp, 0, major, minor);
+                PresetReader p(jp, 0, major, minor);
                 return true;
             } else {
                 jp.skip_object();
@@ -755,8 +763,8 @@ static bool gx_load_preset_from_factory(const char* presname, int i) {
         jp.next(JsonParser::end_array);
         jp.next(JsonParser::end_token);
     } catch(JsonException& e) {
-        // gx_print_error(_("load preset"), _("invalid factory file: ")
-        // + factory_file.get_parse_name());
+        gx_print_error(_("load preset"), _("invalid factory file: ")
+		       + gx_factory_preset_file.get_display_name());
     }
 
     return false;

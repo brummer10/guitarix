@@ -42,6 +42,7 @@ using namespace std;
 
 /* guitarix declarations */
 #include "./gx_system.h"
+#include "./gx_parameter.h"
 #include "./gx_json.h"
 #include "./gx_jack.h"
 #include "./gx_portmap.h"
@@ -51,7 +52,6 @@ using namespace std;
 #include "./gx_resampler.h"
 #include "./gx_threads.h"
 #include "./gx_cairo_callbacks.h"
-#include "./gx_parameter.h"
 #include "./gx_preset.h"
 #include "./gx_jconv_settings.h"
 #include "./gx_engine.h"

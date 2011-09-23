@@ -47,25 +47,107 @@ typedef enum {
     kMidiOn     = 1
 } GxMidiState;
 
-class ModulPointer {
- private:
-    // define engine pointer typs
-    typedef void (*chainorder)
-                 (int count, float *output, float *output1);
+typedef void (*monochainorder)(int count, float *output, float *output1);
+typedef void (*stereochainorder)(int count, float* input, float* input1,
+				 float *output, float *output1);
 
-    typedef void (*stereochainorder)
-                 (int count, float* input, float* input1, float *output, float *output1);
- public:
-    chainorder              mono_rack_order_ptr[60];
-    unsigned int            mono_active_counter;
-    chainorder              tonestack_ptr;
-    chainorder              amp_ptr;
-    stereochainorder        stereo_rack_order_ptr[20];
-    unsigned int            stereo_active_counter;
-    void append_mono(chainorder f) { mono_rack_order_ptr[++mono_active_counter] = f; }
-    void append_stereo(stereochainorder f) { stereo_rack_order_ptr[++stereo_active_counter] = f; }
+template <class F>
+class ThreadSafeChainPointer {
+private:
+    F *rack_order_ptr[2];
+    int size;
+    int current_index;
+    int active_counter;
+    F *current_pointer;
+    sem_t* sync_sem;
+protected:
+    static F *processing_pointer;
+    enum RampMode { ramp_down_dead, ramp_down, ramp_up_dead, ramp_up, ramp_off } ramp_mode;
+    int steps_up;		// >= 1
+    int steps_up_dead;		// >= 0
+    int steps_down;		// >= 1
+    int ramp_value;
+public:
+    ThreadSafeChainPointer(int sz, sem_t* sem);
+    ~ThreadSafeChainPointer();
+    void init(int samplefreq) {
+	steps_down = (64 * samplefreq) / 48000;
+	steps_up = 1;
+	steps_up_dead = 0;
+    }
+    void resize();
+    inline void append(F f) {
+	if (active_counter >= size-1) { // leave one slot for 0 marker
+	    resize();
+	}
+	current_pointer[active_counter++] = f;
+    }
+    inline void clear() { active_counter = 0; }
+    inline void empty_chain() { clear(); commit(); }
+    void commit() {
+	current_pointer[active_counter] = 0;
+	g_atomic_pointer_set(&processing_pointer, current_pointer);
+	current_index = (current_index+1) % 2;
+	current_pointer = rack_order_ptr[current_index];
+	clear();
+    }
+    inline void start_ramp_up() { ramp_value = 0; ramp_mode = ramp_up_dead; }
+    inline void start_ramp_down() { ramp_value = steps_down; ramp_mode = ramp_down; }
+    void wait_ramp_down_finished() {
+	while (ramp_mode == ramp_down) {
+	    sem_wait(sync_sem);
+	}
+    }
+    inline F* get_rt_chain() { return reinterpret_cast<F*>(g_atomic_pointer_get(&processing_pointer)); }
 };
-extern ModulPointer *_modulpointer;
+
+template <class F>
+ThreadSafeChainPointer<F>::ThreadSafeChainPointer(int sz, sem_t* sem):
+    size(sz),
+    current_index(0),
+    active_counter(0),
+    sync_sem(sem),
+    ramp_mode(ramp_down_dead),
+    ramp_value(0) {
+    rack_order_ptr[0] = new F[sz];
+    rack_order_ptr[1] = new F[sz];
+    current_pointer = rack_order_ptr[0];
+}
+
+template <class F>
+ThreadSafeChainPointer<F>::~ThreadSafeChainPointer() {
+    delete rack_order_ptr[0];
+    delete rack_order_ptr[1];
+}
+
+template <class F>
+void ThreadSafeChainPointer<F>::resize()
+{
+    F *p = new F[2*size];
+    memcpy(p, current_pointer, size * sizeof(current_pointer[0]));
+    size = 2 * size;
+    rack_order_ptr[current_index] = p;
+    current_pointer = p;
+}
+
+template <class F> F *ThreadSafeChainPointer<F>::processing_pointer = 0;
+
+class MonoModuleChain: public ThreadSafeChainPointer<monochainorder> {
+public:
+    MonoModuleChain(): ThreadSafeChainPointer<monochainorder>(60, &gx_jack::jack_sync_sem) {}
+    monochainorder tonestack_ptr;
+    monochainorder amp_ptr;
+    void process(int count, float *input, float *output);
+};
+
+class StereoModuleChain: public ThreadSafeChainPointer<stereochainorder> {
+public:
+    StereoModuleChain(): ThreadSafeChainPointer<stereochainorder>(20, &gx_jack::jack_insert_sync_sem) {}
+    void process(int count, float *input, float *output1, float *output2);
+};
+
+extern MonoModuleChain mono_chain;
+extern StereoModuleChain stereo_chain;
 
 /****************************************************************/
 
@@ -129,7 +211,6 @@ class AudioVariables {
     unsigned int   stereo_plug_counter;
     
     unsigned int effect_pre_post[20];
-    unsigned int effect_buffer[9];
 
     float posit[30];
 
@@ -258,7 +339,8 @@ inline void set_stereo_plug_counter(int x) {audio.stereo_plug_counter = x;}
 
 void gx_engine_init(const string *optvar);
 void gx_engine_reset();
-gboolean order_rack(gpointer args);
+void gx_reorder_rack(bool do_commit = true);
+void order_rack(bool do_commit = true);
 //gboolean gx_check_engine_state(gpointer arg);
 
 void compute_midi(int len);

@@ -483,12 +483,19 @@ void fixup_parameters(int major, int minor) {
     }
 }
 
-void read_preset(JsonParser &jp, bool *has_midi, int major, int minor) {
-    gx_gui::paramlist plist;
+void PresetReader::clear() {
+    plist.clear();
+    if (m) {
+        delete m;
+        m = 0;
+    }
+}
+
+void PresetReader::read(JsonParser &jp, bool *has_midi, int major, int minor) {
+    clear();
     if (has_midi) {
         *has_midi = false;
     }
-    gx_gui::MidiControllerList::controller_array *m = 0;
     jp.next(JsonParser::begin_object);
     do {
         jp.next(JsonParser::value_key);
@@ -515,13 +522,16 @@ void read_preset(JsonParser &jp, bool *has_midi, int major, int minor) {
     jp.next(JsonParser::end_object);
     gx_gui::controller_map.remove_controlled_parameters(plist, m);
     fixup_parameters(major, minor);
+}
+
+void PresetReader::commit() {
     for (gx_gui::paramlist::iterator i = plist.begin(); i != plist.end(); i++) {
         (*i)->setJSON_value();
     }
     if (m) {
         gx_gui::controller_map.set_controller_array(*m);
-        delete m;
     }
+    clear();
 }
 
 void writeHeader(JsonWriter& jw) {
@@ -684,7 +694,7 @@ bool recallState(const string &filename) {
             if (jp.current_value() == "settings") {
                 read_parameters(jp, plist, false);
             } else if (jp.current_value() == "current_preset") {
-                read_preset(jp, 0, major, minor);
+                PresetReader p(jp, 0, major, minor);
             } else if (jp.current_value() == "midi_controller") {
                 gx_gui::controller_map.readJSON(jp, m);
             } else if (jp.current_value() == "midi_ctrl_names") {

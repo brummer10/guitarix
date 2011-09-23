@@ -180,18 +180,17 @@ void PluginList::append_rack(gx_gui::GxMainInterface *ui) {
     }
 }
 
-void PluginList::append_module(gx_engine::ModulPointer *modulpointer,
-			       int m, unsigned int chain) {
+void PluginList::append_module(int m, unsigned int chain) {
     for (pluginlist::iterator p = plist.begin(); p != plist.end(); p++) {
 	if ((*p)->on_off && (*p)->position == m) {
 	    plugindef *pd = (*p)->plugin;
 	    if (chain == 2) {
 		if (pd->stereo_audio) {
-		    modulpointer->append_stereo(pd->stereo_audio);
+		    gx_engine::stereo_chain.append(pd->stereo_audio);
 		}
 	    } else if (pd->mono_audio) {
 		if (chain != (*p)->effect_post_pre) {  // chain 0 is pre
-		    modulpointer->append_mono(pd->mono_audio);
+		    gx_engine::mono_chain.append(pd->mono_audio);
 		}
 	    }
 	}

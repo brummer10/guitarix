@@ -42,6 +42,7 @@
 namespace gx_jack {
 
 sem_t jack_sync_sem;
+sem_t jack_insert_sync_sem;
 
 GxJack gxjack;
 JackBuffer *_jackbuffer_ptr;
@@ -61,6 +62,7 @@ bool GxJack::gx_jack_init(const string *optvar) {
     AVOIDDENORMALS;
 
     sem_init(&jack_sync_sem, 0, 0);
+    sem_init(&jack_insert_sync_sem, 0, 0);
 
     // init the pointer to the jackbuffer
     for (int i = 0; i < nOPorts; i++) output_ports[i] = 0;
@@ -715,11 +717,7 @@ int GxJack::gx_jack_midi_process(jack_nframes_t nframes, void *arg) {
 
 // ----- main jack process method
 int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
-    int val;
     gx_system::measure_start();
-    if (sem_getvalue(&jack_sync_sem, &val) == 0 && val == 0) {
-        sem_post(&jack_sync_sem);
-    }
     if (!gxjack.jack_is_exit) {
         AVOIDDENORMALS;
 
@@ -750,13 +748,17 @@ int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
     } else {
         gx_engine::audio.buffers_ready = false;
     }
-    // measure_stop();
+    int val;
+    if (sem_getvalue(&jack_sync_sem, &val) == 0 && val == 0) {
+        sem_post(&jack_sync_sem);
+    }
+    gx_system::measure_pause();
     return 0;
 }
 
 // ----- main jack process method
 int GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
-    // measure_start();
+    gx_system::measure_cont();
     if (!gxjack.jack_is_exit) {
         AVOIDDENORMALS;
 
@@ -768,6 +770,10 @@ int GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
                          (jack_port_get_buffer(gxjack.output_ports[3], nframes));
         // gx_head DSP computing
         gx_engine::compute_insert(nframes, _jackbuffer_ptr->input1, _jackbuffer_ptr->output2, _jackbuffer_ptr->output3);
+    }
+    int val;
+    if (sem_getvalue(&jack_insert_sync_sem, &val) == 0 && val == 0) {
+        sem_post(&jack_insert_sync_sem);
     }
     gx_system::measure_stop();
     return 0;

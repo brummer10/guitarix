@@ -894,6 +894,28 @@ gboolean contrast_restart(gpointer data) {
 
 } // end namespace CabConvolveData
 
+void check_cab_immediate() { //FIXME cleanup
+    if (gx_engine::audio.fcab) {
+        if (gx_engine::audio.cab_switched != gx_engine::audio.cabinet
+	    || fabs(gx_engine::audio.cab_sum - (gx_engine::audio.cab_level
+						+ gx_engine::audio.cab_bass + gx_engine::audio.cab_treble)) < -0.01
+	    || fabs(gx_engine::audio.cab_sum - (gx_engine::audio.cab_level
+						+ gx_engine::audio.cab_bass + gx_engine::audio.cab_treble)) > 0.01) {
+	  gx_engine::cab_conv.stop();
+	  CabConvolveData::cab_conv_start();
+	  gx_engine::set_cab_mode(gx_engine::audio.cab_level + gx_engine::audio.cab_bass +
+				  gx_engine::audio.cab_treble);
+	}
+    }
+    if (gx_engine::audio.fcon) {
+        if ((gx_engine::audio.con_level - gx_engine::audio.con_sum) < -0.01
+            ||(gx_engine::audio.con_level - gx_engine::audio.con_sum) > 0.01) {
+	    CabConvolveData::contrast_start();
+	    gx_engine::audio.con_sum = gx_engine::audio.con_level;
+        }
+    }
+}
+
 void cab_conv_restart() {
     if (guivar.g_threads[5] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[5]) == NULL) {
         guivar.g_threads[5] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0,

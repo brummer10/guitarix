@@ -120,6 +120,7 @@ void registerInit(const char *name, inifunc f) {
 
 static void jack_sync() {
     while (sem_wait(&gx_jack::jack_sync_sem) == EINTR);
+    while (sem_wait(&gx_jack::jack_insert_sync_sem) == EINTR);
 }
 
 #include <gx_faust_support.h>
@@ -284,9 +285,11 @@ static void activate_callback(float val, void *data) {
 }
 
 static void faust_add_callback(const char* id, void (*func)(bool, int)) {
+    /*FIXME: does not work with gx_reorder_rack (race)
     new gx_ui::GxUiCallbackItemFloat(gx_gui::GxMainInterface::instance(),
                                      reinterpret_cast<float*>(gx_gui::parameter_map[id].zone()),
                                      activate_callback, reinterpret_cast<void*>(func));
+    */
 }
 
 void faust_init(int samplingFreq) {

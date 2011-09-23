@@ -43,10 +43,8 @@ void gx_engine_init(const string *optvar ) {
     audio.result = new float[frag+46];
     audio.gxtube = 1;
     audio.gxtube_select = 1;
-    //audio.amp_pos = 0;
     audio.cur_tonestack = 0;
     audio.tube_changed = true;
-    //for (int i = 0; i < 9; i++) audio.effect_buffer[i] = 0;
     audio.rack_change = true;
     
     (void)memset(audio.checkfreq,  0, frag*sizeof(float));
@@ -55,9 +53,12 @@ void gx_engine_init(const string *optvar ) {
 
     midi.init(gx_jack::gxjack.jack_sr);
     faust_init(gx_jack::gxjack.jack_sr);
+    mono_chain.init(gx_jack::gxjack.jack_sr);
+    stereo_chain.init(gx_jack::gxjack.jack_sr);
+    mono_chain.start_ramp_up();
+    stereo_chain.start_ramp_up();
     // resampTube.setup(gx_jack::jack_sr, 2);
     // resampDist.setup(gx_jack::jack_sr, 2);
-     _modulpointer = new ModulPointer;
     if (!optvar[LOAD_FILE].empty()) {
         gx_preset::gxpreset.gx_recall_settings_file(&optvar[LOAD_FILE]);
     } else {
@@ -65,7 +66,7 @@ void gx_engine_init(const string *optvar ) {
     }
     for (int i = 0; i < GX_NUM_OF_FACTORY_PRESET; i++)
         gx_preset::gxpreset.gx_load_factory_file(i);
-    audio.rack_change = order_rack(NULL);
+    order_rack(true);
     audio.initialized = true;
 }
 
@@ -74,7 +75,6 @@ void gx_engine_reset() {
     if (audio.checkfreq)  delete[] audio.checkfreq;
     if (audio.oversample) delete[] audio.oversample;
     if (audio.result) delete[] audio.result;
-    delete _modulpointer;
     //delete gx_tubes::tubetab;
     audio.initialized = false;
 }

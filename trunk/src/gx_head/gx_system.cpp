@@ -54,7 +54,7 @@ int Measure::ts_diff(struct timespec ts1, struct timespec ts2) {
     return df * 1000000000 + (ts1.tv_nsec - ts2.tv_nsec);
 }
 
-void Measure::print_accum(Accum& accum, const char* prefix, bool verbose, int total) {
+void Measure::print_accum(const Accum& accum, const char* prefix, bool verbose, int total) const {
     cout << prefix << "mean: " << fixed << setprecision(4) << ns2ms(accum.mean());
     if (total > 0) {
         cout << " (" << setprecision(2) << 100.0*accum.mean()/static_cast<float>(total) << "%)";
@@ -71,11 +71,15 @@ void Measure::print_accum(Accum& accum, const char* prefix, bool verbose, int to
     cout << endl;
 }
 
-void Measure::print(bool verbose) {
+void Measure::print(bool verbose) const {
     if (verbose) {
-        print_accum(period,   "period    ", verbose);
+        print_accum(period,    "period     ", verbose);
+	print_accum(duration1, "duration1  ", verbose, period.mean());
+	print_accum(duration2, "duration2  ", verbose, period.mean());
+	print_accum(duration,  "duration   ", verbose, period.mean());
+    } else {
+        print_accum(duration, "duration  ", false, period.mean());
     }
-    print_accum(duration, "duration  ", verbose, period.mean());
 }
 
 void MeasureThreadsafe::print(bool verbose) {
@@ -812,8 +816,6 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
         delete[] gx_engine::audio.result;
         gx_engine::audio.result = NULL;
     }
-    delete gx_engine::_modulpointer;
-    gx_engine::_modulpointer = 0;
     gx_resample::_glob_resamp->delete_resampler_ref();
     gx_engine::pitch_tracker.stop_thread();
     delete gx_jack::_jackbuffer_ptr;

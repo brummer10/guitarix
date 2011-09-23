@@ -21,7 +21,7 @@ public:
     int add(plugindef *p);
     void registerParameter(gx_gui::ParameterGroups& groups, int pos_offset);
     void append_rack(gx_gui::GxMainInterface *ui);
-    void append_module(gx_engine::ModulPointer* modulpointer, int m, unsigned chain);
+    void append_module(int m, unsigned chain);
 };
 
 PluginList& get_pluginlist();

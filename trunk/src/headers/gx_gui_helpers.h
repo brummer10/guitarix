@@ -98,6 +98,7 @@ void gx_show_about(GtkWidget*, gpointer);
 
 void cab_conv_restart();
 void contrast_conv_restart();
+ void check_cab_immediate();
 
 void gx_show_extended_settings(GtkWidget*, gpointer);
 void gx_hide_extended_settings(GtkWidget*, gpointer);
