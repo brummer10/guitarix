@@ -601,7 +601,8 @@ def build(bld):
 
 def etags(ctx):
     "Create an Emacs ETAGS file for the src directory"
-    cmd = "etags -o TAGS libgxw/gxw/*.cpp libgxwmm/src/*.ccg libgxwmm/src/*.hg libgxw/gxw/*.h src/*.cpp src/*.cc src/headers/*.h"
+    cmd = ("etags -o TAGS libgxw/gxw/*.cpp libgxwmm/gxwmm/*.ccg libgxwmm/gxwmm/*.hg"
+           " libgxw/gxw/*.h src/gx_head/*.cpp src/gx_head/*.cc src/headers/*.h")
     Logs.debug("runner: system command -> %s" % cmd)
     Utils.exec_command(cmd)
 
