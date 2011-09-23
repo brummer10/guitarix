@@ -131,18 +131,18 @@ gboolean gx_update_all_gui(gpointer) {
 
 gboolean gx_check_cab_state(gpointer) {
     if (gx_engine::audio.fcab) {
-        if (gx_engine::audio.cab_switched != gx_engine::audio.cabinet
-                || fabs(gx_engine::audio.cab_sum - (gx_engine::audio.cab_level
-                + gx_engine::audio.cab_bass + gx_engine::audio.cab_treble)) < -0.01
-                || fabs(gx_engine::audio.cab_sum - (gx_engine::audio.cab_level
-                + gx_engine::audio.cab_bass + gx_engine::audio.cab_treble)) > 0.01) {
+	if (gx_engine::audio.cab_switched != gx_engine::audio.cabinet) {
             gx_engine::cab_conv.stop();
             gx_gui::cab_conv_restart();
+	} else if (abs(gx_engine::audio.cab_sum -
+			(gx_engine::audio.cab_level + gx_engine::audio.cab_bass
+			 + gx_engine::audio.cab_treble))
+		   > 0.01) {
+	    gx_gui::cab_conv_update();
         }
     }
     if (gx_engine::audio.fcon) {
-        if ((gx_engine::audio.con_level - gx_engine::audio.con_sum) < -0.01
-            ||(gx_engine::audio.con_level - gx_engine::audio.con_sum) > 0.01) {
+        if (abs(gx_engine::audio.con_level - gx_engine::audio.con_sum) > 0.01) {
             gx_engine::contrast_conv.stop();
             gx_gui::contrast_conv_restart();
         }

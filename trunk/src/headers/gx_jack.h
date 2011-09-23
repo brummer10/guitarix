@@ -56,8 +56,8 @@ class GxJack {
     bool                gx_start_jack(void* arg);
 
  public:
-    static const int    nIPorts = 3; // mono input + jconv
-    static const int    nOPorts = 4; // stereo output + jconv
+    static const int    nIPorts = 2; // for both jack clients
+    static const int    nOPorts = 4; // 2 * stereo output (1 unused)
 
     static int          gx_jack_srate_callback(jack_nframes_t, void* arg);
     static int          gx_jack_xrun_callback(void* arg);

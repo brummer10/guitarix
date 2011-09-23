@@ -40,7 +40,7 @@ struct table1d { // 1-dimensional function table
     float high;
     float istep;
     int size;
-    float data[0];
+    float data[];
 };
 
 template <int tab_size>
