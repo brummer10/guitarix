@@ -57,10 +57,9 @@ void init_unix_signal_handlers() {
 int main(int argc, char *argv[]) {
 #ifdef DISABLE_NLS
 // break
-#elseif IS_MACOSX
+#elif IS_MACOSX
 // break
-#elseif ENABLE_NLS
-
+#elif ENABLE_NLS
     bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
     textdomain(GETTEXT_PACKAGE);
@@ -74,13 +73,14 @@ int main(int argc, char *argv[]) {
     Gxw::init();
 
     gx_system::sysvar.sysvar_init();
-    gx_system::CmdlineParser options(argc, argv);
+    gx_system::CmdlineOptions options;
+    Gtk::Main main(argc, argv, options);
 
     options.process_early();
     get_pluginlist().load_from_path(options.plugin_dir);
 
     // ------ initialize parameter list ------
-    get_pluginlist().registerParameter(gx_gui::get_group_table(), 20); // FIXME
+    get_pluginlist().registerParameter(gx_gui::get_group_table(), 20);
     gx_engine::audio.register_parameter();
     gx_engine::midi.register_parameter();
     gx_engine::register_faust_parameters();
@@ -90,7 +90,6 @@ int main(int argc, char *argv[]) {
 
     // ---------------------- user options handling ------------------
     options.process();
-    Gtk::Main main(argc, argv);
 
     // ---------------- Check for working user directory  -------------
     gx_system::gx_version_check();
@@ -132,7 +131,6 @@ int main(int argc, char *argv[]) {
         gx_engine::pitch_tracker.init();
     }
 
-    // Gxw::Knob::set_jump_to_mouse(false);
     gui->run();
 
     // ------------- shut things down

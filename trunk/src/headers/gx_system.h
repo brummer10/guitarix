@@ -217,10 +217,13 @@ extern SystemVars sysvar;
  ** CmdlineParser
  */
 
-class CmdlineParser {
+class CmdlineOptions: public Glib::OptionContext {
 private:
-    int& argc;
-    char**& argv;
+    Glib::OptionGroup main_group;
+    Glib::OptionGroup optgroup_style;
+    Glib::OptionGroup optgroup_jack;
+    Glib::OptionGroup optgroup_file;
+    Glib::OptionGroup optgroup_debug;
     bool version;
     bool clear;
     Glib::ustring rcset;
@@ -238,7 +241,8 @@ public:
     string plugin_dir;
     string optvar[NUM_SHELL_VAR];
 public:
-    CmdlineParser(int& argc_, char**& argv_);
+    CmdlineOptions();
+    ~CmdlineOptions();
     void process_early();
     void process();
     void set_override();

@@ -183,12 +183,19 @@ gboolean  gx_ladi_handler(gpointer) {
 bool terminal  = true; // make messages before main() appear on terminal
 
 /****************************************************************
- ** CmdlineParser
+ ** CmdlineOptions
  ** command line options
  */
 
-CmdlineParser::CmdlineParser(int& argc_, char**& argv_):
-    argc(argc_), argv(argv_),
+#define TCLR(s)  "\033[1;32m" s "\033[0m" // light green
+#define TCLR2(s) TCLR(s), TCLR(s)
+
+CmdlineOptions::CmdlineOptions():
+    main_group("",""),
+    optgroup_style("style", TCLR2("GTK style configuration options")),
+    optgroup_jack("jack", TCLR2("JACK configuration options")),
+    optgroup_file("file", TCLR2("File options")),
+    optgroup_debug("debug", TCLR2("Debug options")),
     version(false), clear(false), lterminal(false) {
 
     // store shell variable content
@@ -197,8 +204,7 @@ CmdlineParser::CmdlineParser(int& argc_, char**& argv_):
     }
 
     // ---- parse command line arguments
-    Glib::OptionContext opt_context;
-    opt_context.set_summary(
+    set_summary(
         "All parameters are optional. Examples:\n"
         "\tgx_head\n"
         "\tgx_head -r black -i system:capture_3\n"
@@ -207,14 +213,9 @@ CmdlineParser::CmdlineParser(int& argc_, char**& argv_):
     opt_version.set_short_name('v');
     opt_version.set_long_name("version");
     opt_version.set_description("Print version string and exit");
-    Glib::OptionGroup main_group("bla1", "bla2", "bla3");
     main_group.add_entry(opt_version, version);
-    opt_context.set_main_group(main_group);
+    set_main_group(main_group);
 
-    Glib::OptionGroup optgroup_gtk(
-        "gtk",
-        "\033[1;32mGTK configuration options\033[0m",
-        "\033[1;32mGTK configuration options\033[0m");
     Glib::OptionEntry opt_clear;
     opt_clear.set_short_name('c');
     opt_clear.set_long_name("clear");
@@ -224,14 +225,10 @@ CmdlineParser::CmdlineParser(int& argc_, char**& argv_):
     opt_rcset.set_long_name("rcset");
     opt_rcset.set_description(get_opskin());
     opt_rcset.set_arg_description("STYLE");
-    optgroup_gtk.add_entry(opt_clear, clear);
-    optgroup_gtk.add_entry(opt_rcset, rcset);
+    optgroup_style.add_entry(opt_clear, clear);
+    optgroup_style.add_entry(opt_rcset, rcset);
 
     // JACK options: input and output ports
-    Glib::OptionGroup optgroup_jack(
-        "jack",
-        "\033[1;32mJACK configuration options\033[0m",
-        "\033[1;32mJACK configuration options\033[0m");
     Glib::OptionEntry opt_jack_input;
     opt_jack_input.set_short_name('i');
     opt_jack_input.set_long_name("jack-input");
@@ -263,10 +260,6 @@ CmdlineParser::CmdlineParser(int& argc_, char**& argv_):
 
     // FILE options
 
-    Glib::OptionGroup optgroup_file(
-        "file",
-        "\033[1;32mFile options\033[0m",
-        "\033[1;32mFile options\033[0m");
     Glib::OptionEntry opt_load_file;
     opt_load_file.set_short_name('f');
     opt_load_file.set_long_name("load-file");
@@ -281,10 +274,6 @@ CmdlineParser::CmdlineParser(int& argc_, char**& argv_):
     optgroup_file.add_entry_filename(opt_plugin_dir, plugin_dir);
 
     // DEBUG options
-    Glib::OptionGroup optgroup_debug(
-        "debug",
-        "\033[1;32mDebug options\033[0m",
-        "\033[1;32mDebug options\033[0m");
     Glib::OptionEntry opt_builder_dir;
     opt_builder_dir.set_short_name('B');
     opt_builder_dir.set_long_name("builder-dir");
@@ -304,31 +293,13 @@ CmdlineParser::CmdlineParser(int& argc_, char**& argv_):
     optgroup_debug.add_entry(opt_log_terminal, lterminal);
 
     // collecting all option groups
-    opt_context.add_group(optgroup_gtk);
-    opt_context.add_group(optgroup_jack);
-    opt_context.add_group(optgroup_file);
-    opt_context.add_group(optgroup_debug);
-
-    // parsing command options
-    try {
-        opt_context.parse(argc, argv);
-    } catch(Glib::OptionError ex) {
-        gx_print_error(_("main"), _("Error in user options! ") + ex.what());
-        exit(1);
-    }
-
-    // *** display version if requested
-    if (version) {
-        std::cout << "Guitarix version \033[1;32m"
-             << GX_VERSION << endl
-             << "\033[0m   Copyright " << static_cast<char>(0x40) << " 2010 "
-             << "Hermman Meyer - James Warden - Andreas Degert"
-             << endl;
-        exit(0);
-    }
+    add_group(optgroup_style);
+    add_group(optgroup_jack);
+    add_group(optgroup_file);
+    add_group(optgroup_debug);
 }
 
-string CmdlineParser::get_opskin() {
+string CmdlineOptions::get_opskin() {
     // initialize number of skins. We just count the number of rc files
     unsigned int n = gx_gui::gx_fetch_available_skins();
     if (n < 1) {
@@ -347,13 +318,25 @@ string CmdlineParser::get_opskin() {
     return opskin;
 }
 
-void CmdlineParser::process_early() {
+CmdlineOptions::~CmdlineOptions() {
+}
+
+void CmdlineOptions::process_early() {
+    // *** display version if requested
+    if (version) {
+        std::cout << "Guitarix version \033[1;32m"
+             << GX_VERSION << endl
+             << "\033[0m   Copyright " << static_cast<char>(0x40) << " 2010 "
+             << "Hermman Meyer - James Warden - Andreas Degert"
+             << endl;
+        exit(0);
+    }
     if (plugin_dir.empty()) {
 	plugin_dir = sysvar.gx_user_dir;
     }
 }
 
-void CmdlineParser::process() {
+void CmdlineOptions::process() {
     // ----------- processing user options -----------
 
     terminal = lterminal;
@@ -458,7 +441,7 @@ void CmdlineParser::process() {
     sysvar.rcpath = sysvar.gx_style_dir + string("gx_head_") + optvar[RC_STYLE] + ".rc";
 }
 
-void CmdlineParser::set_override() {
+void CmdlineOptions::set_override() {
     if (!gx_gui::skin.no_opt_skin) {
         gx_gui::gx_actualize_skin_index(optvar[RC_STYLE]);
         gx_engine::audio.fskin = gx_gui::skin.last_skin = gx_gui::skin.gx_current_skin;
