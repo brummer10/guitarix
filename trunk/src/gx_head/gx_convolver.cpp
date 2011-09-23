@@ -417,21 +417,36 @@ GxConvolver conv;
  ** GxSimpleConvolver
  */
 
+class CheckResample {
+private:
+    float *vec;
+public:
+    CheckResample(): vec(0) {}
+    float *resample(int count, float *impresp, unsigned int samplerate) {
+	if (samplerate != gx_jack::gxjack.jack_sr) {
+	    vec = gx_resample::_glob_resamp->_buffer_resampler.process(samplerate, count, impresp, gx_jack::gxjack.jack_sr, count);
+	    if (!vec) {
+		gx_system::gx_print_error("convolver", "failed to resample");
+		return 0;
+	    }
+	    return vec;
+	}
+        return impresp;
+    }
+    ~CheckResample() {
+	if (vec) {
+	    delete vec;
+	}
+    }
+};
+
 bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int samplerate) {
-    bool dyn = false;
-    if (samplerate != gx_jack::gxjack.jack_sr) {
-        
-        impresp = gx_resample::_glob_resamp->_buffer_resampler.process(samplerate, count, impresp, gx_jack::gxjack.jack_sr, count);
-        if (!impresp) {
-            gx_system::gx_print_error("convolver", "failed to resample");
-            return false;
-        }
-        dyn = true;
-        
+    CheckResample r;
+    impresp = r.resample(count, impresp, samplerate);
+    if (!impresp) {
+	return false;
     }
     cleanup();
-    bool ret;
-    
     unsigned int bufsize = gx_jack::gxjack.jack_bs;
     if (bufsize < Convproc::MINPART) {
         bufsize = Convproc::MINPART;
@@ -439,17 +454,26 @@ bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int sample
     if (Convproc::configure(1, 1, count, gx_jack::gxjack.jack_bs,
                             bufsize, Convproc::MAXPART)) {
         gx_system::gx_print_error("convolver", "error in Convproc::configure");
-        ret = false;
-    } else if (impdata_create(0, 0, 1, impresp, 0, count)) {
+        return false;
+    }
+    if (impdata_create(0, 0, 1, impresp, 0, count)) {
         gx_system::gx_print_error("convolver", "out of memory");
-        ret = false;
-    } else {
-        ret = true;
+        return false;
     }
-    if (dyn) {
-        delete impresp;
+    return true;
+}
+
+bool GxSimpleConvolver::update(int count, float *impresp, unsigned int samplerate) {
+    CheckResample r;
+    impresp = r.resample(count, impresp, samplerate);
+    if (!impresp) {
+	return false;
     }
-    return ret;
+    if (impdata_update(0, 0, 1, impresp, 0, count)) {
+        gx_system::gx_print_error("convolver", "update: internal error");
+        return false;
+    }
+    return true;
 }
 
 bool GxSimpleConvolver::compute(int count, float* input, float *output) {

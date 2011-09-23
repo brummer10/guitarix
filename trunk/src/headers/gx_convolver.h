@@ -127,10 +127,9 @@ class GxConvolver: public GxConvolverBase {
 extern GxConvolver conv;
 
 class GxSimpleConvolver: public GxConvolverBase {
- private:
-
  public:
     bool configure(int count, float *impresp, unsigned int samplerate);
+    bool update(int count, float *impresp, unsigned int samplerate);
     bool compute(int count, float* input, float *output);
     bool compute(int count, float* buffer) {
         return is_runnable() ? compute(count, buffer, buffer) : true;
