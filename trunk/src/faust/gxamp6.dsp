@@ -18,8 +18,8 @@ notch3(x) = notch(x,5046.,-12.,19.1);
 gx_drive(drive) = _ <: _ + nonlin(4,4,0.125) * drive * 10 ;
 
 process = hgroup("amp2", hgroup("stage1", stage1) : 
-          // component("gxdistortion.dsp").dist2(drive,wet_dry) : 
-          _ //hgroup("stage2", stage2)  
+          component("gxdistortion.dsp").dist2(drive,wet_dry) : 
+          hgroup("stage2", stage2)  
           ) with {
     drive = vslider(".gxdistortion.drive[alias]",0.35, 0, 1, 0.01);
     wet_dry = vslider(".gxdistortion.wet_dry[alias]",  100, 0, 100, 1) : /(100) : smoothi(0.999);
