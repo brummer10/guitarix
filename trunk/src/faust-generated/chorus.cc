@@ -1,6 +1,7 @@
 // generated from file '../src/faust/chorus.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace chorus {
-volatile bool inited = false;
 class SIG0 {
   private:
 	int 	fSamplingFreq;
@@ -32,53 +33,56 @@ static FAUSTFLOAT 	fslider2;
 static float 	fConst1;
 static FAUSTFLOAT 	fslider3;
 static float *fVec1;
+static bool mem_allocated = false;
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	if (!fVec0) fVec0 = new float[65536];
-	if (!fVec1) fVec1 = new float[65536];
+	for (int i=0; i<65536; i++) fVec0[i] = 0;
+	for (int i=0; i<2; i++) fRec0[i] = 0;
+	for (int i=0; i<65536; i++) fVec1[i] = 0;
+}
+
+static void init(int samplingFreq, PluginDef* = 0)
+{
 	SIG0 sig0;
 	sig0.init(samplingFreq);
 	sig0.fill(65536,ftbl0);
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
-	for (int i=0; i<65536; i++) fVec0[i] = 0;
 	fConst0 = (1.0f / fSamplingFreq);
-	for (int i=0; i<2; i++) fRec0[i] = 0;
 	fConst1 = (0.5f * fSamplingFreq);
-	for (int i=0; i<65536; i++) fVec1[i] = 0;
-	inited = true;
+}
+
+static void mem_alloc()
+{
+	if (!fVec0) fVec0 = new float[65536];
+	if (!fVec1) fVec1 = new float[65536];
+	mem_allocated = true;
 }
 
 static void mem_free()
 {
-	inited = false;
-	jack_sync();
+	mem_allocated = false;
 	if (fVec0) { delete fVec0; fVec0 = 0; }
 	if (fVec1) { delete fVec1; fVec1 = 0; }
 }
 
-inline bool is_inited()
+
+static int activate(bool start, PluginDef* = 0)
 {
-    return inited;
+    if (start) {
+        if (!mem_allocated) {
+            mem_alloc();
+            clear_state();
+        }
+    } else if (!mem_allocated) {
+        mem_free();
+    }
+    return 0;
 }
 
-
-static void activate(bool start, int samplingFreq)
-{
-	if (start) {
-		if (!is_inited()) {
-			init(samplingFreq);
-		}
-	} else {
-		if (is_inited()) {
-			mem_free();
-		}
-	}
-}
-
-void compute(int count, float *input0, float *input1, float *output0, float *output1)
+static void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	float 	fSlow0 = (fConst0 * fslider0);
 	float 	fSlow1 = fslider1;
@@ -112,14 +116,28 @@ void compute(int count, float *input0, float *input1, float *output0, float *out
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("chorus.level","","S","",&fslider3, 0.5f, 0.0f, 1.0f, 0.01f);
-	registerVar("chorus.delay","","S","",&fslider2, 0.02f, 0.0f, 0.2f, 0.01f);
-	registerVar("chorus.depth","","S","",&fslider1, 0.02f, 0.0f, 1.0f, 0.01f);
-	registerVar("chorus.freq","","S","",&fslider0, 3.0f, 0.0f, 1e+01f, 0.01f);
-	registerInit("chorus", init);
+	reg.registerVar("chorus.level","","S","",&fslider3, 0.5f, 0.0f, 1.0f, 0.01f);
+	reg.registerVar("chorus.delay","","S","",&fslider2, 0.02f, 0.0f, 0.2f, 0.01f);
+	reg.registerVar("chorus.depth","","S","",&fslider1, 0.02f, 0.0f, 1.0f, 0.01f);
+	reg.registerVar("chorus.freq","","S","",&fslider0, 3.0f, 0.0f, 1e+01f, 0.01f);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "chorus",  // id
+    N_("Chorus"),  // name
+    0,  // groups
+    0,  // mono_audio
+    compute,  // stereo_audio
+    init,  // set_samplerate
+    activate,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace chorus

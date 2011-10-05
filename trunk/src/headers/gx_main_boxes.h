@@ -251,9 +251,9 @@ class GxScrollBox {
     Gxw::PaintBox paintbox1;
     Gtk::VBox rbox;
     Gtk::VBox vbox;
+    Gtk::RadioMenuItem::Group group;
     RadioCheckItem      fOrderhRack;
     RadioCheckItem      fOrdervRack;
-    Gtk::RadioMenuItem::Group group;
     GxScrollBox(gx_ui::GxUI& ui,
         const char *pb_2, Glib::ustring titl, GtkWidget * d);
     ~GxScrollBox();

@@ -139,6 +139,7 @@ void JsonWriter::begin_object(bool nl) {
 void JsonWriter::end_object(bool nl) {
     iminus();
     flush();
+    first = false;
     os << '}';
     snl(nl);
 }

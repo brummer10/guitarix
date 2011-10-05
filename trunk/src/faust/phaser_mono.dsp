@@ -1,4 +1,5 @@
-declare name 		"phaser_mono";
+declare id   "phaser_mono";
+declare name "Phaser Mono";
 
 import("effect.lib");
 

@@ -1,4 +1,6 @@
 // generated from file '../src/faust/gx_ampmodul.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 #include "valve.h"
 namespace gx_ampmodul {
 static FAUSTFLOAT 	fslider0;
@@ -59,42 +61,20 @@ static double 	fRec18[2];
 static double 	fRec17[6];
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
 	for (int i=0; i<6; i++) fRec0[i] = 0;
-	fConst0 = (1.0 / tan((97.38937226128358 / fSamplingFreq)));
-	fConst1 = (1 + fConst0);
-	fConst2 = (0 - ((1 - fConst0) / fConst1));
 	for (int i=0; i<2; i++) fRec4[i] = 0;
-	fConst3 = (1.0 / tan((20517.741620594938 / fSamplingFreq)));
-	fConst4 = (1 + fConst3);
-	fConst5 = (0 - ((1 - fConst3) / fConst4));
 	for (int i=0; i<2; i++) fRec8[i] = 0;
 	for (int i=0; i<2; i++) fRec12[i] = 0;
-	fConst6 = (1.0 / tan((270.1769682087222 / fSamplingFreq)));
-	fConst7 = (1 + fConst6);
-	fConst8 = (0 - ((1 - fConst6) / fConst7));
-	fConst9 = (0.027 / fConst7);
 	for (int i=0; i<2; i++) fRec13[i] = 0;
 	for (int i=0; i<3; i++) fRec11[i] = 0;
-	fConst10 = (0 - fConst0);
-	fConst11 = (0.025 / fConst1);
 	for (int i=0; i<2; i++) fRec10[i] = 0;
-	fConst12 = (1.0 / fConst4);
 	for (int i=0; i<2; i++) fRec9[i] = 0;
-	fConst13 = (1.0 / tan((414.6902302738527 / fSamplingFreq)));
-	fConst14 = (1 + fConst13);
-	fConst15 = (0 - ((1 - fConst13) / fConst14));
-	fConst16 = (0.015 / fConst14);
 	for (int i=0; i<2; i++) fRec14[i] = 0;
 	for (int i=0; i<3; i++) fRec7[i] = 0;
 	for (int i=0; i<2; i++) fRec6[i] = 0;
 	for (int i=0; i<2; i++) fRec5[i] = 0;
-	fConst17 = (1.0 / tan((609.4689747964198 / fSamplingFreq)));
-	fConst18 = (1 + fConst17);
-	fConst19 = (0 - ((1 - fConst17) / fConst18));
-	fConst20 = (0.0082 / fConst18);
 	for (int i=0; i<2; i++) fRec15[i] = 0;
 	for (int i=0; i<3; i++) fRec3[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
@@ -114,7 +94,34 @@ static void init(int samplingFreq)
 	for (int i=0; i<6; i++) fRec17[i] = 0;
 }
 
-void compute(int count, float *input0, float *input1, float *output0, float *output1)
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	fConst0 = (1.0 / tan((97.38937226128358 / fSamplingFreq)));
+	fConst1 = (1 + fConst0);
+	fConst2 = (0 - ((1 - fConst0) / fConst1));
+	fConst3 = (1.0 / tan((20517.741620594938 / fSamplingFreq)));
+	fConst4 = (1 + fConst3);
+	fConst5 = (0 - ((1 - fConst3) / fConst4));
+	fConst6 = (1.0 / tan((270.1769682087222 / fSamplingFreq)));
+	fConst7 = (1 + fConst6);
+	fConst8 = (0 - ((1 - fConst6) / fConst7));
+	fConst9 = (0.027 / fConst7);
+	fConst10 = (0 - fConst0);
+	fConst11 = (0.025 / fConst1);
+	fConst12 = (1.0 / fConst4);
+	fConst13 = (1.0 / tan((414.6902302738527 / fSamplingFreq)));
+	fConst14 = (1 + fConst13);
+	fConst15 = (0 - ((1 - fConst13) / fConst14));
+	fConst16 = (0.015 / fConst14);
+	fConst17 = (1.0 / tan((609.4689747964198 / fSamplingFreq)));
+	fConst18 = (1 + fConst17);
+	fConst19 = (0 - ((1 - fConst17) / fConst18));
+	fConst20 = (0.0082 / fConst18);
+	clear_state();
+}
+
+static void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = fslider1;
@@ -191,16 +198,36 @@ void compute(int count, float *input0, float *input1, float *output0, float *out
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("ampmodul.level","","S","",&fslider5, -2e+01, -4e+01, 4.0, 0.1);
-	registerVar("ampmodul.amp2.stage1.tube1","","S","",&fslider4, 6.0, -2e+01, 2e+01, 0.1);
-	registerVar("ampmodul.amp2.stage2.tube2","","S","",&fslider3, 6.0, -2e+01, 2e+01, 0.1);
-	registerVar("ampmodul.feedback","","S","",&fslider2, 0.0, -1.0, 1.0, 0.01);
-	registerVar("ampmodul.wet_dry","","S","",&fslider1, 0.0, -1.0, 1.0, 0.1);
-	registerVar("ampmodul.feedbac","","S","",&fslider0, 0.0, -1.0, 1.0, 0.01);
-	registerInit("ampmodul", init);
+	reg.registerVar("ampmodul.level","","S","",&fslider5, -2e+01, -4e+01, 4.0, 0.1);
+	reg.registerVar("ampmodul.amp2.stage1.tube1","","S","",&fslider4, 6.0, -2e+01, 2e+01, 0.1);
+	reg.registerVar("ampmodul.amp2.stage2.tube2","","S","",&fslider3, 6.0, -2e+01, 2e+01, 0.1);
+	reg.registerVar("ampmodul.feedback","","S","",&fslider2, 0.0, -1.0, 1.0, 0.01);
+	reg.registerVar("ampmodul.wet_dry","","S","",&fslider1, 0.0, -1.0, 1.0, 0.1);
+	reg.registerVar("ampmodul.feedbac","","S","",&fslider0, 0.0, -1.0, 1.0, 0.01);
+	return 0;
 }
+
+static const char* groups[] = {
+	"amp2.stage2", N_("Postamp Tube2"),
+	"amp2.stage1", N_("Postamp Tube1"),
+	0
+	};
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "ampmodul",  // id
+    N_("Postamp"),  // name
+    groups,  // groups
+    0,  // mono_audio
+    compute,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace gx_ampmodul

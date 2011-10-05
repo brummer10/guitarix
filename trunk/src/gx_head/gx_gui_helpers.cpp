@@ -211,14 +211,9 @@ void GxMainInterface::on_show_oscilloscope() {
         Glib::signal_timeout().connect(sigc::mem_fun(*this,
              &GxMainInterface::on_refresh_oscilloscope), 60); // FIXME G_PRIORITY_DEFAULT_IDLE??
         fWaveView.get_parent()->show(); // FIXME why??
-        if (gx_engine::audio.effect_pre_post[10]) fWaveView.set_multiplicator(150., 250);
-        else
-            fWaveView.set_multiplicator(20., 60);
-        fWaveView.show();
     } else {
         guivar.showwave = 0;
         fWaveView.get_parent()->hide();
-        fWaveView.show();  // FIXME why??
     }
 }
 
@@ -634,7 +629,7 @@ void gx_midi_out(GtkCheckMenuItem *menuitem, gpointer checkplay) {
         parameter_map[group].set_std_value();
     }
     first =false;
-    gx_engine::audio.rack_change = true;
+    gx_engine::engine.set_rack_changed();
 }
 
 // ----- hide the extendend settings slider

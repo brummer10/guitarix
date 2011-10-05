@@ -1,4 +1,6 @@
 // generated from file '../src/faust/gxfeed.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace gxfeed {
 static FAUSTFLOAT 	fslider0;
 static int 	IOTA;
@@ -19,10 +21,8 @@ static double 	fRec0[2];
 static FAUSTFLOAT 	fcheckbox0;
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
-	IOTA = 0;
 	for (int i=0; i<1024; i++) fVec0[i] = 0;
 	for (int i=0; i<2; i++) fRec6[i] = 0;
 	for (int i=0; i<1024; i++) fVec1[i] = 0;
@@ -39,14 +39,21 @@ static void init(int samplingFreq)
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 }
 
-void compute(int count, float *input0, float *output0, float *output1)
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	IOTA = 0;
+	clear_state();
+}
+
+static void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = (1 - max(0, fSlow0));
 	double 	fSlow2 = (1 - max(0, (0 - fSlow0)));
 	int 	iSlow3 = int(fcheckbox0);
 	for (int i=0; i<count; i++) {
-		double fTemp0 = (double)input0[i];
+		double fTemp0 = (double)input1[i];
 		double fTemp1 = (0.2 * fTemp0);
 		double fTemp2 = (fTemp1 + (0.805 * fRec6[1]));
 		fVec0[IOTA&1023] = fTemp2;
@@ -76,7 +83,7 @@ void compute(int count, float *input0, float *output0, float *output1)
 		fVec6[0] = fTemp8;
 		fRec0[0] = fVec6[11];
 		double 	fRec1 = (0 - (0.7 * fVec6[0]));
-		double fTemp9 = ((iSlow3)?((fSlow2 * (fRec1 + fRec0[1])) + (fSlow1 * fTemp0)):fTemp0);
+		double fTemp9 = ((iSlow3)?((fSlow2 * (fRec1 + fRec0[1])) + (fSlow1 * fTemp0)):(double)input0[i]);
 		output0[i] = (FAUSTFLOAT)fTemp9;
 		output1[i] = (FAUSTFLOAT)fTemp9;
 		// post processing
@@ -92,12 +99,26 @@ void compute(int count, float *input0, float *output0, float *output1)
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("amp.feed_on_off","reverb_on_of","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	registerVar("amp.wet_dry","","S","",&fslider0, 0.0, -1.0, 1.0, 0.01);
-	registerInit("amp", init);
+	reg.registerVar("amp.feed_on_off","reverb_on_of","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("amp.wet_dry","","S","",&fslider0, 0.0, -1.0, 1.0, 0.01);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "gxfeed",  // id
+    "?gxfeed",  // name
+    0,  // groups
+    0,  // mono_audio
+    compute,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace gxfeed

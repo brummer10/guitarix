@@ -24,73 +24,40 @@
  **  definitions for code generated with faust / dsp2cc
  */
 
-
-typedef struct {
-    inifunc func;
-    const char *name;
-} inidef;
-
-
-static list<inidef>& get_inilist() {
-    static list<inidef> inilist;
-    return inilist;
-}
-
-static list<gx_gui::Parameter*>& get_paramlist() {
-    static list<gx_gui::Parameter*> paramlist;
-    return paramlist;
-}
-
-void register_faust_parameters() {
-    list<gx_gui::Parameter*>& paramlist = get_paramlist();
-    for (list<gx_gui::Parameter*>::iterator i = paramlist.begin(); i != paramlist.end(); i++) {
-        gx_gui::parameter_map.insert(*i);
-        // fprintf(stderr, "%s \n",(*i)->id().c_str() );
-    }
-    paramlist.clear();
-}
-
-static gx_gui::Parameter *find_parameter(const char *id) {
-    list<gx_gui::Parameter*>& paramlist = get_paramlist();
-    for (list<gx_gui::Parameter*>::iterator i = paramlist.begin(); i != paramlist.end(); i++) {
-        if ((*i)->id() == id) {
-            return *i;
-        }
-    }
-    return 0;
-}
-
-static float& get_alias(const char *id) {
-    static float dummy;
-    gx_gui::Parameter *p = find_parameter(id);
-    if (!p) {
-        gx_system::gx_print_error("engine", string
-                 ("can't define alias for unknown (or not yet defined) parameter id: ") + id);
-        return dummy;
-    } else {
-        return p->getFloat().value;
-    }
-}
-
-void registerVar(const char* id, const char* name, const char* tp,
+float *registerVar(const char* id, const char* name, const char* tp,
 		 const char* tooltip, float* var, float val,
 		 float low, float up, float step, bool exp) {
     if (!name[0]) {
 	assert(strrchr(id, '.'));
 	name = strrchr(id, '.')+1;
     }
+    int n = strlen(tp);
+    if (n && tp[n-1] == 'A') {
+	if (gx_gui::parameter_map.hasId(id)) {
+	    gx_gui::Parameter& p = gx_gui::parameter_map[id];
+#ifndef NDEBUG
+	    gx_gui::FloatParameter p2(
+		id, name, gx_gui::Parameter::Continuous, true,
+		p.getFloat().value, val, low, up, step, true, exp);
+	    gx_gui::compare_parameter("Alias Parameter", &p, &p2);
+#endif
+	    return &p.getFloat().value;
+	}
+    }
     gx_gui::Parameter *p = new gx_gui::FloatParameter(
         id, name, gx_gui::Parameter::Continuous, true, *var, val,
 	low, up, step, true, exp);
-    if (tooltip) {
+    if (tooltip && tooltip[0]) {
         p->set_desc(tooltip);
     }
-    get_paramlist().push_back(p);
+    gx_gui::parameter_map.insert(p);
+    return var;
 }
 
-void registerEnumVar(const char *id, const char* name, const char* tp,
-		     const char* tooltip, const char** values, float *var,
-		     float val, float low, float up, float step, bool exp) {
+void registerEnumVar(
+    const char *id, const char* name, const char* tp,
+    const char* tooltip, const value_pair* values,
+    float *var, float val, float low, float up, float step, bool exp) {
     if (!name[0]) {
         assert(strrchr(id, '.'));
         name = strrchr(id, '.')+1;
@@ -100,27 +67,20 @@ void registerEnumVar(const char *id, const char* name, const char* tp,
         id, name, values, true, *var,
         static_cast<int>(round(val)), true, exp); // false == no_midi_var
     assert(up == p->upper); // calculated by constructor
-    get_paramlist().push_back(p);
+    gx_gui::parameter_map.insert(p);
 }
 
-static inline void registerIntParam(const char*a, const char*b, int*c, int std = 0,
-                                    int lower = 0, int upper = 1, bool exp = false) {
-     get_paramlist().push_back(
-         new gx_gui::IntParameter(a , b, gx_gui::Parameter::Enum, true, *c, std,
-                                  lower, upper, true, exp));
-}
-
-void registerInit(const char *name, inifunc f) {
-    inidef i;
-    i.func = f;
-    i.name = name;
-    // fprintf(stderr, "%s \n", i.name);
-    get_inilist().push_back(i);
-}
-
-static void jack_sync() {
-    while (sem_wait(&gx_jack::jack_sync_sem) == EINTR);
-    while (sem_wait(&gx_jack::jack_insert_sync_sem) == EINTR);
+void registerUEnumVar(
+    const char *id, const char* name, const char* tp,
+    const char* tooltip, const value_pair* values,
+    unsigned int *var, unsigned int std, bool exp) {
+    if (!name[0]) {
+        assert(strrchr(id, '.'));
+        name = strrchr(id, '.')+1;
+    }
+    gx_gui::UEnumParameter *p = new gx_gui::UEnumParameter(
+        id, name, values, true, *var, std, true, exp);
+    gx_gui::parameter_map.insert(p);
 }
 
 #include <gx_faust_support.h>
@@ -130,15 +90,6 @@ static void jack_sync() {
  */
 
 namespace gx_amps {
-
-// gxdistortion
-static struct GxDistortionParams { GxDistortionParams();}
-GxDistortionParams;
-GxDistortionParams::GxDistortionParams() {
-    static FAUSTFLOAT v1, v2;
-    registerVar("gxdistortion.drive",   "", "S", "", &v1, 0.35,  0.0,   1.0, 0.01);
-    registerVar("gxdistortion.wet_dry", "", "S", "", &v2, 100.0, 0.0, 100.0, 1.0);
-}
 
 #include "faust/gxamp.cc"
 #include "faust/gxamp2.cc"
@@ -164,23 +115,10 @@ GxDistortionParams::GxDistortionParams() {
 namespace gx_effects {
 
 // foreign variable added to faust module feed
-namespace noisegate { float ngate = 1;}  // noise-gate, modifies output gain
-
-static struct CabParams { CabParams();}
-CabParams;
-CabParams::CabParams() {
-    registerVar("cab.Level", "",  "S", "", &audio.cab_level,  1.0, 0.5, 5.0, 0.5);
-    registerVar("cab.bass", "",   "S", "", &audio.cab_bass,   0.0, -10.0, 10.0, 0.5);
-    registerVar("cab.treble", "", "S", "", &audio.cab_treble, 0.0, -10.0, 10.0, 0.5);
-
-    registerVar("con.Level", "",  "S", "", &audio.con_level,  1.0, 0.5, 5.0, 0.5);
-}
-
-
 #include "faust/bassbooster.cc"
 #include "faust/gxfeed.cc"
 #include "faust/gx_feedback.cc"
-#include "faust/balance.cc"
+//#include "faust/balance.cc"
 #include "faust/jconv_post.cc"
 #include "faust/balance1.cc"
 #include "faust/gx_outputlevel.cc"
@@ -204,49 +142,19 @@ CabParams::CabParams() {
 #include "faust/selecteq.cc"
 #include "faust/phaser.cc"
 #include "faust/low_high_pass.cc"
-#include "faust/noisegate.cc"
 #include "faust/softclip.cc"
 #include "faust/tonecontroll.cc"
 #include "faust/tremolo.cc"
 #include "faust/phaser_mono.cc"
 #include "faust/chorus_mono.cc"
 #include "faust/flanger_mono.cc"
-#include "cabinet_impulse_former.cc"
+#include "faust/cabinet_impulse_former.cc"
 #include "faust/presence_level.cc"
 #include "faust/stereoverb.cc"
 }
 
-// init cabinet impulse former to 48000 Hz, the buffer will resampled
-// afterwards when needed.
-void init_non_rt_processing() {
-    gx_effects::cabinet_impulse_former::init(48000);
-}
-
-void non_rt_processing(int count, float* input, float* output0) {
-    gx_effects::cabinet_impulse_former::compute(count, input, output0);
-}
-
-// init presence impulse former to 48000 Hz, the buffer will resampled
-// afterwards when needed.
-void init_presence_processing() {
-    gx_effects::presence_level::init(48000);
-}
-
-void presence_processing(int count, float* input, float* output0) {
-    gx_effects::presence_level::compute(count, input, output0);
-}
-
 // tone stack
 namespace gx_tonestacks {
-
-static struct ToneStackParams { ToneStackParams(); }
-ToneStackParams;
-ToneStackParams::ToneStackParams() {
-    static FAUSTFLOAT v1, v2, v3;
-    registerVar("amp.tonestack.Treble", "", "S", "", &v1, 0.5, 0.0, 1.0, 0.01);
-    registerVar("amp.tonestack.Bass",   "", "S", "", &v2, 0.5, 0.0, 1.0, 0.01);
-    registerVar("amp.tonestack.Middle", "", "S", "", &v3, 0.5, 0.0, 1.0, 0.01);
-}
 
 #include "faust/tonestack_default.cc"
 #include "faust/tonestack_bassman.cc"
@@ -277,43 +185,183 @@ ToneStackParams::ToneStackParams() {
 }
 
 /****************************************************************
- **  free memory when effects are unused, load with jack_sync
+ **  audio module initialization
  */
 
-static void activate_callback(float val, void *data) {
-    ((void (*)(bool, int))data)(!(val == 0.0), gx_jack::gxjack.jack_sr);
-}
-
-static void faust_add_callback(const char* id, void (*func)(bool, int)) {
-    /*FIXME: does not work with gx_reorder_rack (race)
-    new gx_ui::GxUiCallbackItemFloat(gx_gui::GxMainInterface::instance(),
-                                     reinterpret_cast<float*>(gx_gui::parameter_map[id].zone()),
-                                     activate_callback, reinterpret_cast<void*>(func));
-    */
-}
-
 void faust_init(int samplingFreq) {
-    // faust_add_callback("SampleLooper.on_off", sloop::activate);
-    faust_add_callback("delay.on_off",         gx_effects::delay::activate);
-    faust_add_callback("echo.on_off",          gx_effects::echo::activate);
-    faust_add_callback("chorus.on_off",        gx_effects::chorus::activate);
-    faust_add_callback("chorus_mono.on_off",   gx_effects::chorus_mono::activate);
-    faust_add_callback("stereodelay.on_off",   gx_effects::stereodelay::activate);
-    faust_add_callback("stereoecho.on_off",    gx_effects::stereoecho::activate);
-    list<inidef>& inilist = get_inilist();
-    for (list<inidef>::iterator i = inilist.begin(); i != inilist.end(); i++) {
-        try {
-            i->func(samplingFreq);
-        } catch(bad_alloc) {
-            string name = gx_gui::param_group(i->name, true);
-            gx_system::gx_print_error("DSP Module", (boost::format
-                      ("not enough memory to initialize module %1%") % i->name).str());
-        }
-    }
+    gx_effects::balance1::init(gx_jack::gxjack.jack_sr);
 }
+
 /****************************************************************
  **  engine helper work threads to watch for user changes in the
  *   rack amp tonestack selection, create a pointer aray to the
  *   selected functions.
  */
 #include "gx_engine_helpers.cc"
+
+void GxEngine::load_plugins(string plugin_dir) {
+
+    static PluginDef *builtin_crybaby_plugins[] = {
+	&gx_effects::crybaby::plugin,
+	&gx_effects::autowah::plugin,
+	0
+    };
+
+    static ModuleSelector crybaby("crybaby", N_("Crybaby"), builtin_crybaby_plugins,
+				  "crybaby.autowah", _("select"), 0, PGN_POST_PRE);
+
+
+    static PluginDef *builtin_tonestack_plugins[] = {
+	&gx_tonestacks::tonestack_default::plugin,
+	&gx_tonestacks::tonestack_bassman::plugin,
+	&gx_tonestacks::tonestack_twin::plugin,
+	&gx_tonestacks::tonestack_princeton::plugin,
+	&gx_tonestacks::tonestack_jcm800::plugin,
+	&gx_tonestacks::tonestack_jcm2000::plugin,
+	&gx_tonestacks::tonestack_mlead::plugin,
+	&gx_tonestacks::tonestack_m2199::plugin,
+	&gx_tonestacks::tonestack_ac30::plugin,
+	&gx_tonestacks::tonestack_soldano::plugin,
+	&gx_tonestacks::tonestack_mesa::plugin,
+	&gx_tonestacks::tonestack_jtm45::plugin,
+	&gx_tonestacks::tonestack_ac15::plugin,
+	&gx_tonestacks::tonestack_peavey::plugin,
+	&gx_tonestacks::tonestack_ibanez::plugin,
+	&gx_tonestacks::tonestack_roland::plugin,
+	&gx_tonestacks::tonestack_ampeg::plugin,
+	&gx_tonestacks::tonestack_ampeg_rev::plugin,
+	&gx_tonestacks::tonestack_sovtek::plugin,
+	&gx_tonestacks::tonestack_bogner::plugin,
+	&gx_tonestacks::tonestack_groove::plugin,
+	&gx_tonestacks::tonestack_crunch::plugin,
+	&gx_tonestacks::tonestack_fender_blues::plugin,
+	&gx_tonestacks::tonestack_fender_default::plugin,
+	&gx_tonestacks::tonestack_fender_deville::plugin,
+	&gx_tonestacks::tonestack_gibsen::plugin,
+	0
+    };
+
+    static ModuleSelector tonestack("amp.tonestack", N_("Tonestack"),
+				    builtin_tonestack_plugins, "amp.tonestack.select",
+				    _("select"), 0, PGN_POST_PRE);
+
+
+    static PluginDef *builtin_amp_plugins[] = {
+	&gx_amps::gxamp::plugin,
+	&gx_amps::gxamp3::plugin,
+	&gx_amps::gxamp14::plugin,
+	&gx_amps::gxamp10::plugin,
+
+	&gx_amps::gxamp2::plugin,
+
+	&gx_amps::gxamp9::plugin,
+	&gx_amps::gxamp11::plugin,
+	&gx_amps::gxamp17::plugin,
+	&gx_amps::gxamp13::plugin,
+
+	&gx_amps::gxamp5::plugin,
+	&gx_amps::gxamp4::plugin,
+	&gx_amps::gxamp15::plugin,
+	&gx_amps::gxamp12::plugin,
+
+	&gx_amps::gxamp7::plugin,
+	&gx_amps::gxamp8::plugin,
+	&gx_amps::gxamp16::plugin,
+	&gx_amps::gxamp6::plugin,
+	0
+    };
+
+    static const char* ampstack_groups[] = {
+	".amp2.stage1",  N_("Tube1"),
+	".amp2.stage2",  N_("Tube2"),
+	".tube",         N_("Tube 1"),
+	".gxdistortion", N_("Multi Band Distortion"),
+	0
+    };
+
+    static ModuleSelector ampstack("ampstack", "?Tube", builtin_amp_plugins,
+				   "tube.select", _("select"), ampstack_groups);
+
+    PluginList& pl = get_pluginlist();
+
+    // * mono amp input position *
+
+    pl.add(&noisegate.inputlevel,                PLUGIN_POS_START, PGN_GUI|PGN_PRE);
+    pl.add(&gx_effects::noise_shaper::plugin,    PLUGIN_POS_START, PGN_GUI|PGN_PRE);
+
+    // rack pre mono modules inserted here
+
+    pl.add(builtin_amp_plugins,                  PLUGIN_POS_START, PGN_ALTERNATIVE|PGN_POST);
+    pl.add(&ampstack.plugin,                     PLUGIN_POS_START, PGN_POST);
+    pl.add(&gx_effects::softclip::plugin,        PLUGIN_POS_START, PGN_GUI|PGN_POST);
+
+    // rack post mono modules inserted here
+
+    pl.add(&gx_effects::bassbooster::plugin,     PLUGIN_POS_END, PGN_GUI|PGN_POST);
+    pl.add(&gx_effects::gx_ampout::plugin,       PLUGIN_POS_END, PGN_GUI|PGN_POST);
+    pl.add(&contrast.plugin,                     PLUGIN_POS_END, PGN_GUI|PGN_POST);
+    pl.add(&noisegate.outputgate,                PLUGIN_POS_END, PGN_POST);
+
+    // * amp insert position (stereo amp input) *
+
+    pl.add(&gx_effects::gxfeed::plugin,          PLUGIN_POS_START);
+
+    // rack stereo modules inserted here
+
+    pl.add(&gx_effects::gx_outputlevel::plugin,  PLUGIN_POS_END);
+
+    // * fx amp output *
+
+    // dynamic rack modules
+    // builtin 
+    pl.add(builtin_crybaby_plugins,              PLUGIN_POS_RACK, PGN_ALTERNATIVE);
+    pl.add(builtin_tonestack_plugins,            PLUGIN_POS_RACK, PGN_ALTERNATIVE);
+
+    // mono
+    pl.add(&gx_effects::low_high_pass::plugin,   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::selecteq::plugin,        PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&crybaby.plugin,                      PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::gx_distortion::plugin,   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::impulseresponse::plugin, PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::compressor::plugin,      PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::overdrive::plugin,       PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::echo::plugin,            PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::delay::plugin,           PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::freeverb::plugin,        PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&oscilloscope.plugin,                 PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::biquad::plugin,          PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::tremolo::plugin,         PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::phaser_mono::plugin,     PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::chorus_mono::plugin,     PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::flanger_mono::plugin,    PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::gx_feedback::plugin,     PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&tonestack.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&cabinet.plugin,                      PLUGIN_POS_RACK, PGN_GUI);
+    // stereo
+    pl.add(&gx_effects::chorus::plugin,          PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::flanger::plugin,         PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::phaser::plugin,          PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::stereodelay::plugin,     PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::stereoecho::plugin,      PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::moog::plugin,            PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_amps::gx_ampmodul::plugin,        PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::tonecontroll::plugin,    PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&convolver.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&gx_effects::stereoverb::plugin,      PLUGIN_POS_RACK, PGN_GUI);
+
+    // loaded from shared libs
+    pl.load_from_path(plugin_dir, PLUGIN_POS_RACK);
+
+    // selector objects to switch "alternative" modules
+    engine.add_selector(ampstack);
+    engine.add_selector(crybaby);
+    engine.add_selector(tonestack);
+
+#ifndef NDEBUG
+    pl.printlist();
+#endif
+}
+
+void register_faust_parameters() {
+    gx_effects::balance1::register_params(ParamReg(0));
+}

@@ -1,4 +1,6 @@
 // generated from file '../src/faust/phaser_mono.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace phaser_mono {
 static FAUSTFLOAT 	fslider0;
 static int 	iVec0[2];
@@ -22,29 +24,34 @@ static double 	fRec3[3];
 static double 	fRec0[2];
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
-	iConst0 = ((1)?-1:1);
-	fConst1 = (6.283185307179586 / fSamplingFreq);
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
-	fConst2 = (16.0 / fSamplingFreq);
-	fConst3 = (2.0 / fSamplingFreq);
-	fConst4 = exp((0 - (3141.592653589793 / fSamplingFreq)));
-	fConst5 = (0 - (2 * fConst4));
-	fConst6 = faustpower<2>(fConst4);
 	for (int i=0; i<3; i++) fRec6[i] = 0;
-	fConst7 = (4.0 / fSamplingFreq);
 	for (int i=0; i<3; i++) fRec5[i] = 0;
-	fConst8 = (8.0 / fSamplingFreq);
 	for (int i=0; i<3; i++) fRec4[i] = 0;
 	for (int i=0; i<3; i++) fRec3[i] = 0;
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 }
 
-void compute(int count, float *input0, float *output0)
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	iConst0 = ((1)?-1:1);
+	fConst1 = (6.283185307179586 / fSamplingFreq);
+	fConst2 = (16.0 / fSamplingFreq);
+	fConst3 = (2.0 / fSamplingFreq);
+	fConst4 = exp((0 - (3141.592653589793 / fSamplingFreq)));
+	fConst5 = (0 - (2 * fConst4));
+	fConst6 = faustpower<2>(fConst4);
+	fConst7 = (4.0 / fSamplingFreq);
+	fConst8 = (8.0 / fSamplingFreq);
+	clear_state();
+}
+
+static void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = (1 - (0.01 * fSlow0));
@@ -81,13 +88,27 @@ void compute(int count, float *input0, float *output0)
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("phaser_mono.level","","S","",&fslider2, 0.0, -6e+01, 1e+01, 0.1);
-	registerVar("phaser_mono.Speed","","S","",&fslider1, 0.5, 0.0, 1e+01, 0.01);
-	registerVar("phaser_mono.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
-	registerInit("phaser_mono", init);
+	reg.registerVar("phaser_mono.level","","S","",&fslider2, 0.0, -6e+01, 1e+01, 0.1);
+	reg.registerVar("phaser_mono.Speed","","S","",&fslider1, 0.5, 0.0, 1e+01, 0.01);
+	reg.registerVar("phaser_mono.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "phaser_mono",  // id
+    N_("Phaser Mono"),  // name
+    0,  // groups
+    compute,  // mono_audio
+    0,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace phaser_mono

@@ -1,4 +1,4 @@
-declare name "tube2";
+declare id "tube2";
 
 import("music.lib");
 import("effect.lib");

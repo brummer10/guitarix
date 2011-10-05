@@ -198,7 +198,7 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 		GtkTreeIter iter;
 		gtk_tree_model_iter_nth_child(selector->model, &iter, NULL, selectorstate);
 		gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
-		pango_layout_set_text(layout, _(s), -1);
+		pango_layout_set_text(layout, s, -1);
 		pango_layout_get_pixel_extents(layout, NULL, &logical);
 		x = text.x + off_x + (priv->textsize.width - logical.width) / 2;
 		y = text.y + off_y + (priv->textsize.height- logical.height)/ 2;
@@ -272,7 +272,7 @@ static void gx_selector_size_request(GtkWidget *widget, GtkRequisition *requisit
 			PangoRectangle logical_rect;
 			gchar *s;
 			gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
-			pango_layout_set_text(l, _(s), -1);
+			pango_layout_set_text(l, s, -1);
 			g_free(s);
 			pango_layout_get_pixel_extents(l, NULL, &logical_rect);
 			if (width < logical_rect.width) {
@@ -320,7 +320,7 @@ static void selection_done(GtkMenu *menu, gpointer data)
 	while (found) {
 		gchar *s;
 		gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
-		if (strcmp(label, _(s)) == 0) {
+		if (strcmp(label, s) == 0) {
 			g_free(s);
 			if (n != get_selector_state(selector)) {
 				gtk_range_set_value(GTK_RANGE(selector), n);
@@ -350,7 +350,7 @@ static gboolean gx_selector_value_entry(GxRegler *regler, GdkRectangle *rect, Gd
 		found = gtk_tree_model_get_iter_first(selector->model, &iter);
 		while (found) {
 			gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
-			GtkWidget *item = gtk_menu_item_new_with_label(_(s));
+			GtkWidget *item = gtk_menu_item_new_with_label(s);
 			gtk_menu_append(m, item);
 			gtk_widget_show(item);
 			g_free(s);

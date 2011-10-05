@@ -1,3 +1,5 @@
+declare name "Delay";
+
 import("music.lib");
 import("guitarix.lib");
 msec	= SR/1000.0;

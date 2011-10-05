@@ -1,3 +1,4 @@
+declare name "Stereo Delay";
 
 import("music.lib");
 import("guitarix.lib");

@@ -1,4 +1,6 @@
 // generated from file '../src/faust/selecteq.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace selecteq {
 static FAUSTFLOAT 	fslider0;
 static double 	fConst0;
@@ -43,10 +45,8 @@ static double 	fRec1[3];
 static double 	fRec0[3];
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = (3.141592653589793 / fSamplingFreq);
 	for (int i=0; i<3; i++) fRec9[i] = 0;
 	for (int i=0; i<3; i++) fRec8[i] = 0;
 	for (int i=0; i<3; i++) fRec7[i] = 0;
@@ -59,7 +59,14 @@ static void init(int samplingFreq)
 	for (int i=0; i<3; i++) fRec0[i] = 0;
 }
 
-void compute(int count, float *input0, float *output0)
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	fConst0 = (3.141592653589793 / fSamplingFreq);
+	clear_state();
+}
+
+static void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = tan((fConst0 * fslider0));
 	double 	fSlow1 = (2 * (faustpower<2>(fSlow0) - 1));
@@ -187,40 +194,54 @@ void compute(int count, float *input0, float *output0)
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("eqs.Qs31_25","","S","",&fslider28, 5e+01, 1.0, 1e+02, 1.0);
-	registerVar("eqs.fs31_25","","S","gain (dB) at 31.25 Hz",&fslider29, 0.0, -5e+01, 1e+01, 0.1);
-	registerVar("eqs.fs62_5","","S","gain (dB) at 62.5 Hz",&fslider26, 0.0, -5e+01, 1e+01, 0.1);
-	registerVar("eqs.freq31_25","","S","Hz",&fslider27, 31.0, 2e+01, 2e+04, 1.0);
-	registerVar("eqs.freq62_5","","S","Hz",&fslider24, 62.0, 2e+01, 2e+04, 1.0);
-	registerVar("eqs.Qs62_5","","S","",&fslider25, 5e+01, 1.0, 1e+02, 1.0);
-	registerVar("eqs.Qs125","","S","",&fslider22, 5e+01, 1.0, 1e+02, 1.0);
-	registerVar("eqs.fs125","","S","gain (dB) at 125 Hz",&fslider23, 0.0, -5e+01, 1e+01, 0.1);
-	registerVar("eqs.fs250","","S","gain (dB) at 250 Hz",&fslider20, 0.0, -5e+01, 1e+01, 0.1);
-	registerVar("eqs.freq125","","S","Hz",&fslider21, 125.0, 2e+01, 2e+04, 1.0);
-	registerVar("eqs.Qs1k","","S","",&fslider13, 5e+01, 1.0, 1e+02, 1.0);
-	registerVar("eqs.freq1k","","S","Hz",&fslider12, 1e+03, 2e+01, 2e+04, 1.0);
-	registerVar("eqs.fs2k","","S","gain (dB) at 2 kHz",&fslider11, 0.0, -5e+01, 1e+01, 0.1);
-	registerVar("eqs.Qs2k","","S","",&fslider10, 5e+01, 1.0, 1e+02, 1.0);
-	registerVar("eqs.fs500","","S","gain (dB) at 500 Hz",&fslider17, 0.0, -5e+01, 1e+01, 0.1);
-	registerVar("eqs.Qs500","","S","",&fslider16, 5e+01, 1.0, 1e+02, 1.0);
-	registerVar("eqs.freq500","","S","Hz",&fslider15, 5e+02, 2e+01, 2e+04, 1.0);
-	registerVar("eqs.fs1k","","S","gain (dB) at 1 kHz",&fslider14, 0.0, -5e+01, 1e+01, 0.1);
-	registerVar("eqs.Qs250","","S","",&fslider19, 5e+01, 1.0, 1e+02, 1.0);
-	registerVar("eqs.freq250","","S","Hz",&fslider18, 2.5e+02, 2e+01, 2e+04, 1.0);
-	registerVar("eqs.Qs4k","","S","",&fslider7, 5e+01, 1.0, 1e+02, 1.0);
-	registerVar("eqs.freq4k","","S","Hz",&fslider6, 4e+03, 2e+01, 2e+04, 1.0);
-	registerVar("eqs.fs8k","","S","gain (dB) at 8 kHz",&fslider5, 0.0, -5e+01, 1e+01, 0.1);
-	registerVar("eqs.Qs8k","","S","",&fslider4, 5e+01, 1.0, 1e+02, 1.0);
-	registerVar("eqs.freq8k","","S","Hz",&fslider3, 8e+03, 2e+01, 2e+04, 1.0);
-	registerVar("eqs.fs16k","","S","gain (dB) at 16 kHz",&fslider2, 0.0, -5e+01, 1e+01, 0.1);
-	registerVar("eqs.Qs16k","","S","",&fslider1, 5e+01, 1.0, 1e+02, 1.0);
-	registerVar("eqs.freq16k","","S","Hz",&fslider0, 1.6e+04, 2e+01, 2e+04, 1.0);
-	registerVar("eqs.freq2k","","S","Hz",&fslider9, 2e+03, 2e+01, 2e+04, 1.0);
-	registerVar("eqs.fs4k","","S","gain (dB) at 4 kHz",&fslider8, 0.0, -5e+01, 1e+01, 0.1);
-	registerInit("eqs", init);
+	reg.registerVar("eqs.Qs31_25","","S","",&fslider28, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.fs31_25","","S","gain (dB) at 31.25 Hz",&fslider29, 0.0, -5e+01, 1e+01, 0.1);
+	reg.registerVar("eqs.fs62_5","","S","gain (dB) at 62.5 Hz",&fslider26, 0.0, -5e+01, 1e+01, 0.1);
+	reg.registerVar("eqs.freq31_25","","S","Hz",&fslider27, 31.0, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.freq62_5","","S","Hz",&fslider24, 62.0, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.Qs62_5","","S","",&fslider25, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.Qs125","","S","",&fslider22, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.fs125","","S","gain (dB) at 125 Hz",&fslider23, 0.0, -5e+01, 1e+01, 0.1);
+	reg.registerVar("eqs.fs250","","S","gain (dB) at 250 Hz",&fslider20, 0.0, -5e+01, 1e+01, 0.1);
+	reg.registerVar("eqs.freq125","","S","Hz",&fslider21, 125.0, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.Qs1k","","S","",&fslider13, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.freq1k","","S","Hz",&fslider12, 1e+03, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.fs2k","","S","gain (dB) at 2 kHz",&fslider11, 0.0, -5e+01, 1e+01, 0.1);
+	reg.registerVar("eqs.Qs2k","","S","",&fslider10, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.fs500","","S","gain (dB) at 500 Hz",&fslider17, 0.0, -5e+01, 1e+01, 0.1);
+	reg.registerVar("eqs.Qs500","","S","",&fslider16, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.freq500","","S","Hz",&fslider15, 5e+02, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.fs1k","","S","gain (dB) at 1 kHz",&fslider14, 0.0, -5e+01, 1e+01, 0.1);
+	reg.registerVar("eqs.Qs250","","S","",&fslider19, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.freq250","","S","Hz",&fslider18, 2.5e+02, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.Qs4k","","S","",&fslider7, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.freq4k","","S","Hz",&fslider6, 4e+03, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.fs8k","","S","gain (dB) at 8 kHz",&fslider5, 0.0, -5e+01, 1e+01, 0.1);
+	reg.registerVar("eqs.Qs8k","","S","",&fslider4, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.freq8k","","S","Hz",&fslider3, 8e+03, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.fs16k","","S","gain (dB) at 16 kHz",&fslider2, 0.0, -5e+01, 1e+01, 0.1);
+	reg.registerVar("eqs.Qs16k","","S","",&fslider1, 5e+01, 1.0, 1e+02, 1.0);
+	reg.registerVar("eqs.freq16k","","S","Hz",&fslider0, 1.6e+04, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.freq2k","","S","Hz",&fslider9, 2e+03, 2e+01, 2e+04, 1.0);
+	reg.registerVar("eqs.fs4k","","S","gain (dB) at 4 kHz",&fslider8, 0.0, -5e+01, 1e+01, 0.1);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "eqs",  // id
+    N_("Scaleable EQ"),  // name
+    0,  // groups
+    compute,  // mono_audio
+    0,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace selecteq

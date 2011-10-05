@@ -1,7 +1,7 @@
+declare id "HighShelf";
+
 import("maxmsp.lib");
 import("guitarix.lib");
-
-declare name "HighShelf";
 
 hs(x) = highShelf(x,F,G,Q)
 with {

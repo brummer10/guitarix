@@ -1,3 +1,5 @@
+declare name "Tremolo";
+
 /*
 ** Model of a vactrol tremolo unit by "transmogrify"
 ** c.f. http://sourceforge.net/apps/phpbb/guitarix/viewtopic.php?f=7&t=44&p=233&hilit=transmogrifox#p233

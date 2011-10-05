@@ -1,4 +1,5 @@
-declare name "amp2";
+declare id "12ax7"; // in amp tube selector
+declare name "12ax7";
 
 import("music.lib");
 import("filter.lib");
@@ -19,8 +20,8 @@ tubeax(preamp,gain1) =  hgroup("stage1", stage1) :
 
 
 process = component("gxdistortion.dsp").dist(drive,wet_dry) : tubeax(preamp,gain1) with {
-    drive = vslider(".gxdistortion.drive[alias]",0.35, 0, 1, 0.01);
-    wet_dry = vslider(".gxdistortion.wet_dry[alias]",  100, 0, 100, 1) : /(100) : smoothi(0.999);
-    preamp =  vslider("Pregain",-6,-20,20,0.1) : db2linear : smoothi(0.999);
-    gain1 = vslider("gain1", -6, -20.0, 20.0, 0.1) : db2linear : smoothi(0.999);
+    drive = ampctrl.drive;
+    wet_dry = ampctrl.wet_dry;
+    preamp = ampctrl.preamp;
+    gain1 = ampctrl.gain1;
 };

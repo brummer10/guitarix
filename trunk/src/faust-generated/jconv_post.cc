@@ -1,4 +1,6 @@
 // generated from file '../src/faust/jconv_post.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace jconv_post {
 static FAUSTFLOAT 	fslider0;
 static int 	IOTA;
@@ -10,22 +12,29 @@ static FAUSTFLOAT 	fslider2;
 static double 	fRec1[2];
 static FAUSTFLOAT 	fslider3;
 static double 	fRec2[2];
-static FAUSTFLOAT&	fslider4 = get_alias("amp.balance");
+FAUSTFLOAT 	fslider4;
+FAUSTFLOAT	*fslider4_;
+#define fslider4 (*fslider4_)
 static double 	fRec3[2];
 static double 	fVec1[65536];
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
-	IOTA = 0;
 	for (int i=0; i<65536; i++) fVec0[i] = 0;
-	fConst0 = (1.000000000000001e-06 * fSamplingFreq);
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<2; i++) fRec3[i] = 0;
 	for (int i=0; i<65536; i++) fVec1[i] = 0;
+}
+
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	IOTA = 0;
+	fConst0 = (1.000000000000001e-06 * fSamplingFreq);
+	clear_state();
 }
 
 void compute(int count, float *input0, float *input1, float *input2, float *input3, float *output0, float *output1)
@@ -62,14 +71,15 @@ void compute(int count, float *input0, float *input1, float *input2, float *inpu
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("jconv.gain","Gain","S","gain trim for processed signal (unit: dB)",&fslider3, 0.0, -2e+01, 2e+01, 0.1);
-	registerVar("jconv.balance","Balance","S","left/right trim for processed signal",&fslider2, 0.0, -1.0, 1.0, 0.1);
-	registerVar("jconv.diff_delay","Delta Delay","S","delay left or right channel by the specified amount (unit: ms)",&fslider1, 0.0, -1e+02, 1e+02, 0.01);
-	registerVar("jconv.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
-	registerInit("jconv", init);
+#undef fslider4
+	fslider4_ = reg.registerVar("amp.balance","Balance","SA","",&fslider4, 0.0, -1.0, 1.0, 0.1);
+	reg.registerVar("jconv.gain","Gain","S","gain trim for processed signal (unit: dB)",&fslider3, 0.0, -2e+01, 2e+01, 0.1);
+	reg.registerVar("jconv.balance","Balance","S","left/right trim for processed signal",&fslider2, 0.0, -1.0, 1.0, 0.1);
+	reg.registerVar("jconv.diff_delay","Delta Delay","S","delay left or right channel by the specified amount (unit: ms)",&fslider1, 0.0, -1e+02, 1e+02, 0.01);
+	reg.registerVar("jconv.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	return 0;
 }
 
 } // end namespace jconv_post

@@ -1,4 +1,6 @@
 // generated from file '../src/faust/tremolo.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace tremolo {
 static int 	iVec0[2];
 static double 	fConst0;
@@ -16,22 +18,27 @@ static double 	fRec0[2];
 static FAUSTFLOAT 	fslider2;
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
-	fConst0 = (1.0 / fSamplingFreq);
-	fConst1 = (0.5 * fSamplingFreq);
 	for (int i=0; i<2; i++) iRec2[i] = 0;
 	for (int i=0; i<2; i++) iRec1[i] = 0;
-	fConst2 = (6.283185307179586 / fSamplingFreq);
 	for (int i=0; i<2; i++) fRec5[i] = 0;
 	for (int i=0; i<2; i++) fRec4[i] = 0;
 	for (int i=0; i<2; i++) fRec3[i] = 0;
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 }
 
-void compute(int count, float *input0, float *output0)
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	fConst0 = (1.0 / fSamplingFreq);
+	fConst1 = (0.5 * fSamplingFreq);
+	fConst2 = (6.283185307179586 / fSamplingFreq);
+	clear_state();
+}
+
+static void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fslider0;
 	int 	iSlow1 = int((fConst1 / double(fSlow0)));
@@ -63,15 +70,29 @@ void compute(int count, float *input0, float *output0)
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("tremolo.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider2, 1e+02, 0.0, 1e+02, 1.0);
-	static const char *fcheckbox0_values[] = {"triangle","sine",0};
-	registerEnumVar("tremolo.SINE","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	registerVar("tremolo.depth","","S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
-	registerVar("tremolo.freq","","S","",&fslider0, 5.0, 0.1, 5e+01, 0.1);
-	registerInit("tremolo", init);
+	reg.registerVar("tremolo.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider2, 1e+02, 0.0, 1e+02, 1.0);
+	static const value_pair fcheckbox0_values[] = {{"triangle"},{"sine"},{0}};
+	reg.registerEnumVar("tremolo.SINE","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("tremolo.depth","","S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("tremolo.freq","","S","",&fslider0, 5.0, 0.1, 5e+01, 0.1);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "tremolo",  // id
+    N_("Tremolo"),  // name
+    0,  // groups
+    compute,  // mono_audio
+    0,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace tremolo

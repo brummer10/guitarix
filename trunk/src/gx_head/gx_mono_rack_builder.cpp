@@ -39,6 +39,7 @@ void GxMainInterface::gx_build_mono_rack() {
      * mono level out and the clipper, witch are fixed at the end of the mono callback.
      **/
     openHorizontalTableBox("");
+    PluginList& pl = get_pluginlist();
     fMonoRackContainer = fBox[fTop];
     {
         openVerticalBox("");
@@ -118,7 +119,8 @@ void GxMainInterface::gx_build_mono_rack() {
          * register the effect to a counter and insert a menu entry as well a button to the toolbar
          **/
         // low high pass filter
-        openHorizontalOrderBox(_("l/h/filter"), &gx_engine::audio.posit[14]);
+	GtkWidget* box;
+        box = openHorizontalOrderBox(_("l/h/filter"), pl.pos_var("low_highpass"));
         {
             openVerticalBox(_("l/h/filter"));
             {
@@ -131,7 +133,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("low_highpass.dialog", "low_highpass.on_off", "RackBox_expose");
+                    openDialogBox("low_highpass.dialog", "low_highpass.on_off", "RackBox_expose", box);
                     {
                         openHorizontalBox("");
                         {
@@ -163,7 +165,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
         // EQ
-        openHorizontalOrderBox(_("EQ"), &gx_engine::audio.posit[10]);
+        box = openHorizontalOrderBox(_("EQ"), pl.pos_var("eqs"));
         {
             openVerticalBox(_("EQ"));
             {
@@ -176,7 +178,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("eqs.dialog", "eqs.on_off", "RackBox_expose");
+                    openDialogBox("eqs.dialog", "eqs.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -233,7 +235,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
         // ----- crybaby
-        openHorizontalOrderBox(_("crybaby"), &gx_engine::audio.posit[0]);
+        box = openHorizontalOrderBox(_("crybaby"), pl.pos_var("crybaby"));
         {
             openVerticalBox(_("crybaby"));
             {
@@ -246,7 +248,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("crybaby.dialog", "crybaby.on_off", "RackBox_expose");
+                    openDialogBox("crybaby.dialog", "crybaby.on_off", "RackBox_expose", box);
                     {
                         openHorizontalBox("");
                         {
@@ -277,7 +279,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
         // ----- distortion
-        openHorizontalOrderBox(_("distortion"), &gx_engine::audio.posit[2]);
+        box = openHorizontalOrderBox(_("distortion"), pl.pos_var("gx_distortion"));
         {
             openVerticalBox(_("distortion"));
             {
@@ -290,7 +292,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("gx_distortion.dialog", "gx_distortion.on_off", "RackBox_expose");
+                    openDialogBox("gx_distortion.dialog", "gx_distortion.on_off", "RackBox_expose", box);
                     {
                         openHorizontalBox("");
                         {
@@ -377,7 +379,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
         // ----- IR
-        openHorizontalOrderBox(_("IR"), &gx_engine::audio.posit[4]);
+        box = openHorizontalOrderBox(_("IR"), pl.pos_var("IR"));
         {
             openVerticalBox(_("IR"));
             {
@@ -390,7 +392,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("IR.dialog", "IR.on_off", "RackBox_expose");
+                    openDialogBox("IR.dialog", "IR.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox1("");
                         {
@@ -422,7 +424,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
         // ----- the compressor
-        openHorizontalOrderBox(_("Compr."), &gx_engine::audio.posit[5]);
+        box = openHorizontalOrderBox(_("Compr."), pl.pos_var("compressor"));
         {
             openVerticalBox(_("Compr."));
             {
@@ -435,7 +437,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("compressor.dialog", "compressor.on_off", "RackBox_expose");
+                    openDialogBox("compressor.dialog", "compressor.on_off", "RackBox_expose", box);
                     {
                         openHorizontalTableBox("");
                         {
@@ -457,7 +459,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
         // -----overdrive
-        openHorizontalOrderBox(_("overdrive"), &gx_engine::audio.posit[1]);
+        box = openHorizontalOrderBox(_("overdrive"), pl.pos_var("overdrive"));
         {
             openVerticalBox(_("overdrive"));
             {
@@ -470,7 +472,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("overdrive.dialog", "overdrive.on_off", "RackBox_expose");
+                    openDialogBox("overdrive.dialog", "overdrive.on_off", "RackBox_expose", box);
                     {
                         openHorizontalTableBox("");
                         {
@@ -491,7 +493,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
         // ----- echo
-        openHorizontalOrderBox(_("echo"), &gx_engine::audio.posit[6]);
+        box = openHorizontalOrderBox(_("echo"), pl.pos_var("echo"));
         {
             openVerticalBox(_("echo"));
             {
@@ -504,7 +506,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("echo.dialog", "echo.on_off", "RackBox_expose");
+                    openDialogBox("echo.dialog", "echo.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -526,7 +528,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
         // -----delay
-        openHorizontalOrderBox(_("delay"), &gx_engine::audio.posit[7]);
+        box = openHorizontalOrderBox(_("delay"), pl.pos_var("delay"));
         {
             openVerticalBox(_("delay"));
             {
@@ -539,7 +541,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("delay.dialog", "delay.on_off", "RackBox_expose");
+                    openDialogBox("delay.dialog", "delay.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -561,7 +563,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
         // ----- freeverb
-        openHorizontalOrderBox(_("freeverb"), &gx_engine::audio.posit[3]);
+        box = openHorizontalOrderBox(_("freeverb"), pl.pos_var("freeverb"));
         {
             openVerticalBox(_("freeverb"));
             {
@@ -573,7 +575,7 @@ void GxMainInterface::gx_build_mono_rack() {
                         create_selector("freeverb.pp");
                     }
                     closeBox();
-                    openDialogBox("freeverb.dialog", "freeverb.on_off", "RackBox_expose");
+                    openDialogBox("freeverb.dialog", "freeverb.on_off", "RackBox_expose", box);
                     {
                         openFrameBox("");
                         closeBox();
@@ -600,7 +602,7 @@ void GxMainInterface::gx_build_mono_rack() {
         closeBox();
 
         // -----osc
-        openHorizontalOrderBox(_("oscilloscope"), &gx_engine::audio.posit[17]);
+        box = openHorizontalOrderBox(_("oscilloscope"), pl.pos_var("oscilloscope"));
         {
             openVerticalBox(_("osc"));
             {
@@ -613,7 +615,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("oscilloscope.dialog", "oscilloscope.on_off", "RackBox_expose");
+                    openDialogBox("oscilloscope.dialog", "oscilloscope.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -623,7 +625,7 @@ void GxMainInterface::gx_build_mono_rack() {
                             {
                                 openFrameBox("");
                                 closeBox();
-                                addLiveWaveDisplay(" ", &gx_engine::audio.viv , &gx_engine::audio.vivi);
+                                addLiveWaveDisplay(" ");
                                 openFrameBox("");
                                 closeBox();
                             }
@@ -641,7 +643,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
 
-        openHorizontalOrderBox(_("biquad"), &gx_engine::audio.posit[18]);
+        box = openHorizontalOrderBox(_("biquad"), pl.pos_var("biquad"));
         {
             openVerticalBox(_("biquad"));
             {
@@ -654,7 +656,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("biquad.dialog", "biquad.on_off", "RackBox_expose");
+                    openDialogBox("biquad.dialog", "biquad.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -674,7 +676,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
 
-        openHorizontalOrderBox(_("tremolo"), &gx_engine::audio.posit[21]);
+        box = openHorizontalOrderBox(_("tremolo"), pl.pos_var("tremolo"));
         {
             openVerticalBox(_("tremolo"));
             {
@@ -687,7 +689,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("tremolo.dialog", "tremolo.on_off", "RackBox_expose");
+                    openDialogBox("tremolo.dialog", "tremolo.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -724,7 +726,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
 
-        openHorizontalOrderBox(_("phaser"), &gx_engine::audio.posit[22]);
+        box = openHorizontalOrderBox(_("phaser"), pl.pos_var("phaser"));
         {
             openVerticalBox(_("phaser"));
             {
@@ -737,7 +739,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("phaser_mono.dialog", "phaser_mono.on_off", "RackBox_expose");
+                    openDialogBox("phaser_mono.dialog", "phaser_mono.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -759,7 +761,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
 
-        openHorizontalOrderBox(_("chorus"), &gx_engine::audio.posit[23]);
+        box = openHorizontalOrderBox(_("chorus"), pl.pos_var("chorus"));
         {
             openVerticalBox(_("chorus"));
             {
@@ -772,7 +774,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("chorus_mono.dialog", "chorus_mono.on_off", "RackBox_expose");
+                    openDialogBox("chorus_mono.dialog", "chorus_mono.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -794,7 +796,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
 
-        openHorizontalOrderBox(_("flanger"), &gx_engine::audio.posit[24]);
+        box = openHorizontalOrderBox(_("flanger"), pl.pos_var("flanger_mono"));
         {
             openVerticalBox(_("flanger"));
             {
@@ -807,7 +809,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("flanger_mono.dialog", "flanger_mono.on_off", "RackBox_expose");
+                    openDialogBox("flanger_mono.dialog", "flanger_mono.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -829,7 +831,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
 
-        openHorizontalOrderBox(_("feedback"), &gx_engine::audio.posit[25]);
+        box = openHorizontalOrderBox(_("feedback"), pl.pos_var("feedback"));
         {
             openVerticalBox(_("feedback"));
             {
@@ -842,7 +844,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("feedback.dialog", "feedback.on_off", "RackBox_expose");
+                    openDialogBox("feedback.dialog", "feedback.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -863,7 +865,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
 
-        openHorizontalOrderBox(_("tonestack"), &gx_engine::audio.posit[26]);
+        box = openHorizontalOrderBox(_("tonestack"), pl.pos_var("amp.tonestack"));
         {
             openVerticalBox(_("tonestack"));
             {
@@ -876,7 +878,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("amp.tonestack.dialog", "amp.tonestack.on_off", "RackBox_expose");
+                    openDialogBox("amp.tonestack.dialog", "amp.tonestack.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -902,7 +904,7 @@ void GxMainInterface::gx_build_mono_rack() {
         }
         closeBox();
 
-        openHorizontalOrderBox(_("cabinet"), &gx_engine::audio.posit[27]);
+        box = openHorizontalOrderBox(_("cabinet"), pl.pos_var("cab"));
         {
             openVerticalBox(_("cabinet"));
             {
@@ -915,7 +917,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("cab.dialog", "cab.on_off", "RackBox_expose");
+                    openDialogBox("cab.dialog", "cab.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -1176,7 +1178,7 @@ void GxMainInterface::gx_build_mono_rack() {
                                         create_small_rackknob("beat_detector.beat_gain", _("beat_gain"));
                                     }
                                     closeBox();
-                                    addStatusDisplay("", &gx_engine::audio.midistat);
+                                    addStatusDisplay("", &gx_engine::midi.midistat);
                                     openHorizontalBox("");
                                     {
                                         openFrameBox("");

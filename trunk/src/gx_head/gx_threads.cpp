@@ -111,7 +111,7 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
         // refresh some stuff. Note that it can be executed
         // more than once, no harm here
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), FALSE);
-        gx_jconv::GxJConvSettings::checkbutton7 = 0;
+        *gx_jconv::GxJConvSettings::checkbutton7 = 0;
         gx_jack::gxjack.jack_is_down = true;
     }
     // run as long jackd is down
@@ -122,29 +122,52 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
 gboolean gx_update_all_gui(gpointer) {
     // the general Gui update handler
     gx_ui::GxUI::updateAllGuis();
-    // check for changes in the audio engine
-    if (gx_engine::audio.rack_change) {
-	gx_engine::gx_reorder_rack(true);
-    }
+    gx_engine::engine.check_module_lists();
     return TRUE;
 }
 
+static gboolean conv_restart(gpointer data) {
+    gx_engine::engine.cabinet.conv_start();
+    return false;
+}
+
+void cab_conv_restart() {
+    if (gx_gui::guivar.g_threads[5] == 0 || g_main_context_find_source_by_id(NULL, gx_gui::guivar.g_threads[5]) == NULL) {
+        gx_gui::guivar.g_threads[5] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0,
+						 conv_restart,NULL,NULL);
+	gx_engine::engine.cabinet.update_sum();
+    } else {
+        gx_system::gx_print_warning(_("Cabinet Loading"), string(_(" cab thread is bussy")));
+    }
+}
+
+static gboolean contrast_restart(gpointer data) {
+    gx_engine::engine.contrast.conv_start();
+    return false;
+}
+
+void contrast_conv_restart() {
+    if (gx_gui::guivar.g_threads[9] == 0 || g_main_context_find_source_by_id(NULL, gx_gui::guivar.g_threads[9]) == NULL) {
+        gx_gui::guivar.g_threads[9] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0, contrast_restart,NULL,NULL);
+        gx_engine::engine.contrast.update_sum();
+    } else {
+        gx_system::gx_print_warning(_("Presence Loading"), string(_(" presence thread is bussy")));
+     }
+}
+
 gboolean gx_check_cab_state(gpointer) {
-    if (gx_engine::audio.fcab) {
-	if (gx_engine::audio.cab_switched != gx_engine::audio.cabinet) {
-            gx_engine::cab_conv.stop();
-            gx_gui::cab_conv_restart();
-	} else if (abs(gx_engine::audio.cab_sum -
-			(gx_engine::audio.cab_level + gx_engine::audio.cab_bass
-			 + gx_engine::audio.cab_treble))
-		   > 0.01) {
-	    gx_gui::cab_conv_update();
+    if (gx_engine::engine.cabinet.plugin.on_off) {
+	if (gx_engine::engine.cabinet.cabinet_changed()) {
+            gx_engine::engine.cabinet.conv_stop();
+            cab_conv_restart();
+	} else if (gx_engine::engine.cabinet.sum_changed()) {
+	    gx_engine::engine.cabinet.conv_update();
         }
     }
-    if (gx_engine::audio.fcon) {
-        if (abs(gx_engine::audio.con_level - gx_engine::audio.con_sum) > 0.01) {
-            gx_engine::contrast_conv.stop();
-            gx_gui::contrast_conv_restart();
+    if (gx_engine::engine.contrast.plugin.on_off) {
+        if (gx_engine::engine.contrast.sum_changed()) {
+            gx_engine::engine.contrast.conv_stop();
+            contrast_conv_restart();
         }
     }
     return TRUE;

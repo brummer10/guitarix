@@ -42,8 +42,6 @@
 #include <string>                        // NOLINT
 #include <vector>                        // NOLINT
 
-#define _(x) (x)
-
 /****************************************************************
  ** fixup_controlparameters()
  ** helper function to initialize widgets which are linked to a
@@ -67,26 +65,50 @@ struct TypeTraits<GObject*> {
 
 namespace gx_jconv {
 
-class uiToggle: gx_ui::GxUiItemFloat {
+class uiToggleFloat: gx_ui::GxUiItemFloat {
  protected:
     Glib::RefPtr<Gtk::ToggleButton> button;
     void on_button_toggled();
     virtual void reflectZone();
  public:
-    uiToggle(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, float *zone);
+    uiToggleFloat(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, float *zone);
 };
 
-uiToggle::uiToggle(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, float *zone)
+uiToggleFloat::uiToggleFloat(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, float *zone)
     : gx_ui::GxUiItemFloat(&ui, zone), button(b) {
-    button->signal_toggled().connect(sigc::mem_fun(*this, &uiToggle::on_button_toggled));
+    button->signal_toggled().connect(sigc::mem_fun(*this, &uiToggleFloat::on_button_toggled));
 }
 
-void uiToggle::on_button_toggled() {
+void uiToggleFloat::on_button_toggled() {
     modifyZone(button->get_active());
 }
 
-void uiToggle::reflectZone() {
+void uiToggleFloat::reflectZone() {
     float v = *fZone;
+    fCache = v;
+    button->set_active(v != 0.0);
+}
+
+class uiToggleBool: gx_ui::GxUiItemBool {
+ protected:
+    Glib::RefPtr<Gtk::ToggleButton> button;
+    void on_button_toggled();
+    virtual void reflectZone();
+ public:
+    uiToggleBool(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, bool *zone);
+};
+
+uiToggleBool::uiToggleBool(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, bool *zone)
+    : gx_ui::GxUiItemBool(&ui, zone), button(b) {
+    button->signal_toggled().connect(sigc::mem_fun(*this, &uiToggleBool::on_button_toggled));
+}
+
+void uiToggleBool::on_button_toggled() {
+    modifyZone(button->get_active());
+}
+
+void uiToggleBool::reflectZone() {
+    bool v = *fZone;
     fCache = v;
     button->set_active(v != 0.0);
 }
@@ -129,9 +151,21 @@ static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::G
                 Glib::RefPtr<Gtk::ToggleButton> t =
                     Glib::RefPtr<Gtk::ToggleButton>::cast_dynamic(w);
                 if (t) {
-                    new uiToggle(ui, t, &fp.value);
+                    new uiToggleFloat(ui, t, &fp.value);
                 }
             }
+            if (fp.isControllable()) {
+                gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.value);
+            }
+        } else if (p.isBool()) {
+            gx_gui::BoolParameter &fp = p.getBool();
+            w->cp_configure(p.group(), p.name(), 0, 0, 0);
+            w->cp_set_value(fp.value);
+	    Glib::RefPtr<Gtk::ToggleButton> t =
+		Glib::RefPtr<Gtk::ToggleButton>::cast_dynamic(w);
+	    if (t) {
+		new uiToggleBool(ui, t, &fp.value);
+	    }
             if (fp.isControllable()) {
                 gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.value);
             }
@@ -144,18 +178,21 @@ static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::G
 
 // FIXME: needs to be moved somewhere else (at least be together with convolver_start)
 void gx_convolver_restart() {
-    if (!GxJConvSettings::checkbutton7) {
+    printf("JCR\n");
+    if (!*GxJConvSettings::checkbutton7) {
         return;
     }
-    gx_engine::conv.stop();
-    while (gx_engine::conv.is_runnable()) gx_engine::conv.checkstate();
+    gx_engine::engine.convolver.conv.stop();
+    while (gx_engine::engine.convolver.conv.is_runnable()) {
+	gx_engine::engine.convolver.conv.checkstate();
+    }
     gx_jconv::GxJConvSettings* jcset = GxJConvSettings::instance();
-    bool rc = gx_engine::conv.configure(
+    bool rc = gx_engine::engine.convolver.conv.configure(
         gx_jack::gxjack.jack_bs, gx_jack::gxjack.jack_sr, jcset->getFullIRPath(),
         jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
         jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline());
-    if (!rc || !gx_engine::conv.start()) {
-        GxJConvSettings::checkbutton7 = 0;
+    if (!rc || !gx_engine::engine.convolver.conv.start()) {
+        *GxJConvSettings::checkbutton7 = 0;
     }
 }
 
@@ -759,8 +796,8 @@ static void set_favorite_from_menu(GtkMenuItem *menuitem, gpointer data) {
     IRWindow::get_window()->new_file(fname);
     unsigned int gain_cor      = jcset.getGainCor();
     jcset.setGainCor(gain_cor);
-    if (!GxJConvSettings::checkbutton7) {
-        GxJConvSettings::checkbutton7 = 1;
+    if (!*GxJConvSettings::checkbutton7) {
+        *GxJConvSettings::checkbutton7 = 1;
         return;
     }
     IRWindow::get_window()->save();
@@ -775,8 +812,8 @@ static void set_favorite_from_menu_in(GtkMenuItem *menuitem, gpointer data) {
     jcset.setFullIRPath(fname);
     IRWindow::get_window()->new_file(fname);
     g_idle_add(enumerate, NULL);
-    if (!GxJConvSettings::checkbutton7) {
-        GxJConvSettings::checkbutton7 = 1;
+    if (!*GxJConvSettings::checkbutton7) {
+        *GxJConvSettings::checkbutton7 = 1;
         return;
     }
     IRWindow::get_window()->save();
@@ -1046,8 +1083,8 @@ void IRWindow::on_ms_length_changed() {
 }
 
 void IRWindow::on_apply_button_clicked() {
-    if (!GxJConvSettings::checkbutton7) {
-        GxJConvSettings::checkbutton7 = 1;
+    if (!*GxJConvSettings::checkbutton7) {
+        *GxJConvSettings::checkbutton7 = 1;
         return;
     }
     if (save_state()) {
@@ -1128,7 +1165,7 @@ void gx_load_fav(GtkMenuItem *menuitem, gpointer data) {
 }
 
 // --------------- static vars
-float GxJConvSettings::checkbutton7 = 0.;
+bool* GxJConvSettings::checkbutton7 = 0;
 
 // ---------------  constructor
 GxJConvSettings::GxJConvSettings() {
@@ -1140,6 +1177,7 @@ GxJConvSettings::GxJConvSettings() {
     fOffset     = 0;
     fLength     = 0;
     fDelay      = 0;
+    checkbutton7 = get_pluginlist().on_off_var("jconv");
 }
 
 string GxJConvSettings::getFullIRPath() const {

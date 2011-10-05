@@ -1,3 +1,5 @@
+declare name "Overdrive";
+
 import("music.lib");
 import("guitarix.lib");
 

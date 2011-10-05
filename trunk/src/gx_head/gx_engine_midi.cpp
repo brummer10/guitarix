@@ -29,6 +29,20 @@
 namespace gx_engine {
 
 void MidiVariables::register_parameter() {
+    gx_gui::ParameterGroups& groups = gx_gui::get_group_table();
+    groups.insert("midi_out", N_("Midi Out"));
+    groups.insert("midi_out.channel_1", N_("Midi Out 1"));
+    groups.insert("midi_out.channel_2", N_("Midi Out 2"));
+    groups.insert("midi_out.channel_3", N_("Midi Out 3"));
+    groups.insert("beat_detector", N_("Beat Detector"));
+
+    static const char *on_off = N_("on/off");
+    gx_gui::registerParam("midi_out.on_off",       on_off, &fmi, 0);
+    gx_gui::registerNonMidiParam("midi_out.midistat",        &midistat, false);
+    gx_gui::registerNonMidiParam("midi_out.midistat1",       &midistat1, false);
+    gx_gui::registerNonMidiParam("midi_out.midistat2",       &midistat2, false);
+    gx_gui::registerNonMidiParam("midi_out.midistat3",       &midistat3, false);
+
     gx_gui::registerParam("midi_out.channel_1.velocity", "velocity", &fslider26,
                            64.f, 0.f, 127.f, 1.f);
     gx_gui::registerParam("midi_out.channel_1.volume", "volume", &fslider46,
@@ -264,7 +278,7 @@ void process_midi(int len) {
                 // channel0
                 if (midi.program != iTemps31) {
                     midi.program = iTemps31;
-                    audio.midistat += 1.0f;
+                    midi.midistat = true;
                     midi.midi_send = jack_midi_event_reserve(gx_jack::gxjack.midi_port_buf, i, 2);
 
                     if (midi.midi_send) {
@@ -284,7 +298,7 @@ void process_midi(int len) {
                     }
                     if (midi.volume != iTemps46) {
                         midi.volume = iTemps46;
-                        audio.midistat += 1.0f;
+                        midi.midistat = true;
                         midi.midi_send = jack_midi_event_reserve
                                                   (gx_jack::gxjack.midi_port_buf, i, 3);
 
@@ -300,12 +314,12 @@ void process_midi(int len) {
 
                     midi.noten = preNote + iTemps29;
                     midi.send = 0;
-                    audio.midistat += 1.0f;
-                    audio.midistat1 = true;
+                    midi.midistat = true;
+                    midi.midistat1 = true;
 
                     if (( midi.noten >= 0)&&(midi.noten <= 127)) {
                         // pitch wheel clear
-                        if (midi.fpitch == 1.0) {
+                        if (midi.fpitch) {
                             midi.midi_send = jack_midi_event_reserve
                                                       (gx_jack::gxjack.midi_port_buf, i, 3);
                             if (midi.midi_send) {
@@ -329,7 +343,7 @@ void process_midi(int len) {
                         }
 
                         // pitch wheel set auto
-                        if (midi.fpitch == 1.0) {
+                        if (midi.fpitch) {
                             if (piwe < 0) piwe = 0;
                             if (fConsta2 > 0x3fff) piwe = 0x3fff;
                             midi.midi_send = jack_midi_event_reserve
@@ -351,7 +365,7 @@ void process_midi(int len) {
                 if (midi.fcheckbox10) {
                     if (midi.program1 != iTemps36) {
                         midi.program1 = iTemps36;
-                        audio.midistat += 1.0f;
+                        midi.midistat = true;
                         midi.midi_send1 = jack_midi_event_reserve
                                                    (gx_jack::gxjack.midi_port_buf, i, 2);
 
@@ -374,7 +388,7 @@ void process_midi(int len) {
 
                         if (midi.volume1 != iTemps47) {
                             midi.volume1 = iTemps47;
-                            audio.midistat += 1.0f;
+                            midi.midistat = true;
                             midi.midi_send1 = jack_midi_event_reserve
                                                        (gx_jack::gxjack.midi_port_buf, i, 3);
                             if (midi.midi_send1) {
@@ -389,11 +403,11 @@ void process_midi(int len) {
 
                         midi.noten1 = preNote + iTemps34;
                         midi.send1 = 0;
-                        audio.midistat += 1.0f;
-                        audio.midistat2 = true;
+                        midi.midistat = true;
+                        midi.midistat2 = true;
                         if ((midi.noten1 >= 0)&&(midi.noten1 <= 127)) {
                             // pitch wheel clear
-                            if (midi.fpitch1 == 1.0) {
+                            if (midi.fpitch1) {
                                 midi.midi_send1 = jack_midi_event_reserve
                                                            (gx_jack::gxjack.midi_port_buf, i, 3);
                                 if (midi.midi_send1) {
@@ -417,7 +431,7 @@ void process_midi(int len) {
                             }
 
                             // pitch wheel set auto
-                            if (midi.fpitch1 == 1.0) {
+                            if (midi.fpitch1) {
                                 if (piwe < 0) piwe = 0;
                                 if (fConsta2 > 0x3fff) piwe = 0x3fff;
                                 midi.midi_send1 = jack_midi_event_reserve
@@ -439,7 +453,7 @@ void process_midi(int len) {
                 if (midi.fcheckbox11) {
                     if (midi.program2 != iTemps43) {
                         midi.program2 = iTemps43;
-                        audio.midistat += 1.0f;
+                        midi.midistat = true;
                         midi.midi_send2 = jack_midi_event_reserve(gx_jack::gxjack.midi_port_buf, i, 2);
 
                         if (midi.midi_send2) {
@@ -460,7 +474,7 @@ void process_midi(int len) {
 
                         if (midi.volume2 != iTemps48) {
                             midi.volume2 = iTemps48;
-                            audio.midistat += 1.0f;
+                            midi.midistat = true;
                             midi.midi_send2 = jack_midi_event_reserve
                                                        (gx_jack::gxjack.midi_port_buf, i, 3);
                             if (midi.midi_send2) {
@@ -474,7 +488,7 @@ void process_midi(int len) {
                         }
 
                         // pitch wheel clear
-                        if (midi.fpitch2 == 1.0) {
+                        if (midi.fpitch2) {
                             midi.midi_send2 = jack_midi_event_reserve
                                                        (gx_jack::gxjack.midi_port_buf, i, 3);
                             if (midi.midi_send2) {
@@ -489,8 +503,8 @@ void process_midi(int len) {
 
                         midi.noten2 = preNote + iTemps42;
                         midi.send2 = 0;
-                        audio.midistat += 1.0f;
-                        audio.midistat3 = true;
+                        midi.midistat = true;
+                        midi.midistat3 = true;
 
                         if ((midi.noten2 >= 0)&&(midi.noten2 <= 127)) {
                             midi.midi_send2 = jack_midi_event_reserve
@@ -506,7 +520,7 @@ void process_midi(int len) {
                             }
 
                             // pitch wheel set auto
-                            if (midi.fpitch2 == 1.0) {
+                            if (midi.fpitch2) {
                                 if (piwe < 0) piwe = 0;
                                 if (fConsta2 > 0x3fff) piwe = 0x3fff;
                                 midi.midi_send2 = jack_midi_event_reserve
@@ -530,7 +544,7 @@ void process_midi(int len) {
                     midi.send = midi.send1 = midi.send2 = 0;
                     midi.Beat_is = static_cast<int>(fTemps45);
                     if (midi.weg <  iTemps37a) {   // 5.0
-                        audio.midistat += 1.0f;
+                        midi.midistat = true;
                         midi.midi_send = jack_midi_event_reserve(gx_jack::gxjack.midi_port_buf, i, 3);
 
                         if (midi.midi_send) {
@@ -543,7 +557,7 @@ void process_midi(int len) {
                         }
 
                         if (midi.fcheckbox10) {
-                            audio.midistat += 1.0f;
+                            midi.midistat = true;
                             midi.midi_send1 = jack_midi_event_reserve(gx_jack::gxjack.midi_port_buf, i, 3);
 
                             if (midi.midi_send1) {
@@ -557,7 +571,7 @@ void process_midi(int len) {
                         }
 
                         if (midi.fcheckbox11) {
-                            audio.midistat += 1.0f;
+                            midi.midistat = true;
                             midi.midi_send2 = jack_midi_event_reserve(gx_jack::gxjack.midi_port_buf, i, 3);
 
                             if (midi.midi_send2) {
@@ -569,8 +583,7 @@ void process_midi(int len) {
                                 midi.midi_send2[0] = 0xB0 | static_cast<int>(iTemps44);
                             }
                         }
-                        audio.midistat = 0.0f;
-                        audio.midistat1 = audio.midistat2 = audio.midistat3 = false;
+                        midi.midistat = midi.midistat1 = midi.midistat2 = midi.midistat3 = false;
                     }
                 }
                 midi.weg+=step;

@@ -1,5 +1,6 @@
-declare name 		"moog";
-declare license 	"BSD";
+declare id      "moog";
+declare name    "Moog Filter";
+declare license "BSD";
 
 
 import("effect.lib");

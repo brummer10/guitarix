@@ -26,6 +26,9 @@
 #define SRC_HEADERS_GX_ENGINE_H_
 
 #include <string>
+#include <set>
+#include <errno.h>
+#include <glibmm/i18n.h>     // NOLINT
 
 // --- defines the processing type
 #define ZEROIZE_BUFFERS  (0)
@@ -42,195 +45,24 @@ typedef enum {
     kEngineBypass = 2
 } GxEngineState;
 
-typedef enum {
-    kMidiOff    = 0,
-    kMidiOn     = 1
-} GxMidiState;
-
-typedef void (*monochainorder)(int count, float *output, float *output1);
-typedef void (*stereochainorder)(int count, float* input, float* input1,
-				 float *output, float *output1);
-
-template <class F>
-class ThreadSafeChainPointer {
-private:
-    F *rack_order_ptr[2];
-    int size;
-    int current_index;
-    int active_counter;
-    F *current_pointer;
-    sem_t* sync_sem;
-protected:
-    static F *processing_pointer;
-    enum RampMode { ramp_down_dead, ramp_down, ramp_up_dead, ramp_up, ramp_off } ramp_mode;
-    int steps_up;		// >= 1
-    int steps_up_dead;		// >= 0
-    int steps_down;		// >= 1
-    int ramp_value;
-public:
-    ThreadSafeChainPointer(int sz, sem_t* sem);
-    ~ThreadSafeChainPointer();
-    void init(int samplefreq) {
-	steps_down = (64 * samplefreq) / 48000;
-	steps_up = 1;
-	steps_up_dead = 0;
-    }
-    void resize();
-    inline void append(F f) {
-	if (active_counter >= size-1) { // leave one slot for 0 marker
-	    resize();
-	}
-	current_pointer[active_counter++] = f;
-    }
-    inline void clear() { active_counter = 0; }
-    inline void empty_chain() { clear(); commit(); }
-    void commit() {
-	current_pointer[active_counter] = 0;
-	g_atomic_pointer_set(&processing_pointer, current_pointer);
-	current_index = (current_index+1) % 2;
-	current_pointer = rack_order_ptr[current_index];
-	clear();
-    }
-    inline void start_ramp_up() { ramp_value = 0; ramp_mode = ramp_up_dead; }
-    inline void start_ramp_down() { ramp_value = steps_down; ramp_mode = ramp_down; }
-    void wait_ramp_down_finished() {
-	while (ramp_mode == ramp_down) {
-	    sem_wait(sync_sem);
-	}
-    }
-    inline F* get_rt_chain() { return reinterpret_cast<F*>(g_atomic_pointer_get(&processing_pointer)); }
-};
-
-template <class F>
-ThreadSafeChainPointer<F>::ThreadSafeChainPointer(int sz, sem_t* sem):
-    size(sz),
-    current_index(0),
-    active_counter(0),
-    sync_sem(sem),
-    ramp_mode(ramp_down_dead),
-    ramp_value(0) {
-    rack_order_ptr[0] = new F[sz];
-    rack_order_ptr[1] = new F[sz];
-    current_pointer = rack_order_ptr[0];
-}
-
-template <class F>
-ThreadSafeChainPointer<F>::~ThreadSafeChainPointer() {
-    delete rack_order_ptr[0];
-    delete rack_order_ptr[1];
-}
-
-template <class F>
-void ThreadSafeChainPointer<F>::resize()
-{
-    F *p = new F[2*size];
-    memcpy(p, current_pointer, size * sizeof(current_pointer[0]));
-    size = 2 * size;
-    rack_order_ptr[current_index] = p;
-    current_pointer = p;
-}
-
-template <class F> F *ThreadSafeChainPointer<F>::processing_pointer = 0;
-
-class MonoModuleChain: public ThreadSafeChainPointer<monochainorder> {
-public:
-    MonoModuleChain(): ThreadSafeChainPointer<monochainorder>(60, &gx_jack::jack_sync_sem) {}
-    monochainorder tonestack_ptr;
-    monochainorder amp_ptr;
-    void process(int count, float *input, float *output);
-};
-
-class StereoModuleChain: public ThreadSafeChainPointer<stereochainorder> {
-public:
-    StereoModuleChain(): ThreadSafeChainPointer<stereochainorder>(20, &gx_jack::jack_insert_sync_sem) {}
-    void process(int count, float *input, float *output1, float *output2);
-};
-
-extern MonoModuleChain mono_chain;
-extern StereoModuleChain stereo_chain;
-
 /****************************************************************/
 
 class AudioVariables {
- public:
-    GxMidiState midistate;
+public:
     GxEngineState checky;
 
     bool  initialized;  /* engine init state  */
     bool  buffers_ready;  /* buffer ready state */
-    bool  fnoise_g;
-    bool  fng;
-    bool  foverdrive4;
-    bool  fcheckbox4;
-    bool  fcheckbox5;
-    bool  fcheckbox6;
-    bool  fcheckbox8;
-    bool  ftube;
-    bool  fboost;
-    bool  fcheckboxcom1;
-    bool  midistat1;
-    bool  midistat2;
-    bool  midistat3;
-    bool  feq;
-    bool  fmoog;
-    bool  fflanger;
-    bool  fbiquad;
-    bool  fcab;
-    bool  fcon;
-    bool  flh;
-    bool  fmi;
-    bool  fwv;
-    bool  fwv_on;
-    bool  famp;
-    bool  fampout;
-    bool  ftone;
-    bool  ftremolo;
-    bool  fpm;
-    bool  fflanger_mono;
-    bool  ffeedback;
-    bool  ftonestack;
-    bool  rack_change;
-    bool  tube_changed;
-    bool  ffreevst;
-
-    int   fcheckbox7;
-    int   fdelay;
-    int   fchorus;
-    int   fchorus_mono;
-    int   fphaser;
-    int   tonestack;
-    int   cur_tonestack;
-    int   cabinet;
-    int   cab_switched;
-    int   fsd;
-    int   fse;
-    int   gxtube_select;
-
-    unsigned int   gxtube;
-    unsigned int   mono_plug_counter;
-    unsigned int   stereo_plug_counter;
-    
-    unsigned int effect_pre_post[20];
-
-    float posit[30];
-
-    float fnglevel;
-    float fautowah;
-    float ffuse;
+    int   mono_plug_counter;
+    int   stereo_plug_counter;
     float fwarn;
     float fwarn_swap;
     float fskin;
-    float viv;
-    float vivi;
+
+    //FIXME:
     float filebutton;
+
     float fConsta1t;
-    float midistat;
-    float cab_level;
-    float cab_bass;
-    float cab_treble;
-    float cab_sum;
-    float con_level;
-    float con_sum;
 
     float maxlevel[2];
     float* checkfreq;
@@ -246,6 +78,7 @@ extern AudioVariables audio;
 
 class MidiVariables {
  public:
+    bool midistate;
     float fslider45;
     float fslider38;
     float fslider31;
@@ -274,15 +107,20 @@ class MidiVariables {
     float midi_gain;
     float fConstun0;
     float fautogain;
-    float fpitch;
+    bool fpitch;
     float fslider32;
     float fautogain1;
-    float fpitch1;
-    float fpitch2;
+    bool fpitch1;
+    bool fpitch2;
     float fautogain2;
     float BeatFilter1;
     float BeatFilter2;
     float BeatFilterk;
+    bool  fmi;
+    bool midistat;
+    bool  midistat1;
+    bool  midistat2;
+    bool  midistat3;
 
     int   weg;
     int   program;
@@ -312,6 +150,392 @@ class MidiVariables {
 
 extern MidiVariables midi;
 
+
+/****************************************************************
+ ** class ProcessingChainBase
+ */
+
+class ProcessingChainBase {
+public:
+    enum RampMode { ramp_mode_down_dead, ramp_mode_down, ramp_mode_up_dead, ramp_mode_up, ramp_mode_off };
+private:
+    sem_t sync_sem;
+    list<Plugin*> to_release;
+    int ramp_value;
+    RampMode ramp_mode;
+protected:
+    int steps_up;		// >= 1
+    int steps_up_dead;		// >= 0
+    int steps_down;		// >= 1
+    volatile bool latch; // set between commit and end of rt cycle
+    list<Plugin*> modules;
+    inline void set_ramp_value(int n) { g_atomic_int_set(&ramp_value, n); }
+    inline void set_ramp_mode(RampMode n) { g_atomic_int_set(&ramp_mode, n); }
+    void try_set_ramp_mode(RampMode oldmode, RampMode newmode, int oldrv, int newrv);
+public:
+    ProcessingChainBase();
+    inline RampMode get_ramp_mode() {
+	return static_cast<RampMode>(g_atomic_int_get(&ramp_mode));
+    }
+    inline int get_ramp_value() { return g_atomic_int_get(&ramp_value); }
+    void set_samplefreq(int samplefreq);
+    bool set_plugin_list(const list<Plugin*> &p);
+    void clear_module_states();
+    void post_rt_finished() {
+	int val;
+	latch = false;
+	if (sem_getvalue(&sync_sem, &val) == 0 && val == 0) {
+	    sem_post(&sync_sem);
+	}
+    }
+    void wait_rt_finished() {
+	if (audio.checky == kEngineOff || gx_jack::gxjack.jack_is_exit || gx_jack::gxjack.NO_CONNECTION) { //FIXME
+	    return;
+	}
+	while (sem_wait(&sync_sem) == EINTR);
+    }
+    inline void wait_latch() {
+	if (latch) {
+	    wait_rt_finished();
+	}
+    }
+    inline bool check_release() {
+	return !to_release.empty();
+    }
+    void release();
+    void wait_ramp_down_finished() {
+	if (audio.checky == kEngineOff || gx_jack::gxjack.jack_is_exit || gx_jack::gxjack.NO_CONNECTION) { //FIXME
+	    return;
+	}
+	while (ramp_mode == ramp_mode_down) {
+	    wait_rt_finished();
+	}
+    }
+    inline void start_ramp_up() { set_ramp_value(0); set_ramp_mode(ramp_mode_up_dead); }
+    inline void start_ramp_down() { set_ramp_value(steps_down); set_ramp_mode(ramp_mode_down); }
+    inline void set_down_dead() { set_ramp_mode(ramp_mode_down_dead); }
+};
+
+
+/****************************************************************
+ ** template class ThreadSafeChainPointer
+ */
+
+template <class F>
+class ThreadSafeChainPointer: public ProcessingChainBase {
+private:
+    F *rack_order_ptr[2];
+    int size[2];
+    int current_index;
+    F *current_pointer;
+    void setsize(int n);
+    F get_audio(PluginDef *p);
+protected:
+    F *processing_pointer;
+    inline F* get_rt_chain() { return reinterpret_cast<F*>(g_atomic_pointer_get(&processing_pointer)); }
+public:
+    ThreadSafeChainPointer();
+    ~ThreadSafeChainPointer();
+    inline void empty_chain() {
+	list<Plugin*> p;
+	if (set_plugin_list(p)) {
+	    commit();
+	}
+    }
+    void commit();
+};
+
+template <class F>
+ThreadSafeChainPointer<F>::ThreadSafeChainPointer():
+    current_index(0) {
+    size[0] = 0;
+    size[1] = 0;
+    rack_order_ptr[0] = 0;
+    rack_order_ptr[1] = 0;
+    current_pointer = rack_order_ptr[0];
+    empty_chain();
+}
+
+template <class F>
+ThreadSafeChainPointer<F>::~ThreadSafeChainPointer() {
+    delete rack_order_ptr[0];
+    delete rack_order_ptr[1];
+}
+
+template <class F>
+void ThreadSafeChainPointer<F>::setsize(int n)
+{
+    if (n <= size[current_index]) {
+	return;
+    }
+    delete rack_order_ptr[current_index];
+    rack_order_ptr[current_index] = new F[n];
+    size[current_index] = n;
+    current_pointer = rack_order_ptr[current_index];
+}
+
+template <class F>
+void ThreadSafeChainPointer<F>::commit() {
+    setsize(modules.size()+1);  // leave one slot for 0 marker
+    int active_counter = 0;
+    for (list<Plugin*>::const_iterator p = modules.begin(); p != modules.end(); p++) {
+	PluginDef* pd = (*p)->pdef;
+	if (pd->activate_plugin) {
+	    pd->activate_plugin(true, pd);
+	} else if (pd->clear_state) {
+	    pd->clear_state(pd);
+	}
+	F f = get_audio(pd);
+	assert(f);
+	current_pointer[active_counter++] = f;
+    }
+    current_pointer[active_counter] = 0;
+    g_atomic_pointer_set(&processing_pointer, current_pointer);
+    latch = true;
+    current_index = (current_index+1) % 2;
+    current_pointer = rack_order_ptr[current_index];
+}
+
+typedef void (*monochainorder)(int count, float *output, float *output1);
+typedef void (*stereochainorder)(int count, float* input, float* input1,
+				 float *output, float *output1);
+
+template <>
+inline monochainorder ThreadSafeChainPointer<monochainorder>::get_audio(PluginDef *p)
+{
+    return p->mono_audio;
+}
+
+template <>
+inline stereochainorder ThreadSafeChainPointer<stereochainorder>::get_audio(PluginDef *p)
+{
+    return p->stereo_audio;
+}
+
+/****************************************************************
+ ** class MonoModuleChain, class StereoModuleChain
+ */
+
+class MonoModuleChain: public ThreadSafeChainPointer<monochainorder> {
+public:
+    MonoModuleChain(): ThreadSafeChainPointer<monochainorder>() {}
+    void process(int count, float *input, float *output);
+    void print();
+};
+
+class StereoModuleChain: public ThreadSafeChainPointer<stereochainorder> {
+public:
+    StereoModuleChain(): ThreadSafeChainPointer<stereochainorder>() {}
+    void process(int count, float *input, float *output1, float *output2);
+    void print();
+};
+
+
+/****************************************************************
+ ** class ModuleSelector
+ */
+
+class ModuleSelector: PluginDef {
+private:
+    unsigned int selector;
+    const char* select_id;
+    const char* select_name;
+    Plugin* current_plugin;
+    PluginDef **modules;
+    unsigned int size;
+    static int static_register(const ParamReg& reg);
+    int register_parameter(const ParamReg& reg);
+public:
+    Plugin plugin;
+    ModuleSelector(const char* id, const char* name,
+		   PluginDef **module_ids, const char* select_id,
+		   const char* select_name, const char** groups = 0,
+		   int flags = 0);
+    void set_module();
+    void set_selector(unsigned int n);
+    unsigned int get_selector() { return selector; }
+};
+
+
+/****************************************************************
+ ** class ModuleSequencer
+ */
+
+class ModuleSequencer {
+protected:
+    list<ModuleSelector*> selectors;
+    PluginList& pluginlist;
+    bool rack_changed;
+public:
+    MonoModuleChain mono_chain;
+    StereoModuleChain stereo_chain;
+public:
+    ModuleSequencer(PluginList& pl);
+    ~ModuleSequencer();
+    void set_samplefreq(int samplefreq);
+    void clear_module_states() {
+	mono_chain.clear_module_states();
+	stereo_chain.clear_module_states();
+    }
+    void start_ramp_up() {
+	mono_chain.start_ramp_up();
+	stereo_chain.start_ramp_up();
+    }
+    void start_ramp_down() {
+	mono_chain.start_ramp_down();
+	stereo_chain.start_ramp_down();
+    }
+    void wait_ramp_down_finished() {
+	mono_chain.wait_ramp_down_finished();
+	stereo_chain.wait_ramp_down_finished();
+    }
+    void ramp_down() {
+	start_ramp_down();
+	wait_ramp_down_finished();
+    }
+    void add_selector(ModuleSelector& sel);
+    bool prepare_module_lists();
+    void commit_module_lists(bool ramp = true);
+    void set_rack_changed() { rack_changed = true; }
+    void clear_rack_changed() { rack_changed = false; }
+    bool update_module_lists() {
+	if (prepare_module_lists()) {
+	    commit_module_lists();
+	    return true;
+	}
+	return false;
+    }
+    inline void check_module_lists() {
+	if (mono_chain.check_release()) {
+	    mono_chain.release();
+	}
+	if (stereo_chain.check_release()) {
+	    stereo_chain.release();
+	}
+	if (rack_changed) {
+	    update_module_lists();
+	}
+    }
+};
+
+
+/****************************************************************
+ ** class OscilloscopeAdapter
+ */
+
+class OscilloscopeAdapter: PluginDef {
+private:
+    static float*& buffer;
+    static void fill_buffer(int count, float *input0, float *output0);
+    static int activate(bool start, PluginDef *p);
+public:
+    Plugin plugin;
+    sigc::signal<int, bool> activation;
+    gx_ui::UiSignalUInt     post_pre_signal;
+    void clear_buffer();
+    OscilloscopeAdapter(gx_ui::GxUI *ui);
+};
+
+
+/****************************************************************
+ ** class ConvolverAdapter
+ */
+
+class ConvolverAdapter: PluginDef {
+public:
+    Plugin plugin;
+    static GxConvolver conv;
+private:
+    // wrapper for the rack order function pointers
+    static void convolver(int count, float *input0, float *input1,
+			  float *output0, float *output1);
+    static int activate(bool start, PluginDef *pdef);
+    static int convolver_register(const ParamReg& reg);
+    static void convolver_init(int samplingFreq, PluginDef *pdef);
+public:
+    sigc::signal<int, bool> activation;
+    ConvolverAdapter(gx_ui::GxUI *ui);
+};
+
+/****************************************************************
+ ** class CabinetConvolver
+ */
+
+class CabinetConvolver: PluginDef {
+private:
+    static GxSimpleConvolver conv;
+    static int current_cab;
+    static float level;
+    int cabinet;
+    float bass;
+    float treble;
+    float sum;
+    value_pair *cab_names;
+    static inline void compensate_cab(int count, float *input0, float *output0);
+    static void run_cab_conf(int count, float *input, float *output);
+    static int activate(bool start, PluginDef *pdef);
+    static int register_cab(const ParamReg& reg);
+    bool update();
+public:
+    Plugin plugin;
+    CabinetConvolver(gx_ui::GxUI *ui);
+    ~CabinetConvolver();
+    inline bool is_runnable() { return conv.is_runnable(); }
+    inline void set_not_runnable() { conv.set_not_runnable(); }
+    inline void conv_stop() { conv.stop(); }
+    bool conv_start();
+    bool cabinet_changed() { return current_cab != cabinet; }
+    void update_cabinet() { current_cab = cabinet; }
+    bool sum_changed() { return abs(sum - (level + bass + treble)) > 0.01; }
+    void update_sum() { sum = level + bass + treble; }
+    bool conv_update();
+};
+
+/****************************************************************
+ ** class ContrastConvolver
+ */
+
+class ContrastConvolver: PluginDef {
+private:
+    static GxSimpleConvolver conv;
+    static float level;
+    static float sum;
+    // wrapper for the rack order function pointers
+    static inline void compensate_con(int count, float *input0, float *output0);
+    static void run_contrast(int count, float *input, float *output);
+    static int activate(bool start, PluginDef *pdef);
+    static int register_con(const ParamReg& reg);
+public:
+    Plugin plugin;
+    ContrastConvolver(gx_ui::GxUI *ui);
+    inline bool is_runnable() { return conv.is_runnable(); }
+    inline void set_not_runnable() { conv.set_not_runnable(); }
+    inline bool sum_changed() { return abs(sum - level) > 0.01; }
+    inline void update_sum() { sum = level; }
+    bool conv_start();
+    void conv_stop() { conv.stop(); }
+};
+
+/****************************************************************
+ ** class GxEngine
+ */
+
+class GxEngine: public ModuleSequencer {
+private:
+    gx_ui::GxUI ui;
+public:
+    OscilloscopeAdapter oscilloscope;
+    ConvolverAdapter convolver;
+    CabinetConvolver cabinet;
+    ContrastConvolver contrast;
+public:
+    GxEngine(PluginList& pl);
+    ~GxEngine();
+    void load_plugins(string plugin_dir);
+};
+
+extern GxEngine engine;
+
 /****************************************************************/
 
 /* square function */
@@ -322,14 +546,11 @@ inline double sqrf(float x)                { return x * x; }
 inline void set_latency_warning_change()   {audio.fwarn_swap = audio.fwarn;}
 inline void get_latency_warning_change()   {audio.fwarn = audio.fwarn_swap;}
 
-inline bool isMidiOn()                     {return (audio.midistate == kMidiOn ? true : false);}
+inline bool isMidiOn()                     {return midi.midistate;}
 inline bool isInitialized()                {return audio.initialized;}
-inline void turnOffMidi()                  {audio.midistate = kMidiOff;}
-inline void turnOnMidi()                   {audio.midistate = kMidiOn;}
+inline void turnOffMidi()                  {midi.midistate = false;}
+inline void turnOnMidi()                   {midi.midistate = true;}
 
-inline void set_tube_model(unsigned int x)          {audio.gxtube = x;}
-inline void set_tube_model_sel(int x)      {audio.gxtube_select = x;}
-inline void set_cab_mode(float x)          {audio.cab_sum = x;}
 inline void set_mono_plug_counter(int x)   {audio.mono_plug_counter = x;}
 inline void set_stereo_plug_counter(int x) {audio.stereo_plug_counter = x;}
 
@@ -341,7 +562,6 @@ void gx_engine_init(const string *optvar);
 void gx_engine_reset();
 void gx_reorder_rack(bool do_commit = true);
 void order_rack(bool do_commit = true);
-//gboolean gx_check_engine_state(gpointer arg);
 
 void compute_midi(int len);
 void compute_midi_in(void* midi_input_port_buf);
@@ -353,26 +573,22 @@ void compute_insert(int count, float* input1, float* output2, float* output3);
 void process_buffers(int count, float* input, float* output0);
 void process_insert_buffers(int count, float* input1, float* output0, float* output1);
 
-// cabinet pre processing
-void init_non_rt_processing();
-void non_rt_processing(int count, float* input, float* output0);
-
-// contrast pre processing
-void init_presence_processing();
-void presence_processing(int count, float* input, float* output0);
-
 // register vars to param and init
 void register_faust_parameters();
 void faust_init(int samplingFreq);
+void load_plugins(string plugin_dir);
 
 typedef void (*inifunc)(int);  //  NOLINT
 void registerInit(const char *name, inifunc f);
-void registerVar(const char* id, const char* name, const char* tp,
-		 const char* tooltip, float* var, float val = 0,
-		 float low = 0, float up = 0, float step = 0, bool exp = false);
+float *registerVar(const char* id, const char* name, const char* tp,
+		   const char* tooltip, float* var, float val = 0,
+		   float low = 0, float up = 0, float step = 0, bool exp = false);
 void registerEnumVar(const char *id, const char* name, const char* tp,
-		     const char* tooltip, const char** values, float *var, float val,
+		     const char* tooltip, const value_pair* values, float *var, float val,
 		     float low = 0, float up = 0, float step = 1, bool exp = false);
+void registerUEnumVar(const char *id, const char* name, const char* tp,
+		      const char* tooltip, const value_pair* values, unsigned int *var,
+		      unsigned int std, bool exp);
 
 /* ------------------------------------------------------------------- */
 } /* end of gx_engine namespace */

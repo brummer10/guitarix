@@ -1,4 +1,6 @@
 // generated from file '../src/faust/flanger.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace flanger {
 static FAUSTFLOAT 	fslider0;
 static int 	iVec0[2];
@@ -18,13 +20,10 @@ static double 	fVec2[2048];
 static double 	fRec3[2];
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
-	IOTA = 0;
 	for (int i=0; i<2048; i++) fVec1[i] = 0;
-	fConst0 = (6.283185307179586 / fSamplingFreq);
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<2; i++) fRec0[i] = 0;
@@ -32,7 +31,15 @@ static void init(int samplingFreq)
 	for (int i=0; i<2; i++) fRec3[i] = 0;
 }
 
-void compute(int count, float *input0, float *input1, float *output0, float *output1)
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	IOTA = 0;
+	fConst0 = (6.283185307179586 / fSamplingFreq);
+	clear_state();
+}
+
+static void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = pow(10,(0.05 * fslider0));
 	double 	fSlow1 = fslider1;
@@ -74,18 +81,32 @@ void compute(int count, float *input0, float *input1, float *output0, float *out
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	static const char *fcheckbox0_values[] = {"linear","invert",0};
-	registerEnumVar("flanger.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	registerVar("flanger.depth","","S","",&fslider5, 1.0, 0.0, 1.0, 0.01);
-	registerVar("flanger.flange delay offset","","S","",&fslider4, 1.0, 0.0, 2e+01, 0.01);
-	registerVar("flanger.flange delay","","S","",&fslider3, 1e+01, 0.0, 2e+01, 0.01);
-	registerVar("flanger.LFO freq","","S","",&fslider2, 0.2, 0.0, 5.0, 0.01);
-	registerVar("flanger.feedback gain","","S","",&fslider1, 0.0, 0.0, 1.0, 0.01);
-	registerVar("flanger.level","","S","",&fslider0, 0.0, -6e+01, 1e+01, 0.1);
-	registerInit("flanger", init);
+	static const value_pair fcheckbox0_values[] = {{"linear"},{"invert"},{0}};
+	reg.registerEnumVar("flanger.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("flanger.depth","","S","",&fslider5, 1.0, 0.0, 1.0, 0.01);
+	reg.registerVar("flanger.flange delay offset","","S","",&fslider4, 1.0, 0.0, 2e+01, 0.01);
+	reg.registerVar("flanger.flange delay","","S","",&fslider3, 1e+01, 0.0, 2e+01, 0.01);
+	reg.registerVar("flanger.LFO freq","","S","",&fslider2, 0.2, 0.0, 5.0, 0.01);
+	reg.registerVar("flanger.feedback gain","","S","",&fslider1, 0.0, 0.0, 1.0, 0.01);
+	reg.registerVar("flanger.level","","S","",&fslider0, 0.0, -6e+01, 1e+01, 0.1);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "flanger",  // id
+    N_("Flanger"),  // name
+    0,  // groups
+    0,  // mono_audio
+    compute,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace flanger

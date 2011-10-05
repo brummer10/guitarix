@@ -1,4 +1,4 @@
-declare name 		"sloop";
+declare id 		"sloop";
 declare version 	"1.0";
 declare author 		"brummer";
 declare license 	"BSD";

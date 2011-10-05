@@ -401,67 +401,8 @@ void MidiControllerList::remove_controlled_parameters(paramlist& plist,
  */
 
 ParameterGroups::ParameterGroups() {
-    insert("jconv", N_("Convolver"));
-    insert("eq", N_("EQ"));
-    insert("eqs", N_("Scaleable EQ"));
-
-    insert("amp", N_("Amplifier"));
-    insert("amp2", N_("Amplifier2"));
-    insert("amp2.preamp", N_("Preamp"));
-    insert("amp2.stage1", N_("Tube1"));
-    insert("amp2.stage2", N_("Tube2"));
-    insert("stage3", N_("Amplifier2"));
-    insert("stage3.gain3", N_("Tube3"));
-    insert("shaper", N_("Shaper"));
-    insert("noise_gate", N_("Noise Gate"));
-    insert("amp.bass_boost", N_("Bass Boost"));
-    insert("convolve", N_("Amp Model"));
-    insert("drive", N_("Drive"));
-    insert("tube", N_("Tube 1"));
-    insert("amp.tonestack", N_("Tonestack"));
-    insert("compressor", N_("Compressor"));
-    insert("overdrive", N_("Overdrive"));
-    insert("gxdistortion", N_("Multi Band Distortion"));
-    insert("gx_distortion", N_("Multi Band Distortion"));
-    insert("low_high_pass.lhp", N_("low_highpass"));
-    insert("low_high_pass.lhc", N_("low_highcutoff"));
-    insert("low_highpass", N_("low high pass"));
-    insert("gx_distortion.resonator", N_("Distortion resonator"));
-    insert("freeverb", N_("Freeverb"));
-    insert("IR", N_("ImpulseResponse"));
-    insert("crybaby", N_("Crybaby"));
-    insert("echo", N_("Echo"));
-    insert("delay", N_("Delay"));
-    insert("stereodelay", N_("Stereo Delay"));
-    insert("stereoecho", N_("Stereo Echo"));
-    insert("chorus", N_("Chorus"));
-    insert("MultiBandFilter", N_("Multiband Filter"));
-    insert("moog", N_("Moog Filter"));
-    insert("biquad", N_("BiQuad Filter"));
-    insert("flanger", N_("Flanger"));
-    insert("cab", N_("Cabinet"));
-    insert("phaser", N_("Phaser"));
-    insert("midi_out", N_("Midi Out"));
-    insert("midi_out.channel_1", N_("Midi Out 1"));
-    insert("midi_out.channel_2", N_("Midi Out 2"));
-    insert("midi_out.channel_3", N_("Midi Out 3"));
-    insert("beat_detector", N_("Beat Detector"));
-    insert("ui", N_("User Interface"));
     insert("system", N_("System"));
-    insert("oscilloscope", N_("Oscilloscope"));
-    insert("ampmodul", N_("Postamp"));
-    insert("ampmodul.amp2.stage1", N_("Postamp Tube1"));
-    insert("ampmodul.amp2.stage2", N_("Postamp Tube2"));
-    insert("amp.clip", N_("clipper"));
-    insert("tonemodul", N_("3 Band EQ"));
-    insert("tremolo", N_("Tremolo"));
-    insert("phaser_mono", N_("Phaser Mono"));
-    insert("chorus_mono", N_("Chorus Mono"));
-    insert("flanger_mono", N_("Flanger Mono"));
-    insert("con", N_("Contrast convolver"));
-    insert("feedback", N_("Feedback"));
-    insert("bassbooster", N_("Bassbooster"));
-    insert("stereoverb", N_("Stereo Verb"));
+    insert("ui", N_("User Interface"));
 }
 
 ParameterGroups::~ParameterGroups() {
@@ -473,6 +414,29 @@ ParameterGroups::~ParameterGroups() {
     }
 #endif
 }
+
+#ifndef NDEBUG
+void ParameterGroups::group_exists(string id) {
+    if (groups.find(id) == groups.end()) {
+	gx_system::gx_print_error("Debug Check", "Group does not exist: " + id);
+    } else {
+	used[id] = true;
+    }
+}
+
+void ParameterGroups::group_is_new(string id) {
+    if (groups.find(id) != groups.end()) {
+	gx_system::gx_print_error("Debug Check", "Group already exists: " + id);
+    }
+}
+
+void ParameterGroups::dump() {
+    for (map<string, string>::iterator i = groups.begin(); i != groups.end(); i++) {
+	printf("PG %s: %s\n", i->first.c_str(), i->second.c_str());
+    }
+}
+
+#endif
 
 ParameterGroups& get_group_table() {
     static ParameterGroups groups;
@@ -496,9 +460,9 @@ string param_group(string id, bool nowarn) {
 Parameter::~Parameter() {
 }
 
-static int get_upper(const char **vn) {
+static int get_upper(const value_pair *vn) {
     for (int n = 0; ; n++) {
-        if (!vn[n]) {
+        if (!vn[n].value_id) {
             return n - 1;
         }
     }
@@ -520,10 +484,93 @@ float Parameter::getUpperAsFloat() const {
     return 0;
 }
 
-const char **Parameter::getValueNames() const {
+const value_pair *Parameter::getValueNames() const {
     return 0;
 }
 
+#ifndef NDEBUG
+void compare_parameter(const char *title, Parameter* p1, Parameter* p2, bool all) {
+    if (p1->_id != p2->_id) {
+	printf("%s: Different ID's: %s / %s\n", title, p1->_id.c_str(), p2->_id.c_str());
+    }
+    if (p1->_name != p2->_name) {
+	printf("%s[%s]: Different name: %s / %s\n", title, p1->_id.c_str(), p1->_name.c_str(), p2->_name.c_str());
+    }
+    if (p1->_group != p2->_group) {
+	printf("%s[%s]: Different group: %s / %s\n", title, p1->_id.c_str(), p1->_group.c_str(), p2->_group.c_str());
+    }
+    if (p1->_desc != p2->_desc) {
+	printf("%s[%s]: Different desc: %s / %s\n", title, p1->_id.c_str(), p1->_desc.c_str(), p2->_desc.c_str());
+    }
+    if (p1->save_in_preset != p2->save_in_preset) {
+	printf("%s[%s]: save_in_preset different: %d / %d\n", title, p1->_id.c_str(), p1->save_in_preset, p2->save_in_preset);
+    }
+    if (p1->controllable != p2->controllable) {
+	printf("%s[%s]: controllable different: %d / %d\n", title, p1->_id.c_str(), p1->controllable, p2->controllable);
+    }
+    if (p1->used != p2->used) {
+	printf("%s[%s]: used different: %d / %d\n", title, p1->_id.c_str(), p1->used, p2->used);
+    }
+    if (p1->experimental != p2->experimental) {
+	printf("%s[%s]: experimental different: %d / %d\n", title, p1->_id.c_str(), p1->experimental, p2->experimental);
+    }
+    if (p1->c_type != p2->c_type) {
+	printf("%s[%s]: c_type different: %d / %d\n", title, p1->_id.c_str(), p1->c_type, p2->c_type);
+    }
+    if (p1->v_type != p2->v_type) {
+	printf("%s[%s]: v_type different: %d / %d\n", title, p1->_id.c_str(), p1->v_type, p2->v_type);
+	return;
+    }
+    if (p1->isFloat()) {
+	FloatParameter& f1 = p1->getFloat();
+	FloatParameter& f2 = p2->getFloat();
+	if (&f1.value != &f2.value) {
+	    printf("%s[%s]: value address different: %p / %p\n", title, p1->_id.c_str(), &f1.value, &f2.value);
+	}
+	if (f1.lower != f2.lower) {
+	    printf("%s[%s]: float lower different: %g / %g\n", title, p1->_id.c_str(), f1.lower, f2.lower);
+	}
+	if (f1.upper != f2.upper) {
+	    printf("%s[%s]: float upper different: %g / %g\n", title, p1->_id.c_str(), f1.upper, f2.upper);
+	}
+	if (f1.step != f2.step) {
+	    printf("%s[%s]: float step different: %g / %g\n", title, p1->_id.c_str(), f1.step, f2.step);
+	}
+	if (f1.std_value != f2.std_value) {
+	    printf("%s[%s]: float std value different: %g / %g\n", title, p1->_id.c_str(), f1.std_value, f2.std_value);
+	}
+	if (all) {
+	    if (f1.value != f2.value) {
+		printf("%s[%s]: float value different: %g / %g\n", title, p1->_id.c_str(), f1.value, f2.value);
+	    }
+	    if (f1.json_value != f2.json_value) {
+		printf("%s[%s]: float json value different: %g / %g\n", title, p1->_id.c_str(), f1.json_value, f2.json_value);
+	    }
+	}
+	return;
+    }
+    if (p1->isInt()) {
+	assert(false);
+	return;
+    }
+    if (p1->isUInt()) {
+	assert(false);
+	return;
+    }
+    if (p1->isBool()) {
+	assert(false);
+	return;
+    }
+    if (p1->isSwitch()) {
+	assert(false);
+	return;
+    }
+    if (p1->isFile()) {
+	assert(false);
+	return;
+    }
+}
+#endif
 
 /* FloatParameter */
 
@@ -590,18 +637,18 @@ float FloatParameter::getStepAsFloat() const {
 
 /* FloatEnumParameter */
 
-FloatEnumParameter::FloatEnumParameter(string id, string name, const char** vn, bool preset,
+FloatEnumParameter::FloatEnumParameter(string id, string name, const value_pair* vn, bool preset,
                                        float &v, int sv, bool ctrl, bool exp):
     FloatParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), 1, ctrl, exp),
     value_names(vn) {}
 
-const char **FloatEnumParameter::getValueNames() const {
+const value_pair *FloatEnumParameter::getValueNames() const {
     return value_names;
 }
 
 void FloatEnumParameter::writeJSON(gx_system::JsonWriter& jw) {
     jw.write_key(_id.c_str());
-    jw.write(value_names[static_cast<int>(round(value))]);
+    jw.write(value_names[static_cast<int>(round(value))].value_id);
 }
 
 void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -615,7 +662,7 @@ void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     int up = static_cast<int>(round(upper));
     int n = 0;
     for (; n <= up; n++) {
-        if (jp.current_value() == value_names[n]) {
+        if (jp.current_value() == value_names[n].value_id) {
             break;
         }
     }
@@ -683,18 +730,18 @@ float IntParameter::getUpperAsFloat() const {
 
 /* EnumParameter */
 
-EnumParameter::EnumParameter(string id, string name, const char** vn, bool preset,
+EnumParameter::EnumParameter(string id, string name, const value_pair* vn, bool preset,
                              int &v, int sv, bool ctrl, bool exp):
     IntParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), ctrl, exp),
     value_names(vn) {}
 
-const char **EnumParameter::getValueNames() const {
+const value_pair *EnumParameter::getValueNames() const {
     return value_names;
 }
 
 void EnumParameter::writeJSON(gx_system::JsonWriter& jw) {
     jw.write_key(_id.c_str());
-    jw.write(value_names[value]);
+    jw.write(value_names[value].value_id);
 }
 
 void EnumParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -707,7 +754,7 @@ void EnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.check_expect(gx_system::JsonParser::value_string);
     int n = 0;
     for (; n <= upper; n++) {
-        if (jp.current_value() == value_names[n]) {
+        if (jp.current_value() == value_names[n].value_id) {
             break;
         }
     }
@@ -775,18 +822,18 @@ float UIntParameter::getUpperAsFloat() const {
 
 /* UEnumParameter */
 
-UEnumParameter::UEnumParameter(string id, string name, const char** vn, bool preset,
+UEnumParameter::UEnumParameter(string id, string name, const value_pair* vn, bool preset,
                              unsigned int &v, unsigned int sv, bool ctrl, bool exp):
     UIntParameter(id, name, Enum, preset, v, sv, 0, get_upper(vn), ctrl, exp),
     value_names(vn) {}
 
-const char **UEnumParameter::getValueNames() const {
+const value_pair *UEnumParameter::getValueNames() const {
     return value_names;
 }
 
 void UEnumParameter::writeJSON(gx_system::JsonWriter& jw) {
     jw.write_key(_id.c_str());
-    jw.write(value_names[value]);
+    jw.write(value_names[value].value_id);
 }
 
 void UEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
@@ -799,7 +846,7 @@ void UEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.check_expect(gx_system::JsonParser::value_string);
     unsigned int n = 0;
     for (; n <= upper; n++) {
-        if (jp.current_value() == value_names[n]) {
+        if (jp.current_value() == value_names[n].value_id) {
             break;
         }
     }
@@ -993,6 +1040,14 @@ void ParamMap::check_p(const char *p) {
     if (!hasId(p)) {
         cerr << "char-id not found: " << p << endl;
     }
+}
+
+void ParamMap::dump() {
+    printf("parameter map dump\n");
+    for (iterator i = id_map.begin(); i != id_map.end(); i++) {
+        printf("P: %s\n", i->second->id().c_str());
+    }
+    printf("---------------------\n");
 }
 #endif
 

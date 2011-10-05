@@ -1,4 +1,6 @@
 // generated from file '../src/faust/impulseresponse.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace impulseresponse {
 static FAUSTFLOAT 	fslider0;
 static double 	fConst0;
@@ -10,16 +12,21 @@ static FAUSTFLOAT 	fslider2;
 static double 	fRec0[3];
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = (3.141592653589793 / fSamplingFreq);
-	fConst1 = (6.283185307179586 / fSamplingFreq);
 	for (int i=0; i<3; i++) fVec0[i] = 0;
 	for (int i=0; i<3; i++) fRec0[i] = 0;
 }
 
-void compute(int count, float *input0, float *output0)
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	fConst0 = (3.141592653589793 / fSamplingFreq);
+	fConst1 = (6.283185307179586 / fSamplingFreq);
+	clear_state();
+}
+
+static void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = exp((0 - (fConst0 * fslider0)));
 	double 	fSlow1 = (2 * cos((fConst1 * fslider1)));
@@ -36,15 +43,29 @@ void compute(int count, float *input0, float *output0)
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("IR.peak","","S","peak gain",&fslider2, 1.0, 0.0, 1e+01, 0.2);
-	static const char *fcheckbox0_values[] = {"manual","auto",0};
-	registerEnumVar("IR.auto_freq","auto freq","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	registerVar("IR.freq","","S","frequency (Hz)",&fslider1, 4.4e+02, 2e+01, 1.2e+04, 1e+01);
-	registerVar("IR.bandwidth","","S","bandwidth (Hz)",&fslider0, 1e+02, 2e+01, 2e+04, 1e+01);
-	registerInit("IR", init);
+	reg.registerVar("IR.peak","","S","peak gain",&fslider2, 1.0, 0.0, 1e+01, 0.2);
+	static const value_pair fcheckbox0_values[] = {{"manual"},{"auto"},{0}};
+	reg.registerEnumVar("IR.auto_freq","auto freq","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("IR.freq","","S","frequency (Hz)",&fslider1, 4.4e+02, 2e+01, 1.2e+04, 1e+01);
+	reg.registerVar("IR.bandwidth","","S","bandwidth (Hz)",&fslider0, 1e+02, 2e+01, 2e+04, 1e+01);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "IR",  // id
+    N_("ImpulseResponse"),  // name
+    0,  // groups
+    compute,  // mono_audio
+    0,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace impulseresponse

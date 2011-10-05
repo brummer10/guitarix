@@ -1,5 +1,4 @@
-/* mono chorus. */
-
+declare name "Chorus Mono";
 
 declare author "Albert Graef";
 declare version "1.0";

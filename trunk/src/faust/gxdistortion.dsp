@@ -1,4 +1,4 @@
-declare name 		"gxdistortion";
+declare id 		"gxdistortion";
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";

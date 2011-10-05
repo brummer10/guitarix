@@ -1,4 +1,6 @@
 // generated from file '../src/faust/phaser.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace phaser {
 static FAUSTFLOAT 	fslider0;
 static FAUSTFLOAT 	fcheckbox0;
@@ -27,14 +29,11 @@ static double 	fRec8[3];
 static double 	fRec7[2];
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
-	fConst0 = (6.283185307179586 / fSamplingFreq);
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
-	fConst1 = (1.0 / fSamplingFreq);
 	for (int i=0; i<3; i++) fRec6[i] = 0;
 	for (int i=0; i<3; i++) fRec5[i] = 0;
 	for (int i=0; i<3; i++) fRec4[i] = 0;
@@ -47,7 +46,15 @@ static void init(int samplingFreq)
 	for (int i=0; i<2; i++) fRec7[i] = 0;
 }
 
-void compute(int count, float *input0, float *input1, float *output0, float *output1)
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	fConst0 = (6.283185307179586 / fSamplingFreq);
+	fConst1 = (1.0 / fSamplingFreq);
+	clear_state();
+}
+
+static void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = (0.5 * ((int(fcheckbox0))?2:fslider0));
 	double 	fSlow1 = (1 - fSlow0);
@@ -114,22 +121,36 @@ void compute(int count, float *input0, float *input1, float *output0, float *out
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	static const char *fcheckbox1_values[] = {"linear","invert",0};
-	registerEnumVar("phaser.invert","","B","",fcheckbox1_values,&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
-	static const char *fcheckbox0_values[] = {"direct "," vibrato",0};
-	registerEnumVar("phaser.VibratoMode","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	registerVar("phaser.Notch width","","S","",&fslider7, 1e+03, 1e+01, 5e+03, 1.0);
-	registerVar("phaser.feedback gain","","S","",&fslider6, 0.0, 0.0, 1.0, 0.01);
-	registerVar("phaser.NotchFreq","","S","",&fslider5, 1.5, 1.1, 4.0, 0.01);
-	registerVar("phaser.MaxNotch1Freq","","S","",&fslider4, 8e+02, 2e+01, 1e+04, 1.0);
-	registerVar("phaser.MinNotch1Freq","","S","",&fslider3, 1e+02, 2e+01, 5e+03, 1.0);
-	registerVar("phaser.Speed","","S","",&fslider2, 0.5, 0.0, 1e+01, 0.01);
-	registerVar("phaser.level","","S","",&fslider1, 0.0, -6e+01, 1e+01, 0.1);
-	registerVar("phaser.depth","","S","",&fslider0, 1.0, 0.0, 1.0, 0.01);
-	registerInit("phaser", init);
+	static const value_pair fcheckbox1_values[] = {{"linear"},{"invert"},{0}};
+	reg.registerEnumVar("phaser.invert","","B","",fcheckbox1_values,&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
+	static const value_pair fcheckbox0_values[] = {{"direct "},{" vibrato"},{0}};
+	reg.registerEnumVar("phaser.VibratoMode","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("phaser.Notch width","","S","",&fslider7, 1e+03, 1e+01, 5e+03, 1.0);
+	reg.registerVar("phaser.feedback gain","","S","",&fslider6, 0.0, 0.0, 1.0, 0.01);
+	reg.registerVar("phaser.NotchFreq","","S","",&fslider5, 1.5, 1.1, 4.0, 0.01);
+	reg.registerVar("phaser.MaxNotch1Freq","","S","",&fslider4, 8e+02, 2e+01, 1e+04, 1.0);
+	reg.registerVar("phaser.MinNotch1Freq","","S","",&fslider3, 1e+02, 2e+01, 5e+03, 1.0);
+	reg.registerVar("phaser.Speed","","S","",&fslider2, 0.5, 0.0, 1e+01, 0.01);
+	reg.registerVar("phaser.level","","S","",&fslider1, 0.0, -6e+01, 1e+01, 0.1);
+	reg.registerVar("phaser.depth","","S","",&fslider0, 1.0, 0.0, 1.0, 0.01);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "phaser",  // id
+    N_("Phaser"),  // name
+    0,  // groups
+    0,  // mono_audio
+    compute,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace phaser

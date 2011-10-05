@@ -77,13 +77,13 @@ int main(int argc, char *argv[]) {
     Gtk::Main main(argc, argv, options);
 
     options.process_early();
-    get_pluginlist().load_from_path(options.plugin_dir);
+    gx_engine::engine.load_plugins(options.plugin_dir);
 
     // ------ initialize parameter list ------
-    get_pluginlist().registerParameter(gx_gui::get_group_table(), 20);
+    get_pluginlist().registerParameter(gx_gui::get_group_table());
+    gx_engine::register_faust_parameters();
     gx_engine::audio.register_parameter();
     gx_engine::midi.register_parameter();
-    gx_engine::register_faust_parameters();
     gx_gui::guivar.register_gui_parameter();
     gx_preset::gxpreset.init();
     gx_gui::parameter_map.set_init_values();
@@ -117,13 +117,15 @@ int main(int argc, char *argv[]) {
         // -------- set jack callbacks and activation -------------------
         gx_jack::gxjack.gx_jack_callbacks();
         gx_jack::gxjack.gx_jack_activate();
+	gx_engine::audio.checky = gx_engine::kEngineOn;
+
         // -------- init port connections
         gx_jack::gxjack.gx_jack_init_port_connection(options.optvar);
     }
 
     // ----------------------- run GTK main loop ----------------------
     options.set_override();
-    gx_ui::GxUI::updateAllGuis();
+    gx_ui::GxUI::updateAllGuis(true);
     gui->show();
 
     if (gx_jack::gxjack.client) {

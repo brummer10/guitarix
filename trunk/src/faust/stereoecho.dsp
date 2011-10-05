@@ -1,3 +1,4 @@
+declare name "Stereo Echo";
 
 import("music.lib");
 import("guitarix.lib");

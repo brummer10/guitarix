@@ -1,4 +1,5 @@
-declare name "feedback";
+declare id   "feedback";
+declare name "Feedback";
 
 import("guitarix.lib");
 

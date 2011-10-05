@@ -1,4 +1,6 @@
 // generated from file '../src/faust/gxamp2.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 #include "valve.h"
 namespace gxamp2 {
 static double 	fConst0;
@@ -6,14 +8,20 @@ static double 	fConst1;
 static double 	fConst2;
 static double 	fConst3;
 static double 	fConst4;
-static FAUSTFLOAT&	fslider0 = get_alias("amp2.stage2.gain1");
+FAUSTFLOAT 	fslider0;
+FAUSTFLOAT	*fslider0_;
+#define fslider0 (*fslider0_)
 static double 	fRec3[2];
 static double 	fConst5;
 static double 	fConst6;
 static double 	fConst7;
-static FAUSTFLOAT&	fslider1 = get_alias("gxdistortion.wet_dry");
+FAUSTFLOAT 	fslider1;
+FAUSTFLOAT	*fslider1_;
+#define fslider1 (*fslider1_)
 static double 	fRec10[2];
-static FAUSTFLOAT&	fslider2 = get_alias("gxdistortion.drive");
+FAUSTFLOAT 	fslider2;
+FAUSTFLOAT	*fslider2_;
+#define fslider2 (*fslider2_)
 static double 	fConst8;
 static double 	fConst9;
 static double 	fConst10;
@@ -84,7 +92,9 @@ static double 	fRec27[3];
 static double 	fVec3[2];
 static double 	fConst55;
 static double 	fRec11[2];
-static FAUSTFLOAT&	fslider3 = get_alias("amp2.stage1.Pregain");
+FAUSTFLOAT 	fslider3;
+FAUSTFLOAT	*fslider3_;
+#define fslider3 (*fslider3_)
 static double 	fRec29[2];
 static double 	fConst56;
 static double 	fConst57;
@@ -114,7 +124,48 @@ static double 	fRec1[3];
 static double 	fRec0[2];
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
+{
+	for (int i=0; i<2; i++) fRec3[i] = 0;
+	for (int i=0; i<2; i++) fRec10[i] = 0;
+	for (int i=0; i<3; i++) fRec18[i] = 0;
+	for (int i=0; i<2; i++) fVec0[i] = 0;
+	for (int i=0; i<2; i++) fRec17[i] = 0;
+	for (int i=0; i<2; i++) fRec16[i] = 0;
+	for (int i=0; i<3; i++) fRec15[i] = 0;
+	for (int i=0; i<2; i++) fVec1[i] = 0;
+	for (int i=0; i<2; i++) fRec14[i] = 0;
+	for (int i=0; i<3; i++) fRec13[i] = 0;
+	for (int i=0; i<3; i++) fRec12[i] = 0;
+	for (int i=0; i<2; i++) fRec22[i] = 0;
+	for (int i=0; i<3; i++) fRec21[i] = 0;
+	for (int i=0; i<2; i++) fVec2[i] = 0;
+	for (int i=0; i<2; i++) fRec20[i] = 0;
+	for (int i=0; i<3; i++) fRec19[i] = 0;
+	for (int i=0; i<2; i++) fRec26[i] = 0;
+	for (int i=0; i<3; i++) fRec25[i] = 0;
+	for (int i=0; i<3; i++) fRec24[i] = 0;
+	for (int i=0; i<3; i++) fRec23[i] = 0;
+	for (int i=0; i<2; i++) fRec28[i] = 0;
+	for (int i=0; i<3; i++) fRec27[i] = 0;
+	for (int i=0; i<2; i++) fVec3[i] = 0;
+	for (int i=0; i<2; i++) fRec11[i] = 0;
+	for (int i=0; i<2; i++) fRec29[i] = 0;
+	for (int i=0; i<2; i++) fRec30[i] = 0;
+	for (int i=0; i<3; i++) fRec9[i] = 0;
+	for (int i=0; i<2; i++) fRec8[i] = 0;
+	for (int i=0; i<2; i++) fRec7[i] = 0;
+	for (int i=0; i<2; i++) fRec31[i] = 0;
+	for (int i=0; i<3; i++) fRec6[i] = 0;
+	for (int i=0; i<2; i++) fRec5[i] = 0;
+	for (int i=0; i<2; i++) fRec4[i] = 0;
+	for (int i=0; i<3; i++) fRec2[i] = 0;
+	for (int i=0; i<2; i++) fRec32[i] = 0;
+	for (int i=0; i<3; i++) fRec1[i] = 0;
+	for (int i=0; i<2; i++) fRec0[i] = 0;
+}
+
+static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = (1.0 / tan((97.38937226128358 / fSamplingFreq)));
@@ -122,11 +173,9 @@ static void init(int samplingFreq)
 	fConst2 = (0 - ((1 - fConst0) / fConst1));
 	fConst3 = log((7539.822368615503 / fSamplingFreq));
 	fConst4 = (0 - (1.8442 * cos(exp((0.07238887 + (fConst3 * (1.31282248 + (fConst3 * (0.43359433 + (fConst3 * (0.27547621 + (fConst3 * (0.06446806 + (0.00506158 * fConst3))))))))))))));
-	for (int i=0; i<2; i++) fRec3[i] = 0;
 	fConst5 = (1.0 / tan((20517.741620594938 / fSamplingFreq)));
 	fConst6 = (1 + fConst5);
 	fConst7 = (0 - ((1 - fConst5) / fConst6));
-	for (int i=0; i<2; i++) fRec10[i] = 0;
 	fConst8 = tan((942.4777960769379 / fSamplingFreq));
 	fConst9 = (1.0 / faustpower<2>(fConst8));
 	fConst10 = (2 * (1 - fConst9));
@@ -157,76 +206,42 @@ static void init(int samplingFreq)
 	fConst35 = (1 + ((fConst34 - 1.414213562373095) / fConst32));
 	fConst36 = (1 + ((1.414213562373095 + fConst34) / fConst32));
 	fConst37 = (1.0 / fConst36);
-	for (int i=0; i<3; i++) fRec18[i] = 0;
-	for (int i=0; i<2; i++) fVec0[i] = 0;
 	fConst38 = (0 - fConst0);
 	fConst39 = (1.0 / (fConst1 * fConst36));
-	for (int i=0; i<2; i++) fRec17[i] = 0;
 	fConst40 = (1.0 / fConst30);
-	for (int i=0; i<2; i++) fRec16[i] = 0;
-	for (int i=0; i<3; i++) fRec15[i] = 0;
-	for (int i=0; i<2; i++) fVec1[i] = 0;
 	fConst41 = (0 - fConst17);
 	fConst42 = (1.0 / (fConst21 * fConst28));
-	for (int i=0; i<2; i++) fRec14[i] = 0;
-	for (int i=0; i<3; i++) fRec13[i] = 0;
 	fConst43 = (2 * (0 - fConst15));
-	for (int i=0; i<3; i++) fRec12[i] = 0;
 	fConst44 = (1 + ((fConst11 - 1.0000000000000004) / fConst8));
 	fConst45 = (1.0 / (1 + ((fConst11 + 1.0000000000000004) / fConst8)));
 	fConst46 = (1 + fConst11);
 	fConst47 = (0 - ((1 - fConst11) / fConst46));
-	for (int i=0; i<2; i++) fRec22[i] = 0;
-	for (int i=0; i<3; i++) fRec21[i] = 0;
-	for (int i=0; i<2; i++) fVec2[i] = 0;
 	fConst48 = (0 - fConst11);
 	fConst49 = (1.0 / (fConst46 * fConst19));
-	for (int i=0; i<2; i++) fRec20[i] = 0;
-	for (int i=0; i<3; i++) fRec19[i] = 0;
 	fConst50 = (2 * (0 - fConst9));
 	fConst51 = (1 + ((fConst17 - 1.0) / fConst14));
 	fConst52 = (1.0 / (1 + ((1.0 + fConst17) / fConst14)));
 	fConst53 = (0 - fConst26);
-	for (int i=0; i<2; i++) fRec26[i] = 0;
-	for (int i=0; i<3; i++) fRec25[i] = 0;
 	fConst54 = (2 * (0 - fConst24));
-	for (int i=0; i<3; i++) fRec24[i] = 0;
-	for (int i=0; i<3; i++) fRec23[i] = 0;
-	for (int i=0; i<2; i++) fRec28[i] = 0;
-	for (int i=0; i<3; i++) fRec27[i] = 0;
-	for (int i=0; i<2; i++) fVec3[i] = 0;
 	fConst55 = (1.0 / fConst6);
-	for (int i=0; i<2; i++) fRec11[i] = 0;
-	for (int i=0; i<2; i++) fRec29[i] = 0;
 	fConst56 = (1.0 / tan((270.1769682087222 / fSamplingFreq)));
 	fConst57 = (1 + fConst56);
 	fConst58 = (0 - ((1 - fConst56) / fConst57));
 	fConst59 = (0.027 / fConst57);
-	for (int i=0; i<2; i++) fRec30[i] = 0;
-	for (int i=0; i<3; i++) fRec9[i] = 0;
 	fConst60 = (0.025 / fConst1);
-	for (int i=0; i<2; i++) fRec8[i] = 0;
 	fConst61 = (0.77 / fConst6);
-	for (int i=0; i<2; i++) fRec7[i] = 0;
 	fConst62 = (1.0 / tan((414.6902302738527 / fSamplingFreq)));
 	fConst63 = (1 + fConst62);
 	fConst64 = (0 - ((1 - fConst62) / fConst63));
 	fConst65 = (0.015 / fConst63);
-	for (int i=0; i<2; i++) fRec31[i] = 0;
-	for (int i=0; i<3; i++) fRec6[i] = 0;
-	for (int i=0; i<2; i++) fRec5[i] = 0;
-	for (int i=0; i<2; i++) fRec4[i] = 0;
-	for (int i=0; i<3; i++) fRec2[i] = 0;
 	fConst66 = (1.0 / tan((609.4689747964198 / fSamplingFreq)));
 	fConst67 = (1 + fConst66);
 	fConst68 = (0 - ((1 - fConst66) / fConst67));
 	fConst69 = (0.0082 / fConst67);
-	for (int i=0; i<2; i++) fRec32[i] = 0;
-	for (int i=0; i<3; i++) fRec1[i] = 0;
-	for (int i=0; i<2; i++) fRec0[i] = 0;
+	clear_state();
 }
 
-void compute(int count, float *input0, float *output0)
+static void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
 	double 	fSlow1 = (1.000000000000001e-05 * fslider1);
@@ -333,10 +348,32 @@ void compute(int count, float *input0, float *output0)
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerInit("amp", init);
+#undef fslider3
+	fslider3_ = reg.registerVar("amp2.stage1.Pregain","","SA","",&fslider3, -6.0, -2e+01, 2e+01, 0.1);
+#undef fslider2
+	fslider2_ = reg.registerVar("gxdistortion.drive","","SA","",&fslider2, 0.35, 0.0, 1.0, 0.01);
+#undef fslider1
+	fslider1_ = reg.registerVar("gxdistortion.wet_dry","","SA","",&fslider1, 1e+02, 0.0, 1e+02, 1.0);
+#undef fslider0
+	fslider0_ = reg.registerVar("amp2.stage2.gain1","","SA","",&fslider0, -6.0, -2e+01, 2e+01, 0.1);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "6V6",  // id
+    N_("6V6"),  // name
+    0,  // groups
+    compute,  // mono_audio
+    0,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace gxamp2

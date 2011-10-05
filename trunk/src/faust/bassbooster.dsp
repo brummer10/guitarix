@@ -1,3 +1,7 @@
+declare id     "amp.bass_boost";
+declare name   "Bassbooster";
+declare groups ".bassbooster[Bassbooster]";
+
 import("filter.lib");
 
 //------------------------------------------------------------------
@@ -19,5 +23,5 @@ with {
   a0 = 2 * (K*K - 1) / D;
   a1 = (1 - sqrt(2)*K + K*K) / D;
 };
-level = vslider("Level", 10, 0.5, 20, 0.5) ;
+level = vslider(".bassbooster.Level", 10, 0.5, 20, 0.5) ;
 process = lfboost(120, level);

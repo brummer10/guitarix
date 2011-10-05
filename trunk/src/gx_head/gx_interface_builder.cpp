@@ -26,6 +26,7 @@
 #include "guitarix.h"      // NOLINT
 
 #include <glibmm/i18n.h>   // NOLINT
+#include <gtkmm/menu.h>
 
 // -------- the gx_head user interface build instruktions
 
@@ -58,7 +59,7 @@ void GxMainInterface::setup() {
 
                 openToolBar(_("Plugins"));
                 {
-                    addPToggleButton("presets", &gx_engine::audio.viv);
+		    create_ptoggle_button("presets");
                 }
                 closeBox();
                 addNumDisplay();
@@ -113,7 +114,7 @@ void GxMainInterface::setup() {
                                     
                                     openHorizontalBox("");
                                     {
-                                        create_selector("tube.select");
+                                        create_selector("tube.select", "amp_selector");
                                         openFrameBox("");
                                         closeBox();
                                         openFrameBox("");
@@ -187,8 +188,8 @@ void GxMainInterface::setup() {
                                     create_switch(sw_minitoggle, "amp.bass_boost.on_off",
                                                   _(" Bass boost  "), Gtk::POS_RIGHT);
                                     create_wheel("bassbooster.Level");
-                                    create_contrast_switch("con.on_off", _(" Presence "),
-                                                           Gtk::POS_TOP);
+                                    create_switch(sw_minitoggle, "con.on_off", _(" Presence "),
+						  Gtk::POS_RIGHT);
                                     create_wheel("con.Level");
                                     create_switch(sw_minitoggle, "amp.feed_on_off", _(" Reverb  "),
                                                   Gtk::POS_RIGHT);
@@ -250,7 +251,7 @@ void GxMainInterface::setup() {
                                     closeBox();
                                     addJConvButton(_("set"), &gx_engine::audio.filebutton);
                                     addJToggleButton(_("run"),
-                                                     &gx_jconv::GxJConvSettings::checkbutton7);
+                                                     gx_jconv::GxJConvSettings::checkbutton7);
                                     openSpaceBox("");
                                     closeBox();
                                 } 

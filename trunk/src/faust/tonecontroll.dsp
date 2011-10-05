@@ -1,4 +1,5 @@
-declare name 		"tonemodul";
+declare id 		"tonemodul";
+declare name            "3 Band EQ";
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";

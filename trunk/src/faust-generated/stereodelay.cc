@@ -1,6 +1,7 @@
 // generated from file '../src/faust/stereodelay.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace stereodelay {
-volatile bool inited = false;
 static int 	IOTA;
 static float *fVec0;
 static FAUSTFLOAT 	fslider0;
@@ -17,54 +18,57 @@ static float *fVec2;
 static FAUSTFLOAT 	fslider3;
 static FAUSTFLOAT 	fslider4;
 static float 	fRec3[2];
+static bool mem_allocated = false;
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	if (!fVec0) fVec0 = new float[262144];
-	if (!fVec2) fVec2 = new float[262144];
-	fSamplingFreq = samplingFreq;
-	IOTA = 0;
 	for (int i=0; i<262144; i++) fVec0[i] = 0;
-	fConst0 = (0.001f * fSamplingFreq);
 	for (int i=0; i<2; i++) iVec1[i] = 0;
-	fConst1 = (6.283185307179586f / fSamplingFreq);
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<262144; i++) fVec2[i] = 0;
 	for (int i=0; i<2; i++) fRec3[i] = 0;
-	inited = true;
+}
+
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	IOTA = 0;
+	fConst0 = (0.001f * fSamplingFreq);
+	fConst1 = (6.283185307179586f / fSamplingFreq);
+}
+
+static void mem_alloc()
+{
+	if (!fVec0) fVec0 = new float[262144];
+	if (!fVec2) fVec2 = new float[262144];
+	mem_allocated = true;
 }
 
 static void mem_free()
 {
-	inited = false;
-	jack_sync();
+	mem_allocated = false;
 	if (fVec0) { delete fVec0; fVec0 = 0; }
 	if (fVec2) { delete fVec2; fVec2 = 0; }
 }
 
-inline bool is_inited()
+
+static int activate(bool start, PluginDef* = 0)
 {
-    return inited;
+    if (start) {
+        if (!mem_allocated) {
+            mem_alloc();
+            clear_state();
+        }
+    } else if (!mem_allocated) {
+        mem_free();
+    }
+    return 0;
 }
 
-
-static void activate(bool start, int samplingFreq)
-{
-	if (start) {
-		if (!is_inited()) {
-			init(samplingFreq);
-		}
-	} else {
-		if (is_inited()) {
-			mem_free();
-		}
-	}
-}
-
-void compute(int count, float *input0, float *input1, float *output0, float *output1)
+static void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	float 	fSlow0 = (fConst0 * fslider0);
 	int 	iSlow1 = int(fSlow0);
@@ -110,17 +114,31 @@ void compute(int count, float *input0, float *input1, float *output0, float *out
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	static const char *fcheckbox0_values[] = {"linear","pingpong",0};
-	registerEnumVar("stereodelay.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	registerVar("stereodelay.r_gain","","S","",&fslider4, 0.0f, -2e+01f, 2e+01f, 0.1f);
-	registerVar("stereodelay.r_delay","","S","",&fslider3, 0.0f, 0.0f, 5e+03f, 1e+01f);
-	registerVar("stereodelay.l_gain","","S","",&fslider2, 0.0f, -2e+01f, 2e+01f, 0.1f);
-	registerVar("stereodelay.LFO freq","","S","",&fslider1, 0.2f, 0.0f, 5.0f, 0.01f);
-	registerVar("stereodelay.l_delay","","S","",&fslider0, 0.0f, 0.0f, 5e+03f, 1e+01f);
-	registerInit("stereodelay", init);
+	static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
+	reg.registerEnumVar("stereodelay.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("stereodelay.r_gain","","S","",&fslider4, 0.0f, -2e+01f, 2e+01f, 0.1f);
+	reg.registerVar("stereodelay.r_delay","","S","",&fslider3, 0.0f, 0.0f, 5e+03f, 1e+01f);
+	reg.registerVar("stereodelay.l_gain","","S","",&fslider2, 0.0f, -2e+01f, 2e+01f, 0.1f);
+	reg.registerVar("stereodelay.LFO freq","","S","",&fslider1, 0.2f, 0.0f, 5.0f, 0.01f);
+	reg.registerVar("stereodelay.l_delay","","S","",&fslider0, 0.0f, 0.0f, 5e+03f, 1e+01f);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "stereodelay",  // id
+    N_("Stereo Delay"),  // name
+    0,  // groups
+    0,  // mono_audio
+    compute,  // stereo_audio
+    init,  // set_samplerate
+    activate,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace stereodelay

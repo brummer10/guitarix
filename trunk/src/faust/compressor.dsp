@@ -1,3 +1,4 @@
+declare name "Compressor";
 
 /* Compressor unit. */
 

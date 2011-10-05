@@ -178,9 +178,10 @@ class RadioCheckItem: public Gtk::RadioMenuItem {
     SwitchParameter* param;
     void on_my_toggled();
  public:
-    Gtk::RadioMenuItem::Group Group;
+    //Gtk::RadioMenuItem::Group Group;
     // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
-    RadioCheckItem(): Gtk::RadioMenuItem(Group, "", true) {}
+    RadioCheckItem(Gtk::RadioMenuItem::Group& group):
+	Gtk::RadioMenuItem(group, "", true) {}
     void set_parameter(SwitchParameter *p);
     SwitchParameter * get_parameter();
 };
@@ -221,7 +222,7 @@ class UiSelector {
     void init(Parameter& param);
  public:
     UiSelector();
-    static GtkWidget* create(gx_ui::GxUI& ui, string id);
+    static GtkWidget* create(gx_ui::GxUI& ui, string id, const char *widget_name);
     GtkWidget *get_widget() { return GTK_WIDGET(m_selector.gobj()); }
 };
 
@@ -377,6 +378,23 @@ struct uiTuner : public gx_ui::GxUiItemFloat, public Gtk::Alignment {
 
 /****************************************************************/
 
+class PToggleButton {
+private:
+    Gtk::Label m_label;
+    void on_clicked();
+public:
+    Gtk::Button button;
+    PToggleButton(const char* label);
+    GtkWidget *get_widget() { return GTK_WIDGET(button.gobj()); }
+};
+
+/****************************************************************/
+
+#define stackSize 256
+#define kSingleMode 0
+#define kBoxMode 1
+#define kTabMode 2
+
 class GxMainInterface : public gx_ui::GxUI {
  private:
     // private constructor
@@ -405,6 +423,8 @@ class GxMainInterface : public gx_ui::GxUI {
     void                  set_mouse_mode();
     void                  on_show_oscilloscope();
     bool                  on_refresh_oscilloscope();
+    void                  on_oscilloscope_post_pre(int post_pre);
+    int                   on_oscilloscope_activate(bool start);
 
  protected :
     static const int      MAX_TUBES = 17;
@@ -422,6 +442,7 @@ class GxMainInterface : public gx_ui::GxUI {
     Gxw::FastMeter        fLevelMeters[2];
     uiTuner               fTuner;
     Gxw::WaveView         fWaveView;
+
     GtkWidget*            fSignalLevelBar;
 
     // menu items
@@ -446,7 +467,6 @@ class GxMainInterface : public gx_ui::GxUI {
     MenuCheckItem         fShowLogger;
     MenuCheckItem         fShowMidiOut;
     MenuCheckItem         fShowToolBar;
-    RadioCheckItem        fSelectTubeModel[MAX_TUBES];
 
     GtkWidget*            logger;
     GtkWidget*            RBox;
@@ -481,9 +501,9 @@ class GxMainInterface : public gx_ui::GxUI {
     // -- layout groups
     void gx_build_mono_rack();
     void gx_build_stereo_rack();
-    void openHorizontalOrderBox(const char* label, float* posit);
+    GtkWidget* openHorizontalOrderBox(const char* label, int* posit);
     void openHorizontalTableBox(const char* label);
-    void openHorizontalRestetBox(const char* label, float* posit);
+    GtkWidget* openHorizontalRestetBox(const char* label, int* posit);
     void openFrameBox(const char* label);
     void openHorizontalBox(const char* label = "");
     void openHorizontalhideBox(const char* label = "");
@@ -496,8 +516,8 @@ class GxMainInterface : public gx_ui::GxUI {
     void openVerticalMidiBox(const char* label = "");
     void openDialogBox(const char *id_dialog, const char *id_switch);
     void opensDialogBox(const char *id_dialog, const char *id_switch);
-    void openDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk);
-    void opensDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk);
+    void openDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk, GtkWidget *box);
+    void opensDialogBox(const char *id_dialog, const char *id_switch, const char *expose_funk, GtkWidget *box);
     void openPatchInfoBox(float* zone);
     void openWarningBox(const char* label, float* zone);
     void openEventBox(const char* label = "");
@@ -518,7 +538,7 @@ class GxMainInterface : public gx_ui::GxUI {
     void openLevelMeterBox(const char* label);
     void openToolBar(const char* label = "");
     void setSkinBox(const char* label, float* zone);
-    void openMonoRackBox(const char* label, float* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog);
+    void openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog);
     void closeMonoRackBox();
     void closeBox();
 
@@ -526,20 +546,20 @@ class GxMainInterface : public gx_ui::GxUI {
     void addJConvButton(const char* label, float* zone);
     void addJConvFavButton(const char* label);
     void addToggleButton(const char* label, float* zone);
-    void addJToggleButton(const char* label, float* zone);
-    void addPToggleButton(const char* label, float* zone);
-    void addMToggleButton(const char* label, float* zone);
+    void addJToggleButton(const char* label, bool* zone);
+    void addPToggleButton(const char* label);
+    void addMToggleButton(const char* label, bool* zone);
     void addCheckButton(const char* label, float* zone);
     void addNumEntry(const char* label, float* zone, float init, float min, float max, float step);
     void addNumDisplay();
-    void addLiveWaveDisplay(const char* label, float* zone , float* zone1);
-    void addStatusDisplay(const char* label, float* zone );
+    void addLiveWaveDisplay(const char* label);
+    void addStatusDisplay(const char* label, bool* zone );
     // void addselector(const char* label, float* zone,int maxv, const char* []);
     void addSpinValueBox(string id, const char* label = 0);
     // void addselector(string id, const char* label=0, int nvalues=0, const char **pvalues=0);
     void addCheckButton(string id, const char* label = 0);
     void addNumEntry(string id, const char* label = 0);
-    void addPToggleButton(string id, const char* label = 0);
+    //void addPToggleButton(string id, const char* label = 0);
     void addMToggleButton(string id, const char* label = 0);
 
     // -- other
@@ -680,8 +700,8 @@ class GxMainInterface : public gx_ui::GxUI {
             addwidget(UiRegler::create(*this, new Gxw::SimpleValueDisplay(), id, true));
         }
 
-    void create_selector(string id) {
-            addwidget(UiSelector::create(*this, id));
+    void create_selector(string id, const char *widget_name=0) {
+	addwidget(UiSelector::create(*this, id, widget_name));
         }
     void create_switch_no_caption(const char *sw_type, string id) {
             addwidget(UiSwitch::create(*this, sw_type, id));
@@ -693,14 +713,9 @@ class GxMainInterface : public gx_ui::GxUI {
                        Gtk::PositionType pos = Gtk::POS_TOP) {
             addwidget(UiSwitchWithCaption::create(*this, sw_type, id, label, pos));
         }
-    void create_cab_switch(string id, Glib::ustring label,
-                           Gtk::PositionType pos = Gtk::POS_TOP) {
-            addwidget(UiCabSwitch::create(*this, id, label));
-        }
-    void create_contrast_switch(string id, Glib::ustring label,
-                                Gtk::PositionType pos = Gtk::POS_TOP) {
-            addwidget(UiContrastSwitch::create(*this, id, label));
-        }
+    void create_ptoggle_button(const char *label) {
+	addwidget((new PToggleButton(label))->get_widget());
+    }
 };
 
 /****************************************************************/

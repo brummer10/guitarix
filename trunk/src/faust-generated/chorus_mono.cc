@@ -1,6 +1,7 @@
 // generated from file '../src/faust/chorus_mono.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace chorus_mono {
-volatile bool inited = false;
 class SIG0 {
   private:
 	int 	fSamplingFreq;
@@ -12,10 +13,10 @@ class SIG0 {
 		fSamplingFreq = samplingFreq;
 		for (int i=0; i<2; i++) iRec1[i] = 0;
 	}
-	void fill (int count, float output[]) {
+	void fill (int count, double output[]) {
 		for (int i=0; i<count; i++) {
 			iRec1[0] = (1 + iRec1[1]);
-			output[i] = sinf((9.587379924285257e-05f * (iRec1[0] - 1)));
+			output[i] = sin((9.587379924285257e-05 * (iRec1[0] - 1)));
 			// post processing
 			iRec1[1] = iRec1[0];
 		}
@@ -23,72 +24,49 @@ class SIG0 {
 };
 static FAUSTFLOAT 	fslider0;
 static int 	IOTA;
-static float *fVec0;
+static double 	fVec0[65536];
 static FAUSTFLOAT 	fslider1;
-static float 	fConst0;
-static float 	fRec0[2];
-static float 	ftbl0[65536];
-static float 	fConst1;
+static double 	fConst0;
+static double 	fRec0[2];
+static double 	ftbl0[65536];
+static double 	fConst1;
 static FAUSTFLOAT 	fslider2;
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	if (!fVec0) fVec0 = new float[65536];
+	for (int i=0; i<65536; i++) fVec0[i] = 0;
+	for (int i=0; i<2; i++) fRec0[i] = 0;
+}
+
+static void init(int samplingFreq, PluginDef* = 0)
+{
 	SIG0 sig0;
 	sig0.init(samplingFreq);
 	sig0.fill(65536,ftbl0);
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
-	for (int i=0; i<65536; i++) fVec0[i] = 0;
-	fConst0 = (1.0f / fSamplingFreq);
-	for (int i=0; i<2; i++) fRec0[i] = 0;
-	fConst1 = (0.01f * fSamplingFreq);
-	inited = true;
+	fConst0 = (1.0 / fSamplingFreq);
+	fConst1 = (0.01 * fSamplingFreq);
+	clear_state();
 }
 
-static void mem_free()
+static void compute(int count, float *input0, float *output0)
 {
-	inited = false;
-	jack_sync();
-	if (fVec0) { delete fVec0; fVec0 = 0; }
-}
-
-inline bool is_inited()
-{
-    return inited;
-}
-
-
-static void activate(bool start, int samplingFreq)
-{
-	if (start) {
-		if (!is_inited()) {
-			init(samplingFreq);
-		}
-	} else {
-		if (is_inited()) {
-			mem_free();
-		}
-	}
-}
-
-void compute(int count, float *input0, float *output0)
-{
-	float 	fSlow0 = (0.01f * fslider0);
-	float 	fSlow1 = (fSlow0 + (1 - fSlow0));
-	float 	fSlow2 = (fConst0 * fslider1);
-	float 	fSlow3 = fslider2;
+	double 	fSlow0 = (0.01 * fslider0);
+	double 	fSlow1 = (fSlow0 + (1 - fSlow0));
+	double 	fSlow2 = (fConst0 * fslider1);
+	double 	fSlow3 = fslider2;
 	for (int i=0; i<count; i++) {
-		float fTemp0 = (float)input0[i];
-		float fTemp1 = (fSlow0 * fTemp0);
+		double fTemp0 = (double)input0[i];
+		double fTemp1 = (fSlow0 * fTemp0);
 		fVec0[IOTA&65535] = fTemp1;
-		float fTemp2 = (fSlow2 + fRec0[1]);
-		fRec0[0] = (fTemp2 - floorf(fTemp2));
-		float fTemp3 = (65536 * (fRec0[0] - floorf(fRec0[0])));
-		float fTemp4 = floorf(fTemp3);
+		double fTemp2 = (fSlow2 + fRec0[1]);
+		fRec0[0] = (fTemp2 - floor(fTemp2));
+		double fTemp3 = (65536 * (fRec0[0] - floor(fRec0[0])));
+		double fTemp4 = floor(fTemp3);
 		int iTemp5 = int(fTemp4);
-		float fTemp6 = (fConst1 * (1 + (0.02f * ((ftbl0[((1 + iTemp5) & 65535)] * (fTemp3 - fTemp4)) + (ftbl0[(iTemp5 & 65535)] * ((1 + fTemp4) - fTemp3))))));
+		double fTemp6 = (fConst1 * (1 + (0.02 * ((ftbl0[((1 + iTemp5) & 65535)] * (fTemp3 - fTemp4)) + (ftbl0[(iTemp5 & 65535)] * ((1 + fTemp4) - fTemp3))))));
 		int iTemp7 = int(fTemp6);
 		int iTemp8 = (1 + iTemp7);
 		output0[i] = (FAUSTFLOAT)((fSlow3 * (((fTemp6 - iTemp7) * fVec0[(IOTA-int((int(iTemp8) & 65535)))&65535]) + ((iTemp8 - fTemp6) * fVec0[(IOTA-int((iTemp7 & 65535)))&65535]))) + (fSlow1 * fTemp0));
@@ -98,13 +76,27 @@ void compute(int count, float *input0, float *output0)
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("chorus_mono.level","","S","",&fslider2, 0.5f, 0.0f, 1.0f, 0.01f);
-	registerVar("chorus_mono.freq","","S","",&fslider1, 2.0f, 0.0f, 1e+01f, 0.01f);
-	registerVar("chorus_mono.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider0, 1e+02f, 0.0f, 1e+02f, 1.0f);
-	registerInit("chorus_mono", init);
+	reg.registerVar("chorus_mono.level","","S","",&fslider2, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("chorus_mono.freq","","S","",&fslider1, 2.0, 0.0, 1e+01, 0.01);
+	reg.registerVar("chorus_mono.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "chorus_mono",  // id
+    N_("Chorus Mono"),  // name
+    0,  // groups
+    compute,  // mono_audio
+    0,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace chorus_mono

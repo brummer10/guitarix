@@ -410,8 +410,6 @@ bool GxConvolver::compute(int count, float* input1, float *input2, float *output
     return true;
 }
 
-GxConvolver conv;
-
 
 /****************************************************************
  ** GxSimpleConvolver
@@ -498,6 +496,4 @@ bool GxSimpleConvolver::compute(int count, float* input, float *output) {
     return true;
 }
 
-GxSimpleConvolver cab_conv;
-GxSimpleConvolver contrast_conv;
 }

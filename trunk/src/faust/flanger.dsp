@@ -1,4 +1,5 @@
-declare name 		"flanger";
+declare id 		"flanger";
+declare name            "Flanger";
 declare license 	"BSD";
 
 import("effect.lib");

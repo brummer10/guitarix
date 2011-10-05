@@ -1,3 +1,5 @@
+declare name "BiQuad Filter";
+
 import("music.lib");
 import("filter.lib");
 import("guitarix.lib");

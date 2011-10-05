@@ -110,7 +110,7 @@ class GxJConvSettings {
         }
 
     // checkbutton state
-    static float checkbutton7;
+    static bool* checkbutton7;
     vector<Glib::ustring>        faflist;
     void writeJSON(gx_system::JsonWriter& w);
 };

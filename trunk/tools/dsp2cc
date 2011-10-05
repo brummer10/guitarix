@@ -1,7 +1,7 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
 
-import re, os, sys
+import re, os, sys, StringIO
 from subprocess import Popen, PIPE
 from optparse import OptionParser
 
@@ -12,16 +12,25 @@ class UIDefs(object):
 
     class UID(dict):
         def write(self, fp, v, prefix):
-            if self.has_key("alias"):
-                return
             self["tail"] = "".join([", "+x for x in self["value"]])
-            if self.has_key("enum"):
-                enumvals = ",".join(['"%s"' % x for x in self["enum"].split("|")]+["0"])
+            self["prefix"] = prefix
+            if self.has_key("alias"):
+                assert not self.has_key("enum")
+                fp.write('#undef %(variable)s\n' % self)
+                fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s","%(name)s","%(type)sA","%(tooltip)s",&%(variable)s%(tail)s);\n' % self)
+            elif self.has_key("enum"):
+                def value_pair(s):
+                    m = re.match(r"(.*)\[(.*)\]$", s)
+                    if m:
+                        return '{"%s",N_("%s")}' % (m.group(1), m.group(2))
+                    else:
+                        return '{"%s"}' % s
+                enumvals = ",".join([value_pair(x) for x in self["enum"].split("|")]+["{0}"])
                 self["ename"] = ename = self["variable"] + "_values"
-                fp.write('\tstatic const char *%s[] = {%s};\n' % (ename, enumvals))
-                fp.write('\t'+prefix+'registerEnumVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",%(ename)s,&%(variable)s%(tail)s);\n' % self)
+                fp.write('\tstatic const value_pair %s[] = {%s};\n' % (ename, enumvals))
+                fp.write('\t%(prefix)sregisterEnumVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",%(ename)s,&%(variable)s%(tail)s);\n' % self)
             else:
-                fp.write('\t'+prefix+'registerVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",&%(variable)s%(tail)s);\n' % self)
+                fp.write('\t%(prefix)sregisterVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",&%(variable)s%(tail)s);\n' % self)
 
         def __getitem__(self, n):
             try:
@@ -121,13 +130,21 @@ class Parser(object):
         checkbutton = re.compile(pre+r"addCheckButton\(%s,\s*&%s\);" % (nm, vr)).match
         declare = re.compile(pre+r"declare\(&%s,\s*%s,\s*%s\);" % (vr, nm, nm)).match
         stack = []
+        def make_name_int(mystack):
+            st = mystack[1:]
+            if not st:
+                return mystack[0]
+            s = make_name_int(st)
+            if s.startswith("."):
+                return s
+            return mystack[0] + "." + s
+            
         def make_name(nm):
+            stack.append(nm)
+            nm = make_name_int(stack)
+            stack.pop()
             if nm.startswith("."):
-                nm = nm[1:]
-            else:
-                stack.append(nm)
-                nm = ".".join(stack)
-                stack.pop()
+                return nm[1:]
             return nm
 
         for line in self.lines:
@@ -182,6 +199,19 @@ class Parser(object):
                 if key == "name":
                     self.toplevel = value
 
+    def splitgroups(self, value):
+        d = {}
+        for l in re.split(r"\]\s*,\s*", value):
+            a = re.split(r"\s*\[\s*",l,1)
+            g = a[0].strip()
+            if len(a) == 1:
+                v = "?"
+            else:
+                v = a[1].rstrip(" ]")
+            d[g] = v
+        return d
+            
+
     def readMeta2(self, stop_expr):
         self.meta = {}
         stop = re.compile(stop_expr).match
@@ -194,8 +224,12 @@ class Parser(object):
                 key = m.group(1)
                 value = m.group(2)
                 self.meta[key] = value
-                if key == "name":
+                if key == "id":
                     self.toplevel = value
+                elif key == "name":
+                    self.name = value
+                elif key == "groups":
+                    self.groups = self.splitgroups(value);
 
     def readIncludes(self, stop_expr):
         stop = re.compile(stop_expr).match
@@ -217,8 +251,11 @@ class Parser(object):
                 var = m.group(1)
                 alias = self.ui.has(var,"alias")
                 if alias:
-                    l = ('FAUSTFLOAT&\t%s = get_alias("%s");\n'
-                         % (var, self.ui.get(var, "id")))
+                    #l = ('FAUSTFLOAT&\t%s = get_alias("%s");\n'
+                    #     % (var, self.ui.get(var, "id")))
+                    out.append(l)
+                    out.append('FAUSTFLOAT\t*%s_;\n' % var)
+                    l = '#define %s (*%s_)\n' % (var, var)
             if self.memory_threshold:
                 m = array_matcher(l)
                 if m:
@@ -250,6 +287,8 @@ class Parser(object):
         self.memory_threshold = memory_threshold;
         self.toplevel = None
         self.topname = None
+        self.name = None
+        self.groups = {}
         self.memlist = []
         s = {}
         self.ui = UIDefs()
@@ -269,7 +308,8 @@ class Parser(object):
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
         s["var-decl"] = self.change_var_decl(var_decl)
-        s["var-init"] = self.add_var_alloc() + s["var-init"]
+        s["var-init"] = s["var-init"]
+        s["var-alloc"] = self.add_var_alloc()
         s["var-free"] = self.add_var_free()
         self.skip_until(r"\s*virtual void compute")
         iodef = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*\2put\[\3\];"
@@ -303,6 +343,17 @@ class Parser(object):
     def __getitem__(self, n):
         return self.sections[n]
 
+    def formatted_groups(self):
+        l = []
+        for k, v in self.groups.items():
+            k = '"'+k+'"'
+            if v:
+                v = 'N_("%s")' % v
+            else:
+                v = '""'
+            l.append("\t%s, %s,\n" % (k, v))
+        return "".join(l) + "\t0\n"
+  
     def write(self, fp, sect, indent=0, filt=lambda l: False):
         pre = "\t" * indent
         for l in self.sections[sect]:
@@ -312,95 +363,102 @@ class Parser(object):
             fp.write(l)
 
 activate = """
-static void activate(bool start, int samplingFreq)
+static int activate(bool start, PluginDef* = 0)
 {
-	if (start) {
-		if (!is_inited()) {
-			init(samplingFreq);
-		}
-	} else {
-		if (is_inited()) {
-			mem_free();
-		}
-	}
+    if (start) {
+        if (!mem_allocated) {
+            mem_alloc();
+            clear_state();
+        }
+    } else if (!mem_allocated) {
+        mem_free();
+    }
+    return 0;
 }
 
 """
 
-preload = r"""
-void preload()
-{
-    const float eps = 1e-9;
-    const int count = 2;
-    float ibuf[count];
-    float obuf[count];
-    init(44100);
-    memset(ibuf, 0, sizeof(ibuf));
-    int n = 0;
-    do {
-        compute(count, ibuf, obuf);
-	//printf("%%g %%g\n", obuf[0], obuf[1]);
-        n++;
-    } while (abs(obuf[count-1] - obuf[count-2]) > eps);
-    printf("preload %s: %%d\n", n*count);
-}
-
+plugin = r"""
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "%s",  // id
+    %s,  // name
+    %s,  // groups
+    %s,  // mono_audio
+    %s,  // stereo_audio
+    init,  // set_samplerate
+    %s,  // activate plugin
+    register_params,
+    0,   // load_ui
+    %s,  // clear_state
+};
 """
 
-def output(fp, p, fname, no_init):
+def output(fp, p, fname, init_type):
     has_activate = len(p.memlist) > 0
-    has_preload = p.meta.has_key("preload")
-    if has_activate and has_preload:
-        raise SystemExit, "activate not implemented with declare preload"
     fp.write("// generated from file '%s' by dsp2cc:\n" % fname)
-    #fp.write("// %s\n\n" % p.headvers) # good idea or not??
+    fp.write("// %s\n\n" % p.headvers) # good idea or not??
     p.write(fp, "includes")
     fp.write("namespace %s {\n" % p.modname)
-    if has_activate:
-        fp.write("volatile bool inited = false;\n")
     p.write(fp, "var-decl")
-    fp.write("static int\tfSamplingFreq;\n\n")
-    fp.write("static void init(int samplingFreq)\n{\n")
-    if has_preload:
-        mode = 1
-    else:
-        mode = 2
-    p.write(fp, "var-init", 1, filt=p.ui.var_filter(mode))
     if has_activate:
-        fp.write("\tinited = true;\n")
-    fp.write("}\n\n")
-    if has_preload:
-        fp.write("static void clear()\n{\n")
-        p.write(fp, "var-init", 1, filt=p.ui.var_filter(0))
+        fp.write("static bool mem_allocated = false;\n")
+    fp.write("static int\tfSamplingFreq;\n\n")
+    s = StringIO.StringIO()
+    p.write(s, "var-init", 1, filt=p.ui.var_filter(0))
+    state = s.getvalue()
+    if state:
+        fp.write("static void clear_state(PluginDef* = 0)\n{\n")
+        fp.write(state);
+        fp.write("}\n\n")
+    if state and not has_activate:
+        fp.write("static void init(int samplingFreq, PluginDef* = 0)\n{\n")
+        p.write(fp, "var-init", 1, filt=p.ui.var_filter(1))
+        fp.write('\tclear_state();\n')
+        fp.write("}\n\n")
+    else:
+        fp.write("static void init(int samplingFreq, PluginDef* = 0)\n{\n")
+        p.write(fp, "var-init", 1, filt=p.ui.var_filter(1))
         fp.write("}\n\n")
     if has_activate:
+        fp.write("static void mem_alloc()\n{\n")
+        p.write(fp, "var-alloc", 1)
+        fp.write("\tmem_allocated = true;\n}\n\n")
         fp.write("static void mem_free()\n{\n")
-        fp.write("\tinited = false;\n")
-        fp.write("\tjack_sync();\n")
+        fp.write("\tmem_allocated = false;\n")
         p.write(fp, "var-free", 1)
         fp.write("}\n\n")
-        fp.write("inline bool is_inited()\n")
-        fp.write("{\n    return inited;\n}\n\n")
         fp.write(activate)
-    fp.write("void compute(int count%s%s)\n{\n" % (
+    fp.write("%s(int count%s%s)\n{\n" % (
+        "static void compute" if init_type == "plugin" else "void compute",
         "".join([", float *input%d" % i for i in range(p.getNumInputs())]),
         "".join([", float *output%d" % i for i in range(p.getNumOutputs())])))
     p.write(fp, "compute", 1)
     fp.write("\t}\n}\n\n")
-    if has_preload:
-        fp.write(preload % fname)
-    if not no_init:
+    if init_type == "ctor":
         fp.write("static struct RegisterParams { RegisterParams(); } RegisterParams;\n")
         fp.write("RegisterParams::RegisterParams()\n{\n")
         p.ui.write(fp)
         fp.write('\tregisterInit("%s", init);\n' % p.topname)
-        if has_preload:
-            fp.write('\tclear();\n')
-        #if has_preload:
-        #    fp.write("\tpreload();\n");
         fp.write("}\n")
+    elif init_type == "plugin":
+        fp.write("static int register_params(const ParamReg& reg)\n{\n")
+        p.ui.write(fp, prefix="reg.")
+        fp.write("\treturn 0;\n}\n")
+        if p.groups:
+            fp.write("\nstatic const char* groups[] = {\n%s\t};\n" % p.formatted_groups())
+        fp.write(plugin % (
+            p.topname,  # id
+            'N_("%s")' % p.name if p.name else '"?%s"' % p.modname,  # name
+            "groups" if p.groups else "0",  # groups
+            "compute" if p.getNumOutputs() == 1 else "0",  # mono_audio
+            "compute" if p.getNumOutputs() == 2 else "0",  # stereo_audio
+            "activate" if has_activate else "0",  # activate plugin
+            "clear_state" if state else "0", # clear_state
+            ))
     else:
-        fp.write("int register_params(const paramreg& reg)\n{\n")
+        fp.write("static int register_params(const ParamReg& reg)\n{\n")
         p.ui.write(fp, prefix="reg.")
         fp.write("\treturn 0;\n}\n")
     fp.write("\n} // end namespace %s\n" % p.modname)
@@ -416,8 +474,8 @@ def main():
     op.add_option("-s", "--memory-threshold", dest="memory_threshold",
                   default=0, type="int",
                   help="change static memory allocations above threshold to dynamic ones")
-    op.add_option("-i", "--no-init", dest="no_init", action="store_true",
-                  default=False, help="don't generate global initializers")
+    op.add_option("-i", "--init-type", dest="init_type", action="store", default="ctor",
+                  help="type of init code generation: ctor, no-init, plugin")
     options, args = op.parse_args()
     if len(args) != 1:
         op.error("exactly one input filename expected\n")
@@ -444,7 +502,7 @@ def main():
         outp = file(options.oname,"w")
     else:
         outp = sys.stdout
-    output(outp, parser, fname, options.no_init)
+    output(outp, parser, fname, options.init_type)
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,5 @@
-declare name "amp2";
+declare id "6DJ8 feedback"; // in amp tube selector
+declare name "6DJ8 feedback";
 
 import("music.lib");
 import("filter.lib");
@@ -35,9 +36,15 @@ tubeax(preamp,gain1) =  hgroup("stage1", stage1) :
 
 
 process = val : component("gxdistortion.dsp").dist1(drive,wet_dry) : tubeax(preamp,gain1) with {
+    drive = ampctrl.drive;
+    wet_dry = ampctrl.wet_dry;
+    preamp = ampctrl.preamp;
+    gain1 = ampctrl.gain1;
+/*
     drive = vslider(".gxdistortion.drive[alias]",0.35, 0, 1, 0.01);
     wet_dry = vslider(".gxdistortion.wet_dry[alias]",  100, 0, 100, 1) : /(100) : smoothi(0.999);
     preamp =  vslider(".amp2.stage1.Pregain[alias]",0,-20,20,0.1) : db2linear : smoothi(0.999);
     gain1 = vslider(".amp2.stage2.gain1[alias]", 6, -20.0, 20.0, 0.1) : db2linear : smoothi(0.999);
+*/
 };
 

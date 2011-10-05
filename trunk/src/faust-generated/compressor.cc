@@ -1,4 +1,6 @@
 // generated from file '../src/faust/compressor.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace compressor {
 static FAUSTFLOAT 	fentry0;
 static FAUSTFLOAT 	fentry1;
@@ -12,17 +14,22 @@ static double 	fRec0[2];
 static FAUSTFLOAT 	fentry2;
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
+{
+	for (int i=0; i<2; i++) fRec1[i] = 0;
+	for (int i=0; i<2; i++) fRec0[i] = 0;
+}
+
+static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = exp((0 - (1e+01 / fSamplingFreq)));
 	fConst1 = (1 - fConst0);
-	for (int i=0; i<2; i++) fRec1[i] = 0;
 	fConst2 = (1.0 / fSamplingFreq);
-	for (int i=0; i<2; i++) fRec0[i] = 0;
+	clear_state();
 }
 
-void compute(int count, float *input0, float *output0)
+static void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fentry1;
 	double 	fSlow1 = (fSlow0 - fentry0);
@@ -44,15 +51,29 @@ void compute(int count, float *input0, float *output0)
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("compressor.ratio","","S","",&fentry2, 2.0, 1.0, 2e+01, 0.1);
-	registerVar("compressor.knee","","S","",&fentry1, 3.0, 0.0, 2e+01, 0.1);
-	registerVar("compressor.threshold","","S","",&fentry0, -2e+01, -96.0, 1e+01, 0.1);
-	registerVar("compressor.release","","S","",&fslider1, 0.5, 0.0, 1e+01, 0.01);
-	registerVar("compressor.attack","","S","",&fslider0, 0.002, 0.0, 1.0, 0.001);
-	registerInit("compressor", init);
+	reg.registerVar("compressor.ratio","","S","",&fentry2, 2.0, 1.0, 2e+01, 0.1);
+	reg.registerVar("compressor.knee","","S","",&fentry1, 3.0, 0.0, 2e+01, 0.1);
+	reg.registerVar("compressor.threshold","","S","",&fentry0, -2e+01, -96.0, 1e+01, 0.1);
+	reg.registerVar("compressor.release","","S","",&fslider1, 0.5, 0.0, 1e+01, 0.01);
+	reg.registerVar("compressor.attack","","S","",&fslider0, 0.002, 0.0, 1.0, 0.001);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "compressor",  // id
+    N_("Compressor"),  // name
+    0,  // groups
+    compute,  // mono_audio
+    0,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace compressor

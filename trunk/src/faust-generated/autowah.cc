@@ -1,12 +1,20 @@
 // generated from file '../src/faust/autowah.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace autowah {
 static int 	IOTA;
 static int 	iVec0[1024];
 static int 	iRec2[2];
-static FAUSTFLOAT&	fslider0 = get_alias("crybaby.wah");
+FAUSTFLOAT 	fslider0;
+FAUSTFLOAT	*fslider0_;
+#define fslider0 (*fslider0_)
 static double 	fRec1[2];
-static FAUSTFLOAT&	fslider1 = get_alias("crybaby.level");
-static FAUSTFLOAT&	fslider2 = get_alias("crybaby.wet_dry");
+FAUSTFLOAT 	fslider1;
+FAUSTFLOAT	*fslider1_;
+#define fslider1 (*fslider1_)
+FAUSTFLOAT 	fslider2;
+FAUSTFLOAT	*fslider2_;
+#define fslider2 (*fslider2_)
 static double 	fConst0;
 static double 	fConst1;
 static double 	fRec3[2];
@@ -14,23 +22,28 @@ static double 	fRec4[2];
 static double 	fRec0[3];
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
-	IOTA = 0;
 	for (int i=0; i<1024; i++) iVec0[i] = 0;
 	for (int i=0; i<2; i++) iRec2[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
-	fConst0 = (2827.4333882308138 / fSamplingFreq);
-	fConst1 = (1413.7166941154069 / fSamplingFreq);
 	for (int i=0; i<2; i++) fRec3[i] = 0;
 	for (int i=0; i<2; i++) fRec4[i] = 0;
 	for (int i=0; i<3; i++) fRec0[i] = 0;
 }
 
-void compute(int count, float *input0, float *output0)
+static void init(int samplingFreq, PluginDef* = 0)
 {
-	double 	fSlow0 = (4.76837158203125e-09 * fslider0);
+	fSamplingFreq = samplingFreq;
+	IOTA = 0;
+	fConst0 = (2827.4333882308138 / fSamplingFreq);
+	fConst1 = (1413.7166941154069 / fSamplingFreq);
+	clear_state();
+}
+
+static void compute(int count, float *input0, float *output0)
+{
+	double 	fSlow0 = (2.384185791015625e-10 * fslider0);
 	double 	fSlow1 = fslider2;
 	double 	fSlow2 = (0.01 * (fSlow1 * fslider1));
 	double 	fSlow3 = (1 - (0.01 * fSlow1));
@@ -57,10 +70,30 @@ void compute(int count, float *input0, float *output0)
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerInit("autowah", init);
+#undef fslider2
+	fslider2_ = reg.registerVar("crybaby.wet_dry","wet/dry","SA","",&fslider2, 1e+02, 0.0, 1e+02, 1.0);
+#undef fslider1
+	fslider1_ = reg.registerVar("crybaby.level","","SA","",&fslider1, 0.1, 0.0, 1.0, 0.01);
+#undef fslider0
+	fslider0_ = reg.registerVar("crybaby.wah","","SA","",&fslider0, 0.0, 0.0, 1.0, 0.01);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "auto",  // id
+    N_("auto"),  // name
+    0,  // groups
+    compute,  // mono_audio
+    0,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace autowah

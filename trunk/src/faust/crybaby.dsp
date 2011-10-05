@@ -1,3 +1,6 @@
+declare id "manual";
+declare name "manual"; // selector crybaby / autowah
+
 import("effect.lib");
 import("guitarix.lib");
 
@@ -21,10 +24,10 @@ with {
   gs(s) =  g  : smooth(s);
 };
 
-level = vslider("level", 0.1, 0, 1, 0.01);
-wah = vslider("wah", 0, 0, 1, 0.01);
+level   = crybaby_ctrl.level;
+wah     = crybaby_ctrl.wah;
+wet_dry = crybaby_ctrl.wet_dry;
 
-wet_dry = vslider("wet_dry[name:wet/dry]",  100, 0, 100, 1) : /(100);
 dry = 1 - wet_dry;
 
 process =  _<:*(dry),(*(wet_dry): *(level) : _crybaby(wah)):>_;

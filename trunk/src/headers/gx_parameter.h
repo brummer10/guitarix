@@ -28,9 +28,8 @@
 #ifndef SRC_HEADERS_GX_PARAMETER_H_
 #define SRC_HEADERS_GX_PARAMETER_H_
 
-#ifndef SRC_HEADERS_GX_SYSTEM_H_
-#include "./gx_system.h"
-#endif
+#include "gx_system.h"
+#include "gx_plugin.h"
 
 #include <giomm/file.h>
 
@@ -62,20 +61,8 @@ class ParameterGroups {
 
 #ifndef NDEBUG
     map<string, bool> used;
-
-    void group_exists(string id) {
-            if (groups.find(id) == groups.end()) {
-                gx_system::gx_print_error("Debug Check", "Group does not exist: " + id);
-            } else {
-                used[id] = true;
-            }
-        }
-    void group_is_new(string id) {
-            if (groups.find(id) != groups.end()) {
-                gx_system::gx_print_error("Debug Check", "Group already exists: " + id);
-            }
-        }
-
+    void group_exists(string id);
+    void group_is_new(string id);
     friend string param_group(string id, bool nowarn);
 #endif
 
@@ -92,7 +79,11 @@ class ParameterGroups {
             debug_check(group_is_new, id);
             groups.insert(pair<string, string>(id, group));
         }
+#ifndef NDEBUG
+    void dump();
+#endif
 };
+
 
 ParameterGroups& get_group_table();
 string param_group(string id, bool nowarn = false);
@@ -101,12 +92,15 @@ string param_group(string id, bool nowarn = false);
  ** Parameter
  */
 
-class FloatParameter;
+template <class T> class ParameterV;
+
+typedef ParameterV<float> FloatParameter;
+typedef ParameterV<int> IntParameter;
+typedef ParameterV<unsigned int> UIntParameter;
+typedef ParameterV<bool> BoolParameter;
+
 class FloatEnumParameter;
-class IntParameter;
-class UIntParameter;
 class EnumParameter;
-class BoolParameter;
 class SwitchParameter;
 class FileParameter;
 
@@ -115,7 +109,6 @@ class FileParameter;
 class Parameter {
  public:
     enum ctrl_type { None, Continuous, Switch, Enum };
-
  protected:
     enum value_type { tp_float, tp_int, tp_uint, tp_bool, tp_switch, tp_file };
     string _id;
@@ -145,6 +138,8 @@ class Parameter {
 #ifndef NDEBUG
     bool isUsed() const { return used; }
     void setUsed() { used = true; }
+    friend void compare_parameter(const char* title, Parameter* p1,
+				  Parameter* p2, bool all);
 #endif
 
     bool isFloat() const { return v_type == tp_float; }
@@ -173,7 +168,10 @@ class Parameter {
     virtual float getLowerAsFloat() const;
     virtual float getUpperAsFloat() const;
     virtual float getStepAsFloat() const;
-    virtual const char **getValueNames() const;
+    virtual const value_pair *getValueNames() const;
+    static inline const char *value_label(const value_pair& vp) {
+	return gettext(vp.value_label ? vp.value_label : vp.value_id);
+    }
     FloatParameter& getFloat();
     IntParameter& getInt();
     UIntParameter& getUInt();
@@ -182,16 +180,26 @@ class Parameter {
     FileParameter &getFile();
 };
 
+#ifndef NDEBUG
+void compare_parameter(const char* title, Parameter* p1,
+		       Parameter* p2, bool all = false);
+#endif
+
 /****************************************************************/
 
 typedef list<gx_gui::Parameter*> paramlist;
 
 /****************************************************************/
 
-class FloatParameter: public Parameter {
- protected:
+template<class T>
+class ParameterV: public Parameter {
+};
+
+template<>
+class ParameterV<float>: public Parameter {
+protected:
     float json_value;
- public:
+public:
     float &value;
     float std_value;
     float lower, upper, step;
@@ -207,28 +215,34 @@ class FloatParameter: public Parameter {
     virtual float getLowerAsFloat() const;
     virtual float getUpperAsFloat() const;
     virtual float getStepAsFloat() const;
-    FloatParameter(string id, string name, ctrl_type ctp, bool preset,
-                   float &v, float sv, float lv, float uv, float tv, bool ctrl, bool exp = false):
-        Parameter(id, name, tp_float, ctp, preset, ctrl, exp),
-        value(v), std_value(sv), lower(lv), upper(uv), step(tv) {}
+    ParameterV(string id, string name, ctrl_type ctp, bool preset,
+	       float &v, float sv, float lv, float uv, float tv, bool ctrl, bool exp = false):
+	Parameter(id, name, tp_float, ctp, preset, ctrl, exp), value(v), std_value(sv), lower(lv),
+	upper(uv), step(tv) {}
+#ifndef NDEBUG
+    friend void compare_parameter(const char* title, Parameter* p1,
+				  Parameter* p2, bool all);
+#endif
 };
+
 
 /****************************************************************/
 
 class FloatEnumParameter: public FloatParameter {
  private:
-    const char** value_names;
+    const value_pair* value_names;
  public:
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void readJSON_value(gx_system::JsonParser& jp);
-    virtual const char **getValueNames() const;
-    FloatEnumParameter(string id, string name, const char** vn, bool preset, float &v,
+    virtual const value_pair *getValueNames() const;
+    FloatEnumParameter(string id, string name, const value_pair* vn, bool preset, float &v,
                        int sv, bool ctrl, bool exp = false);
 };
 
 /****************************************************************/
 
-class IntParameter: public Parameter {
+template<>
+class ParameterV<int>: public Parameter {
  protected:
     int json_value;
  public:
@@ -245,9 +259,9 @@ class IntParameter: public Parameter {
     virtual bool hasRange() const;
     virtual float getLowerAsFloat() const;
     virtual float getUpperAsFloat() const;
-    IntParameter(string id, string name, ctrl_type ctp, bool preset,
-                 int &v, int sv, int lv, int uv, bool ctrl, bool exp = false):
-        Parameter(id, name, tp_int, ctp, preset, ctrl, exp),
+    ParameterV(string id, string name, ctrl_type ctp, bool preset,
+	       int &v, int sv, int lv, int uv, bool ctrl, bool exp = false):
+	Parameter(id, name, tp_int, ctp, preset, ctrl, exp),
         value(v), std_value(sv), lower(lv), upper(uv)
         {}
 };
@@ -256,18 +270,19 @@ class IntParameter: public Parameter {
 
 class EnumParameter: public IntParameter {
  private:
-    const char** value_names;
+    const value_pair* value_names;
  public:
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void readJSON_value(gx_system::JsonParser& jp);
-    virtual const char **getValueNames() const;
-    EnumParameter(string id, string name, const char** vn, bool preset, int &v,
+    virtual const value_pair *getValueNames() const;
+    EnumParameter(string id, string name, const value_pair* vn, bool preset, int &v,
                   int sv, bool ctrl, bool exp = false);
 };
 
 /****************************************************************/
 
-class UIntParameter: public Parameter {
+template<>
+class ParameterV<unsigned int>: public Parameter {
  protected:
     unsigned int json_value;
  public:
@@ -284,9 +299,9 @@ class UIntParameter: public Parameter {
     virtual bool hasRange() const;
     virtual float getLowerAsFloat() const;
     virtual float getUpperAsFloat() const;
-    UIntParameter(string id, string name, ctrl_type ctp, bool preset,
-                 unsigned int &v, unsigned int sv, unsigned int lv,
-                 unsigned int uv, bool ctrl, bool exp = false):
+    ParameterV(string id, string name, ctrl_type ctp, bool preset,
+	       unsigned int &v, unsigned int sv, unsigned int lv,
+	       unsigned int uv, bool ctrl, bool exp = false):
         Parameter(id, name, tp_int, ctp, preset, ctrl, exp),
         value(v), std_value(sv), lower(lv), upper(uv)
         {}
@@ -296,18 +311,19 @@ class UIntParameter: public Parameter {
 
 class UEnumParameter: public UIntParameter {
  private:
-    const char** value_names;
+    const value_pair* value_names;
  public:
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void readJSON_value(gx_system::JsonParser& jp);
-    virtual const char **getValueNames() const;
-    UEnumParameter(string id, string name, const char** vn, bool preset, unsigned int &v,
+    virtual const value_pair *getValueNames() const;
+    UEnumParameter(string id, string name, const value_pair* vn, bool preset, unsigned int &v,
                   unsigned int sv, bool ctrl, bool exp = false);
 };
 
 /****************************************************************/
 
-class BoolParameter: public Parameter {
+template<>
+class ParameterV<bool>: public Parameter {
  private:
     bool json_value;
  public:
@@ -320,7 +336,7 @@ class BoolParameter: public Parameter {
     virtual void writeJSON(gx_system::JsonWriter& jw);
     virtual void setJSON_value();
     virtual void readJSON_value(gx_system::JsonParser& jp);
-    BoolParameter(string id, string name, ctrl_type ctp, bool preset,
+    ParameterV(string id, string name, ctrl_type ctp, bool preset,
                   bool &v, bool sv, bool ctrl, bool exp = false):
         Parameter(id, name, tp_bool, ctp, preset, ctrl, exp),
         value(v), std_value(sv)
@@ -395,6 +411,11 @@ inline IntParameter &Parameter::getInt() {
     return static_cast<IntParameter&>(*this);
 }
 
+inline UIntParameter &Parameter::getUInt() {
+    assert(isInt());
+    return static_cast<UIntParameter&>(*this);
+}
+
 inline BoolParameter &Parameter::getBool() {
     assert(isBool());
     return static_cast<BoolParameter&>(*this);
@@ -448,6 +469,9 @@ class ParamMap {
     }
     void insert(Parameter* param);
     void set_init_values();
+#ifndef NDEBUG
+    void dump();
+#endif
 };
 
 extern ParamMap parameter_map; // map id -> parameter, zone -> parameter
@@ -475,6 +499,26 @@ inline void registerParam(const char*a, const char*b, int*c, int d) {
 
 inline void registerParam(const char*a, const char*b, bool*c, bool d = false, bool exp = false) {
     parameter_map.insert(new BoolParameter(a, b, Parameter::Switch, true, *c, d, true, exp));
+}
+
+inline void registerEnumParam(const char*a, const char*b, const value_pair* vl, int*c, int std = 0,
+                              bool exp = false) {
+    gx_gui::parameter_map.insert(new gx_gui::EnumParameter(a, b, vl, true, *c, std,
+                                 true, exp)); // false == no_midi_var
+}
+
+inline void registerUEnumParam(const char*a, const char*b, const value_pair* vl, unsigned int*c, unsigned int std = 0,
+                              bool exp = false) {
+    gx_gui::parameter_map.insert(new gx_gui::UEnumParameter(a, b, vl, true, *c, std,
+                                 true, exp)); // false == no_midi_var
+}
+
+inline void registerNonMidiParam(const char*a, bool*c, bool d, bool std = false) {
+    parameter_map.insert(new BoolParameter(a, "", Parameter::None, d, *c, std, false, false));
+}
+
+inline void registerNonMidiParam(const char*a, int*c, bool d, int std, int lower, int upper) {
+    parameter_map.insert(new IntParameter(a, "", Parameter::None, d, *c, std, lower, upper, false, false));
 }
 
 /****************************************************************

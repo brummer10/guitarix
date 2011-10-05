@@ -1,4 +1,4 @@
-declare name 		"amp.tone";
+declare id 		"amp.tone";
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";

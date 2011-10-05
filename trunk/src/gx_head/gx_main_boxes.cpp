@@ -259,8 +259,8 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk,
     box4.pack_start(box, true, true, 0);
     box4.pack_end(box5, false, false, 0);
     paintbox.add(box4);
-    paintbox.set_tooltip_text(_(title.c_str()));
-    m_tcb.m_label.set_text(_(title.c_str()));
+    paintbox.set_tooltip_text(title.c_str());
+    m_tcb.m_label.set_text(title.c_str());
     dialog_button.signal_toggled().connect(
         sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
     menuitem.signal_activate().connect(
@@ -426,9 +426,12 @@ void GxScrollBox::on_rack_reorder_vertical() {
 }
 
 GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
-    const char *pb_2, Glib::ustring titl, GtkWidget * d)
+			 const char *pb_2, Glib::ustring titl, GtkWidget * d)
     : window(Gtk::WINDOW_TOPLEVEL),
-    rbox(false, 4) {
+      rbox(false, 4),
+      group(),
+      fOrderhRack(group),
+      fOrdervRack(group) {
     Glib::ustring title = titl;
     window.add_events(Gdk::BUTTON_PRESS_MASK);
     m_scrolled_window.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
@@ -455,8 +458,7 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
         sigc::mem_fun(*this, &GxScrollBox::on_rack_reorder_vertical));
 
     const gchar * mtitle = "Order Rack Vertically";
-    set_label(fOrdervRack, _(mtitle));
-    group = fOrdervRack.get_group();
+    set_label(fOrdervRack, mtitle);
     gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
     gtk_menu_shell_append(GTK_MENU_SHELL(gui->getMenu("PluginMenu")),
                           GTK_WIDGET(fOrdervRack.gobj()));
@@ -464,8 +466,7 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
     fOrdervRack.show();
 
     mtitle = "Order Rack Horizontally";
-    set_label(fOrderhRack, _(mtitle));
-    fOrderhRack.set_group(group);
+    set_label(fOrderhRack, mtitle);
     gtk_menu_shell_append(GTK_MENU_SHELL(gui->getMenu("PluginMenu")),
                           GTK_WIDGET(fOrderhRack.gobj()));
     fOrderhRack.set_active(false);

@@ -1,4 +1,5 @@
-declare name "shaper";
+declare id   "shaper";
+declare name "Shaper";
 
 import("music.lib");
 

@@ -1,3 +1,4 @@
+declare name "Chorus";
 
 /* Stereo chorus. */
 

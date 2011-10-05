@@ -1,4 +1,4 @@
-declare name 		"MultiBandFilter";
+declare id 		"MultiBandFilter";
 declare version 	"1.0";
 declare author 		"Grame";
 declare license 	"BSD";

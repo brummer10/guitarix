@@ -1,17 +1,24 @@
 // generated from file '../src/faust/gx_feedback.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace gx_feedback {
 static FAUSTFLOAT 	fslider0;
 static FAUSTFLOAT 	fslider1;
 static double 	fRec0[6];
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
 	for (int i=0; i<6; i++) fRec0[i] = 0;
 }
 
-void compute(int count, float *input0, float *output0)
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	clear_state();
+}
+
+static void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (0.01 * fslider0);
 	double 	fSlow1 = (1 - fSlow0);
@@ -25,12 +32,26 @@ void compute(int count, float *input0, float *output0)
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("feedback.feedback","","S","",&fslider1, 0.0, -1.0, 1.0, 0.01);
-	registerVar("feedback.wet_dry","","S","",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
-	registerInit("feedback", init);
+	reg.registerVar("feedback.feedback","","S","",&fslider1, 0.0, -1.0, 1.0, 0.01);
+	reg.registerVar("feedback.wet_dry","","S","",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "feedback",  // id
+    N_("Feedback"),  // name
+    0,  // groups
+    compute,  // mono_audio
+    0,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace gx_feedback

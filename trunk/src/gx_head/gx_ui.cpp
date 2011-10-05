@@ -27,6 +27,8 @@
  */
 
 using namespace std;   // NOLINT
+#include <boost/format.hpp>
+#include "gx_parameter.h"
 #include "gx_ui.h"     // NOLINT
 
 #include <limits.h>    // NOLINT
@@ -46,84 +48,27 @@ void GxUI::registerZone(void* z, GxUiItem* c) {
     fZoneMap[z]->push_back(c);
 }
 
-void GxUI::updateAllGuis() {
+void GxUI::updateAllGuis(bool force) {
     list<GxUI*>::iterator g;
     for (g = fGuiList.begin(); g != fGuiList.end(); g++) {
-        (*g)->updateAllZones();
+        (*g)->updateAllZones(force);
     }
 }
 
-// Update all user items reflecting zone z
-inline void GxUI::updateZone(void* z) {
-    clist* 	l = fZoneMap[z];
-    for (clist::iterator c = l->begin(); c != l->end(); c++)
-        if ((*c)->hasChanged()) (*c)->reflectZone();
-}
-
 // Update all user items not up to date
-inline void GxUI::updateAllZones() {
+inline void GxUI::updateAllZones(bool force) {
     for (zmap::iterator m = fZoneMap.begin(); m != fZoneMap.end(); m++) {
         clist*	l = m->second;
         for (clist::iterator c = l->begin(); c != l->end(); c++) {
-            if ((*c)->hasChanged()) (*c)->reflectZone();
+	    if (force || (*c)->hasChanged()) {
+		(*c)->reflectZone();
+	    }
         }
     }
 }
 
 /* ---------------- GxUiItem stuff --------------- */
 GxUiItem::~GxUiItem() {
-}
-
-GxUiItemFloat::GxUiItemFloat(GxUI* ui, float* zone)
-    : GxUiItem(ui), fZone(zone), fCache(-123456.654321) {
-    ui->registerZone(zone, this);
-}
-
-GxUiItemInt::GxUiItemInt(GxUI* ui, int* zone)
-    : GxUiItem(ui), fZone(zone), fCache(INT_MAX) {
-    ui->registerZone(zone, this);
-}
-
-bool GxUiItemInt::hasChanged() {
-    return *fZone != fCache;
-}
-
-void GxUiItemInt::modifyZone(int v) {
-    fCache = v;
-    if (*fZone != v) {
-        *fZone = v;
-        fGUI->updateZone(fZone);
-    }
-}
-
-GxUiItemBool::GxUiItemBool(GxUI* ui, bool* zone)
-    : GxUiItem(ui), fZone(zone), fCache(0) {
-    ui->registerZone(zone, this);
-}
-
-bool GxUiItemBool::hasChanged() {
-    return *fZone != fCache;
-}
-
-void GxUiItemBool::modifyZone(bool v) {
-    fCache = v;
-    if (*fZone != v) {
-        *fZone = v;
-        fGUI->updateZone(fZone);
-    }
-}
-
-bool GxUiItemFloat::hasChanged() {
-    return *fZone != fCache;
-}
-
-// modify zone
-void GxUiItemFloat::modifyZone(float v) {
-    fCache = v;
-    if (*fZone != v) {
-        *fZone = v;
-        fGUI->updateZone(fZone);
-    }
 }
 
 /* ----------------- GxUiCallbackItem stuff ---------------- */

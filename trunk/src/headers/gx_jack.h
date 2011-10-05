@@ -140,8 +140,5 @@ extern JackBuffer *_jackbuffer_ptr;
 
 extern GxJack gxjack;
 
-extern sem_t jack_sync_sem;
-extern sem_t jack_insert_sync_sem;
-
 } /* end of jack namespace */
 #endif  // SRC_HEADERS_GX_JACK_H_

@@ -1,4 +1,4 @@
-//declare name 		"stereoverb";
+declare name 		"Stereo Verb";
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";

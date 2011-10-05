@@ -1,52 +1,56 @@
 // generated from file '../src/faust/delay.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace delay {
-volatile bool inited = false;
 static int 	IOTA;
 static float *fVec0;
 static FAUSTFLOAT 	fslider0;
 static float 	fConst0;
 static FAUSTFLOAT 	fslider1;
 static float 	fRec0[2];
+static bool mem_allocated = false;
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	if (!fVec0) fVec0 = new float[262144];
+	for (int i=0; i<262144; i++) fVec0[i] = 0;
+	for (int i=0; i<2; i++) fRec0[i] = 0;
+}
+
+static void init(int samplingFreq, PluginDef* = 0)
+{
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
-	for (int i=0; i<262144; i++) fVec0[i] = 0;
 	fConst0 = (0.001f * fSamplingFreq);
-	for (int i=0; i<2; i++) fRec0[i] = 0;
-	inited = true;
+}
+
+static void mem_alloc()
+{
+	if (!fVec0) fVec0 = new float[262144];
+	mem_allocated = true;
 }
 
 static void mem_free()
 {
-	inited = false;
-	jack_sync();
+	mem_allocated = false;
 	if (fVec0) { delete fVec0; fVec0 = 0; }
 }
 
-inline bool is_inited()
+
+static int activate(bool start, PluginDef* = 0)
 {
-    return inited;
+    if (start) {
+        if (!mem_allocated) {
+            mem_alloc();
+            clear_state();
+        }
+    } else if (!mem_allocated) {
+        mem_free();
+    }
+    return 0;
 }
 
-
-static void activate(bool start, int samplingFreq)
-{
-	if (start) {
-		if (!is_inited()) {
-			init(samplingFreq);
-		}
-	} else {
-		if (is_inited()) {
-			mem_free();
-		}
-	}
-}
-
-void compute(int count, float *input0, float *output0)
+static void compute(int count, float *input0, float *output0)
 {
 	float 	fSlow0 = (fConst0 * fslider0);
 	int 	iSlow1 = int(fSlow0);
@@ -67,12 +71,26 @@ void compute(int count, float *input0, float *output0)
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("delay.gain","","S","",&fslider1, 0.0f, -2e+01f, 2e+01f, 0.1f);
-	registerVar("delay.delay","","S","",&fslider0, 0.0f, 0.0f, 5e+03f, 1e+01f);
-	registerInit("delay", init);
+	reg.registerVar("delay.gain","","S","",&fslider1, 0.0f, -2e+01f, 2e+01f, 0.1f);
+	reg.registerVar("delay.delay","","S","",&fslider0, 0.0f, 0.0f, 5e+03f, 1e+01f);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "delay",  // id
+    N_("Delay"),  // name
+    0,  // groups
+    compute,  // mono_audio
+    0,  // stereo_audio
+    init,  // set_samplerate
+    activate,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace delay

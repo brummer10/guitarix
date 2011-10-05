@@ -1,4 +1,5 @@
-//declare name 		"emptty";
+declare name "Echo";
+
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";

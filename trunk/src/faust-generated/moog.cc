@@ -1,4 +1,6 @@
 // generated from file '../src/faust/moog.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace moog {
 static int 	iVec0[2];
 static FAUSTFLOAT 	fslider0;
@@ -18,12 +20,10 @@ static double 	fRec8[2];
 static double 	fRec7[2];
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
-	fConst0 = (6.283185307179586 / fSamplingFreq);
 	for (int i=0; i<2; i++) fRec6[i] = 0;
 	for (int i=0; i<2; i++) fRec5[i] = 0;
 	for (int i=0; i<2; i++) fRec4[i] = 0;
@@ -37,7 +37,14 @@ static void init(int samplingFreq)
 	for (int i=0; i<2; i++) fRec7[i] = 0;
 }
 
-void compute(int count, float *input0, float *input1, float *output0, float *output1)
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	fConst0 = (6.283185307179586 / fSamplingFreq);
+	clear_state();
+}
+
+static void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = (0.0010000000000000009 * fslider0);
 	double 	fSlow1 = (0 - fslider1);
@@ -77,12 +84,26 @@ void compute(int count, float *input0, float *input1, float *output0, float *out
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("moog.Q","","S","",&fslider1, 1.0, 0.0, 4.0, 0.1);
-	registerVar("moog.fr","","S","",&fslider0, 3e+03, 4.4e+02, 6e+03, 1e+01);
-	registerInit("moog", init);
+	reg.registerVar("moog.Q","","S","",&fslider1, 1.0, 0.0, 4.0, 0.1);
+	reg.registerVar("moog.fr","","S","",&fslider0, 3e+03, 4.4e+02, 6e+03, 1e+01);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "moog",  // id
+    N_("Moog Filter"),  // name
+    0,  // groups
+    0,  // mono_audio
+    compute,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace moog

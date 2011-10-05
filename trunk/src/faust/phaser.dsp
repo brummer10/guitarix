@@ -1,4 +1,5 @@
-declare name 		"phaser";
+declare id   "phaser";
+declare name "Phaser";
 
 //phaser taken from effect.lib 
 // by Julius O. Smith III

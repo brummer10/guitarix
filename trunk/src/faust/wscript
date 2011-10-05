@@ -81,11 +81,9 @@ def dsp_file(self, node):
     bld.add_manual_dependency(node,bld.bldnode.find_resource(self.proc))
 
 def build(bld):
-    sources = [
-        # amp
+    unused_sources = [
         'preamp.dsp',
         'inputgain.dsp',
-        'noise_shaper.dsp',
         'AntiAlias.dsp',
         'HighShelf.dsp',
         'drive.dsp',
@@ -94,16 +92,64 @@ def build(bld):
         'tube.dsp',
         'tube3.dsp',
         'tubevibrato.dsp',
-        #'tone.dsp',
         'multifilter.dsp',
         'eq.dsp',
-        'bassbooster.dsp',
         'outputgain.dsp',
         'feed.dsp',
         'balance.dsp',
-        'balance1.dsp',
         'amp2.dsp',
         'stage3.dsp',
+        'distortion.dsp',
+        'distortion1.dsp',
+        'noisegate.dsp',
+        'sloop.dsp', ##float
+        ]
+
+    sources = [
+        'balance1.dsp',
+        'presence_level.dsp',
+        'jconv_post.dsp',
+        'cabinet_impulse_former.dsp',
+        ]
+
+    sources_plugin_float = [
+        'echo.dsp',
+        'delay.dsp',
+        'chorus.dsp',
+        'stereodelay.dsp',
+        'stereoecho.dsp',
+        ]
+
+    sources_plugin = [
+        'low_high_pass.dsp',
+        'selecteq.dsp',
+        'crybaby.dsp',
+        'autowah.dsp',
+        'gx_distortion.dsp',
+        'impulseresponse.dsp',
+        'compressor.dsp',
+        'overdrive.dsp',
+        'freeverb.dsp',
+        'biquad.dsp',
+        'tremolo.dsp',
+        'phaser_mono.dsp',
+        'chorus_mono.dsp',
+        'flanger_mono.dsp',
+        'gx_feedback.dsp',
+        'flanger.dsp',
+        'moog.dsp',
+        'phaser.dsp',
+        'gx_ampmodul.dsp',
+        'tonecontroll.dsp',
+        'stereoverb.dsp',
+        'softclip.dsp',
+        'gx_ampout.dsp',
+        'noise_shaper.dsp',
+        'bassbooster.dsp',
+        'gx_outputlevel.dsp',
+        'gxfeed.dsp',
+
+        # tone stacks
         'tonestack_default.dsp',
         'tonestack_bassman.dsp',
         'tonestack_twin.dsp',
@@ -122,7 +168,6 @@ def build(bld):
         'tonestack_roland.dsp',
         'tonestack_ampeg.dsp',
         'tonestack_ampeg_rev.dsp',
-
         'tonestack_sovtek.dsp',
         'tonestack_bogner.dsp',
         'tonestack_groove.dsp',
@@ -132,25 +177,7 @@ def build(bld):
         'tonestack_fender_deville.dsp',
         'tonestack_gibsen.dsp',
 
-
-        # effects
-        'overdrive.dsp',
-        'compressor.dsp',
-        'crybaby.dsp',
-        'autowah.dsp',
-        'distortion.dsp',
-        'distortion1.dsp',
-        'freeverb.dsp',
-        'stereoverb.dsp',
-        'flanger.dsp',
-        'impulseresponse.dsp',
-        'moog.dsp',
-        'biquad.dsp',
-        'selecteq.dsp',
-        'jconv_post.dsp',
-        'phaser.dsp',
-        #'cabinet_impulse_former.dsp',
-        #gx-2
+        # amps
         'gxamp.dsp',
         'gxamp2.dsp',
         'gxamp3.dsp',
@@ -168,38 +195,7 @@ def build(bld):
         'gxamp15.dsp',
         'gxamp16.dsp',
         'gxamp17.dsp',
-        'gx_ampmodul.dsp',
-        'gxfeed.dsp',
-        'gx_feedback.dsp',
-        #'gxdistortion.dsp',
-        'low_high_pass.dsp',
-        'gx_distortion.dsp',
-        'gx_outputlevel.dsp',
-        'gx_ampout.dsp',
-        'noisegate.dsp',
-        'softclip.dsp',
-        'tonecontroll.dsp',
-        'tremolo.dsp',
-        'phaser_mono.dsp',
-        'flanger_mono.dsp',
-        'presence_level.dsp',
         ]
-
-    sources_no_init = [ # for plugins (init by explicit function calls)
-        ]
-
-    float_sources = [ # big arrays and no sensitive processing
-        'sloop.dsp',
-        'echo.dsp',
-        'delay.dsp',
-        'chorus.dsp',
-        'chorus_mono.dsp',
-        'stereodelay.dsp',
-        'stereoecho.dsp',
-        
-    ]
-
-    
 
     if bld.env['FAUST']:
         float_arg = ["-s","40000","-float"]
@@ -210,17 +206,17 @@ def build(bld):
         bld.new_task_gen(
             source = sources,
             proc = "../tools/dsp2cc",
-            proc_args = arg,
+            proc_args = arg+["--init-type=no-init"],
             )
         bld.new_task_gen(
-            source = float_sources,
+            source = sources_plugin,
             proc = "../tools/dsp2cc",
-            proc_args = float_arg,
+            proc_args = arg+["--init-type=plugin"]
             )
         bld.new_task_gen(
-            source = sources_no_init,
+            source = sources_plugin_float,
             proc = "../tools/dsp2cc",
-            proc_args = ["-i"]
+            proc_args = float_arg+["--init-type=plugin"]
             )
     else:
         gdir = "../faust-generated/"

@@ -124,8 +124,6 @@ class GxConvolver: public GxConvolverBase {
     bool compute(int count, float* input1, float *input2, float *output1, float *output2);
 };
 
-extern GxConvolver conv;
-
 class GxSimpleConvolver: public GxConvolverBase {
  public:
     bool configure(int count, float *impresp, unsigned int samplerate);
@@ -136,8 +134,6 @@ class GxSimpleConvolver: public GxConvolverBase {
     }
 };
 
-extern GxSimpleConvolver cab_conv;
-extern GxSimpleConvolver contrast_conv;
 } /* end of gx_engine namespace */
 #endif  // SRC_HEADERS_GX_CONVOLVER_H_
 

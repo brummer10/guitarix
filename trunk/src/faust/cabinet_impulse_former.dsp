@@ -1,4 +1,5 @@
-declare name "cab";
+//declare name "Cabinet Impulse Former";
+declare id "cab";
 
 import("music.lib");
 import("guitarix.lib");

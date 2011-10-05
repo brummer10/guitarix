@@ -1,4 +1,6 @@
 // generated from file '../src/faust/low_high_pass.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace low_high_pass {
 static int 	iVec0[2];
 static FAUSTFLOAT 	fentry0;
@@ -20,11 +22,9 @@ static double 	fRec3[3];
 static FAUSTFLOAT 	fcheckbox1;
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
-	fConst0 = (3.141592653589793 / fSamplingFreq);
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<2; i++) fVec1[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
@@ -37,7 +37,14 @@ static void init(int samplingFreq)
 	for (int i=0; i<3; i++) fRec3[i] = 0;
 }
 
-void compute(int count, float *input0, float *output0)
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	fConst0 = (3.141592653589793 / fSamplingFreq);
+	clear_state();
+}
+
+static void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (1.0 / tan((fConst0 * fentry0)));
 	double 	fSlow1 = (1 + fSlow0);
@@ -92,16 +99,36 @@ void compute(int count, float *input0, float *output0)
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("low_high_pass.lhc.on_off","low highcutoff","B","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
-	registerVar("low_high_pass.lhp.on_off","low highpass","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	registerVar("low_high_pass.lhp.low_freq","low freq","S","",&fentry1, 5e+03, 2e+01, 1.2e+04, 1e+01);
-	registerVar("low_high_pass.lhp.high_freq","high freq","S","",&fentry0, 1.3e+02, 2e+01, 7.04e+03, 1e+01);
-	registerVar("low_high_pass.lhc.low_freq","low freq","S","low-freq cutoff Hz",&fslider1, 1.3e+02, 2e+01, 1e+03, 1e+01);
-	registerVar("low_high_pass.lhc.high_freq","high freq","S","high-freq cutoff Hz",&fslider0, 5e+03, 1e+03, 1.2e+04, 1e+01);
-	registerInit("low_high_pass", init);
+	reg.registerVar("low_high_pass.lhc.on_off","low highcutoff","B","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("low_high_pass.lhp.on_off","low highpass","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("low_high_pass.lhp.low_freq","low freq","S","",&fentry1, 5e+03, 2e+01, 1.2e+04, 1e+01);
+	reg.registerVar("low_high_pass.lhp.high_freq","high freq","S","",&fentry0, 1.3e+02, 2e+01, 7.04e+03, 1e+01);
+	reg.registerVar("low_high_pass.lhc.low_freq","low freq","S","low-freq cutoff Hz",&fslider1, 1.3e+02, 2e+01, 1e+03, 1e+01);
+	reg.registerVar("low_high_pass.lhc.high_freq","high freq","S","high-freq cutoff Hz",&fslider0, 5e+03, 1e+03, 1.2e+04, 1e+01);
+	return 0;
 }
+
+static const char* groups[] = {
+	".low_high_pass.lhp", N_("low_highpass"),
+	".low_high_pass.lhc", N_("low_highcutoff"),
+	0
+	};
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "low_highpass",  // id
+    N_("low high pass"),  // name
+    groups,  // groups
+    compute,  // mono_audio
+    0,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace low_high_pass

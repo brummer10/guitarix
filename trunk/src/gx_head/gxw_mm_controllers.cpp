@@ -27,96 +27,15 @@
 #include <string>
 
 #include "guitarix.h"
+#include <gtkmm/menu.h>
 
+namespace gx_ui {
 
+}
 
 namespace gx_gui
 {
 // -------------------------- gxwmm library controlers -----------------------------------
-
-static void set_osilloscope_mode(GtkWidget *widget, gpointer data) {
-    gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
-    if (gx_engine::audio.effect_pre_post[10]) {
-        gui->getWaveView().set_multiplicator(150.,250.);
-    } else {
-        gui->getWaveView().set_multiplicator(20.,60.);
-    }
-}
-
-static void set_tube_mode(GtkWidget *widget, gpointer data) {
-    //GxMainInterface* gui = GxMainInterface::instance();
-    switch(gx_engine::audio.gxtube_select) {
-        case 0: // "default"
-            //gui->fSelectTubeModel[0].set_active(true);
-            parameter_map["system.select_tube"].set_std_value();
-            break;
-        case 1: // 
-            //gui->fSelectTubeModel[1].set_active(true);
-            parameter_map["system.select_tube2"].set_std_value();
-            break;
-        case 2: // 
-            //gui->fSelectTubeModel[13].set_active(true);
-            parameter_map["system.select_tube14"].set_std_value();
-            break;
-        case 3: // 
-            //gui->fSelectTubeModel[5].set_active(true);
-            parameter_map["system.select_tube10"].set_std_value();
-            break;
-        case 4: // 
-            //gui->fSelectTubeModel[2].set_active(true);
-            parameter_map["system.select_tube3"].set_std_value();
-            break;
-        case 5: // 
-            //gui->fSelectTubeModel[10].set_active(true);
-            parameter_map["system.select_tube9"].set_std_value();
-            break;
-        case 6: // 
-            //gui->fSelectTubeModel[11].set_active(true);
-            parameter_map["system.select_tube11"].set_std_value();
-            break;
-        case 7: // 
-            //gui->fSelectTubeModel[16].set_active(true);
-            parameter_map["system.select_tube17"].set_std_value();
-            break;
-        case 8: // 
-            //gui->fSelectTubeModel[12].set_active(true);
-            parameter_map["system.select_tube13"].set_std_value();
-            break;
-        case 9: // 
-            //gui->fSelectTubeModel[4].set_active(true);
-            parameter_map["system.select_tube5"].set_std_value();
-            break;
-        case 10: // 
-            //gui->fSelectTubeModel[3].set_active(true);
-            parameter_map["system.select_tube4"].set_std_value();
-            break;
-        case 11: // 
-            //gui->fSelectTubeModel[14].set_active(true);
-            parameter_map["system.select_tube15"].set_std_value();
-            break;
-        case 12: // 
-            //gui->fSelectTubeModel[6].set_active(true);
-            parameter_map["system.select_tube12"].set_std_value();
-            break;
-        case 13: // 
-            //gui->fSelectTubeModel[8].set_active(true);
-            parameter_map["system.select_tube7"].set_std_value();
-            break;
-        case 14: // 
-            //gui->fSelectTubeModel[9].set_active(true);
-            parameter_map["system.select_tube8"].set_std_value();
-            break;
-        case 15: // 
-            //gui->fSelectTubeModel[15].set_active(true);
-            parameter_map["system.select_tube16"].set_std_value();
-            break;
-        case 16: // 
-            //gui->fSelectTubeModel[7].set_active(true);
-            parameter_map["system.select_tube6"].set_std_value();
-            break;
-    }
-    //fprintf(stderr, " %i run\n", gx_engine::audio.gxtube_select);
-}
 
 void set_accessible(GtkWidget *widget,GtkLabel *label) {
     AtkObject *atk_widget, *atk_label;
@@ -157,8 +76,16 @@ void UiRegler::reflectZone() {
     set_value(v);
 }
 
-GtkWidget *UiRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value) {
+static bool hasId(string id) {
     if (!parameter_map.hasId(id)) {
+	printf("not found: %s\n", id.c_str());
+        return false;
+    }
+    return true;
+}
+
+GtkWidget *UiRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id, bool show_value) {
+    if (!hasId(id)) {
         return 0;
     }
     return (new UiRegler(ui, parameter_map[id].getFloat(), regler, show_value))->get_widget();
@@ -192,21 +119,24 @@ UiSelector::UiSelector() {
 
 void UiSelectorFloat::on_value_changed() {
     modifyZone(get_value());
-    gx_engine::audio.rack_change = true;
+    gx_engine::engine.set_rack_changed();
 }
 
 void UiSelectorInt::on_value_changed() {
     modifyZone((int)get_value());
-    gx_engine::audio.rack_change = true;
+    gx_engine::engine.set_rack_changed();
 }
 
-GtkWidget* UiSelector::create(gx_ui::GxUI& ui, string id) {
+GtkWidget* UiSelector::create(gx_ui::GxUI& ui, string id, const char *widget_name) {
     Parameter& p = parameter_map[id];
     UiSelector *s;
     if (p.isFloat()) {
         s = new UiSelectorFloat(ui, p.getFloat());
     } else {
         s = new UiSelectorInt(ui, p.getInt());
+    }
+    if (widget_name) {
+	s->m_selector.set_name(widget_name);
     }
     return s->get_widget();
 }
@@ -217,16 +147,10 @@ void UiSelector::init(Parameter& param) {
     Gtk::TreeModelColumnRecord rec;
     rec.add(label);
     Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
-    for (const char **p = param.getValueNames(); *p; p++) {
-        ls->append()->set_value(0, Glib::ustring(*p));
+    for (const value_pair *p = param.getValueNames(); p->value_id; p++) {
+        ls->append()->set_value(0, Glib::ustring(param.value_label(*p)));
     }
     m_selector.set_model(ls);
-    if (strcmp(param.group().c_str(),"Oscilloscope")==0) {
-        g_signal_connect (GTK_OBJECT (m_selector.gobj()), "value_changed", G_CALLBACK(set_osilloscope_mode), NULL);
-    } else if (strcmp(param.group().c_str(),"Tube 1")==0) {
-        m_selector.set_name("amp_selector");
-        g_signal_connect (GTK_OBJECT (m_selector.gobj()), "value_changed", G_CALLBACK(set_tube_mode), NULL);
-    } 
 }
 
 UiSelectorFloat::UiSelectorFloat(gx_ui::GxUI& ui, FloatParameter &param)
@@ -263,7 +187,7 @@ UiSelectorInt::UiSelectorInt(gx_ui::GxUI& ui, IntParameter &param)
 
 GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
            string id, bool show_value) {
-    if (!parameter_map.hasId(id)) {
+    if (!hasId(id)) {
         return 0;
     }
     return create(ui, regler, id, parameter_map[id].name(), show_value);
@@ -271,14 +195,14 @@ GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
 
 GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
            string id, Glib::ustring label, bool show_value) {
-    if (!parameter_map.hasId(id)) {
+    if (!hasId(id)) {
         return 0;
     }
     return (new UiReglerWithCaption(ui, parameter_map[id].getFloat(), regler, label, show_value))->get_widget();
 }
 
 GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id) {
-    if (!parameter_map.hasId(id)) {
+    if (!hasId(id)) {
         return 0;
     }
     return create(ui, regler, id, parameter_map[id].name());
@@ -286,7 +210,7 @@ GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
 
 GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
                                            string id, Glib::ustring label) {
-    if (!parameter_map.hasId(id)) {
+    if (!hasId(id)) {
         return 0;
     }
     return (new UiRackReglerWithCaption(ui, parameter_map[id].getFloat(), regler,
@@ -294,7 +218,7 @@ GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
 }
 
 GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id) {
-    if (!parameter_map.hasId(id)) {
+    if (!hasId(id)) {
         return 0;
     }
     return create(ui, regler, id, parameter_map[id].name());
@@ -302,7 +226,7 @@ GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id)
 
 GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
                                 string id, Glib::ustring label) {
-    if (!parameter_map.hasId(id)) {
+    if (!hasId(id)) {
         return 0;
     }
     return (new UiRackRegler(ui, parameter_map[id].getFloat(), regler, label))->get_widget();
@@ -359,7 +283,7 @@ UiSwitch *UiSwitch::new_switch(gx_ui::GxUI& ui, const char* sw_type, Parameter& 
 
 void UiSwitchFloat::on_toggled() {
     modifyZone(get_active());
-    gx_engine::audio.rack_change = true;
+    gx_engine::engine.set_rack_changed();
 }
 
 void UiSwitchFloat::reflectZone() {
@@ -384,7 +308,7 @@ UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, FloatParamete
 
 void UiSwitchBool::on_toggled() {
     modifyZone(get_active());
-    gx_engine::audio.rack_change = true;
+    gx_engine::engine.set_rack_changed();
 }
 
 void UiSwitchBool::reflectZone() {
@@ -411,7 +335,7 @@ UiSwitchBool::UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, BoolParameter &
 
 GtkWidget* UiSwitchWithCaption::create(
     gx_ui::GxUI& ui, const char *sw_type, string id, Gtk::PositionType pos) {
-    if (!parameter_map.hasId(id)) {
+    if (!hasId(id)) {
         return 0;
     }
     return create(ui, sw_type, id, parameter_map[id].name(), pos);
@@ -420,7 +344,7 @@ GtkWidget* UiSwitchWithCaption::create(
 GtkWidget* UiSwitchWithCaption::create(
                                 gx_ui::GxUI& ui, const char *sw_type, string id,
                                 Glib::ustring label, Gtk::PositionType pos) {
-    if (!parameter_map.hasId(id)) {
+    if (!hasId(id)) {
         return 0;
     }
     return (new UiSwitchWithCaption(ui, sw_type, parameter_map[id],
@@ -455,29 +379,22 @@ UiSwitchWithCaption::~UiSwitchWithCaption() {
     delete m_box;
 }
 
-UiCabSwitch::UiCabSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label)
-    : UiSwitchWithCaption(ui, sw_minitoggle, param, label, Gtk::POS_RIGHT) {
-    m_switch->signal_toggled().connect(sigc::mem_fun(*this, &UiCabSwitch::on_switch_toggled));
+void PToggleButton::on_clicked() {
+    Gtk::Menu* m = Glib::wrap(GTK_MENU(gx_preset::gxpreset.presmenu[0]));
+    m->popup(2, gtk_get_current_event_time());
 }
 
-GtkWidget* UiCabSwitch::create(gx_ui::GxUI& ui, string id, Glib::ustring label) {
-    if (!parameter_map.hasId(id)) {
-        return 0;
-    }
-    return (new UiCabSwitch(ui, parameter_map[id], label))->get_widget();
-}
-
-UiContrastSwitch::UiContrastSwitch(gx_ui::GxUI &ui, Parameter &param, Glib::ustring label)
-    : UiSwitchWithCaption(ui, sw_minitoggle, param, label, Gtk::POS_RIGHT) {
-    m_switch->signal_toggled().connect(sigc::mem_fun
-    (*this, &UiContrastSwitch::on_switch_toggled));
-}
-
-GtkWidget* UiContrastSwitch::create(gx_ui::GxUI& ui, string id, Glib::ustring label) {
-    if (!parameter_map.hasId(id)) {
-        return 0;
-    }
-    return (new UiContrastSwitch(ui, parameter_map[id], label))->get_widget();
+PToggleButton::PToggleButton(const char* label):
+    m_label(label) {
+    Pango::FontDescription font = m_label.get_style()->get_font();
+    font.set_size(8*Pango::SCALE);
+    font.set_weight(Pango::WEIGHT_BOLD);
+    m_label.modify_font(font);
+    m_label.set_name("beffekt_label");
+    m_label.show();
+    button.add(m_label);
+    button.signal_clicked().connect(
+	sigc::mem_fun(*this, &PToggleButton::on_clicked));
 }
 
 }/* end of gx_gui namespace */

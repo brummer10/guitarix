@@ -1,9 +1,13 @@
 // generated from file '../src/faust/presence_level.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace presence_level {
-static FAUSTFLOAT&	fslider0 = get_alias("con.Level");
+FAUSTFLOAT 	fslider0;
+FAUSTFLOAT	*fslider0_;
+#define fslider0 (*fslider0_)
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
 }
@@ -16,10 +20,11 @@ void compute(int count, float *input0, float *output0)
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerInit("con", init);
+#undef fslider0
+	fslider0_ = reg.registerVar("con.Level","","SA","",&fslider0, 1.0, 0.5, 5.0, 0.5);
+	return 0;
 }
 
 } // end namespace presence_level

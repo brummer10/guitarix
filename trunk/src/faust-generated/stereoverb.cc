@@ -1,4 +1,6 @@
 // generated from file '../src/faust/stereoverb.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace stereoverb {
 static FAUSTFLOAT 	fslider0;
 static FAUSTFLOAT 	fslider1;
@@ -70,11 +72,9 @@ static double 	fVec23[256];
 static double 	fRec24[2];
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
 	for (int i=0; i<2; i++) fRec9[i] = 0;
-	IOTA = 0;
 	for (int i=0; i<2048; i++) fVec0[i] = 0;
 	for (int i=0; i<2; i++) fRec8[i] = 0;
 	for (int i=0; i<2; i++) fRec11[i] = 0;
@@ -140,7 +140,14 @@ static void init(int samplingFreq)
 	for (int i=0; i<2; i++) fRec24[i] = 0;
 }
 
-void compute(int count, float *input0, float *input1, float *output0, float *output1)
+static void init(int samplingFreq, PluginDef* = 0)
+{
+	fSamplingFreq = samplingFreq;
+	IOTA = 0;
+	clear_state();
+}
+
+static void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = (1 - (0.01 * fSlow0));
@@ -275,13 +282,27 @@ void compute(int count, float *input0, float *input1, float *output0, float *out
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("stereoverb.RoomSize","","S","",&fslider2, 0.5, 0.0, 1.0, 0.025);
-	registerVar("stereoverb.damp","","S","",&fslider1, 0.5, 0.0, 1.0, 0.025);
-	registerVar("stereoverb.wet_dry","wet/dry","S","",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
-	registerInit("stereoverb", init);
+	reg.registerVar("stereoverb.RoomSize","","S","",&fslider2, 0.5, 0.0, 1.0, 0.025);
+	reg.registerVar("stereoverb.damp","","S","",&fslider1, 0.5, 0.0, 1.0, 0.025);
+	reg.registerVar("stereoverb.wet_dry","wet/dry","S","",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "stereoverb",  // id
+    N_("Stereo Verb"),  // name
+    0,  // groups
+    0,  // mono_audio
+    compute,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace stereoverb

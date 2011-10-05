@@ -54,14 +54,14 @@ using namespace std;
 #include "./gx_cairo_callbacks.h"
 #include "./gx_preset.h"
 #include "./gx_jconv_settings.h"
+#include "gx_pluginloader.h"
+#include "./gx_ui.h"
 #include "./gx_engine.h"
 #include "./gx_gui_helpers.h"
 #include "./gx_main_midi.h"
 
-#include "./gx_ui.h"
 #include "./gx_main_interface.h"
 #include "./gx_main_boxes.h"
 
-#include "gx_pluginloader.h"
 
 #endif  // SRC_HEADERS_GUITARIX_H_

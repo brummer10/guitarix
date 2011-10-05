@@ -34,7 +34,7 @@
 namespace gx_gui {
 
 void GxMainInterface::gx_build_stereo_rack() {
-
+    PluginList& pl = get_pluginlist();
     openHorizontalTableBox("");
     {
         // add controllers without show them
@@ -48,8 +48,9 @@ void GxMainInterface::gx_build_stereo_rack() {
         }
         closeBox();
 
+	GtkWidget* box;
         // ----- chorus
-        openHorizontalRestetBox(_("chorus"), &gx_engine::audio.posit[8]);
+        box = openHorizontalRestetBox(_("chorus"), pl.pos_var("chorus"));
         {
             openVerticalBox(_("chorus"));
             {
@@ -73,7 +74,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                     }
                     closeBox();
 
-                    opensDialogBox("chorus.dialog", "chorus.on_off", "RackBox_expose");
+                    opensDialogBox("chorus.dialog", "chorus.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -96,7 +97,7 @@ void GxMainInterface::gx_build_stereo_rack() {
         }
         closeBox();
         // flanger
-        openHorizontalRestetBox(_("flanger"), &gx_engine::audio.posit[9]);
+        box = openHorizontalRestetBox(_("flanger"), pl.pos_var("flanger"));
         {
             openVerticalBox(_("flanger"));
             {
@@ -119,7 +120,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                         closeBox();
                     }
                     closeBox();
-                    opensDialogBox("flanger.dialog", "flanger.on_off", "RackBox_expose");
+                    opensDialogBox("flanger.dialog", "flanger.on_off", "RackBox_expose", box);
                     {
                         openHorizontalBox("");
                         {
@@ -175,7 +176,7 @@ void GxMainInterface::gx_build_stereo_rack() {
         }
         closeBox();
         // phaser
-        openHorizontalRestetBox(_("phaser"), &gx_engine::audio.posit[12]);
+        box = openHorizontalRestetBox(_("phaser"), pl.pos_var("phaser"));
         {
             openVerticalBox(_("phaser"));
             {
@@ -198,7 +199,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                         closeBox();
                     }
                     closeBox();
-                    opensDialogBox("phaser.dialog", "phaser.on_off", "RackBox_expose");
+                    opensDialogBox("phaser.dialog", "phaser.on_off", "RackBox_expose", box);
                     {
                         openHorizontalBox("");
                         {
@@ -257,7 +258,7 @@ void GxMainInterface::gx_build_stereo_rack() {
         }
         closeBox();
         // stereo delay
-        openHorizontalRestetBox(_("delay"), &gx_engine::audio.posit[15]);
+        box = openHorizontalRestetBox(_("delay"), pl.pos_var("stereodelay"));
         {
             openVerticalBox(_("delay"));
             {
@@ -280,7 +281,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                         closeBox();
                     }
                     closeBox();
-                    opensDialogBox("stereodelay.dialog", "stereodelay.on_off", "RackBox_expose");
+                    opensDialogBox("stereodelay.dialog", "stereodelay.on_off", "RackBox_expose", box);
                     {
 
                         openVerticalBox("");
@@ -314,7 +315,7 @@ void GxMainInterface::gx_build_stereo_rack() {
         }
         closeBox();
         // echo
-        openHorizontalRestetBox(_("echo"), &gx_engine::audio.posit[16]);
+        box = openHorizontalRestetBox(_("echo"), pl.pos_var("stereoecho"));
         {
             openVerticalBox(_("echo"));
             {
@@ -337,7 +338,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                         closeBox();
                     }
                     closeBox();
-                    opensDialogBox("stereoecho.dialog", "stereoecho.on_off", "RackBox_expose");
+                    opensDialogBox("stereoecho.dialog", "stereoecho.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -360,7 +361,7 @@ void GxMainInterface::gx_build_stereo_rack() {
         }
         closeBox();
         // moog filter
-        openHorizontalRestetBox(_("moog"), &gx_engine::audio.posit[11]);
+        box = openHorizontalRestetBox(_("moog"), pl.pos_var("moog"));
         {
             openVerticalBox(_("moog"));
             {
@@ -383,7 +384,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                         closeBox();
                     }
                     closeBox();
-                    opensDialogBox("moog.dialog", "moog.on_off", "RackBox_expose");
+                    opensDialogBox("moog.dialog", "moog.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -404,7 +405,7 @@ void GxMainInterface::gx_build_stereo_rack() {
         }
         closeBox();
         // postamp
-        openHorizontalRestetBox(_("amp"), &gx_engine::audio.posit[19]);
+        box = openHorizontalRestetBox(_("amp"), pl.pos_var("ampmodul"));
         {
             openVerticalBox(_("postamp"));
             {
@@ -427,7 +428,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                         closeBox();
                     }
                     closeBox();
-                    opensDialogBox("ampmodul.dialog", "ampmodul.on_off", "RackBox_expose");
+                    opensDialogBox("ampmodul.dialog", "ampmodul.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -456,7 +457,7 @@ void GxMainInterface::gx_build_stereo_rack() {
         }
         closeBox();
         // 3 band eq
-        openHorizontalRestetBox(_("tone"), &gx_engine::audio.posit[20]);
+        box = openHorizontalRestetBox(_("tone"), pl.pos_var("tonemodul"));
         {
             openVerticalBox(_("tone"));
             {
@@ -479,7 +480,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                         closeBox();
                     }
                     closeBox();
-                    opensDialogBox("tonemodul.dialog", "tonemodul.on_off", "RackBox_expose");
+                    opensDialogBox("tonemodul.dialog", "tonemodul.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -505,7 +506,7 @@ void GxMainInterface::gx_build_stereo_rack() {
         }
         closeBox();
         
-        openHorizontalRestetBox(_("convolver"), &gx_engine::audio.posit[28]);
+        box = openHorizontalRestetBox(_("convolver"), pl.pos_var("jconv"));
         {
             openVerticalBox(_("convolver"));
             {
@@ -528,7 +529,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                         closeBox();
                     }
                     closeBox();
-                    opensDialogBox("jconv.dialog", "jconv.on_off", "RackBox_expose");
+                    opensDialogBox("jconv.dialog", "jconv.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -574,7 +575,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                                     addJConvButton(_("setup"), &gx_engine::audio.filebutton);
                                     
                                     addJToggleButton(_("run"),
-                                                         &gx_jconv::GxJConvSettings::checkbutton7);
+                                                         gx_jconv::GxJConvSettings::checkbutton7);
                                     openSpaceBox("");
                                     closeBox();
                                 }
@@ -592,7 +593,7 @@ void GxMainInterface::gx_build_stereo_rack() {
         }
         closeBox();
         //stereoverb
-        openHorizontalRestetBox(_("stereoverb"), &gx_engine::audio.posit[29]);
+        box = openHorizontalRestetBox(_("stereoverb"), pl.pos_var("stereoverb"));
         {
             openVerticalBox(_("freeverb"));
             {
@@ -615,7 +616,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                         closeBox();
                     }
                     closeBox();
-                    opensDialogBox("stereoverb.dialog", "stereoverb.on_off", "RackBox_expose");
+                    opensDialogBox("stereoverb.dialog", "stereoverb.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -646,4 +647,3 @@ void GxMainInterface::gx_build_stereo_rack() {
     closeBox();
 }   // close stereo rack
 }  // end namespace gx_gui
-

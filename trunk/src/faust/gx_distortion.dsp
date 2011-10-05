@@ -1,4 +1,5 @@
-//declare name 		"distortion";
+declare name 		"Multi Band Distortion";
+declare groups "resonator[Distortion resonator]";
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";

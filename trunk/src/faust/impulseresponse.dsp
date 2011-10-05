@@ -1,4 +1,6 @@
-declare name 		"IR";
+declare id 		"IR";
+declare name            "ImpulseResponse";
+
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";

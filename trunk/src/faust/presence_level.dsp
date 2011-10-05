@@ -1,4 +1,4 @@
-declare name "con";
+declare id "con";
 
 import("music.lib");
 import("guitarix.lib");

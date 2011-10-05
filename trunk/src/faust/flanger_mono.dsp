@@ -1,4 +1,5 @@
-declare name 		"flanger_mono";
+declare name            "Flanger Mono";
+declare id 		"flanger_mono";
 declare license 	"BSD";
 
 import("effect.lib");

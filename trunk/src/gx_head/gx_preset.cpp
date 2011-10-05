@@ -36,8 +36,6 @@
 
 using namespace gx_system;             // NOLINT
 
-// #define _(x) (x)
-
 namespace gx_preset {
 
 GxPreset gxpreset;
@@ -525,6 +523,7 @@ static bool gx_load_preset_from_file(const char* presname) {
     ifstream ofile(gx_preset_file.get_path().c_str());
     JsonParser jp(ofile);
 
+    gx_engine::engine.start_ramp_down();
     try {
         jp.next(JsonParser::begin_array);
         int major, minor;
@@ -535,17 +534,14 @@ static bool gx_load_preset_from_file(const char* presname) {
             if (jp.current_value() == presname) {
 		PresetReader p;
 		p.read(jp, 0, major, minor);
-		gx_engine::mono_chain.start_ramp_down();
-		gx_engine::stereo_chain.start_ramp_down();
-		gx_engine::mono_chain.wait_ramp_down_finished();
-		gx_engine::stereo_chain.wait_ramp_down_finished();
-		gx_engine::faust_init(gx_jack::gxjack.jack_sr); //FIXME: big hammer.. change to selective re-init when plugin convert is finished
+		gx_engine::engine.wait_ramp_down_finished();
 		p.commit();
+		if (gx_engine::engine.prepare_module_lists()) {
+		    gx_engine::engine.commit_module_lists(false);
+		}
+		gx_engine::engine.start_ramp_up();
 		gx_ui::GxUI::updateAllGuis();
-		gx_gui::check_cab_immediate();
-		gx_engine::order_rack(true);
-		gx_engine::mono_chain.start_ramp_up();
-		gx_engine::stereo_chain.start_ramp_up();
+		gx_engine::engine.clear_rack_changed();
                 return true;
             } else {
                 jp.skip_object();
@@ -557,6 +553,7 @@ static bool gx_load_preset_from_file(const char* presname) {
         gx_print_error(_("load preset"), _("invalid preset file: ")
                        + gx_preset_file.get_parse_name());
     }
+    gx_engine::engine.start_ramp_up();
     return false;
 }
 
@@ -608,20 +605,6 @@ void GxPreset::gx_rename_active_preset_dialog(GtkWidget* item, gpointer arg) {
         gx_print_info(_("Renaming Active Preset"),
                       string(_("Renamed preset ")) + presname +
                       string(_(" to ")) + gxpreset.gx_current_preset);
-}
-
-static gboolean gx_convolver_restart(gpointer data) {
-    gx_engine::conv.stop();
-    while (gx_engine::conv.is_runnable()) gx_engine::conv.checkstate();
-    gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
-    bool rc = gx_engine::conv.configure(
-                  gx_jack::gxjack.jack_bs, gx_jack::gxjack.jack_sr, jcset->getFullIRPath(),
-                  jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
-                  jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline());
-    if (!rc || !gx_engine::conv.start()) {
-        gx_jconv::GxJConvSettings::checkbutton7 = 0;
-    }
-    return false;
 }
 
 static gboolean gx_rename_main_widget(gpointer data) {
@@ -680,13 +663,6 @@ void GxPreset::gx_load_preset(GtkMenuItem *menuitem, gpointer load_preset) {
 
     /* do some GUI stuff*/
     g_idle_add(gx_rename_main_widget, NULL);
-
-    /* reset convolver buffer for preset change*/
-    if (gx_engine::conv.is_runnable() && gx_jconv::GxJConvSettings::checkbutton7 == 1)  {
-        gx_engine::conv.stop();
-        gx_gui::guivar.g_threads[8] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,
-                                               gx_convolver_restart, NULL, NULL);
-    }
 
     /* collect info for stage info display*/
     gx_gui::guivar.show_patch_info = gx_get_single_preset_menu_pos(gxpreset.gx_current_preset, 0);
@@ -803,13 +779,6 @@ static void gx_load_factory_preset(GtkMenuItem *menuitem, gpointer load_preset) 
 
     /* do some GUI stuff*/
     g_idle_add(gx_rename_main_widget, NULL);
-
-    /* reset convolver buffer for preset change*/
-    if (gx_engine::conv.is_runnable() && gx_jconv::GxJConvSettings::checkbutton7 == 1) {
-        gx_engine::conv.stop();
-        gx_gui::guivar.g_threads[8] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20,
-                                               gx_convolver_restart, NULL, NULL);
-    }
 }
 
 // load the factory preset file

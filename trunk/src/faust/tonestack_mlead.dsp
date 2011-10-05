@@ -1,3 +1,5 @@
-declare name "amp.tonestack";
+declare id "M-Lead"; // in tonestack selector
+declare name "M-Lead";
+
 tstack = component("tonestack.dsp");
 process = tstack[tse=tstack.ts.mlead;];

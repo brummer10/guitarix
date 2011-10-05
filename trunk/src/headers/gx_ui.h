@@ -32,19 +32,18 @@
 
 #include <map>
 #include <list>
-
-// --- interface defines
-#define stackSize 256
-#define kSingleMode 0
-#define kBoxMode 1
-#define kTabMode 2
+#include <sigc++/sigc++.h>
 
 namespace gx_ui {
 /* ------------- UI Classes ------------- */
 /* base interface classes interfacing with the GUI  */
 class GxUI;
 
-/* --- GxUiItem (virtual class) --- */
+
+/****************************************************************
+ ** class GxUiItem (virtual class)
+ */
+
 class GxUiItem {
  protected :
     GxUI*    fGUI;
@@ -55,49 +54,12 @@ class GxUiItem {
     virtual bool hasChanged() = 0;
 };
 
-class GxUiItemFloat: GxUiItem {
- protected :
-    float*    fZone;
-    float    fCache;
-    GxUiItemFloat(GxUI* ui, float* zone);
- public :
-    void  modifyZone(float v);
-    virtual bool hasChanged();
-};
 
-class GxUiItemInt: GxUiItem {
- protected :
-    int* fZone;
-    int fCache;
-    GxUiItemInt(GxUI* ui, int* zone);
- public :
-    void  modifyZone(int v);
-    virtual bool hasChanged();
-};
+/****************************************************************
+ ** class GxUI
+ ** Main UI base class
+ */
 
-class GxUiItemBool: GxUiItem {
- protected :
-    bool* fZone;
-    bool fCache;
-    GxUiItemBool(GxUI* ui, bool* zone);
- public :
-    void  modifyZone(bool v);
-    virtual bool hasChanged();
-};
-
-
-/* --- Callback Item --- */
-typedef void (*GxUiCallback)(float val, void* data);
-
-struct GxUiCallbackItemFloat : public GxUiItemFloat {
-    GxUiCallback fCallback;
-    void*     fData;
-
-    GxUiCallbackItemFloat(GxUI* ui, float* zone, GxUiCallback foo, void* data);
-    virtual void reflectZone();
-};
-
-/* --- Main UI base class --- */
 class GxUI {
     typedef list< GxUiItem* > clist;
     typedef map < void*, clist* > zmap;
@@ -111,11 +73,125 @@ class GxUI {
 
     // public methods
     void registerZone(void*, GxUiItem*);
-    void updateAllZones();
-    void updateZone(void* z);
-    static void updateAllGuis();
+    void updateAllZones(bool force = false);
+    void updateZone(void* z, bool force = false);
+    static void updateAllGuis(bool force = false);
 };
+
+// Update all user items reflecting zone z
+inline void GxUI::updateZone(void* z, bool force) {
+    clist* 	l = fZoneMap[z];
+    for (clist::iterator c = l->begin(); c != l->end(); c++) {
+        if (force || (*c)->hasChanged()) {
+	    (*c)->reflectZone();
+	}
+    }
+}
+
+
+/****************************************************************
+ ** template class GxUiItemV<T>
+ */
+
+template<class T>
+class GxUiItemV: public GxUiItem {
+ protected :
+public:
+    T*    fZone;
+    T     fCache;
+    GxUiItemV(GxUI* ui, T* zone);
+ public :
+    void  modifyZone(T v);
+    virtual bool hasChanged();
+};
+
+typedef GxUiItemV<float> GxUiItemFloat;
+typedef GxUiItemV<int> GxUiItemInt;
+typedef GxUiItemV<unsigned int> GxUiItemUInt;
+typedef GxUiItemV<bool> GxUiItemBool;
+
+template<class T>
+GxUiItemV<T>::GxUiItemV(GxUI* ui, T* zone)
+  : GxUiItem(ui), fZone(zone) {
+    ui->registerZone(zone, this);
+}
+
+template<class T>
+bool GxUiItemV<T>::hasChanged() {
+    return *fZone != fCache;
+}
+
+template<class T>
+void GxUiItemV<T>::modifyZone(T v) {
+    fCache = v;
+    if (*fZone != v) {
+        *fZone = v;
+        fGUI->updateZone(fZone);
+    }
+}
+
+
+/****************************************************************
+ ** class GxUiCallbackItemFloat
+ ** Callback Item
+ */
+
+typedef void (*GxUiCallback)(float val, void* data);
+
+struct GxUiCallbackItemFloat : public GxUiItemFloat {
+    GxUiCallback fCallback;
+    void*     fData;
+
+    GxUiCallbackItemFloat(GxUI* ui, float* zone, GxUiCallback foo, void* data);
+    virtual void reflectZone();
+};
+
+
+/****************************************************************
+ ** template class UiSignal<T>
+ */
+
+template <class T>
+class UiSignal: public gx_ui::GxUiItemV<T> {
+private:
+    virtual void reflectZone();
+public:
+    UiSignal(gx_ui::GxUI* ui, T *v): gx_ui::GxUiItemV<T>(ui, v) {};
+    static UiSignal* create(gx_ui::GxUI* ui, const char *id);
+    ~UiSignal();
+    sigc::signal<void, T> changed;
+};
+
+template<class T>
+UiSignal<T>::~UiSignal() {
+}
+
+template<class T>
+void UiSignal<T>::reflectZone() {
+    T v = *gx_ui::GxUiItemV<T>::fZone;
+    gx_ui::GxUiItemV<T>::fCache = v;
+    changed(v);
+}
+
+template<class T>
+UiSignal<T>* UiSignal<T>::create(gx_ui::GxUI* ui, const char *id) {
+    if (!gx_gui::parameter_map.hasId(id)) {
+	printf("%s not found!!!\n", id);
+	return 0;
+    }
+    gx_gui::ParameterV<T>* p = dynamic_cast<gx_gui::ParameterV<T>*>(&gx_gui::parameter_map[id]);
+    if (!p) {
+	printf("%s has wrong type [%s/%s]!!\n", id, typeid(gx_gui::parameter_map[id]).name(), typeid(gx_gui::ParameterV<T>).name());
+	return 0;
+    }
+    return new UiSignal(ui, &p->value);
+}
+
+typedef UiSignal<float> UiSignalFloat;
+typedef UiSignal<int> UiSignalInt;
+typedef UiSignal<unsigned int> UiSignalUInt;
+typedef UiSignal<bool> UiSignalBool;
+
 } /* end of gx_ui namespace */
 
 #endif  // SRC_HEADERS_GX_UI_H_
-

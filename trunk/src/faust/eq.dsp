@@ -1,4 +1,4 @@
-declare name 		"eq";
+declare id 		"eq";
 declare license 	"BSD";
 declare copyright 	"(c)GRAME 2006";
 

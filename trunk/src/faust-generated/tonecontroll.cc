@@ -1,4 +1,6 @@
 // generated from file '../src/faust/tonecontroll.dsp' by dsp2cc:
+// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+
 namespace tonecontroll {
 static double 	fConst0;
 static double 	fConst1;
@@ -61,7 +63,38 @@ static double 	fRec19[3];
 static double 	fRec22[2];
 static int	fSamplingFreq;
 
-static void init(int samplingFreq)
+static void clear_state(PluginDef* = 0)
+{
+	for (int i=0; i<2; i++) fVec0[i] = 0;
+	for (int i=0; i<2; i++) fRec3[i] = 0;
+	for (int i=0; i<3; i++) fRec2[i] = 0;
+	for (int i=0; i<2; i++) fVec1[i] = 0;
+	for (int i=0; i<2; i++) fRec1[i] = 0;
+	for (int i=0; i<3; i++) fRec0[i] = 0;
+	for (int i=0; i<2; i++) fRec4[i] = 0;
+	for (int i=0; i<2; i++) fRec6[i] = 0;
+	for (int i=0; i<3; i++) fRec5[i] = 0;
+	for (int i=0; i<2; i++) fRec7[i] = 0;
+	for (int i=0; i<2; i++) fRec10[i] = 0;
+	for (int i=0; i<3; i++) fRec9[i] = 0;
+	for (int i=0; i<3; i++) fRec8[i] = 0;
+	for (int i=0; i<2; i++) fRec11[i] = 0;
+	for (int i=0; i<2; i++) fRec12[i] = 0;
+	for (int i=0; i<2; i++) fVec2[i] = 0;
+	for (int i=0; i<2; i++) fRec16[i] = 0;
+	for (int i=0; i<3; i++) fRec15[i] = 0;
+	for (int i=0; i<2; i++) fVec3[i] = 0;
+	for (int i=0; i<2; i++) fRec14[i] = 0;
+	for (int i=0; i<3; i++) fRec13[i] = 0;
+	for (int i=0; i<2; i++) fRec18[i] = 0;
+	for (int i=0; i<3; i++) fRec17[i] = 0;
+	for (int i=0; i<2; i++) fRec21[i] = 0;
+	for (int i=0; i<3; i++) fRec20[i] = 0;
+	for (int i=0; i<3; i++) fRec19[i] = 0;
+	for (int i=0; i<2; i++) fRec22[i] = 0;
+}
+
+static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = tan((1884.9555921538758 / fSamplingFreq));
@@ -81,46 +114,20 @@ static void init(int samplingFreq)
 	fConst14 = (1.0 / fConst13);
 	fConst15 = (1 + fConst11);
 	fConst16 = (0 - ((1 - fConst11) / fConst15));
-	for (int i=0; i<2; i++) fVec0[i] = 0;
 	fConst17 = (1.0 / fConst15);
-	for (int i=0; i<2; i++) fRec3[i] = 0;
-	for (int i=0; i<3; i++) fRec2[i] = 0;
-	for (int i=0; i<2; i++) fVec1[i] = 0;
 	fConst18 = (0 - fConst3);
 	fConst19 = (1.0 / (fConst6 * fConst13));
-	for (int i=0; i<2; i++) fRec1[i] = 0;
-	for (int i=0; i<3; i++) fRec0[i] = 0;
 	fConst20 = (2 * (0 - fConst1));
-	for (int i=0; i<2; i++) fRec4[i] = 0;
-	for (int i=0; i<2; i++) fRec6[i] = 0;
-	for (int i=0; i<3; i++) fRec5[i] = 0;
-	for (int i=0; i<2; i++) fRec7[i] = 0;
 	fConst21 = (1 + ((fConst3 - 1.0) / fConst0));
 	fConst22 = (1.0 / (1 + ((1.0 + fConst3) / fConst0)));
 	fConst23 = (0 - fConst11);
-	for (int i=0; i<2; i++) fRec10[i] = 0;
-	for (int i=0; i<3; i++) fRec9[i] = 0;
 	fConst24 = (2 * (0 - fConst9));
-	for (int i=0; i<3; i++) fRec8[i] = 0;
-	for (int i=0; i<2; i++) fRec11[i] = 0;
 	fConst25 = exp((0 - (2e+02 / fSamplingFreq)));
 	fConst26 = exp((0 - (0.1 / fSamplingFreq)));
-	for (int i=0; i<2; i++) fRec12[i] = 0;
-	for (int i=0; i<2; i++) fVec2[i] = 0;
-	for (int i=0; i<2; i++) fRec16[i] = 0;
-	for (int i=0; i<3; i++) fRec15[i] = 0;
-	for (int i=0; i<2; i++) fVec3[i] = 0;
-	for (int i=0; i<2; i++) fRec14[i] = 0;
-	for (int i=0; i<3; i++) fRec13[i] = 0;
-	for (int i=0; i<2; i++) fRec18[i] = 0;
-	for (int i=0; i<3; i++) fRec17[i] = 0;
-	for (int i=0; i<2; i++) fRec21[i] = 0;
-	for (int i=0; i<3; i++) fRec20[i] = 0;
-	for (int i=0; i<3; i++) fRec19[i] = 0;
-	for (int i=0; i<2; i++) fRec22[i] = 0;
+	clear_state();
 }
 
-void compute(int count, float *input0, float *input1, float *output0, float *output1)
+static void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
 	double 	fSlow1 = (0.0010000000000000009 * pow(10,(0.05 * fslider1)));
@@ -205,15 +212,29 @@ void compute(int count, float *input0, float *input1, float *output0, float *out
 	}
 }
 
-static struct RegisterParams { RegisterParams(); } RegisterParams;
-RegisterParams::RegisterParams()
+static int register_params(const ParamReg& reg)
 {
-	registerVar("tonemodul.Treble","","S","",&fslider2, 0.0, -5.0, 5.0, 0.01);
-	registerVar("tonemodul.sharper","sharper","S","",&fslider3, 1.0, 1.0, 1e+01, 1.0);
-	registerVar("tonemodul.ON","","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	registerVar("tonemodul.Bass","","S","",&fslider1, 0.0, -5.0, 5.0, 0.01);
-	registerVar("tonemodul.Middle","","S","",&fslider0, 0.0, -5.0, 5.0, 0.01);
-	registerInit("tonemodul", init);
+	reg.registerVar("tonemodul.Treble","","S","",&fslider2, 0.0, -5.0, 5.0, 0.01);
+	reg.registerVar("tonemodul.sharper","sharper","S","",&fslider3, 1.0, 1.0, 1e+01, 1.0);
+	reg.registerVar("tonemodul.ON","","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("tonemodul.Bass","","S","",&fslider1, 0.0, -5.0, 5.0, 0.01);
+	reg.registerVar("tonemodul.Middle","","S","",&fslider0, 0.0, -5.0, 5.0, 0.01);
+	return 0;
 }
+
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "tonemodul",  // id
+    N_("3 Band EQ"),  // name
+    0,  // groups
+    0,  // mono_audio
+    compute,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
 
 } // end namespace tonecontroll

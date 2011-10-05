@@ -1,4 +1,4 @@
-declare name "tube";
+declare id "tube";
 
 import("guitarix.lib");
 

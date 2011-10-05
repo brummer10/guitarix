@@ -1,4 +1,4 @@
-declare name 		"distortion1";
+declare id 		"distortion1";
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";

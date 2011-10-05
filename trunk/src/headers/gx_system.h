@@ -254,9 +254,21 @@ public:
 
 void  gx_print_logmsg(const char*, const string&, GxMsgType);
 void  gx_print_warning(const char*, const string&);
+inline void gx_print_warning(const char* fnc, const boost::basic_format<char>& msg) {
+    gx_print_warning(fnc, msg.str());
+}
 void  gx_print_error(const char*, const string&);
+inline void gx_print_error(const char* fnc, const boost::basic_format<char>& msg) {
+    gx_print_error(fnc, msg.str());
+}
 void  gx_print_fatal(const char*, const string&);
+inline void gx_print_fatal(const char* fnc, const boost::basic_format<char>& msg) {
+    gx_print_fatal(fnc, msg.str());
+}
 void  gx_print_info(const char*, const string&);
+inline void gx_print_info(const char* fnc, const boost::basic_format<char>& msg) {
+    gx_print_info(fnc, msg.str());
+}
 
 void  gx_process_cmdline_options(int&, char**&, string*);
 void  gx_set_override_options(string* optvar);

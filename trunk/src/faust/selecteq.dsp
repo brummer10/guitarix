@@ -1,4 +1,5 @@
-declare name 		"eqs";
+declare id 		"eqs";
+declare name            "Scaleable EQ";
 declare license 	"BSD";
 declare copyright 	"(c)GRAME 2006";
 
