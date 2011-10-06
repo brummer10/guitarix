@@ -74,25 +74,25 @@ class Audiofile {
     int form(void) const      { return _form; }
     int rate(void) const      { return _rate; }
     int chan(void) const      { return _chan; }
-    uint32_t size(void) const { return _size; }
+    unsigned int size(void) const { return _size; }
 
     int open_read(string name);
     int close(void);
 
-    int seek(uint32_t posit);
-    int read(float *data, uint32_t frames);
+    int seek(unsigned int posit);
+    int read(float *data, unsigned int frames);
 
  private:
 
     void reset(void);
 
-    SNDFILE  *_sndfile;
-    int       _mode;
-    int       _type;
-    int       _form;
-    int       _rate;
-    int       _chan;
-    uint32_t  _size;
+    SNDFILE     *_sndfile;
+    int          _mode;
+    int          _type;
+    int          _form;
+    int          _rate;
+    int          _chan;
+    unsigned int _size;
 };
 
 class GxConvolverBase: protected Convproc {

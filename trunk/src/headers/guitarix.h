@@ -56,6 +56,7 @@ using namespace std;
 #include "./gx_jconv_settings.h"
 #include "gx_pluginloader.h"
 #include "./gx_ui.h"
+#include "gx_internal_plugins.h"
 #include "./gx_engine.h"
 #include "./gx_gui_helpers.h"
 #include "./gx_main_midi.h"

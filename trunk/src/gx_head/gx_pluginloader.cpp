@@ -31,25 +31,84 @@ void UiBuilder::closeBox() const {
  ** regparam
  */
 
+static float *register_var(const char* id, const char* name, const char* tp,
+			   const char* tooltip, float* var, float val,
+			   float low, float up, float step, bool exp) {
+    if (!name[0]) {
+	assert(strrchr(id, '.'));
+	name = strrchr(id, '.')+1;
+    }
+    int n = strlen(tp);
+    if (n && tp[n-1] == 'A') {
+	if (gx_gui::parameter_map.hasId(id)) {
+	    gx_gui::Parameter& p = gx_gui::parameter_map[id];
+#ifndef NDEBUG
+	    gx_gui::FloatParameter p2(
+		id, name, gx_gui::Parameter::Continuous, true,
+		p.getFloat().value, val, low, up, step, true, exp);
+	    gx_gui::compare_parameter("Alias Parameter", &p, &p2);
+#endif
+	    return &p.getFloat().value;
+	}
+    }
+    gx_gui::Parameter *p = new gx_gui::FloatParameter(
+        id, name, gx_gui::Parameter::Continuous, true, *var, val,
+	low, up, step, true, exp);
+    if (tooltip && tooltip[0]) {
+        p->set_desc(tooltip);
+    }
+    gx_gui::parameter_map.insert(p);
+    return var;
+}
+
+static void register_enum_var(
+    const char *id, const char* name, const char* tp,
+    const char* tooltip, const value_pair* values,
+    float *var, float val, float low, float up, float step, bool exp) {
+    if (!name[0]) {
+        assert(strrchr(id, '.'));
+        name = strrchr(id, '.')+1;
+    }
+    assert(low == 0.0 && step == 1.0);
+    gx_gui::FloatEnumParameter *p = new gx_gui::FloatEnumParameter(
+        id, name, values, true, *var,
+        static_cast<int>(round(val)), true, exp); // false == no_midi_var
+    assert(up == p->upper); // calculated by constructor
+    gx_gui::parameter_map.insert(p);
+}
+
+static void register_uenum_var(
+    const char *id, const char* name, const char* tp,
+    const char* tooltip, const value_pair* values,
+    unsigned int *var, unsigned int std, bool exp) {
+    if (!name[0]) {
+        assert(strrchr(id, '.'));
+        name = strrchr(id, '.')+1;
+    }
+    gx_gui::UEnumParameter *p = new gx_gui::UEnumParameter(
+        id, name, values, true, *var, std, true, exp);
+    gx_gui::parameter_map.insert(p);
+}
+
 float *ParamReg::registerVar(const char* id, const char* name, const char* tp,
 			     const char* tooltip, float* var, float val,
 			     float low, float up, float step, bool exp) const
 {
-    return gx_engine::registerVar(id, name, tp, tooltip, var, val, low, up, step, exp);
+    return register_var(id, name, tp, tooltip, var, val, low, up, step, exp);
 }
 
 void ParamReg::registerEnumVar(const char *id, const char* name, const char* tp,
 			       const char* tooltip, const value_pair* values, float *var,
 			       float val, float low, float up, float step, bool exp) const {
-    gx_engine::registerEnumVar(id, name, tp, tooltip, values, var,
-			       val, low, up, step, exp);
+    register_enum_var(id, name, tp, tooltip, values, var,
+		      val, low, up, step, exp);
 }
 
 void ParamReg::registerUEnumVar(const char *id, const char* name, const char* tp,
 				const char* tooltip, const value_pair* values,
 				unsigned int *var, unsigned int std, bool exp) const {
-    gx_engine::registerUEnumVar(id, name, tp, tooltip, values, var,
-			     std, exp);
+    register_uenum_var(id, name, tp, tooltip, values, var,
+		       std, exp);
 }
 
 
@@ -197,8 +256,12 @@ int PluginList::check_version(PluginDef *p) {
 }
 
 int PluginList::add_module(Plugin *pvars, PluginPos pos, int flags) {
+    const int mode_mask = (PGN_MODE_NORMAL|PGN_MODE_BYPASS|PGN_MODE_MUTE);  // all mode bits
     PluginDef *p = pvars->pdef;
     p->flags |= flags;
+    if (!(p->flags & mode_mask)) {
+	p->flags |= PGN_MODE_NORMAL;
+    }
     if (p->stereo_audio) {
 	p->flags |= PGN_STEREO;
     }
@@ -341,22 +404,22 @@ static bool plugin_order(Plugin* p1, Plugin* p2) {
     return p1->position_weight() < p2->position_weight();
 }
 
-void PluginList::ordered_mono_list(list<Plugin*>& mono) {
+void PluginList::ordered_mono_list(list<Plugin*>& mono, int mode) {
     mono.clear();
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
 	Plugin *pl = p->second;
-	if (pl->on_off && pl->pdef->mono_audio) {
+	if (pl->on_off && pl->pdef->mono_audio && (pl->pdef->flags & mode)) {
 	    mono.push_back(pl);
 	}
     }
     mono.sort(plugin_order);
 }
 
-void PluginList::ordered_stereo_list(list<Plugin*>& stereo) {
+void PluginList::ordered_stereo_list(list<Plugin*>& stereo, int mode) {
     stereo.clear();
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
 	Plugin *pl = p->second;
-	if (pl->on_off && pl->pdef->stereo_audio) {
+	if (pl->on_off && pl->pdef->stereo_audio && (pl->pdef->flags & mode)) {
 	    stereo.push_back(pl);
 	}
     }

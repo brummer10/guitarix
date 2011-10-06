@@ -25,26 +25,28 @@
  * --------------------------------------------------------------------------
  */
 
+#include <map>
+#include <string>
+#include <boost/format.hpp>
+#include <glibmm/i18n.h>
+#include <semaphore.h>
+
+using namespace std;
+#include "gx_parameter.h"
+#include "gx_pluginloader.h"
+#include "gx_ui.h"
+#include "gx_convolver.h"
+#include "gx_internal_plugins.h"
+#include "gx_jack.h"
+#include "gx_engine.h" //FIXME: only for audio.result and audio.oversample
+#include "gx_jconv_settings.h"
+#include "gx_faust_support.h"
+
+namespace gx_engine {
 
 /****************************************************************
- **  noise gate
+ **  class NoiseGate
  */
-
-class NoiseGate {
-private:
-    static PluginDef inputdef;
-    static float fnglevel;
-    static float ngate;
-    static bool off;
-    static int noisegate_register(const ParamReg& reg);
-    static void inputlevel_compute(int count, float *input0, float *output0);
-    static void outputgate_compute(int count, float *input, float *output);
-    static int outputgate_activate(bool start, PluginDef *pdef);
-public:
-    static Plugin inputlevel;
-    static PluginDef outputgate;
-    NoiseGate();
-};
 
 PluginDef NoiseGate::inputdef = PluginDef();
 float NoiseGate::fnglevel = 0;
@@ -69,6 +71,10 @@ NoiseGate::NoiseGate() {
     outputgate.mono_audio = outputgate_compute;
     outputgate.activate_plugin = outputgate_activate;
 
+}
+
+inline float sqrf(float x) {
+    return x * x;
 }
 
 void NoiseGate::inputlevel_compute(int count, float *input, float *output) {
@@ -105,7 +111,6 @@ int NoiseGate::outputgate_activate(bool start, PluginDef *pdef) {
     return 0;
 }
 
-NoiseGate noisegate;
 
 /****************************************************************
  ** class OscilloscopeAdapter
@@ -168,6 +173,8 @@ static gboolean conv_error_message(gpointer data) {
     return false;
 }
 
+#include "faust/jconv_post.cc"
+
 void ConvolverAdapter::convolver(int count, float *input0, float *input1,
 				 float *output0, float *output1) {
     if (conv.is_runnable()) {
@@ -178,19 +185,19 @@ void ConvolverAdapter::convolver(int count, float *input0, float *input1,
             *gx_jconv::GxJConvSettings::checkbutton7 = 0;
             g_idle_add(conv_error_message, gpointer(NULL));
         } else {
-            gx_effects::jconv_post::compute(count, output0, output1,
-                                            conv_out0, conv_out1, output0, output1);
+            jconv_post::compute(count, output0, output1,
+				conv_out0, conv_out1, output0, output1);
         }
     }
 }
 
 int ConvolverAdapter::convolver_register(const ParamReg& reg) {
-    gx_effects::jconv_post::register_params(reg);
+    jconv_post::register_params(reg);
     return 0;
 }
 
 void ConvolverAdapter::convolver_init(int samplingFreq, PluginDef *p) {
-    gx_effects::jconv_post::init(samplingFreq, p);
+    jconv_post::init(samplingFreq, p);
 }
 
 int ConvolverAdapter::activate(bool start, PluginDef *plugin) {
@@ -216,7 +223,7 @@ struct CabDesc_imp {
     operator CabDesc&() { return *(CabDesc*)this; }
 };
 
-#include "gx_cabinet_data.cpp"
+#include "gx_cabinet_data.cc"
 
 struct CabEntry {
     const char *value_id;
@@ -256,13 +263,15 @@ CabinetConvolver::CabinetConvolver(gx_ui::GxUI *ui):
     bass(0),
     treble(0),
     sum(no_sum),
-    cab_names(new value_pair[cab_table_size]),
+    cab_names(new value_pair[cab_table_size+1]),
     plugin() {
     for (unsigned int i = 0; i < cab_table_size; ++i) {
 	CabEntry& cab = getCabEntry(i);
 	cab_names[i].value_id = cab.value_id;
 	cab_names[i].value_label = cab.value_label;
     }
+    cab_names[cab_table_size].value_id = 0;
+    cab_names[cab_table_size].value_label = 0;
     version = PLUGINDEF_VERSION;
     id = "cab";
     name = N_("Cabinet");
@@ -289,15 +298,17 @@ bool CabinetConvolver::conv_update() {
     return ret;
 }
 
+#include "faust/cabinet_impulse_former.cc"
+
 bool CabinetConvolver::conv_start() {
     if (cabinet_changed() || sum_changed()) {
 	conv.stop();
         update_cabinet();
 	update_sum();
 	CabDesc& cab = *getCabEntry(cabinet).data;
-	gx_effects::cabinet_impulse_former::init(cab.ir_sr);
+	cabinet_impulse_former::init(cab.ir_sr);
 	float cab_irdata_c[cab.ir_count];
-	gx_effects::cabinet_impulse_former::compute(cab.ir_count,cab.ir_data,cab_irdata_c);
+	cabinet_impulse_former::compute(cab.ir_count,cab.ir_data,cab_irdata_c);
 	while (!conv.checkstate());
 	if (!conv.configure(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
 	    return false;
@@ -315,7 +326,7 @@ bool CabinetConvolver::conv_start() {
 bool CabinetConvolver::update() {
     CabDesc& cab = *getCabEntry(cabinet).data;
     float cab_irdata_c[cab.ir_count];
-    gx_effects::cabinet_impulse_former::compute(cab.ir_count,cab.ir_data,cab_irdata_c);
+    cabinet_impulse_former::compute(cab.ir_count,cab.ir_data,cab_irdata_c);
     return conv.update(cab.ir_count, cab_irdata_c, cab.ir_sr);
 }
 
@@ -362,7 +373,7 @@ int CabinetConvolver::register_cab(const ParamReg& reg) {
     reg.registerVar("cab.Level", "",  "S", "", &cab.level,  1.0, 0.5, 5.0, 0.5);
     reg.registerVar("cab.bass", "",   "S", "", &cab.bass,   0.0, -10.0, 10.0, 0.5);
     reg.registerVar("cab.treble", "", "S", "", &cab.treble, 0.0, -10.0, 10.0, 0.5);
-    gx_effects::cabinet_impulse_former::register_params(reg);
+    cabinet_impulse_former::register_params(reg);
     return 0;
 }
 
@@ -387,11 +398,13 @@ GxSimpleConvolver ContrastConvolver::conv;
 float ContrastConvolver::level = 0;
 float ContrastConvolver::sum = no_sum;
 
+#include "faust/presence_level.cc"
+
 bool ContrastConvolver::conv_start() {
     conv.stop();
-    gx_effects::presence_level::init(contrast_ir_desc.ir_sr);
+    presence_level::init(contrast_ir_desc.ir_sr);
     float contrast_irdata_c[contrast_ir_desc.ir_count];
-    gx_effects::presence_level::compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data,contrast_irdata_c);
+    presence_level::compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data,contrast_irdata_c);
     while (!conv.checkstate());
     if (!conv.configure(contrast_ir_desc.ir_count, contrast_irdata_c, contrast_ir_desc.ir_sr)) {
         return false;
@@ -413,7 +426,7 @@ inline void ContrastConvolver::compensate_con(int count, float *input0, float *o
 
 int ContrastConvolver::register_con(const ParamReg& reg) {
     reg.registerVar("con.Level", "",  "S", "", &level,  1.0, 0.5, 5.0, 0.5);
-    gx_effects::presence_level::register_params(reg);
+    presence_level::register_params(reg);
     return 0;
 }
 
@@ -441,3 +454,5 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0) {
         sum = no_sum;
     }
 }
+
+} // namespace gx_engine

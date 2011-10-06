@@ -629,7 +629,7 @@ void gx_midi_out(GtkCheckMenuItem *menuitem, gpointer checkplay) {
         parameter_map[group].set_std_value();
     }
     first =false;
-    gx_engine::engine.set_rack_changed();
+    gx_engine::get_engine().set_rack_changed();
 }
 
 // ----- hide the extendend settings slider

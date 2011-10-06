@@ -21,168 +21,17 @@
 
 
 /****************************************************************
- **  definitions for code generated with faust / dsp2cc
- */
-
-float *registerVar(const char* id, const char* name, const char* tp,
-		 const char* tooltip, float* var, float val,
-		 float low, float up, float step, bool exp) {
-    if (!name[0]) {
-	assert(strrchr(id, '.'));
-	name = strrchr(id, '.')+1;
-    }
-    int n = strlen(tp);
-    if (n && tp[n-1] == 'A') {
-	if (gx_gui::parameter_map.hasId(id)) {
-	    gx_gui::Parameter& p = gx_gui::parameter_map[id];
-#ifndef NDEBUG
-	    gx_gui::FloatParameter p2(
-		id, name, gx_gui::Parameter::Continuous, true,
-		p.getFloat().value, val, low, up, step, true, exp);
-	    gx_gui::compare_parameter("Alias Parameter", &p, &p2);
-#endif
-	    return &p.getFloat().value;
-	}
-    }
-    gx_gui::Parameter *p = new gx_gui::FloatParameter(
-        id, name, gx_gui::Parameter::Continuous, true, *var, val,
-	low, up, step, true, exp);
-    if (tooltip && tooltip[0]) {
-        p->set_desc(tooltip);
-    }
-    gx_gui::parameter_map.insert(p);
-    return var;
-}
-
-void registerEnumVar(
-    const char *id, const char* name, const char* tp,
-    const char* tooltip, const value_pair* values,
-    float *var, float val, float low, float up, float step, bool exp) {
-    if (!name[0]) {
-        assert(strrchr(id, '.'));
-        name = strrchr(id, '.')+1;
-    }
-    assert(low == 0.0 && step == 1.0);
-    gx_gui::FloatEnumParameter *p = new gx_gui::FloatEnumParameter(
-        id, name, values, true, *var,
-        static_cast<int>(round(val)), true, exp); // false == no_midi_var
-    assert(up == p->upper); // calculated by constructor
-    gx_gui::parameter_map.insert(p);
-}
-
-void registerUEnumVar(
-    const char *id, const char* name, const char* tp,
-    const char* tooltip, const value_pair* values,
-    unsigned int *var, unsigned int std, bool exp) {
-    if (!name[0]) {
-        assert(strrchr(id, '.'));
-        name = strrchr(id, '.')+1;
-    }
-    gx_gui::UEnumParameter *p = new gx_gui::UEnumParameter(
-        id, name, values, true, *var, std, true, exp);
-    gx_gui::parameter_map.insert(p);
-}
-
-#include <gx_faust_support.h>
-
-/****************************************************************
  **  include faust/dsp2cc generated files
  */
 
-namespace gx_amps {
+#include <gx_faust_support.h>
 
-#include "faust/gxamp.cc"
-#include "faust/gxamp2.cc"
-#include "faust/gxamp3.cc"
-#include "faust/gxamp4.cc"
-#include "faust/gxamp5.cc"
-#include "faust/gxamp6.cc"
-#include "faust/gxamp7.cc"
-#include "faust/gxamp8.cc"
-#include "faust/gxamp9.cc"
-#include "faust/gxamp10.cc"
-#include "faust/gxamp11.cc"
-#include "faust/gxamp12.cc"
-#include "faust/gxamp13.cc"
-#include "faust/gxamp14.cc"
-#include "faust/gxamp15.cc"
-#include "faust/gxamp16.cc"
-#include "faust/gxamp17.cc"
-#include "faust/gx_ampmodul.cc"
-}
-
-// effects
 namespace gx_effects {
 
-// foreign variable added to faust module feed
-#include "faust/bassbooster.cc"
-#include "faust/gxfeed.cc"
-#include "faust/gx_feedback.cc"
-//#include "faust/balance.cc"
-#include "faust/jconv_post.cc"
 #include "faust/balance1.cc"
-#include "faust/gx_outputlevel.cc"
-#include "faust/gx_ampout.cc"
-#include "faust/overdrive.cc"
-#include "faust/compressor.cc"
-#include "faust/crybaby.cc"
-#include "faust/autowah.cc"
-#include "faust/echo.cc"
-#include "faust/delay.cc"
-#include "faust/stereodelay.cc"
-#include "faust/stereoecho.cc"
-#include "faust/noise_shaper.cc"
-#include "faust/gx_distortion.cc"
-#include "faust/freeverb.cc"
-#include "faust/impulseresponse.cc"
-#include "faust/chorus.cc"
-#include "faust/moog.cc"
-#include "faust/biquad.cc"
-#include "faust/flanger.cc"
-#include "faust/selecteq.cc"
-#include "faust/phaser.cc"
-#include "faust/low_high_pass.cc"
-#include "faust/softclip.cc"
-#include "faust/tonecontroll.cc"
-#include "faust/tremolo.cc"
-#include "faust/phaser_mono.cc"
-#include "faust/chorus_mono.cc"
-#include "faust/flanger_mono.cc"
-#include "faust/cabinet_impulse_former.cc"
-#include "faust/presence_level.cc"
-#include "faust/stereoverb.cc"
+
 }
 
-// tone stack
-namespace gx_tonestacks {
-
-#include "faust/tonestack_default.cc"
-#include "faust/tonestack_bassman.cc"
-#include "faust/tonestack_twin.cc"
-#include "faust/tonestack_princeton.cc"
-#include "faust/tonestack_jcm800.cc"
-#include "faust/tonestack_jcm2000.cc"
-#include "faust/tonestack_mlead.cc"
-#include "faust/tonestack_m2199.cc"
-#include "faust/tonestack_ac30.cc"
-#include "faust/tonestack_mesa.cc"
-#include "faust/tonestack_soldano.cc"
-#include "faust/tonestack_jtm45.cc"
-#include "faust/tonestack_ac15.cc"
-#include "faust/tonestack_peavey.cc"
-#include "faust/tonestack_ibanez.cc"
-#include "faust/tonestack_roland.cc"
-#include "faust/tonestack_ampeg.cc"
-#include "faust/tonestack_ampeg_rev.cc"
-#include "faust/tonestack_sovtek.cc"
-#include "faust/tonestack_bogner.cc"
-#include "faust/tonestack_groove.cc"
-#include "faust/tonestack_crunch.cc"
-#include "faust/tonestack_fender_blues.cc"
-#include "faust/tonestack_fender_default.cc"
-#include "faust/tonestack_fender_deville.cc"
-#include "faust/tonestack_gibsen.cc"
-}
 
 /****************************************************************
  **  audio module initialization
@@ -197,7 +46,6 @@ void faust_init(int samplingFreq) {
  *   rack amp tonestack selection, create a pointer aray to the
  *   selected functions.
  */
-#include "gx_engine_helpers.cc"
 
 void GxEngine::load_plugins(string plugin_dir) {
 
@@ -353,9 +201,9 @@ void GxEngine::load_plugins(string plugin_dir) {
     pl.load_from_path(plugin_dir, PLUGIN_POS_RACK);
 
     // selector objects to switch "alternative" modules
-    engine.add_selector(ampstack);
-    engine.add_selector(crybaby);
-    engine.add_selector(tonestack);
+    get_engine().add_selector(ampstack);
+    get_engine().add_selector(crybaby);
+    get_engine().add_selector(tonestack);
 
 #ifndef NDEBUG
     pl.printlist();

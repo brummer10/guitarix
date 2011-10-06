@@ -171,6 +171,9 @@ void compute_midi(int len) {
     }
 }
 
+inline float sqrf(float x) {
+    return x * x;
+}
 
 // ----- jack process callback for the midi output
 void process_midi(int len) {

@@ -4,6 +4,8 @@
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
 // FIXME (temporary)hack to support older compiler versions
+#if 0
+// don't include at toplevel namespace
 inline float  pow(float b, float e)   {return ::powf(b, e);}
 inline double pow(double b, double e) {return ::pow(b, e);}
 inline double pow(double b, int e)    {return ::pow(b, static_cast<double>(e));}
@@ -12,6 +14,7 @@ inline double pow(double b, float e)  {return ::pow(b, static_cast<double>(e));}
 inline double pow(float b, double e)  {return ::pow(static_cast<double>(b), e);}
 inline float  pow(float b, int e)     {return ::powf(b, static_cast<float>(e));}
 inline float  pow(int b, float e)     {return ::powf(static_cast<float>(b),  e);}
+#endif
 
 template <int N> inline float faustpower(float x)       {return powf(x, N);}
 template <int N> inline double faustpower(double x)     {return pow(x, N);}

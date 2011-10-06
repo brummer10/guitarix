@@ -661,18 +661,18 @@ int GxJack::gx_jack_buffersize_callback(jack_nframes_t nframes, void* arg) {
     (void)memset(gx_engine::audio.result, 0, sizeof(float)*gxjack.jack_bs+46);
 
     gx_gui::GxMainInterface::instance()->set_waveview_buffer();
-    if (gx_engine::engine.cabinet.is_runnable()) {
-        gx_engine::engine.cabinet.set_not_runnable();
+    if (gx_engine::get_engine().cabinet.is_runnable()) {
+        gx_engine::get_engine().cabinet.set_not_runnable();
         Glib::signal_idle().connect(
             sigc::bind_return(sigc::ptr_fun(gx_threads::cab_conv_restart), false));
     }
-    if (gx_engine::engine.contrast.is_runnable()) {
-        gx_engine::engine.contrast.set_not_runnable();
+    if (gx_engine::get_engine().contrast.is_runnable()) {
+        gx_engine::get_engine().contrast.set_not_runnable();
         Glib::signal_idle().connect(
             sigc::bind_return(sigc::ptr_fun(gx_threads::contrast_conv_restart), false));
     }
-    if (gx_engine::engine.convolver.conv.is_runnable()) {
-        gx_engine::engine.convolver.conv.set_not_runnable();
+    if (gx_engine::get_engine().convolver.conv.is_runnable()) {
+        gx_engine::get_engine().convolver.conv.set_not_runnable();
         Glib::signal_idle().connect(
             sigc::bind_return(sigc::ptr_fun(gx_gui::conv_restart), false));
     }
@@ -743,7 +743,7 @@ int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
         gx_engine::audio.buffers_ready = false;
     }
     gx_system::measure_pause();
-    gx_engine::engine.mono_chain.post_rt_finished();
+    gx_engine::get_engine().mono_chain.post_rt_finished();
     return 0;
 }
 
@@ -763,7 +763,7 @@ int GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
         gx_engine::compute_insert(nframes, _jackbuffer_ptr->input1, _jackbuffer_ptr->output2, _jackbuffer_ptr->output3);
     }
     gx_system::measure_stop();
-    gx_engine::engine.stereo_chain.post_rt_finished();
+    gx_engine::get_engine().stereo_chain.post_rt_finished();
     return 0;
 }
 

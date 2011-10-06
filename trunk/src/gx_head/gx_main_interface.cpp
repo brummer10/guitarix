@@ -190,26 +190,23 @@ static pthread_t ui_thread;
 #endif
 
 static bool conv_start() {
-    // running a full configure even if the convolver is already running
-    // during a configuration change seems the stop unwanted noise
-    //gx_engine::engine.convolver.conv.stop();
     gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
     string path = jcset->getFullIRPath();
     if (path.empty()) {
         gx_system::gx_print_warning(_("convolver"), _("no impulseresponse file"));
         return false;
     }
-    while (!gx_engine::engine.convolver.conv.checkstate());
-    if (gx_engine::engine.convolver.conv.is_runnable()) {
+    while (!gx_engine::get_engine().convolver.conv.checkstate());
+    if (gx_engine::get_engine().convolver.conv.is_runnable()) {
 	return true;
     }
-    if (!gx_engine::engine.convolver.conv.configure(
+    if (!gx_engine::get_engine().convolver.conv.configure(
             gx_jack::gxjack.jack_bs, gx_jack::gxjack.jack_sr, path,
             jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
             jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline())) {
         return false;
     }
-    return gx_engine::engine.convolver.conv.start();
+    return gx_engine::get_engine().convolver.conv.start();
 }
 
 static int on_convolver_activate(bool start) {
@@ -218,15 +215,15 @@ static int on_convolver_activate(bool start) {
 	    return -1;
 	}
     } else {
-	gx_engine::engine.convolver.conv.stop();
+	gx_engine::get_engine().convolver.conv.stop();
     }
     return 0;
 }
 
 void conv_restart() {
-    gx_engine::engine.convolver.conv.stop();
-    while (gx_engine::engine.convolver.conv.is_runnable()) {
-	gx_engine::engine.convolver.conv.checkstate();
+    gx_engine::get_engine().convolver.conv.stop();
+    while (gx_engine::get_engine().convolver.conv.is_runnable()) {
+	gx_engine::get_engine().convolver.conv.checkstate();
     }
     conv_start();
 }
@@ -287,11 +284,11 @@ GxMainInterface::GxMainInterface(const char * name)
     /*---------------- add mainbox to main window ---------------*/
     gtk_container_add(GTK_CONTAINER(gw.fWindow), fBox[fTop]);
 
-    gx_engine::engine.oscilloscope.post_pre_signal.changed.connect(
+    gx_engine::get_engine().oscilloscope.post_pre_signal.changed.connect(
 	sigc::mem_fun(*this, &GxMainInterface::on_oscilloscope_post_pre));
-    gx_engine::engine.oscilloscope.activation.connect(
+    gx_engine::get_engine().oscilloscope.activation.connect(
 	sigc::mem_fun(*this, &GxMainInterface::on_oscilloscope_activate));
-    gx_engine::engine.convolver.activation.connect(
+    gx_engine::get_engine().convolver.activation.connect(
 	sigc::ptr_fun(on_convolver_activate));
     fStopped = false;
 }
@@ -616,7 +613,7 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
 		}
 	    }
 	}
-	gx_engine::engine.set_rack_changed();
+	gx_engine::get_engine().set_rack_changed();
     }
     // box move to the left
     static void pressed_left(GtkWidget *widget, gpointer data) {
@@ -682,7 +679,7 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
 		}
 	    }
 	}
-	gx_engine::engine.set_rack_changed();
+	gx_engine::get_engine().set_rack_changed();
     }
     // resize the effect box
     static void resize(GtkWidget *widget, gpointer data) {
@@ -1129,7 +1126,6 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
     Parameter& param_switch = parameter_map[id_switch];
     GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
     guivar.mono_plugs++;
-    gx_engine::set_mono_plug_counter(guivar.mono_plugs);
     gtk_box_pack_end(GTK_BOX(box), GTK_WIDGET(bbox->box.gobj()), false, false, 0);
     GxDialogWindowBox *dialog = new GxDialogWindowBox(*this, expose_funk, param_dialog,
                                 param_switch, bbox->show_dialog, gw.rack_widget);
@@ -1171,7 +1167,6 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
     GxDialogButtonBox *bbox = new GxDialogButtonBox(*this, param_dialog);
 
     guivar.stereo_plugs++;
-    gx_engine::set_stereo_plug_counter(guivar.stereo_plugs);
     gtk_box_pack_end(GTK_BOX(box), GTK_WIDGET(bbox->box.gobj()), false, false, 0);
     GxDialogWindowBox *bdialog = new GxDialogWindowBox(*this, expose_funk, param_dialog,
                                  param_switch, bbox->show_dialog, gw.srack_widget);
@@ -1472,7 +1467,7 @@ void GxMainInterface::addMToggleButton(const char* label, bool* zone) {
 }
 
 void gx_start_stop_jconv(GtkWidget *widget, gpointer data) {
-    gx_engine::engine.set_rack_changed();
+    gx_engine::get_engine().set_rack_changed();
 }
 
 void GxMainInterface::addJToggleButton(const char* label, bool* zone) {
@@ -2956,7 +2951,7 @@ void GxMainInterface::on_oscilloscope_post_pre(int post_pre) {
 
 int GxMainInterface::on_oscilloscope_activate(bool start) {
     if (!start) {
-	gx_engine::engine.oscilloscope.clear_buffer();
+	gx_engine::get_engine().oscilloscope.clear_buffer();
 	fWaveView.queue_draw();
     }
     return 0;

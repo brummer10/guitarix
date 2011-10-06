@@ -95,15 +95,18 @@ typedef int (*registerfunc)(const ParamReg& reg);
 typedef int (*uiloader)(const UiBuilder& builder);
 
 enum {
-    PGN_STEREO      = 0x01, // stereo plugin (auto set when stereo_audio)
-    PGN_PRE         = 0x02, // (mono) always "pre" position
-    PGN_POST        = 0x04, // (mono) always "post" position
-    PGN_GUI         = 0x08, // register variables for gui (auto set when load_ui)
-    PGN_POST_PRE    = 0x10, // (mono) register post/pre variable (auto set when
+    PGN_STEREO      =  0x01, // stereo plugin (auto set when stereo_audio)
+    PGN_PRE         =  0x02, // (mono) always "pre" position
+    PGN_POST        =  0x04, // (mono) always "post" position
+    PGN_GUI         =  0x08, // register variables for gui (auto set when load_ui)
+    PGN_POST_PRE    =  0x10, // (mono) register post/pre variable (auto set when
 				// gui and not always pre or post)
-    PGN_ALTERNATIVE = 0x20, // plugin is part of a group of modules
+    PGN_ALTERNATIVE =  0x20, // plugin is part of a group of modules
 				// managed by a ModuleSelector
-    // for additional flags see struct Plugin
+    PGN_MODE_NORMAL = 0x100, // plugin is active in normal mode (default)
+    PGN_MODE_BYPASS = 0x200, // plugin is active in bypass mode
+    PGN_MODE_MUTE   = 0x400, // plugin is active in mute mode
+    // For additional flags see struct Plugin
 };
 
 #define PLUGINDEF_VERMAJOR_MASK 0xff00

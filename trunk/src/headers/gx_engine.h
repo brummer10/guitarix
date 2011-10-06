@@ -53,8 +53,6 @@ public:
 
     bool  initialized;  /* engine init state  */
     bool  buffers_ready;  /* buffer ready state */
-    int   mono_plug_counter;
-    int   stereo_plug_counter;
     float fwarn;
     float fwarn_swap;
     float fskin;
@@ -366,6 +364,7 @@ protected:
     list<ModuleSelector*> selectors;
     PluginList& pluginlist;
     bool rack_changed;
+    int audio_mode;
 public:
     MonoModuleChain mono_chain;
     StereoModuleChain stereo_chain;
@@ -420,103 +419,6 @@ public:
 
 
 /****************************************************************
- ** class OscilloscopeAdapter
- */
-
-class OscilloscopeAdapter: PluginDef {
-private:
-    static float*& buffer;
-    static void fill_buffer(int count, float *input0, float *output0);
-    static int activate(bool start, PluginDef *p);
-public:
-    Plugin plugin;
-    sigc::signal<int, bool> activation;
-    gx_ui::UiSignalUInt     post_pre_signal;
-    void clear_buffer();
-    OscilloscopeAdapter(gx_ui::GxUI *ui);
-};
-
-
-/****************************************************************
- ** class ConvolverAdapter
- */
-
-class ConvolverAdapter: PluginDef {
-public:
-    Plugin plugin;
-    static GxConvolver conv;
-private:
-    // wrapper for the rack order function pointers
-    static void convolver(int count, float *input0, float *input1,
-			  float *output0, float *output1);
-    static int activate(bool start, PluginDef *pdef);
-    static int convolver_register(const ParamReg& reg);
-    static void convolver_init(int samplingFreq, PluginDef *pdef);
-public:
-    sigc::signal<int, bool> activation;
-    ConvolverAdapter(gx_ui::GxUI *ui);
-};
-
-/****************************************************************
- ** class CabinetConvolver
- */
-
-class CabinetConvolver: PluginDef {
-private:
-    static GxSimpleConvolver conv;
-    static int current_cab;
-    static float level;
-    int cabinet;
-    float bass;
-    float treble;
-    float sum;
-    value_pair *cab_names;
-    static inline void compensate_cab(int count, float *input0, float *output0);
-    static void run_cab_conf(int count, float *input, float *output);
-    static int activate(bool start, PluginDef *pdef);
-    static int register_cab(const ParamReg& reg);
-    bool update();
-public:
-    Plugin plugin;
-    CabinetConvolver(gx_ui::GxUI *ui);
-    ~CabinetConvolver();
-    inline bool is_runnable() { return conv.is_runnable(); }
-    inline void set_not_runnable() { conv.set_not_runnable(); }
-    inline void conv_stop() { conv.stop(); }
-    bool conv_start();
-    bool cabinet_changed() { return current_cab != cabinet; }
-    void update_cabinet() { current_cab = cabinet; }
-    bool sum_changed() { return abs(sum - (level + bass + treble)) > 0.01; }
-    void update_sum() { sum = level + bass + treble; }
-    bool conv_update();
-};
-
-/****************************************************************
- ** class ContrastConvolver
- */
-
-class ContrastConvolver: PluginDef {
-private:
-    static GxSimpleConvolver conv;
-    static float level;
-    static float sum;
-    // wrapper for the rack order function pointers
-    static inline void compensate_con(int count, float *input0, float *output0);
-    static void run_contrast(int count, float *input, float *output);
-    static int activate(bool start, PluginDef *pdef);
-    static int register_con(const ParamReg& reg);
-public:
-    Plugin plugin;
-    ContrastConvolver(gx_ui::GxUI *ui);
-    inline bool is_runnable() { return conv.is_runnable(); }
-    inline void set_not_runnable() { conv.set_not_runnable(); }
-    inline bool sum_changed() { return abs(sum - level) > 0.01; }
-    inline void update_sum() { sum = level; }
-    bool conv_start();
-    void conv_stop() { conv.stop(); }
-};
-
-/****************************************************************
  ** class GxEngine
  */
 
@@ -524,6 +426,7 @@ class GxEngine: public ModuleSequencer {
 private:
     gx_ui::GxUI ui;
 public:
+    NoiseGate noisegate;
     OscilloscopeAdapter oscilloscope;
     ConvolverAdapter convolver;
     CabinetConvolver cabinet;
@@ -534,12 +437,9 @@ public:
     void load_plugins(string plugin_dir);
 };
 
-extern GxEngine engine;
+GxEngine& get_engine();
 
 /****************************************************************/
-
-/* square function */
-inline double sqrf(float x)                { return x * x; }
 
 // wrap the state of the latency change warning (dis/enable) to
 // the interface settings to load and save it
@@ -551,17 +451,12 @@ inline bool isInitialized()                {return audio.initialized;}
 inline void turnOffMidi()                  {midi.midistate = false;}
 inline void turnOnMidi()                   {midi.midistate = true;}
 
-inline void set_mono_plug_counter(int x)   {audio.mono_plug_counter = x;}
-inline void set_stereo_plug_counter(int x) {audio.stereo_plug_counter = x;}
-
 /****************************************************************/
 
 /* function declarations  */
 
 void gx_engine_init(const string *optvar);
 void gx_engine_reset();
-void gx_reorder_rack(bool do_commit = true);
-void order_rack(bool do_commit = true);
 
 void compute_midi(int len);
 void compute_midi_in(void* midi_input_port_buf);
@@ -577,18 +472,6 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
 void register_faust_parameters();
 void faust_init(int samplingFreq);
 void load_plugins(string plugin_dir);
-
-typedef void (*inifunc)(int);  //  NOLINT
-void registerInit(const char *name, inifunc f);
-float *registerVar(const char* id, const char* name, const char* tp,
-		   const char* tooltip, float* var, float val = 0,
-		   float low = 0, float up = 0, float step = 0, bool exp = false);
-void registerEnumVar(const char *id, const char* name, const char* tp,
-		     const char* tooltip, const value_pair* values, float *var, float val,
-		     float low = 0, float up = 0, float step = 1, bool exp = false);
-void registerUEnumVar(const char *id, const char* name, const char* tp,
-		      const char* tooltip, const value_pair* values, unsigned int *var,
-		      unsigned int std, bool exp);
 
 /* ------------------------------------------------------------------- */
 } /* end of gx_engine namespace */

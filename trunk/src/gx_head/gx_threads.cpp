@@ -122,12 +122,12 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
 gboolean gx_update_all_gui(gpointer) {
     // the general Gui update handler
     gx_ui::GxUI::updateAllGuis();
-    gx_engine::engine.check_module_lists();
+    gx_engine::get_engine().check_module_lists();
     return TRUE;
 }
 
 static gboolean conv_restart(gpointer data) {
-    gx_engine::engine.cabinet.conv_start();
+    gx_engine::get_engine().cabinet.conv_start();
     return false;
 }
 
@@ -135,38 +135,38 @@ void cab_conv_restart() {
     if (gx_gui::guivar.g_threads[5] == 0 || g_main_context_find_source_by_id(NULL, gx_gui::guivar.g_threads[5]) == NULL) {
         gx_gui::guivar.g_threads[5] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0,
 						 conv_restart,NULL,NULL);
-	gx_engine::engine.cabinet.update_sum();
+	gx_engine::get_engine().cabinet.update_sum();
     } else {
         gx_system::gx_print_warning(_("Cabinet Loading"), string(_(" cab thread is bussy")));
     }
 }
 
 static gboolean contrast_restart(gpointer data) {
-    gx_engine::engine.contrast.conv_start();
+    gx_engine::get_engine().contrast.conv_start();
     return false;
 }
 
 void contrast_conv_restart() {
     if (gx_gui::guivar.g_threads[9] == 0 || g_main_context_find_source_by_id(NULL, gx_gui::guivar.g_threads[9]) == NULL) {
         gx_gui::guivar.g_threads[9] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0, contrast_restart,NULL,NULL);
-        gx_engine::engine.contrast.update_sum();
+        gx_engine::get_engine().contrast.update_sum();
     } else {
         gx_system::gx_print_warning(_("Presence Loading"), string(_(" presence thread is bussy")));
      }
 }
 
 gboolean gx_check_cab_state(gpointer) {
-    if (gx_engine::engine.cabinet.plugin.on_off) {
-	if (gx_engine::engine.cabinet.cabinet_changed()) {
-            gx_engine::engine.cabinet.conv_stop();
+    if (gx_engine::get_engine().cabinet.plugin.on_off) {
+	if (gx_engine::get_engine().cabinet.cabinet_changed()) {
+            gx_engine::get_engine().cabinet.conv_stop();
             cab_conv_restart();
-	} else if (gx_engine::engine.cabinet.sum_changed()) {
-	    gx_engine::engine.cabinet.conv_update();
+	} else if (gx_engine::get_engine().cabinet.sum_changed()) {
+	    gx_engine::get_engine().cabinet.conv_update();
         }
     }
-    if (gx_engine::engine.contrast.plugin.on_off) {
-        if (gx_engine::engine.contrast.sum_changed()) {
-            gx_engine::engine.contrast.conv_stop();
+    if (gx_engine::get_engine().contrast.plugin.on_off) {
+        if (gx_engine::get_engine().contrast.sum_changed()) {
+            gx_engine::get_engine().contrast.conv_stop();
             contrast_conv_restart();
         }
     }

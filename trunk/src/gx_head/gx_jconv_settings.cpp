@@ -182,16 +182,16 @@ void gx_convolver_restart() {
     if (!*GxJConvSettings::checkbutton7) {
         return;
     }
-    gx_engine::engine.convolver.conv.stop();
-    while (gx_engine::engine.convolver.conv.is_runnable()) {
-	gx_engine::engine.convolver.conv.checkstate();
+    gx_engine::get_engine().convolver.conv.stop();
+    while (gx_engine::get_engine().convolver.conv.is_runnable()) {
+	gx_engine::get_engine().convolver.conv.checkstate();
     }
     gx_jconv::GxJConvSettings* jcset = GxJConvSettings::instance();
-    bool rc = gx_engine::engine.convolver.conv.configure(
+    bool rc = gx_engine::get_engine().convolver.conv.configure(
         gx_jack::gxjack.jack_bs, gx_jack::gxjack.jack_sr, jcset->getFullIRPath(),
         jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
         jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline());
-    if (!rc || !gx_engine::engine.convolver.conv.start()) {
+    if (!rc || !gx_engine::get_engine().convolver.conv.start()) {
         *GxJConvSettings::checkbutton7 = 0;
     }
 }

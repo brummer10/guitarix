@@ -523,7 +523,7 @@ static bool gx_load_preset_from_file(const char* presname) {
     ifstream ofile(gx_preset_file.get_path().c_str());
     JsonParser jp(ofile);
 
-    gx_engine::engine.start_ramp_down();
+    gx_engine::get_engine().start_ramp_down();
     try {
         jp.next(JsonParser::begin_array);
         int major, minor;
@@ -534,14 +534,14 @@ static bool gx_load_preset_from_file(const char* presname) {
             if (jp.current_value() == presname) {
 		PresetReader p;
 		p.read(jp, 0, major, minor);
-		gx_engine::engine.wait_ramp_down_finished();
+		gx_engine::get_engine().wait_ramp_down_finished();
 		p.commit();
-		if (gx_engine::engine.prepare_module_lists()) {
-		    gx_engine::engine.commit_module_lists(false);
+		if (gx_engine::get_engine().prepare_module_lists()) {
+		    gx_engine::get_engine().commit_module_lists(false);
 		}
-		gx_engine::engine.start_ramp_up();
+		gx_engine::get_engine().start_ramp_up();
 		gx_ui::GxUI::updateAllGuis();
-		gx_engine::engine.clear_rack_changed();
+		gx_engine::get_engine().clear_rack_changed();
                 return true;
             } else {
                 jp.skip_object();
@@ -553,7 +553,7 @@ static bool gx_load_preset_from_file(const char* presname) {
         gx_print_error(_("load preset"), _("invalid preset file: ")
                        + gx_preset_file.get_parse_name());
     }
-    gx_engine::engine.start_ramp_up();
+    gx_engine::get_engine().start_ramp_up();
     return false;
 }
 

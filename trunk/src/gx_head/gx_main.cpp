@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
     Gtk::Main main(argc, argv, options);
 
     options.process_early();
-    gx_engine::engine.load_plugins(options.plugin_dir);
+    gx_engine::get_engine().load_plugins(options.plugin_dir);
 
     // ------ initialize parameter list ------
     get_pluginlist().registerParameter(gx_gui::get_group_table());

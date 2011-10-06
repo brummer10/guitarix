@@ -6,6 +6,8 @@ def configure(conf):
 
 def build(bld):
     sources = [
+        'gx_faust_plugins.cpp',
+        'gx_internal_plugins.cpp',
         'gx_engine_audio.cpp',
         #'gx_cabinet_data.cpp',
         'gx_main_interface.cpp',

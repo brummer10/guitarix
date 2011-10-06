@@ -49,7 +49,7 @@ void gx_engine_init(const string *optvar ) {
     midi.init(gx_jack::gxjack.jack_sr);
     get_pluginlist().set_samplerate(gx_jack::gxjack.jack_sr);
     faust_init(gx_jack::gxjack.jack_sr);
-    engine.set_samplefreq(gx_jack::gxjack.jack_sr);
+    get_engine().set_samplefreq(gx_jack::gxjack.jack_sr);
     // resampTube.setup(gx_jack::jack_sr, 2);
     // resampDist.setup(gx_jack::jack_sr, 2);
     if (!optvar[LOAD_FILE].empty()) {
@@ -59,7 +59,7 @@ void gx_engine_init(const string *optvar ) {
     }
     for (int i = 0; i < GX_NUM_OF_FACTORY_PRESET; i++)
         gx_preset::gxpreset.gx_load_factory_file(i);
-    //engine.update_module_lists();
+    //get_engine().update_module_lists();
     audio.initialized = true;
 }
 

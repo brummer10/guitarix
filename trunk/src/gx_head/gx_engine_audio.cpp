@@ -32,11 +32,11 @@
 #include <string>         // NOLINT
 #include <iostream>       // NOLINT
 
+#include "gx_faust_plugins.h"
 
 namespace gx_engine {
 
 AudioVariables audio;
-GxEngine engine(get_pluginlist());
 
 #include "gx_faust_includes.cpp"
 
@@ -123,7 +123,7 @@ void compute(int count, float* input, float* output0) {
     case ZEROIZE_BUFFERS:
     default:
         feed_tuner(count, input);
-        if (engine.oscilloscope.plugin.on_off) {
+        if (get_engine().oscilloscope.plugin.on_off) {
 	    (void)memset(audio.result, 0, count*sizeof(float));
 	}
         // no need of loop.
@@ -191,13 +191,13 @@ void process_buffers(int count, float* input, float* output0) {
         // copy buffer to midi thread
         (void)memcpy(audio.checkfreq, input, sizeof(float)*count);
     }
-    engine.mono_chain.process(count, input, output0);
+    get_engine().mono_chain.process(count, input, output0);
 
 }
 
 // gx_head_fx engine
 void process_insert_buffers(int count, float* input1, float* output0, float* output1) {
-    engine.stereo_chain.process(count, input1, output0, output1);
+    get_engine().stereo_chain.process(count, input1, output0, output1);
     set_maxlevel(count, output0, output1);
 }
 
@@ -491,8 +491,12 @@ void ModuleSelector::set_module() {
  */
 
 ModuleSequencer::ModuleSequencer(PluginList& pl):
+    selectors(),
     pluginlist(pl),
-    rack_changed(false) {
+    rack_changed(false),
+    audio_mode(PGN_MODE_NORMAL),
+    mono_chain(),
+    stereo_chain() {
 }
 
 ModuleSequencer::~ModuleSequencer() {
@@ -511,10 +515,10 @@ bool ModuleSequencer::prepare_module_lists() {
     }
     list<Plugin*> modules;
     rack_changed = false;
-    pluginlist.ordered_mono_list(modules);
+    pluginlist.ordered_mono_list(modules, audio_mode);
     bool ret_mono = mono_chain.set_plugin_list(modules);
     mono_chain.print();
-    pluginlist.ordered_stereo_list(modules);
+    pluginlist.ordered_stereo_list(modules, audio_mode);
     bool ret_stereo = stereo_chain.set_plugin_list(modules);
     stereo_chain.print();
     return ret_mono || ret_stereo;
@@ -547,12 +551,18 @@ void ModuleSequencer::add_selector(ModuleSelector& sel) {
 GxEngine::GxEngine(PluginList& pl):
     ModuleSequencer(pl),
     ui(),
+    noisegate(),
     oscilloscope(&ui),
     convolver(&ui),
     cabinet(&ui),
     contrast(&ui) {}
 
 GxEngine::~GxEngine() {
+}
+
+GxEngine& get_engine() {
+    static GxEngine engine(get_pluginlist());
+    return engine;
 }
 
 } // end namespace gx_engine

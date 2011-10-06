@@ -72,8 +72,8 @@ public:
     int check_version(PluginDef *p);
     void registerParameter(gx_gui::ParameterGroups& groups);
     void append_rack(gx_gui::GxMainInterface *ui);
-    void ordered_mono_list(list<Plugin*>& mono);
-    void ordered_stereo_list(list<Plugin*>& stereo);
+    void ordered_mono_list(list<Plugin*>& mono, int mode);
+    void ordered_stereo_list(list<Plugin*>& stereo, int mode);
 #ifndef NDEBUG
     void printlist(bool ordered = true);
 #endif
