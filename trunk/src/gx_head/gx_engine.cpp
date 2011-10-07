@@ -38,17 +38,14 @@ void gx_engine_init(const string *optvar ) {
     // ----- lock the buffer for the oscilloscope
     const int frag = (const int)gx_jack::gxjack.jack_bs;
 
-    audio.checkfreq  = new float[frag];
     audio.oversample = new float[frag*MAX_UPSAMPLE];
     audio.result = new float[frag+46];
     
-    (void)memset(audio.checkfreq,  0, frag*sizeof(float));
     (void)memset(audio.oversample, 0, frag*MAX_UPSAMPLE*sizeof(float));
     (void)memset(audio.result, 0, (frag+46)*sizeof(float));
 
     midi.init(gx_jack::gxjack.jack_sr);
     get_pluginlist().set_samplerate(gx_jack::gxjack.jack_sr);
-    faust_init(gx_jack::gxjack.jack_sr);
     get_engine().set_samplefreq(gx_jack::gxjack.jack_sr);
     // resampTube.setup(gx_jack::jack_sr, 2);
     // resampDist.setup(gx_jack::jack_sr, 2);
@@ -59,13 +56,12 @@ void gx_engine_init(const string *optvar ) {
     }
     for (int i = 0; i < GX_NUM_OF_FACTORY_PRESET; i++)
         gx_preset::gxpreset.gx_load_factory_file(i);
-    //get_engine().update_module_lists();
+    get_engine().check_module_lists();
     audio.initialized = true;
 }
 
 void gx_engine_reset() {
 
-    if (audio.checkfreq)  delete[] audio.checkfreq;
     if (audio.oversample) delete[] audio.oversample;
     if (audio.result) delete[] audio.result;
     audio.initialized = false;
@@ -109,10 +105,8 @@ void AudioVariables::register_parameter() {
     registerNonMidiParam("ui.latency_nowarn",        &fwarn, false, 0);
     registerNonMidiParam("ui.skin",                  &fskin, false, 0, 0, 100);
 
-    checkfreq   = NULL;
     oversample  = NULL;
     result      = NULL;
-    checky      = kEngineOff;
     
     /* engine init state  */
     audio.initialized = false;

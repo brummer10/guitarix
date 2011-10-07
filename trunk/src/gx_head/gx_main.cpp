@@ -81,7 +81,6 @@ int main(int argc, char *argv[]) {
 
     // ------ initialize parameter list ------
     get_pluginlist().registerParameter(gx_gui::get_group_table());
-    gx_engine::register_faust_parameters();
     gx_engine::audio.register_parameter();
     gx_engine::midi.register_parameter();
     gx_gui::guivar.register_gui_parameter();
@@ -117,7 +116,7 @@ int main(int argc, char *argv[]) {
         // -------- set jack callbacks and activation -------------------
         gx_jack::gxjack.gx_jack_callbacks();
         gx_jack::gxjack.gx_jack_activate();
-	gx_engine::audio.checky = gx_engine::kEngineOn;
+	gx_engine::get_engine().set_state(gx_engine::kEngineOn);
 
         // -------- init port connections
         gx_jack::gxjack.gx_jack_init_port_connection(options.optvar);
@@ -133,6 +132,7 @@ int main(int argc, char *argv[]) {
         gx_engine::pitch_tracker.init();
     }
 
+    gx_engine::get_engine().clear_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     gui->run();
 
     // ------------- shut things down

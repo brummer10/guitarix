@@ -10,6 +10,19 @@ struct stringcomp {
 };
 
 /****************************************************************
+ ** class AbstractModuleSelector
+ ** does not really belong here, but must be included before
+ ** gx_engine.h and gx_internal_plugins.h
+ */
+
+class ModuleSelector {
+public:
+    virtual ~ModuleSelector() {}
+    virtual void set_module() = 0;
+};
+
+
+/****************************************************************
  ** class Plugin
  ** Defines audio processing module and variables for
  ** user interface
@@ -17,7 +30,7 @@ struct stringcomp {
 
 enum {			       // additional flags for PluginDef (used internally)
     PGNI_DYN_POSITION = 0x1000, // plugin is part of dynamically ordered rack
-    PGNI_NOT_OWN      = 0x1001,	// not owned by PluginList
+    PGNI_NOT_OWN      = 0x2000,	// not owned by PluginList
 };
 
 class Plugin {
@@ -83,6 +96,8 @@ PluginList& get_pluginlist(); // return the global PluginList object
 
 #ifndef NDEBUG
 void printlist(const char *title, const list<Plugin*>& modules, bool header=true);
+#else 
+inline void printlist(const char *, const list<Plugin*>&, bool=true) {}
 #endif
 
 bool lists_equal(const list<Plugin*>& p1, const list<Plugin*>& p2);

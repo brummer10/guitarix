@@ -21,27 +21,6 @@
 
 
 /****************************************************************
- **  include faust/dsp2cc generated files
- */
-
-#include <gx_faust_support.h>
-
-namespace gx_effects {
-
-#include "faust/balance1.cc"
-
-}
-
-
-/****************************************************************
- **  audio module initialization
- */
-
-void faust_init(int samplingFreq) {
-    gx_effects::balance1::init(gx_jack::gxjack.jack_sr);
-}
-
-/****************************************************************
  **  engine helper work threads to watch for user changes in the
  *   rack amp tonestack selection, create a pointer aray to the
  *   selected functions.
@@ -55,8 +34,9 @@ void GxEngine::load_plugins(string plugin_dir) {
 	0
     };
 
-    static ModuleSelector crybaby("crybaby", N_("Crybaby"), builtin_crybaby_plugins,
-				  "crybaby.autowah", _("select"), 0, PGN_POST_PRE);
+    static ModuleSelectorFromList crybaby(
+	"crybaby", N_("Crybaby"), builtin_crybaby_plugins,
+	"crybaby.autowah", _("select"), 0, PGN_POST_PRE);
 
 
     static PluginDef *builtin_tonestack_plugins[] = {
@@ -89,9 +69,10 @@ void GxEngine::load_plugins(string plugin_dir) {
 	0
     };
 
-    static ModuleSelector tonestack("amp.tonestack", N_("Tonestack"),
-				    builtin_tonestack_plugins, "amp.tonestack.select",
-				    _("select"), 0, PGN_POST_PRE);
+    static ModuleSelectorFromList tonestack(
+	"amp.tonestack", N_("Tonestack"),
+	builtin_tonestack_plugins, "amp.tonestack.select",
+	_("select"), 0, PGN_POST_PRE);
 
 
     static PluginDef *builtin_amp_plugins[] = {
@@ -127,13 +108,16 @@ void GxEngine::load_plugins(string plugin_dir) {
 	0
     };
 
-    static ModuleSelector ampstack("ampstack", "?Tube", builtin_amp_plugins,
-				   "tube.select", _("select"), ampstack_groups);
+    static ModuleSelectorFromList ampstack(
+	"ampstack", "?Tube", builtin_amp_plugins,
+	"tube.select", _("select"), ampstack_groups);
 
     PluginList& pl = get_pluginlist();
 
     // * mono amp input position *
 
+    pl.add(&tuner.plugin,                        PLUGIN_POS_START, PGN_PRE|PGN_MODE_NORMAL|PGN_MODE_BYPASS|PGN_MODE_MUTE);
+    pl.add(&midiaudiobuffer.plugin,              PLUGIN_POS_START, PGN_GUI|PGN_PRE|PGN_MODE_NORMAL|PGN_MODE_BYPASS);
     pl.add(&noisegate.inputlevel,                PLUGIN_POS_START, PGN_GUI|PGN_PRE);
     pl.add(&gx_effects::noise_shaper::plugin,    PLUGIN_POS_START, PGN_GUI|PGN_PRE);
 
@@ -149,6 +133,7 @@ void GxEngine::load_plugins(string plugin_dir) {
     pl.add(&gx_effects::gx_ampout::plugin,       PLUGIN_POS_END, PGN_GUI|PGN_POST);
     pl.add(&contrast.plugin,                     PLUGIN_POS_END, PGN_GUI|PGN_POST);
     pl.add(&noisegate.outputgate,                PLUGIN_POS_END, PGN_POST);
+    pl.add(&monomute,                            PLUGIN_POS_END, PGN_POST|PGN_MODE_MUTE);
 
     // * amp insert position (stereo amp input) *
 
@@ -157,6 +142,8 @@ void GxEngine::load_plugins(string plugin_dir) {
     // rack stereo modules inserted here
 
     pl.add(&gx_effects::gx_outputlevel::plugin,  PLUGIN_POS_END);
+    pl.add(&balance::plugin,                     PLUGIN_POS_END, PGN_MODE_BYPASS);
+    pl.add(&stereomute,                          PLUGIN_POS_END, PGN_MODE_MUTE);
 
     // * fx amp output *
 
@@ -204,12 +191,9 @@ void GxEngine::load_plugins(string plugin_dir) {
     get_engine().add_selector(ampstack);
     get_engine().add_selector(crybaby);
     get_engine().add_selector(tonestack);
+    get_engine().add_selector(tuner);
 
 #ifndef NDEBUG
     pl.printlist();
 #endif
-}
-
-void register_faust_parameters() {
-    gx_effects::balance1::register_params(ParamReg(0));
 }

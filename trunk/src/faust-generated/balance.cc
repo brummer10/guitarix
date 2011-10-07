@@ -1,7 +1,7 @@
-// generated from file '../src/faust/balance1.dsp' by dsp2cc:
+// generated from file '../src/faust/balance.dsp' by dsp2cc:
 // Code generated with Faust 0.9.30 (http://faust.grame.fr)
 
-namespace balance1 {
+namespace balance {
 FAUSTFLOAT 	fslider0;
 FAUSTFLOAT	*fslider0_;
 #define fslider0 (*fslider0_)
@@ -19,14 +19,13 @@ static void init(int samplingFreq, PluginDef* = 0)
 	clear_state();
 }
 
-void compute(int count, float *input0, float *output0, float *output1)
+static void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = (0.0010000000000000009 * fslider0);
 	for (int i=0; i<count; i++) {
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
-		double fTemp0 = (double)input0[i];
-		output0[i] = (FAUSTFLOAT)(fTemp0 * (1 - max(0, fRec0[0])));
-		output1[i] = (FAUSTFLOAT)(fTemp0 * (1 - max(0, (0 - fRec0[0]))));
+		output0[i] = (FAUSTFLOAT)((double)input0[i] * (1 - max(0, fRec0[0])));
+		output1[i] = (FAUSTFLOAT)((double)input1[i] * (1 - max(0, (0 - fRec0[0]))));
 		// post processing
 		fRec0[1] = fRec0[0];
 	}
@@ -39,4 +38,19 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-} // end namespace balance1
+PluginDef plugin = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "balance",  // id
+    "?balance",  // name
+    0,  // groups
+    0,  // mono_audio
+    compute,  // stereo_audio
+    init,  // set_samplerate
+    0,  // activate plugin
+    register_params,
+    0,   // load_ui
+    clear_state,  // clear_state
+};
+
+} // end namespace balance

@@ -592,7 +592,7 @@ void write_jack_connections(JsonWriter& w) {
 
 // -- save state including current preset data
 bool saveStateToFile(const string &filename) {
-    gx_print_info(_("wrinting to "), filename.c_str());
+    gx_print_info(_("writing to "), filename.c_str());
     string tmpfile = filename + "_tmp";
     ofstream f(tmpfile.c_str());
     JsonWriter w(f);

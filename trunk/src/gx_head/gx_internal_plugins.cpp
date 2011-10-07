@@ -36,13 +36,139 @@ using namespace std;
 #include "gx_pluginloader.h"
 #include "gx_ui.h"
 #include "gx_convolver.h"
-#include "gx_internal_plugins.h"
 #include "gx_jack.h"
+#include "gx_internal_plugins.h"
 #include "gx_engine.h" //FIXME: only for audio.result and audio.oversample
+#include "gx_pitch_tracker.h"
 #include "gx_jconv_settings.h"
 #include "gx_faust_support.h"
 
 namespace gx_engine {
+
+/****************************************************************
+ ** MonoMute, StereoMute, MaxLevel
+ */
+
+MonoMute::MonoMute()
+    : PluginDef() {
+    version = PLUGINDEF_VERSION;
+    id = "monomute";
+    name = "?monomute";
+    mono_audio = process;
+}
+
+void MonoMute::process(int count, float *input, float *output) {
+    (void)memset(output, 0, count*sizeof(float));
+}
+
+StereoMute::StereoMute()
+    : PluginDef() {
+    version = PLUGINDEF_VERSION;
+    id = "stereomute";
+    name = "?stereomute";
+    stereo_audio = process;
+}
+
+void StereoMute::process(int count, float *input0, float *input1,
+			 float *output0, float *output1) {
+    (void)memset(output0, 0, count*sizeof(float));
+    (void)memset(output1, 0, count*sizeof(float));
+}
+
+MaxLevel::MaxLevel()
+    : PluginDef() {
+    version = PLUGINDEF_VERSION;
+    id = "maxlevel";
+    name = "?maxlevel";
+    stereo_audio = process;
+    activate_plugin = activate;
+}
+
+float MaxLevel::maxlevel[2] = {0};
+
+void MaxLevel::process(int count, float *input1, float *input2, float*, float*) {
+    const float *data[2] = {input1, input2};
+    for (int c = 0; c < 2; c++) {
+        float level = 0;
+        for (int i = 0; i < count; i++) {
+            float t = abs(data[c][i]);
+            if (level < t) {
+                level = t;
+            }
+        }
+        maxlevel[c] = max(maxlevel[c], level);
+    }
+}
+
+int MaxLevel::activate(bool start, PluginDef *plugin) {
+    if (!start) {
+	reset();
+    }
+    return 0;
+}
+
+static const char *midi_out_groups[] = {
+	"channel_1", N_("Midi Out 1"), 
+	"channel_2", N_("Midi Out 2"),
+	"channel_3", N_("Midi Out 3"),
+	".beat_detector",      N_("Beat Detector"),
+	0
+    };
+
+MidiAudioBuffer::MidiAudioBuffer()
+    : PluginDef(),
+      plugin() {
+    version = PLUGINDEF_VERSION;
+    id = "midi_out";
+    name = N_("Midi Out");
+    groups = midi_out_groups;
+    mono_audio = fill_buffer;
+    plugin.pdef = this;
+}
+
+void MidiAudioBuffer::fill_buffer(int count, float *input, float*) {
+    gx_jack::gxjack.gx_jack_midi_process(count, input);
+}
+
+
+/****************************************************************
+ ** class TunerAdapter
+ */
+
+TunerAdapter::TunerAdapter(const Plugin& pl)
+    : PluginDef(),
+      state(),
+      dep_plugin(pl),
+      plugin() {
+    version = PLUGINDEF_VERSION;
+    id = "tuner";
+    name = "?tuner";
+    mono_audio = feed_tuner;
+    register_params = regparam;
+    plugin.pdef = this;
+}
+
+void TunerAdapter::set_and_check(int use, bool on) {
+    if (on) {
+	state |= use;
+    } else {
+	state &= ~use;
+    }
+    plugin.on_off = state;
+}
+
+void TunerAdapter::feed_tuner(int count, float* input, float*) {
+    pitch_tracker.add(count, input);
+}
+
+int TunerAdapter::regparam(const ParamReg& reg) {
+    static_cast<TunerAdapter*>(reg.plugin)->plugin.on_off = false;
+    return 0;
+}
+
+void TunerAdapter::set_module() {
+    used_by_midi(dep_plugin.on_off);
+}
 
 /****************************************************************
  **  class NoiseGate

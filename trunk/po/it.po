@@ -1492,7 +1492,7 @@ msgid "unknown preset section: "
 msgstr "sezione preset sconosciuta: "
 
 #: ../src/gx_head/gx_system.cpp:614
-msgid "wrinting to "
+msgid "writing to "
 msgstr "scrivo su "
 
 #: ../src/gx_head/gx_system.cpp:671

@@ -54,7 +54,7 @@ bool GxJack::gx_jack_init(const string *optvar) {
     int jack_is_fresh =     0;
     jack_is_down =          false;
     jack_is_exit =          false;
-    NO_CONNECTION =         1;
+    gx_engine::get_engine().set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
 
     AVOIDDENORMALS;
 
@@ -191,10 +191,10 @@ static void gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int co
     const char** port = jack_port_get_connections(gxjack.input_ports[0]);
     if (port) { // might be 0 (e.g. due to race conditions)
 
-        gxjack.NO_CONNECTION = 0;
+	gx_engine::get_engine().clear_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
         free(port);
     } else {
-        gxjack.NO_CONNECTION = 1;
+	gx_engine::get_engine().set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
     }
 }
 
@@ -269,14 +269,14 @@ void GxJack::gx_jack_activate() {
 
 static gboolean gx_engine_restart(gpointer data) {
     usleep(5);
-    gx_engine::audio.checky = gx_engine::kEngineOn;
+    gx_engine::get_engine().set_state(gx_engine::kEngineOn);
     return false;
 }
 
 // ----- connect ports if we know them
 void GxJack::gx_jack_init_port_connection(const string* optvar) {
     // set engine off for one GTK thread cycle to avoid Xrun at startup
-    gx_engine::audio.checky = gx_engine::kEngineOff;
+    gx_engine::get_engine().set_state(gx_engine::kEngineOff);
     gx_gui::guivar.g_threads[4] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20, gx_engine_restart,
                                            NULL, NULL);
 
@@ -498,7 +498,6 @@ void GxJack::gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg) {
                 gtk_widget_hide(gx_gui::gw.gx_jackd_off_image);
             }
             gxjack.jack_is_exit = false;
-
             gx_system::gx_print_info(_("Jack Server"), _("Connected to Jack Server"));
         }
     } else {
@@ -574,8 +573,9 @@ void GxJack::gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg) {
 // -----Function that cleans the jack stuff on shutdown
 void GxJack::gx_jack_cleanup() {
     if (client && !jack_is_down) {
-        gx_engine::audio.checky = gx_engine::kEngineOff;
+        gx_engine::get_engine().set_state(gx_engine::kEngineOff);
         jack_is_exit = true;
+	gx_engine::get_engine().set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
         jack_deactivate(client);
         jack_deactivate(client_insert);
         // disable input ports
@@ -630,29 +630,12 @@ int GxJack::gx_jack_xrun_callback(void* arg) {
 
 // ---- jack buffer size change callback
 int GxJack::gx_jack_buffersize_callback(jack_nframes_t nframes, void* arg) {
-    gx_engine::GxEngineState estate = gx_engine::audio.checky;
-
-    // turn off engine
-    // Note: simply changing audio.checky is enough to "stop" processing
-    // incoming jack buffers. The mydsp::compute method is owned by
-    // the jack audio thread. It always runs as long as jack runs
-    // independently of the non-RT GUI thread. The value of
-    // audio.checky is checked at each jack cycle in mydsp::compute
-    // so changing it here affects the behavior of mydsp::compute
-    // immediately during the jack_processing of jack cycles.
-
-    if (estate != gx_engine::kEngineOff)
-        gx_engine::audio.checky = gx_engine::kEngineOff;
-
+    gx_engine::GxEngine& engine = gx_engine::get_engine();
+    engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     gxjack.jack_bs = nframes;
 
-
-    if (gx_engine::audio.checkfreq)   delete[] gx_engine::audio.checkfreq;
     if (gx_engine::audio.oversample)  delete[] gx_engine::audio.oversample;
     if (gx_engine::audio.result)      delete[] gx_engine::audio.result;
-
-    gx_engine::audio.checkfreq = new float[gxjack.jack_bs];
-    (void)memset(gx_engine::audio.checkfreq, 0, sizeof(float)*gxjack.jack_bs);
 
     gx_engine::audio.oversample = new float[gxjack.jack_bs*MAX_UPSAMPLE];
     (void)memset(gx_engine::audio.oversample, 0, sizeof(float)*gxjack.jack_bs*MAX_UPSAMPLE);
@@ -661,24 +644,23 @@ int GxJack::gx_jack_buffersize_callback(jack_nframes_t nframes, void* arg) {
     (void)memset(gx_engine::audio.result, 0, sizeof(float)*gxjack.jack_bs+46);
 
     gx_gui::GxMainInterface::instance()->set_waveview_buffer();
-    if (gx_engine::get_engine().cabinet.is_runnable()) {
-        gx_engine::get_engine().cabinet.set_not_runnable();
+    if (engine.cabinet.is_runnable()) {
+	engine.cabinet.set_not_runnable();
         Glib::signal_idle().connect(
             sigc::bind_return(sigc::ptr_fun(gx_threads::cab_conv_restart), false));
     }
-    if (gx_engine::get_engine().contrast.is_runnable()) {
-        gx_engine::get_engine().contrast.set_not_runnable();
+    if (engine.contrast.is_runnable()) {
+        engine.contrast.set_not_runnable();
         Glib::signal_idle().connect(
             sigc::bind_return(sigc::ptr_fun(gx_threads::contrast_conv_restart), false));
     }
-    if (gx_engine::get_engine().convolver.conv.is_runnable()) {
-        gx_engine::get_engine().convolver.conv.set_not_runnable();
+    if (engine.convolver.conv.is_runnable()) {
+        engine.convolver.conv.set_not_runnable();
         Glib::signal_idle().connect(
             sigc::bind_return(sigc::ptr_fun(gx_gui::conv_restart), false));
     }
 
-    // restore previous state
-    gx_engine::audio.checky = estate;
+    engine.clear_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     // return 0 to jack
     return 0;
 }
@@ -694,17 +676,16 @@ int GxJack::gx_jack_midi_input_process(jack_nframes_t nframes, void *arg) {
 
 // ---- jack midi processing
 
-int GxJack::gx_jack_midi_process(jack_nframes_t nframes, void *arg) {
+int GxJack::gx_jack_midi_process(jack_nframes_t nframes, float *input) {
     if (gxjack.midi_output_ports != NULL) {
-        AVOIDDENORMALS;
 
         gxjack.midi_port_buf =  jack_port_get_buffer(gxjack.midi_output_ports, nframes);
         jack_midi_clear_buffer(gxjack.midi_port_buf);
 
-        if ((gx_engine::isMidiOn() == true) || (gx_gui::guivar.showwave == 1))
-            jcpu_load = jack_cpu_load(client);
-
-        gx_engine::compute_midi(nframes);
+	if (gx_gui::guivar.showwave == 1) {
+	    jcpu_load = jack_cpu_load(client);
+	}
+	gx_engine::process_midi(nframes, input);
     }
     return 0;
 }
@@ -722,18 +703,14 @@ int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
                         (jack_port_get_buffer(gxjack.output_ports[0], nframes));
 
         // gx_head DSP computing
-        gx_engine::compute(nframes, _jackbuffer_ptr->input, _jackbuffer_ptr->output0);
+	gx_engine::get_engine().mono_chain.process(
+	    nframes, _jackbuffer_ptr->input, _jackbuffer_ptr->output0);
 
         // ready to go for e.g. level display
         gx_engine::audio.buffers_ready = true;
 
         // midi input processing
         gxjack.gx_jack_midi_input_process(nframes, 0);
-
-        // midi processing
-
-        gxjack.gx_jack_midi_process(nframes, 0);
-
 
         // some info display
         if (gx_gui::guivar.showwave == 1) {
@@ -752,7 +729,6 @@ int GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
     gx_system::measure_cont();
     if (!gxjack.jack_is_exit) {
         AVOIDDENORMALS;
-
         _jackbuffer_ptr->input1 = static_cast<float *>
                         (jack_port_get_buffer(gxjack.input_ports[1], nframes));
         _jackbuffer_ptr->output2 = static_cast<float *>
@@ -760,7 +736,9 @@ int GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
         _jackbuffer_ptr->output3 = static_cast<float *>
                          (jack_port_get_buffer(gxjack.output_ports[3], nframes));
         // gx_head DSP computing
-        gx_engine::compute_insert(nframes, _jackbuffer_ptr->input1, _jackbuffer_ptr->output2, _jackbuffer_ptr->output3);
+	gx_engine::get_engine().stereo_chain.process(
+	    nframes, _jackbuffer_ptr->input1,
+	    _jackbuffer_ptr->output2, _jackbuffer_ptr->output3);
     }
     gx_system::measure_stop();
     gx_engine::get_engine().stereo_chain.post_rt_finished();

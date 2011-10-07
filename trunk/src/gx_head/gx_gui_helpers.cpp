@@ -101,7 +101,7 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
 
 /* --------- menu function triggering engine on/off/bypass --------- */
 void gx_engine_switch(GtkWidget* widget, gpointer arg) {
-    gx_engine::GxEngineState estate = gx_engine::audio.checky;
+    gx_engine::GxEngineState estate = gx_engine::get_engine().get_state();
 
     switch (estate) {
     case gx_engine::kEngineOn:
@@ -128,13 +128,13 @@ void gx_engine_switch(GtkWidget* widget, gpointer arg) {
             );
     }
 
-    gx_engine::audio.checky = estate;
+    gx_engine::get_engine().set_state(estate);
     gx_refresh_engine_status_display();
 }
 
 /* -------------- refresh engine status display ---------------- */
 void gx_refresh_engine_status_display() {
-    gx_engine::GxEngineState estate = gx_engine::audio.checky;
+    gx_engine::GxEngineState estate = gx_engine::get_engine().get_state();
 
     string state;
 
@@ -195,6 +195,7 @@ void gx_jack_is_down() {
     */
     std::cout << _("jack has bumped us out!!") << endl;
     gx_jack::gxjack.jack_is_exit = true;
+    gx_engine::get_engine().set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     g_timeout_add_full(G_PRIORITY_LOW, 200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
 }
 
@@ -589,10 +590,11 @@ void GxMainInterface::on_toolbar_activate() {
 
 // ----menu function gx_tuner
 void GxMainInterface::on_tuner_activate() {
-
-    if (fShowTuner.get_active()) {
+    bool tuner_on = fShowTuner.get_active();
+    gx_engine::get_engine().tuner.used_for_display(tuner_on);
+    gx_engine::get_engine().set_rack_changed();
+    if (tuner_on) {
         gtk_widget_show_all(gw.tuner_widget);
-        guivar.shownote = 1;
         fTuner.show();
     } else {
         GtkAllocation my_size;
@@ -600,7 +602,6 @@ void GxMainInterface::on_tuner_activate() {
         gtk_widget_set_size_request(GTK_WIDGET(RBox), -1, my_size.height);
         if (gtk_window_get_resizable(GTK_WINDOW(gw.fWindow)))
             gtk_window_set_resizable(GTK_WINDOW(gw.fWindow) , FALSE);
-        guivar.shownote = 0;
         fTuner.hide();
         gtk_widget_hide(gw.tuner_widget);
     }
@@ -620,11 +621,12 @@ void gx_midi_out(GtkCheckMenuItem *menuitem, gpointer checkplay) {
     gx_show_extended_settings(GTK_WIDGET(menuitem), (gpointer) child);
     static bool first = true;
     if (gtk_check_menu_item_get_active(menuitem) == TRUE) {
-        if (first)guivar.refresh_size = 0;
-
-        gx_engine::turnOnMidi();
+        if (first) {
+	    guivar.refresh_size = 0;
+	}
+        //gx_engine::turnOnMidi();//FIXME
     } else {
-        gx_engine::turnOffMidi();
+        //gx_engine::turnOffMidi();//FIXME
         string group = "midi_out.on_off";
         parameter_map[group].set_std_value();
     }

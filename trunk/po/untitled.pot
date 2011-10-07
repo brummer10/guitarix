@@ -1466,7 +1466,7 @@ msgid "unknown preset section: "
 msgstr ""
 
 #: ../src/gx_head/gx_system.cpp:614
-msgid "wrinting to "
+msgid "writing to "
 msgstr ""
 
 #: ../src/gx_head/gx_system.cpp:671

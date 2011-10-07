@@ -40,167 +40,6 @@ AudioVariables audio;
 
 #include "gx_faust_includes.cpp"
 
-inline bool feed_tuner(int count, float* input) {
-    // check if tuner is visible or midi is on
-    int tuner_on = gx_gui::guivar.shownote + static_cast<int>(isMidiOn()) + 1;
-    if (tuner_on > 0) {
-        if (gx_gui::guivar.shownote == 0) {
-            gx_gui::guivar.shownote = -1;
-        } else {
-            // run tuner
-            pitch_tracker.add(count, input);
-            return true;
-        }
-    }
-    return false;
-}
-
-inline void zero_maxlevel() {
-    (void)memset(audio.maxlevel, 0, sizeof(audio.maxlevel));
-}
-
-inline void set_maxlevel(int count, float *input1, float *input2) {
-    const float *data[2] = {input1, input2};
-    for (int c = 0; c < 2; c++) {
-        float level = 0;
-        for (int i = 0; i < count; i++) {
-            float t = abs(data[c][i]);
-            if (level < t) {
-                level = t;
-            }
-        }
-        audio.maxlevel[c] = max(audio.maxlevel[c], level);
-    }
-}
-
-/****************************************************************
- **  this is the process callback called from jack
- **
- ***************************************************************/
-
-// the gx_head_amp client callback
-void compute(int count, float* input, float* output0) {
-    // retrieve engine state
-    const GxEngineState estate = audio.checky;
-
-    // ------------ determine processing type
-    uint16_t process_type = ZEROIZE_BUFFERS;
-
-    if (gx_jack::gxjack.NO_CONNECTION == 0) { // ports connected
-        switch (estate) {
-        case kEngineOn:
-            process_type = PROCESS_BUFFERS;
-            break;
-
-        case kEngineBypass:
-            process_type = JUSTCOPY_BUFFERS;
-            break;
-
-        default: // engine off or whatever: zeroize
-            break;
-        }
-    }
-
-    // check midi state
-    if (midi.fmi && !isMidiOn()) turnOnMidi();
-    else if (!midi.fmi && isMidiOn()) turnOffMidi();
-
-    // ------------ main processing routine
-    switch (process_type) {
-
-    //---------- run process
-    case PROCESS_BUFFERS:
-        process_buffers(count, input, output0);
-        break;
-
-    // --------- just copy input to outputs
-    case JUSTCOPY_BUFFERS:
-        feed_tuner(count, input);
-       (void)memcpy(output0, input, sizeof(float)*count);
-        break;
-
-    // ------- zeroize buffers
-    case ZEROIZE_BUFFERS:
-    default:
-        feed_tuner(count, input);
-        if (get_engine().oscilloscope.plugin.on_off) {
-	    (void)memset(audio.result, 0, count*sizeof(float));
-	}
-        // no need of loop.
-        (void)memset(output0, 0, count*sizeof(float));
-          break;
-    }
-}
-
-// the gx_head_fx client callback
-void compute_insert(int count, float* input1, float* output0, float* output1) {
-    // retrieve engine state
-    const GxEngineState estate = audio.checky;
-
-    // ------------ determine processing type
-    uint16_t process_type = ZEROIZE_BUFFERS;
-
-    if (gx_jack::gxjack.NO_CONNECTION == 0) { // ports connected
-        switch (estate) {
-        case kEngineOn:
-            process_type = PROCESS_BUFFERS;
-            break;
-
-        case kEngineBypass:
-            process_type = JUSTCOPY_BUFFERS;
-            break;
-
-        default: // engine off or whatever: zeroize
-            break;
-        }
-    }
-
-    // ------------ main processing routine
-    switch (process_type) {
-
-    // --------- run process
-    case PROCESS_BUFFERS:
-        process_insert_buffers(count, input1, output0, output1);
-        break;
-
-    // --------- just copy input to outputs
-    case JUSTCOPY_BUFFERS:
-        // mono to stereo splitter
-        gx_effects::balance1::compute(count, input1, output0, output1);
-	set_maxlevel(count, output0, output1);
-        break;
-
-    // ------- zeroize buffers
-    case ZEROIZE_BUFFERS:
-    default:
-        // no need of loop.
-        (void)memset(output0, 0, count*sizeof(float));
-        (void)memset(output1, 0, count*sizeof(float));
-        zero_maxlevel();
-        break;
-    }
-}
-
-/****************************************************************
- ** this is the gx_head audio engine
- */
-
-// gx_head_amp engine
-void process_buffers(int count, float* input, float* output0) {
-    if (feed_tuner(count, input)) {
-        // copy buffer to midi thread
-        (void)memcpy(audio.checkfreq, input, sizeof(float)*count);
-    }
-    get_engine().mono_chain.process(count, input, output0);
-
-}
-
-// gx_head_fx engine
-void process_insert_buffers(int count, float* input1, float* output0, float* output1) {
-    get_engine().stereo_chain.process(count, input1, output0, output1);
-    set_maxlevel(count, output0, output1);
-}
-
 /****************************************************************
  ** class ProcessingChainBase
  */
@@ -208,6 +47,7 @@ void process_insert_buffers(int count, float* input1, float* output0, float* out
 ProcessingChainBase::ProcessingChainBase():
     ramp_value(0),
     ramp_mode(ramp_mode_down_dead),
+    stopped(true),
     latch(false) {
     sem_init(&sync_sem, 0, 0);
 }
@@ -284,14 +124,6 @@ void ProcessingChainBase::release() {
 /****************************************************************
  ** MonoModuleChain, StereoModuleChain
  */
-
-void MonoModuleChain::print() {
-    printlist("Mono", modules);
-}
-
-void StereoModuleChain::print() {
-    printlist("Stereo", modules);
-}
 
 void MonoModuleChain::process(int count, float *input, float *output) {
     RampMode rm = get_ramp_mode();
@@ -424,10 +256,10 @@ void StereoModuleChain::process(int count, float *input, float *output1, float *
  ** ModuleSelector
  */
 
-ModuleSelector::ModuleSelector(const char* id_, const char* name_,
-			       PluginDef *plugins[], const char* select_id_,
-			       const char* select_name_, const char** groups_,
-			       int flags_)
+ModuleSelectorFromList::ModuleSelectorFromList(
+    const char* id_, const char* name_, PluginDef *plugins[],
+    const char* select_id_, const char* select_name_,
+    const char** groups_, int flags_)
     : PluginDef(),
       selector(0),
       select_id(select_id_),
@@ -448,7 +280,7 @@ ModuleSelector::ModuleSelector(const char* id_, const char* name_,
     plugin = this;
 }
 
-int ModuleSelector::register_parameter(const ParamReg &param) {
+int ModuleSelectorFromList::register_parameter(const ParamReg &param) {
     value_pair *p = new value_pair[size+1];
     for (unsigned int i = 0; i < size; i++) {
 	p[i].value_id = modules[i]->id;
@@ -460,18 +292,19 @@ int ModuleSelector::register_parameter(const ParamReg &param) {
     return 0;
 }
 
-int ModuleSelector::static_register(const ParamReg &param) {
-    return static_cast<ModuleSelector*>(param.plugin)->register_parameter(param);
+int ModuleSelectorFromList::static_register(const ParamReg &param) {
+    return static_cast<ModuleSelectorFromList*>(param.plugin)
+	->register_parameter(param);
 }
 
-void ModuleSelector::set_selector(unsigned int n) {
+void ModuleSelectorFromList::set_selector(unsigned int n) {
     if (n >= size) {
 	n = size-1;
     }
     selector = n; //FIXME: rack_changed??
 }
 
-void ModuleSelector::set_module() {
+void ModuleSelectorFromList::set_module() {
     if (current_plugin) {
 	current_plugin->on_off = false;
     }
@@ -494,7 +327,7 @@ ModuleSequencer::ModuleSequencer(PluginList& pl):
     selectors(),
     pluginlist(pl),
     rack_changed(false),
-    audio_mode(PGN_MODE_NORMAL),
+    audio_mode(PGN_MODE_MUTE),
     mono_chain(),
     stereo_chain() {
 }
@@ -506,7 +339,6 @@ void ModuleSequencer::set_samplefreq(int samplefreq) {
     pluginlist.set_samplerate(samplefreq);
     mono_chain.set_samplefreq(samplefreq);
     stereo_chain.set_samplefreq(samplefreq);
-    start_ramp_up();
 }
 
 bool ModuleSequencer::prepare_module_lists() {
@@ -517,10 +349,12 @@ bool ModuleSequencer::prepare_module_lists() {
     rack_changed = false;
     pluginlist.ordered_mono_list(modules, audio_mode);
     bool ret_mono = mono_chain.set_plugin_list(modules);
-    mono_chain.print();
     pluginlist.ordered_stereo_list(modules, audio_mode);
     bool ret_stereo = stereo_chain.set_plugin_list(modules);
-    stereo_chain.print();
+    if (ret_mono || ret_stereo) {
+	mono_chain.print();
+	stereo_chain.print();
+    }
     return ret_mono || ret_stereo;
 }
 
@@ -548,16 +382,74 @@ void ModuleSequencer::add_selector(ModuleSelector& sel) {
  ** class GxEngine
  */
 
-GxEngine::GxEngine(PluginList& pl):
-    ModuleSequencer(pl),
-    ui(),
-    noisegate(),
-    oscilloscope(&ui),
-    convolver(&ui),
-    cabinet(&ui),
-    contrast(&ui) {}
+GxEngine::GxEngine(PluginList& pl)
+    : ModuleSequencer(pl),
+      ui(),
+      stateflags(SF_JACK_RECONFIG),
+      noisegate(),
+      monomute(),
+      stereomute(),
+      midiaudiobuffer(),
+      tuner(midiaudiobuffer.plugin),
+      maxlevel(),
+      oscilloscope(&ui),
+      convolver(&ui),
+      cabinet(&ui),
+      contrast(&ui) {
+}
 
 GxEngine::~GxEngine() {
+}
+
+void GxEngine::set_stateflag(StateFlag flag) {
+    if (stateflags & flag) {
+	return;
+    }
+    mono_chain.set_stopped(true);
+    stereo_chain.set_stopped(true);
+    if (!stateflags) {
+	set_down_dead();
+    }
+    stateflags |= flag;
+}
+
+void GxEngine::clear_stateflag(StateFlag flag) {
+    if (!(stateflags & flag)) {
+	return;
+    }
+    stateflags &= ~flag;
+    if (!stateflags) {
+	mono_chain.set_stopped(false);
+	stereo_chain.set_stopped(false);
+	start_ramp_up();
+    }
+}
+
+void GxEngine::set_state(GxEngineState state) {
+    int newmode = PGN_MODE_MUTE;
+    switch( state ) {
+    case kEngineOn:     newmode = PGN_MODE_NORMAL; break;
+    case kEngineBypass: newmode = PGN_MODE_BYPASS; break;
+    case kEngineOff:    newmode = PGN_MODE_MUTE;   break;
+    }
+    if (audio_mode == newmode) {
+	return;
+    }
+    audio_mode = newmode;
+    set_rack_changed();
+}
+
+GxEngineState GxEngine::get_state() {
+    if (audio_mode & PGN_MODE_NORMAL) {
+	return kEngineOn;
+    } else if (audio_mode & PGN_MODE_BYPASS) {
+	return kEngineBypass;
+    } else if (audio_mode & PGN_MODE_MUTE) {
+	return kEngineOff;
+    } else {
+	assert(false);
+	return kEngineOff;
+    }
 }
 
 GxEngine& get_engine() {

@@ -19,95 +19,100 @@
  * --------------------------------------------------------------------------
  */
 
+#pragma once
+
 #include "gx_plugin.h"
+
+#define declare(n) namespace n { extern PluginDef plugin; }
 
 namespace gx_engine {
 
 namespace gx_amps {
-
-namespace gxamp { extern PluginDef plugin; }
-namespace gxamp3 { extern PluginDef plugin; }
-namespace gxamp14 { extern PluginDef plugin; }
-namespace gxamp10 { extern PluginDef plugin; }
-namespace gxamp2 { extern PluginDef plugin; }
-namespace gxamp9 { extern PluginDef plugin; }
-namespace gxamp11 { extern PluginDef plugin; }
-namespace gxamp17 { extern PluginDef plugin; }
-namespace gxamp13 { extern PluginDef plugin; }
-namespace gxamp5 { extern PluginDef plugin; }
-namespace gxamp4 { extern PluginDef plugin; }
-namespace gxamp15 { extern PluginDef plugin; }
-namespace gxamp12 { extern PluginDef plugin; }
-namespace gxamp7 { extern PluginDef plugin; }
-namespace gxamp8 { extern PluginDef plugin; }
-namespace gxamp16 { extern PluginDef plugin; }
-namespace gxamp6 { extern PluginDef plugin; }
-namespace gx_ampmodul { extern PluginDef plugin; }
+declare(gxamp)
+declare(gxamp3)
+declare(gxamp14)
+declare(gxamp10)
+declare(gxamp2)
+declare(gxamp9)
+declare(gxamp11)
+declare(gxamp17)
+declare(gxamp13)
+declare(gxamp5)
+declare(gxamp4)
+declare(gxamp15)
+declare(gxamp12)
+declare(gxamp7)
+declare(gxamp8)
+declare(gxamp16)
+declare(gxamp6)
+declare(gx_ampmodul)
 }
 
 namespace gx_tonestacks {
-
-namespace tonestack_default { extern PluginDef plugin; }
-namespace tonestack_bassman { extern PluginDef plugin; }
-namespace tonestack_twin { extern PluginDef plugin; }
-namespace tonestack_princeton { extern PluginDef plugin; }
-namespace tonestack_jcm800 { extern PluginDef plugin; }
-namespace tonestack_jcm2000 { extern PluginDef plugin; }
-namespace tonestack_mlead { extern PluginDef plugin; }
-namespace tonestack_m2199 { extern PluginDef plugin; }
-namespace tonestack_ac30 { extern PluginDef plugin; }
-namespace tonestack_soldano { extern PluginDef plugin; }
-namespace tonestack_mesa { extern PluginDef plugin; }
-namespace tonestack_jtm45 { extern PluginDef plugin; }
-namespace tonestack_ac15 { extern PluginDef plugin; }
-namespace tonestack_peavey { extern PluginDef plugin; }
-namespace tonestack_ibanez { extern PluginDef plugin; }
-namespace tonestack_roland { extern PluginDef plugin; }
-namespace tonestack_ampeg { extern PluginDef plugin; }
-namespace tonestack_ampeg_rev { extern PluginDef plugin; }
-namespace tonestack_sovtek { extern PluginDef plugin; }
-namespace tonestack_bogner { extern PluginDef plugin; }
-namespace tonestack_groove { extern PluginDef plugin; }
-namespace tonestack_crunch { extern PluginDef plugin; }
-namespace tonestack_fender_blues { extern PluginDef plugin; }
-namespace tonestack_fender_default { extern PluginDef plugin; }
-namespace tonestack_fender_deville { extern PluginDef plugin; }
-namespace tonestack_gibsen { extern PluginDef plugin; }
+declare(tonestack_default)
+declare(tonestack_bassman)
+declare(tonestack_twin)
+declare(tonestack_princeton)
+declare(tonestack_jcm800)
+declare(tonestack_jcm2000)
+declare(tonestack_mlead)
+declare(tonestack_m2199)
+declare(tonestack_ac30)
+declare(tonestack_soldano)
+declare(tonestack_mesa)
+declare(tonestack_jtm45)
+declare(tonestack_ac15)
+declare(tonestack_peavey)
+declare(tonestack_ibanez)
+declare(tonestack_roland)
+declare(tonestack_ampeg)
+declare(tonestack_ampeg_rev)
+declare(tonestack_sovtek)
+declare(tonestack_bogner)
+declare(tonestack_groove)
+declare(tonestack_crunch)
+declare(tonestack_fender_blues)
+declare(tonestack_fender_default)
+declare(tonestack_fender_deville)
+declare(tonestack_gibsen)
 }
 
 namespace gx_effects {
-
-namespace crybaby { extern PluginDef plugin; }
-namespace autowah { extern PluginDef plugin; }
-namespace noise_shaper { extern PluginDef plugin; }
-namespace softclip { extern PluginDef plugin; }
-namespace bassbooster { extern PluginDef plugin; }
-namespace gx_ampout { extern PluginDef plugin; }
-namespace gxfeed { extern PluginDef plugin; }
-namespace gx_outputlevel { extern PluginDef plugin; }
-namespace low_high_pass { extern PluginDef plugin; }
-namespace selecteq { extern PluginDef plugin; }
-namespace gx_distortion { extern PluginDef plugin; }
-namespace impulseresponse { extern PluginDef plugin; }
-namespace compressor { extern PluginDef plugin; }
-namespace overdrive { extern PluginDef plugin; }
-namespace echo { extern PluginDef plugin; }
-namespace delay { extern PluginDef plugin; }
-namespace freeverb { extern PluginDef plugin; }
-namespace biquad { extern PluginDef plugin; }
-namespace tremolo { extern PluginDef plugin; }
-namespace phaser_mono { extern PluginDef plugin; }
-namespace chorus_mono { extern PluginDef plugin; }
-namespace flanger_mono { extern PluginDef plugin; }
-namespace gx_feedback { extern PluginDef plugin; }
-namespace chorus { extern PluginDef plugin; }
-namespace flanger { extern PluginDef plugin; }
-namespace phaser { extern PluginDef plugin; }
-namespace stereodelay { extern PluginDef plugin; }
-namespace stereoecho { extern PluginDef plugin; }
-namespace moog { extern PluginDef plugin; }
-namespace tonecontroll { extern PluginDef plugin; }
-namespace stereoverb { extern PluginDef plugin; }
+declare(crybaby)
+declare(autowah)
+declare(noise_shaper)
+declare(softclip)
+declare(bassbooster)
+declare(gx_ampout)
+declare(gxfeed)
+declare(gx_outputlevel)
+declare(low_high_pass)
+declare(selecteq)
+declare(gx_distortion)
+declare(impulseresponse)
+declare(compressor)
+declare(overdrive)
+declare(echo)
+declare(delay)
+declare(freeverb)
+declare(biquad)
+declare(tremolo)
+declare(phaser_mono)
+declare(chorus_mono)
+declare(flanger_mono)
+declare(gx_feedback)
+declare(chorus)
+declare(flanger)
+declare(phaser)
+declare(stereodelay)
+declare(stereoecho)
+declare(moog)
+declare(tonecontroll)
+declare(stereoverb)
 }
 
+declare(balance)
+
 } // namespace gx_engine
+
+#undef declare

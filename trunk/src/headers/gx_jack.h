@@ -96,8 +96,7 @@ class GxJack {
     float               xdel;      // last xrun delay
 
     int                 is_rt;
-    int                 NO_CONNECTION;
-    int                 gx_jack_midi_process(jack_nframes_t, void* arg);
+    int                 gx_jack_midi_process(jack_nframes_t, float *input);
     int                 gx_jack_midi_input_process(jack_nframes_t, void* arg);
 
     void                gx_jack_init_port_connection(const string*);

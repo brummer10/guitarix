@@ -74,11 +74,12 @@ def dsp_file(self, node):
     tsk.proc = self.proc
     tsk.proc_args = getattr(self, "proc_args", [])
     tsk.set_inputs(node)
+    tsk.dep_vars = ['DSP2CC_ARGS']
+    tsk.env['DSP2CC_ARGS'] = tsk.proc_args
     parent = node.parent
     o = node.change_ext('.cc')
     tsk.set_outputs(o)
-    bld = tsk.generator.bld
-    bld.add_manual_dependency(node,bld.bldnode.find_resource(self.proc))
+    self.bld.add_manual_dependency(node,self.bld.bldnode.find_resource(self.proc))
 
 def build(bld):
     unused_sources = [
@@ -96,7 +97,7 @@ def build(bld):
         'eq.dsp',
         'outputgain.dsp',
         'feed.dsp',
-        'balance.dsp',
+        'balance1.dsp',
         'amp2.dsp',
         'stage3.dsp',
         'distortion.dsp',
@@ -106,7 +107,6 @@ def build(bld):
         ]
 
     sources = [
-        'balance1.dsp',
         'presence_level.dsp',
         'jconv_post.dsp',
         'cabinet_impulse_former.dsp',
@@ -195,6 +195,9 @@ def build(bld):
         'gxamp15.dsp',
         'gxamp16.dsp',
         'gxamp17.dsp',
+
+        # bypass mode
+        'balance.dsp',
         ]
 
     if bld.env['FAUST']:
@@ -211,7 +214,7 @@ def build(bld):
         bld.new_task_gen(
             source = sources_plugin,
             proc = "../tools/dsp2cc",
-            proc_args = arg+["--init-type=plugin"]
+            proc_args = arg+["--init-type=plugin"],
             )
         bld.new_task_gen(
             source = sources_plugin_float,
@@ -220,7 +223,7 @@ def build(bld):
             )
     else:
         gdir = "../faust-generated/"
-        for s in sources + float_sources:
+        for s in sources + sources_plugin_float + sources_plugin:
             s = s.replace(".dsp",".cc")
             bld(name = "copy-faust-cc",
                 rule = "cp ${SRC} ${TGT}",

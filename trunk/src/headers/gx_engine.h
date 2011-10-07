@@ -49,8 +49,6 @@ typedef enum {
 
 class AudioVariables {
 public:
-    GxEngineState checky;
-
     bool  initialized;  /* engine init state  */
     bool  buffers_ready;  /* buffer ready state */
     float fwarn;
@@ -62,8 +60,6 @@ public:
 
     float fConsta1t;
 
-    float maxlevel[2];
-    float* checkfreq;
     float* oversample;
     float* result;
 
@@ -76,7 +72,6 @@ extern AudioVariables audio;
 
 class MidiVariables {
  public:
-    bool midistate;
     float fslider45;
     float fslider38;
     float fslider31;
@@ -114,7 +109,6 @@ class MidiVariables {
     float BeatFilter1;
     float BeatFilter2;
     float BeatFilterk;
-    bool  fmi;
     bool midistat;
     bool  midistat1;
     bool  midistat2;
@@ -151,35 +145,37 @@ extern MidiVariables midi;
 
 /****************************************************************
  ** class ProcessingChainBase
+ ** members and methods accessed by the rt thread are marked RT
  */
 
 class ProcessingChainBase {
 public:
     enum RampMode { ramp_mode_down_dead, ramp_mode_down, ramp_mode_up_dead, ramp_mode_up, ramp_mode_off };
 private:
-    sem_t sync_sem;
+    sem_t sync_sem; // RT
     list<Plugin*> to_release;
-    int ramp_value;
-    RampMode ramp_mode;
+    int ramp_value; // RT
+    RampMode ramp_mode; // RT
+    bool stopped;
 protected:
-    int steps_up;		// >= 1
-    int steps_up_dead;		// >= 0
-    int steps_down;		// >= 1
-    volatile bool latch; // set between commit and end of rt cycle
+    int steps_up;		// RT; >= 1
+    int steps_up_dead;		// RT; >= 0
+    int steps_down;		// RT; >= 1
+    volatile bool latch; // RT; set between commit and end of rt cycle
     list<Plugin*> modules;
-    inline void set_ramp_value(int n) { g_atomic_int_set(&ramp_value, n); }
-    inline void set_ramp_mode(RampMode n) { g_atomic_int_set(&ramp_mode, n); }
-    void try_set_ramp_mode(RampMode oldmode, RampMode newmode, int oldrv, int newrv);
+    inline void set_ramp_value(int n) { g_atomic_int_set(&ramp_value, n); } // RT
+    inline void set_ramp_mode(RampMode n) { g_atomic_int_set(&ramp_mode, n); } // RT
+    void try_set_ramp_mode(RampMode oldmode, RampMode newmode, int oldrv, int newrv); // RT
 public:
     ProcessingChainBase();
     inline RampMode get_ramp_mode() {
-	return static_cast<RampMode>(g_atomic_int_get(&ramp_mode));
+      return static_cast<RampMode>(g_atomic_int_get(&ramp_mode)); // RT
     }
-    inline int get_ramp_value() { return g_atomic_int_get(&ramp_value); }
+    inline int get_ramp_value() { return g_atomic_int_get(&ramp_value); } // RT
     void set_samplefreq(int samplefreq);
     bool set_plugin_list(const list<Plugin*> &p);
     void clear_module_states();
-    void post_rt_finished() {
+    void post_rt_finished() { // RT
 	int val;
 	latch = false;
 	if (sem_getvalue(&sync_sem, &val) == 0 && val == 0) {
@@ -187,7 +183,7 @@ public:
 	}
     }
     void wait_rt_finished() {
-	if (audio.checky == kEngineOff || gx_jack::gxjack.jack_is_exit || gx_jack::gxjack.NO_CONNECTION) { //FIXME
+	if (stopped) {
 	    return;
 	}
 	while (sem_wait(&sync_sem) == EINTR);
@@ -202,7 +198,7 @@ public:
     }
     void release();
     void wait_ramp_down_finished() {
-	if (audio.checky == kEngineOff || gx_jack::gxjack.jack_is_exit || gx_jack::gxjack.NO_CONNECTION) { //FIXME
+	if (stopped) {
 	    return;
 	}
 	while (ramp_mode == ramp_mode_down) {
@@ -212,25 +208,27 @@ public:
     inline void start_ramp_up() { set_ramp_value(0); set_ramp_mode(ramp_mode_up_dead); }
     inline void start_ramp_down() { set_ramp_value(steps_down); set_ramp_mode(ramp_mode_down); }
     inline void set_down_dead() { set_ramp_mode(ramp_mode_down_dead); }
+    inline void set_stopped(bool v) { stopped = v; }
 };
 
 
 /****************************************************************
  ** template class ThreadSafeChainPointer
+ ** members and methods accessed by the rt thread are marked RT
  */
 
 template <class F>
 class ThreadSafeChainPointer: public ProcessingChainBase {
 private:
-    F *rack_order_ptr[2];
+    F *rack_order_ptr[2]; // RT
     int size[2];
     int current_index;
     F *current_pointer;
     void setsize(int n);
     F get_audio(PluginDef *p);
 protected:
-    F *processing_pointer;
-    inline F* get_rt_chain() { return reinterpret_cast<F*>(g_atomic_pointer_get(&processing_pointer)); }
+    F *processing_pointer; // RT
+    inline F* get_rt_chain() { return reinterpret_cast<F*>(g_atomic_pointer_get(&processing_pointer)); } // RT
 public:
     ThreadSafeChainPointer();
     ~ThreadSafeChainPointer();
@@ -245,13 +243,16 @@ public:
 
 template <class F>
 ThreadSafeChainPointer<F>::ThreadSafeChainPointer():
-    current_index(0) {
-    size[0] = 0;
-    size[1] = 0;
-    rack_order_ptr[0] = 0;
-    rack_order_ptr[1] = 0;
-    current_pointer = rack_order_ptr[0];
-    empty_chain();
+    rack_order_ptr(),
+    size(),
+    current_index(0),
+    current_pointer(),
+    processing_pointer() {
+    setsize(1);
+    current_pointer[0] = 0;
+    processing_pointer = current_pointer;
+    current_index = 1;
+    current_pointer = rack_order_ptr[1];
 }
 
 template <class F>
@@ -318,22 +319,22 @@ class MonoModuleChain: public ThreadSafeChainPointer<monochainorder> {
 public:
     MonoModuleChain(): ThreadSafeChainPointer<monochainorder>() {}
     void process(int count, float *input, float *output);
-    void print();
+    inline void print() { printlist("Mono", modules); }
 };
 
 class StereoModuleChain: public ThreadSafeChainPointer<stereochainorder> {
 public:
     StereoModuleChain(): ThreadSafeChainPointer<stereochainorder>() {}
     void process(int count, float *input, float *output1, float *output2);
-    void print();
+    inline void print() { printlist("Stereo", modules); }
 };
 
 
 /****************************************************************
- ** class ModuleSelector
+ ** classes ModuleSelector
  */
 
-class ModuleSelector: PluginDef {
+class ModuleSelectorFromList: public ModuleSelector, private PluginDef {
 private:
     unsigned int selector;
     const char* select_id;
@@ -345,10 +346,10 @@ private:
     int register_parameter(const ParamReg& reg);
 public:
     Plugin plugin;
-    ModuleSelector(const char* id, const char* name,
-		   PluginDef **module_ids, const char* select_id,
-		   const char* select_name, const char** groups = 0,
-		   int flags = 0);
+    ModuleSelectorFromList(
+	const char* id, const char* name, PluginDef **module_ids,
+	const char* select_id, const char* select_name,
+	const char** groups = 0, int flags = 0);
     void set_module();
     void set_selector(unsigned int n);
     unsigned int get_selector() { return selector; }
@@ -392,6 +393,10 @@ public:
 	start_ramp_down();
 	wait_ramp_down_finished();
     }
+    void set_down_dead() {
+	mono_chain.set_down_dead();
+	stereo_chain.set_down_dead();
+    }
     void add_selector(ModuleSelector& sel);
     bool prepare_module_lists();
     void commit_module_lists(bool ramp = true);
@@ -425,8 +430,18 @@ public:
 class GxEngine: public ModuleSequencer {
 private:
     gx_ui::GxUI ui;
+    int stateflags;
 public:
+    enum StateFlag {
+	SF_NO_CONNECTION = 0x01,
+	SF_JACK_RECONFIG = 0x02,
+    };
     NoiseGate noisegate;
+    MonoMute monomute;
+    StereoMute stereomute;
+    MidiAudioBuffer midiaudiobuffer;
+    TunerAdapter tuner;
+    MaxLevel maxlevel;
     OscilloscopeAdapter oscilloscope;
     ConvolverAdapter convolver;
     CabinetConvolver cabinet;
@@ -434,6 +449,10 @@ public:
 public:
     GxEngine(PluginList& pl);
     ~GxEngine();
+    void set_stateflag(StateFlag flag);
+    void clear_stateflag(StateFlag flag);
+    void set_state(GxEngineState state);
+    GxEngineState get_state();
     void load_plugins(string plugin_dir);
 };
 
@@ -446,10 +465,7 @@ GxEngine& get_engine();
 inline void set_latency_warning_change()   {audio.fwarn_swap = audio.fwarn;}
 inline void get_latency_warning_change()   {audio.fwarn = audio.fwarn_swap;}
 
-inline bool isMidiOn()                     {return midi.midistate;}
 inline bool isInitialized()                {return audio.initialized;}
-inline void turnOffMidi()                  {midi.midistate = false;}
-inline void turnOnMidi()                   {midi.midistate = true;}
 
 /****************************************************************/
 
@@ -458,19 +474,9 @@ inline void turnOnMidi()                   {midi.midistate = true;}
 void gx_engine_init(const string *optvar);
 void gx_engine_reset();
 
-void compute_midi(int len);
 void compute_midi_in(void* midi_input_port_buf);
-void process_midi(int count);
+void process_midi(int count, float *input);
 
-void compute(int count, float* input, float* output0);
-void compute_insert(int count, float* input1, float* output2, float* output3);
-
-void process_buffers(int count, float* input, float* output0);
-void process_insert_buffers(int count, float* input1, float* output0, float* output1);
-
-// register vars to param and init
-void register_faust_parameters();
-void faust_init(int samplingFreq);
 void load_plugins(string plugin_dir);
 
 /* ------------------------------------------------------------------- */

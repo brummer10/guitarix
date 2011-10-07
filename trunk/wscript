@@ -247,11 +247,7 @@ def check_faust(conf):
         conf.check_message_custom('faust','version',"can't use %s (check ./waf --help)" % vers,color='YELLOW')
     else:
         conf.check_message('faust','version',1,vers)
-    if Options.options.faust_float:
-        conf.env['FAUST_DOUBLE'] =None
-    else:
-        conf.env['FAUST_DOUBLE'] =True
-
+    conf.env['FAUST_DOUBLE'] = not Options.options.faust_float
 
 def print_msg(msg, nl=True):
     if HEXVERSION > 0x10500:

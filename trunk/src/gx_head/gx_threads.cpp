@@ -43,13 +43,13 @@ gboolean gx_refresh_meter_level(gpointer args) {
         static float old_peak_db[2] = {-INFINITY, -INFINITY};
 
         // fill up from engine buffers
+	gx_engine::MaxLevel& m = gx_engine::get_engine().maxlevel;
         for (int c = 0; c < 2; c++) {
             // update meters (consider falloff as well)
             // calculate peak dB and translate into meter
             float peak_db = -INFINITY;
-            if (gx_engine::audio.maxlevel[c] > 0.) {
-                peak_db = power2db(gx_engine::audio.maxlevel[c]);
-		gx_engine::audio.maxlevel[c] = 0;
+            if (m.get(c) > 0) {
+                peak_db = power2db(m.get(c));
             }
             // retrieve old meter value and consider falloff
             if (peak_db < old_peak_db[c]) {
@@ -58,6 +58,7 @@ gboolean gx_refresh_meter_level(gpointer args) {
             gui->getLevelMeter(c).set(log_meter(peak_db));
             old_peak_db[c] = peak_db;
         }
+	m.reset();
     }
     // run thread again
     return TRUE;
@@ -76,7 +77,7 @@ gboolean gx_xrun_report(gpointer arg) {
 /* --------- load preset triggered by midi program change --------- */
 gboolean gx_do_program_change(gpointer arg) {
     int pgm = GPOINTER_TO_INT(arg);
-    gx_engine::GxEngineState estate = gx_engine::audio.checky;
+    gx_engine::GxEngineState estate = gx_engine::get_engine().get_state();
     if (gx_preset::gxpreset.gx_nth_preset(pgm)) {
         if (estate == gx_engine::kEngineBypass)
             // engine bypass but preset found -> engine on
@@ -135,7 +136,6 @@ void cab_conv_restart() {
     if (gx_gui::guivar.g_threads[5] == 0 || g_main_context_find_source_by_id(NULL, gx_gui::guivar.g_threads[5]) == NULL) {
         gx_gui::guivar.g_threads[5] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0,
 						 conv_restart,NULL,NULL);
-	gx_engine::get_engine().cabinet.update_sum();
     } else {
         gx_system::gx_print_warning(_("Cabinet Loading"), string(_(" cab thread is bussy")));
     }
@@ -149,7 +149,6 @@ static gboolean contrast_restart(gpointer data) {
 void contrast_conv_restart() {
     if (gx_gui::guivar.g_threads[9] == 0 || g_main_context_find_source_by_id(NULL, gx_gui::guivar.g_threads[9]) == NULL) {
         gx_gui::guivar.g_threads[9] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 0, contrast_restart,NULL,NULL);
-        gx_engine::get_engine().contrast.update_sum();
     } else {
         gx_system::gx_print_warning(_("Presence Loading"), string(_(" presence thread is bussy")));
      }

@@ -25,7 +25,70 @@
 namespace gx_engine {
 
 /****************************************************************
- **  class NoiseGate
+ ** MonoMute, StereoMute, MaxLevel, MidiAudioBuffer
+ */
+
+class MonoMute: public PluginDef {
+private:
+    static void process(int count, float *input, float *output);
+public:
+    MonoMute();
+};
+
+class StereoMute: public PluginDef {
+private:
+    static void process(int count, float *input0, float *input1,
+			float *output0, float *output1);
+public:
+    StereoMute();
+};
+
+class MaxLevel: public PluginDef {
+private:
+    static float maxlevel[2];
+    static void process(int count, float *input0, float *input1,
+			float *output0, float *output1);
+    static int activate(bool start, PluginDef *plugin);
+public:
+    static float get(unsigned int channel) {
+	assert(channel < 2); return maxlevel[channel];
+    }
+    static void reset() {
+	maxlevel[0] = maxlevel[1] = 0;
+    }
+    MaxLevel();
+};
+
+class MidiAudioBuffer: PluginDef {
+private:
+    static void fill_buffer(int count, float *input0, float *output0);
+public:
+    Plugin plugin;
+    MidiAudioBuffer();
+};
+
+/****************************************************************
+ ** class TunerAdapter
+ */
+
+class TunerAdapter: public ModuleSelector, private PluginDef {
+private:
+    static void feed_tuner(int count, float *input, float *output);
+    static int regparam(const ParamReg& reg);
+    int state;
+    enum { tuner_use = 0x01, midi_use = 0x02 };
+    void set_and_check(int use, bool on);
+    const Plugin& dep_plugin;
+public:
+    Plugin plugin;
+    TunerAdapter(const Plugin& pl);
+    void used_for_display(bool on) { set_and_check(tuner_use, on); }
+    void used_by_midi(bool on) { set_and_check(midi_use, on); }
+    void set_module();
+};
+
+/****************************************************************
+ ** class NoiseGate
  */
 
 class NoiseGate {
@@ -111,8 +174,8 @@ public:
     bool conv_start();
     bool cabinet_changed() { return current_cab != cabinet; }
     void update_cabinet() { current_cab = cabinet; }
-    bool sum_changed() { return abs(sum - (level + bass + treble)) > 0.01; }
-    void update_sum() { sum = level + bass + treble; }
+    bool sum_changed() { return abs(sum - (level + bass + treble + gx_jack::gxjack.jack_bs)) > 0.01; }
+    void update_sum() { sum = level + bass + treble + gx_jack::gxjack.jack_bs; }
     bool conv_update();
 };
 
@@ -135,8 +198,8 @@ public:
     ContrastConvolver(gx_ui::GxUI *ui);
     inline bool is_runnable() { return conv.is_runnable(); }
     inline void set_not_runnable() { conv.set_not_runnable(); }
-    inline bool sum_changed() { return abs(sum - level) > 0.01; }
-    inline void update_sum() { sum = level; }
+    inline bool sum_changed() { return abs(sum - (level + gx_jack::gxjack.jack_bs)) > 0.01; }
+    inline void update_sum() { sum = level + gx_jack::gxjack.jack_bs; }
     bool conv_start();
     void conv_stop() { conv.stop(); }
 };

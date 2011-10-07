@@ -773,11 +773,8 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
         }
     }
 
-    gx_gui::guivar.shownote = -1;
     gx_gui::guivar.showwave = 0;
-    gx_jack::gxjack.NO_CONNECTION = 1;
-
-    gx_engine::turnOffMidi();
+    gx_engine::get_engine().set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
 
     // clean jack gxjack.client stuff
     gx_jack::gxjack.gx_jack_cleanup();
@@ -787,10 +784,6 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
         gx_destroy_event();
     }
     // delete the locked mem buffers
-    if (gx_engine::audio.checkfreq) {
-        delete[] gx_engine::audio.checkfreq;
-        gx_engine::audio.checkfreq = NULL;
-    }
     if (gx_engine::audio.oversample) {
         delete[] gx_engine::audio.oversample;
         gx_engine::audio.oversample = NULL;

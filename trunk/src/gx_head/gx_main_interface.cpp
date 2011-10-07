@@ -114,7 +114,6 @@ void GuiVariables::register_gui_parameter() {
     // end unused
 
     showwave = 0;
-    shownote = -1;
     show_patch_info = 0;
 
     /* rack handlig */
@@ -1756,10 +1755,8 @@ uiTuner::uiTuner(gx_ui::GxUI* ui, float* zone)
 
 void uiTuner::reflectZone() {
     fCache = *fZone;
-    if (guivar.shownote == 1) {
+    if (gx_engine::get_engine().tuner.plugin.on_off) {
         set_freq(gx_engine::midi.fConsta4);
-    } else if (guivar.shownote == 0) {
-        guivar.shownote = -1;
     }
 }
 
@@ -1805,7 +1802,7 @@ struct uiStatusDisplay : public gx_ui::GxUiItemBool {
     virtual void reflectZone() {
 	bool v = *fZone;
 	fCache = v;
-	if (gx_engine::isMidiOn()) {
+	if (gx_engine::get_engine().midiaudiobuffer.plugin.on_off) {
 	    if (gx_jack::gxjack.jcpu_load < 65.0) {
 		if (v) {
 		    gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(gw.status_icon),

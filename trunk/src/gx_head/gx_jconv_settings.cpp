@@ -178,7 +178,6 @@ static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::G
 
 // FIXME: needs to be moved somewhere else (at least be together with convolver_start)
 void gx_convolver_restart() {
-    printf("JCR\n");
     if (!*GxJConvSettings::checkbutton7) {
         return;
     }

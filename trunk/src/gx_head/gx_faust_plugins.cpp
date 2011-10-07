@@ -111,4 +111,6 @@ namespace gx_effects {
 #include "faust/stereoverb.cc"
 }
 
+#include "faust/balance.cc"
+
 }

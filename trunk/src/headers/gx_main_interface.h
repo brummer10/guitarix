@@ -75,7 +75,6 @@ class GuiVariables {
     bool                dialogbox[35];
     
     int                 showwave;
-    int                 shownote;
     float               show_patch_info;
 
     /* rack handlig */
