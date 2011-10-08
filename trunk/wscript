@@ -499,7 +499,7 @@ def configure(conf):
     conf.sub_config('src/gx_head');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
-    conf.sub_config('src/exp-plugins');
+    conf.sub_config('src/plugins');
     if conf.env["LADSPA"]:   
         conf.sub_config('ladspa');
     conf.sub_config('rcstyles');
@@ -595,7 +595,7 @@ def build(bld):
     bld.add_subdirs('glade-gxw')
     bld.add_subdirs('pygxw')
     bld.add_subdirs('src/faust')
-    bld.add_subdirs('src/exp-plugins')
+    bld.add_subdirs('src/plugins')
     
     bld.add_subdirs('rcstyles')
     bld.add_subdirs('pixmaps')

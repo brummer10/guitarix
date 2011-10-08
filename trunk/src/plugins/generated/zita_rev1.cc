@@ -1,4 +1,4 @@
-// generated from file '../src/exp-plugins/zita_rev1.dsp' by dsp2cc:
+// generated from file '../src/plugins/zita_rev1.dsp' by dsp2cc:
 // Code generated with Faust 0.9.30 (http://faust.grame.fr)
 
 
