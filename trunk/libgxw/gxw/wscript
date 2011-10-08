@@ -93,7 +93,6 @@ def build(bld):
         # static library
         prog = bld(
             features = ['cxx', 'cstaticlib'],
-            ccflags= bld.env['CXXFLAGS'],
             includes = ['.'],
             source = sources,
             uselib = ['GTHREAD', 'GTK2'],
@@ -104,7 +103,6 @@ def build(bld):
         # shared library
         prog = bld(
             features = ['cxx', 'cshlib'],
-            ccflags= bld.env['CXXFLAGS'],
             includes = ['.'],
             source = sources,
             uselib = ['GTHREAD', 'GTK2'],

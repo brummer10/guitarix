@@ -1263,6 +1263,37 @@ void GxMainInterface::openAmpBox(const char* label) {
     pushBox(kBoxMode, GTK_WIDGET(sBox));
 }
 
+void GxMainInterface::openStereoRackBox(const char* label, int* posit, const char *id_on_off,
+				      const char *id_dialog) {
+    fBox[++fTop] = fStereoRackContainer;
+    fMode[fTop] = kBoxMode;
+    GtkWidget* box = openHorizontalRestetBox(label, posit);
+    openVerticalBox(label);
+    openHorizontalTableBox("");
+    openPaintBox1("");
+    openHorizontalBox("");
+    openSpaceBox("");
+    closeBox();
+    openFrameBox("");
+    closeBox();
+    create_switch_no_caption(sw_switchit, id_on_off);
+    openSpaceBox("");
+    closeBox();
+    openFrameBox("");
+    closeBox();
+    closeBox();
+    closeBox();
+    opensDialogBox(id_dialog, id_on_off, "RackBox_expose", box);
+}
+
+void GxMainInterface::closeStereoRackBox() {
+    closeBox();
+    closeBox();
+    closeBox();
+    closeBox();
+    --fTop;
+}
+
 void GxMainInterface::openMonoRackBox(const char* label, int* posit, const char *id_on_off,
 				      const char *id_pre_post, const char *id_dialog) {
     fBox[++fTop] = fMonoRackContainer;

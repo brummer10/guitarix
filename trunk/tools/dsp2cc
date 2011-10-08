@@ -115,6 +115,43 @@ class Parser(object):
                 return int(m.group(1))
         raise ValueError("getNum%sputs not found in source" % s)
 
+    def parse_name(self, s):
+        def findBrackets(aString):
+            l = []
+            n = []
+            while aString:
+                v = aString.split('[',1)
+                if len(v) == 2:
+                    s, match = v
+                else:
+                    n.append(aString)
+                    break
+                s.strip()
+                if s:
+                    n.append(s)
+                match.lstrip()
+                open = 1
+                for index in range(len(match)):
+                    if match[index] in '[]':
+                        open = (open + 1) if match[index] == '[' else (open - 1)
+                    if not open:
+                        l.append(match[:index])
+                        break
+                aString = match[index+1:].lstrip()
+            return " ".join(n), l
+        s, l = findBrackets(s)
+        for v in l:
+            if ":" in v:
+                key, value = v.split(":",1)
+            else:
+                key = v
+                value = ""
+            if key == "name" and value:
+                if s != self.toplevel:
+                    self.groups[s] = value
+            #self.ui.add(s, key, value)
+        return s
+
     def readUI(self, exp):
         stop = re.compile(exp).match
         pre = r"\s*interface->"
@@ -153,6 +190,8 @@ class Parser(object):
             m = openbox(line)
             if m:
                 grp = m.group(2)
+                if "[" in grp:
+                    grp = self.parse_name(grp)
                 if not stack:
                     if self.toplevel and grp == self.modname:
                         grp = self.toplevel
@@ -390,15 +429,33 @@ PluginDef plugin = {
     init,  // set_samplerate
     %s,  // activate plugin
     register_params,
-    0,   // load_ui
+    %s,   // load_ui
     %s,  // clear_state
 };
+"""
+
+plugin_standalone_header = """
+#include "gx_faust_support.h"
+#include "gx_plugin.h"
+#define N_(x) (x)
+"""
+
+plugin_standalone_footer = """
+extern "C" __attribute__ ((visibility ("default"))) int
+get_gx_plugins(int *count, PluginDef **pplugin)
+{
+    *count = 1;
+    *pplugin = &plugin;
+    return 0;
+}
 """
 
 def output(fp, p, fname, init_type):
     has_activate = len(p.memlist) > 0
     fp.write("// generated from file '%s' by dsp2cc:\n" % fname)
-    fp.write("// %s\n\n" % p.headvers) # good idea or not??
+    fp.write("// %s\n\n" % p.headvers)
+    if init_type == "plugin-standalone":
+        fp.write(plugin_standalone_header)
     p.write(fp, "includes")
     fp.write("namespace %s {\n" % p.modname)
     p.write(fp, "var-decl")
@@ -431,7 +488,7 @@ def output(fp, p, fname, init_type):
         fp.write("}\n\n")
         fp.write(activate)
     fp.write("%s(int count%s%s)\n{\n" % (
-        "static void compute" if init_type == "plugin" else "void compute",
+        "static void compute" if init_type in ("plugin","plugin-standalone") else "void compute",
         "".join([", float *input%d" % i for i in range(p.getNumInputs())]),
         "".join([", float *output%d" % i for i in range(p.getNumOutputs())])))
     p.write(fp, "compute", 1)
@@ -442,25 +499,40 @@ def output(fp, p, fname, init_type):
         p.ui.write(fp)
         fp.write('\tregisterInit("%s", init);\n' % p.topname)
         fp.write("}\n")
-    elif init_type == "plugin":
+    elif init_type in ("plugin","plugin-standalone"):
         fp.write("static int register_params(const ParamReg& reg)\n{\n")
         p.ui.write(fp, prefix="reg.")
         fp.write("\treturn 0;\n}\n")
+        ui_name = fname.replace(".dsp", "_ui.cc")
+        if os.path.exists(ui_name):
+            fp.write("\n")
+            fp.write(file(ui_name).read())
+            load_ui = "load_ui"
+        else:
+            load_ui = "0"
         if p.groups:
             fp.write("\nstatic const char* groups[] = {\n%s\t};\n" % p.formatted_groups())
+        plugin_id = p.toplevel or p.topname
+        if p.name:
+            plugin_name = 'N_("%s")' % p.name
+        else:
+            plugin_name = '"?%s"' % p.modname
         fp.write(plugin % (
-            p.topname,  # id
-            'N_("%s")' % p.name if p.name else '"?%s"' % p.modname,  # name
+            plugin_id,    # id
+            plugin_name,  # name
             "groups" if p.groups else "0",  # groups
             "compute" if p.getNumOutputs() == 1 else "0",  # mono_audio
             "compute" if p.getNumOutputs() == 2 else "0",  # stereo_audio
             "activate" if has_activate else "0",  # activate plugin
+            load_ui, # load_ui
             "clear_state" if state else "0", # clear_state
             ))
     else:
         fp.write("static int register_params(const ParamReg& reg)\n{\n")
         p.ui.write(fp, prefix="reg.")
         fp.write("\treturn 0;\n}\n")
+    if init_type == "plugin-standalone":
+        fp.write(plugin_standalone_footer)
     fp.write("\n} // end namespace %s\n" % p.modname)
 
 def main():
@@ -474,9 +546,12 @@ def main():
     op.add_option("-s", "--memory-threshold", dest="memory_threshold",
                   default=0, type="int",
                   help="change static memory allocations above threshold to dynamic ones")
+    init_opts = ["ctor", "no-init", "plugin", "plugin-standalone"]
     op.add_option("-i", "--init-type", dest="init_type", action="store", default="ctor",
-                  help="type of init code generation: ctor, no-init, plugin")
+                  help="type of init code generation: %s" % ", ".join(init_opts))
     options, args = op.parse_args()
+    if options.init_type not in init_opts:
+        op.error("unknown init-type")
     if len(args) != 1:
         op.error("exactly one input filename expected\n")
     fname = args[0]

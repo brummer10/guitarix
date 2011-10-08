@@ -1,4 +1,4 @@
-include(@GMMPROCDIR@/m4/convert.m4)
+include(convert_gtkmm.m4)
 _CONVERSION(`Gtk::Label*',`GtkLabel*',__FP2P)
 _CONVERSION(`GtkLabel*',`Gtk::Label*',__RP2P)
 _CONVERSION(`Glib::RefPtr<Gtk::TreeModel>',`GtkTreeModel*',__FP2P)

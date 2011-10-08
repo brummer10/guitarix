@@ -1,0 +1,42 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+def build(bld):
+    sources = [
+        "zita_rev1.dsp",
+        ]
+
+    if bld.env['FAUST']:
+        float_arg = ["-s","40000","-float"]
+        if bld.env['FAUST_DOUBLE']:
+            arg = ["-double"]
+        else:
+            arg = ["-float"]
+        bld.new_task_gen(
+            source = sources,
+            proc = "../tools/dsp2cc",
+            gen_dir_suffix = "/generated",
+            proc_args = arg+["--init-type=plugin-standalone"],
+            )
+    else:
+        gdir = "generated/"
+        for s in sources:
+            s = s.replace(".dsp",".cc")
+            bld(name = "copy-faust-cc",
+                rule = "cp ${SRC} ${TGT}",
+                source = gdir + s,
+                target = s,
+            )
+    bld.add_group()
+    for s in sources:
+        bld(features = ['cxx', 'cshlib', 'libtool'],
+            type = 'cshlib',
+            vnum = "1.0",
+            includes = ["../headers"],
+            source = [s.replace(".dsp",".cc")],
+            target = s.replace(".dsp",""),
+            )
+    
+
+def configure(conf):
+    conf.check_tool("libtool")

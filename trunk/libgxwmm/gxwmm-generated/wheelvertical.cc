@@ -27,7 +27,7 @@
 Gxw::WheelVertical::WheelVertical(Gtk::Adjustment& adjustment):
 	// Mark this class as non-derived to allow C++ vfuncs to be skipped.
   Glib::ObjectBase(0),
-  Gxw::Regler(Glib::ConstructParams(wheel_vertical_class_.init(), "adjustment",adjustment.gobj(), static_cast<char*>(0)))
+  Gxw::Regler(Glib::ConstructParams(wheelvertical_class_.init(), "adjustment",adjustment.gobj(), static_cast<char*>(0)))
 {}
 
 namespace
@@ -108,11 +108,11 @@ WheelVertical::~WheelVertical()
   destroy_();
 }
 
-WheelVertical::CppClassType WheelVertical::wheel_vertical_class_; // initialize static member
+WheelVertical::CppClassType WheelVertical::wheelvertical_class_; // initialize static member
 
 GType WheelVertical::get_type()
 {
-  return wheel_vertical_class_.init().get_type();
+  return wheelvertical_class_.init().get_type();
 }
 
 
@@ -126,7 +126,7 @@ WheelVertical::WheelVertical()
 :
   // Mark this class as non-derived to allow C++ vfuncs to be skipped.
   Glib::ObjectBase(0),
-  Gxw::Regler(Glib::ConstructParams(wheel_vertical_class_.init()))
+  Gxw::Regler(Glib::ConstructParams(wheelvertical_class_.init()))
 {
   
 

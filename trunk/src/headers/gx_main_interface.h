@@ -433,6 +433,7 @@ class GxMainInterface : public gx_ui::GxUI {
     GtkWidget*            sBox;
     GtkWidget*            tBox;
     GtkWidget*            fMonoRackContainer;
+    GtkWidget*            fStereoRackContainer;
     int                   fMode[stackSize];
     bool                  fStopped;
     GtkTextView*          fLoggingWindow;
@@ -537,6 +538,8 @@ class GxMainInterface : public gx_ui::GxUI {
     void openLevelMeterBox(const char* label);
     void openToolBar(const char* label = "");
     void setSkinBox(const char* label, float* zone);
+    void openStereoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_dialog);
+    void closeStereoRackBox();
     void openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog);
     void closeMonoRackBox();
     void closeBox();

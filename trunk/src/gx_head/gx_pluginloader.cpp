@@ -391,12 +391,18 @@ void PluginList::append_rack(gx_gui::GxMainInterface *ui) {
 	    continue;
 	}
 	string s = pd->id;
-	string id_dialog = s+".dialog";
 	string id_on_off = s+".on_off";
-	string id_pre_post = s+".pp";
-	ui->openMonoRackBox(tr_name(pd->name), &(p->second->position), id_on_off.c_str(), id_pre_post.c_str(), id_dialog.c_str());
-	pd->load_ui(UiBuilder(ui,p->second->pdef));
-	ui->closeMonoRackBox();
+	string id_dialog = s+".dialog";
+	if (pd->flags & PGN_STEREO) {
+	    ui->openStereoRackBox(tr_name(pd->name), &(p->second->position), id_on_off.c_str(), id_dialog.c_str());
+	    pd->load_ui(UiBuilder(ui,p->second->pdef));
+	    ui->closeStereoRackBox();
+	} else {
+	    string id_pre_post = s+".pp";
+	    ui->openMonoRackBox(tr_name(pd->name), &(p->second->position), id_on_off.c_str(), id_pre_post.c_str(), id_dialog.c_str());
+	    pd->load_ui(UiBuilder(ui,p->second->pdef));
+	    ui->closeMonoRackBox();
+	}
     }
 }
 

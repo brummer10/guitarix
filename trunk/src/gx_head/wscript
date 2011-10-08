@@ -64,7 +64,6 @@ def build(bld):
     bld(features = 'cxx cprogram',
         includes = incl,
         obj_ext  = '.o',
-        cxxflags= bld.env['CXXFLAGS'],
         source = sources,
         lib = lib,
         uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',

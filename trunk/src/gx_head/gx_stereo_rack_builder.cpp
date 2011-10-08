@@ -34,8 +34,9 @@
 namespace gx_gui {
 
 void GxMainInterface::gx_build_stereo_rack() {
-    PluginList& pl = get_pluginlist();
     openHorizontalTableBox("");
+    PluginList& pl = get_pluginlist();
+    fStereoRackContainer = fBox[fTop];
     {
         // add controllers without show them
         openHorizontalhideBox("");

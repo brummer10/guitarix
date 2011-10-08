@@ -21,8 +21,14 @@ def set_options(opt):
 
 def configure(conf):
     conf.check_tool('misc')
-    conf.cfg_get_variable(package='glibmm-2.4', variable='gmmprocdir')
-    conf.env["USE_GENERATED_CPP"] = not Options.options.generate_cpp_wrapper
+    if Options.options.generate_cpp_wrapper:
+        conf.cfg_get_variable(package='glibmm-2.4', variable='gmmprocdir')
+        conf.cfg_get_variable(package='gtkmm-2.4', variable='gmmprocm4dir', prefix="GTK_")
+        conf.cfg_get_variable(package='atkmm-1.6', variable='gmmprocm4dir', prefix="ATK_")
+        conf.cfg_get_variable(package='pangomm-1.4', variable='gmmprocm4dir', prefix="PANGO_")
+        conf.env["USE_GENERATED_CPP"] = False
+    else:
+        conf.env["USE_GENERATED_CPP"] = True
     if Options.options.shared_lib:
         conf.env["GX_LIB_SHARED"] = True
     else:
@@ -44,7 +50,10 @@ def template2cc(task):
     dpath = srcdir.bldpath(task.env)
     cmd = ["%s/gmmproc" % task.env["GMMPROCDIR"],
            "--defs", dpath,
-           "-I", dpath,
+           "-I", spath,
+           "-I", "%s" % task.env["GTK_GMMPROCM4DIR"],
+           "-I", "%s" % task.env["ATK_GMMPROCM4DIR"],
+           "-I", "%s" % task.env["PANGO_GMMPROCM4DIR"],
            basename,
            spath,
            dpath,
@@ -121,7 +130,6 @@ def build_generate_wrapper(bld):
               ]
     header = ["../../libgxw/gxw/"+v for v in header]
     bld(features = ['cxx', 'cprogram'],
-        ccflags = bld.env['CXXFLAGS'],
         source = "generate_defs_gxw.cc",
         includes = ["../../libgxw"],
         uselib = ['GTKMM'],
@@ -158,11 +166,6 @@ def build_generate_wrapper(bld):
     bld(rule = "cp ${SRC} ${TGT}", 
         source = "docs.xml",
         target = "gxw_docs.xml",
-        )
-    bld(features = 'subst',
-        source   = 'convert.m4.in',
-        target   = 'convert.m4',
-        dict     = dict(GMMPROCDIR=bld.env["GMMPROCDIR"]),
         )
 
 def build(bld):
@@ -233,7 +236,6 @@ def build(bld):
         bld(features = ['cxx', 'cshlib', 'libtool'],
             type = 'cshlib',
             vnum = "0.1",
-            ccflags = bld.env['CXXFLAGS'],
             includes = ['..','../../libgxw'],
             source = sources+["init.cc","wrap_init.cc"],
             uselib = ['GTKMM'],
@@ -242,7 +244,6 @@ def build(bld):
             )
     else:
         bld(features = ['cxx', 'cstaticlib'],
-            ccflags = bld.env['CXXFLAGS'],
             includes = ['..','../../libgxw'],
             source = sources+["init.cc","wrap_init.cc"],
             uselib = ['GTKMM'],

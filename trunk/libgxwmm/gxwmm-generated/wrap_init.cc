@@ -27,6 +27,7 @@
 #include "iredit.h"
 #include "radiobutton.h"
 #include "wheel.h"
+#include "wheelvertical.h"
 #include "hslider.h"
 #include "minislider.h"
 #include "vslider.h"
@@ -65,6 +66,7 @@ GType gx_vslider_get_type(void);
 GType gx_value_display_get_type(void);
 GType gx_wave_view_get_type(void);
 GType gx_wheel_get_type(void);
+GType gx_wheel_vertical_get_type(void);
 
 //Declarations of the *_error_quark() functions:
 
@@ -96,6 +98,7 @@ namespace Gxw {  class VSlider_Class { public: static Glib::ObjectBase* wrap_new
 namespace Gxw {  class ValueDisplay_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class WaveView_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 namespace Gxw {  class Wheel_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
+namespace Gxw {  class WheelVertical_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };  }
 
 namespace Gxw { 
 
@@ -127,6 +130,7 @@ void wrap_init()
   Glib::wrap_register(gx_value_display_get_type(), &Gxw::ValueDisplay_Class::wrap_new);
   Glib::wrap_register(gx_wave_view_get_type(), &Gxw::WaveView_Class::wrap_new);
   Glib::wrap_register(gx_wheel_get_type(), &Gxw::Wheel_Class::wrap_new);
+  Glib::wrap_register(gx_wheel_vertical_get_type(), &Gxw::WheelVertical_Class::wrap_new);
 
   // Register the gtkmm gtypes:
   Gxw::BigKnob::get_type();
@@ -152,6 +156,7 @@ void wrap_init()
   Gxw::ValueDisplay::get_type();
   Gxw::WaveView::get_type();
   Gxw::Wheel::get_type();
+  Gxw::WheelVertical::get_type();
 
 } // wrap_init()
 

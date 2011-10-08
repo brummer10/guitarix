@@ -375,8 +375,8 @@ void ModuleSelectorFromList::set_module() {
 ModuleSequencer::ModuleSequencer(PluginList& pl):
     selectors(),
     pluginlist(pl),
-    rack_changed(false),
-    audio_mode(PGN_MODE_MUTE),
+    rack_changed(true),
+    audio_mode(PGN_MODE_NORMAL),
     mono_chain(),
     stereo_chain() {
 }

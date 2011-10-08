@@ -1,0 +1,184 @@
+/************************************************************************
+ ************************************************************************
+  	FAUST library file
+	Copyright (C) 2003-2011 GRAME, Centre National de Creation Musicale
+    ---------------------------------------------------------------------
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as 
+	published by the Free Software Foundation; either version 2.1 of the 
+	License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+ 	License along with the GNU C Library; if not, write to the Free
+  	Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+  	02111-1307 USA. 
+ ************************************************************************
+ ************************************************************************/
+
+declare name "Math Library";
+declare author "GRAME";
+declare copyright "GRAME";
+declare version "1.0";
+declare license "LGPL"; 
+
+//--------------------------------------------------------------------------------
+// 						Mathematic library for Faust
+
+// Implementation of the math.h file as Faust foreign functions
+//
+// History
+// ----------
+// 28/06/2005	[YO]	postfixed functions with 'f' to force float version
+//						instead of double
+//			  	[YO]	removed 'modf' because it requires a pointer as argument
+//---------------------------------------------------------------------------------
+
+// -- Utilities and constants
+
+SR 			= min(192000, max(1, fconstant(int fSamplingFreq, <math.h>)));
+BS          = fvariable(int count, <math.h>);
+
+PI          = 3.1415926535897932385;
+
+// -- neg and inv functions
+
+neg(x)      = -x;
+inv(x)      = 1/x;
+
+// -- Trigonometric Functions
+
+//acos		= ffunction(float acosf (float), <math.h>, "");
+//asin		= ffunction(float asinf (float), <math.h>, "");
+//atan		= ffunction(float atanf (float), <math.h>, "");
+//atan2		= ffunction(float atan2f (float, float), <math.h>, "");
+
+//sin			= ffunction(float sinf (float), <math.h>, "");
+//cos			= ffunction(float cosf (float), <math.h>, "");
+//tan			= ffunction(float tanf (float), <math.h>,"");
+
+// -- Exponential Functions
+
+//exp 		= ffunction(float expf (float), <math.h>,"");
+//log 		= ffunction(float logf (float), <math.h>,"");
+//log10 	= ffunction(float log10f (float), <math.h>,"");
+//pow 		= ffunction(float powf (float, float), <math.h>,"");
+//sqrt 		= ffunction(float sqrtf (float), <math.h>,"");
+cbrt 		= ffunction(float cbrtf (float), <math.h>,"");
+hypot 		= ffunction(float hypotf (float, float), <math.h>,"");
+ldexp 		= ffunction(float ldexpf (float, int), <math.h>,"");
+scalb 		= ffunction(float scalbf (float, float), <math.h>,"");
+log1p 		= ffunction(float log1pf (float), <math.h>,"");
+logb 		= ffunction(float logbf (float), <math.h>,"");
+ilogb 		= ffunction(int ilogbf (float), <math.h>,"");
+expm1 		= ffunction(float expm1f (float), <math.h>,"");
+
+// -- Hyperbolic Functions
+
+acosh		= ffunction(float acoshf (float), <math.h>, "");
+asinh		= ffunction(float asinhf (float), <math.h>, "");
+atanh		= ffunction(float atanhf (float), <math.h>, "");
+
+sinh		= ffunction(float sinhf (float), <math.h>, "");
+cosh		= ffunction(float coshf (float), <math.h>, "");
+tanh		= ffunction(float tanhf (float), <math.h>,"");
+
+// -- Remainder Functions
+
+//fmod 		= ffunction(float fmodf (float, float),<math.h>,"");
+//remainder 	= ffunction(float remainderf (float, float),<math.h>,"");
+
+// -- Nearest Integer Functions
+
+//floor 		= ffunction(float floorf (float), <math.h>,"");
+//ceil 		= ffunction(float ceilf (float), <math.h>,"");
+//rint 		= ffunction(float rintf (float), <math.h>,"");
+
+// -- Special Functions
+
+erf			= ffunction(float erff(float), <math.h>,"");
+erfc		= ffunction(float erfcf(float), <math.h>,"");
+gamma		= ffunction(float gammaf(float), <math.h>,"");
+J0			= ffunction(float j0f(float), <math.h>,"");
+J1			= ffunction(float j1f(float), <math.h>,"");
+Jn			= ffunction(float jnf(int, float), <math.h>,"");
+lgamma		= ffunction(float lgammaf(float), <math.h>,"");
+Y0			= ffunction(float y0f(float), <math.h>,"");
+Y1			= ffunction(float y1f(float), <math.h>,"");
+Yn			= ffunction(float ynf(int, float), <math.h>,"");
+
+
+// -- Miscellaneous Functions
+
+//fabs 		= ffunction(float fabsf (float), <math.h>,"");
+//fmax 		= ffunction(float max (float, float),<math.h>,"");
+//fmin 		= ffunction(float min (float, float),<math.h>,"");
+
+fabs = abs;
+fmax = max;
+fmin = min;
+
+isnan 		= ffunction(int isnan (float),<math.h>,"");
+nextafter	= ffunction(float nextafter(float, float),<math.h>,"");
+
+// Pattern matching functions to count and access the elements of a list
+// USAGE : 	count ((10,20,30,40)) 	-> 4  
+//			take  (3,(10,20,30,40)) -> 30
+// 
+
+count ((xs, xxs)) = 1 + count(xxs);
+count (xx) = 1;
+
+take (1, (xs, xxs)) 	= xs;
+take (1, xs) 			= xs;
+take (nn, (xs, xxs)) 	= take (nn-1, xxs);
+
+// linear interpolation between two signals 
+interpolate(i) = *(1.0-i),*(i) : +; 
+
+// if-then-else implemented with a select2. 
+if(cond,thn,els) = select2(cond,els,thn);
+
+
+//-----------------------------------------------------------------
+// countdown(count,trig) 
+// start counting down from count, count-1,...,0 when trig > 0
+//-----------------------------------------------------------------
+countdown(count, trig)	= \(c).(if(trig>0, count, max(0, c-1))) ~_;
+
+//-----------------------------------------------------------------
+// countup(count,trig) 
+// start counting down from 0, 1, ... count-1, count when trig > 0
+//-----------------------------------------------------------------
+countup(count, trig)	= \(c).(if(trig>0, 0, min(count, c+1))) ~_;
+
+/******************************************************************
+ *  Hadamard matrix function
+ *  Implementation contributed by Remy Muller
+ *****************************************************************/
+
+// bus(n) : n parallel cables
+bus(2) = _,_; // avoids a lot of "bus(1)" labels in block diagrams
+bus(n) = par(i, n, _);
+
+// selector(i,n) : select ith cable among n
+selector(i,n) = par(j, n, S(i, j))    with { S(i,i) = _; S(i,j) = !; };
+
+// interleave(m,n) : interleave m*n cables : x(0), x(m), x(2m), ..., x(1),x(1+m), x(1+2m)...
+//interleave(m,n) = bus(m*n) <: par(i, m, par(j, n, selector(i+j*m,m*n))); 
+
+// interleave(row,col) : interleave row*col cables from column order to row order.
+// input : x(0), x(1), x(2) ..., x(row*col-1)
+// output: x(0+0*row), x(0+1*row), x(0+2*row), ..., x(1+0*row), x(1+1*row), x(1+2*row), ...
+interleave(row,col) = bus(row*col) <: par(r, row, par(c, col, selector(r+c*row,row*col))); 
+
+// butterfly(n) : addition then substraction of interleaved signals : 
+butterfly(n) = bus(n) <: interleave(n/2,2), interleave(n/2,2) : par(i, n/2, +), par(i, n/2, -);
+
+// hadamard(n) : hadamard matrix function of size n = 2^k
+hadamard(2) = butterfly(2);
+hadamard(n) = butterfly(n) : (hadamard(n/2) , hadamard(n/2));

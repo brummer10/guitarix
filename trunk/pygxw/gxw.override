@@ -10,6 +10,7 @@ headers
 %%
 modulename gxw
 %%
+import gtk.HBox as PyGtkHBox_Type
 import gtk.DrawingArea as PyGtkDrawingArea_Type
 import gtk.Range as PyGtkRange_Type
 import gtk.ToggleButton as PyGtkToggleButton_Type

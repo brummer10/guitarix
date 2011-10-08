@@ -275,8 +275,6 @@ static gboolean gx_engine_restart(gpointer data) {
 
 // ----- connect ports if we know them
 void GxJack::gx_jack_init_port_connection(const string* optvar) {
-    // set engine off for one GTK thread cycle to avoid Xrun at startup
-    gx_engine::get_engine().set_state(gx_engine::kEngineOff);
     gx_gui::guivar.g_threads[4] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20, gx_engine_restart,
                                            NULL, NULL);
 
@@ -573,7 +571,6 @@ void GxJack::gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg) {
 // -----Function that cleans the jack stuff on shutdown
 void GxJack::gx_jack_cleanup() {
     if (client && !jack_is_down) {
-        gx_engine::get_engine().set_state(gx_engine::kEngineOff);
         jack_is_exit = true;
 	gx_engine::get_engine().set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
         jack_deactivate(client);

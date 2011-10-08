@@ -1,0 +1,18 @@
+This is the zita rev1 reverb as a demo plugin
+for guitarix.
+
+zita rev1 is included in faust 0.9.43. Since
+we are using 0.9.30 at the moment, I temporarily
+copied math.lib from 0.9.43 and put some definitions
+from filter.lib and effect.lib into zita_rev1.dsp.
+
+With 0.9.43 it would be just one line...
+
+Start guitarix with this command line
+
+$ guitarix -P <..path to this dir..>
+
+The Zita Rev1 plugin should appear in the last
+position in the effect list.
+
+/ad
