@@ -532,15 +532,24 @@ float ContrastConvolver::sum = no_sum;
 #include "faust/presence_level.cc"
 
 bool ContrastConvolver::conv_start() {
-    conv.stop();
-    presence_level::init(contrast_ir_desc.ir_sr);
-    float contrast_irdata_c[contrast_ir_desc.ir_count];
-    presence_level::compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data,contrast_irdata_c);
-    while (!conv.checkstate());
-    if (!conv.configure(contrast_ir_desc.ir_count, contrast_irdata_c, contrast_ir_desc.ir_sr)) {
-        return false;
+    if (sum_changed()) {
+	conv.stop();
+	update_sum();
+	presence_level::init(contrast_ir_desc.ir_sr);
+	float contrast_irdata_c[contrast_ir_desc.ir_count];
+	presence_level::compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data,contrast_irdata_c);
+	while (!conv.checkstate());
+	if (!conv.configure(contrast_ir_desc.ir_count, contrast_irdata_c, contrast_ir_desc.ir_sr)) {
+	    return false;
+	}
+	return conv.start();
+    } else {
+	while (!conv.checkstate());
+	if (!conv.is_runnable()) {
+	    return conv.start();
+	}
+	return true;
     }
-    return conv.start();
 }
 
 // reduce gain to compensate the increased gain by the cabinet

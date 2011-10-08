@@ -144,6 +144,7 @@ void GxEngine::load_plugins(string plugin_dir) {
     pl.add(&gx_effects::gx_outputlevel::plugin,  PLUGIN_POS_END);
     pl.add(&balance::plugin,                     PLUGIN_POS_END, PGN_MODE_BYPASS);
     pl.add(&stereomute,                          PLUGIN_POS_END, PGN_MODE_MUTE);
+    pl.add(&maxlevel,                            PLUGIN_POS_END, PGN_MODE_NORMAL|PGN_MODE_BYPASS);
 
     // * fx amp output *
 
