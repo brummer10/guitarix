@@ -627,6 +627,9 @@ int GxJack::gx_jack_xrun_callback(void* arg) {
 
 // ---- jack buffer size change callback
 int GxJack::gx_jack_buffersize_callback(jack_nframes_t nframes, void* arg) {
+    if (gxjack.jack_bs == nframes) {
+	return 0;
+    }
     gx_engine::GxEngine& engine = gx_engine::get_engine();
     engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     gxjack.jack_bs = nframes;
