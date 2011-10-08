@@ -167,6 +167,7 @@ protected:
     inline void set_ramp_mode(RampMode n) { g_atomic_int_set(&ramp_mode, n); } // RT
     void try_set_ramp_mode(RampMode oldmode, RampMode newmode, int oldrv, int newrv); // RT
 public:
+    bool next_commit_needs_ramp;
     ProcessingChainBase();
     inline RampMode get_ramp_mode() {
       return static_cast<RampMode>(g_atomic_int_get(&ramp_mode)); // RT
@@ -235,10 +236,10 @@ public:
     inline void empty_chain() {
 	list<Plugin*> p;
 	if (set_plugin_list(p)) {
-	    commit();
+	    commit(true);
 	}
     }
-    void commit();
+    void commit(bool clear);
 };
 
 template <class F>
@@ -274,14 +275,14 @@ void ThreadSafeChainPointer<F>::setsize(int n)
 }
 
 template <class F>
-void ThreadSafeChainPointer<F>::commit() {
+void ThreadSafeChainPointer<F>::commit(bool clear) {
     setsize(modules.size()+1);  // leave one slot for 0 marker
     int active_counter = 0;
     for (list<Plugin*>::const_iterator p = modules.begin(); p != modules.end(); p++) {
 	PluginDef* pd = (*p)->pdef;
 	if (pd->activate_plugin) {
 	    pd->activate_plugin(true, pd);
-	} else if (pd->clear_state) {
+	} else if (pd->clear_state && clear) {
 	    pd->clear_state(pd);
 	}
 	F f = get_audio(pd);
@@ -399,7 +400,7 @@ public:
     }
     void add_selector(ModuleSelector& sel);
     bool prepare_module_lists();
-    void commit_module_lists(bool ramp = true);
+    void commit_module_lists();
     void set_rack_changed() { rack_changed = true; }
     void clear_rack_changed() { rack_changed = false; }
     bool update_module_lists() {

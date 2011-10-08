@@ -48,7 +48,8 @@ ProcessingChainBase::ProcessingChainBase():
     ramp_value(0),
     ramp_mode(ramp_mode_down_dead),
     stopped(true),
-    latch(false) {
+    latch(false),
+    next_commit_needs_ramp() {
     sem_init(&sync_sem, 0, 0);
 }
 
@@ -74,8 +75,56 @@ void ProcessingChainBase::try_set_ramp_mode(RampMode oldmode, RampMode newmode, 
     }
 }
 
+bool lists_equal(const list<Plugin*>& p1, const list<Plugin*>& p2, bool *need_ramp)
+{
+    list<Plugin*>::const_iterator i1 = p1.begin();
+    list<Plugin*>::const_iterator i2 = p2.begin(); 
+    bool ret = true;
+    bool nr = false;
+    while (true) {
+	if (i1 == p1.end()) {
+	    if (i2 != p2.end()) {
+		ret = false;
+		nr = true;
+	    }
+	    break;
+	}
+	if (i2 == p2.end()) {
+	    ret = false;
+	    nr = true;
+	    break;
+	}
+	if (*i1 != *i2) {
+	    ret = false;
+	    while ((*i1)->pdef->flags & PGN_SNOOP) {
+		i1++;
+		if (i1 == p1.end()) {
+		    break;
+		}
+	    }
+	    while ((*i2)->pdef->flags & PGN_SNOOP) {
+		i2++;
+		if (i2 == p2.end()) {
+		    break;
+		}
+	    }
+	    if (*i1 != *i2) {
+		nr = true;
+		break;
+	    }
+	}
+	i1++;
+	i2++;
+    }
+    if (ret) {
+	nr = false;
+    }
+    *need_ramp = nr;
+    return ret;
+}
+
 bool ProcessingChainBase::set_plugin_list(const list<Plugin*> &p) {
-    if (lists_equal(p, modules)) {
+    if (lists_equal(p, modules, &next_commit_needs_ramp)) {
 	return false;
     }
     wait_latch();
@@ -358,18 +407,28 @@ bool ModuleSequencer::prepare_module_lists() {
     return ret_mono || ret_stereo;
 }
 
-void ModuleSequencer::commit_module_lists(bool ramp) {
-    if (ramp) {
-	start_ramp_down();
+void ModuleSequencer::commit_module_lists() {
+    bool already_down = (mono_chain.get_ramp_mode() == ProcessingChainBase::ramp_mode_down_dead);
+    bool monoramp = mono_chain.next_commit_needs_ramp && !already_down;
+    if (monoramp) {
+	mono_chain.start_ramp_down();
 	mono_chain.wait_ramp_down_finished();
     }
-    mono_chain.commit();
-    if (ramp) {
+    mono_chain.commit(mono_chain.next_commit_needs_ramp);
+    already_down =  (stereo_chain.get_ramp_mode() == ProcessingChainBase::ramp_mode_down_dead);
+    bool stereoramp = stereo_chain.next_commit_needs_ramp && !already_down;
+    if (stereoramp) {
+	stereo_chain.start_ramp_down();
 	stereo_chain.wait_ramp_down_finished();
     }
-    stereo_chain.commit();
-    if (ramp) {
-	start_ramp_up();
+    stereo_chain.commit(stereo_chain.next_commit_needs_ramp);
+    if (monoramp) {
+	mono_chain.start_ramp_up();
+	mono_chain.next_commit_needs_ramp = false;
+    }
+    if (stereoramp) {
+	stereo_chain.start_ramp_up();
+	stereo_chain.next_commit_needs_ramp = false;
     }
 }
 

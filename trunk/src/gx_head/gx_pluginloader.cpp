@@ -481,21 +481,6 @@ void printlist(const char *title, const list<Plugin*>& modules, bool header) {
 }
 #endif
 
-bool lists_equal(const list<Plugin*>& p1, const list<Plugin*>& p2)
-{
-    if (p1.size() != p2.size()) {
-	return false;
-    }
-    list<Plugin*>::const_iterator i1 = p1.begin();
-    list<Plugin*>::const_iterator i2 = p2.begin(); 
-    for ( ; i1 != p1.end(); i1++, i2++) {
-	if (*i1 != *i2) {
-	    return false;
-	}
-    }
-    return true;
-}
-
 PluginList& get_pluginlist() {
     static PluginList pl;
     return pl;

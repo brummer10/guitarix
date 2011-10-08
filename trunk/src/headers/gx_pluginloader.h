@@ -99,5 +99,3 @@ void printlist(const char *title, const list<Plugin*>& modules, bool header=true
 #else 
 inline void printlist(const char *, const list<Plugin*>&, bool=true) {}
 #endif
-
-bool lists_equal(const list<Plugin*>& p1, const list<Plugin*>& p2);

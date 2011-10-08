@@ -78,6 +78,7 @@ void StereoMute::process(int count, float *input0, float *input1,
 MaxLevel::MaxLevel()
     : PluginDef() {
     version = PLUGINDEF_VERSION;
+    flags = PGN_SNOOP;
     id = "maxlevel";
     name = "?maxlevel";
     stereo_audio = process;
@@ -119,6 +120,7 @@ MidiAudioBuffer::MidiAudioBuffer()
     : PluginDef(),
       plugin() {
     version = PLUGINDEF_VERSION;
+    flags = PGN_SNOOP;
     id = "midi_out";
     name = N_("Midi Out");
     groups = midi_out_groups;
@@ -141,6 +143,7 @@ TunerAdapter::TunerAdapter(const Plugin& pl)
       dep_plugin(pl),
       plugin() {
     version = PLUGINDEF_VERSION;
+    flags = PGN_SNOOP;
     id = "tuner";
     name = "?tuner";
     mono_audio = feed_tuner;
@@ -184,6 +187,7 @@ PluginDef NoiseGate::outputgate = PluginDef();
 NoiseGate::NoiseGate() {
 
     inputdef.version = PLUGINDEF_VERSION;
+    inputdef.flags = PGN_SNOOP;
     inputdef.id = "noise_gate";
     inputdef.name = N_("Noise Gate");
     inputdef.mono_audio = inputlevel_compute;
@@ -250,6 +254,7 @@ OscilloscopeAdapter::OscilloscopeAdapter(gx_ui::GxUI *ui):
 {
     assert(buffer == 0);
     version = PLUGINDEF_VERSION;
+    flags = PGN_SNOOP;
     id = "oscilloscope";
     name = N_("Oscilloscope");
     mono_audio = fill_buffer;

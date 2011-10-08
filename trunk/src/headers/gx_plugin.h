@@ -103,6 +103,7 @@ enum {
 				// gui and not always pre or post)
     PGN_ALTERNATIVE =  0x20, // plugin is part of a group of modules
 				// managed by a ModuleSelector
+    PGN_SNOOP       =  0x40, // does not alter audio stream
     PGN_MODE_NORMAL = 0x100, // plugin is active in normal mode (default)
     PGN_MODE_BYPASS = 0x200, // plugin is active in bypass mode
     PGN_MODE_MUTE   = 0x400, // plugin is active in mute mode
