@@ -433,11 +433,20 @@ def configure(conf):
     conf.check(header_name='boost/format.hpp', mandatory=1)
     # convolver and resampler
     if not Options.options.includeconvolver:
-        conf.check_cxx(header_name='zita-convolver.h', lib="zita-convolver", uselib_store='ZITA_CONVOLVER',
-                       errmsg="not found, using local version", define_name="INTERN_ZITA_CONVOLVER")
+        expected_zita_convolver_version = 2
+        code="""
+        #include <zita-convolver.h>
+        #if ZITA_CONVOLVER_MAJOR_VERSION != %d
+        #error
+        #endif
+        int main(){}
+        """ % expected_zita_convolver_version
+        conf.check_cxx(fragment=code, lib="zita-convolver", uselib_store='ZITA_CONVOLVER',
+                       errmsg="version %d not found, using ours" % expected_zita_convolver_version,
+                       define_name="INTERN_ZITA_CONVOLVER")
     if not Options.options.includeresampler:
         conf.check(lib='zita-resampler', msg='Checking for zita-resampler', header_name='zita-resampler.h',
-                   errmsg="fixed version not found, use ours", define_name="ZITA_RESAMPLER")
+                   errmsg="fixed version not found, using ours", define_name="ZITA_RESAMPLER")
     # faust
     check_faust(conf)
     # directory
