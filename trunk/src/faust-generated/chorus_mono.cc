@@ -1,5 +1,5 @@
 // generated from file '../src/faust/chorus_mono.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace chorus_mono {
 class SIG0 {
@@ -26,10 +26,11 @@ static FAUSTFLOAT 	fslider0;
 static int 	IOTA;
 static double 	fVec0[65536];
 static FAUSTFLOAT 	fslider1;
-static double 	fConst0;
+static int 	iConst0;
+static double 	fConst1;
 static double 	fRec0[2];
 static double 	ftbl0[65536];
-static double 	fConst1;
+static double 	fConst2;
 static FAUSTFLOAT 	fslider2;
 static int	fSamplingFreq;
 
@@ -46,8 +47,9 @@ static void init(int samplingFreq, PluginDef* = 0)
 	sig0.fill(65536,ftbl0);
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
-	fConst0 = (1.0 / fSamplingFreq);
-	fConst1 = (0.01 * fSamplingFreq);
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (1.0 / iConst0);
+	fConst2 = (0.01 * iConst0);
 	clear_state();
 }
 
@@ -55,7 +57,7 @@ static void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (0.01 * fslider0);
 	double 	fSlow1 = (fSlow0 + (1 - fSlow0));
-	double 	fSlow2 = (fConst0 * fslider1);
+	double 	fSlow2 = (fConst1 * fslider1);
 	double 	fSlow3 = fslider2;
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
@@ -66,7 +68,7 @@ static void compute(int count, float *input0, float *output0)
 		double fTemp3 = (65536 * (fRec0[0] - floor(fRec0[0])));
 		double fTemp4 = floor(fTemp3);
 		int iTemp5 = int(fTemp4);
-		double fTemp6 = (fConst1 * (1 + (0.02 * ((ftbl0[((1 + iTemp5) & 65535)] * (fTemp3 - fTemp4)) + (ftbl0[(iTemp5 & 65535)] * ((1 + fTemp4) - fTemp3))))));
+		double fTemp6 = (fConst2 * (1 + (0.02 * ((ftbl0[((1 + iTemp5) & 65535)] * (fTemp3 - fTemp4)) + (ftbl0[(iTemp5 & 65535)] * ((1 + fTemp4) - fTemp3))))));
 		int iTemp7 = int(fTemp6);
 		int iTemp8 = (1 + iTemp7);
 		output0[i] = (FAUSTFLOAT)((fSlow3 * (((fTemp6 - iTemp7) * fVec0[(IOTA-int((int(iTemp8) & 65535)))&65535]) + ((iTemp8 - fTemp6) * fVec0[(IOTA-int((iTemp7 & 65535)))&65535]))) + (fSlow1 * fTemp0));

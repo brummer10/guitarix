@@ -53,14 +53,16 @@ def build(bld):
         lib = []
     else:
         lib = ['zita-resampler']
+    uselib_local = []
+    if bld.env["HAVE_PLUGINLIB"]:
+        uselib_local += ["plugins"]
     if bld.env["GX_LIB_SHARED"]:
         lib.extend(['gxwmm','gxw'])
         libpath = [bld.path.find_dir("../../libgxw/gxw").bldpath(bld.env),
                    bld.path.find_dir("../../libgxwmm/gxwmm").bldpath(bld.env)]
-        uselib_local = []
     else:
         libpath = []
-        uselib_local = ['gxwmm','gxw']
+        uselib_local += ['gxwmm','gxw']
     bld(features = 'cxx cprogram',
         includes = incl,
         obj_ext  = '.o',

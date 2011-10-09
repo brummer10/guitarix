@@ -1,19 +1,19 @@
 // generated from file '../src/faust/gx_distortion.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace gx_distortion {
 static FAUSTFLOAT 	fslider0;
 static int 	iVec0[2];
 static FAUSTFLOAT 	fslider1;
 static double 	fRec0[2];
-static double 	fConst0;
+static int 	iConst0;
 static double 	fConst1;
 static double 	fConst2;
-static FAUSTFLOAT 	fentry0;
 static double 	fConst3;
+static FAUSTFLOAT 	fentry0;
+static double 	fConst4;
 static FAUSTFLOAT 	fentry1;
 static FAUSTFLOAT 	fentry2;
-static double 	fConst4;
 static double 	fConst5;
 static double 	fConst6;
 static double 	fConst7;
@@ -22,6 +22,7 @@ static double 	fConst9;
 static double 	fConst10;
 static double 	fConst11;
 static double 	fConst12;
+static double 	fConst13;
 static FAUSTFLOAT 	fslider2;
 static int 	IOTA;
 static double 	fVec1[4096];
@@ -31,8 +32,8 @@ static FAUSTFLOAT 	fcheckbox0;
 static double 	fRec11[2];
 static double 	fRec9[3];
 static double 	fVec2[2];
-static double 	fConst13;
 static double 	fConst14;
+static double 	fConst15;
 static double 	fRec8[2];
 static double 	fRec7[2];
 static double 	fRec6[3];
@@ -66,7 +67,7 @@ static FAUSTFLOAT 	fslider12;
 static FAUSTFLOAT 	fslider13;
 static double 	fRec24[2];
 static double 	fVec5[2];
-static double 	fConst15;
+static double 	fConst16;
 static double 	fRec1[2];
 static int	fSamplingFreq;
 
@@ -108,23 +109,24 @@ static void clear_state(PluginDef* = 0)
 static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (1.0 / tan((20517.741620594938 / fSamplingFreq)));
-	fConst1 = (1 + fConst0);
-	fConst2 = (0 - ((1 - fConst0) / fConst1));
-	fConst3 = (3.141592653589793 / fSamplingFreq);
-	fConst4 = (1.0 / tan((97.38937226128358 / fSamplingFreq)));
-	fConst5 = (1 + fConst4);
-	fConst6 = (0 - ((1 - fConst4) / fConst5));
-	fConst7 = tan((47123.8898038469 / fSamplingFreq));
-	fConst8 = (2 * (1 - (1.0 / faustpower<2>(fConst7))));
-	fConst9 = (1.0 / fConst7);
-	fConst10 = (1 + ((fConst9 - 1.414213562373095) / fConst7));
-	fConst11 = (1 + ((1.414213562373095 + fConst9) / fConst7));
-	fConst12 = (1.0 / fConst11);
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (1.0 / tan((20517.741620594938 / iConst0)));
+	fConst2 = (1 + fConst1);
+	fConst3 = (0 - ((1 - fConst1) / fConst2));
+	fConst4 = (3.141592653589793 / iConst0);
+	fConst5 = (1.0 / tan((97.38937226128358 / iConst0)));
+	fConst6 = (1 + fConst5);
+	fConst7 = (0 - ((1 - fConst5) / fConst6));
+	fConst8 = tan((47123.8898038469 / iConst0));
+	fConst9 = (2 * (1 - (1.0 / faustpower<2>(fConst8))));
+	fConst10 = (1.0 / fConst8);
+	fConst11 = (1 + ((fConst10 - 1.414213562373095) / fConst8));
+	fConst12 = (1 + ((1.414213562373095 + fConst10) / fConst8));
+	fConst13 = (1.0 / fConst12);
 	IOTA = 0;
-	fConst13 = (0 - fConst4);
-	fConst14 = (1.0 / (fConst5 * fConst11));
-	fConst15 = (1.0 / fConst1);
+	fConst14 = (0 - fConst5);
+	fConst15 = (1.0 / (fConst6 * fConst12));
+	fConst16 = (1.0 / fConst2);
 	clear_state();
 }
 
@@ -133,7 +135,7 @@ static void compute(int count, float *input0, float *output0)
 	double 	fSlow0 = (0.01 * fslider0);
 	double 	fSlow1 = (1 - fSlow0);
 	double 	fSlow2 = (0.0010000000000000009 * pow(10,(0.05 * (fslider1 - 10))));
-	double 	fSlow3 = tan((fConst3 * fentry0));
+	double 	fSlow3 = tan((fConst4 * fentry0));
 	double 	fSlow4 = (1.0 / faustpower<2>(fSlow3));
 	double 	fSlow5 = (2 * (1 - fSlow4));
 	double 	fSlow6 = (1.0 / fSlow3);
@@ -142,7 +144,7 @@ static void compute(int count, float *input0, float *output0)
 	double 	fSlow9 = (1.0 / fSlow8);
 	double 	fSlow10 = (1 + fSlow6);
 	double 	fSlow11 = (0 - ((1 - fSlow6) / fSlow10));
-	double 	fSlow12 = tan((fConst3 * fentry1));
+	double 	fSlow12 = tan((fConst4 * fentry1));
 	double 	fSlow13 = (1.0 / faustpower<2>(fSlow12));
 	double 	fSlow14 = (2 * (1 - fSlow13));
 	double 	fSlow15 = (1.0 / fSlow12);
@@ -151,7 +153,7 @@ static void compute(int count, float *input0, float *output0)
 	double 	fSlow18 = (1.0 / fSlow17);
 	double 	fSlow19 = (1 + fSlow15);
 	double 	fSlow20 = (0 - ((1 - fSlow15) / fSlow19));
-	double 	fSlow21 = tan((fConst3 * fentry2));
+	double 	fSlow21 = tan((fConst4 * fentry2));
 	double 	fSlow22 = (1.0 / faustpower<2>(fSlow21));
 	double 	fSlow23 = (2 * (1 - fSlow22));
 	double 	fSlow24 = (1.0 / fSlow21);
@@ -199,10 +201,10 @@ static void compute(int count, float *input0, float *output0)
 		fVec1[IOTA&4095] = fTemp2;
 		fRec10[0] = (0.5 * (fVec1[(IOTA-iSlow33)&4095] + fVec1[(IOTA-iSlow32)&4095]));
 		fRec11[0] = ((1e-20 * (1 - iVec0[1])) - fRec11[1]);
-		fRec9[0] = ((fRec11[0] + ((iSlow34)?fRec10[0]:fTemp1)) - (fConst12 * ((fConst10 * fRec9[2]) + (fConst8 * fRec9[1]))));
+		fRec9[0] = ((fRec11[0] + ((iSlow34)?fRec10[0]:fTemp1)) - (fConst13 * ((fConst11 * fRec9[2]) + (fConst9 * fRec9[1]))));
 		double fTemp3 = (fRec9[2] + (fRec9[0] + (2 * fRec9[1])));
 		fVec2[0] = fTemp3;
-		fRec8[0] = ((fConst14 * ((fConst13 * fVec2[1]) + (fConst4 * fVec2[0]))) + (fConst6 * fRec8[1]));
+		fRec8[0] = ((fConst15 * ((fConst14 * fVec2[1]) + (fConst5 * fVec2[0]))) + (fConst7 * fRec8[1]));
 		fRec7[0] = ((fSlow35 * (fRec8[0] + fRec8[1])) + (fSlow29 * fRec7[1]));
 		fRec6[0] = (fRec7[0] - (fSlow27 * ((fSlow25 * fRec6[2]) + (fSlow23 * fRec6[1]))));
 		double fTemp4 = (fRec6[2] + (fRec6[0] + (2 * fRec6[1])));
@@ -237,7 +239,7 @@ static void compute(int count, float *input0, float *output0)
 		fRec24[0] = (fSlow59 + (0.999 * fRec24[1]));
 		double fTemp15 = (((fRec24[0] * fTemp14) * (1 - (0.3333333333333333 * faustpower<2>(fTemp14)))) + (((fRec19[0] * fTemp11) * (1 - (0.3333333333333333 * faustpower<2>(fTemp11)))) + (((fRec15[0] * fTemp9) * (1 - (0.3333333333333333 * faustpower<2>(fTemp9)))) + ((fRec12[0] * fTemp8) * (1 - (0.3333333333333333 * faustpower<2>(fTemp8)))))));
 		fVec5[0] = fTemp15;
-		fRec1[0] = ((fConst15 * (fVec5[0] + fVec5[1])) + (fConst2 * fRec1[1]));
+		fRec1[0] = ((fConst16 * (fVec5[0] + fVec5[1])) + (fConst3 * fRec1[1]));
 		output0[i] = (FAUSTFLOAT)((fRec1[0] * fRec0[0]) + (fSlow1 * fTemp0));
 		// post processing
 		fRec1[1] = fRec1[0];

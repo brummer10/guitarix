@@ -1,5 +1,5 @@
 // generated from file '../src/faust/delay.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace delay {
 static int 	IOTA;
@@ -21,7 +21,7 @@ static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
-	fConst0 = (0.001f * fSamplingFreq);
+	fConst0 = (0.001f * min(192000, max(1, fSamplingFreq)));
 }
 
 static void mem_alloc()

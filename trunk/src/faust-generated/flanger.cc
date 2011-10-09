@@ -1,5 +1,5 @@
 // generated from file '../src/faust/flanger.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace flanger {
 static FAUSTFLOAT 	fslider0;
@@ -8,7 +8,8 @@ static FAUSTFLOAT 	fslider1;
 static int 	IOTA;
 static double 	fVec1[2048];
 static FAUSTFLOAT 	fslider2;
-static double 	fConst0;
+static int 	iConst0;
+static double 	fConst1;
 static double 	fRec1[2];
 static double 	fRec2[2];
 static FAUSTFLOAT 	fslider3;
@@ -35,7 +36,8 @@ static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
-	fConst0 = (6.283185307179586 / fSamplingFreq);
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (6.283185307179586 / iConst0);
 	clear_state();
 }
 
@@ -43,7 +45,7 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 {
 	double 	fSlow0 = pow(10,(0.05 * fslider0));
 	double 	fSlow1 = fslider1;
-	double 	fSlow2 = (fConst0 * fslider2);
+	double 	fSlow2 = (fConst1 * fslider2);
 	double 	fSlow3 = sin(fSlow2);
 	double 	fSlow4 = cos(fSlow2);
 	double 	fSlow5 = (0 - fSlow3);
@@ -58,7 +60,7 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 		fVec1[IOTA&2047] = fTemp1;
 		fRec1[0] = ((fSlow4 * fRec1[1]) + (fSlow3 * fRec2[1]));
 		fRec2[0] = ((1 + ((fSlow5 * fRec1[1]) + (fSlow4 * fRec2[1]))) - iVec0[1]);
-		double fTemp2 = (fSamplingFreq * (fSlow7 + (fSlow6 * (1 + fRec1[0]))));
+		double fTemp2 = (iConst0 * (fSlow7 + (fSlow6 * (1 + fRec1[0]))));
 		int iTemp3 = int(fTemp2);
 		int iTemp4 = (1 + iTemp3);
 		fRec0[0] = (((fTemp2 - iTemp3) * fVec1[(IOTA-int((int(iTemp4) & 2047)))&2047]) + ((iTemp4 - fTemp2) * fVec1[(IOTA-int((iTemp3 & 2047)))&2047]));
@@ -66,7 +68,7 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 		double fTemp5 = (fSlow0 * (double)input1[i]);
 		double fTemp6 = ((fSlow1 * fRec3[1]) - fTemp5);
 		fVec2[IOTA&2047] = fTemp6;
-		double fTemp7 = (fSamplingFreq * (fSlow7 + (fSlow6 * (1 + fRec2[0]))));
+		double fTemp7 = (iConst0 * (fSlow7 + (fSlow6 * (1 + fRec2[0]))));
 		int iTemp8 = int(fTemp7);
 		int iTemp9 = (1 + iTemp8);
 		fRec3[0] = (((fTemp7 - iTemp8) * fVec2[(IOTA-int((int(iTemp9) & 2047)))&2047]) + ((iTemp9 - fTemp7) * fVec2[(IOTA-int((iTemp8 & 2047)))&2047]));

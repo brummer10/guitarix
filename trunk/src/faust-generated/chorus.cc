@@ -1,5 +1,5 @@
 // generated from file '../src/faust/chorus.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace chorus {
 class SIG0 {
@@ -25,12 +25,13 @@ class SIG0 {
 static int 	IOTA;
 static float *fVec0;
 static FAUSTFLOAT 	fslider0;
-static float 	fConst0;
+static int 	iConst0;
+static float 	fConst1;
 static float 	fRec0[2];
 static float 	ftbl0[65536];
 static FAUSTFLOAT 	fslider1;
 static FAUSTFLOAT 	fslider2;
-static float 	fConst1;
+static float 	fConst2;
 static FAUSTFLOAT 	fslider3;
 static float *fVec1;
 static bool mem_allocated = false;
@@ -50,8 +51,9 @@ static void init(int samplingFreq, PluginDef* = 0)
 	sig0.fill(65536,ftbl0);
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
-	fConst0 = (1.0f / fSamplingFreq);
-	fConst1 = (0.5f * fSamplingFreq);
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (1.0f / iConst0);
+	fConst2 = (0.5f * iConst0);
 }
 
 static void mem_alloc()
@@ -84,9 +86,9 @@ static int activate(bool start, PluginDef* = 0)
 
 static void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
-	float 	fSlow0 = (fConst0 * fslider0);
+	float 	fSlow0 = (fConst1 * fslider0);
 	float 	fSlow1 = fslider1;
-	float 	fSlow2 = (fConst1 * fslider2);
+	float 	fSlow2 = (fConst2 * fslider2);
 	float 	fSlow3 = fslider3;
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];

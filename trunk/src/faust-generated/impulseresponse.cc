@@ -1,11 +1,12 @@
 // generated from file '../src/faust/impulseresponse.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace impulseresponse {
 static FAUSTFLOAT 	fslider0;
-static double 	fConst0;
-static FAUSTFLOAT 	fslider1;
+static int 	iConst0;
 static double 	fConst1;
+static FAUSTFLOAT 	fslider1;
+static double 	fConst2;
 static double 	fVec0[3];
 static FAUSTFLOAT 	fcheckbox0;
 static FAUSTFLOAT 	fslider2;
@@ -21,15 +22,16 @@ static void clear_state(PluginDef* = 0)
 static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (3.141592653589793 / fSamplingFreq);
-	fConst1 = (6.283185307179586 / fSamplingFreq);
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (3.141592653589793 / iConst0);
+	fConst2 = (6.283185307179586 / iConst0);
 	clear_state();
 }
 
 static void compute(int count, float *input0, float *output0)
 {
-	double 	fSlow0 = exp((0 - (fConst0 * fslider0)));
-	double 	fSlow1 = (2 * cos((fConst1 * fslider1)));
+	double 	fSlow0 = exp((0 - (fConst1 * fslider0)));
+	double 	fSlow1 = (2 * cos((fConst2 * fslider1)));
 	int 	iSlow2 = int(max(0, min(1, fcheckbox0)));
 	double 	fSlow3 = (0.5 * (fslider2 * (1 - faustpower<2>(fSlow0))));
 	for (int i=0; i<count; i++) {

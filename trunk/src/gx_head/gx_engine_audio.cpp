@@ -33,6 +33,7 @@
 #include <iostream>       // NOLINT
 
 #include "gx_faust_plugins.h"
+#include "../plugins/pluginlib.h"
 
 namespace gx_engine {
 

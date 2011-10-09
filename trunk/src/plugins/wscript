@@ -1,37 +1,73 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-def build(bld):
-    sources = [
-        "zita_rev1.dsp",
-        ]
+import os
 
+sources = [ # generate .so files that can be loaded by guitarix
+    ]
+
+lib_sources = [ # put in static library linked with guitarix
+    "zita_rev1.dsp",
+    ]
+
+def build(bld):
     if bld.env['FAUST']:
         float_arg = ["-s","40000","-float"]
         if bld.env['FAUST_DOUBLE']:
             arg = ["-double"]
         else:
             arg = ["-float"]
-        bld.new_task_gen(
+        arg += ["--init-type=plugin"]
+        bld(name = "dsp2cc sharedlib",
             source = sources,
             proc = "../tools/dsp2cc",
             gen_dir_suffix = "/generated",
-            proc_args = arg+["--init-type=plugin-standalone"],
+            proc_args = arg+["--template-type=sharedlib"],
+            )
+        bld(name = "dsp2cc staticlib",
+            source = lib_sources,
+            proc = "../tools/dsp2cc",
+            gen_dir_suffix = "/generated",
+            proc_args = arg+["--template-type=staticlib","--in-namespace=pluginlib"],
+            )
+        def run(task):
+            l = []
+            for i in task.inputs:
+                s = ("namespace %s { extern PluginDef plugin; }\n"
+                     % os.path.splitext(os.path.basename(i.name))[0])
+                l.append(s)
+            f = file(task.outputs[0].bldpath(task.env),"w")
+            f.write('#include "gx_plugin.h"\n\nnamespace pluginlib {\n')
+            f.write("".join(l))
+            f.write("}\n")
+            f.close()
+        bld(name = "pluginlib.h",
+            source = lib_sources,
+            rule = run,
+            target = "pluginlib.h",
             )
     else:
         gdir = "generated/"
         for s in sources:
             s = s.replace(".dsp",".cc")
-            bld(name = "copy-faust-cc",
+            bld(name = "copy-faust-plugin-cc",
                 rule = "cp ${SRC} ${TGT}",
                 source = gdir + s,
                 target = s,
             )
     bld.add_group()
+    have_pluginlib = len(lib_sources) != 0
+    bld.env["HAVE_PLUGINLIB"] = have_pluginlib
+    if have_pluginlib:
+        bld(features = ['cxx', 'cstaticlib'],
+            includes = ["../headers"],
+            source = [s.replace(".dsp",".cc") for s in lib_sources],
+            target = "plugins", # (also defines name of task)
+            )
     for s in sources:
-        bld(features = ['cxx', 'cshlib', 'libtool'],
+        bld(name = "create plugin .so",
+            features = ['cxx', 'cshlib'],
             type = 'cshlib',
-            vnum = "1.0",
             includes = ["../headers"],
             source = [s.replace(".dsp",".cc")],
             target = s.replace(".dsp",""),
@@ -39,4 +75,4 @@ def build(bld):
     
 
 def configure(conf):
-    conf.check_tool("libtool")
+    pass

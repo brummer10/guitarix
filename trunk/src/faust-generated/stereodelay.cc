@@ -1,14 +1,15 @@
 // generated from file '../src/faust/stereodelay.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace stereodelay {
 static int 	IOTA;
 static float *fVec0;
 static FAUSTFLOAT 	fslider0;
-static float 	fConst0;
 static int 	iVec1[2];
-static FAUSTFLOAT 	fslider1;
+static int 	iConst0;
 static float 	fConst1;
+static FAUSTFLOAT 	fslider1;
+static float 	fConst2;
 static float 	fRec0[2];
 static float 	fRec1[2];
 static FAUSTFLOAT 	fcheckbox0;
@@ -36,8 +37,9 @@ static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
-	fConst0 = (0.001f * fSamplingFreq);
-	fConst1 = (6.283185307179586f / fSamplingFreq);
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (0.001f * iConst0);
+	fConst2 = (6.283185307179586f / iConst0);
 }
 
 static void mem_alloc()
@@ -70,20 +72,20 @@ static int activate(bool start, PluginDef* = 0)
 
 static void compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
-	float 	fSlow0 = (fConst0 * fslider0);
+	float 	fSlow0 = (fConst1 * fslider0);
 	int 	iSlow1 = int(fSlow0);
 	int 	iSlow2 = int((iSlow1 & 262143));
 	int 	iSlow3 = (1 + iSlow1);
 	float 	fSlow4 = (iSlow3 - fSlow0);
 	int 	iSlow5 = int((int(iSlow3) & 262143));
 	float 	fSlow6 = (fSlow0 - iSlow1);
-	float 	fSlow7 = (fConst1 * fslider1);
+	float 	fSlow7 = (fConst2 * fslider1);
 	float 	fSlow8 = sinf(fSlow7);
 	float 	fSlow9 = cosf(fSlow7);
 	float 	fSlow10 = (0 - fSlow8);
 	float 	fSlow11 = fcheckbox0;
 	float 	fSlow12 = (0.0010000000000000009f * powf(10,(0.05f * fslider2)));
-	float 	fSlow13 = (fConst0 * fslider3);
+	float 	fSlow13 = (fConst1 * fslider3);
 	int 	iSlow14 = int(fSlow13);
 	int 	iSlow15 = int((iSlow14 & 262143));
 	int 	iSlow16 = (1 + iSlow14);

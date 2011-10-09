@@ -4,7 +4,7 @@ declare license 	"BSD";
 
 import("effect.lib");
 import("guitarix.lib");
-import("osc.lib");
+import("oscillator.lib");
 
 flangermono(curdel)
   = _<: _, (-:fdelay(2048,curdel)) ~ *(0.5) : _, 
@@ -13,7 +13,7 @@ flangermono(curdel)
 
 flangermonogx = *(level):flangermono(curdel)
 with {
-	  lfol = component("osc.lib").oscrs; 
+	  lfol = component("oscillator.lib").oscrs; 
 	  dflange = 0.001 * SR *  10.0;
 	  odflange = 0.001 * SR *  1.0;
 	  freq	 = hslider("freq [unit:Hz]", 0.2, 0, 5, 0.01);

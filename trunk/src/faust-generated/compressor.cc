@@ -1,13 +1,14 @@
 // generated from file '../src/faust/compressor.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace compressor {
 static FAUSTFLOAT 	fentry0;
 static FAUSTFLOAT 	fentry1;
-static double 	fConst0;
+static int 	iConst0;
 static double 	fConst1;
-static double 	fRec1[2];
 static double 	fConst2;
+static double 	fRec1[2];
+static double 	fConst3;
 static FAUSTFLOAT 	fslider0;
 static FAUSTFLOAT 	fslider1;
 static double 	fRec0[2];
@@ -23,9 +24,10 @@ static void clear_state(PluginDef* = 0)
 static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = exp((0 - (1e+01 / fSamplingFreq)));
-	fConst1 = (1 - fConst0);
-	fConst2 = (1.0 / fSamplingFreq);
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = exp((0 - (1e+01 / iConst0)));
+	fConst2 = (1 - fConst1);
+	fConst3 = (1.0 / iConst0);
 	clear_state();
 }
 
@@ -33,13 +35,13 @@ static void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fentry1;
 	double 	fSlow1 = (fSlow0 - fentry0);
-	double 	fSlow2 = exp((0 - (fConst2 / max(fConst2, fslider0))));
-	double 	fSlow3 = exp((0 - (fConst2 / max(fConst2, fslider1))));
+	double 	fSlow2 = exp((0 - (fConst3 / max(fConst3, fslider0))));
+	double 	fSlow3 = exp((0 - (fConst3 / max(fConst3, fslider1))));
 	double 	fSlow4 = (1.0 / (0.001 + fSlow0));
 	double 	fSlow5 = (fentry2 - 1);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
-		fRec1[0] = ((fConst1 * fabs((fTemp0 + 1e-20))) + (fConst0 * fRec1[1]));
+		fRec1[0] = ((fConst2 * fabs((fTemp0 + 1e-20))) + (fConst1 * fRec1[1]));
 		double fTemp1 = ((fSlow3 * (fRec0[1] >= fRec1[0])) + (fSlow2 * (fRec0[1] < fRec1[0])));
 		fRec0[0] = ((fRec1[0] * (0 - (fTemp1 - 1))) + (fRec0[1] * fTemp1));
 		double fTemp2 = max(0, ((20 * log10(fRec0[0])) + fSlow1));

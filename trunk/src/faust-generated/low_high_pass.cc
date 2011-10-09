@@ -1,5 +1,5 @@
 // generated from file '../src/faust/low_high_pass.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace low_high_pass {
 static int 	iVec0[2];
@@ -40,7 +40,7 @@ static void clear_state(PluginDef* = 0)
 static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (3.141592653589793 / fSamplingFreq);
+	fConst0 = (3.141592653589793 / min(192000, max(1, fSamplingFreq)));
 	clear_state();
 }
 

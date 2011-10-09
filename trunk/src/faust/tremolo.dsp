@@ -7,7 +7,7 @@ declare name "Tremolo";
 */
 
 import("music.lib");
-import("osc.lib");
+import("oscillator.lib");
 
 /* vactrol model */
 

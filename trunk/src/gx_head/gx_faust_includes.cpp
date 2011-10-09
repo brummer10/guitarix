@@ -184,6 +184,7 @@ void GxEngine::load_plugins(string plugin_dir) {
     pl.add(&gx_effects::tonecontroll::plugin,    PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&convolver.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&gx_effects::stereoverb::plugin,      PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&pluginlib::zita_rev1::plugin,        PLUGIN_POS_RACK);
 
     // loaded from shared libs
     pl.load_from_path(plugin_dir, PLUGIN_POS_RACK);

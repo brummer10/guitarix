@@ -4,7 +4,7 @@ import("music.lib");
 import("guitarix.lib");
 msec	= SR/1000.0;
 
-lfol = component("osc.lib").oscrs; // sine for left channel
+lfol = component("oscillator.lib").oscrs; // sine for left channel
 
 freq	 = hslider("LFO freq [unit:Hz]", 0.2, 0, 5, 0.01);
 pingpong   = checkbox("invert[enum:linear|pingpong]");

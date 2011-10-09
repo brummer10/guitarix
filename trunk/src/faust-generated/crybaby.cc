@@ -1,12 +1,13 @@
 // generated from file '../src/faust/crybaby.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace crybaby {
 FAUSTFLOAT 	fslider0;
 FAUSTFLOAT	*fslider0_;
 #define fslider0 (*fslider0_)
-static double 	fConst0;
+static int 	iConst0;
 static double 	fConst1;
+static double 	fConst2;
 static double 	fRec1[2];
 static double 	fRec2[2];
 static double 	fRec3[2];
@@ -30,8 +31,9 @@ static void clear_state(PluginDef* = 0)
 static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (1413.7166941154069 / fSamplingFreq);
-	fConst1 = (2827.4333882308138 / fSamplingFreq);
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (1413.7166941154069 / iConst0);
+	fConst2 = (2827.4333882308138 / iConst0);
 	clear_state();
 }
 
@@ -39,8 +41,8 @@ static void compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = pow(2.0,(2.3 * fSlow0));
-	double 	fSlow2 = (1 - (fConst0 * (fSlow1 / pow(2.0,(1.0 + (2.0 * (1.0 - fSlow0)))))));
-	double 	fSlow3 = (0.0010000000000000009 * (0 - (2.0 * (cos((fConst1 * fSlow1)) * fSlow2))));
+	double 	fSlow2 = (1 - (fConst1 * (fSlow1 / pow(2.0,(1.0 + (2.0 * (1.0 - fSlow0)))))));
+	double 	fSlow3 = (0.0010000000000000009 * (0 - (2.0 * (cos((fConst2 * fSlow1)) * fSlow2))));
 	double 	fSlow4 = (0.0010000000000000009 * faustpower<2>(fSlow2));
 	double 	fSlow5 = (0.0001000000000000001 * pow(4.0,fSlow0));
 	double 	fSlow6 = fslider2;

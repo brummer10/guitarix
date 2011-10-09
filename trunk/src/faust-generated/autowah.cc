@@ -1,5 +1,5 @@
 // generated from file '../src/faust/autowah.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace autowah {
 static int 	IOTA;
@@ -15,8 +15,9 @@ FAUSTFLOAT	*fslider1_;
 FAUSTFLOAT 	fslider2;
 FAUSTFLOAT	*fslider2_;
 #define fslider2 (*fslider2_)
-static double 	fConst0;
+static int 	iConst0;
 static double 	fConst1;
+static double 	fConst2;
 static double 	fRec3[2];
 static double 	fRec4[2];
 static double 	fRec0[3];
@@ -36,8 +37,9 @@ static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
-	fConst0 = (2827.4333882308138 / fSamplingFreq);
-	fConst1 = (1413.7166941154069 / fSamplingFreq);
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (2827.4333882308138 / iConst0);
+	fConst2 = (1413.7166941154069 / iConst0);
 	clear_state();
 }
 
@@ -55,8 +57,8 @@ static void compute(int count, float *input0, float *output0)
 		double fTemp2 = min(1, max(0, (fSlow0 * double(iRec2[0]))));
 		fRec1[0] = ((0.0001000000000000001 * pow(4.0,fTemp2)) + (0.999 * fRec1[1]));
 		double fTemp3 = pow(2.0,(2.3 * fTemp2));
-		double fTemp4 = (1 - (fConst1 * (fTemp3 / pow(2.0,(1.0 + (2.0 * (1.0 - fTemp2)))))));
-		fRec3[0] = ((0.0010000000000000009 * (0 - (2.0 * (fTemp4 * cos((fConst0 * fTemp3)))))) + (0.999 * fRec3[1]));
+		double fTemp4 = (1 - (fConst2 * (fTemp3 / pow(2.0,(1.0 + (2.0 * (1.0 - fTemp2)))))));
+		fRec3[0] = ((0.0010000000000000009 * (0 - (2.0 * (fTemp4 * cos((fConst1 * fTemp3)))))) + (0.999 * fRec3[1]));
 		fRec4[0] = ((0.0010000000000000009 * faustpower<2>(fTemp4)) + (0.999 * fRec4[1]));
 		fRec0[0] = (0 - (((fRec4[0] * fRec0[2]) + (fRec3[0] * fRec0[1])) - (fSlow2 * (fTemp0 * fRec1[0]))));
 		output0[i] = (FAUSTFLOAT)((fRec0[0] + (fSlow3 * fTemp0)) - fRec0[1]);

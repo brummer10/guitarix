@@ -1,5 +1,5 @@
 // generated from file '../src/faust/bassbooster.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace bassbooster {
 static double 	fConst0;
@@ -19,7 +19,7 @@ static void clear_state(PluginDef* = 0)
 static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = tan((376.99111843077515 / fSamplingFreq));
+	fConst0 = tan((376.99111843077515 / min(192000, max(1, fSamplingFreq))));
 	fConst1 = faustpower<2>(fConst0);
 	fConst2 = (2 * (fConst1 - 1));
 	fConst3 = (1 + (fConst0 * (fConst0 - 1.4142135623730951)));

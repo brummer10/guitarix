@@ -4,12 +4,12 @@ declare license 	"BSD";
 
 import("effect.lib");
 import("guitarix.lib");
-import("osc.lib");
+import("oscillator.lib");
 
 flangerstereogx = *(level),*(level) : flangerstereoN(dmax,curdel1,curdel2,depth,fb,invert) // change to flanger_stereo for faust >= 0.9.27
 with {
-  lfol = component("osc.lib").oscrs; // sine for left channel
-  lfor = component("osc.lib").oscrc; // cosine for right channel
+  lfol = component("oscillator.lib").oscrs; // sine for left channel
+  lfor = component("oscillator.lib").oscrc; // cosine for right channel
   dmax = 2048;
   dflange = 0.001 * SR * hslider("flange delay [unit:ms]", 10, 0, 20, 0.01);
   odflange = 0.001 * SR * hslider("flange delay offset [unit:ms]", 1, 0, 20, 0.01);

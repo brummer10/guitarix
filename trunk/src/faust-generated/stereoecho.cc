@@ -1,5 +1,5 @@
 // generated from file '../src/faust/stereoecho.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace stereoecho {
 static FAUSTFLOAT 	fslider0;
@@ -22,7 +22,7 @@ static void clear_state(PluginDef* = 0)
 static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (0.001f * fSamplingFreq);
+	fConst0 = (0.001f * min(192000, max(1, fSamplingFreq)));
 	IOTA = 0;
 }
 

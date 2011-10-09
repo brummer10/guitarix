@@ -28,7 +28,7 @@ VERSION='0.19.0svn'
 APPNAME='guitarix'
 APPNAME1='guitarix'
 
-good_faust_versions = ['0.9.30','0.9.33','0.9.36']
+good_faust_versions = ['0.9.43']
 
 g_maxlen = 40 # maximum width of message for 2-column display
 

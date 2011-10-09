@@ -98,7 +98,11 @@ UiRegler::UiRegler(gx_ui::GxUI &ui, FloatParameter &param, Gxw::Regler *regler, 
     m_regler->set_show_value(show_value);
     m_regler->set_name("regler");
     m_regler->set_has_tooltip();
-    m_regler->set_tooltip_text(param.id().substr( param.id().find_last_of(".")+1).c_str());
+    string tip = param.desc();
+    if (param.desc().empty()) {
+	tip = param.id().substr(param.id().find_last_of(".")+1);
+    }
+    m_regler->set_tooltip_text(tip);
     m_regler->cp_set_var(param.id());
     m_regler->set_adjustment(*this);
     m_regler->show();

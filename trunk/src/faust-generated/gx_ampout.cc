@@ -1,5 +1,5 @@
 // generated from file '../src/faust/gx_ampout.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace gx_ampout {
 static FAUSTFLOAT 	fslider0;

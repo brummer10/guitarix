@@ -6,7 +6,7 @@ declare name "Phaser";
 
 
 import("effect.lib");
-import("osc.lib");
+import("oscillator.lib");
 
 vibrato_mono(sections,phase01,fb,width,frqmin,fratio,frqmax,speed) = 
  (+ : seq(i,sections,ap2p(R,th(i)))) ~ *(fb)
@@ -19,8 +19,8 @@ with {
      };
      SR = component("music.lib").SR;
      R = exp(-pi*width/SR);
-     cososc = component("osc.lib").oscrc;
-     sinosc = component("osc.lib").oscrs;
+     cososc = component("oscillator.lib").oscrc;
+     sinosc = component("oscillator.lib").oscrs;
      osc = cososc(speed) * phase01 + sinosc(speed) * (1-phase01);
      lfo = (1-osc)/2; // in [0,1]
      pi = 4*atan(1);

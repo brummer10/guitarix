@@ -1,5 +1,5 @@
 // generated from file '../src/faust/tonestack_default.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace tonestack_default {
 FAUSTFLOAT 	fslider0;
@@ -8,12 +8,13 @@ FAUSTFLOAT	*fslider0_;
 FAUSTFLOAT 	fslider1;
 FAUSTFLOAT	*fslider1_;
 #define fslider1 (*fslider1_)
-static double 	fConst0;
+static int 	iConst0;
 static double 	fConst1;
 static double 	fConst2;
 static double 	fConst3;
 static double 	fConst4;
 static double 	fConst5;
+static double 	fConst6;
 FAUSTFLOAT 	fslider2;
 FAUSTFLOAT	*fslider2_;
 #define fslider2 (*fslider2_)
@@ -36,12 +37,13 @@ static void clear_state(PluginDef* = 0)
 static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (15079.644737231007 / fSamplingFreq);
-	fConst1 = cos(fConst0);
-	fConst2 = (1.4142135623730951 * sin(fConst0));
-	fConst3 = (3769.9111843077517 / fSamplingFreq);
-	fConst4 = cos(fConst3);
-	fConst5 = (1.4142135623730951 * sin(fConst3));
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (15079.644737231007 / iConst0);
+	fConst2 = cos(fConst1);
+	fConst3 = (1.4142135623730951 * sin(fConst1));
+	fConst4 = (3769.9111843077517 / iConst0);
+	fConst5 = cos(fConst4);
+	fConst6 = (1.4142135623730951 * sin(fConst4));
 	clear_state();
 }
 
@@ -51,31 +53,31 @@ static void compute(int count, float *input0, float *output0)
 	double 	fSlow1 = (10 * fSlow0);
 	double 	fSlow2 = pow(10,(0.025 * ((20 * (fslider1 - 0.5)) - fSlow1)));
 	double 	fSlow3 = (1 + fSlow2);
-	double 	fSlow4 = (fConst1 * fSlow3);
+	double 	fSlow4 = (fConst2 * fSlow3);
 	double 	fSlow5 = (2 * (0 - ((1 + fSlow4) - fSlow2)));
-	double 	fSlow6 = (fConst1 * (fSlow2 - 1));
-	double 	fSlow7 = (fConst2 * sqrt(fSlow2));
+	double 	fSlow6 = (fConst2 * (fSlow2 - 1));
+	double 	fSlow7 = (fConst3 * sqrt(fSlow2));
 	double 	fSlow8 = (fSlow3 - (fSlow7 + fSlow6));
 	double 	fSlow9 = pow(10,(0.25 * fSlow0));
 	double 	fSlow10 = (1 + fSlow9);
-	double 	fSlow11 = (fConst4 * fSlow10);
+	double 	fSlow11 = (fConst5 * fSlow10);
 	double 	fSlow12 = (2 * (0 - ((1 + fSlow11) - fSlow9)));
 	double 	fSlow13 = (fSlow9 - 1);
-	double 	fSlow14 = (fConst4 * fSlow13);
+	double 	fSlow14 = (fConst5 * fSlow13);
 	double 	fSlow15 = sqrt(fSlow9);
-	double 	fSlow16 = (fConst5 * fSlow15);
+	double 	fSlow16 = (fConst6 * fSlow15);
 	double 	fSlow17 = (fSlow10 - (fSlow16 + fSlow14));
-	double 	fSlow18 = (fConst1 * fSlow10);
+	double 	fSlow18 = (fConst2 * fSlow10);
 	double 	fSlow19 = (0 - (2 * ((fSlow9 + fSlow18) - 1)));
-	double 	fSlow20 = (fConst2 * fSlow15);
-	double 	fSlow21 = (fConst1 * fSlow13);
+	double 	fSlow20 = (fConst3 * fSlow15);
+	double 	fSlow21 = (fConst2 * fSlow13);
 	double 	fSlow22 = ((1 + (fSlow9 + fSlow21)) - fSlow20);
 	double 	fSlow23 = pow(10,(0.025 * ((20 * (exp((3.4 * (fslider2 - 1))) - 0.5)) - fSlow1)));
 	double 	fSlow24 = (1 + fSlow23);
-	double 	fSlow25 = (fConst4 * fSlow24);
+	double 	fSlow25 = (fConst5 * fSlow24);
 	double 	fSlow26 = (0 - (2 * ((fSlow23 + fSlow25) - 1)));
-	double 	fSlow27 = (fConst5 * sqrt(fSlow23));
-	double 	fSlow28 = (fConst4 * (fSlow23 - 1));
+	double 	fSlow27 = (fConst6 * sqrt(fSlow23));
+	double 	fSlow28 = (fConst5 * (fSlow23 - 1));
 	double 	fSlow29 = ((1 + (fSlow23 + fSlow28)) - fSlow27);
 	double 	fSlow30 = (fSlow24 - (fSlow27 + fSlow28));
 	double 	fSlow31 = (2 * (0 - ((1 + fSlow25) - fSlow23)));

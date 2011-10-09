@@ -1,5 +1,5 @@
 // generated from file '../src/faust/phaser.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace phaser {
 static FAUSTFLOAT 	fslider0;
@@ -8,13 +8,14 @@ static int 	iVec0[2];
 static FAUSTFLOAT 	fslider1;
 static FAUSTFLOAT 	fcheckbox1;
 static FAUSTFLOAT 	fslider2;
-static double 	fConst0;
+static int 	iConst0;
+static double 	fConst1;
 static double 	fRec1[2];
 static double 	fRec2[2];
 static FAUSTFLOAT 	fslider3;
 static FAUSTFLOAT 	fslider4;
 static FAUSTFLOAT 	fslider5;
-static double 	fConst1;
+static double 	fConst2;
 static FAUSTFLOAT 	fslider6;
 static FAUSTFLOAT 	fslider7;
 static double 	fRec6[3];
@@ -49,8 +50,9 @@ static void clear_state(PluginDef* = 0)
 static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (6.283185307179586 / fSamplingFreq);
-	fConst1 = (1.0 / fSamplingFreq);
+	iConst0 = min(192000, max(1, fSamplingFreq));
+	fConst1 = (6.283185307179586 / iConst0);
+	fConst2 = (1.0 / iConst0);
 	clear_state();
 }
 
@@ -60,7 +62,7 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 	double 	fSlow1 = (1 - fSlow0);
 	double 	fSlow2 = pow(10,(0.05 * fslider1));
 	double 	fSlow3 = ((int(fcheckbox1))?(0 - fSlow0):fSlow0);
-	double 	fSlow4 = (fConst0 * fslider2);
+	double 	fSlow4 = (fConst1 * fslider2);
 	double 	fSlow5 = sin(fSlow4);
 	double 	fSlow6 = cos(fSlow4);
 	double 	fSlow7 = (0 - fSlow5);
@@ -68,14 +70,14 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 	double 	fSlow9 = (6.283185307179586 * fSlow8);
 	double 	fSlow10 = (0.5 * ((6.283185307179586 * max(fSlow8, fslider4)) - fSlow9));
 	double 	fSlow11 = fslider5;
-	double 	fSlow12 = (fConst1 * faustpower<4>(fSlow11));
+	double 	fSlow12 = (fConst2 * faustpower<4>(fSlow11));
 	double 	fSlow13 = fslider6;
-	double 	fSlow14 = (fConst1 * fSlow11);
-	double 	fSlow15 = exp((fConst1 * (0 - (3.141592653589793 * fslider7))));
+	double 	fSlow14 = (fConst2 * fSlow11);
+	double 	fSlow15 = exp((fConst2 * (0 - (3.141592653589793 * fslider7))));
 	double 	fSlow16 = (0 - (2 * fSlow15));
 	double 	fSlow17 = faustpower<2>(fSlow15);
-	double 	fSlow18 = (fConst1 * faustpower<2>(fSlow11));
-	double 	fSlow19 = (fConst1 * faustpower<3>(fSlow11));
+	double 	fSlow18 = (fConst2 * faustpower<2>(fSlow11));
+	double 	fSlow19 = (fConst2 * faustpower<3>(fSlow11));
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;
 		double fTemp0 = (double)input0[i];

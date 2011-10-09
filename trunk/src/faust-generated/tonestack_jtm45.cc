@@ -1,5 +1,5 @@
 // generated from file '../src/faust/tonestack_jtm45.dsp' by dsp2cc:
-// Code generated with Faust 0.9.30 (http://faust.grame.fr)
+// Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace tonestack_jtm45 {
 FAUSTFLOAT 	fslider0;
@@ -25,7 +25,7 @@ static void clear_state(PluginDef* = 0)
 static void init(int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (2 * double(fSamplingFreq));
+	fConst0 = (2 * double(min(192000, max(1, fSamplingFreq))));
 	fConst1 = faustpower<2>(fConst0);
 	fConst2 = (3 * fConst0);
 	clear_state();

@@ -147,9 +147,7 @@ class Parser(object):
                 key = v
                 value = ""
             if key == "name" and value:
-                if s != self.toplevel:
-                    self.groups[s] = value
-            #self.ui.add(s, key, value)
+                self.groups[s] = value
         return s
 
     def readUI(self, exp):
@@ -165,7 +163,7 @@ class Parser(object):
         hslider = re.compile(pre+r"addHorizontalSlider\(%s\);" % sarg).match
         numentry = re.compile(pre+r"addNumEntry\(%s\);" % sarg).match
         checkbutton = re.compile(pre+r"addCheckButton\(%s,\s*&%s\);" % (nm, vr)).match
-        declare = re.compile(pre+r"declare\(&%s,\s*%s,\s*%s\);" % (vr, nm, nm)).match
+        declare = re.compile(pre+r"declare\((?:&%s|0),\s*%s,\s*%s\);" % (vr, nm, nm)).match
         stack = []
         def make_name_int(mystack):
             st = mystack[1:]
@@ -184,6 +182,7 @@ class Parser(object):
                 return nm[1:]
             return nm
 
+        nextbox = {}
         for line in self.lines:
             if stop(line):
                 return
@@ -191,7 +190,13 @@ class Parser(object):
             if m:
                 grp = m.group(2)
                 if "[" in grp:
+                    # 0.9.30 didn't parse [..] in [hv]group names
                     grp = self.parse_name(grp)
+                if nextbox:
+                    if "name" in nextbox:
+                        self.groups[grp] = nextbox["name"]
+                    # ignore all other attributes for now
+                    nextbox = {}
                 if not stack:
                     if self.toplevel and grp == self.modname:
                         grp = self.toplevel
@@ -218,7 +223,10 @@ class Parser(object):
                 continue
             m = declare(line)
             if m:
-                self.ui.add(m.group(1), m.group(2), m.group(3))
+                if m.group(1) is None: # 0.9.43: attributes for next openbox
+                    nextbox[m.group(2)] = m.group(3)
+                else:
+                    self.ui.add(m.group(1), m.group(2), m.group(3))
                 continue
             assert False, line
 
@@ -268,7 +276,7 @@ class Parser(object):
                 elif key == "name":
                     self.name = value
                 elif key == "groups":
-                    self.groups = self.splitgroups(value);
+                    self.groups.update(self.splitgroups(value));
 
     def readIncludes(self, stop_expr):
         stop = re.compile(stop_expr).match
@@ -382,9 +390,11 @@ class Parser(object):
     def __getitem__(self, n):
         return self.sections[n]
 
-    def formatted_groups(self):
+    def formatted_groups(self, plugin_id):
         l = []
         for k, v in self.groups.items():
+            if k == plugin_id:
+                continue
             k = '"'+k+'"'
             if v:
                 v = 'N_("%s")' % v
@@ -438,6 +448,7 @@ plugin_standalone_header = """
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
 #define N_(x) (x)
+
 """
 
 plugin_standalone_footer = """
@@ -450,13 +461,15 @@ get_gx_plugins(int *count, PluginDef **pplugin)
 }
 """
 
-def output(fp, p, fname, init_type):
+def output(fp, p, fname, options):
     has_activate = len(p.memlist) > 0
     fp.write("// generated from file '%s' by dsp2cc:\n" % fname)
     fp.write("// %s\n\n" % p.headvers)
-    if init_type == "plugin-standalone":
+    if options.init_type == "plugin" and options.template_type in ("staticlib", "sharedlib"):
         fp.write(plugin_standalone_header)
     p.write(fp, "includes")
+    if options.in_namespace:
+        fp.write("namespace %s {\n" % options.in_namespace)
     fp.write("namespace %s {\n" % p.modname)
     p.write(fp, "var-decl")
     if has_activate:
@@ -488,18 +501,18 @@ def output(fp, p, fname, init_type):
         fp.write("}\n\n")
         fp.write(activate)
     fp.write("%s(int count%s%s)\n{\n" % (
-        "static void compute" if init_type in ("plugin","plugin-standalone") else "void compute",
+        "static void compute" if options.init_type == "plugin" else "void compute",
         "".join([", float *input%d" % i for i in range(p.getNumInputs())]),
         "".join([", float *output%d" % i for i in range(p.getNumOutputs())])))
     p.write(fp, "compute", 1)
     fp.write("\t}\n}\n\n")
-    if init_type == "ctor":
+    if options.init_type == "ctor":
         fp.write("static struct RegisterParams { RegisterParams(); } RegisterParams;\n")
         fp.write("RegisterParams::RegisterParams()\n{\n")
         p.ui.write(fp)
         fp.write('\tregisterInit("%s", init);\n' % p.topname)
         fp.write("}\n")
-    elif init_type in ("plugin","plugin-standalone"):
+    elif options.init_type == "plugin":
         fp.write("static int register_params(const ParamReg& reg)\n{\n")
         p.ui.write(fp, prefix="reg.")
         fp.write("\treturn 0;\n}\n")
@@ -510,9 +523,9 @@ def output(fp, p, fname, init_type):
             load_ui = "load_ui"
         else:
             load_ui = "0"
-        if p.groups:
-            fp.write("\nstatic const char* groups[] = {\n%s\t};\n" % p.formatted_groups())
         plugin_id = p.toplevel or p.topname
+        if p.groups:
+            fp.write("\nstatic const char* groups[] = {\n%s\t};\n" % p.formatted_groups(plugin_id))
         if p.name:
             plugin_name = 'N_("%s")' % p.name
         else:
@@ -531,9 +544,11 @@ def output(fp, p, fname, init_type):
         fp.write("static int register_params(const ParamReg& reg)\n{\n")
         p.ui.write(fp, prefix="reg.")
         fp.write("\treturn 0;\n}\n")
-    if init_type == "plugin-standalone":
+    if options.init_type == "plugin" and options.template_type == "sharedlib":
         fp.write(plugin_standalone_footer)
     fp.write("\n} // end namespace %s\n" % p.modname)
+    if options.in_namespace:
+        fp.write("} // end namespace %s\n" % options.in_namespace)
 
 def main():
     op = OptionParser(usage="usage: %prog [options] <faust-dsp-file>")
@@ -549,9 +564,17 @@ def main():
     init_opts = ["ctor", "no-init", "plugin", "plugin-standalone"]
     op.add_option("-i", "--init-type", dest="init_type", action="store", default="ctor",
                   help="type of init code generation: %s" % ", ".join(init_opts))
+    template_opts = ["embed", "staticlib", "sharedlib"]
+    op.add_option("-t", "--template-type", dest="template_type", action="store",
+                  default="embed",
+                  help="template for code generation: %s" % ", ".join(template_opts))
+    op.add_option("-N", "--in-namespace", action="store",
+                  help="put definitions inside an extra namespace")
     options, args = op.parse_args()
     if options.init_type not in init_opts:
         op.error("unknown init-type")
+    if options.template_type not in template_opts:
+        op.error("unknown template-type")
     if len(args) != 1:
         op.error("exactly one input filename expected\n")
     fname = args[0]
@@ -577,7 +600,7 @@ def main():
         outp = file(options.oname,"w")
     else:
         outp = sys.stdout
-    output(outp, parser, fname, options.init_type)
+    output(outp, parser, fname, options)
 
 if __name__ == "__main__":
     main()
