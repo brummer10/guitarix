@@ -681,10 +681,6 @@ int GxJack::gx_jack_midi_process(jack_nframes_t nframes, float *input) {
 
         gxjack.midi_port_buf =  jack_port_get_buffer(gxjack.midi_output_ports, nframes);
         jack_midi_clear_buffer(gxjack.midi_port_buf);
-
-	if (gx_gui::guivar.showwave == 1) {
-	    jcpu_load = jack_cpu_load(client);
-	}
 	gx_engine::process_midi(nframes, input);
     }
     return 0;
@@ -716,6 +712,7 @@ int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
         if (gx_gui::guivar.showwave == 1) {
             gxjack.time_is =  jack_frame_time(gxjack.client);
         }
+	gxjack.jcpu_load = jack_cpu_load(gxjack.client);
     } else {
         gx_engine::audio.buffers_ready = false;
     }
