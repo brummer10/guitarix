@@ -1316,6 +1316,20 @@ void GxMainInterface::closeMonoRackBox() {
     --fTop;
 }
 
+void GxMainInterface::loadRackFromGladeData(const char *xmldesc) {
+    Glib::RefPtr<Gtk::Builder> bld = load_builder_from_data(xmldesc, *this);
+    Gtk::Widget* w = 0;
+    bld->get_widget("rackbox", w);
+    if (!w) {
+        gx_system::gx_print_error("load_ui Error", "can't find widget 'rackbox'");
+	return;
+    }
+    Gtk::Container *c = w->get_parent();
+    c->remove(*w);
+    delete c;
+    addWidget("", w->gobj());
+}
+
 // --------------------------- Press button ---------------------------
 
 /*

@@ -531,5 +531,13 @@ widget_class "*GtkScrolledWindow*" style:highest "gx_dezert_pa_style"
 widget "*.rack_button" style:highest "gx_dezert_pa_style"
 widget_class "*GtkComboBox*" style:highest "gx_dezert_pair_style"
 
-
-
+style "gx_dezert-rack-group"
+{
+fg[NORMAL] = { 0.6, 0.8, 0.8 }
+fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+fg[PRELIGHT] = { 0.50, 0.60, 0.60 }
+fg[INSENSITIVE] = { 0.1, 0.1, 0.1 }
+font_name = "sans Bold 8"
+}
+widget "*.MonoBox.*GtkLabel" style:highest "gx_dezert-rack"
+widget "*.*GtkFrame.gtkmm__GtkLabel" style:highest "gx_dezert-rack-group"

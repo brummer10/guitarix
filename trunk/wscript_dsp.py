@@ -35,9 +35,10 @@ class FaustScanner(object):
         ])
 
     def scan_file(self, task, node):
-        n = node.parent.find_resource(node.name.replace(".dsp","_ui.cc"))
-        if n:
-            self.deps.append(n)
+        for s in "_ui.cc", "_ui.glade":
+            n = node.parent.find_resource(node.name.replace(".dsp",s))
+            if n:
+                self.deps.append(n)
         pname = node.parent.abspath(task.env)
         for m in re.finditer(self.scan_re, node.read(task.env)):
             for fname in m.groupdict().values():

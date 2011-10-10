@@ -500,3 +500,16 @@ bg[NORMAL] = { 0.0, 0.9, 0.2 }
 }
 
 widget "gtk-tooltip" style:highest "gx2_head_tooltip"
+
+
+style "gx2_head-rack-group"
+{
+fg[NORMAL] = { 0.6, 0.8, 0.7 }
+fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "sans Bold 8"
+}
+widget "*.MonoBox.*GtkLabel" style:highest "gx2_head-rack"
+widget "*.*GtkFrame.gtkmm__GtkLabel" style:highest "gx2_head-rack-group"

@@ -498,3 +498,15 @@ widget "*.label_reset" style:highest "gx4_head_p_style"
 widget_class "*GtkScrolledWindow*" style:highest "gx4_head_pa_style"
 widget "*.rack_button" style:highest "gx4_head_pa_style"
 widget_class "*GtkComboBox*" style:highest "gx4_head_pair_style"
+
+style "gx4_head-rack-group"
+{
+fg[NORMAL] = { 0.6, 0.8, 0.7 }
+fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "sans Bold 8"
+}
+widget "*.MonoBox.*GtkLabel" style:highest "gx4_head-rack"
+widget "*.*GtkFrame.gtkmm__GtkLabel" style:highest "gx4_head-rack-group"

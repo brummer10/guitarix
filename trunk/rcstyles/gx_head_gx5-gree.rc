@@ -512,3 +512,15 @@ widget "*.label_reset" style:highest "gx5_head_p_style"
 widget_class "*GtkScrolledWindow*" style:highest "gx5_head_pa_style"
 widget "*.rack_button" style:highest "gx5_head_pa_style"
 widget_class "*GtkComboBox*" style:highest "gx5_head_pair_style"
+
+style "gx5_head-rack-group"
+{
+fg[NORMAL] = { 0.8, 0.8, 0.8 }
+fg[ACTIVE] = { 0.2, 0.2, 0.2 }
+fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+fg[INSENSITIVE] = { 0.0, 0.0, 0.0 }
+fg[SELECTED] = { 0.8, 0.8, 0.8 }
+font_name = "sans Bold 8"
+}
+widget "*.MonoBox.*GtkLabel" style:highest "gx5_head-rack"
+widget "*.*GtkFrame.gtkmm__GtkLabel" style:highest "gx5_head-rack-group"

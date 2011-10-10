@@ -27,6 +27,10 @@ void UiBuilder::closeBox() const {
     intf->closeBox();
 }
 
+void UiBuilder::load_glade(const char *data) const {
+    intf->loadRackFromGladeData(data);
+}
+
 /****************************************************************
  ** regparam
  */

@@ -461,6 +461,16 @@ get_gx_plugins(int *count, PluginDef **pplugin)
 }
 """
 
+loadui_glade = r"""
+static const char *glade_def = "\
+%s";
+
+static int load_ui(const UiBuilder& b) {
+    b.load_glade(glade_def);
+    return 0;
+}
+"""
+
 def output(fp, p, fname, options):
     has_activate = len(p.memlist) > 0
     fp.write("// generated from file '%s' by dsp2cc:\n" % fname)
@@ -516,13 +526,17 @@ def output(fp, p, fname, options):
         fp.write("static int register_params(const ParamReg& reg)\n{\n")
         p.ui.write(fp, prefix="reg.")
         fp.write("\treturn 0;\n}\n")
-        ui_name = fname.replace(".dsp", "_ui.cc")
+        load_ui = "0"
+        ui_name = fname.replace(".dsp", "_ui.glade")
         if os.path.exists(ui_name):
-            fp.write("\n")
-            fp.write(file(ui_name).read())
+            fp.write(loadui_glade % file(ui_name).read().replace("\\",r"\\").replace("\n","\\n\\\n").replace('"',r'\"'))
             load_ui = "load_ui"
         else:
-            load_ui = "0"
+            ui_name = fname.replace(".dsp", "_ui.cc")
+            if os.path.exists(ui_name):
+                fp.write("\n")
+                fp.write(file(ui_name).read())
+                load_ui = "load_ui"
         plugin_id = p.toplevel or p.topname
         if p.groups:
             fp.write("\nstatic const char* groups[] = {\n%s\t};\n" % p.formatted_groups(plugin_id))

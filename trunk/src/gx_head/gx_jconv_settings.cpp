@@ -20,12 +20,9 @@
 
 #include "guitarix.h"                    // NOLINT
 
-#include <gxw/GxControlParameter.h>      // NOLINT
-#include <gxwmm/controlparameter.h>      // NOLINT
 #include <gxwmm/radiobutton.h>           // NOLINT
 #include <gxwmm/iredit.h>                // NOLINT
 #include <gtkmm/window.h>                // NOLINT
-#include <gtkmm/builder.h>               // NOLINT
 #include <gtkmm/main.h>                  // NOLINT
 #include <gtkmm/filechooserdialog.h>     // NOLINT
 
@@ -42,139 +39,8 @@
 #include <string>                        // NOLINT
 #include <vector>                        // NOLINT
 
-/****************************************************************
- ** fixup_controlparameters()
- ** helper function to initialize widgets which are linked to a
- ** variable name (via ControlParameter interface):
- ** set range, title and initial value from parameter table,
- ** connect uiItem and Midi learn
- */
-
-namespace Glib { namespace Container_Helpers {
-template <>
-struct TypeTraits<GObject*> {
-    typedef GObject *CppType;
-    typedef GObject *CType;
-    typedef GObject *CTypeNonConst;
-
-    static CType to_c_type(CppType item) { return item; }
-    static CppType to_cpp_type(CType item) { return item; }
-    static void release_c_type(CType) {}
-};
-}} // end namespace Glib::Container_Helpers
 
 namespace gx_jconv {
-
-class uiToggleFloat: gx_ui::GxUiItemFloat {
- protected:
-    Glib::RefPtr<Gtk::ToggleButton> button;
-    void on_button_toggled();
-    virtual void reflectZone();
- public:
-    uiToggleFloat(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, float *zone);
-};
-
-uiToggleFloat::uiToggleFloat(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, float *zone)
-    : gx_ui::GxUiItemFloat(&ui, zone), button(b) {
-    button->signal_toggled().connect(sigc::mem_fun(*this, &uiToggleFloat::on_button_toggled));
-}
-
-void uiToggleFloat::on_button_toggled() {
-    modifyZone(button->get_active());
-}
-
-void uiToggleFloat::reflectZone() {
-    float v = *fZone;
-    fCache = v;
-    button->set_active(v != 0.0);
-}
-
-class uiToggleBool: gx_ui::GxUiItemBool {
- protected:
-    Glib::RefPtr<Gtk::ToggleButton> button;
-    void on_button_toggled();
-    virtual void reflectZone();
- public:
-    uiToggleBool(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, bool *zone);
-};
-
-uiToggleBool::uiToggleBool(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, bool *zone)
-    : gx_ui::GxUiItemBool(&ui, zone), button(b) {
-    button->signal_toggled().connect(sigc::mem_fun(*this, &uiToggleBool::on_button_toggled));
-}
-
-void uiToggleBool::on_button_toggled() {
-    modifyZone(button->get_active());
-}
-
-void uiToggleBool::reflectZone() {
-    bool v = *fZone;
-    fCache = v;
-    button->set_active(v != 0.0);
-}
-
-static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::GxUI& ui) {
-    Glib::SListHandle<GObject*> objs = Glib::SListHandle<GObject*>(
-        gtk_builder_get_objects(builder->gobj()), Glib::OWNERSHIP_DEEP);
-    for (Glib::SListHandle<GObject*>::iterator i = objs.begin(); i != objs.end(); i++) {
-        if (!g_type_is_a(G_OBJECT_TYPE(*i), GX_TYPE_CONTROL_PARAMETER)) {
-            continue;
-        }
-        Glib::RefPtr<Gxw::ControlParameter> w = Glib::wrap(GX_CONTROL_PARAMETER(*i), true);
-        Glib::ustring v = w->cp_get_var();
-        if (v.empty()) {
-            continue;
-        }
-        if (!gx_gui::parameter_map.hasId(v)) {
-            gx_system::gx_print_warning("load dialog",
-                (boost::format("Parameter variable %1% not found") % v).str());
-            continue;
-        }
-        gx_gui::Parameter& p = gx_gui::parameter_map[v];
-        if (!p.desc().empty()) {
-            Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_tooltip_text(p.desc());
-        }
-        if (p.isFloat()) {
-            gx_gui::FloatParameter &fp = p.getFloat();
-            w->cp_configure(p.group(), p.name(), fp.lower, fp.upper, fp.step);
-            w->cp_set_value(fp.value);
-            Glib::RefPtr<Gtk::Range> r = Glib::RefPtr<Gtk::Range>::cast_dynamic(w);
-            if (r) {
-                Gtk::Adjustment *adj = r->get_adjustment();
-                gx_gui::uiAdjustment* c = new gx_gui::uiAdjustment(&ui, &fp.value, adj->gobj());
-                adj->signal_value_changed().connect(
-                    sigc::bind<GtkAdjustment*>(
-                        sigc::bind<gpointer>(
-                            sigc::ptr_fun(gx_gui::uiAdjustment::changed),
-                                         (gpointer)c), adj->gobj()));
-            } else {
-                Glib::RefPtr<Gtk::ToggleButton> t =
-                    Glib::RefPtr<Gtk::ToggleButton>::cast_dynamic(w);
-                if (t) {
-                    new uiToggleFloat(ui, t, &fp.value);
-                }
-            }
-            if (fp.isControllable()) {
-                gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.value);
-            }
-        } else if (p.isBool()) {
-            gx_gui::BoolParameter &fp = p.getBool();
-            w->cp_configure(p.group(), p.name(), 0, 0, 0);
-            w->cp_set_value(fp.value);
-	    Glib::RefPtr<Gtk::ToggleButton> t =
-		Glib::RefPtr<Gtk::ToggleButton>::cast_dynamic(w);
-	    if (t) {
-		new uiToggleBool(ui, t, &fp.value);
-	    }
-            if (fp.isControllable()) {
-                gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.value);
-            }
-        } else {
-            gx_system::gx_print_warning("load dialog",
-                      (boost::format("Parameter variable %1%: type not handled") % v).str());
-        }
-    }
-}
 
 // FIXME: needs to be moved somewhere else (at least be together with convolver_start)
 void gx_convolver_restart() {
@@ -327,24 +193,11 @@ class IRWindow: public Gtk::Window {
 
 IRWindow *IRWindow::instance = 0;
 
-Glib::RefPtr<Gtk::Builder> load_builder(Glib::ustring name) {
-    Glib::RefPtr<Gtk::Builder> bld = Gtk::Builder::create();
-    try {
-        bld->add_from_file(gx_system::sysvar.gx_builder_dir+name);
-    } catch(const Glib::FileError& ex) {
-        gx_system::gx_print_error("FileError", ex.what());
-    } catch(const Gtk::BuilderError& ex) {
-        gx_system::gx_print_error("Builder Error", ex.what());
-    }
-    return bld;
-}
-
 void IRWindow::create(gx_ui::GxUI& ui) {
     if (instance) {
         return;
     }
-    Glib::RefPtr<Gtk::Builder> bld = load_builder("iredit.glade");
-    fixup_controlparameters(bld, ui);
+    Glib::RefPtr<Gtk::Builder> bld = gx_gui::load_builder_from_file("iredit.glade", ui);
     bld->get_widget_derived("DisplayIR", instance);
 }
 

@@ -23,15 +23,15 @@ with {
 
   freq_group(x) = fdn_group(hgroup("decay_times[name:Decay Times in Bands]", x));
 
-  f1 = freq_group(vslider("lf_x[name:LF X] [unit:Hz] [style:knob] 
+  f1 = freq_group(vslider("lf_x[name:Freq X] [unit:Hz] [style:knob] 
        [tooltip: Crossover frequency (Hz) separating low and middle frequencies]",
        200, 50, 1000, 1));
 
-  t60dc = freq_group(vslider("low_rt60[name:Low RT60] [unit:s] [style:knob] 
+  t60dc = freq_group(vslider("low_rt60[name:Low] [unit:s] [style:knob] 
           [style:knob] [tooltip: T60 = time (in seconds) to decay 60dB in low-frequency band]", 
 	  3, 1, 8, 0.1));
 
-  t60m = freq_group(vslider("mid_rt60[name:Mid RT60] [unit:s] [style:knob]
+  t60m = freq_group(vslider("mid_rt60[name:Mid] [unit:s] [style:knob]
           [tooltip: T60 = time (in seconds) to decay 60dB in middle band]", 
 	  2, 1, 8, 0.1));
 
@@ -52,29 +52,29 @@ with {
 
   eq1_group(x) = fdn_group(hgroup("equalizer1[name:RM Peaking Equalizer 1]", x));
 
-  eq1f = eq1_group(vslider("eq1_freq[name:Eq1 Freq] [unit:Hz] [style:knob]
+  eq1f = eq1_group(vslider("eq1_freq[name:Freq] [unit:Hz] [style:knob]
        [tooltip: Center-frequency of second-order Regalia-Mitra peaking equalizer section 1]",
        315, 40, 2500, 1));
   
-  eq1l = eq1_group(vslider("eq1_level[name:Eq1 Level] [unit:dB] [style:knob]
+  eq1l = eq1_group(vslider("eq1_level[name:Level] [unit:dB] [style:knob]
        [tooltip: Peak level in dB of second-order Regalia-Mitra peaking equalizer section 1]",
        0, -15, 15, 0.1));
   
-  eq1q = eq1_group(vslider("eq1_q[name:Eq1 Q] [style:knob]
+  eq1q = eq1_group(vslider("eq1_q[name:Q] [style:knob]
        [tooltip: Q = centerFrequency/bandwidth of second-order peaking equalizer section 1]",
        3, 0.1, 10, 0.1));
   
   eq2_group(x) = fdn_group(hgroup("equalizer2[name:RM Peaking Equalizer 2]", x));
 
-  eq2f = eq2_group(vslider("eq2_freq[name:Eq2 Freq] [unit:Hz] [style:knob]
+  eq2f = eq2_group(vslider("eq2_freq[name:Freq] [unit:Hz] [style:knob]
        [tooltip: Center-frequency of second-order Regalia-Mitra peaking equalizer section 2]",
        315, 40, 2500, 1));
   
-  eq2l = eq2_group(vslider("eq2_level[name:Eq2 Level] [unit:dB] [style:knob]
+  eq2l = eq2_group(vslider("eq2_level[name:Level] [unit:dB] [style:knob]
        [tooltip: Peak level in dB of second-order Regalia-Mitra peaking equalizer section 2]",
        0, -15, 15, 0.1));
 
-  eq2q = eq2_group(vslider("eq2_q[name:Eq2 Q] [style:knob]
+  eq2q = eq2_group(vslider("eq2_q[name:Q] [style:knob]
        [tooltip: Q = centerFrequency/bandwidth of second-order peaking equalizer section 2]",
        3, 0.1, 10, 0.1));
   
@@ -85,7 +85,7 @@ with {
     dry = 1.0-wet; 
   };
 
-  drywet = out_group(vslider("dry_wet_mix[name:Dry/Wet Mix] [style:knob]
+  drywet = out_group(vslider("dry_wet_mix[name:Dry/Wet] [style:knob]
        [tooltip: -1 = dry, 1 = wet]",
        0, -1.0, 1.0, 0.01)) : smooth(0.999);
 

@@ -28,10 +28,28 @@
 
 #include "guitarix.h"
 #include <gtkmm/menu.h>
+#include <gxw/GxControlParameter.h>      // NOLINT
 
-namespace gx_ui {
+/****************************************************************
+ ** fixup_controlparameters()
+ ** helper function to initialize widgets which are linked to a
+ ** variable name (via ControlParameter interface):
+ ** set range, title and initial value from parameter table,
+ ** connect uiItem and Midi learn
+ */
 
-}
+namespace Glib { namespace Container_Helpers {
+template <>
+struct TypeTraits<GObject*> {
+    typedef GObject *CppType;
+    typedef GObject *CType;
+    typedef GObject *CTypeNonConst;
+
+    static CType to_c_type(CppType item) { return item; }
+    static CppType to_cpp_type(CType item) { return item; }
+    static void release_c_type(CType) {}
+};
+}} // end namespace Glib::Container_Helpers
 
 namespace gx_gui
 {
@@ -399,6 +417,134 @@ PToggleButton::PToggleButton(const char* label):
     button.add(m_label);
     button.signal_clicked().connect(
 	sigc::mem_fun(*this, &PToggleButton::on_clicked));
+}
+
+/****************************************************************
+ ** Load glade file
+ */
+
+template<class T>
+class uiToggle: public gx_ui::GxUiItemV<T> {
+protected:
+    Glib::RefPtr<Gtk::ToggleButton> button;
+    void on_button_toggled();
+    virtual void reflectZone();
+public:
+    uiToggle(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, T *zone);
+};
+
+template<class T>
+uiToggle<T>::uiToggle(gx_ui::GxUI& ui, Glib::RefPtr<Gtk::ToggleButton>& b, T *zone)
+    : gx_ui::GxUiItemV<T>(&ui, zone), button(b) {
+    button->signal_toggled().connect(sigc::mem_fun(*this, &uiToggle<T>::on_button_toggled));
+}
+
+template<class T>
+void uiToggle<T>::on_button_toggled() {
+    gx_ui::GxUiItemV<T>::modifyZone(button->get_active());
+}
+
+template<class T>
+void uiToggle<T>::reflectZone() {
+    T v = *gx_ui::GxUiItemV<T>::fZone;
+    gx_ui::GxUiItemV<T>::fCache = v;
+    button->set_active(v);
+}
+
+static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::GxUI& ui) {
+    Glib::SListHandle<GObject*> objs = Glib::SListHandle<GObject*>(
+        gtk_builder_get_objects(builder->gobj()), Glib::OWNERSHIP_DEEP);
+    for (Glib::SListHandle<GObject*>::iterator i = objs.begin(); i != objs.end(); i++) {
+	if (g_type_is_a(G_OBJECT_TYPE(*i), GTK_TYPE_WIDGET)) {
+	    const char *id = gtk_buildable_get_name(GTK_BUILDABLE(*i));
+	    const char *p = g_strstr_len(id, -1, ":");
+	    if (p) {
+		gtk_widget_set_name(GTK_WIDGET(*i), p+1);
+	    }
+	}
+        if (!g_type_is_a(G_OBJECT_TYPE(*i), GX_TYPE_CONTROL_PARAMETER)) {
+            continue;
+        }
+        Glib::RefPtr<Gxw::ControlParameter> w = Glib::wrap(GX_CONTROL_PARAMETER(*i), true);
+        Glib::ustring v = w->cp_get_var();
+        if (v.empty()) {
+            continue;
+        }
+        if (!gx_gui::parameter_map.hasId(v)) {
+            gx_system::gx_print_warning("load dialog",
+                (boost::format("Parameter variable %1% not found") % v).str());
+            continue;
+        }
+        gx_gui::Parameter& p = gx_gui::parameter_map[v];
+        if (!p.desc().empty()) {
+            Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_tooltip_text(p.desc());
+        }
+        if (p.isFloat()) {
+            gx_gui::FloatParameter &fp = p.getFloat();
+            w->cp_configure(p.group(), p.name(), fp.lower, fp.upper, fp.step);
+            w->cp_set_value(fp.value);
+            Glib::RefPtr<Gtk::Range> r = Glib::RefPtr<Gtk::Range>::cast_dynamic(w);
+            if (r) {
+                Gtk::Adjustment *adj = r->get_adjustment();
+                gx_gui::uiAdjustment* c = new gx_gui::uiAdjustment(&ui, &fp.value, adj->gobj());
+                adj->signal_value_changed().connect(
+                    sigc::bind<GtkAdjustment*>(
+                        sigc::bind<gpointer>(
+                            sigc::ptr_fun(gx_gui::uiAdjustment::changed),
+                                         (gpointer)c), adj->gobj()));
+            } else {
+                Glib::RefPtr<Gtk::ToggleButton> t =
+                    Glib::RefPtr<Gtk::ToggleButton>::cast_dynamic(w);
+                if (t) {
+                    new uiToggle<float>(ui, t, &fp.value);
+                }
+            }
+            if (fp.isControllable()) {
+                gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.value);
+            }
+        } else if (p.isBool()) {
+            gx_gui::BoolParameter &fp = p.getBool();
+            w->cp_configure(p.group(), p.name(), 0, 0, 0);
+            w->cp_set_value(fp.value);
+	    Glib::RefPtr<Gtk::ToggleButton> t =
+		Glib::RefPtr<Gtk::ToggleButton>::cast_dynamic(w);
+	    if (t) {
+		new uiToggle<bool>(ui, t, &fp.value);
+	    }
+            if (fp.isControllable()) {
+                gx_gui::connect_midi_controller(GTK_WIDGET(w->gobj()), &fp.value);
+            }
+        } else {
+            gx_system::gx_print_warning("load dialog",
+                      (boost::format("Parameter variable %1%: type not handled") % v).str());
+        }
+    }
+}
+
+Glib::RefPtr<Gtk::Builder> load_builder_from_file(Glib::ustring name, gx_ui::GxUI& ui) {
+    Glib::RefPtr<Gtk::Builder> bld = Gtk::Builder::create();
+    try {
+        bld->add_from_file(gx_system::sysvar.gx_builder_dir+name);
+    } catch(const Glib::FileError& ex) {
+        gx_system::gx_print_error("FileError", ex.what());
+    } catch(const Gtk::BuilderError& ex) {
+        gx_system::gx_print_error("Builder Error", ex.what());
+    }
+    fixup_controlparameters(bld, ui);
+    return bld;
+}
+
+Glib::RefPtr<Gtk::Builder> load_builder_from_data(const char *xmldesc, gx_ui::GxUI& ui) {
+    Glib::RefPtr<Gtk::Builder> bld = Gtk::Builder::create();
+    try {
+	bld->add_from_string(xmldesc, -1);
+    } catch(const Glib::FileError& ex) {
+        gx_system::gx_print_error("FileError", ex.what());
+    } catch(const Gtk::BuilderError& ex) {
+        gx_system::gx_print_error("Builder Error", ex.what());
+    }
+    fixup_controlparameters(bld, ui);
+    return bld;
 }
 
 }/* end of gx_gui namespace */

@@ -47,6 +47,7 @@ public:
     void create_small_rackknob(const char *id) const;
     void create_small_rackknob(const char *id, const char *label) const;
     void closeBox() const;
+    void load_glade(const char *data) const;
     //FIXME add missing functions
 };
 

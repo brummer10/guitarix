@@ -56,6 +56,7 @@
 #include <gtkmm/alignment.h>
 #include <gtkmm/checkmenuitem.h>
 #include <gtkmm/radiomenuitem.h>
+#include <gtkmm/builder.h>
 
 #include <iostream>
 #include <map>
@@ -542,6 +543,7 @@ class GxMainInterface : public gx_ui::GxUI {
     void closeStereoRackBox();
     void openMonoRackBox(const char* label, int* posit, const char *id_on_off, const char *id_pre_post, const char *id_dialog);
     void closeMonoRackBox();
+    void loadRackFromGladeData(const char *xmldesc);
     void closeBox();
 
     // -- active widgets
@@ -791,6 +793,9 @@ inline void connect_midi_controller(GtkWidget *w, void *zone) {
 /****************************************************************/
 
 void conv_restart();
+
+Glib::RefPtr<Gtk::Builder> load_builder_from_file(Glib::ustring name, gx_ui::GxUI& ui);
+Glib::RefPtr<Gtk::Builder> load_builder_from_data(const char *xmldesc, gx_ui::GxUI& ui);
 
 /* -------------------------------------------------------------------------- */
 } /* end of gx_gui namespace */
