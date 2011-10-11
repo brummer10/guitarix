@@ -47,12 +47,12 @@ def build(bld):
     if not bld.env['INTERN_ZITA_CONVOLVER']:
         sources.append('../zita-convolver/zita-convolver.cc')
         incl.append('../zita-convolver'); 
+    lib = ['dl']
     if not bld.env['ZITA_RESAMPLER']:
         sources.append('../zita-resampler/zita-resampler.cc')
         incl.append('../zita-resampler')
-        lib = []
     else:
-        lib = ['zita-resampler']
+        lib.append('zita-resampler')
     uselib_local = []
     if bld.env["HAVE_PLUGINLIB"]:
         uselib_local += ["plugins"]
