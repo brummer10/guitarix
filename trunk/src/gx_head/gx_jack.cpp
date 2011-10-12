@@ -27,6 +27,7 @@
 #include <errno.h>              // NOLINT
 #include <jack/statistics.h>    // NOLINT
 #include <jack/jack.h>          // NOLINT
+#include <jack/thread.h>        // NOLINT
 #include <glibmm/i18n.h>        // NOLINT
 
 #ifdef HAVE_JACK_SESSION
@@ -39,10 +40,19 @@
 #include <list>                // NOLINT
 
 
+gx_jack::GxJack& get_jack(gx_engine::GxEngine* engine_) {
+    static gx_jack::GxJack gxjack(*engine_);
+    return gxjack;
+}
+
 namespace gx_jack {
 
-GxJack gxjack;
 JackBuffer *_jackbuffer_ptr;
+
+GxJack::GxJack(gx_engine::GxEngine& engine_):
+    engine(engine_) {
+    engine.set_jack(this);
+}
 
 // ----- pop up a dialog for starting jack
 bool GxJack::gx_jack_init(const string *optvar) {
@@ -54,7 +64,7 @@ bool GxJack::gx_jack_init(const string *optvar) {
     int jack_is_fresh =     0;
     jack_is_down =          false;
     jack_is_exit =          false;
-    gx_engine::get_engine().set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
+    engine.set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
 
     AVOIDDENORMALS;
 
@@ -128,7 +138,7 @@ bool GxJack::gx_jack_init(const string *optvar) {
 
     // ----------------------------------
     jack_is_down = false;
-    is_rt = jack_is_realtime(gxjack.client);
+    is_rt = jack_is_realtime(client);
 
     // it is maybe not the 1st gx_head instance ?
     if (jackstat & JackNameNotUnique) {
@@ -175,12 +185,13 @@ static gboolean gx_jack_portconn_helper(gpointer data) {
     return FALSE;
 }
 
-static void gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int connect, void*) {
-    if (!gxjack.client) {
+void GxJack::gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int connect, void* arg) {
+    GxJack& self = *static_cast<GxJack*>(arg);
+    if (!self.client) {
         return;
     }
-    jack_port_t* port_a = jack_port_by_id(gxjack.client, a);
-    jack_port_t* port_b = jack_port_by_id(gxjack.client, b);
+    jack_port_t* port_a = jack_port_by_id(self.client, a);
+    jack_port_t* port_b = jack_port_by_id(self.client, b);
     if (!port_a || !port_b) {
         return;
     }
@@ -188,13 +199,13 @@ static void gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int co
                  new PortConnData(jack_port_name(port_a), jack_port_name(port_b),
                                   connect));
     // check if we are connected
-    const char** port = jack_port_get_connections(gxjack.input_ports[0]);
+    const char** port = jack_port_get_connections(self.input_ports[0]);
     if (port) { // might be 0 (e.g. due to race conditions)
 
-	gx_engine::get_engine().clear_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
+	self.engine.clear_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
         free(port);
     } else {
-	gx_engine::get_engine().set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
+	self.engine.set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
     }
 }
 
@@ -203,17 +214,15 @@ static void gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int co
 // Note: to be called after gx_engine::gx_engine_init()
 void GxJack::gx_jack_callbacks() {
     // ----- set the jack callbacks
-    jack_set_xrun_callback(client, gxjack.gx_jack_xrun_callback, NULL);
-    jack_set_sample_rate_callback(client, gxjack.gx_jack_srate_callback, 0);
-    jack_on_shutdown(client, gxjack.gx_jack_shutdown_callback, NULL);
-    jack_set_buffer_size_callback(client, gxjack.gx_jack_buffersize_callback, 0);
-    jack_set_process_callback(client, gxjack.gx_jack_process, 0);
-    jack_set_process_callback(client_insert, gxjack.gx_jack_insert_process, 0);
-    jack_set_port_registration_callback(client, gxjack.gx_jack_portreg_callback, 0);
-    jack_set_port_connect_callback(client, gx_jack_portconn_callback, 0);
+    jack_set_xrun_callback(client, gx_jack_xrun_callback, this);
+    jack_set_sample_rate_callback(client, gx_jack_srate_callback, this);
+    jack_on_shutdown(client, gx_jack_shutdown_callback, this);
+    jack_set_buffer_size_callback(client, gx_jack_buffersize_callback, this);
+    jack_set_port_registration_callback(client, gx_jack_portreg_callback, this);
+    jack_set_port_connect_callback(client, gx_jack_portconn_callback, this);
 #ifdef HAVE_JACK_SESSION
     if (jack_set_session_callback) {
-        jack_set_session_callback(client, gxjack.gx_jack_session_callback, 0);
+        jack_set_session_callback(client, gx_jack_session_callback, this);
     }
 #endif
 
@@ -251,6 +260,11 @@ void GxJack::gx_jack_callbacks() {
             jack_port_register(client_insert, buf.str().c_str(),
                                JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
     }
+    engine.init(jack_sr, jack_bs, SCHED_FIFO,
+		jack_client_real_time_priority(client));
+    jack_set_process_callback(client, gx_jack_process, this);
+    jack_set_process_callback(client_insert, gx_jack_insert_process, this);
+    gx_jack_activate();
 }
 
 void GxJack::gx_jack_activate() {
@@ -267,16 +281,20 @@ void GxJack::gx_jack_activate() {
     }
 }
 
+#if 0
 static gboolean gx_engine_restart(gpointer data) {
     usleep(5);
-    gx_engine::get_engine().set_state(gx_engine::kEngineOn);
+    gx_engine::get_engine().set_state(gx_engine::ModuleSequencer::kEngineOn);
     return false;
 }
+#endif
 
 // ----- connect ports if we know them
 void GxJack::gx_jack_init_port_connection(const string* optvar) {
+#if 0
     gx_gui::guivar.g_threads[4] = g_idle_add_full(G_PRIORITY_HIGH_IDLE+20, gx_engine_restart,
                                            NULL, NULL);
+#endif
 
     // set autoconnect capture to user capture port
     if (!optvar[JACK_INP].empty()) {
@@ -290,7 +308,7 @@ void GxJack::gx_jack_init_port_connection(const string* optvar) {
     }
 
     // set autoconnect midi to user midi port
-    if (gxjack.midi_input_port && !optvar[JACK_MIDI].empty()) {
+    if (midi_input_port && !optvar[JACK_MIDI].empty()) {
         jack_connect(client, optvar[JACK_MIDI].c_str(),
                      jack_port_name(midi_input_port));
     } else {
@@ -454,9 +472,9 @@ static gboolean gx_ports_refresh(gpointer data) {
 }
 
 // ---- Jack server connection / disconnection
-void GxJack::gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg) {
+void GxJack::gx_jack_connection(GtkCheckMenuItem *menuitem) {
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == TRUE) {
-        if (!gxjack.client) {
+        if (!client) {
             string optvar[NUM_SHELL_VAR];
             gx_system::gx_assign_shell_var(gx_system::sysvar.shell_var_name[JACK_INP], optvar[JACK_INP]);
             gx_system::gx_assign_shell_var(gx_system::sysvar.shell_var_name[JACK_MIDI], optvar[JACK_MIDI]);
@@ -466,40 +484,34 @@ void GxJack::gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg) {
             gx_system::gx_assign_shell_var(gx_system::sysvar.shell_var_name[JACK_UUID2], optvar[JACK_UUID2]);
 
 
-            if (gxjack.gx_jack_init(optvar)) {
+            if (gx_jack_init(optvar)) {
 
                 // initialize gx_head engine if necessary
                 if (!gx_engine::audio.initialized) {
                     gx_engine::gx_engine_init(optvar);
                 }
-                gxjack.gx_jack_callbacks();
-                gxjack.gx_jack_activate();
-                gxjack.gx_jack_init_port_connection(optvar);
+                gx_jack_callbacks();
+                gx_jack_init_port_connection(optvar);
 
                 // refresh latency check menu
-                gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
-                GtkWidget* wd = gui->getJackLatencyItem(gx_jack::gxjack.jack_bs);
+                gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance();
+                GtkWidget* wd = gui.getJackLatencyItem(jack_bs);
                 if (wd) {
                     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
-                }
-                if (!gx_engine::pitch_tracker.pt_initialized) {
-                    sleep(5);
-                    // -------- pitch tracker (needs jack thread running) -------------
-                    gx_engine::pitch_tracker.init();
                 }
             }
         }
 
-        if (gxjack.client) {
+        if (client) {
             if (gx_gui::gw.gx_jackd_on_image) {
                 gtk_widget_show(gx_gui::gw.gx_jackd_on_image);
                 gtk_widget_hide(gx_gui::gw.gx_jackd_off_image);
             }
-            gxjack.jack_is_exit = false;
+            jack_is_exit = false;
             gx_system::gx_print_info(_("Jack Server"), _("Connected to Jack Server"));
         }
     } else {
-        gxjack.gx_jack_cleanup();
+        gx_jack_cleanup();
 
         // we bring down jack capture and meterbridge
         gx_child_process::Meterbridge::stop();
@@ -521,7 +533,7 @@ void GxJack::gx_jack_connection(GtkCheckMenuItem *menuitem, gpointer arg) {
 // ----jack latency change
 void GxJack::gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg) {
     // are we a proper jack gxjack.client ?
-    if (!gxjack.client) {
+    if (!client) {
         gx_system::gx_print_error(
             _("Jack Buffer Size setting"),
             _("we are not a jack gxjack.client, server may be down")
@@ -540,7 +552,7 @@ void GxJack::gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg) {
     jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
 
     // if the actual buffer size is the same, no need further action
-    if (buf_size == jack_get_buffer_size(gxjack.client)) {
+    if (buf_size == jack_get_buffer_size(client)) {
         return;
     }
 
@@ -554,31 +566,31 @@ void GxJack::gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg) {
     // let's see
     if (change_latency == kChangeLatency) {
         // let's resize the buffer
-        if (jack_set_buffer_size(gxjack.client, buf_size) != 0)
+        if (jack_set_buffer_size(client, buf_size) != 0)
             gx_system::gx_print_warning(_("Setting Jack Buffer Size"),
                              _("Could not change latency"));
     } else { // restore latency status
         // refresh latency check menu
-        gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
-        GtkWidget* wd = gui->getJackLatencyItem(gxjack.jack_bs);
+        gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance();
+        GtkWidget* wd = gui.getJackLatencyItem(jack_bs);
         if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
     }
     gx_system::gx_print_info(_("Jack Buffer Size"),
                   string(_("latency is ")) +
-                  gx_system::gx_i2a(jack_get_buffer_size(gxjack.client)));
+                  gx_system::gx_i2a(jack_get_buffer_size(client)));
 }
 
 // -----Function that cleans the jack stuff on shutdown
 void GxJack::gx_jack_cleanup() {
     if (client && !jack_is_down) {
         jack_is_exit = true;
-	gx_engine::get_engine().set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
+	engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
         jack_deactivate(client);
         jack_deactivate(client_insert);
         // disable input ports
         jack_port_unregister(client, input_ports[0]);
         jack_port_unregister(client_insert, input_ports[1]);
-        if (gxjack.midi_input_port != NULL) {
+        if (midi_input_port != NULL) {
             jack_port_unregister(client, midi_input_port);
         }
         for (int i = 0; i < 1; i++) {
@@ -587,12 +599,12 @@ void GxJack::gx_jack_cleanup() {
         for (int i = 2; i < 4; i++) {
             jack_port_unregister(client_insert, output_ports[i]);
         }
-        if (gxjack.midi_output_ports != NULL) {
+        if (midi_output_ports != NULL) {
             jack_port_unregister(client, midi_output_ports);
         }
 
         jack_client_close(client);
-        gxjack.client = 0;
+        client = 0;
         
         jack_client_close(client_insert);
         client_insert = 0;
@@ -613,63 +625,44 @@ int GxJack::gx_jack_srate_callback(jack_nframes_t frames, void* arg) {
 // ---- jack shutdown callback in case jackd shuts down on us
 void GxJack::gx_jack_shutdown_callback(void *arg) {
     // global var to let all know that jack is down
-    gxjack.jack_is_down = true;
+    static_cast<GxJack*>(arg)->jack_is_down = true;
     // helper funktion to start gx_survive_jack_shutdown thread
     gx_gui::gx_jack_is_down();
 }
 
 // ---- jack xrun callback
 int GxJack::gx_jack_xrun_callback(void* arg) {
-    gxjack.xdel = jack_get_xrun_delayed_usecs(gxjack.client);
+    GxJack& self = *static_cast<GxJack*>(arg);
+    self.xdel = jack_get_xrun_delayed_usecs(self.client);
     gx_gui::gx_jack_report_xrun();
     return 0;
 }
 
 // ---- jack buffer size change callback
 int GxJack::gx_jack_buffersize_callback(jack_nframes_t nframes, void* arg) {
-    if (gxjack.jack_bs == nframes) {
+    GxJack& self = *static_cast<GxJack*>(arg);
+    if (self.jack_bs == nframes) {
 	return 0;
     }
-    gx_engine::GxEngine& engine = gx_engine::get_engine();
-    engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
-    gxjack.jack_bs = nframes;
+    self.engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
+    self.jack_bs = nframes;
 
     if (gx_engine::audio.oversample)  delete[] gx_engine::audio.oversample;
-    if (gx_engine::audio.result)      delete[] gx_engine::audio.result;
 
-    gx_engine::audio.oversample = new float[gxjack.jack_bs*MAX_UPSAMPLE];
-    (void)memset(gx_engine::audio.oversample, 0, sizeof(float)*gxjack.jack_bs*MAX_UPSAMPLE);
+    gx_engine::audio.oversample = new float[self.jack_bs*MAX_UPSAMPLE];
+    (void)memset(gx_engine::audio.oversample, 0, sizeof(float)*self.jack_bs*MAX_UPSAMPLE);
 
-    gx_engine::audio.result = new float[gxjack.jack_bs+46];
-    (void)memset(gx_engine::audio.result, 0, sizeof(float)*gxjack.jack_bs+46);
-
-    gx_gui::GxMainInterface::instance()->set_waveview_buffer();
-    if (engine.cabinet.is_runnable()) {
-	engine.cabinet.set_not_runnable();
-        Glib::signal_idle().connect(
-            sigc::bind_return(sigc::ptr_fun(gx_threads::cab_conv_restart), false));
-    }
-    if (engine.contrast.is_runnable()) {
-        engine.contrast.set_not_runnable();
-        Glib::signal_idle().connect(
-            sigc::bind_return(sigc::ptr_fun(gx_threads::contrast_conv_restart), false));
-    }
-    if (engine.convolver.conv.is_runnable()) {
-        engine.convolver.conv.set_not_runnable();
-        Glib::signal_idle().connect(
-            sigc::bind_return(sigc::ptr_fun(gx_gui::conv_restart), false));
-    }
-
-    engine.clear_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
+    self.engine.buffersize_change(nframes);
+    self.engine.clear_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     // return 0 to jack
     return 0;
 }
 
 // ---- jack midi control input processing
-int GxJack::gx_jack_midi_input_process(jack_nframes_t nframes, void *arg) {
-    if (gxjack.midi_input_port != NULL) {
-        gxjack.midi_input_port_buf =  jack_port_get_buffer(gxjack.midi_input_port, nframes);
-        gx_engine::compute_midi_in(gxjack.midi_input_port_buf);
+int GxJack::gx_jack_midi_input_process(jack_nframes_t nframes) {
+    if (midi_input_port != NULL) {
+        midi_input_port_buf =  jack_port_get_buffer(midi_input_port, nframes);
+        gx_engine::compute_midi_in(midi_input_port_buf);
     }
     return 0;
 }
@@ -677,10 +670,10 @@ int GxJack::gx_jack_midi_input_process(jack_nframes_t nframes, void *arg) {
 // ---- jack midi processing
 
 int GxJack::gx_jack_midi_process(jack_nframes_t nframes, float *input) {
-    if (gxjack.midi_output_ports != NULL) {
+    if (midi_output_ports != NULL) {
 
-        gxjack.midi_port_buf =  jack_port_get_buffer(gxjack.midi_output_ports, nframes);
-        jack_midi_clear_buffer(gxjack.midi_port_buf);
+        midi_port_buf =  jack_port_get_buffer(midi_output_ports, nframes);
+        jack_midi_clear_buffer(midi_port_buf);
 	gx_engine::process_midi(nframes, input);
     }
     return 0;
@@ -689,56 +682,58 @@ int GxJack::gx_jack_midi_process(jack_nframes_t nframes, float *input) {
 // ----- main jack process method
 int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
     gx_system::measure_start();
-    if (!gxjack.jack_is_exit) {
+    GxJack& self = *static_cast<GxJack*>(arg);
+    if (!self.jack_is_exit) {
         AVOIDDENORMALS;
 
         // retrieve buffers at jack ports
         _jackbuffer_ptr->input = static_cast<float *>
-                       (jack_port_get_buffer(gxjack.input_ports[0], nframes));
+                       (jack_port_get_buffer(self.input_ports[0], nframes));
         _jackbuffer_ptr->output0 = static_cast<float *>
-                        (jack_port_get_buffer(gxjack.output_ports[0], nframes));
+                        (jack_port_get_buffer(self.output_ports[0], nframes));
 
         // gx_head DSP computing
-	gx_engine::get_engine().mono_chain.process(
+	self.engine.mono_chain.process(
 	    nframes, _jackbuffer_ptr->input, _jackbuffer_ptr->output0);
 
         // ready to go for e.g. level display
         gx_engine::audio.buffers_ready = true;
 
         // midi input processing
-        gxjack.gx_jack_midi_input_process(nframes, 0);
+        self.gx_jack_midi_input_process(nframes);
 
         // some info display
         if (gx_gui::guivar.showwave == 1) {
-            gxjack.time_is =  jack_frame_time(gxjack.client);
+            self.time_is =  jack_frame_time(self.client);
         }
-	gxjack.jcpu_load = jack_cpu_load(gxjack.client);
+	self.jcpu_load = jack_cpu_load(self.client);
     } else {
         gx_engine::audio.buffers_ready = false;
     }
     gx_system::measure_pause();
-    gx_engine::get_engine().mono_chain.post_rt_finished();
+    self.engine.mono_chain.post_rt_finished();
     return 0;
 }
 
 // ----- main jack process method
 int GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
+    GxJack& self = *static_cast<GxJack*>(arg);
     gx_system::measure_cont();
-    if (!gxjack.jack_is_exit) {
+    if (!self.jack_is_exit) {
         AVOIDDENORMALS;
         _jackbuffer_ptr->input1 = static_cast<float *>
-                        (jack_port_get_buffer(gxjack.input_ports[1], nframes));
+                        (jack_port_get_buffer(self.input_ports[1], nframes));
         _jackbuffer_ptr->output2 = static_cast<float *>
-                         (jack_port_get_buffer(gxjack.output_ports[2], nframes));
+                         (jack_port_get_buffer(self.output_ports[2], nframes));
         _jackbuffer_ptr->output3 = static_cast<float *>
-                         (jack_port_get_buffer(gxjack.output_ports[3], nframes));
+                         (jack_port_get_buffer(self.output_ports[3], nframes));
         // gx_head DSP computing
-	gx_engine::get_engine().stereo_chain.process(
+	self.engine.stereo_chain.process(
 	    nframes, _jackbuffer_ptr->input1,
 	    _jackbuffer_ptr->output2, _jackbuffer_ptr->output3);
     }
     gx_system::measure_stop();
-    gx_engine::get_engine().stereo_chain.post_rt_finished();
+    self.engine.stereo_chain.post_rt_finished();
     return 0;
 }
 
@@ -761,11 +756,12 @@ static gboolean gx_jack_portreg_helper(gpointer data) {
 
 // ----- fetch available jack ports other than gx_head ports
 void GxJack::gx_jack_portreg_callback(jack_port_id_t pid, int reg, void* arg) {
-    if (!gxjack.client) {
+    GxJack& self = *static_cast<GxJack*>(arg);
+    if (!self.client) {
         return;
     }
-    jack_port_t* port = jack_port_by_id(gxjack.client, pid);
-    if (!port || jack_port_is_mine(gxjack.client, port)) {
+    jack_port_t* port = jack_port_by_id(self.client, pid);
+    if (!port || jack_port_is_mine(self.client, port)) {
         return;
     }
     gtk_idle_add(gx_jack_portreg_helper,
@@ -776,7 +772,7 @@ void GxJack::gx_jack_portreg_callback(jack_port_id_t pid, int reg, void* arg) {
 #ifdef HAVE_JACK_SESSION
 static int gx_jack_session_callback_helper(gpointer data) {
     jack_session_event_t *event = reinterpret_cast<jack_session_event_t *>(data);
-    const char* uuid2 = jack_get_uuid_for_client_name(gxjack.client_insert, gxjack.client_insert_name.c_str());
+    const char* uuid2 = jack_get_uuid_for_client_name(get_jack().client_insert, get_jack().client_insert_name.c_str());
     string fname(event->session_dir);
     fname += "gx_head.state";
     string cmd("guitarix -U ");
@@ -785,11 +781,11 @@ static int gx_jack_session_callback_helper(gpointer data) {
     cmd += uuid2;
     cmd += " -f ${SESSION_DIR}gx_head.state";
 
-    gx_system::saveStateToFile(fname);
+    gx_system::saveStateToFile(fname, get_jack());
 
     event->command_line = strdup(cmd.c_str());
 
-    jack_session_reply(gxjack.client, event);
+    jack_session_reply(get_jack().client, event);
 
     if (event->type == JackSessionSaveAndQuit) {
         gx_system::sysvar.is_session = true;

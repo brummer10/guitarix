@@ -101,9 +101,15 @@ class GxConvolverBase: protected Convproc {
     void adjust_values(unsigned int audio_size, unsigned int& count, unsigned int& offset,
                        unsigned int& delay, unsigned int& ldelay, unsigned int& length,
                        unsigned int& size, unsigned int& bufsize);
-    GxConvolverBase(): ready(false) {}
+    unsigned int buffersize;
+    unsigned int samplerate;
+ GxConvolverBase(): ready(false), buffersize(), samplerate() {}
  public:
+    void set_buffersize(unsigned int sz) { buffersize = sz; }
+    unsigned int get_buffersize() { return buffersize; }
+    void set_samplerate(unsigned int sr) { samplerate = sr; }
     bool checkstate();
+    using Convproc::state;
     void set_not_runnable()   { ready = false; }
     bool is_runnable()        { return ready; }
     bool start();
@@ -117,7 +123,7 @@ class GxConvolver: public GxConvolverBase {
                        const Gainline& points);
  public:
     bool configure(
-        unsigned int count, int samplerate, string fname, float gain, float lgain,
+        string fname, float gain, float lgain,
         unsigned int delay, unsigned int ldelay, unsigned int offset,
         unsigned int length, unsigned int size, unsigned int bufsize,
         const Gainline& gainline);
@@ -126,8 +132,8 @@ class GxConvolver: public GxConvolverBase {
 
 class GxSimpleConvolver: public GxConvolverBase {
  public:
-    bool configure(int count, float *impresp, unsigned int samplerate);
-    bool update(int count, float *impresp, unsigned int samplerate);
+    bool configure(int count, float *impresp, unsigned int imprate);
+    bool update(int count, float *impresp, unsigned int imprate);
     bool compute(int count, float* input, float *output);
     bool compute(int count, float* buffer) {
         return is_runnable() ? compute(count, buffer, buffer) : true;
@@ -136,4 +142,3 @@ class GxSimpleConvolver: public GxConvolverBase {
 
 } /* end of gx_engine namespace */
 #endif  // SRC_HEADERS_GX_CONVOLVER_H_
-

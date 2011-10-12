@@ -54,10 +54,10 @@ ProcessingChainBase::ProcessingChainBase():
     sem_init(&sync_sem, 0, 0);
 }
 
-void ProcessingChainBase::set_samplefreq(int samplefreq) {
-    //steps_down = (256 * samplefreq) / 48000;
+void ProcessingChainBase::set_samplerate(int samplerate) {
+    //steps_down = (256 * samplerate) / 48000;
     //steps_up = 8 * steps_down;
-    steps_down = (64 * samplefreq) / 48000;
+    steps_down = (64 * samplerate) / 48000;
     steps_up = 4 * steps_down;
     steps_up_dead = 0;
 }
@@ -182,8 +182,8 @@ void MonoModuleChain::process(int count, float *input, float *output) {
 	return;
     }
     memcpy(output, input, count*sizeof(float));
-    for (monochainorder *p = get_rt_chain(); *p; p++) {
-	(*p)(count, output, output);
+    for (monochain_data *p = get_rt_chain(); p->func; p++) {
+	p->func(count, output, output, p->plugin);
     }
     if (rm == ramp_mode_off) {
 	return;
@@ -245,8 +245,8 @@ void StereoModuleChain::process(int count, float *input, float *output1, float *
     }
     memcpy(output1, input, count*sizeof(float));
     memcpy(output2, input, count*sizeof(float));
-    for (stereochainorder *p = get_rt_chain(); *p; p++) {
-	(*p)(count, output1, output2, output1, output2);
+    for (stereochain_data *p = get_rt_chain(); p->func; p++) {
+	(p->func)(count, output1, output2, output1, output2, p->plugin);
     }
     if (rm == ramp_mode_off) {
 	return;
@@ -307,10 +307,11 @@ void StereoModuleChain::process(int count, float *input, float *output1, float *
  */
 
 ModuleSelectorFromList::ModuleSelectorFromList(
-    const char* id_, const char* name_, PluginDef *plugins[],
-    const char* select_id_, const char* select_name_,
-    const char** groups_, int flags_)
+    ModuleSequencer& seq_, const char* id_, const char* name_,
+    PluginDef *plugins[], const char* select_id_,
+    const char* select_name_, const char** groups_, int flags_)
     : PluginDef(),
+      seq(seq_),
       selector(0),
       select_id(select_id_),
       select_name(select_name_),
@@ -361,7 +362,7 @@ void ModuleSelectorFromList::set_module() {
     if (plugin.on_off) {
 	const char* id;
 	id = modules[selector]->id;
-	current_plugin = get_pluginlist().lookup_plugin(id);
+	current_plugin = seq.pluginlist.lookup_plugin(id);
 	current_plugin->on_off = true;
 	current_plugin->effect_post_pre = plugin.effect_post_pre;
     } else {
@@ -373,22 +374,39 @@ void ModuleSelectorFromList::set_module() {
  ** ModuleSequencer
  */
 
-ModuleSequencer::ModuleSequencer(PluginList& pl):
+ModuleSequencer::ModuleSequencer():
     selectors(),
-    pluginlist(pl),
     rack_changed(true),
     audio_mode(PGN_MODE_NORMAL),
+    pluginlist(),
     mono_chain(),
-    stereo_chain() {
+    stereo_chain(),
+    stateflags(SF_INITIALIZING),
+    buffersize_change(),
+    samplerate_change() {
+}
+
+void ModuleSequencer::init(unsigned int samplerate, unsigned int buffersize,
+			   int policy_, int priority_) {
+    printf("I %d %d\n", buffersize, samplerate);
+    set_buffersize(buffersize);
+    set_samplerate(samplerate);
+    policy = policy_;
+    priority = priority_;
 }
 
 ModuleSequencer::~ModuleSequencer() {
 }
 
-void ModuleSequencer::set_samplefreq(int samplefreq) {
-    pluginlist.set_samplerate(samplefreq);
-    mono_chain.set_samplefreq(samplefreq);
-    stereo_chain.set_samplefreq(samplefreq);
+void ModuleSequencer::set_samplerate(unsigned int samplerate) {
+    pluginlist.set_samplerate(samplerate);
+    mono_chain.set_samplerate(samplerate);
+    stereo_chain.set_samplerate(samplerate);
+    samplerate_change(samplerate);
+}
+
+void ModuleSequencer::set_buffersize(unsigned int buffersize) {
+    buffersize_change(buffersize);
 }
 
 bool ModuleSequencer::prepare_module_lists() {
@@ -437,31 +455,7 @@ void ModuleSequencer::add_selector(ModuleSelector& sel) {
     selectors.push_back(&sel);
 }
 
-
-/****************************************************************
- ** class GxEngine
- */
-
-GxEngine::GxEngine(PluginList& pl)
-    : ModuleSequencer(pl),
-      ui(),
-      stateflags(SF_JACK_RECONFIG),
-      noisegate(),
-      monomute(),
-      stereomute(),
-      midiaudiobuffer(),
-      tuner(midiaudiobuffer.plugin),
-      maxlevel(),
-      oscilloscope(&ui),
-      convolver(&ui),
-      cabinet(&ui),
-      contrast(&ui) {
-}
-
-GxEngine::~GxEngine() {
-}
-
-void GxEngine::set_stateflag(StateFlag flag) {
+void ModuleSequencer::set_stateflag(StateFlag flag) {
     if (stateflags & flag) {
 	return;
     }
@@ -473,7 +467,7 @@ void GxEngine::set_stateflag(StateFlag flag) {
     stateflags |= flag;
 }
 
-void GxEngine::clear_stateflag(StateFlag flag) {
+void ModuleSequencer::clear_stateflag(StateFlag flag) {
     if (!(stateflags & flag)) {
 	return;
     }
@@ -485,7 +479,7 @@ void GxEngine::clear_stateflag(StateFlag flag) {
     }
 }
 
-void GxEngine::set_state(GxEngineState state) {
+void ModuleSequencer::set_state(GxEngineState state) {
     int newmode = PGN_MODE_MUTE;
     switch( state ) {
     case kEngineOn:     newmode = PGN_MODE_NORMAL; break;
@@ -499,7 +493,7 @@ void GxEngine::set_state(GxEngineState state) {
     set_rack_changed();
 }
 
-GxEngineState GxEngine::get_state() {
+ModuleSequencer::GxEngineState ModuleSequencer::get_state() {
     if (audio_mode & PGN_MODE_NORMAL) {
 	return kEngineOn;
     } else if (audio_mode & PGN_MODE_BYPASS) {
@@ -512,8 +506,54 @@ GxEngineState GxEngine::get_state() {
     }
 }
 
+void ModuleSequencer::registerParameter(gx_gui::ParameterGroups& groups)
+{
+    pluginlist.registerParameter(groups);
+}
+
+void ModuleSequencer::get_sched_priority(int &policy_, int &priority_, int prio_dim) { 
+    policy_ = policy;
+    priority_ = priority;
+    if (prio_dim) {
+	return;
+    }
+    int min, max;
+    min = sched_get_priority_min(policy);
+    max = sched_get_priority_max(policy);
+    priority_ = priority - prio_dim;
+    if (priority_ > max) {
+	priority_ = max;
+    }
+    if (priority_ < min) {
+	priority_ = min;
+    }
+}
+
+
+/****************************************************************
+ ** class GxEngine
+ */
+
+GxEngine::GxEngine()
+    : ModuleSequencer(),
+      ui(),
+      noisegate(),
+      monomute(),
+      stereomute(),
+      midiaudiobuffer(),
+      tuner(midiaudiobuffer.plugin, *this),
+      maxlevel(),
+      oscilloscope(&ui, *this),
+      convolver(*this),
+      cabinet(*this),
+      contrast(*this) {
+}
+
+GxEngine::~GxEngine() {
+}
+
 GxEngine& get_engine() {
-    static GxEngine engine(get_pluginlist());
+    static GxEngine engine;
     return engine;
 }
 

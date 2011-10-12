@@ -44,7 +44,7 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<65536; i++) fVec1[i] = 0;
 }
 
-static void init(int samplingFreq, PluginDef* = 0)
+static void init(unsigned int samplingFreq, PluginDef* = 0)
 {
 	SIG0 sig0;
 	sig0.init(samplingFreq);
@@ -84,7 +84,7 @@ static int activate(bool start, PluginDef* = 0)
     return 0;
 }
 
-static void compute(int count, float *input0, float *input1, float *output0, float *output1)
+static void compute(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *)
 {
 	float 	fSlow0 = (fConst1 * fslider0);
 	float 	fSlow1 = fslider1;

@@ -74,12 +74,9 @@ class GxPreset {
     void                  gx_refresh_preset_menus();
     void                  gx_load_factory_file(int i);
     void                  init();
-    
-    string                gx_current_preset;
-    string                gx_factory_preset;
-    string                old_preset_name;
-
     bool                  gx_nth_preset(unsigned char pgm);
+
+    string                gx_current_preset;
     bool                  setting_is_preset;
     bool                  setting_is_factory;
 
@@ -89,6 +86,13 @@ class GxPreset {
     GtkWidget*            presmenu[GX_NUM_OF_PRESET_LISTS];
     GtkWidget*            presMenu[GX_NUM_OF_PRESET_LISTS];
 
+ private:
+    string                gx_factory_preset;
+    string                old_preset_name;
+    static bool gx_build_preset_list();
+    static int gx_get_single_preset_menu_pos(const string& presname, const gint lindex);
+    static void gx_load_factory_preset(GtkMenuItem *menuitem, gpointer load_preset);
+    static gboolean gx_rename_main_widget(gpointer data);
     vector<string>        fplist[GX_NUM_OF_FACTORY_PRESET];
     vector<GtkMenuItem*>  fpm_list[GX_NUM_OF_FACTORY_PRESET];
     vector<string>        plist;
@@ -102,4 +106,3 @@ extern gx_gui::FileParameter gx_factory_preset_file;
 /* --------------------------------------------------------------------- */
 } /* end of gx_preset namespace */
 #endif  // SRC_HEADERS_GX_PRESET_H_
-

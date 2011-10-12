@@ -42,25 +42,6 @@
 
 namespace gx_jconv {
 
-// FIXME: needs to be moved somewhere else (at least be together with convolver_start)
-void gx_convolver_restart() {
-    if (!*GxJConvSettings::checkbutton7) {
-        return;
-    }
-    gx_engine::get_engine().convolver.conv.stop();
-    while (gx_engine::get_engine().convolver.conv.is_runnable()) {
-	gx_engine::get_engine().convolver.conv.checkstate();
-    }
-    gx_jconv::GxJConvSettings* jcset = GxJConvSettings::instance();
-    bool rc = gx_engine::get_engine().convolver.conv.configure(
-        gx_jack::gxjack.jack_bs, gx_jack::gxjack.jack_sr, jcset->getFullIRPath(),
-        jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
-        jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline());
-    if (!rc || !gx_engine::get_engine().convolver.conv.start()) {
-        *GxJConvSettings::checkbutton7 = 0;
-    }
-}
-
 /****************************************************************
  ** Convolver Parameter Window
  */
@@ -73,6 +54,7 @@ class IRWindow: public Gtk::Window {
     float *audio_buffer;
     unsigned int audio_size;
     int audio_chan;
+    gx_engine::ConvolverAdapter* convolver;
     static IRWindow *instance;
 
     // helper functions
@@ -90,6 +72,11 @@ class IRWindow: public Gtk::Window {
     double calc_normalized_gain(int offset, int length, const Gainline& points);
     void destroy_self();
 
+    // favorites list
+    void remove_double_entry();
+    void remove_favorite_from_menu(Gtk::MenuItem &menuitem);
+    void set_favorite_from_menu(Gtk::MenuItem &menuitem);
+    void set_favorite_from_menu_in(Gtk::MenuItem &menuitem);
 
     // signal functions and widget pointers
     void on_window_hide();
@@ -173,8 +160,9 @@ class IRWindow: public Gtk::Window {
     void on_combo_changed();
 
  public:
+    void set_convolver(gx_engine::ConvolverAdapter& convolver_);
     void on_enumerate();
-    static void create(gx_ui::GxUI& ui);
+    static void create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver_);
     static void reload() { if (instance) instance->load_state(); }
     static void show_fav() { if (instance) instance->on_show_button_clicked(); }
     static void new_file(Glib::ustring filename) {if (instance) instance->load_data(filename);}
@@ -193,12 +181,13 @@ class IRWindow: public Gtk::Window {
 
 IRWindow *IRWindow::instance = 0;
 
-void IRWindow::create(gx_ui::GxUI& ui) {
+void IRWindow::create(gx_ui::GxUI& ui, gx_engine::ConvolverAdapter& convolver_) {
     if (instance) {
         return;
     }
     Glib::RefPtr<Gtk::Builder> bld = gx_gui::load_builder_from_file("iredit.glade", ui);
     bld->get_widget_derived("DisplayIR", instance);
+    instance->set_convolver(convolver_);
 }
 
 /*
@@ -328,8 +317,7 @@ void IRWindow::init_connect() {
 }
 
 void IRWindow::set_GainCor() {
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    unsigned int gain_cor      = jcset.getGainCor();
+    unsigned int gain_cor = convolver->jcset.getGainCor();
     if (gain_cor) {
         wGain_correction->set_active(true);
     } else {
@@ -337,10 +325,8 @@ void IRWindow::set_GainCor() {
     }
 }
 
-IRWindow::IRWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& bld)
-                  : Gtk::Window(cobject), builder(bld), ms(0.0), audio_buffer(0),
-                audio_size(0), audio_chan(0) {
-
+void IRWindow::set_convolver(gx_engine::ConvolverAdapter& convolver_) {
+    convolver = &convolver_;
     // setup the TreeView
     treeview = new Gtk::TreeView;
     model = Gtk::TreeStore::create(columns);
@@ -361,6 +347,11 @@ IRWindow::IRWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& bl
     on_length_changed(0, 0);
 
     // show();
+}
+
+IRWindow::IRWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& bld)
+    : Gtk::Window(cobject), builder(bld), ms(0.0), audio_buffer(0),
+      audio_size(0), audio_chan(0), convolver() {
 }
 
 IRWindow::~IRWindow() {
@@ -414,8 +405,7 @@ void IRWindow::file_changed(Glib::ustring filename, int rate, int length,
     wFormat->set_text(format);
     wChannelbox->set_sensitive(channels >= 2);
     wFilename->set_text(Glib::path_get_dirname(filename));
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    string amp = jcset.getIRFile();
+    string amp = convolver->jcset.getIRFile();
     if (GTK_IS_LABEL(gx_gui::gw.set_label))
         gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
 }
@@ -427,17 +417,16 @@ gboolean enumerate(gpointer arg) {
 }
 
 void IRWindow::load_state() {
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    string path = jcset.getFullIRPath();
+    string path = convolver->jcset.getFullIRPath();
     if (path.empty()) {
         return;
     }
     load_data(path);
-    wIredit->set_offset(jcset.getOffset());
-    wIredit->set_delay(jcset.getDelay());
-    wIredit->set_length(jcset.getLength());
-    if (jcset.getGainline().size()) {
-        wIredit->set_gain(jcset.getGainline());
+    wIredit->set_offset(convolver->jcset.getOffset());
+    wIredit->set_delay(convolver->jcset.getDelay());
+    wIredit->set_length(convolver->jcset.getLength());
+    if (convolver->jcset.getGainline().size()) {
+        wIredit->set_gain(convolver->jcset.getGainline());
     }
     g_idle_add(enumerate, NULL);
 }
@@ -531,28 +520,27 @@ double IRWindow::calc_normalized_gain(int offset, int length, const Gainline& po
 }
 
 bool IRWindow::save_state() {
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
     unsigned int offset = wIredit->get_offset();
     unsigned int length = wIredit->get_length();
     unsigned int delay = wIredit->get_delay();
-    unsigned int gain_cor      = jcset.getGainCor();
+    unsigned int gain_cor      = convolver->jcset.getGainCor();
     Gainline gainline = wIredit->get_gain();
-    if (offset == jcset.getOffset() &&
-        delay == jcset.getDelay() &&
-        length == jcset.getLength() &&
-        filename == jcset.getFullIRPath() &&
-        gainline ==  jcset.getGainline()) {
+    if (offset == convolver->jcset.getOffset() &&
+        delay == convolver->jcset.getDelay() &&
+        length == convolver->jcset.getLength() &&
+        filename == convolver->jcset.getFullIRPath() &&
+        gainline ==  convolver->jcset.getGainline()) {
         // assume gain value is already calculated correctly
         return false;
     }
-    jcset.setOffset(offset);
-    jcset.setDelay(delay);
-    jcset.setLength(length);
-    jcset.setFullIRPath(filename);
-    jcset.setGainline(gainline);
+    convolver->jcset.setOffset(offset);
+    convolver->jcset.setDelay(delay);
+    convolver->jcset.setLength(length);
+    convolver->jcset.setFullIRPath(filename);
+    convolver->jcset.setGainline(gainline);
     double gain = calc_normalized_gain(offset, length, gainline);
-    jcset.setGain(gain);
-    jcset.setGainCor(gain_cor);
+    convolver->jcset.setGain(gain);
+    convolver->jcset.setGainCor(gain_cor);
     return true;
 }
 
@@ -561,18 +549,17 @@ bool IRWindow::save_state() {
 */
 
 // remove double entrys from the favourite menu list 
-static void remove_double_entry() {
+void IRWindow::remove_double_entry() {
     vector<Glib::ustring>::iterator its;
     vector<Glib::ustring>::iterator it;
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    it = jcset.faflist.begin();
-    for (its = jcset.faflist.begin(); its != jcset.faflist.end(); its++) {
+    it = convolver->jcset.faflist.begin();
+    for (its = convolver->jcset.faflist.begin(); its != convolver->jcset.faflist.end(); its++) {
         string entry = *its;
-        if (its != jcset.faflist.end()-1) {
+        if (its != convolver->jcset.faflist.end()-1) {
             it = its+1;
             string next_entry = *it;
             if (entry.compare(next_entry) == 0) {
-                jcset.faflist.erase(it);
+                convolver->jcset.faflist.erase(it);
                 gx_system::gx_print_warning(
                     "jconvolver", " remove double entry '" + entry + "'");
             }
@@ -584,134 +571,117 @@ static void remove_double_entry() {
 void IRWindow::on_add_button_clicked() {
     Gtk::TreeModel::iterator iter = wcombo->get_active();
     if (iter) {
-        GxJConvSettings& jcset = *GxJConvSettings::instance();
         Gtk::TreeModel::Row row = *iter;
         if (row) {
             Glib::ustring name = row[columns.name];
             
-            Glib::ustring path = jcset.getIRDir();
+            Glib::ustring path = convolver->jcset.getIRDir();
             path += "/";
             path += name;
-            jcset.faflist.push_back(path);
+            convolver->jcset.faflist.push_back(path);
         }
-        std::sort(jcset.faflist.begin(), jcset.faflist.end());
+        std::sort(convolver->jcset.faflist.begin(), convolver->jcset.faflist.end());
         remove_double_entry();
     }
 }
 
 // remove selected file from from favorite menu list
-static void remove_favorite_from_menu(GtkMenuItem *menuitem, gpointer data) {
-    string  fname = gtk_menu_item_get_label(GTK_MENU_ITEM(menuitem));
+void IRWindow::remove_favorite_from_menu(Gtk::MenuItem &menuitem) {
+    Glib::ustring fname = menuitem.get_label();
     vector<Glib::ustring>::iterator its;
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    for (its = jcset.faflist.begin(); its != jcset.faflist.end(); its++) {
-        string entry = *its;
-        if (entry.compare(fname) == 0) {
-            jcset.faflist.erase(its);
+    for (its = convolver->jcset.faflist.begin(); its != convolver->jcset.faflist.end(); its++) {
+        if (*its == fname) {
+            convolver->jcset.faflist.erase(its);
         }
     }
 }
 
 // clear the favourite menu list
 void IRWindow::on_remove_all_button_clicked() {
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    jcset.faflist.clear();
+    convolver->jcset.faflist.clear();
 }
 
 // pop up the favorite menu liste to let select a file for remove
 void IRWindow::on_remove_button_clicked() {
     vector<Glib::ustring>::iterator its;
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    GtkWidget* menucont;  // menu container
-    GtkWidget* menuitem;  // menu item
-    menucont = gtk_menu_new();
-    for (its = jcset.faflist.begin(); its != jcset.faflist.end(); its++) {
+    Gtk::Menu* menucont;  // menu container
+    Gtk::MenuItem* menuitem;  // menu item
+    menucont = new Gtk::Menu;
+    for (its = convolver->jcset.faflist.begin(); its != convolver->jcset.faflist.end(); its++) {
         string entry = *its;
-        menuitem = gtk_menu_item_new_with_mnemonic(entry.c_str());
-        gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-        g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(remove_favorite_from_menu), NULL);
-        gtk_widget_show(menuitem);
+        menuitem = manage(new Gtk::MenuItem(entry, true));
+        menucont->add(*menuitem);
+        menuitem->show();
+	menuitem->signal_activate().connect(sigc::bind<Gtk::MenuItem&>(mem_fun(*this, &IRWindow::remove_favorite_from_menu),*menuitem));
     }
     guint32 tim = gtk_get_current_event_time();
-    gtk_menu_popup(GTK_MENU(menucont), NULL, NULL, NULL,
-                          (gpointer) menucont, 2, tim);
+    menucont->popup(2, tim);
 }
 
 // load the selcted file into the convolver
 // this is the callback for the button in the effect modul
 // reloading the combobox isn't needed when only use the effect module
-static void set_favorite_from_menu(GtkMenuItem *menuitem, gpointer data) {
-    const gchar * fname = gtk_menu_item_get_label(GTK_MENU_ITEM(menuitem));
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    jcset.setFullIRPath(fname);
-    IRWindow::get_window()->new_file(fname);
-    unsigned int gain_cor      = jcset.getGainCor();
-    jcset.setGainCor(gain_cor);
-    if (!*GxJConvSettings::checkbutton7) {
-        *GxJConvSettings::checkbutton7 = 1;
+void IRWindow::set_favorite_from_menu(Gtk::MenuItem &menuitem) {
+    Glib::ustring fname = menuitem.get_label();
+    convolver->jcset.setFullIRPath(fname);
+    new_file(fname);
+    unsigned int gain_cor = convolver->jcset.getGainCor();
+    convolver->jcset.setGainCor(gain_cor);
+    if (!*gx_engine::GxJConvSettings::checkbutton7) {
+        *gx_engine::GxJConvSettings::checkbutton7 = 1;
         return;
     }
-    IRWindow::get_window()->save();
-    gx_convolver_restart();
+    save();
+    convolver->restart();
 }
 
 // this is the callback used by the jconv settings widget, 
 // combobox will reload also when change a file
-static void set_favorite_from_menu_in(GtkMenuItem *menuitem, gpointer data) {
-    const gchar * fname = gtk_menu_item_get_label(GTK_MENU_ITEM(menuitem));
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    jcset.setFullIRPath(fname);
-    IRWindow::get_window()->new_file(fname);
-    g_idle_add(enumerate, NULL);
-    if (!*GxJConvSettings::checkbutton7) {
-        *GxJConvSettings::checkbutton7 = 1;
+void IRWindow::set_favorite_from_menu_in(Gtk::MenuItem& menuitem) {
+    Glib::ustring fname = menuitem.get_label();
+    convolver->jcset.setFullIRPath(fname);
+    new_file(fname);
+    g_idle_add(enumerate, NULL); //FIXME why?
+    if (!*gx_engine::GxJConvSettings::checkbutton7) {
+        *gx_engine::GxJConvSettings::checkbutton7 = 1;
         return;
     }
-    IRWindow::get_window()->save();
-    gx_convolver_restart();
+    save();
+    convolver->restart();
 }
 
 // create and present the favourite menu list 
 // callback inside the jconv settings widget
 void IRWindow::on_show_button_clicked_in() {
     vector<Glib::ustring>::iterator its;
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    GtkWidget* menucont;  // menu container
-    GtkWidget* menuitem;  // menu item
-    menucont = gtk_menu_new();
-    for (its = jcset.faflist.begin(); its != jcset.faflist.end(); its++) {
+    Gtk::Menu* menucont = new Gtk::Menu;
+    Gtk::MenuItem* menuitem;
+    for (its = convolver->jcset.faflist.begin(); its != convolver->jcset.faflist.end(); its++) {
         string entry = *its;
-        menuitem = gtk_menu_item_new_with_label(entry.c_str());
-        gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-        g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(set_favorite_from_menu_in), NULL);
-        gtk_widget_show(menuitem);
+        menuitem = manage(new Gtk::MenuItem(entry));
+        menucont->add(*menuitem);
+        menuitem->show();
+	menuitem->signal_activate().connect(sigc::bind<Gtk::MenuItem&>(mem_fun(*this, &IRWindow::set_favorite_from_menu_in), *menuitem));
     }
     guint32 tim = gtk_get_current_event_time();
-    gtk_menu_popup(GTK_MENU(menucont), NULL, NULL, NULL,
-                          (gpointer) menucont, 2, tim);
+    menucont->popup(2, tim);
 }
 
 // create and present the favourite menu
 // callback from the effect module
 void IRWindow::on_show_button_clicked() {
     vector<Glib::ustring>::iterator its;
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    GtkWidget* menucont;  // menu container
-    GtkWidget* menuitem;  // menu item
-    menucont = gtk_menu_new();
-    for (its = jcset.faflist.begin(); its != jcset.faflist.end(); its++) {
+    Gtk::Menu* menucont = new Gtk::Menu;
+    Gtk::MenuItem* menuitem;
+    for (its = convolver->jcset.faflist.begin(); its != convolver->jcset.faflist.end(); its++) {
         string entry = *its;
-        menuitem = gtk_menu_item_new_with_label(entry.c_str());
-        gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-        g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(set_favorite_from_menu), NULL);
-        gtk_widget_show(menuitem);
+        menuitem = manage(new Gtk::MenuItem(entry));
+        menucont->add(*menuitem);
+        menuitem->show();
+        menuitem->signal_activate().connect(sigc::bind<Gtk::MenuItem&>(mem_fun(*this, &IRWindow::set_favorite_from_menu),*menuitem));
     }
     guint32 tim = gtk_get_current_event_time();
-    gtk_menu_popup(GTK_MENU(menucont), NULL, NULL, NULL,
-                          (gpointer) menucont, 2, tim);
+    menucont->popup(2, tim);
 }
 
 void IRWindow::on_combo_changed() {
@@ -721,8 +691,7 @@ void IRWindow::on_combo_changed() {
         if (row) {
             Glib::ustring name = row[columns.name];
             static Glib::ustring old_name = name;
-            GxJConvSettings& jcset = *GxJConvSettings::instance();
-            Glib::ustring path = jcset.getIRDir();
+            Glib::ustring path = convolver->jcset.getIRDir();
             path += "/";
             path += name;
             if (name != old_name) {
@@ -750,8 +719,7 @@ void IRWindow::on_remove_tree() {
 void IRWindow::on_enumerate() {
     on_remove_tree();
     wcombo->set_model(model);
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    Glib::ustring path = jcset.getIRDir();
+    Glib::ustring path = convolver->jcset.getIRDir();
     Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(path);
     if (file->query_exists()) {
         Glib::RefPtr<Gio::FileEnumerator> child_enumeration =
@@ -773,7 +741,7 @@ void IRWindow::on_enumerate() {
         model->clear();
         // now populate the TreeView
         Gtk::TreeModel::Row row = *(model->append());
-        string irfile = jcset.getIRFile();
+        string irfile = convolver->jcset.getIRFile();
         for (unsigned int i = 0; i < file_names.size(); i++) {
             row[columns.name] = file_names[i];
             if (file_names[i] == irfile ) wcombo->set_active(i);
@@ -888,8 +856,7 @@ void IRWindow::on_open() {
     data.groups.push_back("impulseresponse");
     Gtk::RecentManager::get_default()->add_item(d.get_uri(), data);
     load_data(fname);
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    jcset.setFullIRPath(fname);
+    convolver->jcset.setFullIRPath(fname);
     save_state();
     g_idle_add(enumerate, NULL);
 }
@@ -935,12 +902,12 @@ void IRWindow::on_ms_length_changed() {
 }
 
 void IRWindow::on_apply_button_clicked() {
-    if (!*GxJConvSettings::checkbutton7) {
-        *GxJConvSettings::checkbutton7 = 1;
+    if (!*gx_engine::GxJConvSettings::checkbutton7) {
+        *gx_engine::GxJConvSettings::checkbutton7 = 1;
         return;
     }
     if (save_state()) {
-        gx_convolver_restart();
+        convolver->restart();
     }
 }
 
@@ -955,8 +922,7 @@ void IRWindow::on_window_hide() {
 }
 
 void IRWindow::on_cancel_button_clicked() {
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    string amp = jcset.getIRFile();
+    string amp = convolver->jcset.getIRFile();
     if (GTK_IS_LABEL(gx_gui::gw.set_label))
         gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
     hide();
@@ -964,10 +930,9 @@ void IRWindow::on_cancel_button_clicked() {
 
 void IRWindow::on_ok_button_clicked() {
     if (save_state()) {
-        gx_convolver_restart();
+        convolver->restart();
     }
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
-    string amp = jcset.getIRFile();
+    string amp = convolver->jcset.getIRFile();
     if (GTK_IS_LABEL(gx_gui::gw.set_label))
         gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
     hide();
@@ -978,11 +943,10 @@ void IRWindow::on_help_clicked() {
 }
 
 void IRWindow::on_gain_button_toggled() {
-    GxJConvSettings& jcset = *GxJConvSettings::instance();
     if (wGain_correction->get_active()) {
-        jcset.setGainCor(1);
+        convolver->jcset.setGainCor(1);
     } else {
-        jcset.setGainCor(0);
+        convolver->jcset.setGainCor(0);
     }
 }
 
@@ -990,12 +954,14 @@ void IRWindow::on_gain_button_toggled() {
  ** Interface to rest of program
  */
 void gx_load_jcgui() {
-    IRWindow::create(*gx_gui::GxMainInterface::instance());
+    gx_gui::GxMainInterface& mwin = gx_gui::GxMainInterface::instance();
+    IRWindow::create(mwin, mwin.engine.convolver);
     //IRWindow::reload();
 }
 
 void gx_show_jconv_dialog_gui(_GtkWidget*, void*) {
-    IRWindow::create(*gx_gui::GxMainInterface::instance());
+    gx_gui::GxMainInterface& mwin = gx_gui::GxMainInterface::instance();
+    IRWindow::create(mwin, mwin.engine.convolver);
     IRWindow::reload();
     IRWindow::show_window();
 }
@@ -1012,141 +978,4 @@ void gx_show_fav() {
     IRWindow::show_fav();
 }
 
-void gx_load_fav(GtkMenuItem *menuitem, gpointer data) {
-    set_favorite_from_menu(menuitem, data);
-}
-
-// --------------- static vars
-bool* GxJConvSettings::checkbutton7 = 0;
-
-// ---------------  constructor
-GxJConvSettings::GxJConvSettings() {
-    // default parameters
-    fIRDir      = getenv("HOME");
-    fIRFile     = "";
-    fGain       = 0.2;
-    fGainCor    = 1;
-    fOffset     = 0;
-    fLength     = 0;
-    fDelay      = 0;
-    checkbutton7 = get_pluginlist().on_off_var("jconv");
-}
-
-string GxJConvSettings::getFullIRPath() const {
-    if (fIRFile.empty()) {
-        return fIRFile;
-    } else {
-        return Glib::build_filename(fIRDir, fIRFile);
-    }
-}
-
-void GxJConvSettings::setFullIRPath(string name) {
-    fIRDir = Glib::path_get_dirname(name);
-    fIRFile= Glib::path_get_basename(name);
-}
-
-void GxJConvSettings::writeJSON(gx_system::JsonWriter& w) {
-    w.begin_object(true);
-    w.write_key("jconv.IRFile");
-    w.write(fIRFile, true);
-    w.write_key("jconv.IRDir");
-    w.write(fIRDir, true);
-    w.write_key("jconv.Gain");
-    w.write(fGain, true);
-    w.write_key("jconv.GainCor");
-    w.write(fGainCor, true);
-    w.write_key("jconv.Offset");
-    w.write(fOffset, true);
-    w.write_key("jconv.Length");
-    w.write(fLength, true);
-    w.write_key("jconv.Delay");
-    w.write(fDelay, true);
-    w.write_key("jconv.gainline");
-    w.begin_array();
-    for (unsigned int i = 0; i < gainline.size(); i++) {
-        w.begin_array();
-        w.write(gainline[i].i);
-        w.write(gainline[i].g);
-        w.end_array();
-    }
-    w.end_array(true);
-    
-   // w.end_object(true);
-    w.write_key("jconv.favorits");
-    w.begin_array();
-    vector<Glib::ustring>::iterator its;
-    bool end = true;
-    for (its = faflist.begin(); its != faflist.end(); its++) {
-        w.begin_array();
-        w.write(*its);
-        if (its == faflist.end()-1) end = false;
-        w.end_array(end);
-    }
-    w.end_array(true);
-    w.end_object(true);
-}
-
-void GxJConvSettings::read_gainline(gx_system::JsonParser& jp) {
-    gainline.clear();
-    jp.next(gx_system::JsonParser::begin_array);
-    while (jp.peek() == gx_system::JsonParser::begin_array) {
-        jp.next();
-        jp.next(gx_system::JsonParser::value_number);
-        gain_points p;
-        p.i = jp.current_value_int();
-        jp.next(gx_system::JsonParser::value_number);
-        p.g = jp.current_value_float();
-        jp.next(gx_system::JsonParser::end_array);
-        gainline.push_back(p);
-    }
-    jp.next(gx_system::JsonParser::end_array);
-}
-
-void GxJConvSettings::read_favorites(gx_system::JsonParser& jp) {
-    jp.next(gx_system::JsonParser::begin_array);
-    while (jp.peek() == gx_system::JsonParser::begin_array) {
-        jp.next();
-        jp.next(gx_system::JsonParser::value_string);
-        jp.next(gx_system::JsonParser::end_array);
-        faflist.push_back(jp.current_value());
-    }
-    jp.next(gx_system::JsonParser::end_array);
-}
-
-GxJConvSettings::GxJConvSettings(gx_system::JsonParser& jp) {
-    jp.next(gx_system::JsonParser::begin_object);
-    do {
-        jp.next(gx_system::JsonParser::value_key);
-        if (jp.current_value() == "jconv.IRFile") {
-            jp.next(gx_system::JsonParser::value_string);
-            fIRFile = jp.current_value();
-        } else if (jp.current_value() == "jconv.IRDir") {
-            jp.next(gx_system::JsonParser::value_string);
-            fIRDir = jp.current_value();
-        } else if (jp.current_value() == "jconv.Gain") {
-            jp.next(gx_system::JsonParser::value_number);
-            fGain = jp.current_value_float();
-        } else if (jp.current_value() == "jconv.GainCor") {
-            jp.next(gx_system::JsonParser::value_number);
-            fGainCor = jp.current_value_int();
-        } else if (jp.current_value() == "jconv.Offset") {
-            jp.next(gx_system::JsonParser::value_number);
-            fOffset = jp.current_value_int();
-        } else if (jp.current_value() == "jconv.Length") {
-            jp.next(gx_system::JsonParser::value_number);
-            fLength = jp.current_value_int();
-        } else if (jp.current_value() == "jconv.Delay") {
-            jp.next(gx_system::JsonParser::value_number);
-            fDelay = jp.current_value_int();
-        } else if (jp.current_value() == "jconv.gainline") {
-            read_gainline(jp);
-        } else if (jp.current_value() == "jconv.favorits") {
-            read_favorites(jp);
-        } else {
-            gx_system::gx_print_warning("jconv settings", "unknown key: " + jp.current_value());
-            jp.skip_object();
-        }
-    } while (jp.peek() == gx_system::JsonParser::value_key);
-    jp.next(gx_system::JsonParser::end_object);
-}
 } // namespace gx_jconv

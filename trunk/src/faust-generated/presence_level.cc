@@ -7,7 +7,7 @@ FAUSTFLOAT	*fslider0_;
 #define fslider0 (*fslider0_)
 static int	fSamplingFreq;
 
-static void init(int samplingFreq, PluginDef* = 0)
+static void init(unsigned int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
 }

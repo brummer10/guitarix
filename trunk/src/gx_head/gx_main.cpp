@@ -77,10 +77,11 @@ int main(int argc, char *argv[]) {
     Gtk::Main main(argc, argv, options);
 
     options.process_early();
-    gx_engine::get_engine().load_plugins(options.plugin_dir);
+    gx_engine::GxEngine& engine = gx_engine::get_engine();
+    engine.load_plugins(options.plugin_dir);
 
     // ------ initialize parameter list ------
-    get_pluginlist().registerParameter(gx_gui::get_group_table());
+    engine.registerParameter(gx_gui::get_group_table());
     gx_engine::audio.register_parameter();
     gx_engine::midi.register_parameter();
     gx_gui::guivar.register_gui_parameter();
@@ -101,39 +102,33 @@ int main(int argc, char *argv[]) {
     // ----------------------- init GTK interface----------------------
     g_type_class_unref(g_type_class_ref(GTK_TYPE_IMAGE_MENU_ITEM));
     g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
+    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance(&engine, &get_jack(&engine));
     gx_jconv::gx_load_jcgui();
-    gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
-    gui->setup();
+    gui.setup();
 
     gx_resample::_glob_resamp->init_resampler_ref(); 
     gx_jack::_jackbuffer_ptr = 0;
     // ---------------------- initialize jack gxjack.client ------------------
-    if (gx_jack::gxjack.gx_jack_init(options.optvar)) {
+    if (gui.jack.gx_jack_init(options.optvar)) {
         gx_jack::_jackbuffer_ptr = new gx_jack::JackBuffer;
         // -------- initialize gx_head engine --------------------------
         gx_engine::gx_engine_init(options.optvar);
 
         // -------- set jack callbacks and activation -------------------
-        gx_jack::gxjack.gx_jack_callbacks();
-        gx_jack::gxjack.gx_jack_activate();
-	gx_engine::get_engine().set_state(gx_engine::kEngineOn);
+        gui.jack.gx_jack_callbacks();
+	gx_engine::get_engine().set_state(gx_engine::ModuleSequencer::kEngineOn);
 
         // -------- init port connections
-        gx_jack::gxjack.gx_jack_init_port_connection(options.optvar);
+        gui.jack.gx_jack_init_port_connection(options.optvar);
     }
 
     // ----------------------- run GTK main loop ----------------------
     options.set_override();
+    engine.check_module_lists();
     gx_ui::GxUI::updateAllGuis(true);
-    gui->show();
-
-    if (gx_jack::gxjack.client) {
-        // -------- pitch tracker (needs jack thread running) -------------
-        gx_engine::pitch_tracker.init();
-    }
-
-    gx_engine::get_engine().clear_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
-    gui->run();
+    gui.show();
+    engine.clear_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
+    gui.run();
 
     // ------------- shut things down
     gx_system::gx_clean_exit(NULL, NULL);

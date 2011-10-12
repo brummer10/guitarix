@@ -374,7 +374,7 @@ void PortMapWindow::connection_changed(string port1, string port2, bool conn) {
         PortSection *p = &portsection[i];
 
         string s = (p->port_attr->client_num == 0 ?
-                    gx_jack::gxjack.client_name : gx_jack::gxjack.client_insert_name)
+                    get_jack().client_name : get_jack().client_insert_name)
             + ":" + p->port_attr->port_name;
         if (s.compare(port1) == 0) {
             update_summary(p, &port2, conn);
@@ -473,11 +473,11 @@ void PortMapWindow::on_cell_toggle(GtkCellRendererToggle *widget,
     string gcln;
     jack_client_t *gcl;
     if (p->port_attr->client_num == 0) {
-        gcl = gx_jack::gxjack.client;
-        gcln = gx_jack::gxjack.client_name;
+        gcl = get_jack().client;
+        gcln = get_jack().client_name;
     } else {
-        gcl = gx_jack::gxjack.client_insert;
-        gcln = gx_jack::gxjack.client_insert_name;
+        gcl = get_jack().client_insert;
+        gcln = get_jack().client_insert_name;
     }
     string s = gcln + ":" + p->port_attr->port_name;
     q2 = s.c_str();
@@ -539,7 +539,7 @@ static gint sort_func(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b,
 }
 
 void PortMapWindow::load(int sect, jack_port_t *jack_port) {
-    if (gx_jack::gxjack.client) {
+    if (get_jack().client) {
         const unsigned int max_items_unfolded = 1;
         PortSection& ps = portsection[sect];
         GtkTreeStore *tree = ps.treestore;
@@ -549,8 +549,8 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port) {
         gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(tree), 0, GTK_SORT_ASCENDING);
         gtk_tree_store_clear(tree);
         const char **ports;
-        jack_client_t *gcl = (ps.port_attr->client_num == 0 ? gx_jack::gxjack.client
-                              : gx_jack::gxjack.client_insert);
+        jack_client_t *gcl = (ps.port_attr->client_num == 0 ? get_jack().client
+                              : get_jack().client_insert);
         ports = jack_get_ports(gcl, NULL, ps.port_attr->port_type,
                                (ps.port_attr->is_input ? JackPortIsOutput : JackPortIsInput));
         if (!ports) {
@@ -607,19 +607,19 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port) {
 
 void PortMapWindow::load_all() {
 #define uslp() usleep(10); // prevents xruns?? (bug in jackd?)
-    load(0, gx_jack::gxjack.input_ports[0]);
+    load(0, get_jack().input_ports[0]);
     uslp();
-    load(1, gx_jack::gxjack.output_ports[2]);
+    load(1, get_jack().output_ports[2]);
     uslp();
-    load(2, gx_jack::gxjack.output_ports[3]);
+    load(2, get_jack().output_ports[3]);
     uslp();
-    load(3, gx_jack::gxjack.midi_input_port);
+    load(3, get_jack().midi_input_port);
     uslp();
-    load(4, gx_jack::gxjack.midi_output_ports);
+    load(4, get_jack().midi_output_ports);
     uslp();
-    load(5, gx_jack::gxjack.input_ports[1]);
+    load(5, get_jack().input_ports[1]);
     uslp();
-    load(6, gx_jack::gxjack.output_ports[0]);
+    load(6, get_jack().output_ports[0]);
 #undef uslp
 }
 
@@ -629,9 +629,9 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item) {
     gtk_widget_ref(GTK_WIDGET(item));
 
     // order of first 2 entries is important (check load())
-    excluded_clients.push_back(string(gx_jack::gxjack.client_insert_name) + ":");
-    excluded_clients.push_back(string(gx_jack::gxjack.client_name) + ":");
-    excluded_clients.push_back(string(gx_jack::gxjack.client_instance) + "_meterbridge:");
+    excluded_clients.push_back(string(get_jack().client_insert_name) + ":");
+    excluded_clients.push_back(string(get_jack().client_name) + ":");
+    excluded_clients.push_back(string(get_jack().client_instance) + "_meterbridge:");
     excluded_clients.push_back(string("jack_capture:"));
 
     GtkBuilder * builder = gtk_builder_new();
@@ -671,7 +671,7 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item) {
     g_signal_connect(window, "destroy", G_CALLBACK(destroy_cb), this);
     g_signal_connect(window, "response", G_CALLBACK(response_cb), this);
     gtk_window_add_accel_group(GTK_WINDOW(window),
-                               gx_gui::GxMainInterface::instance()->fAccelGroup);
+                               gx_gui::GxMainInterface::instance().fAccelGroup);
     g_signal_connect_after(window, "check-resize", G_CALLBACK(on_check_resize), this);
     gtk_widget_show(window);
     g_object_unref(G_OBJECT(builder));
@@ -681,7 +681,7 @@ PortMapWindow::PortMapWindow(GtkCheckMenuItem *item) {
 // refresh portmap widget when connect/disconnect with jack server
 void PortMapWindow::refresh() {
     if (window) {
-        if (!gx_jack::gxjack.client) {
+        if (!get_jack().client) {
             for (int i = 0; i< number_of_ports;i++) {
                 PortSection& ps = portsection[i];
                 GtkTreeStore *tree = ps.treestore;

@@ -35,7 +35,7 @@ namespace gx_gui {
 
 void GxMainInterface::gx_build_stereo_rack() {
     openHorizontalTableBox("");
-    PluginList& pl = get_pluginlist();
+    PluginList& pl = engine.pluginlist;
     fStereoRackContainer = fBox[fTop];
     {
         // add controllers without show them
@@ -576,7 +576,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                                     addJConvButton(_("setup"), &gx_engine::audio.filebutton);
                                     
                                     addJToggleButton(_("run"),
-                                                         gx_jconv::GxJConvSettings::checkbutton7);
+                                                         gx_engine::GxJConvSettings::checkbutton7);
                                     openSpaceBox("");
                                     closeBox();
                                 }

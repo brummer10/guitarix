@@ -10,19 +10,6 @@ struct stringcomp {
 };
 
 /****************************************************************
- ** class AbstractModuleSelector
- ** does not really belong here, but must be included before
- ** gx_engine.h and gx_internal_plugins.h
- */
-
-class ModuleSelector {
-public:
-    virtual ~ModuleSelector() {}
-    virtual void set_module() = 0;
-};
-
-
-/****************************************************************
  ** class Plugin
  ** Defines audio processing module and variables for
  ** user interface
@@ -91,8 +78,6 @@ public:
     void printlist(bool ordered = true);
 #endif
 };
-
-PluginList& get_pluginlist(); // return the global PluginList object
 
 #ifndef NDEBUG
 void printlist(const char *title, const list<Plugin*>& modules, bool header=true);

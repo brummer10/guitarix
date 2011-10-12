@@ -349,7 +349,7 @@ void GxMainInterface::setup() {
 
     openTextLoggingBox(_("Logging Window"));
 
-    get_pluginlist().append_rack(this);
+    engine.pluginlist.append_rack(this);
 
     debug_check(all_midi_params_assigned);
 }

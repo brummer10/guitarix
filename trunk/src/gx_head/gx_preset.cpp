@@ -174,7 +174,7 @@ static bool gx_modify_preset(const char* presname, const char* newname = 0,
 }
 
 // ---- parsing preset file to build up a string vector of preset names
-static bool gx_build_preset_list() {
+bool GxPreset::gx_build_preset_list() {
     // initialize list
     gxpreset.plist.clear();
     // initialize menu pointer list
@@ -201,7 +201,7 @@ static bool gx_build_preset_list() {
                           gx_i2a(gxpreset.plist.size()) + string(_(" presets found")));
             if (!samevers && gx_preset_file.is_standard()) {
                 gx_modify_preset(0 , 0, false, true);
-                gx_system::recallState(sysvar.gx_user_dir + gx_jack::gxjack.client_instance + "_rc"); // FIXME
+                gx_system::recallState(sysvar.gx_user_dir + get_jack().client_instance + "_rc"); // FIXME
             }
             return true;
         } catch(gx_system::JsonException& e) {
@@ -282,7 +282,7 @@ void GxPreset::gx_add_single_preset_menu_item(const string& presname,
             gtk_accel_map_add_entry(acc_path.c_str(), accel_key, list_mod[lindex]);
 
         gtk_widget_set_accel_path(menuitem, acc_path.c_str(),
-                                  gx_gui::GxMainInterface::instance()->fAccelGroup);
+                                  gx_gui::GxMainInterface::instance().fAccelGroup);
     }
 
     its = pm_list[lindex].end();
@@ -293,7 +293,7 @@ void GxPreset::gx_add_single_preset_menu_item(const string& presname,
 
 
 // ----- get the preset number by name from preset list
-static int gx_get_single_preset_menu_pos(const string& presname, const gint lindex) {
+int GxPreset::gx_get_single_preset_menu_pos(const string& presname, const gint lindex) {
     vector<string>::iterator its;
     int pos = 0;
     for (its = gxpreset.plist.begin(); its != gxpreset.plist.end(); its++) {
@@ -605,7 +605,7 @@ void GxPreset::gx_rename_active_preset_dialog(GtkWidget* item, gpointer arg) {
                       string(_(" to ")) + gxpreset.gx_current_preset);
 }
 
-static gboolean gx_rename_main_widget(gpointer data) {
+gboolean GxPreset::gx_rename_main_widget(gpointer data) {
     // refresh main window name
     string title = string("gx_head ");
     if (gxpreset.setting_is_factory) {
@@ -745,7 +745,7 @@ static bool gx_load_preset_from_factory(const char* presname, int i) {
 }
 
 // ----menu funktion load preset from factory
-static void gx_load_factory_preset(GtkMenuItem *menuitem, gpointer load_preset) {
+void GxPreset::gx_load_factory_preset(GtkMenuItem *menuitem, gpointer load_preset) {
     // retrieve preset name
     int i = GPOINTER_TO_INT(load_preset);
     vector<GtkMenuItem*>::iterator it = gxpreset.fpm_list[i].begin();
@@ -827,7 +827,7 @@ void GxPreset::gx_load_factory_file(int i) {
 // load a preset file
 void GxPreset::gx_recall_settings_file(const string *filename) {
     if (!filename) {
-        string fname = sysvar.gx_user_dir + gx_jack::gxjack.client_instance + "_rc";
+        string fname = sysvar.gx_user_dir + get_jack().client_instance + "_rc";
         gx_system::recallState(fname);
         gx_jconv::gx_reload_jcgui();
         gx_print_info(
@@ -839,7 +839,7 @@ void GxPreset::gx_recall_settings_file(const string *filename) {
             _("loading Settings file"),
             (boost::format(_("loaded settings file %1%")) % *filename).str());
     }
-    gtk_window_set_title(GTK_WINDOW(gx_gui::gw.fWindow), gx_jack::gxjack.client_instance.c_str());
+    gtk_window_set_title(GTK_WINDOW(gx_gui::gw.fWindow), get_jack().client_instance.c_str());
     setting_is_preset = false;
     setting_is_factory = false;
     gx_current_preset = "";
@@ -985,7 +985,7 @@ void GxPreset::gx_recall_main_setting(GtkMenuItem* item, gpointer) {
 
 // ----- save current setting as main setting
 void GxPreset::gx_save_main_setting(GtkMenuItem* item, gpointer arg) {
-    if (!saveStateToFile(sysvar.gx_user_dir + gx_jack::gxjack.client_instance + "_rc")) {
+    if (!saveStateToFile(sysvar.gx_user_dir + get_jack().client_instance + "_rc", get_jack())) {
         gx_print_error(_("Main Setting"), _("can't save main setting"));
     } else if (gxpreset.setting_is_preset) {
         gx_print_info(_("Main Setting"),
@@ -993,7 +993,7 @@ void GxPreset::gx_save_main_setting(GtkMenuItem* item, gpointer arg) {
     } else {
         gx_print_info(_("Main Setting"), _("Saved main setting"));
     }
-    gtk_window_set_title(GTK_WINDOW(gx_gui::gw.fWindow), gx_jack::gxjack.client_instance.c_str());
+    gtk_window_set_title(GTK_WINDOW(gx_gui::gw.fWindow), get_jack().client_instance.c_str());
     gxpreset.setting_is_preset = false;
     gxpreset.setting_is_factory = false;
     gx_jconv::gx_reload_jcgui();

@@ -30,7 +30,7 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<3; i++) fRec0[i] = 0;
 }
 
-static void init(int samplingFreq, PluginDef* = 0)
+static void init(unsigned int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));

@@ -459,7 +459,7 @@ void write_preset(JsonWriter &w, bool write_midi, bool force_midi) {
     w.write_key("engine");
     write_parameters(w, true);
     w.write_key("jconv");
-    gx_jconv::GxJConvSettings::instance()->writeJSON(w);
+    gx_engine::get_engine().convolver.jcset.writeJSON(w); //FIXME
     if (force_midi || (write_midi &&
                        gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get())) {
         w.write_key("midi_controller");
@@ -503,7 +503,7 @@ void PresetReader::read(JsonParser &jp, bool *has_midi, int major, int minor) {
         if (jp.current_value() == "engine") {
             read_parameters(jp, plist, true);
         } else if (jp.current_value() == "jconv") {
-            *gx_jconv::GxJConvSettings::instance() = gx_jconv::GxJConvSettings(jp);
+            gx_engine::get_engine().convolver.jcset = gx_engine::GxJConvSettings(jp); //FIXME
         } else if (jp.current_value() == "midi_controller") {
             if (has_midi || gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
                 m = new gx_gui::MidiControllerList::controller_array
@@ -578,20 +578,20 @@ static void write_jack_port_connections(JsonWriter& w, const char *key, jack_por
     w.end_array(true);
 }
 
-void write_jack_connections(JsonWriter& w) {
+void write_jack_connections(JsonWriter& w, gx_jack::GxJack& jack) {
     w.begin_object(true);
-    write_jack_port_connections(w, "input", gx_jack::gxjack.input_ports[0]);
-    write_jack_port_connections(w, "output1", gx_jack::gxjack.output_ports[2]);
-    write_jack_port_connections(w, "output2", gx_jack::gxjack.output_ports[3]);
-    write_jack_port_connections(w, "midi_input", gx_jack::gxjack.midi_input_port);
-    write_jack_port_connections(w, "midi_output", gx_jack::gxjack.midi_output_ports);
-    write_jack_port_connections(w, "insert_out", gx_jack::gxjack.output_ports[0]);
-    write_jack_port_connections(w, "insert_in", gx_jack::gxjack.input_ports[1]);
+    write_jack_port_connections(w, "input", jack.input_ports[0]);
+    write_jack_port_connections(w, "output1", jack.output_ports[2]);
+    write_jack_port_connections(w, "output2", jack.output_ports[3]);
+    write_jack_port_connections(w, "midi_input", jack.midi_input_port);
+    write_jack_port_connections(w, "midi_output", jack.midi_output_ports);
+    write_jack_port_connections(w, "insert_out", jack.output_ports[0]);
+    write_jack_port_connections(w, "insert_in", jack.input_ports[1]);
     w.end_object(true);
 }
 
 // -- save state including current preset data
-bool saveStateToFile(const string &filename) {
+bool saveStateToFile(const string &filename, gx_jack::GxJack& jack) {
     gx_print_info(_("writing to "), filename.c_str());
     string tmpfile = filename + "_tmp";
     ofstream f(tmpfile.c_str());
@@ -613,7 +613,7 @@ bool saveStateToFile(const string &filename) {
     write_preset(w, false);
 
     w.write("jack_connections");
-    write_jack_connections(w);
+    write_jack_connections(w, jack);
 
     w.newline();
     w.end_array(true);
@@ -634,19 +634,19 @@ static void read_jack_connections(JsonParser& jp) {
         int i;
         jp.next(JsonParser::value_key);
         if (jp.current_value() == "input") {
-            i = gx_jack::gxjack.kAudioInput;
+            i = gx_jack::GxJack::kAudioInput;
         } else if (jp.current_value() == "output1") {
-            i = gx_jack::gxjack.kAudioOutput1;
+            i = gx_jack::GxJack::kAudioOutput1;
         } else if (jp.current_value() == "output2") {
-            i = gx_jack::gxjack.kAudioOutput2;
+            i = gx_jack::GxJack::kAudioOutput2;
         } else if (jp.current_value() == "midi_input") {
-            i = gx_jack::gxjack.kMidiInput;
+            i = gx_jack::GxJack::kMidiInput;
         } else if (jp.current_value() == "midi_output") {
-            i = gx_jack::gxjack.kMidiOutput;
+            i = gx_jack::GxJack::kMidiOutput;
         } else if (jp.current_value() == "insert_out") {
-            i = gx_jack::gxjack.kAudioInsertOut;
+            i = gx_jack::GxJack::kAudioInsertOut;
         } else if (jp.current_value() == "insert_in") {
-            i = gx_jack::gxjack.kAudioInsertIn;
+            i = gx_jack::GxJack::kAudioInsertIn;
         } else {
             gx_print_warning(_("recall state"),
                              _("unknown jack ports sections") + jp.current_value());

@@ -35,7 +35,7 @@ void GxEngine::load_plugins(string plugin_dir) {
     };
 
     static ModuleSelectorFromList crybaby(
-	"crybaby", N_("Crybaby"), builtin_crybaby_plugins,
+	*this, "crybaby", N_("Crybaby"), builtin_crybaby_plugins,
 	"crybaby.autowah", _("select"), 0, PGN_POST_PRE);
 
 
@@ -70,7 +70,7 @@ void GxEngine::load_plugins(string plugin_dir) {
     };
 
     static ModuleSelectorFromList tonestack(
-	"amp.tonestack", N_("Tonestack"),
+	*this, "amp.tonestack", N_("Tonestack"),
 	builtin_tonestack_plugins, "amp.tonestack.select",
 	_("select"), 0, PGN_POST_PRE);
 
@@ -109,10 +109,10 @@ void GxEngine::load_plugins(string plugin_dir) {
     };
 
     static ModuleSelectorFromList ampstack(
-	"ampstack", "?Tube", builtin_amp_plugins,
+	*this, "ampstack", "?Tube", builtin_amp_plugins,
 	"tube.select", _("select"), ampstack_groups);
 
-    PluginList& pl = get_pluginlist();
+    PluginList& pl = pluginlist; // just a shortcut
 
     // * mono amp input position *
 
@@ -190,10 +190,10 @@ void GxEngine::load_plugins(string plugin_dir) {
     pl.load_from_path(plugin_dir, PLUGIN_POS_RACK);
 
     // selector objects to switch "alternative" modules
-    get_engine().add_selector(ampstack);
-    get_engine().add_selector(crybaby);
-    get_engine().add_selector(tonestack);
-    get_engine().add_selector(tuner);
+    add_selector(ampstack);
+    add_selector(crybaby);
+    add_selector(tonestack);
+    add_selector(tuner);
 
 #ifndef NDEBUG
     pl.printlist();

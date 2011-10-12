@@ -336,7 +336,7 @@ void GxScrollBox::on_rack_reorder_horizontal() {
 
         if (gx_gui::gw.srack_widget) {
             paintbox1.hide();
-            gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
+            gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance();
             if (gtk_window_get_resizable(GTK_WINDOW (gw.fWindow)))
                 gtk_window_set_resizable(GTK_WINDOW(gw.fWindow), FALSE);
             gtk_widget_ref(gx_gui::gw.srack_widget);
@@ -344,7 +344,7 @@ void GxScrollBox::on_rack_reorder_horizontal() {
             gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.srack_widget);
             gtk_box_pack_start(GTK_BOX(box1.gobj()), gx_gui::gw.srack_widget, false, true, 0);
             gtk_widget_unref(gx_gui::gw.srack_widget);
-            if (gui->fShowSRack.get_active()) m_scrolled_window2.show();
+            if (gui.fShowSRack.get_active()) m_scrolled_window2.show();
             paintbox1.show();
             parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::gw.rack_tool_bar));
 
@@ -368,13 +368,13 @@ void GxScrollBox::on_rack_reorder_horizontal() {
                 g_list_free(child_list);
             }
 
-            gtk_widget_set_size_request(GTK_WIDGET(gui->RBox), -1,  460 );
+            gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1,  460 );
             if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
                 guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
                                gx_gui::gx_set_resizeable, gpointer(gw.fWindow), NULL);
             if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
                 guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
-                               gx_gui::gx_set_default, gpointer(gui->RBox), NULL);
+                               gx_gui::gx_set_default, gpointer(gui.RBox), NULL);
         }
     }
 }
@@ -384,7 +384,7 @@ void GxScrollBox::on_rack_reorder_vertical() {
 
         if (gx_gui::gw.srack_widget) {
             paintbox1.hide();
-            gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
+            gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance();
             if (gtk_window_get_resizable(GTK_WINDOW(gw.fWindow)))
                 gtk_window_set_resizable(GTK_WINDOW(gw.fWindow), FALSE);
             gtk_widget_ref(gx_gui::gw.srack_widget);
@@ -414,13 +414,13 @@ void GxScrollBox::on_rack_reorder_vertical() {
                 g_list_free(child_list);
             }
 
-            gtk_widget_set_size_request(GTK_WIDGET(gui->RBox), -1, 460 );
+            gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, 460 );
             if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
                 guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
                                gx_gui::gx_set_resizeable, gpointer(gw.fWindow), NULL);
             if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
                 guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
-                               gx_gui::gx_set_default, gpointer(gui->RBox), NULL);
+                               gx_gui::gx_set_default, gpointer(gui.RBox), NULL);
         }
     }
 }
@@ -459,15 +459,15 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
 
     const gchar * mtitle = "Order Rack Vertically";
     set_label(fOrdervRack, mtitle);
-    gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance();
-    gtk_menu_shell_append(GTK_MENU_SHELL(gui->getMenu("PluginMenu")),
+    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance();
+    gtk_menu_shell_append(GTK_MENU_SHELL(gui.getMenu("PluginMenu")),
                           GTK_WIDGET(fOrdervRack.gobj()));
     fOrdervRack.set_parameter(new SwitchParameter("system.order_rack_v", false, false));
     fOrdervRack.show();
 
     mtitle = "Order Rack Horizontally";
     set_label(fOrderhRack, mtitle);
-    gtk_menu_shell_append(GTK_MENU_SHELL(gui->getMenu("PluginMenu")),
+    gtk_menu_shell_append(GTK_MENU_SHELL(gui.getMenu("PluginMenu")),
                           GTK_WIDGET(fOrderhRack.gobj()));
     fOrderhRack.set_active(false);
     fOrderhRack.set_parameter(new SwitchParameter("system.order_rack_h", false, false));

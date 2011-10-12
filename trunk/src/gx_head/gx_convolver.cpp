@@ -176,7 +176,7 @@ void GxConvolverBase::adjust_values(
 bool GxConvolverBase::start() {
     int abspri, policy;
     struct sched_param  spar;
-    pthread_getschedparam(jack_client_thread_id(gx_jack::gxjack.client), &policy, &spar);
+    pthread_getschedparam(jack_client_thread_id(get_jack().client), &policy, &spar);
     abspri = spar.sched_priority;
     int rc = start_process(abspri, policy);
     if (rc != 0) {
@@ -266,8 +266,7 @@ bool GxConvolver::read_sndfile(
         }
     }
 
-    gx_jconv::GxJConvSettings& jcset = *gx_jconv::GxJConvSettings::instance();
-    unsigned int gain_cor      = jcset.getGainCor();
+    unsigned int gain_cor = gx_engine::get_engine().convolver.jcset.getGainCor(); //FIXME
     double gain_t[nchan];
     if (!gain_cor) {
         for (int ichan = 0; ichan < nchan; ichan++) {
@@ -345,7 +344,7 @@ bool GxConvolver::read_sndfile(
 }
 
 bool GxConvolver::configure(
-    unsigned int count, int samplerate, string fname, float gain, float lgain,
+    string fname, float gain, float lgain,
     unsigned int delay, unsigned int ldelay, unsigned int offset,
     unsigned int length, unsigned int size, unsigned int bufsize,
     const Gainline& points) {
@@ -361,22 +360,22 @@ bool GxConvolver::configure(
         gx_system::gx_print_error("convolver", buf.str());
         return false;
     }
-    adjust_values(audio.size(), count, offset, delay, ldelay, length, size, bufsize);
+    adjust_values(audio.size(), buffersize, offset, delay, ldelay, length, size, bufsize);
     /* FIXME remove
     cout << "state=" << state() << ", ready=" << ready << endl;
     cout << "fname=" << fname << ", size=" << audio.size()
          << ", channels=" << audio.chan() << endl;
-    cout << "convolver: size=" << size << ", count=" << count << ", bufsize="
+    cout << "convolver: size=" << size << ", count=" << buffersize << ", bufsize="
          << bufsize << ", offset=" << offset << ", delay=" << delay
          << ", ldelay=" << ldelay << ", length=" << length << ", gain" << gain
          << ", lgain" << lgain << endl;
     */
-    
-    if (Convproc::configure(2, 2, size, count, bufsize, Convproc::MAXPART)) {
+
+    if (Convproc::configure(2, 2, size, buffersize, bufsize, Convproc::MAXPART)) {
         gx_system::gx_print_error("convolver", "error in Convproc::configure ");
         return false;
     }
-        
+
     float gain_a[2] = {gain, lgain};
     unsigned int delay_a[2] = {delay, ldelay};
     return read_sndfile(audio, 2, samplerate, gain_a, delay_a, offset, length, points);
@@ -420,9 +419,9 @@ private:
     float *vec;
 public:
     CheckResample(): vec(0) {}
-    float *resample(int count, float *impresp, unsigned int samplerate) {
-	if (samplerate != gx_jack::gxjack.jack_sr) {
-	    vec = gx_resample::_glob_resamp->_buffer_resampler.process(samplerate, count, impresp, gx_jack::gxjack.jack_sr, count);
+    float *resample(int count, float *impresp, unsigned int imprate, unsigned int samplerate) {
+	if (imprate != samplerate) {
+	    vec = gx_resample::_glob_resamp->_buffer_resampler.process(imprate, count, impresp, samplerate, count);
 	    if (!vec) {
 		gx_system::gx_print_error("convolver", "failed to resample");
 		return 0;
@@ -438,18 +437,18 @@ public:
     }
 };
 
-bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int samplerate) {
+bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int imprate) {
     CheckResample r;
-    impresp = r.resample(count, impresp, samplerate);
+    impresp = r.resample(count, impresp, imprate, samplerate);
     if (!impresp) {
 	return false;
     }
     cleanup();
-    unsigned int bufsize = gx_jack::gxjack.jack_bs;
+    unsigned int bufsize = buffersize;
     if (bufsize < Convproc::MINPART) {
         bufsize = Convproc::MINPART;
     }
-    if (Convproc::configure(1, 1, count, gx_jack::gxjack.jack_bs,
+    if (Convproc::configure(1, 1, count, buffersize,
                             bufsize, Convproc::MAXPART)) {
         gx_system::gx_print_error("convolver", "error in Convproc::configure");
         return false;
@@ -461,9 +460,9 @@ bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int sample
     return true;
 }
 
-bool GxSimpleConvolver::update(int count, float *impresp, unsigned int samplerate) {
+bool GxSimpleConvolver::update(int count, float *impresp, unsigned int imprate) {
     CheckResample r;
-    impresp = r.resample(count, impresp, samplerate);
+    impresp = r.resample(count, impresp, imprate, samplerate);
     if (!impresp) {
 	return false;
     }

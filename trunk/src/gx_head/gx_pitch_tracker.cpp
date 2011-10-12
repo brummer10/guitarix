@@ -22,8 +22,6 @@
 
 #include "guitarix.h"      // NOLINT
 
-#include <jack/jack.h>     // NOLINT
-
 #include <cstring>         // NOLINT
 
 
@@ -88,6 +86,7 @@ PitchTracker::PitchTracker()
 
 
 PitchTracker::~PitchTracker() {
+    stop_thread();
     fftwf_destroy_plan(m_fftwPlanFFT);
     fftwf_destroy_plan(m_fftwPlanIFFT);
     fftwf_free(m_fftwBufferTime);
@@ -98,7 +97,7 @@ PitchTracker::~PitchTracker() {
 }
 
 
-bool PitchTracker::setParameters(int sampleRate, int buffersize) {
+bool PitchTracker::setParameters(int priority, int policy, int sampleRate, int buffersize) {
     assert(buffersize <= FFT_SIZE);
 
     if (error) {
@@ -126,9 +125,8 @@ bool PitchTracker::setParameters(int sampleRate, int buffersize) {
     }
 
     if (!m_pthr) {
-        start_thread();
+        start_thread(priority, policy);
     }
-    pt_initialized = true;
     return !error;
 }
 
@@ -139,19 +137,9 @@ void PitchTracker::stop_thread() {
     resamp = 0;
 }
 
-void PitchTracker::start_thread() {
-    int                min, max;
-    pthread_attr_t     attr;
+void PitchTracker::start_thread(int priority, int policy) {
+    pthread_attr_t      attr;
     struct sched_param  spar;
-    int priority, policy;
-    pthread_getschedparam(
-        jack_client_thread_id(gx_jack::gxjack.client), &policy, &spar);
-    priority = spar.sched_priority;
-    min = sched_get_priority_min(policy);
-    max = sched_get_priority_max(policy);
-    priority -= 6;  // zita-convoler uses 5 levels
-    if (priority > max) priority = max;
-    if (priority < min) priority = min;
     spar.sched_priority = priority;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_JOINABLE );
@@ -168,8 +156,8 @@ void PitchTracker::start_thread() {
     pthread_attr_destroy(&attr);
 }
 
-void PitchTracker::init() {
-    setParameters(static_cast<int>(gx_jack::gxjack.jack_sr), FFT_SIZE);
+void PitchTracker::init(int priority, int policy, unsigned int samplerate) {
+    setParameters(priority, policy, samplerate, FFT_SIZE);
 }
 
 void PitchTracker::add(int count, float* input) {

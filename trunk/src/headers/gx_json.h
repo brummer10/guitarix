@@ -33,6 +33,8 @@
 #include <string>
 #include <algorithm>
 
+namespace gx_jack { class GxJack; } // FIXME
+
 namespace gx_system {
 
 
@@ -141,8 +143,8 @@ public:
 void writeHeader(JsonWriter& jw);
 bool readHeader(JsonParser& jp, int *major = 0, int *minor = 0);
 void write_preset(JsonWriter& w, bool write_midi = true, bool force_midi = false);
-bool saveStateToFile(const string & filename );
-bool recallState(const string & filename );
+bool saveStateToFile(const string & filename, gx_jack::GxJack& jack);
+bool recallState(const string & filename);
 
 // file format versions
 const int majorversion = 1;

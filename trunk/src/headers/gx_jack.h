@@ -54,26 +54,23 @@ class GxJack {
  private:
     bool                gx_start_jack_dialog();
     bool                gx_start_jack(void* arg);
-
- public:
-    static const int    nIPorts = 2; // for both jack clients
-    static const int    nOPorts = 4; // 2 * stereo output (1 unused)
-
+    gx_engine::GxEngine& engine;
     static int          gx_jack_srate_callback(jack_nframes_t, void* arg);
     static int          gx_jack_xrun_callback(void* arg);
     static int          gx_jack_buffersize_callback(jack_nframes_t, void* arg);
     static int          gx_jack_process(jack_nframes_t, void* arg);
     static int          gx_jack_insert_process(jack_nframes_t, void* arg);
 
-    static void         gx_set_jack_buffer_size(GtkCheckMenuItem*, gpointer);
-    static void         gx_jack_connection(GtkCheckMenuItem*, gpointer);
     static void         gx_jack_shutdown_callback(void* arg);
     static void         gx_jack_portreg_callback(jack_port_id_t, int, void* arg);
-    
+    static void         gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int connect, void* arg);
 #ifdef HAVE_JACK_SESSION
     static void         gx_jack_session_callback(jack_session_event_t *event, void *arg);
 #endif
-
+    void                gx_jack_activate();
+ public:
+    static const int    nIPorts = 2; // for both jack clients
+    static const int    nOPorts = 4; // 2 * stereo output (1 unused)
     jack_nframes_t      jack_sr;   // jack sample rate
     jack_nframes_t      jack_bs;   // jack buffer size
     jack_nframes_t      time_is;
@@ -88,7 +85,6 @@ class GxJack {
     void*               midi_input_port_buf;
     void*               midi_port_buf;
 
-    bool                gx_jack_init(const string *optvar );
     bool                jack_is_down;
     bool                jack_is_exit;
 
@@ -96,14 +92,19 @@ class GxJack {
     float               xdel;      // last xrun delay
 
     int                 is_rt;
+public:
+    GxJack(gx_engine::GxEngine& engine_);
+    bool                gx_jack_init(const string *optvar );
+    
+    void                gx_set_jack_buffer_size(GtkCheckMenuItem*, void* arg);
+    void                gx_jack_connection(GtkCheckMenuItem*);
+
     int                 gx_jack_midi_process(jack_nframes_t, float *input);
-    int                 gx_jack_midi_input_process(jack_nframes_t, void* arg);
+    int                 gx_jack_midi_input_process(jack_nframes_t);
 
     void                gx_jack_init_port_connection(const string*);
     void                gx_jack_callbacks();
-    void                gx_jack_activate();
     void                gx_jack_cleanup();
-
     string              client_instance;
     string              client_name;
     string              client_insert_name;
@@ -119,10 +120,10 @@ class GxJack {
         kAudioInsertOut= 6
     };
 
-    typedef enum {
+    enum GxJackLatencyChange {
         kChangeLatency = 1,
         kKeepLatency   = 2
-    } GxJackLatencyChange;
+    };
 
     GxJackLatencyChange change_latency;
 };
@@ -137,7 +138,8 @@ class JackBuffer {
 };
 extern JackBuffer *_jackbuffer_ptr;
 
-extern GxJack gxjack;
-
 } /* end of jack namespace */
+
+gx_jack::GxJack& get_jack(gx_engine::GxEngine* engine_ = 0);
+
 #endif  // SRC_HEADERS_GX_JACK_H_

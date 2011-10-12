@@ -101,46 +101,46 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
 
 /* --------- menu function triggering engine on/off/bypass --------- */
 void gx_engine_switch(GtkWidget* widget, gpointer arg) {
-    gx_engine::GxEngineState estate = gx_engine::get_engine().get_state();
+    gx_engine::ModuleSequencer::GxEngineState estate = GxMainInterface::instance().engine.get_state();
 
     switch (estate) {
-    case gx_engine::kEngineOn:
-        estate = gx_engine::kEngineOff;
+    case gx_engine::ModuleSequencer::kEngineOn:
+        estate = gx_engine::ModuleSequencer::kEngineOff;
         if (arg) {
             // need to activate item
             gtk_check_menu_item_set_active(
                 GTK_CHECK_MENU_ITEM(gw.gx_engine_item), TRUE
                 );
-            estate = gx_engine::kEngineBypass;
+            estate = gx_engine::ModuleSequencer::kEngineBypass;
         }
 
         break;
 
-    case gx_engine::kEngineOff:
+    case gx_engine::ModuleSequencer::kEngineOff:
         if (!arg)
-            estate = gx_engine::kEngineOn;
+            estate = gx_engine::ModuleSequencer::kEngineOn;
         break;
 
     default:
-        estate = gx_engine::kEngineOn;
+        estate = gx_engine::ModuleSequencer::kEngineOn;
         gtk_check_menu_item_set_active(
             GTK_CHECK_MENU_ITEM(gw.gx_engine_item), TRUE
             );
     }
 
-    gx_engine::get_engine().set_state(estate);
+    GxMainInterface::instance().engine.set_state(estate);
     gx_refresh_engine_status_display();
 }
 
 /* -------------- refresh engine status display ---------------- */
 void gx_refresh_engine_status_display() {
-    gx_engine::GxEngineState estate = gx_engine::get_engine().get_state();
+    gx_engine::ModuleSequencer::GxEngineState estate = GxMainInterface::instance().engine.get_state();
 
     string state;
 
     switch (estate) {
 
-    case gx_engine::kEngineOff:
+    case gx_engine::ModuleSequencer::kEngineOff:
         gtk_widget_show(gw.gx_engine_off_image);
         gtk_widget_hide(gw.gx_engine_on_image);
         gtk_widget_hide(gw.gx_engine_bypass_image);
@@ -151,7 +151,7 @@ void gx_refresh_engine_status_display() {
         state = "OFF";
         break;
 
-    case gx_engine::kEngineBypass:
+    case gx_engine::ModuleSequencer::kEngineBypass:
         gtk_widget_show(gw.gx_engine_bypass_image);
         gtk_widget_hide(gw.gx_engine_off_image);
         gtk_widget_hide(gw.gx_engine_on_image);
@@ -162,7 +162,7 @@ void gx_refresh_engine_status_display() {
         state = "BYPASSED";
         break;
 
-    case gx_engine::kEngineOn:
+    case gx_engine::ModuleSequencer::kEngineOn:
     default: // ON
         gtk_widget_show(gw.gx_engine_on_image);
         gtk_widget_hide(gw.gx_engine_off_image);
@@ -194,8 +194,8 @@ void gx_jack_is_down() {
                      "jack has bumped us out!!");
     */
     std::cout << _("jack has bumped us out!!") << endl;
-    gx_jack::gxjack.jack_is_exit = true;
-    gx_engine::get_engine().set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
+    GxMainInterface::instance().jack.jack_is_exit = true;
+    GxMainInterface::instance().engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     g_timeout_add_full(G_PRIORITY_LOW, 200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
 }
 
@@ -237,7 +237,7 @@ void gx_patch(GtkCheckMenuItem *menuitem, gpointer checkplay) {
 
 // ---- menu function logging widget
 void gx_log_window(GtkWidget* menuitem, gpointer arg) {
-    GtkExpander* const exbox = GxMainInterface::instance()->getLoggingBox();
+    GtkExpander* const exbox = GxMainInterface::instance().getLoggingBox();
 
     // we could be called before UI is built up
     if (!exbox) return;
@@ -309,11 +309,11 @@ gint gx_wait_latency_warn() {
 
     GtkWidget* button1 =
         gtk_dialog_add_button(GTK_DIALOG(warn_dialog),
-                              _("Yes"), gx_jack::gxjack.kChangeLatency);
+                              _("Yes"), GxMainInterface::instance().jack.kChangeLatency);
 
     GtkWidget* button2 =
         gtk_dialog_add_button(GTK_DIALOG(warn_dialog),
-                              _("No"),  gx_jack::gxjack.kKeepLatency);
+                              _("No"),  GxMainInterface::instance().jack.kKeepLatency);
 
 
     GtkWidget* box1    = gtk_hbox_new(0, 4);
@@ -415,7 +415,7 @@ gboolean gx_set_default_ssize(gpointer data) {
 
 // ----- show extendend settings slider
 void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
-    gx_gui::GxMainInterface* gui = gx_gui::GxMainInterface::instance("gx_head");
+    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance();
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)) == TRUE) {
 
         GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
@@ -434,7 +434,7 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
                 gtk_window_set_resizable(GTK_WINDOW(gw.fWindow), FALSE);
             gtk_widget_show(GTK_WIDGET(vbox));
 
-            gtk_widget_set_size_request(GTK_WIDGET(gui->RBox), -1, 460);
+            gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, 460);
                 if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id
                                         (NULL, guivar.g_threads[7]) == NULL)
                     guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
@@ -442,7 +442,7 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
                 if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id
                                         (NULL, guivar.g_threads[6]) == NULL)
                     guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
-                                   gx_gui::gx_set_default, gpointer(gui->RBox), NULL);
+                                   gx_gui::gx_set_default, gpointer(gui.RBox), NULL);
         }
     } else {
         GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
@@ -461,7 +461,7 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
                 gtk_window_set_resizable(GTK_WINDOW(gw.fWindow) , FALSE);
             gtk_widget_show(GTK_WIDGET(vbox));
 
-            gtk_widget_set_size_request(GTK_WIDGET(gui->RBox), -1, 460);
+            gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, 460);
                 if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id
                                         (NULL, guivar.g_threads[7]) == NULL)
                     guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
@@ -469,7 +469,7 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
                 if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id
                                         (NULL, guivar.g_threads[6]) == NULL)
                     guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
-                                   gx_gui::gx_set_default, gpointer(gui->RBox), NULL);
+                                   gx_gui::gx_set_default, gpointer(gui.RBox), NULL);
         }
     }
 }
@@ -591,8 +591,8 @@ void GxMainInterface::on_toolbar_activate() {
 // ----menu function gx_tuner
 void GxMainInterface::on_tuner_activate() {
     bool tuner_on = fShowTuner.get_active();
-    gx_engine::get_engine().tuner.used_for_display(tuner_on);
-    gx_engine::get_engine().set_rack_changed();
+    engine.tuner.used_for_display(tuner_on);
+    engine.set_rack_changed();
     if (tuner_on) {
         gtk_widget_show_all(gw.tuner_widget);
         fTuner.show();
@@ -631,7 +631,7 @@ void gx_midi_out(GtkCheckMenuItem *menuitem, gpointer checkplay) {
         parameter_map[group].set_std_value();
     }
     first =false;
-    gx_engine::get_engine().set_rack_changed();
+    GxMainInterface::instance().engine.set_rack_changed();
 }
 
 // ----- hide the extendend settings slider
@@ -864,8 +864,8 @@ void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg) {
 // ----- cycling through skin
 void  gx_update_skin_menu_item(const int index) {
     // update menu item state
-    GxMainInterface* gui = GxMainInterface::instance();
-    GtkWidget* skinmenu = gui->getMenu("Skin");
+    GxMainInterface& gui = GxMainInterface::instance();
+    GtkWidget* skinmenu = gui.getMenu("Skin");
 
     GList*     list = gtk_container_get_children(GTK_CONTAINER(skinmenu));
     GtkWidget* item = reinterpret_cast<GtkWidget*>(g_list_nth_data(list, index));
@@ -892,8 +892,8 @@ bool gx_update_skin(const gint idx, const char* calling_func) {
     skin.gx_current_skin = idx;
 
     // refresh latency check menu
-    GxMainInterface* gui = GxMainInterface::instance();
-    GtkWidget* wd = gui->getJackLatencyItem(gx_jack::gxjack.jack_bs);
+    GxMainInterface& gui = GxMainInterface::instance();
+    GtkWidget* wd = gui.getJackLatencyItem(GxMainInterface::instance().jack.jack_bs);
     if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 
     return true;

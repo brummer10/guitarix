@@ -29,7 +29,7 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<65536; i++) fVec1[i] = 0;
 }
 
-static void init(int samplingFreq, PluginDef* = 0)
+static void init(unsigned int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;

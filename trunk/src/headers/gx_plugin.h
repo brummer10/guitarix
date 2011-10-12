@@ -44,10 +44,14 @@ public:
     UiBuilder(gx_gui::GxMainInterface *i, PluginDef* p): intf(i), plugin(p) {}
     void openVerticalBox(const char* label = "") const;
     void openHorizontalBox(const char* label = "") const;
-    void create_small_rackknob(const char *id) const;
-    void create_small_rackknob(const char *id, const char *label) const;
     void closeBox() const;
     void load_glade(const char *data) const;
+    // methods creating UI elements connected to parameter_id's.
+    // the check_parameter function in dsp2cc identifies these
+    // functions by the prefix create_ so please stick to this
+    // prefix or change the checker
+    void create_small_rackknob(const char *id) const;
+    void create_small_rackknob(const char *id, const char *label) const;
     //FIXME add missing functions
 };
 
@@ -83,15 +87,15 @@ public:
 ** structure for plugin definition
 */
 
-typedef void (*inifunc)(int samplingFreq, PluginDef *plugin);
+typedef void (*inifunc)(unsigned int samplingFreq, PluginDef *plugin);
 typedef int (*activatefunc)(bool start, PluginDef *plugin);
 typedef void (*clearstatefunc)(PluginDef *plugin);
 // in-place would be a tad more efficient but some plugins have to be cleaned up before
-//typedef void (*process_mono_audio) (int count, float *buffer);
-//typedef void (*process_stereo_audio) (int count, float *buffer1, float *buffer2);
-typedef void (*process_mono_audio) (int count, float *input, float *output);
+//typedef void (*process_mono_audio) (int count, float *buffer, PluginDef *plugin);
+//typedef void (*process_stereo_audio) (int count, float *buffer1, float *buffer2, PluginDef *plugin);
+typedef void (*process_mono_audio) (int count, float *input, float *output, PluginDef *plugin);
 typedef void (*process_stereo_audio) (int count, float *input1, float *input2,
-				      float *output1, float *output2);
+				      float *output1, float *output2, PluginDef *plugin);
 typedef int (*registerfunc)(const ParamReg& reg);
 typedef int (*uiloader)(const UiBuilder& builder);
 

@@ -188,45 +188,6 @@ bool GxMainInterface::fInitialized = false;
 static pthread_t ui_thread;
 #endif
 
-static bool conv_start() {
-    gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
-    string path = jcset->getFullIRPath();
-    if (path.empty()) {
-        gx_system::gx_print_warning(_("convolver"), _("no impulseresponse file"));
-        return false;
-    }
-    while (!gx_engine::get_engine().convolver.conv.checkstate());
-    if (gx_engine::get_engine().convolver.conv.is_runnable()) {
-	return true;
-    }
-    if (!gx_engine::get_engine().convolver.conv.configure(
-            gx_jack::gxjack.jack_bs, gx_jack::gxjack.jack_sr, path,
-            jcset->getGain(), jcset->getGain(), jcset->getDelay(), jcset->getDelay(),
-            jcset->getOffset(), jcset->getLength(), 0, 0, jcset->getGainline())) {
-        return false;
-    }
-    return gx_engine::get_engine().convolver.conv.start();
-}
-
-static int on_convolver_activate(bool start) {
-    if (start) {
-	if (!conv_start()) {
-	    return -1;
-	}
-    } else {
-	gx_engine::get_engine().convolver.conv.stop();
-    }
-    return 0;
-}
-
-void conv_restart() {
-    gx_engine::get_engine().convolver.conv.stop();
-    while (gx_engine::get_engine().convolver.conv.is_runnable()) {
-	gx_engine::get_engine().convolver.conv.checkstate();
-    }
-    conv_start();
-}
-
 /* set initial window position*/
 int gx_set_mx_oriantation() {
     return (gint) gx_gui::guivar.main_xorg;
@@ -237,8 +198,10 @@ int gx_set_my_oriantation() {
 }
 
 /* create main window*/
-GxMainInterface::GxMainInterface(const char * name)
-    :fTuner(this, &gx_engine::audio.fConsta1t) {
+GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_jack::GxJack& jack_)
+    : fTuner(this, &gx_engine::audio.fConsta1t),
+      engine(engine_),
+      jack(jack_) {
     highest_unseen_msg_level = -1;
 
     /*-- set rc file overwrite it with export--*/
@@ -250,7 +213,7 @@ GxMainInterface::GxMainInterface(const char * name)
     /*---------------- set window defaults ----------------*/
     // gtk_widget_set_size_request (GTK_WIDGET (gw.fWindow) , 600,205);
     gtk_window_set_resizable(GTK_WINDOW(gw.fWindow) , FALSE);
-    gtk_window_set_title(GTK_WINDOW(gw.fWindow), name);
+    gtk_window_set_title(GTK_WINDOW(gw.fWindow), "gx_head");
     gtk_window_set_gravity(GTK_WINDOW(gw.fWindow), GDK_GRAVITY_STATIC);
 
     /*---------------- singnals ----------------*/
@@ -283,19 +246,20 @@ GxMainInterface::GxMainInterface(const char * name)
     /*---------------- add mainbox to main window ---------------*/
     gtk_container_add(GTK_CONTAINER(gw.fWindow), fBox[fTop]);
 
-    gx_engine::get_engine().oscilloscope.post_pre_signal.changed.connect(
+    engine.oscilloscope.post_pre_signal.changed.connect(
 	sigc::mem_fun(*this, &GxMainInterface::on_oscilloscope_post_pre));
-    gx_engine::get_engine().oscilloscope.activation.connect(
+    engine.oscilloscope.activation.connect(
 	sigc::mem_fun(*this, &GxMainInterface::on_oscilloscope_activate));
-    gx_engine::get_engine().convolver.activation.connect(
-	sigc::ptr_fun(on_convolver_activate));
+    engine.oscilloscope.size_change.connect(
+	sigc::mem_fun(*this, &GxMainInterface::set_waveview_buffer));
+
     fStopped = false;
 }
 
 // ------- create or retrieve unique instance
-GxMainInterface* GxMainInterface::instance(const char* name) {
-    static GxMainInterface maingui(name);
-    return &maingui;
+GxMainInterface& GxMainInterface::instance(gx_engine::GxEngine *engine_, gx_jack::GxJack *jack_) {
+    static GxMainInterface maingui(*engine_, *jack_);
+    return maingui;
 }
 
 /****************************************************************
@@ -361,11 +325,11 @@ static void logging_set_color(GtkWidget *w, gpointer data) {
 }
 
 static bool on_logger_delete_event() {
-    GxMainInterface* gui = GxMainInterface::instance();
+    GxMainInterface& gui = GxMainInterface::instance();
     gtk_check_menu_item_set_active(
-                GTK_CHECK_MENU_ITEM(GTK_WIDGET(gui->fShowLogger.gobj())), FALSE
+                GTK_CHECK_MENU_ITEM(GTK_WIDGET(gui.fShowLogger.gobj())), FALSE
                 );
-    gtk_widget_hide(GTK_WIDGET(gui->logger));
+    gtk_widget_hide(GTK_WIDGET(gui.logger));
     return true;
 }
 
@@ -612,7 +576,7 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
 		}
 	    }
 	}
-	gx_engine::get_engine().set_rack_changed();
+	GxMainInterface::instance().engine.set_rack_changed();
     }
     // box move to the left
     static void pressed_left(GtkWidget *widget, gpointer data) {
@@ -678,7 +642,7 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
 		}
 	    }
 	}
-	gx_engine::get_engine().set_rack_changed();
+	GxMainInterface::instance().engine.set_rack_changed();
     }
     // resize the effect box
     static void resize(GtkWidget *widget, gpointer data) {
@@ -1511,7 +1475,7 @@ void GxMainInterface::addMToggleButton(const char* label, bool* zone) {
 }
 
 void gx_start_stop_jconv(GtkWidget *widget, gpointer data) {
-    gx_engine::get_engine().set_rack_changed();
+    GxMainInterface::instance().engine.set_rack_changed();
 }
 
 void GxMainInterface::addJToggleButton(const char* label, bool* zone) {
@@ -1720,10 +1684,10 @@ struct uiPatchDisplay : public gx_ui::GxUiItemFloat {
                     parent = reinterpret_cast<GtkWidget *>( g_list_nth_data(child_list, 1));
                     GtkWidget *pchild = reinterpret_cast<GtkWidget *>
                                       ( g_list_nth_data(child_list, 2));
-                    gx_jconv::GxJConvSettings* jcset = gx_jconv::GxJConvSettings::instance();
+		    gx_engine::GxJConvSettings& jcset = GxMainInterface::instance().engine.convolver.jcset;
 
-                    if (*gx_jconv::GxJConvSettings::checkbutton7 == 1) {
-                        snprintf(s, sizeof(s), _("convolve %s"), jcset->getIRFile().c_str());
+                    if (*gx_engine::GxJConvSettings::checkbutton7 == 1) {
+                        snprintf(s, sizeof(s), _("convolve %s"), jcset.getIRFile().c_str());
                         gtk_label_set_text(GTK_LABEL(pchild), s);
                     } else {
                         snprintf(s, sizeof(s), _("convolver off"));
@@ -1800,7 +1764,7 @@ uiTuner::uiTuner(gx_ui::GxUI* ui, float* zone)
 
 void uiTuner::reflectZone() {
     fCache = *fZone;
-    if (gx_engine::get_engine().tuner.plugin.on_off) {
+    if (GxMainInterface::instance().engine.tuner.plugin.on_off) {
         set_freq(gx_engine::midi.fConsta4);
     }
 }
@@ -1847,8 +1811,8 @@ struct uiStatusDisplay : public gx_ui::GxUiItemBool {
     virtual void reflectZone() {
 	bool v = *fZone;
 	fCache = v;
-	if (gx_engine::get_engine().midiaudiobuffer.plugin.on_off) {
-	    if (gx_jack::gxjack.jcpu_load < 65.0) {
+	if (GxMainInterface::instance().engine.midiaudiobuffer.plugin.on_off) {
+	    if (GxMainInterface::instance().jack.jcpu_load < 65.0) {
 		if (v) {
 		    gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(gw.status_icon),
 						    GDK_PIXBUF(gw.ibm));
@@ -1883,28 +1847,28 @@ bool GxMainInterface::on_refresh_oscilloscope() {
         jack_nframes_t bsize;
         bool rt;
     } oc;
-    int load = static_cast<int>(round(gx_jack::gxjack.jcpu_load));
+    int load = static_cast<int>(round(jack.jcpu_load));
     if (!oc.bsize || oc.load != load) {
         oc.load = load;
         fWaveView.set_text(
             (boost::format(_("dsp load  %1% %%")) % oc.load).str().c_str(),
             Gtk::CORNER_TOP_LEFT);
     }
-    int frames = gx_jack::gxjack.time_is/100000;
+    int frames = jack.time_is/100000;
     if (!oc.bsize || oc.frames != frames) {
         oc.frames = frames;
         fWaveView.set_text(
             (boost::format(_("ht frames %1%")) % oc.frames).str().c_str(),
             Gtk::CORNER_BOTTOM_LEFT);
     }
-    if (!oc.bsize || oc.rt != gx_jack::gxjack.is_rt) {
-        oc.rt = gx_jack::gxjack.is_rt;
+    if (!oc.bsize || oc.rt != jack.is_rt) {
+        oc.rt = jack.is_rt;
         fWaveView.set_text(
             oc.rt ? _("RT mode  yes ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
             Gtk::CORNER_BOTTOM_RIGHT);
     }
-    if (!oc.bsize || oc.bsize != gx_jack::gxjack.jack_bs) {
-        oc.bsize = gx_jack::gxjack.jack_bs;
+    if (!oc.bsize || oc.bsize != jack.jack_bs) {
+        oc.bsize = jack.jack_bs;
         fWaveView.set_text(
             (boost::format(_("latency    %1%")) % oc.bsize).str().c_str(),
             Gtk::CORNER_TOP_RIGHT);
@@ -2873,6 +2837,14 @@ void GxMainInterface::addAboutMenu() {
     /*---------------- End About menu declarations ----------------*/
 }
 
+void gx_jack_connection(GtkCheckMenuItem* p, gpointer) {
+    GxMainInterface::instance().jack.gx_jack_connection(p);
+}
+
+void gx_set_jack_buffer_size(GtkCheckMenuItem* p, gpointer data) {
+    GxMainInterface::instance().jack.gx_set_jack_buffer_size(p, data);
+}
+
 /*---------------- Jack Server Menu ----------------*/
 void GxMainInterface::addJackServerMenu() {
     GtkWidget* menulabel; // menu label
@@ -2887,7 +2859,7 @@ void GxMainInterface::addJackServerMenu() {
     gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup,
                                GDK_c, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_jack::gxjack.gx_jack_connection), NULL);
+                      G_CALLBACK(gx_jack_connection), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
 
     gtk_widget_show(menuitem);
@@ -2922,7 +2894,7 @@ void GxMainInterface::addJackServerMenu() {
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), FALSE);
 
         g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                          G_CALLBACK(gx_jack::gxjack.gx_set_jack_buffer_size),
+                          G_CALLBACK(gx_set_jack_buffer_size),
                           GINT_TO_POINTER(jack_buffer_size));
 
         // display actual buffer size as default
@@ -2937,7 +2909,7 @@ void GxMainInterface::addJackServerMenu() {
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), FALSE);
 
         g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                          G_CALLBACK(gx_jack::gxjack.gx_set_jack_buffer_size),
+                          G_CALLBACK(gx_set_jack_buffer_size),
                           GINT_TO_POINTER(jack_buffer_size));
 
         // display actual buffer size as default
@@ -2949,8 +2921,8 @@ void GxMainInterface::addJackServerMenu() {
 }
 
 
-void GxMainInterface::set_waveview_buffer() {
-    fWaveView.set_frame(gx_engine::audio.result, gx_jack::gxjack.jack_bs);
+void GxMainInterface::set_waveview_buffer(unsigned int size) {
+    fWaveView.set_frame(engine.oscilloscope.get_buffer(), size);
 }
 
 // ---- show main GUI
@@ -2961,11 +2933,11 @@ void GxMainInterface::show() {
     assert(fTop == 0);
     fInitialized = true;
 
-    if (gx_jack::gxjack.client) {
+    if (jack.client) {
         // refresh some GUI stuff
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(fJackConnectItem), TRUE);
 
-        GtkWidget* wd = getJackLatencyItem(gx_jack::gxjack.jack_bs);
+        GtkWidget* wd = getJackLatencyItem(jack.jack_bs);
         if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 
         // string window_name = "gx_head"; FIXME is set by recall settings
@@ -2993,7 +2965,7 @@ void GxMainInterface::on_oscilloscope_post_pre(int post_pre) {
 
 int GxMainInterface::on_oscilloscope_activate(bool start) {
     if (!start) {
-	gx_engine::get_engine().oscilloscope.clear_buffer();
+	engine.oscilloscope.clear_buffer();
 	fWaveView.queue_draw();
     }
     return 0;
@@ -3044,7 +3016,6 @@ void GxMainInterface::run() {
         }
     }
 #endif
-    set_waveview_buffer();
     gtk_main();
 }
 

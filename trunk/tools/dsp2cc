@@ -70,6 +70,23 @@ class UIDefs(object):
         for v, r in self.ui.items():
             r.write(fp, v, prefix)
 
+    def check_parameter(self, fname, uiname, l):
+        s1 = set(l)
+        s2 = set([v["id"] for v in self.ui.values()])
+        d = s2 - s1
+        errlevel = 0
+        if d:
+            print ("%s:warning: parameters in faust dsp not used in %s: %s"
+                   % (fname, uiname, ", ".join(d)))
+            errlevel = 1
+        d = s1 - s2
+        if d:
+            print ("%s:error: parameters in %s not found in faust dsp: %s"
+                   % (fname, uiname, ", ".join(d)))
+            errlevel = 2
+        return errlevel
+
+
 class Parser(object):
 
     def skip_until(self, exp):
@@ -493,12 +510,12 @@ def output(fp, p, fname, options):
         fp.write(state);
         fp.write("}\n\n")
     if state and not has_activate:
-        fp.write("static void init(int samplingFreq, PluginDef* = 0)\n{\n")
+        fp.write("static void init(unsigned int samplingFreq, PluginDef* = 0)\n{\n")
         p.write(fp, "var-init", 1, filt=p.ui.var_filter(1))
         fp.write('\tclear_state();\n')
         fp.write("}\n\n")
     else:
-        fp.write("static void init(int samplingFreq, PluginDef* = 0)\n{\n")
+        fp.write("static void init(unsigned int samplingFreq, PluginDef* = 0)\n{\n")
         p.write(fp, "var-init", 1, filt=p.ui.var_filter(1))
         fp.write("}\n\n")
     if has_activate:
@@ -510,10 +527,14 @@ def output(fp, p, fname, options):
         p.write(fp, "var-free", 1)
         fp.write("}\n\n")
         fp.write(activate)
-    fp.write("%s(int count%s%s)\n{\n" % (
+    fp.write("%s(int count%s%s" % (
         "static void compute" if options.init_type == "plugin" else "void compute",
         "".join([", float *input%d" % i for i in range(p.getNumInputs())]),
         "".join([", float *output%d" % i for i in range(p.getNumOutputs())])))
+    if options.init_type == "plugin":
+        fp.write(", PluginDef *)\n{\n")
+    else:
+        fp.write(")\n{\n")
     p.write(fp, "compute", 1)
     fp.write("\t}\n}\n\n")
     if options.init_type == "ctor":
@@ -529,13 +550,23 @@ def output(fp, p, fname, options):
         load_ui = "0"
         ui_name = fname.replace(".dsp", "_ui.glade")
         if os.path.exists(ui_name):
-            fp.write(loadui_glade % file(ui_name).read().replace("\\",r"\\").replace("\n","\\n\\\n").replace('"',r'\"'))
+            xml = file(ui_name).read()
+            if p.ui.check_parameter(
+                fname, ui_name,
+                re.findall('<property name="var_id">([^<]*)</property>',xml)):
+                raise SystemExit, 1
+            fp.write(loadui_glade % xml.replace("\\",r"\\").replace("\n","\\n\\\n").replace('"',r'\"'))
             load_ui = "load_ui"
         else:
             ui_name = fname.replace(".dsp", "_ui.cc")
             if os.path.exists(ui_name):
+                ccdef = file(ui_name).read()
+                if p.ui.check_parameter(
+                    fname, ui_name,
+                    re.findall(r'\.create_[a-zA-Z0-9_]+\("([^"]*)',ccdef)):
+                    raise SystemExit, 1
                 fp.write("\n")
-                fp.write(file(ui_name).read())
+                fp.write(ccdef)
                 load_ui = "load_ui"
         plugin_id = p.toplevel or p.topname
         if p.groups:

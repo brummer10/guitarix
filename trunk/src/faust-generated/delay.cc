@@ -17,7 +17,7 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 }
 
-static void init(int samplingFreq, PluginDef* = 0)
+static void init(unsigned int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
@@ -50,7 +50,7 @@ static int activate(bool start, PluginDef* = 0)
     return 0;
 }
 
-static void compute(int count, float *input0, float *output0)
+static void compute(int count, float *input0, float *output0, PluginDef *)
 {
 	float 	fSlow0 = (fConst0 * fslider0);
 	int 	iSlow1 = int(fSlow0);

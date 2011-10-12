@@ -418,9 +418,9 @@ def configure(conf):
         conf.check_tool('compiler_cc')
     # needed libaries
     try:
-        conf.check_cfg(package='jack', atleast_version='0.109.1', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
+        conf.check_cfg(package='jack', atleast_version='0.116.2', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
     except ConfigurationError:
-        conf.check_cfg(package='jack', atleast_version='1.9.1', args='--cflags --libs', uselib_store='JACK', mandatory=1)
+        conf.check_cfg(package='jack', atleast_version='1.9.2', args='--cflags --libs', uselib_store='JACK', mandatory=1)
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)
     conf.check_cfg(package='gtk+-2.0', atleast_version='2.12.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
@@ -431,6 +431,7 @@ def configure(conf):
     if not Options.options.no_ladspa:
         conf.check(header_name='ladspa.h', mandatory=1)
     conf.check(header_name='boost/format.hpp', mandatory=1)
+    conf.check(header_name='boost/thread.hpp', mandatory=1)
     # convolver and resampler
     if not Options.options.includeconvolver:
         expected_zita_convolver_version = 2

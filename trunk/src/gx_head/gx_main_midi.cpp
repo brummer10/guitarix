@@ -175,7 +175,7 @@ MidiControllerTable::MidiControllerTable(GtkCheckMenuItem *item) {
                      "edited", G_CALLBACK(edited_cb), store);
 
     gtk_window_add_accel_group(GTK_WINDOW(window),
-                               gx_gui::GxMainInterface::instance()->fAccelGroup);
+                               gx_gui::GxMainInterface::instance().fAccelGroup);
 
     gtk_widget_show(window);
     g_object_unref(G_OBJECT(builder));

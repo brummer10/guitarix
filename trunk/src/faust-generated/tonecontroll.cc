@@ -95,7 +95,7 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<2; i++) fRec22[i] = 0;
 }
 
-static void init(int samplingFreq, PluginDef* = 0)
+static void init(unsigned int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
@@ -129,7 +129,7 @@ static void init(int samplingFreq, PluginDef* = 0)
 	clear_state();
 }
 
-static void compute(int count, float *input0, float *input1, float *output0, float *output1)
+static void compute(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *)
 {
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
 	double 	fSlow1 = (0.0010000000000000009 * pow(10,(0.05 * fslider1)));

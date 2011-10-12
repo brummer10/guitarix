@@ -44,7 +44,6 @@ using namespace std;
 #include "./gx_system.h"
 #include "./gx_parameter.h"
 #include "./gx_json.h"
-#include "./gx_jack.h"
 #include "./gx_portmap.h"
 #include "./gx_child_process.h"
 #include "./gx_convolver.h"
@@ -56,8 +55,10 @@ using namespace std;
 #include "./gx_jconv_settings.h"
 #include "gx_pluginloader.h"
 #include "./gx_ui.h"
+#include "gx_modulesequencer.h"
 #include "gx_internal_plugins.h"
 #include "./gx_engine.h"
+#include "./gx_jack.h"
 #include "./gx_gui_helpers.h"
 #include "./gx_main_midi.h"
 

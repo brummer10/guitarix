@@ -490,8 +490,3 @@ void printlist(const char *title, const list<Plugin*>& modules, bool header) {
     }
 }
 #endif
-
-PluginList& get_pluginlist() {
-    static PluginList pl;
-    return pl;
-}

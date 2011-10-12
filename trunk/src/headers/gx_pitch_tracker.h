@@ -26,6 +26,7 @@
 #define SRC_HEADERS_GX_PITCH_TRACKER_H_
 
 #include <zita-resampler.h>
+#include <fftw3.h>
 
 namespace gx_engine {
 /* ------------- Pitch Tracker ------------- */
@@ -34,18 +35,16 @@ class PitchTracker {
  public:
     PitchTracker();
     ~PitchTracker();
-    bool            pt_initialized;
-    bool            setParameters(int sampleRate, int fftSize );
-    void            init();
+    void            init(int priority, int policy, unsigned int samplerate);
     void            add(int count, float *input);
     float           tuner_estimate();
     void            stop_thread();
-
  private:
+    bool            setParameters(int priority, int policy, int sampleRate, int fftSize );
     void            run();
     static void     *static_run(void* p);
     void            setEstimatedFrequency(float freq);
-    void            start_thread();
+    void            start_thread(int policy, int priority);
     void            copy();
     bool            error;
     volatile bool   busy;
@@ -76,6 +75,5 @@ class PitchTracker {
     fftwf_plan      m_fftwPlanIFFT;
 };
 
-extern PitchTracker pitch_tracker;
 }
 #endif  // SRC_HEADERS_GX_PITCH_TRACKER_H_

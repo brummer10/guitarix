@@ -398,7 +398,7 @@ public:
 class GxMainInterface : public gx_ui::GxUI {
  private:
     // private constructor
-    explicit GxMainInterface(const char* name);
+    explicit GxMainInterface(gx_engine::GxEngine&, gx_jack::GxJack&);
 
     void                  addMainMenu();
     void                  addEngineMenu();
@@ -462,6 +462,8 @@ class GxMainInterface : public gx_ui::GxUI {
     virtual void          pushBox(int mode, GtkWidget* w);
 
  public :
+    gx_engine::GxEngine&  engine;
+    gx_jack::GxJack&      jack;
     MenuCheckItem         fShowRack;
     MenuCheckItem         fShowRRack;
     MenuCheckItem         fShowSRack;
@@ -479,7 +481,7 @@ class GxMainInterface : public gx_ui::GxUI {
     static const gboolean fill     = TRUE;
     static const gboolean homogene = FALSE;
 
-    static GxMainInterface* instance(const char* name = "");
+    static GxMainInterface& instance(gx_engine::GxEngine* = 0, gx_jack::GxJack* = 0);
 
     // for key acclerators
     GtkAccelGroup* fAccelGroup;
@@ -491,7 +493,7 @@ class GxMainInterface : public gx_ui::GxUI {
     GtkWidget*   const    getJackLatencyItem(const jack_nframes_t bufsize) const;
     GtkWidget*   const    getMenu(const string name) { return fMenuList[name]; }
     
-    void                  set_waveview_buffer();
+    void                  set_waveview_buffer(unsigned int);
     Gxw::WaveView&        getWaveView()               { return fWaveView;        }
 
     Gxw::FastMeter&       getLevelMeter(unsigned int i) {
