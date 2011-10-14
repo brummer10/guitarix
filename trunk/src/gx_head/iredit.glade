@@ -1093,7 +1093,7 @@ it can be mono or stereo
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkBox" id="box1">
+                              <object class="GtkHBox" id="box1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="orientation">horizontal</property>
