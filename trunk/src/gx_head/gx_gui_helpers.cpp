@@ -101,28 +101,28 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
 
 /* --------- menu function triggering engine on/off/bypass --------- */
 void gx_engine_switch(GtkWidget* widget, gpointer arg) {
-    gx_engine::ModuleSequencer::GxEngineState estate = GxMainInterface::instance().engine.get_state();
+    gx_engine::GxEngineState estate = GxMainInterface::instance().engine.get_state();
 
     switch (estate) {
-    case gx_engine::ModuleSequencer::kEngineOn:
-        estate = gx_engine::ModuleSequencer::kEngineOff;
+    case gx_engine::kEngineOn:
+        estate = gx_engine::kEngineOff;
         if (arg) {
             // need to activate item
             gtk_check_menu_item_set_active(
                 GTK_CHECK_MENU_ITEM(gw.gx_engine_item), TRUE
                 );
-            estate = gx_engine::ModuleSequencer::kEngineBypass;
+            estate = gx_engine::kEngineBypass;
         }
 
         break;
 
-    case gx_engine::ModuleSequencer::kEngineOff:
+    case gx_engine::kEngineOff:
         if (!arg)
-            estate = gx_engine::ModuleSequencer::kEngineOn;
+            estate = gx_engine::kEngineOn;
         break;
 
     default:
-        estate = gx_engine::ModuleSequencer::kEngineOn;
+        estate = gx_engine::kEngineOn;
         gtk_check_menu_item_set_active(
             GTK_CHECK_MENU_ITEM(gw.gx_engine_item), TRUE
             );
@@ -134,13 +134,13 @@ void gx_engine_switch(GtkWidget* widget, gpointer arg) {
 
 /* -------------- refresh engine status display ---------------- */
 void gx_refresh_engine_status_display() {
-    gx_engine::ModuleSequencer::GxEngineState estate = GxMainInterface::instance().engine.get_state();
+    gx_engine::GxEngineState estate = GxMainInterface::instance().engine.get_state();
 
     string state;
 
     switch (estate) {
 
-    case gx_engine::ModuleSequencer::kEngineOff:
+    case gx_engine::kEngineOff:
         gtk_widget_show(gw.gx_engine_off_image);
         gtk_widget_hide(gw.gx_engine_on_image);
         gtk_widget_hide(gw.gx_engine_bypass_image);
@@ -151,7 +151,7 @@ void gx_refresh_engine_status_display() {
         state = "OFF";
         break;
 
-    case gx_engine::ModuleSequencer::kEngineBypass:
+    case gx_engine::kEngineBypass:
         gtk_widget_show(gw.gx_engine_bypass_image);
         gtk_widget_hide(gw.gx_engine_off_image);
         gtk_widget_hide(gw.gx_engine_on_image);
@@ -162,7 +162,7 @@ void gx_refresh_engine_status_display() {
         state = "BYPASSED";
         break;
 
-    case gx_engine::ModuleSequencer::kEngineOn:
+    case gx_engine::kEngineOn:
     default: // ON
         gtk_widget_show(gw.gx_engine_on_image);
         gtk_widget_hide(gw.gx_engine_off_image);
@@ -194,7 +194,7 @@ void gx_jack_is_down() {
                      "jack has bumped us out!!");
     */
     std::cout << _("jack has bumped us out!!") << endl;
-    GxMainInterface::instance().jack.jack_is_exit = true;
+    GxMainInterface::instance().jack.set_jack_exit(true);
     GxMainInterface::instance().engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     g_timeout_add_full(G_PRIORITY_LOW, 200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
 }

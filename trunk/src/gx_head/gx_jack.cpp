@@ -54,6 +54,14 @@ GxJack::GxJack(gx_engine::GxEngine& engine_):
     engine.set_jack(this);
 }
 
+void GxJack::set_jack_exit(bool v) {
+    jack_is_exit = v;
+}
+
+void GxJack::set_jack_down(bool v) {
+    jack_is_down = v;
+}
+
 // ----- pop up a dialog for starting jack
 bool GxJack::gx_jack_init(const string *optvar) {
     jack_status_t jackstat;
@@ -62,8 +70,8 @@ bool GxJack::gx_jack_init(const string *optvar) {
     client_instance =       "gx_head";
 
     int jack_is_fresh =     0;
-    jack_is_down =          false;
-    jack_is_exit =          false;
+    set_jack_down(false);
+    set_jack_exit(false);
     engine.set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
 
     AVOIDDENORMALS;
@@ -137,7 +145,7 @@ bool GxJack::gx_jack_init(const string *optvar) {
     }
 
     // ----------------------------------
-    jack_is_down = false;
+    set_jack_down(false);
     is_rt = jack_is_realtime(client);
 
     // it is maybe not the 1st gx_head instance ?
@@ -400,7 +408,7 @@ bool GxJack::gx_start_jack_dialog() {
 
     switch (response) {
     case GTK_RESPONSE_NO:
-        jack_is_down = true;
+        set_jack_down(true);
         break;
 
     case GTK_RESPONSE_CANCEL:
@@ -507,7 +515,7 @@ void GxJack::gx_jack_connection(GtkCheckMenuItem *menuitem) {
                 gtk_widget_show(gx_gui::gw.gx_jackd_on_image);
                 gtk_widget_hide(gx_gui::gw.gx_jackd_off_image);
             }
-            jack_is_exit = false;
+            set_jack_exit(false);
             gx_system::gx_print_info(_("Jack Server"), _("Connected to Jack Server"));
         }
     } else {
@@ -582,8 +590,8 @@ void GxJack::gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg) {
 
 // -----Function that cleans the jack stuff on shutdown
 void GxJack::gx_jack_cleanup() {
-    if (client && !jack_is_down) {
-        jack_is_exit = true;
+    if (client && !is_jack_down()) {
+        set_jack_exit(true);
 	engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
         jack_deactivate(client);
         jack_deactivate(client_insert);
@@ -625,7 +633,7 @@ int GxJack::gx_jack_srate_callback(jack_nframes_t frames, void* arg) {
 // ---- jack shutdown callback in case jackd shuts down on us
 void GxJack::gx_jack_shutdown_callback(void *arg) {
     // global var to let all know that jack is down
-    static_cast<GxJack*>(arg)->jack_is_down = true;
+    static_cast<GxJack*>(arg)->set_jack_down(true);
     // helper funktion to start gx_survive_jack_shutdown thread
     gx_gui::gx_jack_is_down();
 }
@@ -683,7 +691,7 @@ int GxJack::gx_jack_midi_process(jack_nframes_t nframes, float *input) {
 int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
     gx_system::measure_start();
     GxJack& self = *static_cast<GxJack*>(arg);
-    if (!self.jack_is_exit) {
+    if (!self.is_jack_exit()) {
         AVOIDDENORMALS;
 
         // retrieve buffers at jack ports
@@ -719,7 +727,7 @@ int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
 int GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) {
     GxJack& self = *static_cast<GxJack*>(arg);
     gx_system::measure_cont();
-    if (!self.jack_is_exit) {
+    if (!self.is_jack_exit()) {
         AVOIDDENORMALS;
         _jackbuffer_ptr->input1 = static_cast<float *>
                         (jack_port_get_buffer(self.input_ports[1], nframes));

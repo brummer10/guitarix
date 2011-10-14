@@ -55,6 +55,8 @@ class GxJack {
     bool                gx_start_jack_dialog();
     bool                gx_start_jack(void* arg);
     gx_engine::GxEngine& engine;
+    bool                jack_is_down;
+    bool                jack_is_exit;
     static int          gx_jack_srate_callback(jack_nframes_t, void* arg);
     static int          gx_jack_xrun_callback(void* arg);
     static int          gx_jack_buffersize_callback(jack_nframes_t, void* arg);
@@ -69,6 +71,10 @@ class GxJack {
 #endif
     void                gx_jack_activate();
  public:
+    bool                is_jack_down() { return jack_is_down; }
+    void                set_jack_down(bool);
+    bool                is_jack_exit() { return jack_is_exit; }
+    void                set_jack_exit(bool);
     static const int    nIPorts = 2; // for both jack clients
     static const int    nOPorts = 4; // 2 * stereo output (1 unused)
     jack_nframes_t      jack_sr;   // jack sample rate
@@ -84,9 +90,6 @@ class GxJack {
 
     void*               midi_input_port_buf;
     void*               midi_port_buf;
-
-    bool                jack_is_down;
-    bool                jack_is_exit;
 
     float               jcpu_load; // jack cpu_load
     float               xdel;      // last xrun delay

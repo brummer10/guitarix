@@ -167,6 +167,7 @@ class GxEngine: public ModuleSequencer {
 private:
     gx_ui::GxUI ui;
 public:
+    // internal audio modules
     NoiseGate noisegate;
     MonoMute monomute;
     StereoMute stereomute;

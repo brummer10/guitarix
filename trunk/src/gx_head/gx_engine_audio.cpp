@@ -64,8 +64,7 @@ void ProcessingChainBase::set_samplerate(int samplerate) {
 
 void ProcessingChainBase::try_set_ramp_mode(RampMode oldmode, RampMode newmode, int oldrv, int newrv) {
     if (oldmode != newmode) {
-	if (!g_atomic_int_compare_and_exchange(
-		reinterpret_cast<gint*>(&ramp_mode), oldmode, newmode)) {
+	if (!g_atomic_int_compare_and_exchange(&ramp_mode, oldmode, newmode)) {
 	    return;
 	}
     }
@@ -388,7 +387,6 @@ ModuleSequencer::ModuleSequencer():
 
 void ModuleSequencer::init(unsigned int samplerate, unsigned int buffersize,
 			   int policy_, int priority_) {
-    printf("I %d %d\n", buffersize, samplerate);
     set_buffersize(buffersize);
     set_samplerate(samplerate);
     policy = policy_;
@@ -493,7 +491,7 @@ void ModuleSequencer::set_state(GxEngineState state) {
     set_rack_changed();
 }
 
-ModuleSequencer::GxEngineState ModuleSequencer::get_state() {
+GxEngineState ModuleSequencer::get_state() {
     if (audio_mode & PGN_MODE_NORMAL) {
 	return kEngineOn;
     } else if (audio_mode & PGN_MODE_BYPASS) {

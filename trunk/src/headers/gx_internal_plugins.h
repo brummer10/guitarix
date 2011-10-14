@@ -156,7 +156,7 @@ class GxJConvSettings {
     guint           fLength;     // length of the IR to use for convolution
     guint           fDelay;      // delay when to apply reverb
     Gainline        gainline;
-    guint           fGainCor;
+    bool            fGainCor;
 
     void read_gainline(gx_system::JsonParser& jp);
     void read_favorites(gx_system::JsonParser& jp);
@@ -177,13 +177,13 @@ class GxJConvSettings {
     inline guint           getOffset() const      { return fOffset; }
     inline guint           getLength() const      { return fLength; }
     inline guint           getDelay() const       { return fDelay; }
-    inline guint           getGainCor() const     { return fGainCor; }
+    inline bool            getGainCor() const     { return fGainCor; }
     inline const Gainline& getGainline() const    { return gainline; }
     inline string getIRDir() const                { return fIRDir; }
     void setFullIRPath(string name);
 
     inline void setGain(float gain)               { fGain       = gain; }
-    inline void setGainCor(guint gain)            { fGainCor       = gain; }
+    inline void setGainCor(bool gain)             { fGainCor    = gain; }
     inline void setOffset(guint offs)             { fOffset     = offs; }
     inline void setLength(guint leng)             { fLength     = leng; }
     inline void setDelay(guint del)               { fDelay      = del;  }
@@ -196,7 +196,8 @@ class GxJConvSettings {
 
     // checkbutton state
     static bool* checkbutton7;
-    vector<Glib::ustring>        faflist;
+    list<Glib::ustring> faflist;
+    typedef list<Glib::ustring>::iterator faf_iterator;
     void writeJSON(gx_system::JsonWriter& w);
 };
 

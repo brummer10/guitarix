@@ -65,5 +65,4 @@ using namespace std;
 #include "./gx_main_interface.h"
 #include "./gx_main_boxes.h"
 
-
 #endif  // SRC_HEADERS_GUITARIX_H_

@@ -370,13 +370,11 @@ void GxJConvSettings::writeJSON(gx_system::JsonWriter& w) {
     
    // w.end_object(true);
     w.write_key("jconv.favorits");
-    w.begin_array();
-    vector<Glib::ustring>::iterator its;
+    w.begin_array(true);
     bool end = true;
-    for (its = faflist.begin(); its != faflist.end(); its++) {
+    for (faf_iterator its = faflist.begin(); its != faflist.end(); its++) {
         w.begin_array();
         w.write(*its);
-        if (its == faflist.end()-1) end = false;
         w.end_array(end);
     }
     w.end_array(true);

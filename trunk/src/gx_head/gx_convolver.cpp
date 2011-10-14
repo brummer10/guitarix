@@ -266,7 +266,7 @@ bool GxConvolver::read_sndfile(
         }
     }
 
-    unsigned int gain_cor = gx_engine::get_engine().convolver.jcset.getGainCor(); //FIXME
+    bool gain_cor = gx_engine::get_engine().convolver.jcset.getGainCor(); //FIXME
     double gain_t[nchan];
     if (!gain_cor) {
         for (int ichan = 0; ichan < nchan; ichan++) {

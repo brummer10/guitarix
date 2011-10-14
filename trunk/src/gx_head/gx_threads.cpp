@@ -77,13 +77,13 @@ gboolean gx_xrun_report(gpointer arg) {
 /* --------- load preset triggered by midi program change --------- */
 gboolean gx_do_program_change(gpointer arg) {
     int pgm = GPOINTER_TO_INT(arg);
-    gx_engine::ModuleSequencer::GxEngineState estate = gx_gui::GxMainInterface::instance().engine.get_state();
+    gx_engine::GxEngineState estate = gx_gui::GxMainInterface::instance().engine.get_state();
     if (gx_preset::gxpreset.gx_nth_preset(pgm)) {
-        if (estate == gx_engine::ModuleSequencer::kEngineBypass)
+        if (estate == gx_engine::kEngineBypass)
             // engine bypass but preset found -> engine on
             gx_gui::gx_engine_switch(reinterpret_cast<GtkWidget*>(0), (gpointer)1);
     } else {
-        if (estate == gx_engine::ModuleSequencer::kEngineOn)
+        if (estate == gx_engine::kEngineOn)
             // engine on but preset not found -> engine bypass
             gx_gui::gx_engine_switch(reinterpret_cast<GtkWidget*>(0), (gpointer)1);
     }
@@ -97,7 +97,7 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
 
     // return if jack is not down
     if (gx_system::gx_system_call("pgrep", "jackd", true) == gx_system::sysvar.SYSTEM_OK) {
-        if (gx_gui::GxMainInterface::instance().jack.jack_is_down) {
+        if (gx_gui::GxMainInterface::instance().jack.is_jack_down()) {
             // let's make sure we get out of here
             if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(wd)))
                 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
@@ -113,7 +113,7 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
         // more than once, no harm here
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), FALSE);
         *gx_engine::GxJConvSettings::checkbutton7 = 0;
-        gx_gui::GxMainInterface::instance().jack.jack_is_down = true;
+        gx_gui::GxMainInterface::instance().jack.set_jack_down(true);
     }
     // run as long jackd is down
     return true;

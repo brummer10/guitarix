@@ -243,30 +243,40 @@ public:
  ** class ModuleSequencer
  */
 
+enum GxEngineState {  // engine states set by user (ModuleSequencer set_state/get_state)
+    kEngineOff    = 0,  // mute, no output (by tuner or something might run)
+    kEngineOn     = 1,  // normal operation
+    kEngineBypass = 2   // just some balance or level control
+};
+
+
 class ModuleSequencer {
+
 protected:
-    list<ModuleSelector*> selectors;
-    bool rack_changed;
-    int audio_mode;
-    int policy;
-    int priority;
+    list<ModuleSelector*> selectors; // selectors that modify the on/off state of
+				     // modules at start of reconfiguration
+    bool rack_changed;  // triggers reconfiguration of module chains
+    int audio_mode;     // GxEngineState coded as PGN_MODE_XX flags
+    int policy;         // jack realtime policy,
+    int priority;       // and priority, for internal modules
+
 public:
-    PluginList pluginlist;
-    enum GxEngineState {
-	kEngineOff    = 0,
-	kEngineOn     = 1,
-	kEngineBypass = 2
-    };
-    MonoModuleChain mono_chain;
-    StereoModuleChain stereo_chain;
-    enum StateFlag {
-	SF_NO_CONNECTION = 0x01,
-	SF_JACK_RECONFIG = 0x02,
-	SF_INITIALIZING  = 0x04,
+    PluginList pluginlist;  
+    MonoModuleChain mono_chain;  // active modules (amp chain, input to insert output)
+    StereoModuleChain stereo_chain;  // active stereo modules (effect chain, after insert input)
+    enum StateFlag {  // engine is off if one of these flags is set
+	SF_NO_CONNECTION = 0x01,  // no jack connection at amp input
+	SF_JACK_RECONFIG = 0x02,  // jack buffersize reconfiguration in progress
+	SF_INITIALIZING  = 0x04,  // jack or engine not ready
     };
     int stateflags;
+
+    // signal anyone who needs to be synchronously notified
+    // BE CAREFUL: executed by RT thread (though not concurrent with audio
+    // modules, and timing requirements are relaxed)
     sigc::signal<void, unsigned int> buffersize_change;
     sigc::signal<void, unsigned int> samplerate_change;
+
 public:
     ModuleSequencer();
     ~ModuleSequencer();

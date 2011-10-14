@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
 
         // -------- set jack callbacks and activation -------------------
         gui.jack.gx_jack_callbacks();
-	gx_engine::get_engine().set_state(gx_engine::ModuleSequencer::kEngineOn);
+	gx_engine::get_engine().set_state(gx_engine::kEngineOn);
 
         // -------- init port connections
         gui.jack.gx_jack_init_port_connection(options.optvar);
