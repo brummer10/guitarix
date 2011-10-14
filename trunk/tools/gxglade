@@ -1,6 +1,8 @@
 #! /bin/dash
 dir="`dirname "$0"`"
-export GLADE_CATALOG_PATH="$dir/../lib"
-export GLADE_MODULE_PATH="$dir/../build/default/lib"
-export LD_LIBRARY_PATH="$GLADE_MODULE_PATH"
+export GLADE_CATALOG_PATH="$dir/../glade-gxw"
+export GLADE_MODULE_PATH="$dir/../build/default/glade-gxw"
+export LD_LIBRARY_PATH="$GLADE_MODULE_PATH:$dir/../build/default/libgxw/gxw"
+exec glade-gtk2 "$@"
+echo glade-gtk2 not found.. starting glade (make sure it's the gtk2 version!)
 exec glade "$@"
