@@ -49,9 +49,16 @@ GType gx_paint_func_get_type(void)
 			{13, "slooper_expose", "slooper_expose" },
 			{14, "zac_expose", "zac expose" },
 			{15, "gxhead_expose", "gxhead_expose" },
-			{16, "gxrack_expose", "gxrack_expose" },
-			{17, "eq_expose", "eq_expose" },
-			{18, "RackBox_expose", "RackBox_expose" },
+			{16, "RackBox_expose", "RackBox_expose"},
+			{17, "gxrack_expose", "gxrack_expose" },
+			{18, "lhfilter_expose", "lhfilter_expose" },
+			{19, "crybaby_expose", "crybaby_expose" },
+			{20, "compressor_expose", "compressor_expose" },
+			{21, "eq_expose", "eq_expose" },
+			{22, "led_expose", "led_expose" },
+			{23, "seq_expose", "seq_expose" },
+			{24, "ir_expose", "ir_expose" },
+			{25, "main_expose", "main_expose" },
 			{ 0, NULL, NULL }
 		};
 		etype = g_enum_register_static (g_intern_static_string ("GxPaintFunc"), values);
