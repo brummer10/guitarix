@@ -502,7 +502,7 @@ void GxJack::gx_jack_connection(GtkCheckMenuItem *menuitem) {
                 gx_jack_init_port_connection(optvar);
 
                 // refresh latency check menu
-                gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance();
+                gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
                 GtkWidget* wd = gui.getJackLatencyItem(jack_bs);
                 if (wd) {
                     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
@@ -579,7 +579,7 @@ void GxJack::gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg) {
                              _("Could not change latency"));
     } else { // restore latency status
         // refresh latency check menu
-        gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance();
+        gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
         GtkWidget* wd = gui.getJackLatencyItem(jack_bs);
         if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
     }
@@ -654,11 +654,6 @@ int GxJack::gx_jack_buffersize_callback(jack_nframes_t nframes, void* arg) {
     }
     self.engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     self.jack_bs = nframes;
-
-    if (gx_engine::audio.oversample)  delete[] gx_engine::audio.oversample;
-
-    gx_engine::audio.oversample = new float[self.jack_bs*MAX_UPSAMPLE];
-    (void)memset(gx_engine::audio.oversample, 0, sizeof(float)*self.jack_bs*MAX_UPSAMPLE);
 
     self.engine.buffersize_change(nframes);
     self.engine.clear_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
@@ -780,7 +775,7 @@ void GxJack::gx_jack_portreg_callback(jack_port_id_t pid, int reg, void* arg) {
 #ifdef HAVE_JACK_SESSION
 static int gx_jack_session_callback_helper(gpointer data) {
     jack_session_event_t *event = reinterpret_cast<jack_session_event_t *>(data);
-    const char* uuid2 = jack_get_uuid_for_client_name(get_jack().client_insert, get_jack().client_insert_name.c_str());
+    const char* uuid2 = jack_get_uuid_for_client_name(gx_gui::GxMainInterface::get_instance().jack.client_insert, gx_gui::GxMainInterface::get_instance().jack.client_insert_name.c_str());
     string fname(event->session_dir);
     fname += "gx_head.state";
     string cmd("guitarix -U ");
@@ -789,11 +784,11 @@ static int gx_jack_session_callback_helper(gpointer data) {
     cmd += uuid2;
     cmd += " -f ${SESSION_DIR}gx_head.state";
 
-    gx_system::saveStateToFile(fname, get_jack());
+    gx_system::saveStateToFile(fname, gx_gui::GxMainInterface::get_instance().jack);
 
     event->command_line = strdup(cmd.c_str());
 
-    jack_session_reply(get_jack().client, event);
+    jack_session_reply(gx_gui::GxMainInterface::get_instance().jack.client, event);
 
     if (event->type == JackSessionSaveAndQuit) {
         gx_system::sysvar.is_session = true;

@@ -397,9 +397,7 @@ public:
 
 class GxMainInterface : public gx_ui::GxUI {
  private:
-    // private constructor
-    explicit GxMainInterface(gx_engine::GxEngine&, gx_jack::GxJack&);
-
+    static GxMainInterface *instance;
     void                  addMainMenu();
     void                  addEngineMenu();
     void                  addJackServerMenu();
@@ -463,7 +461,7 @@ class GxMainInterface : public gx_ui::GxUI {
 
  public :
     gx_engine::GxEngine&  engine;
-    gx_jack::GxJack&      jack;
+    gx_jack::GxJack       jack;
     MenuCheckItem         fShowRack;
     MenuCheckItem         fShowRRack;
     MenuCheckItem         fShowSRack;
@@ -481,10 +479,13 @@ class GxMainInterface : public gx_ui::GxUI {
     static const gboolean fill     = TRUE;
     static const gboolean homogene = FALSE;
 
-    static GxMainInterface& instance(gx_engine::GxEngine* = 0, gx_jack::GxJack* = 0);
-
     // for key acclerators
     GtkAccelGroup* fAccelGroup;
+
+public:
+    explicit GxMainInterface(gx_engine::GxEngine&);
+    ~GxMainInterface();
+    static GxMainInterface& get_instance() { assert(instance); return *instance; }
 
     // -- acquire a pointer to the logging window
     GtkTextView* const    getLoggingWindow()    const { return fLoggingWindow;   }

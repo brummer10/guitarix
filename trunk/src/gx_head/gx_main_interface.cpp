@@ -197,11 +197,13 @@ int gx_set_my_oriantation() {
     return (gint) gx_gui::guivar.main_yorg;
 }
 
+GxMainInterface* GxMainInterface::instance = 0;
+
 /* create main window*/
-GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_jack::GxJack& jack_)
+GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_)
     : fTuner(this, &gx_engine::audio.fConsta1t),
       engine(engine_),
-      jack(jack_) {
+      jack(engine_) {
     highest_unseen_msg_level = -1;
 
     /*-- set rc file overwrite it with export--*/
@@ -254,12 +256,11 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_jack::GxJack& 
 	sigc::mem_fun(*this, &GxMainInterface::set_waveview_buffer));
 
     fStopped = false;
+    instance = this;
 }
 
-// ------- create or retrieve unique instance
-GxMainInterface& GxMainInterface::instance(gx_engine::GxEngine *engine_, gx_jack::GxJack *jack_) {
-    static GxMainInterface maingui(*engine_, *jack_);
-    return maingui;
+GxMainInterface::~GxMainInterface() {
+    instance = 0;
 }
 
 /****************************************************************
@@ -325,7 +326,7 @@ static void logging_set_color(GtkWidget *w, gpointer data) {
 }
 
 static bool on_logger_delete_event() {
-    GxMainInterface& gui = GxMainInterface::instance();
+    GxMainInterface& gui = GxMainInterface::get_instance();
     gtk_check_menu_item_set_active(
                 GTK_CHECK_MENU_ITEM(GTK_WIDGET(gui.fShowLogger.gobj())), FALSE
                 );
@@ -576,7 +577,7 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
 		}
 	    }
 	}
-	GxMainInterface::instance().engine.set_rack_changed();
+	GxMainInterface::get_instance().engine.set_rack_changed();
     }
     // box move to the left
     static void pressed_left(GtkWidget *widget, gpointer data) {
@@ -642,7 +643,7 @@ struct uiOrderButton : public gx_ui::GxUiItemInt {
 		}
 	    }
 	}
-	GxMainInterface::instance().engine.set_rack_changed();
+	GxMainInterface::get_instance().engine.set_rack_changed();
     }
     // resize the effect box
     static void resize(GtkWidget *widget, gpointer data) {
@@ -1475,7 +1476,7 @@ void GxMainInterface::addMToggleButton(const char* label, bool* zone) {
 }
 
 void gx_start_stop_jconv(GtkWidget *widget, gpointer data) {
-    GxMainInterface::instance().engine.set_rack_changed();
+    GxMainInterface::get_instance().engine.set_rack_changed();
 }
 
 void GxMainInterface::addJToggleButton(const char* label, bool* zone) {
@@ -1684,7 +1685,7 @@ struct uiPatchDisplay : public gx_ui::GxUiItemFloat {
                     parent = reinterpret_cast<GtkWidget *>( g_list_nth_data(child_list, 1));
                     GtkWidget *pchild = reinterpret_cast<GtkWidget *>
                                       ( g_list_nth_data(child_list, 2));
-		    gx_engine::GxJConvSettings& jcset = GxMainInterface::instance().engine.convolver.jcset;
+		    gx_engine::GxJConvSettings& jcset = GxMainInterface::get_instance().engine.convolver.jcset;
 
                     if (*gx_engine::GxJConvSettings::checkbutton7 == 1) {
                         snprintf(s, sizeof(s), _("convolve %s"), jcset.getIRFile().c_str());
@@ -1764,7 +1765,7 @@ uiTuner::uiTuner(gx_ui::GxUI* ui, float* zone)
 
 void uiTuner::reflectZone() {
     fCache = *fZone;
-    if (GxMainInterface::instance().engine.tuner.plugin.on_off) {
+    if (GxMainInterface::get_instance().engine.tuner.plugin.on_off) {
         set_freq(gx_engine::midi.fConsta4);
     }
 }
@@ -1811,8 +1812,8 @@ struct uiStatusDisplay : public gx_ui::GxUiItemBool {
     virtual void reflectZone() {
 	bool v = *fZone;
 	fCache = v;
-	if (GxMainInterface::instance().engine.midiaudiobuffer.plugin.on_off) {
-	    if (GxMainInterface::instance().jack.jcpu_load < 65.0) {
+	if (GxMainInterface::get_instance().engine.midiaudiobuffer.plugin.on_off) {
+	    if (GxMainInterface::get_instance().jack.jcpu_load < 65.0) {
 		if (v) {
 		    gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(gw.status_icon),
 						    GDK_PIXBUF(gw.ibm));
@@ -2838,11 +2839,11 @@ void GxMainInterface::addAboutMenu() {
 }
 
 void gx_jack_connection(GtkCheckMenuItem* p, gpointer) {
-    GxMainInterface::instance().jack.gx_jack_connection(p);
+    GxMainInterface::get_instance().jack.gx_jack_connection(p);
 }
 
 void gx_set_jack_buffer_size(GtkCheckMenuItem* p, gpointer data) {
-    GxMainInterface::instance().jack.gx_set_jack_buffer_size(p, data);
+    GxMainInterface::get_instance().jack.gx_set_jack_buffer_size(p, data);
 }
 
 /*---------------- Jack Server Menu ----------------*/

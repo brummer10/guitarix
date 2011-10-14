@@ -69,6 +69,7 @@ class PortMapWindow {
     PortSection portsection[number_of_ports];
     GtkCheckMenuItem *menuitem;
     list<string> excluded_clients;
+    static gx_gui::GxMainInterface* main_ui; //FIXME
     GtkWidget *monitored_expander_child;
     static void on_expander(GtkWidget *widget, gpointer data);
     static void on_check_resize(GtkWidget *widget, gpointer data);
@@ -82,7 +83,7 @@ class PortMapWindow {
     void walk_insert(GtkTreeStore *ts, string data);
     void load(int sect, jack_port_t*);
     void load_all();
-    explicit PortMapWindow(GtkCheckMenuItem *item);
+    explicit PortMapWindow(GtkCheckMenuItem *item, gx_gui::GxMainInterface& main_ui);
     ~PortMapWindow();
  public:
     static GtkWidget *window; // there can only be 1 window

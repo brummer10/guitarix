@@ -59,7 +59,7 @@ PitchTracker::PitchTracker()
     busy(false),
     tick(0),
     m_pthr(0),
-    resamp(new Resampler),
+    resamp(),
     m_buffer(new float[FFT_SIZE]),
     m_bufferIndex(0),
     m_input(new float[FFT_SIZE]),
@@ -104,7 +104,7 @@ bool PitchTracker::setParameters(int priority, int policy, int sampleRate, int b
         return false;
     }
     m_sampleRate = sampleRate / DOWNSAMPLE;
-    resamp->setup(sampleRate, m_sampleRate, 1, 16); // 16 == least quality
+    resamp.setup(sampleRate, m_sampleRate, 1, 16); // 16 == least quality
 
     if (m_buffersize != buffersize) {
         m_buffersize = buffersize;
@@ -133,8 +133,6 @@ bool PitchTracker::setParameters(int priority, int policy, int sampleRate, int b
 void PitchTracker::stop_thread() {
     pthread_cancel (m_pthr);
     pthread_join (m_pthr, NULL);
-    delete resamp;
-    resamp = 0;
 }
 
 void PitchTracker::start_thread(int priority, int policy) {
@@ -164,19 +162,19 @@ void PitchTracker::add(int count, float* input) {
     if (error) {
         return;
     }
-    resamp->inp_count = count;
-    resamp->inp_data = input;
+    resamp.inp_count = count;
+    resamp.inp_data = input;
     for (;;) {
-        resamp->out_data = &m_buffer[m_bufferIndex];
+        resamp.out_data = &m_buffer[m_bufferIndex];
         int n = FFT_SIZE - m_bufferIndex;
-        resamp->out_count = n;
-        resamp->process();
-        n -= resamp->out_count; // n := number of output samples
+        resamp.out_count = n;
+        resamp.process();
+        n -= resamp.out_count; // n := number of output samples
         if (!n) { // all soaked up by filter
             return;
         }
         m_bufferIndex = (m_bufferIndex + n) % FFT_SIZE;
-        if (resamp->inp_count == 0) {
+        if (resamp.inp_count == 0) {
             break;
         }
     }
@@ -358,5 +356,4 @@ void PitchTracker::setEstimatedFrequency(float freq) {
     audio.fConsta1t = (freq == 0.0 ? 1000.0 : 12 * log2f(2.272727e-03f * freq));
 }
 
-PitchTracker pitch_tracker;
 }

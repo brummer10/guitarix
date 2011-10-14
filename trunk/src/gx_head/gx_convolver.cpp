@@ -173,12 +173,8 @@ void GxConvolverBase::adjust_values(
     }
 }
 
-bool GxConvolverBase::start() {
-    int abspri, policy;
-    struct sched_param  spar;
-    pthread_getschedparam(jack_client_thread_id(get_jack().client), &policy, &spar);
-    abspri = spar.sched_priority;
-    int rc = start_process(abspri, policy);
+bool GxConvolverBase::start(int policy, int priority) {
+    int rc = start_process(priority, policy);
     if (rc != 0) {
         gx_system::gx_print_error("convolver", "can't start convolver");
         return false;
@@ -238,11 +234,11 @@ bool GxConvolver::read_sndfile(
         ostringstream buf;
         buf << "resampling from " << audio.rate() << " to " << samplerate;
         gx_system::gx_print_info("convolver", buf.str());
-        if (!gx_resample::_glob_resamp->_stream_resampler.setup(audio.rate(), samplerate, nchan)) {
+        if (!resamp.setup(audio.rate(), samplerate, nchan)) {
             assert(false);
         }
         try {
-            rbuff = new float[gx_resample::_glob_resamp->_stream_resampler.get_max_out_size(BSIZE)*nchan];
+            rbuff = new float[resamp.get_max_out_size(BSIZE)*nchan];
         } catch(...) {
             audio.close();
             gx_system::gx_print_error("convolver", "out of memory");
@@ -266,7 +262,7 @@ bool GxConvolver::read_sndfile(
         }
     }
 
-    bool gain_cor = gx_engine::get_engine().convolver.jcset.getGainCor(); //FIXME
+    bool gain_cor = gx_engine::GxEngine::get_engine().convolver.jcset.getGainCor(); //FIXME
     double gain_t[nchan];
     if (!gain_cor) {
         for (int ichan = 0; ichan < nchan; ichan++) {
@@ -303,11 +299,11 @@ bool GxConvolver::read_sndfile(
             gp += nfram*fct;
             cnt = nfram;
             if (rbuff) {
-                cnt = gx_resample::_glob_resamp->_stream_resampler.process(nfram, buff, rbuff);
+                cnt = resamp.process(nfram, buff, rbuff);
             }
         } else {
             if (rbuff) {
-                cnt = gx_resample::_glob_resamp->_stream_resampler.flush(rbuff);
+                cnt = resamp.flush(rbuff);
                 done = true;
             } else {
                 break;
@@ -417,11 +413,12 @@ bool GxConvolver::compute(int count, float* input1, float *input2, float *output
 class CheckResample {
 private:
     float *vec;
+    gx_resample::BufferResampler& resamp;
 public:
-    CheckResample(): vec(0) {}
-    float *resample(int count, float *impresp, unsigned int imprate, unsigned int samplerate) {
+    CheckResample(gx_resample::BufferResampler& resamp_): vec(0), resamp(resamp_) {}
+    float *resample(int *count, float *impresp, unsigned int imprate, unsigned int samplerate) {
 	if (imprate != samplerate) {
-	    vec = gx_resample::_glob_resamp->_buffer_resampler.process(imprate, count, impresp, samplerate, count);
+	    vec = resamp.process(imprate, *count, impresp, samplerate, count);
 	    if (!vec) {
 		gx_system::gx_print_error("convolver", "failed to resample");
 		return 0;
@@ -438,8 +435,8 @@ public:
 };
 
 bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int imprate) {
-    CheckResample r;
-    impresp = r.resample(count, impresp, imprate, samplerate);
+    CheckResample r(resamp);
+    impresp = r.resample(&count, impresp, imprate, samplerate);
     if (!impresp) {
 	return false;
     }
@@ -461,8 +458,8 @@ bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int imprat
 }
 
 bool GxSimpleConvolver::update(int count, float *impresp, unsigned int imprate) {
-    CheckResample r;
-    impresp = r.resample(count, impresp, imprate, samplerate);
+    CheckResample r(resamp);
+    impresp = r.resample(&count, impresp, imprate, samplerate);
     if (!impresp) {
 	return false;
     }

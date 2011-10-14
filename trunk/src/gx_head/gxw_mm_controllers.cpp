@@ -141,12 +141,12 @@ UiSelector::UiSelector() {
 
 void UiSelectorFloat::on_value_changed() {
     modifyZone(get_value());
-    gx_engine::get_engine().set_rack_changed();
+    gx_engine::GxEngine::get_engine().set_rack_changed();
 }
 
 void UiSelectorInt::on_value_changed() {
     modifyZone((int)get_value());
-    gx_engine::get_engine().set_rack_changed();
+    gx_engine::GxEngine::get_engine().set_rack_changed();
 }
 
 GtkWidget* UiSelector::create(gx_ui::GxUI& ui, string id, const char *widget_name) {
@@ -305,7 +305,7 @@ UiSwitch *UiSwitch::new_switch(gx_ui::GxUI& ui, const char* sw_type, Parameter& 
 
 void UiSwitchFloat::on_toggled() {
     modifyZone(get_active());
-    gx_engine::get_engine().set_rack_changed();
+    gx_engine::GxEngine::get_engine().set_rack_changed();
 }
 
 void UiSwitchFloat::reflectZone() {
@@ -330,7 +330,7 @@ UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, FloatParamete
 
 void UiSwitchBool::on_toggled() {
     modifyZone(get_active());
-    gx_engine::get_engine().set_rack_changed();
+    gx_engine::GxEngine::get_engine().set_rack_changed();
 }
 
 void UiSwitchBool::reflectZone() {

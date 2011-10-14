@@ -37,7 +37,7 @@ namespace gx_engine {
 /* GxConvolver */
 
 class Audiofile {
- public:
+public:
 
     enum {
         TYPE_OTHER,
@@ -82,7 +82,7 @@ class Audiofile {
     int seek(unsigned int posit);
     int read(float *data, unsigned int frames);
 
- private:
+private:
 
     void reset(void);
 
@@ -96,15 +96,15 @@ class Audiofile {
 };
 
 class GxConvolverBase: protected Convproc {
- protected:
+protected:
     volatile bool ready;
     void adjust_values(unsigned int audio_size, unsigned int& count, unsigned int& offset,
                        unsigned int& delay, unsigned int& ldelay, unsigned int& length,
                        unsigned int& size, unsigned int& bufsize);
     unsigned int buffersize;
     unsigned int samplerate;
- GxConvolverBase(): ready(false), buffersize(), samplerate() {}
- public:
+    GxConvolverBase(): ready(false), buffersize(), samplerate() {}
+public:
     void set_buffersize(unsigned int sz) { buffersize = sz; }
     unsigned int get_buffersize() { return buffersize; }
     void set_samplerate(unsigned int sr) { samplerate = sr; }
@@ -112,16 +112,18 @@ class GxConvolverBase: protected Convproc {
     using Convproc::state;
     void set_not_runnable()   { ready = false; }
     bool is_runnable()        { return ready; }
-    bool start();
+    bool start(int policy, int priority);
     void stop()               { stop_process(); }
 };
 
 class GxConvolver: public GxConvolverBase {
- private:
+private:
+    gx_resample::StreamingResampler resamp;
     bool read_sndfile(Audiofile& audio, int nchan, int samplerate, const float *gain,
-                       unsigned int *delay, unsigned int offset, unsigned int length,
-                       const Gainline& points);
- public:
+		      unsigned int *delay, unsigned int offset, unsigned int length,
+		      const Gainline& points);
+public:
+    GxConvolver(): GxConvolverBase(), resamp() {}
     bool configure(
         string fname, float gain, float lgain,
         unsigned int delay, unsigned int ldelay, unsigned int offset,
@@ -131,7 +133,11 @@ class GxConvolver: public GxConvolverBase {
 };
 
 class GxSimpleConvolver: public GxConvolverBase {
- public:
+private:
+    gx_resample::BufferResampler& resamp;
+public:
+    GxSimpleConvolver(gx_resample::BufferResampler& resamp_)
+	: GxConvolverBase(), resamp(resamp_) {}
     bool configure(int count, float *impresp, unsigned int imprate);
     bool update(int count, float *impresp, unsigned int imprate);
     bool compute(int count, float* input, float *output);

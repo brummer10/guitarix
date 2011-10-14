@@ -158,7 +158,7 @@ void gx_assign_shell_var(const char* name, string& value) {
 void gx_signal_handler(int sig) {
     // print out a warning
     if (sig == SIGABRT) {
-        if(!get_jack().client) {
+        if(!gx_gui::GxMainInterface::get_instance().jack.client) {
             printf(_(" SIGABRT . .received, try to clean up and exit. . .  \n"));
             exit(1);
         }
@@ -176,7 +176,7 @@ void gx_signal_handler(int sig) {
 gboolean  gx_ladi_handler(gpointer) {
     gx_print_warning(_("signal_handler"), _("signal USR1 received, save settings"));
 
-    saveStateToFile(sysvar.gx_user_dir + get_jack().client_instance + "_rc", get_jack());
+    saveStateToFile(sysvar.gx_user_dir + gx_gui::GxMainInterface::get_instance().jack.client_instance + "_rc", gx_gui::GxMainInterface::get_instance().jack);
     return false;
 }
 
@@ -477,7 +477,7 @@ void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype) {
     // log the stuff to the log message window if possible
     bool written = false;
     if (gx_gui::GxMainInterface::fInitialized) {
-        gx_gui::GxMainInterface& interface = gx_gui::GxMainInterface::instance();
+        gx_gui::GxMainInterface& interface = gx_gui::GxMainInterface::get_instance();
 
         if (interface.getLoggingWindow()) {
             if (!msglist.empty()) {
@@ -768,27 +768,22 @@ void gx_clean_exit(GtkWidget* widget, gpointer data) {
         // only save if we are not in a preset or session context
         if (!gx_preset::gxpreset.setting_is_preset && !gx_preset::gxpreset.setting_is_factory
                                           && !sysvar.is_session
-                                          && get_jack().client) {
-            saveStateToFile(sysvar.gx_user_dir + get_jack().client_instance + "_rc", get_jack());
+                                          && gx_gui::GxMainInterface::get_instance().jack.client) {
+            saveStateToFile(sysvar.gx_user_dir + gx_gui::GxMainInterface::get_instance().jack.client_instance + "_rc", gx_gui::GxMainInterface::get_instance().jack);
         }
     }
 
     gx_gui::guivar.showwave = 0;
-    gx_engine::get_engine().set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
+    gx_engine::GxEngine::get_engine().set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
 
     // clean jack gxjack.client stuff
-    get_jack().gx_jack_cleanup();
+    gx_gui::GxMainInterface::get_instance().jack.gx_jack_cleanup();
 
     // clean GTK stuff
     if (gx_gui::gw.fWindow) {
         gx_destroy_event();
     }
     // delete the locked mem buffers
-    if (gx_engine::audio.oversample) {
-        delete[] gx_engine::audio.oversample;
-        gx_engine::audio.oversample = NULL;
-    }
-    gx_resample::_glob_resamp->delete_resampler_ref();
     delete gx_jack::_jackbuffer_ptr;
     gx_jack::_jackbuffer_ptr = 0;
 

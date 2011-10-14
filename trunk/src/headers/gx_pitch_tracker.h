@@ -51,7 +51,7 @@ class PitchTracker {
     int             tick;
     sem_t           m_trig;
     pthread_t       m_pthr;
-    Resampler       *resamp;
+    Resampler       resamp;
     int             m_sampleRate;
     // number of samples in input buffer
     int             m_buffersize;

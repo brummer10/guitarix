@@ -101,7 +101,7 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
 
 /* --------- menu function triggering engine on/off/bypass --------- */
 void gx_engine_switch(GtkWidget* widget, gpointer arg) {
-    gx_engine::GxEngineState estate = GxMainInterface::instance().engine.get_state();
+    gx_engine::GxEngineState estate = GxMainInterface::get_instance().engine.get_state();
 
     switch (estate) {
     case gx_engine::kEngineOn:
@@ -128,13 +128,13 @@ void gx_engine_switch(GtkWidget* widget, gpointer arg) {
             );
     }
 
-    GxMainInterface::instance().engine.set_state(estate);
+    GxMainInterface::get_instance().engine.set_state(estate);
     gx_refresh_engine_status_display();
 }
 
 /* -------------- refresh engine status display ---------------- */
 void gx_refresh_engine_status_display() {
-    gx_engine::GxEngineState estate = GxMainInterface::instance().engine.get_state();
+    gx_engine::GxEngineState estate = GxMainInterface::get_instance().engine.get_state();
 
     string state;
 
@@ -194,8 +194,8 @@ void gx_jack_is_down() {
                      "jack has bumped us out!!");
     */
     std::cout << _("jack has bumped us out!!") << endl;
-    GxMainInterface::instance().jack.set_jack_exit(true);
-    GxMainInterface::instance().engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
+    GxMainInterface::get_instance().jack.set_jack_exit(true);
+    GxMainInterface::get_instance().engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     g_timeout_add_full(G_PRIORITY_LOW, 200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
 }
 
@@ -237,7 +237,7 @@ void gx_patch(GtkCheckMenuItem *menuitem, gpointer checkplay) {
 
 // ---- menu function logging widget
 void gx_log_window(GtkWidget* menuitem, gpointer arg) {
-    GtkExpander* const exbox = GxMainInterface::instance().getLoggingBox();
+    GtkExpander* const exbox = GxMainInterface::get_instance().getLoggingBox();
 
     // we could be called before UI is built up
     if (!exbox) return;
@@ -309,11 +309,11 @@ gint gx_wait_latency_warn() {
 
     GtkWidget* button1 =
         gtk_dialog_add_button(GTK_DIALOG(warn_dialog),
-                              _("Yes"), GxMainInterface::instance().jack.kChangeLatency);
+                              _("Yes"), GxMainInterface::get_instance().jack.kChangeLatency);
 
     GtkWidget* button2 =
         gtk_dialog_add_button(GTK_DIALOG(warn_dialog),
-                              _("No"),  GxMainInterface::instance().jack.kKeepLatency);
+                              _("No"),  GxMainInterface::get_instance().jack.kKeepLatency);
 
 
     GtkWidget* box1    = gtk_hbox_new(0, 4);
@@ -415,7 +415,7 @@ gboolean gx_set_default_ssize(gpointer data) {
 
 // ----- show extendend settings slider
 void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
-    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance();
+    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)) == TRUE) {
 
         GtkWidget *plug = gtk_widget_get_parent(GTK_WIDGET(data));
@@ -631,7 +631,7 @@ void gx_midi_out(GtkCheckMenuItem *menuitem, gpointer checkplay) {
         parameter_map[group].set_std_value();
     }
     first =false;
-    GxMainInterface::instance().engine.set_rack_changed();
+    GxMainInterface::get_instance().engine.set_rack_changed();
 }
 
 // ----- hide the extendend settings slider
@@ -864,7 +864,7 @@ void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg) {
 // ----- cycling through skin
 void  gx_update_skin_menu_item(const int index) {
     // update menu item state
-    GxMainInterface& gui = GxMainInterface::instance();
+    GxMainInterface& gui = GxMainInterface::get_instance();
     GtkWidget* skinmenu = gui.getMenu("Skin");
 
     GList*     list = gtk_container_get_children(GTK_CONTAINER(skinmenu));
@@ -892,8 +892,8 @@ bool gx_update_skin(const gint idx, const char* calling_func) {
     skin.gx_current_skin = idx;
 
     // refresh latency check menu
-    GxMainInterface& gui = GxMainInterface::instance();
-    GtkWidget* wd = gui.getJackLatencyItem(GxMainInterface::instance().jack.jack_bs);
+    GxMainInterface& gui = GxMainInterface::get_instance();
+    GtkWidget* wd = gui.getJackLatencyItem(GxMainInterface::get_instance().jack.jack_bs);
     if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
 
     return true;

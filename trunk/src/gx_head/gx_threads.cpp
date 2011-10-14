@@ -34,8 +34,8 @@ namespace gx_threads {
 
 /* ----------------- refresh GX level display function ---------------- */
 gboolean gx_refresh_meter_level(gpointer args) {
-    if (gx_gui::GxMainInterface::instance().jack.client) {
-        gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance();
+    if (gx_gui::GxMainInterface::get_instance().jack.client) {
+        gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
         static const float falloff = gx_gui::guivar.meter_falloff *
                                      gx_gui::guivar.meter_display_timeout * 0.001;
 
@@ -43,7 +43,7 @@ gboolean gx_refresh_meter_level(gpointer args) {
         static float old_peak_db[2] = {-INFINITY, -INFINITY};
 
         // fill up from engine buffers
-	gx_engine::MaxLevel& m = gx_gui::GxMainInterface::instance().engine.maxlevel;
+	gx_engine::MaxLevel& m = gx_gui::GxMainInterface::get_instance().engine.maxlevel;
         for (int c = 0; c < 2; c++) {
             // update meters (consider falloff as well)
             // calculate peak dB and translate into meter
@@ -68,7 +68,7 @@ gboolean gx_refresh_meter_level(gpointer args) {
 gboolean gx_xrun_report(gpointer arg) {
     usleep(40);
     ostringstream s;
-    s << " delay of at least " << gx_gui::GxMainInterface::instance().jack.xdel << " microsecs";
+    s << " delay of at least " << gx_gui::GxMainInterface::get_instance().jack.xdel << " microsecs";
     gx_system::gx_print_warning("Jack XRun", s.str());
 
     return FALSE;
@@ -77,7 +77,7 @@ gboolean gx_xrun_report(gpointer arg) {
 /* --------- load preset triggered by midi program change --------- */
 gboolean gx_do_program_change(gpointer arg) {
     int pgm = GPOINTER_TO_INT(arg);
-    gx_engine::GxEngineState estate = gx_gui::GxMainInterface::instance().engine.get_state();
+    gx_engine::GxEngineState estate = gx_gui::GxMainInterface::get_instance().engine.get_state();
     if (gx_preset::gxpreset.gx_nth_preset(pgm)) {
         if (estate == gx_engine::kEngineBypass)
             // engine bypass but preset found -> engine on
@@ -93,11 +93,11 @@ gboolean gx_do_program_change(gpointer arg) {
 
 /* -------------- for thread that checks jackd liveliness -------------- */
 gboolean gx_survive_jack_shutdown(gpointer arg) {
-    GtkWidget* wd = gx_gui::GxMainInterface::instance().getJackConnectItem();
+    GtkWidget* wd = gx_gui::GxMainInterface::get_instance().getJackConnectItem();
 
     // return if jack is not down
     if (gx_system::gx_system_call("pgrep", "jackd", true) == gx_system::sysvar.SYSTEM_OK) {
-        if (gx_gui::GxMainInterface::instance().jack.is_jack_down()) {
+        if (gx_gui::GxMainInterface::get_instance().jack.is_jack_down()) {
             // let's make sure we get out of here
             if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(wd)))
                 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
@@ -107,13 +107,13 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
         }
     } else {
         // set jack gxjack.client to NULL
-        gx_gui::GxMainInterface::instance().jack.client = 0;
+        gx_gui::GxMainInterface::get_instance().jack.client = 0;
 
         // refresh some stuff. Note that it can be executed
         // more than once, no harm here
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), FALSE);
         *gx_engine::GxJConvSettings::checkbutton7 = 0;
-        gx_gui::GxMainInterface::instance().jack.set_jack_down(true);
+        gx_gui::GxMainInterface::get_instance().jack.set_jack_down(true);
     }
     // run as long jackd is down
     return true;
@@ -123,12 +123,12 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
 gboolean gx_update_all_gui(gpointer) {
     // the general Gui update handler
     gx_ui::GxUI::updateAllGuis();
-    gx_gui::GxMainInterface::instance().engine.check_module_lists();
+    gx_gui::GxMainInterface::get_instance().engine.check_module_lists();
     return TRUE;
 }
 
 static gboolean conv_restart(gpointer data) {
-    gx_gui::GxMainInterface::instance().engine.cabinet.start();
+    gx_gui::GxMainInterface::get_instance().engine.cabinet.start();
     return false;
 }
 
@@ -142,7 +142,7 @@ void cab_conv_restart() {
 }
 
 static gboolean contrast_restart(gpointer data) {
-    gx_gui::GxMainInterface::instance().engine.contrast.start();
+    gx_gui::GxMainInterface::get_instance().engine.contrast.start();
     return false;
 }
 
@@ -155,17 +155,17 @@ void contrast_conv_restart() {
 }
 
 gboolean gx_check_cab_state(gpointer) {
-    if (gx_gui::GxMainInterface::instance().engine.cabinet.plugin.on_off) {
-	if (gx_gui::GxMainInterface::instance().engine.cabinet.cabinet_changed()) {
-            gx_gui::GxMainInterface::instance().engine.cabinet.conv_stop();
+    if (gx_gui::GxMainInterface::get_instance().engine.cabinet.plugin.on_off) {
+	if (gx_gui::GxMainInterface::get_instance().engine.cabinet.cabinet_changed()) {
+            gx_gui::GxMainInterface::get_instance().engine.cabinet.conv_stop();
             cab_conv_restart();
-	} else if (gx_gui::GxMainInterface::instance().engine.cabinet.sum_changed()) {
-	    gx_gui::GxMainInterface::instance().engine.cabinet.conv_update();
+	} else if (gx_gui::GxMainInterface::get_instance().engine.cabinet.sum_changed()) {
+	    gx_gui::GxMainInterface::get_instance().engine.cabinet.conv_update();
         }
     }
-    if (gx_gui::GxMainInterface::instance().engine.contrast.plugin.on_off) {
-        if (gx_gui::GxMainInterface::instance().engine.contrast.sum_changed()) {
-            gx_gui::GxMainInterface::instance().engine.contrast.conv_stop();
+    if (gx_gui::GxMainInterface::get_instance().engine.contrast.plugin.on_off) {
+        if (gx_gui::GxMainInterface::get_instance().engine.contrast.sum_changed()) {
+            gx_gui::GxMainInterface::get_instance().engine.contrast.conv_stop();
             contrast_conv_restart();
         }
     }

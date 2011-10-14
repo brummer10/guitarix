@@ -35,14 +35,7 @@
 namespace gx_engine {
 
 void gx_engine_init(const string *optvar ) {
-    // ----- lock the buffer for the oscilloscope
-    const int frag = (const int)get_jack().jack_bs;
-
-    audio.oversample = new float[frag*MAX_UPSAMPLE];
-    
-    (void)memset(audio.oversample, 0, frag*MAX_UPSAMPLE*sizeof(float));
-
-    midi.init(get_jack().jack_sr);
+    midi.init(gx_gui::GxMainInterface::get_instance().jack.jack_sr);
     // resampTube.setup(gx_jack::jack_sr, 2);
     // resampDist.setup(gx_jack::jack_sr, 2);
     if (!optvar[LOAD_FILE].empty()) {
@@ -57,7 +50,6 @@ void gx_engine_init(const string *optvar ) {
 
 void gx_engine_reset() {
 
-    if (audio.oversample) delete[] audio.oversample;
     audio.initialized = false;
 }
 
@@ -99,8 +91,6 @@ void AudioVariables::register_parameter() {
     registerNonMidiParam("ui.latency_nowarn",        &fwarn, false, 0);
     registerNonMidiParam("ui.skin",                  &fskin, false, 0, 0, 100);
 
-    oversample  = NULL;
-    
     /* engine init state  */
     audio.initialized = false;
 

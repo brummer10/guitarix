@@ -50,8 +50,6 @@ public:
 
     float fConsta1t;
 
-    float* oversample;
-
     void register_parameter();
 };
 
@@ -166,7 +164,14 @@ public:
 class GxEngine: public ModuleSequencer {
 private:
     gx_ui::GxUI ui;
+    gx_resample::BufferResampler resamp;
+    static GxEngine* instance;
+    void load_static_plugins();
 public:
+    // ModuleSelector's
+    ModuleSelectorFromList crybaby;
+    ModuleSelectorFromList tonestack;
+    ModuleSelectorFromList ampstack;
     // internal audio modules
     NoiseGate noisegate;
     MonoMute monomute;
@@ -179,13 +184,11 @@ public:
     CabinetConvolver cabinet;
     ContrastConvolver contrast;
 public:
-    GxEngine();
+    GxEngine(string plugin_dir);
     ~GxEngine();
-    void load_plugins(string plugin_dir);
     void set_jack(gx_jack::GxJack *jack) { midiaudiobuffer.set_jack(jack); }
+    static GxEngine& get_engine() { assert(instance); return *instance; }
 };
-
-GxEngine& get_engine();
 
 /****************************************************************/
 

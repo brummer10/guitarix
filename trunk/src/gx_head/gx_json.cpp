@@ -459,7 +459,7 @@ void write_preset(JsonWriter &w, bool write_midi, bool force_midi) {
     w.write_key("engine");
     write_parameters(w, true);
     w.write_key("jconv");
-    gx_engine::get_engine().convolver.jcset.writeJSON(w); //FIXME
+    gx_engine::GxEngine::get_engine().convolver.jcset.writeJSON(w); //FIXME
     if (force_midi || (write_midi &&
                        gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get())) {
         w.write_key("midi_controller");
@@ -503,7 +503,7 @@ void PresetReader::read(JsonParser &jp, bool *has_midi, int major, int minor) {
         if (jp.current_value() == "engine") {
             read_parameters(jp, plist, true);
         } else if (jp.current_value() == "jconv") {
-            gx_engine::get_engine().convolver.jcset = gx_engine::GxJConvSettings(jp); //FIXME
+            gx_engine::GxEngine::get_engine().convolver.jcset = gx_engine::GxJConvSettings(jp); //FIXME
         } else if (jp.current_value() == "midi_controller") {
             if (has_midi || gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
                 m = new gx_gui::MidiControllerList::controller_array

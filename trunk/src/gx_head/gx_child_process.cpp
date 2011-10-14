@@ -305,7 +305,7 @@ void JackCapture::start_stop(GtkWidget *widget, gpointer data) {
         return;
     }
 
-    if (get_jack().client == NULL) {
+    if (gx_gui::GxMainInterface::get_instance().jack.client == NULL) {
         gtk_toggle_button_set_active(cap_button, FALSE);
         (void)gx_gui::gx_message_popup(
             "  WARNING [Record]\n\n  "
@@ -361,7 +361,7 @@ void Meterbridge::stop() {
 
 void Meterbridge::start_stop(GtkCheckMenuItem *menuitem, gpointer) {
     // no need to do all this if jack is not running
-    if (!get_jack().client) {
+    if (!gx_gui::GxMainInterface::get_instance().jack.client) {
         (void)gx_gui::gx_message_popup(
             "  WARNING [Meterbridge]\n\n  "
             "  Reconnect to Jack server first (Shift+C)"
@@ -374,14 +374,14 @@ void Meterbridge::start_stop(GtkCheckMenuItem *menuitem, gpointer) {
         if (childprocs.find(app_name)) {
             return;
         }
-        string s = get_jack().client_instance + "_" + app_name;
+        string s = gx_gui::GxMainInterface::get_instance().jack.client_instance + "_" + app_name;
         const char * const args[] = {
             app_name, "-n", s.c_str(), "-t", "sco", "-c", "3",
-            (get_jack().client_name+":in_0").c_str(),
-            (get_jack().client_name+":out_0").c_str(),
-            (get_jack().client_insert_name+":in_0").c_str(),
-            (get_jack().client_insert_name+":out_0").c_str(),
-            (get_jack().client_insert_name+":out_1").c_str(),
+            (gx_gui::GxMainInterface::get_instance().jack.client_name+":in_0").c_str(),
+            (gx_gui::GxMainInterface::get_instance().jack.client_name+":out_0").c_str(),
+            (gx_gui::GxMainInterface::get_instance().jack.client_insert_name+":in_0").c_str(),
+            (gx_gui::GxMainInterface::get_instance().jack.client_insert_name+":out_0").c_str(),
+            (gx_gui::GxMainInterface::get_instance().jack.client_insert_name+":out_1").c_str(),
             0 };
         GxChild *meterbridge = childprocs.launch(app_name, args, SIGTERM);
         if (meterbridge) {

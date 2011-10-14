@@ -37,6 +37,7 @@ using namespace std;
 #include "gx_parameter.h"
 #include "gx_pluginloader.h"
 #include "gx_ui.h"
+#include "gx_resampler.h"
 #include "gx_convolver.h"
 #include "gx_modulesequencer.h"
 #include "gx_internal_plugins.h"
@@ -450,12 +451,13 @@ GxJConvSettings::GxJConvSettings(gx_system::JsonParser& jp) {
  ** class ConvolverAdapter
  */
 
-ConvolverAdapter::ConvolverAdapter(ModuleSequencer& engine)
+ConvolverAdapter::ConvolverAdapter(ModuleSequencer& engine_)
     : PluginDef(),
       plugin(),
       conv(),
       jcset(),
       activate_mutex(),
+      engine(engine_),
       activated(false) {
     version = PLUGINDEF_VERSION;
     id = "jconv";
@@ -501,7 +503,9 @@ void ConvolverAdapter::restart() {
     bool rc = conv.configure(
         jcset.getFullIRPath(), jcset.getGain(), jcset.getGain(), jcset.getDelay(),
 	jcset.getDelay(), jcset.getOffset(), jcset.getLength(), 0, 0, jcset.getGainline());
-    if (!rc || !conv.start()) {
+    int policy, priority;
+    engine.get_sched_priority(policy, priority);
+    if (!rc || !conv.start(policy, priority)) {
         *GxJConvSettings::checkbutton7 = 0;
     }
 }
@@ -521,7 +525,9 @@ bool ConvolverAdapter::conv_start() {
             jcset.getOffset(), jcset.getLength(), 0, 0, jcset.getGainline())) {
         return false;
     }
-    return conv.start();
+    int policy, priority;
+    engine.get_sched_priority(policy, priority);
+    return conv.start(policy, priority);
 }
 
 
@@ -531,9 +537,8 @@ void ConvolverAdapter::convolver(int count, float *input0, float *input1,
 				 float *output0, float *output1, PluginDef* plugin) {
     ConvolverAdapter& self = *static_cast<ConvolverAdapter*>(plugin);
     if (self.conv.is_runnable()) {
-        // reuse oversampling buffer
-        float *conv_out0 = audio.oversample;
-        float *conv_out1 = audio.oversample+count;
+        float conv_out0[count];
+        float conv_out1[count];
         if (!self.conv.compute(count, output0, output1, conv_out0, conv_out1)) {
             *GxJConvSettings::checkbutton7 = 0;
             g_idle_add(conv_error_message, gpointer(NULL));
@@ -589,10 +594,11 @@ int ConvolverAdapter::activate(bool start, PluginDef *p) {
  */
 
 
-BaseConvolver::BaseConvolver(ModuleSequencer& engine)
+BaseConvolver::BaseConvolver(ModuleSequencer& engine_, gx_resample::BufferResampler& resamp)
     : PluginDef(),
-      conv(),
+      conv(resamp),
       activate_mutex(),
+      engine(engine_),
       activated(false),
       plugin() {
     version = PLUGINDEF_VERSION;
@@ -640,6 +646,11 @@ int BaseConvolver::activate(bool start, PluginDef *p) {
     return 0;
 }
 
+int BaseConvolver::conv_start() {
+    int policy, priority;
+    engine.get_sched_priority(policy, priority);
+    return conv.start(policy, priority);
+}
 
 /****************************************************************
  ** class CabinetConvolver
@@ -693,8 +704,8 @@ static CabEntry& getCabEntry(unsigned int n) {
 
 static const float no_sum = 1e10;
 
-CabinetConvolver::CabinetConvolver(ModuleSequencer& engine):
-    BaseConvolver(engine),
+CabinetConvolver::CabinetConvolver(ModuleSequencer& engine, gx_resample::BufferResampler& resamp):
+    BaseConvolver(engine, resamp),
     current_cab(-1),
     level(0),
     cabinet(0),
@@ -743,11 +754,11 @@ bool CabinetConvolver::start(bool force) {
 	if (!conv.configure(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
 	    return false;
 	}
-	return conv.start();
+	return conv_start();
     } else {
 	while (!conv.checkstate());
 	if (!conv.is_runnable()) {
-	    return conv.start();
+	    return conv_start();
 	}
 	return true;
     }
@@ -802,8 +813,8 @@ int CabinetConvolver::register_cab(const ParamReg& reg) {
  ** class ContrastConvolver
  */
 
-ContrastConvolver::ContrastConvolver(ModuleSequencer& engine):
-    BaseConvolver(engine),
+ContrastConvolver::ContrastConvolver(ModuleSequencer& engine, gx_resample::BufferResampler& resamp):
+    BaseConvolver(engine, resamp),
     level(0),
     sum(no_sum) {
     id = "con";
@@ -825,11 +836,11 @@ bool ContrastConvolver::start(bool force) {
 	if (!conv.configure(contrast_ir_desc.ir_count, contrast_irdata_c, contrast_ir_desc.ir_sr)) {
 	    return false;
 	}
-	return conv.start();
+	return conv_start();
     } else {
 	while (!conv.checkstate());
 	if (!conv.is_runnable()) {
-	    return conv.start();
+	    return conv_start();
 	}
 	return true;
     }

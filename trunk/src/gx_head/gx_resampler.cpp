@@ -73,7 +73,7 @@ void SimpleResampler::down(int count, float *input, float *output)
 	assert(r_down.out_count == 1);
 }
 
-float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp, int& olen)
+float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp, int *olen)
 {
 	const int qual = 32;
 	if (setup(fs_inp, fs_outp, 1, qual) != 0) {
@@ -93,18 +93,18 @@ float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp,
 	inp_data = input;
 	float *p = out_data = new float[out_count];
 	if (Resampler::process() != 0) {
-		delete out_data;
+		delete p;
 		return 0;
 	}
 	inp_data = 0;
 	inp_count = k/2;
 	if (Resampler::process() != 0) {
-		delete out_data;
+		delete p;
 		return 0;
 	}
 	assert(inp_count == 0);
 	assert(out_count <= 1);
-	olen = nout - out_count;
+	*olen = nout - out_count;
 	return p;
 }
 
@@ -153,17 +153,6 @@ int StreamingResampler::flush(float *output)
 	}
 	assert(inp_count == 0);
 	return olen - out_count;
-}
-
-GlobalResampler *_glob_resamp = 0;
-
-void GlobalResampler::init_resampler_ref() {
-    _glob_resamp = new GlobalResampler;
-}
-
-void GlobalResampler::delete_resampler_ref() {
-    delete _glob_resamp;
-    _glob_resamp = 0;
 }
 
 } // namespace gx_resample

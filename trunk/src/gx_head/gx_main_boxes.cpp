@@ -336,7 +336,7 @@ void GxScrollBox::on_rack_reorder_horizontal() {
 
         if (gx_gui::gw.srack_widget) {
             paintbox1.hide();
-            gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance();
+            gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
             if (gtk_window_get_resizable(GTK_WINDOW (gw.fWindow)))
                 gtk_window_set_resizable(GTK_WINDOW(gw.fWindow), FALSE);
             gtk_widget_ref(gx_gui::gw.srack_widget);
@@ -384,7 +384,7 @@ void GxScrollBox::on_rack_reorder_vertical() {
 
         if (gx_gui::gw.srack_widget) {
             paintbox1.hide();
-            gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance();
+            gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
             if (gtk_window_get_resizable(GTK_WINDOW(gw.fWindow)))
                 gtk_window_set_resizable(GTK_WINDOW(gw.fWindow), FALSE);
             gtk_widget_ref(gx_gui::gw.srack_widget);
@@ -459,7 +459,7 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
 
     const gchar * mtitle = "Order Rack Vertically";
     set_label(fOrdervRack, mtitle);
-    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance();
+    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
     gtk_menu_shell_append(GTK_MENU_SHELL(gui.getMenu("PluginMenu")),
                           GTK_WIDGET(fOrdervRack.gobj()));
     fOrdervRack.set_parameter(new SwitchParameter("system.order_rack_v", false, false));

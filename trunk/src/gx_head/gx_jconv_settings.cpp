@@ -892,13 +892,13 @@ void IRWindow::on_gain_button_toggled() {
  ** Interface to rest of program
  */
 void gx_load_jcgui() {
-    gx_gui::GxMainInterface& mwin = gx_gui::GxMainInterface::instance();
+    gx_gui::GxMainInterface& mwin = gx_gui::GxMainInterface::get_instance();
     IRWindow::create(mwin, mwin.engine.convolver);
     //IRWindow::reload();
 }
 
 void gx_show_jconv_dialog_gui(_GtkWidget*, void*) {
-    gx_gui::GxMainInterface& mwin = gx_gui::GxMainInterface::instance();
+    gx_gui::GxMainInterface& mwin = gx_gui::GxMainInterface::get_instance();
     IRWindow::create(mwin, mwin.engine.convolver);
     IRWindow::reload();
     IRWindow::show_window();

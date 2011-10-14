@@ -30,9 +30,6 @@
 #include <gxwmm/init.h>     // NOLINT
 #include <string>           // NOLINT
 
-
-// using namespace gx_system;
-
 void init_unix_signal_handlers() {
     /* ----- block signal USR1 ---------
     ** inherited by all threads which are created later
@@ -49,7 +46,7 @@ void init_unix_signal_handlers() {
     signal(SIGTERM, gx_system::gx_signal_handler);
     signal(SIGHUP,  gx_system::gx_signal_handler);
     signal(SIGINT,  gx_system::gx_signal_handler);
-    signal(SIGABRT,  gx_system::gx_signal_handler);
+    //signal(SIGABRT,  gx_system::gx_signal_handler);
     // signal(SIGSEGV, gx_signal_handler); // no good, quits application silently
 }
 
@@ -77,8 +74,7 @@ int main(int argc, char *argv[]) {
     Gtk::Main main(argc, argv, options);
 
     options.process_early();
-    gx_engine::GxEngine& engine = gx_engine::get_engine();
-    engine.load_plugins(options.plugin_dir);
+    gx_engine::GxEngine engine(options.plugin_dir);
 
     // ------ initialize parameter list ------
     engine.registerParameter(gx_gui::get_group_table());
@@ -100,13 +96,13 @@ int main(int argc, char *argv[]) {
 #endif
 
     // ----------------------- init GTK interface----------------------
-    g_type_class_unref(g_type_class_ref(GTK_TYPE_IMAGE_MENU_ITEM));
+    g_type_class_unref(g_type_class_ref(GTK_TYPE_IMAGE_MENU_ITEM)); //FIXME...
     g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
-    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::instance(&engine, &get_jack(&engine));
+
+    gx_gui::GxMainInterface gui(engine);
     gx_jconv::gx_load_jcgui();
     gui.setup();
 
-    gx_resample::_glob_resamp->init_resampler_ref(); 
     gx_jack::_jackbuffer_ptr = 0;
     // ---------------------- initialize jack gxjack.client ------------------
     if (gui.jack.gx_jack_init(options.optvar)) {
@@ -116,7 +112,7 @@ int main(int argc, char *argv[]) {
 
         // -------- set jack callbacks and activation -------------------
         gui.jack.gx_jack_callbacks();
-	gx_engine::get_engine().set_state(gx_engine::kEngineOn);
+	engine.set_state(gx_engine::kEngineOn);
 
         // -------- init port connections
         gui.jack.gx_jack_init_port_connection(options.optvar);

@@ -43,7 +43,7 @@ class SimpleResampler {
 
 class BufferResampler: Resampler {
  public:
-    float *process(int fs_inp, int ilen, float *input, int fs_outp, int& olen);
+    float *process(int fs_inp, int ilen, float *input, int fs_outp, int* olen);
 };
 
 class StreamingResampler: Resampler {
@@ -54,17 +54,5 @@ class StreamingResampler: Resampler {
     int flush(float *output); // check source for max. output size
 };
 
-class GlobalResampler {
- public:
-    StreamingResampler  _stream_resampler;
-    BufferResampler     _buffer_resampler;
-    SimpleResampler     _resampDist;
-    SimpleResampler     _resampTube;
-
-    void init_resampler_ref();
-    void delete_resampler_ref();
-};
-
-extern GlobalResampler *_glob_resamp;
 }
 #endif  // SRC_HEADERS_GX_RESAMPLER_H_

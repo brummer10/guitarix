@@ -97,6 +97,7 @@ class GxJack {
     int                 is_rt;
 public:
     GxJack(gx_engine::GxEngine& engine_);
+
     bool                gx_jack_init(const string *optvar );
     
     void                gx_set_jack_buffer_size(GtkCheckMenuItem*, void* arg);
@@ -142,7 +143,5 @@ class JackBuffer {
 extern JackBuffer *_jackbuffer_ptr;
 
 } /* end of jack namespace */
-
-gx_jack::GxJack& get_jack(gx_engine::GxEngine* engine_ = 0);
 
 #endif  // SRC_HEADERS_GX_JACK_H_
