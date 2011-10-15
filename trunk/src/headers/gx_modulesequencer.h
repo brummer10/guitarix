@@ -47,7 +47,7 @@ private:
     sem_t sync_sem; // RT
     list<Plugin*> to_release;
     int ramp_value; // RT
-    RampMode ramp_mode; // RT
+    int ramp_mode; // RT  should be RampMode, but gcc 4.5 doesn't accept it for g_atomic_int_compare_and_exchange
     bool stopped;
 protected:
     int steps_up;		// RT; >= 1

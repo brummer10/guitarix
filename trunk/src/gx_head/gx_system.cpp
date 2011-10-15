@@ -180,8 +180,6 @@ gboolean  gx_ladi_handler(gpointer) {
     return false;
 }
 
-bool terminal  = true; // make messages before main() appear on terminal
-
 /****************************************************************
  ** CmdlineOptions
  ** command line options
@@ -339,7 +337,7 @@ void CmdlineOptions::process_early() {
 void CmdlineOptions::process() {
     // ----------- processing user options -----------
 
-    terminal = lterminal;
+    Logger::get_logger().set_terminal(lterminal);
 
     // *** process GTK rc style
     bool previous_conflict = false;
@@ -453,15 +451,46 @@ void CmdlineOptions::set_override() {
  ** Logging
  */
 
-struct logmsg {
-    string msg;
-    GxMsgType msgtype;
-    logmsg(string m, GxMsgType t): msg(m), msgtype(t) {}
-};
+Logger::Logger()
+    : trackable(),
+      msglist(),
+      msgmutex(),
+      got_new_msg(),
+      ui_thread(),
+      terminal(true) {
+}
 
-// ---- log message handler
-void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype) {
-    static list<logmsg> msglist;
+Logger& Logger::get_logger() {
+    static Logger instance;
+    return instance;
+}
+
+Logger::~Logger() {
+    delete got_new_msg;
+}
+
+void Logger::set_ui_thread() {
+    got_new_msg = new Glib::Dispatcher;
+    ui_thread = pthread_self();
+    got_new_msg->connect(mem_fun(*this, &Logger::fetch_new_msg));
+    write_queued();
+}
+
+void Logger::fetch_new_msg() {
+    boost::mutex::scoped_lock lock(msgmutex);
+    write_queued();
+}
+
+void Logger::write_queued() {
+    gx_gui::GxMainInterface& interface = gx_gui::GxMainInterface::get_instance();
+    for (list<logmsg>::iterator i = msglist.begin(); i != msglist.end(); i++) {
+	interface.show_msg(i->msg, i->msgtype);
+    }
+    msglist.clear();
+}
+
+void Logger::print(const char* func, const string& msg, GxMsgType msgtype) {
+    boost::mutex::scoped_lock lock(msgmutex);
 
     // timestamp
     time_t now;
@@ -474,31 +503,30 @@ void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype) {
            << setw(2) << tm_now->tm_sec  << "]"
            << "  " << func << "  ***  " << msg;
 
-    // log the stuff to the log message window if possible
-    bool written = false;
-    if (gx_gui::GxMainInterface::fInitialized) {
-        gx_gui::GxMainInterface& interface = gx_gui::GxMainInterface::get_instance();
-
-        if (interface.getLoggingWindow()) {
-            if (!msglist.empty()) {
-                for (list<logmsg>::iterator i = msglist.begin(); i != msglist.end(); i++) {
-                    interface.show_msg(i->msg, i->msgtype);
-                }
-                msglist.clear();
-            }
-            interface.show_msg(msgbuf.str(), msgtype);
-            written = true;
-        }
-    }
-
-    if (!written) { // queue the messages
+    if (!(gx_gui::GxMainInterface::instance &&
+	  ui_thread &&
+	  pthread_equal(pthread_self(), ui_thread))
+	) {
+	// defer output
         msglist.push_back(logmsg(msgbuf.str(), msgtype));
+	if (msglist.size() == 1) {
+	    (*got_new_msg)();
+	}
+    } else {
+	write_queued();
+        gx_gui::GxMainInterface& interface = gx_gui::GxMainInterface::get_instance();
+	interface.show_msg(msgbuf.str(), msgtype);
     }
+
     if (terminal) {
         std::cerr << msgbuf.str() << endl;
     }
 }
 
+// ---- log message handler
+void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype) {
+    Logger::get_logger().print(func, msg, msgtype);
+}
 
 // warning
 void gx_print_warning(const char* func, const string& msg) {

@@ -257,6 +257,10 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_)
 
     fStopped = false;
     instance = this;
+#ifndef NDEBUG
+    ui_thread = pthread_self();
+#endif
+    gx_system::Logger::get_logger().set_ui_thread();
 }
 
 GxMainInterface::~GxMainInterface() {
@@ -2928,9 +2932,6 @@ void GxMainInterface::set_waveview_buffer(unsigned int size) {
 
 // ---- show main GUI
 void GxMainInterface::show() {
-#ifndef NDEBUG
-    ui_thread = pthread_self();
-#endif
     assert(fTop == 0);
     fInitialized = true;
 

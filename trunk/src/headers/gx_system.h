@@ -33,7 +33,8 @@
 #include <list>
 #include <string>
 #include <algorithm>
-
+#include <boost/thread/mutex.hpp>
+#include <glibmm/dispatcher.h>
 
 /* constant defines */
 #define ASCII_START (48)
@@ -248,9 +249,33 @@ public:
     void set_override();
 };
 
+
 /****************************************************************
- ** misc function declarations
+ ** Logging
  */
+
+ class Logger: public sigc::trackable {
+private:
+    struct logmsg {
+	string msg;
+	GxMsgType msgtype;
+	logmsg(string m, GxMsgType t): msg(m), msgtype(t) {}
+    };
+    list<logmsg> msglist;
+    boost::mutex msgmutex;
+    Glib::Dispatcher* got_new_msg;
+    pthread_t ui_thread;
+    bool terminal;  // make messages appear on terminal
+    void write_queued();
+    void fetch_new_msg();
+public:
+    Logger();
+    ~Logger();
+    void set_terminal(bool v) { terminal = v; }
+    void set_ui_thread();
+    void print(const char* func, const string& msg, GxMsgType msgtype);
+    static Logger& get_logger();
+};
 
 void  gx_print_logmsg(const char*, const string&, GxMsgType);
 void  gx_print_warning(const char*, const string&);
@@ -269,6 +294,11 @@ void  gx_print_info(const char*, const string&);
 inline void gx_print_info(const char* fnc, const boost::basic_format<char>& msg) {
     gx_print_info(fnc, msg.str());
 }
+
+
+/****************************************************************
+ ** misc function declarations
+ */
 
 void  gx_process_cmdline_options(int&, char**&, string*);
 void  gx_set_override_options(string* optvar);
@@ -310,4 +340,3 @@ const string& gx_i2a(int i);
 } /* end of gx_system namespace */
 
 #endif  // SRC_HEADERS_GX_SYSTEM_H_
-

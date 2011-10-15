@@ -423,6 +423,7 @@ class GxMainInterface : public gx_ui::GxUI {
     bool                  on_refresh_oscilloscope();
     void                  on_oscilloscope_post_pre(int post_pre);
     int                   on_oscilloscope_activate(bool start);
+    void                  show_msg(string msgbuf, gx_system::GxMsgType msgtype);
 
  protected :
     static const int      MAX_TUBES = 17;
@@ -570,7 +571,6 @@ public:
     void addMToggleButton(string id, const char* label = 0);
 
     // -- other
-    void show_msg(string msgbuf, gx_system::GxMsgType msgtype);
     void set_logging_expander_color(const char *color);
 
     void setup();
@@ -723,6 +723,7 @@ public:
     void create_ptoggle_button(const char *label) {
 	addwidget((new PToggleButton(label))->get_widget());
     }
+    friend class gx_system::Logger;
 };
 
 /****************************************************************/
