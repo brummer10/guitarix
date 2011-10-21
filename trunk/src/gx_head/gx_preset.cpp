@@ -719,7 +719,8 @@ static bool gx_load_preset_from_factory(const char* presname, int i) {
     ifstream ofile(gx_factory_preset_file.get_path().c_str());
 
     JsonParser jp(ofile);
-
+   gx_engine::GxEngine& engine = gx_engine::GxEngine::get_engine();
+    engine.start_ramp_down();
     try {
         jp.next(JsonParser::begin_array);
         int major, minor;
@@ -728,7 +729,14 @@ static bool gx_load_preset_from_factory(const char* presname, int i) {
         while (jp.peek() != JsonParser::end_array) {
             jp.next(JsonParser::value_string);
             if (jp.current_value() == presname) {
-                PresetReader p(jp, 0, major, minor);
+		PresetReader p;
+		p.read(jp, 0, major, minor);
+		engine.wait_ramp_down_finished();
+		p.commit();
+		engine.update_module_lists();
+		engine.start_ramp_up();
+		gx_ui::GxUI::updateAllGuis();
+		engine.clear_rack_changed();
                 return true;
             } else {
                 jp.skip_object();
@@ -738,9 +746,9 @@ static bool gx_load_preset_from_factory(const char* presname, int i) {
         jp.next(JsonParser::end_token);
     } catch(JsonException& e) {
         gx_print_error(_("load preset"), _("invalid factory file: ")
-		       + gx_factory_preset_file.get_display_name());
+                       + gx_factory_preset_file.get_display_name());
     }
-
+    engine.start_ramp_up();
     return false;
 }
 

@@ -364,9 +364,16 @@ void GxJack::gx_jack_init_port_connection(const string* optvar) {
             ifound = true;
         }
     }
+    
+    jack_port_t* port_a = jack_port_by_name(client, jack_port_name(output_ports[0]));
+    
     for (list<string>::iterator i = lins_out.begin(); i != lins_out.end(); i++) {
-        int rc = jack_connect(client, jack_port_name(output_ports[0]), i->c_str());
-        if (rc == 0 || rc == EEXIST) {
+        if (!jack_port_connected_to(port_a, i->c_str())) {
+            int rc = jack_connect(client, jack_port_name(output_ports[0]), i->c_str());
+            if (rc == 0 || rc == EEXIST) {
+                ofound = true;
+            }
+        } else {
             ofound = true;
         }
     }
