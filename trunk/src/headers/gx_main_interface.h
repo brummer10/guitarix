@@ -75,7 +75,6 @@ class GuiVariables {
  public:
     bool                dialogbox[35];
     
-    int                 showwave;
     float               show_patch_info;
 
     /* rack handlig */
@@ -91,8 +90,9 @@ class GuiVariables {
     volatile gint       program_change;
     sem_t               program_change_sem;
     
-    float               main_xorg;
-    float               main_yorg;
+    int                 main_xorg;
+    int                 main_yorg;
+    string              skin;
 
     void register_gui_parameter();
 };
@@ -105,7 +105,6 @@ extern GuiVariables guivar;
 class GlobalWidgets {
  public:
     /* global GUI widgets */
-    GtkWidget*          fWindow;
     GtkWidget*          menuh;
     GtkWidget*          midibox;
     GtkWidget*          patch_info;
@@ -138,21 +137,6 @@ extern GlobalWidgets gw;
 
 /****************************************************************/
 
-class SkinHandling {
- public:
-    /* skin handling */
-    vector<string>      skin_list;
-    gint                gx_current_skin;
-    int                 last_skin;
-    int                 no_opt_skin;
-    int                 set_knob;
-    SkinHandling();
-};
-
-extern SkinHandling skin;
-
-/****************************************************************/
-
 void gx_start_stop_jconv(GtkWidget*, gpointer);
 
 /****************************************************************/
@@ -168,6 +152,15 @@ class MenuCheckItem: public Gtk::CheckMenuItem {
     void set_parameter(SwitchParameter *p);
     void add_parameter(SwitchParameter *p);
     SwitchParameter * get_parameter();
+};
+
+class MenuCheckItemUiBool: public Gtk::CheckMenuItem, gx_ui::GxUiItemBool {
+ private:
+    virtual void reflectZone();
+    void on_my_activate();
+ public:
+    // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
+    MenuCheckItemUiBool(gx_ui::GxUI* ui, bool* zone);
 };
 
 /****************************************************************/
@@ -198,6 +191,16 @@ class ToggleCheckButton: public Gtk::ToggleButton {
     SwitchParameter * get_parameter();
     ToggleCheckButton();
     ~ToggleCheckButton();
+};
+
+class ToggleCheckButtonUiBool: public Gtk::ToggleButton, gx_ui::GxUiItemBool {
+ private:
+    virtual void reflectZone();
+    void on_my_toggled();
+ public:
+    Gtk::Label m_label;
+    ToggleCheckButtonUiBool(gx_ui::GxUI* ui, bool* zone);
+    ~ToggleCheckButtonUiBool();
 };
 
 /****************************************************************/
@@ -390,14 +393,68 @@ public:
 
 /****************************************************************/
 
+class ReportXrun {
+private:
+    gx_jack::GxJack& jack;
+    bool blocked;
+    void clear();
+public:
+    ReportXrun(gx_jack::GxJack& jack_)
+	: jack(jack_), blocked(false) {}
+    void run();
+};
+
+/****************************************************************
+ ** class TextLoggingBox
+ */
+
+class TextLoggingBox: public Gtk::Window {
+private:
+    struct tab_table {
+	const char *tagname;
+	const char *tag_color;
+    };
+    Gtk::HBox box;
+    Gtk::ScrolledWindow scrollbox;
+    Gtk::Expander frame;
+    Gtk::TextView tbox;
+    static tab_table tagdefs[gx_system::kMessageTypeCount];
+    Glib::RefPtr<Gtk::TextTag> tags[gx_system::kMessageTypeCount];
+    int highest_unseen_msg_level;
+    void set_color();
+    bool on_delete_event();
+    void set_expander_color(const char *color);
+    void show_msg(string msgbuf, gx_system::GxMsgType msgtype);
+public:
+    TextLoggingBox(const char* label);
+    ~TextLoggingBox();
+};
+
+#define NJACKLAT (9)
+
 #define stackSize 256
 #define kSingleMode 0
 #define kBoxMode 1
 #define kTabMode 2
 
-class GxMainInterface : public gx_ui::GxUI {
+class GxMainInterface : public sigc::trackable, public gx_ui::GxUI {
  private:
     static GxMainInterface *instance;
+public://FIXME
+    Gtk::Window           fWindow;
+    gx_system::CmdlineOptions& options;
+    // for key acclerators
+    Glib::RefPtr<Gtk::AccelGroup> fAccelGroup;
+    void portmap_connection_changed(string port1, string port2, bool conn);
+private:
+    gx_portmap::PortMapWindow* portmap_window;
+    Gtk::CheckMenuItem    portmap_item;
+    void                  on_portmap_activate();
+    void                  on_portmap_response(int);
+
+    static void           gx_systray_menu(GtkWidget*, gpointer);
+    static void           gx_hide_extended_settings(GtkWidget*, gpointer);
+
     void                  addMainMenu();
     void                  addEngineMenu();
     void                  addJackServerMenu();
@@ -419,14 +476,15 @@ class GxMainInterface : public gx_ui::GxUI {
     void                  on_toolbar_activate();
     void                  on_tube_activate();
     void                  set_mouse_mode();
-    void                  on_show_oscilloscope();
+    void                  on_show_oscilloscope(bool);
     bool                  on_refresh_oscilloscope();
     void                  on_oscilloscope_post_pre(int post_pre);
     int                   on_oscilloscope_activate(bool start);
-    void                  show_msg(string msgbuf, gx_system::GxMsgType msgtype);
+    void                  jack_session_event();
+    void                  gx_jack_is_down();
+    void                  jack_connection_change();
+    void                  save_window_position();
 
- protected :
-    static const int      MAX_TUBES = 17;
     int                   fTop;
     GtkWidget*            fBox[stackSize];
     GtkWidget*            rBox;
@@ -436,9 +494,9 @@ class GxMainInterface : public gx_ui::GxUI {
     GtkWidget*            fStereoRackContainer;
     int                   fMode[stackSize];
     bool                  fStopped;
-    GtkTextView*          fLoggingWindow;
-    GtkExpander*          fLoggingBox;
-    GtkAdjustment*        fLoggingVAdjustment;
+    TextLoggingBox        fLoggingWindow;
+    bool                  on_logger_delete_event(GdkEventAny*);
+
     Gxw::FastMeter        fLevelMeters[2];
     uiTuner               fTuner;
     Gxw::WaveView         fWaveView;
@@ -450,7 +508,6 @@ class GxMainInterface : public gx_ui::GxUI {
     MenuCheckItem         fMidiInPreset;
     MenuCheckItem         fShowTooltips;
     MenuCheckItem         fShowTuner;
-    MenuCheckItem         fShowWaveView;
     MenuCheckItem         fSetMouse;
 
     // jack menu widgets
@@ -463,6 +520,8 @@ class GxMainInterface : public gx_ui::GxUI {
  public :
     gx_engine::GxEngine&  engine;
     gx_jack::GxJack       jack;
+    gx_preset::GxSettings gx_settings;
+
     MenuCheckItem         fShowRack;
     MenuCheckItem         fShowRRack;
     MenuCheckItem         fShowSRack;
@@ -470,27 +529,19 @@ class GxMainInterface : public gx_ui::GxUI {
     MenuCheckItem         fShowMidiOut;
     MenuCheckItem         fShowToolBar;
 
-    GtkWidget*            logger;
     GtkWidget*            RBox;
 
     static bool           fInitialized;
-    int                   highest_unseen_msg_level;
 
     static const gboolean expand   = TRUE;
     static const gboolean fill     = TRUE;
     static const gboolean homogene = FALSE;
 
-    // for key acclerators
-    GtkAccelGroup* fAccelGroup;
-
 public:
-    explicit GxMainInterface(gx_engine::GxEngine&);
+    explicit GxMainInterface(gx_engine::GxEngine&, gx_system::CmdlineOptions& options);
     ~GxMainInterface();
     static GxMainInterface& get_instance() { assert(instance); return *instance; }
 
-    // -- acquire a pointer to the logging window
-    GtkTextView* const    getLoggingWindow()    const { return fLoggingWindow;   }
-    GtkExpander* const    getLoggingBox()       const { return fLoggingBox;      }
     GtkWidget*   const    getJackConnectItem()  const { return fJackConnectItem; }
     GtkWidget*   const    getJackLatencyItem(const jack_nframes_t bufsize) const;
     GtkWidget*   const    getMenu(const string name) { return fMenuList[name]; }
@@ -539,7 +590,6 @@ public:
     void openPaintBox1(const char* label = "");
     void openPaintBox2(const char* label = "");
     void openScrollBox(const char* label = "");
-    void openTextLoggingBox(const char* label = "");
     void openLevelMeterBox(const char* label);
     void openToolBar(const char* label = "");
     void setSkinBox(const char* label, float* zone);
@@ -569,9 +619,6 @@ public:
     void addNumEntry(string id, const char* label = 0);
     //void addPToggleButton(string id, const char* label = 0);
     void addMToggleButton(string id, const char* label = 0);
-
-    // -- other
-    void set_logging_expander_color(const char *color);
 
     void setup();
     void show();
@@ -723,7 +770,8 @@ public:
     void create_ptoggle_button(const char *label) {
 	addwidget((new PToggleButton(label))->get_widget());
     }
-    friend class gx_system::Logger;
+private:
+    ReportXrun            report_xrun;
 };
 
 /****************************************************************/

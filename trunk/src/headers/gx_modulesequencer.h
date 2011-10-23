@@ -29,7 +29,11 @@ namespace gx_engine {
  */
 
 class ModuleSelector {
+protected:
+    ModuleSequencer& seq;
 public:
+    ModuleSelector(ModuleSequencer& seq_)
+	: seq(seq_) {}
     virtual ~ModuleSelector() {}
     virtual void set_module() = 0;
 };
@@ -259,6 +263,7 @@ protected:
     int audio_mode;     // GxEngineState coded as PGN_MODE_XX flags
     int policy;         // jack realtime policy,
     int priority;       // and priority, for internal modules
+    gx_ui::GxUI ui;
 
 public:
     PluginList pluginlist;  
@@ -269,6 +274,7 @@ public:
 	SF_JACK_RECONFIG = 0x02,  // jack buffersize reconfiguration in progress
 	SF_INITIALIZING  = 0x04,  // jack or engine not ready
     };
+    boost::mutex stateflags_mutex;
     int stateflags;
 
     // signal anyone who needs to be synchronously notified

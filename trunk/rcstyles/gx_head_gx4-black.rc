@@ -11,7 +11,7 @@ stock["smallknob"] = {{"tactile_knob_small_99f.png"}}
 stock["smallknobr"] =  {{"tactile_knob_medium_151f.png"}}
 }
 
-class "GxKnob" style "gx4_head_skin_icons"
+class "*GxKnob" style "gx4_head_skin_icons"
 
 style "gx4_head_skin_switch_icons"
 {
@@ -19,7 +19,7 @@ stock["switchit_on"] = {{"tactile_backlit_switchit_on.png"}}
 stock["switchit_off"] = {{"tactile_backlit_switchit_off.png"}}
 }
 
-class "GxToggleImage" style "gx4_head_skin_switch_icons"
+class "*GxToggleImage" style "gx4_head_skin_switch_icons"
 
 
 style "gx4_head_skin_knob_animation"
@@ -30,7 +30,7 @@ GxKnob::framecount = 0 # use 0 for auto (assumes square frames),
                             #  animations
 }
 
-class "GxKnob" style "gx2_head_skin_knob_animation"
+class "*GxKnob" style "gx4_head_skin_knob_animation"
 
 style "gx2_head_wheel_icons"
 {
@@ -40,7 +40,7 @@ GxWheel::framecount = 101 # use 0 for auto (assumes square frames)
                             #  and >1 for non squareframe animations
 }
 
-class "GxWheel" style "gx2_head_wheel_icons"
+class "*GxWheel" style "gx2_head_wheel_icons"
 
 style "gx2_head_wheel_vertical_icons"
 {
@@ -50,7 +50,7 @@ GxWheelVertical::framecount = 101 # use 0 for auto (assumes square frames)
                             #  and >1 for non squareframe animations
 }
 
-class "GxWheelVertical" style "gx2_head_wheel_vertical_icons"
+class "*GxWheelVertical" style "gx2_head_wheel_vertical_icons"
 
 style "gx4_head-paintbox"
 {
@@ -71,7 +71,7 @@ stock["gxhead"] = {{"gx_black18.png"}}
 GxPaintBox::icon-set =4
 }
 
-class "GxPaintBox" style "gx4_head-paintbox"
+class "*GxPaintBox" style "gx4_head-paintbox"
 
 style "gx4_head"
 {
@@ -111,15 +111,15 @@ font_name = "sans 10"
 }
 
 
-class "GtkWidget" style:highest "gx4_head"
-class "GtkLabel" style:highest "gx4_head"
-class "GtkHScale" style:highest "gx4_head"
-class "GtkVScale" style:highest "gx4_head"
-class "GtkCheckButton" style:highest "gx4_head"
-class "GtkButton" style:highest "gx4_head"
-class "GtkFrame" style:highest "gx4_head"
-class "GtkExpander" style:highest "gx4_head"
-#class "GtkEventBox" style:highest "gx4_head"
+class "*GtkWidget" style:highest "gx4_head"
+class "*GtkLabel" style:highest "gx4_head"
+class "*GtkHScale" style:highest "gx4_head"
+class "*GtkVScale" style:highest "gx4_head"
+class "*GtkCheckButton" style:highest "gx4_head"
+class "*GtkButton" style:highest "gx4_head"
+class "*GtkFrame" style:highest "gx4_head"
+class "*GtkExpander" style:highest "gx4_head"
+#class "*GtkEventBox" style:highest "gx4_head"
 
 style "gx4_head-event"
 {
@@ -164,7 +164,7 @@ style "gx4_amp_selector"
 }
 widget "*.amp_selector" style:highest "gx4_amp_selector"
 
-#widget_class "GtkDialog*" style:highest "gx4_head-dialog"
+#widget_class "*GtkDialog*" style:highest "gx4_head-dialog"
 
 style "gx4_head-menu"
 {
@@ -357,12 +357,12 @@ base[INSENSITIVE] = "#4c5159"
 base[SELECTED] = { 0.25, 0.25, 0.25 }
 }
 
-class "GtkHandleBox" style:highest "gx4_h_style"
-#class "GtkScrolledWindow" style:highest "gx4_h_style"
-widget_class "GtkDialog*" style:highest "gx4_h_style"
+class "*GtkHandleBox" style:highest "gx4_h_style"
+#class "*GtkScrolledWindow" style:highest "gx4_h_style"
+widget_class "*GtkDialog*" style:highest "gx4_h_style"
 widget_class "*GtkToggleButton*" style:highest "gx4_b_style"
-class "GtkButton" style:highest "gx4_b_style"
-class "GtkSpinButton" style:highest "gx4_c_style"
+class "*GtkButton" style:highest "gx4_b_style"
+class "*GtkSpinButton" style:highest "gx4_c_style"
 
 style "tagx4_b_style"
 {

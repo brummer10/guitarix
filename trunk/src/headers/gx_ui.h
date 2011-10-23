@@ -46,10 +46,10 @@ class GxUI;
 
 class GxUiItem {
  protected :
-    GxUI*    fGUI;
+    //GxUI*    fGUI;
  public:
     virtual ~GxUiItem();
-    explicit GxUiItem(GxUI *ui): fGUI(ui) {}
+    //explicit GxUiItem(GxUI *ui): fGUI(ui) {}
     virtual void reflectZone() = 0;
     virtual bool hasChanged() = 0;
 };
@@ -69,10 +69,11 @@ class GxUI {
     zmap        fZoneMap;
  public:
     GxUI();
-    virtual ~GxUI() {}
+    virtual ~GxUI();
 
     // public methods
     void registerZone(void*, GxUiItem*);
+    void unregisterZone(void* z, GxUiItem* c);
     void updateAllZones(bool force = false);
     void updateZone(void* z, bool force = false);
     static void updateAllGuis(bool force = false);
@@ -95,12 +96,14 @@ inline void GxUI::updateZone(void* z, bool force) {
 
 template<class T>
 class GxUiItemV: public GxUiItem {
- protected :
+protected :
+    GxUI*    fGUI;
 public:
     T*    fZone;
     T     fCache;
+public :
     GxUiItemV(GxUI* ui, T* zone);
- public :
+    ~GxUiItemV();
     void  modifyZone(T v);
     virtual bool hasChanged();
 };
@@ -112,8 +115,13 @@ typedef GxUiItemV<bool> GxUiItemBool;
 
 template<class T>
 GxUiItemV<T>::GxUiItemV(GxUI* ui, T* zone)
-  : GxUiItem(ui), fZone(zone) {
+  : fGUI(ui), fZone(zone) {
     ui->registerZone(zone, this);
+}
+
+template<class T>
+GxUiItemV<T>::~GxUiItemV() {
+    fGUI->unregisterZone(fZone, this);
 }
 
 template<class T>

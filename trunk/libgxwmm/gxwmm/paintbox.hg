@@ -42,9 +42,6 @@ class PaintBox: public Gtk::Box {
     _WRAP_METHOD(GList* get_children(),gx_box_get_children)
     
 	_WRAP_PROPERTY(paint-func, Glib::ustring)
-	_WRAP_PROPERTY(border-width, guint)
-	_WRAP_PROPERTY(spacing, guint)
-	_WRAP_PROPERTY(homogeneous, guint)
 	_WRAP_PROPERTY(icon-set, guint)
 	_WRAP_PROPERTY(width, guint)
 	_WRAP_PROPERTY(height, guint)

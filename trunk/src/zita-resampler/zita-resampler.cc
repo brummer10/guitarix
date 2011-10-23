@@ -170,7 +170,7 @@ Resampler::Resampler (void) :
 
 Resampler::~Resampler (void)
 {
-        clear ();
+    clear ();
 }
 
 

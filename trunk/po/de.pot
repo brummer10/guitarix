@@ -1367,7 +1367,7 @@ msgid "recall state"
 msgstr ""
 
 #: ../src/gx_head/gx_system.cpp:671
-msgid "unknown jack ports sections"
+msgid "unknown jack ports section: "
 msgstr ""
 
 #: ../src/gx_head/gx_system.cpp:702

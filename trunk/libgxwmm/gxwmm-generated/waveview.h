@@ -94,11 +94,11 @@ private:
 	public:
 	WaveView();
 	
-  void set_multiplicator(double, double);
+  void set_multiplicator(double p1, double p2);
 	
-  void set_frame(const float*, int);
+  void set_frame(const float* p1, int p2);
 	
-  void set_text(const Glib::ustring&, Gtk::CornerType);
+  void set_text(const Glib::ustring& p1, Gtk::CornerType p2);
 	#ifdef GLIBMM_PROPERTIES_ENABLED
 /** Text to be displayed at the top left.
    *

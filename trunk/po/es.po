@@ -1487,8 +1487,8 @@ msgid "recall state"
 msgstr "recall state"
 
 #: ../src/gx_head/gx_system.cpp:671
-msgid "unknown jack ports sections"
-msgstr "secciones de puertos de jack desconocidas"
+msgid "unknown jack ports section: "
+msgstr "seccione de puertos de jack desconocidas"
 
 #: ../src/gx_head/gx_system.cpp:702
 msgid "loading converted state"

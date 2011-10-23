@@ -17,7 +17,7 @@ style "gx_dezert_skin_icons"
   stock["gxhead"] = {{"gxhead.png"}}
 }
 
-class "GxKnob" style "gx_dezert_skin_icons"
+class "*GxKnob" style "gx_dezert_skin_icons"
 
 style "gx2_head_skin_knob_animation"
 {
@@ -25,7 +25,7 @@ style "gx2_head_skin_knob_animation"
 GxKnob::framecount = 0 # use 0 for auto (assumes square frames)
                             #  and >1 for non squareframe animations
 }
-class "GxKnob" style "gx2_head_skin_knob_animation"
+class "*GxKnob" style "gx2_head_skin_knob_animation"
 
 style "gx2_head_wheel_icons"
 {
@@ -43,7 +43,7 @@ GxWheelVertical::framecount = 101 # use 0 for auto (assumes square frames)
                             #  and >1 for non squareframe animations
 }
 
-class "GxWheelVertical" style "gx2_head_wheel_vertical_icons"
+class "*GxWheelVertical" style "gx2_head_wheel_vertical_icons"
 
 style "gx4_head_skin_switch_icons"
 {
@@ -51,10 +51,10 @@ stock["switchit_on"] = {{"tactile_backlit_switchit_on.png"}}
 stock["switchit_off"] = {{"tactile_backlit_switchit_off.png"}}
 }
 
-class "GxToggleImage" style "gx4_head_skin_switch_icons"
+class "*GxToggleImage" style "gx4_head_skin_switch_icons"
 
 
-class "GxWheel" style "gx2_head_wheel_icons"
+class "*GxWheel" style "gx2_head_wheel_icons"
 
 style "gx_dezert-paintbox"
 {
@@ -75,7 +75,7 @@ GxPaintBox::skin-gradient = {
   stock["main_image"] = {{"gx-dezert_18.png"}}
   stock["gxhead"] = {{"gxhead.png"}}
 }
-class "GxPaintBox" style "gx_dezert-paintbox"
+class "*GxPaintBox" style "gx_dezert-paintbox"
 
 style "gx_dezert"
 {
@@ -119,15 +119,15 @@ font_name = "sans 10"
 }
 
 
-class "GtkWidget" style:highest "gx_dezert"
-class "GtkLabel" style:highest "gx_dezert"
-class "GtkHScale" style:highest "gx_dezert"
-class "GtkVScale" style:highest "gx_dezert"
-class "GtkCheckButton" style:highest "gx_dezert"
-#class "GtkButton" style:highest "gx_dezert"
-class "GtkFrame" style:highest "gx_dezert"
-class "GtkExpander" style:highest "gx_dezert"
-#class "GtkEventBox" style:highest "gx_dezert"
+class "*GtkWidget" style:highest "gx_dezert"
+class "*GtkLabel" style:highest "gx_dezert"
+class "*GtkHScale" style:highest "gx_dezert"
+class "*GtkVScale" style:highest "gx_dezert"
+class "*GtkCheckButton" style:highest "gx_dezert"
+#class "*GtkButton" style:highest "gx_dezert"
+class "*GtkFrame" style:highest "gx_dezert"
+class "*GtkExpander" style:highest "gx_dezert"
+#class "*GtkEventBox" style:highest "gx_dezert"
 
 style "gx_dezert-event"
 {
@@ -180,7 +180,7 @@ style "gx3_amp_selector"
 }
 widget "*.amp_selector" style:highest "gx3_amp_selector"
 
-widget_class "GtkDialog*" style:highest "gx_dezert-dialog"
+widget_class "*GtkDialog*" style:highest "gx_dezert-dialog"
 
 style "gx_dezert-menu"
 {
@@ -372,12 +372,12 @@ text[NORMAL] = { 0.30, 0.30, 0.30 }
 text[SELECTED] = { 0.10, 0.10, 0.20 }
 }
 
-class "GtkHandleBox" style:highest "dezert_h_style"
-#class "GtkScrolledWindow" style:highest "dezert_h_style"
-widget_class "GtkDialog*" style:highest "dezert_h_style"
+class "*GtkHandleBox" style:highest "dezert_h_style"
+#class "*GtkScrolledWindow" style:highest "dezert_h_style"
+widget_class "*GtkDialog*" style:highest "dezert_h_style"
 widget_class "*GtkToggleButton*" style:highest "gx_dezert_b_style"
-class "GtkButton" style:highest "gx_dezert_b_style"
-class "GtkSpinButton" style:highest "dezert_c_style"
+class "*GtkButton" style:highest "gx_dezert_b_style"
+class "*GtkSpinButton" style:highest "dezert_c_style"
 
 style "dezert_tab_style"
 {

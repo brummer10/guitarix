@@ -95,7 +95,7 @@ private:
 	public:
 	Selector();
 	
-  void set_model(Glib::RefPtr<Gtk::TreeModel>);;
+  void set_model(Glib::RefPtr<Gtk::TreeModel> p1);;
 	
   Glib::RefPtr<Gtk::TreeModel> get_model();;
 	#ifdef GLIBMM_PROPERTIES_ENABLED

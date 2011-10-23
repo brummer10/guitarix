@@ -156,7 +156,7 @@ MidiControllerTable::MidiControllerTable(GtkCheckMenuItem *item) {
 
     gx_gui::SwitchParameter& param = gx_gui::parameter_map["system.midi_in_preset"].getSwitch();
     gtk_toggle_button_set_active(togglebutton, param.get());
-    param.changed.connect(sigc::mem_fun(*this, &MidiControllerTable::set));
+    param.signal_changed().connect(sigc::mem_fun(*this, &MidiControllerTable::set));
     g_signal_connect(GTK_OBJECT(togglebutton), "toggled",
                      G_CALLBACK(toggleButtonSetSwitch), (gpointer)&param);
     g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox1"),"expose-event",
@@ -175,11 +175,11 @@ MidiControllerTable::MidiControllerTable(GtkCheckMenuItem *item) {
                      "edited", G_CALLBACK(edited_cb), store);
 
     gtk_window_add_accel_group(GTK_WINDOW(window),
-                               gx_gui::GxMainInterface::get_instance().fAccelGroup);
+                               gx_gui::GxMainInterface::get_instance().fAccelGroup->gobj());
 
     gtk_widget_show(window);
     g_object_unref(G_OBJECT(builder));
-    gx_gui::controller_map.changed.connect(sigc::mem_fun(*this, &MidiControllerTable::load));
+    gx_gui::controller_map.signal_changed().connect(sigc::mem_fun(*this, &MidiControllerTable::load));
 }
 
 

@@ -28,7 +28,7 @@
 #include <errno.h>          // NOLINT
 #include <cstring>          // NOLINT
 #include <algorithm>        // NOLINT
-
+#include <gtkmm/main.h>
 
 namespace gx_threads {
 
@@ -62,16 +62,6 @@ gboolean gx_refresh_meter_level(gpointer args) {
     }
     // run thread again
     return TRUE;
-}
-
-/* -------------- refresh oscilloscope function -------------- */
-gboolean gx_xrun_report(gpointer arg) {
-    usleep(40);
-    ostringstream s;
-    s << " delay of at least " << gx_gui::GxMainInterface::get_instance().jack.xdel << " microsecs";
-    gx_system::gx_print_warning("Jack XRun", s.str());
-
-    return FALSE;
 }
 
 /* --------- load preset triggered by midi program change --------- */
@@ -174,36 +164,6 @@ gboolean gx_check_cab_state(gpointer) {
 
 /** ----------- Glibc THREADS RUNNING BY GUITARIX -----------------  **/
 /** ----------- -------------------------------- ------------------  **/
-
-
-// --- wait for USR1 signal to arrive and invoke ladi handler via mainloop
-gpointer gx_signal_helper_thread(gpointer data) {
-    int sig;
-    int ret;
-    sigset_t waitset;
-    guint source_id = 0;
-    sigemptyset(&waitset);
-    sigaddset(&waitset, SIGUSR1);
-    sigaddset(&waitset, SIGCHLD);
-    sigprocmask(SIG_BLOCK, &waitset, NULL);
-    while (true) {
-        ret = sigwait(&waitset, &sig);
-        if (ret == 0) {
-            if (sig == SIGUSR1) {
-                // do not add a new call if another one is already pending
-                if (source_id == 0 || g_main_context_find_source_by_id(NULL, source_id) == NULL)
-                    source_id = g_idle_add(gx_system::gx_ladi_handler, NULL);
-            } else {
-                assert(sig == SIGCHLD);
-                source_id = g_idle_add(gx_child_process::gx_sigchld_handler, NULL);
-            }
-        } else {
-            assert(errno == EINTR);
-        }
-    }
-    // notreached
-    return NULL;
-}
 
 // ---- feed a midi program change from realtime thread to ui thread
 gpointer gx_program_change_helper_thread(gpointer data) {

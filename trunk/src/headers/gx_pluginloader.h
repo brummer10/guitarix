@@ -9,6 +9,8 @@ struct stringcomp {
     }
 };
 
+namespace gx_engine {
+
 /****************************************************************
  ** class Plugin
  ** Defines audio processing module and variables for
@@ -43,6 +45,8 @@ enum PluginPos { // where to add a plugin (per processing chain)
     PLUGIN_POS_END		// keep last one
 };
 
+class ModuleSequencer;
+
 class PluginList {
 public:
     typedef pair<const char*, Plugin*> map_pair;
@@ -53,19 +57,22 @@ private:
 	PLUGIN_POS_COUNT		// keep last one
     };
     pluginmap pmap;
+    ModuleSequencer& seq;
+    gx_ui::GxUI& ui;
+    list<gx_ui::GxUiItem*> rackchanger;
     int plugin_pos[PLUGIN_POS_COUNT];
     Plugin *find_plugin(const char *id);
     int add_module(Plugin *pl, PluginPos pos, int flags);
 public:
     class iterator;
-    PluginList();
+    PluginList(gx_ui::GxUI& ui, ModuleSequencer& seq);
     ~PluginList();
     Plugin *lookup_plugin(const char *id);
     void set_samplerate(int samplerate); // call set_samplerate of all plugins
     int* pos_var(const char *id);     // return the position of the plugin
     bool* on_off_var(const char *id); // return the on/off switch variable of the plugin
-    int load_from_path(string path, PluginPos pos = PLUGIN_POS_RACK);
-    int load_library(string path, PluginPos pos = PLUGIN_POS_RACK);
+    int load_from_path(const string& path, PluginPos pos = PLUGIN_POS_RACK);
+    int load_library(const string& path, PluginPos pos = PLUGIN_POS_RACK);
     int add(Plugin *pl, PluginPos pos, int flags);
     int add(PluginDef *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     int add(PluginDef **p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
@@ -77,6 +84,7 @@ public:
 #ifndef NDEBUG
     void printlist(bool ordered = true);
 #endif
+    template<class T> friend class RackChangerUiItem;
 };
 
 #ifndef NDEBUG
@@ -84,3 +92,5 @@ void printlist(const char *title, const list<Plugin*>& modules, bool header=true
 #else 
 inline void printlist(const char *, const list<Plugin*>&, bool=true) {}
 #endif
+
+} // !namespace gx_engine

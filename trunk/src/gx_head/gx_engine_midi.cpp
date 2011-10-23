@@ -127,7 +127,7 @@ inline float sqrf(float x) {
 }
 
 // ----- jack process callback for the midi output
-void process_midi(int len, float *audiodata) {
+void process_midi(int len, float *audiodata, void *midi_port_buf) {
     static float fnote = 1000.;
     float fConsta2 = 0.;
     float fTemps45 = midi.fslider45;
@@ -229,7 +229,7 @@ void process_midi(int len, float *audiodata) {
 	    if (midi.program != iTemps31) {
 		midi.program = iTemps31;
 		midi.midistat = true;
-		midi.midi_send = jack_midi_event_reserve(gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 2);
+		midi.midi_send = jack_midi_event_reserve(midi_port_buf, i, 2);
 
 		if (midi.midi_send) {
 		    // program value
@@ -249,8 +249,7 @@ void process_midi(int len, float *audiodata) {
 		if (midi.volume != iTemps46) {
 		    midi.volume = iTemps46;
 		    midi.midistat = true;
-		    midi.midi_send = jack_midi_event_reserve
-			(gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+		    midi.midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
 
 		    if (midi.midi_send) {
 			// volume value
@@ -270,8 +269,7 @@ void process_midi(int len, float *audiodata) {
 		if (( midi.noten >= 0)&&(midi.noten <= 127)) {
 		    // pitch wheel clear
 		    if (midi.fpitch) {
-			midi.midi_send = jack_midi_event_reserve
-			    (gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+			midi.midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
 			if (midi.midi_send) {
 			    // pitch value
 			    midi.midi_send[2] = 0x40;
@@ -281,8 +279,7 @@ void process_midi(int len, float *audiodata) {
 			    midi.midi_send[0] = 0xE0 | static_cast<int>(iTemps30);
 			}
 		    }
-		    midi.midi_send = jack_midi_event_reserve
-			(gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+		    midi.midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
 		    if (midi.midi_send) {
 			// velocity
 			midi.midi_send[2] = static_cast<int>(iTemps26);
@@ -296,8 +293,7 @@ void process_midi(int len, float *audiodata) {
 		    if (midi.fpitch) {
 			if (piwe < 0) piwe = 0;
 			if (fConsta2 > 0x3fff) piwe = 0x3fff;
-			midi.midi_send = jack_midi_event_reserve
-			    (gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+			midi.midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
 
 			if (midi.midi_send) {
 			    // pitch
@@ -316,8 +312,7 @@ void process_midi(int len, float *audiodata) {
 		if (midi.program1 != iTemps36) {
 		    midi.program1 = iTemps36;
 		    midi.midistat = true;
-		    midi.midi_send1 = jack_midi_event_reserve
-			(gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 2);
+		    midi.midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 2);
 
 		    if (midi.midi_send1) {
 			// program value
@@ -339,8 +334,7 @@ void process_midi(int len, float *audiodata) {
 		    if (midi.volume1 != iTemps47) {
 			midi.volume1 = iTemps47;
 			midi.midistat = true;
-			midi.midi_send1 = jack_midi_event_reserve
-			    (gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+			midi.midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
 			if (midi.midi_send1) {
 			    // volume value
 			    midi.midi_send1[2] = static_cast<int>(iTemps47);
@@ -358,8 +352,7 @@ void process_midi(int len, float *audiodata) {
 		    if ((midi.noten1 >= 0)&&(midi.noten1 <= 127)) {
 			// pitch wheel clear
 			if (midi.fpitch1) {
-			    midi.midi_send1 = jack_midi_event_reserve
-				(gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+			    midi.midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
 			    if (midi.midi_send1) {
 				// pitch value
 				midi.midi_send1[2] =  0x40;
@@ -369,7 +362,7 @@ void process_midi(int len, float *audiodata) {
 				midi.midi_send1[0] = 0xE0 |  static_cast<int>(iTemps35);
 			    }
 			}
-			midi.midi_send1 = jack_midi_event_reserve(gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+			midi.midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
 
 			if (midi.midi_send1) {
 			    // velocity
@@ -384,8 +377,7 @@ void process_midi(int len, float *audiodata) {
 			if (midi.fpitch1) {
 			    if (piwe < 0) piwe = 0;
 			    if (fConsta2 > 0x3fff) piwe = 0x3fff;
-			    midi.midi_send1 = jack_midi_event_reserve
-				(gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+			    midi.midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
 
 			    if (midi.midi_send1) {
 				// pitch
@@ -404,7 +396,7 @@ void process_midi(int len, float *audiodata) {
 		if (midi.program2 != iTemps43) {
 		    midi.program2 = iTemps43;
 		    midi.midistat = true;
-		    midi.midi_send2 = jack_midi_event_reserve(gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 2);
+		    midi.midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 2);
 
 		    if (midi.midi_send2) {
 			// program value
@@ -425,8 +417,7 @@ void process_midi(int len, float *audiodata) {
 		    if (midi.volume2 != iTemps48) {
 			midi.volume2 = iTemps48;
 			midi.midistat = true;
-			midi.midi_send2 = jack_midi_event_reserve
-			    (gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+			midi.midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
 			if (midi.midi_send2) {
 			    // volume value
 			    midi.midi_send2[2] = static_cast<int>(iTemps48);
@@ -439,8 +430,7 @@ void process_midi(int len, float *audiodata) {
 
 		    // pitch wheel clear
 		    if (midi.fpitch2) {
-			midi.midi_send2 = jack_midi_event_reserve
-			    (gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+			midi.midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
 			if (midi.midi_send2) {
 			    // pitch value
 			    midi.midi_send2[2] =  0x40;
@@ -457,8 +447,7 @@ void process_midi(int len, float *audiodata) {
 		    midi.midistat3 = true;
 
 		    if ((midi.noten2 >= 0)&&(midi.noten2 <= 127)) {
-			midi.midi_send2 = jack_midi_event_reserve
-			    (gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+			midi.midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
 
 			if (midi.midi_send2) {
 			    // velocity
@@ -473,8 +462,7 @@ void process_midi(int len, float *audiodata) {
 			if (midi.fpitch2) {
 			    if (piwe < 0) piwe = 0;
 			    if (fConsta2 > 0x3fff) piwe = 0x3fff;
-			    midi.midi_send2 = jack_midi_event_reserve
-				(gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+			    midi.midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
 			    if (midi.midi_send2) {
 				// pitch
 				midi.midi_send2[2] = (piwe >> 7) & 0x7f;
@@ -495,7 +483,7 @@ void process_midi(int len, float *audiodata) {
 		midi.Beat_is = static_cast<int>(fTemps45);
 		if (midi.weg <  iTemps37a) {   // 5.0
 		    midi.midistat = true;
-		    midi.midi_send = jack_midi_event_reserve(gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+		    midi.midi_send = jack_midi_event_reserve(midi_port_buf, i, 3);
 
 		    if (midi.midi_send) {
 			// velocity
@@ -508,7 +496,7 @@ void process_midi(int len, float *audiodata) {
 
 		    if (midi.fcheckbox10) {
 			midi.midistat = true;
-			midi.midi_send1 = jack_midi_event_reserve(gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+			midi.midi_send1 = jack_midi_event_reserve(midi_port_buf, i, 3);
 
 			if (midi.midi_send1) {
 			    // velocity
@@ -522,7 +510,7 @@ void process_midi(int len, float *audiodata) {
 
 		    if (midi.fcheckbox11) {
 			midi.midistat = true;
-			midi.midi_send2 = jack_midi_event_reserve(gx_gui::GxMainInterface::get_instance().jack.midi_port_buf, i, 3);
+			midi.midi_send2 = jack_midi_event_reserve(midi_port_buf, i, 3);
 
 			if (midi.midi_send2) {
 			    // velocity

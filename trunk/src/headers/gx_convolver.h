@@ -104,6 +104,7 @@ protected:
     unsigned int buffersize;
     unsigned int samplerate;
     GxConvolverBase(): ready(false), buffersize(), samplerate() {}
+    ~GxConvolverBase();
 public:
     void set_buffersize(unsigned int sz) { buffersize = sz; }
     unsigned int get_buffersize() { return buffersize; }

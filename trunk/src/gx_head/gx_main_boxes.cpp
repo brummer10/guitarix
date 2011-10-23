@@ -48,7 +48,7 @@ SwitchParameter* ToggleCheckButton::get_parameter() {
 
 void ToggleCheckButton::set_parameter(SwitchParameter *p) {
     param = p;
-    p->changed.connect(sigc::mem_fun(*this, &ToggleCheckButton::set_active));
+    p->signal_changed().connect(sigc::mem_fun(*this, &ToggleCheckButton::set_active));
     signal_toggled().connect(
         sigc::mem_fun(*this, &ToggleCheckButton::on_my_toggled));
 }
@@ -64,6 +64,35 @@ ToggleCheckButton::ToggleCheckButton() {
     m_label.set_name("barbuttonlabel");
     add(m_label);
 }
+
+///////
+
+void ToggleCheckButtonUiBool::on_my_toggled() {
+    modifyZone(get_active());
+}
+
+void ToggleCheckButtonUiBool::reflectZone() {
+    bool v = *fZone;
+    fCache = v;
+    set_active(v);
+}
+
+ToggleCheckButtonUiBool::~ToggleCheckButtonUiBool() {}
+
+ToggleCheckButtonUiBool::ToggleCheckButtonUiBool(gx_ui::GxUI* ui, bool* zone)
+    : Gtk::ToggleButton(),
+      gx_ui::GxUiItemBool(ui, zone) {
+    set_name("barbutton");
+    Pango::FontDescription font = m_label.get_style()->get_font();
+    font.set_size(8*Pango::SCALE);
+    font.set_weight(Pango::WEIGHT_BOLD);
+    m_label.modify_font(font);
+    m_label.set_name("barbuttonlabel");
+    add(m_label);
+    signal_toggled().connect(
+        sigc::mem_fun(*this, &ToggleCheckButtonUiBool::on_my_toggled));
+}
+
 /****************************************************************/
 
 GxTBox::~GxTBox() {}
@@ -194,19 +223,6 @@ GxDialogButtonBox::GxDialogButtonBox(gx_ui::GxUI& ui, Parameter& param_dialog)
 
 /****************************************************************/
 
-void GxDialogWindowBox::on_dialog_button_toggled() {
-    if (dialog_button.get_active()) {
-        const gchar * title = gtk_widget_get_name(GTK_WIDGET(paintbox.gobj()));
-        string p = "ui.";
-        p +=title;
-        string group = group_id;
-        group += ".on_off";
-        parameter_map[p].set_std_value();
-        parameter_map[group].set_std_value();
-        dialog_button.set_active(false);
-    }
-}
-
 void GxDialogWindowBox::on_dialog_menu_activate() {
     gx_show_extended_settings(GTK_WIDGET(menuitem.gobj()), (gpointer)paintbox.gobj());
 
@@ -229,12 +245,13 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk,
                                      Parameter& param_dialog,
                                      Parameter& param_switch,
                                      Gtk::ToggleButton& button, GtkWidget * Caller)
-    :box(false, 0),
-    unit_on_off(UiSwitch::new_switch(ui, sw_led, param_switch)),
-    dialog_button(button),
-    m_regler_tooltip_window(Gtk::WINDOW_POPUP)  {
-    group_id = param_dialog.id().substr(0, param_dialog.id().find_last_of(".")).c_str();
-    Glib::ustring title = param_dialog.group();
+    : box(false, 0),
+      unit_on_off(UiSwitch::new_switch(ui, sw_led, param_switch)),
+      menuitem(&ui, &param_dialog.getBool().value),
+      m_tcb(&ui, &param_dialog.getBool().value),
+      m_regler_tooltip_window(Gtk::WINDOW_POPUP)  {
+    group_id = param_switch.id().substr(0, param_switch.id().find_last_of("."));
+    Glib::ustring title = param_switch.group();
     box1.pack_end(*unit_on_off, false, false);
     box.set_border_width(2);
     box4.set_spacing(2);
@@ -261,8 +278,6 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk,
     paintbox.add(box4);
     paintbox.set_tooltip_text(title.c_str());
     m_tcb.m_label.set_text(title.c_str());
-    dialog_button.signal_toggled().connect(
-        sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_button_toggled));
     menuitem.signal_activate().connect(
         sigc::mem_fun(*this, &GxDialogWindowBox::on_dialog_menu_activate));
 }
@@ -277,7 +292,6 @@ bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d) {
 }
 
 bool GxWindowBox::on_button_pressed(GdkEventButton* event) {
-    // fprintf(stderr, "butto pressed\n" );
     if ((event->type == GDK_BUTTON_PRESS) && (event->button == 3)) {
         const gchar * title = gtk_widget_get_name(GTK_WIDGET(window.gobj()));
         if (strcmp(title, "MonoRack") == 0) {
@@ -337,8 +351,8 @@ void GxScrollBox::on_rack_reorder_horizontal() {
         if (gx_gui::gw.srack_widget) {
             paintbox1.hide();
             gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
-            if (gtk_window_get_resizable(GTK_WINDOW (gw.fWindow)))
-                gtk_window_set_resizable(GTK_WINDOW(gw.fWindow), FALSE);
+            if (gui.fWindow.get_resizable())
+                gui.fWindow.set_resizable(false);
             gtk_widget_ref(gx_gui::gw.srack_widget);
             GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::gw.srack_widget));
             gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.srack_widget);
@@ -370,8 +384,9 @@ void GxScrollBox::on_rack_reorder_horizontal() {
 
             gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1,  460 );
             if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
-                guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
-                               gx_gui::gx_set_resizeable, gpointer(gw.fWindow), NULL);
+                guivar.g_threads[7] = g_timeout_add_full(
+		    G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,
+		    gpointer(gui.fWindow.gobj()), NULL);
             if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
                 guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                                gx_gui::gx_set_default, gpointer(gui.RBox), NULL);
@@ -385,8 +400,8 @@ void GxScrollBox::on_rack_reorder_vertical() {
         if (gx_gui::gw.srack_widget) {
             paintbox1.hide();
             gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
-            if (gtk_window_get_resizable(GTK_WINDOW(gw.fWindow)))
-                gtk_window_set_resizable(GTK_WINDOW(gw.fWindow), FALSE);
+            if (gui.fWindow.get_resizable())
+                gui.fWindow.set_resizable(false);
             gtk_widget_ref(gx_gui::gw.srack_widget);
             GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::gw.srack_widget));
             gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.srack_widget);
@@ -416,8 +431,9 @@ void GxScrollBox::on_rack_reorder_vertical() {
 
             gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, 460 );
             if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
-                guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
-                               gx_gui::gx_set_resizeable, gpointer(gw.fWindow), NULL);
+                guivar.g_threads[7] = g_timeout_add_full(
+		    G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,
+		    gpointer(gui.fWindow.gobj()), NULL);
             if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
                 guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                                gx_gui::gx_set_default, gpointer(gui.RBox), NULL);
@@ -457,16 +473,16 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
     fOrdervRack.signal_activate().connect(
         sigc::mem_fun(*this, &GxScrollBox::on_rack_reorder_vertical));
 
-    const gchar * mtitle = "Order Rack Vertically";
-    set_label(fOrdervRack, mtitle);
+    const gchar * mtitle = _("Order Rack Vertically");
+    fOrdervRack.set_label(mtitle);
     gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
     gtk_menu_shell_append(GTK_MENU_SHELL(gui.getMenu("PluginMenu")),
                           GTK_WIDGET(fOrdervRack.gobj()));
     fOrdervRack.set_parameter(new SwitchParameter("system.order_rack_v", false, false));
     fOrdervRack.show();
 
-    mtitle = "Order Rack Horizontally";
-    set_label(fOrderhRack, mtitle);
+    mtitle = _("Order Rack Horizontally");
+    fOrderhRack.set_label(mtitle);
     gtk_menu_shell_append(GTK_MENU_SHELL(gui.getMenu("PluginMenu")),
                           GTK_WIDGET(fOrderhRack.gobj()));
     fOrderhRack.set_active(false);

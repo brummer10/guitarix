@@ -34,7 +34,7 @@
 
 namespace gx_portmap {
 
-PortAttr gx_head_ports[] = {
+static PortAttr gx_head_ports[] = {
     // client_num, is_insert, port_name, is_input, port_type
     { 0, false, "in_0", true, JACK_DEFAULT_AUDIO_TYPE },
     { 1, false, "out_0", false, JACK_DEFAULT_AUDIO_TYPE },
@@ -46,7 +46,7 @@ PortAttr gx_head_ports[] = {
 };
 
 #define ALSA_PCM "alsa_pcm"  // special alsa sequencer gxjack.client
-
+#define ALSA_PCM_LEN_1 9
 
 /****************************************************************
 ** ClientList
@@ -69,7 +69,7 @@ ClientPortList::ClientPortList(const char *p) {
     const char *q = strchr(p, ':');
     if (q) {
         len = (q - p) + 1;
-        if (strncmp(p, (ALSA_PCM ":"), 9) == 0) {
+        if (strncmp(p, (ALSA_PCM ":"), ALSA_PCM_LEN_1) == 0) {
             q = strchr(p+len, '/');
             if (q) {
                 len = (q - p) + 1;
@@ -137,9 +137,6 @@ void ClientList::remove(string excl) {
 ** PortMapWindow
 */
 
-GtkWidget *PortMapWindow::window = 0;
-PortMapWindow *PortMapWindow::instance = 0;
-
 /*
 ** port registration / removal
 */
@@ -153,23 +150,22 @@ static string client_from_port(const string& port) {
     if (s.compare(ALSA_PCM) != 0) {
         return s;
     }
-    size_t p2 = port.find_first_of('/', 9);
+    size_t p2 = port.find_first_of('/', ALSA_PCM_LEN_1);
     if (p2 == string::npos) {
         return port;
     }
     return port.substr(0, p2);
 }
 
-static bool compare_client(const string& name, const char *p) {
-    if (name.compare(0, name.size(), p, name.size()) == 0) {
-        if (p[name.size()] == ':' || p[name.size()] == '\0') {
+static bool compare_client(const string& name, const string& p) {
+    if (name.compare(0, name.size(), p, 0, name.size()) == 0) {
+        if (p[name.size()] == ':' || p.size() == name.size()) {
             return true;
         }
     }
-    if (strncmp(p, (ALSA_PCM ":"), 9) == 0) {
-        p += 9;
-        if (name.compare(0, name.size(), p, name.size()) == 0) {
-            if (p[name.size()] == '/' || p[name.size()] == '\0') {
+    if (p.compare(0, ALSA_PCM_LEN_1, (ALSA_PCM ":"))) {
+        if (name.compare(0, name.size(), p, ALSA_PCM_LEN_1, name.size()) == 0) {
+            if (p[ALSA_PCM_LEN_1+name.size()] == '/' || p.size() == ALSA_PCM_LEN_1+name.size()) {
                 return true;
             }
         }
@@ -181,106 +177,66 @@ static bool compare_port(const string& name, const char *p) {
     return name.compare(p) == 0;
 }
 
-bool PortMapWindow::walk_remove(GtkTreeStore *ts, bool (*compare)  //  NOLINT
+bool PortMapWindow::walk_remove(Glib::RefPtr<Gtk::TreeStore> ts, bool (*compare)  //  NOLINT
                                (const string&, const char*), string data) {
     bool changed = false;
-    GtkTreeIter p_iter;
-    if (!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(ts), &p_iter)) {
-        return changed;
-    }
-    while (true) {
-        gboolean is_port;
-        gtk_tree_model_get(GTK_TREE_MODEL(ts), &p_iter, 2, &is_port, -1);
-        if (is_port) {
-            gchararray p;
-            gtk_tree_model_get(GTK_TREE_MODEL(ts), &p_iter, 0, &p, -1);
-            if (compare(data, p)) {
+    Gtk::TreeIter i(ts->children().begin());
+    while (i) {
+	if ((*i)[columns.is_port]) {
+            if (data == (*i)[columns.port]) {
                 changed = true;
-                if (!gtk_tree_store_remove(ts, &p_iter)) {
-                    break;
-                }
-                continue;
+                i = ts->erase(i);
+		continue;
             }
         } else {
-            GtkTreeIter c_iter;
-            gtk_tree_model_iter_children(GTK_TREE_MODEL(ts), &c_iter, &p_iter);
-            while (true) {
-                gchararray p;
-                gtk_tree_model_get(GTK_TREE_MODEL(ts), &c_iter, 0, &p, -1);
-                if (compare(data, p)) {
+	    Gtk::TreeIter j(i->children().begin());
+            while (j) {
+                if (data == (*j)[columns.port]) {
                     changed = true;
-                    if (!gtk_tree_store_remove(ts, &c_iter)) {
-                        break;
-                    }
-                    continue;
+		    j = ts->erase(j);
+		    continue;
                 }
-                if (!gtk_tree_model_iter_next(GTK_TREE_MODEL(ts), &c_iter)) {
-                    break;
-                }
-            }
-            if (!gtk_tree_model_iter_has_child(GTK_TREE_MODEL(ts), &p_iter)) {
-                changed = true;
-                if (!gtk_tree_store_remove(ts, &p_iter)) {
-                    break;
-                }
-                continue;
+		j++;
             }
         }
-        if (!gtk_tree_model_iter_next(GTK_TREE_MODEL(ts), &p_iter)) {
-            break;
-        }
+	i++;
     }
     return changed;
 }
 
-void PortMapWindow::walk_insert(GtkTreeStore *ts, string name) {
-    GtkTreeIter p_iter; // clients and ports on top level
-    if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(ts), &p_iter)) {
-        while (true) {
-            gboolean is_port;
-            gchararray p;
-            gtk_tree_model_get(GTK_TREE_MODEL(ts), &p_iter, 0, &p, 2, &is_port, -1);
-            if (name.compare(p) == 0) {
-                return;
-            }
-            if (!is_port && compare_client(client_from_port(name), p)) {
-                GtkTreeIter c_iter; // ports of a gxjack.client, 2nd level
-                if (gtk_tree_model_iter_children(GTK_TREE_MODEL(ts), &c_iter, &p_iter)) {
-                    while (true) {
-                        // if we already have the port get out
-                        gtk_tree_model_get(GTK_TREE_MODEL(ts), &c_iter, 0, &p, -1);
-                        if (name.compare(p) == 0) {
-                            return;
-                        }
-                        if (!gtk_tree_model_iter_next(GTK_TREE_MODEL(ts), &c_iter)) {
-                            break;
-                        }
-                    }
-                }
-                gtk_tree_store_insert_with_values(ts, 0, &p_iter, 0,
-                                                  0, name.c_str(),
-                                                  1, false,
-                                                  2, true,
-                                                  -1);
-                return;
-            }
-            if (!gtk_tree_model_iter_next(GTK_TREE_MODEL(ts), &p_iter)) {
-                break;
-            }
-        }
+void PortMapWindow::walk_insert(Glib::RefPtr<Gtk::TreeStore> ts, string name) {
+    // clients and ports on top level
+    for (Gtk::TreeIter i(ts->children().begin()); i; i++) {
+	Glib::ustring p = (*i)[columns.port];
+	if (name == p) {
+	    return;
+	}
+	if (!(*i)[columns.is_port] && compare_client(client_from_port(name), p)) {
+	    // ports of a gxjack.client, 2nd level
+	    for (Gtk::TreeIter j(i->children().begin()); j; j++) {
+		// if we already have the port get out
+		if (name == (*j)[columns.port]) {
+		    return;
+		}
+	    }
+	    Gtk::TreeRow row = *ts->append(i->children());
+	    row[columns.port] = name;
+	    row[columns.connected] = false;
+	    row[columns.is_port] = true;
+	    return;
+	}
     }
-    gtk_tree_store_insert_with_values(ts, 0, 0, 0,
-                                      0, name.c_str(),
-                                      1, false,
-                                      2, true,
-                                      -1);
+    Gtk::TreeRow row = *ts->append();
+    row[columns.port] = name;
+    row[columns.connected] = false;
+    row[columns.is_port] = true;
 }
 
 void PortMapWindow::port_changed(string name, const char *tp, int flags, bool reg) {
     if (reg == 0) {
         for (int i = 0; i < number_of_ports; i++) {
-            PortSection *p = &portsection[i];
-            if (walk_remove(p->treestore, compare_port, name)) {
+            PortSection& p = portsection[i];
+            if (walk_remove(p.treestore, compare_port, name)) {
                 update_summary(p);
             }
         }
@@ -315,46 +271,39 @@ void PortMapWindow::port_changed(string name, const char *tp, int flags, bool re
 ** port connection change
 */
 
-list<string> PortMapWindow::walk(GtkTreeStore *ts, string *port, int connect) {
+list<string> PortMapWindow::walk(Glib::RefPtr<Gtk::TreeStore> ts, string *port, int connect) {
     list<string> l;
-    GtkTreeIter p_iter;
-    if (!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(ts), &p_iter)) {
-        return l;
-    }
-    do {
-        gboolean is_port, is_connected;
-        gchararray p;
-        gtk_tree_model_get(GTK_TREE_MODEL(ts), &p_iter, 0, &p, 1, &is_connected, 2, &is_port, -1);
-        if (is_port) {
+    for (Gtk::TreeIter i(ts->children().begin()); i; i++) {
+	Glib::ustring p = (*i)[columns.port];
+	bool is_connected = (*i)[columns.connected];
+        if ((*i)[columns.is_port]) {
             if (port && port->compare(p) == 0) {
                 is_connected = connect;
-                gtk_tree_store_set(ts, &p_iter, 1, is_connected, -1);
+		(*i)[columns.connected] = connect;
             }
             if (is_connected) {
                 l.push_back(p);
             }
         } else {
-            GtkTreeIter c_iter;
-            gtk_tree_model_iter_children(GTK_TREE_MODEL(ts), &c_iter, &p_iter);
-            do {
-                gchararray p;
-                gtk_tree_model_get(GTK_TREE_MODEL(ts), &c_iter, 0, &p, 1, &is_connected, -1);
+	    for (Gtk::TreeIter j(i->children().begin()); j; j++) {
+		Glib::ustring p = (*j)[columns.port];
+		bool is_connected = (*j)[columns.connected];
                 if (port && port->compare(p) == 0) {
                     is_connected = connect;
-                    gtk_tree_store_set(ts, &c_iter, 1, is_connected, -1);
+		    (*j)[columns.connected] = connect;
                 }
                 if (is_connected) {
                     l.push_back(p);
                 }
-            } while (gtk_tree_model_iter_next(GTK_TREE_MODEL(ts), &c_iter));
-        }
-    } while (gtk_tree_model_iter_next(GTK_TREE_MODEL(ts), &p_iter));
+	    }
+	}
+    }
     return l;
 }
 
-void PortMapWindow::update_summary(PortSection *p, string *port, bool conn) {
-    list<string> l = walk(p->treestore, port, conn);
-    if (!p->expander) {
+void PortMapWindow::update_summary(PortSection& p, string *port, bool conn) {
+    list<string> l = walk(p.treestore, port, conn);
+    if (!p.expander) {
         return;
     }
     string q;
@@ -365,17 +314,19 @@ void PortMapWindow::update_summary(PortSection *p, string *port, bool conn) {
     for (; i != l.end(); i++) {
         q += "\n" + *i;
     }
-    gtk_label_set_text(p->label, q.c_str());
-    g_idle_add(redraw_expander, p->expander);
+    p.label->set_text(q);
+    Glib::signal_idle().connect_once(
+	sigc::bind(
+	    sigc::mem_fun(*this, &PortMapWindow::redraw_expander), p.expander));
 }
 
 void PortMapWindow::connection_changed(string port1, string port2, bool conn) {
     for (int i = 0; i < number_of_ports; i++) {
-        PortSection *p = &portsection[i];
+        PortSection& p = portsection[i];
 
-        string s = (p->port_attr->client_num == 0 ?
-                    main_ui->jack.client_name : main_ui->jack.client_insert_name)
-            + ":" + p->port_attr->port_name;
+        string s = (p.port_attr->client_num == 0 ?
+                    jack.client_name : jack.client_insert_name)
+            + ":" + p.port_attr->port_name;
         if (s.compare(port1) == 0) {
             update_summary(p, &port2, conn);
         } else if (s.compare(port2) == 0) {
@@ -389,41 +340,42 @@ void PortMapWindow::connection_changed(string port1, string port2, bool conn) {
 ** gtk callback functions
 */
 
-void PortMapWindow::on_check_resize(GtkWidget *widget, gpointer data) {
+void PortMapWindow::on_check_resize() {
     // cf. comment at the end of on_expander()
-    PortMapWindow *p = reinterpret_cast<PortMapWindow*>(data);
-    if (p->monitored_expander_child &&
-        !gtk_widget_get_child_visible(p->monitored_expander_child)) {
-        p->monitored_expander_child = 0;
-        gint width;
-        gdk_window_get_geometry(window->window, 0, 0, &width, 0, 0);
-        gtk_window_resize(GTK_WINDOW(window), width, 1);
+    if (monitored_expander_child &&
+        !monitored_expander_child->get_child_visible()) {
+        monitored_expander_child = 0;
+        int x, y, width, height, depth;
+        window->get_window()->get_geometry(x, y, width, height, depth);
+        window->resize(width, 1);
     }
 }
 
-void PortMapWindow::on_expander(GtkWidget *widget, gpointer data) {
-    PortMapWindow *p = reinterpret_cast<PortMapWindow*>(data);
-    gboolean expanded = gtk_expander_get_expanded(GTK_EXPANDER(widget));
+void PortMapWindow::on_expander(Gtk::Expander& expander) {
+    gboolean expanded = expander.get_expanded();
     if (expanded) {
         // close all other expanders and unset their expand child property
         for (int i = 0; i < number_of_ports; i++) {
-            GtkWidget *w = GTK_WIDGET(p->portsection[i].expander);
-            if (widget != w) {
+	    Gtk::Expander *w = portsection[i].expander;
+            if (&expander != w) {
+		/*
                 GValue v = {0};
                 g_value_init(&v, G_TYPE_BOOLEAN);
                 g_value_set_boolean(&v, FALSE);
-                gtk_container_child_set_property(GTK_CONTAINER(gtk_widget_get_parent(w)),
-                                                 w, "expand", &v);
-                gtk_expander_set_expanded(GTK_EXPANDER(w), FALSE);
+		w->get_parent()->child_set_property(w, "expand", &v);
+		*/
+                w->set_expanded(false);
             }
         }
     }
     // set the expand child property of the current expander if its expanded
+    /*
     GValue value = {0};
     g_value_init(&value, G_TYPE_BOOLEAN);
     g_value_set_boolean(&value, expanded);
-    gtk_container_child_set_property(GTK_CONTAINER(gtk_widget_get_parent(widget)),
-                                     widget, "expand", &value);
+    expander.get_parent().child_set_property(expander, "expand", &value);
+    */
+    expander.set_expanded(expanded);
     if (!expanded) {
         // when the expander is explicitely closed (so all expanders are
         // closed now) we want to shrink the portmap window with
@@ -431,58 +383,30 @@ void PortMapWindow::on_expander(GtkWidget *widget, gpointer data) {
         // But GtkExpander uses a timer before the child is made
         // unvisible and a resize of the window is triggered.
         // So we defer resizing to the "check-resize"-signal handler
-        p->monitored_expander_child = gtk_bin_get_child(GTK_BIN(widget));
+        monitored_expander_child = expander.get_child();
     }
 }
 
-void PortMapWindow::response_cb(GtkWidget *widget, gint response_id, gpointer data) {
-    PortMapWindow& m = *reinterpret_cast<PortMapWindow*>(data);
-    gtk_check_menu_item_set_active(m.menuitem, FALSE);
+void PortMapWindow::redraw_expander(Gtk::Expander* ex) {
+    ex->queue_draw();
 }
 
-void PortMapWindow::destroy_cb(GtkWidget*, gpointer data) {
-    delete reinterpret_cast<PortMapWindow*>(data);
-}
-
-void PortMapWindow::toggle(GtkWidget* widget, gpointer data) {
-    if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(data))) {
-        if (window) {
-            gtk_widget_destroy(window);
-        }
-    } else {
-        if (!window) {
-            new PortMapWindow(GTK_CHECK_MENU_ITEM(data), gx_gui::GxMainInterface::get_instance());
-        }
-    }
-}
-
-gboolean PortMapWindow::redraw_expander(gpointer data) {
-    gtk_widget_queue_draw(GTK_WIDGET(data));
-    return FALSE;
-}
-
-void PortMapWindow::on_cell_toggle(GtkCellRendererToggle *widget,
-                                   gchar *path, gpointer data) {
-    PortSection *p = reinterpret_cast<PortSection*>(data);
-
-    GtkTreeIter iter;
-    gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(p->treestore), &iter, path);
-    gboolean v;
-    const char *q1, *q2;
-    gtk_tree_model_get(GTK_TREE_MODEL(p->treestore), &iter, 0, &q1, 1, &v, -1);
+void PortMapWindow::on_cell_toggle(Glib::ustring path, PortSection& p) {
+    Gtk::TreeIter iter(p.treestore->get_iter(path));
+    Glib::ustring q1 = (*iter)[columns.port];
+    bool v = (*iter)[columns.connected];
     string gcln;
     jack_client_t *gcl;
-    if (p->port_attr->client_num == 0) {
-        gcl = main_ui->jack.client;
-        gcln = main_ui->jack.client_name;
+    if (p.port_attr->client_num == 0) {
+        gcl = jack.client;
+        gcln = jack.client_name;
     } else {
-        gcl = main_ui->jack.client_insert;
-        gcln = main_ui->jack.client_insert_name;
+        gcl = jack.client_insert;
+        gcln = jack.client_insert_name;
     }
-    string s = gcln + ":" + p->port_attr->port_name;
-    q2 = s.c_str();
-    if (!p->port_attr->is_input) {
-        const char *sw = q1;
+    Glib::ustring q2(gcln + ":" + p.port_attr->port_name);
+    if (!p.port_attr->is_input) {
+	Glib::ustring sw = q1;
         q1 = q2;
         q2 = sw;
     }
@@ -491,9 +415,9 @@ void PortMapWindow::on_cell_toggle(GtkCellRendererToggle *widget,
     int ret;
 
     if (v) {
-        ret = jack_connect(gcl, q1, q2);
+        ret = jack_connect(gcl, q1.c_str(), q2.c_str());
     } else {
-        ret = jack_disconnect(gcl, q1, q2);
+        ret = jack_disconnect(gcl, q1.c_str(), q2.c_str());
     }
 
     if (ret != 0) {
@@ -502,26 +426,22 @@ void PortMapWindow::on_cell_toggle(GtkCellRendererToggle *widget,
         gx_system::gx_print_error("port connection", buf.str());
         return;
     }
-    gtk_tree_store_set(GTK_TREE_STORE(p->treestore), &iter, 1, v, -1);
+    (*iter)[columns.connected] = v;
     update_summary(p);
 }
-
 
 /*
 ** constuctor / destructor
 */
 
-inline bool getnumber(gchararray p, long *pi) {  //  NOLINT
+inline bool getnumber(const Glib::ustring& p, long *pi) {  //  NOLINT
     char *q;
-    *pi = strtol(p, &q, 10);
+    *pi = strtol(p.c_str(), &q, 10);
     return !*q;
 }
 
-static gint sort_func(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b,
-                      gpointer user_data) {
-    gchararray pa, pb;
-    gtk_tree_model_get(model, a, 0, &pa, -1);
-    gtk_tree_model_get(model, b, 0, &pb, -1);
+int PortMapWindow::sort_func(const Gtk::TreeModel::iterator& a, const Gtk::TreeModel::iterator& b) {
+    Glib::ustring pa((*a)[columns.port]), pb((*b)[columns.port]);
     int i = 0;
     for (; ; i++) {
         if (pa[i] != pb[i]) {
@@ -532,25 +452,24 @@ static gint sort_func(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b,
         }
     }
     long ia, ib;  //  NOLINT
-    if (getnumber(&pa[i], &ia) && getnumber(&pb[i], &ib)) {
+    if (getnumber(pa.substr(i), &ia) && getnumber(pb.substr(i), &ib)) {
         return ia - ib;
     }
-    return strcmp(pa, pb);
+    return pa.compare(pb);
 }
 
 void PortMapWindow::load(int sect, jack_port_t *jack_port) {
-    if (main_ui->jack.client) {
+    if (jack.client) {
         const unsigned int max_items_unfolded = 1;
         PortSection& ps = portsection[sect];
-        GtkTreeStore *tree = ps.treestore;
+	Glib::RefPtr<Gtk::TreeStore> tree = ps.treestore;
         assert(tree);
-        assert(GTK_IS_TREE_STORE(tree));
-        gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(tree), 0, sort_func, 0, 0);
-        gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(tree), 0, GTK_SORT_ASCENDING);
-        gtk_tree_store_clear(tree);
+	tree->set_sort_func(0, sigc::mem_fun(*this, &PortMapWindow::sort_func));
+        tree->set_sort_column_id(0, Gtk::SORT_ASCENDING);
+        tree->clear();
         const char **ports;
-        jack_client_t *gcl = (ps.port_attr->client_num == 0 ? main_ui->jack.client
-                              : main_ui->jack.client_insert);
+        jack_client_t *gcl = (ps.port_attr->client_num == 0 ? jack.client
+                              : jack.client_insert);
         ports = jack_get_ports(gcl, NULL, ps.port_attr->port_type,
                                (ps.port_attr->is_input ? JackPortIsOutput : JackPortIsInput));
         if (!ports) {
@@ -567,21 +486,21 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port) {
                 cl.remove(*j);
             }
         }
-        GtkTreeIter iter, parent, *parentp;
+	Gtk::TreeIter iter, parent, *parentp;
         for (ClientList::iterator i = cl.begin(); i != cl.end(); i++) {
             ClientPortList *p = *i;
             if (cl.size() > 1 && p->ports.size() > max_items_unfolded) {
-                gtk_tree_store_append(tree, &parent, 0);
-                gtk_tree_store_set(tree, &parent,
-                                    0, p->clientname().c_str(),
-                                    1, false,
-                                    2, false,
-                                    -1);
+                parent = tree->append();
+		(*parent)[columns.port] = p->clientname();
+		(*parent)[columns.connected] = false;
+		(*parent)[columns.is_port] = false;
                 parentp = &parent;
             } else {
                 parentp = 0;
             }
+	    //printf("Client: %s\n", p->clientname().c_str());
             for (list<const char*>::iterator j = p->ports.begin(); j != p->ports.end(); j++) {
+		//printf("Port: %s\n", *j);
                 bool conn = false;
                 if (conn_ports) {
                     for (const char** q = conn_ports; *q; q++) {
@@ -591,125 +510,132 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port) {
                         }
                     }
                 }
-                gtk_tree_store_append(tree, &iter, parentp);
-                gtk_tree_store_set(tree, &iter,
-                                    0, *j,
-                                    1, conn,
-                                    2, true,
-                                    -1);
+		if (parentp) {
+		    iter = tree->append((*parentp)->children());
+		} else {
+		    iter = tree->append();
+		}
+		(*iter)[columns.port] = *j;
+		(*iter)[columns.connected] = conn;
+		(*iter)[columns.is_port] = true;
             }
         }
         free(conn_ports);
         free(ports);
-        update_summary(&portsection[sect]);
+        update_summary(portsection[sect]);
     }
 }
 
 void PortMapWindow::load_all() {
 #define uslp() usleep(10); // prevents xruns?? (bug in jackd?)
-    load(0, main_ui->jack.input_ports[0]);
+    load(0, jack.ports.input.port);
     uslp();
-    load(1, main_ui->jack.output_ports[2]);
+    load(1, jack.ports.output1.port);
     uslp();
-    load(2, main_ui->jack.output_ports[3]);
+    load(2, jack.ports.output2.port);
     uslp();
-    load(3, main_ui->jack.midi_input_port);
+    load(3, jack.ports.midi_input.port);
     uslp();
-    load(4, main_ui->jack.midi_output_ports);
+    load(4, jack.ports.midi_output.port);
     uslp();
-    load(5, main_ui->jack.input_ports[1]);
+    load(5, jack.ports.insert_in.port);
     uslp();
-    load(6, main_ui->jack.output_ports[0]);
+    load(6, jack.ports.insert_out.port);
 #undef uslp
 }
 
-gx_gui::GxMainInterface* PortMapWindow::main_ui;
+PortMapWindow* PortMapWindow::create(gx_jack::GxJack& jack, gx_ui::GxUI& ui, Glib::RefPtr<Gtk::AccelGroup> ag) {
+    Glib::RefPtr<Gtk::Builder> bld = gx_gui::load_builder_from_file("ports.glade", ui);
+    return new PortMapWindow(bld, jack, ag);
+}
 
-PortMapWindow::PortMapWindow(GtkCheckMenuItem *item, gx_gui::GxMainInterface& main_ui_)
+PortMapWindow::PortMapWindow(Glib::RefPtr<Gtk::Builder> bld, gx_jack::GxJack& jack_, Glib::RefPtr<Gtk::AccelGroup> ag)
     : portsection(),
-      menuitem(0),
       excluded_clients(),
+      jack(jack_),
       monitored_expander_child(0) {
-    main_ui = &main_ui_;
+    bld->get_widget("PortMapWindow", window);
     monitored_expander_child = 0;
-    menuitem = item;
-    gtk_widget_ref(GTK_WIDGET(item));
 
     // order of first 2 entries is important (check load())
-    excluded_clients.push_back(string(main_ui->jack.client_insert_name) + ":");
-    excluded_clients.push_back(string(main_ui->jack.client_name) + ":");
-    excluded_clients.push_back(string(main_ui->jack.client_instance) + "_meterbridge:");
+    excluded_clients.push_back(string(jack.client_insert_name) + ":");
+    excluded_clients.push_back(string(jack.client_name) + ":");
+    excluded_clients.push_back(string(jack.client_instance) + "_meterbridge:");
     excluded_clients.push_back(string("jack_capture:"));
 
-    GtkBuilder * builder = gtk_builder_new();
-    window = gx_gui::load_toplevel(builder, "ports.glade", "PortMapWindow");
-    gtk_window_set_icon(GTK_WINDOW(window), GDK_PIXBUF(gx_gui::gw.ib));
-    GObject *b = gtk_builder_get_object(builder, "button1");
-    if (b) gtk_widget_set_name(GTK_WIDGET(b), "rack_button");
-    g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox1"),"expose-event",
-                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
-    g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox2"),"expose-event",
-                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
-    memset(portsection, 0, sizeof(portsection));
+    // no need to set, its transient window
+    //window->set_icon(Glib::wrap(GDK_PIXBUF(gx_gui::gw.ib),true));
+    Gtk::Widget *b;
+    bld->get_widget("button1",b);
+    assert(b);
+    b->set_name("rack_button");
+    Gtk::VBox *vbox1;
+    bld->get_widget("dialog-vbox1", vbox1);
+    vbox1->signal_expose_event().connect(
+	sigc::group(&gx_cairo::rectangle_skin_color_expose,GTK_WIDGET(vbox1->gobj()),sigc::_1,(void*)0),false);
+    Gtk::VBox *vbox2;
+    bld->get_widget("dialog-vbox2", vbox2);
+    vbox2->signal_expose_event().connect(
+	sigc::group(&gx_cairo::rectangle_skin_color_expose,GTK_WIDGET(vbox2->gobj()),sigc::_1,(void*)0),false);
     for (int i = 0; i < number_of_ports; i++) {
         portsection[i].port_attr = &gx_head_ports[i];
         char name[30];
         snprintf(name, sizeof(name), "scrolledwindow%d", i+1);
-        portsection[i].scrolled_window = GTK_SCROLLED_WINDOW(gtk_builder_get_object(
-                                         builder, name));
-        snprintf(name, sizeof(name), "treestore%d", i+1);
-        portsection[i].treestore = GTK_TREE_STORE(gtk_builder_get_object(builder, name));
-        snprintf(name, sizeof(name), "cellrenderertoggle%d", i+1);
-        g_signal_connect(gtk_builder_get_object(builder, name), "toggled",
-                         G_CALLBACK(on_cell_toggle), &portsection[i]);
+	bld->get_widget(name, portsection[i].scrolled_window);
+        snprintf(name, sizeof(name), "treeview%d", i+1);
+	Gtk::TreeView *view;
+	bld->get_widget(name, view);
+	Gtk::TreeViewColumn *col = view->get_column(0);
+	Gtk::CellRendererToggle *cell = dynamic_cast<Gtk::CellRendererToggle*>(col->get_first_cell());
+	portsection[i].treestore = Gtk::TreeStore::create(columns);
+	view->set_model(portsection[i].treestore);
+        //snprintf(name, sizeof(name), "treestore%d", i+1);
+        //bld->get_widget(name, portsection[i].treestore);
+        //snprintf(name, sizeof(name), "cellrenderertoggle%d", i+1);
+	//Gtk::CellRendererToggle *tg;
+	//bld->get_widget(name, tg);
+	cell->signal_toggled().connect(
+	    sigc::bind<PortSection&>(
+		sigc::mem_fun(*this, &PortMapWindow::on_cell_toggle),portsection[i]));
         snprintf(name, sizeof(name), "expander%d", i+1);
-        GObject *w = gtk_builder_get_object(builder, name);
-        if (w) {
-            portsection[i].expander = GTK_EXPANDER(w);
-            g_signal_connect_after(portsection[i].expander, "activate",
-                                   G_CALLBACK(on_expander), this);
+	//bld->get_widget(name, portsection[i].expander);
+        if (portsection[i].expander) {
+	    portsection[i].expander->property_expanded().signal_changed().connect(
+		sigc::bind<Gtk::Expander&>(
+		    sigc::mem_fun(*this, &PortMapWindow::on_expander),
+		    *portsection[i].expander));
             snprintf(name, sizeof(name), "port%d", i+1);
-            portsection[i].label = GTK_LABEL(gtk_builder_get_object(builder, name));
+            bld->get_widget(name, portsection[i].label);
         }
     }
 
     load_all();
 
-    g_signal_connect(window, "destroy", G_CALLBACK(destroy_cb), this);
-    g_signal_connect(window, "response", G_CALLBACK(response_cb), this);
-    gtk_window_add_accel_group(GTK_WINDOW(window), main_ui->fAccelGroup);
-    g_signal_connect_after(window, "check-resize", G_CALLBACK(on_check_resize), this);
-    gtk_widget_show(window);
-    g_object_unref(G_OBJECT(builder));
-    instance = this;
+    window->add_accel_group(ag);
+    window->signal_check_resize().connect(sigc::mem_fun(*this, &PortMapWindow::on_check_resize),true);
+    window->show();
+    jack.portchange.connect(sigc::mem_fun(*this, &PortMapWindow::refresh));
 }
 
 // refresh portmap widget when connect/disconnect with jack server
 void PortMapWindow::refresh() {
-    if (window) {
-        if (!main_ui->jack.client) {
-            for (int i = 0; i< number_of_ports;i++) {
-                PortSection& ps = portsection[i];
-                GtkTreeStore *tree = ps.treestore;
-                assert(tree);
-                assert(GTK_IS_TREE_STORE(tree));
-                gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(tree),
-                                                0, sort_func, 0, 0);
-                gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(tree),
-                                                     0, GTK_SORT_ASCENDING);
-                gtk_tree_store_clear(tree);
-                update_summary(&portsection[i]);
-            }
-        } else {
-            load_all();
-        }
+    if (!jack.client) {
+	for (int i = 0; i< number_of_ports;i++) {
+	    PortSection& ps = portsection[i];
+	    Glib::RefPtr<Gtk::TreeStore> tree = ps.treestore;
+	    assert(tree);
+	    tree->set_sort_func(0, sigc::mem_fun(*this, &PortMapWindow::sort_func));
+	    tree->set_sort_column_id(0, Gtk::SORT_ASCENDING);
+	    tree->clear();
+	    update_summary(portsection[i]);
+	}
+    } else {
+	load_all();
     }
 }
 
 PortMapWindow::~PortMapWindow() {
-    instance = 0;
-    window = NULL;
-    monitored_expander_child = 0;
-    gtk_widget_unref(GTK_WIDGET(menuitem));
+    delete window;
 }
+
 } // namespace gui

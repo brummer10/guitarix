@@ -76,11 +76,11 @@ GxChild *GxChildProcs::find(string name) {
 
 #define EXIT_PGM_NOT_FOUND 127
 
-gboolean gx_sigchld_handler(gpointer) {
+void gx_sigchld_handler() {
     int status;
     pid_t pid = waitpid(-1, &status, WNOHANG);
     if (pid == 0 || pid == -1) {
-        return false;
+        return;
     }
     bool pgm_found = true;
     if (WIFEXITED(status)) {
@@ -89,7 +89,7 @@ gboolean gx_sigchld_handler(gpointer) {
         }
     } else if (!WIFSIGNALED(status)) {
         // process didn't terminate
-        return false;
+        return;
     }
     // child pid has terminated
     list<GxChild*>& cl = childprocs.children;
@@ -103,9 +103,7 @@ gboolean gx_sigchld_handler(gpointer) {
     }
     if (p) {
         p->terminated(pgm_found);
-        return false;
     }
-    return false;
 }
 
 GxChild *GxChildProcs::launch(string name, const char *const args[], int killsignal) {
@@ -202,6 +200,7 @@ void JackCaptureGui::start_stop(GtkCheckMenuItem *menuitem, gpointer) {
 
 //---------------------------- Jack Capture -------------------------------
 
+#if 0 // unused
 JackCapture::JackCapture(GxChild *p, GtkToggleButton *b)
     : button(b) {
     gtk_widget_ref(GTK_WIDGET(button));
@@ -294,12 +293,13 @@ void JackCapture::start_stop(GtkWidget *widget, gpointer data) {
         GxChild *jack_capture = childprocs.find(app_name);
         if (jack_capture) {
             if (jack_capture->kill()) {
-                gx_system::gx_print_info("Record",
-                              string(" Terminated jack_capture, session file #") +
-                              gx_system::gx_i2a(last_seqno));
+                gx_system::gx_print_info(
+		    "Record",
+		    boost::format(" Terminated jack_capture, session file #%1%")
+		    % last_seqno);
             } else {
-                gx_system::gx_print_error("Record",
-                               string(" Sorry, could not stop (Ctrl-C) jack_capture"));
+                gx_system::gx_print_error(
+		    "Record", " Sorry, could not stop (Ctrl-C) jack_capture");
             }
         }
         return;
@@ -328,9 +328,11 @@ void JackCapture::start_stop(GtkWidget *widget, gpointer data) {
         return;
     }
     new JackCapture(jack_capture, cap_button);
-    gx_system::gx_print_info("Record",
-                  string("Started jack_capture, session file #") + gx_system::gx_i2a(last_seqno));
+    gx_system::gx_print_info(
+	"Record",
+	boost::format("Started jack_capture, session file #%1%") % last_seqno);
 }
+#endif
 
 //-------------------- meterbridge --------------------------
 

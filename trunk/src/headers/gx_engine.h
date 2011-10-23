@@ -40,10 +40,8 @@ namespace gx_engine {
 class AudioVariables {
 public:
     bool  initialized;  /* engine init state  */
-    bool  buffers_ready;  /* buffer ready state */
-    float fwarn;
-    float fwarn_swap;
-    float fskin;
+    bool fwarn;
+    int fskin;
 
     //FIXME:
     float filebutton;
@@ -136,7 +134,6 @@ extern MidiVariables midi;
 
 class ModuleSelectorFromList: public ModuleSelector, private PluginDef {
 private:
-    ModuleSequencer& seq;
     unsigned int selector;
     const char* select_id;
     const char* select_name;
@@ -163,9 +160,7 @@ public:
 
 class GxEngine: public ModuleSequencer {
 private:
-    gx_ui::GxUI ui;
     gx_resample::BufferResampler resamp;
-    static GxEngine* instance;
     void load_static_plugins();
 public:
     // ModuleSelector's
@@ -184,30 +179,23 @@ public:
     CabinetConvolver cabinet;
     ContrastConvolver contrast;
 public:
-    GxEngine(string plugin_dir);
+    GxEngine(const string& plugin_dir, gx_gui::ParameterGroups& groups);
     ~GxEngine();
     void set_jack(gx_jack::GxJack *jack) { midiaudiobuffer.set_jack(jack); }
-    static GxEngine& get_engine() { assert(instance); return *instance; }
 };
 
 /****************************************************************/
-
-// wrap the state of the latency change warning (dis/enable) to
-// the interface settings to load and save it
-inline void set_latency_warning_change()   {audio.fwarn_swap = audio.fwarn;}
-inline void get_latency_warning_change()   {audio.fwarn = audio.fwarn_swap;}
-
 inline bool isInitialized()                {return audio.initialized;}
 
 /****************************************************************/
 
 /* function declarations  */
 
-void gx_engine_init(const string *optvar);
+void gx_engine_init();
 void gx_engine_reset();
 
 void compute_midi_in(void* midi_input_port_buf);
-void process_midi(int count, float *input);
+void process_midi(int count, float *input, void *midi_buf);
 
 /* ------------------------------------------------------------------- */
 } /* end of gx_engine namespace */

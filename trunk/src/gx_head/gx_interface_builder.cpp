@@ -72,8 +72,8 @@ void GxMainInterface::setup() {
                 {
                     // ----- this is a dummy widget, only for save settings
                     // for the latency warning dialog
-                    openWarningBox("WARNING", &gx_engine::audio.fwarn);
-                    setSkinBox("SKIN", &gx_engine::audio.fskin);
+                    //openWarningBox("WARNING", &gx_engine::audio.fwarn);
+                    //setSkinBox("SKIN", &gx_engine::audio.fskin);
                     openHorizontalBox("");
                     {
                         openSpaceBox("");
@@ -347,11 +347,11 @@ void GxMainInterface::setup() {
     // add a Patch Info widget
     openPatchInfoBox(&gx_gui::guivar.show_patch_info);
 
-    openTextLoggingBox(_("Logging Window"));
-
     engine.pluginlist.append_rack(this);
 
     debug_check(all_midi_params_assigned);
+    for (int i = 0; i < GX_NUM_OF_FACTORY_PRESET; i++)
+	gx_preset::gxpreset.gx_load_factory_file(i);
 }
 }
 

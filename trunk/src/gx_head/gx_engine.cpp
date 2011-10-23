@@ -34,17 +34,10 @@
 
 namespace gx_engine {
 
-void gx_engine_init(const string *optvar ) {
+void gx_engine_init() {
     midi.init(gx_gui::GxMainInterface::get_instance().jack.jack_sr);
     // resampTube.setup(gx_jack::jack_sr, 2);
     // resampDist.setup(gx_jack::jack_sr, 2);
-    if (!optvar[LOAD_FILE].empty()) {
-        gx_preset::gxpreset.gx_recall_settings_file(&optvar[LOAD_FILE]);
-    } else {
-        gx_preset::gxpreset.gx_recall_settings_file();
-    }
-    for (int i = 0; i < GX_NUM_OF_FACTORY_PRESET; i++)
-        gx_preset::gxpreset.gx_load_factory_file(i);
     audio.initialized = true;
 }
 
@@ -88,13 +81,10 @@ inline void registerEnumParam(const char*a, const char*b, const value_pair* vl, 
 void AudioVariables::register_parameter() {
 
     // user interface options
-    registerNonMidiParam("ui.latency_nowarn",        &fwarn, false, 0);
+    registerNonMidiParam("ui.latency_nowarn",        &fwarn, false, false);
     registerNonMidiParam("ui.skin",                  &fskin, false, 0, 0, 100);
 
     /* engine init state  */
     audio.initialized = false;
-
-    /* buffer ready state */
-    audio.buffers_ready = false;
 }
 } /* end of gx_engine namespace */

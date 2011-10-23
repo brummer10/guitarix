@@ -50,10 +50,31 @@
 
 namespace gx_jack {
 
+#define DEFAULT_JACK_INSTANCENAME "gx_head"
+
+#define DEFAULT_JACK_AMPNAME      (DEFAULT_JACK_INSTANCENAME "_amp")
+#define DEFAULT_JACK_FXNAME       (DEFAULT_JACK_INSTANCENAME "_fx")
+
+class PortConnection {
+public:
+    jack_port_t *port;
+    list<string> conn;
+};
+
+class JackPorts {
+public:
+    PortConnection input;
+    PortConnection midi_input;
+    PortConnection insert_out;
+    PortConnection midi_output;
+    PortConnection insert_in;
+    PortConnection output1;
+    PortConnection output2;
+};
+
 class GxJack {
  private:
     bool                gx_start_jack_dialog();
-    bool                gx_start_jack(void* arg);
     gx_engine::GxEngine& engine;
     bool                jack_is_down;
     bool                jack_is_exit;
@@ -67,80 +88,59 @@ class GxJack {
     static void         gx_jack_portreg_callback(jack_port_id_t, int, void* arg);
     static void         gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int connect, void* arg);
 #ifdef HAVE_JACK_SESSION
+    jack_session_event_t *session_event;
     static void         gx_jack_session_callback(jack_session_event_t *event, void *arg);
 #endif
-    void                gx_jack_activate();
  public:
-    bool                is_jack_down() { return jack_is_down; }
-    void                set_jack_down(bool);
-    bool                is_jack_exit() { return jack_is_exit; }
-    void                set_jack_exit(bool);
-    static const int    nIPorts = 2; // for both jack clients
-    static const int    nOPorts = 4; // 2 * stereo output (1 unused)
+    JackPorts           ports;
     jack_nframes_t      jack_sr;   // jack sample rate
     jack_nframes_t      jack_bs;   // jack buffer size
     jack_nframes_t      time_is;
 
     jack_client_t*      client;
     jack_client_t*      client_insert;
-    jack_port_t*        output_ports[nOPorts];
-    jack_port_t*        input_ports[nIPorts];
-    jack_port_t*        midi_input_port;
-    jack_port_t*        midi_output_ports;
-
-    void*               midi_input_port_buf;
-    void*               midi_port_buf;
 
     float               jcpu_load; // jack cpu_load
-    float               xdel;      // last xrun delay
 
     int                 is_rt;
+    void                cleanup_slot(bool otherthread);
 public:
     GxJack(gx_engine::GxEngine& engine_);
+    ~GxJack();
 
-    bool                gx_jack_init(const string *optvar );
+    void                set_jack_down(bool);
+    void                set_jack_exit(bool);
+
+    bool                gx_jack_init( );
     
     void                gx_set_jack_buffer_size(GtkCheckMenuItem*, void* arg);
-    void                gx_jack_connection(GtkCheckMenuItem*);
+    void                gx_jack_connection(bool connect);
+    float               get_last_xrun();
+    void*               get_midi_buffer(jack_nframes_t nframes);
 
-    int                 gx_jack_midi_process(jack_nframes_t, float *input);
-    int                 gx_jack_midi_input_process(jack_nframes_t);
-
-    void                gx_jack_init_port_connection(const string*);
+    void                gx_jack_init_port_connection();
+    void                read_connections(gx_system::JsonParser& jp);
+    void                write_connections(gx_system::JsonWriter& w);
     void                gx_jack_callbacks();
     void                gx_jack_cleanup();
     string              client_instance;
     string              client_name;
     string              client_insert_name;
-
-    /* lists of jack port types for menu items */
-    enum {
-        kAudioInput    = 0,
-        kAudioOutput1  = 1,
-        kAudioOutput2  = 2,
-        kMidiInput     = 3,
-        kMidiOutput    = 4,
-        kAudioInsertIn = 5,
-        kAudioInsertOut= 6
-    };
-
-    enum GxJackLatencyChange {
-        kChangeLatency = 1,
-        kKeepLatency   = 2
-    };
-
-    GxJackLatencyChange change_latency;
+    Glib::Dispatcher    xrun;
+    Glib::Dispatcher    portchange;
+    Glib::Dispatcher    session;
+    Glib::Dispatcher    shutdown;
+    bool                is_jack_down() { return jack_is_down; }
+    Glib::Dispatcher    connection;
+    bool                is_jack_exit() { return jack_is_exit; }
+#ifdef HAVE_JACK_SESSION
+    jack_session_event_t *get_last_session_event() {
+	return static_cast<jack_session_event_t *>g_atomic_pointer_get(&session_event);
+    }
+    void                return_last_session_event();
+    string              get_uuid_insert();
+#endif
 };
-
-class JackBuffer {
- public:
-    float               *input;
-    float               *input1;
-    float               *output0;
-    float               *output2;
-    float               *output3;
-};
-extern JackBuffer *_jackbuffer_ptr;
 
 } /* end of jack namespace */
 

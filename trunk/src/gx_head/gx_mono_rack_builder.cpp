@@ -39,7 +39,7 @@ void GxMainInterface::gx_build_mono_rack() {
      * mono level out and the clipper, witch are fixed at the end of the mono callback.
      **/
     openHorizontalTableBox("");
-    PluginList& pl = engine.pluginlist;
+    gx_engine::PluginList& pl = engine.pluginlist;
     fMonoRackContainer = fBox[fTop];
     {
         openVerticalBox("");
@@ -133,7 +133,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("low_highpass.dialog", "low_highpass.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.low high pass", "low_highpass.on_off", "RackBox_expose", box);
                     {
                         openHorizontalBox("");
                         {
@@ -178,7 +178,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("eqs.dialog", "eqs.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Scaleable EQ", "eqs.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -248,7 +248,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("crybaby.dialog", "crybaby.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Crybaby", "crybaby.on_off", "RackBox_expose", box);
                     {
                         openHorizontalBox("");
                         {
@@ -292,7 +292,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("gx_distortion.dialog", "gx_distortion.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Multi Band Distortion", "gx_distortion.on_off", "RackBox_expose", box);
                     {
                         openHorizontalBox("");
                         {
@@ -392,7 +392,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("IR.dialog", "IR.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.ImpulseResponse", "IR.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox1("");
                         {
@@ -437,7 +437,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("compressor.dialog", "compressor.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Compressor", "compressor.on_off", "RackBox_expose", box);
                     {
                         openHorizontalTableBox("");
                         {
@@ -472,7 +472,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("overdrive.dialog", "overdrive.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Overdrive", "overdrive.on_off", "RackBox_expose", box);
                     {
                         openHorizontalTableBox("");
                         {
@@ -506,7 +506,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("echo.dialog", "echo.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Echo", "echo.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -541,7 +541,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("delay.dialog", "delay.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Delay", "delay.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -575,7 +575,7 @@ void GxMainInterface::gx_build_mono_rack() {
                         create_selector("freeverb.pp");
                     }
                     closeBox();
-                    openDialogBox("freeverb.dialog", "freeverb.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Freeverb", "freeverb.on_off", "RackBox_expose", box);
                     {
                         openFrameBox("");
                         closeBox();
@@ -615,7 +615,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("oscilloscope.dialog", "oscilloscope.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Oscilloscope", "oscilloscope.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -656,7 +656,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("biquad.dialog", "biquad.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.BiQuad Filter", "biquad.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -689,7 +689,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("tremolo.dialog", "tremolo.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Tremolo", "tremolo.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -739,7 +739,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("phaser_mono.dialog", "phaser_mono.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Phaser Mono", "phaser_mono.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -774,7 +774,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("chorus_mono.dialog", "chorus_mono.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Chorus Mono", "chorus_mono.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -809,7 +809,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("flanger_mono.dialog", "flanger_mono.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Flanger Mono", "flanger_mono.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -844,7 +844,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("feedback.dialog", "feedback.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Feedback", "feedback.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -878,7 +878,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("amp.tonestack.dialog", "amp.tonestack.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Tonestack", "amp.tonestack.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {
@@ -917,7 +917,7 @@ void GxMainInterface::gx_build_mono_rack() {
                     }
                     closeBox();
 
-                    openDialogBox("cab.dialog", "cab.on_off", "RackBox_expose", box);
+                    openDialogBox("ui.Cabinet", "cab.on_off", "RackBox_expose", box);
                     {
                         openVerticalBox("");
                         {

@@ -94,7 +94,7 @@ private:
 	public:
 	Tuner();
 	
-  void set_freq(double);
+  void set_freq(double p1);
 	#ifdef GLIBMM_PROPERTIES_ENABLED
 /** The frequency for which tuning is displayed.
    *

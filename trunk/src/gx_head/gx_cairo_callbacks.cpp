@@ -33,10 +33,7 @@ namespace gx_cairo
 // set cairo color related to the used skin
 static void gx_skin_color(cairo_pattern_t *pat)
 {
-	int skin_is = int(float(gx_gui::skin.gx_current_skin));
-
-	switch (skin_is)
-	{
+	switch (gx_engine::audio.fskin) {
 	case 0: // black
 		cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 0.6);
 		cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 0.6);

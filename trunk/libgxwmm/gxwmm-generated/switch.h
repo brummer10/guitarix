@@ -98,11 +98,11 @@ private:
 	Switch();
 	explicit Switch(const Glib::ustring& base_name);
 	
-  void set_label_ref(Gtk::Label*);
+  void set_label_ref(Gtk::Label* p1);
 	
   Gtk::Label* get_label_ref();
 	
-  void set_base_name(const Glib::ustring&);
+  void set_base_name(const Glib::ustring& p1);
 	
   Glib::ustring get_base_name();
 	#ifdef GLIBMM_PROPERTIES_ENABLED
@@ -126,23 +126,23 @@ private:
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 	#ifdef GLIBMM_PROPERTIES_ENABLED
-/** Text of the label widget inside the button, if the button contains a label widget.
+/** GtkLabel for caption.
    *
    * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy<Gtk::Label> property_label() ;
+  Glib::PropertyProxy<Gtk::Label> property_label_ref() ;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
-/** Text of the label widget inside the button, if the button contains a label widget.
+/** GtkLabel for caption.
    *
    * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
    * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
    * the value of the property changes.
    */
-  Glib::PropertyProxy_ReadOnly<Gtk::Label> property_label() const;
+  Glib::PropertyProxy_ReadOnly<Gtk::Label> property_label_ref() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 

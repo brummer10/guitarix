@@ -94,7 +94,7 @@ private:
 	public:
 	ToggleImage();
 	
-  void set_base_name(const Glib::ustring&);
+  void set_base_name(const Glib::ustring& p1);
 	
   Glib::ustring get_base_name();
 	#ifdef GLIBMM_PROPERTIES_ENABLED

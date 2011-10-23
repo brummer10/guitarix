@@ -135,6 +135,7 @@ public:
     sigc::signal<int, bool>          activation;
     sigc::signal<void, unsigned int> size_change;
     gx_ui::UiSignalUInt              post_pre_signal;
+    gx_ui::UiSignalBool              visible;
     void clear_buffer();
     inline float *get_buffer() { return buffer; }
     OscilloscopeAdapter(gx_ui::GxUI *ui, ModuleSequencer& engine);
@@ -207,13 +208,8 @@ class GxJConvSettings {
  */
 
 class ConvolverAdapter: PluginDef {
-public:
-    Plugin plugin;
-    GxConvolver conv;
-    GxJConvSettings jcset;
-    void restart();
-    bool conv_start();
 private:
+    GxConvolver conv;
     boost::mutex activate_mutex;
     ModuleSequencer& engine;
     bool activated;
@@ -225,7 +221,12 @@ private:
     static void convolver_init(unsigned int samplingFreq, PluginDef *pdef);
     void change_buffersize(unsigned int size);
 public:
+    Plugin plugin;
+    GxJConvSettings jcset;
+public:
     ConvolverAdapter(ModuleSequencer& engine);
+    void restart();
+    bool conv_start();
 };
 
 
@@ -243,15 +244,16 @@ protected:
     static void init(unsigned int samplingFreq, PluginDef *p);
     static int activate(bool start, PluginDef *pdef);
     void change_buffersize(unsigned int);
-public:
-    Plugin plugin;
-    BaseConvolver(ModuleSequencer& engine, gx_resample::BufferResampler& resamp);
-    virtual ~BaseConvolver();
     inline bool is_runnable() { return conv.is_runnable(); }
     inline void set_not_runnable() { conv.set_not_runnable(); }
-    inline void conv_stop() { conv.stop(); }
     int conv_start();
+public:
+    Plugin plugin;
+public:
+    BaseConvolver(ModuleSequencer& engine, gx_resample::BufferResampler& resamp);
+    virtual ~BaseConvolver();
     virtual bool start(bool force = false) = 0;
+    inline void conv_stop() { conv.stop(); }
 };
 
 /****************************************************************
@@ -295,10 +297,10 @@ private:
     inline void compensate_con(int count, float *input0, float *output0);
     static void run_contrast(int count, float *input, float *output, PluginDef*);
     static int register_con(const ParamReg& reg);
+    inline void update_sum() { sum = level; }
 public:
     ContrastConvolver(ModuleSequencer& engine, gx_resample::BufferResampler& resamp);
     inline bool sum_changed() { return abs(sum - level) > 0.01; }
-    inline void update_sum() { sum = level; }
     bool start(bool force = false);
 };
 

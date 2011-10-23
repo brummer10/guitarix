@@ -1500,8 +1500,8 @@ msgid "recall state"
 msgstr "richiama stato"
 
 #: ../src/gx_head/gx_system.cpp:671
-msgid "unknown jack ports sections"
-msgstr "sezione porte Jack sconosciuta"
+msgid "unknown jack ports section: "
+msgstr "sezione porte Jack sconosciuta: "
 
 #: ../src/gx_head/gx_system.cpp:702
 msgid "loading converted state"

@@ -242,7 +242,7 @@ gboolean Regler_Class::value_entry_callback(GxRegler* self, GdkRectangle* p0, Gd
       #endif //GLIBMM_EXCEPTIONS_ENABLED
     }
   }
-  
+
   BaseClassType *const base = static_cast<BaseClassType*>(
         g_type_class_peek_parent(G_OBJECT_GET_CLASS(self)) // Get the parent class of the object class (The original underlying C class).
     );
@@ -286,7 +286,7 @@ gchar* Regler_Class::format_value_callback(GxRegler* self, gdouble p0)
       #endif //GLIBMM_EXCEPTIONS_ENABLED
     }
   }
-  
+
   BaseClassType *const base = static_cast<BaseClassType*>(
         g_type_class_peek_parent(G_OBJECT_GET_CLASS(self)) // Get the parent class of the object class (The original underlying C class).
     );

@@ -24,7 +24,6 @@
 
 #include "guitarix.h"      //  NOLINT
 
-#include <dirent.h>        //  NOLINT
 #include <unistd.h>        //  NOLINT
 #include <glibmm/i18n.h>   //  NOLINT
 
@@ -50,14 +49,14 @@ SwitchParameter* MenuCheckItem::get_parameter() {
 void MenuCheckItem::set_parameter(SwitchParameter *p) {
     param = p;
     parameter_map.insert(p);
-    p->changed.connect(sigc::mem_fun(*this, &MenuCheckItem::set_active));
+    p->signal_changed().connect(sigc::mem_fun(*this, &MenuCheckItem::set_active));
     signal_activate().connect(
         sigc::mem_fun(*this, &MenuCheckItem::on_my_activate));
 }
 
 void MenuCheckItem::add_parameter(SwitchParameter *p) {
     param = p;
-    p->changed.connect(sigc::mem_fun(*this, &MenuCheckItem::set_active));
+    p->signal_changed().connect(sigc::mem_fun(*this, &MenuCheckItem::set_active));
     signal_activate().connect(
         sigc::mem_fun(*this, &MenuCheckItem::on_my_activate));
 }
@@ -73,7 +72,7 @@ SwitchParameter* RadioCheckItem::get_parameter() {
 void RadioCheckItem::set_parameter(SwitchParameter *p) {
     param = p;
     parameter_map.insert(p);
-    p->changed.connect(sigc::mem_fun(*this, &RadioCheckItem::set_active));
+    p->signal_changed().connect(sigc::mem_fun(*this, &RadioCheckItem::set_active));
     signal_activate().connect(
         sigc::mem_fun(*this, &RadioCheckItem::on_my_toggled));
 }
@@ -81,7 +80,7 @@ void RadioCheckItem::set_parameter(SwitchParameter *p) {
 /* ----- load a top level window from gtk builder file ------ */
 
 GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* windowname) {
-    string fname = gx_system::sysvar.gx_builder_dir+filename;
+    string fname = gx_system::get_options().get_builder_filepath(filename);
     GError *err = NULL;
     if (!gtk_builder_add_from_file(builder, fname.c_str(), &err)) {
         g_object_unref(G_OBJECT(builder));
@@ -98,6 +97,56 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
     gtk_builder_connect_signals(builder, 0);
     return w;
 }
+
+// ----- pop up a dialog for starting jack
+bool gx_start_jack_dialog() {
+    // --- run dialog and check response
+    const guint nchoices    = 3;
+
+    const char* labels[]    = {
+            _("Start Jack"), _("Ignore Jack"), _("Exit")
+        };
+
+    const gint  responses[] = {
+            GTK_RESPONSE_YES, GTK_RESPONSE_NO, GTK_RESPONSE_CANCEL
+        };
+
+    gint response =
+        gx_gui::gx_nchoice_dialog_without_entry(
+            _(" Jack Starter "),
+            _("\n                        WARNING                        \n\n"
+            "   The jack server is not currently running\n"
+            "   You can choose to activate it or terminate gx_head   \n\n"
+            "       1) activate jack   \n"
+            "       2) ignore jack, start gx_head anyway   \n"
+            "       3) exit gx_head   \n"),
+            nchoices,
+            labels,
+            responses,
+            GTK_RESPONSE_YES);
+
+    // we are cancelling
+    bool retstat = false;
+
+    switch (response) {
+    case GTK_RESPONSE_NO:
+        //set_jack_down(true); FIXME
+        break;
+
+    case GTK_RESPONSE_CANCEL:
+	gx_system::GxExit::get_instance().exit_program();
+        break;
+
+    default:
+    case GTK_RESPONSE_YES:
+        retstat = gx_system::gx_start_jack();
+        break;
+    }
+
+    // start jack
+    return retstat;
+}
+
 
 /* --------- menu function triggering engine on/off/bypass --------- */
 void gx_engine_switch(GtkWidget* widget, gpointer arg) {
@@ -177,77 +226,79 @@ void gx_refresh_engine_status_display() {
     gx_system::gx_print_info(_("Engine State: "), state);
 }
 
-
-// get the last used skin as default
-void gx_set_skin_change(float fskin) {
-       skin.last_skin = static_cast<int>(fskin);
-}
-
-// save the current used skin as default
-void gx_get_skin_change(float *fskin) {
-    *fskin  = static_cast<float>(skin.gx_current_skin);
-}
-
-void gx_jack_is_down() {
+void GxMainInterface::gx_jack_is_down() {
     /* FIXME send to ui thread
     gx_print_warning("Jack Shutdown",
                      "jack has bumped us out!!");
     */
     std::cout << _("jack has bumped us out!!") << endl;
-    GxMainInterface::get_instance().jack.set_jack_exit(true);
-    GxMainInterface::get_instance().engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     g_timeout_add_full(G_PRIORITY_LOW, 200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
 }
 
-void gx_jack_report_xrun() {
-    guivar.g_threads[2] = 0;
-    if (guivar.g_threads[2] == 0 ||g_main_context_find_source_by_id(NULL, guivar.g_threads[2]) == NULL)
-        guivar.g_threads[2] =g_idle_add(gx_threads::gx_xrun_report, gpointer(NULL));
+void GxMainInterface::jack_session_event() {
+    const char *statefile = "gx_head.state";
+    jack_session_event_t *event = jack.get_last_session_event();
+
+    gx_settings.set_statefilename(string(event->session_dir) + statefile);
+
+    string cmd("guitarix -U ");
+    cmd += event->client_uuid;
+    cmd += " -A ";
+    cmd += jack.get_uuid_insert();
+    cmd += " -f ${SESSION_DIR}";
+    cmd += statefile; // no space after SESSION_DIR
+    event->command_line = strdup(cmd.c_str());
+
+    jack.return_last_session_event();
+
+    if (event->type == JackSessionSaveAndQuit) {
+	// exit will save state
+        gx_system::GxExit::get_instance().exit_program("** session exit **");
+    } else {
+	gx_settings.save_to_state();
+    }
+}
+
+void ReportXrun::clear() {
+    blocked = false;
+}
+
+void ReportXrun::run() {
+    if (blocked) {
+	return;
+    }
+    blocked = true;
+    Glib::signal_timeout().connect_once(sigc::mem_fun(*this, &ReportXrun::clear), 100);
+    gx_system::gx_print_warning(
+	_("Jack XRun"),
+	(boost::format(_(" delay of at least %1% microsecs"))
+	 % jack.get_last_xrun()).str());
 }
 
 // ----menu function gx_show_oscilloscope
-void GxMainInterface::on_show_oscilloscope() {
-    if (fShowWaveView.get_active()) {
-        guivar.showwave = 1; // FIXME just use is_visible
-        Glib::signal_timeout().connect(sigc::mem_fun(*this,
-             &GxMainInterface::on_refresh_oscilloscope), 60); // FIXME G_PRIORITY_DEFAULT_IDLE??
-        fWaveView.get_parent()->show(); // FIXME why??
-    } else {
-        guivar.showwave = 0;
-        fWaveView.get_parent()->hide();
+void GxMainInterface::on_show_oscilloscope(bool v) {
+    if (v) {
+	// FIXME G_PRIORITY_DEFAULT_IDLE??
+	Glib::signal_timeout().connect(
+	    sigc::mem_fun(*this, &GxMainInterface::on_refresh_oscilloscope), 60); 
     }
 }
 
 // show loggingbox
 void GxMainInterface::on_log_activate() {
-    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(fShowLogger.gobj())) == TRUE) {
+    if (fShowLogger.get_active()) {
         gint rxorg, ryorg;
-        gtk_window_get_position(GTK_WINDOW(gw.fWindow), &rxorg, &ryorg);
-        gtk_window_move(GTK_WINDOW(logger), rxorg+5, ryorg+272);
-        gtk_widget_show_all(GTK_WIDGET(logger));
+        fWindow.get_position(rxorg, ryorg);
+        fLoggingWindow.move(rxorg+5, ryorg+272);
+        fLoggingWindow.show_all();
     } else {
-        gtk_widget_hide(GTK_WIDGET(logger));
+        fLoggingWindow.hide();
     }
 }
 
 // ----menu function oatch info widget
 void gx_patch(GtkCheckMenuItem *menuitem, gpointer checkplay) {
     gtk_widget_show_all(gw.patch_info);
-}
-
-// ---- menu function logging widget
-void gx_log_window(GtkWidget* menuitem, gpointer arg) {
-    GtkExpander* const exbox = GxMainInterface::get_instance().getLoggingBox();
-
-    // we could be called before UI is built up
-    if (!exbox) return;
-
-    bool expanded = gtk_expander_get_expanded(exbox);
-    bool checked = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem));
-    if (!(expanded ^ checked)) {
-        return;
-    }
-    gtk_signal_emit_by_name(GTK_OBJECT(exbox), "activate");
 }
 
 // ----menu funktion about
@@ -279,85 +330,6 @@ void gx_show_about(GtkWidget *widget, gpointer data ) {
     gx_message_popup(about.c_str());
 }
 
-
-// ----- change the jack buffersize on the fly is still experimental, give a warning
-gint gx_wait_latency_warn() {
-    GtkWidget* warn_dialog = gtk_dialog_new();
-    gtk_window_set_destroy_with_parent(GTK_WINDOW(warn_dialog), TRUE);
-
-    GtkWidget* box     = gtk_vbox_new(0, 4);
-    GtkWidget* labelt  = gtk_label_new(_("\nWARNING\n"));
-    GtkWidget* labelt1 = gtk_label_new(_("CHANGING THE JACK_BUFFER_SIZE ON THE FLY \n"
-                                       "MAY CAUSE UNPREDICTABLE EFFECTS \n"
-                                       "TO OTHER RUNNING JACK APPLICATIONS. \n"
-                                       "DO YOU WANT TO PROCEED ?"));
-    GdkColor colorGreen;
-    gdk_color_parse("#969292", &colorGreen);
-    gtk_widget_modify_fg(labelt1, GTK_STATE_NORMAL, &colorGreen);
-
-    GtkStyle *style1 = gtk_widget_get_style(labelt1);
-    pango_font_description_set_size(style1->font_desc, 10*PANGO_SCALE);
-    pango_font_description_set_weight(style1->font_desc, PANGO_WEIGHT_BOLD);
-    gtk_widget_modify_font(labelt1, style1->font_desc);
-
-    gdk_color_parse("#ffffff", &colorGreen);
-    gtk_widget_modify_fg(labelt, GTK_STATE_NORMAL, &colorGreen);
-    style1 = gtk_widget_get_style(labelt);
-    pango_font_description_set_size(style1->font_desc, 14*PANGO_SCALE);
-    pango_font_description_set_weight(style1->font_desc, PANGO_WEIGHT_BOLD);
-    gtk_widget_modify_font(labelt, style1->font_desc);
-
-    GtkWidget* button1 =
-        gtk_dialog_add_button(GTK_DIALOG(warn_dialog),
-                              _("Yes"), GxMainInterface::get_instance().jack.kChangeLatency);
-
-    GtkWidget* button2 =
-        gtk_dialog_add_button(GTK_DIALOG(warn_dialog),
-                              _("No"),  GxMainInterface::get_instance().jack.kKeepLatency);
-
-
-    GtkWidget* box1    = gtk_hbox_new(0, 4);
-    GtkWidget* box2    = gtk_hbox_new(0, 4);
-
-    GtkWidget* disable_warn = gtk_check_button_new();
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(disable_warn), FALSE);
-    g_signal_connect(disable_warn, "clicked",
-                     G_CALLBACK(gx_user_disable_latency_warn), NULL);
-
-    GtkWidget * labelt2 =
-        gtk_label_new(_("Don't bother me again with such a question, "
-                       "I know what I am doing"));
-
-    gtk_container_add(GTK_CONTAINER(box),  labelt);
-    gtk_container_add(GTK_CONTAINER(box),  labelt1);
-    gtk_container_add(GTK_CONTAINER(box),  box2);
-    gtk_container_add(GTK_CONTAINER(box),  box1);
-    gtk_container_add(GTK_CONTAINER(box1), disable_warn);
-    gtk_container_add(GTK_CONTAINER(box1), labelt2);
-    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(warn_dialog)->vbox), box);
-
-    gtk_widget_modify_fg(labelt2, GTK_STATE_NORMAL, &colorGreen);
-
-    GtkStyle *style = gtk_widget_get_style(labelt2);
-    pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-    gtk_widget_modify_font(labelt2, style->font_desc);
-
-    g_signal_connect_swapped(button1, "clicked",
-                             G_CALLBACK(gtk_widget_destroy), warn_dialog);
-    g_signal_connect_swapped(button2, "clicked",
-                             G_CALLBACK(gtk_widget_destroy), warn_dialog);
-
-    gtk_widget_show_all(box);
-
-    return gtk_dialog_run(GTK_DIALOG(warn_dialog));
-}
-
-// check user's decision to turn off latency change warning
-void gx_user_disable_latency_warn(GtkWidget* wd, gpointer arg) {
-    GtkToggleButton* button = GTK_TOGGLE_BUTTON(wd);
-    gx_engine::audio.fwarn = static_cast<int>(gtk_toggle_button_get_active(button));
-}
 
 void gx_reset_effects(GtkWidget *widget, gpointer data ) {
     string pos(".position");
@@ -430,15 +402,16 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
         // if order is horizontal, force resize the rack widget width
         if (strcmp(gtk_widget_get_name(GTK_WIDGET(box1)), "GtkViewport") == 0) {
             gtk_widget_hide(GTK_WIDGET(vbox));
-            if (gtk_window_get_resizable(GTK_WINDOW(gw.fWindow)))
-                gtk_window_set_resizable(GTK_WINDOW(gw.fWindow), FALSE);
+            if (gui.fWindow.get_resizable())
+                gui.fWindow.set_resizable(false);
             gtk_widget_show(GTK_WIDGET(vbox));
 
             gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, 460);
                 if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id
                                         (NULL, guivar.g_threads[7]) == NULL)
-                    guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
-                                   gx_gui::gx_set_resizeable, gpointer(gw.fWindow), NULL);
+                    guivar.g_threads[7] = g_timeout_add_full(
+			G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,
+			gpointer(gui.fWindow.gobj()), NULL);
                 if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id
                                         (NULL, guivar.g_threads[6]) == NULL)
                     guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
@@ -457,15 +430,16 @@ void gx_show_extended_settings(GtkWidget *widget, gpointer data) {
         // if order is horizontal, force resize the rack widget width
         if (strcmp(gtk_widget_get_name(GTK_WIDGET(box1)), "GtkViewport") == 0) {
             gtk_widget_hide(GTK_WIDGET(vbox));
-            if (gtk_window_get_resizable(GTK_WINDOW(gw.fWindow)))
-                gtk_window_set_resizable(GTK_WINDOW(gw.fWindow) , FALSE);
+            if (gui.fWindow.get_resizable())
+                gui.fWindow.set_resizable(false);
             gtk_widget_show(GTK_WIDGET(vbox));
 
             gtk_widget_set_size_request(GTK_WIDGET(gui.RBox), -1, 460);
                 if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id
                                         (NULL, guivar.g_threads[7]) == NULL)
-                    guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
-                                   gx_gui::gx_set_resizeable, gpointer(gw.fWindow), NULL);
+                    guivar.g_threads[7] = g_timeout_add_full(
+			G_PRIORITY_HIGH_IDLE + 10, 40, gx_gui::gx_set_resizeable,
+			gpointer(gui.fWindow.gobj()), NULL);
                 if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id
                                         (NULL, guivar.g_threads[6]) == NULL)
                     guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
@@ -501,15 +475,16 @@ void GxMainInterface::on_rrack_activate() {
         // fShowRack.set_active(true);
         // fShowSRack.set_active(true);
     } else {
-        if (gtk_window_get_resizable(GTK_WINDOW(gw.fWindow)))
-            gtk_window_set_resizable(GTK_WINDOW(gw.fWindow) , FALSE);
+        if (fWindow.get_resizable())
+            fWindow.set_resizable(false);
         gtk_widget_hide(RBox);
         // fShowRack.set_active(false);
         // fShowSRack.set_active(false);
     }
     if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
-            guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
-                           gx_set_resizeable, gpointer(gw.fWindow), NULL);
+            guivar.g_threads[7] = g_timeout_add_full(
+		G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,
+		gpointer(fWindow.gobj()), NULL);
     if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
             guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                            gx_set_default, gpointer(RBox), NULL);
@@ -517,8 +492,8 @@ void GxMainInterface::on_rrack_activate() {
 
 // ----menu function gx_rack
 void GxMainInterface::on_srack_activate() {
-    if (gtk_window_get_resizable(GTK_WINDOW(gw.fWindow)))
-        gtk_window_set_resizable(GTK_WINDOW(gw.fWindow) , FALSE);
+    if (fWindow.get_resizable())
+        fWindow.set_resizable(false);
     if (fShowSRack.get_active()) {
         gtk_widget_show(gw.srack_widget);
 
@@ -560,8 +535,9 @@ void GxMainInterface::on_srack_activate() {
 
     gtk_widget_set_size_request(GTK_WIDGET(RBox), -1, 460 );
     if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
-            guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
-                           gx_set_resizeable, gpointer(gw.fWindow), NULL);
+            guivar.g_threads[7] = g_timeout_add_full(
+		G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,
+		gpointer(fWindow.gobj()), NULL);
     if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
             guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                            gx_set_default, gpointer(RBox), NULL);
@@ -576,13 +552,14 @@ void GxMainInterface::on_toolbar_activate() {
         GtkAllocation my_size;
         gtk_widget_get_allocation(GTK_WIDGET(RBox), &my_size);
         gtk_widget_set_size_request(GTK_WIDGET(RBox), -1, my_size.height);
-        if (gtk_window_get_resizable(GTK_WINDOW(gw.fWindow)))
-            gtk_window_set_resizable(GTK_WINDOW(gw.fWindow) , FALSE);
+        if (fWindow.get_resizable())
+            fWindow.set_resizable(false);
         gtk_widget_hide(gw.rack_tool_bar);
     }
     if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
-            guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
-                           gx_set_resizeable, gpointer(gw.fWindow), NULL);
+            guivar.g_threads[7] = g_timeout_add_full(
+		G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,
+		gpointer(fWindow.gobj()), NULL);
     if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
             guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                            gx_set_default, gpointer(RBox), NULL);
@@ -600,14 +577,15 @@ void GxMainInterface::on_tuner_activate() {
         GtkAllocation my_size;
         gtk_widget_get_allocation(GTK_WIDGET(RBox), &my_size);
         gtk_widget_set_size_request(GTK_WIDGET(RBox), -1, my_size.height);
-        if (gtk_window_get_resizable(GTK_WINDOW(gw.fWindow)))
-            gtk_window_set_resizable(GTK_WINDOW(gw.fWindow) , FALSE);
+        if (fWindow.get_resizable())
+            fWindow.set_resizable(false);
         fTuner.hide();
         gtk_widget_hide(gw.tuner_widget);
     }
     if (guivar.g_threads[7] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[7]) == NULL)
-            guivar.g_threads[7] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 40,
-                           gx_set_resizeable, gpointer(gw.fWindow), NULL);
+            guivar.g_threads[7] = g_timeout_add_full(
+		G_PRIORITY_HIGH_IDLE + 10, 40, gx_set_resizeable,
+		gpointer(fWindow.gobj()), NULL);
     if (guivar.g_threads[6] == 0 || g_main_context_find_source_by_id(NULL, guivar.g_threads[6]) == NULL)
             guivar.g_threads[6] = g_timeout_add_full(G_PRIORITY_HIGH_IDLE + 10, 50,
                            gx_set_default, gpointer(RBox), NULL);
@@ -635,22 +613,23 @@ void gx_midi_out(GtkCheckMenuItem *menuitem, gpointer checkplay) {
 }
 
 // ----- hide the extendend settings slider
-void gx_hide_extended_settings(GtkWidget *widget, gpointer data) {
-
-    if (gdk_window_get_state(gw.fWindow->window)
-        & (GDK_WINDOW_STATE_ICONIFIED|GDK_WINDOW_STATE_WITHDRAWN)) {
+void GxMainInterface::gx_hide_extended_settings(GtkWidget *widget, gpointer data) {
+    GxMainInterface& gui = *static_cast<GxMainInterface*>(data);
+    if (gui.fWindow.get_window()->get_state()
+        & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN)) {
         gint mainxorg = gx_set_mx_oriantation();
         gint mainyorg = gx_set_my_oriantation();
-        gtk_window_move(GTK_WINDOW(gw.fWindow), mainxorg, mainyorg);
-        gtk_window_present(GTK_WINDOW(gw.fWindow));
+        gui.fWindow.move(mainxorg, mainyorg);
+        gui.fWindow.present();
     } else {
-        gtk_widget_hide(gw.fWindow);
+        gui.fWindow.hide();
         // gtk_window_iconify(GTK_WINDOW(gw.fWindow));
     }
 }
 
 // ----- systray menu
-void gx_systray_menu(GtkWidget *widget, gpointer data) {
+void GxMainInterface::gx_systray_menu(GtkWidget *widget, gpointer data) {
+    //GxMainInterface& gui = *static_cast<GxMainInterface*>(data);
     guint32 tim = gtk_get_current_event_time();
     gtk_menu_popup(GTK_MENU(gw.menuh), NULL, NULL, NULL, (gpointer) gw.menuh, 2, tim);
 }
@@ -729,7 +708,7 @@ gint gx_choice_dialog_without_entry(
 }
 
 // ---- get text entry from dialog
-void gx_get_text_entry(GtkEntry* entry, string& output) {
+void gx_get_text_entry(GtkEntry* entry, Glib::ustring& output) {
     if (gtk_entry_get_text(entry)[0])
         output = gtk_entry_get_text(entry);
 }
@@ -800,39 +779,13 @@ gint gx_choice_dialog_with_text_entry(
 }
 
 // ---- retrive skin array index from skin name
-void gx_actualize_skin_index(const string& skin_name) {
+void gx_actualize_skin_index(gx_system::SkinHandling& skin, const string& skin_name) {
     for (guint s = 0; s < skin.skin_list.size(); s++) {
         if (skin_name == skin.skin_list[s]) {
-            skin.gx_current_skin = s;
+            gx_engine::audio.fskin = s;
             return;
         }
     }
-}
-
-// ------- count the number of available skins
-unsigned int gx_fetch_available_skins() {
-    DIR *d;
-    d = opendir(gx_system::sysvar.gx_style_dir.c_str());
-    if (!d) {
-        return 0;
-    }
-    // look for gx_head_*.rc and extract *-part
-    struct dirent *de;
-    while ((de = readdir(d)) != 0) {
-        char *p = de->d_name;
-        if (strncmp(p, "gx_head_", 8) != 0) {
-            continue;
-        }
-        p += 8;
-        int n = strlen(p) - 3;
-        if (strcmp(p+n, ".rc") != 0) {
-            continue;
-        }
-        skin.skin_list.push_back(string(p, n));
-        sort(skin.skin_list.begin(), skin.skin_list.end());
-    }
-    closedir(d);
-    return skin.skin_list.size();
 }
 
 // ----- skin change
@@ -842,23 +795,23 @@ void  gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg) {
         return;
 
     // update the skin to the one picked by user
-    const int idx = static_cast<int>(GPOINTER_TO_INT(arg));
+    const int idx = GPOINTER_TO_INT(arg);
 
     (void)gx_update_skin(idx, "gx_change_skin");
 }
 
 // ----- cycling through skin
 void  gx_cycle_through_skin(GtkWidget *widget, gpointer arg) {
-
-    gint idx = skin.gx_current_skin + 1;
-    idx %= skin.skin_list.size();
+    GxMainInterface& gui = GxMainInterface::get_instance();
+    gint idx = gx_engine::audio.fskin + 1;
+    idx %= gui.options.skin.skin_list.size();
 
     // did it work ? if yes, update current skin
     if (gx_update_skin(idx, "gx_cycle_through_skin"))
-        skin.gx_current_skin = idx;
+        gx_engine::audio.fskin = idx;
 
     // update menu item state
-    gx_update_skin_menu_item(skin.gx_current_skin);
+    gx_update_skin_menu_item(gx_engine::audio.fskin);
 }
 
 // ----- cycling through skin
@@ -875,33 +828,22 @@ void  gx_update_skin_menu_item(const int index) {
 
 // ---- skin changer, used internally frm callbacks
 bool gx_update_skin(const gint idx, const char* calling_func) {
+    GxMainInterface& gui = GxMainInterface::get_instance();
     // check skin validity
-    if (idx < 0 || idx >= (gint)skin.skin_list.size()) {
+    if (idx < 0 || idx >= (gint)gui.options.skin.skin_list.size()) {
         gx_system::gx_print_warning(calling_func,
                 _("skin index out of range, keeping actual skin"));
         return false;
     }
 
-    string rcfile = gx_system::sysvar.gx_style_dir + "gx_head_";
-    rcfile += skin.skin_list[idx];
-    rcfile += ".rc";
-
+    string rcfile = gui.options.get_style_filepath(
+	"gx_head_" + gui.options.skin.skin_list[idx] + ".rc");
     gtk_rc_parse(rcfile.c_str());
     gtk_rc_reset_styles(gtk_settings_get_default());
 
-    skin.gx_current_skin = idx;
-
-    // refresh latency check menu
-    GxMainInterface& gui = GxMainInterface::get_instance();
-    GtkWidget* wd = gui.getJackLatencyItem(GxMainInterface::get_instance().jack.jack_bs);
-    if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
+    gx_engine::audio.fskin = idx;
 
     return true;
-}
-
-// ---- set last used skin as default
-bool gx_set_skin(GtkWidget *widget, gpointer data) {
-    return gx_update_skin(skin.last_skin, "Set Skin");
 }
 
 // ---- popup warning

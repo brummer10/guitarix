@@ -127,6 +127,10 @@ int Audiofile::read(float *data, uint32_t frames) {
  ** GxConvolverBase
  */
 
+GxConvolverBase::~GxConvolverBase() {
+    stop();
+}
+
 void GxConvolverBase::adjust_values(
     unsigned int audio_size, unsigned int& count, unsigned int& offset,
     unsigned int& delay, unsigned int& ldelay, unsigned int& length,
@@ -185,14 +189,16 @@ bool GxConvolverBase::start(int policy, int priority) {
 
 bool GxConvolverBase::checkstate() {
     if (state() == Convproc::ST_WAIT) {
-        check();
-        return false;
+        if (check_stop()) {
+	    ready = false;
+	} else {
+	    return false;
+	}
     } else if (state() == ST_STOP) {
         ready = false;
     }
     return true;
 }
-
 
 /****************************************************************
  ** GxConvolver
@@ -262,7 +268,7 @@ bool GxConvolver::read_sndfile(
         }
     }
 
-    bool gain_cor = gx_engine::GxEngine::get_engine().convolver.jcset.getGainCor(); //FIXME
+    bool gain_cor = gx_gui::GxMainInterface::get_instance().engine.convolver.jcset.getGainCor(); //FIXME
     double gain_t[nchan];
     if (!gain_cor) {
         for (int ichan = 0; ichan < nchan; ichan++) {
@@ -379,9 +385,6 @@ bool GxConvolver::configure(
 
 bool GxConvolver::compute(int count, float* input1, float *input2, float *output1,
                           float *output2) {
-    if (state() == Convproc::ST_WAIT) {
-        check();
-    }
     if (state() != Convproc::ST_PROC) {
         if (input1 != output1) {
             memcpy(output1, input1, count * sizeof(float));
@@ -389,20 +392,22 @@ bool GxConvolver::compute(int count, float* input1, float *input2, float *output
         if (input2 != output2) {
             memcpy(output2, input2, count * sizeof(float));
         }
+	if (state() == Convproc::ST_WAIT) {
+	    check_stop();
+	}
         if (state() == ST_STOP) {
             ready = false;
-            return flags() == 0;
         }
         return true;
     }
     memcpy(inpdata(0), input1, count * sizeof(float));
     memcpy(inpdata(1), input2, count * sizeof(float));
 
-    process();
+    int flags = process();
 
     memcpy(output1, outdata(0), count * sizeof(float));
     memcpy(output2, outdata(1), count * sizeof(float));
-    return true;
+    return flags == 0;
 }
 
 
@@ -471,25 +476,24 @@ bool GxSimpleConvolver::update(int count, float *impresp, unsigned int imprate) 
 }
 
 bool GxSimpleConvolver::compute(int count, float* input, float *output) {
-    if (state() == Convproc::ST_WAIT) {
-        check();
-    }
     if (state() != Convproc::ST_PROC) {
         if (input != output) {
             memcpy(output, input, count * sizeof(float));
         }
+	if (state() == Convproc::ST_WAIT) {
+	    check_stop();
+	}
         if (state() == ST_STOP) {
             ready = false;
-            return flags() == 0;
         }
         return true;
     }
     memcpy(inpdata(0), input, count * sizeof(float));
 
-    process();
+    int flags = process();
 
     memcpy(output, outdata(0), count * sizeof(float));
-    return true;
+    return flags == 0;
 }
 
 }

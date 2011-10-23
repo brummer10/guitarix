@@ -434,7 +434,7 @@ def configure(conf):
     conf.check(header_name='boost/thread.hpp', mandatory=1)
     # convolver and resampler
     if not Options.options.includeconvolver:
-        expected_zita_convolver_version = 2
+        expected_zita_convolver_version = 3
         code="""
         #include <zita-convolver.h>
         #if ZITA_CONVOLVER_MAJOR_VERSION != %d

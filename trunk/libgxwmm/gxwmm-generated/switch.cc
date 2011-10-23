@@ -169,16 +169,16 @@ Glib::PropertyProxy_ReadOnly<Glib::ustring> Switch::property_base_name() const
 #endif //GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy<Gtk::Label> Switch::property_label() 
+Glib::PropertyProxy<Gtk::Label> Switch::property_label_ref() 
 {
-  return Glib::PropertyProxy<Gtk::Label>(this, "label");
+  return Glib::PropertyProxy<Gtk::Label>(this, "label-ref");
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy_ReadOnly<Gtk::Label> Switch::property_label() const
+Glib::PropertyProxy_ReadOnly<Gtk::Label> Switch::property_label_ref() const
 {
-  return Glib::PropertyProxy_ReadOnly<Gtk::Label>(this, "label");
+  return Glib::PropertyProxy_ReadOnly<Gtk::Label>(this, "label-ref");
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 

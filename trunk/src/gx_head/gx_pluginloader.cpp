@@ -7,7 +7,7 @@
  ** UiBuilder
  */
 
-void UiBuilder::openVerticalBox(const char* label) const {
+void ::UiBuilder::openVerticalBox(const char* label) const {
     intf->openVerticalBox(label);
 }
 
@@ -116,6 +116,8 @@ void ParamReg::registerUEnumVar(const char *id, const char* name, const char* tp
 }
 
 
+namespace gx_engine {
+
 /****************************************************************
  ** class Plugin
  */
@@ -131,7 +133,8 @@ Plugin::Plugin(PluginDef *pl):
  ** class PluginList
  */
 
-PluginList::PluginList()
+PluginList::PluginList(gx_ui::GxUI& ui_, ModuleSequencer& seq_)
+    : seq(seq_), ui(ui_)
 {
     plugin_pos[PLUGIN_POS_START]       = -1000;
     plugin_pos[PLUGIN_POS_RACK]        = 1;
@@ -145,6 +148,9 @@ PluginList::~PluginList()
 	if (!(p->second->pdef->flags & PGNI_NOT_OWN)) {
 	    delete p->second;
 	}
+    }
+    for (list<gx_ui::GxUiItem*>::iterator i = rackchanger.begin(); i != rackchanger.end(); i++) {
+	delete(*i);
     }
 }
 
@@ -194,7 +200,7 @@ bool* PluginList::on_off_var(const char *id) {
     return &p->on_off;
 }
 
-int PluginList::load_library(string path, PluginPos pos) {
+int PluginList::load_library(const string& path, PluginPos pos) {
     void* handle = dlopen(path.c_str(), RTLD_LAZY);
     if (!handle) {
 	gx_system::gx_print_warning(
@@ -226,7 +232,7 @@ int PluginList::load_library(string path, PluginPos pos) {
     return cnt;
 }
 
-int PluginList::load_from_path(string path, PluginPos pos) {
+int PluginList::load_from_path(const string& path, PluginPos pos) {
     DIR *dp;
     struct dirent *dirp;
     if((dp = opendir(path.c_str())) == NULL) {
@@ -239,7 +245,7 @@ int PluginList::load_from_path(string path, PluginPos pos) {
     while ((dirp = readdir(dp)) != NULL) {
 	string n = dirp->d_name;
 	if (n.size() > 3 && n.compare(n.size()-3,3,".so") == 0) {
-	    int res = load_library(path+"/"+n, pos);
+	    int res = load_library(path+n, pos);
 	    if (res > 0) {
 		cnt += res;
 	    }
@@ -337,6 +343,42 @@ static const char* tr_name(const char *name) {
     return "";
 }
 
+template<class T>
+class RackChangerUiItem: public gx_ui::GxUiItem {
+private:
+    PluginList& pluginlist;
+    T *fZone;
+    T  fCache;
+public :
+    RackChangerUiItem(PluginList& pl, T *z);
+    ~RackChangerUiItem();
+    virtual bool hasChanged();
+    virtual void reflectZone();
+};
+
+template<class T>
+RackChangerUiItem<T>::RackChangerUiItem(PluginList& pl, T *z)
+    : pluginlist(pl), fZone(z), fCache() {
+    pl.rackchanger.push_back(this);
+    pl.ui.registerZone(z, this);
+}
+
+template<class T>
+RackChangerUiItem<T>::~RackChangerUiItem() {
+    pluginlist.ui.unregisterZone(fZone, this);
+}
+
+template<class T>
+bool RackChangerUiItem<T>::hasChanged() {
+    return *fZone != fCache;
+}
+
+template<class T>
+void RackChangerUiItem<T>::reflectZone() {
+    fCache = *fZone;
+    pluginlist.seq.set_rack_changed();
+}
+
 void PluginList::registerParameter(gx_gui::ParameterGroups& groups) {
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
 	PluginDef *pd = p->second->pdef;
@@ -363,10 +405,14 @@ void PluginList::registerParameter(gx_gui::ParameterGroups& groups) {
 	PluginDef *pd = pl->pdef;
 	if (pd->load_ui || (pd->flags & PGN_GUI)) {
 	    string s = pd->id;
-	    gx_gui::registerParam((s+".on_off").c_str(),N_("on/off"), &(pl->on_off), 0);
+	    gx_gui::registerParam((s+".on_off").c_str(),N_("on/off"), &pl->on_off, 0);
+	    new RackChangerUiItem<bool>(*this, &pl->on_off);
 	    if (pd->flags & PGNI_DYN_POSITION) {
 		// PLUGIN_POS_RACK .. PLUGIN_POS_POST_START-1
-		gx_gui::registerNonMidiParam((s+".dialog").c_str(), &(pl->box_visible), false);
+		gx_gui::parameter_map.insert(
+		    new gx_gui::BoolParameter(
+			string("ui.")+pd->name, "", gx_gui::Parameter::None,
+			true, pl->box_visible, false, false));
 		gx_gui::registerNonMidiParam((s+".position").c_str(), &(pl->position), true,
 					     pl->position, 1, 999);
 		if (pd->mono_audio || (pd->flags & PGN_POST_PRE)) {
@@ -378,6 +424,7 @@ void PluginList::registerParameter(gx_gui::ParameterGroups& groups) {
 			static const value_pair post_pre[] = {{N_("post")}, {N_("pre")}, {0}};
 			gx_gui::registerUEnumParam((s+".pp").c_str(), "select", post_pre,
 						   &(pl->effect_post_pre), 0);
+			new RackChangerUiItem<unsigned int>(*this, &pl->effect_post_pre);
 		    }
 		}
 	    }
@@ -395,8 +442,8 @@ void PluginList::append_rack(gx_gui::GxMainInterface *ui) {
 	    continue;
 	}
 	string s = pd->id;
-	string id_on_off = s+".on_off";
-	string id_dialog = s+".dialog";
+	string id_on_off = s + ".on_off";
+	string id_dialog = string("ui.") + pd->name;
 	if (pd->flags & PGN_STEREO) {
 	    ui->openStereoRackBox(tr_name(pd->name), &(p->second->position), id_on_off.c_str(), id_dialog.c_str());
 	    pd->load_ui(UiBuilder(ui,p->second->pdef));
@@ -459,8 +506,8 @@ void PluginList::printlist(bool order) {
 	pl_mono.sort(plugin_order);
 	pl_stereo.sort(plugin_order);
     }
-    ::printlist("Plugin Map", pl_mono);
-    ::printlist(0, pl_stereo, false);
+    gx_engine::printlist("Plugin Map", pl_mono);
+    gx_engine::printlist(0, pl_stereo, false);
 }
 
 void printlist(const char *title, const list<Plugin*>& modules, bool header) {
@@ -490,3 +537,5 @@ void printlist(const char *title, const list<Plugin*>& modules, bool header) {
     }
 }
 #endif
+
+} // !namespace gx_engine

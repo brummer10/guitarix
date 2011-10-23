@@ -42,10 +42,24 @@ GxUI::GxUI() {
     fGuiList.push_back(this);
 }
 
+GxUI::~GxUI() {
+    fGuiList.remove(this);
+}
+
 // -- registerZone(z,c) : zone management
 void GxUI::registerZone(void* z, GxUiItem* c) {
-    if (fZoneMap.find(z) == fZoneMap.end()) fZoneMap[z] = new clist();
+    if (fZoneMap.find(z) == fZoneMap.end()) {
+	fZoneMap[z] = new clist();
+    }
     fZoneMap[z]->push_back(c);
+}
+
+void GxUI::unregisterZone(void* z, GxUiItem* c) {
+    zmap::iterator i = fZoneMap.find(z);
+    if (i == fZoneMap.end()) {
+	return;
+    }
+    i->second->remove(c);
 }
 
 void GxUI::updateAllGuis(bool force) {

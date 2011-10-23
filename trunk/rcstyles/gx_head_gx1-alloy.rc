@@ -11,7 +11,7 @@ style "gx_head_skin_icons"
   stock["smallknobr"] = {{"tactile_knob_medium_151f.png"}}
 }
 
-class "GxKnob" style "gx_head_skin_icons"
+class "*GxKnob" style "gx_head_skin_icons"
 
 style "gx2_head_skin_knob_animation"
 {
@@ -19,7 +19,7 @@ style "gx2_head_skin_knob_animation"
 GxKnob::framecount = 0 # use 0 for auto (assumes square frames)
                             #  and >1 for non squareframe animations
 }
-class "GxKnob" style "gx2_head_skin_knob_animation"
+class "*GxKnob" style "gx2_head_skin_knob_animation"
 
 style "gx1_head_wheel_icons"
 {
@@ -29,7 +29,7 @@ GxWheel::framecount = 101 # use 0 for auto (assumes square frames)
                             #  and >1 for non squareframe animations
 }
 
-class "GxWheel" style "gx1_head_wheel_icons"
+class "*GxWheel" style "gx1_head_wheel_icons"
 
 style "gx1_head_wheel_vertical_icons"
 {
@@ -39,7 +39,7 @@ GxWheelVertical::framecount = 101 # use 0 for auto (assumes square frames)
                             #  and >1 for non squareframe animations
 }
 
-class "GxWheelVertical" style "gx1_head_wheel_vertical_icons"
+class "*GxWheelVertical" style "gx1_head_wheel_vertical_icons"
 
 style "gx2_head_skin_switch_icons"
 {
@@ -48,7 +48,7 @@ stock["switchit_off"] = {{"tactile_backlit_switchit_off.png"}}
 }
 
 
-class "GxToggleImage" style "gx2_head_skin_switch_icons"
+class "*GxToggleImage" style "gx2_head_skin_switch_icons"
 
 
 
@@ -72,7 +72,7 @@ style "gx_head-paintbox"
   GxPaintBox::icon-set =1
 }
 
-class "GxPaintBox" style "gx_head-paintbox"
+class "*GxPaintBox" style "gx_head-paintbox"
 
 style "gx_head"
 {
@@ -112,15 +112,15 @@ style "gx_head"
 }
 
 
-class "GtkWidget" style:highest "gx_head"
-class "GtkLabel" style:highest "gx_head"
-class "GtkHScale" style:highest "gx_head"
-class "GtkVScale" style:highest "gx_head"
-class "GtkCheckButton" style:highest "gx_head"
-class "GtkButton" style:highest "gx_head"
-class "GtkFrame" style:highest "gx_head"
-class "GtkExpander" style:highest "gx_head"
-#class "GtkEventBox" style:highest "gx_head"
+class "*GtkWidget" style:highest "gx_head"
+class "*GtkLabel" style:highest "gx_head"
+class "*GtkHScale" style:highest "gx_head"
+class "*GtkVScale" style:highest "gx_head"
+class "*GtkCheckButton" style:highest "gx_head"
+class "*GtkButton" style:highest "gx_head"
+class "*GtkFrame" style:highest "gx_head"
+class "*GtkExpander" style:highest "gx_head"
+#class "*GtkEventBox" style:highest "gx_head"
 
 style "gx_head-event"
 {
@@ -348,12 +348,12 @@ style "h_style"
   base[SELECTED]     = { 0.25, 0.25, 0.25 }
 }
 
-class "GtkHandleBox" style:highest "h_style"
-#class "GtkScrolledWindow" style:highest "h_style"
-widget_class "GtkDialog*" style:highest "h_style"
+class "*GtkHandleBox" style:highest "h_style"
+#class "*GtkScrolledWindow" style:highest "h_style"
+widget_class "*GtkDialog*" style:highest "h_style"
 widget_class "*GtkToggleButton*" style:highest "b_style"
-class "GtkButton" style:highest "b_style"
-class "GtkSpinButton" style:highest "c_style"
+class "*GtkButton" style:highest "b_style"
+class "*GtkSpinButton" style:highest "c_style"
 
 style "tab_style"
 {

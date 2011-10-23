@@ -23,18 +23,23 @@
  */
 
 #include "guitarix.h"               // NOLINT
+#include <boost/format.hpp>
+//using namespace std;
+#include "config.h"
+#include "gx_system.h"
 
+#include <dirent.h>        //  NOLINT
 #include <sys/stat.h>               // NOLINT
-#include <jack/jack.h>              // NOLINT
 #include <glibmm/i18n.h>            // NOLINT
 
-#include <cstring>                  // NOLINT
 #include <string>                   // NOLINT
 #include <fstream>                  // NOLINT
 #include <iostream>                 // NOLINT
 #include <iomanip>                  // NOLINT
 #include <list>                     // NOLINT
 #include <vector>                   // NOLINT
+#include <gtkmm/main.h>
+#include <gtkmm/messagedialog.h>
 
 namespace gx_system {
 
@@ -124,81 +129,90 @@ void add_time_measurement() {
 
 
 const int SystemVars::SYSTEM_OK           = 0;
-const char* SystemVars::gx_head_dir       = ".gx_head";
-const char* SystemVars::jcapsetup_file    = "ja_ca_ssetrc";
-const char* SystemVars::jcapfile_wavbase  = "gx_head_session";
 const string SystemVars::gx_pixmap_dir    = string(GX_PIXMAPS_DIR) + "/";
-const string SystemVars::gx_user_dir      = string(getenv("HOME")) + string("/")
-                                             + string(gx_head_dir) + "/";
-const char* SystemVars::shell_var_name[] = {
-    "GUITARIX2JACK_INPUTS",
-    "GUITARIX2JACK_OUTPUTS1",
-    "GUITARIX2JACK_OUTPUTS2",
-    "GUITARIX2JACK_MIDI",
-    "GUITARIX_RC_STYLE",
-    "GUITARIX2JACK_UUID",
-    "GUITARIX2JACK_UUID2",
-    "GUITARIX_LOAD_FILE"
-};
-
-void SystemVars::sysvar_init() {
-    is_session = false;
-    gx_style_dir  = string(GX_STYLE_DIR1) + "/";
-    gx_builder_dir = string(GX_BUILDER_DIR1) + "/";
-}
-
-
-// ---- retrieve and store the shell variable if not NULL
-void gx_assign_shell_var(const char* name, string& value) {
-    const char* val = getenv(name);
-    value = (val != NULL) ? val : "";
-}
-
-// ---- OS signal handler -----
-void gx_signal_handler(int sig) {
-    // print out a warning
-    if (sig == SIGABRT) {
-        if(!gx_gui::GxMainInterface::get_instance().jack.client) {
-            printf(_(" SIGABRT . .received, try to clean up and exit. . .  \n"));
-            exit(1);
-        }
-        else {
-            gx_clean_exit(NULL, NULL);
-        }
-    }
-    string msg = string(_("signal ")) + gx_i2a(sig) + _(" received, exiting ...");
-    gx_print_warning(_("signal_handler"), msg);
-
-    gx_clean_exit(NULL, NULL);
-}
-
-// ---- ladi signal handler -----
-gboolean  gx_ladi_handler(gpointer) {
-    gx_print_warning(_("signal_handler"), _("signal USR1 received, save settings"));
-
-    saveStateToFile(sysvar.gx_user_dir + gx_gui::GxMainInterface::get_instance().jack.client_instance + "_rc", gx_gui::GxMainInterface::get_instance().jack);
-    return false;
-}
 
 /****************************************************************
  ** CmdlineOptions
  ** command line options
  */
 
+void SkinHandling::set_styledir(const string& style_dir) {
+    // fetch all skin names in directory
+    DIR *d;
+    d = opendir(style_dir.c_str());
+    if (!d) {
+        return;
+    }
+    // look for gx_head_*.rc and extract *-part
+    struct dirent *de;
+    while ((de = readdir(d)) != 0) {
+        char *p = de->d_name;
+        if (strncmp(p, "gx_head_", 8) != 0) {
+            continue;
+        }
+        p += 8;
+        int n = strlen(p) - 3;
+        if (strcmp(p+n, ".rc") != 0) {
+            continue;
+        }
+        skin_list.push_back(string(p, n));
+    }
+    closedir(d);
+    sort(skin_list.begin(), skin_list.end());
+}
+
+bool SkinHandling::is_in_list(const string& name) {
+    for (vector<string>::iterator i = skin_list.begin(); i != skin_list.end(); i++) {
+	if (*i == name) {
+	    return true;
+	}
+    }
+    return false;
+}
+
+CmdlineOptions *CmdlineOptions::instance = 0;
+
+static inline const char *shellvar(const char *name) {
+    const char *p = getenv(name);
+    return p ? p : "";
+}
+
 #define TCLR(s)  "\033[1;32m" s "\033[0m" // light green
 #define TCLR2(s) TCLR(s), TCLR(s)
 
-CmdlineOptions::CmdlineOptions():
-    main_group("",""),
-    optgroup_style("style", TCLR2("GTK style configuration options")),
-    optgroup_jack("jack", TCLR2("JACK configuration options")),
-    optgroup_file("file", TCLR2("File options")),
-    optgroup_debug("debug", TCLR2("Debug options")),
-    version(false), clear(false), lterminal(false) {
-
-    // store shell variable content
-    for (int i = 0; i < NUM_SHELL_VAR; i++) {
-        gx_assign_shell_var(sysvar.shell_var_name[i], optvar[i]);
+CmdlineOptions::CmdlineOptions()
+    : main_group("",""),
+      optgroup_style("style", TCLR2("GTK style configuration options")),
+      optgroup_jack("jack", TCLR2("JACK configuration options")),
+      optgroup_file("file", TCLR2("File options")),
+      optgroup_debug("debug", TCLR2("Debug options")),
+      version(false), clear(false),
+      jack_input(shellvar("GUITARIX2JACK_INPUTS")),
+      jack_midi(shellvar("GUITARIX2JACK_MIDI")),
+      jack_outputs(),
+      jack_uuid(),
+      jack_uuid2(),
+      load_file(shellvar("GUITARIX_LOAD_FILE")),
+      builder_dir(string(GX_BUILDER_DIR1) + "/"),
+      style_dir(string(GX_STYLE_DIR1) + "/"),
+      user_dir(),
+      plugin_dir(),
+      rcset(shellvar("GUITARIX_RC_STYLE")),
+      lterminal(false),
+      skin(style_dir) {
+    const char* home = getenv("HOME");
+    if (!home) {
+	throw GxFatalError(_("no HOME environment variable"));
+    }
+    user_dir = string(home) + "/.gx_head/";
+    plugin_dir = user_dir;
+    const char *tmp = getenv("GUITARIX2JACK_OUTPUTS1");
+    if (tmp && *tmp) {
+	jack_outputs.push_back(tmp);
+    }
+    tmp = getenv("GUITARIX2JACK_OUTPUTS1");
+    if (tmp && *tmp) {
+	jack_outputs.push_back(tmp);
     }
 
     // ---- parse command line arguments
@@ -295,14 +309,27 @@ CmdlineOptions::CmdlineOptions():
     add_group(optgroup_jack);
     add_group(optgroup_file);
     add_group(optgroup_debug);
+
+    instance = this;
+}
+
+CmdlineOptions::~CmdlineOptions() {
+    instance = 0;
+}
+
+Glib::ustring CmdlineOptions::get_jack_output(unsigned int n) {
+    if (n >= jack_outputs.size()) {
+	return "";
+    }
+    return jack_outputs.at(n);
 }
 
 string CmdlineOptions::get_opskin() {
     // initialize number of skins. We just count the number of rc files
-    unsigned int n = gx_gui::gx_fetch_available_skins();
+    unsigned int n = skin.skin_list.size();
     if (n < 1) {
-        gx_print_error(_("main"), string(_("number of skins is 0, aborting ...")));
-        exit(1);
+        gx_print_error(_("main"), string(_("number of skins is 0")));
+	GxExit::get_instance().exit_program();
     }
 
     // GTK options: rc style (aka skin)
@@ -310,17 +337,24 @@ string CmdlineOptions::get_opskin() {
 
     vector<string>::iterator it;
 
-    for (it = gx_gui::skin.skin_list.begin(); it != gx_gui::skin.skin_list.end(); it++) {
+    for (it = skin.skin_list.begin(); it != skin.skin_list.end(); it++) {
         opskin += ", '" + *it + "'";
     }
     return opskin;
 }
 
-CmdlineOptions::~CmdlineOptions() {
+static void log_terminal(const string& msg, GxMsgType tp) {
+    const char *t;
+    switch (tp) {
+    case kInfo:    t = "I"; break;
+    case kWarning: t = "W"; break;
+    case kError:   t = "E"; break;
+    default:       t = "?"; break;
+    }
+    cerr << t << " " << msg << endl;
 }
 
 void CmdlineOptions::process_early() {
-    // *** display version if requested
     if (version) {
         std::cout << "Guitarix version \033[1;32m"
              << GX_VERSION << endl
@@ -329,120 +363,45 @@ void CmdlineOptions::process_early() {
              << endl;
         exit(0);
     }
-    if (plugin_dir.empty()) {
-	plugin_dir = sysvar.gx_user_dir;
+    if (clear && !rcset.empty()) {
+	throw Glib::OptionError(
+	    Glib::OptionError::BAD_VALUE,
+	    _("-c and -r cannot be used together"));
+    }
+    if (lterminal) {
+	Logger::get_logger().signal_message().connect(
+	    sigc::ptr_fun(log_terminal));
+    }
+}
+
+void CmdlineOptions::make_ending_slash(string& dirpath) {
+    if (dirpath.empty()) {
+	return;
+    }
+    if (dirpath[dirpath.size()-1] != '/') {
+	dirpath += "/";
     }
 }
 
 void CmdlineOptions::process() {
     // ----------- processing user options -----------
 
-    Logger::get_logger().set_terminal(lterminal);
+    make_ending_slash(builder_dir);
+    make_ending_slash(style_dir);
+    make_ending_slash(user_dir);
+    make_ending_slash(plugin_dir);
 
-    // *** process GTK rc style
-    bool previous_conflict = false;
-    if (!rcset.empty()) {
-        // retrieve user value
-        string tmp = rcset;
-
-        // check contradiction (clear and rcset cannot be used in the same call)
-        if (clear) {
-            gx_print_error(_("main"),
-              string(_("-c and -r cannot be used together, defaulting to 'default' style")));
-            tmp = "default";
-            previous_conflict = true;
-        }
-
-        // if garbage, let's initialize to gx_head_default.rc
-        guint s = 0;
-        while (s < gx_gui::skin.skin_list.size()) {
-            if (tmp == gx_gui::skin.skin_list[s])
-                break;
-            s++;
-        }
-
-        if (s == gx_gui::skin.skin_list.size()) {
-            gx_print_error(_("main"),
-                           string(_("rcset value is garbage, defaulting to 'default' style")));
-            tmp = "default";
-        }
-        optvar[RC_STYLE] = tmp;
-
-    // else, if no shell var defined for it, defaulting to gx_head_default.rc
-    } else if (optvar[RC_STYLE].empty()) {
-        optvar[RC_STYLE] = "default";
-        // enable set last used skin
-        gx_gui::skin.no_opt_skin = 1;
+    skin.set_styledir(style_dir);
+    if (!rcset.empty() && !skin.is_in_list(rcset)) {
+	throw Glib::OptionError(
+	    Glib::OptionError::BAD_VALUE,
+	    (boost::format(_("invalid style '%1%' on command line"))
+	     % rcset).str());
     }
-
-    // *** process GTK clear
-    if (clear) {
-        // check contradiction (clear and rcset cannot be used in the same call)
-        if (rcset != NULL && !previous_conflict)
-            gx_print_error(_("main"),
-              string(_("-c and -r cannot be used together, defaulting to 'default' style")));
-
-        optvar[RC_STYLE] = "default";
-    }
-
-    // *** process builder_dir
-    if (!builder_dir.empty()) {
-        sysvar.gx_builder_dir = builder_dir;
-        if (sysvar.gx_builder_dir[sysvar.gx_builder_dir.size()-1] != '/') {
-            sysvar.gx_builder_dir += "/";
-        }
-    }
-
-    // *** process style_dir
-    if (!style_dir.empty()) {
-        sysvar.gx_style_dir = style_dir;
-        if (sysvar.gx_style_dir[sysvar.gx_style_dir.size()-1] != '/') {
-            sysvar.gx_style_dir += "/";
-        }
-    }
-
-    // *** process jack input
-    if (!jack_input.empty()) {
-        optvar[JACK_INP] = jack_input;
-    }
-
-    // *** process jack midi
-    if (!jack_midi.empty()) {
-        optvar[JACK_MIDI] = jack_midi;
-    }
-
-    optvar[JACK_UUID] = jack_uuid;
-    optvar[JACK_UUID2] = jack_uuid2;
-
-    // *** process jack outputs
-    if (!jack_outputs.empty()) {
-        int idx = JACK_OUT1;
-        for (unsigned int i = 0; i < jack_outputs.size(); i++, idx++) {
-            if (i >= 2) {
-                gx_print_warning(_("main"),
-                _("Warning --> provided more than 2 output ports, ignoring extra ports"));
-                break;
-            }
-            optvar[idx] = jack_outputs[i];
-        }
-    } else {
-        if (optvar[JACK_OUT1].empty()) {
-            optvar[JACK_OUT1] = "";
-        }
-        if (optvar[JACK_OUT2].empty()) {
-            optvar[JACK_OUT2] = "";
-        }
-    }
-
-    optvar[LOAD_FILE] = load_file;
-
-    sysvar.rcpath = sysvar.gx_style_dir + string("gx_head_") + optvar[RC_STYLE] + ".rc";
-}
-
-void CmdlineOptions::set_override() {
-    if (!gx_gui::skin.no_opt_skin) {
-        gx_gui::gx_actualize_skin_index(optvar[RC_STYLE]);
-        gx_engine::audio.fskin = gx_gui::skin.last_skin = gx_gui::skin.gx_current_skin;
+    if (jack_outputs.size() >= 2) {
+	gx_print_warning(
+	    _("main"),
+	    _("Warning --> provided more than 2 output ports, ignoring extra ports"));
     }
 }
 
@@ -457,7 +416,7 @@ Logger::Logger()
       msgmutex(),
       got_new_msg(),
       ui_thread(),
-      terminal(true) {
+      handlers() {
 }
 
 Logger& Logger::get_logger() {
@@ -470,28 +429,38 @@ Logger::~Logger() {
 }
 
 void Logger::set_ui_thread() {
-    got_new_msg = new Glib::Dispatcher;
-    ui_thread = pthread_self();
-    got_new_msg->connect(mem_fun(*this, &Logger::fetch_new_msg));
-    write_queued();
+    if (ui_thread) {
+	assert(pthread_equal(pthread_self(), ui_thread));
+    } else {
+	got_new_msg = new Glib::Dispatcher;
+	ui_thread = pthread_self();
+	got_new_msg->connect(mem_fun(*this, &Logger::write_queued));
+    }
 }
 
-void Logger::fetch_new_msg() {
-    boost::mutex::scoped_lock lock(msgmutex);
-    write_queued();
+Logger::msg_signal& Logger::signal_message() {
+    set_ui_thread();
+    return handlers;
 }
 
 void Logger::write_queued() {
-    gx_gui::GxMainInterface& interface = gx_gui::GxMainInterface::get_instance();
-    for (list<logmsg>::iterator i = msglist.begin(); i != msglist.end(); i++) {
-	interface.show_msg(i->msg, i->msgtype);
+    if (handlers.empty()) {
+	return;
     }
+
+    // quick copy list
+    msgmutex.lock();
+    list<logmsg> l = msglist;
     msglist.clear();
+    msgmutex.unlock();
+
+    // feed throught the handler(s)
+    for (list<logmsg>::iterator i = l.begin(); i != l.end(); i++) {
+	handlers(i->msg, i->msgtype);
+    }
 }
 
-void Logger::print(const char* func, const string& msg, GxMsgType msgtype) {
-    boost::mutex::scoped_lock lock(msgmutex);
-
+string Logger::format(const char* func, const string& msg) {
     // timestamp
     time_t now;
     time(&now);
@@ -502,26 +471,27 @@ void Logger::print(const char* func, const string& msg, GxMsgType msgtype) {
            << setw(2) << tm_now->tm_min  << ":"
            << setw(2) << tm_now->tm_sec  << "]"
            << "  " << func << "  ***  " << msg;
+    return msgbuf.str();
+}
 
-    if (!(gx_gui::GxMainInterface::instance &&
-	  ui_thread &&
-	  pthread_equal(pthread_self(), ui_thread))
-	) {
+void Logger::print(const char* func, const string& msg, GxMsgType msgtype) {
+    string m = format(func, msg);
+    if (handlers.empty() || !(pthread_equal(pthread_self(), ui_thread))) {
+	boost::mutex::scoped_lock lock(msgmutex);
 	// defer output
-        msglist.push_back(logmsg(msgbuf.str(), msgtype));
-	if (msglist.size() == 1) {
+        msglist.push_back(logmsg(m, msgtype));
+	if (!handlers.empty() && msglist.size() == 1) {
 	    (*got_new_msg)();
 	}
     } else {
 	write_queued();
-        gx_gui::GxMainInterface& interface = gx_gui::GxMainInterface::get_instance();
-	interface.show_msg(msgbuf.str(), msgtype);
-    }
-
-    if (terminal) {
-        std::cerr << msgbuf.str() << endl;
+	handlers(m, msgtype);
     }
 }
+
+/*
+** utility logger functions
+*/
 
 // ---- log message handler
 void gx_print_logmsg(const char* func, const string& msg, GxMsgType msgtype) {
@@ -538,18 +508,20 @@ void gx_print_error(const char* func, const string& msg) {
     gx_print_logmsg(func, msg, kError);
 }
 
+GxFatalError::~GxFatalError() throw() {
+}
+
 // fatal error
+// - do not use before Gtk::Main() ctor
+// - do not use when main loop is blocked (modal dialog or something)
+//
 void gx_print_fatal(const char* func, const string& msg) {
     string msgbuf = string(_("fatal system error: ")) + func + "  ***  " + msg + "\n";
-    std::cerr << msgbuf;
-    GtkWidget* widget = gtk_message_dialog_new(NULL,
-                                               GtkDialogFlags(GTK_DIALOG_MODAL|
-                                                              GTK_DIALOG_DESTROY_WITH_PARENT),
-                                               GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-                                               "%s", msgbuf.c_str());
-    gtk_window_set_title(GTK_WINDOW(widget), "gx_head");
-    gtk_dialog_run(GTK_DIALOG(widget));
-    gx_clean_exit(NULL, (gpointer)1);
+    Gtk::MessageDialog dialog(
+	msgbuf, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE, true);
+    dialog.set_title("gx_head");
+    dialog.run();
+    GxExit::get_instance().exit_program(msgbuf);
 }
 
 // info
@@ -558,87 +530,32 @@ void gx_print_info(const char* func, const string& msg) {
 }
 
 
-// ---- check version and if directory exists and create it if it not exist
-bool gx_version_check() {
-    struct stat my_stat;
+/****************************************************************
+ ** class GxExit
+ */
 
-    // ----- this check dont need to be against real version, we only need to know
-    // ----- if the presethandling is working with the courent version, we only count this
-    // ----- string when we must remove the old preset files.
-    string rcfilename =
-        sysvar.gx_user_dir + string("version-") + string("0.03.3");
+GxExit::GxExit(): exit_sig(), ui_thread() {}
 
-    if  (stat(sysvar.gx_user_dir.c_str(), &my_stat) == 0) { // directory exists
-        // check which version we're dealing with
-        if  (stat(rcfilename.c_str(), &my_stat) != 0) {
-            // current version not there, let's create it and refresh the whole shebang
-            string oldfiles = sysvar.gx_user_dir + string("gx_head*rc");
-            (void)gx_system_call("rm -f", oldfiles.c_str(), false);
+GxExit::~GxExit() {}
 
-            oldfiles = sysvar.gx_user_dir + string("version*");
-            (void)gx_system_call("rm -f", oldfiles.c_str(), false);
-
-            oldfiles = sysvar.gx_user_dir + string("*.conf");
-            (void)gx_system_call("rm -f", oldfiles.c_str(), false);
-
-            // setting file for current version
-            ofstream f(rcfilename.c_str());
-            string cim = string("gx_head-") + GX_VERSION;
-            f << cim <<endl;
-            f.close();
-
-            // --- create jack_capture setting file
-            /*string tmpstr = sysvar.gx_user_dir + sysvar.jcapsetup_file;
-
-            (void)gx_system_call("touch", tmpstr.c_str(), false);
-            (void)gx_system_call(
-                "echo 'jack_capture -c 2 --silent --disable-meter --port gx_head:out* ' >",
-                tmpstr.c_str(),
-                false
-                ); */
-        }
-    } else { // directory does not exist
-        // create .gx_head directory
-        (void)gx_system_call("mkdir -p", sysvar.gx_user_dir.c_str(), false);
-
-        // setting file for current version
-        ofstream f(rcfilename.c_str());
-        string cim = string("gx_head-") + GX_VERSION;
-        f << cim <<endl;
-        f.close();
-
-        // --- create jack_capture setting file
-        string tmpstr = sysvar.gx_user_dir + sysvar.jcapsetup_file;
-
-    /*    (void)gx_system_call("touch", tmpstr.c_str(), false);
-        (void)gx_system_call(
-            "echo 'jack_capture -c 2 --silent --disable-meter --port gx_head:out* ' >",
-            tmpstr.c_str(),
-            false
-            ); */
-
-        // --- version file
-        // same here, we only change this file, when the presethandling is broken,
-        // otherwise we can let it untouched
-        tmpstr = sysvar.gx_user_dir + string("version-") + string("0.03.3");
-        (void)gx_system_call("touch", tmpstr.c_str(), false);
-
-        cim = string("echo 'gx_head-") + string(GX_VERSION) + "' >";
-        (void)gx_system_call(cim.c_str(), tmpstr.c_str(), false);
-
-        // create empty preset file
-        tmpstr = sysvar.gx_user_dir + string("gx_headpre_rc");
-        ofstream nfile(tmpstr.c_str());
-        JsonWriter jw(nfile);
-        jw.begin_array();
-        writeHeader(jw);
-        jw.end_array(true);
-        jw.close();
-        nfile.close();
+void GxExit::exit_program(string msg, int errcode) {
+    exit_sig(pthread_equal(pthread_self(), ui_thread));
+    if (msg.empty()) {
+	msg = "** guitarix exit **";
     }
-
-    return TRUE;
+    cerr << msg << endl;
+    exit(errcode);
 }
+
+GxExit& GxExit::get_instance() {
+    static GxExit instance;
+    return instance;
+}
+
+
+/****************************************************************
+ ** misc functions
+ */
 
 // ----- we must make sure that the images for the status icon be there
 int gx_pixmap_check() {
@@ -669,40 +586,49 @@ int gx_pixmap_check() {
     return 0;
 }
 
-// ----convert int to string
-void gx_IntToString(int i, string & s) {
-    s = "";
+// ----start jack if possible
+bool gx_start_jack() {
+    // first, let's try via qjackctl
+    if (gx_system::gx_system_call("which", "qjackctl", true) == gx_system::sysvar.SYSTEM_OK) {
+        if (gx_system::gx_system_call("qjackctl", "--start", true, true) == gx_system::sysvar.SYSTEM_OK) {
+            sleep(5);
 
-    int abs_i = abs(i);
-    do {
-        // note: using base 10 since 10 digits (0123456789)
-        char c = static_cast<char>(ASCII_START+abs_i%10);
-        s.insert(0, &c, 1);
+            // let's check it is really running
+            if (gx_system::gx_system_call("pgrep", "jackd", true) == gx_system::sysvar.SYSTEM_OK) {
+                return true;
+            }
+        }
     }
-    while ((abs_i /= 10) > 0);
-    if (i < 0) s.insert(0, "-");
-}
 
-const string& gx_i2a(int i) {
-    static string str;
-    gx_IntToString(i, str);
+    // qjackctl not found or not started, let's try .jackdrc
+    string jackdrc = "$HOME/.jackdrc";
+    if (gx_system::gx_system_call("ls", jackdrc.c_str(), true, false) == gx_system::sysvar.SYSTEM_OK) {
+        // open it
+        jackdrc = string(getenv("HOME")) + string("/") + ".jackdrc";
+        string cmdline = "";
 
-    return str;
-}
+        ifstream f(jackdrc.c_str());
+        if (f.good()) {
+            // should contain only one command line
+            getline(f, cmdline);
+            f.close();
+        }
 
-// ----clean up preset name given by user
-void gx_nospace_in_name(string& name, const char* subs) {
-    int p = name.find(' ', 0);
-    while (p != -1) {
-        name.replace(p++, 1, subs);
-        p = name.find(' ', p);
+        // launch jackd
+        if (!cmdline.empty())
+            if (gx_system::gx_system_call(cmdline.c_str(), "", true, true) ==
+                gx_system::sysvar.SYSTEM_OK) {
+
+                sleep(2);
+
+                // let's check it is really running
+                if (gx_system::gx_system_call("pgrep", "jackd", true) == gx_system::sysvar.SYSTEM_OK) {
+                    return true;
+                }
+            }
     }
-}
 
-// ----abort gx_head
-void gx_abort(void* arg) {
-    gx_print_warning(_("gx_abort"), _("Aborting gx_head, ciao!"));
-    exit(1);
+    return false;
 }
 
 // ---- gx_head system function
@@ -739,15 +665,6 @@ int gx_system_call(const char*   name1,
     return gx_system_call(name1, name2.c_str(), devnull, escape);
 }
 
-// polymorph2
-// int gx_system_call(const string& name1,
-//             const string& name2,
-//              const bool  devnull,
-//              const bool  escape)
-// {
-//   return gx_system_call(name1.c_str(), name2.c_str(), devnull, escape);
-// }
-
 // polymorph3
 int gx_system_call(const string& name1,
                    const char*   name2,
@@ -756,79 +673,4 @@ int gx_system_call(const string& name1,
     return gx_system_call(name1.c_str(), name2, devnull, escape);
 }
 
-
-// ----- clean up when shut down
-void gx_destroy_event() {
-    // remove image buffers
-    if (G_IS_OBJECT(gx_gui::gw.ib))
-        g_object_unref(gx_gui::gw.ib);
-
-    if (G_IS_OBJECT(gx_gui::gw.ibm))
-        g_object_unref(gx_gui::gw.ibm);
-
-    if (G_IS_OBJECT(gx_gui::gw.ibr))
-        g_object_unref(gx_gui::gw.ibr);
-
-    // remove threads from main GTK thread
-    for (unsigned int i = 0; i < sizeof(gx_gui::guivar.g_threads)/sizeof(gx_gui::guivar.g_threads[0]); i++) {
-        if (gx_gui::guivar.g_threads[i] > 0) {
-            g_source_remove(gx_gui::guivar.g_threads[i]);
-        }
-    }
-
-    gtk_main_quit();
-}
-
-// -----Function that must be called before complete shutdown
-void gx_clean_exit(GtkWidget* widget, gpointer data) {
-    // save DSP state
-    if (gx_engine::isInitialized()) {
-        gx_engine::get_latency_warning_change();
-        gx_gui::gx_get_skin_change(&gx_engine::audio.fskin);
-
-        if (gtk_widget_get_visible(GTK_WIDGET(gx_gui::gw.fWindow))) {
-            gint mainxorg, mainyorg;
-            gtk_window_get_position(GTK_WINDOW(gx_gui::gw.fWindow), &mainxorg, &mainyorg);
-            gx_gui::guivar.main_xorg = static_cast<float>(mainxorg);
-            gx_gui::guivar.main_yorg = static_cast<float>(mainyorg);
-        }
-
-        // only save if we are not in a preset or session context
-        if (!gx_preset::gxpreset.setting_is_preset && !gx_preset::gxpreset.setting_is_factory
-                                          && !sysvar.is_session
-                                          && gx_gui::GxMainInterface::get_instance().jack.client) {
-            saveStateToFile(sysvar.gx_user_dir + gx_gui::GxMainInterface::get_instance().jack.client_instance + "_rc", gx_gui::GxMainInterface::get_instance().jack);
-        }
-    }
-
-    gx_gui::guivar.showwave = 0;
-    gx_engine::GxEngine::get_engine().set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
-
-    // clean jack gxjack.client stuff
-    gx_gui::GxMainInterface::get_instance().jack.gx_jack_cleanup();
-
-    // clean GTK stuff
-    if (gx_gui::gw.fWindow) {
-        gx_destroy_event();
-    }
-    // delete the locked mem buffers
-    delete gx_jack::_jackbuffer_ptr;
-    gx_jack::_jackbuffer_ptr = 0;
-
-#ifdef HAVE_JACK_SESSION
-    if (sysvar.is_session) {
-        jack_session_event_t *event = reinterpret_cast<jack_session_event_t *>(data);
-        jack_session_event_free(event);
-        printf(_("  gx_head session exit  ***  ciao . . \n"));
-        return;
-    } else {
-        printf(_("  gx_head exit  ***  ciao . . \n"));
-    }
-    
-#else
-    printf(_("  gx_head exit  ***  ciao . . \n"));
-#endif
-    exit(GPOINTER_TO_INT(data));
-}
 } /* end of gx_system namespace */
-

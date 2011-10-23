@@ -100,31 +100,31 @@ private:
 
 	IREdit();
 	
-  void set_ir_data(float*, int, int, int);
+  void set_ir_data(float* p1, int p2, int p3, int p4);
 	
   void home();
 	
   void jump_zoom_mark();
 	
-  void set_channel(int);
+  void set_channel(int p1);
 	
-  void incr_scale(double);
+  void incr_scale(double p1);
 	
-  void decr_scale(double);
+  void decr_scale(double p1);
 	
-  void set_log(bool);
+  void set_log(bool p1);
 	
   int get_delay();
 	
-  void set_delay(int);
+  void set_delay(int p1);
 	
   int get_offset();
 	
-  void set_offset(int);
+  void set_offset(int p1);
 	
   int get_length();
 	
-  void set_length(int);
+  void set_length(int p1);
 	
   /**
    * @par Prototype:

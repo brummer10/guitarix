@@ -40,28 +40,7 @@
 #define ASCII_START (48)
 #define GDK_NO_MOD_MASK (GdkModifierType)0
 
-enum {
-    JACK_INP,
-    JACK_OUT1,
-    JACK_OUT2,
-    JACK_MIDI,
-    RC_STYLE,
-    JACK_UUID,
-    JACK_UUID2,
-    LOAD_FILE,
-    NUM_SHELL_VAR,
-};
-
 namespace gx_system {
-
-/* message handling */
-typedef enum {
-    kInfo,
-    kWarning,
-    kError,
-    kMessageTypeCount // just count, must be last
-} GxMsgType;
-
 
 /****************************************************************
  ** Measuring times
@@ -194,31 +173,34 @@ class SystemVars {
  public:
     static const int                      SYSTEM_OK;
 
-    static const char*                    gx_head_dir;
-    static const char*                    jcapsetup_file;
-    static const char*                    jcapfile_wavbase;
+    //static const char*                    gx_head_dir;
 
     static const string                   gx_pixmap_dir;
-    static const string                   gx_user_dir;
+    //static const string                   gx_user_dir;
 
-    /* shell variable names */
-    static const char*                    shell_var_name[NUM_SHELL_VAR];
-    
-    bool                                  is_session;
     string                                rcpath;
-    string                                gx_style_dir;
-    string                                gx_builder_dir;
 
     void                                  sysvar_init();
 };
 
 extern SystemVars sysvar;
 
+/****************************************************************/
+
+class SkinHandling {
+public:
+    vector<string>   skin_list;
+    SkinHandling(const string& styledir)
+	: skin_list() { set_styledir(styledir); }
+    void set_styledir(const string& styledir);
+    bool is_in_list(const string& name);
+};
+
 /****************************************************************
  ** CmdlineParser
  */
 
-class CmdlineOptions: public Glib::OptionContext {
+class CmdlineOptions: public Glib::OptionContext, boost::noncopyable {
 private:
     Glib::OptionGroup main_group;
     Glib::OptionGroup optgroup_style;
@@ -227,7 +209,6 @@ private:
     Glib::OptionGroup optgroup_debug;
     bool version;
     bool clear;
-    Glib::ustring rcset;
     Glib::ustring jack_input;
     Glib::ustring jack_midi;
     vector<Glib::ustring> jack_outputs;
@@ -236,26 +217,57 @@ private:
     string load_file;
     string builder_dir;
     string style_dir;
-    bool lterminal;
-    string get_opskin();
-public:
+    string user_dir;
     string plugin_dir;
-    string optvar[NUM_SHELL_VAR];
+    Glib::ustring rcset;
+    bool lterminal;
+    static CmdlineOptions *instance;
+    void make_ending_slash(string& dirpath);
+    string get_opskin();
+    friend CmdlineOptions& get_options();
+
+public:
+    SkinHandling skin;
 public:
     CmdlineOptions();
     ~CmdlineOptions();
     void process_early();
     void process();
-    void set_override();
+    string get_style_filepath(const string& basename) { return style_dir + basename; }
+    string get_builder_filepath(const string& basename) { return builder_dir + basename; }
+    string get_user_filepath(const string& basename) { return user_dir + basename; }
+    string get_factory_filepath(const string& basename) {
+	return get_style_filepath(basename); } //FIXME should be changed
+    const string& get_user_dir() { return user_dir; }
+    const string& get_plugin_dir() { return plugin_dir; }
+    const Glib::ustring& get_rcset() { return rcset; }
+    const string& get_loadfile() { return load_file; }
+    const Glib::ustring& get_jack_uuid() { return jack_uuid; }
+    const Glib::ustring& get_jack_uuid2() { return jack_uuid2; }
+    const Glib::ustring& get_jack_midi() { return jack_midi; }
+    const Glib::ustring& get_jack_input() { return jack_input; }
+    Glib::ustring get_jack_output(unsigned int n);
 };
 
+inline CmdlineOptions& get_options() {
+    assert(CmdlineOptions::instance);
+    return *CmdlineOptions::instance;
+}
 
 /****************************************************************
  ** Logging
  */
 
- class Logger: public sigc::trackable {
+typedef enum {
+    kInfo,
+    kWarning,
+    kError,
+    kMessageTypeCount // just count, must be last
+} GxMsgType;
+
+class Logger: public sigc::trackable {
 private:
+    typedef sigc::signal<void, const string&, GxMsgType> msg_signal;
     struct logmsg {
 	string msg;
 	GxMsgType msgtype;
@@ -265,14 +277,14 @@ private:
     boost::mutex msgmutex;
     Glib::Dispatcher* got_new_msg;
     pthread_t ui_thread;
-    bool terminal;  // make messages appear on terminal
-    void write_queued();
-    void fetch_new_msg();
-public:
+    msg_signal handlers;
+    string format(const char* func, const string& msg);
+    void set_ui_thread();
     Logger();
     ~Logger();
-    void set_terminal(bool v) { terminal = v; }
-    void set_ui_thread();
+public:
+    msg_signal& signal_message();
+    void write_queued();
     void print(const char* func, const string& msg, GxMsgType msgtype);
     static Logger& get_logger();
 };
@@ -295,15 +307,42 @@ inline void gx_print_info(const char* fnc, const boost::basic_format<char>& msg)
     gx_print_info(fnc, msg.str());
 }
 
+class GxFatalError: public exception {
+private:
+    string msg;
+public:
+    virtual const char* what() const throw() {
+	return msg.c_str();
+    }
+    GxFatalError(string m): msg(m) {}
+    GxFatalError(boost::basic_format<char>& m): msg(m.str()) {}
+    ~GxFatalError() throw();
+};
+
+
+/****************************************************************
+ ** class GxExit
+ */
+
+class GxExit {
+private:
+    sigc::signal<void, bool> exit_sig;
+    pthread_t ui_thread;
+public:
+    GxExit();
+    ~GxExit();
+    void set_ui_thread() { ui_thread = pthread_self(); }
+    sigc::signal<void, bool>& signal_exit() { return exit_sig; }
+    void exit_program(string msg = "", int errcode = 1);
+    static GxExit& get_instance();
+};
+
 
 /****************************************************************
  ** misc function declarations
  */
 
-void  gx_process_cmdline_options(int&, char**&, string*);
-void  gx_set_override_options(string* optvar);
-void  gx_assign_shell_var(const char*, string&);
-bool  gx_shellvar_exists(const string&);
+bool  gx_start_jack();
 int   gx_system_call(const char*,
                      const char*,
                      const bool devnull = false,
@@ -316,27 +355,16 @@ int   gx_system_call(const string&,
                      const char*,
                      const bool devnull = false,
                      const bool escape  = false);
-//  int   gx_system_call(const string&,
-//                      const string&,
-//                      const bool devnull = false,
-//                      const bool escape  = false);
 
-extern list<string> jack_connection_lists[7];
-
-bool  gx_version_check();
 int   gx_pixmap_check();
-void  gx_signal_handler(int sig);
-gboolean gx_ladi_handler(gpointer);
-void  gx_abort(void* arg);
-void  gx_log_window(GtkWidget*, gpointer null);
-void  gx_nospace_in_name(string& presname, const char* subs = "-");
-void  gx_destroy_event();
-void  gx_clean_exit(GtkWidget*, gpointer);
 
-/* wrapper that takes an int and returns a string */
-void gx_IntToString(int i, string & s);
-const string& gx_i2a(int i);
-/* ---------------------------------------------------------------- */
+template <class T>
+inline string to_string(const T& t) {
+    stringstream ss;
+    ss << t;
+    return ss.str();
+}
+
 } /* end of gx_system namespace */
 
 #endif  // SRC_HEADERS_GX_SYSTEM_H_

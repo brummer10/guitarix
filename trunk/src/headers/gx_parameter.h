@@ -350,8 +350,9 @@ class SwitchParameter: public Parameter {
     bool value;
     bool std_value;
     bool json_value;
- public:
     sigc::signal<void, bool> changed;
+ public:
+    sigc::signal<void, bool>& signal_changed() { return changed; }
     void set(bool val);
     bool get() const { return value; }
     virtual void *zone();
@@ -372,7 +373,9 @@ class FileParameter: public Parameter {
     Glib::RefPtr<Gio::File> value;
     Glib::RefPtr<Gio::File> std_value;
     Glib::RefPtr<Gio::File> json_value;
+    sigc::signal<void> changed;
  public:
+    sigc::signal<void>& signal_changed() { return changed; }
     void set(const Glib::RefPtr<Gio::File>& val);
     void set_path(const string& path);
     const Glib::RefPtr<Gio::File>& get() const { return value; }
@@ -439,7 +442,6 @@ class ParamMap {
  private:
     map<string, Parameter*> id_map;
     map<const void*, Parameter*> addr_map;
-
 #ifndef NDEBUG
     void unique_zone(Parameter* param);
     void unique_id(Parameter* param);
@@ -449,6 +451,8 @@ class ParamMap {
 #endif
 
  public:
+    ParamMap();
+    ~ParamMap();
     typedef map<string, Parameter*>::iterator iterator;
     iterator begin() { return id_map.begin(); }
     iterator end() { return id_map.end(); }
@@ -488,14 +492,6 @@ inline void registerParam(const char*a, const char*b, float*c, float std = 0) {
     parameter_map.insert(new FloatParameter(a, b, Parameter::Switch, true, *c, std,
                          0, 1, 1, true));
 }
-
-#if 0
-// should be bool
-inline void registerParam(const char*a, const char*b, int*c, int d) {
-    parameter_map.insert(new IntParameter(a, b, Parameter::Switch, true, *c, d,
-                         0, 1065353216, true)); // FIXME (see above float/int)
-}
-#endif
 
 inline void registerParam(const char*a, const char*b, bool*c, bool d = false, bool exp = false) {
     parameter_map.insert(new BoolParameter(a, b, Parameter::Switch, true, *c, d, true, exp));
@@ -598,6 +594,7 @@ class MidiControllerList {
     bool midi_config_mode;
     int last_midi_control;
     int last_midi_control_value;
+    sigc::signal<void> changed;
  public:
     MidiControllerList();
     midi_controller_list& operator[](int n) { return map[n]; }
@@ -614,11 +611,9 @@ class MidiControllerList {
     void readJSON(gx_system::JsonParser& jp, controller_array& m);
     void set_controller_array(const controller_array& m);
     void remove_controlled_parameters(paramlist& plist, const controller_array *m);
-    sigc::signal<void> changed;
-};
+    sigc::signal<void>& signal_changed() { return changed; }
 
-void recall_midi_controller_map();
-bool save_midi_controller_map();
+};
 
 extern MidiControllerList controller_map; // map ctrl num -> controlled parameters
 

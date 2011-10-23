@@ -172,48 +172,6 @@ Glib::PropertyProxy_ReadOnly<Glib::ustring> PaintBox::property_paint_func() cons
 #endif //GLIBMM_PROPERTIES_ENABLED
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy<guint> PaintBox::property_border_width() 
-{
-  return Glib::PropertyProxy<guint>(this, "border-width");
-}
-#endif //GLIBMM_PROPERTIES_ENABLED
-
-#ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_border_width() const
-{
-  return Glib::PropertyProxy_ReadOnly<guint>(this, "border-width");
-}
-#endif //GLIBMM_PROPERTIES_ENABLED
-
-#ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy<guint> PaintBox::property_spacing() 
-{
-  return Glib::PropertyProxy<guint>(this, "spacing");
-}
-#endif //GLIBMM_PROPERTIES_ENABLED
-
-#ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_spacing() const
-{
-  return Glib::PropertyProxy_ReadOnly<guint>(this, "spacing");
-}
-#endif //GLIBMM_PROPERTIES_ENABLED
-
-#ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy<guint> PaintBox::property_homogeneous() 
-{
-  return Glib::PropertyProxy<guint>(this, "homogeneous");
-}
-#endif //GLIBMM_PROPERTIES_ENABLED
-
-#ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy_ReadOnly<guint> PaintBox::property_homogeneous() const
-{
-  return Glib::PropertyProxy_ReadOnly<guint>(this, "homogeneous");
-}
-#endif //GLIBMM_PROPERTIES_ENABLED
-
-#ifdef GLIBMM_PROPERTIES_ENABLED
 Glib::PropertyProxy<guint> PaintBox::property_icon_set() 
 {
   return Glib::PropertyProxy<guint>(this, "icon-set");

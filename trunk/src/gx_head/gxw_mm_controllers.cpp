@@ -141,12 +141,10 @@ UiSelector::UiSelector() {
 
 void UiSelectorFloat::on_value_changed() {
     modifyZone(get_value());
-    gx_engine::GxEngine::get_engine().set_rack_changed();
 }
 
 void UiSelectorInt::on_value_changed() {
     modifyZone((int)get_value());
-    gx_engine::GxEngine::get_engine().set_rack_changed();
 }
 
 GtkWidget* UiSelector::create(gx_ui::GxUI& ui, string id, const char *widget_name) {
@@ -305,7 +303,6 @@ UiSwitch *UiSwitch::new_switch(gx_ui::GxUI& ui, const char* sw_type, Parameter& 
 
 void UiSwitchFloat::on_toggled() {
     modifyZone(get_active());
-    gx_engine::GxEngine::get_engine().set_rack_changed();
 }
 
 void UiSwitchFloat::reflectZone() {
@@ -330,13 +327,12 @@ UiSwitchFloat::UiSwitchFloat(gx_ui::GxUI& ui, const char *sw_type, FloatParamete
 
 void UiSwitchBool::on_toggled() {
     modifyZone(get_active());
-    gx_engine::GxEngine::get_engine().set_rack_changed();
 }
 
 void UiSwitchBool::reflectZone() {
     bool v = *fZone;
     fCache = v;
-    set_active(v != 0);
+    set_active(v);
 }
 
 UiSwitchBool::UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, BoolParameter &param)
@@ -524,7 +520,7 @@ static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::G
 Glib::RefPtr<Gtk::Builder> load_builder_from_file(Glib::ustring name, gx_ui::GxUI& ui) {
     Glib::RefPtr<Gtk::Builder> bld = Gtk::Builder::create();
     try {
-        bld->add_from_file(gx_system::sysvar.gx_builder_dir+name);
+        bld->add_from_file(gx_system::get_options().get_builder_filepath(name));
     } catch(const Glib::FileError& ex) {
         gx_system::gx_print_error("FileError", ex.what());
     } catch(const Gtk::BuilderError& ex) {

@@ -34,27 +34,21 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
 gboolean gx_hide_eq(GtkWidget *widget, gpointer   data );
 
 /* guitarix skin related functions */
-unsigned int gx_fetch_available_skins();
-
 void gx_change_skin(GtkCheckMenuItem *menuitem, gpointer arg);
 void gx_cycle_through_skin(GtkWidget *widget, gpointer arg);
 bool gx_update_skin(const gint idx, const char* calling_func);
 void gx_update_skin_menu_item(const int);
-void gx_actualize_skin_index(const string& skin_name);
-bool gx_set_skin(GtkWidget *widget, gpointer data);
-void gx_get_skin_change(float* fskin);
-void gx_set_skin_change(float fskin);
+void gx_actualize_skin_index(gx_system::SkinHandling& skin, const string& skin_name);
 
 /* engine status and switch */
 void gx_refresh_engine_status_display();
 void gx_engine_switch(GtkWidget* widget, gpointer arg);
 
 /* jack client and port mapping functions */
-void gx_jack_is_down();
-void gx_jack_report_xrun();
+bool gx_start_jack_dialog();
 
 /* choice dialog windows */
-void gx_get_text_entry(GtkEntry*, string&);
+void gx_get_text_entry(GtkEntry*, Glib::ustring&);
 
 gint gx_choice_dialog_with_text_entry(
     const char* window_title,
@@ -88,16 +82,13 @@ gint gx_nchoice_dialog_without_entry(
 
 /* extra GUI helpers */
 void gx_midi_out(GtkCheckMenuItem*, gpointer);
-void gx_log_window(GtkWidget*, gpointer);
 void gx_patch(GtkCheckMenuItem*, gpointer );
 
-void gx_systray_menu(GtkWidget*, gpointer);
+void gx_show_extended_settings(GtkWidget*, gpointer);
 void gx_reset_units(Glib::ustring group_id);
 void gx_reset_effects(GtkWidget*, gpointer);
 void gx_show_about(GtkWidget*, gpointer);
 
-void gx_show_extended_settings(GtkWidget*, gpointer);
-void gx_hide_extended_settings(GtkWidget*, gpointer);
 void gx_show_menu_settings(GtkWidget*, gpointer);
 void gx_user_disable_latency_warn(GtkWidget*, gpointer);
 gint gx_wait_latency_warn();

@@ -59,11 +59,11 @@ class GxChildProcs {
     GxChild *find(string name);
     GxChild *launch(string name, const char* const args[], int killsignal);
     GxChild *launch(string name, list<string> args, int killsignal);
-    friend gboolean gx_sigchld_handler(gpointer);
+    friend void gx_sigchld_handler();
 };
 
 extern GxChildProcs childprocs;
-gboolean gx_sigchld_handler(gpointer);
+void gx_sigchld_handler();
 
 
 /****************************************************************

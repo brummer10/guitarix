@@ -46,19 +46,33 @@ namespace gx_system {
  ** JsonWriter
  */
 
-JsonWriter::JsonWriter(ostream &o)
+JsonWriter::JsonWriter(ostream *o)
     : os(o),
-    first(true),
-    deferred_nl(false),
-    indent("") {}
+      first(true),
+      deferred_nl(false),
+      indent("") {}
+
+JsonWriter::~JsonWriter() {
+    close();
+}
+
+void JsonWriter::close() {
+    if (is_closed()) {
+	return;
+    }
+    if (deferred_nl) {
+	*os << endl;
+    }
+    os = 0;
+}
 
 inline void JsonWriter::komma() {
     if (first)
         first = false;
     else if (!deferred_nl)
-        os << ", ";
+        *os << ", ";
     else
-        os << ",";
+        *os << ",";
     flush();
 }
 
@@ -66,7 +80,7 @@ inline void JsonWriter::space() {
     if (first)
         first = false;
     else if (!deferred_nl)
-        os << " ";
+        *os << " ";
     flush();
 }
 
@@ -82,55 +96,55 @@ inline void JsonWriter::iminus() {
 
 void JsonWriter::write(float v, bool nl) {
     komma();
-    os << v;
+    *os << v;
     snl(nl);
 }
 
 void JsonWriter::write(double v, bool nl) {
     komma();
-    os << v;
+    *os << v;
     snl(nl);
 }
 
 void JsonWriter::write(int i, bool nl) {
     komma();
-    os << i;
+    *os << i;
     snl(nl);
 }
 
 void JsonWriter::write(unsigned int i, bool nl) {
     komma();
-    os << i;
+    *os << i;
     snl(nl);
 }
 
 void JsonWriter::write_lit(string s, bool nl) {
     komma();
-    os << s;
+    *os << s;
     snl(nl);
 }
 
 void JsonWriter::write(const char* p, bool nl) {
     komma();
-    os << '"';
+    *os << '"';
     while (*p) {
         switch (*p) {
-        case '\\': case '"': os << '\\'; break;
-        case '\b': os << '\\'; os << 'b'; continue;       // NOLINT
-        case '\f': os << '\\'; os << 'f'; continue;       // NOLINT
-        case '\n': os << '\\'; os << 'n'; continue;       // NOLINT
-        case '\r': os << '\\'; os << 'r'; continue;       // NOLINT
-        case '\t': os << '\\'; os << 't'; continue;       // NOLINT
+        case '\\': case '"': *os << '\\'; break;
+        case '\b': *os << '\\'; *os << 'b'; continue;       // NOLINT
+        case '\f': *os << '\\'; *os << 'f'; continue;       // NOLINT
+        case '\n': *os << '\\'; *os << 'n'; continue;       // NOLINT
+        case '\r': *os << '\\'; *os << 'r'; continue;       // NOLINT
+        case '\t': *os << '\\'; *os << 't'; continue;       // NOLINT
         }
-        os << *p++;
+        *os << *p++;
     }
-    os << '"';
+    *os << '"';
     snl(nl);
 }
 
 void JsonWriter::begin_object(bool nl) {
     komma();
-    os << '{';
+    *os << '{';
     snl(nl);
     first = true;
     iplus();
@@ -140,13 +154,13 @@ void JsonWriter::end_object(bool nl) {
     iminus();
     flush();
     first = false;
-    os << '}';
+    *os << '}';
     snl(nl);
 }
 
 void JsonWriter::begin_array(bool nl) {
     komma();
-    os << '[';
+    *os << '[';
     snl(nl);
     first = true;
     iplus();
@@ -156,28 +170,28 @@ void JsonWriter::end_array(bool nl) {
     iminus();
     flush();
     first = false;
-    os << ']';
+    *os << ']';
     snl(nl);
 }
 
 void JsonWriter::write_key(const char* p, bool nl) {
     write(p, nl);
-    os << ": ";
+    *os << ": ";
     first = true;
 }
 
 void JsonWriter::write_key(string p, bool nl) {
     write(p, nl);
-    os << ": ";
+    *os << ": ";
     first = true;
 }
 
 // called before output of next element
 void JsonWriter::flush() {
     if (deferred_nl) {
-        os << endl;
+        *os << endl;
         deferred_nl = false;
-        os << indent;
+        *os << indent;
     }
 }
 
@@ -195,13 +209,24 @@ JsonException::JsonException(const char* desc) {
     what_str = string("Json parse error: ") + desc;
 }
 
-JsonParser::JsonParser(istream& i)
+JsonParser::JsonParser(istream* i)
     : is(i),
     depth(0),
     cur_tok(no_token),
     nl(false),
     next_depth(0),
     next_tok(no_token) {}
+
+JsonParser::~JsonParser() {
+    close();
+}
+
+void JsonParser::close() {
+    if (is_closed()) {
+	return;
+    }
+    is = 0;
+}
 
 void JsonParser::throw_unexpected(token expect) {
     ostringstream b;
@@ -240,8 +265,8 @@ const char* unicode2utf8(unsigned int input) {
 const char* JsonParser::readcode() {
     int code = 0;
     for (int i = 0; i < 4; i++) {
-        int n = is.get();
-        if (!is.good())
+        int n = is->get();
+        if (!is->good())
             throw JsonException("eof");
         if ('0' <= n && n <= '9')
             n = n - '0';
@@ -256,12 +281,12 @@ string JsonParser::readstring() {
     ostringstream os("");
     char c;
     do {
-        is.get(c);
-        if (!is.good())
+        is->get(c);
+        if (!is->good())
             return "";
         if (c == '\\') {
-            is.get(c);
-            if (!is.good())
+            is->get(c);
+            if (!is->good())
                 return "";
             switch (c) {
             case 'b': os << '\b'; break;
@@ -270,7 +295,7 @@ string JsonParser::readstring() {
             case 'r': os << '\r'; break;
             case 't': os << '\t'; break;
             case 'u': os << readcode(); break;
-            default: is.get(c); os << c; break;
+            default: is->get(c); os << c; break;
             }
         } else if (c == '"') {
             return os.str();
@@ -284,7 +309,7 @@ string JsonParser::readnumber(char c) {
     ostringstream os("");
     do {
         os << c;
-        c = is.peek();
+        c = is->peek();
         switch (c) {
         case '+': case '-': case '0': case '1': case '2': case '3': case '4':
         case '5': case '6': case '7': case '8': case '9': case 'e': case 'E':
@@ -293,8 +318,8 @@ string JsonParser::readnumber(char c) {
         default:
             return os.str();
         }
-        is.get(c);
-    } while (is.good());
+        is->get(c);
+    } while (is->good());
     return "";
 }
 
@@ -309,12 +334,13 @@ void JsonParser::read_next() {
     nl = false;
     while (true) {
         do {
-            is.get(c);
-            if (!is.good())
+            is->get(c);
+            if (!is->good())
                 throw JsonException("eof");
             if (c == '\n')
                 nl = true;
         } while (c == ' ' || c == '\t' || c == '\r' || c == '\n');
+	next_pos = is->tellg();
         switch (c) {
         case '[': next_tok = begin_array; next_depth++; break;
 
@@ -328,13 +354,13 @@ void JsonParser::read_next() {
 
         case '"':
             next_str = readstring();
-            is >> c;
-            if (!is.good())
+            *is >> c;
+            if (!is->good())
                 throw JsonException("eof");
             if (c == ':') {
                 next_tok = value_key;
             } else {
-                is.unget();
+                is->unget();
                 next_tok = value_string;
             }
             break;
@@ -410,314 +436,561 @@ void JsonParser::skip_object() {
 
 
 /****************************************************************
- ** loading of saving application data
+ ** class SettingsFileHeader
  */
 
-static void write_parameters(JsonWriter &w, bool preset) {
-    w.begin_object(true);
-    for (gx_gui::ParamMap::iterator i = gx_gui::parameter_map.begin();
-                                   i != gx_gui::parameter_map.end(); i++) {
-        gx_gui::Parameter *param = i->second;
-        if ((preset and param->isInPreset()) or(!preset and !param->isInPreset())) {
-            param->writeJSON(w);
-            w.newline();
-        }
-    }
-    w.end_object(true);
-}
+const string SettingsFileHeader::gx_version = GX_VERSION;
 
-static void read_parameters(JsonParser &jp, gx_gui::paramlist& plist, bool preset) {
-    jp.next(JsonParser::begin_object);
-    do {
-        jp.next(JsonParser::value_key);
-        if (!gx_gui::parameter_map.hasId(jp.current_value())) {
-            gx_print_warning(_("recall settings"),
-                             _("unknown parameter: ")+jp.current_value());
-            jp.skip_object();
-            continue;
-        }
-        gx_gui::Parameter& param = gx_gui::parameter_map[jp.current_value()];
-        if (!preset and param.isInPreset()) {
-            gx_print_warning(_("recall settings"),
-                             _("preset-parameter ")+param.id()+_(" in settings"));
-            jp.skip_object();
-            continue;
-        } else if (preset and !param.isInPreset()) {
-            gx_print_warning(_("recall settings"),
-                             _("non preset-parameter ")+param.id()+_(" in preset"));
-            jp.skip_object();
-            continue;
-        }
-        param.readJSON_value(jp);
-        plist.push_back(&param);
-    } while (jp.peek() == JsonParser::value_key);
-    jp.next(JsonParser::end_object);
-}
-
-void write_preset(JsonWriter &w, bool write_midi, bool force_midi) {
-    w.begin_object(true);
-    w.write_key("engine");
-    write_parameters(w, true);
-    w.write_key("jconv");
-    gx_engine::GxEngine::get_engine().convolver.jcset.writeJSON(w); //FIXME
-    if (force_midi || (write_midi &&
-                       gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get())) {
-        w.write_key("midi_controller");
-        gx_gui::controller_map.writeJSON(w);
-    }
-    w.newline();
-    w.end_object(true);
-}
-
-void fixup_parameters(int major, int minor) {
-    assert(gx_gui::parameter_map.hasId("jconv.wet_dry"));
-    if (major == majorversion && minor == minorversion) {
-        return;
-    }
-    if (major == 1 && minor < 2) {
-        if (gx_gui::parameter_map.hasId("jconv.wet_dry")) {
-            gx_gui::Parameter& p = gx_gui::parameter_map["jconv.wet_dry"];
-            if (p.isFloat()) {
-                p.getFloat().convert_from_range(-1, 1);
-            }
-        }
-    }
-}
-
-void PresetReader::clear() {
-    plist.clear();
-    if (m) {
-        delete m;
-        m = 0;
-    }
-}
-
-void PresetReader::read(JsonParser &jp, bool *has_midi, int major, int minor) {
-    clear();
-    if (has_midi) {
-        *has_midi = false;
-    }
-    jp.next(JsonParser::begin_object);
-    do {
-        jp.next(JsonParser::value_key);
-        if (jp.current_value() == "engine") {
-            read_parameters(jp, plist, true);
-        } else if (jp.current_value() == "jconv") {
-            gx_engine::GxEngine::get_engine().convolver.jcset = gx_engine::GxJConvSettings(jp); //FIXME
-        } else if (jp.current_value() == "midi_controller") {
-            if (has_midi || gx_gui::parameter_map["system.midi_in_preset"].getSwitch().get()) {
-                m = new gx_gui::MidiControllerList::controller_array
-                               (gx_gui::MidiControllerList::controller_array_size);
-                gx_gui::controller_map.readJSON(jp, *m);
-                if (has_midi) {
-                    *has_midi = true;
-                }
-            } else {
-                jp.skip_object();
-            }
-        } else {
-            gx_print_warning(_("recall settings"),
-                             _("unknown preset section: ") + jp.current_value());
-        }
-    } while (jp.peek() == JsonParser::value_key);
-    jp.next(JsonParser::end_object);
-    gx_gui::controller_map.remove_controlled_parameters(plist, m);
-    fixup_parameters(major, minor);
-}
-
-void PresetReader::commit() {
-    for (gx_gui::paramlist::iterator i = plist.begin(); i != plist.end(); i++) {
-        (*i)->setJSON_value();
-    }
-    if (m) {
-        gx_gui::controller_map.set_controller_array(*m);
-    }
-    clear();
-}
-
-void writeHeader(JsonWriter& jw) {
-    jw.write("gx_head_file_version");
-    jw.begin_array();
-    jw.write(majorversion); // major format version
-    jw.write(minorversion); // minor format version
-    jw.write(GX_VERSION);
-    jw.end_array(true);
-}
-
-bool readHeader(JsonParser& jp, int *major, int *minor) {
+void SettingsFileHeader::read(JsonParser& jp) {
     jp.next(JsonParser::value_string);
     if (jp.current_value() != "gx_head_file_version") {
         throw JsonException("invalid gx_head file header");
     }
     jp.next(JsonParser::begin_array);
     jp.next(JsonParser::value_number);
-    int m = jp.current_value_int();
-    if (major) {
-        *major = m;
-    }
-    jp.next(JsonParser::value_number); // minorversion
-    int n = jp.current_value_int();
-    if (minor) {
-        *minor = n;
-    }
-    jp.next(JsonParser::value_string); // gx_head version
+    file_major = jp.current_value_int();
+    jp.next(JsonParser::value_number);
+    file_minor = jp.current_value_int();
+    jp.next(JsonParser::value_string);
+    file_gx_version = jp.current_value();
     jp.next(JsonParser::end_array);
-    return m == majorversion && n == minorversion;
 }
 
-static void write_jack_port_connections(JsonWriter& w, const char *key, jack_port_t *port) {
-    w.write_key(key);
-    w.begin_array();
-    const char** pl = jack_port_get_connections(port);
-    if (pl) {
-        for (const char **p = pl; *p; p++) {
-            w.write(*p);
-        }
-        free(pl);
-    }
-    w.end_array(true);
+void SettingsFileHeader::write(JsonWriter& jw) {
+    jw.write("gx_head_file_version");
+    jw.begin_array();
+    jw.write(major); // major format version
+    jw.write(minor); // minor format version
+    jw.write(gx_version);
+    jw.end_array(true);
 }
 
-void write_jack_connections(JsonWriter& w, gx_jack::GxJack& jack) {
-    w.begin_object(true);
-    write_jack_port_connections(w, "input", jack.input_ports[0]);
-    write_jack_port_connections(w, "output1", jack.output_ports[2]);
-    write_jack_port_connections(w, "output2", jack.output_ports[3]);
-    write_jack_port_connections(w, "midi_input", jack.midi_input_port);
-    write_jack_port_connections(w, "midi_output", jack.midi_output_ports);
-    write_jack_port_connections(w, "insert_out", jack.output_ports[0]);
-    write_jack_port_connections(w, "insert_in", jack.input_ports[1]);
-    w.end_object(true);
-}
-
-// -- save state including current preset data
-bool saveStateToFile(const string &filename, gx_jack::GxJack& jack) {
-    gx_print_info(_("writing to "), filename.c_str());
-    string tmpfile = filename + "_tmp";
-    ofstream f(tmpfile.c_str());
-    JsonWriter w(f);
-
-    w.begin_array();
-    writeHeader(w);
-
-    w.write("settings");
-    write_parameters(w, false);
-
-    w.write("midi_controller");
-    gx_gui::controller_map.writeJSON(w);
-
-    w.write("midi_ctrl_names");
-    gx_gui::midi_std_ctr.writeJSON(w);
-
-    w.write("current_preset");
-    write_preset(w, false);
-
-    w.write("jack_connections");
-    write_jack_connections(w, jack);
-
-    w.newline();
-    w.end_array(true);
-    w.close();
-    f.close();
-    if (!f.good()) {
-        return false;
+bool SettingsFileHeader::make_empty_settingsfile(const string& name) {
+    ofstream os(name.c_str());
+    if (!os.good()) {
+	return false;
     }
-    int rc = rename(tmpfile.c_str(), filename.c_str());
-    return rc == 0;
-}
-
-list<string> jack_connection_lists[7];
-
-static void read_jack_connections(JsonParser& jp) {
-    jp.next(JsonParser::begin_object);
-    while (jp.peek() == JsonParser::value_key) {
-        int i;
-        jp.next(JsonParser::value_key);
-        if (jp.current_value() == "input") {
-            i = gx_jack::GxJack::kAudioInput;
-        } else if (jp.current_value() == "output1") {
-            i = gx_jack::GxJack::kAudioOutput1;
-        } else if (jp.current_value() == "output2") {
-            i = gx_jack::GxJack::kAudioOutput2;
-        } else if (jp.current_value() == "midi_input") {
-            i = gx_jack::GxJack::kMidiInput;
-        } else if (jp.current_value() == "midi_output") {
-            i = gx_jack::GxJack::kMidiOutput;
-        } else if (jp.current_value() == "insert_out") {
-            i = gx_jack::GxJack::kAudioInsertOut;
-        } else if (jp.current_value() == "insert_in") {
-            i = gx_jack::GxJack::kAudioInsertIn;
-        } else {
-            gx_print_warning(_("recall state"),
-                             _("unknown jack ports sections") + jp.current_value());
-            jp.skip_object();
-            continue;
-        }
-        jp.next(JsonParser::begin_array);
-        while (jp.peek() == JsonParser::value_string) {
-            jp.next();
-            jack_connection_lists[i].push_back(jp.current_value());
-        }
-        jp.next(JsonParser::end_array);
-    }
-    jp.next(JsonParser::end_object);
-}
-
-// -- recallState(filename) : load state from file
-bool recallState(const string &filename) {
-    ifstream f(filename.c_str());
-    if (!f.good()) {
-        return false;
-    }
-    gx_gui::paramlist plist;
-    gx_gui::MidiControllerList::controller_array m
-            (gx_gui::MidiControllerList::controller_array_size);
-    gx_system::JsonParser jp(f);
-    try {
-        jp.next(JsonParser::begin_array);
-
-        int major, minor;
-        readHeader(jp, &major, &minor);
-        if (major != majorversion) {
-            if (major == 0) {
-                gx_print_info(_("recall settings"), _("loading converted state"));
-            } else {
-                stringstream s;
-                s << _("major version mismatch in ")+filename+_(": found ")
-                  << major << _(", expected ") << majorversion << endl;
-                gx_print_warning(_("recall settings"), s.str());
-            }
-        }
-
-        // other sections (settings, current_preset)
-        do {
-            jp.next(JsonParser::value_string);
-            if (jp.current_value() == "settings") {
-                read_parameters(jp, plist, false);
-            } else if (jp.current_value() == "current_preset") {
-                PresetReader p(jp, 0, major, minor);
-            } else if (jp.current_value() == "midi_controller") {
-                gx_gui::controller_map.readJSON(jp, m);
-            } else if (jp.current_value() == "midi_ctrl_names") {
-                gx_gui::midi_std_ctr.readJSON(jp);
-            } else if (jp.current_value() == "jack_connections") {
-                read_jack_connections(jp);
-            } else {
-                gx_print_warning(_("recall settings"),
-                                 _("unknown section: ") + jp.current_value());
-                jp.skip_object();
-            }
-        } while (jp.peek() == JsonParser::value_string);
-        jp.next(JsonParser::end_array);
-        jp.next(JsonParser::end_token);
-    } catch(JsonException& e) {
-        gx_print_error(_("recall settings"), _("invalid settings file: ") + filename);
-        return false;
-    }
-    for (gx_gui::paramlist::iterator i = plist.begin(); i != plist.end(); i++) {
-        (*i)->setJSON_value();
-    }
-    gx_gui::controller_map.set_controller_array(m);
+    JsonWriter jw(&os);
+    jw.begin_array();
+    SettingsFileHeader::write(jw);
+    jw.end_array(true);
+    jw.close();
+    os.close();
     return true;
 }
+
+
+/****************************************************************
+ ** class StateFile
+ */
+
+class JsonReader: public JsonParser {
+public:
+    JsonReader(istream* is) : JsonParser(is) {}
+    ~JsonReader();
+    void close();
+};
+
+JsonReader::~JsonReader() {
+    close();
+}
+
+void JsonReader::close() {
+    if (is_closed()) {
+	return;
+    }
+    next(JsonParser::end_array);
+    next(JsonParser::end_token);
+    JsonParser::close();
+}
+
+JsonParser *StateFile::create_reader() {
+    if (is) {
+	is->seekg(0);
+    } else {
+	is = new ifstream(filename.c_str());
+    }
+    JsonReader *jp = new JsonReader(is);
+    jp->next(JsonParser::begin_array);
+    header.read(*jp);
+    if (header.is_major_diff()) {
+	if (header.get_major() == 0) {
+	    gx_print_info(_("recall settings"), _("loading converted state"));
+	} else {
+	    gx_print_warning(
+		_("recall settings"),
+		boost::format(_("major version mismatch in %1%: found %2%, expected %2%"))
+		% filename % header.get_major() % SettingsFileHeader::major);
+	}
+    }
+    return jp;
+}
+
+class ModifyState: public JsonWriter {
+private:
+    string filename;
+    string tmpfile;
+    ofstream os;
+public:
+    ModifyState(const string& name);
+    ~ModifyState();
+    virtual void close();
+};
+
+ModifyState::ModifyState(const string& name)
+    : filename(name),
+      tmpfile(filename + "_tmp"),
+      os(tmpfile.c_str()) {
+    set_stream(&os);
+    begin_array();
+    SettingsFileHeader::write(*this);
+}
+
+ModifyState::~ModifyState() {
+    close();
+}
+
+void ModifyState::close() {
+    if (is_closed()) {
+	return;
+    }
+    end_array(true);
+    JsonWriter::close();
+    os.close();
+    if (!os.good()) {
+	gx_print_error(_("save preset"),
+		       boost::format(_("couldn't write %1%")) % tmpfile);
+    } else {
+	int rc = rename(tmpfile.c_str(), filename.c_str());
+	if (rc != 0) {
+	    gx_print_error(_("save preset"),
+			   boost::format(_("couldn't rename %1% to %2%"))
+			   % tmpfile % filename);
+	}
+    }
+}
+
+JsonWriter *StateFile::create_writer() {
+    ModifyState *jw = new ModifyState(filename);
+    delete is;
+    is = 0;
+    return jw;
+}
+
+
+/****************************************************************
+ ** class PresetFile
+ */
+
+PresetFile::PresetFile()
+    : filename(),
+      is(0),
+      header(),
+      entries() {
+}
+
+void PresetFile::open() {
+    delete is;
+    entries.clear();
+    if (filename.empty()) {
+	return;
+    }
+    is = new ifstream(filename.c_str());
+    JsonParser jp(is);
+    jp.next(JsonParser::begin_array);
+    header.read(jp);
+    while (jp.peek() == JsonParser::value_string) {
+	jp.next();
+	streampos pos = jp.get_streampos();
+	entries.push_back(Position(jp.current_value(), pos));
+	jp.skip_object();
+    }
+    jp.next(JsonParser::end_array);
+    jp.next(JsonParser::end_token);
+}
+
+void PresetFile::open(const string& fname) {
+    filename = fname;
+    open();
+}
+
+const SettingsFileHeader& PresetFile::get_header() {
+    reopen();
+    return header;
+}
+
+void PresetFile::fill_names(vector<string>& l) {
+    reopen();
+    for (vector<Position>::const_iterator i = entries.begin(); i != entries.end(); ++i) {
+	l.push_back(i->name);
+    }
+}
+
+string PresetFile::get_name(int n) {
+    reopen();
+    return entries.at(n).name;
+}
+
+int PresetFile::get_index(const string& name) {
+    reopen();
+    for (int i = 0; i < size(); i++) {
+	if (name == entries[i].name) {
+	    return i;
+	}
+    }
+    return -1;
+}
+
+JsonParser *PresetFile::create_reader(int n) {
+    reopen();
+    JsonParser *jp = new JsonParser(is);
+    jp->set_streampos(entries.at(n).pos);
+    return jp;
+}
+
+PresetTransformer::PresetTransformer(string fname, istream* is_)
+    : JsonWriter(),
+      filename(fname),
+      tmpfile(filename + "_tmp"),
+      os(tmpfile.c_str()),
+      is(is_),
+      jp(is_),
+      header() {
+    set_stream(&os);
+    is->seekg(0);
+    jp.next(JsonParser::begin_array);
+    header.read(jp);
+    begin_array();
+    header.write(*this);
+}
+
+PresetTransformer::~PresetTransformer() {
+    // JsonParser destructor will only run JsonParser::close()
+    close();
+}
+
+void PresetTransformer::close() {
+    if (is_closed()) {
+	return;
+    }
+    jp.next(JsonParser::end_array);
+    jp.next(JsonParser::end_token);
+    end_array(true);
+    JsonWriter::close();
+    delete is;
+    is = 0;
+    os.close();
+    if (!os.good()) {
+	gx_print_error(_("save preset"),
+		       boost::format(_("couldn't write %1%")) % tmpfile);
+	return;
+    }
+    int rc = rename(tmpfile.c_str(), filename.c_str());
+    if (rc != 0) {
+	gx_print_error(_("save preset"),
+		       boost::format(_("couldn't rename %1% to %2%"))
+		       % tmpfile % filename);
+    }
+}
+
+class ModifyPreset: public PresetTransformer {
+public:
+    ModifyPreset(string filename, istream* is, const string& presname);
+    ~ModifyPreset();
+    void close();
+};
+
+ModifyPreset::~ModifyPreset() {
+    close();
+}
+
+ModifyPreset::ModifyPreset(string fname, istream* is, const string& presname)
+    : PresetTransformer(fname, is) {
+    while (jp.peek() != JsonParser::end_array) {
+	jp.next(JsonParser::value_string);
+	if (jp.current_value() == presname) {
+	    return;
+	} else {
+	    write(jp.current_value());
+	    jp.copy_object(*this);
+	}
+    }
+}
+
+void ModifyPreset::close() {
+    if (is_closed()) {
+	return;
+    }
+    while (jp.peek() != JsonParser::end_array) {
+	jp.next(JsonParser::value_string);
+	write(jp.current_value());
+	jp.copy_object(*this);
+    }
+    PresetTransformer::close();
+}
+
+JsonWriter *PresetFile::create_writer(const string& name) {
+    reopen();
+    ModifyPreset *jw = new ModifyPreset(filename, is, name);
+    jw->write(name);
+    if (jw->jp.peek() != JsonParser::end_array) {
+	jw->jp.skip_object(); // we are replacing a setting
+    }
+    is = 0;
+    return jw;
+}
+
+PresetTransformer *PresetFile::create_transformer() {
+    reopen();
+    PresetTransformer *tr = new PresetTransformer(filename, is);
+    is = 0;
+    return tr;
+}
+
+bool PresetFile::erase(const string& name) {
+    reopen();
+    if (get_index(name) < 0) {
+	return false;
+    }
+    ModifyPreset jw(filename, is, name);
+    is = 0;
+    jw.jp.skip_object();
+    return true;
+}
+
+bool PresetFile::clear() {
+    if (!SettingsFileHeader::make_empty_settingsfile(filename)) {
+	return false;
+    }
+    open(filename);
+    return true;
+}
+
+bool PresetFile::rename(const string& name, string newname) {
+    reopen();
+    if (get_index(name) < 0) {
+	return false;
+    }
+    ModifyPreset jw(filename, is, name);
+    is = 0;
+    jw.write(newname);
+    jw.jp.copy_object(jw);
+    return true;
+}
+
+
+/****************************************************************
+ ** class GxSettings
+ */
+
+AbstractStateIO::~AbstractStateIO() {}
+AbstractPresetIO::~AbstractPresetIO() {}
+
+GxSettingsBase::GxSettingsBase(string sfname, gx_engine::ModuleSequencer& seq_)
+    : state_io(),
+      preset_io(),
+      statefile(sfname),
+      presetfile(),
+      factory_presets(),
+      current_source(),
+      current_factory(),
+      current_name(),
+      seq(seq_),
+      selection_changed() {
+}
+
+GxSettingsBase::~GxSettingsBase() {
+    clear_factory();
+}
+
+void GxSettingsBase::clear_factory() {
+    for (unsigned int i = 0; i < factory_presets.size(); i++) {
+	delete factory_presets[i];
+    }
+}
+
+bool GxSettingsBase::change_preset_file(const string& newfile) {
+    string oldfile = presetfile.get_filename();
+    try {
+	presetfile.open(newfile);
+    } catch(JsonException& e) {
+	gx_print_warning(newfile.c_str(), _("parse error"));
+	presetfile.open(oldfile);
+	return false;
+    }
+    return true;
+}
+
+PresetFile* GxSettingsBase::get_factory(const string& name) const {
+    for (unsigned int i = 0; i < factory_presets.size(); i++) {
+	if (name == factory_presets[i]->name) {
+	    return &factory_presets[i]->setting;
+	}
+    }
+    return 0;
+}
+
+void GxSettingsBase::loadsetting(PresetFile *p, const string& name) {
+    seq.start_ramp_down();
+    try {
+	if (p) {
+	    JsonParser *jp = p->create_reader(name);
+	    preset_io->read_preset(*jp, p->get_header());
+	    seq.wait_ramp_down_finished();
+	    preset_io->commit_preset();
+	    delete jp;
+	} else {
+	    JsonParser *jp = statefile.create_reader();
+	    state_io->read_state(*jp, statefile.get_header());
+	    seq.wait_ramp_down_finished();
+	    state_io->commit_state();
+	    delete jp;
+	}
+	seq.update_module_lists();
+    } catch(JsonException& e) {
+	if (p) {
+	    gx_print_error(
+		"_load preset",
+		boost::format(_("error loading %1% from file %2%")) % name % p->get_filename());
+	} else {
+	    gx_print_error(
+		"_load state",
+		boost::format(_("error loading state from file %1%"))
+		% statefile.get_filename());
+	}
+    }
+    seq.start_ramp_up();
+    gx_ui::GxUI::updateAllGuis();
+    seq.clear_rack_changed();
+    seq.start_ramp_up();
+}
+
+void GxSettingsBase::load(Source src, const string& name, const string& factoryname) {
+    PresetFile *p = 0;
+    switch (src) {
+    case preset:
+	if (presetfile.get_index(name) < 0) {
+	    return;
+	}
+	p = &presetfile;
+	current_source = src;
+	current_name = name;
+	current_factory = "";
+	break;
+    case factory:
+	p = get_factory(factoryname);
+	if (!p) {
+	    return;
+	}
+	if (p->get_index(name) < 0) {
+	    return;
+	}
+	current_source = src;
+	current_name = name;
+	current_factory = factoryname;
+	break;
+    case state:
+    default:
+	current_source = state;
+	current_factory = current_name = "";
+	break;
+    }
+    loadsetting(p, name);
+}
+
+string GxSettingsBase::get_displayname() {
+    if (current_source == factory) {
+	return current_factory + " - " + current_name;
+    } else if (current_source == preset) {
+	return current_name;
+    } else {
+	return "";
+    }
+}
+
+void GxSettingsBase::save_to_state() {
+    JsonWriter *jw = statefile.create_writer();
+    state_io->write_state(*jw);
+    delete jw;
+}
+
+void GxSettingsBase::save_to_preset(const string& name) {
+    JsonWriter *jw = 0;
+    try {
+	jw = presetfile.create_writer(name);
+	preset_io->write_preset(*jw);
+    } catch(JsonException& e) {
+	gx_print_warning(
+	    _("save preset"),
+	    boost::format(_("parse error in %1%"))
+	    % presetfile.get_filename());
+    }
+    delete jw;
+}
+
+bool GxSettingsBase::rename_preset(const string& name, const string& newname) {
+    try {
+	return presetfile.rename(name, newname);
+    } catch(JsonException& e) {
+	gx_print_warning(
+	    _("rename preset"),
+	    boost::format(_("parse error in %1%"))
+	    % presetfile.get_filename());
+    }
+    return false;
+}
+
+void GxSettingsBase::erase_preset(const string& name) {
+    try {
+	presetfile.erase(name);
+    } catch(JsonException& e) {
+	gx_print_warning(
+	    _("delete preset"),
+	    boost::format(_("parse error in %1%"))
+	    % presetfile.get_filename());
+    }
+}
+
+void GxSettingsBase::convert_presetfile() {
+    PresetTransformer *jw = 0;
+    try {
+	jw = presetfile.create_transformer();
+	while (jw->jp.peek() != JsonParser::end_array) {
+	    jw->jp.next(JsonParser::value_string);
+	    jw->write(jw->jp.current_value());
+	    preset_io->copy_preset(jw->jp, jw->header, *jw);
+	}
+    } catch(JsonException& e) {
+	gx_print_warning(
+	    _("convert presetfile"),
+	    boost::format(_("parse error in %1%"))
+	    % presetfile.get_filename());
+    }
+    delete jw;
+    try {
+	JsonParser *jp = statefile.create_reader();
+	state_io->read_state(*jp, statefile.get_header());
+	state_io->commit_state();
+	delete jp;
+    } catch(JsonException& e) {
+	// state file error will be reported elsewhere
+    }
+}
+
+void GxSettingsBase::fill_factory_names(vector<string>& l) const
+{
+    for (unsigned int i = 0; i < factory_presets.size(); i++) {
+	l.push_back(factory_presets[i]->name);
+    }
+}
+
+void GxSettingsBase::fill_factory_preset_names(const string& fact, vector<string>& l) const
+{
+    PresetFile* p = get_factory(fact);
+    assert(p);
+    if (p) {
+	p->fill_names(l);
+    }
+}
+
 } /* end of gx_system namespace */

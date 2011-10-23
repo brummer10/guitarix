@@ -138,21 +138,6 @@ Knob::Knob()
 }
 
 
-#ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy<Glib::ustring> Knob::property_var_id() 
-{
-  return Glib::PropertyProxy<Glib::ustring>(this, "var-id");
-}
-#endif //GLIBMM_PROPERTIES_ENABLED
-
-#ifdef GLIBMM_PROPERTIES_ENABLED
-Glib::PropertyProxy_ReadOnly<Glib::ustring> Knob::property_var_id() const
-{
-  return Glib::PropertyProxy_ReadOnly<Glib::ustring>(this, "var-id");
-}
-#endif //GLIBMM_PROPERTIES_ENABLED
-
-
 } // namespace Gxw
 
 

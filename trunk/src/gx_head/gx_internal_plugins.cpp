@@ -35,18 +35,18 @@ using namespace std;
 
 #include "gx_pitch_tracker.h"
 #include "gx_parameter.h"
-#include "gx_pluginloader.h"
 #include "gx_ui.h"
+#include "gx_pluginloader.h"
 #include "gx_resampler.h"
 #include "gx_convolver.h"
 #include "gx_modulesequencer.h"
 #include "gx_internal_plugins.h"
 #include "gx_engine.h"
+#include "gx_json.h"
 #include "gx_jack.h"
 #include "gx_pitch_tracker.h"
 #include "gx_jconv_settings.h"
 #include "gx_faust_support.h"
-#include "gx_json.h"
 
 namespace gx_engine {
 
@@ -136,7 +136,10 @@ MidiAudioBuffer::MidiAudioBuffer()
 gx_jack::GxJack* MidiAudioBuffer::jack = 0;
 
 void MidiAudioBuffer::fill_buffer(int count, float *input, float*, PluginDef*) {
-    jack->gx_jack_midi_process(count, input);
+    void *buf = jack->get_midi_buffer(count);
+    if (buf) {
+	gx_engine::process_midi(count, input, buf);
+    }
 }
 
 
@@ -145,7 +148,8 @@ void MidiAudioBuffer::fill_buffer(int count, float *input, float*, PluginDef*) {
  */
 
 TunerAdapter::TunerAdapter(const Plugin& pl, ModuleSequencer& engine_)
-    : PluginDef(),
+    : ModuleSelector(engine_),
+      PluginDef(),
       pitch_tracker(),
       state(),
       engine(engine_),
@@ -270,7 +274,8 @@ OscilloscopeAdapter::OscilloscopeAdapter(
       plugin(),
       activation(),
       size_change(),
-      post_pre_signal(ui, &plugin.effect_post_pre)
+      post_pre_signal(ui, &plugin.effect_post_pre),
+      visible(ui, &plugin.box_visible)
 {
     assert(buffer == 0);
     version = PLUGINDEF_VERSION;
@@ -453,12 +458,12 @@ GxJConvSettings::GxJConvSettings(gx_system::JsonParser& jp) {
 
 ConvolverAdapter::ConvolverAdapter(ModuleSequencer& engine_)
     : PluginDef(),
-      plugin(),
       conv(),
-      jcset(),
       activate_mutex(),
       engine(engine_),
-      activated(false) {
+      activated(false),
+      plugin(),
+      jcset() {
     version = PLUGINDEF_VERSION;
     id = "jconv";
     name = N_("Convolver");

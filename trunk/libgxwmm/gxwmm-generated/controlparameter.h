@@ -96,7 +96,7 @@ public:
   ///Provides access to the underlying C GObject.
   GxControlParameter*       gobj()       { return reinterpret_cast<GxControlParameter*>(gobject_); }
 
-  ///Provides access to the underlying C GObject.  
+  ///Provides access to the underlying C GObject.
   const GxControlParameter* gobj() const { return reinterpret_cast<GxControlParameter*>(gobject_); }
 
 private:
@@ -113,7 +113,7 @@ private:
 	
   Glib::ustring cp_get_var();
 	
-  void cp_set_var(Glib::ustring);
+  void cp_set_var(Glib::ustring p1);
 	#ifdef GLIBMM_PROPERTIES_ENABLED
 /** The id of the linked variable.
    *

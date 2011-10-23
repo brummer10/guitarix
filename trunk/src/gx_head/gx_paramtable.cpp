@@ -57,7 +57,7 @@ static struct midi_std_init {
 } midi_std_itab[] = {
     { 0, "Bank Select MSB"},
     { 1, "Modulation MSB"},
-    { 2, "Breath Contoller"},
+    { 2, "Breath Controller"},
 
     { 4, "Foot Controller MSB"},
     { 5, "Portamento Time MSB"},
@@ -935,10 +935,12 @@ void SwitchParameter::setJSON_value() {
 
 void FileParameter::set_path(const string& path) {
     value = Gio::File::create_for_path(path);
+    changed();
 }
 
 void FileParameter::set(const Glib::RefPtr<Gio::File>& val) {
     value = val;
+    changed();
 }
 
 void FileParameter::set_standard(const string& filename) {
@@ -946,6 +948,7 @@ void FileParameter::set_standard(const string& filename) {
     if (!value) {
         value = std_value->dup();
     }
+    changed();
 }
 
 void FileParameter::set_std_value() {
@@ -1011,6 +1014,14 @@ void FileParameter::copy(const string& destination) {
 /****************************************************************
  ** Parameter Map
  */
+
+ParamMap::ParamMap()
+    : id_map(),
+      addr_map() {
+}
+
+ParamMap::~ParamMap() {
+}
 
 #ifndef NDEBUG
 void ParamMap::unique_zone(Parameter* param) {

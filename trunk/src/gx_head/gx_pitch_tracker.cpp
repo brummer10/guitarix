@@ -93,7 +93,6 @@ PitchTracker::~PitchTracker() {
     fftwf_free(m_fftwBufferFreq);
     delete[] m_input;
     delete[] m_buffer;
-    
 }
 
 

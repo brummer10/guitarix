@@ -192,7 +192,7 @@ class GxDialogWindowBox {
     void on_reset_button_pressed();
     void on_dialog_menu_activate();
     bool on_window_delete_event(GdkEventAny* event);
-    Glib::ustring group_id;
+    string group_id;
  public:
     Gtk::HBox box;
     Gtk::HBox box1;
@@ -201,11 +201,10 @@ class GxDialogWindowBox {
     Gtk::HBox box5;
     Gtk::HBox box6;
     UiSwitch* unit_on_off;
-    MenuCheckItem menuitem;
+    MenuCheckItemUiBool menuitem;
     Gtk::Button reset_button;
     Gtk::Button reset_button1;
-    ToggleCheckButton m_tcb;
-    Gtk::ToggleButton& dialog_button;
+    ToggleCheckButtonUiBool m_tcb;
     Gtk::Window m_regler_tooltip_window;
     GxDialogWindowBox(gx_ui::GxUI& ui,
         const char *expose_funk, Parameter& param_dialog,

@@ -128,7 +128,7 @@ private:
 	public:
 	MeterScale();
 	
-  void add_mark(double, const Glib::ustring&);
+  void add_mark(double p1, const Glib::ustring& p2);
 	
   void clear_marks();
 	#ifdef GLIBMM_PROPERTIES_ENABLED

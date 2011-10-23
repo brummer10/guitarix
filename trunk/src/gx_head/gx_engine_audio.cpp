@@ -307,8 +307,8 @@ ModuleSelectorFromList::ModuleSelectorFromList(
     ModuleSequencer& seq_, const char* id_, const char* name_,
     PluginDef *plugins[], const char* select_id_,
     const char* select_name_, const char** groups_, int flags_)
-    : PluginDef(),
-      seq(seq_),
+    : ModuleSelector(seq_),
+      PluginDef(),
       selector(0),
       select_id(select_id_),
       select_name(select_name_),
@@ -349,7 +349,8 @@ void ModuleSelectorFromList::set_selector(unsigned int n) {
     if (n >= size) {
 	n = size-1;
     }
-    selector = n; //FIXME: rack_changed??
+    selector = n;
+    seq.set_rack_changed();
 }
 
 void ModuleSelectorFromList::set_module() {
@@ -375,9 +376,13 @@ ModuleSequencer::ModuleSequencer():
     selectors(),
     rack_changed(true),
     audio_mode(PGN_MODE_NORMAL),
-    pluginlist(),
+    policy(),
+    priority(),
+    ui(),
+    pluginlist(ui,*this),
     mono_chain(),
     stereo_chain(),
+    stateflags_mutex(),
     stateflags(SF_INITIALIZING),
     buffersize_change(),
     samplerate_change() {
@@ -455,6 +460,7 @@ void ModuleSequencer::set_stateflag(StateFlag flag) {
     if (stateflags & flag) {
 	return;
     }
+    boost::mutex::scoped_lock lock(stateflags_mutex);
     mono_chain.set_stopped(true);
     stereo_chain.set_stopped(true);
     if (!stateflags) {
@@ -467,6 +473,7 @@ void ModuleSequencer::clear_stateflag(StateFlag flag) {
     if (!(stateflags & flag)) {
 	return;
     }
+    boost::mutex::scoped_lock lock(stateflags_mutex);
     stateflags &= ~flag;
     if (!stateflags) {
 	mono_chain.set_stopped(false);
@@ -599,11 +606,8 @@ static const char* ampstack_groups[] = {
     0
 };
 
-GxEngine* GxEngine::instance = 0;
-
-GxEngine::GxEngine(string plugin_dir)
+GxEngine::GxEngine(const string& plugin_dir, gx_gui::ParameterGroups& groups)
     : ModuleSequencer(),
-      ui(),
       resamp(),
       // ModuleSelector's
       crybaby(
@@ -639,15 +643,14 @@ GxEngine::GxEngine(string plugin_dir)
     add_selector(tonestack);
     add_selector(tuner);
 
+    registerParameter(groups);
+
 #ifndef NDEBUG
     pluginlist.printlist();
 #endif
-
-    instance = this;
 }
 
 GxEngine::~GxEngine() {
-    instance = 0;
 }
 
 void GxEngine::load_static_plugins() {

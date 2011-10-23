@@ -99,15 +99,15 @@ private:
 	
 	public:
 	
-  void set_label_ref(Gtk::Label*);
+  void set_label_ref(Gtk::Label* p1);
 	
   Gtk::Label* get_label_ref();
 	
-  void set_show_value(bool);
+  void set_show_value(bool p1);
 	
   bool get_show_value();
 	
-  void set_value_position(Gtk::PositionType);
+  void set_value_position(Gtk::PositionType p1);
 	
   Gtk::PositionType get_value_position();
 	
