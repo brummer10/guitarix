@@ -1,0 +1,65 @@
+#! /usr/bin/python
+import sys, os, re, subprocess
+from os import path
+
+def demangle(names):
+    args = ['c++filt']
+    args.extend(names)
+    pipe = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    stdout, _ = pipe.communicate()
+    demangled = stdout.split("\n")
+
+    # Each line ends with a newline, so the final entry of the split output
+    # will always be ''.
+    assert len(demangled) == len(names)+1
+    return demangled[:-1]
+
+dtor_matcher = re.compile(".*D\dEv$").match
+
+def output(src, funcs):
+    funcs = [v for v in funcs if not dtor_matcher(v)]
+    if funcs:
+        print src
+        print "\n".join(demangle(funcs))
+        #print "\n".join(["%s\t%s" % v for v in zip(funcs, demangle(funcs))])
+
+def main():
+    tooldir = path.dirname(sys.argv[0])
+    coverage = path.join(tooldir, "../build/coverage.info")
+    srcdir = path.abspath(path.join(tooldir, "../src/gx_head")) + "/"
+    gx_main = path.join(tooldir, "../build/default/src/gx_head/gx_main")
+    maingcda = gx_main + ".gcda"
+    if not path.exists(maingcda):
+        print ("file %s doesn't exist\n"
+               "did you configure with --with-gcov, build, _and_ run guitarix??"
+               % maingcda)
+        raise SystemExit(1)
+    if not (os.path.exists(coverage) and os.stat(coverage).st_mtime > os.stat(maingcda).st_mtime):
+        builddir = path.join(tooldir, "../build")
+        print >>sys.stderr, "updating data..."
+        if os.system("cd %s && lcov -b . -c -d default -o coverage.info >/dev/null"
+                     % builddir) != 0:
+            print "failed"
+            raise SystemExit(1)
+    send = False
+    funcs = []
+    src = ""
+    for l in file(coverage):
+        if l.startswith("SF:"):
+            if l[3:].startswith(srcdir):
+                output(src, funcs)
+                if funcs:
+                    print
+                src = l[3+len(srcdir):-1]
+                funcs = []
+                send = True
+            else:
+                send = False
+        if not send:
+            continue
+        if l.startswith("FNDA:0,"):
+            funcs.append(l[7:-1])
+    output(src, funcs)
+
+if __name__ == "__main__":
+    main()

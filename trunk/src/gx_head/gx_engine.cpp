@@ -41,11 +41,6 @@ void gx_engine_init() {
     audio.initialized = true;
 }
 
-void gx_engine_reset() {
-
-    audio.initialized = false;
-}
-
 /****************************************************************
  ** registering of audio variables
  */

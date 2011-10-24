@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2011 Hermann Meyer, James Warden, Andreas Degert, Pete Shorthose
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include "guitarix.h"
 #include <glibmm/i18n.h>
 #include <dlfcn.h>
@@ -144,12 +162,12 @@ PluginList::PluginList(gx_ui::GxUI& ui_, ModuleSequencer& seq_)
 
 PluginList::~PluginList()
 {
-    for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
+    for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); ++p) {
 	if (!(p->second->pdef->flags & PGNI_NOT_OWN)) {
 	    delete p->second;
 	}
     }
-    for (list<gx_ui::GxUiItem*>::iterator i = rackchanger.begin(); i != rackchanger.end(); i++) {
+    for (list<gx_ui::GxUiItem*>::iterator i = rackchanger.begin(); i != rackchanger.end(); ++i) {
 	delete(*i);
     }
 }
@@ -523,7 +541,7 @@ void printlist(const char *title, const list<Plugin*>& modules, bool header) {
     } else {
 	printf("\n");
     }
-    for (list<Plugin*>::const_iterator i = modules.begin(); i != modules.end(); i++) {
+    for (list<Plugin*>::const_iterator i = modules.begin(); i != modules.end(); ++i) {
 	Plugin *p = *i;
 	PluginDef *pd = p->pdef;
 	const char *c = "-";

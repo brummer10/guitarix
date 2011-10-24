@@ -56,16 +56,19 @@ void *PitchTracker::static_run(void *p) {
 
 PitchTracker::PitchTracker()
     : error(false),
-    busy(false),
-    tick(0),
-    m_pthr(0),
-    resamp(),
-    m_buffer(new float[FFT_SIZE]),
-    m_bufferIndex(0),
-    m_input(new float[FFT_SIZE]),
-    m_audioLevel(false),
-    m_fftwPlanFFT(0),
-    m_fftwPlanIFFT(0) {
+      busy(false),
+      tick(0),
+      m_pthr(0),
+      resamp(),
+      m_sampleRate(),
+      m_buffersize(),
+      m_fftSize(),
+      m_buffer(new float[FFT_SIZE]),
+      m_bufferIndex(0),
+      m_input(new float[FFT_SIZE]),
+      m_audioLevel(false),
+      m_fftwPlanFFT(0),
+      m_fftwPlanIFFT(0) {
     const int size = FFT_SIZE + (FFT_SIZE+1) / 2;
     m_fftwBufferTime = reinterpret_cast<float*>
                        (fftwf_malloc(size * sizeof(*m_fftwBufferTime)));

@@ -164,9 +164,6 @@ class GxJConvSettings {
     inline void setIRFile(string name)            { fIRFile = name; }
     inline void setIRDir(string name)             { fIRDir = name; }
 
-    // invalid IR
-    bool fValidSettings;
-
  public:
     GxJConvSettings();
     explicit GxJConvSettings(gx_system::JsonParser& jp);
@@ -190,9 +187,6 @@ class GxJConvSettings {
     inline void setDelay(guint del)               { fDelay      = del;  }
     inline void setGainline(const Gainline& gain) { gainline    = gain; }
 
-    // internal setting manipulation
- private:
-    inline bool isValid()                         { return fValidSettings; }
  public:
 
     // checkbutton state

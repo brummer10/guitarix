@@ -69,7 +69,6 @@ public:
     Audiofile(void);
     ~Audiofile(void);
 
-    // int mode(void) const   { return _mode; }
     int type(void) const      { return _type; }
     int form(void) const      { return _form; }
     int rate(void) const      { return _rate; }
@@ -87,7 +86,6 @@ private:
     void reset(void);
 
     SNDFILE     *_sndfile;
-    int          _mode;
     int          _type;
     int          _form;
     int          _rate;

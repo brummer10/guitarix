@@ -50,7 +50,7 @@ struct table1d_imp {
     float istep;
     int size;
     float data[tab_size];
-    operator table1d&() { return *(table1d*)this; }
+    operator table1d&() const { return *(table1d*)this; }
 };
 
 /*

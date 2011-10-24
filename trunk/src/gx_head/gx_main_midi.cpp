@@ -93,7 +93,7 @@ void MidiControllerTable::load() {
     gtk_list_store_clear(store);
     for (int i = 0; i < gx_gui::controller_map.size(); i++) {
         gx_gui::midi_controller_list& cl = gx_gui::controller_map[i];
-        for (gx_gui::midi_controller_list::iterator j = cl.begin(); j != cl.end(); j++) {
+        for (gx_gui::midi_controller_list::iterator j = cl.begin(); j != cl.end(); ++j) {
             gx_gui::Parameter& p = j->getParameter();
             string low, up;
             const char *tp;

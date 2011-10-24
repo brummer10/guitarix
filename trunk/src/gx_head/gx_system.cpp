@@ -22,10 +22,10 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "guitarix.h"               // NOLINT
+//#include "guitarix.h"               // NOLINT
 #include <boost/format.hpp>
-//using namespace std;
-#include "config.h"
+#include "../config.h"
+using namespace std;
 #include "gx_system.h"
 
 #include <dirent.h>        //  NOLINT
@@ -43,7 +43,6 @@
 
 namespace gx_system {
 
-SystemVars sysvar;
 /****************************************************************
  ** Measuring times (only when debugging)
  */
@@ -124,14 +123,6 @@ void add_time_measurement() {
 
 
 /****************************************************************
- ** OS functions and helper
- */
-
-
-const int SystemVars::SYSTEM_OK           = 0;
-const string SystemVars::gx_pixmap_dir    = string(GX_PIXMAPS_DIR) + "/";
-
-/****************************************************************
  ** CmdlineOptions
  ** command line options
  */
@@ -162,7 +153,7 @@ void SkinHandling::set_styledir(const string& style_dir) {
 }
 
 bool SkinHandling::is_in_list(const string& name) {
-    for (vector<string>::iterator i = skin_list.begin(); i != skin_list.end(); i++) {
+    for (vector<string>::iterator i = skin_list.begin(); i != skin_list.end(); ++i) {
 	if (*i == name) {
 	    return true;
 	}
@@ -178,7 +169,7 @@ static inline const char *shellvar(const char *name) {
 }
 
 #define TCLR(s)  "\033[1;32m" s "\033[0m" // light green
-#define TCLR2(s) TCLR(s), TCLR(s)
+#define TCLR2(s) TCLR(s), s
 
 CmdlineOptions::CmdlineOptions()
     : main_group("",""),
@@ -193,8 +184,9 @@ CmdlineOptions::CmdlineOptions()
       jack_uuid(),
       jack_uuid2(),
       load_file(shellvar("GUITARIX_LOAD_FILE")),
-      builder_dir(string(GX_BUILDER_DIR1) + "/"),
-      style_dir(string(GX_STYLE_DIR1) + "/"),
+      builder_dir(GX_BUILDER_DIR1),
+      style_dir(GX_STYLE_DIR1),
+      pixmap_dir(GX_PIXMAPS_DIR),
       user_dir(),
       plugin_dir(),
       rcset(shellvar("GUITARIX_RC_STYLE")),
@@ -210,7 +202,7 @@ CmdlineOptions::CmdlineOptions()
     if (tmp && *tmp) {
 	jack_outputs.push_back(tmp);
     }
-    tmp = getenv("GUITARIX2JACK_OUTPUTS1");
+    tmp = getenv("GUITARIX2JACK_OUTPUTS2");
     if (tmp && *tmp) {
 	jack_outputs.push_back(tmp);
     }
@@ -218,9 +210,9 @@ CmdlineOptions::CmdlineOptions()
     // ---- parse command line arguments
     set_summary(
         "All parameters are optional. Examples:\n"
-        "\tgx_head\n"
-        "\tgx_head -r black -i system:capture_3\n"
-        "\tgx_head -c -o system:playback_1 -o system:playback_2");
+        "\tguitarix\n"
+        "\tguitarix -r gx4-black -i system:capture_3\n"
+        "\tguitarix -c -o system:playback_1 -o system:playback_2");
     Glib::OptionEntry opt_version;
     opt_version.set_short_name('v');
     opt_version.set_long_name("version");
@@ -256,6 +248,11 @@ CmdlineOptions::CmdlineOptions()
     opt_jack_midi.set_long_name("jack-midi");
     opt_jack_midi.set_description("Guitarix JACK midi control");
     opt_jack_midi.set_arg_description("PORT");
+    Glib::OptionEntry opt_jack_instance;
+    opt_jack_instance.set_short_name('n');
+    opt_jack_instance.set_long_name("name");
+    opt_jack_instance.set_description("instance name (default gx_head)");
+    opt_jack_instance.set_arg_description("NAME");
     Glib::OptionEntry opt_jack_uuid;
     opt_jack_uuid.set_short_name('U');
     opt_jack_uuid.set_long_name("jack-uuid");
@@ -267,6 +264,7 @@ CmdlineOptions::CmdlineOptions()
     optgroup_jack.add_entry(opt_jack_input, jack_input);
     optgroup_jack.add_entry(opt_jack_output, jack_outputs);
     optgroup_jack.add_entry(opt_jack_midi, jack_midi);
+    optgroup_jack.add_entry(opt_jack_instance, jack_instance);
     optgroup_jack.add_entry(opt_jack_uuid, jack_uuid);
     optgroup_jack.add_entry(opt_jack_uuid2, jack_uuid2);
 
@@ -337,7 +335,7 @@ string CmdlineOptions::get_opskin() {
 
     vector<string>::iterator it;
 
-    for (it = skin.skin_list.begin(); it != skin.skin_list.end(); it++) {
+    for (it = skin.skin_list.begin(); it != skin.skin_list.end(); ++it) {
         opskin += ", '" + *it + "'";
     }
     return opskin;
@@ -354,7 +352,16 @@ static void log_terminal(const string& msg, GxMsgType tp) {
     cerr << t << " " << msg << endl;
 }
 
-void CmdlineOptions::process_early() {
+void CmdlineOptions::make_ending_slash(string& dirpath) {
+    if (dirpath.empty()) {
+	return;
+    }
+    if (dirpath[dirpath.size()-1] != '/') {
+	dirpath += "/";
+    }
+}
+
+void CmdlineOptions::process(int argc, char** argv) {
     if (version) {
         std::cout << "Guitarix version \033[1;32m"
              << GX_VERSION << endl
@@ -362,6 +369,10 @@ void CmdlineOptions::process_early() {
              << "Hermman Meyer - James Warden - Andreas Degert"
              << endl;
         exit(0);
+    }
+    if (argc > 1) {
+	throw gx_system::GxFatalError(
+	    string("unknown argument on command line: ")+argv[1]);
     }
     if (clear && !rcset.empty()) {
 	throw Glib::OptionError(
@@ -372,22 +383,10 @@ void CmdlineOptions::process_early() {
 	Logger::get_logger().signal_message().connect(
 	    sigc::ptr_fun(log_terminal));
     }
-}
-
-void CmdlineOptions::make_ending_slash(string& dirpath) {
-    if (dirpath.empty()) {
-	return;
-    }
-    if (dirpath[dirpath.size()-1] != '/') {
-	dirpath += "/";
-    }
-}
-
-void CmdlineOptions::process() {
-    // ----------- processing user options -----------
 
     make_ending_slash(builder_dir);
     make_ending_slash(style_dir);
+    make_ending_slash(pixmap_dir);
     make_ending_slash(user_dir);
     make_ending_slash(plugin_dir);
 
@@ -455,7 +454,7 @@ void Logger::write_queued() {
     msgmutex.unlock();
 
     // feed throught the handler(s)
-    for (list<logmsg>::iterator i = l.begin(); i != l.end(); i++) {
+    for (list<logmsg>::iterator i = l.begin(); i != l.end(); ++i) {
 	handlers(i->msg, i->msgtype);
     }
 }
@@ -557,44 +556,15 @@ GxExit& GxExit::get_instance() {
  ** misc functions
  */
 
-// ----- we must make sure that the images for the status icon be there
-int gx_pixmap_check() {
-    struct stat my_stat;
-
-    string gx_pix   = sysvar.gx_pixmap_dir + "gx_head.png";
-    string midi_pix = sysvar.gx_pixmap_dir + "gx_head-midi.png";
-    string warn_pix = sysvar.gx_pixmap_dir + "gx_head-warn.png";
-
-    if ((stat(gx_pix.c_str(), &my_stat) != 0)   ||
-        (stat(midi_pix.c_str(), &my_stat) != 0) ||
-        (stat(warn_pix.c_str(), &my_stat) != 0)) {
-        gx_print_error(_("Pixmap Check"), _(" cannot find installed pixmaps! giving up ..."));
-
-        // giving up
-        return 1;
-    }
-
-    GtkWidget *ibf =  gtk_image_new_from_file(gx_pix.c_str());
-    gx_gui::gw.ib = gtk_image_get_pixbuf(GTK_IMAGE(ibf));
-
-    GtkWidget *stim = gtk_image_new_from_file(midi_pix.c_str());
-    gx_gui::gw.ibm = gtk_image_get_pixbuf(GTK_IMAGE(stim));
-
-    GtkWidget *stir = gtk_image_new_from_file(warn_pix.c_str());
-    gx_gui::gw.ibr = gtk_image_get_pixbuf(GTK_IMAGE(stir));
-
-    return 0;
-}
-
 // ----start jack if possible
 bool gx_start_jack() {
     // first, let's try via qjackctl
-    if (gx_system::gx_system_call("which", "qjackctl", true) == gx_system::sysvar.SYSTEM_OK) {
-        if (gx_system::gx_system_call("qjackctl", "--start", true, true) == gx_system::sysvar.SYSTEM_OK) {
+    if (gx_system::gx_system_call("which", "qjackctl", true) == SYSTEM_OK) {
+        if (gx_system::gx_system_call("qjackctl", "--start", true, true) == SYSTEM_OK) {
             sleep(5);
 
             // let's check it is really running
-            if (gx_system::gx_system_call("pgrep", "jackd", true) == gx_system::sysvar.SYSTEM_OK) {
+            if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
                 return true;
             }
         }
@@ -602,7 +572,7 @@ bool gx_start_jack() {
 
     // qjackctl not found or not started, let's try .jackdrc
     string jackdrc = "$HOME/.jackdrc";
-    if (gx_system::gx_system_call("ls", jackdrc.c_str(), true, false) == gx_system::sysvar.SYSTEM_OK) {
+    if (gx_system::gx_system_call("ls", jackdrc.c_str(), true, false) == SYSTEM_OK) {
         // open it
         jackdrc = string(getenv("HOME")) + string("/") + ".jackdrc";
         string cmdline = "";
@@ -616,13 +586,12 @@ bool gx_start_jack() {
 
         // launch jackd
         if (!cmdline.empty())
-            if (gx_system::gx_system_call(cmdline.c_str(), "", true, true) ==
-                gx_system::sysvar.SYSTEM_OK) {
+            if (gx_system::gx_system_call(cmdline.c_str(), "", true, true) == SYSTEM_OK) {
 
                 sleep(2);
 
                 // let's check it is really running
-                if (gx_system::gx_system_call("pgrep", "jackd", true) == gx_system::sysvar.SYSTEM_OK) {
+                if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
                     return true;
                 }
             }

@@ -167,7 +167,7 @@ void UiSelector::init(Parameter& param) {
     Gtk::TreeModelColumnRecord rec;
     rec.add(label);
     Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
-    for (const value_pair *p = param.getValueNames(); p->value_id; p++) {
+    for (const value_pair *p = param.getValueNames(); p->value_id; ++p) {
         ls->append()->set_value(0, Glib::ustring(param.value_label(*p)));
     }
     m_selector.set_model(ls);
@@ -450,7 +450,7 @@ void uiToggle<T>::reflectZone() {
 static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::GxUI& ui) {
     Glib::SListHandle<GObject*> objs = Glib::SListHandle<GObject*>(
         gtk_builder_get_objects(builder->gobj()), Glib::OWNERSHIP_DEEP);
-    for (Glib::SListHandle<GObject*>::iterator i = objs.begin(); i != objs.end(); i++) {
+    for (Glib::SListHandle<GObject*>::iterator i = objs.begin(); i != objs.end(); ++i) {
 	if (g_type_is_a(G_OBJECT_TYPE(*i), GTK_TYPE_WIDGET)) {
 	    const char *id = gtk_buildable_get_name(GTK_BUILDABLE(*i));
 	    const char *p = g_strstr_len(id, -1, ":");

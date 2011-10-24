@@ -25,7 +25,6 @@
 #ifndef SRC_HEADERS_GX_SYSTEM_H_
 #define SRC_HEADERS_GX_SYSTEM_H_
 
-#include <gtk/gtk.h>
 #include <glibmm/optioncontext.h>   // NOLINT
 
 #include <cmath>
@@ -39,6 +38,8 @@
 /* constant defines */
 #define ASCII_START (48)
 #define GDK_NO_MOD_MASK (GdkModifierType)0
+#define SYSTEM_OK   (0)
+
 
 namespace gx_system {
 
@@ -56,6 +57,7 @@ class Accum {
     float sx;
     float sx2;
  public:
+    Accum() { reset(); }
     inline void reset() {
         n = 0;
         mn = 1e9;
@@ -169,22 +171,6 @@ inline void measure_stop()  {}
 
 #endif
 
-class SystemVars {
- public:
-    static const int                      SYSTEM_OK;
-
-    //static const char*                    gx_head_dir;
-
-    static const string                   gx_pixmap_dir;
-    //static const string                   gx_user_dir;
-
-    string                                rcpath;
-
-    void                                  sysvar_init();
-};
-
-extern SystemVars sysvar;
-
 /****************************************************************/
 
 class SkinHandling {
@@ -211,12 +197,14 @@ private:
     bool clear;
     Glib::ustring jack_input;
     Glib::ustring jack_midi;
+    Glib::ustring jack_instance;
     vector<Glib::ustring> jack_outputs;
     Glib::ustring jack_uuid;
     Glib::ustring jack_uuid2;
     string load_file;
     string builder_dir;
     string style_dir;
+    string pixmap_dir;
     string user_dir;
     string plugin_dir;
     Glib::ustring rcset;
@@ -231,9 +219,9 @@ public:
 public:
     CmdlineOptions();
     ~CmdlineOptions();
-    void process_early();
-    void process();
+    void process(int argc, char** argv);
     string get_style_filepath(const string& basename) { return style_dir + basename; }
+    string get_pixmap_filepath(const string& basename) { return pixmap_dir + basename; }
     string get_builder_filepath(const string& basename) { return builder_dir + basename; }
     string get_user_filepath(const string& basename) { return user_dir + basename; }
     string get_factory_filepath(const string& basename) {
@@ -242,6 +230,7 @@ public:
     const string& get_plugin_dir() { return plugin_dir; }
     const Glib::ustring& get_rcset() { return rcset; }
     const string& get_loadfile() { return load_file; }
+    const Glib::ustring& get_jack_instancename() { return jack_instance; }
     const Glib::ustring& get_jack_uuid() { return jack_uuid; }
     const Glib::ustring& get_jack_uuid2() { return jack_uuid2; }
     const Glib::ustring& get_jack_midi() { return jack_midi; }
@@ -355,8 +344,6 @@ int   gx_system_call(const string&,
                      const char*,
                      const bool devnull = false,
                      const bool escape  = false);
-
-int   gx_pixmap_check();
 
 template <class T>
 inline string to_string(const T& t) {

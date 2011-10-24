@@ -221,6 +221,31 @@ void GxMainInterface::save_window_position() {
     fWindow.get_position(guivar.main_xorg, guivar.main_yorg);
 }
 
+// ----- we must make sure that the images for the status icon be there
+static void gx_pixmap_check(gx_system::CmdlineOptions& opt) {
+    struct stat my_stat;
+
+    string gx_pix   = opt.get_pixmap_filepath("gx_head.png");
+    string midi_pix = opt.get_pixmap_filepath("gx_head-midi.png");
+    string warn_pix = opt.get_pixmap_filepath("gx_head-warn.png");
+
+    if ((stat(gx_pix.c_str(), &my_stat) != 0)   ||
+        (stat(midi_pix.c_str(), &my_stat) != 0) ||
+        (stat(warn_pix.c_str(), &my_stat) != 0)) {
+        gx_system::gx_print_fatal("gx_pixmap_check", _("cannot find installed pixmaps"));
+    }
+
+    GtkWidget *ibf =  gtk_image_new_from_file(gx_pix.c_str());
+    gw.ib = gtk_image_get_pixbuf(GTK_IMAGE(ibf));
+
+    GtkWidget *stim = gtk_image_new_from_file(midi_pix.c_str());
+    gw.ibm = gtk_image_get_pixbuf(GTK_IMAGE(stim));
+
+    GtkWidget *stir = gtk_image_new_from_file(warn_pix.c_str());
+    gw.ibr = gtk_image_get_pixbuf(GTK_IMAGE(stir));
+}
+
+
 GxMainInterface* GxMainInterface::instance = 0;
 
 /* create main window*/
@@ -241,6 +266,10 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
     jack.session.connect(sigc::mem_fun(*this, &GxMainInterface::jack_session_event));
     jack.shutdown.connect(sigc::mem_fun(*this, &GxMainInterface::gx_jack_is_down));
     jack.connection.connect(sigc::mem_fun(*this, &GxMainInterface::jack_connection_change));
+    gx_settings.signal_selection_changed().connect(
+	sigc::mem_fun(*this, &GxMainInterface::on_settings_selection_changed));
+    gx_settings.signal_selection_changed().connect(
+	sigc::ptr_fun(gx_jconv::gx_reload_jcgui));
     fLoggingWindow.signal_delete_event().connect(
 	sigc::mem_fun(*this, &GxMainInterface::on_logger_delete_event));
 
@@ -264,17 +293,13 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
 	    false));
 
     /*---------------- status icon ----------------*/
-    if (gx_system::gx_pixmap_check() == 0) {
-        gw.status_icon =    gtk_status_icon_new_from_pixbuf(GDK_PIXBUF(gw.ib));
-        fWindow.set_icon(Glib::wrap(GDK_PIXBUF(gw.ib)));
-        g_signal_connect(G_OBJECT(gw.status_icon), "activate",
-                          G_CALLBACK(gx_hide_extended_settings), this);
-        g_signal_connect(G_OBJECT(gw.status_icon), "popup-menu",
-                          G_CALLBACK(gx_systray_menu), this);
-    } else {
-        gx_system::gx_print_fatal(_("Main Interface Constructor"),
-                       _("pixmap check failed, giving up"));
-    }
+    gx_pixmap_check(options);
+    gw.status_icon =    gtk_status_icon_new_from_pixbuf(GDK_PIXBUF(gw.ib));
+    fWindow.set_icon(Glib::wrap(GDK_PIXBUF(gw.ib)));
+    g_signal_connect(G_OBJECT(gw.status_icon), "activate",
+		     G_CALLBACK(gx_hide_extended_settings), this);
+    g_signal_connect(G_OBJECT(gw.status_icon), "popup-menu",
+		     G_CALLBACK(gx_systray_menu), this);
 
     /*---------------- create boxes ----------------*/
     fTop = 0;
@@ -299,6 +324,16 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
 
 GxMainInterface::~GxMainInterface() {
     instance = 0;
+}
+
+void GxMainInterface::on_settings_selection_changed() {
+    string title = gx_settings.get_displayname();
+    if (title.empty()) {
+	title = jack.get_instancename();
+    } else {
+	title = jack.get_instancename() + " - " + title;
+    }
+    fWindow.set_title(title);
 }
 
 void GxMainInterface::portmap_connection_changed(string port1, string port2, bool conn) {
@@ -1846,7 +1881,6 @@ void GxMainInterface::addNumDisplay() {
 /* status icons in the main menu bar*/
 struct uiStatusDisplay : public gx_ui::GxUiItemBool {
     GtkLabel* fLabel;
-    int    fPrecision;
 
     uiStatusDisplay(gx_ui::GxUI* ui, bool* zone, GtkLabel* label)
         : gx_ui::GxUiItemBool(ui, zone), fLabel(label) {}
@@ -1976,7 +2010,7 @@ void GxMainInterface::addMainMenu() {
 
     /*-- Engine on/off and status --*/
     // set up ON image: shown by default
-    string img_path = gx_system::sysvar.gx_pixmap_dir + "gx_on.png";
+    string img_path = options.get_pixmap_filepath("gx_on.png");
 
     gw.gx_engine_on_image =  gtk_image_menu_item_new_with_label("");
     GtkWidget* engineon = gtk_image_new_from_file(img_path.c_str());
@@ -1989,7 +2023,7 @@ void GxMainInterface::addMainMenu() {
     gtk_widget_show(gw.gx_engine_on_image);
 
     // set up OFF image: hidden by default
-    img_path = gx_system::sysvar.gx_pixmap_dir + "gx_off.png";
+    img_path = options.get_pixmap_filepath("gx_off.png");
 
     gw.gx_engine_off_image =  gtk_image_menu_item_new_with_label("");
     GtkWidget* engineoff = gtk_image_new_from_file(img_path.c_str());
@@ -2000,7 +2034,7 @@ void GxMainInterface::addMainMenu() {
     gtk_widget_hide(gw.gx_engine_off_image);
 
     // set up BYPASS image: hidden by default
-    img_path = gx_system::sysvar.gx_pixmap_dir + "gx_bypass.png";
+    img_path = options.get_pixmap_filepath("gx_bypass.png");
 
     gw.gx_engine_bypass_image  =  gtk_image_menu_item_new_with_label("");
     GtkWidget* engineby = gtk_image_new_from_file(img_path.c_str());
@@ -2013,7 +2047,7 @@ void GxMainInterface::addMainMenu() {
 
     /*-- Jack server status image --*/
     // jackd ON image
-    img_path = gx_system::sysvar.gx_pixmap_dir + "jackd_on.png";
+    img_path = options.get_pixmap_filepath("jackd_on.png");
 
     gw.gx_jackd_on_image =  gtk_image_menu_item_new_with_label("");
     GtkWidget*   jackstateon = gtk_image_new_from_file(img_path.c_str());
@@ -2028,7 +2062,7 @@ void GxMainInterface::addMainMenu() {
     gtk_widget_show(gw.gx_jackd_on_image);
 
     // jackd OFF image: hidden by default
-    img_path = gx_system::sysvar.gx_pixmap_dir + "jackd_off.png";
+    img_path = options.get_pixmap_filepath("jackd_off.png");
 
     gw.gx_jackd_off_image =  gtk_image_menu_item_new_with_label("");
     GtkWidget*   jackstateoff = gtk_image_new_from_file(img_path.c_str());
@@ -2457,7 +2491,7 @@ gboolean KeyFinder::add_keys_to_list(GtkAccelKey *key, GClosure *cl, gpointer da
 int KeyFinder::operator()() {
     while (next_key <= GDK_z) {
 	bool found = false;
-	for (accel_list::iterator i = l.begin(); i != l.end(); i++) {
+	for (accel_list::iterator i = l.begin(); i != l.end(); ++i) {
 	    if (next_key == i->accel_key) {
 		found = true;
 		break;
@@ -2555,7 +2589,7 @@ GxUiRadioMenu::GxUiRadioMenu(gx_ui::GxUI* ui, Glib::RefPtr<Gtk::AccelGroup>& ag,
 }
 
 GxUiRadioMenu::~GxUiRadioMenu() {
-    for (vector<Gtk::RadioMenuItem*>::iterator i = items.begin(); i != items.end(); i++) {
+    for (vector<Gtk::RadioMenuItem*>::iterator i = items.begin(); i != items.end(); ++i) {
 	delete *i;
     }
 }
@@ -2709,7 +2743,7 @@ static void set_tooltips(bool v) {
 }
 
 void reset_all_parameters(GtkWidget*, gpointer) {
-    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
+    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); ++i) {
         i->second->set_std_value();
     }
 }
@@ -2820,7 +2854,7 @@ void GxMainInterface::addGuiSkinMenu() {
     int idx = 0;
     for (vector<string>::iterator i = options.skin.skin_list.begin();
 	 i != options.skin.skin_list.end();
-	 i++) {
+	 ++i) {
 	menuitem =
             gtk_radio_menu_item_new_with_label(group, i->c_str());
         group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
@@ -3180,7 +3214,6 @@ void GxMainInterface::run() {
     // watch tread for cabinet switch
     guivar.g_threads[3] = g_timeout_add(200, gx_threads::gx_check_cab_state, 0);
 
-    GError* err = NULL;
 #ifndef IS_MACOSX
     // -------------- start helper thread for midi control ------------
     int semaphor = sem_init(&guivar.program_change_sem, 0, 0);
@@ -3188,6 +3221,7 @@ void GxMainInterface::run() {
         gx_system::gx_print_error(_("system startup"),
                    string(_("create semaphor failed (midi): preset switch disabled")));
     } else {
+	GError* err = NULL;
         if (g_thread_create(gx_threads::gx_program_change_helper_thread,
                             NULL, FALSE, &err)  == NULL) {
             gx_system::gx_print_fatal(_("system startup"),

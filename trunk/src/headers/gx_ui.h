@@ -32,6 +32,7 @@
 
 #include <map>
 #include <list>
+#include <cstdio>
 #include <sigc++/sigc++.h>
 
 namespace gx_ui {
@@ -82,7 +83,7 @@ class GxUI {
 // Update all user items reflecting zone z
 inline void GxUI::updateZone(void* z, bool force) {
     clist* 	l = fZoneMap[z];
-    for (clist::iterator c = l->begin(); c != l->end(); c++) {
+    for (clist::iterator c = l->begin(); c != l->end(); ++c) {
         if (force || (*c)->hasChanged()) {
 	    (*c)->reflectZone();
 	}

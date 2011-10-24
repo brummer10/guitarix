@@ -64,16 +64,16 @@ void GxUI::unregisterZone(void* z, GxUiItem* c) {
 
 void GxUI::updateAllGuis(bool force) {
     list<GxUI*>::iterator g;
-    for (g = fGuiList.begin(); g != fGuiList.end(); g++) {
+    for (g = fGuiList.begin(); g != fGuiList.end(); ++g) {
         (*g)->updateAllZones(force);
     }
 }
 
 // Update all user items not up to date
 inline void GxUI::updateAllZones(bool force) {
-    for (zmap::iterator m = fZoneMap.begin(); m != fZoneMap.end(); m++) {
+    for (zmap::iterator m = fZoneMap.begin(); m != fZoneMap.end(); ++m) {
         clist*	l = m->second;
-        for (clist::iterator c = l->begin(); c != l->end(); c++) {
+        for (clist::iterator c = l->begin(); c != l->end(); ++c) {
 	    if (force || (*c)->hasChanged()) {
 		(*c)->reflectZone();
 	    }

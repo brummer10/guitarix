@@ -227,12 +227,10 @@ void gx_refresh_engine_status_display() {
 }
 
 void GxMainInterface::gx_jack_is_down() {
-    /* FIXME send to ui thread
-    gx_print_warning("Jack Shutdown",
-                     "jack has bumped us out!!");
-    */
-    std::cout << _("jack has bumped us out!!") << endl;
-    g_timeout_add_full(G_PRIORITY_LOW, 200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
+    gx_system::gx_print_error("Jack Shutdown",
+			      _("jack has bumped us out!!"));
+    g_timeout_add_full(
+	G_PRIORITY_LOW, 200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
 }
 
 void GxMainInterface::jack_session_event() {
@@ -333,7 +331,7 @@ void gx_show_about(GtkWidget *widget, gpointer data ) {
 
 void gx_reset_effects(GtkWidget *widget, gpointer data ) {
     string pos(".position");
-    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
+    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); ++i) {
         string id = i->first;
         if (id.size() > pos.size() &&
             id.compare(id.size()-pos.size(), pos.size(), pos) == 0) {
@@ -346,7 +344,7 @@ void gx_reset_effects(GtkWidget *widget, gpointer data ) {
 void gx_reset_units(Glib::ustring group_id) {
     group_id += ".";
     string on_off = group_id + "on_off";
-    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
+    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); ++i) {
         if (i->first.compare(0, group_id.size(), group_id) == 0) {
             if (i->second->isControllable()) {
                 string id = i->first;

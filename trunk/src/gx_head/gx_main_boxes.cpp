@@ -55,7 +55,8 @@ void ToggleCheckButton::set_parameter(SwitchParameter *p) {
 
 ToggleCheckButton::~ToggleCheckButton() {}
 
-ToggleCheckButton::ToggleCheckButton() {
+ToggleCheckButton::ToggleCheckButton()
+    : param(0) {
     set_name("barbutton");
     Pango::FontDescription font = m_label.get_style()->get_font();
     font.set_size(8*Pango::SCALE);

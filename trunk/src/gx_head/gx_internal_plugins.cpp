@@ -44,8 +44,6 @@ using namespace std;
 #include "gx_engine.h"
 #include "gx_json.h"
 #include "gx_jack.h"
-#include "gx_pitch_tracker.h"
-#include "gx_jconv_settings.h"
 #include "gx_faust_support.h"
 
 namespace gx_engine {
@@ -324,15 +322,15 @@ void OscilloscopeAdapter::clear_buffer() {
 
 bool* GxJConvSettings::checkbutton7 = 0;
 
-GxJConvSettings::GxJConvSettings() {
-    // default parameters
-    fIRDir      = getenv("HOME");
-    fIRFile     = "";
-    fGain       = 0.2;
-    fGainCor    = 1;
-    fOffset     = 0;
-    fLength     = 0;
-    fDelay      = 0;
+GxJConvSettings::GxJConvSettings()
+    : fIRFile(""),
+      fIRDir(getenv("HOME")),
+      fGain(0.2),
+      fOffset(0),
+      fLength(0),
+      fDelay(0),
+      gainline(),
+      fGainCor(1) {
 }
 
 string GxJConvSettings::getFullIRPath() const {
@@ -378,7 +376,7 @@ void GxJConvSettings::writeJSON(gx_system::JsonWriter& w) {
     w.write_key("jconv.favorits");
     w.begin_array(true);
     bool end = true;
-    for (faf_iterator its = faflist.begin(); its != faflist.end(); its++) {
+    for (faf_iterator its = faflist.begin(); its != faflist.end(); ++its) {
         w.begin_array();
         w.write(*its);
         w.end_array(end);

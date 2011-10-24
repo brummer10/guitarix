@@ -47,10 +47,23 @@ gx_jack::GxJack& get_jack(gx_engine::GxEngine* engine_) {
 
 namespace gx_jack {
 
+static const char *jack_amp_postfix = "_amp";
+static const char *jack_fx_postfix = "_fx";
+
+string GxJack::get_default_instancename() {
+    static const char *default_jack_instancename = "gx_head";
+    return default_jack_instancename;
+}
+
 GxJack::GxJack(gx_engine::GxEngine& engine_)
     : engine(engine_),
       jack_is_down(false),
-      jack_is_exit(false),
+      jack_is_exit(true),
+#ifdef HAVE_JACK_SESSION
+      session_event(0),
+#endif
+      client_change(),
+      client_instance(),
       ports(),
       jack_sr(),
       jack_bs(),
@@ -59,7 +72,6 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       client_insert(0),
       jcpu_load(),
       is_rt(),
-      client_instance(DEFAULT_JACK_INSTANCENAME),
       client_name(),
       client_insert_name(),
       xrun() {
@@ -79,54 +91,60 @@ void GxJack::set_jack_down(bool v) {
 
 // ----- pop up a dialog for starting jack
 bool GxJack::gx_jack_init() {
-    jack_status_t jackstat;
-    client_instance =    DEFAULT_JACK_INSTANCENAME;
-    client_name =        DEFAULT_JACK_AMPNAME;
-    client_insert_name = DEFAULT_JACK_FXNAME;
-
-    int jack_is_fresh =     0;
-    set_jack_down(false);
-    set_jack_exit(false);
-    engine.set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
-
     AVOIDDENORMALS;
+    int jackopt = JackNoStartServer;
+    gx_system::CmdlineOptions& opt = gx_system::get_options();
+    client_instance = opt.get_jack_instancename();
+    if (client_instance.empty()) {
+	client_instance = get_default_instancename();
+    } else {
+	jackopt |= JackUseExactName;
+    }
+    client_name =        client_instance + jack_amp_postfix;
+    client_insert_name = client_instance + jack_fx_postfix;
+
+    int jack_is_fresh = 0;
+    set_jack_down(false);
+    set_jack_exit(true);
+    engine.set_stateflag(gx_engine::GxEngine::SF_INITIALIZING);
 
     //ports = JackPorts(); //FIXME
 
-    gx_system::CmdlineOptions& opt = gx_system::get_options();
+    jack_status_t jackstat;
 #ifdef HAVE_JACK_SESSION
     // try to open jack gxjack.client
     if (!opt.get_jack_uuid().empty()) {
         client = jack_client_open(
-	    client_name.c_str(), jack_options_t(JackNoStartServer | JackSessionID),
+	    client_name.c_str(), JackOptions(jackopt | JackSessionID),
 	    &jackstat, opt.get_jack_uuid().c_str());
     } else {
-        client = jack_client_open(client_name.c_str(), JackNoStartServer, &jackstat);
+        client = jack_client_open(client_name.c_str(), JackOptions(jackopt), &jackstat);
     }
     // ----- only start the insert gxjack.client when the amp gxjack.client is true
     if (client) {
         if (!opt.get_jack_uuid2().empty()) {
             client_insert = jack_client_open(
 		client_insert_name.c_str(),
-		jack_options_t(JackNoStartServer | JackSessionID),
+		JackOptions(jackopt | JackSessionID),
 		&jackstat, opt.get_jack_uuid2().c_str());
         } else {
             client_insert = jack_client_open(client_insert_name.c_str(),
-                                   JackNoStartServer, &jackstat);
+					     JackOptions(jackopt), &jackstat);
         }
     }
 #else
-    client = jack_client_open(client_name.c_str(), JackNoStartServer, &jackstat);
+    client = jack_client_open(client_name.c_str(), jack_option_t(jackopt), &jackstat);
      // ----- only start the insert gxjack.client when the amp gxjack.client is true
     if (client) {
         client_insert = jack_client_open(client_insert_name.c_str(),
-                               JackNoStartServer, &jackstat);
+					 JackOptions(jackopt), &jackstat);
     }
 #endif
 
     if (client == 0) {
+	if (jackstat & JackServerFailed) {
         // if jackd is running, let's call ourselves again
-        if (gx_system::gx_system_call("pgrep", "jackd", true) == gx_system::sysvar.SYSTEM_OK) {
+        if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
             gx_system::gx_print_warning(_("Jack Init"),
                        _("jackd OK, trying to be a gxjack.client"));
             usleep(500000);
@@ -153,6 +171,16 @@ bool GxJack::gx_jack_init() {
                            string(_("Ignoring jackd ...")));
             return false;
         }
+	} else if (jackstat && JackServerError && (jackopt & JackUseExactName)) {
+	    gx_system::gx_print_fatal(
+		_("Jack Init"),
+		boost::format(_("can't get requested jack instance name '%1%'"))
+		% client_instance);
+	} else {
+	    gx_system::gx_print_fatal(
+		_("Jack Init"),
+		_("unknown jack server communication error"));
+	}
     }
 
     // ----------------------------------
@@ -161,10 +189,12 @@ bool GxJack::gx_jack_init() {
 
     // it is maybe not the 1st gx_head instance ?
     if (jackstat & JackNameNotUnique) {
-        client_name = jack_get_client_name(client);
+	string name = jack_get_client_name(client);
+        client_instance =
+	    name.substr(0, client_name.size()-strlen(jack_amp_postfix))
+	    + name.substr(client_name.size());
+	client_name = name;
         client_insert_name = jack_get_client_name(client_insert);
-        assert(client_name.substr(0, 11) == DEFAULT_JACK_AMPNAME);
-        client_instance = client_name.substr(0, 8) + client_name.substr(12);
     }
 
     jack_sr = jack_get_sample_rate(client); // jack sample rate
@@ -178,15 +208,12 @@ bool GxJack::gx_jack_init() {
 
     gx_system::gx_print_info(_("Jack init"), s.str());
 
-#if 0 //FIXME
-    if (gx_gui::gw.fWindow) {
-     string window_name = DEFAULT_JACK_INSTANCENAME;
-        gtk_window_set_title(GTK_WINDOW(gx_gui::gw.fWindow), window_name.c_str());
-    }
-#endif
     gx_system::GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxJack::cleanup_slot));
-    if (jack_is_fresh) sleep(8);
+    set_jack_exit(false);
+    client_change();
+
+    if (jack_is_fresh) sleep(8); //FIXME: why??
     return true;
 }
 
@@ -398,7 +425,7 @@ void GxJack::gx_jack_init_port_connection() {
                      jack_port_name(ports.input.port));
     } else {
         list<string>& l = ports.input.conn;
-        for (list<string>::iterator i = l.begin(); i != l.end(); i++) {
+        for (list<string>::iterator i = l.begin(); i != l.end(); ++i) {
             jack_connect(client, i->c_str(), jack_port_name(ports.input.port));
         }
     }
@@ -409,7 +436,7 @@ void GxJack::gx_jack_init_port_connection() {
                      jack_port_name(ports.midi_input.port));
     } else {
         list<string>& l = ports.midi_input.conn;
-        for (list<string>::iterator i = l.begin(); i != l.end(); i++) {
+        for (list<string>::iterator i = l.begin(); i != l.end(); ++i) {
             jack_connect(client, i->c_str(), jack_port_name(ports.midi_input.port));
         }
     }
@@ -417,11 +444,11 @@ void GxJack::gx_jack_init_port_connection() {
     // set autoconnect to user playback ports
     if (opt.get_jack_output(0).empty() && opt.get_jack_output(1).empty()) {
         list<string>& l1 = ports.output1.conn;
-        for (list<string>::iterator i = l1.begin(); i != l1.end(); i++) {
+        for (list<string>::iterator i = l1.begin(); i != l1.end(); ++i) {
             jack_connect(client_insert, jack_port_name(ports.output1.port), i->c_str());
         }
         list<string>& l2 = ports.output2.conn;
-        for (list<string>::iterator i = l2.begin(); i != l2.end(); i++) {
+        for (list<string>::iterator i = l2.begin(); i != l2.end(); ++i) {
             jack_connect(client_insert, jack_port_name(ports.output2.port), i->c_str());
         }
     } else {
@@ -439,7 +466,7 @@ void GxJack::gx_jack_init_port_connection() {
 
     // autoconnect midi output port
     list<string>& lmo = ports.midi_output.conn;
-    for (list<string>::iterator i = lmo.begin(); i != lmo.end(); i++) {
+    for (list<string>::iterator i = lmo.begin(); i != lmo.end(); ++i) {
         jack_connect(client, jack_port_name(ports.midi_output.port), i->c_str());
     }
 
@@ -447,7 +474,7 @@ void GxJack::gx_jack_init_port_connection() {
     list<string>& lins_in = ports.insert_in.conn;
     list<string>& lins_out = ports.insert_out.conn;
     bool ifound = false, ofound = false;
-    for (list<string>::iterator i = lins_in.begin(); i != lins_in.end(); i++) {
+    for (list<string>::iterator i = lins_in.begin(); i != lins_in.end(); ++i) {
         int rc = jack_connect(client_insert, i->c_str(),
                               jack_port_name(ports.insert_in.port));
         if (rc == 0 || rc == EEXIST) {
@@ -455,7 +482,7 @@ void GxJack::gx_jack_init_port_connection() {
         }
     }
     jack_port_t* port_a = jack_port_by_name(client, jack_port_name(ports.insert_out.port));
-    for (list<string>::iterator i = lins_out.begin(); i != lins_out.end(); i++) {
+    for (list<string>::iterator i = lins_out.begin(); i != lins_out.end(); ++i) {
 	if (!jack_port_connected_to(port_a, i->c_str())) {
 	    int rc = jack_connect(client, jack_port_name(ports.insert_out.port), i->c_str());
 	    if (rc == 0 || rc == EEXIST) {
@@ -491,11 +518,6 @@ void GxJack::gx_jack_connection(bool connect) {
                     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
                 }
             }
-        }
-
-        if (client) {
-            set_jack_exit(false);
-	    engine.clear_stateflag(gx_engine::GxEngine::SF_INITIALIZING);
         }
     } else {
         gx_jack_cleanup();
@@ -622,7 +644,6 @@ void GxJack::gx_jack_shutdown_callback(void *arg) {
     GxJack& self = *static_cast<GxJack*>(arg);
     self.set_jack_exit(true);
     self.engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
-    self.set_jack_down(true);
     self.shutdown();
 }
 

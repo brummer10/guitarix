@@ -89,10 +89,14 @@ private:
     gx_preset::StateIO    state_io;
     gx_gui::FileParameter presetfile_parameter;
     bool                  state_loaded;
+    gx_jack::GxJack&      jack;
+    gx_system::CmdlineOptions& options;
     static GxSettings *instance;//FIXME
     void presetfile_changed();
     void exit_handler(bool otherthread);
-    static string get_default_statefile(gx_system::CmdlineOptions& opt);
+    void jack_client_changed();
+    string make_state_filename();
+    string make_std_preset_filename();
     static string get_default_presetfile(gx_system::CmdlineOptions& opt);
 public:
     GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack, gx_engine::ConvolverAdapter& cvr,
@@ -157,7 +161,6 @@ class GxPreset {
     static bool gx_build_preset_list();
     static int gx_get_single_preset_menu_pos(const string& presname, const gint lindex);
     static void gx_load_factory_preset(GtkMenuItem *menuitem, gpointer load_preset);
-    static gboolean gx_rename_main_widget(gpointer data);
     vector<string>        fplist[GX_NUM_OF_FACTORY_PRESET];
     vector<GtkMenuItem*>  fpm_list[GX_NUM_OF_FACTORY_PRESET];
     vector<string>        plist;

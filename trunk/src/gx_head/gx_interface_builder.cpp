@@ -35,7 +35,7 @@ namespace gx_gui {
 #ifndef NDEBUG
 // debug_check
 inline void all_midi_params_assigned() {
-    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); i++) {
+    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); ++i) {
         if (i->second->isControllable() && !i->second->isUsed() && !i->second->isExperimental())
             gx_system::gx_print_error("Debug Check",
                                       "midi-parameter not assigned in ui: " + i->first);

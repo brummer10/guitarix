@@ -47,7 +47,8 @@ def set_options(opt):
             default=False, help='Enable ' + desc, dest='enable_' + option_)
         group.add_option ('--disable-' + option, action='store_true',
             default=disable, help='Disable ' + desc, dest='disable_' + option_)
-            
+
+    opt.tool_options('gcov')
     opt.tool_options ('intltool')
     group = opt.add_option_group ('Localization and documentation', '')
     add_enable_option ('nls', 'native language support', group)
@@ -414,6 +415,8 @@ def configure(conf):
     conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
     # compiler
     conf.check_tool('compiler_cxx')
+    if Options.options.with_gcov:
+        conf.check_tool('gcov')
     if Options.options.python_wrapper or Options.options.glade_support:
         conf.check_tool('compiler_cc')
     # needed libaries
@@ -492,7 +495,7 @@ def configure(conf):
     cpu_model = None
     if Options.options.optimization:
         cpu_model = append_optimization_flags(cxxflags)
-    conf.env['CXXFLAGS'] = cxxflags
+    conf.env['CXXFLAGS'] += cxxflags
 
     # pygobject is used by both python and c++ wrapper
     if Options.options.python_wrapper or Options.options.generate_cpp_wrapper:

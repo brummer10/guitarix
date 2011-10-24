@@ -33,6 +33,10 @@
 
 /****************************************************************
  ** class PosixSignals
+ **
+ ** Block unix signals and catch them in a special thread.
+ ** Blocking is inherited by all threads created after an
+ ** instance of PosixSignals
  */
 
 class PosixSignals {
@@ -43,10 +47,10 @@ private:
     void signal_helper_thread();
     void quit_slot();
     void gx_ladi_handler();
+    void create_thread();
 public:
     PosixSignals();
     ~PosixSignals();
-    void create_thread();
 };
 
 
@@ -72,6 +76,7 @@ PosixSignals::PosixSignals()
     // SIGSEGV
 
     sigprocmask(SIG_BLOCK, &waitset, NULL);
+    create_thread();
 }
 
 PosixSignals::~PosixSignals() {
@@ -192,19 +197,14 @@ int main(int argc, char *argv[]) {
 
     try {
 	// ----------------------- init basic subsystems ----------------------
-	PosixSignals posixsig; // block signals (other threads will inherit)
 	Glib::thread_init();
 	Glib::init();
 	Gxw::init();
 
 	gx_system::CmdlineOptions options;
 	Gtk::Main main(argc, argv, options);
-	if (argc > 1) {
-	    throw gx_system::GxFatalError(
-		string("unknown argument on command line: ")+argv[1]);
-	}
-	posixsig.create_thread();  // start thread for catching unix signals
-	options.process_early();
+	options.process(argc, argv);
+	PosixSignals posixsig; // catch unix signals in special thread
 	gx_engine::GxEngine engine(options.get_plugin_dir(), gx_gui::get_group_table());
 
 	// ------ initialize parameter list ------
@@ -213,9 +213,6 @@ int main(int argc, char *argv[]) {
 	gx_gui::guivar.register_gui_parameter();
 
 	gx_gui::parameter_map.set_init_values();
-
-	// ---------------------- user options handling ------------------
-	options.process();
 
 	// ---------------- Check for working user directory  -------------
 	gx_preset::GxSettings::check_settings_dir(options);

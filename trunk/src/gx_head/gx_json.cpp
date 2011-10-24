@@ -811,12 +811,19 @@ void GxSettingsBase::clear_factory() {
 
 bool GxSettingsBase::change_preset_file(const string& newfile) {
     string oldfile = presetfile.get_filename();
+    if (oldfile == newfile) {
+	return true;
+    }
     try {
 	presetfile.open(newfile);
     } catch(JsonException& e) {
 	gx_print_warning(newfile.c_str(), _("parse error"));
 	presetfile.open(oldfile);
 	return false;
+    }
+    if (current_source == preset) {
+	current_source = state;
+	current_name = "";
     }
     return true;
 }
@@ -832,6 +839,7 @@ PresetFile* GxSettingsBase::get_factory(const string& name) const {
 
 void GxSettingsBase::loadsetting(PresetFile *p, const string& name) {
     seq.start_ramp_down();
+    selection_changed();
     try {
 	if (p) {
 	    JsonParser *jp = p->create_reader(name);

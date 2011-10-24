@@ -95,7 +95,7 @@ bool ClientList::str_compare(const char *a, const char *b) {
 
 ClientList::ClientList(const char **ports) {
     list<const char*> l;
-    for (int i = 0; ports[i]; i++) {
+    for (int i = 0; ports[i]; ++i) {
         l.push_back(ports[i]);
     }
     l.sort(str_compare);
@@ -103,7 +103,7 @@ ClientList::ClientList(const char **ports) {
         return;
     }
     ClientPortList *cp = new ClientPortList(*l.begin());
-    for (list<const char*>::iterator j = l.begin(); j != l.end(); j++) {
+    for (list<const char*>::iterator j = l.begin(); j != l.end(); ++j) {
         if (!cp->sameclient(*j)) {
             push_back(cp);
             cp = new ClientPortList(*j);
@@ -114,7 +114,7 @@ ClientList::ClientList(const char **ports) {
 }
 
 ClientList::~ClientList() {
-    for (list<ClientPortList*>::iterator i = begin(); i != end(); i++) {
+    for (list<ClientPortList*>::iterator i = begin(); i != end(); ++i) {
         delete *i;
     }
 }
@@ -127,7 +127,7 @@ void ClientList::remove(string excl) {
             erase(n);
             break;
         } else {
-            i++;
+            ++i;
         }
     }
 }
@@ -196,24 +196,24 @@ bool PortMapWindow::walk_remove(Glib::RefPtr<Gtk::TreeStore> ts, bool (*compare)
 		    j = ts->erase(j);
 		    continue;
                 }
-		j++;
+		++j;
             }
         }
-	i++;
+	++i;
     }
     return changed;
 }
 
 void PortMapWindow::walk_insert(Glib::RefPtr<Gtk::TreeStore> ts, string name) {
     // clients and ports on top level
-    for (Gtk::TreeIter i(ts->children().begin()); i; i++) {
+    for (Gtk::TreeIter i(ts->children().begin()); i; ++i) {
 	Glib::ustring p = (*i)[columns.port];
 	if (name == p) {
 	    return;
 	}
 	if (!(*i)[columns.is_port] && compare_client(client_from_port(name), p)) {
 	    // ports of a gxjack.client, 2nd level
-	    for (Gtk::TreeIter j(i->children().begin()); j; j++) {
+	    for (Gtk::TreeIter j(i->children().begin()); j; ++j) {
 		// if we already have the port get out
 		if (name == (*j)[columns.port]) {
 		    return;
@@ -234,7 +234,7 @@ void PortMapWindow::walk_insert(Glib::RefPtr<Gtk::TreeStore> ts, string name) {
 
 void PortMapWindow::port_changed(string name, const char *tp, int flags, bool reg) {
     if (reg == 0) {
-        for (int i = 0; i < number_of_ports; i++) {
+        for (int i = 0; i < number_of_ports; ++i) {
             PortSection& p = portsection[i];
             if (walk_remove(p.treestore, compare_port, name)) {
                 update_summary(p);
@@ -242,12 +242,12 @@ void PortMapWindow::port_changed(string name, const char *tp, int flags, bool re
         }
     } else {
         for (list<string>::iterator j = excluded_clients.begin();
-            j != excluded_clients.end(); j++) {
+            j != excluded_clients.end(); ++j) {
             if (name.compare(0, j->size(), *j) == 0) {
                 return;
             }
         }
-        for (int i = 0; i < number_of_ports; i++) {
+        for (int i = 0; i < number_of_ports; ++i) {
             PortSection *p = &portsection[i];
             if (strcmp(p->port_attr->port_type, tp) != 0) {
                 continue;
@@ -273,7 +273,7 @@ void PortMapWindow::port_changed(string name, const char *tp, int flags, bool re
 
 list<string> PortMapWindow::walk(Glib::RefPtr<Gtk::TreeStore> ts, string *port, int connect) {
     list<string> l;
-    for (Gtk::TreeIter i(ts->children().begin()); i; i++) {
+    for (Gtk::TreeIter i(ts->children().begin()); i; ++i) {
 	Glib::ustring p = (*i)[columns.port];
 	bool is_connected = (*i)[columns.connected];
         if ((*i)[columns.is_port]) {
@@ -285,7 +285,7 @@ list<string> PortMapWindow::walk(Glib::RefPtr<Gtk::TreeStore> ts, string *port, 
                 l.push_back(p);
             }
         } else {
-	    for (Gtk::TreeIter j(i->children().begin()); j; j++) {
+	    for (Gtk::TreeIter j(i->children().begin()); j; ++j) {
 		Glib::ustring p = (*j)[columns.port];
 		bool is_connected = (*j)[columns.connected];
                 if (port && port->compare(p) == 0) {
@@ -311,7 +311,7 @@ void PortMapWindow::update_summary(PortSection& p, string *port, bool conn) {
     if (i != l.end()) {
         q = *i++;
     }
-    for (; i != l.end(); i++) {
+    for (; i != l.end(); ++i) {
         q += "\n" + *i;
     }
     p.label->set_text(q);
@@ -321,7 +321,7 @@ void PortMapWindow::update_summary(PortSection& p, string *port, bool conn) {
 }
 
 void PortMapWindow::connection_changed(string port1, string port2, bool conn) {
-    for (int i = 0; i < number_of_ports; i++) {
+    for (int i = 0; i < number_of_ports; ++i) {
         PortSection& p = portsection[i];
 
         string s = (p.port_attr->client_num == 0 ?
@@ -355,7 +355,7 @@ void PortMapWindow::on_expander(Gtk::Expander& expander) {
     gboolean expanded = expander.get_expanded();
     if (expanded) {
         // close all other expanders and unset their expand child property
-        for (int i = 0; i < number_of_ports; i++) {
+        for (int i = 0; i < number_of_ports; ++i) {
 	    Gtk::Expander *w = portsection[i].expander;
             if (&expander != w) {
 		/*
@@ -443,7 +443,7 @@ inline bool getnumber(const Glib::ustring& p, long *pi) {  //  NOLINT
 int PortMapWindow::sort_func(const Gtk::TreeModel::iterator& a, const Gtk::TreeModel::iterator& b) {
     Glib::ustring pa((*a)[columns.port]), pb((*b)[columns.port]);
     int i = 0;
-    for (; ; i++) {
+    for (; ; ++i) {
         if (pa[i] != pb[i]) {
             break;
         }
@@ -481,13 +481,13 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port) {
         // gxjack.client_name and gxjack.client_insert_name
         int idx = 0;
         for (list<string>::iterator j = excluded_clients.begin(); j !=
-                                        excluded_clients.end(); j++, idx++) {
+                                        excluded_clients.end(); ++j, idx++) {
             if (!ps.port_attr->is_insert || ps.port_attr->client_num != idx) {
                 cl.remove(*j);
             }
         }
 	Gtk::TreeIter iter, parent, *parentp;
-        for (ClientList::iterator i = cl.begin(); i != cl.end(); i++) {
+        for (ClientList::iterator i = cl.begin(); i != cl.end(); ++i) {
             ClientPortList *p = *i;
             if (cl.size() > 1 && p->ports.size() > max_items_unfolded) {
                 parent = tree->append();
@@ -499,7 +499,7 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port) {
                 parentp = 0;
             }
 	    //printf("Client: %s\n", p->clientname().c_str());
-            for (list<const char*>::iterator j = p->ports.begin(); j != p->ports.end(); j++) {
+            for (list<const char*>::iterator j = p->ports.begin(); j != p->ports.end(); ++j) {
 		//printf("Port: %s\n", *j);
                 bool conn = false;
                 if (conn_ports) {
@@ -560,7 +560,7 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<Gtk::Builder> bld, gx_jack::GxJack& ja
     // order of first 2 entries is important (check load())
     excluded_clients.push_back(string(jack.client_insert_name) + ":");
     excluded_clients.push_back(string(jack.client_name) + ":");
-    excluded_clients.push_back(string(jack.client_instance) + "_meterbridge:");
+    excluded_clients.push_back(string(jack.get_instancename()) + "_meterbridge:");
     excluded_clients.push_back(string("jack_capture:"));
 
     // no need to set, its transient window
@@ -577,7 +577,7 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<Gtk::Builder> bld, gx_jack::GxJack& ja
     bld->get_widget("dialog-vbox2", vbox2);
     vbox2->signal_expose_event().connect(
 	sigc::group(&gx_cairo::rectangle_skin_color_expose,GTK_WIDGET(vbox2->gobj()),sigc::_1,(void*)0),false);
-    for (int i = 0; i < number_of_ports; i++) {
+    for (int i = 0; i < number_of_ports; ++i) {
         portsection[i].port_attr = &gx_head_ports[i];
         char name[30];
         snprintf(name, sizeof(name), "scrolledwindow%d", i+1);
@@ -620,7 +620,7 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<Gtk::Builder> bld, gx_jack::GxJack& ja
 // refresh portmap widget when connect/disconnect with jack server
 void PortMapWindow::refresh() {
     if (!jack.client) {
-	for (int i = 0; i< number_of_ports;i++) {
+	for (int i = 0; i< number_of_ports; ++i) {
 	    PortSection& ps = portsection[i];
 	    Glib::RefPtr<Gtk::TreeStore> tree = ps.treestore;
 	    assert(tree);

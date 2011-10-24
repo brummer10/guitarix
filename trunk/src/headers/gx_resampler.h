@@ -36,6 +36,7 @@ class SimpleResampler {
     Resampler r_up, r_down;
     int m_fact;
  public:
+    SimpleResampler(): r_up(), r_down(), m_fact() {}
     void setup(int sampleRate, unsigned int fact);
     void up(int count, float *input, float *output);
     void down(int count, float *input, float *output);

@@ -447,6 +447,7 @@ void IRWindow::load_data(Glib::ustring f) {
     }
     float *buffer = new float[audio_size*audio_chan];
     if (audio.read(buffer, audio_size) != static_cast<int>(audio_size)) {
+	delete[] buffer;
         gx_system::gx_print_error("jconvolver", "Error reading file");
         return;
     }
@@ -465,7 +466,7 @@ void IRWindow::load_data(Glib::ustring f) {
     case gx_engine::Audiofile::FORM_32BIT: enc += "32 bit"; break;
     case gx_engine::Audiofile::FORM_FLOAT: enc += "float"; break;
     }
-    delete audio_buffer;
+    delete[] audio_buffer;
     audio_buffer = buffer;
     wIredit->set_ir_data(audio_buffer, audio_chan, audio_size, audio.rate());
     file_changed(filename, audio.rate(), audio_size, audio_chan, enc);

@@ -44,10 +44,16 @@ AudioVariables audio;
  */
 
 ProcessingChainBase::ProcessingChainBase():
+    sync_sem(),
+    to_release(),
     ramp_value(0),
     ramp_mode(ramp_mode_down_dead),
     stopped(true),
+    steps_up(),
+    steps_up_dead(),
+    steps_down(),
     latch(false),
+    modules(),
     next_commit_needs_ramp() {
     sem_init(&sync_sem, 0, 0);
 }
@@ -95,13 +101,13 @@ bool lists_equal(const list<Plugin*>& p1, const list<Plugin*>& p2, bool *need_ra
 	if (*i1 != *i2) {
 	    ret = false;
 	    while ((*i1)->pdef->flags & PGN_SNOOP) {
-		i1++;
+		++i1;
 		if (i1 == p1.end()) {
 		    break;
 		}
 	    }
 	    while ((*i2)->pdef->flags & PGN_SNOOP) {
-		i2++;
+		++i2;
 		if (i2 == p2.end()) {
 		    break;
 		}
@@ -111,8 +117,8 @@ bool lists_equal(const list<Plugin*>& p1, const list<Plugin*>& p2, bool *need_ra
 		break;
 	    }
 	}
-	i1++;
-	i2++;
+	++i1;
+	++i2;
     }
     if (ret) {
 	nr = false;
@@ -131,10 +137,10 @@ bool ProcessingChainBase::set_plugin_list(const list<Plugin*> &p) {
     }
     typedef set<const char*, stringcomp> pchar_set;
     pchar_set new_ids;
-    for (list<Plugin*>::const_iterator i = p.begin(); i != p.end(); i++) {
+    for (list<Plugin*>::const_iterator i = p.begin(); i != p.end(); ++i) {
 	new_ids.insert((*i)->pdef->id);
     }
-    for (list<Plugin*>::const_iterator i = modules.begin(); i != modules.end(); i++) {
+    for (list<Plugin*>::const_iterator i = modules.begin(); i != modules.end(); ++i) {
 	if (!(*i)->pdef->activate_plugin) {
 	    continue;
 	}
@@ -148,7 +154,7 @@ bool ProcessingChainBase::set_plugin_list(const list<Plugin*> &p) {
 }
 
 void ProcessingChainBase::clear_module_states() {
-    for (list<Plugin*>::const_iterator p = modules.begin(); p != modules.end(); p++) {
+    for (list<Plugin*>::const_iterator p = modules.begin(); p != modules.end(); ++p) {
 	PluginDef* pd = (*p)->pdef;
 	if (pd->activate_plugin) {
 	    pd->activate_plugin(true, pd);
@@ -162,7 +168,7 @@ void ProcessingChainBase::release() {
     if (latch) {
 	wait_rt_finished();
     }
-    for (list<Plugin*>::const_iterator p = to_release.begin(); p != to_release.end(); p++) {
+    for (list<Plugin*>::const_iterator p = to_release.begin(); p != to_release.end(); ++p) {
 	(*p)->pdef->activate_plugin(false, (*p)->pdef);
     }
     to_release.clear();
@@ -179,7 +185,7 @@ void MonoModuleChain::process(int count, float *input, float *output) {
 	return;
     }
     memcpy(output, input, count*sizeof(float));
-    for (monochain_data *p = get_rt_chain(); p->func; p++) {
+    for (monochain_data *p = get_rt_chain(); p->func; ++p) {
 	p->func(count, output, output, p->plugin);
     }
     if (rm == ramp_mode_off) {
@@ -199,7 +205,7 @@ void MonoModuleChain::process(int count, float *input, float *output) {
     }
     int i = 0;
     if (rm1 == ramp_mode_up_dead) {
-	for ( ; i < count; i++) {
+	for ( ; i < count; ++i) {
 	    if (++rv1 > steps_up_dead) {
 		rm1 = ramp_mode_up;
 		rv1 = 0;
@@ -209,7 +215,7 @@ void MonoModuleChain::process(int count, float *input, float *output) {
 	}
     }
     if (rm1 == ramp_mode_up) {
-	for ( ; i < count; i++) {
+	for ( ; i < count; ++i) {
 	    if (++rv1 >= steps_up) {
 		rm1 = ramp_mode_off;
 		break;
@@ -218,14 +224,14 @@ void MonoModuleChain::process(int count, float *input, float *output) {
 	}
     }
     else if (rm1 == ramp_mode_down) {
-	for (i = 0; i < count; i++) {
+	for (i = 0; i < count; ++i) {
 	    if (--rv1 == 0) {
 		rm1 = ramp_mode_down_dead;
 		break;
 	    }
 	    output[i] = (output[i] * rv1) / steps_down;
 	}
-	for ( ; i < count; i++) {
+	for ( ; i < count; ++i) {
 	    output[i] = 0.0;
 	}
     }
@@ -242,7 +248,7 @@ void StereoModuleChain::process(int count, float *input, float *output1, float *
     }
     memcpy(output1, input, count*sizeof(float));
     memcpy(output2, input, count*sizeof(float));
-    for (stereochain_data *p = get_rt_chain(); p->func; p++) {
+    for (stereochain_data *p = get_rt_chain(); p->func; ++p) {
 	(p->func)(count, output1, output2, output1, output2, p->plugin);
     }
     if (rm == ramp_mode_off) {
@@ -262,7 +268,7 @@ void StereoModuleChain::process(int count, float *input, float *output1, float *
     }
     int i = 0;
     if (rm1 == ramp_mode_up_dead) {
-	for ( ; i < count; i++) {
+	for ( ; i < count; ++i) {
 	    if (++rv1 > steps_up_dead) {
 		rm1 = ramp_mode_up;
 		rv1 = 0;
@@ -273,7 +279,7 @@ void StereoModuleChain::process(int count, float *input, float *output1, float *
 	}
     }
     if (rm1 == ramp_mode_up) {
-	for ( ; i < count; i++) {
+	for ( ; i < count; ++i) {
 	    if (++rv1 >= steps_up) {
 		rm1 = ramp_mode_off;
 		break;
@@ -283,7 +289,7 @@ void StereoModuleChain::process(int count, float *input, float *output1, float *
 	}
     }
     else if (rm1 == ramp_mode_down) {
-	for (i = 0; i < count; i++) {
+	for (i = 0; i < count; ++i) {
 	    if (--rv1 == 0) {
 		rm1 = ramp_mode_down_dead;
 		break;
@@ -291,7 +297,7 @@ void StereoModuleChain::process(int count, float *input, float *output1, float *
 	    output1[i] = (output1[i] * rv1) / steps_down;
 	    output2[i] = (output2[i] * rv1) / steps_down;
 	}
-	for ( ; i < count; i++) {
+	for ( ; i < count; ++i) {
 	    output1[i] = 0.0;
 	    output2[i] = 0.0;
 	}
@@ -320,7 +326,7 @@ ModuleSelectorFromList::ModuleSelectorFromList(
     register_params = static_register;
     modules = plugins;
     PluginDef **p = plugins;
-    for (size = 0; *p; p++, size++);
+    for (size = 0; *p; ++p, ++size);
     id = id_;
     name = name_;
     groups = groups_;
@@ -330,7 +336,7 @@ ModuleSelectorFromList::ModuleSelectorFromList(
 
 int ModuleSelectorFromList::register_parameter(const ParamReg &param) {
     value_pair *p = new value_pair[size+1];
-    for (unsigned int i = 0; i < size; i++) {
+    for (unsigned int i = 0; i < size; ++i) {
 	p[i].value_id = modules[i]->id;
 	p[i].value_label = gettext(modules[i]->name);
     }
@@ -411,7 +417,7 @@ void ModuleSequencer::set_buffersize(unsigned int buffersize) {
 }
 
 bool ModuleSequencer::prepare_module_lists() {
-    for (list<ModuleSelector*>::iterator i = selectors.begin(); i != selectors.end(); i++) {
+    for (list<ModuleSelector*>::iterator i = selectors.begin(); i != selectors.end(); ++i) {
 	(*i)->set_module();
     }
     list<Plugin*> modules;

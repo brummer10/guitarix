@@ -86,7 +86,7 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
     GtkWidget* wd = gx_gui::GxMainInterface::get_instance().getJackConnectItem();
 
     // return if jack is not down
-    if (gx_system::gx_system_call("pgrep", "jackd", true) == gx_system::sysvar.SYSTEM_OK) {
+    if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
         if (gx_gui::GxMainInterface::get_instance().jack.is_jack_down()) {
             // let's make sure we get out of here
             if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(wd)))

@@ -185,14 +185,10 @@ public:
 };
 
 /****************************************************************/
-inline bool isInitialized()                {return audio.initialized;}
-
-/****************************************************************/
 
 /* function declarations  */
 
 void gx_engine_init();
-void gx_engine_reset();
 
 void compute_midi_in(void* midi_input_port_buf);
 void process_midi(int count, float *input, void *midi_buf);

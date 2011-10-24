@@ -1,0 +1,76 @@
+Files in this directory:
+
+ - coverage
+   configure guitarix with --with-coverage, build it and run guitarix
+   with some tests. Then call this script to see the list of unused
+   functions. Starting guitarix again adds more coverage data.
+
+ - waf-1.5.18.tar.bz2, gcov.py
+   the distributed waf is build from the archive with
+   $ tar -xjf waf-1.5.18.tar.bz2
+   $ cp gcov.py waf-1.5.18/wafadmin/Tools/
+   $ cd waf-1.5.18
+   $ ./waf-light --make-waf --nopyc
+   $ ls -l waf
+
+ - search_all
+   search all relevant guitarix source files for function names,
+   variable names etc. Fits nicely with Emacs grep (see below).
+
+ - build-module, faustmod.pyx, pythonmodule.cpp
+   build python modules directly from faust sources (e.g. for
+   analytical processing). Uses faustmod.pyx
+
+ - tubestage.dsp
+   faust module as test case for build-module (core tube stage
+   copied from the faust directory)
+
+ - convert-0.06-format
+   script to convert very old guitarix state file format
+
+ - freq-plot
+   make a frequency plot from a faust module (you can set
+   faust parameters as options). Needs octave.
+
+ - tube_transfer.py
+   script to calculate tables, approximation accuracy etc.
+   for the tube transfer functions
+
+ - tubestage_calc.py
+   script to calculate various things (e.g. execution time, output
+   voltage for 0 input) for a tube stage faust dsp module (you need to
+   run build-module on tubestage.dsp first).
+
+ - gxglade
+   script to start glade with GxWidget support (needed to use the
+   .glade files of this project with glade)
+
+ - dsp2cc
+   convert the C++ output of faust into the form used by
+   guitarix. Used by build process.
+
+
+Emacs support:
+
+File ".dirlocals.el" in the trunk root:
+----------------------------------
+;;; Directory Local Variables
+;;; See Info node `(emacs) Directory Variables' for more information.
+
+((nil
+  (compile-command . "(cd ~/guitarix/trunk && ./waf)")
+  (grep-command . "~/guitarix/trunk/tools/search_all "))
+ (c++-mode
+  (c-file-offsets . ((innamespace . 0)))
+  (c-file-style . "cc-mode"))
+ (c-mode
+  (mode . c++)
+  (c-file-offsets . ((innamespace . 0)))
+  (c-file-style . "cc-mode")))
+----------------------------------
+
+and for your .emacs (add to existing custum-set-variables):
+
+(custom-set-variables
+ '(safe-local-variable-values (quote ((grep-command . "~/guitarix/trunk/tools/search_all ") (c-file-offsets (innamespace . 0)))))
+)

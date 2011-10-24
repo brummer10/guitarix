@@ -144,7 +144,7 @@ void MidiStandardControllers::replace(int ctr, string name) {
 
 void MidiStandardControllers::writeJSON(gx_system::JsonWriter& jw) const {
     jw.begin_object(true);
-    for (map<int, modstring>::const_iterator i = m.begin(); i != m.end(); i++) {
+    for (map<int, modstring>::const_iterator i = m.begin(); i != m.end(); ++i) {
         if (i->second.modified) {
             ostringstream ostr;
             ostr << i->first;
@@ -252,8 +252,10 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp) {
 
 MidiControllerList::MidiControllerList()
     : map(controller_array_size),
-    midi_config_mode(false),
-    last_midi_control(-1) {}
+      midi_config_mode(false),
+      last_midi_control(-1),
+      last_midi_control_value(),
+      changed() {}
 
 void MidiControllerList::set_config_mode(bool mode, int ctl) {
     assert(mode != midi_config_mode);
@@ -263,9 +265,9 @@ void MidiControllerList::set_config_mode(bool mode, int ctl) {
 }
 
 int MidiControllerList::param2controller(Parameter& param, const MidiController** p) {
-    for (controller_array::size_type n = 0; n < map.size(); n++) {
+    for (controller_array::size_type n = 0; n < map.size(); ++n) {
         const midi_controller_list& cl = map[n];
-        for (midi_controller_list::const_iterator i = cl.begin(); i != cl.end(); i++) {
+        for (midi_controller_list::const_iterator i = cl.begin(); i != cl.end(); ++i) {
             if (i->hasParameter(param)) {
                 if (p) {
                     *p = &(*i);
@@ -283,8 +285,8 @@ void MidiControllerList::deleteParameter(Parameter& p, bool quiet) {
         set_config_mode(true); // keep rt thread away from table
     }
     bool found = false;
-    for (controller_array::iterator pctr = map.begin(); pctr != map.end(); pctr++) {
-        for (midi_controller_list::iterator i = pctr->begin(); i != pctr->end(); i++) {
+    for (controller_array::iterator pctr = map.begin(); pctr != map.end(); ++pctr) {
+        for (midi_controller_list::iterator i = pctr->begin(); i != pctr->end(); ++i) {
             if (i->hasParameter(p)) {
                 pctr->erase(i);
                 found = true;
@@ -318,7 +320,7 @@ void MidiControllerList::set(int ctr, int val) {
         last_midi_control_value = val;
     } else {
         midi_controller_list& ctr_list = map[ctr];
-        for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); i++)
+        for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i)
             i->set(val);
     }
 }
@@ -331,7 +333,7 @@ void MidiControllerList::writeJSON(gx_system::JsonWriter& w) {
             continue;
         w.write(n);
         w.begin_array();
-        for (midi_controller_list::const_iterator i = cl.begin(); i != cl.end(); i++)
+        for (midi_controller_list::const_iterator i = cl.begin(); i != cl.end(); ++i)
             i->writeJSON(w);
         w.end_array(true);
     }
@@ -373,11 +375,11 @@ void MidiControllerList::remove_controlled_parameters(paramlist& plist,
     std::set<Parameter*> pset;
     for (unsigned int i = 0; i < map.size(); i++) {
         midi_controller_list& ctr = map[i];
-        for (midi_controller_list::iterator j = ctr.begin(); j != ctr.end(); j++) {
+        for (midi_controller_list::iterator j = ctr.begin(); j != ctr.end(); ++j) {
             if (new_m) {
                 const midi_controller_list& ctr_new = (*new_m)[i];
                 for (midi_controller_list::const_iterator jn = ctr_new.begin();
-                                                          jn != ctr_new.end(); jn++) {
+                                                          jn != ctr_new.end(); ++jn) {
                     if (j->getParameter() == jn->getParameter()) {
                         pset.insert(&j->getParameter());
                         break;
@@ -407,7 +409,7 @@ ParameterGroups::ParameterGroups() {
 
 ParameterGroups::~ParameterGroups() {
 #ifndef NDEBUG
-    for (map<string, bool>::iterator i = used.begin(); i != used.end(); i++) {
+    for (map<string, bool>::iterator i = used.begin(); i != used.end(); ++i) {
 	if (!i->second) {
 	    gx_system::gx_print_error("Debug Check", "Group not used: " + i->first);
 	}
@@ -431,7 +433,7 @@ void ParameterGroups::group_is_new(string id) {
 }
 
 void ParameterGroups::dump() {
-    for (map<string, string>::iterator i = groups.begin(); i != groups.end(); i++) {
+    for (map<string, string>::iterator i = groups.begin(); i != groups.end(); ++i) {
 	printf("PG %s: %s\n", i->first.c_str(), i->second.c_str());
     }
 }
@@ -985,7 +987,7 @@ bool FileParameter::is_standard() const {
     string id;
     try {
         id = get_file_id(value);
-    } catch(Gio::Error ex) {
+    } catch(Gio::Error& ex) {
         return false; // FIXME check type of exception
     }
     return id == get_file_id(std_value);
@@ -1055,7 +1057,7 @@ void ParamMap::check_p(const char *p) {
 
 void ParamMap::dump() {
     printf("parameter map dump\n");
-    for (iterator i = id_map.begin(); i != id_map.end(); i++) {
+    for (iterator i = id_map.begin(); i != id_map.end(); ++i) {
         printf("P: %s\n", i->second->id().c_str());
     }
     printf("---------------------\n");
@@ -1070,7 +1072,7 @@ void ParamMap::insert(Parameter* param) {
 }
 
 void ParamMap::set_init_values() {
-    for (iterator i = id_map.begin(); i != id_map.end(); i++) {
+    for (iterator i = id_map.begin(); i != id_map.end(); ++i) {
         i->second->set_std_value();
     }
 }

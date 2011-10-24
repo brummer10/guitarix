@@ -50,11 +50,6 @@
 
 namespace gx_jack {
 
-#define DEFAULT_JACK_INSTANCENAME "gx_head"
-
-#define DEFAULT_JACK_AMPNAME      (DEFAULT_JACK_INSTANCENAME "_amp")
-#define DEFAULT_JACK_FXNAME       (DEFAULT_JACK_INSTANCENAME "_fx")
-
 class PortConnection {
 public:
     jack_port_t *port;
@@ -91,6 +86,8 @@ class GxJack {
     jack_session_event_t *session_event;
     static void         gx_jack_session_callback(jack_session_event_t *event, void *arg);
 #endif
+    sigc::signal<void>  client_change;
+    string              client_instance;
  public:
     JackPorts           ports;
     jack_nframes_t      jack_sr;   // jack sample rate
@@ -113,7 +110,6 @@ public:
 
     bool                gx_jack_init( );
     
-    void                gx_set_jack_buffer_size(GtkCheckMenuItem*, void* arg);
     void                gx_jack_connection(bool connect);
     float               get_last_xrun();
     void*               get_midi_buffer(jack_nframes_t nframes);
@@ -123,7 +119,8 @@ public:
     void                write_connections(gx_system::JsonWriter& w);
     void                gx_jack_callbacks();
     void                gx_jack_cleanup();
-    string              client_instance;
+    static string       get_default_instancename();
+    const string&       get_instancename() { return client_instance; }
     string              client_name;
     string              client_insert_name;
     Glib::Dispatcher    xrun;
@@ -133,6 +130,7 @@ public:
     bool                is_jack_down() { return jack_is_down; }
     Glib::Dispatcher    connection;
     bool                is_jack_exit() { return jack_is_exit; }
+    sigc::signal<void>  signal_client_change() { return client_change; }
 #ifdef HAVE_JACK_SESSION
     jack_session_event_t *get_last_session_event() {
 	return static_cast<jack_session_event_t *>g_atomic_pointer_get(&session_event);

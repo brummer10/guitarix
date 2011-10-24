@@ -148,7 +148,7 @@ class MenuCheckItem: public Gtk::CheckMenuItem {
     void on_my_activate();
  public:
     // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
-    MenuCheckItem(): Gtk::CheckMenuItem("", true) {}
+    MenuCheckItem(): Gtk::CheckMenuItem("", true), param() {}
     void set_parameter(SwitchParameter *p);
     void add_parameter(SwitchParameter *p);
     SwitchParameter * get_parameter();
@@ -174,7 +174,7 @@ class RadioCheckItem: public Gtk::RadioMenuItem {
     //Gtk::RadioMenuItem::Group Group;
     // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
     RadioCheckItem(Gtk::RadioMenuItem::Group& group):
-	Gtk::RadioMenuItem(group, "", true) {}
+	Gtk::RadioMenuItem(group, "", true), param() {}
     void set_parameter(SwitchParameter *p);
     SwitchParameter * get_parameter();
 };
@@ -480,6 +480,7 @@ private:
     bool                  on_refresh_oscilloscope();
     void                  on_oscilloscope_post_pre(int post_pre);
     int                   on_oscilloscope_activate(bool start);
+    void                  on_settings_selection_changed();
     void                  jack_session_event();
     void                  gx_jack_is_down();
     void                  jack_connection_change();

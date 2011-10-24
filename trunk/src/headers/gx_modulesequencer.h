@@ -147,15 +147,14 @@ struct monochain_data {
     monochainorder func;
     PluginDef      *plugin;
     monochain_data(monochainorder func_, PluginDef *plugin_): func(func_), plugin(plugin_) {}
-    monochain_data() {}
-    const monochain_data& operator=(const monochain_data& d) { func = d.func; plugin = d.plugin; return *this; }
+    monochain_data(): func(), plugin() {}
 };
 
 struct stereochain_data {
     stereochainorder func;
     PluginDef       *plugin;
     stereochain_data(stereochainorder func_, PluginDef *plugin_): func(func_), plugin(plugin_) {}
-    stereochain_data() {}
+    stereochain_data(): func(), plugin() {}
 };
 
 template <>
@@ -186,8 +185,8 @@ ThreadSafeChainPointer<F>::ThreadSafeChainPointer():
 
 template <class F>
 ThreadSafeChainPointer<F>::~ThreadSafeChainPointer() {
-    delete rack_order_ptr[0];
-    delete rack_order_ptr[1];
+    delete[] rack_order_ptr[0];
+    delete[] rack_order_ptr[1];
 }
 
 template <class F>
@@ -196,7 +195,7 @@ void ThreadSafeChainPointer<F>::setsize(int n)
     if (n <= size[current_index]) {
 	return;
     }
-    delete rack_order_ptr[current_index];
+    delete[] rack_order_ptr[current_index];
     rack_order_ptr[current_index] = new F[n];
     size[current_index] = n;
     current_pointer = rack_order_ptr[current_index];

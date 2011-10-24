@@ -363,7 +363,7 @@ class SwitchParameter: public Parameter {
     virtual void setJSON_value();
     SwitchParameter(string id, bool preset = false, bool sv = false):
         Parameter(id, "", tp_switch, Switch, preset, false),
-        value(sv), std_value(sv) {}
+        value(sv), std_value(sv), json_value(), changed() {}
 };
 
 /****************************************************************/
@@ -566,10 +566,11 @@ class MidiController {
         param(p), _lower(l), _upper(u) {}
     float lower() const { return _lower; }
     float upper() const { return _upper; }
-    void operator = (MidiController m) {
+    MidiController& operator = (MidiController m) {
         param = m.param;
         _lower = m._lower;
         _upper = m._upper;
+	return *this;
     }
     bool hasParameter(const Parameter& p) const { return param == p; }
     Parameter& getParameter() const { return param; }

@@ -41,7 +41,7 @@ bool GxChild::kill() {
 }
 
 GxChildProcs::~GxChildProcs() {
-    for (list<GxChild*>::iterator i = children.begin(); i != children.end(); i++) {
+    for (list<GxChild*>::iterator i = children.begin(); i != children.end(); ++i) {
         (*i)->kill();
         delete *i;
     }
@@ -49,7 +49,7 @@ GxChildProcs::~GxChildProcs() {
 
 bool GxChildProcs::killall() {
     int ret = true;
-    for (list<GxChild*>::iterator i = children.begin(); i != children.end(); i++) {
+    for (list<GxChild*>::iterator i = children.begin(); i != children.end(); ++i) {
         if (!(*i)->kill()) {
             ret = false;
         }
@@ -66,7 +66,7 @@ bool GxChildProcs::kill(string name) {
 }
 
 GxChild *GxChildProcs::find(string name) {
-    for (list<GxChild*>::iterator i = children.begin(); i != children.end(); i++) {
+    for (list<GxChild*>::iterator i = children.begin(); i != children.end(); ++i) {
         if ((*i)->hasName(name)) {
             return *i;
         }
@@ -94,7 +94,7 @@ void gx_sigchld_handler() {
     // child pid has terminated
     list<GxChild*>& cl = childprocs.children;
     GxChild *p = 0;
-    for (list<GxChild*>::iterator i = cl.begin(); i != cl.end(); i++) {
+    for (list<GxChild*>::iterator i = cl.begin(); i != cl.end(); ++i) {
         if ((*i)->hasPid(pid)) {
             p = *i;
             cl.erase(i);
@@ -131,9 +131,9 @@ GxChild *GxChildProcs::launch(string name, const char *const args[], int killsig
 GxChild *GxChildProcs::launch(string name, list<string> args, int killsignal) {
     const char **p = new const char*[args.size()+1];
     unsigned int i = 0;
-    for (list<string>::iterator j = args.begin(); j != args.end(); j++) {
+    for (list<string>::iterator j = args.begin(); j != args.end(); ++j) {
         // cout << *j << endl;
-        p[i++] = j->c_str();
+        p[++i] = j->c_str();
     }
     assert(i == args.size());
     p[i] = 0;
@@ -263,7 +263,7 @@ list<string> JackCapture::capture_command(int& seq) {
     size_t j = buf.find_last_not_of("0123456789", i-1);
     int n;
     string fname;
-    for (n = 1; n < 1000; n++) {
+    for (n = 1; n < 1000; ++n) {
         fname = make_fname(buf, j, i, n);
         if (access(fname.c_str(), F_OK) != 0) {
             break;
@@ -376,7 +376,7 @@ void Meterbridge::start_stop(GtkCheckMenuItem *menuitem, gpointer) {
         if (childprocs.find(app_name)) {
             return;
         }
-        string s = gx_gui::GxMainInterface::get_instance().jack.client_instance + "_" + app_name;
+        string s = gx_gui::GxMainInterface::get_instance().jack.get_instancename() + "_" + app_name;
         const char * const args[] = {
             app_name, "-n", s.c_str(), "-t", "sco", "-c", "3",
             (gx_gui::GxMainInterface::get_instance().jack.client_name+":in_0").c_str(),
