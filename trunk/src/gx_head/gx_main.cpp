@@ -105,7 +105,7 @@ void PosixSignals::quit_slot() {
 void PosixSignals::gx_ladi_handler() {
     gx_system::gx_print_warning(
 	_("signal_handler"), _("signal USR1 received, save settings"));
-    gx_gui::GxMainInterface::get_instance().gx_settings.save_to_state();
+    gx_gui::GxMainInterface::get_instance().gx_settings.auto_save_state();
 }
 
 

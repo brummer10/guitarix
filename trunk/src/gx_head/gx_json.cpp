@@ -571,8 +571,54 @@ void ModifyState::close() {
     }
 }
 
-JsonWriter *StateFile::create_writer() {
-    ModifyState *jw = new ModifyState(filename);
+class ModifyStatePreservePreset: public ModifyState {
+private:
+    ifstream is;
+    JsonParser jp;
+public:
+    ModifyStatePreservePreset(const string& name, bool *preserve_preset);
+    ~ModifyStatePreservePreset();
+};
+
+ModifyStatePreservePreset::ModifyStatePreservePreset(const string& name, bool *preserve_preset)
+    : ModifyState(name),
+      is(name.c_str()),
+      jp(&is) {
+    bool copied = false;
+    if (is.good()) {
+	try {
+	    jp.next(JsonParser::begin_array);
+	    SettingsFileHeader header;
+	    header.read(jp);
+	    while (jp.peek() != JsonParser::end_array) {
+		jp.next(JsonParser::value_string);
+		if (jp.current_value() == "current_preset") {
+		    write(jp.current_value());
+		    jp.copy_object(*this);
+		    copied = true;
+		} else {
+		    jp.skip_object();
+		}
+	    }
+	} catch(JsonException& e) {
+	    // just ignore
+	}
+    }
+    if (!copied) {
+	*preserve_preset = false;
+    }
+}
+
+ModifyStatePreservePreset::~ModifyStatePreservePreset() {
+}
+
+JsonWriter *StateFile::create_writer(bool *preserve_preset) {
+    JsonWriter *jw;
+    if (*preserve_preset) {
+	jw = new ModifyStatePreservePreset(filename, preserve_preset);
+    } else {
+	jw = new ModifyState(filename);
+    }
     delete is;
     is = 0;
     return jw;
@@ -917,9 +963,9 @@ string GxSettingsBase::get_displayname() {
     }
 }
 
-void GxSettingsBase::save_to_state() {
-    JsonWriter *jw = statefile.create_writer();
-    state_io->write_state(*jw);
+void GxSettingsBase::save_to_state(bool preserve_preset) {
+    JsonWriter *jw = statefile.create_writer(&preserve_preset);
+    state_io->write_state(*jw, preserve_preset);
     delete jw;
 }
 

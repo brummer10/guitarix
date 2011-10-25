@@ -241,7 +241,7 @@ void StateIO::commit_state() {
     commit_preset();
 }
 
-void StateIO::write_state(gx_system::JsonWriter &jw) {
+void StateIO::write_state(gx_system::JsonWriter &jw, bool no_preset) {
     jw.write("settings");
     write_parameters(jw, false);
 
@@ -251,8 +251,10 @@ void StateIO::write_state(gx_system::JsonWriter &jw) {
     jw.write("midi_ctrl_names");
     gx_gui::midi_std_ctr.writeJSON(jw);
 
-    jw.write("current_preset");
-    write_intern(jw, false);
+    if (!no_preset) {
+	jw.write("current_preset");
+	write_intern(jw, false);
+    }
 
     jw.write("jack_connections");
     jack.write_connections(jw);
@@ -322,9 +324,7 @@ GxSettings *GxSettings::instance = 0;//FIXME
 
 GxSettings::~GxSettings() {
     instance = 0;
-    if (current_source == state && state_loaded) {
-	save_to_state();
-    }
+    auto_save_state();
 }
 
 void GxSettings::check_convert_presetfile() {
@@ -343,9 +343,7 @@ void GxSettings::exit_handler(bool otherthread) {
     if (otherthread) {
 	return;
     }
-    if (current_source == state && state_loaded) {
-	save_to_state();
-    }
+    auto_save_state();
 }
 
 void GxSettings::jack_client_changed() {

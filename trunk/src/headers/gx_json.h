@@ -183,7 +183,7 @@ public:
     const SettingsFileHeader& get_header() const { return header; }
     string get_filename() const { return filename; }
     gx_system::JsonParser *create_reader();
-    gx_system::JsonWriter *create_writer();
+    gx_system::JsonWriter *create_writer(bool *preserve_preset);
 };
 
 class PresetTransformer: public gx_system::JsonWriter {
@@ -241,7 +241,7 @@ public:
     virtual ~AbstractStateIO();
     virtual void read_state(gx_system::JsonParser&,const SettingsFileHeader&) = 0;
     virtual void commit_state() = 0;
-    virtual void write_state(gx_system::JsonWriter&) = 0;
+    virtual void write_state(gx_system::JsonWriter&, bool) = 0;
 };
 
 class AbstractPresetIO {
@@ -297,7 +297,7 @@ public:
 	return factory_presets.at(idx)->name; }
     string get_displayname();
     void set_statefilename(const string& fn) { statefile.set_filename(fn); }
-    void save_to_state();
+    void save_to_state(bool preserve_preset=false);
     void save_to_current_preset() {
 	if (current_source == preset) save_to_preset(current_name); }
     void save_to_preset(const string& name);

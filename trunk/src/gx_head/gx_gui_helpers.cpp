@@ -255,7 +255,7 @@ void GxMainInterface::jack_session_event() {
 	// exit will save state
         gx_system::GxExit::get_instance().exit_program("** session exit **");
     } else {
-	gx_settings.save_to_state();
+	gx_settings.auto_save_state();
     }
 }
 
