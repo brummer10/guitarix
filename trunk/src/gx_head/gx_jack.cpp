@@ -198,15 +198,16 @@ bool GxJack::gx_jack_init() {
     }
 
     jack_sr = jack_get_sample_rate(client); // jack sample rate
-    ostringstream s;
-    s << _("The jack sample rate is ") << jack_sr << _("/sec");
-    gx_system::gx_print_info(_("Jack init"), s.str().c_str());
+    gx_system::gx_print_info(
+	_("Jack init"),
+	boost::format(_("The jack sample rate is %1%/sec")) % jack_sr);
 
     jack_bs = jack_get_buffer_size(client); // jack buffer size
-    s.str("");
-    s << _("The jack buffer size is ") << jack_bs << _("/frames ... ");
 
-    gx_system::gx_print_info(_("Jack init"), s.str());
+    gx_system::gx_print_info(
+	_("Jack init"),
+	boost::format(_("The jack buffer size is %1%/frames ... "))
+	% jack_bs);
 
     gx_system::GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxJack::cleanup_slot));

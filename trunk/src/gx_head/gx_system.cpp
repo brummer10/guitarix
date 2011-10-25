@@ -543,7 +543,7 @@ void GxExit::exit_program(string msg, int errcode) {
 	msg = "** guitarix exit **";
     }
     cerr << msg << endl;
-    exit(errcode);
+    _exit(errcode);
 }
 
 GxExit& GxExit::get_instance() {

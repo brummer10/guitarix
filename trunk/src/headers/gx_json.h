@@ -256,9 +256,9 @@ public:
 class GxSettingsBase {
 public:
     enum Source {
+	state,
 	preset,
 	factory,
-	state,
     };
 protected:
     class Factory {

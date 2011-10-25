@@ -228,17 +228,14 @@ int main(int argc, char *argv[]) {
 
 	gx_gui::GxMainInterface gui(engine, options);
 	gui.setup();
-	gx_jconv::gx_load_jcgui();
 	// ---------------------- initialize jack gxjack.client ------------------
 	if (gui.jack.gx_jack_init()) {
 	    // -------- initialize gx_head engine --------------------------
-	    gui.gx_settings.load(gx_system::GxSettingsBase::state);
 	    gx_preset::gxpreset.gx_refresh_preset_menus();
 	    gx_engine::gx_engine_init();
 
 	    // -------- set jack callbacks and activation -------------------
 	    gui.jack.gx_jack_callbacks();
-	    engine.set_state(gx_engine::kEngineOn);
 
 	    // -------- init port connections
 	    gui.jack.gx_jack_init_port_connection();

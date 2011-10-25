@@ -66,6 +66,27 @@ void ProcessingChainBase::set_samplerate(int samplerate) {
     steps_up_dead = 0;
 }
 
+void ProcessingChainBase::start_ramp_up() {
+    if (!stopped) {
+	set_ramp_value(0);
+	set_ramp_mode(ramp_mode_up_dead);
+    }
+}
+
+void ProcessingChainBase::start_ramp_down() {
+    RampMode rm = get_ramp_mode();
+    if (rm == ramp_mode_down_dead or rm == ramp_mode_down) {
+	return;
+    }
+    int rv = min(steps_down,get_ramp_value());
+    if (rv == 0) {
+	set_ramp_mode(ramp_mode_down_dead);
+    } else {
+	set_ramp_value(rv);
+	set_ramp_mode(ramp_mode_down);
+    }
+}
+
 void ProcessingChainBase::try_set_ramp_mode(RampMode oldmode, RampMode newmode, int oldrv, int newrv) {
     if (oldmode != newmode) {
 	if (!g_atomic_int_compare_and_exchange(&ramp_mode, oldmode, newmode)) {

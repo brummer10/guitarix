@@ -792,7 +792,7 @@ GxSettingsBase::GxSettingsBase(string sfname, gx_engine::ModuleSequencer& seq_)
       statefile(sfname),
       presetfile(),
       factory_presets(),
-      current_source(),
+      current_source(state),
       current_factory(),
       current_name(),
       seq(seq_),

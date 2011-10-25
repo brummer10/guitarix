@@ -102,8 +102,8 @@ public:
 	    wait_rt_finished();
 	}
     }
-    inline void start_ramp_up() { set_ramp_value(0); set_ramp_mode(ramp_mode_up_dead); }
-    inline void start_ramp_down() { set_ramp_value(steps_down); set_ramp_mode(ramp_mode_down); }
+    void start_ramp_up();
+    void start_ramp_down();
     inline void set_down_dead() { set_ramp_mode(ramp_mode_down_dead); }
     inline void set_stopped(bool v) { stopped = v; }
 };

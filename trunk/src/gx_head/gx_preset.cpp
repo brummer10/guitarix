@@ -371,7 +371,7 @@ string GxSettings::get_default_presetfile(CmdlineOptions& opt) {
 
 string GxSettings::make_state_filename() {
     return options.get_user_filepath(
-	gx_jack::GxJack::get_default_instancename() + statename_postfix);
+	jack.get_instancename() + statename_postfix);
 }
 
 string GxSettings::make_std_preset_filename() {
