@@ -651,13 +651,14 @@ GxEngine::GxEngine(const string& plugin_dir, gx_gui::ParameterGroups& groups)
       noisegate(),
       monomute(),
       stereomute(),
-      midiaudiobuffer(),
-      tuner(midiaudiobuffer.plugin, *this),
+      tuner(*this),
+      midiaudiobuffer(tuner),
       maxlevel(),
       oscilloscope(&ui, *this),
       convolver(*this),
       cabinet(*this, resamp),
       contrast(*this, resamp) {
+    tuner.set_dep_module(&midiaudiobuffer.plugin);
 
     load_static_plugins();
 

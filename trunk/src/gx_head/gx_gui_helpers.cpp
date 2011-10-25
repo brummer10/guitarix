@@ -229,6 +229,8 @@ void gx_refresh_engine_status_display() {
 void GxMainInterface::gx_jack_is_down() {
     gx_system::gx_print_error("Jack Shutdown",
 			      _("jack has bumped us out!!"));
+    jack.gx_jack_connection(false);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(fJackConnectItem), FALSE);
     g_timeout_add_full(
 	G_PRIORITY_LOW, 200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
 }

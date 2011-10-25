@@ -61,6 +61,7 @@ PitchTracker::PitchTracker()
       m_pthr(0),
       resamp(),
       m_sampleRate(),
+      m_freq(),
       m_buffersize(),
       m_fftSize(),
       m_buffer(new float[FFT_SIZE]),
@@ -304,7 +305,10 @@ void PitchTracker::run() {
         float threshold = (m_audioLevel ? SIGNAL_THRESHOLD_OFF : SIGNAL_THRESHOLD_ON);
         m_audioLevel = (sum / m_buffersize >= threshold);
         if ( m_audioLevel == false ) {
-            setEstimatedFrequency(0.0);
+	    if (m_freq != 0) {
+		new_freq();
+	    }
+	    m_freq = 0;
             continue;
         }
 
@@ -349,13 +353,15 @@ void PitchTracker::run() {
                 x = 0.0;
             }
         }
-        setEstimatedFrequency(x);
+	if (m_freq != x) {
+		new_freq();
+	    }
+	m_freq = x;
     }
 }
 
-void PitchTracker::setEstimatedFrequency(float freq) {
-    midi.fConsta4 = freq;
-    audio.fConsta1t = (freq == 0.0 ? 1000.0 : 12 * log2f(2.272727e-03f * freq));
+float PitchTracker::get_estimated_note() {
+    return m_freq == 0.0 ? 1000.0 : 12 * log2f(2.272727e-03f * m_freq);
 }
 
 }

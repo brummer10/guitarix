@@ -136,6 +136,7 @@ void SkinHandling::set_styledir(const string& style_dir) {
     }
     // look for gx_head_*.rc and extract *-part
     struct dirent *de;
+    skin_list.clear();
     while ((de = readdir(d)) != 0) {
         char *p = de->d_name;
         if (strncmp(p, "gx_head_", 8) != 0) {

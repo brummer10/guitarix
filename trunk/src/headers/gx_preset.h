@@ -97,6 +97,7 @@ private:
     void jack_client_changed();
     string make_state_filename();
     string make_std_preset_filename();
+    void check_convert_presetfile();
     static string get_default_presetfile(gx_system::CmdlineOptions& opt);
 public:
     GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack, gx_engine::ConvolverAdapter& cvr,
@@ -105,12 +106,13 @@ public:
     ~GxSettings();
     static void check_settings_dir(gx_system::CmdlineOptions& opt);
     void load(Source src, const string& name = "", const string& factory = "");
+    bool rename_preset(const string& name, const string& newname);
     static GxSettings& get_instance() { return *instance; }
     void set_std_presetfile() { presetfile_parameter.set_std_value(); }
     string get_preset_filename() { return presetfile_parameter.get_path(); }
     string get_preset_dirname() { return presetfile_parameter.get_directory_path(); }
     void copy_preset_file(const string& destination) { presetfile_parameter.copy(destination); }
-
+    sigc::signal<void>& signal_presetfile_changed() { return presetfile_parameter.signal_changed(); }
 };
 
 /****************************************************************

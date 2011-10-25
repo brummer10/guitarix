@@ -110,12 +110,16 @@ GxChild *GxChildProcs::launch(string name, const char *const args[], int killsig
     // fork produces about 3ms latency on linux 2.6.31-9-rt
     // vfork works
     // FIXME check if its a version-specific bug
-    int pid = vfork();
+    // changed back to fork //ad 2011-10-25
+    int pid = fork();
     switch (pid) {
     case -1: // error, in parent
         return 0;
 
     case 0: // in child
+	sigset_t waitset;
+	sigfillset(&waitset);
+	sigprocmask(SIG_UNBLOCK, &waitset, NULL);
         execvp(args[0], (char**)args);
         _exit(EXIT_PGM_NOT_FOUND);
         /*NOTREACHED*/

@@ -350,6 +350,9 @@ void GxMainInterface::setup() {
     engine.pluginlist.append_rack(this);
 
     debug_check(all_midi_params_assigned);
+    if (!connect_jack(true)) {
+	gx_settings.load(gx_system::GxSettingsBase::state);
+    }
     for (int i = 0; i < GX_NUM_OF_FACTORY_PRESET; i++)
 	gx_preset::gxpreset.gx_load_factory_file(i);
 }

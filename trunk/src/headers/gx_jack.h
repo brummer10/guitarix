@@ -40,6 +40,7 @@
 
 #include <jack/jack.h>          // NOLINT
 #include <jack/midiport.h>
+#include <jack/ringbuffer.h>
 #include <semaphore.h>
 
 #ifdef HAVE_JACK_SESSION
@@ -50,11 +51,49 @@
 
 namespace gx_jack {
 
+/****************************************************************
+ ** port connection callback
+ */
+
+struct PortConnData {
+public:
+    PortConnData() {} // no init
+    PortConnData(const char *a, const char *b, bool conn)
+	: name_a(a), name_b(b), connect(conn) {}
+    ~PortConnData() {}
+    const char *name_a;
+    const char *name_b;
+    bool connect;
+};
+
+class PortConnRing {
+private:
+    jack_ringbuffer_t *ring;
+    bool send_changes;
+    int overflow;  // should be bool but gives compiler error
+    void set_overflow() { g_atomic_int_set(&overflow, true); }
+    void clear_overflow()  { g_atomic_int_set(&overflow, false); }
+    bool is_overflow() { return g_atomic_int_get(&overflow); }
+public:
+    Glib::Dispatcher new_data;
+    Glib::Dispatcher portchange;
+    void push(const char *a, const char *b, bool conn);
+    bool pop(PortConnData*);
+    void set_send(bool v) { send_changes = v; }
+    PortConnRing();
+    ~PortConnRing();
+};
+
 class PortConnection {
 public:
     jack_port_t *port;
     list<string> conn;
 };
+
+
+/****************************************************************
+ ** class GxJack
+ */
 
 class JackPorts {
 public:
@@ -69,7 +108,6 @@ public:
 
 class GxJack {
  private:
-    bool                gx_start_jack_dialog();
     gx_engine::GxEngine& engine;
     bool                jack_is_down;
     bool                jack_is_exit;
@@ -86,51 +124,64 @@ class GxJack {
     jack_session_event_t *session_event;
     static void         gx_jack_session_callback(jack_session_event_t *event, void *arg);
 #endif
+    void                cleanup_slot(bool otherthread);
+    void                fetch_connection_data();
+    PortConnRing        connection_queue;
+    sigc::signal<void,string,string,bool> connection_changed;
+    Glib::Dispatcher    buffersize_change;
+
     sigc::signal<void>  client_change;
     string              client_instance;
- public:
-    JackPorts           ports;
     jack_nframes_t      jack_sr;   // jack sample rate
     jack_nframes_t      jack_bs;   // jack buffer size
-    jack_nframes_t      time_is;
+    void write_jack_port_connections(
+	gx_system::JsonWriter& w, const char *key, const PortConnection& pc);
+    bool                gx_jack_init();
+    void                gx_jack_init_port_connection();
+    void                gx_jack_callbacks();
+    void                gx_jack_cleanup();
+
+ public:
+    JackPorts           ports;
 
     jack_client_t*      client;
     jack_client_t*      client_insert;
 
-    float               jcpu_load; // jack cpu_load
+    jack_nframes_t      get_jack_sr() { return jack_sr; }
+    jack_nframes_t      get_jack_bs() { return jack_bs; }
+    float               get_jcpu_load() { return client ? jack_cpu_load(client) : -1; }
+    bool                get_is_rt() { return client ? jack_is_realtime(client) : false; }
+    jack_nframes_t      get_time_is() { return client ? jack_frame_time(client) : 0; }
 
-    int                 is_rt;
-    void                cleanup_slot(bool otherthread);
 public:
     GxJack(gx_engine::GxEngine& engine_);
     ~GxJack();
 
-    void                set_jack_down(bool);
-    void                set_jack_exit(bool);
+    void                set_jack_down(bool v) { jack_is_down = v; }
+    void                set_jack_exit(bool v) { jack_is_exit = v; }
 
-    bool                gx_jack_init( );
-    
-    void                gx_jack_connection(bool connect);
+    bool                gx_jack_connection(bool connect);
     float               get_last_xrun();
     void*               get_midi_buffer(jack_nframes_t nframes);
 
-    void                gx_jack_init_port_connection();
     void                read_connections(gx_system::JsonParser& jp);
     void                write_connections(gx_system::JsonWriter& w);
-    void                gx_jack_callbacks();
-    void                gx_jack_cleanup();
     static string       get_default_instancename();
     const string&       get_instancename() { return client_instance; }
     string              client_name;
     string              client_insert_name;
     Glib::Dispatcher    xrun;
-    Glib::Dispatcher    portchange;
     Glib::Dispatcher    session;
     Glib::Dispatcher    shutdown;
     bool                is_jack_down() { return jack_is_down; }
     Glib::Dispatcher    connection;
     bool                is_jack_exit() { return jack_is_exit; }
-    sigc::signal<void>  signal_client_change() { return client_change; }
+    sigc::signal<void>& signal_client_change() { return client_change; }
+    sigc::signal<void,string,string,bool>& signal_connection_changed() { return connection_changed; }
+    Glib::Dispatcher&   signal_portchange() { return connection_queue.portchange; }
+    Glib::Dispatcher&   signal_buffersize_change() { return buffersize_change; }
+    void                send_connection_changes(bool v) { connection_queue.set_send(v); }
+
 #ifdef HAVE_JACK_SESSION
     jack_session_event_t *get_last_session_event() {
 	return static_cast<jack_session_event_t *>g_atomic_pointer_get(&session_event);

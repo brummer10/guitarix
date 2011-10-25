@@ -215,32 +215,26 @@ StateIO::~StateIO() {
 
 void StateIO::read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader& head) {
     clear();
-    try {
-        do {
-            jp.next(JsonParser::value_string);
-            if (jp.current_value() == "settings") {
-                read_parameters(jp, false);
-            } else if (jp.current_value() == "current_preset") {
-                read_intern(jp, 0, head);
-            } else if (jp.current_value() == "midi_controller") {
-                m = new gx_gui::MidiControllerList::controller_array
-                               (gx_gui::MidiControllerList::controller_array_size);
-                mctrl.readJSON(jp, *m);
-            } else if (jp.current_value() == "midi_ctrl_names") {
-                midi_std_control.readJSON(jp);
-            } else if (jp.current_value() == "jack_connections") {
-                jack.read_connections(jp);
-            } else {
-                gx_print_warning(_("recall settings"),
-                                 _("unknown section: ") + jp.current_value());
-                jp.skip_object();
-            }
-        } while (jp.peek() == JsonParser::value_string);
-    } catch(JsonException& e) {
-        //gx_print_error(_("recall settings"), _("invalid settings file: ") + filename);
-        return /*false*/;
-    }
-    return /*true*/;
+    do {
+	jp.next(JsonParser::value_string);
+	if (jp.current_value() == "settings") {
+	    read_parameters(jp, false);
+	} else if (jp.current_value() == "current_preset") {
+	    read_intern(jp, 0, head);
+	} else if (jp.current_value() == "midi_controller") {
+	    m = new gx_gui::MidiControllerList::controller_array
+		(gx_gui::MidiControllerList::controller_array_size);
+	    mctrl.readJSON(jp, *m);
+	} else if (jp.current_value() == "midi_ctrl_names") {
+	    midi_std_control.readJSON(jp);
+	} else if (jp.current_value() == "jack_connections") {
+	    jack.read_connections(jp);
+	} else {
+	    gx_print_warning(_("recall settings"),
+			     _("unknown section: ") + jp.current_value());
+	    jp.skip_object();
+	}
+    } while (jp.peek() == JsonParser::value_string);
 }
 
 void StateIO::commit_state() {
@@ -248,8 +242,6 @@ void StateIO::commit_state() {
 }
 
 void StateIO::write_state(gx_system::JsonWriter &jw) {
-    //gx_print_info(_("writing to "), filename.c_str());
-
     jw.write("settings");
     write_parameters(jw, false);
 
@@ -303,11 +295,6 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
       jack(jack_),
       options(opt) {
     set_io(state_io, preset_io);
-    jack.signal_client_change().connect(
-	sigc::mem_fun(*this, &GxSettings::jack_client_changed));
-    presetfile_parameter.set_standard(get_default_presetfile(opt));
-    presetfile_parameter.signal_changed().connect(
-	sigc::mem_fun(*this, &GxSettings::presetfile_changed));
     gx_gui::parameter_map.insert(&presetfile_parameter);
 
     for (const char *(*p)[2] = factory_settings; (*p)[0]; ++p) {
@@ -320,18 +307,15 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
 	    gx_print_error(path.c_str(), _("not found or parse error"));
 	}
     }
-    try {
-	presetfile.open(get_default_presetfile(opt));
-    } catch(JsonException& e) {
-	gx_print_error(presetfile.get_filename().c_str(), _("parse error"));
-	return;
-    }
-    if (!presetfile.get_header().is_current()) {
-	convert_presetfile();
-    }
+    check_convert_presetfile();
+    presetfile_parameter.set_standard(get_default_presetfile(opt));
+    instance = this; //FIXME
     gx_system::GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxSettings::exit_handler));
-    instance = this; //FIXME
+    jack.signal_client_change().connect(
+	sigc::mem_fun(*this, &GxSettings::jack_client_changed));
+    presetfile_parameter.signal_changed().connect(
+	sigc::mem_fun(*this, &GxSettings::presetfile_changed));
 }
 
 GxSettings *GxSettings::instance = 0;//FIXME
@@ -340,6 +324,18 @@ GxSettings::~GxSettings() {
     instance = 0;
     if (current_source == state && state_loaded) {
 	save_to_state();
+    }
+}
+
+void GxSettings::check_convert_presetfile() {
+    try {
+	presetfile.open(get_default_presetfile(options));
+    } catch(JsonException& e) {
+	gx_print_error(presetfile.get_filename().c_str(), _("parse error"));
+	return;
+    }
+    if (!presetfile.get_header().is_current()) {
+	convert_presetfile();
     }
 }
 
@@ -424,6 +420,12 @@ void GxSettings::load(Source src, const string& name, const string& factory) {
     }
 }
 
+bool GxSettings::rename_preset(const string& name, const string& newname) {
+    bool rv = GxSettingsBase::rename_preset(name, newname);
+    presetfile_parameter.signal_changed()();
+    return rv;
+}
+
 void GxSettings::presetfile_changed() {
     change_preset_file(presetfile_parameter.get_path());
 }
@@ -461,97 +463,6 @@ string GxPreset::gx_get_accel_path(int lindex) {
 
     return acc_path;
 }
-
-#if 0
-// ----- modify (add/sub/change) a existing preset file
-static bool gx_modify_preset(const char* presname, const char* newname = 0,
-                      bool remove = false, bool rewrite = false) {
-    string tmpfile = gx_preset_file.get_path() + "_tmp";
-    ifstream ofile(gx_preset_file.get_path().c_str());
-    ofstream nfile(tmpfile.c_str());
-    JsonParser jp(&ofile);
-    JsonWriter jw(&nfile);
-
-    bool found = false;
-    try {
-        jp.next(JsonParser::begin_array);
-        jw.begin_array();
-        int major, minor;
-        if (!readHeader(jp, &major, &minor)) {
-            if (rewrite) {
-                if (major == 0 && minor == 0) {
-                    gx_print_info(_("loading presets"), _("rewriting convertet presets"));
-                } else {
-                    const char *s;
-                    if (major != majorversion) {
-                        s = _("major version mismatch in %1%: found %2%.%3%, expected %4%.%5%");
-                    } else {
-                        assert(minor != minorversion);
-                        s = _("minor version mismatch in %1%: found %2%.%3%, expected %4%.%5%");
-                    }
-                    gx_print_warning(
-                        _("recall settings"),
-                        (boost::format(s) % gx_preset_file.get_parse_name()
-                               % major % minor % majorversion % minorversion).str());
-                }
-            }
-        }
-        writeHeader(jw);
-
-        while (jp.peek() != JsonParser::end_array) {
-            jp.next(JsonParser::value_string);
-            if (rewrite) {
-                jw.write(jp.current_value());
-                gx_gui::parameter_map.set_init_values();
-                bool has_midi;
-                PresetReader p(jp, &has_midi, major, minor);
-                write_preset(jw, false, has_midi);
-            } else if (jp.current_value() == presname) {
-                found = true;
-                if (newname) {
-                    jw.write(newname);
-                    jp.copy_object(jw);
-                } else if (remove) {
-                    jp.skip_object();
-                } else {
-                    jw.write(presname);
-                    write_preset(jw);
-                    jp.skip_object();
-                }
-            } else {
-                jw.write(jp.current_value().c_str());
-                jp.copy_object(jw);
-            }
-        }
-        jp.next(JsonParser::end_array);
-        jp.next(JsonParser::end_token);
-
-        if (!found && !remove && !newname && !rewrite) {
-            jw.write(presname);
-            write_preset(jw);
-        }
-        jw.end_array(true);
-        jw.close();
-        nfile.close();
-        ofile.close();
-        if (!nfile.good()) {
-            gx_print_error(_("save preset"), _("couldn't write ") + tmpfile);
-            return false;
-        }
-
-        int rc = rename(tmpfile.c_str(), gx_preset_file.get_path().c_str());
-        if (rc != 0) {
-            gx_print_error(_("save preset"), _("couldn't rename ")
-                           + tmpfile + " to " + gx_preset_file.get_parse_name());
-            return false;
-        }
-    } catch(gx_system::JsonException& e) {
-        gx_print_error(_("save/modify preset"), _("invalid preset file: ")
-                       + gx_preset_file.get_parse_name());
-    }
-    return found;
-}
-#endif
 
 // ---- parsing preset file to build up a string vector of preset names
 bool GxPreset::gx_build_preset_list() {
@@ -849,12 +760,7 @@ void GxPreset::gx_delete_all_presets_dialog(GtkMenuItem *menuitem, gpointer arg)
 // ----delete all presets
 void GxPreset::gx_delete_all_presets() {
     // this function will simply delete the preset file,
-    // clear the preset list and refresh the menus
-
     GxSettings::get_instance().clear_preset();
-
-    // clear list
-    gx_refresh_preset_menus();
     gx_print_info(_("All Presets Deleting"), string(_("deleted ALL presets!")));
 }
 
@@ -872,11 +778,8 @@ void GxPreset::gx_delete_preset(GtkMenuItem* item, gpointer arg) {
 
     GxSettings::get_instance().erase_preset(presname);
 
-    // update menu
-    gxpreset.gx_refresh_preset_menus();
-
     // recalling main setting
-    gxpreset.gx_recall_settings_file(); // FIXME (wrong when loaded with -f ?)
+    gxpreset.gx_recall_settings_file();
 
     gx_print_warning(_("Preset Deleting"),
                      string(_("Deleted preset ")) +
@@ -960,11 +863,9 @@ void GxPreset::gx_save_preset(const char* presname, bool expand_menu) {
     if (expand_menu == found) {
         assert(false);
     }
-    if (expand_menu)
+    if (expand_menu) {
         gx_add_preset_to_menus(string(presname));
-
-    gx_refresh_preset_menus();
-
+    }
     gx_print_info(_("Preset Saving"), string(_("saved preset ")) + string(presname));
 }
 
@@ -1046,7 +947,6 @@ void GxPreset::gx_recall_settings_file() {
 	(boost::format(_("loaded settings file %1%")) % *filename).str());
 #endif
     gx_gui::guivar.show_patch_info = 0;
-    gx_refresh_preset_menus();
 }
 
 // ----- select a external preset file
@@ -1072,7 +972,6 @@ void GxPreset::gx_load_preset_file(const char* presname, bool expand_menu) {
     if (file_chooser.run() == Gtk::RESPONSE_ACCEPT) {
         GxSettings::get_instance().change_preset_file(file_chooser.get_filename());
         gx_gui::guivar.show_patch_info = 0;
-        gxpreset.gx_refresh_preset_menus();
     }
 }
 
@@ -1236,10 +1135,6 @@ void GxPreset::gx_rename_preset(GtkEntry* entry) {
         gxpreset.old_preset_name = "";
         return;
     }
-
-    // refresh the menus
-    gxpreset.gx_refresh_preset_menus();
-
 }
 
 // ----preset renaming dialog

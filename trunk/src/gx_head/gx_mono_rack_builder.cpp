@@ -1178,7 +1178,7 @@ void GxMainInterface::gx_build_mono_rack() {
                                         create_small_rackknob("beat_detector.beat_gain", _("beat_gain"));
                                     }
                                     closeBox();
-                                    addStatusDisplay("", &gx_engine::midi.midistat);
+                                    addStatusDisplay("", engine.midiaudiobuffer.get_midistat_pointer());
                                     openHorizontalBox("");
                                     {
                                         openFrameBox("");

@@ -614,7 +614,9 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<Gtk::Builder> bld, gx_jack::GxJack& ja
     window->add_accel_group(ag);
     window->signal_check_resize().connect(sigc::mem_fun(*this, &PortMapWindow::on_check_resize),true);
     window->show();
-    jack.portchange.connect(sigc::mem_fun(*this, &PortMapWindow::refresh));
+    jack.signal_portchange().connect(sigc::mem_fun(*this, &PortMapWindow::refresh));
+    jack.signal_connection_changed().connect(sigc::mem_fun(*this, &PortMapWindow::connection_changed));
+    jack.send_connection_changes(true);
 }
 
 // refresh portmap widget when connect/disconnect with jack server
@@ -635,6 +637,7 @@ void PortMapWindow::refresh() {
 }
 
 PortMapWindow::~PortMapWindow() {
+    jack.send_connection_changes(false);
     delete window;
 }
 

@@ -294,6 +294,7 @@ string JsonParser::readstring() {
             case 'n': os << '\n'; break;
             case 'r': os << '\r'; break;
             case 't': os << '\t'; break;
+	    case '"': os << '"'; break;
             case 'u': os << readcode(); break;
             default: is->get(c); os << c; break;
             }
@@ -937,15 +938,21 @@ void GxSettingsBase::save_to_preset(const string& name) {
 }
 
 bool GxSettingsBase::rename_preset(const string& name, const string& newname) {
+    bool rv = false;
     try {
-	return presetfile.rename(name, newname);
+	rv = presetfile.rename(name, newname);
     } catch(JsonException& e) {
 	gx_print_warning(
 	    _("rename preset"),
 	    boost::format(_("parse error in %1%"))
 	    % presetfile.get_filename());
+	rv = false;
     }
-    return false;
+    if (rv && current_source == preset && current_name == name) {
+	current_name = newname;
+	selection_changed();
+    }
+    return rv;
 }
 
 void GxSettingsBase::erase_preset(const string& name) {

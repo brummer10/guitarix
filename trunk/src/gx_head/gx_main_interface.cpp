@@ -256,7 +256,7 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
       portmap_window(0),
       portmap_item(_("Jack _Ports "), true),
       fLoggingWindow(_("Logging Window")),
-      fTuner(this, &gx_engine::audio.fConsta1t),
+      fTuner(engine_.tuner),
       engine(engine_),
       jack(engine_),
       gx_settings(options_, jack, engine.convolver, midi_std_ctr, controller_map, engine_),
@@ -317,12 +317,18 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
 	sigc::mem_fun(*this, &GxMainInterface::on_oscilloscope_activate));
     engine.oscilloscope.size_change.connect(
 	sigc::mem_fun(*this, &GxMainInterface::set_waveview_buffer));
+    jack.signal_buffersize_change().connect(
+	sigc::mem_fun(*this, &GxMainInterface::refresh_latency_menu));
 
     fStopped = false;
     instance = this;
 }
 
 GxMainInterface::~GxMainInterface() {
+    engine.start_ramp_down();
+    engine.wait_ramp_down_finished();
+    engine.set_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
+    engine.set_jack(0);
     instance = 0;
 }
 
@@ -1833,18 +1839,18 @@ void GxMainInterface::openPatchInfoBox(float* zone) {
 
 // ------------------------------ Num Display -----------------------------------
 
-uiTuner::uiTuner(gx_ui::GxUI* ui, float* zone)
-    : gx_ui::GxUiItemFloat(ui, zone),
-    Gtk::Alignment(0.5, 0.5, 0, 0) {
+uiTuner::uiTuner(gx_engine::TunerAdapter& a)
+    : Gtk::Alignment(0.5, 0.5, 0, 0),
+      fTuner(),
+      adapt(a) {
     add(fTuner);
     fTuner.show();
+    adapt.signal_freq_changed().connect(
+	sigc::mem_fun(*this, &uiTuner::freq_changed));
 }
 
-void uiTuner::reflectZone() {
-    fCache = *fZone;
-    if (GxMainInterface::get_instance().engine.tuner.plugin.on_off) {
-        set_freq(gx_engine::midi.fConsta4);
-    }
+void uiTuner::freq_changed() {
+    fTuner.set_freq(adapt.get_freq());
 }
 
 void GxMainInterface::addNumDisplay() {
@@ -1889,7 +1895,7 @@ struct uiStatusDisplay : public gx_ui::GxUiItemBool {
 	bool v = *fZone;
 	fCache = v;
 	if (GxMainInterface::get_instance().engine.midiaudiobuffer.plugin.on_off) {
-	    if (GxMainInterface::get_instance().jack.jcpu_load < 65.0) {
+	    if (GxMainInterface::get_instance().jack.get_jcpu_load() < 65.0) {
 		if (v) {
 		    gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(gw.status_icon),
 						    GDK_PIXBUF(gw.ibm));
@@ -1924,28 +1930,29 @@ bool GxMainInterface::on_refresh_oscilloscope() {
         jack_nframes_t bsize;
         bool rt;
     } oc;
-    int load = static_cast<int>(round(jack.jcpu_load));
+    int load = static_cast<int>(round(jack.get_jcpu_load()));
     if (!oc.bsize || oc.load != load) {
         oc.load = load;
         fWaveView.set_text(
             (boost::format(_("dsp load  %1% %%")) % oc.load).str().c_str(),
             Gtk::CORNER_TOP_LEFT);
     }
-    int frames = jack.time_is/100000;
+    int frames = jack.get_time_is()/100000;
     if (!oc.bsize || oc.frames != frames) {
         oc.frames = frames;
         fWaveView.set_text(
             (boost::format(_("ht frames %1%")) % oc.frames).str().c_str(),
             Gtk::CORNER_BOTTOM_LEFT);
     }
-    if (!oc.bsize || oc.rt != jack.is_rt) {
-        oc.rt = jack.is_rt;
+    bool is_rt = jack.get_is_rt();
+    if (!oc.bsize || oc.rt != is_rt) {
+        oc.rt = is_rt;
         fWaveView.set_text(
             oc.rt ? _("RT mode  yes ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
             Gtk::CORNER_BOTTOM_RIGHT);
     }
-    if (!oc.bsize || oc.bsize != jack.jack_bs) {
-        oc.bsize = jack.jack_bs;
+    if (!oc.bsize || oc.bsize != jack.get_jack_bs()) {
+        oc.bsize = jack.get_jack_bs();
         fWaveView.set_text(
             (boost::format(_("latency    %1%")) % oc.bsize).str().c_str(),
             Gtk::CORNER_TOP_RIGHT);
@@ -2292,9 +2299,6 @@ void GxMainInterface::addPresetMenu() {
     gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.presmenu[SAVE_PRESET_LIST]), sep, 1);
     gtk_widget_show(sep);
 
-    /*-- initial preset list --*/
-    // gx_preset::gx_refresh_preset_menus(); //FIXME: will be done in gx_engine_init()?
-
     for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
         gtk_widget_show(gx_preset::gxpreset.presMenu[i]);
 
@@ -2375,6 +2379,9 @@ void GxMainInterface::addPresetMenu() {
 
     /*--------------- Extra preset menu */
     addExtraPresetMenu();
+    gx_settings.signal_presetfile_changed().connect(
+	sigc::mem_fun(gx_preset::gxpreset,
+		      &gx_preset::GxPreset::gx_refresh_preset_menus));
 }
 
 //------------------------ extra preset menu ----------------------------
@@ -2916,8 +2923,8 @@ void GxMainInterface::addAboutMenu() {
     /*---------------- End About menu declarations ----------------*/
 }
 
-void gx_jack_connection(GtkCheckMenuItem* p, gpointer arg) {
-    static_cast<GxMainInterface*>(arg)->jack.gx_jack_connection(
+void GxMainInterface::gx_jack_connection(GtkCheckMenuItem* p, gpointer arg) {
+    static_cast<GxMainInterface*>(arg)->connect_jack(
 	gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(p)));
 }
 
@@ -3005,6 +3012,49 @@ void gx_user_disable_latency_warn(GtkWidget* wd, gpointer arg) {
     gx_engine::audio.fwarn = gtk_toggle_button_get_active(button);
 }
 
+
+// refresh latency check menu
+void GxMainInterface::refresh_latency_menu() {
+    GtkWidget* wd = getJackLatencyItem(jack.get_jack_bs());
+    if (wd) {
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
+    }
+}
+
+bool GxMainInterface::connect_jack(bool v) {
+    if (jack.gx_jack_connection(v)) {
+	return true;
+    }
+    if (!v) {
+	gx_system::gx_print_error(_("main"), _("can't disconnect jack"));
+	return false;
+    }
+    if (!gx_gui::gx_start_jack_dialog()) {
+	gx_system::gx_print_error(_("main"),
+				  string(_("Ignoring jackd ...")));
+	return false;
+    }
+    for (int i = 0; i < 5; i++) {
+	usleep(500000);
+	if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
+	    break;
+	}
+    }
+    gx_system::gx_print_warning(_("Jack Init"),
+				_("jackd OK, trying to be a gxjack.client"));
+    for (int i = 0; i < 10; i++) {
+	if (jack.gx_jack_connection(true)) {
+	    sleep(4);
+	    return true;
+	}
+	usleep(500000);
+    }
+    gx_system::gx_print_error(
+	_("main"),
+	string(_("I really tried to get jack up and running, sorry ... ")));
+    return false;
+}
+
 // ----jack latency change
 void gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg) {
     GxMainInterface& self = GxMainInterface::get_instance();
@@ -3048,7 +3098,7 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg) {
     } else { // restore latency status
         // refresh latency check menu
         gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
-        GtkWidget* wd = gui.getJackLatencyItem(self.jack.jack_bs);
+        GtkWidget* wd = gui.getJackLatencyItem(self.jack.get_jack_bs());
         if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
     }
     gx_system::gx_print_info(
@@ -3165,12 +3215,8 @@ void GxMainInterface::show() {
         // refresh some GUI stuff
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(fJackConnectItem), TRUE);
 
-        GtkWidget* wd = getJackLatencyItem(jack.jack_bs);
+        GtkWidget* wd = getJackLatencyItem(jack.get_jack_bs());
         if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
-
-        // string window_name = "gx_head"; FIXME is set by recall settings
-        // gtk_window_set_title (GTK_WINDOW (gw.fWindow), window_name.c_str());
-
     } else {
         gtk_widget_hide(gx_gui::gw.gx_jackd_on_image);
         gtk_widget_show(gx_gui::gw.gx_jackd_off_image);
@@ -3207,6 +3253,9 @@ int GxMainInterface::on_oscilloscope_activate(bool start) {
 
 // ---- show main GUI thread and more
 void GxMainInterface::run() {
+    if (!jack.is_jack_exit()) {
+	engine.clear_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
+    }
     /* timeout in milliseconds */
     guivar.g_threads[0] = g_timeout_add(40, gx_threads::gx_update_all_gui, 0);
     // Note: meter display timeout is a global var in gx_gui namespace

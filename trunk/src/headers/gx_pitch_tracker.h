@@ -27,6 +27,7 @@
 
 #include <zita-resampler.h>
 #include <fftw3.h>
+#include <glibmm/dispatcher.h>
 
 namespace gx_engine {
 /* ------------- Pitch Tracker ------------- */
@@ -37,13 +38,14 @@ class PitchTracker {
     ~PitchTracker();
     void            init(int priority, int policy, unsigned int samplerate);
     void            add(int count, float *input);
-    float           tuner_estimate();
+    float           get_estimated_freq() { return m_freq; }
+    float           get_estimated_note();
     void            stop_thread();
+    Glib::Dispatcher new_freq;
  private:
     bool            setParameters(int priority, int policy, int sampleRate, int fftSize );
     void            run();
     static void     *static_run(void* p);
-    void            setEstimatedFrequency(float freq);
     void            start_thread(int policy, int priority);
     void            copy();
     bool            error;
@@ -53,6 +55,7 @@ class PitchTracker {
     pthread_t       m_pthr;
     Resampler       resamp;
     int             m_sampleRate;
+    float           m_freq;
     // number of samples in input buffer
     int             m_buffersize;
     // Size of the FFT window.

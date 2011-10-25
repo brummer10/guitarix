@@ -34,13 +34,6 @@
 
 namespace gx_engine {
 
-void gx_engine_init() {
-    midi.init(gx_gui::GxMainInterface::get_instance().jack.jack_sr);
-    // resampTube.setup(gx_jack::jack_sr, 2);
-    // resampDist.setup(gx_jack::jack_sr, 2);
-    audio.initialized = true;
-}
-
 /****************************************************************
  ** registering of audio variables
  */
@@ -62,24 +55,13 @@ inline void registerNonMidiParam(const char*a, bool*c, bool d, float std = false
                                  d, *c, std, false, false));
 }
 
-// should be int
-inline void registerEnumParam(const char*a, const char*b, const value_pair* vl, float*c,
-                              int std = 0, bool exp = false) {
-    gx_gui::parameter_map.insert(new gx_gui::FloatEnumParameter(a, b, vl, true, *c, std,
-                                 true, exp)); // false == no_midi_var
-}
-
 /****************************************************************
  ** register audio variables to paramtable
  */
 
 void AudioVariables::register_parameter() {
-
     // user interface options
     registerNonMidiParam("ui.latency_nowarn",        &fwarn, false, false);
     registerNonMidiParam("ui.skin",                  &fskin, false, 0, 0, 100);
-
-    /* engine init state  */
-    audio.initialized = false;
 }
 } /* end of gx_engine namespace */

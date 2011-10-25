@@ -111,47 +111,18 @@ int MaxLevel::activate(bool start, PluginDef *plugin) {
     return 0;
 }
 
-static const char *midi_out_groups[] = {
-	"channel_1", N_("Midi Out 1"), 
-	"channel_2", N_("Midi Out 2"),
-	"channel_3", N_("Midi Out 3"),
-	".beat_detector",      N_("Beat Detector"),
-	0
-    };
-
-MidiAudioBuffer::MidiAudioBuffer()
-    : PluginDef(),
-      plugin() {
-    version = PLUGINDEF_VERSION;
-    flags = PGN_SNOOP;
-    id = "midi_out";
-    name = N_("Midi Out");
-    groups = midi_out_groups;
-    mono_audio = fill_buffer;
-    plugin.pdef = this;
-}
-
-gx_jack::GxJack* MidiAudioBuffer::jack = 0;
-
-void MidiAudioBuffer::fill_buffer(int count, float *input, float*, PluginDef*) {
-    void *buf = jack->get_midi_buffer(count);
-    if (buf) {
-	gx_engine::process_midi(count, input, buf);
-    }
-}
-
 
 /****************************************************************
  ** class TunerAdapter
  */
 
-TunerAdapter::TunerAdapter(const Plugin& pl, ModuleSequencer& engine_)
+TunerAdapter::TunerAdapter(ModuleSequencer& engine_)
     : ModuleSelector(engine_),
       PluginDef(),
       pitch_tracker(),
       state(),
       engine(engine_),
-      dep_plugin(pl),
+      dep_plugin(),
       plugin() {
     version = PLUGINDEF_VERSION;
     flags = PGN_SNOOP;
@@ -190,8 +161,63 @@ int TunerAdapter::regparam(const ParamReg& reg) {
 }
 
 void TunerAdapter::set_module() {
-    used_by_midi(dep_plugin.on_off);
+    used_by_midi(dep_plugin->on_off);
 }
+
+
+/****************************************************************
+ ** class MidiAudioBuffer
+ */
+
+static const char *midi_out_groups[] = {
+	"channel_1", N_("Midi Out 1"), 
+	"channel_2", N_("Midi Out 2"),
+	"channel_3", N_("Midi Out 3"),
+	".beat_detector",      N_("Beat Detector"),
+	0
+    };
+
+MidiAudioBuffer::MidiAudioBuffer(TunerAdapter& t)
+    : PluginDef(),
+      midi(),
+      tuner(t),
+      jack(0),
+      plugin() {
+    version = PLUGINDEF_VERSION;
+    flags = PGN_SNOOP;
+    id = "midi_out";
+    name = N_("Midi Out");
+    groups = midi_out_groups;
+    mono_audio = fill_buffer;
+    set_samplerate = init;
+    register_params = regparam;
+    plugin.pdef = this;
+}
+
+void MidiAudioBuffer::fill_buffer(int count, float *input, float*,
+				  PluginDef *plugin) {
+    MidiAudioBuffer& self = *static_cast<MidiAudioBuffer*>(plugin);
+    if (!self.jack) {
+	return;
+    }
+    void *buf = self.jack->get_midi_buffer(count);
+    if (buf) {
+	self.midi.process_midi(count, input, buf, self.jack->get_jcpu_load(),
+			       self.tuner.get_freq(), self.tuner.get_note());
+    }
+}
+
+void MidiAudioBuffer::init(unsigned int samplingFreq, PluginDef *plugin) {
+    MidiAudioBuffer& self = *static_cast<MidiAudioBuffer*>(plugin);
+    self.midi.init(samplingFreq);
+}
+
+int MidiAudioBuffer::regparam(const ParamReg& reg) {
+    MidiAudioBuffer& self = *static_cast<MidiAudioBuffer*>(reg.plugin);
+    self.midi.register_parameter(reg);
+    return 0;
+}
+
 
 /****************************************************************
  **  class NoiseGate

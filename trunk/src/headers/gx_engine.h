@@ -39,93 +39,16 @@ namespace gx_engine {
 
 class AudioVariables {
 public:
-    bool  initialized;  /* engine init state  */
     bool fwarn;
     int fskin;
 
     //FIXME:
     float filebutton;
 
-    float fConsta1t;
-
     void register_parameter();
 };
 
 extern AudioVariables audio;
-
-/****************************************************************/
-
-class MidiVariables {
- public:
-    float fslider45;
-    float fslider38;
-    float fslider31;
-    float fslider27;
-    float fslider29;
-    float fslider30;
-    float fslider26;
-    float fslider33;
-    float fslider34;
-    float fslider35;
-    float fslider36;
-    float fslider42;
-    float fslider43;
-    float fslider40;
-    float fslider41;
-    float fslider44;
-    float fslider37;
-    float fslider39;
-    float fslider46;
-    float fslider47;
-    float fslider48;
-    float fConsta4;
-    float fConstlog;
-    float fConstlog2;
-    float beat0;
-    float midi_gain;
-    float fConstun0;
-    float fautogain;
-    bool fpitch;
-    float fslider32;
-    float fautogain1;
-    bool fpitch1;
-    bool fpitch2;
-    float fautogain2;
-    float BeatFilter1;
-    float BeatFilter2;
-    float BeatFilterk;
-    bool midistat;
-    bool  midistat1;
-    bool  midistat2;
-    bool  midistat3;
-
-    int   weg;
-    int   program;
-    int   program2;
-    int   volume2;
-    int   Beat_is;
-    int   send;
-    int   volume;
-    int   noten;
-    int   program1;
-    int   send1;
-    int   noten1;
-    int   volume1;
-    int   send2;
-    int   noten2;
-
-    bool  fcheckbox10;
-    bool  fcheckbox11;
-
-    unsigned char* midi_send;
-    unsigned char* midi_send1;
-    unsigned char* midi_send2;
-
-    void register_parameter();
-    void init(int samplingFreq);
-};
-
-extern MidiVariables midi;
 
 
 /****************************************************************
@@ -171,8 +94,8 @@ public:
     NoiseGate noisegate;
     MonoMute monomute;
     StereoMute stereomute;
-    MidiAudioBuffer midiaudiobuffer;
     TunerAdapter tuner;
+    MidiAudioBuffer midiaudiobuffer;
     MaxLevel maxlevel;
     OscilloscopeAdapter oscilloscope;
     ConvolverAdapter convolver;
@@ -188,10 +111,7 @@ public:
 
 /* function declarations  */
 
-void gx_engine_init();
-
 void compute_midi_in(void* midi_input_port_buf);
-void process_midi(int count, float *input, void *midi_buf);
 
 /* ------------------------------------------------------------------- */
 } /* end of gx_engine namespace */

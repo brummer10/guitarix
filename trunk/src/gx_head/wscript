@@ -6,6 +6,7 @@ def configure(conf):
 
 def build(bld):
     sources = [
+        'gx_jack.cpp',
         'gx_preset.cpp',
         'gx_json.cpp',
         'gx_main_interface.cpp',
@@ -28,7 +29,6 @@ def build(bld):
         'gx_cairo_callbacks.cpp',
         'gx_gui_helpers.cpp',
         'gx_threads.cpp',
-        'gx_jack.cpp',
         'gx_ui.cpp',
         'gx_pitch_tracker.cpp',
         'gx_convolver.cpp',

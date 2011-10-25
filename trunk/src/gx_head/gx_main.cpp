@@ -204,18 +204,26 @@ int main(int argc, char *argv[]) {
 	gx_system::CmdlineOptions options;
 	Gtk::Main main(argc, argv, options);
 	options.process(argc, argv);
-	PosixSignals posixsig; // catch unix signals in special thread
-	gx_engine::GxEngine engine(options.get_plugin_dir(), gx_gui::get_group_table());
-
-	// ------ initialize parameter list ------
-	gx_engine::audio.register_parameter();
-	gx_engine::midi.register_parameter();
-	gx_gui::guivar.register_gui_parameter();
-
-	gx_gui::parameter_map.set_init_values();
 
 	// ---------------- Check for working user directory  -------------
 	gx_preset::GxSettings::check_settings_dir(options);
+
+	g_type_class_unref(g_type_class_ref(GTK_TYPE_IMAGE_MENU_ITEM)); //FIXME...
+	//g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
+	Glib::Value<bool> val;
+	val.init(Glib::Value<bool>::value_type());
+	val.set(true);
+	Gtk::Settings::get_default()->set_property_value("gtk-menu-images", val);
+
+	PosixSignals posixsig; // catch unix signals in special thread
+	gx_engine::GxEngine engine(
+	    options.get_plugin_dir(), gx_gui::get_group_table());
+
+	// ------ initialize parameter list ------
+	gx_engine::audio.register_parameter();
+	gx_gui::guivar.register_gui_parameter();
+
+	gx_gui::parameter_map.set_init_values();
 
 	// ------ time measurement (debug) ------
 #ifndef NDEBUG
@@ -223,41 +231,19 @@ int main(int argc, char *argv[]) {
 #endif
 
 	// ----------------------- init GTK interface----------------------
-	g_type_class_unref(g_type_class_ref(GTK_TYPE_IMAGE_MENU_ITEM)); //FIXME...
-	g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
 
 	gx_gui::GxMainInterface gui(engine, options);
 	gui.setup();
 	// ---------------------- initialize jack gxjack.client ------------------
-	if (gui.jack.gx_jack_init()) {
-	    // -------- initialize gx_head engine --------------------------
-	    gx_preset::gxpreset.gx_refresh_preset_menus();
-	    gx_engine::gx_engine_init();
-
-	    // -------- set jack callbacks and activation -------------------
-	    gui.jack.gx_jack_callbacks();
-
-	    // -------- init port connections
-	    gui.jack.gx_jack_init_port_connection();
-	} else {
-	    gui.gx_settings.load(gx_system::GxSettingsBase::state);
-	    gx_preset::gxpreset.gx_refresh_preset_menus();
-	    gx_engine::gx_engine_init();
-	}
-
 	/*-- set rc file overwrite it with export--*/
 	if (!options.get_rcset().empty()) {
 	    gx_gui::gx_actualize_skin_index(options.skin, options.get_rcset());
 	}
 
 	// ----------------------- run GTK main loop ----------------------
-	engine.check_module_lists();
 	gx_ui::GxUI::updateAllGuis(true);
 	gui.show();
-	engine.clear_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
 	gui.run();
-	// ------------- shut things down
-	//gx_system::gx_clean_exit(NULL, NULL);
     } catch (const Glib::OptionError &e) {
 	cerr << e.what() << endl;
 	cerr << _("use \"guitarix -h\" to get a help text") << endl;

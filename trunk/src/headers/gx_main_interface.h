@@ -370,13 +370,13 @@ class UiContrastSwitch: public UiSwitchWithCaption {
 
 /****************************************************************/
 
-struct uiTuner : public gx_ui::GxUiItemFloat, public Gtk::Alignment {
+struct uiTuner : public Gtk::Alignment {
  private:
     Gxw::Tuner fTuner;
+    gx_engine::TunerAdapter& adapt;
+    void freq_changed();
  public:
-    void set_freq(double freq) { fTuner.set_freq(freq); }
-    uiTuner(gx_ui::GxUI* ui, float* zone);
-    virtual void reflectZone();
+    uiTuner(gx_engine::TunerAdapter& a);
 };
 
 /****************************************************************/
@@ -485,7 +485,9 @@ private:
     void                  gx_jack_is_down();
     void                  jack_connection_change();
     void                  save_window_position();
-
+    void                  refresh_latency_menu();
+    bool                  connect_jack(bool v);
+    static void           gx_jack_connection(GtkCheckMenuItem* p, gpointer arg);
     int                   fTop;
     GtkWidget*            fBox[stackSize];
     GtkWidget*            rBox;
@@ -518,10 +520,13 @@ private:
     GtkWidget*            addWidget(const char* label, GtkWidget* w);
     virtual void          pushBox(int mode, GtkWidget* w);
 
- public :
+public :
     gx_engine::GxEngine&  engine;
     gx_jack::GxJack       jack;
     gx_preset::GxSettings gx_settings;
+private:
+    ReportXrun            report_xrun;
+public:
 
     MenuCheckItem         fShowRack;
     MenuCheckItem         fShowRRack;
@@ -771,8 +776,6 @@ public:
     void create_ptoggle_button(const char *label) {
 	addwidget((new PToggleButton(label))->get_widget());
     }
-private:
-    ReportXrun            report_xrun;
 };
 
 /****************************************************************/
