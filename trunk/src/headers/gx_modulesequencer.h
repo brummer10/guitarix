@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include <errno.h>
-
 namespace gx_engine {
 
 /****************************************************************

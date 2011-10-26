@@ -22,22 +22,16 @@
  * --------------------------------------------------------------------------
  */
 
-#include "guitarix.h"           // NOLINT
-
 #include <errno.h>              // NOLINT
 #include <jack/statistics.h>    // NOLINT
 #include <jack/jack.h>          // NOLINT
 #include <jack/thread.h>        // NOLINT
-#include <glibmm/i18n.h>        // NOLINT
 
 #ifdef HAVE_JACK_SESSION
 #include <jack/session.h>      // NOLINT
 #endif
 
-#include <cstring>             // NOLINT
-#include <string>              // NOLINT
-#include <fstream>             // NOLINT
-#include <list>                // NOLINT
+#include "engine.h"           // NOLINT
 
 
 namespace gx_jack {
@@ -488,7 +482,7 @@ int GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
 
         // midi input processing
 	if (self.ports.midi_input.port) {
-	    gx_engine::compute_midi_in(
+	    gx_gui::controller_map.compute_midi_in(
 		jack_port_get_buffer(self.ports.midi_input.port, nframes));
 	}
     }

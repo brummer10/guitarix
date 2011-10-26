@@ -30,8 +30,6 @@
 
 #include <sndfile.hh>
 
-#include <string>
-
 namespace gx_engine {
 
 /* GxConvolver */

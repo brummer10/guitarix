@@ -22,8 +22,6 @@
 
 #pragma once
 
-#include <boost/thread/mutex.hpp>
-
 namespace gx_jack { class GxJack; }
 
 namespace gx_engine {

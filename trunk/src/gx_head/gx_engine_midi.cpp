@@ -24,7 +24,7 @@
  * --------------------------------------------------------------------------
  */
 
-#include "guitarix.h"    //  NOLINT
+#include "engine.h"
 
 namespace gx_engine {
 
@@ -101,22 +101,6 @@ void MidiVariables::init(int samplingFreq) {
     BeatFilterk =1.0/(samplingFreq * (1.0f/(2.0f * M_PI * 1250.0f)));
     BeatFilter1 =0.0;
     BeatFilter2 =0.0;
-}
-
-// ----- jack process callback for the midi input
-void compute_midi_in(void* midi_input_port_buf) {
-    jack_midi_event_t in_event;
-    jack_nframes_t event_count = jack_midi_get_event_count(midi_input_port_buf);
-    unsigned int i;
-    for (i = 0; i < event_count; i++) {
-        jack_midi_event_get(&in_event, midi_input_port_buf, i);
-        if ((in_event.buffer[0] & 0xf0) == 0xc0) {  // program change on any midi channel
-            g_atomic_int_set(&gx_gui::guivar.program_change, in_event.buffer[1]);
-            sem_post(&gx_gui::guivar.program_change_sem);
-        } else if ((in_event.buffer[0] & 0xf0) == 0xb0) {   // controller
-            gx_gui::controller_map.set(in_event.buffer[1], in_event.buffer[2]);
-        }
-    }
 }
 
 inline float sqrf(float x) {

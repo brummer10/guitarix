@@ -16,35 +16,46 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * --------------------------------------------------------------------------
- *
- *
- *    This is the main guitarix header file. It simply contains the
- *    more specific headers. Note that each header is trying to be
- *    self-contained, i.e. only depends on system declarations.  Let's
- *    try to keep it that way.
- *
- *
- * --------------------------------------------------------------------------
  */
 
-#pragma once
+/* system header files */
+#include <semaphore.h>
+#include <cmath>
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <list>
+#include <set>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <boost/format.hpp>
+#include <boost/thread/mutex.hpp>
+#include <glibmm/i18n.h>     // NOLINT
+#include <glibmm/optioncontext.h>   // NOLINT
+#include <glibmm/dispatcher.h>
+#include <giomm/file.h>
 
-#ifndef SRC_HEADERS_GUITARIX_H_
-#define SRC_HEADERS_GUITARIX_H_
+/* waf generated defines */
+#include "../config.h"
 
-#include <gtk/gtk.h>
+using namespace std;
 
-#include "engine.h"
+/* guitarix declarations */
+#include "gx_plugin.h"
+#include "gx_system.h"
+#include "gx_parameter.h"
 
-#include "gx_child_process.h"
-#include "gx_cairo_callbacks.h"
+#include "gx_resampler.h"
+#include "gx_convolver.h"
+#include "gx_pitch_tracker.h"
+#include "gx_ui.h"
+#include "gx_pluginloader.h"
+#include "gx_modulesequencer.h"
+#include "gx_json.h"
 
-#include "gx_threads.h"
-#include "gx_gui_helpers.h"
-#include "gx_jconv_settings.h"
-#include "gx_portmap.h"
-#include "gx_main_midi.h"
-#include "gx_main_boxes.h"
-#include "gx_main_interface.h"
+#include "gx_internal_plugins.h"
+#include "gx_preset.h"
+#include "gx_engine.h"
 
-#endif  // SRC_HEADERS_GUITARIX_H_
+#include "gx_jack.h"

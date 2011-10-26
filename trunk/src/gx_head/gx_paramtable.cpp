@@ -22,16 +22,11 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "guitarix.h"               // NOLINT
+#ifndef NDEBUG
+#include <iostream>
+#endif
 
-#include <glibmm/i18n.h>            // NOLINT
-
-#include <set>                      // NOLINT
-#include <map>                      // NOLINT
-#include <utility>                  // NOLINT
-#include <algorithm>                // NOLINT
-#include <string>                   // NOLINT
-
+#include "engine.h"               // NOLINT
 
 namespace gx_gui {
 
@@ -48,7 +43,7 @@ ParamMap parameter_map; // map id -> parameter, zone -> parameter
 
 
 /****************************************************************
- ** Midi
+ ** class MidiStandardControllers
  */
 
 static struct midi_std_init {
@@ -171,6 +166,11 @@ void MidiStandardControllers::readJSON(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::end_object);
 }
 
+
+/****************************************************************
+ ** class MidiController
+ */
+
 void MidiController::writeJSON(gx_system::JsonWriter& jw) const {
     jw.begin_array();
     jw.write(param.id());
@@ -250,12 +250,31 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp) {
     return new MidiController(param, lower, upper);
 }
 
+
+/****************************************************************
+ ** class MidiControllerList
+ */
+
 MidiControllerList::MidiControllerList()
     : map(controller_array_size),
       midi_config_mode(false),
       last_midi_control(-1),
       last_midi_control_value(),
-      changed() {}
+      program_change(-1),
+      program_change_sem(),
+      pgm_chg(),
+      changed(),
+      new_program() {
+    pgm_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_pgm_chg));
+}
+
+void MidiControllerList::on_pgm_chg() {
+    int pgm;
+    do {
+	pgm = g_atomic_int_get(&program_change);
+    } while (!g_atomic_int_compare_and_exchange(&program_change, pgm, -1));
+    new_program(pgm);
+}
 
 void MidiControllerList::set_config_mode(bool mode, int ctl) {
     assert(mode != midi_config_mode);
@@ -314,7 +333,7 @@ void MidiControllerList::modifyCurrent(Parameter &param,
     changed();
 }
 
-void MidiControllerList::set(int ctr, int val) {
+void MidiControllerList::set_ctr_val(int ctr, int val) {
     if (midi_config_mode) {
         last_midi_control = ctr;
         last_midi_control_value = val;
@@ -394,6 +413,22 @@ void MidiControllerList::remove_controlled_parameters(paramlist& plist,
         paramlist::iterator n1 = n++;
         if (pset.find(*n1) != pset.end()) {
             plist.erase(n1);
+        }
+    }
+}
+
+// ----- jack process callback for the midi input
+void MidiControllerList::compute_midi_in(void* midi_input_port_buf) {
+    jack_midi_event_t in_event;
+    jack_nframes_t event_count = jack_midi_get_event_count(midi_input_port_buf);
+    unsigned int i;
+    for (i = 0; i < event_count; i++) {
+        jack_midi_event_get(&in_event, midi_input_port_buf, i);
+        if ((in_event.buffer[0] & 0xf0) == 0xc0) {  // program change on any midi channel
+            g_atomic_int_set(&program_change, in_event.buffer[1]);
+            pgm_chg();
+        } else if ((in_event.buffer[0] & 0xf0) == 0xb0) {   // controller
+            set_ctr_val(in_event.buffer[1], in_event.buffer[2]);
         }
     }
 }

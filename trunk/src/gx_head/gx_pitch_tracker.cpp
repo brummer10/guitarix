@@ -20,10 +20,7 @@
 
 /* ------- This is the guitarix tuner, part of gx_engine_audio.cpp ------- */
 
-#include "guitarix.h"      // NOLINT
-
-#include <cstring>         // NOLINT
-
+#include "engine.h"
 
 /****************************************************************
  ** Pitch Tracker

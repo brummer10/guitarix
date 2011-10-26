@@ -41,13 +41,10 @@
 #include <jack/jack.h>          // NOLINT
 #include <jack/midiport.h>
 #include <jack/ringbuffer.h>
-#include <semaphore.h>
 
 #ifdef HAVE_JACK_SESSION
 #include <jack/session.h>
 #endif
-
-#include <string>
 
 namespace gx_jack {
 

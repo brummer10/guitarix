@@ -428,6 +428,7 @@ def configure(conf):
     conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)
     conf.check_cfg(package='gtk+-2.0', atleast_version='2.12.0', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.10', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
+    conf.check_cfg(package='glibmm-2.4', args='--cflags --libs', uselib_store='GLIBMM', mandatory=1)
     conf.check_cfg(package='gtkmm-2.4', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
     conf.check_cfg(package='giomm-2.4', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
@@ -615,6 +616,7 @@ def build(bld):
 
     pa = bld.env['GX_SOUND_DIR1']
     bld.add_subdirs('src/gx_head')
+    bld.add_subdirs('src/ladspa')
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
     bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/funkmuscle_rc', chmod=0664)
     bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/dlp_ae_rc', chmod=0664)

@@ -25,10 +25,6 @@
 #ifndef SRC_HEADERS_GX_PITCH_TRACKER_H_
 #define SRC_HEADERS_GX_PITCH_TRACKER_H_
 
-#include <zita-resampler.h>
-#include <fftw3.h>
-#include <glibmm/dispatcher.h>
-
 namespace gx_engine {
 /* ------------- Pitch Tracker ------------- */
 

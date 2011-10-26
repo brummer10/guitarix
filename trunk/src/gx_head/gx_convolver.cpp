@@ -20,13 +20,7 @@
 
 /* ------- This is the guitarix convolver, part of gx_engine_audio ------- */
 
-#include "guitarix.h"
-
-#include <jack/jack.h>
-
-#include <algorithm>
-#include <cstring>
-#include <string>
+#include "engine.h"
 
 /****************************************************************
  ** some pieces in this file are copied from jconvolver
@@ -268,18 +262,6 @@ bool GxConvolver::read_sndfile(
         }
     }
 
-    bool gain_cor = gx_gui::GxMainInterface::get_instance().engine.convolver.jcset.getGainCor(); //FIXME
-    double gain_t[nchan];
-    if (!gain_cor) {
-        for (int ichan = 0; ichan < nchan; ichan++) {
-            gain_t[ichan] = 1.0;
-        }
-    } else {
-        for (int ichan = 0; ichan < nchan; ichan++) {
-            gain_t[ichan] =  gain[ichan];
-        }
-    }
-
     while (!done) {
         unsigned int cnt;
         nfram = (length > BSIZE) ? BSIZE : length;
@@ -298,7 +280,7 @@ bool GxConvolver::read_sndfile(
                 }
 
                 for (int ichan = 0; ichan < nchan; ichan++) {
-                    buff[ix*nchan+ichan] *= pow(10, gp + ix*fct) *  gain_t[ichan];
+                    buff[ix*nchan+ichan] *= pow(10, gp + ix*fct) *  gain[ichan];
                 }
             }
             offset += nfram;

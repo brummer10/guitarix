@@ -16,38 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "guitarix.h"
-#include <glibmm/i18n.h>
 #include <dlfcn.h>
 #include <dirent.h>
 
-/****************************************************************
- ** UiBuilder
- */
-
-void ::UiBuilder::openVerticalBox(const char* label) const {
-    intf->openVerticalBox(label);
-}
-
-void UiBuilder::openHorizontalBox(const char* label) const {
-    intf->openHorizontalBox(label);
-}
-
-void UiBuilder::create_small_rackknob(const char *id) const {
-    intf->create_small_rackknob(id);
-}
-
-void UiBuilder::create_small_rackknob(const char *id, const char *label) const {
-    intf->create_small_rackknob(id, label);
-}
-
-void UiBuilder::closeBox() const {
-    intf->closeBox();
-}
-
-void UiBuilder::load_glade(const char *data) const {
-    intf->loadRackFromGladeData(data);
-}
+#include "engine.h"
 
 /****************************************************************
  ** regparam
@@ -453,25 +425,9 @@ void PluginList::registerParameter(gx_gui::ParameterGroups& groups) {
     }
 }
 
-void PluginList::append_rack(gx_gui::GxMainInterface *ui) {
+void PluginList::append_rack(UiBuilder& ui) {
     for (pluginmap::iterator p = pmap.begin(); p != pmap.end(); p++) {
-	PluginDef *pd = p->second->pdef;
-	if (!pd->load_ui) {
-	    continue;
-	}
-	string s = pd->id;
-	string id_on_off = s + ".on_off";
-	string id_dialog = string("ui.") + pd->name;
-	if (pd->flags & PGN_STEREO) {
-	    ui->openStereoRackBox(tr_name(pd->name), &(p->second->position), id_on_off.c_str(), id_dialog.c_str());
-	    pd->load_ui(UiBuilder(ui,p->second->pdef));
-	    ui->closeStereoRackBox();
-	} else {
-	    string id_pre_post = s+".pp";
-	    ui->openMonoRackBox(tr_name(pd->name), &(p->second->position), id_on_off.c_str(), id_pre_post.c_str(), id_dialog.c_str());
-	    pd->load_ui(UiBuilder(ui,p->second->pdef));
-	    ui->closeMonoRackBox();
-	}
+	ui.load((p->second));
     }
 }
 

@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import os
+
+def configure(conf):
+    pass
+
+def build(bld):
+    sources = [
+        'ladspa_guitarix.cpp',
+        ]
+
+    bsources = [
+        '../gx_head/gx_json.cpp',
+        '../gx_head/gx_faust_plugins.cpp',
+        '../gx_head/gx_internal_plugins.cpp',
+        '../gx_head/gx_engine_audio.cpp',
+        '../gx_head/gx_paramtable.cpp',
+        '../gx_head/gx_ui.cpp',
+        '../gx_head/gx_pitch_tracker.cpp',
+        '../gx_head/gx_convolver.cpp',
+        '../gx_head/gx_resampler.cpp',
+        '../gx_head/gx_system.cpp',
+        '../gx_head/gx_engine.cpp',
+        '../gx_head/gx_engine_midi.cpp',
+        '../gx_head/gx_pluginloader.cpp',
+        '../zita-convolver/zita-convolver.cc',
+        '../zita-resampler/zita-resampler.cc',
+        ]
+    
+    for fn in sources:
+        src = [fn] + bsources
+        ladspa_plugin = bld(
+            features='cxx cshlib',
+            includes = ['../headers', '..', '../../libgxwmm', '../../libgxw',
+                        '../gx_head', '../zita-convolver'],
+            uselib = ['GLIBMM','GIOMM','FFTW3','SNDFILE','JACK'],
+            uselib_local = ["plugins"],
+            target   = fn.replace(".cpp",""),
+            source   = src,
+            #install_path = '${LADSPADIR}',
+            install_path = None,
+            chmod = 0755,
+            )
+        ladspa_plugin.env['shlib_PATTERN'] = '%s.so'

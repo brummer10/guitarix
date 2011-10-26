@@ -34,6 +34,60 @@
 #include <gtkmm/menushell.h>
 #include <gtkmm/separatormenuitem.h>
 
+/****************************************************************
+ ** UiBuilder implementation
+ */
+
+void ::UiBuilder::openVerticalBox(const char* label) const {
+    intf->openVerticalBox(label);
+}
+
+void UiBuilder::openHorizontalBox(const char* label) const {
+    intf->openHorizontalBox(label);
+}
+
+void UiBuilder::create_small_rackknob(const char *id) const {
+    intf->create_small_rackknob(id);
+}
+
+void UiBuilder::create_small_rackknob(const char *id, const char *label) const {
+    intf->create_small_rackknob(id, label);
+}
+
+void UiBuilder::closeBox() const {
+    intf->closeBox();
+}
+
+void UiBuilder::load_glade(const char *data) const {
+    intf->loadRackFromGladeData(data);
+}
+
+void UiBuilder::load(gx_engine::Plugin *p) {
+    PluginDef *pd = p->pdef;
+    if (!pd->load_ui) {
+	return;
+    }
+    plugin = pd;
+    string s = pd->id;
+    string id_on_off = s + ".on_off";
+    string id_dialog = string("ui.") + pd->name;
+    const char *name = pd->name;
+    if (name && name[0]) {
+	name = gettext(name);
+    }
+    if (pd->flags & PGN_STEREO) {
+	intf->openStereoRackBox(name, &(p->position), id_on_off.c_str(), id_dialog.c_str());
+	pd->load_ui(*this);
+	intf->closeStereoRackBox();
+    } else {
+	string id_pre_post = s+".pp";
+	intf->openMonoRackBox(name, &(p->position), id_on_off.c_str(), id_pre_post.c_str(), id_dialog.c_str());
+	pd->load_ui(*this);
+	intf->closeMonoRackBox();
+    }
+}
+
+
 namespace gx_gui {
 
 GuiVariables guivar;
@@ -69,6 +123,7 @@ const char *pb_RackBox_expose =              "RackBox_expose";
 const char *pb_gxrack_expose =               "gxrack_expose";
 const char *pb_eq_expose =                   "eq_expose";
 const char *pb_main_expose =                 "main_expose";
+
 
 /****************************************************************
  ** register GUI parameter to save/load them within the settigs file
@@ -156,8 +211,6 @@ void GuiVariables::register_gui_parameter() {
     /* for level display */
     meter_falloff = 27; // in dB/sec.
     meter_display_timeout = 60; // in millisec
-    /* midi_in preset switch */
-    program_change = -1;
 }
 
 /****************************************************************
@@ -272,6 +325,8 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
 	sigc::ptr_fun(gx_jconv::gx_reload_jcgui));
     fLoggingWindow.signal_delete_event().connect(
 	sigc::mem_fun(*this, &GxMainInterface::on_logger_delete_event));
+    controller_map.signal_new_program().connect(
+	sigc::mem_fun(*this, &GxMainInterface::do_program_change));
 
     fLoggingWindow.set_transient_for(fWindow);
 
@@ -332,6 +387,27 @@ GxMainInterface::~GxMainInterface() {
     instance = 0;
 }
 
+/* --------- load preset triggered by midi program change --------- */
+void GxMainInterface::do_program_change(int pgm) {
+    bool in_preset = gx_settings.idx_in_preset(pgm);
+    if (in_preset) {
+	gx_settings.load_preset_by_idx(pgm);
+    }
+    if (in_preset) {
+        if (engine.get_state() == gx_engine::kEngineBypass) {
+            // engine bypass but preset found -> engine on
+            //engine.set_state(gx_engine::kEngineOn);
+	    gx_engine_switch(0, 0); //FIXME
+	}
+    } else {
+        if (engine.get_state() == gx_engine::kEngineOn) {
+            // engine on but preset not found -> engine bypass
+            //engine.set_state(gx_engine::kEngineBypass);
+	    gx_engine_switch(0, gpointer(1)); //FIXME
+	}
+    }
+}
+
 void GxMainInterface::on_settings_selection_changed() {
     string title = gx_settings.get_displayname();
     if (title.empty()) {
@@ -340,6 +416,12 @@ void GxMainInterface::on_settings_selection_changed() {
 	title = jack.get_instancename() + " - " + title;
     }
     fWindow.set_title(title);
+    if (gx_settings.get_current_source() == gx_system::GxSettingsBase::preset) {
+	gx_gui::guivar.show_patch_info =
+	    gx_settings.get_preset_index(gx_settings.get_current_name())+1;
+    } else {
+	gx_gui::guivar.show_patch_info = 0;
+    }
 }
 
 void GxMainInterface::portmap_connection_changed(string port1, string port2, bool conn) {
@@ -2020,6 +2102,7 @@ void GxMainInterface::addMainMenu() {
     string img_path = options.get_pixmap_filepath("gx_on.png");
 
     gw.gx_engine_on_image =  gtk_image_menu_item_new_with_label("");
+    gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(gw.gx_engine_on_image), TRUE);
     GtkWidget* engineon = gtk_image_new_from_file(img_path.c_str());
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gw.gx_engine_on_image), engineon);
     gtk_menu_bar_append(GTK_MENU_BAR(menupix), gw.gx_engine_on_image);
@@ -2033,6 +2116,8 @@ void GxMainInterface::addMainMenu() {
     img_path = options.get_pixmap_filepath("gx_off.png");
 
     gw.gx_engine_off_image =  gtk_image_menu_item_new_with_label("");
+    gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(gw.gx_engine_off_image), TRUE);
+
     GtkWidget* engineoff = gtk_image_new_from_file(img_path.c_str());
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gw.gx_engine_off_image), engineoff);
     gtk_menu_bar_append(GTK_MENU_BAR(menupix), gw.gx_engine_off_image);
@@ -2044,6 +2129,8 @@ void GxMainInterface::addMainMenu() {
     img_path = options.get_pixmap_filepath("gx_bypass.png");
 
     gw.gx_engine_bypass_image  =  gtk_image_menu_item_new_with_label("");
+    gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(gw.gx_engine_bypass_image), TRUE);
+
     GtkWidget* engineby = gtk_image_new_from_file(img_path.c_str());
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gw.gx_engine_bypass_image), engineby);
     gtk_menu_bar_append(GTK_MENU_BAR(menupix), gw.gx_engine_bypass_image);
@@ -2057,6 +2144,7 @@ void GxMainInterface::addMainMenu() {
     img_path = options.get_pixmap_filepath("jackd_on.png");
 
     gw.gx_jackd_on_image =  gtk_image_menu_item_new_with_label("");
+    gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(gw.gx_jackd_on_image), TRUE);
     GtkWidget*   jackstateon = gtk_image_new_from_file(img_path.c_str());
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gw.gx_jackd_on_image), jackstateon);
     gtk_menu_bar_append(GTK_MENU_BAR(menupix), gw.gx_jackd_on_image);
@@ -2072,6 +2160,8 @@ void GxMainInterface::addMainMenu() {
     img_path = options.get_pixmap_filepath("jackd_off.png");
 
     gw.gx_jackd_off_image =  gtk_image_menu_item_new_with_label("");
+    gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(gw.gx_jackd_off_image), TRUE);
+
     GtkWidget*   jackstateoff = gtk_image_new_from_file(img_path.c_str());
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gw.gx_jackd_off_image), jackstateoff);
     gtk_menu_bar_append(GTK_MENU_BAR(menupix), gw.gx_jackd_off_image);
@@ -3263,23 +3353,6 @@ void GxMainInterface::run() {
     // watch tread for cabinet switch
     guivar.g_threads[3] = g_timeout_add(200, gx_threads::gx_check_cab_state, 0);
 
-#ifndef IS_MACOSX
-    // -------------- start helper thread for midi control ------------
-    int semaphor = sem_init(&guivar.program_change_sem, 0, 0);
-    if (semaphor != 0) {
-        gx_system::gx_print_error(_("system startup"),
-                   string(_("create semaphor failed (midi): preset switch disabled")));
-    } else {
-	GError* err = NULL;
-        if (g_thread_create(gx_threads::gx_program_change_helper_thread,
-                            NULL, FALSE, &err)  == NULL) {
-            gx_system::gx_print_fatal(_("system startup"),
-                       string(_("Thread create failed (midi): ")) + err->message);
-            g_error_free(err);
-            return;
-        }
-    }
-#endif
     gtk_main();
 }
 

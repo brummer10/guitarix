@@ -87,8 +87,6 @@ class GuiVariables {
     int                 meter_display_timeout; // in millisec
     int                 meter_falloff ; // in dB/sec.
     /* midi_in preset switch */
-    volatile gint       program_change;
-    sem_t               program_change_sem;
     
     int                 main_xorg;
     int                 main_yorg;
@@ -466,6 +464,7 @@ private:
     void                  addGuiSkinMenu();
     void                  addAboutMenu();
 
+    void                  do_program_change(int);
     bool                  on_meter_button_release(GdkEventButton* ev);
     void                  on_tuner_activate();
     void                  gx_show_menu_settings(GtkWidget *widget, gpointer data);

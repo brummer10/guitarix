@@ -24,7 +24,7 @@
  * --------------------------------------------------------------------------
  */
 
-#include "guitarix.h"
+#include "engine.h"
 
 namespace gx_resample {
 

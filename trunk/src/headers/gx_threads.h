@@ -32,13 +32,9 @@ namespace gx_threads {
 gboolean gx_update_all_gui(gpointer args);
 gboolean gx_refresh_meter_level(gpointer arg);
 gboolean gx_survive_jack_shutdown(gpointer arg);
-gboolean gx_do_program_change(gpointer arg);
 gboolean gx_check_cab_state(gpointer args);
 void cab_conv_restart();
 void contrast_conv_restart();
-
-/* this are the glib threads*/
-gpointer gx_program_change_helper_thread(gpointer args);
 
 /* -------- helper for level meter display -------- */
 inline float log_meter(float db) {

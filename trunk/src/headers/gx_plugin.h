@@ -29,6 +29,7 @@
 
 // forward declarations (need not be resolved for plugin definition)
 namespace gx_gui { class GxMainInterface; }
+namespace gx_engine { class PluginList; class Plugin; }
 class PluginDef;
 
 /*
@@ -38,10 +39,13 @@ class PluginDef;
 class UiBuilder {
 private:
     gx_gui::GxMainInterface *intf;
+    void load(gx_engine::Plugin *p);
+    friend class gx_engine::PluginList;
+    friend class gx_gui::GxMainInterface;
+    UiBuilder(gx_gui::GxMainInterface *i): intf(i), plugin() {}
 public:
     PluginDef *plugin;
 public:
-    UiBuilder(gx_gui::GxMainInterface *i, PluginDef* p): intf(i), plugin(p) {}
     void openVerticalBox(const char* label = "") const;
     void openHorizontalBox(const char* label = "") const;
     void closeBox() const;

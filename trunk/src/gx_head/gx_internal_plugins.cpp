@@ -25,25 +25,7 @@
  * --------------------------------------------------------------------------
  */
 
-#include <map>
-#include <string>
-#include <boost/format.hpp>
-#include <glibmm/i18n.h>
-#include <semaphore.h>
-
-using namespace std;
-
-#include "gx_pitch_tracker.h"
-#include "gx_parameter.h"
-#include "gx_ui.h"
-#include "gx_pluginloader.h"
-#include "gx_resampler.h"
-#include "gx_convolver.h"
-#include "gx_modulesequencer.h"
-#include "gx_internal_plugins.h"
-#include "gx_engine.h"
-#include "gx_json.h"
-#include "gx_jack.h"
+#include "engine.h"
 #include "gx_faust_support.h"
 
 namespace gx_engine {
@@ -529,9 +511,15 @@ void ConvolverAdapter::restart() {
     while (conv.is_runnable()) {
 	conv.checkstate();
     }
+    float gain;
+    if (jcset.getGainCor()) {
+	gain = jcset.getGain();
+    } else {
+	gain = 1.0;
+    }
     bool rc = conv.configure(
-        jcset.getFullIRPath(), jcset.getGain(), jcset.getGain(), jcset.getDelay(),
-	jcset.getDelay(), jcset.getOffset(), jcset.getLength(), 0, 0, jcset.getGainline());
+        jcset.getFullIRPath(), gain, gain, jcset.getDelay(), jcset.getDelay(),
+	jcset.getOffset(), jcset.getLength(), 0, 0, jcset.getGainline());
     int policy, priority;
     engine.get_sched_priority(policy, priority);
     if (!rc || !conv.start(policy, priority)) {
@@ -549,8 +537,14 @@ bool ConvolverAdapter::conv_start() {
     if (conv.is_runnable()) {
 	return true;
     }
+    float gain;
+    if (jcset.getGainCor()) {
+	gain = jcset.getGain();
+    } else {
+	gain = 1.0;
+    }
     if (!conv.configure(
-            path, jcset.getGain(), jcset.getGain(), jcset.getDelay(), jcset.getDelay(),
+            path, gain, gain, jcset.getDelay(), jcset.getDelay(),
             jcset.getOffset(), jcset.getLength(), 0, 0, jcset.getGainline())) {
         return false;
     }

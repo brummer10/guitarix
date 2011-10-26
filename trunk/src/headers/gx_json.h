@@ -25,15 +25,6 @@
 #ifndef SRC_HEADERS_GX_JSON_H_
 #define SRC_HEADERS_GX_JSON_H_
 
-#include <semaphore.h>
-
-#include <cmath>
-#include <sstream>
-#include <fstream>
-#include <list>
-#include <string>
-#include <algorithm>
-
 namespace gx_system {
 
 /****************************************************************
@@ -282,7 +273,7 @@ protected:
     void loadsetting(PresetFile *p, const string& name);
 protected:
     void load(Source src, const string& name, const string& factory);
-    void set_io(AbstractStateIO& st, AbstractPresetIO& pr) { state_io = &st; preset_io = &pr; }
+    void set_io(AbstractStateIO* st, AbstractPresetIO* pr) { state_io = st; preset_io = pr; }
     void convert_presetfile();
 public:
     inline sigc::signal<void>& signal_selection_changed() {
@@ -301,8 +292,7 @@ public:
     void save_to_current_preset() {
 	if (current_source == preset) save_to_preset(current_name); }
     void save_to_preset(const string& name);
-    bool is_in_preset(const string& name) {
-	return presetfile.get_index(name) >= 0; }
+    int get_preset_index(const string& name) {	return presetfile.get_index(name); }
     bool rename_preset(const string& name, const string& newname);
     void erase_current_preset() {
 	if (current_source == preset) erase_preset(current_name); }
@@ -312,6 +302,8 @@ public:
     void fill_factory_names(vector<string>& l) const;
     void fill_factory_preset_names(const string& fact, vector<string>& l) const;
     bool setting_is_preset() { return current_source == preset; }
+    bool idx_in_preset(int idx) { return idx >= 0 && idx < presetfile.size(); }
+    void load_preset_by_idx(int idx) { load(preset, presetfile.get_name(idx), ""); }
 };
 
 } /* end of gx_system namespace */

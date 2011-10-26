@@ -203,17 +203,14 @@ int main(int argc, char *argv[]) {
 
 	gx_system::CmdlineOptions options;
 	Gtk::Main main(argc, argv, options);
+
+	gx_system::GxExit::get_instance().signal_msg().connect(
+	    sigc::ptr_fun(gx_gui::show_fatal_msg));
+
 	options.process(argc, argv);
 
 	// ---------------- Check for working user directory  -------------
 	gx_preset::GxSettings::check_settings_dir(options);
-
-	g_type_class_unref(g_type_class_ref(GTK_TYPE_IMAGE_MENU_ITEM)); //FIXME...
-	//g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
-	Glib::Value<bool> val;
-	val.init(Glib::Value<bool>::value_type());
-	val.set(true);
-	Gtk::Settings::get_default()->set_property_value("gtk-menu-images", val);
 
 	PosixSignals posixsig; // catch unix signals in special thread
 	gx_engine::GxEngine engine(

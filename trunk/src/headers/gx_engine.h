@@ -25,10 +25,6 @@
 #ifndef SRC_HEADERS_GX_ENGINE_H_
 #define SRC_HEADERS_GX_ENGINE_H_
 
-#include <string>
-#include <set>
-#include <glibmm/i18n.h>     // NOLINT
-
 namespace gx_jack { class GxJack; }
 
 namespace gx_engine {
@@ -106,12 +102,6 @@ public:
     ~GxEngine();
     void set_jack(gx_jack::GxJack *jack) { midiaudiobuffer.set_jack(jack); }
 };
-
-/****************************************************************/
-
-/* function declarations  */
-
-void compute_midi_in(void* midi_input_port_buf);
 
 /* ------------------------------------------------------------------- */
 } /* end of gx_engine namespace */

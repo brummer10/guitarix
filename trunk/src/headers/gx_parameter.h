@@ -28,17 +28,6 @@
 #ifndef SRC_HEADERS_GX_PARAMETER_H_
 #define SRC_HEADERS_GX_PARAMETER_H_
 
-#include "gx_system.h"
-#include "gx_plugin.h"
-
-#include <giomm/file.h>
-
-#include <algorithm>
-#include <string>
-#include <list>
-#include <vector>
-#include <map>
-
 namespace gx_system { class JsonWriter; class JsonParser; }
 
 namespace gx_gui {
@@ -591,11 +580,16 @@ class MidiControllerList {
     typedef vector<midi_controller_list> controller_array;
     enum { controller_array_size = 128 };
  private:
-    controller_array map;
-    bool midi_config_mode;
-    int last_midi_control;
-    int last_midi_control_value;
-    sigc::signal<void> changed;
+    controller_array       map;
+    bool                   midi_config_mode;
+    int                    last_midi_control;
+    int                    last_midi_control_value;
+    volatile gint          program_change;
+    sem_t                  program_change_sem;
+    Glib::Dispatcher       pgm_chg;
+    sigc::signal<void>     changed;
+    sigc::signal<void,int> new_program;
+    void               on_pgm_chg();
  public:
     MidiControllerList();
     midi_controller_list& operator[](int n) { return map[n]; }
@@ -604,7 +598,7 @@ class MidiControllerList {
     bool get_config_mode() { return midi_config_mode; }
     int get_current_control() { return last_midi_control; }
     void set_current_control(int ctl) { last_midi_control = ctl; }
-    void set(int ctr, int val);
+    void set_ctr_val(int ctr, int val);
     void deleteParameter(Parameter& param, bool quiet = false);
     void modifyCurrent(Parameter& param, float lower, float upper);
     int param2controller(Parameter& param, const MidiController** p);
@@ -613,7 +607,8 @@ class MidiControllerList {
     void set_controller_array(const controller_array& m);
     void remove_controlled_parameters(paramlist& plist, const controller_array *m);
     sigc::signal<void>& signal_changed() { return changed; }
-
+    sigc::signal<void,int>& signal_new_program() { return new_program; }
+    void compute_midi_in(void* midi_input_port_buf);
 };
 
 extern MidiControllerList controller_map; // map ctrl num -> controlled parameters

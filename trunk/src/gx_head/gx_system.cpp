@@ -22,24 +22,20 @@
  * ----------------------------------------------------------------------------
  */
 
-//#include "guitarix.h"               // NOLINT
-#include <boost/format.hpp>
-#include "../config.h"
-using namespace std;
-#include "gx_system.h"
-
-#include <dirent.h>        //  NOLINT
-#include <sys/stat.h>               // NOLINT
-#include <glibmm/i18n.h>            // NOLINT
-
-#include <string>                   // NOLINT
-#include <fstream>                  // NOLINT
-#include <iostream>                 // NOLINT
+#ifndef NDEBUG
+#include <iostream>
 #include <iomanip>                  // NOLINT
-#include <list>                     // NOLINT
-#include <vector>                   // NOLINT
+#endif
+
+#include <dirent.h>
+
+/*
+#include <sys/stat.h>               // NOLINT
 #include <gtkmm/main.h>
 #include <gtkmm/messagedialog.h>
+*/
+
+#include "engine.h"
 
 namespace gx_system {
 
@@ -517,11 +513,7 @@ GxFatalError::~GxFatalError() throw() {
 //
 void gx_print_fatal(const char* func, const string& msg) {
     string msgbuf = string(_("fatal system error: ")) + func + "  ***  " + msg + "\n";
-    Gtk::MessageDialog dialog(
-	msgbuf, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE, true);
-    dialog.set_title("gx_head");
-    dialog.run();
-    GxExit::get_instance().exit_program(msgbuf);
+    GxExit::get_instance().fatal_msg(msgbuf);
 }
 
 // info

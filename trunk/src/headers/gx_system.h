@@ -25,16 +25,6 @@
 #ifndef SRC_HEADERS_GX_SYSTEM_H_
 #define SRC_HEADERS_GX_SYSTEM_H_
 
-#include <glibmm/optioncontext.h>   // NOLINT
-
-#include <cmath>
-#include <sstream>
-#include <list>
-#include <string>
-#include <algorithm>
-#include <boost/thread/mutex.hpp>
-#include <glibmm/dispatcher.h>
-
 /* constant defines */
 #define ASCII_START (48)
 #define GDK_NO_MOD_MASK (GdkModifierType)0
@@ -317,12 +307,15 @@ class GxExit {
 private:
     sigc::signal<void, bool> exit_sig;
     pthread_t ui_thread;
+    sigc::signal<void,string> message;
 public:
     GxExit();
     ~GxExit();
     void set_ui_thread() { ui_thread = pthread_self(); }
     sigc::signal<void, bool>& signal_exit() { return exit_sig; }
+    sigc::signal<void,string>& signal_msg() { return message; }
     void exit_program(string msg = "", int errcode = 1);
+    void fatal_msg(const string& msg) { message(msg); exit_program(msg); }
     static GxExit& get_instance();
 };
 

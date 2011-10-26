@@ -26,13 +26,7 @@
  * --------------------------------------------------------------------------
  */
 
-using namespace std;   // NOLINT
-#include <boost/format.hpp>
-#include "gx_parameter.h"
-#include "gx_ui.h"     // NOLINT
-
-#include <limits.h>    // NOLINT
-#include <list>        // NOLINT
+#include "engine.h"
 
 namespace gx_ui {
 list<GxUI*> GxUI::fGuiList;

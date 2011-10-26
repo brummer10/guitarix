@@ -5,35 +5,38 @@ def configure(conf):
     pass
 
 def build(bld):
-    sources = [
+    sources_engine = [
         'gx_jack.cpp',
         'gx_preset.cpp',
         'gx_json.cpp',
-        'gx_main_interface.cpp',
-        'gx_portmap.cpp',
         'gx_faust_plugins.cpp',
         'gx_internal_plugins.cpp',
         'gx_engine_audio.cpp',
-        'gxw_mm_controllers.cpp',
         'gx_paramtable.cpp',
-        'gx_pluginloader.cpp',
-        'gx_jconv_settings.cpp',
-        'gx_main_midi.cpp',
-        'gx_main_boxes.cpp',
-        'gx_interface_builder.cpp',
-        'gx_mono_rack_builder.cpp',
-        'gx_stereo_rack_builder.cpp',
-        'gx_child_process.cpp',
-        'gx_engine.cpp',
-        'gx_engine_midi.cpp',
-        'gx_cairo_callbacks.cpp',
-        'gx_gui_helpers.cpp',
-        'gx_threads.cpp',
         'gx_ui.cpp',
         'gx_pitch_tracker.cpp',
         'gx_convolver.cpp',
         'gx_resampler.cpp',
         'gx_system.cpp',
+        'gx_engine.cpp',
+        'gx_engine_midi.cpp',
+        'gx_pluginloader.cpp',
+        ]
+
+    sources_gui = [
+        'gx_child_process.cpp',
+        'gx_main_midi.cpp',
+        'gx_jconv_settings.cpp',
+        'gxw_mm_controllers.cpp',
+        'gx_main_boxes.cpp',
+        'gx_interface_builder.cpp',
+        'gx_mono_rack_builder.cpp',
+        'gx_stereo_rack_builder.cpp',
+        'gx_cairo_callbacks.cpp',
+        'gx_gui_helpers.cpp',
+        'gx_threads.cpp',
+        'gx_main_interface.cpp',
+        'gx_portmap.cpp',
         'gx_main.cpp',
         ]
 
@@ -42,6 +45,8 @@ def build(bld):
         'ports.glade',
         'iredit.glade',
         ]
+
+    sources = sources_engine + sources_gui
     incl = ['.','../..','..','../headers','../../libgxwmm','../../libgxw'] # need ".." for config.h
     if not bld.env['INTERN_ZITA_CONVOLVER']:
         sources.append('../zita-convolver/zita-convolver.cc')

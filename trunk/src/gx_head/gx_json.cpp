@@ -23,20 +23,7 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "guitarix.h"               // NOLINT
-
-#include <sys/stat.h>               // NOLINT
-#include <jack/jack.h>              // NOLINT
-#include <glibmm/optioncontext.h>   // NOLINT
-#include <glibmm/i18n.h>            // NOLINT
-
-#include <cstring>                  // NOLINT
-#include <string>                   // NOLINT
-#include <fstream>                  // NOLINT
-#include <iostream>                 // NOLINT
-#include <iomanip>                  // NOLINT
-#include <list>                     // NOLINT
-#include <vector>                   // NOLINT
+#include "engine.h"               // NOLINT
 
 namespace gx_system {
 

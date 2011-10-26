@@ -24,13 +24,7 @@
  * --------------------------------------------------------------------------
  */
 
-#include "guitarix.h"     // NOLINT
-
-#include <errno.h>        // NOLINT
-
-#include <cstring>        // NOLINT
-#include <string>         // NOLINT
-#include <iostream>       // NOLINT
+#include "engine.h"     // NOLINT
 
 #include "gx_faust_plugins.h"
 #include "../plugins/pluginlib.h"

@@ -24,8 +24,6 @@
 
 #include "guitarix.h"     // NOLINT
 
-#include <string>         // NOLINT
-
 /****************************************************************
  ** MidiControllerTable
  */

@@ -64,23 +64,6 @@ gboolean gx_refresh_meter_level(gpointer args) {
     return TRUE;
 }
 
-/* --------- load preset triggered by midi program change --------- */
-gboolean gx_do_program_change(gpointer arg) {
-    int pgm = GPOINTER_TO_INT(arg);
-    gx_engine::GxEngineState estate = gx_gui::GxMainInterface::get_instance().engine.get_state();
-    if (gx_preset::gxpreset.gx_nth_preset(pgm)) {
-        if (estate == gx_engine::kEngineBypass)
-            // engine bypass but preset found -> engine on
-            gx_gui::gx_engine_switch(reinterpret_cast<GtkWidget*>(0), (gpointer)1);
-    } else {
-        if (estate == gx_engine::kEngineOn)
-            // engine on but preset not found -> engine bypass
-            gx_gui::gx_engine_switch(reinterpret_cast<GtkWidget*>(0), (gpointer)1);
-    }
-    // mainloop idle callback: do not call again
-    return FALSE;
-}
-
 /* -------------- for thread that checks jackd liveliness -------------- */
 gboolean gx_survive_jack_shutdown(gpointer arg) {
     GtkWidget* wd = gx_gui::GxMainInterface::get_instance().getJackConnectItem();
@@ -162,27 +145,5 @@ gboolean gx_check_cab_state(gpointer) {
     return TRUE;
 }
 
-/** ----------- Glibc THREADS RUNNING BY GUITARIX -----------------  **/
-/** ----------- -------------------------------- ------------------  **/
-
-// ---- feed a midi program change from realtime thread to ui thread
-gpointer gx_program_change_helper_thread(gpointer data) {
-    gint pgm;
-    while (TRUE) {
-        // wait for a semaphore post from jack realtime thread
-        sem_wait(&gx_gui::guivar.program_change_sem);
-        // atomic read and reset the variable
-        do {
-            pgm = g_atomic_int_get(&gx_gui::guivar.program_change);
-        } while (!g_atomic_int_compare_and_exchange(&gx_gui::guivar.program_change, pgm, -1));
-        assert(pgm != -1);
-        // get the work done by ui thread
-        g_idle_add(gx_do_program_change, (gpointer)pgm);
-    }
-    // notreached
-    return NULL;
-}
-
-/** ------------------- Glibc THREADS END -------------------------  **/
 /** ----------- -------------------------------- ------------------  **/
 }

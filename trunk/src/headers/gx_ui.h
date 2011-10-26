@@ -30,11 +30,6 @@
 #ifndef SRC_HEADERS_GX_UI_H_
 #define SRC_HEADERS_GX_UI_H_
 
-#include <map>
-#include <list>
-#include <cstdio>
-#include <sigc++/sigc++.h>
-
 namespace gx_ui {
 /* ------------- UI Classes ------------- */
 /* base interface classes interfacing with the GUI  */
