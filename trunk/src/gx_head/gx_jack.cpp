@@ -703,7 +703,8 @@ string GxJack::get_uuid_insert() {
 
 void GxJack::gx_jack_session_callback(jack_session_event_t *event, void *arg) {
     GxJack& self = *static_cast<GxJack*>(arg);
-    if (!g_atomic_pointer_compare_and_exchange(&self.session_event, 0, event)) {
+    if (!g_atomic_pointer_compare_and_exchange(
+	    reinterpret_cast<void* volatile*>(&self.session_event), 0, event)) {
 	gx_system::gx_print_error("jack","last session not cleared");
 	return;
     }

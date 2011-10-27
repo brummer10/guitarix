@@ -22,18 +22,9 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef NDEBUG
+#include <dirent.h>
 #include <iostream>
 #include <iomanip>                  // NOLINT
-#endif
-
-#include <dirent.h>
-
-/*
-#include <sys/stat.h>               // NOLINT
-#include <gtkmm/main.h>
-#include <gtkmm/messagedialog.h>
-*/
 
 #include "engine.h"
 
