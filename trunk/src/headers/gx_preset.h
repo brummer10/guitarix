@@ -89,6 +89,7 @@ public:
 	       gx_gui::MidiStandardControllers& mstdctr, gx_gui::MidiControllerList& mctrl,
 	       gx_engine::ModuleSequencer& seq);
     ~GxSettings();
+    string get_displayname();
     static void check_settings_dir(gx_system::CmdlineOptions& opt);
     void load(Source src, const string& name = "", const string& factory = "");
     bool rename_preset(const string& name, const string& newname);
@@ -96,6 +97,7 @@ public:
     static GxSettings& get_instance() { return *instance; }
     void set_std_presetfile() { presetfile_parameter.set_std_value(); }
     string get_preset_filename() { return presetfile_parameter.get_path(); }
+    bool set_preset_file(const string& newfile);
     string get_preset_dirname() { return presetfile_parameter.get_directory_path(); }
     void copy_preset_file(const string& destination) { presetfile_parameter.copy(destination); }
     sigc::signal<void>& signal_presetfile_changed() { return presetfile_parameter.signal_changed(); }

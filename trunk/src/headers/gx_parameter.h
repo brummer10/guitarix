@@ -383,7 +383,8 @@ class FileParameter: public Parameter {
         value(0),
         std_value(0) {}
     void set_standard(const string& filename);
-    bool is_standard() const;
+    bool is_equal(const Glib::RefPtr<Gio::File>& v) const;
+    bool is_standard() const { return is_equal(std_value); }
     string get_path();
     string get_directory_path();
     string get_parse_name();

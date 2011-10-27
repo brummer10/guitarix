@@ -163,7 +163,7 @@ void gx_show_menu_settings(GtkWidget*, gpointer);
 void gx_user_disable_latency_warn(GtkWidget*, gpointer);
 gint gx_wait_latency_warn();
 int  gx_message_popup(const char*);
-void show_fatal_msg(const string& msg);
+void show_error_msg(const string& msg);
 
 gboolean gx_delete_event(GtkWidget*, gpointer);
 gboolean gx_set_default_size(gpointer data);

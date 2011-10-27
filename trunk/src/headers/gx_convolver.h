@@ -127,7 +127,17 @@ public:
         unsigned int length, unsigned int size, unsigned int bufsize,
         const Gainline& gainline);
     bool compute(int count, float* input1, float *input2, float *output1, float *output2);
+    static void compute_interpolation(double& fct, double& gp, unsigned int& idx,
+				      const Gainline& points, int offset);
 };
+
+inline void GxConvolver::compute_interpolation(
+    double& fct, double& gp, unsigned int& idx, const Gainline& points, int offset) {
+    fct = (points[idx+1].g-points[idx].g)/(20*(points[idx+1].i-points[idx].i));
+    gp = points[idx].g/20 + fct * (offset-points[idx].i);
+    idx++;
+}
+
 
 class GxSimpleConvolver: public GxConvolverBase {
 private:

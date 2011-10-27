@@ -971,11 +971,18 @@ void SwitchParameter::setJSON_value() {
 /* FileParameter */
 
 void FileParameter::set_path(const string& path) {
-    value = Gio::File::create_for_path(path);
+    Glib::RefPtr<Gio::File> v = Gio::File::create_for_path(path);
+    if (is_equal(v)) {
+	return;
+    }
+    value = v;
     changed();
 }
 
 void FileParameter::set(const Glib::RefPtr<Gio::File>& val) {
+    if (is_equal(val)) {
+	return;
+    }
     value = val;
     changed();
 }
@@ -984,12 +991,16 @@ void FileParameter::set_standard(const string& filename) {
     std_value = Gio::File::create_for_path(filename);
     if (!value) {
         value = std_value->dup();
+	changed();
     }
-    changed();
 }
 
 void FileParameter::set_std_value() {
+    if (is_equal(std_value)) {
+	return;
+    }
     set(std_value->dup());
+    changed();
 }
 
 void *FileParameter::zone() {
@@ -1018,14 +1029,19 @@ static string get_file_id(const Glib::RefPtr<Gio::File>& f) {
     return f->query_info(G_FILE_ATTRIBUTE_ID_FILE)->get_attribute_string(G_FILE_ATTRIBUTE_ID_FILE);
 }
 
-bool FileParameter::is_standard() const {
-    string id;
+bool FileParameter::is_equal(const Glib::RefPtr<Gio::File>& v) const {
+    string id, id2;
     try {
         id = get_file_id(value);
     } catch(Gio::Error& ex) {
         return false; // FIXME check type of exception
     }
-    return id == get_file_id(std_value);
+    try {
+	id2 = get_file_id(v);
+    } catch(Gio::Error& ex) {
+        return false; // FIXME check type of exception
+    }
+    return id == id2;
 }
 
 string FileParameter::get_path() {

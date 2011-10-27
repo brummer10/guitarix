@@ -78,10 +78,11 @@ public:
 };
 
 LadspaSettings::LadspaSettings(string sfname, gx_engine::GxEngine& engine_)
-    : GxSettingsBase(sfname, engine_),
+    : GxSettingsBase(engine_),
       state_io(),
       engine(engine_) {
     set_io(&state_io, 0);
+    set_statefilename(sfname);
     load();
 }
 

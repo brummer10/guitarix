@@ -66,7 +66,7 @@ class IRWindow: public sigc::trackable {
     }
     void file_changed(Glib::ustring filename, int rate, int length,
                       int channels, Glib::ustring format);
-    void load_data(Glib::ustring filename);
+    bool load_data(Glib::ustring filename);
     void load_state();
     bool save_state();
     void set_GainCor();
@@ -415,22 +415,22 @@ void IRWindow::load_state() {
     if (path.empty()) {
         return;
     }
-    load_data(path);
     wIredit->set_offset(convolver.jcset.getOffset());
     wIredit->set_delay(convolver.jcset.getDelay());
     wIredit->set_length(convolver.jcset.getLength());
-    if (convolver.jcset.getGainline().size()) {
+    if (load_data(path) && convolver.jcset.getGainline().size()) {
         wIredit->set_gain(convolver.jcset.getGainline());
     }
     g_idle_add(enumerate, NULL);
 }
 
-void IRWindow::load_data(Glib::ustring f) {
+bool IRWindow::load_data(Glib::ustring f) {
     filename = f;
     gx_engine::Audiofile audio;
     if (audio.open_read(filename)) {
         gx_system::gx_print_error("jconvolver", "Unable to open '" + filename + "'");
-        return;
+	audio_size = audio_chan = 0;
+        return false;
     }
     audio_size = audio.size();
     audio_chan = audio.chan();
@@ -443,13 +443,13 @@ void IRWindow::load_data(Glib::ustring f) {
     }
     if (audio_size * audio_chan == 0) {
         gx_system::gx_print_error("jconvolver", "No samples found");
-        return;
+        return false;
     }
     float *buffer = new float[audio_size*audio_chan];
     if (audio.read(buffer, audio_size) != static_cast<int>(audio_size)) {
 	delete[] buffer;
         gx_system::gx_print_error("jconvolver", "Error reading file");
-        return;
+        return false;
     }
     Glib::ustring enc;
     switch (audio.type()) {
@@ -472,18 +472,13 @@ void IRWindow::load_data(Glib::ustring f) {
     file_changed(filename, audio.rate(), audio_size, audio_chan, enc);
     wSum->set_active(true);
     wLog->set_active(true);
-}
-
-// FIXME: gainline code just copied from GxConvolver::read_sndfile, move to 1 location
-inline void compute_interpolation(
-    double& fct, double& gp, unsigned int& idx,
-    const Gainline& points, int offset) {
-    fct = (points[idx+1].g-points[idx].g)/(20*(points[idx+1].i-points[idx].i));
-    gp = points[idx].g/20 + fct * (offset-points[idx].i);
-    idx++;
+    return true;
 }
 
 double IRWindow::calc_normalized_gain(int offset, int length, const Gainline& points) {
+    if (audio_chan == 0) {
+	return 1.0;
+    }
     double gain = 0.0;
     unsigned int idx = 0; // current index in gainline point array
     double gp = 0.0, fct = 0.0; // calculated parameter of interpolation line
@@ -494,12 +489,12 @@ double IRWindow::calc_normalized_gain(int offset, int length, const Gainline& po
         }
         if (points[idx].i > offset) {
             idx--;
-            compute_interpolation(fct, gp, idx, points, 0);
+	    gx_engine::GxConvolver::compute_interpolation(fct, gp, idx, points, 0);
         }
     }
     for (int i = offset; i < offset+length; i++) {
         if (idx+1 < points.size() && points[idx].i == i) {
-            compute_interpolation(fct, gp, idx, points, 0);
+            gx_engine::GxConvolver::compute_interpolation(fct, gp, idx, points, 0);
         }
         double g = pow(10, gp + i*fct);
         for (int j = 0; j < audio_chan; j++) {

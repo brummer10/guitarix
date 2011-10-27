@@ -246,8 +246,8 @@ bool GxJack::gx_jack_init() {
 
     gx_system::GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxJack::cleanup_slot));
-    client_change();
     gx_jack_callbacks();
+    client_change();
     gx_jack_init_port_connection();
     set_jack_exit(false);
 
@@ -289,6 +289,27 @@ void GxJack::gx_jack_cleanup() {
     jack_client_close(client_insert);
     client_insert = 0;
 }
+
+// ---- Jack server connection / disconnection
+bool GxJack::gx_jack_connection(bool connect) {
+    if (connect) {
+	if (client) {
+	    return true;
+	}
+	if (!gx_jack_init()) {
+	    return false;
+	}
+    } else {
+	if (!client) {
+	    return true;
+	}
+	gx_jack_cleanup();
+    }
+    connection();
+    connection_queue.portchange();
+    return true;
+}
+
 
 /****************************************************************
  ** port connections
@@ -376,22 +397,10 @@ void GxJack::gx_jack_init_port_connection() {
     }
 }
 
-// ---- Jack server connection / disconnection
-bool GxJack::gx_jack_connection(bool connect) {
-    if (connect) {
-        if (!client) {
-            if (!gx_jack_init()) {
-		return false;
-            }
-        }
-    } else {
-        gx_jack_cleanup();
-    }
-    connection();
-    connection_queue.portchange();
-    return true;
+void GxJack::clear_insert_connections() {
+    ports.insert_in.conn.clear();
+    ports.insert_out.conn.clear();
 }
-
 
 /****************************************************************
  ** callback installation and port registration

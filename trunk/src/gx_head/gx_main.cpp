@@ -114,6 +114,7 @@ void PosixSignals::signal_helper_thread() {
     const char *signame;
     guint source_id_usr1 = 0;
     pthread_sigmask(SIG_BLOCK, &waitset, NULL);
+    bool seen = false;
     while (true) {
 	int sig;
         int ret = sigwait(&waitset, &sig);
@@ -164,13 +165,14 @@ void PosixSignals::signal_helper_thread() {
 		signame = "SIGHUP";
 		break;
 	    }
-	    if (Gtk::Main::level() == 1) {
+	    if (!seen && Gtk::Main::level() == 1) {
 		printf("\nquit (%s)\n", signame);
 		Glib::signal_idle().connect_once(sigc::mem_fun(*this, &PosixSignals::quit_slot));
 	    } else {
 		gx_system::GxExit::get_instance().exit_program(
 		    (boost::format("\nQUIT (%1%)\n") % signame).str());
 	    }
+	    seen = true;
 	    break;
 	default:
 	    assert(false);
@@ -182,6 +184,58 @@ void PosixSignals::signal_helper_thread() {
 /****************************************************************
  ** main()
  */
+
+
+// show UI popup for kError messages
+class ErrorPopup {
+private:
+    string msg;
+    bool active;
+    Gtk::MessageDialog *dialog;
+    void show_msg();
+    void on_response(int);
+public:
+    ErrorPopup();
+    ~ErrorPopup();
+    void on_message(const string& msg, gx_system::GxMsgType tp);
+};
+
+ErrorPopup::ErrorPopup()
+    : msg(),
+      active(false),
+      dialog(0) {
+}
+
+ErrorPopup::~ErrorPopup() {
+    delete dialog;
+}
+
+void ErrorPopup::on_message(const string& msg_, gx_system::GxMsgType tp) {
+    if (tp == gx_system::kError) {
+	msg = msg_;
+	if (active) {
+	    if (dialog) {
+		dialog->set_message(msg);
+	    }
+	} else {
+	    active = true;
+	    Glib::signal_idle().connect_once(sigc::mem_fun(*this, &ErrorPopup::show_msg));
+	}
+    }
+}
+
+void ErrorPopup::on_response(int) {
+    delete dialog;
+    dialog = 0;
+    active = false;
+}
+
+void ErrorPopup::show_msg() {
+    dialog = new Gtk::MessageDialog(msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE, true);
+    dialog->signal_response().connect(
+	sigc::mem_fun(*this, &ErrorPopup::on_response));
+    dialog->show();
+}
 
 /* --------- Guitarix main ---------- */
 int main(int argc, char *argv[]) {
@@ -205,7 +259,10 @@ int main(int argc, char *argv[]) {
 	Gtk::Main main(argc, argv, options);
 
 	gx_system::GxExit::get_instance().signal_msg().connect(
-	    sigc::ptr_fun(gx_gui::show_fatal_msg));
+	    sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
+	ErrorPopup popup;
+	gx_system::Logger::get_logger().signal_message().connect(
+	    sigc::mem_fun(popup, &ErrorPopup::on_message));
 
 	options.process(argc, argv);
 

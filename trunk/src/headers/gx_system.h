@@ -183,6 +183,7 @@ private:
     Glib::OptionGroup optgroup_jack;
     Glib::OptionGroup optgroup_file;
     Glib::OptionGroup optgroup_debug;
+    string path_to_program;
     bool version;
     bool clear;
     Glib::ustring jack_input;
@@ -210,6 +211,7 @@ public:
     CmdlineOptions();
     ~CmdlineOptions();
     void process(int argc, char** argv);
+    const string& get_path_to_program() { return path_to_program; }
     string get_style_filepath(const string& basename) { return style_dir + basename; }
     string get_pixmap_filepath(const string& basename) { return pixmap_dir + basename; }
     string get_builder_filepath(const string& basename) { return builder_dir + basename; }

@@ -359,6 +359,7 @@ void CmdlineOptions::make_ending_slash(string& dirpath) {
 }
 
 void CmdlineOptions::process(int argc, char** argv) {
+    path_to_program = Gio::File::create_for_path(argv[0])->get_path();
     if (version) {
         std::cout << "Guitarix version \033[1;32m"
              << GX_VERSION << endl

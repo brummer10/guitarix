@@ -198,13 +198,6 @@ bool GxConvolverBase::checkstate() {
  ** GxConvolver
  */
 
-inline void compute_interpolation(double& fct, double& gp, unsigned int& idx,
-                                  const Gainline& points, int offset) {
-    fct = (points[idx+1].g-points[idx].g)/(20*(points[idx+1].i-points[idx].i));
-    gp = points[idx].g/20 + fct * (offset-points[idx].i);
-    idx++;
-}
-
 bool GxConvolver::read_sndfile(
     Audiofile& audio, int nchan, int samplerate, const float *gain,
     unsigned int *delay, unsigned int offset, unsigned int length,

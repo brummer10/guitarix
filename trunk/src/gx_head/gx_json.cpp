@@ -635,6 +635,16 @@ void PresetFile::open() {
     header.read(jp);
     while (jp.peek() == JsonParser::value_string) {
 	jp.next();
+	if (jp.current_value() == "midi_controller") { //FIXME there should be a file signature
+	    if (jp.peek() == JsonParser::begin_array) {
+		entries.clear();
+		is->setstate(istream::failbit);
+		gx_print_error(
+		    _("open preset"),
+		    boost::format(_("%1% is a state file, not a preset file")) % filename);
+		throw JsonException(_("This is a state file, not a preset file"));
+	    }
+	}
 	streampos pos = jp.get_streampos();
 	entries.push_back(Position(jp.current_value(), pos));
 	jp.skip_object();
@@ -691,9 +701,11 @@ PresetTransformer::PresetTransformer(string fname, istream* is_)
       jp(is_),
       header() {
     set_stream(&os);
-    is->seekg(0);
-    jp.next(JsonParser::begin_array);
-    header.read(jp);
+    if (!is->fail()) {
+	is->seekg(0);
+	jp.next(JsonParser::begin_array);
+	header.read(jp);
+    }
     begin_array();
     header.write(*this);
 }
@@ -707,8 +719,10 @@ void PresetTransformer::close() {
     if (is_closed()) {
 	return;
     }
-    jp.next(JsonParser::end_array);
-    jp.next(JsonParser::end_token);
+    if (!is->fail()) {
+	jp.next(JsonParser::end_array);
+	jp.next(JsonParser::end_token);
+    }
     end_array(true);
     JsonWriter::close();
     delete is;
@@ -740,13 +754,15 @@ ModifyPreset::~ModifyPreset() {
 
 ModifyPreset::ModifyPreset(string fname, istream* is, const string& presname)
     : PresetTransformer(fname, is) {
-    while (jp.peek() != JsonParser::end_array) {
-	jp.next(JsonParser::value_string);
-	if (jp.current_value() == presname) {
-	    return;
-	} else {
-	    write(jp.current_value());
-	    jp.copy_object(*this);
+    if (!is->fail()) {
+	while (jp.peek() != JsonParser::end_array) {
+	    jp.next(JsonParser::value_string);
+	    if (jp.current_value() == presname) {
+		return;
+	    } else {
+		write(jp.current_value());
+		jp.copy_object(*this);
+	    }
 	}
     }
 }
@@ -755,10 +771,12 @@ void ModifyPreset::close() {
     if (is_closed()) {
 	return;
     }
-    while (jp.peek() != JsonParser::end_array) {
-	jp.next(JsonParser::value_string);
-	write(jp.current_value());
-	jp.copy_object(*this);
+    if (!is->fail()) {
+	while (jp.peek() != JsonParser::end_array) {
+	    jp.next(JsonParser::value_string);
+	    write(jp.current_value());
+	    jp.copy_object(*this);
+	}
     }
     PresetTransformer::close();
 }
@@ -767,8 +785,10 @@ JsonWriter *PresetFile::create_writer(const string& name) {
     reopen();
     ModifyPreset *jw = new ModifyPreset(filename, is, name);
     jw->write(name);
-    if (jw->jp.peek() != JsonParser::end_array) {
-	jw->jp.skip_object(); // we are replacing a setting
+    if (!is->fail()) {
+	if (jw->jp.peek() != JsonParser::end_array) {
+	    jw->jp.skip_object(); // we are replacing a setting
+	}
     }
     is = 0;
     return jw;
@@ -820,10 +840,10 @@ bool PresetFile::rename(const string& name, string newname) {
 AbstractStateIO::~AbstractStateIO() {}
 AbstractPresetIO::~AbstractPresetIO() {}
 
-GxSettingsBase::GxSettingsBase(string sfname, gx_engine::ModuleSequencer& seq_)
+GxSettingsBase::GxSettingsBase(gx_engine::ModuleSequencer& seq_)
     : state_io(),
       preset_io(),
-      statefile(sfname),
+      statefile(),
       presetfile(),
       factory_presets(),
       current_source(state),
@@ -843,23 +863,13 @@ void GxSettingsBase::clear_factory() {
     }
 }
 
-bool GxSettingsBase::change_preset_file(const string& newfile) {
-    string oldfile = presetfile.get_filename();
-    if (oldfile == newfile) {
-	return true;
-    }
-    try {
-	presetfile.open(newfile);
-    } catch(JsonException& e) {
-	gx_print_warning(newfile.c_str(), _("parse error"));
-	presetfile.open(oldfile);
-	return false;
-    }
+void GxSettingsBase::change_preset_file(const string& newfile) {
+    presetfile.open(newfile);
     if (current_source == preset) {
 	current_source = state;
 	current_name = "";
+	selection_changed();
     }
-    return true;
 }
 
 PresetFile* GxSettingsBase::get_factory(const string& name) const {
@@ -881,22 +891,28 @@ void GxSettingsBase::loadsetting(PresetFile *p, const string& name) {
 	    seq.wait_ramp_down_finished();
 	    preset_io->commit_preset();
 	    delete jp;
+	    gx_print_info(
+		_("loaded preset"),
+		boost::format(_("%1% from file %2%")) % name % p->get_filename());
 	} else {
 	    JsonParser *jp = statefile.create_reader();
 	    state_io->read_state(*jp, statefile.get_header());
 	    seq.wait_ramp_down_finished();
 	    state_io->commit_state();
 	    delete jp;
+	    gx_print_info(
+		_("loaded state"),
+		boost::format(_("from file %1%")) % statefile.get_filename());
 	}
 	seq.update_module_lists();
     } catch(JsonException& e) {
 	if (p) {
 	    gx_print_error(
-		"_load preset",
+		_("load preset"),
 		boost::format(_("error loading %1% from file %2%")) % name % p->get_filename());
 	} else {
-	    gx_print_error(
-		"_load state",
+	    gx_print_warning(
+		_("load state"),
 		boost::format(_("error loading state from file %1%"))
 		% statefile.get_filename());
 	}
@@ -940,17 +956,9 @@ void GxSettingsBase::load(Source src, const string& name, const string& factoryn
     loadsetting(p, name);
 }
 
-string GxSettingsBase::get_displayname() {
-    if (current_source == factory) {
-	return current_factory + " - " + current_name;
-    } else if (current_source == preset) {
-	return current_name;
-    } else {
-	return "";
-    }
-}
-
 void GxSettingsBase::save_to_state(bool preserve_preset) {
+    gx_system::gx_print_info("write state",boost::format("%2% [%1%]")
+			     % preserve_preset % statefile.get_filename());
     JsonWriter *jw = statefile.create_writer(&preserve_preset);
     state_io->write_state(*jw, preserve_preset);
     delete jw;

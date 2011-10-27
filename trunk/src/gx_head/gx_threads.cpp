@@ -71,22 +71,23 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
     // return if jack is not down
     if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
         if (gx_gui::GxMainInterface::get_instance().jack.is_jack_down()) {
-            // let's make sure we get out of here
-            if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(wd)))
-                gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
+	    gx_gui::GxMainInterface::get_instance().jack.set_jack_down(false);
+	}
+	// let's make sure we get out of here
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
+	gx_system::gx_print_warning("Jack Shutdown",
+				    _("jack has bumped us out!!"));
 
-            // run only one time whem jackd is running
-            return false;
-        }
+	// run only one time whem jackd is running
+	return false;
     } else {
-        // set jack gxjack.client to NULL
-        gx_gui::GxMainInterface::get_instance().jack.client = 0;
-
         // refresh some stuff. Note that it can be executed
         // more than once, no harm here
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), FALSE);
-        *gx_engine::GxJConvSettings::checkbutton7 = 0;
         gx_gui::GxMainInterface::get_instance().jack.set_jack_down(true);
+	gx_system::gx_print_error("Jack Shutdown",
+				  _("jack has bumped us out!!"));
+
     }
     // run as long jackd is down
     return true;

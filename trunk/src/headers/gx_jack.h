@@ -81,16 +81,16 @@ public:
     ~PortConnRing();
 };
 
+
+/****************************************************************
+ ** class GxJack
+ */
+
 class PortConnection {
 public:
     jack_port_t *port;
     list<string> conn;
 };
-
-
-/****************************************************************
- ** class GxJack
- */
 
 class JackPorts {
 public:
@@ -163,6 +163,7 @@ public:
 
     void                read_connections(gx_system::JsonParser& jp);
     void                write_connections(gx_system::JsonWriter& w);
+    void                clear_insert_connections();
     static string       get_default_instancename();
     const string&       get_instancename() { return client_instance; }
     string              client_name;

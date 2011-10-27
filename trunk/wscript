@@ -24,7 +24,7 @@ blddir = 'build'
 use_2to3 = True
 
 # used by waf dist and waf build
-VERSION='0.19.0svn'
+VERSION='0.20.0svn'
 APPNAME='guitarix'
 APPNAME1='guitarix'
 

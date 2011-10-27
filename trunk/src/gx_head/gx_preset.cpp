@@ -277,17 +277,10 @@ const char *factory_settings[][2] = { // FIXME in json file
     {0}
 };
 
-static string get_statefile_name(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack) {
-    if (!opt.get_loadfile().empty()) {
-	return opt.get_loadfile();
-    }
-    return opt.get_user_filepath(jack.get_instancename() + "_rc");
-}
-
 GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, gx_engine::ConvolverAdapter& cvr,
 		       gx_gui::MidiStandardControllers& mstdctr, gx_gui::MidiControllerList& mctrl,
 		       gx_engine::ModuleSequencer& seq_)
-    : GxSettingsBase(get_statefile_name(opt,jack_), seq_),
+    : GxSettingsBase(seq_),
       preset_io(mctrl, cvr),
       state_io(mctrl, cvr, mstdctr, jack_),
       presetfile_parameter("system.current_preset_file"),
@@ -344,15 +337,36 @@ void GxSettings::exit_handler(bool otherthread) {
     auto_save_state();
 }
 
+string GxSettings::get_displayname() {
+    if (current_source == factory) {
+	return "[" + current_factory + "] - " + current_name;
+    } else if (current_source == preset) {
+	if (presetfile_parameter.is_standard()) {
+	    return current_name;
+	} else {
+	    return presetfile_parameter.get_display_name() + " - " + current_name;
+	}
+    } else {
+	return "";
+    }
+}
+
 void GxSettings::jack_client_changed() {
     string fn = make_state_filename();
-    if (fn == statefile.get_filename()) {
-	return;
-    }
-    statefile.set_filename(fn);
-    presetfile_parameter.set_standard(make_std_preset_filename());
-    if (current_source == state) {
-	load(state);
+    if (fn != statefile.get_filename()) {
+	if (!state_loaded && (access(fn.c_str(), R_OK|W_OK)) != 0) {
+	    string defname = options.get_user_filepath(
+		gx_jack::GxJack::get_default_instancename() + statename_postfix);
+	    if (access(defname.c_str(), R_OK) == 0) {
+		statefile.set_filename(defname);
+		load(state);
+		jack.clear_insert_connections();
+	    }
+	}
+	statefile.set_filename(fn);
+	if (current_source == state) {
+	    load(state);
+	}
     }
 }
 
@@ -362,6 +376,9 @@ string GxSettings::get_default_presetfile(gx_system::CmdlineOptions& opt) {
 }
 
 string GxSettings::make_state_filename() {
+    if (!options.get_loadfile().empty()) {
+	return options.get_loadfile();
+    }
     return options.get_user_filepath(
 	jack.get_instancename() + statename_postfix);
 }
@@ -423,7 +440,22 @@ bool GxSettings::rename_preset(const string& name, const string& newname) {
 }
 
 void GxSettings::presetfile_changed() {
-    change_preset_file(presetfile_parameter.get_path());
+    try {
+	change_preset_file(presetfile_parameter.get_path());
+    } catch(gx_system::JsonException& e) {
+	gx_system::gx_print_warning(
+	    presetfile_parameter.get_path().c_str(), e.what());
+    }
+}
+
+bool GxSettings::set_preset_file(const string& newfile) {
+    string oldfile = presetfile_parameter.get_path();
+    presetfile_parameter.set_path(newfile);
+    if (presetfile_fail()) {
+	presetfile_parameter.set_path(oldfile);
+	return false;
+    }
+    return true;
 }
 
 /* ----------------------------------------------------------------*/

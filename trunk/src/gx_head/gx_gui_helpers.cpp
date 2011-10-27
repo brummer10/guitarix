@@ -580,9 +580,14 @@ void GxPreset::gx_load_preset_file(const char* presname, bool expand_menu) {
     filter1.set_name("all");
     file_chooser.add_filter(filter1);
     file_chooser.set_filter(filter);
-    if (file_chooser.run() == Gtk::RESPONSE_ACCEPT) {
-        GxSettings::get_instance().change_preset_file(file_chooser.get_filename());
-        gx_gui::guivar.show_patch_info = 0;
+    while (true) {
+	if (file_chooser.run() != Gtk::RESPONSE_ACCEPT) {
+	    break;
+	}
+	if (GxSettings::get_instance().set_preset_file(file_chooser.get_filename())) {
+	    gx_gui::guivar.show_patch_info = 0;
+	    break;
+	}
     }
 }
 
@@ -978,9 +983,7 @@ void gx_refresh_engine_status_display() {
 }
 
 void GxMainInterface::gx_jack_is_down() {
-    gx_system::gx_print_error("Jack Shutdown",
-			      _("jack has bumped us out!!"));
-    jack.gx_jack_connection(false);
+    jack_connection_change();
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(fJackConnectItem), FALSE);
     g_timeout_add_full(
 	G_PRIORITY_LOW, 200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
@@ -992,7 +995,12 @@ void GxMainInterface::jack_session_event() {
 
     gx_settings.set_statefilename(string(event->session_dir) + statefile);
 
-    string cmd("guitarix -U ");
+#ifndef NDEBUG
+    string cmd(options.get_path_to_program());
+#else
+    string cmd("guitarix");
+#endif
+    cmd += " -U ";
     cmd += event->client_uuid;
     cmd += " -A ";
     cmd += jack.get_uuid_insert();
@@ -1000,12 +1008,12 @@ void GxMainInterface::jack_session_event() {
     cmd += statefile; // no space after SESSION_DIR
     event->command_line = strdup(cmd.c_str());
 
-    jack.return_last_session_event();
-
     if (event->type == JackSessionSaveAndQuit) {
+	jack.return_last_session_event();
 	// exit will save state
         gx_system::GxExit::get_instance().exit_program("** session exit **");
     } else {
+	jack.return_last_session_event();
 	gx_settings.auto_save_state();
     }
 }
@@ -1035,7 +1043,7 @@ void GxMainInterface::on_show_oscilloscope(bool v) {
     }
 }
 
-void show_fatal_msg(const string& msg) {
+void show_error_msg(const string& msg) {
     Gtk::MessageDialog dialog(
 	msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE, true);
     dialog.set_title("gx_head");

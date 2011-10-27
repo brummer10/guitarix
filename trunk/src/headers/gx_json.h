@@ -167,8 +167,8 @@ private:
     SettingsFileHeader header;
     void open();
 public:
-    StateFile(string fname)
-	: filename(fname), is(0), header() {}
+    StateFile()
+	: filename(), is(0), header() {}
     ~StateFile() { delete is; }
     void set_filename(const string& fn) { filename = fn; }
     const SettingsFileHeader& get_header() const { return header; }
@@ -182,6 +182,7 @@ private:
     string filename;
     string tmpfile;
     ofstream os;
+protected:
     istream *is;
 public:
     JsonParser jp;
@@ -209,6 +210,7 @@ public:
     PresetFile();
     ~PresetFile() { delete is; }
     void open(const string& fname);
+    bool fail() { reopen(); return is->fail(); }
     const string& get_filename() { return filename; }
     const SettingsFileHeader& get_header();
     int size() const { return entries.size(); }
@@ -275,18 +277,17 @@ protected:
     void load(Source src, const string& name, const string& factory);
     void set_io(AbstractStateIO* st, AbstractPresetIO* pr) { state_io = st; preset_io = pr; }
     void convert_presetfile();
+    void change_preset_file(const string& newfile);
 public:
     inline sigc::signal<void>& signal_selection_changed() {
 	return selection_changed; }
-    GxSettingsBase(string sfname, gx_engine::ModuleSequencer& seq_);
+    GxSettingsBase(gx_engine::ModuleSequencer& seq_);
     ~GxSettingsBase();
-    bool change_preset_file(const string& newfile);
     Source get_current_source() { return current_source; }
     const string& get_current_factory() { return current_factory; }
     const string& get_current_name() { return current_name; }
     const string& get_factory(unsigned int idx) { //FIXME fix usage and remove
 	return factory_presets.at(idx)->name; }
-    string get_displayname();
     void set_statefilename(const string& fn) { statefile.set_filename(fn); }
     void save_to_state(bool preserve_preset=false);
     void save_to_current_preset() {
@@ -297,6 +298,7 @@ public:
     void erase_current_preset() {
 	if (current_source == preset) erase_preset(current_name); }
     void erase_preset(const string& name);
+    bool presetfile_fail() { return presetfile.fail(); }
     bool clear_preset() { return presetfile.clear(); }
     void fill_preset_names(vector<string>& l) {  presetfile.fill_names(l); }
     void fill_factory_names(vector<string>& l) const;
