@@ -2,6 +2,8 @@
 #include <string.h>
 #include <ladspa.h>
 #include <iostream>
+#include <jack/jack.h>
+#include <jack/thread.h>
 
 #include "engine.h"
 
@@ -83,7 +85,6 @@ LadspaSettings::LadspaSettings(string sfname, gx_engine::GxEngine& engine_)
       engine(engine_) {
     set_io(&state_io, 0);
     set_statefilename(sfname);
-    load();
 }
 
 LadspaSettings::~LadspaSettings() {
@@ -103,8 +104,7 @@ private:
     unsigned long SampleRate;
     unsigned long SampleCount;   
     LADSPA_Data * input_buffer;
-    LADSPA_Data * output1_buffer;
-    LADSPA_Data * output2_buffer;
+    LADSPA_Data * output_buffer;
     gx_engine::GxEngine engine;
     LadspaSettings settings;
 public:
@@ -119,11 +119,18 @@ LadspaGuitarix::LadspaGuitarix(unsigned long sr)
     : SampleRate(sr),
       SampleCount(),
       input_buffer(),
-      output1_buffer(),
-      output2_buffer(),
+      output_buffer(),
       engine("", gx_gui::get_group_table()),
       settings(string(getenv("HOME"))+"/.gx_head/gx_head_rc", engine) {
-    engine.set_samplerate(sr);
+    jack_status_t jackstat; // connecting to jack is just a hack for testing
+    jack_client_t *client = jack_client_open("guitarix-test", JackNoStartServer, &jackstat);
+    if (client) {
+	engine.init(jack_get_sample_rate(client), jack_get_buffer_size(client),
+		    SCHED_FIFO, jack_client_real_time_priority(client));
+	jack_client_close(client);
+    }
+    //engine.set_samplerate(sr);
+    settings.load();
     engine.clear_stateflag(gx_engine::GxEngine::SF_INITIALIZING);
 }
 
@@ -150,7 +157,7 @@ void LadspaGuitarix::runGuitarix(LADSPA_Handle Instance, unsigned long SampleCou
 	self.SampleCount = SampleCount;
     }
     self.engine.mono_chain.process(
-	SampleCount, self.input_buffer, self.output1_buffer);//, self.output2_buffer);
+	SampleCount, self.input_buffer, self.output_buffer);
 }
 
 
@@ -184,7 +191,6 @@ LADSPA_Handle instantiateGuitarix(
     	return instance;
     }
     instance = new LadspaGuitarix(SampleRate);
-    printf("+XXX %p\n", instance);
     return instance;
 }
 
@@ -192,16 +198,13 @@ LADSPA_Handle instantiateGuitarix(
 
 /* Throw away a simple delay line. */
 void cleanupGuitarix(LADSPA_Handle Instance) {
-    printf("-XXX %p\n", Instance);
     //delete static_cast<LadspaGuitarix*>(Instance);
-    //instance = 0;
 }
 
 /*****************************************************************************/
 
 #define GUITARIX_INPUT   0
-#define GUITARIX_OUTPUT1 1
-#define GUITARIX_OUTPUT2 2
+#define GUITARIX_OUTPUT 1
 
 /* Connect a port to a data location. */
 void LadspaGuitarix::connectPortToGuitarix(
@@ -211,11 +214,8 @@ void LadspaGuitarix::connectPortToGuitarix(
     case GUITARIX_INPUT:
 	self->input_buffer = DataLocation;
 	break;
-    case GUITARIX_OUTPUT1:
-	self->output1_buffer = DataLocation;
-	break;
-    case GUITARIX_OUTPUT2:
-	self->output2_buffer = DataLocation;
+    case GUITARIX_OUTPUT:
+	self->output_buffer = DataLocation;
 	break;
     }
 }
@@ -241,21 +241,18 @@ void _init() {
 	g_psDescriptor->Name = strdup("Guitarix");
 	g_psDescriptor->Maker = strdup("Guitarix Team");
 	g_psDescriptor->Copyright = strdup("None");
-	g_psDescriptor->PortCount = 2;//3;  //ONLY USE 2 PORT NOW
-	piPortDescriptors = (LADSPA_PortDescriptor *)calloc(3, sizeof(LADSPA_PortDescriptor));
+	g_psDescriptor->PortCount = 2;
+	piPortDescriptors = (LADSPA_PortDescriptor *)calloc(2, sizeof(LADSPA_PortDescriptor));
 	g_psDescriptor->PortDescriptors = (const LADSPA_PortDescriptor *)piPortDescriptors;
 	piPortDescriptors[GUITARIX_INPUT] =   LADSPA_PORT_INPUT  | LADSPA_PORT_AUDIO;
-	piPortDescriptors[GUITARIX_OUTPUT1] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
-	piPortDescriptors[GUITARIX_OUTPUT2] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
-	pcPortNames = (char **)calloc(3, sizeof(char *));
+	piPortDescriptors[GUITARIX_OUTPUT] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
+	pcPortNames = (char **)calloc(2, sizeof(char *));
 	g_psDescriptor->PortNames = (const char **)pcPortNames;
 	pcPortNames[GUITARIX_INPUT] = strdup("Input");
-	pcPortNames[GUITARIX_OUTPUT1] = strdup("Output1");
-	pcPortNames[GUITARIX_OUTPUT2] = strdup("Output2");
-	psPortRangeHints = ((LADSPA_PortRangeHint *)calloc(3, sizeof(LADSPA_PortRangeHint)));
+	pcPortNames[GUITARIX_OUTPUT] = strdup("Output");
+	psPortRangeHints = ((LADSPA_PortRangeHint *)calloc(2, sizeof(LADSPA_PortRangeHint)));
 	psPortRangeHints[GUITARIX_INPUT].HintDescriptor = 0;
-	psPortRangeHints[GUITARIX_OUTPUT1].HintDescriptor = 0;
-	psPortRangeHints[GUITARIX_OUTPUT2].HintDescriptor = 0;
+	psPortRangeHints[GUITARIX_OUTPUT].HintDescriptor = 0;
 	g_psDescriptor->PortRangeHints = (const LADSPA_PortRangeHint *)psPortRangeHints;
 	g_psDescriptor->instantiate = instantiateGuitarix;
 	g_psDescriptor->connect_port = LadspaGuitarix::connectPortToGuitarix;

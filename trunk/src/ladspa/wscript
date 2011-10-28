@@ -27,6 +27,7 @@ def build(bld):
         '../gx_head/gx_pluginloader.cpp',
         '../zita-convolver/zita-convolver.cc',
         '../zita-resampler/zita-resampler.cc',
+        '../plugins/zita_rev1.cc',
         ]
     
     for fn in sources:
@@ -36,7 +37,7 @@ def build(bld):
             includes = ['../headers', '..', '../../libgxwmm', '../../libgxw',
                         '../gx_head', '../zita-convolver'],
             uselib = ['GLIBMM','GIOMM','FFTW3','SNDFILE','JACK'],
-            uselib_local = ["plugins"],
+            #uselib_local = ["plugins"],
             target   = fn.replace(".cpp",""),
             source   = src,
             #install_path = '${LADSPADIR}',
