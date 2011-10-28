@@ -66,7 +66,7 @@ gboolean gx_refresh_meter_level(gpointer args) {
 
 /* -------------- for thread that checks jackd liveliness -------------- */
 gboolean gx_survive_jack_shutdown(gpointer arg) {
-    GtkWidget* wd = gx_gui::GxMainInterface::get_instance().getJackConnectItem();
+    Gtk::CheckMenuItem& wd = gx_gui::GxMainInterface::get_instance().mainmenu.jack_connect_item;
 
     // return if jack is not down
     if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
@@ -74,7 +74,7 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
 	    gx_gui::GxMainInterface::get_instance().jack.set_jack_down(false);
 	}
 	// let's make sure we get out of here
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
+	wd.set_active(true);
 	gx_system::gx_print_warning("Jack Shutdown",
 				    _("jack has bumped us out!!"));
 
@@ -83,7 +83,7 @@ gboolean gx_survive_jack_shutdown(gpointer arg) {
     } else {
         // refresh some stuff. Note that it can be executed
         // more than once, no harm here
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), FALSE);
+        wd.set_active(false);
         gx_gui::GxMainInterface::get_instance().jack.set_jack_down(true);
 	gx_system::gx_print_error("Jack Shutdown",
 				  _("jack has bumped us out!!"));

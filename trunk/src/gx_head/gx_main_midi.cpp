@@ -50,7 +50,7 @@ void MidiControllerTable::response_cb(GtkWidget *widget, gint response_id, gpoin
         m.load();
         return;
     }
-    gtk_check_menu_item_set_active(m.menuitem, FALSE);
+    m.menuitem.set_active(false);
 }
 
 void MidiControllerTable::destroy_cb(GtkWidget*, gpointer data) {
@@ -126,26 +126,26 @@ void MidiControllerTable::load() {
     }
 }
 
-void MidiControllerTable::toggle(GtkWidget* widget, gpointer data) {
-    if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(data))) {
+void MidiControllerTable::toggle(Gtk::CheckMenuItem& item) {
+    if (!item.get_active()) {
         if (window) {
             gtk_widget_destroy(window);
         }
     } else {
         if (!window) {
-            new MidiControllerTable(GTK_CHECK_MENU_ITEM(data));
+            new MidiControllerTable(item);
         }
     }
 }
 
 MidiControllerTable::~MidiControllerTable() {
     window = NULL;
-    gtk_widget_unref(GTK_WIDGET(menuitem));
+    menuitem.unreference();
 }
 
-MidiControllerTable::MidiControllerTable(GtkCheckMenuItem *item) {
-    menuitem = item;
-    gtk_widget_ref(GTK_WIDGET(item));
+MidiControllerTable::MidiControllerTable(Gtk::CheckMenuItem& item)
+    : menuitem(item) {
+    item.reference();
 
     GtkBuilder * builder = gtk_builder_new();
     window = gx_gui::load_toplevel(builder, "midi.glade", "MidiControllerTable");

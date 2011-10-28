@@ -51,7 +51,6 @@ void GxMainInterface::setup() {
 
     // ----- add the menubar on top
     {
-        addMainMenu();
         openHorizontalBox("");
         {
             openVerticalBox("");

@@ -103,14 +103,11 @@ extern GuiVariables guivar;
 class GlobalWidgets {
  public:
     /* global GUI widgets */
-    GtkWidget*          menuh;
     GtkWidget*          midibox;
     GtkWidget*          patch_info;
     GtkWidget*          tuner_widget;
     GtkWidget*          rack_widget;
     GtkWidget*          srack_widget;
-    GtkWidget*          menu_mono_rack;
-    GtkWidget*          menu_stereo_rack;
     GtkWidget*          rack_tool_bar;
     GtkWidget*          set_label;
 
@@ -119,15 +116,6 @@ class GlobalWidgets {
     GdkPixbuf*          ibm;
     GdkPixbuf*          ibr;
 
-    /* jack server status icons */
-    GtkWidget*          gx_jackd_on_image;
-    GtkWidget*          gx_jackd_off_image;
-
-    /* engine status images */
-    GtkWidget*          gx_engine_on_image;
-    GtkWidget*          gx_engine_off_image;
-    GtkWidget*          gx_engine_bypass_image;
-    GtkWidget*          gx_engine_item;
     GtkStatusIcon*      status_icon;
 };
 
@@ -147,6 +135,7 @@ class MenuCheckItem: public Gtk::CheckMenuItem {
  public:
     // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
     MenuCheckItem(): Gtk::CheckMenuItem("", true), param() {}
+    MenuCheckItem(const char *label): Gtk::CheckMenuItem(label, true), param() {}
     void set_parameter(SwitchParameter *p);
     void add_parameter(SwitchParameter *p);
     SwitchParameter * get_parameter();
@@ -169,10 +158,9 @@ class RadioCheckItem: public Gtk::RadioMenuItem {
     SwitchParameter* param;
     void on_my_toggled();
  public:
-    //Gtk::RadioMenuItem::Group Group;
     // FIXME not gtk-2.12: MenuCheckItem() { set_use_underline(); }
-    RadioCheckItem(Gtk::RadioMenuItem::Group& group):
-	Gtk::RadioMenuItem(group, "", true), param() {}
+    RadioCheckItem(Gtk::RadioMenuItem::Group& group, const char *label=""):
+	Gtk::RadioMenuItem(group, label, true), param() {}
     void set_parameter(SwitchParameter *p);
     SwitchParameter * get_parameter();
 };
@@ -403,6 +391,42 @@ public:
 };
 
 /****************************************************************
+ ** KeyFinder
+ ** finds next unused Key in a GtkAccelGroup
+ */
+
+class KeyFinder {
+private:
+    typedef list<GtkAccelKey> accel_list;
+    unsigned int next_key;
+    accel_list l;
+    static gboolean add_keys_to_list(GtkAccelKey *key, GClosure *cl, gpointer data);
+public:
+    KeyFinder(Glib::RefPtr<Gtk::AccelGroup> group);
+    ~KeyFinder();
+    int operator()();
+};
+
+/****************************************************************
+ ** GxUiRadioMenu
+ ** adds the values of an UEnumParameter as Gtk::RadioMenuItem's
+ ** to a Gtk::MenuShell
+ */
+
+class GxUiRadioMenu: public gx_ui::GxUiItemInt {
+private:
+    vector<Gtk::RadioMenuItem*> items;
+    Gtk::RadioButtonGroup group;
+    UIntParameter& param;
+    virtual void reflectZone();
+    void on_activate(int i);
+public:
+    GxUiRadioMenu(gx_ui::GxUI* ui, Glib::RefPtr<Gtk::AccelGroup>& ag,
+		  UIntParameter& param, Gtk::MenuShell& menucont);
+    virtual ~GxUiRadioMenu();
+};
+
+/****************************************************************
  ** class TextLoggingBox
  */
 
@@ -428,15 +452,134 @@ public:
     ~TextLoggingBox();
 };
 
-#define NJACKLAT (9)
+#define NJACKLAT (10)
 
 #define stackSize 256
 #define kSingleMode 0
 #define kBoxMode 1
 #define kTabMode 2
 
+class MainMenu: public Gtk::HBox {      // top menu bar box container
+public:
+    Gtk::MenuBar       menucont; // normal menu (left)
+    Gtk::MenuBar       menupix;  // pixmaps on the right
+    Gtk::Tooltips      tooltips;
+
+    // menubar images
+    Gtk::ImageMenuItem engine_on_image;
+    Gtk::Image         engineon;
+    Gtk::ImageMenuItem engine_off_image;
+    Gtk::Image         engineoff;
+    Gtk::ImageMenuItem engine_bypass_image;
+    Gtk::Image         engineby;
+    Gtk::ImageMenuItem jackd_on_image;
+    Gtk::Image         jackstateon;
+    Gtk::ImageMenuItem jackd_off_image;
+    Gtk::Image         jackstateoff;
+
+    // engine menu
+    Gtk::MenuItem      engine_menu_label;
+    Gtk::Menu          engine_menu;
+    Gtk::CheckMenuItem engine_start_stop_item;
+    Gtk::MenuItem      engine_bypass_item;
+    Gtk::CheckMenuItem jack_connect_item;
+    Gtk::CheckMenuItem portmap_item;
+    Gtk::MenuItem      jack_latency_label;
+    Gtk::Menu          jack_latency_menu;
+    Gtk::RadioMenuItem::Group jack_latency_group;
+    Gtk::CheckMenuItem engine_midi_item;
+    Gtk::MenuItem      engine_quit_item;
+
+    // preset menu
+    Gtk::MenuItem      preset_menu_label;
+    Gtk::Menu          preset_menu;
+    Gtk::MenuItem      preset_load_item;
+    Gtk::MenuItem      preset_save_item;
+    Gtk::MenuItem      preset_save_new;
+    Gtk::MenuItem      preset_rename_item;
+    Gtk::Menu          preset_submenu[GX_NUM_OF_PRESET_LISTS];
+    Gtk::MenuItem      preset_factory_settings_label;
+    Gtk::Menu          preset_factory_settings_menu;
+    Gtk::MenuItem      factory_funkmuscle_label;
+    Gtk::MenuItem      factory_zettberlin_label;
+    Gtk::MenuItem      factory_autoandimat_label;
+    Gtk::MenuItem      factory_StudioDave_label;
+    Gtk::MenuItem      factory_JP_label;
+    Gtk::Menu          factory_sub_menu[5];
+
+    // preset more menu
+    Gtk::MenuItem      preset_patch_info_item;
+    Gtk::MenuItem      preset_load_file_item;
+    Gtk::MenuItem      preset_export_file_item;
+    Gtk::MenuItem      preset_recall_item;
+    Gtk::MenuItem      preset_save_main_item;
+    Gtk::MenuItem      preset_more_label;
+    Gtk::Menu          preset_more_menu;
+    Gtk::MenuItem      preset_next;
+    Gtk::MenuItem      preset_previous;
+    Gtk::MenuItem      preset_save_active;
+    Gtk::MenuItem      preset_rename_active;
+    Gtk::MenuItem      preset_delete_active;
+    Gtk::MenuItem      preset_delete_all;
+
+    // plugin menu
+    Gtk::MenuItem      plugin_menu_label;
+    Gtk::Menu          plugin_menu;
+    MenuCheckItem      fShowToolBar;
+    MenuCheckItem      fShowRRack;
+    MenuCheckItem      fShowRack;
+    Gtk::MenuItem      plugin_mono_plugins;
+    Gtk::Menu          plugin_mono_menu;
+    MenuCheckItem      fShowMidiOut;
+    MenuCheckItem      fShowSRack;
+    Gtk::MenuItem      plugin_stereo_plugins;
+    Gtk::Menu          plugin_stereo_menu;
+    Gtk::RadioMenuItem::Group rack_order_group;
+    RadioCheckItem     fOrdervRack;
+    RadioCheckItem     fOrderhRack;
+
+    // amp menu
+    Gtk::MenuItem      amp_menu_label;
+    Gtk::Menu          amp_menu;
+    GxUiRadioMenu      amp_radio_menu;
+
+    // options menu
+    Gtk::MenuItem      options_menu_label;
+    Gtk::Menu          options_menu;
+    Gtk::CheckMenuItem options_meterbridge;
+    MenuCheckItem      fShowTuner;
+    Gtk::MenuItem      skin_menu_label;
+    Gtk::Menu          skin_menu;
+    Gtk::RadioMenuItem::Group skingroup;
+    MenuCheckItem      fSetMouse;
+    MenuCheckItem      fShowLogger;
+    MenuCheckItem      fShowTooltips;
+    MenuCheckItem      fMidiInPreset;
+    Gtk::MenuItem      options_reset_all;
+
+    // about menu
+    Gtk::MenuItem      about_menu_label;
+    Gtk::Menu          about_menu;
+    Gtk::MenuItem      about_about_item;
+    Gtk::MenuItem      about_help_item;
+
+    void addEngineMenu(GxMainInterface& intf);
+    void addPresetMenu(GxMainInterface& intf);
+    void addExtraPresetMenu(GxMainInterface& intf);
+    void addPluginMenu(GxMainInterface& intf);
+    void addAmpMenu(GxMainInterface& intf);
+    void addOptionMenu(GxMainInterface& intf);
+    void addGuiSkinMenu(GxMainInterface& intf);
+    void addAboutMenu(GxMainInterface& intf);
+
+    void addJackServerMenu(GxMainInterface& intf);
+
+    MainMenu(GxMainInterface& intf);
+};
+
 class GxMainInterface : public sigc::trackable, public gx_ui::GxUI {
- private:
+    friend class MainMenu;
+private:
     static GxMainInterface *instance;
 public://FIXME
     Gtk::Window           fWindow;
@@ -446,9 +589,13 @@ public://FIXME
     void portmap_connection_changed(string port1, string port2, bool conn);
 private:
     gx_portmap::PortMapWindow* portmap_window;
-    Gtk::CheckMenuItem    portmap_item;
     void                  on_portmap_activate();
     void                  on_portmap_response(int);
+    /* engine status and switch */
+    void refresh_engine_status_display();
+    void toggle_engine_switch();
+    void toggle_engine_bypass();
+    void sync_engine_switch();
 
     static void           gx_systray_menu(GtkWidget*, gpointer);
     static void           gx_hide_extended_settings(GtkWidget*, gpointer);
@@ -486,7 +633,8 @@ private:
     void                  save_window_position();
     void                  refresh_latency_menu();
     bool                  connect_jack(bool v);
-    static void           gx_jack_connection(GtkCheckMenuItem* p, gpointer arg);
+    void                  gx_jack_connection();
+    void                  set_jack_buffer_size(jack_nframes_t buf_size);
     int                   fTop;
     GtkWidget*            fBox[stackSize];
     GtkWidget*            rBox;
@@ -505,16 +653,8 @@ private:
 
     GtkWidget*            fSignalLevelBar;
 
-    // menu items
-    map<string, GtkWidget*> fMenuList;
-    MenuCheckItem         fMidiInPreset;
-    MenuCheckItem         fShowTooltips;
-    MenuCheckItem         fShowTuner;
-    MenuCheckItem         fSetMouse;
-
     // jack menu widgets
-    GtkWidget*            fJackConnectItem;
-    GtkWidget*            fJackLatencyItem[NJACKLAT];
+    Gtk::RadioMenuItem*   fJackLatencyItem[NJACKLAT];
 
     GtkWidget*            addWidget(const char* label, GtkWidget* w);
     virtual void          pushBox(int mode, GtkWidget* w);
@@ -526,13 +666,6 @@ public :
 private:
     ReportXrun            report_xrun;
 public:
-
-    MenuCheckItem         fShowRack;
-    MenuCheckItem         fShowRRack;
-    MenuCheckItem         fShowSRack;
-    MenuCheckItem         fShowLogger;
-    MenuCheckItem         fShowMidiOut;
-    MenuCheckItem         fShowToolBar;
 
     GtkWidget*            RBox;
 
@@ -547,9 +680,7 @@ public:
     ~GxMainInterface();
     static GxMainInterface& get_instance() { assert(instance); return *instance; }
 
-    GtkWidget*   const    getJackConnectItem()  const { return fJackConnectItem; }
-    GtkWidget*   const    getJackLatencyItem(const jack_nframes_t bufsize) const;
-    GtkWidget*   const    getMenu(const string name) { return fMenuList[name]; }
+    Gtk::RadioMenuItem* const getJackLatencyItem(const jack_nframes_t bufsize) const;
     
     void                  set_waveview_buffer(unsigned int);
     Gxw::WaveView&        getWaveView()               { return fWaveView;        }
@@ -775,6 +906,9 @@ public:
     void create_ptoggle_button(const char *label) {
 	addwidget((new PToggleButton(label))->get_widget());
     }
+public:
+    MainMenu mainmenu;
+private:
 };
 
 /****************************************************************/

@@ -33,10 +33,10 @@
 #define SRC_HEADERS_GUITARIX_H_
 
 #include <gtk/gtk.h>
+#include <gtkmm.h>
 
 #include "engine.h"
 
-#include "gx_child_process.h"
 #include "gx_cairo_callbacks.h"
 
 #include "gx_threads.h"
@@ -45,6 +45,7 @@
 #include "gx_portmap.h"
 #include "gx_main_midi.h"
 #include "gx_main_boxes.h"
+#include "gx_child_process.h"
 #include "gx_main_interface.h"
 
 #endif  // SRC_HEADERS_GUITARIX_H_

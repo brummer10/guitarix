@@ -211,23 +211,23 @@ public:
     CmdlineOptions();
     ~CmdlineOptions();
     void process(int argc, char** argv);
-    const string& get_path_to_program() { return path_to_program; }
-    string get_style_filepath(const string& basename) { return style_dir + basename; }
-    string get_pixmap_filepath(const string& basename) { return pixmap_dir + basename; }
-    string get_builder_filepath(const string& basename) { return builder_dir + basename; }
-    string get_user_filepath(const string& basename) { return user_dir + basename; }
-    string get_factory_filepath(const string& basename) {
+    const string& get_path_to_program() const { return path_to_program; }
+    string get_style_filepath(const string& basename) const { return style_dir + basename; }
+    string get_pixmap_filepath(const string& basename) const { return pixmap_dir + basename; }
+    string get_builder_filepath(const string& basename) const { return builder_dir + basename; }
+    string get_user_filepath(const string& basename) const { return user_dir + basename; }
+    string get_factory_filepath(const string& basename) const {
 	return get_style_filepath(basename); } //FIXME should be changed
-    const string& get_user_dir() { return user_dir; }
-    const string& get_plugin_dir() { return plugin_dir; }
-    const Glib::ustring& get_rcset() { return rcset; }
-    const string& get_loadfile() { return load_file; }
-    const Glib::ustring& get_jack_instancename() { return jack_instance; }
-    const Glib::ustring& get_jack_uuid() { return jack_uuid; }
-    const Glib::ustring& get_jack_uuid2() { return jack_uuid2; }
-    const Glib::ustring& get_jack_midi() { return jack_midi; }
-    const Glib::ustring& get_jack_input() { return jack_input; }
-    Glib::ustring get_jack_output(unsigned int n);
+    const string& get_user_dir() const { return user_dir; }
+    const string& get_plugin_dir() const { return plugin_dir; }
+    const Glib::ustring& get_rcset() const { return rcset; }
+    const string& get_loadfile() const { return load_file; }
+    const Glib::ustring& get_jack_instancename() const { return jack_instance; }
+    const Glib::ustring& get_jack_uuid() const { return jack_uuid; }
+    const Glib::ustring& get_jack_uuid2() const { return jack_uuid2; }
+    const Glib::ustring& get_jack_midi() const { return jack_midi; }
+    const Glib::ustring& get_jack_input() const { return jack_input; }
+    Glib::ustring get_jack_output(unsigned int n) const;
 };
 
 inline CmdlineOptions& get_options() {

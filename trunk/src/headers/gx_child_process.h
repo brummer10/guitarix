@@ -93,11 +93,11 @@ class JackCapture: public sigc::trackable {
 
 class Meterbridge: public sigc::trackable {
  private:
-    GtkCheckMenuItem *item;
+    Gtk::CheckMenuItem& item;
     void terminated(bool pgm_found);
-    Meterbridge(GxChild *p, GtkCheckMenuItem *i);
+    Meterbridge(GxChild *p, Gtk::CheckMenuItem& i);
  public:
-    static void start_stop(GtkCheckMenuItem *menuitem, gpointer);
+    static void start_stop(Gtk::CheckMenuItem& menuitem);
     static void stop();
 };
 

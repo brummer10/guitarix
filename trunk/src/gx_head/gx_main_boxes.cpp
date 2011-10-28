@@ -293,17 +293,14 @@ bool GxWindowBox::on_window_delete_event(GdkEventAny*, gpointer d) {
 }
 
 bool GxWindowBox::on_button_pressed(GdkEventButton* event) {
+    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
     if ((event->type == GDK_BUTTON_PRESS) && (event->button == 3)) {
         const gchar * title = gtk_widget_get_name(GTK_WIDGET(window.gobj()));
         if (strcmp(title, "MonoRack") == 0) {
-            guint32 tim = gtk_get_current_event_time();
-            gtk_menu_popup(GTK_MENU(gw.menu_mono_rack), NULL, NULL, NULL,
-                           (gpointer) gw.menu_mono_rack, 2, tim);
+            gui.mainmenu.plugin_mono_menu.popup(2, gtk_get_current_event_time());
         return true;
         } else if (strcmp(title, "StereoRack") == 0) {
-            guint32 tim = gtk_get_current_event_time();
-            gtk_menu_popup(GTK_MENU(gw.menu_stereo_rack), NULL, NULL, NULL,
-                          (gpointer) gw.menu_stereo_rack, 2, tim);
+            gui.mainmenu.plugin_stereo_menu.popup(2, gtk_get_current_event_time());
         return true;
         }
     }
@@ -337,10 +334,9 @@ bool GxScrollBox::on_window_delete_event(GdkEventAny*, gpointer d) {
 }
 
 bool GxScrollBox::on_button_pressed(GdkEventButton* event) {
+    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
     if ((event->type == GDK_BUTTON_PRESS) && (event->button == 3)) {
-        guint32 tim = gtk_get_current_event_time();
-        gtk_menu_popup(GTK_MENU(gw.menu_mono_rack), NULL, NULL, NULL,
-                      (gpointer) gw.menu_mono_rack, 2, tim);
+        gui.mainmenu.plugin_mono_menu.popup(2, gtk_get_current_event_time());
         return true;
     }
     return false;
@@ -359,7 +355,7 @@ void GxScrollBox::on_rack_reorder_horizontal() {
             gtk_container_remove(GTK_CONTAINER(parent), gx_gui::gw.srack_widget);
             gtk_box_pack_start(GTK_BOX(box1.gobj()), gx_gui::gw.srack_widget, false, true, 0);
             gtk_widget_unref(gx_gui::gw.srack_widget);
-            if (gui.fShowSRack.get_active()) m_scrolled_window2.show();
+            if (gui.mainmenu.fShowSRack.get_active()) m_scrolled_window2.show();
             paintbox1.show();
             parent = gtk_widget_get_parent(GTK_WIDGET(gx_gui::gw.rack_tool_bar));
 
@@ -442,13 +438,12 @@ void GxScrollBox::on_rack_reorder_vertical() {
     }
 }
 
-GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
-			 const char *pb_2, Glib::ustring titl, GtkWidget * d)
+GxScrollBox::GxScrollBox(gx_ui::GxUI& ui, const char *pb_2, Glib::ustring titl, GtkWidget * d,
+			 RadioCheckItem& fOrdervRack_, RadioCheckItem& fOrderhRack_)
     : window(Gtk::WINDOW_TOPLEVEL),
       rbox(false, 4),
-      group(),
-      fOrderhRack(group),
-      fOrdervRack(group) {
+      fOrdervRack(fOrdervRack_),
+      fOrderhRack(fOrderhRack_) {
     Glib::ustring title = titl;
     window.add_events(Gdk::BUTTON_PRESS_MASK);
     m_scrolled_window.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
@@ -477,15 +472,13 @@ GxScrollBox::GxScrollBox(gx_ui::GxUI& ui,
     const gchar * mtitle = _("Order Rack Vertically");
     fOrdervRack.set_label(mtitle);
     gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
-    gtk_menu_shell_append(GTK_MENU_SHELL(gui.getMenu("PluginMenu")),
-                          GTK_WIDGET(fOrdervRack.gobj()));
+    gui.mainmenu.plugin_menu.append(fOrdervRack);
     fOrdervRack.set_parameter(new SwitchParameter("system.order_rack_v", false, false));
     fOrdervRack.show();
 
     mtitle = _("Order Rack Horizontally");
     fOrderhRack.set_label(mtitle);
-    gtk_menu_shell_append(GTK_MENU_SHELL(gui.getMenu("PluginMenu")),
-                          GTK_WIDGET(fOrderhRack.gobj()));
+    gui.mainmenu.plugin_menu.append(fOrderhRack);
     fOrderhRack.set_active(false);
     fOrderhRack.set_parameter(new SwitchParameter("system.order_rack_h", false, false));
     fOrderhRack.show();
@@ -507,17 +500,14 @@ bool GxToolBox::on_window_delete_event(GdkEventAny*, gpointer d) {
 }
 
 bool GxToolBox::on_button_pressed(GdkEventButton* event) {
+    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
     if ((event->type == GDK_BUTTON_PRESS) && (event->button == 3)) {
         const gchar * title = gtk_widget_get_name(GTK_WIDGET(window.gobj()));
         if (strcmp(title, "MonoRack") == 0) {
-            guint32 tim = gtk_get_current_event_time();
-            gtk_menu_popup(GTK_MENU(gw.menu_mono_rack), NULL, NULL, NULL,
-                           (gpointer) gw.menu_mono_rack, 2, tim);
+            gui.mainmenu.plugin_mono_menu.popup(2, gtk_get_current_event_time());
         return true;
         } else if (strcmp(title, "StereoRack") == 0) {
-            guint32 tim = gtk_get_current_event_time();
-            gtk_menu_popup(GTK_MENU(gw.menu_stereo_rack), NULL, NULL, NULL,
-                          (gpointer) gw.menu_stereo_rack, 2, tim);
+	    gui.mainmenu.plugin_stereo_menu.popup(2, gtk_get_current_event_time());
         return true;
         }
     }

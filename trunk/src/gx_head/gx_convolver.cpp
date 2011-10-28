@@ -400,7 +400,9 @@ public:
 	if (imprate != samplerate) {
 	    vec = resamp.process(imprate, *count, impresp, samplerate, count);
 	    if (!vec) {
-		gx_system::gx_print_error("convolver", "failed to resample");
+		gx_system::gx_print_error(
+		    "convolver",
+		    boost::format("failed to resample %1% -> %2%") % imprate % samplerate);
 		return 0;
 	    }
 	    return vec;

@@ -303,17 +303,20 @@ GxMainInterface* GxMainInterface::instance = 0;
 
 /* create main window*/
 GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::CmdlineOptions& options_)
-    : fWindow(Gtk::WINDOW_TOPLEVEL),
+    : sigc::trackable(),
+      gx_ui::GxUI(),
+      fWindow(Gtk::WINDOW_TOPLEVEL),
       options(options_),
       fAccelGroup(fWindow.get_accel_group()),
       portmap_window(0),
-      portmap_item(_("Jack _Ports "), true),
       fLoggingWindow(_("Logging Window")),
       fTuner(engine_.tuner),
       engine(engine_),
       jack(engine_),
       gx_settings(options_, jack, engine.convolver, midi_std_ctr, controller_map, engine_),
-      report_xrun(jack) {
+      report_xrun(jack),
+      mainmenu(*this)
+ {
     engine.set_jack(&jack);
     jack.xrun.connect(sigc::mem_fun(report_xrun, &ReportXrun::run));
     jack.session.connect(sigc::mem_fun(*this, &GxMainInterface::jack_session_event));
@@ -357,9 +360,6 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
 		     G_CALLBACK(gx_systray_menu), this);
 
     /*---------------- create boxes ----------------*/
-    fTop = 0;
-    fBox[fTop] = gtk_vbox_new(homogene, 4);
-    fMode[fTop] = kBoxMode;
 
     /*---------------- add mainbox to main window ---------------*/
     fWindow.add(*Glib::wrap(fBox[fTop]));
@@ -392,19 +392,11 @@ void GxMainInterface::do_program_change(int pgm) {
     bool in_preset = gx_settings.idx_in_preset(pgm);
     if (in_preset) {
 	gx_settings.load_preset_by_idx(pgm);
-    }
-    if (in_preset) {
-        if (engine.get_state() == gx_engine::kEngineBypass) {
-            // engine bypass but preset found -> engine on
-            //engine.set_state(gx_engine::kEngineOn);
-	    gx_engine_switch(0, 0); //FIXME
+	if (engine.get_state() == gx_engine::kEngineBypass) {
+	    toggle_engine_bypass();
 	}
-    } else {
-        if (engine.get_state() == gx_engine::kEngineOn) {
-            // engine on but preset not found -> engine bypass
-            //engine.set_state(gx_engine::kEngineBypass);
-	    gx_engine_switch(0, gpointer(1)); //FIXME
-	}
+    } else if (engine.get_state() == gx_engine::kEngineOn) {
+	toggle_engine_bypass();
     }
 }
 
@@ -435,16 +427,12 @@ void GxMainInterface::jack_connection_change() {
         // we bring down jack capture and meterbridge
         gx_child_process::Meterbridge::stop();
         //gx_child_process::JackCapture::stop(); unused
-        if (gx_gui::gw.gx_jackd_on_image) {
-            gtk_widget_hide(gx_gui::gw.gx_jackd_on_image);
-            gtk_widget_show(gx_gui::gw.gx_jackd_off_image);
-        }
+	mainmenu.jackd_on_image.hide();
+	mainmenu.jackd_off_image.show();
 	gx_system::gx_print_info(_("Jack Server"), _("Disconnected from Jack Server"));
     } else {
-	if (gx_gui::gw.gx_jackd_on_image) {
-	    gtk_widget_show(gx_gui::gw.gx_jackd_on_image);
-	    gtk_widget_hide(gx_gui::gw.gx_jackd_off_image);
-	}
+	mainmenu.jackd_on_image.show();
+	mainmenu.jackd_off_image.hide();
 	gx_system::gx_print_info(_("Jack Server"), _("Connected to Jack Server"));
     }
 }
@@ -454,11 +442,11 @@ void GxMainInterface::jack_connection_change() {
  */
 
 // ------- retrieve jack latency menu item
-GtkWidget* const GxMainInterface::getJackLatencyItem(jack_nframes_t bufsize) const {
+Gtk::RadioMenuItem* const GxMainInterface::getJackLatencyItem(jack_nframes_t bufsize) const {
     if (bufsize & (bufsize-1)) {
         return NULL; // not power of 2
     }
-    const int minbuf = 5; // 2**5 = 32 // FIXME magic value
+    const int minbuf = 4; // 2**4 = 16 // FIXME magic value
     int index = -(minbuf+1);
     while (bufsize) {
         bufsize >>= 1;
@@ -620,7 +608,7 @@ void TextLoggingBox::show_msg(string msgbuf, gx_system::GxMsgType msgtype) {
 
 bool GxMainInterface::on_logger_delete_event(GdkEventAny*) {
     fLoggingWindow.hide();
-    fShowLogger.set_active(false);
+    mainmenu.fShowLogger.set_active(false);
     return true;
 }
 
@@ -1226,7 +1214,7 @@ void GxMainInterface::openVerticalMidiBox(const char* label) {
     child_list =  gtk_container_get_children(GTK_CONTAINER(box1));
     box1 = reinterpret_cast<GtkWidget *>(g_list_nth_data(child_list, 0));
     g_list_free(child_list);
-    box->m_tcb.set_parameter(fShowMidiOut.get_parameter());
+    box->m_tcb.set_parameter(mainmenu.fShowMidiOut.get_parameter());
     box->m_tcb.m_label.set_text(_("MIDI out"));
     gtk_container_add(GTK_CONTAINER(box1), GTK_WIDGET(box->m_bbox.gobj()));
 }
@@ -1274,8 +1262,7 @@ void GxMainInterface::openDialogBox(const char *id_dialog, const char *id_switch
     dialog->menuitem.add_accelerator(
 	"activate", fAccelGroup, accel_key,
 	Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);  // FIXME MOD1_MASK
-    gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsMono"]),
-                          GTK_WIDGET(dialog->menuitem.gobj()));
+    mainmenu.plugin_mono_menu.append(dialog->menuitem);
     dialog->menuitem.show();
     //dialog->menuitem.set_parameter(new SwitchParameter(p, true, false));
 
@@ -1312,8 +1299,7 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
     bdialog->menuitem.add_accelerator(
 	"activate", fAccelGroup, accel_key,
 	Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["PluginsStereo"]),
-                          GTK_WIDGET(bdialog->menuitem.gobj()));
+    mainmenu.plugin_stereo_menu.append(bdialog->menuitem);
     bdialog->menuitem.show();
     //bdialog->menuitem.set_parameter(new SwitchParameter(p, true, false));
 
@@ -1330,14 +1316,14 @@ void GxMainInterface::opensDialogBox(const char *id_dialog, const char *id_switc
 /* button box for the (show)effect buttons*/
 void GxMainInterface::openToolBar(const char* label) {
     GxToolBox *box =  new GxToolBox(*this,
-        pb_gxrack_expose, _("Plugin Bar"), GTK_WIDGET(fShowToolBar.gobj()));
+        pb_gxrack_expose, _("Plugin Bar"), GTK_WIDGET(mainmenu.fShowToolBar.gobj()));
 
     // box->window.set_size_request(-1,524);
     gw.rack_tool_bar = GTK_WIDGET(box->window.gobj());
     tBox = GTK_WIDGET(box->rbox.gobj());
     box->rbox.add(box->box1);
-    box->m_tmono_rack.set_parameter(fShowRack.get_parameter());
-    box->m_tstereo_rack.set_parameter(fShowSRack.get_parameter());
+    box->m_tmono_rack.set_parameter(mainmenu.fShowRack.get_parameter());
+    box->m_tstereo_rack.set_parameter(mainmenu.fShowSRack.get_parameter());
     box->m_tmono_rack.m_label.set_text(_("mono rack"));
     box->m_tstereo_rack.m_label.set_text(_("stereo rack"));
 
@@ -1353,7 +1339,7 @@ void GxMainInterface::openToolBar(const char* label) {
 /* the mono rack*/
 void GxMainInterface::openPlugBox(const char* label) {
     GxWindowBox *plugbox =  new GxWindowBox(*this,
-        label, GTK_WIDGET(fShowRack.gobj()));
+        label, GTK_WIDGET(mainmenu.fShowRack.gobj()));
     gw.rack_widget = GTK_WIDGET(plugbox->window.gobj());
     plugbox->box.pack_start(plugbox->rbox, true, true, 0);
     plugbox->window.set_name("MonoRack");
@@ -1365,8 +1351,9 @@ void GxMainInterface::openPlugBox(const char* label) {
 
 /* the main rack widget for all racks*/
 void GxMainInterface::openScrollBox(const char* label) {
-    GxScrollBox *scrollbox =  new GxScrollBox(*this,
-        pb_gxrack_expose, label, GTK_WIDGET(fShowRack.gobj()));
+    GxScrollBox *scrollbox =  new GxScrollBox(
+	*this, pb_gxrack_expose, label, GTK_WIDGET(mainmenu.fShowRack.gobj()),
+	mainmenu.fOrdervRack, mainmenu.fOrderhRack);
     scrollbox->box.pack_start(scrollbox->rbox, true, true, 0);
     // scrollbox->box.pack_start(scrollbox->vbox, false, false, 0);
     scrollbox->vbox.pack_start(scrollbox->box1, false, false, 0);
@@ -1384,7 +1371,7 @@ void GxMainInterface::openScrollBox(const char* label) {
 /* the stereo rack*/
 void GxMainInterface::openAmpBox(const char* label) {
     GxWindowBox *box =  new GxWindowBox(*this,
-        label, GTK_WIDGET(fShowSRack.gobj()));
+        label, GTK_WIDGET(mainmenu.fShowSRack.gobj()));
     box->box.pack_start(box->rbox, true, true, 0);
     gw.srack_widget = GTK_WIDGET(box->window.gobj());
     box->window.set_name("StereoRack");
@@ -1572,35 +1559,6 @@ struct uiToggleButton : public gx_ui::GxUiItemBool {
             gtk_toggle_button_set_active(fButton, v);
         }
 };
-
-#if 0 // unused
-void GxMainInterface::addToggleButton(const char* label, float* zone) {
-    GdkColor colorRed;
-    GdkColor colorOwn;
-    gdk_color_parse("#d56161", &colorRed);
-    gdk_color_parse("#7f7f7f", &colorOwn);
-    GtkWidget*     button = gtk_toggle_button_new();
-    GtkWidget*     lab = gtk_label_new(label);
-    GtkStyle *style = gtk_widget_get_style(lab);
-    pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_NORMAL);
-    gtk_widget_modify_font(lab, style->font_desc);
-    gtk_container_add(GTK_CONTAINER(button), lab);
-
-    gtk_widget_set_name(lab, "beffekt_label");
-    addWidget(label, button);
-
-    gtk_widget_modify_bg(button, GTK_STATE_NORMAL, &colorOwn);
-    gtk_widget_modify_bg(button, GTK_STATE_ACTIVE, &colorRed);
-
-    g_signal_connect(GTK_OBJECT(button), "toggled",
-                     G_CALLBACK(gx_child_process::JackCapture::start_stop), NULL);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
-    gtk_widget_add_accelerator(button, "activate", fAccelGroup->gobj(), GDK_r,
-                               GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_widget_show(lab);
-}
-#endif
 
 void GxMainInterface::addMToggleButton(const char* label, bool* zone) {
     GdkColor colorRed;
@@ -1937,7 +1895,7 @@ void uiTuner::freq_changed() {
 
 void GxMainInterface::addNumDisplay() {
     GxToolBox *box =  new GxToolBox(*this,
-        pb_gxrack_expose, _("tuner"), GTK_WIDGET(fShowTuner.gobj()));
+        pb_gxrack_expose, _("tuner"), GTK_WIDGET(mainmenu.fShowTuner.gobj()));
 
     box->rbox.add(fTuner);
     // box->window.set_size_request(200,140);
@@ -1960,7 +1918,7 @@ void GxMainInterface::addNumDisplay() {
     g_list_free(child_list);
 
     GxTBox * tbox1 =  new GxTBox(*this);
-    tbox1->m_tcb.set_parameter(fShowTuner.get_parameter());
+    tbox1->m_tcb.set_parameter(mainmenu.fShowTuner.get_parameter());
     tbox1->m_tcb.m_label.set_text(_("tuner"));
     tbox1->m_tcb.set_tooltip_text(_("Show tuner"));
     gtk_container_add(GTK_CONTAINER(box1), GTK_WIDGET(tbox1->m_tcb.gobj()));
@@ -2069,505 +2027,653 @@ void GxMainInterface::addLiveWaveDisplay(const char* label) {
 
 /* set knobs in linear or radial mode*/
 void GxMainInterface::set_mouse_mode() {
-    if (fSetMouse.get_active()) {
-        Gxw::Knob::set_jump_to_mouse(false);
-    } else {
-        Gxw::Knob::set_jump_to_mouse(true);
-    }
+    Gxw::Knob::set_jump_to_mouse(!mainmenu.fSetMouse.get_active());
 }
+
+/* --------- menu function triggering engine on/off/bypass --------- */
+void GxMainInterface::toggle_engine_bypass() {
+    switch (engine.get_state()) {
+    case gx_engine::kEngineOn:
+	engine.set_state(gx_engine::kEngineBypass);
+	break;
+    case gx_engine::kEngineBypass:
+	engine.set_state(gx_engine::kEngineOn);
+	break;
+    default:
+	return;
+    }
+    refresh_engine_status_display();
+}
+
+void GxMainInterface::toggle_engine_switch() {
+    if (engine.get_state() == gx_engine::kEngineOn) {
+        engine.set_state(gx_engine::kEngineOff);
+    } else {
+	// off or bypass
+	engine.set_state(gx_engine::kEngineOn);
+    }
+    refresh_engine_status_display();
+}
+
+void GxMainInterface::sync_engine_switch() {
+    mainmenu.engine_start_stop_item.set_active(engine.get_state() != gx_engine::kEngineOff);
+}
+
+/* -------------- refresh engine status display ---------------- */
+void GxMainInterface::refresh_engine_status_display() {
+    string state;
+
+    switch (engine.get_state()) {
+
+    case gx_engine::kEngineOff:
+        mainmenu.engine_on_image.hide();
+        mainmenu.engine_off_image.show();
+        mainmenu.engine_bypass_image.hide();
+        state = "OFF";
+        break;
+
+    case gx_engine::kEngineBypass:
+        mainmenu.engine_on_image.hide();
+        mainmenu.engine_off_image.hide();
+        mainmenu.engine_bypass_image.show();
+        state = "BYPASSED";
+        break;
+
+    case gx_engine::kEngineOn:
+        mainmenu.engine_on_image.show();
+        mainmenu.engine_off_image.hide();
+        mainmenu.engine_bypass_image.hide();
+        state = "ON";
+    }
+
+    gx_system::gx_print_info(_("Engine State: "), state);
+}
+
 
 //----------------------------- main menu ----------------------------
-void GxMainInterface::addMainMenu() {
-    /*-- Declare the GTK Widgets used in the menu --*/
-    GtkWidget* menucont;  // menu container
-    GtkWidget* menupix;  // menu container
-    GtkWidget* hbox;      // top menu bar box container
+MainMenu::MainMenu(GxMainInterface& intf)
+    : Gtk::HBox(),
+      menucont(),
+      menupix(),
+      tooltips(),
 
-    /*------------------ TOP Menu BAR ------------------*/
-    hbox = gtk_hbox_new(FALSE, 0);
+      // menubar images
+      engine_on_image(""),
+      engineon(intf.options.get_pixmap_filepath("gx_on.png")),
+      engine_off_image(""),
+      engineoff(intf.options.get_pixmap_filepath("gx_off.png")),
+      engine_bypass_image(""),
+      engineby(intf.options.get_pixmap_filepath("gx_bypass.png")),
+      jackd_on_image(""),
+      jackstateon(intf.options.get_pixmap_filepath("jackd_on.png")),
+      jackd_off_image(""),
+      jackstateoff(intf.options.get_pixmap_filepath("jackd_off.png")),
 
-    /*-- Create the menu bar --*/
-    menucont = gtk_menu_bar_new();
-    gtk_box_pack_start(GTK_BOX(hbox), menucont, TRUE, TRUE, 0);
+      // engine menu
+      engine_menu_label(_("_Engine"), true),
+      engine_menu(),
+      engine_start_stop_item(_("Engine _Start / _Stop"), true),
+      engine_bypass_item(_("Engine _Bypass"), true),
+      //---
+      jack_connect_item(_("Jack Server _Connection "), true),
+      portmap_item(_("Jack _Ports "), true),
+      jack_latency_label(_("_Latency"), true),
+      jack_latency_menu(),
+      jack_latency_group(),
+      //---
+      engine_midi_item(_("M_idi Controller"), true),
+      //---
+      engine_quit_item(_("_Quit"), true),
 
-    /*-- Create the pixmap menu bar --*/
-    menupix = gtk_menu_bar_new();
-    gtk_box_pack_end(GTK_BOX(hbox), menupix, TRUE, TRUE, 0);
+      // preset menu
+      preset_menu_label(_("_Presets"), true),
+      preset_menu(),
+      preset_load_item(_("_Load Preset..."), true),
+      preset_save_item(_("_Save Preset..."), true),
+      preset_save_new(_("New _Preset"), true),
+      preset_rename_item(_("_Rename Preset..."), true),
+      preset_submenu(),
+      // factory settings submenu
+      preset_factory_settings_label(_("Factory Settings"), true),
+      preset_factory_settings_menu(),
+      factory_funkmuscle_label("funkmuscle", true),
+      factory_zettberlin_label("zettberlin", true),
+      factory_autoandimat_label("autoandimat", true),
+      factory_StudioDave_label("StudioDave", true),
+      factory_JP_label("JP", true),
+      factory_sub_menu(),
+      // !factory settings submenu
+      //---
+      preset_patch_info_item(_("P_atch Info"), true),
+      //---
+      preset_load_file_item(_("Load Preset-_file"), true),
+      preset_export_file_item(_("E_xport Preset-file"), true),
+      //---
+      preset_recall_item(_("Recall Main _Setting"), true),
+      preset_save_main_item(_("_Save As Main _Setting"), true),
+      //---
+      // preset extra submenu
+      preset_more_label(_("More Preset Options..."), true),
+      preset_more_menu(),
+      preset_next(_("Next _Preset"), true),
+      preset_previous(_("Previous _Preset"), true),
+      //---
+      preset_save_active(_("_Save Active Preset"), true),
+      preset_rename_active(_("_Rename Active Preset"), true),
+      preset_delete_active(_("_Delete Active Preset"), true),
+      //---
+      preset_delete_all(_("_Delete All Presets"), true),
 
-    /*-- set packdirection for pixmaps from right to left --*/
-    gtk_menu_bar_set_pack_direction(GTK_MENU_BAR(menupix), GTK_PACK_DIRECTION_RTL);
+      // plugin menu
+      plugin_menu_label(_("P_lugins"), true),
+      plugin_menu(),
+      fShowToolBar(_("Show Plugin _Bar")),
+      fShowRRack(_("Show _Rack")),
+      //---
+      fShowRack(_("Show Mono _Rack")),
+      plugin_mono_plugins(_("_Mono Plugins"), true),
+      plugin_mono_menu(),
+      fShowMidiOut(_("MIDI out")),
 
-    /*-- Engine on/off and status --*/
-    // set up ON image: shown by default
-    string img_path = options.get_pixmap_filepath("gx_on.png");
+      //---
+      fShowSRack(_("Show _Stereo Rack")),
+      plugin_stereo_plugins(_("_Stereo Plugins"), true),
+      //---
+      rack_order_group(),
+      fOrdervRack(rack_order_group, _("Order Rack Vertically")),
+      fOrderhRack(rack_order_group, _("Order Rack Horizontally")),
 
-    gw.gx_engine_on_image =  gtk_image_menu_item_new_with_label("");
-    gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(gw.gx_engine_on_image), TRUE);
-    GtkWidget* engineon = gtk_image_new_from_file(img_path.c_str());
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gw.gx_engine_on_image), engineon);
-    gtk_menu_bar_append(GTK_MENU_BAR(menupix), gw.gx_engine_on_image);
-    GtkTooltips* comandlin = gtk_tooltips_new();
+      // amp menu
+      amp_menu_label(_("_Tube "), true),
+      amp_menu(),
+      amp_radio_menu(&intf, intf.fAccelGroup,
+		     parameter_map["tube.select"].getUInt(), amp_menu),
 
-    gtk_tooltips_set_tip(GTK_TOOLTIPS(comandlin),
-                         gw.gx_engine_on_image, _("engine is on"), "engine state.");
-    gtk_widget_show(gw.gx_engine_on_image);
-
-    // set up OFF image: hidden by default
-    img_path = options.get_pixmap_filepath("gx_off.png");
-
-    gw.gx_engine_off_image =  gtk_image_menu_item_new_with_label("");
-    gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(gw.gx_engine_off_image), TRUE);
-
-    GtkWidget* engineoff = gtk_image_new_from_file(img_path.c_str());
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gw.gx_engine_off_image), engineoff);
-    gtk_menu_bar_append(GTK_MENU_BAR(menupix), gw.gx_engine_off_image);
-    gtk_tooltips_set_tip(GTK_TOOLTIPS(comandlin),
-                         gw.gx_engine_off_image, _("engine is off"), "engine state.");
-    gtk_widget_hide(gw.gx_engine_off_image);
-
-    // set up BYPASS image: hidden by default
-    img_path = options.get_pixmap_filepath("gx_bypass.png");
-
-    gw.gx_engine_bypass_image  =  gtk_image_menu_item_new_with_label("");
-    gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(gw.gx_engine_bypass_image), TRUE);
-
-    GtkWidget* engineby = gtk_image_new_from_file(img_path.c_str());
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gw.gx_engine_bypass_image), engineby);
-    gtk_menu_bar_append(GTK_MENU_BAR(menupix), gw.gx_engine_bypass_image);
-    gtk_tooltips_set_tip(GTK_TOOLTIPS(comandlin),
-                         gw.gx_engine_bypass_image, _("engine is in bypass mode"), "engine state.");
-    gtk_widget_hide(gw.gx_engine_bypass_image);
+      // options menu
+      options_menu_label(_("_Options"), true),
+      options_menu(),
+      options_meterbridge(_("_Meterbridge"), true),
+      fShowTuner(_("_Tuner")),
+      // skin submenu
+      skin_menu_label(_("_Skin..."), true),
+      skin_menu(),
+      skingroup(),
+      // !skin submenu
+      fSetMouse(_("Set _Knobs Linear")),
+      fShowLogger(_("Show _Logging Box")),
+      fShowTooltips(_("Show _Tooltips")),
+      fMidiInPreset(_("Include MIDI in _presets")),
+      options_reset_all(_("Reset _All Parameters"), true),
 
 
-    /*-- Jack server status image --*/
-    // jackd ON image
-    img_path = options.get_pixmap_filepath("jackd_on.png");
+      // about menu
+      about_menu_label(_("_About"), true),
+      about_menu(),
+      about_about_item(_("_About"), true),
+      about_help_item(_("_Help"), true) {
+    pack_start(menucont);
+    pack_end(menupix);
+    menupix.set_pack_direction(Gtk::PACK_DIRECTION_RTL);
 
-    gw.gx_jackd_on_image =  gtk_image_menu_item_new_with_label("");
-    gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(gw.gx_jackd_on_image), TRUE);
-    GtkWidget*   jackstateon = gtk_image_new_from_file(img_path.c_str());
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gw.gx_jackd_on_image), jackstateon);
-    gtk_menu_bar_append(GTK_MENU_BAR(menupix), gw.gx_jackd_on_image);
+    engine_on_image.set_always_show_image();
+    engine_on_image.set_image(engineon);
+    menupix.append(engine_on_image);
+    tooltips.set_tip(engine_on_image, _("engine is on"), "engine state.");
 
-    GtkTooltips* comandline = gtk_tooltips_new();
+    engine_off_image.set_always_show_image();
+    engine_off_image.set_image(engineoff);
+    menupix.append(engine_off_image);
+    tooltips.set_tip(engine_off_image, _("engine is off"), "engine state.");
 
-    gtk_tooltips_set_tip(GTK_TOOLTIPS(comandline),
-                         gw.gx_jackd_on_image, _("jack server is connected"), "jack server state.");
+    engine_bypass_image.set_always_show_image();
+    engine_bypass_image.set_image(engineby);
+    menupix.append(engine_bypass_image);
+    tooltips.set_tip(engine_bypass_image, _("engine is in bypass mode"), "engine state.");
 
-    gtk_widget_show(gw.gx_jackd_on_image);
+    jackd_on_image.set_always_show_image();
+    jackd_on_image.set_image(jackstateon);
+    menupix.append(jackd_on_image);
+    tooltips.set_tip(jackd_on_image, _("jack server is connected"), "jack server state.");
 
-    // jackd OFF image: hidden by default
-    img_path = options.get_pixmap_filepath("jackd_off.png");
-
-    gw.gx_jackd_off_image =  gtk_image_menu_item_new_with_label("");
-    gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(gw.gx_jackd_off_image), TRUE);
-
-    GtkWidget*   jackstateoff = gtk_image_new_from_file(img_path.c_str());
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gw.gx_jackd_off_image), jackstateoff);
-    gtk_menu_bar_append(GTK_MENU_BAR(menupix), gw.gx_jackd_off_image);
-    gtk_tooltips_set_tip(GTK_TOOLTIPS(comandline),
-                         gw.gx_jackd_off_image, _("jack server is unconnected"),
-                         "jack server state.");
-    gtk_widget_hide(gw.gx_jackd_off_image);
-
-
-    /* ----------------------------------------------------------- */
-    fMenuList["Top"] = menucont;
-
-    addEngineMenu();
-    addPresetMenu();
-    addPluginMenu();
-    addAmpMenu();
-    addOptionMenu();
-    addAboutMenu();
+    jackd_off_image.set_always_show_image();
+    jackd_off_image.set_image(jackstateoff);
+    menupix.append(jackd_off_image);
+    tooltips.set_tip(jackd_off_image, _("jack server is unconnected"), "jack server state.");
+    addEngineMenu(intf);
+    addPresetMenu(intf);
+    addPluginMenu(intf);
+    addAmpMenu(intf);
+    addOptionMenu(intf);
+    addAboutMenu(intf);
 
     /*---------------- add menu to main window box----------------*/
-    gtk_box_pack_start(GTK_BOX(fBox[fTop]), hbox , FALSE, FALSE, 0);
-    gtk_widget_show(menucont);
-    gtk_widget_show(menupix);
-    gtk_widget_show(hbox);
+    intf.fTop = 0;
+    intf.fBox[intf.fTop] = gtk_vbox_new(FALSE, 4);
+    intf.fMode[intf.fTop] = kBoxMode;
+    gtk_box_pack_start(GTK_BOX(intf.fBox[intf.fTop]), GTK_WIDGET(gobj()) , FALSE, FALSE, 0);
+
+    menupix.show_all();
+    jackd_off_image.hide();
+    engine_bypass_image.hide();
+    engine_off_image.hide();
+
+    menucont.show_all();
+
+    show();
 }
 
-
-
-//----------------------------- engine menu ----------------------------
-void GxMainInterface::addEngineMenu() {
-    GtkWidget* menulabel;   // menu label
-    // GtkWidget* menucont;    // menu container use gw.menuh for systray menu here
-    GtkWidget* menuitem;    // menu item
-    //GSList   * group = NULL;
-
-    /*---------------- Create Engine menu items ------------------*/
-    gw.menuh = fMenuList["Top"];
-
-    menulabel = gtk_menu_item_new_with_mnemonic(_("_Engine"));
-    gtk_menu_bar_append(GTK_MENU_BAR(gw.menuh), menulabel);
-    gtk_widget_show(menulabel);
-
-    /*-- Create Engine submenu  --*/
-    gw.menuh = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), gw.menuh);
-    gtk_widget_show(gw.menuh);
-    fMenuList["Engine"] = gw.menuh;
+void MainMenu::addEngineMenu(GxMainInterface& intf) {
+    menucont.append(engine_menu_label);
+    engine_menu_label.set_submenu(engine_menu);
 
     /*-- Create Engine start / stop item  --*/
-    //group = NULL;
 
-    menuitem = gtk_check_menu_item_new_with_mnemonic(_("Engine _Start / _Stop"));
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup->gobj(),
-                               GDK_space, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-
-    gtk_menu_shell_append(GTK_MENU_SHELL(gw.menuh), menuitem);
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_engine_switch), (gpointer)0);
-    gw.gx_engine_item = menuitem; // save into global var
-    gtk_widget_show(menuitem);
+    engine_start_stop_item.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_space, Gdk::ModifierType(0),
+	Gtk::ACCEL_VISIBLE);
+    engine_menu.append(engine_start_stop_item);
+    engine_start_stop_item.set_active();
+    engine_start_stop_item.signal_activate().connect(
+	sigc::mem_fun(intf, &GxMainInterface::toggle_engine_switch));
 
     /*-- Create Engine bypass item  --*/
-    menuitem = gtk_menu_item_new_with_mnemonic(_("Engine _Bypass"));
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup->gobj(),
-                               GDK_b, GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-
-    gtk_menu_shell_append(GTK_MENU_SHELL(gw.menuh), menuitem);
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_engine_switch), (gpointer)1);
-    gtk_widget_show(menuitem);
+    engine_bypass_item.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_b, Gdk::ModifierType(0), Gtk::ACCEL_VISIBLE);
+    engine_menu.append(engine_bypass_item);
+    engine_bypass_item.signal_activate().connect(
+	sigc::mem_fun(intf, &GxMainInterface::toggle_engine_bypass));
 
     /*-- add a separator line --*/
-    GtkWidget* sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(gw.menuh), sep);
-    gtk_widget_show(sep);
+    engine_menu.append(*manage(new Gtk::SeparatorMenuItem()));
 
     /*---------------- Create Jack Server menu --------------------*/
-    addJackServerMenu();
+    addJackServerMenu(intf);
 
     /*---------------- End Jack server menu declarations ----------------*/
 
     /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(gw.menuh), sep);
-    gtk_widget_show(sep);
+    engine_menu.append(*manage(new Gtk::SeparatorMenuItem()));
 
     /*-- create Midi Controller Table menu item --*/
-    menuitem = gtk_check_menu_item_new_with_mnemonic(_("M_idi Controller"));
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup->gobj(),
-                               GDK_i, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect(
-        GTK_OBJECT(menuitem), "activate",
-        G_CALLBACK(gx_main_midi::MidiControllerTable::toggle), menuitem);
-    gtk_menu_shell_append(GTK_MENU_SHELL(gw.menuh), menuitem);
-    gtk_widget_show(menuitem);
+    engine_midi_item.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_i, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    engine_midi_item.signal_activate().connect(
+        sigc::bind(sigc::ptr_fun(gx_main_midi::MidiControllerTable::toggle),
+		   sigc::ref(engine_midi_item)));
+    engine_menu.append(engine_midi_item);
 
     /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(gw.menuh), sep);
-    gtk_widget_show(sep);
+    engine_menu.append(*manage(new Gtk::SeparatorMenuItem()));
 
     /*-- Create Exit menu item under Engine submenu --*/
-    Gtk::MenuItem* item = new Gtk::MenuItem(_("_Quit"), true); //FIXME
-    item->add_accelerator("activate", fAccelGroup, GDK_q, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
-    item->signal_activate().connect(
-	sigc::mem_fun(*this, &GxMainInterface::save_window_position));
-    item->signal_activate().connect(sigc::ptr_fun(Gtk::Main::quit));
-    gtk_menu_shell_append(GTK_MENU_SHELL(gw.menuh), GTK_WIDGET(item->gobj()));
-    item->show();
+    engine_quit_item.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_q, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
+    engine_quit_item.signal_activate().connect(
+	sigc::mem_fun(intf, &GxMainInterface::save_window_position));
+    engine_quit_item.signal_activate().connect(sigc::ptr_fun(Gtk::Main::quit));
+    engine_menu.append(engine_quit_item);
 
     /*---------------- End Engine menu declarations ----------------*/
 }
 
 //----------------------------- preset menu ----------------------------
-void GxMainInterface::addPresetMenu() {
-    GtkWidget* menulabel; // menu label
-    GtkWidget* menucont;  // menu container
-    GtkWidget* menuitem;  // menu item
-
-    menucont = fMenuList["Top"];
-
-    /*---------------- Create Presets menu items --------------------*/
-    menulabel = gtk_menu_item_new_with_mnemonic(_("_Presets"));
-    gtk_menu_bar_append(GTK_MENU_BAR(menucont), menulabel);
-    gtk_widget_show(menulabel);
+void MainMenu::addPresetMenu(GxMainInterface& intf) {
+    menucont.append(preset_menu_label);
+    preset_menu_label.set_submenu(preset_menu);
 
     /*-- Create Presets submenus --*/
-    menucont = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
-    gtk_widget_show(menucont);
-    fMenuList["Presets"] = menucont;
     
-    const char* preset_accel_path[] = {
-        "<gx_head>/Load",
-        "<gx_head>/Save",
-        "<gx_head>/Rename",
-        "<gx_head>/Delete"
-    };
+    preset_menu.append(preset_load_item);
+    preset_load_item.set_submenu(preset_submenu[0]);
+    preset_load_item.set_accel_path("<gx_head>/Load");
+    preset_menu.append(preset_save_item);
+    preset_save_item.set_submenu(preset_submenu[1]);
+    preset_load_item.set_accel_path("<gx_head>/Save");
+    preset_menu.append(preset_rename_item);
+    preset_rename_item.set_submenu(preset_submenu[2]);
+    preset_load_item.set_accel_path("<gx_head>/Rename");
 
-    const char* preset_menu_name[] = {
-        N_("_Load Preset..."),
-        N_("_Save Preset..."),
-        N_("_Rename Preset..."),
-        N_("_Delete Preset...")
-    };
+    preset_menu.append(preset_factory_settings_label);
+    preset_factory_settings_label.set_submenu(preset_factory_settings_menu);
 
-    /* special treatment of preset lists, from gx_preset namespace */
-    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++) {
-        GtkWidget* menuItem =
-            gtk_menu_item_new_with_mnemonic(gettext(preset_menu_name[i]));
-        gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuItem);
-
-        GtkWidget* menu = gtk_menu_new();
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuItem), menu);
-
-        gtk_menu_set_accel_path(GTK_MENU(menu), preset_accel_path[i]);
-
-        gx_preset::gxpreset.presmenu[i] = menu;
-        gx_preset::gxpreset.presMenu[i] = menuItem;
-    }
-
-    GtkWidget* menuItem =
-            gtk_menu_item_new_with_mnemonic(_("Factory Settings"));
-        gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuItem);
-
-        GtkWidget* menu = gtk_menu_new();
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuItem), menu);
-
-        gx_preset::gxpreset.fpresmenu = menu;
-
-    gtk_widget_show(menuItem);
-
-    menuitem = gtk_menu_item_new_with_mnemonic("funkmuscle");
-    menu = gtk_menu_new();
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
-    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.fpresmenu), menuitem, 0);
-    gx_preset::gxpreset.ffpresmenu[0] = menu;
-
-    gtk_widget_show(menuitem);
-
-    menuitem = gtk_menu_item_new_with_mnemonic("zettberlin");
-    menu = gtk_menu_new();
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
-    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.fpresmenu), menuitem, 0);
-    gx_preset::gxpreset.ffpresmenu[1] = menu;
-
-    gtk_widget_show(menuitem);
-
-    menuitem = gtk_menu_item_new_with_mnemonic("autoandimat");
-    menu = gtk_menu_new();
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
-    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.fpresmenu), menuitem, 0);
-    gx_preset::gxpreset.ffpresmenu[3] = menu;
-
-    gtk_widget_show(menuitem);
-    
-    menuitem = gtk_menu_item_new_with_mnemonic("StudioDave");
-    menu = gtk_menu_new();
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
-    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.fpresmenu), menuitem, 0);
-    gx_preset::gxpreset.ffpresmenu[2] = menu;
-
-    gtk_widget_show(menuitem);
-    
-    menuitem = gtk_menu_item_new_with_mnemonic("JP");
-    menu = gtk_menu_new();
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
-    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.fpresmenu), menuitem, 0);
-    gx_preset::gxpreset.ffpresmenu[4] = menu;
-
-    gtk_widget_show(menuitem);
+    preset_factory_settings_menu.append(factory_funkmuscle_label);
+    factory_funkmuscle_label.set_submenu(factory_sub_menu[0]);
+    preset_factory_settings_menu.append(factory_zettberlin_label);
+    factory_zettberlin_label.set_submenu(factory_sub_menu[1]);
+    preset_factory_settings_menu.append(factory_autoandimat_label);
+    factory_autoandimat_label.set_submenu(factory_sub_menu[2]);
+    preset_factory_settings_menu.append(factory_StudioDave_label);
+    factory_StudioDave_label.set_submenu(factory_sub_menu[3]);
+    preset_factory_settings_menu.append(factory_JP_label);
+    factory_JP_label.set_submenu(factory_sub_menu[4]);
 
     /*-- add New Preset saving under Save Presets menu */
-    menuitem = gtk_menu_item_new_with_mnemonic(_("New _Preset"));
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gxpreset.gx_save_newpreset_dialog), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup->gobj(),
-                               GDK_p, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.presmenu[SAVE_PRESET_LIST]), menuitem, 0);
-    gtk_widget_show(menuitem);
+    preset_submenu[1].append(preset_save_new);
+    preset_save_new.signal_activate().connect(
+	sigc::ptr_fun(gx_preset::gxpreset.gx_save_newpreset_dialog));
+    preset_save_new.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_p, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
 
-    /*-- add a separator line --*/
-    GtkWidget* sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_insert(GTK_MENU_SHELL(gx_preset::gxpreset.presmenu[SAVE_PRESET_LIST]), sep, 1);
-    gtk_widget_show(sep);
-
-    for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; i++)
-        gtk_widget_show(gx_preset::gxpreset.presMenu[i]);
-
+    preset_submenu[1].append(*manage(new Gtk::SeparatorMenuItem()));
     /* ------------------- */
 
-    /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
-    gtk_widget_show(sep);
+    preset_menu.append(*manage(new Gtk::SeparatorMenuItem()));
 
-    /*-- Create patch info menu item under Options submenu --*/
-    menuitem = gtk_menu_item_new_with_mnemonic(_("P_atch Info"));
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup->gobj(),
-                               GDK_a, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_patch), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    gtk_widget_show(menuitem);
+    preset_menu.append(preset_patch_info_item);
+    preset_patch_info_item.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_a, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    preset_patch_info_item.signal_activate().connect(
+	sigc::ptr_fun(gx_patch));
 
-    /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
-    gtk_widget_show(sep);
+    preset_menu.append(*manage(new Gtk::SeparatorMenuItem));
 
-    /*-- Create load presetfile menu --*/
-    menuitem = gtk_menu_item_new_with_mnemonic(_("Load Preset-_file"));
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup->gobj(),
-                               GDK_f, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gxpreset.gx_load_preset_file), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    gtk_widget_show(menuitem);
+    preset_menu.append(preset_load_file_item);
+    preset_load_file_item.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_f, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    preset_load_file_item.signal_activate().connect(
+	sigc::ptr_fun(gx_preset::gxpreset.gx_load_preset_file));
 
     /*-- Create save as presetfile menu--*/
-    menuitem = gtk_menu_item_new_with_mnemonic(_("E_xport Preset-file"));
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup->gobj(),
-                               GDK_x, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gxpreset.gx_save_preset_file), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    gtk_widget_show(menuitem);
+    preset_menu.append(preset_export_file_item);
+    preset_export_file_item.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_x, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    preset_export_file_item.signal_activate().connect(
+	sigc::ptr_fun(gx_preset::gxpreset.gx_save_preset_file));
 
     /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
-    gtk_widget_show(sep);
+    preset_menu.append(*manage(new Gtk::SeparatorMenuItem));
 
     /*-- Create  Main setting submenu --*/
-    Gtk::MenuItem* item = new Gtk::MenuItem(_("Recall Main _Setting"), true); //FIXME
-    item->add_accelerator("activate", fAccelGroup, GDK_s, (Gdk::ModifierType)0, Gtk::ACCEL_VISIBLE);
-    item->signal_activate().connect(
-	sigc::mem_fun(gx_preset::gxpreset, &gx_preset::GxPreset::gx_recall_settings_file));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(item->gobj()));
-    item->show();
+    preset_menu.append(preset_recall_item);
+    preset_recall_item.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_s,
+	(Gdk::ModifierType)0, Gtk::ACCEL_VISIBLE);
+    preset_recall_item.signal_activate().connect(
+	sigc::mem_fun(gx_preset::gxpreset,
+		      &gx_preset::GxPreset::gx_recall_settings_file));
 
-    menuitem = gtk_menu_item_new_with_mnemonic(_("_Save As Main _Setting"));
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gxpreset.gx_save_main_setting), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup->gobj(),
-                               GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    gtk_widget_show(menuitem);
+    preset_menu.append(preset_save_main_item);
+    preset_save_main_item.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_s, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
+    preset_save_main_item.signal_activate().connect(
+	sigc::ptr_fun(gx_preset::gxpreset.gx_save_main_setting));
 
     /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
-    gtk_widget_show(sep);
+    preset_menu.append(*manage(new Gtk::SeparatorMenuItem));
 
     /*-- Create sub menu More Preset Action --*/
-    menulabel = gtk_menu_item_new_with_mnemonic(_("More Preset Options..."));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menulabel);
-    gtk_widget_show(menulabel);
-
-    menucont = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
-    gtk_widget_show(menucont);
-    fMenuList["ExtraPresets"] = menucont;
+    preset_menu.append(preset_more_label);
+    preset_more_label.set_submenu(preset_more_menu);
 
     /*--------------- Extra preset menu */
-    addExtraPresetMenu();
-    gx_settings.signal_presetfile_changed().connect(
+    addExtraPresetMenu(intf);
+    intf.gx_settings.signal_presetfile_changed().connect(
 	sigc::mem_fun(gx_preset::gxpreset,
 		      &gx_preset::GxPreset::gx_refresh_preset_menus));
 }
 
-//------------------------ extra preset menu ----------------------------
-void GxMainInterface::addExtraPresetMenu() {
-    GtkWidget* menucont;  // menu container
-    GtkWidget* menuitem;  // menu item
-
-    menucont = fMenuList["ExtraPresets"];
-
+void MainMenu::addExtraPresetMenu(GxMainInterface& intf) {
     /*---------------- Create Presets menu items --------------------*/
 
     /* forward preset */
-    menuitem = gtk_menu_item_new_with_mnemonic(_("Next _Preset"));
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gxpreset.gx_next_preset), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate",
-                               fAccelGroup->gobj(), GDK_Page_Down,
-                               GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    gtk_widget_show(menuitem);
+    preset_more_menu.append(preset_next);
+    preset_next.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_Page_Down, (Gdk::ModifierType)0, Gtk::ACCEL_VISIBLE);
+    preset_next.signal_activate().connect(
+	sigc::ptr_fun(gx_preset::gxpreset.gx_next_preset));
 
-    /* rewind preset */
-    menuitem = gtk_menu_item_new_with_mnemonic(_("Previous _Preset"));
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gxpreset.gx_previous_preset), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate",
-                               fAccelGroup->gobj(), GDK_Page_Up,
-                               GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    gtk_widget_show(menuitem);
+    preset_more_menu.append(preset_previous);
+    preset_previous.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_Page_Up, (Gdk::ModifierType)0, Gtk::ACCEL_VISIBLE);
+    preset_previous.signal_activate().connect(sigc::ptr_fun(gx_preset::gxpreset.gx_previous_preset));
 
-    /*-- add a separator line --*/
-    GtkWidget* sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
-    gtk_widget_show(sep);
+    preset_more_menu.append(*manage(new Gtk::SeparatorMenuItem));
 
-    /*-- Create  menu item Delete Active preset --*/
-    menuitem = gtk_menu_item_new_with_mnemonic(_("_Save Active Preset"));
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gxpreset.gx_save_oldpreset), (gpointer)1);
-    gtk_widget_add_accelerator(menuitem, "activate",
-                               fAccelGroup->gobj(), GDK_s,
-                               GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    gtk_widget_show(menuitem);
+    preset_more_menu.append(preset_save_active);
+    preset_save_active.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_s, Gdk::MOD1_MASK, Gtk::ACCEL_VISIBLE);
+    preset_save_active.signal_activate().connect(
+	sigc::ptr_fun(gx_preset::gxpreset.gx_save_active_preset));
 
-    menuitem = gtk_menu_item_new_with_mnemonic(_("_Rename Active Preset"));
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gxpreset.gx_rename_active_preset_dialog), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate",
-                               fAccelGroup->gobj(), GDK_r,
-                               GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    gtk_widget_show(menuitem);
+    preset_more_menu.append(preset_rename_active);
+    preset_rename_active.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_r, Gdk::MOD1_MASK, Gtk::ACCEL_VISIBLE);
+    preset_rename_active.signal_activate().connect(sigc::ptr_fun(gx_preset::gxpreset.gx_rename_active_preset_dialog));
 
-    menuitem = gtk_menu_item_new_with_mnemonic(_("_Delete Active Preset"));
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gxpreset.gx_delete_active_preset_dialog), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate",
-                               fAccelGroup->gobj(), GDK_Delete,
-                               GDK_NO_MOD_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    gtk_widget_show(menuitem);
+    preset_more_menu.append(preset_delete_active);
+    preset_delete_active.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_Delete, (Gdk::ModifierType)0, Gtk::ACCEL_VISIBLE);
+    preset_delete_active.signal_activate().connect(sigc::ptr_fun(gx_preset::gxpreset.gx_delete_active_preset_dialog));
 
-    /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
-    gtk_widget_show(sep);
+    preset_more_menu.append(*manage(new Gtk::SeparatorMenuItem));
 
-    /*-- Create  menu item Delete All presets --*/
-    menuitem = gtk_menu_item_new_with_mnemonic(_("_Delete All Presets"));
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_preset::gxpreset.gx_delete_all_presets_dialog), NULL);
-    gtk_widget_add_accelerator(menuitem, "activate",
-                               fAccelGroup->gobj(), GDK_d,
-                               GdkModifierType(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    gtk_widget_show(menuitem);
+    preset_more_menu.append(preset_delete_all);
+    preset_delete_all.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_d,
+	Gdk::ModifierType(Gdk::CONTROL_MASK|Gdk::SHIFT_MASK),
+	Gtk::ACCEL_VISIBLE);
+    preset_delete_all.signal_activate().connect(sigc::ptr_fun(gx_preset::gxpreset.gx_delete_all_presets_dialog));
+
 }
+
+void MainMenu::addAmpMenu(GxMainInterface& intf) {
+    menucont.append(amp_menu_label);
+    amp_menu_label.set_submenu(amp_menu);
+}
+
+//----------------------------- preset menu ----------------------------
+void MainMenu::addPluginMenu(GxMainInterface& intf) {
+    menucont.append(plugin_menu_label);
+    plugin_menu_label.set_submenu(plugin_menu);
+
+    fShowToolBar.add_accelerator("activate", intf.fAccelGroup,
+                               GDK_b, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    fShowToolBar.signal_activate().connect(
+        sigc::mem_fun(intf, &GxMainInterface::on_toolbar_activate));
+    fShowToolBar.set_parameter(new SwitchParameter("system.show_toolbar"));
+    plugin_menu.append(fShowToolBar);
+
+    /*-- Create mono rack check menu item under Options submenu --*/
+    fShowRRack.add_accelerator("activate", intf.fAccelGroup,
+                               GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    fShowRRack.signal_activate().connect(
+        sigc::mem_fun(intf, &GxMainInterface::on_rrack_activate));
+    fShowRRack.set_parameter(new SwitchParameter("system.show_rrack"));
+    plugin_menu.append(fShowRRack);
+
+    plugin_menu.append(*manage(new Gtk::SeparatorMenuItem));
+
+    /*-- Create mono rack check menu item under Options submenu --*/
+    fShowRack.add_accelerator("activate", intf.fAccelGroup,
+			      GDK_m, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    fShowRack.signal_activate().connect(
+        sigc::mem_fun(intf, &GxMainInterface::on_rack_activate));
+    fShowRack.set_parameter(new SwitchParameter("system.show_rack"));
+    plugin_menu.append(fShowRack);
+
+    /*-- Create mono plugin menu soket item under Options submenu --*/
+    plugin_menu.append(plugin_mono_plugins);
+    plugin_mono_plugins.set_submenu(plugin_mono_menu);
+
+    plugin_menu.append(*manage(new Gtk::SeparatorMenuItem));
+
+    /*-- create midi out menu  --*/
+    fShowMidiOut.set_parameter(new SwitchParameter("ui.midi_out"));
+    fShowMidiOut.add_accelerator("activate", intf.fAccelGroup,
+				 GDK_a, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);
+    fShowMidiOut.signal_activate().connect(
+	sigc::bind(sigc::ptr_fun(gx_midi_out), sigc::ref(fShowMidiOut)));
+    plugin_mono_menu.append(fShowMidiOut);
+
+    /*-- Create stereo rack check menu item under Options submenu --*/
+    fShowSRack.add_accelerator("activate", intf.fAccelGroup,
+                               GDK_s, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    fShowSRack.signal_activate().connect(
+        sigc::mem_fun(intf, &GxMainInterface::on_srack_activate));
+    fShowSRack.set_parameter(new SwitchParameter("system.show_Srack"));
+    plugin_menu.append(fShowSRack);
+
+    /*-- Create stereo plugin menu soket item under Options submenu --*/
+    plugin_menu.append(plugin_stereo_plugins);
+    plugin_stereo_plugins.set_submenu(plugin_stereo_menu);
+
+    plugin_menu.append(*manage(new Gtk::SeparatorMenuItem));
+}
+
+static void set_tooltips(bool v) {
+    gtk_settings_set_long_property(
+        gtk_settings_get_default(), "gtk-enable-tooltips", v,
+        "gx_head menu-option");
+}
+
+void reset_all_parameters() {
+    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); ++i) {
+        i->second->set_std_value();
+    }
+}
+
+void MainMenu::addOptionMenu(GxMainInterface& intf) {
+    menucont.append(options_menu_label);
+    options_menu_label.set_submenu(options_menu);
+
+    options_meterbridge.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_m, Gdk::MOD1_MASK, Gtk::ACCEL_VISIBLE);
+    options_meterbridge.signal_activate().connect(
+	sigc::bind(sigc::ptr_fun(gx_child_process::Meterbridge::start_stop),
+		   sigc::ref(options_meterbridge)));
+    options_menu.append(options_meterbridge);
+
+    /*-- Create tuner check menu item under Options submenu --*/
+    fShowTuner.add_accelerator("activate", intf.fAccelGroup,
+                               GDK_t, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
+    fShowTuner.signal_activate().connect(
+        sigc::mem_fun(intf, &GxMainInterface::on_tuner_activate));
+    fShowTuner.set_parameter(new SwitchParameter("system.show_tuner"));
+    options_menu.append(fShowTuner);
+
+    /*-- Create skin menu under Options submenu--*/
+    addGuiSkinMenu(intf);
+
+    fSetMouse.add_accelerator("activate", intf.fAccelGroup,
+			      GDK_k, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
+    fSetMouse.signal_activate().connect(
+        sigc::mem_fun(intf, &GxMainInterface::set_mouse_mode));
+    fSetMouse.set_parameter(new SwitchParameter("system.set_mouse"));
+    options_menu.append(fSetMouse);
+
+    /*-- Create logbox check menu item under Options submenu --*/
+    fShowLogger.set_label(_("Show _Logging Box"));
+    fShowLogger.add_accelerator("activate", intf.fAccelGroup,
+                               GDK_l, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
+    fShowLogger.signal_activate().connect(
+        sigc::mem_fun(intf, &GxMainInterface::on_log_activate));
+    options_menu.append(fShowLogger);
+    fShowLogger.set_parameter(new SwitchParameter("system.show_logger"));
+
+    /*-- Create menu item to control tooltip display --*/
+    SwitchParameter *p = new SwitchParameter("system.show_tooltips");
+    fShowTooltips.set_parameter(p);
+    fShowTooltips.set_active(true);
+    p->signal_changed().connect(ptr_fun(set_tooltips));
+    options_menu.append(fShowTooltips);
+
+    /*-- create option for saving midi controller settings in presets --*/
+    options_menu.append(fMidiInPreset);
+    fMidiInPreset.set_parameter(new SwitchParameter("system.midi_in_preset"));
+
+    /*-- create option for resetting gx_head settings --*/
+    options_reset_all.signal_activate().connect(
+	sigc::ptr_fun(reset_all_parameters));
+    options_menu.append(options_reset_all);
+}
+
+void MainMenu::addGuiSkinMenu(GxMainInterface& intf) {
+    options_menu.append(skin_menu_label);
+    skin_menu_label.set_submenu(skin_menu);
+
+    /* Create black skin item under skin submenu --*/
+    int idx = 0;
+    for (vector<string>::iterator i = intf.options.skin.skin_list.begin();
+	 i != intf.options.skin.skin_list.end();
+	 ++i) {
+	Gtk::RadioMenuItem *menuitem =
+	    manage(new Gtk::RadioMenuItem(skingroup, i->c_str()));
+	menuitem->set_active(false);
+	menuitem->signal_activate().connect(
+	    sigc::bind(sigc::ptr_fun(gx_change_skin), sigc::ref(*menuitem), idx++));
+        skin_menu.append(*menuitem);
+    }
+
+    /*-- End skin menu declarations --*/
+}
+
+// ----------------------------- about menu ----------------------------
+
+
+void MainMenu::addAboutMenu(GxMainInterface& intf) {
+    menucont.append(about_menu_label);
+    about_menu_label.set_submenu(about_menu);
+
+    about_about_item.add_accelerator(
+	"activate", intf.fAccelGroup,
+	GDK_a, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
+    about_about_item.signal_activate().connect(sigc::ptr_fun(gx_show_about));
+    about_menu.append(about_about_item);
+
+    //FIXME
+    about_help_item.add_accelerator(
+	"activate", intf.fAccelGroup,
+	GDK_h, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
+    about_menu.append(about_help_item);
+}
+
+/*---------------- Jack Server Menu ----------------*/
+void MainMenu::addJackServerMenu(GxMainInterface& intf) {
+    /*-- Create Jack Connection toggle button --*/
+    jack_connect_item.add_accelerator(
+	"activate", intf.fAccelGroup,
+	GDK_c, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    jack_connect_item.signal_activate().connect(
+	sigc::mem_fun(intf, &GxMainInterface::gx_jack_connection));
+    engine_menu.append(jack_connect_item);
+
+    /*-- create Jack Ports menu item --*/
+    portmap_item.add_accelerator(
+	"activate", intf.fAccelGroup, GDK_p, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
+    portmap_item.signal_activate().connect(
+	sigc::mem_fun(intf, &GxMainInterface::on_portmap_activate));
+    portmap_item.show();
+    engine_menu.append(portmap_item);
+
+    /*-- Create  Latency submenu under Jack Server submenu --*/
+    jack_latency_label.set_submenu(jack_latency_menu);
+    engine_menu.append(jack_latency_label);
+
+    /*-- Create  menu item under Latency submenu --*/
+    gchar buf_size[8];
+    const int min_pow = 4;  // 2**4  = 16
+    const int max_pow = 13; // 2**13 = 8192
+
+    for (int i = min_pow; i <= max_pow; i++) {
+        int jack_buffer_size = static_cast<int>(pow(2., i));
+        (void)snprintf(buf_size, sizeof(buf_size), "%d", jack_buffer_size);
+	Gtk::RadioMenuItem* item = manage(new Gtk::RadioMenuItem(jack_latency_group, buf_size));
+        item->set_active(false);
+	item->signal_activate().connect(
+	    sigc::bind(sigc::mem_fun(intf, &GxMainInterface::set_jack_buffer_size),
+		       jack_buffer_size));
+
+        // display actual buffer size as default
+        jack_latency_menu.append(*item);
+        intf.fJackLatencyItem[i-min_pow] = item;
+    }
+}
+
 
 /****************************************************************
  ** KeyFinder
  ** finds next unused Key in a GtkAccelGroup
  */
-
-class KeyFinder {
-private:
-    typedef list<GtkAccelKey> accel_list;
-    unsigned int next_key;
-    accel_list l;
-    static gboolean add_keys_to_list(GtkAccelKey *key, GClosure *cl, gpointer data);
-public:
-    KeyFinder(Glib::RefPtr<Gtk::AccelGroup> group);
-    ~KeyFinder();
-    int operator()();
-};
 
 KeyFinder::KeyFinder(Glib::RefPtr<Gtk::AccelGroup> group) {
     next_key = GDK_a;
@@ -2608,28 +2714,6 @@ int KeyFinder::operator()() {
  ** adds the values of an UEnumParameter as Gtk::RadioMenuItem's
  ** to a Gtk::MenuShell
  */
-
-class GxUiRadioMenu: public gx_ui::GxUiItemInt {
-private:
-    vector<Gtk::RadioMenuItem*> items;
-    Gtk::RadioButtonGroup group;
-    UIntParameter& param;
-    virtual void reflectZone();
-    void on_activate(int i);
-public:
-    static GxUiRadioMenu* create(
-	gx_ui::GxUI* ui, Glib::RefPtr<Gtk::AccelGroup>& ag,
-	const char *id, Gtk::MenuShell& menucont);
-    GxUiRadioMenu(gx_ui::GxUI* ui, Glib::RefPtr<Gtk::AccelGroup>& ag,
-		  UIntParameter& param, Gtk::MenuShell& menucont);
-    virtual ~GxUiRadioMenu();
-};
-
-GxUiRadioMenu* GxUiRadioMenu::create(
-    gx_ui::GxUI* ui, Glib::RefPtr<Gtk::AccelGroup>& ag,
-    const char *id, Gtk::MenuShell& menucont) {
-    return new GxUiRadioMenu(ui, ag, parameter_map[id].getUInt(),menucont);
-}
 
 class TubeKeys {
 private:
@@ -2701,321 +2785,8 @@ void GxUiRadioMenu::on_activate(int i) {
     param.set(i);
 }
 
-//----------------------------- preset menu ----------------------------
-void GxMainInterface::addAmpMenu() {
-    GtkWidget* menulabel; // menu label
-    GtkWidget* menucont;  // menu container
-    menucont = fMenuList["Top"];
-
-    /*---------------- Create Options menu items ------------------*/
-    menulabel = gtk_menu_item_new_with_mnemonic(_("_Tube "));
-    gtk_menu_bar_append(GTK_MENU_BAR(menucont), menulabel);
-    gtk_widget_show(menulabel);
-
-    /*-- Create Options submenu  --*/
-    menucont = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
-    gtk_widget_show(menucont);
-
-    GxUiRadioMenu::create(this, this->fAccelGroup, "tube.select", *Glib::wrap(GTK_MENU_SHELL(menucont)));
-}
-
-//----------------------------- preset menu ----------------------------
-void GxMainInterface::addPluginMenu() {
-    GtkWidget* menulabel; // menu label
-    GtkWidget* menucont;  // menu container
-    GtkWidget* menucontin;  // menu container
-    GtkWidget* sep;  // menu separator
-
-    menucont = fMenuList["Top"];
-
-    /*---------------- Create Options menu items ------------------*/
-    menulabel = gtk_menu_item_new_with_mnemonic(_("P_lugins"));
-    gtk_menu_bar_append(GTK_MENU_BAR(menucont), menulabel);
-    gtk_widget_show(menulabel);
-
-    /*-- Create Options submenu  --*/
-    menucont = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
-    gtk_widget_show(menucont);
-    fMenuList["PluginMenu"] = menucont;
-
-    /*-- Create toolbar check menu item under Options submenu --*/
-    fShowToolBar.set_label(_("Show Plugin _Bar"));
-    fShowToolBar.add_accelerator("activate", fAccelGroup,
-                               GDK_b, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
-    fShowToolBar.signal_activate().connect(
-        sigc::mem_fun(*this, &GxMainInterface::on_toolbar_activate));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowToolBar.gobj()));
-    fShowToolBar.show();
-    fShowToolBar.set_parameter(new SwitchParameter("system.show_toolbar"));
-
-    /*-- Create mono rack check menu item under Options submenu --*/
-    fShowRRack.set_label(_("Show _Rack"));
-    fShowRRack.add_accelerator("activate", fAccelGroup,
-                               GDK_r, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
-    fShowRRack.signal_activate().connect(
-        sigc::mem_fun(*this, &GxMainInterface::on_rrack_activate));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowRRack.gobj()));
-    fShowRRack.show();
-    fShowRRack.set_parameter(new SwitchParameter("system.show_rrack"));
-
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
-    gtk_widget_show(sep);
-
-    /*-- Create mono rack check menu item under Options submenu --*/
-    fShowRack.set_label(_("Show Mono _Rack"));
-    fShowRack.add_accelerator("activate", fAccelGroup,
-                               GDK_m, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
-    fShowRack.signal_activate().connect(
-        sigc::mem_fun(*this, &GxMainInterface::on_rack_activate));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowRack.gobj()));
-    fShowRack.show();
-    fShowRack.set_parameter(new SwitchParameter("system.show_rack"));
-    /*-- Create mono plugin menu soket item under Options submenu --*/
-    menulabel = gtk_menu_item_new_with_mnemonic(_("_Mono Plugins"));
-
-    gtk_menu_append(GTK_MENU(menucont), menulabel);
-    gtk_widget_show(menulabel);
-
-    menucontin = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucontin);
-    gtk_widget_show(menucontin);
-
-    fMenuList["PluginsMono"] = menucontin;
-    gw.menu_mono_rack = fMenuList["PluginMenu"];
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
-    gtk_widget_show(sep);
-    /*-- create midi out menu  --*/
-    fShowMidiOut.set_label(_("MIDI out"));
-    fShowMidiOut.add_accelerator("activate", fAccelGroup,
-                               GDK_a, Gdk::LOCK_MASK, Gtk::ACCEL_VISIBLE);
-    g_signal_connect(GTK_OBJECT(fShowMidiOut.gobj()), "activate",
-                      G_CALLBACK(gx_midi_out), NULL);
-
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucontin), GTK_WIDGET(fShowMidiOut.gobj()));
-    fShowMidiOut.show();
-    fShowMidiOut.set_parameter(new SwitchParameter("ui.midi_out"));
-
-    /*-- add a separator line --*/
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(gw.menuh), sep);
-    gtk_widget_show(sep);
-
-    /*-- Create stereo rack check menu item under Options submenu --*/
-    fShowSRack.set_label(_("Show _Stereo Rack"));
-    fShowSRack.add_accelerator("activate", fAccelGroup,
-                               GDK_s, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
-    fShowSRack.signal_activate().connect(
-        sigc::mem_fun(*this, &GxMainInterface::on_srack_activate));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowSRack.gobj()));
-    fShowSRack.show();
-    fShowSRack.set_parameter(new SwitchParameter("system.show_Srack"));
-
-    /*-- Create stereo plugin menu soket item under Options submenu --*/
-    menulabel = gtk_menu_item_new_with_mnemonic(_("_Stereo Plugins"));
-
-    gtk_menu_append(GTK_MENU(menucont), menulabel);
-    gtk_widget_show(menulabel);
-
-    menucontin = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucontin);
-    gtk_widget_show(menucontin);
-
-    fMenuList["PluginsStereo"] = menucontin;
-    gw.menu_stereo_rack = fMenuList["PluginsStereo"];
-
-    sep = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), sep);
-    gtk_widget_show(sep);
-}
-//----------------------------- option menu ----------------------------
-
-static void set_tooltips(bool v) {
-    gtk_settings_set_long_property(
-        gtk_settings_get_default(), "gtk-enable-tooltips", v,
-        "gx_head menu-option");
-}
-
-void reset_all_parameters(GtkWidget*, gpointer) {
-    for (ParamMap::iterator i = parameter_map.begin(); i != parameter_map.end(); ++i) {
-        i->second->set_std_value();
-    }
-}
-
-void GxMainInterface::addOptionMenu() {
-    GtkWidget* menulabel; // menu label
-    GtkWidget* menucont;  // menu container
-    GtkWidget* menuitem;  // menu item
-
-    menucont = fMenuList["Top"];
-
-    /*---------------- Create Options menu items ------------------*/
-    menulabel = gtk_menu_item_new_with_mnemonic(_("_Options"));
-    gtk_menu_bar_append(GTK_MENU_BAR(menucont), menulabel);
-    gtk_widget_show(menulabel);
-
-    /*-- Create Options submenu  --*/
-    menucont = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
-    gtk_widget_show(menucont);
-    fMenuList["Options"] = menucont;
-
-    /*-- Create Open check menu item under Options submenu --*/
-    menuitem = gtk_check_menu_item_new_with_mnemonic(_("_Meterbridge"));
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup->gobj(),
-                               GDK_m, GDK_MOD1_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_child_process::Meterbridge::start_stop), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    gtk_widget_show(menuitem);
-
-    /*-- Create tuner check menu item under Options submenu --*/
-    fShowTuner.set_label(_("_Tuner"));
-    fShowTuner.add_accelerator("activate", fAccelGroup,
-                               GDK_t, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
-    fShowTuner.signal_activate().connect(
-        sigc::mem_fun(*this, &GxMainInterface::on_tuner_activate));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowTuner.gobj()));
-    fShowTuner.show();
-    fShowTuner.set_parameter(new SwitchParameter("system.show_tuner"));
-
-    /*-- Create skin menu under Options submenu--*/
-    addGuiSkinMenu();
-
-    fSetMouse.set_label(_("Set _Knobs Linear"));
-    fSetMouse.add_accelerator("activate", fAccelGroup,
-                               GDK_k, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
-    fSetMouse.signal_activate().connect(
-        sigc::mem_fun(*this, &GxMainInterface::set_mouse_mode));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fSetMouse.gobj()));
-    fSetMouse.show();
-    fSetMouse.set_parameter(new SwitchParameter("system.set_mouse"));
-
-    /*-- Create logbox check menu item under Options submenu --*/
-    fShowLogger.set_label(_("Show _Logging Box"));
-    fShowLogger.add_accelerator("activate", fAccelGroup,
-                               GDK_l, Gdk::CONTROL_MASK, Gtk::ACCEL_VISIBLE);
-    fShowLogger.signal_activate().connect(
-        sigc::mem_fun(*this, &GxMainInterface::on_log_activate));
-    gtk_menu_shell_append(GTK_MENU_SHELL(fMenuList["Options"]), GTK_WIDGET(fShowLogger.gobj()));
-    fShowLogger.show();
-    fShowLogger.set_parameter(new SwitchParameter("system.show_logger"));
-
-    /*-- Create menu item to control tooltip display --*/
-    fShowTooltips.set_label(_("Show _Tooltips"));
-    fShowTooltips.show();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fShowTooltips.gobj()));
-    SwitchParameter *p = new SwitchParameter("system.show_tooltips");
-    fShowTooltips.set_parameter(p);
-    fShowTooltips.set_active(true);
-    p->signal_changed().connect(ptr_fun(set_tooltips));
-
-    /*-- create option for saving midi controller settings in presets --*/
-    fMidiInPreset.set_label(_("Include MIDI in _presets"));
-    fMidiInPreset.show();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), GTK_WIDGET(fMidiInPreset.gobj()));
-    fMidiInPreset.set_parameter(new SwitchParameter("system.midi_in_preset"));
-
-    /*-- create option for resetting gx_head settings --*/
-    menuitem = gtk_menu_item_new_with_mnemonic(_("Reset _All Parameters"));
-    gtk_widget_show(menuitem);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                     G_CALLBACK(reset_all_parameters), NULL);
-}
-
-
-//----------------------------- skin menu ----------------------------
-void GxMainInterface::addGuiSkinMenu() {
-    GtkWidget* menulabel; // menu label
-    GtkWidget* menucont;  // menu container
-    GtkWidget* menuitem;  // menu item
-    GSList   * group = NULL;
-
-    menucont = fMenuList["Options"];
-
-    /*---------------- Create skin menu items ------------------*/
-    menulabel = gtk_menu_item_new_with_mnemonic(_("_Skin..."));
-    gtk_menu_append(GTK_MENU(menucont), menulabel);
-    gtk_widget_show(menulabel);
-
-    menucont = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
-    gtk_widget_show(menucont);
-    fMenuList["Skin"] = menucont;
-
-    /* Create black skin item under skin submenu --*/
-    int idx = 0;
-    for (vector<string>::iterator i = options.skin.skin_list.begin();
-	 i != options.skin.skin_list.end();
-	 ++i) {
-	menuitem =
-            gtk_radio_menu_item_new_with_label(group, i->c_str());
-        group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), FALSE);
-        g_signal_connect(GTK_OBJECT(menuitem), "activate",
-			 G_CALLBACK(gx_change_skin), GINT_TO_POINTER(idx++));
-        gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-        gtk_widget_show(menuitem);
-    }
-
-    menucont = fMenuList["Options"];
-
-    menuitem = gtk_menu_item_new();
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup->gobj(),
-                               GDK_s, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_cycle_through_skin), NULL);
-    gtk_menu_append(GTK_MENU(menucont), menuitem);
-    gtk_widget_show(menuitem);
-
-    /*-- End skin menu declarations --*/
-}
-
-// ----------------------------- about menu ----------------------------
-
-
-void GxMainInterface::addAboutMenu() {
-    GtkWidget* menulabel; // menu label
-    GtkWidget* menucont;  // menu container
-    GtkWidget* menuitem;  // menu item
-
-    menucont = fMenuList["Top"];
-
-    /*---------------- Start About menu declarations ----------------*/
-    menulabel = gtk_menu_item_new_with_mnemonic(_("_About"));
-    gtk_menu_bar_append(GTK_MENU_BAR(menucont), menulabel);
-    gtk_widget_show(menulabel);
-
-    /*-- Create About submenu --*/
-    menucont = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
-
-    /*-- Create About menu item under About submenu --*/
-    menuitem = gtk_menu_item_new_with_mnemonic(_("_About"));
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup->gobj(),
-                               GDK_a, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                     G_CALLBACK(gx_show_about), NULL);
-    gtk_widget_show(menuitem);
-
-    /*-- Create Help menu item under About submenu --*/
-    menuitem = gtk_menu_item_new_with_mnemonic(_("_Help"));
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup->gobj(),
-                               GDK_h, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-    //    g_signal_connect(GTK_OBJECT (menuitem), "activate", G_CALLBACK (gx_show_about), NULL);
-    gtk_widget_show(menuitem);
-    /*---------------- End About menu declarations ----------------*/
-}
-
-void GxMainInterface::gx_jack_connection(GtkCheckMenuItem* p, gpointer arg) {
-    static_cast<GxMainInterface*>(arg)->connect_jack(
-	gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(p)));
+void GxMainInterface::gx_jack_connection() {
+    connect_jack(mainmenu.jack_connect_item.get_active());
 }
 
 // ----- change the jack buffersize on the fly is still experimental, give a warning
@@ -3105,9 +2876,9 @@ void gx_user_disable_latency_warn(GtkWidget* wd, gpointer arg) {
 
 // refresh latency check menu
 void GxMainInterface::refresh_latency_menu() {
-    GtkWidget* wd = getJackLatencyItem(jack.get_jack_bs());
+    Gtk::RadioMenuItem* wd = getJackLatencyItem(jack.get_jack_bs());
     if (wd) {
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
+	wd->set_active(true);
     }
 }
 
@@ -3120,8 +2891,7 @@ bool GxMainInterface::connect_jack(bool v) {
 	return false;
     }
     if (!gx_gui::gx_start_jack_dialog()) {
-	gx_system::gx_print_error(_("main"),
-				  string(_("Ignoring jackd ...")));
+	gx_system::gx_print_warning(_("main"), string(_("Ignoring jackd ...")));
 	return false;
     }
     for (int i = 0; i < 5; i++) {
@@ -3146,32 +2916,27 @@ bool GxMainInterface::connect_jack(bool v) {
 }
 
 // ----jack latency change
-void gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg) {
-    GxMainInterface& self = GxMainInterface::get_instance();
-    // requested latency
-    jack_nframes_t buf_size = (jack_nframes_t)GPOINTER_TO_INT(arg);
-
+void GxMainInterface::set_jack_buffer_size(jack_nframes_t buf_size) {
     // are we a proper jack gxjack.client ?
-    if (!self.jack.client) {
+    if (!jack.client) {
         gx_system::gx_print_error(
             _("Jack Buffer Size setting"),
             _("we are not a jack gxjack.client, server may be down")
             );
-
         return;
     }
 
     // ----- if check button triggered menually
+    // if the actual buffer size is the same, no need further action
+    if (buf_size == jack.get_jack_bs()) {
+        return;
+    }
 
     // let's avoid triggering the jack server on "inactive"
-    if (gtk_check_menu_item_get_active(menuitem) == false) {
+    Gtk::RadioMenuItem* menuitem = getJackLatencyItem(buf_size);
+    if (!menuitem || !menuitem->get_active()) {
         return;
     }
-    // if the actual buffer size is the same, no need further action
-    if (buf_size == jack_get_buffer_size(self.jack.client)) {
-        return;
-    }
-
     // first time useage warning
     GxJackLatencyChange change_latency = kChangeLatency;
 
@@ -3182,101 +2947,27 @@ void gx_set_jack_buffer_size(GtkCheckMenuItem* menuitem, gpointer arg) {
     // let's see
     if (change_latency == kChangeLatency) {
         // let's resize the buffer
-        if (jack_set_buffer_size(self.jack.client, buf_size) != 0)
+        if (jack_set_buffer_size(jack.client, buf_size) != 0)
             gx_system::gx_print_warning(_("Setting Jack Buffer Size"),
-                             _("Could not change latency"));
+					_("Could not change latency"));
     } else { // restore latency status
         // refresh latency check menu
-        gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
-        GtkWidget* wd = gui.getJackLatencyItem(self.jack.get_jack_bs());
-        if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
+	Gtk::RadioMenuItem* wd = getJackLatencyItem(jack.get_jack_bs());
+        if (wd) {
+	    wd->set_active(true);
+	}
     }
     gx_system::gx_print_info(
 	_("Jack Buffer Size"),
-	boost::format(_("latency is %1%")) % jack_get_buffer_size(self.jack.client));
-}
-
-
-/*---------------- Jack Server Menu ----------------*/
-void GxMainInterface::addJackServerMenu() {
-    GtkWidget* menulabel; // menu label
-    GtkWidget* menucont;  // menu container
-    GtkWidget* menuitem;  // menu item
-    GSList   * group = NULL;
-
-    menucont = fMenuList["Engine"];
-
-    /*-- Create Jack Connection toggle button --*/
-    menuitem = gtk_check_menu_item_new_with_mnemonic(_("Jack Server _Connection "));
-    gtk_widget_add_accelerator(menuitem, "activate", fAccelGroup->gobj(),
-                               GDK_c, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
-    g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                      G_CALLBACK(gx_jack_connection), this);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-
-    gtk_widget_show(menuitem);
-    fJackConnectItem = menuitem;
-
-    /*-- create Jack Ports menu item --*/
-    portmap_item.add_accelerator(
-	"activate", fAccelGroup, GDK_p, Gdk::SHIFT_MASK, Gtk::ACCEL_VISIBLE);
-    portmap_item.signal_activate().connect(
-	sigc::mem_fun(*this, &GxMainInterface::on_portmap_activate));
-    portmap_item.show();
-    gtk_menu_shell_append(GTK_MENU_SHELL(gw.menuh), GTK_WIDGET(portmap_item.gobj()));
-
-    /*-- Create  Latency submenu under Jack Server submenu --*/
-    menulabel = gtk_menu_item_new_with_mnemonic(_("_Latency"));
-    gtk_menu_append(GTK_MENU(menucont), menulabel);
-    gtk_widget_show(menulabel);
-
-    menucont = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menulabel), menucont);
-
-    /*-- Create  menu item under Latency submenu --*/
-    gchar buf_size[8];
-    const int min_pow = 5;  // 2**5  = 32
-    const int max_pow = 13; // 2**13 = 8192
-    group = NULL;
-        int jack_buffer_size = static_cast<int>(16);
-        (void)snprintf(buf_size, sizeof(buf_size), "%d", jack_buffer_size);
-        menuitem = gtk_radio_menu_item_new_with_label(group, buf_size);
-        group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), FALSE);
-
-        g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                          G_CALLBACK(gx_set_jack_buffer_size),
-                          GINT_TO_POINTER(jack_buffer_size));
-
-        // display actual buffer size as default
-        gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-        gtk_widget_show(menuitem);
-
-    for (int i = min_pow; i <= max_pow; i++) {
-        int jack_buffer_size = static_cast<int>(pow(2., i));
-        (void)snprintf(buf_size, sizeof(buf_size), "%d", jack_buffer_size);
-        menuitem = gtk_radio_menu_item_new_with_label(group, buf_size);
-        group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), FALSE);
-
-        g_signal_connect(GTK_OBJECT(menuitem), "activate",
-                          G_CALLBACK(gx_set_jack_buffer_size),
-                          GINT_TO_POINTER(jack_buffer_size));
-
-        // display actual buffer size as default
-        gtk_menu_shell_append(GTK_MENU_SHELL(menucont), menuitem);
-        gtk_widget_show(menuitem);
-
-        fJackLatencyItem[i-min_pow] = menuitem;
-    }
+	boost::format(_("latency is %1%")) % jack_get_buffer_size(jack.client));
 }
 
 void GxMainInterface::on_portmap_response(int) {
-    portmap_item.set_active(false);
+    mainmenu.portmap_item.set_active(false);
 }
 
 void GxMainInterface::on_portmap_activate() {
-    if (portmap_item.get_active()) {
+    if (mainmenu.portmap_item.get_active()) {
 	if (portmap_window) {
 	    return;
 	}
@@ -3303,13 +2994,15 @@ void GxMainInterface::show() {
 
     if (jack.client) {
         // refresh some GUI stuff
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(fJackConnectItem), TRUE);
+        mainmenu.jack_connect_item.set_active(true);
 
-        GtkWidget* wd = getJackLatencyItem(jack.get_jack_bs());
-        if (wd) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wd), TRUE);
+	Gtk::RadioMenuItem* wd = getJackLatencyItem(jack.get_jack_bs());
+        if (wd) {
+	    wd->set_active(true);
+	}
     } else {
-        gtk_widget_hide(gx_gui::gw.gx_jackd_on_image);
-        gtk_widget_show(gx_gui::gw.gx_jackd_off_image);
+        mainmenu.jackd_on_image.hide();
+        mainmenu.jackd_off_image.show();
     }
     
     gint mainxorg = gx_set_mx_oriantation();

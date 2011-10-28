@@ -52,7 +52,7 @@ class MidiControllerTable: public sigc::trackable {
     GtkToggleButton *togglebutton;
     GtkTreeSelection *selection;
     GtkListStore *store;
-    GtkCheckMenuItem *menuitem;
+    Gtk::CheckMenuItem& menuitem;
     static void response_cb(GtkWidget *widget, gint response_id, gpointer data);
     static void edited_cb(GtkCellRendererText *renderer, gchar *path,
                           gchar *new_text, gpointer data);
@@ -60,10 +60,10 @@ class MidiControllerTable: public sigc::trackable {
     static void toggleButtonSetSwitch(GtkWidget *w, gpointer data);
     void set(bool v);
     void load();
-    explicit MidiControllerTable(GtkCheckMenuItem *item);
+    explicit MidiControllerTable(Gtk::CheckMenuItem& item);
     ~MidiControllerTable();
  public:
-    static void toggle(GtkWidget* widget, gpointer data);
+    static void toggle(Gtk::CheckMenuItem& item);
 };
 
 /*****************************************************************

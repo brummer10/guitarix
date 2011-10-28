@@ -398,8 +398,8 @@ UiSwitchWithCaption::~UiSwitchWithCaption() {
 }
 
 void PToggleButton::on_clicked() {
-    Gtk::Menu* m = Glib::wrap(GTK_MENU(gx_preset::gxpreset.presmenu[0]));
-    m->popup(2, gtk_get_current_event_time());
+    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
+    gui.mainmenu.preset_submenu[0].popup(2, gtk_get_current_event_time());
 }
 
 PToggleButton::PToggleButton(const char* label):

@@ -303,7 +303,7 @@ CmdlineOptions::~CmdlineOptions() {
     instance = 0;
 }
 
-Glib::ustring CmdlineOptions::get_jack_output(unsigned int n) {
+Glib::ustring CmdlineOptions::get_jack_output(unsigned int n) const {
     if (n >= jack_outputs.size()) {
 	return "";
     }

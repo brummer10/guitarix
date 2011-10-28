@@ -340,14 +340,14 @@ void JackCapture::start_stop(GtkWidget *widget, gpointer data) {
 
 //-------------------- meterbridge --------------------------
 
-Meterbridge::Meterbridge(GxChild *p, GtkCheckMenuItem *i)
+Meterbridge::Meterbridge(GxChild *p, Gtk::CheckMenuItem& i)
     : item(i) {
-    gtk_widget_ref(GTK_WIDGET(item));
+    item.reference();
     p->terminated.connect(sigc::mem_fun(*this, &Meterbridge::terminated));
 }
 
 void Meterbridge::terminated(bool pgm_found) {
-    gtk_check_menu_item_set_active(item, false);
+    item.set_active(false);
     if (pgm_found) {
         gx_system::gx_print_info("Meterbridge", "meterbridge terminated");
     } else {
@@ -357,7 +357,7 @@ void Meterbridge::terminated(bool pgm_found) {
             " meterbridge is not installed! "
             );
     }
-    gtk_widget_unref(GTK_WIDGET(item));
+    item.unreference();
     delete this;
 }
 
@@ -365,7 +365,7 @@ void Meterbridge::stop() {
     childprocs.kill("meterbridge");
 }
 
-void Meterbridge::start_stop(GtkCheckMenuItem *menuitem, gpointer) {
+void Meterbridge::start_stop(Gtk::CheckMenuItem &menuitem) {
     // no need to do all this if jack is not running
     if (!gx_gui::GxMainInterface::get_instance().jack.client) {
         (void)gx_gui::gx_message_popup(
@@ -376,7 +376,7 @@ void Meterbridge::start_stop(GtkCheckMenuItem *menuitem, gpointer) {
     }
 
     const char *app_name = "meterbridge";
-    if (gtk_check_menu_item_get_active(menuitem)) {
+    if (menuitem.get_active()) {
         if (childprocs.find(app_name)) {
             return;
         }
@@ -400,7 +400,7 @@ void Meterbridge::start_stop(GtkCheckMenuItem *menuitem, gpointer) {
                 );
             gx_system::gx_print_error("Meterbridge",
                            string("meterbridge could not be launched (fork failed)!"));
-            gtk_check_menu_item_set_active(menuitem, FALSE);
+            menuitem.set_active(false);
         }
     } else {  // -- deactivate meterbridge
         childprocs.kill(app_name);
