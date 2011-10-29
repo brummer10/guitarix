@@ -35,6 +35,7 @@ class PresetIO: public gx_system::AbstractPresetIO {
 private:
     gx_gui::MidiControllerList& mctrl;
     gx_engine::ConvolverAdapter& convolver;
+    const gx_system::CmdlineOptions& opt;
     gx_gui::paramlist plist;
     gx_gui::MidiControllerList::controller_array *m;
     gx_engine::GxJConvSettings jcset;
@@ -47,7 +48,8 @@ private:
     void write_intern(gx_system::JsonWriter &w, bool write_midi);
     friend class StateIO;
 public:
-    PresetIO(gx_gui::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr);
+    PresetIO(gx_gui::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
+	     const gx_system::CmdlineOptions& opt);
     ~PresetIO();
     void read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
     void commit_preset();
@@ -61,7 +63,8 @@ private:
     gx_jack::GxJack& jack;
 public:
     StateIO(gx_gui::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
-	    gx_gui::MidiStandardControllers& mstdctr, gx_jack::GxJack& jack);
+	    gx_gui::MidiStandardControllers& mstdctr, gx_jack::GxJack& jack,
+	    const gx_system::CmdlineOptions& opt);
     ~StateIO();
     void read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
     void commit_state();

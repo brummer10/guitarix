@@ -252,7 +252,6 @@ class GxJConvSettings {
 
  public:
     GxJConvSettings();
-    explicit GxJConvSettings(gx_system::JsonParser& jp);
 
     // getters and setters
     inline string getIRFile() const               { return fIRFile; }
@@ -279,7 +278,10 @@ class GxJConvSettings {
     static bool* checkbutton7;
     list<Glib::ustring> faflist;
     typedef list<Glib::ustring>::iterator faf_iterator;
-    void writeJSON(gx_system::JsonWriter& w);
+    void readJSON(gx_system::JsonParser& jp,
+		  const gx_system::PathList& search_path);
+    void writeJSON(gx_system::JsonWriter& w,
+		   const gx_system::PathList& search_path);
 };
 
 

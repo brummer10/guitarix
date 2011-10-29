@@ -354,12 +354,17 @@ void GxJConvSettings::setFullIRPath(string name) {
     fIRFile= Glib::path_get_basename(name);
 }
 
-void GxJConvSettings::writeJSON(gx_system::JsonWriter& w) {
+void GxJConvSettings::writeJSON(gx_system::JsonWriter& w,
+				const gx_system::PathList& search_path) {
     w.begin_object(true);
     w.write_key("jconv.IRFile");
     w.write(fIRFile, true);
     w.write_key("jconv.IRDir");
-    w.write(fIRDir, true);
+    string dir = fIRDir;
+    if (search_path.contains(dir)) {
+	dir = "";
+    }
+    w.write(dir, true);
     w.write_key("jconv.Gain");
     w.write(fGain, true);
     w.write_key("jconv.GainCor");
@@ -420,7 +425,8 @@ void GxJConvSettings::read_favorites(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::end_array);
 }
 
-GxJConvSettings::GxJConvSettings(gx_system::JsonParser& jp) {
+void GxJConvSettings::readJSON(gx_system::JsonParser& jp,
+			       const gx_system::PathList& search_path) {
     jp.next(gx_system::JsonParser::begin_object);
     do {
         jp.next(gx_system::JsonParser::value_key);
@@ -455,6 +461,9 @@ GxJConvSettings::GxJConvSettings(gx_system::JsonParser& jp) {
         }
     } while (jp.peek() == gx_system::JsonParser::value_key);
     jp.next(gx_system::JsonParser::end_object);
+    if (!fIRFile.empty() && fIRDir.empty()) {
+	search_path.find_dir(&fIRDir, fIRFile);
+    }
 }
 
 

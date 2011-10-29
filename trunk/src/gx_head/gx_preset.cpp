@@ -34,10 +34,13 @@ namespace gx_preset {
  ** class PresetIO
  */
 
-PresetIO::PresetIO(gx_gui::MidiControllerList& mctrl_, gx_engine::ConvolverAdapter& cvr_)
+PresetIO::PresetIO(gx_gui::MidiControllerList& mctrl_,
+		   gx_engine::ConvolverAdapter& cvr_,
+		   const gx_system::CmdlineOptions& opt_)
     : gx_system::AbstractPresetIO(),
       mctrl(mctrl_),
       convolver(cvr_),
+      opt(opt_),
       plist(),
       m(0),
       jcset() {
@@ -132,7 +135,8 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
         if (jp.current_value() == "engine") {
             read_parameters(jp, true);
         } else if (jp.current_value() == "jconv") {
-	    jcset = gx_engine::GxJConvSettings(jp);
+	    jcset = gx_engine::GxJConvSettings();
+	    jcset.readJSON(jp, opt.get_IR_pathlist());
         } else if (jp.current_value() == "midi_controller") {
             if (use_midi) {
                 m = new gx_gui::MidiControllerList::controller_array
@@ -172,7 +176,7 @@ void PresetIO::write_intern(gx_system::JsonWriter &w, bool write_midi) {
     w.write_key("engine");
     write_parameters(w, true);
     w.write_key("jconv");
-    convolver.jcset.writeJSON(w);
+    convolver.jcset.writeJSON(w, opt.get_IR_pathlist());
     if (write_midi) {
         w.write_key("midi_controller");
         mctrl.writeJSON(w);
@@ -201,8 +205,9 @@ void PresetIO::copy_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
  */
 
 StateIO::StateIO(gx_gui::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
-		 gx_gui::MidiStandardControllers& mstdctr, gx_jack::GxJack& jack_)
-    : PresetIO(mctrl, cvr),
+		 gx_gui::MidiStandardControllers& mstdctr, gx_jack::GxJack& jack_,
+		 const gx_system::CmdlineOptions& opt_)
+    : PresetIO(mctrl, cvr, opt_),
       midi_std_control(mstdctr),
       jack(jack_) {
 }
@@ -281,8 +286,8 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
 		       gx_gui::MidiStandardControllers& mstdctr, gx_gui::MidiControllerList& mctrl,
 		       gx_engine::ModuleSequencer& seq_)
     : GxSettingsBase(seq_),
-      preset_io(mctrl, cvr),
-      state_io(mctrl, cvr, mstdctr, jack_),
+      preset_io(mctrl, cvr, opt),
+      state_io(mctrl, cvr, mstdctr, jack_, opt),
       presetfile_parameter("system.current_preset_file"),
       state_loaded(false),
       jack(jack_),

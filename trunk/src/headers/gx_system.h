@@ -172,6 +172,19 @@ public:
     bool is_in_list(const string& name);
 };
 
+/****************************************************************/
+
+class PathList {
+private:
+    typedef list< Glib::RefPtr<Gio::File> > pathlist;
+    pathlist dirs;
+public:
+    PathList(): dirs() {}
+    void add(const string& d) { dirs.push_back(Gio::File::create_for_path(d)); }
+    bool contains(const string& d) const;
+    bool find_dir(string *d, const string& filename) const;
+};
+
 /****************************************************************
  ** CmdlineParser
  */
@@ -198,6 +211,8 @@ private:
     string pixmap_dir;
     string user_dir;
     string plugin_dir;
+    string sys_IR_dir;
+    PathList IR_pathlist;
     Glib::ustring rcset;
     bool lterminal;
     static CmdlineOptions *instance;
@@ -220,6 +235,7 @@ public:
 	return get_style_filepath(basename); } //FIXME should be changed
     const string& get_user_dir() const { return user_dir; }
     const string& get_plugin_dir() const { return plugin_dir; }
+    const string& get_sys_IR_dir() const { return sys_IR_dir; }
     const Glib::ustring& get_rcset() const { return rcset; }
     const string& get_loadfile() const { return load_file; }
     const Glib::ustring& get_jack_instancename() const { return jack_instance; }
@@ -227,6 +243,7 @@ public:
     const Glib::ustring& get_jack_uuid2() const { return jack_uuid2; }
     const Glib::ustring& get_jack_midi() const { return jack_midi; }
     const Glib::ustring& get_jack_input() const { return jack_input; }
+    const PathList& get_IR_pathlist() const { return IR_pathlist; }
     Glib::ustring get_jack_output(unsigned int n) const;
 };
 

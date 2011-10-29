@@ -149,6 +149,31 @@ bool SkinHandling::is_in_list(const string& name) {
     return false;
 }
 
+bool PathList::contains(const string& d) const {
+    Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(d);
+    for (pathlist::const_iterator i = dirs.begin();
+	 i != dirs.end(); ++i) {
+	if (f->equal(*i)) {
+	    return true;
+	}
+    }
+    return false;
+}
+
+
+bool PathList::find_dir(string* d, const string& filename) const {
+    for (pathlist::const_iterator i = dirs.begin();
+	 i != dirs.end(); ++i) {
+	string p = (*i)->get_path();
+	string fn = Glib::build_filename(p, filename);
+	if (access(fn.c_str(), R_OK) == 0) {
+	    *d = p;
+	    return true;
+	    }
+	}
+    return false;
+}
+
 CmdlineOptions *CmdlineOptions::instance = 0;
 
 static inline const char *shellvar(const char *name) {
@@ -177,6 +202,8 @@ CmdlineOptions::CmdlineOptions()
       pixmap_dir(GX_PIXMAPS_DIR),
       user_dir(),
       plugin_dir(),
+      sys_IR_dir(GX_SOUND_DIR1),
+      IR_pathlist(),
       rcset(shellvar("GUITARIX_RC_STYLE")),
       lterminal(false),
       skin(style_dir) {
@@ -378,6 +405,10 @@ void CmdlineOptions::process(int argc, char** argv) {
     make_ending_slash(pixmap_dir);
     make_ending_slash(user_dir);
     make_ending_slash(plugin_dir);
+    make_ending_slash(sys_IR_dir);
+
+    IR_pathlist.add(get_user_dir());
+    IR_pathlist.add(get_sys_IR_dir());
 
     skin.set_styledir(style_dir);
     if (!rcset.empty() && !skin.is_in_list(rcset)) {

@@ -48,7 +48,11 @@ void StateIO::read_state(gx_system::JsonParser &jp, const gx_system::SettingsFil
 		    } while (jp.peek() == gx_system::JsonParser::value_key);
 		    jp.next(gx_system::JsonParser::end_object);
 		} else if (jp.current_value() == "jconv") {
-		    jcset = gx_engine::GxJConvSettings(jp);
+		    gx_system::PathList sl;
+		    sl.add(string(getenv("HOME"))+"/.gx_head"); //FIXME
+		    sl.add(GX_SOUND_DIR1);
+		    jcset = gx_engine::GxJConvSettings();
+		    jcset.readJSON(jp, sl);
 		} else {
 		    jp.skip_object();
 		}
