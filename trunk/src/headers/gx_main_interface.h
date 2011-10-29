@@ -663,13 +663,12 @@ public :
     gx_engine::GxEngine&  engine;
     gx_jack::GxJack       jack;
     gx_preset::GxSettings gx_settings;
+    MainMenu              mainmenu;  // crash if before GxSettings though not clear why
 private:
     ReportXrun            report_xrun;
 public:
 
     GtkWidget*            RBox;
-
-    static bool           fInitialized;
 
     static const gboolean expand   = TRUE;
     static const gboolean fill     = TRUE;
@@ -906,9 +905,6 @@ public:
     void create_ptoggle_button(const char *label) {
 	addwidget((new PToggleButton(label))->get_widget());
     }
-public:
-    MainMenu mainmenu;
-private:
 };
 
 /****************************************************************/

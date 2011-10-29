@@ -255,9 +255,6 @@ gboolean button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data
 /*set global GUI widgets class */
 GlobalWidgets gw;
 
-// static member
-bool GxMainInterface::fInitialized = false;
-
 /* set initial window position*/
 int gx_set_mx_oriantation() {
     return gx_gui::guivar.main_xorg;
@@ -309,14 +306,27 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
       options(options_),
       fAccelGroup(fWindow.get_accel_group()),
       portmap_window(0),
+      fTop(0),
+      fBox(),
+      rBox(0),
+      sBox(0),
+      tBox(0),
+      fMonoRackContainer(0),
+      fStereoRackContainer(0),
+      fMode(),
+      fStopped(false),
       fLoggingWindow(_("Logging Window")),
+      fLevelMeters(),
       fTuner(engine_.tuner),
+      fWaveView(),
+      fSignalLevelBar(0),
+      fJackLatencyItem(),
       engine(engine_),
       jack(engine_),
       gx_settings(options_, jack, engine.convolver, midi_std_ctr, controller_map, engine_),
+      mainmenu(*this),
       report_xrun(jack),
-      mainmenu(*this)
- {
+      RBox(0) {
     engine.set_jack(&jack);
     jack.xrun.connect(sigc::mem_fun(report_xrun, &ReportXrun::run));
     jack.session.connect(sigc::mem_fun(*this, &GxMainInterface::jack_session_event));
@@ -2990,7 +3000,6 @@ void GxMainInterface::set_waveview_buffer(unsigned int size) {
 // ---- show main GUI
 void GxMainInterface::show() {
     assert(fTop == 0);
-    fInitialized = true;
 
     if (jack.client) {
         // refresh some GUI stuff

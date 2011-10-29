@@ -48,32 +48,35 @@ def build(bld):
 
     sources = sources_engine + sources_gui
     incl = ['.','../..','..','../headers','../../libgxwmm','../../libgxw'] # need ".." for config.h
-    if not bld.env['INTERN_ZITA_CONVOLVER']:
-        sources.append('../zita-convolver/zita-convolver.cc')
-        incl.append('../zita-convolver'); 
+    libpath = []
     lib = ['dl']
-    if not bld.env['ZITA_RESAMPLER']:
+    uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
+              'GTK2', 'GTKMM', 'GIOMM', 'FFTW3']
+    uselib_local = []
+    if bld.env['ZITA_CONVOLVER']:
+        uselib.append('ZITA_CONVOLVER')
+    else:
+        sources.append('../zita-convolver/zita-convolver.cc')
+        incl.append('../zita-convolver');
+    if bld.env['ZITA_RESAMPLER']:
+        uselib.append('ZITA_RESAMPLER')
+    else:
         sources.append('../zita-resampler/zita-resampler.cc')
         incl.append('../zita-resampler')
-    else:
-        lib.append('zita-resampler')
-    uselib_local = []
     if bld.env["HAVE_PLUGINLIB"]:
         uselib_local += ["plugins"]
     if bld.env["GX_LIB_SHARED"]:
-        lib.extend(['gxwmm','gxw'])
-        libpath = [bld.path.find_dir("../../libgxw/gxw").bldpath(bld.env),
-                   bld.path.find_dir("../../libgxwmm/gxwmm").bldpath(bld.env)]
+        lib += ['gxwmm','gxw']
+        libpath += [bld.path.find_dir("../../libgxw/gxw").bldpath(bld.env),
+                    bld.path.find_dir("../../libgxwmm/gxwmm").bldpath(bld.env)]
     else:
-        libpath = []
         uselib_local += ['gxwmm','gxw']
     bld(features = 'cxx cprogram',
         includes = incl,
         obj_ext  = '.o',
         source = sources,
         lib = lib,
-        uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
-                  'GTK2', 'GTKMM', 'GIOMM', 'ZITA_CONVOLVER', 'FFTW3'],
+        uselib = uselib,
         uselib_local = uselib_local,
         libpath = libpath,
         target = bld.env['BIN_NAME1'],

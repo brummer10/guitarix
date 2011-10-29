@@ -94,7 +94,7 @@ public:
     void load(Source src, const string& name = "", const string& factory = "");
     bool rename_preset(const string& name, const string& newname);
     void auto_save_state() { if (state_loaded) save_to_state(current_source != state); }
-    static GxSettings& get_instance() { return *instance; }
+    static GxSettings& get_instance() { assert(instance); return *instance; }
     void set_std_presetfile() { presetfile_parameter.set_std_value(); }
     string get_preset_filename() { return presetfile_parameter.get_path(); }
     bool set_preset_file(const string& newfile);

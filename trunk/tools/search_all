@@ -1,6 +1,7 @@
 #! /bin/bash
 dir=$(python -c "import os.path; print os.path.relpath('$(dirname $0)/..')")
 excl='! -path "*/.svn/*" ! -name "*~" ! -name "*.o" ! -name "*_rc" ! -name "*_rc.in"'
-excl="$excl ! -name convert-0.06-format ! -name TAGS ! -name guitarix"
-excl="$excl ! -name coverage.info ! -name \"*.html\" ! -name \"*.gcno\""
+excl="$excl"' ! -name convert-0.06-format ! -name TAGS ! -name guitarix'
+excl="$excl"' ! -name coverage.info ! -name "*.html" ! -name "*.gcno"'
+excl="$excl"' ! -path "*/c4che/*" ! -name "*.so"'
 eval find "$dir" -type f $excl -print0 | xargs -0 egrep -nH "$@"

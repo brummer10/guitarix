@@ -109,9 +109,14 @@ def set_options(opt):
                     default=False,
                     const=True,
                     help='dont build ladspa plugins (Default yes)')
-                    
 
-    
+    comp.add_option('--experimental-ladspa',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help=('build with experimental ladspa plugin'
+                          ' (in src/ladsp, will not be installed'))
+
     faust = opt.add_option_group("Faust-Compiler")
 
     if len(good_faust_versions) == 1:
@@ -306,22 +311,6 @@ def cfg_get_variable(self, package, variable, prefix=""):
 # configuration helper functions
 #
 
-def check_comp(conf):
-    if Options.options.includeresampler:
-        define_name="ZITA_RESAMPLER"
-        conf.env['ZITARESAMPLER'] = True
-        conf.env['ZITA_RESAMPLER'] = None
-
-    if Options.options.includeconvolver:
-        conf.env['ZITACONVOLVER'] = True
-        conf.env['INTERN_ZITA_CONVOLVER'] = None
-        conf.env['ZITA_CONVOLVER'] = None
-        
-    if Options.options.no_ladspa:
-        conf.env['NO_LADSPA'] = True
-    else:
-        conf.env['LADSPA'] = True	
-
 def check_faust(conf):
     if Options.options.no_faust:
         conf.env['FAUST'] = None
@@ -375,6 +364,7 @@ write_linguas_file = feature ('intltool_po')(write_linguas_file)
 #
 
 def configure(conf):
+    opt = Options.options
     if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
 
     platform = Utils.detect_platform()
@@ -394,8 +384,8 @@ def configure(conf):
     conf.env['OS'] = platform
 
     def option_checkfatal (option, desc):
-        if hasattr (Options.options, 'enable_' + option):
-            if getattr (Options.options, 'enable_' + option):
+        if hasattr (opt, 'enable_' + option):
+            if getattr (opt, 'enable_' + option):
                 Utils.pprint ('RED', desc + ' N/A')
                 sys.exit (1)
                 
@@ -415,9 +405,9 @@ def configure(conf):
     conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
     # compiler
     conf.check_tool('compiler_cxx')
-    if Options.options.with_gcov:
+    if opt.with_gcov:
         conf.check_tool('gcov')
-    if Options.options.python_wrapper or Options.options.glade_support:
+    if opt.python_wrapper or opt.glade_support:
         conf.check_tool('compiler_cc')
     # needed libaries
     try:
@@ -432,12 +422,14 @@ def configure(conf):
     conf.check_cfg(package='gtkmm-2.4', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
     conf.check_cfg(package='giomm-2.4', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
-    if not Options.options.no_ladspa:
+    if not opt.no_ladspa or opt.experimental_ladspa:
         conf.check(header_name='ladspa.h', mandatory=1)
     conf.check(header_name='boost/format.hpp', mandatory=1)
     conf.check(header_name='boost/thread.hpp', mandatory=1)
     # convolver and resampler
-    if not Options.options.includeconvolver:
+    if opt.includeconvolver:
+        conf.env['ZITA_CONVOLVER'] = False
+    else:
         expected_zita_convolver_version = 3
         code="""
         #include <zita-convolver.h>
@@ -446,12 +438,23 @@ def configure(conf):
         #endif
         int main(){}
         """ % expected_zita_convolver_version
-        conf.check_cxx(fragment=code, lib="zita-convolver", uselib_store='ZITA_CONVOLVER',
-                       errmsg="version %d not found, using ours" % expected_zita_convolver_version,
-                       define_name="INTERN_ZITA_CONVOLVER")
-    if not Options.options.includeresampler:
-        conf.check(lib='zita-resampler', msg='Checking for zita-resampler', header_name='zita-resampler.h',
-                   errmsg="fixed version not found, using ours", define_name="ZITA_RESAMPLER")
+        conf.check_cxx(
+            fragment=code,
+            lib="zita-convolver",
+            uselib_store='ZITA_CONVOLVER',
+            errmsg="version %d not found, using ours" % expected_zita_convolver_version,
+            define_name="ZITA_CONVOLVER")
+    if opt.includeresampler:
+        conf.env['ZITA_RESAMPLER'] = False
+    else:
+        conf.check_cxx(
+            lib='zita-resampler',
+            uselib_store='ZITA_RESAMPLER',
+            msg='Checking for zita-resampler',
+            header_name='zita-resampler.h',
+            errmsg="fixed version not found, using ours",
+            define_name="ZITA_RESAMPLER")
+
     # faust
     check_faust(conf)
     # directory
@@ -470,36 +473,40 @@ def configure(conf):
     conf.define('GX_VERSION', VERSION)
    
     if conf.env.DEST_CPU=='x86_64': 
-        conf.define('OS_IS_BIT', '#define OS_64_BIT')
+        conf.define('OS_64_BIT', 1)
     else:
-        conf.define('OS_IS_BIT', '#define OS_32_BIT')
+        conf.define('OS_32_BIT', 1)
     # writing config.h
     conf.write_config_header('config.h')
 
     conf.define('LIBDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'lib')))
-    if not Options.options.no_ladspa:
-        conf.env['LADSPA'] = True
-        conf.define('LADSPADIR', os.path.normpath(os.path.join(conf.env['LIBDIR'], 'ladspa')))
-    if Options.options.ladspadir:
-        conf.env['LADSPADIR'] = Options.options.ladspadir
-
     conf.define('BINDIR', os.path.normpath(os.path.join(conf.env['PREFIX'], 'bin')))
     conf.define('DESKAPPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications')))
     conf.define('BIN_NAME', APPNAME)
     conf.define('BIN_NAME1', APPNAME1)
+
+    conf.env['EXP_LADSPA'] = opt.experimental_ladspa
+    conf.env['LADSPA'] = not opt.no_ladspa
+    if not opt.no_ladspa:
+        if opt.ladspadir:
+            conf.env['LADSPADIR'] = opt.ladspadir
+        else:
+            conf.env['LADSPADIR'] = os.path.normpath(os.path.join(
+                conf.env['LIBDIR'], 'ladspa'))
+
     # g++ flags
-    cxxflags = Options.options.cxxflags.split()
-    if Options.options.debug:
-        cxxflags += Options.options.cxxflags_debug.split()
+    cxxflags = opt.cxxflags.split()
+    if opt.debug:
+        cxxflags += opt.cxxflags_debug.split()
     else:
-        cxxflags += Options.options.cxxflags_release.split()
+        cxxflags += opt.cxxflags_release.split()
     cpu_model = None
-    if Options.options.optimization:
+    if opt.optimization:
         cpu_model = append_optimization_flags(cxxflags)
     conf.env['CXXFLAGS'] += cxxflags
 
     # pygobject is used by both python and c++ wrapper
-    if Options.options.python_wrapper or Options.options.generate_cpp_wrapper:
+    if opt.python_wrapper or opt.generate_cpp_wrapper:
         conf.check_tool('python')
         conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT', mandatory=True)
         conf.cfg_get_variable(package='pygobject-2.0', variable='codegendir')
@@ -509,7 +516,7 @@ def configure(conf):
     conf.sub_config('glade-gxw');
     conf.sub_config('libgxwmm');
     conf.sub_config('libgxw/gxw');
-    
+
     conf.sub_config('src/gx_head');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
@@ -527,25 +534,17 @@ def configure(conf):
     print_msg("")
     display_msg("OS ", conf.env['OS'], 'CYAN')
 
-    if not conf.env['ZITA_RESAMPLER']:
-        conf.env['ZITARESAMPLER'] = True
-        check_comp(conf)
-
-    if not conf.env['INTERN_ZITA_CONVOLVER']:
-        conf.env['ZITACONVOLVER'] = True
-        check_comp(conf)
-
     if cpu_model:
         display_msg("CPU version" , "%s" % cpu_model, "CYAN")
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
     display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(conf.env["CC_VERSION"]), "CYAN")
     display_feature("Use faust", conf.env['FAUST'])
-    if not Options.options.faust_float:
+    if not opt.faust_float:
         display_msg("Use faust precision", "double", 'CYAN')
     else:
         display_msg("Use faust precision", "single", 'CYAN')
-    display_feature("Use internal zita-resampler", conf.env['ZITARESAMPLER'])
-    display_feature("Use internal zita-convolver", conf.env['ZITACONVOLVER'])
+    display_feature("Use internal zita-resampler", not conf.env['ZITA_RESAMPLER'])
+    display_feature("Use internal zita-convolver", not conf.env['ZITA_CONVOLVER'])
     display_feature("Jack Session Support", conf.env['HAVE_JACK_SESSION'])
 
 
@@ -561,7 +560,7 @@ def configure(conf):
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
     display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
     
-    if not Options.options.no_ladspa:
+    if not opt.no_ladspa:
         display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
     display_msg("Guitarix style directory", conf.env['GX_STYLE_DIR'], 'CYAN')
     display_msg("Guitarix builder directory", conf.env['GX_BUILDER_DIR'], 'CYAN')
@@ -594,7 +593,6 @@ def sub_file(src_fname, dst_fname, lst):
     f.close()
 
 def build(bld):
-    
     if bld.env['INTLTOOL']:
         obj = bld.new_task_gen ('intltool_po')
         obj.podir = 'po'
@@ -616,7 +614,8 @@ def build(bld):
 
     pa = bld.env['GX_SOUND_DIR1']
     bld.add_subdirs('src/gx_head')
-    bld.add_subdirs('src/ladspa')
+    if bld.env["EXP_LADSPA"]:
+        bld.add_subdirs('src/ladspa')
     bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0644)
     bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/funkmuscle_rc', chmod=0664)
     bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/dlp_ae_rc', chmod=0664)
@@ -648,7 +647,7 @@ def dist(ctx):
         raise Utils.WafError("you need to install pysvn to use the dist command"
                              " (debian package python-svn)")
     version = Utils.g_module.VERSION
-    if Options.options.no_pkg:
+    if opt.no_pkg:
         version += '-nopkg'
     Scripting.dist(version=version)
 
@@ -660,7 +659,7 @@ def copytree(src,dst,build_dir):
     for srcname, info in entries:
         if srcname == ".":
             continue
-        if Options.options.no_pkg and srcname.startswith("debian"):
+        if opt.no_pkg and srcname.startswith("debian"):
             continue
         dstname=os.path.join(dst,srcname)
         if os.path.isdir(srcname):
