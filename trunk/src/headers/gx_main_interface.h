@@ -110,13 +110,6 @@ class GlobalWidgets {
     GtkWidget*          srack_widget;
     GtkWidget*          rack_tool_bar;
     GtkWidget*          set_label;
-
-    /* icon widgets */
-    GdkPixbuf*          ib;
-    GdkPixbuf*          ibm;
-    GdkPixbuf*          ibr;
-
-    GtkStatusIcon*      status_icon;
 };
 
 extern GlobalWidgets gw;
@@ -413,7 +406,7 @@ public:
  ** to a Gtk::MenuShell
  */
 
-class GxUiRadioMenu: public gx_ui::GxUiItemInt {
+class GxUiRadioMenu: public gx_ui::GxUiItemUInt {
 private:
     vector<Gtk::RadioMenuItem*> items;
     Gtk::RadioButtonGroup group;
@@ -421,9 +414,9 @@ private:
     virtual void reflectZone();
     void on_activate(int i);
 public:
-    GxUiRadioMenu(gx_ui::GxUI* ui, Glib::RefPtr<Gtk::AccelGroup>& ag,
-		  UIntParameter& param, Gtk::MenuShell& menucont);
+    GxUiRadioMenu(gx_ui::GxUI* ui, UIntParameter& param);
     virtual ~GxUiRadioMenu();
+    void setup(Gtk::MenuShell& menucont, Glib::RefPtr<Gtk::AccelGroup>& ag);
 };
 
 /****************************************************************
@@ -574,7 +567,8 @@ public:
 
     void addJackServerMenu(GxMainInterface& intf);
 
-    MainMenu(GxMainInterface& intf);
+    MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options);
+    void setup(GxMainInterface& intf);
 };
 
 class GxMainInterface : public sigc::trackable, public gx_ui::GxUI {
@@ -597,8 +591,8 @@ private:
     void toggle_engine_bypass();
     void sync_engine_switch();
 
-    static void           gx_systray_menu(GtkWidget*, gpointer);
-    static void           gx_hide_extended_settings(GtkWidget*, gpointer);
+    void                  gx_systray_menu(guint button, guint32 activate_time);
+    void                  gx_hide_extended_settings();
 
     void                  addMainMenu();
     void                  addEngineMenu();
@@ -658,12 +652,18 @@ private:
 
     GtkWidget*            addWidget(const char* label, GtkWidget* w);
     virtual void          pushBox(int mode, GtkWidget* w);
-
 public :
+    Glib::RefPtr<Gdk::Pixbuf> gw_ib;
+    Glib::RefPtr<Gdk::Pixbuf> gw_ibm;
+    Glib::RefPtr<Gdk::Pixbuf> gw_ibr;
+    Glib::RefPtr<Gtk::StatusIcon> status_icon;
+
     gx_engine::GxEngine&  engine;
     gx_jack::GxJack       jack;
-    gx_preset::GxSettings gx_settings;
+    
     MainMenu              mainmenu;  // crash if before GxSettings though not clear why
+    Gtk::VBox             toplevel_box;
+    gx_preset::GxSettings gx_settings;
 private:
     ReportXrun            report_xrun;
 public:

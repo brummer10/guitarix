@@ -69,10 +69,6 @@ void GxMainInterface::setup() {
             {
                 openEventBox(" "); // main widget start openMainBox(" ", "main_expose");
                 {
-                    // ----- this is a dummy widget, only for save settings
-                    // for the latency warning dialog
-                    //openWarningBox("WARNING", &gx_engine::audio.fwarn);
-                    //setSkinBox("SKIN", &gx_engine::audio.fskin);
                     openHorizontalBox("");
                     {
                         openSpaceBox("");
@@ -222,39 +218,6 @@ void GxMainInterface::setup() {
                                 openSpaceBox("");
                                 closeBox();
 
-                              /*  openVerticalBox("");
-                                {
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openSpaceBox("");
-                                    closeBox();
-                                    openVerticalBox1("Convolver");
-                                    {
-                                    }
-                                    closeBox();
-                                    addJConvButton(_("set"), &gx_engine::audio.filebutton);
-                                    addJToggleButton(_("run"),
-                                                     gx_jconv::GxJConvSettings::checkbutton7);
-                                    openSpaceBox("");
-                                    closeBox();
-                                } 
-                                closeBox(); */
                                 openSpaceBox("");
                                 closeBox();
                                 openSpaceBox("");

@@ -84,6 +84,7 @@ private:
     void exit_handler(bool otherthread);
     void jack_client_changed();
     string make_state_filename();
+    string make_default_state_filename();
     string make_std_preset_filename();
     void check_convert_presetfile();
     static string get_default_presetfile(gx_system::CmdlineOptions& opt);

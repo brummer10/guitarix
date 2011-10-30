@@ -337,7 +337,8 @@ IRWindow::IRWindow(const Glib::RefPtr<Gtk::Builder>& bld, gx_engine::ConvolverAd
     wcombo->set_name("rack_button");
 
     init_connect();
-    gtk_window->set_icon(Glib::wrap(gx_gui::gw.ib));
+    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
+    gtk_window->set_icon(gui.gw_ib);//FIXME
     set_GainCor();
 
     // reset display

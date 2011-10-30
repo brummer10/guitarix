@@ -903,6 +903,7 @@ void GxMainInterface::gx_jack_is_down() {
 	G_PRIORITY_LOW, 200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
 }
 
+#ifdef HAVE_JACK_SESSION
 void GxMainInterface::jack_session_event() {
     const char *statefile = "gx_head.state";
     jack_session_event_t *event = jack.get_last_session_event();
@@ -931,6 +932,7 @@ void GxMainInterface::jack_session_event() {
 	gx_settings.auto_save_state();
     }
 }
+#endif
 
 void ReportXrun::clear() {
     blocked = false;
@@ -1293,24 +1295,22 @@ void gx_midi_out(Gtk::CheckMenuItem& menuitem) {
 }
 
 // ----- hide the extendend settings slider
-void GxMainInterface::gx_hide_extended_settings(GtkWidget *widget, gpointer data) {
-    GxMainInterface& gui = *static_cast<GxMainInterface*>(data);
-    if (gui.fWindow.get_window()->get_state()
+void GxMainInterface::gx_hide_extended_settings() {
+    if (fWindow.get_window()->get_state()
         & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN)) {
         gint mainxorg = gx_set_mx_oriantation();
         gint mainyorg = gx_set_my_oriantation();
-        gui.fWindow.move(mainxorg, mainyorg);
-        gui.fWindow.present();
+        fWindow.move(mainxorg, mainyorg);
+        fWindow.present();
     } else {
-        gui.fWindow.hide();
-        // gtk_window_iconify(GTK_WINDOW(gw.fWindow));
+        fWindow.hide();
+        // fWindow.iconify();
     }
 }
 
 // ----- systray menu
-void GxMainInterface::gx_systray_menu(GtkWidget *widget, gpointer data) {
-    GxMainInterface& gui = *static_cast<GxMainInterface*>(data);
-    //gui.mainmenu.menucont.popup(2, gtk_get_current_event_time()); FIXME
+void GxMainInterface::gx_systray_menu(guint button, guint32 activate_time) {
+    //mainmenu.menucont.popup(2, gtk_get_current_event_time()); FIXME
 }
 
 // ---- choice dialog without text entry

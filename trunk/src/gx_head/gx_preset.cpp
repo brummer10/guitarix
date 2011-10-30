@@ -294,7 +294,7 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
       options(opt) {
     set_io(&state_io, &preset_io);
     gx_gui::parameter_map.insert(&presetfile_parameter);
-
+    statefile.set_filename(make_default_state_filename());
     for (const char *(*p)[2] = factory_settings; (*p)[0]; ++p) {
 	Factory *f = new Factory((*p)[0]);
 	factory_presets.push_back(f);
@@ -358,20 +358,20 @@ string GxSettings::get_displayname() {
 
 void GxSettings::jack_client_changed() {
     string fn = make_state_filename();
-    if (fn != statefile.get_filename()) {
-	if (!state_loaded && (access(fn.c_str(), R_OK|W_OK)) != 0) {
-	    string defname = options.get_user_filepath(
-		gx_jack::GxJack::get_default_instancename() + statename_postfix);
-	    if (access(defname.c_str(), R_OK) == 0) {
-		statefile.set_filename(defname);
-		load(state);
-		jack.clear_insert_connections();
-	    }
-	}
-	statefile.set_filename(fn);
-	if (current_source == state) {
+    if (state_loaded && fn == statefile.get_filename()) {
+	return;
+    }
+    if (!state_loaded && (access(fn.c_str(), R_OK|W_OK)) != 0) {
+	string defname = make_default_state_filename();
+	if (access(defname.c_str(), R_OK) == 0) {
+	    statefile.set_filename(defname);
 	    load(state);
+	    jack.clear_insert_connections();
 	}
+    }
+    statefile.set_filename(fn);
+    if (current_source == state) {
+	load(state);
     }
 }
 
@@ -380,17 +380,25 @@ string GxSettings::get_default_presetfile(gx_system::CmdlineOptions& opt) {
 	gx_jack::GxJack::get_default_instancename() + std_presetname_postfix);
 }
 
+string GxSettings::make_std_preset_filename() {
+    return options.get_user_filepath(
+	jack.get_instancename() + std_presetname_postfix);
+}
+
+string GxSettings::make_default_state_filename() {
+    if (!options.get_loadfile().empty()) {
+	return options.get_loadfile();
+    }
+    return options.get_user_filepath(
+	jack.get_default_instancename() + statename_postfix);
+}
+
 string GxSettings::make_state_filename() {
     if (!options.get_loadfile().empty()) {
 	return options.get_loadfile();
     }
     return options.get_user_filepath(
 	jack.get_instancename() + statename_postfix);
-}
-
-string GxSettings::make_std_preset_filename() {
-    return options.get_user_filepath(
-	jack.get_instancename() + std_presetname_postfix);
 }
 
 void GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt) {

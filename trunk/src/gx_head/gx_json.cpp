@@ -962,6 +962,11 @@ void GxSettingsBase::save_to_state(bool preserve_preset) {
     JsonWriter *jw = statefile.create_writer(&preserve_preset);
     state_io->write_state(*jw, preserve_preset);
     delete jw;
+    if (!preserve_preset && current_source != state) {
+	current_source = state;
+	current_factory = current_name = "";
+	selection_changed();
+    }
 }
 
 void GxSettingsBase::save_to_preset(const string& name) {

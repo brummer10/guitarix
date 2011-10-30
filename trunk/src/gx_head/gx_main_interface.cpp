@@ -285,14 +285,6 @@ static void gx_pixmap_check(gx_system::CmdlineOptions& opt) {
         gx_system::gx_print_fatal("gx_pixmap_check", _("cannot find installed pixmaps"));
     }
 
-    GtkWidget *ibf =  gtk_image_new_from_file(gx_pix.c_str());
-    gw.ib = gtk_image_get_pixbuf(GTK_IMAGE(ibf));
-
-    GtkWidget *stim = gtk_image_new_from_file(midi_pix.c_str());
-    gw.ibm = gtk_image_get_pixbuf(GTK_IMAGE(stim));
-
-    GtkWidget *stir = gtk_image_new_from_file(warn_pix.c_str());
-    gw.ibr = gtk_image_get_pixbuf(GTK_IMAGE(stir));
 }
 
 
@@ -323,13 +315,24 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
       fJackLatencyItem(),
       engine(engine_),
       jack(engine_),
-      gx_settings(options_, jack, engine.convolver, midi_std_ctr, controller_map, engine_),
-      mainmenu(*this),
+      mainmenu(*this, options),
+      toplevel_box(false, 4),
+      gx_settings(options, jack, engine.convolver, midi_std_ctr, controller_map, engine),
       report_xrun(jack),
       RBox(0) {
+    mainmenu.setup(*this);
+    gx_pixmap_check(options);
+    gw_ib = Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head.png"));
+    gw_ibm = Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head-midi.png"));
+    gw_ibr = Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head-warn.png"));
+
+    toplevel_box.pack_start(mainmenu, Gtk::PACK_SHRINK);
+
     engine.set_jack(&jack);
     jack.xrun.connect(sigc::mem_fun(report_xrun, &ReportXrun::run));
+#ifdef HAVE_JACK_SESSION
     jack.session.connect(sigc::mem_fun(*this, &GxMainInterface::jack_session_event));
+#endif
     jack.shutdown.connect(sigc::mem_fun(*this, &GxMainInterface::gx_jack_is_down));
     jack.connection.connect(sigc::mem_fun(*this, &GxMainInterface::jack_connection_change));
     gx_settings.signal_selection_changed().connect(
@@ -342,6 +345,7 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
 	sigc::mem_fun(*this, &GxMainInterface::do_program_change));
 
     fLoggingWindow.set_transient_for(fWindow);
+    fLoggingWindow.set_icon(gw_ib);
 
     /*---------------- set window defaults ----------------*/
     // fWindow.size_request(600,205);
@@ -361,18 +365,17 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
 	    false));
 
     /*---------------- status icon ----------------*/
-    gx_pixmap_check(options);
-    gw.status_icon =    gtk_status_icon_new_from_pixbuf(GDK_PIXBUF(gw.ib));
-    fWindow.set_icon(Glib::wrap(GDK_PIXBUF(gw.ib)));
-    g_signal_connect(G_OBJECT(gw.status_icon), "activate",
-		     G_CALLBACK(gx_hide_extended_settings), this);
-    g_signal_connect(G_OBJECT(gw.status_icon), "popup-menu",
-		     G_CALLBACK(gx_systray_menu), this);
+    status_icon =  Gtk::StatusIcon::create(gw_ib);
+    fWindow.set_icon(gw_ib);
+    status_icon->signal_activate().connect(
+	sigc::mem_fun(*this, &GxMainInterface::gx_hide_extended_settings));
+    status_icon->signal_popup_menu().connect(
+	sigc::mem_fun(*this, &GxMainInterface::gx_systray_menu));
 
     /*---------------- create boxes ----------------*/
 
     /*---------------- add mainbox to main window ---------------*/
-    fWindow.add(*Glib::wrap(fBox[fTop]));
+    fWindow.add(toplevel_box);
 
     engine.oscilloscope.post_pre_signal.changed.connect(
 	sigc::mem_fun(*this, &GxMainInterface::on_oscilloscope_post_pre));
@@ -384,6 +387,9 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
 	sigc::mem_fun(*this, &GxMainInterface::set_waveview_buffer));
     jack.signal_buffersize_change().connect(
 	sigc::mem_fun(*this, &GxMainInterface::refresh_latency_menu));
+
+    fBox[fTop] = GTK_WIDGET(toplevel_box.gobj());
+    fMode[fTop] = kBoxMode;
 
     fStopped = false;
     instance = this;
@@ -518,7 +524,6 @@ TextLoggingBox::TextLoggingBox(const char* label)
 
     set_size_request(600, -1);
     set_decorated(true);
-    set_icon(Glib::wrap(GDK_PIXBUF(gw.ib)));
     set_resizable(true);
     set_gravity(Gdk::GRAVITY_SOUTH);
     set_keep_below(false);
@@ -1854,7 +1859,7 @@ gboolean gx_delete_pi(GtkWidget *widget, gpointer   data ) {
 void GxMainInterface::openPatchInfoBox(float* zone) {
     gw.patch_info = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_decorated(GTK_WINDOW(gw.patch_info), TRUE);
-    gtk_window_set_icon(GTK_WINDOW(gw.patch_info), GDK_PIXBUF(gw.ib));
+    gtk_window_set_icon(GTK_WINDOW(gw.patch_info), gw_ib->gobj());
     gtk_window_set_resizable(GTK_WINDOW(gw.patch_info), FALSE);
     gtk_window_set_gravity(GTK_WINDOW(gw.patch_info), GDK_GRAVITY_SOUTH);
     gtk_window_set_transient_for(GTK_WINDOW(gw.patch_info), fWindow.gobj());
@@ -1944,22 +1949,23 @@ struct uiStatusDisplay : public gx_ui::GxUiItemBool {
     virtual void reflectZone() {
 	bool v = *fZone;
 	fCache = v;
-	if (GxMainInterface::get_instance().engine.midiaudiobuffer.plugin.on_off) {
+	GxMainInterface& gui = GxMainInterface::get_instance();
+	if (gui.engine.midiaudiobuffer.plugin.on_off) {
 	    if (GxMainInterface::get_instance().jack.get_jcpu_load() < 65.0) {
 		if (v) {
-		    gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(gw.status_icon),
-						    GDK_PIXBUF(gw.ibm));
+		    gtk_status_icon_set_from_pixbuf(gui.status_icon->gobj(),
+						    gui.gw_ibm->gobj());
 		} else {
-		    gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(gw.status_icon),
-						    GDK_PIXBUF(gw.ib));
+		    gtk_status_icon_set_from_pixbuf(gui.status_icon->gobj(),
+						    gui.gw_ib->gobj());
 		}
 	    } else {
-		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(gw.status_icon),
-						GDK_PIXBUF(gw.ibr));
+		gtk_status_icon_set_from_pixbuf(gui.status_icon->gobj(),
+						gui.gw_ibr->gobj());
 	    }
 	} else {
-	    gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(gw.status_icon),
-					    GDK_PIXBUF(gw.ib));
+	    gtk_status_icon_set_from_pixbuf(gui.status_icon->gobj(),
+					    gui.gw_ib->gobj());
 	}
     }
 };
@@ -2101,7 +2107,7 @@ void GxMainInterface::refresh_engine_status_display() {
 
 
 //----------------------------- main menu ----------------------------
-MainMenu::MainMenu(GxMainInterface& intf)
+MainMenu::MainMenu(gx_ui::GxUI& ui, const gx_system::CmdlineOptions& options)
     : Gtk::HBox(),
       menucont(),
       menupix(),
@@ -2109,15 +2115,15 @@ MainMenu::MainMenu(GxMainInterface& intf)
 
       // menubar images
       engine_on_image(""),
-      engineon(intf.options.get_pixmap_filepath("gx_on.png")),
+      engineon(options.get_pixmap_filepath("gx_on.png")),
       engine_off_image(""),
-      engineoff(intf.options.get_pixmap_filepath("gx_off.png")),
+      engineoff(options.get_pixmap_filepath("gx_off.png")),
       engine_bypass_image(""),
-      engineby(intf.options.get_pixmap_filepath("gx_bypass.png")),
+      engineby(options.get_pixmap_filepath("gx_bypass.png")),
       jackd_on_image(""),
-      jackstateon(intf.options.get_pixmap_filepath("jackd_on.png")),
+      jackstateon(options.get_pixmap_filepath("jackd_on.png")),
       jackd_off_image(""),
-      jackstateoff(intf.options.get_pixmap_filepath("jackd_off.png")),
+      jackstateoff(options.get_pixmap_filepath("jackd_off.png")),
 
       // engine menu
       engine_menu_label(_("_Engine"), true),
@@ -2196,8 +2202,7 @@ MainMenu::MainMenu(GxMainInterface& intf)
       // amp menu
       amp_menu_label(_("_Tube "), true),
       amp_menu(),
-      amp_radio_menu(&intf, intf.fAccelGroup,
-		     parameter_map["tube.select"].getUInt(), amp_menu),
+      amp_radio_menu(&ui, parameter_map["tube.select"].getUInt()),
 
       // options menu
       options_menu_label(_("_Options"), true),
@@ -2221,6 +2226,10 @@ MainMenu::MainMenu(GxMainInterface& intf)
       about_menu(),
       about_about_item(_("_About"), true),
       about_help_item(_("_Help"), true) {
+}
+
+void MainMenu::setup(GxMainInterface& intf) {
+    amp_radio_menu.setup(amp_menu, intf.fAccelGroup);
     pack_start(menucont);
     pack_end(menupix);
     menupix.set_pack_direction(Gtk::PACK_DIRECTION_RTL);
@@ -2257,11 +2266,6 @@ MainMenu::MainMenu(GxMainInterface& intf)
     addAboutMenu(intf);
 
     /*---------------- add menu to main window box----------------*/
-    intf.fTop = 0;
-    intf.fBox[intf.fTop] = gtk_vbox_new(FALSE, 4);
-    intf.fMode[intf.fTop] = kBoxMode;
-    gtk_box_pack_start(GTK_BOX(intf.fBox[intf.fTop]), GTK_WIDGET(gobj()) , FALSE, FALSE, 0);
-
     menupix.show_all();
     jackd_off_image.hide();
     engine_bypass_image.hide();
@@ -2749,11 +2753,12 @@ inline int TubeKeys::operator()() {
     return -1;
 }
 
-GxUiRadioMenu::GxUiRadioMenu(gx_ui::GxUI* ui, Glib::RefPtr<Gtk::AccelGroup>& ag,
-			     UIntParameter& param_, Gtk::MenuShell& menucont):
-    gx_ui::GxUiItemInt(ui, reinterpret_cast<int*>(&param_.value)), //FIXME
-    param(param_)
-{
+GxUiRadioMenu::GxUiRadioMenu(gx_ui::GxUI* ui, UIntParameter& param_):
+    gx_ui::GxUiItemUInt(ui, &param_.value),
+    param(param_) {
+}
+
+void GxUiRadioMenu::setup(Gtk::MenuShell& menucont, Glib::RefPtr<Gtk::AccelGroup>& ag) {
     int i, c;
     const value_pair *p;
     TubeKeys next_key;

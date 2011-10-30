@@ -196,7 +196,7 @@ bool GxJack::gx_jack_init() {
         }
     }
 #else
-    client = jack_client_open(client_name.c_str(), jack_option_t(jackopt), &jackstat);
+    client = jack_client_open(client_name.c_str(), JackOptions(jackopt), &jackstat);
      // ----- only start the insert gxjack.client when the amp gxjack.client is true
     if (client) {
         client_insert = jack_client_open(client_insert_name.c_str(),
