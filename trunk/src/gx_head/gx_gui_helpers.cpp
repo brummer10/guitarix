@@ -1315,7 +1315,7 @@ void GxMainInterface::gx_hide_extended_settings() {
 
 // ----- systray menu
 void GxMainInterface::gx_systray_menu(guint button, guint32 activate_time) {
-    //mainmenu.menucont.popup(2, gtk_get_current_event_time()); FIXME
+    mainmenu.engine_menu.popup(2, gtk_get_current_event_time());
 }
 
 // ---- choice dialog without text entry
