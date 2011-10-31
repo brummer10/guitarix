@@ -2798,7 +2798,6 @@ void GxUiRadioMenu::reflectZone() {
 
 void GxUiRadioMenu::on_activate(int i) {
     param.set(i);
-    GxMainInterface::get_instance().engine.set_rack_changed(); //FIXME temporary hack
 }
 
 void GxMainInterface::gx_jack_connection() {

@@ -325,11 +325,12 @@ void StereoModuleChain::process(int count, float *input, float *output1, float *
  */
 
 ModuleSelectorFromList::ModuleSelectorFromList(
-    ModuleSequencer& seq_, const char* id_, const char* name_,
+    ModuleSequencer& seq_, gx_ui::GxUI& ui, const char* id_, const char* name_,
     PluginDef *plugins[], const char* select_id_,
     const char* select_name_, const char** groups_, int flags_)
     : ModuleSelector(seq_),
       PluginDef(),
+      gx_ui::GxUiItemUInt(&ui, &selector),
       selector(0),
       select_id(select_id_),
       select_name(select_name_),
@@ -366,11 +367,8 @@ int ModuleSelectorFromList::static_register(const ParamReg &param) {
 	->register_parameter(param);
 }
 
-void ModuleSelectorFromList::set_selector(unsigned int n) {
-    if (n >= size) {
-	n = size-1;
-    }
-    selector = n;
+void ModuleSelectorFromList::reflectZone() {
+    fCache = selector;
     seq.set_rack_changed();
 }
 
@@ -632,14 +630,14 @@ GxEngine::GxEngine(const string& plugin_dir, gx_gui::ParameterGroups& groups)
       resamp(),
       // ModuleSelector's
       crybaby(
-	  *this, "crybaby", N_("Crybaby"), builtin_crybaby_plugins,
+	  *this, ui, "crybaby", N_("Crybaby"), builtin_crybaby_plugins,
 	  "crybaby.autowah", _("select"), 0, PGN_POST_PRE),
       tonestack(
-	  *this, "amp.tonestack", N_("Tonestack"),
+	  *this, ui, "amp.tonestack", N_("Tonestack"),
 	  builtin_tonestack_plugins, "amp.tonestack.select",
 	  _("select"), 0, PGN_POST_PRE),
       ampstack(
-	  *this, "ampstack", "?Tube", builtin_amp_plugins,
+	  *this, ui, "ampstack", "?Tube", builtin_amp_plugins,
 	  "tube.select", _("select"), ampstack_groups),
       // internal audio modules
       noisegate(),

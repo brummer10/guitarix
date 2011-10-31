@@ -51,7 +51,7 @@ extern AudioVariables audio;
  ** class ModuleSelectorFromList
  */
 
-class ModuleSelectorFromList: public ModuleSelector, private PluginDef {
+class ModuleSelectorFromList: public ModuleSelector, private PluginDef, private gx_ui::GxUiItemUInt {
 private:
     unsigned int selector;
     const char* select_id;
@@ -61,15 +61,14 @@ private:
     unsigned int size;
     static int static_register(const ParamReg& reg);
     int register_parameter(const ParamReg& reg);
+    void reflectZone();
 public:
     Plugin plugin;
     ModuleSelectorFromList(
-	ModuleSequencer& seq, const char* id, const char* name,
+	ModuleSequencer& seq, gx_ui::GxUI& ui, const char* id, const char* name,
 	PluginDef **module_ids,	const char* select_id,
 	const char* select_name, const char** groups = 0, int flags = 0);
     void set_module();
-    void set_selector(unsigned int n);
-    unsigned int get_selector() { return selector; }
 };
 
 

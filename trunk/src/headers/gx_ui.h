@@ -41,11 +41,8 @@ class GxUI;
  */
 
 class GxUiItem {
- protected :
-    //GxUI*    fGUI;
  public:
     virtual ~GxUiItem();
-    //explicit GxUiItem(GxUI *ui): fGUI(ui) {}
     virtual void reflectZone() = 0;
     virtual bool hasChanged() = 0;
 };
