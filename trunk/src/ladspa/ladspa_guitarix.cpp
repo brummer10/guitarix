@@ -157,7 +157,7 @@ void UiBuilder::load_glade(char const*) const {}
 void LadspaGuitarix::runGuitarix(LADSPA_Handle Instance, unsigned long SampleCount) {
     LadspaGuitarix& self = *static_cast<LadspaGuitarix*>(Instance);
     if (SampleCount != self.SampleCount) {
-	AVOIDDENORMALS
+	AVOIDDENORMALS;
 	self.engine.set_buffersize(SampleCount);
 	self.SampleCount = SampleCount;
     }
