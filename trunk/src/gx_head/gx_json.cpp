@@ -507,7 +507,7 @@ JsonParser *StateFile::create_reader() {
 	} else {
 	    gx_print_warning(
 		_("recall settings"),
-		boost::format(_("major version mismatch in %1%: found %2%, expected %2%"))
+		boost::format(_("major version mismatch in %1%: found %2%, expected %3%"))
 		% filename % header.get_major() % SettingsFileHeader::major);
 	}
     }
