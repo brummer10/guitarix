@@ -105,6 +105,9 @@ public:
     string get_preset_dirname() { return presetfile_parameter.get_directory_path(); }
     void copy_preset_file(const string& destination) { presetfile_parameter.copy(destination); }
     sigc::signal<void>& signal_presetfile_changed() { return presetfile_parameter.signal_changed(); }
+    void erase_current_preset() { GxSettingsBase::erase_current_preset(); presetfile_parameter.signal_changed()(); }
+    void erase_preset(const string& name) { GxSettingsBase::erase_preset(name);  presetfile_parameter.signal_changed()(); }
+    void clear_preset() { GxSettingsBase::clear_preset(); presetfile_parameter.signal_changed()(); }
 };
 
 /* --------------------------------------------------------------------- */

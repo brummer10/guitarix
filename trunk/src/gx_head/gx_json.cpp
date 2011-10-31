@@ -864,11 +864,15 @@ void GxSettingsBase::clear_factory() {
 }
 
 void GxSettingsBase::change_preset_file(const string& newfile) {
-    presetfile.open(newfile);
-    if (current_source == preset) {
-	current_source = state;
-	current_name = "";
-	selection_changed();
+    if (presetfile.get_filename() == newfile) {
+	presetfile.reopen();
+    } else {
+	presetfile.open(newfile);
+	if (current_source == preset) {
+	    current_source = state;
+	    current_name = "";
+	    selection_changed();
+	}
     }
 }
 

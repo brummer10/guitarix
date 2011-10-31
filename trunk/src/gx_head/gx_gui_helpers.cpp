@@ -183,7 +183,7 @@ void GxPreset::gx_refresh_preset_menus() {
     for (int i = 0; i < GX_NUM_OF_PRESET_LISTS; ++i) {
         vector<Gtk::MenuItem*>::iterator it = pm_list[i].begin();
         for (it = pm_list[i].begin(); it != pm_list[i].end(); ++it) {
-            gtk_widget_destroy(GTK_WIDGET(*it));
+            delete *it;
         }
     }
 
@@ -729,6 +729,11 @@ void GxPreset::gx_rename_preset(GtkEntry* entry) {
 
     if (newname.empty()) {
         gx_system::gx_print_error(_("Preset Renaming"), _("no preset name given"));
+        gxpreset.old_preset_name = "";
+        return;
+    }
+    if (GxSettings::get_instance().get_preset_index(newname) >= 0) {
+        gx_system::gx_print_error(_("Preset Renaming"), _("name already exists"));
         gxpreset.old_preset_name = "";
         return;
     }

@@ -205,10 +205,10 @@ private:
     SettingsFileHeader header;
     vector<Position> entries;
     void open();
-    void reopen() { if (!is) open(); }
 public:
     PresetFile();
     ~PresetFile() { delete is; }
+    void reopen() { if (!is) open(); }
     void open(const string& fname);
     bool fail() { reopen(); return is->fail(); }
     const string& get_filename() { return filename; }
