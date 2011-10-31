@@ -63,6 +63,7 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       client_instance(),
       jack_sr(),
       jack_bs(),
+      last_xrun(0),
       ports(),
       client(0),
       client_insert(0),
@@ -671,12 +672,9 @@ void GxJack::gx_jack_shutdown_callback(void *arg) {
 // ---- jack xrun callback
 int GxJack::gx_jack_xrun_callback(void* arg) {
     GxJack& self = *static_cast<GxJack*>(arg);
+    self.last_xrun = jack_get_xrun_delayed_usecs(self.client);
     self.xrun();
     return 0;
-}
-
-float GxJack::get_last_xrun() {
-    return jack_get_xrun_delayed_usecs(client);
 }
 
 /****************************************************************

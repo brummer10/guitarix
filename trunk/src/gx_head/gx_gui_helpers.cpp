@@ -469,9 +469,6 @@ void GxPreset::gx_save_preset(const char* presname, bool expand_menu) {
     if (expand_menu == found) {
         assert(false);
     }
-    if (expand_menu) {
-        gx_add_preset_to_menus(string(presname));
-    }
     gx_system::gx_print_info(_("Preset Saving"), string(_("saved preset ")) + string(presname));
 }
 

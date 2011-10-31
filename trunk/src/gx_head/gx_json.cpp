@@ -834,7 +834,7 @@ bool PresetFile::rename(const string& name, string newname) {
 
 
 /****************************************************************
- ** class GxSettings
+ ** class GxSettingsBase
  */
 
 AbstractStateIO::~AbstractStateIO() {}
@@ -850,7 +850,8 @@ GxSettingsBase::GxSettingsBase(gx_engine::ModuleSequencer& seq_)
       current_factory(),
       current_name(),
       seq(seq_),
-      selection_changed() {
+      selection_changed(),
+      presetlist_changed() {
 }
 
 GxSettingsBase::~GxSettingsBase() {
@@ -874,6 +875,7 @@ void GxSettingsBase::change_preset_file(const string& newfile) {
 	    selection_changed();
 	}
     }
+    presetlist_changed();
 }
 
 PresetFile* GxSettingsBase::get_factory(const string& name) const {
@@ -974,6 +976,7 @@ void GxSettingsBase::save_to_state(bool preserve_preset) {
 }
 
 void GxSettingsBase::save_to_preset(const string& name) {
+    bool newentry = (presetfile.get_index(name) < 0);
     JsonWriter *jw = 0;
     try {
 	jw = presetfile.create_writer(name);
@@ -985,6 +988,9 @@ void GxSettingsBase::save_to_preset(const string& name) {
 	    % presetfile.get_filename());
     }
     delete jw;
+    if (newentry) {
+	presetlist_changed();
+    }
 }
 
 bool GxSettingsBase::rename_preset(const string& name, const string& newname) {
@@ -1002,6 +1008,7 @@ bool GxSettingsBase::rename_preset(const string& name, const string& newname) {
 	current_name = newname;
 	selection_changed();
     }
+    presetlist_changed();
     return rv;
 }
 
@@ -1014,6 +1021,13 @@ void GxSettingsBase::erase_preset(const string& name) {
 	    boost::format(_("parse error in %1%"))
 	    % presetfile.get_filename());
     }
+    presetlist_changed();
+}
+
+bool GxSettingsBase::clear_preset() {
+    bool rv = presetfile.clear();
+    presetlist_changed();
+    return rv;
 }
 
 void GxSettingsBase::convert_presetfile() {

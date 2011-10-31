@@ -2421,7 +2421,7 @@ void MainMenu::addPresetMenu(GxMainInterface& intf) {
 
     /*--------------- Extra preset menu */
     addExtraPresetMenu(intf);
-    intf.gx_settings.signal_presetfile_changed().connect(
+    intf.gx_settings.signal_presetlist_changed().connect(
 	sigc::mem_fun(gx_preset::gxpreset,
 		      &gx_preset::GxPreset::gx_refresh_preset_menus));
 }

@@ -270,6 +270,7 @@ protected:
     string             current_name;
     gx_engine::ModuleSequencer& seq;
     sigc::signal<void> selection_changed;
+    sigc::signal<void> presetlist_changed;
     void clear_factory();
     PresetFile* get_factory(const string& name) const;
     void loadsetting(PresetFile *p, const string& name);
@@ -281,6 +282,8 @@ protected:
 public:
     inline sigc::signal<void>& signal_selection_changed() {
 	return selection_changed; }
+    inline sigc::signal<void>& signal_presetlist_changed() {
+	return presetlist_changed; }
     GxSettingsBase(gx_engine::ModuleSequencer& seq_);
     ~GxSettingsBase();
     Source get_current_source() { return current_source; }
@@ -299,7 +302,7 @@ public:
 	if (current_source == preset) erase_preset(current_name); }
     void erase_preset(const string& name);
     bool presetfile_fail() { return presetfile.fail(); }
-    bool clear_preset() { return presetfile.clear(); }
+    bool clear_preset();
     void fill_preset_names(vector<string>& l) {  presetfile.fill_names(l); }
     void fill_factory_names(vector<string>& l) const;
     void fill_factory_preset_names(const string& fact, vector<string>& l) const;

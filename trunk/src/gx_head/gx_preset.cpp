@@ -446,12 +446,6 @@ void GxSettings::load(Source src, const string& name, const string& factory) {
     }
 }
 
-bool GxSettings::rename_preset(const string& name, const string& newname) {
-    bool rv = GxSettingsBase::rename_preset(name, newname);
-    presetfile_parameter.signal_changed()();
-    return rv;
-}
-
 void GxSettings::presetfile_changed() {
     try {
 	change_preset_file(presetfile_parameter.get_path());

@@ -131,6 +131,7 @@ class GxJack {
     string              client_instance;
     jack_nframes_t      jack_sr;   // jack sample rate
     jack_nframes_t      jack_bs;   // jack buffer size
+    float               last_xrun;
     void write_jack_port_connections(
 	gx_system::JsonWriter& w, const char *key, const PortConnection& pc);
     bool                gx_jack_init();
@@ -158,7 +159,7 @@ public:
     void                set_jack_exit(bool v) { jack_is_exit = v; }
 
     bool                gx_jack_connection(bool connect);
-    float               get_last_xrun();
+    float               get_last_xrun() { return last_xrun; }
     void*               get_midi_buffer(jack_nframes_t nframes);
 
     void                read_connections(gx_system::JsonParser& jp);
