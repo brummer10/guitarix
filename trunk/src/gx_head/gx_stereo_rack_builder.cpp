@@ -538,7 +538,7 @@ void GxMainInterface::gx_build_stereo_rack() {
                             {
                                 openVerticalBox("");
                                 {
-                                openSetLabelBox("");
+                                openSetLabelBox();
                                 {
                                 }
                                 closeBox();

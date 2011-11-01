@@ -309,7 +309,7 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
       fStopped(false),
       fLoggingWindow(_("Logging Window")),
       fLevelMeters(),
-      fTuner(engine_.tuner),
+      fTuner(engine_.tuner, *this),
       fWaveView(),
       fSignalLevelBar(0),
       fJackLatencyItem(),
@@ -1074,24 +1074,20 @@ void GxMainInterface::openVerticalBox(const char* label) {
     }
 }
 
-void GxMainInterface::openSetLabelBox(const char* label) {
-    GxVBox * box =  new GxVBox(*this);
-    box->m_box.set_homogeneous(false);
-    box->m_box.set_spacing(0);
-    box->m_box.set_border_width(0);
-
-    box->m_label.set_text(label);
-    box->m_label.set_name("beffect_label");
-    gw.set_label = GTK_WIDGET(box->m_label.gobj());
-    GtkStyle *style = gtk_widget_get_style(GTK_WIDGET(box->m_label.gobj()));
-    pango_font_description_set_size(style->font_desc, 8*PANGO_SCALE);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-    gtk_widget_modify_font(GTK_WIDGET(box->m_label.gobj()), style->font_desc);
-    box->m_box.pack_start(box->m_label, false, false, 0 );
-    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->m_box.gobj()), false, fill, 0);
-    box->m_box.show();
-    box->m_label.show();
-    pushBox(kBoxMode, GTK_WIDGET(box->m_box.gobj()));
+void GxMainInterface::openSetLabelBox() {
+    Gtk::VBox *box =  new Gtk::VBox();
+    box->set_homogeneous(false);
+    box->set_spacing(0);
+    box->set_border_width(0);
+    convolver_filename_label.set_name("beffect_label");
+    Pango::FontDescription font = convolver_filename_label.get_style()->get_font();
+    font.set_size(8*Pango::SCALE);
+    font.set_weight(Pango::WEIGHT_BOLD);
+    convolver_filename_label.modify_font(font);
+    box->pack_start(convolver_filename_label, false, false, 0);
+    box->show_all();
+    gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->gobj()), false, fill, 0);
+    pushBox(kBoxMode, GTK_WIDGET(box->gobj()));
 }
 
 void GxMainInterface::openFlipLabelBox(const char* label) {
@@ -1900,24 +1896,55 @@ void GxMainInterface::openPatchInfoBox(float* zone) {
 
 // ------------------------------ Num Display -----------------------------------
 
-uiTuner::uiTuner(gx_engine::TunerAdapter& a)
+uiTuner::uiTuner(gx_engine::TunerAdapter& a, gx_ui::GxUI& ui)
     : Gtk::Alignment(0.5, 0.5, 0, 0),
+      gx_ui::GxUiItemFloat(&ui, &refpitch),
       fTuner(),
+      fBox(),
+      eBox(),
+      wheel(),
+      refpitch(),
+      refpitch_param("ui.tuner_reference_pitch", "?Tuner Reference Pitch",
+		     gx_gui::Parameter::Continuous, false, refpitch,
+		     440, 427, 453, 0.1, false), // half tone steps: 415..467
+      adjust(refpitch_param.std_value, refpitch_param.lower, refpitch_param.upper,
+	     refpitch_param.step, 10*refpitch_param.step, 0),
       adapt(a) {
-    add(fTuner);
-    fTuner.show();
+    fTuner.set_scale(1.1);
+    parameter_map.insert(&refpitch_param);
+    wheel.set_value_position(Gtk::POS_RIGHT);
+    wheel.set_adjustment(adjust);
+    eBox.add(wheel);
+    fBox.put(fTuner, 0, 0);
+    fBox.put(eBox, 4, 75);
+    add(fBox);
     adapt.signal_freq_changed().connect(
 	sigc::mem_fun(*this, &uiTuner::freq_changed));
+    adjust.signal_value_changed().connect(
+	sigc::mem_fun(*this, &uiTuner::on_value_changed));
+    show_all();
 }
 
 void uiTuner::freq_changed() {
     fTuner.set_freq(adapt.get_freq());
 }
 
+void uiTuner::reflectZone() {
+    float v = *fZone;
+    fCache = v;
+    fTuner.set_reference_pitch(v);
+    adjust.set_value(v);
+}
+
+void uiTuner::on_value_changed() {
+    float v = adjust.get_value();
+    modifyZone(v);
+    fTuner.set_reference_pitch(v);
+}
+
 void GxMainInterface::addNumDisplay() {
     GxToolBox *box =  new GxToolBox(*this,
         pb_gxrack_expose, _("tuner"), GTK_WIDGET(mainmenu.fShowTuner.gobj()));
-
     box->rbox.add(fTuner);
     // box->window.set_size_request(200,140);
     gtk_box_pack_start(GTK_BOX(fBox[fTop]), GTK_WIDGET(box->window.gobj()), expand, fill, 0);

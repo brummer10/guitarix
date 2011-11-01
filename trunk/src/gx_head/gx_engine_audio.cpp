@@ -320,6 +320,7 @@ void StereoModuleChain::process(int count, float *input, float *output1, float *
     try_set_ramp_mode(rm, rm1, rv, rv1);
 }
 
+
 /****************************************************************
  ** ModuleSelector
  */

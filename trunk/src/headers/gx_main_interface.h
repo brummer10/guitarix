@@ -348,13 +348,21 @@ class UiContrastSwitch: public UiSwitchWithCaption {
 
 /****************************************************************/
 
-struct uiTuner : public Gtk::Alignment {
+struct uiTuner : public Gtk::Alignment, private gx_ui::GxUiItemFloat {
  private:
     Gxw::Tuner fTuner;
+    Gtk::Fixed fBox;
+    Gtk::EventBox eBox;
+    Gxw::Wheel wheel;
+    float refpitch;
+    gx_gui::FloatParameter refpitch_param;
+    Gtk::Adjustment adjust;
     gx_engine::TunerAdapter& adapt;
     void freq_changed();
+    void reflectZone();
+    void on_value_changed();
  public:
-    uiTuner(gx_engine::TunerAdapter& a);
+    uiTuner(gx_engine::TunerAdapter& a, gx_ui::GxUI& ui);
 };
 
 /****************************************************************/
@@ -703,7 +711,7 @@ public:
     void openVerticalBox(const char* label = "");
     void openVerticalBox1(const char* label = "");
     void openFlipLabelBox(const char* = "");
-    void openSetLabelBox(const char* = "");
+    void openSetLabelBox();
     void openVerticalSwitchBox(const char* label, int state, int wit, float* zone);
     void openVerticalMidiBox(const char* label = "");
     void openDialogBox(const char *id_dialog, const char *id_switch);
