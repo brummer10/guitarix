@@ -320,6 +320,7 @@ void GxMainInterface::setup() {
 	gx_preset::gxpreset.gx_load_factory_file(i);
     }
     gx_preset::gxpreset.gx_refresh_preset_menus();
+    gx_jconv::gx_load_jcgui();
 }
 
 } // !namespace gx_gui
