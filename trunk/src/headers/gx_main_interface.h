@@ -109,7 +109,6 @@ class GlobalWidgets {
     GtkWidget*          rack_widget;
     GtkWidget*          srack_widget;
     GtkWidget*          rack_tool_bar;
-    GtkWidget*          set_label;
 };
 
 extern GlobalWidgets gw;
@@ -629,6 +628,8 @@ private:
     bool                  connect_jack(bool v);
     void                  gx_jack_connection();
     void                  set_jack_buffer_size(jack_nframes_t buf_size);
+    void                  set_convolver_filename();
+    Gtk::Label            convolver_filename_label; //FIXME
     int                   fTop;
     GtkWidget*            fBox[stackSize];
     GtkWidget*            rBox;

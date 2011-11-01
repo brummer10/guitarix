@@ -400,9 +400,6 @@ void IRWindow::file_changed(Glib::ustring filename, int rate, int length,
     wFormat->set_text(format);
     wChannelbox->set_sensitive(channels >= 2);
     wFilename->set_text(Glib::path_get_dirname(filename));
-    string amp = convolver.jcset.getIRFile();
-    if (GTK_IS_LABEL(gx_gui::gw.set_label))
-        gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
 }
 
 // wrapper function to reload the cmbobox tree in a idle loop
@@ -594,7 +591,7 @@ void IRWindow::set_favorite_from_menu(Glib::ustring fname) {
         *gx_engine::GxJConvSettings::checkbutton7 = 1;
         return;
     }
-    save();
+    save_state();
     convolver.restart();
 }
 
@@ -608,7 +605,7 @@ void IRWindow::set_favorite_from_menu_in(Glib::ustring fname) {
         *gx_engine::GxJConvSettings::checkbutton7 = 1;
         return;
     }
-    save();
+    save_state();
     convolver.restart();
 }
 
@@ -637,8 +634,6 @@ void IRWindow::on_combo_changed() {
                 old_name = name;
                 load_data(path);
             }
-            if (GTK_IS_LABEL(gx_gui::gw.set_label))
-                gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),name.c_str());
         }
     }
 }
@@ -861,9 +856,6 @@ void IRWindow::on_window_hide() {
 }
 
 void IRWindow::on_cancel_button_clicked() {
-    string amp = convolver.jcset.getIRFile();
-    if (GTK_IS_LABEL(gx_gui::gw.set_label))
-        gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
     gtk_window->hide();
 }
 
@@ -871,9 +863,6 @@ void IRWindow::on_ok_button_clicked() {
     if (save_state()) {
         convolver.restart();
     }
-    string amp = convolver.jcset.getIRFile();
-    if (GTK_IS_LABEL(gx_gui::gw.set_label))
-        gtk_label_set_text(GTK_LABEL(gx_gui::gw.set_label),amp.c_str());
     gtk_window->hide();
 }
 

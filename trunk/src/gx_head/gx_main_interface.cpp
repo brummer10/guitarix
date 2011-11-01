@@ -343,6 +343,8 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
 	sigc::mem_fun(*this, &GxMainInterface::on_logger_delete_event));
     controller_map.signal_new_program().connect(
 	sigc::mem_fun(*this, &GxMainInterface::do_program_change));
+    engine.convolver.jcset.signal_file_changed().connect(
+	sigc::mem_fun(*this, &GxMainInterface::set_convolver_filename));
 
     fLoggingWindow.set_transient_for(fWindow);
     fLoggingWindow.set_icon(gw_ib);
@@ -414,6 +416,10 @@ void GxMainInterface::do_program_change(int pgm) {
     } else if (engine.get_state() == gx_engine::kEngineOn) {
 	toggle_engine_bypass();
     }
+}
+
+void GxMainInterface::set_convolver_filename() {
+    convolver_filename_label.set_label(engine.convolver.getIRFile());
 }
 
 void GxMainInterface::on_settings_selection_changed() {

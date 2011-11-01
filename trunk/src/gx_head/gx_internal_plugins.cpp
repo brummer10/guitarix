@@ -338,7 +338,27 @@ GxJConvSettings::GxJConvSettings()
       fLength(0),
       fDelay(0),
       gainline(),
-      fGainCor(1) {
+      fGainCor(1),
+      file_changed(),
+      faflist() {
+}
+
+GxJConvSettings& GxJConvSettings::operator=(GxJConvSettings const& jcset) {
+    bool changed = (fIRFile != jcset.fIRFile || fIRDir != jcset.fIRDir);
+    fIRFile = jcset.fIRFile;
+    fIRDir = jcset.fIRDir;
+    fGain = jcset.fGain;
+    fOffset = jcset.fOffset;
+    fLength = jcset.fLength;
+    fDelay = jcset.fDelay;
+    gainline = jcset.gainline;
+    fGainCor = jcset.fGainCor;
+    // don't assign file_changed
+    faflist = jcset.faflist;
+    if (changed) {
+	file_changed();
+    }
+    return *this;
 }
 
 string GxJConvSettings::getFullIRPath() const {
@@ -352,6 +372,7 @@ string GxJConvSettings::getFullIRPath() const {
 void GxJConvSettings::setFullIRPath(string name) {
     fIRDir = Glib::path_get_dirname(name);
     fIRFile= Glib::path_get_basename(name);
+    file_changed();
 }
 
 void GxJConvSettings::writeJSON(gx_system::JsonWriter& w,

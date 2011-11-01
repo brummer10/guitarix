@@ -232,7 +232,7 @@ public:
  ** class GxJConvSettings
  */
 
-class GxJConvSettings {
+class GxJConvSettings: boost::noncopyable {
  private:
     // main jconv setting
     string          fIRFile;
@@ -244,7 +244,7 @@ class GxJConvSettings {
     guint           fDelay;      // delay when to apply reverb
     Gainline        gainline;
     bool            fGainCor;
-
+    sigc::signal<void> file_changed;
     void read_gainline(gx_system::JsonParser& jp);
     void read_favorites(gx_system::JsonParser& jp);
     inline void setIRFile(string name)            { fIRFile = name; }
@@ -252,9 +252,10 @@ class GxJConvSettings {
 
  public:
     GxJConvSettings();
+    GxJConvSettings& operator=(GxJConvSettings const& jcset);
 
     // getters and setters
-    inline string getIRFile() const               { return fIRFile; }
+    inline const string& getIRFile() const               { return fIRFile; }
     string getFullIRPath() const;
     inline float           getGain() const        { return fGain; }
     inline guint           getOffset() const      { return fOffset; }
@@ -262,7 +263,7 @@ class GxJConvSettings {
     inline guint           getDelay() const       { return fDelay; }
     inline bool            getGainCor() const     { return fGainCor; }
     inline const Gainline& getGainline() const    { return gainline; }
-    inline string getIRDir() const                { return fIRDir; }
+    inline const string& getIRDir() const         { return fIRDir; }
     void setFullIRPath(string name);
 
     inline void setGain(float gain)               { fGain       = gain; }
@@ -282,6 +283,7 @@ class GxJConvSettings {
 		  const gx_system::PathList& search_path);
     void writeJSON(gx_system::JsonWriter& w,
 		   const gx_system::PathList& search_path);
+    inline sigc::signal<void>& signal_file_changed() { return file_changed; }
 };
 
 
@@ -309,6 +311,8 @@ public:
     ConvolverAdapter(ModuleSequencer& engine);
     void restart();
     bool conv_start();
+    inline sigc::signal<void>& signal_file_changed() { return jcset.signal_file_changed(); }
+    inline const string& getIRFile() const { return jcset.getIRFile(); }
 };
 
 
