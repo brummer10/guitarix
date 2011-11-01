@@ -95,6 +95,14 @@ private:
 	Tuner();
 	
   void set_freq(double p1);
+	
+  void set_reference_pitch(double p1);
+	
+  double get_reference_pitch();
+	
+  void set_scale(double p1);
+	
+  double get_scale();
 	#ifdef GLIBMM_PROPERTIES_ENABLED
 /** The frequency for which tuning is displayed.
    *
@@ -113,6 +121,46 @@ private:
    * the value of the property changes.
    */
   Glib::PropertyProxy_ReadOnly<double> property_freq() const;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
+	#ifdef GLIBMM_PROPERTIES_ENABLED
+/** The frequency for which tuning is displayed.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy<double> property_reference_pitch() ;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+/** The frequency for which tuning is displayed.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy_ReadOnly<double> property_reference_pitch() const;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
+	#ifdef GLIBMM_PROPERTIES_ENABLED
+/** scale the tuner area to make it bigger or smaller.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy<double> property_scale() ;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+/** scale the tuner area to make it bigger or smaller.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy_ReadOnly<double> property_scale() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
 

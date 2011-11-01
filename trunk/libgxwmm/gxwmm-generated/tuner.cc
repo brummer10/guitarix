@@ -131,6 +131,26 @@ void Tuner::set_freq(double p1)
 gx_tuner_set_freq(gobj(), p1); 
 }
 
+void Tuner::set_reference_pitch(double p1)
+{
+gx_tuner_set_reference_pitch(gobj(), p1); 
+}
+
+double Tuner::get_reference_pitch()
+{
+  return gx_tuner_get_reference_pitch(gobj());
+}
+
+void Tuner::set_scale(double p1)
+{
+gx_tuner_set_scale(gobj(), p1); 
+}
+
+double Tuner::get_scale()
+{
+  return gx_tuner_get_scale(gobj());
+}
+
 
 #ifdef GLIBMM_PROPERTIES_ENABLED
 Glib::PropertyProxy<double> Tuner::property_freq() 
@@ -143,6 +163,34 @@ Glib::PropertyProxy<double> Tuner::property_freq()
 Glib::PropertyProxy_ReadOnly<double> Tuner::property_freq() const
 {
   return Glib::PropertyProxy_ReadOnly<double>(this, "freq");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy<double> Tuner::property_reference_pitch() 
+{
+  return Glib::PropertyProxy<double>(this, "reference-pitch");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly<double> Tuner::property_reference_pitch() const
+{
+  return Glib::PropertyProxy_ReadOnly<double>(this, "reference-pitch");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy<double> Tuner::property_scale() 
+{
+  return Glib::PropertyProxy<double>(this, "scale");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly<double> Tuner::property_scale() const
+{
+  return Glib::PropertyProxy_ReadOnly<double>(this, "scale");
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 

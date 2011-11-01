@@ -24,13 +24,15 @@
 
 enum {
 	PROP_FREQ = 1,
+	PROP_REFERENCE_PITCH = 2,
+	PROP_SCALE = 3
 };
 
 static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event);
-static void draw_background(cairo_surface_t *surface_tuner);
+static void draw_background(GxTuner *tuner);
 static void gx_tuner_class_init (GxTunerClass *klass);
-static void gx_tuner_base_class_finalize(GxTunerClass *klass);
 static void gx_tuner_init(GxTuner *tuner);
+static void gx_tuner_finalize(GObject *object);
 static void gx_tuner_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_tuner_get_property(
@@ -63,7 +65,7 @@ GType gx_tuner_get_type(void)
 		const GTypeInfo tuner_info = {
 			sizeof (GxTunerClass),
 			NULL,				/* base_class_init */
-			(GBaseFinalizeFunc) gx_tuner_base_class_finalize,
+			NULL,				/* base_class_finalize */
 			(GClassInitFunc) gx_tuner_class_init,
 			NULL,				/* class_finalize */
 			NULL,				/* class_data */
@@ -82,6 +84,7 @@ static void gx_tuner_class_init(GxTunerClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 	GTK_WIDGET_CLASS(klass)->expose_event = gtk_tuner_expose;
+	gobject_class->finalize = gx_tuner_finalize;
 	gobject_class->set_property = gx_tuner_set_property;
 	gobject_class->get_property = gx_tuner_get_property;
 	g_object_class_install_property(
@@ -89,24 +92,50 @@ static void gx_tuner_class_init(GxTunerClass *klass)
 			"freq", P_("Frequency"),
 			P_("The frequency for which tuning is displayed"),
 			0.0, 1000.0, 0.0, GParamFlags(GTK_PARAM_READWRITE)));
-	klass->surface_tuner = cairo_image_surface_create(
-		CAIRO_FORMAT_ARGB32, tuner_width, tuner_height);
-	g_assert(klass->surface_tuner != NULL);
-	draw_background(klass->surface_tuner);
+	g_object_class_install_property(
+		gobject_class, PROP_REFERENCE_PITCH, g_param_spec_double (
+			"reference-pitch", P_("Reference Pitch"),
+			P_("The frequency for which tuning is displayed"),
+			400.0, 500.0, 440.0, GParamFlags(GTK_PARAM_READWRITE)));
+	g_object_class_install_property(
+		gobject_class, PROP_REFERENCE_PITCH, g_param_spec_double (
+			"scale", P_("Image Scale"),
+			P_("scale the tuner area to make it bigger or smaller"),
+			0.5, 2.0, 1.0, GParamFlags(GTK_PARAM_READWRITE)));
 }
 
-static void gx_tuner_base_class_finalize(GxTunerClass *klass)
+static void tuner_surface_init(GxTuner *tuner)
 {
-	if (klass->surface_tuner) {
-		g_object_unref(klass->surface_tuner);
+	tuner->surface_tuner = cairo_image_surface_create(
+		CAIRO_FORMAT_ARGB32,
+		tuner_width * tuner->scale, tuner_height * tuner->scale);
+	g_assert(cairo_surface_status(tuner->surface_tuner) == CAIRO_STATUS_SUCCESS);
+	draw_background(tuner);
+}
+
+static void tuner_surface_finalize(GxTuner *tuner)
+{
+	if (tuner->surface_tuner) {
+		cairo_surface_destroy(tuner->surface_tuner);
+		tuner->surface_tuner = NULL;
 	}
 }
 
 static void gx_tuner_init (GxTuner *tuner)
 {
+	g_assert(GX_IS_TUNER(tuner));
+	tuner->freq = 0;
+	tuner->reference_pitch = 440.0;
+	tuner->scale = 1.0;
+	tuner_surface_init(tuner);
 	GtkWidget *widget = GTK_WIDGET(tuner);
-	widget->requisition.width = tuner_width;
-	widget->requisition.height = tuner_height;
+	widget->requisition.width = tuner_width * tuner->scale;
+	widget->requisition.height = tuner_height * tuner->scale;
+}
+
+static void gx_tuner_finalize(GObject *object)
+{
+	tuner_surface_finalize(GX_TUNER(object));
 }
 
 void gx_tuner_set_freq(GxTuner *tuner, double freq)
@@ -115,6 +144,38 @@ void gx_tuner_set_freq(GxTuner *tuner, double freq)
 	tuner->freq = freq;
 	gtk_widget_queue_draw(GTK_WIDGET(tuner));
 	g_object_notify(G_OBJECT(tuner), "freq");
+}
+
+void gx_tuner_set_reference_pitch(GxTuner *tuner, double reference_pitch)
+{
+	g_assert(GX_IS_TUNER(tuner));
+	tuner->reference_pitch = reference_pitch;
+	gtk_widget_queue_draw(GTK_WIDGET(tuner));
+	g_object_notify(G_OBJECT(tuner), "reference-pitch");
+}
+
+double gx_tuner_get_reference_pitch(GxTuner *tuner)
+{
+	g_assert(GX_IS_TUNER(tuner));
+	return tuner->reference_pitch;
+}
+
+void gx_tuner_set_scale(GxTuner *tuner, double scale)
+{
+	g_assert(GX_IS_TUNER(tuner));
+	tuner_surface_finalize(tuner);
+	tuner->scale = scale;
+	GTK_WIDGET(tuner)->requisition.width = tuner_width * tuner->scale;
+	GTK_WIDGET(tuner)->requisition.height = tuner_height * tuner->scale;
+	tuner_surface_init(tuner);
+	gtk_widget_queue_resize(GTK_WIDGET(tuner));
+	g_object_notify(G_OBJECT(tuner), "scale");
+}
+
+double gx_tuner_get_scale(GxTuner *tuner)
+{
+	g_assert(GX_IS_TUNER(tuner));
+	return tuner->scale;
 }
 
 GtkWidget *gx_tuner_new(void)
@@ -131,6 +192,12 @@ static void gx_tuner_set_property(GObject *object, guint prop_id,
 	case PROP_FREQ:
 		gx_tuner_set_freq(tuner, g_value_get_double(value));
 		break;
+	case PROP_REFERENCE_PITCH:
+		gx_tuner_set_reference_pitch(tuner, g_value_get_double(value));
+		break;
+	case PROP_SCALE:
+		gx_tuner_set_scale(tuner, g_value_get_double(value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -146,6 +213,12 @@ static void gx_tuner_get_property(GObject *object, guint prop_id,
 	case PROP_FREQ:
 		g_value_set_double(value, tuner->freq);
 		break;
+	case PROP_REFERENCE_PITCH:
+		g_value_set_double(value, tuner->reference_pitch);
+		break;
+	case PROP_SCALE:
+		g_value_set_double(value, tuner->scale);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -158,15 +231,16 @@ static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
 	GxTuner *tuner = GX_TUNER(widget);
 	cairo_t *cr;
 
-	double x0      = (widget->allocation.width - 100) * 0.5;
-	double y0      = (widget->allocation.height - 90) * 0.5;
+	double x0      = (widget->allocation.width - 100 * tuner->scale) * 0.5;
+	double y0      = (widget->allocation.height - 90 * tuner->scale) * 0.5;
 
 	cr = gdk_cairo_create(widget->window);
-	cairo_set_source_surface(cr, GX_TUNER_CLASS(GTK_OBJECT_GET_CLASS(widget))->surface_tuner, x0, y0);
+	cairo_set_source_surface(cr, tuner->surface_tuner, x0, y0);
+	cairo_scale(cr, tuner->scale, tuner->scale);
 	cairo_paint (cr);
 	float scale = -0.5;
 	if (tuner->freq) {
-		float fvis = 12 * log2f(tuner->freq/440.0);
+		float fvis = 12 * log2f(tuner->freq/tuner->reference_pitch);
 		int vis = int(round(fvis));
 		scale = (fvis-vis) / 2;
 		vis = vis % 12;
@@ -206,14 +280,15 @@ static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
 /*
 ** paint tuner background picture (the non-changing parts)
 */
-static void draw_background(cairo_surface_t *surface)
+static void draw_background(GxTuner *tuner)
 {
 	cairo_t *cr;
 
 	double x0      = 0;
 	double y0      = 0;
 
-	cr = cairo_create(surface);
+	cr = cairo_create(tuner->surface_tuner);
+	cairo_scale(cr, tuner->scale, tuner->scale);
 
 	// bottom part of gauge
 	cairo_rectangle (cr, x0,y0+60,rect_width+1,30);

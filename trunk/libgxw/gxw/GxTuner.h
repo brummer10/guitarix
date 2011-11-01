@@ -37,19 +37,26 @@ struct _GxTuner
 {
 	GtkDrawingArea parent;
 	double GSEAL (freq);
+	double GSEAL (reference_pitch);
+	double GSEAL (scale);
+	cairo_surface_t *GSEAL (surface_tuner);
 };
 
 struct _GxTunerClass
 {
 	GtkDrawingAreaClass parent_class;
 	/*< private >*/
-	cairo_surface_t *surface_tuner;
 };
 
 
 GType gx_tuner_get_type();
 
 void gx_tuner_set_freq(GxTuner *tuner, double freq);
+void gx_tuner_set_reference_pitch(GxTuner *tuner, double reference_pitch);
+double gx_tuner_get_reference_pitch(GxTuner *tuner);
+void gx_tuner_set_scale(GxTuner *tuner, double scale);
+double gx_tuner_get_scale(GxTuner *tuner);
+
 GtkWidget *gx_tuner_new(void);
 
 G_END_DECLS
