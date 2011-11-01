@@ -71,7 +71,7 @@ public:
     void write_state(gx_system::JsonWriter &jw, bool preserve_preset);
 };
 
-class GxSettings: public gx_system::GxSettingsBase {
+class GxSettings: public sigc::trackable, public gx_system::GxSettingsBase {
 private:
     gx_preset::PresetIO   preset_io;
     gx_preset::StateIO    state_io;

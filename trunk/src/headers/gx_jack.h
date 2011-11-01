@@ -103,7 +103,7 @@ public:
     PortConnection output2;
 };
 
-class GxJack {
+class GxJack: public sigc::trackable {
  private:
     gx_engine::GxEngine& engine;
     bool                jack_is_down;
@@ -114,7 +114,9 @@ class GxJack {
     static int          gx_jack_process(jack_nframes_t, void* arg);
     static int          gx_jack_insert_process(jack_nframes_t, void* arg);
 
-    static void         gx_jack_shutdown_callback(void* arg);
+    static void         shutdown_callback_client(void* arg);
+    static void         shutdown_callback_client_insert(void* arg);
+    void                gx_jack_shutdown_callback();
     static void         gx_jack_portreg_callback(jack_port_id_t, int, void* arg);
     static void         gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int connect, void* arg);
 #ifdef HAVE_JACK_SESSION

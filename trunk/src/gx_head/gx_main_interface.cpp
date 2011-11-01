@@ -3051,7 +3051,11 @@ int GxMainInterface::on_oscilloscope_activate(bool start) {
 // ---- show main GUI thread and more
 void GxMainInterface::run() {
     if (!jack.is_jack_exit()) {
-	engine.clear_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
+	//ad, 2011-11-01: window display over network zombified jack client when
+	//                convolver is active (why??), moved start into idle function
+	Glib::signal_idle().connect_once(
+	    sigc::bind(sigc::mem_fun(engine, &gx_engine::GxEngine::clear_stateflag),
+		       gx_engine::ModuleSequencer::SF_INITIALIZING));
     }
     /* timeout in milliseconds */
     guivar.g_threads[0] = g_timeout_add(40, gx_threads::gx_update_all_gui, 0);

@@ -53,7 +53,8 @@ string GxJack::get_default_instancename() {
  */
 
 GxJack::GxJack(gx_engine::GxEngine& engine_)
-    : engine(engine_),
+    : sigc::trackable(),
+      engine(engine_),
       jack_is_down(false),
       jack_is_exit(true),
 #ifdef HAVE_JACK_SESSION
@@ -71,6 +72,8 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       client_insert_name(),
       xrun() {
     connection_queue.new_data.connect(sigc::mem_fun(*this, &GxJack::fetch_connection_data));
+    gx_system::GxExit::get_instance().signal_exit().connect(
+	sigc::mem_fun(*this, &GxJack::cleanup_slot));
 }
 
 GxJack::~GxJack() {
@@ -245,8 +248,6 @@ bool GxJack::gx_jack_init() {
 	boost::format(_("The jack buffer size is %1%/frames ... "))
 	% jack_bs);
 
-    gx_system::GxExit::get_instance().signal_exit().connect(
-	sigc::mem_fun(*this, &GxJack::cleanup_slot));
     gx_jack_callbacks();
     client_change();
     gx_jack_init_port_connection();
@@ -412,7 +413,8 @@ void GxJack::gx_jack_callbacks() {
     // ----- set the jack callbacks
     jack_set_xrun_callback(client, gx_jack_xrun_callback, this);
     jack_set_sample_rate_callback(client, gx_jack_srate_callback, this);
-    jack_on_shutdown(client, gx_jack_shutdown_callback, this);
+    jack_on_shutdown(client, shutdown_callback_client, this);
+    jack_on_shutdown(client_insert, shutdown_callback_client_insert, this);
     jack_set_buffer_size_callback(client, gx_jack_buffersize_callback, this);
     jack_set_port_registration_callback(client, gx_jack_portreg_callback, this);
     jack_set_port_connect_callback(client, gx_jack_portconn_callback, this);
@@ -576,12 +578,14 @@ bool PortConnRing::pop(PortConnData *p) {
 
 void GxJack::fetch_connection_data() {
     // check if we are connected
-    const char** port = jack_port_get_connections(ports.input.port);
-    if (port) { // might be 0 (e.g. due to race conditions)
-	engine.clear_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
-        free(port);
-    } else {
-	engine.set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
+    if (client) {
+	const char** port = jack_port_get_connections(ports.input.port);
+	if (port) { // might be 0 (e.g. due to race conditions)
+	    engine.clear_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
+	    free(port);
+	} else {
+	    engine.set_stateflag(gx_engine::GxEngine::SF_NO_CONNECTION);
+	}
     }
     while (true) {
 	PortConnData p;
@@ -661,17 +665,38 @@ int GxJack::gx_jack_buffersize_callback(jack_nframes_t nframes, void* arg) {
 }
 
 // ---- jack shutdown callback in case jackd shuts down on us
-void GxJack::gx_jack_shutdown_callback(void *arg) {
+void GxJack::gx_jack_shutdown_callback() {
+    set_jack_exit(true);
+    engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
+    shutdown();
+}
+
+void GxJack::shutdown_callback_client(void *arg) {
     GxJack& self = *static_cast<GxJack*>(arg);
-    self.set_jack_exit(true);
-    self.engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
-    self.client = self.client_insert = 0;
-    self.shutdown();
+    self.client = 0;
+    if (self.client_insert) {
+	jack_client_close(self.client_insert);
+	self.client_insert = 0;
+    }
+    self.gx_jack_shutdown_callback();
+}
+
+void GxJack::shutdown_callback_client_insert(void *arg) {
+    GxJack& self = *static_cast<GxJack*>(arg);
+    self.client_insert = 0;
+    if (self.client) {
+	jack_client_close(self.client);
+	self.client = 0;
+    }
+    self.gx_jack_shutdown_callback();
 }
 
 // ---- jack xrun callback
 int GxJack::gx_jack_xrun_callback(void* arg) {
     GxJack& self = *static_cast<GxJack*>(arg);
+    if (!self.client) {
+	return 0;
+    }
     self.last_xrun = jack_get_xrun_delayed_usecs(self.client);
     self.xrun();
     return 0;

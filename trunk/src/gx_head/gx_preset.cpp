@@ -285,7 +285,8 @@ const char *factory_settings[][2] = { // FIXME in json file
 GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, gx_engine::ConvolverAdapter& cvr,
 		       gx_gui::MidiStandardControllers& mstdctr, gx_gui::MidiControllerList& mctrl,
 		       gx_engine::ModuleSequencer& seq_)
-    : GxSettingsBase(seq_),
+    : sigc::trackable(),
+      GxSettingsBase(seq_),
       preset_io(mctrl, cvr, opt),
       state_io(mctrl, cvr, mstdctr, jack_, opt),
       presetfile_parameter("system.current_preset_file"),
