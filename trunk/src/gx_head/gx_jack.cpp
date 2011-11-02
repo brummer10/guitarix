@@ -301,6 +301,7 @@ bool GxJack::gx_jack_connection(bool connect) {
 	if (!gx_jack_init()) {
 	    return false;
 	}
+	engine.clear_stateflag(gx_engine::GxEngine::SF_INITIALIZING);
     } else {
 	if (!client) {
 	    return true;
@@ -667,7 +668,7 @@ int GxJack::gx_jack_buffersize_callback(jack_nframes_t nframes, void* arg) {
 // ---- jack shutdown callback in case jackd shuts down on us
 void GxJack::gx_jack_shutdown_callback() {
     set_jack_exit(true);
-    engine.set_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
+    engine.set_stateflag(gx_engine::GxEngine::SF_INITIALIZING);
     shutdown();
 }
 

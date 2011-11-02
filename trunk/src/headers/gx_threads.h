@@ -31,7 +31,6 @@ namespace gx_threads {
 /* slow GTK threads, see GxMainInterface::run() */
 gboolean gx_update_all_gui(gpointer args);
 gboolean gx_refresh_meter_level(gpointer arg);
-gboolean gx_survive_jack_shutdown(gpointer arg);
 gboolean gx_check_cab_state(gpointer args);
 void cab_conv_restart();
 void contrast_conv_restart();

@@ -31,16 +31,10 @@
 #ifndef SRC_HEADERS_GX_MAIN_INTERFACE_H_
 #define SRC_HEADERS_GX_MAIN_INTERFACE_H_
 
-#ifndef SRC_HEADERS_GX_UI_H_
-#include "./gx_ui.h"
-#endif
-
-
 #include <gxwmm/bigknob.h>
 #include <gxwmm/smallknob.h>
 #include <gxwmm/smallknobr.h>
 #include <gxwmm/wheel.h>
-// #include <gxwmm/wheelvertical.h>
 #include <gxwmm/hslider.h>
 #include <gxwmm/eqslider.h>
 #include <gxwmm/levelslider.h>
@@ -635,6 +629,7 @@ private:
     void                  refresh_latency_menu();
     bool                  connect_jack(bool v);
     void                  gx_jack_connection();
+    bool                  survive_jack_shutdown();
     void                  set_jack_buffer_size(jack_nframes_t buf_size);
     void                  set_convolver_filename();
     Gtk::Label            convolver_filename_label; //FIXME

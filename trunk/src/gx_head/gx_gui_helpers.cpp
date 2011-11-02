@@ -897,12 +897,37 @@ bool gx_start_jack_dialog() {
     return retstat;
 }
 
+/* -------------- for thread that checks jackd liveliness -------------- */
+bool GxMainInterface::survive_jack_shutdown() {
+    // return if jack is not down
+    if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
+        if (jack.is_jack_down()) {
+	    jack.set_jack_down(false);
+	}
+	// let's make sure we get out of here
+	gx_system::gx_print_warning("Jack Shutdown",
+				    _("jack has bumped us out!!"));
+	mainmenu.jack_connect_item.set_active(true);
+	// run only one time whem jackd is running
+	return false;
+    } else {
+        // refresh some stuff. Note that it can be executed
+        // more than once, no harm here
+        mainmenu.jack_connect_item.set_active(false);
+        jack.set_jack_down(true);
+	gx_system::gx_print_error("Jack Shutdown",
+				  _("jack has bumped us out!!"));
+    }
+    // run as long jackd is down
+    return true;
+}
 
 void GxMainInterface::gx_jack_is_down() {
     jack_connection_change();
     mainmenu.jack_connect_item.set_active(false);
-    g_timeout_add_full(
-	G_PRIORITY_LOW, 200, gx_threads::gx_survive_jack_shutdown, 0, NULL);
+    Glib::signal_timeout().connect(
+	sigc::mem_fun(*this, &GxMainInterface::survive_jack_shutdown),
+	200, Glib::PRIORITY_LOW);
 }
 
 #ifdef HAVE_JACK_SESSION
