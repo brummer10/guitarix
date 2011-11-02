@@ -60,6 +60,13 @@ void ProcessingChainBase::set_samplerate(int samplerate) {
     steps_up_dead = 0;
 }
 
+void ProcessingChainBase::set_stopped(bool v) {
+    stopped = v;
+    if (v) {
+	post_rt_finished();  // in case someone is already waiting
+    }
+}
+
 void ProcessingChainBase::start_ramp_up() {
     if (!stopped) {
 	set_ramp_value(0);

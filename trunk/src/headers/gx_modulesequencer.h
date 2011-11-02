@@ -103,7 +103,7 @@ public:
     void start_ramp_up();
     void start_ramp_down();
     inline void set_down_dead() { set_ramp_mode(ramp_mode_down_dead); }
-    inline void set_stopped(bool v) { stopped = v; }
+    inline void set_stopped(bool v);
 };
 
 
