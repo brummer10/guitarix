@@ -27,11 +27,11 @@
 #include <jack/jack.h>          // NOLINT
 #include <jack/thread.h>        // NOLINT
 
-#ifdef HAVE_JACK_SESSION
-#include <jack/session.h>      // NOLINT
-#endif
-
 #include "engine.h"           // NOLINT
+
+#ifdef HAVE_JACK_SESSION
+#include <dlfcn.h>
+#endif
 
 
 namespace gx_jack {
@@ -79,6 +79,7 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
 GxJack::~GxJack() {
     gx_jack_cleanup();
 }
+
 
 /****************************************************************
  ** load state, save state
@@ -708,6 +709,13 @@ int GxJack::gx_jack_xrun_callback(void* arg) {
  */
 
 #ifdef HAVE_JACK_SESSION
+GxJack::jack_get_uuid_for_client_name_type GxJack::jack_get_uuid_for_client_name_fp =
+    reinterpret_cast<jack_get_uuid_for_client_name_type>(
+	dlsym(RTLD_DEFAULT, "jack_get_uuid_for_client_name"));
+GxJack::jack_client_get_uuid_type GxJack::jack_client_get_uuid_fp =
+    reinterpret_cast<jack_client_get_uuid_type>(
+	dlsym(RTLD_DEFAULT, "jack_client_get_uuid"));
+
 void GxJack::return_last_session_event() {
     jack_session_event_t *event = get_last_session_event();
     if (event) {
@@ -719,7 +727,17 @@ void GxJack::return_last_session_event() {
 
 string GxJack::get_uuid_insert() {
     // should be const char* but jack_free doesn't like it
-    char* uuid = jack_client_get_uuid(client_insert);
+    char* uuid;
+    if (jack_client_get_uuid_fp) {
+	uuid = jack_client_get_uuid_fp(client_insert);
+    } else if (jack_get_uuid_for_client_name_fp) {
+	uuid = jack_get_uuid_for_client_name_fp(
+	    client_insert, client_insert_name.c_str());
+    } else {
+	assert(false);
+	gx_system::gx_print_error(_("session save"), _("can't get client uuid"));
+	return "";
+    }
     string ret(uuid);
     jack_free(uuid);
     return ret;
