@@ -248,7 +248,7 @@
     },
     "jconv": {
       "jconv.IRFile": "",
-      "jconv.IRDir": "/home/dlphilp",
+      "jconv.IRDir": "",
       "jconv.Gain": 0.2,
       "jconv.Offset": 0,
       "jconv.Length": 0,
@@ -504,7 +504,7 @@
     },
     "jconv": {
       "jconv.IRFile": "INSTR_guitar room.WAV",
-      "jconv.IRDir": "/home/dlphilp/soundfiles/ir-wav/Lexicon-PCM90",
+      "jconv.IRDir": "/soundfiles/ir-wav/Lexicon-PCM90",
       "jconv.Gain": 0.309037,
       "jconv.Offset": 0,
       "jconv.Length": 13154,
@@ -762,7 +762,7 @@
     },
     "jconv": {
       "jconv.IRFile": "INSTR_guitar room.WAV",
-      "jconv.IRDir": "/home/dlphilp/soundfiles/ir-wav/Lexicon-PCM90",
+      "jconv.IRDir": "/soundfiles/ir-wav/Lexicon-PCM90",
       "jconv.Gain": 0.309037,
       "jconv.Offset": 0,
       "jconv.Length": 13154,
@@ -1020,7 +1020,7 @@
     },
     "jconv": {
       "jconv.IRFile": "INSTR_guitar room.WAV",
-      "jconv.IRDir": "/home/dlphilp/soundfiles/ir-wav/Lexicon-PCM90",
+      "jconv.IRDir": "/soundfiles/ir-wav/Lexicon-PCM90",
       "jconv.Gain": 0.309037,
       "jconv.Offset": 0,
       "jconv.Length": 13154,
@@ -1278,7 +1278,7 @@
     },
     "jconv": {
       "jconv.IRFile": "INSTR_guitar room.WAV",
-      "jconv.IRDir": "/home/dlphilp/soundfiles/ir-wav/Lexicon-PCM90",
+      "jconv.IRDir": "/soundfiles/ir-wav/Lexicon-PCM90",
       "jconv.Gain": 0.309037,
       "jconv.Offset": 0,
       "jconv.Length": 13154,
@@ -1536,7 +1536,7 @@
     },
     "jconv": {
       "jconv.IRFile": "INSTR_guitar room.WAV",
-      "jconv.IRDir": "/home/dlphilp/soundfiles/ir-wav/Lexicon-PCM90",
+      "jconv.IRDir": "/soundfiles/ir-wav/Lexicon-PCM90",
       "jconv.Gain": 0.309037,
       "jconv.Offset": 0,
       "jconv.Length": 13154,
@@ -1794,7 +1794,7 @@
     },
     "jconv": {
       "jconv.IRFile": "",
-      "jconv.IRDir": "/home/dlphilp",
+      "jconv.IRDir": "",
       "jconv.Gain": 0.2,
       "jconv.Offset": 0,
       "jconv.Length": 0,
@@ -2050,7 +2050,7 @@
     },
     "jconv": {
       "jconv.IRFile": "",
-      "jconv.IRDir": "/home/dlphilp",
+      "jconv.IRDir": "",
       "jconv.Gain": 0.2,
       "jconv.Offset": 0,
       "jconv.Length": 0,
@@ -2306,7 +2306,7 @@
     },
     "jconv": {
       "jconv.IRFile": "",
-      "jconv.IRDir": "/home/dlphilp",
+      "jconv.IRDir": "",
       "jconv.Gain": 0.2,
       "jconv.Offset": 0,
       "jconv.Length": 0,
@@ -2562,7 +2562,7 @@
     },
     "jconv": {
       "jconv.IRFile": "",
-      "jconv.IRDir": "/home/dlphilp",
+      "jconv.IRDir": "",
       "jconv.Gain": 0.2,
       "jconv.Offset": 0,
       "jconv.Length": 0,
