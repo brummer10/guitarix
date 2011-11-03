@@ -586,7 +586,9 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<Gtk::Builder> bld, gx_jack::GxJack& ja
 	Gtk::TreeView *view;
 	bld->get_widget(name, view);
 	Gtk::TreeViewColumn *col = view->get_column(0);
-	Gtk::CellRendererToggle *cell = dynamic_cast<Gtk::CellRendererToggle*>(col->get_first_cell());
+	// get_first_cell_renderer is decprecated, but only available after gtkmm 2.20
+	//Gtk::CellRendererToggle *cell = dynamic_cast<Gtk::CellRendererToggle*>(col->get_first_cell());
+	Gtk::CellRendererToggle *cell = dynamic_cast<Gtk::CellRendererToggle*>(col->get_first_cell_renderer());
 	portsection[i].treestore = Gtk::TreeStore::create(columns);
 	view->set_model(portsection[i].treestore);
         //snprintf(name, sizeof(name), "treestore%d", i+1);

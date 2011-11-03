@@ -1817,6 +1817,7 @@ struct uiPatchDisplay : public gx_ui::GxUiItemFloat {
     virtual void reflectZone() {
             GList*   child_list =  gtk_container_get_children(GTK_CONTAINER(fdialog));
             GtkWidget *parent = reinterpret_cast<GtkWidget *>( g_list_nth_data(child_list, 0));
+	    //FIXME: when !GDK_WINDOW(parent->window), reflectZone will be called on every update
             if (GDK_WINDOW(parent->window)) {
                 if (fCache != *fZone) {
                     char s[64];
@@ -2265,6 +2266,7 @@ void MainMenu::setup(GxMainInterface& intf) {
     amp_radio_menu.setup(amp_menu, intf.fAccelGroup);
     pack_start(menucont);
     pack_end(menupix);
+    //menupix.set_pack_direction(Gtk::PACK_DIRECTION_RTL);  // after gtk 2.20
     gtk_menu_bar_set_pack_direction(menupix.gobj(), GTK_PACK_DIRECTION_RTL);
 
     engine_on_image.set_always_show_image();
