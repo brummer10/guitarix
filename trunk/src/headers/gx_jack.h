@@ -103,6 +103,14 @@ public:
     PortConnection output2;
 };
 
+extern "C" {
+    typedef int (*jack_set_session_callback_type)(
+	jack_client_t *, JackSessionCallback, void *arg);
+    typedef char *(*jack_get_uuid_for_client_name_type)(
+	jack_client_t *, const char *);
+    typedef char *(*jack_client_get_uuid_type)(jack_client_t *);
+}
+
 class GxJack: public sigc::trackable {
  private:
     gx_engine::GxEngine& engine;
@@ -122,11 +130,6 @@ class GxJack: public sigc::trackable {
 #ifdef HAVE_JACK_SESSION
     jack_session_event_t *session_event;
     static void         gx_jack_session_callback(jack_session_event_t *event, void *arg);
-    typedef int (*jack_set_session_callback_type)(
-	jack_client_t *, JackSessionCallback, void *arg);
-    typedef char *(*jack_get_uuid_for_client_name_type)(
-	jack_client_t *, const char *);
-    typedef char *(*jack_client_get_uuid_type)(jack_client_t *);
     static jack_set_session_callback_type jack_set_session_callback_fp;
     static jack_get_uuid_for_client_name_type jack_get_uuid_for_client_name_fp;
     static jack_client_get_uuid_type jack_client_get_uuid_fp;

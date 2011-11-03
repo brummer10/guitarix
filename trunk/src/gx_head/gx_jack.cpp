@@ -712,13 +712,13 @@ int GxJack::gx_jack_xrun_callback(void* arg) {
  */
 
 #ifdef HAVE_JACK_SESSION
-GxJack::jack_set_session_callback_type GxJack::jack_set_session_callback_fp =
+jack_set_session_callback_type GxJack::jack_set_session_callback_fp =
     reinterpret_cast<jack_set_session_callback_type>(
 	dlsym(RTLD_DEFAULT, "jack_set_session_callback"));
-GxJack::jack_get_uuid_for_client_name_type GxJack::jack_get_uuid_for_client_name_fp =
+jack_get_uuid_for_client_name_type GxJack::jack_get_uuid_for_client_name_fp =
     reinterpret_cast<jack_get_uuid_for_client_name_type>(
 	dlsym(RTLD_DEFAULT, "jack_get_uuid_for_client_name"));
-GxJack::jack_client_get_uuid_type GxJack::jack_client_get_uuid_fp =
+jack_client_get_uuid_type GxJack::jack_client_get_uuid_fp =
     reinterpret_cast<jack_client_get_uuid_type>(
 	dlsym(RTLD_DEFAULT, "jack_client_get_uuid"));
 
