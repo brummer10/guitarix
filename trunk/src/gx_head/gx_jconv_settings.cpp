@@ -654,6 +654,9 @@ void IRWindow::on_enumerate() {
     on_remove_tree();
     wcombo->set_model(model);
     Glib::ustring path = convolver.jcset.getIRDir();
+    if (path == "~/") {  // cruft in old files
+	path = getenv("HOME");
+    }
     Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(path);
     if (file->query_exists()) {
         Glib::RefPtr<Gio::FileEnumerator> child_enumeration =
@@ -687,7 +690,9 @@ void IRWindow::on_enumerate() {
         }
         wcombo->pack_start(columns.name, false);
     } else {
-        gx_system::gx_print_error("jconvolver", "Error reading file path");
+        gx_system::gx_print_error(
+	    "jconvolver",
+	    boost::format(_("Error reading file path %1%")) % path);
     }
 }
 

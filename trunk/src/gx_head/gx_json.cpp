@@ -889,7 +889,6 @@ PresetFile* GxSettingsBase::get_factory(const string& name) const {
 
 void GxSettingsBase::loadsetting(PresetFile *p, const string& name) {
     seq.start_ramp_down();
-    selection_changed();
     try {
 	if (p) {
 	    JsonParser *jp = p->create_reader(name);
@@ -926,7 +925,7 @@ void GxSettingsBase::loadsetting(PresetFile *p, const string& name) {
     seq.start_ramp_up();
     gx_ui::GxUI::updateAllGuis();
     seq.clear_rack_changed();
-    seq.start_ramp_up();
+    selection_changed();
 }
 
 void GxSettingsBase::load(Source src, const string& name, const string& factoryname) {
