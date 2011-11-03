@@ -991,6 +991,13 @@ void GxSettingsBase::save_to_preset(const string& name) {
     if (newentry) {
 	presetlist_changed();
     }
+    if (current_source != preset
+	|| (current_source == preset && current_name != name)) {
+	current_source = preset;
+	current_name = name;
+	current_factory = "";
+	selection_changed();
+    }
 }
 
 bool GxSettingsBase::rename_preset(const string& name, const string& newname) {
