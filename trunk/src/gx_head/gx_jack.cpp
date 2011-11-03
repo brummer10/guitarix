@@ -251,7 +251,10 @@ bool GxJack::gx_jack_init() {
 
     gx_jack_callbacks();
     client_change();
-    gx_jack_init_port_connection();
+    if (opt.get_jack_uuid().empty()) {
+	// when not loaded by session manager
+	gx_jack_init_port_connection();
+    }
     set_jack_exit(false);
 
     return true;
