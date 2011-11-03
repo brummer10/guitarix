@@ -424,8 +424,8 @@ void GxJack::gx_jack_callbacks() {
     jack_set_port_registration_callback(client, gx_jack_portreg_callback, this);
     jack_set_port_connect_callback(client, gx_jack_portconn_callback, this);
 #ifdef HAVE_JACK_SESSION
-    if (jack_set_session_callback) {
-        jack_set_session_callback(client, gx_jack_session_callback, this);
+    if (jack_set_session_callback_fp) {
+        jack_set_session_callback_fp(client, gx_jack_session_callback, this);
     }
 #endif
 
@@ -712,6 +712,9 @@ int GxJack::gx_jack_xrun_callback(void* arg) {
  */
 
 #ifdef HAVE_JACK_SESSION
+GxJack::jack_set_session_callback_type GxJack::jack_set_session_callback_fp =
+    reinterpret_cast<jack_set_session_callback_type>(
+	dlsym(RTLD_DEFAULT, "jack_set_session_callback"));
 GxJack::jack_get_uuid_for_client_name_type GxJack::jack_get_uuid_for_client_name_fp =
     reinterpret_cast<jack_get_uuid_for_client_name_type>(
 	dlsym(RTLD_DEFAULT, "jack_get_uuid_for_client_name"));
