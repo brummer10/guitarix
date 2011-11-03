@@ -219,7 +219,7 @@ void ErrorPopup::on_message(const string& msg_, gx_system::GxMsgType tp) {
 	    }
 	} else {
 	    active = true;
-	    Glib::signal_idle().connect_once(sigc::mem_fun(*this, &ErrorPopup::show_msg));
+	    show_msg();
 	}
     }
 }
@@ -231,7 +231,8 @@ void ErrorPopup::on_response(int) {
 }
 
 void ErrorPopup::show_msg() {
-    dialog = new Gtk::MessageDialog(msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE, true);
+    dialog = new Gtk::MessageDialog(msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
+    dialog->set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
     dialog->signal_response().connect(
 	sigc::mem_fun(*this, &ErrorPopup::on_response));
     dialog->show();
