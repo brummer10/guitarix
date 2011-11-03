@@ -2265,7 +2265,7 @@ void MainMenu::setup(GxMainInterface& intf) {
     amp_radio_menu.setup(amp_menu, intf.fAccelGroup);
     pack_start(menucont);
     pack_end(menupix);
-    menupix.set_property("pack_direction", Gtk::PACK_DIRECTION_RTL);
+    gtk_menu_bar_set_pack_direction(menupix.gobj(), GTK_PACK_DIRECTION_RTL);
 
     engine_on_image.set_always_show_image();
     engine_on_image.set_image(engineon);

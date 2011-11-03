@@ -34,7 +34,7 @@ roomsizeSlider 	= vslider("RoomSize", 0.5, 0, 1, 0.025)*0.28 + 0.7;
 dampslider 	= vslider("damp",0.5, 0, 1, 0.025);
 combfeed 	= roomsizeSlider;
 //wetslider 	= 0.5 + vslider("wet_dry[name:wet/dry]", 0, -0.5, 0.5, 0.1);
-wet_dry = vslider("wet_dry[name:wet/dry]",  100, 0, 100, 1) : /(100);
+wet_dry = vslider("wet_dry[name:wet/dry]",  50, 0, 100, 1) : /(100);
 dry = 1 - wet_dry;
 
 // Comb and Allpass filters
