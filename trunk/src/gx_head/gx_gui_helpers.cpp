@@ -910,7 +910,7 @@ bool GxMainInterface::survive_jack_shutdown() {
 	mainmenu.jack_connect_item.set_active(true);
 	// run only one time whem jackd is running
 	return false;
-    } else {
+    } else if (!jack.is_jack_down()) {
         // refresh some stuff. Note that it can be executed
         // more than once, no harm here
         mainmenu.jack_connect_item.set_active(false);
@@ -1361,7 +1361,7 @@ gint gx_nchoice_dialog_without_entry(
     gdk_color_parse("#000000", &colorBlack);
     gtk_widget_modify_bg(dialog, GTK_STATE_NORMAL, &colorBlack);
     g_signal_connect(GTK_DIALOG(dialog)->vbox, "expose-event",
-                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
+                     G_CALLBACK(gx_cairo::info_box_expose), NULL);
     GtkStyle* text_style = gtk_widget_get_style(text_label);
     pango_font_description_set_size(text_style->font_desc, 10*PANGO_SCALE);
     pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);
@@ -1444,6 +1444,8 @@ gint gx_choice_dialog_with_text_entry(
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), gtk_entry);
 
     g_signal_connect_swapped(button1, "clicked",  G_CALLBACK(func), gtk_entry);
+    g_signal_connect(GTK_DIALOG(dialog)->vbox, "expose-event",
+                     G_CALLBACK(gx_cairo::info_box_expose), NULL);
 
     gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), default_response);
@@ -1584,7 +1586,7 @@ int gx_message_popup(const char* msg) {
     g_signal_connect_swapped(ok_button, "clicked",
                               G_CALLBACK(gtk_widget_destroy), about);
 
-    g_signal_connect(label, "expose-event", G_CALLBACK(gx_cairo::conv_widget_expose), NULL);
+    g_signal_connect(GTK_DIALOG(about)->vbox, "expose-event", G_CALLBACK(gx_cairo::conv_widget_expose), NULL);
     gtk_widget_show(ok_button);
     gtk_widget_show(label);
     return gtk_dialog_run (GTK_DIALOG(about));
