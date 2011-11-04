@@ -425,7 +425,7 @@ def configure(conf):
     if not opt.no_ladspa or opt.experimental_ladspa:
         conf.check(header_name='ladspa.h', mandatory=1)
     conf.check(header_name='boost/format.hpp', mandatory=1)
-    conf.check(header_name='boost/thread.hpp', mandatory=1)
+    conf.check(header_name='boost/thread.hpp', lib="boost_thread", uselib_store="BOOST_THREAD", mandatory=1)
     # convolver and resampler
     if opt.includeconvolver:
         conf.env['ZITA_CONVOLVER'] = False

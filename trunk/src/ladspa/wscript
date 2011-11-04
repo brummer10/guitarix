@@ -36,7 +36,7 @@ def build(bld):
             features='cxx cshlib',
             includes = ['../headers', '..', '../../libgxwmm', '../../libgxw',
                         '../gx_head', '../zita-convolver'],
-            uselib = ['GLIBMM','GIOMM','FFTW3','SNDFILE','JACK'],
+            uselib = ['GLIBMM','GIOMM','FFTW3','SNDFILE','JACK','BOOST_THREAD'],
             #uselib_local = ["plugins"],
             target   = fn.replace(".cpp",""),
             source   = src,
