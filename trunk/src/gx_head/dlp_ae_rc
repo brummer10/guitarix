@@ -503,8 +503,8 @@
       "ui.main_yorg": 300
     },
     "jconv": {
-      "jconv.IRFile": "INSTR_guitar room.WAV",
-      "jconv.IRDir": "/soundfiles/ir-wav/Lexicon-PCM90",
+      "jconv.IRFile": "",
+      "jconv.IRDir": "",
       "jconv.Gain": 0.309037,
       "jconv.Offset": 0,
       "jconv.Length": 13154,
@@ -761,8 +761,8 @@
       "ui.main_yorg": 300
     },
     "jconv": {
-      "jconv.IRFile": "INSTR_guitar room.WAV",
-      "jconv.IRDir": "/soundfiles/ir-wav/Lexicon-PCM90",
+      "jconv.IRFile": "",
+      "jconv.IRDir": "",
       "jconv.Gain": 0.309037,
       "jconv.Offset": 0,
       "jconv.Length": 13154,
@@ -1019,8 +1019,8 @@
       "ui.main_yorg": 300
     },
     "jconv": {
-      "jconv.IRFile": "INSTR_guitar room.WAV",
-      "jconv.IRDir": "/soundfiles/ir-wav/Lexicon-PCM90",
+      "jconv.IRFile": "",
+      "jconv.IRDir": "",
       "jconv.Gain": 0.309037,
       "jconv.Offset": 0,
       "jconv.Length": 13154,
@@ -1277,8 +1277,8 @@
       "ui.main_yorg": 300
     },
     "jconv": {
-      "jconv.IRFile": "INSTR_guitar room.WAV",
-      "jconv.IRDir": "/soundfiles/ir-wav/Lexicon-PCM90",
+      "jconv.IRFile": "",
+      "jconv.IRDir": "",
       "jconv.Gain": 0.309037,
       "jconv.Offset": 0,
       "jconv.Length": 13154,
@@ -1535,8 +1535,8 @@
       "ui.main_yorg": 300
     },
     "jconv": {
-      "jconv.IRFile": "INSTR_guitar room.WAV",
-      "jconv.IRDir": "/soundfiles/ir-wav/Lexicon-PCM90",
+      "jconv.IRFile": "",
+      "jconv.IRDir": "",
       "jconv.Gain": 0.309037,
       "jconv.Offset": 0,
       "jconv.Length": 13154,
