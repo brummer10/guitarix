@@ -276,8 +276,8 @@ static const char *statename_postfix = "_rc";
 const char *factory_settings[][2] = { // FIXME in json file
     {"funkmuscle", "funkmuscle_rc"},
     {"zettberlin", "zettberlin_rc"},
-    {"autoandimat", "dlp_ae_rc"},
-    {"StudioDave", "autoandimat_rc"},
+    {"autoandimat", "autoandimat_rc"},
+    {"StudioDave", "dlp_ae_rc"},
     {"JP", "jp_n_o_s_rc"},
     {0}
 };

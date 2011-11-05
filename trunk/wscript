@@ -425,12 +425,8 @@ def configure(conf):
     if not opt.no_ladspa or opt.experimental_ladspa:
         conf.check(header_name='ladspa.h', mandatory=1)
 
-    # Check for boost libraries
-    boostlibs = 'thread'
-    conf.check_tool('boost')
     conf.check(header_name='boost/format.hpp', mandatory=1)
-    conf.check_boost(lib=boostlibs, static='both', min_version='1.40.0', uselib_store="BOOST_THREAD", mandatory = 1, errmsg = 'Unable to find ' + boostlibs + ' boost libraries of at least version 1.40')
-    #conf.check(header_name='boost/thread.hpp', lib="boost_thread", uselib_store="BOOST_THREAD", mandatory=1)
+    conf.check(header_name='boost/thread.hpp', lib="boost_thread", uselib_store="BOOST_THREAD", mandatory=1)
 
     # convolver and resampler
     if opt.includeconvolver:
