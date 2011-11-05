@@ -1,16 +1,35 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
 [encoding: UTF-8]
-src/gx_head/gx_interface_builder.cpp
-src/gx_head/gx_rack_builder.cc
-src/gx_head/gx_srack_builder.cc
-src/gx_head/gx_main_interface.cpp
-src/gx_head/gx_gui_helpers.cpp
-src/gx_head/gx_jack.cpp
+src/gx_head/gx_child_process.cpp
+src/gx_head/gx_convolver.cpp
 src/gx_head/gx_engine_audio.cpp
+src/gx_head/gx_engine.cpp
+src/gx_head/gx_engine_midi.cpp
+src/gx_head/gx_faust_plugins.cpp
+src/gx_head/gx_gui_helpers.cpp
+src/gx_head/gx_interface_builder.cpp
+src/gx_head/gx_internal_plugins.cpp
+src/gx_head/gx_jack.cpp
+src/gx_head/gx_jconv_settings.cpp
+src/gx_head/gx_json.cpp
+src/gx_head/gx_main_boxes.cpp
+src/gx_head/gx_main.cpp
+src/gx_head/gx_main_interface.cpp
+src/gx_head/gx_main_midi.cpp
+src/gx_head/gx_mono_rack_builder.cpp
 src/gx_head/gx_paramtable.cpp
-src/gx_head/gx_system.cpp
+src/gx_head/gx_pitch_tracker.cpp
+src/gx_head/gx_pluginloader.cpp
+src/gx_head/gx_portmap.cpp
 src/gx_head/gx_preset.cpp
+src/gx_head/gx_resampler.cpp
+src/gx_head/gx_stereo_rack_builder.cpp
+src/gx_head/gx_system.cpp
+src/gx_head/gx_threads.cpp
+src/gx_head/gx_ui.cpp
+src/gx_head/gxw_mm_controllers.cpp
 src/gx_head/iredit.glade
+src/gx_head/midi.glade
 src/gx_head/ports.glade
-src/midi.glade
+
