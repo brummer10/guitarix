@@ -212,7 +212,7 @@ ErrorPopup::~ErrorPopup() {
 
 void ErrorPopup::on_message(const string& msg_, gx_system::GxMsgType tp) {
     if (tp == gx_system::kError) {
-    msg = "\n \n \n";
+	msg = "";//"\n \n \n";
 	msg += msg_;
 	if (active) {
 	    if (dialog) {
@@ -234,9 +234,19 @@ void ErrorPopup::on_response(int) {
 void ErrorPopup::show_msg() {
     dialog = new Gtk::MessageDialog(msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
     dialog->set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
-    dialog->get_child()->signal_expose_event().connect(
-	sigc::group(&gx_cairo::error_box_expose,GTK_WIDGET(dialog->get_child()->gobj()),sigc::_1,(void*)0),false);
-    dialog->set_title(_("ERROR"));
+    Gtk::VBox *ma = dialog->get_message_area();
+    // add an alignment parent to the label widget inside the message area
+    // should better define our own dialog instead of hacking MessageDialog...
+    Gtk::Alignment *align = new Gtk::Alignment();
+    align->show();
+    dynamic_cast<Gtk::Label*>(*ma->get_children().begin())->reparent(*align);
+    ma->pack_start(*manage(align));
+    align->set_padding(50,20,0,10);
+    Gtk::VBox *vbox = dynamic_cast<Gtk::VBox *>(dialog->get_child());
+    vbox->set_redraw_on_allocate(true);
+    vbox->signal_expose_event().connect(
+	sigc::group(&gx_cairo::error_box_expose,GTK_WIDGET(vbox->gobj()),sigc::_1,(void*)0),false);
+    dialog->set_title(_("GUITARIX ERROR"));
     dialog->signal_response().connect(
 	sigc::mem_fun(*this, &ErrorPopup::on_response));
     dialog->show();

@@ -304,10 +304,10 @@ gboolean error_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
+	double x0      = wi->allocation.x+2;
+	double y0      = wi->allocation.y+2;
+	double rect_width  = wi->allocation.width-4;
+	double rect_height = wi->allocation.height-4;
 
     cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
     cairo_set_source_rgb (cr, 0, 0, 0);
