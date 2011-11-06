@@ -214,7 +214,6 @@ void ErrorPopup::on_message(const string& msg_, gx_system::GxMsgType tp) {
     if (tp == gx_system::kError) {
     msg = "\n \n \n";
 	msg += msg_;
-    msg += "   ";
 	if (active) {
 	    if (dialog) {
 		dialog->set_message(msg);

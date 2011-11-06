@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-05 16:49+0100\n"
+"POT-Creation-Date: 2011-11-06 13:33+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,7 +29,10 @@ msgstr ""
 msgid "Tube 1"
 msgstr ""
 
+#. flags
+#. id
 #: ../src/gx_head/gx_engine_audio.cpp:632
+#: ../src/faust-generated/gx_distortion.cc:311
 msgid "Multi Band Distortion"
 msgstr ""
 
@@ -372,7 +375,7 @@ msgstr ""
 #: ../src/gx_head/gx_gui_helpers.cpp:867
 msgid ""
 "\n"
-"                        WARNING                        \n"
+"                            WARNING                    \n"
 "\n"
 "   The jack server is not currently running\n"
 "   You can choose to activate it or terminate gx_head   \n"
@@ -382,34 +385,35 @@ msgid ""
 "       3) exit gx_head   \n"
 msgstr ""
 
-#: ../src/gx_head/gx_gui_helpers.cpp:910 ../src/gx_head/gx_gui_helpers.cpp:921
-msgid "jack has bumped us out!!"
+#: ../src/gx_head/gx_gui_helpers.cpp:910 ../src/gx_head/gx_gui_helpers.cpp:920
+msgid "jack has bumped us out!!   "
 msgstr ""
 
-#: ../src/gx_head/gx_gui_helpers.cpp:977
+#: ../src/gx_head/gx_gui_helpers.cpp:976
 msgid "Jack XRun"
 msgstr ""
 
-#: ../src/gx_head/gx_gui_helpers.cpp:978
+#: ../src/gx_head/gx_gui_helpers.cpp:977
 msgid " delay of at least %1% microsecs"
 msgstr ""
 
-#: ../src/gx_head/gx_gui_helpers.cpp:1020
+#: ../src/gx_head/gx_gui_helpers.cpp:1019
 msgid ""
+"\n"
 "\n"
 "  This Aplication is to a large extent provided\n"
 "  with the marvelous faust compiler.Yann Orlary\n"
-"  <http://faust.grame.fr/>\n"
+"  http://faust.grame.fr/\n"
 "  A large part is based on the work of Julius Orion Smith\n"
-" <http://ccrma.stanford.edu/realsimple/faust/>\n"
+"  http://ccrma.stanford.edu/realsimple/faust/\n"
 "  and Albert Graef\n"
-"  <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html>  \n"
+"  http://q-lang.sourceforge.net/examples.html#Faust\n"
 "\n"
 "\n"
 "  gx_head "
 msgstr ""
 
-#: ../src/gx_head/gx_gui_helpers.cpp:1031
+#: ../src/gx_head/gx_gui_helpers.cpp:1030
 msgid ""
 "\n"
 "  for impulse response it use zita-convolver \n"
@@ -423,11 +427,11 @@ msgid ""
 "  home: http://guitarix.sourceforge.net/\n"
 msgstr ""
 
-#: ../src/gx_head/gx_gui_helpers.cpp:1541
+#: ../src/gx_head/gx_gui_helpers.cpp:1542
 msgid "skin index out of range, keeping actual skin"
 msgstr ""
 
-#: ../src/gx_head/gx_gui_helpers.cpp:1560
+#: ../src/gx_head/gx_gui_helpers.cpp:1561
 msgid "warning message does not exist"
 msgstr ""
 
@@ -545,7 +549,10 @@ msgstr ""
 msgid "Twin"
 msgstr ""
 
+#. flags
+#. id
 #: ../src/gx_head/gx_internal_plugins.cpp:740
+#: ../src/faust-generated/tonestack_bassman.cc:87
 msgid "Bassman"
 msgstr ""
 
@@ -553,11 +560,17 @@ msgstr ""
 msgid "Marshall"
 msgstr ""
 
+#. flags
+#. id
 #: ../src/gx_head/gx_internal_plugins.cpp:742
+#: ../src/faust-generated/tonestack_ac30.cc:87
 msgid "AC-30"
 msgstr ""
 
+#. flags
+#. id
 #: ../src/gx_head/gx_internal_plugins.cpp:743
+#: ../src/faust-generated/tonestack_princeton.cc:87
 msgid "Princeton"
 msgstr ""
 
@@ -569,7 +582,10 @@ msgstr ""
 msgid "1x15"
 msgstr ""
 
+#. flags
+#. id
 #: ../src/gx_head/gx_internal_plugins.cpp:746
+#: ../src/faust-generated/tonestack_mesa.cc:87
 msgid "Mesa Boogie"
 msgstr ""
 
@@ -594,7 +610,7 @@ msgid "unknown jack ports section: "
 msgstr ""
 
 #: ../src/gx_head/gx_jack.cpp:217 ../src/gx_head/gx_jack.cpp:222
-#: ../src/gx_head/gx_main_interface.cpp:2955
+#: ../src/gx_head/gx_main_interface.cpp:2953
 msgid "Jack Init"
 msgstr ""
 
@@ -779,7 +795,11 @@ msgstr ""
 msgid "ctrl-c"
 msgstr ""
 
-#: ../src/gx_head/gx_main.cpp:304
+#: ../src/gx_head/gx_main.cpp:239
+msgid "ERROR"
+msgstr ""
+
+#: ../src/gx_head/gx_main.cpp:308
 msgid "use \"guitarix -h\" to get a help text"
 msgstr ""
 
@@ -1159,8 +1179,8 @@ msgid "Don't bother me again with such a question, I know what I am doing"
 msgstr ""
 
 #: ../src/gx_head/gx_main_interface.cpp:2940
-#: ../src/gx_head/gx_main_interface.cpp:2945
-#: ../src/gx_head/gx_main_interface.cpp:2965 ../src/gx_head/gx_system.cpp:344
+#: ../src/gx_head/gx_main_interface.cpp:2944
+#: ../src/gx_head/gx_main_interface.cpp:2963 ../src/gx_head/gx_system.cpp:344
 #: ../src/gx_head/gx_system.cpp:422
 msgid "main"
 msgstr ""
@@ -1169,39 +1189,39 @@ msgstr ""
 msgid "can't disconnect jack"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2945
+#: ../src/gx_head/gx_main_interface.cpp:2944
 msgid "Ignoring jackd ..."
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2956
+#: ../src/gx_head/gx_main_interface.cpp:2954
 msgid "jackd OK, trying to be a gxjack.client"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2966
+#: ../src/gx_head/gx_main_interface.cpp:2964
 msgid "I really tried to get jack up and running, sorry ... "
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2975
+#: ../src/gx_head/gx_main_interface.cpp:2973
 msgid "Jack Buffer Size setting"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2976
+#: ../src/gx_head/gx_main_interface.cpp:2974
 msgid "we are not a jack gxjack.client, server may be down"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:3003
+#: ../src/gx_head/gx_main_interface.cpp:3001
 msgid "Setting Jack Buffer Size"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:3004
+#: ../src/gx_head/gx_main_interface.cpp:3002
 msgid "Could not change latency"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:3013
+#: ../src/gx_head/gx_main_interface.cpp:3011
 msgid "Jack Buffer Size"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:3014
+#: ../src/gx_head/gx_main_interface.cpp:3012
 msgid "latency is %1%"
 msgstr ""
 
@@ -2085,7 +2105,9 @@ msgstr ""
 msgid "Auto _Gain correction"
 msgstr ""
 
-#: ../src/gx_head/iredit.glade.h:36
+#. flags
+#. id
+#: ../src/gx_head/iredit.glade.h:36 ../src/faust-generated/delay.cc:85
 msgid "Delay"
 msgstr ""
 
@@ -2285,4 +2307,447 @@ msgstr ""
 
 #: ../src/gx_head/ports.glade.h:9
 msgid "guitarix port connections"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/autowah.cc:90
+msgid "auto"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/bassbooster.cc:53
+#: ../src/faust-generated/bassbooster.cc:61
+msgid "Bassbooster"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/biquad.cc:44
+msgid "BiQuad Filter"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/chorus.cc:134
+msgid "Chorus"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/chorus_mono.cc:93
+msgid "Chorus Mono"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/compressor.cc:70
+msgid "Compressor"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/crybaby.cc:81
+msgid "manual"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/echo.cc:74
+msgid "Echo"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/flanger.cc:103
+msgid "Flanger"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/flanger_mono.cc:79
+msgid "Flanger Mono"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/freeverb.cc:173
+msgid "Freeverb"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp10.cc:382
+msgid "6DJ8"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp11.cc:434
+msgid "12AU7 feedback"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp12.cc:393
+msgid "pre 6DJ8/ master 6V6"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp13.cc:434
+msgid "6DJ8 feedback"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp14.cc:370
+msgid "12AT7"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp15.cc:391
+msgid "pre 12AT7/ master 6V6"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp16.cc:552
+msgid "pre 12AT7/ push pull 6V6"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp17.cc:434
+msgid "12AT7 feedback"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp2.cc:370
+msgid "6V6"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp3.cc:372
+msgid "12AU7"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp4.cc:393
+msgid "pre 12AU7/ master 6V6"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp5.cc:391
+msgid "pre 12ax7/ master 6V6"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp6.cc:554
+msgid "pre 6DJ8/ push-pull 6V6"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp7.cc:552
+msgid "pre 12ax7/ push-pull 6V6"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp8.cc:558
+msgid "pre 12AU7/ push-pull 6V6"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp9.cc:434
+msgid "12ax7 feedback"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gxamp.cc:370
+msgid "12ax7"
+msgstr ""
+
+#: ../src/faust-generated/gx_ampmodul.cc:215
+msgid "Postamp Tube2"
+msgstr ""
+
+#: ../src/faust-generated/gx_ampmodul.cc:216
+msgid "Postamp Tube1"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gx_ampmodul.cc:224
+msgid "Postamp"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gx_ampout.cc:41
+msgid "Amplifier"
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:303
+msgid "Distortion resonator"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/gx_feedback.cc:46
+msgid "Feedback"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/impulseresponse.cc:62
+msgid "ImpulseResponse"
+msgstr ""
+
+#: ../src/faust-generated/low_high_pass.cc:114
+msgid "low_highpass"
+msgstr ""
+
+#: ../src/faust-generated/low_high_pass.cc:115
+msgid "low_highcutoff"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/low_high_pass.cc:123
+msgid "low high pass"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/moog.cc:98
+msgid "Moog Filter"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/noise_shaper.cc:53
+msgid "Shaper"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/overdrive.cc:51
+msgid "Overdrive"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/phaser.cc:147
+msgid "Phaser"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/phaser_mono.cc:103
+msgid "Phaser Mono"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/selecteq.cc:236
+msgid "Scaleable EQ"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/stereodelay.cc:135
+msgid "Stereo Delay"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/stereoecho.cc:86
+msgid "Stereo Echo"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/stereoverb.cc:297
+msgid "Stereo Verb"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonecontroll.cc:231
+msgid "3 Band EQ"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_ac15.cc:92
+msgid "AC-15"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_ampeg.cc:87
+msgid "Ampeg"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_ampeg_rev.cc:87
+msgid "Rev.Rocket"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_bogner.cc:87
+msgid "Triple Giant"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_crunch.cc:87
+msgid "Hughes&Kettner"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_default.cc:134
+msgid "default"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_fender_blues.cc:87
+msgid "Junior"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_fender_default.cc:87
+msgid "Fender"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_fender_deville.cc:87
+msgid "Deville"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_gibsen.cc:87
+msgid "Gibsen"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_groove.cc:87
+msgid "Trio Preamp"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_ibanez.cc:87
+msgid "Ibanez"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_jcm2000.cc:87
+msgid "JCM-2000"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_jcm800.cc:87
+msgid "JCM-800"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_jtm45.cc:87
+msgid "JTM-45"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_m2199.cc:87
+msgid "M2199"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_mlead.cc:87
+msgid "M-Lead"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_peavey.cc:87
+msgid "Peavey"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_roland.cc:87
+msgid "Roland"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_soldano.cc:87
+msgid "SOL 100"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_sovtek.cc:87
+msgid "MIG 100 H"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tonestack_twin.cc:87
+msgid "Twin Reverb"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/faust-generated/tremolo.cc:89
+msgid "Tremolo"
+msgstr ""
+
+#: ../src/plugins/generated/zita_rev1.cc:1107
+msgid "RM Peaking Equalizer 2"
+msgstr ""
+
+#: ../src/plugins/generated/zita_rev1.cc:1108
+msgid "RM Peaking Equalizer 1"
+msgstr ""
+
+#: ../src/plugins/generated/zita_rev1.cc:1109
+msgid "Output"
+msgstr ""
+
+#: ../src/plugins/generated/zita_rev1.cc:1110
+msgid "Input"
+msgstr ""
+
+#: ../src/plugins/generated/zita_rev1.cc:1111
+msgid "Decay Times in Bands"
+msgstr ""
+
+#. flags
+#. id
+#: ../src/plugins/generated/zita_rev1.cc:1119
+msgid "Zita Rev1"
 msgstr ""

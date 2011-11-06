@@ -864,7 +864,7 @@ bool gx_start_jack_dialog() {
     gint response =
         gx_gui::gx_nchoice_dialog_without_entry(
             _(" Jack Starter "),
-            _("\n                        WARNING                        \n\n"
+            _("\n                            WARNING                    \n\n"
             "   The jack server is not currently running\n"
             "   You can choose to activate it or terminate gx_head   \n\n"
             "       1) activate jack   \n"
@@ -902,12 +902,12 @@ bool GxMainInterface::survive_jack_shutdown() {
     // return if jack is not down
     if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
         if (jack.is_jack_down()) {
-        sleep(5);
+        sleep(2);
 	    jack.set_jack_down(false);
 	}
 	// let's make sure we get out of here
 	gx_system::gx_print_warning("Jack Shutdown",
-				    _("jack has bumped us out!!"));
+				    _("jack has bumped us out!!   "));
 	mainmenu.jack_connect_item.set_active(true);
 	// run only one time whem jackd is running
 	return false;
@@ -917,7 +917,7 @@ bool GxMainInterface::survive_jack_shutdown() {
         mainmenu.jack_connect_item.set_active(false);
         jack.set_jack_down(true);
 	gx_system::gx_print_error("Jack Shutdown",
-				  _("jack has bumped us out!!"));
+				  _("jack has bumped us out!!   "));
     }
     // run as long jackd is down
     return true;
@@ -1016,12 +1016,12 @@ void gx_show_about() {
     static string about;
     if (about.empty()) {
         about +=
-            _("\n  This Aplication is to a large extent provided"
+            _("\n\n  This Aplication is to a large extent provided"
             "\n  with the marvelous faust compiler.Yann Orlary"
-            "\n  <http://faust.grame.fr/>"
+            "\n  http://faust.grame.fr/"
             "\n  A large part is based on the work of Julius Orion Smith"
-            "\n <http://ccrma.stanford.edu/realsimple/faust/>"
-            "\n  and Albert Graef\n  <http://www.musikwissenschaft.uni-mainz.de/~ag/ag.html>  "
+            "\n  http://ccrma.stanford.edu/realsimple/faust/"
+            "\n  and Albert Graef\n  http://q-lang.sourceforge.net/examples.html#Faust"
             "\n\n\n  gx_head ");
 
         about += GX_VERSION;
@@ -1349,26 +1349,28 @@ gint gx_nchoice_dialog_without_entry(
     const char* label[],
     const gint  resp[],
     const gint default_response) {
-
+    GxMainInterface& gui = GxMainInterface::get_instance();
     GtkWidget* dialog   = gtk_dialog_new();
     GtkWidget* text_label = gtk_label_new(msg);
+    GtkWidget* image   = gtk_image_new_from_pixbuf(gui.gw_ib->gobj());
+
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), text_label);
 
     GdkColor colorGreen;
-    gdk_color_parse("#969292", &colorGreen);
+    gdk_color_parse("#e1e1ed", &colorGreen);
     gtk_widget_modify_fg(text_label, GTK_STATE_NORMAL, &colorGreen);
 
     GdkColor colorBlack;
-    gdk_color_parse("#000000", &colorBlack);
+    gdk_color_parse("#10101e", &colorBlack);
     gtk_widget_modify_bg(dialog, GTK_STATE_NORMAL, &colorBlack);
     g_signal_connect(GTK_DIALOG(dialog)->vbox, "expose-event",
-                     G_CALLBACK(gx_cairo::info_box_expose), NULL);
+                     G_CALLBACK(gx_cairo::start_box_expose), NULL);
     GtkStyle* text_style = gtk_widget_get_style(text_label);
     pango_font_description_set_size(text_style->font_desc, 10*PANGO_SCALE);
     pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);
 
     gtk_widget_modify_font(text_label, text_style->font_desc);
-
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_action_area(GTK_DIALOG(dialog))), image);
     for (guint i = 0; i < nchoice; i++) {
         GtkWidget* button =
             gtk_dialog_add_button(GTK_DIALOG(dialog), label[i], resp[i]);
@@ -1380,12 +1382,12 @@ gint gx_nchoice_dialog_without_entry(
     }
 
     // set default
-    gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE);
+    gtk_dialog_set_has_separator(GTK_DIALOG(dialog), FALSE);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), default_response);
     gtk_window_set_title(GTK_WINDOW(dialog), window_title);
 
     gtk_widget_show(text_label);
-
+    gtk_widget_show(image);
     // --- run dialog and check response
     gint response = gtk_dialog_run(GTK_DIALOG(dialog));
     return response;
@@ -1587,7 +1589,7 @@ int gx_message_popup(const char* msg) {
     g_signal_connect_swapped(ok_button, "clicked",
                               G_CALLBACK(gtk_widget_destroy), about);
 
-    g_signal_connect(GTK_DIALOG(about)->vbox, "expose-event", G_CALLBACK(gx_cairo::conv_widget_expose), NULL);
+    g_signal_connect(GTK_DIALOG(about)->vbox, "expose-event", G_CALLBACK(gx_cairo::start_box_expose), NULL);
     gtk_widget_show(ok_button);
     gtk_widget_show(label);
     return gtk_dialog_run (GTK_DIALOG(about));
