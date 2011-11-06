@@ -335,6 +335,59 @@ def check_faust(conf):
         conf.check_message('faust','version',1,vers)
     conf.env['FAUST_DOUBLE'] = not Options.options.faust_float
 
+def check_boost(conf):
+    boost_atleast_version = 104000
+    boost_atleast_vermsg = "1.40"
+    code="""
+    #include <boost/version.hpp>
+    #include <boost/format.hpp>
+    #include <boost/thread.hpp>
+    #if BOOST_VERSION < %d
+    #error
+    #endif
+    int main(){ return 0; }
+    """ % boost_atleast_version
+    msg = "Checking for boost_thread%%s >= %s" % boost_atleast_vermsg
+    try:
+        conf.check_cxx(
+            msg = msg % "", fragment=code, lib="boost_thread", uselib_store="BOOST_THREAD",
+            errmsg="not found, trying boost_thread-mt", mandatory=1)
+    except ConfigurationError:
+        conf.check_cxx(
+            msg = msg % "-mt",fragment=code, lib="boost_thread-mt",
+            uselib_store="BOOST_THREAD", mandatory=1)
+
+def check_zita_convolver(opt, conf):
+    if opt.includeconvolver:
+        conf.env['ZITA_CONVOLVER'] = False
+    else:
+        expected_zita_convolver_version = 3
+        code="""
+        #include <zita-convolver.h>
+        #if ZITA_CONVOLVER_MAJOR_VERSION != %d
+        #error
+        #endif
+        int main(){ return 0; }
+        """ % expected_zita_convolver_version
+        conf.check_cxx(
+            fragment=code,
+            lib="zita-convolver",
+            uselib_store='ZITA_CONVOLVER',
+            errmsg="version %d not found, using ours" % expected_zita_convolver_version,
+            define_name="ZITA_CONVOLVER")
+
+def check_zita_resampler(opt, conf):
+    if opt.includeresampler:
+        conf.env['ZITA_RESAMPLER'] = False
+    else:
+        conf.check_cxx(
+            lib='zita-resampler',
+            uselib_store='ZITA_RESAMPLER',
+            msg='Checking for zita-resampler',
+            header_name='zita-resampler.h',
+            errmsg="fixed version not found, using ours",
+            define_name="ZITA_RESAMPLER")
+
 # Taken from Geany's wscript, modified to support LINGUAS variable
 def write_linguas_file (self):
     linguas = ''
@@ -425,40 +478,11 @@ def configure(conf):
     if not opt.no_ladspa or opt.experimental_ladspa:
         conf.check(header_name='ladspa.h', mandatory=1)
 
-    conf.check(header_name='boost/format.hpp', mandatory=1)
-    conf.check(header_name='boost/thread.hpp', lib="boost_thread", uselib_store="BOOST_THREAD", mandatory=1)
-
-    # convolver and resampler
-    if opt.includeconvolver:
-        conf.env['ZITA_CONVOLVER'] = False
-    else:
-        expected_zita_convolver_version = 3
-        code="""
-        #include <zita-convolver.h>
-        #if ZITA_CONVOLVER_MAJOR_VERSION != %d
-        #error
-        #endif
-        int main(){}
-        """ % expected_zita_convolver_version
-        conf.check_cxx(
-            fragment=code,
-            lib="zita-convolver",
-            uselib_store='ZITA_CONVOLVER',
-            errmsg="version %d not found, using ours" % expected_zita_convolver_version,
-            define_name="ZITA_CONVOLVER")
-    if opt.includeresampler:
-        conf.env['ZITA_RESAMPLER'] = False
-    else:
-        conf.check_cxx(
-            lib='zita-resampler',
-            uselib_store='ZITA_RESAMPLER',
-            msg='Checking for zita-resampler',
-            header_name='zita-resampler.h',
-            errmsg="fixed version not found, using ours",
-            define_name="ZITA_RESAMPLER")
-
-    # faust
+    check_boost(conf)
+    check_zita_convolver(opt, conf)
+    check_zita_resampler(opt, conf)
     check_faust(conf)
+
     # directory
     conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'
     # jack_session support
