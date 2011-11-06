@@ -212,7 +212,9 @@ ErrorPopup::~ErrorPopup() {
 
 void ErrorPopup::on_message(const string& msg_, gx_system::GxMsgType tp) {
     if (tp == gx_system::kError) {
-	msg = msg_;
+    msg = "\n \n \n";
+	msg += msg_;
+    msg += "   ";
 	if (active) {
 	    if (dialog) {
 		dialog->set_message(msg);
@@ -233,6 +235,9 @@ void ErrorPopup::on_response(int) {
 void ErrorPopup::show_msg() {
     dialog = new Gtk::MessageDialog(msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
     dialog->set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
+    dialog->get_child()->signal_expose_event().connect(
+	sigc::group(&gx_cairo::error_box_expose,GTK_WIDGET(dialog->get_child()->gobj()),sigc::_1,(void*)0),false);
+    dialog->set_title(_("ERROR"));
     dialog->signal_response().connect(
 	sigc::mem_fun(*this, &ErrorPopup::on_response));
     dialog->show();

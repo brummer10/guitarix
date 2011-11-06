@@ -31,6 +31,7 @@ namespace gx_cairo
 gboolean level_meter_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean conv_widget_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean error_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
 }
 #endif  // SRC_HEADERS_GX_CAIRO_CALLBACKS_H_
