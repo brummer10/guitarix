@@ -902,6 +902,7 @@ bool GxMainInterface::survive_jack_shutdown() {
     // return if jack is not down
     if (gx_system::gx_system_call("pgrep", "jackd", true) == SYSTEM_OK) {
         if (jack.is_jack_down()) {
+        sleep(5);
 	    jack.set_jack_down(false);
 	}
 	// let's make sure we get out of here
