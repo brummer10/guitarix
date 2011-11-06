@@ -492,7 +492,7 @@ static int register_params(const ParamReg& reg)
 static const char *glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <interface>\n\
-  <requires lib=\"gtk+\" version=\"2.24\"/>\n\
+  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
   <!-- interface-requires gxwidgets 0.0 -->\n\
   <!-- interface-naming-policy project-wide -->\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
