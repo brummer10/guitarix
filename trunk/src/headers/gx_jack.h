@@ -103,6 +103,7 @@ public:
     PortConnection output2;
 };
 
+#ifdef HAVE_JACK_SESSION
 extern "C" {
     typedef int (*jack_set_session_callback_type)(
 	jack_client_t *, JackSessionCallback, void *arg);
@@ -110,6 +111,7 @@ extern "C" {
 	jack_client_t *, const char *);
     typedef char *(*jack_client_get_uuid_type)(jack_client_t *);
 }
+#endif
 
 class GxJack: public sigc::trackable {
  private:
