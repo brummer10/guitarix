@@ -561,6 +561,7 @@ bool ConvolverAdapter::conv_start() {
     string path = jcset.getFullIRPath();
     if (path.empty()) {
         gx_system::gx_print_warning(_("convolver"), _("no impulseresponse file"));
+        *GxJConvSettings::checkbutton7 = 0;
         return false;
     }
     while (!conv.checkstate());
