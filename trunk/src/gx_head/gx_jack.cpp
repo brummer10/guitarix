@@ -59,7 +59,12 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       jack_is_exit(true),
 #ifdef HAVE_JACK_SESSION
       session_event(0),
+      session_event_ins(0),
+      session_callback_seen(0),
 #endif
+      connection_queue(),
+      connection_changed(),
+      buffersize_change(),
       client_change(),
       client_instance(),
       jack_sr(),
@@ -70,7 +75,11 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       client_insert(0),
       client_name(),
       client_insert_name(),
-      xrun() {
+      xrun(),
+      session(),
+      session_ins(),
+      shutdown(),
+      connection() {
     connection_queue.new_data.connect(sigc::mem_fun(*this, &GxJack::fetch_connection_data));
     gx_system::GxExit::get_instance().signal_exit().connect(
 	sigc::mem_fun(*this, &GxJack::cleanup_slot));
@@ -228,7 +237,8 @@ bool GxJack::gx_jack_init() {
     set_jack_down(false);
 
     // it is maybe not the 1st gx_head instance ?
-    if (jackstat & JackNameNotUnique) {
+    // session handler can change name without setting JackNameNotUnique; jack bug??
+    if ((jackstat & JackNameNotUnique) || !opt.get_jack_uuid().empty()) {
 	string name = jack_get_client_name(client);
         client_instance =
 	    name.substr(0, client_name.size()-strlen(jack_amp_postfix))
@@ -236,7 +246,6 @@ bool GxJack::gx_jack_init() {
 	client_name = name;
         client_insert_name = jack_get_client_name(client_insert);
     }
-
     jack_sr = jack_get_sample_rate(client); // jack sample rate
     gx_system::gx_print_info(
 	_("Jack init"),
@@ -426,6 +435,7 @@ void GxJack::gx_jack_callbacks() {
 #ifdef HAVE_JACK_SESSION
     if (jack_set_session_callback_fp) {
         jack_set_session_callback_fp(client, gx_jack_session_callback, this);
+        jack_set_session_callback_fp(client_insert, gx_jack_session_callback_ins, this);
     }
 #endif
 
@@ -722,13 +732,26 @@ jack_client_get_uuid_type GxJack::jack_client_get_uuid_fp =
     reinterpret_cast<jack_client_get_uuid_type>(
 	dlsym(RTLD_DEFAULT, "jack_client_get_uuid"));
 
-void GxJack::return_last_session_event() {
+int GxJack::return_last_session_event() {
     jack_session_event_t *event = get_last_session_event();
     if (event) {
+	session_callback_seen += 1;
 	jack_session_reply(client, event);
 	jack_session_event_free(event);
 	g_atomic_pointer_set(&session_event, 0);
     }
+    return session_callback_seen;
+}
+
+int GxJack::return_last_session_event_ins() {
+    jack_session_event_t *event = get_last_session_event_ins();
+    if (event) {
+	session_callback_seen -= 1;
+	jack_session_reply(client_insert, event);
+	jack_session_event_free(event);
+	g_atomic_pointer_set(&session_event_ins, 0);
+    }
+    return session_callback_seen;
 }
 
 string GxJack::get_uuid_insert() {
@@ -757,6 +780,16 @@ void GxJack::gx_jack_session_callback(jack_session_event_t *event, void *arg) {
 	return;
     }
     self.session();
+}
+
+void GxJack::gx_jack_session_callback_ins(jack_session_event_t *event, void *arg) {
+    GxJack& self = *static_cast<GxJack*>(arg);
+    if (!g_atomic_pointer_compare_and_exchange(
+	    reinterpret_cast<void* volatile*>(&self.session_event_ins), 0, event)) {
+	gx_system::gx_print_error("jack","last session not cleared");
+	return;
+    }
+    self.session_ins();
 }
 #endif
 

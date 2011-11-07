@@ -131,7 +131,10 @@ class GxJack: public sigc::trackable {
     static void         gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int connect, void* arg);
 #ifdef HAVE_JACK_SESSION
     jack_session_event_t *session_event;
+    jack_session_event_t *session_event_ins;
+    int                 session_callback_seen;
     static void         gx_jack_session_callback(jack_session_event_t *event, void *arg);
+    static void         gx_jack_session_callback_ins(jack_session_event_t *event, void *arg);
     static jack_set_session_callback_type jack_set_session_callback_fp;
     static jack_get_uuid_for_client_name_type jack_get_uuid_for_client_name_fp;
     static jack_client_get_uuid_type jack_client_get_uuid_fp;
@@ -186,6 +189,7 @@ public:
     string              client_insert_name;
     Glib::Dispatcher    xrun;
     Glib::Dispatcher    session;
+    Glib::Dispatcher    session_ins;
     Glib::Dispatcher    shutdown;
     bool                is_jack_down() { return jack_is_down; }
     Glib::Dispatcher    connection;
@@ -200,7 +204,11 @@ public:
     jack_session_event_t *get_last_session_event() {
 	return static_cast<jack_session_event_t *>g_atomic_pointer_get(&session_event);
     }
-    void                return_last_session_event();
+    jack_session_event_t *get_last_session_event_ins() {
+	return static_cast<jack_session_event_t *>g_atomic_pointer_get(&session_event_ins);
+    }
+    int                 return_last_session_event();
+    int                 return_last_session_event_ins();
     string              get_uuid_insert();
 #endif
 };
