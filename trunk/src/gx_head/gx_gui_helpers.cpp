@@ -684,7 +684,12 @@ void GxPreset::gx_save_newpreset(GtkEntry* entry) {
 
 // ----- save current setting as main setting
 void GxPreset::gx_save_main_setting() {
-    GxSettings::get_instance().save_to_state();
+    gx_gui::GxMainInterface& gui = gx_gui::GxMainInterface::get_instance();
+    if (gui.is_in_session()) {
+	GxSettings::get_instance().set_source_to_state();
+    } else {
+	GxSettings::get_instance().save_to_state();
+    }
 #if 0 //FIXME
         gx_system::gx_print_error(_("Main Setting"), _("can't save main setting"));
     } else if (GxSettings::get_instance().setting_is_preset()) {
@@ -936,8 +941,9 @@ void GxMainInterface::gx_jack_is_down() {
 void GxMainInterface::jack_session_event() {
     const char *statefile = "gx_head.state";
     jack_session_event_t *event = jack.get_last_session_event();
-
+    set_in_session();
     gx_settings.set_statefilename(string(event->session_dir) + statefile);
+    gx_settings.save_to_state();
 
 #ifndef NDEBUG
     string cmd(options.get_path_to_program());
@@ -952,13 +958,23 @@ void GxMainInterface::jack_session_event() {
     cmd += statefile; // no space after SESSION_DIR
     event->command_line = strdup(cmd.c_str());
 
-    if (event->type == JackSessionSaveAndQuit) {
-	jack.return_last_session_event();
-	// exit will save state
-        gx_system::GxExit::get_instance().exit_program("** session exit **");
-    } else {
-	jack.return_last_session_event();
-	gx_settings.auto_save_state();
+    JackSessionEventType tp = event->type;
+    if (jack.return_last_session_event() == 0) {
+	if (tp == JackSessionSaveAndQuit) {
+	    gx_system::GxExit::get_instance().exit_program("** session exit **");
+	}
+    }
+}
+
+void GxMainInterface::jack_session_event_ins() {
+    jack_session_event_t *event = jack.get_last_session_event_ins();
+    set_in_session();
+    event->command_line = strdup("true ${SESSION_DIR}");
+    JackSessionEventType tp = event->type;
+    if (jack.return_last_session_event_ins() == 0) {
+	if (tp == JackSessionSaveAndQuit) {
+	    gx_system::GxExit::get_instance().exit_program("** session exit **");
+	}
     }
 }
 #endif

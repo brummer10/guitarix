@@ -77,8 +77,11 @@ private:
     gx_preset::StateIO    state_io;
     gx_gui::FileParameter presetfile_parameter;
     bool                  state_loaded;
+    bool                  no_autosave;
     gx_jack::GxJack&      jack;
     gx_system::CmdlineOptions& options;
+    gx_gui::StringParameter preset_parameter;
+    gx_gui::StringParameter factory_parameter;
     static GxSettings *instance;//FIXME
     void presetfile_changed();
     void exit_handler(bool otherthread);
@@ -96,7 +99,9 @@ public:
     string get_displayname();
     static void check_settings_dir(gx_system::CmdlineOptions& opt);
     void load(Source src, const string& name = "", const string& factory = "");
-    void auto_save_state() { if (state_loaded) save_to_state(current_source != state); }
+    void loadstate();
+    void disable_autosave(bool v) { no_autosave = v; }
+    void auto_save_state();
     static GxSettings& get_instance() { assert(instance); return *instance; }
     void set_std_presetfile() { presetfile_parameter.set_std_value(); }
     string get_preset_filename() { return presetfile_parameter.get_path(); }

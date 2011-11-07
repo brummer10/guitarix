@@ -583,6 +583,7 @@ public://FIXME
     Glib::RefPtr<Gtk::AccelGroup> fAccelGroup;
     void portmap_connection_changed(string port1, string port2, bool conn);
 private:
+    bool                  in_session;
     gx_portmap::PortMapWindow* portmap_window;
     void                  on_portmap_activate();
     void                  on_portmap_response(int);
@@ -623,6 +624,7 @@ private:
     int                   on_oscilloscope_activate(bool start);
     void                  on_settings_selection_changed();
     void                  jack_session_event();
+    void                  jack_session_event_ins();
     void                  gx_jack_is_down();
     void                  jack_connection_change();
     void                  save_window_position();
@@ -632,6 +634,7 @@ private:
     bool                  survive_jack_shutdown();
     void                  set_jack_buffer_size(jack_nframes_t buf_size);
     void                  set_convolver_filename();
+    void                  set_in_session();
     Gtk::Label            convolver_filename_label; //FIXME
     int                   fTop;
     GtkWidget*            fBox[stackSize];
@@ -682,6 +685,7 @@ public:
     explicit GxMainInterface(gx_engine::GxEngine&, gx_system::CmdlineOptions& options);
     ~GxMainInterface();
     static GxMainInterface& get_instance() { assert(instance); return *instance; }
+    bool is_in_session() { return in_session; }
 
     Gtk::RadioMenuItem* const getJackLatencyItem(const jack_nframes_t bufsize) const;
     

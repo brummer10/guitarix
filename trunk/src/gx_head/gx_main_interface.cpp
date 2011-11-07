@@ -297,6 +297,7 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
       fWindow(Gtk::WINDOW_TOPLEVEL),
       options(options_),
       fAccelGroup(fWindow.get_accel_group()),
+      in_session(false),
       portmap_window(0),
       fTop(0),
       fBox(),
@@ -332,6 +333,10 @@ GxMainInterface::GxMainInterface(gx_engine::GxEngine& engine_, gx_system::Cmdlin
     jack.xrun.connect(sigc::mem_fun(report_xrun, &ReportXrun::run));
 #ifdef HAVE_JACK_SESSION
     jack.session.connect(sigc::mem_fun(*this, &GxMainInterface::jack_session_event));
+    jack.session_ins.connect(sigc::mem_fun(*this, &GxMainInterface::jack_session_event_ins));
+    if (!options.get_jack_uuid().empty()) {
+	set_in_session();
+    }
 #endif
     jack.shutdown.connect(sigc::mem_fun(*this, &GxMainInterface::gx_jack_is_down));
     jack.connection.connect(sigc::mem_fun(*this, &GxMainInterface::jack_connection_change));
@@ -403,6 +408,17 @@ GxMainInterface::~GxMainInterface() {
     engine.set_stateflag(gx_engine::ModuleSequencer::SF_INITIALIZING);
     engine.set_jack(0);
     instance = 0;
+}
+
+void GxMainInterface::set_in_session() {
+    if (!in_session) {
+	in_session = true;
+	// it seems in a session we generally don't know
+	// where to save and from where to recall data
+	// it's all controlled by the session manager
+	gx_settings.disable_autosave(true);
+	mainmenu.preset_recall_item.set_sensitive(false);
+    }
 }
 
 /* --------- load preset triggered by midi program change --------- */

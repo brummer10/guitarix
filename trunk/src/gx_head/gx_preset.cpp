@@ -291,10 +291,15 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
       state_io(mctrl, cvr, mstdctr, jack_, opt),
       presetfile_parameter("system.current_preset_file"),
       state_loaded(false),
+      no_autosave(false),
       jack(jack_),
-      options(opt) {
+      options(opt),
+      preset_parameter("system.current_preset", "?", current_name, ""),
+      factory_parameter("system.current_factory", "?", current_factory, "") {
     set_io(&state_io, &preset_io);
     gx_gui::parameter_map.insert(&presetfile_parameter);
+    gx_gui::parameter_map.insert(&preset_parameter);
+    gx_gui::parameter_map.insert(&factory_parameter);
     statefile.set_filename(make_default_state_filename());
     for (const char *(*p)[2] = factory_settings; (*p)[0]; ++p) {
 	Factory *f = new Factory((*p)[0]);
@@ -336,6 +341,12 @@ void GxSettings::check_convert_presetfile() {
     }
 }
 
+void GxSettings::auto_save_state() {
+    if (state_loaded && !no_autosave) {
+	save_to_state(current_source != state);
+    }
+}
+
 void GxSettings::exit_handler(bool otherthread) {
     if (otherthread) {
 	return;
@@ -372,7 +383,7 @@ void GxSettings::jack_client_changed() {
     }
     statefile.set_filename(fn);
     if (current_source == state) {
-	load(state);
+	loadstate();
     }
 }
 
@@ -445,6 +456,11 @@ void GxSettings::load(Source src, const string& name, const string& factory) {
     if (src == state) {
 	state_loaded = true;
     }
+}
+
+void GxSettings::loadstate() {
+    GxSettingsBase::loadstate();
+    state_loaded = true;
 }
 
 void GxSettings::presetfile_changed() {
