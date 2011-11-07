@@ -276,6 +276,7 @@ protected:
     void loadsetting(PresetFile *p, const string& name);
 protected:
     void load(Source src, const string& name, const string& factory);
+    void loadstate();
     void set_io(AbstractStateIO* st, AbstractPresetIO* pr) { state_io = st; preset_io = pr; }
     void convert_presetfile();
     void change_preset_file(const string& newfile);
@@ -296,6 +297,7 @@ public:
     void save_to_current_preset() {
 	if (current_source == preset) save_to_preset(current_name); }
     void save_to_preset(const string& name);
+    void set_source_to_state();
     int get_preset_index(const string& name) {	return presetfile.get_index(name); }
     bool rename_preset(const string& name, const string& newname);
     void erase_current_preset() {

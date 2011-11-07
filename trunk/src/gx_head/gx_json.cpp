@@ -888,7 +888,6 @@ PresetFile* GxSettingsBase::get_factory(const string& name) const {
 }
 
 void GxSettingsBase::loadsetting(PresetFile *p, const string& name) {
-    seq.start_ramp_down();
     try {
 	if (p) {
 	    JsonParser *jp = p->create_reader(name);
@@ -921,6 +920,31 @@ void GxSettingsBase::loadsetting(PresetFile *p, const string& name) {
 		boost::format(_("error loading state from file %1%"))
 		% statefile.get_filename());
 	}
+    }
+}
+
+void GxSettingsBase::loadstate() {
+    current_source = state;
+    current_factory = current_name = "";
+    seq.start_ramp_down();
+    loadsetting(0, current_name);
+    PresetFile *p = 0;
+    if (!current_factory.empty()) {
+	p = get_factory(current_factory);
+	if (p && p->get_index(current_name) >= 0) {
+	    current_source = factory;
+	} else {
+	    current_factory = current_name = "";
+	}
+    } else if (!current_name.empty()) {
+	if (presetfile.get_index(current_name) >= 0) {
+	    p = &presetfile;
+	    current_source = preset;
+	    current_factory = "";
+	}
+    }
+    if (p) {
+	loadsetting(p, current_name);
     }
     seq.start_ramp_up();
     gx_ui::GxUI::updateAllGuis();
@@ -958,7 +982,22 @@ void GxSettingsBase::load(Source src, const string& name, const string& factoryn
 	current_factory = current_name = "";
 	break;
     }
+    seq.start_ramp_down();
     loadsetting(p, name);
+    seq.start_ramp_up();
+    if (current_source == state) {
+	// might have changed because we read all state file sections
+	current_factory = current_name = "";
+    }
+    gx_ui::GxUI::updateAllGuis();
+    seq.clear_rack_changed();
+    selection_changed();
+}
+
+void GxSettingsBase::set_source_to_state() {
+    current_source = state;
+    current_factory = current_name = "";
+    selection_changed();
 }
 
 void GxSettingsBase::save_to_state(bool preserve_preset) {
@@ -968,9 +1007,7 @@ void GxSettingsBase::save_to_state(bool preserve_preset) {
     state_io->write_state(*jw, preserve_preset);
     delete jw;
     if (!preserve_preset && current_source != state) {
-	current_source = state;
-	current_factory = current_name = "";
-	selection_changed();
+	set_source_to_state();
     }
 }
 
