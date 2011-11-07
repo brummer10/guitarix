@@ -160,9 +160,9 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("freeverb.RoomSize",N_(""),"S",N_(""),&fslider2, 0.5, 0.0, 1.0, 0.025);
-	reg.registerVar("freeverb.damp",N_(""),"S",N_(""),&fslider1, 0.5, 0.0, 1.0, 0.025);
-	reg.registerVar("freeverb.wet_dry",N_("wet/dry"),"S",N_(""),&fslider0, 5e+01, 0.0, 1e+02, 1.0);
+	reg.registerVar("freeverb.RoomSize","","S","",&fslider2, 0.5, 0.0, 1.0, 0.025);
+	reg.registerVar("freeverb.damp","","S","",&fslider1, 0.5, 0.0, 1.0, 0.025);
+	reg.registerVar("freeverb.wet_dry",N_("wet/dry"),"S","",&fslider0, 5e+01, 0.0, 1e+02, 1.0);
 	return 0;
 }
 

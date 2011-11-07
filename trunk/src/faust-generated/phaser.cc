@@ -126,17 +126,17 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 static int register_params(const ParamReg& reg)
 {
 	static const value_pair fcheckbox1_values[] = {{"linear"},{"invert"},{0}};
-	reg.registerEnumVar("phaser.invert",N_(""),"B",N_(""),fcheckbox1_values,&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
+	reg.registerEnumVar("phaser.invert","","B","",fcheckbox1_values,&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
 	static const value_pair fcheckbox0_values[] = {{"direct "},{" vibrato"},{0}};
-	reg.registerEnumVar("phaser.VibratoMode",N_(""),"B",N_(""),fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("phaser.Notch width",N_(""),"S",N_(""),&fslider7, 1e+03, 1e+01, 5e+03, 1.0);
-	reg.registerVar("phaser.feedback gain",N_(""),"S",N_(""),&fslider6, 0.0, 0.0, 1.0, 0.01);
-	reg.registerVar("phaser.NotchFreq",N_(""),"S",N_(""),&fslider5, 1.5, 1.1, 4.0, 0.01);
-	reg.registerVar("phaser.MaxNotch1Freq",N_(""),"S",N_(""),&fslider4, 8e+02, 2e+01, 1e+04, 1.0);
-	reg.registerVar("phaser.MinNotch1Freq",N_(""),"S",N_(""),&fslider3, 1e+02, 2e+01, 5e+03, 1.0);
-	reg.registerVar("phaser.Speed",N_(""),"S",N_(""),&fslider2, 0.5, 0.0, 1e+01, 0.01);
-	reg.registerVar("phaser.level",N_(""),"S",N_(""),&fslider1, 0.0, -6e+01, 1e+01, 0.1);
-	reg.registerVar("phaser.depth",N_(""),"S",N_(""),&fslider0, 1.0, 0.0, 1.0, 0.01);
+	reg.registerEnumVar("phaser.VibratoMode","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("phaser.Notch width","","S","",&fslider7, 1e+03, 1e+01, 5e+03, 1.0);
+	reg.registerVar("phaser.feedback gain","","S","",&fslider6, 0.0, 0.0, 1.0, 0.01);
+	reg.registerVar("phaser.NotchFreq","","S","",&fslider5, 1.5, 1.1, 4.0, 0.01);
+	reg.registerVar("phaser.MaxNotch1Freq","","S","",&fslider4, 8e+02, 2e+01, 1e+04, 1.0);
+	reg.registerVar("phaser.MinNotch1Freq","","S","",&fslider3, 1e+02, 2e+01, 5e+03, 1.0);
+	reg.registerVar("phaser.Speed","","S","",&fslider2, 0.5, 0.0, 1e+01, 0.01);
+	reg.registerVar("phaser.level","","S","",&fslider1, 0.0, -6e+01, 1e+01, 0.1);
+	reg.registerVar("phaser.depth","","S","",&fslider0, 1.0, 0.0, 1.0, 0.01);
 	return 0;
 }
 

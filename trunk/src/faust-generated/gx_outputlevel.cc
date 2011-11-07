@@ -31,7 +31,7 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("amp.out_master",N_("Level"),"S",N_(""),&fslider0, 0.0, -5e+01, 4.0, 0.1);
+	reg.registerVar("amp.out_master",N_("Level"),"S","",&fslider0, 0.0, -5e+01, 4.0, 0.1);
 	return 0;
 }
 

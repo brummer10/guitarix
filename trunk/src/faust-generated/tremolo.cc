@@ -76,9 +76,9 @@ static int register_params(const ParamReg& reg)
 {
 	reg.registerVar("tremolo.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider2, 1e+02, 0.0, 1e+02, 1.0);
 	static const value_pair fcheckbox0_values[] = {{"triangle"},{"sine"},{0}};
-	reg.registerEnumVar("tremolo.SINE",N_(""),"B",N_(""),fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("tremolo.depth",N_(""),"S",N_(""),&fslider1, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("tremolo.freq",N_(""),"S",N_(""),&fslider0, 5.0, 0.1, 5e+01, 0.1);
+	reg.registerEnumVar("tremolo.SINE","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("tremolo.depth","","S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("tremolo.freq","","S","",&fslider0, 5.0, 0.1, 5e+01, 0.1);
 	return 0;
 }
 

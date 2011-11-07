@@ -86,8 +86,8 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("moog.Q",N_(""),"S",N_(""),&fslider1, 1.0, 0.0, 4.0, 0.1);
-	reg.registerVar("moog.fr",N_(""),"S",N_(""),&fslider0, 3e+03, 4.4e+02, 6e+03, 1e+01);
+	reg.registerVar("moog.Q","","S","",&fslider1, 1.0, 0.0, 4.0, 0.1);
+	reg.registerVar("moog.fr","","S","",&fslider0, 3e+03, 4.4e+02, 6e+03, 1e+01);
 	return 0;
 }
 

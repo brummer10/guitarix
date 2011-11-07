@@ -72,11 +72,11 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 static int register_params(const ParamReg& reg)
 {
 #undef fslider2
-	fslider2_ = reg.registerVar("amp.tonestack.Treble",N_(""),"SA",N_(""),&fslider2, 0.5, 0.0, 1.0, 0.01);
+	fslider2_ = reg.registerVar("amp.tonestack.Treble","","SA","",&fslider2, 0.5, 0.0, 1.0, 0.01);
 #undef fslider1
-	fslider1_ = reg.registerVar("amp.tonestack.Bass",N_(""),"SA",N_(""),&fslider1, 0.5, 0.0, 1.0, 0.01);
+	fslider1_ = reg.registerVar("amp.tonestack.Bass","","SA","",&fslider1, 0.5, 0.0, 1.0, 0.01);
 #undef fslider0
-	fslider0_ = reg.registerVar("amp.tonestack.Middle",N_(""),"SA",N_(""),&fslider0, 0.5, 0.0, 1.0, 0.01);
+	fslider0_ = reg.registerVar("amp.tonestack.Middle","","SA","",&fslider0, 0.5, 0.0, 1.0, 0.01);
 	return 0;
 }
 

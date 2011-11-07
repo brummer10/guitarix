@@ -30,7 +30,7 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("amp.out_amp",N_("Level"),"S",N_(""),&fslider0, 0.0, -2e+01, 4.0, 0.1);
+	reg.registerVar("amp.out_amp",N_("Level"),"S","",&fslider0, 0.0, -2e+01, 4.0, 0.1);
 	return 0;
 }
 

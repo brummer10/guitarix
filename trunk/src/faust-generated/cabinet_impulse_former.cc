@@ -86,11 +86,11 @@ void compute(int count, float *input0, float *output0)
 static int register_params(const ParamReg& reg)
 {
 #undef fslider2
-	fslider2_ = reg.registerVar("cab.Level",N_(""),"SA",N_(""),&fslider2, 1.0, 0.5, 5.0, 0.5);
+	fslider2_ = reg.registerVar("cab.Level","","SA","",&fslider2, 1.0, 0.5, 5.0, 0.5);
 #undef fslider1
-	fslider1_ = reg.registerVar("cab.bass",N_("bass"),"SA",N_(""),&fslider1, 0.0, -1e+01, 1e+01, 0.5);
+	fslider1_ = reg.registerVar("cab.bass",N_("bass"),"SA","",&fslider1, 0.0, -1e+01, 1e+01, 0.5);
 #undef fslider0
-	fslider0_ = reg.registerVar("cab.treble",N_("treble"),"SA",N_(""),&fslider0, 0.0, -1e+01, 1e+01, 0.5);
+	fslider0_ = reg.registerVar("cab.treble",N_("treble"),"SA","",&fslider0, 0.0, -1e+01, 1e+01, 0.5);
 	return 0;
 }
 

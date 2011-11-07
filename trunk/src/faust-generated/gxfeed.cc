@@ -101,8 +101,8 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("amp.feed_on_off",N_("reverb_on_of"),"B",N_(""),&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("amp.wet_dry",N_(""),"S",N_(""),&fslider0, 0.0, -1.0, 1.0, 0.01);
+	reg.registerVar("amp.feed_on_off",N_("reverb_on_of"),"B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("amp.wet_dry","","S","",&fslider0, 0.0, -1.0, 1.0, 0.01);
 	return 0;
 }
 

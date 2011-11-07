@@ -47,11 +47,11 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("IR.peak",N_(""),"S",N_("peak gain"),&fslider2, 1.0, 0.0, 1e+01, 0.2);
+	reg.registerVar("IR.peak","","S",N_("peak gain"),&fslider2, 1.0, 0.0, 1e+01, 0.2);
 	static const value_pair fcheckbox0_values[] = {{"manual"},{"auto"},{0}};
-	reg.registerEnumVar("IR.auto_freq",N_("auto freq"),"B",N_(""),fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("IR.freq",N_(""),"S",N_("frequency (Hz)"),&fslider1, 4.4e+02, 2e+01, 1.2e+04, 1e+01);
-	reg.registerVar("IR.bandwidth",N_(""),"S",N_("bandwidth (Hz)"),&fslider0, 1e+02, 2e+01, 2e+04, 1e+01);
+	reg.registerEnumVar("IR.auto_freq",N_("auto freq"),"B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("IR.freq","","S",N_("frequency (Hz)"),&fslider1, 4.4e+02, 2e+01, 1.2e+04, 1e+01);
+	reg.registerVar("IR.bandwidth","","S",N_("bandwidth (Hz)"),&fslider0, 1e+02, 2e+01, 2e+04, 1e+01);
 	return 0;
 }
 

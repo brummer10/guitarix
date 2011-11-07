@@ -34,8 +34,8 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("feedback.feedback",N_(""),"S",N_(""),&fslider1, 0.0, -1.0, 1.0, 0.01);
-	reg.registerVar("feedback.wet_dry",N_(""),"S",N_(""),&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerVar("feedback.feedback","","S","",&fslider1, 0.0, -1.0, 1.0, 0.01);
+	reg.registerVar("feedback.wet_dry","","S","",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
 

@@ -120,10 +120,10 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("chorus.level",N_(""),"S",N_(""),&fslider3, 0.5f, 0.0f, 1.0f, 0.01f);
-	reg.registerVar("chorus.delay",N_(""),"S",N_(""),&fslider2, 0.02f, 0.0f, 0.2f, 0.01f);
-	reg.registerVar("chorus.depth",N_(""),"S",N_(""),&fslider1, 0.02f, 0.0f, 1.0f, 0.01f);
-	reg.registerVar("chorus.freq",N_(""),"S",N_(""),&fslider0, 3.0f, 0.0f, 1e+01f, 0.01f);
+	reg.registerVar("chorus.level","","S","",&fslider3, 0.5f, 0.0f, 1.0f, 0.01f);
+	reg.registerVar("chorus.delay","","S","",&fslider2, 0.02f, 0.0f, 0.2f, 0.01f);
+	reg.registerVar("chorus.depth","","S","",&fslider1, 0.02f, 0.0f, 1.0f, 0.01f);
+	reg.registerVar("chorus.freq","","S","",&fslider0, 3.0f, 0.0f, 1e+01f, 0.01f);
 	return 0;
 }
 

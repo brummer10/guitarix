@@ -42,7 +42,7 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("shaper.sharper",N_("sharper"),"S",N_(""),&fslider0, 1.0, 1.0, 1e+01, 1.0);
+	reg.registerVar("shaper.sharper",N_("sharper"),"S","",&fslider0, 1.0, 1.0, 1e+01, 1.0);
 	return 0;
 }
 

@@ -119,12 +119,12 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 static int register_params(const ParamReg& reg)
 {
 	static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
-	reg.registerEnumVar("stereodelay.invert",N_(""),"B",N_(""),fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("stereodelay.r_gain",N_(""),"S",N_(""),&fslider4, 0.0f, -2e+01f, 2e+01f, 0.1f);
-	reg.registerVar("stereodelay.r_delay",N_(""),"S",N_(""),&fslider3, 0.0f, 0.0f, 5e+03f, 1e+01f);
-	reg.registerVar("stereodelay.l_gain",N_(""),"S",N_(""),&fslider2, 0.0f, -2e+01f, 2e+01f, 0.1f);
-	reg.registerVar("stereodelay.LFO freq",N_(""),"S",N_(""),&fslider1, 0.2f, 0.0f, 5.0f, 0.01f);
-	reg.registerVar("stereodelay.l_delay",N_(""),"S",N_(""),&fslider0, 0.0f, 0.0f, 5e+03f, 1e+01f);
+	reg.registerEnumVar("stereodelay.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("stereodelay.r_gain","","S","",&fslider4, 0.0f, -2e+01f, 2e+01f, 0.1f);
+	reg.registerVar("stereodelay.r_delay","","S","",&fslider3, 0.0f, 0.0f, 5e+03f, 1e+01f);
+	reg.registerVar("stereodelay.l_gain","","S","",&fslider2, 0.0f, -2e+01f, 2e+01f, 0.1f);
+	reg.registerVar("stereodelay.LFO freq","","S","",&fslider1, 0.2f, 0.0f, 5.0f, 0.01f);
+	reg.registerVar("stereodelay.l_delay","","S","",&fslider0, 0.0f, 0.0f, 5e+03f, 1e+01f);
 	return 0;
 }
 

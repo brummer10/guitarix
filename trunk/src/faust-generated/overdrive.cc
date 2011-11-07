@@ -39,7 +39,7 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("overdrive.drive",N_(""),"S",N_(""),&fslider1, 1.0, 1.0, 2e+01, 0.1);
+	reg.registerVar("overdrive.drive","","S","",&fslider1, 1.0, 1.0, 2e+01, 0.1);
 	reg.registerVar("overdrive.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider0, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }

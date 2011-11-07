@@ -91,8 +91,8 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 static int register_params(const ParamReg& reg)
 {
 	reg.registerVar("phaser_mono.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider2, 1e+02, 0.0, 1e+02, 1.0);
-	reg.registerVar("phaser_mono.level",N_(""),"S",N_(""),&fslider1, 0.0, -6e+01, 1e+01, 0.1);
-	reg.registerVar("phaser_mono.Speed",N_(""),"S",N_(""),&fslider0, 0.5, 0.0, 1e+01, 0.01);
+	reg.registerVar("phaser_mono.level","","S","",&fslider1, 0.0, -6e+01, 1e+01, 0.1);
+	reg.registerVar("phaser_mono.Speed","","S","",&fslider0, 0.5, 0.0, 1e+01, 0.01);
 	return 0;
 }
 

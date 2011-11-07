@@ -535,13 +535,13 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 static int register_params(const ParamReg& reg)
 {
 #undef fslider3
-	fslider3_ = reg.registerVar("gxdistortion.drive",N_(""),"SA",N_(""),&fslider3, 0.35, 0.0, 1.0, 0.01);
+	fslider3_ = reg.registerVar("gxdistortion.drive","","SA","",&fslider3, 0.35, 0.0, 1.0, 0.01);
 #undef fslider2
-	fslider2_ = reg.registerVar("amp2.stage1.Pregain",N_(""),"SA",N_(""),&fslider2, -6.0, -2e+01, 2e+01, 0.1);
+	fslider2_ = reg.registerVar("amp2.stage1.Pregain","","SA","",&fslider2, -6.0, -2e+01, 2e+01, 0.1);
 #undef fslider1
-	fslider1_ = reg.registerVar("gxdistortion.wet_dry",N_(""),"SA",N_(""),&fslider1, 1e+02, 0.0, 1e+02, 1.0);
+	fslider1_ = reg.registerVar("gxdistortion.wet_dry","","SA","",&fslider1, 1e+02, 0.0, 1e+02, 1.0);
 #undef fslider0
-	fslider0_ = reg.registerVar("amp2.stage2.gain1",N_(""),"SA",N_(""),&fslider0, -6.0, -2e+01, 2e+01, 0.1);
+	fslider0_ = reg.registerVar("amp2.stage2.gain1","","SA","",&fslider0, -6.0, -2e+01, 2e+01, 0.1);
 	return 0;
 }
 

@@ -72,10 +72,10 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("stereoecho.percent_r",N_(""),"S",N_(""),&fslider3, 0.0f, 0.0f, 1e+02f, 0.1f);
-	reg.registerVar("stereoecho.time_r",N_(""),"S",N_(""),&fslider2, 1.0f, 1.0f, 2e+03f, 1.0f);
-	reg.registerVar("stereoecho.percent_l",N_(""),"S",N_(""),&fslider1, 0.0f, 0.0f, 1e+02f, 0.1f);
-	reg.registerVar("stereoecho.time_l",N_(""),"S",N_(""),&fslider0, 1.0f, 1.0f, 2e+03f, 1.0f);
+	reg.registerVar("stereoecho.percent_r","","S","",&fslider3, 0.0f, 0.0f, 1e+02f, 0.1f);
+	reg.registerVar("stereoecho.time_r","","S","",&fslider2, 1.0f, 1.0f, 2e+03f, 1.0f);
+	reg.registerVar("stereoecho.percent_l","","S","",&fslider1, 0.0f, 0.0f, 1e+02f, 0.1f);
+	reg.registerVar("stereoecho.time_l","","S","",&fslider0, 1.0f, 1.0f, 2e+03f, 1.0f);
 	return 0;
 }
 

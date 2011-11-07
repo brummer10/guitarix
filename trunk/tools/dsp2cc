@@ -8,6 +8,12 @@ from optparse import OptionParser
 
 num_re = r"(-?\d*\.?\d*e?[+-]?\d*f?)"
 
+def wrap_N_(s):
+    if s:
+        return 'N_("%s")' % s
+    else:
+        return '""'
+
 class UIDefs(object):
 
     class UID(dict):
@@ -16,8 +22,8 @@ class UIDefs(object):
             d.update(self)
             d["tail"] = "".join([", "+x for x in d["value"]])
             d["prefix"] = prefix
-            d["N_name"] = 'N_("%(name)s")' % self
-            d["N_tooltip"] = 'N_("%(tooltip)s")' % self
+            d["N_name"] = wrap_N_("%(name)s" % self)
+            d["N_tooltip"] = wrap_N_("%(tooltip)s" % self)
             if "alias" in d:
                 assert "enum" not in d
                 fp.write('#undef %(variable)s\n' % d)
@@ -26,7 +32,7 @@ class UIDefs(object):
                 def value_pair(s):
                     m = re.match(r"(.*)\[(.*)\]$", s)
                     if m:
-                        return '{"%s",N_("%s")}' % (m.group(1), m.group(2))
+                        return '{"%s",%s}' % (m.group(1), wrap_N_(m.group(2)))
                     else:
                         return '{"%s"}' % s
                 enumvals = ",".join([value_pair(x) for x in d["enum"].split("|")]+["{0}"])
@@ -417,11 +423,7 @@ class Parser(object):
             if k == plugin_id:
                 continue
             k = '"'+k+'"'
-            if v:
-                v = 'N_("%s")' % v
-            else:
-                v = '""'
-            l.append("\t%s, %s,\n" % (k, v))
+            l.append("\t%s, %s,\n" % (k, wrap_N_(v)))
         return "".join(l) + "\t0\n"
   
     def write(self, fp, sect, indent=0, filt=lambda l: False):
@@ -575,7 +577,7 @@ def output(fp, p, fname, options):
         if p.groups:
             fp.write("\nstatic const char* groups[] = {\n%s\t};\n" % p.formatted_groups(plugin_id))
         if p.name:
-            plugin_name = 'N_("%s")' % p.name
+            plugin_name = wrap_N_(p.name)
         else:
             plugin_name = '"?%s"' % p.modname
         fp.write(plugin % (

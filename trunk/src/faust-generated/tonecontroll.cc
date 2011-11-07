@@ -216,11 +216,11 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("tonemodul.Treble",N_(""),"S",N_(""),&fslider2, 0.0, -5.0, 5.0, 0.01);
-	reg.registerVar("tonemodul.sharper",N_("sharper"),"S",N_(""),&fslider3, 1.0, 1.0, 1e+01, 1.0);
-	reg.registerVar("tonemodul.ON",N_(""),"B",N_(""),&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("tonemodul.Bass",N_(""),"S",N_(""),&fslider1, 0.0, -5.0, 5.0, 0.01);
-	reg.registerVar("tonemodul.Middle",N_(""),"S",N_(""),&fslider0, 0.0, -5.0, 5.0, 0.01);
+	reg.registerVar("tonemodul.Treble","","S","",&fslider2, 0.0, -5.0, 5.0, 0.01);
+	reg.registerVar("tonemodul.sharper",N_("sharper"),"S","",&fslider3, 1.0, 1.0, 1e+01, 1.0);
+	reg.registerVar("tonemodul.ON","","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("tonemodul.Bass","","S","",&fslider1, 0.0, -5.0, 5.0, 0.01);
+	reg.registerVar("tonemodul.Middle","","S","",&fslider0, 0.0, -5.0, 5.0, 0.01);
 	return 0;
 }
 
