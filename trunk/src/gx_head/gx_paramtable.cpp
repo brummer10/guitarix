@@ -1064,6 +1064,36 @@ void FileParameter::copy(const string& destination) {
     value->copy(Gio::File::create_for_path(destination));
 }
 
+
+/* StringParameter */
+
+void *StringParameter::zone() {
+    return &value;
+}
+
+void StringParameter::set(int n, int high, float llimit, float ulimit) {
+    assert(false);
+}
+
+void StringParameter::set_std_value() {
+    value = std_value;
+}
+
+void StringParameter::writeJSON(gx_system::JsonWriter& jw) {
+    jw.write_key(_id.c_str());
+    jw.write(value);
+}
+
+void StringParameter::readJSON_value(gx_system::JsonParser& jp) {
+    jp.next(gx_system::JsonParser::value_string);
+    json_value = jp.current_value();
+}
+
+void StringParameter::setJSON_value() {
+    set(json_value);
+}
+
+
 /****************************************************************
  ** Parameter Map
  */

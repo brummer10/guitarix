@@ -87,6 +87,7 @@ typedef ParameterV<float> FloatParameter;
 typedef ParameterV<int> IntParameter;
 typedef ParameterV<unsigned int> UIntParameter;
 typedef ParameterV<bool> BoolParameter;
+typedef ParameterV<string> StringParameter;
 
 class FloatEnumParameter;
 class EnumParameter;
@@ -99,7 +100,7 @@ class Parameter {
  public:
     enum ctrl_type { None, Continuous, Switch, Enum };
  protected:
-    enum value_type { tp_float, tp_int, tp_uint, tp_bool, tp_switch, tp_file };
+    enum value_type { tp_float, tp_int, tp_uint, tp_bool, tp_switch, tp_file, tp_string };
     string _id;
     string _name, _group, _desc;
     enum value_type v_type : 3;
@@ -137,6 +138,7 @@ class Parameter {
     bool isBool() const { return v_type == tp_bool; }
     bool isSwitch() const { return v_type == tp_switch; }
     bool isFile() const { return v_type == tp_file; }
+    bool isString() const { return v_type == tp_string; }
     ctrl_type getControlType() const { return c_type; }
     bool isControllable() const { return controllable; }
     bool isInPreset() const { return save_in_preset; }
@@ -170,6 +172,7 @@ class Parameter {
     BoolParameter& getBool();
     SwitchParameter& getSwitch();
     FileParameter &getFile();
+    StringParameter &getString();
 };
 
 #ifndef NDEBUG
@@ -397,6 +400,28 @@ class FileParameter: public Parameter {
 
 /****************************************************************/
 
+template<>
+class ParameterV<string>: public Parameter {
+ private:
+    string json_value;
+ public:
+    string &value;
+    string std_value;
+    void set(string val) const { value = val; }
+    virtual void *zone();
+    virtual void set_std_value();
+    virtual void set(int n, int high, float llimit, float ulimit);
+    virtual void writeJSON(gx_system::JsonWriter& jw);
+    virtual void setJSON_value();
+    virtual void readJSON_value(gx_system::JsonParser& jp);
+    ParameterV(string id, string name, string &v, string sv):
+        Parameter(id, name, tp_bool, None, false, false, false),
+        value(v), std_value(sv)
+        {}
+};
+
+/****************************************************************/
+
 inline FloatParameter &Parameter::getFloat() {
     assert(isFloat());
     return static_cast<FloatParameter&>(*this);
@@ -425,6 +450,11 @@ inline SwitchParameter &Parameter::getSwitch() {
 inline FileParameter &Parameter::getFile() {
     assert(isFile());
     return static_cast<FileParameter&>(*this);
+}
+
+inline StringParameter &Parameter::getString() {
+    assert(isString());
+    return static_cast<StringParameter&>(*this);
 }
 
 /****************************************************************
