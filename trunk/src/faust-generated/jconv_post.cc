@@ -74,11 +74,11 @@ void compute(int count, float *input0, float *input1, float *input2, float *inpu
 static int register_params(const ParamReg& reg)
 {
 #undef fslider4
-	fslider4_ = reg.registerVar("amp.balance","Balance","SA","",&fslider4, 0.0, -1.0, 1.0, 0.1);
-	reg.registerVar("jconv.gain","Gain","S","gain trim for processed signal (unit: dB)",&fslider3, 0.0, -2e+01, 2e+01, 0.1);
-	reg.registerVar("jconv.balance","Balance","S","left/right trim for processed signal",&fslider2, 0.0, -1.0, 1.0, 0.1);
-	reg.registerVar("jconv.diff_delay","Delta Delay","S","delay left or right channel by the specified amount (unit: ms)",&fslider1, 0.0, -1e+02, 1e+02, 0.01);
-	reg.registerVar("jconv.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	fslider4_ = reg.registerVar("amp.balance",N_("Balance"),"SA",N_(""),&fslider4, 0.0, -1.0, 1.0, 0.1);
+	reg.registerVar("jconv.gain",N_("Gain"),"S",N_("gain trim for processed signal (unit: dB)"),&fslider3, 0.0, -2e+01, 2e+01, 0.1);
+	reg.registerVar("jconv.balance",N_("Balance"),"S",N_("left/right trim for processed signal"),&fslider2, 0.0, -1.0, 1.0, 0.1);
+	reg.registerVar("jconv.diff_delay",N_("Delta Delay"),"S",N_("delay left or right channel by the specified amount (unit: ms)"),&fslider1, 0.0, -1e+02, 1e+02, 0.01);
+	reg.registerVar("jconv.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider0, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
 

@@ -23,3 +23,6 @@ template <>      inline int faustpower<0>(int x)        {return 1;}
 template <>      inline int faustpower<1>(int x)        {return x;}
 
 #define FAUSTFLOAT float
+#ifndef N_
+#define N_(String) (String)
+#endif

@@ -1748,37 +1748,40 @@ struct uiValueDisplay : public gx_ui::GxUiItemFloat {
         }
 };
 
-void GxMainInterface::addCheckButton(string id, const char* label) {
+void GxMainInterface::addCheckButton(string id, const char* label_) {
+    Glib::ustring label(label_);
     if (!parameter_map.hasId(id)) {
         return;
     }
     const FloatParameter &p = parameter_map[id].getFloat();
-    if (!label) {
-        label = p.name().c_str();
+    if (label.empty()) {
+        label = p.l_name();
     }
-    addCheckButton(label, &p.value);
+    addCheckButton(label.c_str(), &p.value);
 }
 
-void GxMainInterface::addNumEntry(string id, const char* label) {
+void GxMainInterface::addNumEntry(string id, const char* label_) {
+    Glib::ustring label(label_);
     if (!parameter_map.hasId(id)) {
         return;
     }
     const FloatParameter &p = parameter_map[id].getFloat();
-    if (!label) {
-        label = p.name().c_str();
+    if (label.empty()) {
+        label = p.l_name();
     }
-    addNumEntry(label, &p.value, p.std_value, p.lower, p.upper, p.step);
+    addNumEntry(label.c_str(), &p.value, p.std_value, p.lower, p.upper, p.step);
 }
 
-void GxMainInterface::addMToggleButton(string id, const char* label) {
+void GxMainInterface::addMToggleButton(string id, const char* label_) {
+    Glib::ustring label(label_);
     if (!parameter_map.hasId(id)) {
         return;
     }
     const BoolParameter &p = parameter_map[id].getBool();
-    if (!label) {
-        label = p.name().c_str();
+    if (label.empty()) {
+        label = p.l_name();
     }
-    addMToggleButton(label, &p.value);
+    addMToggleButton(label.c_str(), &p.value);
 }
 
 // -------------------------- gtk widgets -----------------------------------

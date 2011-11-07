@@ -62,8 +62,8 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("echo.percent","","S","",&fslider1, 0.0f, 0.0f, 1e+02f, 0.1f);
-	reg.registerVar("echo.time","","S","",&fslider0, 1.0f, 1.0f, 2e+03f, 1.0f);
+	reg.registerVar("echo.percent",N_(""),"S",N_(""),&fslider1, 0.0f, 0.0f, 1e+02f, 0.1f);
+	reg.registerVar("echo.time",N_(""),"S",N_(""),&fslider0, 1.0f, 1.0f, 2e+03f, 1.0f);
 	return 0;
 }
 

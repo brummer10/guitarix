@@ -210,7 +210,7 @@ GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
     if (!hasId(id)) {
         return 0;
     }
-    return create(ui, regler, id, parameter_map[id].name(), show_value);
+    return create(ui, regler, id, parameter_map[id].l_name(), show_value);
 }
 
 GtkWidget* UiReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
@@ -225,7 +225,7 @@ GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
     if (!hasId(id)) {
         return 0;
     }
-    return create(ui, regler, id, parameter_map[id].name());
+    return create(ui, regler, id, parameter_map[id].l_name());
 }
 
 GtkWidget* UiRackReglerWithCaption::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
@@ -241,7 +241,7 @@ GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler, string id)
     if (!hasId(id)) {
         return 0;
     }
-    return create(ui, regler, id, parameter_map[id].name());
+    return create(ui, regler, id, parameter_map[id].l_name());
 }
 
 GtkWidget* UiRackRegler::create(gx_ui::GxUI& ui, Gxw::Regler *regler,
@@ -342,7 +342,7 @@ UiSwitchBool::UiSwitchBool(gx_ui::GxUI& ui, const char *sw_type, BoolParameter &
     set_active(param.value);
     cp_set_var(param.id());
     char s[64];
-    snprintf(s, 63, _("%s on/off"),param.group().c_str());
+    snprintf(s, 63, _("%s on/off"),param.l_group().c_str());
     this->set_tooltip_text(s);
     this->get_accessible()->set_description (param.id().c_str());
     this->get_accessible()->set_name 
@@ -356,7 +356,7 @@ GtkWidget* UiSwitchWithCaption::create(
     if (!hasId(id)) {
         return 0;
     }
-    return create(ui, sw_type, id, parameter_map[id].name(), pos);
+    return create(ui, sw_type, id, parameter_map[id].l_name(), pos);
 }
 
 GtkWidget* UiSwitchWithCaption::create(
@@ -473,11 +473,12 @@ static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::G
         }
         gx_gui::Parameter& p = gx_gui::parameter_map[v];
         if (!p.desc().empty()) {
-            Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_tooltip_text(p.desc());
+            Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_tooltip_text(
+		gettext(p.desc().c_str()));
         }
         if (p.isFloat()) {
             gx_gui::FloatParameter &fp = p.getFloat();
-            w->cp_configure(p.group(), p.name(), fp.lower, fp.upper, fp.step);
+            w->cp_configure(p.l_group(), p.l_name(), fp.lower, fp.upper, fp.step);
             w->cp_set_value(fp.value);
             Glib::RefPtr<Gtk::Range> r = Glib::RefPtr<Gtk::Range>::cast_dynamic(w);
             if (r) {
@@ -500,7 +501,7 @@ static void fixup_controlparameters(Glib::RefPtr<Gtk::Builder> builder, gx_ui::G
             }
         } else if (p.isBool()) {
             gx_gui::BoolParameter &fp = p.getBool();
-            w->cp_configure(p.group(), p.name(), 0, 0, 0);
+            w->cp_configure(p.l_group(), p.l_name(), 0, 0, 0);
             w->cp_set_value(fp.value);
 	    Glib::RefPtr<Gtk::ToggleButton> t =
 		Glib::RefPtr<Gtk::ToggleButton>::cast_dynamic(w);

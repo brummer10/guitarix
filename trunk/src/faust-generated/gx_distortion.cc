@@ -278,24 +278,24 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("gx_distortion.high_gain","","S","",&fslider13, 1e+01, -1e+01, 2e+01, 0.1);
-	reg.registerVar("gx_distortion.high_drive","","S","",&fslider12, 1.0, 0.0, 1.0, 0.01);
-	reg.registerVar("gx_distortion.middle_h_gain","","S","",&fslider11, 1e+01, -1e+01, 2e+01, 0.1);
-	reg.registerVar("gx_distortion.middle_h_drive","","S","",&fslider10, 1.0, 0.0, 1.0, 0.01);
-	reg.registerVar("gx_distortion.resonator.on_off","resonat","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("gx_distortion.split_middle_freq","","S","",&fentry1, 6.5e+02, 6e+02, 1.25e+03, 1e+01);
-	reg.registerVar("gx_distortion.split_low_freq","","S","",&fentry0, 2.5e+02, 2e+01, 6e+02, 1e+01);
-	reg.registerVar("gx_distortion.split_high_freq","","S","",&fentry2, 1.25e+03, 1.25e+03, 1.2e+04, 1e+01);
-	reg.registerVar("gx_distortion.middle_l_gain","","S","",&fslider7, 1e+01, -1e+01, 2e+01, 0.1);
-	reg.registerVar("gx_distortion.level","","S","",&fslider6, 0.01, 0.0, 0.5, 0.01);
-	reg.registerVar("gx_distortion.drive","","S","",&fslider5, 0.64, 0.0, 1.0, 0.01);
-	reg.registerVar("gx_distortion.middle_l_drive","","S","",&fslider4, 1.0, 0.0, 1.0, 0.01);
-	reg.registerVar("gx_distortion.vibrato","","S","",&fslider3, 1.0, 0.0, 1.0, 0.01);
-	reg.registerVar("gx_distortion.trigger","","S","",&fslider2, 0.12, 0.0, 1.0, 0.01);
-	reg.registerVar("gx_distortion.gain","","S","",&fslider1, 2.0, -1e+01, 1e+01, 0.1);
-	reg.registerVar("gx_distortion.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
-	reg.registerVar("gx_distortion.low_gain","","S","",&fslider9, 1e+01, -1e+01, 2e+01, 0.1);
-	reg.registerVar("gx_distortion.low_drive","","S","",&fslider8, 1.0, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.high_gain",N_(""),"S",N_(""),&fslider13, 1e+01, -1e+01, 2e+01, 0.1);
+	reg.registerVar("gx_distortion.high_drive",N_(""),"S",N_(""),&fslider12, 1.0, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.middle_h_gain",N_(""),"S",N_(""),&fslider11, 1e+01, -1e+01, 2e+01, 0.1);
+	reg.registerVar("gx_distortion.middle_h_drive",N_(""),"S",N_(""),&fslider10, 1.0, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.resonator.on_off",N_("resonat"),"B",N_(""),&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("gx_distortion.split_middle_freq",N_(""),"S",N_(""),&fentry1, 6.5e+02, 6e+02, 1.25e+03, 1e+01);
+	reg.registerVar("gx_distortion.split_low_freq",N_(""),"S",N_(""),&fentry0, 2.5e+02, 2e+01, 6e+02, 1e+01);
+	reg.registerVar("gx_distortion.split_high_freq",N_(""),"S",N_(""),&fentry2, 1.25e+03, 1.25e+03, 1.2e+04, 1e+01);
+	reg.registerVar("gx_distortion.middle_l_gain",N_(""),"S",N_(""),&fslider7, 1e+01, -1e+01, 2e+01, 0.1);
+	reg.registerVar("gx_distortion.level",N_(""),"S",N_(""),&fslider6, 0.01, 0.0, 0.5, 0.01);
+	reg.registerVar("gx_distortion.drive",N_(""),"S",N_(""),&fslider5, 0.64, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.middle_l_drive",N_(""),"S",N_(""),&fslider4, 1.0, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.vibrato",N_(""),"S",N_(""),&fslider3, 1.0, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.trigger",N_(""),"S",N_(""),&fslider2, 0.12, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.gain",N_(""),"S",N_(""),&fslider1, 2.0, -1e+01, 1e+01, 0.1);
+	reg.registerVar("gx_distortion.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerVar("gx_distortion.low_gain",N_(""),"S",N_(""),&fslider9, 1e+01, -1e+01, 2e+01, 0.1);
+	reg.registerVar("gx_distortion.low_drive",N_(""),"S",N_(""),&fslider8, 1.0, 0.0, 1.0, 0.01);
 	return 0;
 }
 

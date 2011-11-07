@@ -75,11 +75,11 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 static int register_params(const ParamReg& reg)
 {
 #undef fslider2
-	fslider2_ = reg.registerVar("crybaby.wet_dry","wet/dry","SA","",&fslider2, 1e+02, 0.0, 1e+02, 1.0);
+	fslider2_ = reg.registerVar("crybaby.wet_dry",N_("wet/dry"),"SA",N_(""),&fslider2, 1e+02, 0.0, 1e+02, 1.0);
 #undef fslider1
-	fslider1_ = reg.registerVar("crybaby.level","","SA","",&fslider1, 0.1, 0.0, 1.0, 0.01);
+	fslider1_ = reg.registerVar("crybaby.level",N_(""),"SA",N_(""),&fslider1, 0.1, 0.0, 1.0, 0.01);
 #undef fslider0
-	fslider0_ = reg.registerVar("crybaby.wah","","SA","",&fslider0, 0.0, 0.0, 1.0, 0.01);
+	fslider0_ = reg.registerVar("crybaby.wah",N_(""),"SA",N_(""),&fslider0, 0.0, 0.0, 1.0, 0.01);
 	return 0;
 }
 

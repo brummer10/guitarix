@@ -33,7 +33,7 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("biquad.Freq","","S","",&fslider0, 1.2e+03, 3e+02, 3e+03, 5.0);
+	reg.registerVar("biquad.Freq",N_(""),"S",N_(""),&fslider0, 1.2e+03, 3e+02, 3e+03, 5.0);
 	return 0;
 }
 

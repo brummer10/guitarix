@@ -101,12 +101,12 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("low_high_pass.lhc.on_off","low highcutoff","B","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("low_high_pass.lhp.on_off","low highpass","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("low_high_pass.lhp.low_freq","low freq","S","",&fentry1, 5e+03, 2e+01, 1.2e+04, 1e+01);
-	reg.registerVar("low_high_pass.lhp.high_freq","high freq","S","",&fentry0, 1.3e+02, 2e+01, 7.04e+03, 1e+01);
-	reg.registerVar("low_high_pass.lhc.low_freq","low freq","S","low-freq cutoff Hz",&fslider1, 1.3e+02, 2e+01, 1e+03, 1e+01);
-	reg.registerVar("low_high_pass.lhc.high_freq","high freq","S","high-freq cutoff Hz",&fslider0, 5e+03, 1e+03, 1.2e+04, 1e+01);
+	reg.registerVar("low_high_pass.lhc.on_off",N_("low highcutoff"),"B",N_(""),&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("low_high_pass.lhp.on_off",N_("low highpass"),"B",N_(""),&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("low_high_pass.lhp.low_freq",N_("low freq"),"S",N_(""),&fentry1, 5e+03, 2e+01, 1.2e+04, 1e+01);
+	reg.registerVar("low_high_pass.lhp.high_freq",N_("high freq"),"S",N_(""),&fentry0, 1.3e+02, 2e+01, 7.04e+03, 1e+01);
+	reg.registerVar("low_high_pass.lhc.low_freq",N_("low freq"),"S",N_("low-freq cutoff Hz"),&fslider1, 1.3e+02, 2e+01, 1e+03, 1e+01);
+	reg.registerVar("low_high_pass.lhc.high_freq",N_("high freq"),"S",N_("high-freq cutoff Hz"),&fslider0, 5e+03, 1e+03, 1.2e+04, 1e+01);
 	return 0;
 }
 

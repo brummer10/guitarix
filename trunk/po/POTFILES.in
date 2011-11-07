@@ -112,6 +112,4 @@ src/faust-generated/tonestack_sovtek.cc
 src/faust-generated/tonestack_twin.cc
 src/faust-generated/tremolo.cc
 src/plugins/generated/zita_rev1.cc
-
-
-
+src/plugins/zita_rev1_ui.glade

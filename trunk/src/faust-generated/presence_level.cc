@@ -23,7 +23,7 @@ void compute(int count, float *input0, float *output0)
 static int register_params(const ParamReg& reg)
 {
 #undef fslider0
-	fslider0_ = reg.registerVar("con.Level","","SA","",&fslider0, 1.0, 0.5, 5.0, 0.5);
+	fslider0_ = reg.registerVar("con.Level",N_(""),"SA",N_(""),&fslider0, 1.0, 0.5, 5.0, 0.5);
 	return 0;
 }
 

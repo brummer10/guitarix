@@ -80,9 +80,9 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("chorus_mono.level","","S","",&fslider2, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("chorus_mono.freq","","S","",&fslider1, 2.0, 0.0, 1e+01, 0.01);
-	reg.registerVar("chorus_mono.wet_dry","wet/dry","S","percentage of processed signal in output signal",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerVar("chorus_mono.level",N_(""),"S",N_(""),&fslider2, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("chorus_mono.freq",N_(""),"S",N_(""),&fslider1, 2.0, 0.0, 1e+01, 0.01);
+	reg.registerVar("chorus_mono.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider0, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
 

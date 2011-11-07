@@ -252,7 +252,7 @@ GxDialogWindowBox::GxDialogWindowBox(gx_ui::GxUI& ui, const char *expose_funk,
       m_tcb(&ui, &param_dialog.getBool().value),
       m_regler_tooltip_window(Gtk::WINDOW_POPUP)  {
     group_id = param_switch.id().substr(0, param_switch.id().find_last_of("."));
-    Glib::ustring title = param_switch.group();
+    Glib::ustring title = param_switch.l_group();
     box1.pack_end(*unit_on_off, false, false);
     box.set_border_width(2);
     box4.set_spacing(2);

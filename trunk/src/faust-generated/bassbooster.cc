@@ -45,7 +45,7 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("bassbooster.Level","","S","",&fslider0, 1e+01, 0.5, 2e+01, 0.5);
+	reg.registerVar("bassbooster.Level",N_(""),"S",N_(""),&fslider0, 1e+01, 0.5, 2e+01, 0.5);
 	return 0;
 }
 

@@ -115,8 +115,8 @@ void MidiControllerTable::load() {
             gtk_list_store_set(store, &iter,
                                0, i,
                                1, gx_gui::midi_std_ctr[i].c_str(),
-                               2, p.group().c_str(),
-                               3, p.name().c_str(),
+                               2, p.l_group().c_str(),
+                               3, p.l_name().c_str(),
                                4, tp,
                                5, low.c_str(),
                                6, up.c_str(),
@@ -296,7 +296,7 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_gui::Parameter &param)
     pango_font_description_set_size(style->font_desc, 12*PANGO_SCALE);
     pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
     gtk_widget_modify_font(zn, style->font_desc);
-    gtk_label_set_text(GTK_LABEL(zn), (param.group() + ": " + param.name()).c_str());
+    gtk_label_set_text(GTK_LABEL(zn), (param.l_group() + ": " + param.l_name()).c_str());
     const gx_gui::MidiController *pctrl;
     int nctl = gx_gui::controller_map.param2controller(param, &pctrl);
     if (param.getControlType() == gx_gui::Parameter::Continuous ||

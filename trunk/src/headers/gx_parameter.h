@@ -141,11 +141,14 @@ class Parameter {
     bool isControllable() const { return controllable; }
     bool isInPreset() const { return save_in_preset; }
     bool isExperimental() const { return experimental; }
-    string id() const { return _id; }
-    string group() const { return _group; }
-    string name() const { return _name; }
-    string desc() const { return _desc; }
+    const string& id() const { return _id; }
+    const string& group() const { return _group; }
+    string l_group() const { return gettext(_group.c_str()); }
+    const string& name() const { return _name; }
+    string l_name() const { return gettext(_name.c_str()); }
+    const string& desc() const { return _desc; }
     void set_desc(string desc) { _desc = desc; }
+    string l_desc() const { return gettext(_desc.c_str()); }
     bool operator==(const Parameter& p) const { return &p == this; }
     virtual void *zone() = 0;
     virtual void set_std_value() = 0;

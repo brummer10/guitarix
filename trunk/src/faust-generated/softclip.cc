@@ -23,7 +23,7 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("amp.fuzz","","S","",&fslider0, 0.0, 0.0, 1.99, 0.01);
+	reg.registerVar("amp.fuzz",N_(""),"S",N_(""),&fslider0, 0.0, 0.0, 1.99, 0.01);
 	return 0;
 }
 

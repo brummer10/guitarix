@@ -55,11 +55,11 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("compressor.ratio","","S","",&fentry2, 2.0, 1.0, 2e+01, 0.1);
-	reg.registerVar("compressor.knee","","S","",&fentry1, 3.0, 0.0, 2e+01, 0.1);
-	reg.registerVar("compressor.threshold","","S","",&fentry0, -2e+01, -96.0, 1e+01, 0.1);
-	reg.registerVar("compressor.release","","S","",&fslider1, 0.5, 0.0, 1e+01, 0.01);
-	reg.registerVar("compressor.attack","","S","",&fslider0, 0.002, 0.0, 1.0, 0.001);
+	reg.registerVar("compressor.ratio",N_(""),"S",N_(""),&fentry2, 2.0, 1.0, 2e+01, 0.1);
+	reg.registerVar("compressor.knee",N_(""),"S",N_(""),&fentry1, 3.0, 0.0, 2e+01, 0.1);
+	reg.registerVar("compressor.threshold",N_(""),"S",N_(""),&fentry0, -2e+01, -96.0, 1e+01, 0.1);
+	reg.registerVar("compressor.release",N_(""),"S",N_(""),&fslider1, 0.5, 0.0, 1e+01, 0.01);
+	reg.registerVar("compressor.attack",N_(""),"S",N_(""),&fslider0, 0.002, 0.0, 1.0, 0.001);
 	return 0;
 }
 

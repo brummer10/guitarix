@@ -362,7 +362,7 @@ int ModuleSelectorFromList::register_parameter(const ParamReg &param) {
     value_pair *p = new value_pair[size+1];
     for (unsigned int i = 0; i < size; ++i) {
 	p[i].value_id = modules[i]->id;
-	p[i].value_label = gettext(modules[i]->name);
+	p[i].value_label = modules[i]->name;
     }
     p[size].value_id = 0;
     p[size].value_label = 0;

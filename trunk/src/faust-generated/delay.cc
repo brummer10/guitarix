@@ -73,8 +73,8 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("delay.gain","","S","",&fslider1, 0.0f, -2e+01f, 2e+01f, 0.1f);
-	reg.registerVar("delay.delay","","S","",&fslider0, 0.0f, 0.0f, 5e+03f, 1e+01f);
+	reg.registerVar("delay.gain",N_(""),"S",N_(""),&fslider1, 0.0f, -2e+01f, 2e+01f, 0.1f);
+	reg.registerVar("delay.delay",N_(""),"S",N_(""),&fslider0, 0.0f, 0.0f, 5e+03f, 1e+01f);
 	return 0;
 }
 

@@ -12,25 +12,29 @@ class UIDefs(object):
 
     class UID(dict):
         def write(self, fp, v, prefix):
-            self["tail"] = "".join([", "+x for x in self["value"]])
-            self["prefix"] = prefix
-            if self.has_key("alias"):
-                assert not self.has_key("enum")
-                fp.write('#undef %(variable)s\n' % self)
-                fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s","%(name)s","%(type)sA","%(tooltip)s",&%(variable)s%(tail)s);\n' % self)
-            elif self.has_key("enum"):
+            d = {}
+            d.update(self)
+            d["tail"] = "".join([", "+x for x in d["value"]])
+            d["prefix"] = prefix
+            d["N_name"] = 'N_("%(name)s")' % self
+            d["N_tooltip"] = 'N_("%(tooltip)s")' % self
+            if "alias" in d:
+                assert "enum" not in d
+                fp.write('#undef %(variable)s\n' % d)
+                fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
+            elif "enum" in d:
                 def value_pair(s):
                     m = re.match(r"(.*)\[(.*)\]$", s)
                     if m:
                         return '{"%s",N_("%s")}' % (m.group(1), m.group(2))
                     else:
                         return '{"%s"}' % s
-                enumvals = ",".join([value_pair(x) for x in self["enum"].split("|")]+["{0}"])
-                self["ename"] = ename = self["variable"] + "_values"
+                enumvals = ",".join([value_pair(x) for x in d["enum"].split("|")]+["{0}"])
+                d["ename"] = ename = d["variable"] + "_values"
                 fp.write('\tstatic const value_pair %s[] = {%s};\n' % (ename, enumvals))
-                fp.write('\t%(prefix)sregisterEnumVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",%(ename)s,&%(variable)s%(tail)s);\n' % self)
+                fp.write('\t%(prefix)sregisterEnumVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
             else:
-                fp.write('\t%(prefix)sregisterVar("%(id)s","%(name)s","%(type)s","%(tooltip)s",&%(variable)s%(tail)s);\n' % self)
+                fp.write('\t%(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
 
         def __getitem__(self, n):
             try:
@@ -464,7 +468,6 @@ PluginDef plugin = {
 plugin_standalone_header = """
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
-#define N_(x) (x)
 
 """
 

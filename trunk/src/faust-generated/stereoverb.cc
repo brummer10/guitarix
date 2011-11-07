@@ -284,9 +284,9 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("stereoverb.RoomSize","","S","",&fslider2, 0.5, 0.0, 1.0, 0.025);
-	reg.registerVar("stereoverb.damp","","S","",&fslider1, 0.5, 0.0, 1.0, 0.025);
-	reg.registerVar("stereoverb.wet_dry","wet/dry","S","",&fslider0, 5e+01, 0.0, 1e+02, 1.0);
+	reg.registerVar("stereoverb.RoomSize",N_(""),"S",N_(""),&fslider2, 0.5, 0.0, 1.0, 0.025);
+	reg.registerVar("stereoverb.damp",N_(""),"S",N_(""),&fslider1, 0.5, 0.0, 1.0, 0.025);
+	reg.registerVar("stereoverb.wet_dry",N_("wet/dry"),"S",N_(""),&fslider0, 5e+01, 0.0, 1e+02, 1.0);
 	return 0;
 }
 

@@ -34,7 +34,7 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 static int register_params(const ParamReg& reg)
 {
 #undef fslider0
-	fslider0_ = reg.registerVar("amp.balance","Balance","SA","",&fslider0, 0.0, -1.0, 1.0, 0.1);
+	fslider0_ = reg.registerVar("amp.balance",N_("Balance"),"SA",N_(""),&fslider0, 0.0, -1.0, 1.0, 0.1);
 	return 0;
 }
 

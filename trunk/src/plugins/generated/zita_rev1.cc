@@ -4,7 +4,6 @@
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
-#define N_(x) (x)
 
 namespace pluginlib {
 namespace zita_rev1 {
@@ -475,17 +474,17 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 
 static int register_params(const ParamReg& reg)
 {
-	reg.registerVar("zita_rev1.output.level","Level","S","Output scale factor",&fslider10, 0.0, -7e+01, 4e+01, 0.1);
-	reg.registerVar("zita_rev1.equalizer2.eq2_freq","Freq","S","Center-frequency of second-order Regalia-Mitra peaking equalizer section 2",&fslider7, 315.0, 4e+01, 2.5e+03, 1.0);
-	reg.registerVar("zita_rev1.equalizer1.eq1_level","Level","S","Peak level in dB of second-order Regalia-Mitra peaking equalizer section 1",&fslider6, 0.0, -15.0, 15.0, 0.1);
-	reg.registerVar("zita_rev1.equalizer1.eq1_freq","Freq","S","Center-frequency of second-order Regalia-Mitra peaking equalizer section 1",&fslider5, 315.0, 4e+01, 2.5e+03, 1.0);
-	reg.registerVar("zita_rev1.input.in_delay","In Delay","S","Delay in ms before reverberation begins",&fslider4, 6e+01, 2e+01, 1e+02, 1.0);
-	reg.registerVar("zita_rev1.decay_times.low_rt60","Low","S","T60 = time (in seconds) to decay 60dB in low-frequency band",&fslider3, 3.0, 1.0, 8.0, 0.1);
-	reg.registerVar("zita_rev1.decay_times.lf_x","Freq X","S","Crossover frequency (Hz) separating low and middle frequencies",&fslider2, 2e+02, 5e+01, 1e+03, 1.0);
-	reg.registerVar("zita_rev1.decay_times.hf_damping","HF Damping","S","Frequency (Hz) at which the high-frequency T60 is half the middle-band's T60",&fslider1, 6e+03, 1.5e+03, 2.352e+04, 1.0);
-	reg.registerVar("zita_rev1.decay_times.mid_rt60","Mid","S","T60 = time (in seconds) to decay 60dB in middle band",&fslider0, 2.0, 1.0, 8.0, 0.1);
-	reg.registerVar("zita_rev1.output.dry_wet_mix","Dry/Wet","S","-1 = dry, 1 = wet",&fslider9, 0.0, -1.0, 1.0, 0.01);
-	reg.registerVar("zita_rev1.equalizer2.eq2_level","Level","S","Peak level in dB of second-order Regalia-Mitra peaking equalizer section 2",&fslider8, 0.0, -15.0, 15.0, 0.1);
+	reg.registerVar("zita_rev1.output.level",N_("Level"),"S",N_("Output scale factor"),&fslider10, 0.0, -7e+01, 4e+01, 0.1);
+	reg.registerVar("zita_rev1.equalizer2.eq2_freq",N_("Freq"),"S",N_("Center-frequency of second-order Regalia-Mitra peaking equalizer section 2"),&fslider7, 315.0, 4e+01, 2.5e+03, 1.0);
+	reg.registerVar("zita_rev1.equalizer1.eq1_level",N_("Level"),"S",N_("Peak level in dB of second-order Regalia-Mitra peaking equalizer section 1"),&fslider6, 0.0, -15.0, 15.0, 0.1);
+	reg.registerVar("zita_rev1.equalizer1.eq1_freq",N_("Freq"),"S",N_("Center-frequency of second-order Regalia-Mitra peaking equalizer section 1"),&fslider5, 315.0, 4e+01, 2.5e+03, 1.0);
+	reg.registerVar("zita_rev1.input.in_delay",N_("In Delay"),"S",N_("Delay in ms before reverberation begins"),&fslider4, 6e+01, 2e+01, 1e+02, 1.0);
+	reg.registerVar("zita_rev1.decay_times.low_rt60",N_("Low"),"S",N_("T60 = time (in seconds) to decay 60dB in low-frequency band"),&fslider3, 3.0, 1.0, 8.0, 0.1);
+	reg.registerVar("zita_rev1.decay_times.lf_x",N_("Freq X"),"S",N_("Crossover frequency (Hz) separating low and middle frequencies"),&fslider2, 2e+02, 5e+01, 1e+03, 1.0);
+	reg.registerVar("zita_rev1.decay_times.hf_damping",N_("HF Damping"),"S",N_("Frequency (Hz) at which the high-frequency T60 is half the middle-band's T60"),&fslider1, 6e+03, 1.5e+03, 2.352e+04, 1.0);
+	reg.registerVar("zita_rev1.decay_times.mid_rt60",N_("Mid"),"S",N_("T60 = time (in seconds) to decay 60dB in middle band"),&fslider0, 2.0, 1.0, 8.0, 0.1);
+	reg.registerVar("zita_rev1.output.dry_wet_mix",N_("Dry/Wet"),"S",N_("-1 = dry, 1 = wet"),&fslider9, 0.0, -1.0, 1.0, 0.01);
+	reg.registerVar("zita_rev1.equalizer2.eq2_level",N_("Level"),"S",N_("Peak level in dB of second-order Regalia-Mitra peaking equalizer section 2"),&fslider8, 0.0, -15.0, 15.0, 0.1);
 	return 0;
 }
 
