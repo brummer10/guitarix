@@ -1843,6 +1843,10 @@ struct uiPatchDisplay : public gx_ui::GxUiItemFloat {
                         snprintf(s, sizeof(s), " %i%s%s ", static_cast<int>(guivar.show_patch_info),
                                  ". ", gx_preset::GxSettings::get_instance().get_current_name().c_str());
                         gtk_label_set_text(GTK_LABEL(parent), s);
+                    } else if (gx_preset::GxSettings::get_instance().setting_is_factory()) {
+                        snprintf(s, sizeof(s), " %s%s%s ", gx_preset::GxSettings::get_instance().get_current_factory().c_str(),
+                                 ". ", gx_preset::GxSettings::get_instance().get_current_name().c_str());
+                        gtk_label_set_text(GTK_LABEL(parent), s);
                     } else {
                         guivar.show_patch_info = 0;
                         snprintf(s, sizeof(s), _(" %i%sMain Setting "),

@@ -481,6 +481,7 @@ static bool gx_load_preset_from_factory(const char* presname, int i) {
 
 // ----menu funktion load preset from factory
 void GxPreset::gx_load_factory_preset(Gtk::MenuItem *menuitem, int load_preset) {
+    gx_gui::guivar.show_patch_info -= 9999;
     // retrieve preset name
     vector<Gtk::MenuItem*>::iterator it = gxpreset.fpm_list[load_preset].begin();
     vector<string>::iterator its = gxpreset.fplist[load_preset].begin();
@@ -502,7 +503,7 @@ void GxPreset::gx_load_factory_preset(Gtk::MenuItem *menuitem, int load_preset) 
 	    _("Preset Loading"), string(_("Could not load preset ")) + preset_name);
         return;
     }
-
+    gx_gui::guivar.show_patch_info = -1;
     // print out info
     gx_system::gx_print_info(
 	_("Preset Loading"), string(_("loaded preset ")) + preset_name);

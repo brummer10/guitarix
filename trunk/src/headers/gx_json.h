@@ -307,6 +307,7 @@ public:
     void fill_factory_names(vector<string>& l) const;
     void fill_factory_preset_names(const string& fact, vector<string>& l) const;
     bool setting_is_preset() { return current_source == preset; }
+    bool setting_is_factory() { return current_source == factory; }
     bool idx_in_preset(int idx) { return idx >= 0 && idx < presetfile.size(); }
     void load_preset_by_idx(int idx) { load(preset, presetfile.get_name(idx), ""); }
 };
