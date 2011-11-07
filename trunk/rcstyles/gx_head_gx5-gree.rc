@@ -30,7 +30,7 @@ GxKnob::framecount = 0 # use 0 for auto (assumes square frames),
                             #  animations
 }
 
-class "*GxKnob" style "gx2_head_skin_knob_animation"
+class "*GxKnob" style "gx5_head_skin_knob_animation"
 
 style "gx2_head_wheel_icons"
 {
