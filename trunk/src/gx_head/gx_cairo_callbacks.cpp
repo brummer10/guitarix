@@ -77,21 +77,27 @@ static void gx_skin_color(cairo_pattern_t *pat)
 
 gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
-	cairo_t *cr;
+    cairo_t *cr;
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
+	double x0      = wi->allocation.x+2;
+	double y0      = wi->allocation.y+2;
 	double rect_width  = wi->allocation.width-2;
 	double rect_height = wi->allocation.height-2;
 
-	cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
+	cairo_rectangle (cr, x0,y0,rect_width,rect_height+1);
 	cairo_set_source_rgb (cr, 0, 0, 0);
 	cairo_fill (cr);
 
 	cairo_pattern_t*pat =
-		cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
+	cairo_pattern_create_linear (0, y0, 0, y0+rect_height);
+		//cairo_pattern_create_radial (-50, y0, 5,rect_width-10,  rect_height, 20.0);
 	gx_skin_color(pat);
 	cairo_set_source (cr, pat);
 	cairo_rectangle (cr, x0+1,y0+1,rect_width-2,rect_height-1);
@@ -99,8 +105,9 @@ gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+	gdk_region_destroy (region);
 	return FALSE;
+    
 }
 
 gboolean conv_widget_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
@@ -110,6 +117,11 @@ gboolean conv_widget_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_dat
 
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
+    GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
 
 	double x0      = wi->allocation.x+5;
 	double y0      = wi->allocation.y+5;
@@ -156,7 +168,8 @@ gboolean conv_widget_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_dat
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+    gdk_region_destroy (region);
+    
 	return FALSE;
 }
 
@@ -165,6 +178,11 @@ gboolean level_meter_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_dat
 	cairo_t *cr;
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
+    GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
 	cairo_set_font_size (cr, 7.0);
 
 	double x0      = wi->allocation.x+1;
@@ -222,7 +240,8 @@ gboolean level_meter_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_dat
 
 	cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+    gdk_region_destroy (region);
+    
 	return FALSE;
 }
 
@@ -231,6 +250,11 @@ gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	cairo_t *cr;
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
+    GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
 
 	double x0      = wi->allocation.x+1;
 	double y0      = wi->allocation.y+1;
@@ -294,7 +318,8 @@ gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+    gdk_region_destroy (region);
+    
 	return FALSE;
 }
 
@@ -303,6 +328,11 @@ gboolean error_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	cairo_t *cr;
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
+    GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
 
 	double x0      = wi->allocation.x+2;
 	double y0      = wi->allocation.y+2;
@@ -364,7 +394,8 @@ gboolean error_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
-
+    gdk_region_destroy (region);
+    
 	return FALSE;
 }
 
@@ -373,6 +404,11 @@ gboolean start_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 	cairo_t *cr;
 	/* create a cairo context */
 	cr = gdk_cairo_create(wi->window);
+    GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
 
 	double x0      = wi->allocation.x+1;
 	double y0      = wi->allocation.y+1;
@@ -434,6 +470,7 @@ gboolean start_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 
     cairo_pattern_destroy (pat);
 	cairo_destroy(cr);
+    gdk_region_destroy (region);
 
 	return FALSE;
 }

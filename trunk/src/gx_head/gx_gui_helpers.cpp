@@ -1365,6 +1365,7 @@ gint gx_nchoice_dialog_without_entry(
     gtk_widget_modify_bg(dialog, GTK_STATE_NORMAL, &colorBlack);
     g_signal_connect(GTK_DIALOG(dialog)->vbox, "expose-event",
                      G_CALLBACK(gx_cairo::start_box_expose), NULL);
+    gtk_widget_set_redraw_on_allocate(GTK_WIDGET(GTK_DIALOG(dialog)->vbox),true);
     GtkStyle* text_style = gtk_widget_get_style(text_label);
     pango_font_description_set_size(text_style->font_desc, 10*PANGO_SCALE);
     pango_font_description_set_weight(text_style->font_desc, PANGO_WEIGHT_BOLD);
@@ -1590,6 +1591,7 @@ int gx_message_popup(const char* msg) {
                               G_CALLBACK(gtk_widget_destroy), about);
 
     g_signal_connect(GTK_DIALOG(about)->vbox, "expose-event", G_CALLBACK(gx_cairo::start_box_expose), NULL);
+    gtk_widget_set_redraw_on_allocate(GTK_WIDGET(GTK_DIALOG(about)->vbox),true);
     gtk_widget_show(ok_button);
     gtk_widget_show(label);
     return gtk_dialog_run (GTK_DIALOG(about));

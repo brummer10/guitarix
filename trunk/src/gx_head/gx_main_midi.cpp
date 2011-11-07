@@ -164,7 +164,8 @@ MidiControllerTable::MidiControllerTable(Gtk::CheckMenuItem& item)
     selection = gtk_tree_view_get_selection(
         GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview1")));
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
-
+    gtk_widget_set_redraw_on_allocate(GTK_WIDGET(gtk_builder_get_object(builder, "dialog-vbox1")),true);
+    gtk_widget_set_redraw_on_allocate(GTK_WIDGET(gtk_builder_get_object(builder, "dialog-vbox2")),true);
     load();
 
     g_signal_connect(window, "destroy", G_CALLBACK(destroy_cb), this);

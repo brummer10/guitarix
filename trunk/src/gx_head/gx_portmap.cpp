@@ -577,6 +577,8 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<Gtk::Builder> bld, gx_jack::GxJack& ja
     bld->get_widget("dialog-vbox2", vbox2);
     vbox2->signal_expose_event().connect(
 	sigc::group(&gx_cairo::rectangle_skin_color_expose,GTK_WIDGET(vbox2->gobj()),sigc::_1,(void*)0),false);
+    vbox1->set_redraw_on_allocate(true);
+    vbox2->set_redraw_on_allocate(true);
     for (int i = 0; i < number_of_ports; ++i) {
         portsection[i].port_attr = &gx_head_ports[i];
         char name[30];
@@ -587,8 +589,10 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<Gtk::Builder> bld, gx_jack::GxJack& ja
 	bld->get_widget(name, view);
 	Gtk::TreeViewColumn *col = view->get_column(0);
 	// get_first_cell_renderer is decprecated, but only available after gtkmm 2.20
+    // --> we can also use view->get_column_cell_renderer(0) instead 
 	//Gtk::CellRendererToggle *cell = dynamic_cast<Gtk::CellRendererToggle*>(col->get_first_cell());
 	Gtk::CellRendererToggle *cell = dynamic_cast<Gtk::CellRendererToggle*>(col->get_first_cell_renderer());
+    //Gtk::CellRendererToggle *cell = dynamic_cast<Gtk::CellRendererToggle*>(view->get_column_cell_renderer(0));
 	portsection[i].treestore = Gtk::TreeStore::create(columns);
 	view->set_model(portsection[i].treestore);
         //snprintf(name, sizeof(name), "treestore%d", i+1);
