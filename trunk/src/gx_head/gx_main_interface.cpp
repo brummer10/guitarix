@@ -1938,6 +1938,7 @@ uiTuner::uiTuner(gx_engine::TunerAdapter& a, gx_ui::GxUI& ui)
     parameter_map.insert(&refpitch_param);
     wheel.set_value_position(Gtk::POS_RIGHT);
     wheel.set_adjustment(adjust);
+    wheel.set_tooltip_text(_("reference pitch (standard: 440Hz)"));
     eBox.add(wheel);
     fBox.put(fTuner, 0, 0);
     fBox.put(eBox, 4, 75);

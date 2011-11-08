@@ -24,7 +24,7 @@ blddir = 'build'
 use_2to3 = True
 
 # used by waf dist and waf build
-VERSION='0.20.0svn'
+VERSION='0.20.0'
 APPNAME='guitarix'
 APPNAME1='guitarix'
 
@@ -651,6 +651,10 @@ def etags(ctx):
     Logs.debug("runner: system command -> %s" % cmd)
     Utils.exec_command(cmd)
 
+def update_pot(ctx):
+    "extract all text for localization into po/untitled.pot"
+    Utils.exec_command("cd po && intltool-update -p")
+
 def dist(ctx):
     "makes a tarball for redistributing the sources"
     try:
@@ -659,19 +663,22 @@ def dist(ctx):
         raise Utils.WafError("you need to install pysvn to use the dist command"
                              " (debian package python-svn)")
     version = Utils.g_module.VERSION
-    if opt.no_pkg:
+    import Options
+    if Options.options.no_pkg:
         version += '-nopkg'
     Scripting.dist(version=version)
 
 def copytree(src,dst,build_dir):
     "replacement for the standard copytree implicitely used by dist"
     import pysvn
+    import Options
+    no_pkg = Options.options.no_pkg
     entries = pysvn.Client().info2(".")
     os.mkdir(dst)
     for srcname, info in entries:
         if srcname == ".":
             continue
-        if opt.no_pkg and srcname.startswith("debian"):
+        if no_pkg and srcname.startswith("debian"):
             continue
         dstname=os.path.join(dst,srcname)
         if os.path.isdir(srcname):

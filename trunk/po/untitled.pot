@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-07 19:13+0100\n"
+"POT-Creation-Date: 2011-11-07 22:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -610,7 +610,7 @@ msgid "unknown jack ports section: "
 msgstr ""
 
 #: ../src/gx_head/gx_jack.cpp:226 ../src/gx_head/gx_jack.cpp:231
-#: ../src/gx_head/gx_main_interface.cpp:2974
+#: ../src/gx_head/gx_main_interface.cpp:2977
 msgid "Jack Init"
 msgstr ""
 
@@ -762,12 +762,12 @@ msgid "Reset Button, press to reset settings"
 msgstr ""
 
 #: ../src/gx_head/gx_main_boxes.cpp:472
-#: ../src/gx_head/gx_main_interface.cpp:2254
+#: ../src/gx_head/gx_main_interface.cpp:2257
 msgid "Order Rack Vertically"
 msgstr ""
 
 #: ../src/gx_head/gx_main_boxes.cpp:479
-#: ../src/gx_head/gx_main_interface.cpp:2255
+#: ../src/gx_head/gx_main_interface.cpp:2258
 msgid "Order Rack Horizontally"
 msgstr ""
 
@@ -808,357 +808,361 @@ msgid "cannot find installed pixmaps"
 msgstr ""
 
 #: ../src/gx_head/gx_main_interface.cpp:311
-#: ../src/gx_head/gx_main_interface.cpp:550
+#: ../src/gx_head/gx_main_interface.cpp:552
 msgid "Logging Window"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:468
-#: ../src/gx_head/gx_main_interface.cpp:472
+#: ../src/gx_head/gx_main_interface.cpp:470
+#: ../src/gx_head/gx_main_interface.cpp:474
 msgid "Jack Server"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:468
+#: ../src/gx_head/gx_main_interface.cpp:470
 msgid "Disconnected from Jack Server"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:472
+#: ../src/gx_head/gx_main_interface.cpp:474
 msgid "Connected to Jack Server"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:692
+#: ../src/gx_head/gx_main_interface.cpp:694
 msgid "gx_head output"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:936
-#: ../src/gx_head/gx_main_interface.cpp:942
-#: ../src/gx_head/gx_main_interface.cpp:972
-#: ../src/gx_head/gx_main_interface.cpp:978
+#: ../src/gx_head/gx_main_interface.cpp:938
+#: ../src/gx_head/gx_main_interface.cpp:944
+#: ../src/gx_head/gx_main_interface.cpp:974
+#: ../src/gx_head/gx_main_interface.cpp:980
 msgid "Move "
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:938
-#: ../src/gx_head/gx_main_interface.cpp:974
+#: ../src/gx_head/gx_main_interface.cpp:940
+#: ../src/gx_head/gx_main_interface.cpp:976
 msgid " up"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:944
-#: ../src/gx_head/gx_main_interface.cpp:980
+#: ../src/gx_head/gx_main_interface.cpp:946
+#: ../src/gx_head/gx_main_interface.cpp:982
 msgid " down"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:1249
-#: ../src/gx_head/gx_main_interface.cpp:2247
+#: ../src/gx_head/gx_main_interface.cpp:1251
+#: ../src/gx_head/gx_main_interface.cpp:2250
 msgid "MIDI out"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:1350
+#: ../src/gx_head/gx_main_interface.cpp:1352
 msgid "Plugin Bar"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:1358
+#: ../src/gx_head/gx_main_interface.cpp:1360
 msgid "mono rack"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:1359
+#: ../src/gx_head/gx_main_interface.cpp:1361
 msgid "stereo rack"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:1363
+#: ../src/gx_head/gx_main_interface.cpp:1365
 msgid "Show mono rack"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:1364
+#: ../src/gx_head/gx_main_interface.cpp:1366
 msgid "Show stereo rack"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:1377
+#: ../src/gx_head/gx_main_interface.cpp:1379
 msgid "Mono Rack, right click pop up the plugin menu"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:1409
+#: ../src/gx_head/gx_main_interface.cpp:1411
 msgid "Stereo Rack, right click pop up the plugin menu"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:1849
+#: ../src/gx_head/gx_main_interface.cpp:1851
 #, c-format
 msgid "convolve %s"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:1852
+#: ../src/gx_head/gx_main_interface.cpp:1854
 #, c-format
 msgid "convolver off"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:1866
+#: ../src/gx_head/gx_main_interface.cpp:1868
 #, c-format
 msgid " %i%sMain Setting "
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:1969
-#: ../src/gx_head/gx_main_interface.cpp:1992
+#: ../src/gx_head/gx_main_interface.cpp:1941
+msgid "reference pitch (standard: 440Hz)"
+msgstr ""
+
+#: ../src/gx_head/gx_main_interface.cpp:1972
+#: ../src/gx_head/gx_main_interface.cpp:1995
 msgid "tuner"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:1993
+#: ../src/gx_head/gx_main_interface.cpp:1996
 msgid "Show tuner"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2048
+#: ../src/gx_head/gx_main_interface.cpp:2051
 msgid "dsp load  %1% %%"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2055
+#: ../src/gx_head/gx_main_interface.cpp:2058
 msgid "ht frames %1%"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2062
+#: ../src/gx_head/gx_main_interface.cpp:2065
 msgid "RT mode  yes "
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2062
+#: ../src/gx_head/gx_main_interface.cpp:2065
 msgid "RT mode  <span color=\"#cc1a1a\">NO</span>"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2068
+#: ../src/gx_head/gx_main_interface.cpp:2071
 msgid "latency    %1%"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2160
+#: ../src/gx_head/gx_main_interface.cpp:2163
 msgid "Engine State: "
 msgstr ""
 
 #. engine menu
-#: ../src/gx_head/gx_main_interface.cpp:2184
+#: ../src/gx_head/gx_main_interface.cpp:2187
 msgid "_Engine"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2186
+#: ../src/gx_head/gx_main_interface.cpp:2189
 msgid "Engine _Start / _Stop"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2187
+#: ../src/gx_head/gx_main_interface.cpp:2190
 msgid "Engine _Bypass"
 msgstr ""
 
 #. ---
-#: ../src/gx_head/gx_main_interface.cpp:2189
+#: ../src/gx_head/gx_main_interface.cpp:2192
 msgid "Jack Server _Connection "
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2190
+#: ../src/gx_head/gx_main_interface.cpp:2193
 msgid "Jack _Ports "
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2191
+#: ../src/gx_head/gx_main_interface.cpp:2194
 msgid "_Latency"
 msgstr ""
 
 #. ---
-#: ../src/gx_head/gx_main_interface.cpp:2195
+#: ../src/gx_head/gx_main_interface.cpp:2198
 msgid "M_idi Controller"
 msgstr ""
 
 #. ---
-#: ../src/gx_head/gx_main_interface.cpp:2197
+#: ../src/gx_head/gx_main_interface.cpp:2200
 msgid "_Quit"
 msgstr ""
 
 #. preset menu
-#: ../src/gx_head/gx_main_interface.cpp:2200
+#: ../src/gx_head/gx_main_interface.cpp:2203
 msgid "_Presets"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2202
+#: ../src/gx_head/gx_main_interface.cpp:2205
 msgid "_Load Preset..."
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2203
+#: ../src/gx_head/gx_main_interface.cpp:2206
 msgid "_Save Preset..."
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2204
+#: ../src/gx_head/gx_main_interface.cpp:2207
 msgid "New _Preset"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2205
+#: ../src/gx_head/gx_main_interface.cpp:2208
 msgid "_Rename Preset..."
 msgstr ""
 
 #. factory settings submenu
-#: ../src/gx_head/gx_main_interface.cpp:2208
+#: ../src/gx_head/gx_main_interface.cpp:2211
 msgid "Factory Settings"
 msgstr ""
 
 #. !factory settings submenu
 #. ---
-#: ../src/gx_head/gx_main_interface.cpp:2218
+#: ../src/gx_head/gx_main_interface.cpp:2221
 msgid "P_atch Info"
 msgstr ""
 
 #. ---
-#: ../src/gx_head/gx_main_interface.cpp:2220
+#: ../src/gx_head/gx_main_interface.cpp:2223
 msgid "Load Preset-_file"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2221
+#: ../src/gx_head/gx_main_interface.cpp:2224
 msgid "E_xport Preset-file"
 msgstr ""
 
 #. ---
-#: ../src/gx_head/gx_main_interface.cpp:2223
+#: ../src/gx_head/gx_main_interface.cpp:2226
 msgid "Recall Main _Setting"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2224
+#: ../src/gx_head/gx_main_interface.cpp:2227
 msgid "_Save As Main _Setting"
 msgstr ""
 
 #. ---
 #. preset extra submenu
-#: ../src/gx_head/gx_main_interface.cpp:2227
+#: ../src/gx_head/gx_main_interface.cpp:2230
 msgid "More Preset Options..."
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2229
+#: ../src/gx_head/gx_main_interface.cpp:2232
 msgid "Next _Preset"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2230
+#: ../src/gx_head/gx_main_interface.cpp:2233
 msgid "Previous _Preset"
 msgstr ""
 
 #. ---
-#: ../src/gx_head/gx_main_interface.cpp:2232
+#: ../src/gx_head/gx_main_interface.cpp:2235
 msgid "_Save Active Preset"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2233
+#: ../src/gx_head/gx_main_interface.cpp:2236
 msgid "_Rename Active Preset"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2234
+#: ../src/gx_head/gx_main_interface.cpp:2237
 msgid "_Delete Active Preset"
 msgstr ""
 
 #. ---
-#: ../src/gx_head/gx_main_interface.cpp:2236
+#: ../src/gx_head/gx_main_interface.cpp:2239
 msgid "_Delete All Presets"
 msgstr ""
 
 #. plugin menu
-#: ../src/gx_head/gx_main_interface.cpp:2239
+#: ../src/gx_head/gx_main_interface.cpp:2242
 msgid "P_lugins"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2241
+#: ../src/gx_head/gx_main_interface.cpp:2244
 msgid "Show Plugin _Bar"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2242
+#: ../src/gx_head/gx_main_interface.cpp:2245
 msgid "Show _Rack"
 msgstr ""
 
 #. ---
-#: ../src/gx_head/gx_main_interface.cpp:2244
+#: ../src/gx_head/gx_main_interface.cpp:2247
 msgid "Show Mono _Rack"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2245
+#: ../src/gx_head/gx_main_interface.cpp:2248
 msgid "_Mono Plugins"
 msgstr ""
 
 #. ---
-#: ../src/gx_head/gx_main_interface.cpp:2250
+#: ../src/gx_head/gx_main_interface.cpp:2253
 msgid "Show _Stereo Rack"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2251
+#: ../src/gx_head/gx_main_interface.cpp:2254
 msgid "_Stereo Plugins"
 msgstr ""
 
 #. amp menu
-#: ../src/gx_head/gx_main_interface.cpp:2258
+#: ../src/gx_head/gx_main_interface.cpp:2261
 msgid "_Tube "
 msgstr ""
 
 #. options menu
-#: ../src/gx_head/gx_main_interface.cpp:2263
+#: ../src/gx_head/gx_main_interface.cpp:2266
 msgid "_Options"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2265
+#: ../src/gx_head/gx_main_interface.cpp:2268
 msgid "_Meterbridge"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2266
+#: ../src/gx_head/gx_main_interface.cpp:2269
 msgid "_Tuner"
 msgstr ""
 
 #. skin submenu
-#: ../src/gx_head/gx_main_interface.cpp:2268
+#: ../src/gx_head/gx_main_interface.cpp:2271
 msgid "_Skin..."
 msgstr ""
 
 #. !skin submenu
-#: ../src/gx_head/gx_main_interface.cpp:2272
+#: ../src/gx_head/gx_main_interface.cpp:2275
 msgid "Set _Knobs Linear"
 msgstr ""
 
 #. -- Create logbox check menu item under Options submenu --
-#: ../src/gx_head/gx_main_interface.cpp:2273
-#: ../src/gx_head/gx_main_interface.cpp:2635
+#: ../src/gx_head/gx_main_interface.cpp:2276
+#: ../src/gx_head/gx_main_interface.cpp:2638
 msgid "Show _Logging Box"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2274
+#: ../src/gx_head/gx_main_interface.cpp:2277
 msgid "Show _Tooltips"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2275
+#: ../src/gx_head/gx_main_interface.cpp:2278
 msgid "Include MIDI in _presets"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2276
+#: ../src/gx_head/gx_main_interface.cpp:2279
 msgid "Reset _All Parameters"
 msgstr ""
 
 #. about menu
-#: ../src/gx_head/gx_main_interface.cpp:2280
-#: ../src/gx_head/gx_main_interface.cpp:2282
+#: ../src/gx_head/gx_main_interface.cpp:2283
+#: ../src/gx_head/gx_main_interface.cpp:2285
 msgid "_About"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2283
+#: ../src/gx_head/gx_main_interface.cpp:2286
 msgid "_Help"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2296
+#: ../src/gx_head/gx_main_interface.cpp:2299
 msgid "engine is on"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2301
+#: ../src/gx_head/gx_main_interface.cpp:2304
 msgid "engine is off"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2306
+#: ../src/gx_head/gx_main_interface.cpp:2309
 msgid "engine is in bypass mode"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2311
+#: ../src/gx_head/gx_main_interface.cpp:2314
 msgid "jack server is connected"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2316
+#: ../src/gx_head/gx_main_interface.cpp:2319
 msgid "jack server is unconnected"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2874
+#: ../src/gx_head/gx_main_interface.cpp:2877
 msgid ""
 "\n"
 "WARNING\n"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2875
+#: ../src/gx_head/gx_main_interface.cpp:2878
 msgid ""
 "CHANGING THE JACK_BUFFER_SIZE ON THE FLY \n"
 "MAY CAUSE UNPREDICTABLE EFFECTS \n"
@@ -1166,62 +1170,62 @@ msgid ""
 "DO YOU WANT TO PROCEED ?"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2897
+#: ../src/gx_head/gx_main_interface.cpp:2900
 msgid "Yes"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2901
+#: ../src/gx_head/gx_main_interface.cpp:2904
 msgid "No"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2913
+#: ../src/gx_head/gx_main_interface.cpp:2916
 msgid "Don't bother me again with such a question, I know what I am doing"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2961
-#: ../src/gx_head/gx_main_interface.cpp:2965
-#: ../src/gx_head/gx_main_interface.cpp:2984 ../src/gx_head/gx_system.cpp:344
+#: ../src/gx_head/gx_main_interface.cpp:2964
+#: ../src/gx_head/gx_main_interface.cpp:2968
+#: ../src/gx_head/gx_main_interface.cpp:2987 ../src/gx_head/gx_system.cpp:344
 #: ../src/gx_head/gx_system.cpp:422
 msgid "main"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2961
+#: ../src/gx_head/gx_main_interface.cpp:2964
 msgid "can't disconnect jack"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2965
+#: ../src/gx_head/gx_main_interface.cpp:2968
 msgid "Ignoring jackd ..."
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2975
+#: ../src/gx_head/gx_main_interface.cpp:2978
 msgid "jackd OK, trying to be a gxjack.client"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2985
+#: ../src/gx_head/gx_main_interface.cpp:2988
 msgid "I really tried to get jack up and running, sorry ... "
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2994
+#: ../src/gx_head/gx_main_interface.cpp:2997
 msgid "Jack Buffer Size setting"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:2995
+#: ../src/gx_head/gx_main_interface.cpp:2998
 msgid "we are not a jack gxjack.client, server may be down"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:3022
+#: ../src/gx_head/gx_main_interface.cpp:3025
 msgid "Setting Jack Buffer Size"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:3023
+#: ../src/gx_head/gx_main_interface.cpp:3026
 msgid "Could not change latency"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:3032
+#: ../src/gx_head/gx_main_interface.cpp:3035
 msgid "Jack Buffer Size"
 msgstr ""
 
-#: ../src/gx_head/gx_main_interface.cpp:3033
+#: ../src/gx_head/gx_main_interface.cpp:3036
 msgid "latency is %1%"
 msgstr ""
 
