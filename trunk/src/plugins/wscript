@@ -3,6 +3,10 @@
 
 import os
 
+csources = [ # generate .so files from c sources that can be loaded by guitarix
+    "vibe.cc",
+    ]
+
 sources = [ # generate .so files that can be loaded by guitarix
     ]
 
@@ -42,7 +46,7 @@ def build(bld):
     def run(task):
         l = []
         for i in task.inputs:
-            s = ("namespace %s { extern PluginDef plugin; }\n"
+            s = ("namespace %s { PluginDef *plugin(); }\n"
                  % os.path.splitext(os.path.basename(i.name))[0])
             l.append(s)
         f = file(task.outputs[0].bldpath(task.env),"w")
@@ -71,6 +75,14 @@ def build(bld):
             includes = ["../headers"],
             source = [s.replace(".dsp",".cc")],
             target = s.replace(".dsp",""),
+            )
+    for s in csources:
+        bld(name = "create plugin .so",
+            features = ['cxx', 'cshlib'],
+            type = 'cshlib',
+            includes = ["../headers"],
+            source = csources,
+            target = s.replace(".cc",""),
             )
     
 

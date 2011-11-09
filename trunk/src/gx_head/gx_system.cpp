@@ -356,7 +356,7 @@ string CmdlineOptions::get_opskin() {
     return opskin;
 }
 
-static void log_terminal(const string& msg, GxMsgType tp) {
+static void log_terminal(const string& msg, GxMsgType tp, bool plugged) {
     const char *t;
     switch (tp) {
     case kInfo:    t = "I"; break;
@@ -364,7 +364,9 @@ static void log_terminal(const string& msg, GxMsgType tp) {
     case kError:   t = "E"; break;
     default:       t = "?"; break;
     }
-    cerr << t << " " << msg << endl;
+    if (!plugged) {
+	cerr << t << " " << msg << endl;
+    }
 }
 
 void CmdlineOptions::make_ending_slash(string& dirpath) {
@@ -435,7 +437,8 @@ Logger::Logger()
       msgmutex(),
       got_new_msg(),
       ui_thread(),
-      handlers() {
+      handlers(),
+      queue_all_msgs(true) {
 }
 
 Logger& Logger::get_logger() {
@@ -462,6 +465,14 @@ Logger::msg_signal& Logger::signal_message() {
     return handlers;
 }
 
+void Logger::unplug_queue() {
+    if (!queue_all_msgs) {
+	return;
+    }
+    queue_all_msgs = false;
+    write_queued();
+}
+
 void Logger::write_queued() {
     if (handlers.empty()) {
 	return;
@@ -475,7 +486,7 @@ void Logger::write_queued() {
 
     // feed throught the handler(s)
     for (list<logmsg>::iterator i = l.begin(); i != l.end(); ++i) {
-	handlers(i->msg, i->msgtype);
+	handlers(i->msg, i->msgtype, i->plugged);
     }
 }
 
@@ -498,13 +509,16 @@ void Logger::print(const char* func, const string& msg, GxMsgType msgtype) {
     if (handlers.empty() || !(pthread_equal(pthread_self(), ui_thread))) {
 	boost::mutex::scoped_lock lock(msgmutex);
 	// defer output
-        msglist.push_back(logmsg(m, msgtype));
+        msglist.push_back(logmsg(m, msgtype, false));
 	if (!handlers.empty() && msglist.size() == 1) {
 	    (*got_new_msg)();
 	}
     } else {
 	write_queued();
-	handlers(m, msgtype);
+	handlers(m, msgtype, false);
+	if (queue_all_msgs) {
+	    msglist.push_back(logmsg(m, msgtype, true));
+	}
     }
 }
 

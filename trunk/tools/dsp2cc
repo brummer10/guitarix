@@ -1,7 +1,8 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
 
-import re, os, sys, StringIO
+import re, os, sys
+from cStringIO import StringIO
 from subprocess import Popen, PIPE
 from optparse import OptionParser
 
@@ -318,6 +319,7 @@ class Parser(object):
     def change_var_decl(self, lines):
         param_matcher = re.compile(r"FAUSTFLOAT\s+([a-zA-Z_0-9]+);\n$").match
         array_matcher = re.compile(r"(int|float|double)\s+([a-zA-Z_0-9]+)\s*\[\s*(\d+)\s*\]\s*;\n$").match
+        static_matcher = re.compile(r"static (int|float|double)\s+([a-zA-Z_0-9]+)\s*\[\s*(\d+)\s*\]\s*;\n$").match
         out = []
         for l in lines:
             m = param_matcher(l);
@@ -330,6 +332,9 @@ class Parser(object):
                     out.append(l)
                     out.append('FAUSTFLOAT\t*%s_;\n' % var)
                     l = '#define %s (*%s_)\n' % (var, var)
+            m = static_matcher(l);
+            if m:
+                self.staticlist.append((m.group(2), m.group(1), m.group(3)))
             if self.memory_threshold:
                 m = array_matcher(l)
                 if m:
@@ -339,7 +344,7 @@ class Parser(object):
                         l = "%s *%s;\n" % (m.group(1), m.group(2))
                         self.memlist.append((m.group(2), m.group(1), alen))
             if l.startswith(("int","float","double","FAUSTFLOAT")):
-                l = "static " + l
+                l = "%(static)s" + l
             out.append(l)
         return out
 
@@ -364,6 +369,7 @@ class Parser(object):
         self.name = None
         self.groups = {}
         self.memlist = []
+        self.staticlist = []
         s = {}
         self.ui = UIDefs()
         #self.readMeta()  # (needed only for faust 9.4
@@ -426,12 +432,14 @@ class Parser(object):
             l.append("\t%s, %s,\n" % (k, wrap_N_(v)))
         return "".join(l) + "\t0\n"
   
-    def write(self, fp, sect, indent=0, filt=lambda l: False):
+    def write(self, fp, sect, indent=0, filt=lambda l: False, dct=None):
         pre = "\t" * indent
         for l in self.sections[sect]:
             if filt(l):
                 continue
             fp.write(pre)
+            if dct:
+                l = l % dct
             fp.write(l)
 
 activate = """
@@ -440,7 +448,7 @@ static int activate(bool start, PluginDef* = 0)
     if (start) {
         if (!mem_allocated) {
             mem_alloc();
-            clear_state();
+            clear_state_f();
         }
     } else if (!mem_allocated) {
         mem_free();
@@ -493,112 +501,552 @@ static int load_ui(const UiBuilder& b) {
 }
 """
 
-def output(fp, p, fname, options):
-    has_activate = len(p.memlist) > 0
-    fp.write("// generated from file '%s' by dsp2cc:\n" % fname)
-    fp.write("// %s\n\n" % p.headvers)
-    if options.init_type == "plugin" and options.template_type in ("staticlib", "sharedlib"):
-        fp.write(plugin_standalone_header)
-    p.write(fp, "includes")
-    if options.in_namespace:
-        fp.write("namespace %s {\n" % options.in_namespace)
-    fp.write("namespace %s {\n" % p.modname)
-    p.write(fp, "var-decl")
-    if has_activate:
-        fp.write("static bool mem_allocated = false;\n")
-    fp.write("static int\tfSamplingFreq;\n\n")
-    s = StringIO.StringIO()
-    p.write(s, "var-init", 1, filt=p.ui.var_filter(0))
-    state = s.getvalue()
-    if state:
-        fp.write("static void clear_state(PluginDef* = 0)\n{\n")
-        fp.write(state);
-        fp.write("}\n\n")
-    if state and not has_activate:
-        fp.write("static void init(unsigned int samplingFreq, PluginDef* = 0)\n{\n")
-        p.write(fp, "var-init", 1, filt=p.ui.var_filter(1))
-        fp.write('\tclear_state();\n')
-        fp.write("}\n\n")
-    else:
-        fp.write("static void init(unsigned int samplingFreq, PluginDef* = 0)\n{\n")
-        p.write(fp, "var-init", 1, filt=p.ui.var_filter(1))
-        fp.write("}\n\n")
-    if has_activate:
-        fp.write("static void mem_alloc()\n{\n")
-        p.write(fp, "var-alloc", 1)
-        fp.write("\tmem_allocated = true;\n}\n\n")
-        fp.write("static void mem_free()\n{\n")
-        fp.write("\tmem_allocated = false;\n")
-        p.write(fp, "var-free", 1)
-        fp.write("}\n\n")
-        fp.write(activate)
-    fp.write("%s(int count%s%s" % (
-        "static void compute" if options.init_type == "plugin" else "void compute",
-        "".join([", float *input%d" % i for i in range(p.getNumInputs())]),
-        "".join([", float *output%d" % i for i in range(p.getNumOutputs())])))
-    if options.init_type == "plugin":
-        fp.write(", PluginDef *)\n{\n")
-    else:
-        fp.write(")\n{\n")
-    p.write(fp, "compute", 1)
-    fp.write("\t}\n}\n\n")
-    if options.init_type == "ctor":
-        fp.write("static struct RegisterParams { RegisterParams(); } RegisterParams;\n")
-        fp.write("RegisterParams::RegisterParams()\n{\n")
-        p.ui.write(fp)
-        fp.write('\tregisterInit("%s", init);\n' % p.topname)
-        fp.write("}\n")
-    elif options.init_type == "plugin":
-        fp.write("static int register_params(const ParamReg& reg)\n{\n")
-        p.ui.write(fp, prefix="reg.")
-        fp.write("\treturn 0;\n}\n")
-        load_ui = "0"
-        ui_name = fname.replace(".dsp", "_ui.glade")
+template_plugin = """\
+// generated from file '%(filepath)s' by dsp2cc:
+// %(headline)s
+#if %(has_standalone_header)s
+
+
+#include "gx_faust_support.h"
+#include "gx_plugin.h"
+#endif
+
+%(includes)s\
+%(start_extra_namespace)s\
+namespace %(namespace)s {
+%(var_decl)s\
+#if %(has_activate)s
+static bool mem_allocated = false;
+#endif
+static int	fSamplingFreq;
+
+#if %(has_state)s
+static void clear_state_f(PluginDef* = 0)
+{
+%(state_init)s\
+}
+
+#endif
+static void init(unsigned int samplingFreq, PluginDef* = 0)
+{
+%(init_body)s\
+#if %(has_state_no_activate)s
+	clear_state_f();
+#endif
+}
+
+#if %(has_activate)s
+static void mem_alloc()
+{
+%(var_alloc)s\
+	mem_allocated = true;
+}
+
+static void mem_free()
+{
+	mem_allocated = false;
+%(var_free)s\
+}
+
+
+static int activate(bool start, PluginDef* = 0)
+{
+    if (start) {
+        if (!mem_allocated) {
+            mem_alloc();
+            clear_state_f();
+        }
+    } else if (!mem_allocated) {
+        mem_free();
+    }
+    return 0;
+}
+
+#endif
+static void compute(int count%(compute_args)s, PluginDef *)
+{
+%(compute_body)s\
+	}
+}
+
+static int register_params(const ParamReg& reg)
+{
+%(register_body)s\
+	return 0;
+}
+#if %(has_cc_ui)s
+int load_ui(const UiBuilder& b) {
+%(cc_ui)s
+}
+
+#endif
+#if %(has_glade_ui)s
+
+static const char *glade_def = "\\
+%(glade_ui)s";
+
+static int load_ui(const UiBuilder& b) {
+    b.load_glade(glade_def);
+    return 0;
+}
+#endif
+%(groups_define)s\
+
+PluginDef plugindef = {
+    PLUGINDEF_VERSION,
+    0,   // flags
+    "%(plugin_id)s",  // id
+    %(plugin_name)s,  // name
+    %(groups_p)s,  // groups
+    %(mono_compute_p)s,  // mono_audio
+    %(stereo_compute_p)s,  // stereo_audio
+    init,  // set_samplerate
+    %(activate_p)s,  // activate plugin
+    register_params,
+    %(load_ui_p)s,   // load_ui
+    %(clear_state_p)s,  // clear_state
+    0, // delete_instance
+};
+
+PluginDef *plugin() {
+    return &plugindef;
+}
+
+} // end namespace %(namespace)s
+%(end_extra_namespace)s\
+"""
+
+template_plugin_instance = """\
+// generated from file '%(filepath)s' by dsp2cc:
+// %(headline)s
+#if %(has_standalone_header)s
+
+
+#include "gx_faust_support.h"
+#include "gx_plugin.h"
+#endif
+
+%(includes)s\
+%(start_extra_namespace)s\
+namespace %(namespace)s {
+class Dsp: public PluginDef {
+private:
+#if %(has_activate)s
+    bool mem_allocated;
+#endif
+%(var_decl)s\
+    int fSamplingFreq;
+#if %(has_state)s
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+#endif
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+#if %(has_activate)s
+    void mem_alloc();
+    void mem_free();
+    int activate(bool start);
+    static int activate_static(bool start, PluginDef*);
+#endif
+    void compute(int count%(compute_args)s);
+    static void compute_static(int count%(compute_args)s, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+#if %(has_cc_ui)s
+    int load_ui(const UiBuilder& b);
+    static int load_ui_static(const UiBuilder& b);
+#endif
+#if %(has_glade_ui)s
+    int load_ui(const UiBuilder& b);
+    static const char *glade_def;
+    static int load_ui_static(const UiBuilder& b);
+#endif
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
+
+%(static_decl)s\
+%(groups_define)s\
+
+Dsp::Dsp(): PluginDef() {
+#if %(has_activate)s
+    mem_allocated = false;
+#endif
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "%(plugin_id)s";
+    name = %(plugin_name)s;
+    groups = %(groups_p)s;
+    mono_audio = %(mono_compute_p)s;
+    stereo_audio = %(stereo_compute_p)s;
+    set_samplerate = init_static;
+    activate_plugin = %(activate_p)s;
+    register_params = register_params_static;
+    load_ui = %(load_ui_p)s;
+    clear_state = %(clear_state_p)s;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+#if %(has_state)s
+inline void Dsp::clear_state_f()
+{
+%(state_init)s\
+}
+
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+#endif
+
+inline void Dsp::init(unsigned int samplingFreq)
+{
+%(init_body)s\
+#if %(has_state_no_activate)s
+	clear_state_f();
+#endif
+}
+
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+#if %(has_activate)s
+void Dsp::mem_alloc()
+{
+%(var_alloc)s\
+	mem_allocated = true;
+}
+
+void Dsp::mem_free()
+{
+	mem_allocated = false;
+%(var_free)s\
+}
+
+int Dsp::activate(bool start)
+{
+    if (start) {
+        if (!mem_allocated) {
+            mem_alloc();
+            clear_state_f();
+        }
+    } else if (!mem_allocated) {
+        mem_free();
+    }
+    return 0;
+}
+
+int Dsp::activate_static(bool start, PluginDef *p)
+{
+    return static_cast<Dsp*>(p)->activate(start);
+}
+#endif
+
+inline void Dsp::compute(int count%(compute_args)s)
+{
+%(compute_body)s\
+	}
+}
+
+void Dsp::compute_static(int count%(compute_args)s, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count%(compute_call_args)s);
+}
+
+int Dsp::register_par(const ParamReg& reg)
+{
+%(register_body)s\
+	return 0;
+}
+
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+#if %(has_cc_ui)s
+inline int Dsp::load_ui(const UiBuilder& b)
+{
+%(cc_ui)s
+}
+
+int Dsp::load_ui_static(const UiBuilder& b)
+{
+    return static_cast<Dsp*>(b.plugin)->load_ui(b);
+}
+#endif
+#if %(has_glade_ui)s
+
+const char *Dsp::glade_def = "\\
+%(glade_ui)s";
+
+int Dsp::load_ui(const UiBuilder& b)
+{
+    b.load_glade(glade_def);
+    return 0;
+}
+
+int Dsp::load_ui(const UiBuilder& b)
+{
+    return static_cast<Dsp*>(b.plugin)->load_ui(b);
+}
+#endif
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
+
+} // end namespace %(namespace)s
+%(end_extra_namespace)s\
+"""
+
+class Output(object):
+
+    def __init__(self, parser, fname, options):
+        self.parser = parser
+        self.fname = fname
+        self.options = options
+        self.has_activate = len(self.parser.memlist) > 0
+        s = StringIO()
+        self.parser.write(s, "var-init", 1, filt=self.parser.ui.var_filter(0))
+        self.state_init = s.getvalue()
+
+
+    def write_head(self, fp):
+        "file header and anything that must not be in a namespace"
+        fp.write("// generated from file '%s' by dsp2cc:\n" % self.fname)
+        fp.write("// %s\n\n" % self.parser.headvers)
+        if self.options.init_type == "plugin" and self.options.template_type in ("staticlib", "sharedlib"):
+            fp.write(plugin_standalone_header)
+        self.parser.write(fp, "includes")
+
+    def write_load_ui(self, fp, wrap=True):
+        load_ui = 0
+        ui_name = self.fname.replace(".dsp", "_ui.glade")
         if os.path.exists(ui_name):
             xml = file(ui_name).read()
-            if p.ui.check_parameter(
-                fname, ui_name,
+            if self.parser.ui.check_parameter(
+                self.fname, ui_name,
                 re.findall('<property name="var_id">([^<]*)</property>',xml)):
                 raise SystemExit, 1
-            fp.write(loadui_glade % xml.replace("\\",r"\\").replace("\n","\\n\\\n").replace('"',r'\"'))
-            load_ui = "load_ui"
+            s = xml.replace("\\",r"\\").replace("\n","\\n\\\n").replace('"',r'\"')
+            if wrap:
+                fp.write(loadui_glade % s)
+            else:
+                fp.write(s)
+            load_ui = 2
         else:
-            ui_name = fname.replace(".dsp", "_ui.cc")
+            ui_name = self.fname.replace(".dsp", "_ui.cc")
             if os.path.exists(ui_name):
                 ccdef = file(ui_name).read()
-                if p.ui.check_parameter(
-                    fname, ui_name,
+                if self.parser.ui.check_parameter(
+                    self.fname, ui_name,
                     re.findall(r'\.create_[a-zA-Z0-9_]+\("([^"]*)',ccdef)):
                     raise SystemExit, 1
                 fp.write("\n")
                 fp.write(ccdef)
-                load_ui = "load_ui"
-        plugin_id = p.toplevel or p.topname
-        if p.groups:
-            fp.write("\nstatic const char* groups[] = {\n%s\t};\n" % p.formatted_groups(plugin_id))
-        if p.name:
-            plugin_name = wrap_N_(p.name)
+                load_ui = 1
+        return load_ui
+
+    def write_body_plugin(self, fp):
+        fp.write("static int register_params(const ParamReg& reg)\n{\n")
+        self.parser.ui.write(fp, prefix="reg.")
+        fp.write("\treturn 0;\n}\n")
+        if self.write_load_ui(fp):
+            load_ui = "load_ui"
         else:
-            plugin_name = '"?%s"' % p.modname
+            load_ui = "0"
+        plugin_id = self.parser.toplevel or self.parser.topname
+        if self.parser.groups:
+            fp.write("\nstatic const char* parm_groups[] = {\n%s\t};\n" % self.parser.formatted_groups(plugin_id))
+        if self.parser.name:
+            plugin_name = wrap_N_(self.parser.name)
+        else:
+            plugin_name = '"?%s"' % self.parser.modname
         fp.write(plugin % (
             plugin_id,    # id
             plugin_name,  # name
-            "groups" if p.groups else "0",  # groups
-            "compute" if p.getNumOutputs() == 1 else "0",  # mono_audio
-            "compute" if p.getNumOutputs() == 2 else "0",  # stereo_audio
-            "activate" if has_activate else "0",  # activate plugin
+            "parm_groups" if self.parser.groups else "0",  # groups
+            "compute" if self.parser.getNumOutputs() == 1 else "0",  # mono_audio
+            "compute" if self.parser.getNumOutputs() == 2 else "0",  # stereo_audio
+            "activate" if self.has_activate else "0",  # activate plugin
             load_ui, # load_ui
-            "clear_state" if state else "0", # clear_state
+            "clear_state_f" if self.state_init else "0", # clear_state
             ))
-    else:
-        fp.write("static int register_params(const ParamReg& reg)\n{\n")
-        p.ui.write(fp, prefix="reg.")
-        fp.write("\treturn 0;\n}\n")
-    if options.init_type == "plugin" and options.template_type == "sharedlib":
-        fp.write(plugin_standalone_footer)
-    fp.write("\n} // end namespace %s\n" % p.modname)
-    if options.in_namespace:
-        fp.write("} // end namespace %s\n" % options.in_namespace)
+
+    def parser_sect(self, sect, indent=0, filt=lambda l: False):
+        s = StringIO()
+        self.parser.write(s, sect, indent, filt)
+        return s.getvalue()
+
+    def parser_ui(self, prefix=""):
+        s = StringIO()
+        self.parser.ui.write(s, prefix)
+        return s.getvalue()
+
+    def gen_load_ui(self):
+        s = StringIO()
+        ret = self.write_load_ui(s, False)
+        if ret == 0:
+            return False, "", False, ""
+        if ret == 1:
+            return True, s.getvalue(), False, ""
+        if ret == 2:
+            return False, "", True, s.getvalue()
+        assert(False)
+
+    def write_plugin(self, fp):
+        if self.options.init_type == "plugin":
+            dd = dict(static = "static ", cls = "")
+            ds = ""
+        else:
+            dd = dict(static = "", cls = "Dsp::")
+            ds = "_static"
+        plugin_standalone = self.options.template_type in ("staticlib", "sharedlib")
+        in_namespace = self.options.in_namespace
+        compute_args = ("".join([", float *input%d" % i for i in range(self.parser.getNumInputs())])
+                        + "".join([", float *output%d" % i for i in range(self.parser.getNumOutputs())]))
+        compute_call_args = ("".join([", input%d" % i for i in range(self.parser.getNumInputs())])
+                             + "".join([", output%d" % i for i in range(self.parser.getNumOutputs())]))
+        has_cc_ui, cc_ui, has_glade_ui, glade_ui = self.gen_load_ui()
+        plugin_id = self.parser.toplevel or self.parser.topname
+        if self.parser.groups:
+            groups_define = "\nstatic const char* parm_groups[] = {\n%s\t};\n" % self.parser.formatted_groups(plugin_id)
+        else:
+            groups_define = ""
+        if self.parser.name:
+            plugin_name = wrap_N_(self.parser.name)
+        else:
+            plugin_name = '"?%s"' % self.parser.modname
+        static_decl = "".join(["%s Dsp::%s[%s];\n" % (tp, v, n) for v, tp, n in self.parser.staticlist])
+        template = template_plugin if self.options.init_type == "plugin" else template_plugin_instance
+        s = StringIO()
+        s.write(template % dict(
+            filepath = self.fname,
+            headline = self.parser.headvers,
+            start_extra_namespace = "namespace %s {\n" % in_namespace if in_namespace else "",
+            end_extra_namespace = "} // end namespace %s\n" % in_namespace if in_namespace else "",
+            has_standalone_header = plugin_standalone,
+            includes = self.parser_sect("includes"),
+            namespace = self.parser.modname,
+            var_decl = self.parser_sect("var-decl") % dd,
+            static_decl = static_decl,
+            has_activate = self.has_activate,
+            state_init = self.state_init,
+            has_state = self.state_init != "",
+            has_state_no_activate = self.state_init != "" and not self.has_activate,
+            init_body = self.parser_sect("var-init", 1, filt=self.parser.ui.var_filter(1)),
+            var_alloc = self.parser_sect("var-alloc", 1),
+            var_free = self.parser_sect("var-free", 1),
+            compute_args = compute_args,
+            compute_call_args = compute_call_args,
+            compute_body = self.parser_sect("compute", 1),
+            register_body = self.parser_ui("reg."),
+            has_cc_ui = has_cc_ui,
+            has_glade_ui = has_glade_ui,
+            cc_ui = cc_ui,
+            glade_ui = glade_ui,
+            groups_define =  groups_define,
+            plugin_id = plugin_id,
+            plugin_name = plugin_name,
+            groups_p = "parm_groups" if groups_define else "0",
+            mono_compute_p = "compute"+ds if self.parser.getNumOutputs() == 1 else "0",
+            stereo_compute_p = "compute"+ds if self.parser.getNumOutputs() == 2 else "0",
+            activate_p = "activate"+ds if self.has_activate else "0",
+            load_ui_p = "load_ui"+ds if has_cc_ui or has_glade_ui else "0",
+            clear_state_p = "clear_state_f"+ds if self.state_init else "0",
+            ))
+        s.seek(0)
+        skip = -1
+        for l in s:
+            if l.startswith("#if "):
+                if l.endswith("True\n"):
+                    skip = 0
+                elif l.endswith("False\n"):
+                    skip = 1
+                else:
+                    assert(False)
+                continue
+            elif l == "#endif\n":
+                skip = -1
+                continue
+            if skip != 1:
+                fp.write(l)
+
+    def write(self, fp):
+        if self.options.init_type in ("plugin", "plugin-instance"):
+            self.write_plugin(fp)
+            return
+        #FIXME: cleanup when write_plugin can generate code for all types of plugins
+        self.write_head(fp)
+        if self.options.in_namespace:
+            fp.write("namespace %s {\n" % self.options.in_namespace)
+        fp.write("namespace %s {\n" % self.parser.modname)
+        self.parser.write(fp, "var-decl", dct=dict(static="static "))
+        if self.has_activate:
+            fp.write("static bool mem_allocated = false;\n")
+        fp.write("static int\tfSamplingFreq;\n\n")
+        if self.state_init:
+            fp.write("static void clear_state_f(PluginDef* = 0)\n{\n")
+            fp.write(self.state_init);
+            fp.write("}\n\n")
+        if self.state_init and not self.has_activate:
+            fp.write("static void init(unsigned int samplingFreq, PluginDef* = 0)\n{\n")
+            self.parser.write(fp, "var-init", 1, filt=self.parser.ui.var_filter(1))
+            fp.write('\tclear_state_f();\n')
+            fp.write("}\n\n")
+        else:
+            fp.write("static void init(unsigned int samplingFreq, PluginDef* = 0)\n{\n")
+            self.parser.write(fp, "var-init", 1, filt=self.parser.ui.var_filter(1))
+            fp.write("}\n\n")
+        if self.has_activate:
+            fp.write("static void mem_alloc()\n{\n")
+            self.parser.write(fp, "var-alloc", 1)
+            fp.write("\tmem_allocated = true;\n}\n\n")
+            fp.write("static void mem_free()\n{\n")
+            fp.write("\tmem_allocated = false;\n")
+            self.parser.write(fp, "var-free", 1)
+            fp.write("}\n\n")
+            fp.write(activate)
+        fp.write("%s(int count%s%s" % (
+            "static void compute" if self.options.init_type == "plugin" else "void compute",
+            "".join([", float *input%d" % i for i in range(self.parser.getNumInputs())]),
+            "".join([", float *output%d" % i for i in range(self.parser.getNumOutputs())])))
+        if self.options.init_type == "plugin":
+            fp.write(", PluginDef *)\n{\n")
+        else:
+            fp.write(")\n{\n")
+        self.parser.write(fp, "compute", 1)
+        fp.write("\t}\n}\n\n")
+        if self.options.init_type == "ctor":
+            fp.write("static struct RegisterParams { RegisterParams(); } RegisterParams;\n")
+            fp.write("RegisterParams::RegisterParams()\n{\n")
+            self.parser.ui.write(fp)
+            fp.write('\tregisterInit("%s", init);\n' % self.parser.topname)
+            fp.write("}\n")
+        elif self.options.init_type == "plugin":
+            self.write_body_plugin(fp)
+        else:
+            fp.write("static int register_params(const ParamReg& reg)\n{\n")
+            self.parser.ui.write(fp, prefix="reg.")
+            fp.write("\treturn 0;\n}\n")
+        if self.options.init_type == "plugin" and self.options.template_type == "sharedlib":
+            fp.write(plugin_standalone_footer)
+        fp.write("\n} // end namespace %s\n" % self.parser.modname)
+        if self.options.in_namespace:
+            fp.write("} // end namespace %s\n" % self.options.in_namespace)
+
 
 def main():
     op = OptionParser(usage="usage: %prog [options] <faust-dsp-file>")
@@ -611,7 +1059,7 @@ def main():
     op.add_option("-s", "--memory-threshold", dest="memory_threshold",
                   default=0, type="int",
                   help="change static memory allocations above threshold to dynamic ones")
-    init_opts = ["ctor", "no-init", "plugin", "plugin-standalone"]
+    init_opts = ["ctor", "no-init", "plugin", "plugin-instance", "plugin-standalone"]
     op.add_option("-i", "--init-type", dest="init_type", action="store", default="ctor",
                   help="type of init code generation: %s" % ", ".join(init_opts))
     template_opts = ["embed", "staticlib", "sharedlib"]
@@ -650,7 +1098,7 @@ def main():
         outp = file(options.oname,"w")
     else:
         outp = sys.stdout
-    output(outp, parser, fname, options)
+    Output(parser, fname, options).write(outp)
 
 if __name__ == "__main__":
     main()

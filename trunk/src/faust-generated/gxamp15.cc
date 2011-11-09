@@ -3,133 +3,167 @@
 
 #include "valve.h"
 namespace gxamp15 {
-static int 	iConst0;
-static double 	fConst1;
-static double 	fConst2;
-static double 	fConst3;
-static double 	fConst4;
-static double 	fConst5;
-static double 	fConst6;
-static double 	fConst7;
-static double 	fRec2[2];
+class Dsp: public PluginDef {
+private:
+int 	iConst0;
+double 	fConst1;
+double 	fConst2;
+double 	fConst3;
+double 	fConst4;
+double 	fConst5;
+double 	fConst6;
+double 	fConst7;
+double 	fRec2[2];
 FAUSTFLOAT 	fslider0;
 FAUSTFLOAT	*fslider0_;
 #define fslider0 (*fslider0_)
-static double 	fRec3[2];
+double 	fRec3[2];
 FAUSTFLOAT 	fslider1;
 FAUSTFLOAT	*fslider1_;
 #define fslider1 (*fslider1_)
-static double 	fRec5[2];
+double 	fRec5[2];
 FAUSTFLOAT 	fslider2;
 FAUSTFLOAT	*fslider2_;
 #define fslider2 (*fslider2_)
-static double 	fRec13[2];
-static double 	fConst8;
-static double 	fConst9;
-static double 	fConst10;
-static double 	fConst11;
-static double 	fRec14[2];
-static double 	fRec12[3];
-static double 	fConst12;
-static double 	fConst13;
-static double 	fRec11[2];
-static double 	fConst14;
-static double 	fRec10[2];
-static double 	fConst15;
-static double 	fConst16;
-static double 	fConst17;
-static double 	fConst18;
-static double 	fRec15[2];
-static double 	fRec9[3];
-static double 	fRec8[2];
-static double 	fConst19;
-static double 	fConst20;
-static double 	fConst21;
-static double 	fConst22;
-static double 	fRec16[2];
-static double 	fRec7[3];
-static double 	fRec6[2];
+double 	fRec13[2];
+double 	fConst8;
+double 	fConst9;
+double 	fConst10;
+double 	fConst11;
+double 	fRec14[2];
+double 	fRec12[3];
+double 	fConst12;
+double 	fConst13;
+double 	fRec11[2];
+double 	fConst14;
+double 	fRec10[2];
+double 	fConst15;
+double 	fConst16;
+double 	fConst17;
+double 	fConst18;
+double 	fRec15[2];
+double 	fRec9[3];
+double 	fRec8[2];
+double 	fConst19;
+double 	fConst20;
+double 	fConst21;
+double 	fConst22;
+double 	fRec16[2];
+double 	fRec7[3];
+double 	fRec6[2];
 FAUSTFLOAT 	fslider3;
 FAUSTFLOAT	*fslider3_;
 #define fslider3 (*fslider3_)
-static double 	fConst23;
-static double 	fConst24;
-static double 	fConst25;
-static double 	fConst26;
-static double 	fConst27;
-static double 	fConst28;
-static double 	fConst29;
-static double 	fConst30;
-static double 	fConst31;
-static double 	fConst32;
-static double 	fConst33;
-static double 	fConst34;
-static double 	fConst35;
-static double 	fConst36;
-static double 	fConst37;
-static double 	fConst38;
-static double 	fConst39;
-static double 	fConst40;
-static double 	fConst41;
-static double 	fConst42;
-static double 	fConst43;
-static double 	fConst44;
-static double 	fConst45;
-static double 	fConst46;
-static double 	fConst47;
-static double 	fConst48;
-static double 	fConst49;
-static double 	fConst50;
-static double 	fConst51;
-static double 	fConst52;
-static double 	fRec24[3];
-static double 	fVec0[2];
-static double 	fConst53;
-static double 	fRec23[2];
-static double 	fConst54;
-static double 	fRec22[2];
-static double 	fRec21[3];
-static double 	fVec1[2];
-static double 	fConst55;
-static double 	fConst56;
-static double 	fRec20[2];
-static double 	fRec19[3];
-static double 	fConst57;
-static double 	fRec18[3];
-static double 	fConst58;
-static double 	fConst59;
-static double 	fConst60;
-static double 	fConst61;
-static double 	fRec28[2];
-static double 	fRec27[3];
-static double 	fVec2[2];
-static double 	fConst62;
-static double 	fConst63;
-static double 	fRec26[2];
-static double 	fRec25[3];
-static double 	fConst64;
-static double 	fConst65;
-static double 	fConst66;
-static double 	fConst67;
-static double 	fRec32[2];
-static double 	fRec31[3];
-static double 	fConst68;
-static double 	fRec30[3];
-static double 	fRec29[3];
-static double 	fRec34[2];
-static double 	fRec33[3];
-static double 	fVec3[2];
-static double 	fRec17[2];
-static double 	fVec4[2];
-static double 	fRec4[2];
-static double 	fRec1[3];
-static double 	fRec0[2];
-static double 	fRec37[2];
-static double 	fRec36[3];
-static double 	fRec35[2];
-static int	fSamplingFreq;
+double 	fConst23;
+double 	fConst24;
+double 	fConst25;
+double 	fConst26;
+double 	fConst27;
+double 	fConst28;
+double 	fConst29;
+double 	fConst30;
+double 	fConst31;
+double 	fConst32;
+double 	fConst33;
+double 	fConst34;
+double 	fConst35;
+double 	fConst36;
+double 	fConst37;
+double 	fConst38;
+double 	fConst39;
+double 	fConst40;
+double 	fConst41;
+double 	fConst42;
+double 	fConst43;
+double 	fConst44;
+double 	fConst45;
+double 	fConst46;
+double 	fConst47;
+double 	fConst48;
+double 	fConst49;
+double 	fConst50;
+double 	fConst51;
+double 	fConst52;
+double 	fRec24[3];
+double 	fVec0[2];
+double 	fConst53;
+double 	fRec23[2];
+double 	fConst54;
+double 	fRec22[2];
+double 	fRec21[3];
+double 	fVec1[2];
+double 	fConst55;
+double 	fConst56;
+double 	fRec20[2];
+double 	fRec19[3];
+double 	fConst57;
+double 	fRec18[3];
+double 	fConst58;
+double 	fConst59;
+double 	fConst60;
+double 	fConst61;
+double 	fRec28[2];
+double 	fRec27[3];
+double 	fVec2[2];
+double 	fConst62;
+double 	fConst63;
+double 	fRec26[2];
+double 	fRec25[3];
+double 	fConst64;
+double 	fConst65;
+double 	fConst66;
+double 	fConst67;
+double 	fRec32[2];
+double 	fRec31[3];
+double 	fConst68;
+double 	fRec30[3];
+double 	fRec29[3];
+double 	fRec34[2];
+double 	fRec33[3];
+double 	fVec3[2];
+double 	fRec17[2];
+double 	fVec4[2];
+double 	fRec4[2];
+double 	fRec1[3];
+double 	fRec0[2];
+double 	fRec37[2];
+double 	fRec36[3];
+double 	fRec35[2];
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void compute(int count, float *input0, float *output0);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+Dsp::Dsp(): PluginDef() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "pre 12AT7/ master 6V6";
+    name = N_("pre 12AT7/ master 6V6");
+    groups = 0;
+    mono_audio = compute_static;
+    stereo_audio = 0;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<2; i++) fRec3[i] = 0;
@@ -176,7 +210,12 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<2; i++) fRec35[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
@@ -248,10 +287,16 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	fConst66 = (1.0 / (1 + ((1.0 + fConst32) / fConst29)));
 	fConst67 = (0 - fConst41);
 	fConst68 = (2 * (0 - fConst39));
-	clear_state();
+	clear_state_f();
 }
 
-static void compute(int count, float *input0, float *output0, PluginDef *)
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+
+inline void Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * fslider0)));
 	double 	fSlow1 = (1.000000000000001e-05 * fslider1);
@@ -371,7 +416,12 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, output0);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 #undef fslider3
 	fslider3_ = reg.registerVar("gxdistortion.drive","","SA","",&fslider3, 0.35, 0.0, 1.0, 0.01);
@@ -384,19 +434,19 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "pre 12AT7/ master 6V6",  // id
-    N_("pre 12AT7/ master 6V6"),  // name
-    0,  // groups
-    compute,  // mono_audio
-    0,  // stereo_audio
-    init,  // set_samplerate
-    0,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace gxamp15

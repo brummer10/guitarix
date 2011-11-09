@@ -2,50 +2,84 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace selecteq {
-static FAUSTFLOAT 	fslider0;
-static double 	fConst0;
-static FAUSTFLOAT 	fslider1;
-static FAUSTFLOAT 	fslider2;
-static FAUSTFLOAT 	fslider3;
-static FAUSTFLOAT 	fslider4;
-static FAUSTFLOAT 	fslider5;
-static FAUSTFLOAT 	fslider6;
-static FAUSTFLOAT 	fslider7;
-static FAUSTFLOAT 	fslider8;
-static FAUSTFLOAT 	fslider9;
-static FAUSTFLOAT 	fslider10;
-static FAUSTFLOAT 	fslider11;
-static FAUSTFLOAT 	fslider12;
-static FAUSTFLOAT 	fslider13;
-static FAUSTFLOAT 	fslider14;
-static FAUSTFLOAT 	fslider15;
-static FAUSTFLOAT 	fslider16;
-static FAUSTFLOAT 	fslider17;
-static FAUSTFLOAT 	fslider18;
-static FAUSTFLOAT 	fslider19;
-static FAUSTFLOAT 	fslider20;
-static FAUSTFLOAT 	fslider21;
-static FAUSTFLOAT 	fslider22;
-static FAUSTFLOAT 	fslider23;
-static FAUSTFLOAT 	fslider24;
-static FAUSTFLOAT 	fslider25;
-static FAUSTFLOAT 	fslider26;
-static FAUSTFLOAT 	fslider27;
-static FAUSTFLOAT 	fslider28;
-static FAUSTFLOAT 	fslider29;
-static double 	fRec9[3];
-static double 	fRec8[3];
-static double 	fRec7[3];
-static double 	fRec6[3];
-static double 	fRec5[3];
-static double 	fRec4[3];
-static double 	fRec3[3];
-static double 	fRec2[3];
-static double 	fRec1[3];
-static double 	fRec0[3];
-static int	fSamplingFreq;
+class Dsp: public PluginDef {
+private:
+FAUSTFLOAT 	fslider0;
+double 	fConst0;
+FAUSTFLOAT 	fslider1;
+FAUSTFLOAT 	fslider2;
+FAUSTFLOAT 	fslider3;
+FAUSTFLOAT 	fslider4;
+FAUSTFLOAT 	fslider5;
+FAUSTFLOAT 	fslider6;
+FAUSTFLOAT 	fslider7;
+FAUSTFLOAT 	fslider8;
+FAUSTFLOAT 	fslider9;
+FAUSTFLOAT 	fslider10;
+FAUSTFLOAT 	fslider11;
+FAUSTFLOAT 	fslider12;
+FAUSTFLOAT 	fslider13;
+FAUSTFLOAT 	fslider14;
+FAUSTFLOAT 	fslider15;
+FAUSTFLOAT 	fslider16;
+FAUSTFLOAT 	fslider17;
+FAUSTFLOAT 	fslider18;
+FAUSTFLOAT 	fslider19;
+FAUSTFLOAT 	fslider20;
+FAUSTFLOAT 	fslider21;
+FAUSTFLOAT 	fslider22;
+FAUSTFLOAT 	fslider23;
+FAUSTFLOAT 	fslider24;
+FAUSTFLOAT 	fslider25;
+FAUSTFLOAT 	fslider26;
+FAUSTFLOAT 	fslider27;
+FAUSTFLOAT 	fslider28;
+FAUSTFLOAT 	fslider29;
+double 	fRec9[3];
+double 	fRec8[3];
+double 	fRec7[3];
+double 	fRec6[3];
+double 	fRec5[3];
+double 	fRec4[3];
+double 	fRec3[3];
+double 	fRec2[3];
+double 	fRec1[3];
+double 	fRec0[3];
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void compute(int count, float *input0, float *output0);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+Dsp::Dsp(): PluginDef() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "eqs";
+    name = N_("Scaleable EQ");
+    groups = 0;
+    mono_audio = compute_static;
+    stereo_audio = 0;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<3; i++) fRec9[i] = 0;
 	for (int i=0; i<3; i++) fRec8[i] = 0;
@@ -59,14 +93,25 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<3; i++) fRec0[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = (3.141592653589793 / min(192000, max(1, fSamplingFreq)));
-	clear_state();
+	clear_state_f();
 }
 
-static void compute(int count, float *input0, float *output0, PluginDef *)
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+
+inline void Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = tan((fConst0 * fslider0));
 	double 	fSlow1 = (2 * (faustpower<2>(fSlow0) - 1));
@@ -194,7 +239,12 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, output0);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("eqs.Qs31_25","","S","",&fslider28, 5e+01, 1.0, 1e+02, 1.0);
 	reg.registerVar("eqs.fs31_25","","S",N_("gain (dB) at 31.25 Hz"),&fslider29, 0.0, -5e+01, 1e+01, 0.1);
@@ -229,19 +279,19 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "eqs",  // id
-    N_("Scaleable EQ"),  // name
-    0,  // groups
-    compute,  // mono_audio
-    0,  // stereo_audio
-    init,  // set_samplerate
-    0,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace selecteq

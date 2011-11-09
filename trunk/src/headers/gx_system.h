@@ -265,24 +265,27 @@ typedef enum {
 
 class Logger: public sigc::trackable {
 private:
-    typedef sigc::signal<void, const string&, GxMsgType> msg_signal;
+    typedef sigc::signal<void, const string&, GxMsgType, bool> msg_signal;
     struct logmsg {
 	string msg;
 	GxMsgType msgtype;
-	logmsg(string m, GxMsgType t): msg(m), msgtype(t) {}
+	bool plugged;
+	logmsg(string m, GxMsgType t, bool p): msg(m), msgtype(t), plugged(p) {}
     };
     list<logmsg> msglist;
     boost::mutex msgmutex;
     Glib::Dispatcher* got_new_msg;
     pthread_t ui_thread;
     msg_signal handlers;
+    bool queue_all_msgs;
     string format(const char* func, const string& msg);
     void set_ui_thread();
     Logger();
     ~Logger();
-public:
-    msg_signal& signal_message();
     void write_queued();
+public:
+    void unplug_queue();
+    msg_signal& signal_message();
     void print(const char* func, const string& msg, GxMsgType msgtype);
     static Logger& get_logger();
 };

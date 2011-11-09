@@ -2,36 +2,81 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace tonestack_ac30 {
+class Dsp: public PluginDef {
+private:
 FAUSTFLOAT 	fslider0;
 FAUSTFLOAT	*fslider0_;
 #define fslider0 (*fslider0_)
 FAUSTFLOAT 	fslider1;
 FAUSTFLOAT	*fslider1_;
 #define fslider1 (*fslider1_)
-static double 	fConst0;
-static double 	fConst1;
-static double 	fConst2;
-static double 	fRec0[4];
+double 	fConst0;
+double 	fConst1;
+double 	fConst2;
+double 	fRec0[4];
 FAUSTFLOAT 	fslider2;
 FAUSTFLOAT	*fslider2_;
 #define fslider2 (*fslider2_)
-static int	fSamplingFreq;
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void compute(int count, float *input0, float *output0);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+Dsp::Dsp(): PluginDef() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "AC-30";
+    name = N_("AC-30");
+    groups = 0;
+    mono_audio = compute_static;
+    stereo_audio = 0;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<4; i++) fRec0[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = (2 * double(min(192000, max(1, fSamplingFreq))));
 	fConst1 = faustpower<2>(fConst0);
 	fConst2 = (3 * fConst0);
-	clear_state();
+	clear_state_f();
 }
 
-static void compute(int count, float *input0, float *output0, PluginDef *)
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+
+inline void Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = (4.851e-08 * fSlow0);
@@ -69,7 +114,12 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, output0);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 #undef fslider2
 	fslider2_ = reg.registerVar("amp.tonestack.Treble","","SA","",&fslider2, 0.5, 0.0, 1.0, 0.01);
@@ -80,19 +130,19 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "AC-30",  // id
-    N_("AC-30"),  // name
-    0,  // groups
-    compute,  // mono_audio
-    0,  // stereo_audio
-    init,  // set_samplerate
-    0,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace tonestack_ac30

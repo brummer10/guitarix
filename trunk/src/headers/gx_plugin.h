@@ -56,6 +56,7 @@ public:
     // prefix or change the checker
     void create_small_rackknob(const char *id) const;
     void create_small_rackknob(const char *id, const char *label) const;
+    void create_selector(const char *id) const;
     //FIXME add missing functions
 };
 
@@ -102,6 +103,7 @@ typedef void (*process_stereo_audio) (int count, float *input1, float *input2,
 				      float *output1, float *output2, PluginDef *plugin);
 typedef int (*registerfunc)(const ParamReg& reg);
 typedef int (*uiloader)(const UiBuilder& builder);
+typedef void (*deletefunc)(PluginDef *plugin);
 
 enum {
     PGN_STEREO      =  0x01, // stereo plugin (auto set when stereo_audio)
@@ -120,7 +122,7 @@ enum {
 };
 
 #define PLUGINDEF_VERMAJOR_MASK 0xff00
-#define PLUGINDEF_VERSION       0x0100
+#define PLUGINDEF_VERSION       0x0200
 
 struct PluginDef {
     int version;	 // = PLUGINDEF_VERSION
@@ -142,6 +144,7 @@ struct PluginDef {
     uiloader load_ui; // called once after module loading (define user interface)
     clearstatefunc clear_state;	// clear internal audio state; may be called
 				// before calling the process function
+    deletefunc delete_instance; // delete this plugin instance
 };
 
 // shared libraries with plugin modules must define

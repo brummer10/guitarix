@@ -2,21 +2,65 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace bassbooster {
-static double 	fConst0;
-static double 	fConst1;
-static double 	fConst2;
-static double 	fConst3;
-static double 	fConst4;
-static double 	fRec0[3];
-static FAUSTFLOAT 	fslider0;
-static int	fSamplingFreq;
+class Dsp: public PluginDef {
+private:
+double 	fConst0;
+double 	fConst1;
+double 	fConst2;
+double 	fConst3;
+double 	fConst4;
+double 	fRec0[3];
+FAUSTFLOAT 	fslider0;
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void compute(int count, float *input0, float *output0);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+static const char* parm_groups[] = {
+	".bassbooster", N_("Bassbooster"),
+	0
+	};
+
+Dsp::Dsp(): PluginDef() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "amp.bass_boost";
+    name = N_("Bassbooster");
+    groups = parm_groups;
+    mono_audio = compute_static;
+    stereo_audio = 0;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<3; i++) fRec0[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = tan((376.99111843077515 / min(192000, max(1, fSamplingFreq))));
@@ -24,10 +68,16 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	fConst2 = (2 * (fConst1 - 1));
 	fConst3 = (1 + (fConst0 * (fConst0 - 1.4142135623730951)));
 	fConst4 = (1.0 / (1 + (fConst0 * (1.4142135623730951 + fConst0))));
-	clear_state();
+	clear_state_f();
 }
 
-static void compute(int count, float *input0, float *output0, PluginDef *)
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+
+inline void Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = pow(10,(0.05 * fslider0));
 	double 	fSlow1 = sqrt((2 * fSlow0));
@@ -43,30 +93,30 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, output0);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("bassbooster.Level","","S","",&fslider0, 1e+01, 0.5, 2e+01, 0.5);
 	return 0;
 }
 
-static const char* groups[] = {
-	".bassbooster", N_("Bassbooster"),
-	0
-	};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "amp.bass_boost",  // id
-    N_("Bassbooster"),  // name
-    groups,  // groups
-    compute,  // mono_audio
-    0,  // stereo_audio
-    init,  // set_samplerate
-    0,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace bassbooster

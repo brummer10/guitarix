@@ -191,9 +191,9 @@ bool* PluginList::on_off_var(const char *id) {
 }
 
 int PluginList::load_library(const string& path, PluginPos pos) {
-    void* handle = dlopen(path.c_str(), RTLD_LAZY);
+    void* handle = dlopen(path.c_str(), RTLD_NOW);
     if (!handle) {
-	gx_system::gx_print_warning(
+	gx_system::gx_print_error(
 	    _("Plugin Loader"),
 	    boost::format(_("Cannot open library: %1%")) % dlerror());
         return -1;
@@ -246,10 +246,11 @@ int PluginList::load_from_path(const string& path, PluginPos pos) {
 }
 
 int PluginList::check_version(PluginDef *p) {
-    if ((p->version & PLUGINDEF_VERMAJOR_MASK) != (PLUGINDEF_VERSION & PLUGINDEF_VERMAJOR_MASK)) {
+    if ((p->version & PLUGINDEF_VERMAJOR_MASK) > (PLUGINDEF_VERSION & PLUGINDEF_VERMAJOR_MASK)) {
 	gx_system::gx_print_error(
 	    _("Plugin Loader"),
-	    boost::format(_("Plugin '%1%' has wrong version")) % p->id);
+	    boost::format(_("Plugin '%1%' has wrong version %2$#4x (current version: %3$#4x)"))
+	    % p->id % p->version % PLUGINDEF_VERSION);
 	return -1;
     }
     return 0;
@@ -320,6 +321,16 @@ int PluginList::add(PluginDef **p, PluginPos pos, int flags) {
     int count = 0;
     while (*p) {
         if (add(*p++, pos, flags) == 0) {
+	    count++;
+	}
+    }
+    return count;
+}
+
+int PluginList::add(plugindef_creator *p, PluginPos pos, int flags) {
+    int count = 0;
+    while (*p) {
+        if (add((*p++)(), pos, flags) == 0) {
 	    count++;
 	}
     }

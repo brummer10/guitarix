@@ -2,45 +2,79 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace freeverb {
-static FAUSTFLOAT 	fslider0;
-static FAUSTFLOAT 	fslider1;
-static double 	fRec9[2];
-static FAUSTFLOAT 	fslider2;
-static int 	IOTA;
-static double 	fVec0[2048];
-static double 	fRec8[2];
-static double 	fRec11[2];
-static double 	fVec1[2048];
-static double 	fRec10[2];
-static double 	fRec13[2];
-static double 	fVec2[2048];
-static double 	fRec12[2];
-static double 	fRec15[2];
-static double 	fVec3[2048];
-static double 	fRec14[2];
-static double 	fRec17[2];
-static double 	fVec4[2048];
-static double 	fRec16[2];
-static double 	fRec19[2];
-static double 	fVec5[2048];
-static double 	fRec18[2];
-static double 	fRec21[2];
-static double 	fVec6[2048];
-static double 	fRec20[2];
-static double 	fRec23[2];
-static double 	fVec7[2048];
-static double 	fRec22[2];
-static double 	fVec8[1024];
-static double 	fRec6[2];
-static double 	fVec9[512];
-static double 	fRec4[2];
-static double 	fVec10[512];
-static double 	fRec2[2];
-static double 	fVec11[256];
-static double 	fRec0[2];
-static int	fSamplingFreq;
+class Dsp: public PluginDef {
+private:
+FAUSTFLOAT 	fslider0;
+FAUSTFLOAT 	fslider1;
+double 	fRec9[2];
+FAUSTFLOAT 	fslider2;
+int 	IOTA;
+double 	fVec0[2048];
+double 	fRec8[2];
+double 	fRec11[2];
+double 	fVec1[2048];
+double 	fRec10[2];
+double 	fRec13[2];
+double 	fVec2[2048];
+double 	fRec12[2];
+double 	fRec15[2];
+double 	fVec3[2048];
+double 	fRec14[2];
+double 	fRec17[2];
+double 	fVec4[2048];
+double 	fRec16[2];
+double 	fRec19[2];
+double 	fVec5[2048];
+double 	fRec18[2];
+double 	fRec21[2];
+double 	fVec6[2048];
+double 	fRec20[2];
+double 	fRec23[2];
+double 	fVec7[2048];
+double 	fRec22[2];
+double 	fVec8[1024];
+double 	fRec6[2];
+double 	fVec9[512];
+double 	fRec4[2];
+double 	fVec10[512];
+double 	fRec2[2];
+double 	fVec11[256];
+double 	fRec0[2];
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void compute(int count, float *input0, float *output0);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+Dsp::Dsp(): PluginDef() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "freeverb";
+    name = N_("Freeverb");
+    groups = 0;
+    mono_audio = compute_static;
+    stereo_audio = 0;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<2; i++) fRec9[i] = 0;
 	for (int i=0; i<2048; i++) fVec0[i] = 0;
@@ -76,14 +110,25 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
-	clear_state();
+	clear_state_f();
 }
 
-static void compute(int count, float *input0, float *output0, PluginDef *)
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+
+inline void Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = (1 - (0.01 * fSlow0));
@@ -158,7 +203,12 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, output0);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("freeverb.RoomSize","","S","",&fslider2, 0.5, 0.0, 1.0, 0.025);
 	reg.registerVar("freeverb.damp","","S","",&fslider1, 0.5, 0.0, 1.0, 0.025);
@@ -166,19 +216,19 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "freeverb",  // id
-    N_("Freeverb"),  // name
-    0,  // groups
-    compute,  // mono_audio
-    0,  // stereo_audio
-    init,  // set_samplerate
-    0,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace freeverb

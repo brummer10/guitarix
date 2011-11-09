@@ -23,7 +23,7 @@ FAUSTFLOAT	*fslider2_;
 #define fslider2 (*fslider2_)
 static int	fSamplingFreq;
 
-static void clear_state(PluginDef* = 0)
+static void clear_state_f(PluginDef* = 0)
 {
 	for (int i=0; i<3; i++) fVec0[i] = 0;
 	for (int i=0; i<3; i++) fRec1[i] = 0;
@@ -40,7 +40,7 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	fConst4 = (1884.9555921538758 / iConst0);
 	fConst5 = cos(fConst4);
 	fConst6 = (1.4142135623730951 * sin(fConst4));
-	clear_state();
+	clear_state_f();
 }
 
 void compute(int count, float *input0, float *output0)

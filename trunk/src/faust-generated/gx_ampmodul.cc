@@ -3,66 +3,106 @@
 
 #include "valve.h"
 namespace gx_ampmodul {
-static FAUSTFLOAT 	fslider0;
-static double 	fRec0[6];
-static FAUSTFLOAT 	fslider1;
-static FAUSTFLOAT 	fslider2;
-static int 	iConst0;
-static double 	fConst1;
-static double 	fConst2;
-static double 	fConst3;
-static FAUSTFLOAT 	fslider3;
-static double 	fRec4[2];
-static double 	fConst4;
-static double 	fConst5;
-static double 	fConst6;
-static FAUSTFLOAT 	fslider4;
-static double 	fRec8[2];
-static FAUSTFLOAT 	fslider5;
-static double 	fRec12[2];
-static double 	fConst7;
-static double 	fConst8;
-static double 	fConst9;
-static double 	fConst10;
-static double 	fRec13[2];
-static double 	fRec11[3];
-static double 	fConst11;
-static double 	fConst12;
-static double 	fRec10[2];
-static double 	fConst13;
-static double 	fRec9[2];
-static double 	fConst14;
-static double 	fConst15;
-static double 	fConst16;
-static double 	fConst17;
-static double 	fRec14[2];
-static double 	fRec7[3];
-static double 	fRec6[2];
-static double 	fRec5[2];
-static double 	fConst18;
-static double 	fConst19;
-static double 	fConst20;
-static double 	fConst21;
-static double 	fRec15[2];
-static double 	fRec3[3];
-static double 	fRec2[2];
-static double 	fRec1[6];
-static double 	fRec16[6];
-static double 	fRec26[2];
-static double 	fRec25[3];
-static double 	fRec24[2];
-static double 	fRec23[2];
-static double 	fRec27[2];
-static double 	fRec22[3];
-static double 	fRec21[2];
-static double 	fRec20[2];
-static double 	fRec28[2];
-static double 	fRec19[3];
-static double 	fRec18[2];
-static double 	fRec17[6];
-static int	fSamplingFreq;
+class Dsp: public PluginDef {
+private:
+FAUSTFLOAT 	fslider0;
+double 	fRec0[6];
+FAUSTFLOAT 	fslider1;
+FAUSTFLOAT 	fslider2;
+int 	iConst0;
+double 	fConst1;
+double 	fConst2;
+double 	fConst3;
+FAUSTFLOAT 	fslider3;
+double 	fRec4[2];
+double 	fConst4;
+double 	fConst5;
+double 	fConst6;
+FAUSTFLOAT 	fslider4;
+double 	fRec8[2];
+FAUSTFLOAT 	fslider5;
+double 	fRec12[2];
+double 	fConst7;
+double 	fConst8;
+double 	fConst9;
+double 	fConst10;
+double 	fRec13[2];
+double 	fRec11[3];
+double 	fConst11;
+double 	fConst12;
+double 	fRec10[2];
+double 	fConst13;
+double 	fRec9[2];
+double 	fConst14;
+double 	fConst15;
+double 	fConst16;
+double 	fConst17;
+double 	fRec14[2];
+double 	fRec7[3];
+double 	fRec6[2];
+double 	fRec5[2];
+double 	fConst18;
+double 	fConst19;
+double 	fConst20;
+double 	fConst21;
+double 	fRec15[2];
+double 	fRec3[3];
+double 	fRec2[2];
+double 	fRec1[6];
+double 	fRec16[6];
+double 	fRec26[2];
+double 	fRec25[3];
+double 	fRec24[2];
+double 	fRec23[2];
+double 	fRec27[2];
+double 	fRec22[3];
+double 	fRec21[2];
+double 	fRec20[2];
+double 	fRec28[2];
+double 	fRec19[3];
+double 	fRec18[2];
+double 	fRec17[6];
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void compute(int count, float *input0, float *input1, float *output0, float *output1);
+    static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+static const char* parm_groups[] = {
+	"amp2.stage2", N_("Postamp Tube2"),
+	"amp2.stage1", N_("Postamp Tube1"),
+	0
+	};
+
+Dsp::Dsp(): PluginDef() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "ampmodul";
+    name = N_("Postamp");
+    groups = parm_groups;
+    mono_audio = 0;
+    stereo_audio = compute_static;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<6; i++) fRec0[i] = 0;
 	for (int i=0; i<2; i++) fRec4[i] = 0;
@@ -95,7 +135,12 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<6; i++) fRec17[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
@@ -120,10 +165,16 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	fConst19 = (1 + fConst18);
 	fConst20 = (0 - ((1 - fConst18) / fConst19));
 	fConst21 = (0.0082 / fConst19);
-	clear_state();
+	clear_state_f();
 }
 
-static void compute(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *)
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+
+inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = fslider1;
@@ -200,7 +251,12 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("ampmodul.level","","S","",&fslider5, -2e+01, -4e+01, 4.0, 0.1);
 	reg.registerVar("ampmodul.amp2.stage1.tube1","","S","",&fslider4, 6.0, -2e+01, 2e+01, 0.1);
@@ -211,25 +267,19 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-static const char* groups[] = {
-	"amp2.stage2", N_("Postamp Tube2"),
-	"amp2.stage1", N_("Postamp Tube1"),
-	0
-	};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "ampmodul",  // id
-    N_("Postamp"),  // name
-    groups,  // groups
-    0,  // mono_audio
-    compute,  // stereo_audio
-    init,  // set_samplerate
-    0,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace gx_ampmodul

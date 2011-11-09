@@ -54,6 +54,10 @@ void UiBuilder::create_small_rackknob(const char *id, const char *label) const {
     intf->create_small_rackknob(id, label);
 }
 
+void UiBuilder::create_selector(const char *id) const {
+    intf->create_selector(id, "");
+}
+
 void UiBuilder::closeBox() const {
     intf->closeBox();
 }
@@ -586,6 +590,7 @@ TextLoggingBox::TextLoggingBox(const char* label)
     box.show();
     gx_system::Logger::get_logger().signal_message().connect(
 	sigc::mem_fun(*this, &TextLoggingBox::show_msg));
+    gx_system::Logger::get_logger().unplug_queue();
 }
 
 TextLoggingBox::~TextLoggingBox() {
@@ -610,7 +615,7 @@ void TextLoggingBox::set_expander_color(const char *color) {
     }
 }
 
-void TextLoggingBox::show_msg(string msgbuf, gx_system::GxMsgType msgtype) {
+void TextLoggingBox::show_msg(string msgbuf, gx_system::GxMsgType msgtype, bool plugged) {
     assert(0 <= msgtype && msgtype < gx_system::kMessageTypeCount);
 
     // retrieve gtk text buffer

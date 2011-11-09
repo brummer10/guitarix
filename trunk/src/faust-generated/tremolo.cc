@@ -2,24 +2,58 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace tremolo {
-static int 	iVec0[2];
-static int 	iConst0;
-static double 	fConst1;
-static FAUSTFLOAT 	fslider0;
-static double 	fConst2;
-static int 	iRec2[2];
-static int 	iRec1[2];
-static double 	fConst3;
-static double 	fRec5[2];
-static double 	fRec4[2];
-static double 	fRec3[2];
-static FAUSTFLOAT 	fcheckbox0;
-static FAUSTFLOAT 	fslider1;
-static double 	fRec0[2];
-static FAUSTFLOAT 	fslider2;
-static int	fSamplingFreq;
+class Dsp: public PluginDef {
+private:
+int 	iVec0[2];
+int 	iConst0;
+double 	fConst1;
+FAUSTFLOAT 	fslider0;
+double 	fConst2;
+int 	iRec2[2];
+int 	iRec1[2];
+double 	fConst3;
+double 	fRec5[2];
+double 	fRec4[2];
+double 	fRec3[2];
+FAUSTFLOAT 	fcheckbox0;
+FAUSTFLOAT 	fslider1;
+double 	fRec0[2];
+FAUSTFLOAT 	fslider2;
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void compute(int count, float *input0, float *output0);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+Dsp::Dsp(): PluginDef() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "tremolo";
+    name = N_("Tremolo");
+    groups = 0;
+    mono_audio = compute_static;
+    stereo_audio = 0;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<2; i++) iVec0[i] = 0;
 	for (int i=0; i<2; i++) iRec2[i] = 0;
@@ -30,17 +64,28 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = (1.0 / iConst0);
 	fConst2 = (0.5 * iConst0);
 	fConst3 = (6.283185307179586 / iConst0);
-	clear_state();
+	clear_state_f();
 }
 
-static void compute(int count, float *input0, float *output0, PluginDef *)
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+
+inline void Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = fslider0;
 	int 	iSlow1 = int((fConst2 / double(fSlow0)));
@@ -72,7 +117,12 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, output0);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("tremolo.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider2, 1e+02, 0.0, 1e+02, 1.0);
 	static const value_pair fcheckbox0_values[] = {{"triangle"},{"sine"},{0}};
@@ -82,19 +132,19 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "tremolo",  // id
-    N_("Tremolo"),  // name
-    0,  // groups
-    compute,  // mono_audio
-    0,  // stereo_audio
-    init,  // set_samplerate
-    0,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace tremolo

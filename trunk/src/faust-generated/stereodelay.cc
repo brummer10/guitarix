@@ -2,27 +2,66 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace stereodelay {
-static int 	IOTA;
-static float *fVec0;
-static FAUSTFLOAT 	fslider0;
-static int 	iVec1[2];
-static int 	iConst0;
-static float 	fConst1;
-static FAUSTFLOAT 	fslider1;
-static float 	fConst2;
-static float 	fRec0[2];
-static float 	fRec1[2];
-static FAUSTFLOAT 	fcheckbox0;
-static FAUSTFLOAT 	fslider2;
-static float 	fRec2[2];
-static float *fVec2;
-static FAUSTFLOAT 	fslider3;
-static FAUSTFLOAT 	fslider4;
-static float 	fRec3[2];
-static bool mem_allocated = false;
-static int	fSamplingFreq;
+class Dsp: public PluginDef {
+private:
+    bool mem_allocated;
+int 	IOTA;
+float *fVec0;
+FAUSTFLOAT 	fslider0;
+int 	iVec1[2];
+int 	iConst0;
+float 	fConst1;
+FAUSTFLOAT 	fslider1;
+float 	fConst2;
+float 	fRec0[2];
+float 	fRec1[2];
+FAUSTFLOAT 	fcheckbox0;
+FAUSTFLOAT 	fslider2;
+float 	fRec2[2];
+float *fVec2;
+FAUSTFLOAT 	fslider3;
+FAUSTFLOAT 	fslider4;
+float 	fRec3[2];
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void mem_alloc();
+    void mem_free();
+    int activate(bool start);
+    static int activate_static(bool start, PluginDef*);
+    void compute(int count, float *input0, float *input1, float *output0, float *output1);
+    static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+Dsp::Dsp(): PluginDef() {
+    mem_allocated = false;
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "stereodelay";
+    name = N_("Stereo Delay");
+    groups = 0;
+    mono_audio = 0;
+    stereo_audio = compute_static;
+    set_samplerate = init_static;
+    activate_plugin = activate_static;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<262144; i++) fVec0[i] = 0;
 	for (int i=0; i<2; i++) iVec1[i] = 0;
@@ -33,7 +72,12 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<2; i++) fRec3[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
@@ -42,27 +86,31 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	fConst2 = (6.283185307179586f / iConst0);
 }
 
-static void mem_alloc()
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+void Dsp::mem_alloc()
 {
 	if (!fVec0) fVec0 = new float[262144];
 	if (!fVec2) fVec2 = new float[262144];
 	mem_allocated = true;
 }
 
-static void mem_free()
+void Dsp::mem_free()
 {
 	mem_allocated = false;
 	if (fVec0) { delete fVec0; fVec0 = 0; }
 	if (fVec2) { delete fVec2; fVec2 = 0; }
 }
 
-
-static int activate(bool start, PluginDef* = 0)
+int Dsp::activate(bool start)
 {
     if (start) {
         if (!mem_allocated) {
             mem_alloc();
-            clear_state();
+            clear_state_f();
         }
     } else if (!mem_allocated) {
         mem_free();
@@ -70,7 +118,12 @@ static int activate(bool start, PluginDef* = 0)
     return 0;
 }
 
-static void compute(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *)
+int Dsp::activate_static(bool start, PluginDef *p)
+{
+    return static_cast<Dsp*>(p)->activate(start);
+}
+
+inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	float 	fSlow0 = (fConst1 * fslider0);
 	int 	iSlow1 = int(fSlow0);
@@ -116,7 +169,12 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 	static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
 	reg.registerEnumVar("stereodelay.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
@@ -128,19 +186,19 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "stereodelay",  // id
-    N_("Stereo Delay"),  // name
-    0,  // groups
-    0,  // mono_audio
-    compute,  // stereo_audio
-    init,  // set_samplerate
-    activate,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace stereodelay

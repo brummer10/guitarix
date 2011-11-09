@@ -23,7 +23,7 @@
 
 #include "gx_plugin.h"
 
-#define declare(n) namespace n { extern PluginDef plugin; }
+#define declare(n) namespace n { PluginDef *plugin(); }
 
 namespace gx_engine {
 

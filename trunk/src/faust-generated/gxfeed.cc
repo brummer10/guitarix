@@ -2,26 +2,60 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace gxfeed {
-static FAUSTFLOAT 	fslider0;
-static int 	IOTA;
-static double 	fVec0[1024];
-static double 	fRec6[2];
-static double 	fVec1[1024];
-static double 	fRec8[2];
-static double 	fVec2[1024];
-static double 	fRec10[2];
-static double 	fVec3[2048];
-static double 	fRec12[2];
-static double 	fVec4[128];
-static double 	fRec4[2];
-static double 	fVec5[64];
-static double 	fRec2[2];
-static double 	fVec6[12];
-static double 	fRec0[2];
-static FAUSTFLOAT 	fcheckbox0;
-static int	fSamplingFreq;
+class Dsp: public PluginDef {
+private:
+FAUSTFLOAT 	fslider0;
+int 	IOTA;
+double 	fVec0[1024];
+double 	fRec6[2];
+double 	fVec1[1024];
+double 	fRec8[2];
+double 	fVec2[1024];
+double 	fRec10[2];
+double 	fVec3[2048];
+double 	fRec12[2];
+double 	fVec4[128];
+double 	fRec4[2];
+double 	fVec5[64];
+double 	fRec2[2];
+double 	fVec6[12];
+double 	fRec0[2];
+FAUSTFLOAT 	fcheckbox0;
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void compute(int count, float *input0, float *input1, float *output0, float *output1);
+    static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+Dsp::Dsp(): PluginDef() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "gxfeed";
+    name = "?gxfeed";
+    groups = 0;
+    mono_audio = 0;
+    stereo_audio = compute_static;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<1024; i++) fVec0[i] = 0;
 	for (int i=0; i<2; i++) fRec6[i] = 0;
@@ -39,14 +73,25 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
-	clear_state();
+	clear_state_f();
 }
 
-static void compute(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *)
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+
+inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = (1 - max(0, fSlow0));
@@ -99,26 +144,31 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("amp.feed_on_off",N_("reverb_on_of"),"B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("amp.wet_dry","","S","",&fslider0, 0.0, -1.0, 1.0, 0.01);
 	return 0;
 }
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "gxfeed",  // id
-    "?gxfeed",  // name
-    0,  // groups
-    0,  // mono_audio
-    compute,  // stereo_audio
-    init,  // set_samplerate
-    0,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace gxfeed

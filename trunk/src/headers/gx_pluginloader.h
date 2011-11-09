@@ -62,6 +62,8 @@ enum PluginPos { // where to add a plugin (per processing chain)
 
 class ModuleSequencer;
 
+typedef PluginDef *(*plugindef_creator)();
+
 class PluginList {
 public:
     typedef pair<const char*, Plugin*> map_pair;
@@ -91,6 +93,7 @@ public:
     int add(Plugin *pl, PluginPos pos, int flags);
     int add(PluginDef *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     int add(PluginDef **p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
+    int add(plugindef_creator *p, PluginPos pos = PLUGIN_POS_RACK, int flags=0);
     int check_version(PluginDef *p);
     void registerParameter(gx_gui::ParameterGroups& groups);
     void append_rack(UiBuilder& ui);

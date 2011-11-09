@@ -2,29 +2,63 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace phaser_mono {
-static int 	iVec0[2];
-static FAUSTFLOAT 	fslider0;
-static int 	iConst0;
-static double 	fConst1;
-static double 	fRec1[2];
-static double 	fRec2[2];
-static double 	fConst2;
-static FAUSTFLOAT 	fslider1;
-static FAUSTFLOAT 	fslider2;
-static double 	fConst3;
-static double 	fConst4;
-static double 	fConst5;
-static double 	fConst6;
-static double 	fRec6[3];
-static double 	fConst7;
-static double 	fRec5[3];
-static double 	fConst8;
-static double 	fRec4[3];
-static double 	fRec3[3];
-static double 	fRec0[2];
-static int	fSamplingFreq;
+class Dsp: public PluginDef {
+private:
+int 	iVec0[2];
+FAUSTFLOAT 	fslider0;
+int 	iConst0;
+double 	fConst1;
+double 	fRec1[2];
+double 	fRec2[2];
+double 	fConst2;
+FAUSTFLOAT 	fslider1;
+FAUSTFLOAT 	fslider2;
+double 	fConst3;
+double 	fConst4;
+double 	fConst5;
+double 	fConst6;
+double 	fRec6[3];
+double 	fConst7;
+double 	fRec5[3];
+double 	fConst8;
+double 	fRec4[3];
+double 	fRec3[3];
+double 	fRec0[2];
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void compute(int count, float *input0, float *output0);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+Dsp::Dsp(): PluginDef() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "phaser_mono";
+    name = N_("Phaser Mono");
+    groups = 0;
+    mono_audio = compute_static;
+    stereo_audio = 0;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<2; i++) iVec0[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
@@ -36,7 +70,12 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
@@ -48,10 +87,16 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	fConst6 = faustpower<2>(fConst4);
 	fConst7 = (4.0 / iConst0);
 	fConst8 = (8.0 / iConst0);
-	clear_state();
+	clear_state_f();
 }
 
-static void compute(int count, float *input0, float *output0, PluginDef *)
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+
+inline void Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (fConst1 * fslider0);
 	double 	fSlow1 = sin(fSlow0);
@@ -88,7 +133,12 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, output0);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("phaser_mono.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider2, 1e+02, 0.0, 1e+02, 1.0);
 	reg.registerVar("phaser_mono.level","","S","",&fslider1, 0.0, -6e+01, 1e+01, 0.1);
@@ -96,19 +146,19 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "phaser_mono",  // id
-    N_("Phaser Mono"),  // name
-    0,  // groups
-    compute,  // mono_audio
-    0,  // stereo_audio
-    init,  // set_samplerate
-    0,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace phaser_mono

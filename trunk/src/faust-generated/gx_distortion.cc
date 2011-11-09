@@ -2,76 +2,115 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace gx_distortion {
-static FAUSTFLOAT 	fslider0;
-static int 	iVec0[2];
-static FAUSTFLOAT 	fslider1;
-static double 	fRec0[2];
-static int 	iConst0;
-static double 	fConst1;
-static double 	fConst2;
-static double 	fConst3;
-static FAUSTFLOAT 	fentry0;
-static double 	fConst4;
-static FAUSTFLOAT 	fentry1;
-static FAUSTFLOAT 	fentry2;
-static double 	fConst5;
-static double 	fConst6;
-static double 	fConst7;
-static double 	fConst8;
-static double 	fConst9;
-static double 	fConst10;
-static double 	fConst11;
-static double 	fConst12;
-static double 	fConst13;
-static FAUSTFLOAT 	fslider2;
-static int 	IOTA;
-static double 	fVec1[4096];
-static FAUSTFLOAT 	fslider3;
-static double 	fRec10[2];
-static FAUSTFLOAT 	fcheckbox0;
-static double 	fRec11[2];
-static double 	fRec9[3];
-static double 	fVec2[2];
-static double 	fConst14;
-static double 	fConst15;
-static double 	fRec8[2];
-static double 	fRec7[2];
-static double 	fRec6[3];
-static double 	fVec3[2];
-static double 	fRec5[2];
-static double 	fRec4[3];
-static double 	fVec4[2];
-static double 	fRec3[2];
-static double 	fRec2[3];
-static FAUSTFLOAT 	fslider4;
-static FAUSTFLOAT 	fslider5;
-static FAUSTFLOAT 	fslider6;
-static FAUSTFLOAT 	fslider7;
-static double 	fRec12[2];
-static double 	fRec14[2];
-static double 	fRec13[3];
-static FAUSTFLOAT 	fslider8;
-static FAUSTFLOAT 	fslider9;
-static double 	fRec15[2];
-static double 	fRec18[2];
-static double 	fRec17[3];
-static double 	fRec16[3];
-static FAUSTFLOAT 	fslider10;
-static FAUSTFLOAT 	fslider11;
-static double 	fRec19[2];
-static double 	fRec23[2];
-static double 	fRec22[3];
-static double 	fRec21[3];
-static double 	fRec20[3];
-static FAUSTFLOAT 	fslider12;
-static FAUSTFLOAT 	fslider13;
-static double 	fRec24[2];
-static double 	fVec5[2];
-static double 	fConst16;
-static double 	fRec1[2];
-static int	fSamplingFreq;
+class Dsp: public PluginDef {
+private:
+FAUSTFLOAT 	fslider0;
+int 	iVec0[2];
+FAUSTFLOAT 	fslider1;
+double 	fRec0[2];
+int 	iConst0;
+double 	fConst1;
+double 	fConst2;
+double 	fConst3;
+FAUSTFLOAT 	fentry0;
+double 	fConst4;
+FAUSTFLOAT 	fentry1;
+FAUSTFLOAT 	fentry2;
+double 	fConst5;
+double 	fConst6;
+double 	fConst7;
+double 	fConst8;
+double 	fConst9;
+double 	fConst10;
+double 	fConst11;
+double 	fConst12;
+double 	fConst13;
+FAUSTFLOAT 	fslider2;
+int 	IOTA;
+double 	fVec1[4096];
+FAUSTFLOAT 	fslider3;
+double 	fRec10[2];
+FAUSTFLOAT 	fcheckbox0;
+double 	fRec11[2];
+double 	fRec9[3];
+double 	fVec2[2];
+double 	fConst14;
+double 	fConst15;
+double 	fRec8[2];
+double 	fRec7[2];
+double 	fRec6[3];
+double 	fVec3[2];
+double 	fRec5[2];
+double 	fRec4[3];
+double 	fVec4[2];
+double 	fRec3[2];
+double 	fRec2[3];
+FAUSTFLOAT 	fslider4;
+FAUSTFLOAT 	fslider5;
+FAUSTFLOAT 	fslider6;
+FAUSTFLOAT 	fslider7;
+double 	fRec12[2];
+double 	fRec14[2];
+double 	fRec13[3];
+FAUSTFLOAT 	fslider8;
+FAUSTFLOAT 	fslider9;
+double 	fRec15[2];
+double 	fRec18[2];
+double 	fRec17[3];
+double 	fRec16[3];
+FAUSTFLOAT 	fslider10;
+FAUSTFLOAT 	fslider11;
+double 	fRec19[2];
+double 	fRec23[2];
+double 	fRec22[3];
+double 	fRec21[3];
+double 	fRec20[3];
+FAUSTFLOAT 	fslider12;
+FAUSTFLOAT 	fslider13;
+double 	fRec24[2];
+double 	fVec5[2];
+double 	fConst16;
+double 	fRec1[2];
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void compute(int count, float *input0, float *output0);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+static const char* parm_groups[] = {
+	"resonator", N_("Distortion resonator"),
+	0
+	};
+
+Dsp::Dsp(): PluginDef() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "gx_distortion";
+    name = N_("Multi Band Distortion");
+    groups = parm_groups;
+    mono_audio = compute_static;
+    stereo_audio = 0;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<2; i++) iVec0[i] = 0;
 	for (int i=0; i<2; i++) fRec0[i] = 0;
@@ -106,7 +145,12 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
@@ -127,10 +171,16 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	fConst14 = (0 - fConst5);
 	fConst15 = (1.0 / (fConst6 * fConst12));
 	fConst16 = (1.0 / fConst2);
-	clear_state();
+	clear_state_f();
 }
 
-static void compute(int count, float *input0, float *output0, PluginDef *)
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+
+inline void Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (0.01 * fslider0);
 	double 	fSlow1 = (1 - fSlow0);
@@ -276,7 +326,12 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, output0);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("gx_distortion.high_gain","","S","",&fslider13, 1e+01, -1e+01, 2e+01, 0.1);
 	reg.registerVar("gx_distortion.high_drive","","S","",&fslider12, 1.0, 0.0, 1.0, 0.01);
@@ -299,24 +354,19 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-static const char* groups[] = {
-	"resonator", N_("Distortion resonator"),
-	0
-	};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "gx_distortion",  // id
-    N_("Multi Band Distortion"),  // name
-    groups,  // groups
-    compute,  // mono_audio
-    0,  // stereo_audio
-    init,  // set_samplerate
-    0,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace gx_distortion

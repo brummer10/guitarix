@@ -134,12 +134,12 @@ def build(bld):
         bld.new_task_gen(
             source = sources_plugin,
             proc = "../tools/dsp2cc",
-            proc_args = arg+["--init-type=plugin"],
+            proc_args = arg+["--init-type=plugin-instance"],
             )
         bld.new_task_gen(
             source = sources_plugin_float,
             proc = "../tools/dsp2cc",
-            proc_args = float_arg+["--init-type=plugin"]
+            proc_args = float_arg+["--init-type=plugin-instance"]
             )
     else:
         gdir = "../faust-generated/"

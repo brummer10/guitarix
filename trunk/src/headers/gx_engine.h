@@ -66,8 +66,9 @@ public:
     Plugin plugin;
     ModuleSelectorFromList(
 	ModuleSequencer& seq, gx_ui::GxUI& ui, const char* id, const char* name,
-	PluginDef **module_ids,	const char* select_id,
+	plugindef_creator module_ids[],	const char* select_id,
 	const char* select_name, const char** groups = 0, int flags = 0);
+    ~ModuleSelectorFromList();
     void set_module();
 };
 

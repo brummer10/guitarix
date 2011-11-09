@@ -334,7 +334,7 @@ void StereoModuleChain::process(int count, float *input, float *output1, float *
 
 ModuleSelectorFromList::ModuleSelectorFromList(
     ModuleSequencer& seq_, gx_ui::GxUI& ui, const char* id_, const char* name_,
-    PluginDef *plugins[], const char* select_id_,
+    plugindef_creator plugins[], const char* select_id_,
     const char* select_name_, const char** groups_, int flags_)
     : ModuleSelector(seq_),
       PluginDef(),
@@ -348,14 +348,21 @@ ModuleSelectorFromList::ModuleSelectorFromList(
       plugin() {
     version = PLUGINDEF_VERSION;
     register_params = static_register;
-    modules = plugins;
-    PluginDef **p = plugins;
+    plugindef_creator *p = plugins;
     for (size = 0; *p; ++p, ++size);
+    modules = new PluginDef*[size];
+    for (unsigned int i = 0; i < size; ++i) {
+	modules[i] = plugins[i]();
+    }
     id = id_;
     name = name_;
     groups = groups_;
     flags = flags_;
     plugin = this;
+}
+
+ModuleSelectorFromList::~ModuleSelectorFromList() {
+    delete[] modules;
 }
 
 int ModuleSelectorFromList::register_parameter(const ParamReg &param) {
@@ -564,64 +571,64 @@ void ModuleSequencer::get_sched_priority(int &policy_, int &priority_, int prio_
  ** class GxEngine
  */
 
-static PluginDef *builtin_crybaby_plugins[] = {
-    &gx_effects::crybaby::plugin,
-    &gx_effects::autowah::plugin,
+static plugindef_creator builtin_crybaby_plugins[] = {
+    gx_effects::crybaby::plugin,
+    gx_effects::autowah::plugin,
     0
 };
 
-static PluginDef *builtin_tonestack_plugins[] = {
-    &gx_tonestacks::tonestack_default::plugin,
-    &gx_tonestacks::tonestack_bassman::plugin,
-    &gx_tonestacks::tonestack_twin::plugin,
-    &gx_tonestacks::tonestack_princeton::plugin,
-    &gx_tonestacks::tonestack_jcm800::plugin,
-    &gx_tonestacks::tonestack_jcm2000::plugin,
-    &gx_tonestacks::tonestack_mlead::plugin,
-    &gx_tonestacks::tonestack_m2199::plugin,
-    &gx_tonestacks::tonestack_ac30::plugin,
-    &gx_tonestacks::tonestack_soldano::plugin,
-    &gx_tonestacks::tonestack_mesa::plugin,
-    &gx_tonestacks::tonestack_jtm45::plugin,
-    &gx_tonestacks::tonestack_ac15::plugin,
-    &gx_tonestacks::tonestack_peavey::plugin,
-    &gx_tonestacks::tonestack_ibanez::plugin,
-    &gx_tonestacks::tonestack_roland::plugin,
-    &gx_tonestacks::tonestack_ampeg::plugin,
-    &gx_tonestacks::tonestack_ampeg_rev::plugin,
-    &gx_tonestacks::tonestack_sovtek::plugin,
-    &gx_tonestacks::tonestack_bogner::plugin,
-    &gx_tonestacks::tonestack_groove::plugin,
-    &gx_tonestacks::tonestack_crunch::plugin,
-    &gx_tonestacks::tonestack_fender_blues::plugin,
-    &gx_tonestacks::tonestack_fender_default::plugin,
-    &gx_tonestacks::tonestack_fender_deville::plugin,
-    &gx_tonestacks::tonestack_gibsen::plugin,
+static plugindef_creator builtin_tonestack_plugins[] = {
+    gx_tonestacks::tonestack_default::plugin,
+    gx_tonestacks::tonestack_bassman::plugin,
+    gx_tonestacks::tonestack_twin::plugin,
+    gx_tonestacks::tonestack_princeton::plugin,
+    gx_tonestacks::tonestack_jcm800::plugin,
+    gx_tonestacks::tonestack_jcm2000::plugin,
+    gx_tonestacks::tonestack_mlead::plugin,
+    gx_tonestacks::tonestack_m2199::plugin,
+    gx_tonestacks::tonestack_ac30::plugin,
+    gx_tonestacks::tonestack_soldano::plugin,
+    gx_tonestacks::tonestack_mesa::plugin,
+    gx_tonestacks::tonestack_jtm45::plugin,
+    gx_tonestacks::tonestack_ac15::plugin,
+    gx_tonestacks::tonestack_peavey::plugin,
+    gx_tonestacks::tonestack_ibanez::plugin,
+    gx_tonestacks::tonestack_roland::plugin,
+    gx_tonestacks::tonestack_ampeg::plugin,
+    gx_tonestacks::tonestack_ampeg_rev::plugin,
+    gx_tonestacks::tonestack_sovtek::plugin,
+    gx_tonestacks::tonestack_bogner::plugin,
+    gx_tonestacks::tonestack_groove::plugin,
+    gx_tonestacks::tonestack_crunch::plugin,
+    gx_tonestacks::tonestack_fender_blues::plugin,
+    gx_tonestacks::tonestack_fender_default::plugin,
+    gx_tonestacks::tonestack_fender_deville::plugin,
+    gx_tonestacks::tonestack_gibsen::plugin,
     0
 };
 
-static PluginDef *builtin_amp_plugins[] = {
-    &gx_amps::gxamp::plugin,
-    &gx_amps::gxamp3::plugin,
-    &gx_amps::gxamp14::plugin,
-    &gx_amps::gxamp10::plugin,
+static plugindef_creator builtin_amp_plugins[] = {
+    gx_amps::gxamp::plugin,
+    gx_amps::gxamp3::plugin,
+    gx_amps::gxamp14::plugin,
+    gx_amps::gxamp10::plugin,
 
-    &gx_amps::gxamp2::plugin,
+    gx_amps::gxamp2::plugin,
 
-    &gx_amps::gxamp9::plugin,
-    &gx_amps::gxamp11::plugin,
-    &gx_amps::gxamp17::plugin,
-    &gx_amps::gxamp13::plugin,
+    gx_amps::gxamp9::plugin,
+    gx_amps::gxamp11::plugin,
+    gx_amps::gxamp17::plugin,
+    gx_amps::gxamp13::plugin,
 
-    &gx_amps::gxamp5::plugin,
-    &gx_amps::gxamp4::plugin,
-    &gx_amps::gxamp15::plugin,
-    &gx_amps::gxamp12::plugin,
+    gx_amps::gxamp5::plugin,
+    gx_amps::gxamp4::plugin,
+    gx_amps::gxamp15::plugin,
+    gx_amps::gxamp12::plugin,
 
-    &gx_amps::gxamp7::plugin,
-    &gx_amps::gxamp8::plugin,
-    &gx_amps::gxamp16::plugin,
-    &gx_amps::gxamp6::plugin,
+    gx_amps::gxamp7::plugin,
+    gx_amps::gxamp8::plugin,
+    gx_amps::gxamp16::plugin,
+    gx_amps::gxamp6::plugin,
     0
 };
 
@@ -686,75 +693,75 @@ void GxEngine::load_static_plugins() {
 
     // * mono amp input position *
 
-    pl.add(&tuner.plugin,                        PLUGIN_POS_START, PGN_PRE|PGN_MODE_NORMAL|PGN_MODE_BYPASS|PGN_MODE_MUTE);
-    pl.add(&midiaudiobuffer.plugin,              PLUGIN_POS_START, PGN_GUI|PGN_PRE|PGN_MODE_NORMAL|PGN_MODE_BYPASS);
-    pl.add(&noisegate.inputlevel,                PLUGIN_POS_START, PGN_GUI|PGN_PRE);
-    pl.add(&gx_effects::noise_shaper::plugin,    PLUGIN_POS_START, PGN_GUI|PGN_PRE);
+    pl.add(&tuner.plugin,                         PLUGIN_POS_START, PGN_PRE|PGN_MODE_NORMAL|PGN_MODE_BYPASS|PGN_MODE_MUTE);
+    pl.add(&midiaudiobuffer.plugin,               PLUGIN_POS_START, PGN_GUI|PGN_PRE|PGN_MODE_NORMAL|PGN_MODE_BYPASS);
+    pl.add(&noisegate.inputlevel,                 PLUGIN_POS_START, PGN_GUI|PGN_PRE);
+    pl.add(gx_effects::noise_shaper::plugin(),    PLUGIN_POS_START, PGN_GUI|PGN_PRE);
 
     // rack pre mono modules inserted here
 
-    pl.add(builtin_amp_plugins,                  PLUGIN_POS_START, PGN_ALTERNATIVE|PGN_POST);
-    pl.add(&ampstack.plugin,                     PLUGIN_POS_START, PGN_POST);
-    pl.add(&gx_effects::softclip::plugin,        PLUGIN_POS_START, PGN_GUI|PGN_POST);
+    pl.add(builtin_amp_plugins,                   PLUGIN_POS_START, PGN_ALTERNATIVE|PGN_POST);
+    pl.add(&ampstack.plugin,                      PLUGIN_POS_START, PGN_POST);
+    pl.add(gx_effects::softclip::plugin(),        PLUGIN_POS_START, PGN_GUI|PGN_POST);
 
     // rack post mono modules inserted here
 
-    pl.add(&gx_effects::bassbooster::plugin,     PLUGIN_POS_END, PGN_GUI|PGN_POST);
-    pl.add(&gx_effects::gx_ampout::plugin,       PLUGIN_POS_END, PGN_GUI|PGN_POST);
-    pl.add(&contrast.plugin,                     PLUGIN_POS_END, PGN_GUI|PGN_POST);
-    pl.add(&noisegate.outputgate,                PLUGIN_POS_END, PGN_POST);
-    pl.add(&monomute,                            PLUGIN_POS_END, PGN_POST|PGN_MODE_MUTE);
+    pl.add(gx_effects::bassbooster::plugin(),     PLUGIN_POS_END, PGN_GUI|PGN_POST);
+    pl.add(gx_effects::gx_ampout::plugin(),       PLUGIN_POS_END, PGN_GUI|PGN_POST);
+    pl.add(&contrast.plugin,                      PLUGIN_POS_END, PGN_GUI|PGN_POST);
+    pl.add(&noisegate.outputgate,                 PLUGIN_POS_END, PGN_POST);
+    pl.add(&monomute,                             PLUGIN_POS_END, PGN_POST|PGN_MODE_MUTE);
 
     // * amp insert position (stereo amp input) *
 
-    pl.add(&gx_effects::gxfeed::plugin,          PLUGIN_POS_START);
+    pl.add(gx_effects::gxfeed::plugin(),          PLUGIN_POS_START);
 
     // rack stereo modules inserted here
 
-    pl.add(&gx_effects::gx_outputlevel::plugin,  PLUGIN_POS_END);
-    pl.add(&balance::plugin,                     PLUGIN_POS_END, PGN_MODE_BYPASS);
-    pl.add(&stereomute,                          PLUGIN_POS_END, PGN_MODE_MUTE);
-    pl.add(&maxlevel,                            PLUGIN_POS_END, PGN_MODE_NORMAL|PGN_MODE_BYPASS);
+    pl.add(gx_effects::gx_outputlevel::plugin(),  PLUGIN_POS_END);
+    pl.add(balance::plugin(),                     PLUGIN_POS_END, PGN_MODE_BYPASS);
+    pl.add(&stereomute,                           PLUGIN_POS_END, PGN_MODE_MUTE);
+    pl.add(&maxlevel,                             PLUGIN_POS_END, PGN_MODE_NORMAL|PGN_MODE_BYPASS);
 
     // * fx amp output *
 
     // dynamic rack modules
     // builtin 
-    pl.add(builtin_crybaby_plugins,              PLUGIN_POS_RACK, PGN_ALTERNATIVE);
-    pl.add(builtin_tonestack_plugins,            PLUGIN_POS_RACK, PGN_ALTERNATIVE);
+    pl.add(builtin_crybaby_plugins,               PLUGIN_POS_RACK, PGN_ALTERNATIVE);
+    pl.add(builtin_tonestack_plugins,             PLUGIN_POS_RACK, PGN_ALTERNATIVE);
 
     // mono
-    pl.add(&gx_effects::low_high_pass::plugin,   PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::selecteq::plugin,        PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&crybaby.plugin,                      PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::gx_distortion::plugin,   PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::impulseresponse::plugin, PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::compressor::plugin,      PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::overdrive::plugin,       PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::echo::plugin,            PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::delay::plugin,           PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::freeverb::plugin,        PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&oscilloscope.plugin,                 PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::biquad::plugin,          PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::tremolo::plugin,         PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::phaser_mono::plugin,     PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::chorus_mono::plugin,     PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::flanger_mono::plugin,    PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::gx_feedback::plugin,     PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&tonestack.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&cabinet.plugin,                      PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::low_high_pass::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::selecteq::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&crybaby.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::gx_distortion::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::impulseresponse::plugin(), PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::compressor::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::overdrive::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::echo::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::delay::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::freeverb::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&oscilloscope.plugin,                  PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::biquad::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::tremolo::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::phaser_mono::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::chorus_mono::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::flanger_mono::plugin(),    PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::gx_feedback::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&tonestack.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&cabinet.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     // stereo
-    pl.add(&gx_effects::chorus::plugin,          PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::flanger::plugin,         PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::phaser::plugin,          PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::stereodelay::plugin,     PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::stereoecho::plugin,      PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::moog::plugin,            PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_amps::gx_ampmodul::plugin,        PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::tonecontroll::plugin,    PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&convolver.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&gx_effects::stereoverb::plugin,      PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&pluginlib::zita_rev1::plugin,        PLUGIN_POS_RACK);
+    pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::phaser::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::stereodelay::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::stereoecho::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::moog::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_amps::gx_ampmodul::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::tonecontroll::plugin(),    PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&convolver.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(gx_effects::stereoverb::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(pluginlib::zita_rev1::plugin(),        PLUGIN_POS_RACK);
 }
 
 } // end namespace gx_engine

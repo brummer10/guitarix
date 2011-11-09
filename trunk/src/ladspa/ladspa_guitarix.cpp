@@ -170,7 +170,7 @@ void LadspaGuitarix::runGuitarix(LADSPA_Handle Instance, unsigned long SampleCou
  *                      LADSPA Interface                        *
  ****************************************************************/
 
-static void log_terminal(const string& msg, gx_system::GxMsgType tp) {
+static void log_terminal(const string& msg, gx_system::GxMsgType tp, bool plugged) {
     const char *t;
     switch (tp) {
     case gx_system::kInfo:    t = "I"; break;

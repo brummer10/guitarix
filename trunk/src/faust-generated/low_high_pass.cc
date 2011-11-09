@@ -2,27 +2,67 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace low_high_pass {
-static int 	iVec0[2];
-static FAUSTFLOAT 	fentry0;
-static double 	fConst0;
-static FAUSTFLOAT 	fentry1;
-static double 	fRec2[2];
-static double 	fVec1[2];
-static double 	fRec1[2];
-static double 	fRec0[2];
-static FAUSTFLOAT 	fcheckbox0;
-static FAUSTFLOAT 	fslider0;
-static FAUSTFLOAT 	fslider1;
-static double 	fVec2[2];
-static double 	fRec6[2];
-static double 	fVec3[2];
-static double 	fRec5[2];
-static double 	fRec4[3];
-static double 	fRec3[3];
-static FAUSTFLOAT 	fcheckbox1;
-static int	fSamplingFreq;
+class Dsp: public PluginDef {
+private:
+int 	iVec0[2];
+FAUSTFLOAT 	fentry0;
+double 	fConst0;
+FAUSTFLOAT 	fentry1;
+double 	fRec2[2];
+double 	fVec1[2];
+double 	fRec1[2];
+double 	fRec0[2];
+FAUSTFLOAT 	fcheckbox0;
+FAUSTFLOAT 	fslider0;
+FAUSTFLOAT 	fslider1;
+double 	fVec2[2];
+double 	fRec6[2];
+double 	fVec3[2];
+double 	fRec5[2];
+double 	fRec4[3];
+double 	fRec3[3];
+FAUSTFLOAT 	fcheckbox1;
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void compute(int count, float *input0, float *output0);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+static const char* parm_groups[] = {
+	".low_high_pass.lhp", N_("low_highpass"),
+	".low_high_pass.lhc", N_("low_highcutoff"),
+	0
+	};
+
+Dsp::Dsp(): PluginDef() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "low_highpass";
+    name = N_("low high pass");
+    groups = parm_groups;
+    mono_audio = compute_static;
+    stereo_audio = 0;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<2; i++) iVec0[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
@@ -37,14 +77,25 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<3; i++) fRec3[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = (3.141592653589793 / min(192000, max(1, fSamplingFreq)));
-	clear_state();
+	clear_state_f();
 }
 
-static void compute(int count, float *input0, float *output0, PluginDef *)
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+
+inline void Dsp::compute(int count, float *input0, float *output0)
 {
 	double 	fSlow0 = (1.0 / tan((fConst0 * fentry0)));
 	double 	fSlow1 = (1 + fSlow0);
@@ -99,7 +150,12 @@ static void compute(int count, float *input0, float *output0, PluginDef *)
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *output0, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, output0);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("low_high_pass.lhc.on_off",N_("low highcutoff"),"B","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("low_high_pass.lhp.on_off",N_("low highpass"),"B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
@@ -110,25 +166,19 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-static const char* groups[] = {
-	".low_high_pass.lhp", N_("low_highpass"),
-	".low_high_pass.lhc", N_("low_highcutoff"),
-	0
-	};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "low_highpass",  // id
-    N_("low high pass"),  // name
-    groups,  // groups
-    compute,  // mono_audio
-    0,  // stereo_audio
-    init,  // set_samplerate
-    0,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace low_high_pass

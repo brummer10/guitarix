@@ -440,7 +440,7 @@ private:
     void set_color();
     bool on_delete_event();
     void set_expander_color(const char *color);
-    void show_msg(string msgbuf, gx_system::GxMsgType msgtype);
+    void show_msg(string msgbuf, gx_system::GxMsgType msgtype, bool plugged);
 public:
     TextLoggingBox(const char* label);
     ~TextLoggingBox();

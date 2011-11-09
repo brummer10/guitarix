@@ -197,7 +197,7 @@ private:
 public:
     ErrorPopup();
     ~ErrorPopup();
-    void on_message(const string& msg, gx_system::GxMsgType tp);
+    void on_message(const string& msg, gx_system::GxMsgType tp, bool plugged);
 };
 
 ErrorPopup::ErrorPopup()
@@ -210,7 +210,10 @@ ErrorPopup::~ErrorPopup() {
     delete dialog;
 }
 
-void ErrorPopup::on_message(const string& msg_, gx_system::GxMsgType tp) {
+void ErrorPopup::on_message(const string& msg_, gx_system::GxMsgType tp, bool plugged) {
+    if (plugged) {
+	return;
+    }
     if (tp == gx_system::kError) {
 	msg = "";//"\n \n \n";
 	msg += msg_;
@@ -233,7 +236,7 @@ void ErrorPopup::on_response(int) {
 
 void ErrorPopup::show_msg() {
     dialog = new Gtk::MessageDialog(msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
-    dialog->set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
+    dialog->set_keep_above(true);
     //Gtk::VBox *ma = dialog->get_message_area(); // not in Gtkmm 0.20
     //FIXME: no comment :-)
     Gtk::VBox *ma = dynamic_cast<Gtk::VBox*>(

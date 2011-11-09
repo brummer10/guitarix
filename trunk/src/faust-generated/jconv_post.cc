@@ -19,7 +19,7 @@ static double 	fRec3[2];
 static double 	fVec1[65536];
 static int	fSamplingFreq;
 
-static void clear_state(PluginDef* = 0)
+static void clear_state_f(PluginDef* = 0)
 {
 	for (int i=0; i<65536; i++) fVec0[i] = 0;
 	for (int i=0; i<2; i++) fRec0[i] = 0;
@@ -34,7 +34,7 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
 	fConst0 = (1.000000000000001e-06 * min(192000, max(1, fSamplingFreq)));
-	clear_state();
+	clear_state_f();
 }
 
 void compute(int count, float *input0, float *input1, float *input2, float *input3, float *output0, float *output1)

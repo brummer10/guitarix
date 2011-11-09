@@ -2,77 +2,111 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace stereoverb {
-static FAUSTFLOAT 	fslider0;
-static FAUSTFLOAT 	fslider1;
-static double 	fRec9[2];
-static FAUSTFLOAT 	fslider2;
-static int 	IOTA;
-static double 	fVec0[2048];
-static double 	fRec8[2];
-static double 	fRec11[2];
-static double 	fVec1[2048];
-static double 	fRec10[2];
-static double 	fRec13[2];
-static double 	fVec2[2048];
-static double 	fRec12[2];
-static double 	fRec15[2];
-static double 	fVec3[2048];
-static double 	fRec14[2];
-static double 	fRec17[2];
-static double 	fVec4[2048];
-static double 	fRec16[2];
-static double 	fRec19[2];
-static double 	fVec5[2048];
-static double 	fRec18[2];
-static double 	fRec21[2];
-static double 	fVec6[2048];
-static double 	fRec20[2];
-static double 	fRec23[2];
-static double 	fVec7[2048];
-static double 	fRec22[2];
-static double 	fVec8[1024];
-static double 	fRec6[2];
-static double 	fVec9[512];
-static double 	fRec4[2];
-static double 	fVec10[512];
-static double 	fRec2[2];
-static double 	fVec11[256];
-static double 	fRec0[2];
-static double 	fRec33[2];
-static double 	fVec12[2048];
-static double 	fRec32[2];
-static double 	fRec35[2];
-static double 	fVec13[2048];
-static double 	fRec34[2];
-static double 	fRec37[2];
-static double 	fVec14[2048];
-static double 	fRec36[2];
-static double 	fRec39[2];
-static double 	fVec15[2048];
-static double 	fRec38[2];
-static double 	fRec41[2];
-static double 	fVec16[2048];
-static double 	fRec40[2];
-static double 	fRec43[2];
-static double 	fVec17[2048];
-static double 	fRec42[2];
-static double 	fRec45[2];
-static double 	fVec18[2048];
-static double 	fRec44[2];
-static double 	fRec47[2];
-static double 	fVec19[2048];
-static double 	fRec46[2];
-static double 	fVec20[1024];
-static double 	fRec30[2];
-static double 	fVec21[512];
-static double 	fRec28[2];
-static double 	fVec22[512];
-static double 	fRec26[2];
-static double 	fVec23[256];
-static double 	fRec24[2];
-static int	fSamplingFreq;
+class Dsp: public PluginDef {
+private:
+FAUSTFLOAT 	fslider0;
+FAUSTFLOAT 	fslider1;
+double 	fRec9[2];
+FAUSTFLOAT 	fslider2;
+int 	IOTA;
+double 	fVec0[2048];
+double 	fRec8[2];
+double 	fRec11[2];
+double 	fVec1[2048];
+double 	fRec10[2];
+double 	fRec13[2];
+double 	fVec2[2048];
+double 	fRec12[2];
+double 	fRec15[2];
+double 	fVec3[2048];
+double 	fRec14[2];
+double 	fRec17[2];
+double 	fVec4[2048];
+double 	fRec16[2];
+double 	fRec19[2];
+double 	fVec5[2048];
+double 	fRec18[2];
+double 	fRec21[2];
+double 	fVec6[2048];
+double 	fRec20[2];
+double 	fRec23[2];
+double 	fVec7[2048];
+double 	fRec22[2];
+double 	fVec8[1024];
+double 	fRec6[2];
+double 	fVec9[512];
+double 	fRec4[2];
+double 	fVec10[512];
+double 	fRec2[2];
+double 	fVec11[256];
+double 	fRec0[2];
+double 	fRec33[2];
+double 	fVec12[2048];
+double 	fRec32[2];
+double 	fRec35[2];
+double 	fVec13[2048];
+double 	fRec34[2];
+double 	fRec37[2];
+double 	fVec14[2048];
+double 	fRec36[2];
+double 	fRec39[2];
+double 	fVec15[2048];
+double 	fRec38[2];
+double 	fRec41[2];
+double 	fVec16[2048];
+double 	fRec40[2];
+double 	fRec43[2];
+double 	fVec17[2048];
+double 	fRec42[2];
+double 	fRec45[2];
+double 	fVec18[2048];
+double 	fRec44[2];
+double 	fRec47[2];
+double 	fVec19[2048];
+double 	fRec46[2];
+double 	fVec20[1024];
+double 	fRec30[2];
+double 	fVec21[512];
+double 	fRec28[2];
+double 	fVec22[512];
+double 	fRec26[2];
+double 	fVec23[256];
+double 	fRec24[2];
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void compute(int count, float *input0, float *input1, float *output0, float *output1);
+    static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+Dsp::Dsp(): PluginDef() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "stereoverb";
+    name = N_("Stereo Verb");
+    groups = 0;
+    mono_audio = 0;
+    stereo_audio = compute_static;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<2; i++) fRec9[i] = 0;
 	for (int i=0; i<2048; i++) fVec0[i] = 0;
@@ -140,14 +174,25 @@ static void clear_state(PluginDef* = 0)
 	for (int i=0; i<2; i++) fRec24[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	IOTA = 0;
-	clear_state();
+	clear_state_f();
 }
 
-static void compute(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *)
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+
+inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	double 	fSlow0 = fslider0;
 	double 	fSlow1 = (1 - (0.01 * fSlow0));
@@ -282,7 +327,12 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("stereoverb.RoomSize","","S","",&fslider2, 0.5, 0.0, 1.0, 0.025);
 	reg.registerVar("stereoverb.damp","","S","",&fslider1, 0.5, 0.0, 1.0, 0.025);
@@ -290,19 +340,19 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "stereoverb",  // id
-    N_("Stereo Verb"),  // name
-    0,  // groups
-    0,  // mono_audio
-    compute,  // stereo_audio
-    init,  // set_samplerate
-    0,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace stereoverb

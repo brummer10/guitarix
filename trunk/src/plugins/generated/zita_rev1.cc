@@ -122,7 +122,7 @@ static double 	fRec45[3];
 static double 	fRec44[3];
 static int	fSamplingFreq;
 
-static void clear_state(PluginDef* = 0)
+static void clear_state_f(PluginDef* = 0)
 {
 	for (int i=0; i<2; i++) fRec13[i] = 0;
 	for (int i=0; i<2; i++) fRec12[i] = 0;
@@ -231,7 +231,7 @@ static void init(unsigned int samplingFreq, PluginDef* = 0)
 	iConst42 = int((int((fConst39 - fConst41)) & 16383));
 	iConst43 = int((int((fConst41 - 1)) & 1023));
 	fConst44 = (6.283185307179586 / iConst0);
-	clear_state();
+	clear_state_f();
 }
 
 static void compute(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *)
@@ -1102,7 +1102,7 @@ static int load_ui(const UiBuilder& b) {
     return 0;
 }
 
-static const char* groups[] = {
+static const char* parm_groups[] = {
 	"equalizer2", N_("RM Peaking Equalizer 2"),
 	"equalizer1", N_("RM Peaking Equalizer 1"),
 	"output", N_("Output"),
@@ -1111,20 +1111,25 @@ static const char* groups[] = {
 	0
 	};
 
-PluginDef plugin = {
+PluginDef plugindef = {
     PLUGINDEF_VERSION,
     0,   // flags
     "zita_rev1",  // id
     N_("Zita Rev1"),  // name
-    groups,  // groups
+    parm_groups,  // groups
     0,  // mono_audio
     compute,  // stereo_audio
     init,  // set_samplerate
     0,  // activate plugin
     register_params,
     load_ui,   // load_ui
-    clear_state,  // clear_state
+    clear_state_f,  // clear_state
+    0, // delete_instance
 };
+
+PluginDef *plugin() {
+    return &plugindef;
+}
 
 } // end namespace zita_rev1
 } // end namespace pluginlib

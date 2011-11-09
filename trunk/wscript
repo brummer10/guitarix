@@ -610,7 +610,7 @@ def build(bld):
         obj = bld.new_task_gen ('intltool_po')
         obj.podir = 'po'
         obj.appname = APPNAME1
-    
+
     # process subfolders from here
     if bld.env["LADSPA"]:
         bld.add_subdirs('ladspa')
@@ -636,6 +636,32 @@ def build(bld):
     bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/autoandimat_rc', chmod=0664)
     bld.install_files(bld.env['GX_STYLE_DIR1'], './src/gx_head/jp_n_o_s_rc', chmod=0664)
     bld.install_files(bld.env['GX_SOUND_DIR1'], './IR/greathall.wav', chmod=0664)
+
+    gen_desktop = bld(features  = "intltool_in",
+        podir     = "po",
+        flags     = ["-d", "-q", "-u", "-c"],
+        source    = 'guitarix.desktop.in',
+        target    = 'guitarix.desktop',
+        install_path = "${DATADIR}/applications",
+	)
+    # hacked in scanner method so the desktop file gets rebuild
+    # when any po file changes; don't know if there is a better way
+    gen_desktop_create_task = gen_desktop.create_task
+    def gen_desktop_add_scanner(*args,**kw):
+        task = gen_desktop_create_task(*args,**kw)
+        def po_scanner():
+            gen = task.generator
+            podir = gen.bld.srcnode.find_dir(gen.podir)
+            return (podir.ant_glob("*.po", flat=False), [])
+        task.scan = po_scanner
+        return task
+    gen_desktop.create_task = gen_desktop_add_scanner
+    if Options.commands["install"]:  ## newer waf version: bld.cmd == 'install'
+        try:
+            bld.exec_command(["update-desktop-database", Utils.subst_vars("${DATADIR}/applications", bld.env)])
+        except:
+            pass
+
     if bld.env["GX_LIB_SHARED"]:
         bld.add_post_fun(post)
 

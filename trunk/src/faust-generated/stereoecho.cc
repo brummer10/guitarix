@@ -2,51 +2,99 @@
 // Code generated with Faust 0.9.43 (http://faust.grame.fr)
 
 namespace stereoecho {
-static FAUSTFLOAT 	fslider0;
-static float 	fConst0;
-static FAUSTFLOAT 	fslider1;
-static int 	IOTA;
-static float *fRec0;
-static FAUSTFLOAT 	fslider2;
-static FAUSTFLOAT 	fslider3;
-static float *fRec1;
-static bool mem_allocated = false;
-static int	fSamplingFreq;
+class Dsp: public PluginDef {
+private:
+    bool mem_allocated;
+FAUSTFLOAT 	fslider0;
+float 	fConst0;
+FAUSTFLOAT 	fslider1;
+int 	IOTA;
+float *fRec0;
+FAUSTFLOAT 	fslider2;
+FAUSTFLOAT 	fslider3;
+float *fRec1;
+    int fSamplingFreq;
+    void clear_state_f();
+    static void clear_state_f_static(PluginDef*);
+    void init(unsigned int samplingFreq);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    void mem_alloc();
+    void mem_free();
+    int activate(bool start);
+    static int activate_static(bool start, PluginDef*);
+    void compute(int count, float *input0, float *input1, float *output0, float *output1);
+    static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+    int register_par(const ParamReg& reg);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Dsp();
+    ~Dsp();
+};
 
-static void clear_state(PluginDef* = 0)
+
+Dsp::Dsp(): PluginDef() {
+    mem_allocated = false;
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "stereoecho";
+    name = N_("Stereo Echo");
+    groups = 0;
+    mono_audio = 0;
+    stereo_audio = compute_static;
+    set_samplerate = init_static;
+    activate_plugin = activate_static;
+    register_params = register_params_static;
+    load_ui = 0;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+}
+
+Dsp::~Dsp() {
+}
+inline void Dsp::clear_state_f()
 {
 	for (int i=0; i<262144; i++) fRec0[i] = 0;
 	for (int i=0; i<262144; i++) fRec1[i] = 0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+void Dsp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<Dsp*>(p)->clear_state_f();
+}
+
+inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
 	fConst0 = (0.001f * min(192000, max(1, fSamplingFreq)));
 	IOTA = 0;
 }
 
-static void mem_alloc()
+void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->init(samplingFreq);
+}
+
+void Dsp::mem_alloc()
 {
 	if (!fRec0) fRec0 = new float[262144];
 	if (!fRec1) fRec1 = new float[262144];
 	mem_allocated = true;
 }
 
-static void mem_free()
+void Dsp::mem_free()
 {
 	mem_allocated = false;
 	if (fRec0) { delete fRec0; fRec0 = 0; }
 	if (fRec1) { delete fRec1; fRec1 = 0; }
 }
 
-
-static int activate(bool start, PluginDef* = 0)
+int Dsp::activate(bool start)
 {
     if (start) {
         if (!mem_allocated) {
             mem_alloc();
-            clear_state();
+            clear_state_f();
         }
     } else if (!mem_allocated) {
         mem_free();
@@ -54,7 +102,12 @@ static int activate(bool start, PluginDef* = 0)
     return 0;
 }
 
-static void compute(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *)
+int Dsp::activate_static(bool start, PluginDef *p)
+{
+    return static_cast<Dsp*>(p)->activate(start);
+}
+
+inline void Dsp::compute(int count, float *input0, float *input1, float *output0, float *output1)
 {
 	int 	iSlow0 = int((1 + int((int((int((fConst0 * fslider0)) - 1)) & 131071))));
 	float 	fSlow1 = (0.01f * fslider1);
@@ -70,7 +123,12 @@ static void compute(int count, float *input0, float *input1, float *output0, flo
 	}
 }
 
-static int register_params(const ParamReg& reg)
+void Dsp::compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
+{
+    static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
+}
+
+int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("stereoecho.percent_r","","S","",&fslider3, 0.0f, 0.0f, 1e+02f, 0.1f);
 	reg.registerVar("stereoecho.time_r","","S","",&fslider2, 1.0f, 1.0f, 2e+03f, 1.0f);
@@ -79,19 +137,19 @@ static int register_params(const ParamReg& reg)
 	return 0;
 }
 
-PluginDef plugin = {
-    PLUGINDEF_VERSION,
-    0,   // flags
-    "stereoecho",  // id
-    N_("Stereo Echo"),  // name
-    0,  // groups
-    0,  // mono_audio
-    compute,  // stereo_audio
-    init,  // set_samplerate
-    activate,  // activate plugin
-    register_params,
-    0,   // load_ui
-    clear_state,  // clear_state
-};
+int Dsp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<Dsp*>(reg.plugin)->register_par(reg);
+}
+
+
+PluginDef *plugin() {
+    return new Dsp();
+}
+
+void Dsp::del_instance(PluginDef *p)
+{
+    delete static_cast<Dsp*>(p);
+}
 
 } // end namespace stereoecho
