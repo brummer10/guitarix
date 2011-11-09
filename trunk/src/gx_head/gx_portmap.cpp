@@ -451,7 +451,7 @@ int PortMapWindow::sort_func(const Gtk::TreeModel::iterator& a, const Gtk::TreeM
             return 0;
         }
     }
-    long ia, ib;  //  NOLINT
+    long ia = 0, ib = 0;  // initialize to silence compiler warning...
     if (getnumber(pa.substr(i), &ia) && getnumber(pb.substr(i), &ib)) {
         return ia - ib;
     }

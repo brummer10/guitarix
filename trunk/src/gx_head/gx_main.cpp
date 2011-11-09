@@ -234,7 +234,11 @@ void ErrorPopup::on_response(int) {
 void ErrorPopup::show_msg() {
     dialog = new Gtk::MessageDialog(msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
     dialog->set_type_hint(Gdk::WINDOW_TYPE_HINT_UTILITY);
-    Gtk::VBox *ma = dialog->get_message_area();
+    //Gtk::VBox *ma = dialog->get_message_area(); // not in Gtkmm 0.20
+    //FIXME: no comment :-)
+    Gtk::VBox *ma = dynamic_cast<Gtk::VBox*>(
+	*(++dynamic_cast<Gtk::HBox*>(
+	      *dialog->get_vbox()->get_children().begin())->get_children().begin()));
     // add an alignment parent to the label widget inside the message area
     // should better define our own dialog instead of hacking MessageDialog...
     Gtk::Alignment *align = new Gtk::Alignment();
